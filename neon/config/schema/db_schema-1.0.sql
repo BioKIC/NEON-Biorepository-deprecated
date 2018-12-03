@@ -1,4 +1,4 @@
-CREATE TABLE `neon_biorepository`.`shipment` (
+CREATE TABLE `NeonShipment` (
   `shipmentPK` INT NOT NULL AUTO_INCREMENT,
   `shipmentID` VARCHAR(25) NOT NULL,
   `domainID` VARCHAR(10) NOT NULL,
@@ -8,10 +8,12 @@ CREATE TABLE `neon_biorepository`.`shipment` (
   `shipmentMethod` VARCHAR(45) NULL,
   `trackingNumber` VARCHAR(45) NULL,
   `notes` VARCHAR(250) NULL,
+  `importUid` INT NOT NULL,
+  `modifiedByUid` INT NOT NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`shipmentpk`));
 
-CREATE TABLE `neon_biorepository`.`samples` (
+CREATE TABLE `NeonSample` (
   `samplePK` INT NOT NULL AUTO_INCREMENT,
   `shipmentPK` INT NOT NULL,
   `sampleID` VARCHAR(45) NULL,
@@ -19,6 +21,9 @@ CREATE TABLE `neon_biorepository`.`samples` (
   `namedlocation` VARCHAR(45) NULL,
   `collectdate` DATE NULL,
   `quarantineStatus` VARCHAR(4) NULL,
+  `notes` VARCHAR(250) NULL,
+  `checkinUid` INT NULL,
+  `checkinTimestamp` DATETIME NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`samplePK`),
   INDEX `FK_samples_shipmentid_idx` (`shipmentPK` ASC),

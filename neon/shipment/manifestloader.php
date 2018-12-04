@@ -14,23 +14,19 @@ if($IS_ADMIN){
 
 $loaderManager = new ShipmentManager();
 
-$status = "";
 $fieldMap = array();
 if($isEditor){
 	if($ulFileName){
-		$loaderManager->setFileName($ulFileName);
+		$loaderManager->setUploadFileName($ulFileName);
 	}
-
-	if(array_key_exists("sf",$_REQUEST)){
+	if(array_key_exists("sf",$_POST)){
 		//Grab field mapping, if mapping form was submitted
- 		$targetFields = $_REQUEST["tf"];
+		$targetFields = $_REQUEST["tf"];
  		$sourceFields = $_REQUEST["sf"];
 		for($x = 0;$x<count($targetFields);$x++){
 			if($targetFields[$x] && $sourceFields[$x]) $fieldMap[$sourceFields[$x]] = $targetFields[$x];
 		}
-		$languageArr = json_decode($_REQUEST["ullanguages"],true);
-		$tidStr = $_REQUEST["ultids"];
-		$ulSource = (array_key_exists("ulsources",$_REQUEST)?json_decode($_REQUEST["ulsources"]):'');
+		$loaderManager->setFieldMap($fieldMap);
 	}
 	if($action == 'downloadcsv'){
 		$loaderManager->exportUploadTerms();
@@ -68,6 +64,8 @@ if($isEditor){
 		<div style="margin:30px;">
 			<?php
 			if($action == 'Map Input File' || $action == 'Verify Mapping'){
+				if($ulFileName) $loaderManager->analyzeUpload();
+				else $loaderManager->uploadManifestFile();
 				?>
 				<form name="mapform" action="manifestloader.php" method="post">
 					<fieldset style="width:90%;">
@@ -84,37 +82,37 @@ if($isEditor){
 								</th>
 							</tr>
 							<?php
-							$fArr = $loaderManager->getFieldArr();
-							$sArr = $fArr['source'];
-							$tArr = $fArr['target'];
-							asort($tArr);
-							foreach($sArr as $sField){
+							$sourceArr = $loaderManager->getSourceArr();
+							$targetArr = $loaderManager->getTargetArr();
+							$translationMap = array();
+							foreach($sourceArr as $sourceField){
 								?>
 								<tr>
 									<td style='padding:2px;'>
-										<?php echo $sField; ?>
-										<input type="hidden" name="sf[]" value="<?php echo $sField; ?>" />
+										<?php echo $sourceField; ?>
+										<input type="hidden" name="sf[]" value="<?php echo $sourceField; ?>" />
 									</td>
 									<td>
-										<select name="tf[]" style="background:yellow">
+										<?php
+										$translatedSourceField = $sourceField;
+										if(array_key_exists($translatedSourceField, $translationMap)) $translatedSourceField = $translationMap[$translatedSourceField];
+										$bgColor = '';
+										if(array_key_exists($translatedSourceField,$fieldMap)) $bgColor = 'yellow';
+										elseif(in_array($translatedSourceField, $targetArr)) $bgColor = 'yellow';
+										?>
+										<select name="tf[]" style="background:<?php echo $bgColor; ?>">
 											<option value="">Field Unmapped</option>
 											<option value="">-------------------------</option>
 											<?php
-											$selStr = "";
-											echo "<option value='unmapped' ".$selStr.">Leave Field Unmapped</option>";
-											if($selStr){
-												$selStr = 0;
+											echo '<option value="unmapped">Leave Field Unmapped</option>';
+											if(array_key_exists($translatedSourceField,$fieldMap)){
+												foreach($targetArr as $targetField){
+													echo '<option '.($fieldMap[$translatedSourceField]==$targetField?'SELECTED':'').'>'.$targetField.'</option>';
+												}
 											}
-											foreach($tArr as $k => $tField){
-												if($selStr !== 0 && $tField==$sField){
-													$selStr = "SELECTED";
-												}
-												elseif($selStr !== 0 && $tField==$sField.'_term'){
-													$selStr = "SELECTED";
-												}
-												echo '<option value="'.$tField.'" '.($selStr?$selStr:'').'>'.$tField."</option>\n";
-												if($selStr){
-													$selStr = 0;
+											else{
+												foreach($targetArr as $targetField){
+													echo '<option '.($translatedSourceField==$targetField?'SELECTED':'').'>'.$targetField.'</option>';
 												}
 											}
 											?>
@@ -126,8 +124,9 @@ if($isEditor){
 							?>
 						</table>
 						<div style="margin:10px;">
-							<input type="submit" name="action" value="Upload Terms" />
-							<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getFileName();?>" />
+							<input type="submit" name="action" value="Upload Manifest" />
+							<input type="submit" name="action" value="Verify Mapping" />
+							<input type="hidden" name="ulfilename" value="<?php echo $ulFileName; ?>" />
 						</div>
 					</fieldset>
 				</form>

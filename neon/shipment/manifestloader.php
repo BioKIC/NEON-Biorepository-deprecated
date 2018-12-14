@@ -38,11 +38,8 @@ if($isEditor){
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Manifest Loader</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/jquery-ui.css" rel="stylesheet" type="text/css" />
-	<script src="../js/jquery.js" type="text/javascript"></script>
-	<script src="../js/jquery-ui.js" type="text/javascript"></script>
+	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
+	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 	<script type="text/javascript">
 	</script>
 </head>
@@ -64,8 +61,8 @@ if($isEditor){
 		<div style="margin:30px;">
 			<?php
 			if($action == 'Map Input File' || $action == 'Verify Mapping'){
-				if($ulFileName) $loaderManager->analyzeUpload();
-				else $loaderManager->uploadManifestFile();
+				if(!$ulFileName) $loaderManager->uploadManifestFile();
+				$loaderManager->analyzeUpload();
 				?>
 				<form name="mapform" action="manifestloader.php" method="post">
 					<fieldset style="width:90%;">
@@ -126,7 +123,7 @@ if($isEditor){
 						<div style="margin:10px;">
 							<input type="submit" name="action" value="Process Manifest" />
 							<input type="submit" name="action" value="Verify Mapping" />
-							<input type="hidden" name="ulfilename" value="<?php echo $ulFileName; ?>" />
+							<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getUploadFileName(); ?>" />
 						</div>
 					</fieldset>
 				</form>

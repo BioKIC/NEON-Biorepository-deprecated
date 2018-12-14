@@ -61,11 +61,10 @@ class ShipmentManager{
 		ini_set('auto_detect_line_endings', true);
 		//Load file onto server
 		$uploadPath = $this->getContentPath().'manifests/';
-		$fileName = '';
 		if(array_key_exists("uploadfile",$_FILES)){
-			$fileName = $_FILES['uploadfile']['name'];
+			$this->uploadFileName = $_FILES['uploadfile']['name'];
 			$fullPath = $uploadPath.$_FILES['uploadfile']['name'];
-			if(!move_uploaded_file($_FILES['uploadfile']['tmp_name'], $uploadPath.$fileName)){
+			if(!move_uploaded_file($_FILES['uploadfile']['tmp_name'], $uploadPath.$this->uploadFileName)){
 				$this->errorStr = 'ERROR uploading file (code '.$_FILES['uploadfile']['error'].'): ';
 				if(!is_writable($uploadPath)){
 					$this->errorStr .= 'Target path ('.$uploadPath.') is not writable ';
@@ -73,9 +72,9 @@ class ShipmentManager{
 				return false;
 			}
 			//If a zip file, unpackage and assume that last or only file is the occurrrence file
-			if($fileName && substr($fileName,-4) == ".zip"){
+			if($this->uploadFileName && substr($this->uploadFileName,-4) == ".zip"){
+				$zipFilePath = $uploadPath.$this->uploadFileName;
 				$fileName = '';
-				$zipFilePath = $uploadPath.$fileName;
 				$zip = new ZipArchive;
 				$res = $zip->open($zipFilePath);
 				if($res === TRUE) {
@@ -90,7 +89,11 @@ class ShipmentManager{
 						}
 					}
 					if($fileName){
-						$zip->extractTo($uploadPath,$fileName);
+						$this->uploadFileName = $fileName;
+						$zip->extractTo($uploadPath,$this->uploadFileName);
+					}
+					else{
+						$this->uploadFileName = '';
 					}
 				}
 				else{
@@ -107,7 +110,7 @@ class ShipmentManager{
 	public function analyzeUpload(){
 		//Just read first line of file to report what fields will be loaded, ignored, and required fulfilled
 		if($this->uploadFileName){
-			$fullPath = $this->getContentPath().$this->uploadFileName;
+			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
 			$fh = fopen($fullPath,'rb') or die("Can't open file");
 			$this->sourceArr = $this->getHeaderArr($fh);
 			fclose($fh);
@@ -117,7 +120,7 @@ class ShipmentManager{
 	public function uploadData(){
 		if($this->uploadFileName){
 			echo '<li>Initiating import from: '.$this->uploadFileName.'</li>';
-			$fullPath = $this->getUploadPath.$this->uploadFileName;
+			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
 			$fh = fopen($fullPath,'rb') or die("Can't open file");
 			$headerArr = $this->getHeaderArr($fh);
 			$recCnt = 0;
@@ -191,7 +194,7 @@ class ShipmentManager{
 
 	private function getContentPath(){
 		$contentPath = $GLOBALS['SERVER_ROOT'];
-		if(substr($path,-1) != '/') $contentPath .= '/';
+		if(substr($contentPath,-1) != '/') $contentPath .= '/';
 		$contentPath .= 'neon/content/';
 		return $contentPath;
 	}
@@ -242,6 +245,10 @@ class ShipmentManager{
 		$this->uploadFileName = $name;
 	}
 
+	public function getUploadFileName(){
+		return $this->uploadFileName;
+	}
+
 	public function setFieldMap($fieldMap){
 		$this->fieldMap = $fieldMap;
 	}
@@ -251,8 +258,8 @@ class ShipmentManager{
 	}
 
 	public function getTargetArr(){
-		$retArr = array('shipmentid','domainid','dateshipped','senderid','shipmentservice','shipmentmethod','trackingnumber','sampleid','samplecode','sampleclass','taxonid',
-			'individualcount','filtervolume','namedlocation','collectdate','quarantinestatus');
+		$retArr = array('shipmentid','domainid','dateshipped','senderid','sendto','shipmentservice','shipmentmethod','trackingnumber','sampleid','samplecode','sampleclass',
+			'taxonid','individualcount','filtervolume','namedlocation','collectdate','quarantinestatus');
 		return $retArr;
 	}
 

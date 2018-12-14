@@ -45,30 +45,46 @@ include($SERVER_ROOT.'/header.php');
 	<a href="index.php"><b>NEON Biorepository Tools</b></a> &gt;&gt;
 	<b>Manifest Loader</b>
 </div>
-<?php
-if($isEditor){
-	?>
-	<div id="innertext">
-		<div style="margin:30px;">
-			<?php
+<div id="innertext">
+	<?php
+	if($isEditor){
+		if($shipmentId){
+			$shipManager->setShipmentPK($shipmentId);
+			$shipmentDetails = $shipManager->getShipmentArr();
+			foreach($shipmentDetails as $shipID => $shipArr){
+				echo '<div><b>shipmentID</b>'.$shipArr['shipmentID'].'</div>';
+				echo '<div><b>domainID</b>'.$shipArr['domainID'].'</div>';
+				echo '<div><b>dateShipped</b>'.$shipArr['dateShipped'].'</div>';
+				echo '<div><b>senderID</b>'.$shipArr['senderID'].'</div>';
+				echo '<div><b>shipmentService</b>'.$shipArr['shipmentService'].'</div>';
+				echo '<div><b>shipmentMethod</b>'.$shipArr['shipmentMethod'].'</div>';
+				echo '<div><b>trackingNumber</b>'.$shipArr['trackingNumber'].'</div>';
+				echo '<div><b>importUser</b>'.$shipArr['importUser'].'</div>';
+				echo '<div><b>modifiedUser</b>'.$shipArr['modifiedUser'].'</div>';
+				echo '<div><b>Upload Date</b>'.$shipArr['ts'].'</div>';
+			}
+		}
+		else{
+			//List all manifest matching search criteria
 			if($action == 'List Shipments'){
-				$shipmentArr = $shipManager->getShipmentArr();
-				foreach($manifestArr as $id => $manifestArr){
+				$shipmentDetails = $shipManager->getShipmentArr();
+				foreach($shipmentDetails as $id => $manifestArr){
+					echo '<div><a href="manifestviewer.php?shipmentpk='.$shipArr['shipmentID'].'">'.$shipArr['shipmentID'].'</a> - '.$shipArr['ts'].'</div>';
 
 				}
 			}
-			?>
+		}
+	}
+	else{
+		?>
+		<div style='font-weight:bold;margin:30px;'>
+			You do not have permissions to view manifests
 		</div>
-	</div>
-	<?php
-}
-else{
+		<?php
+	}
 	?>
-	<div style='font-weight:bold;margin:30px;'>
-		You do not have permissions to view manifests
-	</div>
-	<?php
-}
+</div>
+<?php
 include($SERVER_ROOT.'/footer.php');
 ?>
 </body>

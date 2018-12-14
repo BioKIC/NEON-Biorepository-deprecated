@@ -2,7 +2,7 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/neon/classes/ShipmentManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/manifestloader.php');
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/samplecheckin.php');
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 $ulFileName = array_key_exists("ulfilename",$_REQUEST)?$_REQUEST["ulfilename"]:"";
@@ -14,19 +14,23 @@ if($IS_ADMIN){
 
 $loaderManager = new ShipmentManager();
 
+$status = "";
 $fieldMap = array();
 if($isEditor){
 	if($ulFileName){
-		$loaderManager->setUploadFileName($ulFileName);
+		$loaderManager->setFileName($ulFileName);
 	}
-	if(array_key_exists("sf",$_POST)){
+
+	if(array_key_exists("sf",$_REQUEST)){
 		//Grab field mapping, if mapping form was submitted
-		$targetFields = $_REQUEST["tf"];
+ 		$targetFields = $_REQUEST["tf"];
  		$sourceFields = $_REQUEST["sf"];
 		for($x = 0;$x<count($targetFields);$x++){
 			if($targetFields[$x] && $sourceFields[$x]) $fieldMap[$sourceFields[$x]] = $targetFields[$x];
 		}
-		$loaderManager->setFieldMap($fieldMap);
+		$languageArr = json_decode($_REQUEST["ullanguages"],true);
+		$tidStr = $_REQUEST["ultids"];
+		$ulSource = (array_key_exists("ulsources",$_REQUEST)?json_decode($_REQUEST["ulsources"]):'');
 	}
 	if($action == 'downloadcsv'){
 		$loaderManager->exportUploadTerms();
@@ -52,8 +56,8 @@ $displayLeftMenu = false;
 include($SERVER_ROOT.'/header.php');
 ?>
 <div class="navpath">
-	<a href="../../index.php">Home</a> &gt;&gt;
-	<a href="index.php"><b>NEON Biorepository Management Tools</b></a> &gt;&gt;
+	<a href="../index.php">Home</a> &gt;&gt;
+	<a href="index.php"><b>NEON Biorepository Tools</b></a> &gt;&gt;
 	<b>Manifest Loader</b>
 </div>
 <?php
@@ -64,8 +68,6 @@ if($isEditor){
 		<div style="margin:30px;">
 			<?php
 			if($action == 'Map Input File' || $action == 'Verify Mapping'){
-				if($ulFileName) $loaderManager->analyzeUpload();
-				else $loaderManager->uploadManifestFile();
 				?>
 				<form name="mapform" action="manifestloader.php" method="post">
 					<fieldset style="width:90%;">
@@ -82,37 +84,37 @@ if($isEditor){
 								</th>
 							</tr>
 							<?php
-							$sourceArr = $loaderManager->getSourceArr();
-							$targetArr = $loaderManager->getTargetArr();
-							$translationMap = array();
-							foreach($sourceArr as $sourceField){
+							$fArr = $loaderManager->getFieldArr();
+							$sArr = $fArr['source'];
+							$tArr = $fArr['target'];
+							asort($tArr);
+							foreach($sArr as $sField){
 								?>
 								<tr>
 									<td style='padding:2px;'>
-										<?php echo $sourceField; ?>
-										<input type="hidden" name="sf[]" value="<?php echo $sourceField; ?>" />
+										<?php echo $sField; ?>
+										<input type="hidden" name="sf[]" value="<?php echo $sField; ?>" />
 									</td>
 									<td>
-										<?php
-										$translatedSourceField = $sourceField;
-										if(array_key_exists($translatedSourceField, $translationMap)) $translatedSourceField = $translationMap[$translatedSourceField];
-										$bgColor = '';
-										if(array_key_exists($translatedSourceField,$fieldMap)) $bgColor = 'yellow';
-										elseif(in_array($translatedSourceField, $targetArr)) $bgColor = 'yellow';
-										?>
-										<select name="tf[]" style="background:<?php echo $bgColor; ?>">
+										<select name="tf[]" style="background:yellow">
 											<option value="">Field Unmapped</option>
 											<option value="">-------------------------</option>
 											<?php
-											echo '<option value="unmapped">Leave Field Unmapped</option>';
-											if(array_key_exists($translatedSourceField,$fieldMap)){
-												foreach($targetArr as $targetField){
-													echo '<option '.($fieldMap[$translatedSourceField]==$targetField?'SELECTED':'').'>'.$targetField.'</option>';
-												}
+											$selStr = "";
+											echo "<option value='unmapped' ".$selStr.">Leave Field Unmapped</option>";
+											if($selStr){
+												$selStr = 0;
 											}
-											else{
-												foreach($targetArr as $targetField){
-													echo '<option '.($translatedSourceField==$targetField?'SELECTED':'').'>'.$targetField.'</option>';
+											foreach($tArr as $k => $tField){
+												if($selStr !== 0 && $tField==$sField){
+													$selStr = "SELECTED";
+												}
+												elseif($selStr !== 0 && $tField==$sField.'_term'){
+													$selStr = "SELECTED";
+												}
+												echo '<option value="'.$tField.'" '.($selStr?$selStr:'').'>'.$tField."</option>\n";
+												if($selStr){
+													$selStr = 0;
 												}
 											}
 											?>
@@ -124,27 +126,20 @@ if($isEditor){
 							?>
 						</table>
 						<div style="margin:10px;">
-							<input type="submit" name="action" value="Process Manifest" />
-							<input type="submit" name="action" value="Verify Mapping" />
-							<input type="hidden" name="ulfilename" value="<?php echo $ulFileName; ?>" />
+							<input type="submit" name="action" value="Upload Terms" />
+							<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getFileName();?>" />
 						</div>
 					</fieldset>
 				</form>
 				<?php
 			}
-			elseif($action == 'Process Manifest'){
+			elseif($action == 'Upload Manifest'){
 				echo '<ul>';
-				$loaderManager->setUploadFileName($ulFileName);
-				$loaderManager->setFieldMap($fieldMap);
-				$loaderManager->uploadData();
+				$loaderManager->loadFile($fieldMap);
+				$reportArr = $loaderManager->analysisUpload();
+				$loaderManager->transferUpload();
+				echo "<li>Manifest appears to have been successful.</li>";
 				echo '</ul>';
-				?>
-				<fieldset style="margin:15px;padding:15px">
-					<legend><b>Navigation Menu</b></legend>
-					<div style="margin:5px"><a href="samplecheckin.php">Sample Check-in</a></div>
-					<div style="margin:5px"><a href="manifestviewer.php">Go to Manifest View</a></div>
-				</fieldset>
-				<?php
 			}
 			else{
 				?>
@@ -179,7 +174,7 @@ if($isEditor){
 else{
 	?>
 	<div style='font-weight:bold;margin:30px;'>
-		You do not have permissions to upload and process NEON manifests
+		You do not have permissions to batch upload manifests
 	</div>
 	<?php
 }

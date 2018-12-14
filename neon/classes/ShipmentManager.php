@@ -20,7 +20,25 @@ class ShipmentManager{
 
 	public function getShipmentArr(){
 		$retArr = array();
-
+		$sql = 'SELECT shipmentPK, shipmentID, domainID, dateShipped, senderID, shipmentService, shipmentMethod, trackingNumber, notes, '.
+			'CONCAT_WS(", ", u.lastname, u.firstname) AS importUser, CONCAT_WS(", ", u2.lastname, u2.firstname) AS modifiedUser, initialtimestamp '.
+			'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
+			'INNER JOIN users u2 ON s.modifiedByUid = u2.uid ';
+		if($this->shipmentPK) $sql .= 'WHERE shipmentPK = '.$this->shipmentPK;
+		$rs = $this->conn->query();
+		while($r = $rs->fetch_object()){
+			$retArr[$r->shipmentPK]['shipmentID'] = $r->shipmentID;
+			$retArr[$r->shipmentPK]['domainID'] = $r->domainID;
+			$retArr[$r->shipmentPK]['dateShipped'] = $r->dateShipped;
+			$retArr[$r->shipmentPK]['senderID'] = $r->senderID;
+			$retArr[$r->shipmentPK]['shipmentService'] = $r->shipmentService;
+			$retArr[$r->shipmentPK]['shipmentMethod'] = $r->shipmentMethod;
+			$retArr[$r->shipmentPK]['trackingNumber'] = $r->trackingNumber;
+			$retArr[$r->shipmentPK]['importUser'] = $r->importUser;
+			$retArr[$r->shipmentPK]['modifiedUser'] = $r->modifiedUser;
+			$retArr[$r->shipmentPK]['ts'] = $r->initialtimestamp;
+		}
+		$rs->free();
 		return $retArr;
 	}
 
@@ -37,7 +55,7 @@ class ShipmentManager{
 		return 1;
 	}
 
-	//Import functions
+	//Shipment import functions
 	public function uploadManifestFile(){
 		$status = false;
 		ini_set('auto_detect_line_endings', true);
@@ -103,22 +121,26 @@ class ShipmentManager{
 			$fh = fopen($fullPath,'rb') or die("Can't open file");
 			$headerArr = $this->getHeaderArr($fh);
 			$recCnt = 0;
+			//Setup record index array
+			$indexMap = array();
+			foreach($this->fieldMap as $sourceField => $targetField){
+				$indexArr = array_keys($headerArr,$sourceField);
+				$index = array_shift($indexArr);
+				$indexMap[$targetField] = $index;
+			}
 			echo '<li>Beginning to load records...</li>';
 			$shipmentPK = 0;
 			while($recordArr = fgetcsv($fh)){
 				$recMap = Array();
-				foreach($this->fieldMap as $sourceField => $targetField){
-					$indexArr = array_keys($headerArr,$sourceField);
-					$index = array_shift($indexArr);
-					if(array_key_exists($index,$recordArr)){
-						$valueStr = $recordArr[$index];
-						$recMap[$targetField] = $valueStr;
-					}
+				foreach($indexMap as $targetField => $indexValue){
+					$recMap[$targetField] = $recordArr[$indexValue];
 				}
 				if(!$shipmentPK) $shipmentPK = $this->loadShipmentRecord($recMap);
-				if($shipmentPK) $this->loadSampleRecord($shipmentPK, $recMap);
+				if($shipmentPK){
+					$this->loadSampleRecord($shipmentPK, $recMap);
+					$recCnt++;
+				}
 				unset($recMap);
-				$recCnt++;
 			}
 			fclose($fh);
 
@@ -135,11 +157,11 @@ class ShipmentManager{
 			'VALUES("'.$this->cleanInStr($recArr['shipmentID']).'","'.$this->cleanInStr($recArr['domainID']).'","'.$this->cleanInStr($recArr['dateShipped']).'","'.
 			$this->cleanInStr($recArr['senderID']).'","'.$this->cleanInStr($recArr['shipmentService']).'","'.$this->cleanInStr($recArr['shipmentMethod']).'",'.
 			(isset($recArr['trackingNumber'])?'"'.$this->cleanInStr($recArr['trackingNumber']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR loading shipment record: '.$this->conn->error;
-				return false;
-			}
-			return $this->conn->insert_id;
+		if(!$this->conn->query($sql)){
+			echo 'ERROR loading shipment record: '.$this->conn->error;
+			return false;
+		}
+		return $this->conn->insert_id;
 	}
 
 	private function loadSampleRecord($shipmentPK, $recArr){
@@ -150,7 +172,9 @@ class ShipmentManager{
 			$this->cleanInStr($recArr['collectdate']).'",'.(isset($recArr['quarantineStatus'])?'"'.$this->cleanInStr($recArr['quarantineStatus']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
 		if(!$this->conn->query($sql)){
 			echo 'ERROR loading sample record: '.$this->conn->error;
+			return $this->conn->affected_rows;
 		}
+		return true;
 	}
 
 	private function getHeaderArr($fHandler){

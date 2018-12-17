@@ -93,9 +93,9 @@ if($isEditor){
 										<?php
 										$translatedSourceField = $sourceField;
 										if(array_key_exists($translatedSourceField, $translationMap)) $translatedSourceField = $translationMap[$translatedSourceField];
-										$bgColor = '';
-										if(array_key_exists($translatedSourceField,$fieldMap)) $bgColor = 'yellow';
-										elseif(in_array($translatedSourceField, $targetArr)) $bgColor = 'yellow';
+										$bgColor = 'yellow';
+										if(array_key_exists($translatedSourceField,$fieldMap)) $bgColor = 'white';
+										elseif(in_array($translatedSourceField, $targetArr)) $bgColor = 'white';
 										?>
 										<select name="tf[]" style="background:<?php echo $bgColor; ?>">
 											<option value="">Field Unmapped</option>
@@ -121,8 +121,8 @@ if($isEditor){
 							?>
 						</table>
 						<div style="margin:10px;">
-							<input type="submit" name="action" value="Process Manifest" />
 							<input type="submit" name="action" value="Verify Mapping" />
+							<input type="submit" name="action" value="Process Manifest" />
 							<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getUploadFileName(); ?>" />
 						</div>
 					</fieldset>

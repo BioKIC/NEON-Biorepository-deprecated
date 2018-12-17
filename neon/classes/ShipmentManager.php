@@ -149,6 +149,7 @@ class ShipmentManager{
 
 			//Delete upload file
 			if(file_exists($fullPath)) unlink($fullPath);
+			echo '<li>Complete!!!</li>';
 		}
 		else{
 			$this->outputMsg('<li>File Upload FAILED: unable to locate file</li>');
@@ -156,25 +157,53 @@ class ShipmentManager{
 	}
 
 	public function loadShipmentRecord($recArr){
+		$shipmentPK = '';
 		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, senderID, shipmentService, shipmentMethod, trackingNumber, importUid) '.
-			'VALUES("'.$this->cleanInStr($recArr['shipmentID']).'","'.$this->cleanInStr($recArr['domainID']).'","'.$this->cleanInStr($recArr['dateShipped']).'","'.
-			$this->cleanInStr($recArr['senderID']).'","'.$this->cleanInStr($recArr['shipmentService']).'","'.$this->cleanInStr($recArr['shipmentMethod']).'",'.
-			(isset($recArr['trackingNumber'])?'"'.$this->cleanInStr($recArr['trackingNumber']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
-		if(!$this->conn->query($sql)){
-			echo 'ERROR loading shipment record: '.$this->conn->error;
-			return false;
+			'VALUES("'.$this->cleanInStr($recArr['shipmentid']).'","'.$this->cleanInStr($recArr['domainid']).'","'.$this->cleanInStr($recArr['dateshipped']).'","'.
+			$this->cleanInStr($recArr['senderid']).'","'.$this->cleanInStr($recArr['shipmentservice']).'","'.$this->cleanInStr($recArr['shipmentmethod']).'",'.
+			(isset($recArr['trackingnumber'])?'"'.$this->cleanInStr($recArr['trackingnumber']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
+		if($this->conn->query($sql)){
+			$shipmentPK = $this->conn->insert_id;
+			echo '<li>Shipment record loaded...</li>';
 		}
-		return $this->conn->insert_id;
+		else{
+			if($this->conn->errno == 1062){
+				echo '<li>Shipment record with that shipmentID already exists...</li>';
+				$sql = 'SELECT shipmentpk FROM NeonShipment WHERE shipmentID = "'.$this->cleanInStr($recArr['shipmentid']).'"';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$shipmentPK = $r->shipmentpk;
+				}
+				$rs->free();
+			}
+			else{
+				echo '<li style="margin-left:15px">ERROR loading shipment record: '.$this->conn->error.'</li>';
+				//echo '<li style="margin-left:15px">SQL: '.$sql.'</li>';
+				return false;
+			}
+		}
+		return $shipmentPK;
 	}
 
 	private function loadSampleRecord($shipmentPK, $recArr){
-		$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedlocation, collectdate, quarantineStatus) '.
-			'VALUES('.$shipmentPK.',"'.$this->cleanInStr($recArr['sampleID']).'","'.$this->cleanInStr($recArr['sampleCode']).'","'.$this->cleanInStr($recArr['sampleClass']).'",'.
-			(isset($recArr['taxonID'])?'"'.$this->cleanInStr($recArr['taxonID']).'"':'NULL').','.(isset($recArr['individualCount'])?'"'.$this->cleanInStr($recArr['individualCount']).'"':'NULL').','.
-			(isset($recArr['filterVolume'])?'"'.$this->cleanInStr($recArr['filterVolume']).'"':'NULL').',"'.$this->cleanInStr($recArr['namedlocation']).'","'.
-			$this->cleanInStr($recArr['collectdate']).'",'.(isset($recArr['quarantineStatus'])?'"'.$this->cleanInStr($recArr['quarantineStatus']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
-		if(!$this->conn->query($sql)){
-			echo 'ERROR loading sample record: '.$this->conn->error;
+		$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedlocation, domainremarks, collectdate, quarantineStatus, checkinUid) '.
+			'VALUES('.$shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.(isset($recArr['samplecode'])&&$recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').',"'.
+			$this->cleanInStr($recArr['sampleclass']).'",'.(isset($recArr['taxonid'])&&$recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
+			(isset($recArr['individualcount'])&&$recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
+			(isset($recArr['filtervolume'])&&$recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').',"'.
+			$this->cleanInStr($recArr['namedlocation']).'",'.(isset($recArr['domainremarks'])&&$recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').',"'.
+			$this->cleanInStr($recArr['collectdate']).'",'.(isset($recArr['quarantinestatus'])&&$recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
+		if($this->conn->query($sql)){
+			echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
+		}
+		else{
+			if($this->conn->errno == 1062){
+				echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' was already previously uploaded...</li>';
+			}
+			else{
+				echo '<li style="margin-left:15px">ERROR loading sample record: '.$this->conn->error.'</li>';
+				echo '<li style="margin-left:15px">SQL: '.$sql.'</li>';
+			}
 			return $this->conn->affected_rows;
 		}
 		return true;
@@ -207,7 +236,7 @@ class ShipmentManager{
 	}
 
 	public function exportShipmentSampleList($shipmentPK){
-		$sql = 'SELECT samplePK, sampleID, sampleClass, namedlocation, collectdate, quarantineStatus, notes, CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, checkinTimestamp, initialtimestamp '.
+		$sql = 'SELECT samplePK, sampleID, sampleClass, namedlocation, domainremarks, collectdate, quarantineStatus, notes, CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, checkinTimestamp, initialtimestamp '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid WHERE s.shipmentPK = '.$shipmentPK;
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
 		$this->exportShipmentData($fileName, $sql);
@@ -258,8 +287,8 @@ class ShipmentManager{
 	}
 
 	public function getTargetArr(){
-		$retArr = array('shipmentid','domainid','dateshipped','senderid','sendto','shipmentservice','shipmentmethod','trackingnumber','sampleid','samplecode','sampleclass',
-			'taxonid','individualcount','filtervolume','namedlocation','collectdate','quarantinestatus');
+		$retArr = array('shipmentid','domainid','dateshipped','senderid','sentto','shipmentservice','shipmentmethod','trackingnumber','sampleid','samplecode','sampleclass',
+			'taxonid','individualcount','filtervolume','namedlocation','domainremarks','collectdate','quarantinestatus');
 		return $retArr;
 	}
 

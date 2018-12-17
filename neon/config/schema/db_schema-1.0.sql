@@ -9,9 +9,13 @@ CREATE TABLE `NeonShipment` (
   `trackingNumber` VARCHAR(45) NULL,
   `notes` VARCHAR(250) NULL,
   `importUid` INT NOT NULL,
-  `modifiedByUid` INT NOT NULL,
+  `modifiedByUid` INT NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`shipmentpk`));
+  
+ALTER TABLE `neonshipment` 
+  ADD UNIQUE INDEX `UNIQUE_INDEX` (`shipmentID` ASC);
+  
 
 CREATE TABLE `NeonSample` (
   `samplePK` INT NOT NULL AUTO_INCREMENT,
@@ -23,6 +27,7 @@ CREATE TABLE `NeonSample` (
   `individualCount` INT NULL,
   `filterVolume` INT NULL,
   `namedlocation` VARCHAR(45) NULL,
+  `domainremarks` VARCHAR(250) NULL,
   `collectdate` DATE NULL,
   `quarantineStatus` VARCHAR(4) NULL,
   `notes` VARCHAR(250) NULL,
@@ -31,9 +36,8 @@ CREATE TABLE `NeonSample` (
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`samplePK`),
   INDEX `FK_samples_shipmentid_idx` (`shipmentPK` ASC),
-  CONSTRAINT `FK_samples_shipmentid`
-    FOREIGN KEY (`shipmentPK`)
-    REFERENCES `neon_biorepository`.`shipment` (`shipmentPK`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE);
+  CONSTRAINT `FK_samples_shipmentid`  FOREIGN KEY (`shipmentPK`)  REFERENCES `shipment` (`shipmentPK`)  ON DELETE CASCADE  ON UPDATE CASCADE);
     
+ALTER TABLE `neonsample` 
+  ADD UNIQUE INDEX `UNIQUE_INDEX` (`sampleID` ASC);
+

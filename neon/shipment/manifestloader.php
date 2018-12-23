@@ -50,7 +50,7 @@ include($SERVER_ROOT.'/header.php');
 ?>
 <div class="navpath">
 	<a href="../../index.php">Home</a> &gt;&gt;
-	<a href="index.php"><b>NEON Biorepository Management Tools</b></a> &gt;&gt;
+	<a href="../index.php"><b>NEON Biorepository Management Tools</b></a> &gt;&gt;
 	<b>Manifest Loader</b>
 </div>
 <?php

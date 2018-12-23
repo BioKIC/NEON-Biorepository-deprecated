@@ -18,14 +18,26 @@ class ShipmentManager{
 		if($this->conn) $this->conn->close();
 	}
 
-	public function getShipmentArr(){
+	public function getShipmentArr($filterCriteria){
 		$retArr = array();
-		$sql = 'SELECT shipmentPK, shipmentID, domainID, dateShipped, senderID, shipmentService, shipmentMethod, trackingNumber, notes, '.
-			'CONCAT_WS(", ", u.lastname, u.firstname) AS importUser, CONCAT_WS(", ", u2.lastname, u2.firstname) AS modifiedUser, initialtimestamp '.
+		$sql = 'SELECT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.senderID, s.shipmentService, s.shipmentMethod, s.trackingNumber, s.notes, '.
+			'CONCAT_WS(", ", u.lastname, u.firstname) AS importUser, CONCAT_WS(", ", u2.lastname, u2.firstname) AS modifiedUser, s.initialtimestamp '.
 			'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
-			'INNER JOIN users u2 ON s.modifiedByUid = u2.uid ';
-		if($this->shipmentPK) $sql .= 'WHERE shipmentPK = '.$this->shipmentPK;
-		$rs = $this->conn->query();
+			'LEFT JOIN users u2 ON s.modifiedByUid = u2.uid ';
+		if($this->shipmentPK){
+			$sql .= 'WHERE shipmentPK = '.$this->shipmentPK;
+		}
+		elseif($filterCriteria){
+			$sqlWhere = '';
+			foreach($filterCriteria as $fieldName => $value){
+				$sqlWhere .= 'AND ('.$fieldName.' = "'.$value.'") ';
+			}
+			$sql .= 'WHERE shipmentPK = '.$this->shipmentPK;
+		}
+
+
+		//echo $sql;
+		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->shipmentPK]['shipmentID'] = $r->shipmentID;
 			$retArr[$r->shipmentPK]['domainID'] = $r->domainID;

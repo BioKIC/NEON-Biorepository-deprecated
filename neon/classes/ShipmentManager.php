@@ -18,47 +18,144 @@ class ShipmentManager{
 		if($this->conn) $this->conn->close();
 	}
 
-	public function getShipmentArr($filterCriteria){
+	public function getShipmentArr($postArr = null){
 		$retArr = array();
-		$sql = 'SELECT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.senderID, s.shipmentService, s.shipmentMethod, s.trackingNumber, s.notes, '.
+		$sql = 'SELECT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.senderID, s.shipmentService, s.shipmentMethod, s.trackingNumber, s.notes AS shipmentNotes, '.
 			'CONCAT_WS(", ", u.lastname, u.firstname) AS importUser, CONCAT_WS(", ", u2.lastname, u2.firstname) AS modifiedUser, s.initialtimestamp '.
 			'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
-			'LEFT JOIN users u2 ON s.modifiedByUid = u2.uid ';
+			'LEFT JOIN users u2 ON s.modifiedByUid = u2.uid '.
+			'LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
+		$sqlWhere = '';
 		if($this->shipmentPK){
-			$sql .= 'WHERE shipmentPK = '.$this->shipmentPK;
+			$sqlWhere .= 'AND (s.shipmentPK = '.$this->shipmentPK.') ';
 		}
-		elseif($filterCriteria){
-			$sqlWhere = '';
-			foreach($filterCriteria as $fieldName => $value){
-				$sqlWhere .= 'AND ('.$fieldName.' = "'.$value.'") ';
+		elseif($_POST){
+			//Set search criteria
+			if(isset($_POST['shipmentID']) && $_POST['shipmentID']){
+				$sqlWhere .= 'AND (s.shipmentID = "'.$_POST['shipmentID'].'") ';
 			}
-			$sql .= 'WHERE shipmentPK = '.$this->shipmentPK;
+			if(isset($_POST['domainID']) && $_POST['domainID']){
+				$sqlWhere .= 'AND (s.domainID = "'.$_POST['domainID'].'") ';
+			}
+			if(isset($_POST['dateShippedStart']) && $_POST['dateShippedStart']){
+				$sqlWhere .= 'AND (s.dateShipped > "'.$_POST['dateShippedStart'].'") ';
+			}
+			if(isset($_POST['dateShippedEnd']) && $_POST['dateShippedEnd']){
+				$sqlWhere .= 'AND (s.dateShipped < "'.$_POST['dateShippedEnd'].'") ';
+			}
+			if(isset($_POST['senderID']) && $_POST['senderID']){
+				$sqlWhere .= 'AND (s.senderID = "'.$_POST['senderID'].'") ';
+			}
+			if(isset($_POST['trackingNumber']) && $_POST['trackingNumber']){
+				$sqlWhere .= 'AND (s.trackingNumber = "'.$_POST['trackingNumber'].'") ';
+			}
+			if(isset($_POST['importedUid']) && $_POST['importedUid']){
+				$sqlWhere .= 'AND ((s.importedByUid = "'.$_POST['importedUid'].'") OR (s.modifiedByUid = "'.$_POST['importedUid'].'")) ';
+			}
+			if(isset($_POST['sampleID']) && $_POST['sampleID']){
+				$sqlWhere .= 'AND (m.sampleID LIKE "%'.$_POST['sampleID'].'"%) ';
+			}
+			if(isset($_POST['sampleCode']) && $_POST['sampleCode']){
+				$sqlWhere .= 'AND (m.sampleCode = "'.$_POST['sampleCode'].'") ';
+			}
+			if(isset($_POST['sampleClass']) && $_POST['sampleClass']){
+				$sqlWhere .= 'AND (m.sampleClass LIKE "%'.$_POST['sampleClass'].'"%) ';
+			}
+			if(isset($_POST['taxonID']) && $_POST['taxonID']){
+				$sqlWhere .= 'AND (m.taxonID = "'.$_POST['taxonID'].'") ';
+			}
+			if(isset($_POST['namedLocation']) && $_POST['namedLocation']){
+				$sqlWhere .= 'AND (m.namedLocation = "'.$_POST['namedLocation'].'") ';
+			}
+			if(isset($_POST['collectDateStart']) && $_POST['collectDateStart']){
+				$sqlWhere .= 'AND (m.collectDate > "'.$_POST['collectDateStart'].'") ';
+			}
+			if(isset($_POST['collectDateEnd']) && $_POST['collectDateEnd']){
+				$sqlWhere .= 'AND (m.collectDate < "'.$_POST['collectDateEnd'].'") ';
+			}
+			if(isset($_POST['checkinUid']) && $_POST['checkinUid']){
+				$sqlWhere .= 'AND (m.checkinUid = "'.$_POST['checkinUid'].'") ';
+			}
 		}
-
-
-		//echo $sql;
+		if($sqlWhere) $sql .= 'WHERE '.subStr($sqlWhere, 3);
+		//echo '<div>'.$sql.'</div>';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[$r->shipmentPK]['shipmentID'] = $r->shipmentID;
-			$retArr[$r->shipmentPK]['domainID'] = $r->domainID;
-			$retArr[$r->shipmentPK]['dateShipped'] = $r->dateShipped;
-			$retArr[$r->shipmentPK]['senderID'] = $r->senderID;
-			$retArr[$r->shipmentPK]['shipmentService'] = $r->shipmentService;
-			$retArr[$r->shipmentPK]['shipmentMethod'] = $r->shipmentMethod;
-			$retArr[$r->shipmentPK]['trackingNumber'] = $r->trackingNumber;
-			$retArr[$r->shipmentPK]['importUser'] = $r->importUser;
-			$retArr[$r->shipmentPK]['modifiedUser'] = $r->modifiedUser;
-			$retArr[$r->shipmentPK]['ts'] = $r->initialtimestamp;
+			if(!$retArr){
+				$retArr[$r->shipmentPK]['shipmentID'] = $r->shipmentID;
+				$retArr[$r->shipmentPK]['domainID'] = $r->domainID;
+				$retArr[$r->shipmentPK]['dateShipped'] = $r->dateShipped;
+				$retArr[$r->shipmentPK]['senderID'] = $r->senderID;
+				$retArr[$r->shipmentPK]['shipmentService'] = $r->shipmentService;
+				$retArr[$r->shipmentPK]['shipmentMethod'] = $r->shipmentMethod;
+				$retArr[$r->shipmentPK]['trackingNumber'] = $r->trackingNumber;
+				$retArr[$r->shipmentPK]['shipmentNotes'] = $r->shipmentNotes;
+				$retArr[$r->shipmentPK]['importUser'] = $r->importUser;
+				$retArr[$r->shipmentPK]['modifiedUser'] = $r->modifiedUser;
+				$retArr[$r->shipmentPK]['ts'] = $r->initialtimestamp;
+			}
+		}
+		$rs->free();
+		return $retArr;
+	}
+
+	public function getSampleCount(){
+		$retArr = array();
+		$totalCnt = 0;
+		$notChecked = 0;
+		$sql = 'SELECT CONCAT_WS(", ", u.lastname, u.firstname) AS username, s.checkinTimestamp, COUNT(s.samplepk) AS cnt '.
+			'FROM neonsample s LEFT JOIN users u ON s.checkinUid = u.uid '.
+			'WHERE (shipmentPK = '.$this->shipmentPK.') '.
+			'GROUP BY username, checkinTimestamp';
+		//echo '<div>'.$sql.'</div>';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$totalCnt += $r->cnt;
+			$k = $r->username;
+			if($k){
+				$retArr[$k][$r->checkinTimestamp] = $r->cnt;
+			}
+			else{
+				$notChecked = $r->cnt;
+			}
+		}
+		$rs->free();
+		$retArr['cnt'] = $totalCnt;
+		if($notChecked) $retArr[0] = $notChecked;
+		return $retArr;
+	}
+
+	public function getSampleArr(){
+		$retArr = array();
+		$sql = 'SELECT m.samplePK, m.sampleID, m.sampleCode, m.sampleClass, m.taxonID, m.individualCount, m.filterVolume, m.namedLocation, m.domainRemarks, '.
+			'm.collectDate, m.quarantineStatus, m.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, m.checkinTimestamp '.
+			'FROM neonsample m LEFT JOIN users u ON m.checkinuid = u.uid '.
+			'WHERE m.shipmentPK = '.$this->shipmentPK;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->samplePK]['sampleID'] = $r->sampleID;
+			$retArr[$r->samplePK]['sampleCode'] = $r->sampleCode;
+			$retArr[$r->samplePK]['sampleClass'] = $r->sampleClass;
+			$retArr[$r->samplePK]['taxonID'] = $r->taxonID;
+			$retArr[$r->samplePK]['individualCount'] = $r->individualCount;
+			$retArr[$r->samplePK]['filterVolume'] = $r->filterVolume;
+			$retArr[$r->samplePK]['namedLocation'] = $r->namedLocation;
+			$retArr[$r->samplePK]['domainRemarks'] = $r->domainRemarks;
+			$retArr[$r->samplePK]['collectDate'] = $r->collectDate;
+			$retArr[$r->samplePK]['quarantineStatus'] = $r->quarantineStatus;
+			$retArr[$r->samplePK]['sampleNotes'] = $r->sampleNotes;
+			$retArr[$r->samplePK]['checkinUser'] = $r->checkinUser;
+			$retArr[$r->samplePK]['checkinTS'] = $r->checkinTimestamp;
 		}
 		$rs->free();
 		return $retArr;
 	}
 
 	//Specimen check-in functions
-	public function checkinSample($barcode){
-		if($this->shipmentPK && $barcode){
-			$sql = 'UPDATE NeonSample(checkinUid,checkinTimestamp) '.
-				'SELECT samplePK, '.$GLOBALS['SYMB_UID'].', now() FROM NeonSample WHERE samplePK = '.$this->shipmentPK.' AND bacode = "'.$this->cleanInStr($barcode).'" ';
+	public function checkinSample($sampleID){
+		if($sampleID){
+			$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() '.
+				'WHERE (checkinTimestamp IS NULL) AND (sampleID = "'.$this->cleanInStr($sampleID).'") ';
 			if(!$this->conn->query($sql)){
 				$this->errorStr = 'ERROR checking-in NEON sample';
 				return 0;
@@ -198,13 +295,13 @@ class ShipmentManager{
 	}
 
 	private function loadSampleRecord($shipmentPK, $recArr){
-		$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedlocation, domainremarks, collectdate, quarantineStatus, checkinUid) '.
+		$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedlocation, domainremarks, collectdate, quarantineStatus) '.
 			'VALUES('.$shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.(isset($recArr['samplecode'])&&$recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').',"'.
 			$this->cleanInStr($recArr['sampleclass']).'",'.(isset($recArr['taxonid'])&&$recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
 			(isset($recArr['individualcount'])&&$recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
 			(isset($recArr['filtervolume'])&&$recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').',"'.
 			$this->cleanInStr($recArr['namedlocation']).'",'.(isset($recArr['domainremarks'])&&$recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').',"'.
-			$this->cleanInStr($recArr['collectdate']).'",'.(isset($recArr['quarantinestatus'])&&$recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
+			$this->cleanInStr($recArr['collectdate']).'",'.(isset($recArr['quarantinestatus'])&&$recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').')';
 		if($this->conn->query($sql)){
 			echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
 		}
@@ -275,6 +372,33 @@ class ShipmentManager{
 		}
 		$rs->free();
 		fclose($outstream);
+	}
+
+	//Various data return functions
+	public function getImportUserArr(){
+		$retArr = array();
+		$sql = 'SELECT DISTINCT uid, username '.
+			'FROM (SELECT u.uid, CONCAT_WS(" ", u.lastname, u.firstname) as username '.
+			'FROM users u INNER JOIN neonshipment s ON u.uid = s.importUid '.
+			'union SELECT u.uid, CONCAT_WS(" ", u.lastname, u.firstname) as username '.
+			'FROM users u INNER JOIN neonshipment s ON u.uid = s.modifiedbyUid) u';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->uid] = $r->username;
+		}
+		asort($retArr);
+		return $retArr;
+	}
+
+	public function getCheckinUserArr(){
+		$retArr = array();
+		$sql = 'SELECT DISTINCT u.uid, CONCAT_WS(" ", u.lastname, u.firstname) as username FROM users u INNER JOIN neonsample s ON u.uid = s.checkinUid';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->uid] = $r->username;
+		}
+		asort($retArr);
+		return $retArr;
 	}
 
 	//Setters and getters

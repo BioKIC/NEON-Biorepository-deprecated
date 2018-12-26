@@ -9,15 +9,21 @@ CREATE TABLE `NeonShipment` (
   `trackingNumber` VARCHAR(45) NULL,
   `notes` VARCHAR(250) NULL,
   `importUid` INT UNSIGNED NOT NULL,
+  `checkinUid` INT UNSIGNED NULL,
+  `checkinTimestamp` DATETIME NULL,
   `modifiedByUid` INT UNSIGNED NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`shipmentpk`),
   CONSTRAINT `FK_neon_ship_importuid` FOREIGN KEY (`importUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
+  CONSTRAINT `FK_neon_ship_checkinUid` FOREIGN KEY (`checkinUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
   CONSTRAINT `FK_neon_ship_moduid` FOREIGN KEY (`modifiedByUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
   
 ALTER TABLE `neonshipment` 
-  ADD UNIQUE INDEX `UNIQUE_INDEX` (`shipmentID` ASC);
-  
+  ADD UNIQUE INDEX `UNIQUE_INDEX` (`shipmentID` ASC),
+  ADD INDEX `FK_neon_ship_importUid_idx` (`importUid` ASC),
+  ADD INDEX `FK_neon_ship_checkinUid_idx` (`checkinUid` ASC),
+  ADD INDEX `FK_neon_ship_modifiedByUid_idx` (`modifiedByUid` ASC);
+
 
 CREATE TABLE `NeonSample` (
   `samplePK` INT NOT NULL AUTO_INCREMENT,

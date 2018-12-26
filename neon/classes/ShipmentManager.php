@@ -21,9 +21,11 @@ class ShipmentManager{
 	public function getShipmentArr($postArr = null){
 		$retArr = array();
 		$sql = 'SELECT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.senderID, s.shipmentService, s.shipmentMethod, s.trackingNumber, s.notes AS shipmentNotes, '.
-			'CONCAT_WS(", ", u.lastname, u.firstname) AS importUser, CONCAT_WS(", ", u2.lastname, u2.firstname) AS modifiedUser, s.initialtimestamp '.
+			'CONCAT_WS(", ", u.lastname, u.firstname) AS importUser, CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, '.
+			'CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.initialtimestamp '.
 			'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
-			'LEFT JOIN users u2 ON s.modifiedByUid = u2.uid '.
+			'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
+			'LEFT JOIN users u3 ON s.modifiedByUid = u3.uid '.
 			'LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
 		$sqlWhere = '';
 		if($this->shipmentPK){
@@ -52,6 +54,9 @@ class ShipmentManager{
 			if(isset($_POST['importedUid']) && $_POST['importedUid']){
 				$sqlWhere .= 'AND ((s.importedByUid = "'.$_POST['importedUid'].'") OR (s.modifiedByUid = "'.$_POST['importedUid'].'")) ';
 			}
+			if(isset($_POST['checkinUid']) && $_POST['checkinUid']){
+				$sqlWhere .= 'AND ((s.checkinUid = "'.$_POST['checkinUid'].'") OR (m.checkinUid = "'.$_POST['checkinUid'].'")) ';
+			}
 			if(isset($_POST['sampleID']) && $_POST['sampleID']){
 				$sqlWhere .= 'AND (m.sampleID LIKE "%'.$_POST['sampleID'].'"%) ';
 			}
@@ -73,9 +78,6 @@ class ShipmentManager{
 			if(isset($_POST['collectDateEnd']) && $_POST['collectDateEnd']){
 				$sqlWhere .= 'AND (m.collectDate < "'.$_POST['collectDateEnd'].'") ';
 			}
-			if(isset($_POST['checkinUid']) && $_POST['checkinUid']){
-				$sqlWhere .= 'AND (m.checkinUid = "'.$_POST['checkinUid'].'") ';
-			}
 		}
 		if($sqlWhere) $sql .= 'WHERE '.subStr($sqlWhere, 3);
 		//echo '<div>'.$sql.'</div>';
@@ -93,6 +95,8 @@ class ShipmentManager{
 				$retArr[$r->shipmentPK]['importUser'] = $r->importUser;
 				$retArr[$r->shipmentPK]['modifiedUser'] = $r->modifiedUser;
 				$retArr[$r->shipmentPK]['ts'] = $r->initialtimestamp;
+				$retArr[$r->shipmentPK]['checkinUser'] = $r->checkinUser;
+				$retArr[$r->shipmentPK]['checkinTimestamp'] = $r->checkinTimestamp;
 			}
 		}
 		$rs->free();

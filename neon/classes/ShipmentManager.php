@@ -20,19 +20,19 @@ class ShipmentManager{
 
 	public function getShipmentArr($postArr = null){
 		$retArr = array();
-		$sql = 'SELECT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.senderID, s.shipmentService, s.shipmentMethod, s.trackingNumber, s.notes AS shipmentNotes, '.
+		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.senderID, s.shipmentService, s.shipmentMethod, s.trackingNumber, s.notes AS shipmentNotes, '.
 			'CONCAT_WS(", ", u.lastname, u.firstname) AS importUser, CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, '.
 			'CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.initialtimestamp '.
 			'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
 			'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
 			'LEFT JOIN users u3 ON s.modifiedByUid = u3.uid '.
 			'LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
-		$sqlWhere = '';
 		if($this->shipmentPK){
-			$sqlWhere .= 'AND (s.shipmentPK = '.$this->shipmentPK.') ';
+			$sql .= 'WHERE (s.shipmentPK = '.$this->shipmentPK.') ';
 		}
 		elseif($_POST){
 			//Set search criteria
+			$sqlWhere = '';
 			if(isset($_POST['shipmentID']) && $_POST['shipmentID']){
 				$sqlWhere .= 'AND (s.shipmentID = "'.$_POST['shipmentID'].'") ';
 			}
@@ -78,26 +78,24 @@ class ShipmentManager{
 			if(isset($_POST['collectDateEnd']) && $_POST['collectDateEnd']){
 				$sqlWhere .= 'AND (m.collectDate < "'.$_POST['collectDateEnd'].'") ';
 			}
+			if($sqlWhere) $sql .= 'WHERE '.subStr($sqlWhere, 3);
 		}
-		if($sqlWhere) $sql .= 'WHERE '.subStr($sqlWhere, 3);
 		//echo '<div>'.$sql.'</div>';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			if(!$retArr){
-				$retArr[$r->shipmentPK]['shipmentID'] = $r->shipmentID;
-				$retArr[$r->shipmentPK]['domainID'] = $r->domainID;
-				$retArr[$r->shipmentPK]['dateShipped'] = $r->dateShipped;
-				$retArr[$r->shipmentPK]['senderID'] = $r->senderID;
-				$retArr[$r->shipmentPK]['shipmentService'] = $r->shipmentService;
-				$retArr[$r->shipmentPK]['shipmentMethod'] = $r->shipmentMethod;
-				$retArr[$r->shipmentPK]['trackingNumber'] = $r->trackingNumber;
-				$retArr[$r->shipmentPK]['shipmentNotes'] = $r->shipmentNotes;
-				$retArr[$r->shipmentPK]['importUser'] = $r->importUser;
-				$retArr[$r->shipmentPK]['modifiedUser'] = $r->modifiedUser;
-				$retArr[$r->shipmentPK]['ts'] = $r->initialtimestamp;
-				$retArr[$r->shipmentPK]['checkinUser'] = $r->checkinUser;
-				$retArr[$r->shipmentPK]['checkinTimestamp'] = $r->checkinTimestamp;
-			}
+			$retArr[$r->shipmentPK]['shipmentID'] = $r->shipmentID;
+			$retArr[$r->shipmentPK]['domainID'] = $r->domainID;
+			$retArr[$r->shipmentPK]['dateShipped'] = $r->dateShipped;
+			$retArr[$r->shipmentPK]['senderID'] = $r->senderID;
+			$retArr[$r->shipmentPK]['shipmentService'] = $r->shipmentService;
+			$retArr[$r->shipmentPK]['shipmentMethod'] = $r->shipmentMethod;
+			$retArr[$r->shipmentPK]['trackingNumber'] = $r->trackingNumber;
+			$retArr[$r->shipmentPK]['shipmentNotes'] = $r->shipmentNotes;
+			$retArr[$r->shipmentPK]['importUser'] = $r->importUser;
+			$retArr[$r->shipmentPK]['modifiedUser'] = $r->modifiedUser;
+			$retArr[$r->shipmentPK]['ts'] = $r->initialtimestamp;
+			$retArr[$r->shipmentPK]['checkinUser'] = $r->checkinUser;
+			$retArr[$r->shipmentPK]['checkinTimestamp'] = $r->checkinTimestamp;
 		}
 		$rs->free();
 		return $retArr;
@@ -155,17 +153,34 @@ class ShipmentManager{
 		return $retArr;
 	}
 
-	//Specimen check-in functions
+	//Check-in functions
+	public function checkinShipment(){
+		$sql = 'UPDATE neonshipment SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() WHERE checkinUid IS NULL AND shipmentpk = '.$this->shipmentPK;
+		if(!$this->conn->query($sql)){
+			$this->errorStr = 'ERROR checking-in shipment: '.$this->conn->error;
+			return false;
+		}
+		return true;
+	}
+
 	public function checkinSample($sampleID){
 		if($sampleID){
-			$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() '.
-				'WHERE (checkinTimestamp IS NULL) AND (sampleID = "'.$this->cleanInStr($sampleID).'") ';
-			if(!$this->conn->query($sql)){
-				$this->errorStr = 'ERROR checking-in NEON sample';
-				return 0;
+			$samplePK = 0;
+			$sql = 'SELECT samplePK FROM NeonSample WHERE (checkinTimestamp IS NULL) AND (sampleID = "'.$this->cleanInStr($sampleID).'") ';
+			$rs = $this->conn->query();
+			while($r = $rs->fetch_object()){
+				$samplePK = $r->samplePK;
+			}
+			$rs->free();
+			if($samplePK){
+				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() WHERE (samplePK = "'.$samplePK.'") ';
+				if(!$this->conn->query($sqlUpdate)){
+					$this->errorStr = 'ERROR checking-in NEON sample: '.$this->conn->error;
+					return 0;
+				}
 			}
 		}
-		return 1;
+		return $samplePK;
 	}
 
 	//Shipment import functions

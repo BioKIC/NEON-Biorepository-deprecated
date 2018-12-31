@@ -103,27 +103,18 @@ class ShipmentManager{
 
 	public function getSampleCount(){
 		$retArr = array();
-		$totalCnt = 0;
-		$notChecked = 0;
-		$sql = 'SELECT CONCAT_WS(", ", u.lastname, u.firstname) AS username, s.checkinTimestamp, COUNT(s.samplepk) AS cnt '.
-			'FROM neonsample s LEFT JOIN users u ON s.checkinUid = u.uid '.
-			'WHERE (shipmentPK = '.$this->shipmentPK.') '.
-			'GROUP BY username, checkinTimestamp';
-		//echo '<div>'.$sql.'</div>';
+		$sql = 'SELECT COUNT(samplepk) AS cnt FROM neonsample WHERE (shipmentPK = '.$this->shipmentPK.') AND (checkinUid IS NULL)';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$totalCnt += $r->cnt;
-			$k = $r->username;
-			if($k){
-				$retArr[$k][$r->checkinTimestamp] = $r->cnt;
-			}
-			else{
-				$notChecked = $r->cnt;
-			}
+			$retArr[0] = $r->cnt;
 		}
 		$rs->free();
-		$retArr['cnt'] = $totalCnt;
-		if($notChecked) $retArr[0] = $notChecked;
+		$sql = 'SELECT COUNT(samplepk) AS cnt FROM neonsample WHERE (shipmentPK = '.$this->shipmentPK.') AND (checkinUid IS NOT NULL)';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[1] = $r->cnt;
+		}
+		$rs->free();
 		return $retArr;
 	}
 
@@ -164,10 +155,10 @@ class ShipmentManager{
 	}
 
 	public function checkinSample($sampleID){
-		if($sampleID){
+		if($this->shipmentPK && $sampleID){
 			$samplePK = 0;
-			$sql = 'SELECT samplePK FROM NeonSample WHERE (checkinTimestamp IS NULL) AND (sampleID = "'.$this->cleanInStr($sampleID).'") ';
-			$rs = $this->conn->query();
+			$sql = 'SELECT samplePK FROM NeonSample WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) AND (sampleID = "'.$this->cleanInStr($sampleID).'") ';
+			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$samplePK = $r->samplePK;
 			}
@@ -181,6 +172,22 @@ class ShipmentManager{
 			}
 		}
 		return $samplePK;
+	}
+
+	public function batchCheckinSamples($postArr){
+		if($this->shipmentPK){
+			$pkArr = $postArr['scbox'];
+			if($pkArr){
+				$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() '.
+					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (samplePK IN('.implode(',', $pkArr).')) ';
+				if(!$this->conn->query($sql)){
+					$this->errorStr = 'ERROR batch checking-in samples: '.$this->conn->error;
+					return false;
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//Shipment import functions

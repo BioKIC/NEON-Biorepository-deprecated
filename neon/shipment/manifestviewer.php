@@ -24,6 +24,9 @@ if($isEditor){
 	elseif($action == 'checkinShipment'){
 		$shipManager->checkinShipment();
 	}
+	elseif($action == 'batchCheckin'){
+		$shipManager->batchCheckinSamples($_POST);
+	}
 }
 ?>
 <html>
@@ -39,13 +42,27 @@ if($isEditor){
 		<?php
 		if($shipmentPK){
 			?>
+			function batchCheckinFormVerify(f){
+				var formVerified = false;
+				for(var h=0;h<f.length;h++){
+					if(f.elements[h].name == "scbox[]" && f.elements[h].checked){
+						formVerified = true;
+						break;
+					}
+				}
+				if(!formVerified){
+					alert("Select samples to check-in");
+					return false;
+				}
+			}
+
 			function checkinSample(f){
 				var checkingStr = f.checkinField.value.trim();
 				if(checkingStr != ""){
 					$.ajax({
 						type: "POST",
 						url: "rpc/checkinsample.php",
-						data: { shipmentid: "<?php echo $shipmentPK; ?>", barcode: f.checkinField.value }
+						data: { shipmentpk: "<?php echo $shipmentPK; ?>", barcode: f.checkinField.value }
 					}).done(function( submitStatus ) {
 						if(submitStatus == 0){
 							$("#failText").show();
@@ -58,9 +75,19 @@ if($isEditor){
 							$("#successText").animate({fontSize: "150%"}, "slow");
 							$("#successText").animate({fontSize: "100"}, "slow");
 							$("#successText").hide();
+							$("#scbox--"+submitStatus).hide();
 							$("#scSpan-"+submitStatus).html("checked-in");
 						}
 					});
+				}
+			}
+
+			function selectAll(cbObj){
+				var boxesChecked = true;
+				if(!cbObj.checked) boxesChecked = false;
+				var f = cbObj.form;
+				for(var i=0;i<f.length;i++){
+					if(f.elements[i].name == "scbox[]") f.elements[i].checked = boxesChecked;
 				}
 			}
 			<?php
@@ -136,18 +163,14 @@ include($SERVER_ROOT.'/header.php');
 							$notCheckedIn = $sampleCntArr[0];
 							unset($sampleCntArr[0]);
 						}
-						foreach($sampleCntArr as $checkinUser => $checkinArr){
-							foreach($checkinArr as $checkinTS => $checkinCnt){
-								echo '<div class="displayFieldDiv"><b>Samples checked-in:</b> '.$checkinCnt.' ('.$checkinTS.' by '.$checkinUser.')</div>';
-							}
-						}
-						if($notCheckedIn) echo '<div class="displayFieldDiv"><b>Samples not checked-in:</b> '.$notCheckedIn.' (<a href="samplecheckin.php?shipmentpk='.$shipmentPK.'">Check-in</a>)</div>';
+						echo '<div class="displayFieldDiv"><b>Samples checked-in:</b> '.$checkinCnt.'</div>';
+						if($notCheckedIn) echo '<div class="displayFieldDiv"><b>Samples not checked-in:</b> '.$notCheckedIn.'</div>';
 						echo '</div>';
 						if($shipArr['checkinTimestamp']){
 							?>
 							<div>
 								<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
-									<b>Sample check-in: </b><input name="checkinField" type="text" />
+									<b>Sample check-in: </b><input name="checkinField" type="text" style="width:300px" />
 									<span id="successText" style="color:green;display:none">success!!!</span>
 									<span id="failText" style="color:red;display:none">Check-in failed</span>
 								</form>
@@ -163,32 +186,37 @@ include($SERVER_ROOT.'/header.php');
 					<div style="clear:both;margin-top:30px;">
 						<fieldset>
 							<legend><b>Sample Listing</b></legend>
-							<table class="styledtable">
-								<tr><th><input name="selectall" type="checkbox" /></th><th>Sample ID</th><th>Sample Code</th><th>Sample Class</th><th>Taxon ID</th><th>Named Location</th><th>Collect Date</th><th>Quarantine Status</th><th>Check-in ts</th></tr>
-								<?php
-								$sampleList = $shipManager->getSampleArr();
-								foreach($sampleList as $samplePK => $sampleArr){
-									echo '<tr>';
-									echo '<td>'.($sampleArr['checkinTS']?'':'<input name="" type="checkbox" />').'</td>';
-									echo '<td>'.$sampleArr['sampleID'].'</td>';
-									echo '<td>'.$sampleArr['sampleCode'].'</td>';
-									echo '<td>'.$sampleArr['sampleClass'].'</td>';
-									echo '<td>'.$sampleArr['taxonID'].'</td>';
-									echo '<td>'.$sampleArr['namedLocation'].'</td>';
-									echo '<td>'.$sampleArr['collectDate'].'</td>';
-									echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
-									echo '<td title="'.$sampleArr['checkinUser'].'"><span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTS'].'</span></td>';
-									echo '</tr>';
-									$str = '';
-									if($sampleArr['individualCount']) $str .= '<div>Individual Count: '.$sampleArr['individualCount'].'</div>';
-									if($sampleArr['filterVolume']) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
-									if($sampleArr['domainRemarks']) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
-									if($sampleArr['sampleNotes']) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
-									if($str) echo '<tr><td colspan="8"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
-								}
-								?>
-							</table>
-							<input name="action" type="submit" value="Check-in Selected Samples" />
+							<form action="manifestviewer.php" method="post" onsubmit="return batchCheckinFormVerify(this)">
+								<table class="styledtable">
+									<tr><th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th><th>Sample ID</th><th>Sample Code</th><th>Sample Class</th><th>Taxon ID</th><th>Named Location</th><th>Collect Date</th><th>Quarantine Status</th><th>Check-in ts</th></tr>
+									<?php
+									$sampleList = $shipManager->getSampleArr();
+									foreach($sampleList as $samplePK => $sampleArr){
+										echo '<tr>';
+										echo '<td>'.($sampleArr['checkinTS']?'':'<input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" />').'</td>';
+										echo '<td>'.$sampleArr['sampleID'].'</td>';
+										echo '<td>'.$sampleArr['sampleCode'].'</td>';
+										echo '<td>'.$sampleArr['sampleClass'].'</td>';
+										echo '<td>'.$sampleArr['taxonID'].'</td>';
+										echo '<td>'.$sampleArr['namedLocation'].'</td>';
+										echo '<td>'.$sampleArr['collectDate'].'</td>';
+										echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
+										echo '<td title="'.$sampleArr['checkinUser'].'"><span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTS'].'</span></td>';
+										echo '</tr>';
+										$str = '';
+										if($sampleArr['individualCount']) $str .= '<div>Individual Count: '.$sampleArr['individualCount'].'</div>';
+										if($sampleArr['filterVolume']) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
+										if($sampleArr['domainRemarks']) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
+										if($sampleArr['sampleNotes']) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
+										if($str) echo '<tr><td colspan="8"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
+									}
+									?>
+								</table>
+								<div style="margin:15px">
+									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+									<button name="action" type="submit" value="batchCheckin">Batch Check-in Samples</button>
+								</div>
+							</form>
 						</fieldset>
 					</div>
 					<?php

@@ -131,12 +131,12 @@ class ShipmentManager{
 
 	public function getSampleArr(){
 		$retArr = array();
-		$headerArr = array('sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus','sampleNotes','checkinUser','checkinTimestamp');
+		$headerArr = array('sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus','sampleNotes','occid','checkinUser','checkinTimestamp');
 		$targetArr = array();
-		$sql = 'SELECT m.samplePK, m.sampleID, m.sampleCode, m.sampleClass, m.taxonID, m.individualCount, m.filterVolume, m.namedLocation, m.domainRemarks, '.
-			'm.collectDate, m.quarantineStatus, m.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, m.checkinTimestamp '.
-			'FROM neonsample m LEFT JOIN users u ON m.checkinuid = u.uid '.
-			'WHERE m.shipmentPK = '.$this->shipmentPK;
+		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, '.
+			's.collectDate, s.quarantineStatus, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
+			'FROM neonsample s LEFT JOIN users u ON s.checkinuid = u.uid '.
+			'WHERE s.shipmentPK = '.$this->shipmentPK;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
 			foreach($headerArr as $fieldName){
@@ -197,6 +197,42 @@ class ShipmentManager{
 			}
 		}
 		return false;
+	}
+
+	//Occurrence harvesting code
+	public function batchHarvestOccid($postArr){
+		if($this->shipmentPK){
+			$pkArr = $postArr['scbox'];
+			if($pkArr){
+
+
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function harvestNeonOccurrence(){
+	}
+
+	private function getNeonLocation($namedLocation){
+		//http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
+		//curl -X GET --header 'Accept: application/json' 'http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam'
+		$url = 'http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam';
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json', 'Accept: application/json') );
+		$json = curl_exec($ch);
+		$resultArr = json_decode($json,true);
+		//Extract DwC values
+		$dwcArr = array();
+
+
+		return $dwcArr;
+	}
+
+	private function getNeonSampleUUID(){
+		//curl -X GET --header 'Accept: application/json' 'http://data.neonscience.org/api/v0/samples/view?barcode=D00000013503'
+
 	}
 
 	//Shipment import functions

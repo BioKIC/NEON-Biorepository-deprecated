@@ -103,13 +103,24 @@ class ShipmentManager{
 
 	public function getSampleCount(){
 		$retArr = array();
+		//Get total sample count
+		$sql = 'SELECT COUNT(samplepk) AS cnt FROM neonsample WHERE (shipmentPK = '.$this->shipmentPK.')';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr['all'] = $r->cnt;
+		}
+		$rs->free();
+		//Get sample count not yet checked-in
 		$sql = 'SELECT COUNT(samplepk) AS cnt FROM neonsample WHERE (shipmentPK = '.$this->shipmentPK.') AND (checkinUid IS NULL)';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[0] = $r->cnt;
 		}
 		$rs->free();
-		$sql = 'SELECT COUNT(samplepk) AS cnt FROM neonsample WHERE (shipmentPK = '.$this->shipmentPK.') AND (checkinUid IS NOT NULL)';
+		//Get count of samples not yet imported
+		$sql = 'SELECT COUNT(s.samplepk) AS cnt '.
+			'FROM neonsample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
+			'WHERE (s.shipmentPK = '.$this->shipmentPK.') AND (o.occid IS NULL)';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[1] = $r->cnt;
@@ -120,25 +131,23 @@ class ShipmentManager{
 
 	public function getSampleArr(){
 		$retArr = array();
+		$headerArr = array('sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus','sampleNotes','checkinUser','checkinTimestamp');
+		$targetArr = array();
 		$sql = 'SELECT m.samplePK, m.sampleID, m.sampleCode, m.sampleClass, m.taxonID, m.individualCount, m.filterVolume, m.namedLocation, m.domainRemarks, '.
 			'm.collectDate, m.quarantineStatus, m.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, m.checkinTimestamp '.
 			'FROM neonsample m LEFT JOIN users u ON m.checkinuid = u.uid '.
 			'WHERE m.shipmentPK = '.$this->shipmentPK;
 		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->samplePK]['sampleID'] = $r->sampleID;
-			$retArr[$r->samplePK]['sampleCode'] = $r->sampleCode;
-			$retArr[$r->samplePK]['sampleClass'] = $r->sampleClass;
-			$retArr[$r->samplePK]['taxonID'] = $r->taxonID;
-			$retArr[$r->samplePK]['individualCount'] = $r->individualCount;
-			$retArr[$r->samplePK]['filterVolume'] = $r->filterVolume;
-			$retArr[$r->samplePK]['namedLocation'] = $r->namedLocation;
-			$retArr[$r->samplePK]['domainRemarks'] = $r->domainRemarks;
-			$retArr[$r->samplePK]['collectDate'] = $r->collectDate;
-			$retArr[$r->samplePK]['quarantineStatus'] = $r->quarantineStatus;
-			$retArr[$r->samplePK]['sampleNotes'] = $r->sampleNotes;
-			$retArr[$r->samplePK]['checkinUser'] = $r->checkinUser;
-			$retArr[$r->samplePK]['checkinTS'] = $r->checkinTimestamp;
+		while($r = $rs->fetch_assoc()){
+			foreach($headerArr as $fieldName){
+				if($r[$fieldName] && !in_array($fieldName, $targetArr)) $targetArr[] = $fieldName;
+			}
+		}
+		$rs->data_seek(0);
+		while($r = $rs->fetch_assoc()){
+			foreach($targetArr as $fieldName){
+				$retArr[$r['samplePK']][$fieldName] = $r[$fieldName];
+			}
 		}
 		$rs->free();
 		return $retArr;

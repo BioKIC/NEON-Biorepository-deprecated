@@ -65,17 +65,19 @@ if($isEditor){
 						data: { shipmentpk: "<?php echo $shipmentPK; ?>", barcode: f.checkinField.value }
 					}).done(function( submitStatus ) {
 						if(submitStatus == 0){
+							$("#successText").hide();
 							$("#failText").show();
-							$("#failText").animate({fontSize: "150%"}, "slow");
-							$("#failText").animate({fontSize: "100"}, "slow");
-							$("#failText").hide();
+							//$("#failText").animate({fontSize: "120%"}, "slow");
+							//$("#failText").animate({fontSize: "100%"}, "slow");
+							//$("#failText").hide();
 						}
 						else{
+							$("#failText").hide();
 							$("#successText").show();
-							$("#successText").animate({fontSize: "150%"}, "slow");
-							$("#successText").animate({fontSize: "100"}, "slow");
-							$("#successText").hide();
-							$("#scbox--"+submitStatus).hide();
+							$("#successText").animate({fontSize: "120%"}, "slow");
+							$("#successText").animate({fontSize: "100%"}, "slow");
+							//$("#successText").hide();
+							$("#scbox-"+submitStatus).hide();
 							$("#scSpan-"+submitStatus).html("checked-in");
 						}
 					});
@@ -109,7 +111,7 @@ include($SERVER_ROOT.'/header.php');
 <div class="navpath">
 	<a href="../../index.php">Home</a> &gt;&gt;
 	<a href="../index.php">NEON Biorepository Tools</a> &gt;&gt;
-	<a href="manifestviewer.php"><b>Manifest Searh</b></a>
+	<a href="manifestviewer.php"><b>Manifest Search</b></a>
 </div>
 <div id="innertext">
 	<?php
@@ -121,52 +123,58 @@ include($SERVER_ROOT.'/header.php');
 			?>
 			<fieldset style="margin-top:30px">
 				<legend><b>Shipment #<?php echo $shipmentPK; ?></b></legend>
-				<div>
-					<div style="float:left">
-						<div class="displayFieldDiv"><b>Shipment ID:</b> <?php echo $shipArr['shipmentID']; ?></div>
-						<div class="displayFieldDiv"><b>Domain ID:</b> <?php echo $shipArr['domainID']; ?></div>
-						<div class="displayFieldDiv"><b>Date Shipped:</b> <?php echo $shipArr['dateShipped']; ?></div>
-						<div class="displayFieldDiv"><b>Sender ID:</b> <?php echo $shipArr['senderID']; ?></div>
-						<div class="displayFieldDiv"><b>Shipment Service:</b> <?php echo $shipArr['shipmentService']; ?></div>
-						<div class="displayFieldDiv"><b>Shipment Method:</b> <?php echo $shipArr['shipmentMethod']; ?></div>
-						<?php
-						if($shipArr['shipmentNotes']) echo '<div class="displayFieldDiv"><b>Shipment Notes:</b> '.$shipArr['shipmentNotes'].'</div>';
-						if($shipArr['importUser']) echo '<div class="displayFieldDiv"><b>Import User:</b> '.$shipArr['importUser'].'</div>';
-						if($shipArr['ts']) echo '<div class="displayFieldDiv"><b>Import Date:</b> '.$shipArr['ts'].'</div>';
-						if($shipArr['modifiedUser']) echo '<div class="displayFieldDiv"><b>Modified By User:</b> '.$shipArr['modifiedUser'].'</div>';
+				<div style="float:left">
+					<div class="displayFieldDiv"><b>Shipment ID:</b> <?php echo $shipArr['shipmentID']; ?></div>
+					<div class="displayFieldDiv"><b>Domain ID:</b> <?php echo $shipArr['domainID']; ?></div>
+					<div class="displayFieldDiv"><b>Date Shipped:</b> <?php echo $shipArr['dateShipped']; ?></div>
+					<div class="displayFieldDiv"><b>Sender ID:</b> <?php echo $shipArr['senderID']; ?></div>
+					<div class="displayFieldDiv"><b>Shipment Service:</b> <?php echo $shipArr['shipmentService']; ?></div>
+					<div class="displayFieldDiv"><b>Shipment Method:</b> <?php echo $shipArr['shipmentMethod']; ?></div>
+					<?php
+					if($shipArr['shipmentNotes']) echo '<div class="displayFieldDiv"><b>Shipment Notes:</b> '.$shipArr['shipmentNotes'].'</div>';
+					if($shipArr['importUser']) echo '<div class="displayFieldDiv"><b>Import User:</b> '.$shipArr['importUser'].'</div>';
+					if($shipArr['ts']) echo '<div class="displayFieldDiv"><b>Import Date:</b> '.$shipArr['ts'].'</div>';
+					if($shipArr['modifiedUser']) echo '<div class="displayFieldDiv"><b>Modified By User:</b> '.$shipArr['modifiedUser'].'</div>';
+					?>
+				</div>
+				<div style="margin-left:40px;float:left;">
+					<?php
+					if($shipArr['checkinTimestamp']){
+						if($shipArr['checkinTimestamp']) echo '<div class="displayFieldDiv"><b>Check-in Timestamp:</b> '.$shipArr['checkinTimestamp'].'</div>';
+						if($shipArr['checkinUser']) echo '<div class="displayFieldDiv"><b>Check-in User:</b> '.$shipArr['checkinUser'].'</div>';
+					}
+					else{
 						?>
-					</div>
-					<div style="margin-left:40px;float:left;">
+						<div class="displayFieldDiv" style="color:orange;font-size:120%">
+							<b>Not yet arrived</b>
+							<form action="manifestviewer.php" method="post" style="display:inline;margin-left:20px">
+								<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+								<button name="action" type="submit" value="checkinShipment"> -- Mark as Arrived -- </button>
+							</form>
+						</div>
+						<div class="displayFieldDiv"><b>Tracking Number:</b> <a href="" target="_blank"><?php echo $shipArr['trackingNumber']; ?></a></div>
 						<?php
-						if($shipArr['checkinTimestamp']){
-							if($shipArr['checkinTimestamp']) echo '<div class="displayFieldDiv"><b>Check-in Timestamp:</b> '.$shipArr['checkinTimestamp'].'</div>';
-							if($shipArr['checkinUser']) echo '<div class="displayFieldDiv"><b>Check-in User:</b> '.$shipArr['checkinUser'].'</div>';
-						}
-						else{
-							?>
-							<div class="displayFieldDiv" style="color:orange;font-size:120%">
-								<b>Not yet arrived</b>
-								<form action="manifestviewer.php" method="post" style="display:inline;margin-left:20px">
-									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-									<button name="action" type="submit" value="checkinShipment"> -- Mark as Arrived -- </button>
-								</form>
-							</div>
-							<div class="displayFieldDiv"><b>Tracking Number:</b> <a href="" target="_blank"><?php echo $shipArr['trackingNumber']; ?></a></div>
+					}
+					$sampleCntArr = $shipManager->getSampleCount();
+					?>
+					<div style="margin-top:10px">
+						<div class="displayFieldDiv">
+							<b>Total Sample Count:</b>
 							<?php
-						}
-						echo '<div style="margin-top:15px">';
-						$sampleCntArr = $shipManager->getSampleCount();
-						echo '<div class="displayFieldDiv"><b>Total Sample Count:</b> '.$sampleCntArr['cnt'].'</div>';
-						unset($sampleCntArr['cnt']);
-						$notCheckedIn = 0;
-						if(isset($sampleCntArr[0])){
-							$notCheckedIn = $sampleCntArr[0];
-							unset($sampleCntArr[0]);
-						}
-						echo '<div class="displayFieldDiv"><b>Samples checked-in:</b> '.$checkinCnt.'</div>';
-						if($notCheckedIn) echo '<div class="displayFieldDiv"><b>Samples not checked-in:</b> '.$notCheckedIn.'</div>';
-						echo '</div>';
-						if($shipArr['checkinTimestamp']){
+							echo ($sampleCntArr['all']);
+							if($sampleCntArr[0]){
+								?>
+								<form action="manifestviewer.php" method="post" style="display:inline;" title="Refresh Counts">
+									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+									<input type="image" src="../../images/refresh.png" style="width:15px;" />
+								</form>
+								<?php
+							}
+							?>
+						</div>
+						<?php
+						if($sampleCntArr[0]){
+							echo '<div class="displayFieldDiv" style="margin-left:15px;"><b>Not checked-in:</b> '.$sampleCntArr[0].'</div>';
 							?>
 							<div>
 								<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
@@ -177,40 +185,60 @@ include($SERVER_ROOT.'/header.php');
 							</div>
 							<?php
 						}
+						if($sampleCntArr[1]){
+							echo '<div class="displayFieldDiv" style="margin-left:15px;"><b>Not checked-in:</b> '.$sampleCntArr[0].'</div>';
+						}
 						?>
 					</div>
 				</div>
 				<?php
 				if($shipArr['checkinTimestamp']){
+					$sampleList = $shipManager->getSampleArr();
 					?>
-					<div style="clear:both;margin-top:30px;">
+					<div style="clear:both;padding-top:30px;">
 						<fieldset>
 							<legend><b>Sample Listing</b></legend>
 							<form action="manifestviewer.php" method="post" onsubmit="return batchCheckinFormVerify(this)">
 								<table class="styledtable">
-									<tr><th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th><th>Sample ID</th><th>Sample Code</th><th>Sample Class</th><th>Taxon ID</th><th>Named Location</th><th>Collect Date</th><th>Quarantine Status</th><th>Check-in ts</th></tr>
 									<?php
-									$sampleList = $shipManager->getSampleArr();
+									$printHeader = true;
 									foreach($sampleList as $samplePK => $sampleArr){
+										if($printHeader){
+											?>
+											<tr>
+												<?php
+												if($sampleCntArr[0]) echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
+												$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample Code', 'sampleClass'=>'Sample Class', 'taxonID'=>'Taxon ID',
+													'namedLocation'=>'Named Location', 'collectDate'=>'Collect Date', 'quarantineStatus'=>'Quarantine Status','checkinUser'=>'Check-in User');
+												//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
+												foreach($sampleArr as $headerName => $v){
+													if(array_key_exists($headerName, $headerArr)) echo '<th>'.$headerArr[$headerName].'</th>';
+												}
+												?>
+											</tr>
+											<?php
+											$printHeader = false;
+										}
 										echo '<tr>';
-										echo '<td>'.($sampleArr['checkinTS']?'':'<input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" />').'</td>';
+										if($sampleCntArr[0]) echo '<td>'.(isset($sampleArr['checkinTimestamp'])?'':'<input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" />').'</td>';
 										echo '<td>'.$sampleArr['sampleID'].'</td>';
-										echo '<td>'.$sampleArr['sampleCode'].'</td>';
+										if(isset($sampleArr['sampleCode'])) echo '<td>'.$sampleArr['sampleCode'].'</td>';
 										echo '<td>'.$sampleArr['sampleClass'].'</td>';
-										echo '<td>'.$sampleArr['taxonID'].'</td>';
+										if(isset($sampleArr['taxonID'])) echo '<td>'.$sampleArr['taxonID'].'</td>';
 										echo '<td>'.$sampleArr['namedLocation'].'</td>';
 										echo '<td>'.$sampleArr['collectDate'].'</td>';
 										echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
-										echo '<td title="'.$sampleArr['checkinUser'].'"><span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTS'].'</span></td>';
+										if(isset($sampleArr['checkinUser'])) echo '<td title="'.$sampleArr['checkinUser'].'"><span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span></td>';
 										echo '</tr>';
 										$str = '';
-										if($sampleArr['individualCount']) $str .= '<div>Individual Count: '.$sampleArr['individualCount'].'</div>';
-										if($sampleArr['filterVolume']) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
-										if($sampleArr['domainRemarks']) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
-										if($sampleArr['sampleNotes']) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
+										if(isset($sampleArr['individualCount'])) $str .= '<div>Individual Count: '.$sampleArr['individualCount'].'</div>';
+										if(isset($sampleArr['filterVolume'])) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
+										if(isset($sampleArr['domainRemarks'])) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
+										if(isset($sampleArr['sampleNotes'])) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
 										if($str) echo '<tr><td colspan="8"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
 									}
 									?>
+
 								</table>
 								<div style="margin:15px">
 									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />

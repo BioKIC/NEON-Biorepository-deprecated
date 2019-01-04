@@ -9,6 +9,7 @@ class ShipmentManager{
 	private $fieldMap = array();
 	private $sourceArr = array();
 	private $stateArr = array();
+	private $sampleClassArr = array();
 	private $errorStr;
 
  	public function __construct(){
@@ -205,6 +206,7 @@ class ShipmentManager{
 		$pkArr = $postArr['scbox'];
 		if($this->shipmentPK && $pkArr){
 			$this->setStateArr();
+			$this->setSampleClassArr();
 			$sql = 'SELECT samplePK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedLocation, collectDate '.
 				'FROM neonsample '.
 				'WHERE occid IS NULL AND samplePK IN('.implode(',',$pkArr).')';
@@ -212,10 +214,10 @@ class ShipmentManager{
 			while($r = $rs->fetch_object()){
 				$sampleArr = array();
 				$sampleArr['samplePK'] = $r->samplePK;
-				$sampleArr['sampleID'] = $r->samplePK;
-				$sampleArr['sampleCode'] = $r->samplePK;
-				$sampleArr['sampleClass'] = $r->samplePK;
-				$sampleArr['taxonID'] = $r->samplePK;
+				$sampleArr['sampleID'] = $r->sampleID;
+				$sampleArr['sampleCode'] = $r->sampleCode;
+				$sampleArr['sampleClass'] = $r->sampleClass;
+				$sampleArr['taxonID'] = $r->taxonID;
 				$sampleArr['individualCount'] = $r->individualCount;
 				$sampleArr['filterVolume'] = $r->filterVolume;
 				$sampleArr['namedLocation'] = $r->namedLocation;
@@ -236,6 +238,11 @@ class ShipmentManager{
 			if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
 			if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
 
+			if($sampleArr['sampleClass']){
+				if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
+				else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
+			}
+
 			//Build proper location code
 			if($sampleArr['namedLocation']){
 				$locationName = $sampleArr['namedLocation'];
@@ -246,16 +253,22 @@ class ShipmentManager{
 							$locationName .= '.'.$m[1];
 						}
 					}
+					elseif(substr($sampleArr['sampleClass'],0,4) == 'bet_'){
+
+					}
 				}
 				$this->getNeonLocationData($dwcArr, $locationName);
 			}
 			//Load record into omoccurrences table
 			if($dwcArr){
+				$sql1 = ''; $sql2 = '';
 				foreach($dwcArr as $fieldName => $fieldValue){
 					$sql1 .= '"'.$fieldName.'",';
 					$sql2 .= '"'.$fieldValue.'",';
 				}
 				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').') VALUES('.trim($sql2,',').')';
+				echo $sql;
+				exit;
 				if($this->conn->query($sql)){
 					//Update NEON Sample table with new occid
 					$this->conn->query('UPDATE neonsample SET occid = '.$this->conn->insert_id.' WHERE (occid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
@@ -271,18 +284,15 @@ class ShipmentManager{
 
 	private function getNeonLocationData(&$dwcArr, $locationName){
 		//http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
-		//curl -X GET --header 'Accept: application/json' 'http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam'
 		$url = 'http://data.neonscience.org/api/v0/locations/'.$locationName;
-		$ch = curl_init($url);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json', 'Accept: application/json') );
-		$json = curl_exec($ch);
-		$resultArr = array_shift(json_decode($json,true));
+		$resultArr = $this->getNeonApiArr($url);
 		//Extract DwC values
-		$locality = $resultArr['locationDescription'];
+		$locality = $this->getParentStr($resultArr);
+
 		$dwcArr['decimalLatitude'] = $resultArr['locationDecimalLatitude'];
 		$dwcArr['decimalLongitude'] = $resultArr['locationDecimalLongitude'];
 		$dwcArr['minimumElevationInMeters'] = $resultArr['locationElevation'];
-		$habitat = '';
+		$habitatArr = array();
 		$locPropArr = $resultArr['locationProperties'];
 		foreach($locPropArr as $propArr){
 			if($propArr['locationPropertyName'] == 'Value for Coordinate source') $dwcArr['georeferenceSources'] = $propArr['locationPropertyValue'];
@@ -294,30 +304,72 @@ class ShipmentManager{
 			}
 			elseif($propArr['locationPropertyName'] == 'Value for County') $dwcArr['county'] = $propArr['locationPropertyValue'];
 			elseif($propArr['locationPropertyName'] == 'Value for Geodetic datum') $dwcArr['geodeticDatum'] = $propArr['locationPropertyValue'];
-			elseif(strpos($propArr['locationPropertyName'],'Value for National Land Cover Database') !== false) $habitat = $propArr['locationPropertyValue'];
 			elseif($propArr['locationPropertyName'] == 'Value for Plot dimensions') $locality .= ' (plot dimensions: '.$propArr['locationPropertyValue'].')';
-			elseif($propArr['locationPropertyName'] == 'Value for Slope aspect') $habitat .= '; slope aspect:'.$propArr['locationPropertyValue'];
-			elseif($propArr['locationPropertyName'] == 'Value for Slope gradient') $habitat .= '; slope gradient:'.$propArr['locationPropertyValue'];
-			elseif($propArr['locationPropertyName'] == 'Value for Soil type order') $habitat .= '; soil type order:'.$propArr['locationPropertyValue'];
+			elseif(strpos($propArr['locationPropertyName'],'Value for National Land Cover Database') !== false) $habitatArr['landcover'] = $propArr['locationPropertyValue'];
+			elseif($propArr['locationPropertyName'] == 'Value for Slope aspect') $habitatArr['aspect'] = 'slope aspect: '.$propArr['locationPropertyValue'];
+			elseif($propArr['locationPropertyName'] == 'Value for Slope gradient') $habitatArr['gradient'] = 'slope gradient: '.$propArr['locationPropertyValue'];
+			elseif($propArr['locationPropertyName'] == 'Value for Soil type order') $habitatArr['soil'] = 'soil type order: '.$propArr['locationPropertyValue'];
 			elseif($propArr['locationPropertyName'] == 'Value for State province'){
 				$stateStr = $propArr['locationPropertyValue'];
 				if(array_key_exists($stateStr, $this->stateArr)) $stateStr = $this->stateArr[$stateStr];
 				$dwcArr['stateProvince'] = $stateStr;
 			}
-			elseif($propArr['locationPropertyName'] == '') $dwcArr[''] = $propArr['locationPropertyValue'];
-			elseif($propArr['locationPropertyName'] == '') $dwcArr[''] = $propArr['locationPropertyValue'];
-			elseif($propArr['locationPropertyName'] == '') $dwcArr[''] = $propArr['locationPropertyValue'];
-			elseif($propArr['locationPropertyName'] == '') $dwcArr[''] = $propArr['locationPropertyValue'];
-			elseif($propArr['locationPropertyName'] == '') $dwcArr[''] = $propArr['locationPropertyValue'];
-
 		}
-		if($locality) $dwcArr['locality'] = $locality;
-		if($habitat) $dwcArr['habitat'] = $habitat;
+		if($locality) $dwcArr['locality'] = trim($locality,', ');
+		//Grab some habitat details availalbe with parent location
+		if(preg_match('/basePlot\.bet\.[NSEW]{1}/',$locationName)){
+			$urlHab = 'http://data.neonscience.org/api/v0/locations/'.substr($locationName,0,-2);
+			$habArr = $this->getNeonApiArr($urlHab);
+			if(isset($habArr['locationProperties'])){
+				foreach($habArr['locationProperties'] as $propArr){
+					if($propArr['locationPropertyName'] == 'Value for Slope aspect' && !isset($habitatArr['aspect'])) $habitatArr['aspect'] = 'slope aspect: '.$propArr['locationPropertyValue'];
+					elseif($propArr['locationPropertyName'] == 'Value for Slope gradient' && !isset($habitatArr['gradient'])) $habitatArr['gradient'] = 'slope gradient: '.$propArr['locationPropertyValue'];
+					elseif($propArr['locationPropertyName'] == 'Value for Soil type order' && !isset($habitatArr['soil'])) $habitatArr['soil'] = 'soil type order: '.$propArr['locationPropertyValue'];
+				}
+			}
+		}
+		if($habitatArr) $dwcArr['habitat'] = implode('; ',$habitatArr);
 	}
 
-	private function getNeonSampleUUID(){
-		//curl -X GET --header 'Accept: application/json' 'http://data.neonscience.org/api/v0/samples/view?barcode=D00000013503'
+	private function getParentStr($resultArr){
+		$parStr = '';
+		if(isset($resultArr['locationDescription'])){
+			$parStr = str_replace(array('"',', RELOCATABLE'),'',$resultArr['locationDescription']);
+			$parStr = preg_replace('/ at site [A-Z]+/', '', $parStr);
+			if(isset($resultArr['locationParent'])){
+				if($resultArr['locationParent'] == 'REALM') return '';
+				$url = 'http://data.neonscience.org/api/v0/locations/'.$resultArr['locationParent'];
+				$newLoc = $this->getParentStr($this->getNeonApiArr($url));
+				if($newLoc) $parStr = $newLoc.', '.$parStr;
+			}
+		}
+		return $parStr;
+	}
 
+	private function getNeonApiArr($url){
+		$retArr = array();
+		if($url){
+			//Request URL example: http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
+			//$json = file_get_contents($url);
+
+			//curl -X GET --header 'Accept: application/json' 'http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam'
+			$curl = curl_init($url);
+			curl_setopt($curl, CURLOPT_PUT, 1);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json', 'Accept: application/json') );
+			curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+			$json = curl_exec($curl);
+			curl_close($curl);
+
+			$resultArr = json_decode($json,true);
+			if(isset($resultArr['data'])){
+				$retArr = $resultArr['data'];
+			}
+			else{
+				echo '<li style="margin-left:15px">ERROR retrieving NEON data: '.$url.'</li>';
+				return false;
+			}
+		}
+		return $retArr;
 	}
 
 	private function setStateArr(){
@@ -326,9 +378,18 @@ class ShipmentManager{
 			'WHERE c.iso = "us" ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$this->stateArr[$r->abbrev] = $this->stateArr[$r->statename];
+			$this->stateArr[$r->abbrev] = $r->statename;
 		}
 		$rs->free();
+	}
+
+	private function setSampleClassArr(){
+		$result = $this->getNeonApiArr('http://data.neonscience.org/api/v0/samples/supportedClasses');
+		if(isset($result['entries'])){
+			foreach($result['entries'] as $k => $classArr){
+				$this->sampleClassArr[$classArr['key']] = $classArr['value'];
+			}
+		}
 	}
 
 	//Shipment import functions

@@ -176,9 +176,9 @@ include($SERVER_ROOT.'/header.php');
 							?>
 						</div>
 						<div style="margin-left:15px">
+							<div class="displayFieldDiv"><b>Not checked-in:</b> <?php echo $sampleCntArr[0]; ?></div>
 							<?php
 							if($sampleCntArr[0]){
-								echo '<div class="displayFieldDiv"><b>Not checked-in:</b> '.$sampleCntArr[0].'</div>';
 								?>
 								<div>
 									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
@@ -189,8 +189,8 @@ include($SERVER_ROOT.'/header.php');
 								</div>
 								<?php
 							}
-							echo '<div class="displayFieldDiv"><b>Occurrences not harvested:</b> '.$sampleCntArr[1].'</div>';
 							?>
+							<div class="displayFieldDiv"><b>Missing Occurrence Link:</b> <?php echo $sampleCntArr[1]; ?></div>
 						</div>
 					</div>
 				</div>

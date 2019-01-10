@@ -284,6 +284,15 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			elseif($eDate1 = $this->cleanInStr($this->formatDate($dateArr[0]))){
 				$eDate2 = (count($dateArr)>1?$this->cleanInStr($this->formatDate($dateArr[1])):'');
 				if($eDate2){
+					if(substr($eDate2,-6) == '-00-00') $eDate2 = str_replace('-00-00', '-12-31', $eDate2);
+					elseif(preg_match('/-(\d{2})-00$/', $eDate2, $m)){
+						$day = '00';
+						$month = $m[1];
+						if($month == 12) $day = '31';
+						else $month++;
+						if(strlen($month) == 1) $month = '0'.$month;
+						$eDate2 = substr($eDate2,0,4).'-'.$month.'-'.$day;
+					}
 					$sqlWhere .= 'AND (o.eventdate BETWEEN "'.$eDate1.'" AND "'.$eDate2.'") ';
 				}
 				else{
@@ -369,6 +378,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if($sqlWhere){
 			if(!array_key_exists("includecult",$this->searchTermArr)){
 				$sqlWhere .= "AND (o.cultivationStatus IS NULL OR o.cultivationStatus = 0) ";
+				$this->displaySearchArr[] = 'excluding cultivated/captive occurrences';
 			}
 			else{
 				$this->displaySearchArr[] = 'includes cultivated/captive occurrences';

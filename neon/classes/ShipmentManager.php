@@ -234,10 +234,12 @@ class ShipmentManager{
 		if($sampleArr['samplePK']){
 			$dwcArr = array();
 			//Get data that was provided within manifest
+			$dwcArr['catalogNumber'] = $sampleArr['sampleID'];
 			if($sampleArr['collectDate']) $dwcArr['eventDate'] = $sampleArr['collectDate'];
 			if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
 			if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
 
+			//Set occurrence description using sampleClass
 			if($sampleArr['sampleClass']){
 				if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
 				else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
@@ -257,8 +259,13 @@ class ShipmentManager{
 
 					}
 				}
-				$this->getNeonLocationData($dwcArr, $locationName);
+				$this->setNeonLocationData($dwcArr, $locationName);
 			}
+
+			//Set addtional data
+			if($sampleArr['taxonID']) $this->setNeonTaxonomy($dwcArr, $sampleArr['taxonID']);
+			$this->setNeonCollector($dwcArr);
+
 			//Load record into omoccurrences table
 			if($dwcArr){
 				$sql1 = ''; $sql2 = '';
@@ -282,12 +289,12 @@ class ShipmentManager{
 		return $status;
 	}
 
-	private function getNeonLocationData(&$dwcArr, $locationName){
+	private function setNeonLocationData(&$dwcArr, $locationName){
 		//http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
 		$url = 'http://data.neonscience.org/api/v0/locations/'.$locationName;
 		$resultArr = $this->getNeonApiArr($url);
 		//Extract DwC values
-		$locality = $this->getParentStr($resultArr);
+		$locality = $this->getLocationParentStr($resultArr);
 
 		$dwcArr['decimalLatitude'] = $resultArr['locationDecimalLatitude'];
 		$dwcArr['decimalLongitude'] = $resultArr['locationDecimalLongitude'];
@@ -331,7 +338,7 @@ class ShipmentManager{
 		if($habitatArr) $dwcArr['habitat'] = implode('; ',$habitatArr);
 	}
 
-	private function getParentStr($resultArr){
+	private function getLocationParentStr($resultArr){
 		$parStr = '';
 		if(isset($resultArr['locationDescription'])){
 			$parStr = str_replace(array('"',', RELOCATABLE'),'',$resultArr['locationDescription']);
@@ -339,7 +346,7 @@ class ShipmentManager{
 			if(isset($resultArr['locationParent'])){
 				if($resultArr['locationParent'] == 'REALM') return '';
 				$url = 'http://data.neonscience.org/api/v0/locations/'.$resultArr['locationParent'];
-				$newLoc = $this->getParentStr($this->getNeonApiArr($url));
+				$newLoc = $this->getLocationParentStr($this->getNeonApiArr($url));
 				if($newLoc) $parStr = $newLoc.', '.$parStr;
 			}
 		}
@@ -370,6 +377,27 @@ class ShipmentManager{
 			}
 		}
 		return $retArr;
+	}
+
+	private function setNeonTaxonomy(&$dwcArr, $taxonCode){
+		$sql = 'SELECT t.tid, t.sciname, t.author, ts.family '.
+			'FROM taxa t INNER JOIN taxaresourcelinks r ON t.tid = r.tid '.
+			'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+			'WHERE (ts.taxauthid = 1) AND (r.sourceidentifier = "'.$taxonCode.'")';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$dwcArr['sciname'] = $r->sciname;
+			$dwcArr['scientificNameAuthorship'] = $r->author;
+			$dwcArr['tidinterpreted'] = $r->tid;
+			$dwcArr['family'] = $r->family;
+		}
+		$rs->free();
+		if(!isset($dwcArr['sciname'])) $dwcArr['sciname'] = $taxonCode;
+	}
+
+	private function setNeonCollector(&$dwcArr){
+		//Not yet sure how to obtain this data
+
 	}
 
 	private function setStateArr(){

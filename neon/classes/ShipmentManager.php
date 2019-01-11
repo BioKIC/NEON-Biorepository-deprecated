@@ -190,7 +190,7 @@ class ShipmentManager{
 			$pkArr = $postArr['scbox'];
 			if($pkArr){
 				$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() '.
-					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (samplePK IN('.implode(',', $pkArr).')) ';
+					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (samplePK IN('.implode(',', $pkArr).')) AND (checkinTimestamp IS NULL)';
 				if(!$this->conn->query($sql)){
 					$this->errorStr = 'ERROR batch checking-in samples: '.$this->conn->error;
 					return false;

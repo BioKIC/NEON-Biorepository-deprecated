@@ -82,7 +82,6 @@ if($isEditor){
 							$("#successText").animate({fontSize: "120%"}, "slow");
 							$("#successText").animate({fontSize: "100%"}, "slow");
 							//$("#successText").hide();
-							$("#scbox-"+submitStatus).hide();
 							$("#scSpan-"+submitStatus).html("checked-in");
 						}
 					});
@@ -157,7 +156,7 @@ include($SERVER_ROOT.'/header.php');
 								<button name="action" type="submit" value="checkinShipment"> -- Mark as Arrived -- </button>
 							</form>
 						</div>
-						<div class="displayFieldDiv"><b>Tracking Number:</b> <a href="" target="_blank"><?php echo $shipArr['trackingNumber']; ?></a></div>
+						<div class="displayFieldDiv"><b>Tracking Number:</b> <a href="https://www.fedex.com/apps/fedextrack/?action=track&tracknumbers=<?php echo trim($shipArr['trackingNumber'],' #'); ?>&locale=en_US&cntry_code=us" target="_blank"><?php echo $shipArr['trackingNumber']; ?></a></div>
 						<?php
 					}
 					$sampleCntArr = $shipManager->getSampleCount();
@@ -205,36 +204,31 @@ include($SERVER_ROOT.'/header.php');
 							<legend><b>Sample Listing</b></legend>
 							<form action="manifestviewer.php" method="post" onsubmit="return batchCheckinFormVerify(this)">
 								<table class="styledtable">
-									<?php
-									$printHeader = true;
-									foreach($sampleList as $samplePK => $sampleArr){
-										if($printHeader){
-											?>
-											<tr>
-												<?php
-												echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
-												$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample Code', 'sampleClass'=>'Sample Class', 'taxonID'=>'Taxon ID',
-														'namedLocation'=>'Named Location', 'collectDate'=>'Collect Date', 'quarantineStatus'=>'Quarantine Status','checkinUser'=>'Check-in','occid'=>'occid');
-												//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
-												foreach($sampleArr as $headerName => $v){
-													if(array_key_exists($headerName, $headerArr)) echo '<th>'.$headerArr[$headerName].'</th>';
-												}
-												?>
-											</tr>
-											<?php
-											$printHeader = false;
+									<tr>
+										<?php
+										$headerOutArr = current($sampleList);
+										echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
+										$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample Code', 'sampleClass'=>'Sample Class', 'taxonID'=>'Taxon ID',
+											'namedLocation'=>'Named Location', 'collectDate'=>'Collect Date', 'quarantineStatus'=>'Quarantine Status','checkinUser'=>'Check-in','occid'=>'occid');
+											//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
+										foreach($headerOutArr as $headerName => $v){
+											if(array_key_exists($headerName, $headerArr) || $headerName == 'checkinUser') echo '<th>'.$headerArr[$headerName].'</th>';
 										}
+										?>
+									</tr>
+									<?php
+									foreach($sampleList as $samplePK => $sampleArr){
 										echo '<tr>';
 										echo '<td><input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
 										echo '<td>'.$sampleArr['sampleID'].'</td>';
-										if(isset($sampleArr['sampleCode'])) echo '<td>'.$sampleArr['sampleCode'].'</td>';
+										if(array_key_exists('sampleCode',$sampleArr)) echo '<td>'.$sampleArr['sampleCode'].'</td>';
 										echo '<td>'.$sampleArr['sampleClass'].'</td>';
-										if(isset($sampleArr['taxonID'])) echo '<td>'.$sampleArr['taxonID'].'</td>';
+										if(array_key_exists('taxonID',$sampleArr)) echo '<td>'.$sampleArr['taxonID'].'</td>';
 										echo '<td>'.$sampleArr['namedLocation'].'</td>';
 										echo '<td>'.$sampleArr['collectDate'].'</td>';
 										echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
-										if(isset($sampleArr['checkinUser'])) echo '<td title="'.$sampleArr['checkinUser'].'"><span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span></td>';
-										if(isset($sampleArr['occid'])) echo '<td><a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank">'.$sampleArr['occid'].'</a></td>';
+										echo '<td title="'.$sampleArr['checkinUser'].'"><span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span></td>';
+										if(array_key_exists('occid',$sampleArr)) echo '<td><a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank">'.$sampleArr['occid'].'</a></td>';
 										echo '</tr>';
 										$str = '';
 										if(isset($sampleArr['individualCount'])) $str .= '<div>Individual Count: '.$sampleArr['individualCount'].'</div>';
@@ -244,12 +238,11 @@ include($SERVER_ROOT.'/header.php');
 										if($str) echo '<tr><td colspan="8"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
 									}
 									?>
-
 								</table>
 								<div style="margin:15px">
 									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 									<button name="action" type="submit" value="batchCheckin">Batch Check-in Samples</button>
-									<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest Occurrences</button>
+									<button name="action" type="submit" value="batchHarvestOccid" disabled>Batch Harvest Occurrences</button>
 								</div>
 							</form>
 						</fieldset>

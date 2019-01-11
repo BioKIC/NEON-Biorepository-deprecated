@@ -106,14 +106,14 @@ class ShipmentManager{
 	public function getSampleCount(){
 		$retArr = array();
 		//Get total sample count
-		$sql = 'SELECT COUNT(samplepk) AS cnt FROM neonsample WHERE (shipmentPK = '.$this->shipmentPK.')';
+		$sql = 'SELECT COUNT(samplepk) AS cnt FROM NeonSample WHERE (shipmentPK = '.$this->shipmentPK.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr['all'] = $r->cnt;
 		}
 		$rs->free();
 		//Get sample count not yet checked-in
-		$sql = 'SELECT COUNT(samplepk) AS cnt FROM neonsample WHERE (shipmentPK = '.$this->shipmentPK.') AND (checkinUid IS NULL)';
+		$sql = 'SELECT COUNT(samplepk) AS cnt FROM NeonSample WHERE (shipmentPK = '.$this->shipmentPK.') AND (checkinUid IS NULL)';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[0] = $r->cnt;
@@ -121,7 +121,7 @@ class ShipmentManager{
 		$rs->free();
 		//Get count of samples not yet imported
 		$sql = 'SELECT COUNT(s.samplepk) AS cnt '.
-			'FROM neonsample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
+			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
 			'WHERE (s.shipmentPK = '.$this->shipmentPK.') AND (o.occid IS NULL)';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -137,7 +137,7 @@ class ShipmentManager{
 		$targetArr = array();
 		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, '.
 			's.collectDate, s.quarantineStatus, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
-			'FROM neonsample s LEFT JOIN users u ON s.checkinuid = u.uid '.
+			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid '.
 			'WHERE s.shipmentPK = '.$this->shipmentPK;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
@@ -157,7 +157,7 @@ class ShipmentManager{
 
 	//Check-in functions
 	public function checkinShipment(){
-		$sql = 'UPDATE neonshipment SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() WHERE checkinUid IS NULL AND shipmentpk = '.$this->shipmentPK;
+		$sql = 'UPDATE NeonShipment SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() WHERE checkinUid IS NULL AND shipmentpk = '.$this->shipmentPK;
 		if(!$this->conn->query($sql)){
 			$this->errorStr = 'ERROR checking-in shipment: '.$this->conn->error;
 			return false;
@@ -208,7 +208,7 @@ class ShipmentManager{
 			$this->setStateArr();
 			$this->setSampleClassArr();
 			$sql = 'SELECT samplePK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedLocation, collectDate '.
-				'FROM neonsample '.
+				'FROM NeonSample '.
 				'WHERE occid IS NULL AND samplePK IN('.implode(',',$pkArr).')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -278,7 +278,7 @@ class ShipmentManager{
 				exit;
 				if($this->conn->query($sql)){
 					//Update NEON Sample table with new occid
-					$this->conn->query('UPDATE neonsample SET occid = '.$this->conn->insert_id.' WHERE (occid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
+					$this->conn->query('UPDATE NeonSample SET occid = '.$this->conn->insert_id.' WHERE (occid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
 				}
 				else{
 					$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
@@ -635,9 +635,9 @@ class ShipmentManager{
 		$retArr = array();
 		$sql = 'SELECT DISTINCT uid, username '.
 			'FROM (SELECT u.uid, CONCAT_WS(" ", u.lastname, u.firstname) as username '.
-			'FROM users u INNER JOIN neonshipment s ON u.uid = s.importUid '.
+			'FROM users u INNER JOIN NeonShipment s ON u.uid = s.importUid '.
 			'union SELECT u.uid, CONCAT_WS(" ", u.lastname, u.firstname) as username '.
-			'FROM users u INNER JOIN neonshipment s ON u.uid = s.modifiedbyUid) u';
+			'FROM users u INNER JOIN NeonShipment s ON u.uid = s.modifiedbyUid) u';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->uid] = $r->username;
@@ -648,7 +648,7 @@ class ShipmentManager{
 
 	public function getCheckinUserArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT u.uid, CONCAT_WS(" ", u.lastname, u.firstname) as username FROM users u INNER JOIN neonsample s ON u.uid = s.checkinUid';
+		$sql = 'SELECT DISTINCT u.uid, CONCAT_WS(" ", u.lastname, u.firstname) as username FROM users u INNER JOIN NeonSample s ON u.uid = s.checkinUid';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->uid] = $r->username;

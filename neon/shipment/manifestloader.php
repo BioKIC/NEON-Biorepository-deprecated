@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/neon/classes/ShipmentManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
@@ -135,13 +137,7 @@ if($isEditor){
 				$loaderManager->setFieldMap($fieldMap);
 				$loaderManager->uploadData();
 				echo '</ul>';
-				?>
-				<fieldset style="margin:15px;padding:15px">
-					<legend><b>Navigation Menu</b></legend>
-					<div style="margin:5px"><a href="samplecheckin.php">Sample Check-in</a></div>
-					<div style="margin:5px"><a href="manifestviewer.php">Go to Manifest View</a></div>
-				</fieldset>
-				<?php
+				echo '<div style="margin:10px 0px"><a href="manifestviewer.php">Proceed to Manifest Manager</a></div>';
 			}
 			else{
 				?>

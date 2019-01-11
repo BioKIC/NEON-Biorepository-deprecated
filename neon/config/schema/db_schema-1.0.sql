@@ -18,7 +18,7 @@ CREATE TABLE `NeonShipment` (
   CONSTRAINT `FK_neon_ship_checkinUid` FOREIGN KEY (`checkinUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
   CONSTRAINT `FK_neon_ship_moduid` FOREIGN KEY (`modifiedByUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
   
-ALTER TABLE `neonshipment` 
+ALTER TABLE `NeonShipment` 
   ADD UNIQUE INDEX `UNIQUE_INDEX` (`shipmentID` ASC),
   ADD INDEX `FK_neon_ship_importUid_idx` (`importUid` ASC),
   ADD INDEX `FK_neon_ship_checkinUid_idx` (`checkinUid` ASC),
@@ -49,6 +49,6 @@ CREATE TABLE `NeonSample` (
   UNIQUE INDEX `UNIQUE_sampleID` (`sampleID` ASC),
   UNIQUE INDEX `UNIQUE_occid` (`occid` ASC),
   CONSTRAINT `FK_neon_sample_checkinuid` FOREIGN KEY (`checkinUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
-  CONSTRAINT `FK_neon_samples_shipmentid`  FOREIGN KEY (`shipmentPK`)  REFERENCES `shipment` (`shipmentPK`)  ON DELETE CASCADE  ON UPDATE CASCADE),
-  CONSTRAINT `FK_neon_sample_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
+  CONSTRAINT `FK_neon_samples_shipmentid`  FOREIGN KEY (`shipmentPK`)  REFERENCES `NeonShipment` (`shipmentPK`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_neon_sample_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
 

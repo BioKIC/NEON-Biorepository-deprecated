@@ -1,7 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 include_once('../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-//if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/index.php');
+if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/index.php');
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 
@@ -38,7 +40,7 @@ if($isEditor){
 			<ul>
 				<li><a href="shipment/manifestloader.php">Load and Process New Manifests</a></li>
 				<li><a href="shipment/manifestviewer.php">Search, View, and Process a Manifest</a></li>
-				<li><a href="shipment/samplecheckin.php">Check-in Samples from a Shipment</a></li>
+				<li><a href="">Check-in Samples from a Shipment</a></li>
 			</ul>
 		</fieldset>
 	</div>

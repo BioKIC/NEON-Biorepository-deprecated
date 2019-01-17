@@ -51,6 +51,9 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 							<?php
 						}
 						?>
+						<li>
+							<a href='<?php echo $CLIENT_ROOT; ?>/sitemap.php'><?php echo (isset($LANG['H_SITEMAP'])?$LANG['H_SITEMAP']:'Sitemap'); ?></a>
+						</li>
 					</div>
 					<ul id="hor_dropdown">
 						<li>
@@ -85,27 +88,30 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 							</ul>
 						</li>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1" >NEON Research Sites</a>
+							<a href="#">NEON Sites Species Lists</a>
 							<ul>
 								<li>
-									<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2">Eastern</a>
+									<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">NEON Plant Lists</a>
 								</li>
-								<li>
-									<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3">Central</a>
-								</li>
-								<li>
-									<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=4">Western</a>
-								</li>
+								<?php
+								if($IS_ADMIN){
+									?>
+									<li>
+										<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2">NEON Plant Lists not yet processed (private)</a>
+									</li>
+									<?php
+								}
+								?>
 							</ul>
 						</li>
 						<li>
 							<a href="#" >Additional Information</a>
 							<ul>
 								<li>
-									<a href="https://www.neonscience.org" target="_blank" >NEON Homesite</a>
+									<a href="https://www.neonscience.org" target="_blank" >About NEON</a>
 								</li>
 								<li>
-									<a href='<?php echo $CLIENT_ROOT; ?>/sitemap.php'><?php echo (isset($LANG['H_SITEMAP'])?$LANG['H_SITEMAP']:'Sitemap'); ?></a>
+									<a href="https://www.neonscience.org/data/neon-data-portal" target="_blank" >NEON Data Portal</a>
 								</li>
 							</ul>
 						</li>

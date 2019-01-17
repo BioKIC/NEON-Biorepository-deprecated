@@ -132,6 +132,7 @@ include($SERVER_ROOT.'/header.php');
 					<div class="displayFieldDiv"><b>Domain ID:</b> <?php echo $shipArr['domainID']; ?></div>
 					<div class="displayFieldDiv"><b>Date Shipped:</b> <?php echo $shipArr['dateShipped']; ?></div>
 					<div class="displayFieldDiv"><b>Sender ID:</b> <?php echo $shipArr['senderID']; ?></div>
+					<div class="displayFieldDiv"><b>Send To:</b> <?php echo $shipArr['sendTo']; ?></div>
 					<div class="displayFieldDiv"><b>Shipment Service:</b> <?php echo $shipArr['shipmentService']; ?></div>
 					<div class="displayFieldDiv"><b>Shipment Method:</b> <?php echo $shipArr['shipmentMethod']; ?></div>
 					<?php
@@ -274,6 +275,9 @@ include($SERVER_ROOT.'/header.php');
 					<div class="fieldGroupDiv">
 						<div class="fieldDiv">
 							<b>Sender ID:</b> <input name="senderID" type="text" value="<?php echo (isset($_POST['senderID'])?$_POST['senderID']:''); ?>" />
+						</div>
+						<div class="fieldDiv">
+							<b>Send To:</b> <input name="sendTo" type="text" value="<?php echo (isset($_POST['sendTo'])?$_POST['sendTo']:''); ?>" />
 						</div>
 						<div class="fieldDiv">
 							<b>Tracking Number:</b> <input name="trackingNumber" type="text" value="<?php echo (isset($_POST['trackingNumber'])?$_POST['trackingNumber']:''); ?>" />

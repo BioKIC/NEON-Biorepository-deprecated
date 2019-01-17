@@ -4,6 +4,7 @@ CREATE TABLE `NeonShipment` (
   `domainID` VARCHAR(10) NOT NULL,
   `dateShipped` DATE NOT NULL,
   `senderID` VARCHAR(45) NOT NULL,
+  `sendTo` VARCHAR(45) NOT NULL,
   `shipmentService` VARCHAR(45) NULL,
   `shipmentMethod` VARCHAR(45) NULL,
   `trackingNumber` VARCHAR(45) NULL,

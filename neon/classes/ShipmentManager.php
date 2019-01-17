@@ -22,7 +22,7 @@ class ShipmentManager{
 
 	public function getShipmentArr($postArr = null){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.senderID, s.shipmentService, s.shipmentMethod, s.trackingNumber, s.notes AS shipmentNotes, '.
+		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.senderID, s.sendTo, s.shipmentService, s.shipmentMethod, s.trackingNumber, s.notes AS shipmentNotes, '.
 			'CONCAT_WS(", ", u.lastname, u.firstname) AS importUser, CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, '.
 			'CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.initialtimestamp '.
 			'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
@@ -49,6 +49,9 @@ class ShipmentManager{
 			}
 			if(isset($_POST['senderID']) && $_POST['senderID']){
 				$sqlWhere .= 'AND (s.senderID = "'.$_POST['senderID'].'") ';
+			}
+			if(isset($_POST['sendTo']) && $_POST['sendTo']){
+				$sqlWhere .= 'AND (s.sendTo = "'.$_POST['sendTo'].'") ';
 			}
 			if(isset($_POST['trackingNumber']) && $_POST['trackingNumber']){
 				$sqlWhere .= 'AND (s.trackingNumber = "'.$_POST['trackingNumber'].'") ';
@@ -89,6 +92,7 @@ class ShipmentManager{
 			$retArr[$r->shipmentPK]['domainID'] = $r->domainID;
 			$retArr[$r->shipmentPK]['dateShipped'] = $r->dateShipped;
 			$retArr[$r->shipmentPK]['senderID'] = $r->senderID;
+			$retArr[$r->shipmentPK]['sendTo'] = $r->sendTo;
 			$retArr[$r->shipmentPK]['shipmentService'] = $r->shipmentService;
 			$retArr[$r->shipmentPK]['shipmentMethod'] = $r->shipmentMethod;
 			$retArr[$r->shipmentPK]['trackingNumber'] = $r->trackingNumber;
@@ -523,9 +527,9 @@ class ShipmentManager{
 
 	public function loadShipmentRecord($recArr){
 		$shipmentPK = '';
-		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, senderID, shipmentService, shipmentMethod, trackingNumber, importUid) '.
+		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, senderID, sendTo, shipmentService, shipmentMethod, trackingNumber, importUid) '.
 			'VALUES("'.$this->cleanInStr($recArr['shipmentid']).'","'.$this->cleanInStr($recArr['domainid']).'","'.$this->cleanInStr($recArr['dateshipped']).'","'.
-			$this->cleanInStr($recArr['senderid']).'","'.$this->cleanInStr($recArr['shipmentservice']).'","'.$this->cleanInStr($recArr['shipmentmethod']).'",'.
+			$this->cleanInStr($recArr['senderid']).'","'.$this->cleanInStr($recArr['sendto']).'","'.$this->cleanInStr($recArr['shipmentservice']).'","'.$this->cleanInStr($recArr['shipmentmethod']).'",'.
 			(isset($recArr['trackingnumber'])?'"'.$this->cleanInStr($recArr['trackingnumber']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
 		if($this->conn->query($sql)){
 			$shipmentPK = $this->conn->insert_id;
@@ -596,12 +600,13 @@ class ShipmentManager{
 	//Export functions
 	public function exportShipmentList(){
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
-		$sql = 'SELECT shipmentPK, shipmentID, domainID, dateShipped, senderID, shipmentService, shipmentMethod, trackingNumber, notes, importUid, modifiedByUid, initialtimestamp FROM NeonShipment';
+		$sql = 'SELECT shipmentPK, shipmentID, domainID, dateShipped, senderID, sendTo, shipmentService, shipmentMethod, trackingNumber, notes, importUid, modifiedByUid, initialtimestamp FROM NeonShipment';
 		$this->exportShipmentData($fileName, $sql);
 	}
 
 	public function exportShipmentSampleList($shipmentPK){
-		$sql = 'SELECT samplePK, sampleID, sampleClass, namedlocation, domainremarks, collectdate, quarantineStatus, notes, CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, checkinTimestamp, initialtimestamp '.
+		$sql = 'SELECT samplePK, sampleID, sampleClass, namedlocation, domainremarks, collectdate, quarantineStatus, notes, '.
+			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, checkinTimestamp, initialtimestamp '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid WHERE s.shipmentPK = '.$shipmentPK;
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
 		$this->exportShipmentData($fileName, $sql);

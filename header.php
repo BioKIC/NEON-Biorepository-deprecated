@@ -115,6 +115,23 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 								</li>
 							</ul>
 						</li>
+						<?php
+						if($IS_ADMIN){
+							?>
+							<li>
+								<a href="#" >Management Tools</a>
+								<ul>
+									<li>
+										<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php" target="_blank">Manifest Submission</a>
+									</li>
+									<li>
+										<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestviewer.php" target="_blank">Manifest Processing</a>
+									</li>
+								</ul>
+							</li>
+							<?php
+						}
+						?>
 					</ul>
 				</div>
 			</div>

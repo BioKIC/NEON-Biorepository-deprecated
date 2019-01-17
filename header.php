@@ -51,9 +51,9 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 							<?php
 						}
 						?>
-						<li>
+						<span style="margin-left:5px;">
 							<a href='<?php echo $CLIENT_ROOT; ?>/sitemap.php'><?php echo (isset($LANG['H_SITEMAP'])?$LANG['H_SITEMAP']:'Sitemap'); ?></a>
-						</li>
+						</span>
 					</div>
 					<ul id="hor_dropdown">
 						<li>

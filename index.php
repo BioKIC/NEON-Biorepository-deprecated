@@ -93,7 +93,7 @@ $oodID = 1;
 
 //Enter checklist id (clid) of the checklist you wish to use, if you would like to use more than one checklist,
 //separate their ids with a comma ex. "1,2,3,4"
-$ootdGameChecklist = "2";
+$ootdGameChecklist = "98";
 
 //Change to modify title
 $ootdGameTitle = "Organism of the Day ";

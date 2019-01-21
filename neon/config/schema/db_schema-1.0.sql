@@ -44,6 +44,7 @@ CREATE TABLE `NeonSample` (
   `domainRemarks` VARCHAR(250) NULL,
   `collectDate` DATE NULL,
   `quarantineStatus` VARCHAR(4) NULL,
+  `sampleCondition` VARCHAR(45) NULL,
   `notes` VARCHAR(250) NULL,
   `occid` INT UNSIGNED NULL,
   `checkinUid` INT UNSIGNED NULL,

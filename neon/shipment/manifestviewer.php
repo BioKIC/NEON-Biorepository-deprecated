@@ -94,7 +94,6 @@ if($isEditor){
 						}
 						$("#checkinText").animate({fontSize: "110%"}, "slow");
 						$("#checkinText").animate({fontSize: "100%"}, "slow");
-
 						//$("#checkinText").hide();
 					});
 				}

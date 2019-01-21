@@ -133,10 +133,10 @@ class ShipmentManager{
 	public function getSampleArr(){
 		$retArr = array();
 		$headerArr = array('sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate',
-			'quarantineStatus','sampleNotes','occid','checkinUser','checkinTimestamp');
+			'quarantineStatus','sampleCondition','sampleNotes','occid','checkinUser','checkinTimestamp');
 		$targetArr = array();
 		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, '.
-			's.collectDate, s.quarantineStatus, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
+			's.collectDate, s.quarantineStatus, s.sampleCondition, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid '.
 			'WHERE s.shipmentPK = '.$this->shipmentPK;
 		$rs = $this->conn->query($sql);
@@ -384,6 +384,8 @@ class ShipmentManager{
 			}
 			$rs->free();
 			if($status == 1 && $samplePK){
+
+Add sampleCondition field
 				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() WHERE (samplePK = "'.$samplePK.'") ';
 				if(!$this->conn->query($sqlUpdate)){
 					$this->errorStr = 'ERROR checking-in NEON sample: '.$this->conn->error;
@@ -644,22 +646,31 @@ class ShipmentManager{
 	}
 
 	//Export functions
+	public function exportShipmentReceipt(){
+		$fileName = 'receipt_'.$this->shipmentPK.'_'.date('Y-m-d').'.csv';
+		$sql = 'SELECT n.shipmentID, n.receivedDate, n.receivedBy, s.sampleID, s.sampleCode, s.sampleClass, IF(s.checkinUid IS NULL, "N", "Y") AS sampleReceived, '.
+			'IF(s.quarantineStatus = "Y","N","Y") AS acceptedForAnalysis, s.sampleCondition, '' AS unknownSamples, s.notes AS remarks '.
+			'FROM NeonShipment n INNER JOIN NeonSample s ON n.shipmentPK = s.shipmentPK '.
+			'WHERE (s.shipmentPK = '.$shipmentPK.')';
+		$this->exportData($fileName, $sql);
+	}
+
 	public function exportShipmentList(){
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
 		$sql = 'SELECT shipmentPK, shipmentID, domainID, dateShipped, shippedFrom, senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, '.
-			'trackingNumber, notes, importUid, modifiedByUid, initialtimestamp FROM NeonShipment';
-		$this->exportShipmentData($fileName, $sql);
+			'trackingNumber, receivedDate, receivedBy, notes, importUid, modifiedByUid, initialtimestamp FROM NeonShipment';
+		$this->exportData($fileName, $sql);
 	}
 
 	public function exportShipmentSampleList($shipmentPK){
-		$sql = 'SELECT samplePK, sampleID, sampleClass, namedlocation, domainremarks, collectdate, quarantineStatus, notes, '.
-			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, checkinTimestamp, initialtimestamp '.
-			'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid WHERE s.shipmentPK = '.$shipmentPK;
+		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.namedlocation, s.domainremarks, s.collectdate, s.quarantineStatus, s.sampleCondition, s.notes, '.
+			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, s.checkinTimestamp, s.initialtimestamp '.
+			'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid WHERE (s.shipmentPK = '.$shipmentPK.')';
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
-		$this->exportShipmentData($fileName, $sql);
+		$this->exportData($fileName, $sql);
 	}
 
-	private function exportShipmentData($fileName, $sql){
+	private function exportData($fileName, $sql){
 		//echo "<div>".$sql."</div>"; exit;
 		header ('Content-Type: text/csv');
 		header ('Content-Disposition: attachment; filename="'.$fileName.'"');

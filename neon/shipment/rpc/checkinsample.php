@@ -5,11 +5,11 @@ include_once($SERVER_ROOT.'/neon/classes/ShipmentManager.php');
 $shipmentPK = $_REQUEST["shipmentpk"];
 $barcode = $_REQUEST["barcode"];
 
-$status = 0;
+$status = '';
 if($IS_ADMIN){
 	$shipmentManager = new ShipmentManager();
 	$shipmentManager->setShipmentPK($shipmentPK);
-	$status = $shipmentManager->checkinSample($barcode);
+	$json = $shipmentManager->checkinSample($barcode);
 }
-echo $status;
+echo $json;
 ?>

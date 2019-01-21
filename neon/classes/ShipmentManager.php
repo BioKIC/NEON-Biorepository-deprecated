@@ -224,6 +224,7 @@ class ShipmentManager{
 	}
 
 	public function uploadData(){
+		$shipmentPK = false;
 		if($this->uploadFileName){
 			echo '<li>Initiating import from: '.$this->uploadFileName.'</li>';
 			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
@@ -238,7 +239,6 @@ class ShipmentManager{
 				$indexMap[$targetField] = $index;
 			}
 			echo '<li>Beginning to load records...</li>';
-			$shipmentPK = false;
 			while($recordArr = fgetcsv($fh)){
 				$recMap = Array();
 				foreach($indexMap as $targetField => $indexValue){
@@ -260,6 +260,7 @@ class ShipmentManager{
 		else{
 			$this->outputMsg('<li>File Upload FAILED: unable to locate file</li>');
 		}
+		return $shipmentPK;
 	}
 
 	public function loadShipmentRecord($recArr){
@@ -369,23 +370,29 @@ class ShipmentManager{
 	}
 
 	public function checkinSample($sampleID){
+		$status = 3;
+		// status: 0 = check-in failed, 1 = check-in success, 2 = sample already checked-in, 3 = sample not found
 		if($this->shipmentPK && $sampleID){
 			$samplePK = 0;
-			$sql = 'SELECT samplePK FROM NeonSample WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) AND (sampleID = "'.$this->cleanInStr($sampleID).'") ';
+			$sql = 'SELECT samplePK, checkinTimestamp FROM NeonSample '.
+				'WHERE (shipmentpk = '.$this->shipmentPK.') AND (sampleID = "'.$this->cleanInStr($sampleID).'" OR sampleCode = "'.$this->cleanInStr($sampleID).'") ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$samplePK = $r->samplePK;
+				if($r->checkinTimestamp) $status = 2;
+				else $status = 1;
 			}
 			$rs->free();
-			if($samplePK){
+			if($status == 1 && $samplePK){
 				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() WHERE (samplePK = "'.$samplePK.'") ';
 				if(!$this->conn->query($sqlUpdate)){
 					$this->errorStr = 'ERROR checking-in NEON sample: '.$this->conn->error;
-					return 0;
+					$status = 0;
 				}
 			}
 		}
-		return $samplePK;
+		$retJson = json_encode(array('status'=>$status,'samplePK'=>$samplePK,'errorMsg'=>$this->errorStr));
+		return $retJson;
 	}
 
 	public function batchCheckinSamples($postArr){
@@ -393,7 +400,8 @@ class ShipmentManager{
 			$pkArr = $postArr['scbox'];
 			if($pkArr){
 				$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() '.
-					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (samplePK IN('.implode(',', $pkArr).')) AND (checkinTimestamp IS NULL)';
+					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) '.
+					'AND (samplePK IN('.implode(',', $pkArr).') OR sampleCode IN('.implode(',', $pkArr).'))';
 				if(!$this->conn->query($sql)){
 					$this->errorStr = 'ERROR batch checking-in samples: '.$this->conn->error;
 					return false;
@@ -449,7 +457,7 @@ class ShipmentManager{
 		if($sampleArr['samplePK']){
 			$dwcArr = array();
 			//Get data that was provided within manifest
-			$dwcArr['catalogNumber'] = $sampleArr['sampleID'];
+			$dwcArr['othercatalogNumbers'] = $sampleArr['sampleID'];
 			if($sampleArr['collectDate']) $dwcArr['eventDate'] = $sampleArr['collectDate'];
 			if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
 			if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
@@ -699,6 +707,18 @@ class ShipmentManager{
 		}
 		asort($retArr);
 		return $retArr;
+	}
+
+	public function getTractingUrl(){
+		$url = '';
+		$trackingId = trim($this->shipmentArr['trackingNumber'],' #');
+		if($this->shipmentArr['shipmentService'] == 'FedEx'){
+			$url = 'https://www.fedex.com/apps/fedextrack/?action=track&tracknumbers='.$trackingId.'&locale=en_US&cntry_code=us';
+		}
+		elseif($this->shipmentArr['shipmentService'] == 'UPS'){
+			$url = 'https://www.ups.com/track?loc=en_US&tracknum='.$trackingId.'&requester=WT/trackdetails';
+		}
+		return $url;
 	}
 
 	private function getContentPath(){

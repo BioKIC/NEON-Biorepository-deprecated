@@ -135,9 +135,10 @@ if($isEditor){
 				echo '<ul>';
 				$loaderManager->setUploadFileName($ulFileName);
 				$loaderManager->setFieldMap($fieldMap);
-				$loaderManager->uploadData();
+				$shipmentPK = $loaderManager->uploadData();
 				echo '</ul>';
-				echo '<div style="margin:10px 0px"><a href="manifestviewer.php">Proceed to Manifest Manager</a></div>';
+				echo '<div style="margin:10px 0px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">Proceed to Manifest Check-in</a></div>';
+				echo '<div style="margin:10px 0px"><a href="manifestviewer.php">List Manifests</a></div>';
 			}
 			else{
 				?>

@@ -67,23 +67,35 @@ if($isEditor){
 					$.ajax({
 						type: "POST",
 						url: "rpc/checkinsample.php",
+						dataType: 'json',
 						data: { shipmentpk: "<?php echo $shipmentPK; ?>", barcode: f.checkinField.value }
-					}).done(function( submitStatus ) {
-						if(submitStatus == 0){
-							$("#successText").hide();
-							$("#failText").show();
-							//$("#failText").animate({fontSize: "120%"}, "slow");
-							//$("#failText").animate({fontSize: "100%"}, "slow");
-							//$("#failText").hide();
+					}).done(function( retJson ) {
+						$("#checkinText").show();
+						if(retJson.status == 0){
+							$("#checkinText").css('color', 'red');
+							$("#checkinText").text('check-in failed!');
+						}
+						else if(retJson.status == 1){
+							$("#checkinText").css('color', 'green');
+							$("#checkinText").text('success!!!');
+							$("#scSpan-"+retJson.samplePK).html("checked-in");
+						}
+						else if(retJson.status == 2){
+							$("#checkinText").css('color', 'orange');
+							$("#checkinText").text('sample already checked-in!');
+						}
+						else if(retJson.status == 3){
+							$("#checkinText").css('color', 'red');
+							$("#checkinText").text('sample not found!');
 						}
 						else{
-							$("#failText").hide();
-							$("#successText").show();
-							$("#successText").animate({fontSize: "120%"}, "slow");
-							$("#successText").animate({fontSize: "100%"}, "slow");
-							//$("#successText").hide();
-							$("#scSpan-"+submitStatus).html("checked-in");
+							$("#checkinText").css('color', 'red');
+							$("#checkinText").text('Failed: unknown error!');
 						}
+						$("#checkinText").animate({fontSize: "110%"}, "slow");
+						$("#checkinText").animate({fontSize: "100%"}, "slow");
+
+						//$("#checkinText").hide();
 					});
 				}
 			}
@@ -146,16 +158,12 @@ include($SERVER_ROOT.'/header.php');
 				</div>
 				<div style="margin-left:40px;float:left;">
 					<?php
-						if($shipArr['checkinTimestamp']){
-							echo '<div class="displayFieldDiv"><b>Delivery Date:</b> '.($shipArr['receivedDate']?$shipArr['receivedDate']:'<div style="color:orange;font-size:120%;font-weight:bold">Not yet arrived</div>').'</div>';
-							echo '<div class="displayFieldDiv"><b>Received By:</b> '.$shipArr['receivedBy'].'</div>';
-						}
-						echo '<div class="displayFieldDiv"><b>Tracking Number:</b> <a href="https://www.fedex.com/apps/fedextrack/?action=track&tracknumbers='.trim($shipArr['trackingNumber'],' #').'&locale=en_US&cntry_code=us" target="_blank">'.$shipArr['trackingNumber'].'</a></div>';
-						if($shipArr['checkinTimestamp']){
-							if($shipArr['checkinTimestamp']){
-							echo '<div class="displayFieldDiv"><b>Check-in Date:</b> '.$shipArr['checkinTimestamp'].'</div>';
-							echo '<div class="displayFieldDiv"><b>Check-in User:</b> '.$shipArr['checkinUser'].'</div>';
-						}
+					echo '<div class="displayFieldDiv"><b>Delivery Date:</b> '.($shipArr['receivedDate']?$shipArr['receivedDate']:'<span style="color:orange;font-weight:bold">Not yet arrived</span>').'</div>';
+					if($shipArr['receivedBy']) echo '<div class="displayFieldDiv"><b>Received By:</b> '.$shipArr['receivedBy'].'</div>';
+					echo '<div class="displayFieldDiv"><b>Tracking Number:</b> <a href="'.$shipManager->getTractingUrl().'" target="_blank">'.$shipArr['trackingNumber'].'</a></div>';
+					if($shipArr['checkinTimestamp']){
+						echo '<div class="displayFieldDiv"><b>Check-in Date:</b> '.$shipArr['checkinTimestamp'].'</div>';
+						echo '<div class="displayFieldDiv"><b>Check-in User:</b> '.$shipArr['checkinUser'].'</div>';
 					}
 					$sampleCntArr = $shipManager->getSampleCount();
 					?>
@@ -181,9 +189,8 @@ include($SERVER_ROOT.'/header.php');
 								?>
 								<div>
 									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
-										<b>Sample check-in: </b><input name="checkinField" type="text" style="width:300px" />
-										<span id="successText" style="color:green;display:none">success!!!</span>
-										<span id="failText" style="color:red;display:none">Check-in failed</span>
+										<b>Sample check-in: </b><input name="checkinField" type="text" style="width:250px" />
+										<span id="checkinText"></span>
 									</form>
 								</div>
 								<?php

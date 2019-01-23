@@ -68,7 +68,7 @@ if($isEditor){
 						type: "POST",
 						url: "rpc/checkinsample.php",
 						dataType: 'json',
-						data: { shipmentpk: "<?php echo $shipmentPK; ?>", barcode: f.checkinField.value }
+						data: { shipmentpk: "<?php echo $shipmentPK; ?>", barcode: f.checkinField.value, condition: f.sampleCondition.value, notes: f.sampleNotes.value }
 					}).done(function( retJson ) {
 						$("#checkinText").show();
 						if(retJson.status == 0){
@@ -183,20 +183,26 @@ include($SERVER_ROOT.'/header.php');
 						</div>
 						<div style="margin-left:15px">
 							<div class="displayFieldDiv"><b>Not checked-in:</b> <?php echo $sampleCntArr[0]; ?></div>
-							<?php
-							if($shipArr['checkinTimestamp'] && $sampleCntArr[0]){
-								?>
-								<div>
-									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
-										<b>Sample check-in: </b><input name="checkinField" type="text" style="width:250px" />
-										<span id="checkinText"></span>
-									</form>
-								</div>
-								<?php
-							}
-							?>
 							<div class="displayFieldDiv"><b>Missing Occurrence Link:</b> <?php echo $sampleCntArr[1]; ?></div>
 						</div>
+						<?php
+						if($shipArr['checkinTimestamp'] && $sampleCntArr[0]){
+							?>
+							<div style="margin-top:15px">
+								<fieldset style="padding:10px;width:500px">
+									<legend><b>Sample Check-in</b></legend>
+									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
+										<b>Identifier:</b> <input name="checkinField" type="text" style="width:250px" />
+										<span id="checkinText"></span><br/>
+										<b>Sample condition:</b> <input name="sampleCondition" type="text" /><br/>
+										<b>Notes:</b> <input name="sampleNotes" type="text" style="width:300px" />
+										<button type="submit">Submit</button>
+									</form>
+								</fieldset>
+							</div>
+							<?php
+						}
+						?>
 					</div>
 				</div>
 				<div style="margin-left:40px;float:left;">
@@ -238,11 +244,16 @@ include($SERVER_ROOT.'/header.php');
 											<?php
 											$headerOutArr = current($sampleList);
 											echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
-											$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample Code', 'sampleClass'=>'Sample Class', 'taxonID'=>'Taxon ID',
-												'namedLocation'=>'Named Location', 'collectDate'=>'Collect Date', 'quarantineStatus'=>'Quarantine Status','checkinUser'=>'Check-in','occid'=>'occid');
+											$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample<br/>Code', 'sampleClass'=>'Sample<br/>Class', 'taxonID'=>'Taxon ID',
+												'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status',
+												'sampleCondition'=>'Sample<br/>Condition','checkinUser'=>'Check-in','occid'=>'occid');
 												//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
-											foreach($headerOutArr as $headerName => $v){
-												if(array_key_exists($headerName, $headerArr) || $headerName == 'checkinUser') echo '<th>'.$headerArr[$headerName].'</th>';
+											$rowCnt = 1;
+											foreach($headerArr as $fieldName => $headerTitle){
+												if(array_key_exists($fieldName, $headerOutArr) || $fieldName == 'checkinUser'){
+													echo '<th>'.$headerTitle.'</th>';
+													$rowCnt++;
+												}
 											}
 											?>
 										</tr>
@@ -257,6 +268,7 @@ include($SERVER_ROOT.'/header.php');
 											echo '<td>'.$sampleArr['namedLocation'].'</td>';
 											echo '<td>'.$sampleArr['collectDate'].'</td>';
 											echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
+											if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
 											echo '<td title="'.$sampleArr['checkinUser'].'"><span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span></td>';
 											if(array_key_exists('occid',$sampleArr)) echo '<td><a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank">'.$sampleArr['occid'].'</a></td>';
 											echo '</tr>';
@@ -265,7 +277,7 @@ include($SERVER_ROOT.'/header.php');
 											if(isset($sampleArr['filterVolume'])) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
 											if(isset($sampleArr['domainRemarks'])) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
 											if(isset($sampleArr['sampleNotes'])) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
-											if($str) echo '<tr><td colspan="8"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
+											if($str) echo '<tr><td colspan="'.$rowCnt.'"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
 										}
 										?>
 									</table>

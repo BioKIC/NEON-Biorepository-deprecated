@@ -369,7 +369,7 @@ class ShipmentManager{
 		return $retArr;
 	}
 
-	public function checkinSample($sampleID){
+	public function checkinSample($sampleID, $condition, $notes){
 		$status = 3;
 		// status: 0 = check-in failed, 1 = check-in success, 2 = sample already checked-in, 3 = sample not found
 		if($this->shipmentPK && $sampleID){
@@ -384,9 +384,10 @@ class ShipmentManager{
 			}
 			$rs->free();
 			if($status == 1 && $samplePK){
-
-Add sampleCondition field
-				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() WHERE (samplePK = "'.$samplePK.'") ';
+				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() ';
+				if($condition) $sqlUpdate .= ', sampleCondition = CONCAT_WS("; ",sampleCondition,"'.$this->cleanInStr($condition).'") ';
+				if($notes) $sqlUpdate .= ', notes = CONCAT_WS("; ",notes,"'.$this->cleanInStr($notes).'") ';
+				$sqlUpdate .= 'WHERE (samplePK = "'.$samplePK.'") ';
 				if(!$this->conn->query($sqlUpdate)){
 					$this->errorStr = 'ERROR checking-in NEON sample: '.$this->conn->error;
 					$status = 0;
@@ -649,7 +650,7 @@ Add sampleCondition field
 	public function exportShipmentReceipt(){
 		$fileName = 'receipt_'.$this->shipmentPK.'_'.date('Y-m-d').'.csv';
 		$sql = 'SELECT n.shipmentID, n.receivedDate, n.receivedBy, s.sampleID, s.sampleCode, s.sampleClass, IF(s.checkinUid IS NULL, "N", "Y") AS sampleReceived, '.
-			'IF(s.quarantineStatus = "Y","N","Y") AS acceptedForAnalysis, s.sampleCondition, '' AS unknownSamples, s.notes AS remarks '.
+			'IF(s.quarantineStatus = "Y","N","Y") AS acceptedForAnalysis, s.sampleCondition, "" AS unknownSamples, s.notes AS remarks '.
 			'FROM NeonShipment n INNER JOIN NeonSample s ON n.shipmentPK = s.shipmentPK '.
 			'WHERE (s.shipmentPK = '.$shipmentPK.')';
 		$this->exportData($fileName, $sql);

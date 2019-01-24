@@ -21,69 +21,84 @@ class ShipmentManager{
 		if($this->conn) $this->conn->close();
 	}
 
-	public function getShipmentArr($postArr = null){
+	public function getShipmentList($postArr = null){
 		$retArr = array();
-		if(!$this->shipmentArr){
+		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.initialtimestamp '.
+			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
+		//Set search criteria
+		$sqlWhere = '';
+		if(isset($postArr['shipmentID']) && $postArr['shipmentID']){
+			$sqlWhere .= 'AND (s.shipmentID = "'.$postArr['shipmentID'].'") ';
+		}
+		if(isset($postArr['domainID']) && $postArr['domainID']){
+			$sqlWhere .= 'AND (s.domainID = "'.$postArr['domainID'].'") ';
+		}
+		if(isset($postArr['dateShippedStart']) && $postArr['dateShippedStart']){
+			$sqlWhere .= 'AND (s.dateShipped > "'.$postArr['dateShippedStart'].'") ';
+		}
+		if(isset($postArr['dateShippedEnd']) && $postArr['dateShippedEnd']){
+			$sqlWhere .= 'AND (s.dateShipped < "'.$postArr['dateShippedEnd'].'") ';
+		}
+		if(isset($postArr['senderID']) && $postArr['senderID']){
+			$sqlWhere .= 'AND (s.senderID = "'.$postArr['senderID'].'") ';
+		}
+		if(isset($postArr['trackingNumber']) && $postArr['trackingNumber']){
+			$sqlWhere .= 'AND (s.trackingNumber = "'.$postArr['trackingNumber'].'") ';
+		}
+		if(isset($postArr['importedUid']) && $postArr['importedUid']){
+			$sqlWhere .= 'AND ((s.importedByUid = "'.$postArr['importedUid'].'") OR (s.modifiedByUid = "'.$postArr['importedUid'].'")) ';
+		}
+		if(isset($postArr['checkinUid']) && $postArr['checkinUid']){
+			$sqlWhere .= 'AND ((s.checkinUid = "'.$postArr['checkinUid'].'") OR (m.checkinUid = "'.$postArr['checkinUid'].'")) ';
+		}
+		if(isset($postArr['sampleID']) && $postArr['sampleID']){
+			$sqlWhere .= 'AND (m.sampleID LIKE "%'.$postArr['sampleID'].'"%) ';
+		}
+		if(isset($postArr['sampleCode']) && $postArr['sampleCode']){
+			$sqlWhere .= 'AND (m.sampleCode = "'.$postArr['sampleCode'].'") ';
+		}
+		if(isset($postArr['sampleClass']) && $postArr['sampleClass']){
+			$sqlWhere .= 'AND (m.sampleClass LIKE "%'.$postArr['sampleClass'].'"%) ';
+		}
+		if(isset($postArr['taxonID']) && $postArr['taxonID']){
+			$sqlWhere .= 'AND (m.taxonID = "'.$postArr['taxonID'].'") ';
+		}
+		if(isset($postArr['namedLocation']) && $postArr['namedLocation']){
+			$sqlWhere .= 'AND (m.namedLocation = "'.$postArr['namedLocation'].'") ';
+		}
+		if(isset($postArr['collectDateStart']) && $postArr['collectDateStart']){
+			$sqlWhere .= 'AND (m.collectDate > "'.$postArr['collectDateStart'].'") ';
+		}
+		if(isset($postArr['collectDateEnd']) && $postArr['collectDateEnd']){
+			$sqlWhere .= 'AND (m.collectDate < "'.$postArr['collectDateEnd'].'") ';
+		}
+		if($sqlWhere) $sql .= 'WHERE '.subStr($sqlWhere, 3);
+		//echo '<div>'.$sql.'</div>';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->shipmentPK]['id'] = $r->shipmentID;
+			$retArr[$r->shipmentPK]['ts'] = $r->initialtimestamp;
+		}
+		$rs->free();
+		return $retArr;
+
+	}
+
+	public function getShipmentArr(){
+		if(!$this->shipmentArr) $this->setShipmentArr();
+		return $this->shipmentArr;
+	}
+
+	private function setShipmentArr(){
+		if($this->shipmentPK){
 			$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, s.shipmentMethod, '.
 				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
 				CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.initialtimestamp AS ts '.
 				'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
 				'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
 				'LEFT JOIN users u3 ON s.modifiedByUid = u3.uid '.
-				'LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
-			if($this->shipmentPK){
-				$sql .= 'WHERE (s.shipmentPK = '.$this->shipmentPK.') ';
-			}
-			elseif($postArr){
-				//Set search criteria
-				$sqlWhere = '';
-				if(isset($postArr['shipmentID']) && $postArr['shipmentID']){
-					$sqlWhere .= 'AND (s.shipmentID = "'.$postArr['shipmentID'].'") ';
-				}
-				if(isset($postArr['domainID']) && $postArr['domainID']){
-					$sqlWhere .= 'AND (s.domainID = "'.$postArr['domainID'].'") ';
-				}
-				if(isset($postArr['dateShippedStart']) && $postArr['dateShippedStart']){
-					$sqlWhere .= 'AND (s.dateShipped > "'.$postArr['dateShippedStart'].'") ';
-				}
-				if(isset($postArr['dateShippedEnd']) && $postArr['dateShippedEnd']){
-					$sqlWhere .= 'AND (s.dateShipped < "'.$postArr['dateShippedEnd'].'") ';
-				}
-				if(isset($postArr['senderID']) && $postArr['senderID']){
-					$sqlWhere .= 'AND (s.senderID = "'.$postArr['senderID'].'") ';
-				}
-				if(isset($postArr['trackingNumber']) && $postArr['trackingNumber']){
-					$sqlWhere .= 'AND (s.trackingNumber = "'.$postArr['trackingNumber'].'") ';
-				}
-				if(isset($postArr['importedUid']) && $postArr['importedUid']){
-					$sqlWhere .= 'AND ((s.importedByUid = "'.$postArr['importedUid'].'") OR (s.modifiedByUid = "'.$postArr['importedUid'].'")) ';
-				}
-				if(isset($postArr['checkinUid']) && $postArr['checkinUid']){
-					$sqlWhere .= 'AND ((s.checkinUid = "'.$postArr['checkinUid'].'") OR (m.checkinUid = "'.$postArr['checkinUid'].'")) ';
-				}
-				if(isset($postArr['sampleID']) && $postArr['sampleID']){
-					$sqlWhere .= 'AND (m.sampleID LIKE "%'.$postArr['sampleID'].'"%) ';
-				}
-				if(isset($postArr['sampleCode']) && $postArr['sampleCode']){
-					$sqlWhere .= 'AND (m.sampleCode = "'.$postArr['sampleCode'].'") ';
-				}
-				if(isset($postArr['sampleClass']) && $postArr['sampleClass']){
-					$sqlWhere .= 'AND (m.sampleClass LIKE "%'.$postArr['sampleClass'].'"%) ';
-				}
-				if(isset($postArr['taxonID']) && $postArr['taxonID']){
-					$sqlWhere .= 'AND (m.taxonID = "'.$postArr['taxonID'].'") ';
-				}
-				if(isset($postArr['namedLocation']) && $postArr['namedLocation']){
-					$sqlWhere .= 'AND (m.namedLocation = "'.$postArr['namedLocation'].'") ';
-				}
-				if(isset($postArr['collectDateStart']) && $postArr['collectDateStart']){
-					$sqlWhere .= 'AND (m.collectDate > "'.$postArr['collectDateStart'].'") ';
-				}
-				if(isset($postArr['collectDateEnd']) && $postArr['collectDateEnd']){
-					$sqlWhere .= 'AND (m.collectDate < "'.$postArr['collectDateEnd'].'") ';
-				}
-				if($sqlWhere) $sql .= 'WHERE '.subStr($sqlWhere, 3);
-			}
+				'LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk '.
+				'WHERE (s.shipmentPK = '.$this->shipmentPK.') ';
 			//echo '<div>'.$sql.'</div>';
 			$rs = $this->conn->query($sql);
 			$headerArr = array();
@@ -93,13 +108,11 @@ class ShipmentManager{
 					unset($headerArr[array_search('shipmentPK', $headerArr)]);
 				}
 				foreach($headerArr as $colName){
-					$retArr[$r['shipmentPK']][$colName] = $r[$colName];
+					$this->shipmentArr[$colName] = $r[$colName];
 				}
 			}
 			$rs->free();
-			if($this->shipmentPK) $this->shipmentArr = $retArr[$this->shipmentPK];
 		}
-		return $retArr;
 	}
 
 	public function getSampleCount(){
@@ -133,10 +146,10 @@ class ShipmentManager{
 	public function getSampleArr(){
 		$retArr = array();
 		$headerArr = array('sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate',
-			'quarantineStatus','sampleCondition','sampleNotes','occid','checkinUser','checkinTimestamp');
+			'quarantineStatus','acceptedForAnalysis','sampleCondition','sampleNotes','occid','checkinUser','checkinTimestamp');
 		$targetArr = array();
 		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, '.
-			's.collectDate, s.quarantineStatus, s.sampleCondition, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
+			's.collectDate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid '.
 			'WHERE s.shipmentPK = '.$this->shipmentPK;
 		$rs = $this->conn->query($sql);
@@ -154,7 +167,12 @@ class ShipmentManager{
 		//Grab data for only columns that have data
 		while($r = $rs->fetch_assoc()){
 			foreach($targetArr as $fieldName){
-				$retArr[$r['samplePK']][$fieldName] = $r[$fieldName];
+				$value = $r[$fieldName];
+				if($fieldName == 'acceptedForAnalysis'){
+					if($value) $value = 'Y';
+					elseif($value === '0') $value = 'N';
+				}
+				$retArr[$r['samplePK']][$fieldName] = $value;
 			}
 		}
 		$rs->free();
@@ -352,10 +370,10 @@ class ShipmentManager{
 			if($this->shipmentArr['shipmentService'] == 'FedEx') $retArr = $this->getFedExDeliveryStats();
 			//elseif($this->shipmentArr['shipmentService'] == '') $retArr = $this->;
 		}
-		if(!isset($retArr['receivedBy']) || !$retArr['receivedBy']) $retArr['receivedBy'] = $GLOBALS['USERNAME'];
+		//if(!isset($retArr['receivedBy']) || !$retArr['receivedBy']) $retArr['receivedBy'] = $GLOBALS['USERNAME'];
 		if(!isset($retArr['receivedDate']) || !$retArr['receivedDate']){
-			$retArr['receivedDate'] = date('Y-m-d');
-			$retArr['receivedTime'] = date('H:i:s');
+			//$retArr['receivedDate'] = date('Y-m-d');
+			//$retArr['receivedTime'] = date('H:i:s');
 		}
 		return $retArr;
 	}
@@ -369,7 +387,7 @@ class ShipmentManager{
 		return $retArr;
 	}
 
-	public function checkinSample($sampleID, $condition, $notes){
+	public function checkinSample($sampleID, $acceptedForAnalysis, $condition, $notes){
 		$status = 3;
 		// status: 0 = check-in failed, 1 = check-in success, 2 = sample already checked-in, 3 = sample not found
 		if($this->shipmentPK && $sampleID){
@@ -384,7 +402,7 @@ class ShipmentManager{
 			}
 			$rs->free();
 			if($status == 1 && $samplePK){
-				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() ';
+				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = '.($acceptedForAnalysis?'1':'0').' ';
 				if($condition) $sqlUpdate .= ', sampleCondition = CONCAT_WS("; ",sampleCondition,"'.$this->cleanInStr($condition).'") ';
 				if($notes) $sqlUpdate .= ', notes = CONCAT_WS("; ",notes,"'.$this->cleanInStr($notes).'") ';
 				$sqlUpdate .= 'WHERE (samplePK = "'.$samplePK.'") ';
@@ -402,7 +420,7 @@ class ShipmentManager{
 		if($this->shipmentPK){
 			$pkArr = $postArr['scbox'];
 			if($pkArr){
-				$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now() '.
+				$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1 '.
 					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) '.
 					'AND (samplePK IN('.implode(',', $pkArr).') OR sampleCode IN('.implode(',', $pkArr).'))';
 				if(!$this->conn->query($sql)){
@@ -648,11 +666,13 @@ class ShipmentManager{
 
 	//Export functions
 	public function exportShipmentReceipt(){
-		$fileName = 'receipt_'.$this->shipmentPK.'_'.date('Y-m-d').'.csv';
-		$sql = 'SELECT n.shipmentID, n.receivedDate, n.receivedBy, s.sampleID, s.sampleCode, s.sampleClass, IF(s.checkinUid IS NULL, "N", "Y") AS sampleReceived, '.
-			'IF(s.quarantineStatus = "Y","N","Y") AS acceptedForAnalysis, s.sampleCondition, "" AS unknownSamples, s.notes AS remarks '.
+		$this->setShipmentArr();
+		$fileName = 'receipt_'.$this->shipmentArr['shipmentID'].'_'.date('Y-m-d').'.csv';
+		$sql = 'SELECT n.shipmentID, DATE_FORMAT(s.checkinTimestamp,"%Y%m%d") AS shipmentReceivedDate, u.email AS receivedBy, s.sampleID, s.sampleCode, s.sampleClass, IF(s.checkinUid IS NULL, "N", "Y") AS sampleReceived, '.
+			'IF(s.acceptedForAnalysis IS NULL,"",IF(s.acceptedForAnalysis = 0,"N","Y")) AS acceptedForAnalysis, s.sampleCondition, "" AS unknownSamples, s.notes AS remarks '.
 			'FROM NeonShipment n INNER JOIN NeonSample s ON n.shipmentPK = s.shipmentPK '.
-			'WHERE (s.shipmentPK = '.$shipmentPK.')';
+			'LEFT JOIN users u ON s.checkinUid = u.uid '.
+			'WHERE (s.shipmentPK = '.$this->shipmentPK.')';
 		$this->exportData($fileName, $sql);
 	}
 
@@ -663,10 +683,10 @@ class ShipmentManager{
 		$this->exportData($fileName, $sql);
 	}
 
-	public function exportShipmentSampleList($shipmentPK){
-		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.namedlocation, s.domainremarks, s.collectdate, s.quarantineStatus, s.sampleCondition, s.notes, '.
-			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, s.checkinTimestamp, s.initialtimestamp '.
-			'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid WHERE (s.shipmentPK = '.$shipmentPK.')';
+	public function exportShipmentSampleList(){
+		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.namedlocation, s.domainremarks, s.collectdate, s.quarantineStatus, s.acceptedForAnalysis, '.
+			's.sampleCondition, s.notes, CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, s.checkinTimestamp, s.initialtimestamp '.
+			'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid WHERE (s.shipmentPK = '.$this->shipmentPK.')';
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
 		$this->exportData($fileName, $sql);
 	}
@@ -676,21 +696,25 @@ class ShipmentManager{
 		header ('Content-Type: text/csv');
 		header ('Content-Disposition: attachment; filename="'.$fileName.'"');
 		$outstream = fopen("php://output", "w");
-		$rs = $this->conn->query($sql);
-		if($rs->num_rows){
-			$outHeader = true;
-			while($r = $rs->fetch_assoc()){
-				if($outHeader){
-					fputcsv($outstream,array_keys($r));
-					$outHeader = false;
+		if($rs = $this->conn->query($sql)){
+			if($rs->num_rows){
+				$outHeader = true;
+				while($r = $rs->fetch_assoc()){
+					if($outHeader){
+						fputcsv($outstream,array_keys($r));
+						$outHeader = false;
+					}
+					fputcsv($outstream,$r);
 				}
-				fputcsv($outstream,$r);
 			}
+			else{
+				echo "Recordset is empty.\n";
+			}
+			$rs->free();
 		}
 		else{
-			echo "Recordset is empty.\n";
+			echo 'ERROR generating recordset';
 		}
-		$rs->free();
 		fclose($outstream);
 	}
 
@@ -724,6 +748,7 @@ class ShipmentManager{
 	public function getTractingUrl(){
 		$url = '';
 		$trackingId = trim($this->shipmentArr['trackingNumber'],' #');
+		$trackingId = preg_replace('/[^a-zA-Z0-9]+/', '', $trackingId);
 		if($this->shipmentArr['shipmentService'] == 'FedEx'){
 			$url = 'https://www.fedex.com/apps/fedextrack/?action=track&tracknumbers='.$trackingId.'&locale=en_US&cntry_code=us';
 		}

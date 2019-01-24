@@ -71,7 +71,7 @@ if($isEditor){
 						<legend style="font-weight:bold;font-size:120%;">Manifest Upload Form</legend>
 						<div style="margin:10px;">
 						</div>
-						<table border="1" cellpadding="2" style="border:1px solid black">
+						<table class="styledtable" style="width:350px;">
 							<tr>
 								<th>
 									Source Field

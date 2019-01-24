@@ -83,7 +83,7 @@ if($isEditor){
 							<?php
 							$sourceArr = $loaderManager->getSourceArr();
 							$targetArr = $loaderManager->getTargetArr();
-							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'destinationfacility');
+							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'destinationfacility','remarks'=>'shipmentnotes');
 							foreach($sourceArr as $sourceField){
 								?>
 								<tr>

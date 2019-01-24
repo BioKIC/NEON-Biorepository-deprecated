@@ -1,7 +1,7 @@
 CREATE TABLE `NeonShipment` (
   `shipmentPK` INT NOT NULL AUTO_INCREMENT,
   `shipmentID` VARCHAR(25) NOT NULL,
-  `domainID` VARCHAR(10) NOT NULL,
+  `domainID` VARCHAR(10) NULL,
   `dateShipped` DATE NOT NULL,
   `shippedFrom` VARCHAR(150) NULL,
   `senderID` VARCHAR(45) NOT NULL,

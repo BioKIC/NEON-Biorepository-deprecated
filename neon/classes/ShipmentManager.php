@@ -283,12 +283,14 @@ class ShipmentManager{
 
 	public function loadShipmentRecord($recArr){
 		$shipmentPK = 0;
-		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, shippedFrom,senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, trackingNumber, importUid) '.
-			'VALUES("'.$this->cleanInStr($recArr['shipmentid']).'","'.$this->cleanInStr($recArr['domainid']).'","'.$this->cleanInStr($this->formatDate($recArr['dateshipped'])).'",'.
+		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, shippedFrom,senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, trackingNumber, notes, importUid) '.
+			'VALUES("'.$this->cleanInStr($recArr['shipmentid']).'",'.(isset($recArr['domainid'])?'"'.$this->cleanInStr($recArr['domainid']).'"':'NULL').',"'.
+			$this->cleanInStr($this->formatDate($recArr['dateshipped'])).'",'.
 			(isset($recArr['shippedfrom'])?'"'.$this->cleanInStr($recArr['shippedfrom']).'"':'NULL').',"'.$this->cleanInStr($recArr['senderid']).'",'.
 			(isset($recArr['destinationfacility'])?'"'.$this->cleanInStr($recArr['destinationfacility']).'"':'NULL').','.
 			(isset($recArr['senttoid'])?'"'.$this->cleanInStr($recArr['senttoid']).'"':'NULL').',"'.$this->cleanInStr($recArr['shipmentservice']).'","'.$this->cleanInStr($recArr['shipmentmethod']).'",'.
-			(isset($recArr['trackingnumber'])?'"'.$this->cleanInStr($recArr['trackingnumber']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
+			(isset($recArr['trackingnumber'])?'"'.$this->cleanInStr($recArr['trackingnumber']).'"':'NULL').','.
+			(isset($recArr['shipmentnotes'])?'"'.$this->cleanInStr($recArr['shipmentnotes']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
 		//echo '<div>'.$sql.'</div>';
 		if($this->conn->query($sql)){
 			$shipmentPK = $this->conn->insert_id;
@@ -316,11 +318,13 @@ class ShipmentManager{
 	private function loadSampleRecord($shipmentPK, $recArr){
 		$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedlocation, domainremarks, collectdate, quarantineStatus) '.
 			'VALUES('.$shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.(isset($recArr['samplecode'])&&$recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').',"'.
-		$this->cleanInStr($recArr['sampleclass']).'",'.(isset($recArr['taxonid'])&&$recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
-		(isset($recArr['individualcount'])&&$recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
-		(isset($recArr['filtervolume'])&&$recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').',"'.
-		$this->cleanInStr($recArr['namedlocation']).'",'.(isset($recArr['domainremarks'])&&$recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').',"'.
-		$this->cleanInStr($this->formatDate($recArr['collectdate'])).'",'.(isset($recArr['quarantinestatus'])&&$recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').')';
+			$this->cleanInStr($recArr['sampleclass']).'",'.(isset($recArr['taxonid'])&&$recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
+			(isset($recArr['individualcount'])&&$recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
+			(isset($recArr['filtervolume'])&&$recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
+			(isset($recArr['namedlocation'])?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
+			(isset($recArr['domainremarks'])&&$recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
+			(isset($recArr['collectdate'])?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
+			(isset($recArr['quarantinestatus'])&&$recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').')';
 		if($this->conn->query($sql)){
 			echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
 		}
@@ -792,7 +796,7 @@ class ShipmentManager{
 	}
 
 	public function getTargetArr(){
-		$retArr = array('shipmentid','domainid','dateshipped','shippedfrom','senderid','destinationfacility','senttoid','shipmentservice','shipmentmethod','trackingnumber',
+		$retArr = array('shipmentid','domainid','dateshipped','shippedfrom','senderid','destinationfacility','senttoid','shipmentservice','shipmentmethod','trackingnumber','shipmentnotes',
 			'sampleid','samplecode','sampleclass','taxonid','individualcount','filtervolume','namedlocation','domainremarks','collectdate','quarantinestatus');
 		return $retArr;
 	}

@@ -32,6 +32,9 @@ if($isEditor){
 	elseif($action == 'batchHarvestOccid'){
 		$shipManager->batchHarvestOccid($_POST);
 	}
+	elseif($action == 'receiptsubmitted'){
+		$shipManager->markReceiptAsSubmitted($shipmentPK,$_POST['submitted']);
+	}
 }
 ?>
 <html>
@@ -108,13 +111,13 @@ if($isEditor){
 			}
 
 			function checkinSample(f){
-				var checkingStr = f.checkinField.value.trim();
-				if(checkingStr != ""){
+				var sampleIdenfier = f.idenfier.value.trim();
+				if(sampleIdenfier != ""){
 					$.ajax({
 						type: "POST",
 						url: "rpc/checkinsample.php",
 						dataType: 'json',
-						data: { shipmentpk: "<?php echo $shipmentPK; ?>", barcode: f.checkinField.value, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, notes: f.sampleNotes.value }
+						data: { shipmentpk: "<?php echo $shipmentPK; ?>", idenfier: sampleIdenfier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, notes: f.sampleNotes.value }
 					}).done(function( retJson ) {
 						$("#checkinText").show();
 						if(retJson.status == 0){
@@ -125,7 +128,7 @@ if($isEditor){
 							$("#checkinText").css('color', 'green');
 							$("#checkinText").text('success!!!');
 							$("#scSpan-"+retJson.samplePK).html("checked-in");
-							f.checkinField.value = "";
+							f.idenfier.value = "";
 						}
 						else if(retJson.status == 2){
 							$("#checkinText").css('color', 'orange');
@@ -142,6 +145,7 @@ if($isEditor){
 						$("#checkinText").animate({fontSize: "110%"}, "slow");
 						$("#checkinText").animate({fontSize: "100%"}, "slow");
 						//$("#checkinText").hide();
+						f.idenfier.focus();
 					});
 				}
 			}
@@ -185,7 +189,7 @@ include($SERVER_ROOT.'/header.php');
 				<legend><b>Shipment #<?php echo $shipmentPK; ?></b></legend>
 				<div style="float:left">
 					<div class="displayFieldDiv"><b>Shipment ID:</b> <?php echo $shipArr['shipmentID']; ?></div>
-					<div class="displayFieldDiv"><b>Domain ID:</b> <?php echo $shipArr['domainID']; ?></div>
+					<div class="displayFieldDiv"><b>Domain:</b> <?php echo $shipArr['domainID']; ?></div>
 					<div class="displayFieldDiv"><b>Date Shipped:</b> <?php echo $shipArr['dateShipped']; ?></div>
 					<div class="displayFieldDiv"><b>Shipped From:</b> <?php echo $shipArr['shippedFrom']; ?></div>
 					<div class="displayFieldDiv"><b>Sender ID:</b> <?php echo $shipArr['senderID']; ?></div>
@@ -231,7 +235,7 @@ include($SERVER_ROOT.'/header.php');
 									<legend><b>Sample Check-in</b></legend>
 									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
 										<div class="displayFieldDiv">
-											<b>Identifier:</b> <input name="checkinField" type="text" style="width:250px" required />
+											<b>Identifier:</b> <input name="idenfier" type="text" style="width:250px" required />
 											<span id="checkinText"></span><br/>
 										</div>
 										<div class="displayFieldDiv">
@@ -240,10 +244,18 @@ include($SERVER_ROOT.'/header.php');
 											<input name="acceptedForAnalysis" type="radio" value="0" /> No
 										</div>
 										<div class="displayFieldDiv">
-											<b>Sample condition:</b> <input name="sampleCondition" type="text" />
+											<b>Sample condition:</b>
+											<select name="sampleCondition">
+												<option value="OK">OK - No Known Compromise</option>
+												<option value="cold chain broken">Cold Chain Broken</option>
+												<option value="damaged">Damaged - Analysis Affected</option>
+												<option value="sample incomplete">Sample Incomplete</option>
+												<option value="handling error">Handling Error</option>
+												<option value="other">Other - Described in Remarks</option>
+											</select>
 										</div>
 										<div class="displayFieldDiv">
-											<b>Notes:</b> <input name="sampleNotes" type="text" style="width:300px" />
+											<b>Remarks:</b> <input name="sampleNotes" type="text" style="width:300px" />
 											<button type="submit">Submit</button>
 										</div>
 									</form>
@@ -314,7 +326,9 @@ include($SERVER_ROOT.'/header.php');
 											if(array_key_exists('sampleCode',$sampleArr)) echo '<td>'.$sampleArr['sampleCode'].'</td>';
 											echo '<td>'.$sampleArr['sampleClass'].'</td>';
 											if(array_key_exists('taxonID',$sampleArr)) echo '<td>'.$sampleArr['taxonID'].'</td>';
-											echo '<td>'.$sampleArr['namedLocation'].'</td>';
+											$namedLocation = $sampleArr['namedLocation'];
+											if(isset($sampleArr['siteTitle']) && $sampleArr['siteTitle']) $namedLocation = '<span title="'.$sampleArr['siteTitle'].'">'.$namedLocation.'</span>';
+											echo '<td>'.$namedLocation.'</td>';
 											echo '<td>'.$sampleArr['collectDate'].'</td>';
 											echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
 											if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
@@ -336,15 +350,57 @@ include($SERVER_ROOT.'/header.php');
 									</div>
 									<div style="margin:15px">
 										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-										<button name="action" type="submit" value="batchCheckin">Batch Check-in Samples</button>
+										<fieldset style="width:400px;">
+											<legend><b>Batch Check-in Selected Samples</b></legend>
+											<div class="displayFieldDiv">
+												<b>Accepted for Analysis:</b>
+												<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
+												<input name="acceptedForAnalysis" type="radio" value="0" /> No
+											</div>
+											<div class="displayFieldDiv">
+												<b>Sample condition:</b>
+												<select name="sampleCondition">
+													<option value="OK">OK - No Known Compromise</option>
+													<option value="cold chain broken">Cold Chain Broken</option>
+													<option value="damaged">Damaged - Analysis Affected</option>
+													<option value="sample incomplete">Sample Incomplete</option>
+													<option value="handling error">Handling Error</option>
+													<option value="other">Other - Described in Remarks</option>
+												</select>
+											</div>
+											<div class="displayFieldDiv">
+												<b>Remarks:</b> <input name="sampleNotes" type="text" style="width:300px" />
+											</div>
+											<div style="margin:5px 10px">
+												<button name="action" type="submit" value="batchCheckin">Check-in Selected Samples</button>
+											</div>
+										</fieldset>
 									</div>
 								</form>
-								<form name="exportReceiptForm" action="exportreceipt.php" method="post" target="_blank">
-									<div style="margin:15px">
+								<fieldset style="width:400px;margin:15px 30px">
+									<legend><b>Receipt Status</b></legend>
+									<form name="receiptSubmittedForm" action="manifestviewer.php" method="post">
+										<?php
+										$receiptSubmitted = 0;
+										if(isset($shipArr['status']) && $shipArr['status'] = 'Receipt Submitted') $receiptSubmitted = 1;
+										?>
+										<input name="submitted" type="radio" value="0" <?php echo ($receiptSubmitted?'':'checked'); ?> onchange="this.form.submit()" />
+										<b>Receipt not yet submitted to NEON</b><br/>
+										<input name="submitted" type="radio" value="1" <?php echo ($receiptSubmitted?'checked':''); ?> onchange="this.form.submit()" />
+										<b>Receipt submitted to NEON</b>
 										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-										<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
+										<input name="submit" type="hidden" value="receiptsubmitted" />
+									</form>
+									<div style="margin:15px">
+										<form name="exportReceiptForm" action="exportreceipt.php" method="post" target="_blank" style="float:left;">
+											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+											<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
+										</form>
+										<div style="float:left;margin-left:15px">
+											<a href="" target="_blank"><button type="button">Submit Receipt</button></a>
+										</div>
 									</div>
-								</form>
+								</fieldset>
 							</fieldset>
 						</div>
 						<?php

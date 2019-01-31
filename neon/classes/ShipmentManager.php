@@ -92,7 +92,7 @@ class ShipmentManager{
 	private function setShipmentArr(){
 		if($this->shipmentPK){
 			$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, s.shipmentMethod, '.
-				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
+				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, s.status, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
 				CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.initialtimestamp AS ts '.
 				'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
 				'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
@@ -112,6 +112,10 @@ class ShipmentManager{
 				}
 			}
 			$rs->free();
+			if(isset($this->shipmentArr['domainID']) && $this->shipmentArr['domainID']){
+				$domainTitle = $this->getDomainTitle($this->shipmentArr['domainID']);
+				if($domainTitle) $this->shipmentArr['domainID'] = $domainTitle.' ('.$this->shipmentArr['domainID'].')';
+			}
 		}
 	}
 
@@ -163,6 +167,7 @@ class ShipmentManager{
 			$targetArr[] = 'checkinUser';
 			$targetArr[] = 'checkinTimestamp';
 		}
+		$siteTitleArr = $this->getSiteTitleArr();
 		$rs->data_seek(0);
 		//Grab data for only columns that have data
 		while($r = $rs->fetch_assoc()){
@@ -173,6 +178,12 @@ class ShipmentManager{
 					elseif($value === '0') $value = 'N';
 				}
 				$retArr[$r['samplePK']][$fieldName] = $value;
+			}
+			if(isset($retArr[$r['samplePK']]['namedLocation'])){
+				$namedLocation = $retArr[$r['samplePK']]['namedLocation'];
+				if(preg_match('/^([A-Za-z]+)/',$namedLocation,$m)){
+					if(array_key_exists($m[1], $siteTitleArr)) $retArr[$r['samplePK']]['siteTitle'] = $siteTitleArr[$m[1]];
+				}
 			}
 		}
 		$rs->free();
@@ -357,12 +368,21 @@ class ShipmentManager{
 	public function checkinShipment($postArr){
 		$sql = 'UPDATE NeonShipment '.
 			'SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), '.
-			'receivedDate = '.($postArr['receivedDate']?'"'.$postArr['receivedDate'].' '.$postArr['receivedTime'].'"':'NULL').', '.
-			'receivedBy = '.($postArr['receivedBy']?'"'.$postArr['receivedBy'].'"':'NULL').', '.
-			'notes = '.($postArr['notes']?'CONCAT_WS("; ",notes,"'.$postArr['notes'].'")':'NULL').' '.
+			'receivedDate = '.($postArr['receivedDate']?'"'.$this->cleanInStr($postArr['receivedDate']).' '.$this->cleanInStr($postArr['receivedTime']).'"':'NULL').', '.
+			'receivedBy = '.($postArr['receivedBy']?'"'.$this->cleanInStr($postArr['receivedBy']).'"':'NULL').', '.
+			'notes = '.($postArr['notes']?'CONCAT_WS("; ",notes,"'.$this->cleanInStr($postArr['notes']).'")':'NULL').' '.
 			'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinUid IS NULL)';
 		if(!$this->conn->query($sql)){
 			$this->errorStr = 'ERROR checking-in shipment: '.$this->conn->error;
+			return false;
+		}
+		return true;
+	}
+
+	public function markReceiptAsSubmitted($shipmentPK,$submitted){
+		$sql = 'UPDATE NeonShipment SET status = '.($submitted?'Receipt Submitted':'NULL').' WHERE (shipmentpk = '.$this->shipmentPK.')';
+		if(!$this->conn->query($sql)){
+			$this->errorStr = 'ERROR tagging receipt as submitted: '.$this->conn->error;
 			return false;
 		}
 		return true;
@@ -424,9 +444,12 @@ class ShipmentManager{
 		if($this->shipmentPK){
 			$pkArr = $postArr['scbox'];
 			if($pkArr){
-				$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1 '.
-					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) '.
-					'AND (samplePK IN('.implode(',', $pkArr).') OR sampleCode IN('.implode(',', $pkArr).'))';
+				$sql = 'UPDATE NeonSample '.
+					'SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = '.$postArr['acceptedForAnalysis'].' '.
+					($postArr['sampleCondition']?', sampleCondition = "'.$this->cleanInStr($postArr['sampleCondition']).'" ':'').
+					($postArr['sampleNotes']?', notes = "'.$this->cleanInStr($postArr['sampleNotes']).'" ':'').
+					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) AND (samplePK IN('.implode(',', $pkArr).'))';
+				echo $sql;
 				if(!$this->conn->query($sql)){
 					$this->errorStr = 'ERROR batch checking-in samples: '.$this->conn->error;
 					return false;
@@ -772,6 +795,29 @@ class ShipmentManager{
 	private function formatDate($dateStr){
 		if(preg_match('/^(20\d{2})(\d{2})(\d{2})$/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
 		return $dateStr;
+	}
+
+	private function getDomainTitle($domainID){
+		$domainID = trim($domainID);
+		$domainArr = array("D01"=>"Northeast", "D02"=>"Mid-Atlantic", "D03"=>"Southeast", "D04"=>"Atlantic Neotropical", "D05"=>"Great Lakes", "D06"=>"Prairie Peninsula",
+			"D07"=>"Appalachians & Cumberland Plateau", "D08"=>"Ozarks Complex", "D08"=>"Ozarks Complex", "D09"=>"Northern Plains", "D10"=>"Central Plains", "D11"=>"Southern Plains",
+			"D13"=>"Southern Rockies & Colorado Plateau", "D14"=>"Desert Southwest", "D15"=>"Great Basin", "D16"=>"Pacific Northwest", "D17"=>"Pacific Southwest", "D18"=>"Tundra",
+			"D19"=>"Taiga", "D20"=>"Pacific Tropical");
+		return (array_key_exists($domainID, $domainArr)?$domainArr[$domainID]:'');
+	}
+
+	private function getSiteTitleArr(){
+		$siteArr = array("ABBY"=>"Abby Road", "BARR"=>"Barrow Environmental Observatory", "BART"=>"Bartlett Experimental Forest", "BLAN"=>"Blandy Experimental Farm",
+			"BONA"=>"Caribou Creek - Poker Flats Watershed", "CLBJ"=>"LBJ National Grassland", "CPER"=>"Central Plains Experimental Range", "DCFS"=>"Dakota Coteau Field School",
+			"DEJU"=>"Delta Junction", "DELA"=>"Dead Lake", "DSNY"=>"Disney Wilderness Preserve", "GRSM"=>"Great Smoky Mountains National Park, Twin Creeks", "GUAN"=>"Guanica Forest",
+			"HARV"=>"Harvard Forest", "HEAL"=>"Healy", "JERC"=>"Jones Ecological Research Center", "JORN"=>"Jornada LTER", "KONA"=>"Konza Prairie Biological Station",
+			"KONZ"=>"Konza Prairie Biological Station", "LAJA"=>"Lajas Experimental Station", "LENO"=>"Lenoir Landing", "MLBS"=>"Mountain Lake Biological Station", "MOAB"=>"Moab",
+			"NIWO"=>"Niwot Ridge Mountain Research Station", "NOGP"=>"Northern Great Plains Research Laboratory", "OAES"=>"Klemme Range Research Station", "ONAQ"=>"Onaqui-Ault",
+			"ORNL"=>"Oak Ridge", "OSBS"=>"Ordway-Swisher Biological Station", "PUUM"=>"Pu'u Maka'ala Natural Area Reserve", "RMNP"=>"Rocky Mountain National Park, CASTNET",
+			"SCBI"=>"Smithsonian Conservation Biology Institute", "SERC"=>"Smithsonian Environmental Research Center", "SJER"=>"San Joaquin", "SOAP"=>"Soaproot Saddle",
+			"SRER"=>"Santa Rita Experimental Range", "STEI"=>"Steigerwaldt Land Services", "STER"=>"North Sterling, CO", "TALL"=>"Talladega National Forest", "TEAK"=>"Lower Teakettle",
+			"TOOL"=>"Toolik Lake", "TREE"=>"Treehaven", "UKFS"=>"The University of Kansas Field Station", "UNDE"=>"UNDERC", "WOOD"=>"Woodworth", "WREF"=>"Wind River Experimental Forest");
+		return $siteArr;
 	}
 
 	//Setters and getters

@@ -43,6 +43,13 @@ if($isEditor){
 	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
 	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 	<script type="text/javascript">
+		function verifyUploadForm(f){
+			if(f.uploadfile.value == ""){
+				alert("Select a manifest file to upload");
+				return false;
+			}
+			return true;
+		}
 	</script>
 </head>
 <body>
@@ -150,11 +157,8 @@ if($isEditor){
 							</div>
 							<input type='hidden' name='MAX_FILE_SIZE' value='10000000' />
 							<div>
-								<div>
-									<b>Upload File:</b>
-									<div style="margin:10px;">
-										<input id="genuploadfile" name="uploadfile" type="file" size="40" />
-									</div>
+								<div style="margin:10px;">
+									<input id="genuploadfile" name="uploadfile" type="file" size="40" />
 								</div>
 								<div style="margin:10px;">
 									<input type="submit" name="action" value="Map Input File" />

@@ -32,7 +32,7 @@ if($isEditor){
 		$shipManager->batchHarvestOccid($_POST);
 	}
 	elseif($action == 'receiptsubmitted'){
-		$shipManager->setReceiptStatus($shipmentPK,$_POST['submitted']);
+		$shipManager->setReceiptStatus($_POST['submitted']);
 	}
 }
 ?>

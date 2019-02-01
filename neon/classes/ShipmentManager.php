@@ -380,13 +380,14 @@ class ShipmentManager{
 		return true;
 	}
 
-	public function setReceiptStatus($status,$onlyIfNull = false){
+	public function setReceiptStatus($status, $onlyIfNull = false){
 		$statusStr = '';
 		if($status == 1) $statusStr = 'Downloaded';
 		if($status == 2) $statusStr = 'Submitted';
 		if($statusStr) $statusStr .= ':'.$GLOBALS['USERNAME'];
 		$sql = 'UPDATE NeonShipment SET receiptstatus = '.($statusStr?'"'.$statusStr.'"':'NULL').' WHERE (shipmentpk = '.$this->shipmentPK.') ';
 		if($onlyIfNull) $sql .= 'AND (receiptstatus IS NULL)';
+		echo $sql;
 		if(!$this->conn->query($sql)){
 			$this->errorStr = 'ERROR tagging receipt as submitted: '.$this->conn->error;
 			return false;
@@ -455,7 +456,7 @@ class ShipmentManager{
 					($postArr['sampleCondition']?', sampleCondition = "'.$this->cleanInStr($postArr['sampleCondition']).'" ':'').
 					($postArr['sampleNotes']?', notes = "'.$this->cleanInStr($postArr['sampleNotes']).'" ':'').
 					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) AND (samplePK IN('.implode(',', $pkArr).'))';
-				echo $sql;
+				//echo $sql;
 				if(!$this->conn->query($sql)){
 					$this->errorStr = 'ERROR batch checking-in samples: '.$this->conn->error;
 					return false;

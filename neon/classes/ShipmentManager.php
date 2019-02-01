@@ -73,6 +73,7 @@ class ShipmentManager{
 			$sqlWhere .= 'AND (m.collectDate < "'.$postArr['collectDateEnd'].'") ';
 		}
 		if($sqlWhere) $sql .= 'WHERE '.subStr($sqlWhere, 3);
+		$sql .= 'ORDER BY s.shipmentID';
 		//echo '<div>'.$sql.'</div>';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -92,7 +93,7 @@ class ShipmentManager{
 	private function setShipmentArr(){
 		if($this->shipmentPK){
 			$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, s.shipmentMethod, '.
-				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, s.status, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
+				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, s.receiptStatus, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
 				CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.initialtimestamp AS ts '.
 				'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
 				'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
@@ -138,7 +139,7 @@ class ShipmentManager{
 		//Get count of samples not yet imported
 		$sql = 'SELECT COUNT(s.samplepk) AS cnt '.
 			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-			'WHERE (s.shipmentPK = '.$this->shipmentPK.') AND (o.occid IS NULL)';
+			'WHERE (s.shipmentPK = '.$this->shipmentPK.') AND (o.occid IS NULL) ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[1] = $r->cnt;
@@ -155,7 +156,7 @@ class ShipmentManager{
 		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, '.
 			's.collectDate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid '.
-			'WHERE s.shipmentPK = '.$this->shipmentPK;
+			'WHERE (s.shipmentPK = '.$this->shipmentPK.') ORDER BY s.sampleID ';
 		$rs = $this->conn->query($sql);
 		//Pass through recordset to see which fields have at least one value
 		while($r = $rs->fetch_assoc()){
@@ -379,8 +380,13 @@ class ShipmentManager{
 		return true;
 	}
 
-	public function markReceiptAsSubmitted($shipmentPK,$submitted){
-		$sql = 'UPDATE NeonShipment SET status = '.($submitted?'Receipt Submitted':'NULL').' WHERE (shipmentpk = '.$this->shipmentPK.')';
+	public function setReceiptStatus($status,$onlyIfNull = false){
+		$statusStr = '';
+		if($status == 1) $statusStr = 'Downloaded';
+		if($status == 2) $statusStr = 'Submitted';
+		if($statusStr) $statusStr .= ':'.$GLOBALS['USERNAME'];
+		$sql = 'UPDATE NeonShipment SET receiptstatus = '.($statusStr?'"'.$statusStr.'"':'NULL').' WHERE (shipmentpk = '.$this->shipmentPK.') ';
+		if($onlyIfNull) $sql .= 'AND (receiptstatus IS NULL)';
 		if(!$this->conn->query($sql)){
 			$this->errorStr = 'ERROR tagging receipt as submitted: '.$this->conn->error;
 			return false;
@@ -701,6 +707,7 @@ class ShipmentManager{
 			'LEFT JOIN users u ON s.checkinUid = u.uid '.
 			'WHERE (s.shipmentPK = '.$this->shipmentPK.')';
 		$this->exportData($fileName, $sql);
+		$this->setReceiptStatus(1,true);
 	}
 
 	public function exportShipmentList(){

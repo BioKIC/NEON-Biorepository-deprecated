@@ -21,7 +21,6 @@ $status = "";
 if($isEditor){
 	if($action == 'downloadcsv'){
 		$shipManager->exportShipmentList();
-		exit;
 	}
 	elseif($action == 'checkinShipment'){
 		$shipManager->checkinShipment($_POST);
@@ -33,7 +32,7 @@ if($isEditor){
 		$shipManager->batchHarvestOccid($_POST);
 	}
 	elseif($action == 'receiptsubmitted'){
-		$shipManager->markReceiptAsSubmitted($shipmentPK,$_POST['submitted']);
+		$shipManager->setReceiptStatus($shipmentPK,$_POST['submitted']);
 	}
 }
 ?>
@@ -218,7 +217,7 @@ include($SERVER_ROOT.'/header.php');
 					<div style="margin-top:10px;">
 						<div class="displayFieldDiv">
 							<b>Total Sample Count:</b> <?php echo ($sampleCntArr['all']); ?>
-							<form action="manifestviewer.php" method="post" style="display:inline;" title="Refresh Counts and Sample Table">
+							<form name="refreshForm" action="manifestviewer.php" method="post" style="display:inline;" title="Refresh Counts and Sample Table">
 								<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 								<input type="image" src="../../images/refresh.png" style="width:15px;" />
 							</form>
@@ -377,27 +376,31 @@ include($SERVER_ROOT.'/header.php');
 										</fieldset>
 									</div>
 								</form>
-								<fieldset style="width:400px;margin:15px 30px">
+								<fieldset style="width:400px;margin:15px">
 									<legend><b>Receipt Status</b></legend>
 									<form name="receiptSubmittedForm" action="manifestviewer.php" method="post">
 										<?php
-										$receiptSubmitted = 0;
-										if(isset($shipArr['status']) && $shipArr['status'] = 'Receipt Submitted') $receiptSubmitted = 1;
+										$receiptStatus = '';
+										if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
+										$statusArr = explode(':', $receiptStatus);
+										if($statusArr) $receiptStatus = $statusArr[0];
 										?>
-										<input name="submitted" type="radio" value="0" <?php echo ($receiptSubmitted?'':'checked'); ?> onchange="this.form.submit()" />
-										<b>Receipt not yet submitted to NEON</b><br/>
-										<input name="submitted" type="radio" value="1" <?php echo ($receiptSubmitted?'checked':''); ?> onchange="this.form.submit()" />
+										<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
+										<b>Status not set</b><br/>
+										<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
+										<b>Receipt downloaded</b><br/>
+										<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
 										<b>Receipt submitted to NEON</b>
 										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-										<input name="submit" type="hidden" value="receiptsubmitted" />
+										<input name="action" type="hidden" value="receiptsubmitted" />
 									</form>
 									<div style="margin:15px">
-										<form name="exportReceiptForm" action="exportreceipt.php" method="post" target="_blank" style="float:left;">
+										<form name="exportReceiptForm" action="exportreceipt.php" method="post" style="float:left;">
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 											<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
 										</form>
 										<div style="float:left;margin-left:15px">
-											<a href="" target="_blank"><button type="button">Submit Receipt</button></a>
+											<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><button type="button">Submit Receipt</button></a>
 										</div>
 									</div>
 								</fieldset>
@@ -495,9 +498,13 @@ include($SERVER_ROOT.'/header.php');
 				<legend><b>Shipment Listing</b></legend>
 				<ul>
 					<?php
-					$shipmentDetails = $shipManager->getShipmentList($_POST);
-					foreach($shipmentDetails as $shipPK => $shipArr){
-						echo '<li><a href="manifestviewer.php?shipmentPK='.$shipPK.'">#'.$shipPK.': '.$shipArr['id'].'</a> ('.$shipArr['ts'].')</li>';
+					if($shipmentDetails = $shipManager->getShipmentList($_POST)){
+						foreach($shipmentDetails as $shipPK => $shipArr){
+							echo '<li><a href="manifestviewer.php?shipmentPK='.$shipPK.'">'.$shipArr['id'].'</a> ('.$shipArr['ts'].')</li>';
+						}
+					}
+					else{
+						echo '<div>No manifest matching search criteria</div>';
 					}
 					?>
 				</ul>

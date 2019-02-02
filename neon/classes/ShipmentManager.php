@@ -84,20 +84,25 @@ class ShipmentManager{
 		return $retArr;
 	}
 
-	public function getSampleArr(){
+	public function getSampleArr($samplePK = null){
 		$retArr = array();
 		$headerArr = array('sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate',
 			'quarantineStatus','acceptedForAnalysis','sampleCondition','sampleNotes','occid','checkinUser','checkinTimestamp');
 		$targetArr = array();
 		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, '.
 			's.collectDate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
-			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid '.
-			'WHERE (s.shipmentPK = '.$this->shipmentPK.') ORDER BY s.sampleID ';
+			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid ';
+		if($samplePK){
+			$sql .= 'WHERE (s.samplePK = '.$samplePK.') ';
+		}
+		else{
+			$sql .= 'WHERE (s.shipmentPK = '.$this->shipmentPK.') ORDER BY s.sampleID ';
+		}
 		$rs = $this->conn->query($sql);
 		//Pass through recordset to see which fields have at least one value
 		while($r = $rs->fetch_assoc()){
 			foreach($headerArr as $fieldName){
-				if($r[$fieldName] && !in_array($fieldName, $targetArr)) $targetArr[] = $fieldName;
+				if($r[$fieldName] != '' && !in_array($fieldName, $targetArr)) $targetArr[] = $fieldName;
 			}
 		}
 		if(!array_key_exists('checkinTimestamp', $targetArr)){
@@ -109,12 +114,7 @@ class ShipmentManager{
 		//Grab data for only columns that have data
 		while($r = $rs->fetch_assoc()){
 			foreach($targetArr as $fieldName){
-				$value = $r[$fieldName];
-				if($fieldName == 'acceptedForAnalysis'){
-					if($value) $value = 'Y';
-					elseif($value === '0') $value = 'N';
-				}
-				$retArr[$r['samplePK']][$fieldName] = $value;
+				$retArr[$r['samplePK']][$fieldName] = $r[$fieldName];
 			}
 			if(isset($retArr[$r['samplePK']]['namedLocation'])){
 				$namedLocation = $retArr[$r['samplePK']]['namedLocation'];
@@ -124,6 +124,7 @@ class ShipmentManager{
 			}
 		}
 		$rs->free();
+		if($samplePK) return array_shift($retArr);
 		return $retArr;
 	}
 
@@ -411,15 +412,15 @@ class ShipmentManager{
 		if($this->shipmentPK){
 			$sql = 'UPDATE NeonShipment '.
 				'SET domainID = "'.$this->cleanInStr($postArr['domainID']).'", '.
-				'dateShipped = "'.$this->cleanInStr($postArr['dateShipped']).'", '.
-				'shippedFrom = "'.$this->cleanInStr($postArr['shippedFrom']).'", '.
-				'senderID = "'.$this->cleanInStr($postArr['senderID']).'", '.
-				'destinationFacility = "'.$this->cleanInStr($postArr['destinationFacility']).'", '.
-				'sentToID = "'.$this->cleanInStr($postArr['sentToID']).'", '.
-				'shipmentService = "'.$this->cleanInStr($postArr['shipmentService']).'", '.
-				'shipmentMethod = "'.$this->cleanInStr($postArr['shipmentMethod']).'", '.
-				'trackingNumber = "'.$this->cleanInStr($postArr['trackingNumber']).'", '.
-				'notes = "'.$this->cleanInStr($postArr['shipmentNotes']).'", '.
+				'dateShipped = '.($postArr['dateShipped']?'"'.$this->cleanInStr($postArr['dateShipped']).'"':'NULL').', '.
+				'shippedFrom = '.($postArr['shippedFrom']?'"'.$this->cleanInStr($postArr['shippedFrom']).'"':'NULL').', '.
+				'senderID = '.($postArr['senderID']?'"'.$this->cleanInStr($postArr['senderID']).'"':'NULL').', '.
+				'destinationFacility = '.($postArr['destinationFacility']?'"'.$this->cleanInStr($postArr['destinationFacility']).'"':'NULL').', '.
+				'sentToID = '.($postArr['sentToID']?'"'.$this->cleanInStr($postArr['sentToID']).'"':'NULL').', '.
+				'shipmentService = '.($postArr['shipmentService']?'"'.$this->cleanInStr($postArr['shipmentService']).'"':'NULL').', '.
+				'shipmentMethod = '.($postArr['shipmentMethod']?'"'.$this->cleanInStr($postArr['shipmentMethod']).'"':'NULL').', '.
+				'trackingNumber = '.($postArr['trackingNumber']?'"'.$this->cleanInStr($postArr['trackingNumber']).'"':'NULL').', '.
+				'notes = '.($postArr['shipmentNotes']?'"'.$this->cleanInStr($postArr['shipmentNotes']).'"':'NULL').', '.
 				'modifiedByUid = '.$GLOBALS['SYMB_UID'].', '.
 				'modifiedTimestamp = now() '.
 				'WHERE (shipmentpk = '.$this->shipmentPK.')';
@@ -442,13 +443,33 @@ class ShipmentManager{
 		}
 	}
 
-	public function editComment($inStr){
-		if($this->shipmentPK){
-			$sql = 'UPDATE NeonShipment SET notes = CONCAT_WS("; ", notes, "'.$this->cleanInStr($inStr).'") WHERE (shipmentpk = '.$this->shipmentPK.')';
-			if(!$this->conn->query($sql)){
-				$this->errorStr = 'ERROR updating comments: '.$this->conn->error;
+	public function editSampleCheckin($postArr){
+		$status = false;
+		if(is_numeric($postArr['samplePK'])){
+			$sql = 'UPDATE NeonSample '.
+				'SET acceptedForAnalysis = '.$this->cleanInStr($postArr['acceptedForAnalysis']).', '.
+				'sampleCondition = '.($postArr['sampleCondition']?'"'.$this->cleanInStr($postArr['sampleCondition']).'"':'NULL').', '.
+				'notes = '.($postArr['sampleNotes']?'"'.$this->cleanInStr($postArr['sampleNotes']).'"':'NULL').' '.
+				'WHERE (samplepk = '.$postArr['samplePK'].')';
+			if($this->conn->query($sql)){
+				$status = true;
+			}
+			else{
+				$this->errorStr = 'ERROR editing sample check-in info: '.$this->conn->error;
 				return false;
 			}
+		}
+		return $status;
+	}
+
+	public function resetSampleCheckin($samplePK){
+		if(is_numeric($samplePK)){
+			$sql = 'UPDATE NeonSample SET checkinUid = NULL, checkinTimestamp = NULL, acceptedForAnalysis = NULL, sampleCondition = NULL WHERE (samplepk = '.$samplePK.')';
+			if(!$this->conn->query($sql)){
+				$this->errorStr = 'ERROR resetting sample check-in: '.$this->conn->error;
+				return false;
+			}
+			return true;
 		}
 	}
 

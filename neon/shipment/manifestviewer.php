@@ -158,8 +158,14 @@ if($isEditor){
 		}
 
 		function openShipmentEditor(){
-			var url = "shipmenteditor.php?shipmentPK="+<?php echo $shipmentPK; ?>;
+			var url = "shipmenteditor.php?shipmentPK=<?php echo $shipmentPK; ?>";
 			openPopup(url,"shipwindow");
+			return false;
+		}
+
+		function openSampleCheckinEditor(samplePK){
+			var url = "samplecheckineditor.php?samplePK="+samplePK;
+			openPopup(url,"sample2window");
 			return false;
 		}
 
@@ -349,8 +355,16 @@ include($SERVER_ROOT.'/header.php');
 											echo '<td>'.$sampleArr['collectDate'].'</td>';
 											echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
 											if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
-											if(array_key_exists('acceptedForAnalysis', $sampleArr)) echo '<td>'.$sampleArr['acceptedForAnalysis'].'</td>';
-											echo '<td title="'.$sampleArr['checkinUser'].'"><span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span></td>';
+											if(array_key_exists('acceptedForAnalysis', $sampleArr)){
+												$acceptedForAnalysis = $sampleArr['acceptedForAnalysis'];
+												if($sampleArr['acceptedForAnalysis']==1) $acceptedForAnalysis = 'Y';
+												if($sampleArr['acceptedForAnalysis']==='0') $acceptedForAnalysis = 'N';
+												echo '<td>'.$acceptedForAnalysis.'</td>';
+											}
+											echo '<td title="'.$sampleArr['checkinUser'].'">';
+											echo '<span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span> ';
+											if($sampleArr['checkinTimestamp']) echo '<a href="#" onclick="return openSampleCheckinEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:13px" /></a>';
+											echo '</td>';
 											if(array_key_exists('occid',$sampleArr)) echo '<td><a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank">'.$sampleArr['occid'].'</a></td>';
 											echo '</tr>';
 											$str = '';

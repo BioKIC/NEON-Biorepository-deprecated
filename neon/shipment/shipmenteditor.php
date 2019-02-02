@@ -6,7 +6,7 @@ include_once($SERVER_ROOT.'/neon/classes/ShipmentManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/shipmenteditor.php');
 
-$action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
+$action = array_key_exists("action",$_POST)?$_POST["action"]:"";
 $shipmentPK = array_key_exists("shipmentPK",$_REQUEST)?$_REQUEST["shipmentPK"]:"";
 
 $shipManager = new ShipmentManager();
@@ -99,7 +99,7 @@ if($isEditor){
 					if(isset($shipArr['checkinTimestamp']) && $shipArr['checkinTimestamp']){
 						?>
 						<div style="margin-top:15px">
-							<button type="submit" name="action" value="nullCheckin" onclick="return confirm('Are you sure you want to totally check-in status?')">Clear Check-in Details</button>
+							<button type="submit" name="action" value="nullCheckin" onclick="return confirm('Are you sure you want to totally reset check-in status?')">Clear Check-in Details</button>
 						</div>
 						<?php
 					}
@@ -112,7 +112,7 @@ if($isEditor){
 	else{
 		?>
 		<div style='font-weight:bold;margin:30px;'>
-			Shipment identifier not set of you do not have permissions to view manifests
+			Shipment identifier not set or you do not have permissions to view manifests
 		</div>
 		<?php
 	}

@@ -8,9 +8,11 @@ if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 $shipmentPK = array_key_exists("shipmentPK",$_REQUEST)?$_REQUEST["shipmentPK"]:"";
+$quickSearchTerm = array_key_exists("quicksearch",$_REQUEST)?$_REQUEST["quicksearch"]:"";
 
 $shipManager = new ShipmentManager();
-$shipManager->setShipmentPK($shipmentPK);
+if($shipmentPK) $shipManager->setShipmentPK($shipmentPK);
+elseif($quickSearchTerm) $shipmentPK = $shipManager->setQuickSearchTerm($quickSearchTerm);
 
 $isEditor = false;
 if($IS_ADMIN){
@@ -46,120 +48,114 @@ if($isEditor){
 	<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php
-		if($shipmentPK){
-			?>
-			$(document).ready(function() {
-				$("#shipCheckinComment").keydown(function(evt){
-					var evt  = (evt) ? evt : ((event) ? event : null);
-					if ((evt.keyCode == 13)) { return false; }
-				});
+		$(document).ready(function() {
+			$("#shipCheckinComment").keydown(function(evt){
+				var evt  = (evt) ? evt : ((event) ? event : null);
+				if ((evt.keyCode == 13)) { return false; }
 			});
+		});
 
-			function batchCheckinFormVerify(f){
-				var formVerified = false;
-				for(var h=0;h<f.length;h++){
-					if(f.elements[h].name == "scbox[]" && f.elements[h].checked){
-						formVerified = true;
-						break;
-					}
-				}
-				if(!formVerified){
-					alert("Select samples to check-in");
-					return false;
+		function batchCheckinFormVerify(f){
+			var formVerified = false;
+			for(var h=0;h<f.length;h++){
+				if(f.elements[h].name == "scbox[]" && f.elements[h].checked){
+					formVerified = true;
+					break;
 				}
 			}
+			if(!formVerified){
+				alert("Select samples to check-in");
+				return false;
+			}
+		}
 
-			function checkinCommentChanged(textObj){
-				var f = textObj.form;
-				var testStr = textObj.value.trim();
-				if(testStr){
-					if(!f.receivedDate.value){
-						var dateEx1 = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
-						if(extractArr = dateEx1.exec(testStr)){
-							var yearStr = extractArr[3];
-							var monthStr = extractArr[1];
-							var dayStr = extractArr[2];
-							if(monthStr.length == 1) monthStr = '0'+monthStr;
-							if(dayStr.length == 1) dayStr = '0'+dayStr;
-							if(!f.receivedDate.value){
-								f.receivedDate.value = yearStr+"-"+monthStr+"-"+dayStr;
-								textObj.value = "";
-							}
-						}
-					}
-					if(!f.receivedTime.value){
-						var timeEx1 = /(\d{1,2}):(\d{1,2})\s{1}([apm.]+)/i;
-						if(extractArr = timeEx1.exec(testStr)){
-							var hourStr = extractArr[1];
-							var minStr = extractArr[2];
-							var dayPeriod = extractArr[3].toLowerCase();
-							if(dayPeriod.indexOf('p') > -1){
-								if(parseInt(hourStr) < 12) hourStr = String(parseInt(hourStr)+12);
-							}
-							else if(dayPeriod.indexOf('a') > -1){
-								if(parseInt(hourStr) == 12) hourStr = "00";
-							}
-							if(hourStr.length == 1 ) hourStr = "0"+hourStr;
-							if(minStr.length == 1 ) minStr = "0"+minStr;
-							f.receivedTime.value = hourStr+":"+minStr;
+		function checkinCommentChanged(textObj){
+			var f = textObj.form;
+			var testStr = textObj.value.trim();
+			if(testStr){
+				if(!f.receivedDate.value){
+					var dateEx1 = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+					if(extractArr = dateEx1.exec(testStr)){
+						var yearStr = extractArr[3];
+						var monthStr = extractArr[1];
+						var dayStr = extractArr[2];
+						if(monthStr.length == 1) monthStr = '0'+monthStr;
+						if(dayStr.length == 1) dayStr = '0'+dayStr;
+						if(!f.receivedDate.value){
+							f.receivedDate.value = yearStr+"-"+monthStr+"-"+dayStr;
 							textObj.value = "";
 						}
 					}
 				}
-			}
-
-			function checkinSample(f){
-				var sampleIdenfier = f.idenfier.value.trim();
-				if(sampleIdenfier != ""){
-					$.ajax({
-						type: "POST",
-						url: "rpc/checkinsample.php",
-						dataType: 'json',
-						data: { shipmentpk: "<?php echo $shipmentPK; ?>", idenfier: sampleIdenfier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, notes: f.sampleNotes.value }
-					}).done(function( retJson ) {
-						$("#checkinText").show();
-						if(retJson.status == 0){
-							$("#checkinText").css('color', 'red');
-							$("#checkinText").text('check-in failed!');
+				if(!f.receivedTime.value){
+					var timeEx1 = /(\d{1,2}):(\d{1,2})\s{1}([apm.]+)/i;
+					if(extractArr = timeEx1.exec(testStr)){
+						var hourStr = extractArr[1];
+						var minStr = extractArr[2];
+						var dayPeriod = extractArr[3].toLowerCase();
+						if(dayPeriod.indexOf('p') > -1){
+							if(parseInt(hourStr) < 12) hourStr = String(parseInt(hourStr)+12);
 						}
-						else if(retJson.status == 1){
-							$("#checkinText").css('color', 'green');
-							$("#checkinText").text('success!!!');
-							$("#scSpan-"+retJson.samplePK).html("checked-in");
-							f.idenfier.value = "";
+						else if(dayPeriod.indexOf('a') > -1){
+							if(parseInt(hourStr) == 12) hourStr = "00";
 						}
-						else if(retJson.status == 2){
-							$("#checkinText").css('color', 'orange');
-							$("#checkinText").text('sample already checked-in!');
-						}
-						else if(retJson.status == 3){
-							$("#checkinText").css('color', 'red');
-							$("#checkinText").text('sample not found!');
-						}
-						else{
-							$("#checkinText").css('color', 'red');
-							$("#checkinText").text('Failed: unknown error!');
-						}
-						$("#checkinText").animate({fontSize: "110%"}, "slow");
-						$("#checkinText").animate({fontSize: "100%"}, "slow");
-						//$("#checkinText").hide();
-						f.idenfier.focus();
-					});
+						if(hourStr.length == 1 ) hourStr = "0"+hourStr;
+						if(minStr.length == 1 ) minStr = "0"+minStr;
+						f.receivedTime.value = hourStr+":"+minStr;
+						textObj.value = "";
+					}
 				}
 			}
-
-			function selectAll(cbObj){
-				var boxesChecked = true;
-				if(!cbObj.checked) boxesChecked = false;
-				var f = cbObj.form;
-				for(var i=0;i<f.length;i++){
-					if(f.elements[i].name == "scbox[]") f.elements[i].checked = boxesChecked;
-				}
-			}
-			<?php
 		}
-		?>
+
+		function checkinSample(f){
+			var sampleIdenfier = f.idenfier.value.trim();
+			if(sampleIdenfier != ""){
+				$.ajax({
+					type: "POST",
+					url: "rpc/checkinsample.php",
+					dataType: 'json',
+					data: { shipmentpk: "<?php echo $shipmentPK; ?>", idenfier: sampleIdenfier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, notes: f.sampleNotes.value }
+				}).done(function( retJson ) {
+					$("#checkinText").show();
+					if(retJson.status == 0){
+						$("#checkinText").css('color', 'red');
+						$("#checkinText").text('check-in failed!');
+					}
+					else if(retJson.status == 1){
+						$("#checkinText").css('color', 'green');
+						$("#checkinText").text('success!!!');
+						$("#scSpan-"+retJson.samplePK).html("checked-in");
+						f.idenfier.value = "";
+					}
+					else if(retJson.status == 2){
+						$("#checkinText").css('color', 'orange');
+						$("#checkinText").text('sample already checked-in!');
+					}
+					else if(retJson.status == 3){
+						$("#checkinText").css('color', 'red');
+						$("#checkinText").text('sample not found!');
+					}
+					else{
+						$("#checkinText").css('color', 'red');
+						$("#checkinText").text('Failed: unknown error!');
+					}
+					$("#checkinText").animate({fontSize: "110%"}, "slow");
+					$("#checkinText").animate({fontSize: "100%"}, "slow");
+					//$("#checkinText").hide();
+					f.idenfier.focus();
+				});
+			}
+		}
+
+		function selectAll(cbObj){
+			var boxesChecked = true;
+			if(!cbObj.checked) boxesChecked = false;
+			var f = cbObj.form;
+			for(var i=0;i<f.length;i++){
+				if(f.elements[i].name == "scbox[]") f.elements[i].checked = boxesChecked;
+			}
+		}
 	</script>
 	<style type="text/css">
 		fieldset{ padding:15px }
@@ -176,7 +172,8 @@ include($SERVER_ROOT.'/header.php');
 <div class="navpath">
 	<a href="../../index.php">Home</a> &gt;&gt;
 	<a href="../index.php">NEON Biorepository Tools</a> &gt;&gt;
-	<a href="manifestviewer.php"><b>Manifest Search</b></a>
+	<a href="manifestsearch.php">Manifest Search</a> &gt;&gt;
+	<a href="manifestviewer.php?shipmentPK=<?php echo $shipmentPK; ?>"><b>Manifest View</b></a>
 </div>
 <div id="innertext">
 	<?php
@@ -245,12 +242,12 @@ include($SERVER_ROOT.'/header.php');
 										<div class="displayFieldDiv">
 											<b>Sample condition:</b>
 											<select name="sampleCondition">
-												<option value="OK">OK - No Known Compromise</option>
-												<option value="cold chain broken">Cold Chain Broken</option>
-												<option value="damaged">Damaged - Analysis Affected</option>
-												<option value="sample incomplete">Sample Incomplete</option>
-												<option value="handling error">Handling Error</option>
-												<option value="other">Other - Described in Remarks</option>
+												<?php
+												$condArr = $shipManager->getConditionArr();
+												foreach($condArr as $condKey => $condValue){
+													echo '<option value="'.$condKey.'">'.$condValue.'</option>';
+												}
+												?>
 											</select>
 										</div>
 										<div class="displayFieldDiv">
@@ -321,7 +318,9 @@ include($SERVER_ROOT.'/header.php');
 										foreach($sampleList as $samplePK => $sampleArr){
 											echo '<tr>';
 											echo '<td><input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
-											echo '<td>'.$sampleArr['sampleID'].'</td>';
+											$sampleID = $sampleArr['sampleID'];
+											if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
+											echo '<td>'.$sampleID.'</td>';
 											if(array_key_exists('sampleCode',$sampleArr)) echo '<td>'.$sampleArr['sampleCode'].'</td>';
 											echo '<td>'.$sampleArr['sampleClass'].'</td>';
 											if(array_key_exists('taxonID',$sampleArr)) echo '<td>'.$sampleArr['taxonID'].'</td>';
@@ -359,12 +358,12 @@ include($SERVER_ROOT.'/header.php');
 											<div class="displayFieldDiv">
 												<b>Sample condition:</b>
 												<select name="sampleCondition">
-													<option value="OK">OK - No Known Compromise</option>
-													<option value="cold chain broken">Cold Chain Broken</option>
-													<option value="damaged">Damaged - Analysis Affected</option>
-													<option value="sample incomplete">Sample Incomplete</option>
-													<option value="handling error">Handling Error</option>
-													<option value="other">Other - Described in Remarks</option>
+													<?php
+													$condArr = $shipManager->getConditionArr();
+													foreach($condArr as $condKey => $condValue){
+														echo '<option value="'.$condKey.'">'.$condValue.'</option>';
+													}
+													?>
 												</select>
 											</div>
 											<div class="displayFieldDiv">
@@ -377,8 +376,9 @@ include($SERVER_ROOT.'/header.php');
 									</div>
 								</form>
 								<fieldset style="width:400px;margin:15px">
+									<a id="receiptStatus"></a>
 									<legend><b>Receipt Status</b></legend>
-									<form name="receiptSubmittedForm" action="manifestviewer.php" method="post">
+									<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
 										<?php
 										$receiptStatus = '';
 										if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
@@ -395,12 +395,12 @@ include($SERVER_ROOT.'/header.php');
 										<input name="action" type="hidden" value="receiptsubmitted" />
 									</form>
 									<div style="margin:15px">
-										<form name="exportReceiptForm" action="exportreceipt.php" method="post" style="float:left;">
+										<form name="exportReceiptForm" action="exportreceipt.php" method="post">
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 											<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
 										</form>
-										<div style="float:left;margin-left:15px">
-											<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><button type="button">Submit Receipt</button></a>
+										<div style="margin-top:15px">
+											<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
 										</div>
 									</div>
 								</fieldset>
@@ -417,98 +417,19 @@ include($SERVER_ROOT.'/header.php');
 			<?php
 		}
 		else{
+			if($quickSearchTerm){
+				echo '<h2>Search term '.$quickSearchTerm.' failed to return results</h2>';
+			}
+			else{
+				echo '<h2>ERROR: shipment identifier is null</h2>';
+			}
 			?>
-			<fieldset>
-				<legend><b>Shipment Filter</b></legend>
-				<form action="manifestviewer.php" method="post">
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							<b>Shipment ID:</b> <input name="shipmentID" type="text" value="<?php echo (isset($_POST['shipmentID'])?$_POST['shipmentID']:''); ?>" />
-						</div>
-						<div class="fieldDiv">
-							<b>Domain ID:</b> <input name="domainID" type="text" value="<?php echo (isset($_POST['domainID'])?$_POST['domainID']:''); ?>" />
-						</div>
-						<div class="fieldDiv">
-							<b>Date Shipped:</b> <input name="dateShippedStart" type="date" value="<?php echo (isset($_POST['dateShippedStart'])?$_POST['dateShippedStart']:''); ?>" /> -
-							<input name="dateShippedEnd" type="date" value="<?php echo (isset($_POST['dateShippedEnd'])?$_POST['dateShippedEnd']:''); ?>" />
-						</div>
-					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							<b>Sender ID:</b> <input name="senderID" type="text" value="<?php echo (isset($_POST['senderID'])?$_POST['senderID']:''); ?>" />
-						</div>
-						<div class="fieldDiv">
-							<b>Tracking Number:</b> <input name="trackingNumber" type="text" value="<?php echo (isset($_POST['trackingNumber'])?$_POST['trackingNumber']:''); ?>" />
-						</div>
-						<div class="fieldDiv">
-							<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo (isset($_POST['sampleID'])?$_POST['sampleID']:''); ?>" />
-						</div>
-						<div class="fieldDiv">
-							<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo (isset($_POST['sampleClass'])?$_POST['sampleClass']:''); ?>" />
-						</div>
-					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							<b>Named Location:</b> <input name="namedLocation" type="text" value="<?php echo (isset($_POST['namedLocation'])?$_POST['namedLocation']:''); ?>" />
-						</div>
-						<div class="fieldDiv">
-							<b>Date Collected:</b> <input name="collectDateStart" type="date" value="<?php echo (isset($_POST['collectDateStart'])?$_POST['collectDateStart']:''); ?>" /> -
-							<input name="collectDateEnd" type="date" value="<?php echo (isset($_POST['collectDateEnd'])?$_POST['collectDateEnd']:''); ?>" />
-						</div>
-						<div class="fieldDiv"><b>Imported/Modified By:</b>
-							<select name="importedUid">
-								<option value="">Select User</option>
-								<option value="">------------------------</option>
-								<?php
-								$userImportArr = $shipManager->getImportUserArr();
-								foreach($userImportArr as $uid => $userName){
-									echo '<option value="'.$uid.'" '.(isset($_POST['importedUid'])&&$uid==$_POST['importedUid']?'SELECTED':'').'>'.$userName.'</option>';
-								}
-								?>
-							</select>
-						</div>
-					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo (isset($_POST['sampleCode'])?$_POST['sampleCode']:''); ?>" />
-						</div>
-						<div class="fieldDiv">
-							<b>Taxon ID:</b> <input name="taxonID" type="text" value="<?php echo (isset($_POST['taxonID'])?$_POST['taxonID']:''); ?>" />
-						</div>
-						<div class="fieldDiv">
-							<b>Checked-in By</b>
-							<select name="checkinUid">
-								<option value="">Select User</option>
-								<option value="">------------------------</option>
-								<?php
-								$usercheckinArr = $shipManager->getCheckinUserArr();
-								foreach($usercheckinArr as $uid => $userName){
-									echo '<option value="'.$uid.'" '.(isset($_POST['checkinUid'])&&$uid==$_POST['checkinUid']?'SELECTED':'').'>'.$userName.'</option>';
-								}
-								?>
-							</select>
-						</div>
-					</div>
-					<div style="clear:both; margin:20px">
-						<input name="action" type="submit" value="Display Manifests" />
-					</div>
+			<div style="margin:10px">
+				<b>Quick search:</b>
+				<form name="sampleQuickSearchFrom" action="manifestviewer.php" method="post" style="display: inline" >
+					<input name="quicksearch" type="text" value="" onchange="this.form.submit()" style="width:250px;" />
 				</form>
-			</fieldset>
-			<fieldset style="margin-top:30px;padding:15px">
-				<legend><b>Shipment Listing</b></legend>
-				<ul>
-					<?php
-					if($shipmentDetails = $shipManager->getShipmentList($_POST)){
-						foreach($shipmentDetails as $shipPK => $shipArr){
-							echo '<li><a href="manifestviewer.php?shipmentPK='.$shipPK.'">'.$shipArr['id'].'</a> ('.$shipArr['ts'].')</li>';
-						}
-					}
-					else{
-						echo '<div>No manifest matching search criteria</div>';
-					}
-					?>
-				</ul>
-			</fieldset>
+			</div>
 			<?php
 		}
 	}

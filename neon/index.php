@@ -39,8 +39,12 @@ if($isEditor){
 			<legend><b>Shipment Management Tools</b></legend>
 			<ul>
 				<li><a href="shipment/manifestloader.php">Load and Process New Manifests</a></li>
-				<li><a href="shipment/manifestviewer.php">Search, View, and Process a Manifest</a></li>
-				<li><a href="">Check-in Samples from a Shipment</a></li>
+				<li><a href="shipment/manifestsearch.php">Search and list Manifests</a></li>
+				<li>Quick search:
+					<form name="sampleQuickSearchFrom" action="shipment/manifestviewer.php" method="post" style="display: inline" >
+						<input name="quicksearch" type="text" value="" onchange="this.form.submit()" style="width:250px;" />
+					</form>
+				</li>
 			</ul>
 		</fieldset>
 	</div>

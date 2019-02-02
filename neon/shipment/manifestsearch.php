@@ -47,6 +47,11 @@ if($isEditor){
 			f.dateShippedEnd.value = "";
 			f.checkinUid.value = "";
 			f.importedUid.value = "";
+			f.sampleCondition.value = "";
+			var radioList = document.getElementsByName('manifestStatus');
+			for(x = 0; x < radioList.length; x++){
+				radioList[x].checked = false;
+			}
 			f.submit();
 		}
 	</script>
@@ -111,10 +116,12 @@ include($SERVER_ROOT.'/header.php');
 						<b>Date Shipped:</b> <input name="dateShippedStart" type="date" value="<?php echo (isset($postArr['dateShippedStart'])?$postArr['dateShippedStart']:''); ?>" /> -
 						<input name="dateShippedEnd" type="date" value="<?php echo (isset($postArr['dateShippedEnd'])?$postArr['dateShippedEnd']:''); ?>" />
 					</div>
+				</div>
+				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
+						<b>Checked-in By: </b>
 						<select name="checkinUid" style="margin:5px 10px">
 							<option value="">------------------------</option>
-							<option value="">Checked-in By</option>
 							<?php
 							$usercheckinArr = $shipManager->getCheckinUserArr();
 							foreach($usercheckinArr as $uid => $userName){
@@ -124,9 +131,9 @@ include($SERVER_ROOT.'/header.php');
 						</select>
 					</div>
 					<div class="fieldDiv">
+						<b>Imported/Modified By:</b>
 						<select name="importedUid" style="margin:5px 10px">
 							<option value="">------------------------</option>
-							<option value="">Imported/Modified By</option>
 							<?php
 							$userImportArr = $shipManager->getImportUserArr();
 							foreach($userImportArr as $uid => $userName){
@@ -135,17 +142,14 @@ include($SERVER_ROOT.'/header.php');
 							?>
 						</select>
 					</div>
-				</div>
-				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<input name="manifeststatus" type="radio" value="shipNotCheck" /> <b>Shipment not Checked-in</b>
+						<b>Sample Condition:</b>
 						<select name="sampleCondition" style="margin:5px 10px">
-							<option value="">Sample Condition</option>
 							<option value="">------------------------</option>
 							<?php
 							if($condArr = $shipManager->getConditionAppliedArr()){
 								foreach($condArr as $condKey => $condValue){
-									echo '<option value="'.$condKey.'">'.$condValue.'</option>';
+									echo '<option value="'.$condKey.'" '.(isset($postArr['sampleCondition'])&&$condKey==$postArr['sampleCondition']?'SELECTED':'').'>'.$condValue.'</option>';
 								}
 							}
 							else{
@@ -157,10 +161,14 @@ include($SERVER_ROOT.'/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<input name="manifeststatus" type="radio" value="shipNotCheck" /> <b>Shipment not Checked-in</b>
-						<input name="manifeststatus" type="radio" value="receiptnotsubmitted" style="margin-left:30px;" /> <b>Receipt not submitted to NEON</b>
-						<input name="manifeststatus" type="radio" value="sampleNotCheck" style="margin-left:30px;" /> <b>Samples not Checked-in</b>
-						<input name="manifeststatus" type="radio" value="occurNotHarvested" style="margin-left:30px;" /> <b>Occurreence not harvested</b>
+						<?php
+						$manifestStatus = isset($postArr['manifestStatus'])?$postArr['manifestStatus']:'';
+						?>
+						<input name="manifestStatus" type="radio" value="shipNotCheck" <?php echo ($manifestStatus=='shipNotCheck'?'checked':''); ?> /> <b>Shipment not Checked-in</b>
+						<input name="manifestStatus" type="radio" value="receiptNotSubmitted" <?php echo ($manifestStatus=='receiptNotSubmitted'?'checked':''); ?> style="margin-left:20px;" /> <b>Receipt not submitted</b>
+						<input name="manifestStatus" type="radio" value="sampleNotCheck" <?php echo ($manifestStatus=='sampleNotCheck'?'checked':''); ?> style="margin-left:20px;" /> <b>Samples not Checked-in</b>
+						<input name="manifestStatus" type="radio" value="nonAcceptedSamples" <?php echo ($manifestStatus=='nonAcceptedSamples'?'checked':''); ?> style="margin-left:20px;" /> <b>Samples not accepted for analysis</b>
+						<input name="manifestStatus" type="radio" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> style="margin-left:20px;" /> <b>Occurreences not harvested</b>
 					</div>
 				</div>
 				<div style="clear:both; margin:20px">

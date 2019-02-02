@@ -18,6 +18,7 @@ CREATE TABLE `NeonShipment` (
   `checkinUid` INT UNSIGNED NULL,
   `checkinTimestamp` DATETIME NULL,
   `modifiedByUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` DATETIME NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`shipmentpk`),
   CONSTRAINT `FK_neon_ship_importuid` FOREIGN KEY (`importUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,

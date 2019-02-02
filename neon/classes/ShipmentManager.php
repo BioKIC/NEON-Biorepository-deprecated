@@ -30,7 +30,7 @@ class ShipmentManager{
 		if($this->shipmentPK){
 			$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, s.shipmentMethod, '.
 				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, s.receiptStatus, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
-				CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.initialtimestamp AS ts '.
+				CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.modifiedTimestamp, s.initialtimestamp AS ts '.
 				'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
 				'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
 				'LEFT JOIN users u3 ON s.modifiedByUid = u3.uid '.
@@ -51,7 +51,7 @@ class ShipmentManager{
 			$rs->free();
 			if(isset($this->shipmentArr['domainID']) && $this->shipmentArr['domainID']){
 				$domainTitle = $this->getDomainTitle($this->shipmentArr['domainID']);
-				if($domainTitle) $this->shipmentArr['domainID'] = $domainTitle.' ('.$this->shipmentArr['domainID'].')';
+				if($domainTitle) $this->shipmentArr['domainTitle'] = $domainTitle;
 			}
 		}
 	}
@@ -233,7 +233,7 @@ class ShipmentManager{
 		$shipmentPK = 0;
 		$trackingId = '';
 		if(isset($recArr['trackingnumber'])){
-			$trackingId = trim($postArr['trackingNumber'],' #');
+			$trackingId = trim($recArr['trackingnumber'],' #');
 			$trackingId = preg_replace('/[^a-zA-Z0-9]+/', '', $trackingId);
 		}
 		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, shippedFrom,senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, trackingNumber, notes, importUid) '.
@@ -407,6 +407,41 @@ class ShipmentManager{
 	}
 
 	//Shipment and sample edit functions
+	public function editShipment($postArr){
+		if($this->shipmentPK){
+			$sql = 'UPDATE NeonShipment '.
+				'SET domainID = "'.$this->cleanInStr($postArr['domainID']).'", '.
+				'dateShipped = "'.$this->cleanInStr($postArr['dateShipped']).'", '.
+				'shippedFrom = "'.$this->cleanInStr($postArr['shippedFrom']).'", '.
+				'senderID = "'.$this->cleanInStr($postArr['senderID']).'", '.
+				'destinationFacility = "'.$this->cleanInStr($postArr['destinationFacility']).'", '.
+				'sentToID = "'.$this->cleanInStr($postArr['sentToID']).'", '.
+				'shipmentService = "'.$this->cleanInStr($postArr['shipmentService']).'", '.
+				'shipmentMethod = "'.$this->cleanInStr($postArr['shipmentMethod']).'", '.
+				'trackingNumber = "'.$this->cleanInStr($postArr['trackingNumber']).'", '.
+				'notes = "'.$this->cleanInStr($postArr['shipmentNotes']).'", '.
+				'modifiedByUid = '.$GLOBALS['SYMB_UID'].', '.
+				'modifiedTimestamp = now() '.
+				'WHERE (shipmentpk = '.$this->shipmentPK.')';
+			if(!$this->conn->query($sql)){
+				$this->errorStr = 'ERROR editing shipment: '.$this->conn->error;
+				return false;
+			}
+			return true;
+		}
+	}
+
+	public function resetShipmentCheckin(){
+		if($this->shipmentPK){
+			$sql = 'UPDATE NeonShipment SET checkinUid = NULL, checkinTimestamp = NULL, receivedDate = NULL, receivedBy = NULL WHERE (shipmentpk = '.$this->shipmentPK.')';
+			if(!$this->conn->query($sql)){
+				$this->errorStr = 'ERROR resetting shipment check-in: '.$this->conn->error;
+				return false;
+			}
+			return true;
+		}
+	}
+
 	public function editComment($inStr){
 		if($this->shipmentPK){
 			$sql = 'UPDATE NeonShipment SET notes = CONCAT_WS("; ", notes, "'.$this->cleanInStr($inStr).'") WHERE (shipmentpk = '.$this->shipmentPK.')';
@@ -639,60 +674,84 @@ class ShipmentManager{
 	//Shipment and sample search functions
 	public function getShipmentList($postArr = null){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.initialtimestamp FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
+		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.initialtimestamp '.
+			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
 		//Set search criteria
 		$sqlWhere = '';
-		if(isset($postArr['shipmentID']) && $postArr['shipmentID']){
-			$sqlWhere .= 'AND (s.shipmentID = "'.$this->cleanInStr($postArr['shipmentID']).'") ';
+		if(isset($postArr['shipmentID'])){
+			if($postArr['shipmentID']){
+				$sqlWhere .= 'AND (s.shipmentID = "'.$this->cleanInStr($postArr['shipmentID']).'") ';
+			}
+			if($postArr['sampleID']){
+				$sqlWhere .= 'AND (m.sampleID LIKE "%'.$this->cleanInStr($postArr['sampleID']).'%") ';
+			}
+			if($postArr['sampleCode']){
+				$sqlWhere .= 'AND (m.sampleCode = "'.$this->cleanInStr($postArr['sampleCode']).'") ';
+			}
+			if($postArr['domainID']){
+				$sqlWhere .= 'AND (s.domainID = "'.$postArr['domainID'].'") ';
+			}
+			if($postArr['namedLocation']){
+				$sqlWhere .= 'AND ((m.namedLocation LIKE "'.$postArr['namedLocation'].'%") OR (m.sampleID LIKE "'.$postArr['namedLocation'].'%")) ';
+			}
+			if($postArr['sampleClass']){
+				$sqlWhere .= 'AND (m.sampleClass LIKE "%'.$this->cleanInStr($postArr['sampleClass']).'%") ';
+			}
+			if($postArr['taxonID']){
+				$sqlWhere .= 'AND (m.taxonID = "'.$postArr['taxonID'].'") ';
+			}
+			if($postArr['trackingNumber']){
+				$trackingId = trim($postArr['trackingNumber'],' #');
+				$trackingId = preg_replace('/[^a-zA-Z0-9]+/', '', $trackingId);
+				$sqlWhere .= 'AND (s.trackingNumber = "'.$trackingId.'") ';
+			}
+			if($postArr['dateShippedStart']){
+				$sqlWhere .= 'AND (s.dateShipped > "'.$postArr['dateShippedStart'].'") ';
+			}
+			if($postArr['dateShippedEnd']){
+				$sqlWhere .= 'AND (s.dateShipped < "'.$postArr['dateShippedEnd'].'") ';
+			}
+			/*
+			if(isset($postArr['senderID']) && $postArr['senderID']){
+				$sqlWhere .= 'AND (s.senderID = "'.$postArr['senderID'].'") ';
+			}
+			*/
+			if($postArr['checkinUid']){
+				$sqlWhere .= 'AND ((s.checkinUid = "'.$postArr['checkinUid'].'") OR (m.checkinUid = "'.$postArr['checkinUid'].'")) ';
+			}
+			if($postArr['importedUid']){
+				$sqlWhere .= 'AND ((s.importUid = "'.$postArr['importedUid'].'") OR (s.modifiedByUid = "'.$postArr['importedUid'].'")) ';
+			}
+			/*
+			if($postArr['collectDateStart']){
+				$sqlWhere .= 'AND (m.collectDate > "'.$postArr['collectDateStart'].'") ';
+			}
+			if($postArr['collectDateEnd']){
+				$sqlWhere .= 'AND (m.collectDate < "'.$postArr['collectDateEnd'].'") ';
+			}
+			*/
+			if($postArr['sampleCondition']){
+				$sqlWhere .= 'AND (m.sampleCondition = "'.$postArr['sampleCondition'].'") ';
+			}
+			if(isset($postArr['manifestStatus'])){
+				if($postArr['manifestStatus'] == 'shipNotCheck'){
+					$sqlWhere .= 'AND (s.checkinTimestamp IS NULL) ';
+				}
+				elseif($postArr['manifestStatus'] == 'receiptNotSubmitted'){
+					$sqlWhere .= 'AND (s.receiptstatus IS NULL OR s.receiptstatus NOT LIKE "submitted%") ';
+				}
+				elseif($postArr['manifestStatus'] == 'sampleNotCheck'){
+					$sqlWhere .= 'AND (m.checkinTimestamp IS NULL) ';
+				}
+				elseif($postArr['manifestStatus'] == 'nonAcceptedSamples'){
+					$sqlWhere .= 'AND (m.acceptedForAnalysis = 0) ';
+				}
+				elseif($postArr['manifestStatus'] == 'nonAcceptedSamples'){
+					$sql .= 'LEFT JOIN omoccurrences o ON m.occid = o.occid ';
+					$sqlWhere .= 'AND (o.occid IS NULL) ';
+				}
+			}
 		}
-		if(isset($postArr['sampleID']) && $postArr['sampleID']){
-			$sqlWhere .= 'AND (m.sampleID LIKE "%'.$this->cleanInStr($postArr['sampleID']).'%") ';
-		}
-		if(isset($postArr['sampleCode']) && $postArr['sampleCode']){
-			$sqlWhere .= 'AND (m.sampleCode = "'.$this->cleanInStr($postArr['sampleCode']).'") ';
-		}
-		if(isset($postArr['domainID']) && $postArr['domainID']){
-			$sqlWhere .= 'AND (s.domainID = "'.$postArr['domainID'].'") ';
-		}
-		if(isset($postArr['namedLocation']) && $postArr['namedLocation']){
-			$sqlWhere .= 'AND ((m.namedLocation LIKE "'.$postArr['namedLocation'].'%") OR (m.sampleID LIKE "'.$postArr['namedLocation'].'%")) ';
-		}
-		if(isset($postArr['sampleClass']) && $postArr['sampleClass']){
-			$sqlWhere .= 'AND (m.sampleClass LIKE "%'.$this->cleanInStr($postArr['sampleClass']).'%") ';
-		}
-		if(isset($postArr['taxonID']) && $postArr['taxonID']){
-			$sqlWhere .= 'AND (m.taxonID = "'.$postArr['taxonID'].'") ';
-		}
-		if(isset($postArr['trackingNumber']) && $postArr['trackingNumber']){
-			$trackingId = trim($postArr['trackingNumber'],' #');
-			$trackingId = preg_replace('/[^a-zA-Z0-9]+/', '', $trackingId);
-			$sqlWhere .= 'AND (s.trackingNumber = "'.$trackingId.'") ';
-		}
-		if(isset($postArr['dateShippedStart']) && $postArr['dateShippedStart']){
-			$sqlWhere .= 'AND (s.dateShipped > "'.$postArr['dateShippedStart'].'") ';
-		}
-		if(isset($postArr['dateShippedEnd']) && $postArr['dateShippedEnd']){
-			$sqlWhere .= 'AND (s.dateShipped < "'.$postArr['dateShippedEnd'].'") ';
-		}
-		/*
-		if(isset($postArr['senderID']) && $postArr['senderID']){
-			$sqlWhere .= 'AND (s.senderID = "'.$postArr['senderID'].'") ';
-		}
-		*/
-		if(isset($postArr['checkinUid']) && $postArr['checkinUid']){
-			$sqlWhere .= 'AND ((s.checkinUid = "'.$postArr['checkinUid'].'") OR (m.checkinUid = "'.$postArr['checkinUid'].'")) ';
-		}
-		if(isset($postArr['importedUid']) && $postArr['importedUid']){
-			$sqlWhere .= 'AND ((s.importUid = "'.$postArr['importedUid'].'") OR (s.modifiedByUid = "'.$postArr['importedUid'].'")) ';
-		}
-		/*
-		if(isset($postArr['collectDateStart']) && $postArr['collectDateStart']){
-			$sqlWhere .= 'AND (m.collectDate > "'.$postArr['collectDateStart'].'") ';
-		}
-		if(isset($postArr['collectDateEnd']) && $postArr['collectDateEnd']){
-			$sqlWhere .= 'AND (m.collectDate < "'.$postArr['collectDateEnd'].'") ';
-		}
-		*/
 		if($sqlWhere) $sql .= 'WHERE '.subStr($sqlWhere, 3);
 		$sql .= 'ORDER BY s.shipmentID';
 		//echo '<div>'.$sql.'</div>';
@@ -721,7 +780,7 @@ class ShipmentManager{
 	public function exportShipmentList(){
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
 		$sql = 'SELECT shipmentPK, shipmentID, domainID, dateShipped, shippedFrom, senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, '.
-			'trackingNumber, receivedDate, receivedBy, notes, importUid, modifiedByUid, initialtimestamp FROM NeonShipment';
+			'trackingNumber, receivedDate, receivedBy, notes, importUid, modifiedByUid, modifiedTimestamp, initialtimestamp FROM NeonShipment';
 		$this->exportData($fileName, $sql);
 	}
 
@@ -821,7 +880,7 @@ class ShipmentManager{
 	public function getConditionAppliedArr(){
 		$queryArr = array();
 		$sql = 'SELECT DISTINCT sampleCondition FROM NeonSample ';
-		$rs = $this->conn->query();
+		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$queryArr[$r->sampleCondition] = $r->sampleCondition;
 		}

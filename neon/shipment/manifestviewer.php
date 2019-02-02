@@ -156,6 +156,18 @@ if($isEditor){
 				if(f.elements[i].name == "scbox[]") f.elements[i].checked = boxesChecked;
 			}
 		}
+
+		function openShipmentEditor(){
+			var url = "shipmenteditor.php?shipmentPK="+<?php echo $shipmentPK; ?>;
+			openPopup(url,"shipwindow");
+			return false;
+		}
+
+		function openPopup(url,windowName){
+			newWindow = window.open(url,windowName,'scrollbars=1,toolbar=0,resizable=1,width=1000,height=400,left=20,top=200');
+			if (newWindow.opener == null) newWindow.opener = self;
+			return false;
+		}
 	</script>
 	<style type="text/css">
 		fieldset{ padding:15px }
@@ -184,8 +196,15 @@ include($SERVER_ROOT.'/header.php');
 			<fieldset style="margin-top:30px">
 				<legend><b>Shipment #<?php echo $shipmentPK; ?></b></legend>
 				<div style="float:left">
-					<div class="displayFieldDiv"><b>Shipment ID:</b> <?php echo $shipArr['shipmentID']; ?></div>
-					<div class="displayFieldDiv"><b>Domain:</b> <?php echo $shipArr['domainID']; ?></div>
+					<div class="displayFieldDiv">
+						<b>Shipment ID:</b> <?php echo $shipArr['shipmentID']; ?>
+						<a href="#" onclick="openShipmentEditor()"><img src="../../images/edit.png" style="width:13px" /></a>
+					</div>
+					<?php
+					$domainStr = $shipArr['domainID'];
+					if(isset($shipArr['domainTitle'])) $domainStr = $shipArr['domainTitle'].' ('.$shipArr['domainID'].')';
+					?>
+					<div class="displayFieldDiv"><b>Domain:</b> <?php echo $domainStr; ?></div>
 					<div class="displayFieldDiv"><b>Date Shipped:</b> <?php echo $shipArr['dateShipped']; ?></div>
 					<div class="displayFieldDiv"><b>Shipped From:</b> <?php echo $shipArr['shippedFrom']; ?></div>
 					<div class="displayFieldDiv"><b>Sender ID:</b> <?php echo $shipArr['senderID']; ?></div>
@@ -196,7 +215,7 @@ include($SERVER_ROOT.'/header.php');
 					<?php
 					if($shipArr['importUser']) echo '<div class="displayFieldDiv"><b>Manifest Importer:</b> '.$shipArr['importUser'].'</div>';
 					if($shipArr['ts']) echo '<div class="displayFieldDiv"><b>Import Date:</b> '.$shipArr['ts'].'</div>';
-					if($shipArr['modifiedUser']) echo '<div class="displayFieldDiv"><b>Modified By User:</b> '.$shipArr['modifiedUser'].'</div>';
+					if($shipArr['modifiedUser']) echo '<div class="displayFieldDiv"><b>Modified By User:</b> '.$shipArr['modifiedUser'].' ('.$shipArr['modifiedTimestamp'].')</div>';
 					if($shipArr['shipmentNotes']) echo '<div class="displayFieldDiv"><b>General Notes:</b> '.$shipArr['shipmentNotes'].'</div>';
 					?>
 				</div>

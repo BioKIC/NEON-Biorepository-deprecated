@@ -90,7 +90,7 @@ if($isEditor){
 							<?php
 							$sourceArr = $loaderManager->getSourceArr();
 							$targetArr = $loaderManager->getTargetArr();
-							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'destinationfacility','remarks'=>'shipmentnotes');
+							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'destinationfacility','remarks'=>'shipmentnotes','siteid'=>'namedlocation','containerid'=>'dynamicproperties');
 							foreach($sourceArr as $sourceField){
 								?>
 								<tr>
@@ -100,25 +100,25 @@ if($isEditor){
 									</td>
 									<td>
 										<?php
-										$translatedSourceField = $sourceField;
+										$translatedSourceField = strtolower($sourceField);
 										if(array_key_exists($translatedSourceField, $translationMap)) $translatedSourceField = $translationMap[$translatedSourceField];
 										$bgColor = 'yellow';
-										if(array_key_exists($translatedSourceField,$fieldMap)) $bgColor = 'white';
-										elseif(in_array($translatedSourceField, $targetArr)) $bgColor = 'white';
+										if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)) $bgColor = 'white';
+										elseif($loaderManager->in_iarray($translatedSourceField, $targetArr)) $bgColor = 'white';
 										?>
 										<select name="tf[]" style="background:<?php echo $bgColor; ?>">
 											<option value="">Field Unmapped</option>
 											<option value="">-------------------------</option>
 											<?php
 											echo '<option value="unmapped">Leave Field Unmapped</option>';
-											if(array_key_exists($translatedSourceField,$fieldMap)){
+											if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)){
 												foreach($targetArr as $targetField){
-													echo '<option '.($fieldMap[$translatedSourceField]==$targetField?'SELECTED':'').'>'.$targetField.'</option>';
+													echo '<option '.(strtolower($fieldMap[$translatedSourceField])==strtolower($targetField)?'SELECTED':'').'>'.$targetField.'</option>';
 												}
 											}
 											else{
 												foreach($targetArr as $targetField){
-													echo '<option '.($translatedSourceField==$targetField?'SELECTED':'').'>'.$targetField.'</option>';
+													echo '<option '.($translatedSourceField==strtolower($targetField)?'SELECTED':'').'>'.$targetField.'</option>';
 												}
 											}
 											?>

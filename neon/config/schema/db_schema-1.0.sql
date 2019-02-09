@@ -47,6 +47,7 @@ CREATE TABLE `NeonSample` (
   `quarantineStatus` VARCHAR(4) NULL,
   `acceptedForAnalysis` INT UNSIGNED NULL,
   `sampleCondition` VARCHAR(45) NULL,
+  `dynamicProperties` TEXT NULL,
   `notes` VARCHAR(250) NULL,
   `occid` INT UNSIGNED NULL,
   `checkinUid` INT UNSIGNED NULL,

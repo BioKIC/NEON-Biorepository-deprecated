@@ -196,8 +196,8 @@ include($SERVER_ROOT.'/header.php');
 <div id="innertext">
 	<?php
 	if($isEditor){
-		if($shipmentPK){
-			$shipArr = $shipManager->getShipmentArr();
+		$shipArr = $shipManager->getShipmentArr();
+		if($shipArr){
 			?>
 			<fieldset style="margin-top:30px">
 				<legend><b>Shipment #<?php echo $shipmentPK; ?></b></legend>
@@ -372,6 +372,14 @@ include($SERVER_ROOT.'/header.php');
 											if(isset($sampleArr['filterVolume'])) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
 											if(isset($sampleArr['domainRemarks'])) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
 											if(isset($sampleArr['sampleNotes'])) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
+											if(isset($sampleArr['dynamicProperties']) && $sampleArr['dynamicProperties']){
+												$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
+												$propSstr = '';
+												foreach($dynPropArr as $category => $propValue){
+													$propSstr .= $category.': '.$propValue.'; ';
+												}
+												$str .= '<div>'.trim($propSstr,'; ').'</div>';
+											}
 											if($str) echo '<tr><td colspan="'.$rowCnt.'"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
 										}
 										?>
@@ -454,7 +462,7 @@ include($SERVER_ROOT.'/header.php');
 				echo '<h2>Search term '.$quickSearchTerm.' failed to return results</h2>';
 			}
 			else{
-				echo '<h2>ERROR: shipment identifier is null</h2>';
+				echo '<h2>Shipment does not exist or has been deleted</h2>';
 			}
 			?>
 			<div style="margin:10px">
@@ -462,6 +470,9 @@ include($SERVER_ROOT.'/header.php');
 				<form name="sampleQuickSearchFrom" action="manifestviewer.php" method="post" style="display: inline" >
 					<input name="quicksearch" type="text" value="" onchange="this.form.submit()" style="width:250px;" />
 				</form>
+			</div>
+			<div style="margin:10px">
+				<h3><a href="manifestsearch.php">List Manifests</a></h3>
 			</div>
 			<?php
 		}

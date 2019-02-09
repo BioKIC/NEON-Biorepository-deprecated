@@ -25,6 +25,9 @@ if($isEditor){
 	elseif($action == 'nullCheckin'){
 		if($shipManager->resetShipmentCheckin()) $status = 'close';
 	}
+	elseif($action == 'deleteshipment'){
+		if($shipManager->deleteShipment($shipmentPK)) $status = 'close';
+	}
 }
 ?>
 <html>
@@ -105,6 +108,19 @@ if($isEditor){
 					}
 					?>
 				</div>
+			</form>
+		</fieldset>
+		<fieldset style="width:800px;">
+			<?php
+			$shipmentIsDeletable = $shipManager->shipmentISDeletable();
+			?>
+			<legend><b>Delete Shipment <?php echo $shipArr['shipmentID'].' (#'.$shipmentPK.')'; ?></b></legend>
+			<form method="post" action="shipmenteditor.php" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete this shipment?')">
+				<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+				<button name="action" type="submit" value="deleteshipment" <?php echo ($shipmentIsDeletable?'':'DISABLED'); ?>>Delete Shipment</button>
+				<?php
+				if(!$shipmentIsDeletable) echo '<div style="color:red">Shipment can not be deleted! Note that all specimen links need to be removed or disassociated before a shipment manifest can be removed from the system</div>';
+				?>
 			</form>
 		</fieldset>
 		<?php

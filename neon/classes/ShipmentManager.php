@@ -87,10 +87,11 @@ class ShipmentManager{
 	public function getSampleArr($samplePK = null){
 		$retArr = array();
 		$headerArr = array('sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate',
-			'quarantineStatus','acceptedForAnalysis','sampleCondition','sampleNotes','occid','checkinUser','checkinTimestamp');
+			'quarantineStatus','acceptedForAnalysis','sampleCondition','dynamicProperties','sampleNotes','occid','checkinUser','checkinTimestamp');
 		$targetArr = array();
 		$sql = 'SELECT s.samplePK, s.sampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, '.
-			's.collectDate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.notes as sampleNotes, CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
+			's.collectDate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.notes as sampleNotes, '.
+			'CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinTimestamp, s.occid '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid ';
 		if($samplePK){
 			$sql .= 'WHERE (s.samplePK = '.$samplePK.') ';
@@ -203,13 +204,24 @@ class ShipmentManager{
 			foreach($this->fieldMap as $sourceField => $targetField){
 				$indexArr = array_keys($headerArr,$sourceField);
 				$index = array_shift($indexArr);
-				$indexMap[$targetField] = $index;
+				$indexMap[$targetField][$sourceField] = $index;
 			}
 			echo '<li>Beginning to load records...</li>';
 			while($recordArr = fgetcsv($fh)){
 				$recMap = Array();
-				foreach($indexMap as $targetField => $indexValue){
-					$recMap[$targetField] = $recordArr[$indexValue];
+				$dynPropArr = array();
+				foreach($indexMap as $targetField => $indexValueArr){
+					foreach($indexValueArr as $sField => $indexValue){
+						if(strtolower($targetField) == 'dynamicproperties'){
+							$dynPropArr[$sField] = $indexValue;
+						}
+						else{
+							$recMap[$targetField] = $recordArr[$indexValue];
+						}
+					}
+				}
+				if($dynPropArr){
+					$recMap['dynamicproperties'] = json_encode($dynPropArr);
 				}
 				if($shipmentPK === false) $shipmentPK = $this->loadShipmentRecord($recMap);
 				if($shipmentPK){
@@ -233,6 +245,7 @@ class ShipmentManager{
 	public function loadShipmentRecord($recArr){
 		$shipmentPK = 0;
 		$trackingId = '';
+		$recArr = array_change_key_case($recArr);
 		if(isset($recArr['trackingnumber'])){
 			$trackingId = trim($recArr['trackingnumber'],' #');
 			$trackingId = preg_replace('/[^a-zA-Z0-9]+/', '', $trackingId);
@@ -269,7 +282,8 @@ class ShipmentManager{
 	}
 
 	private function loadSampleRecord($shipmentPK, $recArr){
-		$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedlocation, domainremarks, collectdate, quarantineStatus) '.
+		$recArr = array_change_key_case($recArr);
+		$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedlocation, domainremarks, collectdate, dynamicproperties, quarantineStatus) '.
 			'VALUES('.$shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.(isset($recArr['samplecode'])&&$recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').',"'.
 			$this->cleanInStr($recArr['sampleclass']).'",'.(isset($recArr['taxonid'])&&$recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
 			(isset($recArr['individualcount'])&&$recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
@@ -277,6 +291,7 @@ class ShipmentManager{
 			(isset($recArr['namedlocation'])?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
 			(isset($recArr['domainremarks'])&&$recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
 			(isset($recArr['collectdate'])?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
+			(isset($recArr['dynamicproperties'])?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
 			(isset($recArr['quarantinestatus'])&&$recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').')';
 		if($this->conn->query($sql)){
 			echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
@@ -298,7 +313,8 @@ class ShipmentManager{
 		$retArr = array();
 		$headerArr = fgetcsv($fHandler);
 		foreach($headerArr as $field){
-			$fieldStr = strtolower(trim($field));
+			//$fieldStr = strtolower(trim($field));
+			$fieldStr = trim($field);
 			if($fieldStr){
 				$retArr[] = $fieldStr;
 			}
@@ -467,6 +483,28 @@ class ShipmentManager{
 			$sql = 'UPDATE NeonSample SET checkinUid = NULL, checkinTimestamp = NULL, acceptedForAnalysis = NULL, sampleCondition = NULL WHERE (samplepk = '.$samplePK.')';
 			if(!$this->conn->query($sql)){
 				$this->errorStr = 'ERROR resetting sample check-in: '.$this->conn->error;
+				return false;
+			}
+			return true;
+		}
+	}
+
+	public function shipmentISDeletable(){
+		$status = true;
+		if($this->shipmentPK){
+			$sql = 'SELECT occid FROM NeonSample WHERE (shipmentPK = '.$this->shipmentPK.') AND (occid IS NOT NULL) LIMIT 1 ';
+			$rs = $this->conn->query($sql);
+			if($rs->num_rows) $status = false;
+			$rs->free();
+		}
+		return $status;
+	}
+
+	public function deleteShipment($shipmentPK){
+		if(is_numeric($shipmentPK)){
+			$sql = 'DELETE FROM NeonShipment WHERE (shipmentpk = '.$shipmentPK.')';
+			if(!$this->conn->query($sql)){
+				$this->errorStr = 'ERROR deleting shipment: '.$this->conn->error;
 				return false;
 			}
 			return true;
@@ -889,6 +927,7 @@ class ShipmentManager{
 
 	private function formatDate($dateStr){
 		if(preg_match('/^(20\d{2})(\d{2})(\d{2})$/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
+		elseif(preg_match('/^(20\d{2})-(\d{2})-(\d{2})/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
 		return $dateStr;
 	}
 
@@ -967,8 +1006,8 @@ class ShipmentManager{
 	}
 
 	public function getTargetArr(){
-		$retArr = array('shipmentid','domainid','dateshipped','shippedfrom','senderid','destinationfacility','senttoid','shipmentservice','shipmentmethod','trackingnumber','shipmentnotes',
-			'sampleid','samplecode','sampleclass','taxonid','individualcount','filtervolume','namedlocation','domainremarks','collectdate','quarantinestatus');
+		$retArr = array('shipmentID','domainID','dateShipped','shippedFrom','senderID','destinationFacility','sentToID','shipmentService','shipmentMethod','trackingNumber','shipmentNotes',
+			'sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus','dynamicProperties');
 		return $retArr;
 	}
 
@@ -977,6 +1016,14 @@ class ShipmentManager{
 	}
 
 	//Misc functions
+	public function in_iarray($needle, $haystack) {
+		return in_array(strtolower($needle), array_map('strtolower', $haystack));
+	}
+
+	public function array_key_iexists($key, $array) {
+		return array_key_exists(strtolower($key), array_map('strtolower', $array));
+	}
+
 	private function cleanInStr($str){
 		$newStr = trim($str);
 		$newStr = preg_replace('/\s\s+/', ' ',$newStr);

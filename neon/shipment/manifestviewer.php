@@ -230,7 +230,7 @@ include($SERVER_ROOT.'/header.php');
 					$receivedStr = '<span style="color:orange;font-weight:bold">Not yet arrived</span>';
 					if($shipArr['receivedDate']) $receivedStr = $shipArr['receivedBy'].' ('.$shipArr['receivedDate'].')';
 					echo '<div class="displayFieldDiv"><b>Received By:</b> '.$receivedStr.'</div>';
-					echo '<div class="displayFieldDiv"><b>Tracking Number:</b> <a href="'.$shipManager->getTractingUrl().'" target="_blank">'.$shipArr['trackingNumber'].'</a></div>';
+					echo '<div class="displayFieldDiv"><b>Tracking Number:</b> '.$shipManager->getTrackingStr().'</div>';
 					if($shipArr['checkinTimestamp']){
 						echo '<div class="displayFieldDiv"><b>Shipment Check-in:</b> '.$shipArr['checkinUser'].' ('.$shipArr['checkinTimestamp'].')</div>';
 					}

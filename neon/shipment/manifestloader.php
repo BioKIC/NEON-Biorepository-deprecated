@@ -50,6 +50,32 @@ if($isEditor){
 			}
 			return true;
 		}
+
+		function verifyMappingForm(f){
+			var sfArr = [];
+			var tfArr = [];
+			for(var i=0;i<f.length;i++){
+				var obj = f.elements[i];
+				if(obj.name == "sf[]"){
+					if(obj.value.trim() == ""){
+						alert("ERROR: All source fields need to have a column title and cannot be blank)");
+						return false;
+					}
+					else if(sfArr.indexOf(obj.value) > -1){
+						alert("ERROR: Source field names must be unique (duplicate field: "+obj.value+")");
+						return false;
+					}
+					sfArr[sfArr.length] = obj.value;
+				}
+				else if(obj.name == "tf[]" && obj.value != "" && obj.value != "unmapped" && obj.value != "dynamicProperties"){
+					if(tfArr.indexOf(obj.value) > -1){
+						alert('ERROR: Can\'t map to the same target field "'+obj.value+'" more than once');
+						return false;
+					}
+					tfArr[tfArr.length] = obj.value;
+				}
+			}
+		}
 	</script>
 </head>
 <body>
@@ -73,7 +99,7 @@ if($isEditor){
 				if(!$ulFileName) $loaderManager->uploadManifestFile();
 				$loaderManager->analyzeUpload();
 				?>
-				<form name="mapform" action="manifestloader.php" method="post">
+				<form name="mappingform" action="manifestloader.php" method="post" onsubmit="return verifyMappingForm(this)">
 					<fieldset style="width:90%;">
 						<legend style="font-weight:bold;font-size:120%;">Manifest Upload Form</legend>
 						<div style="margin:10px;">
@@ -90,7 +116,8 @@ if($isEditor){
 							<?php
 							$sourceArr = $loaderManager->getSourceArr();
 							$targetArr = $loaderManager->getTargetArr();
-							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'destinationfacility','remarks'=>'shipmentnotes','siteid'=>'namedlocation','containerid'=>'dynamicproperties');
+							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation',
+								'containerid'=>'dynamicproperties','sampletype'=>'dynamicproperties');
 							foreach($sourceArr as $sourceField){
 								?>
 								<tr>

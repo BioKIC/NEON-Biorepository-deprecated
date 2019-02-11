@@ -9,7 +9,7 @@ CREATE TABLE `NeonShipment` (
   `sentToID` VARCHAR(45) NOT NULL,
   `shipmentService` VARCHAR(45) NULL,
   `shipmentMethod` VARCHAR(45) NULL,
-  `trackingNumber` VARCHAR(45) NULL,
+  `trackingNumber` VARCHAR(150) NULL,
   `receivedDate` DATETIME NULL,
   `receivedBy` VARCHAR(45) NULL,
   `receiptstatus` VARCHAR(45) NULL,

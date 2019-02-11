@@ -213,7 +213,7 @@ class ShipmentManager{
 				foreach($indexMap as $targetField => $indexValueArr){
 					foreach($indexValueArr as $sField => $indexValue){
 						if(strtolower($targetField) == 'dynamicproperties'){
-							$dynPropArr[$sField] = $indexValue;
+							if($recordArr[$indexValue]) $dynPropArr[$sField] = $recordArr[$indexValue];
 						}
 						else{
 							$recMap[$targetField] = $recordArr[$indexValue];
@@ -248,7 +248,9 @@ class ShipmentManager{
 		$recArr = array_change_key_case($recArr);
 		if(isset($recArr['trackingnumber'])){
 			$trackingId = trim($recArr['trackingnumber'],' #');
-			$trackingId = preg_replace('/[^a-zA-Z0-9]+/', '', $trackingId);
+			$trackingId = str_replace(array("\n",','), ';', $trackingId);
+			$trackingId = preg_replace('/[^a-zA-Z0-9;]+/', '', $trackingId);
+			if($trackingId == 'none') $trackingId = '';
 		}
 		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, shippedFrom,senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, trackingNumber, notes, importUid) '.
 			'VALUES("'.$this->cleanInStr($recArr['shipmentid']).'",'.(isset($recArr['domainid'])?'"'.$this->cleanInStr($recArr['domainid']).'"':'NULL').',"'.
@@ -274,7 +276,7 @@ class ShipmentManager{
 			}
 			else{
 				echo '<li style="margin-left:15px"><span style="color:red">ERROR</span> loading shipment record (errNo: '.$this->conn->errno.'): '.$this->conn->error.'</li>';
-				//echo '<li style="margin-left:15px">SQL: '.$sql.'</li>';
+				echo '<li style="margin-left:15px">SQL: '.$sql.'</li>';
 				return 0;
 			}
 		}
@@ -315,9 +317,8 @@ class ShipmentManager{
 		foreach($headerArr as $field){
 			//$fieldStr = strtolower(trim($field));
 			$fieldStr = trim($field);
-			if($fieldStr){
-				$retArr[] = $fieldStr;
-			}
+			//if($fieldStr) $retArr[] = $fieldStr;
+			$retArr[] = $fieldStr;
 		}
 		return $retArr;
 	}
@@ -905,17 +906,21 @@ class ShipmentManager{
 		return $retArr;
 	}
 
-	public function getTractingUrl(){
-		$url = '';
-		$trackingId = trim($this->shipmentArr['trackingNumber'],' #');
-		$trackingId = preg_replace('/[^a-zA-Z0-9]+/', '', $trackingId);
-		if($this->shipmentArr['shipmentService'] == 'FedEx'){
-			$url = 'https://www.fedex.com/apps/fedextrack/?action=track&tracknumbers='.$trackingId.'&locale=en_US&cntry_code=us';
+	public function getTrackingStr(){
+		$retStr = '';
+		$trackingArr = explode(';',$this->shipmentArr['trackingNumber']);
+		$trackingArr = array_unique($trackingArr);
+		foreach($trackingArr as $trackingStr){
+			$trackingId = preg_replace('/[^a-zA-Z0-9;]+/', '', $trackingStr);
+			if($this->shipmentArr['shipmentService'] == 'FedEx' && strlen($trackingId) == 12){
+				$retStr .= '<a href="https://www.fedex.com/apps/fedextrack/?action=track&tracknumbers='.$trackingId.'&locale=en_US&cntry_code=us" target="_blank">';
+			}
+			elseif($this->shipmentArr['shipmentService'] == 'UPS' && strlen($trackingId) == 18){
+				$retStr .= '<a href="https://www.ups.com/track?loc=en_US&tracknum='.$trackingId.'&requester=WT/trackdetails" target="_blank">';
+			}
+			$retStr .= $trackingId.'</a>; ';
 		}
-		elseif($this->shipmentArr['shipmentService'] == 'UPS'){
-			$url = 'https://www.ups.com/track?loc=en_US&tracknum='.$trackingId.'&requester=WT/trackdetails';
-		}
-		return $url;
+		return trim($retStr,' ;');
 	}
 
 	private function getContentPath(){
@@ -927,7 +932,14 @@ class ShipmentManager{
 
 	private function formatDate($dateStr){
 		if(preg_match('/^(20\d{2})(\d{2})(\d{2})$/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
-		elseif(preg_match('/^(20\d{2})-(\d{2})-(\d{2})/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
+		elseif(preg_match('/^(20\d{2})-(\d{2})-(\d{2})\D*/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
+		elseif(preg_match('/^(\d{1,2})\/(\d{1,2})\/(20\d{2})/', $dateStr, $m)){
+			$month = $m[1];
+			if(strlen($month) == 1) $month = '0'.$month;
+			$day = $m[2];
+			if(strlen($day) == 1) $day = '0'.$day;
+			$dateStr = $m[3].'-'.$month.'-'.$day;
+		}
 		return $dateStr;
 	}
 
@@ -1008,6 +1020,7 @@ class ShipmentManager{
 	public function getTargetArr(){
 		$retArr = array('shipmentID','domainID','dateShipped','shippedFrom','senderID','destinationFacility','sentToID','shipmentService','shipmentMethod','trackingNumber','shipmentNotes',
 			'sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus','dynamicProperties');
+		sort($retArr);
 		return $retArr;
 	}
 

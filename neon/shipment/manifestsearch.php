@@ -19,7 +19,7 @@ if($IS_ADMIN){
 
 $status = "";
 if($isEditor){
-	if($action == 'downloadcsv'){
+	if($action == 'exportManifestList'){
 		$shipManager->exportShipmentList();
 	}
 }
@@ -119,8 +119,9 @@ include($SERVER_ROOT.'/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Checked-in By: </b>
+						<b>Checked-in by: </b>
 						<select name="checkinUid" style="margin:5px 10px">
+							<option value="">All Records</option>
 							<option value="">------------------------</option>
 							<?php
 							$usercheckinArr = $shipManager->getCheckinUserArr();
@@ -131,8 +132,9 @@ include($SERVER_ROOT.'/header.php');
 						</select>
 					</div>
 					<div class="fieldDiv">
-						<b>Imported/Modified By:</b>
+						<b>Imported/Modified by:</b>
 						<select name="importedUid" style="margin:5px 10px">
+							<option value="">All Records</option>
 							<option value="">------------------------</option>
 							<?php
 							$userImportArr = $shipManager->getImportUserArr();
@@ -145,6 +147,7 @@ include($SERVER_ROOT.'/header.php');
 					<div class="fieldDiv">
 						<b>Sample Condition:</b>
 						<select name="sampleCondition" style="margin:5px 10px">
+							<option value="">All Records</option>
 							<option value="">------------------------</option>
 							<?php
 							if($condArr = $shipManager->getConditionAppliedArr()){
@@ -171,7 +174,10 @@ include($SERVER_ROOT.'/header.php');
 						<input name="manifestStatus" type="radio" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> style="margin-left:20px;" /> <b>Occurreences not harvested</b>
 					</div>
 				</div>
-				<div style="clear:both; margin:20px">
+				<div style="float:right; margin:20px">
+					<button name="action" type="submit" value="exportManifestList">Export List of Manifests</button>
+				</div>
+				<div style="margin:20px">
 					<button name="action" type="submit" value="Display Manifests">Display Manifests</button>
 					<button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>
 				</div>
@@ -181,7 +187,7 @@ include($SERVER_ROOT.'/header.php');
 			<legend><b>Shipment Listing</b></legend>
 			<ul>
 				<?php
-				if($shipmentDetails = $shipManager->getShipmentList($postArr)){
+				if($shipmentDetails = $shipManager->getShipmentList()){
 					foreach($shipmentDetails as $shipPK => $shipArr){
 						echo '<li><a href="manifestviewer.php?shipmentPK='.$shipPK.'">'.$shipArr['id'].'</a> ('.$shipArr['ts'].')</li>';
 					}

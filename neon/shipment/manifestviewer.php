@@ -30,6 +30,9 @@ if($isEditor){
 	elseif($action == 'batchCheckin'){
 		$shipManager->batchCheckinSamples($_POST);
 	}
+	elseif($action == 'exportSampleListing'){
+		$shipManager->exportShipmentSampleList();
+	}
 	elseif($action == 'batchHarvestOccid'){
 		$shipManager->batchHarvestOccid($_POST);
 	}
@@ -385,7 +388,7 @@ include($SERVER_ROOT.'/header.php');
 										?>
 									</table>
 									<div style="margin:15px;float:right">
-										<button name="action" type="submit" value="batchHarvestOccid" disabled>Batch Harvest Occurrences</button>
+										<div style="margin:10px"><button name="action" type="submit" value="batchHarvestOccid" disabled>Batch Harvest Occurrences</button></div>
 									</div>
 									<div style="margin:15px">
 										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
@@ -416,6 +419,11 @@ include($SERVER_ROOT.'/header.php');
 										</fieldset>
 									</div>
 								</form>
+								<form name="exportSampleListForm" action="exporthandler.php" method="post" style="float:right;margin:-120px 15px 0px 0px">
+									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+									<input name="exportTask" type="hidden" value="sampleList" />
+									<div style="margin:10px"><button name="action" type="submit" value="exportSampleListing">Export Sample Listing</button></div>
+								</form>
 								<fieldset style="width:400px;margin:15px">
 									<a id="receiptStatus"></a>
 									<legend><b>Receipt Status</b></legend>
@@ -436,8 +444,9 @@ include($SERVER_ROOT.'/header.php');
 										<input name="action" type="hidden" value="receiptsubmitted" />
 									</form>
 									<div style="margin:15px">
-										<form name="exportReceiptForm" action="exportreceipt.php" method="post">
+										<form name="exportReceiptForm" action="exporthandler.php" method="post">
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+											<input name="exportTask" type="hidden" value="receipt" />
 											<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
 										</form>
 										<div style="margin-top:15px">

@@ -103,6 +103,15 @@ class ChecklistManager {
 			else{
 				trigger_error('ERROR: unable to set checklist metadata => '.$sql, E_USER_ERROR);
 			}
+			//Temporarly needed as a separate call until db_schema_patch-1.1.sql is applied
+			$sql = 'SELECT headerurl FROM fmchecklists WHERE (clid = '.$this->clid.')';
+			$rs = $this->conn->query($sql);
+			if($rs){
+				if($r = $rs->fetch_object()){
+					$this->clMetadata['headerurl'] = $r->headerurl;
+				}
+				$rs->free();
+			}
 		}
 	}
 
@@ -536,14 +545,15 @@ class ChecklistManager {
 			if($this->childClidArr){
 				$clidStr .= ','.implode(',',array_keys($this->childClidArr));
 			}
-			$this->basicSql = 'SELECT t.tid, ctl.clid, IFNULL(ctl.familyoverride,ts.family) AS family, t.sciname, t.author, t.unitname1, t.rankid, ctl.habitat, ctl.abundance, ctl.notes, ctl.source, ts.parenttid ';
+			$this->basicSql = 'SELECT t.tid, ctl.clid, t.sciname, t.author, t.unitname1, t.rankid, ctl.habitat, ctl.abundance, ctl.notes, ctl.source, ts.parenttid, ';
 			if($this->thesFilter){
-				$this->basicSql .= 'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tidaccepted '.
+				$this->basicSql .= 'ts2.family FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tidaccepted '.
 					'INNER JOIN fmchklsttaxalink ctl ON ts.tid = ctl.tid '.
+					'INNER JOIN taxstatus ts2 ON ts.tidaccepted = ts2.tid '.
 			  		'WHERE (ts.taxauthid = '.$this->thesFilter.') AND (ctl.clid IN ('.$clidStr.')) ';
 			}
 			else{
-				$this->basicSql .= 'FROM taxa t INNER JOIN fmchklsttaxalink ctl ON t.tid = ctl.tid '.
+				$this->basicSql .= 'IFNULL(ctl.familyoverride,ts.family) AS family FROM taxa t INNER JOIN fmchklsttaxalink ctl ON t.tid = ctl.tid '.
 					'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 			  		'WHERE (ts.taxauthid = 1) AND (ctl.clid IN ('.$clidStr.')) ';
 			}

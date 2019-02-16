@@ -352,10 +352,12 @@ include($SERVER_ROOT.'/header.php');
 											if(array_key_exists('sampleCode',$sampleArr)) echo '<td>'.$sampleArr['sampleCode'].'</td>';
 											echo '<td>'.$sampleArr['sampleClass'].'</td>';
 											if(array_key_exists('taxonID',$sampleArr)) echo '<td>'.$sampleArr['taxonID'].'</td>';
-											$namedLocation = $sampleArr['namedLocation'];
-											if(isset($sampleArr['siteTitle']) && $sampleArr['siteTitle']) $namedLocation = '<span title="'.$sampleArr['siteTitle'].'">'.$namedLocation.'</span>';
-											echo '<td>'.$namedLocation.'</td>';
-											echo '<td>'.$sampleArr['collectDate'].'</td>';
+											if(array_key_exists('namedLocation', $sampleArr)){
+												$namedLocation = $sampleArr['namedLocation'];
+												if(isset($sampleArr['siteTitle']) && $sampleArr['siteTitle']) $namedLocation = '<span title="'.$sampleArr['siteTitle'].'">'.$namedLocation.'</span>';
+												echo '<td>'.$namedLocation.'</td>';
+											}
+											if(array_key_exists('collectDate', $sampleArr)) echo '<td>'.$sampleArr['collectDate'].'</td>';
 											echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
 											if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
 											if(array_key_exists('acceptedForAnalysis', $sampleArr)){

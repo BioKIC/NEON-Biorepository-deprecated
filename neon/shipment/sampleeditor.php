@@ -7,6 +7,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/sampleeditor.php');
 
 $action = array_key_exists("action",$_POST)?$_POST["action"]:"";
+$shipmentPK = array_key_exists("shipmentPK",$_REQUEST)?$_REQUEST["shipmentPK"]:"";
 $samplePK = array_key_exists("samplePK",$_REQUEST)?$_REQUEST["samplePK"]:"";
 
 $shipManager = new ShipmentManager();
@@ -23,6 +24,9 @@ if($isEditor){
 	}
 	elseif($action == 'savenew'){
 		if($shipManager->addSample($_POST)) $status = 'close';
+	}
+	elseif($action == 'deleteSample'){
+		if($shipManager->deleteSample($samplePK)) $status = 'close';
 	}
 }
 ?>
@@ -49,9 +53,31 @@ if($isEditor){
 			});
 		});
 
-		function verifySampleEditForm(f){
-
+		function validateSampleForm(f){
+			if(f.individualCount.value.trim() != "" && !isNumeric(f.individualCount.value)){
+				alert("Individual Count field must be a numeric value");
+				return false;
+			}
+			if(f.filterVolume.value.trim() != "" && !isNumeric(f.filterVolume.value)){
+				alert("Filter Volume field must be a numeric value");
+				return false;
+			}
 			return true;
+		}
+
+		function isNumeric(inStr){
+		   	var validChars = "0123456789-.";
+		   	var isNumber = true;
+		   	var charVar;
+
+		   	for(var i = 0; i < inStr.length && isNumber == true; i++){
+		   		charVar = inStr.charAt(i);
+				if(validChars.indexOf(charVar) == -1){
+					isNumber = false;
+					break;
+		      	}
+		   	}
+			return isNumber;
 		}
 
 		function closeWindow(){
@@ -68,12 +94,13 @@ if($isEditor){
 <body>
 <div id="popup-innertext">
 	<?php
-	if($isEditor && $samplePK){
-		$sampleArr = $shipManager->getSampleArr($samplePK);
+	if($isEditor){
+		$sampleArr = array();
+		if($samplePK) $sampleArr = $shipManager->getSampleArr($samplePK);
 		?>
 		<fieldset style="width:800px;">
 			<legend><b><?php echo ($samplePK?$sampleArr['sampleID'].' (#'.$samplePK.')':'New Record'); ?></b></legend>
-			<form method="post" action="sampleeditor.php">
+			<form method="post" action="sampleeditor.php" onsubmit="return validateSampleForm(this)">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:250px" <?php echo $samplePK?'DISABLED':''; ?> required />
@@ -84,10 +111,24 @@ if($isEditor){
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo isset($sampleArr['sampleClass'])?$sampleArr['sampleClass']:''; ?>" style="width:250px" />
+						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo isset($sampleArr['sampleClass'])?$sampleArr['sampleClass']:''; ?>" style="width:250px" required />
 					</div>
 					<div class="fieldDiv">
-						<b>Quarantine Status:</b> <input name="quarantineStatus" type="text" value="<?php echo isset($sampleArr['quarantineStatus'])?$sampleArr['quarantineStatus']:''; ?>" style="width:40px" />
+						<b>Quarantine Status:</b>
+						<select name="quarantineStatus">
+							<?php
+							$quarValue = 'N';
+							if(isset($sampleArr['quarantineStatus'])) $quarValue = strtoupper($sampleArr['quarantineStatus']);
+							?>
+							<option value="">-----</option>
+							<option value="Y" <?php if($quarValue=='Y') echo 'SELECTED'; ?>>Y</option>
+							<option value="N" <?php if($quarValue=='N') echo 'SELECTED'; ?>>N</option>
+							<?php
+							if($quarValue && $quarValue != 'Y' && $quarValue != 'N'){
+								echo '<option value="'.$quarValue.'" SELECTED>'.$quarValue.'</option>';
+							}
+							?>
+						</select>
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
@@ -129,6 +170,7 @@ if($isEditor){
 					}
 					else{
 						?>
+						<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 						<div><button id="submitButton" type="submit" name="action" value="savenew" disabled>Save Record</button></div>
 						<?php
 					}
@@ -137,6 +179,19 @@ if($isEditor){
 			</form>
 		</fieldset>
 		<?php
+		if($samplePK){
+			?>
+			<fieldset style="width:800px;">
+				<legend><b>Delete <?php echo $sampleArr['sampleID'].' (#'.$samplePK.')'; ?></b></legend>
+				<form method="post" action="sampleeditor.php">
+					<div style="clear:both;margin:15px">
+						<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
+						<button id="submitButton" type="submit" name="action" value="deleteSample">Delete Sample</button>
+					</div>
+				</form>
+			</fieldset>
+			<?php
+		}
 	}
 	else{
 		?>

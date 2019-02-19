@@ -486,25 +486,25 @@ class ShipmentManager{
 
 	public function editSample($postArr){
 		$status = false;
+		echo 'samplePK: '.$postArr['samplePK'].'<br/>';
 		if(is_numeric($postArr['samplePK'])){
 			$sql = 'UPDATE NeonSample '.
-				'SET sampleID = "'.$this->cleanInStr($postArr['sampleID']).'", sampleCode = '.($postArr['sampleCode']?'"'.$this->cleanInStr($postArr['sampleCode']).'"':'NULL').', '.
+				'SET sampleCode = '.($postArr['sampleCode']?'"'.$this->cleanInStr($postArr['sampleCode']).'"':'NULL').', '.
 				'sampleClass = '.($postArr['sampleClass']?'"'.$this->cleanInStr($postArr['sampleClass']).'"':'NULL').', '.
 				'quarantineStatus = '.($postArr['quarantineStatus']?'"'.$this->cleanInStr($postArr['quarantineStatus']).'"':'NULL').', '.
 				'namedLocation = '.($postArr['namedLocation']?'"'.$this->cleanInStr($postArr['namedLocation']).'"':'NULL').', '.
 				'collectDate = '.($postArr['collectDate']?'"'.$this->cleanInStr($postArr['collectDate']).'"':'NULL').', '.
 				'taxonID = '.($postArr['taxonID']?'"'.$this->cleanInStr($postArr['taxonID']).'"':'NULL').', '.
-				'individualCount = '.($postArr['individualCount']?'"'.$this->cleanInStr($postArr['individualCount']).'"':'NULL').', '.
-				'filterVolume = '.($postArr['filterVolume']?'"'.$this->cleanInStr($postArr['filterVolume']).'"':'NULL').', '.
+				'individualCount = '.(is_numeric($postArr['individualCount'])?'"'.$this->cleanInStr($postArr['individualCount']).'"':'NULL').', '.
+				'filterVolume = '.(is_numeric($postArr['filterVolume'])?'"'.$this->cleanInStr($postArr['filterVolume']).'"':'NULL').', '.
 				'domainRemarks = '.($postArr['domainRemarks']?'"'.$this->cleanInStr($postArr['domainRemarks']).'"':'NULL').', '.
 				'notes = '.($postArr['sampleNotes']?'"'.$this->cleanInStr($postArr['sampleNotes']).'"':'NULL').' '.
 				'WHERE (samplepk = '.$postArr['samplePK'].')';
-			echo $sql;
 			if($this->conn->query($sql)){
 				$status = true;
 			}
 			else{
-				$this->errorStr = 'ERROR editing sample check-in info: '.$this->conn->error;
+				$this->errorStr = 'ERROR editing sample data: '.$this->conn->error;
 				return false;
 			}
 		}
@@ -513,20 +513,36 @@ class ShipmentManager{
 
 	public function addSample($postArr){
 		$status = false;
-		if(is_numeric($postArr['samplePK'])){
-			$sql = 'INSERT INTO NeonSample(sampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
-				'VALUES("'.$this->cleanInStr($postArr['sampleID']).'", '.($postArr['sampleCode']?'"'.$this->cleanInStr($postArr['sampleCode']).'"':'NULL').','.
+		if(is_numeric($postArr['shipmentPK'])){
+			$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
+				'VALUES('.$postArr['shipmentPK'].',"'.$this->cleanInStr($postArr['sampleID']).'",'.
+				($postArr['sampleCode']?'"'.$this->cleanInStr($postArr['sampleCode']).'"':'NULL').','.
 				($postArr['sampleClass']?'"'.$this->cleanInStr($postArr['sampleClass']).'"':'NULL').','.($postArr['quarantineStatus']?'"'.$this->cleanInStr($postArr['quarantineStatus']).'"':'NULL').','.
 				($postArr['namedLocation']?'"'.$this->cleanInStr($postArr['namedLocation']).'"':'NULL').','.($postArr['collectDate']?'"'.$this->cleanInStr($postArr['collectDate']).'"':'NULL').','.
 				($postArr['taxonID']?'"'.$this->cleanInStr($postArr['taxonID']).'"':'NULL').','.($postArr['individualCount']?'"'.$this->cleanInStr($postArr['individualCount']).'"':'NULL').','.
 				($postArr['filterVolume']?'"'.$this->cleanInStr($postArr['filterVolume']).'"':'NULL').','.($postArr['domainRemarks']?'"'.$this->cleanInStr($postArr['domainRemarks']).'"':'NULL').','.
 				($postArr['sampleNotes']?'"'.$this->cleanInStr($postArr['sampleNotes']).'"':'NULL').')';
+			if($this->conn->query($sql)){
+				$status = true;
+			}
+			else{
+				$this->errorStr = 'ERROR adding new sample: '.$this->conn->error;
+				return false;
+			}
+		}
+		return $status;
+	}
+
+	public function deleteSample($samplePK){
+		$status = false;
+		if(is_numeric($samplePK)){
+			$sql = 'DELETE FROM NeonSample WHERE samplePK = '.$samplePK;
 			echo $sql;
 			if($this->conn->query($sql)){
 				$status = true;
 			}
 			else{
-				$this->errorStr = 'ERROR editing sample check-in info: '.$this->conn->error;
+				$this->errorStr = 'ERROR deleting sample: '.$this->conn->error;
 				return false;
 			}
 		}

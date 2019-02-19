@@ -173,8 +173,8 @@ if($isEditor){
 			return false;
 		}
 
-		function addSample(){
-			var url = "sampleeditor.php";
+		function addSample(shipmentPK){
+			var url = "sampleeditor.php?shipmentPK="+shipmentPK;
 			openPopup(url,"sample1window");
 			return false;
 		}
@@ -186,7 +186,7 @@ if($isEditor){
 		}
 
 		function openPopup(url,windowName){
-			newWindow = window.open(url,windowName,'scrollbars=1,toolbar=0,resizable=1,width=1000,height=400,left=20,top=200');
+			newWindow = window.open(url,windowName,'scrollbars=1,toolbar=0,resizable=1,width=1000,height=500,left=20,top=100');
 			if (newWindow.opener == null) newWindow.opener = self;
 			return false;
 		}
@@ -406,10 +406,12 @@ include($SERVER_ROOT.'/header.php');
 										?>
 									</table>
 									<div style="margin:15px;float:right">
-										<a href="#" onclick="addSample();return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
-									</div>
-									<div style="margin:15px;float:right">
-										<div style="margin:10px"><button name="action" type="submit" value="batchHarvestOccid" disabled>Batch Harvest Occurrences</button></div>
+										<div style="margin:5px;">
+											<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+										</div>
+										<div style="margin:5px">
+											<button name="action" type="submit" value="batchHarvestOccid" disabled>Batch Harvest Occurrences</button>
+										</div>
 									</div>
 									<div style="margin:15px">
 										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
@@ -440,7 +442,7 @@ include($SERVER_ROOT.'/header.php');
 										</fieldset>
 									</div>
 								</form>
-								<form name="exportSampleListForm" action="exporthandler.php" method="post" style="float:right;margin:-120px 15px 0px 0px">
+								<form name="exportSampleListForm" action="exporthandler.php" method="post" style="float:right;margin:-80px 15px 0px 0px">
 									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 									<input name="exportTask" type="hidden" value="sampleList" />
 									<div style="margin:10px"><button name="action" type="submit" value="exportSampleListing">Export Sample Listing</button></div>

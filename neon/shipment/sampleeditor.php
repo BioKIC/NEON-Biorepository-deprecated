@@ -183,7 +183,7 @@ if($isEditor){
 			?>
 			<fieldset style="width:800px;">
 				<legend><b>Delete <?php echo $sampleArr['sampleID'].' (#'.$samplePK.')'; ?></b></legend>
-				<form method="post" action="sampleeditor.php">
+				<form method="post" action="sampleeditor.php" onsubmit="return confirm('Are you sure you want to permanently delete this sample?')">
 					<div style="clear:both;margin:15px">
 						<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
 						<button id="submitButton" type="submit" name="action" value="deleteSample">Delete Sample</button>

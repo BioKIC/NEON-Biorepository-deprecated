@@ -137,7 +137,6 @@ if($isEditor){
 											<option value="">Field Unmapped</option>
 											<option value="">-------------------------</option>
 											<?php
-											echo '<option value="unmapped">Leave Field Unmapped</option>';
 											if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)){
 												foreach($targetArr as $targetField){
 													echo '<option '.(strtolower($fieldMap[$translatedSourceField])==strtolower($targetField)?'SELECTED':'').'>'.$targetField.'</option>';
@@ -172,7 +171,8 @@ if($isEditor){
 				$shipmentPK = $loaderManager->uploadData();
 				echo '</ul>';
 				echo '<div style="margin:10px 0px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">Proceed to Manifest Check-in</a></div>';
-				echo '<div style="margin:10px 0px"><a href="manifestviewer.php">List Manifests</a></div>';
+				echo '<div style="margin:10px 0px"><a href="manifestloader.php">Load Another Manifest</a></div>';
+				echo '<div style="margin:10px 0px"><a href="manifestsearch.php">List and Search Manifests</a></div>';
 			}
 			else{
 				?>

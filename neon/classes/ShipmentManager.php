@@ -253,11 +253,13 @@ class ShipmentManager{
 			if($trackingId == 'none') $trackingId = '';
 		}
 		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, shippedFrom,senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, trackingNumber, notes, importUid) '.
-			'VALUES("'.$this->cleanInStr($recArr['shipmentid']).'",'.(isset($recArr['domainid'])?'"'.$this->cleanInStr($recArr['domainid']).'"':'NULL').',"'.
-			$this->cleanInStr($this->formatDate($recArr['dateshipped'])).'",'.
-			(isset($recArr['shippedfrom'])?'"'.$this->cleanInStr($recArr['shippedfrom']).'"':'NULL').',"'.$this->cleanInStr($recArr['senderid']).'",'.
+			'VALUES("'.$this->cleanInStr($recArr['shipmentid']).'",'.(isset($recArr['domainid'])?'"'.$this->cleanInStr($recArr['domainid']).'"':'NULL').','.
+			(isset($recArr['dateshipped'])&&$recArr['dateshipped']?'"'.$this->cleanInStr($this->formatDate($recArr['dateshipped'])).'"':'NULL').','.
+			(isset($recArr['shippedfrom'])?'"'.$this->cleanInStr($recArr['shippedfrom']).'"':'NULL').','.(isset($recArr['senderid'])?'"'.$this->cleanInStr($recArr['senderid']).'"':'NULL').','.
 			(isset($recArr['destinationfacility'])?'"'.$this->cleanInStr($recArr['destinationfacility']).'"':'NULL').','.
-			(isset($recArr['senttoid'])?'"'.$this->cleanInStr($recArr['senttoid']).'"':'NULL').',"'.$this->cleanInStr($recArr['shipmentservice']).'","'.$this->cleanInStr($recArr['shipmentmethod']).'",'.
+			(isset($recArr['senttoid'])?'"'.$this->cleanInStr($recArr['senttoid']).'"':'NULL').','.
+			(isset($recArr['shipmentservice'])?'"'.$this->cleanInStr($recArr['shipmentservice']).'"':'NULL').','.
+			(isset($recArr['shipmentmethod'])?'"'.$this->cleanInStr($recArr['shipmentmethod']).'"':'NULL').','.
 			($trackingId?'"'.$trackingId.'"':'NULL').','.(isset($recArr['shipmentnotes'])?'"'.$this->cleanInStr($recArr['shipmentnotes']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
 		//echo '<div>'.$sql.'</div>';
 		if($this->conn->query($sql)){
@@ -460,6 +462,77 @@ class ShipmentManager{
 		}
 	}
 
+	public function shipmentISDeletable(){
+		$status = true;
+		if($this->shipmentPK){
+			$sql = 'SELECT occid FROM NeonSample WHERE (shipmentPK = '.$this->shipmentPK.') AND (occid IS NOT NULL) LIMIT 1 ';
+			$rs = $this->conn->query($sql);
+			if($rs->num_rows) $status = false;
+			$rs->free();
+		}
+		return $status;
+	}
+
+	public function deleteShipment($shipmentPK){
+		if(is_numeric($shipmentPK)){
+			$sql = 'DELETE FROM NeonShipment WHERE (shipmentpk = '.$shipmentPK.')';
+			if(!$this->conn->query($sql)){
+				$this->errorStr = 'ERROR deleting shipment: '.$this->conn->error;
+				return false;
+			}
+			return true;
+		}
+	}
+
+	public function editSample($postArr){
+		$status = false;
+		if(is_numeric($postArr['samplePK'])){
+			$sql = 'UPDATE NeonSample '.
+				'SET sampleID = "'.$this->cleanInStr($postArr['sampleID']).'", sampleCode = '.($postArr['sampleCode']?'"'.$this->cleanInStr($postArr['sampleCode']).'"':'NULL').', '.
+				'sampleClass = '.($postArr['sampleClass']?'"'.$this->cleanInStr($postArr['sampleClass']).'"':'NULL').', '.
+				'quarantineStatus = '.($postArr['quarantineStatus']?'"'.$this->cleanInStr($postArr['quarantineStatus']).'"':'NULL').', '.
+				'namedLocation = '.($postArr['namedLocation']?'"'.$this->cleanInStr($postArr['namedLocation']).'"':'NULL').', '.
+				'collectDate = '.($postArr['collectDate']?'"'.$this->cleanInStr($postArr['collectDate']).'"':'NULL').', '.
+				'taxonID = '.($postArr['taxonID']?'"'.$this->cleanInStr($postArr['taxonID']).'"':'NULL').', '.
+				'individualCount = '.($postArr['individualCount']?'"'.$this->cleanInStr($postArr['individualCount']).'"':'NULL').', '.
+				'filterVolume = '.($postArr['filterVolume']?'"'.$this->cleanInStr($postArr['filterVolume']).'"':'NULL').', '.
+				'domainRemarks = '.($postArr['domainRemarks']?'"'.$this->cleanInStr($postArr['domainRemarks']).'"':'NULL').', '.
+				'notes = '.($postArr['sampleNotes']?'"'.$this->cleanInStr($postArr['sampleNotes']).'"':'NULL').' '.
+				'WHERE (samplepk = '.$postArr['samplePK'].')';
+			echo $sql;
+			if($this->conn->query($sql)){
+				$status = true;
+			}
+			else{
+				$this->errorStr = 'ERROR editing sample check-in info: '.$this->conn->error;
+				return false;
+			}
+		}
+		return $status;
+	}
+
+	public function addSample($postArr){
+		$status = false;
+		if(is_numeric($postArr['samplePK'])){
+			$sql = 'INSERT INTO NeonSample(sampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
+				'VALUES("'.$this->cleanInStr($postArr['sampleID']).'", '.($postArr['sampleCode']?'"'.$this->cleanInStr($postArr['sampleCode']).'"':'NULL').','.
+				($postArr['sampleClass']?'"'.$this->cleanInStr($postArr['sampleClass']).'"':'NULL').','.($postArr['quarantineStatus']?'"'.$this->cleanInStr($postArr['quarantineStatus']).'"':'NULL').','.
+				($postArr['namedLocation']?'"'.$this->cleanInStr($postArr['namedLocation']).'"':'NULL').','.($postArr['collectDate']?'"'.$this->cleanInStr($postArr['collectDate']).'"':'NULL').','.
+				($postArr['taxonID']?'"'.$this->cleanInStr($postArr['taxonID']).'"':'NULL').','.($postArr['individualCount']?'"'.$this->cleanInStr($postArr['individualCount']).'"':'NULL').','.
+				($postArr['filterVolume']?'"'.$this->cleanInStr($postArr['filterVolume']).'"':'NULL').','.($postArr['domainRemarks']?'"'.$this->cleanInStr($postArr['domainRemarks']).'"':'NULL').','.
+				($postArr['sampleNotes']?'"'.$this->cleanInStr($postArr['sampleNotes']).'"':'NULL').')';
+			echo $sql;
+			if($this->conn->query($sql)){
+				$status = true;
+			}
+			else{
+				$this->errorStr = 'ERROR editing sample check-in info: '.$this->conn->error;
+				return false;
+			}
+		}
+		return $status;
+	}
+
 	public function editSampleCheckin($postArr){
 		$status = false;
 		if(is_numeric($postArr['samplePK'])){
@@ -484,28 +557,6 @@ class ShipmentManager{
 			$sql = 'UPDATE NeonSample SET checkinUid = NULL, checkinTimestamp = NULL, acceptedForAnalysis = NULL, sampleCondition = NULL WHERE (samplepk = '.$samplePK.')';
 			if(!$this->conn->query($sql)){
 				$this->errorStr = 'ERROR resetting sample check-in: '.$this->conn->error;
-				return false;
-			}
-			return true;
-		}
-	}
-
-	public function shipmentISDeletable(){
-		$status = true;
-		if($this->shipmentPK){
-			$sql = 'SELECT occid FROM NeonSample WHERE (shipmentPK = '.$this->shipmentPK.') AND (occid IS NOT NULL) LIMIT 1 ';
-			$rs = $this->conn->query($sql);
-			if($rs->num_rows) $status = false;
-			$rs->free();
-		}
-		return $status;
-	}
-
-	public function deleteShipment($shipmentPK){
-		if(is_numeric($shipmentPK)){
-			$sql = 'DELETE FROM NeonShipment WHERE (shipmentpk = '.$shipmentPK.')';
-			if(!$this->conn->query($sql)){
-				$this->errorStr = 'ERROR deleting shipment: '.$this->conn->error;
 				return false;
 			}
 			return true;

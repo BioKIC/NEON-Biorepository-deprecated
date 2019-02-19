@@ -143,9 +143,10 @@ if($isEditor){
 						$("#checkinText").css('color', 'red');
 						$("#checkinText").text('Failed: unknown error!');
 					}
-					$("#checkinText").animate({fontSize: "110%"}, "slow");
+					$("#checkinText").animate({fontSize: "125%"}, "slow");
 					$("#checkinText").animate({fontSize: "100%"}, "slow");
-					//$("#checkinText").hide();
+					$("#checkinText").animate({fontSize: "125%"}, "slow");
+					$("#checkinText").animate({fontSize: "100%"}, "slow").delay(5000).fadeOut();
 					f.idenfier.focus();
 				});
 			}
@@ -163,6 +164,18 @@ if($isEditor){
 		function openShipmentEditor(){
 			var url = "shipmenteditor.php?shipmentPK=<?php echo $shipmentPK; ?>";
 			openPopup(url,"shipwindow");
+			return false;
+		}
+
+		function openSampleEditor(samplePK){
+			var url = "sampleeditor.php?samplePK="+samplePK;
+			openPopup(url,"sample1window");
+			return false;
+		}
+
+		function addSample(){
+			var url = "sampleeditor.php";
+			openPopup(url,"sample1window");
 			return false;
 		}
 
@@ -204,7 +217,7 @@ include($SERVER_ROOT.'/header.php');
 			?>
 			<fieldset style="margin-top:30px">
 				<legend><b>Shipment #<?php echo $shipmentPK; ?></b></legend>
-				<div style="float:left">
+				<div style="float:left;margin-right:40px;width:400px;">
 					<div class="displayFieldDiv">
 						<b>Shipment ID:</b> <?php echo $shipArr['shipmentID']; ?>
 						<a href="#" onclick="openShipmentEditor()"><img src="../../images/edit.png" style="width:13px" /></a>
@@ -228,7 +241,7 @@ include($SERVER_ROOT.'/header.php');
 					if($shipArr['shipmentNotes']) echo '<div class="displayFieldDiv"><b>General Notes:</b> '.$shipArr['shipmentNotes'].'</div>';
 					?>
 				</div>
-				<div style="margin-left:40px;float:left;">
+				<div style="float:left;">
 					<?php
 					$receivedStr = '<span style="color:orange;font-weight:bold">Not yet arrived</span>';
 					if($shipArr['receivedDate']) $receivedStr = $shipArr['receivedBy'].' ('.$shipArr['receivedDate'].')';
@@ -260,7 +273,7 @@ include($SERVER_ROOT.'/header.php');
 									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
 										<div class="displayFieldDiv">
 											<b>Identifier:</b> <input name="idenfier" type="text" style="width:250px" required />
-											<span id="checkinText"></span><br/>
+											<div id="checkinText" style="display:inline"></div>
 										</div>
 										<div class="displayFieldDiv">
 											<b>Accepted for Analysis:</b>
@@ -348,7 +361,10 @@ include($SERVER_ROOT.'/header.php');
 											echo '<td><input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
 											$sampleID = $sampleArr['sampleID'];
 											if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
-											echo '<td>'.$sampleID.'</td>';
+											echo '<td>';
+											echo $sampleID;
+											echo ' <a href="#" onclick="return openSampleEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:12px" /></a>';
+											echo '</td>';
 											if(array_key_exists('sampleCode',$sampleArr)) echo '<td>'.$sampleArr['sampleCode'].'</td>';
 											echo '<td>'.$sampleArr['sampleClass'].'</td>';
 											if(array_key_exists('taxonID',$sampleArr)) echo '<td>'.$sampleArr['taxonID'].'</td>';
@@ -390,6 +406,9 @@ include($SERVER_ROOT.'/header.php');
 										?>
 									</table>
 									<div style="margin:15px;float:right">
+										<a href="#" onclick="addSample();return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+									</div>
+									<div style="margin:15px;float:right">
 										<div style="margin:10px"><button name="action" type="submit" value="batchHarvestOccid" disabled>Batch Harvest Occurrences</button></div>
 									</div>
 									<div style="margin:15px">
@@ -426,6 +445,7 @@ include($SERVER_ROOT.'/header.php');
 									<input name="exportTask" type="hidden" value="sampleList" />
 									<div style="margin:10px"><button name="action" type="submit" value="exportSampleListing">Export Sample Listing</button></div>
 								</form>
+								<div style="margin:20px 10px;float:right"><a href="manifestloader.php"><button name="loadManifestButton" type="button">Load Another Manifest</button></a></div>
 								<fieldset style="width:400px;margin:15px">
 									<a id="receiptStatus"></a>
 									<legend><b>Receipt Status</b></legend>

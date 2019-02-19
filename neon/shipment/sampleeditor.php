@@ -4,7 +4,7 @@ ini_set('display_errors', '1');
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/neon/classes/ShipmentManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/samplecheckineditor.php');
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/sampleeditor.php');
 
 $action = array_key_exists("action",$_POST)?$_POST["action"]:"";
 $samplePK = array_key_exists("samplePK",$_REQUEST)?$_REQUEST["samplePK"]:"";
@@ -19,16 +19,16 @@ if($IS_ADMIN){
 $status = "";
 if($isEditor){
 	if($action == 'save'){
-		if($shipManager->editSampleCheckin($_POST)) $status = 'close';
+		if($shipManager->editSample($_POST)) $status = 'close';
 	}
-	elseif($action == 'nullCheckin'){
-		if($shipManager->resetSampleCheckin($samplePK)) $status = 'close';
+	elseif($action == 'savenew'){
+		if($shipManager->addSample($_POST)) $status = 'close';
 	}
 }
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> Sample Check-in Editor</title>
+	<title><?php echo $DEFAULT_TITLE; ?> Sample Editor</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
 	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
 	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
@@ -72,41 +72,64 @@ if($isEditor){
 		$sampleArr = $shipManager->getSampleArr($samplePK);
 		?>
 		<fieldset style="width:800px;">
-			<legend><b><?php echo $sampleArr['sampleID'].' (#'.$samplePK.')'; ?></b></legend>
-			<form method="post" action="samplecheckineditor.php">
+			<legend><b><?php echo ($samplePK?$sampleArr['sampleID'].' (#'.$samplePK.')':'New Record'); ?></b></legend>
+			<form method="post" action="sampleeditor.php">
 				<div class="fieldGroupDiv">
-					<b>Accepted for Analysis:</b>
-					<?php
-					$acceptedForAnalysis = (isset($sampleArr['acceptedForAnalysis'])?$sampleArr['acceptedForAnalysis']:'');
-					?>
-					<input name="acceptedForAnalysis" type="radio" value="1" <?php echo ($acceptedForAnalysis==1?'checked':''); ?> /> Yes
-					<input name="acceptedForAnalysis" type="radio" value="0" <?php echo ($acceptedForAnalysis==='0'?'checked':''); ?> /> No
+					<div class="fieldDiv">
+						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:250px" <?php echo $samplePK?'DISABLED':''; ?> required />
+					</div>
+					<div class="fieldDiv">
+						<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:''; ?>" style="width:250px" />
+					</div>
 				</div>
 				<div class="fieldGroupDiv">
-					<b>Sample condition:</b>
-					<select name="sampleCondition">
-						<option value="">------------------------------------------</option>
-						<?php
-						$sampleCondition = (isset($sampleArr['sampleCondition'])?$sampleArr['sampleCondition']:'');
-						$condArr = $shipManager->getConditionArr();
-						foreach($condArr as $condKey => $condValue){
-							echo '<option value="'.$condKey.'" '.($condKey==$sampleCondition?'selected':'').'>'.$condValue.'</option>';
-						}
-						?>
-					</select>
+					<div class="fieldDiv">
+						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo isset($sampleArr['sampleClass'])?$sampleArr['sampleClass']:''; ?>" style="width:250px" />
+					</div>
+					<div class="fieldDiv">
+						<b>Quarantine Status:</b> <input name="quarantineStatus" type="text" value="<?php echo isset($sampleArr['quarantineStatus'])?$sampleArr['quarantineStatus']:''; ?>" style="width:40px" />
+					</div>
 				</div>
 				<div class="fieldGroupDiv">
-					<b>Notes:</b> <input name="sampleNotes" type="text" value="<?php echo isset($sampleArr['sampleNotes'])?$sampleArr['sampleNotes']:''; ?>" style="width:500px" />
+					<div class="fieldDiv">
+						<b>Named Location:</b> <input name="namedLocation" type="text" value="<?php echo isset($sampleArr['namedLocation'])?$sampleArr['namedLocation']:''; ?>" style="" />
+					</div>
+					<div class="fieldDiv">
+						<b>Collect Date:</b> <input name="collectDate" type="date" value="<?php echo isset($sampleArr['collectDate'])?$sampleArr['collectDate']:''; ?>" style="" />
+					</div>
+					<div class="fieldDiv">
+						<b>Taxon ID:</b> <input name="taxonID" type="text" value="<?php echo isset($sampleArr['taxonID'])?$sampleArr['taxonID']:''; ?>" style="width:100px" />
+					</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						<b>Individual Count:</b> <input name="individualCount" type="text" value="<?php echo isset($sampleArr['individualCount'])?$sampleArr['individualCount']:''; ?>" style="" />
+					</div>
+					<div class="fieldDiv">
+						<b>Filter Volume:</b> <input name="filterVolume" type="text" value="<?php echo isset($sampleArr['filterVolume'])?$sampleArr['filterVolume']:''; ?>" style="" />
+					</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						<b>Domain Remarks:</b> <input name="domainRemarks" type="text" value="<?php echo isset($sampleArr['domainRemarks'])?$sampleArr['domainRemarks']:''; ?>" style="width: 500px" />
+					</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						<b>Notes:</b> <input name="sampleNotes" type="text" value="<?php echo isset($sampleArr['sampleNotes'])?$sampleArr['sampleNotes']:''; ?>" style="width:500px" />
+					</div>
 				</div>
 				<div style="clear:both;margin:15px">
-					<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
-					<div><button id="submitButton" type="submit" name="action" value="save" disabled>Save Changes</button></div>
 					<?php
-					if(isset($sampleArr['checkinTimestamp']) && $sampleArr['checkinTimestamp']){
+					if($samplePK){
 						?>
-						<div style="margin-top:15px">
-							<button type="submit" name="action" value="nullCheckin" onclick="return confirm('Are you sure you want to totally reset check-in status?')">Clear Check-in Details</button>
-						</div>
+						<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
+						<div><button id="submitButton" type="submit" name="action" value="save" disabled>Save Changes</button></div>
+						<?php
+					}
+					else{
+						?>
+						<div><button id="submitButton" type="submit" name="action" value="savenew" disabled>Save Record</button></div>
 						<?php
 					}
 					?>

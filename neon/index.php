@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 include_once('../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/index.php');
+if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/index.php?'.$_SERVER['QUERY_STRING']);
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 

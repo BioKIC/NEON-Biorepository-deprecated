@@ -324,8 +324,7 @@ class ChecklistManager {
 				'(SELECT ts1.tid, SUBSTR(MIN(CONCAT(LPAD(i.sortsequence,6,"0"),i.imgid)),7) AS imgid '.
 				'FROM taxstatus ts1 INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
 				'INNER JOIN images i ON ts2.tid = i.tid '.
-				'WHERE i.sortsequence < 500 AND ts1.taxauthid = 1 AND ts2.taxauthid = 1 '.
-				'AND (ts1.tid IN('.implode(',',array_keys($this->taxaList)).')) '.
+				'WHERE i.sortsequence < 500 AND (i.thumbnailurl IS NOT NULL) AND ts1.taxauthid = 1 AND ts2.taxauthid = 1 AND (ts1.tid IN('.implode(',',array_keys($this->taxaList)).')) '.
 				'GROUP BY ts1.tid) i2 ON i.imgid = i2.imgid';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
@@ -343,8 +342,7 @@ class ChecklistManager {
 					'(SELECT ts1.parenttid AS tid, SUBSTR(MIN(CONCAT(LPAD(i.sortsequence,6,"0"),i.imgid)),7) AS imgid '.
 					'FROM taxstatus ts1 INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
 					'INNER JOIN images i ON ts2.tid = i.tid '.
-					'WHERE i.sortsequence < 500 AND ts1.taxauthid = 1 AND ts2.taxauthid = 1 '.
-					'AND (ts1.parenttid IN('.implode(',',$missingArr).')) '.
+					'WHERE i.sortsequence < 500 AND (i.thumbnailurl IS NOT NULL) AND ts1.taxauthid = 1 AND ts2.taxauthid = 1 AND (ts1.parenttid IN('.implode(',',$missingArr).')) '.
 					'GROUP BY ts1.tid) i2 ON i.imgid = i2.imgid';
 				//echo $sql;
 				$rs2 = $this->conn->query($sql2);
@@ -427,13 +425,15 @@ class ChecklistManager {
 				$rs1 = $this->conn->query($sql1);
 				if($rs1){
 					while($r1 = $rs1->fetch_object()){
-						if($abbreviated){
-							$retArr[] = $r1->decimallatitude.','.$r1->decimallongitude;
+						if(abs($r1->decimallatitude) < 90 && abs($r1->decimallongitude) < 180){
+							if($abbreviated){
+								$retArr[] = $r1->decimallatitude.','.$r1->decimallongitude;
+							}
+							else{
+								$retArr[$r1->tid][] = array('ll'=>$r1->decimallatitude.','.$r1->decimallongitude,'sciname'=>$this->cleanOutStr($r1->sciname),'notes'=>$this->cleanOutStr($r1->notes));
+							}
+							$retCnt++;
 						}
-						else{
-							$retArr[$r1->tid][] = array('ll'=>$r1->decimallatitude.','.$r1->decimallongitude,'sciname'=>$this->cleanOutStr($r1->sciname),'notes'=>$this->cleanOutStr($r1->notes));
-						}
-						$retCnt++;
 					}
 					$rs1->free();
 				}
@@ -464,13 +464,14 @@ class ChecklistManager {
 					$rs2 = $this->conn->query($sql2);
 					if($rs2){
 						while($r2 = $rs2->fetch_object()){
-							if($abbreviated){
-								$retArr[] = $r2->decimallatitude.','.$r2->decimallongitude;
+							if(abs($r2->decimallatitude) < 90 && abs($r2->decimallongitude) < 180){
+								if($abbreviated){
+									$retArr[] = $r2->decimallatitude.','.$r2->decimallongitude;
+								}
+								else{
+									$retArr[$r2->tid][] = array('ll'=>$r2->decimallatitude.','.$r2->decimallongitude,'notes'=>$this->cleanOutStr($r2->notes),'occid'=>$r2->occid);
+								}
 							}
-							else{
-								$retArr[$r2->tid][] = array('ll'=>$r2->decimallatitude.','.$r2->decimallongitude,'notes'=>$this->cleanOutStr($r2->notes),'occid'=>$r2->occid);
-							}
-							$retCnt++;
 						}
 						$rs2->free();
 					}

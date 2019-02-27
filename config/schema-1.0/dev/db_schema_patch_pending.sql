@@ -20,6 +20,9 @@ ALTER TABLE `uploadimagetemp`
   ADD COLUMN `accessrights` VARCHAR(255) NULL AFTER `copyright`,
   ADD COLUMN `rights` VARCHAR(255) NULL AFTER `accessrights`,
   ADD COLUMN `locality` VARCHAR(250) NULL AFTER `rights`;
+  
+ALTER TABLE `uploadspecparameters` 
+  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
 
 ALTER TABLE `uploadtaxa` 
   CHANGE COLUMN `UnitInd3` `UnitInd3` VARCHAR(45) NULL DEFAULT NULL ;
@@ -91,6 +94,9 @@ ALTER TABLE `omoccurrences`
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,
   CHANGE COLUMN `georeferenceRemarks` `georeferenceRemarks` VARCHAR(500) NULL DEFAULT NULL,
   DROP INDEX `idx_occrecordedby`;
+  
+ALTER TABLE `omoccurrences` 
+  ADD UNIQUE INDEX `UNIQUE_occurrenceID` (`occurrenceID` ASC);
 
 DELETE FROM omoccurrencesfulltext 
 WHERE locality IS NULL AND recordedby IS NULL;

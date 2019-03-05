@@ -96,7 +96,7 @@ if($isEditor){
 					</select>
 				</div>
 				<div class="fieldGroupDiv">
-					<b>Notes:</b> <input name="sampleNotes" type="text" value="<?php echo isset($sampleArr['sampleNotes'])?$sampleArr['sampleNotes']:''; ?>" style="width:500px" />
+					<b>Check-in Remarks:</b> <input name="checkinRemarks" type="text" value="<?php echo isset($sampleArr['checkinRemarks'])?$sampleArr['checkinRemarks']:''; ?>" style="width:500px" />
 				</div>
 				<div style="clear:both;margin:15px">
 					<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />

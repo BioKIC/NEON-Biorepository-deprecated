@@ -118,7 +118,7 @@ if($isEditor){
 					type: "POST",
 					url: "rpc/checkinsample.php",
 					dataType: 'json',
-					data: { shipmentpk: "<?php echo $shipmentPK; ?>", idenfier: sampleIdenfier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, notes: f.sampleNotes.value }
+					data: { shipmentpk: "<?php echo $shipmentPK; ?>", idenfier: sampleIdenfier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
 				}).done(function( retJson ) {
 					$("#checkinText").show();
 					if(retJson.status == 0){
@@ -130,6 +130,10 @@ if($isEditor){
 						$("#checkinText").text('success!!!');
 						$("#scSpan-"+retJson.samplePK).html("checked-in");
 						f.idenfier.value = "";
+						f.acceptedForAnalysis.value = 1;
+						f.sampleCondition.value = "";
+						f.alternativeSampleID.value = "";
+						f.sampleNotes.value = "";
 					}
 					else if(retJson.status == 2){
 						$("#checkinText").css('color', 'orange');
@@ -150,6 +154,18 @@ if($isEditor){
 					f.idenfier.focus();
 				});
 			}
+		}
+
+		function popoutCheckinBox(){
+			$("#sampleCheckinDiv").css('position', 'fixed');
+			$("#popoutDiv").hide();
+			$("#bindDiv").show();
+		}
+
+		function bindCheckinBox(){
+			$("#sampleCheckinDiv").css('position', 'static');
+			$("#popoutDiv").show();
+			$("#bindDiv").hide();
 		}
 
 		function selectAll(cbObj){
@@ -267,10 +283,12 @@ include($SERVER_ROOT.'/header.php');
 						<?php
 						if($shipArr['checkinTimestamp'] && $sampleCntArr[0]){
 							?>
-							<div style="margin-top:15px">
+							<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:0px;right:200px">
 								<fieldset style="padding:10px;width:500px">
 									<legend><b>Sample Check-in</b></legend>
 									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
+										<div id="popoutDiv" style="float:right"><a href="#" onclick="popoutCheckinBox();return false" title="Popout Sample Check-in Box">&gt;&gt;</a></div>
+										<div id="bindDiv" style="float:right;display:none"><a href="#" onclick="bindCheckinBox();return false" title="Bind Sample Check-in Box to top of form">&lt;&lt;</a></div>
 										<div class="displayFieldDiv">
 											<b>Identifier:</b> <input name="idenfier" type="text" style="width:250px" required />
 											<div id="checkinText" style="display:inline"></div>
@@ -292,7 +310,10 @@ include($SERVER_ROOT.'/header.php');
 											</select>
 										</div>
 										<div class="displayFieldDiv">
-											<b>Remarks:</b> <input name="sampleNotes" type="text" style="width:300px" />
+											<b>Alternative ID:</b> <input name="alternativeSampleID" type="text" style="width:225px" />
+										</div>
+										<div class="displayFieldDiv">
+											<b>Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
 											<button type="submit">Submit</button>
 										</div>
 									</form>
@@ -330,12 +351,20 @@ include($SERVER_ROOT.'/header.php');
 				</div>
 				<?php
 				if($shipArr['checkinTimestamp']){
-					$sampleList = $shipManager->getSampleArr();
+					$sampleList = $shipManager->getSampleArr(null,isset($_POST['sampleFilter'])?$_POST['sampleFilter']:'');
 					if($sampleList){
 						?>
 						<div style="clear:both;padding-top:30px;">
 							<fieldset>
 								<legend><b>Sample Listing</b></legend>
+								<form name="filterSampleForm" action="manifestviewer.php" method="post" style="float:right;margin-top:-10px">
+									Display:
+									<select name="sampleFilter" onchange="this.form.submit()">
+										<option value="">All Records</option>
+										<option value="notCheckedIn" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='notCheckedIn'?'SELECTED':''); ?>>Not Checked-in</option>
+									</select>
+									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+								</form>
 								<form name="sampleListingForm" action="manifestviewer.php" method="post" onsubmit="return batchCheckinFormVerify(this)">
 									<table class="styledtable">
 										<tr>
@@ -389,10 +418,12 @@ include($SERVER_ROOT.'/header.php');
 											if(array_key_exists('occid',$sampleArr)) echo '<td><a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank">'.$sampleArr['occid'].'</a></td>';
 											echo '</tr>';
 											$str = '';
+											if(isset($sampleArr['alternativeSampleID'])) $str .= '<div>Alternative Sample ID: '.$sampleArr['alternativeSampleID'].'</div>';
 											if(isset($sampleArr['individualCount'])) $str .= '<div>Individual Count: '.$sampleArr['individualCount'].'</div>';
 											if(isset($sampleArr['filterVolume'])) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
 											if(isset($sampleArr['domainRemarks'])) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
 											if(isset($sampleArr['sampleNotes'])) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
+											if(isset($sampleArr['checkinRemarks'])) $str .= '<div>Check-in Remarks: '.$sampleArr['checkinRemarks'].'</div>';
 											if(isset($sampleArr['dynamicProperties']) && $sampleArr['dynamicProperties']){
 												$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
 												$propSstr = '';
@@ -415,7 +446,7 @@ include($SERVER_ROOT.'/header.php');
 									</div>
 									<div style="margin:15px">
 										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-										<fieldset style="width:400px;">
+										<fieldset style="width:450px;">
 											<legend><b>Batch Check-in Selected Samples</b></legend>
 											<div class="displayFieldDiv">
 												<b>Accepted for Analysis:</b>
@@ -434,7 +465,7 @@ include($SERVER_ROOT.'/header.php');
 												</select>
 											</div>
 											<div class="displayFieldDiv">
-												<b>Remarks:</b> <input name="sampleNotes" type="text" style="width:300px" />
+												<b>Check-in Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
 											</div>
 											<div style="margin:5px 10px">
 												<button name="action" type="submit" value="batchCheckin">Check-in Selected Samples</button>
@@ -448,7 +479,7 @@ include($SERVER_ROOT.'/header.php');
 									<div style="margin:10px"><button name="action" type="submit" value="exportSampleListing">Export Sample Listing</button></div>
 								</form>
 								<div style="margin:20px 10px;float:right"><a href="manifestloader.php"><button name="loadManifestButton" type="button">Load Another Manifest</button></a></div>
-								<fieldset style="width:400px;margin:15px">
+								<fieldset style="width:450px;margin:15px">
 									<a id="receiptStatus"></a>
 									<legend><b>Receipt Status</b></legend>
 									<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">

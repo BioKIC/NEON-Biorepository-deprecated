@@ -18,12 +18,19 @@ if($IS_ADMIN){
 }
 
 $status = "";
+$errStr = '';
 if($isEditor){
 	if($action == 'save'){
 		if($shipManager->editSample($_POST)) $status = 'close';
 	}
 	elseif($action == 'savenew'){
-		if($shipManager->addSample($_POST)) $status = 'close';
+		$shipManager->setShipmentPK($shipmentPK);
+		if($shipManager->addSample($_POST)){
+			$status = 'close';
+		}
+		else{
+			$errStr = $shipManager->getErrorStr();
+		}
 	}
 	elseif($action == 'deleteSample'){
 		if($shipManager->deleteSample($samplePK)) $status = 'close';
@@ -95,6 +102,9 @@ if($isEditor){
 <div id="popup-innertext">
 	<?php
 	if($isEditor){
+		if($errStr){
+			echo '<div style="color:red;margin:15px;">'.$errStr.'</div>';
+		}
 		$sampleArr = array();
 		if($samplePK) $sampleArr = $shipManager->getSampleArr($samplePK);
 		?>
@@ -103,10 +113,13 @@ if($isEditor){
 			<form method="post" action="sampleeditor.php" onsubmit="return validateSampleForm(this)">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:250px" <?php echo $samplePK?'DISABLED':''; ?> required />
+						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:225px" <?php echo $samplePK?'DISABLED':''; ?> required />
 					</div>
 					<div class="fieldDiv">
-						<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:''; ?>" style="width:250px" />
+						<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:''; ?>" style="width:200px" />
+					</div>
+					<div class="fieldDiv">
+						<b>Alt. Sample ID:</b> <input name="alternativeSampleID" type="text" value="<?php echo isset($sampleArr['alternativeSampleID'])?$sampleArr['alternativeSampleID']:''; ?>" style="width:200px" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
@@ -170,6 +183,7 @@ if($isEditor){
 					}
 					else{
 						?>
+						<input name="checkinSample" type="checkbox" value="1" checked /> check-in sample<br/>
 						<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 						<div><button id="submitButton" type="submit" name="action" value="savenew" disabled>Save Record</button></div>
 						<?php

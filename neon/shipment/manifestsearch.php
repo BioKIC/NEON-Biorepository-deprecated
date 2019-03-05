@@ -88,7 +88,7 @@ include($SERVER_ROOT.'/header.php');
 						<b>Shipment ID:</b> <input name="shipmentID" type="text" value="<?php echo (isset($postArr['shipmentID'])?$postArr['shipmentID']:''); ?>" />
 					</div>
 					<div class="fieldDiv">
-						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo (isset($postArr['sampleID'])?$postArr['sampleID']:''); ?>" />
+						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo (isset($postArr['sampleID'])?$postArr['sampleID']:''); ?>" style="width:225px" />
 					</div>
 					<div class="fieldDiv">
 						<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo (isset($postArr['sampleCode'])?$postArr['sampleCode']:''); ?>" />
@@ -174,12 +174,12 @@ include($SERVER_ROOT.'/header.php');
 						<input name="manifestStatus" type="radio" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> style="margin-left:20px;" /> <b>Occurreences not harvested</b>
 					</div>
 				</div>
+				<div style="float:left;margin:20px">
+					<button name="action" type="submit" value="listManifests">List Manifests</button>
+					<button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>
+				</div>
 				<div style="float:right; margin:20px">
 					<button name="action" type="submit" value="exportManifestList">Export List of Manifests</button>
-				</div>
-				<div style="margin:20px">
-					<button name="action" type="submit" value="Display Manifests">Display Manifests</button>
-					<button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>
 				</div>
 			</form>
 		</fieldset>

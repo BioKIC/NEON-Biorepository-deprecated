@@ -362,6 +362,7 @@ include($SERVER_ROOT.'/header.php');
 									<select name="sampleFilter" onchange="this.form.submit()">
 										<option value="">All Records</option>
 										<option value="notCheckedIn" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='notCheckedIn'?'SELECTED':''); ?>>Not Checked-in</option>
+										<option value="altIds" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='altIds'?'SELECTED':''); ?>>Has Alternative IDs</option>
 									</select>
 									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 								</form>

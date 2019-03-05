@@ -102,6 +102,9 @@ class ShipmentManager{
 				if($filter == 'notCheckedIn'){
 					$sql .= 'AND (s.checkinTimestamp IS NULL) ';
 				}
+				elseif($filter == 'altIds'){
+					$sql .= 'AND (s.alternativeSampleID IS NOT NULL) ';
+				}
 			}
 			$sql .= 'ORDER BY s.sampleID ';
 		}

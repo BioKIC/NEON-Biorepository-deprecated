@@ -255,6 +255,7 @@ include($SERVER_ROOT.'/header.php');
 					if($shipArr['ts']) echo '<div class="displayFieldDiv"><b>Import Date:</b> '.$shipArr['ts'].'</div>';
 					if($shipArr['modifiedUser']) echo '<div class="displayFieldDiv"><b>Modified By User:</b> '.$shipArr['modifiedUser'].' ('.$shipArr['modifiedTimestamp'].')</div>';
 					if($shipArr['shipmentNotes']) echo '<div class="displayFieldDiv"><b>General Notes:</b> '.$shipArr['shipmentNotes'].'</div>';
+					if($shipArr['fileName']) echo '<div class="displayFieldDiv"><b>Import file:</b> <a href="'.$CLIENT_ROOT.'/neon/content/manifests/'.$shipArr['fileName'].'">'.$shipArr['fileName'].'</a></div>';
 					?>
 				</div>
 				<div style="float:left;">
@@ -352,20 +353,22 @@ include($SERVER_ROOT.'/header.php');
 				<?php
 				if($shipArr['checkinTimestamp']){
 					$sampleList = $shipManager->getSampleArr(null,isset($_POST['sampleFilter'])?$_POST['sampleFilter']:'');
-					if($sampleList){
-						?>
-						<div style="clear:both;padding-top:30px;">
-							<fieldset>
-								<legend><b>Sample Listing</b></legend>
-								<form name="filterSampleForm" action="manifestviewer.php" method="post" style="float:right;margin-top:-10px">
-									Display:
-									<select name="sampleFilter" onchange="this.form.submit()">
-										<option value="">All Records</option>
-										<option value="notCheckedIn" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='notCheckedIn'?'SELECTED':''); ?>>Not Checked-in</option>
-										<option value="altIds" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='altIds'?'SELECTED':''); ?>>Has Alternative IDs</option>
-									</select>
-									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-								</form>
+					?>
+					<div style="clear:both;padding-top:30px;">
+						<fieldset>
+							<legend><b>Sample Listing</b></legend>
+							<form name="filterSampleForm" action="manifestviewer.php" method="post" style="float:right;margin-top:-10px">
+								Display:
+								<select name="sampleFilter" onchange="this.form.submit()">
+									<option value="">All Records</option>
+									<option value="notCheckedIn" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='notCheckedIn'?'SELECTED':''); ?>>Not Checked-in</option>
+									<option value="altIds" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='altIds'?'SELECTED':''); ?>>Has Alternative IDs</option>
+								</select>
+								<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+							</form>
+							<?php
+							if($sampleList){
+								?>
 								<form name="sampleListingForm" action="manifestviewer.php" method="post" onsubmit="return batchCheckinFormVerify(this)">
 									<table class="styledtable">
 										<tr>
@@ -510,13 +513,15 @@ include($SERVER_ROOT.'/header.php');
 										</div>
 									</div>
 								</fieldset>
-							</fieldset>
-						</div>
-						<?php
-					}
-					else{
-						echo '<div><b>No sample records exist</b></div>';
-					}
+								<?php
+							}
+							else{
+								echo '<div style="margin: 20px">No samples exist matching filter criteria</div>';
+							}
+							?>
+						</fieldset>
+					</div>
+					<?php
 				}
 				?>
 			</fieldset>

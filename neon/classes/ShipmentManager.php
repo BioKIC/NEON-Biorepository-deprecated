@@ -29,7 +29,7 @@ class ShipmentManager{
 	private function setShipmentArr(){
 		if($this->shipmentPK){
 			$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, s.shipmentMethod, '.
-				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, s.receiptStatus, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
+				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, s.fileName, s.receiptStatus, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
 				CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.modifiedTimestamp, s.initialtimestamp AS ts '.
 				'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
 				'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
@@ -217,7 +217,7 @@ class ShipmentManager{
 			}
 			echo '<li>Beginning to load records...</li>';
 			while($recordArr = fgetcsv($fh)){
-				$recMap = Array();
+				$recMap = Array('filename' => $this->uploadFileName);
 				$dynPropArr = array();
 				foreach($indexMap as $targetField => $indexValueArr){
 					foreach($indexValueArr as $sField => $indexValue){
@@ -241,8 +241,6 @@ class ShipmentManager{
 			}
 			fclose($fh);
 
-			//Delete upload file
-			if(file_exists($fullPath)) unlink($fullPath);
 			echo '<li>Complete!!!</li>';
 		}
 		else{
@@ -261,7 +259,7 @@ class ShipmentManager{
 			$trackingId = preg_replace('/[^a-zA-Z0-9;]+/', '', $trackingId);
 			if($trackingId == 'none') $trackingId = '';
 		}
-		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, shippedFrom,senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, trackingNumber, notes, importUid) '.
+		$sql = 'INSERT INTO NeonShipment(shipmentID, domainID, dateShipped, shippedFrom,senderID, destinationFacility, sentToID, shipmentService, shipmentMethod, trackingNumber, notes, fileName, importUid) '.
 			'VALUES("'.$this->cleanInStr($recArr['shipmentid']).'",'.(isset($recArr['domainid'])?'"'.$this->cleanInStr($recArr['domainid']).'"':'NULL').','.
 			(isset($recArr['dateshipped'])&&$recArr['dateshipped']?'"'.$this->cleanInStr($this->formatDate($recArr['dateshipped'])).'"':'NULL').','.
 			(isset($recArr['shippedfrom'])?'"'.$this->cleanInStr($recArr['shippedfrom']).'"':'NULL').','.(isset($recArr['senderid'])?'"'.$this->cleanInStr($recArr['senderid']).'"':'NULL').','.
@@ -269,7 +267,10 @@ class ShipmentManager{
 			(isset($recArr['senttoid'])?'"'.$this->cleanInStr($recArr['senttoid']).'"':'NULL').','.
 			(isset($recArr['shipmentservice'])?'"'.$this->cleanInStr($recArr['shipmentservice']).'"':'NULL').','.
 			(isset($recArr['shipmentmethod'])?'"'.$this->cleanInStr($recArr['shipmentmethod']).'"':'NULL').','.
-			($trackingId?'"'.$trackingId.'"':'NULL').','.(isset($recArr['shipmentnotes'])?'"'.$this->cleanInStr($recArr['shipmentnotes']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
+			($trackingId?'"'.$trackingId.'"':'NULL').','.
+			(isset($recArr['shipmentnotes'])?'"'.$this->cleanInStr($recArr['shipmentnotes']).'"':'NULL').','.
+			(isset($recArr['filename'])?'"'.$this->cleanInStr($recArr['filename']).'"':'NULL').','.
+			$GLOBALS['SYMB_UID'].')';
 		//echo '<div>'.$sql.'</div>';
 		if($this->conn->query($sql)){
 			$shipmentPK = $this->conn->insert_id;

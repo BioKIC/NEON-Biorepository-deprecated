@@ -57,11 +57,7 @@ if($isEditor){
 			for(var i=0;i<f.length;i++){
 				var obj = f.elements[i];
 				if(obj.name == "sf[]"){
-					if(obj.value.trim() == ""){
-						alert("ERROR: All source fields need to have a column title and cannot be blank)");
-						return false;
-					}
-					else if(sfArr.indexOf(obj.value) > -1){
+					if(obj.value.trim() != "" && sfArr.indexOf(obj.value) > -1){
 						alert("ERROR: Source field names must be unique (duplicate field: "+obj.value+")");
 						return false;
 					}

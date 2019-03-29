@@ -33,7 +33,6 @@ if($crowdSourceMode){
 	$occManager->setCrowdSourceMode(1);
 }
 
-$isEditor = 0;		//If not editor, edits will be submitted to omoccuredits table but not applied to omoccurrences
 $displayQuery = 0;
 $isGenObs = 0;
 $collMap = Array();
@@ -84,7 +83,9 @@ if($SYMB_UID){
 		}
 	}
 
-	//0 = not editor, 1 = admin, 2 = editor
+	$isEditor = 0;
+	//0 = not editor, 1 = admin, 2 = editor, 3 = taxon editor, 4 = crowdsource editor or collection allows public edits
+	//If not editor, edits will be submitted to omoccuredits table but not applied to omoccurrences
 	if($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"]))){
 		$isEditor = 1;
 	}
@@ -117,7 +118,6 @@ if($SYMB_UID){
 		}
 		elseif(array_key_exists("CollTaxon",$USER_RIGHTS) && $occId){
 			//Check to see if this user is authorized to edit this occurrence given their taxonomic editing authority
-			//0 = not editor, 2 = full editor, 3 = taxon editor, but not for this specific occurrence
 			$isEditor = $occManager->isTaxonomicEditor();
 		}
 	}
@@ -624,6 +624,17 @@ else{
 												<a href="includes/imagetab.php?<?php echo $anchorVars; ?>"
 													style="">Images</a>
 											</li>
+											<?php
+											if($occManager->traitCodingActivated()){
+												$traitAnchor = $anchorVars.'&delstates='.(isset($_POST['delstates'])?$_POST['delstates']:'');
+												?>
+												<li id="traitTab">
+													<a href="includes/traittab.php?<?php echo $traitAnchor; ?>"
+														style="">Traits</a>
+												</li>
+												<?php
+											}
+											?>
 											<li id="resourceTab">
 												<a href="includes/resourcetab.php?<?php echo $anchorVars; ?>"
 													style="">Linked Resources</a>
@@ -921,16 +932,22 @@ else{
 												echo '<input name="localautodeactivated" type="checkbox" value="1" onchange="localAutoChanged(this)" '.(defined('LOCALITYAUTOLOOKUP') && LOCALITYAUTOLOOKUP==2?'checked':'').' /> ';
 												echo 'Deactivate Locality Lookup</div>';
 											}
-											$lsHasValue = array_key_exists("localitysecurity",$occArr)&&$occArr["localitysecurity"]?1:0;
+											$securityCode = array_key_exists('localitysecurity',$occArr)&&$occArr['localitysecurity']?$occArr['localitysecurity']:0;
 											$lsrValue = array_key_exists('localitysecurityreason',$occArr)?$occArr['localitysecurityreason']:'';
 											?>
 											<div id="localSecurityDiv">
 												<div style="float:left;">
-													<input type="checkbox" name="localitysecurity" tabindex="0" value="1" <?php echo $lsHasValue?"CHECKED":""; ?> onchange="localitySecurityChanged(this.form);" title="Hide Locality Data from General Public" />
-													<?php echo (defined('LOCALITYSECURITYLABEL')?LOCALITYSECURITYLABEL:'Locality Security'); ?>
+													<?php echo (defined('LOCALITYSECURITYLABEL')?LOCALITYSECURITYLABEL:'Security'); ?>:
+													<select name="localitysecurity" onchange="localitySecurityChanged(this.form);" title="Locality and Taxonomic Security Settings">
+														<option value="0">Security not applied</option>
+														<option value="0">--------------------------</option>
+														<option value="1" <?php echo ($securityCode==1?'SELECTED':''); ?>>Locality Security</option>
+														<option value="2" <?php echo ($securityCode==2?'SELECTED':''); ?>>Taxonomic Security</option>
+														<option value="3" <?php echo ($securityCode==3?'SELECTED':''); ?>>Locality &amp; Taxonomic Security</option>
+													</select>
 													<a href="#" onclick="return dwcDoc('localitySecurity')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 												</div>
-												<div id="locsecreason" style="margin-left:5px;border:2px solid gray;float:left;display:<?php echo ($lsrValue?'inline':'none') ?>;padding:3px">
+												<div id="locsecreason" style="margin-left:5px;border:2px solid gray;float:left;display:<?php echo ($lsrValue||$securityCode?'inline':'none') ?>;padding:3px">
 													<div ><input name="lockLocalitySecurity" type="checkbox" onchange="securityLockChanged(this)"  <?php echo ($lsrValue?'checked':'') ?> /> Lock Security Setting</div>
 													<?php
 													echo (defined('LOCALITYSECURITYREASONLABEL')?LOCALITYSECURITYREASONLABEL:'Reason');

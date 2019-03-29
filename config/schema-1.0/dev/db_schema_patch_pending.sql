@@ -33,7 +33,8 @@ ALTER TABLE `uploadtaxa`
 
 
 ALTER TABLE `taxa` 
-  ADD COLUMN `locked` INT NULL AFTER `Hybrid`;
+  ADD COLUMN `locked` INT NULL AFTER `Hybrid`,
+  CHANGE COLUMN `UnitInd3` `UnitInd3` VARCHAR(15) NULL DEFAULT NULL ;
 
 ALTER TABLE `taxstatus` 
   ADD COLUMN `modifiedBy` VARCHAR(45) NULL AFTER `SortSequence`;
@@ -96,7 +97,9 @@ ALTER TABLE `omoccurrences`
   DROP INDEX `idx_occrecordedby`;
   
 ALTER TABLE `omoccurrences` 
-  ADD UNIQUE INDEX `UNIQUE_occurrenceID` (`occurrenceID` ASC);
+  ADD UNIQUE INDEX `UNIQUE_occurrenceID` (`occurrenceID` ASC),
+  ADD INDEX `Index_occur_localitySecurity` (`localitySecurity` ASC);
+  
 
 DELETE FROM omoccurrencesfulltext 
 WHERE locality IS NULL AND recordedby IS NULL;

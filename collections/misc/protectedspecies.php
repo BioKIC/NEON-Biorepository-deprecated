@@ -1,6 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/RareSpeciesManager.php');
+include_once($SERVER_ROOT.'/classes/OmProtectedSpecies.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:'';
@@ -11,17 +11,20 @@ if($IS_ADMIN || array_key_exists("RareSppAdmin",$USER_RIGHTS)){
 	$isEditor = 1;
 }
 
-$rsManager = new RareSpeciesManager($isEditor?'write':'readonly');
+$rsManager = new OmProtectedSpecies($isEditor?'write':'readonly');
 
 if($isEditor){
 	if($action == "addspecies"){
-		$rsManager->addSpecies($_POST["tidtoadd"]);
+		$rsManager->addSpecies($_POST['tidtoadd'], $_POST['securitycode']);
 	}
 	elseif($action == "deletespecies"){
 		$rsManager->deleteSpecies($_REQUEST["tidtodel"]);
 	}
 }
-if($searchTaxon) $rsManager->setSearchTaxon($searchTaxon);
+if($searchTaxon) $rsManager->setTaxonFilter($searchTaxon);
+$rsArr = $rsManager->getProtectedSpeciesList();
+$statArr = $rsArr['stats'];
+unset($rsArr['stats']);
 ?>
 <html>
 <head>
@@ -115,13 +118,18 @@ if(isset($collections_misc_rarespeciesCrumbs)){
 		<?php
 	}
 	?>
-	<h1>Rare, Threatened, Sensitive Species</h1>
+	<h1>Protected Species</h1>
 	<div style="float:right;">
 		<fieldset style="margin:0px 15px;padding:10px">
-			<legend><b>Taxon Search</b></legend>
-			<form name="searchform" action="rarespecies.php" method="post">
-				<input id="searchtaxon" name="searchtaxon" type="text" value="<?php echo $searchTaxon; ?>" />
-				<input name="submitaction" type="submit" value="Search" />
+			<legend><b>Filter</b></legend>
+			<form name="searchform" action="protectedspecies.php" method="post">
+				<div style="margin:3px">
+					Taxon Search:
+					<input id="searchtaxon" name="searchtaxon" type="text" value="<?php echo $searchTaxon; ?>" />
+				</div>
+				<div style="margin:3px">
+					<input name="submitaction" type="submit" value="Search" />
+				</div>
 			</form>
 		</fieldset>
 	</div>
@@ -134,22 +142,26 @@ if(isset($collections_misc_rarespeciesCrumbs)){
 	<div>
 		<?php
 		if($isEditor){
-			include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
-			$occurMaintenance = new OccurrenceMaintenance();
-			echo '<div style="margin-left:15px">Number of specimens pending protection: ';
-			if($action == 'protectspp'){
-				$occurMaintenance->protectGloballyRareSpecies();
-				echo '0';
-			}
-			elseif($action == 'checkstatus'){
-				$protectCnt = $occurMaintenance->getGlobalProtectionCount();
-				echo $protectCnt;
-				if($protectCnt) echo '<span style="margin-left:10px"><a href="rarespecies.php?submitaction=protectspp"><button style="font-size:70%">Protect Localities</button></a></span>';
+			if($action == 'checkstats'){
+				echo '<div style="margin-left:20px;">Number of specimens affected: '.$rsManager->protectGlobalSpecies().'</div>';
 			}
 			else{
-				echo '<span style="margin-left:10px"><a href="rarespecies.php?submitaction=checkstatus"><button style="font-size:70%">Check Status</button></a></span>';
+				echo '<div style="margin:15px 25px;float:right;"><a href="protectedspecies.php?submitaction=checkstats"><button style="font-size:70%">Verify protections</button></a></div>';
 			}
-			echo '</div>';
+		}
+		if($statArr){
+			?>
+			<fieldset style="margin-left: 15px">
+				<legend><b>Protection Statistics</b></legend>
+				<?php
+				if(isset($statArr['L'])) echo '<div>Locality protection: '.$statArr['L'].' taxa</div>';
+				if(isset($statArr['T'])) echo '<div>Taxonomic protection: '.$statArr['T'].' taxa</div>';
+				if(isset($statArr['D'])) echo '<div>Locality & taxonomic protection: '.$statArr['D'].' taxa</div>';
+				//$occurCnt = $rsManager->getSpecimenCnt();
+				//if($occurCnt) echo '<div>Occurrences protected: '.$occurCnt.'</div>';
+				?>
+			</fieldset>
+			<?php
 		}
 		?>
 	</div>
@@ -160,13 +172,18 @@ if(isset($collections_misc_rarespeciesCrumbs)){
 			if($isEditor){
 				?>
 				<div class="editobj" style="display:none;width:400px;">
-					<form name="addspeciesform" action='rarespecies.php' method='post'>
+					<form name="addspeciesform" action='protectedspecies.php' method='post'>
 						<fieldset style='margin:5px;background-color:#FFFFCC;'>
 							<legend><b>Add Species to List</b></legend>
 							<div style="margin:3px;">
 								Scientific Name:
 								<input type="text" id="speciestoadd" name="speciestoadd" style="width:300px" />
 								<input type="hidden" id="tidtoadd" name="tidtoadd" value="" />
+							</div>
+							<div style="margin:3px;">
+								<input name="securitycode" type="radio" value="1" /> Protect Locality Details<br/>
+								<input name="securitycode" type="radio" value="2" /> Protect Taxonomic Details<br/>
+								<input name="securitycode" type="radio" value="3" /> Protect Locality and Taxonomic Details<br/>
 							</div>
 							<div style="margin:3px;">
 								<input type="hidden" name="submitaction" value="addspecies" />
@@ -177,41 +194,42 @@ if(isset($collections_misc_rarespeciesCrumbs)){
 				</div>
 				<?php
 			}
-			$rsArr = $rsManager->getRareSpeciesList();
 			if($rsArr){
 				foreach($rsArr as $family => $speciesArr){
 					?>
 					<h3><?php echo $family; ?></h3>
 					<div style='margin-left:20px;'>
-					<?php
-					foreach($speciesArr as $tid => $sciName){
-						echo '<div id="tid-'.$tid.'"><a href="../../taxa/index.php?taxon='.$tid.'" target="_blank">'.$sciName.'</a>';
-						if($isEditor){
-							?>
-							<span class="editobj" style="display:none;">
-								<a href="rarespecies.php?submitaction=deletespecies&tidtodel=<?php echo $tid;?>">
-									<img src="../../images/del.png" style="width:13px;border:0px;" title="remove species from list" />
-								</a>
-							</span>
-							<?php
+						<?php
+						$statusCodeArr = array(1 => 'L', 2 => 'T', 3 => 'L & T');
+						foreach($speciesArr as $tid => $nameArr){
+							echo '<div id="tid-'.$tid.'"><a href="../../taxa/index.php?taxon='.$tid.'" target="_blank"><i>'.$nameArr['sciname'].'</i> '.$nameArr['author'].'</a> ';
+							if($isEditor){
+								if(count($statArr) > 1) echo '<span title="">['.$statusCodeArr[$nameArr['status']].']</span>';
+								?>
+								<span class="editobj" style="display:none;">
+									<a href="protectedspecies.php?submitaction=deletespecies&tidtodel=<?php echo $tid;?>">
+										<img src="../../images/del.png" style="width:13px;border:0px;" title="remove species from list" />
+									</a>
+								</span>
+								<?php
+							}
+							echo "</div>";
 						}
-						echo "</div>";
-					}
-					?>
+						?>
 					</div>
 					<?php
 				}
 			}
 			else{
 				?>
-				<div style="margin:30px;font-weight:bold;font-size:120%;">
+				<div style="margin:20px;font-weight:bold;font-size:120%;">
 					No species were returned marked for global protection.
 				</div>
 				<?php
 			}
 			?>
 		</fieldset>
-		<fieldset style="padding:25px;margin:15px">
+		<fieldset style="padding:15px;margin:15px">
 			<legend><b>State/Province Level Protections</b></legend>
 			<?php
 			$stateList = $rsManager->getStateList();
@@ -229,7 +247,7 @@ if(isset($collections_misc_rarespeciesCrumbs)){
 			}
 			if($emptyList){
 				?>
-				<div style="margin:30px;font-weight:bold;font-size:120%;">
+				<div style="margin:20px;font-weight:bold;font-size:120%;">
 					 No checklists returned
 				</div>
 				<?php

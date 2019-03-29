@@ -96,7 +96,7 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		else{
 			$sql .= 'WHERE ';
 		}
-		$sql .= '(i.sortsequence < 500) AND (ts.taxauthid = 1) AND (t.RankId > 219) ';
+		$sql .= '(ts.taxauthid = 1) AND (t.RankId > 219) ';
 		if($this->tidFocus) $sql .= 'AND (e.parenttid IN('.$this->tidFocus.')) AND (e.taxauthid = 1) ';
 		return $sql;
 	}
@@ -533,6 +533,19 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		}
 		$rs->free();
 		return $retArr;
+	}
+
+	public function getTaxaStr($tid){
+		$retStr = '';
+		if(is_numeric($tid)){
+			$sql = 'SELECT sciname FROM taxa WHERE (tid = '.$tid.')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()) {
+				$retStr = $r->sciname;
+			}
+			$rs->free();
+		}
+		return $retStr;
 	}
 
 	//Setters and getters

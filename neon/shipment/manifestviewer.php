@@ -407,7 +407,7 @@ include($SERVER_ROOT.'/header.php');
 												echo '<td>'.$namedLocation.'</td>';
 											}
 											if(array_key_exists('collectDate', $sampleArr)) echo '<td>'.$sampleArr['collectDate'].'</td>';
-											echo '<td>'.(isset($sampleArr['quarantineStatus'])?$sampleArr['quarantineStatus']:'').'</td>';
+											echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
 											if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
 											if(array_key_exists('acceptedForAnalysis', $sampleArr)){
 												$acceptedForAnalysis = $sampleArr['acceptedForAnalysis'];

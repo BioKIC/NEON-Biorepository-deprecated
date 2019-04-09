@@ -538,7 +538,7 @@ class ShipmentManager{
 			if($this->conn->query($sql)){
 				$status = true;
 				if(isset($postArr['checkinSample']) && $postArr['checkinSample']){
-					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = "OK" WHERE (samplePK = '.$this->conn->insert_id.') ';
+					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
 					if(!$this->conn->query($sqlUpdate)){
 						$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
 						$status = 0;
@@ -1057,7 +1057,7 @@ class ShipmentManager{
 	}
 
 	public function getConditionArr(){
-		$condArr = array('OK'=>'OK - No Known Compromise', 'cold chain broken'=>'Cold Chain Broken', 'damaged'=>'Damaged - Analysis Affected',
+		$condArr = array('ok'=>'OK - No Known Compromise', 'cold chain broken'=>'Cold Chain Broken', 'damaged'=>'Damaged - Analysis Affected',
 			'sample incomplete'=>'Sample Incomplete','handling error'=>'Handling Error', 'other'=>'Other - Described in Remarks');
 		return $condArr;
 	}

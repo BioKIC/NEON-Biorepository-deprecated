@@ -272,7 +272,7 @@ include($SERVER_ROOT.'/header.php');
 					<div style="margin-top:10px;">
 						<div class="displayFieldDiv">
 							<b>Total Sample Count:</b> <?php echo ($sampleCntArr['all']); ?>
-							<form name="refreshForm" action="manifestviewer.php" method="post" style="display:inline;" title="Refresh Counts and Sample Table">
+							<form name="refreshForm" action="manifestviewer.php" method="get" style="display:inline;" title="Refresh Counts and Sample Table">
 								<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 								<input type="image" src="../../images/refresh.png" style="width:15px;" />
 							</form>
@@ -297,15 +297,17 @@ include($SERVER_ROOT.'/header.php');
 										<div class="displayFieldDiv">
 											<b>Accepted for Analysis:</b>
 											<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
-											<input name="acceptedForAnalysis" type="radio" value="0" /> No
+											<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
 										</div>
 										<div class="displayFieldDiv">
 											<b>Sample condition:</b>
 											<select name="sampleCondition">
+												<option value="">Not Set</option>
+												<option value="">--------------------------------</option>
 												<?php
 												$condArr = $shipManager->getConditionArr();
 												foreach($condArr as $condKey => $condValue){
-													echo '<option value="'.$condKey.'">'.$condValue.'</option>';
+													echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
 												}
 												?>
 											</select>
@@ -460,10 +462,12 @@ include($SERVER_ROOT.'/header.php');
 											<div class="displayFieldDiv">
 												<b>Sample condition:</b>
 												<select name="sampleCondition">
+													<option value="">Not Set</option>
+													<option value="">--------------------------------</option>
 													<?php
 													$condArr = $shipManager->getConditionArr();
 													foreach($condArr as $condKey => $condValue){
-														echo '<option value="'.$condKey.'">'.$condValue.'</option>';
+														echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
 													}
 													?>
 												</select>

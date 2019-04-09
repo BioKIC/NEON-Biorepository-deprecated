@@ -931,7 +931,7 @@ class ShipmentManager{
 		$this->setShipmentArr();
 		$fileName = 'receipt_'.$this->shipmentArr['shipmentID'].'_'.date('Y-m-d').'.csv';
 		$sql = 'SELECT n.shipmentID, DATE_FORMAT(s.checkinTimestamp,"%Y%m%d") AS shipmentReceivedDate, u.email AS receivedBy, s.sampleID, s.sampleCode, s.sampleClass, IF(s.checkinUid IS NULL, "N", "Y") AS sampleReceived, '.
-			'IF(s.acceptedForAnalysis IS NULL,"",IF(s.acceptedForAnalysis = 0,"N","Y")) AS acceptedForAnalysis, s.sampleCondition, s.alternativeSampleID AS unknownSamples, s.notes AS remarks '.
+			'IF(s.acceptedForAnalysis IS NULL,"",IF(s.acceptedForAnalysis = 0,"N","Y")) AS acceptedForAnalysis, s.sampleCondition, s.alternativeSampleID AS unknownSamples, s.checkinRemarks AS remarks '.
 			'FROM NeonShipment n INNER JOIN NeonSample s ON n.shipmentPK = s.shipmentPK '.
 			'LEFT JOIN users u ON s.checkinUid = u.uid '.
 			'WHERE (s.shipmentPK = '.$this->shipmentPK.')';

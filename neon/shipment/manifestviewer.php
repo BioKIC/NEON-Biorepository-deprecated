@@ -359,12 +359,17 @@ include($SERVER_ROOT.'/header.php');
 					<div style="clear:both;padding-top:30px;">
 						<fieldset>
 							<legend><b>Sample Listing</b></legend>
+							<?php
+							$sampleFilter = '';
+							if(isset($_POST['sampleFilter'])) $sampleFilter = $_POST['sampleFilter'];
+							?>
 							<form name="filterSampleForm" action="manifestviewer.php" method="post" style="float:right;margin-top:-10px">
 								Display:
 								<select name="sampleFilter" onchange="this.form.submit()">
 									<option value="">All Records</option>
-									<option value="notCheckedIn" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='notCheckedIn'?'SELECTED':''); ?>>Not Checked-in</option>
-									<option value="altIds" <?php echo (isset($_POST['sampleFilter'])&&$_POST['sampleFilter']=='altIds'?'SELECTED':''); ?>>Has Alternative IDs</option>
+									<option value="notCheckedIn" <?php echo ($sampleFilter=='notCheckedIn'?'SELECTED':''); ?>>Not Checked-in</option>
+									<option value="notAccepted" <?php echo ($sampleFilter=='notAccepted'?'SELECTED':''); ?>>Not Accepted for Analysis</option>
+									<option value="altIds" <?php echo ($sampleFilter=='altIds'?'SELECTED':''); ?>>Has Alternative IDs</option>
 								</select>
 								<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 							</form>
@@ -457,7 +462,7 @@ include($SERVER_ROOT.'/header.php');
 											<div class="displayFieldDiv">
 												<b>Accepted for Analysis:</b>
 												<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
-												<input name="acceptedForAnalysis" type="radio" value="0" /> No
+												<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
 											</div>
 											<div class="displayFieldDiv">
 												<b>Sample condition:</b>

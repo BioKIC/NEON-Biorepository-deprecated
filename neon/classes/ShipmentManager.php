@@ -956,15 +956,16 @@ class ShipmentManager{
 		$this->exportData($fileName, $sql);
 	}
 
-	public function exportShipmentSampleList(){
-		if($this->shipmentPK){
-			$fileName = 'sampleExport_'.date('Y-m-d').'.csv';
-			$sql = 'SELECT s.samplePK, s.sampleID, s.alternativeSampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedlocation, '.
-				's.domainremarks, s.collectdate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.notes, '.
-				'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, s.checkinTimestamp, s.initialtimestamp '.
-				'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid WHERE (s.shipmentPK = '.$this->shipmentPK.')';
-			$this->exportData($fileName, $sql);
-		}
+	public function exportSampleList(){
+		$fileName = 'sampleExport_';
+		if($this->shipmentPK) $fileName .= $this->shipmentPK.'_';
+		$fileName .= date('Y-m-d').'.csv';
+		$sql = 'SELECT s.samplePK, s.sampleID, s.alternativeSampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedlocation, '.
+			's.domainremarks, s.collectdate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.notes, '.
+			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, s.checkinTimestamp, s.initialtimestamp '.
+			'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid ';
+		if($this->shipmentPK) $sql .= 'WHERE (s.shipmentPK = '.$this->shipmentPK.')';
+		$this->exportData($fileName, $sql);
 	}
 
 	private function exportData($fileName, $sql){

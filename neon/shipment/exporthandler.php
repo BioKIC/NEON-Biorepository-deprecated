@@ -14,10 +14,7 @@ if($IS_ADMIN){
 	}
 	elseif($exportTask == 'sampleList'){
 		$shipmentManager->setShipmentPK($shipmentPK);
-		$shipmentManager->exportShipmentSampleList();
-	}
-	elseif($exportTask == 'exportShipmentList'){
-		$shipmentManager->exportShipmentSampleList();
+		$shipmentManager->exportSampleList();
 	}
 }
 ?>

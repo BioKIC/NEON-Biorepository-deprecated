@@ -21,17 +21,11 @@ if($IS_ADMIN){
 
 $status = "";
 if($isEditor){
-	if($action == 'downloadcsv'){
-		$shipManager->exportShipmentList();
-	}
-	elseif($action == 'checkinShipment'){
+	if($action == 'checkinShipment'){
 		$shipManager->checkinShipment($_POST);
 	}
 	elseif($action == 'batchCheckin'){
 		$shipManager->batchCheckinSamples($_POST);
-	}
-	elseif($action == 'exportSampleListing'){
-		$shipManager->exportShipmentSampleList();
 	}
 	elseif($action == 'batchHarvestOccid'){
 		$shipManager->batchHarvestOccid($_POST);

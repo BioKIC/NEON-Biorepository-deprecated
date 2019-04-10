@@ -179,7 +179,7 @@ include($SERVER_ROOT.'/header.php');
 					<button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>
 				</div>
 				<div style="float:right; margin:20px">
-					<button name="action" type="submit" value="exportManifestList">Export List of Manifests</button>
+					<button name="action" type="submit" value="exportManifestList">Export Manifests List</button>
 				</div>
 			</form>
 		</fieldset>

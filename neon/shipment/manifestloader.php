@@ -30,10 +30,6 @@ if($isEditor){
 		}
 		$loaderManager->setFieldMap($fieldMap);
 	}
-	if($action == 'downloadcsv'){
-		$loaderManager->exportUploadTerms();
-		exit;
-	}
 }
 ?>
 <html>

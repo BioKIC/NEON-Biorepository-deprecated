@@ -847,8 +847,8 @@ class ShipmentManager{
 	}
 
 	private function getFilteredWhereSql(){
-		$sqlWhere = '';
 		if(isset($_POST['shipmentID'])){
+			$sqlWhere = '';
 			if($_POST['shipmentID']){
 				$sqlWhere .= 'AND (s.shipmentID = "'.$this->cleanInStr($_POST['shipmentID']).'") ';
 			}
@@ -920,8 +920,11 @@ class ShipmentManager{
 					$sqlWhere .= 'AND (o.occid IS NULL) ';
 				}
 			}
+			if($sqlWhere) $sqlWhere = 'WHERE '.subStr($sqlWhere, 3);
 		}
-		if($sqlWhere) $sqlWhere = 'WHERE '.subStr($sqlWhere, 3);
+		elseif($this->shipmentPK){
+			$sqlWhere = 'WHERE (shipmentPK = '.$this->shipmentPK.') ';
+		}
 		//echo 'where: '.$sqlWhere; exit;
 		return $sqlWhere;
 	}
@@ -960,11 +963,12 @@ class ShipmentManager{
 		$fileName = 'sampleExport_';
 		if($this->shipmentPK) $fileName .= $this->shipmentPK.'_';
 		$fileName .= date('Y-m-d').'.csv';
-		$sql = 'SELECT s.samplePK, s.sampleID, s.alternativeSampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedlocation, '.
-			's.domainremarks, s.collectdate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.notes, '.
-			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, s.checkinTimestamp, s.initialtimestamp '.
-			'FROM NeonSample s LEFT JOIN users u ON s.checkinUid = u.uid ';
-		if($this->shipmentPK) $sql .= 'WHERE (s.shipmentPK = '.$this->shipmentPK.')';
+		$sql = 'SELECT m.samplePK, m.sampleID, m.alternativeSampleID, m.sampleCode, m.sampleClass, m.taxonID, m.individualCount, m.filterVolume, m.namedlocation, '.
+			'm.domainremarks, m.collectdate, m.quarantineStatus, m.acceptedForAnalysis, m.sampleCondition, m.dynamicProperties, m.notes, '.
+			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, m.checkinTimestamp, m.initialtimestamp '.
+			'FROM NeonShipment s INNER JOIN NeonSample m ON s.shipmentpk = m.shipmentpk '.
+			'LEFT JOIN users u ON m.checkinUid = u.uid ';
+		$sql .= $this->getFilteredWhereSql();
 		$this->exportData($fileName, $sql);
 	}
 

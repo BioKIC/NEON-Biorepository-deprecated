@@ -19,8 +19,11 @@ if($IS_ADMIN){
 
 $status = "";
 if($isEditor){
-	if($action == 'exportManifestList'){
+	if($action == 'exportManifests'){
 		$shipManager->exportShipmentList();
+	}
+	elseif($action == 'exportSamples'){
+		$shipManager->exportSampleList();
 	}
 }
 ?>
@@ -179,7 +182,10 @@ include($SERVER_ROOT.'/header.php');
 					<button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>
 				</div>
 				<div style="float:right; margin:20px">
-					<button name="action" type="submit" value="exportManifestList">Export Manifests List</button>
+					<button name="action" type="submit" value="exportSamples">Export Samples</button>
+				</div>
+				<div style="float:right; margin:20px">
+					<button name="action" type="submit" value="exportManifests">Export Manifests</button>
 				</div>
 			</form>
 		</fieldset>

@@ -613,25 +613,37 @@ class ShipmentManager{
 		$pkArr = $postArr['scbox'];
 		if($this->shipmentPK && $pkArr){
 			$this->setStateArr();
-			$this->setSampleClassArr();
-			$sql = 'SELECT samplePK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedLocation, collectDate '.
-				'FROM NeonSample '.
-				'WHERE occid IS NULL AND samplePK IN('.implode(',',$pkArr).')';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$sampleArr = array();
-				$sampleArr['samplePK'] = $r->samplePK;
-				$sampleArr['sampleID'] = $r->sampleID;
-				$sampleArr['sampleCode'] = $r->sampleCode;
-				$sampleArr['sampleClass'] = $r->sampleClass;
-				$sampleArr['taxonID'] = $r->taxonID;
-				$sampleArr['individualCount'] = $r->individualCount;
-				$sampleArr['filterVolume'] = $r->filterVolume;
-				$sampleArr['namedLocation'] = $r->namedLocation;
-				$sampleArr['collectDate'] = $r->collectDate;
-				$this->harvestNeonOccurrence($sampleArr);
+			if($this->setSampleClassArr()){
+				$sql = 'SELECT samplePK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedLocation, collectDate '.
+					'FROM NeonSample '.
+					'WHERE occid IS NULL AND samplePK IN('.implode(',',$pkArr).')';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					echo '<li>Harvesting occurrence for '.$r->sampleID.'... ';
+					$sampleArr = array();
+					$sampleArr['samplePK'] = $r->samplePK;
+					$sampleArr['sampleID'] = $r->sampleID;
+					$sampleArr['sampleCode'] = $r->sampleCode;
+					$sampleArr['sampleClass'] = $r->sampleClass;
+					$sampleArr['taxonID'] = $r->taxonID;
+					$sampleArr['individualCount'] = $r->individualCount;
+					$sampleArr['filterVolume'] = $r->filterVolume;
+					$sampleArr['namedLocation'] = $r->namedLocation;
+					$sampleArr['collectDate'] = $r->collectDate;
+					if($this->harvestNeonOccurrence($sampleArr)){
+						echo 'success!</li>';
+					}
+					else{
+						echo '</li><li style="margin-left:15px">'.$this->errorStr.'</li>';
+					}
+					flush();
+					ob_flush();
+				}
+				$rs->free();
 			}
-			$rs->free();
+			else{
+				echo '<li>'.$this->errorStr.'</li>';
+			}
 		}
 		return false;
 	}
@@ -640,59 +652,77 @@ class ShipmentManager{
 		$status = false;
 		if($sampleArr['samplePK']){
 			$dwcArr = array();
-			//Get data that was provided within manifest
-			$dwcArr['othercatalogNumbers'] = $sampleArr['sampleID'];
-			if($sampleArr['collectDate']) $dwcArr['eventDate'] = $sampleArr['collectDate'];
-			if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
-			if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
+			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
+				//Get data that was provided within manifest
+				$dwcArr['othercatalogNumbers'] = $sampleArr['sampleID'];
+				if($sampleArr['collectDate']) $dwcArr['eventDate'] = $sampleArr['collectDate'];
+				if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
+				if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
 
-			//Set occurrence description using sampleClass
-			if($sampleArr['sampleClass']){
-				if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
-				else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
-			}
+				//Set occurrence description using sampleClass
+				if($sampleArr['sampleClass']){
+					if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
+					else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
+				}
 
-			//Build proper location code
-			if($sampleArr['namedLocation']){
-				$locationName = $sampleArr['namedLocation'];
-				if(strpos($locationName,'_')){
-					if(substr($sampleArr['sampleClass'],0,4) == 'bet_'){
-						$locationName .= '.basePlot.bet';
-						if(preg_match('/^'.$sampleArr['namedLocation'].'\.([NSEW]{1})\./', $sampleArr['sampleID'], $m)){
-							$locationName .= '.'.$m[1];
+				//Build proper location code
+				if($sampleArr['namedLocation']){
+					$locationName = $sampleArr['namedLocation'];
+					if(strpos($locationName,'_')){
+						if(substr($sampleArr['sampleClass'],0,4) == 'bet_'){
+							$locationName .= '.basePlot.bet';
+							if(preg_match('/^'.$sampleArr['namedLocation'].'\.([NSEW]{1})\./', $sampleArr['sampleID'], $m)){
+								$locationName .= '.'.$m[1];
+							}
+						}
+						elseif(substr($sampleArr['sampleClass'],0,4) == 'bet_'){
+
 						}
 					}
-					elseif(substr($sampleArr['sampleClass'],0,4) == 'bet_'){
+					$this->setNeonLocationData($dwcArr, $locationName);
+				}
 
+				//Set addtional data
+				if($sampleArr['taxonID']) $this->setNeonTaxonomy($dwcArr, $sampleArr['taxonID']);
+				$this->setNeonCollector($dwcArr);
+
+				//Load record into omoccurrences table
+				if($dwcArr){
+					$sql1 = ''; $sql2 = '';
+					foreach($dwcArr as $fieldName => $fieldValue){
+						$sql1 .= '"'.$fieldName.'",';
+						$sql2 .= '"'.$fieldValue.'",';
+					}
+					$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').') VALUES('.trim($sql2,',').')';
+					echo $sql;
+					exit;
+					if($this->conn->query($sql)){
+						//Update NEON Sample table with new occid
+						$this->conn->query('UPDATE NeonSample SET occid = '.$this->conn->insert_id.' WHERE (occid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
+					}
+					else{
+						$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
+						$status = false;
 					}
 				}
-				$this->setNeonLocationData($dwcArr, $locationName);
 			}
-
-			//Set addtional data
-			if($sampleArr['taxonID']) $this->setNeonTaxonomy($dwcArr, $sampleArr['taxonID']);
-			$this->setNeonCollector($dwcArr);
-
-			//Load record into omoccurrences table
-			if($dwcArr){
-				$sql1 = ''; $sql2 = '';
-				foreach($dwcArr as $fieldName => $fieldValue){
-					$sql1 .= '"'.$fieldName.'",';
-					$sql2 .= '"'.$fieldValue.'",';
-				}
-				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').') VALUES('.trim($sql2,',').')';
-				echo $sql;
-				exit;
-				if($this->conn->query($sql)){
-					//Update NEON Sample table with new occid
-					$this->conn->query('UPDATE NeonSample SET occid = '.$this->conn->insert_id.' WHERE (occid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
-				}
-				else{
-					$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
-					$status = false;
-				}
+			else{
+				$this->errorStr = 'ERROR: unable to retrieve collid using sampleClass: '.$sampleArr['sampleClass'];
+				$status = false;
 			}
 		}
+		return $status;
+	}
+
+	private function setCollectionIdentifier(&$dwcArr,$sampleClass){
+		$status = false;
+		$sql = 'SELECT collid FROM omcollections WHERE (collectionID = "'.$sampleClass.'")';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$dwcArr['collid'] = $r->collid;
+			$status = true;
+		}
+		$rs->free();
 		return $status;
 	}
 
@@ -762,6 +792,7 @@ class ShipmentManager{
 
 	private function getNeonApiArr($url){
 		$retArr = array();
+		//echo 'url: '.$url.'<br/>';
 		if($url){
 			//Request URL example: http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
 			//$json = file_get_contents($url);
@@ -771,17 +802,19 @@ class ShipmentManager{
 			curl_setopt($curl, CURLOPT_PUT, 1);
 			curl_setopt($curl, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json', 'Accept: application/json') );
 			curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-			$json = curl_exec($curl);
-			curl_close($curl);
-
-			$resultArr = json_decode($json,true);
-			if(isset($resultArr['data'])){
-				$retArr = $resultArr['data'];
+			if($json = curl_exec($curl)){
+				$resultArr = json_decode($json,true);
+				if(isset($resultArr['data'])){
+					$retArr = $resultArr['data'];
+				}
+				else{
+					$this->errorStr = 'ERROR retrieving NEON data: '.$url;
+				}
 			}
 			else{
-				echo '<li style="margin-left:15px">ERROR retrieving NEON data: '.$url.'</li>';
-				return false;
+				$this->errorStr = 'ERROR: unable to access NEON API: '.$url;
 			}
+			curl_close($curl);
 		}
 		return $retArr;
 	}

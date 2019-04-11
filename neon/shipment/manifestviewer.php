@@ -27,9 +27,6 @@ if($isEditor){
 	elseif($action == 'batchCheckin'){
 		$shipManager->batchCheckinSamples($_POST);
 	}
-	elseif($action == 'batchHarvestOccid'){
-		$shipManager->batchHarvestOccid($_POST);
-	}
 	elseif($action == 'receiptsubmitted'){
 		$shipManager->setReceiptStatus($_POST['submitted']);
 	}
@@ -222,6 +219,15 @@ include($SERVER_ROOT.'/header.php');
 <div id="innertext">
 	<?php
 	if($isEditor){
+		if($action == 'batchHarvestOccid'){
+			echo '<fieldset style="margin:15px;padding:15px">';
+			echo '<legend>Action Panel</legend>';
+			echo '<ul>';
+			$shipManager->batchHarvestOccid($_POST);
+			echo '</ul>';
+			echo '</fieldset>';
+		}
+
 		$shipArr = $shipManager->getShipmentArr();
 		if($shipArr){
 			?>

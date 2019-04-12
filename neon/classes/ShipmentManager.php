@@ -727,8 +727,8 @@ class ShipmentManager{
 	}
 
 	private function setNeonLocationData(&$dwcArr, $locationName){
-		//http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
-		$url = 'http://data.neonscience.org/api/v0/locations/'.$locationName;
+		//https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
+		$url = 'https://data.neonscience.org/api/v0/locations/'.$locationName;
 		$resultArr = $this->getNeonApiArr($url);
 		//Extract DwC values
 		$locality = $this->getLocationParentStr($resultArr);
@@ -762,7 +762,7 @@ class ShipmentManager{
 		if($locality) $dwcArr['locality'] = trim($locality,', ');
 		//Grab some habitat details availalbe with parent location
 		if(preg_match('/basePlot\.bet\.[NSEW]{1}/',$locationName)){
-			$urlHab = 'http://data.neonscience.org/api/v0/locations/'.substr($locationName,0,-2);
+			$urlHab = 'https://data.neonscience.org/api/v0/locations/'.substr($locationName,0,-2);
 			$habArr = $this->getNeonApiArr($urlHab);
 			if(isset($habArr['locationProperties'])){
 				foreach($habArr['locationProperties'] as $propArr){
@@ -782,7 +782,7 @@ class ShipmentManager{
 			$parStr = preg_replace('/ at site [A-Z]+/', '', $parStr);
 			if(isset($resultArr['locationParent'])){
 				if($resultArr['locationParent'] == 'REALM') return '';
-				$url = 'http://data.neonscience.org/api/v0/locations/'.$resultArr['locationParent'];
+				$url = 'https://data.neonscience.org/api/v0/locations/'.$resultArr['locationParent'];
 				$newLoc = $this->getLocationParentStr($this->getNeonApiArr($url));
 				if($newLoc) $parStr = $newLoc.', '.$parStr;
 			}
@@ -794,15 +794,21 @@ class ShipmentManager{
 		$retArr = array();
 		//echo 'url: '.$url.'<br/>';
 		if($url){
-			//Request URL example: http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
-			//$json = file_get_contents($url);
+			//Request URL example: https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
+			$json = file_get_contents($url);
+			//echo 'json1: '.$json; exit;
 
-			//curl -X GET --header 'Accept: application/json' 'http://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam'
+			/*
+			//curl -X GET --header 'Accept: application/json' 'https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam'
 			$curl = curl_init($url);
 			curl_setopt($curl, CURLOPT_PUT, 1);
 			curl_setopt($curl, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json', 'Accept: application/json') );
 			curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-			if($json = curl_exec($curl)){
+			curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+			$json = curl_exec($curl);
+			*/
+			if($json){
 				$resultArr = json_decode($json,true);
 				if(isset($resultArr['data'])){
 					$retArr = $resultArr['data'];
@@ -814,7 +820,7 @@ class ShipmentManager{
 			else{
 				$this->errorStr = 'ERROR: unable to access NEON API: '.$url;
 			}
-			curl_close($curl);
+			//curl_close($curl);
 		}
 		return $retArr;
 	}
@@ -852,12 +858,15 @@ class ShipmentManager{
 	}
 
 	private function setSampleClassArr(){
-		$result = $this->getNeonApiArr('http://data.neonscience.org/api/v0/samples/supportedClasses');
+		$status = false;
+		$result = $this->getNeonApiArr('https://data.neonscience.org/api/v0/samples/supportedClasses');
 		if(isset($result['entries'])){
 			foreach($result['entries'] as $k => $classArr){
 				$this->sampleClassArr[$classArr['key']] = $classArr['value'];
 			}
+			$status = true;
 		}
+		return $status;
 	}
 
 	//Shipment and sample search functions

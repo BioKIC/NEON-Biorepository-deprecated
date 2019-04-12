@@ -452,7 +452,7 @@ include($SERVER_ROOT.'/header.php');
 											<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
 										</div>
 										<div style="margin:5px">
-											<button name="action" type="submit" value="batchHarvestOccid" disabled>Batch Harvest Occurrences</button>
+											<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest Occurrences</button>
 										</div>
 									</div>
 									<div style="margin:15px">

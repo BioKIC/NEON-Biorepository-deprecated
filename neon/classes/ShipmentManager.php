@@ -880,8 +880,8 @@ class ShipmentManager{
 	}
 
 	private function getFilteredWhereSql(){
+		$sqlWhere = '';
 		if(isset($_POST['shipmentID'])){
-			$sqlWhere = '';
 			if($_POST['shipmentID']){
 				$sqlWhere .= 'AND (s.shipmentID = "'.$this->cleanInStr($_POST['shipmentID']).'") ';
 			}

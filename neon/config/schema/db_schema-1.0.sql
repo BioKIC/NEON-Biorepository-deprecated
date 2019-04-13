@@ -52,6 +52,7 @@ CREATE TABLE `NeonSample` (
   `dynamicProperties` TEXT NULL,
   `notes` VARCHAR(250) NULL,
   `occid` INT UNSIGNED NULL,
+  `errorMessage` VARCHAR(255) NULL,
   `checkinRemarks` VARCHAR(250) NULL,
   `checkinUid` INT UNSIGNED NULL,
   `checkinTimestamp` DATETIME NULL,

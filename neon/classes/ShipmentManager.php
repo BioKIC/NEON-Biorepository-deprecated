@@ -617,12 +617,13 @@ class ShipmentManager{
 				$sql = 'SELECT samplePK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedLocation, collectDate '.
 					'FROM NeonSample '.
 					'WHERE occid IS NULL AND samplePK IN('.implode(',',$pkArr).')';
+				//echo $sql.'<br/>';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					echo '<li>Harvesting occurrence for '.$r->sampleID.'... ';
 					$sampleArr = array();
 					$sampleArr['samplePK'] = $r->samplePK;
-					$sampleArr['sampleID'] = $r->sampleID;
+					$sampleArr['sampleID'] = strtoupper($r->sampleID);
 					$sampleArr['sampleCode'] = $r->sampleCode;
 					$sampleArr['sampleClass'] = $r->sampleClass;
 					$sampleArr['taxonID'] = $r->taxonID;
@@ -630,11 +631,16 @@ class ShipmentManager{
 					$sampleArr['filterVolume'] = $r->filterVolume;
 					$sampleArr['namedLocation'] = $r->namedLocation;
 					$sampleArr['collectDate'] = $r->collectDate;
-					if($this->harvestNeonOccurrence($sampleArr)){
-						echo 'success!</li>';
+					if($this->validateSampleClass($sampleArr)){
+						if($this->harvestNeonOccurrence($sampleArr)){
+							echo 'success!</li>';
+						}
+						else{
+							echo '</li><li style="margin-left:15px">'.$this->errorStr.'</li>';
+						}
 					}
 					else{
-						echo '</li><li style="margin-left:15px">'.$this->errorStr.'</li>';
+						echo '</li><li style="margin-left:15px">ERROR: Failed to validate with API</li>';
 					}
 					flush();
 					ob_flush();
@@ -646,6 +652,63 @@ class ShipmentManager{
 			}
 		}
 		return false;
+	}
+
+	private function validateSampleClass(&$sampleArr){
+		if($sampleArr['sampleCode']){
+			$url = 'https://data.neonscience.org/api/v0/samples/view?barcode='.$sampleArr['sampleCode'];
+			$resultArr = $this->getNeonApiArr($url);
+			if($resultArr['sampleViews']['sampleTag'] != $sampleArr['sampleID']){
+				$msg = 'sampleID not matching: '.$resultArr['sampleViews']['sampleTag'];
+				$this->setSampleErrorMessage($sampleArr['samplePK'], $msg);
+				return false;
+			}
+			elseif($resultArr['sampleViews']['sampleClass'] != $sampleArr['sampleClass']){
+				$msg = 'sampleClass not matching: '.$resultArr['sampleViews']['sampleClass'];
+				$this->setSampleErrorMessage($sampleArr['samplePK'], $msg);
+				return false;
+			}
+		}
+		else($sampleArr['sampleID'] && $sampleArr['sampleClass']){
+			//If sampleId and sampleClass are not correct, nothing will be returned
+			$url = 'https://data.neonscience.org/api/v0/samples/view?sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
+			if($resultArr = $this->getNeonApiArr($url)){
+				if($resultArr['sampleViews']['barcode']) $sampleArr['sampleCode'] = $resultArr['sampleViews']['barcode'];
+			}
+			else{
+				$this->setSampleErrorMessage($sampleArr['samplePK'], 'sampleID and sampleClass failed to validate');
+				return false;
+			}
+		}
+		else{
+			$this->setSampleErrorMessage($sampleArr['samplePK'], 'Sample identifiers incomplete');
+			return false;
+		}
+		$eventArr = $resultArr['sampleViews']['sampleEvents'];
+		foreach($eventArr as $k => $eArr){
+			if(substr($eArr['ingestTableName'],0,4) == 'scs_') continue;
+			if(strpos($sampleArr['sampleClass'],$eArr['ingestTableName'])){
+				$fieldArr = $eArr['smsFieldEntries'];
+				foreach($fieldArr as $k => $fArr){
+					if($fArr['smsKey'] == 'fate_location'){
+						//Check location
+						if($fArr['smsValue'] != $sampleArr['namedLocation']){
+							$this->setSampleErrorMessage($sampleArr['samplePK'], 'nameLocation failed to validate');
+							return false;
+						}
+					}
+					elseif($fArr['smsKey'] == 'fate_date'){
+						//Check collection date
+						if($fArr['smsValue'] != $sampleArr['collectDate']){
+							$this->setSampleErrorMessage($sampleArr['samplePK'], 'collectDate failed to validate');
+							return false;
+						}
+					}
+				}
+				break;
+			}
+		}
+		return true;
 	}
 
 	private function harvestNeonOccurrence($sampleArr){
@@ -679,7 +742,10 @@ class ShipmentManager{
 
 						}
 					}
-					$this->setNeonLocationData($dwcArr, $locationName);
+					if(!$this->setNeonLocationData($dwcArr, $locationName)){
+						$this->setSampleErrorMessage($sampleArr['samplePK'], 'locatity data failed to populate');
+						return false;
+					}
 				}
 
 				//Set addtional data
@@ -708,6 +774,7 @@ class ShipmentManager{
 			}
 			else{
 				$this->errorStr = 'ERROR: unable to retrieve collid using sampleClass: '.$sampleArr['sampleClass'];
+				$this->setSampleErrorMessage($sampleArr['samplePK'], 'unable to retrieve collid using sampleClass');
 				$status = false;
 			}
 		}
@@ -728,8 +795,11 @@ class ShipmentManager{
 
 	private function setNeonLocationData(&$dwcArr, $locationName){
 		//https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
+		//echo 'loc name1: '.$locationName.'<br/>';
 		$url = 'https://data.neonscience.org/api/v0/locations/'.$locationName;
 		$resultArr = $this->getNeonApiArr($url);
+		if(!$resultArr) return false;
+
 		//Extract DwC values
 		$locality = $this->getLocationParentStr($resultArr);
 
@@ -762,6 +832,7 @@ class ShipmentManager{
 		if($locality) $dwcArr['locality'] = trim($locality,', ');
 		//Grab some habitat details availalbe with parent location
 		if(preg_match('/basePlot\.bet\.[NSEW]{1}/',$locationName)){
+			//echo 'loc name2: '.substr($locationName,0,-2).'<br/>';
 			$urlHab = 'https://data.neonscience.org/api/v0/locations/'.substr($locationName,0,-2);
 			$habArr = $this->getNeonApiArr($urlHab);
 			if(isset($habArr['locationProperties'])){
@@ -782,6 +853,7 @@ class ShipmentManager{
 			$parStr = preg_replace('/ at site [A-Z]+/', '', $parStr);
 			if(isset($resultArr['locationParent'])){
 				if($resultArr['locationParent'] == 'REALM') return '';
+				//echo 'loc name3: '.$resultArr['locationParent'].'<br/>';
 				$url = 'https://data.neonscience.org/api/v0/locations/'.$resultArr['locationParent'];
 				$newLoc = $this->getLocationParentStr($this->getNeonApiArr($url));
 				if($newLoc) $parStr = $newLoc.', '.$parStr;
@@ -795,7 +867,7 @@ class ShipmentManager{
 		//echo 'url: '.$url.'<br/>';
 		if($url){
 			//Request URL example: https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
-			$json = file_get_contents($url);
+			$json = @file_get_contents($url);
 			//echo 'json1: '.$json; exit;
 
 			/*
@@ -813,12 +885,20 @@ class ShipmentManager{
 				if(isset($resultArr['data'])){
 					$retArr = $resultArr['data'];
 				}
+				elseif(isset($resultArr['error'])){
+					$this->errorStr = 'ERROR thrown accessing NEON API: url ='.$url;
+					if(isset($resultArr['error']['status'])) '; '.$this->errorStr .= $resultArr['error']['status'];
+					if(isset($resultArr['error']['detail'])) '; '.$this->errorStr .= $resultArr['error']['detail'];
+					$retArr = false;
+				}
 				else{
 					$this->errorStr = 'ERROR retrieving NEON data: '.$url;
+					$retArr = false;
 				}
 			}
 			else{
 				$this->errorStr = 'ERROR: unable to access NEON API: '.$url;
+				$retArr = false;
 			}
 			//curl_close($curl);
 		}
@@ -867,6 +947,11 @@ class ShipmentManager{
 			$status = true;
 		}
 		return $status;
+	}
+
+	private function setSampleErrorMessage($samplePK, $msg){
+		$sql = 'UPDATE NeonSample SET errorMessage = "'.$msg.'" WHERE (samplePK = '.$samplePK.')';
+		$this->conn->query($sql);
 	}
 
 	//Shipment and sample search functions

@@ -131,7 +131,7 @@ class OccurrenceHarvester{
 								if($dateStr != $sampleArr['collectDate']){
 									$this->errorStr = 'collectDate failed to validate ('.$dateStr.' != '.$sampleArr['collectDate'].')';
 									$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-									return false;
+									//return false;
 								}
 							}
 							else{

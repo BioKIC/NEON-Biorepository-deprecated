@@ -3,6 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/neon/classes/ShipmentManager.php');
+include_once($SERVER_ROOT.'/neon/classes/OccurrenceHarvester.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/manifestviewer.php?'.$_SERVER['QUERY_STRING']);
 
@@ -220,12 +221,17 @@ include($SERVER_ROOT.'/header.php');
 	<?php
 	if($isEditor){
 		if($action == 'batchHarvestOccid'){
-			echo '<fieldset style="margin:15px;padding:15px">';
-			echo '<legend>Action Panel</legend>';
-			echo '<ul>';
-			$shipManager->batchHarvestOccid($_POST);
-			echo '</ul>';
-			echo '</fieldset>';
+			?>
+			<fieldset style="margin:15px;padding:15px">
+				<legend>Action Panel</legend>
+				<ul>
+				<?php
+				$occurManager = new OccurrenceHarvester();
+				$occurManager->batchHarvestOccid($_POST);
+				?>
+				</ul>
+			</fieldset>
+			<?php
 		}
 
 		$shipArr = $shipManager->getShipmentArr();

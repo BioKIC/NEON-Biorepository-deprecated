@@ -14,20 +14,31 @@ class OccurrenceHarvester{
 		if($this->conn) $this->conn->close();
 	}
 
+	//Occurrence harvesting functions
 	public function batchHarvestOccid($postArr){
 		set_time_limit(3600);
-		$pkArr = $postArr['scbox'];
-		if($pkArr){
+		$sqlWhere = '';
+		if(isset($postArr['scbox'])){
+			$sqlWhere = 'WHERE samplePK IN('.implode(',',$postArr['scbox']).')';
+		}
+		elseif($postArr['action'] == 'harvestAll'){
+			$sqlWhere = 'WHERE (occid IS NULL) AND (errorMessage IS NULL) ORDER BY shipmentPK LIMIT 10';
+		}
+		if($sqlWhere){
 			$this->setStateArr();
 			if($this->setSampleClassArr()){
 				$occidArr = array();
-				$sql = 'SELECT samplePK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedLocation, collectDate, occid '.
-					'FROM NeonSample '.
-					'WHERE samplePK IN('.implode(',',$pkArr).')';
+				$cnt = 1;
+				$shipmentPK = '';
+				$sql = 'SELECT samplePK, shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedLocation, collectDate, occid FROM NeonSample '.$sqlWhere;
 				//echo $sql.'<br/>';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
-					echo '<li>'.($r->occid?'Appending':'Harvesting').' occurrence record for '.$r->sampleID.'... ';
+					if($shipmentPK != $r->shipmentPK){
+						$shipmentPK = $r->shipmentPK;
+						echo '<li><b>Processing shipment #'.$shipmentPK.'</b></li>';
+					}
+					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?'Appending':'Harvesting').' for sample '.$r->sampleID.'... ';
 					$sampleArr = array();
 					$sampleArr['samplePK'] = $r->samplePK;
 					$sampleArr['sampleID'] = strtoupper($r->sampleID);
@@ -46,12 +57,13 @@ class OccurrenceHarvester{
 							}
 						}
 						else{
-							echo '</li><li style="margin-left:15px">'.$this->errorStr.'</li>';
+							echo '</li><li style="margin-left:30px">'.$this->errorStr.'</li>';
 						}
 					}
 					else{
-						echo '</li><li style="margin-left:15px">ERROR: Failed to validate with API</li>';
+						echo '</li><li style="margin-left:30px">ERROR validating: '.$this->errorStr.'</li>';
 					}
+					$cnt++;
 					flush();
 					ob_flush();
 				}
@@ -72,13 +84,13 @@ class OccurrenceHarvester{
 			$url = 'https://data.neonscience.org/api/v0/samples/view?barcode='.$sampleArr['sampleCode'];
 			$viewArr = $this->getSampleViews($url,$sampleArr['samplePK']);
 			if($viewArr['sampleTag'] != $sampleArr['sampleID']){
-				$msg = 'sampleID not matching: '.$viewArr['sampleTag'];
-				$this->setSampleErrorMessage($sampleArr['samplePK'], $msg);
+				$this->errorStr = 'sampleID not matching: '.$viewArr['sampleTag'];
+				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 				return false;
 			}
 			elseif($viewArr['sampleClass'] != $sampleArr['sampleClass']){
-				$msg = 'sampleClass not matching: '.$viewArr['sampleClass'];
-				$this->setSampleErrorMessage($sampleArr['samplePK'], $msg);
+				$this->errorStr = 'sampleClass not matching: '.$viewArr['sampleClass'];
+				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 				return false;
 			}
 		}
@@ -90,12 +102,14 @@ class OccurrenceHarvester{
 				if($viewArr['barcode']) $sampleArr['sampleCode'] = $viewArr['barcode'];
 			}
 			else{
-				$this->setSampleErrorMessage($sampleArr['samplePK'], 'sampleID and sampleClass failed to validate');
+				$this->errorStr = 'sampleID and sampleClass failed to validate';
+				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 				return false;
 			}
 		}
 		else{
-			$this->setSampleErrorMessage($sampleArr['samplePK'], 'Sample identifiers incomplete');
+			$this->errorStr = 'Sample identifiers incomplete';
+			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 			return false;
 		}
 		$eventArr = $viewArr['sampleEvents'];
@@ -110,14 +124,16 @@ class OccurrenceHarvester{
 					}
 					elseif($fArr['smsKey'] == 'fate_date'){
 						if($fArr['smsValue']){
+							$dateStr = $this->formatDate($fArr['smsValue']);
 							if($sampleArr['collectDate']){
-								if($fArr['smsValue'] != $sampleArr['collectDate']){
-									$this->setSampleErrorMessage($sampleArr['samplePK'], 'collectDate failed to validate');
+								if($dateStr != $sampleArr['collectDate']){
+									$this->errorStr = 'collectDate failed to validate ('.$dateStr.' != '.$sampleArr['collectDate'].')';
+									$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 									return false;
 								}
 							}
 							else{
-								$sampleArr['collectDate'] = $fArr['smsValue'];
+								$sampleArr['collectDate'] = $dateStr;
 							}
 						}
 					}
@@ -131,11 +147,13 @@ class OccurrenceHarvester{
 	private function getSampleViews($url,$samplePK){
 		$viewArr = $this->getNeonApiArr($url);
 		if(!isset($viewArr['sampleViews'])){
-			$this->setSampleErrorMessage($samplePK, 'no sampleViews exist');
+			$this->errorStr = 'no sampleViews exist';
+			$this->setSampleErrorMessage($samplePK, $this->errorStr);
 			return false;
 		}
 		if(count($viewArr['sampleViews']) > 1){
-			$this->setSampleErrorMessage($samplePK, 'multiple sampleViews exists');
+			$this->errorStr = 'multiple sampleViews exists';
+			$this->setSampleErrorMessage($samplePK, $this->errorStr);
 			return false;
 		}
 		return current($viewArr['sampleViews']);
@@ -398,14 +416,13 @@ class OccurrenceHarvester{
 		return $retArr;
 	}
 
-	//Various data return functions
 	private function setNeonTaxonomy($occidArr){
 		if($occidArr){
 			$sql = 'UPDATE omoccurrences o INNER JOIN taxaresourcelinks r ON o.sciname = r.sourceidentifier '.
-					'INNER JOIN taxa t ON r.tid = t.tid '.
-					'INNER JOIN taxstatus ts ON ts.tid = ts.tid '.
-					'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
-					'WHERE (ts.taxauthid = 1) AND (o.occid IN('.(implode(',',$occidArr)).'))';
+				'INNER JOIN taxa t ON r.tid = t.tid '.
+				'INNER JOIN taxstatus ts ON ts.tid = ts.tid '.
+				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
+				'WHERE (ts.taxauthid = 1) AND (o.occid IN('.(implode(',',$occidArr)).'))';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;
@@ -441,12 +458,28 @@ class OccurrenceHarvester{
 		$this->conn->query($sql);
 	}
 
+	//Occurrence listing functions
+
+
 	//Setters and getters
 	public function getErrorStr(){
 		return $this->errorStr;
 	}
 
 	//Misc functions
+	private function formatDate($dateStr){
+		if(preg_match('/^(20\d{2})(\d{2})(\d{2})$/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
+		elseif(preg_match('/^(20\d{2})-(\d{2})-(\d{2})\D*/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
+		elseif(preg_match('/^(\d{1,2})\/(\d{1,2})\/(20\d{2})/', $dateStr, $m)){
+			$month = $m[1];
+			if(strlen($month) == 1) $month = '0'.$month;
+			$day = $m[2];
+			if(strlen($day) == 1) $day = '0'.$day;
+			$dateStr = $m[3].'-'.$month.'-'.$day;
+		}
+		return $dateStr;
+	}
+
 	private function cleanInStr($str){
 		$newStr = trim($str);
 		$newStr = preg_replace('/\s\s+/', ' ',$newStr);

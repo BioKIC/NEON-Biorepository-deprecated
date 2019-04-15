@@ -91,7 +91,7 @@ include($SERVER_ROOT.'/header.php');
 
 					</div>
 					<div class="fieldDiv">
-
+						<b>Limit:</b> <input name="limit" type="text" value="1000" />
 					</div>
 				</div>
 				<div style="float:left;margin:20px">

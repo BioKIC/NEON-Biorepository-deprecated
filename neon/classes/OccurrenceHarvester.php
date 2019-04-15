@@ -22,7 +22,9 @@ class OccurrenceHarvester{
 			$sqlWhere = 'WHERE samplePK IN('.implode(',',$postArr['scbox']).')';
 		}
 		elseif($postArr['action'] == 'harvestAll'){
-			$sqlWhere = 'WHERE (occid IS NULL) AND (errorMessage IS NULL) ORDER BY shipmentPK LIMIT 10';
+			$sqlWhere = 'WHERE (occid IS NULL) AND (errorMessage IS NULL) ORDER BY shipmentPK ';
+			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
+			else  $sqlWhere .= 'LIMIT 1000 ';
 		}
 		if($sqlWhere){
 			$this->setStateArr();

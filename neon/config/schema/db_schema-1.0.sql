@@ -60,9 +60,12 @@ CREATE TABLE `NeonSample` (
   PRIMARY KEY (`samplePK`),
   INDEX `FK_samples_shipmentid_idx` (`shipmentPK` ASC),
   INDEX `FK_neon_sample_occid_idx` (`occid` ASC),
-  UNIQUE INDEX `UNIQUE_sampleID` (`sampleID` ASC),
+  UNIQUE INDEX `UNIQUE_sampleID` (`sampleID` ASC, `sampleClass` ASC),
   UNIQUE INDEX `UNIQUE_occid` (`occid` ASC),
   CONSTRAINT `FK_neon_sample_checkinuid` FOREIGN KEY (`checkinUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
   CONSTRAINT `FK_neon_samples_shipmentid`  FOREIGN KEY (`shipmentPK`)  REFERENCES `NeonShipment` (`shipmentPK`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_neon_sample_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
+
+
+
 

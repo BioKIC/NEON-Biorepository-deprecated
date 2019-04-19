@@ -2,13 +2,13 @@
  * 
  **/
 html{
-	color:#FFFFFF;
 	font-size: 16px;
 	font-weight: 400;
 	line-height: 1.5em;
 }
 
 body{
+	color:black;
 	margin-top: 0px;
 }
 

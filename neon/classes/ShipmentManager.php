@@ -611,7 +611,7 @@ class ShipmentManager{
 		$retArr = array();
 		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.initialtimestamp '.
 			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
-		if(isset($_POST['manifestStatus']) && $_POST['manifestStatus'] == 'nonAcceptedSamples'){
+		if(isset($_POST['manifestStatus']) && $_POST['manifestStatus'] == 'occurNotHarvested'){
 			$sql .= 'LEFT JOIN omoccurrences o ON m.occid = o.occid ';
 		}
 		$sql .= $this->getFilteredWhereSql().'ORDER BY s.shipmentID';

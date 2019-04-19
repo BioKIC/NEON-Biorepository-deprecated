@@ -177,7 +177,7 @@ include($SERVER_ROOT.'/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="nonAcceptedSamples" <?php echo ($manifestStatus=='nonAcceptedSamples'?'checked':''); ?> style="margin-left:20px;" /> <b>Samples not accepted for analysis</b>
+						<input name="manifestStatus" type="radio" value="nonAcceptedSamples" <?php echo ($manifestStatus=='nonAcceptedSamples'?'checked':''); ?> /> <b>Samples not accepted for analysis</b>
 						<input name="manifestStatus" type="radio" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> style="margin-left:20px;" /> <b>Occurreences not harvested</b>
 					</div>
 				</div>

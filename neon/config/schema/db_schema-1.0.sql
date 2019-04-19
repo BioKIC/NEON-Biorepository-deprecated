@@ -38,6 +38,7 @@ CREATE TABLE `NeonSample` (
   `shipmentPK` INT NOT NULL,
   `sampleID` VARCHAR(45) NOT NULL,
   `alternativeSampleID` VARCHAR(45) NOT NULL,
+  `sampleUuid` VARCHAR(75) NOT NULL,
   `sampleCode` VARCHAR(45) NULL,
   `sampleClass` VARCHAR(100) NULL,
   `taxonID` VARCHAR(45) NULL,

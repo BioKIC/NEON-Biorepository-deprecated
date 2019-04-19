@@ -173,6 +173,10 @@ include($SERVER_ROOT.'/header.php');
 						<input name="manifestStatus" type="radio" value="shipNotCheck" <?php echo ($manifestStatus=='shipNotCheck'?'checked':''); ?> /> <b>Shipment not Checked-in</b>
 						<input name="manifestStatus" type="radio" value="receiptNotSubmitted" <?php echo ($manifestStatus=='receiptNotSubmitted'?'checked':''); ?> style="margin-left:20px;" /> <b>Receipt not submitted</b>
 						<input name="manifestStatus" type="radio" value="sampleNotCheck" <?php echo ($manifestStatus=='sampleNotCheck'?'checked':''); ?> style="margin-left:20px;" /> <b>Samples not Checked-in</b>
+					</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
 						<input name="manifestStatus" type="radio" value="nonAcceptedSamples" <?php echo ($manifestStatus=='nonAcceptedSamples'?'checked':''); ?> style="margin-left:20px;" /> <b>Samples not accepted for analysis</b>
 						<input name="manifestStatus" type="radio" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> style="margin-left:20px;" /> <b>Occurreences not harvested</b>
 					</div>

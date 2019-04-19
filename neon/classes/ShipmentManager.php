@@ -695,7 +695,7 @@ class ShipmentManager{
 				elseif($_POST['manifestStatus'] == 'nonAcceptedSamples'){
 					$sqlWhere .= 'AND (m.acceptedForAnalysis = 0) ';
 				}
-				elseif($_POST['manifestStatus'] == 'nonAcceptedSamples'){
+				elseif($_POST['manifestStatus'] == 'occurNotHarvested'){
 					$sqlWhere .= 'AND (o.occid IS NULL) ';
 				}
 			}

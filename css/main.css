@@ -41,7 +41,7 @@ ul#biorepo-header::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url(/neon/images/layout/NEON_Biorepo_Hero_Image.jpg);
+    background-image: url(../images/layout/NEON_Biorepo_Hero_Image.jpg);
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
@@ -303,7 +303,7 @@ footer {
 	vertical-align: top;
 }
 
-@media (min-width: 73.75em) {
+@media (min-width: 1024px) {
 	#footer .footer-bottom .footer-bottom-left {
 	    width: 50%;
 	    padding-top: 1.2em;

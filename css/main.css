@@ -251,6 +251,12 @@ button.ui-button:active {
 	background: #000000;
 }
 
+/* Links inside buttons */
+button > a {
+	color: #ffffff !important;
+}
+/***/
+
 table, .ui-widget {
 	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
 	font-size:  1em;

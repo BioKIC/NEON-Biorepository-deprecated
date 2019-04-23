@@ -2,7 +2,6 @@
  * 
 *************/
 html{
-	color:#FFFFFF;
 	font-size: 14px;
 	font-weight: 400;
 	line-height: 1.5em;
@@ -195,6 +194,7 @@ div.navpath {
 }
 
 #innertext{
+	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
 	margin-left: auto;
 	margin-right: auto;
 	min-width: 1000px;
@@ -224,14 +224,18 @@ table{
 
 }
 
-/* Forcing styles over jquery-ui */
-button.ui-button.ui-widget.ui-corner-all {
+/* Forcing styles over jquery-ui (search forms) */
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
 	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-	border:  1px solid #ffffff;
+}
+
+button, button.ui-button.ui-widget.ui-corner-all, input[type="submit" i]  {
+	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
+	border: 1px solid #ffffff;
 	border-radius: 0 !important;
 	letter-spacing: 0.0625em;
     color: white;
-    background-color: #005dab;
+    background-color: #005dab !important;
     font-weight: 600;
     text-transform: uppercase;
     padding: 8px 20px;
@@ -247,11 +251,30 @@ button.ui-button:active {
 	background: #000000;
 }
 
-.ui-widget {
+table, .ui-widget {
 	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
 	font-size:  1em;
 }
-/*  */
+
+hr:first-of-type {
+	margin-top: 1em;
+}
+
+/* Icons */
+.svg-icon {
+	filter: invert(1);
+}
+
+#omlisttable img {
+	border: none !important;
+}
+
+/* Tabs */
+#tabs {
+	height: auto;
+}
+
+/***/
 
 .categorytitle{ 
 }

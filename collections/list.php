@@ -282,9 +282,11 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 				<h2><?php echo $LANG['GOOGLE_MAP_HEADER']; ?></h2>
 			</div>
 			<div style='margin:10 0 0 20;'>
-				<a href="#" onclick="openMapPU();" >
-					<?php echo $LANG['GOOGLE_MAP_DISPLAY']; ?>
-				</a>
+				<button>
+					<a href="#" onclick="openMapPU();" >
+						<?php echo $LANG['GOOGLE_MAP_DISPLAY']; ?>
+					</a>
+				</button>
 			</div>
 			<div style='margin:10 0 0 20;'>
 				<?php echo $LANG['GOOGLE_MAP_DESCRIPTION'];?>

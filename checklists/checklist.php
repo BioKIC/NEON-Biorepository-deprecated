@@ -203,7 +203,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 				<div class="printoff" style="float:right;width:auto;">
 					<span style="">
 						<a href="checklistadmin.php?clid=<?php echo $clid.'&pid='.$pid; ?>" style="margin-right:10px;" title="Checklist Administration">
-							<img src="../images/editadmin.png" srcset="../images/edita.svg" style="height:15px" />
+							<img src="../images/editadmin.png" srcset="../images/editA.svg" style="height:15px" />
 						</a>
 					</span>
 					<span style="">

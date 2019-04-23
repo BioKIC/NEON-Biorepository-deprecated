@@ -255,6 +255,10 @@ button.ui-button:active {
 button > a {
 	color: #ffffff !important;
 }
+
+button > a:hover {
+	text-decoration: none !important;
+}
 /***/
 
 table, .ui-widget {

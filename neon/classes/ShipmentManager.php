@@ -203,7 +203,7 @@ class ShipmentManager{
 	}
 
 	public function uploadData(){
-		$shipmentPK = false;
+		$this->shipmentPK = false;
 		if($this->uploadFileName){
 			echo '<li>Initiating import from: '.$this->uploadFileName.'</li>';
 			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
@@ -234,9 +234,9 @@ class ShipmentManager{
 				if($dynPropArr){
 					$recMap['dynamicproperties'] = json_encode($dynPropArr);
 				}
-				if($shipmentPK === false) $shipmentPK = $this->loadShipmentRecord($recMap);
-				if($shipmentPK){
-					$this->loadSampleRecord($shipmentPK, $recMap);
+				if($this->shipmentPK === false) $this->shipmentPK = $this->loadShipmentRecord($recMap);
+				if($this->shipmentPK){
+					$this->addSample($recMap,true);
 					$recCnt++;
 				}
 				unset($recMap);
@@ -248,7 +248,7 @@ class ShipmentManager{
 		else{
 			$this->outputMsg('<li>File Upload FAILED: unable to locate file</li>');
 		}
-		return $shipmentPK;
+		return $this->shipmentPK;
 	}
 
 	public function loadShipmentRecord($recArr){
@@ -295,34 +295,6 @@ class ShipmentManager{
 			}
 		}
 		return $shipmentPK;
-	}
-
-	private function loadSampleRecord($shipmentPK, $recArr){
-		$recArr = array_change_key_case($recArr);
-		$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedlocation, domainremarks, collectdate, dynamicproperties, quarantineStatus) '.
-			'VALUES('.$shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.(isset($recArr['samplecode'])&&$recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').',"'.
-			$this->cleanInStr($recArr['sampleclass']).'",'.(isset($recArr['taxonid'])&&$recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
-			(isset($recArr['individualcount'])&&$recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
-			(isset($recArr['filtervolume'])&&$recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
-			(isset($recArr['namedlocation'])?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
-			(isset($recArr['domainremarks'])&&$recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
-			(isset($recArr['collectdate'])?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
-			(isset($recArr['dynamicproperties'])?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
-			(isset($recArr['quarantinestatus'])&&$recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').')';
-		if($this->conn->query($sql)){
-			echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
-		}
-		else{
-			if($this->conn->errno == 1062){
-				echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> Sample record '.$recArr['sampleid'].' previously uploaded...</li>';
-			}
-			else{
-				echo '<li style="margin-left:15px"><span style="color:red">ERROR</span> loading sample record: '.$this->conn->error.'</li>';
-				echo '<li style="margin-left:15px">SQL: '.$sql.'</li>';
-			}
-			return $this->conn->affected_rows;
-		}
-		return true;
 	}
 
 	private function getHeaderArr($fHandler){
@@ -527,20 +499,29 @@ class ShipmentManager{
 		return $status;
 	}
 
-	public function addSample($postArr){
+	public function addSample($recArr, $verbose = false){
 		$status = false;
-		if($this->shipmentPK){
-			$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, alternativeSampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
-				'VALUES('.$this->shipmentPK.',"'.$this->cleanInStr($postArr['sampleID']).'",'.($postArr['alternativeSampleID']?'"'.$this->cleanInStr($postArr['alternativeSampleID']).'"':'NULL').','.
-				($postArr['sampleCode']?'"'.$this->cleanInStr($postArr['sampleCode']).'"':'NULL').','.
-				($postArr['sampleClass']?'"'.$this->cleanInStr($postArr['sampleClass']).'"':'NULL').','.($postArr['quarantineStatus']?'"'.$this->cleanInStr($postArr['quarantineStatus']).'"':'NULL').','.
-				($postArr['namedLocation']?'"'.$this->cleanInStr($postArr['namedLocation']).'"':'NULL').','.($postArr['collectDate']?'"'.$this->cleanInStr($postArr['collectDate']).'"':'NULL').','.
-				($postArr['taxonID']?'"'.$this->cleanInStr($postArr['taxonID']).'"':'NULL').','.($postArr['individualCount']?'"'.$this->cleanInStr($postArr['individualCount']).'"':'NULL').','.
-				($postArr['filterVolume']?'"'.$this->cleanInStr($postArr['filterVolume']).'"':'NULL').','.($postArr['domainRemarks']?'"'.$this->cleanInStr($postArr['domainRemarks']).'"':'NULL').','.
-				($postArr['sampleNotes']?'"'.$this->cleanInStr($postArr['sampleNotes']).'"':'NULL').')';
+		$recArr = array_change_key_case($recArr);
+		if($this->shipmentPK && isset($recArr['sampleid'])){
+			$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, alternativeSampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, '.
+				'dynamicproperties, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
+				'VALUES('.$this->shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.
+				(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
+				(isset($recArr['samplecode']) && $recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').','.
+				(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
+				(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
+				(isset($recArr['namedlocation']) && $recArr['namedlocation']?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
+				(isset($recArr['collectdate']) && $recArr['collectdate']?'"'.$this->cleanInStr($recArr['collectdate']).'"':'NULL').','.
+				(isset($recArr['dynamicproperties']) && $recArr['dynamicproperties']?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
+				(isset($recArr['taxonid']) && $recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
+				(isset($recArr['individualcount']) && $recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
+				(isset($recArr['filtervolume']) && $recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
+				(isset($recArr['domainremarks']) && $recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
+				(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
 			if($this->conn->query($sql)){
 				$status = true;
-				if(isset($postArr['checkinSample']) && $postArr['checkinSample']){
+				if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
+				if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
 					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
 					if(!$this->conn->query($sqlUpdate)){
 						$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
@@ -550,11 +531,16 @@ class ShipmentManager{
 			}
 			else{
 				if($this->conn->errno == 1062){
-					$this->errorStr = 'A sample already exists with sampleID: <a href="manifestviewer.php?quicksearch='.$postArr['sampleID'].
-						'" target="_blank" onclick="window.close()">'.$postArr['sampleID'].'</a> (click to go to manifest)';
+					$this->errorStr = 'Sample already exists with sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].
+					'" target="_blank" onclick="window.close()">'.$recArr['sampleid'].'</a>';
+					if($verbose) echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span>'.$this->errorStr.'</li>';
 				}
 				else{
-					$this->errorStr = 'ERROR adding new sample ('.$this->conn->errno.'): '.$this->conn->error;
+					$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
+					if($verbose){
+						echo '<li style="margin-left:15px">'.$this->errorStr.'</li>';
+						echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
+					}
 				}
 				return false;
 			}

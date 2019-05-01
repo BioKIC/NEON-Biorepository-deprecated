@@ -500,10 +500,11 @@ class ShipmentManager{
 
 	public function editSample($postArr){
 		$status = false;
-		echo 'samplePK: '.$postArr['samplePK'].'<br/>';
-		if(is_numeric($postArr['samplePK'])){
+		$sampleID = $this->cleanInStr($postArr['sampleID']);
+		if(is_numeric($postArr['samplePK']) && $sampleID){
 			$sql = 'UPDATE NeonSample '.
-				'SET alternativeSampleID = '.($postArr['alternativeSampleID']?'"'.$this->cleanInStr($postArr['alternativeSampleID']).'"':'NULL').', '.
+				'SET sampleID = "'.$sampleID.'", '.
+				'alternativeSampleID = '.($postArr['alternativeSampleID']?'"'.$this->cleanInStr($postArr['alternativeSampleID']).'"':'NULL').', '.
 				'sampleCode = '.($postArr['sampleCode']?'"'.$this->cleanInStr($postArr['sampleCode']).'"':'NULL').', '.
 				'sampleClass = '.($postArr['sampleClass']?'"'.$this->cleanInStr($postArr['sampleClass']).'"':'NULL').', '.
 				'quarantineStatus = '.($postArr['quarantineStatus']?'"'.$this->cleanInStr($postArr['quarantineStatus']).'"':'NULL').', '.

@@ -364,10 +364,11 @@ class ShipmentManager{
 	public function checkinSample($sampleID, $acceptedForAnalysis, $condition, $alternativeSampleID, $notes){
 		$status = 3;
 		// status: 0 = check-in failed, 1 = check-in success, 2 = sample already checked-in, 3 = sample not found
-		if($this->shipmentPK && $sampleID){
+		if($sampleID){
 			$samplePK = 0;
 			$sql = 'SELECT samplePK, alternativeSampleID, checkinTimestamp FROM NeonSample '.
-				'WHERE (shipmentpk = '.$this->shipmentPK.') AND (sampleID = "'.$this->cleanInStr($sampleID).'" OR sampleCode = "'.$this->cleanInStr($sampleID).'") ';
+				'WHERE (sampleID = "'.$this->cleanInStr($sampleID).'" OR sampleCode = "'.$this->cleanInStr($sampleID).'") ';
+			if($this->shipmentPK) $sql .= 'AND (shipmentpk = '.$this->shipmentPK.') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$samplePK = $r->samplePK;

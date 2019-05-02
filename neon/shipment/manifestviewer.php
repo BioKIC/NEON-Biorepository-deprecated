@@ -104,13 +104,13 @@ if($isEditor){
 		}
 
 		function checkinSample(f){
-			var sampleIdenfier = f.idenfier.value.trim();
-			if(sampleIdenfier != ""){
+			var sampleIdentifier = f.identifier.value.trim();
+			if(sampleIdentifier != ""){
 				$.ajax({
 					type: "POST",
 					url: "rpc/checkinsample.php",
 					dataType: 'json',
-					data: { shipmentpk: "<?php echo $shipmentPK; ?>", idenfier: sampleIdenfier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
+					data: { shipmentpk: "<?php echo $shipmentPK; ?>", identifier: sampleIdentifier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
 				}).done(function( retJson ) {
 					$("#checkinText").show();
 					if(retJson.status == 0){
@@ -121,11 +121,11 @@ if($isEditor){
 						$("#checkinText").css('color', 'green');
 						$("#checkinText").text('success!!!');
 						$("#scSpan-"+retJson.samplePK).html("checked-in");
-						f.idenfier.value = "";
+						f.identifier.value = "";
 						f.acceptedForAnalysis.value = 1;
 						f.sampleCondition.value = "";
 						f.alternativeSampleID.value = "";
-						f.sampleNotes.value = "";
+						f.checkinRemarks.value = "";
 					}
 					else if(retJson.status == 2){
 						$("#checkinText").css('color', 'orange');
@@ -143,7 +143,7 @@ if($isEditor){
 					$("#checkinText").animate({fontSize: "100%"}, "slow");
 					$("#checkinText").animate({fontSize: "125%"}, "slow");
 					$("#checkinText").animate({fontSize: "100%"}, "slow").delay(5000).fadeOut();
-					f.idenfier.focus();
+					f.identifier.focus();
 				});
 			}
 		}
@@ -297,7 +297,7 @@ include($SERVER_ROOT.'/header.php');
 										<div id="popoutDiv" style="float:right"><a href="#" onclick="popoutCheckinBox();return false" title="Popout Sample Check-in Box">&gt;&gt;</a></div>
 										<div id="bindDiv" style="float:right;display:none"><a href="#" onclick="bindCheckinBox();return false" title="Bind Sample Check-in Box to top of form">&lt;&lt;</a></div>
 										<div class="displayFieldDiv">
-											<b>Identifier:</b> <input name="idenfier" type="text" style="width:250px" required />
+											<b>Identifier:</b> <input name="identifier" type="text" style="width:250px" required />
 											<div id="checkinText" style="display:inline"></div>
 										</div>
 										<div class="displayFieldDiv">

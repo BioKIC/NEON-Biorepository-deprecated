@@ -62,6 +62,17 @@ if($isEditor){
 				alert("Select samples to check-in");
 				return false;
 			}
+			if(f.acceptedForAnalysis.value == 0){
+				if(f.sampleCondition.value == "ok"){
+					alert("Sample Condition cannot be OK if sample is Not Accepted for Analysis");
+					return false;
+				}
+				else if(f.sampleCondition.value == ""){
+					alert("Enter a Sample Condition");
+					return false;
+				}
+			}
+			return true;
 		}
 
 		function checkinCommentChanged(textObj){
@@ -104,6 +115,16 @@ if($isEditor){
 		}
 
 		function checkinSample(f){
+			if(f.acceptedForAnalysis.value == 0){
+				if(f.sampleCondition.value == "ok"){
+					alert("Sample Condition cannot be OK if sample is Not Accepted for Analysis");
+					return false;
+				}
+				else if(f.sampleCondition.value == ""){
+					alert("Enter a Sample Condition");
+					return false;
+				}
+			}
 			var sampleIdentifier = f.identifier.value.trim();
 			if(sampleIdentifier != ""){
 				$.ajax({
@@ -123,7 +144,7 @@ if($isEditor){
 						$("#scSpan-"+retJson.samplePK).html("checked-in");
 						f.identifier.value = "";
 						f.acceptedForAnalysis.value = 1;
-						f.sampleCondition.value = "";
+						f.sampleCondition.value = "ok";
 						f.alternativeSampleID.value = "";
 						f.checkinRemarks.value = "";
 					}

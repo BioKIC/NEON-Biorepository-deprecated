@@ -113,10 +113,10 @@ if($isEditor){
 			<form method="post" action="sampleeditor.php" onsubmit="return validateSampleForm(this)">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:225px" <?php echo $samplePK?'DISABLED':''; ?> required />
+						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:225px" required />
 					</div>
 					<div class="fieldDiv">
-						<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:''; ?>" style="width:200px" />
+						<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:''; ?>" style="width:250px" />
 					</div>
 					<div class="fieldDiv">
 						<b>Alt. Sample ID:</b> <input name="alternativeSampleID" type="text" value="<?php echo isset($sampleArr['alternativeSampleID'])?$sampleArr['alternativeSampleID']:''; ?>" style="width:200px" />

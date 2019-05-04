@@ -9,14 +9,13 @@ body{
 }
 
 /*Main table framework*/
-#maintable{
+#maintable {
 	border-spacing: 0px;
 	height:	500px;
 }
 
 #maintable td{
  	vertical-align: top;
-	font-size: 12px;
 }
 
 #header{
@@ -247,15 +246,28 @@ div.button:hover {
 }
 
 .collectiontitle{
+	font-size:12px;
 }
 
 .collectiontitle a{
-	font-size: 75%;
+	font-size: 80%;
+	margin-left: 3px;
 }
 
 .collectiontitle a:hover{
 	font-weight: bold;
 	color: grey;
+}
+
+.collectionname{
+	float:left;
+	font-weight: bold;
+	margin-left: 3px;
+}
+
+.collectioncode{
+	float:left;
+	margin-left: 3px;
 }
 
 #omlisttable{

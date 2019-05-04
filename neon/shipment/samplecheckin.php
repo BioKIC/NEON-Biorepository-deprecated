@@ -1,0 +1,135 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+include_once('../../config/symbini.php');
+include_once($SERVER_ROOT.'/neon/classes/ShipmentManager.php');
+header("Content-Type: text/html; charset=".$CHARSET);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/samplecheckin.php?'.$_SERVER['QUERY_STRING']);
+
+$shipManager = new ShipmentManager();
+
+$isEditor = false;
+if($IS_ADMIN){
+	$isEditor = true;
+}
+?>
+<html>
+	<head>
+		<title><?php echo $DEFAULT_TITLE; ?> Sample Check-in</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
+		<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
+		<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+		<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
+		<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+		<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			function checkinSample(f){
+				var sampleIdentifier = f.identifier.value.trim();
+				if(sampleIdentifier != ""){
+					$.ajax({
+						type: "POST",
+						url: "rpc/checkinsample.php",
+						dataType: 'json',
+						data: { identifier: sampleIdentifier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
+					}).done(function( retJson ) {
+						$("#checkinText").show();
+						if(retJson.status == 0){
+							$("#checkinText").css('color', 'red');
+							$("#checkinText").text('check-in failed!');
+						}
+						else if(retJson.status == 1){
+							$("#checkinText").css('color', 'green');
+							$("#checkinText").text('success!!!');
+							$("#scSpan-"+retJson.samplePK).html("checked-in");
+							f.identifier.value = "";
+							f.acceptedForAnalysis.value = 1;
+							f.sampleCondition.value = "";
+							f.alternativeSampleID.value = "";
+							f.checkinRemarks.value = "";
+						}
+						else if(retJson.status == 2){
+							$("#checkinText").css('color', 'orange');
+							$("#checkinText").text('sample already checked-in!');
+						}
+						else if(retJson.status == 3){
+							$("#checkinText").css('color', 'red');
+							$("#checkinText").text('sample not found!');
+						}
+						else{
+							$("#checkinText").css('color', 'red');
+							$("#checkinText").text('Failed: unknown error!');
+						}
+						$("#checkinText").animate({fontSize: "125%"}, "slow");
+						$("#checkinText").animate({fontSize: "100%"}, "slow");
+						$("#checkinText").animate({fontSize: "125%"}, "slow");
+						$("#checkinText").animate({fontSize: "100%"}, "slow").delay(5000).fadeOut();
+						f.identifier.focus();
+					});
+				}
+			}
+
+		</script>
+	</head>
+	<body>
+		<?php
+		$displayLeftMenu = false;
+		include($SERVER_ROOT.'/header.php');
+		?>
+		<div class="navpath">
+			<a href="../../index.php">Home</a> &gt;&gt;
+			<a href="../index.php">NEON Biorepository Tools</a> &gt;&gt;
+			<a href="manifestsearch.php">Manifest Search</a> &gt;&gt;
+			<b>Sample Check-in</b>
+		</div>
+		<div id="innertext">
+			<?php
+			if($isEditor){
+				?>
+				<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:0px;right:200px">
+					<fieldset style="padding:10px;width:500px">
+						<legend><b>Sample Check-in</b></legend>
+						<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
+							<div class="displayFieldDiv">
+								<b>Identifier:</b> <input name="identifier" type="text" style="width:250px" required />
+								<div id="checkinText" style="display:inline"></div>
+							</div>
+							<div class="displayFieldDiv">
+								<b>Accepted for Analysis:</b>
+								<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
+								<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
+							</div>
+							<div class="displayFieldDiv">
+								<b>Sample condition:</b>
+								<select name="sampleCondition">
+									<option value="">Not Set</option>
+									<option value="">--------------------------------</option>
+									<?php
+									$condArr = $shipManager->getConditionArr();
+									foreach($condArr as $condKey => $condValue){
+										echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div class="displayFieldDiv">
+								<b>Alternative ID:</b> <input name="alternativeSampleID" type="text" style="width:225px" />
+							</div>
+							<div class="displayFieldDiv">
+								<b>Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
+								<button type="submit">Submit</button>
+							</div>
+						</form>
+					</fieldset>
+				</div>
+				<div id="">
+
+				</div>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+		include($SERVER_ROOT.'/footer.php');
+		?>
+	</body>
+</html>

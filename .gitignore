@@ -20,3 +20,4 @@
 /index.php
 .settings/org.eclipse.wst.common.project.facet.core.xml
 *.prefs
+images/.DS_Store

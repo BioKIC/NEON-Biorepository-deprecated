@@ -32,7 +32,9 @@ class OccurrenceHarvester{
 				$occidArr = array();
 				$cnt = 1;
 				$shipmentPK = '';
-				$sql = 'SELECT samplePK, shipmentPK, sampleID, sampleCode, sampleClass, taxonID, individualCount, filterVolume, namedLocation, collectDate, occid FROM NeonSample '.$sqlWhere;
+				$sql = 'SELECT samplePK, shipmentPK, sampleID, alternativeSampleID, sampleUuid, sampleCode, sampleClass, taxonID, '.
+					'individualCount, filterVolume, namedLocation, collectDate, occid '.
+					'FROM NeonSample '.$sqlWhere;
 				//echo $sql.'<br/>';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
@@ -44,6 +46,8 @@ class OccurrenceHarvester{
 					$sampleArr = array();
 					$sampleArr['samplePK'] = $r->samplePK;
 					$sampleArr['sampleID'] = strtoupper($r->sampleID);
+					$sampleArr['alternativeSampleID'] = strtoupper($r->alternativeSampleID);
+					$sampleArr['sampleUuid'] = $r->sampleUuid;
 					$sampleArr['sampleCode'] = $r->sampleCode;
 					$sampleArr['sampleClass'] = $r->sampleClass;
 					$sampleArr['taxonID'] = $r->taxonID;
@@ -51,7 +55,7 @@ class OccurrenceHarvester{
 					$sampleArr['filterVolume'] = $r->filterVolume;
 					$sampleArr['namedLocation'] = $r->namedLocation;
 					$sampleArr['collectDate'] = $r->collectDate;
-					if($this->validateSampleClass($sampleArr)){
+					if($this->validateSampleArr($sampleArr)){
 						if($dwcArr = $this->harvestNeonOccurrence($sampleArr)){
 							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
 								$occidArr[] = $occid;
@@ -79,86 +83,113 @@ class OccurrenceHarvester{
 		return false;
 	}
 
-	private function validateSampleClass(&$sampleArr){
+	private function validateSampleArr(&$sampleArr){
 		$viewArr = array();
 		$this->setSampleErrorMessage($sampleArr['samplePK'], '');
+		//Verify central identifiers
 		if($sampleArr['sampleCode']){
 			$url = 'https://data.neonscience.org/api/v0/samples/view?barcode='.$sampleArr['sampleCode'];
-			$viewArr = $this->getSampleViews($url,$sampleArr['samplePK']);
-			if($viewArr['sampleTag'] != $sampleArr['sampleID']){
-				$this->errorStr = 'sampleID not matching: '.$viewArr['sampleTag'];
-				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-				return false;
+			$viewArr = $this->getSampleApiData($url);
+			if($viewArr){
+				if($viewArr['sampleTag'] != $sampleArr['sampleID']){
+					$this->errorStr = 'sampleID not matching: '.$viewArr['sampleTag'];
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+					//return false;
+				}
+				elseif($viewArr['sampleClass'] != $sampleArr['sampleClass']){
+					$this->errorStr = 'sampleClass not matching: '.$viewArr['sampleClass'];
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+					//return false;
+				}
 			}
-			elseif($viewArr['sampleClass'] != $sampleArr['sampleClass']){
-				$this->errorStr = 'sampleClass not matching: '.$viewArr['sampleClass'];
+			else{
 				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-				return false;
 			}
 		}
 		elseif($sampleArr['sampleID'] && $sampleArr['sampleClass']){
 			//If sampleId and sampleClass are not correct, nothing will be returned
 			$url = 'https://data.neonscience.org/api/v0/samples/view?sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
-			$viewArr = $this->getSampleViews($url,$sampleArr['samplePK']);
+			$viewArr = $this->getSampleApiData($url);
 			if($viewArr){
 				if($viewArr['barcode']) $sampleArr['sampleCode'] = $viewArr['barcode'];
 			}
 			else{
 				$this->errorStr = 'sampleID and sampleClass failed to validate';
 				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-				return false;
+				//return false;
 			}
 		}
 		else{
 			$this->errorStr = 'Sample identifiers incomplete';
 			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+			//return false;
+		}
+
+		//Update sampleUuid
+		if(!$sampleArr['sampleUuid']){
+			$sampleArr['sampleUuid'] = $viewArr['sampleUuid'];
+			$this->conn->query('UPDATE NeonSample SET sampleUuid = "'.$viewArr['sampleUuid'].'" WHERE (sampleUuid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
+		}
+
+		//Override namedLocation that is in the manifest
+		if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
+			$sampleArr['namedLocation'] = $viewArr['namedLocation'];
+		}
+
+		if(isset($viewArr['parentID']) && $viewArr['parentID']){
+			$sampleArr['parentID'] = $viewArr['parentID'];
+		}
+
+		/*
+		if($viewArr['collectDate'] != $sampleArr['collectDate']){
+			$this->errorStr = 'collectDate failed to validate ('.$dateStr.' != '.$sampleArr['collectDate'].')';
+			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+			//return false;
+		}
+		*/
+
+		return true;
+	}
+
+	private function getSampleApiData($url){
+		$sampleViewArr = $this->getNeonApiArr($url);
+		if(!isset($sampleViewArr['sampleViews'])){
+			$this->errorStr = 'no sampleViews exist';
 			return false;
 		}
+		if(count($sampleViewArr['sampleViews']) > 1){
+			$this->errorStr = 'multiple sampleViews exists';
+			return false;
+		}
+		$viewArr = current($sampleViewArr['sampleViews']);
+		//parse Sample Event details
 		$eventArr = $viewArr['sampleEvents'];
 		foreach($eventArr as $k => $eArr){
 			if(substr($eArr['ingestTableName'],0,4) == 'scs_') continue;
-			if(strpos($sampleArr['sampleClass'],$eArr['ingestTableName']) !== false){
+			if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false){
 				$fieldArr = $eArr['smsFieldEntries'];
 				foreach($fieldArr as $k => $fArr){
 					if($fArr['smsKey'] == 'fate_location'){
-						//Override namedLocation that is in the manifest
-						$sampleArr['namedLocation'] = $fArr['smsValue'];
+						$viewArr['namedLocation'] = $fArr['smsValue'];
 					}
-					elseif($fArr['smsKey'] == 'fate_date'){
-						if($fArr['smsValue']){
-							$dateStr = $this->formatDate($fArr['smsValue']);
-							if($sampleArr['collectDate']){
-								if($dateStr != $sampleArr['collectDate']){
-									$this->errorStr = 'collectDate failed to validate ('.$dateStr.' != '.$sampleArr['collectDate'].')';
-									$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-									//return false;
-								}
-							}
-							else{
-								$sampleArr['collectDate'] = $dateStr;
-							}
-						}
+					/*
+					 elseif($fArr['smsKey'] == 'fate_date'){
+						 if($fArr['smsValue']){
+							 $viewArr['collectDate'] = $this->formatDate($fArr['smsValue']);
+						 }
 					}
+					*/
 				}
 				break;
 			}
 		}
-		return true;
-	}
 
-	private function getSampleViews($url,$samplePK){
-		$viewArr = $this->getNeonApiArr($url);
-		if(!isset($viewArr['sampleViews'])){
-			$this->errorStr = 'no sampleViews exist';
-			$this->setSampleErrorMessage($samplePK, $this->errorStr);
-			return false;
+		//Get parent identifier
+		if(isset($viewArr['parentSampleIdentifiers'][0]['sampleUuid'])){
+			$viewArr['parentID'] = $viewArr['parentSampleIdentifiers'][0]['sampleUuid'];
 		}
-		if(count($viewArr['sampleViews']) > 1){
-			$this->errorStr = 'multiple sampleViews exists';
-			$this->setSampleErrorMessage($samplePK, $this->errorStr);
-			return false;
-		}
-		return current($viewArr['sampleViews']);
+
+		return $viewArr;
 		/*
 		Array (
 			[sampleViews] => Array (
@@ -226,10 +257,17 @@ class OccurrenceHarvester{
 					else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
 				}
 
+				//Special case for Mosquito samples
+				if($sampleArr['sampleClass'] == 'mos_identification_in.individualIDList'){
+					if(isset($sampleArr['parentID'])){
+						$this->resetMosquitoNamedLocation($sampleArr);
+					}
+				}
+
 				//Build proper location code
 				if(!$this->setNeonLocationData($dwcArr, $sampleArr['namedLocation'])){
 					$this->setSampleErrorMessage($sampleArr['samplePK'], 'locatity data failed to populate');
-					return false;
+					//return false;
 				}
 
 				$dwcArr['sciname'] = $sampleArr['taxonID'];
@@ -244,49 +282,6 @@ class OccurrenceHarvester{
 		return $dwcArr;
 	}
 
-	private function loadOccurrenceRecord($dwcArr, $samplePK, $occid){
-		if($dwcArr){
-			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters');
-			$sql = '';
-			if($occid){
-				foreach($dwcArr as $fieldName => $fieldValue){
-					if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
-
-					}
-					else{
-						$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
-					}
-				}
-				$sql = 'UPDATE omoccurrences SET '.substr($sql, 1).' WHERE (occid = '.$occid.')';
-			}
-			else{
-				$sql1 = ''; $sql2 = '';
-				foreach($dwcArr as $fieldName => $fieldValue){
-					$sql1 .= $fieldName.',';
-					if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
-						$sql2 .= $fieldValue.',';
-					}
-					else{
-						$sql2 .= '"'.$this->cleanInStr($fieldValue).'",';
-					}
-				}
-				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').') VALUES('.trim($sql2,',').')';
-			}
-			//echo '<br/>'.$sql.'<br/>';
-			if($this->conn->query($sql)){
-				if(!$occid){
-					$occid = $this->conn->insert_id;
-					if($occid) $this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
-				}
-			}
-			else{
-				$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
-				return false;
-			}
-		}
-		return $occid;
-	}
-
 	private function setCollectionIdentifier(&$dwcArr,$sampleClass){
 		$status = false;
 		$sql = 'SELECT collid FROM omcollections WHERE (collectionID = "'.$sampleClass.'")';
@@ -299,13 +294,36 @@ class OccurrenceHarvester{
 		return $status;
 	}
 
+	private function resetMosquitoNamedLocation(&$sampleArr){
+		$parentID = $sampleArr['parentID'];
+		$url = 'https://data.neonscience.org/api/v0/samples/view?sampleUuid=';
+		do{
+			$urlActive = $url.$parentID;
+			$parentID = '';
+			$viewArr = $this->getSampleApiData($urlActive);
+			if(isset($viewArr['sampleClass'])){
+				if($viewArr['sampleClass'] == 'mos_sorting_in.subsampleID'){
+					if(isset($viewArr['parentID'])) $parentID = $viewArr['parentID'];
+				}
+				elseif($viewArr['sampleClass'] == 'mos_trapping_in.sampleID'){
+					if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
+						$sampleArr['namedLocation'] = $viewArr['namedLocation'];
+					}
+				}
+			}
+		}while($parentID);
+	}
+
 	private function setNeonLocationData(&$dwcArr, $locationName){
 		//https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
 		//echo 'loc name1: '.$locationName.'<br/>';
 		$url = 'https://data.neonscience.org/api/v0/locations/'.$locationName;
 		//echo 'url: '.$url.'<br/>';
 		$resultArr = $this->getNeonApiArr($url);
-		if(!$resultArr) return false;
+		if(!$resultArr){
+			$dwcArr['locality'] = $locationName;
+			return false;
+		}
 
 		//Extract DwC values
 		$locality = $this->getLocationParentStr($resultArr);
@@ -375,6 +393,49 @@ class OccurrenceHarvester{
 
 	}
 
+	private function loadOccurrenceRecord($dwcArr, $samplePK, $occid){
+		if($dwcArr){
+			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters');
+			$sql = '';
+			if($occid){
+				foreach($dwcArr as $fieldName => $fieldValue){
+					if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+
+					}
+					else{
+						$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
+					}
+				}
+				$sql = 'UPDATE omoccurrences SET '.substr($sql, 1).' WHERE (occid = '.$occid.')';
+			}
+			else{
+				$sql1 = ''; $sql2 = '';
+				foreach($dwcArr as $fieldName => $fieldValue){
+					$sql1 .= $fieldName.',';
+					if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+						$sql2 .= $fieldValue.',';
+					}
+					else{
+						$sql2 .= '"'.$this->cleanInStr($fieldValue).'",';
+					}
+				}
+				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').') VALUES('.trim($sql2,',').')';
+			}
+			//echo '<br/>'.$sql.'<br/>';
+			if($this->conn->query($sql)){
+				if(!$occid){
+					$occid = $this->conn->insert_id;
+					if($occid) $this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
+				}
+			}
+			else{
+				$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
+				return false;
+			}
+		}
+		return $occid;
+	}
+
 	private function getNeonApiArr($url){
 		$retArr = array();
 		//echo 'url: '.$url.'<br/>';
@@ -428,6 +489,15 @@ class OccurrenceHarvester{
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;
+			}
+			$sql = 'UPDATE omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid '.
+				'INNER JOIN taxa t ON o.sciname = t.sciname '.
+				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+				'SET o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
+				'WHERE (s.sampleClass = "mos_identification_in.individualIDList") AND (ts.taxauthid = 1) AND (o.scientificNameAuthorship IS NULL) AND (o.family IS NULL)';
+			//echo $sql;
+			if(!$this->conn->query($sql)){
+				echo 'ERROR updating taxonomy codes(2): '.$sql;
 			}
 		}
 	}

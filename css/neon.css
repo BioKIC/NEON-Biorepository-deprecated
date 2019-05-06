@@ -1,6 +1,35 @@
-/********* NEON BASE STYLES *********/
+******** NEON BASE STYLES *********/
 
-/* Copied from https://www.neonscience.org/sites/default/files/css/css_kWGmnsS9etGOdfyoXXTcLUUfgkwrRMIF3GKQODtFKH0.css */
+/* 
+Copied from 
+https://www.neonscience.org/sites/default/files/css/css_kWGmnsS9etGOdfyoXXTcLUUfgkwrRMIF3GKQODtFKH0.css
+
+Reorganized by Laura Rocha Prado,
+*/
+
+
+
+/******* TOC ********/
+/*
+1. GENERAL
+2. TYPOGRAPHY
+3. HEADER
+4. FOOTER
+*/
+
+/******* 1. GENERAL ********/
+html, input {
+  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif !important;
+}
+
+* html {
+  font-size: 100%;
+}
+
+body {
+  color: #444444;
+  margin: 0;
+}
 
 div.tree-child-last {
   background: url(/misc/tree-bottom.png) no-repeat 11px center;
@@ -54,14 +83,6 @@ footer,header,nav {
   display: none;
 }
 
-html,input {
-  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-}
-
-body {
-  margin: 0;
-}
-
 a:focus {
   outline: thin dotted;
 }
@@ -70,19 +91,8 @@ a:hover,a:active {
   outline: 0;
 }
 
-b {
-  font-weight: bold;
-}
-
-p {
-  margin: 0.375em 0;
-}
-
 menu {
   margin: 0.375em 0;
-}
-
-menu {
   padding: 0 0 0 2em;
 }
 
@@ -144,138 +154,12 @@ button::-moz-focus-inner,input::-moz-focus-inner {
   padding: 0;
 }
 
-* html {
-  font-size: 100%;
-}
-
-body {
-  color: #444444;
-}
-
 div,header,footer {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   *box-sizing: content-box;
   *behavior: url("/sites/all/themes/prototype/polyfills/boxsizing.htc");
-}
-
-.h1,h1 {
-  font-size: 36px;
-  font-size: 2.25rem;
-  line-height: 38px;
-  line-height: 2.375rem;
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 20px;
-  margin-bottom: 1.25rem;
-  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-  font-weight: 600;
-  color: #222222;
-}
-
-@media (min-width: 48em) {
-  .h1,  h1 {
-    font-size: 36px;
-    font-size: 2.25rem;
-    line-height: 38px;
-    line-height: 2.375rem;
-  }
-}
-
-.h2,h2 {
-  font-size: 27.2px;
-  font-size: 1.7rem;
-  line-height: 28px;
-  line-height: 1.75rem;
-  margin-top: 1em;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 20px;
-  margin-bottom: 1.25rem;
-  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-  font-weight: 600;
-}
-
-@media (min-width: 48em) {
-  .h2,  h2 {
-    font-size: 27.2px;
-    font-size: 1.7rem;
-    line-height: 28px;
-    line-height: 1.75rem;
-  }
-}
-
-.h3,h3 {
-  font-size: 24px;
-  font-size: 1.5rem;
-  line-height: 28px;
-  line-height: 1.75rem;
-  margin-top: 1em;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 20px;
-  margin-bottom: 1.25rem;
-  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-  font-weight: 600;
-}
-
-.h4,.block--secondary .block-title,h4 {
-  font-size: 24px;
-  font-size: 1.5rem;
-  line-height: 28px;
-  line-height: 1.75rem;
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 20px;
-  margin-bottom: 1.25rem;
-  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-  font-weight: 600;
-  color: gray;
-}
-
-.h5,h5 {
-  font-size: 16px;
-  font-size: 1rem;
-  line-height: 20px;
-  line-height: 1.25rem;
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 0;
-  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-  font-weight: 600;
-}
-
-.h6,h6 {
-  font-size: 15px;
-  font-size: 0.9375rem;
-  line-height: 18px;
-  line-height: 1.125rem;
-  letter-spacing: 1px;
-  letter-spacing: 0.0625rem;
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 0;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-a {
-  color: #005dab;
-  text-decoration: none;
-}
-
-a:hover {
-  color: #0f569e;
-  text-decoration: underline;
-}
-
-p {
-  margin: 0 0 0.75em;
 }
 
 img {
@@ -416,265 +300,6 @@ caption + thead tr:first-child th,caption + thead tr:first-child td,colgroup + t
   }
 }
 
-#footer {
-  *zoom: 1;
-  clear: both;
-  padding: 4em 0 3.75em;
-  background-color: white;
-}
-
-#footer:before,#footer:after {
-  content: " ";
-  display: table;
-}
-
-#footer:after {
-  clear: both;
-}
-
-@media (min-width: 37.5em) {
-  #footer .footer-top .footer-top-right .block-social-links .content .nav--social {
-    text-align: left;
-    padding: 0.2em 0.2em 0.5em 0.5em;
-  }
-}
-
-@media (min-width: 64em) {
-  #footer .footer-top .footer-top-right .block-social-links .content .nav--social > .nav-item:first-child {
-    display: inline-block;
-    vertical-align: middle;
-    *vertical-align: auto;
-    *zoom: 1;
-    *display: inline;
-    margin-bottom: 0;
-    margin-right: 0.4375em;
-    padding-bottom: 0;
-    border-bottom: 0;
-  }
-}
-
-#footer .branding-link {
-  display: block;
-  padding: 2.625em 0 1.6875em;
-  margin-bottom: 1.3125em;
-  border-top: 1px rgba(208,208,208,0.6) solid;
-  border-bottom: 1px rgba(208,208,208,0.6) solid;
-  text-align: center;
-}
-
-#footer .branding-link img {
-  max-width: 9.125em;
-}
-
-@media (min-width: 37.5em) {
-  #footer .branding-link {
-    display: block;
-    float: right;
-    width: 30%;
-    padding: 0.5625em 0;
-    border-top: 0;
-    border-bottom: 0;
-    margin-bottom: 0;
-    text-align: right;
-  }
-}
-
-@media (min-width: 48em) {
-  #footer .branding-link {
-    position: absolute;
-    width: 22%;
-    top: -1.125em;
-    right: 1em;
-    padding: 0;
-  }
-}
-
-@media (min-width: 64em) {
-  #footer .branding-link {
-    top: -0.75em;
-    width: 11.25em;
-  }
-
-  #footer .branding-link img {
-    max-width: 100%;
-  }
-}
-
-.nav--footer {
-  *zoom: 1;
-  padding: 0.5625em 0;
-  margin: 0;
-}
-
-.nav--footer:before,.nav--footer:after {
-  content: " ";
-  display: table;
-}
-
-.nav--footer:after {
-  clear: both;
-}
-
-@media (min-width: 37.5em) {
-  .nav--footer {
-    text-align: right;
-    padding-bottom: 0.125em;
-  }
-}
-
-@media (min-width: 48em) {
-  .nav--footer {
-    padding-right: 1.5em;
-    padding-left: 0.9375em;
-  }
-
-  .nav--footer:after {
-    content: "";
-    position: absolute;
-    top: -0.875em;
-    right: 0;
-    display: inline-block;
-    width: 18px;
-    height: 53px;
-    background: transparent url(https://www.neonscience.org/sites/all/themes/neon/img/icon/tower.png) no-repeat 0 0;
-  }
-}
-
-.nav--footer > .nav-item {
-  display: inline-block;
-  vertical-align: middle;
-  *vertical-align: auto;
-  *zoom: 1;
-  *display: inline;
-  margin: 0 0.3125em;
-  text-align: center;
-}
-
-.nav--footer > .nav-item .nav-link {
-  font-size: 0.75em;
-  line-height: 1.5em;
-  font-weight: 600;
-  color: #0073cf;
-}
-
-.nav--footer > .nav-item .nav-link:hover {
-  color: #0073cf;
-  text-decoration: none;
-}
-
-#header {
-  /*position: fixed;*/
-  text-align: center !important;
-  position: relative;
-  z-index: 2900;
-  top: 37px;
-  left: 0;
-  right: 0;
-}
-
-@media (min-width: 1025px) {
-  #header {
-    background: linear-gradient(to bottom,#006bcd 0%,#014089 100%);
-    border-top: 1px solid #004e9f;
-    border-bottom: none !important;
-    padding: 0;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    margin: 0;
-  }
-
-  #header .l--constrained > .header--home .branding-link,  #header .view-field-sites .view-empty p > .header--home .branding-link,  .view-field-sites .view-empty #header p > .header--home .branding-link,  #header .l--constrained > #branding .branding-link,  #header .view-field-sites .view-empty p > #branding .branding-link,  .view-field-sites .view-empty #header p > #branding .branding-link {
-    display: block;
-    width: 100%;
-    height: 50px;
-    cursor: default;
-  }
-
-  #header .l--constrained > #main-menu .depth--1,  #header .view-field-sites .view-empty p > #main-menu .depth--1,  .view-field-sites .view-empty #header p > #main-menu .depth--1 {
-    height: 67px;
-  }
-
-  #header #branding .branding-link {
-    display: block;
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo.svg);
-    /*background-image: url(/portal/images/layout/nsf-neon-logo.png);*/
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-  }
-
-  #header #branding .branding-link > img {
-    display: none;
-  }
-}
-
-@media (min-width: 1300px) {
-  #header .l--constrained > .header--home .branding-link,  #header .view-field-sites .view-empty p > .header--home .branding-link,  .view-field-sites .view-empty #header p > .header--home .branding-link,  #header .l--constrained > #branding .branding-link,  #header .view-field-sites .view-empty p > #branding .branding-link,  .view-field-sites .view-empty #header p > #branding .branding-link {
-    display: block;
-    width: 100%;
-    height: 70px;
-  }
-
-  #header .l--constrained > #main-menu .depth--1,  #header .view-field-sites .view-empty p > #main-menu .depth--1,  .view-field-sites .view-empty #header p > #main-menu .depth--1 {
-    height: 79px;
-  }
-}
-
-#header {
-  z-index: 2900;
-}
-
-@media (max-width: 1024px) {
-  #header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 0.6875em 0 0;
-    border-top: 2px solid #005dab;
-    border-bottom: 1px solid rgba(208,208,208,0.6);
-    box-shadow: 0 0 15px 0 rgba(0,0,0,0.25);
-    background: white;
-  }
-
-  .front #header #branding .branding-link {
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo-mobile.svg);
-  }
-}
-
-@media (min-width: 37.5em) {
-  #header {
-    padding-top: 1.125em;
-  }
-}
-
-@media (max-width: 1024px) {
-  #branding .branding-link {
-    display: block;
-    position: relative;
-    top: 1px;
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo-mobile-dark.svg);
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    width: 90px;
-    height: 30px;
-  }
-}
-
-@media (min-width: 37.5em) {
-  #branding .branding-link {
-    width: 120px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 1024px) {
-  #header {
-    top: 30px;
-  }
-}
-
 #main {
   *zoom: 1;
   background-color: white;
@@ -696,7 +321,7 @@ caption + thead tr:first-child th,caption + thead tr:first-child td,colgroup + t
   }
 }
 
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   #main {
     padding-top: 105px;
   }
@@ -3431,3 +3056,414 @@ body.node-type-update #content .field-update-related-content .field--item > .nod
   color: black;
   font-size: 16px;
 }
+/******* END OF GENERAL ********/
+
+/******* 2. TYPOGRAPHY ********/
+.h1,h1 {
+  font-size: 36px;
+  font-size: 2.25rem;
+  line-height: 38px;
+  line-height: 2.375rem;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
+  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
+  font-weight: 600;
+  color: #222222;
+}
+
+@media (min-width: 48em) {
+  .h1,  h1 {
+    font-size: 36px;
+    font-size: 2.25rem;
+    line-height: 38px;
+    line-height: 2.375rem;
+  }
+}
+
+.h2,h2 {
+  font-size: 27.2px;
+  font-size: 1.7rem;
+  line-height: 28px;
+  line-height: 1.75rem;
+  margin-top: 1em;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
+  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
+  font-weight: 600;
+}
+
+@media (min-width: 48em) {
+  .h2,  h2 {
+    font-size: 27.2px;
+    font-size: 1.7rem;
+    line-height: 28px;
+    line-height: 1.75rem;
+  }
+}
+
+.h3,h3 {
+  font-size: 24px;
+  font-size: 1.5rem;
+  line-height: 28px;
+  line-height: 1.75rem;
+  margin-top: 1em;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
+  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
+  font-weight: 600;
+}
+
+.h4,.block--secondary .block-title,h4 {
+  font-size: 24px;
+  font-size: 1.5rem;
+  line-height: 28px;
+  line-height: 1.75rem;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
+  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
+  font-weight: 600;
+  color: gray;
+}
+
+.h5,h5 {
+  font-size: 16px;
+  font-size: 1rem;
+  line-height: 20px;
+  line-height: 1.25rem;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
+  font-weight: 600;
+}
+
+.h6,h6 {
+  font-size: 15px;
+  font-size: 0.9375rem;
+  line-height: 18px;
+  line-height: 1.125rem;
+  letter-spacing: 1px;
+  letter-spacing: 0.0625rem;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+b {
+  font-weight: bold;
+}
+
+p {
+  margin: 0.375em 0;
+}
+
+a {
+  color: #005dab;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #0f569e;
+  text-decoration: underline;
+}
+/******* END OF TYPOGRAPHY ********/
+
+
+/******* 3. HEADER ********/
+#header {
+  /*position: fixed;*/
+  text-align: center !important;
+  position: relative;
+  z-index: 2900;
+  top: 37px;
+  left: 0;
+  right: 0;
+}
+
+/* Medium screens */
+@media (min-width: 426px) and (max-width: 1024px) {
+  #header #branding .branding-link {
+    display: block;
+    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo.svg);
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+    #header #branding .branding-link > img {
+    display: none;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1025px) {
+  #header {
+    background: linear-gradient(to bottom,#006bcd 0%,#014089 100%);
+    border-top: 1px solid #004e9f;
+    border-bottom: none !important;
+    padding: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin: 0;
+  }
+
+  #header .l--constrained > .header--home .branding-link,  #header .view-field-sites .view-empty p > .header--home .branding-link,  .view-field-sites .view-empty #header p > .header--home .branding-link,  #header .l--constrained > #branding .branding-link,  #header .view-field-sites .view-empty p > #branding .branding-link,  .view-field-sites .view-empty #header p > #branding .branding-link {
+    display: block;
+    width: 100%;
+    height: 50px;
+    cursor: default;
+  }
+
+  #header .l--constrained > #main-menu .depth--1,  #header .view-field-sites .view-empty p > #main-menu .depth--1,  .view-field-sites .view-empty #header p > #main-menu .depth--1 {
+    height: 67px;
+  }
+
+  #header #branding .branding-link {
+    display: block;
+    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo.svg);
+    /*background-image: url(/portal/images/layout/nsf-neon-logo.png);*/
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+
+  #header #branding .branding-link > img {
+    display: none;
+  }
+}
+
+@media (min-width: 1300px) {
+  #header .l--constrained > .header--home .branding-link,  #header .view-field-sites .view-empty p > .header--home .branding-link,  .view-field-sites .view-empty #header p > .header--home .branding-link,  #header .l--constrained > #branding .branding-link,  #header .view-field-sites .view-empty p > #branding .branding-link,  .view-field-sites .view-empty #header p > #branding .branding-link {
+    display: block;
+    width: 100%;
+    height: 70px;
+  }
+
+  #header .l--constrained > #main-menu .depth--1,  #header .view-field-sites .view-empty p > #main-menu .depth--1,  .view-field-sites .view-empty #header p > #main-menu .depth--1 {
+    height: 79px;
+  }
+}
+
+#header {
+  z-index: 2900;
+}
+
+/* Medium and Small screens */
+@media (max-width: 1024px) {
+  #header {
+    top: 0;
+    padding: 0.6875em 0 0;
+    border-top: 2px solid #005dab;
+    border-bottom: 1px solid rgba(208,208,208,0.6);
+    box-shadow: 0 0 15px 0 rgba(0,0,0,0.25);
+    background: linear-gradient(to bottom,#006bcd 0%,#014089 100%);
+  }
+
+  .front #header #branding .branding-link {
+    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo-mobile.svg);
+  }
+}
+
+@media (min-width: 37.5em) {
+  #header {
+    padding-top: 1.125em;
+  }
+}
+
+@media (min-width: 426px) and (max-width: 1024px) {
+  #branding .branding-link {
+    display: block;
+    position: relative;
+    top: 1px;
+    width: 90px;
+    height: 30px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 425px) {
+  #biorepo-header li {
+    display: block;
+  }
+
+  #branding .branding-link, img {
+    display: block;
+    position: relative;
+    top: 1px;
+    width: 80%;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 426px) {
+/*  #header {
+    top: 30px;
+  }*/
+  #branding .branding-link {
+    width: 120px;
+    height: 40px;
+  }
+}
+
+/******* END OF HEADER ********/
+
+/******* 4. FOOTER ********/
+#footer {
+  *zoom: 1;
+  clear: both;
+  padding: 4em 0 3.75em;
+  background-color: white;
+}
+
+#footer:before,#footer:after {
+  content: " ";
+  display: table;
+}
+
+#footer:after {
+  clear: both;
+}
+
+@media (min-width: 37.5em) {
+  #footer .footer-top .footer-top-right .block-social-links .content .nav--social {
+    text-align: left;
+    padding: 0.2em 0.2em 0.5em 0.5em;
+  }
+}
+
+@media (min-width: 64em) {
+  #footer .footer-top .footer-top-right .block-social-links .content .nav--social > .nav-item:first-child {
+    display: inline-block;
+    vertical-align: middle;
+    *vertical-align: auto;
+    *zoom: 1;
+    *display: inline;
+    margin-bottom: 0;
+    margin-right: 0.4375em;
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+#footer .branding-link {
+  display: block;
+  padding: 2.625em 0 1.6875em;
+  margin-bottom: 1.3125em;
+  border-top: 1px rgba(208,208,208,0.6) solid;
+  border-bottom: 1px rgba(208,208,208,0.6) solid;
+  text-align: center;
+}
+
+#footer .branding-link img {
+  max-width: 9.125em;
+}
+
+@media (min-width: 37.5em) {
+  #footer .branding-link {
+    display: block;
+    float: right;
+    width: 30%;
+    padding: 0.5625em 0;
+    border-top: 0;
+    border-bottom: 0;
+    margin-bottom: 0;
+    text-align: right;
+  }
+}
+
+@media (min-width: 48em) {
+  #footer .branding-link {
+    position: absolute;
+    width: 22%;
+    top: -1.125em;
+    right: 1em;
+    padding: 0;
+  }
+}
+
+@media (min-width: 64em) {
+  #footer .branding-link {
+    top: -0.75em;
+    width: 11.25em;
+  }
+
+  #footer .branding-link img {
+    max-width: 100%;
+  }
+}
+
+.nav--footer {
+  *zoom: 1;
+  padding: 0.5625em 0;
+  margin: 0;
+}
+
+.nav--footer:before,.nav--footer:after {
+  content: " ";
+  display: table;
+}
+
+.nav--footer:after {
+  clear: both;
+}
+
+@media (min-width: 37.5em) {
+  .nav--footer {
+    text-align: right;
+    padding-bottom: 0.125em;
+  }
+}
+
+@media (min-width: 48em) {
+  .nav--footer {
+    padding-right: 1.5em;
+    padding-left: 0.9375em;
+  }
+
+  .nav--footer:after {
+    content: "";
+    position: absolute;
+    top: -0.875em;
+    right: 0;
+    display: inline-block;
+    width: 18px;
+    height: 53px;
+    background: transparent url(https://www.neonscience.org/sites/all/themes/neon/img/icon/tower.png) no-repeat 0 0;
+  }
+}
+
+.nav--footer > .nav-item {
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  *zoom: 1;
+  *display: inline;
+  margin: 0 0.3125em;
+  text-align: center;
+}
+
+.nav--footer > .nav-item .nav-link {
+  font-size: 0.75em;
+  line-height: 1.5em;
+  font-weight: 600;
+  color: #0073cf;
+}
+
+.nav--footer > .nav-item .nav-link:hover {
+  color: #0073cf;
+  text-decoration: none;
+}
+/******* END OF FOOTER *******

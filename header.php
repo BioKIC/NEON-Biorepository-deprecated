@@ -34,7 +34,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 				<!-- Main Site Logo -->
 				<li id="branding">
 					<!-- NSF/Neon logo -->
-					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo-homepage.png" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
+					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
 				</li>
 				<li class="header-title"><h1>Biorepository Data Portal</h1></li>
 			</ul>

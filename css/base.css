@@ -11,7 +11,7 @@ body{
 /*Main table framework*/
 #maintable {
 	border-spacing: 0px;
-	height: 500px;
+	height:	500px;
 }
 
 #maintable td{
@@ -104,8 +104,8 @@ div.tnimg img{
 	position: absolute;
 	max-height: 160px;
 	max-width: 160px;
-	width: 		expression(this.width >= this.height ? 160: true);
-	height:		expression(this.height >= this.width ? 160: true);
+	width: 	expression(this.width >= this.height ? 160: true);
+	height:	expression(this.height >= this.width ? 160: true);
 	top: -9999px;
 	bottom: -9999px;
 	left: -9999px;

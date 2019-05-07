@@ -3,6 +3,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 ?>
 <!-- CSS -->
 <!-- <link href="https://fonts.googleapis.com/css?family=EB+Garamond|Playfair+Display+SC" rel="stylesheet" /> -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700" rel="stylesheet" type="text/css">
 <link href="<?php echo $CLIENT_ROOT; ?>/css/neon.css" type="text/css" rel="Stylesheet" />
 <script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/base.js?ver=171023"></script>
@@ -34,7 +35,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 				<!-- Main Site Logo -->
 				<li id="branding">
 					<!-- NSF/Neon logo -->
-					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo-homepage.png" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
+					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
 				</li>
 				<li class="header-title"><h1>Biorepository Data Portal</h1></li>
 			</ul>

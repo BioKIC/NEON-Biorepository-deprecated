@@ -5,6 +5,7 @@ html{
 	font-size: 14px;
 	font-weight: 400;
 	line-height: 1.5em;
+	font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
 }
 
 body{
@@ -32,6 +33,17 @@ ul#biorepo-header {
 	max-width: 100%;
     padding: 5rem 0 4rem 0;
     margin: 0 auto;
+}
+
+@media (max-width: 425px) {
+	ul#biorepo-header {
+	    position: relative;
+	    list-style: none;
+	    text-align: center;
+	    max-width: 100%;
+	    padding: 1rem 0;
+	    margin: 0 auto;
+	}
 }
 
 ul#biorepo-header::before {
@@ -194,13 +206,52 @@ div.navpath {
 	width: 90%
 }
 
-#innertext{
+#innertext {
 	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-	margin-left: auto;
-	margin-right: auto;
-	min-width: 1000px;
-	max-width: 1150px;
-	width: 90%
+
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+	#innertext{
+		margin-left: auto;
+		margin-right: auto;
+		min-width: 1000px;
+		max-width: 1150px;
+		width: 90%
+	}
+	#home-left {
+		max-width: 70%; 
+		float: left;
+	}
+	#home-right {
+		max-width: 30%; 
+		float: right;
+	}
+}
+
+/* Medium screens */
+@media (min-width: 426px) and (max-width: 1023px) {
+	#innertext {
+		max-width: 96%;
+	}
+	#home-left {
+		max-width: 60%;
+		float: left;
+		padding-left: 1rem;
+	}
+	#home-right {
+		max-width: 40%;
+		float: right;
+	}
+}
+
+/* Smaller screens */
+@media (max-width: 425px) {
+	#innertext {
+		max-width: 95%;
+	}
+
 }
 
 /* Image thumbnails   */

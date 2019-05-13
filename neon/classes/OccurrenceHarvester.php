@@ -493,10 +493,9 @@ class OccurrenceHarvester{
 				'INNER JOIN taxa t ON l.tid = t.tid '.
 				'INNER JOIN taxaenumtree e2 ON t.tid = e2.tid '.
 				'INNER JOIN taxa t2 ON e2.parenttid = t2.tid '.
-				'LEFT JOIN taxaenumtree e3 ON t.tid = e3.tid '.
-				'LEFT JOIN taxa t3 ON e3.parenttid = t3.tid '.
-				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = t3.sciname '.
-				'WHERE e2.taxauthid = 1 AND e3.taxauthid = 1 AND t2.rankid = 10 AND t3.rankid = 140 AND cat.notes = t2.sciname AND (o.occid IN('.(implode(',',$occidArr)).'))';
+				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
+				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid = 10 AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL AND (o.occid IN('.(implode(',',$occidArr)).')) ';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;

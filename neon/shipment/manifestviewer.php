@@ -117,11 +117,11 @@ if($isEditor){
 		function checkinSample(f){
 			if(f.acceptedForAnalysis.value == 0){
 				if(f.sampleCondition.value == "ok"){
-					alert("Sample Condition cannot be OK if sample is Not Accepted for Analysis");
+					alert("Sample Condition cannot be OK when sample is tagged as Not Accepted for Analysis");
 					return false;
 				}
 				else if(f.sampleCondition.value == ""){
-					alert("Enter a Sample Condition");
+					alert("Sample Condition required when sample is tagged as Not Accepted for Analysis");
 					return false;
 				}
 			}
@@ -141,7 +141,7 @@ if($isEditor){
 					else if(retJson.status == 1){
 						$("#checkinText").css('color', 'green');
 						$("#checkinText").text('success!!!');
-						$("#scSpan-"+retJson.samplePK).html("checked-in");
+						$("#scSpan-"+retJson.samplePK).html("checked in");
 						f.identifier.value = "";
 						f.acceptedForAnalysis.value = 1;
 						f.sampleCondition.value = "ok";
@@ -150,7 +150,7 @@ if($isEditor){
 					}
 					else if(retJson.status == 2){
 						$("#checkinText").css('color', 'orange');
-						$("#checkinText").text('sample already checked-in!');
+						$("#checkinText").text('sample already checked in!');
 					}
 					else if(retJson.status == 3){
 						$("#checkinText").css('color', 'red');
@@ -305,7 +305,7 @@ include($SERVER_ROOT.'/header.php');
 							</form>
 						</div>
 						<div style="margin-left:15px">
-							<div class="displayFieldDiv"><b>Not checked-in:</b> <?php echo $sampleCntArr[0]; ?></div>
+							<div class="displayFieldDiv"><b>Not Checked In:</b> <?php echo $sampleCntArr[0]; ?></div>
 							<div class="displayFieldDiv"><b>Missing Occurrence Link:</b> <?php echo $sampleCntArr[1]; ?></div>
 						</div>
 						<?php
@@ -327,7 +327,7 @@ include($SERVER_ROOT.'/header.php');
 											<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
 										</div>
 										<div class="displayFieldDiv">
-											<b>Sample condition:</b>
+											<b>Sample Condition:</b>
 											<select name="sampleCondition">
 												<option value="">Not Set</option>
 												<option value="">--------------------------------</option>
@@ -364,9 +364,9 @@ include($SERVER_ROOT.'/header.php');
 								<?php
 								$deliveryArr = $shipManager->getDeliveryArr();
 								?>
-								<div><b>Received by:</b> <input name="receivedBy" type="text" value="<?php echo (isset($deliveryArr['receivedBy'])?$deliveryArr['receivedBy']:''); ?>" required /></div>
+								<div><b>Received By:</b> <input name="receivedBy" type="text" value="<?php echo (isset($deliveryArr['receivedBy'])?$deliveryArr['receivedBy']:''); ?>" required /></div>
 								<div>
-									<b>Delivery date:</b>
+									<b>Delivery Date:</b>
 									<input name="receivedDate" type="date" value="<?php echo (isset($deliveryArr['receivedDate'])?$deliveryArr['receivedDate']:''); ?>" required />
 									<input name="receivedTime" type="time" value="<?php echo (isset($deliveryArr['receivedTime'])?$deliveryArr['receivedTime']:''); ?>" />
 								</div>
@@ -394,7 +394,7 @@ include($SERVER_ROOT.'/header.php');
 								Display:
 								<select name="sampleFilter" onchange="this.form.submit()">
 									<option value="">All Records</option>
-									<option value="notCheckedIn" <?php echo ($sampleFilter=='notCheckedIn'?'SELECTED':''); ?>>Not Checked-in</option>
+									<option value="notCheckedIn" <?php echo ($sampleFilter=='notCheckedIn'?'SELECTED':''); ?>>Not Checked In</option>
 									<option value="notAccepted" <?php echo ($sampleFilter=='notAccepted'?'SELECTED':''); ?>>Not Accepted for Analysis</option>
 									<option value="altIds" <?php echo ($sampleFilter=='altIds'?'SELECTED':''); ?>>Has Alternative IDs</option>
 								</select>
@@ -492,7 +492,7 @@ include($SERVER_ROOT.'/header.php');
 												<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
 											</div>
 											<div class="displayFieldDiv">
-												<b>Sample condition:</b>
+												<b>Sample Condition:</b>
 												<select name="sampleCondition">
 													<option value="">Not Set</option>
 													<option value="">--------------------------------</option>
@@ -530,11 +530,11 @@ include($SERVER_ROOT.'/header.php');
 										if($statusArr) $receiptStatus = $statusArr[0];
 										?>
 										<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
-										<b>Status not set</b><br/>
+										<b>Status Not Set</b><br/>
 										<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
-										<b>Receipt downloaded</b><br/>
+										<b>Receipt Downloaded</b><br/>
 										<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
-										<b>Receipt submitted to NEON</b>
+										<b>Receipt Submitted to NEON</b>
 										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 										<input name="action" type="hidden" value="receiptsubmitted" />
 									</form>

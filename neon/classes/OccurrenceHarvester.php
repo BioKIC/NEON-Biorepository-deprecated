@@ -481,11 +481,21 @@ class OccurrenceHarvester{
 
 	private function setNeonTaxonomy($occidArr){
 		if($occidArr){
-			$sql = 'UPDATE omoccurrences o INNER JOIN taxaresourcelinks r ON o.sciname = r.sourceidentifier '.
+			/* $sql = 'UPDATE omoccurrences o INNER JOIN taxaresourcelinks r ON o.sciname = r.sourceidentifier '.
 				'INNER JOIN taxa t ON r.tid = t.tid '.
 				'INNER JOIN taxstatus ts ON ts.tid = ts.tid '.
 				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
 				'WHERE (ts.taxauthid = 1) AND (o.occid IN('.(implode(',',$occidArr)).'))';
+				*/
+			$sql = 'UPDATE taxaresourcelinks l INNER JOIN omoccurrences o ON l.sourceIdentifier = o.sciname '.
+				'INNER JOIN omcollcatlink catlink ON o.collid = catlink.collid '.
+				'INNER JOIN omcollcategories cat ON catlink.ccpk = cat.ccpk '.
+				'INNER JOIN taxa t ON l.tid = t.tid '.
+				'INNER JOIN taxaenumtree e2 ON t.tid = e2.tid '.
+				'INNER JOIN taxa t2 ON e2.parenttid = t2.tid '.
+				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
+				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid = 10 AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL AND (o.occid IN('.(implode(',',$occidArr)).')) ';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;

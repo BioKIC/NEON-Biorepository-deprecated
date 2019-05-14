@@ -38,13 +38,14 @@ if($isEditor){
 		<fieldset style="padding:10px;">
 			<legend><b>Shipment Management Tools</b></legend>
 			<ul>
-				<li><a href="shipment/manifestloader.php">Load and Process New Manifests</a></li>
-				<li><a href="shipment/manifestsearch.php">Search and list Manifests</a></li>
 				<li>Quick search:
 					<form name="sampleQuickSearchFrom" action="shipment/manifestviewer.php" method="post" style="display: inline" >
 						<input name="quicksearch" type="text" value="" onchange="this.form.submit()" style="width:250px;" />
 					</form>
 				</li>
+				<li><a href="shipment/manifestloader.php">Load and Process New Manifests</a></li>
+				<li><a href="shipment/samplecheckin.php">Sample Check-in Form</a></li>
+				<li><a href="shipment/manifestsearch.php">Manifest Listing and Advanced Search</a></li>
 			</ul>
 		</fieldset>
 	</div>

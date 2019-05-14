@@ -562,7 +562,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					}
 					?>
 				</div>
-				<div id="taxa-container">
+				<div id="img-container">
 					<div style="margin:3px;">
 						<?php
 						echo '<b>'.$LANG['FAMILIES'].'</b>: ';

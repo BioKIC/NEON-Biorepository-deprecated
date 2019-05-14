@@ -233,8 +233,8 @@ div.navpath {
 	#checklist-container {
 		max-width: 20%;
 	}
-	#taxon-container {
-		max-width: 80%;
+	#img-container {
+		width: 80%;
 	}
 
 }

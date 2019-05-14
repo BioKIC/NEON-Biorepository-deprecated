@@ -230,8 +230,8 @@ div.navpath {
 		max-width: 30%; 
 		float: right;
 	}
-	#checklist-container {
-		max-width: 20%;
+	#cloptiondiv {
+		max-width: 20% !important;
 	}
 	#img-container {
 		width: 80%;
@@ -253,8 +253,8 @@ div.navpath {
 		max-width: 40%;
 		float: right;
 	}
-	#checklist-container {
-		max-width: 15%;
+	#cloptiondiv {
+		max-width: 15% !important;
 	}
 	#taxon-container {
 		max-width: 75%;

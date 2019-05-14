@@ -3,6 +3,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 ?>
 <!-- CSS -->
 <!-- <link href="https://fonts.googleapis.com/css?family=EB+Garamond|Playfair+Display+SC" rel="stylesheet" /> -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700" rel="stylesheet" type="text/css">
 <link href="<?php echo $CLIENT_ROOT; ?>/css/neon.css" type="text/css" rel="Stylesheet" />
 <script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/base.js?ver=171023"></script>
@@ -22,7 +23,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 						<li class="first leaf nav-item depth--1"><a href="https://biorepo.neonscience.org/portal/" title="NEON Biorepository at Arizona State University" class="nav-link active">Biorepository</a></li>
 						<li class="last leaf nav-item depth--1"><a href="https://www.neonscience.org/" class="nav-link" title="NEON Science Main Portal">Neon Science</a></li>
 						<li class="last leaf nav-item depth--1"><a href="https://data.neonscience.org/home" title="NEON Data Portal" class="nav-link">Data Portal</a></li>
-	
+
 					</ul>
 				</div>
 			</div>
@@ -34,7 +35,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 				<!-- Main Site Logo -->
 				<li id="branding">
 					<!-- NSF/Neon logo -->
-					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo-homepage.png" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
+					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
 				</li>
 				<li class="header-title"><h1>Biorepository Data Portal</h1></li>
 			</ul>
@@ -106,10 +107,16 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 						<a href="#" >Management Tools</a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php">Manifest Submission</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/index.php">Quick Search &amp; Tool Index</a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestsearch.php">Manifest Browse &amp; Search</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php">Manifest Submission</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/samplecheckin.php">Sample Check-in Form</a>
 							</li>
 						</ul>
 					</li>

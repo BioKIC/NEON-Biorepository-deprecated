@@ -29,14 +29,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<!-- This is inner text! -->
 	<div  id="innertext">
 		<!-- Intro -->
-		<div id="home-left" style="max-width: 70%; float: left">
+		<div id="home-left">
 			<h2>Welcome to the NEON Biorepository Data Portal</h2>
 			<p>The National Ecological Observatory Network - NEON Biodiversity Data Portal is being developed to provide innovative access and discoverability to the entirety of NEON’s sample-based data products; including nearly 40 vertebrate, invertebrate, plant, microbial, and environmental sample collections. The majority of these samples are physically housed at the Arizona State University Biocollections, located in Tempe, Arizona.</p>
 			<p>The portal is being designed to allow current and prospective NEON researchers to interactively explore and understand sample availability and suitability for focal research interests, to initiate research sample loan requests, and to contribute and publish value-added sample data both directly in the portal and through emerging integration services with external data publishers.</p>
 			<p>The NEON Biorepository Data Portal is offered through the Symbiota software platform, and informationally synchronized with the main NEON Data Portal which serves the full spectrum of NEON data products. To learn more about the features and capabilities available through Symbiota, visit the Symbiota Help Pages. Join the portal as a regular visitor or contributor, and direct feedback or inquiries to <a href="mailto:BioRepo@asu.edu">BioRepo@asu.edu</a>. Visit the <a href="#">Data Usage Policy</a> page for information on how to cite data obtained from the NEON Biorepository Data Portal. Please consult the Sample Use Policy to initiate inquiries about sample accessibility and loans.</p>
 			<p style="display:none;">The NEON Biorepository Data Portal currently serves over xxx samples and xxx individual occurrence records; corresponding to xxx species, and xxx images (April 15, 2019).</p>
 		</div>
-		<div id="home-right" style="max-width: 30%; float: right">
+		<div id="home-right">
 			<!-- Quick search -->
 			<div id="quicksearchdiv" >
 				<!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
@@ -68,7 +68,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			$gameManager = new GamesManager();
 			$gameInfo = $gameManager->setOOTD($oodID,$ootdGameChecklist);
 			?>
-			<div style="float:right;margin-right:10px;width:290px;text-align:center;">
+			<div>
 				<div style="font-size:130%;font-weight:bold;">
 					<?php echo $ootdGameTitle; ?>
 				</div>

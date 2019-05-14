@@ -24,6 +24,16 @@ if($IS_ADMIN){
 		<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			function checkinSample(f){
+				if(f.acceptedForAnalysis.value == 0){
+					if(f.sampleCondition.value == "ok"){
+						alert("Sample Condition cannot be OK when sample is tagged as Not Accepted for Analysis");
+						return false;
+					}
+					else if(f.sampleCondition.value == ""){
+						alert("Sample Condition required when sample is tagged as Not Accepted for Analysis");
+						return false;
+					}
+				}
 				var sampleIdentifier = f.identifier.value.trim();
 				if(sampleIdentifier != ""){
 					$.ajax({
@@ -40,16 +50,17 @@ if($IS_ADMIN){
 						else if(retJson.status == 1){
 							$("#checkinText").css('color', 'green');
 							$("#checkinText").text('success!!!');
-							$("#scSpan-"+retJson.samplePK).html("checked-in");
+							$("#scSpan-"+retJson.samplePK).html("checked in");
 							f.identifier.value = "";
 							f.acceptedForAnalysis.value = 1;
-							f.sampleCondition.value = "";
+							f.sampleCondition.value = "ok";
 							f.alternativeSampleID.value = "";
 							f.checkinRemarks.value = "";
+							addToSuccessList(sampleIdentifier);
 						}
 						else if(retJson.status == 2){
 							$("#checkinText").css('color', 'orange');
-							$("#checkinText").text('sample already checked-in!');
+							$("#checkinText").text('sample already checked in!');
 						}
 						else if(retJson.status == 3){
 							$("#checkinText").css('color', 'red');
@@ -67,7 +78,23 @@ if($IS_ADMIN){
 					});
 				}
 			}
+//			$this->errorStr = 'Sample already exists with sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].
+//			'" target="_blank" onclick="window.close()">'.$recArr['sampleid'].'</a>';
 
+			function addToSuccessList(identifierStr){
+				var newAnchor = document.createElement('a');
+				newAnchor.setAttribute("href", "manifestviewer.php?quicksearch="+identifierStr);
+				newAnchor.setAttribute("target", "_blank");
+				var newText = document.createTextNode(identifierStr);
+				newAnchor.appendChild(newText);
+
+				var newDiv = document.createElement('div');
+				newDiv.setAttribute("id", identifierStr+"Div");
+				newDiv.appendChild(newAnchor);
+
+				var listElem = document.getElementById("samplelistdiv");
+				listElem.insertBefore(newDiv,listElem.childNodes[0]);
+			}
 		</script>
 	</head>
 	<body>
@@ -78,7 +105,6 @@ if($IS_ADMIN){
 		<div class="navpath">
 			<a href="../../index.php">Home</a> &gt;&gt;
 			<a href="../index.php">NEON Biorepository Tools</a> &gt;&gt;
-			<a href="manifestsearch.php">Manifest Search</a> &gt;&gt;
 			<b>Sample Check-in</b>
 		</div>
 		<div id="innertext">
@@ -86,7 +112,7 @@ if($IS_ADMIN){
 			if($isEditor){
 				?>
 				<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:0px;right:200px">
-					<fieldset style="padding:10px;width:500px">
+					<fieldset style="padding:15px;width:600px">
 						<legend><b>Sample Check-in</b></legend>
 						<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
 							<div class="displayFieldDiv">
@@ -99,7 +125,7 @@ if($IS_ADMIN){
 								<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
 							</div>
 							<div class="displayFieldDiv">
-								<b>Sample condition:</b>
+								<b>Sample Condition:</b>
 								<select name="sampleCondition">
 									<option value="">Not Set</option>
 									<option value="">--------------------------------</option>
@@ -121,9 +147,10 @@ if($IS_ADMIN){
 						</form>
 					</fieldset>
 				</div>
-				<div id="">
-
-				</div>
+				<fieldset style="padding:15px;width:600px">
+					<legend><b>Samples Checked In</b></legend>
+					<div id="samplelistdiv"></div>
+				</fieldset>
 				<?php
 			}
 			?>

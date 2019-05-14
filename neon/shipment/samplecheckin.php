@@ -105,7 +105,6 @@ if($IS_ADMIN){
 		<div class="navpath">
 			<a href="../../index.php">Home</a> &gt;&gt;
 			<a href="../index.php">NEON Biorepository Tools</a> &gt;&gt;
-			<a href="manifestsearch.php">Manifest Search</a> &gt;&gt;
 			<b>Sample Check-in</b>
 		</div>
 		<div id="innertext">

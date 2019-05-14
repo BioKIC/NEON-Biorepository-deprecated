@@ -23,7 +23,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 						<li class="first leaf nav-item depth--1"><a href="https://biorepo.neonscience.org/portal/" title="NEON Biorepository at Arizona State University" class="nav-link active">Biorepository</a></li>
 						<li class="last leaf nav-item depth--1"><a href="https://www.neonscience.org/" class="nav-link" title="NEON Science Main Portal">Neon Science</a></li>
 						<li class="last leaf nav-item depth--1"><a href="https://data.neonscience.org/home" title="NEON Data Portal" class="nav-link">Data Portal</a></li>
-	
+
 					</ul>
 				</div>
 			</div>
@@ -107,10 +107,16 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 						<a href="#" >Management Tools</a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php">Manifest Submission</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/index.php">Quick Search &amp; Tool Index</a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestsearch.php">Manifest Browse &amp; Search</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php">Manifest Submission</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/samplecheckin.php">Sample Check-in Form</a>
 							</li>
 						</ul>
 					</li>

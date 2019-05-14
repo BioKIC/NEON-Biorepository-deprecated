@@ -12,9 +12,10 @@ Reorganized by Laura Rocha Prado,
 /******* TOC ********/
 /*
 1. GENERAL
-2. TYPOGRAPHY
-3. HEADER
-4. FOOTER
+2. LAYOUT
+3. TYPOGRAPHY
+4. HEADER
+5. FOOTER
 */
 
 /******* 1. GENERAL ********/
@@ -164,7 +165,6 @@ div,header,footer {
 
 img {
   max-width: 100%;
-  height: auto;
 }
 
 input[type="date"],input[type="datetime"],input[type="datetime-local"],input[type="email"],input[type="month"],input[type="number"],input[type="password"],input[type="search"],input[type="tel"],input[type="text"],input[type="time"],input[type="url"],input[type="week"] {
@@ -3058,7 +3058,10 @@ body.node-type-update #content .field-update-related-content .field--item > .nod
 }
 /******* END OF GENERAL ********/
 
-/******* 2. TYPOGRAPHY ********/
+/******* 2. LAYOUT ********/
+/******* END OF LAYOUT ********/
+
+/******* 3. TYPOGRAPHY ********/
 .h1,h1 {
   font-size: 36px;
   font-size: 2.25rem;
@@ -3183,7 +3186,7 @@ a:hover {
 /******* END OF TYPOGRAPHY ********/
 
 
-/******* 3. HEADER ********/
+/******* 4. HEADER ********/
 #header {
   /*position: fixed;*/
   text-align: center !important;
@@ -3320,7 +3323,7 @@ a:hover {
 
 /******* END OF HEADER ********/
 
-/******* 4. FOOTER ********/
+/******* 5. FOOTER ********/
 #footer {
   *zoom: 1;
   clear: both;

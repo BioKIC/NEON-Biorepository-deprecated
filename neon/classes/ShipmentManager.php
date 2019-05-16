@@ -14,6 +14,7 @@ class ShipmentManager{
 
  	public function __construct(){
  		$this->conn = MySQLiConnectionFactory::getCon("write");
+ 		ini_set('auto_detect_line_endings', true);
  	}
 
  	public function __destruct(){
@@ -143,7 +144,6 @@ class ShipmentManager{
 	//Shipment import functions
 	public function uploadManifestFile(){
 		$status = false;
-		ini_set('auto_detect_line_endings', true);
 		//Load file onto server
 		$uploadPath = $this->getContentPath().'manifests/';
 		if(array_key_exists("uploadfile",$_FILES)){

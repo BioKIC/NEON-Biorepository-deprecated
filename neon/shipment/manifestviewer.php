@@ -76,11 +76,15 @@ if($isEditor){
 		}
 
 		function checkinCommentChanged(textObj){
+			//USPS: WEDNESDAY 15  MAY 2019	 by 8:00pm
+			//FedEx: Tuesday 9/04/2018 at 1:03 pm
+			//UPS: Thursday 02/07/2019 Delivery Time at 12:33 P.M.
 			var f = textObj.form;
 			var testStr = textObj.value.trim();
 			if(testStr){
 				if(!f.receivedDate.value){
 					var dateEx1 = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+					var dateEx2 = /(\d{1,2})\s{1,3}([A-Z]+)\s{1,3}(\d{4})/;
 					if(extractArr = dateEx1.exec(testStr)){
 						var yearStr = extractArr[3];
 						var monthStr = extractArr[1];
@@ -92,9 +96,20 @@ if($isEditor){
 							textObj.value = "";
 						}
 					}
+					else if(extractArr = dateEx2.exec(testStr)){
+						var yearStr = extractArr[3];
+						var monthStr = getMonthFromString(extractArr[2]);
+						var dayStr = extractArr[1];
+						if(monthStr.length == 1) monthStr = '0'+monthStr;
+						if(dayStr.length == 1) dayStr = '0'+dayStr;
+						if(!f.receivedDate.value){
+							f.receivedDate.value = yearStr+"-"+monthStr+"-"+dayStr;
+							textObj.value = "";
+						}
+					}
 				}
 				if(!f.receivedTime.value){
-					var timeEx1 = /(\d{1,2}):(\d{1,2})\s{1}([apm.]+)/i;
+					var timeEx1 = /(\d{1,2}):(\d{1,2})\s{0,1}([apm.]+)/i;
 					if(extractArr = timeEx1.exec(testStr)){
 						var hourStr = extractArr[1];
 						var minStr = extractArr[2];
@@ -112,6 +127,15 @@ if($isEditor){
 					}
 				}
 			}
+		}
+
+		function getMonthFromString(mon){
+			var d = Date.parse(mon + "1, 2012");
+			if(!isNaN(d)){
+				var month = new Date(d).getMonth() + 1;
+				return month.toString();
+			}
+			return "";
 		}
 
 		function checkinSample(f){

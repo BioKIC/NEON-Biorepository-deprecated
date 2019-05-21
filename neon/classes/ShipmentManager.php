@@ -818,11 +818,15 @@ class ShipmentManager{
 		$trackingArr = array_unique($trackingArr);
 		foreach($trackingArr as $trackingStr){
 			$trackingId = preg_replace('/[^a-zA-Z0-9;]+/', '', $trackingStr);
-			if($this->shipmentArr['shipmentService'] == 'FedEx' && strlen($trackingId) == 12){
+			$shipService = strtolower($this->shipmentArr['shipmentService']);
+			if($shipService == 'fedex' && strlen($trackingId) == 12){
 				$retStr .= '<a href="https://www.fedex.com/apps/fedextrack/?action=track&tracknumbers='.$trackingId.'&locale=en_US&cntry_code=us" target="_blank">';
 			}
-			elseif($this->shipmentArr['shipmentService'] == 'UPS' && strlen($trackingId) == 18){
+			elseif($shipService == 'ups' && strlen($trackingId) == 18){
 				$retStr .= '<a href="https://www.ups.com/track?loc=en_US&tracknum='.$trackingId.'&requester=WT/trackdetails" target="_blank">';
+			}
+			elseif($shipService == 'usps' && strlen($trackingId) == 22){
+				$retStr .= '<a href="https://tools.usps.com/go/TrackConfirmAction?tLabels='.$trackingId.'" target="_blank">';
 			}
 			$retStr .= $trackingId.'</a>; ';
 		}

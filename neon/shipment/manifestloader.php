@@ -40,11 +40,23 @@ if($isEditor){
 	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 	<script type="text/javascript">
 		function verifyUploadForm(f){
-			if(f.uploadfile.value == ""){
+			var status = true;
+			var fileName = f.uploadfile.value;
+			if(fileName == ""){
 				alert("Select a manifest file to upload");
 				return false;
 			}
-			return true;
+			else{
+				var ext = fileName.split('.').pop().toLowerCase();
+				if(ext == "xlsx" || ext == "xls"){
+					alert("Unable to import Excel files (.xlsx, .xls). Save file in the CSV format.");
+					return false;
+				}
+				else if(ext != "csv"){
+					status = confirm("Is the import file in the CSV format? If not, select cancel, save file in the CSV format, and reimport.");
+				}
+			}
+			return status;
 		}
 
 		function verifyMappingForm(f){

@@ -26,7 +26,7 @@ if($collid){
 $includeDets = 1;
 $includeImgs = 1;
 $redactLocalities = 1;
-if($action == 'Save Key' || $action == 'Update Key' || (isset($_REQUEST['datasetKey']) && $_REQUEST['datasetKey'])){
+if($action == 'savekey' || (isset($_REQUEST['datasetKey']) && $_REQUEST['datasetKey'])){
 	$collManager->setAggKeys($_POST);
 	$collManager->updateAggKeys();
 }
@@ -115,28 +115,42 @@ if($isEditor){
 			return false;
 		}
 
-		function verifyGbifForm(f){
-			if(f.organizationKey.value == ""){
-				alert("Please enter GBIF key");
+		function validateGbifForm(f){
+			var keyValue = f.organizationKey.value.trim();
+			if(keyValue == ""){
+				return true;
+			}
+			else{
+				if(keyValue.length != 36){
+					alert("Key is the wrong number of digits. Should be 36 digits in total.");
+					return false;
+				}
+				if((keyValue.substring(8,9) != "-") || keyValue.substring(13,14) != "-" || keyValue.substring(18,19) != "-" || keyValue.substring(23,24) != "-"){
+					alert("Key does not appear to be a valid UUID (e.g. 7a989612-d0ff-407a-8aba-0a6d06f58dca)");
+					return false;
+				}
+				$.ajax({
+					method: "GET",
+					dateType: "json",
+					url: "http://api.gbif.org/v1/organization/" + keyValue
+				})
+				.done(function( retJson ) {
+					f.submit();
+				})
+				.fail(function() {
+					alert("Key does not appear to be valid. Please contact your portal administrator for assistance.");
+				});
 				return false;
 			}
-			return true;
+			return false;
 		}
 
-		function validateKey(f){
-			var keyValue = f.organizationKey.value;
-			if(keyValue.indexOf("/")) keyValue = keyValue.substring(keyValue.lastIndexOf("/")+1);
-			f.organizationKey.value = keyValue;
-			if(keyValue.length != 36){
-				alert("Key is the wrong number of digits. Should be 36 digits in total.");
-				return false;
+		function keyChanged(formElem){
+			var keyValue = formElem.value;
+			if(keyValue.indexOf("/")){
+				keyValue = keyValue.substring(keyValue.lastIndexOf("/")+1);
+				formElem.value = keyValue;
 			}
-			if((keyValue.substring(8,9) != "-") || keyValue.substring(13,14) != "-" || keyValue.substring(18,19) != "-" || keyValue.substring(23,24) != "-"){
-				alert("Key does not appear to be a valid UUID (e.g. 7a989612-d0ff-407a-8aba-0a6d06f58dca)");
-				return false;
-			}
-			getOrganization(f);
-			return true;
 		}
 
 		function checkAllColl(cb){
@@ -347,8 +361,8 @@ include($SERVER_ROOT. '/header.php');
 						GBIF Organization lookup, a GBIF Publisher Key has already been assigned. The key is the remaining part of
 						the URL after the last backslash of your institution's GBIF Data Provider page. If your data is already published in GBIF,
 						DO NOT REPUBLISH without first contacting GBIF (<a href="mailto:helpdesk@gbif.org">helpdesk@gbif.org</a>) to coordinate data versions.
-						<form style="margin-top:10px;" name="gbifpubform" action="datapublisher.php" method="post" onsubmit="return verifyGbifForm(this);">
-							<b>GBIF Key:</b> <input type="text" id="organizationKey" name=organizationKey value="<?php echo $collManager->getOrganizationKey(); ?>" style="width:275px;" />
+						<form style="margin-top:10px;" name="gbifpubform" action="datapublisher.php" method="post" onsubmit="return validateGbifForm(this)" >
+							<b>GBIF Key:</b> <input type="text" id="organizationKey" name=organizationKey value="<?php echo $collManager->getOrganizationKey(); ?>" oninput="$('#validatebtn').removeAttr('disabled')" onchange="keyChanged(this)" style="width:275px;" />
 							<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 							<input type="hidden" id="portalname" name="portalname" value="<?php echo $DEFAULT_TITLE; ?>" />
 							<input type="hidden" id="collname" name="collname" value="<?php echo $collArr['collectionname']; ?>" />
@@ -357,9 +371,8 @@ include($SERVER_ROOT. '/header.php');
 							<input type="hidden" id="datasetKey" name="datasetKey" value="" />
 							<input type="hidden" id="endpointKey" name="endpointKey" value="" />
 							<input type="hidden" id="dwcUri" name="dwcUri" value="<?php echo $dwcUri; ?>" />
-							<button type="button" onclick="validateKey(this.form)">Validate Key</button>
-							<input type="submit" name="formsubmit" value="<?php echo ($collManager->getOrganizationKey()?'Update':'Save'); ?> Key" disabled />
-							<span id="validKeyMsg" style="color:green;display:none">Key validated! Save key to proceed to next step.</span>
+							<input type="hidden" name="formsubmit" value="savekey" />
+							<button type="submit" id="validatebtn" name="validate" disabled>Validate Key</button>
 							<?php
 							if($collManager->getOrganizationKey()){
 								?>
@@ -370,18 +383,22 @@ include($SERVER_ROOT. '/header.php');
 									$collPath .= $_SERVER["SERVER_NAME"];
 									if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $collPath .= ':'.$_SERVER["SERVER_PORT"];
 									$collPath .= $CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$collid;
-									$bodyStr = 'Please%20provide%20the%20following%20GBIF%20user%20permission%20to%20create%20and%20update%20datasets%20for%20the%20following%20GBIF%20publisher.%0A'.
-										'Once%20these%20permissions%20are%20assigned,%20we%20will%20be%20pushing%20a%20DwC-Archive%20from%20the%20following%20Symbiota%20collection%20to%20GBIF.%0A%0A'.
-										'GBIF%20user:%20'.$GBIF_USERNAME.'%0A'.
-										'GBIF%20publisher%20identifier:%20'.$collManager->getOrganizationKey().'%0A'.
-										'GBIF%20publisher:%20https://www.gbif.org/publisher/'.$collManager->getOrganizationKey().'%0A'.
-										'Symbiota collection:%20'.$collPath.'%0A%0A'.
-										'Sincerely, %0A%0A%0A%0A%0A%0A';
+									$bodyStr = 'Please provide the following GBIF user permission to create and update datasets for the following GBIF publisher.<br/>'.
+										'Once these permissions are assigned, we will be pushing a DwC-Archive from the following Symbiota collection to GBIF.<br/><br/>'.
+										'GBIF user: '.$GBIF_USERNAME.'<br/>'.
+										'GBIF publisher identifier: '.$collManager->getOrganizationKey().'<br/>'.
+										'GBIF publisher: https://www.gbif.org/publisher/'.$collManager->getOrganizationKey().'<br/>'.
+										'Symbiota collection: '.$collPath.'<br/><br/>'.
+										'Sincerely, <br/><br/><br/><br/><br/><br/>';
 									?>
-									Before submitting your data to GBIF, you will need to contact GBIF
-									(<a href="mailto:helpdesk@gbif.org?subject=Publishing%20data%20from%20Symbiota%20portal%20to%20GBIF...&body=<?php echo $bodyStr; ?>">helpdesk@gbif.org</a>)
-									requesting that the <b><?php echo $GBIF_USERNAME; ?></b> GBIF user is given permission to create and update datasets for your collection.
-									Click on the email address above to automatically generate an email message within your email client.<br/><br/>
+									Before submitting your data to GBIF, you will need to contact GBIF helpdesk
+									(<a href="mailto:helpdesk@gbif.org?subject=Publishing%20data%20from%20Symbiota%20portal%20to%20GBIF...&body=<?php echo rawurlencode(str_replace('<br/>', "\n", $bodyStr)); ?>">helpdesk@gbif.org</a>)
+									with a request for the GBIF account user &quot;<b><?php echo $GBIF_USERNAME; ?></b>&quot; that is associated with this Symbiota portal installation
+									to be provided permission to create datasets within your GBIF publishing instance.
+									Click the email address in the previous sentence to automatically generate an email message within your email client,
+									or click <a href="#" onclick="toggle('emailMsg');return false;" style="color:blue">here</a> to display a recommended draft email message.
+									<fieldset id="emailMsg" style="display:none;padding:15px;margin:15px"><legend>Email Draft</legend><?php echo trim($bodyStr,' <br/>'); ?></fieldset>
+									<br/><br/>
 									<button type="button" onclick="processGbifOrgKey(this.form);">Submit Data</button>
 									<img id="workingcircle" src="../../images/ajax-loader_sm.gif" style="margin-bottom:-4px;width:20px;display:none;" />
 								</div>

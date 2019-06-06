@@ -65,9 +65,6 @@ $RIGHTS_TERMS = array(
 );
 $CSS_VERSION_LOCAL = '20170414';		//Changing this variable will force a refresh of main.css styles within users browser cache for all pages
 
-//set terms for reproductiveCondition drop-down menu
-//$REPRODUCTIVE_CONDITION_TERMS = array("term1", "term2", "term3", "term4", "term5", "etc..");
-
 //Individual page menu and navigation crumbs
 //Menu variables turn on and off the display of left menu
 //Crumb variables allow the customization of the bread crumbs. A crumb variable with an empty value will cause crumbs to disappear

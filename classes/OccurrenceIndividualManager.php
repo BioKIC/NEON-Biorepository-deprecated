@@ -62,9 +62,7 @@ class OccurrenceIndividualManager extends Manager{
 		}
 		if(!$this->occid){
 			//Check image recordID
-			$sql = 'SELECT i.occid '.
-				'FROM guidimages g INNER JOIN images i ON g.imgid = i.imgid '.
-				'WHERE g.guid = "'.$guid.'" AND i.occid IS NOT NULL ';
+			$sql = 'SELECT i.occid FROM guidimages g INNER JOIN images i ON g.imgid = i.imgid WHERE g.guid = "'.$guid.'" AND i.occid IS NOT NULL ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->occid = $r->occid;
@@ -73,9 +71,7 @@ class OccurrenceIndividualManager extends Manager{
 		}
 		if(!$this->occid){
 			//Check identification recordID
-			$sql = 'SELECT d.occid '.
-				'FROM guidoccurdeterminations g INNER JOIN omoccurdeterminations d ON g.detid = d.detid '.
-				'WHERE g.guid = "'.$guid.'" ';
+			$sql = 'SELECT d.occid FROM guidoccurdeterminations g INNER JOIN omoccurdeterminations d ON g.detid = d.detid WHERE g.guid = "'.$guid.'" ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->occid = $r->occid;
@@ -149,8 +145,9 @@ class OccurrenceIndividualManager extends Manager{
 					}
 					$rsSec->free();
 				}
-				$this->loadImages();
 				$this->loadDeterminations();
+				$this->loadImages();
+				$this->loadPaleo();
 				$this->loadLoan();
 				$this->loadExsiccati();
 				$result->free();
@@ -163,6 +160,31 @@ class OccurrenceIndividualManager extends Manager{
 		}
 		else{
 			trigger_error('Unable to set occurrence array; '.$this->conn->error,E_USER_ERROR);
+		}
+	}
+
+	private function loadDeterminations(){
+		$sql = 'SELECT detid, dateidentified, identifiedby, sciname, scientificnameauthorship, identificationqualifier, '.
+				'identificationreferences, identificationremarks '.
+				'FROM omoccurdeterminations '.
+				'WHERE (occid = '.$this->occid.') AND appliedstatus = 1 '.
+				'ORDER BY sortsequence';
+		$result = $this->conn->query($sql);
+		if($result){
+			while($row = $result->fetch_object()){
+				$detId = $row->detid;
+				$this->occArr['dets'][$detId]['date'] = $row->dateidentified;
+				$this->occArr['dets'][$detId]['identifiedby'] = $row->identifiedby;
+				$this->occArr['dets'][$detId]['sciname'] = $row->sciname;
+				$this->occArr['dets'][$detId]['author'] = $row->scientificnameauthorship;
+				$this->occArr['dets'][$detId]['qualifier'] = $row->identificationqualifier;
+				$this->occArr['dets'][$detId]['ref'] = $row->identificationreferences;
+				$this->occArr['dets'][$detId]['notes'] = $row->identificationremarks;
+			}
+			$result->free();
+		}
+		else{
+			trigger_error('Unable to loadDeterminations; '.$this->conn->error,E_USER_NOTICE);
 		}
 	}
 
@@ -196,29 +218,15 @@ class OccurrenceIndividualManager extends Manager{
 		}
 	}
 
-	private function loadDeterminations(){
-		$sql = 'SELECT detid, dateidentified, identifiedby, sciname, scientificnameauthorship, identificationqualifier, '.
-			'identificationreferences, identificationremarks '.
-			'FROM omoccurdeterminations '.
-			'WHERE (occid = '.$this->occid.') AND appliedstatus = 1 '.
-			'ORDER BY sortsequence';
-		$result = $this->conn->query($sql);
-		if($result){
-			while($row = $result->fetch_object()){
-				$detId = $row->detid;
-				$this->occArr['dets'][$detId]['date'] = $row->dateidentified;
-				$this->occArr['dets'][$detId]['identifiedby'] = $row->identifiedby;
-				$this->occArr['dets'][$detId]['sciname'] = $row->sciname;
-				$this->occArr['dets'][$detId]['author'] = $row->scientificnameauthorship;
-				$this->occArr['dets'][$detId]['qualifier'] = $row->identificationqualifier;
-				$this->occArr['dets'][$detId]['ref'] = $row->identificationreferences;
-				$this->occArr['dets'][$detId]['notes'] = $row->identificationremarks;
-			}
-			$result->free();
+	private function loadPaleo(){
+		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biozone, '.
+			'biostratigraphy, lithogroup, formation, taxonenvironment, member, lithology, stratremarks, lithdescription, element, slideproperties '.
+			'FROM omoccurpaleo WHERE occid = '.$this->occid;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_assoc()){
+			$this->occArr = array_merge($this->occArr,$r);
 		}
-		else{
-			trigger_error('Unable to loadDeterminations; '.$this->conn->error,E_USER_NOTICE);
-		}
+		$rs->free();
 	}
 
 	private function loadLoan(){

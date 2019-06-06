@@ -18,6 +18,7 @@ class DwcArchiverCore extends Manager{
 	private $conditionSql;
  	private $conditionArr = array();
 	private $condAllowArr;
+	private $overrideConditionLimit = false;
 	private $upperTaxonomy = array();
 
 	private $targetPath;
@@ -61,9 +62,9 @@ class DwcArchiverCore extends Manager{
 		$this->charSetSource = strtoupper($GLOBALS['CHARSET']);
 		$this->charSetOut = $this->charSetSource;
 
-		$this->condAllowArr = array('catalognumber','othercatalognumbers','occurrenceid','family','sciname',
-			'country','stateprovince','county','municipality','recordedby','recordnumber','eventdate',
-			'decimallatitude','decimallongitude','minimumelevationinmeters','maximumelevationinmeters','datelastmodified','dateentered');
+		$this->condAllowArr = array('catalognumber','othercatalognumbers','occurrenceid','family','sciname','country','stateprovince','county','municipality',
+			'recordedby','recordnumber','eventdate','decimallatitude','decimallongitude','minimumelevationinmeters','maximumelevationinmeters',
+			'datelastmodified','dateentered','processingstatus','dbpk');
 
 		$this->securityArr = array('eventDate','month','day','startDayOfYear','endDayOfYear','verbatimEventDate',
 			'recordNumber','locality','locationRemarks','minimumElevationInMeters','maximumElevationInMeters','verbatimElevation',
@@ -247,19 +248,19 @@ class DwcArchiverCore extends Manager{
 	}
 
 	public function addCondition($field, $cond, $value = ''){
-		//Sanitation
 		$cond = strtoupper(trim($cond));
 		if(!preg_match('/^[A-Za-z]+$/',$field)) return false;
 		if(!preg_match('/^[A-Z]+$/',$cond)) return false;
-		//Set condition
-		if($field && in_array(strtolower($field),$this->condAllowArr)){
-			if(!$cond) $cond = 'EQUALS';
-			if($value || ($cond == 'NULL' || $cond == 'NOTNULL')){
-				if(is_array($value)){
-					$this->conditionArr[$field][$cond] = $this->cleanInArray($value);
-				}
-				else{
-					$this->conditionArr[$field][$cond][] = $this->cleanInStr($value);
+		if($field){
+			if($this->overrideConditionLimit || in_array(strtolower($field),$this->condAllowArr)){
+				if(!$cond) $cond = 'EQUALS';
+				if($value || ($cond == 'NULL' || $cond == 'NOTNULL')){
+					if(is_array($value)){
+						$this->conditionArr[$field][$cond] = $this->cleanInArray($value);
+					}
+					else{
+						$this->conditionArr[$field][$cond][] = $this->cleanInStr($value);
+					}
 				}
 			}
 		}
@@ -2042,6 +2043,11 @@ class DwcArchiverCore extends Manager{
 			}
 			$rsKing->free();
 		}
+	}
+
+	public function setOverrideConditionLimit($bool){
+		if($bool) $this->overrideConditionLimit = true;
+		else $this->overrideConditionLimit = false;
 	}
 
 	public function setSchemaType($type){

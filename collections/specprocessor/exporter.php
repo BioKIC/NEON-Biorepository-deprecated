@@ -38,7 +38,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 	'georeferencedBy'=>'Georeferenced By','georeferenceProtocol'=>'Georeference Protocol','georeferenceSources'=>'Georeference Sources',
 	'georeferenceVerificationStatus'=>'Georeference Verification Status','georeferenceRemarks'=>'Georeference Remarks',
 	'minimumElevationInMeters'=>'Elevation Minimum (m)','maximumElevationInMeters'=>'Elevation Maximum (m)',
-	'verbatimElevation'=>'Verbatim Elevation','disposition'=>'Disposition');
+	'verbatimElevation'=>'Verbatim Elevation','disposition'=>'Disposition','processingStatus'=>'Processing Status','dbpk'=>'Source Identifier (dbpk)');
 ?>
 <html>
 	<head>
@@ -221,6 +221,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 												<input name="targetcollid" type="hidden" value="<?php echo $collid; ?>" />
 												<input name="schema" type="hidden" value="georef" />
 												<input name="extended" type="hidden" value="1" />
+												<input name="overrideconditionlimit" type="hidden" value="1" />
 												<input name="submitaction" type="submit" value="Download Records" />
 											</div>
 										</td>
@@ -316,6 +317,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 											<input name="targetcollid" type="hidden" value="<?php echo $collid; ?>" />
 											<input name="schema" type="hidden" value="dwc" />
 											<input name="extended" type="hidden" value="1" />
+											<input name="overrideconditionlimit" type="hidden" value="1" />
 											<input name="submitaction" type="submit" value="Download Records" />
 										</div>
 									</td>
@@ -546,6 +548,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 										<div style="margin:10px;">
 											<input name="targetcollid" type="hidden" value="<?php echo $collid; ?>" />
 											<input name="extended" type="hidden" value="1" />
+											<input name="overrideconditionlimit" type="hidden" value="1" />
 											<input name="submitaction" type="submit" value="Download Records" />
 										</div>
 									</td>

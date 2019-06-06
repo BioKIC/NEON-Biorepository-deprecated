@@ -49,6 +49,7 @@ else{
 	$zip = (array_key_exists('zip',$_POST)?$_POST['zip']:0);
 	$format = (array_key_exists('format',$_POST)?$_POST['format']:'csv');
 	$extended = (array_key_exists('extended',$_POST)?$_POST['extended']:0);
+	$overrideConditionLimit = (array_key_exists('overrideconditionlimit',$_POST)?$_POST['overrideconditionlimit']:0);
 
 	$redactLocalities = 1;
 	$rareReaderArr = array();
@@ -142,6 +143,7 @@ else{
 			$dwcaHandler->setCharSetOut($cSet);
 			$dwcaHandler->setSchemaType($schema);
 			$dwcaHandler->setExtended($extended);
+			$dwcaHandler->setOverrideConditionLimit($overrideConditionLimit);
 			$dwcaHandler->setDelimiter($format);
 			$dwcaHandler->setRedactLocalities($redactLocalities);
 			if($rareReaderArr) $dwcaHandler->setRareReaderArr($rareReaderArr);

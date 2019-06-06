@@ -54,7 +54,7 @@ if($SYMB_UID){
 		$collId = $collMap['collid'];
 		$occManager->setCollId($collId);
 	}
-
+	$editorPropArr = $occManager->getDynamicPropertiesArr();
 	if($collMap && $collMap['colltype']=='General Observations') $isGenObs = 1;
 
 	//Bring in config variables
@@ -1129,6 +1129,9 @@ else{
 												</div>
 											</div>
 										</fieldset>
+										<?php
+										if(isset($editorPropArr['paleoMod']) && $editorPropArr['paleoMod']) include('includes/paleoinclude.php');
+										?>
 										<fieldset>
 											<legend><b>Misc</b></legend>
 											<div id="habitatDiv">

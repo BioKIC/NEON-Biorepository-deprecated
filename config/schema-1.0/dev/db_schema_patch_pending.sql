@@ -3,7 +3,6 @@ INSERT IGNORE INTO schemaversion (versionnumber) values ("1.2");
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `fulldescription` `fulldescription` VARCHAR(5000) NULL DEFAULT NULL ;
 
-
 ALTER TABLE `uploadspectemp` 
   CHANGE COLUMN `basisOfRecord` `basisOfRecord` VARCHAR(32) NULL DEFAULT NULL COMMENT 'PreservedSpecimen, LivingSpecimen, HumanObservation' ;
 
@@ -71,7 +70,7 @@ CREATE TABLE `omoccurpaleo` (
   `localStage` VARCHAR(65) NULL,
   `biozone` VARCHAR(130) NULL,
   `biostratigraphy` VARCHAR(65) NULL COMMENT 'Flora or Fanua',
-  `group` VARCHAR(65) NULL,
+  `lithogroup` VARCHAR(65) NULL,
   `formation` VARCHAR(65) NULL,
   `taxonEnvironment` VARCHAR(65) NULL COMMENT 'Marine or not',
   `member` VARCHAR(65) NULL,
@@ -83,8 +82,37 @@ CREATE TABLE `omoccurpaleo` (
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`paleoID`),
   INDEX `FK_paleo_occid_idx` (`occid` ASC),
+  UNIQUE INDEX `UNIQUE_occid` (`occid` ASC),
   CONSTRAINT `FK_paleo_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE
 ) COMMENT = 'Occurrence Paleo tables';
+
+CREATE TABLE `omoccurpaleogts` (
+  `gtsid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `gtsterm` VARCHAR(45) NOT NULL,
+  `rankid` INT NOT NULL,
+  `rankname` VARCHAR(45) NULL,
+  `parentgtsid` INT UNSIGNED NULL,
+  `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  UNIQUE INDEX  `UNIQUE_gtsterm` (`gtsid` ASC),
+  PRIMARY KEY (`gtsid`)
+);
+
+ALTER TABLE `omoccurpaleogts` 
+  ADD INDEX `FK_gtsparent_idx` (`parentgtsid` ASC);
+
+ALTER TABLE `omoccurpaleogts` 
+  ADD CONSTRAINT `FK_gtsparent` FOREIGN KEY (`parentgtsid`)  REFERENCES `omoccurpaleogts` (`gtsid`)  ON DELETE NO ACTION  ON UPDATE CASCADE;
+
+INSERT INTO `omoccurpaleogts` (`gtsterm`, `rankid`, `rankname`) VALUES ('Precambrian', 10, 'supereon');
+INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid) SELECT DISTINCT eon, 20, "eon", 1 FROM paleochronostratigraphy;
+INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
+  SELECT DISTINCT era, 30, "era", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.eon = g.gtsterm WHERE era IS NOT NULL;
+INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
+  SELECT DISTINCT period, 40, "period", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.era = g.gtsterm WHERE period IS NOT NULL;
+INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid) 
+  SELECT DISTINCT epoch, 50, "epoch", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.period = g.gtsterm WHERE epoch IS NOT NULL;
+INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
+  SELECT DISTINCT p.stage, 60, "age", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.epoch = g.gtsterm WHERE stage IS NOT NULL;
 
 
 ALTER TABLE `images` 

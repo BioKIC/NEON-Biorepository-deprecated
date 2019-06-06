@@ -754,6 +754,38 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							</div>
 							<?php
 						}
+						if(isset($occArr['paleoid'])){
+							?>
+							<div style="clear:both;">
+								<b>Paleontology terms: </b>
+								<?php
+								$paleoStr = '';
+								if($occArr['eon']) $paleoStr .= '; '.$occArr['eon'];
+								if($occArr['era']) $paleoStr .= '; '.$occArr['era'];
+								if($occArr['period']) $paleoStr .= '; '.$occArr['period'];
+								if($occArr['epoch']) $paleoStr .= '; '.$occArr['epoch'];
+								if($occArr['earlyinterval']) $paleoStr .= '; '.$occArr['earlyinterval'];
+								if($occArr['lateinterval']) $paleoStr .= ' to '.$occArr['lateinterval'];
+								if($occArr['absoluteage']) $paleoStr .= '; <b>absolute age:</b> '.$occArr['absoluteage'];
+								if($occArr['storageage']) $paleoStr .= '; <b>storage age:</b> '.$occArr['storageage'];
+								if($occArr['stage']) $paleoStr .= '; <b>stage:</b> '.$occArr['stage'];
+								if($occArr['localstage']) $paleoStr .= '; <b>local stage:</b> '.$occArr['localstage'];
+								if($occArr['biozone']) $paleoStr .= '; <b>biozone:</b> '.$occArr['biozone'];
+								if($occArr['biostratigraphy']) $paleoStr .= '; <b>biostratigraphy:</b> '.$occArr['biostratigraphy'];
+								if($occArr['lithogroup']) $paleoStr .= '; <b>group:</b> '.$occArr['lithogroup'];
+								if($occArr['formation']) $paleoStr .= '; <b>formation:</b> '.$occArr['formation'];
+								if($occArr['taxonenvironment']) $paleoStr .= '; <b>Taxon Environment:</b> '.$occArr['taxonenvironment'];
+								if($occArr['member']) $paleoStr .= '; <b>member:</b> '.$occArr['member'];
+								if($occArr['lithology']) $paleoStr .= '; <b>lithology:</b> '.$occArr['lithology'];
+								if($occArr['stratremarks']) $paleoStr .= '; <b>remarks:</b> '.$occArr['stratremarks'];
+								if($occArr['lithdescription']) $paleoStr .= '; <b>lith description:</b> '.$occArr['lithdescription'];
+								if($occArr['element']) $paleoStr .= '; <b>element:</b> '.$occArr['element'];
+								if($occArr['slideproperties']) $paleoStr .= '; <b>slide properties:</b> '.$occArr['slideproperties'];
+								echo trim($paleoStr,'; ');
+								?>
+							</div>
+							<?php
+						}
 						if(isset($occArr['exs'])){
 							?>
 							<div style="clear:both;">

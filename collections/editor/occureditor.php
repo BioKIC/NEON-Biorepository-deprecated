@@ -11,9 +11,9 @@ if(!file_exists('../../content/occureditor/occurEditorDefaultConf.php')){
 	exit;
 }
 
-$occId = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
+$occid = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
 $tabTarget = array_key_exists('tabtarget',$_REQUEST)?$_REQUEST['tabtarget']:0;
-$collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
+$collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $goToMode = array_key_exists('gotomode',$_REQUEST)?$_REQUEST['gotomode']:0;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:false;
 $ouid = array_key_exists('ouid',$_REQUEST)?$_REQUEST['ouid']:0;
@@ -53,10 +53,10 @@ $navStr = '';
 if($SYMB_UID){
 	//Set variables
 	$occManager->setSymbUid($SYMB_UID);
-	$occManager->setOccId($occId);
-	$occManager->setCollId($collId);
+	$occManager->setOccId($occid);
+	$occManager->setCollId($collid);
 	$collMap = $occManager->getCollMap();
-	if($occManager->getCollId() && $collId != $occManager->getCollId()) $collId = $occManager->getCollId();
+	if($occManager->getCollId() && $collid != $occManager->getCollId()) $collid = $occManager->getCollId();
 	if($collMap && $collMap['colltype'] == 'General Observations') $isGenObs = 1;
 
 	//Need to set 3 kinds of config vars: 1) default portal settings, collection defined, and user defined
@@ -65,12 +65,12 @@ if($SYMB_UID){
 	$isEditor = 0;
 	//0 = not editor, 1 = admin, 2 = editor, 3 = taxon editor, 4 = crowdsource editor or collection allows public edits
 	//If not editor, edits will be submitted to omoccuredits table but not applied to omoccurrences
-	if($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"]))){
+	if($IS_ADMIN || ($collid && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
 		$isEditor = 1;
 	}
 	else{
 		if($isGenObs){
-			if(!$occId && array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollEditor"])){
+			if(!$occid && array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollEditor"])){
 				//Approved General Observation editors can add records
 				$isEditor = 2;
 			}
@@ -83,7 +83,7 @@ if($SYMB_UID){
 				$isEditor = 2;
 			}
 		}
-		elseif(array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollEditor"])){
+		elseif(array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollEditor"])){
 			//Is an assigned editor for this collection
 			$isEditor = 2;
 		}
@@ -95,7 +95,7 @@ if($SYMB_UID){
 			//Collection is set as allowing public edits
 			$isEditor = 4;
 		}
-		elseif(array_key_exists("CollTaxon",$USER_RIGHTS) && $occId){
+		elseif(array_key_exists("CollTaxon",$USER_RIGHTS) && $occid){
 			//Check to see if this user is authorized to edit this occurrence given their taxonomic editing authority
 			$isEditor = $occManager->isTaxonomicEditor();
 		}
@@ -145,8 +145,8 @@ if($SYMB_UID){
 						$occIndex = $qryCnt;
 					}
 					else{
-						//Stay on record and get $occId
-						$occId = $occManager->getOccId();
+						//Stay on record and get $occid
+						$occid = $occManager->getOccId();
 					}
 				}
 				else{
@@ -154,8 +154,8 @@ if($SYMB_UID){
 				}
 			}
 			elseif($action == 'Delete Occurrence'){
-				if($occManager->deleteOccurrence($occId)){
-					$occId = 0;
+				if($occManager->deleteOccurrence($occid)){
+					$occid = 0;
 					$occManager->setOccId(0);
 				}
 				else{
@@ -165,10 +165,10 @@ if($SYMB_UID){
 			elseif($action == 'Transfer Record'){
 				$transferCollid = $_POST['transfercollid'];
 				if($transferCollid){
-					if($occManager->transferOccurrence($occId,$transferCollid)){
+					if($occManager->transferOccurrence($occid,$transferCollid)){
 						if(!isset($_POST['remainoncoll']) || !$_POST['remainoncoll']){
 							$occManager->setCollId($transferCollid);
-							$collId = $transferCollid;
+							$collid = $transferCollid;
 							$collMap = $occManager->getCollMap();
 						}
 					}
@@ -251,7 +251,7 @@ if($SYMB_UID){
 
 	if($goToMode){
 		//Adding new record, override query form and prime for current user's dataentry for the day
-		$occId = 0;
+		$occid = 0;
 		$occManager->setQueryVariables(array('eb'=>$paramsArr['un'],'dm'=>date('Y-m-d')));
 		if(!$qryCnt){
 			$qryCnt = $occManager->getQueryRecordCount();
@@ -291,15 +291,15 @@ if($SYMB_UID){
 	}
 	$occManager->setOccIndex($occIndex);
 
-	if($occId || (!$goToMode && $occIndex !== false)){
+	if($occid || (!$goToMode && $occIndex !== false)){
 		$oArr = $occManager->getOccurMap();
 		if($oArr){
-			$occId = $occManager->getOccId();
-			$occArr = $oArr[$occId];
+			$occid = $occManager->getOccId();
+			$occArr = $oArr[$occid];
 			$occIndex = $occManager->getOccIndex();
 			if(!$collMap){
 				$collMap = $occManager->getCollMap();
-				//if(isset($collMap['collid'])) $collId = $collMap['collid'];
+				//if(isset($collMap['collid'])) $collid = $collMap['collid'];
 				if(!$isEditor){
 					if(isset($USER_RIGHTS["CollAdmin"]) && in_array($occManager->getCollId(),$USER_RIGHTS["CollAdmin"])){
 						$isEditor = 1;
@@ -342,7 +342,7 @@ if($SYMB_UID){
 			if($occIndex<$qryCnt-1) $navStr .= '</a> ';
 			if(!$crowdSourceMode){
 				$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
-				$navStr .= '<a href="occureditor.php?gotomode=1&collid='.$collId.'" onclick="return verifyLeaveForm()" title="New Record">&gt;*</a>';
+				$navStr .= '<a href="occureditor.php?gotomode=1&collid='.$collid.'" onclick="return verifyLeaveForm()" title="New Record">&gt;*</a>';
 			}
 			$navStr .= '</b>';
 		}
@@ -371,7 +371,7 @@ if($SYMB_UID){
 	}
 
 	$isLocked = false;
-	if($occId) $isLocked = $occManager->getLock();
+	if($occid) $isLocked = $occManager->getLock();
 
 }
 else{
@@ -417,7 +417,7 @@ else{
 			$.ajax({
 				type: "POST",
 				url: 'rpc/makeactionrequest.php',
-				data: { <?php echo " occid: '$occId' , "; ?> requesttype: 'Image' },
+				data: { <?php echo " occid: '$occid' , "; ?> requesttype: 'Image' },
 				success: function( response ) {
 				   $('div#imagerequestresult').html(response);
 				}
@@ -453,7 +453,7 @@ else{
 			</div>
 			<?php
 		}
-		if($isEditor && ($occId || ($collId && $isEditor < 3))){
+		if($isEditor && ($occid || ($collid && $isEditor < 3))){
 			if(!$occArr && !$goToMode) $displayQuery = 1;
 			include 'includes/queryform.php';
 			?>
@@ -501,7 +501,7 @@ else{
 								}
 							}
 						}
-						if($occId) echo '<a href="../individual/index.php?occid='.$occId.'">Public Display</a> &gt;&gt;';
+						if($occid) echo '<a href="../individual/index.php?occid='.$occid.'">Public Display</a> &gt;&gt;';
 						?>
 						<b><?php if($isEditor == 3) echo 'Taxonomic '; ?>Editor</b>
 					</div>
@@ -529,7 +529,7 @@ else{
 				<?php
 			}
 			if($occArr || $goToMode == 1 || $goToMode == 2){		//$action == 'gotonew'
-				if($occId && $isLocked){
+				if($occid && $isLocked){
 					?>
 					<div style="margin:25px;border:2px double;padding:20px;width:90%;">
 						<div style="color:red;font-weight:bold;font-size:110%;">
@@ -539,7 +539,7 @@ else{
 							This record is locked for editing by another user. Once the user is done with the record, the lock will be removed. Records are locked for a maximum of 15 minutes.
 						</div>
 						<div style="margin:20px;font-weight:bold;">
-							<a href="../individual/index.php?occid=<?php echo $occId; ?>" target="_blank">Read-only Display</a>
+							<a href="../individual/index.php?occid=<?php echo $occid; ?>" target="_blank">Read-only Display</a>
 						</div>
 					</div>
 					<?php
@@ -553,7 +553,7 @@ else{
 									<li>
 										<a href="#occdiv"  style="">
 											<?php
-											if($occId){
+											if($occid){
 												echo 'Occurrence Data';
 											}
 											else{
@@ -563,14 +563,14 @@ else{
 										</a>
 									</li>
 									<?php
-									if($occId && $isEditor){
+									if($occid && $isEditor){
 										// Get symbiota user email as the annotator email (for fp)
 										$pHandler = new ProfileManager();
 										$pHandler->setUid($SYMB_UID);
 										$person = $pHandler->getPerson();
 										$userEmail = ($person?$person->getEmail():'');
 
-										$anchorVars = 'occid='.$occId.'&occindex='.$occIndex.'&csmode='.$crowdSourceMode.'&collid='.$collId;
+										$anchorVars = 'occid='.$occid.'&occindex='.$occIndex.'&csmode='.$crowdSourceMode.'&collid='.$collid;
 										$detVars = 'identby='.urlencode($occArr['identifiedby']).'&dateident='.urlencode($occArr['dateidentified']).
 											'&sciname='.urlencode($occArr['sciname']).'&em='.$isEditor.
 											'&annotatorname='.urlencode($userDisplayName).'&annotatoremail='.urlencode($userEmail).
@@ -620,7 +620,7 @@ else{
 										<fieldset>
 											<legend><b>Collector Info</b></legend>
 											<?php
-											if($occId){
+											if($occid){
 												if($fragArr || $specImgArr){
 													?>
 													<div style="float:right;margin:-7px -4px 0px 0px;font-weight:bold;">
@@ -709,7 +709,7 @@ else{
 													?>
 													<fieldset style="float:right;margin:3px;border:1px solid red;">
 														<legend style="color:red;font-weight:bold;">Out On Loan</legend>
-														<b>To:</b> <a href="../loans/index.php?loantype=out&collid=<?php echo $collId.'&loanid='.$occArr['loan']['id']; ?>">
+														<b>To:</b> <a href="../loans/index.php?loantype=out&collid=<?php echo $collid.'&loanid='.$occArr['loan']['id']; ?>">
 															<?php echo $occArr['loan']['code']; ?></a><br/>
 														<b>Due date:</b> <?php echo (isset($occArr['loan']['date'])?$occArr['loan']['date']:'Not Defined'); ?>
 													</fieldset>
@@ -786,7 +786,7 @@ else{
 											</div>
 											<div style="clear:both;padding:3px 0px 0px 10px;">
 												<?php
-												if(!$occId){
+												if(!$occid){
 													echo '<div id="idRankDiv">';
 													echo (defined('IDCONFIDENCELABEL')?IDCONFIDENCELABEL:'ID Confidence');
 													echo ' <a href="#" onclick="return dwcDoc(\'idConfidence\')"><img class="docimg" src="../../images/qmark.png" /></a> ';
@@ -1111,7 +1111,7 @@ else{
 											</div>
 											<?php
 											if(isset($QuickHostEntryIsActive) && $QuickHostEntryIsActive) { // Quick host field
-												$quickHostArr = $occManager->getQuickHost($occId);
+												$quickHostArr = $occManager->getQuickHost($occid);
 												?>
 												<div id="hostDiv">
 													<?php echo (defined('HOSTLABEL')?HOSTLABEL:'Host'); ?><br/>
@@ -1181,28 +1181,7 @@ else{
 												<div id="reproductiveConditionDiv">
 													<?php echo (defined('REPRODUCTIVECONDITIONLABEL')?REPRODUCTIVECONDITIONLABEL:'Phenology'); ?>
 													<a href="#" onclick="return dwcDoc('reproductiveCondition')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-													<?php
-													if(isset($reproductiveConditionTerms)){
-														if($reproductiveConditionTerms){
-															?>
-															<select name="reproductivecondition" onchange="fieldChanged('reproductivecondition');" tabindex="99" >
-																<option value="">-----------------</option>
-																<?php
-																foreach($reproductiveConditionTerms as $term){
-																	echo '<option value="'.$term.'" '.(isset($occArr['reproductivecondition']) && $term==$occArr['reproductivecondition']?'SELECTED':'').'>'.$term.'</option>';
-																}
-																?>
-															</select>
-															<?php
-														}
-													}
-													else{
-													?>
-														<input type="text" name="reproductivecondition" tabindex="99" maxlength="255" value="<?php echo array_key_exists('reproductivecondition',$occArr)?$occArr['reproductivecondition']:''; ?>" onchange="fieldChanged('reproductivecondition');" />
-													<?php
-													}
-													?>
-
+													<input type="text" name="reproductivecondition" tabindex="99" maxlength="255" value="<?php echo array_key_exists('reproductivecondition',$occArr)?$occArr['reproductivecondition']:''; ?>" onchange="fieldChanged('reproductivecondition');" />
 												</div>
 												<div id="establishmentMeansDiv">
 													<?php echo (defined('ESTABLISHMENTMEANSLABEL')?ESTABLISHMENTMEANSLABEL:'Establishment Means'); ?>
@@ -1305,7 +1284,7 @@ else{
 													<?php echo (defined('PROCESSINGSTATUSLABEL')?PROCESSINGSTATUSLABEL:'Processing Status'); ?><br/>
 													<?php
 														$pStatus = array_key_exists('processingstatus',$occArr)?strtolower($occArr['processingstatus']):'';
-														if(!$pStatus && !$occId) $pStatus = 'pending review';
+														if(!$pStatus && !$occid) $pStatus = 'pending review';
 													?>
 													<select name="processingstatus" tabindex="120" onchange="fieldChanged('processingstatus');">
 														<option value=''>No Set Status</option>
@@ -1330,12 +1309,12 @@ else{
 												</div>
 											</div>
 											<?php
-											if($occId){
+											if($occid){
 												?>
 												<div id="pkDiv">
 													<hr/>
 													<div style="float:left;" title="Internal occurrence record Primary Key (occid)">
-														<?php if($occId) echo 'Key: '.$occId; ?>
+														<?php if($occid) echo 'Key: '.$occid; ?>
 													</div>
 													<div style="float:left;margin-left:50px;">
 														<?php if(array_key_exists('datelastmodified',$occArr)) echo 'Modified: '.$occArr['datelastmodified']; ?>
@@ -1357,7 +1336,7 @@ else{
 										if($navStr){
 											//echo '<div style="float:right;margin-right:20px;">'.$navStr.'</div>'."\n";
 										}
-										if(!$occId){
+										if(!$occid){
 											$userChecklists = $occManager->getUserChecklists();
 											if($userChecklists){
 												?>
@@ -1379,8 +1358,8 @@ else{
 										}
 										?>
 										<div id="bottomSubmitDiv">
-											<input type="hidden" name="occid" value="<?php echo $occId; ?>" />
-											<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
+											<input type="hidden" name="occid" value="<?php echo $occid; ?>" />
+											<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 											<input type="hidden" name="observeruid" value="<?php echo $SYMB_UID; ?>" />
 											<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 											<input type="hidden" name="linkdupe" value="" />
@@ -1399,7 +1378,7 @@ else{
 												?>
 											</select>
 											<?php
-											if($occId){
+											if($occid){
 												if($isEditor == 1 || $isEditor == 2){
 													?>
 													<div style="float:right;">
@@ -1447,7 +1426,7 @@ else{
 						</td>
 						<td id="imgtd" style="display:none;width:430px;" valign="top">
 							<?php
-							if($occId && ($fragArr || $specImgArr )){
+							if($occid && ($fragArr || $specImgArr )){
 								include_once('includes/imgprocessor.php');
 							}
 							?>
@@ -1458,7 +1437,7 @@ else{
 			}
 		}
 		else{
-			if(!$collId && !$occId){
+			if(!$collid && !$occid){
 				echo '<b>ERROR:</b> record identifiers are NULL';
 			}
 			elseif(!$isEditor){
@@ -1471,7 +1450,7 @@ else{
 				}
 				echo '</div>';
 			}
-			elseif($isEditor == 4 && !$occId){
+			elseif($isEditor == 4 && !$occid){
 				echo '<b>ERROR:</b> you are not authorized to add occurrence records';
 			}
 		}

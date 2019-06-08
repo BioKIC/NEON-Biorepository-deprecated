@@ -70,7 +70,7 @@ include($SERVER_ROOT.'/header.php');
 		if($action == 'harvestAll'){
 			?>
 			<fieldset style="margin:15px;padding:15px">
-				<legend>Action Panel</legend>
+				<legend><b>Action Panel</b></legend>
 				<ul>
 				<?php
 				$occurManager->batchHarvestOccid($_POST);
@@ -81,29 +81,43 @@ include($SERVER_ROOT.'/header.php');
 		}
 		?>
 		<fieldset>
-			<legend><b>Action Panel</b></legend>
+			<legend><b>Filter Panel</b></legend>
 			<form action="occurrenceharvester.php" method="post">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 
 					</div>
 					<div class="fieldDiv">
-
+						<b>WHERE</b>
+						<select name="nullfilter">
+							<option value="">Target Field...</option>
+							<option value="">---------------------</option>
+							<option value="recordedBy">collector</option>
+							<option value="eventDate">eventDate</option>
+							<option value="country">country</option>
+							<option value="stateProvince">stateProvince</option>
+							<option value="county">county</option>
+							<option value="decimalLatitude">Lat/Long</option>
+						</select>
+						<b>IS NULL</b>
 					</div>
+				</div>
+				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>Limit:</b> <input name="limit" type="text" value="1000" />
 					</div>
 				</div>
-				<div style="float:left;margin:20px">
-					<button name="action" type="submit" value="harvestAll">Harvest All Occurrence</button>
-					<button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>
-				</div>
-				<div style="float:right; margin:20px">
-					<button name="action" type="submit" value="exportOccurrences">Export Occurrences</button>
+				<div class="fieldGroupDiv">
+					<div style="float:left;margin:20px">
+						<button name="action" type="submit" value="harvestAll">Harvest Occurrence</button>
+						<!--  <button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>  -->
+					</div>
+					<div style="float:right; margin:20px">
+						<button name="action" type="submit" value="exportOccurrences">Export Occurrences</button>
+					</div>
 				</div>
 			</form>
 		</fieldset>
-
 		<?php
 	}
 	else{

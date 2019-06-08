@@ -19,10 +19,17 @@ class OccurrenceHarvester{
 		set_time_limit(3600);
 		$sqlWhere = '';
 		if(isset($postArr['scbox'])){
-			$sqlWhere = 'WHERE samplePK IN('.implode(',',$postArr['scbox']).')';
+			$sqlWhere = 'WHERE s.samplePK IN('.implode(',',$postArr['scbox']).')';
 		}
 		elseif($postArr['action'] == 'harvestAll'){
-			$sqlWhere = 'WHERE (occid IS NULL) AND (errorMessage IS NULL) ORDER BY shipmentPK ';
+			$sqlWhere = 'WHERE (s.occid IS NULL) ';
+			if($postArr['nullfilter']){
+				$sqlWhere .= 'AND (o.'.$postArr['nullfilter'].' IS NULL) ';
+			}
+			else{
+				$sqlWhere .= 'AND (s.errorMessage IS NULL) ';
+			}
+			$sqlWhere .= 'ORDER BY s.shipmentPK ';
 			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
 			else  $sqlWhere .= 'LIMIT 1000 ';
 		}
@@ -32,10 +39,11 @@ class OccurrenceHarvester{
 				$occidArr = array();
 				$cnt = 1;
 				$shipmentPK = '';
-				$sql = 'SELECT samplePK, shipmentPK, sampleID, alternativeSampleID, sampleUuid, sampleCode, sampleClass, taxonID, '.
-					'individualCount, filterVolume, namedLocation, collectDate, occid '.
-					'FROM NeonSample '.$sqlWhere;
-				//echo $sql.'<br/>';
+				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
+					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.occid '.
+					'FROM NeonSample s INNER JOIN omoccurrences o ON s.occid = o.occid '.
+					$sqlWhere;
+				//echo $sql.'<br/>'; exit;
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					if($shipmentPK != $r->shipmentPK){
@@ -73,7 +81,9 @@ class OccurrenceHarvester{
 					flush();
 					ob_flush();
 				}
+				if(!$shipmentPK) echo '<li><b>No records to processing matching filter criteria</b></li>';
 				$rs->free();
+
 				$this->setNeonTaxonomy($occidArr);
 			}
 			else{
@@ -246,7 +256,7 @@ class OccurrenceHarvester{
 		if($sampleArr['samplePK']){
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
 				//Get data that was provided within manifest
-				$dwcArr['othercatalogNumbers'] = $sampleArr['sampleID'];
+				$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
 				if($sampleArr['collectDate']) $dwcArr['eventDate'] = $sampleArr['collectDate'];
 				if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
 				if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
@@ -260,7 +270,12 @@ class OccurrenceHarvester{
 				//Special case for Mosquito samples
 				if($sampleArr['sampleClass'] == 'mos_identification_in.individualIDList'){
 					if(isset($sampleArr['parentID'])){
-						$this->resetMosquitoNamedLocation($sampleArr);
+						$this->adjustMosquitoData($sampleArr, $dwcArr);
+					}
+				}
+				else{
+					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
+						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
 				}
 
@@ -294,7 +309,7 @@ class OccurrenceHarvester{
 		return $status;
 	}
 
-	private function resetMosquitoNamedLocation(&$sampleArr){
+	private function adjustMosquitoData(&$sampleArr, &$dwcArr){
 		$parentID = $sampleArr['parentID'];
 		$url = 'https://data.neonscience.org/api/v0/samples/view?sampleUuid=';
 		do{
@@ -306,8 +321,19 @@ class OccurrenceHarvester{
 					if(isset($viewArr['parentID'])) $parentID = $viewArr['parentID'];
 				}
 				elseif($viewArr['sampleClass'] == 'mos_trapping_in.sampleID'){
+					//Set trapping location
 					if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
 						$sampleArr['namedLocation'] = $viewArr['namedLocation'];
+					}
+					if(isset($viewArr['sampleTag']) && $viewArr['sampleTag']){
+						//Append sampleTag of collected mosquito into other catalog numbers
+						$dwcArr['otherCatalogNumbers'] = trim($dwcArr['otherCatalogNumbers'].'; '.$viewArr['sampleTag'],'; ');
+						if(!isset($dwcArr['eventDate']) || $dwcArr['eventDate']){
+							//Set missing eventDate by extracting it from parent sampleID
+							if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$viewArr['sampleTag'],$m)){
+								$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
+							}
+						}
 					}
 				}
 			}
@@ -328,9 +354,9 @@ class OccurrenceHarvester{
 		//Extract DwC values
 		$locality = $this->getLocationParentStr($resultArr);
 
-		$dwcArr['decimalLatitude'] = $resultArr['locationDecimalLatitude'];
-		$dwcArr['decimalLongitude'] = $resultArr['locationDecimalLongitude'];
-		$dwcArr['minimumElevationInMeters'] = round($resultArr['locationElevation']);
+		if(isset($resultArr['locationDecimalLatitude']) && $resultArr['locationDecimalLatitude']) $dwcArr['decimalLatitude'] = $resultArr['locationDecimalLatitude'];
+		if(isset($resultArr['locationDecimalLongitude']) && $resultArr['locationDecimalLongitude']) $dwcArr['decimalLongitude'] = $resultArr['locationDecimalLongitude'];
+		if(isset($resultArr['locationElevation']) && $resultArr['locationElevation']) $dwcArr['minimumElevationInMeters'] = round($resultArr['locationElevation']);
 		$habitatArr = array();
 		$locPropArr = $resultArr['locationProperties'];
 		foreach($locPropArr as $propArr){
@@ -375,7 +401,7 @@ class OccurrenceHarvester{
 	private function getLocationParentStr($resultArr){
 		$parStr = '';
 		if(isset($resultArr['locationDescription'])){
-			$parStr = str_replace(array('"',', RELOCATABLE'),'',$resultArr['locationDescription']);
+			$parStr = str_replace(array('"',', RELOCATABLE',', CORE'),'',$resultArr['locationDescription']);
 			$parStr = preg_replace('/ at site [A-Z]+/', '', $parStr);
 			if(isset($resultArr['locationParent'])){
 				if($resultArr['locationParent'] == 'REALM') return '';
@@ -411,12 +437,16 @@ class OccurrenceHarvester{
 			else{
 				$sql1 = ''; $sql2 = '';
 				foreach($dwcArr as $fieldName => $fieldValue){
-					$sql1 .= $fieldName.',';
+					$fieldValue = $this->cleanInStr($fieldValue);
 					if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+						$sql1 .= $fieldName.',';
 						$sql2 .= $fieldValue.',';
 					}
 					else{
-						$sql2 .= '"'.$this->cleanInStr($fieldValue).'",';
+						if($fieldValue){
+							$sql1 .= $fieldName.',';
+							$sql2 .= '"'.$fieldValue.'",';
+						}
 					}
 				}
 				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').') VALUES('.trim($sql2,',').')';

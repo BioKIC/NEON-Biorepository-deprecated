@@ -91,7 +91,7 @@ class OccurrenceEditorManager {
 			$dynPropArr = json_decode($this->collMap['dynamicproperties'],true);
 			if(isset($dynPropArr['editorProp'])) $propArr = $dynPropArr['editorProp'];
 		}
-		$dynPropArr = array("editorProp"=>array("paleoMod"=>1,"catalogDupeCheck"=>1));
+		//$dynPropArr = array("editorProp"=>array("paleoMod"=>1,"catalogDupeCheck"=>1));
 		if(isset($dynPropArr['editorProp'])) $propArr = $dynPropArr['editorProp'];
 		return $propArr;
 	}
@@ -938,13 +938,13 @@ class OccurrenceEditorManager {
 								$paleoFrag1 = '';
 								$paleoFrag2 = '';
 								foreach($paleoFieldArr as $paleoField){
-									if(array_key_exists($paleoField,$occArr)){
+									if(array_key_exists($paleoField,$occArr) && $occArr[$paleoField]){
 										$paleoFrag1 .= ','.$paleoField;
-										$paleoFrag2 .= ','.($occArr[$paleoField]?'"'.$this->cleanInStr($occArr[$paleoField]).'"':'NULL');
+										$paleoFrag2 .= ',"'.$this->cleanInStr($occArr[$paleoField]).'" ';
 									}
 								}
 								if($paleoFrag1){
-									echo 'INSERT INTO omoccurpaleo(occid'.$paleoFrag1.') VALUES('.$occArr['occid'].$paleoFrag2.')';
+									//echo 'INSERT INTO omoccurpaleo(occid'.$paleoFrag1.') VALUES('.$occArr['occid'].$paleoFrag2.')';
 									$this->conn->query('INSERT INTO omoccurpaleo(occid'.$paleoFrag1.') VALUES('.$occArr['occid'].$paleoFrag2.')');
 								}
 							}

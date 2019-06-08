@@ -1,20 +1,20 @@
 <div id="coordAidDiv">
 	<div id="dmsAidDiv">
 		<div>
-			Lat: 
-			<input id="latdeg" style="width:35px;" title="Latitude Degree" />&deg; 
-			<input id="latmin" style="width:50px;" title="Latitude Minutes" />' 
-			<input id="latsec" style="width:50px;" title="Latitude Seconds" />&quot; 
+			Lat:
+			<input id="latdeg" style="width:35px;" title="Latitude Degree" />&deg;
+			<input id="latmin" style="width:50px;" title="Latitude Minutes" />'
+			<input id="latsec" style="width:50px;" title="Latitude Seconds" />&quot;
 			<select id="latns">
 				<option>N</option>
 				<option>S</option>
 			</select>
 		</div>
 		<div>
-			Long: 
-			<input id="lngdeg" style="width:35px;" title="Longitude Degree" />&deg; 
-			<input id="lngmin" style="width:50px;" title="Longitude Minutes" />' 
-			<input id="lngsec" style="width:50px;" title="Longitude Seconds" />&quot; 
+			Long:
+			<input id="lngdeg" style="width:35px;" title="Longitude Degree" />&deg;
+			<input id="lngmin" style="width:50px;" title="Longitude Minutes" />'
+			<input id="lngsec" style="width:50px;" title="Longitude Seconds" />&quot;
 			<select id="lngew">
 				<option>E</option>
 				<option SELECTED>W</option>
@@ -29,8 +29,8 @@
 		East: <input id="utmeast" type="text" style="width:100px;" /><br/>
 		North: <input id="utmnorth" type="text" style="width:100px;" /><br/>
 		Hemisphere: <select id="hemisphere" title="Use hemisphere designator (e.g. 12N) rather than grid zone ">
-			<option value="Northern">North</option>
-			<option value="Southern">South</option>
+			<option value="N">North</option>
+			<option value="S">South</option>
 		</select><br/>
 		<div style="margin-top:5px;">
 			<input type="button" value="Insert UTM Values" onclick="insertUtm(this.form)" />
@@ -47,16 +47,16 @@
 			<option>E</option>
 			<option>W</option>
 		</select><br/>
-		Sec: 
-		<input id="section" style="width:30px;" title="Section" />&nbsp;&nbsp;&nbsp; 
-		Details: 
+		Sec:
+		<input id="section" style="width:30px;" title="Section" />&nbsp;&nbsp;&nbsp;
+		Details:
 		<input id="secdetails" style="width:90px;" title="Section Details" /><br/>
 		<select id="meridian" title="Meridian">
 			<option value="">Meridian Selection</option>
 			<option value="">----------------------------------</option>
 			<option value="G-AZ">Arizona, Gila &amp; Salt River</option>
 			<option value="NAAZ">Arizona, Navajo</option>
-			<option value="F-AR">Arkansas, Fifth Principal</option> 
+			<option value="F-AR">Arkansas, Fifth Principal</option>
 			<option value="H-CA">California, Humboldt</option>
 			<option value="M-CA">California, Mt. Diablo</option>
 			<option value="S-CA">California, San Bernardino</option>

@@ -163,7 +163,7 @@ function insertUtm(f) {
 			if(vcStr != ""){
 				vcStr = vcStr + "; ";
 			}
-			var utmStr = zValue + " " + eValue + "E " + nValue + "N ";
+			var utmStr = zValue + hValue + " " + eValue + "E " + nValue + "N ";
 			f.verbatimcoordinates.value = vcStr + utmStr;
 			//Convert to Lat/Lng values
 			var zNum = parseInt(zValue);
@@ -172,7 +172,7 @@ function insertUtm(f) {
 				var llArr = latLngStr.split(',');
 				if(llArr){
 					var latFact = 1;
-					if(hValue == "Southern") latFact = -1;
+					if(hValue == "S") latFact = -1;
 					f.decimallatitude.value = latFact*Math.round(llArr[0]*1000000)/1000000;
 					f.decimallongitude.value = Math.round(llArr[1]*1000000)/1000000;
 				}

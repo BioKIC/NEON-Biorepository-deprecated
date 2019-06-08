@@ -87,10 +87,10 @@ class ShipmentManager{
 	public function getSampleArr($samplePK = null, $filter = null){
 		$retArr = array();
 		$headerArr = array('sampleID','alternativeSampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate',
-			'quarantineStatus','acceptedForAnalysis','sampleCondition','dynamicProperties','sampleNotes','occid','checkinUser','checkinRemarks','checkinTimestamp');
+			'quarantineStatus','acceptedForAnalysis','sampleCondition','dynamicProperties','sampleNotes','occurErr','occid','checkinUser','checkinRemarks','checkinTimestamp');
 		$targetArr = array();
 		$sql = 'SELECT s.samplePK, s.sampleID, s.alternativeSampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, '.
-			's.domainRemarks, s.collectDate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.notes as sampleNotes, '.
+			's.domainRemarks, s.collectDate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.notes as sampleNotes, s.errorMessage as occurErr, '.
 			'CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinRemarks, s.checkinTimestamp, s.occid '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid ';
 		if($samplePK){

@@ -501,6 +501,7 @@ include($SERVER_ROOT.'/header.php');
 												}
 												$str .= '<div>'.trim($propSstr,'; ').'</div>';
 											}
+											if(isset($sampleArr['occurErr'])) $str .= '<div>Occurrence Harvesting Error: '.$sampleArr['occurErr'].'</div>';
 											if($str) echo '<tr><td colspan="'.$rowCnt.'"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
 										}
 										?>

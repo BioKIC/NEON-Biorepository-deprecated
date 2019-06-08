@@ -223,10 +223,12 @@ class OccurrenceIndividualManager extends Manager{
 			'biostratigraphy, lithogroup, formation, taxonenvironment, member, lithology, stratremarks, lithdescription, element, slideproperties '.
 			'FROM omoccurpaleo WHERE occid = '.$this->occid;
 		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_assoc()){
-			$this->occArr = array_merge($this->occArr,$r);
+		if($rs){
+			while($r = $rs->fetch_assoc()){
+				$this->occArr = array_merge($this->occArr,$r);
+			}
+			$rs->free();
 		}
-		$rs->free();
 	}
 
 	private function loadLoan(){

@@ -770,6 +770,8 @@ class OccurrenceEditorManager {
 			if($editArr || $quickHostEntered){
 				if($editArr){
 					//Deal with scientific name changes if the AJAX code fails
+					$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biozone',
+						'biostratigraphy','lithogroup','formation','taxonenvironment','member','lithology','stratremarks','lithdescription','element','slideproperties');
 					if(in_array('sciname',$editArr) && $occArr['sciname'] && !$occArr['tidinterpreted']){
 						$sql2 = 'SELECT t.tid, t.author, ts.family '.
 							'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
@@ -791,15 +793,17 @@ class OccurrenceEditorManager {
 						(in_array('processingstatus',$editArr)?'':',processingstatus').(in_array('recordenteredby',$editArr)?'':',recordenteredby').
 						' FROM omoccurrences o LEFT JOIN omexsiccatiocclink el ON o.occid = el.occid '.
 						'LEFT JOIN omexsiccatinumbers en ON el.omenid = en.omenid '.
-						'LEFT JOIN omexsiccatititles et ON en.ometid = et.ometid '.
-						'LEFT JOIN omoccurpaleo p ON o.occid = p.occid '.
-						'WHERE o.occid = '.$occArr['occid'];
+						'LEFT JOIN omexsiccatititles et ON en.ometid = et.ometid ';
 					}
 					else{
 						$sql = 'SELECT '.($editArr?implode(',',$editArr):'').(in_array('processingstatus',$editArr)?'':',processingstatus').
 						(in_array('recordenteredby',$editArr)?'':',recordenteredby').
-						' FROM omoccurrences o LEFT JOIN omoccurpaleo p ON o.occid = p.occid WHERE o.occid = '.$occArr['occid'];
+						' FROM omoccurrences o ';
 					}
+					if(array_intersect($editArr, $paleoFieldArr)){
+						$sql .= 'LEFT JOIN omoccurpaleo p ON o.occid = p.occid ';
+					}
+					$sql .= 'WHERE o.occid = '.$occArr['occid'];
 					//echo $sql;
 					$rs = $this->conn->query($sql);
 					$oldValues = $rs->fetch_assoc();
@@ -912,21 +916,23 @@ class OccurrenceEditorManager {
 							$paleoRecordExist = false;
 							$paleoSql = 'SELECT paleoid FROM omoccurpaleo WHERE occid = '.$occArr['occid'];
 							$paleoRS = $this->conn->query($paleoSql);
-							if($paleoRS->num_rows) $paleoRecordExist = true;
-							$paleoRS->free();
+							if($paleoRS){
+								if($paleoRS->num_rows) $paleoRecordExist = true;
+								$paleoRS->free();
+							}
 							$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biozone',
 								'biostratigraphy','lithogroup','formation','taxonenvironment','member','lithology','stratremarks','lithdescription','element','slideproperties');
 							if($paleoRecordExist){
 								//Edit existing record
-								$paleoHhasValue = false;
+								$paleoHasValue = false;
 								$paleoFrag = '';
 								foreach($paleoFieldArr as $paleoField){
 									if(array_key_exists($paleoField,$occArr)){
 										$paleoFrag .= ','.$paleoField.' = '.($occArr[$paleoField]?'"'.$this->cleanInStr($occArr[$paleoField]).'"':'NULL');
-										if($occArr[$paleoField]) $paleoHhasValue = true;
+										if($occArr[$paleoField]) $paleoHasValue = true;
 									}
 								}
-								if($paleoHhasValue){
+								if($paleoHasValue){
 									if($paleoFrag) $this->conn->query('UPDATE omoccurpaleo SET '.substr($paleoFrag, 1).' WHERE occid = '.$occArr['occid']);
 								}
 								else{
@@ -944,7 +950,6 @@ class OccurrenceEditorManager {
 									}
 								}
 								if($paleoFrag1){
-									//echo 'INSERT INTO omoccurpaleo(occid'.$paleoFrag1.') VALUES('.$occArr['occid'].$paleoFrag2.')';
 									$this->conn->query('INSERT INTO omoccurpaleo(occid'.$paleoFrag1.') VALUES('.$occArr['occid'].$paleoFrag2.')');
 								}
 							}
@@ -1220,16 +1225,18 @@ class OccurrenceEditorManager {
 				}
 
 				//Archive paleo
-				$paleoArr = array();
 				$sql = 'SELECT * FROM omoccurpaleo WHERE occid = '.$delOccid;
 				$rs = $this->conn->query($sql);
-				if($r = $rs->fetch_assoc()){
-					foreach($r as $k => $v){
-						if($v) $paleoArr[$k] = $this->encodeStrTargeted($v,$CHARSET,'utf8');
+				if($rs){
+					$paleoArr = array();
+					if($r = $rs->fetch_assoc()){
+						foreach($r as $k => $v){
+							if($v) $paleoArr[$k] = $this->encodeStrTargeted($v,$CHARSET,'utf8');
+						}
 					}
+					$rs->free();
+					$archiveArr['paleo'] = $paleoArr;
 				}
-				$rs->free();
-				$archiveArr['paleo'] = $paleoArr;
 
 				//Archive Exsiccati info
 				$exsArr = array();

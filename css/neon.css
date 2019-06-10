@@ -375,10 +375,10 @@ caption + thead tr:first-child th,caption + thead tr:first-child td,colgroup + t
   margin: 0;
 }
 
-.region-utility .nav .nav-item:first-child .nav-link,.region-utility #styleguide-header ul .nav-item:first-child .nav-link,#styleguide-header .region-utility ul .nav-item:first-child .nav-link {
+/* .region-utility .nav .nav-item:first-child .nav-link,.region-utility #styleguide-header ul .nav-item:first-child .nav-link,#styleguide-header .region-utility ul .nav-item:first-child .nav-link {
   background-color: white;
   color: #002d74;
-}
+} */
 
 .region-utility .nav .nav-link,.region-utility #styleguide-header ul .nav-link,#styleguide-header .region-utility ul .nav-link {
   display: inline-flex;

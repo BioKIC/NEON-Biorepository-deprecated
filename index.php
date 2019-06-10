@@ -3,11 +3,15 @@
 //ini_set('display_errors', '1');
 include_once('config/symbini.php');
 include_once('content/lang/index.'.$LANG_TAG.'.php');
+header('Cache-Control: no-cache');
+header('Pragma: no-cache');
 header("Content-Type: text/html; charset=".$CHARSET);
 ?>
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Home</title>
+	<meta http-equiv="Expires" content="Tue, 01 Jan 1995 12:12:12 GMT">
+	<meta http-equiv="Pragma" content="no-cache">
 	<!-- CSS -->
 	<link href="css/base.cssver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
 	<link href="css/main.css?ver=<?php echo $CSS_VERSION_LOCAL; ?>" type="text/css" rel="stylesheet" />

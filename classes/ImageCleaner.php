@@ -5,6 +5,7 @@ include_once('ImageShared.php');
 class ImageCleaner extends Manager{
 
 	private $collid;
+	private $collCodeArr = array();
 	private $tidArr = array();
 	private $imgRecycleBin;
 	private $imgDelRecOverride = false;
@@ -83,13 +84,11 @@ class ImageCleaner extends Manager{
 			$textRS = $this->conn->query($testSql);
 			if($testR = $textRS->fetch_object()){
 				if(!$testR->thumbnailurl || (substr($testR->thumbnailurl,0,10) == 'processing' && $testR->thumbnailurl != 'processing '.date('Y-m-d'))){
-					$tagSql = 'UPDATE images SET thumbnailurl = "processing '.date('Y-m-d').'" '.
-						'WHERE (imgid = '.$imgId.')';
+					$tagSql = 'UPDATE images SET thumbnailurl = "processing '.date('Y-m-d').'" WHERE (imgid = '.$imgId.')';
 					$this->conn->query($tagSql);
 				}
 				elseif($testR->url == 'empty' || (substr($testR->url,0,10) == 'processing' && $testR->url != 'processing '.date('Y-m-d'))){
-					$tagSql = 'UPDATE images SET url = "processing '.date('Y-m-d').'" '.
-						'WHERE (imgid = '.$imgId.')';
+					$tagSql = 'UPDATE images SET url = "processing '.date('Y-m-d').'" WHERE (imgid = '.$imgId.')';
 					$this->conn->query($tagSql);
 				}
 				else{
@@ -116,15 +115,15 @@ class ImageCleaner extends Manager{
 		if($this->verboseMode > 1) echo '</ul>';
 	}
 
-	private function getCollectionInfo(){
-		$retArr = array();
-		$sql = 'SELECT DISTINCT c.collid, CONCAT_WS("_",c.institutioncode, c.collectioncode) AS code, c.collectionname FROM omcollections c WHERE c.collid = '.$this->collid;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->code] = $r->collectionname;
+	private function setCollectionCode(){
+		if($this->collid){
+			$sql = 'SELECT collid, CONCAT_WS("_",institutioncode, collectioncode) AS code FROM omcollections WHERE collid = '.$this->collid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->collCodeArr[$r->collid] = $r->code;
+			}
+			$rs->free();
 		}
-		$rs->free();
-		return $retArr;
 	}
 
 	private function getSqlWhere(){
@@ -137,17 +136,13 @@ class ImageCleaner extends Manager{
 
 	private function buildImageDerivatives($imgId, $catNum, $recUrlWeb, $recUrlTn, $recUrlOrig, $setFormat = false){
 		$status = true;
+		if(substr($recUrlWeb,0,10) == 'processing') $recUrlWeb = '';
+		if(substr($recUrlTn,0,10) == 'processing') $recUrlTn = '';
 		//Build target path
 		$targetPath = '';
 		if($this->collid){
-			$collArr = $this->getCollectionInfo();
-			$targetPath = key($collArr).'/';
-		}
-		else{
-			$targetPath = 'misc/'.date('Ym').'/';
-		}
-
-		if($this->collid){
+			if(!array_key_exists($this->collid, $this->collCodeArr)) $this->setCollectionCode();
+			$targetPath = $this->collCodeArr[$this->collid].'/';
 			if($catNum){
 				$catNum = str_replace(array('/','\\',' '), '', $catNum);
 				if(preg_match('/^(\D{0,8}\d{4,})/', $catNum, $m)){
@@ -162,6 +157,9 @@ class ImageCleaner extends Manager{
 			else{
 				$targetPath .= date('Ym').'/';
 			}
+		}
+		else{
+			$targetPath = 'misc/'.date('Ym').'/';
 		}
 		$this->imgManager->setTargetPath($targetPath);
 
@@ -191,7 +189,7 @@ class ImageCleaner extends Manager{
 			$lgFullUrl = '';
 			//Create thumbnail
 			$imgTnUrl = '';
-			if(!$recUrlTn || substr($recUrlTn,0,10) == 'processing'){
+			if(!$recUrlTn){
 				if($this->imgManager->createNewImage('_tn',$this->imgManager->getTnPixWidth(),70)){
 					$imgTnUrl = $this->imgManager->getUrlBase().$this->imgManager->getImgName().'_tn.jpg';
 				}
@@ -263,11 +261,19 @@ class ImageCleaner extends Manager{
 	}
 
 	public function resetProcessing(){
-		$sqlTN = 'UPDATE images SET thumbnailurl = NULL '.
-			'WHERE (thumbnailurl = "") OR (thumbnailurl = "bad url") OR (thumbnailurl LIKE "processing %" AND thumbnailurl != "processing '.date('Y-m-d').'") ';
+		$sqlTN = 'UPDATE images SET thumbnailurl = NULL WHERE ((thumbnailurl = "") OR (thumbnailurl = "bad url") OR (thumbnailurl LIKE "processing %")) ';
+		if($this->collid){
+			$sqlTN = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid '.
+				'SET thumbnailurl = NULL '.
+				'WHERE ((thumbnailurl = "") OR (thumbnailurl = "bad url") OR (thumbnailurl LIKE "processing %")) AND collid = '.$this->collid;
+		}
 		$this->conn->query($sqlTN);
-		$sqlWeb = 'UPDATE images SET url = "empty" '.
-			'WHERE (url = "") OR (url LIKE "processing %" AND url != "processing '.date('Y-m-d').'") ';
+		$sqlWeb = 'UPDATE images SET url = "empty" WHERE ((url = "") OR (url LIKE "processing %")) ';
+		if($this->collid){
+			$sqlWeb = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid '.
+				'SET url = "empty" '.
+				'WHERE ((url = "") OR (url LIKE "processing %")) AND collid = '.$this->collid;
+		}
 		$this->conn->query($sqlWeb);
 	}
 

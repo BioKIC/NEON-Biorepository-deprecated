@@ -1341,8 +1341,8 @@ class OccurrenceEditorManager {
 		//Remap paleo
 		$sql = 'UPDATE omoccurpaleo SET occid = '.$targetOccid.' WHERE occid = '.$sourceOccid;
 		if(!$this->conn->query($sql)){
-			$this->errorArr[] .= '; ERROR remapping paleos: '.$this->conn->error;
-			$status = false;
+			//$this->errorArr[] .= '; ERROR remapping paleos: '.$this->conn->error;
+			//$status = false;
 		}
 
 		//Delete source occurrence edits

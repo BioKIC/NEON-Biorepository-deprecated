@@ -689,9 +689,9 @@ class ImageShared{
 
 	/**
 	 * Insert a record into the image table.
-	 * @author Paul J. Morris
+	 * author: Paul J. Morris
 	 *
-	 * @return an empty string on success, otherwise a string containing an error message.
+	 * return: an empty string on success, otherwise a string containing an error message.
 	 */
 	public function databaseImageRecord($imgWebUrl,$imgTnUrl,$imgLgUrl,$tid,$caption,$phototrapher,$photographerUid,$sourceUrl,$copyright,$owner,$locality,$occid,$notes,$sortSequence,$imagetype,$anatomy,$sourceIdentifier,$rights,$accessRights){
 		$status = "";
@@ -739,9 +739,9 @@ class ImageShared{
 
 	/**
 	 * Update an existing record into the image table.
-	 * @author Paul J. Morris
+	 * author: Paul J. Morris
 	 *
-	 * @return an empty string on success, otherwise a string containing an error message.
+	 * return: an empty string on success, otherwise a string containing an error message.
 	 */
 	public function updateImageRecord($imgid,$imgWebUrl,$imgTnUrl,$imgLgUrl,$tid,$caption,$phototrapher,$photographerUid,$sourceUrl,$copyright,$owner,$locality,$occid,$notes,$sortSequence,$imagetype,$anatomy, $sourceIdentifier, $rights, $accessRights){
 		$status = "";

@@ -36,7 +36,7 @@ ALTER TABLE `NeonShipment`
 CREATE TABLE `NeonSample` (
   `samplePK` INT NOT NULL AUTO_INCREMENT,
   `shipmentPK` INT NOT NULL,
-  `sampleID` VARCHAR(45) NOT NULL,
+  `sampleID` VARCHAR(75) NOT NULL,
   `alternativeSampleID` VARCHAR(45) NOT NULL,
   `sampleUuid` VARCHAR(75) NOT NULL,
   `sampleCode` VARCHAR(45) NULL,

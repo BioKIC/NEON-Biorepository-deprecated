@@ -121,7 +121,7 @@ if($isEditor){
 		<script type="text/javascript" src="../../js/jquery.js"></script>
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
-		<script language="javascript" type="text/javascript">
+		<script type="text/javascript">
 			$(document).ready(function() {
 				var dialogArr = new Array("schemanative","schemadwc");
 				var dialogStr = "";
@@ -211,12 +211,8 @@ if($isEditor){
 
 			function openPopup(urlStr){
 				var wWidth = 900;
-				if(document.getElementById('maintable').offsetWidth){
-					wWidth = document.getElementById('maintable').offsetWidth*1.05;
-				}
-				else if(document.body.offsetWidth){
-					wWidth = document.body.offsetWidth*0.9;
-				}
+				if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+				if(wWidth > 1200) wWidth = 1200;
 				newWindow = window.open(urlStr,'popup','scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
 				if (newWindow.opener == null) newWindow.opener = self;
 				newWindow.focus();

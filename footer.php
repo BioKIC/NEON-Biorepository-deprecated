@@ -1,6 +1,3 @@
-    	</td>
-	</tr>
-	<tr>
 		<footer id="footer">
 			<div class="l--full-width footer-bottom clearfix">
 				<div class="footer-bottom-left">
@@ -12,6 +9,4 @@
 				</div>
 			</div>
 		</footer>
-	</tr>
-</table>
 </html>

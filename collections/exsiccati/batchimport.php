@@ -93,12 +93,8 @@ if($isEditor && $formSubmit){
 
 		function openIndPU(occId){
 			var wWidth = 900;
-			if(document.getElementById('maintable').offsetWidth){
-				wWidth = document.getElementById('maintable').offsetWidth*1.05;
-			}
-			else if(document.body.offsetWidth){
-				wWidth = document.body.offsetWidth*0.9;
-			}
+			if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+			if(wWidth > 1200) wWidth = 1200;
 			newWindow = window.open('../individual/index.php?occid='+occId,'indspec','scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
 			if(newWindow.opener == null) newWindow.opener = self;
 			return false;
@@ -106,12 +102,8 @@ if($isEditor && $formSubmit){
 
 		function openExsPU(omenid){
 			var wWidth = 900;
-			if(document.getElementById('maintable').offsetWidth){
-				wWidth = document.getElementById('maintable').offsetWidth*1.05;
-			}
-			else if(document.body.offsetWidth){
-				wWidth = document.body.offsetWidth*0.9;
-			}
+			if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+			if(wWidth > 1200) wWidth = 1200;
 			newWindow = window.open('index.php?omenid='+omenid,'exsnum','scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
 			if(newWindow.opener == null) newWindow.opener = self;
 			return false;
@@ -119,13 +111,13 @@ if($isEditor && $formSubmit){
 	</script>
 </head>
 <body>
-	<?php 
+	<?php
 	$displayLeftMenu = (isset($collections_exsiccati_batchimport)?$collections_exsiccati_batchimport:false);
 	include($SERVER_ROOT."/header.php");
 	?>
 	<div class='navpath'>
-		<a href="../../index.php">Home</a> &gt;&gt; 
-		<a href="index.php">Exsiccati Index</a> &gt;&gt; 
+		<a href="../../index.php">Home</a> &gt;&gt;
+		<a href="index.php">Exsiccati Index</a> &gt;&gt;
 		<a href="batchimport.php">Batch Import Module</a>
 	</div>
 	<!-- This is inner text! -->
@@ -146,7 +138,7 @@ if($isEditor && $formSubmit){
 							<select name="ometid" style="width:500px;" onchange="this.form.submit()">
 								<option value="">Choose Exsiccati Series</option>
 								<option value="">------------------------------------</option>
-								<?php 
+								<?php
 								//Get only titles with linked specimens
 								foreach($exsArr as $exid => $exTitle){
 									echo '<option value="'.$exid.'">'.$exTitle.'</option>';
@@ -161,7 +153,7 @@ if($isEditor && $formSubmit){
 			}
 			else{
 				echo '<div style="margin:20px;font-size:120%;"><b>The system does not yet have occurrence linked to exsiccati that can be transferred</b></div>';
-			}				
+			}
 		}
 		elseif($formSubmit == 'Show Exsiccati Table'){
 			$occurArr = $exsManager->getExsOccArr($ometid, 'ometid');
@@ -172,12 +164,12 @@ if($isEditor && $formSubmit){
 				?>
 				<form name="exstableform" method="post" action="batchimport.php" onsubmit="return verifyExsTableForm(this)">
 					<div style="margin:10px 0px;">
-						Enter your catalog numbers in field associated with record and then transfer into your collection or download as a spreadsheet (CSV) 
-						for import into a local database application.   
+						Enter your catalog numbers in field associated with record and then transfer into your collection or download as a spreadsheet (CSV)
+						for import into a local database application.
 					</div>
 					<table class="styledtable" style="font-family:Arial;font-size:12px;">
 						<tr><th><input name="selectAllCB" type="checkbox" onchange="selectAll(this)" /></th><th>Catalog Number</th><th>Exsiccati #</th><th>Details</th></tr>
-						<?php 
+						<?php
 						foreach($occurArr as $omenid => $occArr){
 							//Sort by preferred source collections and ranking
 							$prefOcc = array();
@@ -207,11 +199,11 @@ if($isEditor && $formSubmit){
 						}
 						?>
 					</table>
-					<!-- 
+					<!--
 					<div style="margin:10px 0px">
 						<b>Dataset Title</b><br/>
 						<input name="dataset" type="text" value="" style="width:300px;" /><br/>
-						*Enter value to create a dataset to which imported records will be linked 
+						*Enter value to create a dataset to which imported records will be linked
 					</div>
 					 -->
 					<?php
@@ -229,7 +221,7 @@ if($isEditor && $formSubmit){
 							</select>
 							<input name="formsubmit" type="submit" value="Import Selected Records" />
 						</div>
-						<?php 
+						<?php
 					}
 					?>
 					<div style="margin:15px">
@@ -238,7 +230,7 @@ if($isEditor && $formSubmit){
 						<input name="formsubmit" type="submit" value="Export Selected Records" />
 					</div>
 				</form>
-				<?php 
+				<?php
 			}
 			else{
 				echo '<div style="font-weight:bold;">There are no specimen records linked to this exsiccati title</div>';
@@ -249,7 +241,7 @@ if($isEditor && $formSubmit){
 			<form name="queryform" action="batchimport.php" method="post" onsubmit="return verifyQueryForm(this)">
 				<fieldset>
 					<legend><b>Batch Import Module</b></legend>
-					<?php 
+					<?php
 					$exsTitleArr = $exsManager->getTitleArr();
 					echo '<h2>'.$exsTitleArr[$ometid].'</h2>';
 					if($sourceCollArr = $exsManager->getCollArr($ometid)){
@@ -262,32 +254,32 @@ if($isEditor && $formSubmit){
 								<select name="source1">
 									<option value="">Source Collection 1</option>
 									<option value="">------------------------------------</option>
-									<?php 
+									<?php
 									foreach($sourceCollArr as $id => $cTitle){
 										echo '<option value="'.$id.'" '.($source1==$id?'SELECTED':'').'>'.$cTitle.'</option>';
 									}
 									?>
 								</select>
 							</div>
-							<?php 
+							<?php
 							if(count($sourceCollArr) > 1){
 								?>
 								<div style="margin:5px 0px">
 									<select name="source2">
 										<option value="">Source Collection 2</option>
 										<option value="">------------------------------------</option>
-										<?php 
+										<?php
 										foreach($sourceCollArr as $id => $cTitle){
 											echo '<option value="'.$id.'" '.($source2==$id?'SELECTED':'').'>'.$cTitle.'</option>';
 										}
 										?>
 									</select>
 								</div>
-								<?php 
+								<?php
 							}
 							?>
 						</div>
-						<?php 
+						<?php
 					}
 					?>
 					<div style="margin:20px">

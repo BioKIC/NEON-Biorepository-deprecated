@@ -58,25 +58,33 @@ $imgManager->setTid($tid);
 		<?php
 		if($isEditor){
 			if($action && $action != 'none'){
-				echo '<fieldset style="margin:10px;padding:15px">';
-				echo '<legend><b>Processing Panel</b></legend>';
-				echo '<div style="font-weight:bold;">Start processing...</div>';
-				if($action == 'Build Thumbnails'){
-					$imgManager->buildThumbnailImages();
+				if($action == 'resetprocessing'){
+					$imgManager->resetProcessing();
 				}
-				elseif($action == 'Refresh Thumbnails'){
-					echo '<div style="margin-bottom:10px;">Number of images to be refreshed: '.$imgManager->getProcessingCnt($_POST).'</div>';
-					$imgManager->refreshThumbnails($_POST);
+				else{
+					?>
+					<fieldset style="margin:10px;padding:15px">
+						<legend><b>Processing Panel</b></legend>
+						<div style="font-weight:bold;">Start processing...</div>
+						<?php
+						if($action == 'Build Thumbnails'){
+							$imgManager->buildThumbnailImages();
+						}
+						elseif($action == 'Refresh Thumbnails'){
+							echo '<div style="margin-bottom:10px;">Number of images to be refreshed: '.$imgManager->getProcessingCnt($_POST).'</div>';
+							$imgManager->refreshThumbnails($_POST);
+						}
+						?>
+						<div style="margin-top:10px;font-weight:bold;">Finished!</div>
+					</fieldset>
+					<?php
 				}
-				echo '<div style="margin-top:10px;font-weight:bold;">Finished!</div>';
-				echo '</fieldset>';
 			}
 			?>
 			<fieldset style="margin:30px 10px;padding:15px;">
 				<legend><b>Thumbnail Builder</b></legend>
 				<div>
 					<?php
-					//if(!$action && date('j')%8 == 0) $imgManager->resetProcessing();
 					$reportArr = $imgManager->getReportArr();
 					if($reportArr){
 						echo '<b>Images counts without thumbnails and/or basic web image display</b> - This function will build thumbnail images for all occurrence images mapped from an external server.';
@@ -93,22 +101,36 @@ $imgManager->setTid($tid);
 						echo '</ul>';
 					}
 					else{
-						echo '<div style="font-weight:bold;">All images have properly mapped thumbnails. Nothing needs to be done.</div>';
+						echo '<div>All images have properly mapped thumbnails. Nothing needs to be done.</div>';
 					}
 					?>
 				</div>
-				<div style="margin:15px;">
+				<div style="margin:25px;">
 					<?php
 					if($reportArr){
-						?>
-						<div style="margin:10px;">
+						if($collid && $action == 'Build Thumbnails' && $reportArr[$collid]['cnt']){
+							//Thumbnails have been processed but there are still some that missed processing
+							?>
+							<div>There appears to be some images that are not processing, perhaps because they have been tagged as being handled by another process.<br/>
+							Click the reset processing button to do a full reset of all images for reprocessing. This process can take a few minutes, so be patient. </div>
+							<div style="margin:10px">
+								<form name="resetform" action="thumbnailbuilder.php" method="post">
+									<button name="action" type="submit" value="resetprocessing">Reset Proccessing</button>
+									<input name="collid" type="hidden" value="<?php echo $collid; ?>">
+									<input name="tid" type="hidden" value="<?php echo $tid; ?>">
+								</form>
+							</div>
+							<?php
+						}
+						else{
+							?>
 							<form name="tnbuilderform" action="thumbnailbuilder.php" method="post">
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>">
 								<input name="tid" type="hidden" value="<?php echo $tid; ?>">
 								<input name="action" type="submit" value="Build Thumbnails">
 							</form>
-						</div>
-						<?php
+							<?php
+						}
 					}
 					?>
 				</div>

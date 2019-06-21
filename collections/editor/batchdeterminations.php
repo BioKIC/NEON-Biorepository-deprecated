@@ -49,7 +49,7 @@ if($isEditor){
 		<link href="../../css/jquery-ui.css" type="text/css" rel="Stylesheet" />
 		<script src="../../js/jquery.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-		<script>
+		<script type="text/javascript">
 			function initScinameAutocomplete(f){
 				$( f.sciname ).autocomplete({
 					source: "rpc/getspeciessuggest.php",
@@ -271,12 +271,8 @@ if($isEditor){
 
 			function openPopup(urlStr){
 				var wWidth = 900;
-				if(document.getElementById('maintable').offsetWidth){
-					wWidth = document.getElementById('maintable').offsetWidth*1.05;
-				}
-				else if(document.body.offsetWidth){
-					wWidth = document.body.offsetWidth*0.9;
-				}
+				if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+				if(wWidth > 1200) wWidth = 1200;
 				newWindow = window.open(urlStr,'popup','scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
 				if (newWindow.opener == null) newWindow.opener = self;
 				return false;

@@ -4,11 +4,11 @@ include_once($SERVER_ROOT.'/classes/KeyEditorManager.php');
 header("Cache-control: private; Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../ident/tools/editor.php?'.$_SERVER['QUERY_STRING']);
 
-$action = array_key_exists("action",$_POST)?$_POST["action"]:""; 
-$langValue = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:$DEFAULT_LANG; 
+$action = array_key_exists("action",$_POST)?$_POST["action"]:"";
+$langValue = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:$DEFAULT_LANG;
 $charValue = array_key_exists("char",$_REQUEST)?$_REQUEST["char"]:"";
 $childrenStr = array_key_exists("children",$_REQUEST)?$_REQUEST["children"]:"";
-$tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:""; 
+$tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:"";
 
 $editorManager = new KeyEditorManager();
 
@@ -38,17 +38,16 @@ if($isEditor && $action){
 	<title><?php echo $DEFAULT_TITLE; ?> Identification Character Editor</title>
 	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
 	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<script language="javascript">
-
+	<script type="text/javascript">
 		var dataChanged = false;
 		window.onbeforeunload = verifyClose;
-		
-		function verifyClose() { 
-			if (dataChanged == true) { 
-				return "You will lose any unsaved data if you don't first submit your changes!"; 
-			} 
+
+		function verifyClose() {
+			if (dataChanged == true) {
+				return "You will lose any unsaved data if you don't first submit your changes!";
+			}
 		}
-		
+
 		function toggle(target){
 			var divObjs = document.getElementsByTagName("div");
 		  	for (i = 0; i < divObjs.length; i++) {
@@ -75,20 +74,16 @@ if($isEditor && $action){
 				}
 			}
 		}
-		
+
 		function showSearch(){
 			document.getElementById("searchDiv").style.display="block";
 			document.getElementById("searchDisplay").style.display="none";
 		}
-		
+
 		function openPopup(urlStr,windowName){
 			var wWidth = 900;
-			if(document.getElementById('maintable').offsetWidth){
-				wWidth = document.getElementById('maintable').offsetWidth*1.05;
-			}
-			else if(document.body.offsetWidth){
-				wWidth = document.body.offsetWidth*0.9;
-			}
+			if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+			if(wWidth > 1200) wWidth = 1200;
 			newWindow = window.open(urlStr,windowName,'scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
 			if (newWindow.opener == null) newWindow.opener = self;
 		}
@@ -110,15 +105,15 @@ if($isEditor && $action){
 			<a href="../../index.php">Home</a> &gt;&gt;
 			<b>Character Editor</b>
 		</div>
-		<?php 
+		<?php
 	}
 ?>
 <div style="margin:15px;">
-<?php 
+<?php
 if($isEditor){
 	?>
   	<form action="editor.php" method="post" onsubmit="dataChanged=false;">
-	<?php 
+	<?php
 	if($tid){
  		$sn = $editorManager->getTaxonName();
  		if($editorManager->getRankId() > 140){
@@ -140,7 +135,7 @@ if($isEditor){
 			$count = 0;
 			$minusGif = "<img src='../../images/minus_sm.png'>";
 			$plusGif = "<img src='../../images/plus_sm.png'>";
-			foreach($cList as $heading => $charArray){ 
+			foreach($cList as $heading => $charArray){
 				echo "<div style='font-weight:bold; font-size:150%; margin:1em 0em 1em 0em; color:#990000;".($charValue?" display:none;":"")."'>";
 				echo "<span class='".$heading."' onclick=\"toggle('".$heading."');\" style=\"display:none;\">$minusGif</span>";
 				echo "<span class='".$heading."' onclick=\"toggle('".$heading."');\" style=\"display:;\">$plusGif</span>";
@@ -186,20 +181,20 @@ if($isEditor){
 				<input type="hidden" name="children" value="<?php echo $childrenStr; ?>" />
 				<input type="hidden" name="lang" value="<?php echo $langValue; ?>" />
 			</div>
-			<?php 
+			<?php
 		}
   	}
 	?>
 	</form>
-	<?php 
+	<?php
 }
-else{  
+else{
 	echo "<h1>You do not have authority to edit character data or there is a problem with the database connection.</h1>";
 }
 ?>
 </div>
-<?php 
+<?php
 include($SERVER_ROOT.'/footer.php');
 ?>
 </body>
-</html>	
+</html>

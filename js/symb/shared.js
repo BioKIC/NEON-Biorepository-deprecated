@@ -41,13 +41,8 @@ function toggle(target){
 
 function openIndividualPopup(clientRoot, occid,clid){
     var wWidth = 1000;
-    if(document.getElementById('maintable')){
-        wWidth = document.getElementById('maintable').offsetWidth*1.05;
-    }
-    else if(document.body.offsetWidth){
-        wWidth = document.body.offsetWidth*0.9;
-    }
-    if(wWidth > 1200) wWidth = 1200;
+    if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+	if(wWidth > 1200) wWidth = 1200;
     newWindow = window.open(clientRoot+'/collections/individual/index.php?occid='+occid+'&clid='+clid,'indspec' + occid,'scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=700,left=20,top=20');
     if(newWindow.opener == null) newWindow.opener = self;
     return false;
@@ -55,13 +50,8 @@ function openIndividualPopup(clientRoot, occid,clid){
 
 function openPopup(url){
     var wWidth = 1000;
-    if(document.getElementById('maintable')){
-        wWidth = document.getElementById('maintable').offsetWidth*1.05;
-    }
-    else if(document.body.offsetWidth){
-        wWidth = document.body.offsetWidth*0.9;
-    }
-    if(wWidth > 1200) wWidth = 1200;
+    if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+	if(wWidth > 1200) wWidth = 1200;
     newWindow = window.open(url,'genericPopup','scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=700,left=20,top=20');
     if(newWindow.opener == null) newWindow.opener = self;
     return false;

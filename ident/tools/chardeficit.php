@@ -28,12 +28,8 @@ if($IS_ADMIN || array_key_exists("KeyEditor",$USER_RIGHTS) || array_key_exists("
 		function openPopup(urlStr,windowName){
 			var wWidth = 900;
 			try{
-				if(document.getElementById('maintable').offsetWidth){
-					wWidth = document.getElementById('maintable').offsetWidth*1.05;
-				}
-				else if(document.body.offsetWidth){
-					wWidth = document.body.offsetWidth*0.9;
-				}
+				if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+				if(wWidth > 1200) wWidth = 1200;
 			}
 			catch(e){
 			}

@@ -123,12 +123,8 @@ $sciArr = array();
 
 		function tellMe(){
 			var wWidth = 900;
-			if(document.getElementById('maintable').offsetWidth){
-				wWidth = document.getElementById('maintable').offsetWidth*1.05;
-			}
-			else if(document.body.offsetWidth){
-				wWidth = document.body.offsetWidth*0.9;
-			}
+			if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
+			if(wWidth > 1200) wWidth = 1200;
 			newWindow = window.open("../taxa/index.php?taxon="+activeIndex,"activetaxon",'scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
 			if (newWindow.opener == null) newWindow.opener = self;
 			firstTry = false;

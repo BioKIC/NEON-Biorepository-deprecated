@@ -699,12 +699,8 @@ function openIndPopup(occid,clid){
 function openPopup(urlStr){
 	var wWidth = 1000;
 	try{
-		if(opener.document.getElementById('maintable').offsetWidth){
-			wWidth = opener.document.getElementById('maintable').offsetWidth*1.05;
-		}
-		else if(opener.document.body.offsetWidth){
-			wWidth = opener.document.body.offsetWidth*0.95;
-		}
+		if(opener.document.body.offsetWidth) wWidth = opener.document.body.offsetWidth*0.95;
+		if(wWidth > 1200) wWidth = 1200;
 	}
 	catch(err){
 	}

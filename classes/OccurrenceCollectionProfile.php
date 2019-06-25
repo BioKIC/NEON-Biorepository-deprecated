@@ -569,7 +569,10 @@ class OccurrenceCollectionProfile {
 		if($aggKeyArr){
 			if(isset($aggKeyArr['organizationKey'])) $this->organizationKey = $aggKeyArr['organizationKey'];
 			if(isset($aggKeyArr['installationKey']) && $aggKeyArr['installationKey']) $this->installationKey = $aggKeyArr['installationKey'];
-			if(isset($aggKeyArr['datasetKey']) && $aggKeyArr['datasetKey']) $this->datasetKey = $aggKeyArr['datasetKey'];
+			if(isset($aggKeyArr['datasetKey']) && $aggKeyArr['datasetKey']){
+				$dsKey = $aggKeyArr['datasetKey'];
+				if(!strpos($dsKey,' ') && strlen($dsKey) == 36) $this->datasetKey = $dsKey;
+			}
 			if(isset($aggKeyArr['endpointKey']) && $aggKeyArr['endpointKey']) $this->endpointKey = $aggKeyArr['endpointKey'];
 			if(isset($aggKeyArr['idigbioKey']) && $aggKeyArr['idigbioKey']) $this->idigbioKey = $aggKeyArr['idigbioKey'];
 		}

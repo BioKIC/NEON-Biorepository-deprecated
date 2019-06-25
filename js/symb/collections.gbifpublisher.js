@@ -81,7 +81,9 @@ function createGbifEndpoint(gbifDatasetKey,dwcUri){
 		type: "DWC_ARCHIVE",
 		url: dwcUri
 	});
-	return callGbifCurl(type,url,data);
+	var retStr = callGbifCurl(type,url,data);
+	if(retStr.indexOf(" ") > -1 || retStr.length < 34 || retStr.length > 40) retStr = "";
+	return retStr;
 }
 
 function callGbifCurl(type,url,data){
@@ -92,7 +94,7 @@ function callGbifCurl(type,url,data){
 		data: {type: type, url: url, data: data},
 		async: false,
 		success: function(response) {
-			key = response;
+			key = response.trim();
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
 			alert(errorThrown);
@@ -115,7 +117,9 @@ function datasetExists(f){
 			})
 			.done(function( retJson ) {
 				if(retJson.count > 0){
-					f.datasetKey.value = retJson.results[0].key;
+					var dsKey = retJson.results[0].key.trim();
+					if(dsKey.indexOf(" ") > -1 || dsKey.length < 34 || dsKey.length > 40) dsKey = "";
+					f.datasetKey.value = dsKey;
 					f.endpointKey.value = retJson.results[0].endpoints[0].key;
 					return true;
 				}

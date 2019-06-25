@@ -211,7 +211,7 @@ elseif($action == 'listdupsrecordedby'){
 					if((count($dupArr)+2)>$limit){
 						?>
 							<div>
-								<a href="index.php?collid=<?php echo $collid; ?>">Return to duplicate merge function</a>
+								<a href="index.php?collid=<?php echo $collid; ?>">Return to duplicate merge form</a>
 							</div>
 							<?php
 						}

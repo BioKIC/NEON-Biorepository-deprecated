@@ -14,29 +14,33 @@ function processGbifOrgKey(f){
 		var submitForm = false;
 		if(!installationKey){
 			installationKey = createGbifInstallation(gbifInstOrgKey,portalName);
-			f.installationKey.value = installationKey;
-			submitForm = true;
-		}
-		if(!datasetKey){
-			datasetExists(f);
-			if(f.datasetKey.value){
-				alert("Dataset already appears to exist. Updating database.");
+			if(installationKey){
+				f.installationKey.value = installationKey;
 				submitForm = true;
 			}
-			else{
-				datasetKey = createGbifDataset(installationKey, organizationKey, collName);
-				f.datasetKey.value = datasetKey;
-				if(datasetKey){
-					if(dwcUri){
-						f.endpointKey.value = createGbifEndpoint(datasetKey, dwcUri);
-					}
-					else{
-						alert('Please create/refresh your Darwin Core Archive and try again.');
-					}
+		}
+		if(installationKey){
+			if(!datasetKey){
+				datasetExists(f);
+				if(f.datasetKey.value){
+					alert("Dataset already appears to exist. Updating database.");
 					submitForm = true;
 				}
 				else{
-					alert('Invalid Organization Key or insufficient permissions. Please recheck your Organization Key and verify that this portal can create datasets for your organization with GBIF.');
+					datasetKey = createGbifDataset(installationKey, organizationKey, collName);
+					f.datasetKey.value = datasetKey;
+					if(datasetKey){
+						if(dwcUri){
+							f.endpointKey.value = createGbifEndpoint(datasetKey, dwcUri);
+						}
+						else{
+							alert('Please create/refresh your Darwin Core Archive and try again.');
+						}
+						submitForm = true;
+					}
+					else{
+						alert('Invalid Organization Key or insufficient permissions. Please recheck your Organization Key and verify that this portal can create datasets for your organization with GBIF.');
+					}
 				}
 			}
 		}
@@ -59,7 +63,11 @@ function createGbifInstallation(gbifOrgKey,collName){
 		type: "SYMBIOTA_INSTALLATION",
 		title: collName
 	});
-	return callGbifCurl(type,url,data);
+	var instKey = callGbifCurl(type,url,data);
+	if(!instKey){
+		alert("Installation failed to be created using: "+data);
+	}
+	return instKey;
 }
 
 function createGbifDataset(gbifInstKey,gbifOrgKey,collName){

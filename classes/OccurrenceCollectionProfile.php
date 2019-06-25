@@ -562,7 +562,7 @@ class OccurrenceCollectionProfile {
 				'Content-Type: application/json',
 				'Accept: application/json')
 				);
-		$result = curl_exec($ch);
+		curl_exec($ch);
 	}
 
 	public function setAggKeys($aggKeyArr){
@@ -814,9 +814,7 @@ class OccurrenceCollectionProfile {
 	}
 
 	public function getStatCollectionList($catId = ""){
-		//Set collection array
-		$collIdArr = array();
-		$catIdArr = array();
+		//$catIdArr = array();
 		//Set collections
 		$sql = 'SELECT c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, c.colltype, ccl.ccpk, '.
 			'cat.category, cat.icon AS caticon, cat.acronym '.

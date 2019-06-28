@@ -196,7 +196,7 @@ class TaxonomyUpload{
 								if(!array_key_exists($sciKey, $inputArr) && $sciValue) $inputArr[$sciKey] = $sciValue;
 							}
 							unset($inputArr['identificationqualifier']);
-							if($childParentArr && isset($childParentArr[$inputArr['sciname']]['r']) && $childParentArr[$inputArr['sciname']]['r'] == $inputArr['rankid']) $childParentArr[$inputArr['sciname']]['s'] = 'skip';
+							if(isset($childParentArr[$inputArr['sciname']]['r']) && isset($inputArr['rankid']) && $childParentArr[$inputArr['sciname']]['r'] == $inputArr['rankid']) $childParentArr[$inputArr['sciname']]['s'] = 'skip';
 							$sql1 = ''; $sql2 = '';
 							foreach($inputArr as $k => $v){
 								$sql1 .= ','.$k;

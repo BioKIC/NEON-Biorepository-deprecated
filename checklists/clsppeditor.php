@@ -141,7 +141,7 @@ $clArray = $vManager->getChecklistData();
 				<hr />
 				<?php
 			}
-			if($isEditor){
+			if($isEditor && $clArray){
 				?>
 				<div id="tabs" style="margin:10px;">
 				    <ul>
@@ -229,8 +229,10 @@ $clArray = $vManager->getChecklistData();
 									<b>*</b> Note that vouchers &amp; notes will transfer to new taxon
 								</div>
 								<div style="margin:15px">
-									<input name='tid' type='hidden' value="<?php echo $vManager->getTid();?>" />
-									<input name='clid' type='hidden' value="<?php echo $vManager->getClid();?>" />
+									<input name='tid' type='hidden' value="<?php echo $vManager->getTid(); ?>" />
+									<input name='clid' type='hidden' value="<?php echo $vManager->getClid(); ?>" />
+									<input name='cltype' type='hidden' value="<?php echo $clArray['cltype']; ?>" />
+									<input name='locality' type='hidden' value="<?php echo $clArray['locality']; ?>" />
 									<input name="action" type="hidden" value="Rename Taxon" />
 									<input type="submit" name="renamesubmit" value="Rename and Transfer" />
 								</div>
@@ -240,17 +242,17 @@ $clArray = $vManager->getChecklistData();
 						<form action="clsppeditor.php" method="post" name="deletetaxon" onsubmit="return window.confirm('Are you sure you want to delete this taxon from checklist?');">
 							<fieldset style='margin:5px;padding:15px;'>
 						    	<legend><b>Delete</b></legend>
-								<input type='hidden' name='tid' value="<?php echo $vManager->getTid();?>" />
-								<input type='hidden' name='clid' value="<?php echo $vManager->getClid();?>" />
-								<input type='hidden' name='cltype' value="<?php echo $clArray['cltype'];?>" />
-								<input type='hidden' name='locality' value="<?php echo $clArray['locality'];?>" />
+								<input type='hidden' name='tid' value="<?php echo $vManager->getTid(); ?>" />
+								<input type='hidden' name='clid' value="<?php echo $vManager->getClid(); ?>" />
+								<input type='hidden' name='cltype' value="<?php echo $clArray['cltype']; ?>" />
+								<input type='hidden' name='locality' value="<?php echo $clArray['locality']; ?>" />
 								<input type="submit" name="action" value="Delete Taxon From Checklist" />
 							</fieldset>
 						</form>
 					</div>
 					<div id="voucherdiv">
 						<?php
-						if($occurrenceModIsActive){
+						if($OCCURRENCE_MOD_IS_ACTIVE){
 							?>
 							<div style="float:right;margin-top:10px;">
 								<a href="../collections/list.php?mode=voucher&db=all&thes=1&reset=1&taxa=<?php echo $vManager->getTaxonName()."&targetclid=".$vManager->getClid()."&targettid=".$tid;?>">
@@ -326,7 +328,7 @@ $clArray = $vManager->getChecklistData();
 				<?php
 			}
 			else{
-				echo "<div>You must be logged-in and have editing rights to edited species details</div>";
+				echo '<div>Failed to return data or you might not have proper editing rights</div>';
 			}
 			?>
 		</div>

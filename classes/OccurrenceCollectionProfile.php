@@ -550,29 +550,75 @@ class OccurrenceCollectionProfile {
 	public function triggerGBIFCrawl($datasetKey, $dwcUri){
 		global $GBIF_USERNAME,$GBIF_PASSWORD;
 		if($datasetKey){
+			$loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
+			/*
 			if($dwcUri){
 				//Make sure end point is up-to-date
-				$url = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/endpoint';
-				$ch = curl_init($url);
-				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-				$payload = json_encode( array( 'type' => 'DWC_ARCHIVE','url' => $dwcUri ) );
-				curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload );
+				$epUrl = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/endpoint';
+				//Get endpoint
+				$ch = curl_init($epUrl);
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
-				$endpointStr = curl_exec($ch);
-				if(!strpos($endpointStr,' ') && strlen($endpointStr) == 36) $this->endpointKey = $endpointStr;
+				//$endpointStr = curl_exec($ch);
+				$endpointArr = json_decode(curl_exec($ch),true);
 				curl_close($ch);
+
+				$endpointChanged = true;
+				foreach($endpointArr as $epArr){
+					if($epArr['url'] == $dwcUri) $endpointChanged = false;
+					break;
+				}
+
+				if($endpointChanged || $endpointArr){
+					//Endpoint has changed, delete old endpoints
+					foreach($endpointArr as $epArr){
+						if(isset($epArr['key'])){
+							$ch = curl_init($epUrl.'/'.$epArr['key']);
+							curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							curl_setopt($ch, CURLOPT_FAILONERROR, true);
+							curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
+							curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
+							curl_exec($ch);
+							if(curl_error($ch)) {
+								echo '<div style="color:red;">'.curl_error($ch).'</div>';
+							}
+							curl_close($ch);
+						}
+					}
+
+					//Add new endpoint
+					$ch = curl_init($epUrl);
+					curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+					$dataStr = json_encode( array( 'type' => 'DWC_ARCHIVE','url' => $dwcUri ) );
+					curl_setopt( $ch, CURLOPT_POSTFIELDS, $dataStr );
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_FAILONERROR, true);
+					curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
+					curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
+					$endpointStr = curl_exec($ch);
+					if(!strpos($endpointStr,' ') && strlen($endpointStr) == 36) $this->endpointKey = $endpointStr;
+					if(curl_error($ch)) {
+						echo '<div style="color:red;">'.curl_error($ch).'</div>';
+					}
+					curl_close($ch);
+				}
 			}
+			*/
 
 			//Trigger Crawl
-			$loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
-			$url = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';
-			$ch = curl_init($url);
+			$dsUrl = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';
+			$ch = curl_init($dsUrl);
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_FAILONERROR, true);
 			curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Accept: application/json'));
 			curl_exec($ch);
+			if(curl_error($ch)) {
+				echo '<div style="color:red;">'.curl_error($ch).'</div>';
+			}
 			curl_close($ch);
 		}
 	}

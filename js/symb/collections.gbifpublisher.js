@@ -30,12 +30,8 @@ function processGbifOrgKey(f){
 					datasetKey = createGbifDataset(installationKey, organizationKey, collName);
 					f.datasetKey.value = datasetKey;
 					if(datasetKey){
-						if(dwcUri){
-							f.endpointKey.value = createGbifEndpoint(datasetKey, dwcUri);
-						}
-						else{
-							alert('Please create/refresh your Darwin Core Archive and try again.');
-						}
+						if(dwcUri) f.endpointKey.value = createGbifEndpoint(datasetKey, dwcUri);
+						else alert('Please create/refresh your Darwin Core Archive and try again.');
 						submitForm = true;
 					}
 					else{
@@ -65,7 +61,7 @@ function createGbifInstallation(gbifOrgKey,collName){
 	});
 	var instKey = callGbifCurl(type,url,data);
 	if(!instKey){
-		alert("Installation failed to be created using: "+data);
+		alert("ERROR: Contact administrator, creation of GBIF installation failed using data: "+data);
 	}
 	return instKey;
 }

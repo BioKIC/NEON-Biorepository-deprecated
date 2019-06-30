@@ -729,7 +729,7 @@ if($action != "Update Statistics"){
 										<ul style="margin:0px;padding-left:10px;">
 											<?php
 											echo "<li>";
-											echo ($results['SpecimenCount']?number_format($results['SpecimenCount']):0)." specimen records";
+											echo ($results['SpecimenCount']?number_format($results['SpecimenCount']):0)." occurrence records";
 											echo "</li>";
 											echo "<li>";
 											$percGeo = '';
@@ -743,7 +743,7 @@ if($action != "Update Statistics"){
 											if($results['SpecimenCount'] && $results['TotalImageCount']){
 												$percImg = (100* ($results['TotalImageCount'] / $results['SpecimenCount']));
 											}
-											echo ($results['TotalImageCount']?number_format($results['TotalImageCount']):0).($percImg?" (".($percImg>1?round($percImg):round($percImg,2))."%)":'')." imaged";
+											echo ($results['TotalImageCount']?number_format($results['TotalImageCount']):0).($percImg?" (".($percImg>1?round($percImg):round($percImg,2))."%)":'')." occurrences imaged";
 											echo "</li>";
 											echo "<li>";
 											$percId = '';
@@ -872,7 +872,7 @@ if($action != "Update Statistics"){
 									<table class="styledtable" style="font-family:Arial;font-size:12px;">
 										<tr>
 											<th style="text-align:center;">Collection</th>
-											<th style="text-align:center;">Specimens</th>
+											<th style="text-align:center;">Occurrences</th>
 											<th style="text-align:center;">Georeferenced</th>
 											<th style="text-align:center;">Imaged</th>
 											<th style="text-align:center;">Species ID</th>

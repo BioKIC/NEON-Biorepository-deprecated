@@ -270,7 +270,7 @@ include($SERVER_ROOT. '/header.php');
 			$dwcaManager->writeRssFile();
 			echo '</ul>';
 			if($publishGBIF && $collManager->getEndpointKey()){
-				$collManager->triggerGBIFCrawl($collManager->getDatasetKey());
+				$collManager->triggerGBIFCrawl($collManager->getDatasetKey(),$collArr['dwcaurl']);
 			}
 		}
 		$dwcUri = '';

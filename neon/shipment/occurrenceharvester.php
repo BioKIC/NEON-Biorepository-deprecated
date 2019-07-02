@@ -4,7 +4,7 @@ ini_set('display_errors', '1');
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/neon/classes/OccurrenceHarvester.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/manifestviewer.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/occurrenceharvester.php?'.$_SERVER['QUERY_STRING']);
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 

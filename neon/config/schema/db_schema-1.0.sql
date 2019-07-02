@@ -67,6 +67,10 @@ CREATE TABLE `NeonSample` (
   CONSTRAINT `FK_neon_samples_shipmentid`  FOREIGN KEY (`shipmentPK`)  REFERENCES `NeonShipment` (`shipmentPK`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_neon_sample_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
 
-
+ALTER TABLE `NeonSample` 
+  DROP FOREIGN KEY `FK_neon_sample_occid`;
+  
+ALTER TABLE `NeonSample` 
+  ADD CONSTRAINT `FK_neon_sample_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
 

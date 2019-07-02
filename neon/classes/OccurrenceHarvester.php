@@ -553,6 +553,16 @@ class OccurrenceHarvester{
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;
 			}
+
+			//Adjustment for Mammal OTHE costs
+			$sql = 'UPDATE omoccurrences '.
+				'SET sciname = "Mammalia", scientificNameAuthorship = NULL, tidinterpreted = 21269, family = NULL '.
+				'WHERE collid IN(17,19,24,25,26,27,28) AND (sciname = "Chordata") ';
+			if(!$this->conn->query($sql)){
+				echo 'ERROR updating mammalia taxonomy for OTHE taxon codes: '.$sql;
+			}
+
+			//Update Mosquito taxa details
 			$sql = 'UPDATE omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid '.
 				'INNER JOIN taxa t ON o.sciname = t.sciname '.
 				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.

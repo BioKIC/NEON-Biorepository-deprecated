@@ -551,7 +551,6 @@ class OccurrenceCollectionProfile {
 		global $GBIF_USERNAME,$GBIF_PASSWORD;
 		if($datasetKey){
 			$loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
-			/*
 			if($dwcUri){
 				//Make sure end point is up-to-date
 				$epUrl = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/endpoint';
@@ -560,7 +559,6 @@ class OccurrenceCollectionProfile {
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
-				//$endpointStr = curl_exec($ch);
 				$endpointArr = json_decode(curl_exec($ch),true);
 				curl_close($ch);
 
@@ -570,12 +568,12 @@ class OccurrenceCollectionProfile {
 					break;
 				}
 
-				if($endpointChanged || $endpointArr){
+				if($endpointChanged || !$endpointArr){
 					//Endpoint has changed, delete old endpoints
 					foreach($endpointArr as $epArr){
 						if(isset($epArr['key'])){
 							$ch = curl_init($epUrl.'/'.$epArr['key']);
-							curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+							curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
 							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 							curl_setopt($ch, CURLOPT_FAILONERROR, true);
 							curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
@@ -605,7 +603,6 @@ class OccurrenceCollectionProfile {
 					curl_close($ch);
 				}
 			}
-			*/
 
 			//Trigger Crawl
 			$dsUrl = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';

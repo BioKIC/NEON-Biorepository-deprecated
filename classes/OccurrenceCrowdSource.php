@@ -145,9 +145,7 @@ class OccurrenceCrowdSource {
 			$sql .= 'INNER JOIN omcrowdsourcecentral c ON q.omcsid = c.omcsid INNER JOIN omcollcatlink cat ON c.collid = cat.collid ';
 		}
 		$sql .= 'WHERE q.reviewstatus = 10 AND q.points is not null AND q.isvolunteer = 1 ';
-		if($catid){
-			$sql .= 'AND (cat.ccpk = '.$catid.') ';
-		}
+		if(preg_match('/^[,\d]+$/', $catid)) $sql .= 'AND (cat.ccpk IN('.$catid.')) ';
 		$sql .= 'GROUP BY u.firstname, u.lastname ORDER BY sum(q.points) DESC ';
 		$rs = $this->conn->query($sql);
 		$cnt = 0;
@@ -168,9 +166,7 @@ class OccurrenceCrowdSource {
 			'q.reviewstatus, q.isvolunteer, COUNT(q.occid) AS cnt, SUM(IFNULL(q.points,2)) AS points '.
 			'FROM omcrowdsourcequeue q INNER JOIN omcrowdsourcecentral csc ON q.omcsid = csc.omcsid '.
 			'INNER JOIN omcollections c ON csc.collid = c.collid ';
-		if($catid){
-			$sql .= 'INNER JOIN omcollcatlink cat ON c.collid = cat.collid WHERE (cat.ccpk = '.$catid.') ';
-		}
+		if(preg_match('/^[,\d]+$/', $catid)) $sql .= 'INNER JOIN omcollcatlink cat ON c.collid = cat.collid WHERE (cat.ccpk IN('.$catid.')) ';
 		$sql .= 'GROUP BY c.collid,q.reviewstatus,q.uidprocessor,q.isvolunteer '.
 			'HAVING (q.uidprocessor = '.$GLOBALS['SYMB_UID'].' OR q.uidprocessor IS NULL) '.
 			'ORDER BY c.institutioncode,c.collectioncode,q.reviewstatus';

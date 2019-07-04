@@ -4,7 +4,8 @@ $(document).ready(function() {
 	$('#tabs1').tabs({
 		beforeLoad: function( event, ui ) {
 			$(ui.panel).html("<p>Loading...</p>");
-		}
+		},
+		active: 1
 	});
     var hijax = function(panel) {
         $('.pagination a', panel).click(function(){

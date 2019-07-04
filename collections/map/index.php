@@ -71,7 +71,7 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 	<script src="../../js/jquery.popupoverlay.js" type="text/javascript"></script>
 	<script src="//maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'&key='.$GOOGLE_MAP_KEY:''); ?>" ></script>
 	<script src="../../js/jscolor/jscolor.js?ver=4" type="text/javascript"></script>
-	<script src="../../js/symb/collections.map.index.js?ver=1803" type="text/javascript"></script>
+	<script src="../../js/symb/collections.map.index.js?ver=1804" type="text/javascript"></script>
 	<script src="../../js/symb/markerclusterer.js?20170403" type="text/javascript"></script>
 	<script src="../../js/symb/oms.min.js" type="text/javascript"></script>
 	<script src="../../js/symb/keydragzoom.js" type="text/javascript"></script>
@@ -1113,10 +1113,41 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 					<div id="tabs1" style="width:379px;padding:0px;">
 						<form name="mapsearchform" id="mapsearchform" data-ajax="false" action="index.php" method="post" onsubmit="return verifyCollForm(this);">
 							<ul>
-								<li><a href="#searchcriteria"><span><?php echo (isset($LANG['CRITERIA'])?$LANG['CRITERIA']:'Criteria'); ?></span></a></li>
 								<li><a href="#searchcollections"><span><?php echo (isset($LANG['COLLECTIONS'])?$LANG['COLLECTIONS']:'Collections'); ?></span></a></li>
+								<li><a href="#searchcriteria"><span><?php echo (isset($LANG['CRITERIA'])?$LANG['CRITERIA']:'Criteria'); ?></span></a></li>
 								<li><a href="#mapoptions"><span><?php echo (isset($LANG['MAP_OPTIONS'])?$LANG['MAP_OPTIONS']:'Map Options'); ?></span></a></li>
 							</ul>
+							<div id="searchcollections" style="">
+								<div class="mapinterface">
+									<?php
+									$catId = array_key_exists("catid",$_REQUEST)?$_REQUEST["catid"]:0;
+									if(!$catId && isset($DEFAULTCATID) && $DEFAULTCATID) $catId = $DEFAULTCATID;
+									$collList = $mapManager->getFullCollectionList($catId);
+									$specArr = (isset($collList['spec'])?$collList['spec']:null);
+									$obsArr = (isset($collList['obs'])?$collList['obs']:null);
+									if($specArr || $obsArr){
+										?>
+										<div id="specobsdiv">
+											<div style="margin:0px 0px 10px 5px;">
+												<input id="dballcb" data-role="none" name="db[]" class="specobs" value='all' type="checkbox" onclick="selectAll(this);" <?php echo (((array_key_exists("db",$_REQUEST)&&in_array("all",$dbArr))||!$dbArr)?'checked':'') ?> />
+												<?php echo (isset($LANG['SELECT_ALL'])?$LANG['SELECT_ALL']:'Select/Deselect All'); ?>
+											</div>
+											<?php
+											if($specArr){
+												$mapManager->outputFullCollArr($specArr, $catId, false, false);
+											}
+											if($specArr && $obsArr) echo '<hr style="clear:both;margin:20px 0px;"/>';
+											if($obsArr){
+												$mapManager->outputFullCollArr($obsArr, $catId, false, false);
+											}
+											?>
+											<div style="clear:both;">&nbsp;</div>
+										</div>
+										<?php
+									}
+									?>
+								</div>
+							</div>
 							<div id="searchcriteria" style="">
 								<div style="height:25px;">
 									<!-- <div style="float:left;<?php echo (isset($SOLR_MODE) && $SOLR_MODE?'display:none;':''); ?>">
@@ -1280,37 +1311,6 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 								</div>
 								<div><hr></div>
 								<input type="hidden" name="reset" value="1" />
-							</div>
-							<div id="searchcollections" style="">
-								<div class="mapinterface">
-									<?php
-									$catId = array_key_exists("catid",$_REQUEST)?$_REQUEST["catid"]:0;
-									if(!$catId && isset($DEFAULTCATID) && $DEFAULTCATID) $catId = $DEFAULTCATID;
-									$collList = $mapManager->getFullCollectionList($catId);
-									$specArr = (isset($collList['spec'])?$collList['spec']:null);
-									$obsArr = (isset($collList['obs'])?$collList['obs']:null);
-									if($specArr || $obsArr){
-										?>
-										<div id="specobsdiv">
-											<div style="margin:0px 0px 10px 5px;">
-												<input id="dballcb" data-role="none" name="db[]" class="specobs" value='all' type="checkbox" onclick="selectAll(this);" <?php echo (((array_key_exists("db",$_REQUEST)&&in_array("all",$dbArr))||!$dbArr)?'checked':'') ?> />
-												<?php echo (isset($LANG['SELECT_ALL'])?$LANG['SELECT_ALL']:'Select/Deselect All'); ?>
-											</div>
-											<?php
-											if($specArr){
-												$mapManager->outputFullCollArr($specArr, $catId, false, false);
-											}
-											if($specArr && $obsArr) echo '<hr style="clear:both;margin:20px 0px;"/>';
-											if($obsArr){
-												$mapManager->outputFullCollArr($obsArr, $catId, false, false);
-											}
-											?>
-											<div style="clear:both;">&nbsp;</div>
-										</div>
-										<?php
-									}
-									?>
-								</div>
 							</div>
 						</form>
 						<div id="mapoptions" style="">

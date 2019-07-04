@@ -12,16 +12,17 @@ class OccurrenceSearchSupport {
 	public function __destruct(){
 	}
 
-	public function getFullCollectionList($catId = '', $limitByImages = false){
-		if($catId && !is_numeric($catId)) $catId = '';
+	public function getFullCollectionList($catIdStr = '', $limitByImages = false){
+		if(!preg_match('/^[,\d]+$/',$catIdStr)) $catIdStr = '';
 		//Set collection array
+		/*
 		$collIdArr = array();
-		$catIdArr = array();
 		if($this->collidStr){
 			$cArr = explode(';',$this->collidStr);
 			$collIdArr = explode(',',$cArr[0]);
-			if(isset($cArr[1])) $catIdStr = $cArr[1];
+			if(isset($cArr[1])) $collIdArr = $cArr[1];
 		}
+		*/
 		//Set collections
 		$sql = 'SELECT c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, c.colltype, ccl.ccpk, '.
 			'cat.category, cat.icon AS caticon, cat.acronym '.
@@ -41,7 +42,6 @@ class OccurrenceSearchSupport {
 					$collArr[$collType]['cat'][$r->ccpk]['name'] = $r->category;
 					$collArr[$collType]['cat'][$r->ccpk]['icon'] = $r->caticon;
 					$collArr[$collType]['cat'][$r->ccpk]['acronym'] = $r->acronym;
-					//if(in_array($r->ccpk,$catIdArr)) $retArr[$collType]['cat'][$catId]['isselected'] = 1;
 				}
 				$collArr[$collType]['cat'][$r->ccpk][$r->collid]["instcode"] = $r->institutioncode;
 				$collArr[$collType]['cat'][$r->ccpk][$r->collid]["collcode"] = $r->collectioncode;
@@ -59,13 +59,20 @@ class OccurrenceSearchSupport {
 
 		$retArr = array();
 		//Modify sort so that default catid is first
-		if(isset($collArr['spec']['cat'][$catId])){
-			$retArr['spec']['cat'][$catId] = $collArr['spec']['cat'][$catId];
-			unset($collArr['spec']['cat'][$catId]);
-		}
-		elseif(isset($collArr['obs']['cat'][$catId])){
-			$retArr['obs']['cat'][$catId] = $collArr['obs']['cat'][$catId];
-			unset($collArr['obs']['cat'][$catId]);
+		if($catIdStr){
+			$catIdArr = explode(',', $catIdStr);
+			if($catIdArr){
+				foreach($catIdArr as $catId){
+					if(isset($collArr['spec']['cat'][$catId])){
+						$retArr['spec']['cat'][$catId] = $collArr['spec']['cat'][$catId];
+						unset($collArr['spec']['cat'][$catId]);
+					}
+					elseif(isset($collArr['obs']['cat'][$catId])){
+						$retArr['obs']['cat'][$catId] = $collArr['obs']['cat'][$catId];
+						unset($collArr['obs']['cat'][$catId]);
+					}
+				}
+			}
 		}
 		foreach($collArr as $t => $tArr){
 			foreach($tArr as $g => $gArr){
@@ -77,15 +84,22 @@ class OccurrenceSearchSupport {
 		return $retArr;
 	}
 
-	public function outputFullCollArr($occArr, $targetCatID = 0, $displayIcons = true, $displaySearchButtons = true){
+	public function outputFullCollArr($collGrpArr, $targetCatID = '', $displayIcons = true, $displaySearchButtons = true){
 		global $CLIENT_ROOT, $DEFAULTCATID, $LANG;
-		if(!$targetCatID && $DEFAULTCATID) $targetCatID = $DEFAULTCATID;
+		$catSelArr = array();
+		$collSelArr = array();
+		if(isset($_POST['db'])) $catSelArr = $_POST['cat'];
+		if(isset($_POST['db'])) $collSelArr = $_POST['db'];
+		$targetCatArr = array();
+		$targetCatID = (string)$targetCatID;
+		if($targetCatID != '') $targetCatArr = explode(',', $targetCatID);
+		elseif($DEFAULTCATID != '') $targetCatArr = explode(',', $DEFAULTCATID);
 		$buttonStr = '<button type="submit" class="ui-button ui-widget ui-corner-all" value="search">'.(isset($LANG['BUTTON_NEXT'])?$LANG['BUTTON_NEXT']:'Next &gt;').'</button>';
 		$collCnt = 0;
 		$borderStyle = ($displayIcons?'margin:10px;padding:10px 20px;border:inset':'margin-left:10px;');
 		echo '<div style="position:relative">';
-		if(isset($occArr['cat'])){
-			$categoryArr = $occArr['cat'];
+		if(isset($collGrpArr['cat'])){
+			$categoryArr = $collGrpArr['cat'];
 			if($displaySearchButtons) echo '<div style="float:right;margin-top:20px;">'.$buttonStr.'</div>';
 			?>
 			<table>
@@ -117,13 +131,17 @@ class OccurrenceSearchSupport {
 						?>
 						<td style="width:25px;">
 							<div style="">
-								<input data-role="none" id="cat-<?php echo $idStr; ?>-Input" name="cat[]" value="<?php echo $catid; ?>" type="checkbox" onclick="selectAllCat(this,'cat-<?php echo $idStr; ?>')" checked />
+								<?php
+								$catSelected = !$catSelArr || in_array($catid, $catSelArr);
+								echo '<input data-role="none" id="cat-'.$idStr.'-Input" name="cat[]" value="'.$catid.'" type="checkbox" onclick="selectAllCat(this,\'cat-'.$idStr.'\')" '.($catSelected?'checked':'').' />';
+								?>
 							</div>
 						</td>
 						<td style="width:10px;">
 							<div style="margin-top: 7px">
 								<a href="#" onclick="toggleCat('<?php echo $idStr; ?>');return false;">
-									<img id="plus-<?php echo $idStr; ?>" src="<?php echo $CLIENT_ROOT; ?>/images/plus_sm.png" style="<?php echo ($targetCatID != $catid?'':'display:none;') ?>" /><img id="minus-<?php echo $idStr; ?>" src="<?php echo $CLIENT_ROOT; ?>/images/minus_sm.png" style="<?php echo ($targetCatID != $catid?'display:none;':'') ?>" />
+									<img id="plus-<?php echo $idStr; ?>" src="<?php echo $CLIENT_ROOT; ?>/images/plus_sm.png" style="<?php echo (in_array($catid, $targetCatArr)||in_array(0, $targetCatArr)?'display:none;':'') ?>" />
+									<img id="minus-<?php echo $idStr; ?>" src="<?php echo $CLIENT_ROOT; ?>/images/minus_sm.png" style="<?php echo (in_array($catid, $targetCatArr)||in_array(0, $targetCatArr)?'':'display:none;') ?>" />
 								</a>
 							</div>
 						</td>
@@ -137,7 +155,7 @@ class OccurrenceSearchSupport {
 					</tr>
 					<tr>
 						<td colspan="4">
-							<div id="cat-<?php echo $idStr; ?>" style="<?php echo ($targetCatID && $targetCatID != $catid?'display:none;':'').$borderStyle; ?>">
+							<div id="cat-<?php echo $idStr; ?>" style="<?php echo (in_array($catid, $targetCatArr)||in_array(0, $targetCatArr)?'':'display:none;').$borderStyle; ?>">
 								<table>
 									<?php
 									foreach($catArr as $collid => $collName2){
@@ -160,7 +178,9 @@ class OccurrenceSearchSupport {
 											}
 											?>
 											<td style="width:25px;">
-												<input data-role="none" name="db[]" value="<?php echo $collid; ?>" type="checkbox" class="cat-<?php echo $idStr; ?>" onclick="unselectCat('cat-<?php echo $idStr; ?>-Input')" checked />
+												<?php
+												echo '<input data-role="none" name="db[]" value="'.$collid.'" type="checkbox" class="cat-'.$idStr.'" onclick="unselectCat(\'cat-'.$idStr.'-Input\')" '.($catSelected || !$collSelArr || in_array($collid, $collSelArr)?'checked':'').' />';
+												?>
 											</td>
 											<td>
 												<div class="collectiontitle">
@@ -191,8 +211,8 @@ class OccurrenceSearchSupport {
 			</table>
 			<?php
 		}
-		if(isset($occArr['coll'])){
-			$collArr = $occArr['coll'];
+		if(isset($collGrpArr['coll'])){
+			$collArr = $collGrpArr['coll'];
 			?>
 			<table style="float:left;width:80%;">
 				<?php
@@ -217,7 +237,9 @@ class OccurrenceSearchSupport {
 						}
 						?>
 						<td style="width:25px;">
-							<input data-role="none" name="db[]" value="<?php echo $collid; ?>" type="checkbox" onclick="uncheckAll()" checked />
+							<?php
+							echo '<input data-role="none" name="db[]" value="'.$collid.'" type="checkbox" onclick="uncheckAll()" '.(!$collSelArr || in_array($collid, $collSelArr)?'checked':'').' />';
+							?>
 						</td>
 						<td>
 							<div class="collectiontitle">
@@ -240,7 +262,7 @@ class OccurrenceSearchSupport {
 			</table>
 			<?php
 			if($displaySearchButtons){
-				if(!isset($occArr['cat'])){
+				if(!isset($collGrpArr['cat'])){
 					?>
 					<div style="float:right;position:absolute;top:<?php echo count($collArr)*5; ?>px;right:0px;">
 						<?php echo $buttonStr; ?>

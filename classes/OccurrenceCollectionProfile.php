@@ -154,12 +154,8 @@ class OccurrenceCollectionProfile {
 		}
 		if($collArr['dwcaurl']){
 			$dwcaUrl = $collArr['dwcaurl'];
-			if(strpos($dwcaUrl, '/content/dwca/')){
-				$dwcaUrl = substr($dwcaUrl,0,strpos($dwcaUrl, '/content/dwca/'));
-				$dwcaUrl .= '/collections/datasets/datapublisher.php';
-			}
 			$outStr .= '<div style="margin-top:5px;">';
-			$outStr .= '<b>'.(isset($LANG['DWCA_PUB'])?$LANG['DWCA_PUB']:'DwC-Archive Publishing').':</b> ';
+			$outStr .= '<b>'.(isset($LANG['DWCA_PUB'])?$LANG['DWCA_PUB']:'DwC-Archive Access Point').':</b> ';
 			$outStr .= '<a href="'.$dwcaUrl.'">'.$dwcaUrl.'</a>';
 			$outStr .= '</div>';
 		}
@@ -538,38 +534,100 @@ class OccurrenceCollectionProfile {
 
 	//Publishing functions
 	public function batchTriggerGBIFCrawl($collIdArr){
-		$sql = 'SELECT CollID, publishToGbif, aggKeysStr FROM omcollections WHERE CollID IN('.implode(',',$collIdArr).') ';
+		$sql = 'SELECT CollID, publishToGbif, dwcaUrl, aggKeysStr FROM omcollections WHERE CollID IN('.implode(',',$collIdArr).') ';
 		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			if($row->publishToGbif && $row->aggKeysStr){
 				$gbifKeyArr = json_decode($row->aggKeysStr,true);
-				if(array_key_exists('endpointKey', $gbifKeyArr) && $gbifKeyArr['endpointKey']) $this->triggerGBIFCrawl($gbifKeyArr['datasetKey']);
+				if(array_key_exists('endpointKey', $gbifKeyArr) && $gbifKeyArr['endpointKey'] && $row->dwcaUrl)
+					$this->triggerGBIFCrawl($gbifKeyArr['datasetKey'], $row->dwcaUrl);
 			}
 		}
 		$rs->free();
 	}
 
-	public function triggerGBIFCrawl($datasetKey){
+	public function triggerGBIFCrawl($datasetKey, $dwcUri){
 		global $GBIF_USERNAME,$GBIF_PASSWORD;
-		$loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
-		$url = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';
-		$ch = curl_init($url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-				'Content-Type: application/json',
-				'Accept: application/json')
-				);
-		$result = curl_exec($ch);
+		if($datasetKey){
+			$loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
+			if($dwcUri){
+				//Make sure end point is up-to-date
+				$epUrl = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/endpoint';
+				//Get endpoint
+				$ch = curl_init($epUrl);
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
+				$endpointArr = json_decode(curl_exec($ch),true);
+				curl_close($ch);
+
+				$endpointChanged = true;
+				foreach($endpointArr as $epArr){
+					if($epArr['url'] == $dwcUri) $endpointChanged = false;
+					break;
+				}
+
+				if($endpointChanged || !$endpointArr){
+					//Endpoint has changed, delete old endpoints
+					foreach($endpointArr as $epArr){
+						if(isset($epArr['key'])){
+							$ch = curl_init($epUrl.'/'.$epArr['key']);
+							curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							curl_setopt($ch, CURLOPT_FAILONERROR, true);
+							curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
+							curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
+							curl_exec($ch);
+							if(curl_error($ch)) {
+								echo '<div style="color:red;">'.curl_error($ch).'</div>';
+							}
+							curl_close($ch);
+						}
+					}
+
+					//Add new endpoint
+					$ch = curl_init($epUrl);
+					curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+					$dataStr = json_encode( array( 'type' => 'DWC_ARCHIVE','url' => $dwcUri ) );
+					curl_setopt( $ch, CURLOPT_POSTFIELDS, $dataStr );
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_FAILONERROR, true);
+					curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
+					curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
+					$endpointStr = curl_exec($ch);
+					if(!strpos($endpointStr,' ') && strlen($endpointStr) == 36) $this->endpointKey = $endpointStr;
+					if(curl_error($ch)) {
+						echo '<div style="color:red;">'.curl_error($ch).'</div>';
+					}
+					curl_close($ch);
+				}
+			}
+
+			//Trigger Crawl
+			$dsUrl = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';
+			$ch = curl_init($dsUrl);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_FAILONERROR, true);
+			curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Accept: application/json'));
+			curl_exec($ch);
+			if(curl_error($ch)) {
+				echo '<div style="color:red;">'.curl_error($ch).'</div>';
+			}
+			curl_close($ch);
+		}
 	}
 
 	public function setAggKeys($aggKeyArr){
 		if($aggKeyArr){
 			if(isset($aggKeyArr['organizationKey'])) $this->organizationKey = $aggKeyArr['organizationKey'];
 			if(isset($aggKeyArr['installationKey']) && $aggKeyArr['installationKey']) $this->installationKey = $aggKeyArr['installationKey'];
-			if(isset($aggKeyArr['datasetKey']) && $aggKeyArr['datasetKey']) $this->datasetKey = $aggKeyArr['datasetKey'];
+			if(isset($aggKeyArr['datasetKey']) && $aggKeyArr['datasetKey']){
+				$dsKey = $aggKeyArr['datasetKey'];
+				if(!strpos($dsKey,' ') && strlen($dsKey) == 36) $this->datasetKey = $dsKey;
+			}
 			if(isset($aggKeyArr['endpointKey']) && $aggKeyArr['endpointKey']) $this->endpointKey = $aggKeyArr['endpointKey'];
 			if(isset($aggKeyArr['idigbioKey']) && $aggKeyArr['idigbioKey']) $this->idigbioKey = $aggKeyArr['idigbioKey'];
 		}
@@ -618,6 +676,7 @@ class OccurrenceCollectionProfile {
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$result = curl_exec($ch);
+		curl_close($ch);
 		$returnArr = json_decode($result,true);
 		if(isset($returnArr['items'][0]['uuid'])){
 			$this->idigbioKey = $returnArr['items'][0]['uuid'];
@@ -811,9 +870,7 @@ class OccurrenceCollectionProfile {
 	}
 
 	public function getStatCollectionList($catId = ""){
-		//Set collection array
-		$collIdArr = array();
-		$catIdArr = array();
+		//$catIdArr = array();
 		//Set collections
 		$sql = 'SELECT c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, c.colltype, ccl.ccpk, '.
 			'cat.category, cat.icon AS caticon, cat.acronym '.

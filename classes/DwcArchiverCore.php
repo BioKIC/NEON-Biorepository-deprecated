@@ -143,7 +143,7 @@ class DwcArchiverCore extends Manager{
 			//Don't limit by collection id
 		}
 		if($sqlWhere){
-			$sql = 'SELECT c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.fulldescription, c.collectionguid, IFNULL(c.homepage,i.url) AS url, '.
+			$sql = 'SELECT c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.fulldescription, c.collectionguid, IFNULL(c.homepage,i.url) AS url, c.contact, c.email, '.
 				'c.guidtarget, c.dwcaurl, c.latitudedecimal, c.longitudedecimal, c.icon, c.managementtype, c.colltype, c.rights, c.rightsholder, c.usageterm, '.
 				'i.address1, i.address2, i.city, i.stateprovince, i.postalcode, i.country, i.phone '.
 				'FROM omcollections c LEFT JOIN institutions i ON c.iid = i.iid '.
@@ -157,8 +157,8 @@ class DwcArchiverCore extends Manager{
 				$this->collArr[$r->collid]['description'] = $r->fulldescription;
 				$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
 				$this->collArr[$r->collid]['url'] = $r->url;
-				//$this->collArr[$r->collid]['contact'] = $r->contact;
-				//$this->collArr[$r->collid]['email'] = $r->email;
+				$this->collArr[$r->collid]['contact'][0]['individualName'] = $r->contact;
+				$this->collArr[$r->collid]['contact'][0]['electronicMailAddress'] = $r->email;
 				$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
 				$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
 				$this->collArr[$r->collid]['lat'] = $r->latitudedecimal;
@@ -179,7 +179,7 @@ class DwcArchiverCore extends Manager{
 			}
 			$rs->free();
 		}
-		$this->setCollectionContacts();
+		//$this->setCollectionContacts();
 	}
 
 	private function setCollectionContacts(){
@@ -1073,10 +1073,10 @@ class DwcArchiverCore extends Manager{
 			$emlArr['title'] = $this->collArr[$collId]['collname'];
 			$emlArr['description'] = $this->collArr[$collId]['description'];
 
-			//$emlArr['contact']['individualName'] = $this->collArr[$collId]['contact'];
+			$emlArr['contact']['individualName'] = $this->collArr[$collId]['contact'][0]['individualName'];
 			$emlArr['contact']['organizationName'] = $this->collArr[$collId]['collname'];
 			$emlArr['contact']['phone'] = $this->collArr[$collId]['phone'];
-			//$emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['email'];
+			$emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
 			$emlArr['contact']['onlineUrl'] = $this->collArr[$collId]['url'];
 
 			$emlArr['contact']['addr']['deliveryPoint'] = $this->collArr[$collId]['address1'].($this->collArr[$collId]['address2']?', '.$this->collArr[$collId]['address2']:'');

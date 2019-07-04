@@ -4,8 +4,8 @@ include_once($SERVER_ROOT.'/classes/OccurrenceCollectionProfile.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 1200); //1200 seconds = 20 minutes
 
-$catId = array_key_exists("catid",$_REQUEST)?$_REQUEST["catid"]:0;
-if(!$catId && isset($DEFAULTCATID) && $DEFAULTCATID) $catId = $DEFAULTCATID;
+$catID = array_key_exists("catid",$_REQUEST)?$_REQUEST["catid"]:0;
+if(!$catID && isset($DEFAULTCATID) && $DEFAULTCATID) $catID = $DEFAULTCATID;
 $collId = array_key_exists("collid",$_REQUEST)?$_REQUEST["collid"]:0;
 $cPartentTaxon = array_key_exists("taxon",$_REQUEST)?$_REQUEST["taxon"]:'';
 $cCountry = array_key_exists("country",$_REQUEST)?$_REQUEST["country"]:'';
@@ -16,7 +16,7 @@ $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'
 $collManager = new OccurrenceCollectionProfile();
 
 //if($collId) $collManager->setCollectionId($collId);
-$collList = $collManager->getStatCollectionList($catId);
+$collList = $collManager->getStatCollectionList($catID);
 $specArr = (isset($collList['spec'])?$collList['spec']:null);
 $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 
@@ -729,7 +729,7 @@ if($action != "Update Statistics"){
 										<ul style="margin:0px;padding-left:10px;">
 											<?php
 											echo "<li>";
-											echo ($results['SpecimenCount']?number_format($results['SpecimenCount']):0)." specimen records";
+											echo ($results['SpecimenCount']?number_format($results['SpecimenCount']):0)." occurrence records";
 											echo "</li>";
 											echo "<li>";
 											$percGeo = '';
@@ -743,7 +743,7 @@ if($action != "Update Statistics"){
 											if($results['SpecimenCount'] && $results['TotalImageCount']){
 												$percImg = (100* ($results['TotalImageCount'] / $results['SpecimenCount']));
 											}
-											echo ($results['TotalImageCount']?number_format($results['TotalImageCount']):0).($percImg?" (".($percImg>1?round($percImg):round($percImg,2))."%)":'')." imaged";
+											echo ($results['TotalImageCount']?number_format($results['TotalImageCount']):0).($percImg?" (".($percImg>1?round($percImg):round($percImg,2))."%)":'')." occurrences imaged";
 											echo "</li>";
 											echo "<li>";
 											$percId = '';
@@ -872,7 +872,7 @@ if($action != "Update Statistics"){
 									<table class="styledtable" style="font-family:Arial;font-size:12px;">
 										<tr>
 											<th style="text-align:center;">Collection</th>
-											<th style="text-align:center;">Specimens</th>
+											<th style="text-align:center;">Occurrences</th>
 											<th style="text-align:center;">Georeferenced</th>
 											<th style="text-align:center;">Imaged</th>
 											<th style="text-align:center;">Species ID</th>

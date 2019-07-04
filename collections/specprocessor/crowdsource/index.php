@@ -73,7 +73,7 @@ $statusStr = '';
 			<?php
 			$userStats = $csManager->getUserStats($catid);
 			?>
-			<fieldset style="background-color:white;margin-bottom:15px;width:250px;padding:15px;">
+			<fieldset style="background-color:white;margin-bottom:15px;width:300px;padding:15px;">
 				<legend><b>Current Standing</b></legend>
 				<?php
 				if($SYMB_UID){

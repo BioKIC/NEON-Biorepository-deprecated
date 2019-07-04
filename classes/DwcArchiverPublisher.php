@@ -16,7 +16,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		$this->collArr = array();
 		$this->setCollArr($collTarget);
 	}
-	
+
 	public function verifyCollRecords($collId){
 		$recArr = array();
 
@@ -46,7 +46,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			}
 			$rs->free();
 		}
-		
+
 		return $recArr;
 	}
 
@@ -64,21 +64,21 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 				$status = true;
 			}
 		}
-		//Reset $this->collArr with all the collections ran successfully and then rebuild the RSS feed 
+		//Reset $this->collArr with all the collections ran successfully and then rebuild the RSS feed
 		$this->resetCollArr(implode(',',$successArr));
 		$this->writeRssFile();
 		$this->logOrEcho("Batch process finished! (".date('Y-m-d h:i:s A').") \n");
 		return $status;
 	}
-	
+
 	public function writeRssFile(){
 
 		$this->logOrEcho("Mapping data to RSS feed... \n");
-		
+
 		//Create new document and write out to target
 		$newDoc = new DOMDocument('1.0',$this->charSetOut);
 
-		//Add root element 
+		//Add root element
 		$rootElem = $newDoc->createElement('rss');
 		$rootAttr = $newDoc->createAttribute('version');
 		$rootAttr->value = '2.0';
@@ -88,7 +88,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		//Add Channel
 		$channelElem = $newDoc->createElement('channel');
 		$rootElem->appendChild($channelElem);
-		
+
 		//Add title, link, description, language
 		$titleElem = $newDoc->createElement('title');
 		$titleElem->appendChild($newDoc->createTextNode($GLOBALS['DEFAULT_TITLE'].' Darwin Core Archive rss feed'));
@@ -98,7 +98,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		$urlPathPrefix = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].(substr($GLOBALS['CLIENT_ROOT'],-1)=='/'?'':'/');
 
 		$localDomain = $this->serverDomain;
-		
+
 		$linkElem = $newDoc->createElement('link');
 		$linkElem->appendChild($newDoc->createTextNode($urlPathPrefix));
 		$channelElem->appendChild($linkElem);
@@ -126,7 +126,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			//Icon
 			$imgLink = '';
 			if(substr($cArr['icon'],0,17) == 'images/collicons/'){
-				//Link is a 
+				//Link is a
 				$imgLink = $urlPathPrefix.$cArr['icon'];
 			}
 			elseif(substr($cArr['icon'],0,1) == '/'){
@@ -138,7 +138,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			$iconElem = $newDoc->createElement('image');
 			$iconElem->appendChild($newDoc->createTextNode($imgLink));
 			$itemElem->appendChild($iconElem);
-			
+
 			//description
 			$descTitleElem = $newDoc->createElement('description');
 			$descTitleElem->appendChild($newDoc->createTextNode('Darwin Core Archive for '.$cArr['collname']));
@@ -152,7 +152,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			$itemElem->appendChild($guidElem2);
 			//EML file link
 			$fileNameSeed = str_replace(array(' ','"',"'"),'',$instCode).'_DwC-A';
-			
+
 			$emlElem = $newDoc->createElement('emllink');
 			$emlElem->appendChild($newDoc->createTextNode($urlPathPrefix.'content/dwca/'.$fileNameSeed.'.eml'));
 			$itemElem->appendChild($emlElem);
@@ -173,7 +173,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			$pubDateTitleElem->appendChild($newDoc->createTextNode(date("D, d M Y H:i:s")));
 			$itemElem->appendChild($pubDateTitleElem);
 			$itemArr[$title] = $itemElem;
-			
+
 			//Add path to database
 			$sql = 'UPDATE omcollections SET dwcaUrl = "'.$archivePath.'" WHERE collid = '.$collID;
 			if(!$this->conn->query($sql)){
@@ -200,13 +200,13 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		foreach($itemArr as $i){
 			$channelElem->appendChild($i);
 		}
-		
+
 		$newDoc->save($rssFile);
 
 		$this->logOrEcho("Done!!\n");
 	}
 
-	//Misc data retrival functions 
+	//Misc data retrival functions
 	public function getDwcaItems($collid = 0){
 		$retArr = Array();
 		$rssFile = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/').'webservices/dwc/rss.xml';
@@ -241,12 +241,11 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 
 	public function getCollectionList($catID){
 		$retArr = array();
-		if($catID && !is_numeric($catID)) return $retArr;
 		$sql = 'SELECT c.collid, c.collectionname, CONCAT_WS("-",c.institutioncode,c.collectioncode) as instcode, c.guidtarget, c.dwcaurl, c.managementtype '.
 			'FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid '.
-			'LEFT JOIN omcollcatlink l ON c.collid = l.collid '.
+			'INNER JOIN omcollcatlink l ON c.collid = l.collid '.
 			'WHERE (c.colltype = "Preserved Specimens") AND (s.recordcnt > 0) ';
-		if($catID) $sql .= 'AND (l.ccpk = '.$catID.') ';
+		if($catID && preg_match('/^[,\d]+$/', $catID)) $sql .= 'AND (l.ccpk IN('.$catID.')) ';
 		$sql .= 'ORDER BY c.collectionname';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -254,43 +253,46 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			$retArr[$r->collid]['guid'] = $r->guidtarget;
 			$retArr[$r->collid]['url'] = $r->dwcaurl;
 		}
+		$rs->free();
 		return $retArr;
 	}
 
 	public function getAdditionalDWCA($catID){
 		$retArr = array();
-		if(!$catID || !is_numeric($catID)) return $retArr;
-		$sql = 'SELECT substring_index(c.dwcaurl,"/content/",1)  as portalDomain, count(c.collid) as cnt '.
-			'FROM omcollections c LEFT JOIN omcollcatlink l ON c.collid = l.collid '.
-			'WHERE (c.colltype = "Preserved Specimens") AND (c.dwcaurl IS NOT NULL) AND (l.ccpk IS NULL OR l.ccpk != '.$catID.') '.
-			'GROUP BY portalDomain';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$domainName = parse_url($r->portalDomain, PHP_URL_HOST);
-			if(substr($domainName,0,4) == 'www.') $domainName = substr($domainName,4);
-			if(isset($retArr[$domainName])){
-				$retArr[$domainName]['cnt'] += $r->cnt;
-				if(strpos($retArr[$domainName]['url'],'/www.') && !strpos($r->portalDomain,'/www.')) $retArr[$domainName]['url'] = $r->portalDomain;
+		if($catID && preg_match('/^[,\d]+$/', $catID)){
+			$sql = 'SELECT substring_index(c.dwcaurl,"/content/",1)  as portalDomain, count(c.collid) as cnt '.
+				'FROM omcollections c LEFT JOIN omcollcatlink l ON c.collid = l.collid '.
+				'WHERE (c.colltype = "Preserved Specimens") AND (c.dwcaurl IS NOT NULL) AND (l.ccpk IS NULL OR l.ccpk NOT IN('.$catID.')) '.
+				'GROUP BY portalDomain';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$domainName = parse_url($r->portalDomain, PHP_URL_HOST);
+				if(substr($domainName,0,4) == 'www.') $domainName = substr($domainName,4);
+				if(isset($retArr[$domainName])){
+					$retArr[$domainName]['cnt'] += $r->cnt;
+					if(strpos($retArr[$domainName]['url'],'/www.') && !strpos($r->portalDomain,'/www.')) $retArr[$domainName]['url'] = $r->portalDomain;
+				}
+				else{
+					$retArr[$domainName]['cnt'] = $r->cnt;
+					$retArr[$domainName]['url'] = $r->portalDomain;
+				}
 			}
-			else{
-				$retArr[$domainName]['cnt'] = $r->cnt;
-				$retArr[$domainName]['url'] = $r->portalDomain;
-			}
+			$rs->free();
 		}
 		return $retArr;
 	}
 
 	public function getCategoryName($catID){
-		$retStr = '';
-		if($catID){
-			$sql = 'SELECT ccpk, category FROM omcollcategories WHERE (ccpk = '.$catID.')';
+		$retArr = array();
+		if($catID && preg_match('/^[,\d]+$/', $catID)){
+			$sql = 'SELECT ccpk, category FROM omcollcategories WHERE (ccpk IN('.$catID.'))';
 			$rs = $this->conn->query($sql);
-			if($r = $rs->fetch_object()){
-				$retStr = $r->category;
+			while($r = $rs->fetch_object()){
+				$retArr[] = $r->category;
 			}
 			$rs->free();
 		}
-		return $retStr;
+		return $retArr;
 	}
 
 	//Mics functions
@@ -311,19 +313,19 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 	public function humanFileSize($filePath) {
 		if(substr($filePath,0,4)=='http') {
 			$x = array_change_key_case(get_headers($filePath, 1),CASE_LOWER);
-			if( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) { 
-				$x = $x['content-length'][1]; 
+			if( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) {
+				$x = $x['content-length'][1];
 			}
-			else { 
-				$x = $x['content-length']; 
+			else {
+				$x = $x['content-length'];
 			}
 		}
-		else { 
-			$x = @filesize($filePath); 
+		else {
+			$x = @filesize($filePath);
 		}
 		$x = round($x/1000000, 1);
 		if(!$x) $x = 0.1;
-		
+
 		return $x.'M ';
 	}
 }

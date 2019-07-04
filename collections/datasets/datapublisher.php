@@ -270,7 +270,7 @@ include($SERVER_ROOT. '/header.php');
 			$dwcaManager->writeRssFile();
 			echo '</ul>';
 			if($publishGBIF && $collManager->getEndpointKey()){
-				$collManager->triggerGBIFCrawl($collManager->getDatasetKey());
+				$collManager->triggerGBIFCrawl($collManager->getDatasetKey(),$collArr['dwcaurl']);
 			}
 		}
 		$dwcUri = '';
@@ -452,7 +452,7 @@ include($SERVER_ROOT. '/header.php');
 	}
 	else{
 		$catID = (isset($DEFAULTCATID)?$DEFAULTCATID:0);
-		$catTitle = $dwcaManager->getCategoryName($catID);
+		$catTitle = implode(', ',$dwcaManager->getCategoryName($catID));
 		if($IS_ADMIN){
 			if($action == 'Create/Refresh Darwin Core Archive(s)'){
 				echo '<ul>';

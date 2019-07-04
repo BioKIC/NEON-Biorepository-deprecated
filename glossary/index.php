@@ -50,6 +50,9 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
+	<script type="text/javascript">
 		var langArr = {<?php
 			$d = '';
 			foreach($languageArr as $k => $v){
@@ -121,9 +124,6 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 	<script src="../js/symb/glossary.index.js?ver=20160720" type="text/javascript"></script>
 </head>
 <body>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
-	</script>
 	<?php
 	$displayLeftMenu = (isset($glossary_indexMenu)?$glossary_indexMenu:false);
 	include($SERVER_ROOT."/header.php");

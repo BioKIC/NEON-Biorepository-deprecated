@@ -47,6 +47,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript" src="../js/symb/references.index.js"></script>
+	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
 </head>
 <body>
 	<?php

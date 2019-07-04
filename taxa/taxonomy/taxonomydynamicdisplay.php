@@ -60,6 +60,9 @@ if($target){
 			);
 		});
 	</script>
+	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
 </head>
 <body class="claro">
 <?php

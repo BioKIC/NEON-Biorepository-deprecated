@@ -20,6 +20,9 @@ $smManager = new SiteMapManager();
 			return false;
 		}
 	</script>
+	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
 	<script type="text/javascript" src="js/symb/shared.js"></script>
 </head>
 <body>

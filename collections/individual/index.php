@@ -167,6 +167,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
 	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
+	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
 		var map;
 		var mapInit = false;
@@ -261,7 +264,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		?>
 	</script>
 </head>
-
 <body>
 	<div id="fb-root"></div>
 	<script>

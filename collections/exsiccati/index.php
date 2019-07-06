@@ -76,6 +76,9 @@ if($formSubmit == 'dlexsiccati'){
 	<title><?php echo $DEFAULT_TITLE; ?> Exsiccati</title>
     <link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
     <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
 	<script type="text/javascript" src="../../js/symb/shared.js?ver=130926"></script>
 	<script type="text/javascript">
 		function toggleExsEditDiv(){
@@ -240,7 +243,6 @@ if($formSubmit == 'dlexsiccati'){
 		?>
 	</script>
 </head>
-
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_exsiccati_index)?$collections_exsiccati_index:false);

@@ -22,7 +22,7 @@ $taxonDisplayObj->setDisplaySubGenera($displaySubGenera);
 $isEditor = false;
 if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 	$isEditor = true;
-} 
+}
 ?>
 <html>
 <head>
@@ -33,6 +33,9 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 	<link type="text/css" href="../../css/jquery-ui.css" rel="Stylesheet" />
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
+	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 
@@ -61,17 +64,17 @@ if(isset($taxa_admin_taxonomydisplayCrumbs)){
 	if($taxa_admin_taxonomydisplayCrumbs){
 		echo '<div class="navpath">';
 		echo $taxa_admin_taxonomydisplayCrumbs;
-		echo ' <b>Taxonomic Tree Viewer</b>'; 
+		echo ' <b>Taxonomic Tree Viewer</b>';
 		echo '</div>';
 	}
 }
 else{
 	?>
 	<div class="navpath">
-		<a href="../../index.php">Home</a> &gt;&gt; 
-		<a href="taxonomydisplay.php"><b>Taxonomic Tree Viewer</b></a> 
+		<a href="../../index.php">Home</a> &gt;&gt;
+		<a href="taxonomydisplay.php"><b>Taxonomic Tree Viewer</b></a>
 	</div>
-	<?php 
+	<?php
 }
 ?>
 	<!-- This is inner text! -->
@@ -84,7 +87,7 @@ else{
 				<?php echo $statusStr; ?>
 			</div>
 			<hr/>
-			<?php 
+			<?php
 		}
 		if($isEditor){
 			?>
@@ -101,32 +104,32 @@ else{
 				<fieldset style="padding:10px;width:550px;">
 					<legend><b>Enter a taxon</b></legend>
 					<div>
-						<b>Taxon:</b> 
-						<input id="taxontarget" name="target" type="text" style="width:400px;" value="<?php echo $taxonDisplayObj->getTargetStr(); ?>" /> 
+						<b>Taxon:</b>
+						<input id="taxontarget" name="target" type="text" style="width:400px;" value="<?php echo $taxonDisplayObj->getTargetStr(); ?>" />
 					</div>
 					<div style="float:right;margin:15px 80px 15px 15px;">
 						<input name="tdsubmit" type="submit" value="Display Taxon Tree"/>
-						<input name="taxauthid" type="hidden" value="<?php echo $taxAuthId; ?>" /> 
+						<input name="taxauthid" type="hidden" value="<?php echo $taxAuthId; ?>" />
 					</div>
 					<div style="margin:15px 15px 0px 60px;">
 						<input name="displayauthor" type="checkbox" value="1" <?php echo ($displayAuthor?'checked':''); ?> /> Display authors
 					</div>
 					<div style="margin:3px 15px 0px 60px;">
-						<input name="displayfulltree" type="checkbox" value="1" <?php echo ($displayFullTree?'checked':''); ?> /> Display full tree below family 
+						<input name="displayfulltree" type="checkbox" value="1" <?php echo ($displayFullTree?'checked':''); ?> /> Display full tree below family
 					</div>
 					<div style="margin:3px 15px 15px 60px;">
-						<input name="displaysubgenera" type="checkbox" value="1" <?php echo ($displaySubGenera?'checked':''); ?> /> Display species with subgenera 
+						<input name="displaysubgenera" type="checkbox" value="1" <?php echo ($displaySubGenera?'checked':''); ?> /> Display species with subgenera
 					</div>
 				</fieldset>
 			</form>
 		</div>
-		<?php 
+		<?php
 		if($target){
 			$taxonDisplayObj->displayTaxonomyHierarchy();
 		}
 		?>
 	</div>
-	<?php 
+	<?php
 	include($SERVER_ROOT.'/footer.php');
 	?>
 </body>

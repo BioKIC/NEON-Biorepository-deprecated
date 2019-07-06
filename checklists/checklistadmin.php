@@ -268,7 +268,7 @@ if($clid && $isEditor){
 	if($voucherProjects){
 		?>
 		<div id="imgvouchertab">
-			<form name="addimagevoucher" action="../collections/editor/observationsubmit.php" method="get" target="_blank">
+			<form name="addimagevoucher" action="../collections/editor/observationsubmit.php" method="post" target="_blank">
 				<fieldset style="margin:15px;padding:25px;">
 					<legend><b><?php echo $LANG['ADDIMGVOUC'];?></b></legend>
 					<?php echo $LANG['FORMADDVOUCH'];?><br><br>

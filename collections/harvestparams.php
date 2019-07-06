@@ -29,6 +29,9 @@ $searchVar = $collManager->getQueryTermStr();
 		});
 	</script>
 	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=3" type="text/javascript"></script>
+	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
 </head>
 <body>
 <?php

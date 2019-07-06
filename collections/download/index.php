@@ -18,6 +18,9 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+	</script>
 	<script>
 		$(document).ready(function() {
 			var dialogArr = new Array("schemanative","schemadwc");

@@ -1,4 +1,3 @@
-var taxonValid = false;
 
 $(document).ready(function() {
 	$("#sciname").autocomplete({ 
@@ -11,18 +10,16 @@ $(document).ready(function() {
 					type: "POST",
 					url: "rpc/verifysciname.php",
 					dataType: "json",
-					data: { term: f.sciname.value }
+					data: { term: f.sciname.value },
+					autoFocus: true
 				}).done(function( data ) {
 					if(data){
 						f.scientificnameauthorship.value = data.author;
 						f.family.value = data.family;
-						taxonValid = true;
 					}
 					else{
-						alert("Taxon not found. Maybe misspelled or needs to be added to taxonomic thesaurus.");
 						f.scientificnameauthorship.value = "";
 						f.family.value = "";
-						taxonValid = false;
 					}
 				});
 			}
@@ -102,45 +99,19 @@ function insertLatLng(f) {
 	}
 }
 
-function insertElevFt(f){
-	var elev = document.getElementById("elevft").value;
-	f.minimumelevationinmeters.value = Math.round(elev*.03048)*10;
+function convertElevFt(f){
+	var elev = parseInt(f.verbatimelevation.value);
+	if(elev) f.minimumelevationinmeters.value = Math.round(elev*.03048)*10;
 }
 
 function verifyObsForm(f){
     if(f.sciname.value == ""){
-		window.alert("Observation must have an identification (scientific name) assigned to it, even if it is only to family rank.");
-		return false;
-    }
-    else{
-		if(!taxonValid){
-			alert("Scientific name invalid");
-			return false;
-		}
-    }
-    if(f.recordedby.value == ""){
-		window.alert("Observer field must have a value.");
-		return false;
-    }
-    if(f.eventdate.value == ""){
-		window.alert("Observation date must have a value.");
+		window.alert("Observation must have an identification (scientific name) assigned to it, even if it is only to family, order, or even kingdom.");
 		return false;
     }
 	var validDate = /^\d{4}-\d{2}-\d{2}$/ //Format: yyyy-mm-dd
     if(!validDate.test(f.eventdate.value)){
     	window.alert("Observation date must follow format: yyyy-mm-dd");
-		return false;
-    }
-    if(f.locality.value == ""){
-		window.alert("Locality must have a value to submit an observation.");
-		return false;
-    }
-    if(f.decimallatitude.value == "" || f.decimallongitude.value == ""){
-		window.alert("Latitude and Longitude are required values. Click on global symbol to open mapping aid.");
-		return false;
-    }
-    if(f.coordinateuncertaintyinmeters.value == ""){
-		window.alert("Coordinate uncertainty (in meters) is required.");
 		return false;
     }
     if(isNumeric(f.decimallatitude.value) == false){
@@ -151,7 +122,7 @@ function verifyObsForm(f){
 		window.alert("Longitude must be in the decimal format with numeric characters only. Note that the western hemisphere is represented as a negitive number (-110.5335). ");
 		return false;
     }
-    if(parseInt(f.decimallongitude.value ) > 0 && (f.country == 'USA' || f.country == 'Canada' || f.country == 'Mexico')){
+    if(parseInt(f.decimallongitude.value ) > 0 && (f.country == 'USA' || f.country == 'United States' || f.country == 'Canada' || f.country == 'Mexico')){
 		window.alert("For North America, the decimal format of longitude should be negitive value. ");
 		return false;
     }
@@ -161,10 +132,6 @@ function verifyObsForm(f){
     }
     if(isNumeric(f.minimumelevationinmeters.value) == false){
 		window.alert("Elevation must be a numeric value only. ");
-		return false;
-    }
-    if(f.imgfile1.value == ""){
-   		window.alert("An observation submitted through this interface must be documented with at least one image.");
 		return false;
     }
     return true;

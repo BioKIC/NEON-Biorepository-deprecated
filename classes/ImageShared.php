@@ -140,6 +140,10 @@ class ImageShared{
 		$this->sourceWidth = 0;
 		$this->sourceHeight = 0;
 
+		$this->imgTnUrl = '';
+		$this->imgWebUrl = '';
+		$this->imgLgUrl = '';
+
 		//Image metadata
 		$this->caption = '';
 		$this->photographer = '';
@@ -576,7 +580,7 @@ class ImageShared{
 				($this->sourceIdentifier?'"'.$this->sourceIdentifier.'"':'NULL').','.
 				($this->rights?'"'.$this->rights.'"':'NULL').','.
 				($this->accessRights?'"'.$this->accessRights.'"':'NULL').')';
-			//echo $sql; exit;
+			//echo $sql.'<br/>';
 			if($this->conn->query($sql)){
 				//Create and insert Symbiota GUID for image(UUID)
 				$guid = UuidFactory::getUuidV4();
@@ -1214,7 +1218,7 @@ class ImageShared{
 		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
 
 		if(strpos($imgUrl,$urlPrefix) === 0){
-			$uri = substr($imgUrl,strlen($urlPrefix));
+			$imgUrl = substr($imgUrl,strlen($urlPrefix));
 		}
 		if(substr($imgUrl,0,1) == '/'){
 			if($GLOBALS['IMAGE_ROOT_URL'] && strpos($imgUrl,$GLOBALS['IMAGE_ROOT_URL']) === 0){

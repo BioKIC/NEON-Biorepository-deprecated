@@ -130,7 +130,7 @@ else{
     <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<script src="../../js/symb/collections.occureditorshare.js?ver=201807" type="text/javascript" ></script>
+	<script src="../../js/symb/collections.occureditorshare.js?ver=201906" type="text/javascript" ></script>
 </head>
 <body style="margin-left: 0px; margin-right: 0px;background-color:white;">
 	<!-- inner text -->

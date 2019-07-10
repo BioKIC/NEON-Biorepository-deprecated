@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
 ------------------
 Language: English
@@ -10,6 +10,7 @@ include_once('sharedterms.en.php');
 $LANG['PAGE_TITLE'] = 'Collections Search Results';
 $LANG['NAV_SPECIMEN_LIST'] = 'Specimen Records';
 $LANG['DOWNLOAD_SPECIMEN_DATA'] = 'Download Specimen Data';
+$LANG['COPY_URL_TO_CLIPBOARD'] = 'Copy URL to Clipboard';
 $LANG['DATASET'] = 'Dataset';
 $LANG['TAXA'] = 'Taxa';
 $LANG['SEARCH_CRITERIA'] = 'Search Criteria';

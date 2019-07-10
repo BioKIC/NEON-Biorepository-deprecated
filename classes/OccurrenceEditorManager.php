@@ -87,6 +87,7 @@ class OccurrenceEditorManager {
 
 	public function getDynamicPropertiesArr(){
 		$propArr = array();
+		$dynPropArr = array();
 		if(array_key_exists('dynamicproperties', $this->collMap)){
 			$dynPropArr = json_decode($this->collMap['dynamicproperties'],true);
 			if(isset($dynPropArr['editorProp'])) $propArr = $dynPropArr['editorProp'];
@@ -1530,7 +1531,7 @@ class OccurrenceEditorManager {
 				}
 				else{
 					//Selected "Match any part of field"
-					$nvSqlFrag = 'REPLACE(o.'.$fn.',"'.$ov.'","'.$nv.'")';
+					$nvSqlFrag = 'REPLACE('.$fn.',"'.$ov.'","'.$nv.'")';
 				}
 
 				//Temporary code needed for to test for new schema update

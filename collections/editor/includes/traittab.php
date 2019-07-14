@@ -29,18 +29,38 @@ if($isEditor){
 }
 ?>
 <script type="text/javascript">
+	$(document).ready(function() {
+		setAttributeTree(false);
+	});
 
-	function traitChanged(traitID){
+	function traitChanged(elem){
+		var elemName = elem.getAttribute("name");
+		var traitID = elemName.substring(8,elemName.length-2);
 		$('input[name="stateid-'+traitID+'[]"]').each(function(){
-			if(this.checked == true){
-				$("div.child-"+this.value).show();
-			}
-			else{
-				$("div.child-"+this.value).hide();
+			if(this.checked == false){
 				$("input:checkbox.child-"+this.value).each(function(){ this.checked = false; });
 				$("input:radio.child-"+this.value).each(function(){ this.checked = false; });
 			}
 		});
+		if(elem.checked == true){
+			var parents = $(elem).parents("div");
+			for (var i = 0; i < parents.length; i++) {
+				var parDiv = parents[i];
+				if($(parDiv).attr("id") == "traitdiv") break;
+				var inputElem = $(parDiv).children("input");
+				$( inputElem ).prop( "checked", true );
+		    }
+		}
+		if(!sessionStorage.attributeTree || sessionStorage.attributeTree == 0){
+			$('input[name="stateid-'+traitID+'[]"]').each(function(){
+				if(this.checked == true){
+					if(sessionStorage.attributeTree == 0) $("div.child-"+this.value).show();
+				}
+				else{
+					if(sessionStorage.attributeTree == 0) $("div.child-"+this.value).hide();
+				}
+			});
+		}
 		$('input[name="submitform"]').prop('disabled', false);
 	}
 
@@ -89,6 +109,26 @@ if($isEditor){
 		}
 	}
 
+	function setAttributeTree(toggleTree){
+		var treeOpen = false;
+		if(sessionStorage.attributeTree && sessionStorage.attributeTree == 1) treeOpen = true;
+		if(toggleTree){
+			if(treeOpen) treeOpen = false;
+			else treeOpen = true;
+		}
+		if(treeOpen){
+			$("div[class^=child]").show();
+			$("#triangledown").show();
+			$("#triangleright").hide();
+			sessionStorage.attributeTree = 1;
+		}
+		else{
+			$("div[class^=child]").hide();
+			$("#triangledown").hide();
+			$("#triangleright").show();
+			sessionStorage.attributeTree = 0;
+		}
+	}
 </script>
 <div id="traitdiv" style="width:795px;">
 	<?php
@@ -118,20 +158,24 @@ if($isEditor){
 				?>
 				<fieldset style="margin-top:20px">
 					<legend><b>Coded Trait: <?php echo $codeTraitArr['name']; ?></b></legend>
-					<div style="float:right" title="Hard refresh of page">
-						<form name="refreshform" method="post" action="occurrenceeditor.php" >
-							<div style="margin:20px">
+					<div style="float:right" style="margin:20px">
+						<div style="margin:0px 3px;float:right" title="Hard refresh of page">
+							<form name="refreshform" method="post" action="occurrenceeditor.php" >
 								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 								<?php
 								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
 								?>
 								<input name="tabtarget" type="hidden" value="3" />
 								<input type="image" src="../../images/refresh.png" />
-							</div>
-						</form>
+							</form>
+						</div>
+						<div style="margin:4px 3px" onclick="setAttributeTree(true)" title="Toggle attribute tree open/close">
+							<img id="triangleright" src="../../images/triangleright.png" style="" />
+							<img id="triangledown" src="../../images/triangledown.png" style="display:none" />
+						</div>
 					</div>
 					<form name="submitform" method="post" action="occurrenceeditor.php" onsubmit="">
-						<div>
+						<div id="traitDiv">
 							<?php
 							$attrManager->echoFormTraits($codedTraitID);
 							?>
@@ -177,17 +221,21 @@ if($isEditor){
 				?>
 				<fieldset style="margin-top:20px">
 					<legend><b>New Trait: <?php echo $newTraitArr['name']; ?></b></legend>
-					<div style="float:right" title="Hard refresh of page">
-						<form name="refreshform" method="post" action="occurrenceeditor.php" >
-							<div style="margin:20px">
+					<div style="float:right">
+						<div style="margin:0px 3px;float:right" title="Hard refresh of page">
+							<form name="refreshform" method="post" action="occurrenceeditor.php" >
 								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 								<?php
 								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
 								?>
 								<input name="tabtarget" type="hidden" value="3" />
 								<input type="image" src="../../images/refresh.png" />
-							</div>
-						</form>
+							</form>
+						</div>
+						<div style="margin:4px 3px;float:right" onclick="setAttributeTree(true)" title="Toggle attribute tree open/close">
+							<img id="triangleright" src="../../images/triangleright.png" style="" />
+							<img id="triangledown" src="../../images/triangledown.png" style="display:none" />
+						</div>
 					</div>
 					<form name="submitform" method="post" action="editortraithandler.php" onsubmit="" >
 						<div>

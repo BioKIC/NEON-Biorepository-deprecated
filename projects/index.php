@@ -369,7 +369,7 @@ if(!$researchList && !$editMode){
 							</a>
 						</div>
 						<div id="researchlistpopup" class="genericpopup" style="display:none;">
-							<img src="../images/uptriangle.png" style="position: relative; top: -22px; left: 30px;" />
+							<img src="../images/triangleup.png" style="position: relative; top: -22px; left: 30px;" />
 							<?php echo $LANG['RESCHECKQUES'];?>
 						</div>
 						<?php

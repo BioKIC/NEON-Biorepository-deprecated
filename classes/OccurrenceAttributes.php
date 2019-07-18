@@ -337,26 +337,28 @@ class OccurrenceAttributes extends Manager {
 			if(isset($propArr[0]['controlType'])) $controlType = $propArr[0]['controlType'];
 		}
 		$attrStateArr = $this->traitArr[$traitID]['states'];
-		$hasBeenCoded = false;
 		$innerStr = '';
 		foreach($attrStateArr as $sid => $sArr){
 			$isCoded = false;
 			if(array_key_exists('coded',$sArr)){
 				$isCoded = true;
-				$hasBeenCoded = true;
 				$this->stateCodedArr[$sid] = $sid;
 			}
 			$depTraitId = false;
 			if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitId = $sArr['dependTraitID'];
 			if($controlType == 'checkbox' || $controlType == 'radio'){
-				$innerStr .= '<div title="'.$sArr['description'].'"><input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged('.$traitID.')" /> '.$sArr['name'].'</div>';
+				$innerStr .= '<div title="'.$sArr['description'].'"><input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> '.$sArr['name'];
 			}
 			elseif($controlType == 'select'){
 				$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';
 			}
+//			elseif($controlType == 'numeric'){
+//				$innerStr .= '<div title="'.$sArr['description'].'">'.$sArr['name'].': <input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="input" value="'.$sid.'" onchange="traitChanged(this)" /> ';
+//			}
 			if($depTraitId){
 				$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
 			}
+			if($controlType != 'select') $innerStr .= '</div>';
 		}
 		//Display if trait has been coded or is the first/base trait (e.g. $indend == 0)
 		$divClass = '';

@@ -334,30 +334,35 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							<div class="fb-share-button" data-href="" data-layout="button_count"></div>
 						</div>
 					</div>
-					<div style="float:left;margin:15px 0px;text-align:center;font-weight:bold;width:120px;">
-						<img border='1' height='50' width='50' src='<?php echo (substr($collMetadata["icon"],0,6)=='images'?'../../':'').$collMetadata['icon']; ?>'/><br/>
-						<?php
-						echo $collMetadata['institutioncode'];
-						if(isset($collMetadata['collectioncode'])){
-							echo (strlen($collMetadata['institutioncode'])<7?' : ':'<br/>').$collMetadata['collectioncode'];
+					<?php
+					$iconUrl = (substr($collMetadata["icon"],0,6)=='images'?'../../':'').$collMetadata['icon'];
+					if($iconUrl) $iconUrl = '<img border="1" height="50" width="50" src="'.$iconUrl.'" /><br/>';
+					$instCode = $collMetadata['institutioncode'];
+					if(isset($collMetadata['collectioncode'])){
+						$instCode .= (strlen($collMetadata['institutioncode'])<7?' : ':'<br/>').$collMetadata['collectioncode'];
+					}
+					elseif(!isset($occArr['secondaryinstcode']) && isset($occArr['secondarycollcode'])){
+						$instCode .= (strlen($collMetadata['institutioncode'])<7?' : ':'<br/>').$occArr['secondarycollcode'];
+					}
+					if($occArr['secondaryinstcode']){
+						$instCode .= '<div>';
+						$instCode .= $occArr['secondaryinstcode'];
+						if(isset($occArr['secondarycollcode'])){
+							$instCode .= (strlen($occArr['secondaryinstcode'])<7?' : ':'<br/>');
+							$instCode .= $occArr['secondarycollcode'];
 						}
-						elseif(!isset($occArr['secondaryinstcode']) && isset($occArr['secondarycollcode'])){
-							echo (strlen($collMetadata['institutioncode'])<7?' : ':'<br/>').$occArr['secondarycollcode'];
-						}
-						if($occArr['secondaryinstcode']){
-							echo '<div>';
-							echo $occArr['secondaryinstcode'];
-							if(isset($occArr['secondarycollcode'])){
-								echo (strlen($occArr['secondaryinstcode'])<7?' : ':'<br/>');
-								echo $occArr['secondarycollcode'];
-							}
-							echo '</div>';
-						}
-						?>
+						$instCode .= '</div>';
+					}
+					if($iconUrl){
+						echo '<div style="float:left;margin:15px 0px;text-align:center;font-weight:bold;width:120px;">';
+						echo $iconUrl;
+						echo '</div>';
+					}
+					?>
 					</div>
 					<div style="float:left;padding:25px;">
 						<span style="font-size:18px;font-weight:bold;vertical-align:60%;">
-							<?php echo $collMetadata['collectionname']; ?>
+							<?php echo $collMetadata['collectionname'].(!$iconUrl?' ('.$instCode.')':''); ?>
 						</span>
 					</div>
 					<div style="clear:both;margin-left:60px;">

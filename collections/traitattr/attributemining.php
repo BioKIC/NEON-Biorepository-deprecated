@@ -266,7 +266,7 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 				if($traitID && $fieldName){
 					$valueArr = $attrManager->getFieldValueArr($traitID, $fieldName, $tidFilter, $stringFilter);
 					?>
-					<div style="width:600px">
+					<div id="traitdiv" style="width:600px">
 						<fieldset style="margin:15px;padding:15px">
 							<legend><b><?php echo $fieldArr[$fieldName]; ?></b></legend>
 							<form name="miningform" method="post" action="attributemining.php" onsubmit="return verifyMiningForm(this)">
@@ -280,13 +280,19 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 										?>
 									</select>
 								</div>
-								<div>
+								<div style="float:left">
 									<?php
 									$traitArr = $attrManager->getTraitArr($traitID,false);
 									$attrManager->echoFormTraits($traitID);
 									?>
 								</div>
-								<div style="margin:10px 5px;">
+								<div class="trianglediv" style="float:left;margin-left:20px">
+									<div style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
+										<img class="triangleright" src="../../images/triangleright.png" style="" />
+										<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
+									</div>
+								</div>
+								<div style="margin:10px 5px;clear:both">
 									Notes:
 									<input name="notes" type="text" style="width:200px" value="" />
 								</div>

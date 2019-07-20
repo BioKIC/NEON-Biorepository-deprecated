@@ -10,7 +10,7 @@ class DwcArchiverAttribute{
 		$termArr['measurementTypeID'] = 'http://rs.iobis.org/obis/terms/measurementTypeID';
 		$fieldArr['measurementTypeID'] = 'm.refurl AS measurementTypeID';
 		$termArr['measurementValue'] = 'http://rs.tdwg.org/dwc/terms/measurementValue';
-		$fieldArr['measurementValue'] = 's.statename';
+		$fieldArr['measurementValue'] = 'IFNULL(a.xvalue,s.statename) AS measurementValue';
 		$termArr['measurementValueID'] = 'http://rs.iobis.org/obis/terms/measurementValueID';
 		$fieldArr['measurementValueID'] = 's.refurl AS measurementValueID';
 		//$termArr['measurementAccuracy'] = 'http://rs.tdwg.org/dwc/terms/measurementAccuracy';

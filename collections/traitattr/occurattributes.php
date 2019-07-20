@@ -405,62 +405,70 @@ if($traitID){
 						if(isset($stArr['notes']) && $stArr['notes']) $notes = $stArr['notes'];
 					}
 					?>
-					<fieldset style="margin-top:20px">
-						<legend><b>Action Panel - <?php echo $traitArr[$traitID]['name']; ?></b></legend>
-						<form name="submitform" method="post" action="occurattributes.php" onsubmit="return verifySubmitForm(this)" >
-							<div>
-								<?php
-								$attrManager->echoFormTraits($traitID);
-								?>
-							</div>
-							<div style="margin:10px 5px;">
-								Notes:
-								<input name="notes" type="text" style="width:200px" value="<?php echo $notes; ?>" />
-							</div>
-							<div style="margin-left:5;">
-								Status:
-								<select name="setstatus">
+					<div id="traitdiv">
+						<fieldset style="margin-top:20px">
+							<legend><b>Action Panel - <?php echo $traitArr[$traitID]['name']; ?></b></legend>
+							<form name="submitform" method="post" action="occurattributes.php" onsubmit="return verifySubmitForm(this)" >
+								<div style="float:right;margin-right:10px">
+									<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
+										<img class="triangleright" src="../../images/triangleright.png" style="" />
+										<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
+									</div>
+								</div>
+								<div>
+									<?php
+									$attrManager->echoFormTraits($traitID);
+									?>
+								</div>
+								<div style="margin:10px 5px;">
+									Notes:
+									<input name="notes" type="text" style="width:200px" value="<?php echo $notes; ?>" />
+								</div>
+								<div style="margin-left:5;">
+									Status:
+									<select name="setstatus">
+										<?php
+										if($mode == 2){
+											?>
+											<option value="0">Not reviewed</option>
+											<option value="5">Expert Needed</option>
+											<option value="10" selected>Reviewed</option>
+											<?php
+										}
+										else{
+											?>
+											<option value="0">---------------</option>
+											<option value="5">Expert Needed</option>
+											<?php
+										}
+										?>
+									</select>
+								</div>
+								<div style="margin:20px">
+									<input name="taxonfilter" type="hidden" value="<?php echo $taxonFilter; ?>" />
+									<input name="tidfilter" type="hidden" value="<?php echo $tidFilter; ?>" />
+									<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
+									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+									<input id="panex2" name="panex" type="hidden" value="<?php echo $paneX; ?>" />
+									<input id="paney2" name="paney" type="hidden" value="<?php echo $paneY; ?>" />
+									<input id="imgres2" name="imgres" type="hidden" value="<?php echo $imgRes; ?>" />
+									<input name="targetoccid" type="hidden" value="<?php echo $occid; ?>" />
+									<input name="mode" type="hidden" value="<?php echo $mode; ?>" />
+									<input name="reviewuid" type="hidden" value="<?php echo $reviewUid; ?>" />
+									<input name="reviewdate" type="hidden" value="<?php echo $reviewDate; ?>" />
+									<input name="reviewstatus" type="hidden" value="<?php echo $reviewStatus; ?>" />
 									<?php
 									if($mode == 2){
-										?>
-										<option value="0">Not reviewed</option>
-										<option value="5">Expert Needed</option>
-										<option value="10" selected>Reviewed</option>
-										<?php
+										echo '<input name="submitform" type="submit" value="Set Status and Save" />';
 									}
 									else{
-										?>
-										<option value="0">---------------</option>
-										<option value="5">Expert Needed</option>
-										<?php
+										echo '<input name="submitform" type="submit" value="Save and Next" disabled />';
 									}
 									?>
-								</select>
-							</div>
-							<div style="margin:20px">
-								<input name="taxonfilter" type="hidden" value="<?php echo $taxonFilter; ?>" />
-								<input name="tidfilter" type="hidden" value="<?php echo $tidFilter; ?>" />
-								<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
-								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-								<input id="panex2" name="panex" type="hidden" value="<?php echo $paneX; ?>" />
-								<input id="paney2" name="paney" type="hidden" value="<?php echo $paneY; ?>" />
-								<input id="imgres2" name="imgres" type="hidden" value="<?php echo $imgRes; ?>" />
-								<input name="targetoccid" type="hidden" value="<?php echo $occid; ?>" />
-								<input name="mode" type="hidden" value="<?php echo $mode; ?>" />
-								<input name="reviewuid" type="hidden" value="<?php echo $reviewUid; ?>" />
-								<input name="reviewdate" type="hidden" value="<?php echo $reviewDate; ?>" />
-								<input name="reviewstatus" type="hidden" value="<?php echo $reviewStatus; ?>" />
-								<?php
-								if($mode == 2){
-									echo '<input name="submitform" type="submit" value="Set Status and Save" />';
-								}
-								else{
-									echo '<input name="submitform" type="submit" value="Save and Next" disabled />';
-								}
-								?>
-							</div>
-						</form>
-					</fieldset>
+								</div>
+							</form>
+						</fieldset>
+					</div>
 					<?php
 				}
 				?>

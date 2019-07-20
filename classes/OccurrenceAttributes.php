@@ -222,14 +222,14 @@ class OccurrenceAttributes extends Manager {
 		$retArr = array();
 		$sql = 'SELECT t.traitid, t.traitname '.
 			'FROM tmtraits t LEFT JOIN tmtraitdependencies d ON t.traitid = d.traitid '.
-			'WHERE t.traittype IN("UM","OM") AND d.traitid IS NULL';
+			'WHERE t.traittype IN("UM","OM","NU") AND d.traitid IS NULL';
 		/*
 		if($this->tidFilter){
 			$sql = 'SELECT DISTINCT t.traitid, t.traitname '.
 				'FROM tmtraits t INNER JOIN tmtraittaxalink l ON t.traitid = l.traitid '.
 				'INNER JOIN taxaenumtree e ON l.tid = e.parenttid '.
 				'LEFT JOIN tmtraitdependencies d ON t.traitid = d.traitid '.
-				'WHERE traittype IN("UM","OM") AND e.taxauthid = 1 AND d.traitid IS NULL AND e.tid = '.$this->tidFilter;
+				'WHERE traittype IN("UM","OM","NU") AND e.taxauthid = 1 AND d.traitid IS NULL AND e.tid = '.$this->tidFilter;
 		}
 		*/
 		//echo $sql;
@@ -331,34 +331,36 @@ class OccurrenceAttributes extends Manager {
 	}
 
 	private function getTraitUnitString($traitID,$display,$classStr=''){
-		$controlType = 'checkbox';
+		$controlType = '';
 		if($this->traitArr[$traitID]['props']){
 			$propArr = json_decode($this->traitArr[$traitID]['props'],true);
 			if(isset($propArr[0]['controlType'])) $controlType = $propArr[0]['controlType'];
 		}
-		$attrStateArr = $this->traitArr[$traitID]['states'];
 		$innerStr = '';
-		foreach($attrStateArr as $sid => $sArr){
-			$isCoded = false;
-			if(array_key_exists('coded',$sArr)){
-				$isCoded = true;
-				$this->stateCodedArr[$sid] = $sid;
+		if(isset($this->traitArr[$traitID]['states'])){
+			$attrStateArr = $this->traitArr[$traitID]['states'];
+			foreach($attrStateArr as $sid => $sArr){
+				$isCoded = false;
+				if(array_key_exists('coded',$sArr)){
+					$isCoded = true;
+					$this->stateCodedArr[$sid] = $sid;
+				}
+				$depTraitId = false;
+				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitId = $sArr['dependTraitID'];
+				if($controlType == 'checkbox' || $controlType == 'radio'){
+					$innerStr .= '<div title="'.$sArr['description'].'"><input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> '.$sArr['name'];
+				}
+				elseif($controlType == 'select'){
+					$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';
+				}
+				elseif($controlType == 'numeric'){
+					$innerStr .= '<div title="'.$sArr['description'].'">'.$sArr['name'].': <input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="input" value="'.$sid.'" onchange="traitChanged(this)" style="width:50px" /> ';
+				}
+				if($depTraitId){
+					$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+				}
+				if($controlType != 'select') $innerStr .= '</div>';
 			}
-			$depTraitId = false;
-			if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitId = $sArr['dependTraitID'];
-			if($controlType == 'checkbox' || $controlType == 'radio'){
-				$innerStr .= '<div title="'.$sArr['description'].'"><input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> '.$sArr['name'];
-			}
-			elseif($controlType == 'select'){
-				$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';
-			}
-//			elseif($controlType == 'numeric'){
-//				$innerStr .= '<div title="'.$sArr['description'].'">'.$sArr['name'].': <input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="input" value="'.$sid.'" onchange="traitChanged(this)" /> ';
-//			}
-			if($depTraitId){
-				$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
-			}
-			if($controlType != 'select') $innerStr .= '</div>';
 		}
 		//Display if trait has been coded or is the first/base trait (e.g. $indend == 0)
 		$divClass = '';
@@ -377,7 +379,7 @@ class OccurrenceAttributes extends Manager {
 		else{
 			$outStr .= $innerStr;
 		}
-		$outStr .= "</div>";
+		$outStr .= '</div>';
 		return $outStr;
 	}
 

@@ -19,6 +19,7 @@ $LANG['EDIT_EXISTING'] = 'Edit Existing Occurrence Records';
 $LANG['ADD_BATCH_DETER'] = 'Add Batch Determinations/Nomenclatural Adjustments';
 $LANG['PRINT_LABELS'] = 'Print Specimen Labels';
 $LANG['PRINT_ANNOTATIONS'] = 'Print Annotations Labels';
+$LANG['TRAIT_CODING_TOOLS'] = 'Occurrence Trait Coding Tools';
 $LANG['TRAIT_CODING'] = 'Trait Coding from Images';
 $LANG['TRAIT_MINING'] = 'Trait Mining from Verbatim Text';
 $LANG['BATCH_GEOREF'] = 'Batch Georeference Specimens';

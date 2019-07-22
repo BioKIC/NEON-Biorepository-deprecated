@@ -339,5 +339,8 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 			}
 			?>
 		</div>
+		<?php
+		include($SERVER_ROOT.'/footer.php');
+		?>
 	</body>
 </html>

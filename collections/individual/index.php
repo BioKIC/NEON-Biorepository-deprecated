@@ -359,7 +359,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						echo '</div>';
 					}
 					?>
-					</div>
 					<div style="float:left;padding:25px;">
 						<span style="font-size:18px;font-weight:bold;vertical-align:60%;">
 							<?php echo $collMetadata['collectionname'].(!$iconUrl?' ('.$instCode.')':''); ?>

@@ -116,8 +116,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	    </div>
 
 	    <div class="row">
-			<div id="htmlwidget_container">
-			  <div id="htmlwidget-3a07e3e79cd1e51da291" style="width:100%;height:400px;" class="leaflet html-widget"></div>
+			<div id="htmlwidget_container" >
+			  <div id="htmlwidget-3a07e3e79cd1e51da291" style="width:100%" class="leaflet html-widget"></div>
 			</div>
 			<script type="application/json" data-for="htmlwidget-3a07e3e79cd1e51da291">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldImagery",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircleMarkers","args":[38.770603,-102.044,3,null,null,{"interactive":true,"className":"","stroke":true,"color":"white","weight":5,"opacity":0.5,"fill":true,"fillColor":"white","fillOpacity":0.2},null,null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"setView":[[38.770603,-102.044],3.2,[]],"limits":{"lat":[38.770603,38.770603],"lng":[-102.044,-102.044]}},"evals":[],"jsHooks":[]}</script>
 			<script type="application/htmlwidget-sizing" data-for="htmlwidget-3a07e3e79cd1e51da291">{"viewer":{"width":"100%","height":400,"padding":0,"fill":true},"browser":{"width":"100%","height":400,"padding":0,"fill":true}}</script>

@@ -20,6 +20,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <!-- 	<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script src="js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script> -->
+
+    <!-- Map -->
+	<script src="neonmapwidget_files/htmlwidgets-1.2/htmlwidgets.js"></script>
+	<script src="neonmapwidget_files/jquery-1.12.4/jquery.min.js"></script>
+	<link href="neonmapwidget_files/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+	<script src="neonmapwidget_files/leaflet-1.3.1/leaflet.js"></script>
+	<link href="neonmapwidget_files/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+	<script src="neonmapwidget_files/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
+	<script src="neonmapwidget_files/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+	<link href="neonmapwidget_files/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+	<script src="neonmapwidget_files/leaflet-binding-2.0.2/leaflet.js"></script>
+	<script src="neonmapwidget_files/leaflet-providers-1.1.17/leaflet-providers.js"></script>
+	<script src="neonmapwidget_files/leaflet-providers-plugin-2.0.2/leaflet-providers-plugin.js"></script>
+
+    <!-- End of Map -->
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
 	</script>
@@ -98,6 +113,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	    	<div class="four columns"><p>Visit the <a href="misc/usagepolicy.php">Data Usage Policy</a> page for information on how to cite data obtained from the NEON Biorepository Data Portal.</p></div>
 	    	<div class="four columns"><p>Please consult the <a href="https://www.neonscience.org/data/archival-samples-specimens/neon-biorepository-asu">Archival Sample Request information page</a> to initiate inquiries about sample accessibility and loans.</p></div>
 	    	<div class="four columns"><p>Join the portal as a regular visitor or contributor, and direct feedback or inquiries to <a href="mailto:BioRepo@asu.edu">BioRepo@asu.edu</a>.</p></div>
+	    </div>
+
+	    <div class="row">
+			<div id="htmlwidget_container">
+			  <div id="htmlwidget-3a07e3e79cd1e51da291" style="width:100%;height:400px;" class="leaflet html-widget"></div>
+			</div>
+			<script type="application/json" data-for="htmlwidget-3a07e3e79cd1e51da291">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldImagery",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircleMarkers","args":[38.770603,-102.044,3,null,null,{"interactive":true,"className":"","stroke":true,"color":"white","weight":5,"opacity":0.5,"fill":true,"fillColor":"white","fillOpacity":0.2},null,null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"setView":[[38.770603,-102.044],3.2,[]],"limits":{"lat":[38.770603,38.770603],"lng":[-102.044,-102.044]}},"evals":[],"jsHooks":[]}</script>
+			<script type="application/htmlwidget-sizing" data-for="htmlwidget-3a07e3e79cd1e51da291">{"viewer":{"width":"100%","height":400,"padding":0,"fill":true},"browser":{"width":"100%","height":400,"padding":0,"fill":true}}</script>
+
 	    </div>
 
 	</div>

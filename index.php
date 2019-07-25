@@ -22,19 +22,23 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<script src="js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script> -->
 
     <!-- Map -->
-	<script src="neonmapwidget_files/htmlwidgets-1.2/htmlwidgets.js"></script>
-	<script src="neonmapwidget_files/jquery-1.12.4/jquery.min.js"></script>
-	<link href="neonmapwidget_files/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
-	<script src="neonmapwidget_files/leaflet-1.3.1/leaflet.js"></script>
-	<link href="neonmapwidget_files/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
-	<script src="neonmapwidget_files/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
-	<script src="neonmapwidget_files/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
-	<link href="neonmapwidget_files/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
-	<script src="neonmapwidget_files/leaflet-binding-2.0.2/leaflet.js"></script>
-	<script src="neonmapwidget_files/leaflet-providers-1.1.17/leaflet-providers.js"></script>
-	<script src="neonmapwidget_files/leaflet-providers-plugin-2.0.2/leaflet-providers-plugin.js"></script>
-
-    <!-- End of Map -->
+	<script type="text/javascript" src="neonmapwidget_files/htmlwidgets-1.3/htmlwidgets.js"></script>
+	<script type="text/javascript" src="neonmapwidget_files/jquery-1.12.4/jquery.min.js"></script>
+	<link type="text/css" href="neonmapwidget_files/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+	<script type="text/javascript" src="neonmapwidget_files/leaflet-1.3.1/leaflet.js"></script>
+	<link type="text/css" href="neonmapwidget_files/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+	<script type="text/javascript" src="neonmapwidget_files/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
+	<script type="text/javascript" src="neonmapwidget_files/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+	<link type="text/css" href="neonmapwidget_files/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+	<script type="text/javascript" src="neonmapwidget_files/leaflet-binding-2.0.2/leaflet.js"></script>
+	<script type="text/javascript" src="neonmapwidget_files/leaflet-providers-1.1.17/leaflet-providers.js"></script>
+	<script type="text/javascript" src="neonmapwidget_files/leaflet-providers-plugin-2.0.2/leaflet-providers-plugin.js"></script>
+	<link type="text/css" href="neonmapwidget_files/leaflet-markercluster-1.0.5/MarkerCluster.css" rel="stylesheet" />
+	<link type="text/css" href="neonmapwidget_files/leaflet-markercluster-1.0.5/MarkerCluster.Default.css" rel="stylesheet" />
+	<script type="text/javascript" src="neonmapwidget_files/leaflet-markercluster-1.0.5/leaflet.markercluster.js"></script>
+	<script type="text/javascript" src="neonmapwidget_files/leaflet-markercluster-1.0.5/leaflet.markercluster.freezable.js"></script>
+	<script type="text/javascript" src="neonmapwidget_files/leaflet-markercluster-1.0.5/leaflet.markercluster.layersupport.js"></script>
+	<!-- End of Map -->
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
 	</script>

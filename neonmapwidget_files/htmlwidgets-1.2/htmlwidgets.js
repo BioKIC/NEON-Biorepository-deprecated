@@ -251,19 +251,19 @@
     if (!cel)
       return;
 
-    if (typeof(sizing.padding) !== "undefined") {
-      document.body.style.margin = "0";
-      document.body.style.padding = paddingToCss(unpackPadding(sizing.padding));
-    }
+    // if (typeof(sizing.padding) !== "undefined") {
+    //   document.body.style.margin = "0";
+    //   document.body.style.padding = paddingToCss(unpackPadding(sizing.padding));
+    // }
 
     if (sizing.fill) {
-      document.body.style.overflow = "hidden";
-      document.body.style.width = "100%";
-      document.body.style.height = "100%";
+      // document.body.style.overflow = "hidden";
+      // document.body.style.width = "100%";
+      // document.body.style.height = "100%";
       document.documentElement.style.width = "100%";
       document.documentElement.style.height = "100%";
       if (cel) {
-        cel.style.position = "absolute";
+        cel.style.position = "relative";
         var pad = unpackPadding(sizing.padding);
         cel.style.top = pad.top + "px";
         cel.style.right = pad.right + "px";

@@ -543,7 +543,7 @@ class ChecklistVoucherAdmin {
 	}
 
 	//Misc functions
-	private function encodeArr(&$inArr){
+	protected function encodeArr(&$inArr){
 		$charSetOut = 'ISO-8859-1';
 		$charSetSource = strtoupper($GLOBALS['CHARSET']);
 		if($charSetSource && $charSetOut != $charSetSource){

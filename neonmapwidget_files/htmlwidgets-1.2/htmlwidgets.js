@@ -261,7 +261,7 @@
       // document.body.style.width = "100%";
       // document.body.style.height = "100%";
       document.documentElement.style.width = "100%";
-      document.documentElement.style.height = "100%";
+      document.documentElement.style.height = "400px";
       if (cel) {
         cel.style.position = "relative";
         var pad = unpackPadding(sizing.padding);

@@ -2,7 +2,7 @@
  * 
 *************/
 html{
-	font-size: 14px;
+	font-size: 1.2em;
 	font-weight: 400;
 	line-height: 1.5em;
 	font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
@@ -11,6 +11,10 @@ html{
 body{
 	color:black;
 	margin-top: 0px;
+}
+
+.home-page section {
+	margin: 3rem 0 1.5rem 0;
 }
 
 /*Main table framework*/
@@ -213,10 +217,9 @@ div.navpath {
 
 }
 
-#htmlwidget-3a07e3e79cd1e51da291 {
-	height: 400px !important;
+.home-page #innertext ul li {
+	font-size: 1.6em;
 }
-
 
 /* Large screens */
 @media (min-width: 1024px) {

@@ -41,7 +41,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <body class="home-page">
 	<?php include($SERVER_ROOT.'/header.php'); ?>
 	<!-- This is inner text! -->
-	<div id="innertext" class="container" style="margin-top: 10%">
+	<div id="innertext" class="container" style="margin-top: 8em">
 		<h1 class="centered">Discover and access NEON sample-based data</h1>
 
 		<section>

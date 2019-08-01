@@ -1,11 +1,18 @@
 <?php
  include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 ?>
+<!-- CSS -->
+<!-- <link href="https://fonts.googleapis.com/css?family=EB+Garamond|Playfair+Display+SC" rel="stylesheet" /> -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700" rel="stylesheet" type="text/css">
+<link href="<?php echo $CLIENT_ROOT; ?>/css/neon.css?ver=<?php echo $CSS_VERSION_LOCAL; ?>" type="text/css" rel="Stylesheet" />
 <script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/base.js?ver=7"></script>
 <script type="text/javascript">
 	//Uncomment following line to support toggling of database content containing DIVs with lang classes in form of: <div class="lang en">Content in English</div><div class="lang es">Content in Spanish</div>
 	//setLanguageDiv();
 </script>
+
+<div id="main-header">
 
 		<!-- NEON Main Top Bar -->
 		<div class="region-utility">
@@ -120,7 +127,7 @@
 			</ul>
 		</header>
 
-
+</div>
 
 		<!-- Symbiota log in bar -->
 		<div id="top_navbar">

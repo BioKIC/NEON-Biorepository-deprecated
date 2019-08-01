@@ -46,39 +46,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 		<section>
 			<div class="row">
-				<div class="four columns">
-					<h4 class="centered">Samples</h4>
-					<img src="https://imgplaceholder.com/420x120/cccccc/757575/glyphicon-stats" alt="ImgPlaceholder">
+				<div class="six columns centered">
+					<h4 class="centered">> 62k samples</h4>
+					<img src="images/layout/SamplesByColl.png">
 				</div>
-				<div class="four columns">
-					<h4 class="centered">Taxa</h4>
-					<img src="https://imgplaceholder.com/420x120/cccccc/757575/glyphicon-stats" alt="ImgPlaceholder">
-				</div>	      
-				<div class="four columns">
-					<h4 class="centered">Preservation methods</h4>
-					<img src="https://imgplaceholder.com/420x120/cccccc/757575/glyphicon-list" alt="ImgPlaceholder">
-				</div>      
-			</div>
-		</section>
-
-		<section>
-			<div class="row">	    
-				<div class="six columns">
-					<h2 class="centered">About the portal</h2>
-					<p>The NEON Biorepository data portal allows one to</p>
-					<ul>
-						<li>Discover sample availability and suitability for focal research interests</li>
-						<li>Initiate sample loan requests</li>
-						<li>Contribute and publish value-added sample data</li>
-					</ul>
-					<p>The majority of the samples published here are physically housed at the <a href="https://biokic.asu.edu/collections">Arizona State University Biocollections</a>, located in Tempe, Arizona.</p>
-				</div>
-				<div class="six columns">
-					<h2 class="centered">Learn more</h2>
-					<p>Description</p>
-					<p>Neon/Batelle</p>
-					<p>Tutorials</p>
-					<p>Contact</p>	
+				<div class="six columns centered">
+					<h4 class="centered">> 400 taxa</h4>
+					<img src="images/layout/TaxaByGroup.png">
 				</div>
 			</div>
 		</section>
@@ -114,11 +88,41 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		</section>
 
 		<section>
+			<div class="row">	    
+				<div class="six columns">
+					<h2 class="centered">About the portal</h2>
+					<p>The NEON Biorepository data portal allows one to</p>
+					<ul>
+						<li>Discover sample availability and suitability for focal research interests</li>
+						<li>Initiate sample loan requests</li>
+						<li>Contribute and publish value-added sample data</li>
+					</ul>
+					<p>The majority of the samples published here are physically housed at the <a href="https://biokic.asu.edu/collections" target="_blank">Arizona State University Biocollections</a>, located in Tempe, Arizona.</p>
+				</div>
+				<div class="six columns">
+					<h2 class="centered">Learn more</h2>
+					<p>This portal is offered through the <a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">Symbiota</a> software platform, and informationally synchronized with the <a href="http://symbiota.org/docs/" target="_blank">main NEON Data Portal</a>, which serves the full spectrum of NEON data products.</p>
+					<p>To learn more about the features and capabilities available through Symbiota, visit the Symbiota Help Pages.</p>
+					<p>Read more about NEON's history and experimental design in the <a href="https://www.neonscience.org/about" target="_blank">main portal</a>.</p>
+				</div>
+			</div>
+		</section>
+
+		<section>
 			<div class="row">
 				<h2 class="centered">Access</h2>
-				<div class="four columns"><p>Visit the <a href="misc/usagepolicy.php">Data Usage Policy</a> page for information on how to cite data obtained from the NEON Biorepository Data Portal.</p></div>
-				<div class="four columns"><p>Please consult the <a href="https://www.neonscience.org/data/archival-samples-specimens/neon-biorepository-asu">Archival Sample Request information page</a> to initiate inquiries about sample accessibility and loans.</p></div>
-				<div class="four columns"><p>Join the portal as a regular visitor or contributor, and send direct feedback or inquiries to <a href="mailto:BioRepo@asu.edu">BioRepo@asu.edu</a>.</p></div>
+				<div class="four columns">
+					<h4 class="centered">Data</h4>
+					<p>Visit the <a href="misc/usagepolicy.php">Data Usage Policy</a> page for information on how to cite data obtained from the NEON Biorepository Data Portal.</p>
+				</div>
+				<div class="four columns">
+					<h4 class="centered">Specimens</h4>
+					<p>Please consult the <a href="https://www.neonscience.org/data/archival-samples-specimens/neon-biorepository-asu">Archival Sample Request information page</a> to initiate inquiries about sample accessibility and loans.</p>
+				</div>
+				<div class="four columns">
+					<h4 class="centered">Contact</h4>
+					<p>Join the portal as a regular visitor or contributor, and send direct feedback or inquiries to <a href="mailto:BioRepo@asu.edu">BioRepo@asu.edu</a>.</p>
+				</div>
 			</div>
 		</section>
 

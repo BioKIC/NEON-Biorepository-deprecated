@@ -62,26 +62,34 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				<h2>Discover</h2>
 				<div class="three columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 1em 0.2em">
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
-						<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px">
-						<p style="text-decoration: none;font-size:1.2rem;text-transform:uppercase;background-color:#0071ce; color: white;">Text search</p>
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px">
+							<p style="text-decoration: none;font-size:1.2rem;text-transform:uppercase;background-color:#0071ce; color: white;">Text search</p>
+						</div>
 					</a>
 				</div>
 				<div class="three columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 1em 0.2em">
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">
-						<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-globe" alt="ImgPlaceholder" width="50px" height="50px">
-						<p style="text-decoration: none;font-size:1.2rem;text-transform:uppercase;background-color:#0071ce; color: white;">Map search</p>
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-globe" alt="ImgPlaceholder" width="50px" height="50px">
+							<p style="text-decoration: none;font-size:1.2rem;text-transform:uppercase;background-color:#0071ce; color: white;">Map search</p>
+						</div>
 					</a>
 				</div>
 				<div class="three columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 1em 0.2em">
 					<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">
-						<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-list-alt" alt="ImgPlaceholder" width="50px" height="50px">
-						<p style="text-decoration: none;font-size:1.2rem;text-transform:uppercase;background-color:#0071ce; color: white;">Species lists</p>
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-list-alt" alt="ImgPlaceholder" width="50px" height="50px">
+							<p style="text-decoration: none;font-size:1.2rem;text-transform:uppercase;background-color:#0071ce; color: white;">Species lists</p>
+						</div>
 					</a>
 				</div>
 				<div class="three columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 1em 0.2em">
 					<a href="<?php echo $CLIENT_ROOT; ?>/taxa/taxonomy/taxonomydynamicdisplay.php">
-						<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-tree-deciduous" alt="ImgPlaceholder" width="50px" height="50px">
-						<p style="text-decoration: none;font-size:1.2rem;text-transform:uppercase;background-color:#0071ce; color: white;">Taxonomic tree</p>
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-tree-deciduous" alt="ImgPlaceholder" width="50px" height="50px">
+							<p style="text-decoration: none;font-size:1.2rem;text-transform:uppercase;background-color:#0071ce; color: white;">Taxonomic tree</p>
+						</div>
 					</a>
 				</div>	    		    		    	
 			</div>

@@ -137,7 +137,7 @@ ul#hor_dropdown a {
 ul#hor_dropdown a:hover {
 	background-color:#1b67b3;
 	color: #FFFFFF;
-	text-decoration:underline;
+	text-decoration:none;
 }
 /* Submenu */
 ul#hor_dropdown ul {

@@ -24,6 +24,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<!-- This is inner text! -->
 	<div id="innertext" class="container" style="margin-top: 8em">
 		<h1 class="centered">Discover and access sample-based data</h1>
+
+		<section>
+			<div class="row">
+				<img src="images/layout/Rplot2.jpeg" alt="Map with samples collected within NEON sites">
+				<p><span style="font-size: 70%; line-height: 1">Samples available in the portal (August 2019). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
+			</div>
+		</section>
+
 		<section>
 			<div class="row" style="vertical-align: bottom">
 				<div class="six columns centered">
@@ -111,13 +119,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<p>To learn more about the features and capabilities available through Symbiota, visit the <a href="http://symbiota.org/docs/" target="_blank">Symbiota Help Pages</a>.</p>
 					<p>Read more about NEON's history and experimental design in the <a href="https://www.neonscience.org/about" target="_blank">main portal</a>.</p>
 				</div>
-			</div>
-		</section>
-
-		<section>
-			<div class="row">
-				<img src="images/layout/Rplot2.jpeg" alt="Samples collected within NEON sites">
-				<p><span style="font-size: 70%; line-height: 1">Samples available in the portal (August 2019). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
 			</div>
 		</section>
 

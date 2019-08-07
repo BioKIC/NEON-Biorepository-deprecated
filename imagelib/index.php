@@ -29,6 +29,10 @@ $imgLibManager = new ImageLibraryManager();
 		echo '</div>';
 	}
 	?>
+	<div class="navpath">
+		<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
+		<b>Image Library</b>
+	</div>	
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<h1>Species with Images</h1>

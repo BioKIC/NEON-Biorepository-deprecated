@@ -33,6 +33,35 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		</section>
 
 		<section>
+			<div class="row centered">
+				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
+					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px">
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Text search</p>
+						</div>
+					</a>
+				</div>
+				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
+					<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-globe" alt="ImgPlaceholder" width="50px" height="50px">
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>	
+						</div>
+					</a>
+				</div>
+				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
+					<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-list-alt" alt="ImgPlaceholder" width="50px" height="50px">
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Checklists</p>
+						</div>
+					</a>
+				</div>    		    		    	
+			</div>
+		</section>		
+
+		<section>
 			<div class="row" style="vertical-align: bottom">
 				<div class="six columns centered">
 					<h4 class="centered">> 62,000 samples</h4>
@@ -44,43 +73,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<img src="images/layout/TaxaByGroup.png">
 					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa.</span></p>
 				</div>
-			</div>
-		</section>
-
-		<section>
-			<div class="row centered">
-				<div class="three columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
-					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
-						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px">
-							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Text search</p>
-						</div>
-					</a>
-				</div>
-				<div class="three columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
-					<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">
-						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-globe" alt="ImgPlaceholder" width="50px" height="50px">
-							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>	
-						</div>
-					</a>
-				</div>
-				<div class="three columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
-					<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">
-						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-list-alt" alt="ImgPlaceholder" width="50px" height="50px">
-							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Checklists</p>
-						</div>
-					</a>
-				</div>
-				<div class="three columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
-					<a href="<?php echo $CLIENT_ROOT; ?>/taxa/taxonomy/taxonomydynamicdisplay.php">
-						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-tree-deciduous" alt="ImgPlaceholder" width="50px" height="50px">
-							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Taxonomic tree</p>
-						</div>
-					</a>
-				</div>	    		    		    	
 			</div>
 		</section>
 

@@ -70,14 +70,14 @@ li.header-title {
 
 ul#biorepo-header > li {
     display: inline-block;
-    padding: 0 2rem;
-    vertical-align: top;
+    padding: 0 0.5rem;
+    vertical-align: center;
     filter: opacity(100%);
 }
 
 ul#biorepo-header h1 {
 	text-transform: uppercase;
-	font-size: 3rem;
+	font-size: 1.5rem;
 	color: white;
 }
 

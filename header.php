@@ -74,7 +74,7 @@
 					</ul>
 				</li>
 				<li>
-					<a href="#">Species Lists</a>
+					<a href="#">Checklists</a>
 					<ul>
 						<li>
 							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">Research Sites</a>
@@ -91,13 +91,33 @@
 					</ul>
 				</li>
 				<li>
-					<a href="#" >Additional Information</a>
+					<a href="#">Sample Use Guidelines</a>
 					<ul>
+						<li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/misc/samplepolicy.php">Sample Use Policy</a>
+						</li>
+						<li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/misc/samplerequest.php">Sample Request</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="#">Additional Information</a>					
+					<ul>
+						<li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Usage Policy</a>
+						</li>
+						<li>
+							<a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">About Symbiota</a>
+						</li>			
 						<li>
 							<a href="https://www.neonscience.org" target="_blank" >About NEON</a>
 						</li>
 						<li>
 							<a href="https://www.neonscience.org/data/neon-data-portal" target="_blank" >NEON Data Portal</a>
+						</li>
+						<li>
+							<a href="https://biokic.asu.edu/collections" target="_blank">ASU Biocollections</a>
 						</li>
 					</ul>
 				</li>

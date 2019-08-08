@@ -27,8 +27,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 		<section>
 			<div class="row">
-				<img src="images/layout/Rplot2.jpeg" alt="Map with samples collected within NEON sites">
-				<p><span style="font-size: 70%; line-height: 1">Samples available in the portal (August 2019). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
+				<img src="images/layout/Home-Map.jpg" alt="Map with samples collected within NEON sites" style="width:100%;">
+				<p><span style="font-size: 70%; line-height: 1">Samples available in the portal (Aug 2019), collected in Alaska (top left), Puerto Rico (bottom left), and Continental US (main right). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
 			</div>
 		</section>
 
@@ -37,7 +37,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
 						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px">
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Sample search</p>
 						</div>
 					</a>
@@ -45,7 +45,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">
 						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-globe" alt="ImgPlaceholder" width="50px" height="50px">
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-globe" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>	
 						</div>
 					</a>
@@ -53,7 +53,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
 					<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">
 						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-list-alt" alt="ImgPlaceholder" width="50px" height="50px">
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-list-alt" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Checklists</p>
 						</div>
 					</a>

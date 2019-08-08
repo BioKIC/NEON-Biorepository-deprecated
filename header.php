@@ -34,7 +34,7 @@
 		<header id="header">
 			<ul id="biorepo-header">
 				<!-- Main Site Logo -->
-				<li id="branding">
+				<li id="branding" style="vertical-align: top;">
 					<!-- NSF/Neon logo -->
 					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
 				</li>

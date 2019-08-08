@@ -15,6 +15,10 @@
 		$displayLeftMenu = true;
 		include($SERVER_ROOT.'/header.php');
 		?>
+		<div class="navpath">
+			<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
+			<b>Data Usage Guidelines</b>
+		</div>
 		<!-- This is inner text! -->
 		<div id="innertext">
 			<h1>Guidelines for Acceptable Use of Data</h1><br />
@@ -27,8 +31,13 @@
 				</div>
 				<div style="margin:10px;">
 					<?php
+					$basePath = "http://";
+					if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $basePath = "https://";
+					$basePath .= $_SERVER["SERVER_NAME"];
+					if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER["SERVER_PORT"] != 443) $basePath .= ':'.$_SERVER["SERVER_PORT"];
+					$basePath .= $CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/');
 					echo $DEFAULT_TITLE.'. '.date('Y').'. ';
-					echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php. ';
+					echo $basePath.'index.php. ';
 					echo 'Accessed on '.date('F d').'. ';
 					?>
 				</div>
@@ -39,12 +48,12 @@
 				<div style="margin:10px;">
 					Biodiversity occurrence data published by: &lt;List of Collections&gt;
 					(Accessed through <?php echo $DEFAULT_TITLE; ?> Data Portal,
-					<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php'; ?>, YYYY-MM-DD)<br/><br/>
+					<?php echo $basePath.'index.php'; ?>, YYYY-MM-DD)<br/><br/>
 					<b>For example:</b><br/>
 					Biodiversity occurrence data published by:
 					Field Museum of Natural History, Museum of Vertebrate Zoology, and New York Botanical Garden
 					(Accessed through <?php echo $DEFAULT_TITLE; ?> Data Portal,
-					<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php, '.date('Y-m-d').')'; ?>
+					<?php echo $basePath.'index.php, '.date('Y-m-d').')'; ?>
 				</div>
 			</div>
 			<div>
@@ -101,7 +110,7 @@
 			</div>
 		</div>
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/footer.php');
 		?>
 	</body>
 </html>

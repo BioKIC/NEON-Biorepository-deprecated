@@ -91,7 +91,7 @@
 					</ul>
 				</li>
 				<li>
-					<a href="#">Sample Use Guidelines</a>
+					<a href="#">Sample Use</a>
 					<ul>
 						<li>
 							<a href="<?php echo $CLIENT_ROOT; ?>/misc/samplepolicy.php">Sample Use Policy</a>

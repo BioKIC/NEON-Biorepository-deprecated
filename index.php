@@ -38,7 +38,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
 						<div>
 							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px">
-							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Text search</p>
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Sample search</p>
 						</div>
 					</a>
 				</div>

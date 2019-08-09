@@ -97,7 +97,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			<div class="row">	    
 				<div class="six columns">
 					<h2 class="centered">About the portal</h2>
-					<p>The NEON Biorepository Data Portal services:</p>
+					<p>NEON Biorepository Data Portal services:</p>
 					<ul>
 						<li>Discover sample availability and suitability for focal research interests</li>
 						<li>Initiate sample loan requests</li>

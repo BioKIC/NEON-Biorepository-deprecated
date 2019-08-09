@@ -22,7 +22,7 @@ $clManager->setProj($pid);
 			function initialize(){
 				var dmLatLng = new google.maps.LatLng(41.0, -95.0);
 				var dmOptions = {
-					zoom: 3,
+					zoom: 13,
 					center: dmLatLng,
 					mapTypeId: google.maps.MapTypeId.TERRAIN
 				};
@@ -52,18 +52,10 @@ $clManager->setProj($pid);
 			}
 
 			function resizeMap() {
-				var minLng = 180;	   //Pixels
+				var minLng = 180;
 				var minLat = 180;
 				var maxLng = -180;
 				var maxLat = -180;
-				var averLat = 0;
-				var averLng = 0;
-				var panBounds;
-
-				var neBounds;
-				var swBounds;
-				var optimalBounds;
-				var zoomLevel = 3;
 
 				// Find the max/min points
 				for( var i = 0; i < points.length; i++ ) {
@@ -75,8 +67,13 @@ $clManager->setProj($pid);
 				}
 				var swLatLng = new google.maps.LatLng(minLat, minLng);
 				var neLatLng = new google.maps.LatLng(maxLat, maxLng);
-				var llBounds = new google.maps.LatLngBounds(swLatLng, neLatLng);
-				map.fitBounds(llBounds);
+				if(minLat == maxLat && minLng == maxLng){
+					map.setCenter(swLatLng);
+				}
+				else{
+					var llBounds = new google.maps.LatLngBounds(swLatLng, neLatLng);
+					map.fitBounds(llBounds);
+				}
 			}
 
 			function closeAllInfoWins(){

@@ -229,7 +229,7 @@ class SpecUploadFile extends SpecUploadBase{
 		}
 		$retArr = array();
 		foreach($headerArr as $field){
-			$fieldStr = strtolower(trim($field));
+			$fieldStr = strtolower($this->encodeString(trim($field)));
 			if($fieldStr){
 				$retArr[] = $fieldStr;
 			}

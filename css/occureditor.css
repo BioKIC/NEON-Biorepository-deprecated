@@ -813,15 +813,18 @@ body{
 #localStageDiv{ float:left; margin:3px; }
 #biozoneDiv{ float:left; margin:3px; }
 #biostratigraphyDiv{ float:left; margin:3px; }
-#groupDiv{ float:left; margin:3px; }
+#lithoGroupDiv{ float:left; margin:3px; }
 #formationDiv{ float:left; margin:3px; }
 #taxonEnvironmentDiv{ float:left; margin:3px; }
 #memberDiv{ float:left; margin:3px; }
 #lithologyDiv{ float:left; margin:3px; }
 #stratRemarksDiv{ float:left; margin:3px; }
+#stratRemarksDiv input{ width:600px; }
 #lithDescriptionDiv{ float:left; margin:3px; }
+#lithDescriptionDiv input{ width:600px }
 #elementDiv{ float:left; margin:3px; }
 #slidePropertiesDiv{ float:left; margin:3px; }
+#slidePropertiesDiv input{ width:400px; }
 
 /* Button Controls */
 #bottomSubmitDiv{

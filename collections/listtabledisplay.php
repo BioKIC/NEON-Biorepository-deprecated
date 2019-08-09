@@ -35,6 +35,17 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
 	</script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			<?php
+			if($searchVar){
+				?>
+				sessionStorage.querystr = "<?php echo $searchVar; ?>";
+				<?php
+			}
+			?>
+		});
+	</script>
 	<script src="../js/symb/collections.list.js?ver=6" type="text/javascript"></script>
 </head>
 <body style="margin-left: 0px; margin-right: 0px;background-color:white;">
@@ -42,13 +53,13 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 		<div style="width:750px;margin-bottom:5px;">
 			<div style="float:right;">
 				<form action="download/index.php" method="get" style="float:left" onsubmit="targetPopup(this)">
-					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
+					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
 						<img src="../images/dl2.png" style="width:13px" />
 					</button>
 					<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 					<input name="dltype" type="hidden" value="specimen" />
 				</form>
-				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor:pointer;" onclick="copyUrl()" title="Copy URL to Clipboard"><img src="../images/link2.png" style="width:13px" /></button>
+				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" onclick="copyUrl()" title="<?php echo (isset($LANG['COPY_URL_TO_CLIPBOARD'])?$LANG['COPY_URL_TO_CLIPBOARD']:'Copy URL to Clipboard'); ?>"><img src="../images/link2.png" style="width:13px" /></button>
 			</div>
 			<fieldset style="padding:5px;width:650px;">
 				<legend><b>Sort Results</b></legend>
@@ -197,7 +208,13 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 							<td><?php echo $occArr['country']; ?></td>
 							<td><?php echo $occArr['state']; ?></td>
 							<td><?php echo $occArr['county']; ?></td>
-							<td><?php echo ((strlen($occArr['locality'])>80)?substr($occArr['locality'],0,80).'...':$occArr['locality']); ?></td>
+							<td>
+							<?php
+							$locStr = $occArr['locality'];
+							$locStr = preg_replace('/<div.*?>.*?<\/div>/', '', $locStr);
+							if(strlen($locStr)>80) $locStr = substr($locStr,0,80).'...';
+							echo $locStr;
+							?></td>
 							<td><?php if(isset($occArr['habitat'])) echo ((strlen($occArr['habitat'])>80)?substr($occArr['habitat'],0,80).'...':$occArr['habitat']); ?></td>
 							<td><?php echo (array_key_exists("elev",$occArr)?$occArr['elev']:""); ?></td>
 						</tr>

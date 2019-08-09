@@ -170,11 +170,16 @@ if($SYMB_UID){
 							if($collManager->traitCodingActivated()){
 								?>
 								<li>
+									<a href="#" onclick="$('li.traitItem').show(); return false;" >
+										<?php echo (isset($LANG['TRAIT_CODING_TOOLS'])?$LANG['TRAIT_CODING_TOOLS']:'Occurrence Trait Coding Tools'); ?>
+									</a>
+								</li>
+								<li class="traitItem" style="margin-left:10px;display:none;">
 									<a href="../traitattr/occurattributes.php?collid=<?php echo $collid; ?>">
 										<?php echo (isset($LANG['TRAIT_CODING'])?$LANG['TRAIT_CODING']:'Trait Coding from Images'); ?>
 									</a>
 								</li>
-								<li>
+								<li class="traitItem" style="margin-left:10px;display:none;">
 									<a href="../traitattr/attributemining.php?collid=<?php echo $collid; ?>">
 										<?php echo (isset($LANG['TRAIT_MINING'])?$LANG['TRAIT_MINING']:'Trait Mining from Verbatim Text'); ?>
 									</a>

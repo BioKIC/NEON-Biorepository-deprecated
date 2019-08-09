@@ -49,10 +49,10 @@
 					<a href="#" ><?php echo (isset($LANG['H_SEARCH'])?$LANG['H_SEARCH']:'Search'); ?></a>
 					<ul>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" ><?php echo (isset($LANG['H_COLLECTIONS'])?$LANG['H_COLLECTIONS']:'Collections'); ?></a>
+							<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >Sample search</a>
 						</li>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank"><?php echo (isset($LANG['H_MAP'])?$LANG['H_MAP']:'Map Search'); ?></a>
+							<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">Map search</a>
 						</li>
 						<li>
 							<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist" ><?php echo (isset($LANG['H_DYN_LISTS'])?$LANG['H_DYN_LISTS']:'Dynamic Checklist'); ?></a>
@@ -105,19 +105,19 @@
 					<a href="#">Additional Information</a>					
 					<ul>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Usage Policy</a>
-						</li>
-						<li>
-							<a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">About Symbiota</a>
-						</li>			
-						<li>
 							<a href="https://www.neonscience.org" target="_blank" >About NEON</a>
 						</li>
 						<li>
 							<a href="https://www.neonscience.org/data/neon-data-portal" target="_blank" >NEON Data Portal</a>
+						</li>						
+						<li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Usage Policy</a>
 						</li>
 						<li>
 							<a href="https://biokic.asu.edu/collections" target="_blank">ASU Biocollections</a>
+						</li>						
+						<li>
+							<a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">About Symbiota</a>
 						</li>
 					</ul>
 				</li>

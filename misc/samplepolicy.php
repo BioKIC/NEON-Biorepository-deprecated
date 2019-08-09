@@ -18,9 +18,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			<b>Sample Use Policy</b>
 		</div>
 		<!-- This is inner text! -->
-		<div id="innertext">
+		<div id="innertext" style="text-align: center;">
 			<h1>Sample Use Policy</h1>
-
+			<iframe src="https://docs.google.com/document/d/e/2PACX-1vQr_AfNncaTDEJH47zOWuaO-CRbUsbb27xnnM6KFOV7jpyJoYUYuDbkEO4efPBbXOG9fiX0JpdJcdU2/pub?embedded=true" width="790px" height="600px" frameborder="0" marginheight="0" marginwidth="0"></iframe>
 		</div>
 		<?php
 			include($SERVER_ROOT.'/footer.php');

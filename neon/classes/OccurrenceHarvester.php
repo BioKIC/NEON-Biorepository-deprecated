@@ -308,11 +308,13 @@ class OccurrenceHarvester{
 
 	private function setCollectionIdentifier(&$dwcArr,$sampleClass){
 		$status = false;
-		$sql = 'SELECT collid FROM omcollections WHERE (collectionID = "'.$sampleClass.'")';
+		$sql = 'SELECT collid FROM omcollections WHERE (collectionID LIKE "%'.$sampleClass.'%")';
 		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$dwcArr['collid'] = $r->collid;
-			$status = true;
+		if($rs->num_rows == 1){
+			while($r = $rs->fetch_object()){
+				$dwcArr['collid'] = $r->collid;
+				$status = true;
+			}
 		}
 		$rs->free();
 		return $status;

@@ -286,7 +286,7 @@ class ShipmentManager{
 					$shipmentPK = $r->shipmentpk;
 				}
 				$rs->free();
-				echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span>Shipment record with that shipmentID already exists (shipmentPK: '.$shipmentPK.')...</li>';
+				echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> Shipment record with that shipmentID already exists (shipmentPK: '.$shipmentPK.')...</li>';
 			}
 			else{
 				echo '<li style="margin-left:15px"><span style="color:red">ERROR</span> loading shipment record (errNo: '.$this->conn->errno.'): '.$this->conn->error.'</li>';
@@ -519,6 +519,7 @@ class ShipmentManager{
 				(isset($recArr['filtervolume']) && $recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
 				(isset($recArr['domainremarks']) && $recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
 				(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
+			//echo $sql;
 			if($this->conn->query($sql)){
 				$status = true;
 				if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
@@ -534,7 +535,7 @@ class ShipmentManager{
 				if($this->conn->errno == 1062){
 					$this->errorStr = 'Sample already exists with sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].
 					'" target="_blank" onclick="window.close()">'.$recArr['sampleid'].'</a>';
-					if($verbose) echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span>'.$this->errorStr.'</li>';
+					if($verbose) echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> '.$this->errorStr.'</li>';
 				}
 				else{
 					$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
@@ -553,7 +554,7 @@ class ShipmentManager{
 		$status = false;
 		if(is_numeric($samplePK)){
 			$sql = 'DELETE FROM NeonSample WHERE samplePK = '.$samplePK;
-			echo $sql;
+			//echo $sql;
 			if($this->conn->query($sql)){
 				$status = true;
 			}

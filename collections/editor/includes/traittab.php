@@ -28,21 +28,8 @@ if($isEditor){
 	}
 }
 ?>
+<script src="../../js/symb/collections.traitattr.js?ver=8" type="text/javascript"></script>
 <script type="text/javascript">
-
-	function traitChanged(traitID){
-		$('input[name="stateid-'+traitID+'[]"]').each(function(){
-			if(this.checked == true){
-				$("div.child-"+this.value).show();
-			}
-			else{
-				$("div.child-"+this.value).hide();
-				$("input:checkbox.child-"+this.value).each(function(){ this.checked = false; });
-				$("input:radio.child-"+this.value).each(function(){ this.checked = false; });
-			}
-		});
-		$('input[name="submitform"]').prop('disabled', false);
-	}
 
 	function verifySubmitForm(f){
 
@@ -77,6 +64,7 @@ if($isEditor){
 				if(retStatus == 1){
 					$("#msgDiv-"+traitIdStr).css('color', 'green');
 					$("#msgDiv-"+traitIdStr).text('data saved!');
+
 				}
 				else{
 					$("#msgDiv-"+traitIdStr).css('color', 'red');
@@ -93,7 +81,6 @@ if($isEditor){
 <div id="traitdiv" style="width:795px;">
 	<?php
 	$traitArr = $attrManager->getTraitArr();
-	$codedTraitArr = array();
 	foreach($traitArr as $tID => $tArr){
 		if(isset($tArr['states'])){
 			foreach($tArr['states'] as $sID => $sArr){
@@ -104,36 +91,40 @@ if($isEditor){
 			}
 		}
 	}
-	if($codedTraitArr){
-		foreach($codedTraitArr as $codedTraitID => $codeTraitArr){
-			if(!isset($codeTraitArr['dependentTrait'])){
+	if($traitArr){
+		foreach($traitArr as $traitID => $traitData){
+			if(!isset($traitData['dependentTrait'])){
 				$statusCode = 0;
 				$notes = '';
 				$source = '';
-				foreach($codeTraitArr['states'] as $id => $stArr){
+				foreach($traitData['states'] as $id => $stArr){
 					if(isset($stArr['statuscode']) && $stArr['statuscode']) $statusCode = $stArr['statuscode'];
 					if(isset($stArr['notes']) && $stArr['notes']) $notes = $stArr['notes'];
 					if(isset($stArr['source']) && $stArr['source']) $source = $stArr['source'];
 				}
 				?>
 				<fieldset style="margin-top:20px">
-					<legend><b>Coded Trait: <?php echo $codeTraitArr['name']; ?></b></legend>
-					<div style="float:right" title="Hard refresh of page">
-						<form name="refreshform" method="post" action="occurrenceeditor.php" >
-							<div style="margin:20px">
+					<legend><b>Trait: <?php echo $traitData['name']; ?></b></legend>
+					<div style="float:right">
+						<div style="margin:0px 3px;float:right" title="Hard refresh of page">
+							<form name="refreshform" method="post" action="occurrenceeditor.php" >
 								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 								<?php
 								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
 								?>
 								<input name="tabtarget" type="hidden" value="3" />
 								<input type="image" src="../../images/refresh.png" />
-							</div>
-						</form>
+							</form>
+						</div>
+						<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
+							<img class="triangleright" src="../../images/triangleright.png" style="" />
+							<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
+						</div>
 					</div>
 					<form name="submitform" method="post" action="occurrenceeditor.php" onsubmit="">
-						<div>
+						<div class="traitDiv" style="margin:5px">
 							<?php
-							$attrManager->echoFormTraits($codedTraitID);
+							$attrManager->echoFormTraits($traitID);
 							?>
 						</div>
 						<div style="margin:10px 5px;">
@@ -155,68 +146,14 @@ if($isEditor){
 						<div style="margin:20px;float:left">
 							<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 							<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
-							<input name="traitid" type="hidden" value="<?php echo $codedTraitID; ?>" />
+							<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
 							<input name="delstates" type="hidden" value="<?php echo $attrManager->getStateCodedStr(); ?>" />
 							<input name="tabtarget" type="hidden" value="3" />
 							<button name="submitbutton" type="submit" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
-							<span id="msgDiv-<?php echo $codedTraitID; ?>"></span>
+							<span id="msgDiv-<?php echo $traitID; ?>"></span>
 						</div>
 						<div style="margin:20px;float:right;">
 							<button name="submitaction" type="submit" value="deleteCoding" style="border:1px solid red;" onclick="return confirm('Are you sure you want to delete this trait coding?')">Delete Coding</button>
-						</div>
-					</form>
-				</fieldset>
-				<?php
-			}
-		}
-	}
-	$traitArr = array_diff_key($traitArr, $codedTraitArr);
-	if($traitArr){
-		foreach($traitArr as $newTraitID => $newTraitArr){
-			if(!isset($newTraitArr['dependentTrait'])){
-				?>
-				<fieldset style="margin-top:20px">
-					<legend><b>New Trait: <?php echo $newTraitArr['name']; ?></b></legend>
-					<div style="float:right" title="Hard refresh of page">
-						<form name="refreshform" method="post" action="occurrenceeditor.php" >
-							<div style="margin:20px">
-								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-								<?php
-								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
-								?>
-								<input name="tabtarget" type="hidden" value="3" />
-								<input type="image" src="../../images/refresh.png" />
-							</div>
-						</form>
-					</div>
-					<form name="submitform" method="post" action="editortraithandler.php" onsubmit="" >
-						<div>
-							<?php
-							$attrManager->echoFormTraits($newTraitID);
-							?>
-						</div>
-						<div style="margin:10px 5px;">
-							Notes:
-							<input name="notes" type="text" style="width:300px" value="" />
-						</div>
-						<div style="margin:10px 5px;">
-							Source:
-							<input name="source" type="text" style="width:300px" value="viewingSpecimenImage" />
-						</div>
-						<div style="margin-left:5;">
-							Status:
-							<select name="setstatus">
-								<option value="0">Not reviewed</option>
-								<option value="5">Expert Needed</option>
-								<option value="10" selected>Reviewed</option>
-							</select>
-						</div>
-						<div style="margin:20px">
-							<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-							<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
-							<input name="traitid" type="hidden" value="<?php echo $newTraitID; ?>" />
-							<button name="submitbutton" type="submit" value="addTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
-							<span id="msgDiv-<?php echo $newTraitID; ?>"></span>
 						</div>
 					</form>
 				</fieldset>

@@ -244,6 +244,9 @@ div.navpath {
 	#img-container {
 		width: 80%;
 	}
+	.hide-on-large {
+		display: none;
+	}
 
 }
 
@@ -266,13 +269,19 @@ div.navpath {
 	}
 	#taxon-container {
 		max-width: 75%;
-	}	
+	}
+	.hide-on-large {
+		display: none;
+	}
 }
 
 /* Smaller screens */
 @media (max-width: 425px) {
 	#innertext {
 		max-width: 95%;
+	}
+	.hide-on-small {
+		display: none;
 	}
 }
 

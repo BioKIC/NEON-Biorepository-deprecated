@@ -12,88 +12,112 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<title><?php echo $DEFAULT_TITLE; ?> Home</title>
 	<meta http-equiv="Expires" content="Tue, 01 Jan 1995 12:12:12 GMT">
 	<meta http-equiv="Pragma" content="no-cache">
-	<!-- CSS -->
-	<link href="css/base.cssver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="css/main.css?ver=<?php echo $CSS_VERSION_LOCAL; ?>" type="text/css" rel="stylesheet" />
-	<link href="css/quicksearch.css" type="text/css" rel="Stylesheet" />
+	<!-- META AND CSS -->
+	<?php include_once($SERVER_ROOT.'/styles.php'); ?>
 
-	<!-- JS -->
-	<link href="js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
-	<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
-	<script src="js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
-	<script src="js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
 	</script>
 </head>
-<body>
-	<?php
-	include($SERVER_ROOT.'/header.php');
-	?>
+<body class="home-page">
+	<?php include($SERVER_ROOT.'/header.php'); ?>
 	<!-- This is inner text! -->
-	<div  id="innertext">
-		<!-- Intro -->
-		<div id="home-left">
-			<h2>Welcome to the NEON Biorepository Data Portal</h2>
-			<p>The National Ecological Observatory Network - NEON Biodiversity Data Portal is being developed to provide innovative access and discoverability to the entirety of NEON’s sample-based data products; including nearly 40 vertebrate, invertebrate, plant, microbial, and environmental sample collections. The majority of these samples are physically housed at the <a href="https://biokic.asu.edu/collections">Arizona State University Biocollections</a>, located in Tempe, Arizona.</p>
-			<p>The portal is being designed to allow current and prospective NEON researchers to interactively explore and understand sample availability and suitability for focal research interests, to initiate research sample loan requests, and to contribute and publish value-added sample data both directly in the portal and through emerging integration services with external data publishers.</p>
-			<p>The NEON Biorepository Data Portal is offered through the <a href="https://bdj.pensoft.net/articles.php?id=1114">Symbiota</a> software platform, and informationally synchronized with the main NEON Data Portal which serves the full spectrum of NEON data products. To learn more about the features and capabilities available through Symbiota, visit the <a href="http://symbiota.org/docs/">Symbiota Help Pages</a>. Join the portal as a regular visitor or contributor, and direct feedback or inquiries to <a href="mailto:BioRepo@asu.edu">BioRepo@asu.edu</a>. Visit the <a href="misc/usagepolicy.php">Data Usage Policy</a> page for information on how to cite data obtained from the NEON Biorepository Data Portal. Please consult the <a href="https://www.neonscience.org/data/archival-samples-specimens/neon-biorepository-asu">Archival Sample Request information page</a> to initiate inquiries about sample accessibility and loans.</p>
-			<p>The NEON Biorepository Data Portal currently serves over 65,000 samples and individual occurrence records (June 24, 2019).</p>
-		</div>
-		<div id="home-right">
-			<!-- Quick search -->
-			<div id="quicksearchdiv" >
-				<!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
-				<form name="quicksearch" id="quicksearch" action="<?php echo $CLIENT_ROOT; ?>/taxa/index.php" method="get" onsubmit="return verifyQuickSearch(this);">
-					<div id="quicksearchtext" ><?php echo (isset($LANG['QSEARCH_SEARCH'])?$LANG['QSEARCH_SEARCH']:'Search Taxon'); ?></div>
-					<input id="taxa" type="text" name="taxon" />
-					<button name="formsubmit"  id="quicksearchbutton" type="submit" value="Search Terms"><?php echo (isset($LANG['QSEARCH_SEARCH_BUTTON'])?$LANG['QSEARCH_SEARCH_BUTTON']:'Search'); ?></button>
-				</form>
+	<div id="innertext" class="container" style="margin-top: 8em">
+		<h1 class="centered">Discover and access sample-based data</h1>
+
+		<section>
+			<div class="row">
+				<img src="images/layout/Home-Map-2.jpg" alt="Map with samples collected within NEON sites" class="hide-on-small" style="width:100%;">
+				<img src="images/layout/map-mobile.jpg" alt="Map with samples collected within NEON sites" class="hide-on-large">
+				<p class="hide-on-small"><span style="font-size: 70%; line-height: 1">Samples available in the portal (Aug 2019), collected in Alaska (top left), Continental US (center), and Puerto Rico (bottom right). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
+				<p class="hide-on-large"><span style="font-size: 70%; line-height: 1">Samples available in the portal (Aug 2019), collected in Continental US (top), Alaska (bottom left), and Puerto Rico (bottom right). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
 			</div>
-			<?php
-			//---------------------------GAME SETTINGS---------------------------------------
-			//If more than one game will be active, assign unique numerical ids for each game.
-			//If only one game will be active, leave set to 1.
-			$oodID = 1;
+		</section>
 
-			//Enter checklist id (clid) of the checklist you wish to use, if you would like to use more than one checklist,
-			//separate their ids with a comma ex. "1,2,3,4"
-			$ootdGameChecklist = "98";
-
-			//Change to modify title
-			$ootdGameTitle = "Organism of the Day ";
-
-			//Replace "plant" with the type of organism, eg: plant, animal, insect, fungi, etc.
-			//This setting will appear in "Name that ______"
-			$ootdGameType = "plant";
-			//---------------------------DO NOT CHANGE BELOW HERE-----------------------------
-
-			include_once($SERVER_ROOT.'/classes/GamesManager.php');
-			$gameManager = new GamesManager();
-			$gameInfo = $gameManager->setOOTD($oodID,$ootdGameChecklist);
-			?>
-			<div>
-				<div style="font-size:130%;font-weight:bold;">
-					<?php echo $ootdGameTitle; ?>
+		<section>
+			<div class="row centered">
+				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
+					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Sample search</p>
+						</div>
+					</a>
 				</div>
-				<a href="<?php echo $CLIENT_ROOT; ?>/games/ootd/index.php?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>">
-					<img src="<?php echo $gameInfo['images'][0]; ?>" style="width:250px;border:0px;" />
-				</a><br/>
-				<b>What is this <?php echo $ootdGameType; ?>?</b><br/>
-				<a href="<?php echo $CLIENT_ROOT; ?>/games/ootd/index.php?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>">
-					Click here to test your knowledge
-				</a>
+				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
+					<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-globe" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>	
+						</div>
+					</a>
+				</div>
+				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
+					<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">
+						<div>
+							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-list-alt" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Checklists</p>
+						</div>
+					</a>
+				</div>    		    		    	
 			</div>
+		</section>		
 
+		<section>
+			<div class="row" style="vertical-align: bottom">
+				<div class="six columns centered">
+					<h4 class="centered">> 62,000 samples</h4>
+					<img src="images/layout/SamplesByColl.png" usemap="#image-map" width="100%">				
+					<p><span style="font-size: 70%">Distribution of samples by collection type.</span></p>
+				</div>
+				<div class="six columns centered">
+					<h4 class="centered">> 400 taxa</h4>
+					<img src="images/layout/TaxaByGroup.png">
+					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa.</span></p>
+				</div>
 
-		</div>
+			</div>
+		</section>
 
+		<section>
+			<div class="row">
+				<div class="four columns">
+					<h4 class="centered">Data</h4>
+					<p>Visit the <a href="misc/usagepolicy.php">Data Usage Policy</a> page for information on how to cite data obtained from the NEON Biorepository Data Portal.</p>
+				</div>
+				<div class="four columns">
+					<h4 class="centered">Specimens</h4>
+					<p>Please consult the <a href="https://www.neonscience.org/data/archival-samples-specimens/neon-biorepository-asu">Archival Sample Request information page</a> to initiate inquiries about sample accessibility and loans.</p>
+				</div>
+				<div class="four columns">
+					<h4 class="centered">Contact</h4>
+					<p>Join the portal as a regular visitor or contributor, and send direct feedback or inquiries to <a href="mailto:BioRepo@asu.edu">BioRepo@asu.edu</a>.</p>
+				</div>
+			</div>
+		</section>		
 
+		<section>
+			<div class="row">	    
+				<div class="six columns">
+					<h2 class="centered">Services</h2>
+					<p>NEON Biorepository Data Portal services:</p>
+					<ul>
+						<li>Discover sample availability and suitability for focal research interests</li>
+						<li>Initiate sample loan requests</li>
+						<li>Contribute and publish value-added sample data</li>
+					</ul>
+					<p>The majority of the samples published here are physically housed at the <a href="https://biokic.asu.edu/collections" target="_blank">Arizona State University Biocollections</a>, located in Tempe, Arizona.</p>
+				</div>
+				<div class="six columns">
+					<h2 class="centered">Learn more</h2>
+					<p>This portal is offered through the <a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">Symbiota</a> software platform, and informationally synchronized with the <a href="https://www.neonscience.org" target="_blank">main NEON Data Portal</a>, which serves the full spectrum of NEON data products.</p>
+					<p>To learn more about the features and capabilities available through Symbiota, visit the <a href="http://symbiota.org/docs/" target="_blank">Symbiota Help Pages</a>.</p>
+					<p>Read more about NEON's history and experimental design in the <a href="https://www.neonscience.org/about" target="_blank">main portal</a>.</p>
+				</div>
+			</div>
+		</section>
 
-		</div>
-
-	<?php
-	include($SERVER_ROOT.'/footer.php');
-	?>
+	</div>
+	<?php include($SERVER_ROOT.'/footer.php'); ?>
 </body>
 </html>

@@ -15,6 +15,10 @@
 		$displayLeftMenu = true;
 		include($SERVER_ROOT.'/header.php');
 		?>
+		<div class="navpath">
+			<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
+			<b>Data Usage Guidelines</b>
+		</div>			
 		<!-- This is inner text! -->
 		<div id="innertext">
 			<h1>Guidelines for Acceptable Use of Data</h1><br />

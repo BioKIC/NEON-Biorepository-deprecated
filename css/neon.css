@@ -1,4 +1,4 @@
-******** NEON BASE STYLES *********/
+/******** NEON BASE STYLES *********/
 
 /* 
 Copied from 
@@ -368,6 +368,7 @@ caption + thead tr:first-child th,caption + thead tr:first-child td,colgroup + t
   background-color: #002d74;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .region-utility .nav .nav-item,.region-utility #styleguide-header ul .nav-item,#styleguide-header .region-utility ul .nav-item {
@@ -398,7 +399,7 @@ caption + thead tr:first-child th,caption + thead tr:first-child td,colgroup + t
   color: #002d74;
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 375px) and (max-width: 1024px) {
   .region-utility {
     height: 31px;
   }
@@ -409,6 +410,14 @@ caption + thead tr:first-child th,caption + thead tr:first-child td,colgroup + t
 
   .region-utility .nav .nav-link,  .region-utility #styleguide-header ul .nav-link,  #styleguide-header .region-utility ul .nav-link {
     padding: 3px 1rem;
+    font-size: 0.8em;
+    letter-spacing: 0.5px;
+  }
+}
+
+@media (max-width: 374px) {
+    .region-utility .nav .nav-link,  .region-utility #styleguide-header ul .nav-link,  #styleguide-header .region-utility ul .nav-link {
+    padding: 3px 5px;
     font-size: 0.8em;
     letter-spacing: 0.5px;
   }
@@ -3291,8 +3300,8 @@ a:hover {
     display: block;
     position: relative;
     top: 1px;
-    width: 90px;
-    height: 30px;
+    width: 150px;
+    height: 50px;
   }
 }
 
@@ -3302,7 +3311,7 @@ a:hover {
     display: block;
   }
 
-  #branding .branding-link, img {
+  #branding .branding-link img {
     display: block;
     position: relative;
     top: 1px;
@@ -3316,8 +3325,12 @@ a:hover {
     top: 30px;
   }*/
   #branding .branding-link {
-    width: 120px;
-    height: 40px;
+    width: 150px;
+    height: 50px;
+  }
+
+  ul#biorepo-header h1 {
+  font-size: 3rem;
   }
 }
 

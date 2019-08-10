@@ -2,7 +2,7 @@
  * 
 *************/
 html{
-	font-size: 14px;
+	font-size: 1.2em;
 	font-weight: 400;
 	line-height: 1.5em;
 	font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
@@ -11,6 +11,10 @@ html{
 body{
 	color:black;
 	margin-top: 0px;
+}
+
+.home-page section {
+	margin: 3rem 0 1.5rem 0;
 }
 
 /*Main table framework*/
@@ -31,7 +35,7 @@ ul#biorepo-header {
     list-style: none;
     text-align: center;
 	max-width: 100%;
-    padding: 5rem 0 4rem 0;
+    padding: 3rem 0 2rem 0;
     margin: 0 auto;
 }
 
@@ -66,14 +70,14 @@ li.header-title {
 
 ul#biorepo-header > li {
     display: inline-block;
-    padding: 0 2rem;
-    vertical-align: top;
+    padding: 0 0.5rem;
+    vertical-align: center;
     filter: opacity(100%);
 }
 
 ul#biorepo-header h1 {
 	text-transform: uppercase;
-	font-size: 3rem;
+	font-size: 1.5rem;
 	color: white;
 }
 
@@ -133,7 +137,7 @@ ul#hor_dropdown a {
 ul#hor_dropdown a:hover {
 	background-color:#1b67b3;
 	color: #FFFFFF;
-	text-decoration:underline;
+	text-decoration:none;
 }
 /* Submenu */
 ul#hor_dropdown ul {
@@ -213,6 +217,10 @@ div.navpath {
 
 }
 
+.home-page #innertext ul li {
+	font-size: 1.6em;
+}
+
 /* Large screens */
 @media (min-width: 1024px) {
 	#innertext{
@@ -236,6 +244,9 @@ div.navpath {
 	#img-container {
 		width: 80%;
 	}
+	.hide-on-large {
+		display: none;
+	}
 
 }
 
@@ -258,13 +269,19 @@ div.navpath {
 	}
 	#taxon-container {
 		max-width: 75%;
-	}	
+	}
+	.hide-on-large {
+		display: none;
+	}
 }
 
 /* Smaller screens */
 @media (max-width: 425px) {
 	#innertext {
 		max-width: 95%;
+	}
+	.hide-on-small {
+		display: none;
 	}
 }
 

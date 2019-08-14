@@ -53,7 +53,7 @@ if($action == 'search'){
 </head>
 <body>
 	<?php
-	$displayLeftMenu = (isset($imagelib_searchMenu)?$imagelib_searchMenu:"false");
+	$displayLeftMenu = (isset($imagelib_searchMenu)?$imagelib_searchMenu:false);
 	include($SERVER_ROOT.'/header.php');
 	if(isset($imagelib_indexCrumbs)){
 		echo "<div class='navpath'>";

@@ -20,7 +20,7 @@ $imgLibManager = new ImageLibraryManager();
 </head>
 <body>
 	<?php
-	$displayLeftMenu = (isset($imagelib_indexMenu)?$imagelib_indexMenu:'false');
+	$displayLeftMenu = (isset($imagelib_indexMenu)?$imagelib_indexMenu:false);
 	include($SERVER_ROOT.'/header.php');
 	?>
 	<div class="navpath">

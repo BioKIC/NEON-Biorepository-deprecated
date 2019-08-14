@@ -91,7 +91,7 @@ if($isEditor && $action){
 </head>
 <body>
 <?php
-	$displayLeftMenu = (isset($ident_tools_editorMenu)?$ident_tools_editorMenu:'false');
+	$displayLeftMenu = (isset($ident_tools_editorMenu)?$ident_tools_editorMenu:false);
 	include($SERVER_ROOT.'/header.php');
 	if(isset($ident_tools_editorCrumbs) && $ident_tools_editorCrumbs){
 		echo "<div class='navpath'>";

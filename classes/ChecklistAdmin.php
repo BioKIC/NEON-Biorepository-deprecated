@@ -16,14 +16,12 @@ class ChecklistAdmin{
  		if(!($this->conn === false)) $this->conn->close();
 	}
 
-	public function getMetaData(){
+	public function getMetaData($pid = null){
 		$retArr = array();
 		if($this->clid){
-			$sql = "SELECT c.clid, c.name, c.locality, c.publication, ".
-				"c.abstract, c.authors, c.parentclid, c.notes, ".
-				"c.latcentroid, c.longcentroid, c.pointradiusmeters, c.access, c.defaultsettings, ".
-				"c.dynamicsql, c.datelastmodified, c.uid, c.type, c.initialtimestamp, c.footprintwkt ".
-				"FROM fmchecklists c WHERE (c.clid = ".$this->clid.')';
+			$sql = 'SELECT clid, name, locality, publication, abstract, authors, parentclid, notes, latcentroid, longcentroid, pointradiusmeters, '.
+				'access, defaultsettings, dynamicsql, datelastmodified, uid, type, footprintwkt, sortsequence, initialtimestamp '.
+				'FROM fmchecklists WHERE (clid = '.$this->clid.')';
 	 		$result = $this->conn->query($sql);
 			if($row = $result->fetch_object()){
 				$this->clName = $this->cleanOutStr($row->name);
@@ -41,8 +39,9 @@ class ChecklistAdmin{
 				$retArr["access"] = $row->access;
 				$retArr["defaultsettings"] = $row->defaultsettings;
 				$retArr["dynamicsql"] = $row->dynamicsql;
-				$retArr["datelastmodified"] = $row->datelastmodified;
 				$retArr["hasfootprintwkt"] = ($row->footprintwkt?'1':'0');
+				$retArr['sortsequence'] = $row->sortsequence;
+				$retArr["datelastmodified"] = $row->datelastmodified;
 			}
 			$result->free();
 			if($retArr['type'] == 'excludespp'){
@@ -52,6 +51,20 @@ class ChecklistAdmin{
 					$retArr['excludeparent'] = $r->clid;
 				}
 				$rs->free();
+			}
+			if($pid && is_numeric($pid)){
+				$sql = 'SELECT clNameOverride, mapChecklist, sortSequence, notes '.
+					'FROM fmchklstprojlink '.
+					'WHERE clid = '.$this->clid.' AND pid = '.$pid;
+				$rs = $this->conn->query($sql);
+				if($rs){
+					if($r = $rs->fetch_object()){
+						if($r->clNameOverride) $this->clName = $this->cleanOutStr($r->clNameOverride);
+						if(is_numeric($r->mapChecklist)) $retArr['mapchecklist'] = $r->mapChecklist;
+						if(is_numeric($r->sortSequence)) $retArr['sortsequence'] = $r->sortSequence;
+					}
+					$rs->free();
+				}
 			}
 		}
 		return $retArr;
@@ -70,7 +83,7 @@ class ChecklistAdmin{
 		if($defaultViewArr) $postArr["defaultsettings"] = json_encode($defaultViewArr);
 
 		$fieldArr = array('name'=>'s','authors'=>'s','type'=>'s','locality'=>'s','publication'=>'s','abstract'=>'s','notes'=>'s','latcentroid'=>'n',
-				'longcentroid'=>'n','pointradiusmeters'=>'n','footprintwkt'=>'s','parentclid'=>'n','access'=>'s','uid'=>'n','defaultsettings'=>'s');
+			'longcentroid'=>'n','pointradiusmeters'=>'n','footprintwkt'=>'s','parentclid'=>'n','sortsequence'=>'n','access'=>'s','uid'=>'n','defaultsettings'=>'s');
 
 		$sqlInsert = "";
 		$sqlValues = "";
@@ -132,7 +145,7 @@ class ChecklistAdmin{
 		if($defaultViewArr) $postArr["defaultsettings"] = json_encode($defaultViewArr);
 
 		$fieldArr = array('name'=>'s','authors'=>'s','type'=>'s','locality'=>'s','publication'=>'s','abstract'=>'s','notes'=>'s','latcentroid'=>'n',
-			'longcentroid'=>'n','pointradiusmeters'=>'n','parentclid'=>'n','access'=>'s','defaultsettings'=>'s');
+			'longcentroid'=>'n','pointradiusmeters'=>'n','parentclid'=>'n','sortsequence'=>'n','access'=>'s','defaultsettings'=>'s');
 		foreach($fieldArr as $fieldName => $fieldType){
 			$v = $this->cleanInStr($postArr[$fieldName]);
 			if($fieldName != 'abstract') $v = strip_tags($v, '<i><u><b><a>');
@@ -393,7 +406,6 @@ class ChecklistAdmin{
 	public function getReferenceChecklists(){
 		$retArr = array();
 		$sql = 'SELECT clid, name FROM fmchecklists WHERE (access = "public") AND (type != "excludespp") ';
-		$clArr = array();
 		if(isset($GLOBALS['USER_RIGHTS']['ClAdmin'])){
 			$clidStr = implode(',',$GLOBALS['USER_RIGHTS']['ClAdmin']);
 			if($clidStr) $sql .= 'OR clid IN('.$clidStr.') ';
@@ -540,9 +552,7 @@ class ChecklistAdmin{
 
 	//Misc set/get functions
 	public function setClid($clid){
-		if(is_numeric($clid)){
-			$this->clid = $clid;
-		}
+		if(is_numeric($clid)) $this->clid = $clid;
 	}
 
 	public function getClName(){

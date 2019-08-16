@@ -2,20 +2,22 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistAdmin.php');
 include_once($SERVER_ROOT.'/content/lang/checklists/checklistadmin.'.$LANG_TAG.'.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+header('Content-Type: text/html; charset='.$CHARSET);
 
-$clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
-$pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:"";
+$clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
+$pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:0;
+
+//Sanitation
+if(!is_numeric($clid)) $clid = 0;
+if(!is_numeric($pid)) $pid = 0;
 
 $clManager = new ChecklistAdmin();
 $clManager->setClid($clid);
 
-$isEditor = 0;
-
-$clArray = $clManager->getMetaData();
+$clArray = $clManager->getMetaData($pid);
 $defaultArr = array();
-if(isset($clArray["defaultsettings"]) && $clArray["defaultsettings"]){
-	$defaultArr = json_decode($clArray["defaultsettings"], true);
+if(isset($clArray['defaultsettings']) && $clArray['defaultsettings']){
+	$defaultArr = json_decode($clArray['defaultsettings'], true);
 }
 ?>
 <script type="text/javascript">
@@ -281,8 +283,12 @@ if(!$clid){
 					</div>
 				</fieldset>
 			</div>
+			<div id="sortSeqDiv" style="clear:both;margin-top:15px;">
+				<b><?php echo (isset($LANG['DEFAULT_SORT'])?$LANG['DEFAULT_SORT']:'Default Sorting Sequence'); ?>:</b>
+				<input name="sortsequence" type="text" value="<?php echo ($clArray?$clArray['sortsequence']:''); ?>" style="width:40px" />
+			</div>
 			<div id="accessDiv" style="clear:both;margin-top:15px;">
-				<b>Access</b><br/>
+				<b><?php echo (isset($LANG['ACCESS'])?$LANG['ACCESS']:'Access'); ?>:</b>
 				<select name="access">
 					<option value="private"><?php echo $LANG['PRIVATE'];?></option>
 					<option value="public" <?php echo ($clArray && $clArray["access"]=="public"?"selected":""); ?>><?php echo $LANG['PUBLIC'];?></option>

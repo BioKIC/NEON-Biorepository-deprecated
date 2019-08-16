@@ -3,6 +3,9 @@ INSERT IGNORE INTO schemaversion (versionnumber) values ("1.2");
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `fulldescription` `fulldescription` VARCHAR(5000) NULL DEFAULT NULL ;
 
+ALTER TABLE `fmchklstprojlink` 
+   ADD COLUMN `sortSequence` INT NULL AFTER `mapChecklist`;
+
 ALTER TABLE `uploadspectemp` 
   CHANGE COLUMN `basisOfRecord` `basisOfRecord` VARCHAR(32) NULL DEFAULT NULL COMMENT 'PreservedSpecimen, LivingSpecimen, HumanObservation' ;
 

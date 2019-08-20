@@ -94,7 +94,7 @@ include($SERVER_ROOT.'/header.php');
 				if(isset($taxMetaArr['editors'])) echo '<div style="margin:3px 0px"><b>Editors:</b> '.$taxMetaArr['editors'].'</div>';
 				if(isset($taxMetaArr['contact'])) echo '<div style="margin:3px 0px"><b>Contact:</b> '.$taxMetaArr['contact'].'</div>';
 				if(isset($taxMetaArr['email'])) echo '<div style="margin:3px 0px"><b>Email:</b> '.$taxMetaArr['email'].'</div>';
-				if(isset($taxMetaArr['url'])) echo '<div style="margin:3px 0px"><b>URL:</b> <a href="'.$taxMetaArr['url'].'">'.$taxMetaArr['url'].'</a></div>';
+				if(isset($taxMetaArr['url'])) echo '<div style="margin:3px 0px"><b>URL:</b> <a href="'.$taxMetaArr['url'].'" target="_blank">'.$taxMetaArr['url'].'</a></div>';
 				if(isset($taxMetaArr['notes'])) echo '<div style="margin:3px 0px"><b>Notes:</b> '.$taxMetaArr['notes'].'</div>';
 				echo '</div>';
 			}

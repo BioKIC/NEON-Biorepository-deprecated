@@ -9,7 +9,7 @@ $target = array_key_exists("target",$_REQUEST)?$_REQUEST["target"]:"";
 $displayAuthor = array_key_exists('displayauthor',$_REQUEST)?$_REQUEST['displayauthor']:0;
 $displayFullTree = array_key_exists('displayfulltree',$_REQUEST)?$_REQUEST['displayfulltree']:0;
 $displaySubGenera = array_key_exists('displaysubgenera',$_REQUEST)?$_REQUEST['displaysubgenera']:0;
-$taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
+$taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:0;
 $statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
 
 $taxonDisplayObj = new TaxonomyDisplayManager();
@@ -38,45 +38,29 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 	</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
-
 			$("#taxontarget").autocomplete({
 				source: function( request, response ) {
 					$.getJSON( "rpc/gettaxasuggest.php", { term: request.term, taid: document.tdform.taxauthid.value }, response );
 				}
 			},{ minLength: 3 }
 			);
-
 		});
+
+		function displayTaxomonyMeta(){
+			$("#taxDetailDiv").hide();
+			$("#taxMetaDiv").show();
+		}
 	</script>
 </head>
 <body>
 <?php
-$displayLeftMenu = (isset($taxa_admin_taxonomydisplayMenu)?$taxa_admin_taxonomydisplayMenu:"true");
+$displayLeftMenu = (isset($taxa_admin_taxonomydisplayMenu)?$taxa_admin_taxonomydisplayMenu:'false');
 include($SERVER_ROOT.'/header.php');
-if(isset($taxa_admin_taxonomydisplayCrumbs)){
-	echo "<div class='navpath'>";
-	echo "<a href='../index.php'>Home</a> &gt; ";
-	echo $taxa_admin_taxonomydisplayCrumbs;
-	echo " <b>Taxonomic Tree Viewer</b>";
-	echo "</div>";
-}
-if(isset($taxa_admin_taxonomydisplayCrumbs)){
-	if($taxa_admin_taxonomydisplayCrumbs){
-		echo '<div class="navpath">';
-		echo $taxa_admin_taxonomydisplayCrumbs;
-		echo ' <b>Taxonomic Tree Viewer</b>';
-		echo '</div>';
-	}
-}
-else{
-	?>
+?>
 	<div class="navpath">
 		<a href="../../index.php">Home</a> &gt;&gt;
 		<a href="taxonomydisplay.php"><b>Taxonomic Tree Viewer</b></a>
 	</div>
-	<?php
-}
-?>
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
@@ -100,9 +84,24 @@ else{
 		}
 		?>
 		<div>
+			<?php
+			$taxMetaArr = $taxonDisplayObj->getTaxonomyMeta();
+			echo '<div style="float:left;margin:10px 0px 25px 0px;font-weight:bold;font-size:120%;">'.$taxMetaArr['name'].'</div>';
+			echo '<div id="taxDetailDiv" style="margin-top:15px;margin-left:5px;float:left;font-size:80%"><a href="#" onclick="displayTaxomonyMeta()">(more details)</a></div>';
+			echo '<div id="taxMetaDiv" style="margin:10px 15px 35px 15px;display:none;clear:both;">';
+			if($taxMetaArr['description']) echo '<div style="margin:3px 0px"><b>Description:</b> '.$taxMetaArr['description'].'</div>';
+			if($taxMetaArr['editors']) echo '<div style="margin:3px 0px"><b>Editors:</b> '.$taxMetaArr['editors'].'</div>';
+			if($taxMetaArr['contact']) echo '<div style="margin:3px 0px"><b>Contact:</b> '.$taxMetaArr['contact'].'</div>';
+			if($taxMetaArr['email']) echo '<div style="margin:3px 0px"><b>Email:</b> '.$taxMetaArr['email'].'</div>';
+			if($taxMetaArr['url']) echo '<div style="margin:3px 0px"><b>URL:</b> <a href="'.$taxMetaArr['url'].'">'.$taxMetaArr['url'].'</a></div>';
+			if($taxMetaArr['notes']) echo '<div style="margin:3px 0px"><b>Notes:</b> '.$taxMetaArr['notes'].'</div>';
+			echo '</div>';
+			?>
+		</div>
+		<div style="clear:both;">
 			<form id="tdform" name="tdform" action="taxonomydisplay.php" method='POST'>
 				<fieldset style="padding:10px;width:550px;">
-					<legend><b>Enter a taxon</b></legend>
+					<legend><b>Taxon Search</b></legend>
 					<div>
 						<b>Taxon:</b>
 						<input id="taxontarget" name="target" type="text" style="width:400px;" value="<?php echo $taxonDisplayObj->getTargetStr(); ?>" />
@@ -124,9 +123,7 @@ else{
 			</form>
 		</div>
 		<?php
-		if($target){
-			$taxonDisplayObj->displayTaxonomyHierarchy();
-		}
+		$taxonDisplayObj->displayTaxonomyHierarchy();
 		?>
 	</div>
 	<?php

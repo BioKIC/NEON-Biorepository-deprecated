@@ -13,6 +13,7 @@ class TaxonomyDisplayManager{
 	private $displayAuthor = false;
 	private $displayFullTree = false;
 	private $displaySubGenera = false;
+	private $limitToOccurrences = false;
 	private $isEditor = false;
 	private $nodeCnt = 0;
 
@@ -23,7 +24,6 @@ class TaxonomyDisplayManager{
 				$this->isEditor = true;
 			}
 		}
-
 	}
 
  	public function __destruct(){
@@ -73,8 +73,8 @@ class TaxonomyDisplayManager{
 			if($tid == $row1->tidaccepted || !$row1->tidaccepted){
 				$this->taxaArr[$tid]["sciname"] = $row1->sciname;
 				$this->taxaArr[$tid]["author"] = $row1->author;
-				$this->taxaArr[$tid]["parenttid"] = $parentTid;
 				$this->taxaArr[$tid]["rankid"] = $row1->rankid;
+				$this->taxaArr[$tid]["parenttid"] = $parentTid;
 				if($row1->rankid == 190) $subGenera[] = $tid;
 				$this->targetRankId = $row1->rankid;
 				$taxaParentIndex[$tid] = ($parentTid?$parentTid:0);
@@ -88,8 +88,9 @@ class TaxonomyDisplayManager{
 		$rs1->free();
 		$hierarchyArr = Array();
 		if($this->taxaArr){
-			//Get direct parents and children, but only accepted children
+			//Get direct children, but only accepted children
 			$tidStr = implode(',',array_keys($this->taxaArr));
+			$childArr = array();
 			$sql2 = 'SELECT DISTINCT t.tid, t.sciname, t.author, t.rankid, ts.parenttid '.
 				'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 				'INNER JOIN taxaenumtree te ON t.tid = te.tid '.
@@ -101,15 +102,31 @@ class TaxonomyDisplayManager{
 			$rs2 = $this->conn->query($sql2);
 			while($row2 = $rs2->fetch_object()){
 				$tid = $row2->tid;
-				$parentTid = $row2->parenttid;
+				if(!array_key_exists($tid, $this->taxaArr)) $childArr[$tid] = $tid;
 				$this->taxaArr[$tid]["sciname"] = $row2->sciname;
 				$this->taxaArr[$tid]["author"] = $row2->author;
 				$this->taxaArr[$tid]["rankid"] = $row2->rankid;
+				$parentTid = $row2->parenttid;
 				$this->taxaArr[$tid]["parenttid"] = $parentTid;
-				if($row2->rankid == 190) $subGenera[] = $tid;
 				if($parentTid) $taxaParentIndex[$tid] = $parentTid;
+				if($row2->rankid == 190) $subGenera[] = $tid;
 			}
 			$rs2->free();
+			if($this->limitToOccurrences && $childArr){
+				//Get rid of child taxa that lack a link to at least one occurrence record
+				$sql = 'SELECT tidinterpreted FROM omoccurrences WHERE tidinterpreted IN('.implode(',',$childArr).')';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					unset($childArr[$r->tidinterpreted]);
+				}
+				$rs->free();
+				foreach($childArr as $removeTid){
+					if(!in_array($removeTid, $taxaParentIndex)){
+						unset($this->taxaArr[$removeTid]);
+						unset($taxaParentIndex[$removeTid]);
+					}
+				}
+			}
 
 			//Get all parent taxa
 			$sql3 = 'SELECT DISTINCT t.tid, t.sciname, t.author, t.rankid, ts.parenttid '.
@@ -535,13 +552,13 @@ class TaxonomyDisplayManager{
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$this->taxonomyMeta['name'] = $r->name;
-				$this->taxonomyMeta['description'] = $r->description;
-				$this->taxonomyMeta['editors'] = $r->editors;
-				$this->taxonomyMeta['contact'] = $r->contact;
-				$this->taxonomyMeta['email'] = $r->email;
-				$this->taxonomyMeta['url'] = $r->url;
-				$this->taxonomyMeta['notes'] = $r->notes;
-				$this->taxonomyMeta['isprimary'] = $r->isprimary;
+				if($r->description) $this->taxonomyMeta['description'] = $r->description;
+				if($r->editors) $this->taxonomyMeta['editors'] = $r->editors;
+				if($r->contact) $this->taxonomyMeta['contact'] = $r->contact;
+				if($r->email) $this->taxonomyMeta['email'] = $r->email;
+				if($r->url) $this->taxonomyMeta['url'] = $r->url;
+				if($r->notes) $this->taxonomyMeta['notes'] = $r->notes;
+				if($r->isprimary) $this->taxonomyMeta['isprimary'] = $r->isprimary;
 			}
 			$rs->free();
 		}

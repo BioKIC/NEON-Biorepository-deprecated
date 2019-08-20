@@ -300,8 +300,8 @@ class TaxonomyDisplayManager{
 		$tid = 0;
 
 		//Get target taxa (we don't want children and parents of non-accepted taxa, so we'll get those later)
+		$acceptedTid = '';
 		if($this->targetStr){
-			$acceptedTid = '';
 			$sql1 = 'SELECT DISTINCT t.tid, ts.tidaccepted '.
 				'FROM taxa t LEFT JOIN taxstatus ts ON t.tid = ts.tid '.
 				'LEFT JOIN taxstatus ts1 ON t.tid = ts1.tidaccepted '.

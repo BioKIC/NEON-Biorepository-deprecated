@@ -8,15 +8,18 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 $target = array_key_exists("target",$_REQUEST)?$_REQUEST["target"]:"";
 $displayAuthor = array_key_exists('displayauthor',$_REQUEST)?$_REQUEST['displayauthor']:0;
 $taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
+$editorMode = array_key_exists('emode',$_POST)?$_POST['emode']:0;
 $statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
 
 $taxonDisplayObj = new TaxonomyDisplayManager();
 $taxonDisplayObj->setTargetStr($target);
 $taxonDisplayObj->setTaxAuthId($taxAuthId);
 
-$editable = false;
+$isEditor = false;
 if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
-	$editable = true;
+	$isEditor = true;
+	$editorMode = 1;
+	if(array_key_exists("target",$_POST) && !array_key_exists('emode',$_POST)) $editorMode = 0;
 }
 
 $treePath = $taxonDisplayObj->getDynamicTreePath();
@@ -87,7 +90,7 @@ reset($treePath);
 			<hr/>
 			<?php
 		}
-		if($editable){
+		if($isEditor){
 			?>
 			<div style="float:right;" title="Add a New Taxon">
 				<a href="taxonomyloader.php" target="_blank">
@@ -128,6 +131,9 @@ reset($treePath);
 					</div>
 					<div style="margin:15px 15px 0px 60px;">
 						<input name="displayauthor" type="checkbox" value="1" <?php echo ($displayAuthor?'checked':''); ?> /> Display authors
+						<?php
+						if($isEditor) echo '<br/><input name="emode" type="checkbox" value="1" '.($editorMode?'checked':'').' /> Editor mode';
+						?>
 					</div>
 				</fieldset>
 			</form>
@@ -154,7 +160,7 @@ reset($treePath);
 					target: "rpc/getdynamicchildren.php",
 					labelAttribute: "label",
 					getChildren: function(object){
-						return this.query({id:object.id,authors:<?php echo $displayAuthor; ?>,targetid:<?php echo $targetId; ?>}).then(function(fullObject){
+						return this.query({id:object.id,authors:<?php echo $displayAuthor; ?>,targetid:<?php echo $targetId; ?>, emode:<?php echo $editorMode; ?>}).then(function(fullObject){
 							return fullObject.children;
 						});
 					},

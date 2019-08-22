@@ -7,15 +7,27 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
 $target = array_key_exists("target",$_REQUEST)?$_REQUEST["target"]:"";
 $displayAuthor = array_key_exists('displayauthor',$_REQUEST)?$_REQUEST['displayauthor']:0;
+$matchOnWords = array_key_exists('matchonwords',$_POST)?$_POST['matchonwords']:0;
 $displayFullTree = array_key_exists('displayfulltree',$_REQUEST)?$_REQUEST['displayfulltree']:0;
 $displaySubGenera = array_key_exists('displaysubgenera',$_REQUEST)?$_REQUEST['displaysubgenera']:0;
-$taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:0;
+$taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
 $statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
+
+if(!is_numeric($displayAuthor)) $displayAuthor = 0;
+if(!is_numeric($matchOnWords)) $matchOnWords = 0;
+if(!is_numeric($displayFullTree)) $displayFullTree = 0;
+if(!is_numeric($displaySubGenera)) $displaySubGenera = 0;
+if(!is_numeric($taxAuthId)) $taxAuthId = 1;
+
+if(!array_key_exists("target",$_REQUEST)){
+	$matchOnWords = 1;
+}
 
 $taxonDisplayObj = new TaxonomyDisplayManager();
 $taxonDisplayObj->setTargetStr($target);
 $taxonDisplayObj->setTaxAuthId($taxAuthId);
 $taxonDisplayObj->setDisplayAuthor($displayAuthor);
+$taxonDisplayObj->setMatchOnWholeWords($matchOnWords);
 $taxonDisplayObj->setDisplayFullTree($displayFullTree);
 $taxonDisplayObj->setDisplaySubGenera($displaySubGenera);
 
@@ -112,14 +124,19 @@ include($SERVER_ROOT.'/header.php');
 						<input name="tdsubmit" type="submit" value="Display Taxon Tree"/>
 						<input name="taxauthid" type="hidden" value="<?php echo $taxAuthId; ?>" />
 					</div>
-					<div style="margin:15px 15px 0px 60px;">
-						<input name="displayauthor" type="checkbox" value="1" <?php echo ($displayAuthor?'checked':''); ?> /> Display authors
-					</div>
-					<div style="margin:3px 15px 0px 60px;">
-						<input name="displayfulltree" type="checkbox" value="1" <?php echo ($displayFullTree?'checked':''); ?> /> Display full tree below family
-					</div>
-					<div style="margin:3px 15px 15px 60px;">
-						<input name="displaysubgenera" type="checkbox" value="1" <?php echo ($displaySubGenera?'checked':''); ?> /> Display species with subgenera
+					<div style="margin-top:15px; margin-left:60px;">
+						<div style="margin:3px;">
+							<input name="displayauthor" type="checkbox" value="1" <?php echo ($displayAuthor?'checked':''); ?> /> Display authors
+						</div>
+						<div style="margin:3px;">
+							<input name="matchonwords" type="checkbox" value="1" <?php echo ($matchOnWords?'checked':''); ?> /> Match on whole words
+						</div>
+						<div style="margin:3px">
+							<input name="displayfulltree" type="checkbox" value="1" <?php echo ($displayFullTree?'checked':''); ?> /> Display full tree below family
+						</div>
+						<div style="margin:3px;">
+							<input name="displaysubgenera" type="checkbox" value="1" <?php echo ($displaySubGenera?'checked':''); ?> /> Display species with subgenera
+						</div>
 					</div>
 				</fieldset>
 			</form>

@@ -285,7 +285,7 @@ if(!$clid){
 			</div>
 			<div id="sortSeqDiv" style="clear:both;margin-top:15px;">
 				<b><?php echo (isset($LANG['DEFAULT_SORT'])?$LANG['DEFAULT_SORT']:'Default Sorting Sequence'); ?>:</b>
-				<input name="sortsequence" type="text" value="<?php echo ($clArray?$clArray['sortsequence']:''); ?>" style="width:40px" />
+				<input name="sortsequence" type="text" value="<?php echo ($clArray?$clArray['sortsequence']:'50'); ?>" style="width:40px" />
 			</div>
 			<div id="accessDiv" style="clear:both;margin-top:15px;">
 				<b><?php echo (isset($LANG['ACCESS'])?$LANG['ACCESS']:'Access'); ?>:</b>
@@ -311,7 +311,8 @@ if(!$clid){
 				?>
 			</div>
 			<input type="hidden" name="tabindex" value="1" />
-			<input type='hidden' name='clid' value='<?php echo $clid; ?>' />
+			<input type="hidden" name="uid" value="<?php echo $SYMB_UID; ?>" />
+			<input type="hidden" name="clid" value="<?php echo $clid; ?>" />
 			<input type="hidden" name="pid" value="<?php echo $pid; ?>" />
 		</fieldset>
 	</form>

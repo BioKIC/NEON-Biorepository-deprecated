@@ -13,6 +13,7 @@ class TaxonomyDisplayManager{
 	private $displayAuthor = false;
 	private $displayFullTree = false;
 	private $displaySubGenera = false;
+	private $matchOnWholeWords = true;
 	private $limitToOccurrences = false;
 	private $isEditor = false;
 	private $nodeCnt = 0;
@@ -50,12 +51,12 @@ class TaxonomyDisplayManager{
 			$sql1 .= 'AND (ts1.tid = '.$this->targetStr.') ';
 		}
 		elseif($this->targetStr){
-			if(strpos($this->targetStr," ") && !preg_match('/^[A-Z]+[a-z]+\s[A-Z]+/', $this->targetStr)){
-				//Rankid >= species level and not will author included
-				$sql1 .= 'AND ((t.sciname LIKE "'.$this->targetStr.'%") OR (t1.sciname LIKE "'.$this->targetStr.'%") ';
+			if($this->matchOnWholeWords){
+				$sql1 .= 'AND ((t.sciname = "'.$this->targetStr.'") OR (t1.sciname = "'.$this->targetStr.'") ';
 			}
 			else{
-				$sql1 .= 'AND ((t.sciname = "'.$this->targetStr.'") OR (t1.sciname = "'.$this->targetStr.'") ';
+				//Rankid >= species level and not will author included
+				$sql1 .= 'AND ((t.sciname LIKE "'.$this->targetStr.'%") OR (t1.sciname LIKE "'.$this->targetStr.'%") ';
 			}
 			//Let's include author in search by default
 			$sql1 .= 'OR (CONCAT(t.sciname," ",t.author) = "'.$this->targetStr.'") OR (CONCAT(t1.sciname," ",t1.author) = "'.$this->targetStr.'")) ';
@@ -249,12 +250,9 @@ class TaxonomyDisplayManager{
 				$indent = $taxonRankId;
 				if($indent > 230) $indent -= 10;
 				echo "<div>".str_repeat('&nbsp;',$indent/5);
-				if($this->isEditor){
-					echo '<a href="taxoneditor.php?tid='.$key.'" target="_blank">'.$sciName.'</a>';
-				}
-				else{
-					echo '<a href="../index.php?taxon='.$key.'" target="_blank">'.$sciName.'</a>';
-				}
+				if($taxonRankId > 139) echo '<a href="../index.php?taxon='.$key.'" target="_blank">'.$sciName.'</a>';
+				else echo $sciName;
+				if($this->isEditor) echo ' <a href="taxoneditor.php?tid='.$key.'" target="_blank"><img src="../../images/edit.png" style="width:11px" /></a>';
 				if(!$this->displayFullTree){
 					if(($this->targetRankId < 140 && $taxonRankId == 140) || !$this->targetStr && $taxonRankId == 10){
 						echo ' <a href="taxonomydisplay.php?target='.$sciName.'">';
@@ -269,12 +267,12 @@ class TaxonomyDisplayManager{
 					foreach($synNameArr as $synTid => $synName){
 						$synName = str_replace($this->targetStr,"<b>".$this->targetStr."</b>",$synName);
 						echo '<div>'.str_repeat('&nbsp;',$indent/5).str_repeat('&nbsp;',7);
-						if($this->isEditor){
-							echo '[<a href="taxoneditor.php?tid='.$synTid.'" target="_blank">'.$synName.'</a>]';
-						}
-						else{
-							echo '[<a href="../index.php?taxon='.$synTid.'" target="_blank">'.$synName.'</a>]';
-						}
+						echo '[';
+						if($taxonRankId > 139) echo '<a href="../index.php?taxon='.$synTid.'" target="_blank">';
+						echo $synName;
+						if($taxonRankId > 139) echo '</a>';
+						if($this->isEditor) echo ' <a href="taxoneditor.php?tid='.$synTid.'" target="_blank"><img src="../../images/edit.png" style="width:11px" /></a>';
+						echo ']';
 						echo '</div>';
 					}
 				}
@@ -582,6 +580,14 @@ class TaxonomyDisplayManager{
 
 	public function getTaxonomyMeta(){
 		return $this->taxonomyMeta;
+	}
+
+	public function setEditorMode($bool){
+		$this->isEditor = $bool;
+	}
+
+	public function setMatchOnWholeWords($bool){
+		$this->matchOnWholeWords = $bool;
 	}
 
 	//Misc functions

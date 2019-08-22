@@ -109,7 +109,6 @@ class ChecklistAdmin{
 			}
 		}
 		$sql = "INSERT INTO fmchecklists (".substr($sqlInsert,1).") VALUES (".substr($sqlValues,1).")";
-
 		$newClid = 0;
 		if($this->conn->query($sql)){
 			$newClid = $this->conn->insert_id;

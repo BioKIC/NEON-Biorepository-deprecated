@@ -73,7 +73,7 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 		}
 	</script>
 </head>
-<body>
+<body style="width:700px;min-width:700px;background-color:#ffffff">
 	<?php
 	if($displayHeader){
 		$displayLeftMenu = (isset($collections_download_downloadMenu)?$collections_download_downloadMenu:false);
@@ -99,7 +99,7 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 		}
 	}
 	?>
-	<div id="innertext" style="width:660px">
+	<div style="width:100%; background-color:white">
 		<h2>Data Usage Guidelines</h2>
 	 	 <div style="margin:15px;">
 	 	 	By downloading data, the user confirms that he/she has read and agrees with the general

@@ -65,6 +65,6 @@ function openMapPU(){
 }
 
 function targetPopup(f) {
-	window.open('', 'downloadpopup', 'left=100,top=50,width=900,height=600');
+	window.open('', 'downloadpopup', 'left=100,top=50,width=900,height=700');
 	f.target = 'downloadpopup';
 }

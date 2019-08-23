@@ -31,7 +31,7 @@ class OccurrenceListManager extends OccurrenceManager{
 		$sql = 'SELECT o.occid, c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, '.
 			'o.catalognumber, o.family, o.sciname, o.scientificnameauthorship, o.tidinterpreted, o.recordedby, o.recordnumber, o.eventdate, o.year, o.startdayofyear, o.enddayofyear, '.
 			'o.country, o.stateprovince, o.county, o.locality, o.decimallatitude, o.decimallongitude, o.localitysecurity, o.localitysecurityreason, '.
-			'o.habitat, o.minimumelevationinmeters, o.maximumelevationinmeters, o.observeruid, c.sortseq '.
+			'o.habitat, o.substrate, o.minimumelevationinmeters, o.maximumelevationinmeters, o.observeruid, c.sortseq '.
 			'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid ';
 		$sql .= $this->getTableJoins($sqlWhere).$sqlWhere;
 		//Don't allow someone to query all occurrences if there are no conditions
@@ -94,6 +94,7 @@ class OccurrenceListManager extends OccurrenceManager{
 					$returnArr[$row->occid]["collnum"] = $this->cleanOutStr($row->recordnumber);
 					$returnArr[$row->occid]["date"] = $row->eventdate;
 					$returnArr[$row->occid]["habitat"] = $this->cleanOutStr($row->habitat);
+					$returnArr[$row->occid]['substrate'] = $this->cleanOutStr($row->substrate);
 					$elevStr = $row->minimumelevationinmeters;
 					if($row->maximumelevationinmeters) $elevStr .= ' - '.$row->maximumelevationinmeters;
 					$returnArr[$row->occid]["elev"] = $elevStr;

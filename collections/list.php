@@ -63,7 +63,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 			});
 		});
 	</script>
-	<script src="../js/symb/collections.list.js?ver=8" type="text/javascript"></script>
+	<script src="../js/symb/collections.list.js?ver=9" type="text/javascript"></script>
 </head>
 <body>
 <?php
@@ -109,14 +109,20 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 		<div id="speclist">
 			<div id="queryrecords">
 				<div style="float:right;">
+					<form action="listtabledisplay.php" method="post" style="float:left">
+						<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo (isset($LANG['TABLE_DISPLAY'])?$LANG['TABLE_DISPLAY']:'Table Display'); ?>">
+							<img src="../images/table.png" style="width:15px; height:15px" />
+						</button>
+						<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
+					</form>
 					<form action="download/index.php" method="post" style="float:left" onsubmit="targetPopup(this)">
-						<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
+						<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
 							<img src="../../images/dl2.png" srcset="../images/download.svg" class="svg-icon" style="width:15px; height:15px" />
 						</button>
 						<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 						<input name="dltype" type="hidden" value="specimen" />
 					</form>
-					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer;" onclick="copyUrl()" title="Copy URL to Clipboard">
+					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" onclick="copyUrl()" title="Copy URL to Clipboard">
 						<img src="../../images/dl2.png" srcset="../images/link.svg" class="svg-icon" style="width:15px; height:15px" />
 					</button>
 				</div>

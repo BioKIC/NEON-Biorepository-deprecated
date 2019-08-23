@@ -9,6 +9,8 @@ include_once('sharedterms.en.php');
 
 $LANG['PAGE_TITLE'] = 'Collections Search Results';
 $LANG['NAV_SPECIMEN_LIST'] = 'Specimen Records';
+$LANG['TABLE_DISPLAY'] = 'Table Display';
+$LANG['LIST_DISPLAY'] = 'List Display';
 $LANG['DOWNLOAD_SPECIMEN_DATA'] = 'Download Specimen Data';
 $LANG['COPY_URL_TO_CLIPBOARD'] = 'Copy URL to Clipboard';
 $LANG['DATASET'] = 'Dataset';

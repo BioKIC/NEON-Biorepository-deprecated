@@ -1,4 +1,6 @@
 <?php
+include_once($SERVER_ROOT.'/classes/UuidFactory.php');
+
 class OccurrenceHarvester{
 
 	private $conn;
@@ -50,7 +52,7 @@ class OccurrenceHarvester{
 						$shipmentPK = $r->shipmentPK;
 						echo '<li><b>Processing shipment #'.$shipmentPK.'</b></li>';
 					}
-					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?'Appending':'Harvesting').' for sample '.$r->sampleID.'... ';
+					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?'Appending':'Harvesting').' '.$r->sampleID.'... ';
 					$sampleArr = array();
 					$sampleArr['samplePK'] = $r->samplePK;
 					$sampleArr['sampleID'] = strtoupper($r->sampleID);
@@ -85,6 +87,10 @@ class OccurrenceHarvester{
 				$rs->free();
 
 				$this->setNeonTaxonomy($occidArr);
+				//Set recordID GUIDs
+				$uuidManager = new UuidFactory();
+				$uuidManager->setSilent(1);
+				$uuidManager->populateGuids();
 			}
 			else{
 				echo '<li>'.$this->errorStr.'</li>';
@@ -550,7 +556,7 @@ class OccurrenceHarvester{
 				'INNER JOIN taxa t2 ON e2.parenttid = t2.tid '.
 				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
-				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid = 10 AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL AND (o.occid IN('.(implode(',',$occidArr)).')) ';
+				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL AND (o.occid IN('.(implode(',',$occidArr)).')) ';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;
@@ -615,7 +621,7 @@ class OccurrenceHarvester{
 
 	//Misc functions
 	private function formatDate($dateStr){
-		if(preg_match('/^(20\d{2})(\d{2})(\d{2})$/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
+		if(preg_match('/^(20\d{2})(\d{2})(\d{2})\D+/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
 		elseif(preg_match('/^(20\d{2})-(\d{2})-(\d{2})\D*/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
 		elseif(preg_match('/^(\d{1,2})\/(\d{1,2})\/(20\d{2})/', $dateStr, $m)){
 			$month = $m[1];

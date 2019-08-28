@@ -1,5 +1,8 @@
 INSERT IGNORE INTO schemaversion (versionnumber) values ("1.2");
 
+ALTER TABLE `lkupstateprovince` 
+  CHANGE COLUMN `abbrev` `abbrev` VARCHAR(3) NULL DEFAULT NULL ;
+
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `fulldescription` `fulldescription` VARCHAR(5000) NULL DEFAULT NULL ;
 

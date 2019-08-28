@@ -119,11 +119,11 @@ class OccurrenceHarvester{
 				}
 			}
 			else{
-				if(!$this->errorStr) $this->errorStr = 'NEON API failed searching by barcode';
-				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+				//if(!$this->errorStr) $this->errorStr = 'NEON API failed searching by barcode';
+				//$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 			}
 		}
-		elseif($sampleArr['sampleID'] && $sampleArr['sampleClass']){
+		if(!$viewArr && $sampleArr['sampleID'] && $sampleArr['sampleClass']){
 			//If sampleId and sampleClass are not correct, nothing will be returned
 			$url = 'https://data.neonscience.org/api/v0/samples/view?sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
 			//echo $url;
@@ -148,7 +148,6 @@ class OccurrenceHarvester{
 			$sampleArr['sampleUuid'] = $viewArr['sampleUuid'];
 			$this->conn->query('UPDATE NeonSample SET sampleUuid = "'.$viewArr['sampleUuid'].'" WHERE (sampleUuid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
 		}
-
 		//Override namedLocation that is in the manifest
 		if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
 			$sampleArr['namedLocation'] = $viewArr['namedLocation'];
@@ -172,7 +171,7 @@ class OccurrenceHarvester{
 	private function getSampleApiData($url){
 		$sampleViewArr = $this->getNeonApiArr($url);
 		if(!isset($sampleViewArr['sampleViews'])){
-			$this->errorStr = 'no sampleViews exist';
+			//$this->errorStr = 'no sampleViews exist';
 			return false;
 		}
 		if(count($sampleViewArr['sampleViews']) > 1){
@@ -286,7 +285,6 @@ class OccurrenceHarvester{
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
 				}
-
 				//Build proper location code
 				if($this->setNeonLocationData($dwcArr, $sampleArr['namedLocation'])){
 					if(isset($dwcArr['plotDim'])){
@@ -476,7 +474,7 @@ class OccurrenceHarvester{
 					else{
 						if($fieldValue){
 							$sql1 .= $fieldName.',';
-							$sql2 .= '"'.$fieldValue.'",';
+							$sql2 .= '"'.trim($fieldValue,',; ').'",';
 						}
 					}
 				}
@@ -532,7 +530,7 @@ class OccurrenceHarvester{
 				}
 			}
 			else{
-				$this->errorStr = 'ERROR: unable to access NEON API: '.$url;
+				//$this->errorStr = 'ERROR: unable to access NEON API: '.$url;
 				$retArr = false;
 			}
 			//curl_close($curl);

@@ -108,9 +108,9 @@ class OccurrenceHarvester{
 			$viewArr = $this->getSampleApiData($url);
 			if($viewArr){
 				if($viewArr['sampleTag'] != $sampleArr['sampleID']){
-					$this->errorStr = 'sampleID not matching: '.$viewArr['sampleTag'];
-					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-					return false;
+					//$this->errorStr = 'sampleID not matching: '.$viewArr['sampleTag'];
+					//$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+					//return false;
 				}
 				elseif($viewArr['sampleClass'] != $sampleArr['sampleClass']){
 					$this->errorStr = 'sampleClass not matching: '.$viewArr['sampleClass'];

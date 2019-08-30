@@ -17,6 +17,19 @@ class OccurrenceHarvester{
 	}
 
 	//Occurrence harvesting functions
+	public function getHarvestReport(){
+		$retArr = array();
+		$sql = 'SELECT SUBSTRING_INDEX(errorMessage,":",1) AS errMsg, COUNT(*) as cnt FROM NeonSample WHERE occid IS NULL GROUP BY errMsg';
+		$rs= $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$errMsg = $r->errMsg;
+			if(!$errMsg) $errMsg = 'null';
+			$retArr[$errMsg] = $r->cnt;
+		}
+		$rs->free();
+		return $retArr;
+	}
+
 	public function batchHarvestOccid($postArr){
 		set_time_limit(3600);
 		$sqlWhere = '';
@@ -123,24 +136,26 @@ class OccurrenceHarvester{
 				//$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 			}
 		}
-		if(!$viewArr && $sampleArr['sampleID'] && $sampleArr['sampleClass']){
-			//If sampleId and sampleClass are not correct, nothing will be returned
-			$url = 'https://data.neonscience.org/api/v0/samples/view?sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
-			//echo $url;
-			$viewArr = $this->getSampleApiData($url);
-			if($viewArr){
-				if($viewArr['barcode']) $sampleArr['sampleCode'] = $viewArr['barcode'];
+		if(!$viewArr){
+			if($sampleArr['sampleID'] && $sampleArr['sampleClass']){
+				//If sampleId and sampleClass are not correct, nothing will be returned
+				$url = 'https://data.neonscience.org/api/v0/samples/view?sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
+				//echo $url;
+				$viewArr = $this->getSampleApiData($url);
+				if($viewArr){
+					if($viewArr['barcode']) $sampleArr['sampleCode'] = $viewArr['barcode'];
+				}
+				else{
+					$this->errorStr = 'NEON API failed searching by sampleID and sampleClass';
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+					return false;
+				}
 			}
 			else{
-				$this->errorStr = 'NEON API failed searching by sampleID and sampleClass';
+				$this->errorStr = 'Sample identifiers incomplete';
 				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 				return false;
 			}
-		}
-		else{
-			$this->errorStr = 'Sample identifiers incomplete';
-			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-			return false;
 		}
 
 		//Update sampleUuid

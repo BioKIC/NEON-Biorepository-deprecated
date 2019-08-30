@@ -48,9 +48,8 @@ if($isEditor){
 	</script>
 	<style type="text/css">
 		fieldset{ padding:15px }
-		.fieldGroupDiv{ clear:both; margin-top:2px; height: 25px; }
-		.fieldDiv{ float:left; margin-left: 10px}
-		.displayFieldDiv{ margin-bottom: 3px }
+		.fieldGroupDiv{ clear:both; margin:10px; }
+		.fieldDiv{ float:left; }
 	</style>
 </head>
 <body>
@@ -83,9 +82,19 @@ include($SERVER_ROOT.'/header.php');
 		<fieldset>
 			<legend><b>Filter Panel</b></legend>
 			<form action="occurrenceharvester.php" method="post">
+				<div style="margin-bottom:25px; margin-left:15px">
+					<div style="font-weight:bold;">Harvesting Report</div>
+					<?php
+					$reportArr = $occurManager->getHarvestReport();
+					echo '<div>Occurrences not yet harvested: '.(array_key_exists('null',$reportArr)?$reportArr['null']:'0').'</div>';
+					unset($reportArr['null']);
+					foreach($reportArr as $msg => $repCnt){
+						echo '<div>'.$msg.': '.$repCnt.'</div>';
+					}
+					?>
+				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-
 					</div>
 					<div class="fieldDiv">
 						<b>WHERE</b>

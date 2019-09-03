@@ -19,12 +19,15 @@ class OccurrenceHarvester{
 	//Occurrence harvesting functions
 	public function getHarvestReport(){
 		$retArr = array();
-		$sql = 'SELECT SUBSTRING_INDEX(errorMessage,":",1) AS errMsg, COUNT(*) as cnt FROM NeonSample WHERE occid IS NULL GROUP BY errMsg';
+		$sql = 'SELECT SUBSTRING_INDEX(s.errorMessage,":",1) AS errMsg, COUNT(s.samplePK) as sampleCnt, COUNT(o.occid) as occurrenceCnt '.
+			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
+			'GROUP BY errMsg';
 		$rs= $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$errMsg = $r->errMsg;
 			if(!$errMsg) $errMsg = 'null';
-			$retArr[$errMsg] = $r->cnt;
+			$retArr[$errMsg]['s-cnt'] = $r->sampleCnt;
+			$retArr[$errMsg]['o-cnt'] = $r->occurrenceCnt;
 		}
 		$rs->free();
 		return $retArr;

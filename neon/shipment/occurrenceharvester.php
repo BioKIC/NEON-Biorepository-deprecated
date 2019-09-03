@@ -86,10 +86,13 @@ include($SERVER_ROOT.'/header.php');
 					<div style="font-weight:bold;">Harvesting Report</div>
 					<?php
 					$reportArr = $occurManager->getHarvestReport();
-					echo '<div>Occurrences not yet harvested: '.(array_key_exists('null',$reportArr)?$reportArr['null']:'0').'</div>';
+					$occurCnt = (array_key_exists('null',$reportArr)?$reportArr['null']['s-cnt']-$reportArr['null']['o-cnt']:'0');
+					echo '<div>Occurrences not yet harvested: '.$occurCnt.'</div>';
 					unset($reportArr['null']);
-					foreach($reportArr as $msg => $repCnt){
-						echo '<div>'.$msg.': '.$repCnt.'</div>';
+					echo '<hr/>';
+					foreach($reportArr as $msg => $repCntArr){
+						$cnt = $repCntArr['s-cnt']-$repCntArr['o-cnt'];
+						echo '<div><b>'.$msg.'</b>: '.$cnt.' without occurrences; '.$repCntArr['o-cnt'].' partial harvest </div>';
 					}
 					?>
 				</div>

@@ -252,7 +252,6 @@ if($isEditor){
 		}
 	</script>
 	<style type="text/css">
-		fieldset{ padding:15px }
 		.fieldGroupDiv{ clear:both; margin-top:2px; height: 25px; }
 		.fieldDiv{ float:left; margin-left: 10px}
 		.displayFieldDiv{ margin-bottom: 3px }
@@ -421,172 +420,181 @@ include($SERVER_ROOT.'/header.php');
 							$sampleFilter = '';
 							if(isset($_POST['sampleFilter'])) $sampleFilter = $_POST['sampleFilter'];
 							?>
-							<form name="filterSampleForm" action="manifestviewer.php" method="post" style="float:right;margin-top:-10px">
-								Display:
-								<select name="sampleFilter" onchange="this.form.submit()">
-									<option value="">All Records</option>
-									<option value="notCheckedIn" <?php echo ($sampleFilter=='notCheckedIn'?'SELECTED':''); ?>>Not Checked In</option>
-									<option value="notAccepted" <?php echo ($sampleFilter=='notAccepted'?'SELECTED':''); ?>>Not Accepted for Analysis</option>
-									<option value="altIds" <?php echo ($sampleFilter=='altIds'?'SELECTED':''); ?>>Has Alternative IDs</option>
-								</select>
-								<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-							</form>
-							<?php
-							if($sampleList){
-								?>
-								<form name="sampleListingForm" action="manifestviewer.php" method="post" onsubmit="return batchCheckinFormVerify(this)">
-									<table class="styledtable">
-										<tr>
-											<?php
-											$headerOutArr = current($sampleList);
-											echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
-											$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample<br/>Code', 'sampleClass'=>'Sample<br/>Class', 'taxonID'=>'Taxon ID',
-												'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status',
-												'sampleCondition'=>'Sample<br/>Condition','acceptedForAnalysis'=>'Accepted<br/>for<br/>Analysis','checkinUser'=>'Check-in','occid'=>'occid');
-												//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
-											$rowCnt = 1;
-											foreach($headerArr as $fieldName => $headerTitle){
-												if(array_key_exists($fieldName, $headerOutArr) || $fieldName == 'checkinUser'){
-													echo '<th>'.$headerTitle.'</th>';
-													$rowCnt++;
+							<div>
+								<div style="float:left">Records displayed: <?php echo count($sampleList); ?></div>
+								<div style="float:right;">
+									<form name="filterSampleForm" action="manifestviewer.php" method="post" style="">
+										Filter by:
+										<select name="sampleFilter" onchange="this.form.submit()">
+											<option value="">All Records</option>
+											<option value="notCheckedIn" <?php echo ($sampleFilter=='notCheckedIn'?'SELECTED':''); ?>>Not Checked In</option>
+											<option value="missingOccid" <?php echo ($sampleFilter=='missingOccid'?'SELECTED':''); ?>>Missing Occurrences</option>
+											<option value="notAccepted" <?php echo ($sampleFilter=='notAccepted'?'SELECTED':''); ?>>Not Accepted for Analysis</option>
+											<option value="altIds" <?php echo ($sampleFilter=='altIds'?'SELECTED':''); ?>>Has Alternative IDs</option>
+											<option value="harvestingError" <?php echo ($sampleFilter=='harvestingError'?'SELECTED':''); ?>>Harvesting Errors</option>
+										</select>
+										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+									</form>
+								</div>
+							</div>
+							<div style="clear:both">
+								<?php
+								if($sampleList){
+									?>
+									<form name="sampleListingForm" action="manifestviewer.php" method="post" onsubmit="return batchCheckinFormVerify(this)">
+										<table class="styledtable">
+											<tr>
+												<?php
+												$headerOutArr = current($sampleList);
+												echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
+												$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample<br/>Code', 'sampleClass'=>'Sample<br/>Class', 'taxonID'=>'Taxon ID',
+													'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status',
+													'sampleCondition'=>'Sample<br/>Condition','acceptedForAnalysis'=>'Accepted<br/>for<br/>Analysis','checkinUser'=>'Check-in','occid'=>'occid');
+													//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
+												$rowCnt = 1;
+												foreach($headerArr as $fieldName => $headerTitle){
+													if(array_key_exists($fieldName, $headerOutArr) || $fieldName == 'checkinUser'){
+														echo '<th>'.$headerTitle.'</th>';
+														$rowCnt++;
+													}
 												}
+												?>
+											</tr>
+											<?php
+											foreach($sampleList as $samplePK => $sampleArr){
+												echo '<tr>';
+												echo '<td><input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
+												$sampleID = $sampleArr['sampleID'];
+												if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
+												echo '<td>';
+												echo $sampleID;
+												echo ' <a href="#" onclick="return openSampleEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:12px" /></a>';
+												echo '</td>';
+												if(array_key_exists('sampleCode',$sampleArr)) echo '<td>'.$sampleArr['sampleCode'].'</td>';
+												echo '<td>'.$sampleArr['sampleClass'].'</td>';
+												if(array_key_exists('taxonID',$sampleArr)) echo '<td>'.$sampleArr['taxonID'].'</td>';
+												if(array_key_exists('namedLocation', $sampleArr)){
+													$namedLocation = $sampleArr['namedLocation'];
+													if(isset($sampleArr['siteTitle']) && $sampleArr['siteTitle']) $namedLocation = '<span title="'.$sampleArr['siteTitle'].'">'.$namedLocation.'</span>';
+													echo '<td>'.$namedLocation.'</td>';
+												}
+												if(array_key_exists('collectDate', $sampleArr)) echo '<td>'.$sampleArr['collectDate'].'</td>';
+												echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
+												if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
+												if(array_key_exists('acceptedForAnalysis', $sampleArr)){
+													$acceptedForAnalysis = $sampleArr['acceptedForAnalysis'];
+													if($sampleArr['acceptedForAnalysis']==1) $acceptedForAnalysis = 'Y';
+													if($sampleArr['acceptedForAnalysis']==='0') $acceptedForAnalysis = 'N';
+													echo '<td>'.$acceptedForAnalysis.'</td>';
+												}
+												echo '<td title="'.$sampleArr['checkinUser'].'">';
+												echo '<span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span> ';
+												if($sampleArr['checkinTimestamp']) echo '<a href="#" onclick="return openSampleCheckinEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:13px" /></a>';
+												echo '</td>';
+												if(array_key_exists('occid',$sampleArr)) echo '<td><a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank">'.$sampleArr['occid'].'</a></td>';
+												echo '</tr>';
+												$str = '';
+												if(isset($sampleArr['alternativeSampleID'])) $str .= '<div>Alternative Sample ID: '.$sampleArr['alternativeSampleID'].'</div>';
+												if(isset($sampleArr['individualCount'])) $str .= '<div>Individual Count: '.$sampleArr['individualCount'].'</div>';
+												if(isset($sampleArr['filterVolume'])) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
+												if(isset($sampleArr['domainRemarks'])) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
+												if(isset($sampleArr['sampleNotes'])) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
+												if(isset($sampleArr['checkinRemarks'])) $str .= '<div>Check-in Remarks: '.$sampleArr['checkinRemarks'].'</div>';
+												if(isset($sampleArr['dynamicProperties']) && $sampleArr['dynamicProperties']){
+													$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
+													$propSstr = '';
+													foreach($dynPropArr as $category => $propValue){
+														$propSstr .= $category.': '.$propValue.'; ';
+													}
+													$str .= '<div>'.trim($propSstr,'; ').'</div>';
+												}
+												if(isset($sampleArr['occurErr'])) $str .= '<div>Occurrence Harvesting Error: '.$sampleArr['occurErr'].'</div>';
+												if($str) echo '<tr><td colspan="'.$rowCnt.'"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
 											}
 											?>
-										</tr>
-										<?php
-										foreach($sampleList as $samplePK => $sampleArr){
-											echo '<tr>';
-											echo '<td><input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
-											$sampleID = $sampleArr['sampleID'];
-											if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
-											echo '<td>';
-											echo $sampleID;
-											echo ' <a href="#" onclick="return openSampleEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:12px" /></a>';
-											echo '</td>';
-											if(array_key_exists('sampleCode',$sampleArr)) echo '<td>'.$sampleArr['sampleCode'].'</td>';
-											echo '<td>'.$sampleArr['sampleClass'].'</td>';
-											if(array_key_exists('taxonID',$sampleArr)) echo '<td>'.$sampleArr['taxonID'].'</td>';
-											if(array_key_exists('namedLocation', $sampleArr)){
-												$namedLocation = $sampleArr['namedLocation'];
-												if(isset($sampleArr['siteTitle']) && $sampleArr['siteTitle']) $namedLocation = '<span title="'.$sampleArr['siteTitle'].'">'.$namedLocation.'</span>';
-												echo '<td>'.$namedLocation.'</td>';
-											}
-											if(array_key_exists('collectDate', $sampleArr)) echo '<td>'.$sampleArr['collectDate'].'</td>';
-											echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
-											if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
-											if(array_key_exists('acceptedForAnalysis', $sampleArr)){
-												$acceptedForAnalysis = $sampleArr['acceptedForAnalysis'];
-												if($sampleArr['acceptedForAnalysis']==1) $acceptedForAnalysis = 'Y';
-												if($sampleArr['acceptedForAnalysis']==='0') $acceptedForAnalysis = 'N';
-												echo '<td>'.$acceptedForAnalysis.'</td>';
-											}
-											echo '<td title="'.$sampleArr['checkinUser'].'">';
-											echo '<span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span> ';
-											if($sampleArr['checkinTimestamp']) echo '<a href="#" onclick="return openSampleCheckinEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:13px" /></a>';
-											echo '</td>';
-											if(array_key_exists('occid',$sampleArr)) echo '<td><a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank">'.$sampleArr['occid'].'</a></td>';
-											echo '</tr>';
-											$str = '';
-											if(isset($sampleArr['alternativeSampleID'])) $str .= '<div>Alternative Sample ID: '.$sampleArr['alternativeSampleID'].'</div>';
-											if(isset($sampleArr['individualCount'])) $str .= '<div>Individual Count: '.$sampleArr['individualCount'].'</div>';
-											if(isset($sampleArr['filterVolume'])) $str .= '<div>Filter Volume: '.$sampleArr['filterVolume'].'</div>';
-											if(isset($sampleArr['domainRemarks'])) $str .= '<div>Domain Remarks: '.$sampleArr['domainRemarks'].'</div>';
-											if(isset($sampleArr['sampleNotes'])) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
-											if(isset($sampleArr['checkinRemarks'])) $str .= '<div>Check-in Remarks: '.$sampleArr['checkinRemarks'].'</div>';
-											if(isset($sampleArr['dynamicProperties']) && $sampleArr['dynamicProperties']){
-												$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
-												$propSstr = '';
-												foreach($dynPropArr as $category => $propValue){
-													$propSstr .= $category.': '.$propValue.'; ';
-												}
-												$str .= '<div>'.trim($propSstr,'; ').'</div>';
-											}
-											if(isset($sampleArr['occurErr'])) $str .= '<div>Occurrence Harvesting Error: '.$sampleArr['occurErr'].'</div>';
-											if($str) echo '<tr><td colspan="'.$rowCnt.'"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
-										}
-										?>
-									</table>
-									<div style="margin:15px;float:right">
-										<div style="margin:5px;">
-											<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+										</table>
+										<div style="margin:15px;float:right">
+											<div style="margin:5px;">
+												<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+											</div>
+											<div style="margin:5px">
+												<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest Occurrences</button>
+											</div>
 										</div>
-										<div style="margin:5px">
-											<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest Occurrences</button>
-										</div>
-									</div>
-									<div style="margin:15px">
-										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-										<fieldset style="width:450px;">
-											<legend><b>Batch Check-in Selected Samples</b></legend>
-											<div class="displayFieldDiv">
-												<b>Accepted for Analysis:</b>
-												<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
-												<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
-											</div>
-											<div class="displayFieldDiv">
-												<b>Sample Condition:</b>
-												<select name="sampleCondition">
-													<option value="">Not Set</option>
-													<option value="">--------------------------------</option>
-													<?php
-													$condArr = $shipManager->getConditionArr();
-													foreach($condArr as $condKey => $condValue){
-														echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
-													}
-													?>
-												</select>
-											</div>
-											<div class="displayFieldDiv">
-												<b>Check-in Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
-											</div>
-											<div style="margin:5px 10px">
-												<button name="action" type="submit" value="batchCheckin">Check-in Selected Samples</button>
-											</div>
-										</fieldset>
-									</div>
-								</form>
-								<form name="exportSampleListForm" action="exporthandler.php" method="post" style="float:right;margin:-80px 15px 0px 0px">
-									<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-									<input name="exportTask" type="hidden" value="sampleList" />
-									<div style="margin:10px"><button name="action" type="submit" value="exportSampleListing">Export Sample Listing</button></div>
-								</form>
-								<div style="margin:20px 10px;float:right"><a href="manifestloader.php"><button name="loadManifestButton" type="button">Load Another Manifest</button></a></div>
-								<fieldset style="width:450px;margin:15px">
-									<a id="receiptStatus"></a>
-									<legend><b>Receipt Status</b></legend>
-									<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
-										<?php
-										$receiptStatus = '';
-										if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
-										$statusArr = explode(':', $receiptStatus);
-										if($statusArr) $receiptStatus = $statusArr[0];
-										?>
-										<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
-										<b>Status Not Set</b><br/>
-										<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
-										<b>Receipt Downloaded</b><br/>
-										<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
-										<b>Receipt Submitted to NEON</b>
-										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-										<input name="action" type="hidden" value="receiptsubmitted" />
-									</form>
-									<div style="margin:15px">
-										<form name="exportReceiptForm" action="exporthandler.php" method="post">
+										<div style="margin:15px">
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-											<input name="exportTask" type="hidden" value="receipt" />
-											<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
-										</form>
-										<div style="margin-top:15px">
-											<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
+											<fieldset style="width:450px;">
+												<legend><b>Batch Check-in Selected Samples</b></legend>
+												<div class="displayFieldDiv">
+													<b>Accepted for Analysis:</b>
+													<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
+													<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
+												</div>
+												<div class="displayFieldDiv">
+													<b>Sample Condition:</b>
+													<select name="sampleCondition">
+														<option value="">Not Set</option>
+														<option value="">--------------------------------</option>
+														<?php
+														$condArr = $shipManager->getConditionArr();
+														foreach($condArr as $condKey => $condValue){
+															echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
+														}
+														?>
+													</select>
+												</div>
+												<div class="displayFieldDiv">
+													<b>Check-in Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
+												</div>
+												<div style="margin:5px 10px">
+													<button name="action" type="submit" value="batchCheckin">Check-in Selected Samples</button>
+												</div>
+											</fieldset>
 										</div>
-									</div>
-								</fieldset>
-								<?php
-							}
-							else{
-								echo '<div style="margin: 20px">No samples exist matching filter criteria</div>';
-							}
-							?>
+									</form>
+									<form name="exportSampleListForm" action="exporthandler.php" method="post" style="float:right;margin:-80px 15px 0px 0px">
+										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+										<input name="exportTask" type="hidden" value="sampleList" />
+										<div style="margin:10px"><button name="action" type="submit" value="exportSampleListing">Export Sample Listing</button></div>
+									</form>
+									<div style="margin:20px 10px;float:right"><a href="manifestloader.php"><button name="loadManifestButton" type="button">Load Another Manifest</button></a></div>
+									<fieldset style="width:450px;margin:15px">
+										<a id="receiptStatus"></a>
+										<legend><b>Receipt Status</b></legend>
+										<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
+											<?php
+											$receiptStatus = '';
+											if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
+											$statusArr = explode(':', $receiptStatus);
+											if($statusArr) $receiptStatus = $statusArr[0];
+											?>
+											<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
+											<b>Status Not Set</b><br/>
+											<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
+											<b>Receipt Downloaded</b><br/>
+											<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
+											<b>Receipt Submitted to NEON</b>
+											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+											<input name="action" type="hidden" value="receiptsubmitted" />
+										</form>
+										<div style="margin:15px">
+											<form name="exportReceiptForm" action="exporthandler.php" method="post">
+												<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+												<input name="exportTask" type="hidden" value="receipt" />
+												<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
+											</form>
+											<div style="margin-top:15px">
+												<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
+											</div>
+										</div>
+									</fieldset>
+									<?php
+								}
+								else{
+									echo '<div style="margin: 20px">No samples exist matching filter criteria</div>';
+								}
+								?>
+							</div>
 						</fieldset>
 					</div>
 					<?php

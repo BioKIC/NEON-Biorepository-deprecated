@@ -102,11 +102,17 @@ class ShipmentManager{
 				if($filter == 'notCheckedIn'){
 					$sql .= 'AND (s.checkinTimestamp IS NULL) ';
 				}
+				elseif($filter == 'missingOccid'){
+					$sql .= 'AND (s.occid IS NULL) ';
+				}
 				elseif($filter == 'notAccepted'){
 					$sql .= 'AND (s.acceptedForAnalysis = 0) ';
 				}
 				elseif($filter == 'altIds'){
 					$sql .= 'AND (s.alternativeSampleID IS NOT NULL) ';
+				}
+				elseif($filter == 'harvestingError'){
+					$sql .= 'AND (s.errorMessage IS NOT NULL) ';
 				}
 			}
 			$sql .= 'ORDER BY s.sampleID ';
@@ -600,11 +606,9 @@ class ShipmentManager{
 	public function getShipmentList(){
 		$retArr = array();
 		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.initialtimestamp '.
-			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk ';
-		if(isset($_REQUEST['manifestStatus']) && $_REQUEST['manifestStatus'] == 'occurNotHarvested'){
-			$sql .= 'LEFT JOIN omoccurrences o ON m.occid = o.occid ';
-		}
-		$sql .= $this->getFilteredWhereSql().'ORDER BY s.shipmentID';
+			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk '.
+			$this->getFilteredWhereSql().
+			'ORDER BY s.shipmentID';
 		//echo '<div>'.$sql.'</div>';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -702,7 +706,7 @@ class ShipmentManager{
 					$sqlWhere .= 'AND (m.acceptedForAnalysis = 0) ';
 				}
 				elseif($_REQUEST['manifestStatus'] == 'occurNotHarvested'){
-					$sqlWhere .= 'AND (o.occid IS NULL) ';
+					$sqlWhere .= 'AND (m.occid IS NULL) ';
 				}
 				$this->searchArr['manifestStatus'] = $_REQUEST['manifestStatus'];
 			}

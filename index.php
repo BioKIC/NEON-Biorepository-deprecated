@@ -39,7 +39,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
 						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-search" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
+							<img src="images/layout/glyphicon-search.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Sample search</p>
 						</div>
 					</a>
@@ -47,7 +47,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">
 						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-globe" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
+							<img src="images/layout/glyphicon-globe.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>	
 						</div>
 					</a>
@@ -55,7 +55,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
 					<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">
 						<div>
-							<img src="https://imgplaceholder.com/200x200/0071ce/ffffff/glyphicon-list-alt" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
+							<img src="images/layout/glyphicon-list-alt.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Checklists</p>
 						</div>
 					</a>

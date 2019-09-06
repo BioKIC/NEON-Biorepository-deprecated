@@ -68,7 +68,7 @@ include($SERVER_ROOT.'/header.php');
 	if($isEditor){
 		if($action == 'harvestAll'){
 			?>
-			<fieldset style="margin:15px;padding:15px">
+			<fieldset style="padding:10px">
 				<legend><b>Action Panel</b></legend>
 				<ul>
 				<?php
@@ -80,25 +80,39 @@ include($SERVER_ROOT.'/header.php');
 		}
 		?>
 		<fieldset>
+			<legend><b>Harvesting Report</b></legend>
+			<div style="margin-bottom:25px; margin-left:15px">
+				<?php
+				$reportArr = $occurManager->getHarvestReport();
+				$occurCnt = (array_key_exists('null',$reportArr)?$reportArr['null']['s-cnt']-$reportArr['null']['o-cnt']:'0');
+				echo '<div>Occurrences not yet harvested: '.$occurCnt.'</div>';
+				unset($reportArr['null']);
+				echo '<hr/>';
+				foreach($reportArr as $msg => $repCntArr){
+					$cnt = $repCntArr['s-cnt']-$repCntArr['o-cnt'];
+					echo '<div><b>'.$msg.'</b>: '.$cnt.' without occurrences; '.$repCntArr['o-cnt'].' partial harvest </div>';
+				}
+				?>
+			</div>
+		</fieldset>
+		<fieldset>
 			<legend><b>Filter Panel</b></legend>
 			<form action="occurrenceharvester.php" method="post">
-				<div style="margin-bottom:25px; margin-left:15px">
-					<div style="font-weight:bold;">Harvesting Report</div>
-					<?php
-					$reportArr = $occurManager->getHarvestReport();
-					$occurCnt = (array_key_exists('null',$reportArr)?$reportArr['null']['s-cnt']-$reportArr['null']['o-cnt']:'0');
-					echo '<div>Occurrences not yet harvested: '.$occurCnt.'</div>';
-					unset($reportArr['null']);
-					echo '<hr/>';
-					foreach($reportArr as $msg => $repCntArr){
-						$cnt = $repCntArr['s-cnt']-$repCntArr['o-cnt'];
-						echo '<div><b>'.$msg.'</b>: '.$cnt.' without occurrences; '.$repCntArr['o-cnt'].' partial harvest </div>';
-					}
-					?>
-				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
+						<b>Error Group: </b>
+						<select name="errorStr">
+							<option value="noError">No Error Message</option>
+							<option value="">---------------------</option>
+							<?php
+							foreach($reportArr as $msg => $repCntArr){
+								echo '<option>'.$msg.'</option>';
+							}
+							?>
+						</select>
 					</div>
+				</div>
+				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>WHERE</b>
 						<select name="nullfilter">

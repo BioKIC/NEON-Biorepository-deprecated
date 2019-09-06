@@ -44,8 +44,11 @@ class OccurrenceHarvester{
 			if($postArr['nullfilter']){
 				$sqlWhere .= 'AND (o.'.$postArr['nullfilter'].' IS NULL) ';
 			}
-			else{
+			if($postArr['errorStr'] == 'noError'){
 				$sqlWhere .= 'AND (s.errorMessage IS NULL) ';
+			}
+			else{
+				$sqlWhere .= 'AND (s.errorMessage = "'.$this->cleanInStr($postArr['errorStr']).'") ';
 			}
 			$sqlWhere .= 'ORDER BY s.shipmentPK ';
 			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
@@ -572,7 +575,7 @@ class OccurrenceHarvester{
 				'INNER JOIN taxa t2 ON e2.parenttid = t2.tid '.
 				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
-				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL AND (o.occid IN('.(implode(',',$occidArr)).')) ';
+				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL ';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;

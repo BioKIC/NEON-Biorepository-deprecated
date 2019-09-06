@@ -227,12 +227,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 		<!-- This is inner text! -->
 		<div id="innertext" style="background-color:white;">
 			<div style="padding:15px;">
-				These tools are designed to aid collection managers in batch processing specimen images.
-				Contact portal manager for helping in setting up a new workflow.
-				Once a profile is established, the collection manager can use this form to manually trigger image processing.
-				For more information, see the Symbiota documentation for
-				<b><a href="http://symbiota.org/docs/batch-loading-specimen-images-2/" target="_blank">recommended practices</a></b> for
-				integrating images.
+				These tools are designed to aid collection managers in batch processing specimen images. Contact portal manager for help in setting up a new workflow.
+				 Once a profile is established, the collection manager can use this form to manually trigger image processing. For more information, see the Symbiota documentation for
+				 <b><a href="http://symbiota.org/docs/batch-loading-specimen-images-2/" target="_blank">recommended practices</a></b> for integrating images.
 			</div>
 			<?php
 			if($SYMB_UID){
@@ -305,13 +302,13 @@ if($spprid) $specManager->setProjVariables($spprid);
 										?>
 										<div>
 											<div style="width:180px;float:left;">
-												<b>Image Mapping Type:</b>
+												<b>Processing Type:</b>
 											</div>
 											<div style="float:left;">
 												<select name="projecttype" id="projecttype" onchange="uploadTypeChanged(this.form)" <?php echo ($spprid?'DISABLED':'');?>>
 													<option value="">----------------------</option>
 													<option value="local">Map Images from a Local or Remote Server</option>
-													<option value="file">Upload Image Map CSV File</option>
+													<option value="file">Image URL Mapping File</option>
 													<option value="idigbio">iDigBio Media Ingestion Report</option>
 													<option value="iplant">iPlant Image Harvest</option>
 												</select>
@@ -528,7 +525,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 									</div>
 									<div id="chooseFileDiv" class="profileDiv" style="clear:both;padding:15px 0px;display:none">
 										<div style="margin:5px 15px;">
-											<b>Select image mapping file:</b>
+											<b>Select URL mapping file:</b>
 											<input type='hidden' name='MAX_FILE_SIZE' value='20000000' />
 											<input name='uploadfile' type='file' size='70' value="Choose File" />
 										</div>

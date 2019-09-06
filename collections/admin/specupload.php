@@ -18,7 +18,7 @@ $ulPath = array_key_exists("ulpath",$_REQUEST)?$_REQUEST["ulpath"]:"";
 $importIdent = array_key_exists("importident",$_REQUEST)?true:false;
 $importImage = array_key_exists("importimage",$_REQUEST)?true:false;
 $matchCatNum = array_key_exists("matchcatnum",$_REQUEST)?true:false;
-$matchOtherCatNum = array_key_exists("matchothercatnum",$_REQUEST)?true:false;
+$matchOtherCatNum = array_key_exists('matchothercatnum',$_REQUEST)&&$_REQUEST['matchothercatnum']?true:false;
 $verifyImages = array_key_exists("verifyimages",$_REQUEST)&&$_REQUEST['verifyimages']?true:false;
 $processingStatus = array_key_exists("processingstatus",$_REQUEST)?$_REQUEST['processingstatus']:'';
 $finalTransfer = array_key_exists("finaltransfer",$_REQUEST)?$_REQUEST["finaltransfer"]:0;
@@ -539,7 +539,7 @@ $duManager->loadFieldMap();
 								Match on Catalog Number
 							</div>
 							<div style="margin:10px 0px;">
-								<input name="matchothercatnum" type="checkbox" value="1" />
+								<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
 								Match on Other Catalog Numbers
 							</div>
 							<ul style="margin:10px 0px;">
@@ -620,9 +620,10 @@ $duManager->loadFieldMap();
 									</div>
 									<div style="margin:10px;">
 										<input name="action" type="submit" value="Analyze File" />
-										<input name="uspid" type="hidden" value="<?php echo $uspid;?>" />
-										<input name="collid" type="hidden" value="<?php echo $collid;?>" />
-										<input name="uploadtype" type="hidden" value="<?php echo $uploadType;?>" />
+										<input name="uspid" type="hidden" value="<?php echo $uspid; ?>" />
+										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+										<input name="uploadtype" type="hidden" value="<?php echo $uploadType; ?>" />
+										<input name="matchothercatnum" type="hidden" value="<?php echo $matchOtherCatNum; ?>" />
 										<input name="MAX_FILE_SIZE" type="hidden" value="100000000" />
 									</div>
 								</div>
@@ -786,7 +787,7 @@ $duManager->loadFieldMap();
 														Match on Catalog Number
 													</div>
 													<div>
-														<input name="matchothercatnum" type="checkbox" value="1" />
+														<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
 														Match on Other Catalog Numbers
 													</div>
 													<ul style="margin-top:2px">
@@ -942,7 +943,7 @@ $duManager->loadFieldMap();
 											Match on Catalog Number
 										</div>
 										<div>
-											<input name="matchothercatnum" type="checkbox" value="1" />
+											<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
 											Match on Other Catalog Numbers
 										</div>
 										<ul style="margin-top:2px">

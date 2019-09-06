@@ -39,8 +39,11 @@ class OccurrenceHarvester{
 		if(isset($postArr['scbox'])){
 			$sqlWhere = 'WHERE s.samplePK IN('.implode(',',$postArr['scbox']).')';
 		}
-		elseif($postArr['action'] == 'harvestAll'){
-			$sqlWhere = 'WHERE (s.occid IS NULL) ';
+		elseif($postArr['action'] == 'harvestOccurrences'){
+			$sqlWhere = '';
+			if(isset($postArr['nullOccurrencesOnly'])){
+				$sqlWhere .= 'AND (s.occid IS NULL) ';
+			}
 			if($postArr['nullfilter']){
 				$sqlWhere .= 'AND (o.'.$postArr['nullfilter'].' IS NULL) ';
 			}
@@ -48,7 +51,7 @@ class OccurrenceHarvester{
 				$sqlWhere .= 'AND (s.errorMessage IS NULL) ';
 			}
 			else{
-				$sqlWhere .= 'AND (s.errorMessage = "'.$this->cleanInStr($postArr['errorStr']).'") ';
+				$sqlWhere .= 'AND (s.errorMessage LIKE "'.$this->cleanInStr($postArr['errorStr']).'%") ';
 			}
 			$sqlWhere .= 'ORDER BY s.shipmentPK ';
 			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
@@ -63,8 +66,8 @@ class OccurrenceHarvester{
 				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
 					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-					$sqlWhere;
-				//echo $sql.'<br/>';
+					'WHERE '.substr($sqlWhere,3);
+				//echo $sql.'<br/>'; exit;
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					if($shipmentPK != $r->shipmentPK){

@@ -30,13 +30,21 @@ if($isEditor){
 	<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-
 		function selectAll(cbObj){
 			var boxesChecked = true;
 			if(!cbObj.checked) boxesChecked = false;
 			var f = cbObj.form;
 			for(var i=0;i<f.length;i++){
 				if(f.elements[i].name == "scbox[]") f.elements[i].checked = boxesChecked;
+			}
+		}
+
+		function nullFilterChanged(elem){
+			if(elem.value == ""){
+				$("input[name=nullOccurrencesOnly]").prop("checked",true);
+			}
+			else{
+				$("input[name=nullOccurrencesOnly]").prop("checked",false);
 			}
 		}
 
@@ -66,7 +74,7 @@ include($SERVER_ROOT.'/header.php');
 <div id="innertext">
 	<?php
 	if($isEditor){
-		if($action == 'harvestAll'){
+		if($action == 'harvestOccurrences'){
 			?>
 			<fieldset style="padding:10px">
 				<legend><b>Action Panel</b></legend>
@@ -85,12 +93,12 @@ include($SERVER_ROOT.'/header.php');
 				<?php
 				$reportArr = $occurManager->getHarvestReport();
 				$occurCnt = (array_key_exists('null',$reportArr)?$reportArr['null']['s-cnt']-$reportArr['null']['o-cnt']:'0');
-				echo '<div>Occurrences not yet harvested: '.$occurCnt.'</div>';
+				echo '<div><b>Occurrences not yet harvested:</b> '.$occurCnt.'</div>';
 				unset($reportArr['null']);
 				echo '<hr/>';
 				foreach($reportArr as $msg => $repCntArr){
 					$cnt = $repCntArr['s-cnt']-$repCntArr['o-cnt'];
-					echo '<div><b>'.$msg.'</b>: '.$cnt.' without occurrences; '.$repCntArr['o-cnt'].' partial harvest </div>';
+					echo '<div><b>'.$msg.'</b>: '.$cnt.' with NULL occurrences; '.$repCntArr['o-cnt'].' partial harvest </div>';
 				}
 				?>
 			</div>
@@ -98,6 +106,11 @@ include($SERVER_ROOT.'/header.php');
 		<fieldset>
 			<legend><b>Filter Panel</b></legend>
 			<form action="occurrenceharvester.php" method="post">
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						<input name="nullOccurrencesOnly" type="checkbox" value="1" checked /> <b>Target New Samples only (NULL occurrences)</b>
+					</div>
+				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>Error Group: </b>
@@ -115,7 +128,7 @@ include($SERVER_ROOT.'/header.php');
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>WHERE</b>
-						<select name="nullfilter">
+						<select name="nullfilter" onchange="nullFilterChanged(this)">
 							<option value="">Target Field...</option>
 							<option value="">---------------------</option>
 							<option value="recordedBy">collector</option>
@@ -135,7 +148,7 @@ include($SERVER_ROOT.'/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<div style="float:left;margin:20px">
-						<button name="action" type="submit" value="harvestAll">Harvest Occurrence</button>
+						<button name="action" type="submit" value="harvestOccurrences">Harvest Occurrences</button>
 						<!--  <button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>  -->
 					</div>
 					<div style="float:right; margin:20px">

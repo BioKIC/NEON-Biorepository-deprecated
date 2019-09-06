@@ -349,7 +349,7 @@ class ImageProcessor {
 					if(!$url) $url = 'empty';
 					$thumbnailUrl = (isset($fieldMap['thumbnailurl'])?$this->cleanInStr($recordArr[$fieldMap['thumbnailurl']]):'');
 					$sourceUrl = (isset($fieldMap['sourceurl'])?$this->cleanInStr($recordArr[$fieldMap['sourceurl']]):'');
-					if(($catalogNumber || $otherCatalogNumbers) && $originalUrl){
+					if(($catalogNumber || $otherCatalogNumbers) && ($originalUrl || ($url && $url != 'empty'))){
 						echo '<li>Processing Catalog Number: '.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</li>';
 						$occArr = array();
 						$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') ';

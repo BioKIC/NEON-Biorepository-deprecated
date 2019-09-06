@@ -46,20 +46,28 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 			?>
 		});
 	</script>
-	<script src="../js/symb/collections.list.js?ver=6" type="text/javascript"></script>
+	<script src="../js/symb/collections.list.js?ver=9" type="text/javascript"></script>
 </head>
 <body style="margin-left: 0px; margin-right: 0px;background-color:white;">
 	<div id="">
-		<div style="width:750px;margin-bottom:5px;">
+		<div style="width:850px;margin-bottom:5px;">
 			<div style="float:right;">
-				<form action="download/index.php" method="get" style="float:left" onsubmit="targetPopup(this)">
+				<form action="list.php" method="post" style="float:left">
+					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo (isset($LANG['LIST_DISPLAY'])?$LANG['LIST_DISPLAY']:'List Display'); ?>">
+						<img src="../images/list.png" style="width:15px; height:15px" />
+					</button>
+					<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
+				</form>
+				<form action="download/index.php" method="post" style="float:left" onsubmit="targetPopup(this)">
 					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
-						<img src="../images/dl2.png" style="width:13px" />
+						<img src="../../images/dl2.png" srcset="../images/download.svg" class="svg-icon" style="width:15px; height:15px" />
 					</button>
 					<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 					<input name="dltype" type="hidden" value="specimen" />
 				</form>
-				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" onclick="copyUrl()" title="<?php echo (isset($LANG['COPY_URL_TO_CLIPBOARD'])?$LANG['COPY_URL_TO_CLIPBOARD']:'Copy URL to Clipboard'); ?>"><img src="../images/link2.png" style="width:13px" /></button>
+				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" onclick="copyUrl()" title="Copy URL to Clipboard">
+					<img src="../../images/dl2.png" srcset="../images/link.svg" class="svg-icon" style="width:15px; height:15px" />
+				</button>
 			</div>
 			<fieldset style="padding:5px;width:650px;">
 				<legend><b>Sort Results</b></legend>
@@ -122,7 +130,7 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 		}
 		$navStr .= '</div>';
 		?>
-		<div style="width:790px;clear:both;">
+		<div style="width:850px;clear:both;">
 			<div style="float:right">
 				<?php
 				echo $navStr;
@@ -169,6 +177,7 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 						<th>County</th>
 						<th>Locality</th>
 						<th>Habitat</th>
+						<th>Substrate</th>
 						<th>Elevation</th>
 					</tr>
 					<?php
@@ -216,6 +225,7 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 							echo $locStr;
 							?></td>
 							<td><?php if(isset($occArr['habitat'])) echo ((strlen($occArr['habitat'])>80)?substr($occArr['habitat'],0,80).'...':$occArr['habitat']); ?></td>
+							<td><?php if(isset($occArr['substrate'])) echo ((strlen($occArr['substrate'])>80)?substr($occArr['substrate'],0,80).'...':$occArr['substrate']); ?></td>
 							<td><?php echo (array_key_exists("elev",$occArr)?$occArr['elev']:""); ?></td>
 						</tr>
 						<?php

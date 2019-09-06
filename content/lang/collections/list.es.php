@@ -9,6 +9,8 @@ include_once('sharedterms.es.php');
 
 $LANG['PAGE_TITLE'] = 'Resultados de Búsqueda de Colecciones';
 $LANG['NAV_SPECIMEN_LIST'] = 'Registros de Ejemplares';
+$LANG['TABLE_DISPLAY'] = 'Mostrar Tabla';
+$LANG['LIST_DISPLAY'] = 'Mostrar Lista';
 $LANG['DOWNLOAD_SPECIMEN_DATA'] = 'Descargar Datos de Ejemplares';
 $LANG['COPY_URL_TO_CLIPBOARD'] = 'Copia URL al Portapapeles';
 $LANG['DATASET'] = 'Conjunto de Datos';

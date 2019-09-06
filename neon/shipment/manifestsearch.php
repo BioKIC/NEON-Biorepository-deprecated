@@ -129,7 +129,7 @@ include($SERVER_ROOT.'/header.php');
 						<b>Site ID:</b> <input name="namedLocation" type="text" value="<?php echo (isset($searchArgumentArr['namedLocation'])?$searchArgumentArr['namedLocation']:''); ?>" />
 					</div>
 					<div class="fieldDiv">
-						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo (isset($searchArgumentArr['sampleClass'])?$searchArgumentArr['sampleClass']:''); ?>" />
+						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo (isset($searchArgumentArr['sampleClass'])?$searchArgumentArr['sampleClass']:''); ?>" style="width:225px;" />
 					</div>
 					<div class="fieldDiv">
 						<b>Taxon ID:</b> <input name="taxonID" type="text" value="<?php echo (isset($searchArgumentArr['taxonID'])?$searchArgumentArr['taxonID']:''); ?>" />

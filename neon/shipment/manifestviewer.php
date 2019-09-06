@@ -513,15 +513,7 @@ include($SERVER_ROOT.'/header.php');
 											}
 											?>
 										</table>
-										<div style="margin:15px;float:right">
-											<div style="margin:5px;">
-												<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
-											</div>
-											<div style="margin:5px">
-												<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest Occurrences</button>
-											</div>
-										</div>
-										<div style="margin:15px">
+										<div style="margin:15px;float:left">
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 											<fieldset style="width:450px;">
 												<legend><b>Batch Check-in Selected Samples</b></legend>
@@ -551,43 +543,75 @@ include($SERVER_ROOT.'/header.php');
 												</div>
 											</fieldset>
 										</div>
-									</form>
-									<form name="exportSampleListForm" action="exporthandler.php" method="post" style="float:right;margin:-80px 15px 0px 0px">
-										<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-										<input name="exportTask" type="hidden" value="sampleList" />
-										<div style="margin:10px"><button name="action" type="submit" value="exportSampleListing">Export Sample Listing</button></div>
-									</form>
-									<div style="margin:20px 10px;float:right"><a href="manifestloader.php"><button name="loadManifestButton" type="button">Load Another Manifest</button></a></div>
-									<fieldset style="width:450px;margin:15px">
-										<a id="receiptStatus"></a>
-										<legend><b>Receipt Status</b></legend>
-										<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
-											<?php
-											$receiptStatus = '';
-											if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
-											$statusArr = explode(':', $receiptStatus);
-											if($statusArr) $receiptStatus = $statusArr[0];
-											?>
-											<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
-											<b>Status Not Set</b><br/>
-											<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
-											<b>Receipt Downloaded</b><br/>
-											<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
-											<b>Receipt Submitted to NEON</b>
-											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-											<input name="action" type="hidden" value="receiptsubmitted" />
-										</form>
-										<div style="margin:15px">
-											<form name="exportReceiptForm" action="exporthandler.php" method="post">
-												<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-												<input name="exportTask" type="hidden" value="receipt" />
-												<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
-											</form>
-											<div style="margin-top:15px">
-												<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
+										<div style="margin:15px;float:left">
+											<div style="margin:5px;">
+												<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+											</div>
+											<div style="margin:5px">
+												<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest Occurrences</button>
 											</div>
 										</div>
-									</fieldset>
+									</form>
+									<div style="clear:both">
+										<div style="float:left;margin-left:15px;">
+											<fieldset style="width:450px;">
+												<a id="receiptStatus"></a>
+												<legend><b>Receipt Status</b></legend>
+												<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
+													<?php
+													$receiptStatus = '';
+													if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
+													$statusArr = explode(':', $receiptStatus);
+													if($statusArr) $receiptStatus = $statusArr[0];
+													?>
+													<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
+													<b>Status Not Set</b><br/>
+													<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
+													<b>Receipt Downloaded</b><br/>
+													<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
+													<b>Receipt Submitted to NEON</b>
+													<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+													<input name="action" type="hidden" value="receiptsubmitted" />
+												</form>
+												<div style="margin:15px">
+													<form name="exportReceiptForm" action="exporthandler.php" method="post">
+														<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+														<input name="exportTask" type="hidden" value="receipt" />
+														<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
+													</form>
+													<div style="margin-top:15px">
+														<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
+													</div>
+												</div>
+											</fieldset>
+										</div>
+										<div style="float:left;margin-left:30px;">
+											<form name="exportSampleListForm" action="exporthandler.php" method="post" style="">
+												<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+												<input name="exportTask" type="hidden" value="sampleList" />
+												<div style="margin:10px 0px"><button name="action" type="submit" value="exportSampleListing">Export Sample Listing</button></div>
+											</form>
+											<div ><a href="manifestloader.php"><button name="loadManifestButton" type="button">Load Another Manifest</button></a></div>
+										</div>
+										<?php
+										$collectionArr = $shipManager->getCollectionArr();
+										if($collectionArr){
+											?>
+											<div style="float:left;margin:15px 30px;">
+												<fieldset style="width:400px;padding:15px;">
+													<legend><b>Append Data to Occurrence Records via File Upload</b></legend>
+													<?php
+													foreach($collectionArr as $collid => $collName){
+														echo '<div><a href="../../collections/admin/specupload.php?uploadtype=7&collid='.$collid.'" target="_blank">'.$collName.'</a></div>';
+													}
+													?>
+													* Link records by matching sampleID to otherCatalogNumbers
+												</fieldset>
+											</div>
+											<?php
+										}
+										?>
+									</div>
 									<?php
 								}
 								else{

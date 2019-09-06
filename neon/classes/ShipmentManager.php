@@ -809,6 +809,22 @@ class ShipmentManager{
 	}
 
 	//Various data return functions
+	public function getCollectionArr(){
+		$retArr = array();
+		if($this->shipmentPK){
+			$sql = 'SELECT DISTINCT c.collid, CONCAT(c.collectionname,CONCAT_WS("-",c.institutionCode, c.collectionCode)) as collName '.
+				'FROM NeonSample s INNER JOIN omoccurrences o ON s.occid = o.occid '.
+				'INNER JOIN omcollections c ON o.collid = c.collid '.
+				'WHERE s.shipmentPK = '.$this->shipmentPK;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->collid] = $r->collName;
+			}
+		}
+		asort($retArr);
+		return $retArr;
+	}
+
 	public function getImportUserArr(){
 		$retArr = array();
 		$sql = 'SELECT DISTINCT uid, username '.

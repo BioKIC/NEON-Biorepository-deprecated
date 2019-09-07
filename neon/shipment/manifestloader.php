@@ -71,7 +71,7 @@ if($isEditor){
 					}
 					sfArr[sfArr.length] = obj.value;
 				}
-				else if(obj.name == "tf[]" && obj.value != "" && obj.value != "unmapped" && obj.value != "dynamicProperties"){
+				else if(obj.name == "tf[]" && obj.value != "" && obj.value != "unmapped" && obj.value != "dynamicProperties" && obj.value != "symbiotaTarget"){
 					if(tfArr.indexOf(obj.value) > -1){
 						alert('ERROR: Can\'t map to the same target field "'+obj.value+'" more than once');
 						return false;
@@ -121,7 +121,13 @@ if($isEditor){
 							$sourceArr = $loaderManager->getSourceArr();
 							$targetArr = $loaderManager->getTargetArr();
 							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation',
-								'containerid'=>'dynamicproperties','sampletype'=>'dynamicproperties');
+								'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties',
+								'family'=>'symbiotatarget','sciname'=>'symbiotatarget','identifiedby'=>'symbiotatarget','dateIdentified'=>'symbiotatarget','recordedBy'=>'symbiotatarget',
+								'recordNumber'=>'symbiotatarget','eventDate'=>'symbiotatarget','habitat'=>'symbiotatarget','occurrenceRemarks'=>'symbiotatarget',
+								'verbatimAttributes'=>'symbiotatarget','behavior'=>'symbiotatarget','establishmentMeans'=>'symbiotatarget','lifeStage'=>'symbiotatarget',
+								'sex'=>'symbiotatarget','individualCount'=>'symbiotatarget','preparations'=>'symbiotatarget','country'=>'symbiotatarget','stateProvince'=>'symbiotatarget',
+								'county'=>'symbiotatarget','locality'=>'symbiotatarget','decimalLatitude'=>'symbiotatarget','decimalLongitude'=>'symbiotatarget',
+								'coordinateUncertaintyInMeters'=>'symbiotatarget','verbatimCoordinates'=>'symbiotatarget','minimumElevationInMeters'=>'symbiotatarget');
 							foreach($sourceArr as $sourceField){
 								?>
 								<tr>
@@ -160,6 +166,9 @@ if($isEditor){
 							?>
 						</table>
 						<div style="margin:10px;">
+							<input type="checkbox" name="reloadSamples" value="1" /> Reload sample record if it already exists
+						</div>
+						<div style="margin:10px;">
 							<input type="submit" name="action" value="Verify Mapping" />
 							<input type="submit" name="action" value="Process Manifest" />
 							<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getUploadFileName(); ?>" />
@@ -172,6 +181,7 @@ if($isEditor){
 				echo '<ul>';
 				$loaderManager->setUploadFileName($ulFileName);
 				$loaderManager->setFieldMap($fieldMap);
+				if(array_key_exists('reloadSamples',$_POST)) $loaderManager->setReloadSampleRecs($_POST['reloadSamples']);
 				$shipmentPK = $loaderManager->uploadData();
 				echo '</ul>';
 				echo '<div style="margin:10px 0px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">Proceed to Manifest Check-in</a></div>';

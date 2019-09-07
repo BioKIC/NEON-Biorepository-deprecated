@@ -51,6 +51,7 @@ CREATE TABLE `NeonSample` (
   `acceptedForAnalysis` INT UNSIGNED NULL,
   `sampleCondition` VARCHAR(45) NULL,
   `dynamicProperties` TEXT NULL,
+  `symbiotaTarget` TEXT NULL,
   `notes` VARCHAR(250) NULL,
   `occid` INT UNSIGNED NULL,
   `errorMessage` VARCHAR(255) NULL,

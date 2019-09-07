@@ -37,7 +37,7 @@ class OccurrenceHarvester{
 		set_time_limit(3600);
 		$sqlWhere = '';
 		if(isset($postArr['scbox'])){
-			$sqlWhere = 'WHERE s.samplePK IN('.implode(',',$postArr['scbox']).')';
+			$sqlWhere = 'AND s.samplePK IN('.implode(',',$postArr['scbox']).')';
 		}
 		elseif($postArr['action'] == 'harvestOccurrences'){
 			$sqlWhere = '';

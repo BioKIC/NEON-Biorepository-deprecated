@@ -273,8 +273,8 @@ include($SERVER_ROOT.'/header.php');
 	if($isEditor){
 		if($action == 'batchHarvestOccid'){
 			?>
-			<fieldset style="margin:15px;padding:15px">
-				<legend>Action Panel</legend>
+			<fieldset style="padding:15px">
+				<legend><b>Action Panel</b></legend>
 				<ul>
 				<?php
 				$occurManager = new OccurrenceHarvester();
@@ -284,7 +284,6 @@ include($SERVER_ROOT.'/header.php');
 			</fieldset>
 			<?php
 		}
-
 		$shipArr = $shipManager->getShipmentArr();
 		if($shipArr){
 			?>
@@ -341,7 +340,7 @@ include($SERVER_ROOT.'/header.php');
 						<?php
 						if($shipArr['checkinTimestamp'] && $sampleCntArr[0]){
 							?>
-							<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:0px;right:200px">
+							<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:50px;right:200px">
 								<fieldset style="padding:10px;width:500px">
 									<legend><b>Sample Check-in</b></legend>
 									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
@@ -502,11 +501,19 @@ include($SERVER_ROOT.'/header.php');
 												if(isset($sampleArr['checkinRemarks'])) $str .= '<div>Check-in Remarks: '.$sampleArr['checkinRemarks'].'</div>';
 												if(isset($sampleArr['dynamicProperties']) && $sampleArr['dynamicProperties']){
 													$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
-													$propSstr = '';
+													$propStr = '';
 													foreach($dynPropArr as $category => $propValue){
-														$propSstr .= $category.': '.$propValue.'; ';
+														$propStr .= $category.': '.$propValue.'; ';
 													}
-													$str .= '<div>'.trim($propSstr,'; ').'</div>';
+													$str .= '<div>'.trim($propStr,'; ').'</div>';
+												}
+												if(isset($sampleArr['symbiotaTarget']) && $sampleArr['symbiotaTarget']){
+													$symbTargetArr = json_decode($sampleArr['symbiotaTarget'],true);
+													$symbStr = '';
+													foreach($symbTargetArr as $symbLabel => $symbValue){
+														$symbStr .= $symbLabel.': '.$symbValue.'; ';
+													}
+													$str .= '<div>Symbiota targeted data ['.trim($symbStr,'; ').']</div>';
 												}
 												if(isset($sampleArr['occurErr'])) $str .= '<div>Occurrence Harvesting Error: '.$sampleArr['occurErr'].'</div>';
 												if($str) echo '<tr><td colspan="'.$rowCnt.'"><div style="margin-left:30px;">'.trim($str,'; ').'</div></td></tr>';
@@ -602,7 +609,7 @@ include($SERVER_ROOT.'/header.php');
 													<legend><b>Append Data to Occurrence Records via File Upload</b></legend>
 													<?php
 													foreach($collectionArr as $collid => $collName){
-														echo '<div><a href="../../collections/admin/specupload.php?uploadtype=7&collid='.$collid.'" target="_blank">'.$collName.'</a></div>';
+														echo '<div><a href="../../collections/admin/specupload.php?uploadtype=7&matchothercatnum=1&collid='.$collid.'" target="_blank">'.$collName.'</a></div>';
 													}
 													?>
 													* Link records by matching sampleID to otherCatalogNumbers

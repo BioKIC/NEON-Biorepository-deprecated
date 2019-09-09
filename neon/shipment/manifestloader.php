@@ -120,14 +120,9 @@ if($isEditor){
 							<?php
 							$sourceArr = $loaderManager->getSourceArr();
 							$targetArr = $loaderManager->getTargetArr();
+							$symbTargetArr = $loaderManager->getSymbTargetArr();
 							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation',
-								'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties',
-								'family'=>'symbiotatarget','sciname'=>'symbiotatarget','identifiedby'=>'symbiotatarget','dateIdentified'=>'symbiotatarget','recordedBy'=>'symbiotatarget',
-								'recordNumber'=>'symbiotatarget','eventDate'=>'symbiotatarget','habitat'=>'symbiotatarget','occurrenceRemarks'=>'symbiotatarget',
-								'verbatimAttributes'=>'symbiotatarget','behavior'=>'symbiotatarget','establishmentMeans'=>'symbiotatarget','lifeStage'=>'symbiotatarget',
-								'sex'=>'symbiotatarget','individualCount'=>'symbiotatarget','preparations'=>'symbiotatarget','country'=>'symbiotatarget','stateProvince'=>'symbiotatarget',
-								'county'=>'symbiotatarget','locality'=>'symbiotatarget','decimalLatitude'=>'symbiotatarget','decimalLongitude'=>'symbiotatarget',
-								'coordinateUncertaintyInMeters'=>'symbiotatarget','verbatimCoordinates'=>'symbiotatarget','minimumElevationInMeters'=>'symbiotatarget');
+								'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties');
 							foreach($sourceArr as $sourceField){
 								?>
 								<tr>
@@ -142,20 +137,21 @@ if($isEditor){
 										$bgColor = 'yellow';
 										if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)) $bgColor = 'white';
 										elseif($loaderManager->in_iarray($translatedSourceField, $targetArr)) $bgColor = 'white';
+										elseif($loaderManager->in_iarray($translatedSourceField,$symbTargetArr)) $bgColor = 'white';
 										?>
 										<select name="tf[]" style="background:<?php echo $bgColor; ?>">
 											<option value="">Field Unmapped</option>
 											<option value="">-------------------------</option>
 											<?php
-											if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)){
-												foreach($targetArr as $targetField){
-													echo '<option '.(strtolower($fieldMap[$translatedSourceField])==strtolower($targetField)?'SELECTED':'').'>'.$targetField.'</option>';
-												}
+											$matchTerm = '';
+											if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)) $matchTerm = strtolower($fieldMap[$translatedSourceField]);
+											else $matchTerm = $translatedSourceField;
+											foreach($targetArr as $targetField){
+												echo '<option '.($matchTerm==strtolower($targetField)?'SELECTED':'').'>'.$targetField.'</option>';
 											}
-											else{
-												foreach($targetArr as $targetField){
-													echo '<option '.($translatedSourceField==strtolower($targetField)?'SELECTED':'').'>'.$targetField.'</option>';
-												}
+											echo '<option value="">-------------------------</option>';
+											foreach($symbTargetArr as $symbTerm){
+												echo '<option '.($translatedSourceField==strtolower($symbTerm)?'SELECTED':'').'>symb:'.$symbTerm.'</option>';
 											}
 											?>
 										</select>

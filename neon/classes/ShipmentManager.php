@@ -234,8 +234,9 @@ class ShipmentManager{
 						if(strtolower($targetField) == 'dynamicproperties'){
 							if($recordArr[$indexValue]) $dynPropArr[$sField] = $recordArr[$indexValue];
 						}
-						elseif(strtolower($targetField) == 'symbiotatarget'){
-							if($recordArr[$indexValue]) $symTargetArr[$sField] = $recordArr[$indexValue];
+						elseif(substr($targetField,0,5) == 'symb:'){
+							$symbValue = $this->cleanInStr($recordArr[$indexValue]);
+							if($symbValue !== '') $symTargetArr[substr($targetField,5)] = $symbValue;
 						}
 						else{
 							$recMap[$targetField] = $recordArr[$indexValue];
@@ -1008,8 +1009,15 @@ class ShipmentManager{
 
 	public function getTargetArr(){
 		$retArr = array('shipmentID','domainID','dateShipped','shippedFrom','senderID','destinationFacility','sentToID','shipmentService','shipmentMethod','trackingNumber','shipmentNotes',
-				'sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus','dynamicProperties','symbiotaTarget');
+			'sampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus','dynamicProperties');
 		sort($retArr);
+		return $retArr;
+	}
+
+	public function getSymbTargetArr(){
+		$retArr = array('family','sciname','identifiedby','dateIdentified','recordedBy','recordNumber','eventDate','habitat','occurrenceRemarks',
+			'verbatimAttributes','behavior','establishmentMeans','lifeStage','sex','individualCount','preparations','country','stateProvince',
+			'county','locality','decimalLatitude','decimalLongitude','coordinateUncertaintyInMeters','verbatimCoordinates','minimumElevationInMeters');
 		return $retArr;
 	}
 

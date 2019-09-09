@@ -64,7 +64,7 @@ class OccurrenceHarvester{
 				$cnt = 1;
 				$shipmentPK = '';
 				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
-					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.occid '.
+					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
 					'WHERE '.substr($sqlWhere,3);
 				//echo $sql.'<br/>'; exit;
@@ -87,6 +87,7 @@ class OccurrenceHarvester{
 					$sampleArr['filterVolume'] = $r->filterVolume;
 					$sampleArr['namedLocation'] = $r->namedLocation;
 					$sampleArr['collectDate'] = $r->collectDate;
+					$sampleArr['symbiotaTarget'] = $r->symbiotaTarget;
 					if($this->validateSampleArr($sampleArr)){
 						if($dwcArr = $this->harvestNeonOccurrence($sampleArr)){
 							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
@@ -324,6 +325,14 @@ class OccurrenceHarvester{
 
 				$dwcArr['sciname'] = $sampleArr['taxonID'];
 				$this->setNeonCollector($dwcArr);
+				//Add DwC fields that were imported as part of the manifest file
+				if($sampleArr['symbiotaTarget']){
+					if($symbArr = json_decode($sampleArr['symbiotaTarget'],true)){
+						foreach($symbArr as $symbField => $symbValue){
+							if($symbValue !== '' && !isset($dwcArr[$symbField])) $dwcArr[$symbField] = $symbValue;
+						}
+					}
+				}
 			}
 			else{
 				$this->errorStr = 'ERROR: unable to retrieve collid using sampleClass: '.$sampleArr['sampleClass'];

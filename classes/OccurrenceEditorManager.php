@@ -99,7 +99,6 @@ class OccurrenceEditorManager {
 
 	//Query functions
 	public function setQueryVariables($overrideQry = false){
-		global $CLIENT_ROOT;
 		if($overrideQry){
 			$this->qryArr = $overrideQry;
 			unset($_SESSION['editorquery']);
@@ -558,7 +557,6 @@ class OccurrenceEditorManager {
 	}
 
 	public function getQueryRecordCount($reset = 0){
-		global $CLIENT_ROOT;
 		if(!$reset && array_key_exists('rc',$this->qryArr)) return $this->qryArr['rc'];
 		$recCnt = false;
 		if($this->sqlWhere){
@@ -771,7 +769,7 @@ class OccurrenceEditorManager {
 			if($editArr || $quickHostEntered){
 				if($editArr){
 					//Deal with scientific name changes if the AJAX code fails
-					$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biozone',
+					$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
 						'biostratigraphy','lithogroup','formation','taxonenvironment','member','lithology','stratremarks','lithdescription','element','slideproperties');
 					if(in_array('sciname',$editArr) && $occArr['sciname'] && !$occArr['tidinterpreted']){
 						$sql2 = 'SELECT t.tid, t.author, ts.family '.
@@ -921,7 +919,7 @@ class OccurrenceEditorManager {
 								if($paleoRS->num_rows) $paleoRecordExist = true;
 								$paleoRS->free();
 							}
-							$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biozone',
+							$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
 								'biostratigraphy','lithogroup','formation','taxonenvironment','member','lithology','stratremarks','lithdescription','element','slideproperties');
 							if($paleoRecordExist){
 								//Edit existing record
@@ -1077,7 +1075,7 @@ class OccurrenceEditorManager {
 				}
 				//Deal with paleo
 				if(in_array('eon',$occArr)){
-					$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biozone',
+					$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
 						'biostratigraphy','lithogroup','formation','taxonenvironment','member','lithology','stratremarks','lithdescription','element','slideproperties');
 					//Add new record
 					$paleoFrag1 = '';
@@ -1550,7 +1548,7 @@ class OccurrenceEditorManager {
 					$statusStr = 'ERROR adding update to omoccuredits: '.$this->conn->error;
 				}
 				//Apply edits to core tables
-				$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biozone',
+				$paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
 					'biostratigraphy','lithogroup','formation','taxonenvironment','member','lithology','stratremarks','lithdescription','element','slideproperties');
 				if(array_key_exists($fn, $paleoFieldArr)){
 					$sql = 'UPDATE omoccurpaleo SET '.$fn.' = '.$nvSqlFrag.' '.$sqlWhere;
@@ -1607,7 +1605,7 @@ class OccurrenceEditorManager {
 			'georeferencesources','georeferenceverificationstatus','georeferenceremarks',
 			'minimumelevationinmeters','maximumelevationinmeters','verbatimelevation','minimumdepthinmeters','maximumdepthinmeters','verbatimdepth',
 			'habitat','substrate','lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations',
-			'associatedtaxa','basisofrecord','language','labelproject','eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biozone',
+			'associatedtaxa','basisofrecord','language','labelproject','eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
 			'biostratigraphy','lithogroup','formation','taxonenvironment','member','lithology','stratremarks','lithdescription','element');
 		$retArr = $this->cleanOutArr(array_intersect_key($fArr,array_flip($locArr)));
 		return $retArr;

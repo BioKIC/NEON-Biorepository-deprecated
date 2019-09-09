@@ -219,7 +219,7 @@ class OccurrenceIndividualManager extends Manager{
 	}
 
 	private function loadPaleo(){
-		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biozone, '.
+		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biota, '.
 			'biostratigraphy, lithogroup, formation, taxonenvironment, member, lithology, stratremarks, lithdescription, element, slideproperties '.
 			'FROM omoccurpaleo WHERE occid = '.$this->occid;
 		$rs = $this->conn->query($sql);

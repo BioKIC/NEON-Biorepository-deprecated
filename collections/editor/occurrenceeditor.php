@@ -1133,7 +1133,7 @@ else{
 											</div>
 										</fieldset>
 										<?php
-										if(isset($editorPropArr['paleoMod']) && $editorPropArr['paleoMod']) include('includes/paleoinclude.php');
+										if(isset($editorPropArr['modules-panel']['paleo']['status']) && $editorPropArr['modules-panel']['paleo']['status']) include('includes/paleoinclude.php');
 										?>
 										<fieldset>
 											<legend><b>Misc</b></legend>

@@ -63,9 +63,30 @@ $RIGHTS_TERMS = array(
 	'CC BY (Attribution)' => 'http://creativecommons.org/licenses/by/4.0/',
 	'CC BY-NC (Attribution-Non-Commercial)' => 'http://creativecommons.org/licenses/by-nc/4.0/'
 );
-//$PROCESSINGSTATUS = array('unprocessed','unprocessed/NLP','stage 1','stage 2','stage 3','pending review-nfn','pending review','expert required','reviewed','closed');
 
 $CSS_VERSION_LOCAL = '20170414';		//Changing this variable will force a refresh of main.css styles within users browser cache for all pages
+
+/*
+//Default editor properties; properties defined in collection will override these values
+$EDITOR_PROPERTIES = array(
+	'modules-panel' => array(
+		'paleo' => array('status'=>0,'titleOverride'=>'Paleonotology Terms')
+	),
+	'features' => array('catalogDupeCheck'=>1,'otherCatNumDupeCheck'=>0,'dupeSearch'=>1),
+	'labelOverrides' => array(),
+	'cssTerms' => array(
+		'#recordNumberDiv'=>array('float'=>'left','margin-right'=>'2px'),
+		'#recordNumberDiv input'=>array('width'=>'60px'),
+		'#eventDateDiv'=>array('float'=>'left'),
+		'#eventDateDiv input'=>array('width'=>'110px')
+	),
+	'customCSS' => array(),
+	'customLookups' => array(
+		'processingStatus' => array('Unprocessed','Stage 1','Stage 2','Pending Review','Expert Required','Reviewed','Closed')
+	)
+);
+// json: {"editorProps":{"modules-panel":{"paleo":{"status":1}}}}
+*/
 
 
 //Base code shared by all pages; leave as is

@@ -82,7 +82,6 @@ CREATE TABLE `omoccurpaleo` (
   `member` VARCHAR(65) NULL,
   `lithology` VARCHAR(65) NULL,
   `stratRemarks` VARCHAR(250) NULL,
-  `lithDescription` VARCHAR(250) NULL,
   `element` VARCHAR(250) NULL,
   `slideProperties` VARCHAR(1000) NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,

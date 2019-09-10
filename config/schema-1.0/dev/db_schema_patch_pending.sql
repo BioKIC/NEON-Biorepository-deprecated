@@ -119,6 +119,9 @@ INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
 INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT p.stage, 60, "age", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.epoch = g.gtsterm WHERE stage IS NOT NULL;
 
+DROP TABLE omoccurlithostratigraphy;
+DROP TABLE paleochronostratigraphy;
+
 
 ALTER TABLE `images` 
   ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);

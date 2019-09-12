@@ -968,7 +968,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							if($occArr['catalognumber']) echo '<div><b>Catalog Number:</b> '.$occArr['catalognumber'].'</div>';
 							if($occArr['occurrenceid']) echo '<div><b>GUID:</b> '.$occArr['occurrenceid'].'</div>';
 							echo '<div><b>Latest Identification:</b> ';
-							if($securityCode < 2) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['author'];
+							if($securityCode < 2) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
 							else echo '<b>species identification protected</b>';
 							echo '</div>';
 							if($occArr['identifiedby']) echo '<div><b>Identified by:</b> '.$occArr['identifiedby'].'<span stlye="margin-left:30px;">'.$occArr['dateidentified'].'</span></div>';
@@ -993,19 +993,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 										if($dupArr['notes']) echo '<div>'.$dupArr['notes'].'</div>';
 										echo '<div><a href="#" onclick="openIndividual('.$dupOccid.')">Show Full Details</a></div>';
 										echo '</div>';
-										if($dupArr['url']){
-											$url = $dupArr['url'];
-											$tnUrl = $dupArr['tnurl'];
-											if(!$tnUrl) $tnUrl = $url;
-											if($IMAGE_DOMAIN){
-												if(substr($url,0,1) == '/') $url = $IMAGE_DOMAIN.$url;
-												if(substr($tnUrl,0,1) == '/') $tnUrl = $IMAGE_DOMAIN.$tnUrl;
+										if(!$securityCode){
+											if($dupArr['url']){
+												$url = $dupArr['url'];
+												$tnUrl = $dupArr['tnurl'];
+												if(!$tnUrl) $tnUrl = $url;
+												if($IMAGE_DOMAIN){
+													if(substr($url,0,1) == '/') $url = $IMAGE_DOMAIN.$url;
+													if(substr($tnUrl,0,1) == '/') $tnUrl = $IMAGE_DOMAIN.$tnUrl;
+												}
+												echo '<div style="float:left;margin:10px;">';
+												echo '<a href="'.$url.'">';
+												echo '<img src="'.$tnUrl.'" style="width:100px;border:1px solid grey" />';
+												echo '</a>';
+												echo '</div>';
 											}
-											echo '<div style="float:left;margin:10px;">';
-											echo '<a href="'.$url.'">';
-											echo '<img src="'.$tnUrl.'" style="width:100px;border:1px solid grey" />';
-											echo '</a>';
-											echo '</div>';
 										}
 										echo '<div style="margin:10px 0px;clear:both"><hr/></div>';
 										echo '</div>';

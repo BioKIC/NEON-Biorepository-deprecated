@@ -645,7 +645,6 @@ class ShipmentManager{
 			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk '.
 			$this->getFilteredWhereSql().
 			'ORDER BY s.shipmentID';
-		//echo '<div>'.$sql.'</div>';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->shipmentPK]['id'] = $r->shipmentID;
@@ -749,7 +748,7 @@ class ShipmentManager{
 			if($sqlWhere) $sqlWhere = 'WHERE '.subStr($sqlWhere, 3);
 		}
 		elseif($this->shipmentPK){
-			$sqlWhere = 'WHERE (shipmentPK = '.$this->shipmentPK.') ';
+			$sqlWhere = 'WHERE (s.shipmentPK = '.$this->shipmentPK.') ';
 		}
 		//echo 'where: '.$sqlWhere; exit;
 		return $sqlWhere;

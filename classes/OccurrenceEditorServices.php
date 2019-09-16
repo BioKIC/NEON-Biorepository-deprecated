@@ -39,7 +39,7 @@ class OccurrenceEditorServices {
 					$parentId = 0;
 				}
 				else{
-					$retArr[] = array("rankid" => [$r->rankid], "value" => $r->gtsterm);
+					$retArr[] = array("rankid" => $r->rankid, "value" => $r->gtsterm);
 					$parentId = $r->parentgtsid;
 				}
 			}

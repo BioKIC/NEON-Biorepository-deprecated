@@ -765,30 +765,39 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							<div style="clear:both;">
 								<b>Paleontology terms: </b>
 								<?php
-								$paleoStr = '';
-								if($occArr['eon']) $paleoStr .= '; '.$occArr['eon'];
-								if($occArr['era']) $paleoStr .= '; '.$occArr['era'];
-								if($occArr['period']) $paleoStr .= '; '.$occArr['period'];
-								if($occArr['epoch']) $paleoStr .= '; '.$occArr['epoch'];
-								if($occArr['earlyinterval']) $paleoStr .= '; '.$occArr['earlyinterval'];
-								if($occArr['lateinterval']) $paleoStr .= ' to '.$occArr['lateinterval'];
-								if($occArr['absoluteage']) $paleoStr .= '; <b>absolute age:</b> '.$occArr['absoluteage'];
-								if($occArr['storageage']) $paleoStr .= '; <b>storage age:</b> '.$occArr['storageage'];
-								if($occArr['stage']) $paleoStr .= '; <b>stage:</b> '.$occArr['stage'];
-								if($occArr['localstage']) $paleoStr .= '; <b>local stage:</b> '.$occArr['localstage'];
-								if($occArr['biozone']) $paleoStr .= '; <b>biozone:</b> '.$occArr['biozone'];
-								if($occArr['biostratigraphy']) $paleoStr .= '; <b>biostratigraphy:</b> '.$occArr['biostratigraphy'];
-								if($occArr['lithogroup']) $paleoStr .= '; <b>group:</b> '.$occArr['lithogroup'];
-								if($occArr['formation']) $paleoStr .= '; <b>formation:</b> '.$occArr['formation'];
-								if($occArr['taxonenvironment']) $paleoStr .= '; <b>Taxon Environment:</b> '.$occArr['taxonenvironment'];
-								if($occArr['member']) $paleoStr .= '; <b>member:</b> '.$occArr['member'];
-								if($occArr['lithology']) $paleoStr .= '; <b>lithology:</b> '.$occArr['lithology'];
-								if($occArr['stratremarks']) $paleoStr .= '; <b>remarks:</b> '.$occArr['stratremarks'];
-								if($occArr['lithdescription']) $paleoStr .= '; <b>lith description:</b> '.$occArr['lithdescription'];
-								if($occArr['element']) $paleoStr .= '; <b>element:</b> '.$occArr['element'];
-								if($occArr['slideproperties']) $paleoStr .= '; <b>slide properties:</b> '.$occArr['slideproperties'];
-								echo trim($paleoStr,'; ');
+								$paleoStr1 = '';
+								if($occArr['eon']) $paleoStr1 .= '; '.$occArr['eon'];
+								if($occArr['era']) $paleoStr1 .= '; '.$occArr['era'];
+								if($occArr['period']) $paleoStr1 .= '; '.$occArr['period'];
+								if($occArr['epoch']) $paleoStr1 .= '; '.$occArr['epoch'];
+								if($occArr['stage']) $paleoStr1 .= '; '.$occArr['stage'];
+								if($occArr['earlyinterval']) $paleoStr1 .= '; '.$occArr['earlyinterval'];
+								if($occArr['lateinterval']) $paleoStr1 .= ' to '.$occArr['lateinterval'];
+								if($paleoStr1) echo trim($paleoStr1,'; ');
 								?>
+								<div style="margin-left:10px">
+									<?php
+									$paleoStr2 = '';
+									if($occArr['absoluteage']) $paleoStr2 .= '; <b>absolute age:</b> '.$occArr['absoluteage'];
+									if($occArr['storageage']) $paleoStr2 .= '; <b>storage age:</b> '.$occArr['storageage'];
+									if($occArr['localstage']) $paleoStr2 .= '; <b>local stage:</b> '.$occArr['localstage'];
+									if($occArr['biota']) $paleoStr2 .= '; <b>biota:</b> '.$occArr['biota'];
+									if($occArr['biostratigraphy']) $paleoStr2 .= '; <b>biostratigraphy:</b> '.$occArr['biostratigraphy'];
+									if($paleoStr2) echo '<div>'.trim($paleoStr2,'; ').'<div>';
+									$paleoStr3 = '';
+									if($occArr['lithogroup']) $paleoStr3 .= '; <b>group:</b> '.$occArr['lithogroup'];
+									if($occArr['formation']) $paleoStr3 .= '; <b>formation:</b> '.$occArr['formation'];
+									if($occArr['taxonenvironment']) $paleoStr3 .= '; <b>taxon environment:</b> '.$occArr['taxonenvironment'];
+									if($occArr['member']) $paleoStr3 .= '; <b>member:</b> '.$occArr['member'];
+									if($occArr['lithology']) $paleoStr3 .= '; <b>lithology:</b> '.$occArr['lithology'];
+									if($paleoStr3) echo '<div>'.trim($paleoStr3,'; ').'</div>';
+									if($occArr['stratremarks']) echo '<div><b>remarks:</b> '.$occArr['stratremarks'].'</div>';
+									$paleoStr4 = '';
+									if($occArr['element']) $paleoStr4 .= '; <b>element:</b> '.$occArr['element'];
+									if($occArr['slideproperties']) $paleoStr4 .= '; <b>slide properties:</b> '.$occArr['slideproperties'];
+									if($paleoStr4) echo '<div>'.trim($paleoStr4,'; ').'</div>';
+									?>
+								</div>
 							</div>
 							<?php
 						}
@@ -959,7 +968,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							if($occArr['catalognumber']) echo '<div><b>Catalog Number:</b> '.$occArr['catalognumber'].'</div>';
 							if($occArr['occurrenceid']) echo '<div><b>GUID:</b> '.$occArr['occurrenceid'].'</div>';
 							echo '<div><b>Latest Identification:</b> ';
-							if($securityCode < 2) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['author'];
+							if($securityCode < 2) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
 							else echo '<b>species identification protected</b>';
 							echo '</div>';
 							if($occArr['identifiedby']) echo '<div><b>Identified by:</b> '.$occArr['identifiedby'].'<span stlye="margin-left:30px;">'.$occArr['dateidentified'].'</span></div>';
@@ -984,19 +993,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 										if($dupArr['notes']) echo '<div>'.$dupArr['notes'].'</div>';
 										echo '<div><a href="#" onclick="openIndividual('.$dupOccid.')">Show Full Details</a></div>';
 										echo '</div>';
-										if($dupArr['url']){
-											$url = $dupArr['url'];
-											$tnUrl = $dupArr['tnurl'];
-											if(!$tnUrl) $tnUrl = $url;
-											if($IMAGE_DOMAIN){
-												if(substr($url,0,1) == '/') $url = $IMAGE_DOMAIN.$url;
-												if(substr($tnUrl,0,1) == '/') $tnUrl = $IMAGE_DOMAIN.$tnUrl;
+										if(!$securityCode){
+											if($dupArr['url']){
+												$url = $dupArr['url'];
+												$tnUrl = $dupArr['tnurl'];
+												if(!$tnUrl) $tnUrl = $url;
+												if($IMAGE_DOMAIN){
+													if(substr($url,0,1) == '/') $url = $IMAGE_DOMAIN.$url;
+													if(substr($tnUrl,0,1) == '/') $tnUrl = $IMAGE_DOMAIN.$tnUrl;
+												}
+												echo '<div style="float:left;margin:10px;">';
+												echo '<a href="'.$url.'">';
+												echo '<img src="'.$tnUrl.'" style="width:100px;border:1px solid grey" />';
+												echo '</a>';
+												echo '</div>';
 											}
-											echo '<div style="float:left;margin:10px;">';
-											echo '<a href="'.$url.'">';
-											echo '<img src="'.$tnUrl.'" style="width:100px;border:1px solid grey" />';
-											echo '</a>';
-											echo '</div>';
 										}
 										echo '<div style="margin:10px 0px;clear:both"><hr/></div>';
 										echo '</div>';

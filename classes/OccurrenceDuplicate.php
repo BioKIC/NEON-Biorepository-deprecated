@@ -30,7 +30,7 @@ class OccurrenceDuplicate {
 				$retArr[$r1->duplicateid]['description'] = $r1->description;
 				$retArr[$r1->duplicateid]['notes'] = $r1->notes;
 			}
-			$rs1->close();
+			$rs1->free();
 		}
 		else{
 			$this->errorStr = 'ERROR getting list of duplicate records [1]: '.$this->conn->error;
@@ -39,7 +39,7 @@ class OccurrenceDuplicate {
 
 		if($retArr){
 			$sql = 'SELECT d.duplicateid, d.occid, c.institutioncode, c.collectioncode, c.collectionname, o.catalognumber, '.
-				'o.occurrenceid, o.sciname, o.identifiedby, o.dateidentified, '.
+				'o.occurrenceid, o.sciname, o.scientificnameauthorship, o.identifiedby, o.dateidentified, '.
 				'o.recordedby, o.recordnumber, o.eventdate, d.notes, i.url, i.thumbnailurl '.
 				'FROM omoccurduplicatelink d INNER JOIN omoccurrences o ON d.occid = o.occid '.
 				'INNER JOIN omcollections c ON o.collid = c.collid '.
@@ -48,7 +48,7 @@ class OccurrenceDuplicate {
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$retArr[$r->duplicateid]['o'][$r->occid] = array('instcode' => $r->institutioncode, 'collcode' => $r->collectioncode,
-					'collname' => $r->collectionname, 'catnum' => $r->catalognumber, 'occurrenceid' => $r->occurrenceid, 'sciname' => $r->sciname,
+							'collname' => $r->collectionname, 'catnum' => $r->catalognumber, 'occurrenceid' => $r->occurrenceid, 'sciname' => $r->sciname, 'author' => $r->scientificnameauthorship,
 					'identifiedby' => $r->identifiedby, 'dateidentified' => $r->dateidentified, 'recordedby' => $r->recordedby,
 					'recordnumber' => $r->recordnumber, 'eventdate' => $r->eventdate, 'notes' => $r->notes, 'tnurl' => $r->thumbnailurl,
 					'url' => $r->url);

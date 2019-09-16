@@ -74,15 +74,14 @@ CREATE TABLE `omoccurpaleo` (
   `storageAge` VARCHAR(65) NULL,
   `stage` VARCHAR(65) NULL,
   `localStage` VARCHAR(65) NULL,
-  `biozone` VARCHAR(130) NULL,
-  `biostratigraphy` VARCHAR(65) NULL COMMENT 'Flora or Fanua',
+  `biota` VARCHAR(65) NULL COMMENT 'Flora or Fanua',
+  `biostratigraphy` VARCHAR(65) NULL COMMENT 'Biozone',
   `lithogroup` VARCHAR(65) NULL,
   `formation` VARCHAR(65) NULL,
   `taxonEnvironment` VARCHAR(65) NULL COMMENT 'Marine or not',
   `member` VARCHAR(65) NULL,
   `lithology` VARCHAR(65) NULL,
   `stratRemarks` VARCHAR(250) NULL,
-  `lithDescription` VARCHAR(250) NULL,
   `element` VARCHAR(250) NULL,
   `slideProperties` VARCHAR(1000) NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
@@ -119,6 +118,9 @@ INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT epoch, 50, "epoch", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.period = g.gtsterm WHERE epoch IS NOT NULL;
 INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT p.stage, 60, "age", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.epoch = g.gtsterm WHERE stage IS NOT NULL;
+
+DROP TABLE omoccurlithostratigraphy;
+DROP TABLE paleochronostratigraphy;
 
 
 ALTER TABLE `images` 

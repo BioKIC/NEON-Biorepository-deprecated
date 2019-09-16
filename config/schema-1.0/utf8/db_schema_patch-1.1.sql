@@ -895,6 +895,7 @@ CREATE TABLE `omoccurlithostratigraphy` (
   CONSTRAINT `FK_occurlitho_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`) ON DELETE CASCADE  ON UPDATE CASCADE
 );
 
+
 CREATE TABLE `useraccesstokens` (
   `tokid` int(11) NOT NULL AUTO_INCREMENT,
   `uid` int unsigned NOT NULL,

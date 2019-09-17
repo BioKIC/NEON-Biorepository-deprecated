@@ -161,8 +161,8 @@ class OccurrenceCollectionProfile {
 		}
 		$outStr .= '<div style="margin-top:5px;">';
 		if($collArr['managementtype'] == 'Live Data'){
-			$outStr .= '<b>'.(isset($LANG['LIVE_DOWNLOAD'])?$LANG['LIVE_DOWNLOAD']:'Live Data Download').':</b> ';
 			if($GLOBALS['SYMB_UID']){
+				$outStr .= '<b>'.(isset($LANG['LIVE_DOWNLOAD'])?$LANG['LIVE_DOWNLOAD']:'Live Data Download').':</b> ';
 				$outStr .= '<a href="../../webservices/dwc/dwcapubhandler.php?collid='.$collArr['collid'].'">'.(isset($LANG['FULL_DATA'])?$LANG['FULL_DATA']:'DwC-Archive File').'</a>';
 			}
 		}

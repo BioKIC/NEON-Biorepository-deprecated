@@ -77,13 +77,25 @@
 					<a href="#">Checklists</a>
 					<ul>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">Research Sites</a>
+							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=6">Research Sites - Invertebrates</a>
+						</li>
+						<li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">Research Sites - Plants</a>
+						</li>
+						<li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=7">Research Sites - Vertebrates</a>
 						</li>
 						<?php
 						if($IS_ADMIN){
 							?>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2">In Progress (private)</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3">In Progress - Invertebrates (private)</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2">In Progress - Plants (private)</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=5">In Progress - Vertebrates (private)</a>
 							</li>
 							<?php
 						}
@@ -102,20 +114,20 @@
 					</ul>
 				</li>
 				<li>
-					<a href="#">Additional Information</a>					
+					<a href="#">Additional Information</a>
 					<ul>
 						<li>
 							<a href="https://www.neonscience.org" target="_blank" >About NEON</a>
 						</li>
 						<li>
 							<a href="https://www.neonscience.org/data/neon-data-portal" target="_blank" >NEON Data Portal</a>
-						</li>						
+						</li>
 						<li>
 							<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Usage Policy</a>
 						</li>
 						<li>
 							<a href="https://biokic.asu.edu/collections" target="_blank">ASU Biocollections</a>
-						</li>						
+						</li>
 						<li>
 							<a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">About Symbiota</a>
 						</li>

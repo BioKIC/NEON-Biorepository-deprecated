@@ -118,7 +118,7 @@ class OccurrenceSearchSupport {
 						<?php
 						if($displayIcons){
 							?>
-							<td style="<?php echo ($catIcon?'width:40px':''); ?>">
+							<td style="<?php echo ($catIcon?'width:40px;height:35px;':''); ?>">
 								<?php
 								if($catIcon){
 									$catIcon = (substr($catIcon,0,6)=='images'?$CLIENT_ROOT:'').$catIcon;
@@ -164,7 +164,7 @@ class OccurrenceSearchSupport {
 											<?php
 											if($displayIcons){
 												?>
-												<td style="width:40px;">
+												<td style="width:40px;height:35px">
 													<?php
 													if($collName2["icon"]){
 														$cIcon = (substr($collName2["icon"],0,6)=='images'?$CLIENT_ROOT:'').$collName2["icon"];
@@ -177,7 +177,7 @@ class OccurrenceSearchSupport {
 												<?php
 											}
 											?>
-											<td style="width:25px;">
+											<td style="width:25px;padding-top:8px;">
 												<?php
 												echo '<input data-role="none" name="db[]" value="'.$collid.'" type="checkbox" class="cat-'.$idStr.'" onclick="unselectCat(\'cat-'.$idStr.'-Input\')" '.($catSelected || !$collSelArr || in_array($collid, $collSelArr)?'checked':'').' />';
 												?>
@@ -222,7 +222,7 @@ class OccurrenceSearchSupport {
 						<?php
 						if($displayIcons){
 							?>
-							<td style="<?php ($cArr["icon"]?'width:35px':''); ?>">
+							<td style="<?php ($cArr["icon"]?'width:40px;height:35px':''); ?>">
 								<?php
 								if($cArr["icon"]){
 									$cIcon = (substr($cArr["icon"],0,6)=='images'?$CLIENT_ROOT:'').$cArr["icon"];
@@ -236,7 +236,7 @@ class OccurrenceSearchSupport {
 							<?php
 						}
 						?>
-						<td style="width:25px;">
+						<td style="width:25px;padding-top:8px;">
 							<?php
 							echo '<input data-role="none" name="db[]" value="'.$collid.'" type="checkbox" onclick="uncheckAll()" '.(!$collSelArr || in_array($collid, $collSelArr)?'checked':'').' />';
 							?>

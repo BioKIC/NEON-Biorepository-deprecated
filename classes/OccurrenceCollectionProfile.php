@@ -135,14 +135,14 @@ class OccurrenceCollectionProfile {
 		$outStr .= '<div style="margin-top:5px;">';
 		$outStr .= '<b>'.$LANG['MANAGEMENT'].':</b> ';
 		if($collArr['managementtype'] == 'Live Data'){
-			$outStr .= 'Live Data managed directly within data portal';
+			$outStr .= (isset($LANG['LIVE_DATA'])?$LANG['LIVE_DATA']:'Live Data managed directly within data portal');
 		}
 		else{
 			if($collArr['managementtype'] == 'Aggregate'){
-				$outStr .= 'Data harvested from a data aggregator';
+				$outStr .= (isset($LANG['DATA_AGGREGATE'])?$LANG['DATA_AGGREGATE']:'Data harvested from a data aggregator');
 			}
 			else{
-				$outStr .= 'Data snapshot of local collection database ';
+				$outStr .= (isset($LANG['DATA_SNAPSHOT'])?$LANG['DATA_SNAPSHOT']:'Data snapshot of local collection database ');
 			}
 			$outStr .= '<div style="margin-top:5px;"><b>'.$LANG['LAST_UPDATE'].':</b> '.$collArr['uploaddate'].'</div>';
 		}
@@ -161,12 +161,9 @@ class OccurrenceCollectionProfile {
 		}
 		$outStr .= '<div style="margin-top:5px;">';
 		if($collArr['managementtype'] == 'Live Data'){
-			$outStr .= '<b>'.(isset($LANG['LIVE_DOWNLOAD'])?$LANG['LIVE_DOWNLOAD']:'Live Data Download').':</b> ';
 			if($GLOBALS['SYMB_UID']){
+				$outStr .= '<b>'.(isset($LANG['LIVE_DOWNLOAD'])?$LANG['LIVE_DOWNLOAD']:'Live Data Download').':</b> ';
 				$outStr .= '<a href="../../webservices/dwc/dwcapubhandler.php?collid='.$collArr['collid'].'">'.(isset($LANG['FULL_DATA'])?$LANG['FULL_DATA']:'DwC-Archive File').'</a>';
-			}
-			else{
-				$outStr .= '<a href="../../profile/index.php?refurl=../collections/misc/collprofiles.php?collid='.$collArr['collid'].'">'.(isset($LANG['LOGIN_TO_ACCESS'])?$LANG['LOGIN_TO_ACCESS']:'Login for access').'</a>';
 			}
 		}
 		elseif($collArr['managementtype'] == 'Snapshot'){
@@ -201,7 +198,7 @@ class OccurrenceCollectionProfile {
 			if($rightsUrl) $outStr .= '</a>';
 		}
 		elseif(file_exists('../../misc/usagepolicy.php')){
-			$outStr .= '<a href="../../misc/usagepolicy.php" target="_blank">Usage policy</a>';
+			$outStr .= '<a href="../../misc/usagepolicy.php" target="_blank">'.(isset($LANG['USAGE_POLICY'])?$LANG['USAGE_POLICY']:'Usage policy').'</a>';
 		}
 		$outStr .= '</div>';
 		if($collArr['rightsholder']){

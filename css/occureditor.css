@@ -817,7 +817,9 @@ body{
 #formationDiv{ float:left; margin:3px; }
 #taxonEnvironmentDiv{ float:left; margin:3px; }
 #memberDiv{ float:left; margin:3px; }
+#bedDiv{ float:left; margin:3px; }
 #lithologyDiv{ float:left; margin:3px; }
+#lithologyDiv input{ width:600px; }
 #stratRemarksDiv{ float:left; margin:3px; }
 #stratRemarksDiv input{ width:600px; }
 #elementDiv{ float:left; margin:3px; }

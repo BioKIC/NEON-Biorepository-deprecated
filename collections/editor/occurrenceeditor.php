@@ -36,6 +36,7 @@ if($crowdSourceMode){
 $displayQuery = 0;
 $isGenObs = 0;
 $collMap = Array();
+$collType = 'spec';
 $occArr = array();
 $imgArr = array();
 $specImgArr = array();
@@ -54,8 +55,19 @@ if($SYMB_UID){
 		$collId = $collMap['collid'];
 		$occManager->setCollId($collId);
 	}
-	$editorPropArr = $occManager->getDynamicPropertiesArr();
-	if($collMap && $collMap['colltype']=='General Observations') $isGenObs = 1;
+	if($collMap){
+		$editorPropArr = $occManager->getDynamicPropertiesArr();
+		if($collMap['colltype']=='General Observations'){
+			$isGenObs = 1;
+			$collType = 'obs';
+		}
+		elseif($collMap['colltype']=='Observations'){
+			$collType = 'obs';
+		}
+		elseif(isset($editorPropArr['modules-panel']['paleo']['status']) && $editorPropArr['modules-panel']['paleo']['status']){
+			$collType = 'paleo';
+		}
+	}
 
 	//Bring in config variables
 	if($isGenObs){
@@ -465,7 +477,7 @@ else{
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
 	<script src="../../js/symb/collections.occureditormain.js?ver=201904" type="text/javascript"></script>
-	<script src="../../js/symb/collections.occureditortools.js?ver=1906" type="text/javascript"></script>
+	<script src="../../js/symb/collections.occureditortools.js?ver=1909" type="text/javascript"></script>
 	<script src="../../js/symb/collections.occureditorimgtools.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/symb/collections.occureditorshare.js?ver=20180711" type="text/javascript"></script>
@@ -1133,7 +1145,7 @@ else{
 											</div>
 										</fieldset>
 										<?php
-										if(isset($editorPropArr['modules-panel']['paleo']['status']) && $editorPropArr['modules-panel']['paleo']['status']) include('includes/paleoinclude.php');
+										if($collType == 'paleo') include('includes/paleoinclude.php');
 										?>
 										<fieldset>
 											<legend><b>Misc</b></legend>
@@ -1283,32 +1295,23 @@ else{
 													<?php echo (defined('BASISOFRECORDLABEL')?BASISOFRECORDLABEL:'Basis of Record'); ?>
 													<a href="#" onclick="return dwcDoc('basisOfRecord')"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 													<?php
-													$borArr = array('FossilSpecimen','HumanObservation','LivingSpecimen','MachineObservation','PreservedSpecimen');
-													$targetBOR = '';
-													$extraBOR = '';
+													$borArr = array('FossilSpecimen'=>0,'HumanObservation'=>0,'LivingSpecimen'=>0,'MachineObservation'=>0,'PreservedSpecimen'=>0);
 													if(isset($occArr['basisofrecord']) && $occArr['basisofrecord']){
-														if(in_array($occArr['basisofrecord'],$borArr)){
-															$targetBOR = $occArr['basisofrecord'];
-														}
-														else{
-															$extraBOR = $occArr['basisofrecord'];
-														}
+														if(in_array($occArr['basisofrecord'],$borArr)) $borArr[$occArr['basisofrecord']] = 1;
+														else $borArr[$occArr['basisofrecord']] = 2;
 													}
 													if(!isset($occArr['basisofrecord']) || !$occArr['basisofrecord']){
-														if($collMap['colltype']=='General Observations' || $collMap['colltype']=='Observations'){
-															$targetBOR = 'HumanObservation';
-														}
-														elseif($collMap['colltype']=='Preserved Specimens'){
-															$targetBOR = 'PreservedSpecimen';
-														}
+														if($collType == 'obs') $borArr['HumanObservation'] = 1;
+														elseif($collType == 'paleo') $borArr['FossilSpecimen'] = 1;
+														elseif($collType == 'spec') $borArr['PreservedSpecimen'] = 1;
 													}
 													?>
 													<select name="basisofrecord" tabindex="109" onchange="fieldChanged('basisofrecord');">
 														<?php
-														foreach($borArr as $bValue){
-															echo '<option '.($bValue == $targetBOR?'SELECTED':'').'>'.$bValue.'</option>';
+														foreach($borArr as $bValue => $statueCode){
+															if($statueCode == 2) echo '<option value="">---Non Sanctioned Value---</option><option SELECTED>'.$bValue.'</option>';
+															else echo '<option '.($statueCode?'SELECTED':'').'>'.$bValue.'</option>';
 														}
-														if($extraBOR) echo '<option value="">---Non Sanctioned Value---</option><option SELECTED>'.$extraBOR.'</option>';
 														?>
 													</select>
 												</div>

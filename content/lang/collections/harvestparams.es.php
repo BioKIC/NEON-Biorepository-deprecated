@@ -8,9 +8,7 @@ Language: Espa�ol (Spanish)
 include_once('sharedterms.es.php');
 
 $LANG['PAGE_TITLE'] = 'Par&aacute;metros de B&uacute;squeda de Colecciones';
-$LANG['PAGE_HEADER'] = 'Formulario de B&uacute;squeda';
-$LANG['GENERAL_TEXT_1'] = 'Ingrese uno o m&aacute;s de los criterios de consulta siguientes y haga click en el bot&oacute;n &quot;Search&quot; para ver los resultados.';
-$LANG['TAXON_HEADER'] = 'Criterios Taxonomicos:';
+$LANG['TAXON_HEADER'] = 'Criterios Taxonomicos';
 $LANG['INCLUDE_SYNONYMS'] = 'Incluir Sin&oacute;nimos';
 $LANG['BUTTON_NEXT_LIST'] = 'Mostrar Lista';
 $LANG['BUTTON_NEXT_TABLE'] = 'Mostrar Tabla';

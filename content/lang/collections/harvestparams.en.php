@@ -8,9 +8,7 @@ Language: English
 include_once('sharedterms.en.php');
 
 $LANG['PAGE_TITLE'] = 'Collection Search Parameters';
-$LANG['PAGE_HEADER'] = 'Enter Search Parameters';
-$LANG['GENERAL_TEXT_1'] = 'Fill in one or more of the following query criteria and click &quot;Search&quot; to view your results.';
-$LANG['TAXON_HEADER'] = 'Taxonomic Criteria:';
+$LANG['TAXON_HEADER'] = 'Taxonomic Criteria';
 $LANG['INCLUDE_SYNONYMS'] = 'Include Synonyms';
 $LANG['BUTTON_NEXT_LIST'] = 'List Display';
 $LANG['BUTTON_NEXT_TABLE'] = 'Table Display';

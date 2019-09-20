@@ -32,6 +32,9 @@ $searchVar = $collManager->getQueryTermStr();
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
 	</script>
+	<style type="text/css">
+		hr{ margin: 10px 0px }
+	</style>
 </head>
 <body>
 <?php
@@ -57,8 +60,6 @@ $searchVar = $collManager->getQueryTermStr();
 	?>
 
 	<div id="innertext">
-		<h1><?php echo $LANG['PAGE_HEADER']; ?></h1>
-		<?php echo $LANG['GENERAL_TEXT_1']; ?>
 		<form name="harvestparams" id="harvestparams" action="list.php" method="post" onsubmit="return checkHarvestParamsForm(this)">
 			<div style="margin:10 0 10 0;"><hr/></div>
 			<div style='float:right;margin:-5px 10px;'>
@@ -67,10 +68,10 @@ $searchVar = $collManager->getQueryTermStr();
 				<div><button type="reset" class="ui-button ui-widget ui-corner-all" style="padding:3px 10px;" onclick="resetHarvestParamsForm()"><?php echo isset($LANG['BUTTON_RESET'])?$LANG['BUTTON_RESET']:'Reset Form'; ?></button></div>
 			</div>
 			<div>
-				<h1><?php echo $LANG['TAXON_HEADER']; ?></h1>
+				<div style="font-weight:bold; font-size: 18px; margin-bottom: 10px;"><?php echo $LANG['TAXON_HEADER']; ?></div>
 				<span style="margin-left:5px;"><input type='checkbox' name='usethes' value='1' CHECKED /><?php echo $LANG['INCLUDE_SYNONYMS']; ?></span>
 			</div>
-			<div>
+			<div style="height: 45px">
 				<select id="taxontype" name="taxontype">
 					<?php
 					$taxonType = 1;
@@ -82,9 +83,9 @@ $searchVar = $collManager->getQueryTermStr();
 				</select>
 				<input id="taxa" type="text" size="60" name="taxa" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
 			</div>
-			<div style="margin:10 0 10 0;"><hr></div>
+			<hr/>
 			<div>
-				<h1><?php echo $LANG['LOCALITY_CRITERIA']; ?></h1>
+				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['LOCALITY_CRITERIA']; ?></div>
 			</div>
 			<div>
 				<?php echo $LANG['COUNTRY']; ?>: <input type="text" id="country" size="43" name="country" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
@@ -104,7 +105,7 @@ $searchVar = $collManager->getQueryTermStr();
 			</div>
 			<div style="margin:10 0 10 0;">
 				<hr>
-				<h1><?php echo $LANG['LAT_LNG_HEADER']; ?></h1>
+				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['LAT_LNG_HEADER']; ?></div>
 			</div>
 			<div style="float:left;border:2px solid brown;padding:10px;margin-bottom:10px;">
 				<div style="clear:both;float:right;">
@@ -184,7 +185,7 @@ $searchVar = $collManager->getQueryTermStr();
 			</div>
 			<div style=";clear:both;"><hr/></div>
 			<div>
-				<h1><?php echo $LANG['COLLECTOR_HEADER']; ?></h1>
+				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['COLLECTOR_HEADER']; ?></div>
 			</div>
 			<div>
 				<?php echo $LANG['COLLECTOR_LASTNAME']; ?>:
@@ -199,12 +200,13 @@ $searchVar = $collManager->getQueryTermStr();
 				<input type="text" id="eventdate1" size="32" name="eventdate1" style="width:100px;" value="" title="<?php echo $LANG['TITLE_TEXT_3']; ?>" /> -
 				<input type="text" id="eventdate2" size="32" name="eventdate2" style="width:100px;" value="" title="<?php echo $LANG['TITLE_TEXT_4']; ?>" />
 			</div>
+			<hr/>
 			<div style="float:right;">
 				<div><button type="submit" class="ui-button ui-widget ui-corner-all"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
 				<div style="margin-bottom:10px"><button type="button" class="ui-button ui-widget ui-corner-all" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
 			</div>
 			<div>
-				<h1><?php echo $LANG['SPECIMEN_HEADER']; ?></h1>
+				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['SPECIMEN_HEADER']; ?></div>
 			</div>
 			<div>
 				<?php echo $LANG['CATALOG_NUMBER']; ?>:

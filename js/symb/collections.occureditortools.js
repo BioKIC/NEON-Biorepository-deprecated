@@ -163,7 +163,9 @@ function insertUtm(f) {
 			if(vcStr != ""){
 				vcStr = vcStr + "; ";
 			}
-			var utmStr = zValue + hValue + " " + eValue + "E " + nValue + "N ";
+			var utmStr = zValue;
+			if(isNumeric(zValue)) utmStr = utmStr + hValue;
+			utmStr = utmStr + " " + eValue + "E " + nValue + "N ";
 			f.verbatimcoordinates.value = vcStr + utmStr;
 			//Convert to Lat/Lng values
 			var zNum = parseInt(zValue);

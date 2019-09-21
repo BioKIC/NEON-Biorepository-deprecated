@@ -323,7 +323,14 @@ class OccurrenceHarvester{
 					//return false;
 				}
 
-				$dwcArr['sciname'] = $sampleArr['taxonID'];
+				if($sampleArr['taxonID']){
+					$dwcArr['sciname'] = $sampleArr['taxonID'];
+				}
+				else{
+					if(preg_match('/\.\d{8}\.([A-Za-z]{2,7}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+						$dwcArr['sciname'] = $m[1];
+					}
+				}
 				$this->setNeonCollector($dwcArr);
 				//Add DwC fields that were imported as part of the manifest file
 				if($sampleArr['symbiotaTarget']){

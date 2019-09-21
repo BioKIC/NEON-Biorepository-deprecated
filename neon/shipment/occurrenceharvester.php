@@ -131,11 +131,12 @@ include($SERVER_ROOT.'/header.php');
 						<select name="nullfilter" onchange="nullFilterChanged(this)">
 							<option value="">Target Field...</option>
 							<option value="">---------------------</option>
-							<option value="recordedBy">collector</option>
-							<option value="eventDate">eventDate</option>
-							<option value="country">country</option>
-							<option value="stateProvince">stateProvince</option>
-							<option value="county">county</option>
+							<option value="sciname">Scientific Name</option>
+							<option value="recordedBy">Collector</option>
+							<option value="eventDate">Event Date</option>
+							<option value="country">Country</option>
+							<option value="stateProvince">State/Province</option>
+							<option value="county">County</option>
 							<option value="decimalLatitude">Lat/Long</option>
 						</select>
 						<b>IS NULL</b>

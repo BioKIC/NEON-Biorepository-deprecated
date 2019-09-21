@@ -9,6 +9,7 @@ if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 $shipmentPK = array_key_exists("shipmentPK",$_REQUEST)?$_REQUEST["shipmentPK"]:"";
+$sampleFilter = isset($_REQUEST['sampleFilter'])?$_REQUEST['sampleFilter']:'';
 $quickSearchTerm = array_key_exists("quicksearch",$_REQUEST)?$_REQUEST["quicksearch"]:"";
 
 $shipManager = new ShipmentManager();
@@ -389,7 +390,7 @@ include($SERVER_ROOT.'/header.php');
 						?>
 						<fieldset style="padding:10px;">
 							<legend><b>Check-in Shipment</b></legend>
-							<form action="manifestviewer.php" method="post" style="">
+							<form action="manifestviewer.php" method="post">
 								<?php
 								$deliveryArr = $shipManager->getDeliveryArr();
 								?>
@@ -401,6 +402,7 @@ include($SERVER_ROOT.'/header.php');
 								</div>
 								<div><b>Comments:</b> <input id="shipCheckinComment" name="notes" type="text" value="" style="width:350px" onchange="checkinCommentChanged(this);" /></div>
 								<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+								<div style="float:right;margin:40px 15px 0px 0px"><a href="manifestviewer.php?sampleFilter=displaySamples&shipmentPK=<?php echo $shipmentPK; ?>#samplePanel">Display Samples</a></div>
 								<div style="margin:10px"><button name="action" type="submit" value="checkinShipment"> -- Mark as Arrived -- </button></div>
 							</form>
 						</fieldset>
@@ -409,20 +411,16 @@ include($SERVER_ROOT.'/header.php');
 					?>
 				</div>
 				<?php
-				if($shipArr['checkinTimestamp']){
-					$sampleList = $shipManager->getSampleArr(null,isset($_POST['sampleFilter'])?$_POST['sampleFilter']:'');
+				if($shipArr['checkinTimestamp'] || $sampleFilter == 'displaySamples'){
+					$sampleList = $shipManager->getSampleArr(null, $sampleFilter);
 					?>
 					<div style="clear:both;padding-top:30px;">
-						<fieldset>
+						<fieldset id="samplePanel">
 							<legend><b>Sample Listing</b></legend>
-							<?php
-							$sampleFilter = '';
-							if(isset($_POST['sampleFilter'])) $sampleFilter = $_POST['sampleFilter'];
-							?>
 							<div>
 								<div style="float:left">Records displayed: <?php echo count($sampleList); ?></div>
 								<div style="float:right;">
-									<form name="filterSampleForm" action="manifestviewer.php" method="post" style="">
+									<form name="filterSampleForm" action="manifestviewer.php#samplePanel" method="post" style="">
 										Filter by:
 										<select name="sampleFilter" onchange="this.form.submit()">
 											<option value="">All Records</option>

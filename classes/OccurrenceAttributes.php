@@ -27,7 +27,7 @@ class OccurrenceAttributes extends Manager {
 		$status = true;
 		$stateArr = array();
 		foreach($postArr as $postKey => $postValue){
-			if(substr($postKey,0,8) == 'stateid-'){
+			if(substr($postKey,0,8) == 'traitid-'){
 				if(is_array($postValue)){
 					$stateArr = array_merge($stateArr,$postValue);
 				}
@@ -36,22 +36,34 @@ class OccurrenceAttributes extends Manager {
 				}
 			}
 		}
-		$sourceStr = 'viewingSpecimenImage';
-		if(isset($postArr['source']) && $postArr['source']) $sourceStr = $postArr['source'];
-		foreach($stateArr as $stateId){
-			if(is_numeric($stateId)){
-				$sql = 'INSERT INTO tmattributes(stateid,occid,source,notes,createduid) '.
-					'VALUES('.$stateId.','.$this->occid.','.($sourceStr?'"'.$this->cleanInStr($sourceStr).'"':'NULL').','.
-					($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.$uid.') ';
-				//echo $sql.'<br/>';
-				if(!$this->conn->query($sql)){
-					$this->errorMessage .= 'ERROR saving occurrence attribute: '.$this->conn->error.'; ';
+		if($stateArr){
+			//Get trait types
+			$traitArr = array();
+			$sql = 'SELECT s.stateid, t.traittype FROM tmtraits t INNER JOIN tmstates s ON t.traitid = s.traitid WHERE s.stateid IN('.implode(',',$stateArr).')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$traitArr[$r->stateid] = $r->traittype;
+			}
+			$rs->free();
+
+			//Insert attributes
+			$sourceStr = 'viewingSpecimenImage';
+			if(isset($postArr['source']) && $postArr['source']) $sourceStr = $postArr['source'];
+			foreach($stateArr as $stateId){
+				if(is_numeric($stateId)){
+					$sql = 'INSERT INTO tmattributes(stateid,xvalue,occid,source,notes,createduid) '.
+						'VALUES('.$stateId.',,'.$this->occid.','.($sourceStr?'"'.$this->cleanInStr($sourceStr).'"':'NULL').','.
+						($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.$uid.') ';
+					//echo $sql.'<br/>';
+					if(!$this->conn->query($sql)){
+						$this->errorMessage .= 'ERROR saving occurrence attribute: '.$this->conn->error.'; ';
+						$status = false;
+					}
+				}
+				else{
+					$this->errorMessage .= 'ERROR saving occurrence attribute: bad input values ('.$stateId.'); ';
 					$status = false;
 				}
-			}
-			else{
-				$this->errorMessage .= 'ERROR saving occurrence attribute: bad input values ('.$stateId.'); ';
-				$status = false;
 			}
 		}
 		return $status;
@@ -62,7 +74,7 @@ class OccurrenceAttributes extends Manager {
 		$stateArr = array();
 
 		foreach($postArr as $postKey => $postValue){
-			if(substr($postKey,0,8) == 'stateid-'){
+			if(substr($postKey,0,8) == 'traitid-'){
 				if(is_array($postValue)){
 					$stateArr = array_merge($stateArr,$postValue);
 				}
@@ -89,7 +101,7 @@ class OccurrenceAttributes extends Manager {
 							$status = true;
 						}
 						else{
-							$this->errorMessage = 'ERROR addin occurrence attribute: '.$this->conn->error;
+							$this->errorMessage = 'ERROR adding occurrence attribute: '.$this->conn->error;
 							$status = false;
 						}
 					}
@@ -253,8 +265,8 @@ class OccurrenceAttributes extends Manager {
 	}
 
 	private function setTraitArr($traitID){
-		$sql = 'SELECT traitid, traitname, traittype, units, description, refurl, notes, dynamicproperties FROM tmtraits ';
-		if($traitID) $sql .= 'WHERE (traitid = '.$traitID.')';
+		$sql = 'SELECT traitid, traitname, traittype, units, description, refurl, notes, dynamicproperties FROM tmtraits WHERE traittype IN("UM","OM","NU") ';
+		if($traitID) $sql .= 'AND (traitid = '.$traitID.')';
 		//echo $sql.'<br/>';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -305,14 +317,14 @@ class OccurrenceAttributes extends Manager {
 
 	private function setCodedAttribute(){
 		$retArr = array();
-		$sql = 'SELECT s.traitid, a.stateid, a.source, a.notes, a.statuscode, a.modifieduid, a.datelastmodified, a.createduid, a.initialtimestamp '.
+		$sql = 'SELECT s.traitid, a.stateid, a.xvalue, a.source, a.notes, a.statuscode, a.modifieduid, a.datelastmodified, a.createduid, a.initialtimestamp '.
 			'FROM tmattributes a INNER JOIN tmstates s ON a.stateid = s.stateid '.
 			'WHERE (a.occid = '.$this->occid.') ';
 		if($this->traitArr) $sql .= 'AND (s.traitid IN('.implode(',',array_keys($this->traitArr)).'))';
 		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$this->traitArr[$r->traitid]['states'][$r->stateid]['coded'] = '';
+			$this->traitArr[$r->traitid]['states'][$r->stateid]['coded'] = $r->xvalue;
 			$this->traitArr[$r->traitid]['states'][$r->stateid]['source'] = $r->source;
 			$this->traitArr[$r->traitid]['states'][$r->stateid]['notes'] = $r->notes;
 			$this->traitArr[$r->traitid]['states'][$r->stateid]['statuscode'] = $r->statuscode;
@@ -342,19 +354,20 @@ class OccurrenceAttributes extends Manager {
 			foreach($attrStateArr as $sid => $sArr){
 				$isCoded = false;
 				if(array_key_exists('coded',$sArr)){
-					$isCoded = true;
+					if($sArr['coded'] === '') $isCoded = true;
+					else $isCoded = $sArr['coded'];
 					$this->stateCodedArr[$sid] = $sid;
 				}
 				$depTraitId = false;
 				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitId = $sArr['dependTraitID'];
 				if($controlType == 'checkbox' || $controlType == 'radio'){
-					$innerStr .= '<div title="'.$sArr['description'].'"><input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> '.$sArr['name'];
+					$innerStr .= '<div title="'.$sArr['description'].'"><input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> '.$sArr['name'];
 				}
 				elseif($controlType == 'select'){
 					$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';
 				}
 				elseif($controlType == 'numeric'){
-					$innerStr .= '<div title="'.$sArr['description'].'">'.$sArr['name'].': <input name="stateid-'.$traitID.'[]" class="'.$classStr.'" type="input" value="'.$sid.'" onchange="traitChanged(this)" style="width:50px" /> ';
+					$innerStr .= '<div title="'.$sArr['description'].'">'.$sArr['name'].': <input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="input" value="'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
 				}
 				if($depTraitId){
 					$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));

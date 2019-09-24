@@ -697,15 +697,17 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							$group = $sppArr['taxongroup'];
 							if($group != $prevGroup){
 								$famUrl = '../taxa/index.php?taxauthid=1&taxon='.strip_tags($group).'&clid='.$clid;
+								//Edit family name display style here
 								?>
-								<div class="familydiv" id="<?php echo strip_tags($group);?>" style="margin:12px 0px 3px 0px;font-weight:bold;">
+								<div class="familydiv" id="<?php echo strip_tags($group);?>" style="margin:12px 0px 3px 0px;font-weight:bold;font-size:150%;">
 									<a href="<?php echo $famUrl; ?>" target="_blank" style="color:black;"><?php echo $group;?></a>
 								</div>
 								<?php
 								$prevGroup = $group;
 							}
 							echo "<div id='tid-$tid' style='margin:0px 0px 3px 10px;'>";
-							echo '<div style="clear:left">';
+							//Edit species name display style here
+							echo '<div style="clear:left;font-size:130%;">';
 							if(!preg_match('/\ssp\d/',$sppArr["sciname"])) echo '<a href="../taxa/index.php?taxauthid=1&taxon='.$tid.'&clid='.$clid.'" target="_blank">';
 							echo "<b><i>".$sppArr["sciname"]."</b></i> ";
 							if(array_key_exists("author",$sppArr)) echo $sppArr["author"];
@@ -770,7 +772,8 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									$noteStr = $sppArr['notes'];
 								}
 								if($noteStr || $voucStr){
-									echo "<div style='margin-left:15px;'>".$noteStr.($noteStr && $voucStr?'; ':'').$voucStr."</div>";
+								//Edit notes and voucher display style here
+									echo "<div style='margin-left:25px;font-size:95%;'>".$noteStr.($noteStr && $voucStr?'; ':'').$voucStr."</div>";
 								}
 							}
 							echo "</div>\n";

@@ -116,7 +116,6 @@ if(!isset($imgTnWidth) && isset($IMG_TN_WIDTH)) $imgTnWidth = $IMG_TN_WIDTH;
 if(!isset($imgLgWidth) && isset($IMG_LG_WIDTH)) $imgLgWidth = $IMG_LG_WIDTH;
 if(!isset($imgFileSizeLimit) && isset($IMG_FILE_SIZE_LIMIT)) $imgFileSizeLimit = $IMG_FILE_SIZE_LIMIT;
 if(!isset($useImageMagick) && isset($USE_IMAGE_MAGICK)) $useImageMagick = $USE_IMAGE_MAGICK;
-if(!isset($tesseractPath) && isset($TESSERACT_PATH)) $tesseractPath = $TESSERACT_PATH;
 if(!isset($occurrenceModIsActive) && isset($OCCURRENCE_MOD_IS_ACTIVE)) $occurrenceModIsActive = $OCCURRENCE_MOD_IS_ACTIVE;
 if(!isset($floraModIsActive) && isset($FLORA_MOD_IS_ACTIVE)) $floraModIsActive = $FLORA_MOD_IS_ACTIVE;
 if(!isset($keyModIsActive) && isset($KEY_MOD_IS_ACTIVE)) $keyModIsActive = $KEY_MOD_IS_ACTIVE;

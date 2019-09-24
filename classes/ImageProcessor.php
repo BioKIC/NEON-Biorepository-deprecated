@@ -115,7 +115,7 @@ class ImageProcessor {
 				return false;
 			}
 			//Get start date
-			if(!$lastRunDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$lastRunDate)) $lastRunDate = '2015-04-01';
+			if(!$lastRunDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$lastRunDate)) $lastRunDate = '2019-05-01';
 			while(strtotime($lastRunDate) < strtotime('now')){
 				$url = $iPlantDataUrl.'image?value=*'.$iPlantSourcePath.'*&tag_query=upload_datetime:'.$lastRunDate.'*';
 				$contents = @file_get_contents($url);

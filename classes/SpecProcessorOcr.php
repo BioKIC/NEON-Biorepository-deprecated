@@ -20,11 +20,6 @@ class SpecProcessorOcr extends Manager{
 	private $specKeyPattern;
 	private $ocrSource;
 
-	//If silent is set, script will produce no non-fatal output.
-	private $verbose = 0;			//0 = silent, 1 = logFile, 2 = echo, 3 = both
-	private $logFH;
-	private $errorStr;
-
 	function __construct() {
 		parent::__construct(null,'write');
 		$this->setTempPath();
@@ -32,7 +27,6 @@ class SpecProcessorOcr extends Manager{
 
 	function __destruct(){
 		parent::__destruct();
-		if($this->logFH) fclose($this->logFH);
 		//unlink($this->imgUrlLocal);
 	}
 
@@ -78,13 +72,13 @@ class SpecProcessorOcr extends Manager{
 			}
 			else{
 				$err = 'ERROR: Unable to load image, URL: '.$imgUrl;
-				$this->logMsg($err,1);
+				$this->logOrEcho($err,1);
 				$rawStr = 'ERROR';
 			}
 		}
 		else{
 			$err = 'ERROR: Empty URL';
-			$this->logMsg($err,1);
+			$this->logOrEcho($err,1);
 			$rawStr = 'ERROR';
 		}
 		return $rawStr;
@@ -124,7 +118,7 @@ class SpecProcessorOcr extends Manager{
 				unlink($outputFile.'.txt');
 			}
 			else{
-				$this->logMsg("ERROR: Unable to locate output file",1);
+				$this->logOrEcho("ERROR: Unable to locate output file",1);
 			}
 		}
 		return $retStr;//$this->cleanRawStr($retStr);
@@ -144,8 +138,8 @@ class SpecProcessorOcr extends Manager{
 				return true;
 			}
 			else{
-				$this->logMsg("ERROR: Unable to load fragment into database: ".$this->conn->error,1);
-				$this->logMsg("SQL: ".$sql,2);
+				$this->logOrEcho("ERROR: Unable to load fragment into database: ".$this->conn->error,1);
+				$this->logOrEcho("SQL: ".$sql,2);
 				return false;
 			}
 		}
@@ -198,7 +192,7 @@ class SpecProcessorOcr extends Manager{
 
 			//Batch OCR
 			foreach($collArr as $collid => $instCode){
-				$this->logMsg('Starting batch processing for '.$instCode);
+				$this->logOrEcho('Starting batch processing for '.$instCode);
 				$sql = 'SELECT i.imgid, IFNULL(i.originalurl, i.url) AS url, o.sciName, i.occid '.
 					'FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
 					'LEFT JOIN specprocessorrawlabels r ON i.imgid = r.imgid '.
@@ -210,7 +204,7 @@ class SpecProcessorOcr extends Manager{
 					while($r = $rs->fetch_object()){
 						$rawStr = $this->ocrImageByUrl($r->url,$getBest,$r->sciName);
 						if($rawStr != 'ERROR'){
-							$this->logMsg('#'.$recCnt.': image <a href="../editor/occurrenceeditor.php?occid='.$r->occid.'" target="_blank">'.$r->imgid.'</a> processed ('.date("Y-m-d H:i:s").')');
+							$this->logOrEcho('#'.$recCnt.': image <a href="../editor/occurrenceeditor.php?occid='.$r->occid.'" target="_blank">'.$r->imgid.'</a> processed ('.date("Y-m-d H:i:s").')');
 							$notes = '';
 							$source = 'Tesseract: '.date('Y-m-d');
 							$this->databaseRawStr($r->imgid,$rawStr,$notes,$source);
@@ -233,8 +227,8 @@ class SpecProcessorOcr extends Manager{
 		$this->ocrSource = $postArr['ocrsource'];
 		$this->specKeyPattern = $postArr['speckeypattern'];
 		if(!$this->specKeyPattern){
-			$this->errorStr = 'ERROR loading OCR files: Specimen catalog number pattern missing';
-			$this->logMsg($this->errorStr);
+			$this->errorMessage = 'ERROR loading OCR files: Specimen catalog number pattern missing';
+			$this->logOrEcho($this->errorMessage);
 			return false;
 		}
 		$sourcePath = '';
@@ -246,38 +240,38 @@ class SpecProcessorOcr extends Manager{
 			$sourcePath = $this->uploadOcrFile();
 		}
 		if(!$sourcePath){
-			$this->errorStr = 'ERROR loading OCR files: OCR source path is missing';
-			$this->logMsg($this->errorStr);
+			$this->errorMessage = 'ERROR loading OCR files: OCR source path is missing';
+			$this->logOrEcho($this->errorMessage);
 			return false;
 		}
 		if(substr($sourcePath,0,4) == 'http'){
 			//http protocol, thus test for a valid page
 			$headerArr = get_headers($sourcePath);
 			if(!$headerArr){
-				$this->errorStr = 'ERROR loading OCR files: sourcePath returned bad headers ('.$sourcePath.')';
-				$this->logMsg($this->errorStr);
+				$this->errorMessage = 'ERROR loading OCR files: sourcePath returned bad headers ('.$sourcePath.')';
+				$this->logOrEcho($this->errorMessage);
 				return false;
 			}
 			preg_match('/http.+\s{1}(\d{3})\s{1}/i',$headerArr[0],$codeArr);
 			if($codeArr[1] == '403'){
-				$this->errorStr = 'ERROR loading OCR files: sourcePath returned Forbidden ('.$sourcePath.')';
-				$this->logMsg($this->errorStr);
+				$this->errorMessage = 'ERROR loading OCR files: sourcePath returned Forbidden ('.$sourcePath.')';
+				$this->logOrEcho($this->errorMessage);
 				return false;
 			}
 			if($codeArr[1] == '404'){
-				$this->errorStr = 'ERROR loading OCR files: sourcePath returned a page Not Found error ('.$sourcePath.')';
-				$this->logMsg($this->errorStr);
+				$this->errorMessage = 'ERROR loading OCR files: sourcePath returned a page Not Found error ('.$sourcePath.')';
+				$this->logOrEcho($this->errorMessage);
 				return false;
 			}
 			if($codeArr[1] != '200'){
-				$this->errorStr = 'ERROR loading OCR files: sourcePath returned error code '.$codeArr[1].' ('.$sourcePath.')';
-				$this->logMsg($this->errorStr);
+				$this->errorMessage = 'ERROR loading OCR files: sourcePath returned error code '.$codeArr[1].' ('.$sourcePath.')';
+				$this->logOrEcho($this->errorMessage);
 				return false;
 			}
 		}
 		elseif(!file_exists($sourcePath)){
-			$this->errorStr = 'ERROR loading OCR files: sourcePath does not exist ('.$sourcePath.')';
-			$this->logMsg($this->errorStr);
+			$this->errorMessage = 'ERROR loading OCR files: sourcePath does not exist ('.$sourcePath.')';
+			$this->logOrEcho($this->errorMessage);
 			return false;
 		}
 		//Initiate processing
@@ -288,7 +282,7 @@ class SpecProcessorOcr extends Manager{
 		else{
 			$this->processOcrFolder($sourcePath);
 		}
-		$this->logMsg('Done loading OCR files ');
+		$this->logOrEcho('Done loading OCR files ');
 
 
 		return $status;
@@ -297,13 +291,13 @@ class SpecProcessorOcr extends Manager{
 	private function uploadOcrFile(){
 		$retPath = '';
 		if(!array_key_exists('ocrfile',$_FILES)){
-			$this->errorStr = 'ERROR loading OCR file: OCR file missing';
-			$this->logMsg($this->errorStr);
+			$this->errorMessage = 'ERROR loading OCR file: OCR file missing';
+			$this->logOrEcho($this->errorMessage);
 			return ;
 		}
 		if(!$this->tempPath){
-			$this->errorStr = 'ERROR loading OCR file: temp target path empty';
-			$this->logMsg($this->errorStr);
+			$this->errorMessage = 'ERROR loading OCR file: temp target path empty';
+			$this->logOrEcho($this->errorMessage);
 			return ;
 		}
 		$zipPath = $this->tempPath.'ocrupload.zip';
@@ -321,14 +315,14 @@ class SpecProcessorOcr extends Manager{
 				unlink($zipPath);
 			}
 			else{
-				$this->errorStr = 'ERROR unpacking OCR file: '.$res;
-				$this->logMsg($this->errorStr);
+				$this->errorMessage = 'ERROR unpacking OCR file: '.$res;
+				$this->logOrEcho($this->errorMessage);
 				return ;
 			}
 		}
 		else{
-			$this->errorStr = 'ERROR loading OCR file: input file lacks zip extension';
-			$this->logMsg($this->errorStr);
+			$this->errorMessage = 'ERROR loading OCR file: input file lacks zip extension';
+			$this->logOrEcho($this->errorMessage);
 			return ;
 		}
 		return $retPath;
@@ -344,16 +338,16 @@ class SpecProcessorOcr extends Manager{
 			if(!in_array($fileName,$skipAnchors)){
 				$fileExt = strtolower(substr($fileName,strrpos($fileName,'.')+1));
 				if($fileExt){
-					$this->logMsg("Processing OCR File: ".$fileName);
+					$this->logOrEcho("Processing OCR File: ".$fileName);
 					if($fileExt == "txt"){
 						$this->processOcrFile($fileName,$sourcePath);
 					}
 					else{
-						$this->logMsg("ERROR: File skipped, not a supported OCR file with .txt extension: ".$sourcePath.$fileName);
+						$this->logOrEcho("ERROR: File skipped, not a supported OCR file with .txt extension: ".$sourcePath.$fileName);
 					}
 				}
 				elseif(stripos($fileName,'Parent Dir') === false){
-					$this->logMsg('New dir path: '.$sourcePath.$fileName);
+					$this->logOrEcho('New dir path: '.$sourcePath.$fileName);
 					$this->processOcrHtml($sourcePath.$fileName.'/');
 				}
 			}
@@ -367,13 +361,13 @@ class SpecProcessorOcr extends Manager{
 			while($fileName = readdir($dirFH)){
 				if($fileName != "." && $fileName != ".." && $fileName != ".svn"){
 					if(is_file($sourcePath.$fileName)){
-						$this->logMsg("Processing OCR File: ".$fileName);
+						$this->logOrEcho("Processing OCR File: ".$fileName);
 						$fileExt = strtolower(substr($fileName,strrpos($fileName,'.')));
 						if($fileExt == ".txt"){
 							$this->processOcrFile($fileName,$sourcePath);
 						}
 						else{
-							$this->logMsg("ERROR: File skipped, not a supported OCR text file (.txt): ".$fileName);
+							$this->logOrEcho("ERROR: File skipped, not a supported OCR text file (.txt): ".$fileName);
 						}
 					}
 					elseif(is_dir($sourcePath.$fileName)){
@@ -384,14 +378,14 @@ class SpecProcessorOcr extends Manager{
 			if($dirFH) closedir($dirFH);
 		}
 		else{
-			$this->logMsg("ERROR: unable to access source directory: ".$sourcePath,1);
+			$this->logOrEcho("ERROR: unable to access source directory: ".$sourcePath,1);
 		}
 		if($this->deleteAllOcrFiles) unlink($sourcePath);
 	}
 
 	private function processOcrFile($fileName,$sourcePath){
 		$ocrCnt = 0;
-		//$this->logMsg('Starting OCR text processing... ',1);
+		//$this->logOrEcho('Starting OCR text processing... ',1);
 		if($rawTextFH = fopen($sourcePath.$fileName, 'r')){
 			$rawStr = fread($rawTextFH, filesize($sourcePath.$fileName));
 			fclose($rawTextFH);
@@ -451,15 +445,15 @@ class SpecProcessorOcr extends Manager{
 					}
 				}
 				else{
-					$this->logMsg('ERROR: unable locate specimen image (catalog #: '.$catNumber.')',1);
+					$this->logOrEcho('ERROR: unable locate specimen image (catalog #: '.$catNumber.')',1);
 				}
 			}
 			else{
-				$this->logMsg('ERROR: unable to extract catalog number ('.$fileName.' using '.$this->specKeyPattern.')',1);
+				$this->logOrEcho('ERROR: unable to extract catalog number ('.$fileName.' using '.$this->specKeyPattern.')',1);
 			}
 		}
 		else{
-			$this->logMsg('ERROR: unable to read rawOcr file: '.$fileName,1);
+			$this->logOrEcho('ERROR: unable to read rawOcr file: '.$fileName,1);
 		}
 	}
 
@@ -600,7 +594,7 @@ class SpecProcessorOcr extends Manager{
 		$score_treated = $this->scoreOCR($rawStr_treated, $sciName);
 		unlink($urlTemp);
 		if($score_treated > $score_base) {
-			$this->logMsg('Best Score applied',1);
+			$this->logOrEcho('Best Score applied',1);
 			return $rawStr_treated;
 		} else {
 			return $rawStr_base;
@@ -770,20 +764,6 @@ class SpecProcessorOcr extends Manager{
 		$this->cropH = $h;
 	}
 
-	public function getErrorStr(){
-		return $this->errorStr;
-	}
-
-	public function setVerbose($s){
-		$this->verbose = $s;
-		if($this->verbose == 1 || $this->verbose == 3){
-			if($this->tempPath){
-				$logPath = $this->tempPath.'log_'.date('Ymd').'.log';
-				$this->logFH = fopen($logPath, 'a');
-			}
-		}
-	}
-
 	private function setTempPath(){
 		$tempPath = 0;
 		if(array_key_exists('tempDirRoot',$GLOBALS)){
@@ -810,19 +790,6 @@ class SpecProcessorOcr extends Manager{
 	}*/
 
 	//Misc functions
-	private function logMsg($msg,$indent = 0) {
-		if($this->verbose == 1 || $this->verbose == 3){
-			if($this->logFH){
-				$msg .= "\n";
-				if($indent) $msg = "\t".$msg;
-				fwrite($this->logFH, $msg);
-			}
-		}
-		elseif($this->verbose > 1 ){
-			echo '<li style="margin-left:'.($indent*15).'px">'.$msg.'</li>';
-		}
-	}
-
 	private function cleanRawStr($inStr){
 		$retStr = $this->encodeString($inStr);
 

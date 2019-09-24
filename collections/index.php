@@ -67,7 +67,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<div class="disclaimer">
-			<p><span>Please note:</span> this search integrates NEON samples with specimens from the same sites in external collections, allowing for research on biodiversity at NEON sites over a broader taxonomic and temporal extent. <span>Scroll towards the end of the page to activate or deactivate the search in the external collections</span>.</p>
+			<p><span>Please note:</span> this search integrates NEON samples with voucher specimens from the same sites in other natural history collections, allowing for research on biodiversity at NEON sites over a broader taxonomic and temporal extent. <span>Scroll towards the end of the page to activate or deactivate the search in the external collections</span>.</p>
 		</div>
         <div id="tabs" style="margin:0px;">
 			<ul>

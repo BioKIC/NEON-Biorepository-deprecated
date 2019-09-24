@@ -221,6 +221,10 @@ div.navpath {
 	font-size: 1.6em;
 }
 
+.disclaimer span {
+	font-weight: bold;
+}
+
 /* Large screens */
 @media (min-width: 1024px) {
 	#innertext{

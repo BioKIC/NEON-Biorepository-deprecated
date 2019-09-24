@@ -58,7 +58,7 @@ if($isEditor){
 			if(!is_array($fieldValueArr)) $fieldValueArr = array($fieldValueArr);
 			$stateIDArr = array();
 			foreach($_POST as $postKey => $postValue){
-				if(substr($postKey,0,8) == 'stateid-'){
+				if(substr($postKey,0,8) == 'traitid-'){
 					if(is_array($postValue)){
 						$stateIDArr = array_merge($stateIDArr,$postValue);
 					}
@@ -110,7 +110,7 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 				}
 
 				var formVerified = false;
-				$('input[name^="stateid-"]').each(function(){
+				$('input[name^="traitid-"]').each(function(){
 					if(this.checked == true){
 						formVerified = true;
 						return false;
@@ -160,7 +160,7 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 		<script src="../../js/symb/collections.traitattr.js" type="text/javascript"></script>
 		<script src="../../js/symb/shared.js" type="text/javascript"></script>
 	</head>
-	<body style="width:900px">
+	<body>
 		<?php
 		$displayLeftMenu = false;
 		include($SERVER_ROOT.'/header.php');

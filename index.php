@@ -106,13 +106,17 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						<li>Initiate sample loan requests</li>
 						<li>Contribute and publish value-added sample data</li>
 					</ul>
-					<p>The majority of the samples published here are physically housed at the <a href="https://biokic.asu.edu/collections" target="_blank">Arizona State University Biocollections</a>, located in Tempe, Arizona.</p>
+					<p>The majority of the NEON samples published here are physically housed at the <a href="https://biokic.asu.edu/collections" target="_blank">Arizona State University Biocollections</a>, located in Tempe, Arizona.</p>
+					<div class="disclaimer">
+						<p>The portal also integrates NEON samples with specimens from the same sites in external collections, allowing for research on biodiversity at NEON sites over a broader taxonomic and temporal extent.</p>
+					</div>
 				</div>
 				<div class="six columns">
 					<h2 class="centered">Learn more</h2>
-					<p>This portal is offered through the <a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">Symbiota</a> software platform, and informationally synchronized with the <a href="https://www.neonscience.org" target="_blank">main NEON Data Portal</a>, which serves the full spectrum of NEON data products.</p>
+					<p>This portal is offered through the <a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">Symbiota</a> software platformand is informationally synchronized with the <a href="https://www.neonscience.org" target="_blank">main NEON Data Portal</a>, which serves the full spectrum of NEON data products.</p>
 					<p>To learn more about the features and capabilities available through Symbiota, visit the <a href="http://symbiota.org/docs/" target="_blank">Symbiota Help Pages</a>.</p>
 					<p>Read more about NEON's history and experimental design in the <a href="https://www.neonscience.org/about" target="_blank">main portal</a>.</p>
+					<p>To explore sample collection and processing methods, visit the <a href="https://www.neonscience.org/data-collection/protocols-standardized-methods">NEON Protocols & Standardized Methods page</a>.</p>
 				</div>
 			</div>
 		</section>

@@ -1017,7 +1017,7 @@ class SpecUploadBase extends SpecUpload{
 			}
 			if($this->collMetadataArr["managementtype"] == 'Snapshot'){
 				//Flush non-matching image derivatives (e.g. thumbnails)
-				$sql = 'DELETE i.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (i.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
+				$sql = 'DELETE i.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
 				if($this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:10px;">step 4 of 5... </li>');
 				}

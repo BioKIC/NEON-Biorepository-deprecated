@@ -3,10 +3,10 @@
  * Used by automatic nightly process and by the occurrence editor (/collections/editor/occurrenceeditor.php)
  */
 include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/Manager.php');
 
-class SpecProcessorOcr{
+class SpecProcessorOcr extends Manager{
 
-	private $conn;
 	private $tempPath;
 	private $imgUrlLocal;
 	private $deleteAllOcrFiles = 0;
@@ -26,13 +26,13 @@ class SpecProcessorOcr{
 	private $errorStr;
 
 	function __construct() {
+		parent::__construct(null,'write');
 		$this->setTempPath();
-		$this->conn = MySQLiConnectionFactory::getCon("write");
 	}
 
 	function __destruct(){
+		parent::__destruct();
 		if($this->logFH) fclose($this->logFH);
- 		if(!($this->conn === false)) $this->conn->close();
 		//unlink($this->imgUrlLocal);
 	}
 
@@ -91,20 +91,20 @@ class SpecProcessorOcr{
 	}
 
 	private function ocrImage($url = ""){
-		global $tesseractPath;
+		global $TESSERACT_PATH;
 		$retStr = '';
 		if(!$url) $url = $this->imgUrlLocal;
 		if($url){
 			//OCR image, result text is output to $outputFile
 			$output = array();
 			$outputFile = substr($url,0,strlen($url)-4);
-			if(isset($tesseractPath) && $tesseractPath){
-				if(substr($tesseractPath,0,2) == 'C:'){
+			if(isset($TESSERACT_PATH) && $TESSERACT_PATH){
+				if(substr($TESSERACT_PATH,0,2) == 'C:'){
 					//Full path to tesseract with quotes needed for Windows
-					exec('"'.$tesseractPath.'" '.$url.' '.$outputFile,$output);
+					exec('"'.$TESSERACT_PATH.'" '.$url.' '.$outputFile,$output);
 				}
 				else{
-					exec($tesseractPath.' '.$url.' '.$outputFile,$output);
+					exec($TESSERACT_PATH.' '.$url.' '.$outputFile,$output);
 				}
 			}
 			else{
@@ -857,57 +857,6 @@ class SpecProcessorOcr{
 			$retStr
 		);
 		return $retStr;
-	}
-
-	private function encodeString($inStr){
-		global $CHARSET;
-		$retStr = $inStr;
-		//Get rid of Windows curly (smart) quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr = str_replace($search, $replace, $inStr);
-		//Get rid of UTF-8 curly smart quotes and dashes
-		$badwordchars=array("\xe2\x80\x98", // left single quote
-							"\xe2\x80\x99", // right single quote
-							"\xe2\x80\x9c", // left double quote
-							"\xe2\x80\x9d", // right double quote
-							"\xe2\x80\x94", // em dash
-							"\xe2\x80\xa6" // elipses
-		);
-		$fixedwordchars=array("'", "'", '"', '"', '-', '...');
-		$inStr = str_replace($badwordchars, $fixedwordchars, $inStr);
-
-		if($inStr){
-			if(strtolower($CHARSET) == "utf-8" || strtolower($CHARSET) == "utf8"){
-				if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1',true) == "ISO-8859-1"){
-					$retStr = utf8_encode($inStr);
-					//$retStr = iconv("ISO-8859-1//TRANSLIT","UTF-8",$inStr);
-				}
-			}
-			elseif(strtolower($CHARSET) == "iso-8859-1"){
-				if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1') == "UTF-8"){
-					$retStr = utf8_decode($inStr);
-					//$retStr = iconv("UTF-8","ISO-8859-1//TRANSLIT",$inStr);
-				}
-			}
-			//$line = iconv('macintosh', 'UTF-8', $line);
-			//mb_detect_encoding($buffer, 'windows-1251, macroman, UTF-8');
- 		}
-		return $retStr;
-	}
-
-	private function cleanOutStr($str){
-		$newStr = str_replace('"',"&quot;",$str);
-		$newStr = str_replace("'","&apos;",$newStr);
-		//$newStr = $this->conn->real_escape_string($newStr);
-		return $newStr;
-	}
-
-	private function cleanInStr($str){
-		$newStr = trim($str);
-		$newStr = preg_replace('/\s\s+/', ' ',$newStr);
-		$newStr = $this->conn->real_escape_string($newStr);
-		return $newStr;
 	}
 }
 ?>

@@ -374,7 +374,12 @@ class ImageProcessor {
 								while($r1 = $rs1->fetch_object()){
 									$uFileName = substr(strrchr($r1->url, "/"), 1);
 									$oFileName = substr(strrchr($r1->originalurl, "/"), 1);
-									if($oFileName == $origFileName || $uFileName == $urlFileName || $oFileName == $urlFileName || $uFileName == $origFileName){
+									$replaceImg = false;
+									if($oFileName && $oFileName == $origFileName) $replaceImg = true;
+									elseif($uFileName && $uFileName == $urlFileName) $replaceImg = true;
+									elseif($oFileName && $oFileName == $urlFileName) $replaceImg = true;
+									elseif($uFileName && $uFileName == $origFileName) $replaceImg = true;
+									if($replaceImg){
 										$sql2 = 'UPDATE images '.
 											'SET url = "'.$url.'", originalurl = "'.$originalUrl.'", thumbnailurl = '.($thumbnailUrl?'"'.$thumbnailUrl.'"':'NULL').', '.
 											'sourceurl = '.($sourceUrl?'"'.$sourceUrl.'"':'NULL').' '.

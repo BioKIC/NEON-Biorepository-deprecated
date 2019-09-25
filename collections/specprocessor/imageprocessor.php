@@ -197,18 +197,22 @@ if($spprid) $specManager->setProjVariables($spprid);
 				for(var i=0;i<f.length;i++){
 					var obj = f.elements[i];
 					if(obj.name.indexOf("tf[") == 0){
-						if(tfArr.indexOf(obj.value) > -1){
-							alert("ERROR: Target field names must be unique (duplicate field: "+obj.value+")");
-							return false;
+						if(obj.value){
+							if(tfArr.indexOf(obj.value) > -1){
+								alert("ERROR: Target field names must be unique (duplicate field: "+obj.value+")");
+								return false;
+							}
+							tfArr[tfArr.length] = obj.value;
 						}
-						tfArr[tfArr.length] = obj.value;
 					}
 					if(obj.name.indexOf("sf[") == 0){
-						if(sfArr.indexOf(obj.value) > -1){
-							alert("ERROR: Source field names must be unique (duplicate field: "+obj.value+")");
-							return false;
+						if(obj.value){
+							if(sfArr.indexOf(obj.value) > -1){
+								alert("ERROR: Source field names must be unique (duplicate field: "+obj.value+")");
+								return false;
+							}
+							sfArr[sfArr.length] = obj.value;
 						}
-						sfArr[sfArr.length] = obj.value;
 					}
 				}
 				if(tfArr.indexOf("catalognumber") < 0 && tfArr.indexOf("othercatalognumbers") < 0){

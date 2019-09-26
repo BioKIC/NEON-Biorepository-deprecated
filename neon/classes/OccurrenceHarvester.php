@@ -46,6 +46,7 @@ class OccurrenceHarvester{
 			}
 			if($postArr['nullfilter']){
 				$sqlWhere .= 'AND (o.'.$postArr['nullfilter'].' IS NULL) ';
+				if($postArr['nullfilter'] == 'sciname') $sqlWhere .= 'AND (o.collid NOT IN(5,23,30,31,41,42)) AND (s.sampleid REGEXP BINARY "\.[0-9]{8}\.[A-Z]{3,8}[0-9]{0,2}\.") ';
 			}
 			if($postArr['errorStr'] == 'noError'){
 				$sqlWhere .= 'AND (s.errorMessage IS NULL) ';
@@ -92,7 +93,7 @@ class OccurrenceHarvester{
 						if($dwcArr = $this->harvestNeonOccurrence($sampleArr)){
 							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
 								$occidArr[] = $occid;
-								echo 'success!</li>';
+								echo '<a href="../../collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a></li>';
 							}
 						}
 						else{
@@ -327,8 +328,10 @@ class OccurrenceHarvester{
 					$dwcArr['sciname'] = $sampleArr['taxonID'];
 				}
 				else{
-					if(preg_match('/\.\d{8}\.([A-Za-z]{2,7}\d{0,2})\./',$sampleArr['sampleID'],$m)){
-						$dwcArr['sciname'] = $m[1];
+					if(!in_array($dwcArr['collid'], array(5,23,30,31,41,42))){
+						if(preg_match('/\.\d{8}\.([A-Z]{2,7}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+							$dwcArr['sciname'] = $m[1];
+						}
 					}
 				}
 				$this->setNeonCollector($dwcArr);

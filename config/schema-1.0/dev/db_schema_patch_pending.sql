@@ -9,6 +9,27 @@ ALTER TABLE `fmprojects`
 ALTER TABLE `fmchklstprojlink` 
    ADD COLUMN `sortSequence` INT NULL AFTER `mapChecklist`;
 
+
+ALTER TABLE `uploadspectemp` 
+  ADD COLUMN `geologicalcontextid` VARCHAR(150) NULL AFTER `exsiccatiNotes`,
+  ADD COLUMN `earliestEonOrLowestEonothem` VARCHAR(255) NULL AFTER `geologicalcontextid`,
+  ADD COLUMN `latestEonOrHighestEonothem` VARCHAR(255) NULL AFTER `earliestEonOrLowestEonothem`,
+  ADD COLUMN `earliestEraOrLowestErathem` VARCHAR(255) NULL AFTER `latestEonOrHighestEonothem`,
+  ADD COLUMN `latestEraOrHighestErathem` VARCHAR(255) NULL AFTER `earliestEraOrLowestErathem`,
+  ADD COLUMN `earliestPeriodOrLowestSystem` VARCHAR(255) NULL AFTER `latestEraOrHighestErathem`,
+  ADD COLUMN `latestPeriodOrHighestSystem` VARCHAR(255) NULL AFTER `earliestPeriodOrLowestSystem`,
+  ADD COLUMN `earliestEpochOrLowestSeries` VARCHAR(255) NULL AFTER `latestPeriodOrHighestSystem`,
+  ADD COLUMN `latestEpochOrHighestSeries` VARCHAR(255) NULL AFTER `earliestEpochOrLowestSeries`,
+  ADD COLUMN `earliestAgeOrLowestStage` VARCHAR(255) NULL AFTER `latestEpochOrHighestSeries`,
+  ADD COLUMN `latestAgeOrHighestStage` VARCHAR(255) NULL AFTER `earliestAgeOrLowestStage`,
+  ADD COLUMN `lowestBiostratigraphicZone` VARCHAR(255) NULL AFTER `latestAgeOrHighestStage`,
+  ADD COLUMN `highestBiostratigraphicZone` VARCHAR(255) NULL AFTER `lowestBiostratigraphicZone`,
+  ADD COLUMN `lithostratigraphicTermsProperty` VARCHAR(255) NULL AFTER `highestBiostratigraphicZone`,
+  ADD COLUMN `group` VARCHAR(255) NULL AFTER `lithostratigraphicTermsProperty`,
+  ADD COLUMN `formation` VARCHAR(255) NULL AFTER `group`,
+  ADD COLUMN `member` VARCHAR(255) NULL AFTER `formation`,
+  ADD COLUMN `bed` VARCHAR(255) NULL AFTER `member`;
+
 ALTER TABLE `uploadspectemp` 
   CHANGE COLUMN `basisOfRecord` `basisOfRecord` VARCHAR(32) NULL DEFAULT NULL COMMENT 'PreservedSpecimen, LivingSpecimen, HumanObservation' ;
 
@@ -74,15 +95,15 @@ CREATE TABLE `omoccurpaleo` (
   `storageAge` VARCHAR(65) NULL,
   `stage` VARCHAR(65) NULL,
   `localStage` VARCHAR(65) NULL,
-  `biozone` VARCHAR(130) NULL,
-  `biostratigraphy` VARCHAR(65) NULL COMMENT 'Flora or Fanua',
+  `biota` VARCHAR(65) NULL COMMENT 'Flora or Fanua',
+  `biostratigraphy` VARCHAR(65) NULL COMMENT 'Biozone',
+  `taxonEnvironment` VARCHAR(65) NULL COMMENT 'Marine or not',
   `lithogroup` VARCHAR(65) NULL,
   `formation` VARCHAR(65) NULL,
-  `taxonEnvironment` VARCHAR(65) NULL COMMENT 'Marine or not',
   `member` VARCHAR(65) NULL,
-  `lithology` VARCHAR(65) NULL,
+  `bed` VARCHAR(65) NULL,
+  `lithology` VARCHAR(250) NULL,
   `stratRemarks` VARCHAR(250) NULL,
-  `lithDescription` VARCHAR(250) NULL,
   `element` VARCHAR(250) NULL,
   `slideProperties` VARCHAR(1000) NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
@@ -91,6 +112,11 @@ CREATE TABLE `omoccurpaleo` (
   UNIQUE INDEX `UNIQUE_occid` (`occid` ASC),
   CONSTRAINT `FK_paleo_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE
 ) COMMENT = 'Occurrence Paleo tables';
+
+#ALTER TABLE `omoccurpaleo` 
+#CHANGE COLUMN `taxonEnvironment` `taxonEnvironment` VARCHAR(65) NULL DEFAULT NULL COMMENT 'Marine or not' AFTER `biostratigraphy`,
+#CHANGE COLUMN `lithology` `lithology` VARCHAR(250) NULL DEFAULT NULL ,
+#ADD COLUMN `bed` VARCHAR(65) NULL AFTER `member`;
 
 CREATE TABLE `omoccurpaleogts` (
   `gtsid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -119,6 +145,9 @@ INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT epoch, 50, "epoch", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.period = g.gtsterm WHERE epoch IS NOT NULL;
 INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT p.stage, 60, "age", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.epoch = g.gtsterm WHERE stage IS NOT NULL;
+
+DROP TABLE omoccurlithostratigraphy;
+DROP TABLE paleochronostratigraphy;
 
 
 ALTER TABLE `images` 

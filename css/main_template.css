@@ -1,108 +1,21 @@
-/* Modify styles within this file to override styles within base.css file 
+/* Modify styles within this file to override styles deinfed within base.css file 
  * 
  **/
-body{
-	width: 80%;
-	min-width:950px;
-	margin-top:0px;
-	background-color: #FFFFFF;
-	color: #000000;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-}
+body{ }
 
 /*Main table framework*/
-#maintable{
-	width: 100%;
-	background-color:#FFFFFF;
-	border:1px solid #333333;
-}
+#maintable{  }
+#maintable td{  }
+#header{  }
+#header a{  }
+#header a:hover{  }
+#middleleft{  }
+#middleleftnomenu{  }
+#middlecenter{  }
+#middleright{ }
+#footer{  }
 
-#maintable td{
-
-}
-
-#header{
-	text-align:left;
-	padding:0px;
-}
-
-#header a{
-
-}
-
-#header a:hover{
-
-}
-
-#middleleft{
-}
-
-#middleleftnomenu{
-}
-
-#middlecenter{
-	padding:0px;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-}
-
-#middleright{
-}
-
-#footer{
-}
-
-/*Central div in the middle center table div */
-#innertext{
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-}
-
-#innertext a{
-
-}
-#innertext a:hover{
-
-}
-
-div.navpath {
-}
-
-/* Image thumbnails   */
-div.tndiv{
-
-}
-
-div.tnimg{
-
-}
-
-div.tnimg a{
-
-}
-
-div.tnimg img{
-
-}	
-
-/*Misc general items*/
-table{
-
-}
-
-h1{
-
-}
-
-h2{
-
-}
-
-h3{
-
-}
-
+/* Header menu items */
 #top_navbar{
 	clear:both;
 	height:33px;
@@ -194,46 +107,52 @@ h3{
 	background:#999999; 
 }
 
-.categorytitle{
+
+div.navpath {  }
+
+/*Central div in the middle center table div */
+#innertext{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
 }
 
-.categorytitle a{ 
+#innertext a{
+
+}
+#innertext a:hover{
+
 }
 
-.collectiontitle{
-}
+.categorytitle{ }
+.categorytitle a{  }
 
-.collectiontitle a{
-}
+.collectiontitle{ }
+.collectiontitle a{ }
+.collectiontitle a:hover{ }
+.collectionname{ }
+.collectioncode{ }
 
-.collectiontitle a:hover{
-}
+#omlisttable{ }
 
-.collectionname{
-}
+/* Species list component */
+#taxalist-div{  }
+.family-div{  }
+.taxon-container{  }
+.taxon-div{  }
+.taxon-span{  }
+.vern-span{  }
+.view-specimen-span{  }
+.syn-div{  }
+.note-div{  }
 
-.collectioncode{
-}
+#cloptiondiv{  }
+#taxonfilterdiv{  }
+#taxonfilterdiv{  }
+#img-container {  }
 
 
-#omlisttable{
-	 font-size: 12px;
-}
-
-
-/* Quick Search Plugin */
-#quicksearchdiv{
-}
-
-#quicksearchtext{
-}
-
-#quicksearchtaxon{
-}
-
-#quicksearchbutton{
-}
-
-/* Slideshow Plugin */
-#slideshowcontainer{
-}
+/* Image thumbnails   */
+div.tndiv{ }
+div.tnimg{ }
+div.tnimg a{ }
+div.tnimg img{ }	

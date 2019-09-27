@@ -28,6 +28,27 @@ class OccurrenceEditorServices {
 		return $retArr;
 	}
 
+	public function getPaleoGtsParents($term){
+		$retArr = Array();
+		$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE gtsterm = "'.$this->cleanInStr($term).'"';
+		$parentId = '';
+		do{
+			$rs = $this->conn->query($sql);
+			if ($r = $rs->fetch_object()){
+				if($parentId == $r->parentgtsid){
+					$parentId = 0;
+				}
+				else{
+					$retArr[] = array("rankid" => $r->rankid, "value" => $r->gtsterm);
+					$parentId = $r->parentgtsid;
+				}
+			}
+			$rs->free();
+			$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE gtsid = '.$parentId;
+		}while($parentId);
+		return $retArr;
+	}
+
 	//Misc functions
 	protected function cleanInStr($str){
 		$newStr = trim($str);

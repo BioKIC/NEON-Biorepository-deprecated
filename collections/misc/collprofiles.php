@@ -366,7 +366,7 @@ if($SYMB_UID){
 						$dataUrl = 'http://www.gbif.org/dataset/'.$datasetKey;
 						?>
 						<div style="margin-top:5px;">
-							<div><b>GBIF Dataset page:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
+							<div><b><?php echo (isset($LANG['GBIF_DATASET'])?$LANG['GBIF_DATASET']:'GBIF Dataset page'); ?>:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
 						</div>
 						<?php
 					}
@@ -378,7 +378,7 @@ if($SYMB_UID){
 						$dataUrl = 'https://www.idigbio.org/portal/recordsets/'.$idigbioKey;
 						?>
 						<div style="margin-top:5px;">
-							<div><b>iDigBio Dataset page:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
+							<div><b><?php echo (isset($LANG['IDIGBIO_DATASET'])?$LANG['IDIGBIO_DATASET']:'iDigBio Dataset page'); ?>:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
 						</div>
 						<?php
 					}
@@ -386,11 +386,11 @@ if($SYMB_UID){
 				if($addrArr = $collManager->getAddress()){
 					?>
 					<div style="margin-top:5px;">
-						<div style="float:left;font-weight:bold;">Address:</div>
+						<div style="float:left;font-weight:bold;"><?php echo (isset($LANG['ADDRESS'])?$LANG['ADDRESS']:'Address'); ?>:</div>
 						<div style="float:left;margin-left:10px;">
 							<?php
 							echo "<div>".$addrArr["institutionname"];
-							if($editCode > 1) echo ' <a href="../admin/institutioneditor.php?emode=1&targetcollid='.$collid.'&iid='.$addrArr['iid'].'" title="Edit institution information"><img src="../../images/edit.png" style="width:13px;" /></a>';
+							if($editCode > 1) echo ' <a href="../admin/institutioneditor.php?emode=1&targetcollid='.$collid.'&iid='.$addrArr['iid'].'" title="'.(isset($LANG['EDIT_INST'])?$LANG['EDIT_INST']:'Edit institution information').'"><img src="../../images/edit.png" style="width:13px;" /></a>';
 							echo '</div>';
 							if($addrArr["institutionname2"]) echo "<div>".$addrArr["institutionname2"]."</div>";
 							if($addrArr["address1"]) echo "<div>".$addrArr["address1"]."</div>";
@@ -430,22 +430,22 @@ if($SYMB_UID){
 					<div style="font-weight:bold;"><?php echo $LANG['COLL_STATISTICS']; ?></div>
 					<ul style="margin-top:5px;">
 						<li><?php echo number_format($statsArr["recordcnt"]).' '.$LANG['SPECIMEN_RECORDS'];?></li>
-						<li><?php echo ($statsArr['georefcnt']?number_format($statsArr['georefcnt']):0).($georefPerc?" (".($georefPerc>1?round($georefPerc):round($georefPerc,2))."%)":'');?> georeferenced</li>
+						<li><?php echo ($statsArr['georefcnt']?number_format($statsArr['georefcnt']):0).($georefPerc?" (".($georefPerc>1?round($georefPerc):round($georefPerc,2))."%)":'').' '.(isset($LANG['GEOREFERENCED'])?$LANG['GEOREFERENCED']:'georeferenced');?></li>
 						<?php
 						if($extrastatsArr){
-							if($extrastatsArr['imgcnt']) echo '<li>'.number_format($extrastatsArr['imgcnt']).($imgPerc?" (".($imgPerc>1?round($imgPerc):round($imgPerc,2))."%)":'').' with images</li>';
-							if($extrastatsArr['gencnt']) echo '<li>'.number_format($extrastatsArr['gencnt']).' GenBank references</li>';
-							if($extrastatsArr['boldcnt']) echo '<li>'.number_format($extrastatsArr['boldcnt']).' BOLD references</li>';
-							if($extrastatsArr['refcnt']) echo '<li>'.number_format($extrastatsArr['refcnt']).' publication references</li>';
-							if($extrastatsArr['SpecimensCountID']) echo '<li>'.number_format($extrastatsArr['SpecimensCountID']).($spidPerc?" (".($spidPerc>1?round($spidPerc):round($spidPerc,2))."%)":'').' identified to species</li>';
+							if($extrastatsArr['imgcnt']) echo '<li>'.number_format($extrastatsArr['imgcnt']).($imgPerc?" (".($imgPerc>1?round($imgPerc):round($imgPerc,2))."%)":'').' '.(isset($LANG['WITH_IMAGES'])?$LANG['WITH_IMAGES']:'with images').'</li>';
+							if($extrastatsArr['gencnt']) echo '<li>'.number_format($extrastatsArr['gencnt']).' '.(isset($LANG['GENBANK_REF'])?$LANG['GENBANK_REF']:'GenBank references').'</li>';
+							if($extrastatsArr['boldcnt']) echo '<li>'.number_format($extrastatsArr['boldcnt']).' '.(isset($LANG['BOLD_REF'])?$LANG['BOLD_REF']:'BOLD references').'</li>';
+							if($extrastatsArr['refcnt']) echo '<li>'.number_format($extrastatsArr['refcnt']).' '.(isset($LANG['PUB_REFS'])?$LANG['PUB_REFS']:'publication references').'</li>';
+							if($extrastatsArr['SpecimensCountID']) echo '<li>'.number_format($extrastatsArr['SpecimensCountID']).($spidPerc?" (".($spidPerc>1?round($spidPerc):round($spidPerc,2))."%)":'').' '.(isset($LANG['IDED_TO_SPECIES'])?$LANG['IDED_TO_SPECIES']:'identified to species').'</li>';
 						}
 						?>
 						<li><?php echo number_format($statsArr["familycnt"]).' '.$LANG['FAMILIES'];?></li>
 						<li><?php echo number_format($statsArr["genuscnt"]).' '.$LANG['GENERA'];?></li>
 						<li><?php echo number_format($statsArr["speciescnt"]).' '.$LANG['SPECIES'];?></li>
 						<?php
-						if($extrastatsArr&&$extrastatsArr['TotalTaxaCount']) echo '<li>'.number_format($extrastatsArr['TotalTaxaCount']).' total taxa (including subsp. and var.)</li>';
-						//if($extrastatsArr&&$extrastatsArr['TypeCount']) echo '<li>'.number_format($extrastatsArr['TypeCount']).' type specimens</li>';
+						if($extrastatsArr&&$extrastatsArr['TotalTaxaCount']) echo '<li>'.number_format($extrastatsArr['TotalTaxaCount']).' '.(isset($LANG['TOTAL_TAXA'])?$LANG['TOTAL_TAXA']:'total taxa (including subsp. and var.)').'</li>';
+						//if($extrastatsArr&&$extrastatsArr['TypeCount']) echo '<li>'.number_format($extrastatsArr['TypeCount']).' '.(isset($LANG['TYPE_SPECIMENS'])?$LANG['TYPE_SPECIMENS']:'type specimens').'</li>';
 						?>
 					</ul>
 				</div>
@@ -464,7 +464,7 @@ if($SYMB_UID){
 		}
 		else{
 			?>
-			<h2><?php echo $DEFAULT_TITLE; ?> Natural History Collections and Observation Projects</h2>
+			<h2><?php echo $DEFAULT_TITLE.' '.(isset($LANG['COLLECTION_PROJECTS'])?$LANG['COLLECTION_PROJECTS']:'Natural History Collections and Observation Projects'); ?></h2>
 			<div style='margin:10px;clear:both;'>
 				<?php
 				$serverDomain = "http://";

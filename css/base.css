@@ -1,12 +1,18 @@
-/* Do not modify styles within this file
- * Instead, modify styles within the main.css file to override the default styles within this file 
- * 
- **/
+/*
+ * Do not modify styles within this file
+ * Instead, modify styles within the main.css file to override the default styles declared within this file 
+*/
 body{
+	width: 80%;
+	min-width:1000px;
 	margin:	8px;
+	margin-top:0px;
 	margin-left: auto;
 	margin-right: auto;
-	font-size: 12px;
+	background-color: #FFFFFF;
+	color: #000000;
+	font-size: 1em;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 /*Main table framework*/
@@ -79,64 +85,6 @@ span[class=link]:hover {
     text-decoration: underline;	
 }
 
-/* General Image thumbnails   */
-div.tndiv{
-	float: left;
-	text-align: center;
-	width: 165px;
-	height: 230px;
-	page-break-before:auto;
-	page-break-inside:avoid;
-}
-
-div.tnimg{
-	position: relative;
-	overflow:	hidden;
-	width:	160px;
-	height:	160px;
-	border:	1px solid gray;
-}
-
-div.tnimg a{
-
-}
-
-div.tnimg img{
-	position: absolute;
-	max-height: 160px;
-	max-width: 160px;
-	width: 		expression(this.width >= this.height ? 160: true);
-	height:		expression(this.height >= this.width ? 160: true);
-	top: -9999px;
-	bottom: -9999px;
-	left: -9999px;
-	right: -9999px;
-	margin: auto;
-}	
-
-/* styled table */
-
-table.styledtable{
-	width:				100%; 
-	border-collapse:	collapse; 
-}
-table.styledtable th {
-	text-align:			left; 
-	padding:			4px;
-	border:				1px solid gray; 
-	background-color:	#dbe5f1; 
-	color:				black; 
-}
-table.styledtable td {
-	padding:		3px;
-	border:			1px solid gray; 
-	background-color: #efefef;
-}
-table.styledtable tr.alt td {
-	color:				#000000; 
-	/*background-color:	#FCFCFC; */
-	background-color: #dfdfdf;
-}
 
 /*  navpath styles */
 div.navpath {
@@ -154,6 +102,87 @@ div.navpath a:hover {
 	font-size: 11px;
 }
 
+/* /collections/ folder pages */
+.collectiontable{
+	float: left;
+}
+
+.collectiontable td{
+	vertical-align: middle;
+}
+
+.categorytitle{ 
+}
+
+.categorytitle a{ 
+	font-weight: bold; 
+	font-size:	110%;
+}
+
+.collectiontitle{
+	font-size:12px;
+	margin-top:8px;
+}
+
+.collectiontitle a{
+	font-size: 80%;
+	margin-left: 3px;
+}
+
+.collectiontitle a:hover{
+	font-weight: bold;
+	color: grey;
+}
+
+.collectionname{
+	float:left;
+	font-weight: bold;
+	margin-left: 3px;
+}
+
+.collectioncode{
+	float:left;
+	margin-left: 3px;
+}
+
+#omlisttable{
+	 width:	90%;
+}
+
+#omlisttable img{
+    border: medium double #990000;
+}
+
+.nextbtn {
+	font-weight: bold,
+	background-color: #dddddd;
+	border-color: #999;
+    color: black;
+	width: 110px;
+	padding: 5px 8px;
+	border-radius: 5px;
+}
+
+.nextbtn:hover {
+	background: #e5f1fd;
+	color: black;
+}
+
+.resetbtn {
+	font-weight: bold,
+	background-color: #c0c0c0;
+	border-color: #999;
+    color: black;
+	width: 90px;
+	padding: 4px 6px;
+	border-radius: 2px;
+}
+
+.resetbtn:hover {
+	background-color: #e5f1fd;
+    color: black;
+}
+
 /*Download buttons on the search display pages*/
 div.button {
 	background-color:	#FFFFD7;
@@ -167,6 +196,40 @@ div.button img {
 
 div.button:hover {
 	border:	1px inset #A0A0A0;
+}
+
+/* Species list component */
+#taxalist-div{ line-height: 1em; }
+.family-div{ margin:20px 0px 10px 0px; font-weight:bold; }
+.taxon-container{ margin:0px 0px 8px 10px; }
+.taxon-div{ clear:left; margin-bottom: 5px; }
+.taxon-span{ font-weight: bold; font-style: italic }
+.vern-span{ font-weight:bold; }
+.view-specimen-span{ margin:0px 10px }
+.syn-div{ margin-left:15px }
+.note-div{ margin-left:25px; font-size:95%; }
+
+#cloptiondiv{
+	margin:		5px;
+	width:		250px;
+	text-align:	left;
+	float:		right;
+	max-width: 20% !important;
+	min-height:	325px;
+}
+
+#taxonfilterdiv{
+	padding:			5px;
+	background-color:	#FFFFCC;
+	border:				1px solid;
+}
+
+#taxonfilterdiv{
+	 margin:	3px;
+}
+
+#img-container {
+	width: 80%;
 }
 
 /*Dynamic Key module*/
@@ -209,87 +272,63 @@ div.button:hover {
 
 }
 
-/* misc page specific items */
-#cloptiondiv{
-	margin:		5px;
-	width:		250px;
-	text-align:	left;
-	float:		right;
-	max-width: 20% !important;
-	min-height:	325px;
-}
-#img-container {
-	width: 80%;
-}
-
-#taxonfilterdiv{
-	padding:			5px;
-	background-color:	#FFFFCC;
-	border:				1px solid;
-}
-
-#taxonfilterdiv{
-	 margin:	3px;
-}
-
-
-/* /collections/ folder pages */
-.collectiontable{
+/* General Image thumbnails   */
+div.tndiv{
 	float: left;
+	text-align: center;
+	width: 165px;
+	height: 230px;
+	page-break-before:auto;
+	page-break-inside:avoid;
 }
 
-.collectiontable td{
-	vertical-align: middle;
+div.tnimg{
+	position: relative;
+	overflow:	hidden;
+	width:	160px;
+	height:	160px;
+	border:	1px solid gray;
 }
 
-.categorytitle{ 
+div.tnimg a{
+
 }
 
-.categorytitle a{ 
-	font-weight: bold; 
-	font-size:	110%;
-}
+div.tnimg img{
+	position: absolute;
+	max-height: 160px;
+	max-width: 160px;
+	width: 		expression(this.width >= this.height ? 160: true);
+	height:		expression(this.height >= this.width ? 160: true);
+	top: -9999px;
+	bottom: -9999px;
+	left: -9999px;
+	right: -9999px;
+	margin: auto;
+}	
 
-.collectiontitle{
-	font-size:12px;
-}
 
-.collectiontitle a{
-	font-size: 80%;
-	margin-left: 3px;
+/* styled table */
+table.styledtable{
+	width:				100%; 
+	border-collapse:	collapse; 
 }
-
-.collectiontitle a:hover{
-	font-weight: bold;
-	color: grey;
+table.styledtable th {
+	text-align:			left; 
+	padding:			4px;
+	border:				1px solid gray; 
+	background-color:	#dbe5f1; 
+	color:				black; 
 }
-
-.collectionname{
-	float:left;
-	font-weight: bold;
-	margin-left: 3px;
+table.styledtable td {
+	padding:		3px;
+	border:			1px solid gray; 
+	background-color: #efefef;
 }
-
-.collectioncode{
-	float:left;
-	margin-left: 3px;
-}
-
-#omlisttable{
-	 width:	90%;
-}
-
-#omlisttable img{
-    border: medium double #990000;
-}
-
-/* Slideshow Plugin */
-#slideshowcontainer{
-	border: 2px solid black;
-	border-radius:10px;
-	padding:10px;
-	margin-left: auto;
-	margin-right: auto;
+table.styledtable tr.alt td {
+	color:				#000000; 
+	/*background-color:	#FCFCFC; */
+	background-color: #dfdfdf;
 }
 
 /* misc */
@@ -302,36 +341,6 @@ div.genericpopup{
 	-moz-border-radius: 	5px;
 	-webkit-border-radius: 	5px;
 	border:					black solid 3px;
-}
-
-.nextbtn {
-	font-weight: bold,
-	background-color: #dddddd;
-	border-color: #999;
-    color: black;
-	width: 110px;
-	padding: 5px 8px;
-	border-radius: 5px;
-}
-
-.nextbtn:hover {
-	background: #e5f1fd;
-	color: black;
-}
-
-.resetbtn {
-	font-weight: bold,
-	background-color: #c0c0c0;
-	border-color: #999;
-    color: black;
-	width: 90px;
-	padding: 4px 6px;
-	border-radius: 2px;
-}
-
-.resetbtn:hover {
-	background-color: #e5f1fd;
-    color: black;
 }
 
 /* JQuery Manifest alterations */

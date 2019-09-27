@@ -115,7 +115,7 @@ class ImageProcessor {
 				return false;
 			}
 			//Get start date
-			if(!$lastRunDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$lastRunDate)) $lastRunDate = '2015-04-01';
+			if(!$lastRunDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$lastRunDate)) $lastRunDate = '2019-05-01';
 			while(strtotime($lastRunDate) < strtotime('now')){
 				$url = $iPlantDataUrl.'image?value=*'.$iPlantSourcePath.'*&tag_query=upload_datetime:'.$lastRunDate.'*';
 				$contents = @file_get_contents($url);
@@ -374,7 +374,12 @@ class ImageProcessor {
 								while($r1 = $rs1->fetch_object()){
 									$uFileName = substr(strrchr($r1->url, "/"), 1);
 									$oFileName = substr(strrchr($r1->originalurl, "/"), 1);
-									if($oFileName == $origFileName || $uFileName == $urlFileName || $oFileName == $urlFileName || $uFileName == $origFileName){
+									$replaceImg = false;
+									if($oFileName && $oFileName == $origFileName) $replaceImg = true;
+									elseif($uFileName && $uFileName == $urlFileName) $replaceImg = true;
+									elseif($oFileName && $oFileName == $urlFileName) $replaceImg = true;
+									elseif($uFileName && $uFileName == $origFileName) $replaceImg = true;
+									if($replaceImg){
 										$sql2 = 'UPDATE images '.
 											'SET url = "'.$url.'", originalurl = "'.$originalUrl.'", thumbnailurl = '.($thumbnailUrl?'"'.$thumbnailUrl.'"':'NULL').', '.
 											'sourceurl = '.($sourceUrl?'"'.$sourceUrl.'"':'NULL').' '.

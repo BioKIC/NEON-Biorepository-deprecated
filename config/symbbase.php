@@ -55,7 +55,7 @@ if(isset($_SESSION['userrights'])){
     $USER_RIGHTS = $_SESSION['userrights'];
 }
 
-$CSS_VERSION = '9';
+$CSS_VERSION = '10';
 $USER_DISPLAY_NAME = (array_key_exists("dn",$PARAMS_ARR)?$PARAMS_ARR["dn"]:"");
 $USERNAME = (array_key_exists("un",$PARAMS_ARR)?$PARAMS_ARR["un"]:0);
 $SYMB_UID = (array_key_exists("uid",$PARAMS_ARR)?$PARAMS_ARR["uid"]:0);
@@ -116,7 +116,6 @@ if(!isset($imgTnWidth) && isset($IMG_TN_WIDTH)) $imgTnWidth = $IMG_TN_WIDTH;
 if(!isset($imgLgWidth) && isset($IMG_LG_WIDTH)) $imgLgWidth = $IMG_LG_WIDTH;
 if(!isset($imgFileSizeLimit) && isset($IMG_FILE_SIZE_LIMIT)) $imgFileSizeLimit = $IMG_FILE_SIZE_LIMIT;
 if(!isset($useImageMagick) && isset($USE_IMAGE_MAGICK)) $useImageMagick = $USE_IMAGE_MAGICK;
-if(!isset($tesseractPath) && isset($TESSERACT_PATH)) $tesseractPath = $TESSERACT_PATH;
 if(!isset($occurrenceModIsActive) && isset($OCCURRENCE_MOD_IS_ACTIVE)) $occurrenceModIsActive = $OCCURRENCE_MOD_IS_ACTIVE;
 if(!isset($floraModIsActive) && isset($FLORA_MOD_IS_ACTIVE)) $floraModIsActive = $FLORA_MOD_IS_ACTIVE;
 if(!isset($keyModIsActive) && isset($KEY_MOD_IS_ACTIVE)) $keyModIsActive = $KEY_MOD_IS_ACTIVE;

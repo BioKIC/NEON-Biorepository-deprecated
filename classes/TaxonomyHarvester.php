@@ -293,7 +293,7 @@ class TaxonomyHarvester extends Manager{
 		if(isset($nodeArr['infraspecies'])) $taxonArr['unitname3'] = $nodeArr['infraspecies'];
 		if(isset($nodeArr['infraspecies_marker'])){
 			$taxonArr['unitind3'] = $nodeArr['infraspecies_marker'];
-			$taxonArr['sciname'] = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].' '.$taxonArr['unitind3'].' '.$taxonArr['unitname3']);
+			$taxonArr['sciname'] = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].($taxonArr['unitind3']?' '.$taxonArr['unitind3']:'').' '.$taxonArr['unitname3']);
 		}
 		if(isset($nodeArr['author'])) $taxonArr['author'] = $nodeArr['author'];
 		if(isset($nodeArr['source_database'])) $taxonArr['source'] = $nodeArr['source_database'];

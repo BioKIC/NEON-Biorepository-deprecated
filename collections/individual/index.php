@@ -336,33 +336,30 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					</div>
 					<?php
 					$iconUrl = (substr($collMetadata["icon"],0,6)=='images'?'../../':'').$collMetadata['icon'];
-					if($iconUrl) $iconUrl = '<img border="1" height="50" width="50" src="'.$iconUrl.'" /><br/>';
-					$instCode = $collMetadata['institutioncode'];
-					if(isset($collMetadata['collectioncode'])){
-						$instCode .= (strlen($collMetadata['institutioncode'])<7?' : ':'<br/>').$collMetadata['collectioncode'];
-					}
-					elseif(!isset($occArr['secondaryinstcode']) && isset($occArr['secondarycollcode'])){
-						$instCode .= (strlen($collMetadata['institutioncode'])<7?' : ':'<br/>').$occArr['secondarycollcode'];
-					}
-					if($occArr['secondaryinstcode']){
-						$instCode .= '<div>';
-						$instCode .= $occArr['secondaryinstcode'];
-						if(isset($occArr['secondarycollcode'])){
-							$instCode .= (strlen($occArr['secondaryinstcode'])<7?' : ':'<br/>');
-							$instCode .= $occArr['secondarycollcode'];
-						}
-						$instCode .= '</div>';
-					}
 					if($iconUrl){
+						$iconUrl = '<img border="1" height="50" width="50" src="'.$iconUrl.'" />';
 						echo '<div style="float:left;margin:15px 0px;text-align:center;font-weight:bold;width:120px;">';
 						echo $iconUrl;
 						echo '</div>';
 					}
+					$instCode = $collMetadata['institutioncode'];
+					if(isset($collMetadata['collectioncode']) && $collMetadata['collectioncode']){
+						$instCode .= ':'.$collMetadata['collectioncode'];
+					}
+					if($occArr['secondaryinstcode']){
+						$instCode .= ' || '.$occArr['secondaryinstcode'];
+						if(isset($occArr['secondarycollcode']) && $occArr['secondarycollcode']){
+							$instCode .= ':'.$occArr['secondarycollcode'];
+						}
+					}
 					?>
-					<div style="float:left;padding:25px;">
-						<span style="font-size:18px;font-weight:bold;vertical-align:60%;">
-							<?php echo $collMetadata['collectionname'].(!$iconUrl?' ('.$instCode.')':''); ?>
-						</span>
+					<div style="padding:25px;font-size:18px;font-weight:bold;">
+						<div style="float:left;margin-right:5px">
+							<?php echo $collMetadata['collectionname']; ?>
+						</div>
+						<div style="float:left;">
+							<?php echo '('.$instCode.')'; ?>
+						</div>
 					</div>
 					<div style="clear:both;margin-left:60px;">
 						<div>
@@ -765,30 +762,35 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							<div style="clear:both;">
 								<b>Paleontology terms: </b>
 								<?php
-								$paleoStr = '';
-								if($occArr['eon']) $paleoStr .= '; '.$occArr['eon'];
-								if($occArr['era']) $paleoStr .= '; '.$occArr['era'];
-								if($occArr['period']) $paleoStr .= '; '.$occArr['period'];
-								if($occArr['epoch']) $paleoStr .= '; '.$occArr['epoch'];
-								if($occArr['earlyinterval']) $paleoStr .= '; '.$occArr['earlyinterval'];
-								if($occArr['lateinterval']) $paleoStr .= ' to '.$occArr['lateinterval'];
-								if($occArr['absoluteage']) $paleoStr .= '; <b>absolute age:</b> '.$occArr['absoluteage'];
-								if($occArr['storageage']) $paleoStr .= '; <b>storage age:</b> '.$occArr['storageage'];
-								if($occArr['stage']) $paleoStr .= '; <b>stage:</b> '.$occArr['stage'];
-								if($occArr['localstage']) $paleoStr .= '; <b>local stage:</b> '.$occArr['localstage'];
-								if($occArr['biozone']) $paleoStr .= '; <b>biozone:</b> '.$occArr['biozone'];
-								if($occArr['biostratigraphy']) $paleoStr .= '; <b>biostratigraphy:</b> '.$occArr['biostratigraphy'];
-								if($occArr['lithogroup']) $paleoStr .= '; <b>group:</b> '.$occArr['lithogroup'];
-								if($occArr['formation']) $paleoStr .= '; <b>formation:</b> '.$occArr['formation'];
-								if($occArr['taxonenvironment']) $paleoStr .= '; <b>Taxon Environment:</b> '.$occArr['taxonenvironment'];
-								if($occArr['member']) $paleoStr .= '; <b>member:</b> '.$occArr['member'];
-								if($occArr['lithology']) $paleoStr .= '; <b>lithology:</b> '.$occArr['lithology'];
-								if($occArr['stratremarks']) $paleoStr .= '; <b>remarks:</b> '.$occArr['stratremarks'];
-								if($occArr['lithdescription']) $paleoStr .= '; <b>lith description:</b> '.$occArr['lithdescription'];
-								if($occArr['element']) $paleoStr .= '; <b>element:</b> '.$occArr['element'];
-								if($occArr['slideproperties']) $paleoStr .= '; <b>slide properties:</b> '.$occArr['slideproperties'];
-								echo trim($paleoStr,'; ');
+								$paleoStr1 = '';
+								if($occArr['eon']) $paleoStr1 .= '; '.$occArr['eon'];
+								if($occArr['era']) $paleoStr1 .= '; '.$occArr['era'];
+								if($occArr['period']) $paleoStr1 .= '; '.$occArr['period'];
+								if($occArr['epoch']) $paleoStr1 .= '; '.$occArr['epoch'];
+								if($occArr['stage']) $paleoStr1 .= '; '.$occArr['stage'];
+								if($occArr['earlyinterval']) $paleoStr1 .= '; '.$occArr['earlyinterval'];
+								if($occArr['lateinterval']) $paleoStr1 .= ' to '.$occArr['lateinterval'];
+								if($paleoStr1) echo trim($paleoStr1,'; ');
 								?>
+								<div style="margin-left:10px">
+									<?php
+									$paleoStr2 = '';
+									if($occArr['absoluteage']) echo '<div style="float:left;margin-right:25px"><b>absolute age:</b> '.$occArr['absoluteage'].'</div>';
+									if($occArr['storageage']) echo '<div style="float:left;margin-right:25px"><b>storage age:</b> '.$occArr['storageage'].'</div>';
+									if($occArr['localstage']) echo '<div style="float:left;margin-right:25px"><b>local stage:</b> '.$occArr['localstage'].'</div>';
+									if($occArr['biota']) echo '<div style="float:left;margin-right:25px"><b>biota:</b> '.$occArr['biota'].'</div>';
+									if($occArr['biostratigraphy']) echo '<div style="float:left;margin-right:25px"><b>biostratigraphy:</b> '.$occArr['biostratigraphy'].'</div>';
+									if($occArr['lithogroup']) echo '<div style="float:left;margin-right:25px"><b>group:</b> '.$occArr['lithogroup'].'</div>';
+									if($occArr['formation']) echo '<div style="float:left;margin-right:25px"><b>formation:</b> '.$occArr['formation'].'</div>';
+									if($occArr['taxonenvironment']) echo '<div style="float:left;margin-right:25px"><b>taxon environment:</b> '.$occArr['taxonenvironment'].'</div>';
+									if($occArr['member']) echo '<div style="float:left;margin-right:25px"><b>member:</b> '.$occArr['member'].'</div>';
+									if($occArr['bed']) echo '<div style="float:left;margin-right:25px"><b>bed:</b> '.$occArr['bed'].'</div>';
+									if($occArr['lithology']) echo '<div style="float:left;margin-right:25px"><b>lithology:</b> '.$occArr['lithology'].'</div>';
+									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>remarks:</b> '.$occArr['stratremarks'].'</div>';
+									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>element:</b> '.$occArr['element'].'</div>';
+									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>slide properties:</b> '.$occArr['slideproperties'].'</div>';
+									?>
+								</div>
 							</div>
 							<?php
 						}
@@ -959,7 +961,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							if($occArr['catalognumber']) echo '<div><b>Catalog Number:</b> '.$occArr['catalognumber'].'</div>';
 							if($occArr['occurrenceid']) echo '<div><b>GUID:</b> '.$occArr['occurrenceid'].'</div>';
 							echo '<div><b>Latest Identification:</b> ';
-							if($securityCode < 2) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['author'];
+							if($securityCode < 2) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
 							else echo '<b>species identification protected</b>';
 							echo '</div>';
 							if($occArr['identifiedby']) echo '<div><b>Identified by:</b> '.$occArr['identifiedby'].'<span stlye="margin-left:30px;">'.$occArr['dateidentified'].'</span></div>';
@@ -984,19 +986,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 										if($dupArr['notes']) echo '<div>'.$dupArr['notes'].'</div>';
 										echo '<div><a href="#" onclick="openIndividual('.$dupOccid.')">Show Full Details</a></div>';
 										echo '</div>';
-										if($dupArr['url']){
-											$url = $dupArr['url'];
-											$tnUrl = $dupArr['tnurl'];
-											if(!$tnUrl) $tnUrl = $url;
-											if($IMAGE_DOMAIN){
-												if(substr($url,0,1) == '/') $url = $IMAGE_DOMAIN.$url;
-												if(substr($tnUrl,0,1) == '/') $tnUrl = $IMAGE_DOMAIN.$tnUrl;
+										if(!$securityCode){
+											if($dupArr['url']){
+												$url = $dupArr['url'];
+												$tnUrl = $dupArr['tnurl'];
+												if(!$tnUrl) $tnUrl = $url;
+												if($IMAGE_DOMAIN){
+													if(substr($url,0,1) == '/') $url = $IMAGE_DOMAIN.$url;
+													if(substr($tnUrl,0,1) == '/') $tnUrl = $IMAGE_DOMAIN.$tnUrl;
+												}
+												echo '<div style="float:left;margin:10px;">';
+												echo '<a href="'.$url.'">';
+												echo '<img src="'.$tnUrl.'" style="width:100px;border:1px solid grey" />';
+												echo '</a>';
+												echo '</div>';
 											}
-											echo '<div style="float:left;margin:10px;">';
-											echo '<a href="'.$url.'">';
-											echo '<img src="'.$tnUrl.'" style="width:100px;border:1px solid grey" />';
-											echo '</a>';
-											echo '</div>';
 										}
 										echo '<div style="margin:10px 0px;clear:both"><hr/></div>';
 										echo '</div>';

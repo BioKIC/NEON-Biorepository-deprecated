@@ -498,12 +498,20 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 
 	public function getPhotographerUidArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT u.uid, CONCAT_WS(", ",u.lastname, u.firstname) AS fullname FROM images i INNER JOIN users u ON i.photographeruid = u.uid ';
-		$rs = $this->conn->query($sql);
-		while ($r = $rs->fetch_object()) {
-			$retArr[$r->uid] = $r->fullname;
+		$sql1 = 'SELECT DISTINCT photographeruid FROM images WHERE photographeruid IS NOT NULL';
+		$rs1 = $this->conn->query($sql1);
+		while ($r1 = $rs1->fetch_object()) {
+			$retArr[$r1->photographeruid] = '';
 		}
-		$rs->free();
+		$rs1->free();
+		if($retArr){
+			$sql2 = 'SELECT uid, CONCAT_WS(", ", lastname, firstname) AS fullname FROM users WHERE uid IN('.implode(',',array_keys($retArr)).')';
+			$rs2 = $this->conn->query($sql2);
+			while ($r2 = $rs2->fetch_object()) {
+				$retArr[$r2->uid] = $r2->fullname;
+			}
+			$rs2->free();
+		}
 		asort($retArr,SORT_NATURAL | SORT_FLAG_CASE);
 		return $retArr;
 	}

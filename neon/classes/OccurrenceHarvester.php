@@ -329,7 +329,7 @@ class OccurrenceHarvester{
 				}
 				else{
 					if(!in_array($dwcArr['collid'], array(5,23,30,31,41,42))){
-						if(preg_match('/\.\d{8}\.([A-Z]{2,11}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+						if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
 							$dwcArr['sciname'] = $m[1];
 						}
 					}
@@ -583,12 +583,6 @@ class OccurrenceHarvester{
 
 	private function setNeonTaxonomy($occidArr){
 		if($occidArr){
-			/* $sql = 'UPDATE omoccurrences o INNER JOIN taxaresourcelinks r ON o.sciname = r.sourceidentifier '.
-				'INNER JOIN taxa t ON r.tid = t.tid '.
-				'INNER JOIN taxstatus ts ON ts.tid = ts.tid '.
-				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
-				'WHERE (ts.taxauthid = 1) AND (o.occid IN('.(implode(',',$occidArr)).'))';
-				*/
 			$sql = 'UPDATE taxaresourcelinks l INNER JOIN omoccurrences o ON l.sourceIdentifier = o.sciname '.
 				'INNER JOIN omcollcatlink catlink ON o.collid = catlink.collid '.
 				'INNER JOIN omcollcategories cat ON catlink.ccpk = cat.ccpk '.
@@ -598,7 +592,6 @@ class OccurrenceHarvester{
 				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
 				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL ';
-			//echo $sql;
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;
 			}
@@ -617,10 +610,58 @@ class OccurrenceHarvester{
 				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 				'SET o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
 				'WHERE (s.sampleClass = "mos_identification_in.individualIDList") AND (ts.taxauthid = 1) AND (o.scientificNameAuthorship IS NULL) AND (o.family IS NULL)';
-			//echo $sql;
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes(2): '.$sql;
 			}
+
+			//Temporary code needed until identification details are included within the NEON API
+			//Populate missing sciname
+			$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+				'LEFT JOIN taxstatus ts ON nt.tid = ts.tid '.
+				'SET o.sciname = IFNULL(nt.sciname, nt.taxonid), o.tidinterpreted = nt.tid, o.family = ts.family '.
+				'WHERE (nt.sciname IS NOT NULL OR nt.taxonID IS NOT NULL) AND o.sciname IS NULL AND o.tidinterpreted IS NULL AND o.family IS NULL';
+			if(!$this->conn->query($sql)){
+				echo 'ERROR updating taxonomy using temporary NEON taxon tables: '.$sql;
+			}
+
+			//Populate missing dateIdentified
+			$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+				'SET o.dateIdentified = SUBSTRING(nt.identifiedDate,1,10) '.
+				'WHERE o.dateIdentified IS NULL AND nt.identifiedDate IS NOT NULL AND o.sciname IS NOT NULL ';
+			if(!$this->conn->query($sql)){
+				echo 'ERROR updating dateIdentified using temporary NEON taxon tables: '.$sql;
+			}
+
+			//Populate missing identifiedBy
+			$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+				'SET o.identifiedBy = nt.identifiedBy '.
+				'WHERE o.identifiedBy IS NULL AND nt.identifiedBy IS NOT NULL AND o.sciname IS NOT NULL';
+			if(!$this->conn->query($sql)){
+				echo 'ERROR updating identifiedBy using temporary NEON taxon tables: '.$sql;
+			}
+
+			//Populate missing eventDate; needed until collectionDate is added to NEON API
+			$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+				'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
+				'WHERE o.eventDate IS NULL AND nt.collectDate IS NOT NULL';
+			if(!$this->conn->query($sql)){
+				echo 'ERROR updating eventDate using temporary NEON taxon tables: '.$sql;
+			}
+
+			#Update mismatched eventDates (e.g. possibiliy incorrect within manifest)
+			$sql = 'UPDATE IGNORE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+				'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
+				'WHERE o.eventDate IS NOT NULL AND o.eventDate != DATE(nt.collectDate)';
+			/*
+			if(!$this->conn->query($sql)){
+				echo 'ERROR mixing problematic eventDate using temporary NEON taxon tables: '.$sql;
+			}
+			*/
 		}
 	}
 

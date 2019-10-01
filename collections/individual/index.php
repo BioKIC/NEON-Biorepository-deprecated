@@ -775,24 +775,20 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								<div style="margin-left:10px">
 									<?php
 									$paleoStr2 = '';
-									if($occArr['absoluteage']) $paleoStr2 .= '; <b>absolute age:</b> '.$occArr['absoluteage'];
-									if($occArr['storageage']) $paleoStr2 .= '; <b>storage age:</b> '.$occArr['storageage'];
-									if($occArr['localstage']) $paleoStr2 .= '; <b>local stage:</b> '.$occArr['localstage'];
-									if($occArr['biota']) $paleoStr2 .= '; <b>biota:</b> '.$occArr['biota'];
-									if($occArr['biostratigraphy']) $paleoStr2 .= '; <b>biostratigraphy:</b> '.$occArr['biostratigraphy'];
-									if($paleoStr2) echo '<div>'.trim($paleoStr2,'; ').'<div>';
-									$paleoStr3 = '';
-									if($occArr['lithogroup']) $paleoStr3 .= '; <b>group:</b> '.$occArr['lithogroup'];
-									if($occArr['formation']) $paleoStr3 .= '; <b>formation:</b> '.$occArr['formation'];
-									if($occArr['taxonenvironment']) $paleoStr3 .= '; <b>taxon environment:</b> '.$occArr['taxonenvironment'];
-									if($occArr['member']) $paleoStr3 .= '; <b>member:</b> '.$occArr['member'];
-									if($occArr['lithology']) $paleoStr3 .= '; <b>lithology:</b> '.$occArr['lithology'];
-									if($paleoStr3) echo '<div>'.trim($paleoStr3,'; ').'</div>';
-									if($occArr['stratremarks']) echo '<div><b>remarks:</b> '.$occArr['stratremarks'].'</div>';
-									$paleoStr4 = '';
-									if($occArr['element']) $paleoStr4 .= '; <b>element:</b> '.$occArr['element'];
-									if($occArr['slideproperties']) $paleoStr4 .= '; <b>slide properties:</b> '.$occArr['slideproperties'];
-									if($paleoStr4) echo '<div>'.trim($paleoStr4,'; ').'</div>';
+									if($occArr['absoluteage']) echo '<div style="float:left;margin-right:25px"><b>absolute age:</b> '.$occArr['absoluteage'].'</div>';
+									if($occArr['storageage']) echo '<div style="float:left;margin-right:25px"><b>storage age:</b> '.$occArr['storageage'].'</div>';
+									if($occArr['localstage']) echo '<div style="float:left;margin-right:25px"><b>local stage:</b> '.$occArr['localstage'].'</div>';
+									if($occArr['biota']) echo '<div style="float:left;margin-right:25px"><b>biota:</b> '.$occArr['biota'].'</div>';
+									if($occArr['biostratigraphy']) echo '<div style="float:left;margin-right:25px"><b>biostratigraphy:</b> '.$occArr['biostratigraphy'].'</div>';
+									if($occArr['lithogroup']) echo '<div style="float:left;margin-right:25px"><b>group:</b> '.$occArr['lithogroup'].'</div>';
+									if($occArr['formation']) echo '<div style="float:left;margin-right:25px"><b>formation:</b> '.$occArr['formation'].'</div>';
+									if($occArr['taxonenvironment']) echo '<div style="float:left;margin-right:25px"><b>taxon environment:</b> '.$occArr['taxonenvironment'].'</div>';
+									if($occArr['member']) echo '<div style="float:left;margin-right:25px"><b>member:</b> '.$occArr['member'].'</div>';
+									if($occArr['bed']) echo '<div style="float:left;margin-right:25px"><b>bed:</b> '.$occArr['bed'].'</div>';
+									if($occArr['lithology']) echo '<div style="float:left;margin-right:25px"><b>lithology:</b> '.$occArr['lithology'].'</div>';
+									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>remarks:</b> '.$occArr['stratremarks'].'</div>';
+									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>element:</b> '.$occArr['element'].'</div>';
+									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>slide properties:</b> '.$occArr['slideproperties'].'</div>';
 									?>
 								</div>
 							</div>

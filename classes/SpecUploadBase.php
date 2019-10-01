@@ -145,6 +145,25 @@ class SpecUploadBase extends SpecUpload{
 		//Add additional fields that are used for mapping to other fields just before record is imported into uploadspectemp
 		$this->symbFields[] = 'coordinateuncertaintyradius';
 		$this->symbFields[] = 'coordinateuncertaintyunits';
+		//Add DwC GeologicalContext (paleo) terms
+		$this->symbFields[] = 'geologicalcontextid';
+		$this->symbFields[] = 'earliestEonOrLowestEonothem';
+		$this->symbFields[] = 'latestEonOrHighestEonothem';
+		$this->symbFields[] = 'earliestEraOrLowestErathem';
+		$this->symbFields[] = 'latestEraOrHighestErathem';
+		$this->symbFields[] = 'earliestPeriodOrLowestSystem';
+		$this->symbFields[] = 'latestPeriodOrHighestSystem';
+		$this->symbFields[] = 'earliestEpochOrLowestSeries';
+		$this->symbFields[] = 'latestEpochOrHighestSeries';
+		$this->symbFields[] = 'earliestAgeOrLowestStage';
+		$this->symbFields[] = 'latestAgeOrHighestStage';
+		$this->symbFields[] = 'lowestBiostratigraphicZone';
+		$this->symbFields[] = 'highestBiostratigraphicZone';
+		$this->symbFields[] = 'lithostratigraphicTermsProperty';
+		$this->symbFields[] = 'group';
+		$this->symbFields[] = 'formation';
+		$this->symbFields[] = 'member';
+		$this->symbFields[] = 'bed';
 
 		switch ($this->uploadType) {
 			case $this->FILEUPLOAD:
@@ -728,7 +747,7 @@ class SpecUploadBase extends SpecUpload{
 			if($this->collMetadataArr["managementtype"] == 'Snapshot' || $this->uploadType == $this->SKELETAL){
 				//Match records that were processed via the portal, walked back to collection's central database, and come back to portal
 				$this->outputMsg('<li style="margin-left:10px;">Populating source identifiers (dbpk) to relink specimens processed within portal...</li>');
-				$sql = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON (u.catalogNumber = o.catalogNumber) AND (u.collid = o.collid) '.
+				$sql = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON (u.catalogNumber = o.catalogNumber) AND (u.collid = o.collid) '.
 					'SET u.occid = o.occid, o.dbpk = u.dbpk '.
 					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NULL) AND (u.catalogNumber IS NOT NULL) AND (o.catalogNumber IS NOT NULL) AND (o.dbpk IS NULL) ';
 				$this->conn->query($sql);
@@ -970,7 +989,7 @@ class SpecUploadBase extends SpecUpload{
 			$sql = 'DELETE FROM uploadimagetemp '.
 				'WHERE (originalurl LIKE "%.dng" OR originalurl LIKE "%.tif") AND (collid = '.$this->collId.')';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 1 of 3... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 1 of 5... </li>');
 			}
 			else{
 				$this->outputMsg('<li style="margin-left:20px;">WARNING removing non-jpgs from uploadimagetemp: '.$this->conn->error.'</li> ');
@@ -981,7 +1000,7 @@ class SpecUploadBase extends SpecUpload{
 				'SET ui.occid = u.occid '.
 				'WHERE (ui.occid IS NULL) AND (u.occid IS NOT NULL) AND (ui.collid = '.$this->collId.')';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 2 of 3... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 2 of 5... </li>');
 			}
 			else{
 				$this->outputMsg('<li style="margin-left:20px;">WARNING updating occids within uploadimagetemp: '.$this->conn->error.'</li> ');
@@ -989,12 +1008,22 @@ class SpecUploadBase extends SpecUpload{
 
 			//Remove previously loaded images where urls match exactly
 			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
-				'WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
+				'WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl) AND (u.url = i.url)';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 3 of 3... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 3 of 5... </li>');
 			}
 			else{
-				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting uploadimagetemp records with matching originalurls: '.$this->conn->error.'</li> ');
+				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting uploadimagetemp records with matching urls: '.$this->conn->error.'</li> ');
+			}
+			if($this->collMetadataArr["managementtype"] == 'Snapshot'){
+				//Flush non-matching image derivatives (e.g. thumbnails)
+				$sql = 'DELETE i.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
+				if($this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:10px;">step 4 of 5... </li>');
+				}
+				else{
+					$this->outputMsg('<li style="margin-left:20px;">ERROR deleting image records with matching originalurls: '.$this->conn->error.'</li> ');
+				}
 			}
 			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
 				'WHERE (u.collid = '.$this->collId.') AND (u.url = i.url) AND (i.url != "") AND (i.url != "empty")';
@@ -1277,13 +1306,12 @@ class SpecUploadBase extends SpecUpload{
 					}
 				}
 
-				$sqlFragments = $this->getSqlFragments($recMap,$this->identFieldMap);
-				if($sqlFragments){
-					if($recMap['identifiedby'] || $recMap['dateidentified']){
-						if(!isset($recMap['identifiedby']) || !$recMap['identifiedby']) $recMap['identifiedby'] = 'not specified';
-						if(!isset($recMap['dateidentified']) || $recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
-						$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') '.
-							'VALUES('.$this->collId.$sqlFragments['valuestr'].')';
+				if($recMap['identifiedby'] || $recMap['dateidentified']){
+					if(!isset($recMap['identifiedby']) || !$recMap['identifiedby']) $recMap['identifiedby'] = 'not specified';
+					if(!isset($recMap['dateidentified']) || $recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
+					$sqlFragments = $this->getSqlFragments($recMap,$this->identFieldMap);
+					if($sqlFragments){
+						$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
 						//echo "<div>SQL: ".$sql."</div>"; exit;
 
 						if($this->conn->query($sql)){

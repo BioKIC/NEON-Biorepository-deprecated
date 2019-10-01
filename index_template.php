@@ -16,6 +16,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
 	</script>
+	<style>
+		#slideshowcontainer{
+			border: 2px solid black;
+			border-radius:10px;
+			padding:10px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+	</style>
 </head>
 <body>
 	<?php

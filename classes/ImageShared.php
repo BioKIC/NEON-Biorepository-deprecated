@@ -1237,11 +1237,11 @@ class ImageShared{
 	// Retrieve JPEG width and height without downloading/reading entire image.
 	private static function getImgDim1($imgUrl) {
 		$opts = array(
-				'http'=>array(
-						'user_agent' => $GLOBALS['DEFAULT_TITLE'],
-						'method'=>"GET",
-						'header'=> implode("\r\n", array('Content-type: text/plain;'))
-				)
+			'http'=>array(
+				'user_agent' => $GLOBALS['DEFAULT_TITLE'],
+				'method'=>"GET",
+				'header'=> implode("\r\n", array('Content-type: text/plain;'))
+			)
 		);
 		$context = stream_context_create($opts);
 		if($handle = fopen($imgUrl, "rb", false, $context)){
@@ -1263,9 +1263,14 @@ class ImageShared{
 								$sof_marker = array("\xC0", "\xC1", "\xC2", "\xC3", "\xC5", "\xC6", "\xC7", "\xC8", "\xC9", "\xCA", "\xCB", "\xCD", "\xCE", "\xCF");
 								if(in_array($new_block[$i+1], $sof_marker)) {
 									// SOF marker detected. Width and height information is contained in bytes 4-7 after this byte.
-									$size_data = $new_block[$i+2] . $new_block[$i+3] . $new_block[$i+4] . $new_block[$i+5] . $new_block[$i+6] . $new_block[$i+7] . $new_block[$i+8];
+									//$size_data = $new_block[$i+2] . $new_block[$i+3] . $new_block[$i+4] . $new_block[$i+5] . $new_block[$i+6] . $new_block[$i+7] . $new_block[$i+8];
+									$size_data = null;
+									for($x = 2; $x < 9; $x++){
+										if(isset($new_block[$i+$x])) $size_data .= $new_block[$i+$x];
+									}
 									$unpacked = unpack("H*", $size_data);
 									$unpacked = $unpacked[1];
+									if(!is_array($unpacked) || count($unpacked) < 13) return false;
 									$height = hexdec($unpacked[6] . $unpacked[7] . $unpacked[8] . $unpacked[9]);
 									$width = hexdec($unpacked[10] . $unpacked[11] . $unpacked[12] . $unpacked[13]);
 									return array($width, $height);

@@ -153,12 +153,12 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 		#sddm div{position: absolute;visibility:hidden;margin:0;padding:0;background:#EAEBD8;border:1px solid #5970B2}
 		#sddm div a	{position: relative;display:block;margin:0;padding:5px 10px;width:auto;white-space:nowrap;text-align:left;text-decoration:none;background:#EAEBD8;color:#2875DE;font-weight:bold;}
 		#sddm div a:hover{background:#49A3FF;color:#FFF}
+
 		<?php
 		if($printMode){
 			?>
 			body{ background-color:#ffffff;  }
 			#innertext{ background-color:#ffffff; }
-			#taxaDiv{ line-height: 1em; }
 			.printoff{ display:none; }
 			a{ color: currentColor; cursor: none; pointer-events: none; text-decoration: none; }
 			<?php
@@ -689,7 +689,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					}
 					else{
 						//Display taxa
-						echo '<div id="taxaDiv">';
+						echo '<div id="taxalist-div">';
 						$voucherArr = array();
 						if($showVouchers) $voucherArr = $clManager->getVoucherArr();
 						$prevGroup = '';
@@ -697,27 +697,29 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							$group = $sppArr['taxongroup'];
 							if($group != $prevGroup){
 								$famUrl = '../taxa/index.php?taxauthid=1&taxon='.strip_tags($group).'&clid='.$clid;
+								//Edit family name display style here
 								?>
-								<div class="familydiv" id="<?php echo strip_tags($group);?>" style="margin:12px 0px 3px 0px;font-weight:bold;">
+								<div class="family-div" id="<?php echo strip_tags($group);?>">
 									<a href="<?php echo $famUrl; ?>" target="_blank" style="color:black;"><?php echo $group;?></a>
 								</div>
 								<?php
 								$prevGroup = $group;
 							}
-							echo "<div id='tid-$tid' style='margin:0px 0px 3px 10px;'>";
-							echo '<div style="clear:left">';
+							echo '<div id="tid-'.$tid.'" class="taxon-container">';
+							//Edit species name display style here
+							echo '<div class="taxon-div">';
 							if(!preg_match('/\ssp\d/',$sppArr["sciname"])) echo '<a href="../taxa/index.php?taxauthid=1&taxon='.$tid.'&clid='.$clid.'" target="_blank">';
-							echo "<b><i>".$sppArr["sciname"]."</b></i> ";
+							echo '<span class="taxon-span">'.$sppArr['sciname'].'</span> ';
 							if(array_key_exists("author",$sppArr)) echo $sppArr["author"];
 							if(!preg_match('/\ssp\d/',$sppArr["sciname"])) echo "</a>";
 							if(array_key_exists('vern',$sppArr)){
-								echo " - <span style='font-weight:bold;'>".$sppArr["vern"]."</span>";
+								echo ' - <span class="vern-span">'.$sppArr['vern'].'</span>';
 							}
 							$clidArr = array();
 							if(isset($sppArr['clid'])) $clidArr = explode(',',$sppArr['clid']);
 							if($clArray["dynamicsql"]){
 								?>
-								<span class="printoff" style="margin:0px 10px">
+								<span class="view-specimen-span printoff">
 									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank">
 										<img src="../images/list.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'View Related Specimens'); ?>" />
 									</a>
@@ -747,7 +749,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							}
 							echo "</div>\n";
 							if($showSynonyms && isset($sppArr['syn'])){
-								echo '<div style="margin-left:15px">['.$sppArr['syn'].']</div>';
+								echo '<div class="syn-div">['.$sppArr['syn'].']</div>';
 							}
 							if($showVouchers){
 								$voucStr = '';
@@ -770,7 +772,8 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									$noteStr = $sppArr['notes'];
 								}
 								if($noteStr || $voucStr){
-									echo "<div style='margin-left:15px;'>".$noteStr.($noteStr && $voucStr?'; ':'').$voucStr."</div>";
+								//Edit notes and voucher display style here
+									echo '<div class="note-div">'.$noteStr.($noteStr && $voucStr?'; ':'').$voucStr.'</div>';
 								}
 							}
 							echo "</div>\n";
@@ -780,7 +783,8 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					$taxaLimit = ($showImages?$clManager->getImageLimit():$clManager->getTaxaLimit());
 					if($clManager->getTaxaCount() > (($pageNumber)*$taxaLimit)){
 						echo '<div class="printoff" style="margin:20px;clear:both;">';
-						echo '<a href="checklist.php?pagenumber='.($pageNumber+1).$argStr.'"> '.$LANG['DISPLAYNEXT'].' '.$taxaLimit.' '.$LANG['TAXA'].'...</a></div>';
+						echo '<a href="checklist.php?pagenumber='.($pageNumber+1).$argStr.'"> '.$LANG['DISPLAYNEXT'].' '.$taxaLimit.' '.$LANG['TAXA'].'...</a>';
+						echo '</div>';
 					}
 					if(!$taxaArray) echo "<h1 style='margin:40px;'>".$LANG['NOTAXA']."</h1>";
 					?>

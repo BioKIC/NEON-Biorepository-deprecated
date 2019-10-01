@@ -46,7 +46,7 @@ function traitChanged(elem){
 	var elemType =  elem.getAttribute("type");
 	var elemName = elem.getAttribute("name");
 	var traitID = elemName.substring(8,elemName.length-2);
-	$('input[name="stateid-'+traitID+'[]"]').each(function(){
+	$('input[name="traitid-'+traitID+'[]"]').each(function(){
 		if(this.checked == false){
 			//Uncheck children to match parent
 			$("input:checkbox.child-"+this.value).each(function(){ this.checked = false; });
@@ -63,7 +63,7 @@ function traitChanged(elem){
 	    }
 	}
 	if(!sessionStorage.attributeTree || sessionStorage.attributeTree == 0){
-		$('input[name="stateid-'+traitID+'[]"]').each(function(){
+		$('input[name="traitid-'+traitID+'[]"]').each(function(){
 			if((elemType == 'text' && elemType.value.trim() != '') || this.checked == true){
 				if(sessionStorage.attributeTree == 0) $("div.child-"+this.value).show();
 			}

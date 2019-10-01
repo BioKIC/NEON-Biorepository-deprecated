@@ -193,14 +193,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 		<div id="storageAgeDiv">
 			<?php echo (defined('STORAGEAGELABEL')?STORAGEAGELABEL:'Storage Age'); ?>
 			<a href="#" onclick="return dwcDoc('storageAge')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-			<select name="storageage" onchange="fieldChanged('storageage');">
-				<option value=""></option>
-				<?php
-				foreach($gtsTermArr as $term => $rankid){
-					if($rankid == 60) echo '<option value="'.$term.'" '.(isset($occArr['storageage']) && $occArr['storageage']==$term?'SELECTED':'').'>'.$term.'</option>';
-				}
-				?>
-			</select>
+			<input type="text" name="storageage" value="<?php echo isset($occArr['storageage'])?$occArr['storageage']:''; ?>" onchange="fieldChanged('storageage');" />
 		</div>
 		<div id="localStageDiv">
 			<?php echo (defined('LOCALSTAGELABEL')?LOCALSTAGELABEL:'Local Stage'); ?>
@@ -250,6 +243,13 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<a href="#" onclick="return dwcDoc('member')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 			<input type="text" name="member" value="<?php echo isset($occArr['member'])?$occArr['member']:''; ?>" onchange="fieldChanged('member');" />
 		</div>
+		<div id="bedDiv">
+			<?php echo (defined('BEDLABEL')?BEDLABEL:'Bed'); ?>
+			<a href="#" onclick="return dwcDoc('bed')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
+			<input type="text" name="bed" value="<?php echo isset($occArr['bed'])?$occArr['bed']:''; ?>" onchange="fieldChanged('bed');" />
+		</div>
+	</div>
+	<div style="clear:both">
 		<div id="lithologyDiv">
 			<?php echo (defined('LITHOLOGYLABEL')?LITHOLOGYLABEL:'Lithology'); ?>
 			<a href="#" onclick="return dwcDoc('lithology')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>

@@ -127,7 +127,7 @@ $statusStr = "";
 				}
 				elseif($action == 'Run Batch OCR'){
 					$ocrManager = new SpecProcessorOcr();
-					$ocrManager->setVerbose(2);
+					$ocrManager->setVerboseMode(2);
 					$batchLimit = 100;
 					if(array_key_exists('batchlimit',$_POST)) $batchLimit = $_POST['batchlimit'];
 					echo '<ul>';
@@ -137,7 +137,7 @@ $statusStr = "";
 				elseif($action == 'Load OCR Files'){
 					$specManager->addProject($_POST);
 					$ocrManager = new SpecProcessorOcr();
-					$ocrManager->setVerbose(2);
+					$ocrManager->setVerboseMode(2);
 					echo '<ul>';
 					$ocrManager->harvestOcrText($_POST);
 					echo '</ul>';

@@ -67,7 +67,7 @@ if($isEditor){
 			$statusStr = $loanManager->editSpecimen($_REQUEST);
 		}
 		elseif($formSubmit == 'Add New Determinations'){
-			include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
+			include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
 			$occManager = new OccurrenceEditorDeterminations();
 			$occidArr = $_REQUEST['occid'];
 			foreach($occidArr as $k){
@@ -103,25 +103,25 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 	if(isset($collections_loans_indexCrumbs) && $collections_loans_indexCrumbs){
 		?>
 		<div class='navpath'>
-			<a href='../../index.php'>Home</a> &gt;&gt; 
+			<a href='../../index.php'>Home</a> &gt;&gt;
 			<?php echo $collections_loans_indexCrumbs; ?>
 			<a href='index.php?collid=<?php echo $collId; ?>'> <b>Loan Management Main Menu</b></a>
 		</div>
-		<?php 
+		<?php
 	}
 	else{
 		?>
 		<div class='navpath'>
-			<a href='../../index.php'>Home</a> &gt;&gt; 
+			<a href='../../index.php'>Home</a> &gt;&gt;
 			<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1">Collection Management Menu</a> &gt;&gt;
 			<a href='index.php?collid=<?php echo $collId; ?>'> <b>Loan Management Main Menu</b></a>
 		</div>
-		<?php 
+		<?php
 	}
 	?>
 	<!-- This is inner text! -->
 	<div id="innertext">
-		<?php 
+		<?php
 		if($SYMB_UID && $isEditor && $collId){
 			//Collection is defined and User is logged-in and have permissions
 			if($statusStr){
@@ -131,9 +131,9 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 					<?php echo $statusStr; ?>
 				</div>
 				<hr/>
-				<?php 
+				<?php
 			}
-			
+
 			if(!$loanId && !$exchangeId){
 				?>
 				<div id="tabs" style="margin:0px;">
@@ -162,7 +162,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 										<input type="submit" name="formsubmit" value="Refresh List" />
 									</div>
 								</fieldset>
-							</form>	
+							</form>
 						</div>
 						<?php
 						if($loanOutList){
@@ -200,7 +200,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 											<select name="reqinstitution" style="width:400px;">
 												<option value="">Select Institution</option>
 												<option value="">------------------------------------------</option>
-												<?php 
+												<?php
 												$instArr = $loanManager->getInstitutionArr();
 												foreach($instArr as $k => $v){
 													echo '<option value="'.$k.'">'.$v.'</option>';
@@ -227,7 +227,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 						}
 						?>
 						<div>
-							<?php 
+							<?php
 							if($loanOutList){
 								echo '<h3>Outgoing Loan Records</h3>';
 								echo '<ul>';
@@ -267,7 +267,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 										<input type="submit" name="formsubmit" value="Refresh List" />
 									</div>
 								</fieldset>
-							</form>	
+							</form>
 						</div>
 						<?php
 						if($loansOnWay || $loanInList){
@@ -306,7 +306,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 											<select name="iidowner" style="width:400px;">
 												<option value="0">Select Institution</option>
 												<option value="0">------------------------------------------</option>
-												<?php 
+												<?php
 												$instArr = $loanManager->getInstitutionArr();
 												foreach($instArr as $k => $v){
 													echo '<option value="'.$k.'">'.$v.'</option>';
@@ -333,7 +333,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 						}
 						?>
 						<div>
-							<?php 
+							<?php
 							if($loansOnWay){
 								echo '<h3>Loans on Their Way</h3>';
 								echo '<ul>';
@@ -349,7 +349,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 							?>
 						</div>
 						<div>
-							<?php 
+							<?php
 							echo '<h3>Incoming Loans</h3>';
 							echo '<ul>';
 							if($loanInList){
@@ -371,7 +371,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 						<div style="clear:both;">&nbsp;</div>
 					</div>
 				</div>
-				<?php 
+				<?php
 			}
 			elseif($loanType == 'out'){
 				include_once('outgoingdetails.php');

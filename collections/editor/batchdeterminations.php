@@ -1,6 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/batchdeterminations.php?'.$_SERVER['QUERY_STRING']);
@@ -8,12 +8,13 @@ if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/e
 $collid = $_REQUEST["collid"];
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
+if(!is_numeric($collid)) $collid = 0;
+
 $occManager = new OccurrenceEditorDeterminations();
 $occManager->setCollId($collid);
 $occManager->getCollMap();
 
 $isEditor = 0;
-$occArr = array();
 if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
 	$isEditor = 1;
 }
@@ -78,20 +79,23 @@ if($isEditor){
 			}
 
 			function submitAccForm(f){
-				if(f.catalognumber.value == "") document.getElementById("workingcircle").style.display = "inline";
+				var workingObj = document.getElementById("workingcircle");
+				workingObj.style.display = "inline"
+				var allCatNum = 0;
+				if(f.allcatnum.checked) allCatNum = 1;
 
 				$.ajax({
 					type: "POST",
 					url: "rpc/getnewdetitem.php",
 					dataType: "json",
-					async: false,
 					data: {
 						catalognumber: f.catalognumber.value,
+						allcatnum: allCatNum,
 						sciname: f.sciname.value,
 						collid: f.collid.value
 					}
 				}).done(function( retStr ) {
-					if(retStr){
+					if(retStr != ""){
 						for (var occid in retStr) {
 							var occObj = retStr[occid];
 							if(f.catalognumber.value && checkCatalogNumber(occid, occObj["cn"])){
@@ -103,20 +107,18 @@ if($isEditor){
 								tableBody.insertBefore(trNode, tableBody.firstElementChild);
 							}
 						}
+						document.getElementById("accrecordlistdviv").style.display = "block";
 					}
 					else{
 						alert("No records returned matching search criteria");
 					}
 				});
 
-				if(f.catalognumber.value == ""){
-					document.getElementById("workingcircle").style.display = "none";
-				}
-				else{
+				if(f.catalognumber.value != ""){
 					f.catalognumber.value = '';
 					f.catalognumber.focus();
 				}
-				document.getElementById("accrecordlistdviv").style.display = "block";
+				workingObj.style.display = "none";
 				return false;
 			}
 
@@ -142,7 +144,7 @@ if($isEditor){
 				var anchor1 = document.createElement("a");
 				anchor1.setAttribute("href","#");
 				anchor1.setAttribute("onclick","openIndPopup("+occid+"); return false;");
-				if(occObj["cn"] != "") anchor1.innerHTML = occObj["cn"];
+				if(occObj["cn"]) anchor1.innerHTML = occObj["cn"];
 				else anchor1.innerHTML = "[no catalog number]";
 				tdNode2.appendChild(anchor1);
 				var anchor2 = document.createElement("a");
@@ -286,14 +288,7 @@ if($isEditor){
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
-		<?php
-		if(isset($collections_batchdeterminationsMenuCrumbs)){
-			echo $collections_batchdeterminationsMenuCrumbs;
-		}
-		else{
-			echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
-		}
-		?>
+		<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Panel</a> &gt;&gt;
 		<b>Batch Determinations/Nomenclatural Adjustments</b>
 	</div>
 	<!-- This is inner text! -->
@@ -301,31 +296,30 @@ if($isEditor){
 		<?php
 		if($isEditor){
 			echo '<h2>'.$occManager->getCollName().'</h2>';
-			if($statusStr) echo '<div style="color:orange;font-weight:bold;">'.$statusStr.'</div>';
 			?>
 			<div style="margin:0px;">
 				<fieldset style="padding:10px;">
 					<legend><b>Define Specimen Recordset</b></legend>
 					<div style="margin:15px">
-						Scan barcodes/catalog numbers into the field below or enter a taxon search term to list specimens for batch annotation.
-						Multiple catalog numbers can be entered at once when separated by commas.
+						Scan catalog numbers/barcodes into the field below or enter a taxon search term to list specimens for batch annotation.
+						Multiple catalog numbers can be entered sequentially or at once separated by commas.
 						Once list is complete, select/deselect target specimens, enter annotation information, and submit.
 					</div>
 					<div style="margin:15px;width:700px;">
-						<form name="accqueryform" action="batchdeterminations.php" method="post" onsubmit="return submitAccForm(this);return false;">
-							<div style="float:right">
-								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-								<button name="clearaccform" type="button" style="margin-left:40px" onclick='clearAccForm(this.form)'>Clear List</button>
-							</div>
+						<form name="accqueryform" action="batchdeterminations.php" method="post" onsubmit="return submitAccForm(this);">
 							<div>
 								<b>Catalog Number:</b>
 								<input name="catalognumber" type="text" style="border-color:green;width:200px;" />
-								<button name="addrecord" type="submit">Add Record(s) to Queue</button>
+								<span style="margin-left:20px"><input name="allcatnum" type="checkbox" checked /> target all catalog numbers</span>
 							</div>
 							<div>
 								<b>Taxon:</b>
 								<input type="text" id="nomsciname" name="sciname" style="width:260px;" onfocus="initScinameAutocomplete(this.form)" />
-								<button name="addrecord" type="submit">List Record(s)</button>
+							</div>
+							<div style="margin-top:5px;width:300px">
+								<button name="clearaccform" type="button" style="float:right" onclick='clearAccForm(this.form)'>Clear List</button>
+								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+								<button name="addrecord" type="submit">Add Record(s) to List</button>
 								<img id="workingcircle" src="../../images/workingcircle.gif" style="display:none;" />
 							</div>
 						</form>
@@ -333,6 +327,14 @@ if($isEditor){
 					<div style="margin:15px">
 						* Specimen list is limited to 200 records per batch.<br/>
 					</div>
+					<?php
+					if($statusStr){
+						echo '<div style="margin:30px 20px;">';
+						echo '<div style="color:orange;font-weight:bold;">'.$statusStr.'</div>';
+						echo '<div style="margin-top:10px;"><a href="../reports/annotationmanager.php?collid='.$collid.'" target="_blank">Display Annotation Print Queue</a></div>';
+						echo '</div>';
+					}
+					?>
 				</fieldset>
 				<div id="accrecordlistdviv" style="display:none;">
 					<form name="accselectform" id="accselectform" action="batchdeterminations.php" method="post" onsubmit="return validateSelectForm(this);">

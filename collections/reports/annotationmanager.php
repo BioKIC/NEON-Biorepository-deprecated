@@ -225,7 +225,7 @@ if($isEditor){
 				else{
 					?>
 					<div style="font-weight:bold;margin:20px;font-weight:150%;">
-						There are no annotations queued to be printed. An annotation can be added to the queue from the
+						There are no annotations queued to be printed.
 					</div>
 					<?php
 				}

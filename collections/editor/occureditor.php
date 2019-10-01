@@ -1,7 +1,5 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
-include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 header('Access-Control-Allow-Origin: http://www.catalogueoflife.org/col/webservice');
 
@@ -26,12 +24,15 @@ if(!$action && array_key_exists('carryloc',$_REQUEST)){
 //Create Occurrence Manager
 $occManager;
 if(strpos($action,'Determination') || strpos($action,'Verification')){
+	include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
 	$occManager = new OccurrenceEditorDeterminations();
 }
 elseif(strpos($action,'Image')){
+	include_once($SERVER_ROOT.'/classes/OccurrenceEditorImages.php');
 	$occManager = new OccurrenceEditorImages();
 }
 else{
+	include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
 	$occManager = new OccurrenceEditorManager();
 }
 
@@ -565,6 +566,7 @@ else{
 									<?php
 									if($occid && $isEditor){
 										// Get symbiota user email as the annotator email (for fp)
+										include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 										$pHandler = new ProfileManager();
 										$pHandler->setUid($SYMB_UID);
 										$person = $pHandler->getPerson();

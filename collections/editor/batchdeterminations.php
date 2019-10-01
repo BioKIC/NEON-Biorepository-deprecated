@@ -316,7 +316,7 @@ if($isEditor){
 								<b>Taxon:</b>
 								<input type="text" id="nomsciname" name="sciname" style="width:260px;" onfocus="initScinameAutocomplete(this.form)" />
 							</div>
-							<div style="margin-top:5px;width:300px">
+							<div style="margin-top:5px;">
 								<button name="clearaccform" type="button" style="float:right" onclick='clearAccForm(this.form)'>Clear List</button>
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 								<button name="addrecord" type="submit">Add Record(s) to List</button>

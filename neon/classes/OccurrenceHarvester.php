@@ -662,6 +662,11 @@ class OccurrenceHarvester{
 				echo 'ERROR mixing problematic eventDate using temporary NEON taxon tables: '.$sql;
 			}
 			*/
+
+			//Run custon stored procedure that preforms some special assignment tasks
+			if(!$this->conn->query('call higher_taxon_assignment()')){
+				echo 'ERROR running stored procedure: '.$sql;
+			}
 		}
 	}
 

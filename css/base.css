@@ -304,6 +304,7 @@ div.tnimg img{
 
 /* styled table */
 table.styledtable{
+	table-layout: auto;
 	width:				100%; 
 	border-collapse:	collapse; 
 }

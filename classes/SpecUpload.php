@@ -225,7 +225,8 @@ class SpecUpload{
 			'decimallatitude', 'decimallongitude','geodeticdatum', 'coordinateuncertaintyinmeters', 'footprintwkt',
 			'locationremarks', 'verbatimcoordinates', 'georeferencedby', 'georeferenceprotocol', 'georeferencesources',
 			'georeferenceverificationstatus', 'georeferenceremarks', 'minimumelevationinmeters', 'maximumelevationinmeters',
-			'verbatimelevation', 'disposition', 'language', 'duplicatequantity', 'genericcolumn1', 'genericcolumn2',
+			'verbatimelevation', 'minimumdepthinmeters', 'maximumdepthinmeters', 'verbatimdepth',
+			'disposition', 'language', 'duplicatequantity', 'genericcolumn1', 'genericcolumn2',
 			'labelproject','basisofrecord','ownerinstitutioncode', 'processingstatus', 'recordenteredby');
 		$sql = 'SELECT occid, dbpk, '.implode(',',$occFieldArr).' FROM uploadspectemp '.
 				'WHERE collid IN('.$this->collId.') ';

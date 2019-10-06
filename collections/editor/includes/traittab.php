@@ -41,7 +41,7 @@ if($isEditor){
 		var action = butElem.value;
 		var hasStates = false;
 		var stateJson = {};
-		$('input[name^="stateid"]').each(function(index,data) {
+		$('input[name^="traitid"]').each(function(index,data) {
 			if($(this).prop('checked')){
 				if($(this).attr('name') in stateJson){
 					stateJson[$(this).attr('name')].push($(this).val());
@@ -105,55 +105,58 @@ if($isEditor){
 				?>
 				<fieldset style="margin-top:20px">
 					<legend><b>Trait: <?php echo $traitData['name']; ?></b></legend>
-					<div style="float:right">
-						<div style="margin:0px 3px;float:right" title="Hard refresh of page">
-							<form name="refreshform" method="post" action="occurrenceeditor.php" >
-								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-								<?php
-								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
-								?>
-								<input name="tabtarget" type="hidden" value="3" />
-								<input type="image" src="../../images/refresh.png" />
-							</form>
-						</div>
-						<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
-							<img class="triangleright" src="../../images/triangleright.png" style="" />
-							<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
-						</div>
-					</div>
 					<form name="submitform" method="post" action="occurrenceeditor.php" onsubmit="">
-						<div class="traitDiv" style="margin:5px">
+						<div style="float:right">
+							<div style="margin:0px 3px;float:right" title="Hard refresh of page">
+								<form name="refreshform" method="post" action="occurrenceeditor.php" >
+									<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+									<?php
+									if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
+									?>
+									<input name="tabtarget" type="hidden" value="3" />
+									<input type="image" src="../../images/refresh.png" />
+								</form>
+							</div>
+							<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
+								<img class="triangleright" src="../../images/triangleright.png" style="" />
+								<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
+							</div>
+						</div>
+						<div class="traitDiv" style="margin-left:5px;float:left">
 							<?php
 							$attrManager->echoFormTraits($traitID);
 							?>
 						</div>
-						<div style="margin:10px 5px;">
-							Notes:
-							<input name="notes" type="text" style="width:300px" value="<?php echo $notes; ?>" />
-						</div>
-						<div style="margin:10px 5px;">
-							Source:
-							<input name="source" type="text" style="width:300px" value="<?php echo $source; ?>" />
-						</div>
-						<div style="margin-left:5;">
-							Status:
-							<select name="setstatus">
-								<option value="0">Not reviewed</option>
-								<option value="5" <?php echo ($statusCode=='5'?'selected':''); ?>>Expert Needed</option>
-								<option value="10" <?php echo ($statusCode=='10'?'selected':''); ?>>Reviewed</option>
-							</select>
-						</div>
-						<div style="margin:20px;float:left">
-							<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-							<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
-							<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
-							<input name="delstates" type="hidden" value="<?php echo $attrManager->getStateCodedStr(); ?>" />
-							<input name="tabtarget" type="hidden" value="3" />
-							<button name="submitbutton" type="submit" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
-							<span id="msgDiv-<?php echo $traitID; ?>"></span>
-						</div>
-						<div style="margin:20px;float:right;">
-							<button name="submitaction" type="submit" value="deleteCoding" style="border:1px solid red;" onclick="return confirm('Are you sure you want to delete this trait coding?')">Delete Coding</button>
+						<div style="clear:both;padding:10px 5px;">
+							<div >
+								Notes:
+								<input name="notes" type="text" style="width:300px" value="<?php echo $notes; ?>" />
+							</div>
+							<div style="margin:10px 0px">
+								Source:
+								<input name="source" type="text" style="width:300px" value="<?php echo $source; ?>" />
+							</div>
+							<div style="margin-left:5;">
+								Status:
+								<select name="setstatus">
+									<option value="0">Not reviewed</option>
+									<option value="5" <?php echo ($statusCode=='5'?'selected':''); ?>>Expert Needed</option>
+									<option value="10" <?php echo ($statusCode=='10'?'selected':''); ?>>Reviewed</option>
+								</select>
+							</div>
+							<div style="margin:20px;float:left">
+								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+								<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
+								<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
+								<input name="delstates" type="hidden" value="<?php echo $attrManager->getStateCodedStr(); ?>" />
+								<input name="tabtarget" type="hidden" value="3" />
+								<button name="submitbutton" type="submit" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
+								<span style="margin-left: 20px"><button name="resetbtn" type="reset">Reset Form</button></span>
+								<span id="msgDiv-<?php echo $traitID; ?>"></span>
+							</div>
+							<div style="margin:20px;float:right;">
+								<button name="submitaction" type="submit" value="deleteCoding" style="border:1px solid red;" onclick="return confirm('Are you sure you want to delete this trait coding?')">Delete Coding</button>
+							</div>
 						</div>
 					</form>
 				</fieldset>

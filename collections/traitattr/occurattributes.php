@@ -420,7 +420,7 @@ if($traitID){
 									$attrManager->echoFormTraits($traitID);
 									?>
 								</div>
-								<div style="margin:10px 5px;">
+								<div style="margin:10px 5px;clear:both">
 									Notes:
 									<input name="notes" type="text" style="width:200px" value="<?php echo $notes; ?>" />
 								</div>

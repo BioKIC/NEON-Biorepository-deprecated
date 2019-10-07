@@ -101,7 +101,7 @@ class OccurrenceIndividualManager extends Manager{
 			'identifiedby, dateidentified, recordedby, associatedcollectors, recordnumber, eventdate, MAKEDATE(YEAR(eventDate),enddayofyear) AS eventdateend, '.
 			'verbatimeventdate, country, stateprovince, county, municipality, locality, localitysecurity, localitysecurityreason, '.
 			'decimallatitude, decimallongitude, geodeticdatum, coordinateuncertaintyinmeters, verbatimcoordinates, georeferenceremarks, '.
-			'minimumelevationinmeters, maximumelevationinmeters, verbatimelevation, '.
+			'minimumelevationinmeters, maximumelevationinmeters, verbatimelevation, minimumdepthinmeters, maximumdepthinmeters, verbatimdepth, '.
 			'verbatimattributes, o.locationremarks, o.lifestage, o.sex, o.individualcount, o.samplingprotocol, o.preparations, '.
 			'typestatus, dbpk, habitat, substrate, associatedtaxa, reproductivecondition, cultivationstatus, establishmentmeans, '.
 			'ownerinstitutioncode, othercatalognumbers, disposition, modified, observeruid, g.guid, recordenteredby, dateentered, datelastmodified '.

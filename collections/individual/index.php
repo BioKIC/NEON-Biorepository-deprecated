@@ -633,23 +633,43 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									if($occArr['maximumelevationinmeters']){
 										echo '-'.$occArr['maximumelevationinmeters'];
 									}
-									?>
-									meters
-									<?php
-									if(!$occArr['verbatimelevation']){
-										echo '('.round($occArr['minimumelevationinmeters']*3.28).($occArr['maximumelevationinmeters']?'-'.round($occArr['maximumelevationinmeters']*3.28):'').'ft)';
+									echo ' meters';
+									if($occArr['verbatimelevation']){
+										?>
+										<span style="margin-left:20px">
+											<b>Verbatim Elevation: </b>
+											<?php echo $occArr['verbatimelevation']; ?>
+										</span>
+										<?php
+									}
+									else{
+										echo ' ('.round($occArr['minimumelevationinmeters']*3.28).($occArr['maximumelevationinmeters']?'-'.round($occArr['maximumelevationinmeters']*3.28):'').'ft)';
 									}
 									?>
 								</div>
 								<?php
-								if($occArr['verbatimelevation']){
-									?>
-									<div style="margin-left:10px">
-										<b>Verbatim Elevation: </b>
-										<?php echo $occArr['verbatimelevation']; ?>
-									</div>
+							}
+							if($occArr['minimumdepthinmeters'] || $occArr['verbatimdepth']){
+								?>
+								<div style="margin-left:10px;">
+									<b>Depth:</b>
 									<?php
-								}
+									echo $occArr['minimumdepthinmeters'];
+									if($occArr['maximumdepthinmeters']){
+										echo '-'.$occArr['maximumdepthinmeters'];
+									}
+									echo ' meters';
+									if($occArr['verbatimdepth']){
+										?>
+										<span style="margin-left:20px">
+											<b>Verbatim Depth: </b>
+											<?php echo $occArr['verbatimdepth']; ?>
+										</span>
+										<?php
+									}
+									?>
+								</div>
+								<?php
 							}
 							if($occArr['localitysecurity'] == 1 || $occArr['localitysecurity'] == 3){
 								echo '<div style="margin-left:10px;color:orange">Note: Locality ';

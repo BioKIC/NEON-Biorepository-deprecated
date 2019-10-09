@@ -267,9 +267,22 @@ class OccurrenceSesar extends Manager {
 		return $status;
 	}
 
+	//Misc data return functions
+	public function getMissingGuidCount(){
+		$cnt = 0;
+		$sql = 'SELECT COUNT(*) FROM omoccurrences ';
+		if($this->collid) $sql .= 'WHERE collid = '.$this->collid;
+		$rs = $this->conn->query($sql);
+		if($r = $rs->fetch_object()){
+			$cnt = $r->cnt;
+		}
+		$rs->free();
+		return $cnt;
+	}
+
 	//Setters and getters
 	public function setCollid($id){
-		if(is_numeric($id)){
+		if($id && is_numeric($id)){
 			$this->collid = $id;
 			$sql = 'SELECT institutionCode, collectionCode, collectionName, contact, email FROM omcollections WHERE collid = '.$id;
 			$rs = $this->conn->query($sql);
@@ -280,6 +293,10 @@ class OccurrenceSesar extends Manager {
 			}
 			$rs->free();
 		}
+	}
+
+	public function getCollectionName(){
+		if($this->collArr) return $this->collArr['collectionName'];
 	}
 
 	public function setNamespace($ns){

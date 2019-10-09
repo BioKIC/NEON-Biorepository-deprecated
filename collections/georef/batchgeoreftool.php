@@ -32,6 +32,7 @@ $lngEW = array_key_exists('lngew',$_POST)?$_POST['lngew']:'';
 $coordinateUncertaintyInMeters = array_key_exists('coordinateuncertaintyinmeters',$_POST)?$_POST['coordinateuncertaintyinmeters']:'';
 $geodeticDatum = array_key_exists('geodeticdatum',$_POST)?$_POST['geodeticdatum']:'';
 $georeferenceSources = array_key_exists('georeferencesources',$_POST)?$_POST['georeferencesources']:'';
+$georeferenceProtocol = array_key_exists('georeferenceprotocol',$_POST)?$_POST['georeferenceprotocol']:'';
 $georeferenceRemarks = array_key_exists('georeferenceremarks',$_POST)?$_POST['georeferenceremarks']:'';
 $footprintWKT = array_key_exists('footprintwkt',$_POST)?$_POST['footprintwkt']:'';
 $georeferenceVerificationStatus = array_key_exists('georeferenceverificationstatus',$_POST)?$_POST['georeferenceverificationstatus']:'';
@@ -64,7 +65,7 @@ elseif($activeCollArr){
 }
 
 $statusStr = '';
-$localArr;
+$localArr = array();
 if($isEditor && $submitAction){
 	if($qCountry) $geoManager->setQueryVariables('qcountry',$qCountry);
 	if($qState) $geoManager->setQueryVariables('qstate',$qState);
@@ -468,6 +469,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
+											<b>Protocols:</b>
+										</td>
+										<td colspan="4">
+											<input id="georeferenceprotocol" name="georeferenceprotocol" type="text" value="<?php echo $georeferenceProtocol; ?>" style="width:500px;" />
+										</td>
+									</tr>
+									<tr>
+										<td colspan="3" style="vertical-align:middle">
 											<b>Remarks:</b>
 										</td>
 										<td colspan="4">
@@ -515,7 +524,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 											</select>
 											<span style="margin-left:20px;font-size:80%">
 												Georefer by:
-												<input name="georeferencedby" type="text" value="<?php echo $paramsArr['un']; ?>" style="width:75px" readonly />
+												<input name="georeferencedby" type="text" value="<?php echo $USERNAME; ?>" style="width:75px" readonly />
 											</span>
 										</td>
 									</tr>
@@ -542,7 +551,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								However, elevation data will only be added when the target fields are null.
 								No incoming data will replace existing elevational data.
 								Georeference fields that will be replaced: decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, geodeticdatum,
-								footprintwkt, georeferencedby, georeferenceRemarks, georeferenceSources, georeferenceVerificationStatus </div>
+								footprintwkt, georeferencedby, georeferenceRemarks, georeferenceSources, georeferenceProtocol, georeferenceVerificationStatus </div>
 							</div>
 						</form>
 					</div>

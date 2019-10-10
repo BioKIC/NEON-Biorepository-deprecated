@@ -337,6 +337,13 @@ if($SYMB_UID){
 									<?php
 								}
 								?>
+								<!--
+								<li style="margin-left:10px;">
+									<a href="../../imagelib/admin/igsnmapper.php?collid=<?php echo $collid; ?>">
+										<?php echo $LANG['GUID_MANAGEMENT']; ?>
+									</a>
+								</li>
+								 -->
 								<li style="margin-left:10px;">
 									<a href="../../imagelib/admin/thumbnailbuilder.php?collid=<?php echo $collid; ?>">
 										<?php echo $LANG['THUMBNAIL_MAINTENANCE']; ?>

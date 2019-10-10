@@ -270,8 +270,8 @@ class OccurrenceSesar extends Manager {
 	//Misc data return functions
 	public function getMissingGuidCount(){
 		$cnt = 0;
-		$sql = 'SELECT COUNT(*) FROM omoccurrences ';
-		if($this->collid) $sql .= 'WHERE collid = '.$this->collid;
+		$sql = 'SELECT COUNT(*) AS cnt FROM omoccurrences ';
+		if($this->collid) $sql .= 'WHERE (occurrenceid IS NULL) AND (collid = '.$this->collid.')';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$cnt = $r->cnt;

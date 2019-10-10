@@ -116,7 +116,7 @@ function datasetExists(f){
 			$.ajax({
 				method: "GET",
 				async: false,
-				dateType: "json",
+				dataType: "json",
 				url: urlStr
 			})
 			.done(function( retJson ) {

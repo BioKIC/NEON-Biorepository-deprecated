@@ -2284,10 +2284,6 @@ class OccurrenceEditorManager {
 	protected function encodeStr($inStr){
 		global $CHARSET;
 		$retStr = $inStr;
-		//Get rid of Windows curly (smart) quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 
 		if($inStr){
 			if(strtolower($CHARSET) == "utf-8" || strtolower($CHARSET) == "utf8"){

@@ -198,6 +198,7 @@ class OccurrenceDuplicate {
 		//Check exsiccati, exact dupes, and then duplicate events, in that order
 		$collName = $this->cleanInStr($collName);
 		$collNum = $this->cleanInStr($collNum);
+		if(preg_match('/^s\.{0,1}n\.{0,1}$/i', $collNum)) $collNum = '';
 		$collDate = $this->cleanInStr($collDate);
 		$exsNumber = $this->cleanInStr($exsNumber);
 		if(!is_numeric($currentOccid)) $currentOccid = 0;
@@ -246,6 +247,7 @@ class OccurrenceDuplicate {
 
 	private function getDupesCollector($collName, $collNum, $skipOccid){
 		$retArr = array();
+		if(!$collNum) return false;
 		$lastName = $this->parseLastName($collName);
 		if($lastName && $collNum){
 			$sql = 'SELECT o.occid FROM omoccurrences o ';
@@ -391,10 +393,10 @@ class OccurrenceDuplicate {
 				'verbatimAttributes','reproductiveCondition', 'cultivationStatus', 'establishmentMeans', 'typeStatus');
 			$relArr = array();
 			$sql = 'SELECT c.collectionName, c.institutionCode, c.collectionCode, o.occid, o.collid, o.tidinterpreted, '.
-				'o.catalogNumber, o.otherCatalogNumbers, '.implode(',',$targetFields).
+				'o.catalogNumber, o.otherCatalogNumbers, o.'.implode(',o.',$targetFields).
 				' FROM omcollections c INNER JOIN omoccurrences o ON c.collid = o.collid '.
 				'WHERE (o.occid IN('.$occidQuery.')) '.
-				'ORDER BY recordnumber';
+				'ORDER BY recordnumber LIMIT 20';
 			//echo $sql;
 			$result = $this->conn->query($sql);
 			while($row = $result->fetch_assoc()) {

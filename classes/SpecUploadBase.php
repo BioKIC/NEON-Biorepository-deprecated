@@ -29,12 +29,19 @@ class SpecUploadBase extends SpecUpload{
 	protected $imageSymbFields = array();
 	protected $filterArr = array();
 
+	private $sourceCharset;
+	private $targetCharset = 'UTF-8';
+
 	private $sourceDatabaseType = '';
 
 	function __construct() {
 		parent::__construct();
 		set_time_limit(7200);
 		ini_set("max_input_time",240);
+		if(isset($GLOBALS['CHARSET']) && $GLOBALS['CHARSET']){
+			$this->targetCharset = strtoupper($GLOBALS['CHARSET']);
+			if($this->targetCharset == 'UTF8') $this->targetCharset == 'UTF-8';
+		}
 	}
 
 	function __destruct(){
@@ -777,7 +784,17 @@ class SpecUploadBase extends SpecUpload{
 			$this->outputMsg('<li>Transferring edits to versioning tables...</li>');
 			$this->versionOccurrenceEdits();
 		}
-		$this->outputMsg('<li>Updating existing records... </li>');
+		$transactionInterval = 1000;
+		$this->outputMsg('<li>Updating existing records in batches of '.$transactionInterval.'... </li>');
+		//Grab specimen intervals for updating reords in batches
+		$intervalArr = array();
+		$sql = 'SELECT occid FROM ( SELECT @row := @row +1 AS rownum, occid FROM ( SELECT @row :=0) r, uploadspectemp WHERE occid IS NOT NULL AND collid = '.
+			$this->collId.' ORDER BY occid) ranked WHERE rownum % '.$transactionInterval.' = 1';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$intervalArr[] = $r->occid;
+		}
+		$rs->free();
 		$fieldArr = array('basisOfRecord', 'catalogNumber','otherCatalogNumbers','occurrenceid',
 			'ownerInstitutionCode','institutionID','collectionID','institutionCode','collectionCode',
 			'family','scientificName','sciname','tidinterpreted','genus','specificEpithet','datasetID','taxonRank','infraspecificEpithet',
@@ -793,6 +810,7 @@ class SpecUploadBase extends SpecUpload{
 			'georeferenceVerificationStatus','georeferenceRemarks','minimumElevationInMeters','maximumElevationInMeters','verbatimElevation',
 			'minimumDepthInMeters','maximumDepthInMeters','verbatimDepth',
 			'previousIdentifications','disposition','modified','language','recordEnteredBy','labelProject','duplicateQuantity','processingStatus');
+
 		//Update matching records
 		$sqlFragArr = array();
 		foreach($fieldArr as $v){
@@ -806,23 +824,53 @@ class SpecUploadBase extends SpecUpload{
 				$sqlFragArr[$v] = 'o.'.$v.' = u.'.$v;
 			}
 		}
-		$sql = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid '.
-			'SET '.implode(',',$sqlFragArr).' WHERE (u.collid IN('.$this->collId.'))';
-		//echo '<div>'.$sql.'</div>'; exit;
-		if(!$this->conn->query($sql)){
-			$this->outputMsg('<li style="margin-left:10px">FAILED! ERROR: '.$this->conn->error.'</li> ');
-		}
-
-		if($this->uploadType != $this->NFNUPLOAD){
-			$this->outputMsg('<li>Transferring new records...</li>');
-			$sql = 'INSERT IGNORE INTO omoccurrences (collid, dbpk, dateentered, '.implode(', ',$fieldArr).' ) '.
-				'SELECT u.collid, u.dbpk, "'.date('Y-m-d H:i:s').'", u.'.implode(', u.',$fieldArr).' FROM uploadspectemp u '.
-				'WHERE u.occid IS NULL AND u.collid IN('.$this->collId.')';
-			//echo '<div>'.$sql.'</div>'; exit;
-			if(!$this->conn->query($sql)){
-				$this->outputMsg('<li>FAILED! ERROR: '.$this->conn->error.'</li> ');
-				//$this->outputMsg($sql);
+		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid SET '.implode(',',$sqlFragArr);
+		if($this->collMetadataArr["managementtype"] == 'Snapshot') $sqlBase .= ', o.dateLastModified = CURRENT_TIMESTAMP() ';
+		$sqlBase .= ' WHERE (u.collid IN('.$this->collId.')) ';
+		$cnt = 1;
+		$previousInterval = 0;
+		foreach($intervalArr as $intValue){
+			if($previousInterval){
+				$sql = $sqlBase.'AND (o.occid BETWEEN '.$previousInterval.' AND '.($intValue-1).') ';
+				//echo '<div>'.$sql.'</div>';
+				if($this->conn->query($sql)) $this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$transactionInterval.' updated ('.$this->conn->affected_rows.' changed)</li>');
+				else $this->outputMsg('<li style="margin-left:10px">FAILED updating records: '.$this->conn->error.'</li> ');
+				$cnt++;
 			}
+			$previousInterval = $intValue;
+		}
+		$sql = $sqlBase.'AND (o.occid >= '.$previousInterval.')';
+		if($this->conn->query($sql)) $this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$this->conn->affected_rows.' updated</li>');
+		else $this->outputMsg('<li style="margin-left:10px">ERROR updating records: '.$this->conn->error.'</li> ');
+
+		//Insert new records
+		if($this->uploadType != $this->NFNUPLOAD){
+			$this->outputMsg('<li>Transferring new records in batches of '.$transactionInterval.'...</li>');
+			$insertTarget = 0;
+			$sql = 'SELECT COUNT(*) AS cnt FROM uploadspectemp WHERE occid IS NULL AND collid IN('.$this->collId.')';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()) $insertTarget = $r->cnt;
+			$rs->free();
+			$cnt = 1;
+			while($insertTarget){
+				$sql = 'INSERT IGNORE INTO omoccurrences (collid, dbpk, dateentered, '.implode(', ',$fieldArr).' ) '.
+					'SELECT u.collid, u.dbpk, "'.date('Y-m-d H:i:s').'", u.'.implode(', u.',$fieldArr).' FROM uploadspectemp u '.
+					'WHERE u.occid IS NULL AND u.collid IN('.$this->collId.') LIMIT '.$transactionInterval;
+				//echo '<div>'.$sql.'</div>';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li>FAILED! ERROR: '.$this->conn->error.'</li> ');
+					//$this->outputMsg($sql);
+				}
+				$sql = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON u.dbpk = o.dbpk '.
+					'SET u.occid = o.occid '.
+					'WHERE o.collid = '.$this->collId.' AND u.collid = '.$this->collId.' AND u.occid IS NULL';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li>ERROR updating occid on recent Insert batch: '.$this->conn->error.'</li> ');
+				}
+				$this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$this->conn->affected_rows.' inserted</li>');
+				$insertTarget -= $transactionInterval;
+				$cnt++;
+			};
 
 			//Link all newly intersted records back to uploadspectemp in prep for loading determiantion history and associatedmedia
 			$this->outputMsg('<li>Linking records in prep for loading determination history and associatedmedia...</li>');
@@ -1618,6 +1666,10 @@ class SpecUploadBase extends SpecUpload{
 		$this->processingStatus = $s;
 	}
 
+	public function setSourceCharset($cs){
+		$this->sourceCharset = $cs;
+	}
+
 	public function setSourceDatabaseType($type){
 		$this->sourceDatabaseType = $type;
 	}
@@ -1694,40 +1746,49 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	protected function encodeString($inStr){
-		global $CHARSET;
 		$retStr = $inStr;
-		//Get rid of Windows curly (smart) quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 
-		//Get rid of UTF-8 curly smart quotes and dashes
-		$badwordchars=array("\xe2\x80\x98", // left single quote
-							"\xe2\x80\x99", // right single quote
-							"\xe2\x80\x9c", // left double quote
-							"\xe2\x80\x9d", // right double quote
-							"\xe2\x80\x94", // em dash
-							"\xe2\x80\xa6" // elipses
-		);
-		$fixedwordchars=array("'", "'", '"', '"', '-', '...');
-		$inStr = str_replace($badwordchars, $fixedwordchars, $inStr);
-
-		//return mb_convert_encoding($inStr,"UTF-8","auto");
 		if($inStr){
-			if(strtolower($CHARSET) == "utf-8" || strtolower($CHARSET) == "utf8"){
-				if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1',true) == "ISO-8859-1"){
-					$retStr = utf8_encode($inStr);
-					//$retStr = iconv("ISO-8859-1//TRANSLIT","UTF-8",$inStr);
+			if($this->targetCharset == 'UTF-8'){
+				if($this->sourceCharset){
+					if($this->sourceCharset == 'ISO-8859-1') $retStr = utf8_encode($inStr);
+					elseif($this->sourceCharset == 'MAC'){
+						$retStr = iconv('macintosh', 'UTF-8', $inStr);
+						//$retStr = mb_convert_encoding($inStr,"UTF-8","auto");
+					}
+				}
+				else{
+					if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1',true) == 'ISO-8859-1'){
+						$retStr = utf8_encode($inStr);
+						//$retStr = iconv("ISO-8859-1//TRANSLIT","UTF-8",$inStr);
+					}
 				}
 			}
-			elseif(strtolower($CHARSET) == "iso-8859-1"){
-				if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1') == "UTF-8"){
-					$retStr = utf8_decode($inStr);
-					//$retStr = iconv("UTF-8","ISO-8859-1//TRANSLIT",$inStr);
+			elseif($this->targetCharset == "ISO-8859-1"){
+				if($this->sourceCharset){
+					if($this->sourceCharset == 'UTF-8') $retStr = utf8_decode($inStr);
+					elseif($this->sourceCharset == 'MAC'){
+						$retStr = iconv('macintosh', 'ISO-8859-1', $inStr);
+						//$retStr = mb_convert_encoding($inStr,"ISO-8859-1","auto");
+					}
+				}
+				else{
+					if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1') == "UTF-8"){
+						$retStr = utf8_decode($inStr);
+					}
 				}
 			}
-			//$line = iconv('macintosh', 'UTF-8', $line);
-			//mb_detect_encoding($buffer, 'windows-1251, macroman, UTF-8');
+
+			//Get rid of UTF-8 curly smart quotes and dashes
+			$badwordchars=array("\xe2\x80\x98", // left single quote
+					"\xe2\x80\x99", // right single quote
+					"\xe2\x80\x9c", // left double quote
+					"\xe2\x80\x9d", // right double quote
+					"\xe2\x80\x94", // em dash
+					"\xe2\x80\xa6" // elipses
+			);
+			$fixedwordchars=array("'", "'", '"', '"', '-', '...');
+			$inStr = str_replace($badwordchars, $fixedwordchars, $inStr);
 		}
 		return $retStr;
 	}

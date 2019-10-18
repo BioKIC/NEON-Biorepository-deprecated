@@ -5,9 +5,11 @@ class OccurrenceSesar extends Manager {
 
 	private $collid;
 	private $collArr = array();
-	private $namespace;
+	private $igsnDom;
 	private $sesarUser;
 	private $sesarPwd;
+	private $namespace;
+	private $registrationMethod;
 	private $generateIGSN = false;
 	private $userCodeArr = array();
 	private $fieldMap = array();
@@ -37,12 +39,13 @@ class OccurrenceSesar extends Manager {
 		parent::__destruct();
 	}
 
-	public function batchAssignIdentifiers(){
+	public function batchAssignIdentifiers($processingCount){
 		$status = true;
 		if(!$this->namespace){
 			$this->errorMessage = 'FATAL ERROR batch assigning IDs: namespace not set';
 			return false;
 		}
+		$this->initiateDom();
 		$seedBaseTen = '';
 		if($this->generateIGSN){
 			//Get maximum identifier
@@ -61,7 +64,8 @@ class OccurrenceSesar extends Manager {
 			if(isset($mapArr['sql'])) $sql .= ','.$mapArr['sql'];
 			$sql .= ','.$symbField;
 		}
-		$sql .= ' FROM omoccurrences WHERE collid = '.$this->collid.' AND occurrenceid IS NULL';
+		$sql .= ' FROM omoccurrences WHERE collid = '.$this->collid.' AND occurrenceid IS NULL ';
+		if($processingCount) $sql .= 'LIMIT '.$processingCount;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
 			$igsn = '';
@@ -85,6 +89,10 @@ class OccurrenceSesar extends Manager {
 			}
 		}
 		$rs->free();
+
+
+		$this->igsnDom->saveXML();
+
 		return $status;
 	}
 
@@ -146,7 +154,8 @@ class OccurrenceSesar extends Manager {
 		$status = true;
 		//$baseUrl = 'https://app.geosamples.org/webservices/upload.php';
 		$baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
-		$contentStr = $this->getSampleXml($igsn);
+		$this->setSampleXmlNode($igsn);
+		$contentStr = '';
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarUser, 'content' => $contentStr);
 
 		$ch = curl_init();
@@ -193,40 +202,41 @@ class OccurrenceSesar extends Manager {
 		return $status;
 	}
 
-	private function getSampleXml($igsn){
-		$dom = new DOMDocument('1.0','UTF-8');
+	private function initiateDom(){
+		$this->igsnDom = new DOMDocument('1.0','UTF-8');
 
 		//Add root element
-		$rootElem = $dom->createElement('samples');
+		$rootElem = $this->igsnDom->createElement('samples');
 		$rootElem->setAttribute('xmlns','http://app.geosamples.org');
 		$rootElem->setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance');
 		$rootElem->setAttribute('xsi:schemaLocation','http://app.geosamples.org/4.0/sample.xsd');
-		$dom->appendChild($rootElem);
+		$this->igsnDom->appendChild($rootElem);
+	}
 
-		$sampleElem = $dom->createElement('sample');
-		$rootElem->appendChild($rootElem);
+	private function setSampleXmlNode($igsn){
+		$sampleElem = $this->igsnDom->createElement('sample');
 
-		$this->addSampleElem($dom, $sampleElem, 'user_code', $this->namespace);		//Required
-		$this->addSampleElem($dom, $sampleElem, 'sample_type', 'Individual Sample');		//Required
-		$this->addSampleElem($dom, $sampleElem, 'material', 'Biology');		//Required
-		$this->addSampleElem($dom, $sampleElem, 'igsn', $igsn);		//Required
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'user_code', $this->namespace);		//Required
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'sample_type', 'Individual Sample');		//Required
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'material', 'Biology');		//Required
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'igsn', $igsn);		//Required
 
-		$classificationElem = $dom->createElement('classification');
-		$biologyElem = $dom->createElement('Biology');
-		$biologyElem->appendChild($dom->createElement('Macrobiology'));
+		$classificationElem = $this->igsnDom->createElement('classification');
+		$biologyElem = $this->igsnDom->createElement('Biology');
+		$biologyElem->appendChild($this->igsnDom->createElement('Macrobiology'));
 		$classificationElem->appendChild($biologyElem);
 		$sampleElem->appendChild($classificationElem);
 
-		$this->addSampleElem($dom, $sampleElem, 'collection_method', 'Manual');
-		$this->addSampleElem($dom, $sampleElem, 'collection_date_precision', 'day');
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'collection_method', 'Manual');
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'collection_date_precision', 'day');
 
 		foreach($this->fieldMap as $symbArr){
-			if(isset($symbArr['sesar'])) $this->addSampleElem($dom, $sampleElem, $symbArr['sesar'], $symbArr['value']);
+			if(isset($symbArr['sesar'])) $this->addSampleElem($this->igsnDom, $sampleElem, $symbArr['sesar'], $symbArr['value']);
 		}
 
-		$this->addSampleElem($dom, $sampleElem, 'elevation_unit', 'meters');
-		$this->addSampleElem($dom, $sampleElem, 'current_archive', $this->collArr['collectionName']);
-		$this->addSampleElem($dom, $sampleElem, 'current_archive_contact', $this->collArr['contact'].($this->collArr['email']?' ('.$this->collArr['email'].')':''));
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'elevation_unit', 'meters');
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'current_archive', $this->collArr['collectionName']);
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'current_archive_contact', $this->collArr['contact'].($this->collArr['email']?' ('.$this->collArr['email'].')':''));
 
 		$serverDomain = "http://";
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverDomain = "https://";
@@ -234,21 +244,21 @@ class OccurrenceSesar extends Manager {
 		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER["SERVER_PORT"] != 443) $serverDomain .= ':'.$_SERVER["SERVER_PORT"];
 		$url = $serverDomain.$GLOBALS['CLIENT_ROOT'].(substr($GLOBALS['CLIENT_ROOT'],-1)=='/'?'':'/');
 		$url .= 'collections/individual/index.php?occid='.$this->fieldMap['occid']['value'];
-		$externalUrlsElem = $dom->createElement('external_urls');
-		$externalUrlElem = $dom->createElement('external_url');
-		$urlElem = $dom->createElement('url');
-		$urlElem->appendChild($dom->createElement($url));
+		$externalUrlsElem = $this->igsnDom->createElement('external_urls');
+		$externalUrlElem = $this->igsnDom->createElement('external_url');
+		$urlElem = $this->igsnDom->createElement('url');
+		$urlElem->appendChild($this->igsnDom->createElement($url));
 		$externalUrlElem->appendChild($urlElem);
-		$descriptionElem = $dom->createElement('description');
-		$descriptionElem->appendChild($dom->createElement('Source Reference URL'));
+		$descriptionElem = $this->igsnDom->createElement('description');
+		$descriptionElem->appendChild($this->igsnDom->createElement('Source Reference URL'));
 		$externalUrlElem->appendChild($descriptionElem);
-		$urlTypeElem = $dom->createElement('url_type');
-		$urlTypeElem->appendChild($dom->createElement('regular URL'));
+		$urlTypeElem = $this->igsnDom->createElement('url_type');
+		$urlTypeElem->appendChild($this->igsnDom->createElement('regular URL'));
 		$externalUrlElem->appendChild($urlTypeElem);
 		$externalUrlsElem->appendChild($externalUrlElem);
 		$sampleElem->appendChild($externalUrlsElem);
 
-		return $dom->saveXML();
+		$rootElem->appendChild($sampleElem);
 	}
 
 	private function addSampleElem(&$dom, &$sampleElem, $elemName, $elemValue){
@@ -299,10 +309,6 @@ class OccurrenceSesar extends Manager {
 		if($this->collArr) return $this->collArr['collectionName'];
 	}
 
-	public function setNamespace($ns){
-		$this->namespace = $ns;
-	}
-
 	public function setSesarUser($user){
 		$this->sesarUser = $user;
 	}
@@ -311,8 +317,16 @@ class OccurrenceSesar extends Manager {
 		$this->sesarPwd = $pwd;
 	}
 
+	public function setNamespace($ns){
+		$this->namespace = $ns;
+	}
+
+	public function setRegistrationMethod($method){
+		$this->registrationMethod = $method;
+	}
+
 	public function setGenerateIGSN($bool){
-		$this->generateIGSN = $bool;
+		if($bool == 1) $this->generateIGSN = true;
 	}
 }
 ?>

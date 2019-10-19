@@ -194,9 +194,9 @@ class OccurrenceLabel{
 			}
 
 			//Get occurrence records
-			$sql2 = 'SELECT o.occid, o.collid, o.catalognumber, o.othercatalognumbers, '.
-				'o.family, o.sciname AS scientificname, o.genus, o.specificepithet, o.taxonrank, o.infraspecificepithet, '.
-				'o.scientificnameauthorship, "" AS parentauthor, o.identifiedby, o.dateidentified, o.identificationreferences, '.
+			$sql2 = 'SELECT o.occid, o.collid, o.catalognumber, o.othercatalognumbers, o.family, o.sciname AS scientificname, CONCAT_WS(" ",o.sciname,o.scientificnameauthorship) AS scientificname_with_author, '.
+				'CONCAT_WS(" ",t.unitind1,t.unitname1) AS genus, CONCAT_WS(" ",t.unitind2,t.unitname2) AS specificepithet, t.unitind3 AS taxonrank, '.
+				't.unitname3 AS infraspecificepithet, o.scientificnameauthorship, "" AS parentauthor, o.identifiedby, o.dateidentified, o.identificationreferences, '.
 				'o.identificationremarks, o.taxonremarks, o.identificationqualifier, o.typestatus, o.recordedby, o.recordnumber, o.associatedcollectors, '.
 				'DATE_FORMAT(o.eventdate,"%e %M %Y") AS eventdate, o.year, o.month, o.day, DATE_FORMAT(o.eventdate,"%M") AS monthname, '.
 				'o.verbatimeventdate, o.habitat, o.substrate, o.occurrenceremarks, o.associatedtaxa, o.verbatimattributes, '.
@@ -205,7 +205,7 @@ class OccurrenceLabel{
 				'o.geodeticdatum, o.coordinateuncertaintyinmeters, o.verbatimcoordinates, '.
 				'o.minimumelevationinmeters, o.maximumelevationinmeters, '.
 				'o.verbatimelevation, o.disposition, o.duplicatequantity, o.datelastmodified '.
-				'FROM omoccurrences o '.$sqlWhere;
+				'FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.tid '.$sqlWhere;
 			//echo 'SQL: '.$sql2;
 			if($rs2 = $this->conn->query($sql2)){
 				while($row2 = $rs2->fetch_assoc()){
@@ -239,15 +239,12 @@ class OccurrenceLabel{
 				header('Pragma: public');
 
 				$fh = fopen('php://output','w');
-				$headerArr = array("occid","catalogNumber","otherCatalogNumbers","family","scientificName","genus","specificEpithet",
-						"taxonRank","infraSpecificEpithet","scientificNameAuthorship","parentAuthor","identifiedBy",
-						"dateIdentified","identificationReferences","identificationRemarks","taxonRemarks","identificationQualifier",
-						"typeStatus","recordedBy","recordNumber","associatedCollectors","eventDate","year","month","day","monthName",
-						"verbatimEventDate","habitat","substrate","occurrenceRemarks","associatedTaxa","verbatimAttributes",
-						"reproductiveCondition","establishmentMeans","country",
-						"stateProvince","county","municipality","locality","decimalLatitude","decimalLongitude",
-						"geodeticDatum","coordinateUncertaintyInMeters","verbatimCoordinates",
-						"minimumElevationInMeters","maximumElevationInMeters","verbatimElevation","disposition");
+				$headerArr = array('occid','catalogNumber','otherCatalogNumbers','family','scientificName','scientificName_with_author','genus','specificEpithet','taxonRank','infraSpecificEpithet',
+					'scientificNameAuthorship','parentAuthor','identifiedBy','dateIdentified','identificationReferences','identificationRemarks','taxonRemarks','identificationQualifier',
+					'typeStatus','recordedBy','recordNumber','associatedCollectors','eventDate','year','month','day','monthName','verbatimEventDate',
+					'habitat','substrate','occurrenceRemarks','associatedTaxa','verbatimAttributes','reproductiveCondition','establishmentMeans','country',
+					'stateProvince','county','municipality','locality','decimalLatitude','decimalLongitude','geodeticDatum','coordinateUncertaintyInMeters','verbatimCoordinates',
+					'minimumElevationInMeters','maximumElevationInMeters','verbatimElevation','disposition');
 
 				fputcsv($fh,$headerArr);
 				//change header value to lower case
@@ -258,6 +255,9 @@ class OccurrenceLabel{
 				//Output records
 				foreach($labelArr as $occid => $occArr){
 					$dupCnt = $postArr['q-'.$occid];
+					if(isset($occArr['parentauthor']) && $occArr['parentauthor']){
+						$occArr['scientificname_with_author'] = trim($occArr['genus'].' '.$occArr['specificepithet'].' '.trim($occArr['parentauthor'].' '.$occArr['taxonrank']).' '.$occArr['infraspecificepithet'].' '.$occArr['scientificnameauthorship']);
+					}
 					for($i = 0;$i < $dupCnt;$i++){
 						fputcsv($fh,array_intersect_key($occArr,$headerLcArr));
 					}
@@ -331,10 +331,10 @@ class OccurrenceLabel{
 		$retArr = array();
 		if($this->collid){
 			$sql = 'SELECT o.occid, d.detid, CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, '.
-					'CONCAT_WS(" ",d.identificationQualifier,d.sciname) AS sciname, '.
-					'CONCAT_WS(", ",d.identifiedBy,d.dateIdentified,d.identificationRemarks,d.identificationReferences) AS determination '.
-					'FROM omoccurrences o INNER JOIN omoccurdeterminations d ON o.occid = d.occid '.
-					'WHERE (o.collid = '.$this->collid.') AND (d.printqueue = 1) ';
+				'CONCAT_WS(" ",d.identificationQualifier,d.sciname) AS sciname, '.
+				'CONCAT_WS(", ",d.identifiedBy,d.dateIdentified,d.identificationRemarks,d.identificationReferences) AS determination '.
+				'FROM omoccurrences o INNER JOIN omoccurdeterminations d ON o.occid = d.occid '.
+				'WHERE (o.collid = '.$this->collid.') AND (d.printqueue = 1) ';
 			if($this->collArr['colltype'] == 'General Observations'){
 				$sql .= ' AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
 			}
@@ -373,10 +373,10 @@ class OccurrenceLabel{
 		$retArr = array();
 		if($this->collid){
 			$sql = 'SELECT DISTINCT ds.datasetid, ds.name '.
-					'FROM omoccurdatasets ds INNER JOIN userroles r ON ds.datasetid = r.tablepk '.
-					'INNER JOIN omoccurdatasetlink dl ON ds.datasetid = dl.datasetid '.
-					'INNER JOIN omoccurrences o ON dl.occid = o.occid '.
-					'WHERE (r.tablename = "omoccurdatasets") AND (o.collid = '.$this->collid.') ';
+				'FROM omoccurdatasets ds INNER JOIN userroles r ON ds.datasetid = r.tablepk '.
+				'INNER JOIN omoccurdatasetlink dl ON ds.datasetid = dl.datasetid '.
+				'INNER JOIN omoccurrences o ON dl.occid = o.occid '.
+				'WHERE (r.tablename = "omoccurdatasets") AND (o.collid = '.$this->collid.') ';
 			if($this->collArr['colltype'] == 'General Observations') $sql .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -412,8 +412,7 @@ class OccurrenceLabel{
 
 	private function setCollMetadata(){
 		if($this->collid){
-			$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype '.
-				'FROM omcollections WHERE collid = '.$this->collid;
+			$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype FROM omcollections WHERE collid = '.$this->collid;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$this->collArr['instcode'] = $r->institutioncode;
@@ -445,7 +444,7 @@ class OccurrenceLabel{
 				}
 			}
 		}
-			return $retArr;
+		return $retArr;
 	}
 
 	//Internal cleaning functions

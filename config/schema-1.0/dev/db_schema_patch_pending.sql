@@ -197,7 +197,10 @@ ALTER TABLE `omoccurrences`
 ALTER TABLE `omoccurrences` 
   ADD UNIQUE INDEX `UNIQUE_occurrenceID` (`occurrenceID` ASC),
   ADD INDEX `Index_occur_localitySecurity` (`localitySecurity` ASC);
-  
+
+ALTER TABLE `omoccurrences` 
+  DROP INDEX `Index_gui` ,
+  ADD UNIQUE INDEX `Index_gui` (`occurrenceID` ASC);  
 
 DELETE FROM omoccurrencesfulltext 
 WHERE locality IS NULL AND recordedby IS NULL;

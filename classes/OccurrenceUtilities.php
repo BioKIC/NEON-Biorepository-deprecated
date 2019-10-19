@@ -164,10 +164,6 @@ class OccurrenceUtilities {
 	 */
 	public static function parseVerbatimElevation($inStr){
 		$retArr = array();
-		//Get rid of curly quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 		//Start parsing
 		if(preg_match('/([\.\d]+)\s*-\s*([\.\d]+)\s*meter/i',$inStr,$m)){
 			$retArr['minelev'] = $m[1];
@@ -215,10 +211,6 @@ class OccurrenceUtilities {
 		$retArr = array();
 		if(strpos($inStr,' to ')) return $retArr;
 		if(strpos($inStr,' betw ')) return $retArr;
-		//Get rid of curly quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 
 		//Try to parse lat/lng
 		$latDeg = 'null';$latMin = 0;$latSec = 0;$latNS = 'N';

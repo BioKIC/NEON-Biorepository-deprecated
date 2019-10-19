@@ -143,6 +143,10 @@ class OccurrenceGeorefTools {
 						$sql .= ',georeferencesources = "'.$geoRefArr['georeferencesources'].'" ';
 						$this->addOccurEdits('georeferencesources',$geoRefArr['georeferencesources'],$localStr);
 					}
+					if($geoRefArr['georeferenceprotocol']){
+						$sql .= ',georeferenceprotocol = "'.$geoRefArr['georeferenceprotocol'].'" ';
+						$this->addOccurEdits('georeferenceprotocol',$geoRefArr['georeferenceprotocol'],$localStr);
+					}
 					if($geoRefArr['georeferenceremarks']){
 						$sql .= ',georeferenceremarks = "'.$geoRefArr['georeferenceremarks'].'" ';
 						$this->addOccurEdits('georeferenceremarks',$geoRefArr['georeferenceremarks'],$localStr);

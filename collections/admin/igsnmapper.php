@@ -126,7 +126,7 @@ include($SERVER_ROOT."/header.php");
 			$guidManager->setNamespace($namespace);
 			$guidManager->setRegistrationMethod($registrationMethod);
 			if($generationMethod == 'inhouse') $guidManager->setGenerateIGSN(1);
-			$guidManager->batchAssignIdentifiers($processingCount);
+			$guidManager->batchProcessIdentifiers($processingCount);
 			echo '</ul>';
 		}
 		echo '<h3>'.$guidManager->getCollectionName().'</h3>';
@@ -161,7 +161,7 @@ include($SERVER_ROOT."/header.php");
 							<option value=''>-- Select Method --</option>
 							<option value=''>----------------------------</option>
 							<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>Batch API submission</option>
-							<option value='csv' <?php echo ($registrationMethod=='csv'?'SELECTED':''); ?>>Manual CSV submission</option>
+							<!--  <option value='csv' <?php echo ($registrationMethod=='csv'?'SELECTED':''); ?>>Manual CSV submission</option>  -->
 							<option value='xml' <?php echo ($registrationMethod=='xml'?'SELECTED':''); ?>>Manual XML submission</option>
 						</select>
 					</p>

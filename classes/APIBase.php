@@ -5,7 +5,7 @@ class APIBase extends Manager{
 
 	function __construct($id=null,$conType=null) {
 		parent::__construct($id,$conType);
-		$this->setLogFH('../content/logs/occurrenceWriter_'.date('Ymd').'.log');
+		$this->setLogFH('../content/logs/occurrenceWriter_'.date('Y-m-d').'.log');
 	}
 
 	function __destruct(){

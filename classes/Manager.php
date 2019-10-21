@@ -39,7 +39,7 @@ class Manager  {
 		if($this->verboseMode){
 			if($this->verboseMode == 3 || $this->verboseMode == 1){
 				if($this->logFH){
-					fwrite($this->logFH,$str);
+					fwrite($this->logFH,str_repeat("\t", $indexLevel).$str);
 				}
 			}
 			if($this->verboseMode == 3 || $this->verboseMode == 2){
@@ -51,7 +51,7 @@ class Manager  {
 	}
 
 	public function setVerboseMode($c){
-		$this->verboseMode = $c;
+		if(is_numeric($c)) $this->verboseMode = $c;
 	}
 
 	public function getVerboseMode(){

@@ -28,7 +28,9 @@ class OccurrenceSesar extends Manager {
 		$this->fieldMap['stateProvince']['sesar'] = 'province';
 		$this->fieldMap['county']['sesar'] = 'county';
 		$this->fieldMap['decimalLatitude']['sesar'] = 'latitude';
+		$this->fieldMap['decimalLatitude']['sql'] = 'ROUND(decimalLatitude,6) AS decimalLatitude';
 		$this->fieldMap['decimalLongitude']['sesar'] = 'longitude';
+		$this->fieldMap['decimalLongitude']['sql'] = 'ROUND(decimalLongitude,6) AS decimalLongitude';
 		$this->fieldMap['minimumElevationInMeters']['sesar'] = 'elevation';
 		//$this->fieldMap['parentOccurrenceID']['sesar'] = 'parent_igsn';
 		//$this->fieldMap['parentOccurrenceID']['sql'] = ' AS parentOccurrenceID';
@@ -42,7 +44,7 @@ class OccurrenceSesar extends Manager {
 		$status = true;
 		if($this->registrationMethod == 'api') $this->setVerboseMode(3);
 		else  $this->setVerboseMode(1);
-		$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/')."content/logs/IGSN_".date('Y-m-d').".log";
+		$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/')."content/logs/igsn/IGSN_".date('Y-m-d').".log";
 		$this->setLogFH($logPath);
 		$this->logOrEcho('Starting batch IGSN processing ('.date('Y-m-d H:i:s').')');
 		$this->logOrEcho('sesarUser: '.$this->sesarUser);

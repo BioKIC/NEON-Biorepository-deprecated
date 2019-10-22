@@ -26,6 +26,7 @@ class Manager  {
  	public function __destruct(){
  		if(!($this->conn === null)) $this->conn->close();
 		if($this->logFH){
+			fwrite($this->logFH,"\n\n");
 			fclose($this->logFH);
 		}
 	}
@@ -39,7 +40,7 @@ class Manager  {
 		if($this->verboseMode){
 			if($this->verboseMode == 3 || $this->verboseMode == 1){
 				if($this->logFH){
-					fwrite($this->logFH,str_repeat("\t", $indexLevel).$str);
+					fwrite($this->logFH,str_repeat("\t", $indexLevel).$str."\n");
 				}
 			}
 			if($this->verboseMode == 3 || $this->verboseMode == 2){

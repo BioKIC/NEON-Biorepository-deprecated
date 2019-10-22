@@ -9,16 +9,16 @@ class OccurrenceSesar extends Manager {
 	private $sesarUser;
 	private $sesarPwd;
 	private $namespace;
-	private $registrationMethod;
 	private $generateIGSN = false;
-	private $userCodeArr = array();
+	private $igsnSeed = false;
+	private $registrationMethod;
 	private $fieldMap = array();
 
 	public function __construct($type = 'write'){
 		parent::__construct(null, $type);
 		$this->fieldMap['basisOfRecord']['sesar'] = 'collection_method_descr';
 		$this->fieldMap['catalogNumber']['sesar'] = 'name';
-		$this->fieldMap['catalogNumber']['sql'] = 'IFNULL(catlaogNumber, otherCatalogNumbers) AS catalogNumber';
+		$this->fieldMap['catalogNumber']['sql'] = 'CONCAT_WS(" ",IFNULL(catalogNumber, otherCatalogNumbers),"[",occid,"]") AS catalogNumber';
 		$this->fieldMap['sciname']['sesar'] = 'field_name';
 		$this->fieldMap['sciname']['sql'] = 'CONCAT_WS(" ",sciname, scientificNameAuthorship) AS sciname';
 		$this->fieldMap['recordedBy']['sesar'] = 'collector';
@@ -28,9 +28,10 @@ class OccurrenceSesar extends Manager {
 		$this->fieldMap['stateProvince']['sesar'] = 'province';
 		$this->fieldMap['county']['sesar'] = 'county';
 		$this->fieldMap['decimalLatitude']['sesar'] = 'latitude';
+		$this->fieldMap['decimalLatitude']['sql'] = 'ROUND(decimalLatitude,6) AS decimalLatitude';
 		$this->fieldMap['decimalLongitude']['sesar'] = 'longitude';
+		$this->fieldMap['decimalLongitude']['sql'] = 'ROUND(decimalLongitude,6) AS decimalLongitude';
 		$this->fieldMap['minimumElevationInMeters']['sesar'] = 'elevation';
-		$this->fieldMap['maximumElevationInMeters']['sesar'] = 'elevation_end';
 		//$this->fieldMap['parentOccurrenceID']['sesar'] = 'parent_igsn';
 		//$this->fieldMap['parentOccurrenceID']['sql'] = ' AS parentOccurrenceID';
 	}
@@ -41,48 +42,64 @@ class OccurrenceSesar extends Manager {
 
 	public function batchProcessIdentifiers($processingCount){
 		$status = true;
+		if($this->registrationMethod == 'api') $this->setVerboseMode(3);
+		else  $this->setVerboseMode(1);
+		$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/')."content/logs/igsn/IGSN_".date('Y-m-d').".log";
+		$this->setLogFH($logPath);
+		$this->logOrEcho('Starting batch IGSN processing ('.date('Y-m-d H:i:s').')');
+		$this->logOrEcho('sesarUser: '.$this->sesarUser);
+		$this->logOrEcho('namespace: '.$this->namespace);
+		$this->logOrEcho('registrationMethod: '.$this->registrationMethod);
+		$this->logOrEcho('generateIGSN locally: '.($this->generateIGSN?'true':'false'));
 		if(!$this->namespace){
 			$this->errorMessage = 'FATAL ERROR batch assigning IDs: namespace not set';
+			$this->logOrEcho($this->errorMessage);
 			return false;
 		}
-		$seedBaseTen = '';
+		$baseTenID = '';
 		if($this->generateIGSN){
-			//Get maximum identifier
-			$seed = 0;
-			$sql = 'SELECT MAX(occurrenceID) as maxid FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%"';
-			$rs = $this->conn->query($sql);
-			if($r = $rs->fetch_object()) $seed = $r->maxid;
-			$rs->free();
-			$seedBaseTen = base_convert($seed,36,10);
+			if(!$this->igsnSeed){
+				$this->errorMessage = 'FATAL ERROR batch assigning IDs: IGSN seed not set';
+				$this->logOrEcho($this->errorMessage);
+				return false;
+			}
+			$baseTenID = base_convert($this->igsnSeed,36,10);
+		}
+		if($this->registrationMethod == 'api'){
+			if(!$this->validateUser()){
+				$this->errorMessage = 'SESAR username and password failed to validate';
+				$this->logOrEcho($this->errorMessage);
+				return false;
+			}
 		}
 
-		$this->initiateDom();
-
 		//Batch assign GUIDs
-		$ns = $this->namespace;
-		if($ns == 'NEO') $ns .= 'N';
+		$this->logOrEcho('Generating IGSN identifiers');
 		$increment = 1;
 		$sql = 'SELECT occid';
 		foreach($this->fieldMap as $symbField => $mapArr){
 			if(isset($mapArr['sql'])) $sql .= ','.$mapArr['sql'];
-			$sql .= ','.$symbField;
+			else $sql .= ','.$symbField;
 		}
 		$sql .= ' FROM omoccurrences WHERE collid = '.$this->collid.' AND occurrenceid IS NULL ';
 		if($processingCount) $sql .= 'LIMIT '.$processingCount;
 		$rs = $this->conn->query($sql);
+		if($rs->num_rows) $this->initiateDom();
 		while($r = $rs->fetch_assoc()){
 			$igsn = '';
 			if($this->generateIGSN){
-				$igsn = base_convert($seedBaseTen+$increment,10,36);
-				$igsn = str_pad($igsn, (strlen($ns)-9), '0', STR_PAD_LEFT);
+				$igsn = base_convert($baseTenID,10,36);
+				$igsn = str_pad($igsn, (9-strlen($this->namespace)), '0', STR_PAD_LEFT);
 				$igsn = strtoupper($igsn);
-				$igsn = $ns.$igsn;
+				//$igsn = $this->namespace.$igsn;
+				$baseTenID++;
 			}
 			//Set Symbiota record values
 			$this->fieldMap['occid']['value'] = $r['occid'];
 			foreach($this->fieldMap as $symbField => $fieldArr){
 				$this->fieldMap[$symbField]['value'] = $r[$symbField];
 			}
+			$this->cleanFieldValues();
 
 			if($igsn){
 				if($this->updateOccurrenceID($igsn, $r['occid'])){
@@ -93,32 +110,40 @@ class OccurrenceSesar extends Manager {
 			else{
 				$this->setSampleXmlNode($igsn);
 			}
+			$this->logOrEcho('#'.$increment.': IGSN created '.$this->fieldMap['catalogNumber']['value'],1);
 			$increment++;
 		}
 		$rs->free();
 
+		if($this->igsnDom){
+			//Register identifier with SESAR
+			if($this->registrationMethod == 'api'){
+				$this->registerIdentifiersViaApi();
+			}
+			elseif($this->registrationMethod == 'csv'){
 
-		//Register identifier with SESAR
-		if($this->registrationMethod == 'api'){
-			$this->registerIdentifiersViaApi();
+			}
+			elseif($this->registrationMethod == 'xml'){
+				header('Content-Description: ');
+				header('Content-Type: application/xml');
+				header('Content-Disposition: attachment; filename=SESAR_IGSN_registration_'.date('Y-m-d_His').'.xml');
+				header('Content-Transfer-Encoding: UTF-8');
+				header('Expires: 0');
+				header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+				header('Pragma: public');
+				$this->igsnDom->preserveWhiteSpace = false;
+				$this->igsnDom->formatOutput = true;
+				//echo $this->igsnDom->saveXML();
+				$this->igsnDom->save('php://output');
+			}
 		}
-		elseif($this->registrationMethod == 'csv'){
+		else{
+			$this->errorMessage = 'No records available to process';
+			$this->logOrEcho($this->errorMessage);
+			$status = false;
+		}
 
-		}
-		elseif($this->registrationMethod == 'xml'){
-			header('Content-Description: ');
-			header('Content-Type: application/xml');
-			header('Content-Disposition: attachment; filename=SESAR_IGSN_registration_'.date('Y-m-d_His').'.xml');
-			header('Content-Transfer-Encoding: UTF-8');
-			header('Expires: 0');
-			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-			header('Pragma: public');
-			$this->igsnDom->preserveWhiteSpace = false;
-			$this->igsnDom->formatOutput = true;
-			//echo $this->igsnDom->saveXML();
-			$this->igsnDom->save('php://output');
-		}
-
+		$this->logOrEcho('Finished ('.date('Y-m-d H:i:s').')');
 		return $status;
 	}
 
@@ -126,13 +151,13 @@ class OccurrenceSesar extends Manager {
 	// End point: https://app.geosamples.org/webservices/
 	// Test end point: https://sesardev.geosamples.org/webservices/
 	public function validateUser(){
-		$status = false;
+		$userCodeArr = array();
 		$baseUrl = 'https://app.geosamples.org/webservices/credentials_service_v2.php';
-		if(!$this->sesarUser || !$this->sesarUser){
+		if(!$this->sesarUser || !$this->sesarPwd){
 			$this->errorMessage = 'Fatal Error validating user: SESAR username or password not set';
 			return false;
 		}
-		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarUser);
+		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd);
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -143,37 +168,32 @@ class OccurrenceSesar extends Manager {
 		if($responseXML= curl_exec($ch)){
 			$dom = new DOMDocument('1.0','UTF-8');
 			if($dom->loadXML($responseXML)){
-				$validElem = $dom->getElementsByTagName('valid');
-				foreach ($validElem as $elem) {
-					if($elem->nodeValue == 'yes'){
-						$status = true;
-						$userCodes = $dom->getElementsByTagName('user_code');
-						foreach ($userCodes as $UserCodeElem) {
-							$this->userCodeArr[] = $UserCodeElem->nodeValue;
-						}
+				$validElemList = $dom->getElementsByTagName('valid');
+				if($validElemList[0]->nodeValue == 'yes'){
+					$userCodeList = $dom->getElementsByTagName('user_code');
+					foreach ($userCodeList as $UserCodeElem) {
+						$userCodeArr[] = $UserCodeElem->nodeValue;
 					}
-					else{
-						$this->errorMessage = 'Fatal Error validating user: ';
-						$errCodes = $dom->getElementsByTagName('error');
-						foreach ($errCodes as $errElem) {
-							$this->errorMessage .= $errElem->nodeValue;
-						}
-						$status = false;
-					}
+				}
+				else{
+					$errCodeList = $dom->getElementsByTagName('error');
+					$this->logOrEcho('Fatal Error validating user: '.$errCodeList[0]->nodeValue);
+					$userCodeArr = false;
 				}
 			}
 			else{
-				$this->errorMessage = 'FATAL ERROR parsing response XML: '.htmlentities($responseXML);
-				$status = false;
+				$this->logOrEcho('FATAL ERROR parsing response XML: '.htmlentities($responseXML));
+				$userCodeArr = false;
 			}
 		}
 		else{
 			$this->errorMessage = 'FATAL CURL ERROR validating user: '.curl_error($ch).' (#'.curl_errno($ch).')';
 			//$header = curl_getinfo($ch);
-			$status = false;
+			$this->logOrEcho($this->errorMessage);
+			$userCodeArr = false;
 		}
 		curl_close($ch);
-		return $status;
+		return $userCodeArr;
 	}
 
 	private function registerIdentifiersViaApi(){
@@ -181,7 +201,7 @@ class OccurrenceSesar extends Manager {
 		//$baseUrl = 'https://app.geosamples.org/webservices/upload.php';
 		$baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
 		$contentStr = $this->igsnDom->saveXML();
-		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarUser, 'content' => $contentStr);
+		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd, 'content' => $contentStr);
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -203,54 +223,71 @@ class OccurrenceSesar extends Manager {
 
 	public function processRegistrationResponse($responseXML){
 		$status = true;
+		echo htmlentities($responseXML);
 		$dom = new DOMDocument('1.0','UTF-8');
 		if($dom->loadXML($responseXML)){
 			$rootElem = $dom->documentElement;
 			if($validNodeList = $rootElem->getElementsByTagName('valid')){
-				foreach ($validNodeList as $validNode) {
-					if($validNode->nodeValue == 'no'){
-						$codeStr = $validNode->getAttribute('code');
-						$this->errorMessage = 'ERROR registering IGSN ('.$codeStr.'): ';
+				//Error thrown
+				if(isset($validNodeList[0]->nodeValue)){
+					if($validNodeList[0]->nodeValue == 'no'){
+						$codeStr = $validNodeList[0]->getAttribute('code');
 						$errCodeList = $rootElem->getElementsByTagName('error');
-						foreach ($errCodeList as $errElem) {
-							$this->warningArr[] = $errElem->nodeValue;
-						}
+						$this->errorMessage = 'ERROR registering IGSN ('.$codeStr.'): '.$errCodeList[0]->nodeValue;
 					}
+					else{
+						$this->errorMessage = 'ERROR registering IGSN: unknown1';
+					}
+					$this->logOrEcho($this->errorMessage);
 				}
-				$status = false;
+				else{
+					$this->errorMessage = 'ERROR registering IGSN: unknown2';
+				}
+				return false;
 			}
 			else{
+				//Success: sample records created
 				$sampleNodeList = $rootElem->getElementsByTagName('sample');
 				foreach ($sampleNodeList as $sampleNode) {
 					if($validNodeList = $sampleNode->getElementsByTagName('valid')){
-						foreach ($validNodeList as $validNode) {
-							if($validNode->nodeValue == 'no'){
-								$codeStr = $validNode->getAttribute('code');
-								$this->errorMessage = 'ERROR registering IGSN ('.$codeStr.'): ';
-								$errCodeList = $validNode->getElementsByTagName('error');
-								foreach ($errCodeList as $errElem) {
-									$this->warningArr[] = $errElem->nodeValue;
+						// We have an problem Houston
+						if($validNodeList[0]->nodeValue == 'no'){
+							$errCodeList = $rootElem->getElementsByTagName('error');
+							$this->warningArr[] = 'ERROR registering IGSN ('.$validNodeList[0]->getAttribute('code').'): '.$errCodeList[0]->nodeValue;
+							if($validNodeList[0]->getAttribute('code') == 'InvalidSample'){
+								$nameStr = $sampleNode->getAttribute('name');
+								if(preg_match('/[(\d+)]$/', $nameStr, $m)){
+									$this->updateOccurrenceID('NULL', $m[1]);
 								}
 							}
 						}
 					}
 					else{
-						//Success get and load igsn, if they haven't already been added
-						$nameNodeList = $dom->getElementsByTagName('name');
-
-
-
-						$igsnNodeList = $dom->getElementsByTagName('igsn');
-						foreach ($igsnNodeList as $igsnNode) {
-							$igsn = $elem->nodeValue;
+						if(!$this->generateIGSN){
+							//Success get and load igsn, since it wasn't added prior
+							$nameNodeList = $dom->getElementsByTagName('name');
+							$nameStr = $nameNodeList[0]->nodeValue;
+							$igsnNodeList = $dom->getElementsByTagName('igsn');
+							$igsn = $igsnNodeList[0]->nodeValue;
+							if(preg_match('/[(\d+)]$/', $nameStr,$m)){
+								$this->updateOccurrenceID($igsn, $m[1]);
+							}
+							else{
+								$this->warningArr[] = 'WARNING: unable to extract occid to add igsn';
+							}
 						}
-
+					}
+				}
+				if($this->warningArr){
+					$this->logOrEcho('Warnings:');
+					foreach($this->warningArr as $errStr){
+						$this->logOrEcho($errStr,1);
 					}
 				}
 			}
 		}
 		else{
-			$this->errorMessage = 'FATAL ERROR parsing response XML: '.htmlentities($responseXML);
+			$this->logOrEcho('FATAL ERROR parsing response XML: '.htmlentities($responseXML));
 			$status = false;
 		}
 		return $status;
@@ -270,10 +307,15 @@ class OccurrenceSesar extends Manager {
 	private function setSampleXmlNode($igsn){
 		$sampleElem = $this->igsnDom->createElement('sample');
 
-		$this->addSampleElem($this->igsnDom, $sampleElem, 'user_code', $this->namespace);		//Required
+		$ns = $this->namespace;
+		if($ns == 'NEON') $ns = 'NEO';
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'user_code', $ns);		//Required
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'sample_type', 'Individual Sample');		//Required
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'material', 'Biology');		//Required
-		$this->addSampleElem($this->igsnDom, $sampleElem, 'igsn', $igsn);		//If blank, SESAR will generate new IGSN
+		$igsnElem = $this->igsnDom->createElement('igsn');		//If blank, SESAR will generate new IGSN
+		$igsnElem->appendChild($this->igsnDom->createTextNode($igsn));
+		$sampleElem->appendChild($igsnElem);
+
 
 		$classificationElem = $this->igsnDom->createElement('classification');
 		$biologyElem = $this->igsnDom->createElement('Biology');
@@ -288,7 +330,7 @@ class OccurrenceSesar extends Manager {
 			if(isset($symbArr['sesar'])) $this->addSampleElem($this->igsnDom, $sampleElem, $symbArr['sesar'], $symbArr['value']);
 		}
 
-		$this->addSampleElem($this->igsnDom, $sampleElem, 'elevation_unit', 'meters');
+		if(isset($this->fieldMap['minimumElevationInMeters']['value']) && $this->fieldMap['minimumElevationInMeters']['value'] !== '') $this->addSampleElem($this->igsnDom, $sampleElem, 'elevation_unit', 'meters');
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'current_archive', $this->collArr['collectionName']);
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'current_archive_contact', $this->collArr['contact'].($this->collArr['email']?' ('.$this->collArr['email'].')':''));
 
@@ -301,13 +343,13 @@ class OccurrenceSesar extends Manager {
 		$externalUrlsElem = $this->igsnDom->createElement('external_urls');
 		$externalUrlElem = $this->igsnDom->createElement('external_url');
 		$urlElem = $this->igsnDom->createElement('url');
-		$urlElem->appendChild($this->igsnDom->createElement($url));
+		$urlElem->appendChild($this->igsnDom->createTextNode($url));
 		$externalUrlElem->appendChild($urlElem);
 		$descriptionElem = $this->igsnDom->createElement('description');
-		$descriptionElem->appendChild($this->igsnDom->createElement('Source Reference URL'));
+		$descriptionElem->appendChild($this->igsnDom->createTextNode('Source Reference URL'));
 		$externalUrlElem->appendChild($descriptionElem);
 		$urlTypeElem = $this->igsnDom->createElement('url_type');
-		$urlTypeElem->appendChild($this->igsnDom->createElement('regular URL'));
+		$urlTypeElem->appendChild($this->igsnDom->createTextNode('regular URL'));
 		$externalUrlElem->appendChild($urlTypeElem);
 		$externalUrlsElem->appendChild($externalUrlElem);
 		$sampleElem->appendChild($externalUrlsElem);
@@ -317,19 +359,89 @@ class OccurrenceSesar extends Manager {
 	}
 
 	private function addSampleElem(&$dom, &$sampleElem, $elemName, $elemValue){
-		$newElem = $dom->createElement($elemName);
-		$newElem->appendChild($dom->createTextNode($elemValue));
-		$sampleElem->appendChild($newElem);
+		if($elemValue){
+			$newElem = $dom->createElement($elemName);
+			$newElem->appendChild($dom->createTextNode($elemValue));
+			$sampleElem->appendChild($newElem);
+		}
 	}
 
 	private function updateOccurrenceID($igsn, $occid){
 		$status = true;
-		$sql = 'UPDATE omoccurrences SET occurrenceID = '.$igsn.' WHERE occid = '.$occid;
-		if(!$this->conn($sql)){
-			$this->logOrEcho('ERROR adding IGSN to occurrence table: '.$this->conn->error,2);
+		if(strlen($igsn) == 9){
+			$sql = 'UPDATE omoccurrences SET occurrenceID = '.($igsn=='NULL'?'NULL':'"'.$igsn.'"').' WHERE occurrenceID IS NULL AND occid = '.$occid;
+			if(!$this->conn->query($sql)){
+				$this->logOrEcho('ERROR adding IGSN to occurrence table: '.$this->conn->error,2);
+				$status = false;
+			}
+		}
+		else{
+			$this->logOrEcho('ERROR adding IGSN to occurrence table: IGSN ('.$igsn.') not 9 digits',2);
 			$status = false;
 		}
 		return $status;
+	}
+
+	//Record field cleaning functions
+	private function cleanFieldValues(){
+		if(isset($this->fieldMap['country']['value']) && $this->fieldMap['country']['value']){
+			$this->fieldMap['country']['value'] = $this->cleanCountryStr($this->fieldMap['country']['value']);
+		}
+	}
+
+	private function cleanCountryStr($countryStr){
+		if(!$countryStr) return $countryStr;
+		$countryStr = $this->mbStrtr($countryStr,'áéÉ','aeE');
+		$testStr = strtolower($countryStr);
+		$synonymArr = array('united states of america'=>'United States','usa'=>'United States','u.s.a.'=>'united states','us'=>'United States');
+		if(array_key_exists($testStr, $synonymArr)) $countryStr = $synonymArr[$testStr];
+		$goodCountryArr = array('Afghanistan','Albania','Algeria','American Samoa','Andorra','Angola','Anguilla','Antarctica','Antigua And Barbuda','Argentina','Armenia','Aruba',
+			'Australia','Austria','Azerbaijan','Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium','Belize','Benin','Bermuda','Bhutan','Bolivia','Bosnia And Herzegovina',
+			'Botswana','Bouvet Island','Brazil','British Indian Ocean Territory','Brunei Darussalam','Bulgaria','Burkina Faso','Burundi','Cambodia','Cameroon','Canada','Cape Verde',
+			'Cayman Islands','Central African Republic','Chad','Chile','China','Christmas Island','Cocos (keeling) Islands','Colombia','Comoros','Congo',
+			'Congo, The Democratic Republic Of The','Cook Islands','Costa Rica',"Cote D'ivoire",'Croatia','Cuba','Cyprus','Czech Republic','Denmark','Djibouti','Dominica',
+			'Dominican Republic','East Timor','Ecuador','Egypt','El Salvador','Equatorial Guinea','Eritrea','Estonia','Ethiopia','Falkland Islands (malvinas)','Faroe Islands',
+			'Fiji','Finland','France','French Guiana','French Polynesia','French Southern Territories','Gabon','Gambia','Georgia','Germany','Ghana','Gibraltar','Greece','Greenland',
+			'Grenada','Guadeloupe','Guam','Guatemala','Guinea','Guinea-bissau','Guyana','Haiti','Heard Island And Mcdonald Islands','Holy See (vatican City State)','Honduras',
+			'Hong Kong','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kiribati','South Korea',
+			'North Korea','Kosovo','Kuwait','Kyrgyzstan',"Lao People's Democratic Republic",'Latvia','Lebanon','Lesotho','Liberia','Libyan Arab Jamahiriya','Liechtenstein',
+			'Lithuania','Luxembourg','Macau','Macedonia','Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands','Martinique','Mauritania','Mauritius',
+			'Mayotte','Mexico','Micronesia, Federated States Of','Moldova, Republic Of','Monaco','Mongolia','Montserrat','Montenegro','Morocco','Mozambique',
+			'Myanmar (Burma)','Namibia','Nauru','Nepal','Netherlands','Netherlands Antilles','New Caledonia','New Zealand','Nicaragua','Niger','Nigeria','Niue','Norfolk Island',
+			'Northern Mariana Islands','Norway','Oman','Pakistan','Palau','Palestinian Territory, Occupied','Panama','Papua New Guinea','Paraguay','Peru','Philippines','Pitcairn',
+			'Poland','Portugal','Puerto Rico','Qatar','Reunion','Romania','Russia','Rwanda','Saint Helena','St. Kitts And Nevis','Saint Lucia','Saint Pierre And Miquelon',
+			'Saint Vincent And The Grenadines','Samoa','San Marino','Sao Tome And Principe','Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore','Slovakia',
+			'Slovenia','Solomon Islands','Somalia','South Africa','South Georgia And The South Sandwich Islands','Spain','Sri Lanka','Sudan','Suriname','Svalbard And Jan Mayen',
+			'Swaziland','Sweden','Switzerland','Syria','Taiwan, Republic Of China','Tajikistan','Tanzania','Thailand','Togo','Tokelau','Tonga','Trinidad And Tobago',
+			'Tunisia','Turkey','Turkmenistan','Turks And Caicos Islands','Tuvalu','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States',
+			'United States Minor Outlying Islands','Uruguay','Uzbekistan','Vanuatu','Venezuela','Viet Nam','British Virgin Islands','U.S. Virgin Islands','Wallis And Futuna',
+			'Western Sahara','Yemen','Zambia','Zimbabwe','Not Applicable');
+		if(!in_array($countryStr, $goodCountryArr)){
+			if(preg_grep( '/'.$countryStr.'/i' , $goodCountryArr )){
+				//Name in approved list, but case is wrong, thus fix
+				foreach($goodCountryArr as $countryName){
+					if(strtolower($countryName) == strtolower($countryStr)) $countryStr = $countryName;
+				}
+			}
+			else{
+				$countryStr = '';
+			}
+		}
+		return $countryStr;
+	}
+
+	function mbStrtr($str, $from, $to = null) {
+		if(function_exists('mb_strtr')) {
+			return mb_strtr($str, $from, $to);
+		}
+		else{
+			if(is_array($from)) {
+				$from = array_map('utf8_decode', $from);
+				$from = array_map('utf8_decode', array_flip ($from));
+				return utf8_encode (strtr (utf8_decode ($str), array_flip ($from)));
+			}
+			return utf8_encode (strtr (utf8_decode ($str), utf8_decode($from), utf8_decode ($to)));
+		}
 	}
 
 	//Misc data return functions
@@ -349,7 +461,12 @@ class OccurrenceSesar extends Manager {
 	public function setCollid($id){
 		if($id && is_numeric($id)){
 			$this->collid = $id;
-			$sql = 'SELECT institutionCode, collectionCode, collectionName, contact, email FROM omcollections WHERE collid = '.$id;
+		}
+	}
+
+	public function setCollArr(){
+		if($this->collid){
+			$sql = 'SELECT institutionCode, collectionCode, collectionName, contact, email FROM omcollections WHERE collid = '.$this->collid;
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$this->collArr['collectionName'] = $r->collectionName.' ('.$r->institutionCode.($r->collectionCode?$r->collectionCode:'').')';
@@ -373,7 +490,52 @@ class OccurrenceSesar extends Manager {
 	}
 
 	public function setNamespace($ns){
+		if($ns == 'NEO') $ns .= 'N';
 		$this->namespace = $ns;
+	}
+
+	public function generateIgsnSeed(){
+		$igsnSeed = '';
+		//Get maximum identifier
+		if($this->collid && $this->namespace){
+			$seed = 0;
+			$sql = 'SELECT MAX(occurrenceID) as maxid FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%" AND length(occurrenceID) = 9';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$seed = $r->maxid;
+			}
+			$rs->free();
+			//Increase max alphanumeric ID by 1
+			if($seed){
+				$seedBaseTen = base_convert($seed,36,10);
+				$igsn = base_convert($seedBaseTen+1,10,36);
+				$igsn = str_pad($igsn, (9-strlen($this->namespace)), '0', STR_PAD_LEFT);
+				$igsnSeed = strtoupper($igsn);
+			}
+			else{
+				$igsnSeed = $this->namespace.str_pad('1', (9-strlen($this->namespace)), '0', STR_PAD_LEFT);
+			}
+		}
+		return $igsnSeed;
+	}
+
+	public function setIgsnSeed($seed){
+		if($seed && preg_match('/^[A-Z0-9]+$/', $seed)){
+			if($this->namespace && $this->collid){
+				//Test seed
+				$seedIsGood = true;
+				$sql = 'SELECT occid FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%" AND occurrenceID >= "'.$seed.'"';
+				$rs = $this->conn->query($sql);
+				if($rs->num_rows) $seedIsGood = false;
+				$rs->free();
+				if($seedIsGood) $this->igsnSeed = $seed;
+				else $this->warningArr[] = 'ERROR: Seed ('.$seed.') already exists or is out of sequence ';
+			}
+		}
+	}
+
+	public function getIgsnSeed(){
+		return $this->igsnSeed;
 	}
 
 	public function setRegistrationMethod($method){

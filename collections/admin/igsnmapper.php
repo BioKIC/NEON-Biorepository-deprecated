@@ -4,30 +4,56 @@ include_once($SERVER_ROOT.'/classes/OccurrenceSesar.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/igsndmapper.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/igsnmapper.php?'.$_SERVER['QUERY_STRING']);
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $username = array_key_exists('username',$_REQUEST)?$_REQUEST['username']:'';
 $pwd = array_key_exists('pwd',$_REQUEST)?$_REQUEST['pwd']:'';
 $namespace = array_key_exists('namespace',$_REQUEST)?$_REQUEST['namespace']:'';
 $registrationMethod = array_key_exists('registrationMethod',$_REQUEST)?$_REQUEST['registrationMethod']:'';
+$igsnSeed = array_key_exists('igsnSeed',$_REQUEST)?$_REQUEST['igsnSeed']:'';
 $generationMethod = array_key_exists('generationMethod',$_REQUEST)?$_REQUEST['generationMethod']:'';
 $processingCount = array_key_exists('processingCount',$_REQUEST)?$_REQUEST['processingCount']:10;
 $action = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
 //Variable sanitation
 if(!is_numeric($collid)) $collid = 0;
-if(preg_match('/[^a-z0-9]/i', $namespace)) $namespace = '';
+if(preg_match('/[^A-Z]+/', $namespace)) $namespace = '';
 if(!in_array($registrationMethod,array('api','csv','xml'))) $registrationMethod = '';
+if(preg_match('/[^A-Z0-9]+/', $igsnSeed)) $igsnSeed = '';
 if(!in_array($generationMethod,array('inhouse','sesar'))) $generationMethod = '';
 if(!is_numeric($processingCount)) $processingCount = 10;
 
+$statusStr = '';
 $isEditor = 0;
 if($IS_ADMIN || array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
 	$isEditor = 1;
 }
 $guidManager = new OccurrenceSesar();
 $guidManager->setCollid($collid);
+$guidManager->setCollArr();
+$guidManager->setSesarUser($username);
+$guidManager->setSesarPwd($pwd);
+$guidManager->setNamespace($namespace);
+$guidManager->setRegistrationMethod($registrationMethod);
+if($generationMethod == 'inhouse') $guidManager->setGenerateIGSN(1);
+$guidManager->setIgsnSeed($igsnSeed);
+if($action == 'populateGUIDs'){
+	if($registrationMethod == 'xml'){
+		$guidManager->setVerboseMode(0);
+		if($guidManager->batchProcessIdentifiers($processingCount)){
+			exit;
+		}
+		else{
+			$statusStr = '<div><span style="color:red">Error Message:</span> '.$guidManager->getErrorMessage().'</div>';
+			if($warningArr = $guidManager->getWarningArr()){
+				foreach($warningArr as $errMsg){
+					$statusStr .= '<div style="margin-left:10px">'.$errMsg.'</div>';
+				}
+			}
+		}
+	}
+}
 ?>
 <html>
 <head>
@@ -58,7 +84,7 @@ $guidManager->setCollid($collid);
 					$(xml).find('user_codes').each(function(){
 	                    $(this).find("user_code").each(function(){
 	                        var userCode = $(this).text();
-	                        $('select[name=namespace]').append(new Option(userCode, userCode))
+	                        $("select[name=namespace]").append(new Option(userCode, userCode))
 	                        $("#igsn-reg-div").show();
 	                        $("#validate-button").hide();
 	                        $("#valid-span").show();
@@ -83,6 +109,36 @@ $guidManager->setCollid($collid);
 			});
 		}
 
+		function generationMethodChanged(elem){
+			if(elem.value == "sesar"){
+				$("#igsnseed-div").hide();
+			}
+			else{
+				generateIgsnSeed();
+			}
+		}
+
+		function generateIgsnSeed(){
+			var f = document.guidform;
+			if(f.generationMethod.value == "inhouse"){
+				$("#igsnseed-div").show();
+				if(f.namespace.value != ""){
+					$.ajax({
+						method: "POST",
+						data: { collid: f.collid.value, ns: f.namespace.value },
+						dataType: "text",
+						url: "rpc/getigsnseed.php"
+					})
+					.done(function(responseStr) {
+						f.igsnSeed.value = responseStr;
+					});
+				}
+			}
+			else{
+
+			}
+		}
+
 		function verifyGuidForm(f){
 			if(f.namespace.value == ""){
 				alert("Select a SESAR namespace");
@@ -96,12 +152,21 @@ $guidManager->setCollid($collid);
 				alert("Select an IGSN generation method");
 				return false;
 			}
+			else if(f.generationMethod.value == "inhouse" && f.igsnSeed.value == ""){
+				alert("In-house IGSN Generation selected but IGSN seed not generated (contact administrator)");
+				return false;
+			}
+			if(f.generationMethod.value == "inhouse"){
+				setTimeout(function(){
+					f.igsnSeed.value = "";
+				}, 100);
+			}
 			return true;
 		}
-
 	</script>
 	<style type="text/css">
-		fieldset{ margin:10px }
+		fieldset{ margin:10px; padding:15px; }
+		fieldset legend{ font-weight:bold; }
 		.form-label{ font-weight: bold; }
 		button{ margin:15px; }
 	</style>
@@ -114,27 +179,32 @@ include($SERVER_ROOT."/header.php");
 <!-- This is inner text! -->
 <div id="innertext">
 	<?php
-	if($isEditor || $collid){
-		?>
-		<h3>IGSN Control Panel</h3>
-		<div style="margin:10px;">
-
-		</div>
-		<?php
-		if($action == 'populateGUIDs'){
-			echo '<ul>';
-			$guidManager->setNamespace($namespace);
-			$guidManager->setRegistrationMethod($registrationMethod);
-			if($generationMethod == 'inhouse') $guidManager->setGenerateIGSN(1);
-			$guidManager->batchProcessIdentifiers($processingCount);
-			echo '</ul>';
-		}
+	if($isEditor && $collid){
 		echo '<h3>'.$guidManager->getCollectionName().'</h3>';
+		if($statusStr){
+			?>
+			<fieldset style="margin:10px;">
+				<legend>Error Panel</legend>
+				<?php echo $statusStr; ?>
+			</fieldset>
+			<?php
+		}
+		if($action == 'populateGUIDs'){
+			if($registrationMethod == 'api'){
+				echo '<fieldset>';
+				echo '<legend>Action Panel</legend>';
+				echo '<ul>';
+				$guidManager->batchProcessIdentifiers($processingCount);
+				echo '<ul>';
+				echo '</fieldset>';
+			}
+		}
 		?>
 		<p>
 			<b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?>
 		</p>
-		<form name="guidform" action="igsnmapper.php" method="post" onsubmit="return verifyGuidForm(this)">
+		<form id="guidform" name="guidform" action="igsnmapper.php" method="post" onsubmit="return verifyGuidForm(this)">
+			<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 			<fieldset>
 				<legend>IGSN Registration Control Panel</legend>
 				<p>Register IGSNs via a manual submission of data file or automaticly using <a href="http://www.geosamples.org/interop" target="_blank">SESAR API Web Services</a></p>
@@ -147,14 +217,30 @@ include($SERVER_ROOT."/header.php");
 					<div><span class="form-label">Password:</span> <input name="pwd" type="password" value="<?php echo $pwd; ?>" /></div>
 					<button id="validate-button" type="button" onclick="validateCredentials(this.form)">Validate Credentials</button>
 				</p>
-				<div id="igsn-reg-div" style="display:none;margin-top:20px">
+				<div id="igsn-reg-div" style="margin-top:20px;display:none;">
 					<p>
 						<span class="form-label">IGSN Namespace:</span>
-						<select name="namespace">
+						<select name="namespace" onchange="generateIgsnSeed()">
 							<option value="">-- Select an IGSN Namespace --</option>
 							<option value="">------------------------------</option>
 						</select>
 					</p>
+					<p>
+						<span class="form-label">IGSN generation method:</span>
+						<select name="generationMethod" onchange="generationMethodChanged(this)">
+							<option value=''>-- Select Method --</option>
+							<option value=''>----------------------------</option>
+							<option value='sesar'>SESAR generates IGSN (recommended)</option>
+							<option value='inhouse'>Generate IGSN in-house</option>
+						</select>
+					</p>
+					<div id="igsnseed-div" style="display:none">
+						<p>
+							<span class="form-label">IGSN seed:</span>
+							<input name="igsnSeed" type="text" value="" />
+							<span style=""><a href="#" onclick="generateIgsnSeed();return false;"><img src="../../images/refresh.png" style="width:14px;vertical-align: middle;" /></a></span>
+						</p>
+					</div>
 					<p>
 						<span class="form-label">Registration method:</span>
 						<select name="registrationMethod">
@@ -166,21 +252,11 @@ include($SERVER_ROOT."/header.php");
 						</select>
 					</p>
 					<p>
-						<span class="form-label">IGSN generation method:</span>
-						<select name="generationMethod">
-							<option value=''>-- Select Method --</option>
-							<option value=''>----------------------------</option>
-							<option value='sesar' <?php echo ($generationMethod=='sesar'?'SELECTED':''); ?>>SESAR generates IGSN (recommended)</option>
-							<option value='inhouse' <?php echo ($generationMethod=='inhouse'?'SELECTED':''); ?>>Generate IGSN in-house</option>
-						</select>
-					</p>
-					<p>
 						<span class="form-label">Number of identifiers to generate: </span>
 						<input name="processingCount" type="text" value="10" /> (leave blank to process all specimens)
 					</p>
 					<p>
-						<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-						<button type="submit" name="formsubmit" value="populateGUIDs">Populate Collection GUIDs</button>
+						<button name="formsubmit" type="submit" value="populateGUIDs">Populate Collection GUIDs</button>
 					</p>
 				</div>
 			</fieldset>

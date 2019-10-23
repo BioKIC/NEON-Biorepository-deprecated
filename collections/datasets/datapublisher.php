@@ -132,7 +132,7 @@ if($isEditor){
 				$.ajax({
 					method: "GET",
 					dataType: "json",
-					url: "http://api.gbif.org/v1/organization/" + keyValue
+					url: "https://api.gbif.org/v1/organization/" + keyValue
 				})
 				.done(function( retJson ) {
 					f.submit();

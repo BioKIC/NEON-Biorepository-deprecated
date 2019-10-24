@@ -550,7 +550,7 @@ class OccurrenceCollectionProfile {
 			$loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
 			if($dwcUri){
 				//Make sure end point is up-to-date
-				$epUrl = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/endpoint';
+				$epUrl = 'https://api.gbif.org/v1/dataset/'.$datasetKey.'/endpoint';
 				//Get endpoint
 				$ch = curl_init($epUrl);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
@@ -602,7 +602,7 @@ class OccurrenceCollectionProfile {
 			}
 
 			//Trigger Crawl
-			$dsUrl = 'http://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';
+			$dsUrl = 'https://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';
 			$ch = curl_init($dsUrl);
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

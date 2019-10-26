@@ -9,9 +9,10 @@ class OccurrenceSesar extends Manager {
 	private $sesarUser;
 	private $sesarPwd;
 	private $namespace;
-	private $generateIGSN = false;
+	private $generationMethod = 'sesar';
 	private $igsnSeed = false;
 	private $registrationMethod;
+	private $dynPropArr = false;
 	private $fieldMap = array();
 
 	public function __construct($type = 'write'){
@@ -40,6 +41,64 @@ class OccurrenceSesar extends Manager {
 		parent::__destruct();
 	}
 
+	//Profile management functions
+	public function getSesarProfile(){
+		$profileArr = array();
+		$this->setDynamicPropertiesArr();
+		if(isset($this->dynPropArr['sesar'])){
+			$profileArr = $this->dynPropArr['sesar'];
+			$this->namespace = $profileArr['namespace'];
+			$this->generationMethod = $profileArr['generationMethod'];
+		}
+		return $profileArr;
+	}
+
+	private function setDynamicPropertiesArr(){
+		if($this->dynPropArr === false){
+			$this->dynPropArr = array();
+			$sql = 'SELECT dynamicProperties FROM omcollections WHERE collid = '.$this->collid;
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				if($r->dynamicProperties) $this->dynPropArr = json_decode($r->dynamicProperties, true);
+			}
+			$rs->free();
+		}
+	}
+
+	public function saveProfile(){
+		$this->setDynamicPropertiesArr();
+		if($this->namespace){
+			$this->dynPropArr['sesar']['namespace'] = $this->namespace;
+			$this->dynPropArr['sesar']['generationMethod'] = $this->generationMethod;
+			print_r($this->dynPropArr);
+			$sql = 'UPDATE omcollections SET dynamicProperties = "'.$this->cleanInStr(json_encode($this->dynPropArr)).'" WHERE collid = '.$this->collid;
+			if($this->conn->query($sql)){
+				return true;
+			}
+			else{
+				$this->errorMessage = 'ERROR saving profile';
+				$this->logOrEcho($this->errorMessage);
+				return false;
+			}
+		}
+		return false;
+	}
+
+	public function deleteProfile(){
+		$this->setDynamicPropertiesArr();
+		unset($this->dynPropArr['sesar']);
+		$sql = 'UPDATE omcollections SET dynamicProperties = "'.$this->cleanInStr(json_encode($this->dynPropArr)).'" WHERE collid = '.$this->collid;
+		if($this->conn->query($sql)){
+			return true;
+		}
+		else{
+			$this->errorMessage = 'ERROR deleting profile';
+			$this->logOrEcho($this->errorMessage);
+			return false;
+		}
+	}
+
+	//Processing functions
 	public function batchProcessIdentifiers($processingCount){
 		$status = true;
 		if($this->registrationMethod == 'api') $this->setVerboseMode(3);
@@ -50,14 +109,14 @@ class OccurrenceSesar extends Manager {
 		$this->logOrEcho('sesarUser: '.$this->sesarUser);
 		$this->logOrEcho('namespace: '.$this->namespace);
 		$this->logOrEcho('registrationMethod: '.$this->registrationMethod);
-		$this->logOrEcho('generateIGSN locally: '.($this->generateIGSN?'true':'false'));
+		$this->logOrEcho('generationMethod locally: '.$this->generationMethod);
 		if(!$this->namespace){
 			$this->errorMessage = 'FATAL ERROR batch assigning IDs: namespace not set';
 			$this->logOrEcho($this->errorMessage);
 			return false;
 		}
 		$baseTenID = '';
-		if($this->generateIGSN){
+		if($this->generationMethod == 'inhouse'){
 			if(!$this->igsnSeed){
 				$this->errorMessage = 'FATAL ERROR batch assigning IDs: IGSN seed not set';
 				$this->logOrEcho($this->errorMessage);
@@ -87,7 +146,7 @@ class OccurrenceSesar extends Manager {
 		if($rs->num_rows) $this->initiateDom();
 		while($r = $rs->fetch_assoc()){
 			$igsn = '';
-			if($this->generateIGSN){
+			if($this->generationMethod == 'inhouse'){
 				$igsn = base_convert($baseTenID,10,36);
 				$igsn = str_pad($igsn, (9-strlen($this->namespace)), '0', STR_PAD_LEFT);
 				$igsn = strtoupper($igsn);
@@ -101,15 +160,7 @@ class OccurrenceSesar extends Manager {
 			}
 			$this->cleanFieldValues();
 
-			if($igsn){
-				if($this->updateOccurrenceID($igsn, $r['occid'])){
-					//First test to makes sure new locally assigned IGSN can be entered, and is unique within database
-					$this->setSampleXmlNode($igsn);
-				}
-			}
-			else{
-				$this->setSampleXmlNode($igsn);
-			}
+			if(!$this->igsnExists($igsn)) $this->setSampleXmlNode($igsn);
 			$this->logOrEcho('#'.$increment.': IGSN created '.$this->fieldMap['catalogNumber']['value'],1);
 			$increment++;
 		}
@@ -254,27 +305,18 @@ class OccurrenceSesar extends Manager {
 						if($validNodeList[0]->nodeValue == 'no'){
 							$errCodeList = $rootElem->getElementsByTagName('error');
 							$this->warningArr[] = 'ERROR registering IGSN ('.$validNodeList[0]->getAttribute('code').'): '.$errCodeList[0]->nodeValue;
-							if($validNodeList[0]->getAttribute('code') == 'InvalidSample'){
-								$nameStr = $sampleNode->getAttribute('name');
-								if(preg_match('/[(\d+)]$/', $nameStr, $m)){
-									$this->updateOccurrenceID('NULL', $m[1]);
-								}
-							}
 						}
 					}
 					else{
-						if(!$this->generateIGSN){
-							//Success get and load igsn, since it wasn't added prior
-							$nameNodeList = $dom->getElementsByTagName('name');
-							$nameStr = $nameNodeList[0]->nodeValue;
-							$igsnNodeList = $dom->getElementsByTagName('igsn');
-							$igsn = $igsnNodeList[0]->nodeValue;
-							if(preg_match('/[(\d+)]$/', $nameStr,$m)){
-								$this->updateOccurrenceID($igsn, $m[1]);
-							}
-							else{
-								$this->warningArr[] = 'WARNING: unable to extract occid to add igsn';
-							}
+						$nameNodeList = $dom->getElementsByTagName('name');
+						$nameStr = $nameNodeList[0]->nodeValue;
+						$igsnNodeList = $dom->getElementsByTagName('igsn');
+						$igsn = $igsnNodeList[0]->nodeValue;
+						if(preg_match('/[(\d+)]$/', $nameStr,$m)){
+							$this->updateOccurrenceID($igsn, $m[1]);
+						}
+						else{
+							$this->warningArr[] = 'WARNING: unable to extract occid to add igsn';
 						}
 					}
 				}
@@ -382,6 +424,19 @@ class OccurrenceSesar extends Manager {
 		return $status;
 	}
 
+	private function igsnExists($igsn){
+		$status = false;
+		if($this->namespace){
+			$sql = 'SELECT occurrenceID FROM omoccurrences WHERE (occurrenceid LIKE "'.$this->namespace.'%") AND (occurrenceID = "'.$igsn.'")';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$status = true;
+			}
+			$rs->free();
+		}
+		return $status;
+	}
+
 	//Record field cleaning functions
 	private function cleanFieldValues(){
 		if(isset($this->fieldMap['country']['value']) && $this->fieldMap['country']['value']){
@@ -445,6 +500,20 @@ class OccurrenceSesar extends Manager {
 	}
 
 	//Misc data return functions
+	public function getGuidCount(){
+		$cnt = 0;
+		if($this->namespace){
+			$sql = 'SELECT COUNT(*) AS cnt FROM omoccurrences ';
+			if($this->collid) $sql .= 'WHERE (occurrenceid LIKE "'.$this->namespace.'%") AND (collid = '.$this->collid.')';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$cnt = $r->cnt;
+			}
+			$rs->free();
+		}
+		return $cnt;
+	}
+
 	public function getMissingGuidCount(){
 		$cnt = 0;
 		$sql = 'SELECT COUNT(*) AS cnt FROM omoccurrences ';
@@ -490,12 +559,15 @@ class OccurrenceSesar extends Manager {
 	}
 
 	public function setNamespace($ns){
-		if($ns == 'NEO') $ns .= 'N';
-		$this->namespace = $ns;
+		if(preg_match('/^[A-Z]+$/', $ns)){
+			if($ns == 'NEO') $ns .= 'N';
+			$this->namespace = $ns;
+		}
 	}
 
 	public function generateIgsnSeed(){
 		$igsnSeed = '';
+		$this->getSesarProfile();
 		//Get maximum identifier
 		if($this->collid && $this->namespace){
 			$seed = 0;
@@ -521,16 +593,8 @@ class OccurrenceSesar extends Manager {
 
 	public function setIgsnSeed($seed){
 		if($seed && preg_match('/^[A-Z0-9]+$/', $seed)){
-			if($this->namespace && $this->collid){
-				//Test seed
-				$seedIsGood = true;
-				$sql = 'SELECT occid FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%" AND occurrenceID >= "'.$seed.'"';
-				$rs = $this->conn->query($sql);
-				if($rs->num_rows) $seedIsGood = false;
-				$rs->free();
-				if($seedIsGood) $this->igsnSeed = $seed;
-				else $this->warningArr[] = 'ERROR: Seed ('.$seed.') already exists or is out of sequence ';
-			}
+			if($this->igsnExists($seed)) $this->igsnSeed = $seed;
+			else $this->warningArr[] = 'ERROR: Seed ('.$seed.') already exists or is out of sequence ';
 		}
 	}
 
@@ -542,8 +606,8 @@ class OccurrenceSesar extends Manager {
 		$this->registrationMethod = $method;
 	}
 
-	public function setGenerateIGSN($bool){
-		if($bool == 1) $this->generateIGSN = true;
+	public function setGenerationMethod($method){
+		if($method == 'inhouse') $this->generationMethod = $method;
 	}
 }
 ?>

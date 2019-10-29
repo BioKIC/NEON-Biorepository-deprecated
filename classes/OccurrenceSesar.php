@@ -209,14 +209,8 @@ class OccurrenceSesar extends Manager {
 			return false;
 		}
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd);
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_URL, $baseUrl);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $requestData);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		if($responseXML= curl_exec($ch)){
+		$responseXML = $this->getSesarApiData($baseUrl, $requestData);
+		if($responseXML){
 			$dom = new DOMDocument('1.0','UTF-8');
 			if($dom->loadXML($responseXML)){
 				$validElemList = $dom->getElementsByTagName('valid');
@@ -238,38 +232,41 @@ class OccurrenceSesar extends Manager {
 			}
 		}
 		else{
-			$this->errorMessage = 'FATAL CURL ERROR validating user: '.curl_error($ch).' (#'.curl_errno($ch).')';
-			//$header = curl_getinfo($ch);
 			$this->logOrEcho($this->errorMessage);
 			$userCodeArr = false;
 		}
-		curl_close($ch);
 		return $userCodeArr;
 	}
 
 	private function registerIdentifiersViaApi(){
-		$status = true;
+		$status = false;
 		//$baseUrl = 'https://app.geosamples.org/webservices/upload.php';
 		$baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
 		$contentStr = $this->igsnDom->saveXML();
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd, 'content' => $contentStr);
+		$responseXML = $this->getSesarApiData($baseUrl, $requestData);
+		if($responseXML){
+			$this->processRegistrationResponse($responseXML);
+			$status = true;
+		}
+		return $status;
+	}
 
+	private function getSesarApiData($url, $requestData = null){
+		$responseXML = false;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_URL, $baseUrl);
+		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $requestData);
+		if($requestData) curl_setopt($ch, CURLOPT_POSTFIELDS, $requestData);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		if($responseXML = curl_exec($ch)){
-			$this->processRegistrationResponse($responseXML);
-		}
-		else{
+		$responseXML = curl_exec($ch);
+		if(!$responseXML){
 			$this->errorMessage = 'FATAL CURL ERROR registering IGSN: '.curl_error($ch).' (#'.curl_errno($ch).')';
 			//$header = curl_getinfo($ch);
-			$status = false;
 		}
 		curl_close($ch);
-		return $status;
+		return $responseXML;
 	}
 
 	public function processRegistrationResponse($responseXML){
@@ -499,12 +496,97 @@ class OccurrenceSesar extends Manager {
 		}
 	}
 
+	//GUID verification functions
+	public function verifyLocalGuids(){
+		$limit = 1000;
+		$pageNumber = 1;
+		$sesarCnt = false;
+		$cnt = 1;
+		$ns = substr($this->namespace,0,3);
+		//$ns = 'NEE';
+		//$urlBase = 'https://app.geosamples.org/samples/user_code/'.$this->namespace.'&limit='.$limit;
+		$urlBase = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$limit;
+		$igsnArr = array();
+		do{
+			$url = $urlBase.'&page_no='.$pageNumber;
+			$retArr = $this->getSesarApiGetData($url);
+			if($retArr['retCode'] == 200){
+				$retJson = $retArr['retJson'];
+				if($retJson){
+					$jsonObj = json_decode($retJson);
+					if($sesarCnt === false) $sesarCnt = $jsonObj->total_counts;
+					foreach($jsonObj->igsn_list as $igsn){
+						//echo $igsn.'<br/>';
+						$sql = 'SELECT collid FROM omoccurrences WHERE occurrenceID = "'.$igsn.'"';
+						$rs = $this->conn->query($sql);
+						if($rs->num_rows){
+							if($r = $rs->fetch_object()){
+								if(!array_key_exists($r->collid,$igsnArr)) $igsnArr[$r->collid] = 1;
+								else $igsnArr[$r->collid]++;
+							}
+						}
+						else{
+							$igsnArr['bad'][] = $igsn;
+						}
+						if($cnt%1000) $this->logOrEcho($cnt.' records checked');
+						$rs->free();
+					}
+				}
+			}
+			$sesarCnt -= $limit;
+			$pageNumber++;
+			$cnt++;
+		}while($sesarCnt > 0);
+	}
+
+	public function verifySesarGuids(){
+		$badArr = array();
+		$this->setVerboseMode(2);
+		$url = 'https://app.geosamples.org/sample/igsn/';
+		$cnt = 0;
+		$sql = 'SELECT igsn FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%" AND collid = '.$this->collid;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$resArr = $this->getSesarApiGetData($url.$r->igsn);
+			if($resArr == 200){
+				$this->logOrEcho($resArr.'<br/>');
+			}
+			else{
+				$badArr[] = $r->igsn;
+				$this->logOrEcho($this->errorMessage);
+			}
+			if($cnt%1000) $this->logOrEcho($cnt.' records checked');
+			$cnt++;
+		}
+		$rs->free();
+		if($badArr){
+			$this->logOrEcho('Bad IGSNs: '.implode(',', $badArr));
+		}
+	}
+
+	private function getSesarApiGetData($url){
+		$retArr = array();
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array ( 'Accept: application/json' ));
+		$retArr['retJson'] = curl_exec($ch);
+		$retArr['retCode'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if($retArr['retCode'] != 200){
+			$this->errorMessage = 'FATAL CURL ERROR registering IGSN: '.curl_error($ch).' (#'.curl_errno($ch).')';
+			//$header = curl_getinfo($ch);
+		}
+		curl_close($ch);
+		return $retArr;
+	}
+
 	//Misc data return functions
-	public function getGuidCount(){
+	public function getGuidCount($collid = null){
 		$cnt = 0;
 		if($this->namespace){
-			$sql = 'SELECT COUNT(*) AS cnt FROM omoccurrences ';
-			if($this->collid) $sql .= 'WHERE (occurrenceid LIKE "'.$this->namespace.'%") AND (collid = '.$this->collid.')';
+			$sql = 'SELECT COUNT(*) AS cnt FROM omoccurrences WHERE (occurrenceid LIKE "'.$this->namespace.'%") ';
+			if($collid) $sql .= 'AND (collid = '.$this->collid.')';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$cnt = $r->cnt;

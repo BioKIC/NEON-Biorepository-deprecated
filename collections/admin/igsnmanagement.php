@@ -46,6 +46,12 @@ if($action){
 		$namespace = '';
 		$generationMethod = '';
 	}
+	elseif($action == 'verifyguid'){
+		$guidManager->verifyLocalGuids();
+	}
+	elseif($action == 'verifysesar'){
+		$guidManager->verifySesarGuids();
+	}
 }
 ?>
 <html>
@@ -148,14 +154,20 @@ include($SERVER_ROOT."/header.php");
 			- Grab all SESAR IGSNs and make sure they are in the database (must work across all collections)
 		*/
 		if($namespace){
+			$guidCnt = $guidManager->getGuidCount($collid);
+			$guidMissingCnt = $guidManager->getMissingGuidCount();
 			?>
 			<fieldset>
 				<legend>IGSN Profile Details</legend>
+				<p>Occurrence IGSN GUID counts using the <?php echo $namespace; ?> namespace</p>
 				<p>
-					<b>Occurrences with GUIDs:</b> <?php echo $guidManager->getGuidCount(); ?>
+					<b>GUIDs within collection:</b> <?php echo $guidCnt; ?>
 				</p>
 				<p>
-					<b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?>
+					<b>GUIDs within all collections:</b> <?php echo $guidManager->getGuidCount(); ?>
+				</p>
+				<p>
+					<b>Occurrences without GUIDs:</b> <?php echo $guidMissingCnt; ?>
 				</p>
 				<p>
 					<span class="form-label">IGSN Namespace:</span>
@@ -173,6 +185,25 @@ include($SERVER_ROOT."/header.php");
 						<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 						<button name="formsubmit" type="submit" value="deleteProfile">Delete Profile</button>
 						<span style="margin-left:25px;"><a href="igsnmapper.php?collid=<?php echo $collid; ?>"><button name="formsubmit" type="button">Generate IGSN Identifiers</button></a></span>
+					</p>
+				</form>
+			</fieldset>
+			<fieldset>
+				<legend>IGSN GUID Maintenance</legend>
+				<form name="guidmaintenanceform" action="igsnmanagement.php" method="post">
+					<p>Verify portal's IGSN GUIDs within database against the SESAR system and vice versa.</p>
+					<p>
+						<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
+						<?php
+						if($guidCnt){
+							?>
+							<button name="formsubmit" type="submit" value="verifyguid">Verify portal GUIDs</button>
+							<?php
+						}
+						?>
+						<span style="margin-left:25px;">
+							<a href="igsnmapper.php?collid=<?php echo $collid; ?>"><button name="formsubmit" type="submit" value="verifysesar">Verify SESAR GUIDs</button></a>
+						</span>
 					</p>
 				</form>
 			</fieldset>

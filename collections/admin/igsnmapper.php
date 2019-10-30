@@ -9,19 +9,15 @@ if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/a
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $username = array_key_exists('username',$_REQUEST)?$_REQUEST['username']:'';
 $pwd = array_key_exists('pwd',$_REQUEST)?$_REQUEST['pwd']:'';
-$namespace = array_key_exists('namespace',$_REQUEST)?$_REQUEST['namespace']:'';
 $registrationMethod = array_key_exists('registrationMethod',$_REQUEST)?$_REQUEST['registrationMethod']:'';
 $igsnSeed = array_key_exists('igsnSeed',$_REQUEST)?$_REQUEST['igsnSeed']:'';
-$generationMethod = array_key_exists('generationMethod',$_REQUEST)?$_REQUEST['generationMethod']:'';
 $processingCount = array_key_exists('processingCount',$_REQUEST)?$_REQUEST['processingCount']:10;
 $action = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
 //Variable sanitation
 if(!is_numeric($collid)) $collid = 0;
-if(preg_match('/[^A-Z]+/', $namespace)) $namespace = '';
 if(!in_array($registrationMethod,array('api','csv','xml'))) $registrationMethod = '';
 if(preg_match('/[^A-Z0-9]+/', $igsnSeed)) $igsnSeed = '';
-if(!in_array($generationMethod,array('inhouse','sesar'))) $generationMethod = '';
 if(!is_numeric($processingCount)) $processingCount = 10;
 
 $statusStr = '';
@@ -34,10 +30,17 @@ $guidManager->setCollid($collid);
 $guidManager->setCollArr();
 $guidManager->setSesarUser($username);
 $guidManager->setSesarPwd($pwd);
-$guidManager->setNamespace($namespace);
 $guidManager->setRegistrationMethod($registrationMethod);
-if($generationMethod == 'inhouse') $guidManager->setGenerateIGSN(1);
-$guidManager->setIgsnSeed($igsnSeed);
+
+$sesarProfile = $guidManager->getSesarProfile();
+$namespace = '';
+if(isset($sesarProfile['namespace'])) $namespace = $sesarProfile['namespace'];
+$generationMethod = '';
+if(isset($sesarProfile['generationMethod'])) $generationMethod = $sesarProfile['generationMethod'];
+
+if($igsnSeed) $guidManager->setIgsnSeed($igsnSeed);
+elseif($generationMethod == 'inhouse') $igsnSeed = $guidManager->getIgsnSeed();
+
 if($action == 'populateGUIDs'){
 	if($registrationMethod == 'xml'){
 		$guidManager->setVerboseMode(0);
@@ -58,7 +61,7 @@ if($action == 'populateGUIDs'){
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title>IGSN GUID Management</title>
+	<title>IGSN GUID Mapper</title>
 	<link rel="stylesheet" href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" />
 	<link rel="stylesheet" href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" />
 	<script type="text/javascript" src="../../js/jquery.js"></script>
@@ -84,7 +87,6 @@ if($action == 'populateGUIDs'){
 					$(xml).find('user_codes').each(function(){
 	                    $(this).find("user_code").each(function(){
 	                        var userCode = $(this).text();
-	                        $("select[name=namespace]").append(new Option(userCode, userCode))
 	                        $("#igsn-reg-div").show();
 	                        $("#validate-button").hide();
 	                        $("#valid-span").show();
@@ -120,47 +122,36 @@ if($action == 'populateGUIDs'){
 
 		function generateIgsnSeed(){
 			var f = document.guidform;
-			if(f.generationMethod.value == "inhouse"){
-				$("#igsnseed-div").show();
-				if(f.namespace.value != ""){
-					$.ajax({
-						method: "POST",
-						data: { collid: f.collid.value, ns: f.namespace.value },
-						dataType: "text",
-						url: "rpc/getigsnseed.php"
-					})
-					.done(function(responseStr) {
-						f.igsnSeed.value = responseStr;
-					});
-				}
-			}
-			else{
-
-			}
+			$("#igsnseed-div").show();
+			$.ajax({
+				method: "POST",
+				data: { collid: f.collid.value },
+				dataType: "text",
+				url: "rpc/getigsnseed.php"
+			})
+			.done(function(responseStr) {
+				f.igsnSeed.value = responseStr;
+			});
 		}
 
 		function verifyGuidForm(f){
-			if(f.namespace.value == ""){
-				alert("Select a SESAR namespace");
-				return false;
-			}
-			else if(f.registrationMethod.value == ""){
+			if(f.registrationMethod.value == ""){
 				alert("Select a registration method");
 				return false;
 			}
-			else if(f.generationMethod.value == ""){
-				alert("Select an IGSN generation method");
-				return false;
+			<?php
+			if(isset($sesarProfile['sesar']['generationMethod']) && $sesarProfile['sesar']['generationMethod'] == 'inhouse'){
+				?>
+				else if(f.igsnSeed.value == ""){
+					alert("In-house IGSN Generation selected but IGSN seed not generated (contact administrator)");
+					return false;
+				}
+				<?php
 			}
-			else if(f.generationMethod.value == "inhouse" && f.igsnSeed.value == ""){
-				alert("In-house IGSN Generation selected but IGSN seed not generated (contact administrator)");
-				return false;
-			}
-			if(f.generationMethod.value == "inhouse"){
-				setTimeout(function(){
-					f.igsnSeed.value = "";
-				}, 100);
-			}
+			?>
+			setTimeout(function(){
+				//f.igsnSeed.value = "";
+			}, 100);
 			return true;
 		}
 	</script>
@@ -176,6 +167,11 @@ if($action == 'populateGUIDs'){
 $displayLeftMenu = 'false';
 include($SERVER_ROOT."/header.php");
 ?>
+<div class='navpath'>
+	<a href="../../index.php">Home</a> &gt;&gt;
+	<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management</a> &gt;&gt;
+	<b>IGSN Mapper</b>
+</div>
 <!-- This is inner text! -->
 <div id="innertext">
 	<?php
@@ -189,79 +185,76 @@ include($SERVER_ROOT."/header.php");
 			</fieldset>
 			<?php
 		}
-		if($action == 'populateGUIDs'){
-			if($registrationMethod == 'api'){
-				echo '<fieldset>';
-				echo '<legend>Action Panel</legend>';
-				echo '<ul>';
-				$guidManager->batchProcessIdentifiers($processingCount);
-				echo '<ul>';
-				echo '</fieldset>';
+		if($namespace && $generationMethod){
+			if($action == 'populateGUIDs'){
+				if($registrationMethod == 'api'){
+					echo '<fieldset>';
+					echo '<legend>Action Panel</legend>';
+					echo '<ul>';
+					$guidManager->batchProcessIdentifiers($processingCount);
+					echo '<ul>';
+					echo '</fieldset>';
+				}
 			}
-		}
-		?>
-		<p>
-			<b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?>
-		</p>
-		<form id="guidform" name="guidform" action="igsnmapper.php" method="post" onsubmit="return verifyGuidForm(this)">
-			<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-			<fieldset>
-				<legend>IGSN Registration Control Panel</legend>
-				<p>Register IGSNs via a manual submission of data file or automaticly using <a href="http://www.geosamples.org/interop" target="_blank">SESAR API Web Services</a></p>
-				<p>
-					<div>
-						<span class="form-label">Username:</span> <input name="username" type="text" value="<?php echo $username; ?>" />
-						<span id="valid-span" style="display:none;color:green">Credentials Valid!</span>
-						<span id="notvalid-span" style="display:none;color:orange">Credentials Not Valid</span>
-					</div>
-					<div><span class="form-label">Password:</span> <input name="pwd" type="password" value="<?php echo $pwd; ?>" /></div>
-					<button id="validate-button" type="button" onclick="validateCredentials(this.form)">Validate Credentials</button>
-				</p>
-				<div id="igsn-reg-div" style="margin-top:20px;display:none;">
+			?>
+			<p>
+				<b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?>
+			</p>
+			<form id="guidform" name="guidform" action="igsnmapper.php" method="post" onsubmit="return verifyGuidForm(this)">
+				<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
+				<fieldset>
+					<legend>IGSN Registration Control Panel</legend>
+					<p>Register IGSNs via a manual submission of data file or automaticly using <a href="http://www.geosamples.org/interop" target="_blank">SESAR API Web Services</a></p>
 					<p>
-						<span class="form-label">IGSN Namespace:</span>
-						<select name="namespace" onchange="generateIgsnSeed()">
-							<option value="">-- Select an IGSN Namespace --</option>
-							<option value="">------------------------------</option>
-						</select>
+						<div>
+							<span class="form-label">Username:</span> <input name="username" type="text" value="<?php echo $username; ?>" />
+							<span id="valid-span" style="display:none;color:green">Credentials Valid!</span>
+							<span id="notvalid-span" style="display:none;color:orange">Credentials Not Valid</span>
+						</div>
+						<div><span class="form-label">Password:</span> <input name="pwd" type="password" value="<?php echo $pwd; ?>" /></div>
+						<button id="validate-button" type="button" onclick="validateCredentials(this.form)">Validate Credentials</button>
 					</p>
-					<p>
-						<span class="form-label">IGSN generation method:</span>
-						<select name="generationMethod" onchange="generationMethodChanged(this)">
-							<option value=''>-- Select Method --</option>
-							<option value=''>----------------------------</option>
-							<option value='sesar'>SESAR generates IGSN (recommended)</option>
-							<option value='inhouse'>Generate IGSN in-house</option>
-						</select>
-					</p>
-					<div id="igsnseed-div" style="display:none">
+					<div id="igsn-reg-div" style="margin-top:20px;display:none;">
 						<p>
-							<span class="form-label">IGSN seed:</span>
-							<input name="igsnSeed" type="text" value="" />
-							<span style=""><a href="#" onclick="generateIgsnSeed();return false;"><img src="../../images/refresh.png" style="width:14px;vertical-align: middle;" /></a></span>
+							<span class="form-label">IGSN Namespace:</span>
+							<?php echo $namespace; ?>
+						</p>
+						<p>
+							<span class="form-label">IGSN generation method:</span>
+							<?php echo $generationMethod; ?>
+						</p>
+						<div id="igsnseed-div" style="display:<?php echo ($generationMethod=='inhouse'?'':'none'); ?>">
+							<p>
+								<span class="form-label">IGSN seed:</span>
+								<input name="igsnSeed" type="text" value="<?php echo $igsnSeed; ?>" />
+								<span style=""><a href="#" onclick="generateIgsnSeed();return false;"><img src="../../images/refresh.png" style="width:14px;vertical-align: middle;" /></a></span>
+							</p>
+						</div>
+						<p>
+							<span class="form-label">Registration method:</span>
+							<select name="registrationMethod">
+								<option value=''>-- Select Method --</option>
+								<option value=''>----------------------------</option>
+								<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>Batch API submission</option>
+								<!--  <option value='csv' <?php echo ($registrationMethod=='csv'?'SELECTED':''); ?>>Export CSV</option>  -->
+								<option value='xml' <?php echo ($registrationMethod=='xml'?'SELECTED':''); ?>>Export XML</option>
+							</select>
+						</p>
+						<p>
+							<span class="form-label">Number of identifiers to generate: </span>
+							<input name="processingCount" type="text" value="10" /> (leave blank to process all specimens)
+						</p>
+						<p>
+							<button name="formsubmit" type="submit" value="populateGUIDs" <?php echo ($namespace && $generationMethod?'':'disabled'); ?>>Populate Collection GUIDs</button>
 						</p>
 					</div>
-					<p>
-						<span class="form-label">Registration method:</span>
-						<select name="registrationMethod">
-							<option value=''>-- Select Method --</option>
-							<option value=''>----------------------------</option>
-							<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>Batch API submission</option>
-							<!--  <option value='csv' <?php echo ($registrationMethod=='csv'?'SELECTED':''); ?>>Manual CSV submission</option>  -->
-							<option value='xml' <?php echo ($registrationMethod=='xml'?'SELECTED':''); ?>>Manual XML submission</option>
-						</select>
-					</p>
-					<p>
-						<span class="form-label">Number of identifiers to generate: </span>
-						<input name="processingCount" type="text" value="10" /> (leave blank to process all specimens)
-					</p>
-					<p>
-						<button name="formsubmit" type="submit" value="populateGUIDs">Populate Collection GUIDs</button>
-					</p>
-				</div>
-			</fieldset>
-		</form>
-		<?php
+				</fieldset>
+			</form>
+			<?php
+		}
+		else{
+			echo '<h2><span style="color:red">FATAL ERROR:<span> namespace and generationMethod is not set</h2>';
+		}
 	}
 	else{
 		echo '<h2>You are not authorized to access this page or collection identifier has not been set</h2>';

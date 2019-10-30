@@ -1030,7 +1030,7 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	private function prepareImages(){
-		$sql = 'SELECT * FROM uploadimagetemp WHERE collid = '.$this->collId;
+		$sql = 'SELECT collid FROM uploadimagetemp WHERE collid = '.$this->collId.' LIMIT 1';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$this->outputMsg('<li>Preparing images for transfer... </li>');

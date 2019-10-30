@@ -864,6 +864,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							elseif(strpos($collMetadata['individualurl'],'--CATALOGNUMBER--') !== false && $occArr['catalognumber']){
 								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$collMetadata['individualurl']);
 							}
+							elseif(strpos($collMetadata['individualurl'],'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
+								$otherCatNum = trim($occArr['othercatalognumbers']);
+								if($p = strpos($otherCatNum,';')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
+								elseif($p = strpos($otherCatNum,',')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
+								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$otherCatNum,$collMetadata['individualurl']);
+							}
 							elseif(strpos($collMetadata['individualurl'],'--OCCURRENCEID--') !== false && $occArr['occurrenceid']){
 								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$collMetadata['individualurl']);
 							}

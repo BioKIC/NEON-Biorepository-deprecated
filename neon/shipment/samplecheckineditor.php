@@ -85,7 +85,8 @@ if($isEditor){
 				<div class="fieldGroupDiv">
 					<b>Sample condition:</b>
 					<select name="sampleCondition">
-						<option value="">------------------------------------------</option>
+						<option value="">Not Set</option>
+						<option value="">--------------------------------</option>
 						<?php
 						$sampleCondition = (isset($sampleArr['sampleCondition'])?$sampleArr['sampleCondition']:'');
 						$condArr = $shipManager->getConditionArr();

@@ -176,7 +176,7 @@ if($isEditor){
 						$("#scSpan-"+retJson.samplePK).html("checked in");
 						f.identifier.value = "";
 						f.acceptedForAnalysis.value = 1;
-						f.sampleCondition.value = "ok";
+						f.sampleCondition.value = "";
 						f.alternativeSampleID.value = "";
 						f.checkinRemarks.value = "";
 					}
@@ -364,7 +364,7 @@ include($SERVER_ROOT.'/header.php');
 												<?php
 												$condArr = $shipManager->getConditionArr();
 												foreach($condArr as $condKey => $condValue){
-													echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
+													echo '<option value="'.$condKey.'">'.$condValue.'</option>';
 												}
 												?>
 											</select>
@@ -535,7 +535,7 @@ include($SERVER_ROOT.'/header.php');
 														<?php
 														$condArr = $shipManager->getConditionArr();
 														foreach($condArr as $condKey => $condValue){
-															echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
+															echo '<option value="'.$condKey.'">'.$condValue.'</option>';
 														}
 														?>
 													</select>

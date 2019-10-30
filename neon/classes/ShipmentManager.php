@@ -542,7 +542,7 @@ class ShipmentManager{
 				$status = true;
 				if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
 				if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
-					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
+					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = NULL WHERE (samplePK = '.$this->conn->insert_id.') ';
 					if(!$this->conn->query($sqlUpdate)){
 						$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
 						$status = 0;
@@ -928,7 +928,8 @@ class ShipmentManager{
 	}
 
 	public function getConditionArr(){
-		$condArr = array('ok'=>'OK - No Known Compromise', 'cold chain broken'=>'Cold Chain Broken', 'damaged'=>'Damaged - Analysis Affected',
+		//Removed from array on 2019-10-29 by request of NEON: 'ok'=>'OK - No Known Compromise',
+		$condArr = array('cold chain broken'=>'Cold Chain Broken', 'damaged'=>'Damaged - Analysis Affected',
 			'sample incomplete'=>'Sample Incomplete','handling error'=>'Handling Error', 'other'=>'Other - Described in Remarks');
 		return $condArr;
 	}

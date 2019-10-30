@@ -548,7 +548,7 @@ $collManager->cleanOutArr($collData);
 										will generate a url to the original record managed in SEINet is an ASU snapshot collection was created using a DWC-A import from SEINet.
 										Or &quot;http://www.inaturalist.org/observations/--DBPK--&quot; can be used for an iNaturalist import if you mapped their ID field
 										as the source Identifier (e.g. dbpk) during import.
-										Template patterns --CATALOGNUMBER-- and --OCCURRENCEID-- are additional options.
+										Template patterns --CATALOGNUMBER--, --OTHERCATALOGNUMBERS--, and --OCCURRENCEID-- are additional options.
 									</div>
 								</td>
 							</tr>

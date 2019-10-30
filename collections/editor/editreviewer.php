@@ -404,9 +404,10 @@ $navStr .= '</div>';
 												<td>
 													<div title="Editor">
 														<?php
-
 														if($displayAll){
-															$editorStr = $edObj['editor'];
+															$editorStr = '';
+															if(isset($edObj['editor'])) $editorStr = $edObj['editor'];
+															elseif(isset($edObj['uid'])) $editorStr = $editorArr[$edObj['uid']];
 															if($displayMode == 2){
 																if(!$editorStr) $editorStr = $edObj['exeditor'];
 																if($edObj['exsource']) $editorStr = $edObj['exsource'].($editorStr?': '.$editorStr:'');

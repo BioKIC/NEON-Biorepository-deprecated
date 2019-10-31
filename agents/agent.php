@@ -142,8 +142,7 @@ echo '<!DOCTYPE HTML>
 	<title>'.$DEFAULT_TITLE.' - '.$spDisplay. '</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
 	<meta name="keywords" content='. $spDisplay .' />
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<link href="../css/jquery-ui_accordian.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>

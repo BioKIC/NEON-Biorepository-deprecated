@@ -22,8 +22,7 @@ if($IS_ADMIN || array_key_exists("KeyEditor",$USER_RIGHTS) || array_key_exists("
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Character Deficit Finder</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<script type="text/javascript">
 		function openPopup(urlStr,windowName){
 			var wWidth = 900;

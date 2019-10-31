@@ -38,8 +38,7 @@ if($IS_ADMIN){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> User Management</title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<style type="text/css">
 		th{ font-size: 90% }
 	</style>

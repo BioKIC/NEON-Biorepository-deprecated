@@ -14,8 +14,7 @@ $cloudHandler->buildWordFile($collTarget);
 	<head>
 	    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE; ?> - Word Cloud Handler Collections</title>
-		<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" rel="stylesheet" type="text/css" />
-		<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" rel="stylesheet" type="text/css" />
+		<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 		<script language="javascript" type="text/javascript">
 		</script>
 	</head>

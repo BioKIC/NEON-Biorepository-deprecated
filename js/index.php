@@ -8,7 +8,7 @@ header("Location: ".$CLIENT_ROOT."/index.php");
 <html>
 	<head>
 		<title>Page</title>
-		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" />
+		<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	</head>
 	<body>
 		<?php

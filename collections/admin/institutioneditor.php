@@ -86,8 +86,7 @@ if($editorCode){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Institution Editor</title>
-	<link type="text/css" href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" rel="stylesheet" />
-	<link type="text/css" href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" rel="stylesheet" />
+	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<script language=javascript>
 		
 		function toggle(target){

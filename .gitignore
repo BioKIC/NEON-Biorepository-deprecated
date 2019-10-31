@@ -20,3 +20,5 @@
 /index.php
 .settings/org.eclipse.wst.common.project.facet.core.xml
 *.prefs
+content/lang/header.en.php
+content/lang/index.en.php

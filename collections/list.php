@@ -24,8 +24,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 	<title><?php echo $DEFAULT_TITLE.' '.$LANG['PAGE_TITLE']; ?></title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<style type="text/css">
 		.ui-tabs .ui-tabs-nav li { width:32%; }
 		.ui-tabs .ui-tabs-nav li a { margin-left:10px;}

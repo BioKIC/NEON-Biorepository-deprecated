@@ -61,8 +61,7 @@ if(isset($PORTAL_GUID) && $PORTAL_GUID){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title>GEOLocate Tool</title>
-	<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<style>
 		iframe {
 			width: 1020px;

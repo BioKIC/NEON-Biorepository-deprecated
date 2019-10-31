@@ -43,6 +43,22 @@ $dwcaHandler = new DwcArchiverCore();
 
 $dwcaHandler->setVerboseMode(0);
 $dwcaHandler->setCollArr($collid,$collType);
+
+$redactLocalities = 1;
+if($IS_ADMIN || array_key_exists("CollAdmin", $USER_RIGHTS)){
+	$redactLocalities = 0;
+}
+elseif(array_key_exists("RareSppAdmin", $USER_RIGHTS) || array_key_exists("RareSppReadAll", $USER_RIGHTS)){
+	$redactLocalities = 0;
+}
+elseif(array_key_exists('CollEditor', $USER_RIGHTS) && in_array($collid, $USER_RIGHTS['CollEditor'])){
+	$redactLocalities = 0;
+}
+elseif(array_key_exists('RareSppReader', $USER_RIGHTS) && in_array($collid, $USER_RIGHTS['RareSppReader'])){
+	$redactLocalities = 0;
+}
+$dwcaHandler->setRedactLocalities($redactLocalities);
+
 if($cond){
 	//String of cond-key/value pairs (e.g. country:USA,United States;stateprovince:Arizona,New Mexico;county-start:Pima,Eddy
 	$cArr = explode(';',$cond);

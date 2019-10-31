@@ -294,10 +294,12 @@ class ImageLocalProcessor {
 								$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
 								$fileExt = strtolower(substr($fileName,strrpos($fileName,'.')));
 								if($fileExt == ".jpg"){
-									//If file name contains space, attempt to rename file with spaces replaced with underscores
-									if(strpos($fileName,' ') !== false){
-										if(rename($this->sourcePathBase.$pathFrag.$fileName, $this->sourcePathBase.$pathFrag.str_replace(' ', '_', $fileName))){
-											$fileName = str_replace(' ', '_', $fileName);
+									//Clean file name
+									$cleanName = str_replace(array(' '), '_', $fileName);
+									$cleanName = str_replace(array('(',')'), '', $cleanName);
+									if($fileName != $cleanName){
+										if(rename($this->sourcePathBase.$pathFrag.$fileName, $this->sourcePathBase.$pathFrag.$cleanName)){
+											$fileName = $cleanName;
 										}
 									}
 									if($this->processImageFile($fileName,$pathFrag)){
@@ -534,7 +536,7 @@ class ImageLocalProcessor {
 			if($this->dbMetadata){
 				$occId = $this->getOccId($specPk);
 			}
-			$targetFileName = str_replace(' ','_',$fileName);
+			$targetFileName = $fileName;
 			$fileName = rawurlencode($fileName);
 			$fileNameExt = '.jpg';
 			$fileNameBase = $fileName;

@@ -45,8 +45,7 @@ if($collMap){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Observation Submission</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-    <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<link type="text/css" href="../../css/jquery-ui.css" rel="Stylesheet" />
 	<style>
 		.imgSubmitDiv{ padding:10px; width:700px; height:80px; border:1px solid grey; background-color:#F5F5F5; }

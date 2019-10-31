@@ -21,8 +21,7 @@ if($SYMB_UID){
 <html>
 	<head>
 		<title>Language Variables Manager</title>
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css" type="text/css" rel="stylesheet" />
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css" type="text/css" rel="stylesheet" />
+		<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	</head>
 	<body>
 		<?php

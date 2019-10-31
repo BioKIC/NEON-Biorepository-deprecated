@@ -36,8 +36,7 @@ if($isEditor && $action){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Identification Character Editor</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<script type="text/javascript">
 		var dataChanged = false;
 		window.onbeforeunload = verifyClose;

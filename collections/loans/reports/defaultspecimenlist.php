@@ -95,9 +95,7 @@ else{
 		<head>
 			<title><?php echo $identifier; ?> Specimen List</title>
 			<style type="text/css">
-				<?php
-					include_once($SERVER_ROOT.'/css/main.css');
-				?>
+				<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 				body {font-family:arial,sans-serif;}
 				p.printbreak {page-break-after:always;}
 				.header {width:100%;text-align:left;font:14pt arial,sans-serif;}

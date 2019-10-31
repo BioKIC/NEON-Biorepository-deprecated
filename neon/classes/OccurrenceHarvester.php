@@ -521,7 +521,7 @@ class OccurrenceHarvester{
 						}
 					}
 				}
-				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').') VALUES('.trim($sql2,',').')';
+				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').',dateentered) VALUES('.trim($sql2,',').',NOW())';
 			}
 			//echo '<br/>'.$sql.'<br/>';
 			if($this->conn->query($sql)){

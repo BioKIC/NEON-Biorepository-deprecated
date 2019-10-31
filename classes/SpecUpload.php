@@ -225,7 +225,8 @@ class SpecUpload{
 			'decimallatitude', 'decimallongitude','geodeticdatum', 'coordinateuncertaintyinmeters', 'footprintwkt',
 			'locationremarks', 'verbatimcoordinates', 'georeferencedby', 'georeferenceprotocol', 'georeferencesources',
 			'georeferenceverificationstatus', 'georeferenceremarks', 'minimumelevationinmeters', 'maximumelevationinmeters',
-			'verbatimelevation', 'disposition', 'language', 'duplicatequantity', 'genericcolumn1', 'genericcolumn2',
+			'verbatimelevation', 'minimumdepthinmeters', 'maximumdepthinmeters', 'verbatimdepth',
+			'disposition', 'language', 'duplicatequantity', 'genericcolumn1', 'genericcolumn2',
 			'labelproject','basisofrecord','ownerinstitutioncode', 'processingstatus', 'recordenteredby');
 		$sql = 'SELECT occid, dbpk, '.implode(',',$occFieldArr).' FROM uploadspectemp '.
 				'WHERE collid IN('.$this->collId.') ';
@@ -467,6 +468,7 @@ class SpecUpload{
 				$this->logFH = fopen($logPath, 'a');
 				$this->outputMsg('Start time: '.date('Y-m-d h:i:s A'));
 				if(isset($_SERVER['REMOTE_ADDR'])) $this->outputMsg('REMOTE_ADDR: '.$_SERVER['REMOTE_ADDR']);
+				if(isset($_SERVER['REMOTE_PORT'])) $this->outputMsg('REMOTE_PORT: '.$_SERVER['REMOTE_PORT']);
 				if(isset($_SERVER['QUERY_STRING'])) $this->outputMsg('QUERY_STRING: '.$_SERVER['QUERY_STRING']);
 			}
 		}

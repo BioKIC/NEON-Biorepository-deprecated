@@ -164,10 +164,6 @@ class OccurrenceUtilities {
 	 */
 	public static function parseVerbatimElevation($inStr){
 		$retArr = array();
-		//Get rid of curly quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 		//Start parsing
 		if(preg_match('/([\.\d]+)\s*-\s*([\.\d]+)\s*meter/i',$inStr,$m)){
 			$retArr['minelev'] = $m[1];
@@ -215,10 +211,6 @@ class OccurrenceUtilities {
 		$retArr = array();
 		if(strpos($inStr,' to ')) return $retArr;
 		if(strpos($inStr,' betw ')) return $retArr;
-		//Get rid of curly quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 
 		//Try to parse lat/lng
 		$latDeg = 'null';$latMin = 0;$latSec = 0;$latNS = 'N';
@@ -538,11 +530,11 @@ class OccurrenceUtilities {
 				$latDec = $recMap['latdeg'];
 				if(isset($recMap['latmin']) && $recMap['latmin'] && is_numeric($recMap['latmin'])) $latDec += $recMap['latmin']/60;
 				if(isset($recMap['latsec']) && $recMap['latsec'] && is_numeric($recMap['latsec'])) $latDec += $recMap['latsec']/3600;
-				if(stripos($recMap['latns'],'s') === 0 && $latDec > 0) $latDec *= -1;
+				if(isset($recMap['latns']) && stripos($recMap['latns'],'s') === 0 && $latDec > 0) $latDec *= -1;
 				$lngDec = $recMap['lngdeg'];
 				if(isset($recMap['lngmin']) && $recMap['lngmin'] && is_numeric($recMap['lngmin'])) $lngDec += $recMap['lngmin']/60;
 				if(isset($recMap['lngsec']) && $recMap['lngsec'] && is_numeric($recMap['lngsec'])) $lngDec += $recMap['lngsec']/3600;
-				if(stripos($recMap['lngew'],'w') === 0  && $lngDec > 0) $lngDec *= -1;
+				if(isset($recMap['lngew']) && stripos($recMap['lngew'],'w') === 0  && $lngDec > 0) $lngDec *= -1;
 				if($lngDec > 0){
 					if(in_array(strtolower($recMap['country']), array('usa','united states','canada','mexico','panama'))) $lngDec *= -1;
 				}

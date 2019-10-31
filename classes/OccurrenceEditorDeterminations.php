@@ -1,4 +1,5 @@
 <?php
+include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
 class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 
 	public function __construct(){
@@ -363,10 +364,10 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 		$this->addDetermination($detArr,$isEditor);
 	}
 
-	public function getNewDetItem($catNum,$sciName){
+	public function getNewDetItem($catNum,$sciName,$allCatNum=0){
 		$retArr = array();
 		if($catNum || $sciName){
-			$sql = 'SELECT occid, catalogNumber, sciname, CONCAT_WS(" ",recordedby,IFNULL(recordnumber,eventdate)) AS collector, '.
+			$sql = 'SELECT occid, IFNULL(catalogNumber, othercatalognumbers) AS catalogNumber, sciname, CONCAT_WS(" ",recordedby,IFNULL(recordnumber,eventdate)) AS collector, '.
 				'CONCAT_WS(", ",country,stateprovince,county,locality) AS locality '.
 				'FROM omoccurrences '.
 				'WHERE collid = '.$this->collId.' ';
@@ -374,14 +375,12 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 				$catNumArr = explode(',',$catNum);
 				foreach($catNumArr as $k => $u){
 					$u = trim($u);
-					if($u){
-						$catNumArr[$k] = $this->cleanInStr($u);
-					}
-					else{
-						unset($catNumArr[$k]);
-					}
+					if($u) $catNumArr[$k] = $this->cleanInStr($u);
+					else unset($catNumArr[$k]);
 				}
-				$sql .= 'AND catalogNumber IN("'.implode('","',$catNumArr).'") ';
+				$sql .= 'AND (catalogNumber IN("'.implode('","',$catNumArr).'") ';
+				if($allCatNum) $sql .= 'OR otherCatalogNumbers IN("'.implode('","',$catNumArr).'")';
+				$sql .= ') ';
 			}
 			elseif($sciName){
 				$sql .= 'AND sciname = "'.$this->cleanInStr($sciName).'" ';

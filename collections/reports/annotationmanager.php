@@ -119,9 +119,9 @@ if($isEditor){
 				if($annoArr){
 					?>
 					<form name="annoselectform" id="annoselectform" action="defaultannotations.php" method="post" onsubmit="return validateSelectForm(this);">
-						<table class="styledtable" style="font-family:Arial;font-size:12px;">
+						<table class="styledtable" style="width:800px;">
 							<tr>
-								<th title="Select/Deselect all Specimens"><input name="" value="" type="checkbox" onclick="selectAll(this);" /></th>
+								<th title="Select/Deselect all Specimens" style="width:30px;"><input name="" value="" type="checkbox" onclick="selectAll(this);" /></th>
 								<th style="width:25px;text-align:center;">#</th>
 								<th style="width:125px;text-align:center;">Collector</th>
 								<th style="width:300px;text-align:center;">Scientific Name</th>
@@ -225,7 +225,7 @@ if($isEditor){
 				else{
 					?>
 					<div style="font-weight:bold;margin:20px;font-weight:150%;">
-						There are no annotations queued to be printed. An annotation can be added to the queue from the
+						There are no annotations queued to be printed.
 					</div>
 					<?php
 				}

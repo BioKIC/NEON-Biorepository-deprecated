@@ -234,14 +234,14 @@ class OccurrenceAttributes extends Manager {
 		$retArr = array();
 		$sql = 'SELECT t.traitid, t.traitname '.
 			'FROM tmtraits t LEFT JOIN tmtraitdependencies d ON t.traitid = d.traitid '.
-			'WHERE t.traittype IN("UM","OM","NU") AND d.traitid IS NULL';
+			'WHERE t.traittype IN("UM","OM","TF","NU") AND d.traitid IS NULL';
 		/*
 		if($this->tidFilter){
 			$sql = 'SELECT DISTINCT t.traitid, t.traitname '.
 				'FROM tmtraits t INNER JOIN tmtraittaxalink l ON t.traitid = l.traitid '.
 				'INNER JOIN taxaenumtree e ON l.tid = e.parenttid '.
 				'LEFT JOIN tmtraitdependencies d ON t.traitid = d.traitid '.
-				'WHERE traittype IN("UM","OM","NU") AND e.taxauthid = 1 AND d.traitid IS NULL AND e.tid = '.$this->tidFilter;
+				'WHERE traittype IN("UM","OM","TF","NU") AND e.taxauthid = 1 AND d.traitid IS NULL AND e.tid = '.$this->tidFilter;
 		}
 		*/
 		//echo $sql;
@@ -265,7 +265,7 @@ class OccurrenceAttributes extends Manager {
 	}
 
 	private function setTraitArr($traitID){
-		$sql = 'SELECT traitid, traitname, traittype, units, description, refurl, notes, dynamicproperties FROM tmtraits WHERE traittype IN("UM","OM","NU") ';
+		$sql = 'SELECT traitid, traitname, traittype, units, description, refurl, notes, dynamicproperties FROM tmtraits WHERE traittype IN("UM","OM","TF","NU") ';
 		if($traitID) $sql .= 'AND (traitid = '.$traitID.')';
 		//echo $sql.'<br/>';
 		$rs = $this->conn->query($sql);
@@ -293,7 +293,7 @@ class OccurrenceAttributes extends Manager {
 		//echo $sql.'<br/>';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$this->traitArr[$r->parenttraitid]['states'][$r->parentstateid]['dependTraitID'] = $r->depTraitID;
+			$this->traitArr[$r->parenttraitid]['states'][$r->parentstateid]['dependTraitID'][] = $r->depTraitID;
 			$this->setTraitArr($r->depTraitID);
 			$this->traitArr[$r->depTraitID]['dependentTrait'] = 1;
 		}
@@ -348,8 +348,10 @@ class OccurrenceAttributes extends Manager {
 			$propArr = json_decode($this->traitArr[$traitID]['props'],true);
 			if(isset($propArr[0]['controlType'])) $controlType = $propArr[0]['controlType'];
 		}
-		$innerStr = '';
+		$innerStr = '<div style="clear:both">';
 		if(isset($this->traitArr[$traitID]['states'])){
+			if($this->traitArr[$traitID]['type']=='TF') $innerStr .= '<div style="float:left;margin-left: 15px">'.$this->traitArr[$traitID]['name'].':</div>';
+			$innerStr .= '<div style="float:left;">';
 			$attrStateArr = $this->traitArr[$traitID]['states'];
 			foreach($attrStateArr as $sid => $sArr){
 				$isCoded = false;
@@ -358,8 +360,8 @@ class OccurrenceAttributes extends Manager {
 					else $isCoded = $sArr['coded'];
 					$this->stateCodedArr[$sid] = $sid;
 				}
-				$depTraitId = false;
-				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitId = $sArr['dependTraitID'];
+				$depTraitIdArr = array();
+				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitIdArr = $sArr['dependTraitID'];
 				if($controlType == 'checkbox' || $controlType == 'radio'){
 					$innerStr .= '<div title="'.$sArr['description'].'"><input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> '.$sArr['name'];
 				}
@@ -369,12 +371,16 @@ class OccurrenceAttributes extends Manager {
 				elseif($controlType == 'numeric'){
 					$innerStr .= '<div title="'.$sArr['description'].'">'.$sArr['name'].': <input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="input" value="'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
 				}
-				if($depTraitId){
-					$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+				if($depTraitIdArr){
+					foreach($depTraitIdArr as $depTraitId){
+						$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+					}
 				}
 				if($controlType != 'select') $innerStr .= '</div>';
 			}
+			$innerStr .= '</div>';
 		}
+		$innerStr .= '</div>';
 		//Display if trait has been coded or is the first/base trait (e.g. $indend == 0)
 		$divClass = '';
 		if($classStr){

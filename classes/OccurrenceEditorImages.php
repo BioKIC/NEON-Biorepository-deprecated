@@ -200,27 +200,37 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 
 	public function remapImage($imgId, $targetOccid = 0){
 		$status = true;
-		if(!is_numeric($imgId) || !is_numeric($targetOccid)){
+		if(!is_numeric($imgId)){
 			return false;
 		}
-		if($targetOccid){
+		if($targetOccid == 'new'){
+			$sql = 'INSERT INTO omoccurrences(collid, observeruid,processingstatus) SELECT collid, observeruid, "unprocessed" FROM omoccurrences WHERE occid = '.$this->occid;
+			if($this->conn->query($sql)){
+				$targetOccid = $this->conn->insert_id;
+				$status = $targetOccid;
+			}
+			else{
+				$this->errorArr[] = 'Unalbe to relink image to a new blank occurrence record: '.$this->conn->error;
+				return false;
+			}
+		}
+		if($targetOccid && is_numeric($targetOccid)){
 			$sql = 'UPDATE images SET occid = '.$targetOccid.' WHERE (imgid = '.$imgId.')';
 			if($this->conn->query($sql)){
-				$imgSql = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid '.
-					'SET i.tid = o.tidinterpreted WHERE (i.imgid = '.$imgId.')';
+				$imgSql = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid SET i.tid = o.tidinterpreted WHERE (i.imgid = '.$imgId.')';
 				//echo $imgSql;
 				$this->conn->query($imgSql);
 			}
 			else{
-				$this->errorArr[] = 'ERROR: Unalbe to remap image to another occurrence record. Error msg: '.$this->conn->error;
-				$status = false;
+				$this->errorArr[] = 'Unalbe to remap image to another occurrence record. Error msg: '.$this->conn->error;
+				return false;
 			}
 		}
 		else{
 			$sql = 'UPDATE images SET occid = NULL WHERE (imgid = '.$imgId.')';
 			if(!$this->conn->query($sql)){
-				$this->errorArr[] = 'ERROR: Unalbe to disassociate from occurrence record. Error msg: '.$this->conn->error;
-				$status = false;
+				$this->errorArr[] = 'Unalbe to disassociate from occurrence record. Error msg: '.$this->conn->error;
+				return false;
 			}
 		}
 		return $status;

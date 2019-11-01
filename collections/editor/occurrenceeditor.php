@@ -242,6 +242,15 @@ if($SYMB_UID){
 					$statusStr = 'ERROR linking image to new specimen: '.$occManager->getErrorStr();
 				}
 			}
+			elseif($action == "remapImageToNewRecord"){
+				$newOccid = $occManager->remapImage($_POST["imgid"], 'new');
+				if($newOccid){
+					$statusStr = 'SUCCESS: Image remapped to record <a href="occurrenceeditor.php?occid='.$newOccid.'" target="_blank">'.$newOccid.'</a>';
+				}
+				else{
+					$statusStr = 'ERROR linking image to new blank specimen: '.$occManager->getErrorStr();
+				}
+			}
 			elseif($action == "Disassociate Image"){
 				if($occManager->remapImage($_POST["imgid"])){
 					$statusStr = 'SUCCESS disassociating image <a href="../../imagelib/imgdetails.php?imgid='.$_POST["imgid"].'" target="_blank">#'.$_POST["imgid"].'</a>';

@@ -399,6 +399,16 @@ $photographerArr = $occManager->getPhotographerArr();
 								</form>
 								<form action="occurrenceeditor.php" method="post">
 									<fieldset style="padding:15px">
+										<legend><b>Link to a New Blank Occurrence Record within Collection</b></legend>
+										<div style="margin:10px 20px;">
+											<input name="occid" type="hidden" value="<?php echo $occId; ?>" />
+											<input name="imgid" type="hidden" value="<?php echo $imgId; ?>" />
+											<button name="submitaction" type="submit" value="remapImageToNewRecord">Link to New Occurrence</button>
+										</div>
+									</fieldset>
+								</form>
+								<form action="occurrenceeditor.php" method="post">
+									<fieldset style="padding:15px">
 										<legend><b>Disassociate Image from all Specimen Records</b></legend>
 										<div style="margin:10px 20px;">
 											<input name="occid" type="hidden" value="<?php echo $occId; ?>" />

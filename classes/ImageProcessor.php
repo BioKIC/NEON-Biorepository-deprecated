@@ -85,10 +85,10 @@ class ImageProcessor {
 		$iPlantSourcePath = (array_key_exists('sourcepath', $postArr)?$postArr['sourcepath']:'');
 		$this->matchCatalogNumber = (array_key_exists('matchcatalognumber', $postArr)?true:false);
 		$this->matchOtherCatalogNumbers = (array_key_exists('matchothercatalognumbers', $postArr)?true:false);
-
 		if($this->collid){
 			$iPlantDataUrl = 'https://bisque.cyverse.org/data_service/';
 			$iPlantImageUrl = 'https://bisque.cyverse.org/image_service/image/';
+
 			if(!$iPlantSourcePath && array_key_exists('IPLANT_IMAGE_IMPORT_PATH', $GLOBALS)) $iPlantSourcePath = $GLOBALS['IPLANT_IMAGE_IMPORT_PATH'];
 			if($iPlantSourcePath){
 				if(strpos($iPlantSourcePath, '--INSTITUTION_CODE--')) $iPlantSourcePath = str_replace('--INSTITUTION_CODE--', $this->collArr['instcode'], $iPlantSourcePath);
@@ -167,7 +167,15 @@ class ImageProcessor {
 							}
 					}
 					else{
-						$this->logOrEcho("ERROR: bad response status code returned for $url (code: $result[0])",1);
+						if(strpos($result[0],'503')){
+							$this->logOrEcho('ERROR: CyVerse Bisque system appears to be offline',1);
+							$this->logOrEcho('Response code: '.$result[0],2);
+							$this->logOrEcho('FAILED URL: <a href="'.$url.'" target="_blank">'.$url.'</a>',2);
+							return false;
+						}
+						else{
+							$this->logOrEcho("ERROR: bad response status code returned for $url (code: $result[0])",1);
+						}
 					}
 				}
 				else{

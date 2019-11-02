@@ -356,8 +356,8 @@ class OccurrenceAttributes extends Manager {
 			foreach($attrStateArr as $sid => $sArr){
 				$isCoded = false;
 				if(array_key_exists('coded',$sArr)){
-					if($sArr['coded'] === '') $isCoded = true;
-					else $isCoded = $sArr['coded'];
+					if(is_numeric($sArr['coded'])) $isCoded = $sArr['coded'];
+					else $isCoded = true;
 					$this->stateCodedArr[$sid] = $sid;
 				}
 				$depTraitIdArr = array();

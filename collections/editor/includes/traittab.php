@@ -41,7 +41,8 @@ if($isEditor){
 		var action = butElem.value;
 		var hasStates = false;
 		var stateJson = {};
-		$('input[name^="traitid"]').each(function(index,data) {
+
+		$("form[name='"+f.name+"'] input[name^='traitid']").each(function(index,data) {
 			if($(this).prop('checked')){
 				if($(this).attr('name') in stateJson){
 					stateJson[$(this).attr('name')].push($(this).val());
@@ -56,6 +57,7 @@ if($isEditor){
 			var traitIdStr = f.traitid.value;
 			$("#msgDiv-"+traitIdStr).text('saving data...');
 			$("#msgDiv-"+traitIdStr).css('color', 'orange');
+			//alert("occid="+f.occid.value+"&traitID="+traitIdStr+"&submitAction="+action+"&source="+f.source.value+"&notes="+f.notes.value+"&setStatus="+f.setstatus.value+"&stateData="+JSON.stringify(stateJson));
 			$.ajax({
 				type: "POST",
 				url: "rpc/editorTraitHandler.php",
@@ -105,23 +107,23 @@ if($isEditor){
 				?>
 				<fieldset style="margin-top:20px">
 					<legend><b>Trait: <?php echo $traitData['name']; ?></b></legend>
-					<form name="submitform" method="post" action="occurrenceeditor.php" onsubmit="">
-						<div style="float:right">
-							<div style="margin:0px 3px;float:right" title="Hard refresh of page">
-								<form name="refreshform" method="post" action="occurrenceeditor.php" >
-									<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-									<?php
-									if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
-									?>
-									<input name="tabtarget" type="hidden" value="3" />
-									<input type="image" src="../../images/refresh.png" />
-								</form>
-							</div>
-							<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
-								<img class="triangleright" src="../../images/triangleright.png" style="" />
-								<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
-							</div>
+					<div style="float:right">
+						<div style="margin:0px 3px;float:right" title="Hard refresh of page">
+							<form name="refreshform" method="post" action="occurrenceeditor.php" >
+								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+								<?php
+								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
+								?>
+								<input name="tabtarget" type="hidden" value="3" />
+								<input type="image" src="../../images/refresh.png" style="width:15px" />
+							</form>
 						</div>
+						<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
+							<img class="triangleright" src="../../images/triangleright.png" style="" />
+							<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
+						</div>
+					</div>
+					<form name="submitform<?php echo '-'.$traitID; ?>" method="post" action="occurrenceeditor.php" onsubmit="">
 						<div class="traitDiv" style="margin-left:5px;float:left">
 							<?php
 							$attrManager->echoFormTraits($traitID);
@@ -151,7 +153,6 @@ if($isEditor){
 								<input name="delstates" type="hidden" value="<?php echo $attrManager->getStateCodedStr(); ?>" />
 								<input name="tabtarget" type="hidden" value="3" />
 								<button name="submitbutton" type="submit" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
-								<span style="margin-left: 20px"><button name="resetbtn" type="reset">Reset Form</button></span>
 								<span id="msgDiv-<?php echo $traitID; ?>"></span>
 							</div>
 							<div style="margin:20px;float:right;">

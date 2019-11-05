@@ -23,8 +23,8 @@ elseif($attrManager->getObserverUid() == $SYMB_UID){
 }
 
 if($isEditor){
-	if(isset($_GET['delstates']) && $_GET['delstates']){
-		$attrManager->deleteAttributes($_GET['delstates']);
+	if(isset($_GET['deltraitid']) && $_GET['deltraitid']){
+		$attrManager->deleteAttributes($_GET['deltraitid']);
 	}
 }
 ?>
@@ -150,7 +150,6 @@ if($isEditor){
 								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 								<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
 								<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
-								<input name="delstates" type="hidden" value="<?php echo $attrManager->getStateCodedStr(); ?>" />
 								<input name="tabtarget" type="hidden" value="3" />
 								<button name="submitbutton" type="submit" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
 								<span id="msgDiv-<?php echo $traitID; ?>"></span>

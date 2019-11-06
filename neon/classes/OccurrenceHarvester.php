@@ -328,7 +328,7 @@ class OccurrenceHarvester{
 					$dwcArr['sciname'] = $sampleArr['taxonID'];
 				}
 				else{
-					if(!in_array($dwcArr['collid'], array(5,23,30,31,41,42))){
+					if(!in_array($dwcArr['collid'], array(5,21,23,30,31,41,42))){
 						if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
 							$dwcArr['sciname'] = $m[1];
 						}

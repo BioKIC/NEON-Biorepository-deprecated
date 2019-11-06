@@ -17,12 +17,6 @@ $imgLibManager = new ImageLibraryManager();
 $collList = $imgLibManager->getFullCollectionList($catId);
 $specArr = (isset($collList['spec'])?$collList['spec']:null);
 $obsArr = (isset($collList['obs'])?$collList['obs']:null);
-
-$imageArr = Array();
-if($action == 'search'){
-	$imageArr = $imgLibManager->getImageArr($pageNumber,$cntPerPage);
-	$recordCnt = $imgLibManager->getRecordCnt();
-}
 ?>
 <html>
 <head>
@@ -40,7 +34,7 @@ if($action == 'search'){
 	<script type="text/javascript">
 		jQuery(document).ready(function($) {
 			$('#tabs').tabs({
-				active: <?php echo (($imageArr)?'2':'1'); ?>,
+				active: <?php echo (($action == 'search')?'2':'1'); ?>,
 				beforeLoad: function( event, ui ) {
 					$(ui.panel).html("<p>Loading...</p>");
 				}
@@ -76,7 +70,7 @@ if($action == 'search'){
 				<li><a href="#collectiondiv">Collections</a></li>
 				<li><a href="#criteriadiv">Search Criteria</a></li>
 				<?php
-				if($imageArr){
+				if($action == 'search'){
 					?>
 					<li><a href="#imagesdiv"><span id="imagetab">Images</span></a></li>
 					<?php
@@ -176,136 +170,146 @@ if($action == 'search'){
 							<option value="specimen" <?php echo ((array_key_exists("imagecount",$_REQUEST))&&($_REQUEST["imagecount"]=='specimen')?'SELECTED ':''); ?>>One per specimen</option>
 						</select>
 					</div>
-					<div style="margin-bottom:5px;">
-						Limit Image Type:
-						<select name="imagetype">
-							<option value="0">All Images</option>
-							<option value="1" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 1?'SELECTED':''); ?>>Specimen Images</option>
-							<option value="2" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 2?'SELECTED':''); ?>>Image Vouchered Observations</option>
-							<option value="3" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 3?'SELECTED':''); ?>>Field Images (lacking specific locality details)</option>
-						</select>
-					</div>
-					<div style="margin:20px;">
-						<button name="submitaction" type="submit" value="search" style='margin:20px'>Load Images</button>
+					<div>
+						<div style="margin-bottom:5px;float:left;">
+							Limit Image Type:
+							<select name="imagetype">
+								<option value="0">All Images</option>
+								<option value="1" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 1?'SELECTED':''); ?>>Specimen Images</option>
+								<option value="2" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 2?'SELECTED':''); ?>>Image Vouchered Observations</option>
+								<option value="3" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 3?'SELECTED':''); ?>>Field Images (lacking specific locality details)</option>
+							</select>
+						</div>
+						<div style="margin:0px 40px;float:left">
+							<button name="submitaction" type="submit" value="search">Load Images</button>
+						</div>
 					</div>
 				</div>
+				<div style="clear:both">&nbsp;</div>
 			</form>
 			<?php
-			if($imageArr){
+			if($action == 'search'){
 				?>
 				<div id="imagesdiv">
 					<div id="imagebox">
 						<?php
-						$lastPage = ceil($recordCnt / $cntPerPage);
-						$startPage = ($pageNumber > 4?$pageNumber - 4:1);
-						$endPage = ($lastPage > $startPage + 9?$startPage + 9:$lastPage);
-						$url = 'search.php?'.$imgLibManager->getQueryTermStr().'&submitaction=search';
-						$hrefPrefix = "<a href='".$url;
-						$pageBar = '<div style="float:left" >';
-						if($startPage > 1){
-							$pageBar .= '<span class="pagination" style="margin-right:5px;"><a href="'.$url.'&page=1">First</a></span>';
-							$pageBar .= '<span class="pagination" style="margin-right:5px;"><a href="'.$url.'&page='.(($pageNumber - 10) < 1 ?1:$pageNumber - 10).'">&lt;&lt;</a></span>';
-						}
-						for($x = $startPage; $x <= $endPage; $x++){
-							if($pageNumber != $x){
-								$pageBar .= '<span class="pagination" style="margin-right:3px;"><a href="'.$url.'&page='.$x.'">'.$x.'</a></span>';
+						$imageArr = $imgLibManager->getImageArr($pageNumber,$cntPerPage);
+						$recordCnt = $imgLibManager->getRecordCnt();
+						if($imageArr){
+							$lastPage = ceil($recordCnt / $cntPerPage);
+							$startPage = ($pageNumber > 4?$pageNumber - 4:1);
+							$endPage = ($lastPage > $startPage + 9?$startPage + 9:$lastPage);
+							$url = 'search.php?'.$imgLibManager->getQueryTermStr().'&submitaction=search';
+							$hrefPrefix = "<a href='".$url;
+							$pageBar = '<div style="float:left" >';
+							if($startPage > 1){
+								$pageBar .= '<span class="pagination" style="margin-right:5px;"><a href="'.$url.'&page=1">First</a></span>';
+								$pageBar .= '<span class="pagination" style="margin-right:5px;"><a href="'.$url.'&page='.(($pageNumber - 10) < 1 ?1:$pageNumber - 10).'">&lt;&lt;</a></span>';
 							}
-							else{
-								$pageBar .= "<span class='pagination' style='margin-right:3px;font-weight:bold;'>".$x."</span>";
-							}
-						}
-						if(($lastPage - $startPage) >= 10){
-							$pageBar .= '<span class="pagination" style="margin-left:5px;"><a href="'.$url.'&page='.(($pageNumber + 10) > $lastPage?$lastPage:($pageNumber + 10)).'">&gt;&gt;</a></span>';
-							if($recordCnt < 10000) $pageBar .= '<span class="pagination" style="margin-left:5px;"><a href="'.$url.'&page='.$lastPage.'">Last</a></span>';
-						}
-						$pageBar .= '</div><div style="float:right;margin-top:4px;margin-bottom:8px;">';
-						$beginNum = ($pageNumber - 1)*$cntPerPage + 1;
-						$endNum = $beginNum + $cntPerPage - 1;
-						if($endNum > $recordCnt) $endNum = $recordCnt;
-						$pageBar .= "Page ".$pageNumber.", records ".number_format($beginNum)."-".number_format($endNum)." of ".number_format($recordCnt)."</div>";
-						$paginationStr = $pageBar;
-						echo '<div style="width:100%;">'.$paginationStr.'</div>';
-						echo '<div style="clear:both;margin:5 0 5 0;"><hr /></div>';
-						echo '<div style="width:98%;margin-left:auto;margin-right:auto;">';
-						$occArr = array();
-						$collArr = array();
-						if(isset($imageArr['occ'])){
-							$occArr = $imageArr['occ'];
-							unset($imageArr['occ']);
-							$collArr = $imageArr['coll'];
-							unset($imageArr['coll']);
-						}
-						foreach($imageArr as $imgArr){
-							$imgId = $imgArr['imgid'];
-							$imgUrl = $imgArr['url'];
-							$imgTn = $imgArr['thumbnailurl'];
-							if($imgTn){
-								$imgUrl = $imgTn;
-								if($imageDomain && substr($imgTn,0,1)=='/'){
-									$imgUrl = $imageDomain.$imgTn;
+							for($x = $startPage; $x <= $endPage; $x++){
+								if($pageNumber != $x){
+									$pageBar .= '<span class="pagination" style="margin-right:3px;"><a href="'.$url.'&page='.$x.'">'.$x.'</a></span>';
+								}
+								else{
+									$pageBar .= "<span class='pagination' style='margin-right:3px;font-weight:bold;'>".$x."</span>";
 								}
 							}
-							elseif($imageDomain && substr($imgUrl,0,1)=='/'){
-								$imgUrl = $imageDomain.$imgUrl;
+							if(($lastPage - $startPage) >= 10){
+								$pageBar .= '<span class="pagination" style="margin-left:5px;"><a href="'.$url.'&page='.(($pageNumber + 10) > $lastPage?$lastPage:($pageNumber + 10)).'">&gt;&gt;</a></span>';
+								if($recordCnt < 10000) $pageBar .= '<span class="pagination" style="margin-left:5px;"><a href="'.$url.'&page='.$lastPage.'">Last</a></span>';
 							}
-							?>
-							<div class="tndiv" style="margin-bottom:15px;margin-top:15px;">
-								<div class="tnimg">
-									<?php
-									if($imgArr['occid']){
-										echo '<a href="#" onclick="openIndPU('.$imgArr['occid'].');return false;">';
+							$pageBar .= '</div><div style="float:right;margin-top:4px;margin-bottom:8px;">';
+							$beginNum = ($pageNumber - 1)*$cntPerPage + 1;
+							$endNum = $beginNum + $cntPerPage - 1;
+							if($endNum > $recordCnt) $endNum = $recordCnt;
+							$pageBar .= "Page ".$pageNumber.", records ".number_format($beginNum)."-".number_format($endNum)." of ".number_format($recordCnt)."</div>";
+							$paginationStr = $pageBar;
+							echo '<div style="width:100%;">'.$paginationStr.'</div>';
+							echo '<div style="clear:both;margin:5 0 5 0;"><hr /></div>';
+							echo '<div style="width:98%;margin-left:auto;margin-right:auto;">';
+							$occArr = array();
+							$collArr = array();
+							if(isset($imageArr['occ'])){
+								$occArr = $imageArr['occ'];
+								unset($imageArr['occ']);
+								$collArr = $imageArr['coll'];
+								unset($imageArr['coll']);
+							}
+							foreach($imageArr as $imgArr){
+								$imgId = $imgArr['imgid'];
+								$imgUrl = $imgArr['url'];
+								$imgTn = $imgArr['thumbnailurl'];
+								if($imgTn){
+									$imgUrl = $imgTn;
+									if($imageDomain && substr($imgTn,0,1)=='/'){
+										$imgUrl = $imageDomain.$imgTn;
 									}
-									else{
-										echo '<a href="#" onclick="openImagePopup('.$imgId.');return false;">';
-									}
-									echo '<img src="'.$imgUrl.'" />';
-									echo '</a>';
-									?>
-								</div>
-								<div>
-									<?php
-									$sciname = $imgArr['sciname'];
-									if(!$sciname && $imgArr['occid'] && $occArr[$imgArr['occid']]['sciname']) $sciname = $occArr[$imgArr['occid']]['sciname'];
-									if($sciname){
-										if(strpos($imgArr['sciname'],' ')) $sciname = '<i>'.$sciname.'</i>';
-										if($imgArr['tid']) echo '<a href="#" onclick="openTaxonPopup('.$imgArr['tid'].');return false;" >';
-										echo $sciname;
-										if($imgArr['tid']) echo '</a>';
-										echo '<br />';
-									}
-									if($imgArr['occid']){
-										echo '<a href="#" onclick="openIndPU('.$imgArr['occid'].');return false;">';
-										if($occArr[$imgArr['occid']]['recordedby']){
-											echo $occArr[$imgArr['occid']]['recordedby'];
+								}
+								elseif($imageDomain && substr($imgUrl,0,1)=='/'){
+									$imgUrl = $imageDomain.$imgUrl;
+								}
+								?>
+								<div class="tndiv" style="margin-bottom:15px;margin-top:15px;">
+									<div class="tnimg">
+										<?php
+										if($imgArr['occid']){
+											echo '<a href="#" onclick="openIndPU('.$imgArr['occid'].');return false;">';
 										}
 										else{
-											if(strpos($occArr[$imgArr['occid']]['catnum'], $collArr[$occArr[$imgArr['occid']]['collid']]) !== 0) echo $collArr[$occArr[$imgArr['occid']]['collid']].': ';
-											echo $occArr[$imgArr['occid']]['catnum'];
+											echo '<a href="#" onclick="openImagePopup('.$imgId.');return false;">';
 										}
+										echo '<img src="'.$imgUrl.'" />';
 										echo '</a>';
-									}
-									elseif($imgArr['uid']){
-										$pName = $uidList[$imgArr['uid']];
-										if(strlen($pName) > 23){
-											$nameArr = explode(',',$pName);
-											$pName = array_shift($nameArr);
+										?>
+									</div>
+									<div>
+										<?php
+										$sciname = $imgArr['sciname'];
+										if(!$sciname && $imgArr['occid'] && $occArr[$imgArr['occid']]['sciname']) $sciname = $occArr[$imgArr['occid']]['sciname'];
+										if($sciname){
+											if(strpos($imgArr['sciname'],' ')) $sciname = '<i>'.$sciname.'</i>';
+											if($imgArr['tid']) echo '<a href="#" onclick="openTaxonPopup('.$imgArr['tid'].');return false;" >';
+											echo $sciname;
+											if($imgArr['tid']) echo '</a>';
+											echo '<br />';
 										}
-										echo htmlspecialchars($pName).'<br />';
-									}
-									//if($imgArr['occid'] && $occArr[$imgArr['occid']]['state']) echo $occArr[$imgArr['occid']]['state'] . "<br />";
-									?>
+										if($imgArr['occid']){
+											echo '<a href="#" onclick="openIndPU('.$imgArr['occid'].');return false;">';
+											if($occArr[$imgArr['occid']]['recordedby']){
+												echo $occArr[$imgArr['occid']]['recordedby'];
+											}
+											else{
+												if(strpos($occArr[$imgArr['occid']]['catnum'], $collArr[$occArr[$imgArr['occid']]['collid']]) !== 0) echo $collArr[$occArr[$imgArr['occid']]['collid']].': ';
+												echo $occArr[$imgArr['occid']]['catnum'];
+											}
+											echo '</a>';
+										}
+										elseif($imgArr['uid']){
+											$pName = $uidList[$imgArr['uid']];
+											if(strlen($pName) > 23){
+												$nameArr = explode(',',$pName);
+												$pName = array_shift($nameArr);
+											}
+											echo htmlspecialchars($pName).'<br />';
+										}
+										//if($imgArr['occid'] && $occArr[$imgArr['occid']]['state']) echo $occArr[$imgArr['occid']]['state'] . "<br />";
+										?>
+									</div>
 								</div>
-							</div>
+								<?php
+							}
+							echo "</div>";
+							if($lastPage > $startPage){
+								echo "<div style='clear:both;margin:5 0 5 0;'><hr /></div>";
+								echo '<div style="width:100%;">'.$paginationStr.'</div>';
+							}
+							?>
+							<div style="clear:both;"></div>
 							<?php
 						}
-						echo "</div>";
-						if($lastPage > $startPage){
-							echo "<div style='clear:both;margin:5 0 5 0;'><hr /></div>";
-							echo '<div style="width:100%;">'.$paginationStr.'</div>';
+						else{
+							echo '<h2>No images exist matching your search criteria. Please modify your search and try again.</h2>';
 						}
-						?>
-						<div style="clear:both;"></div>
-						<?php
 						?>
 					</div>
 				</div>

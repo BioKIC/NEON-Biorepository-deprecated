@@ -542,7 +542,7 @@ class ShipmentManager{
 				$status = true;
 				if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
 				if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
-					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = NULL WHERE (samplePK = '.$this->conn->insert_id.') ';
+					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
 					if(!$this->conn->query($sqlUpdate)){
 						$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
 						$status = 0;
@@ -758,8 +758,9 @@ class ShipmentManager{
 	public function exportShipmentReceipt(){
 		$this->setShipmentArr();
 		$fileName = 'receipt_'.$this->shipmentArr['shipmentID'].'_'.date('Y-m-d').'.csv';
-		$sql = 'SELECT n.shipmentID, DATE_FORMAT(s.checkinTimestamp,"%Y%m%d") AS shipmentReceivedDate, u.email AS receivedBy, s.sampleID, s.sampleCode, s.sampleClass, IF(s.checkinUid IS NULL, "N", "Y") AS sampleReceived, '.
-			'IF(s.acceptedForAnalysis IS NULL,"",IF(s.acceptedForAnalysis = 0,"N","Y")) AS acceptedForAnalysis, s.sampleCondition, s.alternativeSampleID AS unknownSamples, s.checkinRemarks AS remarks '.
+		$sql = 'SELECT n.shipmentID, DATE_FORMAT(s.checkinTimestamp,"%Y%m%d") AS shipmentReceivedDate, u.email AS receivedBy, s.sampleID, s.sampleCode, s.sampleClass, '.
+			'IF(s.checkinUid IS NULL, "N", "Y") AS sampleReceived, IF(s.acceptedForAnalysis IS NULL,"",IF(s.acceptedForAnalysis = 0,"N","Y")) AS acceptedForAnalysis, '.
+			'IF(s.acceptedForAnalysis = 0,s.sampleCondition,"") AS sampleCondition, CONCAT_WS("; ",s.checkinRemarks,CONCAT("deprecatedSampleID: ",s.alternativeSampleID)) AS remarks '.
 			'FROM NeonShipment n INNER JOIN NeonSample s ON n.shipmentPK = s.shipmentPK '.
 			'LEFT JOIN users u ON s.checkinUid = u.uid '.
 			'WHERE (s.shipmentPK = '.$this->shipmentPK.')';
@@ -929,7 +930,7 @@ class ShipmentManager{
 
 	public function getConditionArr(){
 		//Removed from array on 2019-10-29 by request of NEON: 'ok'=>'OK - No Known Compromise',
-		$condArr = array('cold chain broken'=>'Cold Chain Broken', 'damaged'=>'Damaged - Analysis Affected',
+		$condArr = array('ok'=>'OK - No Known Compromise', 'cold chain broken'=>'Cold Chain Broken', 'damaged'=>'Damaged - Analysis Affected',
 			'sample incomplete'=>'Sample Incomplete','handling error'=>'Handling Error', 'other'=>'Other - Described in Remarks');
 		return $condArr;
 	}

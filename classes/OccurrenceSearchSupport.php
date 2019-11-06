@@ -30,7 +30,7 @@ class OccurrenceSearchSupport {
 			'LEFT JOIN omcollcatlink ccl ON c.collid = ccl.collid '.
 			'LEFT JOIN omcollcategories cat ON ccl.ccpk = cat.ccpk '.
 			'WHERE s.recordcnt > 0 AND (cat.inclusive IS NULL OR cat.inclusive = 1 OR cat.ccpk = 1) ';
-		if($limitByImages) $sql .= 'AND dynamicproperties NOT LIKE \'%imgcnt":"0"%\' ';
+		if($limitByImages) $sql .= 'AND s.dynamicproperties NOT LIKE \'%imgcnt":"0"%\' ';
 		$sql .= 'ORDER BY ccl.sortsequence, cat.category, c.sortseq, c.CollectionName ';
 		//echo "<div>SQL: ".$sql."</div>";
 		$result = $this->conn->query($sql);
@@ -88,7 +88,7 @@ class OccurrenceSearchSupport {
 		global $CLIENT_ROOT, $DEFAULTCATID, $LANG;
 		$catSelArr = array();
 		$collSelArr = array();
-		if(isset($_POST['db'])) $catSelArr = $_POST['cat'];
+		if(isset($_POST['cat'])) $catSelArr = $_POST['cat'];
 		if(isset($_POST['db'])) $collSelArr = $_POST['db'];
 		$targetCatArr = array();
 		$targetCatID = (string)$targetCatID;

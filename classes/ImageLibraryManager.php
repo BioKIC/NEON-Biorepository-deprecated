@@ -41,6 +41,7 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 	}
 
 	public function getGenusList($taxon = ''){
+		$retArr = array();
 		$sql = 'SELECT DISTINCT t.UnitName1 ';
 		$sql .= $this->getListSql();
 		if($taxon){
@@ -49,11 +50,11 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		}
 		$result = $this->conn->query($sql);
 		while($row = $result->fetch_object()){
-			$returnArray[] = $row->UnitName1;
+			$retArr[] = $row->UnitName1;
 		}
 		$result->free();
-		sort($returnArray);
-		return $returnArray;
+		sort($retArr);
+		return $retArr;
 	}
 
 	public function getSpeciesList($taxon = ''){

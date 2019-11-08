@@ -310,6 +310,7 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 									<input name="fieldname" type="hidden" value="<?php echo $fieldName; ?>" />
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 									<input name="submitform" type="submit" value="Batch Assign State(s)" />
+									<input name="resetform" type="reset" value="Reset Form" />
 								</div>
 							</form>
 						</fieldset>

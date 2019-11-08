@@ -678,6 +678,18 @@ class SpecUploadBase extends SpecUpload{
 			$rs->free();
 		}
 
+		if($this->uploadType == $this->RESTOREBACKUP || ($this->collMetadataArr["managementtype"] == 'Snapshot' && $this->uploadType != $this->SKELETAL)){
+			//Records already in portal that won't match with an incoming record
+			$sql = 'SELECT count(o.occid) AS cnt '.
+					'FROM omoccurrences o LEFT JOIN uploadspectemp u  ON (o.occid = u.occid) '.
+					'WHERE (o.collid IN('.$this->collId.')) AND (u.occid IS NULL)';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$reportArr['exist'] = $r->cnt;
+			}
+			$rs->free();
+		}
+
 		if($this->uploadType != $this->SKELETAL && $this->collMetadataArr["managementtype"] == 'Snapshot' && $this->uploadType != $this->RESTOREBACKUP){
 			//Match records that were processed via the portal, walked back to collection's central database, and come back to portal
 			$sql = 'SELECT count(o.occid) AS cnt '.
@@ -687,18 +699,11 @@ class SpecUploadBase extends SpecUpload{
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$reportArr['sync'] = $r->cnt;
-			}
-			$rs->free();
-		}
-
-		if($this->uploadType == $this->RESTOREBACKUP || ($this->collMetadataArr["managementtype"] == 'Snapshot' && $this->uploadType != $this->SKELETAL)){
-			//Records already in portal that won't match with an incoming record
-			$sql = 'SELECT count(o.occid) AS cnt '.
-				'FROM omoccurrences o LEFT JOIN uploadspectemp u  ON (o.occid = u.occid) '.
-				'WHERE (o.collid IN('.$this->collId.')) AND (u.occid IS NULL)';
-			$rs = $this->conn->query($sql);
-			if($r = $rs->fetch_object()){
-				$reportArr['exist'] = $r->cnt;
+				$newCnt = $reportArr['new'] - $r->cnt;
+				if($newCnt >= -1) $reportArr['new'] = $newCnt;
+				$reportArr['update'] += $r->cnt;
+				$existCnt = $reportArr['exist'] - $r->cnt;
+				if($existCnt >= -1) $reportArr['exist'] = $existCnt;
 			}
 			$rs->free();
 		}

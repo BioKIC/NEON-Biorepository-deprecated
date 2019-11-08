@@ -11,6 +11,7 @@ class SpecUploadBase extends SpecUpload{
 	protected $imageTransferCount = 0;
 	protected $includeIdentificationHistory = true;
 	protected $includeImages = true;
+	private $observerUid;
 	private $matchCatalogNumber = 1;
 	private $matchOtherCatalogNumbers = 0;
 	private $verifyImageUrls = false;
@@ -493,6 +494,7 @@ class SpecUploadBase extends SpecUpload{
 				$sql = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON (u.catalogNumber = o.catalogNumber) AND (u.collid = o.collid) '.
 					'SET u.occid = o.occid '.
 					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NULL) AND (u.catalogNumber IS NOT NULL) AND (o.catalogNumber IS NOT NULL) ';
+				if($this->collMetadataArr['colltype'] == 'General Observations' && $this->observerUid) $sql .= ' AND o.observeruid = '.$this->observerUid;
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li><span style="color:red;">Warning: unable to match on catalog number: '.$this->conn->error.'</span></li>');
 				}
@@ -502,6 +504,7 @@ class SpecUploadBase extends SpecUpload{
 				$sql2 = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON (u.otherCatalogNumbers = o.otherCatalogNumbers) AND (u.collid = o.collid) '.
 					'SET u.occid = o.occid '.
 					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NULL) AND (u.othercatalogNumbers IS NOT NULL) AND (o.othercatalogNumbers IS NOT NULL) ';
+				if($this->collMetadataArr['colltype'] == 'General Observations' && $this->observerUid) $sql .= ' AND o.observeruid = '.$this->observerUid;
 				if(!$this->conn->query($sql2)){
 					$this->outputMsg('<li><span style="color:red;">Warning: unable to match on other catalog numbers: '.$this->conn->error.'</span></li>');
 				}
@@ -829,7 +832,8 @@ class SpecUploadBase extends SpecUpload{
 				$sqlFragArr[$v] = 'o.'.$v.' = u.'.$v;
 			}
 		}
-		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid SET '.implode(',',$sqlFragArr);
+		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid '.
+			'SET o.observeruid = '.($this->observerUid?$this->observerUid:'NULL').','.implode(',',$sqlFragArr);
 		if($this->collMetadataArr["managementtype"] == 'Snapshot') $sqlBase .= ', o.dateLastModified = CURRENT_TIMESTAMP() ';
 		$sqlBase .= ' WHERE (u.collid IN('.$this->collId.')) ';
 		$cnt = 1;
@@ -858,11 +862,15 @@ class SpecUploadBase extends SpecUpload{
 			$rs->free();
 			$cnt = 1;
 			while($insertTarget > 0){
-				$sql = 'INSERT IGNORE INTO omoccurrences (collid, dbpk, dateentered, '.implode(', ',$fieldArr).' ) '.
-					'SELECT u.collid, u.dbpk, "'.date('Y-m-d H:i:s').'", u.'.implode(', u.',$fieldArr).' FROM uploadspectemp u '.
+				$sql = 'INSERT IGNORE INTO omoccurrences (collid, dbpk, dateentered, observerUid, '.implode(', ',$fieldArr).' ) '.
+					'SELECT u.collid, u.dbpk, "'.date('Y-m-d H:i:s').'", '.($this->observerUid?$this->observerUid:'NULL').', u.'.implode(', u.',$fieldArr).' FROM uploadspectemp u '.
 					'WHERE u.occid IS NULL AND u.collid IN('.$this->collId.') LIMIT '.$transactionInterval;
 				//echo '<div>'.$sql.'</div>';
-				if(!$this->conn->query($sql)){
+				$insertCnt = 0;
+				if($this->conn->query($sql)){
+					$insertCnt = $this->conn->affected_rows;
+				}
+				else{
 					$this->outputMsg('<li>FAILED! ERROR: '.$this->conn->error.'</li> ');
 					//$this->outputMsg($sql);
 				}
@@ -872,7 +880,7 @@ class SpecUploadBase extends SpecUpload{
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li>ERROR updating occid on recent Insert batch: '.$this->conn->error.'</li> ');
 				}
-				$this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$this->conn->affected_rows.' inserted</li>');
+				$this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$insertCnt.' inserted</li>');
 				$insertTarget -= $transactionInterval;
 				$cnt++;
 			};
@@ -1655,6 +1663,10 @@ class SpecUploadBase extends SpecUpload{
 		$this->includeImages = $boolIn;
 	}
 
+	public function setObserverUid($id){
+		if(is_numeric($id)) $this->observerUid = $id;
+	}
+
 	public function setMatchCatalogNumber($match){
 		$this->matchCatalogNumber = $match;
 	}
@@ -1681,6 +1693,22 @@ class SpecUploadBase extends SpecUpload{
 
 	public function getSourceArr(){
 		return $this->sourceArr;
+	}
+
+	public function getObserverUidArr(){
+		$retArr = array();
+		if($this->collId){
+			$sql = 'SELECT u.uid, CONCAT_WS(", ",u.lastname, u.firstname) as user '.
+				'FROM users u INNER JOIN userroles r ON u.uid = r.uid '.
+				'WHERE r.tablepk = '.$this->collId.' AND r.role IN("CollEditor","CollAdmin")';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->uid] = $r->user;
+			}
+			$rs->free();
+		}
+		asort($retArr);
+		return $retArr;
 	}
 
 	//Misc functions

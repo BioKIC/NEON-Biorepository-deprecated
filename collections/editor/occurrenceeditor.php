@@ -654,7 +654,6 @@ else{
 											<?php
 											if($occManager->traitCodingActivated()){
 												$traitAnchor = $anchorVars;
-												if($action == 'deleteCoding') $traitAnchor .= '&deltraitid='.$_POST['traitid'];
 												?>
 												<li id="traitTab">
 													<a href="includes/traittab.php?<?php echo $traitAnchor; ?>"

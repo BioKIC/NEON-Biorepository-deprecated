@@ -13,10 +13,6 @@ $action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:'
 if(!preg_match('/^[,\d]+$/', $catId)) $catId = 0;
 
 $imgLibManager = new ImageLibraryManager();
-
-$collList = $imgLibManager->getFullCollectionList($catId);
-$specArr = (isset($collList['spec'])?$collList['spec']:null);
-$obsArr = (isset($collList['obs'])?$collList['obs']:null);
 ?>
 <html>
 <head>
@@ -34,16 +30,19 @@ $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 	<script type="text/javascript">
 		jQuery(document).ready(function($) {
 			$('#tabs').tabs({
-				active: <?php echo (($action == 'search')?'2':'1'); ?>,
+				<?php if($action) echo 'active: 1,'; ?>
 				beforeLoad: function( event, ui ) {
 					$(ui.panel).html("<p>Loading...</p>");
 				}
 			});
 		});
-
 	</script>
 	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=180116" type="text/javascript"></script>
-	<script src="../js/symb/imagelib.search.js?ver=20171220" type="text/javascript"></script>
+	<script src="../js/symb/imagelib.search.js?ver=201910" type="text/javascript"></script>
+	<style type="text/css">
+		fieldset{ padding: 15px }
+		fieldset legend{ font-weight:bold }
+	</style>
 </head>
 <body>
 	<?php
@@ -62,12 +61,13 @@ $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 		echo '<b>Image Search</b>';
 		echo "</div>";
 	}
+	$imageType = 0;
+	if(isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"]) $imageType = $_REQUEST["imagetype"];
 	?>
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<div id="tabs" style="margin:0px;">
 			<ul>
-				<li><a href="#collectiondiv">Collections</a></li>
 				<li><a href="#criteriadiv">Search Criteria</a></li>
 				<?php
 				if($action == 'search'){
@@ -78,27 +78,6 @@ $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 				?>
 			</ul>
 			<form name="imagesearchform" id="imagesearchform" action="search.php" method="post">
-				<div id="collectiondiv">
-					<?php
-					if($specArr || $obsArr){
-						?>
-						<div id="specobsdiv">
-							<div style="margin:0px 0px 10px 5px;">
-								<input id="dballcb" name="db[]" class="specobs" value='all' type="checkbox" onclick="selectAll(this);" checked />
-						 		<?php echo (isset($LANG['SELECT_ALL'])?$LANG['SELECT_ALL']:'Select/Deselect all'); ?>
-							</div>
-							<?php
-							$imgLibManager->outputFullCollArr($specArr, $catId);
-							if($specArr && $obsArr) echo '<hr style="clear:both;margin:20px 0px;"/>';
-							$imgLibManager->outputFullCollArr($obsArr, $catId);
-							?>
-							<div style="clear:both;">&nbsp;</div>
-						</div>
-						<?php
-					}
-					?>
-					<div style="clear:both;"></div>
-				</div>
 				<div id="criteriadiv">
 					<div style="clear:both;height:50px">
 						<div style="float:left;margin-top:3px">
@@ -162,30 +141,62 @@ $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 						<input type="text" id="keywords" style="width:350px;" name="keywords" value="" title="Separate multiple keywords w/ commas" />
 					</div>
 					 -->
+					<?php
+					$collList = $imgLibManager->getFullCollectionList($catId);
+					$specArr = (isset($collList['spec'])?$collList['spec']:null);
+					$obsArr = (isset($collList['obs'])?$collList['obs']:null);
+					?>
 					<div style="margin-bottom:5px;">
-						Limit Image Counts:
+						Image Counts:
 						<select id="imagecount" name="imagecount">
 							<option value="all" <?php echo ((array_key_exists("imagecount",$_REQUEST))&&($_REQUEST["imagecount"]=='all')?'SELECTED ':''); ?>>All images</option>
 							<option value="taxon" <?php echo ((array_key_exists("imagecount",$_REQUEST))&&($_REQUEST["imagecount"]=='taxon')?'SELECTED ':''); ?>>One per taxon</option>
-							<option value="specimen" <?php echo ((array_key_exists("imagecount",$_REQUEST))&&($_REQUEST["imagecount"]=='specimen')?'SELECTED ':''); ?>>One per specimen</option>
+							<?php
+							if($specArr){
+								?>
+								<option value="specimen" <?php echo ((array_key_exists("imagecount",$_REQUEST))&&($_REQUEST["imagecount"]=='specimen')?'SELECTED ':''); ?>>One per specimen</option>
+								<?php
+							}
+							?>
 						</select>
 					</div>
-					<div>
+					<div style="height: 40px">
 						<div style="margin-bottom:5px;float:left;">
-							Limit Image Type:
-							<select name="imagetype">
+							Image Type:
+							<select name="imagetype" onchange="imageTypeChanged(this)">
 								<option value="0">All Images</option>
-								<option value="1" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 1?'SELECTED':''); ?>>Specimen Images</option>
-								<option value="2" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 2?'SELECTED':''); ?>>Image Vouchered Observations</option>
-								<option value="3" <?php echo (isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"] == 3?'SELECTED':''); ?>>Field Images (lacking specific locality details)</option>
+								<option value="1" <?php echo ($imageType == 1?'SELECTED':''); ?>>Specimen Images</option>
+								<option value="2" <?php echo ($imageType == 2?'SELECTED':''); ?>>Image Vouchered Observations</option>
+								<option value="3" <?php echo ($imageType == 3?'SELECTED':''); ?>>Field Images (lacking specific locality details)</option>
 							</select>
 						</div>
 						<div style="margin:0px 40px;float:left">
 							<button name="submitaction" type="submit" value="search">Load Images</button>
 						</div>
 					</div>
+					<?php
+					if($specArr || $obsArr){
+						?>
+						<div id="collection-div" style="margin:15px;clear:both;display:<?php echo ($imageType == 1 || $imageType == 2?'':'none'); ?>">
+							<fieldset>
+								<legend>Collections</legend>
+								<div id="specobsdiv">
+									<div style="margin:0px 0px 10px 5px;">
+										<input id="dballcb" name="db[]" class="specobs" value='all' type="checkbox" onclick="selectAll(this);" checked />
+								 		<?php echo (isset($LANG['SELECT_ALL'])?$LANG['SELECT_ALL']:'Select/Deselect all'); ?>
+									</div>
+									<?php
+									$imgLibManager->outputFullCollArr($specArr, $catId);
+									if($specArr && $obsArr) echo '<hr style="clear:both;margin:20px 0px;"/>';
+									$imgLibManager->outputFullCollArr($obsArr, $catId);
+									?>
+								</div>
+							</fieldset>
+						</div>
+						<?php
+					}
+					?>
 				</div>
-				<div style="clear:both">&nbsp;</div>
 			</form>
 			<?php
 			if($action == 'search'){

@@ -52,7 +52,6 @@ class OccurrenceAttributes extends Manager {
 					$sql = 'INSERT INTO tmattributes(stateid,xvalue,occid,source,notes,createduid) '.
 						'VALUES('.$stateId.','.$xValue.','.$this->occid.','.($sourceStr?'"'.$this->cleanInStr($sourceStr).'"':'NULL').','.
 						($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.$uid.') ';
-					echo $sql.'<br/>';
 					if(!$this->conn->query($sql)){
 						$this->errorMessage .= 'ERROR saving occurrence attribute: '.$this->conn->error.'; ';
 						$status = false;
@@ -151,11 +150,20 @@ class OccurrenceAttributes extends Manager {
 	public function deleteAttributes($delTraitID){
 		$status = false;
 		if(is_numeric($delTraitID) && $this->occid){
-			$sql = 'SELECT DISTINCT s.traitid AS parenttraitid, d.parentstateid, d.traitid AS depTraitID '.
-					'FROM tmstates s INNER JOIN tmtraitdependencies d ON s.stateid = d.parentstateid '.
-					'WHERE (s.traitid = '.$traitid.')';
-			$sql = 'DELETE FROM tmattributes WHERE (occid = '.$this->occid.') AND (stateid IN('.$stateIdStr.'))';
-			echo $sql.'<br/>';
+			$delTraitArr = array($delTraitID);
+			$sql = 'SELECT DISTINCT d.traitid FROM tmstates s INNER JOIN tmtraitdependencies d ON s.stateid = d.parentstateid WHERE (s.traitid IN('.$delTraitID.'))';
+			do{
+				$directParents = '';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$delTraitArr[] = $r->traitid;
+					$directParents .= ','.$r->traitid;
+				}
+				$sql = 'SELECT DISTINCT d.traitid FROM tmstates s INNER JOIN tmtraitdependencies d ON s.stateid = d.parentstateid WHERE (s.traitid IN('.trim($directParents,', ').'))';
+				$rs->free();
+			}while($directParents);
+
+			$sql = 'DELETE a.* FROM tmattributes a INNER JOIN tmstates s ON a.stateid = s.stateid WHERE (a.occid = '.$this->occid.') AND (s.traitid IN('.implode(',',$delTraitArr).'))';
 			if($this->conn->query($sql)){
 				$status = true;
 			}
@@ -307,7 +315,6 @@ class OccurrenceAttributes extends Manager {
 			$this->traitArr[$r->parenttraitid]['states'][$r->parentstateid]['dependTraitID'][] = $r->depTraitID;
 			$this->setTraitArr($r->depTraitID);
 			$this->traitArr[$r->depTraitID]['dependentTrait'] = 1;
-			$this->setDependentTraits($r->depTraitID);
 		}
 		$rs->free();
 	}

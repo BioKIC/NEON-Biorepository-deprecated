@@ -195,6 +195,10 @@ ALTER TABLE `omoccurrences`
   DROP INDEX `idx_occrecordedby`;
   
 ALTER TABLE `omoccurrences` 
+  ADD INDEX `Index_locationID` (`locationID` ASC),
+  ADD INDEX `Index_eventID` (`eventID` ASC);
+
+ALTER TABLE `omoccurrences` 
   ADD UNIQUE INDEX `UNIQUE_occurrenceID` (`occurrenceID` ASC),
   ADD INDEX `Index_occur_localitySecurity` (`localitySecurity` ASC);
 

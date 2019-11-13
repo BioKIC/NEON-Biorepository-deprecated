@@ -463,25 +463,37 @@ class OccurrenceDuplicate {
 		return $retArr;
 	}
 
-	//Used in getLocality.php to obtain autocomplete locality data
-	public function getDupeLocality($recordedBy, $collDate, $localFrag){
-		$retArr = array();
+	//Function used in getLocality.php to obtain autocomplete locality data
+	public function getDupeLocalityByLocalFrag($recordedBy, $collDate, $localFrag){
+		$sqlFrag = '';
 		if($recordedBy && $collDate && $localFrag){
+			$collStr = $this->cleanInStr($recordedBy);
+			if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
+				//Need to avoid FULLTEXT stopwords interfering with return
+				$sqlFrag = 'WHERE (o.recordedby LIKE "%'.$collStr.'%") ';
+			}
+			else{
+				$sqlFrag = 'INNER JOIN omoccurrencesfulltext f ON o.occid = f.occid WHERE (MATCH(f.recordedby) AGAINST("'.$collStr.'")) ';
+			}
+			$sqlFrag .= 'AND (o.eventdate = "'.$this->cleanInStr($collDate).'") AND (o.locality LIKE "'.$this->cleanInStr($localFrag).'%") ';
+		}
+		return $this->getDupeLocality($sqlFrag);
+	}
+
+	public function getDupeLocalityByLocationID($locationID){
+		$sqlFrag = '';
+		if($locationID) $sqlFrag = 'WHERE locationID LIKE "'.$this->cleanInStr($locationID).'%"';
+		return $this->getDupeLocality($sqlFrag);
+	}
+
+	private function getDupeLocality($sqlFrag){
+		$retArr = array();
+		if($sqlFrag){
 			$locArr = Array('associatedcollectors','verbatimeventdate','country','stateprovince','county','municipality','locality',
 				'decimallatitude','decimallongitude','verbatimcoordinates','coordinateuncertaintyinmeters','geodeticdatum','minimumelevationinmeters',
 				'maximumelevationinmeters','verbatimelevation','verbatimcoordinates','georeferencedby','georeferenceprotocol','georeferencesources',
 				'georeferenceverificationstatus','georeferenceremarks','habitat','substrate','associatedtaxa');
-			$collStr = $this->cleanInStr($recordedBy);
-			$sql = 'SELECT DISTINCT o.'.implode(',o.',$locArr).' FROM omoccurrences o ';
-			if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
-				//Need to avoid FULLTEXT stopwords interfering with return
-				$sql .= 'WHERE (o.recordedby LIKE "%'.$collStr.'%") ';
-			}
-			else{
-				$sql .= 'INNER JOIN omoccurrencesfulltext f ON o.occid = f.occid WHERE (MATCH(f.recordedby) AGAINST("'.$collStr.'")) ';
-			}
-			$sql .= 'AND (o.eventdate = "'.$this->cleanInStr($collDate).'") AND (o.locality LIKE "'.$this->cleanInStr($localFrag).'%") ';
-
+			$sql = 'SELECT DISTINCT o.'.implode(',o.',$locArr).' FROM omoccurrences o '.$sqlFrag;
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 			$cnt = 0;

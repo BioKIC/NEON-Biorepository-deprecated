@@ -181,14 +181,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 		<div id="absoluteAgeDiv">
 			<?php echo (defined('ABSOLUTEAGELABEL')?ABSOLUTEAGELABEL:'Absolute Age'); ?>
 			<a href="#" onclick="return dwcDoc('absoluteAge')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-			<select name="absoluteage" onchange="fieldChanged('absoluteage');">
-				<option value=""></option>
-				<?php
-				foreach($gtsTermArr as $term => $rankid){
-					if($rankid == 60) echo '<option value="'.$term.'" '.(isset($occArr['absoluteage']) && $occArr['absoluteage']==$term?'SELECTED':'').'>'.$term.'</option>';
-				}
-				?>
-			</select>
+			<input type="text" name="absoluteage" value="<?php echo isset($occArr['absoluteage'])?$occArr['absoluteage']:''; ?>" onchange="fieldChanged('absoluteage');" />
 		</div>
 		<div id="storageAgeDiv">
 			<?php echo (defined('STORAGEAGELABEL')?STORAGEAGELABEL:'Storage Age'); ?>

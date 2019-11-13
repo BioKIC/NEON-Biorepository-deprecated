@@ -142,6 +142,28 @@ $(document).ready(function() {
 		}
 	}
 
+	$("#locationid").autocomplete({ 
+		source: function( request, response ) {
+			$.ajax( {
+				url: "rpc/getlocality.php",
+				data: locationid: request.term,
+				success: function( data ) {
+					response( data );
+				}
+			});
+		},
+		minLength: 3,
+		select: function( event, ui ) {
+			$.each(ui.item, function(k, v) {
+				if($( "input[name="+k+"]" ).val() == ""){
+					$( "input[name="+k+"]" ).val(v);
+					$( "input[name="+k+"]" ).css("backgroundColor","lightblue");
+					fieldChanged(k);
+				}
+			});
+		}
+	});
+
 	//Misc fields with lookups
 	$("#ffcountry").autocomplete({
 		source: function( request, response ) {

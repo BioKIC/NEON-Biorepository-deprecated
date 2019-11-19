@@ -123,7 +123,7 @@ if($isEditor){
 								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
 								?>
 								<input name="tabtarget" type="hidden" value="3" />
-								<input type="image" src="../../images/refresh.png" style="width:15px" />
+								<input type="image" src="../../images/refresh.png" style="width:14px;vertical-align: middle;" />
 							</form>
 						</div>
 						<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">

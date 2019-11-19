@@ -290,7 +290,7 @@ class OccurrenceSearchSupport {
 		else{
 			$dbStr = $dbStr;
 		}
-		if(!preg_match('/^[0-9,;]+$/', $dbStr)) $dbStr = 'all';
+		if(!preg_match('/^[a-z0-9,;]+$/', $dbStr)) $dbStr = 'all';
 		if(strpos($dbStr,'allspec') !== false){
 			$dbStr = 'allspec';
 		}

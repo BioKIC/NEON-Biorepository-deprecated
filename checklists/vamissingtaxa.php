@@ -41,14 +41,14 @@ else{
 		}
 		echo $vManager->getMissingTaxaCount();
 		?>
-	</div>
-	<div style="float:left;margin-left:5px">
-		<a href="voucheradmin.php?clid=<?php echo $clid.'&pid='.$pid.'&displaymode='.$displayMode; ?>&tabindex=1"><img src="../images/refresh.png" style="border:0px;" title="Refresh List" /></a>
-	</div>
-	<div style="float:left;margin-left:5px;">
-		<a href="voucherreporthandler.php?rtype=<?php echo ($displayMode==2?'problemtaxacsv':'missingoccurcsv').'&clid='.$clid; ?>" target="_blank" title="Download Specimen Records">
-			<img src="<?php echo $CLIENT_ROOT; ?>/images/dl.png" style="border:0px;" />
-		</a>
+		<span style="margin-left:5px">
+			<a href="voucheradmin.php?clid=<?php echo $clid.'&pid='.$pid.'&displaymode='.$displayMode; ?>&tabindex=1"><img src="../images/refresh.png" style="width:14px;vertical-align: middle;" title="Refresh List" /></a>
+		</span>
+		<span style="margin-left:5px;">
+			<a href="voucherreporthandler.php?rtype=<?php echo ($displayMode==2?'problemtaxacsv':'missingoccurcsv').'&clid='.$clid; ?>" target="_blank" title="Download Specimen Records">
+				<img src="<?php echo $CLIENT_ROOT; ?>/images/dl.png" style="vertical-align: middle;" />
+			</a>
+		</span>
 	</div>
 	<div style="float:right;">
 		<form name="displaymodeform" method="post" action="voucheradmin.php">

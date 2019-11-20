@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -92,6 +92,20 @@ abstract class AbstractElement
      * @var int
      */
     private $nestedLevel = 0;
+
+    /**
+     * A reference to the parent
+     *
+     * @var AbstractElement|null
+     */
+    private $parent;
+
+    /**
+     * changed element info
+     *
+     * @var TrackChange
+     */
+    private $trackChange;
 
     /**
      * Parent container type
@@ -322,15 +336,26 @@ abstract class AbstractElement
     }
 
     /**
+     * Get parent element
+     *
+     * @return AbstractElement|null
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
      * Set parent container
      *
      * Passed parameter should be a container, except for Table (contain Row) and Row (contain Cell)
      *
      * @param \PhpOffice\PhpWord\Element\AbstractElement $container
      */
-    public function setParentContainer(AbstractElement $container)
+    public function setParentContainer(self $container)
     {
         $this->parentContainer = substr(get_class($container), strrpos(get_class($container), '\\') + 1);
+        $this->parent = $container;
 
         // Set nested level
         $this->nestedLevel = $container->getNestedLevel();
@@ -358,11 +383,14 @@ abstract class AbstractElement
      */
     private function setMediaRelation()
     {
-        if (!$this instanceof Link && !$this instanceof Image && !$this instanceof Object) {
+        if (!$this instanceof Link && !$this instanceof Image && !$this instanceof OLEObject) {
             return;
         }
 
         $elementName = substr(get_class($this), strrpos(get_class($this), '\\') + 1);
+        if ($elementName == 'OLEObject') {
+            $elementName = 'Object';
+        }
         $mediaPart = $this->getMediaPart();
         $source = $this->getSource();
         $image = null;
@@ -372,7 +400,7 @@ abstract class AbstractElement
         $rId = Media::addElement($mediaPart, strtolower($elementName), $source, $image);
         $this->setRelationId($rId);
 
-        if ($this instanceof Object) {
+        if ($this instanceof OLEObject) {
             $icon = $this->getIcon();
             $rId = Media::addElement($mediaPart, 'image', $icon, new Image($icon));
             $this->setImageRelationId($rId);
@@ -420,6 +448,38 @@ abstract class AbstractElement
         }
 
         return $style;
+    }
+
+    /**
+     * Sets the trackChange information
+     *
+     * @param TrackChange $trackChange
+     */
+    public function setTrackChange(TrackChange $trackChange)
+    {
+        $this->trackChange = $trackChange;
+    }
+
+    /**
+     * Gets the trackChange information
+     *
+     * @return TrackChange
+     */
+    public function getTrackChange()
+    {
+        return $this->trackChange;
+    }
+
+    /**
+     * Set changed
+     *
+     * @param string $type INSERTED|DELETED
+     * @param string $author
+     * @param null|int|\DateTime $date allways in UTC
+     */
+    public function setChangeInfo($type, $author, $date = null)
+    {
+        $this->trackChange = new TrackChange($type, $author, $date);
     }
 
     /**

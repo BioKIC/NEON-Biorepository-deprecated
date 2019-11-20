@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -47,6 +47,10 @@ class Section extends AbstractStyle
         $xmlWriter->writeAttribute('w:w', $style->getPageSizeW());
         $xmlWriter->writeAttribute('w:h', $style->getPageSizeH());
         $xmlWriter->endElement(); // w:pgSz
+
+        // Vertical alignment
+        $vAlign = $style->getVAlign();
+        $xmlWriter->writeElementIf(!is_null($vAlign), 'w:vAlign', 'w:val', $vAlign);
 
         // Margins
         $margins = array(

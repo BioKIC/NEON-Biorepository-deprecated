@@ -29,7 +29,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
         <link href="../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
         <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
         <script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
-        <script src="../js/symb/collections.index.js?ver=20171215" type="text/javascript"></script>
+        <script src="../js/symb/collections.simplesearch.js?ver=20171215" type="text/javascript"></script>
         <script type="text/javascript">
             $(document).ready(function() {
                 $('#tabs').tabs({

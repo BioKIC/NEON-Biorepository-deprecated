@@ -68,6 +68,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 	<div id="innertext">
 		<div class="disclaimer">
 			<p><span>Please note:</span> this search integrates NEON samples with voucher specimens from the same sites in other natural history collections, allowing for research on biodiversity at NEON sites over a broader taxonomic and temporal extent. <span>Scroll towards the end of the page to activate or deactivate the search in the external collections</span>.</p>
+			<p>Additionally, not all collections are currently available. If you would like to be notified via email when a collection becomes available, please sign up <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE0NCJfObUji6r9tRDuH4sSGyKHFDw2IoqVYHm9Vtg7cnKrg/viewform?usp=sf_link">here</a>.</p>
 		</div>
         <div id="tabs" style="margin:0px;">
 			<ul>

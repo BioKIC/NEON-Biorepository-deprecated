@@ -276,7 +276,7 @@ class SpecUploadBase extends SpecUpload{
 			$fieldMap = $this->identFieldMap;
 			$symbFields = $this->identSymbFields;
 			$sourceArr = $this->identSourceArr;
-			$translationMap = array('scientificname'=>'sciname','detby'=>'identifiedby','determinor'=>'identifiedby',
+			$translationMap = array('scientificname'=>'sciname','identificationiscurrent'=>'iscurrent','detby'=>'identifiedby','determinor'=>'identifiedby',
 				'determinationdate'=>'dateidentified','notes'=>'identificationremarks','cf' => 'identificationqualifier');
 		}
 		elseif($mode == 'image'){
@@ -1368,14 +1368,13 @@ class SpecUploadBase extends SpecUpload{
 					}
 				}
 
-				if($recMap['identifiedby'] || $recMap['dateidentified']){
+				if((isset($recMap['identifiedby']) && $recMap['identifiedby']) || (isset($recMap['dateidentified']) && $recMap['dateidentified']) || (isset($recMap['sciname']) && $recMap['sciname'])){
 					if(!isset($recMap['identifiedby']) || !$recMap['identifiedby']) $recMap['identifiedby'] = 'not specified';
 					if(!isset($recMap['dateidentified']) || $recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
 					$sqlFragments = $this->getSqlFragments($recMap,$this->identFieldMap);
 					if($sqlFragments){
 						$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-						//echo "<div>SQL: ".$sql."</div>"; exit;
-
+						//echo "<div>SQL: ".$sql."</div>";
 						if($this->conn->query($sql)){
 							$this->identTransferCount++;
 							if($this->identTransferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->identTransferCount.'</li>');

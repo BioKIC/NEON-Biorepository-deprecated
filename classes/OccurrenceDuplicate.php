@@ -483,13 +483,13 @@ class OccurrenceDuplicate {
 	public function getDupeLocalityByLocationID($locationID){
 		$sqlFrag = '';
 		if($locationID) $sqlFrag = 'WHERE locationID LIKE "'.$this->cleanInStr($locationID).'%"';
-		return $this->getDupeLocality($sqlFrag);
+		return $this->getDupeLocality($sqlFrag,'locationID');
 	}
 
-	private function getDupeLocality($sqlFrag){
+	private function getDupeLocality($sqlFrag, $target = ''){
 		$retArr = array();
 		if($sqlFrag){
-			$locArr = Array('associatedcollectors','verbatimeventdate','country','stateprovince','county','municipality','locality',
+			$locArr = Array('associatedcollectors','verbatimeventdate','country','stateprovince','county','municipality','locality','locationid',
 				'decimallatitude','decimallongitude','verbatimcoordinates','coordinateuncertaintyinmeters','geodeticdatum','minimumelevationinmeters',
 				'maximumelevationinmeters','verbatimelevation','verbatimcoordinates','georeferencedby','georeferenceprotocol','georeferencesources',
 				'georeferenceverificationstatus','georeferenceremarks','habitat','substrate','associatedtaxa');
@@ -502,6 +502,7 @@ class OccurrenceDuplicate {
 					if($r[$field]) $retArr[$cnt][$field] = $r[$field];
 				}
 				$loc = $r['locality'];
+				if($target == 'locationID') $loc = $r['locationid'];
 				if($r['decimallatitude']) $loc .= '; '.$r['decimallatitude'].' '.$r['decimallongitude'];
 				$retArr[$cnt]['value'] = $loc;
 				$cnt++;

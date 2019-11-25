@@ -93,7 +93,7 @@ class TaxonomyCleaner extends Manager{
 				$sciname = $r->sciname;
 				$tid = 0;
 				$manualCheck = true;
-				$taxonArr = TaxonomyUtilities::parseScientificName($r->sciname,$this->conn);
+				$taxonArr = TaxonomyUtilities::parseScientificName($r->sciname,$this->conn,0,$this->targetKingdomName);
 				if($taxonArr && $taxonArr['sciname']){
 					$sciname = $taxonArr['sciname'];
 					if($sciname != $r->sciname){
@@ -599,7 +599,7 @@ class TaxonomyCleaner extends Manager{
 		else{
 			//Test taxon does not exists, thus lets load it
 			//Prepare taxon for loading
-			$parsedArr = TaxonomyUtilities::parseScientificName($testObj['name'],$this->conn);
+			$parsedArr = TaxonomyUtilities::parseScientificName($testObj['name'],$this->conn,0,$this->targetKingdomName);
 			if(!array_key_exists('rank',$newTaxon)){
 				//Grab taxon object from EOL or Species2000
 

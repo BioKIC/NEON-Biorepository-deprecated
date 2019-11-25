@@ -486,7 +486,7 @@ else{
 	</script>
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
-	<script src="../../js/symb/collections.occureditormain.js?ver=201909" type="text/javascript"></script>
+	<script src="../../js/symb/collections.occureditormain.js?ver=201911" type="text/javascript"></script>
 	<script src="../../js/symb/collections.occureditortools.js?ver=1909" type="text/javascript"></script>
 	<script src="../../js/symb/collections.occureditorimgtools.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
@@ -654,7 +654,6 @@ else{
 											<?php
 											if($occManager->traitCodingActivated()){
 												$traitAnchor = $anchorVars;
-												if($action == 'deleteCoding') $traitAnchor .= '&deltraitid='.$_POST['traitid'];
 												?>
 												<li id="traitTab">
 													<a href="includes/traittab.php?<?php echo $traitAnchor; ?>"
@@ -931,6 +930,12 @@ else{
 													<a href="#" onclick="return dwcDoc('municipality')"><img class="docimg" src="../../images/qmark.png" /></a>
 													<br/>
 													<input type="text" id="ffmunicipality" name="municipality" tabindex="45" value="<?php echo array_key_exists('municipality',$occArr)?$occArr['municipality']:''; ?>" onchange="fieldChanged('municipality');" autocomplete="off" />
+												</div>
+												<div id="locationIdDiv">
+													<?php echo (defined('LOCATIONIDLABEL')?LOCATIONIDLABEL:'Location ID'); ?>
+													<a href="#" onclick="return dwcDoc('locationId')"><img class="docimg" src="../../images/qmark.png" /></a>
+													<br/>
+													<input type="text" id="locationid" name="locationid" tabindex="46" value="<?php echo array_key_exists('locationid',$occArr)?$occArr['locationid']:''; ?>" onchange="fieldChanged('locationid');" autocomplete="off" />
 												</div>
 											</div>
 											<div id="localityDiv">

@@ -106,7 +106,29 @@ body{ }
 #hor_dropdown li:hover ul li a:hover { 
 	background:#999999; 
 }
-
+/* Sub-submenu */
+#hor_dropdown li ul li ul {
+	display: none;
+}
+#hor_dropdown li ul li:hover ul {
+	left:100%;
+	top:0;
+	display: block;
+	padding:0px;
+	z-index:1000;
+}
+#hor_dropdown li ul li:hover ul a {
+	padding:5px;
+	text-decoration:none;
+	text-indent:8px;
+	padding-right:8px;
+	background-image: none;
+	background-color:#dcdcdc;
+	z-index:1000;
+}
+#hor_dropdown li ul li:hover ul li a:hover { 
+	background:#999999; 
+}
 
 div.navpath {  }
 

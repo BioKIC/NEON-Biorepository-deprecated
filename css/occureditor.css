@@ -304,6 +304,15 @@ body{
 	width:	150px;
 }
 
+#locationIdDiv{
+	float:	left;
+	margin-left: 25px;
+}
+
+#locationIdDiv input{
+	width:	100px;
+}
+
 #localityDiv{
 	clear:	both;
 	margin:	4px 0px 2px 0px;

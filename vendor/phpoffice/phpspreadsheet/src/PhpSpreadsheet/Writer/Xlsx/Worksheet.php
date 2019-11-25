@@ -51,6 +51,12 @@ class Worksheet extends WriterPart
         $objWriter->writeAttribute('xmlns', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         $objWriter->writeAttribute('xmlns:r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
 
+        $objWriter->writeAttribute('xmlns:xdr', 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing');
+        $objWriter->writeAttribute('xmlns:x14', 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
+        $objWriter->writeAttribute('xmlns:mc', 'http://schemas.openxmlformats.org/markup-compatibility/2006');
+        $objWriter->writeAttribute('mc:Ignorable', 'x14ac');
+        $objWriter->writeAttribute('xmlns:x14ac', 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac');
+
         // sheetPr
         $this->writeSheetPr($objWriter, $pSheet);
 
@@ -114,6 +120,9 @@ class Worksheet extends WriterPart
         // LegacyDrawingHF
         $this->writeLegacyDrawingHF($objWriter, $pSheet);
 
+        // AlternateContent
+        $this->writeAlternateContent($objWriter, $pSheet);
+
         $objWriter->endElement();
 
         // Return
@@ -132,7 +141,7 @@ class Worksheet extends WriterPart
         $objWriter->startElement('sheetPr');
         if ($pSheet->getParent()->hasMacros()) {
             //if the workbook have macros, we need to have codeName for the sheet
-            if ($pSheet->hasCodeName() == false) {
+            if (!$pSheet->hasCodeName()) {
                 $pSheet->setCodeName($pSheet->getTitle());
             }
             $objWriter->writeAttribute('codeName', $pSheet->getCodeName());
@@ -212,6 +221,11 @@ class Worksheet extends WriterPart
             $objWriter->writeAttribute('zoomScaleNormal', $pSheet->getSheetView()->getZoomScaleNormal());
         }
 
+        // Show zeros (Excel also writes this attribute only if set to false)
+        if ($pSheet->getSheetView()->getShowZeros() === false) {
+            $objWriter->writeAttribute('showZeros', 0);
+        }
+
         // View Layout Type
         if ($pSheet->getSheetView()->getView() !== SheetView::SHEETVIEW_NORMAL) {
             $objWriter->writeAttribute('view', $pSheet->getSheetView()->getView());
@@ -237,17 +251,19 @@ class Worksheet extends WriterPart
         }
 
         $activeCell = $pSheet->getActiveCell();
+        $sqref = $pSheet->getSelectedCells();
 
         // Pane
         $pane = '';
         if ($pSheet->getFreezePane()) {
-            list($xSplit, $ySplit) = Coordinate::coordinateFromString($pSheet->getFreezePane());
+            [$xSplit, $ySplit] = Coordinate::coordinateFromString($pSheet->getFreezePane());
             $xSplit = Coordinate::columnIndexFromString($xSplit);
             --$xSplit;
             --$ySplit;
 
             $topLeftCell = $pSheet->getTopLeftCell();
             $activeCell = $topLeftCell;
+            $sqref = $topLeftCell;
 
             // pane
             $pane = 'topRight';
@@ -283,7 +299,7 @@ class Worksheet extends WriterPart
             $objWriter->writeAttribute('pane', $pane);
         }
         $objWriter->writeAttribute('activeCell', $activeCell);
-        $objWriter->writeAttribute('sqref', $activeCell);
+        $objWriter->writeAttribute('sqref', $sqref);
         $objWriter->endElement();
 
         $objWriter->endElement();
@@ -311,7 +327,7 @@ class Worksheet extends WriterPart
         }
 
         // Set Zero Height row
-        if ((string) $pSheet->getDefaultRowDimension()->getZeroHeight() == '1' ||
+        if ((string) $pSheet->getDefaultRowDimension()->getZeroHeight() === '1' ||
             strtolower((string) $pSheet->getDefaultRowDimension()->getZeroHeight()) == 'true') {
             $objWriter->writeAttribute('zeroHeight', '1');
         }
@@ -372,7 +388,7 @@ class Worksheet extends WriterPart
                 }
 
                 // Column visibility
-                if ($colDimension->getVisible() == false) {
+                if ($colDimension->getVisible() === false) {
                     $objWriter->writeAttribute('hidden', 'true');
                 }
 
@@ -387,7 +403,7 @@ class Worksheet extends WriterPart
                 }
 
                 // Collapsed
-                if ($colDimension->getCollapsed() == true) {
+                if ($colDimension->getCollapsed() === true) {
                     $objWriter->writeAttribute('collapsed', 'true');
                 }
 
@@ -417,7 +433,7 @@ class Worksheet extends WriterPart
         // sheetProtection
         $objWriter->startElement('sheetProtection');
 
-        if ($pSheet->getProtection()->getPassword() != '') {
+        if ($pSheet->getProtection()->getPassword() !== '') {
             $objWriter->writeAttribute('password', $pSheet->getProtection()->getPassword());
         }
 
@@ -508,6 +524,9 @@ class Worksheet extends WriterPart
                             // Formula
                             $objWriter->writeElement('formula', $formula);
                         }
+                    } elseif ($conditional->getConditionType() == Conditional::CONDITION_CONTAINSBLANKS) {
+                        // formula copied from ms xlsx xml source file
+                        $objWriter->writeElement('formula', 'LEN(TRIM(' . $cellCoordinate . '))=0');
                     }
 
                     $objWriter->endElement();
@@ -613,8 +632,9 @@ class Worksheet extends WriterPart
                     $objWriter->writeAttribute('location', str_replace('sheet://', '', $hyperlink->getUrl()));
                 }
 
-                if ($hyperlink->getTooltip() != '') {
+                if ($hyperlink->getTooltip() !== '') {
                     $objWriter->writeAttribute('tooltip', $hyperlink->getTooltip());
+                    $objWriter->writeAttribute('display', $hyperlink->getTooltip());
                 }
 
                 $objWriter->endElement();
@@ -737,9 +757,7 @@ class Worksheet extends WriterPart
             $range = Coordinate::splitRange($autoFilterRange);
             $range = $range[0];
             //    Strip any worksheet ref
-            if (strpos($range[0], '!') !== false) {
-                list($ws, $range[0]) = explode('!', $range[0]);
-            }
+            [$ws, $range[0]] = PhpspreadsheetWorksheet::extractSheetTitle($range[0], true);
             $range = implode(':', $range);
 
             $objWriter->writeAttribute('ref', str_replace('$', '', $range));
@@ -841,6 +859,11 @@ class Worksheet extends WriterPart
         if ($pSheet->getPageSetup()->getFirstPageNumber() !== null) {
             $objWriter->writeAttribute('firstPageNumber', $pSheet->getPageSetup()->getFirstPageNumber());
             $objWriter->writeAttribute('useFirstPageNumber', '1');
+        }
+
+        $getUnparsedLoadedData = $pSheet->getParent()->getUnparsedLoadedData();
+        if (isset($getUnparsedLoadedData['sheets'][$pSheet->getCodeName()]['pageSetupRelId'])) {
+            $objWriter->writeAttribute('r:id', $getUnparsedLoadedData['sheets'][$pSheet->getCodeName()]['pageSetupRelId']);
         }
 
         $objWriter->endElement();
@@ -977,12 +1000,12 @@ class Worksheet extends WriterPart
                 }
 
                 // Row visibility
-                if ($rowDimension->getVisible() == false) {
+                if (!$rowDimension->getVisible() === true) {
                     $objWriter->writeAttribute('hidden', 'true');
                 }
 
                 // Collapsed
-                if ($rowDimension->getCollapsed() == true) {
+                if ($rowDimension->getCollapsed() === true) {
                     $objWriter->writeAttribute('collapsed', 'true');
                 }
 
@@ -1087,7 +1110,7 @@ class Worksheet extends WriterPart
                     break;
                 case 'f':            // Formula
                     $attributes = $pCell->getFormulaAttributes();
-                    if ($attributes['t'] == 'array') {
+                    if (($attributes['t'] ?? null) === 'array') {
                         $objWriter->startElement('f');
                         $objWriter->writeAttribute('t', 'array');
                         $objWriter->writeAttribute('ref', $pCellAddress);
@@ -1100,7 +1123,7 @@ class Worksheet extends WriterPart
                     }
                     if ($this->getParentWriter()->getOffice2003Compatibility() === false) {
                         if ($this->getParentWriter()->getPreCalculateFormulas()) {
-                            if (!is_array($calculatedValue) && substr($calculatedValue, 0, 1) != '#') {
+                            if (!is_array($calculatedValue) && substr($calculatedValue, 0, 1) !== '#') {
                                 $objWriter->writeElement('v', StringHelper::formatNumber($calculatedValue));
                             } else {
                                 $objWriter->writeElement('v', '0');
@@ -1121,7 +1144,7 @@ class Worksheet extends WriterPart
 
                     break;
                 case 'e':            // Error
-                    if (substr($cellValue, 0, 1) == '=') {
+                    if (substr($cellValue, 0, 1) === '=') {
                         $objWriter->writeElement('f', substr($cellValue, 1));
                         $objWriter->writeElement('v', substr($cellValue, 1));
                     } else {
@@ -1142,16 +1165,27 @@ class Worksheet extends WriterPart
      * @param PhpspreadsheetWorksheet $pSheet Worksheet
      * @param bool $includeCharts Flag indicating if we should include drawing details for charts
      */
-    private function writeDrawings(XMLWriter $objWriter = null, PhpspreadsheetWorksheet $pSheet = null, $includeCharts = false)
+    private function writeDrawings(XMLWriter $objWriter, PhpspreadsheetWorksheet $pSheet, $includeCharts = false)
     {
+        $unparsedLoadedData = $pSheet->getParent()->getUnparsedLoadedData();
+        $hasUnparsedDrawing = isset($unparsedLoadedData['sheets'][$pSheet->getCodeName()]['drawingOriginalIds']);
         $chartCount = ($includeCharts) ? $pSheet->getChartCollection()->count() : 0;
-        // If sheet contains drawings, add the relationships
-        if (($pSheet->getDrawingCollection()->count() > 0) ||
-            ($chartCount > 0)) {
-            $objWriter->startElement('drawing');
-            $objWriter->writeAttribute('r:id', 'rId1');
-            $objWriter->endElement();
+        if ($chartCount == 0 && $pSheet->getDrawingCollection()->count() == 0 && !$hasUnparsedDrawing) {
+            return;
         }
+
+        // If sheet contains drawings, add the relationships
+        $objWriter->startElement('drawing');
+
+        $rId = 'rId1';
+        if (isset($unparsedLoadedData['sheets'][$pSheet->getCodeName()]['drawingOriginalIds'])) {
+            $drawingOriginalIds = $unparsedLoadedData['sheets'][$pSheet->getCodeName()]['drawingOriginalIds'];
+            // take first. In future can be overriten
+            $rId = reset($drawingOriginalIds);
+        }
+
+        $objWriter->writeAttribute('r:id', $rId);
+        $objWriter->endElement();
     }
 
     /**
@@ -1183,6 +1217,17 @@ class Worksheet extends WriterPart
             $objWriter->startElement('legacyDrawingHF');
             $objWriter->writeAttribute('r:id', 'rId_headerfooter_vml1');
             $objWriter->endElement();
+        }
+    }
+
+    private function writeAlternateContent(XMLWriter $objWriter, PhpspreadsheetWorksheet $pSheet)
+    {
+        if (empty($pSheet->getParent()->getUnparsedLoadedData()['sheets'][$pSheet->getCodeName()]['AlternateContents'])) {
+            return;
+        }
+
+        foreach ($pSheet->getParent()->getUnparsedLoadedData()['sheets'][$pSheet->getCodeName()]['AlternateContents'] as $alternateContent) {
+            $objWriter->writeRaw($alternateContent);
         }
     }
 }

@@ -382,7 +382,9 @@ class OccurrenceAttributes extends Manager {
 				$depTraitIdArr = array();
 				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitIdArr = $sArr['dependTraitID'];
 				if($this->traitArr[$traitID]['type']=='NU'){
-					$innerStr .= '<div title="'.$sArr['description'].'">'.$sArr['name'].': <input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="input" value="'.$sid.'-'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
+					$innerStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
+					$innerStr .= $sArr['name'].
+					$innerStr .= ': <input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="text" value="'.$sid.'-'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
 					if($depTraitIdArr){
 						foreach($depTraitIdArr as $depTraitId){
 							$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
@@ -391,7 +393,9 @@ class OccurrenceAttributes extends Manager {
 				}
 				else{
 					if($controlType == 'checkbox' || $controlType == 'radio'){
-						$innerStr .= '<div title="'.$sArr['description'].'"><input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> '.$sArr['name'];
+						$innerStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
+						$innerStr .= '<input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> ';
+						$innerStr .= $sArr['name'];
 					}
 					elseif($controlType == 'select'){
 						$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';

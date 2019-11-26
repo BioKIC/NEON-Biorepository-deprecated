@@ -47,9 +47,9 @@ if($isEditor){
 						echo ' (excludes taxa from children checklists)';
 					}
 					?>
-				</div>
-				<div style='float:left;'>
-					<a href="voucheradmin.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><img src="../images/refresh.png" style="border:0px;" title="<?php echo $LANG['REFRESHLIST'];?>" /></a>
+					<span>
+						<a href="voucheradmin.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><img src="../images/refresh.png" style="width:14px;vertical-align: middle;" title="<?php echo $LANG['REFRESHLIST'];?>" /></a>
+					</span>
 				</div>
 			<?php
 			}

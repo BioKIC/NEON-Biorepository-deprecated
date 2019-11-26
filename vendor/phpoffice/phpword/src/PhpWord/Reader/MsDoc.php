@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -1619,7 +1619,7 @@ class MsDoc extends AbstractReader implements ReaderInterface
                             break;
                         // sprmCFData
                         case 0x06:
-                            $sprmCFData = dechex($operand) == 0x00 ? false : true;
+                            $sprmCFData = dechex($operand) != 0x00;
                             break;
                         // sprmCFItalic
                         case 0x36:
@@ -2184,6 +2184,8 @@ class MsDoc extends AbstractReader implements ReaderInterface
                                     $oStylePrl->image['height'] = Drawing::twipsToPixels($iCropHeight * $picmidMy / 1000);
 
                                     $sprmCPicLocation += $embeddedBlipRH['recLen'];
+                                    break;
+                                case self::OFFICEARTBLIPPNG:
                                     break;
                                 default:
                                     // print_r(dechex($embeddedBlipRH['recType']));

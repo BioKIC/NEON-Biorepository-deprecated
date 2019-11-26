@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -71,6 +71,18 @@ class SDT extends Text
         $xmlWriter->endElement(); // w:sdt
 
         $this->endElementP(); // w:p
+    }
+
+    /**
+     * Write text.
+     *
+     * @see  http://www.datypic.com/sc/ooxml/t-w_CT_SdtText.html
+     * @param \PhpOffice\Common\XMLWriter $xmlWriter
+     */
+    private function writePlainText(XMLWriter $xmlWriter)
+    {
+        $xmlWriter->startElement('w:text');
+        $xmlWriter->endElement(); // w:text
     }
 
     /**

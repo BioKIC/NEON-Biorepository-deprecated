@@ -227,50 +227,48 @@ if($SYMB_UID){
 										<?php echo $LANG['MANAGE_PERMISSIONS']; ?>
 									</a>
 								</li>
+								<li>
+									<a href="#" onclick="$('li.importItem').show(); return false;" >
+										<?php echo (isset($LANG['IMPORT_SPECIMEN'])?$LANG['IMPORT_SPECIMEN']:'Import/Update Specimen Records'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specupload.php?uploadtype=7&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['SKELETAL_FILE_IMPORT'])?$LANG['SKELETAL_FILE_IMPORT']:'Skeletal File Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none">
+									<a href="../admin/specupload.php?uploadtype=3&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['TEXT_FILE_IMPORT'])?$LANG['TEXT_FILE_IMPORT']:'Text File Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specupload.php?uploadtype=6&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['DWCA_IMPORT'])?$LANG['DWCA_IMPORT']:'DwC-Archive Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specupload.php?uploadtype=8&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['IPT_IMPORT'])?$LANG['IPT_IMPORT']:'IPT Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specupload.php?uploadtype=9&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['NFN_IMPORT'])?$LANG['NFN_IMPORT']:'Notes from Nature Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specuploadmanagement.php?collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['IMPORT_PROFILES'])?$LANG['IMPORT_PROFILES']:'Saved Import Profiles'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specuploadmanagement.php?action=addprofile&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['CREATE_PROFILE'])?$LANG['CREATE_PROFILE']:'Create a new Import Profile'); ?>
+									</a>
+								</li>
 								<?php
 								if($collData['colltype'] != 'General Observations'){
-									?>
-									<li>
-										<a href="#" onclick="$('li.importItem').show(); return false;" >
-											<?php echo (isset($LANG['IMPORT_SPECIMEN'])?$LANG['IMPORT_SPECIMEN']:'Import/Update Specimen Records'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specupload.php?uploadtype=7&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['SKELETAL_FILE_IMPORT'])?$LANG['SKELETAL_FILE_IMPORT']:'Skeletal File Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none">
-										<a href="../admin/specupload.php?uploadtype=3&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['TEXT_FILE_IMPORT'])?$LANG['TEXT_FILE_IMPORT']:'Text File Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specupload.php?uploadtype=6&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['DWCA_IMPORT'])?$LANG['DWCA_IMPORT']:'DwC-Archive Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specupload.php?uploadtype=8&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['IPT_IMPORT'])?$LANG['IPT_IMPORT']:'IPT Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specupload.php?uploadtype=9&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['NFN_IMPORT'])?$LANG['NFN_IMPORT']:'Notes from Nature Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specuploadmanagement.php?collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['IMPORT_PROFILES'])?$LANG['IMPORT_PROFILES']:'Saved Import Profiles'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specuploadmanagement.php?action=addprofile&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['CREATE_PROFILE'])?$LANG['CREATE_PROFILE']:'Create a new Import Profile'); ?>
-										</a>
-									</li>
-									<?php
 									if($collData['managementtype'] != 'Aggregate'){
 										?>
 										<li>
@@ -445,11 +443,9 @@ if($SYMB_UID){
 							if($extrastatsArr['refcnt']) echo '<li>'.number_format($extrastatsArr['refcnt']).' '.(isset($LANG['PUB_REFS'])?$LANG['PUB_REFS']:'publication references').'</li>';
 							if($extrastatsArr['SpecimensCountID']) echo '<li>'.number_format($extrastatsArr['SpecimensCountID']).($spidPerc?" (".($spidPerc>1?round($spidPerc):round($spidPerc,2))."%)":'').' '.(isset($LANG['IDED_TO_SPECIES'])?$LANG['IDED_TO_SPECIES']:'identified to species').'</li>';
 						}
-						?>
-						<li><?php echo number_format($statsArr["familycnt"]).' '.$LANG['FAMILIES'];?></li>
-						<li><?php echo number_format($statsArr["genuscnt"]).' '.$LANG['GENERA'];?></li>
-						<li><?php echo number_format($statsArr["speciescnt"]).' '.$LANG['SPECIES'];?></li>
-						<?php
+						if($statsArr['familycnt']) echo '<li>'.number_format($statsArr['familycnt']).' '.$LANG['FAMILIES'].'</li>';
+						if($statsArr['genuscnt']) echo '<li>'.number_format($statsArr['genuscnt']).' '.$LANG['GENERA'].'</li>';
+						if($statsArr['speciescnt']) echo '<li>'.number_format($statsArr['speciescnt']).' '.$LANG['SPECIES'].'</li>';
 						if($extrastatsArr&&$extrastatsArr['TotalTaxaCount']) echo '<li>'.number_format($extrastatsArr['TotalTaxaCount']).' '.(isset($LANG['TOTAL_TAXA'])?$LANG['TOTAL_TAXA']:'total taxa (including subsp. and var.)').'</li>';
 						//if($extrastatsArr&&$extrastatsArr['TypeCount']) echo '<li>'.number_format($extrastatsArr['TypeCount']).' '.(isset($LANG['TYPE_SPECIMENS'])?$LANG['TYPE_SPECIMENS']:'type specimens').'</li>';
 						?>

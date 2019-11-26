@@ -17,6 +17,7 @@ $autoMap = array_key_exists("automap",$_POST)?true:false;
 $ulPath = array_key_exists("ulpath",$_REQUEST)?$_REQUEST["ulpath"]:"";
 $importIdent = array_key_exists("importident",$_REQUEST)?true:false;
 $importImage = array_key_exists("importimage",$_REQUEST)?true:false;
+$observerUid = array_key_exists('observeruid',$_POST)?$_POST['observeruid']:'';
 $matchCatNum = array_key_exists("matchcatnum",$_REQUEST)?true:false;
 $matchOtherCatNum = array_key_exists('matchothercatnum',$_REQUEST)&&$_REQUEST['matchothercatnum']?true:false;
 $verifyImages = array_key_exists("verifyimages",$_REQUEST)&&$_REQUEST['verifyimages']?true:false;
@@ -32,6 +33,7 @@ if(!is_numeric($uploadType)) $uploadType = 0;
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 if($autoMap !== true) $autoMap = false;
 if($importIdent !== true) $importIdent = false;
+if(!is_numeric($observerUid)) $observerUid = 0;
 if($matchCatNum !== true) $matchCatNum = false;
 if($matchOtherCatNum !== true) $matchOtherCatNum = false;
 if($verifyImages !== true) $verifyImages = false;
@@ -83,6 +85,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD){
 $duManager->setCollId($collid);
 $duManager->setUspid($uspid);
 $duManager->setUploadType($uploadType);
+$duManager->setObserverUid($observerUid);
 $duManager->setMatchCatalogNumber($matchCatNum);
 $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVerifyImageUrls($verifyImages);
@@ -100,7 +103,7 @@ if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,
 $duManager->readUploadParameters();
 
 $isLiveData = false;
-if($duManager->getCollInfo("managementtype") == 'Live Data') $isLiveData = true;
+if($duManager->getCollInfo('managementtype') == 'Live Data') $isLiveData = true;
 
 //Grab field mapping, if mapping form was submitted
 if(array_key_exists("sf",$_POST)){
@@ -325,6 +328,10 @@ $duManager->loadFieldMap();
 					}
 				}
 			}
+			if(f.observeruid && f.observeruid.value == ""){
+				alert("Since this is a group managed observation project, you need to select a target user to which the occurrence will be linked");
+				return false;
+			}
 			if(possibleMappingErr){
 				return confirm("Does the first row of the input file contain the column names? It appears that you may be mapping directly to the first row of active data rather than a header row. If so, the first row of data will be lost and some columns might be skipped. Select OK to proceed, or cancel to abort");
 			}
@@ -500,6 +507,7 @@ $duManager->loadFieldMap();
 					<form name="finaltransferform" action="specupload.php" method="post" style="margin-top:10px;" onsubmit="return confirm('Are you sure you want to transfer records from temporary table to central specimen table?');">
 						<input type="hidden" name="collid" value="<?php echo $collid;?>" />
 						<input type="hidden" name="uploadtype" value="<?php echo $uploadType; ?>" />
+						<input type="hidden" name="observeruid" value="<?php echo $observerUid; ?>" />
 						<input type="hidden" name="verifyimages" value="<?php echo ($verifyImages?'1':'0'); ?>" />
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
@@ -780,6 +788,17 @@ $duManager->loadFieldMap();
 											<div style="margin-top:30px;">
 												<?php
 												if($isLiveData){
+													if($duManager->getCollInfo('colltype') == 'General Observations'){
+														echo 'Target User: ';
+														echo '<select name="observeruid">';
+														echo '<option value="">Select Target User</option>';
+														echo '<option value="">----------------------------</option>';
+														$obsUidArr = $duManager->getObserverUidArr();
+														foreach($obsUidArr as $uid => $userName){
+															echo '<option value="'.$uid.'">'.$userName.'</option>';
+														}
+														echo '</select>';
+													}
 													?>
 													<div>
 														<input name="matchcatnum" type="checkbox" value="1" checked />
@@ -936,6 +955,17 @@ $duManager->loadFieldMap();
 								<div id="uldiv" style="margin-top:30px;">
 									<?php
 									if($isLiveData || $uploadType == $SKELETAL){
+										if($duManager->getCollInfo('colltype') == 'General Observations'){
+											echo 'Target User: ';
+											echo '<select name="observeruid">';
+											echo '<option value="">Select Target User</option>';
+											echo '<option value="">----------------------------</option>';
+											$obsUidArr = $duManager->getObserverUidArr();
+											foreach($obsUidArr as $uid => $userName){
+												echo '<option value="'.$uid.'">'.$userName.'</option>';
+											}
+											echo '</select>';
+										}
 										?>
 										<div>
 											<input name="matchcatnum" type="checkbox" value="1" checked />

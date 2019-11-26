@@ -7,6 +7,7 @@ class OccurrenceAttributes extends Manager {
 	private $tidFilter;
 	private $traitArr = array();
 	private $stateCodedArr = array();
+	private $reviewSqlBase;
 	private $occid = 0;
 	private $sqlBody = '';
 
@@ -37,24 +38,20 @@ class OccurrenceAttributes extends Manager {
 			}
 		}
 		if($stateArr){
-			//Get trait types
-			$traitArr = array();
-			$sql = 'SELECT s.stateid, t.traittype FROM tmtraits t INNER JOIN tmstates s ON t.traitid = s.traitid WHERE s.stateid IN('.implode(',',$stateArr).')';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$traitArr[$r->stateid] = $r->traittype;
-			}
-			$rs->free();
-
 			//Insert attributes
 			$sourceStr = 'viewingSpecimenImage';
 			if(isset($postArr['source']) && $postArr['source']) $sourceStr = $postArr['source'];
 			foreach($stateArr as $stateId){
+				$xValue = 'NULL';
+				if(strpos($stateId,'-')){
+					$tempArr = explode('-', $stateId);
+					$stateId = $tempArr[0];
+					$xValue = $tempArr[1];
+				}
 				if(is_numeric($stateId)){
 					$sql = 'INSERT INTO tmattributes(stateid,xvalue,occid,source,notes,createduid) '.
-						'VALUES('.$stateId.',,'.$this->occid.','.($sourceStr?'"'.$this->cleanInStr($sourceStr).'"':'NULL').','.
+						'VALUES('.$stateId.','.$xValue.','.$this->occid.','.($sourceStr?'"'.$this->cleanInStr($sourceStr).'"':'NULL').','.
 						($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.$uid.') ';
-					//echo $sql.'<br/>';
 					if(!$this->conn->query($sql)){
 						$this->errorMessage .= 'ERROR saving occurrence attribute: '.$this->conn->error.'; ';
 						$status = false;
@@ -72,7 +69,6 @@ class OccurrenceAttributes extends Manager {
 	public function editAttributes($postArr){
 		$status = false;
 		$stateArr = array();
-
 		foreach($postArr as $postKey => $postValue){
 			if(substr($postKey,0,8) == 'traitid-'){
 				if(is_array($postValue)){
@@ -83,19 +79,29 @@ class OccurrenceAttributes extends Manager {
 				}
 			}
 		}
-
+		$stateCleanArr = array();
+		foreach($stateArr as $state){
+			$xValue = 'NULL';
+			if(strpos($state,'-')){
+				$tempArr = explode('-', $state);
+				$state = $tempArr[0];
+				$xValue = $tempArr[1];
+			}
+			$stateCleanArr[$state] = $xValue;
+		}
+		//Edit states
 		$setStatus = $postArr['setstatus'];
 		$traitID = $postArr['traitid'];
 		if(is_numeric($traitID) && is_numeric($setStatus)){
 			$this->setTraitArr($traitID);
 			//$this->setTraitStates();
 			$attrArr = $this->setCodedAttribute();
-			$addArr = array_diff($stateArr,$attrArr);
-			$delArr = array_diff($attrArr,$stateArr);
+			$addArr = array_diff_key($stateCleanArr,$attrArr);
+			$delArr = array_diff_key($attrArr,$stateCleanArr);
 			if($addArr){
-				foreach($addArr as $id){
-					if(is_numeric($id)){
-						$sql = 'INSERT INTO tmattributes(stateid,occid,createduid) VALUES('.$id.','.$this->occid.','.$GLOBALS['SYMB_UID'].') ';
+				foreach($addArr as $stateIdAdd => $addValue){
+					if(is_numeric($stateIdAdd)){
+						$sql = 'INSERT INTO tmattributes(stateid,xvalue,occid,createduid) VALUES('.$stateIdAdd.','.$addValue.','.$this->occid.','.$GLOBALS['SYMB_UID'].') ';
 						//echo $sql.'<br/>';
 						if($this->conn->query($sql)){
 							$status = true;
@@ -108,9 +114,9 @@ class OccurrenceAttributes extends Manager {
 				}
 			}
 			if($delArr){
-				foreach($delArr as $id){
-					if(is_numeric($id)){
-						$sql = 'DELETE FROM tmattributes WHERE stateid = '.$id.' AND occid = '.$this->occid;
+				foreach($delArr as $stateIdDel => $delValue){
+					if(is_numeric($stateIdDel)){
+						$sql = 'DELETE FROM tmattributes WHERE stateid = '.$stateIdDel.' AND occid = '.$this->occid;
 						//echo $sql.'<br/>';
 						if($this->conn->query($sql)){
 							$status = true;
@@ -141,10 +147,23 @@ class OccurrenceAttributes extends Manager {
 		return $status;
 	}
 
-	public function deleteAttributes($stateIdStr){
+	public function deleteAttributes($delTraitID){
 		$status = false;
-		if(preg_match('/^[0-9,]+$/',$stateIdStr) && $this->occid){
-			$sql = 'DELETE FROM tmattributes WHERE (occid = '.$this->occid.') AND (stateid IN('.$stateIdStr.'))';
+		if(is_numeric($delTraitID) && $this->occid){
+			$delTraitArr = array($delTraitID);
+			$sql = 'SELECT DISTINCT d.traitid FROM tmstates s INNER JOIN tmtraitdependencies d ON s.stateid = d.parentstateid WHERE (s.traitid IN('.$delTraitID.'))';
+			do{
+				$directParents = '';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$delTraitArr[] = $r->traitid;
+					$directParents .= ','.$r->traitid;
+				}
+				$sql = 'SELECT DISTINCT d.traitid FROM tmstates s INNER JOIN tmtraitdependencies d ON s.stateid = d.parentstateid WHERE (s.traitid IN('.trim($directParents,', ').'))';
+				$rs->free();
+			}while($directParents);
+
+			$sql = 'DELETE a.* FROM tmattributes a INNER JOIN tmstates s ON a.stateid = s.stateid WHERE (a.occid = '.$this->occid.') AND (s.traitid IN('.implode(',',$delTraitArr).'))';
 			if($this->conn->query($sql)){
 				$status = true;
 			}
@@ -332,7 +351,7 @@ class OccurrenceAttributes extends Manager {
 			$this->traitArr[$r->traitid]['states'][$r->stateid]['datelastmodified'] = $r->datelastmodified;
 			$this->traitArr[$r->traitid]['states'][$r->stateid]['createduid'] = $r->createduid;
 			$this->traitArr[$r->traitid]['states'][$r->stateid]['createduid'] = $r->initialtimestamp;
-			$retArr[] = $r->stateid;
+			$retArr[$r->stateid] = '';
 		}
 		$rs->free();
 		return $retArr;
@@ -356,27 +375,38 @@ class OccurrenceAttributes extends Manager {
 			foreach($attrStateArr as $sid => $sArr){
 				$isCoded = false;
 				if(array_key_exists('coded',$sArr)){
-					if($sArr['coded'] === '') $isCoded = true;
-					else $isCoded = $sArr['coded'];
+					if(is_numeric($sArr['coded'])) $isCoded = $sArr['coded'];
+					else $isCoded = true;
 					$this->stateCodedArr[$sid] = $sid;
 				}
 				$depTraitIdArr = array();
 				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitIdArr = $sArr['dependTraitID'];
-				if($controlType == 'checkbox' || $controlType == 'radio'){
-					$innerStr .= '<div title="'.$sArr['description'].'"><input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> '.$sArr['name'];
-				}
-				elseif($controlType == 'select'){
-					$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';
-				}
-				elseif($controlType == 'numeric'){
-					$innerStr .= '<div title="'.$sArr['description'].'">'.$sArr['name'].': <input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="input" value="'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
-				}
-				if($depTraitIdArr){
-					foreach($depTraitIdArr as $depTraitId){
-						$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+				if($this->traitArr[$traitID]['type']=='NU'){
+					$innerStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
+					$innerStr .= $sArr['name'].
+					$innerStr .= ': <input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="text" value="'.$sid.'-'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
+					if($depTraitIdArr){
+						foreach($depTraitIdArr as $depTraitId){
+							$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+						}
 					}
 				}
-				if($controlType != 'select') $innerStr .= '</div>';
+				else{
+					if($controlType == 'checkbox' || $controlType == 'radio'){
+						$innerStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
+						$innerStr .= '<input name="traitid-'.$traitID.'[]" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> ';
+						$innerStr .= $sArr['name'];
+					}
+					elseif($controlType == 'select'){
+						$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';
+					}
+					if($depTraitIdArr){
+						foreach($depTraitIdArr as $depTraitId){
+							$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+						}
+					}
+					if($controlType != 'select') $innerStr .= '</div>';
+				}
 			}
 			$innerStr .= '</div>';
 		}
@@ -476,23 +506,32 @@ class OccurrenceAttributes extends Manager {
 	}
 
 	private function getReviewSqlBase($traitID, $reviewUid, $reviewDate, $reviewStatus){
-		$sqlFrag = 'FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
-			'INNER JOIN tmattributes a ON i.occid = a.occid '.
-			'INNER JOIN tmstates s ON a.stateid = s.stateid '.
-			'WHERE (s.traitid = '.$traitID.') AND (o.collid = '.$this->collidStr.') ';
-		if($reviewUid){
-			$sqlFrag .= 'AND (a.createduid = '.$reviewUid.') ';
+		if($this->reviewSqlBase) return $this->reviewSqlBase;
+		$stateArr = array();
+		$sql = 'SELECT stateid FROM tmstates WHERE traitid = '.$traitID;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$stateArr[] = $r->stateid;
 		}
-		if($reviewDate){
-			$sqlFrag .= 'AND (date(a.initialtimestamp) = "'.$reviewDate.'") ';
+		$rs->free();
+		if($stateArr){
+			$this->reviewSqlBase = 'FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
+				'INNER JOIN tmattributes a ON i.occid = a.occid '.
+				'WHERE (a.stateid IN('.implode(',',$stateArr).')) AND (o.collid = '.$this->collidStr.') ';
+			if($reviewUid){
+				$this->reviewSqlBase .= 'AND (a.createduid = '.$reviewUid.') ';
+			}
+			if($reviewDate){
+				$this->reviewSqlBase .= 'AND (date(a.initialtimestamp) = "'.$reviewDate.'") ';
+			}
+			if($reviewStatus){
+				$this->reviewSqlBase .= 'AND (a.statuscode = '.$reviewStatus.') ';
+			}
+			else{
+				$this->reviewSqlBase .= 'AND (a.statuscode IS NULL OR a.statuscode = 0) ';
+			}
 		}
-		if($reviewStatus){
-			$sqlFrag .= 'AND (a.statuscode = '.$reviewStatus.') ';
-		}
-		else{
-			$sqlFrag .= 'AND (a.statuscode IS NULL OR a.statuscode = 0) ';
-		}
-		return $sqlFrag;
+		return $this->reviewSqlBase;
 	}
 
 	public function getEditorArr(){

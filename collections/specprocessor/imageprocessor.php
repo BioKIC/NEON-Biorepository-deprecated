@@ -598,7 +598,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 													<b>Processing start date:</b>
 												</div>
 												<div style="float:left;">
-													<input name="startdate" type="text" value="<?php echo $lastRunDate; ?>" />
+													<input name="startdate" type="text" value="<?php echo ($lastRunDate=='no run date'?'':$lastRunDate); ?>" />
 												</div>
 											</div>
 											<?php

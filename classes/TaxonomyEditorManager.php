@@ -1040,20 +1040,20 @@ class TaxonomyEditorManager{
 
 	public function getRankArr(){
 		$retArr = array();
-		$sql = 'SELECT rankid, rankname FROM taxonunits ';
+		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits ';
 		if($this->kingdomName) $sql .= 'WHERE (kingdomname = "'.($this->kingdomName?$this->kingdomName:'Organism').'") ';
 		$sql .= 'ORDER BY rankid ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
-			$retArr[$row->rankid] = $row->rankname;
+			$retArr[$row->rankid][] = $row->rankname;
 		}
 		$rs->free();
 		if(!$retArr){
-			$sql2 = 'SELECT rankid, rankname FROM taxonunits ORDER BY rankid ';
+			$sql2 = 'SELECT DISTINCT rankid, rankname FROM taxonunits ORDER BY rankid ';
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_object()){
-				$retArr[$r2->rankid] = $r2->rankname;
+				$retArr[$r2->rankid][] = $r2->rankname;
 			}
 			$rs2->free();
 		}

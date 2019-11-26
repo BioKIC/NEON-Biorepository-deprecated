@@ -216,8 +216,10 @@ if($editable){
 									<option value="">---------------------------------</option>
 									<?php
 									$rankArr = $taxonEditorObj->getRankArr();
-									foreach($rankArr as $rankId => $rName){
-										echo '<option value="'.$rankId.'" '.($taxonEditorObj->getRankId()==$rankId?'SELECTED':'').'>'.$rName.'</option>';
+									foreach($rankArr as $rankId => $nameArr){
+										foreach($nameArr as $rName){
+											echo '<option value="'.$rankId.'" '.($taxonEditorObj->getRankId()==$rankId?'SELECTED':'').'>'.$rName.'</option>';
+										}
 									}
 									?>
 								</select>

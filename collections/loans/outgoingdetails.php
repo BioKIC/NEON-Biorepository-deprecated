@@ -166,7 +166,7 @@ $specList = $loanManager->getSpecList($loanId);
 					</span>
 				</div>
 				<div style="clear:both;padding-top:8px;float:right;">
-					<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+					<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 					<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 					<button name="formsubmit" type="submit" value="Save Outgoing">Save</button>
 				</div>
@@ -188,7 +188,7 @@ $specList = $loanManager->getSpecList($loanId);
 					<input type="radio" name="languagedef" value="1" /> English/Spanish
 					<input type="radio" name="languagedef" value="2" /> Spanish
 				</div>
-				<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+				<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 				<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 				<input name="loantype" type="hidden" value="<?php echo $loanType; ?>" />
 				<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="invoice">Invoice</button>
@@ -205,9 +205,9 @@ $specList = $loanManager->getSpecList($loanId);
 			</a>
 		</div>
 		<div id="newspecdiv" style="display:<?php echo ($eMode?'block':'none'); ?>;">
-			<fieldset style="padding:10px;">
-				<form name="addspecform" style="margin-bottom:0px;padding-bottom:0px;" action="index.php?collid=<?php echo $collId; ?>&loanid=<?php echo $loanId; ?>&loantype=<?php echo $loanType; ?>#addspecdiv" method="post" onsubmit="return addSpecimen(this,<?php echo (!$specList?'0':'1'); ?>);">
-					<legend><b>Add Specimen</b></legend>
+			<fieldset>
+				<legend>Add Specimen</legend>
+				<form name="addspecform" style="margin-bottom:0px;padding-bottom:0px;" action="index.php?collid=<?php echo $collid; ?>&loanid=<?php echo $loanId; ?>&loantype=<?php echo $loanType; ?>#addspecdiv" method="post" onsubmit="return addSpecimen(this,<?php echo (!$specList?'0':'1'); ?>);">
 					<div style="float:left;padding-bottom:2px;">
 						<b>Catalog Number: </b><input type="text" autocomplete="off" name="catalognumber" maxlength="255" style="width:200px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
 					</div>
@@ -224,7 +224,7 @@ $specList = $loanManager->getSpecList($loanId);
 						Warning: Specimen already linked to loan.
 					</div>
 					<div style="padding-top:8px;clear:left;float:left;">
-						<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 						<input name="formsubmit" type="submit" value="Add Specimen" />
 					</div>
@@ -233,7 +233,7 @@ $specList = $loanManager->getSpecList($loanId);
 					<form style="margin-bottom:0px;" name="refreshspeclist" action="index.php" method="post">
 						<input name="loantype" type="hidden" value="<?php echo $loanType; ?>" />
 						<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
-						<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="emode" type="hidden" value="0" />
 						<input name="tabindex" type="hidden" value="1" />
 						<input name="formsubmit" type="submit" value="Refresh List" />
@@ -251,14 +251,14 @@ $specList = $loanManager->getSpecList($loanId);
 					<form name="refreshspeclist" action="index.php" method="post">
 						<input name="loantype" type="hidden" value="<?php echo $loanType; ?>" />
 						<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
-						<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="emode" type="hidden" value="0" />
 						<input name="tabindex" type="hidden" value="1" />
 						<input name="formsubmit" type="submit" value="Refresh List" />
 					</form>
 				</div>
 			</div>
-			<form name="speceditform" action="index.php?collid=<?php echo $collId; ?>&loanid=<?php echo $loanId; ?>&loantype=<?php echo $loanType; ?>#addspecdiv" method="post" onsubmit="return verifySpecEditForm(this)" >
+			<form name="speceditform" action="index.php?collid=<?php echo $collid; ?>&loanid=<?php echo $loanId; ?>&loantype=<?php echo $loanType; ?>#addspecdiv" method="post" onsubmit="return verifySpecEditForm(this)" >
 				<table class="styledtable" style="font-family:Arial;font-size:12px;">
 					<tr>
 						<th style="width:25px;text-align:center;">&nbsp;</th>
@@ -300,7 +300,7 @@ $specList = $loanManager->getSpecList($loanId);
 					<tr>
 						<td colspan="10" valign="bottom">
 							<div id="newdetdiv" style="display:none;">
-								<fieldset style="margin: 15px 15px 0px 15px;padding:15px;">
+								<fieldset style="margin: 15px 15px 0px 15px;">
 									<legend><b>Add a New Determinations</b></legend>
 									<div style='margin:3px;'>
 										<b>Identification Qualifier:</b>
@@ -360,7 +360,7 @@ $specList = $loanManager->getSpecList($loanId);
 								</div>
 								<span style="margin-left:25px;float:left;">
 									<input name="formsubmit" type="submit" value="Perform Action" />
-									<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 									<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 									<input name="tabindex" type="hidden" value="1" />
 								</span>
@@ -380,7 +380,7 @@ $specList = $loanManager->getSpecList($loanId);
 	<div id="outloandeldiv">
 		<form name="deloutloanform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this loan?')">
 			<fieldset style="width:350px;margin:20px;padding:20px;">
-				<legend><b>Delete Outgoing Loan</b></legend>
+				<legend>Delete Outgoing Loan</legend>
 				<?php
 				if($specList){
 					echo '<div style="font-weight:bold;margin-bottom:15px;">';
@@ -389,7 +389,7 @@ $specList = $loanManager->getSpecList($loanId);
 				}
 				?>
 				<input name="formsubmit" type="submit" value="Delete Loan" <?php if($specList) echo 'DISABLED'; ?> />
-				<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+				<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 				<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 			</fieldset>
 		</form>

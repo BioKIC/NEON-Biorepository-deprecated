@@ -2,9 +2,10 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SpecLoans.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-ini_set('max_execution_time', 180); //180 seconds = 3 minutes
 
-$collId = $_REQUEST['collid'];
+if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/loans/index.php?'.$_SERVER['QUERY_STRING']);
+
+$collid = $_REQUEST['collid'];
 $loanId = array_key_exists('loanid',$_REQUEST)?$_REQUEST['loanid']:0;
 $exchangeId = array_key_exists('exchangeid',$_REQUEST)?$_REQUEST['exchangeid']:0;
 $loanType = array_key_exists('loantype',$_REQUEST)?$_REQUEST['loantype']:0;
@@ -15,27 +16,27 @@ $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
 $eMode = array_key_exists('emode',$_REQUEST)?$_REQUEST['emode']:0;
 
 $isEditor = 0;
-if($SYMB_UID && $collId){
-	if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"]))
-		|| (array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollEditor"]))){
+if($SYMB_UID && $collid){
+	if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))
+		|| (array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollEditor"]))){
 		$isEditor = 1;
 	}
 }
 
 $loanManager = new SpecLoans();
-if($collId) $loanManager->setCollId($collId);
+if($collid) $loanManager->setCollId($collid);
 
 $statusStr = '';
 if($isEditor){
 	if($formSubmit){
 		if($formSubmit == 'Create Loan Out'){
-			$statusStr = $loanManager->createNewLoanOut($_POST);
-			$loanId = $loanManager->getLoanId();
+			$loanId = $loanManager->createNewLoanOut($_POST);
+			if($loanId) $statusStr = $loanManager->getErrorMessage();
 			$loanType = 'out';
 		}
 		elseif($formSubmit == 'Create Loan In'){
-			$statusStr = $loanManager->createNewLoanIn($_POST);
-			$loanId = $loanManager->getLoanId();
+			$loanId = $loanManager->createNewLoanIn($_POST);
+			if($loanId) $statusStr = $loanManager->getErrorMessage();
 			$loanType = 'in';
 		}
 		elseif($formSubmit == 'Create Exchange'){
@@ -77,10 +78,6 @@ if($isEditor){
 		}
 	}
 }
-
-$loanOutList = $loanManager->getLoanOutList($searchTerm,$displayAll);
-$loansOnWay = $loanManager->getLoanOnWayList();
-$loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 ?>
 <html>
 <head>
@@ -95,34 +92,25 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 		var tabIndex = <?php echo $tabIndex; ?>;
 	</script>
 	<script type="text/javascript" src="../../js/symb/collections.loans.js"></script>
+	<style>
+		fieldset{ padding:10px; }
+		fieldset legend{ font-weight:bold }
+	</style>
 </head>
 <body>
 	<?php
-	$displayLeftMenu = (isset($collections_loans_indexMenu)?$collections_loans_indexMenu:false);
+	$displayLeftMenu = false;
 	include($SERVER_ROOT."/header.php");
-	if(isset($collections_loans_indexCrumbs) && $collections_loans_indexCrumbs){
-		?>
-		<div class='navpath'>
-			<a href='../../index.php'>Home</a> &gt;&gt;
-			<?php echo $collections_loans_indexCrumbs; ?>
-			<a href='index.php?collid=<?php echo $collId; ?>'> <b>Loan Management Main Menu</b></a>
-		</div>
-		<?php
-	}
-	else{
-		?>
-		<div class='navpath'>
-			<a href='../../index.php'>Home</a> &gt;&gt;
-			<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1">Collection Management Menu</a> &gt;&gt;
-			<a href='index.php?collid=<?php echo $collId; ?>'> <b>Loan Management Main Menu</b></a>
-		</div>
-		<?php
-	}
 	?>
+	<div class='navpath'>
+		<a href='../../index.php'>Home</a> &gt;&gt;
+		<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Menu</a> &gt;&gt;
+		<a href='index.php?collid=<?php echo $collid; ?>'> <b>Loan Management Main Menu</b></a>
+	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
-		if($SYMB_UID && $isEditor && $collId){
+		if($isEditor && $collid){
 			//Collection is defined and User is logged-in and have permissions
 			if($statusStr){
 				?>
@@ -133,20 +121,19 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 				<hr/>
 				<?php
 			}
-
 			if(!$loanId && !$exchangeId){
 				?>
 				<div id="tabs" style="margin:0px;">
 				    <ul>
 						<li><a href="#loanoutdiv"><span>Outgoing Loans</span></a></li>
 						<li><a href="#loanindiv"><span>Incoming Loans</span></a></li>
-						<li><a href="exchange.php?collid=<?php echo $collId; ?>"><span>Gifts/Exchanges</span></a></li>
+						<li><a href="exchange.php?collid=<?php echo $collid; ?>"><span>Gifts/Exchanges</span></a></li>
 					</ul>
 					<div id="loanoutdiv" style="">
 						<div style="float:right;">
 							<form name='optionform' action='index.php' method='post'>
 								<fieldset>
-									<legend><b>Options</b></legend>
+									<legend>Options</legend>
 									<div>
 										<b>Search: </b>
 										<input type="text" autocomplete="off" name="searchterm" value="<?php echo $searchTerm;?>" size="20" />
@@ -158,13 +145,14 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 										<input type="radio" name="displayall" value="1"<?php echo ($displayAll?'checked':'');?> /> Display all loans
 									</div>
 									<div style="float:right;">
-										<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
+										<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 										<input type="submit" name="formsubmit" value="Refresh List" />
 									</div>
 								</fieldset>
 							</form>
 						</div>
 						<?php
+						$loanOutList = $loanManager->getLoanOutList($searchTerm,$displayAll);
 						if($loanOutList){
 							?>
 							<div id="loanoutToggle" style="float:right;margin:10px;">
@@ -178,7 +166,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 						<div id="newloanoutdiv" style="display:<?php echo ($loanOutList?'none':'block'); ?>;">
 							<form name="newloanoutform" action="index.php" method="post" onsubmit="return verfifyLoanOutAddForm(this);">
 								<fieldset>
-									<legend><b>New Outgoing Loan</b></legend>
+									<legend>New Outgoing Loan</legend>
 									<div style="padding-top:4px;float:left;">
 										<span>
 											Entered By:
@@ -215,7 +203,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 										</span>
 									</div>
 									<div style="clear:both;padding-top:8px;float:right;">
-										<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 										<button name="formsubmit" type="submit" value="Create Loan Out">Create Loan</button>
 									</div>
 								</fieldset>
@@ -233,7 +221,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 								echo '<ul>';
 								foreach($loanOutList as $k => $loanArr){
 									echo '<li>';
-									echo '<a href="index.php?collid='.$collId.'&loanid='.$k.'&loantype=out">';
+									echo '<a href="index.php?collid='.$collid.'&loanid='.$k.'&loantype=out">';
 									echo $loanArr['loanidentifierown'];
 									echo '</a>: '.$loanArr['institutioncode'].' ('.$loanArr['forwhom'].')';
 									echo ' - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN</b>');
@@ -252,7 +240,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 						<div style="float:right;">
 							<form name='optionform' action='index.php' method='post'>
 								<fieldset>
-									<legend><b>Options</b></legend>
+									<legend>Options</legend>
 									<div>
 										<b>Search: </b><input type="text" autocomplete="off" name="searchterm" value="<?php echo $searchTerm;?>" size="20" />
 									</div>
@@ -263,27 +251,25 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 										<input type="radio" name="displayall" value="1"<?php echo ($displayAll?'checked':'');?> /> Display all loans
 									</div>
 									<div style="float:right;">
-										<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
+										<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 										<input type="submit" name="formsubmit" value="Refresh List" />
 									</div>
 								</fieldset>
 							</form>
 						</div>
 						<?php
-						if($loansOnWay || $loanInList){
-							?>
-							<div id="loaninToggle" style="float:right;margin:10px;">
-								<a href="#" onclick="displayNewLoanIn();">
-									<img src="../../images/add.png" alt="Create New Loan" />
-								</a>
-							</div>
-							<?php
-						}
+						$loansOnWay = $loanManager->getLoanOnWayList();
+						$loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 						?>
+						<div id="loaninToggle" style="float:right;margin:10px;">
+							<a href="#" onclick="displayNewLoanIn();">
+								<img src="../../images/add.png" alt="Create New Loan" />
+							</a>
+						</div>
 						<div id="newloanindiv" style="display:<?php echo (($loansOnWay || $loanInList)?'none':'block'); ?>;">
 							<form name="newloaninform" action="index.php" method="post" onsubmit="return verifyLoanInAddForm(this);">
 								<fieldset>
-									<legend><b>New Incoming Loan</b></legend>
+									<legend>New Incoming Loan</legend>
 									<div style="padding-top:4px;float:left;">
 										<span>
 											Entered By:
@@ -295,7 +281,7 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 									<div style="padding-top:15px;float:right;">
 										<span>
 											<b>Loan Identifier: </b>
-											<input type="text" autocomplete="off" id="loanidentifierborr" name="loanidentifierborr" maxlength="255" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" onchange="inIdentCheck(loanidentifierborr,<?php echo $collId; ?>);" />
+											<input type="text" autocomplete="off" id="loanidentifierborr" name="loanidentifierborr" maxlength="255" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" onchange="inIdentCheck(loanidentifierborr,<?php echo $collid; ?>);" />
 										</span>
 									</div>
 									<div style="clear:both;padding-top:6px;float:left;">
@@ -321,41 +307,20 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 										</span>
 									</div>
 									<div style="clear:both;padding-top:8px;float:right;">
-										<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 										<button name="formsubmit" type="submit" value="Create Loan In">Create Loan</button>
 									</div>
 								</fieldset>
 							</form>
 						</div>
-						<?php
-						if(!$loansOnWay && !$loanInList){
-							echo '<script type="text/javascript">displayNewLoanIn();</script>';
-						}
-						?>
 						<div>
+							<h3>Loans Received</h3>
+							<ul>
 							<?php
-							if($loansOnWay){
-								echo '<h3>Loans on Their Way</h3>';
-								echo '<ul>';
-								foreach($loansOnWay as $k => $loanArr){
-									echo '<li>';
-									echo '<a href="index.php?collid='.$collId.'&loanid='.$k.'&loantype=in">';
-									echo $loanArr['loanidentifierown'];
-									echo ' from '.$loanArr['collectionname'].'</a>';
-									echo '</li>';
-								}
-								echo '</ul>';
-							}
-							?>
-						</div>
-						<div>
-							<?php
-							echo '<h3>Incoming Loans</h3>';
-							echo '<ul>';
 							if($loanInList){
 								foreach($loanInList as $k => $loanArr){
 									echo '<li>';
-									echo '<a href="index.php?collid='.$collId.'&loanid='.$k.'&loantype=in">';
+									echo '<a href="index.php?collid='.$collid.'&loanid='.$k.'&loantype=in">';
 									echo $loanArr['loanidentifierborr'];
 									echo '</a>: '.$loanArr['institutioncode'].' ('.$loanArr['forwhom'].')';
 									echo ' - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN</b>');
@@ -365,7 +330,23 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 							else{
 								echo '<li>There are no loans received</li>';
 							}
-							echo '</ul>';
+							?>
+							</ul>
+						</div>
+						<div style="margin-top:50px">
+							<?php
+							if($loansOnWay){
+								echo '<h3>Loans to be Checked-in</h3>';
+								echo '<ul>';
+								foreach($loansOnWay as $k => $loanArr){
+									echo '<li>';
+									echo '<a href="index.php?collid='.$collid.'&loanid='.$k.'&loantype=in">';
+									echo $loanArr['loanidentifierown'];
+									echo ' from '.$loanArr['collectionname'].'</a>';
+									echo '</li>';
+								}
+								echo '</ul>';
+							}
 							?>
 						</div>
 						<div style="clear:both;">&nbsp;</div>
@@ -383,27 +364,12 @@ $loanInList = $loanManager->getLoanInList($searchTerm,$displayAll);
 				include_once('exchangedetails.php');
 			}
 			else{
-				if(!$SYMB_UID){
-					echo '<h2>Please <a href="'.$CLIENT_ROOT.'/profile/index.php?collid='.$collId.'&refurl='.$CLIENT_ROOT.'/collections/loans/index.php?collid='.$collId.'">login</a></h2>';
-				}
-				elseif(!$collId){
-					echo '<h2>Collection not defined</h2>';
-				}
-				elseif(!$isEditor){
-					echo '<h2>You are not authorized to manage loans</h2>';
-				}
+				echo '<h2>Unknown error</h2>';
 			}
 		}
 		else{
-			if(!$SYMB_UID){
-				echo 'Please <a href="../../profile/index.php?refurl=../collections/loans/index.php?collid='.$collId.'">login</a>';
-			}
-			elseif(!$isEditor){
-				echo '<h2>You are not authorized to add occurrence records</h2>';
-			}
-			else{
-				echo '<h2>ERROR: unknown error, please contact system administrator</h2>';
-			}
+			if(!$isEditor) echo '<h2>You are not authorized to add occurrence records</h2>';
+			else echo '<h2>ERROR: unknown error, please contact system administrator</h2>';
 		}
 		?>
 	</div>

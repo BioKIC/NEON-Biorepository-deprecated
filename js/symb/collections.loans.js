@@ -193,17 +193,15 @@ function verifySpecEditForm(f){
 }
 
 function addSpecimen(f,splist){ 
-	var catalogNumber = f.catalognumber.value;
-	var loanid = f.loanid.value;
-	var collid = f.collid.value;
-	if(!catalogNumber){
+	if(!f.catalognumber.value){
 		alert("Please enter a catalog number!");
 		return false;
 	}
 	else{
+		//alert("rpc/insertLoanSpecimens.php?loanid="+f.loanid.value+"&catalognumber="+f.catalognumber.value+"&collid="+f.collid.value);
 		$.ajax({
 			method: "POST",
-			data: { loanid: loanid, catalognumber: catalogNumber, collid: collId },
+			data: { loanid: f.loanid.value, catalognumber: f.catalognumber.value, collid: f.collid.value },
 			dataType: "text",
 			url: "rpc/insertLoanSpecimens.php"
 		})
@@ -215,17 +213,18 @@ function addSpecimen(f,splist){
 				document.getElementById("addspecerr3").style.display = "none";
 				setTimeout(function () { 
 					document.getElementById("addspecerr1").style.display = "none";
-				}, 750);
+				}, 4000);
 				//alert("ERROR: Specimen record not found in database.");
 			}
 			else if(retStr == "1"){
+				f.catalognumber.value = '';
 				document.getElementById("addspecsuccess").style.display = "block";
 				document.getElementById("addspecerr1").style.display = "none";
 				document.getElementById("addspecerr2").style.display = "none";
 				document.getElementById("addspecerr3").style.display = "none";
 				setTimeout(function () { 
 					document.getElementById("addspecsuccess").style.display = "none";
-				}, 750);
+				}, 4000);
 				//alert("SUCCESS: Specimen record added to loan.");
 				if(splist == 0){
 					document.getElementById("speclistdiv").style.display = "block";
@@ -239,7 +238,7 @@ function addSpecimen(f,splist){
 				document.getElementById("addspecerr3").style.display = "none";
 				setTimeout(function () { 
 					document.getElementById("addspecerr2").style.display = "none";
-				}, 750);
+				}, 4000);
 				//alert("ERROR: More than one specimen with that catalog number.");
 			}
 			else if(retStr == "3"){
@@ -249,7 +248,7 @@ function addSpecimen(f,splist){
 				document.getElementById("addspecerr3").style.display = "block";
 				setTimeout(function () { 
 					document.getElementById("addspecerr3").style.display = "none";
-				}, 750);
+				}, 4000);
 				//alert("ERROR: More than one specimen with that catalog number.");
 			}
 			else{
@@ -290,24 +289,6 @@ function openPopup(urlStr){
 	newWindow = window.open(urlStr,'popup','scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
 	if (newWindow.opener == null) newWindow.opener = self;
 	return false;
-}
-
-function GetXmlHttpObject(){
-	var xmlHttp=null;
-	try{
-		// Firefox, Opera 8.0+, Safari, IE 7.x
-		xmlHttp=new XMLHttpRequest();
-	}
-	catch (e){
-		// Internet Explorer
-		try{
-			xmlHttp=new ActiveXObject("Msxml2.XMLHTTP");
-		}
-		catch(e){
-			xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
-		}
-	}
-	return xmlHttp;
 }
 
 function verifyDate(eventDateInput){
@@ -466,69 +447,6 @@ function parseDate(dateStr){
 	return retArr;
 }
 
-function acroCheck(institutioncode){
-	//alert ("test");
-	var acroelement = document.getElementById('institutioncode');
-	var acronym = acroelement.value;
-	//alert (acronym);
-	if (acronym.length == 0){
-  		return;
-  	}
-	sutXmlHttp=GetXmlHttpObject();
-	if (sutXmlHttp==null){
-  		alert ("Your browser does not support AJAX!");
-  		return;
-  	}
-	var url="rpc/ariz_acrocheck.php";
-	url=url+"?acronym="+acronym;
-	//alert (url);
-	sutXmlHttp.onreadystatechange=function(){
-		if(sutXmlHttp.readyState==4 && sutXmlHttp.status==200){
-			var responseArr = JSON.parse(sutXmlHttp.responseText); 
-			//alert (responseArr);
-			if(responseArr){
-				acroelement.value="";
-				alert("Institution already exists, please select it from drop down menu above.");
-			}
-		}
-	};
-	sutXmlHttp.open("POST",url,true);
-	sutXmlHttp.send(null);
-}
-
-function outIdentCheck(loanidentifierown,collid){
-	//alert ("test");
-	var loanoutidentelement = document.getElementById('loanidentifierown');
-	var loanidentifierown = loanoutidentelement.value;
-	var collid = collid;
-	//alert (loanidentifierown);
-	//alert (collid);
-	if (loanidentifierown.length == 0){
-  		return;
-  	}
-	sutXmlHttp=GetXmlHttpObject();
-	if (sutXmlHttp==null){
-  		alert ("Your browser does not support AJAX!");
-  		return;
-  	}
-	var url="rpc/loanoutidentifiercheck.php";
-	url=url+"?ident="+loanidentifierown;
-	url=url+"&collid="+collid;
-	//alert (url);
-	sutXmlHttp.onreadystatechange=function(){
-		if(sutXmlHttp.readyState==4 && sutXmlHttp.status==200){
-			var responseArr = JSON.parse(sutXmlHttp.responseText); 
-			//alert (responseArr);
-			if(responseArr){
-				loanoutidentelement.value="";
-				alert("There is already a loan with that identifier, please enter a different one.");
-			}
-		}
-	};
-	sutXmlHttp.open("POST",url,true);
-	sutXmlHttp.send(null);
-}
-
 function inIdentCheck(loanidentifierborr,collid){
 	//alert ("test");
 	var loaninidentelement = document.getElementById('loanidentifierborr');
@@ -593,6 +511,24 @@ function exIdentCheck(identifier,collid){
 	};
 	sutXmlHttp.open("POST",url,true);
 	sutXmlHttp.send(null);
+}
+
+function GetXmlHttpObject(){
+	var xmlHttp=null;
+	try{
+		// Firefox, Opera 8.0+, Safari, IE 7.x
+		xmlHttp=new XMLHttpRequest();
+	}
+	catch (e){
+		// Internet Explorer
+		try{
+			xmlHttp=new ActiveXObject("Msxml2.XMLHTTP");
+		}
+		catch(e){
+			xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+	}
+	return xmlHttp;
 }
 
 function verifyLoanDet(){

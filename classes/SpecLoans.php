@@ -411,19 +411,18 @@ class SpecLoans extends Manager{
 	}
 
 	public function createNewExchange($pArr){
-		$statusStr = '';
+		$retID = '';
 		$sql = 'INSERT INTO omoccurexchange(identifier,collid,iid,transactiontype,createdby) '.
 			'VALUES("'.$this->cleanInStr($pArr['identifier']).'",'.$this->collid.',"'.$this->cleanInStr($pArr['iid']).'",
 			"'.$this->cleanInStr($pArr['transactiontype']).'","'.$this->cleanInStr($pArr['createdby']).'")';
-		//echo $sql;
 		if($this->conn->query($sql)){
-			$this->exchangeId = $this->conn->insert_id;
+			$retID = $this->conn->insert_id;
 		}
 		else{
-			$statusStr = 'ERROR: Creation of new exchange failed: '.$this->conn->error.'<br/>';
-			$statusStr .= 'SQL: '.$sql;
+			$this->errorMessage = 'ERROR: Creation of new exchange failed: '.$this->conn->error.'<br/>';
+			//$this->errorMessage .= 'SQL: '.$sql;
 		}
-		return $statusStr;
+		return $retID;
 	}
 
 	public function getSpecTotal($loanid){
@@ -656,7 +655,30 @@ class SpecLoans extends Manager{
 		return $retArr;
 	}
 
-	//This method is used by the ajax script generateNextID.php
+	// General AJAX functions
+	public function identifierExists($id,$idType){
+		$responseCode = 0;
+		if($this->collid){
+			$sql = '';
+			if($idType == 'out'){
+				$sql = 'SELECT loanid FROM omoccurloans WHERE loanidentifierown = "'.$id.'" AND collidown = '.$this->collid;
+			}
+			elseif($idType == 'in'){
+				$sql = 'SELECT loanid FROM omoccurloans WHERE loanIdentifierBorr = "'.$id.'" AND collidborr = '.$this->collid;
+			}
+			elseif($idType == 'ex'){
+				$sql = 'SELECT exchangeid FROM omoccurexchange WHERE identifier = "'.$id.'" AND collid = '.$this->collid;
+			}
+			else{
+				return '';
+			}
+			$rs = $this->conn->query($sql);
+			if($rs->num_rows)  $responseCode = 1;
+			$rs->free();
+		}
+		return $responseCode;
+	}
+
 	public function generateNextID($idType){
 		$retStr = '';
 		if($this->collid){
@@ -723,10 +745,6 @@ class SpecLoans extends Manager{
 	//Setters and getter
 	public function setCollId($id){
 		if(is_numeric($id)) $this->collid = $id;
-	}
-
-	public function getExchangeId(){
-		return $this->exchangeId;
 	}
 }
 ?>

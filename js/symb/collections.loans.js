@@ -2,9 +2,7 @@ $(document).ready(function() {
 	if(!navigator.cookieEnabled){
 		alert("Your browser cookies are disabled. To be able to login and access your profile, they must be enabled for this domain.");
 	}
-
 	$('#tabs').tabs({ active: tabIndex });
-
 });
 
 function selectAll(cb){
@@ -121,7 +119,17 @@ function verfifyLoanOutAddForm(f){
 		alert("Enter a loan identifier");
 		return false;
 	}
-	return true;
+	$.ajax({
+		method: "POST",
+		data: { ident: f.loanidentifierown.value, collid: f.collid.value, type: "out" },
+		dataType: "text",
+		url: "rpc/identifierCheck.php"
+	})
+	.done(function(retCode) {
+		if(retCode == 1) alert("There is already a transaction with that identifier, please enter a different one.");
+		else f.submit();
+	});
+	return false;
 }
 
 function verifyLoanInAddForm(f){
@@ -133,7 +141,17 @@ function verifyLoanInAddForm(f){
 		alert("Enter a loan identifier");
 		return false;
 	}
-	return true;
+	$.ajax({
+		method: "POST",
+		data: { ident: f.loanidentifierborr.value, collid: f.collid.value, type: "in" },
+		dataType: "text",
+		url: "rpc/identifierCheck.php"
+	})
+	.done(function(retCode) {
+		if(retCode == 1) alert("There is already a transaction with that identifier, please enter a different one.");
+		else f.submit();
+	});
+	return false;
 }
 
 function verifyLoanInEditForm(f){
@@ -157,7 +175,17 @@ function verfifyExchangeAddForm(f){
 		alert("Enter an exchange identifier");
 		return false;
 	}
-	return true;
+	$.ajax({
+		method: "POST",
+		data: { ident: f.identifier.value, collid: f.collid.value, type: "ex" },
+		dataType: "text",
+		url: "rpc/identifierCheck.php"
+	})
+	.done(function(retCode) {
+		if(retCode == 1) alert("There is already a transaction with that identifier, please enter a different one.");
+		else f.submit();
+	});
+	return false;
 }
 
 function verifySpecEditForm(f){
@@ -188,7 +216,6 @@ function verifySpecEditForm(f){
 	if(applyTaskValue == "delete"){
 		return confirm("Are you sure you want to remove selected specimens from this loan?");
 	}
-
 	return true;
 }
 
@@ -445,90 +472,6 @@ function parseDate(dateStr){
 	retArr["m"] = m.toString();
 	retArr["d"] = d.toString();
 	return retArr;
-}
-
-function inIdentCheck(loanidentifierborr,collid){
-	//alert ("test");
-	var loaninidentelement = document.getElementById('loanidentifierborr');
-	var loanidentifierborr = loaninidentelement.value;
-	var collid = collid;
-	//alert (loanidentifierborr);
-	//alert (collid);
-	if (loanidentifierborr.length == 0){
-  		return;
-  	}
-	sutXmlHttp=GetXmlHttpObject();
-	if (sutXmlHttp==null){
-  		alert ("Your browser does not support AJAX!");
-  		return;
-  	}
-	var url="rpc/loaninidentifiercheck.php";
-	url=url+"?ident="+loanidentifierborr;
-	url=url+"&collid="+collid;
-	//alert (url);
-	sutXmlHttp.onreadystatechange=function(){
-		if(sutXmlHttp.readyState==4 && sutXmlHttp.status==200){
-			var responseArr = JSON.parse(sutXmlHttp.responseText); 
-			//alert (responseArr);
-			if(responseArr){
-				loaninidentelement.value="";
-				alert("There is already a loan with that identifier, please enter a different one.");
-			}
-		}
-	};
-	sutXmlHttp.open("POST",url,true);
-	sutXmlHttp.send(null);
-}
-
-function exIdentCheck(identifier,collid){
-	//alert ("test");
-	var exidentelement = document.getElementById('identifier');
-	var identifier = exidentelement.value;
-	var collid = collid;
-	//alert (identifier);
-	//alert (collid);
-	if (identifier.length == 0){
-  		return;
-  	}
-	sutXmlHttp=GetXmlHttpObject();
-	if (sutXmlHttp==null){
-  		alert ("Your browser does not support AJAX!");
-  		return;
-  	}
-	var url="rpc/exidentifiercheck.php";
-	url=url+"?ident="+identifier;
-	url=url+"&collid="+collid;
-	//alert (url);
-	sutXmlHttp.onreadystatechange=function(){
-		if(sutXmlHttp.readyState==4 && sutXmlHttp.status==200){
-			var responseArr = JSON.parse(sutXmlHttp.responseText); 
-			//alert (responseArr);
-			if(responseArr){
-				exidentelement.value="";
-				alert("There is already a transaction with that identifier, please enter a different one.");
-			}
-		}
-	};
-	sutXmlHttp.open("POST",url,true);
-	sutXmlHttp.send(null);
-}
-
-function GetXmlHttpObject(){
-	var xmlHttp=null;
-	try{
-		// Firefox, Opera 8.0+, Safari, IE 7.x
-		xmlHttp=new XMLHttpRequest();
-	}
-	catch (e){
-		// Internet Explorer
-		try{
-			xmlHttp=new ActiveXObject("Msxml2.XMLHTTP");
-		}
-		catch(e){
-			xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
-		}
-	}
-	return xmlHttp;
 }
 
 function verifyLoanDet(){

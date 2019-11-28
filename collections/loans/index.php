@@ -2,7 +2,6 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SpecLoans.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-
 if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/loans/index.php?'.$_SERVER['QUERY_STRING']);
 
 $collid = $_REQUEST['collid'];
@@ -13,7 +12,6 @@ $searchTerm = array_key_exists('searchterm',$_POST)?$_POST['searchterm']:'';
 $displayAll = array_key_exists('displayall',$_POST)?$_POST['displayall']:0;
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
-$eMode = array_key_exists('emode',$_REQUEST)?$_REQUEST['emode']:0;
 
 $isEditor = 0;
 if($SYMB_UID && $collid){
@@ -29,19 +27,19 @@ if($collid) $loanManager->setCollId($collid);
 $statusStr = '';
 if($isEditor){
 	if($formSubmit){
-		if($formSubmit == 'Create Loan Out'){
+		if($formSubmit == 'createLoanOut'){
 			$loanId = $loanManager->createNewLoanOut($_POST);
-			if($loanId) $statusStr = $loanManager->getErrorMessage();
+			if(!$loanId) $statusStr = $loanManager->getErrorMessage();
 			$loanType = 'out';
 		}
-		elseif($formSubmit == 'Create Loan In'){
+		elseif($formSubmit == 'createLoanIn'){
 			$loanId = $loanManager->createNewLoanIn($_POST);
-			if($loanId) $statusStr = $loanManager->getErrorMessage();
+			if(!$loanId) $statusStr = $loanManager->getErrorMessage();
 			$loanType = 'in';
 		}
-		elseif($formSubmit == 'Create Exchange'){
-			$statusStr = $loanManager->createNewExchange($_POST);
-			$exchangeId = $loanManager->getExchangeId();
+		elseif($formSubmit == 'createExchange'){
+			$exchangeId = $loanManager->createNewExchange($_POST);
+			if(!$loanId) $statusStr = $loanManager->getErrorMessage();
 			$loanType = 'exchange';
 		}
 		elseif($formSubmit == 'Save Exchange'){
@@ -113,9 +111,11 @@ if($isEditor){
 		if($isEditor && $collid){
 			//Collection is defined and User is logged-in and have permissions
 			if($statusStr){
+				$colorStr = 'red';
+				if(stripos($statusStr,'SUCCESS') !== false) $colorStr = 'green';
 				?>
 				<hr/>
-				<div style="margin:15px;color:red;">
+				<div style="margin:15px;color:<?php echo $colorStr; ?>;">
 					<?php echo $statusStr; ?>
 				</div>
 				<hr/>
@@ -172,7 +172,7 @@ if($isEditor){
 											Entered By:
 										</span><br />
 										<span>
-											<input type="text" autocomplete="off" name="createdbyown" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $paramsArr['un']; ?>" onchange=" " />
+											<input type="text" autocomplete="off" name="createdbyown" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $PARAMS_ARR['un']; ?>" />
 										</span>
 									</div>
 									<div style="padding-top:15px;float:right;">
@@ -204,7 +204,8 @@ if($isEditor){
 									</div>
 									<div style="clear:both;padding-top:8px;float:right;">
 										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-										<button name="formsubmit" type="submit" value="Create Loan Out">Create Loan</button>
+										<input name="formsubmit" type="hidden" value="createLoanOut" />
+										<button name="submitButton" type="submit">Create Loan</button>
 									</div>
 								</fieldset>
 							</form>
@@ -275,13 +276,13 @@ if($isEditor){
 											Entered By:
 										</span><br />
 										<span>
-											<input type="text" autocomplete="off" name="createdbyborr" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $paramsArr['un']; ?>" onchange=" " />
+											<input type="text" autocomplete="off" name="createdbyborr" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $PARAMS_ARR['un']; ?>" />
 										</span>
 									</div>
 									<div style="padding-top:15px;float:right;">
 										<span>
 											<b>Loan Identifier: </b>
-											<input type="text" autocomplete="off" id="loanidentifierborr" name="loanidentifierborr" maxlength="255" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" onchange="inIdentCheck(loanidentifierborr,<?php echo $collid; ?>);" />
+											<input type="text" autocomplete="off" id="loanidentifierborr" name="loanidentifierborr" maxlength="255" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
 										</span>
 									</div>
 									<div style="clear:both;padding-top:6px;float:left;">
@@ -308,7 +309,8 @@ if($isEditor){
 									</div>
 									<div style="clear:both;padding-top:8px;float:right;">
 										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-										<button name="formsubmit" type="submit" value="Create Loan In">Create Loan</button>
+										<input name="formsubmit" type="hidden" value="createLoanIn" />
+										<button name="submitbutton" type="submit" value="Create Loan In">Create Loan</button>
 									</div>
 								</fieldset>
 							</form>

@@ -29,7 +29,7 @@ else{
 			<div style="padding-top:10px;float:left;">
 				<span>
 					<b>Transaction Number:</b>
-					<input type="text" autocomplete="off" id="identifier" name="identifier" maxlength="255" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" onchange="exIdentCheck(identifier,<?php echo $collid; ?>);" />
+					<input type="text" autocomplete="off" name="identifier" maxlength="255" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
 				</span>
 			</div>
 			<div style="clear:left;padding-top:6px;float:left;">
@@ -75,7 +75,8 @@ else{
 			</div>
 			<div style="clear:both;padding-top:8px;float:right;">
 				<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-				<button name="formsubmit" type="submit" value="Create Exchange">Create</button>
+				<input name="formsubmit" type="hidden" value="createExchange" />
+				<button name="submitbtn" type="submit" value="Create Exchange">Create</button>
 			</div>
 		</fieldset>
 	</form>

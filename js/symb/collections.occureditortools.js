@@ -120,14 +120,13 @@ function geoLocateUpdateCoord(latValue,lngValue,coordErrValue, footprintWKT){
 	var f = document.fullform;
 	f.decimallatitude.value = latValue;
 	f.decimallongitude.value = lngValue;
+	if(!isNumeric(coordErrValue)) coordErrValue = "";
 	f.coordinateuncertaintyinmeters.value = coordErrValue;
 	if(footprintWKT.length > 0){
 		if(footprintWKT == "Unavailable") footprintWKT = "";
 		footprintWKT = validatePolygon(footprintWKT);
-		if(footprintWKT.length > 65000){
-			footprintWKT = "";
-			//alert("WKT footprint is too large to save in the database");
-		}
+		if(footprintWKT.length > 65000) footprintWKT = "";  //WKT footprint is too large to save in the database
+		else if(footprintWKT.indexOf("NaN") > 0) footprintWKT = "";
 		f.footprintwkt.value = footprintWKT;
 		fieldChanged('footprintwkt');
 	}

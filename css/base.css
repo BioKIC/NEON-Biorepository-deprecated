@@ -59,12 +59,12 @@ form input {
 }
 
 a{
-	color: 		#2C405E;
+	color: 		#4a55b9;
     text-decoration: none;	
 }
 
 a:hover{
-	color: black;
+	color: #2C405E;
     text-decoration: underline;
 }
 

@@ -106,7 +106,7 @@ class SpecUploadBase extends SpecUpload{
 		//Get uploadspectemp metadata
 		$skipOccurFields = array('dbpk','initialtimestamp','occid','collid','tidinterpreted','fieldnotes','coordinateprecision',
 			'verbatimcoordinatesystem','institutionid','collectionid','associatedoccurrences','datasetid','associatedreferences',
-			'previousidentifications','associatedsequences');
+			'previousidentifications','associatedsequences','storagelocation');
 		if($this->collMetadataArr['managementtype'] == 'Live Data' && $this->collMetadataArr['guidtarget'] != 'occurrenceId'){
 			//Do not import occurrenceID if dataset is a live dataset, unless occurrenceID is explicitly defined as the guidSource.
 			//This avoids the situtation where folks are exporting data from one collection and importing into their collection along with the other collection's occurrenceID GUID, which is very bad
@@ -181,7 +181,7 @@ class SpecUploadBase extends SpecUpload{
 			case $this->RESTOREBACKUP:
 			case $this->DIRECTUPLOAD:
 				//Get identification metadata
-				$skipDetFields = array('detid','occid','tidinterpreted','idbyid','appliedstatus','sortsequence','sourceidentifier','initialtimestamp');
+				$skipDetFields = array('detid','occid','tidinterpreted','idbyid','appliedstatus','sortsequence','initialtimestamp');
 				if($this->uploadType == $this->RESTOREBACKUP){
 					unset($skipDetFields);
 					$skipDetFields = array();
@@ -1370,7 +1370,7 @@ class SpecUploadBase extends SpecUpload{
 
 				if((isset($recMap['identifiedby']) && $recMap['identifiedby']) || (isset($recMap['dateidentified']) && $recMap['dateidentified']) || (isset($recMap['sciname']) && $recMap['sciname'])){
 					if(!isset($recMap['identifiedby']) || !$recMap['identifiedby']) $recMap['identifiedby'] = 'not specified';
-					if(!isset($recMap['dateidentified']) || $recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
+					if(!isset($recMap['dateidentified']) || !$recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
 					$sqlFragments = $this->getSqlFragments($recMap,$this->identFieldMap);
 					if($sqlFragments){
 						$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';

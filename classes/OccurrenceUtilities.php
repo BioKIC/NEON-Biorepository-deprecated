@@ -527,16 +527,20 @@ class OccurrenceUtilities {
 		if(isset($recMap['latdeg']) && $recMap['latdeg'] && isset($recMap['lngdeg']) && $recMap['lngdeg']){
 			//Attempt to create decimal lat/long
 			if(is_numeric($recMap['latdeg']) && is_numeric($recMap['lngdeg']) && (!isset($recMap['decimallatitude']) || !isset($recMap['decimallongitude']))){
-				$latDec = $recMap['latdeg'];
+				$latDec = abs($recMap['latdeg']);
 				if(isset($recMap['latmin']) && $recMap['latmin'] && is_numeric($recMap['latmin'])) $latDec += $recMap['latmin']/60;
 				if(isset($recMap['latsec']) && $recMap['latsec'] && is_numeric($recMap['latsec'])) $latDec += $recMap['latsec']/3600;
-				if(isset($recMap['latns']) && stripos($recMap['latns'],'s') === 0 && $latDec > 0) $latDec *= -1;
-				$lngDec = $recMap['lngdeg'];
+				if($latDec > 0){
+					if(isset($recMap['latns']) && stripos($recMap['latns'],'s') === 0) $latDec *= -1;
+					elseif($recMap['latdeg'] < 0) $latDec *= -1;
+				}
+				$lngDec = abs($recMap['lngdeg']);
 				if(isset($recMap['lngmin']) && $recMap['lngmin'] && is_numeric($recMap['lngmin'])) $lngDec += $recMap['lngmin']/60;
 				if(isset($recMap['lngsec']) && $recMap['lngsec'] && is_numeric($recMap['lngsec'])) $lngDec += $recMap['lngsec']/3600;
-				if(isset($recMap['lngew']) && stripos($recMap['lngew'],'w') === 0  && $lngDec > 0) $lngDec *= -1;
 				if($lngDec > 0){
-					if(in_array(strtolower($recMap['country']), array('usa','united states','canada','mexico','panama'))) $lngDec *= -1;
+					if(isset($recMap['lngew']) && stripos($recMap['lngew'],'w') === 0) $lngDec *= -1;
+					elseif($recMap['lngdeg'] < 0) $lngDec *= -1;
+					elseif(in_array(strtolower($recMap['country']), array('usa','united states','canada','mexico','panama'))) $lngDec *= -1;
 				}
 				$recMap['decimallatitude'] = round($latDec,6);
 				$recMap['decimallongitude'] = round($lngDec,6);
@@ -544,11 +548,11 @@ class OccurrenceUtilities {
 			//Place into verbatim coord field
 			$vCoord = (isset($recMap['verbatimcoordinates'])?$recMap['verbatimcoordinates']:'');
 			if($vCoord) $vCoord .= '; ';
-			$vCoord .= $recMap['latdeg'].chr(167).' ';
+			$vCoord .= $recMap['latdeg'].chr(176).' ';
 			if(isset($recMap['latmin']) && $recMap['latmin']) $vCoord .= $recMap['latmin'].'m ';
 			if(isset($recMap['latsec']) && $recMap['latsec']) $vCoord .= $recMap['latsec'].'s ';
 			if(isset($recMap['latns'])) $vCoord .= $recMap['latns'].'; ';
-			$vCoord .= $recMap['lngdeg'].chr(167).' ';
+			$vCoord .= $recMap['lngdeg'].chr(176).' ';
 			if(isset($recMap['lngmin']) && $recMap['lngmin']) $vCoord .= $recMap['lngmin'].'m ';
 			if(isset($recMap['lngsec']) && $recMap['lngsec']) $vCoord .= $recMap['lngsec'].'s ';
 			if(isset($recMap['lngew'])) $vCoord .= $recMap['lngew'];

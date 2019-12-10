@@ -20,7 +20,7 @@ class OmProtectedSpecies extends OccurrenceMaintenance {
 		$sql = 'SELECT DISTINCT  t.tid, ts.Family, t.SciName, t.Author, t.SecurityStatus FROM taxa t INNER JOIN taxstatus ts ON t.TID = ts.tid ';
 		if($this->taxaArr) $sql .= 'INNER JOIN taxaenumtree e ON t.tid = e.tid ';
 		$sql .= 'WHERE (ts.taxauthid = 1) AND (t.SecurityStatus > 0) ';
-		if($this->taxaArr) $sql .= 'AND e.parenttid IN('.implode(',', $this->taxaArr).') ';
+		if($this->taxaArr) $sql .= 'AND (e.parenttid IN('.implode(',', $this->taxaArr).') OR t.tid IN('.implode(',', $this->taxaArr).')) ';
 		$sql .= 'ORDER BY ts.Family, t.SciName';
 		//echo $sql;
 		$returnArr['stats']['L'] = 0;
@@ -94,7 +94,7 @@ class OmProtectedSpecies extends OccurrenceMaintenance {
 	}
 
 	public function setTaxonFilter($searchTaxon){
-		$sql = 'SELECT ts.tidaccepted FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE t.sciname = "'.$searchTaxon.'" AND ts.taxauthid = 1';
+		$sql = 'SELECT ts.tidaccepted FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE t.sciname LIKE "'.$searchTaxon.'%" AND ts.taxauthid = 1';
 		$rs = $this->conn->query($sql);
 		if($rs) {
 			while($r = $rs->fetch_object()){
@@ -103,19 +103,22 @@ class OmProtectedSpecies extends OccurrenceMaintenance {
 		}
 		$rs->free();
 
-		//Get synonyms
-		$sql = 'SELECT tid  FROM taxstatus  WHERE tidaccepted IN('.implode(',',$this->taxaArr).")";
-		$rs = $this->conn->query($sql);
-		if($rs) {
-			while($r = $rs->fetch_object()){
-				$this->taxaArr[] = $r->tid;
+		if($this->taxaArr){
+			//Get synonyms
+			$sql = 'SELECT tid  FROM taxstatus WHERE tidaccepted IN('.implode(',',$this->taxaArr).")";
+			$rs = $this->conn->query($sql);
+			if($rs) {
+				while($r = $rs->fetch_object()){
+					$this->taxaArr[] = $r->tid;
+				}
 			}
+			$rs->free();
 		}
-		$rs->free();
+		else $this->taxaArr[] = 0;
 	}
 
 	public function getSpecimenCnt(){
-		$retCnt;
+		$retCnt = 0;
 		//Get number of specimens protected
 		$sql = 'SELECT COUNT(*) AS cnt FROM omoccurrences WHERE (LocalitySecurity > 0)';
 		$rs = $this->conn->query($sql);

@@ -33,6 +33,7 @@ class SpecUploadBase extends SpecUpload{
 	private $sourceCharset;
 	private $targetCharset = 'UTF-8';
 
+	private $imgFormatDefault = '';
 	private $sourceDatabaseType = '';
 
 	function __construct() {
@@ -1410,7 +1411,7 @@ class SpecUploadBase extends SpecUpload{
 			}
 			$skipFormats = array('image/tiff','image/dng','image/bmp','text/html','application/xml','application/pdf','tif','tiff','dng','html','pdf');
 			$allowedFormats = array('image/jpeg','image/gif','image/png');
-			$imgFormat = '';
+			$imgFormat = $this->imgFormatDefault;
 			if(isset($recMap['format']) && $recMap['format']){
 				$imgFormat = strtolower($recMap['format']);
 				if(in_array($imgFormat, $skipFormats)) return false;
@@ -1422,9 +1423,14 @@ class SpecUploadBase extends SpecUpload{
 				if($ext== 'png') $imgFormat = 'image/png';
 				if($ext== 'jpg') $imgFormat = 'image/jpeg';
 				elseif($ext== 'jpeg') $imgFormat = 'image/jpeg';
-				if(!$imgFormat){
-					$imgFormat = $this->getMimeType($testUrl);
-					if(!in_array(strtolower($imgFormat), $allowedFormats)) return false;
+				if($imgFormat === ''){
+					if($this->imgFormatDefault) $imgFormat = $this->imgFormatDefault;
+					else {
+						$imgFormat = $this->getMimeType($testUrl);
+						if($imgFormat) $this->imgFormatDefault = $imgFormat;
+						else $this->imgFormatDefault = false;
+					}
+					//if(!in_array(strtolower($imgFormat), $allowedFormats)) return false;
 				}
 			}
 			if($imgFormat) $recMap['format'] = $imgFormat;
@@ -1741,8 +1747,8 @@ class SpecUploadBase extends SpecUpload{
 		curl_setopt($handle, CURLOPT_NOBODY, true);
 		curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true );
+		curl_setopt($handle, CURLOPT_TIMEOUT, 3);
 		curl_exec($handle);
-
 		return curl_getinfo($handle, CURLINFO_CONTENT_TYPE);
 	}
 

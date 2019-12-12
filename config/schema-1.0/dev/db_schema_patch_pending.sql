@@ -176,7 +176,8 @@ ALTER TABLE `omcollectioncontacts`
   ADD UNIQUE INDEX `UNIQUE_coll_contact` (`collid` ASC, `uid` ASC, `nameoverride` ASC, `emailoverride` ASC);
 
 ALTER TABLE `omcollections` 
-  ADD COLUMN `dynamicProperties` TEXT NULL AFTER `accessrights`;
+  ADD COLUMN `dynamicProperties` TEXT NULL AFTER `accessrights`,
+  ADD COLUMN `datasetID` VARCHAR(250) NULL AFTER `collectionId`;
 
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;

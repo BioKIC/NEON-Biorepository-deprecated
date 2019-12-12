@@ -493,7 +493,7 @@ class ShipmentManager{
 		if(is_numeric($postArr['samplepk']) && $sampleID){
 			$sql = 'UPDATE NeonSample '.
 				'SET sampleID = "'.$sampleID.'", '.
-				'alternativeSampleID = '.(isset($postArr['alternativesampleid']) && $postArr['alternativesampleid']?'"'.$this->cleanInStr($postArr['alternativesampleID']).'"':'NULL').', '.
+				'alternativeSampleID = '.(isset($postArr['alternativesampleid']) && $postArr['alternativesampleid']?'"'.$this->cleanInStr($postArr['alternativesampleid']).'"':'NULL').', '.
 				'sampleCode = '.(isset($postArr['samplecode']) && $postArr['samplecode']?'"'.$this->cleanInStr($postArr['samplecode']).'"':'NULL').', '.
 				'sampleClass = '.(isset($postArr['sampleclass']) && $postArr['sampleclass']?'"'.$this->cleanInStr($postArr['sampleclass']).'"':'NULL').', '.
 				'quarantineStatus = '.(isset($postArr['quarantinestatus']) && $postArr['quarantinestatus']?'"'.$this->cleanInStr($postArr['quarantinestatus']).'"':'NULL').', '.

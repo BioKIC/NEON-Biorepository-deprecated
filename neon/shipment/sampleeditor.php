@@ -51,13 +51,6 @@ if($isEditor){
 			<?php
 			if($status == 'close') echo 'closeWindow();';
 			?>
-
-			$("input").each(function() {
-				$(this).change(function(){ $("#submitButton").prop("disabled",false); });
-			});
-			$("select").each(function() {
-				$(this).change(function(){ $("#submitButton").prop("disabled",false); });
-			});
 		});
 
 		function validateSampleForm(f){
@@ -119,7 +112,7 @@ if($isEditor){
 						<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:''; ?>" style="width:250px" />
 					</div>
 					<div class="fieldDiv">
-						<b>Alt. Sample ID:</b> <input name="alternativeSampleID" type="text" value="<?php echo isset($sampleArr['alternativeSampleID'])?$sampleArr['alternativeSampleID']:''; ?>" style="width:200px" />
+						<b>Alt. Sample ID(s):</b> <input name="alternativeSampleID" type="text" value="<?php echo isset($sampleArr['alternativeSampleID'])?$sampleArr['alternativeSampleID']:''; ?>" style="width:400px" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
@@ -178,14 +171,14 @@ if($isEditor){
 					if($samplePK){
 						?>
 						<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
-						<div><button id="submitButton" type="submit" name="action" value="save" disabled>Save Changes</button></div>
+						<div><button id="submitButton" type="submit" name="action" value="save">Save Changes</button></div>
 						<?php
 					}
 					else{
 						?>
 						<input name="checkinSample" type="checkbox" value="1" checked /> check-in sample<br/>
 						<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-						<div><button id="submitButton" type="submit" name="action" value="savenew" disabled>Save Record</button></div>
+						<div><button id="submitButton" type="submit" name="action" value="savenew">Save Record</button></div>
 						<?php
 					}
 					?>

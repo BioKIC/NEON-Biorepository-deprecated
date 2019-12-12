@@ -5,16 +5,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/misc/collmetadata.php?'.$_SERVER['QUERY_STRING']);
 
-$action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
-$collid = array_key_exists("collid",$_REQUEST)?$_REQUEST["collid"]:0;
+$action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
+$collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 
-$statusStr = '';
-
-$collManager = new OccurrenceCollectionProfile();
-if(!$collManager->setCollid($collid)) $collid = '';
+if(preg_match('/[^a-zA-Z\s]+/', $action)) $action = '';
+if(!is_numeric($collid)) $collid = 0;
 
 $isEditor = 0;
-
 if($IS_ADMIN){
 	$isEditor = 1;
 }
@@ -24,10 +21,14 @@ elseif($collid){
 	}
 }
 
+$collManager = new OccurrenceCollectionProfile($isEditor&&($action||!$collid)?'write':'readonly');
+if(!$collManager->setCollid($collid)) $collid = '';
+
+$statusStr = '';
 if($isEditor){
 	if($action == 'Save Edits'){
 		$statusStr = $collManager->submitCollEdits($_POST);
-		if($statusStr == true){
+		if($statusStr === true){
 			header('Location: collprofiles.php?collid='.$collid);
 		}
 	}
@@ -68,7 +69,7 @@ $collManager->cleanOutArr($collData);
 	<script>
 
 		$(function() {
-			var dialogArr = new Array("instcode","collcode","pedits","pubagg","rights","rightsholder","accessrights","guid","colltype","management","icon","collectionguid","sourceurl","sort");
+			var dialogArr = new Array("instcode","collcode","pedits","pubagg","rights","rightsholder","accessrights","guid","colltype","management","icon","collectionid","sourceurl","sort");
 			var dialogStr = "";
 			for(i=0;i<dialogArr.length;i++){
 				dialogStr = dialogArr[i]+"info";
@@ -232,26 +233,16 @@ $collManager->cleanOutArr($collData);
 	$displayLeftMenu = (isset($collections_misc_collmetadataMenu)?$collections_misc_collmetadataMenu:true);
 	include($SERVER_ROOT.'/header.php');
 	echo '<div class="navpath">';
-	if(isset($collections_misc_collmetadataCrumbs)){
-		if($collections_misc_collmetadataCrumbs){
-			echo '<a href="../../index.php">Home</a> &gt;&gt; ';
-			echo $collections_misc_collmetadataCrumbs.' &gt;&gt; ';
-			echo '<b>'.$collData["collectionname"].' Metadata Editor</b>';
-		}
+	echo '<a href="../../index.php">Home</a> &gt;&gt; ';
+	if($collid){
+		echo '<a href="collprofiles.php?collid='.$collid.'&emode=1">Collection Management</a> &gt;&gt; ';
+		echo '<b>'.$collData['collectionname'].' Metadata Editor</b>';
 	}
 	else{
-		echo '<a href="../../index.php">Home</a> &gt;&gt; ';
-		if($collid){
-			echo '<a href="collprofiles.php?collid='.$collid.'&emode=1">Collection Management</a> &gt;&gt; ';
-			echo '<b>'.$collData['collectionname'].' Metadata Editor</b>';
-		}
-		else{
-			echo '<b>Create New Collection Profile</b>';
-		}
+		echo '<b>Create New Collection Profile</b>';
 	}
 	echo "</div>";
 	?>
-
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
@@ -653,27 +644,27 @@ $collManager->cleanOutArr($collData);
 								</tr>
 								<?php
 							}
+							?>
+							<tr>
+								<td>
+									Collection ID (GUID):
+								</td>
+								<td>
+									<input type="text" name="collectionid" value="<?php echo ($collid?$collData["collectionid"]:'');?>" style="width:90%;" />
+									<a id="collectionidinfo" href="#" onclick="return false" title="More information">
+										<img src="../../images/info.png" style="width:15px;" />
+									</a>
+									<div id="collectionidinfodialog">
+										Global Unique Identifier for this collection (see <a href="https://dwc.tdwg.org/terms/#dwc:collectionID" target="_blank">dwc:collectionID</a>):
+										If your collection already has a previously assigned GUID, that identifier should be represented here.
+										For physical specimens, the recommended best practice is to use an identifier from a collections registry such as the
+										Global Registry of Biodiversity Repositories (<a href="http://grbio.org" target="_blank">http://grbio.org</a>).
+									</div>
+								</td>
+							</tr>
+							<?php
 							if($collid){
 								?>
-								<tr>
-									<td>
-										Global Unique ID:
-									</td>
-									<td>
-										<?php
-										echo $collData["guid"];
-										?>
-										<a id="collectionguidinfo" href="#" onclick="return false" title="More information">
-											<img src="../../images/info.png" style="width:15px;" />
-										</a>
-										<div id="collectionguidinfodialog">
-											Global Unique Identifier for this collection.
-											If your collection already has a GUID (e.g. previously assigned by a
-											collection management application such as Specify), that identifier should be represented here.
-											If you need to change this value, contact your portal manager.
-										</div>
-									</td>
-								</tr>
 								<tr>
 									<td>
 										Security Key:
@@ -682,27 +673,12 @@ $collManager->cleanOutArr($collData);
 										<?php echo $collData['skey']; ?>
 									</td>
 								</tr>
-								<?php
-							}
-							else{
-								//New collection
-								?>
 								<tr>
 									<td>
-										Global Unique ID:
+										recordID:
 									</td>
 									<td>
-										<input type="text" name="collectionguid" value="" style="width:90%;" />
-										<a id="collectionguidinfo" href="#" onclick="return false" title="More information">
-											<img src="../../images/info.png" style="width:15px;" />
-										</a>
-										<div id="collectionguidinfodialog">
-											Global Unique Identifier for this collection.
-											If your collection already has a GUID (e.g. previously assigned by a
-											collection management application such as Specify), that identifier should be entered here.
-											If you leave blank, the portal will automatically
-											generate a UUID for this collection (recommended if GUID is not known to already exist).
-										</div>
+										<?php echo $collData['recordid']; ?>
 									</td>
 								</tr>
 								<?php

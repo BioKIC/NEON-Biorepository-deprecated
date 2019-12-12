@@ -355,13 +355,12 @@ class OccurrenceHarvester{
 
 	private function setCollectionIdentifier(&$dwcArr,$sampleClass){
 		$status = false;
-		$sql = 'SELECT collid FROM omcollections WHERE (collectionID LIKE "%'.$sampleClass.'%")';
+		$sql = 'SELECT collid FROM omcollections WHERE (datasetID LIKE "%'.$sampleClass.'%")';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows == 1){
-			while($r = $rs->fetch_object()){
-				$dwcArr['collid'] = $r->collid;
-				$status = true;
-			}
+			$r = $rs->fetch_object();
+			$dwcArr['collid'] = $r->collid;
+			$status = true;
 		}
 		$rs->free();
 		return $status;
@@ -664,7 +663,7 @@ class OccurrenceHarvester{
 			*/
 
 			//Run custon stored procedure that preforms some special assignment tasks
-			if(!$this->conn->query('call higher_taxon_assignment()')){
+			if(!$this->conn->query('call occurrence_harvesting_sql()')){
 				echo 'ERROR running stored procedure: '.$sql;
 			}
 		}

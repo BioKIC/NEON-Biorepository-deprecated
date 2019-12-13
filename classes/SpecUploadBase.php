@@ -994,11 +994,25 @@ class SpecUploadBase extends SpecUpload{
 					$this->outputMsg('<li style="margin-left:20px;">WARNING updating occids within uploaddetermtemp: '.$this->conn->error.'</li> ');
 				}
 
-				//Delete already existing determinations
-				$sqlDel = 'DELETE u.* '.
+				//Update determinations where the sourceIdentifiers match
+				$sql = 'UPDATE IGNORE omoccurdeterminations d INNER JOIN uploaddetermtemp u ON d.occid = u.occid '.
+					'SET d.sciname = u.sciname, d.scientificNameAuthorship = u.scientificNameAuthorship, d.identifiedBy = u.identifiedBy, d.dateIdentified = u.dateIdentified, '.
+					'd.identificationQualifier = u.identificationQualifier, d.iscurrent = u.iscurrent, d.identificationReferences = u.identificationReferences, '.
+					'd.identificationRemarks = u.identificationRemarks, d.sourceIdentifier = u.sourceIdentifier '.
+					'WHERE (u.collid IN('.$this->collId.')) AND (d.sourceIdentifier = u.sourceIdentifier)';
+				//echo $sql;
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:20px;">ERROR updating determinations with matching sourceIdentifiers: '.$this->conn->error.'</li> ');
+				}
+				$sql = 'DELETE u.* FROM omoccurdeterminations d INNER JOIN uploaddetermtemp u ON d.occid = u.occid WHERE (u.collid IN('.$this->collId.')) AND (d.sourceIdentifier = u.sourceIdentifier) ';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:20px;">ERROR removing determinations with matching sourceIdentifiers: '.$this->conn->error.'</li> ');
+				}
+
+				//Delete duplicate determinations (likely previously loaded)
+				$sqlDel = 'DELETE IGNORE u.* '.
 					'FROM uploaddetermtemp u INNER JOIN omoccurdeterminations d ON u.occid = d.occid '.
-					'WHERE (u.collid IN('.$this->collId.')) '.
-					'AND (d.sciname = u.sciname) AND (d.identifiedBy = u.identifiedBy) AND (d.dateIdentified = u.dateIdentified)';
+					'WHERE (u.collid IN('.$this->collId.')) AND (d.sciname = u.sciname) AND (d.identifiedBy = u.identifiedBy) AND (d.dateIdentified = u.dateIdentified)';
 				$this->conn->query($sqlDel);
 
 				//Load identification history records
@@ -1010,9 +1024,7 @@ class SpecUploadBase extends SpecUpload{
 					'WHERE u.occid IS NOT NULL AND (u.collid IN('.$this->collId.'))';
 				if($this->conn->query($sql)){
 					//Delete all determinations
-					$sqlDel = 'DELETE * '.
-						'FROM uploaddetermtemp '.
-						'WHERE (collid IN('.$this->collId.'))';
+					$sqlDel = 'DELETE * FROM uploaddetermtemp WHERE (collid IN('.$this->collId.'))';
 					$this->conn->query($sqlDel);
 				}
 				else{

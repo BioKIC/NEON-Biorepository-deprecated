@@ -121,8 +121,9 @@ if($isEditor){
 							$sourceArr = $loaderManager->getSourceArr();
 							$targetArr = $loaderManager->getTargetArr();
 							$symbTargetArr = $loaderManager->getSymbTargetArr();
-							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation',
-								'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties');
+							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation','deprecatedsampleid'=>'alternativesampleid',
+								'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties','containerid'=>'dynamicproperties',
+								'plateid'=>'dynamicproperties','platebarcode'=>'dynamicproperties', 'wellcoordinates'=>'dynamicproperties', 'samplesecondarybag'=>'dynamicproperties');
 							foreach($sourceArr as $sourceField){
 								?>
 								<tr>

@@ -41,6 +41,7 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 	}
 }
 $clManager->setCollectionVariables();
+$clMetaArr = $clManager->getClMetadata();
 ?>
 <html>
 <head>
@@ -157,7 +158,10 @@ if($clid && $isEditor){
 								<div>
 									<b><?php echo $LANG['LATN'];?>:</b>
 									<input id="upperlat" type="text" name="latnorth" style="width:80px;" value="<?php echo isset($termArr['latnorth'])?$termArr['latnorth']:''; ?>" title="Latitude North" />
-									<a href="#" onclick="openPopup('tools/mapboundingbox.php','boundingbox')"><img src="../images/world.png" style="width:12px" title="Find Coordinate" /></a>
+									<?php
+									$coordAidUrl = '../collections/tools/mapcoordaid.php?mapmode=rectangle&latdef='.$clMetaArr['latcentroid'].'&lngdef='.$clMetaArr['longcentroid'];
+									?>
+									<a href="#" onclick="openPopup('<?php echo $coordAidUrl; ?>','boundingbox')"><img src="../images/world.png" style="width:12px" title="Find Coordinate" /></a>
 								</div>
 								<div>
 									<b><?php echo $LANG['LATS'];?>:</b>

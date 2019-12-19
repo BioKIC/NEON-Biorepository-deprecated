@@ -538,6 +538,10 @@ class ChecklistVoucherAdmin {
 		return $this->clName;
 	}
 
+	public function getClMetadata(){
+		return $this->clMetadata;
+	}
+
 	public function getClFootprintWkt(){
 		return $this->footprintWkt;
 	}

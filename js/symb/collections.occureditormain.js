@@ -531,8 +531,8 @@ function parseVerbatimCoordinates(f,verbose){
 		}
 		//Check to see if there are embedded lat/lng
 		if(!latDec || !lngDec){
-			var llEx1 = /(\d{1,2})[\D\s]{1,2}(\d{1,2}\.{0,1}\d*)['m]{1}\s*(\d{1,2}\.{0,1}\d*)['"s]{1,2}\s*([NS]{0,1})[\D\s]*(\d{1,3})[\D\s]{1,2}(\d{1,2}\.{0,1}\d*)['m]{1}\s*(\d{1,2}\.{0,1}\d*)['"s]{1,2}\s*([EW]{0,1})/i 
-			var llEx2 = /(\d{1,2})[\D\s]{1,2}(\d{1,2}\.{0,1}\d*)['m]{1}\s*([NS]{0,1})\D*\s*(\d{1,3})[\D\s]{1,2}(\d{1,2}\.{0,1}\d*)['m]{1}\s*([EW]{0,1})/i 
+			var llEx1 = /(\d{1,2})[\D\s]{1,2}(\d{1,2}\.{0,1}\d*)['m]{1}\s*(\d{1,2}\.{0,1}\d*)['"s]{1,2}\s*([NSEW]{0,1})[\D\s]*(\d{1,3})[\D\s]{1,2}(\d{1,2}\.{0,1}\d*)['m]{1}\s*(\d{1,2}\.{0,1}\d*)['"s]{1,2}\s*([NSEW]{0,1})/i 
+			var llEx2 = /(\d{1,2})[\D\s]{1,2}(\d{1,2}\.{0,1}\d*)['m]{1}\s*([NSEW]{0,1})\D*\s*(\d{1,3})[\D\s]{1,2}(\d{1,2}\.{0,1}\d*)['m]{1}\s*([NSEW]{0,1})/i 
 			var llEx3 = /([-]{0,1}\d{1,2}\.\d+)[\s]{0,1}([NSEW]{0,1})[\s]+([-]{0,1}\d{1,3}\.\d+)[\s]{0,1}([NSEW]{0,1})/i 
 			if(extractArr = llEx1.exec(verbCoordStr)){
 				var latDeg = parseInt(extractArr[1]);
@@ -568,8 +568,18 @@ function parseVerbatimCoordinates(f,verbose){
 				//Convert to decimal format
 				latDec = latDeg+(latMin/60)+(latSec/3600);
 				lngDec = lngDeg+(lngMin/60)+(lngSec/3600);
-				if((extractArr[4] == "S" || extractArr[4] == "s") && latDec > 0) latDec = latDec*-1;
-				if(lngDec > 0 && extractArr[8] != "E" && extractArr[8] != "e") lngDec = lngDec*-1;
+				var latNS = extractArr[4].toUpperCase();
+				var lngEW = extractArr[8].toUpperCase();
+				if((latNS == 'e' || latNS == 'w') && (lngEW == 'n' || lngEW == 's')){
+					var latTemp = lngDec;
+					lngDec = latDec;
+					latDec = latTemp;
+					var tempHemi = lngEW;
+					lngEW = latNS;
+					latNS = tempHemi;
+				}
+				if(latNS == "s" && latDec > 0) latDec = latDec*-1;
+				if(lngDec > 0 && lngEW != "e") lngDec = lngDec*-1;
 			}
 			else if(extractArr = llEx2.exec(verbCoordStr)){
 				var latDeg = parseInt(extractArr[1]);
@@ -595,8 +605,18 @@ function parseVerbatimCoordinates(f,verbose){
 				//Convert to decimal format
 				latDec = latDeg+(latMin/60);
 				lngDec = lngDeg+(lngMin/60);
-				if((extractArr[3] == "S" || extractArr[3] == "s") && latDec > 0) latDec = latDec*-1;
-				if(lngDec > 0 && extractArr[6] != "E" && extractArr[6] != "e") lngDec = lngDec*-1;
+				var latNS = extractArr[3].toUpperCase();
+				var lngEW = extractArr[6].toUpperCase();
+				if((latNS == 'e' || latNS == 'w') && (lngEW == 'n' || lngEW == 's')){
+					var latTemp = lngDec;
+					lngDec = latDec;
+					latDec = latTemp;
+					var tempHemi = lngEW;
+					lngEW = latNS;
+					latNS = tempHemi;
+				}
+				if(latNS == "s" && latDec > 0) latDec = latDec*-1;
+				if(lngDec > 0 && lngEW != "e") lngDec = lngDec*-1;
 			}
 			else if(extractArr = llEx3.exec(verbCoordStr)){
 				var latDec = parseFloat(extractArr[1]);
@@ -607,10 +627,10 @@ function parseVerbatimCoordinates(f,verbose){
 				
 				if((latNS == "E" || latNS == "W") && (lngEW == "N" || lngEW == "S")){
 					var tempDec = lngDec;
-					var tempHemi = lngEW;
 					lngDec = latDec;
-					lngEW = latNS;
 					latDec = tempDec;
+					var tempHemi = lngEW;
+					lngEW = latNS;
 					latNS = tempHemi;
 				}
 				if(latNS != ""){

@@ -34,41 +34,8 @@ function toggleVoucherDiv(tid){
 }
 
 function toggle(target){
-	var ele = document.getElementById(target);
-	if(ele){
-		if(ele.style.display=="none"){
-			ele.style.display="";
-  		}
-	 	else{
-	 		ele.style.display="none";
-	 	}
-	}
-	else{
-		var divObjs = document.getElementsByTagName("div");
-	  	for (i = 0; i < divObjs.length; i++) {
-	  		var divObj = divObjs[i];
-	  		if(divObj.getAttribute("class") == target || divObj.getAttribute("className") == target){
-				if(divObj.style.display=="none"){
-					divObj.style.display="";
-				}
-			 	else {
-			 		divObj.style.display="none";
-			 	}
-			}
-		}
-		var spanObjs = document.getElementsByTagName("span");
-	  	for (i = 0; i < spanObjs.length; i++) {
-	  		var spanObj = spanObjs[i];
-	  		if(spanObj.getAttribute("class") == target || spanObj.getAttribute("className") == target){
-				if(spanObj.style.display=="none"){
-					spanObj.style.display="";
-				}
-			 	else {
-			 		spanObj.style.display="none";
-			 	}
-			}
-		}
-	}
+	$("."+target).toggle();
+	$("#"+target).toggle();
 }
 
 function openIndividualPopup(occid){

@@ -306,11 +306,11 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 				if($exclusionArr = $clManager->getExclusionChecklist()){
 					echo '<div class="printoff" style="clear:both">'.(isset($LANG['TAXA_EXCLUDED'])?$LANG['TAXA_EXCLUDED']:'Taxa explicitly excluded').': <b><a href="checklist.php?pid='.$pid.'&clid='.key($exclusionArr).'">'.current($exclusionArr).'</a></b></div>';
 				}
-				if($clArray['type'] != 'excludespp'){
+				if($clArray["authors"] && $clArray['type'] != 'excludespp'){
 					?>
 					<div style="clear:both;">
 						<span style="font-weight:bold;">
-							<?php echo $LANG['AUTHORS']; ?>:
+							<?php echo (isset($LANG['AUTHORS'])?$LANG['AUTHORS']:'Authors'); ?>:
 						</span>
 						<?php echo $clArray["authors"]; ?>
 					</div>
@@ -325,8 +325,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 
 			if(($clArray["locality"] || ($clid && ($clArray["latcentroid"] || $clArray["abstract"])) || $clArray["notes"])){
 				?>
-				<div class="moredetails printoff" style="<?php echo (($showDetails)?'display:none;':''); ?>color:blue;cursor:pointer;" onclick="toggle('moredetails')"><?php echo $LANG['MOREDETS'];?></div>
-				<div class="moredetails printoff" style="display:<?php echo (($showDetails)?'block':'none'); ?>;color:blue;cursor:pointer;" onclick="toggle('moredetails')"><?php echo $LANG['LESSDETS'];?></div>
+				<div class="moredetails printoff" style="<?php echo (($showDetails)?'display:none;':''); ?>"><a href="#" onclick="toggle('moredetails');return false;"><?php echo $LANG['MOREDETS'];?></a></div>
 				<div class="moredetails" style="display:<?php echo (($showDetails || $printMode)?'block':'none'); ?>;">
 					<?php
 					if($clArray['type'] != 'excludespp'){
@@ -346,6 +345,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					}
 					?>
 				</div>
+				<div class="moredetails printoff" style="display:<?php echo (($showDetails)?'block':'none'); ?>"><a href="#" onclick="toggle('moredetails');return false;"><?php echo $LANG['LESSDETS'];?></a></div>
 				<?php
 			}
 			if($statusStr){

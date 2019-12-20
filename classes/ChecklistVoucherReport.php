@@ -160,7 +160,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			$sql = 'SELECT DISTINCT o.occid, c.institutioncode ,c.collectioncode, o.catalognumber, '.
 				'o.tidinterpreted, o.sciname, o.recordedby, o.recordnumber, o.eventdate, '.
 				'CONCAT_WS("; ",o.country, o.stateprovince, o.county, o.locality) as locality '.
-				$sqlBase.' LIMIT '.($limitIndex?($limitIndex*400).',':'').'400';
+				$sqlBase.' ORDER BY o.sciname LIMIT '.($limitIndex?($limitIndex*1000).',':'').'1000';
 			//echo '<div>'.$sql.'</div>'; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -238,19 +238,19 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			$localitySecurityFields = $this->getLocalitySecurityArr();
 
 			$exportSql = 'SELECT '.implode(',',$fieldArr).', o.localitysecurity, o.collid '.
-				$this->getMissingTaxaBaseSql($sqlFrag);
+				$this->getMissingTaxaBaseSql($sqlFrag,true);
 			//echo $exportSql;
 			$this->exportCsv($fileName,$exportSql,$localitySecurityFields);
 		}
 	}
 
-	private function getMissingTaxaBaseSql($sqlFrag){
+	private function getMissingTaxaBaseSql($sqlFrag, $asExport = false){
 		$clidStr = $this->clid;
 		if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
 		$retSql = 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid '.
 			'INNER JOIN taxstatus ts ON o.tidinterpreted = ts.tid '.
-			'INNER JOIN taxa t ON ts.tidaccepted = t.tid '.
-			'LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
+			'INNER JOIN taxa t ON ts.tidaccepted = t.tid ';
+		if($asExport) $retSql .= 'LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
 		$retSql .= $this->getTableJoinFrag($sqlFrag);
 		$retSql .= 'WHERE ('.$sqlFrag.') AND (t.rankid IN(220,230,240,260,230)) AND (ts.taxauthid = 1) ';
 		$idArr = $this->getVoucherIDs('occid');
@@ -298,16 +298,16 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		if($sqlFrag = $this->getSqlFrag()){
 			$fieldArr = $this->getOccurrenceFieldArr();
 			$localitySecurityFields = $this->getLocalitySecurityArr();
-			$sql = 'SELECT DISTINCT '.implode(',',$fieldArr).', o.localitysecurity, o.collid '.
-				$this->getProblemTaxaSql($sqlFrag);
+			$sql = 'SELECT DISTINCT '.implode(',',$fieldArr).', o.localitysecurity, o.collid '.$this->getProblemTaxaSql($sqlFrag,true);
 			$this->exportCsv($fileName,$sql,$localitySecurityFields);
 		}
 	}
 
-	private function getProblemTaxaSql($sqlFrag){
-		$clidStr = $this->clid;
-		if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
-		$retSql = 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.CollID LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
+	private function getProblemTaxaSql($sqlFrag, $asExport = false){
+		//$clidStr = $this->clid;
+		//if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
+		$retSql = 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.CollID ';
+		if($asExport) $retSql .= 'LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
 		$retSql .= $this->getTableJoinFrag($sqlFrag);
 		$retSql .= 'WHERE ('.$sqlFrag.') AND (o.tidinterpreted IS NULL) AND (o.sciname IS NOT NULL) ';
 		$idArr = $this->getVoucherIDs('occid');

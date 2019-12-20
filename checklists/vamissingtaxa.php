@@ -124,7 +124,7 @@ else{
 				<?php
 				echo '<div style="float:left">Specimen count: '.$recCnt.'</div>';
 				$queryStr = 'tabindex=1&displaymode=1&clid='.$clid.'&pid='.$pid.'&start='.(++$startIndex);
-				if($recCnt > 399) echo '<div style="float:right;margin-right:30px;"><a style="margin-left:10px;" href="voucheradmin.php?'.$queryStr.'">View Next 400</a></div>';
+				if($recCnt > 399) echo '<div style="float:right;margin-right:30px;"><a style="margin-left:10px;" href="voucheradmin.php?'.$queryStr.'">View Next 1000</a></div>';
 			}
 		}
 		elseif($displayMode==2){

@@ -32,9 +32,9 @@ class SpecUploadBase extends SpecUpload{
 
 	private $sourceCharset;
 	private $targetCharset = 'UTF-8';
-
 	private $imgFormatDefault = '';
 	private $sourceDatabaseType = '';
+	private $dbpkCnt = 0;
 
 	function __construct() {
 		parent::__construct();
@@ -799,6 +799,7 @@ class SpecUploadBase extends SpecUpload{
 		$intervalArr = array();
 		$sql = 'SELECT occid FROM ( SELECT @row := @row +1 AS rownum, occid FROM ( SELECT @row :=0) r, uploadspectemp WHERE occid IS NOT NULL AND collid = '.
 			$this->collId.' ORDER BY occid) ranked WHERE rownum % '.$transactionInterval.' = 1';
+		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$intervalArr[] = $r->occid;
@@ -833,8 +834,7 @@ class SpecUploadBase extends SpecUpload{
 				$sqlFragArr[$v] = 'o.'.$v.' = u.'.$v;
 			}
 		}
-		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid '.
-			'SET o.observeruid = '.($this->observerUid?$this->observerUid:'NULL').','.implode(',',$sqlFragArr);
+		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid SET o.observeruid = '.($this->observerUid?$this->observerUid:'NULL').','.implode(',',$sqlFragArr);
 		if($this->collMetadataArr["managementtype"] == 'Snapshot') $sqlBase .= ', o.dateLastModified = CURRENT_TIMESTAMP() ';
 		$sqlBase .= ' WHERE (u.collid IN('.$this->collId.')) ';
 		$cnt = 1;
@@ -891,7 +891,7 @@ class SpecUploadBase extends SpecUpload{
 			//Update occid by matching dbpk
 			$sqlOcc1 = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON (u.dbpk = o.dbpk) AND (u.collid = o.collid) '.
 				'SET u.occid = o.occid '.
-				'WHERE (u.occid IS NULL) AND (u.dbpk IS NOT NULL) AND (o.dbpk IS NOT NULL) AND (u.collid IN('.$this->collId.'))';
+				'WHERE (u.occid IS NULL) AND (u.dbpk IS NOT NULL) AND (u.collid IN('.$this->collId.'))';
 			if(!$this->conn->query($sqlOcc1)){
 				$this->outputMsg('<li>ERROR updating occid after occurrence insert: '.$this->conn->error.'</li>');
 			}
@@ -936,7 +936,6 @@ class SpecUploadBase extends SpecUpload{
 
 	private function versionOccurrenceEdits(){
 		$nfnFieldArr = array();
-		$occArr = array();
 		$sql = "SHOW COLUMNS FROM omoccurrences";
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
@@ -949,12 +948,10 @@ class SpecUploadBase extends SpecUpload{
 		foreach($nfnFieldArr as $field){
 			$sqlFrag .= ',u.'.$field.',o.'.$field.' as old_'.$field;
 		}
-		$sql = 'SELECT o.occid'.$sqlFrag.' FROM omoccurrences o INNER JOIN uploadspectemp u ON o.occid = u.occid '.
-			'WHERE o.collid IN('.$this->collId.') AND u.collid IN('.$this->collId.')';
+		$sql = 'SELECT o.occid'.$sqlFrag.' FROM omoccurrences o INNER JOIN uploadspectemp u ON o.occid = u.occid WHERE o.collid IN('.$this->collId.') AND u.collid IN('.$this->collId.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
 			$editArr = array();
-			$notAppliedArr = array();
 			foreach($nfnFieldArr as $field){
 				if($r[$field] && $r['old_'.$field] != $r[$field]){
 					if($r['old_'.$field] && $field != 'processingstatus'){
@@ -1082,8 +1079,9 @@ class SpecUploadBase extends SpecUpload{
 			}
 
 			//Remove previously loaded images where urls match exactly
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
-				'WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl) AND (u.url = i.url)';
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = i.sourceIdentifier)';
+			$this->conn->query($sql);
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl) AND (u.url = i.url)';
 			if($this->conn->query($sql)){
 				$this->outputMsg('<li style="margin-left:10px;">step 3 of 5... </li>');
 			}
@@ -1092,7 +1090,7 @@ class SpecUploadBase extends SpecUpload{
 			}
 			if($this->collMetadataArr["managementtype"] == 'Snapshot'){
 				//Flush non-matching image derivatives (e.g. thumbnails)
-				$sql = 'DELETE i.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
+				$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
 				if($this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:10px;">step 4 of 5... </li>');
 				}
@@ -1100,8 +1098,7 @@ class SpecUploadBase extends SpecUpload{
 					$this->outputMsg('<li style="margin-left:20px;">ERROR deleting image records with matching originalurls: '.$this->conn->error.'</li> ');
 				}
 			}
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
-				'WHERE (u.collid = '.$this->collId.') AND (u.url = i.url) AND (i.url != "") AND (i.url != "empty")';
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.url = i.url) AND (i.url != "") AND (i.url != "empty")';
 			if(!$this->conn->query($sql)){
 				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting uploadimagetemp records with matching originalurls: '.$this->conn->error.'</li> ');
 			}
@@ -1240,6 +1237,12 @@ class SpecUploadBase extends SpecUpload{
 		//Optimize table to reset indexes
 		$this->conn->query('OPTIMIZE TABLE uploadimagetemp');
 
+		//Remove temporary dbpk values
+		if($this->collMetadataArr["managementtype"] == 'Live Data'){
+			$sql = 'UPDATE omoccurrences SET dbpk = NULL WHERE (collid IN('.$this->collId.')) AND (dbpk LIKE "SYMBDBPK-%")';
+			$this->conn->query($sql);
+		}
+
 		//Do some more cleaning of the data after it haas been indexed in the omoccurrences table
 		$occurMain = new OccurrenceMaintenance($this->conn);
 
@@ -1300,8 +1303,15 @@ class SpecUploadBase extends SpecUpload{
 			}
 
 			//Do some cleaning on the dbpk; remove leading and trailing whitespaces and convert multiple spaces to a single space
-			if(array_key_exists('dbpk',$recMap)){
+			if(array_key_exists('dbpk',$recMap) && $recMap['dbpk']){
 				$recMap['dbpk'] = trim(preg_replace('/\s\s+/',' ',$recMap['dbpk']));
+			}
+			else{
+				if($this->collMetadataArr["managementtype"] == 'Live Data'){
+					//If dbpk does not exist, set a temp value
+					$recMap['dbpk'] = 'SYMBDBPK-'.$this->dbpkCnt;
+					$this->dbpkCnt++;
+				}
 			}
 
 			//Set processingStatus to value defined by loader
@@ -1323,8 +1333,7 @@ class SpecUploadBase extends SpecUpload{
 
 			$sqlFragments = $this->getSqlFragments($recMap,$this->fieldMap);
 			if($sqlFragments){
-				$sql = 'INSERT INTO uploadspectemp(collid'.$sqlFragments['fieldstr'].') '.
-					'VALUES('.$this->collId.$sqlFragments['valuestr'].')';
+				$sql = 'INSERT INTO uploadspectemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
 				//echo "<div>SQL: ".$sql."</div>";
 				if($this->conn->query($sql)){
 					$this->transferCount++;
@@ -1468,16 +1477,19 @@ class SpecUploadBase extends SpecUpload{
 				}
 			}
 
-			if(!isset($recMap['url'])) $recMap['url'] = 'empty';
+			if(!isset($recMap['url'])) $recMap['url'] = '';
+			if(!array_key_exists('sourceidentifier', $recMap)){
+				$url = $recMap['originalurl'];
+				if(!$url) $url = $recMap['url'];
+				if(preg_match('=/([^/?*;:{}\\\\]+\.[jpegpn]{3,4}$)=', $url, $m)){
+					$recMap['sourceidentifier'] = $m[1];
+				}
+			}
 
 			$sqlFragments = $this->getSqlFragments($recMap,$this->imageFieldMap);
 			if($sqlFragments){
-				$sql = 'INSERT INTO uploadimagetemp(collid'.$sqlFragments['fieldstr'].') '.
-					'VALUES('.$this->collId.$sqlFragments['valuestr'].')';
+				$sql = 'INSERT INTO uploadimagetemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
 				//echo $sql.'<br/>';
-				//$this->conn->query('SET autocommit=0');
-				//$this->conn->query('SET unique_checks=0');
-				//$this->conn->query('SET foreign_key_checks=0');
 				if($this->conn->query($sql)){
 					$this->imageTransferCount++;
 					$repInt = 1000;
@@ -1489,10 +1501,6 @@ class SpecUploadBase extends SpecUpload{
 					$this->outputMsg("<li style='margin-left:10px;'>Error: ".$this->conn->error."</li>");
 					$this->outputMsg("<li style='margin:0px 0px 10px 10px;'>SQL: $sql</li>");
 				}
-				//$this->conn->query('COMMIT');
-				//$this->conn->query('SET autocommit=1');
-				//$this->conn->query('SET unique_checks=1');
-				//$this->conn->query('SET foreign_key_checks=1');
 			}
 		}
 	}

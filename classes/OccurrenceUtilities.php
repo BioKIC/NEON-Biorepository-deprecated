@@ -187,11 +187,11 @@ class OccurrenceUtilities {
 			$retArr['minelev'] = $m[1];
 		}
 		elseif(preg_match('/([\.\d]+)[fet\']{,4}\s*-\s*([\.\d]+)\s{,1}[f\']{1}/i',$inStr,$m)){
-			$retArr['minelev'] = (round($m[1]*.3048));
-			$retArr['maxelev'] = (round($m[2]*.3048));
+			if(is_numeric($m[1])) $retArr['minelev'] = (round($m[1]*.3048));
+			if(is_numeric($m[2])) $retArr['maxelev'] = (round($m[2]*.3048));
 		}
 		elseif(preg_match('/([\.\d]+)\s*[f\']{1}/i',$inStr,$m)){
-			$retArr['minelev'] = (round($m[1]*.3048));
+			if(is_numeric($m[1])) $retArr['minelev'] = (round($m[1]*.3048));
 		}
 		//Clean
 		if($retArr){

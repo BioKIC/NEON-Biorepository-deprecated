@@ -64,16 +64,16 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 					  	for (i = 0; i < gtsObj.length; i++) {
 					  		var rankid = gtsObj[i].rankid;
 							if(rankid == 10 || rankid == 20){
-								$("select[name=eon]").val(gtsObj[i].value);
+								if($("select[name=eon]").val() == "") $("select[name=eon]").val(gtsObj[i].value);
 							}
 							else if(rankid == 30){
-								$("select[name=era]").val(gtsObj[i].value);
+								if($("select[name=era]").val() == "") $("select[name=era]").val(gtsObj[i].value);
 							}
 							else if(rankid == 40){
-								$("select[name=period]").val(gtsObj[i].value);
+								if($("select[name=period]").val() == "") $("select[name=period]").val(gtsObj[i].value);
 							}
 							else if(rankid == 50){
-								$("select[name=epoch]").val(gtsObj[i].value);
+								if($("select[name=epoch]").val() == "") $("select[name=epoch]").val(gtsObj[i].value);
 							}
 					  	}
 					});

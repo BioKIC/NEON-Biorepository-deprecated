@@ -365,7 +365,8 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 							$rankid = current($searchArr['tid']);
 							$tidArr = array_keys($searchArr['tid']);
 							$sqlWhereTaxa .= "OR (i.tid IN(".implode(',',$tidArr).")) ";
-							if($rankid < 230) $sqlWhereTaxa .= 'OR ((e.taxauthid = '.$this->taxAuthId.') AND (e.parenttid IN('.implode(',', $tidArr).')) AND (ts.taxauthid = '.$this->taxAuthId.' AND ts.tid = ts.tidaccepted)) ';
+							if($rankid < 220) $sqlWhereTaxa .= 'OR ((e.taxauthid = '.$this->taxAuthId.') AND (e.parenttid IN('.implode(',', $tidArr).')) AND (ts.taxauthid = '.$this->taxAuthId.' AND ts.tid = ts.tidaccepted)) ';
+							elseif($rankid == 220) $sqlWhereTaxa .= 'OR (ts.parenttid IN('.implode(',', $tidArr).') AND ts.taxauthid = '.$this->taxAuthId.' AND ts.tid = ts.tidaccepted) ';
 						}
 						else{
 							//Return matches for "Pinus a"
@@ -420,7 +421,7 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 	}
 
 	private function setRecordCnt(){
-		$sql = '';
+		$sql = 'SELECT COUNT(DISTINCT i.imgid) AS cnt ';
 		if(array_key_exists("imagecount",$this->searchTermArr) && $this->searchTermArr["imagecount"]){
 			if($this->searchTermArr["imagecount"] == 'taxon'){
 				$sql = "SELECT COUNT(DISTINCT i.tid) AS cnt ";
@@ -431,9 +432,6 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 			else{
 				$sql = "SELECT COUNT(DISTINCT i.imgid) AS cnt ";
 			}
-		}
-		else{
-			$sql = "SELECT COUNT(DISTINCT i.imgid) AS cnt ";
 		}
 		$sql .= 'FROM images i ';
 		if($this->taxaArr){

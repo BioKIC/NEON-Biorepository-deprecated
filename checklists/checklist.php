@@ -656,13 +656,15 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									?>
 									<div class="editspp printoff" style="float:left;<?php echo ($editMode?'':'display:none'); ?>;">
 										<?php
-										$clidArr = explode(',',$sppArr['clid']);
-										foreach($clidArr as $id){
-											?>
-											<a href="#" onclick="return openPopup('clsppeditor.php?tid=<?php echo $tid."&clid=".$id; ?>','editorwindow');">
-												<img src='../images/edit.png' style='width:13px;' title='<?php echo (isset($LANG['EDIT_DETAILS'])?$LANG['EDIT_DETAILS']:'edit details'); ?>' />
-											</a>
-											<?php
+										if(isset($sppArr['clid'])){
+											$clidArr = explode(',',$sppArr['clid']);
+											foreach($clidArr as $id){
+												?>
+												<a href="#" onclick="return openPopup('clsppeditor.php?tid=<?php echo $tid."&clid=".$id; ?>','editorwindow');">
+													<img src='../images/edit.png' style='width:13px;' title='<?php echo (isset($LANG['EDIT_DETAILS'])?$LANG['EDIT_DETAILS']:'edit details'); ?>' />
+												</a>
+												<?php
+											}
 										}
 										?>
 									</div>
@@ -715,8 +717,6 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							if(array_key_exists('vern',$sppArr)){
 								echo ' - <span class="vern-span">'.$sppArr['vern'].'</span>';
 							}
-							$clidArr = array();
-							if(isset($sppArr['clid'])) $clidArr = explode(',',$sppArr['clid']);
 							if($clArray["dynamicsql"]){
 								?>
 								<span class="view-specimen-span printoff">
@@ -727,24 +727,26 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 								<?php
 							}
 							if($isEditor){
-								//Delete species or edit details specific to this taxon (vouchers, notes, habitat, abundance, etc
-								foreach($clidArr as $id){
-									?>
-									<span class="editspp" style="<?php echo ($editMode?'':'display:none'); ?>;">
-										<a href="#" onclick="return openPopup('clsppeditor.php?tid=<?php echo $tid."&clid=".$id; ?>','editorwindow');">
-											<img src="../images/edit.png" style="width:13px;" title="<?php echo (isset($LANG['EDIT_DETAILS'])?$LANG['EDIT_DETAILS']:'edit details'); ?> (clid = <?php echo $id; ?>)" />
-										</a>
-									</span>
-									<?php
-								}
-								if(in_array($clid, $clidArr) && $showVouchers && $clArray['dynamicsql']){
-									?>
-									<span class="editspp" style="margin-left:5px;display:none">
-										<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid.'&mode=voucher'; ?>" target="_blank">
-											<img src="../images/link.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'Link Specimen Vouchers'); ?>" /><span style="font-size:70%">V</span>
-										</a>
-									</span>
-									<?php
+								if(isset($sppArr['clid'])){
+									$clidArr = explode(',',$sppArr['clid']);
+									foreach($clidArr as $id){
+										?>
+										<span class="editspp" style="<?php echo ($editMode?'':'display:none'); ?>;">
+											<a href="#" onclick="return openPopup('clsppeditor.php?tid=<?php echo $tid."&clid=".$id; ?>','editorwindow');">
+												<img src="../images/edit.png" style="width:13px;" title="<?php echo (isset($LANG['EDIT_DETAILS'])?$LANG['EDIT_DETAILS']:'edit details'); ?> (clid = <?php echo $id; ?>)" />
+											</a>
+										</span>
+										<?php
+									}
+									if(in_array($clid, $clidArr) && $showVouchers && $clArray['dynamicsql']){
+										?>
+										<span class="editspp" style="margin-left:5px;display:none">
+											<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid.'&mode=voucher'; ?>" target="_blank">
+												<img src="../images/link.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'Link Specimen Vouchers'); ?>" /><span style="font-size:70%">V</span>
+											</a>
+										</span>
+										<?php
+									}
 								}
 							}
 							echo "</div>\n";

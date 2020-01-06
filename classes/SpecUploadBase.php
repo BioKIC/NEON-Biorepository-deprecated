@@ -88,16 +88,16 @@ class SpecUploadBase extends SpecUpload{
 					$sql = 'SELECT usm.sourcefield, usm.symbspecfield FROM uploadspecmap usm WHERE (usm.uspid = '.$this->uspid.')';
 					$rs = $this->conn->query($sql);
 					while($row = $rs->fetch_object()){
-						$sourceField = $row->sourcefield;
-						$symbField = $row->symbspecfield;
-						if(substr($symbField,0,3) == 'ID-'){
-							$this->identFieldMap[substr($symbField,3)]["field"] = $sourceField;
+						$symbFieldPrefix = substr($row->symbspecfield,0,3);
+						$symbFieldName = substr($row->symbspecfield,3);
+						if($symbFieldPrefix == 'ID-'){
+							$this->identFieldMap[$symbFieldName]["field"] = $row->sourcefield;
 						}
-						elseif(substr($symbField,0,3) == 'IM-'){
-							$this->imageFieldMap[substr($symbField,3)]["field"] = $sourceField;
+						elseif($symbFieldPrefix == 'IM-'){
+							$this->imageFieldMap[$symbFieldName]["field"] = $row->sourcefield;
 						}
 						else{
-							$this->fieldMap[$symbField]["field"] = $sourceField;
+							$this->fieldMap[$row->symbspecfield]["field"] = $row->sourcefield;
 						}
 					}
 					$rs->free();
@@ -384,7 +384,6 @@ class SpecUploadBase extends SpecUpload{
 					$statusStr = 'ERROR saving custom filter variables: '.$this->conn->error;
 				}
 			}
-
 			//Save identification field map
 			foreach($this->identFieldMap as $k => $v){
 				$sourceField = $v["field"];
@@ -394,7 +393,6 @@ class SpecUploadBase extends SpecUpload{
 					$statusStr = 'ERROR saving identification field map: '.$this->conn->error;
 				}
 			}
-
 			//Save image field map
 			foreach($this->imageFieldMap as $k => $v){
 				$sourceField = $v["field"];
@@ -1478,14 +1476,13 @@ class SpecUploadBase extends SpecUpload{
 			}
 
 			if(!isset($recMap['url'])) $recMap['url'] = '';
-			if(!array_key_exists('sourceidentifier', $recMap)){
+			if(!array_key_exists('sourceidentifier', $recMap) && in_array('sourceidentifier',$this->imageSymbFields)){
 				$url = $recMap['originalurl'];
 				if(!$url) $url = $recMap['url'];
 				if(preg_match('=/([^/?*;:{}\\\\]+\.[jpegpn]{3,4}$)=', $url, $m)){
 					$recMap['sourceidentifier'] = $m[1];
 				}
 			}
-
 			$sqlFragments = $this->getSqlFragments($recMap,$this->imageFieldMap);
 			if($sqlFragments){
 				$sql = 'INSERT INTO uploadimagetemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';

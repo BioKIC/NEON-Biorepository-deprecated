@@ -37,7 +37,7 @@ ALTER TABLE `uploadspectemp`
   ADD INDEX `Index_uploadspec_othercatalognumbers` (`otherCatalogNumbers` ASC);
 
 ALTER TABLE `uploadimagetemp` 
-  CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(45) NULL DEFAULT NULL;
+  CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(150) NULL DEFAULT NULL;
 
 ALTER TABLE `uploadimagetemp` 
   ADD COLUMN `sourceUrl` VARCHAR(255) NULL AFTER `owner`,

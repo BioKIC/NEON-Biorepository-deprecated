@@ -12,9 +12,7 @@ if(preg_match('/[^a-zA-Z\s]+/', $action)) $action = '';
 if(!is_numeric($collid)) $collid = 0;
 
 $isEditor = 0;
-if($IS_ADMIN){
-	$isEditor = 1;
-}
+if($IS_ADMIN) $isEditor = 1;
 elseif($collid){
 	if(array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"])){
 		$isEditor = 1;

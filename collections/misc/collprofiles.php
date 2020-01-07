@@ -378,7 +378,7 @@ if($SYMB_UID){
 				}
 				if($collData['publishtoidigbio']){
 					$idigbioKey = $collManager->getIdigbioKey();
-					if(!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collData['guid']);
+					if(!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collData['recordid']);
 					if($idigbioKey){
 						$dataUrl = 'https://www.idigbio.org/portal/recordsets/'.$idigbioKey;
 						?>
@@ -412,24 +412,8 @@ if($SYMB_UID){
 				}
 				//Collection Statistics
 				$statsArr = $collManager->getBasicStats();
-				$extrastatsArr = Array();
 				$georefPerc = 0;
-				if($statsArr['georefcnt']&&$statsArr['recordcnt']){
-					$georefPerc = (100*($statsArr['georefcnt']/$statsArr['recordcnt']));
-				}
-				$spidPerc = 0;
-				$imgPerc = 0;
-				if($statsArr['dynamicProperties']){
-					$extrastatsArr = json_decode($statsArr['dynamicProperties'],true);
-					if(is_array($extrastatsArr)){
-						if($extrastatsArr['SpecimensCountID']){
-							$spidPerc = (100*($extrastatsArr['SpecimensCountID']/$statsArr['recordcnt']));
-						}
-						if($extrastatsArr['imgcnt']){
-							$imgPerc = (100*($extrastatsArr['imgcnt']/$statsArr['recordcnt']));
-						}
-					}
-				}
+				if($statsArr['georefcnt']&&$statsArr['recordcnt']) $georefPerc = (100*($statsArr['georefcnt']/$statsArr['recordcnt']));
 				?>
 				<div style="clear:both;margin-top:5px;">
 					<div style="font-weight:bold;"><?php echo $LANG['COLL_STATISTICS']; ?></div>
@@ -437,12 +421,30 @@ if($SYMB_UID){
 						<li><?php echo number_format($statsArr["recordcnt"]).' '.$LANG['SPECIMEN_RECORDS'];?></li>
 						<li><?php echo ($statsArr['georefcnt']?number_format($statsArr['georefcnt']):0).($georefPerc?" (".($georefPerc>1?round($georefPerc):round($georefPerc,2))."%)":'').' '.(isset($LANG['GEOREFERENCED'])?$LANG['GEOREFERENCED']:'georeferenced');?></li>
 						<?php
+						$extrastatsArr = Array();
+						if($statsArr['dynamicProperties']) $extrastatsArr = json_decode($statsArr['dynamicProperties'],true);
 						if($extrastatsArr){
-							if($extrastatsArr['imgcnt']) echo '<li>'.number_format($extrastatsArr['imgcnt']).($imgPerc?" (".($imgPerc>1?round($imgPerc):round($imgPerc,2))."%)":'').' '.(isset($LANG['WITH_IMAGES'])?$LANG['WITH_IMAGES']:'with images').'</li>';
+							if($extrastatsArr['imgcnt']){
+								$imgSpecCnt = $extrastatsArr['imgcnt'];
+								$imgCnt = 0;
+								if(strpos($imgSpecCnt,':')){
+									$imgCntArr = explode(':', $imgSpecCnt);
+									$imgCnt = $imgCntArr[0];
+									$imgSpecCnt = $imgCntArr[1];
+								}
+								$imgPerc = (100*($imgSpecCnt/$statsArr['recordcnt']));
+								echo '<li>';
+								echo number_format($imgSpecCnt).($imgPerc?" (".($imgPerc>1?round($imgPerc):round($imgPerc,2))."%)":'').' '.(isset($LANG['WITH_IMAGES'])?$LANG['WITH_IMAGES']:'with images');
+								if($imgCnt) echo ' ('.number_format($imgCnt).' '.(isset($LANG['TOTAL_IMAGES'])?$LANG['TOTAL_IMAGES']:'total images').')';
+								echo '</li>';
+							}
 							if($extrastatsArr['gencnt']) echo '<li>'.number_format($extrastatsArr['gencnt']).' '.(isset($LANG['GENBANK_REF'])?$LANG['GENBANK_REF']:'GenBank references').'</li>';
 							if($extrastatsArr['boldcnt']) echo '<li>'.number_format($extrastatsArr['boldcnt']).' '.(isset($LANG['BOLD_REF'])?$LANG['BOLD_REF']:'BOLD references').'</li>';
 							if($extrastatsArr['refcnt']) echo '<li>'.number_format($extrastatsArr['refcnt']).' '.(isset($LANG['PUB_REFS'])?$LANG['PUB_REFS']:'publication references').'</li>';
-							if($extrastatsArr['SpecimensCountID']) echo '<li>'.number_format($extrastatsArr['SpecimensCountID']).($spidPerc?" (".($spidPerc>1?round($spidPerc):round($spidPerc,2))."%)":'').' '.(isset($LANG['IDED_TO_SPECIES'])?$LANG['IDED_TO_SPECIES']:'identified to species').'</li>';
+							if($extrastatsArr['SpecimensCountID']){
+								$spidPerc = (100*($extrastatsArr['SpecimensCountID']/$statsArr['recordcnt']));
+								echo '<li>'.number_format($extrastatsArr['SpecimensCountID']).($spidPerc?" (".($spidPerc>1?round($spidPerc):round($spidPerc,2))."%)":'').' '.(isset($LANG['IDED_TO_SPECIES'])?$LANG['IDED_TO_SPECIES']:'identified to species').'</li>';
+							}
 						}
 						if($statsArr['familycnt']) echo '<li>'.number_format($statsArr['familycnt']).' '.$LANG['FAMILIES'].'</li>';
 						if($statsArr['genuscnt']) echo '<li>'.number_format($statsArr['genuscnt']).' '.$LANG['GENERA'].'</li>';

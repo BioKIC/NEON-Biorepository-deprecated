@@ -72,6 +72,7 @@ $LANG['COLL_STATISTICS'] = 'Collection Statistics';
 $LANG['SPECIMEN_RECORDS'] = 'specimen records';
 $LANG['GEOREFERENCED'] = 'georeferenced';
 $LANG['WITH_IMAGES'] = 'with images';
+$LANG['TOTAL_IMAGES'] = 'total images';
 $LANG['GENBANK_REF'] = 'GenBank references';
 $LANG['BOLD_REF'] = 'BOLD references';
 $LANG['PUB_REFS'] = 'publication references';

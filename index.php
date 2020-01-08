@@ -66,12 +66,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<section>
 			<div class="row" style="vertical-align: bottom">
 				<div class="six columns centered">
-					<h4 class="centered">> 62,000 samples</h4>
+					<h4 class="centered">> 101,000 samples</h4>
 					<img src="images/layout/SamplesByColl.png" usemap="#image-map" width="100%">				
 					<p><span style="font-size: 70%">Distribution of samples by collection type.</span></p>
 				</div>
 				<div class="six columns centered">
-					<h4 class="centered">> 400 taxa</h4>
+					<h4 class="centered">> 650 taxa</h4>
 					<img src="images/layout/TaxaByGroup.png">
 					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa.</span></p>
 				</div>

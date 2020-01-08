@@ -339,7 +339,6 @@ class OccurrenceMaintenance {
 	//Update statistics
 	public function updateCollectionStats($collid, $full = false){
 		set_time_limit(600);
-
 		$recordCnt = 0;
 		$georefCnt = 0;
 		$familyCnt = 0;
@@ -370,12 +369,12 @@ class OccurrenceMaintenance {
 			$rs->free();
 
 			if($this->verbose) $this->outputMsg('Calculating number of specimens imaged... ',1);
-			$sql = 'SELECT count(DISTINCT o.occid) as imgcnt '.
+			$sql = 'SELECT count(DISTINCT o.occid) as imgspeccnt, count(DISTINCT i.imgid) AS imgcnt '.
 				'FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
 				'WHERE (o.collid IN('.$collid.')) ';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
-				$statsArr['imgcnt'] = $r->imgcnt;
+				$statsArr['imgcnt'] = $r->imgcnt.':'.$r->imgspeccnt;
 			}
 			$rs->free();
 

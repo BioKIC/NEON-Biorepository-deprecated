@@ -251,10 +251,10 @@ class OccurrenceCollectionProfile {
 				'rightsholder = '.($postArr['rightsholder']?'"'.$this->cleanInStr($postArr['rightsholder']).'"':'NULL').','.
 				'accessrights = '.($postArr['accessrights']?'"'.$this->cleanInStr($postArr['accessrights']).'"':'NULL').','.
 				'icon = '.($icon?'"'.$icon.'"':'NULL').','.
-				'individualurl = '.($postArr['individualurl']?'"'.$this->cleanInStr($postArr['individualurl']).'"':'NULL').','.
-				'managementtype = '.(isset($postArr['managementtype'])?'"'.$this->cleanInStr($postArr['managementtype']).'"':'NULL').','.
-				'colltype = '.(isset($postArr['colltype'])?'"'.$this->cleanInStr($postArr['colltype']).'"':'NULL').','.
-				'sortseq = '.(isset($postArr['sortseq'])&&is_numeric($postArr['sortseq'])?$this->cleanInStr($postArr['sortseq']):'NULL').' '.
+				(isset($postArr['managementtype'])&&$postArr['managementtype']?'managementtype = "'.$this->cleanInStr($postArr['managementtype']).'",':'').
+				(isset($postArr['colltype'])&&$postArr['colltype']?'colltype = "'.$this->cleanInStr($postArr['colltype']).'",':'').
+				(isset($postArr['sortseq'])&&is_numeric($postArr['sortseq'])?'sortseq = '.$this->cleanInStr($postArr['sortseq']).',':'').
+				'individualurl = '.($postArr['individualurl']?'"'.$this->cleanInStr($postArr['individualurl']).'"':'NULL').' '.
 				'WHERE (collid = '.$this->collid.')';
 			//echo $sql;
 			if(!$this->conn->query($sql)){

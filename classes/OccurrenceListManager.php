@@ -77,19 +77,6 @@ class OccurrenceListManager extends OccurrenceManager{
 					$locStr = str_replace('.,',',',$row->locality);
 					if($row->decimallatitude && $row->decimallongitude) $locStr .= ', '.$row->decimallatitude.' '.$row->decimallongitude;
 					$locStr = $this->cleanOutStr(trim($locStr,' ,;'));
-					if($row->localitysecurity){
-						$locStr .= '<div style="color:orange">Note: ';
-						if($row->localitysecurity == 1){
-							$locStr .= 'locality ';
-						}
-						elseif($row->localitysecurity == 2){
-							$locStr .= 'taxonomic ';
-						}
-						elseif($row->localitysecurity == 3){
-							$locStr .= 'locality &amp; taxonomic ';
-						}
-						$locStr .= 'details are being redacted from non-authorized users</div>';
-					}
 					$returnArr[$row->occid]["locality"] = $locStr;
 					$returnArr[$row->occid]["collnum"] = $this->cleanOutStr($row->recordnumber);
 					$returnArr[$row->occid]["date"] = $row->eventdate;
@@ -101,16 +88,14 @@ class OccurrenceListManager extends OccurrenceManager{
 					$occArr[] = $row->occid;
 				}
 				else{
-					$returnArr[$row->occid]["locality"] = '<span style="color:red;">detailed locality information protected</span>';
+					$returnArr[$row->occid]["locality"] = 'PROTECTED';
 				}
 			}
 			$result->free();
 		}
 		//Set images
 		if($occArr){
-			$sql = 'SELECT o.collid, o.occid, i.thumbnailurl '.
-				'FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
-				'WHERE o.occid IN('.implode(',',$occArr).')';
+			$sql = 'SELECT o.collid, o.occid, i.thumbnailurl FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid WHERE o.occid IN('.implode(',',$occArr).')';
 			$rs = $this->conn->query($sql);
 			$previousOccid = 0;
 			while($r = $rs->fetch_object()){

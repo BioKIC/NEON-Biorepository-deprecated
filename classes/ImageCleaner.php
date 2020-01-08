@@ -106,7 +106,7 @@ class ImageCleaner extends Manager{
 
 			$setFormat = ($row->format?false:true);
 			if(!$this->buildImageDerivatives($imgId, $row->catalognumber, $row->url, $row->thumbnailurl, $row->originalurl, $setFormat)){
-				//$tagSql = 'UPDATE images SET thumbnailurl = "empty" WHERE (imgid = '.$imgId.') AND thumbnailurl LIKE "processing %"';
+				//$tagSql = 'UPDATE images SET thumbnailurl = "" WHERE (imgid = '.$imgId.') AND thumbnailurl LIKE "processing %"';
 				//$this->conn->query($tagSql);
 			}
 			if(!$status) $this->logOrEcho($this->errorMessage,1);
@@ -127,7 +127,7 @@ class ImageCleaner extends Manager{
 	}
 
 	private function getSqlWhere(){
-		$sql = 'WHERE ((i.thumbnailurl IS NULL) OR (i.thumbnailurl LIKE "processing%") OR (i.url = "empty") OR (i.url LIKE "processing%")) ';
+		$sql = 'WHERE ((i.thumbnailurl IS NULL) OR (i.thumbnailurl LIKE "processing%")) ';
 		if($this->collid) $sql .= 'AND (o.collid = '.$this->collid.') ';
 		elseif($this->collid === '0') $sql .= 'AND (i.occid IS NULL) ';
 		if($this->tidArr) $sql .= 'AND (e.taxauthid = 1) AND (i.tid IN('.implode(',',$this->tidArr).') OR e.parenttid IN('.implode(',',$this->tidArr).')) ';
@@ -268,11 +268,9 @@ class ImageCleaner extends Manager{
 				'WHERE ((thumbnailurl = "") OR (thumbnailurl = "bad url") OR (thumbnailurl LIKE "processing %")) AND collid = '.$this->collid;
 		}
 		$this->conn->query($sqlTN);
-		$sqlWeb = 'UPDATE images SET url = "empty" WHERE ((url = "") OR (url LIKE "processing %")) ';
+		$sqlWeb = 'UPDATE images SET url = "" WHERE ((url = "") OR (url LIKE "processing %")) ';
 		if($this->collid){
-			$sqlWeb = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid '.
-				'SET url = "empty" '.
-				'WHERE ((url = "") OR (url LIKE "processing %")) AND collid = '.$this->collid;
+			$sqlWeb = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid SET url = "" WHERE ((url = "") OR (url LIKE "processing %")) AND collid = '.$this->collid;
 		}
 		$this->conn->query($sqlWeb);
 	}

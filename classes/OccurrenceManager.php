@@ -231,13 +231,14 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				}
 			}
 			elseif(count($collectorArr) > 1){
-				$collStr = current($collectorArr);
-				if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
-					//Need to avoid FULLTEXT stopwords interfering with return
-					$tempInnerArr[] = '(o.recordedBy LIKE "%'.$this->cleanInStr($collStr).'%")';
-				}
-				else{
-					$tempArr[] = '(MATCH(f.recordedby) AGAINST("'.$this->cleanInStr($collStr).'")) ';
+				foreach($collectorArr AS $collStr){
+					if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
+						//Need to avoid FULLTEXT stopwords interfering with return
+						$tempArr[] = '(o.recordedBy LIKE "%'.$this->cleanInStr($collStr).'%")';
+					}
+					else{
+						$tempArr[] = '(MATCH(f.recordedby) AGAINST("'.$this->cleanInStr($collStr).'")) ';
+					}
 				}
 			}
 			$sqlWhere .= 'AND ('.implode(' OR ',$tempArr).') ';

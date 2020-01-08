@@ -22,7 +22,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <body class="home-page">
 	<?php include($SERVER_ROOT.'/header.php'); ?>
 	<!-- This is inner text! -->
-	<div id="innertext" class="container" style="margin-top: 8em">
+	<div id="innertext" class="container" style="margin-top: 6em">
 		<h1 class="centered">Discover and access sample-based data</h1>
 
 		<section>
@@ -53,7 +53,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					</a>
 				</div>
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
-					<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">
+					<a href="<?php echo $CLIENT_ROOT; ?>/misc/checklists.php">
 						<div>
 							<img src="images/layout/glyphicon-list-alt.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Checklists</p>

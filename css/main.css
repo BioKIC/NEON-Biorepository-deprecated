@@ -1,53 +1,55 @@
 /************* CUSTOM STYLES *************
  * 
 *************/
-html{
-	font-size: 1.2em;
-	font-weight: 400;
-	line-height: 1.5em;
-	font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+
+html {
+    font-size: 1.2em;
+    font-weight: 400;
+    line-height: 1.5em;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
 }
 
-body{
-	color:black;
-	margin-top: 0px;
+body {
+    color: black;
+    margin-top: 0px;
 }
 
 .home-page section {
-	margin: 3rem 0 1.5rem 0;
+    margin: 3rem 0 1.5rem 0;
 }
+
 
 /*Main table framework*/
-#maintable{
-	margin-left: auto;
-	margin-right: auto;
-	width: 100%;
+
+#maintable {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
 }
 
-#maintable td{
+#maintable td {}
 
-}
 
 /* SYMBIOTA MAIN HEADER */
 
 ul#biorepo-header {
-	position: relative;
+    position: relative;
     list-style: none;
     text-align: center;
-	max-width: 100%;
+    max-width: 100%;
     padding: 3rem 0 2rem 0;
     margin: 0 auto;
 }
 
 @media (max-width: 425px) {
-	ul#biorepo-header {
-	    position: relative;
-	    list-style: none;
-	    text-align: center;
-	    max-width: 100%;
-	    padding: 1rem 0;
-	    margin: 0 auto;
-	}
+    ul#biorepo-header {
+        position: relative;
+        list-style: none;
+        text-align: center;
+        max-width: 100%;
+        padding: 1rem 0;
+        margin: 0 auto;
+    }
 }
 
 ul#biorepo-header::before {
@@ -68,7 +70,7 @@ li.header-title {
     position: relative;
 }
 
-ul#biorepo-header > li {
+ul#biorepo-header>li {
     display: inline-block;
     padding: 0 0.5rem;
     vertical-align: center;
@@ -76,110 +78,126 @@ ul#biorepo-header > li {
 }
 
 ul#biorepo-header h1 {
-	text-transform: uppercase;
-	font-size: 1.5rem;
-	color: white;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    color: white;
 }
 
-#header a{
-	color: white;
-	text-transform: uppercase;
+#header a {
+    color: white;
+    text-transform: uppercase;
 }
 
-#header a:hover{
-
-}
+#header a:hover {}
 
 
 /* SYMBIOTA NAVIGATION */
+
+
 /* Admin bar */
+
 @media (min-width: 1024px) {
-	#top_navbar {
-		margin-top: 2.5rem;
-	}	
-}
-#top_navbar{
-	clear: both;
-	margin-left: auto;
-	margin-right: 1rem;
-	padding-right: 1rem;
+    #top_navbar {
+        margin-top: 2.5rem;
+    }
 }
 
-#right_navbarlinks{
-	clear: both;
-	font-size: 11px;
-	float: right;
-	color: #000000;
-	margin-top: 9px;
+#top_navbar {
+    clear: both;
+    margin-left: auto;
+    margin-right: 1rem;
+    padding-right: 1rem;
 }
+
+#right_navbarlinks {
+    clear: both;
+    font-size: 11px;
+    float: right;
+    color: #000000;
+    margin-top: 9px;
+}
+
+
 /* Main menu bar */
+
 ul#hor_dropdown {
-	display: inline-block;
-	list-style: none;
-	position: relative;
-	text-align: left;
-	max-width: 100%;
-	margin: 0 auto;
+    display: inline-block;
+    list-style: none;
+    position: relative;
+    text-align: left;
+    max-width: 100%;
+    margin: 0 auto;
 }
-ul#hor_dropdown li {		
-	position: relative;
-	display: inherit;
-	padding: 0;
-	margin: 0;
+
+ul#hor_dropdown li {
+    position: relative;
+    display: inherit;
+    padding: 0;
+    margin: 0;
 }
+
 ul#hor_dropdown a {
-	display:block;
-	text-decoration: none;
-	padding: 1rem;
-	font-weight: 600;
-	font-size: 17px;
+    display: block;
+    text-decoration: none;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 17px;
 }
+
 ul#hor_dropdown a:hover {
-	background-color:#1b67b3;
-	color: #FFFFFF;
-	text-decoration:none;
+    background-color: #1b67b3;
+    color: #FFFFFF;
+    text-decoration: none;
 }
+
+
 /* Submenu */
+
 ul#hor_dropdown ul {
-	list-style:none;
-	position:absolute;
-	left:-9999px;
-	top:-9999px;
-	background-color:#1b67b3;
-	z-index:1000;
+    list-style: none;
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    background-color: #1b67b3;
+    z-index: 1000;
 }
-ul#hor_dropdown ul li{
-	float:none;
+
+ul#hor_dropdown ul li {
+    float: none;
 }
-ul#hor_dropdown ul a{
-	white-space: nowrap;
-	text-decoration: none;
-	color: #FFFFFF;
+
+ul#hor_dropdown ul a {
+    white-space: nowrap;
+    text-decoration: none;
+    color: #FFFFFF;
 }
+
 ul#hor_dropdown li:hover ul {
-	left: 0;
-	top: 3.5rem;
-	text-decoration: none;
-	padding:5px 0px;
-	z-index:1000;
+    left: 0;
+    top: 3.5rem;
+    text-decoration: none;
+    padding: 5px 0px;
+    z-index: 1000;
 }
+
 ul#hor_dropdown li:hover ul a {
-	padding:5px;
-	text-decoration:none;
-	text-indent:8px;
-	padding-right:8px;
-	background-image: none;
-	background-color:#1b67b3;
-	z-index:1000;
+    padding: 5px;
+    text-decoration: none;
+    text-indent: 8px;
+    padding-right: 8px;
+    background-image: none;
+    background-color: #1b67b3;
+    z-index: 1000;
 }
-ul#hor_dropdown li:hover ul li a:hover { 
-	background:#1b67b3; 
-	text-decoration: underline;
+
+ul#hor_dropdown li:hover ul li a:hover {
+    background: #1b67b3;
+    text-decoration: underline;
 }
 
 .biorepo-home-icon {
-	padding: 0 !important;
-	display: inline-block;
+    padding: 0 !important;
+    display: inline-block;
     background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/svg/home-white.svg);
     background-size: cover;
     background-repeat: no-repeat;
@@ -188,139 +206,140 @@ ul#hor_dropdown li:hover ul li a:hover {
     width: 16px;
 }
 
+
 /******* LAYOUT ********/
 
-#middleleft{
+#middleleft {}
+
+#middleleftnomenu {}
+
+#middlecenter {
+    padding: 0px;
 }
 
-#middleleftnomenu{
-}
+#middleright {}
 
-#middlecenter{
-	padding:0px;
-}
-
-#middleright{
-}
 
 /*Central div in the middle center table div */
+
 div.navpath {
-	margin-left: auto;
-	margin-right: auto;
-	min-width: 1000px;
-	max-width: 1150px;
-	width: 90%
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 1000px;
+    max-width: 1150px;
+    width: 90%
 }
 
 #innertext {
-	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-
-}
-
-.home-page #innertext ul li {
-	font-size: 1.6em;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif !important;
 }
 
 .disclaimer span {
-	font-weight: bold;
+    font-weight: bold;
 }
+
 
 /* Large screens */
-@media (min-width: 1024px) {
-	#innertext{
-		margin-left: auto;
-		margin-right: auto;
-		min-width: 1000px;
-		max-width: 1150px;
-		width: 90%
-	}
-	#home-left {
-		max-width: 70%; 
-		float: left;
-	}
-	#home-right {
-		max-width: 30%; 
-		float: right;
-	}
-	#cloptiondiv {
-		max-width: 20% !important;
-	}
-	#img-container {
-		width: 80%;
-	}
-	.hide-on-large {
-		display: none;
-	}
 
+@media (min-width: 1024px) {
+    #innertext {
+        margin-left: auto;
+        margin-right: auto;
+        min-width: 1000px;
+        max-width: 1150px;
+        width: 90%
+    }
+    #home-left {
+        max-width: 70%;
+        float: left;
+    }
+    #home-right {
+        max-width: 30%;
+        float: right;
+    }
+    #cloptiondiv {
+        max-width: 20% !important;
+    }
+    #img-container {
+        width: 80%;
+    }
+    .hide-on-large {
+        display: none;
+    }
 }
+
 
 /* Medium screens */
+
 @media (min-width: 426px) and (max-width: 1023px) {
-	#innertext {
-		max-width: 96%;
-	}
-	#home-left {
-		max-width: 60%;
-		float: left;
-		padding-left: 1rem;
-	}
-	#home-right {
-		max-width: 40%;
-		float: right;
-	}
-	#cloptiondiv {
-		max-width: 15% !important;
-	}
-	#taxon-container {
-		max-width: 75%;
-	}
-	.hide-on-large {
-		display: none;
-	}
+    #innertext {
+        max-width: 96%;
+    }
+    #home-left {
+        max-width: 60%;
+        float: left;
+        padding-left: 1rem;
+    }
+    #home-right {
+        max-width: 40%;
+        float: right;
+    }
+    #cloptiondiv {
+        max-width: 15% !important;
+    }
+    #taxon-container {
+        max-width: 75%;
+    }
+    .hide-on-large {
+        display: none;
+    }
 }
+
 
 /* Smaller screens */
+
 @media (max-width: 425px) {
-	#innertext {
-		max-width: 95%;
-	}
-	.hide-on-small {
-		display: none;
-	}
+    #innertext {
+        max-width: 95%;
+    }
+    .hide-on-small {
+        display: none;
+    }
 }
+
 
 /* Image thumbnails   */
-div.tndiv{
 
-}
+div.tndiv {}
 
-div.tnimg{
+div.tnimg {}
 
-}
+div.tnimg a {}
 
-div.tnimg a{
+div.tnimg img {}
 
-}
-
-div.tnimg img{
-
-}	
 
 /*Misc general items*/
-table{
 
-}
+table {}
+
 
 /* Forcing styles over jquery-ui (search forms) */
-.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
-	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
+
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif !important;
 }
 
-button, button.ui-button.ui-widget.ui-corner-all, input[type="submit" i]  {
-	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-	border: 1px solid #ffffff;
-	border-radius: 0 !important;
-	letter-spacing: 0.0625em;
+button,
+button.ui-button.ui-widget.ui-corner-all,
+input[type="submit" i] {
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif !important;
+    border: 1px solid #ffffff;
+    border-radius: 0 !important;
+    letter-spacing: 0.0625em;
     color: white;
     background-color: #005dab !important;
     font-weight: 600;
@@ -330,119 +349,125 @@ button, button.ui-button.ui-widget.ui-corner-all, input[type="submit" i]  {
 }
 
 button.ui-button.ui-widget.ui-corner-all:hover {
-	background-color: #003d79;
+    background-color: #003d79;
     text-decoration: none;
 }
 
 button.ui-button:active {
-	background: #000000;
+    background: #000000;
 }
+
 
 /* Links inside buttons */
-button > a {
-	color: #ffffff !important;
+
+button>a {
+    color: #ffffff !important;
 }
 
-button > a:hover {
-	text-decoration: none !important;
+button>a:hover {
+    text-decoration: none !important;
 }
+
+
 /***/
 
-table, .ui-widget {
-	font-family: "Source Sans Pro",Helvetica,Arial,sans-serif !important;
-	font-size:  1em;
+table,
+.ui-widget {
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif !important;
+    font-size: 1em;
 }
 
 hr:first-of-type {
-	margin-top: 1em;
+    margin-top: 1em;
 }
 
+
 /* Icons */
+
 .svg-icon {
-	filter: invert(1);
+    filter: invert(1);
 }
 
 #omlisttable img {
-	border: none !important;
+    border: none !important;
 }
 
+
 /* Tabs */
+
 #tabs {
-	height: auto;
+    height: auto;
 }
+
 
 /***/
 
-.categorytitle{ 
-}
+.categorytitle {}
 
-.categorytitle a{ 
-}
+.categorytitle a {}
 
-.collectiontitle{
-}
+.collectiontitle {}
 
-.collectiontitle a{
-}
+.collectiontitle a {}
 
-.collectiontitle a:hover{
-}
+.collectiontitle a:hover {}
+
 
 /* Quick Search Plugin */
-#quicksearchdiv{
-	width: auto !important;
-	padding: 0.75rem !important;
-	margin: 1rem auto 4rem auto !important;
+
+#quicksearchdiv {
+    width: auto !important;
+    padding: 0.75rem !important;
+    margin: 1rem auto 4rem auto !important;
 }
 
-#quicksearchtext{
+#quicksearchtext {}
+
+#quicksearchtaxon {}
+
+#quicksearchbutton {
+    margin-left: 1rem !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 10px !important;
 }
 
-#quicksearchtaxon{
-}
-
-#quicksearchbutton{
-	margin-left: 1rem !important;
-	margin-bottom: 1rem !important;
-	padding-bottom: 10px !important;
-}
 
 /* Slideshow Plugin */
-#slideshowcontainer{
-}
+
+#slideshowcontainer {}
 
 
 /* Footer */
-#footer{
-	padding: 3rem !important;
-	border-top: 2px solid #e7e7e7 !important;
+
+#footer {
+    padding: 3rem !important;
+    border-top: 2px solid #e7e7e7 !important;
 }
 
 footer {
-	display:  inline-flex !important;
-	vertical-align: top;
+    display: inline-flex !important;
+    vertical-align: top;
 }
 
 @media (min-width: 1024px) {
-	#footer .footer-bottom .footer-bottom-left {
-	    width: 50%;
-	    padding-top: 1.2em;
-	}
-	#footer .footer-bottom .footer-bottom-left {
-	    display: flex !important;
-	    flex-direction: row;
-	    align-items: flex-start;
-	    justify-content: flex-start;
-	    max-width: 100%;
-	    float: left;
-	}
-
-	#footer .footer-bottom .footer-bottom-right {
-	    width: auto;
-	    float: right;
-	}
+    #footer .footer-bottom .footer-bottom-left {
+        width: 50%;
+        padding-top: 1.2em;
+    }
+    #footer .footer-bottom .footer-bottom-left {
+        display: flex !important;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        max-width: 100%;
+        float: left;
+    }
+    #footer .footer-bottom .footer-bottom-right {
+        width: auto;
+        float: right;
+    }
 }
 
 footer .nsf-link {
-	width: 200px;
+    width: 200px;
 }

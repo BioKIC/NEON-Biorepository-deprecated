@@ -239,6 +239,13 @@ div.navpath {
 }
 
 
+/* Manifest Viewer conteiner */
+
+#samplePanel {
+    font-size: 12px !important;
+}
+
+
 /* Large screens */
 
 @media (min-width: 1024px) {

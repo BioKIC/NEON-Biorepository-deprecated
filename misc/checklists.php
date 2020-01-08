@@ -22,8 +22,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
       <h1>Checklists</h1>
       <ul>
         <li><a href="https://biorepo.neonscience.org/portal/projects/index.php?pid=6">Research Sites - Invertebrates</a></li>
-        <li><a href="https://biorepo.neonscience.org/portal/projects/index.php?pid=1"></a>Research Sites - Plants</li>
-        <li><a href="https://biorepo.neonscience.org/portal/projects/index.php?pid=7"></a>Research Sites - Vertebrates</li>
+        <li><a href="https://biorepo.neonscience.org/portal/projects/index.php?pid=1">Research Sites - Plants</a></li>
+        <li><a href="https://biorepo.neonscience.org/portal/projects/index.php?pid=7">Research Sites - Vertebrates</a></li>
       </ul>
 		</div>
 		<?php

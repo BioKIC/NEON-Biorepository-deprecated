@@ -522,71 +522,66 @@ class ShipmentManager{
 		$status = false;
 		$recArr = array_change_key_case($recArr);
 		if($this->shipmentPK && isset($recArr['sampleid'])){
-			$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, alternativeSampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, '.
-				'dynamicproperties, symbiotatarget, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
-				'VALUES('.$this->shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.
-				(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
-				(isset($recArr['samplecode']) && $recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').','.
-				(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
-				(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
-				(isset($recArr['namedlocation']) && $recArr['namedlocation']?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
-				(isset($recArr['collectdate']) && $recArr['collectdate']?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
-				(isset($recArr['dynamicproperties']) && $recArr['dynamicproperties']?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
-				(isset($recArr['symbiotatarget']) && $recArr['symbiotatarget']?'"'.$this->cleanInStr($recArr['symbiotatarget']).'"':'NULL').','.
-				(isset($recArr['taxonid']) && $recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
-				(isset($recArr['individualcount']) && $recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
-				(isset($recArr['filtervolume']) && $recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
-				(isset($recArr['domainremarks']) && $recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
-				(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
-			if($this->conn->query($sql)){
-				$status = true;
-				if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
-				if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
-					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
-					if(!$this->conn->query($sqlUpdate)){
-						$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
-						$status = 0;
+			$insertRecord = true;
+			if($this->reloadSampleRecs){
+				if($recArr['sampleid'] && $recArr['sampleclass']){
+					$sql = 'SELECT samplepk FROM NeonSample WHERE shipmentpk = '.$this->shipmentPK.' AND sampleid = "'.$recArr['sampleid'].'" AND sampleclass = "'.$recArr['sampleclass'].'"';
+					$rs = $this->conn->query($sql);
+					if($r = $rs->fetch_object()){
+						$recArr['samplepk'] = $r->samplepk;
+						$status = $this->editSample($recArr);
+						$insertRecord = false;
+						if($verbose){
+							if($status) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' updated...</li>';
+							else echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> '.$this->errorStr.'</li>';
+						}
 					}
+					$rs->free();
 				}
 			}
-			else{
-				if($this->conn->errno == 1062){
-					if($this->reloadSampleRecs){
-						if($recArr['sampleid'] && $recArr['sampleclass']){
-							$sql = 'SELECT samplepk FROM NeonSample WHERE shipmentpk = '.$this->shipmentPK.' AND sampleid = "'.$recArr['sampleid'].'" AND sampleclass = "'.$recArr['sampleclass'].'"';
-							$rs = $this->conn->query($sql);
-							if($r = $rs->fetch_object()){
-								$recArr['samplepk'] = $r->samplepk;
-								$status = $this->editSample($recArr);
-							}
-							$rs->free();
-							if($status){
-								if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' updated...</li>';
-							}
-							else{
-								if($verbose) echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> '.$this->errorStr.'</li>';
-							}
-						}
-						else{
-							$this->errorStr = 'Sample exists and unable to update: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].
-							'" target="_blank" onclick="window.close()">'.$recArr['sampleid'].'</a>';
-							if($verbose) echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> '.$this->errorStr.'</li>';
+			if($insertRecord){
+				$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, alternativeSampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, '.
+					'dynamicproperties, symbiotatarget, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
+					'VALUES('.$this->shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.
+					(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
+					(isset($recArr['samplecode']) && $recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').','.
+					(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
+					(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
+					(isset($recArr['namedlocation']) && $recArr['namedlocation']?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
+					(isset($recArr['collectdate']) && $recArr['collectdate']?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
+					(isset($recArr['dynamicproperties']) && $recArr['dynamicproperties']?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
+					(isset($recArr['symbiotatarget']) && $recArr['symbiotatarget']?'"'.$this->cleanInStr($recArr['symbiotatarget']).'"':'NULL').','.
+					(isset($recArr['taxonid']) && $recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
+					(isset($recArr['individualcount']) && $recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
+					(isset($recArr['filtervolume']) && $recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
+					(isset($recArr['domainremarks']) && $recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
+					(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
+				if($this->conn->query($sql)){
+					$status = true;
+					if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
+					if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
+						$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
+						if(!$this->conn->query($sqlUpdate)){
+							$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
+							$status = 0;
 						}
 					}
-					else{
+				}
+				else{
+					if($this->conn->errno == 1062){
 						$this->errorStr = 'Sample already exists with sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].
 						'" target="_blank" onclick="window.close()">'.$recArr['sampleid'].'</a>';
 						if($verbose) echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> '.$this->errorStr.'</li>';
 					}
-				}
-				else{
-					$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
-					if($verbose){
-						echo '<li style="margin-left:15px">'.$this->errorStr.'</li>';
-						echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
+					else{
+						$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
+						if($verbose){
+							echo '<li style="margin-left:15px">'.$this->errorStr.'</li>';
+							echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
+						}
 					}
+					return false;
 				}
-				return false;
 			}
 		}
 		return $status;

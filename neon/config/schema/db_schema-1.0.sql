@@ -74,4 +74,6 @@ ALTER TABLE `NeonSample`
 ALTER TABLE `NeonSample` 
   ADD CONSTRAINT `FK_neon_sample_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
+ALTER TABLE `NeonSample` 
+   ADD UNIQUE INDEX `UNIQUE_sampleCode` (`sampleCode` ASC);
 

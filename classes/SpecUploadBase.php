@@ -107,7 +107,7 @@ class SpecUploadBase extends SpecUpload{
 		//Get uploadspectemp metadata
 		$skipOccurFields = array('dbpk','initialtimestamp','occid','collid','tidinterpreted','fieldnotes','coordinateprecision',
 			'verbatimcoordinatesystem','institutionid','collectionid','associatedoccurrences','datasetid','associatedreferences',
-			'previousidentifications','associatedsequences','storagelocation');
+			'previousidentifications','storagelocation');
 		if($this->collMetadataArr['managementtype'] == 'Live Data' && $this->collMetadataArr['guidtarget'] != 'occurrenceId'){
 			//Do not import occurrenceID if dataset is a live dataset, unless occurrenceID is explicitly defined as the guidSource.
 			//This avoids the situtation where folks are exporting data from one collection and importing into their collection along with the other collection's occurrenceID GUID, which is very bad
@@ -926,6 +926,39 @@ class SpecUploadBase extends SpecUpload{
 				}
 			}
 			$rsTest->free();
+
+			$this->outputMsg('<li>Linking genetic records (aka associatedSequences)...</li>');
+			$sql = 'SELECT occid, associatedSequences FROM uploadspectemp WHERE occid IS NOT NULL AND associatedSequences IS NOT NULL ';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$seqArr = explode(';', str_replace(array(',','|',''),';',$r->associatedSequences));
+				foreach($seqArr as $str){
+					//$urlPattern = '/((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z0-9\&\.\/\?\:@\-_=#])*/';
+					if(preg_match('$((http|https)\://[^\s;,]+)$', $str, $match)){
+						$url = $match[1];
+						$noteStr = trim(str_replace($url, '', $str),',;| ');
+						$resNameStr = 'undefined';
+						$idenStr = '';
+						if(preg_match('$ncbi\.nlm\.nih\.gov.+/([A-Z]+\d+)$', $str, $matchNCBI)){
+							//https://www.ncbi.nlm.nih.gov/nuccore/AY138416
+							$resNameStr = 'GenBank';
+							$idenStr = $matchNCBI[1];
+						}
+						elseif(preg_match('/boldsystems\.org.*processid=([A-Z\d-]+)/', $str, $matchBOLD)){
+							//http://www.boldsystems.org/index.php/Public_RecordView?processid=BSAMQ088-09
+							$resNameStr = 'BOLD Systems';
+							$idenStr = $matchBOLD[1];
+						}
+						$seqSQL = 'INSERT INTO omoccurgenetic(occid, resourcename, identifier, resourceurl, notes) '.
+							'VALUES('.$r->occid.',"'.$this->cleanInStr($resNameStr).'",'.($idenStr?'"'.$this->cleanInStr($idenStr).'"':'NULL').
+							',"'.$url.'",'.($noteStr?'"'.$this->cleanInStr($noteStr).'"':'NULL').')';
+						if(!$this->conn->query($seqSQL) && $this->conn->errno != '1062'){
+							$this->outputMsg('<li>ERROR adding genetic resource: '.$this->conn->error.'</li>',1);
+						}
+					}
+				}
+			}
+			$rs->free();
 
 			//Setup and add datasets and link datasets to current user
 

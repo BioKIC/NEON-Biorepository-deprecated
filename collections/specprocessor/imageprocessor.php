@@ -124,12 +124,13 @@ if($spprid) $specManager->setProjVariables($spprid);
 				}
 				if(f.projecttype.value == 'file'){
 					var fileName = f.uploadfile.value;
+					var fileExt = fileName.split('.').pop().toLowerCase();
 					if(fileName == ""){
 						alert("Select a CSV file to upload");
 						return false;
 					}
-					else if(fileName.split('.').pop().toLowerCase() != "csv"){
-						alert("File must be a CSV file with .csv as the file extension");
+					else if(fileExt != "csv" && fileExt != "zip"){
+						alert("Input file must be a CSV spreadsheet (comma or tab delimited), or ZIP file containing a CSV file");
 						return false;
 					}
 				}

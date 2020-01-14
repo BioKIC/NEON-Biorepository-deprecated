@@ -432,11 +432,14 @@ if($SYMB_UID){
 									$imgCnt = $imgCntArr[0];
 									$imgSpecCnt = $imgCntArr[1];
 								}
-								$imgPerc = (100*($imgSpecCnt/$statsArr['recordcnt']));
-								echo '<li>';
-								echo number_format($imgSpecCnt).($imgPerc?" (".($imgPerc>1?round($imgPerc):round($imgPerc,2))."%)":'').' '.(isset($LANG['WITH_IMAGES'])?$LANG['WITH_IMAGES']:'with images');
-								if($imgCnt) echo ' ('.number_format($imgCnt).' '.(isset($LANG['TOTAL_IMAGES'])?$LANG['TOTAL_IMAGES']:'total images').')';
-								echo '</li>';
+								if($imgSpecCnt){
+									$imgPerc = 0;
+									if($statsArr['recordcnt']) $imgPerc = (100*($imgSpecCnt/$statsArr['recordcnt']));
+									echo '<li>';
+									echo number_format($imgSpecCnt).($imgPerc?" (".($imgPerc>1?round($imgPerc):round($imgPerc,2))."%)":'').' '.(isset($LANG['WITH_IMAGES'])?$LANG['WITH_IMAGES']:'with images');
+									if($imgCnt) echo ' ('.number_format($imgCnt).' '.(isset($LANG['TOTAL_IMAGES'])?$LANG['TOTAL_IMAGES']:'total images').')';
+									echo '</li>';
+								}
 							}
 							if($extrastatsArr['gencnt']) echo '<li>'.number_format($extrastatsArr['gencnt']).' '.(isset($LANG['GENBANK_REF'])?$LANG['GENBANK_REF']:'GenBank references').'</li>';
 							if($extrastatsArr['boldcnt']) echo '<li>'.number_format($extrastatsArr['boldcnt']).' '.(isset($LANG['BOLD_REF'])?$LANG['BOLD_REF']:'BOLD references').'</li>';

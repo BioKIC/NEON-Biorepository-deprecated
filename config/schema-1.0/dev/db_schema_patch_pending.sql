@@ -190,6 +190,17 @@ UPDATE omcrowdsourcecentral c INNER JOIN omcrowdsourcequeue q ON c.omcsid = q.om
   WHERE r.role IN("CollAdmin","CollEditor") AND q.isvolunteer = 1;
 
 
+UPDATE omoccurgenetic SET initialtimestamp = now() WHERE initialtimestamp IS NULL;
+
+ALTER TABLE `omoccurgenetic` 
+  CHANGE COLUMN `resourceurl` `resourceurl` VARCHAR(500) NULL ,
+  CHANGE COLUMN `notes` `notes` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `initialtimestamp` `initialtimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp ;
+
+ALTER TABLE `omoccurgenetic` 
+  ADD UNIQUE INDEX `UNIQUE_omoccurgenetic` (`occid` ASC, `resourceurl` ASC);
+
+
 ALTER TABLE `omoccurrences`
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,
   CHANGE COLUMN `georeferenceRemarks` `georeferenceRemarks` VARCHAR(500) NULL DEFAULT NULL,

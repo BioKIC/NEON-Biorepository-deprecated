@@ -22,3 +22,7 @@
 *.prefs
 content/lang/header.en.php
 content/lang/index.en.php
+header_multi_lang.php
+content/lang/header.pt.php
+content/lang/index.pt.php
+content/lang/index.es.php

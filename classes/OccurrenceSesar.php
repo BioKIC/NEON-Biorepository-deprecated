@@ -70,7 +70,6 @@ class OccurrenceSesar extends Manager {
 		if($this->namespace){
 			$this->dynPropArr['sesar']['namespace'] = $this->namespace;
 			$this->dynPropArr['sesar']['generationMethod'] = $this->generationMethod;
-			print_r($this->dynPropArr);
 			$sql = 'UPDATE omcollections SET dynamicProperties = "'.$this->cleanInStr(json_encode($this->dynPropArr)).'" WHERE collid = '.$this->collid;
 			if($this->conn->query($sql)){
 				return true;

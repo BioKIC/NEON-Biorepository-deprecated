@@ -94,9 +94,31 @@ class OccurrenceUtilities {
 			}
 			$y = $match[2];
 		}
-		elseif(preg_match('/([1,2]{1}[0,5-9]{1}\d{2})/',$dateStr,$match)){
-			//Format: yyyy
-			$y = $match[1];
+		else{
+			if(preg_match('/([1,2]{1}[0,5-9]{1}\d{2})/',$dateStr,$match)) $y = $match[1];
+			if(preg_match_all('/([a-z]+)/i',$dateStr,$match)){
+				foreach($match[1] as $test){
+					$subStr = strtolower(substr($test,0,3));
+					if(array_key_exists($subStr, self::$monthNames)){
+						$m = self::$monthNames[$subStr];
+						break;
+					}
+				}
+			}
+			if(!(int)$m){
+				if(preg_match_all('/(\d+)/',$dateStr,$match)){
+					foreach($match[1] as $test){
+						if($test < 13){
+							$m = $test;
+							break;
+						}
+					}
+				}
+			}
+		}
+		//Test leap date
+		if($m == 2 && $d == 29){
+			if(!checkdate($m,$d,$y)) $d = '00';
 		}
 		//Clean, configure, return
 		if($y){

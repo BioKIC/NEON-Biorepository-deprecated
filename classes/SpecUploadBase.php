@@ -1559,6 +1559,7 @@ class SpecUploadBase extends SpecUpload{
 				switch($type){
 					case "numeric":
 						if(is_numeric($valueStr)){
+							if($symbField == 'coordinateuncertaintyinmeters' && $valueStr < 0) $valueStr = abs($valueStr);
 							$sqlValues .= ",".$valueStr;
 						}
 						elseif(is_numeric(str_replace(',',"",$valueStr))){

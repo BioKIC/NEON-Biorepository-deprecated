@@ -116,10 +116,6 @@ class OccurrenceUtilities {
 				}
 			}
 		}
-		//Test leap date
-		if($m == 2 && $d == 29){
-			if(!checkdate($m,$d,$y)) $d = '00';
-		}
 		//Clean, configure, return
 		if($y){
 			if(strlen($m) == 1) $m = '0'.$m;
@@ -130,16 +126,11 @@ class OccurrenceUtilities {
 				$d = '00';
 			}
 			//check to see if day is valid for month
-			if($d > 31){
-				//Bad day for any month
-				$d = '00';
+			if($m == 2 && $d == 29){
+				//Test leap date
+				if(!checkdate($m,$d,$y)) $d = '00';
 			}
-			elseif($d == 30 && $m == 2){
-				//Bad day for feb
-				$d = '00';
-			}
-			elseif($d == 31 && ($m == 4 || $m == 6 || $m == 9 || $m == 11)){
-				//Bad date, month w/o 31 days
+			elseif($d > 31 || $m == 2 && $d > 29 || (in_array($m, array(4,6,9,11)) && $d > 30)){
 				$d = '00';
 			}
 			//Do some cleaning
@@ -539,11 +530,11 @@ class OccurrenceUtilities {
 				}
 			}
 			//Place into verbatim coord field
-			$vCoord = (isset($recMap['verbatimcoordinates'])?$recMap['verbatimcoordinates']:'');
-			if($vCoord) $vCoord .= '; ';
-			if(stripos($vCoord,$recMap['verbatimlatitude']) === false && stripos($vCoord,$recMap['verbatimlongitude']) === false){
-				$recMap['verbatimcoordinates'] = trim($vCoord.$recMap['verbatimlatitude'].', '.$recMap['verbatimlongitude'],' ,;');
-			}
+			$vCoord = '';
+			if(isset($recMap['verbatimcoordinates']) && $recMap['verbatimcoordinates']) $vCoord = $recMap['verbatimcoordinates'].'; ';
+			if(isset($recMap['verbatimlatitude']) && stripos($vCoord,$recMap['verbatimlatitude']) === false) $vCoord = $recMap['verbatimlatitude'].', ';
+			if(isset($recMap['verbatimlongitude']) && stripos($vCoord,$recMap['verbatimlongitude']) === false) $vCoord = $recMap['verbatimlongitude'];
+			if($vCoord) $recMap['verbatimcoordinates'] = trim($vCoord,' ,;');
 		}
 		//Transfer DMS to verbatim coords
 		if(isset($recMap['latdeg']) && $recMap['latdeg'] && isset($recMap['lngdeg']) && $recMap['lngdeg']){

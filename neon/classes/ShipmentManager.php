@@ -964,6 +964,50 @@ class ShipmentManager{
 		return $siteArr;
 	}
 
+	public function confirmCollectionTransfer($samplePK, $classNew){
+		$retArr = array('code' => 0);
+		if(is_numeric($samplePK)){
+			$collid = 0;
+			$sql = 'SELECT c.collid, o.occid '.
+				'FROM NeonSample s INNER JOIN omoccurrences o ON s.occid = o.occid '.
+				'INNER JOIN omcollections c ON o.collid = c.collid '.
+				'WHERE s.samplePK = '.$samplePK;
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$collid = $r->collid;
+				$retArr['occid'] = $r->occid;
+			}
+			$rs->free();
+			if($collid){
+				$sql = 'SELECT collid, CONCAT_WS("-",institutioncode,collectioncode) as collcode FROM omcollections WHERE datasetid LIKE "%'.$this->cleanInStr($classNew).'%"';
+				$rs = $this->conn->query($sql);
+				if($r = $rs->fetch_object()){
+					if($collid != $r->collid){
+						$retArr['code'] = 1;
+						$retArr['collCode'] = $r->collcode;
+						$retArr['targetCollid'] = $r->collid;
+					}
+				}
+				else{
+					$retArr['code'] = 2;
+				}
+				$rs->free();
+			}
+		}
+		return json_encode($retArr);
+	}
+
+	public function transferOccurrence($occid,$targetCollid){
+		$retCode = 0;
+		if(is_numeric($occid) && is_numeric($targetCollid)){
+			$sql = 'UPDATE omoccurrences SET collid = '.$targetCollid.' WHERE occid = '.$occid;
+			if($this->conn->query($sql)){
+				$retCode = 1;
+			}
+		}
+		return $retCode;
+	}
+
 	//Setters and getters
 	public function setShipmentPK($id){
 		if(is_numeric($id)) $this->shipmentPK = $id;

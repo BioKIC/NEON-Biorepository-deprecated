@@ -197,9 +197,6 @@ include($SERVER_ROOT."/header.php");
 				}
 			}
 			?>
-			<p>
-				<b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?>
-			</p>
 			<form id="guidform" name="guidform" action="igsnmapper.php" method="post" onsubmit="return verifyGuidForm(this)">
 				<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 				<fieldset>
@@ -214,6 +211,10 @@ include($SERVER_ROOT."/header.php");
 						<div><span class="form-label">Password:</span> <input name="pwd" type="password" value="<?php echo $pwd; ?>" /></div>
 						<button id="validate-button" type="button" onclick="validateCredentials(this.form)">Validate Credentials</button>
 					</p>
+					<div style="margin:10px 0px"><hr/></div>
+					<div style="margin:10px 0px">
+						<p><b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?></p>
+					</div>
 					<div id="igsn-reg-div" style="margin-top:20px;display:none;">
 						<p>
 							<span class="form-label">IGSN Namespace:</span>

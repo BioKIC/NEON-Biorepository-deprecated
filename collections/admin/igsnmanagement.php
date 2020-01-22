@@ -33,10 +33,6 @@ $guidManager->setSesarPwd($pwd);
 $guidManager->setNamespace($namespace);
 $guidManager->setGenerationMethod($generationMethod);
 
-$sesarProfile = $guidManager->getSesarProfile();
-if(isset($sesarProfile['namespace'])) $namespace = $sesarProfile['namespace'];
-if(isset($sesarProfile['generationMethod'])) $generationMethod = $sesarProfile['generationMethod'];
-
 if($action){
 	if($action == 'saveProfile'){
 		$guidManager->saveProfile();
@@ -46,13 +42,11 @@ if($action){
 		$namespace = '';
 		$generationMethod = '';
 	}
-	elseif($action == 'verifyguid'){
-		$guidManager->verifyLocalGuids();
-	}
-	elseif($action == 'verifysesar'){
-		$guidManager->verifySesarGuids();
-	}
 }
+
+$sesarProfile = $guidManager->getSesarProfile();
+if(isset($sesarProfile['namespace'])) $namespace = $sesarProfile['namespace'];
+if(isset($sesarProfile['generationMethod'])) $generationMethod = $sesarProfile['generationMethod'];
 ?>
 <html>
 <head>
@@ -118,7 +112,7 @@ if($action){
 	<style type="text/css">
 		fieldset{ margin:10px; padding:15px; }
 		fieldset legend{ font-weight:bold; }
-		.form-label{ font-weight: bold; }
+		.form-label{  }
 		button{ margin:15px; }
 	</style>
 </head>
@@ -130,6 +124,7 @@ include($SERVER_ROOT."/header.php");
 <div class='navpath'>
 	<a href="../../index.php">Home</a> &gt;&gt;
 	<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management</a> &gt;&gt;
+	<a href="igsnmapper.php?collid=<?php echo $collid; ?>">IGSN GUID Generator</a> &gt;&gt;
 	<b>IGSN Management</b>
 </div>
 <!-- This is inner text! -->
@@ -139,14 +134,22 @@ include($SERVER_ROOT."/header.php");
 		echo '<h3>IGSN Management '.$guidManager->getCollectionName().'</h3>';
 		if($statusStr){
 			?>
-			<fieldset style="margin:10px;">
+			<fieldset>
 				<legend>Error Panel</legend>
 				<?php echo $statusStr; ?>
 			</fieldset>
 			<?php
 		}
-		if($action == ''){
-
+		if($action){
+			echo '<fieldset><legend>Action Panel</legend>';
+			echo '<ul>';
+			echo '<li>Verifying IGSN GUIDs</li>';
+			if($action == 'verifysesar'){
+				$resultArr = $guidManager->verifyIgsnGuids();
+				print_r($resultArr);
+			}
+			echo '</ul>';
+			echo '</fieldset>';
 		}
 		/*
 		Quality control
@@ -156,56 +159,36 @@ include($SERVER_ROOT."/header.php");
 		if($namespace){
 			$guidCnt = $guidManager->getGuidCount($collid);
 			$guidMissingCnt = $guidManager->getMissingGuidCount();
+			$guidAllCollCnt = $guidManager->getGuidCount();
 			?>
 			<fieldset>
-				<legend>IGSN Profile Details</legend>
-				<p>Occurrence IGSN GUID counts using the <?php echo $namespace; ?> namespace</p>
-				<p>
-					<b>GUIDs within collection:</b> <?php echo $guidCnt; ?>
-				</p>
-				<p>
-					<b>GUIDs within all collections:</b> <?php echo $guidManager->getGuidCount(); ?>
-				</p>
-				<p>
-					<b>Occurrences without GUIDs:</b> <?php echo $guidMissingCnt; ?>
-				</p>
-				<p>
-					<span class="form-label">IGSN Namespace:</span>
-					<?php echo $namespace; ?>
-				</p>
-				<p>
-					<span class="form-label">IGSN generation method:</span>
-					<?php echo $generationMethod; ?>
-				</p>
-			</fieldset>
-			<fieldset>
-				<legend>IGSN Profile Maintenance</legend>
-				<form name="deleteform" action="igsnmanagement.php" method="post">
-					<p>
+				<legend>IGSN Profile Details & Statistics</legend>
+				<p><span class="form-label">IGSN Namespace:</span> <?php echo $namespace; ?></p>
+				<p><span class="form-label">IGSN generation method:</span> <?php echo $generationMethod; ?></p>
+				<p><span class="form-label">GUIDs within collection:</span> <?php echo $guidCnt; ?></p>
+				<p><span class="form-label">Occurrences without GUIDs:</span> <?php echo $guidMissingCnt; ?></p>
+				<?php
+				if($guidAllCollCnt > $guidCnt){
+					?>
+					<p><span class="form-label">GUIDs using above namespace across all collections:</span> <?php echo $guidAllCollCnt; ?></p>
+					<?php
+				}
+				?>
+				<div style="margin:10px;">
+					<form name="deleteform" action="igsnmanagement.php" method="post">
 						<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-						<button name="formsubmit" type="submit" value="deleteProfile">Delete Profile</button>
-						<span style="margin-left:25px;"><a href="igsnmapper.php?collid=<?php echo $collid; ?>"><button name="formsubmit" type="button">Generate IGSN Identifiers</button></a></span>
-					</p>
-				</form>
-			</fieldset>
-			<fieldset>
-				<legend>IGSN GUID Maintenance</legend>
-				<form name="guidmaintenanceform" action="igsnmanagement.php" method="post">
-					<p>Verify portal's IGSN GUIDs within database against the SESAR system and vice versa.</p>
-					<p>
-						<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-						<?php
-						if($guidCnt){
-							?>
-							<button name="formsubmit" type="submit" value="verifyguid">Verify portal GUIDs</button>
-							<?php
-						}
-						?>
-						<span style="margin-left:25px;">
-							<a href="igsnmapper.php?collid=<?php echo $collid; ?>"><button name="formsubmit" type="submit" value="verifysesar">Verify SESAR GUIDs</button></a>
+						<input type="hidden" name="namespace" value="<?php echo $namespace; ?>" />
+						<span style="margin-left:10px;">
+							<button name="formsubmit" type="submit" value="verifysesar">Verify SESAR GUIDs</button>
 						</span>
-					</p>
-				</form>
+						<span style="margin-left:10px;">
+							<button name="formsubmit" type="submit" value="deleteProfile" onclick="return confirm('Are you sure you want to delete this profile?')">Delete Profile</button>
+						</span>
+						<span style="margin-left:10px;">
+							<a href="igsnmapper.php?collid=<?php echo $collid; ?>"><button type="button">Go to Mapper</button></a>
+						</span>
+					</form>
+				</div>
 			</fieldset>
 			<?php
 		}

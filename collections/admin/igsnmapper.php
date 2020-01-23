@@ -84,30 +84,30 @@ if($action == 'populateGUIDs'){
 			.done(function(xml) {
 				var valid = $(xml).find('valid').text();
 				if(valid == "yes"){
-					$(xml).find('user_codes').each(function(){
-	                    $(this).find("user_code").each(function(){
-	                        var userCode = $(this).text();
-	                        $("#igsn-reg-div").show();
-	                        $("#validate-button").hide();
-	                        $("#valid-span").show();
-	                        $("#notvalid-span").hide();
-	                    });
-	                });
+					//$(xml).find('user_codes').each(function(){
+						//$(this).find("user_code").each(function(){
+							//var userCode = $(this).text();
+						//});
+					//});
+					$("#igsn-reg-div").show();
+					$("#validate-button").hide();
+					$("#valid-span").show();
+					$("#notvalid-span").hide();
 				}
 				else{
 					alert($(xml).find('error').text());
-                    $("#igsn-reg-div").hide();
-                    $("#validate-button").show();
-                    $("#valid-span").hide();
-                    $("#notvalid-span").show();
+					$("#igsn-reg-div").hide();
+					$("#validate-button").show();
+					$("#valid-span").hide();
+					$("#notvalid-span").show();
 				}
 			})
 			.fail(function() {
 				alert("Validation call failed");
-                $("#igsn-reg-div").hide();
-                $("#validate-button").show();
-                $("#valid-span").hide();
-                $("#notvalid-span").show();
+				$("#igsn-reg-div").hide();
+				$("#validate-button").show();
+				$("#valid-span").hide();
+				$("#notvalid-span").show();
 			});
 		}
 
@@ -236,7 +236,7 @@ include($SERVER_ROOT."/header.php");
 							<select name="registrationMethod">
 								<option value=''>-- Select Method --</option>
 								<option value=''>----------------------------</option>
-								<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>Batch API submission</option>
+								<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>SESAR API</option>
 								<!--  <option value='csv' <?php echo ($registrationMethod=='csv'?'SELECTED':''); ?>>Export CSV</option>  -->
 								<option value='xml' <?php echo ($registrationMethod=='xml'?'SELECTED':''); ?>>Export XML</option>
 							</select>

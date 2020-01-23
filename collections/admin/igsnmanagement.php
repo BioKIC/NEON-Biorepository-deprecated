@@ -77,12 +77,13 @@ if(isset($sesarProfile['generationMethod'])) $generationMethod = $sesarProfile['
 					$(xml).find('user_codes').each(function(){
 	                    $(this).find("user_code").each(function(){
 	                        var userCode = $(this).text();
-	                        $("#igsn-reg-div").show();
-	                        $("#validate-button").hide();
-	                        $("#valid-span").show();
-	                        $("#notvalid-span").hide();
+	                        $('#nsSelect').append(new Option(userCode, userCode));
 	                    });
 	                });
+                    $("#igsn-reg-div").show();
+                    $("#validate-button").hide();
+                    $("#valid-span").show();
+                    $("#notvalid-span").hide();
 				}
 				else{
 					alert($(xml).find('error').text());
@@ -131,7 +132,7 @@ include($SERVER_ROOT."/header.php");
 <div id="innertext">
 	<?php
 	if($isEditor && $collid){
-		echo '<h3>IGSN Management '.$guidManager->getCollectionName().'</h3>';
+		echo '<h3>IGSN Management: '.$guidManager->getCollectionName().'</h3>';
 		if($statusStr){
 			?>
 			<fieldset>
@@ -141,57 +142,58 @@ include($SERVER_ROOT."/header.php");
 			<?php
 		}
 		if($action){
-			echo '<fieldset><legend>Action Panel</legend>';
-			echo '<ul>';
 			if($action == 'verifysesar'){
+				echo '<fieldset><legend>Action Panel</legend>';
+				echo '<ul>';
+				$guidManager->setVerboseMode(2);
 				echo '<li>Verifying all IGSNs located within SESAR system against portal database...</li>';
 				$sesarArr = $guidManager->verifySesarGuids();
-				echo '<li style="margin-left:10px">Checked '.$sesarArr['checkedCnt'].' out of '.$sesarArr['totalCnt'].' GUIDs</li>';
+				echo '<li style="margin-left:15px">Checked '.$sesarArr['checkedCnt'].' out of '.$sesarArr['totalCnt'].' GUIDs</li>';
 				if(isset($sesarArr['collid'])){
-					echo '<li style="margin-left:10px">Registered IGSNs by Collection:</li>';
+					echo '<li style="margin-left:15px">Registered IGSNs by Collection:</li>';
 					foreach($sesarArr['collid'] as $id => $collArr){
-						echo '<li style="margin-left:20px"><a href="../misc/collprofiles.php?collid='.$id.'" target="_blank">'.$collArr['name'].'</a>: '.$collArr['cnt'].' IGSNs</li>';
+						echo '<li style="margin-left:30px"><a href="../misc/collprofiles.php?collid='.$id.'" target="_blank">'.$collArr['name'].'</a>: '.$collArr['cnt'].' IGSNs</li>';
 					}
 				}
 				$missingCnt = 0;
 				if(isset($sesarArr['missing'])) $missingCnt = count($sesarArr['missing']);
-				echo '<li style="margin-left:10px">';
+				echo '<li style="margin-left:15px">';
 				echo '# IGSNs not in database: '.$missingCnt;
 				if($missingCnt) echo ' <a href="#" onclick="$(\'#missingGuidList\').show();return false;">(display list)</a>';
 				echo '</li>';
 				if($missingCnt){
-					echo '<div id="missingGuidList" style="margin-left:25px;display:none">';
+					echo '<div id="missingGuidList" style="margin-left:30px;display:none">';
 					foreach($sesarArr['missing'] as $igsn){
 						echo '<li><a href="https://sesardev.geosamples.org/sample/igsn/'.$igsn.'" target="_blank">'.$igsn.'</a></li>';
 					}
 					echo '</div>';
 				}
-				echo '<li style="margin-left:10px">Finished verifying GUIDs!</li>';
+				echo '<li style="margin-left:15px">Finished verifying GUIDs!</li>';
 				echo '</ul>';
-				ob_flush();
-				flush();
 
 				echo '<ul style="margin-top:15px">';
 				echo '<li>Starting to verify portal\'s IGSNs against SESAR system...</li>';
+				ob_flush();
+				flush();
 				$localArr = $guidManager->verifyLocalGuids();
-				echo '<li style="margin-left:10px"># IGSNs checked: '.$localArr['cnt'].'</li>';
+				echo '<li style="margin-left:15px"># IGSNs checked: '.$localArr['cnt'].'</li>';
 				$missingCnt = 0;
 				if(isset($localArr['missing'])) $missingCnt = count($localArr['missing']);
-				echo '<li style="margin-left:10px">';
+				echo '<li style="margin-left:15px">';
 				echo '# of unmapped IGSNs: '.$missingCnt;
 				if($missingCnt) echo ' <a href="#" onclick="$(\'#unmappedGuidList\').show();return false;">(display list)</a>';
 				echo '</li>';
 				if($missingCnt){
-					echo '<div id="unmappedGuidList" style="margin-left:25px;display:none">';
+					echo '<div id="unmappedGuidList" style="margin-left:30px;display:none">';
 					foreach($localArr['missing'] as $occid => $guid){
 						echo '<li><a href="../individual/index.php?occid='.$occid.'" target="_blank">'.$guid.'</a></li>';
 					}
 					echo '</div>';
 				}
-				echo '<li style="margin-left:10px">Finished verifying local IGSN GUIDs!</li>';
+				echo '<li style="margin-left:15px">Finished verifying local IGSN GUIDs!</li>';
+				echo '</ul>';
+				echo '</fieldset>';
 			}
-			echo '</ul>';
-			echo '</fieldset>';
 		}
 		/*
 		Quality control
@@ -248,13 +250,12 @@ include($SERVER_ROOT."/header.php");
 						<div><span class="form-label">Password:</span> <input name="pwd" type="password" value="<?php echo $pwd; ?>" /></div>
 						<button id="validate-button" type="button" onclick="validateCredentials(this.form)">Validate Credentials</button>
 					</p>
-					<div id="igsn-reg-div" style="margin-top:20px;">
+					<div id="igsn-reg-div" style="margin-top:20px;display:none">
 						<p>
 							<span class="form-label">IGSN Namespace:</span>
-							<select name="namespace" onchange="generateIgsnSeed()">
+							<select id="nsSelect" name="namespace">
 								<option value="">-- Select an IGSN Namespace --</option>
 								<option value="">------------------------------</option>
-								<option value="NEO">NEO</option>
 							</select>
 						</p>
 						<p>

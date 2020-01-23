@@ -160,7 +160,7 @@ class OccurrenceSesar extends Manager {
 			$this->cleanFieldValues();
 
 			if(!$this->igsnExists($igsn)) $this->setSampleXmlNode($igsn);
-			$this->logOrEcho('#'.$increment.': IGSN created '.$this->fieldMap['catalogNumber']['value'],1);
+			$this->logOrEcho('#'.$increment.': IGSN created for <a href="../editor/occurrenceeditor.php?occid='.$this->fieldMap['occid']['value'].'" target="_blank">'.$this->fieldMap['catalogNumber']['value'].'</a>',1);
 			$increment++;
 		}
 		$rs->free();
@@ -268,9 +268,9 @@ class OccurrenceSesar extends Manager {
 		return $responseXML;
 	}
 
-	public function processRegistrationResponse($responseXML){
+	private function processRegistrationResponse($responseXML){
 		$status = true;
-		echo htmlentities($responseXML);
+		//echo htmlentities($responseXML);
 		$dom = new DOMDocument('1.0','UTF-8');
 		if($dom->loadXML($responseXML)){
 			$rootElem = $dom->documentElement;
@@ -497,7 +497,6 @@ class OccurrenceSesar extends Manager {
 
 	//GUID verification functions
 	public function verifySesarGuids(){
-		$this->setVerboseMode(2);
 		$sesarResultArr = array('totalCnt'=>0,'checkedCnt'=>0);
 		$this->batchVerifySesar($sesarResultArr);
 		if($sesarResultArr['totalCnt'] && $sesarResultArr['collid']){
@@ -513,7 +512,8 @@ class OccurrenceSesar extends Manager {
 
 	private function batchVerifySesar(&$sesarResultArr, $pageNumber = 1){
 		$batchLimit = 1000;
-		$cnt = 1;
+		$cnt = 0;
+		if(isset($sesarResultArr['checkedCnt'])) $cnt = $sesarResultArr['checkedCnt'];
 		$ns = substr($this->namespace,0,3);
 		//$url = 'https://app.geosamples.org/samples/user_code/'.$this->namespace.'&limit='.$batchLimit.'&page_no='.$pageNumber;
 		$url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
@@ -534,16 +534,16 @@ class OccurrenceSesar extends Manager {
 					else{
 						$sesarResultArr['missing'][] = $igsn;
 					}
-					if(!$cnt%100) $this->logOrEcho($cnt.' records checked',1);
 					$rs->free();
 					$cnt++;
+					if($cnt%1000==0) $this->logOrEcho($cnt.' records checked',1);
 				}
 			}
 		}
 		else{
 			$this->logOrEcho('ERROR obtaining IGSNs (code: '.$responseArr['retCode'].')',1);
 		}
-		$sesarResultArr['checkedCnt'] += ($cnt-1);
+		$sesarResultArr['checkedCnt'] = $cnt;
 		if($sesarResultArr['totalCnt'] > ($batchLimit*$pageNumber)){
 			$pageNumber++;
 			$this->batchVerifySesar($sesarResultArr,$pageNumber);
@@ -564,7 +564,7 @@ class OccurrenceSesar extends Manager {
 			if($responseArr['retCode'] == 404) $retArr['missing'][$r->occid] = $r->occurrenceid;
 			elseif($responseArr['retCode'] != 200) $this->logOrEcho($this->errorMessage,1);
 			$cnt++;
-			if(!$cnt%100) $this->logOrEcho($cnt.' records checked',1);
+			if($cnt%100==0) $this->logOrEcho($cnt.' records checked',1);
 		}
 		$rs->free();
 		return $retArr;
@@ -681,8 +681,8 @@ class OccurrenceSesar extends Manager {
 
 	public function setIgsnSeed($seed){
 		if($seed && preg_match('/^[A-Z0-9]+$/', $seed)){
-			if($this->igsnExists($seed)) $this->igsnSeed = $seed;
-			else $this->warningArr[] = 'ERROR: Seed ('.$seed.') already exists or is out of sequence ';
+			if($this->igsnExists($seed)) $this->warningArr[] = 'ERROR: Seed ('.$seed.') already exists or is out of sequence ';
+			else $this->igsnSeed = $seed;
 		}
 	}
 

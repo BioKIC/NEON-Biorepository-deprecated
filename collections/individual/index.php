@@ -1,6 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceIndividualManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 include_once($SERVER_ROOT.'/classes/RdfUtility.php');
 
@@ -22,7 +22,7 @@ if(!is_numeric($clid)) $clid = 0;
 if($pk && !preg_match('/^[a-zA-Z0-9\s_]+$/',$pk)) $pk = '';
 if($submit && !preg_match('/^[a-zA-Z0-9\s_]+$/',$submit)) $submit = '';
 
-$indManager = new OccurrenceIndividualManager();
+$indManager = new OccurrenceIndividual();
 if($occid){
 	$indManager->setOccid($occid);
 }
@@ -572,15 +572,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							<?php
 							if($securityCode != 1){
 								$localityStr1 .= $occArr['locality'];
+								if($occArr['locationid']) $localityStr1 .= ' [locationID: '.$occArr['locationid'].']';
 							}
 							else{
 								$localityStr1 .= '<span style="color:red;">locality details protected: ';
-								if($occArr['localitysecurityreason']){
-									$localityStr1 .= $occArr['localitysecurityreason'];
-								}
-								else{
-									$localityStr1 .= 'typically done to protect locations of rare or threatened species';
-								}
+								if($occArr['localitysecurityreason']) $localityStr1 .= $occArr['localitysecurityreason'];
+								else $localityStr1 .= 'typically done to protect locations of rare or threatened species';
 								$localityStr1 .= '</span>';
 							}
 							echo trim($localityStr1,',; ');
@@ -670,10 +667,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								</div>
 								<?php
 							}
-							if($occArr['localitysecurity'] == 1 || $occArr['localitysecurity'] == 3){
-								echo '<div style="margin-left:10px;color:orange">Note: Locality ';
-								if($occArr['localitysecurity'] == 3) echo 'and Taxonomic ';
-								echo 'protection applied for non-authorized users</div>';
+							if($occArr['localitysecurity'] == 1){
+								echo '<div style="margin-left:10px;color:orange">Locality protection applied for non-authorized users</div>';
 							}
 							if($occArr['habitat']){
 								?>

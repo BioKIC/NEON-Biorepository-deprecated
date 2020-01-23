@@ -486,8 +486,8 @@ else{
 	</script>
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
-	<script src="../../js/symb/collections.occureditormain.js?ver=201911" type="text/javascript"></script>
-	<script src="../../js/symb/collections.occureditortools.js?ver=1909" type="text/javascript"></script>
+	<script src="../../js/symb/collections.occureditormain.js?ver=201912" type="text/javascript"></script>
+	<script src="../../js/symb/collections.occureditortools.js?ver=1912" type="text/javascript"></script>
 	<script src="../../js/symb/collections.occureditorimgtools.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/symb/collections.occureditorshare.js?ver=20180711" type="text/javascript"></script>

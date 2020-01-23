@@ -426,8 +426,9 @@ class SpecUploadDwca extends SpecUploadBase{
 				else{
 					$this->delimiter = '';
 				}
-				if(isset($this->metaArr['occur']['fieldsEnclosedBy']) && $this->metaArr['occur']['fieldsEnclosedBy']){
+				if(isset($this->metaArr['occur']['fieldsEnclosedBy'])){
 					$this->enclosure = $this->metaArr['occur']['fieldsEnclosedBy'];
+					if($this->delimiter == "\t" && !$this->enclosure) $this->enclosure = chr(127);		//Needed to keep fgetcsv from reverting back to " as the default enclosure character
 				}
 				if(isset($this->metaArr['occur']['encoding']) && $this->metaArr['occur']['encoding']){
 					$this->encoding = strtolower(str_replace('-','',$this->metaArr['occur']['encoding']));

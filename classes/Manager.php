@@ -40,7 +40,7 @@ class Manager  {
 		if($this->verboseMode){
 			if($this->verboseMode == 3 || $this->verboseMode == 1){
 				if($this->logFH){
-					fwrite($this->logFH,str_repeat("\t", $indexLevel).$str."\n");
+					fwrite($this->logFH,str_repeat("\t", $indexLevel).strip_tags($str)."\n");
 				}
 			}
 			if($this->verboseMode == 3 || $this->verboseMode == 2){

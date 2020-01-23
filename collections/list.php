@@ -235,8 +235,13 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 						if($fieldArr["country"]) $localStr .= $fieldArr["country"].", ";
 						if($fieldArr["state"]) $localStr .= $fieldArr["state"].", ";
 						if($fieldArr["county"]) $localStr .= $fieldArr["county"].", ";
-						if($fieldArr["locality"]) $localStr .= $fieldArr["locality"].", ";
-						if(isset($fieldArr["elev"]) && $fieldArr["elev"]) $localStr .= $fieldArr["elev"].'m';
+						if($fieldArr['locality'] == 'PROTECTED'){
+							$localStr .= '<span style="color:red;">'.$LANG['PROTECTED'].'</span>';
+						}
+						else{
+							if($fieldArr['locality']) $localStr .= $fieldArr['locality'].', ';
+							if(isset($fieldArr['elev']) && $fieldArr['elev']) $localStr .= $fieldArr['elev'].'m';
+						}
 						if(strlen($localStr) > 2) $localStr = trim($localStr,' ,');
 						echo $localStr;
 						echo '</div><div style="margin:4px">';

@@ -1,6 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceIndividualManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = $_GET["occid"];
@@ -14,7 +14,7 @@ if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($collId)) $collId = 0;
 if(!is_numeric($clid)) $clid = 0;
 
-$indManager = new OccurrenceIndividualManager();
+$indManager = new OccurrenceIndividual();
 $indManager->setOccid($occid);
 
 ?>

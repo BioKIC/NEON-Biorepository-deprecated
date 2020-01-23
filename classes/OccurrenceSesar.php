@@ -70,7 +70,6 @@ class OccurrenceSesar extends Manager {
 		if($this->namespace){
 			$this->dynPropArr['sesar']['namespace'] = $this->namespace;
 			$this->dynPropArr['sesar']['generationMethod'] = $this->generationMethod;
-			print_r($this->dynPropArr);
 			$sql = 'UPDATE omcollections SET dynamicProperties = "'.$this->cleanInStr(json_encode($this->dynPropArr)).'" WHERE collid = '.$this->collid;
 			if($this->conn->query($sql)){
 				return true;
@@ -161,7 +160,7 @@ class OccurrenceSesar extends Manager {
 			$this->cleanFieldValues();
 
 			if(!$this->igsnExists($igsn)) $this->setSampleXmlNode($igsn);
-			$this->logOrEcho('#'.$increment.': IGSN created '.$this->fieldMap['catalogNumber']['value'],1);
+			$this->logOrEcho('#'.$increment.': IGSN created for <a href="../editor/occurrenceeditor.php?occid='.$this->fieldMap['occid']['value'].'" target="_blank">'.$this->fieldMap['catalogNumber']['value'].'</a>',1);
 			$increment++;
 		}
 		$rs->free();
@@ -269,9 +268,9 @@ class OccurrenceSesar extends Manager {
 		return $responseXML;
 	}
 
-	public function processRegistrationResponse($responseXML){
+	private function processRegistrationResponse($responseXML){
 		$status = true;
-		echo htmlentities($responseXML);
+		//echo htmlentities($responseXML);
 		$dom = new DOMDocument('1.0','UTF-8');
 		if($dom->loadXML($responseXML)){
 			$rootElem = $dom->documentElement;
@@ -497,71 +496,78 @@ class OccurrenceSesar extends Manager {
 	}
 
 	//GUID verification functions
-	public function verifyLocalGuids(){
-		$limit = 1000;
-		$pageNumber = 1;
-		$sesarCnt = false;
-		$cnt = 1;
-		$ns = substr($this->namespace,0,3);
-		//$ns = 'NEE';
-		//$urlBase = 'https://app.geosamples.org/samples/user_code/'.$this->namespace.'&limit='.$limit;
-		$urlBase = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$limit;
-		$igsnArr = array();
-		do{
-			$url = $urlBase.'&page_no='.$pageNumber;
-			$retArr = $this->getSesarApiGetData($url);
-			if($retArr['retCode'] == 200){
-				$retJson = $retArr['retJson'];
-				if($retJson){
-					$jsonObj = json_decode($retJson);
-					if($sesarCnt === false) $sesarCnt = $jsonObj->total_counts;
-					foreach($jsonObj->igsn_list as $igsn){
-						//echo $igsn.'<br/>';
-						$sql = 'SELECT collid FROM omoccurrences WHERE occurrenceID = "'.$igsn.'"';
-						$rs = $this->conn->query($sql);
-						if($rs->num_rows){
-							if($r = $rs->fetch_object()){
-								if(!array_key_exists($r->collid,$igsnArr)) $igsnArr[$r->collid] = 1;
-								else $igsnArr[$r->collid]++;
-							}
-						}
-						else{
-							$igsnArr['bad'][] = $igsn;
-						}
-						if($cnt%1000) $this->logOrEcho($cnt.' records checked');
-						$rs->free();
-					}
-				}
+	public function verifySesarGuids(){
+		$sesarResultArr = array('totalCnt'=>0,'checkedCnt'=>0);
+		$this->batchVerifySesar($sesarResultArr);
+		if($sesarResultArr['totalCnt'] && $sesarResultArr['collid']){
+			$sql = 'SELECT collid, CONCAT_WS(":",institutionCode,collectionCode) as code, collectionname FROM omcollections WHERE collid IN('.implode(',',array_keys($sesarResultArr['collid'])).')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$sesarResultArr['collid'][$r->collid]['name'] = $r->collectionname.' ('.$r->code.')';
 			}
-			$sesarCnt -= $limit;
-			$pageNumber++;
-			$cnt++;
-		}while($sesarCnt > 0);
+			$rs->free();
+		}
+		return $sesarResultArr;
 	}
 
-	public function verifySesarGuids(){
-		$badArr = array();
-		$this->setVerboseMode(2);
-		$url = 'https://app.geosamples.org/sample/igsn/';
+	private function batchVerifySesar(&$sesarResultArr, $pageNumber = 1){
+		$batchLimit = 1000;
 		$cnt = 0;
-		$sql = 'SELECT igsn FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%" AND collid = '.$this->collid;
+		if(isset($sesarResultArr['checkedCnt'])) $cnt = $sesarResultArr['checkedCnt'];
+		$ns = substr($this->namespace,0,3);
+		//$url = 'https://app.geosamples.org/samples/user_code/'.$this->namespace.'&limit='.$batchLimit.'&page_no='.$pageNumber;
+		$url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
+		$responseArr = $this->getSesarApiGetData($url);
+		if($responseArr['retCode'] == 200){
+			if($retJson = $responseArr['retJson']){
+				$jsonObj = json_decode($retJson);
+				if(!$sesarResultArr['totalCnt']) $sesarResultArr['totalCnt'] = $jsonObj->total_counts;
+				foreach($jsonObj->igsn_list as $igsn){
+					$sql = 'SELECT collid FROM omoccurrences WHERE occurrenceID = "'.$igsn.'"';
+					$rs = $this->conn->query($sql);
+					if($rs->num_rows){
+						if($r = $rs->fetch_object()){
+							if(!isset($sesarResultArr['collid'][$r->collid]['cnt'])) $sesarResultArr['collid'][$r->collid]['cnt'] = 1;
+							else $sesarResultArr['collid'][$r->collid]['cnt']++;
+						}
+					}
+					else{
+						$sesarResultArr['missing'][] = $igsn;
+					}
+					$rs->free();
+					$cnt++;
+					if($cnt%1000==0) $this->logOrEcho($cnt.' records checked',1);
+				}
+			}
+		}
+		else{
+			$this->logOrEcho('ERROR obtaining IGSNs (code: '.$responseArr['retCode'].')',1);
+		}
+		$sesarResultArr['checkedCnt'] = $cnt;
+		if($sesarResultArr['totalCnt'] > ($batchLimit*$pageNumber)){
+			$pageNumber++;
+			$this->batchVerifySesar($sesarResultArr,$pageNumber);
+		}
+		return $sesarResultArr;
+	}
+
+	public function verifyLocalGuids(){
+		$retArr = array();
+		$cnt = 0;
+		//$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
+		$url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
+		$sql = 'SELECT occid, occurrenceid FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%" AND collid = '.$this->collid;
 		$rs = $this->conn->query($sql);
+		$retArr['cnt'] = $rs->num_rows;
 		while($r = $rs->fetch_object()){
-			$resArr = $this->getSesarApiGetData($url.$r->igsn);
-			if($resArr == 200){
-				$this->logOrEcho($resArr.'<br/>');
-			}
-			else{
-				$badArr[] = $r->igsn;
-				$this->logOrEcho($this->errorMessage);
-			}
-			if($cnt%1000) $this->logOrEcho($cnt.' records checked');
+			$responseArr = $this->getSesarApiGetData($url.$r->occurrenceid);
+			if($responseArr['retCode'] == 404) $retArr['missing'][$r->occid] = $r->occurrenceid;
+			elseif($responseArr['retCode'] != 200) $this->logOrEcho($this->errorMessage,1);
 			$cnt++;
+			if($cnt%100==0) $this->logOrEcho($cnt.' records checked',1);
 		}
 		$rs->free();
-		if($badArr){
-			$this->logOrEcho('Bad IGSNs: '.implode(',', $badArr));
-		}
+		return $retArr;
 	}
 
 	private function getSesarApiGetData($url){
@@ -675,8 +681,8 @@ class OccurrenceSesar extends Manager {
 
 	public function setIgsnSeed($seed){
 		if($seed && preg_match('/^[A-Z0-9]+$/', $seed)){
-			if($this->igsnExists($seed)) $this->igsnSeed = $seed;
-			else $this->warningArr[] = 'ERROR: Seed ('.$seed.') already exists or is out of sequence ';
+			if($this->igsnExists($seed)) $this->warningArr[] = 'ERROR: Seed ('.$seed.') already exists or is out of sequence ';
+			else $this->igsnSeed = $seed;
 		}
 	}
 

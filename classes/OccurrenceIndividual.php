@@ -4,7 +4,7 @@ include_once('Manager.php');
 include_once('OccurrenceDuplicate.php');
 include_once('OccurrenceAccessStats.php');
 
-class OccurrenceIndividualManager extends Manager{
+class OccurrenceIndividual extends Manager{
 
 	private $occid;
 	private $collid;
@@ -95,16 +95,16 @@ class OccurrenceIndividualManager extends Manager{
 	}
 
 	private function loadOccurData(){
-		$sql = 'SELECT o.occid, collid, institutioncode AS secondaryinstcode, collectioncode AS secondarycollcode, '.
-			'occurrenceid, catalognumber, occurrenceremarks, tidinterpreted, family, sciname, '.
-			'scientificnameauthorship, identificationqualifier, identificationremarks, identificationreferences, taxonremarks, '.
-			'identifiedby, dateidentified, recordedby, associatedcollectors, recordnumber, eventdate, MAKEDATE(YEAR(eventDate),enddayofyear) AS eventdateend, '.
-			'verbatimeventdate, country, stateprovince, county, municipality, locality, localitysecurity, localitysecurityreason, '.
-			'decimallatitude, decimallongitude, geodeticdatum, coordinateuncertaintyinmeters, verbatimcoordinates, georeferenceremarks, '.
-			'minimumelevationinmeters, maximumelevationinmeters, verbatimelevation, minimumdepthinmeters, maximumdepthinmeters, verbatimdepth, '.
-			'verbatimattributes, o.locationremarks, o.lifestage, o.sex, o.individualcount, o.samplingprotocol, o.preparations, '.
-			'typestatus, dbpk, habitat, substrate, associatedtaxa, reproductivecondition, cultivationstatus, establishmentmeans, '.
-			'ownerinstitutioncode, othercatalognumbers, disposition, modified, observeruid, g.guid, recordenteredby, dateentered, datelastmodified '.
+		$sql = 'SELECT o.occid, o.collid, o.institutioncode AS secondaryinstcode, o.collectioncode AS secondarycollcode, '.
+			'o.occurrenceid, o.catalognumber, o.occurrenceremarks, o.tidinterpreted, o.family, o.sciname, '.
+			'o.scientificnameauthorship, o.identificationqualifier, o.identificationremarks, o.identificationreferences, o.taxonremarks, '.
+			'o.identifiedby, o.dateidentified, o.recordedby, o.associatedcollectors, o.recordnumber, o.eventdate, MAKEDATE(YEAR(o.eventDate),o.enddayofyear) AS eventdateend, '.
+			'o.verbatimeventdate, o.country, o.stateprovince, o.locationid, o.county, o.municipality, o.locality, o.localitysecurity, o.localitysecurityreason, '.
+			'o.decimallatitude, o.decimallongitude, o.geodeticdatum, o.coordinateuncertaintyinmeters, o.verbatimcoordinates, o.georeferenceremarks, '.
+			'o.minimumelevationinmeters, o.maximumelevationinmeters, o.verbatimelevation, o.minimumdepthinmeters, o.maximumdepthinmeters, o.verbatimdepth, '.
+			'o.verbatimattributes, o.locationremarks, o.lifestage, o.sex, o.individualcount, o.samplingprotocol, o.preparations, '.
+			'o.typestatus, o.dbpk, o.habitat, o.substrate, o.associatedtaxa, o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, '.
+			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.modified, o.observeruid, g.guid, o.recordenteredby, o.dateentered, o.datelastmodified '.
 			'FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
 		if($this->occid){
 			$sql .= 'WHERE (o.occid = '.$this->occid.')';
@@ -165,10 +165,10 @@ class OccurrenceIndividualManager extends Manager{
 
 	private function loadDeterminations(){
 		$sql = 'SELECT detid, dateidentified, identifiedby, sciname, scientificnameauthorship, identificationqualifier, '.
-				'identificationreferences, identificationremarks '.
-				'FROM omoccurdeterminations '.
-				'WHERE (occid = '.$this->occid.') AND appliedstatus = 1 '.
-				'ORDER BY sortsequence';
+			'identificationreferences, identificationremarks '.
+			'FROM omoccurdeterminations '.
+			'WHERE (occid = '.$this->occid.') AND appliedstatus = 1 '.
+			'ORDER BY sortsequence';
 		$result = $this->conn->query($sql);
 		if($result){
 			while($row = $result->fetch_object()){
@@ -279,9 +279,7 @@ class OccurrenceIndividualManager extends Manager{
 	public function getCommentArr($isEditor){
 		$retArr = array();
 		//return $retArr;
-		$sql = 'SELECT c.comid, c.comment, u.username, c.reviewstatus, c.initialtimestamp '.
-			'FROM omoccurcomments c INNER JOIN userlogin u ON c.uid = u.uid '.
-			'WHERE (c.occid = '.$this->occid.') ';
+		$sql = 'SELECT c.comid, c.comment, u.username, c.reviewstatus, c.initialtimestamp FROM omoccurcomments c INNER JOIN userlogin u ON c.uid = u.uid WHERE (c.occid = '.$this->occid.') ';
 		if(!$isEditor) $sql .= 'AND c.reviewstatus IN(1,3) ';
 		$sql .= 'ORDER BY c.initialtimestamp';
 		//echo $sql.'<br/><br/>';
@@ -306,8 +304,7 @@ class OccurrenceIndividualManager extends Manager{
 		$status = false;
 		if(isset($GLOBALS['SYMB_UID']) && $GLOBALS['SYMB_UID']){
 	 		$con = MySQLiConnectionFactory::getCon("write");
-			$sql = 'INSERT INTO omoccurcomments(occid,comment,uid,reviewstatus) '.
-				'VALUES('.$this->occid.',"'.$this->cleanInStr(strip_tags($commentStr)).'",'.$GLOBALS['SYMB_UID'].',1)';
+			$sql = 'INSERT INTO omoccurcomments(occid,comment,uid,reviewstatus) VALUES('.$this->occid.',"'.$this->cleanInStr(strip_tags($commentStr)).'",'.$GLOBALS['SYMB_UID'].',1)';
 			//echo 'sql: '.$sql;
 			if($con->query($sql)){
 				$status = true;
@@ -351,12 +348,8 @@ class OccurrenceIndividualManager extends Manager{
 			$emailAddr = $GLOBALS['ADMIN_EMAIL'];
 			$comUrl = 'http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$this->occid.'#commenttab';
 			$subject = $GLOBALS['DEFAULT_TITLE'].' inappropriate comment reported<br/>';
-			$bodyStr = 'The following comment has been recorted as inappropriate:<br/> '.
-			'<a href="'.$comUrl.'">'.$comUrl.'</a>';
-			$headerStr = "MIME-Version: 1.0 \r\n".
-				"Content-type: text/html \r\n".
-				"To: ".$emailAddr." \r\n";
-				$headerStr .= "From: Admin <".$emailAddr."> \r\n";
+			$bodyStr = 'The following comment has been recorted as inappropriate:<br/> <a href="'.$comUrl.'">'.$comUrl.'</a>';
+			$headerStr = "MIME-Version: 1.0 \r\nContent-type: text/html \r\nTo: ".$emailAddr." \r\nFrom: Admin <".$emailAddr."> \r\n";
 			if(!mail($emailAddr,$subject,$bodyStr,$headerStr)){
 				$this->errorMessage = 'ERROR sending email to portal manager, error unknown';
 				$status = false;
@@ -385,9 +378,7 @@ class OccurrenceIndividualManager extends Manager{
 	public function getGeneticArr(){
 		$retArr = array();
 		if($this->occid){
-			$sql = 'SELECT idoccurgenetic, identifier, resourcename, locus, resourceurl, notes '.
-				'FROM omoccurgenetic '.
-				'WHERE occid = '.$this->occid;
+			$sql = 'SELECT idoccurgenetic, identifier, resourcename, locus, resourceurl, notes FROM omoccurgenetic WHERE occid = '.$this->occid;
 			$result = $this->conn->query($sql);
 			if($result){
 				while($r = $result->fetch_object()){
@@ -464,10 +455,7 @@ class OccurrenceIndividualManager extends Manager{
 
 	public function getAccessStats(){
 		$retArr = Array();
-		$sql = 'SELECT year(accessdate) as accessdate, accesstype, count(*) AS cnt '.
-			'FROM omoccuraccessstats '.
-			'WHERE (occid = '.$this->occid.') '.
-			'GROUP BY accessdate, accesstype';
+		$sql = 'SELECT year(accessdate) as accessdate, accesstype, count(*) AS cnt FROM omoccuraccessstats WHERE (occid = '.$this->occid.') GROUP BY accessdate, accesstype';
 		//echo '<div>'.$sql.'</div>';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -481,9 +469,7 @@ class OccurrenceIndividualManager extends Manager{
 	public function getVoucherChecklists(){
 		global $IS_ADMIN, $USER_RIGHTS;
 		$returnArr = Array();
-		$sql = 'SELECT c.name, c.clid, c.access, v.notes '.
-			'FROM fmchecklists c INNER JOIN fmvouchers v ON c.clid = v.clid '.
-			'WHERE v.occid = '.$this->occid.' ';
+		$sql = 'SELECT c.name, c.clid, c.access, v.notes FROM fmchecklists c INNER JOIN fmvouchers v ON c.clid = v.clid WHERE v.occid = '.$this->occid.' ';
 		if(array_key_exists("ClAdmin",$USER_RIGHTS)){
 			$sql .= 'AND (c.access = "public" OR c.clid IN('.implode(',',$USER_RIGHTS['ClAdmin']).')) ';
 		}
@@ -545,9 +531,7 @@ class OccurrenceIndividualManager extends Manager{
 		if(is_numeric($uid)){
 			//Get datasets for current user
 			$datasetIdStr = '';
-			$sql1 = 'SELECT tablepk '.
-					'FROM userroles '.
-					'WHERE (tablename = "omoccurdatasets") AND (uid = '.$uid.') ';
+			$sql1 = 'SELECT tablepk FROM userroles WHERE (tablename = "omoccurdatasets") AND (uid = '.$uid.') ';
 			$rs1 = $this->conn->query($sql1);
 			while($r1 = $rs1->fetch_object()){
 				$datasetIdStr .= ','.$r1->tablepk;
@@ -573,9 +557,7 @@ class OccurrenceIndividualManager extends Manager{
 			}
 
 			//Get datasets linked to this specimen
-			$sql3 = 'SELECT datasetid, notes '.
-					'FROM omoccurdatasetlink '.
-					'WHERE occid = '.$this->occid;
+			$sql3 = 'SELECT datasetid, notes  FROM omoccurdatasetlink WHERE occid = '.$this->occid;
 			//echo $sql2;
 			$rs3 = $this->conn->query($sql3);
 			if($rs3){
@@ -600,8 +582,7 @@ class OccurrenceIndividualManager extends Manager{
 		if(!$dsid && $dsName){
 			//Create new dataset
 			if(strlen($dsName) > 100) $dsName = substr($dsName,0,100);
-			$sql1 = 'INSERT INTO omoccurdatasets(name,uid,collid) '.
-					'VALUES("'.$this->cleanInStr($dsName).'",'.$SYMB_UID.','.$this->collid.')';
+			$sql1 = 'INSERT INTO omoccurdatasets(name,uid,collid) VALUES("'.$this->cleanInStr($dsName).'",'.$SYMB_UID.','.$this->collid.')';
 			if($con->query($sql1)){
 				$dsid = $con->insert_id;
 			}
@@ -611,8 +592,7 @@ class OccurrenceIndividualManager extends Manager{
 			}
 		}
 		if($dsid){
-			$sql2 = 'INSERT INTO omoccurdatasetlink(datasetid,occid,notes) '.
-					'VALUES('.$dsid.','.$this->occid.',"'.$this->cleanInStr($notes).'")';
+			$sql2 = 'INSERT INTO omoccurdatasetlink(datasetid,occid,notes) VALUES('.$dsid.','.$this->occid.',"'.$this->cleanInStr($notes).'")';
 			if(!$con->query($sql2)){
 				$this->errorMessage = 'ERROR linking to dataset, err msg: '.$con->error;
 				$status = false;
@@ -628,9 +608,7 @@ class OccurrenceIndividualManager extends Manager{
 		$returnArr = Array();
 		$targetArr = array_diff($USER_RIGHTS["ClAdmin"],$clidExcludeArr);
 		if($targetArr){
-			$sql = 'SELECT name, clid '.
-				'FROM fmchecklists WHERE clid IN('.implode(",",$targetArr).') '.
-				'ORDER BY Name';
+			$sql = 'SELECT name, clid FROM fmchecklists WHERE clid IN('.implode(",",$targetArr).') ORDER BY Name';
 			//echo $sql;
 			if($result = $this->conn->query($sql)){
 				while($row = $result->fetch_object()){
@@ -647,9 +625,7 @@ class OccurrenceIndividualManager extends Manager{
 
 	public function checkArchive(){
 		$retArr = array();
-		$sql = 'SELECT archiveobj, notes '.
-			'FROM guidoccurrences '.
-			'WHERE occid = '.$this->occid.' AND archiveobj IS NOT NULL ';
+		$sql = 'SELECT archiveobj, notes FROM guidoccurrences WHERE occid = '.$this->occid.' AND archiveobj IS NOT NULL ';
 		//echo $sql;
 		if($rs = $this->conn->query($sql)){
 			if($r = $rs->fetch_object()){
@@ -662,9 +638,7 @@ class OccurrenceIndividualManager extends Manager{
 			trigger_error('ERROR checking archive: '.$this->conn->error,E_USER_WARNING);
 		}
 		if(!$retArr){
-			$sql = 'SELECT archiveobj, notes '.
-				'FROM guidoccurrences '.
-				'WHERE occid IS NULL AND archiveobj LIKE \'%"occid":"'.$this->occid.'"%\'';
+			$sql = 'SELECT archiveobj, notes FROM guidoccurrences WHERE occid IS NULL AND archiveobj LIKE \'%"occid":"'.$this->occid.'"%\'';
 			//echo $sql;
 			if($rs = $this->conn->query($sql)){
 				if($r = $rs->fetch_object()){
@@ -688,9 +662,7 @@ class OccurrenceIndividualManager extends Manager{
 
 		//Grab taxonomic node id and geographic scopes
 		$editTidArr = array();
-		$sqlut = 'SELECT idusertaxonomy, tid, geographicscope '.
-			'FROM usertaxonomy '.
-			'WHERE editorstatus = "OccurrenceEditor" AND uid = '.$GLOBALS['SYMB_UID'];
+		$sqlut = 'SELECT idusertaxonomy, tid, geographicscope FROM usertaxonomy WHERE editorstatus = "OccurrenceEditor" AND uid = '.$GLOBALS['SYMB_UID'];
 		//echo $sqlut;
 		$rsut = $this->conn->query($sqlut);
 		while($rut = $rsut->fetch_object()){
@@ -705,15 +677,11 @@ class OccurrenceIndividualManager extends Manager{
 			$sql = '';
 			if($this->occArr['tidinterpreted']){
 				$occTidArr[] = $this->occArr['tidinterpreted'];
-				$sql = 'SELECT parenttid '.
-					'FROM taxaenumtree '.
-					'WHERE (taxauthid = 1) AND (tid = '.$this->occArr['tidinterpreted'].')';
+				$sql = 'SELECT parenttid FROM taxaenumtree WHERE (taxauthid = 1) AND (tid = '.$this->occArr['tidinterpreted'].')';
 			}
 			elseif($this->occArr['sciname'] || $this->occArr['family']){
 				//Get all relevant tids within the taxonomy hierarchy
-				$sql = 'SELECT e.parenttid '.
-					'FROM taxaenumtree e INNER JOIN taxa t ON e.tid = t.tid '.
-					'WHERE (e.taxauthid = 1) ';
+				$sql = 'SELECT e.parenttid FROM taxaenumtree e INNER JOIN taxa t ON e.tid = t.tid WHERE (e.taxauthid = 1) ';
 				if($this->occArr['sciname']){
 					//Try to isolate genus
 					$taxon = $this->occArr['sciname'];

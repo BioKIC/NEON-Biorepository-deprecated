@@ -264,22 +264,6 @@ class ChecklistVoucherAdmin {
 			}
 			$sqlFrag .= 'AND ('.substr($cStr, 2).') ';
 		}
-		if(isset($this->queryVariablesArr['locality']) && $this->queryVariablesArr['locality']){
-			$localityStr = str_replace(';',',',$this->queryVariablesArr['locality']);
-			$locArr = explode(',', $localityStr);
-			$locStr = '';
-			foreach($locArr as $str){
-				$str = $this->cleanInStr($str);
-				if(strlen($str) > 4){
-					$locStr .= 'OR (MATCH(f.locality) AGAINST(\'"'.$str.'"\' IN BOOLEAN MODE)) ';
-				}
-				else{
-					$locStr .= 'OR (o.locality LIKE "%'.$str.'%") ';
-				}
-				//$locStr .= 'OR (o.locality LIKE "%'.$this->cleanInStr($str).'%") ';
-			}
-			$sqlFrag .= 'AND ('.substr($locStr, 2).') ';
-		}
 		//taxonomy
 		if(isset($this->queryVariablesArr['taxon']) && $this->queryVariablesArr['taxon']){
 			$tStr = $this->cleanInStr($this->queryVariablesArr['taxon']);
@@ -296,28 +280,45 @@ class ChecklistVoucherAdmin {
 			 }
 			 */
 		}
-		//Latitude and longitude
-		$llStr = '';
-		if(isset($this->queryVariablesArr['latnorth']) && isset($this->queryVariablesArr['latsouth']) && is_numeric($this->queryVariablesArr['latnorth']) && is_numeric($this->queryVariablesArr['latsouth'])){
-			$llStr .= 'AND (o.decimallatitude BETWEEN '.$this->queryVariablesArr['latsouth'].' AND '.$this->queryVariablesArr['latnorth'].') ';
-		}
-		if(isset($this->queryVariablesArr['lngwest']) && isset($this->queryVariablesArr['lngeast']) && is_numeric($this->queryVariablesArr['lngwest']) && is_numeric($this->queryVariablesArr['lngeast'])){
-			$llStr .= 'AND (o.decimallongitude BETWEEN '.$this->queryVariablesArr['lngwest'].' AND '.$this->queryVariablesArr['lngeast'].') ';
-		}
-		if(isset($this->queryVariablesArr['latlngor']) && $this->queryVariablesArr['latlngor']){
-			//Query coordinates or locality string
-			if($llStr){
-				$llStr = 'OR ('.trim(substr($llStr,3)).') ';
-				$sqlFrag .= $llStr;
+		//Locality and Latitude and longitude
+		$locStr = '';
+		if(isset($this->queryVariablesArr['locality']) && $this->queryVariablesArr['locality']){
+			$localityStr = str_replace(';',',',$this->queryVariablesArr['locality']);
+			$locArr = explode(',', $localityStr);
+			foreach($locArr as $str){
+				$str = $this->cleanInStr($str);
+				if(strlen($str) > 4){
+					$locStr .= 'OR (MATCH(f.locality) AGAINST(\'"'.$str.'"\' IN BOOLEAN MODE)) ';
+				}
+				else{
+					$locStr .= 'OR (o.locality LIKE "%'.$str.'%") ';
+				}
+				//$locStr .= 'OR (o.locality LIKE "%'.$this->cleanInStr($str).'%") ';
 			}
 		}
-		elseif(isset($this->queryVariablesArr['onlycoord']) && $this->queryVariablesArr['onlycoord']){
-			//Use occurrences only with decimallatitude
-			$sqlFrag .= 'AND (o.decimallatitude IS NOT NULL) ';
+		$llStr = '';
+		if(isset($this->queryVariablesArr['latnorth']) && isset($this->queryVariablesArr['latsouth']) && is_numeric($this->queryVariablesArr['latnorth']) && is_numeric($this->queryVariablesArr['latsouth'])){
+			if(isset($this->queryVariablesArr['lngwest']) && isset($this->queryVariablesArr['lngeast']) && is_numeric($this->queryVariablesArr['lngwest']) && is_numeric($this->queryVariablesArr['lngeast'])){
+				$llStr .= '(o.decimallatitude BETWEEN '.$this->queryVariablesArr['latsouth'].' AND '.$this->queryVariablesArr['latnorth'].') '.
+					'AND (o.decimallongitude BETWEEN '.$this->queryVariablesArr['lngwest'].' AND '.$this->queryVariablesArr['lngeast'].') ';
+			}
 		}
-		elseif(isset($this->queryVariablesArr['includewkt']) && $this->queryVariablesArr['includewkt']){
+		if(isset($this->queryVariablesArr['includewkt']) && $this->queryVariablesArr['includewkt'] && $this->footprintWkt){
 			//Searh based on polygon
-			if($this->footprintWkt) $sqlFrag .= 'AND (ST_Within(p.point,GeomFromText("'.$this->footprintWkt.'"))) ';
+			$sqlFrag .= 'AND (ST_Within(p.point,GeomFromText("'.$this->footprintWkt.'"))) ';
+			$llStr = false;
+		}
+		if(isset($this->queryVariablesArr['latlngor']) && $this->queryVariablesArr['latlngor'] && $locStr && $llStr){
+			//Query coordinates or locality string
+			$sqlFrag .= 'AND (('.substr($locStr, 2).') OR ('.trim($llStr).')) ';
+		}
+		else{
+			if($locStr) $sqlFrag .= 'AND ('.substr($locStr, 2).') ';
+			if($llStr) $sqlFrag .= 'AND ('.trim($llStr).') ';
+		}
+		if(isset($this->queryVariablesArr['onlycoord']) && $this->queryVariablesArr['onlycoord'] && !$llStr && $llStr !== false){
+			//Use occurrences only with coordinates
+			$sqlFrag .= 'AND (o.decimallatitude IS NOT NULL) ';
 		}
 		//Exclude taxonomy
 		if(isset($this->queryVariablesArr['excludecult']) && $this->queryVariablesArr['excludecult']){
@@ -325,7 +326,7 @@ class ChecklistVoucherAdmin {
 		}
 		//Limit by collection
 		if(isset($this->queryVariablesArr['collid']) && is_numeric($this->queryVariablesArr['collid'])){
-			$sqlFrag .= 'AND (o.collid = '.$this->queryVariablesArr['collid'].') ';
+			$sqlFrag .= 'AND (o.collid IN('.$this->queryVariablesArr['collid'].')) ';
 		}
 
 		//Limit by collector
@@ -536,6 +537,10 @@ class ChecklistVoucherAdmin {
 
 	public function getClName(){
 		return $this->clName;
+	}
+
+	public function getClMetadata(){
+		return $this->clMetadata;
 	}
 
 	public function getClFootprintWkt(){

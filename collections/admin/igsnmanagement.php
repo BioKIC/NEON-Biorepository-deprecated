@@ -143,10 +143,52 @@ include($SERVER_ROOT."/header.php");
 		if($action){
 			echo '<fieldset><legend>Action Panel</legend>';
 			echo '<ul>';
-			echo '<li>Verifying IGSN GUIDs</li>';
 			if($action == 'verifysesar'){
-				$resultArr = $guidManager->verifyIgsnGuids();
-				print_r($resultArr);
+				echo '<li>Verifying all IGSNs located within SESAR system against portal database...</li>';
+				$sesarArr = $guidManager->verifySesarGuids();
+				echo '<li style="margin-left:10px">Checked '.$sesarArr['checkedCnt'].' out of '.$sesarArr['totalCnt'].' GUIDs</li>';
+				if(isset($sesarArr['collid'])){
+					echo '<li style="margin-left:10px">Registered IGSNs by Collection:</li>';
+					foreach($sesarArr['collid'] as $id => $collArr){
+						echo '<li style="margin-left:20px"><a href="../misc/collprofiles.php?collid='.$id.'" target="_blank">'.$collArr['name'].'</a>: '.$collArr['cnt'].' IGSNs</li>';
+					}
+				}
+				$missingCnt = 0;
+				if(isset($sesarArr['missing'])) $missingCnt = count($sesarArr['missing']);
+				echo '<li style="margin-left:10px">';
+				echo '# IGSNs not in database: '.$missingCnt;
+				if($missingCnt) echo ' <a href="#" onclick="$(\'#missingGuidList\').show();return false;">(display list)</a>';
+				echo '</li>';
+				if($missingCnt){
+					echo '<div id="missingGuidList" style="margin-left:25px;display:none">';
+					foreach($sesarArr['missing'] as $igsn){
+						echo '<li><a href="https://sesardev.geosamples.org/sample/igsn/'.$igsn.'" target="_blank">'.$igsn.'</a></li>';
+					}
+					echo '</div>';
+				}
+				echo '<li style="margin-left:10px">Finished verifying GUIDs!</li>';
+				echo '</ul>';
+				ob_flush();
+				flush();
+
+				echo '<ul style="margin-top:15px">';
+				echo '<li>Starting to verify portal\'s IGSNs against SESAR system...</li>';
+				$localArr = $guidManager->verifyLocalGuids();
+				echo '<li style="margin-left:10px"># IGSNs checked: '.$localArr['cnt'].'</li>';
+				$missingCnt = 0;
+				if(isset($localArr['missing'])) $missingCnt = count($localArr['missing']);
+				echo '<li style="margin-left:10px">';
+				echo '# of unmapped IGSNs: '.$missingCnt;
+				if($missingCnt) echo ' <a href="#" onclick="$(\'#unmappedGuidList\').show();return false;">(display list)</a>';
+				echo '</li>';
+				if($missingCnt){
+					echo '<div id="unmappedGuidList" style="margin-left:25px;display:none">';
+					foreach($localArr['missing'] as $occid => $guid){
+						echo '<li><a href="../individual/index.php?occid='.$occid.'" target="_blank">'.$guid.'</a></li>';
+					}
+					echo '</div>';
+				}
+				echo '<li style="margin-left:10px">Finished verifying local IGSN GUIDs!</li>';
 			}
 			echo '</ul>';
 			echo '</fieldset>';

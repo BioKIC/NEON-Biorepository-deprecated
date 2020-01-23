@@ -17,7 +17,8 @@ $coordArr = $clManager->getVoucherCoordinates(0);
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> - Checklist Coordinate Map</title>
-	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
+	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
+	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>

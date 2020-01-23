@@ -5,7 +5,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <html>
 	<head>
 		<title>Page</title>
-		<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
+		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" />
 	</head>
 	<body>
 		<?php

@@ -17,7 +17,8 @@ $fileName = time();
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> - Garmin Downloader</title>
-		<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
+		<link type="text/css" href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" rel="stylesheet" />
+		<link type="text/css" href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" rel="stylesheet" />
 		<link type="text/css" href="../../css/jquery.mobile-1.4.0.min.css" rel="stylesheet" />
 		<link type="text/css" href="../../css/jquery.symbiota.css" rel="stylesheet" />
 		<link type="text/css" href="../../css/jquery-ui_accordian.css" rel="stylesheet" />

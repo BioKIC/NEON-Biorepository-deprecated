@@ -395,7 +395,9 @@ else{
 		<head>
 			<title><?php echo $identifier; ?> Invoice</title>
 			<style type="text/css">
-				<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
+				<?php
+					include_once($SERVER_ROOT.'/css/main.css');
+				?>
 				body {font-family:arial,sans-serif;}
 				p.printbreak {page-break-after:always;}
 				.header {width:100%;text-align:center;font:bold 12pt arial,sans-serif;margin-bottom:30px;}

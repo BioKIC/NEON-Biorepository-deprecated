@@ -22,7 +22,8 @@ $_SESSION['statsOrderArr'] = $orderArr;
 	<head>
 		<meta name="keywords" content="Natural history collections yearly statistics" />
 		<title><?php echo $DEFAULT_TITLE; ?> Order Distribution</title>
-		<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
+		<link rel="stylesheet" href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" />
+		<link rel="stylesheet" href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" />
 		<link href="../../css/jquery-ui.css" type="text/css" rel="Stylesheet" />
 		<script type="text/javascript" src="../../js/jquery.js"></script>
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>

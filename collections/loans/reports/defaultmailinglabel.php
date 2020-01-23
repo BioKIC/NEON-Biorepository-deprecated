@@ -112,7 +112,9 @@ else{
 		<head>
 			<title>Mailing Label</title>
 			<style type="text/css">
-				<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
+				<?php
+					include_once($SERVER_ROOT.'/css/main.css');
+				?>
 				body {font-family:arial,sans-serif;}
 				p.printbreak {page-break-after:always;}
 				.fromaddress {font:10pt arial,sans-serif;}

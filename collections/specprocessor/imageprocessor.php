@@ -23,7 +23,8 @@ if($spprid) $specManager->setProjVariables($spprid);
 <html>
 	<head>
 		<title>Image Processor</title>
-		<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
+		<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
+		<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 		<style type="text/css">.profileDiv{ clear:both; margin:2px 0px } </style>
 		<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
 		<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>

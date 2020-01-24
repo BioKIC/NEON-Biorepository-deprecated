@@ -22,7 +22,7 @@ if(!is_numeric($processingCount)) $processingCount = 10;
 
 $statusStr = '';
 $isEditor = 0;
-if($IS_ADMIN || array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
+if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']))){
 	$isEditor = 1;
 }
 $guidManager = new OccurrenceSesar();
@@ -102,6 +102,28 @@ if(isset($sesarProfile['generationMethod'])) $generationMethod = $sesarProfile['
 			});
 		}
 
+		function syncIGSN(occid, catNum, igsn){
+			$.ajax({
+				method: "POST",
+				data: { occid: occid, catnum: catNum, igsn: igsn },
+				dataType: "json",
+				url: "rpc/syncigsn.php"
+			})
+			.done(function(jsonRes) {
+				if(jsonRes.status == 1){
+					$("#syncDiv-"+occid).text('SUCCESS: IGSN added!');
+				}
+				else{
+					$("#syncDiv-"+occid).css('color', 'red');
+					if(jsonRes.errCode == 1) $("#syncDiv-"+occid).text('FAILED: occurrenceID GUID already exists: '+jsonRes.guid);
+					else if(jsonRes.errCode == 2) $("#syncDiv-"+occid).text('FAILED: catalogNumber does not match: '+jsonRes.catNum);
+					else if(jsonRes.errCode == 3) $("#syncDiv-"+occid).text('FAILED: occurrence record not found (#'+occid+')');
+					else if(jsonRes.errCode == 8) $("#syncDiv-"+occid).text('FAILED: not authorized to modify occurrence');
+					else if(jsonRes.errCode == 9) $("#syncDiv-"+occid).text('FAILED: missing variables');
+				}
+			})
+		}
+
 		function verifyProfileForm(f){
 			if(f.namespace.value == ""){
 				alert("Select a namespace");
@@ -148,23 +170,30 @@ include($SERVER_ROOT."/header.php");
 				$guidManager->setVerboseMode(2);
 				echo '<li>Verifying all IGSNs located within SESAR system against portal database...</li>';
 				$sesarArr = $guidManager->verifySesarGuids();
-				echo '<li style="margin-left:15px">Checked '.$sesarArr['checkedCnt'].' out of '.$sesarArr['totalCnt'].' GUIDs</li>';
+				echo '<li style="margin-left:15px">Results:</li>';
+				echo '<li style="margin-left:25px">Checked '.$sesarArr['checkedCnt'].' out of '.$sesarArr['totalCnt'].' GUIDs</li>';
 				if(isset($sesarArr['collid'])){
-					echo '<li style="margin-left:15px">Registered IGSNs by Collection:</li>';
+					echo '<li style="margin-left:25px">Registered IGSNs by Collection:</li>';
 					foreach($sesarArr['collid'] as $id => $collArr){
-						echo '<li style="margin-left:30px"><a href="../misc/collprofiles.php?collid='.$id.'" target="_blank">'.$collArr['name'].'</a>: '.$collArr['cnt'].' IGSNs</li>';
+						echo '<li style="margin-left:40px"><a href="../misc/collprofiles.php?collid='.$id.'" target="_blank">'.$collArr['name'].'</a>: '.$collArr['cnt'].' IGSNs</li>';
 					}
 				}
 				$missingCnt = 0;
 				if(isset($sesarArr['missing'])) $missingCnt = count($sesarArr['missing']);
-				echo '<li style="margin-left:15px">';
+				echo '<li style="margin-left:25px">';
 				echo '# IGSNs not in database: '.$missingCnt;
 				if($missingCnt) echo ' <a href="#" onclick="$(\'#missingGuidList\').show();return false;">(display list)</a>';
 				echo '</li>';
 				if($missingCnt){
-					echo '<div id="missingGuidList" style="margin-left:30px;display:none">';
-					foreach($sesarArr['missing'] as $igsn){
-						echo '<li><a href="https://sesardev.geosamples.org/sample/igsn/'.$igsn.'" target="_blank">'.$igsn.'</a></li>';
+					echo '<div id="missingGuidList" style="margin-left:40px;display:none">';
+					foreach($sesarArr['missing'] as $igsn => $missingArr){
+						echo '<li><a href="https://sesardev.geosamples.org/sample/igsn/'.$igsn.'" target="_blank" title="Open IGSN in SESAR Systems">'.$igsn.'</a> ';
+						if(isset($missingArr['occid'])){
+							echo '=> <a href="../editor/occurrenceeditor.php?occid='.$missingArr['occid'].'" target="_blank" title="Open occurrence in editor">'.$missingArr['catNum'].'</a> ';
+							echo '<a href="#" onclick="syncIGSN('.$missingArr['occid'].',\''.$missingArr['catNum'].'\',\''.$igsn.'\');return false" title="Add IGSN to target occurrence"><img src="../../images/link.png" style="width:13px"/></a>';
+							echo '<span id="syncDiv-'.$missingArr['occid'].'" style="margin-left:15px;color:green;"></span>';
+						}
+						echo '</li>';
 					}
 					echo '</div>';
 				}
@@ -172,7 +201,7 @@ include($SERVER_ROOT."/header.php");
 				echo '</ul>';
 
 				echo '<ul style="margin-top:15px">';
-				echo '<li>Starting to verify portal\'s IGSNs against SESAR system...</li>';
+				echo '<li>Verifying collection\'s IGSNs against SESAR system...</li>';
 				ob_flush();
 				flush();
 				$localArr = $guidManager->verifyLocalGuids();

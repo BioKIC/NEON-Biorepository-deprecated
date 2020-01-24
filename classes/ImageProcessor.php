@@ -349,6 +349,7 @@ class ImageProcessor {
 			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/'.$postArr['filename'];
 			if($fh = fopen($fullPath,'rb')){
 				$headerArr = fgetcsv($fh);
+				$cnt = 1;
 				while($recordArr = fgetcsv($fh)){
 					$catalogNumber = (isset($fieldMap['catalognumber'])?$this->cleanInStr($recordArr[$fieldMap['catalognumber']]):'');
 					$otherCatalogNumbers = (isset($fieldMap['othercatalognumbers'])?$this->cleanInStr($recordArr[$fieldMap['othercatalognumbers']]):'');
@@ -358,9 +359,9 @@ class ImageProcessor {
 					$thumbnailUrl = (isset($fieldMap['thumbnailurl'])?$this->cleanInStr($recordArr[$fieldMap['thumbnailurl']]):'');
 					$sourceUrl = (isset($fieldMap['sourceurl'])?$this->cleanInStr($recordArr[$fieldMap['sourceurl']]):'');
 					if(($catalogNumber || $otherCatalogNumbers) && ($originalUrl || ($url && $url != 'empty'))){
-						echo '<li>Processing Catalog Number: '.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</li>';
+						echo '<li>#'.$cnt.': Processing Catalog Number: '.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</li>';
 						$occArr = array();
-						$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') ';
+						$sql = 'SELECT occid, tidinterpreted FROM omoccurrences WHERE (collid = '.$this->collid.') ';
 						if($catalogNumber){
 							$sql .= 'AND (catalognumber = "'.$catalogNumber.'")';
 						}
@@ -369,14 +370,14 @@ class ImageProcessor {
 						}
 						$rs = $this->conn->query($sql);
 						while($r = $rs->fetch_object()){
-							$occArr[] = $r->occid;
+							$occArr[$r->occid] = $r->tidinterpreted;
 						}
 						$rs->free();
 						if($occArr){
 							//Check to see if image with matching filename is already linked. If so, remove and replace with new
 							$origFileName = substr(strrchr($originalUrl, "/"), 1);
 							$urlFileName = substr(strrchr($url, "/"), 1);
-							foreach($occArr as $k => $occid){
+							foreach($occArr as $occid => $tid){
 								$sql1 = 'SELECT imgid, url, originalurl, thumbnailurl FROM images WHERE (occid = '.$occid.')';
 								$rs1 = $this->conn->query($sql1);
 								while($r1 = $rs1->fetch_object()){
@@ -398,7 +399,7 @@ class ImageProcessor {
 											$this->deleteImage($r1->url);
 											$this->deleteImage($r1->originalurl);
 											$this->deleteImage($r1->thumbnailurl);
-											unset($occArr[$k]);
+											unset($occArr[$occid]);
 											break;
 										}
 										else{
@@ -414,25 +415,26 @@ class ImageProcessor {
 							$sqlIns = 'INSERT INTO omoccurrences(collid,'.($catalogNumber?'catalogNumber':'otherCatalogNumbers').',processingstatus,dateentered) '.
 								'VALUES('.$this->collid.',"'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'","unprocessed",now())';
 							if($this->conn->query($sqlIns)){
-								$occArr[] = $this->conn->insert_id;
+								$occArr[$this->conn->insert_id] = 0;
 								echo '<li style="margin-left:10px">Unable to find record with matching '.($catalogNumber?'catalogNumber':'otherCatalogNumbers').'; new occurrence record created</li>';
 							}
 							else{
 								echo '<li style="margin-left:10px">ERROR creating new occurrence record: '.$this->conn->error.'</li>';
 							}
 						}
-						foreach($occArr as $occid){
+						foreach($occArr as $occid => $tid){
 							//Load image URLs
-							$sqlInsert = 'INSERT INTO images(occid,url,originalurl,thumbnailurl,sourceurl) '.
-								'VALUES('.$occid.',"'.$url.'","'.$originalUrl.'",'.($thumbnailUrl?'"'.$thumbnailUrl.'"':'NULL').','.($sourceUrl?'"'.$sourceUrl.'"':'NULL').')';
+							$sqlInsert = 'INSERT INTO images(occid,tid,url,originalurl,thumbnailurl,sourceurl) '.
+								'VALUES('.$occid.','.($tid?$tid:'NULL').',"'.$url.'","'.$originalUrl.'",'.($thumbnailUrl?'"'.$thumbnailUrl.'"':'NULL').','.($sourceUrl?'"'.$sourceUrl.'"':'NULL').')';
 							if($this->conn->query($sqlInsert)){
 								echo '<li style="margin-left:10px">Image URLs linked to: <a href="../editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</a></li>';
 							}
 							else{
-								echo '<li style="margin-left:10px">ERROR loading image: '.$this->conn->error.'</li>';
+								echo '<li style="margin-left:10px">ERROR loading image: '.$this->conn->error.' ('.$sqlInsert.')</li>';
 							}
 						}
 					}
+					$cnt++;
 				}
 			}
 			fclose($fh);

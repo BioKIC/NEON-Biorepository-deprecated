@@ -22,7 +22,7 @@ if(!is_numeric($processingCount)) $processingCount = 10;
 
 $statusStr = '';
 $isEditor = 0;
-if($IS_ADMIN || array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
+if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']))){
 	$isEditor = 1;
 }
 $guidManager = new OccurrenceSesar();
@@ -84,30 +84,30 @@ if($action == 'populateGUIDs'){
 			.done(function(xml) {
 				var valid = $(xml).find('valid').text();
 				if(valid == "yes"){
-					$(xml).find('user_codes').each(function(){
-	                    $(this).find("user_code").each(function(){
-	                        var userCode = $(this).text();
-	                        $("#igsn-reg-div").show();
-	                        $("#validate-button").hide();
-	                        $("#valid-span").show();
-	                        $("#notvalid-span").hide();
-	                    });
-	                });
+					//$(xml).find('user_codes').each(function(){
+						//$(this).find("user_code").each(function(){
+							//var userCode = $(this).text();
+						//});
+					//});
+					$("#igsn-reg-div").show();
+					$("#validate-button").hide();
+					$("#valid-span").show();
+					$("#notvalid-span").hide();
 				}
 				else{
 					alert($(xml).find('error').text());
-                    $("#igsn-reg-div").hide();
-                    $("#validate-button").show();
-                    $("#valid-span").hide();
-                    $("#notvalid-span").show();
+					$("#igsn-reg-div").hide();
+					$("#validate-button").show();
+					$("#valid-span").hide();
+					$("#notvalid-span").show();
 				}
 			})
 			.fail(function() {
 				alert("Validation call failed");
-                $("#igsn-reg-div").hide();
-                $("#validate-button").show();
-                $("#valid-span").hide();
-                $("#notvalid-span").show();
+				$("#igsn-reg-div").hide();
+				$("#validate-button").show();
+				$("#valid-span").hide();
+				$("#notvalid-span").show();
 			});
 		}
 
@@ -197,9 +197,6 @@ include($SERVER_ROOT."/header.php");
 				}
 			}
 			?>
-			<p>
-				<b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?>
-			</p>
 			<form id="guidform" name="guidform" action="igsnmapper.php" method="post" onsubmit="return verifyGuidForm(this)">
 				<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 				<fieldset>
@@ -214,6 +211,10 @@ include($SERVER_ROOT."/header.php");
 						<div><span class="form-label">Password:</span> <input name="pwd" type="password" value="<?php echo $pwd; ?>" /></div>
 						<button id="validate-button" type="button" onclick="validateCredentials(this.form)">Validate Credentials</button>
 					</p>
+					<div style="margin:10px 0px"><hr/></div>
+					<div style="margin:10px 0px">
+						<p><b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?></p>
+					</div>
 					<div id="igsn-reg-div" style="margin-top:20px;display:none;">
 						<p>
 							<span class="form-label">IGSN Namespace:</span>
@@ -235,7 +236,7 @@ include($SERVER_ROOT."/header.php");
 							<select name="registrationMethod">
 								<option value=''>-- Select Method --</option>
 								<option value=''>----------------------------</option>
-								<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>Batch API submission</option>
+								<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>SESAR API</option>
 								<!--  <option value='csv' <?php echo ($registrationMethod=='csv'?'SELECTED':''); ?>>Export CSV</option>  -->
 								<option value='xml' <?php echo ($registrationMethod=='xml'?'SELECTED':''); ?>>Export XML</option>
 							</select>

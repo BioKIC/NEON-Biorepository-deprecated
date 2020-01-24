@@ -51,7 +51,7 @@ if($glossId){
 
 <body style="overflow-x:hidden;overflow-y:auto;width:700px;margin-left:auto;margin-right:auto;">
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<!-- This is inner text! -->
 	<div id="innertext" style="width:680px;">

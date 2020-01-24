@@ -14,6 +14,7 @@ class OccurrenceSesar extends Manager {
 	private $registrationMethod;
 	private $dynPropArr = false;
 	private $fieldMap = array();
+	private $devMode = false;
 
 	public function __construct($type = 'write'){
 		parent::__construct(null, $type);
@@ -241,8 +242,8 @@ class OccurrenceSesar extends Manager {
 	private function registerIdentifiersViaApi(){
 		$status = false;
 		$this->logOrEcho('Submitting XML to SESAR Systems');
-		//$baseUrl = 'https://app.geosamples.org/webservices/upload.php';
-		$baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
+		$baseUrl = 'https://app.geosamples.org/webservices/upload.php';
+		if($this->devMode) $baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
 		$contentStr = $this->igsnDom->saveXML();
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd, 'content' => $contentStr);
 		$responseXML = $this->getSesarApiData($baseUrl, $requestData);
@@ -527,8 +528,8 @@ class OccurrenceSesar extends Manager {
 		$cnt = 0;
 		if(isset($sesarResultArr['checkedCnt'])) $cnt = $sesarResultArr['checkedCnt'];
 		$ns = substr($this->namespace,0,3);
-		//$url = 'https://app.geosamples.org/samples/user_code/'.$this->namespace.'&limit='.$batchLimit.'&page_no='.$pageNumber;
-		$url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
+		$url = 'https://app.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
+		if($this->devMode) $url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
 		$responseArr = $this->getSesarApiGetData($url);
 		if($responseArr['retCode'] == 200){
 			if($retJson = $responseArr['retJson']){
@@ -565,8 +566,8 @@ class OccurrenceSesar extends Manager {
 	public function setMissingSesarMeta(&$sesarResultArr){
 		//Grab SESAR meta for unmatched IGSNs
 		$this->logOrEcho(count($sesarResultArr['missing']).' records unlink IGSNs found. Getting metadata from SESAR Systems...',1);
-		//$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
-		$url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
+		$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
+		if($this->devMode) $url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
 		$cnt = 0;
 		foreach(array_keys($sesarResultArr['missing']) as $lostIGSN){
 			$resArr = $this->getSesarApiGetData($url.$lostIGSN);
@@ -587,8 +588,8 @@ class OccurrenceSesar extends Manager {
 	public function verifyLocalGuids(){
 		$retArr = array();
 		$cnt = 0;
-		//$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
-		$url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
+		$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
+		if($this->devMode) $url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
 		$sql = 'SELECT occid, occurrenceid FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%" AND collid = '.$this->collid;
 		$rs = $this->conn->query($sql);
 		$retArr['cnt'] = $rs->num_rows;

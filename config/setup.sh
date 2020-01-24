@@ -11,14 +11,6 @@ echo "Creating Left Menu include: /leftmenu.php"
 cp ../leftmenu_template.php ../leftmenu.php
 echo "Creating footer include: /footer.php"
 cp ../footer_template.php ../footer.php
-echo "Creating central CSS: /css/main.css"
-cp ../css/main_template.css ../css/main.css
-echo "Creating CSS for Taxon Profile page: /css/speciesprofile.css"
-cp ../css/speciesprofile_template.css ../css/speciesprofile.css
-echo "Creating default JQuery CSS: /css/jquery-ui.css"
-cp ../css/jquery-ui_template.css ../css/jquery-ui.css
-echo "Creating default Data Usage Policy page: /misc/usagepolicy_template.php"
-cp ../misc/usagepolicy_template.php ../misc/usagepolicy.php
 
 #Occurrence Editor config files
 echo "Creating occurrence editor default configuration file"

@@ -205,8 +205,8 @@ CREATE TABLE `igsnverification` (
   `occid` INT UNSIGNED NULL,
   `status` INT NULL,
   `initialtimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`igsn`),
   INDEX `FK_igsn_occid_idx` (`occid` ASC),
+  INDEX `INDEX_igsn` (`igsn` ASC),
   CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
 
 

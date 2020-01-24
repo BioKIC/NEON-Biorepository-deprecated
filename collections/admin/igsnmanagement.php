@@ -171,7 +171,7 @@ include($SERVER_ROOT."/header.php");
 				echo '<li>Verifying all IGSNs located within SESAR system against portal database...</li>';
 				$sesarArr = $guidManager->verifySesarGuids();
 				echo '<li style="margin-left:15px">Results:</li>';
-				echo '<li style="margin-left:25px">Checked '.$sesarArr['checkedCnt'].' out of '.$sesarArr['totalCnt'].' GUIDs</li>';
+				echo '<li style="margin-left:25px">Checked '.$sesarArr['totalCnt'].' IGSNs</li>';
 				if(isset($sesarArr['collid'])){
 					echo '<li style="margin-left:25px">Registered IGSNs by Collection:</li>';
 					foreach($sesarArr['collid'] as $id => $collArr){
@@ -205,7 +205,6 @@ include($SERVER_ROOT."/header.php");
 				ob_flush();
 				flush();
 				$localArr = $guidManager->verifyLocalGuids();
-				echo '<li style="margin-left:15px"># IGSNs checked: '.$localArr['cnt'].'</li>';
 				$missingCnt = 0;
 				if(isset($localArr['missing'])) $missingCnt = count($localArr['missing']);
 				echo '<li style="margin-left:15px">';

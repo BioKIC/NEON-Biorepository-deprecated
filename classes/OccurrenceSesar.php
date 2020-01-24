@@ -509,13 +509,41 @@ class OccurrenceSesar extends Manager {
 
 	//GUID verification functions
 	public function verifySesarGuids(){
-		$sesarResultArr = array('totalCnt'=>0,'checkedCnt'=>0);
+		//Clear IGSN verification table
+		$this->conn->query('DELETE FROM igsnverification');
+		$this->conn->query('OPTIMIZE TABLE igsnverification');
+
+		$this->logOrEcho('Loading records into verification table...',1);
+		$sesarResultArr = array('totalCnt'=>0);
 		$this->batchVerifySesar($sesarResultArr);
-		if($sesarResultArr['totalCnt'] && $sesarResultArr['collid']){
-			$sql = 'SELECT collid, CONCAT_WS(":",institutionCode,collectionCode) as code, collectionname FROM omcollections WHERE collid IN('.implode(',',array_keys($sesarResultArr['collid'])).')';
+
+		if($sesarResultArr['totalCnt']){
+			$this->logOrEcho('Calculating stats...',1);
+			$sql = 'UPDATE igsnverification i INNER JOIN omoccurrences o ON i.igsn = o.occurrenceid SET i.occid = o.occid WHERE i.occid IS NULL';
+			if(!$this->conn->query($sql)){
+				$this->logOrEcho('ERROR updaing IGSN field: '.$this->conn->error,2);
+			}
+			//Grab collection details
+			$collArr = array();
+			$sql = 'SELECT o.collid, COUNT(o.occid) as cnt FROM omoccurrences o INNER JOIN igsnverification i ON o.occid = i.occid GROUP BY o.collid ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$sesarResultArr['collid'][$r->collid]['name'] = $r->collectionname.' ('.$r->code.')';
+				$collArr[$r->collid]['cnt'] = $r->cnt;
+			}
+			$rs->free();
+			$sql = 'SELECT collid, CONCAT_WS(":",institutionCode,collectionCode) as code, collectionname FROM omcollections WHERE collid IN('.implode(',',array_keys($collArr)).')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$collArr[$r->collid]['name'] = $r->collectionname.' ('.$r->code.')';
+			}
+			$rs->free();
+			$sesarResultArr['collid'] = $collArr;
+
+			//Add missing IGSNs
+			$sql = 'SELECT igsn FROM igsnverification WHERE occid IS NULL';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$sesarResultArr['missing'][$r->igsn] = array();
 			}
 			$rs->free();
 		}
@@ -535,21 +563,27 @@ class OccurrenceSesar extends Manager {
 			if($retJson = $responseArr['retJson']){
 				$jsonObj = json_decode($retJson);
 				if(!$sesarResultArr['totalCnt']) $sesarResultArr['totalCnt'] = $jsonObj->total_counts;
+				$sqlBase = 'INSERT INTO igsnverification(igsn) VALUE';
+				$sqlFrag = '';
 				foreach($jsonObj->igsn_list as $igsn){
-					$sql = 'SELECT collid FROM omoccurrences WHERE occurrenceID = "'.$igsn.'"';
-					$rs = $this->conn->query($sql);
-					if($rs->num_rows){
-						if($r = $rs->fetch_object()){
-							if(!isset($sesarResultArr['collid'][$r->collid]['cnt'])) $sesarResultArr['collid'][$r->collid]['cnt'] = 1;
-							else $sesarResultArr['collid'][$r->collid]['cnt']++;
+					//Load records into IGSN Verification table
+					$sqlFrag .= '("'.$igsn.'"),';
+					$cnt++;
+					if($cnt%1000==0){
+						if($this->conn->query($sqlBase.trim($sqlFrag,', '))){
+							$this->logOrEcho($cnt.' records loaded',2);
+							$sqlFrag = '';
+						}
+						else{
+							$this->logOrEcho('ERROR loading IGSNs: '.$this->conn->error,2);
+							return false;
 						}
 					}
-					else{
-						$sesarResultArr['missing'][$igsn] = array();
+				}
+				if($sqlFrag){
+					if($this->conn->query($sqlBase.trim($sqlFrag,', '))){
+						$this->logOrEcho($cnt.' records loaded',2);
 					}
-					$rs->free();
-					$cnt++;
-					if($cnt%1000==0) $this->logOrEcho($cnt.' records checked',1);
 				}
 			}
 		}
@@ -563,7 +597,7 @@ class OccurrenceSesar extends Manager {
 		}
 	}
 
-	public function setMissingSesarMeta(&$sesarResultArr){
+	private function setMissingSesarMeta(&$sesarResultArr){
 		//Grab SESAR meta for unmatched IGSNs
 		$this->logOrEcho(count($sesarResultArr['missing']).' records unlink IGSNs found. Getting metadata from SESAR Systems...',1);
 		$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
@@ -587,18 +621,12 @@ class OccurrenceSesar extends Manager {
 
 	public function verifyLocalGuids(){
 		$retArr = array();
-		$cnt = 0;
-		$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
-		if($this->devMode) $url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
-		$sql = 'SELECT occid, occurrenceid FROM omoccurrences WHERE occurrenceID LIKE "'.$this->namespace.'%" AND collid = '.$this->collid;
+		$sql = 'SELECT o.occid, o.occurrenceid FROM omoccurrences o LEFT JOIN igsnverification i ON o.occid = i.occid '.
+			'WHERE o.occurrenceID LIKE "'.$this->namespace.'%" AND o.collid = '.$this->collid.' AND i.occid IS NULL';
 		$rs = $this->conn->query($sql);
 		$retArr['cnt'] = $rs->num_rows;
 		while($r = $rs->fetch_object()){
-			$responseArr = $this->getSesarApiGetData($url.$r->occurrenceid);
-			if($responseArr['retCode'] == 404) $retArr['missing'][$r->occid] = $r->occurrenceid;
-			elseif($responseArr['retCode'] != 200) $this->logOrEcho($this->errorMessage,1);
-			$cnt++;
-			if($cnt%100==0) $this->logOrEcho($cnt.' records checked',1);
+			$retArr['missing'][$r->occid] = $r->occurrenceid;
 		}
 		$rs->free();
 		return $retArr;

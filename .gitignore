@@ -14,3 +14,12 @@ includes/head.php
 includes/leftmenu.php
 includes/spprofilehead.php
 includes/usagepolicy.php
+.buildpath
+.project
+.settings/org.eclipse.core.resources.prefs
+.settings/org.eclipse.php.core.prefs
+.settings/org.eclipse.wst.common.project.facet.core.xml
+images/layout/az_nm_header.jpg
+images/layout/background.jpg
+images/layout/Cact_Carnegiea_gigantea_fl2.png
+images/layout/nycecoflora_banner2.jpg

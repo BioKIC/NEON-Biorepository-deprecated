@@ -18,7 +18,7 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script>
 		$(document).ready(function() {

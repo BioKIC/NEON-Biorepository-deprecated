@@ -13,7 +13,7 @@ $clArr = $gameManager->getChecklistArr($pid);
 	<title><?php echo $DEFAULT_TITLE; ?> Games</title>
 	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		function checkForm(f){

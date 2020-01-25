@@ -65,7 +65,7 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 	</style>
 
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script src="../../js/jquery-1.10.2.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.10.4.js" type="text/javascript"></script>

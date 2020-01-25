@@ -29,7 +29,7 @@ $imgloc = "../images/games/namegame/";
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<style type="text/css">
 		.lettertable{border:1px solid #000000;border-spacing:3px;}

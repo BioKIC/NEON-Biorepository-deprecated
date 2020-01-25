@@ -40,7 +40,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 			});
 		</script>
 		<script type="text/javascript">
-			<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+			<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 		</script>
 	</head>
 	<body>

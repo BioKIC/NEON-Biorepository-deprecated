@@ -22,7 +22,7 @@ if(!is_numeric($processingCount)) $processingCount = 10;
 
 $statusStr = '';
 $isEditor = 0;
-if($IS_ADMIN || array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
+if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']))){
 	$isEditor = 1;
 }
 $guidManager = new OccurrenceSesar();

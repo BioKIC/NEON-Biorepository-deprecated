@@ -128,7 +128,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		<?php if($clid) echo 'var clid = '.$clid.';'; ?>

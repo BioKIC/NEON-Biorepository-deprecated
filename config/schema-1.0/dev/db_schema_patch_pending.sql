@@ -200,6 +200,15 @@ ALTER TABLE `omoccurgenetic`
 ALTER TABLE `omoccurgenetic` 
   ADD UNIQUE INDEX `UNIQUE_omoccurgenetic` (`occid` ASC, `resourceurl` ASC);
 
+CREATE TABLE `igsnverification` (
+  `igsn` VARCHAR(15) NOT NULL,
+  `occid` INT UNSIGNED NULL,
+  `status` INT NULL,
+  `initialtimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  INDEX `FK_igsn_occid_idx` (`occid` ASC),
+  INDEX `INDEX_igsn` (`igsn` ASC),
+  CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
+
 
 ALTER TABLE `omoccurrences`
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,

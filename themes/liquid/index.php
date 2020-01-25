@@ -9,7 +9,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<meta name='keywords' content='' />
 	<script type="text/javascript">
-		<?php include_once('config/googleanalytics.php'); ?>
+		<?php include_once('includes/googleanalytics.php'); ?>
 	</script>
 </head>
 <body>

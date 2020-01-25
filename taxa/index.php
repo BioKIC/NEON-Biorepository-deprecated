@@ -61,14 +61,22 @@ $descr = Array();
 <head>
 	<title><?php echo $DEFAULT_TITLE." - ".$taxonManager->getSciName(); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
-	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
-	<link href="../css/speciesprofilebase.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/speciesprofile.css?ver=<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/jquery-ui.css" type="text/css" rel="Stylesheet" />
+	<?php
+	if(file_exists($SERVER_ROOT.'/includes/spprofilehead.php')){
+		include_once($SERVER_ROOT.'/includes/spprofilehead.php');
+	}
+	else{
+		echo '<link href="'.$SERVER_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$SERVER_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$SERVER_ROOT.'/css/spprofilebase.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$SERVER_ROOT.'/css/spprofile.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$SERVER_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script src="../js/symb/taxa.index.js?ver=1810902" type="text/javascript"></script>
 	<script src="../js/symb/taxa.editor.js?ver=20140619" type="text/javascript"></script>
@@ -76,7 +84,7 @@ $descr = Array();
 <body>
 <?php
 $displayLeftMenu = false;
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div id="popup-innertext">
 	<table id="innertable">
@@ -448,7 +456,7 @@ include($SERVER_ROOT.'/header.php');
 	</table>
 </div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

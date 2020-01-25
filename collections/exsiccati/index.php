@@ -76,7 +76,7 @@ if($formSubmit == 'dlexsiccati'){
 	<title><?php echo $DEFAULT_TITLE; ?> Exsiccati</title>
     <?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript" src="../../js/symb/shared.js?ver=130926"></script>
 	<script type="text/javascript">

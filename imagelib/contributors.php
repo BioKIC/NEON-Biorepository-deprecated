@@ -10,7 +10,7 @@ $pManager = new ImageLibraryManager();
 	<title><?php echo $DEFAULT_TITLE; ?> Photographer List</title>
 	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<meta name='keywords' content='' />
 </head>

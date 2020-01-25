@@ -29,7 +29,7 @@ $searchVar = $collManager->getQueryTermStr();
 	</script>
 	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=3" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<style type="text/css">
 		hr{ margin: 10px 0px }

@@ -13,7 +13,7 @@ $imgLibManager = new ImageLibraryManager();
 <title><?php echo $DEFAULT_TITLE; ?> Image Library</title>
 	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script src="../js/symb/imagelib.search.js?ver=201902" type="text/javascript"></script>
 </head>

@@ -25,7 +25,7 @@ if (isset($_POST['formsubmit'])) {
 		<title><?php echo $DEFAULT_TITLE; ?> Action Requests</title>
 		<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
 		<script type="text/javascript">
-			<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+			<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 		</script>
 		<link type="text/css" href="../css/jquery-ui.css" rel="Stylesheet" />
 		<script type="text/javascript" src="../js/jquery.js"></script>

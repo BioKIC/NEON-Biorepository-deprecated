@@ -34,7 +34,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		var urlQueryStr = "<?php echo $searchVar.'&page='.$pageNumber; ?>";
@@ -236,8 +236,13 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 						if($fieldArr["country"]) $localStr .= $fieldArr["country"].", ";
 						if($fieldArr["state"]) $localStr .= $fieldArr["state"].", ";
 						if($fieldArr["county"]) $localStr .= $fieldArr["county"].", ";
-						if($fieldArr["locality"]) $localStr .= $fieldArr["locality"].", ";
-						if(isset($fieldArr["elev"]) && $fieldArr["elev"]) $localStr .= $fieldArr["elev"].'m';
+						if($fieldArr['locality'] == 'PROTECTED'){
+							$localStr .= '<span style="color:red;">'.$LANG['PROTECTED'].'</span>';
+						}
+						else{
+							if($fieldArr['locality']) $localStr .= $fieldArr['locality'].', ';
+							if(isset($fieldArr['elev']) && $fieldArr['elev']) $localStr .= $fieldArr['elev'].'m';
+						}
 						if(strlen($localStr) > 2) $localStr = trim($localStr,' ,');
 						echo $localStr;
 						echo '</div><div style="margin:4px">';

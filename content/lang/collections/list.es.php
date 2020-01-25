@@ -22,6 +22,7 @@ $LANG['PAGINATION_RECORDS'] = 'registros';
 $LANG['PAGINATION_OF'] = 'de';
 $LANG['OCCUR_EDIT_TITLE'] = 'Editar Registro de Ocurrencia';
 $LANG['VOUCHER_LINK_TITLE'] = 'Enlazar voucher de ejemplar a';
+$LANG['PROTECTED'] = 'detalles de la localidad protegida';
 $LANG['FULL_DETAILS'] = 'Detalles completos del registro';
 $LANG['NO_RESULTS'] = 'Su consulta no arrojó resultados. Por favor, modifique sus parámetros de consulta';
 $LANG['PERHAPS_LOOKING_FOR'] = 'Tal vez estuviste buscando por:';

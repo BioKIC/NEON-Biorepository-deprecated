@@ -33,16 +33,12 @@ class OccurrenceCollectionProfile {
 
 	public function getCollectionMetadata(){
 		$retArr = array();
-		$sql = 'SELECT c.collid, c.institutioncode, c.CollectionCode, c.CollectionName, c.FullDescription, c.Homepage, c.individualurl, c.Contact, c.email, '.
+		$sql = 'SELECT c.collid, c.institutioncode, c.CollectionCode, c.CollectionName, c.collectionid, c.FullDescription, c.Homepage, c.individualurl, c.Contact, c.email, '.
 			'c.latitudedecimal, c.longitudedecimal, c.icon, c.colltype, c.managementtype, c.publicedits, c.guidtarget, c.rights, '.
 			'c.rightsholder, c.accessrights, c.dwcaurl, c.sortseq, c.securitykey, c.collectionguid, c.publishtogbif, c.publishtoidigbio, c.aggkeysstr, s.uploaddate '.
 			'FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid ';
-		if($this->collid){
-			$sql .= 'WHERE (c.collid = '.$this->collid.') ';
-		}
-		else{
-			$sql .= 'WHERE s.recordcnt > 0 ORDER BY c.SortSeq, c.CollectionName';
-		}
+		if($this->collid) $sql .= 'WHERE (c.collid = '.$this->collid.') ';
+		else $sql .= 'WHERE s.recordcnt > 0 ORDER BY c.SortSeq, c.CollectionName';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
@@ -50,6 +46,7 @@ class OccurrenceCollectionProfile {
 			$retArr[$row->collid]['institutioncode'] = $row->institutioncode;
 			$retArr[$row->collid]['collectioncode'] = $row->CollectionCode;
 			$retArr[$row->collid]['collectionname'] = $row->CollectionName;
+			$retArr[$row->collid]['collectionid'] = $row->collectionid;
 			$retArr[$row->collid]['fulldescription'] = $row->FullDescription;
 			$retArr[$row->collid]['homepage'] = $row->Homepage;
 			$retArr[$row->collid]['individualurl'] = $row->individualurl;
@@ -68,7 +65,7 @@ class OccurrenceCollectionProfile {
 			$retArr[$row->collid]['dwcaurl'] = $row->dwcaurl;
 			$retArr[$row->collid]['sortseq'] = $row->sortseq;
 			$retArr[$row->collid]['skey'] = $row->securitykey;
-			$retArr[$row->collid]['guid'] = $row->collectionguid;
+			$retArr[$row->collid]['recordid'] = $row->collectionguid;
 			$retArr[$row->collid]['publishtogbif'] = $row->publishtogbif;
 			$retArr[$row->collid]['publishtoidigbio'] = $row->publishtoidigbio;
 			$retArr[$row->collid]['aggkeysstr'] = $row->aggkeysstr;
@@ -85,20 +82,18 @@ class OccurrenceCollectionProfile {
 		$rs->free();
 		if($this->collid){
 			//Check to make sure Security Key and collection GUIDs exist
-			if(!$retArr[$this->collid]['guid']){
+			if(!$retArr[$this->collid]['recordid']){
 				$guid= UuidFactory::getUuidV4();
-				$retArr[$this->collid]['guid'] = $guid;
+				$retArr[$this->collid]['recordid'] = $guid;
 				$conn = MySQLiConnectionFactory::getCon('write');
-				$sql = 'UPDATE omcollections SET collectionguid = "'.$guid.'" '.
-					'WHERE collectionguid IS NULL AND collid = '.$this->collid;
+				$sql = 'UPDATE omcollections SET collectionguid = "'.$guid.'" WHERE collectionguid IS NULL AND collid = '.$this->collid;
 				$conn->query($sql);
 			}
 			if(!$retArr[$this->collid]['skey']){
 				$guid2 = UuidFactory::getUuidV4();
 				$retArr[$this->collid]['skey'] = $guid2;
 				$conn = MySQLiConnectionFactory::getCon('write');
-				$sql = 'UPDATE omcollections SET securitykey = "'.$guid2.'" '.
-					'WHERE securitykey IS NULL AND collid = '.$this->collid;
+				$sql = 'UPDATE omcollections SET securitykey = "'.$guid2.'" WHERE securitykey IS NULL AND collid = '.$this->collid;
 				$conn->query($sql);
 			}
 			if(isset($retArr[$this->collid]['aggkeysstr']) && $retArr[$this->collid]['aggkeysstr']){
@@ -149,7 +144,7 @@ class OccurrenceCollectionProfile {
 		$outStr .= '</div>';
 		if($collArr['managementtype'] == 'Live Data'){
 			$outStr .= '<div style="margin-top:5px;">';
-			$outStr .= '<b>'.$LANG['GLOBAL_UNIQUE_ID'].':</b> '.$collArr['guid'];
+			$outStr .= '<b>'.$LANG['GLOBAL_UNIQUE_ID'].':</b> '.$collArr['recordid'];
 			$outStr .= '</div>';
 		}
 		if($collArr['dwcaurl']){
@@ -234,170 +229,108 @@ class OccurrenceCollectionProfile {
 
 	//Collection metadata editing functions
 	public function submitCollEdits($postArr){
-		global $GBIF_USERNAME,$GBIF_PASSWORD;
-		$status = true;
 		if($this->collid){
-			$instCode = $this->cleanInStr($postArr['institutioncode']);
-			$collCode = $this->cleanInStr($postArr['collectioncode']);
-			$coleName = $this->cleanInStr($postArr['collectionname']);
-			$fullDesc = $this->cleanInStr($postArr['fulldescription']);
-			$homepage = $this->cleanInStr($postArr['homepage']);
-			$contact = $this->cleanInStr($postArr['contact']);
-			$email = $this->cleanInStr($postArr['email']);
-			$publicEdits = (array_key_exists('publicedits',$postArr)?$postArr['publicedits']:0);
-			$gbifPublish = (array_key_exists('publishToGbif',$postArr)?$postArr['publishToGbif']:'NULL');
-			$idigPublish = (array_key_exists('publishToIdigbio',$postArr)?$postArr['publishToIdigbio']:'NULL');
-			$guidTarget = (array_key_exists('guidtarget',$postArr)?$postArr['guidtarget']:'');
-			$rights = $this->cleanInStr($postArr['rights']);
-			$rightsHolder = $this->cleanInStr($postArr['rightsholder']);
-			$accessRights = $this->cleanInStr($postArr['accessrights']);
-			if($_FILES['iconfile']['name']){
-				$icon = $this->addIconImageFile();
-			}
-			else{
-				$icon = $this->cleanInStr($postArr['iconurl']);
-			}
-			$indUrl = $this->cleanInStr($postArr['individualurl']);
-
-			$conn = MySQLiConnectionFactory::getCon("write");
+			$icon = $this->cleanInStr($postArr['iconurl']);
+			if(isset($_FILES['iconfile']['name']) && $_FILES['iconfile']['name']) $icon = $this->addIconImageFile();
 			$sql = 'UPDATE omcollections '.
-				'SET institutioncode = "'.$instCode.'",'.
-				'collectioncode = '.($collCode?'"'.$collCode.'"':'NULL').','.
-				'collectionname = "'.$coleName.'",'.
-				'fulldescription = '.($fullDesc?'"'.$fullDesc.'"':'NULL').','.
-				'homepage = '.($homepage?'"'.$homepage.'"':'NULL').','.
-				'contact = '.($contact?'"'.$contact.'"':'NULL').','.
-				'email = '.($email?'"'.$email.'"':'NULL').','.
-				'latitudedecimal = '.($postArr['latitudedecimal']?$postArr['latitudedecimal']:'NULL').','.
-				'longitudedecimal = '.($postArr['longitudedecimal']?$postArr['longitudedecimal']:'NULL').',';
-			if(array_key_exists('publishToGbif',$postArr)){
-				$sql .= 'publishToGbif = '.$gbifPublish.',';
-			}
-			if(array_key_exists('publishToIdigbio',$postArr)){
-				$sql .= 'publishToIdigbio = '.$idigPublish.',';
-			}
-			$sql .= 'publicedits = '.$publicEdits.','.
-				'guidtarget = '.($guidTarget?'"'.$guidTarget.'"':'NULL').','.
-				'rights = '.($rights?'"'.$rights.'"':'NULL').','.
-				'rightsholder = '.($rightsHolder?'"'.$rightsHolder.'"':'NULL').','.
-				'accessrights = '.($accessRights?'"'.$accessRights.'"':'NULL').', '.
-				'icon = '.($icon?'"'.$icon.'"':'NULL').', '.
-				'individualurl = '.($indUrl?'"'.$indUrl.'"':'NULL').' ';
-			if(array_key_exists('colltype',$postArr)){
-				$sql .= ',managementtype = "'.$postArr['managementtype'].'",'.
-					'colltype = "'.$postArr['colltype'].'",'.
-					'sortseq = '.($postArr['sortseq']?$postArr['sortseq']:'NULL').' ';
-			}
-			$sql .= 'WHERE (collid = '.$this->collid.')';
-			//echo $sql; exit;
-			if(!$conn->query($sql)){
-				$status = 'ERROR updating collection: '.$conn->error;
-				return $status;
+				'SET institutioncode = "'.$this->cleanInStr($postArr['institutioncode']).'",'.
+				'collectioncode = '.($postArr['collectioncode']?'"'.$this->cleanInStr($postArr['collectioncode']).'"':'NULL').','.
+				'collectionname = "'.$this->cleanInStr($postArr['collectionname']).'",'.
+				'collectionid = '.($postArr['collectionid']?'"'.$this->cleanInStr($postArr['collectionid']).'"':'NULL').','.
+				'fulldescription = '.($postArr['fulldescription']?'"'.$this->cleanInStr($postArr['fulldescription']).'"':'NULL').','.
+				'homepage = '.($postArr['homepage']?'"'.$this->cleanInStr($postArr['homepage']).'"':'NULL').','.
+				'contact = '.($postArr['contact']?'"'.$this->cleanInStr($postArr['contact']).'"':'NULL').','.
+				'email = '.($postArr['email']?'"'.$this->cleanInStr($postArr['email']).'"':'NULL').','.
+				'latitudedecimal = '.(is_numeric($postArr['latitudedecimal'])?$postArr['latitudedecimal']:'NULL').','.
+				'longitudedecimal = '.(is_numeric($postArr['longitudedecimal'])?$postArr['longitudedecimal']:'NULL').','.
+				'publishToGbif = '.(array_key_exists('publishToGbif',$postArr)&&is_numeric($postArr['publishToGbif'])?1:0).','.
+				'publishToIdigbio = '.(array_key_exists('publishToIdigbio',$postArr)&&is_numeric($postArr['publishToIdigbio'])?1:0).','.
+				'publicedits = '.(array_key_exists('publicedits',$postArr)&&is_numeric($postArr['publicedits'])?1:0).','.
+				'guidtarget = '.(array_key_exists('guidtarget',$postArr)?'"'.$this->cleanInStr($postArr['guidtarget']).'"':'NULL').','.
+				'rights = '.($postArr['rights']?'"'.$this->cleanInStr($postArr['rights']).'"':'NULL').','.
+				'rightsholder = '.($postArr['rightsholder']?'"'.$this->cleanInStr($postArr['rightsholder']).'"':'NULL').','.
+				'accessrights = '.($postArr['accessrights']?'"'.$this->cleanInStr($postArr['accessrights']).'"':'NULL').','.
+				'icon = '.($icon?'"'.$icon.'"':'NULL').','.
+				(isset($postArr['managementtype'])&&$postArr['managementtype']?'managementtype = "'.$this->cleanInStr($postArr['managementtype']).'",':'').
+				(isset($postArr['colltype'])&&$postArr['colltype']?'colltype = "'.$this->cleanInStr($postArr['colltype']).'",':'').
+				(isset($postArr['sortseq'])&&is_numeric($postArr['sortseq'])?'sortseq = '.$this->cleanInStr($postArr['sortseq']).',':'').
+				'individualurl = '.($postArr['individualurl']?'"'.$this->cleanInStr($postArr['individualurl']).'"':'NULL').' '.
+				'WHERE (collid = '.$this->collid.')';
+			//echo $sql;
+			if(!$this->conn->query($sql)){
+				return 'ERROR updating collection: '.$this->conn->error;
 			}
 
 			//Modify collection category, if needed
 			if(isset($postArr['ccpk']) && $postArr['ccpk']){
-				$rs = $conn->query('SELECT ccpk FROM omcollcatlink WHERE collid = '.$this->collid);
+				$rs = $this->conn->query('SELECT ccpk FROM omcollcatlink WHERE collid = '.$this->collid);
 				if($r = $rs->fetch_object()){
 					if($r->ccpk <> $postArr['ccpk']){
-						if(!$conn->query('UPDATE omcollcatlink SET ccpk = '.$postArr['ccpk'].' WHERE ccpk = '.$r->ccpk.' AND collid = '.$this->collid)){
-							$status = 'ERROR updating collection category link: '.$conn->error;
-							return $status;
+						if(!$this->conn->query('UPDATE omcollcatlink SET ccpk = '.$postArr['ccpk'].' WHERE ccpk = '.$r->ccpk.' AND collid = '.$this->collid)){
+							return 'ERROR updating collection category link: '.$this->conn->error;
 						}
 					}
 				}
 				else{
-					if(!$conn->query('INSERT INTO omcollcatlink (ccpk,collid) VALUES('.$postArr['ccpk'].','.$this->collid.')')){
-						$status = 'ERROR inserting collection category link(1): '.$conn->error;
-						return $status;
+					if(!$this->conn->query('INSERT INTO omcollcatlink (ccpk,collid) VALUES('.$postArr['ccpk'].','.$this->collid.')')){
+						return 'ERROR inserting collection category link(1): '.$this->conn->error;
 					}
 				}
 			}
 			else{
-				$conn->query('DELETE FROM omcollcatlink WHERE collid = '.$this->collid);
+				$this->conn->query('DELETE FROM omcollcatlink WHERE collid = '.$this->collid);
 			}
-			$conn->close();
 		}
-		return $status;
+		return true;
 	}
 
 	public function submitCollAdd($postArr){
-		global $SYMB_UID;
-		$instCode = $this->cleanInStr($postArr['institutioncode']);
-		$collCode = $this->cleanInStr($postArr['collectioncode']);
-		$coleName = $this->cleanInStr($postArr['collectionname']);
-		$fullDesc = $this->cleanInStr($postArr['fulldescription']);
-		$homepage = $this->cleanInStr($postArr['homepage']);
-		$contact = $this->cleanInStr($postArr['contact']);
-		$email = $this->cleanInStr($postArr['email']);
-		$rights = $this->cleanInStr($postArr['rights']);
-		$rightsHolder = $this->cleanInStr($postArr['rightsholder']);
-		$accessRights = $this->cleanInStr($postArr['accessrights']);
-		$publicEdits = (array_key_exists('publicedits',$postArr)?$postArr['publicedits']:0);
-		$gbifPublish = (array_key_exists('publishToGbif',$postArr)?$postArr['publishToGbif']:0);
-		if(array_key_exists('publishToIdigbio',$postArr)){
-			$idigPublish = (array_key_exists('publishToIdigbio',$postArr)?$postArr['publishToIdigbio']:0);
-		}
-		$guidTarget = (array_key_exists('guidtarget',$postArr)?$postArr['guidtarget']:'');
-		if($_FILES['iconfile']['name']){
-			$icon = $this->addIconImageFile();
-		}
-		else{
-			$icon = array_key_exists('iconurl',$postArr)?$this->cleanInStr($postArr['iconurl']):'';
-		}
-		$managementType = array_key_exists('managementtype',$postArr)?$this->cleanInStr($postArr['managementtype']):'';
-		$collType = array_key_exists('colltype',$postArr)?$this->cleanInStr($postArr['colltype']):'';
-		$guid = array_key_exists('collectionguid',$postArr)?$this->cleanInStr($postArr['collectionguid']):'';
-		if(!$guid) $guid = UuidFactory::getUuidV4();
-		$indUrl = array_key_exists('individualurl',$postArr)?$this->cleanInStr($postArr['individualurl']):'';
-		$sortSeq = array_key_exists('sortseq',$postArr)?$postArr['sortseq']:'';
-
-		$conn = MySQLiConnectionFactory::getCon("write");
-		$sql = 'INSERT INTO omcollections(institutioncode,collectioncode,collectionname,fulldescription,homepage,'.
-			'contact,email,latitudedecimal,longitudedecimal,publicedits,publishToGbif,'.
-			(array_key_exists('publishToIdigbio',$postArr)?'publishToIdigbio,':'').
-			'guidtarget,rights,rightsholder,accessrights,icon,'.
-			'managementtype,colltype,collectionguid,individualurl,sortseq) '.
-			'VALUES ("'.$instCode.'",'.
-			($collCode?'"'.$collCode.'"':'NULL').',"'.
-			$coleName.'",'.
-			($fullDesc?'"'.$fullDesc.'"':'NULL').','.
-			($homepage?'"'.$homepage.'"':'NULL').','.
-			($contact?'"'.$contact.'"':'NULL').','.
-			($email?'"'.$email.'"':'NULL').','.
-			($postArr['latitudedecimal']?$postArr['latitudedecimal']:'NULL').','.
-			($postArr['longitudedecimal']?$postArr['longitudedecimal']:'NULL').','.$publicEdits.','.$gbifPublish.','.
-			(array_key_exists('publishToIdigbio',$postArr)?$idigPublish.',':'').
-			($guidTarget?'"'.$guidTarget.'"':'NULL').','.
-			($rights?'"'.$rights.'"':'NULL').','.
-			($rightsHolder?'"'.$rightsHolder.'"':'NULL').','.
-			($accessRights?'"'.$accessRights.'"':'NULL').','.
+		$icon = array_key_exists('iconurl',$postArr)?$this->cleanInStr($postArr['iconurl']):'';
+		if(isset($_FILES['iconfile']['name']) && $_FILES['iconfile']['name']) $icon = $this->addIconImageFile();
+		$sql = 'INSERT INTO omcollections(institutioncode,collectioncode,collectionname,collectionid,fulldescription,homepage,contact,email,latitudedecimal,longitudedecimal,'.
+			'publicedits,publishToGbif,publishToIdigbio,guidtarget,rights,rightsholder,accessrights,icon,managementtype,colltype,collectionguid,individualurl,sortseq) '.
+			'VALUES ("'.$this->cleanInStr($postArr['institutioncode']).'",'.
+			($postArr['collectioncode']?'"'.$this->cleanInStr($postArr['collectioncode']).'"':'NULL').',"'.
+			$this->cleanInStr($postArr['collectionname']).'",'.
+			($postArr['collectionid']?'"'.$this->cleanInStr($postArr['collectionid']).'"':'NULL').','.
+			($postArr['fulldescription']?'"'.$this->cleanInStr($postArr['fulldescription']).'"':'NULL').','.
+			($postArr['homepage']?'"'.$this->cleanInStr($postArr['homepage']).'"':'NULL').','.
+			($postArr['contact']?'"'.$this->cleanInStr($postArr['contact']).'"':'NULL').','.
+			($postArr['email']?'"'.$this->cleanInStr($postArr['email']).'"':'NULL').','.
+			($postArr['latitudedecimal']?is_numeric($postArr['latitudedecimal']):'NULL').','.
+			($postArr['longitudedecimal']?is_numeric($postArr['longitudedecimal']):'NULL').','.
+			(array_key_exists('publicedits',$postArr)&&is_numeric($postArr['publicedits'])?$postArr['publicedits']:0).','.
+			(array_key_exists('publishToGbif',$postArr)&&is_numeric($postArr['publishToGbif'])?$postArr['publishToGbif']:0).','.
+			(array_key_exists('publishToIdigbio',$postArr)&&is_numeric($postArr['publishToIdigbio'])?$postArr['publishToIdigbio']:0).','.
+			(array_key_exists('guidtarget',$postArr)?'"'.$this->cleanInStr($postArr['guidtarget']).'"':'NULL').','.
+			($postArr['rights']?'"'.$this->cleanInStr($postArr['rights']).'"':'NULL').','.
+			($postArr['rightsholder']?'"'.$this->cleanInStr($postArr['rightsholder']).'"':'NULL').','.
+			($postArr['accessrights']?'"'.$this->cleanInStr($postArr['accessrights']).'"':'NULL').','.
 			($icon?'"'.$icon.'"':'NULL').','.
-			($managementType?'"'.$managementType.'"':'Snapshot').','.
-			($collType?'"'.$collType.'"':'Preserved Specimens').',"'.
-			$guid.'",'.($indUrl?'"'.$indUrl.'"':'NULL').','.
-			($sortSeq?$sortSeq:'NULL').') ';
+			(array_key_exists('managementtype',$postArr)?'"'.$this->cleanInStr($postArr['managementtype']).'"':'Snapshot').','.
+			(array_key_exists('colltype',$postArr)?'"'.$this->cleanInStr($postArr['colltype']).'"':'Preserved Specimens').',"'.
+			UuidFactory::getUuidV4().'",'.
+			(array_key_exists('individualurl',$postArr)?'"'.$this->cleanInStr($postArr['individualurl']).'"':'NULL').','.
+			(array_key_exists('sortseq',$postArr)&&is_numeric($postArr['sortseq'])?$postArr['sortseq']:'NULL').') ';
 		//echo "<div>$sql</div>";
 		$cid = 0;
-		if($conn->query($sql)){
-			$cid = $conn->insert_id;
-			$sql = 'INSERT INTO omcollectionstats(collid,recordcnt,uploadedby) '.
-				'VALUES('.$cid.',0,"'.$SYMB_UID.'")';
-			$conn->query($sql);
+		if($this->conn->query($sql)){
+			$cid = $this->conn->insert_id;
+			$sql = 'INSERT INTO omcollectionstats(collid,recordcnt,uploadedby) VALUES('.$cid.',0,"'.$GLOBALS['SYMB_UID'].'")';
+			$this->conn->query($sql);
 			//Add collection to category
 			if(isset($postArr['ccpk']) && $postArr['ccpk']){
 				$sql = 'INSERT INTO omcollcatlink (ccpk,collid) VALUES('.$postArr['ccpk'].','.$cid.')';
-				if(!$conn->query($sql)){
-					$status = 'ERROR inserting collection category link(2): '.$conn->error.'; SQL: '.$sql;
+				if(!$this->conn->query($sql)){
+					$status = 'ERROR inserting collection category link(2): '.$this->conn->error.'; SQL: '.$sql;
 					return $status;
 				}
 			}
 			$this->collid = $cid;
 		}
 		else{
-			$cid = 'ERROR inserting new collection: '.$conn->error;
+			$cid = 'ERROR inserting new collection: '.$this->conn->error;
 		}
-		$conn->close();
 		return $cid;
 	}
 

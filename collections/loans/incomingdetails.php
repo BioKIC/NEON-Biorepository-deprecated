@@ -1,24 +1,24 @@
-<?php 
+<?php
 $specList = $loanManager->getSpecList($loanId);
 ?>
 <div id="tabs" style="margin:0px;">
     <ul>
 		<li><a href="#loandiv"><span>Loan Details</span></a></li>
-		<?php 
+		<?php
 		if($specList){
 			?>
 			<li><a href="#specdiv"><span>Specimens</span></a></li>
-			<?php 
+			<?php
 		}
 		?>
 		<li><a href="#inloandeldiv"><span>Admin</span></a></li>
 	</ul>
 	<div id="loandiv">
-		<?php 
+		<?php
 		//Show loan details
 		$loanArr = $loanManager->getLoanInDetails($loanId);
 		?>
-		<form name="editloanform" action="index.php" method="post">
+		<form name="editloanform" action="index.php" method="post" onsubmit="return verifyLoanInEditForm(this)">
 			<fieldset>
 				<legend>Loan In Details</legend>
 				<div style="padding-top:18px;float:left;">
@@ -65,7 +65,7 @@ $specList = $loanManager->getSpecList($loanId);
 						</span><br />
 						<span>
 							<select name="iidowner" style="width:400px;" >
-								<?php 
+								<?php
 								$instArr = $loanManager->getInstitutionArr();
 								foreach($instArr as $k => $v){
 									echo '<option value="'.$k.'" '.($loanArr['iidowner']==$k?'SELECTED':'').'>'.$v.'</option>';
@@ -170,8 +170,8 @@ $specList = $loanManager->getSpecList($loanId);
 					</span>
 				</div>
 				<div style="clear:both;padding-top:8px;float:right;">
-					<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
-					<input name="collidborr" type="hidden" value="<?php echo $collId; ?>" />
+					<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+					<input name="collidborr" type="hidden" value="<?php echo $collid; ?>" />
 					<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 					<button name="formsubmit" type="submit" value="Save Incoming">Save</button>
 				</div>
@@ -193,11 +193,11 @@ $specList = $loanManager->getSpecList($loanId);
 					<input type="radio" name="languagedef" value="1" /> English/Spanish
 					<input type="radio" name="languagedef" value="2" /> Spanish
 				</div>
-				<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+				<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 				<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 				<input name="loantype" type="hidden" value="<?php echo $loanType; ?>" />
 				<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="invoice">Invoice</button>
-				<?php 
+				<?php
 				if($specList){ ?>
 					<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="spec">Specimen List</button>
 				<?php } ?>
@@ -206,7 +206,7 @@ $specList = $loanManager->getSpecList($loanId);
 			</fieldset>
 		</form>
 	</div>
-	<?php 
+	<?php
 	if($specList){
 		?>
 		<div id="specdiv">
@@ -221,34 +221,34 @@ $specList = $loanManager->getSpecList($loanId);
 					?>
 					<tr>
 						<td>
-							<a href="#" onclick="openOccurrenceDetails(<?php echo $k; ?>);">
+							<a href="#" onclick="openIndPopup(<?php echo $k; ?>);">
 								<?php echo $specArr['catalognumber']; ?>
 							</a>
 						</td>
 						<td>
-							<?php 
+							<?php
 							$loc = $specArr['locality'];
 							if(strlen($loc) > 500) $loc = substr($loc,400);
 							echo '<i>'.$specArr['sciname'].'</i>; ';
 							echo  $specArr['collector'].'; '.$loc;
-							?> 
-							
+							?>
+
 						</td>
 						<td><?php echo $specArr['returndate']; ?></td>
 					</tr>
-					<?php 
+					<?php
 				}
 				?>
 			</table>
 		</div>
-		<?php 
+		<?php
 	}
 	?>
 	<div id="inloandeldiv">
 		<form name="delinloanform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this loan?')">
 			<fieldset style="width:350px;margin:20px;padding:20px;">
-				<legend><b>Delete Incoming Loan</b></legend>
-				<?php 
+				<legend>Delete Incoming Loan</legend>
+				<?php
 				if($specList){
 					echo '<div style="font-weight:bold;margin-bottom:15px;">';
 					echo 'Loan cannot be deleted until all linked specimens are removed';
@@ -256,7 +256,7 @@ $specList = $loanManager->getSpecList($loanId);
 				}
 				?>
 				<input name="formsubmit" type="submit" value="Delete Loan" <?php if($specList) echo 'DISABLED'; ?> />
-				<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
+				<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 				<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 			</fieldset>
 		</form>

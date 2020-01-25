@@ -1,3 +1,4 @@
+#Activate by moving file to portal's base directory
 User-agent: *  
 
 Crawl-delay: 10

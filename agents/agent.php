@@ -148,7 +148,7 @@ echo '<!DOCTYPE HTML>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">';
-    // include_once($SERVER_ROOT.'/config/googleanalytics.php'); 
+    // include_once($SERVER_ROOT.'/includes/googleanalytics.php'); 
 echo '</script>
 	<script type="text/javascript">
 		var currentLevel = ' . ($descrDisplayLevel?$descrDisplayLevel:"1"). ';

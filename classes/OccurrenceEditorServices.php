@@ -30,11 +30,11 @@ class OccurrenceEditorServices {
 
 	public function getPaleoGtsParents($term){
 		$retArr = Array();
-		$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE gtsterm = "'.$this->cleanInStr($term).'"';
+		$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE rankid > 10 AND gtsterm = "'.$this->cleanInStr($term).'"';
 		$parentId = '';
 		do{
 			$rs = $this->conn->query($sql);
-			if ($r = $rs->fetch_object()){
+			if($r = $rs->fetch_object()){
 				if($parentId == $r->parentgtsid){
 					$parentId = 0;
 				}
@@ -43,8 +43,9 @@ class OccurrenceEditorServices {
 					$parentId = $r->parentgtsid;
 				}
 			}
+			else $parentId = 0;
 			$rs->free();
-			$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE gtsid = '.$parentId;
+			$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE rankid > 10 AND gtsid = '.$parentId;
 		}while($parentId);
 		return $retArr;
 	}

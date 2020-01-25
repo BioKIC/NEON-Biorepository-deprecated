@@ -2,13 +2,13 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SpecLoans.php');
 
-$collId = $_REQUEST['collid'];
+$collid = $_REQUEST['collid'];
 $exchangeId = array_key_exists('exchangeid',$_REQUEST)?$_REQUEST['exchangeid']:0;
 
 $loanManager = new SpecLoans();
-if($collId) $loanManager->setCollId($collId);
+if($collid) $loanManager->setCollId($collid);
 
-$transInstList = $loanManager->getTransInstList($collId);
+$transInstList = $loanManager->getTransInstList($collid);
 if($transInstList){
 	?>
 	<div id="exchangeToggle" style="float:right;margin:10px;">
@@ -28,8 +28,8 @@ else{
 			<legend>New Gift/Exchange</legend>
 			<div style="padding-top:10px;float:left;">
 				<span>
-					<b>Transaction Number:</b> 
-					<input type="text" autocomplete="off" id="identifier" name="identifier" maxlength="255" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" onchange="exIdentCheck(identifier,<?php echo $collId; ?>);" />
+					<b>Transaction Number:</b>
+					<input type="text" autocomplete="off" name="identifier" maxlength="255" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
 				</span>
 			</div>
 			<div style="clear:left;padding-top:6px;float:left;">
@@ -59,7 +59,7 @@ else{
 					<select name="iid" style="width:400px;" >
 						<option value="">Select Institution</option>
 						<option value="">------------------------------------------</option>
-						<?php 
+						<?php
 						$instArr = $loanManager->getInstitutionArr();
 						foreach($instArr as $k => $v){
 							echo '<option value="'.$k.'">'.$v.'</option>';
@@ -74,14 +74,15 @@ else{
 				</span>
 			</div>
 			<div style="clear:both;padding-top:8px;float:right;">
-				<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
-				<button name="formsubmit" type="submit" value="Create Exchange">Create</button>
+				<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+				<input name="formsubmit" type="hidden" value="createExchange" />
+				<button name="submitbtn" type="submit" value="Create Exchange">Create</button>
 			</div>
 		</fieldset>
 	</form>
 </div>
 <div style="margin-top:10px;">
-	<?php 
+	<?php
 	if($transInstList){
 		echo '<h3>Transaction Records by Institution</h3>';
 		echo '<ul>';
@@ -90,11 +91,11 @@ else{
 			echo '<a href="#" onclick="toggle(\''.$k.'\');">'.$transArr['institutioncode'].'</a>';
 			echo ' (Balance: '.($transArr['invoicebalance']?($transArr['invoicebalance'] < 0?'<span style="color:red;font-weight:bold;">'.$transArr['invoicebalance'].'</span>':$transArr['invoicebalance']):0).')';
 			echo '<div id="'.$k.'" style="display:none;">';
-			$transList = $loanManager->getTransactions($collId,$k);
+			$transList = $loanManager->getTransactions($collid,$k);
 			echo '<ul>';
 			foreach($transList as $t => $transArr){
 				echo '<li>';
-				echo '<a href="index.php?collid='.$collId.'&exchangeid='.$t.'&loantype=exchange">';
+				echo '<a href="index.php?collid='.$collid.'&exchangeid='.$t.'&loantype=exchange">';
 				echo '#'.$transArr['identifier'].'</a>: ';
 				if($transArr['transactiontype'] == 'Shipment'){
 					if($transArr['in_out'] == 'Out'){

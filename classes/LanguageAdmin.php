@@ -5,7 +5,7 @@ include_once('Manager.php');
 class LanguageAdmin extends Manager {
 
 	//private $conn;
-	private $langArr = array('en','es');
+	private $langArr = array('en','es','pt');
 
 	function __construct() {
 		//$this->conn = MySQLiConnectionFactory::getCon("readonly");

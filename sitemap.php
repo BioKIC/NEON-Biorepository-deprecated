@@ -21,7 +21,7 @@ $smManager = new SiteMapManager();
 		}
 	</script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript" src="js/symb/shared.js"></script>
 </head>

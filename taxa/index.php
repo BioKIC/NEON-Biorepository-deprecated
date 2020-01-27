@@ -66,11 +66,13 @@ $descr = Array();
 		include_once($SERVER_ROOT.'/includes/spprofilehead.php');
 	}
 	else{
-		echo '<link href="'.$SERVER_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$SERVER_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$SERVER_ROOT.'/css/spprofilebase.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$SERVER_ROOT.'/css/spprofile.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$SERVER_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		?>
+		<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />
+		<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />
+		<link href="'.$CLIENT_ROOT.'/css/spprofilebase.css?ver=1" type="text/css" rel="stylesheet" />
+		<link href="'.$CLIENT_ROOT.'/css/spprofile.css?ver=1" type="text/css" rel="stylesheet" />
+		<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />
+		<?php
 	}
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>

@@ -87,11 +87,11 @@ class ShipmentManager{
 
 	public function getSampleArr($samplePK = null, $filter = null){
 		$retArr = array();
-		$headerArr = array('sampleID','alternativeSampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate',
-			'quarantineStatus','acceptedForAnalysis','sampleCondition','dynamicProperties','symbiotaTarget','sampleNotes','occurErr','occid','checkinUser','checkinRemarks','checkinTimestamp');
+		$headerArr = array('sampleID','alternativeSampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus',
+			'sampleReceived','acceptedForAnalysis','sampleCondition','dynamicProperties','symbiotaTarget','sampleNotes','occurErr','occid','checkinUser','checkinRemarks','checkinTimestamp');
 		$targetArr = array();
-		$sql = 'SELECT s.samplePK, s.sampleID, s.alternativeSampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, '.
-			's.domainRemarks, s.collectDate, s.quarantineStatus, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.symbiotaTarget, s.notes as sampleNotes, s.errorMessage as occurErr, '.
+		$sql = 'SELECT s.samplePK, s.sampleID, s.alternativeSampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, s.collectDate, '.
+			's.quarantineStatus, s.sampleReceived, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.symbiotaTarget, s.notes as sampleNotes, s.errorMessage as occurErr, '.
 			'CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinRemarks, s.checkinTimestamp, s.occid '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid ';
 		if($samplePK){
@@ -376,7 +376,7 @@ class ShipmentManager{
 		return $retArr;
 	}
 
-	public function checkinSample($sampleID, $acceptedForAnalysis, $condition, $alternativeSampleID, $notes){
+	public function checkinSample($sampleID, $sampleReceived, $acceptedForAnalysis, $condition, $alternativeSampleID, $notes){
 		$status = 3;
 		// status: 0 = check-in failed, 1 = check-in success, 2 = sample already checked-in, 3 = sample not found
 		if($sampleID){
@@ -393,7 +393,9 @@ class ShipmentManager{
 			}
 			$rs->free();
 			if($status == 1 && $samplePK){
-				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = '.($acceptedForAnalysis?'1':'0').' ';
+				$sampleReceived = ($sampleReceived?1:0);
+				$acceptedForAnalysis = ($acceptedForAnalysis?1:0);
+				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.' ';
 				if($condition) $sqlUpdate .= ', sampleCondition = CONCAT_WS("; ",sampleCondition,"'.$this->cleanInStr($condition).'") ';
 				if($notes) $sqlUpdate .= ', checkinRemarks = "'.$this->cleanInStr($notes).'" ';
 				if($alternativeSampleID) $sqlUpdate .= ', alternativeSampleID = "'.$this->cleanInStr($alternativeSampleID).'" ';
@@ -412,8 +414,9 @@ class ShipmentManager{
 		if($this->shipmentPK){
 			$pkArr = $postArr['scbox'];
 			if($pkArr){
-				$sql = 'UPDATE NeonSample '.
-					'SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = '.$postArr['acceptedForAnalysis'].' '.
+				$sampleReceived = ($postArr['sampleReceived']?1:0);
+				$acceptedForAnalysis = ($postArr['acceptedForAnalysis']?1:0);
+				$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.' '.
 					($postArr['sampleCondition']?', sampleCondition = "'.$this->cleanInStr($postArr['sampleCondition']).'" ':'').
 					($postArr['checkinRemarks']?', checkinRemarks = "'.$this->cleanInStr($postArr['checkinRemarks']).'" ':'').
 					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) AND (samplePK IN('.implode(',', $pkArr).'))';
@@ -560,7 +563,7 @@ class ShipmentManager{
 					$status = true;
 					if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
 					if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
-						$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
+						$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = 1, acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
 						if(!$this->conn->query($sqlUpdate)){
 							$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
 							$status = 0;
@@ -606,8 +609,10 @@ class ShipmentManager{
 	public function editSampleCheckin($postArr){
 		$status = false;
 		if(is_numeric($postArr['samplePK'])){
+			$sampleReceived = ($postArr['sampleReceived']?1:0);
+			$acceptedForAnalysis = ($postArr['acceptedForAnalysis']?1:0);
 			$sql = 'UPDATE NeonSample '.
-				'SET acceptedForAnalysis = '.$this->cleanInStr($postArr['acceptedForAnalysis']).', '.
+				'SET sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.', '.
 				'sampleCondition = '.($postArr['sampleCondition']?'"'.$this->cleanInStr($postArr['sampleCondition']).'"':'NULL').', '.
 				'checkinRemarks = '.($postArr['checkinRemarks']?'"'.$this->cleanInStr($postArr['checkinRemarks']).'"':'NULL').' '.
 				'WHERE (samplepk = '.$postArr['samplePK'].')';
@@ -624,7 +629,7 @@ class ShipmentManager{
 
 	public function resetSampleCheckin($samplePK){
 		if(is_numeric($samplePK)){
-			$sql = 'UPDATE NeonSample SET checkinUid = NULL, checkinTimestamp = NULL, acceptedForAnalysis = NULL, sampleCondition = NULL, checkinRemarks = NULL WHERE (samplepk = '.$samplePK.')';
+			$sql = 'UPDATE NeonSample SET checkinUid = NULL, checkinTimestamp = NULL, sampleReceived = NULL, acceptedForAnalysis = NULL, sampleCondition = NULL, checkinRemarks = NULL WHERE (samplepk = '.$samplePK.')';
 			if(!$this->conn->query($sql)){
 				$this->errorStr = 'ERROR resetting sample check-in: '.$this->conn->error;
 				return false;
@@ -754,7 +759,8 @@ class ShipmentManager{
 		$this->setShipmentArr();
 		$fileName = 'receipt_'.$this->shipmentArr['shipmentID'].'_'.date('Y-m-d').'.csv';
 		$sql = 'SELECT n.shipmentID, DATE_FORMAT(s.checkinTimestamp,"%Y%m%d") AS shipmentReceivedDate, u.email AS receivedBy, s.sampleID, s.sampleCode, s.sampleClass, '.
-			'IF(s.checkinUid IS NULL, "N", "Y") AS sampleReceived, IF(s.acceptedForAnalysis IS NULL,"",IF(s.acceptedForAnalysis = 0,"N","Y")) AS acceptedForAnalysis, '.
+			'IF(s.sampleReceived IS NULL,"",IF(s.sampleReceived = 0,"N","Y")) AS sampleReceived, '.
+			'IF(s.acceptedForAnalysis IS NULL,"",IF(s.acceptedForAnalysis = 0,"N","Y")) AS acceptedForAnalysis, '.
 			'IF(s.acceptedForAnalysis = 0,s.sampleCondition,"") AS sampleCondition, CONCAT_WS("; ",s.checkinRemarks,CONCAT("deprecatedSampleID: ",s.alternativeSampleID)) AS remarks '.
 			'FROM NeonShipment n INNER JOIN NeonSample s ON n.shipmentPK = s.shipmentPK '.
 			'LEFT JOIN users u ON s.checkinUid = u.uid '.
@@ -765,8 +771,8 @@ class ShipmentManager{
 
 	public function exportShipmentList(){
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
-		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, s.shipmentMethod, '.
-			's.trackingNumber, s.receivedDate, s.receivedBy, s.receiptstatus, s.notes, CONCAT_WS("; ",u1.lastname, u1.firstname) AS importUser, '.
+		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, '.
+			's.shipmentMethod, s.trackingNumber, s.receivedDate, s.receivedBy, s.receiptstatus, s.notes, CONCAT_WS("; ",u1.lastname, u1.firstname) AS importUser, '.
 			'CONCAT_WS("; ",u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS("; ",u3.lastname, u3.firstname) AS modifiedByUser, s.modifiedTimestamp, s.initialtimestamp '.
 			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk '.
 			'LEFT JOIN users u1 ON s.importUid = u1.uid '.
@@ -785,7 +791,7 @@ class ShipmentManager{
 		if($this->shipmentPK) $fileName .= $this->shipmentPK.'_';
 		$fileName .= date('Y-m-d').'.csv';
 		$sql = 'SELECT m.samplePK, m.sampleID, m.alternativeSampleID, m.sampleCode, m.sampleClass, m.taxonID, m.individualCount, m.filterVolume, m.namedlocation, '.
-			'm.domainremarks, m.collectdate, m.quarantineStatus, m.acceptedForAnalysis, m.sampleCondition, m.dynamicProperties, m.symbiotaTarget, m.notes, m.occid, '.
+			'm.domainremarks, m.collectdate, m.quarantineStatus, m.sampleReceived, m.acceptedForAnalysis, m.sampleCondition, m.dynamicProperties, m.symbiotaTarget, m.notes, m.occid, '.
 			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, m.checkinTimestamp, m.initialtimestamp '.
 			'FROM NeonShipment s INNER JOIN NeonSample m ON s.shipmentpk = m.shipmentpk '.
 			'LEFT JOIN users u ON m.checkinUid = u.uid ';
@@ -798,8 +804,8 @@ class ShipmentManager{
 		if($this->shipmentPK) $fileName .= $this->shipmentPK.'_';
 		$fileName .= date('Y-m-d').'.csv';
 		$sql = 'SELECT m.samplePK, m.sampleID, m.alternativeSampleID, m.sampleCode, m.sampleClass, m.taxonID, m.individualCount, m.filterVolume, m.namedlocation, '.
-			'm.domainremarks, m.collectdate, m.quarantineStatus, m.acceptedForAnalysis, m.sampleCondition, m.dynamicProperties, m.symbiotaTarget, m.notes, m.occid, '.
-			'CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, m.checkinTimestamp, m.initialtimestamp, '.
+			'm.domainremarks, m.collectdate, m.quarantineStatus, m.sampleReceived, m.acceptedForAnalysis, m.sampleCondition, m.dynamicProperties, m.symbiotaTarget, '.
+			'm.notes, m.occid, CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, m.checkinTimestamp, m.initialtimestamp, '.
 			'o.catalogNumber, o.otherCatalogNumbers, o.sciname, o.scientificNameAuthorship, o.identifiedBy, o.dateIdentified, o.recordedBy, o.recordNumber, o.eventDate, '.
 			'o.country, o.stateProvince, o.county, o.locality, o.decimalLatitude, o.decimalLongitude, o.coordinateUncertaintyInMeters, o.minimumElevationInMeters, '.
 			'o.habitat, o.dateEntered, o.dateLastModified '.

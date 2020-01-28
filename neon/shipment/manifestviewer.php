@@ -163,7 +163,7 @@ if($isEditor){
 					type: "POST",
 					url: "rpc/checkinsample.php",
 					dataType: 'json',
-					data: { shipmentpk: "<?php echo $shipmentPK; ?>", identifier: sampleIdentifier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
+					data: { shipmentpk: "<?php echo $shipmentPK; ?>", identifier: sampleIdentifier, received: f.sampleReceived.value, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
 				}).done(function( retJson ) {
 					$("#checkinText").show();
 					if(retJson.status == 0){
@@ -175,6 +175,7 @@ if($isEditor){
 						$("#checkinText").text('success!!!');
 						$("#scSpan-"+retJson.samplePK).html("checked in");
 						f.identifier.value = "";
+						f.sampleReceived.value = 1;
 						f.acceptedForAnalysis.value = 1;
 						f.sampleCondition.value = "ok";
 						f.alternativeSampleID.value = "";
@@ -352,6 +353,11 @@ include($SERVER_ROOT.'/header.php');
 											<div id="checkinText" style="display:inline"></div>
 										</div>
 										<div class="displayFieldDiv">
+											<b>Sample Received:</b>
+											<input name="sampleReceived" type="radio" value="1" checked /> Yes
+											<input name="sampleReceived" type="radio" value="0" /> No
+										</div>
+										<div class="displayFieldDiv">
 											<b>Accepted for Analysis:</b>
 											<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
 											<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
@@ -445,8 +451,8 @@ include($SERVER_ROOT.'/header.php');
 												$headerOutArr = current($sampleList);
 												echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
 												$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample<br/>Code', 'sampleClass'=>'Sample<br/>Class', 'taxonID'=>'Taxon ID',
-													'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status',
-													'sampleCondition'=>'Sample<br/>Condition','acceptedForAnalysis'=>'Accepted<br/>for<br/>Analysis','checkinUser'=>'Check-in','occid'=>'occid');
+													'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status','sampleCondition'=>'Sample<br/>Condition',
+													'sampleReceived'=>'Sample<br/>Received','acceptedForAnalysis'=>'Accepted<br/>for<br/>Analysis','checkinUser'=>'Check-in','occid'=>'occid');
 													//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
 												$rowCnt = 1;
 												foreach($headerArr as $fieldName => $headerTitle){
@@ -478,6 +484,12 @@ include($SERVER_ROOT.'/header.php');
 												if(array_key_exists('collectDate', $sampleArr)) echo '<td>'.$sampleArr['collectDate'].'</td>';
 												echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
 												if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
+												if(array_key_exists('sampleReceived', $sampleArr)){
+													$sampleReceived = $sampleArr['sampleReceived'];
+													if($sampleArr['sampleReceived']==1) $sampleReceived = 'Y';
+													if($sampleArr['sampleReceived']==='0') $sampleReceived = 'N';
+													echo '<td>'.$sampleReceived.'</td>';
+												}
 												if(array_key_exists('acceptedForAnalysis', $sampleArr)){
 													$acceptedForAnalysis = $sampleArr['acceptedForAnalysis'];
 													if($sampleArr['acceptedForAnalysis']==1) $acceptedForAnalysis = 'Y';
@@ -527,6 +539,11 @@ include($SERVER_ROOT.'/header.php');
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 											<fieldset style="width:450px;">
 												<legend><b>Batch Check-in Selected Samples</b></legend>
+												<div class="displayFieldDiv">
+													<b>Sample Received:</b>
+													<input name="sampleReceived" type="radio" value="1" checked /> Yes
+													<input name="sampleReceived" type="radio" value="0" /> No
+												</div>
 												<div class="displayFieldDiv">
 													<b>Accepted for Analysis:</b>
 													<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes

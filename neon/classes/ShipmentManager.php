@@ -420,7 +420,6 @@ class ShipmentManager{
 					($postArr['sampleCondition']?', sampleCondition = "'.$this->cleanInStr($postArr['sampleCondition']).'" ':'').
 					($postArr['checkinRemarks']?', checkinRemarks = "'.$this->cleanInStr($postArr['checkinRemarks']).'" ':'').
 					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) AND (samplePK IN('.implode(',', $pkArr).'))';
-				//echo $sql;
 				if(!$this->conn->query($sql)){
 					$this->errorStr = 'ERROR batch checking-in samples: '.$this->conn->error;
 					return false;

@@ -75,6 +75,14 @@ if($isEditor){
 			<legend><b><?php echo $sampleArr['sampleID'].' (#'.$samplePK.')'; ?></b></legend>
 			<form method="post" action="samplecheckineditor.php">
 				<div class="fieldGroupDiv">
+					<b>Sample Received:</b>
+					<?php
+					$sampleReceived = (isset($sampleArr['sampleReceived'])?$sampleArr['sampleReceived']:'');
+					?>
+					<input name="sampleReceived" type="radio" value="1" <?php echo ($sampleReceived==1?'checked':''); ?> /> Yes
+					<input name="sampleReceived" type="radio" value="0" <?php echo ($sampleReceived==='0'?'checked':''); ?> /> No
+				</div>
+				<div class="fieldGroupDiv">
 					<b>Accepted for Analysis:</b>
 					<?php
 					$acceptedForAnalysis = (isset($sampleArr['acceptedForAnalysis'])?$sampleArr['acceptedForAnalysis']:'');

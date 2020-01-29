@@ -62,6 +62,16 @@ if($isEditor){
 					return false;
 				}
 			}
+			if(f.acceptedForAnalysis.value === "0"){
+				if(f.sampleCondition.value == "ok"){
+					alert("Sample Condition cannot be OK if sample is Not Accepted for Analysis");
+					return false;
+				}
+				else if(f.sampleCondition.value == ""){
+					alert("Sample Condition required when sample is tagged as Not Accepted for Analysis");
+					return false;
+				}
+			}
 			return true;
 		}
 

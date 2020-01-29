@@ -69,6 +69,12 @@ if($isEditor){
 					return false;
 				}
 			}
+			else if(f.sampleReceived.value == "1"){
+				if(f.acceptedForAnalysis.value == ""){
+					alert("Please select if accepted for analysis");
+					return false;
+				}
+			}
 			if(f.acceptedForAnalysis.value === 0){
 				if(f.sampleCondition.value == "ok"){
 					alert("Sample Condition cannot be OK if sample is Not Accepted for Analysis");
@@ -156,6 +162,12 @@ if($isEditor){
 			if(f.sampleReceived.value == "0"){
 				if(f.acceptedForAnalysis.value != "" || f.sampleCondition.value != ""){
 					alert("If sample is not received, Accepted for Analysis and Sample Condition must be NULL");
+					return false;
+				}
+			}
+			else if(f.sampleReceived.value == "1"){
+				if(f.acceptedForAnalysis.value == ""){
+					alert("Please select if accepted for analysis");
 					return false;
 				}
 			}

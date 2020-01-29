@@ -394,7 +394,8 @@ class ShipmentManager{
 			$rs->free();
 			if($status == 1 && $samplePK){
 				$sampleReceived = ($sampleReceived?1:0);
-				$acceptedForAnalysis = ($acceptedForAnalysis?1:0);
+				if($acceptedForAnalysis === '') $acceptedForAnalysis = 'NULL';
+				else $acceptedForAnalysis = ($acceptedForAnalysis?1:0);
 				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.' ';
 				if($condition) $sqlUpdate .= ', sampleCondition = CONCAT_WS("; ",sampleCondition,"'.$this->cleanInStr($condition).'") ';
 				if($notes) $sqlUpdate .= ', checkinRemarks = "'.$this->cleanInStr($notes).'" ';
@@ -415,8 +416,10 @@ class ShipmentManager{
 			$pkArr = $postArr['scbox'];
 			if($pkArr){
 				$sampleReceived = ($postArr['sampleReceived']?1:0);
-				$acceptedForAnalysis = ($postArr['acceptedForAnalysis']?1:0);
-				$sql = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.' '.
+				$acceptedForAnalysis = 'NULL';
+				if(isset($postArr['acceptedForAnalysis'])) $acceptedForAnalysis = ($postArr['acceptedForAnalysis']?1:0);
+				$sql = 'UPDATE NeonSample SET '.
+					'checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.' '.
 					($postArr['sampleCondition']?', sampleCondition = "'.$this->cleanInStr($postArr['sampleCondition']).'" ':'').
 					($postArr['checkinRemarks']?', checkinRemarks = "'.$this->cleanInStr($postArr['checkinRemarks']).'" ':'').
 					'WHERE (shipmentpk = '.$this->shipmentPK.') AND (checkinTimestamp IS NULL) AND (samplePK IN('.implode(',', $pkArr).'))';
@@ -609,7 +612,8 @@ class ShipmentManager{
 		$status = false;
 		if(is_numeric($postArr['samplePK'])){
 			$sampleReceived = ($postArr['sampleReceived']?1:0);
-			$acceptedForAnalysis = ($postArr['acceptedForAnalysis']?1:0);
+			$acceptedForAnalysis = 'NULL';
+			if(isset($postArr['acceptedForAnalysis'])) $acceptedForAnalysis = ($postArr['acceptedForAnalysis']?1:0);
 			$sql = 'UPDATE NeonSample '.
 				'SET sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.', '.
 				'sampleCondition = '.($postArr['sampleCondition']?'"'.$this->cleanInStr($postArr['sampleCondition']).'"':'NULL').', '.

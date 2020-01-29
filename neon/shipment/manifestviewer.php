@@ -63,7 +63,13 @@ if($isEditor){
 				alert("Select samples to check-in");
 				return false;
 			}
-			if(f.acceptedForAnalysis.value == 0){
+			if(f.sampleReceived.value == "0"){
+				if(f.acceptedForAnalysis.value != "" || f.sampleCondition.value != ""){
+					alert("If sample is not received, Accepted for Analysis and Sample Condition must be NULL");
+					return false;
+				}
+			}
+			if(f.acceptedForAnalysis.value === 0){
 				if(f.sampleCondition.value == "ok"){
 					alert("Sample Condition cannot be OK if sample is Not Accepted for Analysis");
 					return false;
@@ -147,7 +153,13 @@ if($isEditor){
 		}
 
 		function checkinSample(f){
-			if(f.acceptedForAnalysis.value == 0){
+			if(f.sampleReceived.value == "0"){
+				if(f.acceptedForAnalysis.value != "" || f.sampleCondition.value != ""){
+					alert("If sample is not received, Accepted for Analysis and Sample Condition must be NULL");
+					return false;
+				}
+			}
+			if(f.acceptedForAnalysis.value === 0){
 				if(f.sampleCondition.value == "ok"){
 					alert("Sample Condition cannot be OK when sample is tagged as Not Accepted for Analysis");
 					return false;
@@ -159,6 +171,7 @@ if($isEditor){
 			}
 			var sampleIdentifier = f.identifier.value.trim();
 			if(sampleIdentifier != ""){
+				//alert("rpc/checkinsample.php?shipmentpk=<?php echo $shipmentPK; ?>&identifier="+sampleIdentifier+"&received="+f.sampleReceived.value+"&accepted="+f.acceptedForAnalysis.value+"&condition="+f.sampleCondition.value+"&altSampleID="+f.alternativeSampleID.value+"&notes="+f.checkinRemarks.value);
 				$.ajax({
 					type: "POST",
 					url: "rpc/checkinsample.php",
@@ -183,11 +196,11 @@ if($isEditor){
 					}
 					else if(retJson.status == 2){
 						$("#checkinText").css('color', 'orange');
-						$("#checkinText").text('sample already checked in!');
+						$("#checkinText").text('already checked!');
 					}
 					else if(retJson.status == 3){
 						$("#checkinText").css('color', 'red');
-						$("#checkinText").text('sample not found!');
+						$("#checkinText").text('not found!');
 					}
 					else{
 						$("#checkinText").css('color', 'red');
@@ -200,6 +213,11 @@ if($isEditor){
 					f.identifier.focus();
 				});
 			}
+		}
+
+		function sampleReceivedChanged(f){
+			$(f.acceptedForAnalysis).prop("checked", false );
+			$('[name=sampleCondition]').val( '' );
 		}
 
 		function popoutCheckinBox(){
@@ -355,7 +373,7 @@ include($SERVER_ROOT.'/header.php');
 										<div class="displayFieldDiv">
 											<b>Sample Received:</b>
 											<input name="sampleReceived" type="radio" value="1" checked /> Yes
-											<input name="sampleReceived" type="radio" value="0" /> No
+											<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" /> No
 										</div>
 										<div class="displayFieldDiv">
 											<b>Accepted for Analysis:</b>
@@ -451,8 +469,8 @@ include($SERVER_ROOT.'/header.php');
 												$headerOutArr = current($sampleList);
 												echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
 												$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample<br/>Code', 'sampleClass'=>'Sample<br/>Class', 'taxonID'=>'Taxon ID',
-													'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status','sampleCondition'=>'Sample<br/>Condition',
-													'sampleReceived'=>'Sample<br/>Received','acceptedForAnalysis'=>'Accepted<br/>for<br/>Analysis','checkinUser'=>'Check-in','occid'=>'occid');
+													'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status','sampleReceived'=>'Sample<br/>Received',
+													'acceptedForAnalysis'=>'Accepted<br/>for<br/>Analysis','sampleCondition'=>'Sample<br/>Condition','checkinUser'=>'Check-in','occid'=>'occid');
 													//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
 												$rowCnt = 1;
 												foreach($headerArr as $fieldName => $headerTitle){
@@ -483,7 +501,6 @@ include($SERVER_ROOT.'/header.php');
 												}
 												if(array_key_exists('collectDate', $sampleArr)) echo '<td>'.$sampleArr['collectDate'].'</td>';
 												echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
-												if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
 												if(array_key_exists('sampleReceived', $sampleArr)){
 													$sampleReceived = $sampleArr['sampleReceived'];
 													if($sampleArr['sampleReceived']==1) $sampleReceived = 'Y';
@@ -496,6 +513,7 @@ include($SERVER_ROOT.'/header.php');
 													if($sampleArr['acceptedForAnalysis']==='0') $acceptedForAnalysis = 'N';
 													echo '<td>'.$acceptedForAnalysis.'</td>';
 												}
+												if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
 												echo '<td title="'.$sampleArr['checkinUser'].'">';
 												echo '<span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span> ';
 												if($sampleArr['checkinTimestamp']) echo '<a href="#" onclick="return openSampleCheckinEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:13px" /></a>';
@@ -542,7 +560,7 @@ include($SERVER_ROOT.'/header.php');
 												<div class="displayFieldDiv">
 													<b>Sample Received:</b>
 													<input name="sampleReceived" type="radio" value="1" checked /> Yes
-													<input name="sampleReceived" type="radio" value="0" /> No
+													<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" /> No
 												</div>
 												<div class="displayFieldDiv">
 													<b>Accepted for Analysis:</b>

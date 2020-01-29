@@ -50,8 +50,24 @@ if($isEditor){
 		});
 
 		function verifySampleEditForm(f){
-
+			if(f.sampleReceived.value == "0"){
+				if(f.acceptedForAnalysis.value != "" || f.sampleCondition.value != ""){
+					alert("If sample is not received, Accepted for Analysis and Sample Condition must be NULL");
+					return false;
+				}
+			}
+			else if(f.sampleReceived.value == "1"){
+				if(f.acceptedForAnalysis.value == ""){
+					alert("Please select if accepted for analysis");
+					return false;
+				}
+			}
 			return true;
+		}
+
+		function sampleReceivedChanged(f){
+			$('input:radio[name=acceptedForAnalysis]').prop("checked", false );
+			$('[name=sampleCondition]').val( '' );
 		}
 
 		function closeWindow(){
@@ -73,14 +89,14 @@ if($isEditor){
 		?>
 		<fieldset style="width:800px;">
 			<legend><b><?php echo $sampleArr['sampleID'].' (#'.$samplePK.')'; ?></b></legend>
-			<form method="post" action="samplecheckineditor.php">
+			<form name="checkinForm" method="post" action="samplecheckineditor.php" onsubmit="return verifySampleEditForm(this)">
 				<div class="fieldGroupDiv">
 					<b>Sample Received:</b>
 					<?php
 					$sampleReceived = (isset($sampleArr['sampleReceived'])?$sampleArr['sampleReceived']:'');
 					?>
 					<input name="sampleReceived" type="radio" value="1" <?php echo ($sampleReceived==1?'checked':''); ?> /> Yes
-					<input name="sampleReceived" type="radio" value="0" <?php echo ($sampleReceived==='0'?'checked':''); ?> /> No
+					<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" <?php echo ($sampleReceived==='0'?'checked':''); ?> /> No
 				</div>
 				<div class="fieldGroupDiv">
 					<b>Accepted for Analysis:</b>
@@ -110,17 +126,20 @@ if($isEditor){
 				<div style="clear:both;margin:15px">
 					<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
 					<div><button id="submitButton" type="submit" name="action" value="save" disabled>Save Changes</button></div>
-					<?php
-					if(isset($sampleArr['checkinTimestamp']) && $sampleArr['checkinTimestamp']){
-						?>
-						<div style="margin-top:15px">
-							<button type="submit" name="action" value="nullCheckin" onclick="return confirm('Are you sure you want to totally reset check-in status?')">Clear Check-in Details</button>
-						</div>
-						<?php
-					}
-					?>
 				</div>
 			</form>
+			<?php
+			if(isset($sampleArr['checkinTimestamp']) && $sampleArr['checkinTimestamp']){
+				?>
+				<div style="clear:both;margin:15px">
+					<form name="clearCheckinForm" action="samplecheckineditor.php" method="post" onsubmit="return confirm('Are you sure you want to totally reset check-in status?')">
+						<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
+						<button type="submit" name="action" value="nullCheckin">Clear Check-in Details</button>
+					</form>
+				</div>
+				<?php
+			}
+			?>
 		</fieldset>
 		<?php
 	}

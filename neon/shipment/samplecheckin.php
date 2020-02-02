@@ -24,7 +24,19 @@ if($IS_ADMIN){
 		<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			function checkinSample(f){
-				if(f.acceptedForAnalysis.value == 0){
+				if(f.sampleReceived.value == "0"){
+					if(f.acceptedForAnalysis.value != "" || f.sampleCondition.value != ""){
+						alert("If sample is not received, Accepted for Analysis and Sample Condition must be NULL");
+						return false;
+					}
+				}
+				else if(f.sampleReceived.value == "1"){
+					if(f.acceptedForAnalysis.value == ""){
+						alert("Please select if accepted for analysis");
+						return false;
+					}
+				}
+				if(f.acceptedForAnalysis.value === 0){
 					if(f.sampleCondition.value == "ok"){
 						alert("Sample Condition cannot be OK when sample is tagged as Not Accepted for Analysis");
 						return false;
@@ -81,6 +93,11 @@ if($IS_ADMIN){
 //			$this->errorStr = 'Sample already exists with sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].
 //			'" target="_blank" onclick="window.close()">'.$recArr['sampleid'].'</a>';
 
+			function sampleReceivedChanged(f){
+				$(f.acceptedForAnalysis).prop("checked", false );
+				$('[name=sampleCondition]').val( '' );
+			}
+
 			function addToSuccessList(identifierStr){
 				var newAnchor = document.createElement('a');
 				newAnchor.setAttribute("href", "manifestviewer.php?quicksearch="+identifierStr);
@@ -118,6 +135,11 @@ if($IS_ADMIN){
 							<div class="displayFieldDiv">
 								<b>Identifier:</b> <input name="identifier" type="text" style="width:250px" required />
 								<div id="checkinText" style="display:inline"></div>
+							</div>
+							<div class="displayFieldDiv">
+								<b>Sample Received:</b>
+								<input name="sampleReceived" type="radio" value="1" checked /> Yes
+								<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" /> No
 							</div>
 							<div class="displayFieldDiv">
 								<b>Accepted for Analysis:</b>

@@ -5,16 +5,18 @@ echo "Creating Symbiota configuration file: /config/symbini.php"
 cp ../config/symbini_template.php ../config/symbini.php
 echo "Creating homepage: /index.php"
 cp ../index_template.php ../index.php
-echo "Creating header include: /header.php"
-cp ../header_template.php ../header.php
-echo "Creating Left Menu include: /leftmenu.php"
-cp ../leftmenu_template.php ../leftmenu.php
-echo "Creating footer include: /footer.php"
-cp ../footer_template.php ../footer.php
-
-#Occurrence Editor config files
-echo "Creating occurrence editor default configuration file"
-cp occurEditorDefaultConf_template.php occurEditorDefaultConf.php
+echo "Creating header include: /includes/header.php"
+cp ../includes/header_template.php ../includes/header.php
+echo "Creating Left Menu include: /includes/leftmenu.php"
+cp ../includes/leftmenu_template.php ../includes/leftmenu.php
+echo "Creating footer include: /includes/footer.php"
+cp ../includes/footer_template.php ../includes/footer.php
+echo "Creating head include: /includes/head.php"
+cp ../includes/head_template.php ../includes/head.php
+echo "Creating species profile head include: /spprofilehead.php"
+cp ../includes/spprofilehead_template.php ../includes/spprofilehead.php
+echo "Creating usage policy include: /includes/usagepolicy.php"
+cp ../includes/usagepolicy_template.php ../includes/usagepolicy.php
 
 
 #Adjust file permission to give write access to certain folders and files

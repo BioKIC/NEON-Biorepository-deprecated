@@ -52,7 +52,8 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 	<link href="../../css/jquery.symbiota.css" type="text/css" rel="stylesheet" />
 	<link href="../../css/jquery-ui_accordian.css" type="text/css" rel="stylesheet" />
 	<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css?ver=3" type="text/css" rel="Stylesheet" />
-	<?php include_once($SERVER_ROOT.'/headincludes.php'); ?>
+	<link href="../../css/base.css?ver=6" type="text/css" rel="stylesheet" />
+	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 	<style type="text/css">
 		.panel-content a{ outline-color: transparent; font-size: 12px; font-weight: normal; }
 		.categorytitle{ font-size:	12px; }

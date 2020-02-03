@@ -16,7 +16,7 @@ class OccurrenceListManager extends OccurrenceManager{
 	}
 
 	public function getSpecimenMap($pageRequest,$cntPerPage){
-		$returnArr = Array();
+		$retArr = Array();
 		$canReadRareSpp = false;
 		if($GLOBALS['USER_RIGHTS']){
 			if($GLOBALS['IS_ADMIN'] || array_key_exists("CollAdmin", $GLOBALS['USER_RIGHTS']) || array_key_exists("RareSppAdmin", $GLOBALS['USER_RIGHTS']) || array_key_exists("RareSppReadAll", $GLOBALS['USER_RIGHTS'])){
@@ -25,9 +25,7 @@ class OccurrenceListManager extends OccurrenceManager{
 		}
 		$occArr = array();
 		$sqlWhere = $this->getSqlWhere();
-		if(!$this->recordCount || $this->reset){
-			$this->setRecordCnt($sqlWhere);
-		}
+		if(!$this->recordCount || $this->reset) $this->setRecordCnt($sqlWhere);
 		$sql = 'SELECT o.occid, c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, '.
 			'o.catalognumber, o.family, o.sciname, o.scientificnameauthorship, o.tidinterpreted, o.recordedby, o.recordnumber, o.eventdate, o.year, o.startdayofyear, o.enddayofyear, '.
 			'o.country, o.stateprovince, o.county, o.locality, o.decimallatitude, o.decimallongitude, o.localitysecurity, o.localitysecurityreason, '.
@@ -36,10 +34,7 @@ class OccurrenceListManager extends OccurrenceManager{
 		$sql .= $this->getTableJoins($sqlWhere).$sqlWhere;
 		//Don't allow someone to query all occurrences if there are no conditions
 		if(!$sqlWhere) $sql .= 'WHERE o.occid IS NULL ';
-
-		if($this->sortArr){
-			$sql .= 'ORDER BY '.implode(',',$this->sortArr);
-		}
+		if($this->sortArr) $sql .= 'ORDER BY '.implode(',',$this->sortArr);
 		else{
 			$sql .= 'ORDER BY c.sortseq, c.collectionname ';
 			$pageRequest = ($pageRequest - 1)*$cntPerPage;
@@ -55,61 +50,61 @@ class OccurrenceListManager extends OccurrenceManager{
 					elseif(array_key_exists("CollEditor", $GLOBALS['USER_RIGHTS']) && in_array($row->collid,$GLOBALS['USER_RIGHTS']["CollEditor"])) $securityClearance = true;
 					elseif(array_key_exists("RareSppReader", $GLOBALS['USER_RIGHTS']) && in_array($row->collid,$GLOBALS['USER_RIGHTS']["RareSppReader"])) $securityClearance = true;
 				}
-				$returnArr[$row->occid]['collid'] = $row->collid;
-				$returnArr[$row->occid]['instcode'] = $this->cleanOutStr($row->institutioncode);
-				$returnArr[$row->occid]['collcode'] = $this->cleanOutStr($row->collectioncode);
-				$returnArr[$row->occid]['collname'] = $this->cleanOutStr($row->collectionname);
-				$returnArr[$row->occid]['icon'] = $row->icon;
-				$returnArr[$row->occid]["catnum"] = $this->cleanOutStr($row->catalognumber);
-				$returnArr[$row->occid]["family"] = $this->cleanOutStr($row->family);
+				$retArr[$row->occid]['collid'] = $row->collid;
+				$retArr[$row->occid]['instcode'] = $this->cleanOutStr($row->institutioncode);
+				$retArr[$row->occid]['collcode'] = $this->cleanOutStr($row->collectioncode);
+				$retArr[$row->occid]['collname'] = $this->cleanOutStr($row->collectionname);
+				$retArr[$row->occid]['icon'] = $row->icon;
+				$retArr[$row->occid]["catnum"] = $this->cleanOutStr($row->catalognumber);
+				$retArr[$row->occid]["family"] = $this->cleanOutStr($row->family);
 				if($securityClearance || $row->localitysecurity == 1){
-					$returnArr[$row->occid]["sciname"] = ($row->sciname?$this->cleanOutStr($row->sciname):'undetermined');
-					$returnArr[$row->occid]["tid"] = $row->tidinterpreted;
-					$returnArr[$row->occid]["author"] = $this->cleanOutStr($row->scientificnameauthorship);
+					$retArr[$row->occid]["sciname"] = ($row->sciname?$this->cleanOutStr($row->sciname):'undetermined');
+					$retArr[$row->occid]["tid"] = $row->tidinterpreted;
+					$retArr[$row->occid]["author"] = $this->cleanOutStr($row->scientificnameauthorship);
 				}
-				$returnArr[$row->occid]["collector"] = $this->cleanOutStr($row->recordedby);
-				$returnArr[$row->occid]["country"] = $this->cleanOutStr($row->country);
-				$returnArr[$row->occid]["state"] = $this->cleanOutStr($row->stateprovince);
-				$returnArr[$row->occid]["county"] = $this->cleanOutStr($row->county);
-				$returnArr[$row->occid]["obsuid"] = $row->observeruid;
-				$returnArr[$row->occid]['localitysecurity'] = $row->localitysecurity;
+				$retArr[$row->occid]["collector"] = $this->cleanOutStr($row->recordedby);
+				$retArr[$row->occid]["country"] = $this->cleanOutStr($row->country);
+				$retArr[$row->occid]["state"] = $this->cleanOutStr($row->stateprovince);
+				$retArr[$row->occid]["county"] = $this->cleanOutStr($row->county);
+				$retArr[$row->occid]["obsuid"] = $row->observeruid;
+				$retArr[$row->occid]['localitysecurity'] = $row->localitysecurity;
 				if($securityClearance || $row->localitysecurity == 2){
 					$locStr = str_replace('.,',',',$row->locality);
 					if($row->decimallatitude && $row->decimallongitude) $locStr .= ', '.$row->decimallatitude.' '.$row->decimallongitude;
 					$locStr = $this->cleanOutStr(trim($locStr,' ,;'));
-					$returnArr[$row->occid]["locality"] = $locStr;
-					$returnArr[$row->occid]["collnum"] = $this->cleanOutStr($row->recordnumber);
-					$returnArr[$row->occid]["date"] = $row->eventdate;
-					$returnArr[$row->occid]["habitat"] = $this->cleanOutStr($row->habitat);
-					$returnArr[$row->occid]['substrate'] = $this->cleanOutStr($row->substrate);
+					$retArr[$row->occid]["locality"] = $locStr;
+					$retArr[$row->occid]["collnum"] = $this->cleanOutStr($row->recordnumber);
+					$retArr[$row->occid]["date"] = $row->eventdate;
+					$retArr[$row->occid]["habitat"] = $this->cleanOutStr($row->habitat);
+					$retArr[$row->occid]['substrate'] = $this->cleanOutStr($row->substrate);
 					$elevStr = $row->minimumelevationinmeters;
 					if($row->maximumelevationinmeters) $elevStr .= ' - '.$row->maximumelevationinmeters;
-					$returnArr[$row->occid]["elev"] = $elevStr;
+					$retArr[$row->occid]["elev"] = $elevStr;
 					$occArr[] = $row->occid;
 				}
 				else{
-					$returnArr[$row->occid]["locality"] = 'PROTECTED';
+					$retArr[$row->occid]["locality"] = 'PROTECTED';
 				}
 			}
 			$result->free();
 		}
-		//Set images
 		if($occArr){
-			$sql = 'SELECT o.collid, o.occid, i.thumbnailurl FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid WHERE o.occid IN('.implode(',',$occArr).')';
-			$rs = $this->conn->query($sql);
-			$previousOccid = 0;
-			while($r = $rs->fetch_object()){
-				if($r->occid != $previousOccid) $returnArr[$r->occid]['img'] = $r->thumbnailurl;
-				$previousOccid = $r->occid;
-			}
-			$rs->free();
-		}
-		//Set access statistics
-		if($occArr){
+			$this->setImages($occArr,$retArr);
 			$statsManager = new OccurrenceAccessStats();
 			$statsManager->recordAccessEventByArr($occArr,'list');
 		}
-		return $returnArr;
+		return $retArr;
+	}
+
+	private function setImages($occArr,&$retArr){
+		$sql = 'SELECT occid, thumbnailurl FROM images WHERE occid IN('.implode(',',$occArr).') ORDER BY occid, sortsequence';
+		$rs = $this->conn->query($sql);
+		$previousOccid = 0;
+		while($r = $rs->fetch_object()){
+			if($r->occid != $previousOccid) $retArr[$r->occid]['img'] = $r->thumbnailurl;
+			$previousOccid = $r->occid;
+		}
+		$rs->free();
 	}
 
 	private function setRecordCnt($sqlWhere){

@@ -11,7 +11,7 @@ $smManager = new SiteMapManager();
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['SITEMAP'];?></title>
 	<?php
-    $activateJQuery = true;
+    $activateJQuery = false;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
       include_once($SERVER_ROOT.'/includes/head.php');
     }
@@ -21,7 +21,7 @@ $smManager = new SiteMapManager();
       echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
     }
 	?>
-<script type="text/javascript">
+	<script type="text/javascript">
 		function submitTaxaNoImgForm(f){
 			if(f.clid.value != ""){
 				f.submit();

@@ -18,7 +18,7 @@ $coordArr = $clManager->getVoucherCoordinates(0);
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> - Checklist Coordinate Map</title>
 	<?php
-    $activateJQuery = true;
+    $activateJQuery = false;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
       include_once($SERVER_ROOT.'/includes/head.php');
     }

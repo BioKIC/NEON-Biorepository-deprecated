@@ -22,7 +22,7 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Species Checklist Loader</title>
 	<?php
-    $activateJQuery = true;
+    $activateJQuery = false;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
       include_once($SERVER_ROOT.'/includes/head.php');
     }

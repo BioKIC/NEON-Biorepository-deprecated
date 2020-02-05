@@ -98,7 +98,11 @@ include($SERVER_ROOT.'/header.php');
 				echo '<hr/>';
 				foreach($reportArr as $msg => $repCntArr){
 					$cnt = $repCntArr['s-cnt']-$repCntArr['o-cnt'];
-					echo '<div><b>'.$msg.'</b>: '.$cnt.' with NULL occurrences; '.$repCntArr['o-cnt'].' partial harvest </div>';
+					echo '<div><b>'.$msg.'</b>: ';
+					if($cnt) echo $cnt.' failed harvest';
+					if($cnt && $repCntArr['o-cnt']) echo '; ';
+					if($repCntArr['o-cnt']) echo $repCntArr['o-cnt'].' partial harvest ';
+					echo '</div>';
 				}
 				?>
 			</div>

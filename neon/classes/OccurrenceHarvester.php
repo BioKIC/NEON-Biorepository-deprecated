@@ -21,7 +21,7 @@ class OccurrenceHarvester{
 		$retArr = array();
 		$sql = 'SELECT SUBSTRING_INDEX(s.errorMessage,":",1) AS errMsg, COUNT(s.samplePK) as sampleCnt, COUNT(o.occid) as occurrenceCnt '.
 			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-			'WHERE s.checkinuid IS NOT NULL '.
+			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 '.
 			'GROUP BY errMsg';
 		$rs= $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -68,7 +68,7 @@ class OccurrenceHarvester{
 				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
 					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-					'WHERE s.checkinuid IS NOT NULL '.$sqlWhere;
+					'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 '.$sqlWhere;
 				//echo $sql.'<br/>'; exit;
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){

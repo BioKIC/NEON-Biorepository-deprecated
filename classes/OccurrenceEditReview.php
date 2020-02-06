@@ -100,11 +100,13 @@ class OccurrenceEditReview extends Manager{
 		return $retArr;
 	}
 
-	private function getEditSqlBase(){
+	private function getEditSqlBase($includeUserTable=false){
 		//Build SQL WHERE fragment
 		$sqlBase = '';
 		if($this->collid){
-			$sqlBase = 'FROM omoccuredits e INNER JOIN omoccurrences o ON e.occid = o.occid WHERE (o.collid = '.$this->collid.') ';
+			$sqlBase = 'FROM omoccuredits e INNER JOIN omoccurrences o ON e.occid = o.occid ';
+			if($includeUserTable) $sqlBase .= 'INNER JOIN users u ON e.uid = u.uid ';
+			$sqlBase .= 'WHERE (o.collid = '.$this->collid.') ';
 			if($this->appliedStatusFilter !== ''){
 				$sqlBase .= 'AND (e.appliedstatus = '.$this->appliedStatusFilter.') ';
 			}
@@ -177,10 +179,12 @@ class OccurrenceEditReview extends Manager{
 		return $retArr;
 	}
 
-	private function getRevisionSqlBase(){
+	private function getRevisionSqlBase($includeUserTable = false){
 		$sqlBase = '';
 		if($this->collid){
-			$sqlBase = 'FROM omoccurrevisions r INNER JOIN omoccurrences o ON r.occid = o.occid WHERE (o.collid = '.$this->collid.') ';
+			$sqlBase = 'FROM omoccurrevisions r INNER JOIN omoccurrences o ON r.occid = o.occid ';
+			if($includeUserTable) $sqlBase .= 'INNER JOIN users u ON r.uid = u.uid ';
+			$sqlBase .= 'WHERE (o.collid = '.$this->collid.') ';
 			if($this->appliedStatusFilter !== ''){
 				$sqlBase .= 'AND (r.appliedstatus = '.$this->appliedStatusFilter.') ';
 			}
@@ -344,7 +348,7 @@ class OccurrenceEditReview extends Manager{
 			$sql = 'SELECT e.ocedid AS id, o.occid, o.catalognumber, o.dbpk, e.fieldname, e.fieldvaluenew, e.fieldvalueold, e.reviewstatus, e.appliedstatus, '.
 				'CONCAT_WS(", ",u.lastname,u.firstname) AS username, e.initialtimestamp ';
 			if($exportAll){
-				$sql .= $this->getEditSqlBase();
+				$sql .= $this->getEditSqlBase(true);
 			}
 			else{
 				$sql .= 'FROM omoccuredits e INNER JOIN omoccurrences o ON e.occid = o.occid '.
@@ -360,7 +364,7 @@ class OccurrenceEditReview extends Manager{
 			$sql = 'SELECT r.orid AS id, o.occid, o.catalognumber, o.dbpk, r.oldvalues, r.newvalues, r.reviewstatus, r.appliedstatus, '.
 				'r.externaleditor, CONCAT_WS(", ",u.lastname,u.firstname) AS username, r.externaltimestamp, r.initialtimestamp ';
 			if($exportAll){
-				$sql .= $this->getRevisionSqlBase();
+				$sql .= $this->getRevisionSqlBase(true);
 			}
 			else{
 				$sql .= 'FROM omoccurrevisions r INNER JOIN omoccurrences o ON r.occid = o.occid '.

@@ -63,15 +63,15 @@ $searchVar = $collManager->getQueryTermStr();
 		<form name="harvestparams" id="harvestparams" action="list.php" method="post" onsubmit="return checkHarvestParamsForm(this)">
 			<div style="margin:10 0 10 0;"><hr/></div>
 			<div style='float:right;margin:-5px 10px;'>
-				<div><button type="submit" class="ui-button ui-widget ui-corner-all"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
-				<div style="margin-bottom:10px"><button type="button" class="ui-button ui-widget ui-corner-all" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
-				<div><button type="reset" class="ui-button ui-widget ui-corner-all" style="padding:3px 10px;" onclick="resetHarvestParamsForm()"><?php echo isset($LANG['BUTTON_RESET'])?$LANG['BUTTON_RESET']:'Reset Form'; ?></button></div>
+				<div><button type="submit" class="ui-button ui-widget ui-corner-all" style="width: 100%; margin-bottom: 2px"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
+				<div><button type="button" class="ui-button ui-widget ui-corner-all" style="width: 100%; margin-bottom: 2px" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
+				<div><button type="reset" class="ui-button ui-widget ui-corner-all" style="width: 100%; margin-bottom: 2px" onclick="resetHarvestParamsForm()"><?php echo isset($LANG['BUTTON_RESET'])?$LANG['BUTTON_RESET']:'Reset Form'; ?></button></div>
 			</div>
 			<div>
 				<div style="font-weight:bold; font-size: 18px; margin-bottom: 10px;"><?php echo $LANG['TAXON_HEADER']; ?></div>
 				<span style="margin-left:5px;"><input type='checkbox' name='usethes' value='1' CHECKED /><?php echo $LANG['INCLUDE_SYNONYMS']; ?></span>
 			</div>
-			<div style="height: 45px">
+			<div style="height: 50px">
 				<select id="taxontype" name="taxontype">
 					<?php
 					$taxonType = 1;
@@ -202,8 +202,8 @@ $searchVar = $collManager->getQueryTermStr();
 			</div>
 			<hr/>
 			<div style="float:right;">
-				<div><button type="submit" class="ui-button ui-widget ui-corner-all"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
-				<div style="margin-bottom:10px"><button type="button" class="ui-button ui-widget ui-corner-all" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
+				<div><button type="submit" class="ui-button ui-widget ui-corner-all" style="width: 100%; margin-bottom: 2px"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
+				<div style="margin-bottom:10px"><button type="button" class="ui-button ui-widget ui-corner-all" style="width: 100%; margin-bottom: 2px" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
 			</div>
 			<div>
 				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['SPECIMEN_HEADER']; ?></div>

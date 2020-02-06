@@ -352,7 +352,7 @@ input[type="submit" i] {
     font-weight: 600;
     text-transform: uppercase;
     padding: 8px 20px;
-    padding: 0.5rem 1.25rem;
+    /* padding: 0.5rem 1.25rem; */
 }
 
 button.ui-button.ui-widget.ui-corner-all:hover {

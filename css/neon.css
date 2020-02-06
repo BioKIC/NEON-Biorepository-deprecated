@@ -240,8 +240,8 @@ a.button {
     *vertical-align: auto;
     *zoom: 1;
     *display: inline;
-    padding: 8px 20px;
-    padding: 0.5rem 1.25rem;
+    /* padding: 8px 20px; */
+    /* padding: 0.5rem 1.25rem; */
     font-size: 13px;
     font-size: 0.8125rem;
     line-height: 16px;
@@ -263,8 +263,8 @@ a.button:hover {
     input[type="submit"],
     button,
     a.button {
-        padding: 12px 24px;
-        padding: 0.75rem 1.5rem;
+        /* padding: 12px 24px; */
+        /* padding: 0.75rem 1.5rem; */
         font-size: 16px;
         font-size: 1rem;
         line-height: 24px;
@@ -704,8 +704,8 @@ input.error {
     *vertical-align: auto;
     *zoom: 1;
     *display: inline;
-    padding: 8px 20px;
-    padding: 0.5rem 1.25rem;
+    /* padding: 8px 20px; */
+    /* padding: 0.5rem 1.25rem; */
     font-size: 13px;
     font-size: 0.8125rem;
     line-height: 16px;
@@ -725,8 +725,8 @@ input.error {
 @media (min-width: 37.5em) {
     .link--button,
     .block--link--button .block-content a {
-        padding: 12px 24px;
-        padding: 0.75rem 1.5rem;
+        /* padding: 12px 24px; */
+        /* padding: 0.75rem 1.5rem; */
         font-size: 16px;
         font-size: 1rem;
         line-height: 24px;
@@ -1047,7 +1047,7 @@ input.error {
     height: 20px;
     border-right: #f0f0f0 1px solid;
     border-left: #f6f6f6 1px solid;
-    padding: 14px 18px;
+    /* padding: 14px 18px; */
     margin: 0;
     color: white;
     font-weight: bold;

@@ -356,7 +356,7 @@ class OccurrenceHarvester{
 
 	private function setCollectionIdentifier(&$dwcArr,$sampleClass){
 		$status = false;
-		$sql = 'SELECT collid FROM omcollections WHERE (datasetID LIKE "%'.$sampleClass.'%")';
+		$sql = 'SELECT collid FROM omcollections WHERE (datasetID = "'.$sampleClass.'") OR (datasetID LIKE "%,'.$sampleClass.',%") OR (datasetID LIKE "'.$sampleClass.',%") OR (datasetID LIKE "%,'.$sampleClass.'")';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows == 1){
 			$r = $rs->fetch_object();

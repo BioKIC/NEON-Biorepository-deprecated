@@ -95,7 +95,7 @@ else{
 <head>
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['LOGIN_NAME'])?$LANG['LOGIN_NAME']:'Login'); ?></title>
     <?php
-      $activateJQuery = false;
+      $activateJQuery = true;
       if(file_exists($SERVER_ROOT.'/includes/head.php')){
         include_once($SERVER_ROOT.'/includes/head.php');
       }

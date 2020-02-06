@@ -144,7 +144,15 @@ if($isEditor){
 							</div>
 							<div style="margin:10px 0px">
 								Source:
-								<input name="source" type="text" style="width:300px" value="<?php echo $source; ?>" />
+								<select name="source">
+									<option value=""></option>
+									<?php
+									$sourceControlArr = $attrManager->getSourceControlledArr($source);
+									foreach($sourceControlArr as $sourceTerm){
+										echo '<option '.($source==$sourceTerm?'selected':'').'>'.$sourceTerm.'</option>';
+									}
+									?>
+								</select>
 							</div>
 							<div style="margin-left:5;">
 								Status:

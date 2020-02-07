@@ -236,8 +236,7 @@ class DwcArchiverOccurrence{
 		elseif($schemaType == 'symbiota'){
 			$trimArr = array();
 			if(!$extended){
-				$trimArr = array('collectionID','rights','rightsHolder','accessRights','genericcolumn1','genericcolumn2',
-					'storageLocation','observerUid','processingStatus','duplicateQuantity','dateEntered','dateLastModified');
+				$trimArr = array('collectionID','rights','rightsHolder','accessRights','storageLocation','observerUid','processingStatus','duplicateQuantity','dateEntered','dateLastModified');
 			}
 			$retArr = array_diff_key($occurArr,array_flip($trimArr));
 		}

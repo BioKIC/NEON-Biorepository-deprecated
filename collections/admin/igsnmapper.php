@@ -170,6 +170,7 @@ include($SERVER_ROOT."/header.php");
 <div class='navpath'>
 	<a href="../../index.php">Home</a> &gt;&gt;
 	<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management</a> &gt;&gt;
+	<a href="igsnmanagement.php?collid=<?php echo $collid; ?>">IGSN GUID Management</a> &gt;&gt;
 	<b>IGSN Mapper</b>
 </div>
 <!-- This is inner text! -->

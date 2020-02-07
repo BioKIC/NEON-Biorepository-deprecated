@@ -228,8 +228,7 @@ class SpecUpload{
 			'verbatimelevation', 'minimumdepthinmeters', 'maximumdepthinmeters', 'verbatimdepth',
 			'disposition', 'language', 'duplicatequantity', 'genericcolumn1', 'genericcolumn2',
 			'labelproject','basisofrecord','ownerinstitutioncode', 'processingstatus', 'recordenteredby');
-		$sql = 'SELECT occid, dbpk, '.implode(',',$occFieldArr).' FROM uploadspectemp '.
-				'WHERE collid IN('.$this->collId.') ';
+		$sql = 'SELECT occid, dbpk, '.implode(',',$occFieldArr).' FROM uploadspectemp WHERE collid IN('.$this->collId.') ';
 		if($searchVariables){
 			if($searchVariables == 'matchappend'){
 				$sql = 'SELECT DISTINCT u.occid, u.dbpk, u.'.implode(',u.',$occFieldArr).' '.
@@ -248,6 +247,7 @@ class SpecUpload{
 					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NULL OR o.occid IS NULL) ';
 			}
 			elseif($searchVariables == 'exist'){
+				unset($occFieldArr[array_search('associatedsequences', $occFieldArr)]);
 				$sql = 'SELECT DISTINCT o.occid, o.dbpk, o.'.implode(',o.',$occFieldArr).' '.
 					'FROM omoccurrences o LEFT JOIN uploadspectemp u  ON (o.occid = u.occid) '.
 					'WHERE (o.collid IN('.$this->collId.')) AND (u.occid IS NULL) ';

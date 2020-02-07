@@ -9,24 +9,16 @@ $collid = $_REQUEST['collid'];
 $submitForm = array_key_exists('submitform',$_POST)?$_POST['submitform']:'';
 $mode = array_key_exists('mode',$_REQUEST)?$_REQUEST['mode']:1;
 $traitID = array_key_exists('traitid',$_REQUEST)?$_REQUEST['traitid']:'';
-$taxonFilter = array_key_exists('taxonfilter',$_POST)?$_POST['taxonfilter']:'';
-$tidFilter = array_key_exists('tidfilter',$_POST)?$_POST['tidfilter']:'';
 $paneX = array_key_exists('panex',$_POST)?$_POST['panex']:'575';
 $paneY = array_key_exists('paney',$_POST)?$_POST['paney']:'550';
 $imgRes = array_key_exists('imgres',$_POST)?$_POST['imgres']:'med';
 
-$reviewUid = array_key_exists('reviewuid',$_POST)?$_POST['reviewuid']:0;
-$reviewDate = array_key_exists('reviewdate',$_POST)?$_POST['reviewdate']:'';
-$reviewStatus = array_key_exists('reviewstatus',$_POST)?$_POST['reviewstatus']:0;
-$start = array_key_exists('start',$_POST)?$_POST['start']:0;
 
 //Sanitation
 if(!is_numeric($collid)) $collid = 0;
 if(!is_numeric($traitID)) $traitID = '';
-if(!is_numeric($tidFilter)) $tidFilter = '';
 if(!is_numeric($paneX)) $paneX = '';
 if(!is_numeric($paneY)) $paneY = '';
-if(!is_numeric($start)) $start = 0;
 
 $isEditor = 0;
 if($SYMB_UID){
@@ -45,8 +37,16 @@ if($SYMB_UID){
 }
 
 $attrManager = new OccurrenceAttributes();
-if($tidFilter) $attrManager->setTidFilter($tidFilter);
 $attrManager->setCollid($collid);
+$attrManager->setFilterAttributes($_POST);
+$taxonFilter = $attrManager->getFilterAttribute('taxonfilter');
+$tidFilter = $attrManager->getFilterAttribute('tidfilter');
+$reviewUid = $attrManager->getFilterAttribute('reviewuid');
+$reviewDate = $attrManager->getFilterAttribute('reviewdate');
+$reviewStatus = $attrManager->getFilterAttribute('reviewstatus');
+$sourceFilter = $attrManager->getFilterAttribute('sourcefilter');
+$localFilter = $attrManager->getFilterAttribute('localfilter');
+$start = $attrManager->getFilterAttribute('start');
 
 $statusStr = '';
 if($isEditor){
@@ -71,7 +71,7 @@ if($traitID){
 		$imgArr = current($imgRetArr);
 	}
 	elseif($mode == 2){
-		$imgRetArr = $attrManager->getReviewUrls($traitID, $reviewUid, $reviewDate, $reviewStatus, $start);
+		$imgRetArr = $attrManager->getReviewUrls($traitID);
 		if($imgRetArr) $imgArr = current($imgRetArr);
 
 	}
@@ -199,20 +199,13 @@ if($traitID){
 			}
 
 			function verifyFilterForm(f){
+				if(f.taxonFilter.value=="All Taxa") f.taxonFilter.value = '';
 				if(f.traitid.value == ""){
 					alert("An occurrence trait must be selected");
 					return false;
 				}
 				if(f.taxonfilter.value != "" && f.tidfilter.value == ""){
 					alert("Taxon filter not syncronized with thesaurus");
-					return false;
-				}
-				return true;
-			}
-
-			function verifyReviewForm(f){
-				if(f.traitid.value == ""){
-					alert("An occurrence trait must be selected");
 					return false;
 				}
 				return true;
@@ -229,9 +222,17 @@ if($traitID){
 				return true;
 			}
 
+			function taxonFilterFocus(formElem){
+				if(formElem.value=="All Taxa") formElem.value = '';
+			}
+
 		</script>
 		<script src="../../js/symb/collections.traitattr.js" type="text/javascript"></script>
 		<script src="../../js/symb/shared.js?ver=151229" type="text/javascript"></script>
+		<style>
+			input{margin:3px}
+			select{margin:3px}
+		</style>
 	</head>
 	<body>
 		<?php
@@ -281,7 +282,6 @@ if($traitID){
 						<legend><b>Filter</b></legend>
 						<form id="filterform" name="filterform" method="post" action="occurattributes.php" onsubmit="return verifyFilterForm(this)" >
 							<div>
-								<b>Trait: </b>
 								<select name="traitid">
 									<option value="">Select Trait (required)</option>
 									<option value="">------------------------------------</option>
@@ -298,8 +298,31 @@ if($traitID){
 								</select>
 							</div>
 							<div>
-								<b>Taxon: </b>
-								<input id="taxonfilter" name="taxonfilter" type="text" value="<?php echo $taxonFilter; ?>" />
+								<select name="sourcefilter">
+									<option value="">All Source Types</option>
+									<option value="">-----------------------------</option>
+									<?php
+									$sourceControlArr = $attrManager->getSourceControlledArr();
+									foreach($sourceControlArr as $sourceTerm){
+										echo '<option '.($sourceFilter==$sourceTerm?'selected':'').'>'.$sourceTerm.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div>
+								<select name="localfilter" style="width:250px">
+									<option value="">All Counties & All States</option>
+									<option value="">-----------------------------</option>
+									<?php
+									$localArr = $attrManager->getLocalFilterOptions();
+									foreach($localArr as $localTerm){
+										echo '<option '.($localFilter==$localTerm?'selected':'').'>'.$localTerm.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div>
+								<input id="taxonfilter" name="taxonfilter" type="text" value="<?php echo ($taxonFilter?$taxonFilter:'All Taxa'); ?>" taxonFilterFocus(this) />
 								<input id="tidfilter" name="tidfilter" type="hidden" value="<?php echo $tidFilter; ?>" />
 							</div>
 							<div>
@@ -322,8 +345,8 @@ if($traitID){
 					?>
 					<fieldset style="margin-top:25px">
 						<legend><b>Reviewer</b></legend>
-						<form id="reviewform" name="reviewform" method="post" action="occurattributes.php" onsubmit="return verifyReviewForm(this)" >
-							<div style="margin:3px">
+						<form id="reviewform" name="reviewform" method="post" action="occurattributes.php" onsubmit="return verifyFilterForm(this)" >
+							<div>
 								<select name="traitid">
 									<option value="">Select Trait (required)</option>
 									<option value="">------------------------------------</option>
@@ -339,7 +362,7 @@ if($traitID){
 									?>
 								</select>
 							</div>
-							<div style="margin:3px">
+							<div>
 								<select name="reviewuid">
 									<option value="">All Editors</option>
 									<option value="">-----------------------</option>
@@ -351,7 +374,7 @@ if($traitID){
 									?>
 								</select>
 							</div>
-							<div style="margin:3px">
+							<div>
 								<select name="reviewdate">
 									<option value="">All Dates</option>
 									<option value="">-----------------------</option>
@@ -363,12 +386,40 @@ if($traitID){
 									?>
 								</select>
 							</div>
-							<div style="margin:3px">
+							<div>
 								<select name="reviewstatus">
 									<option value="0">Not reviewed</option>
 									<option value="5" <?php echo  ($reviewStatus==5?'SELECTED':''); ?>>Expert Needed</option>
 									<option value="10" <?php echo  ($reviewStatus==10?'SELECTED':''); ?>>Reviewed</option>
 								</select>
+							</div>
+							<div>
+								<select name="sourcefilter">
+									<option value="">All Source Types</option>
+									<option value="">-----------------------------</option>
+									<?php
+									$sourceControlArr = $attrManager->getSourceControlledArr();
+									foreach($sourceControlArr as $sourceTerm){
+										echo '<option '.($sourceFilter==$sourceTerm?'selected':'').'>'.$sourceTerm.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div>
+								<select name="localfilter" style="width:250px;">
+									<option value="">All Countries & All States</option>
+									<option value="">-----------------------------</option>
+									<?php
+									$localArr = $attrManager->getLocalFilterOptions();
+									foreach($localArr as $localTerm){
+										echo '<option '.($localFilter==$localTerm?'selected':'').'>'.$localTerm.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div>
+								<input id="taxonfilter" name="taxonfilter" type="text" value="<?php echo ($taxonFilter?$taxonFilter:'All Taxa'); ?>" onfocus="taxonFilterFocus(this)" />
+								<input id="tidfilter" name="tidfilter" type="hidden" value="<?php echo $tidFilter; ?>" />
 							</div>
 							<div style="margin:10px;">
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
@@ -382,7 +433,7 @@ if($traitID){
 							<div>
 								<?php
 								if($traitID){
-									$rCnt = $attrManager->getReviewCount($traitID, $reviewUid, $reviewDate, $reviewStatus);
+									$rCnt = $attrManager->getReviewCount($traitID);
 									echo '<b>'.($rCnt?$start+1:0).' of '.$rCnt.' records</b>';
 									if($rCnt > 1){
 										$next = ($start+1);
@@ -407,7 +458,7 @@ if($traitID){
 					?>
 					<div id="traitdiv">
 						<fieldset style="margin-top:20px">
-							<legend><b>Action Panel - <?php echo $traitArr[$traitID]['name']; ?></b></legend>
+							<legend><b><?php echo $traitArr[$traitID]['name']; ?></b></legend>
 							<form name="submitform" method="post" action="occurattributes.php" onsubmit="return verifySubmitForm(this)" >
 								<div style="float:right;margin-right:10px">
 									<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">

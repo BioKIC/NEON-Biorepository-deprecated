@@ -10,7 +10,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<link href="css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 	<meta name='keywords' content='' />
 	<script type="text/javascript">
-		<?php include_once('config/googleanalytics.php'); ?>
+		<?php include_once('includes/googleanalytics.php'); ?>
 	</script>
 </head>
 <body>

@@ -421,9 +421,8 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 				$sqlWhere .= 'AND (i.occid IS NULL) ';
 			}
 		}
-		if($sqlWhere){
-			$this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
-		}
+		if(strpos($sqlWhere,'ts.taxauthid')) $sqlWhere = str_replace('i.', 'ts.', $sqlWhere);
+		if($sqlWhere) $this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
 		//echo $this->sqlWhere;
 	}
 

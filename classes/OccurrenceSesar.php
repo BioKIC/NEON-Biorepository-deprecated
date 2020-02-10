@@ -20,9 +20,9 @@ class OccurrenceSesar extends Manager {
 		parent::__construct(null, $type);
 		$this->fieldMap['basisOfRecord']['sesar'] = 'collection_method_descr';
 		$this->fieldMap['catalogNumber']['sesar'] = 'name';
-		$this->fieldMap['catalogNumber']['sql'] = 'CONCAT_WS(" ",IFNULL(catalogNumber, otherCatalogNumbers),"[",occid,"]") AS catalogNumber';
+		$this->fieldMap['catalogNumber']['sql'] = 'CONCAT_WS(" ",IFNULL(o.catalogNumber, o.otherCatalogNumbers),"[",o.occid,"]") AS catalogNumber';
 		$this->fieldMap['sciname']['sesar'] = 'field_name';
-		$this->fieldMap['sciname']['sql'] = 'CONCAT_WS(" ",sciname, scientificNameAuthorship) AS sciname';
+		$this->fieldMap['sciname']['sql'] = 'CONCAT_WS(" ",o.sciname, o.scientificNameAuthorship) AS sciname';
 		$this->fieldMap['recordedBy']['sesar'] = 'collector';
 		$this->fieldMap['eventDate']['sesar'] = 'collection_start_date';
 		$this->fieldMap['verbatimAttributes']['sesar'] = 'description';
@@ -30,9 +30,9 @@ class OccurrenceSesar extends Manager {
 		$this->fieldMap['stateProvince']['sesar'] = 'province';
 		$this->fieldMap['county']['sesar'] = 'county';
 		$this->fieldMap['decimalLatitude']['sesar'] = 'latitude';
-		$this->fieldMap['decimalLatitude']['sql'] = 'ROUND(decimalLatitude,6) AS decimalLatitude';
+		$this->fieldMap['decimalLatitude']['sql'] = 'ROUND(o.decimalLatitude,6) AS decimalLatitude';
 		$this->fieldMap['decimalLongitude']['sesar'] = 'longitude';
-		$this->fieldMap['decimalLongitude']['sql'] = 'ROUND(decimalLongitude,6) AS decimalLongitude';
+		$this->fieldMap['decimalLongitude']['sql'] = 'ROUND(o.decimalLongitude,6) AS decimalLongitude';
 		$this->fieldMap['minimumElevationInMeters']['sesar'] = 'elevation';
 		//$this->fieldMap['parentOccurrenceID']['sesar'] = 'parent_igsn';
 		//$this->fieldMap['parentOccurrenceID']['sql'] = ' AS parentOccurrenceID';
@@ -135,12 +135,12 @@ class OccurrenceSesar extends Manager {
 		//Batch assign GUIDs
 		$this->logOrEcho('Generating IGSN identifiers');
 		$increment = 1;
-		$sql = 'SELECT occid';
+		$sql = 'SELECT o.occid';
 		foreach($this->fieldMap as $symbField => $mapArr){
 			if(isset($mapArr['sql'])) $sql .= ','.$mapArr['sql'];
-			else $sql .= ','.$symbField;
+			else $sql .= ',o.'.$symbField;
 		}
-		$sql .= ' FROM omoccurrences WHERE collid = '.$this->collid.' AND occurrenceid IS NULL ';
+		$sql .= ' '.$this->getSqlBase();
 		if($processingCount) $sql .= 'LIMIT '.$processingCount;
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows) $this->initiateDom();
@@ -448,6 +448,7 @@ class OccurrenceSesar extends Manager {
 				//echo 'date: '.$this->fieldMap['eventDate']['value'].' - ';
 				$y = substr($this->fieldMap['eventDate']['value'],0,4);
 				if($y < 1900) unset($this->fieldMap['eventDate']);
+				//if(isset($this->fieldMap['eventDate']['value']) && $this->fieldMap['eventDate']['value']) $this->fieldMap['eventDate']['value'] .= 'T00:00:00';
 			}
 		}
 	}
@@ -700,14 +701,24 @@ class OccurrenceSesar extends Manager {
 
 	public function getMissingGuidCount(){
 		$cnt = 0;
-		$sql = 'SELECT COUNT(*) AS cnt FROM omoccurrences ';
-		if($this->collid) $sql .= 'WHERE (occurrenceid IS NULL) AND (collid = '.$this->collid.')';
+		$sql = 'SELECT COUNT(o.occid) AS cnt '.$this->getSqlBase();
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$cnt = $r->cnt;
 		}
 		$rs->free();
 		return $cnt;
+	}
+
+	private function getSqlBase(){
+		$sqlBase = 'FROM omoccurrences o WHERE (o.occurrenceid IS NULL) ';
+		if($this->namespace && $this->namespace == 'NEON'){
+			$rs = $this->conn->query('SELECT 1 FROM NeonSample LIMIT 1');
+			if($rs->num_rows) $sqlBase = 'FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid WHERE (o.occurrenceid IS NULL) AND (s.errorMessage IS NULL) ';
+			$rs->free();
+		}
+		if($this->collid) $sqlBase .= 'AND (o.collid = '.$this->collid.') ';
+		return $sqlBase;
 	}
 
 	//Setters and getters

@@ -448,7 +448,7 @@ class OccurrenceSesar extends Manager {
 				//echo 'date: '.$this->fieldMap['eventDate']['value'].' - ';
 				$y = substr($this->fieldMap['eventDate']['value'],0,4);
 				if($y < 1900) unset($this->fieldMap['eventDate']);
-				//if(isset($this->fieldMap['eventDate']['value']) && $this->fieldMap['eventDate']['value']) $this->fieldMap['eventDate']['value'] .= 'T00:00:00';
+				if(isset($this->fieldMap['eventDate']['value']) && $this->fieldMap['eventDate']['value']) $this->fieldMap['eventDate']['value'] .= 'T00:00:00';
 			}
 		}
 	}

@@ -273,7 +273,6 @@ class OccurrenceSesar extends Manager {
 
 	private function processRegistrationResponse($responseXML){
 		$status = true;
-		//echo htmlentities($responseXML);
 		$this->logOrEcho('Processing response');
 		$dom = new DOMDocument('1.0','UTF-8');
 		if($dom->loadXML($responseXML)){
@@ -352,6 +351,7 @@ class OccurrenceSesar extends Manager {
 		if($ns == 'NEON') $ns = 'NEO';
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'user_code', $ns);		//Required
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'sample_type', 'Individual Sample');		//Required
+		$this->addSampleElem($this->igsnDom, $sampleElem, 'sample_subtype', 'Specimen');		//Required
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'material', 'Biology');		//Required
 		$igsnElem = $this->igsnDom->createElement('igsn');		//If blank, SESAR will generate new IGSN
 		$igsnElem->appendChild($this->igsnDom->createTextNode($igsn));
@@ -607,7 +607,11 @@ class OccurrenceSesar extends Manager {
 		foreach(array_keys($sesarResultArr['missing']) as $lostIGSN){
 			$resArr = $this->getSesarApiGetData($url.$lostIGSN);
 			if($resArr['retCode'] == 200){
-				$igsnObj = json_decode($resArr['retJson']);
+				$retJson = $resArr['retJson'];
+				if(strpos($retJson, 'The application has encountered an unknown error.') === 0){
+					if(preg_match('/[A-Z.\s]+(\{.+)/i', $retJson, $m)) $retJson = $m[1];
+				}
+				$igsnObj = json_decode($retJson);
 				if(preg_match('/^(.+)\s*\[\s*(\d+)\s*\]$/', $igsnObj->sample->name,$m)){
 					$catNum = $m[1];
 					$occid = $m[2];

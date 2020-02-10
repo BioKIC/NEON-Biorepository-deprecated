@@ -667,6 +667,11 @@ class OccurrenceHarvester{
 			if(!$this->conn->query('call occurrence_harvesting_sql()')){
 				echo 'ERROR running stored procedure: '.$sql;
 			}
+
+			//Run stored procedure that protects rare and sensitive species
+			if(!$this->conn->query('call sensitive_species_protection()')){
+				echo 'ERROR running stored procedure: '.$sql;
+			}
 		}
 	}
 

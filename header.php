@@ -110,6 +110,9 @@
 						</li>
 						<li>
 							<a href="<?php echo $CLIENT_ROOT; ?>/misc/samplerequest.php">Sample Request</a>
+            </li>
+            <li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Usage Policy</a>
 						</li>
 					</ul>
 				</li>
@@ -121,9 +124,6 @@
 						</li>
 						<li>
 							<a href="https://www.neonscience.org/data/neon-data-portal" target="_blank" >NEON Data Portal</a>
-						</li>
-						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Usage Policy</a>
 						</li>
 						<li>
 							<a href="https://biokic.asu.edu/collections" target="_blank">ASU Biocollections</a>

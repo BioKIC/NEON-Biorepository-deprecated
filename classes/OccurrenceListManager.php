@@ -26,7 +26,7 @@ class OccurrenceListManager extends OccurrenceManager{
 		$occArr = array();
 		$sqlWhere = $this->getSqlWhere();
 		if(!$this->recordCount || $this->reset) $this->setRecordCnt($sqlWhere);
-		$sql = 'SELECT o.occid, c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, '.
+		$sql = 'SELECT o.occid, c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.icon, o.institutioncode AS instcodeoverride, o.collectioncode AS collcodeoverride, '.
 			'o.catalognumber, o.family, o.sciname, o.scientificnameauthorship, o.tidinterpreted, o.recordedby, o.recordnumber, o.eventdate, o.year, o.startdayofyear, o.enddayofyear, '.
 			'o.country, o.stateprovince, o.county, o.locality, o.decimallatitude, o.decimallongitude, o.localitysecurity, o.localitysecurityreason, '.
 			'o.habitat, o.substrate, o.minimumelevationinmeters, o.maximumelevationinmeters, o.observeruid, c.sortseq '.
@@ -52,7 +52,15 @@ class OccurrenceListManager extends OccurrenceManager{
 				}
 				$retArr[$row->occid]['collid'] = $row->collid;
 				$retArr[$row->occid]['instcode'] = $this->cleanOutStr($row->institutioncode);
+				if($row->instcodeoverride){
+					if(!$retArr[$row->occid]['instcode']) $retArr[$row->occid]['instcode'] = $row->instcodeoverride;
+					elseif($retArr[$row->occid]['instcode'] != $row->instcodeoverride) $retArr[$row->occid]['instcode'] .= '-'.$row->instcodeoverride;
+				}
 				$retArr[$row->occid]['collcode'] = $this->cleanOutStr($row->collectioncode);
+				if($row->collcodeoverride){
+					if(!$retArr[$row->occid]['collcode']) $retArr[$row->occid]['collcode'] = $row->collcodeoverride;
+					elseif($retArr[$row->occid]['collcode'] != $row->collcodeoverride) $retArr[$row->occid]['collcode'] .= '-'.$row->collcodeoverride;
+				}
 				$retArr[$row->occid]['collname'] = $this->cleanOutStr($row->collectionname);
 				$retArr[$row->occid]['icon'] = $row->icon;
 				$retArr[$row->occid]["catnum"] = $this->cleanOutStr($row->catalognumber);

@@ -131,7 +131,15 @@ class OccurrenceIndividual extends Manager{
 						$this->occArr['occurrenceid'] = $this->occArr['guid'];
 					}
 				}
-
+				if($this->occArr['secondaryinstcode']){
+					if(!$this->metadataArr['institutioncode']) $this->metadataArr['institutioncode'] = $this->occArr['secondaryinstcode'];
+					elseif($this->metadataArr['institutioncode'] != $this->occArr['secondaryinstcode']) $this->metadataArr['institutioncode'] .= '-'.$this->occArr['secondaryinstcode'];
+				}
+				if($this->occArr['secondarycollcode']){
+					if(!$this->metadataArr['collectioncode']) $this->metadataArr['collectioncode'] = $this->occArr['secondarycollcode'];
+					elseif($this->metadataArr['collectioncode'] != $this->occArr['secondarycollcode']) $this->metadataArr['collectioncode'] .= '-'.$this->occArr['secondarycollcode'];
+				}
+				/*
 				if($this->occArr['secondaryinstcode'] && $this->occArr['secondaryinstcode'] != $this->metadataArr['institutioncode']){
 					$sqlSec = 'SELECT collectionname, homepage, individualurl, contact, email, icon  FROM omcollsecondary WHERE (collid = '.$this->occArr['collid'].')';
 					$rsSec = $this->conn->query($sqlSec);
@@ -145,6 +153,7 @@ class OccurrenceIndividual extends Manager{
 					}
 					$rsSec->free();
 				}
+				*/
 				$this->loadDeterminations();
 				$this->loadImages();
 				$this->loadPaleo();

@@ -350,15 +350,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						echo '</div>';
 					}
 					$instCode = $collMetadata['institutioncode'];
-					if(isset($collMetadata['collectioncode']) && $collMetadata['collectioncode']){
-						$instCode .= ':'.$collMetadata['collectioncode'];
-					}
-					if($occArr['secondaryinstcode']){
-						$instCode .= ' || '.$occArr['secondaryinstcode'];
-						if(isset($occArr['secondarycollcode']) && $occArr['secondarycollcode']){
-							$instCode .= ':'.$occArr['secondarycollcode'];
-						}
-					}
+					if($collMetadata['collectioncode']) $instCode .= ':'.$collMetadata['collectioncode'];
 					?>
 					<div style="padding:25px;font-size:18px;font-weight:bold;">
 						<div style="float:left;margin-right:5px">

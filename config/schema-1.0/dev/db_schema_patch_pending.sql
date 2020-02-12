@@ -36,6 +36,7 @@ ALTER TABLE `uploadspectemp`
 ALTER TABLE `uploadspectemp` 
   ADD INDEX `Index_uploadspec_othercatalognumbers` (`otherCatalogNumbers` ASC);
 
+
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(150) NULL DEFAULT NULL;
 
@@ -46,6 +47,16 @@ ALTER TABLE `uploadimagetemp`
   ADD COLUMN `accessrights` VARCHAR(255) NULL AFTER `copyright`,
   ADD COLUMN `rights` VARCHAR(255) NULL AFTER `accessrights`,
   ADD COLUMN `locality` VARCHAR(250) NULL AFTER `rights`;
+
+ALTER TABLE `uploadimagetemp` 
+  CHANGE COLUMN `url` `url` VARCHAR(255) NULL ;
+
+ALTER TABLE `images` 
+  CHANGE COLUMN `url` `url` VARCHAR(255) NULL ;
+
+ALTER TABLE `images` 
+  ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);
+
   
 ALTER TABLE `uploadspecparameters` 
   CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
@@ -148,10 +159,6 @@ INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
 
 DROP TABLE omoccurlithostratigraphy;
 DROP TABLE paleochronostratigraphy;
-
-
-ALTER TABLE `images` 
-  ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);
 
 
 ALTER TABLE `omcollectioncontacts` 

@@ -48,11 +48,12 @@ if($IS_ADMIN){
 				}
 				var sampleIdentifier = f.identifier.value.trim();
 				if(sampleIdentifier != ""){
+					//alert("rpc/checkinsample.php?identifier="+sampleIdentifier+"&received="+f.sampleReceived.value+"&accepted="+f.acceptedForAnalysis.value+"&condition="+f.sampleCondition.value+"&altSampleID="+f.alternativeSampleID.value+"&notes="+f.checkinRemarks.value);
 					$.ajax({
 						type: "POST",
 						url: "rpc/checkinsample.php",
 						dataType: 'json',
-						data: { identifier: sampleIdentifier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
+						data: { identifier: sampleIdentifier, received: f.sampleReceived.value, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
 					}).done(function( retJson ) {
 						$("#checkinText").show();
 						if(retJson.status == 0){

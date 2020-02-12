@@ -486,7 +486,7 @@ include($SERVER_ROOT.'/header.php');
 													//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
 												$rowCnt = 1;
 												foreach($headerArr as $fieldName => $headerTitle){
-													if(array_key_exists($fieldName, $headerOutArr) || $fieldName == 'checkinUser'){
+													if(array_key_exists($fieldName, $headerOutArr) || $fieldName == 'checkinUser' || $fieldName == 'occid'){
 														echo '<th>'.$headerTitle.'</th>';
 														$rowCnt++;
 													}

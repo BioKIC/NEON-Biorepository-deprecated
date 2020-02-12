@@ -24,13 +24,17 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 	<title><?php echo $DEFAULT_TITLE.' '.$LANG['PAGE_TITLE']; ?></title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<style type="text/css">
-		.ui-tabs .ui-tabs-nav li { width:32%; }
-		.ui-tabs .ui-tabs-nav li a { margin-left:10px;}
-	</style>
-	<link href="../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -64,6 +68,10 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 		});
 	</script>
 	<script src="../js/symb/collections.list.js?ver=9" type="text/javascript"></script>
+	<style type="text/css">
+		.ui-tabs .ui-tabs-nav li { width:32%; }
+		.ui-tabs .ui-tabs-nav li a { margin-left:10px;}
+	</style>
 </head>
 <body>
 <?php
@@ -184,8 +192,6 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 							if($SYMB_UID && ($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollAdmin'])) || (array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollEditor'])))){
 								$isEditor = true;
 							}
-							$instCode = $fieldArr["instcode"];
-							if($fieldArr["collcode"]) $instCode .= ":".$fieldArr["collcode"];
 							echo '<tr><td colspan="2"><h2>';
 							echo '<a href="misc/collprofiles.php?collid='.$collId.'">'.$fieldArr["collname"].'</a>';
 							echo '</h2><hr /></td></tr>';
@@ -198,6 +204,8 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 						}
 						echo '</a>';
 						echo '<div style="font-weight:bold;font-size:75%;">';
+						$instCode = $fieldArr["instcode"];
+						if($fieldArr["collcode"]) $instCode .= ":".$fieldArr["collcode"];
 						echo $instCode;
 						echo '</div></td><td>';
 						if($isEditor || ($SYMB_UID && $SYMB_UID == $fieldArr['obsuid'])){

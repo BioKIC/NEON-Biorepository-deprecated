@@ -1,14 +1,12 @@
 <?php
-include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/Manager.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
 
 //Used by collprofiles.php, collmetadata, and collcontact.php pages
-class OccurrenceCollectionProfile {
+class OccurrenceCollectionProfile extends Manager {
 
-	private $conn;
 	private $collid;
-	private $errorStr;
 	private $organizationKey;
 	private $installationKey;
 	private $datasetKey;
@@ -16,11 +14,11 @@ class OccurrenceCollectionProfile {
 	private $idigbioKey;
 
 	public function __construct($connType = 'readonly'){
-		$this->conn = MySQLiConnectionFactory::getCon($connType);
+		parent::__construct();
 	}
 
 	public function __destruct(){
-		if(!($this->conn === null)) $this->conn->close();
+		parent::__destruct();
 	}
 
 	public function setCollid($collid){
@@ -402,7 +400,7 @@ class OccurrenceCollectionProfile {
 				$status = true;
 			}
 			else{
-				$this->errorStr = 'ERROR linking institution address: '.$con->error;
+				$this->errorMessage = 'ERROR linking institution address: '.$con->error;
 			}
 			$con->close();
 		}
@@ -419,7 +417,7 @@ class OccurrenceCollectionProfile {
 				$status = true;
 			}
 			else{
-				$this->errorStr = 'ERROR removing institution address: '.$con->error;
+				$this->errorMessage = 'ERROR removing institution address: '.$con->error;
 			}
 			$con->close();
 		}
@@ -463,24 +461,29 @@ class OccurrenceCollectionProfile {
 
 	}
 
-
 	//Publishing functions
 	public function batchTriggerGBIFCrawl($collIdArr){
-		$sql = 'SELECT CollID, publishToGbif, dwcaUrl, aggKeysStr FROM omcollections WHERE CollID IN('.implode(',',$collIdArr).') ';
+		$sql = 'SELECT collid, publishToGbif, dwcaUrl, aggKeysStr FROM omcollections WHERE CollID IN('.implode(',',$collIdArr).') ';
 		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			if($row->publishToGbif && $row->aggKeysStr){
 				$gbifKeyArr = json_decode($row->aggKeysStr,true);
 				if(array_key_exists('endpointKey', $gbifKeyArr) && $gbifKeyArr['endpointKey'] && $row->dwcaUrl)
-					$this->triggerGBIFCrawl($gbifKeyArr['datasetKey'], $row->dwcaUrl);
+					$this->triggerGBIFCrawl($gbifKeyArr['datasetKey'], $row->dwcaUrl, $row->collid, $row->collectionname);
 			}
 		}
 		$rs->free();
 	}
 
-	public function triggerGBIFCrawl($datasetKey, $dwcUri){
+	public function triggerGBIFCrawl($datasetKey, $dwcUri, $collid, $collectionname){
 		global $GBIF_USERNAME,$GBIF_PASSWORD;
+		if(!$this->logFH){
+			$this->setVerboseMode(3);
+			$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/')."content/logs/gbif/GBIF_".date('Y-m-d').".log";
+			$this->setLogFH($logPath);
+		}
+		$this->logOrEcho('Starting GBIF harvest for: '.$collectionname.' (#'.$collid.')', 0, 'div');
 		if($datasetKey){
 			$loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
 			if($dwcUri){
@@ -503,7 +506,9 @@ class OccurrenceCollectionProfile {
 				if($endpointChanged || !$endpointArr){
 					//Endpoint has changed, delete old endpoints
 					foreach($endpointArr as $epArr){
+						$this->logOrEcho('Resetting Endpoints due to change...', 1, 'div');
 						if(isset($epArr['key'])){
+							$this->logOrEcho('Deleting Endpoint (key: '.$epArr['key'].')...', 2, 'div');
 							$ch = curl_init($epUrl.'/'.$epArr['key']);
 							curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
 							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -511,14 +516,13 @@ class OccurrenceCollectionProfile {
 							curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
 							curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
 							curl_exec($ch);
-							if(curl_error($ch)) {
-								echo '<div style="color:red;">'.curl_error($ch).'</div>';
-							}
+							if(curl_error($ch)) $this->logOrEcho('ERROR deleting Endpoint: '.curl_error($ch), 3, 'div');
 							curl_close($ch);
 						}
 					}
 
 					//Add new endpoint
+					$this->logOrEcho('Adding new Endpoint (url: '.$dwcUri.')...', 1, 'div');
 					$ch = curl_init($epUrl);
 					curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 					$dataStr = json_encode( array( 'type' => 'DWC_ARCHIVE','url' => $dwcUri ) );
@@ -529,14 +533,13 @@ class OccurrenceCollectionProfile {
 					curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
 					$endpointStr = curl_exec($ch);
 					if(!strpos($endpointStr,' ') && strlen($endpointStr) == 36) $this->endpointKey = $endpointStr;
-					if(curl_error($ch)) {
-						echo '<div style="color:red;">'.curl_error($ch).'</div>';
-					}
+					if(curl_error($ch)) $this->logOrEcho('ERROR adding Endpoint: '.curl_error($ch), 2, 'div');
 					curl_close($ch);
 				}
 			}
 
 			//Trigger Crawl
+			$this->logOrEcho('Triggering crawl...', 1, 'div');
 			$dsUrl = 'https://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';
 			$ch = curl_init($dsUrl);
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -545,10 +548,11 @@ class OccurrenceCollectionProfile {
 			curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Accept: application/json'));
 			curl_exec($ch);
-			if(curl_error($ch)) {
-				echo '<div style="color:red;">'.curl_error($ch).'</div>';
-			}
+			if(curl_error($ch)) $this->logOrEcho('ERROR triggering crawl: '.curl_error($ch), 2, 'div');
 			curl_close($ch);
+		}
+		else{
+			$this->logOrEcho('ABORT: datasetKey IS NULL', 1, 'div');
 		}
 	}
 
@@ -1196,30 +1200,11 @@ class OccurrenceCollectionProfile {
 		return $bool;
 	}
 
-	//Setters and getter
-	public function getErrorStr(){
-		return $this->errorStr;
-	}
-
 	//Misc functions
 	public function cleanOutArr(&$arr){
 		foreach($arr as $k => $v){
 			$arr[$k] = $this->cleanOutStr($v);
 		}
-	}
-
-	private function cleanOutStr($str){
-		$newStr = str_replace('"',"&quot;",$str);
-		$newStr = str_replace("'","&apos;",$newStr);
-		//$newStr = $this->conn->real_escape_string($newStr);
-		return $newStr;
-	}
-
-	private function cleanInStr($str){
-		$newStr = trim($str);
-		$newStr = preg_replace('/\s\s+/', ' ',$newStr);
-		$newStr = $this->conn->real_escape_string($newStr);
-		return $newStr;
 	}
 }
 ?>

@@ -203,9 +203,9 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 					echo '</fieldset>';
 				}
 				?>
-				<div style="width:650px;">
+				<div style="width:700px;">
 					<div>
-						This module allows one to code Occurrence Traits based on content entered into verbatium text fields.<span id="moreSpan">.. <a href="#" onclick="displayDetailDiv(this)">more</a></span>
+						This module maps Occurrence Traits to specimens based on verbatium text field content.<span id="moreSpan">.. <a href="#" onclick="displayDetailDiv(this)">more</a></span>
 						<div id="detailDiv" style="display:none">For instance, phenology traits can be coded in bulk by mapping various
 						text strings displayed within Reproductive Condition text field to a controled phenology defined within the occurrence trait fields.
 						Coded trait attributes can be downloaded and shared via the Darwin Core (DwC) Archive export and publishing tools.
@@ -266,13 +266,13 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 				if($traitID && $fieldName){
 					$valueArr = $attrManager->getFieldValueArr($traitID, $fieldName, $tidFilter, $stringFilter);
 					?>
-					<div id="traitdiv" style="width:600px">
+					<div id="traitdiv" style="width:700px">
 						<fieldset style="margin:15px;padding:15px">
 							<legend><b><?php echo $fieldArr[$fieldName]; ?></b></legend>
 							<form name="miningform" method="post" action="attributemining.php" onsubmit="return verifyMiningForm(this)">
-								<div style="margin:5px;">
-									<b>Select Source Field Value(s)</b> - hold down control or shift buttons to select more than one value<br/>
-									<select name="fieldvalue[]" size="15" multiple="multiple" style="width:100%">
+								<b>Select Source Field Values</b> - hold down control or shift buttons to select more than one value<br/>
+								<div style="margin:5px;border:2px solid;width:100%;height:200px;resize: both;overflow: auto">
+									<select name="fieldvalue[]" multiple="multiple" style="width:100%;height:100%">
 										<?php
 										foreach($valueArr as $v){
 											if($v) echo '<option value="'.$v.'">'.$v.'</option>';

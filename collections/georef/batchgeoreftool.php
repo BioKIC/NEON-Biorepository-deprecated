@@ -319,8 +319,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								echo 'Return Count: '.$localCnt;
 								?>
 							</div>
-							<div style="clear:both;">
-								<select id="locallist" name="locallist[]" size="15" multiple="multiple" style="width:100%">
+							<div style="clear:both;border:2px solid;width:100%;height:200px;resize: both;overflow: auto">
+								<select id="locallist" name="locallist[]" multiple="multiple" style="width:100%;height:100%">
 									<?php
 									if(isset($localArr)){
 										if($localArr){

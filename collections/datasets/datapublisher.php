@@ -277,16 +277,14 @@ include($SERVER_ROOT. '/header.php');
 			$dwcaManager->createDwcArchive();
 			$dwcaManager->writeRssFile();
 			echo '</ul>';
-			if($publishGBIF && $collManager->getEndpointKey()){
-				$collManager->triggerGBIFCrawl($collManager->getDatasetKey(),$collArr['dwcaurl'], $collid, $collArr['collectionname']);
-			}
+			if($publishGBIF) $collManager->triggerGBIFCrawl($collManager->getDatasetKey(),$collArr['dwcaurl'], $collid, $collArr['collectionname']);
 		}
 		$dwcUri = '';
 		$dwcaArr = $dwcaManager->getDwcaItems($collid);
 		if($dwcaArr){
 			$dArr = current($dwcaArr);
 			$dwcUri = ($dArr['collid'] == $collid?$dArr['link']:'');
-			if(!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collArr['guid']);
+			if(!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collArr['recordid']);
 			?>
 			<div style="margin:10px;">
 				<div>

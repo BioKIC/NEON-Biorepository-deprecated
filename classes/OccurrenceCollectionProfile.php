@@ -469,8 +469,7 @@ class OccurrenceCollectionProfile extends Manager {
 		while($row = $rs->fetch_object()){
 			if($row->publishToGbif && $row->aggKeysStr){
 				$gbifKeyArr = json_decode($row->aggKeysStr,true);
-				if(array_key_exists('endpointKey', $gbifKeyArr) && $gbifKeyArr['endpointKey'] && $row->dwcaUrl)
-					$this->triggerGBIFCrawl($gbifKeyArr['datasetKey'], $row->dwcaUrl, $row->collid, $row->collectionname);
+				if(isset($gbifKeyArr['datasetKey']) && $row->dwcaUrl) $this->triggerGBIFCrawl($gbifKeyArr['datasetKey'], $row->dwcaUrl, $row->collid, $row->collectionname);
 			}
 		}
 		$rs->free();

@@ -464,7 +464,6 @@ class OccurrenceCollectionProfile extends Manager {
 	//Publishing functions
 	public function batchTriggerGBIFCrawl($collIdArr){
 		$sql = 'SELECT collid, publishToGbif, dwcaUrl, aggKeysStr FROM omcollections WHERE CollID IN('.implode(',',$collIdArr).') ';
-		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			if($row->publishToGbif && $row->aggKeysStr){
@@ -482,7 +481,7 @@ class OccurrenceCollectionProfile extends Manager {
 			$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/')."content/logs/gbif/GBIF_".date('Y-m-d').".log";
 			$this->setLogFH($logPath);
 		}
-		$this->logOrEcho('Starting GBIF harvest for: '.$collectionname.' (#'.$collid.')', 0, 'div');
+		$this->logOrEcho('Starting GBIF harvest for: '.$collectionname.' (#'.$collid.')');
 		if($datasetKey){
 			$loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
 			if($dwcUri){
@@ -505,9 +504,9 @@ class OccurrenceCollectionProfile extends Manager {
 				if($endpointChanged || !$endpointArr){
 					//Endpoint has changed, delete old endpoints
 					foreach($endpointArr as $epArr){
-						$this->logOrEcho('Resetting Endpoints due to change...', 1, 'div');
+						$this->logOrEcho('Resetting Endpoints due to change...', 1);
 						if(isset($epArr['key'])){
-							$this->logOrEcho('Deleting Endpoint (key: '.$epArr['key'].')...', 2, 'div');
+							$this->logOrEcho('Deleting Endpoint (key: '.$epArr['key'].')...', 2);
 							$ch = curl_init($epUrl.'/'.$epArr['key']);
 							curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
 							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -515,13 +514,13 @@ class OccurrenceCollectionProfile extends Manager {
 							curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
 							curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
 							curl_exec($ch);
-							if(curl_error($ch)) $this->logOrEcho('ERROR deleting Endpoint: '.curl_error($ch), 3, 'div');
+							if(curl_error($ch)) $this->logOrEcho('ERROR deleting Endpoint: '.curl_error($ch), 3);
 							curl_close($ch);
 						}
 					}
 
 					//Add new endpoint
-					$this->logOrEcho('Adding new Endpoint (url: '.$dwcUri.')...', 1, 'div');
+					$this->logOrEcho('Adding new Endpoint (url: '.$dwcUri.')...', 1);
 					$ch = curl_init($epUrl);
 					curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 					$dataStr = json_encode( array( 'type' => 'DWC_ARCHIVE','url' => $dwcUri ) );
@@ -532,13 +531,13 @@ class OccurrenceCollectionProfile extends Manager {
 					curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json','Accept: application/json'));
 					$endpointStr = curl_exec($ch);
 					if(!strpos($endpointStr,' ') && strlen($endpointStr) == 36) $this->endpointKey = $endpointStr;
-					if(curl_error($ch)) $this->logOrEcho('ERROR adding Endpoint: '.curl_error($ch), 2, 'div');
+					if(curl_error($ch)) $this->logOrEcho('ERROR adding Endpoint: '.curl_error($ch), 2);
 					curl_close($ch);
 				}
 			}
 
 			//Trigger Crawl
-			$this->logOrEcho('Triggering crawl...', 1, 'div');
+			$this->logOrEcho('Triggering crawl...', 1);
 			$dsUrl = 'https://api.gbif.org/v1/dataset/'.$datasetKey.'/crawl';
 			$ch = curl_init($dsUrl);
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -547,11 +546,12 @@ class OccurrenceCollectionProfile extends Manager {
 			curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Accept: application/json'));
 			curl_exec($ch);
-			if(curl_error($ch)) $this->logOrEcho('ERROR triggering crawl: '.curl_error($ch), 2, 'div');
+			if(curl_error($ch)) $this->logOrEcho('ERROR triggering crawl: '.curl_error($ch), 2);
 			curl_close($ch);
+			$this->logOrEcho('Done!', 1);
 		}
 		else{
-			$this->logOrEcho('ABORT: datasetKey IS NULL', 1, 'div');
+			$this->logOrEcho('ABORT: datasetKey IS NULL', 1);
 		}
 	}
 

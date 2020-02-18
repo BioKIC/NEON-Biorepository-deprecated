@@ -277,7 +277,11 @@ include($SERVER_ROOT. '/header.php');
 			$dwcaManager->createDwcArchive();
 			$dwcaManager->writeRssFile();
 			echo '</ul>';
-			if($publishGBIF) $collManager->triggerGBIFCrawl($collManager->getDatasetKey(),$collArr['dwcaurl'], $collid, $collArr['collectionname']);
+			if($publishGBIF){
+				echo '<ul>';
+				$collManager->triggerGBIFCrawl($collManager->getDatasetKey(),$collArr['dwcaurl'], $collid, $collArr['collectionname']);
+				echo '</ul>';
+			}
 		}
 		$dwcUri = '';
 		$dwcaArr = $dwcaManager->getDwcaItems($collid);
@@ -466,7 +470,9 @@ include($SERVER_ROOT. '/header.php');
 				$dwcaManager->setLimitToGuids(true);
 				$dwcaManager->batchCreateDwca($_POST['coll']);
 				echo '</ul>';
+				echo '<ul>';
 				$collManager->batchTriggerGBIFCrawl($_POST['coll']);
+				echo '</ul>';
 			}
 			?>
 			<div id="dwcaadmindiv" style="margin:10px;display:<?php echo ($emode?'block':'none'); ?>;" >

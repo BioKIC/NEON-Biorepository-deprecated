@@ -6,6 +6,7 @@ class OccurrenceHarvester{
 	private $conn;
 	private $stateArr = array();
 	private $sampleClassArr = array();
+	private $replaceFieldValues = false;
 	private $errorStr;
 
  	public function __construct(){
@@ -36,6 +37,7 @@ class OccurrenceHarvester{
 
 	public function batchHarvestOccid($postArr){
 		set_time_limit(3600);
+		if(isset($postArr['replaceFieldValues']) && $postArr['replaceFieldValues']) $this->setReplaceFieldValues(true);
 		$sqlWhere = '';
 		if(isset($postArr['scbox'])){
 			$sqlWhere = 'AND s.samplePK IN('.implode(',',$postArr['scbox']).')';
@@ -208,25 +210,26 @@ class OccurrenceHarvester{
 		$viewArr = current($sampleViewArr['sampleViews']);
 		//parse Sample Event details
 		$eventArr = $viewArr['sampleEvents'];
+		$earliestDate = '2050-01-01';
+		$preferredLocation = '';
 		foreach($eventArr as $k => $eArr){
 			if(substr($eArr['ingestTableName'],0,4) == 'scs_') continue;
-			if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false){
-				$fieldArr = $eArr['smsFieldEntries'];
-				foreach($fieldArr as $k => $fArr){
-					if($fArr['smsKey'] == 'fate_location'){
-						$viewArr['namedLocation'] = $fArr['smsValue'];
-					}
-					/*
-					 elseif($fArr['smsKey'] == 'fate_date'){
-						 if($fArr['smsValue']){
-							 $viewArr['collectDate'] = $this->formatDate($fArr['smsValue']);
-						 }
-					}
-					*/
-				}
+			$fateLocation = '';
+			$fateDate = '';
+			$fieldArr = $eArr['smsFieldEntries'];
+			foreach($fieldArr as $k => $fArr){
+				if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
+				elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
+			}
+			if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false && $fateLocation){
+				$preferredLocation = $fateLocation;
 				break;
 			}
+			elseif($fateDate && $fateDate < $earliestDate){
+				$preferredLocation = $fateLocation;
+			}
 		}
+		if($preferredLocation) $viewArr['namedLocation'] = $preferredLocation;
 
 		//Get parent identifier
 		if(isset($viewArr['parentSampleIdentifiers'][0]['sampleUuid'])){
@@ -307,7 +310,7 @@ class OccurrenceHarvester{
 						$this->adjustMosquitoData($sampleArr, $dwcArr);
 					}
 				}
-				else{
+				elseif(!isset($dwcArr['eventDate'])){
 					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
@@ -494,13 +497,32 @@ class OccurrenceHarvester{
 			$sql = '';
 			if($occid){
 				$skipFieldArr = array('occid','collid');
+				if($this->replaceFieldValues){
+					//Only replace values that have not yet been expllicitly modified
+					$sqlEdit = 'SELECT DISTINCT fieldname FROM omoccuredits WHERE occid = '.$occid;
+					$rsEdit = $this->conn->query($sqlEdit);
+					while($rEdit = $rsEdit->fetch_object()){
+						$skipFieldArr[] = $rEdit->fieldname;
+					}
+					$rsEdit->free();
+				}
 				foreach($dwcArr as $fieldName => $fieldValue){
-					if(!in_array($fieldName,$skipFieldArr)){
-						if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
-							$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.','.$this->cleanInStr($fieldValue).') ';
+					if(!in_array(strtolower($fieldName),$skipFieldArr)){
+						if($this->replaceFieldValues){
+							if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+								$sql .= ', '.$fieldName.' = '.$this->cleanInStr($fieldValue).' ';
+							}
+							else{
+								$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
+							}
 						}
 						else{
-							$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
+							if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+								$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.','.$this->cleanInStr($fieldValue).') ';
+							}
+							else{
+								$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
+							}
 						}
 					}
 				}
@@ -523,7 +545,6 @@ class OccurrenceHarvester{
 				}
 				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').',dateentered) VALUES('.trim($sql2,',').',NOW())';
 			}
-			//echo '<br/>'.$sql.'<br/>';
 			if($this->conn->query($sql)){
 				if(!$occid){
 					$occid = $this->conn->insert_id;
@@ -707,6 +728,10 @@ class OccurrenceHarvester{
 
 
 	//Setters and getters
+	public function setReplaceFieldValues($bool){
+		if($bool) $this->replaceFieldValues = true;
+	}
+
 	public function getErrorStr(){
 		return $this->errorStr;
 	}

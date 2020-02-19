@@ -287,6 +287,7 @@ if($isEditor){
 		.fieldGroupDiv{ clear:both; margin-top:2px; height: 25px; }
 		.fieldDiv{ float:left; margin-left: 10px}
 		.displayFieldDiv{ margin-bottom: 3px }
+		fieldset legend{ font-weight:bold; }
 	</style>
 </head>
 <body>
@@ -306,7 +307,7 @@ include($SERVER_ROOT.'/header.php');
 		if($action == 'batchHarvestOccid'){
 			?>
 			<fieldset style="padding:15px">
-				<legend><b>Action Panel</b></legend>
+				<legend>Action Panel</legend>
 				<ul>
 				<?php
 				$occurManager = new OccurrenceHarvester();
@@ -320,7 +321,7 @@ include($SERVER_ROOT.'/header.php');
 		if($shipArr){
 			?>
 			<fieldset style="margin-top:30px">
-				<legend><b>Shipment #<?php echo $shipmentPK; ?></b></legend>
+				<legend>Shipment #<?php echo $shipmentPK; ?></legend>
 				<div style="float:left;margin-right:40px;width:400px;">
 					<div class="displayFieldDiv">
 						<b>Shipment ID:</b> <?php echo $shipArr['shipmentID']; ?>
@@ -374,7 +375,7 @@ include($SERVER_ROOT.'/header.php');
 							?>
 							<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:50px;right:200px">
 								<fieldset style="padding:10px;width:500px">
-									<legend><b>Sample Check-in</b></legend>
+									<legend>Sample Check-in</legend>
 									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
 										<div id="popoutDiv" style="float:right"><a href="#" onclick="popoutCheckinBox();return false" title="Popout Sample Check-in Box">&gt;&gt;</a></div>
 										<div id="bindDiv" style="float:right;display:none"><a href="#" onclick="bindCheckinBox();return false" title="Bind Sample Check-in Box to top of form">&lt;&lt;</a></div>
@@ -425,7 +426,7 @@ include($SERVER_ROOT.'/header.php');
 					if(!$shipArr['checkinTimestamp']){
 						?>
 						<fieldset style="padding:10px;">
-							<legend><b>Check-in Shipment</b></legend>
+							<legend>Check-in Shipment</legend>
 							<form action="manifestviewer.php" method="post">
 								<?php
 								$deliveryArr = $shipManager->getDeliveryArr();
@@ -452,7 +453,7 @@ include($SERVER_ROOT.'/header.php');
 					?>
 					<div style="clear:both;padding-top:30px;">
 						<fieldset id="samplePanel">
-							<legend><b>Sample Listing</b></legend>
+							<legend>Sample Listing</legend>
 							<div>
 								<div style="float:left">Records displayed: <?php echo count($sampleList); ?></div>
 								<div style="float:right;">
@@ -568,7 +569,7 @@ include($SERVER_ROOT.'/header.php');
 										<div style="margin:15px;float:left">
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 											<fieldset style="width:450px;">
-												<legend><b>Batch Check-in Selected Samples</b></legend>
+												<legend>Batch Check-in Selected Samples</legend>
 												<div class="displayFieldDiv">
 													<b>Sample Received:</b>
 													<input name="sampleReceived" type="radio" value="1" checked /> Yes
@@ -604,16 +605,20 @@ include($SERVER_ROOT.'/header.php');
 											<div style="margin:5px;">
 												<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
 											</div>
-											<div style="margin:5px">
-												<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest Occurrences</button>
-											</div>
+											<fieldset style="margin:5px">
+												<legend>Occurrence Harvesting</legend>
+												<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest</button>
+												<div style="margin:10px" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
+													<input name="replaceFieldValues" type="checkbox" value="1" /> Replace Existing Field Values
+												</div>
+											</fieldset>
 										</div>
 									</form>
 									<div style="clear:both">
 										<div style="float:left;margin-left:15px;">
 											<fieldset style="width:450px;">
 												<a id="receiptStatus"></a>
-												<legend><b>Receipt Status</b></legend>
+												<legend>Receipt Status</legend>
 												<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
 													<?php
 													$receiptStatus = '';
@@ -656,7 +661,7 @@ include($SERVER_ROOT.'/header.php');
 											?>
 											<div style="float:left;margin:15px 30px;">
 												<fieldset style="width:400px;padding:15px;">
-													<legend><b>Append Data to Occurrence Records via File Upload</b></legend>
+													<legend>Append Data to Occurrence Records via File Upload</legend>
 													<?php
 													foreach($collectionArr as $collid => $collName){
 														echo '<div><a href="../../collections/admin/specupload.php?uploadtype=7&matchothercatnum=1&collid='.$collid.'" target="_blank">'.$collName.'</a></div>';

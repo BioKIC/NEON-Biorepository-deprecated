@@ -39,11 +39,8 @@ if($isEditor){
 			}
 		}
 
-		function nullFilterChanged(elem){
-			if(elem.value == ""){
-				$("input[name=nullOccurrencesOnly]").prop("checked",true);
-			}
-			else{
+		function occurSearchTermChanged(elem){
+			if(elem.value != "" || (elem.type == 'checkbox' && elem.checked == true)){
 				$("input[name=nullOccurrencesOnly]").prop("checked",false);
 			}
 		}
@@ -112,15 +109,15 @@ include($SERVER_ROOT.'/header.php');
 			<form action="occurrenceharvester.php" method="post">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<input name="nullOccurrencesOnly" type="checkbox" value="1" checked /> <b>Target New Samples only (NULL occurrences)</b>
+						<input name="nullOccurrencesOnly" type="checkbox" value="1" checked /> Target New Samples only (NULL occurrences)
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Error Group: </b>
-						<select name="errorStr">
-							<option value="noError">No Error Message</option>
+						Error Group:
+						<select name="errorStr" >
 							<option value="">---------------------</option>
+							<option value="noError">No Error Message</option>
 							<?php
 							foreach($reportArr as $msg => $repCntArr){
 								echo '<option>'.$msg.'</option>';
@@ -131,8 +128,8 @@ include($SERVER_ROOT.'/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>WHERE</b>
-						<select name="nullfilter" onchange="nullFilterChanged(this)">
+						WHERE
+						<select name="nullfilter" onchange="occurSearchTermChanged(this)">
 							<option value="">Target Field...</option>
 							<option value="">---------------------</option>
 							<option value="sciname">Scientific Name</option>
@@ -143,12 +140,17 @@ include($SERVER_ROOT.'/header.php');
 							<option value="county">County</option>
 							<option value="decimalLatitude">Lat/Long</option>
 						</select>
-						<b>IS NULL</b>
+						IS NULL
+					</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
+						<input name="replaceFieldValues" type="checkbox" value="1"  onchange="occurSearchTermChanged(this)" /> Replace existing field values if they have not been explicitly modified (previously harvested occurrences only)
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Limit:</b> <input name="limit" type="text" value="1000" />
+						Limit: <input name="limit" type="text" value="1000" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">

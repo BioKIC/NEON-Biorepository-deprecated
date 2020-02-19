@@ -210,6 +210,7 @@ class ShipmentManager{
 	}
 
 	public function uploadData(){
+		$status = true;
 		$this->shipmentPK = false;
 		if($this->uploadFileName){
 			echo '<li>Initiating import from: '.$this->uploadFileName.'</li>';
@@ -251,13 +252,13 @@ class ShipmentManager{
 				}
 				if($this->shipmentPK === false) $this->shipmentPK = $this->loadShipmentRecord($recMap);
 				if($this->shipmentPK){
-					$this->addSample($recMap,true);
+					$status = $this->addSample($recMap,true);
 					$recCnt++;
 				}
 				unset($recMap);
 			}
 			fclose($fh);
-
+			if(!$status) echo '<li><span style="color:red">Errors, warnings, and/or notices occurrenced during the upload process. Please review list above for more details.</li>';
 			echo '<li>Complete!!!</li>';
 		}
 		else{
@@ -568,7 +569,7 @@ class ShipmentManager{
 						$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = 1, acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
 						if(!$this->conn->query($sqlUpdate)){
 							$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
-							$status = 0;
+							$status = false;
 						}
 					}
 				}
@@ -585,7 +586,7 @@ class ShipmentManager{
 							echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
 						}
 					}
-					return false;
+					$status = false;
 				}
 			}
 		}

@@ -74,7 +74,7 @@ if($isEditor){
 	<style type="text/css">
 		fieldset{ padding:15px }
 		.fieldGroupDiv{ clear:both; margin-top:2px; height: 25px; }
-		.fieldDiv{ float:left; margin-left: 10px}
+		.fieldDiv{ float:left; margin-left: 25px}
 		.displayFieldDiv{ margin-bottom: 3px }
 	</style>
 </head>
@@ -190,16 +190,14 @@ include($SERVER_ROOT.'/header.php');
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
-					<div class="fieldDiv">
-						<?php
-						$manifestStatus = isset($searchArgumentArr['manifestStatus'])?$searchArgumentArr['manifestStatus']:'';
-						?>
-						<input name="manifestStatus" type="radio" value="shipNotCheck" <?php echo ($manifestStatus=='shipNotCheck'?'checked':''); ?> /> <b>Shipment Not Checked In</b>
-						<input name="manifestStatus" type="radio" value="receiptNotSubmitted" <?php echo ($manifestStatus=='receiptNotSubmitted'?'checked':''); ?> style="margin-left:20px;" /> <b>Receipt Not Submitted</b>
-						<input name="manifestStatus" type="radio" value="sampleNotCheck" <?php echo ($manifestStatus=='sampleNotCheck'?'checked':''); ?> style="margin-left:20px;" /> <b>Samples Not Checked In</b>
-						<input name="manifestStatus" type="radio" value="nonAcceptedSamples" <?php echo ($manifestStatus=='nonAcceptedSamples'?'checked':''); ?> style="margin-left:20px;" /> <b>Samples Not Accepted for Analysis</b>
-						<input name="manifestStatus" type="radio" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> style="margin-left:20px;" /> <b>Occurrences Not Harvested</b>
-					</div>
+					<?php
+					$manifestStatus = isset($searchArgumentArr['manifestStatus'])?$searchArgumentArr['manifestStatus']:'';
+					?>
+					<div class="fieldDiv"><input name="manifestStatus" type="radio" value="shipNotCheck" <?php echo ($manifestStatus=='shipNotCheck'?'checked':''); ?> /> <b>Shipment Not Checked In</b></div>
+					<div class="fieldDiv"><input name="manifestStatus" type="radio" value="receiptNotSubmitted" <?php echo ($manifestStatus=='receiptNotSubmitted'?'checked':''); ?> /> <b>Receipt Not Submitted</b></div>
+					<div class="fieldDiv"><input name="manifestStatus" type="radio" value="sampleNotCheck" <?php echo ($manifestStatus=='sampleNotCheck'?'checked':''); ?>  /> <b>Samples Not Checked In</b></div>
+					<div class="fieldDiv"><input name="manifestStatus" type="radio" value="nonAcceptedSamples" <?php echo ($manifestStatus=='nonAcceptedSamples'?'checked':''); ?> /> <b>Samples Not Accepted for Analysis</b></div>
+					<div class="fieldDiv"><input name="manifestStatus" type="radio" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> /> <b>Occurrences Not Harvested</b></div>
 				</div>
 				<div style="clear:both;margin:10px">
 					<div style="float:left; margin:10px">

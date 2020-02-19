@@ -16,11 +16,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<?php include_once($SERVER_ROOT.'/styles.php'); ?>
 
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 </head>
 <body class="home-page">
-	<?php include($SERVER_ROOT.'/header.php'); ?>
+	<?php include($SERVER_ROOT.'/includes/header.php'); ?>
 	<!-- This is inner text! -->
 	<div id="innertext" class="container" style="margin-top: 6em">
 		<h1 class="centered">Discover and access sample-based data</h1>
@@ -48,7 +48,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">
 						<div>
 							<img src="images/layout/glyphicon-globe.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
-							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>	
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>
 						</div>
 					</a>
 				</div>
@@ -59,15 +59,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Checklists</p>
 						</div>
 					</a>
-				</div>    		    		    	
+				</div>
 			</div>
-		</section>		
+		</section>
 
 		<section>
 			<div class="row" style="vertical-align: bottom">
 				<div class="six columns centered">
 					<h4 class="centered">> 103,000 samples</h4>
-					<img src="images/layout/SamplesByColl-2020-01.png" usemap="#image-map" width="100%">				
+					<img src="images/layout/SamplesByColl-2020-01.png" usemap="#image-map" width="100%">
 					<p><span style="font-size: 70%">Distribution of samples by collection type.</span></p>
 				</div>
 				<div class="six columns centered">
@@ -94,10 +94,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<p>Join the portal as a regular visitor or contributor, and send direct feedback or inquiries to <a href="mailto:BioRepo@asu.edu">BioRepo@asu.edu</a>.</p>
 				</div>
 			</div>
-		</section>		
+		</section>
 
 		<section>
-			<div class="row">	    
+			<div class="row">
 				<div class="six columns">
 					<h2 class="centered">Services</h2>
 					<p>NEON Biorepository Data Portal services:</p>
@@ -122,6 +122,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		</section>
 
 	</div>
-	<?php include($SERVER_ROOT.'/footer.php'); ?>
+	<?php include($SERVER_ROOT.'/includes/footer.php'); ?>
 </body>
 </html>

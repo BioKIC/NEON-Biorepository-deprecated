@@ -731,16 +731,25 @@ class ShipmentManager{
 				$this->searchArr['sampleCondition'] = $_REQUEST['sampleCondition'];
 			}
 			if(isset($_REQUEST['manifestStatus'])){
-				if($_REQUEST['manifestStatus'] == 'shipNotCheck'){
+				if($_REQUEST['manifestStatus'] == 'shipCheck'){
+					$sqlWhere .= 'AND (s.checkinTimestamp IS NOT NULL) ';
+				}
+				elseif($_REQUEST['manifestStatus'] == 'shipNotCheck'){
 					$sqlWhere .= 'AND (s.checkinTimestamp IS NULL) ';
 				}
 				elseif($_REQUEST['manifestStatus'] == 'receiptNotSubmitted'){
 					$sqlWhere .= 'AND (s.receiptstatus IS NULL OR s.receiptstatus NOT LIKE "submitted%") ';
 				}
+				elseif($_REQUEST['manifestStatus'] == 'sampleCheck'){
+					$sqlWhere .= 'AND (m.checkinTimestamp IS NOT NULL) ';
+				}
 				elseif($_REQUEST['manifestStatus'] == 'sampleNotCheck'){
 					$sqlWhere .= 'AND (m.checkinTimestamp IS NULL) ';
 				}
-				elseif($_REQUEST['manifestStatus'] == 'nonAcceptedSamples'){
+				elseif($_REQUEST['manifestStatus'] == 'notReceivedSamples'){
+					$sqlWhere .= 'AND (m.sampleReceived = 0) ';
+				}
+				elseif($_REQUEST['manifestStatus'] == 'notAcceptedSamples'){
 					$sqlWhere .= 'AND (m.acceptedForAnalysis = 0) ';
 				}
 				elseif($_REQUEST['manifestStatus'] == 'occurNotHarvested'){
@@ -781,7 +790,7 @@ class ShipmentManager{
 			'LEFT JOIN users u1 ON s.importUid = u1.uid '.
 			'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
 			'LEFT JOIN users u3 ON s.modifiedByUid = u3.uid ';
-		if(isset($_REQUEST['manifestStatus']) && $_REQUEST['manifestStatus'] == 'nonAcceptedSamples'){
+		if(isset($_REQUEST['manifestStatus']) && $_REQUEST['manifestStatus'] == 'notAcceptedSamples'){
 			$sql .= 'LEFT JOIN omoccurrences o ON m.occid = o.occid ';
 		}
 		$sql .= $this->getFilteredWhereSql();

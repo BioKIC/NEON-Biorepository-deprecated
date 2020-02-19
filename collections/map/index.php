@@ -47,13 +47,22 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo $DEFAULT_TITLE; ?> - Map Interface</title>
+  <title><?php echo $DEFAULT_TITLE; ?> - Map Interface</title>
+  <!-- JQuery Mobile -->
 	<link href="../../css/jquery.mobile-1.4.0.min.css" type="text/css" rel="stylesheet" />
 	<link href="../../css/jquery.symbiota.css" type="text/css" rel="stylesheet" />
 	<link href="../../css/jquery-ui_accordian.css" type="text/css" rel="stylesheet" />
-	<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css?ver=3" type="text/css" rel="Stylesheet" />
-	<link href="../../css/base.css?ver=6" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+  <?php
+    $activateJQuery = true;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+  ?>
 	<style type="text/css">
 		.panel-content a{ outline-color: transparent; font-size: 12px; font-weight: normal; }
 		.categorytitle{ font-size:	12px; }

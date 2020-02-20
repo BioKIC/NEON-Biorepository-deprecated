@@ -39,6 +39,7 @@ class DwcArchiverCore extends Manager{
 	private $includeDets = 1;
 	private $includeImgs = 1;
 	private $includeAttributes = 0;
+	private $hasPaleo = false;
 	private $redactLocalities = 1;
 	private $rareReaderArr = array();
 	private $charSetSource = '';
@@ -83,8 +84,13 @@ class DwcArchiverCore extends Manager{
 	public function getOccurrenceCnt(){
 		$retStr = 0;
 		$this->applyConditions();
-		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = DwcArchiverOccurrence::getOccurrenceArr($this->schemaType, $this->extended);
-		$sql = DwcArchiverOccurrence::getSqlOccurrences($this->occurrenceFieldArr['fields'],$this->conditionSql,$this->getTableJoins(),false);
+		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager->setSchemaType($this->schemaType);
+		$dwcOccurManager->setExtended($this->extended);
+		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
+		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
+		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'],false);
+		$sql .= $this->conditionSql.$this->getTableJoins();
 		//if($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 		if($sql){
 			$sql = 'SELECT COUNT(o.occid) as cnt '.$sql;
@@ -144,7 +150,7 @@ class DwcArchiverCore extends Manager{
 		}
 		if($sqlWhere){
 			$sql = 'SELECT c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.fulldescription, c.collectionguid, IFNULL(c.homepage,i.url) AS url, c.contact, c.email, '.
-				'c.guidtarget, c.dwcaurl, c.latitudedecimal, c.longitudedecimal, c.icon, c.managementtype, c.colltype, c.rights, c.rightsholder, c.usageterm, '.
+				'c.guidtarget, c.dwcaurl, c.latitudedecimal, c.longitudedecimal, c.icon, c.managementtype, c.colltype, c.rights, c.rightsholder, c.usageterm, c.dynamicproperties, '.
 				'i.address1, i.address2, i.city, i.stateprovince, i.postalcode, i.country, i.phone '.
 				'FROM omcollections c LEFT JOIN institutions i ON c.iid = i.iid '.
 				'WHERE '.$sqlWhere;
@@ -176,6 +182,12 @@ class DwcArchiverCore extends Manager{
 				$this->collArr[$r->collid]['postalcode'] = $r->postalcode;
 				$this->collArr[$r->collid]['country'] = $r->country;
 				$this->collArr[$r->collid]['phone'] = $r->phone;
+				if($r->dynamicproperties){
+					$propArr = json_decode($r->dynamicproperties,true);
+					if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
+						if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->hasPaleo = true;
+					}
+				}
 			}
 			$rs->free();
 		}
@@ -657,12 +669,16 @@ class DwcArchiverCore extends Manager{
 
     public function getDwcArray() {
 		$retArr = Array();
+		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager->setSchemaType($this->schemaType);
+		$dwcOccurManager->setExtended($this->extended);
+		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if(!$this->occurrenceFieldArr){
-			$this->occurrenceFieldArr = DwcArchiverOccurrence::getOccurrenceArr($this->schemaType, $this->extended);
+			$this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		}
-
 		$this->applyConditions();
-		$sql = DwcArchiverOccurrence::getSqlOccurrences($this->occurrenceFieldArr['fields'],$this->conditionSql,$this->getTableJoins());
+		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
+		$sql .= $this->conditionSql.$this->getTableJoins();
 		if(!$sql) return false;
 		$sql .= ' LIMIT 1000000';
 		$fieldArr = $this->occurrenceFieldArr['fields'];
@@ -687,7 +703,6 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
-		//Populate Upper Taxonomic data
 		$this->setUpperTaxonomy();
 		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
 			$typeArr = null;
@@ -1573,12 +1588,17 @@ class DwcArchiverCore extends Manager{
 		}
 		$hasRecords = false;
 
+		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager->setSchemaType($this->schemaType);
+		$dwcOccurManager->setExtended($this->extended);
+		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if(!$this->occurrenceFieldArr){
-			$this->occurrenceFieldArr = DwcArchiverOccurrence::getOccurrenceArr($this->schemaType, $this->extended);
+			$this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		}
 		//Output records
 		$this->applyConditions();
-		$sql = DwcArchiverOccurrence::getSqlOccurrences($this->occurrenceFieldArr['fields'],$this->conditionSql,$this->getTableJoins());
+		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
+		$sql .= $this->conditionSql.$this->getTableJoins();
 		if(!$sql) return false;
 		if($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 

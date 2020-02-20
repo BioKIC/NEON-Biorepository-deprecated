@@ -297,20 +297,19 @@ class ChecklistAdmin{
 
 	public function getUserChecklistArr(){
 		$retArr = array();
-		$clidStr = '';
-		if(isset($GLOBALS['USER_RIGHTS']) && $GLOBALS['USER_RIGHTS']['ClAdmin']){
+		if(isset($GLOBALS['USER_RIGHTS']['ClAdmin'])){
 			$clidStr = implode(',',$GLOBALS['USER_RIGHTS']['ClAdmin']);
-		}
-		if($clidStr){
-			$sql = 'SELECT clid, name FROM fmchecklists WHERE (clid IN('.$clidStr.')) AND (type != "excludespp") ';
-			if($this->clid) $sql .= 'AND (clid <> '.$this->clid.') ';
-			$sql .= 'ORDER BY name';
-			//echo $sql;
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$r->clid] = $r->name;
+			if($clidStr){
+				$sql = 'SELECT clid, name FROM fmchecklists WHERE (clid IN('.$clidStr.')) AND (type != "excludespp") ';
+				if($this->clid) $sql .= 'AND (clid <> '.$this->clid.') ';
+				$sql .= 'ORDER BY name';
+				//echo $sql;
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$retArr[$r->clid] = $r->name;
+				}
+				$rs->free();
 			}
-			$rs->free();
 		}
 		return $retArr;
 	}

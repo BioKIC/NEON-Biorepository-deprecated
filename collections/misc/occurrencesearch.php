@@ -26,9 +26,17 @@ $collArr = $occManager->getCollectionArr($IS_ADMIN?'all':$collEditorArr);
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Occurrence Search Page</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />	
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+    }
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -77,8 +85,8 @@ $collArr = $occManager->getCollectionArr($IS_ADMIN?'all':$collEditorArr);
 	       	var isNumber = true;
 	       	var charVar;
 
-	       	for(var i = 0; i < inStr.length && isNumber == true; i++){ 
-	       		charVar = inStr.charAt(i); 
+	       	for(var i = 0; i < inStr.length && isNumber == true; i++){
+	       		charVar = inStr.charAt(i);
 	    		if(validChars.indexOf(charVar) == -1){
 	    			isNumber = false;
 	    			break;
@@ -91,7 +99,7 @@ $collArr = $occManager->getCollectionArr($IS_ADMIN?'all':$collEditorArr);
 <body>
 	<!-- This is inner text! -->
 	<div id="innertext">
-		<?php 
+		<?php
 		if($collEditorArr){
 			?>
 			<form name="occform" action="occurrencesearch.php" method="post" onsubmit="return verifyOccurSearchForm(this)" >
@@ -106,7 +114,7 @@ $collArr = $occManager->getCollectionArr($IS_ADMIN?'all':$collEditorArr);
 								<?php
 								foreach($collArr as $id => $collName){
 									echo '<option value="'.$id.'" '.($id == $collid?'SELECTED':'').'>'.$collName.'</option>';
-								}  
+								}
 								?>
 							</select>
 						</div>
@@ -134,7 +142,7 @@ $collArr = $occManager->getCollectionArr($IS_ADMIN?'all':$collEditorArr);
 				</fieldset>
 			</form>
 			<?php
-			if($action){ 
+			if($action){
 				if($occArr = $occManager->getOccurrenceList($collid, $catalogNumber, $otherCatalogNumbers, $recordedBy, $recordNumber)){
 					echo '<div style="margin:30px 10px;">';
 					foreach($occArr as $occid => $vArr){
@@ -146,16 +154,16 @@ $collArr = $occManager->getCollectionArr($IS_ADMIN?'all':$collEditorArr);
 							</div>
 						</div>
 						<hr />
-						<?php 
+						<?php
 					}
 					echo '</div>';
 				}
 				else{
 					?>
 					<div style="margin:30 10px;">
-						<b>No records were returned. Please modify your search and try again.</b> 
+						<b>No records were returned. Please modify your search and try again.</b>
 					</div>
-					<?php 
+					<?php
 				}
 			}
 			?>
@@ -168,7 +176,7 @@ $collArr = $occManager->getCollectionArr($IS_ADMIN?'all':$collEditorArr);
 						<?php
 						foreach($collArr as $id => $collName){
 							echo '<option value="'.$id.'" '.($id == $collid?'SELECTED':'').'>'.$collName.'</option>';
-						}  
+						}
 						?>
 					</select>
 					<button type="button" onclick="linkToNewOccurrence(this.form)">Create New Occurrence</button>
@@ -179,11 +187,11 @@ $collArr = $occManager->getCollectionArr($IS_ADMIN?'all':$collEditorArr);
 		else{
 			?>
 			<div style="margin:30 10px;">
-				<b>You are not authorized to link to any collections</b> 
+				<b>You are not authorized to link to any collections</b>
 			</div>
-			<?php 
-		} 
-		?> 
+			<?php
+		}
+		?>
 	</div>
 </body>
 </html>

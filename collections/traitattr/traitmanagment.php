@@ -13,13 +13,13 @@ $attrID = array_key_exists('attrid',$_POST)?$_POST['attrid']:'';
 if(!is_numeric($collid)) $collid = 0;
 if(!is_numeric($attrID)) $attrID = '';
 
-$isEditor = 0; 
+$isEditor = 0;
 if($SYMB_UID){
 	if($IS_ADMIN){
 		$isEditor = 1;
 	}
 	elseif($collid){
-		//If a page related to collections, one maight want to... 
+		//If a page related to collections, one maight want to...
 		if(array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"])){
 			$isEditor = 1;
 		}
@@ -42,9 +42,17 @@ if($isEditor){
 <html>
 	<head>
 		<title>Occurrence Attribute Mining Tool</title>
-		<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
+		<?php
+		$activateJQuery = true;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+	    }
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<script src="../../js/jquery.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 		<script type="text/javascript">
@@ -58,11 +66,11 @@ if($isEditor){
 		include($SERVER_ROOT.'/header.php');
 		?>
 		<div class="navpath">
-			<a href="../../index.php">Home</a> &gt;&gt; 
+			<a href="../../index.php">Home</a> &gt;&gt;
 			<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management</a> &gt;&gt;
 			<b>Attribute Mining Tool</b>
 		</div>
-		<?php 
+		<?php
 		if($statusStr){
 			echo '<div style="color:red">';
 			echo $statusStr;

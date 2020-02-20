@@ -97,9 +97,17 @@ else{
 		<head>
 			<title>Addressed Envelope</title>
 			<style type="text/css">
-				<?php
-					include_once($SERVER_ROOT.'/css/main.css');
-				?>
+        <?php
+          $activateJQuery = false;
+          if(file_exists($SERVER_ROOT.'/includes/head.php')){
+            include_once($SERVER_ROOT.'/includes/head.php');
+          }
+          else{
+            echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+            echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+            echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+          }
+        ?>
 				body {font-family:arial,sans-serif;}
 				p.printbreak {page-break-after:always;}
 				.accnum {margin-left:2.5in;font:8pt arial,sans-serif;}

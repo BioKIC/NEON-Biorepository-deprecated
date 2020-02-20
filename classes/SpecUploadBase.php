@@ -147,8 +147,7 @@ class SpecUploadBase extends SpecUpload{
 		//Add additional fields that are used for mapping to other fields just before record is imported into uploadspectemp
 		$this->symbFields[] = 'coordinateuncertaintyradius';
 		$this->symbFields[] = 'coordinateuncertaintyunits';
-		//Add DwC GeologicalContext (paleo) terms
-		$this->symbFields = array_merge($this->symbFields,$this->getPaleoTerms());
+		if($this->paleoSupport) $this->symbFields = array_merge($this->symbFields,$this->getPaleoTerms());
 
 		switch ($this->uploadType) {
 			case $this->FILEUPLOAD:

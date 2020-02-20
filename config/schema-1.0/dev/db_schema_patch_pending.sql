@@ -11,24 +11,8 @@ ALTER TABLE `fmchklstprojlink`
 
 
 ALTER TABLE `uploadspectemp` 
-  ADD COLUMN `geologicalcontextid` VARCHAR(150) NULL AFTER `exsiccatiNotes`,
-  ADD COLUMN `earliestEonOrLowestEonothem` VARCHAR(255) NULL AFTER `geologicalcontextid`,
-  ADD COLUMN `latestEonOrHighestEonothem` VARCHAR(255) NULL AFTER `earliestEonOrLowestEonothem`,
-  ADD COLUMN `earliestEraOrLowestErathem` VARCHAR(255) NULL AFTER `latestEonOrHighestEonothem`,
-  ADD COLUMN `latestEraOrHighestErathem` VARCHAR(255) NULL AFTER `earliestEraOrLowestErathem`,
-  ADD COLUMN `earliestPeriodOrLowestSystem` VARCHAR(255) NULL AFTER `latestEraOrHighestErathem`,
-  ADD COLUMN `latestPeriodOrHighestSystem` VARCHAR(255) NULL AFTER `earliestPeriodOrLowestSystem`,
-  ADD COLUMN `earliestEpochOrLowestSeries` VARCHAR(255) NULL AFTER `latestPeriodOrHighestSystem`,
-  ADD COLUMN `latestEpochOrHighestSeries` VARCHAR(255) NULL AFTER `earliestEpochOrLowestSeries`,
-  ADD COLUMN `earliestAgeOrLowestStage` VARCHAR(255) NULL AFTER `latestEpochOrHighestSeries`,
-  ADD COLUMN `latestAgeOrHighestStage` VARCHAR(255) NULL AFTER `earliestAgeOrLowestStage`,
-  ADD COLUMN `lowestBiostratigraphicZone` VARCHAR(255) NULL AFTER `latestAgeOrHighestStage`,
-  ADD COLUMN `highestBiostratigraphicZone` VARCHAR(255) NULL AFTER `lowestBiostratigraphicZone`,
-  ADD COLUMN `lithostratigraphicTermsProperty` VARCHAR(255) NULL AFTER `highestBiostratigraphicZone`,
-  ADD COLUMN `group` VARCHAR(255) NULL AFTER `lithostratigraphicTermsProperty`,
-  ADD COLUMN `formation` VARCHAR(255) NULL AFTER `group`,
-  ADD COLUMN `member` VARCHAR(255) NULL AFTER `formation`,
-  ADD COLUMN `bed` VARCHAR(255) NULL AFTER `member`;
+  ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;
+
 
 ALTER TABLE `uploadspectemp` 
   CHANGE COLUMN `basisOfRecord` `basisOfRecord` VARCHAR(32) NULL DEFAULT NULL COMMENT 'PreservedSpecimen, LivingSpecimen, HumanObservation' ;
@@ -80,9 +64,6 @@ ALTER TABLE `taxstatus`
   DROP INDEX `Index_hierarchy`;
 
 ALTER TABLE `taxstatus` 
-  DROP INDEX `Index_upper` ;
-
-ALTER TABLE `taxstatus` 
   DROP PRIMARY KEY,
   ADD PRIMARY KEY USING BTREE (`tid`, `taxauthid`);
 
@@ -117,6 +98,7 @@ CREATE TABLE `omoccurpaleo` (
   `stratRemarks` VARCHAR(250) NULL,
   `element` VARCHAR(250) NULL,
   `slideProperties` VARCHAR(1000) NULL,
+  `geologicalContextID` VARCHAR(45) NULL,
   `initialtimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`paleoID`),
   INDEX `FK_paleo_occid_idx` (`occid` ASC),
@@ -124,10 +106,34 @@ CREATE TABLE `omoccurpaleo` (
   CONSTRAINT `FK_paleo_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE
 ) COMMENT = 'Occurrence Paleo tables';
 
+
 #ALTER TABLE `omoccurpaleo` 
-#CHANGE COLUMN `taxonEnvironment` `taxonEnvironment` VARCHAR(65) NULL DEFAULT NULL COMMENT 'Marine or not' AFTER `biostratigraphy`,
-#CHANGE COLUMN `lithology` `lithology` VARCHAR(250) NULL DEFAULT NULL ,
-#ADD COLUMN `bed` VARCHAR(65) NULL AFTER `member`;
+#  ADD COLUMN `geologicalContextID` VARCHAR(45) NULL AFTER `slideProperties`;
+
+#ALTER TABLE `omoccurpaleo` 
+#  CHANGE COLUMN `taxonEnvironment` `taxonEnvironment` VARCHAR(65) NULL DEFAULT NULL COMMENT 'Marine or not' AFTER `biostratigraphy`,
+#  CHANGE COLUMN `lithology` `lithology` VARCHAR(250) NULL DEFAULT NULL ,
+#  ADD COLUMN `bed` VARCHAR(65) NULL AFTER `member`;
+
+#ALTER TABLE `uploadspectemp` 
+#DROP COLUMN `bed`,
+#DROP COLUMN `member`,
+#DROP COLUMN `formation`,
+#DROP COLUMN `lithogroup`,
+#DROP COLUMN `lithostratigraphicTermsProperty`,
+#DROP COLUMN `highestBiostratigraphicZone`,
+#DROP COLUMN `lowestBiostratigraphicZone`,
+#DROP COLUMN `latestAgeOrHighestStage`,
+#DROP COLUMN `earliestAgeOrLowestStage`,
+#DROP COLUMN `latestEpochOrHighestSeries`,
+#DROP COLUMN `earliestEpochOrLowestSeries`,
+#DROP COLUMN `latestPeriodOrHighestSystem`,
+#DROP COLUMN `earliestPeriodOrLowestSystem`,
+#DROP COLUMN `latestEraOrHighestErathem`,
+#DROP COLUMN `earliestEraOrLowestErathem`,
+#DROP COLUMN `latestEonOrHighestEonothem`,
+#DROP COLUMN `earliestEonOrLowestEonothem`;
+
 
 CREATE TABLE `omoccurpaleogts` (
   `gtsid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -234,6 +240,9 @@ ALTER TABLE `omoccurrences`
   DROP INDEX `Index_gui` ,
   ADD UNIQUE INDEX `Index_gui` (`occurrenceID` ASC);  
 
+ALTER TABLE `omoccurrences` 
+ADD INDEX `Index_latlng` (`decimalLatitude` ASC, `decimalLongitude` ASC);
+
 DELETE FROM omoccurrencesfulltext 
 WHERE locality IS NULL AND recordedby IS NULL;
 
@@ -241,14 +250,12 @@ REPLACE INTO omoccurrencesfulltext(occid,locality,recordedby)
   SELECT occid, CONCAT_WS("; ", municipality, locality), recordedby
   FROM omoccurrences
   WHERE municipality IS NOT NULL OR locality IS NOT NULL OR recordedby IS NOT NULL;
-
 OPTIMIZE table omoccurrencesfulltext;
 
 REPLACE INTO omoccurpoints (occid,point)
 SELECT occid, Point(decimalLatitude, decimalLongitude) 
 FROM omoccurrences 
 WHERE decimalLatitude IS NOT NULL AND decimalLongitude IS NOT NULL;
-
 OPTIMIZE table omoccurpoints;
 
 

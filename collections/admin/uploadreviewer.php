@@ -27,29 +27,6 @@ if($SYMB_UID){
 
 $collMap = $uploadManager->getCollInfo();
 
-$headerMapBase = array('catalognumber' => 'Catalog Number','occurrenceid' => 'Occurrence ID',
-	'othercatalognumbers' => 'Other Catalog #','family' => 'Family','identificationqualifier' => 'ID Qualifier',
-	'sciname' => 'Scientific name','scientificnameauthorship'=>'Author','recordedby' => 'Collector','recordnumber' => 'Number',
-	'associatedcollectors' => 'Associated Collectors','eventdate' => 'Event Date','verbatimeventdate' => 'Verbatim Date',
-	'identificationremarks' => 'Identification Remarks','taxonremarks' => 'Taxon Remarks','identifiedby' => 'Identified By',
-	'dateidentified' => 'Date Identified', 'identificationreferences' => 'Identification References',
-	'country' => 'Country','stateprovince' => 'State/Province','county' => 'county','municipality' => 'municipality',
-	'locality' => 'locality','decimallatitude' => 'Latitude', 'decimallongitude' => 'Longitude','geodeticdatum' => 'Datum',
-	'coordinateuncertaintyinmeters' => 'Uncertainty In Meters','verbatimcoordinates' => 'Verbatim Coordinates',
-	'georeferencedby' => 'Georeferenced By','georeferenceprotocol' => 'Georeference Protocol','georeferencesources' => 'Georeference Sources',
-	'georeferenceverificationstatus' => 'Georef Verification Status','georeferenceremarks' => 'Georef Remarks',
-	'minimumelevationinmeters' => 'Min. Elev. (m)','maximumelevationinmeters' => 'Max. Elev. (m)','verbatimelevation' => 'Verbatim Elev.',
-	'minimumdepthinmeters' => 'Min. Depth (m)','maximumdepthinmeters' => 'Max. Depth (m)','verbatimdepth' => 'Verbatim Depth',
-	'habitat' => 'Habitat','substrate' => 'Substrate','occurrenceremarks' => 'Notes','associatedsequences' => 'Associated Sequences','associatedtaxa' => 'Associated Taxa',
-	'verbatimattributes' => 'Description','lifestage' => 'Life Stage', 'sex' => 'Sex', 'individualcount' => 'Individual Count',
-	'samplingprotocol' => 'Sampling Protocol', 'preparations' => 'Preparations', 'reproductivecondition' => 'Reproductive Condition',
-	'typestatus' => 'Type Status','cultivationstatus' => 'Cultivation Status','establishmentmeans' => 'Establishment Means',
-	'disposition' => 'disposition','duplicatequantity' => 'Duplicate Qty','datelastmodified' => 'Date Last Modified',
-	'processingstatus' => 'Processing Status','recordenteredby' => 'Entered By','basisofrecord' => 'Basis Of Record','occid' => 'targetRecord (occid)');
-if($collMap['managementtype'] == 'Snapshot'){
-	$headerMapBase['dbpk'] = 'Source Identifier';
-}
-
 /*
 $recCnt = $uploadManager->getUploadCount();
 $navStr = '<div style="float:right;">';
@@ -117,13 +94,29 @@ if($SYMB_UID){
 						}
 					}
 				}
-				$headerMap = array_intersect_key($headerMapBase, $headerArr);
+				$translationMap = array('catalognumber' => 'catalogNumber','occurrenceid' => 'occurrenceID','othercatalognumbers' => 'otherCatalogNumbers',
+					'identificationqualifier' => 'identificationQualifier','sciname' => 'scientificName','scientificnameauthorship'=>'scientificNameAuthorship',
+					'recordedby' => 'recordedBy (collector)','recordnumber' => 'Number','associatedcollectors' => 'associatedCollectors','eventdate' => 'eventDate',
+					'verbatimeventdate' => 'verbatimEventDate','identificationremarks' => 'identificationRemarks','taxonremarks' => 'taxonRemarks','identifiedby' => 'identifiedBy',
+					'dateidentified' => 'dateIdentified','identificationreferences' => 'identificationReferences','stateprovince' => 'stateProvince',
+					'decimallatitude'=>'decimalLatitude','decimallongitude'=>'decimalLongitude','geodeticdatum'=>'geodeticDatum','coordinateuncertaintyinmeters'=>'coordinateUncertaintyInMeters',
+					'verbatimcoordinates' => 'verbatimCoordinates','georeferencedby'=>'georeferencedBy','georeferenceprotocol' => 'georeferenceProtocol',
+					'georeferencesources' => 'georeferenceSources','georeferenceverificationstatus' => 'georeferenceVerificationStatus','georeferenceremarks' => 'georeferenceRemarks',
+					'minimumelevationinmeters' => 'minimumElevationInMeters','maximumelevationinmeters' => 'maximumElevationInMeters','verbatimelevation' => 'verbatimElevation',
+					'minimumdepthinmeters' => 'minimumDepthInMeters','maximumdepthinmeters' => 'maximumDepthInMeters','verbatimdepth' => 'verbatimDepth',
+					'occurrenceremarks' => 'occurrenceRemarks','associatedsequences' => 'associatedSequences','associatedtaxa' => 'associatedTaxa','verbatimattributes' => 'verbatimAttributes',
+					'lifestage' => 'lifeStage', 'individualcount' => 'individualCount','samplingprotocol' => 'samplingProtocol', 'reproductivecondition' => 'reproductiveCondition',
+					'typestatus' => 'typeStatus','cultivationstatus' => 'cultivationStatus','establishmentmeans' => 'establishmentMeans','duplicatequantity' => 'duplicatequantity',
+					'datelastmodified' => 'dateLastModified','processingstatus' => 'processingStatus','recordenteredby' => 'recordEnteredBy',
+					'basisofrecord' => 'basisOfRecord','occid' => 'occid (Primary Key)','dbpk'=>'dbpk (Source Identifier)');
 				?>
 				<table class="styledtable" style="font-family:Arial;font-size:12px;">
 					<tr>
 						<?php
-						foreach($headerMap as $k => $v){
-							echo '<th>'.$v.'</th>';
+						foreach($headerArr as $k => $v){
+							$outStr = $v;
+							if(isset($translationMap[$v])) $outStr = $translationMap[$v];
+							echo '<th>'.$outStr.'</th>';
 						}
 						?>
 					</tr>
@@ -132,7 +125,7 @@ if($SYMB_UID){
 					foreach($recArr as $id => $occArr){
 						if($occArr['sciname']) $occArr['sciname'] = '<i>'.$occArr['sciname'].'</i> ';
 						echo "<tr ".($cnt%2?'class="alt"':'').">\n";
-						foreach($headerMap as $k => $v){
+						foreach($headerArr as $k => $v){
 							$displayStr = $occArr[$k];
 							if(strlen($displayStr) > 60){
 								$displayStr = substr($displayStr,0,60).'...';

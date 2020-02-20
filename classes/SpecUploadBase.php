@@ -105,24 +105,17 @@ class SpecUploadBase extends SpecUpload{
 		}
 
 		//Get uploadspectemp metadata
-		$skipOccurFields = array('dbpk','initialtimestamp','occid','collid','tidinterpreted','fieldnotes','coordinateprecision',
-			'verbatimcoordinatesystem','institutionid','collectionid','associatedoccurrences','datasetid','associatedreferences',
-			'previousidentifications','storagelocation');
-		if($this->collMetadataArr['managementtype'] == 'Live Data' && $this->collMetadataArr['guidtarget'] != 'occurrenceId'){
-			//Do not import occurrenceID if dataset is a live dataset, unless occurrenceID is explicitly defined as the guidSource.
-			//This avoids the situtation where folks are exporting data from one collection and importing into their collection along with the other collection's occurrenceID GUID, which is very bad
-			$skipOccurFields[] = 'occurrenceid';
-		}
+		$this->setSkipOccurFieldArr();
 		if($this->uploadType == $this->RESTOREBACKUP){
-			unset($skipOccurFields);
-			$skipOccurFields = array();
+			unset($this->skipOccurFieldArr);
+			$this->skipOccurFieldArr = array();
 		}
 		//Other to deal with/skip later: 'ownerinstitutioncode'
 		$sql = "SHOW COLUMNS FROM uploadspectemp";
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			$field = strtolower($row->Field);
-			if(!in_array($field,$skipOccurFields)){
+			if(!in_array($field,$this->skipOccurFieldArr)){
 				if($autoBuildFieldMap){
 					$this->fieldMap[$field]["field"] = $field;
 				}
@@ -155,24 +148,7 @@ class SpecUploadBase extends SpecUpload{
 		$this->symbFields[] = 'coordinateuncertaintyradius';
 		$this->symbFields[] = 'coordinateuncertaintyunits';
 		//Add DwC GeologicalContext (paleo) terms
-		$this->symbFields[] = 'geologicalcontextid';
-		$this->symbFields[] = 'earliestEonOrLowestEonothem';
-		$this->symbFields[] = 'latestEonOrHighestEonothem';
-		$this->symbFields[] = 'earliestEraOrLowestErathem';
-		$this->symbFields[] = 'latestEraOrHighestErathem';
-		$this->symbFields[] = 'earliestPeriodOrLowestSystem';
-		$this->symbFields[] = 'latestPeriodOrHighestSystem';
-		$this->symbFields[] = 'earliestEpochOrLowestSeries';
-		$this->symbFields[] = 'latestEpochOrHighestSeries';
-		$this->symbFields[] = 'earliestAgeOrLowestStage';
-		$this->symbFields[] = 'latestAgeOrHighestStage';
-		$this->symbFields[] = 'lowestBiostratigraphicZone';
-		$this->symbFields[] = 'highestBiostratigraphicZone';
-		$this->symbFields[] = 'lithostratigraphicTermsProperty';
-		$this->symbFields[] = 'group';
-		$this->symbFields[] = 'formation';
-		$this->symbFields[] = 'member';
-		$this->symbFields[] = 'bed';
+		$this->symbFields = array_merge($this->symbFields,$this->getPaleoTerms());
 
 		switch ($this->uploadType) {
 			case $this->FILEUPLOAD:
@@ -270,8 +246,13 @@ class SpecUploadBase extends SpecUpload{
 			'field:localitydescription'=>'locality','placeguess'=>'locality','latitude'=>'verbatimlatitude','longitude'=>'verbatimlongitude','placeadmin1name'=>'stateprovince','placeadmin2name'=>'county',
 			'errorradius'=>'coordinateuncertaintyradius','positionalaccuracy'=>'coordinateuncertaintyinmeters','errorradiusunits'=>'coordinateuncertaintyunits','elevationmeters'=>'minimumelevationinmeters',
 			'field:associatedspecies'=>'associatedtaxa','associatedspecies'=>'associatedtaxa','specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks',
-			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','field:habitat'=>'habitat',
-			'habitatdescription'=>'habitat','imageurl'=>'associatedMedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02');
+			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','field:habitat'=>'habitat','habitatdescription'=>'habitat',
+			'group'=>'paleo-lithogroup','lithostratigraphictermsproperty'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
+		);
+		$paleoArr = $this->getPaleoTerms();
+		foreach($paleoArr as $v){
+			$translationMap[substr($v,6)] = $v;
+		}
 		if($mode == 'ident'){
 			$prefix = 'ID-';
 			$fieldMap = $this->identFieldMap;
@@ -885,7 +866,7 @@ class SpecUploadBase extends SpecUpload{
 			};
 
 			//Link all newly intersted records back to uploadspectemp in prep for loading determiantion history and associatedmedia
-			$this->outputMsg('<li>Linking records in prep for loading determination history and associatedmedia...</li>');
+			$this->outputMsg('<li>Linking records in prep for loading extended data...</li>');
 			//Update occid by matching dbpk
 			$sqlOcc1 = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON (u.dbpk = o.dbpk) AND (u.collid = o.collid) '.
 				'SET u.occid = o.occid '.
@@ -901,64 +882,9 @@ class SpecUploadBase extends SpecUpload{
 				$this->outputMsg('<li>ERROR updating occid (2nd step) after occurrence insert: '.$this->conn->error.'</li>');
 			}
 
-			//Exsiccati transfer
-			$rsTest = $this->conn->query('SHOW COLUMNS FROM uploadspectemp WHERE field = "exsiccatiIdentifier"');
-			if($rsTest->num_rows){
-				//Add any new exsiccati numbers
-				$sqlExs2 = 'INSERT INTO omexsiccatinumbers(ometid, exsnumber) '.
-					'SELECT DISTINCT u.exsiccatiIdentifier, u.exsiccatinumber '.
-					'FROM uploadspectemp u LEFT JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
-					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NOT NULL) '.
-					'AND (u.exsiccatiIdentifier IS NOT NULL) AND (u.exsiccatinumber IS NOT NULL) AND (e.exsnumber IS NULL)';
-				if(!$this->conn->query($sqlExs2)){
-					$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>');
-				}
-				//Load exsiccati
-				$sqlExs3 = 'INSERT IGNORE INTO omexsiccatiocclink(omenid,occid) '.
-					'SELECT e.omenid, u.occid '.
-					'FROM uploadspectemp u INNER JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
-					'WHERE (u.collid IN('.$this->collId.')) AND (e.omenid IS NOT NULL) AND (u.occid IS NOT NULL)';
-				if($this->conn->query($sqlExs3)){
-					$this->outputMsg('<li>Specimens linked to exsiccati index </li>');
-				}
-				else{
-					$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>');
-				}
-			}
-			$rsTest->free();
-
-			$this->outputMsg('<li>Linking genetic records (aka associatedSequences)...</li>');
-			$sql = 'SELECT occid, associatedSequences FROM uploadspectemp WHERE occid IS NOT NULL AND associatedSequences IS NOT NULL ';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$seqArr = explode(';', str_replace(array(',','|',''),';',$r->associatedSequences));
-				foreach($seqArr as $str){
-					//$urlPattern = '/((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z0-9\&\.\/\?\:@\-_=#])*/';
-					if(preg_match('$((http|https)\://[^\s;,]+)$', $str, $match)){
-						$url = $match[1];
-						$noteStr = trim(str_replace($url, '', $str),',;| ');
-						$resNameStr = 'undefined';
-						$idenStr = '';
-						if(preg_match('$ncbi\.nlm\.nih\.gov.+/([A-Z]+\d+)$', $str, $matchNCBI)){
-							//https://www.ncbi.nlm.nih.gov/nuccore/AY138416
-							$resNameStr = 'GenBank';
-							$idenStr = $matchNCBI[1];
-						}
-						elseif(preg_match('/boldsystems\.org.*processid=([A-Z\d-]+)/', $str, $matchBOLD)){
-							//http://www.boldsystems.org/index.php/Public_RecordView?processid=BSAMQ088-09
-							$resNameStr = 'BOLD Systems';
-							$idenStr = $matchBOLD[1];
-						}
-						$seqSQL = 'INSERT INTO omoccurgenetic(occid, resourcename, identifier, resourceurl, notes) '.
-							'VALUES('.$r->occid.',"'.$this->cleanInStr($resNameStr).'",'.($idenStr?'"'.$this->cleanInStr($idenStr).'"':'NULL').
-							',"'.$url.'",'.($noteStr?'"'.$this->cleanInStr($noteStr).'"':'NULL').')';
-						if(!$this->conn->query($seqSQL) && $this->conn->errno != '1062'){
-							$this->outputMsg('<li>ERROR adding genetic resource: '.$this->conn->error.'</li>',1);
-						}
-					}
-				}
-			}
-			$rs->free();
+			$this->transferExsiccati();
+			$this->transferGeneticLinks();
+			$this->transferPaleoData();
 
 			//Setup and add datasets and link datasets to current user
 
@@ -998,10 +924,133 @@ class SpecUploadBase extends SpecUpload{
 			//Load into revisions table
 			foreach($editArr as $appliedStatus => $eArr){
 				$sql = 'INSERT INTO omoccurrevisions(occid, oldValues, newValues, externalSource, reviewStatus, appliedStatus) '.
-					'VALUES('.$r['occid'].',"'.$this->cleanInStr(json_encode($eArr['old'])).'","'.$this->cleanInStr(json_encode($eArr['new'])).'","Notes from Nature Expedition",1,'.$appliedStatus.')';
+						'VALUES('.$r['occid'].',"'.$this->cleanInStr(json_encode($eArr['old'])).'","'.$this->cleanInStr(json_encode($eArr['new'])).'","Notes from Nature Expedition",1,'.$appliedStatus.')';
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:10px;">ERROR adding edit revision ('.$this->conn->error.')</li>');
 				}
+			}
+		}
+		$rs->free();
+	}
+
+	private function transferExsiccati(){
+		$rs = $this->conn->query('SHOW COLUMNS FROM uploadspectemp WHERE field = "exsiccatiIdentifier"');
+		if($rs->num_rows){
+			$this->outputMsg('<li>Loading Exsiccati numbers...</li>');
+			//Add any new exsiccati numbers
+			$sqlNum = 'INSERT INTO omexsiccatinumbers(ometid, exsnumber) '.
+				'SELECT DISTINCT u.exsiccatiIdentifier, u.exsiccatinumber '.
+				'FROM uploadspectemp u LEFT JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
+				'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NOT NULL) '.
+				'AND (u.exsiccatiIdentifier IS NOT NULL) AND (u.exsiccatinumber IS NOT NULL) AND (e.exsnumber IS NULL)';
+			if(!$this->conn->query($sqlNum)){
+				$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>');
+			}
+			//Load exsiccati
+			$sqlLink = 'INSERT IGNORE INTO omexsiccatiocclink(omenid,occid) '.
+				'SELECT e.omenid, u.occid '.
+				'FROM uploadspectemp u INNER JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
+				'WHERE (u.collid IN('.$this->collId.')) AND (e.omenid IS NOT NULL) AND (u.occid IS NOT NULL)';
+			if(!$this->conn->query($sqlLink)){
+				$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>',1);
+			}
+		}
+		$rs->free();
+	}
+
+	private function transferGeneticLinks(){
+		$this->outputMsg('<li>Linking genetic records (aka associatedSequences)...</li>');
+		$sql = 'SELECT occid, associatedSequences FROM uploadspectemp WHERE occid IS NOT NULL AND associatedSequences IS NOT NULL ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$seqArr = explode(';', str_replace(array(',','|',''),';',$r->associatedSequences));
+			foreach($seqArr as $str){
+				//$urlPattern = '/((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z0-9\&\.\/\?\:@\-_=#])*/';
+				if(preg_match('$((http|https)\://[^\s;,]+)$', $str, $match)){
+					$url = $match[1];
+					$noteStr = trim(str_replace($url, '', $str),',;| ');
+					$resNameStr = 'undefined';
+					$idenStr = '';
+					if(preg_match('$ncbi\.nlm\.nih\.gov.+/([A-Z]+\d+)$', $str, $matchNCBI)){
+						//https://www.ncbi.nlm.nih.gov/nuccore/AY138416
+						$resNameStr = 'GenBank';
+						$idenStr = $matchNCBI[1];
+					}
+					elseif(preg_match('/boldsystems\.org.*processid=([A-Z\d-]+)/', $str, $matchBOLD)){
+						//http://www.boldsystems.org/index.php/Public_RecordView?processid=BSAMQ088-09
+						$resNameStr = 'BOLD Systems';
+						$idenStr = $matchBOLD[1];
+					}
+					$seqSQL = 'INSERT INTO omoccurgenetic(occid, resourcename, identifier, resourceurl, notes) '.
+						'VALUES('.$r->occid.',"'.$this->cleanInStr($resNameStr).'",'.($idenStr?'"'.$this->cleanInStr($idenStr).'"':'NULL').
+						',"'.$url.'",'.($noteStr?'"'.$this->cleanInStr($noteStr).'"':'NULL').')';
+					if(!$this->conn->query($seqSQL) && $this->conn->errno != '1062'){
+						$this->outputMsg('<li>ERROR adding genetic resource: '.$this->conn->error.'</li>',1);
+					}
+				}
+			}
+		}
+		$rs->free();
+	}
+
+	private function transferPaleoData(){
+		$this->outputMsg('<li>Linking Paleo data...</li>');
+		$sql = 'SELECT occid, paleoJSON FROM uploadspectemp WHERE (occid IS NOT NULL) AND (paleoJSON IS NOT NULL) ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$paleoArr = json_decode($r->paleoJSON,true);
+			//Deal with DwC terms
+			$eonTerm = '';
+			if(isset($paleoArr['earliesteonorlowesteonothem']) && $paleoArr['earliesteonorlowesteonothem']) $eonTerm = $paleoArr['earliesteonorlowesteonothem'];
+			if(isset($paleoArr['latesteonorhighesteonothem']) && $paleoArr['latesteonorhighesteonothem'] != $eonTerm) $eonTerm .= ' - '.$paleoArr['latesteonorhighesteonothem'];
+			if($eonTerm && !isset($paleoArr['eon'])) $paleoArr['eon'] = $eonTerm;
+			unset($paleoArr['earliesteonorlowesteonothem']);
+			unset($paleoArr['latesteonorhighesteonothem']);
+
+			$eraTerm = '';
+			if(isset($paleoArr['earliesteraorlowesterathem']) && $paleoArr['earliesteraorlowesterathem']) $eraTerm = $paleoArr['earliesteraorlowesterathem'];
+			if(isset($paleoArr['latesteraorhighesterathem']) && $paleoArr['latesteraorhighesterathem'] != $eraTerm) $eraTerm .= ' - '.$paleoArr['latesteraorhighesterathem'];
+			if($eraTerm && !isset($paleoArr['era'])) $paleoArr['era'] = $eraTerm;
+			unset($paleoArr['earliesteraorlowesterathem']);
+			unset($paleoArr['latesteraorhighesterathem']);
+
+			$periodTerm = '';
+			if(isset($paleoArr['earliestperiodorlowestsystem']) && $paleoArr['earliestperiodorlowestsystem']) $periodTerm = $paleoArr['earliestperiodorlowestsystem'];
+			if(isset($paleoArr['latestperiodorhighestsystem']) && $paleoArr['latestperiodorhighestsystem'] != $periodTerm) $periodTerm .= ' - '.$paleoArr['latestperiodorhighestsystem'];
+			if($periodTerm && !isset($paleoArr['period'])) $paleoArr['period'] = $periodTerm;
+			unset($paleoArr['earliestperiodorlowestsystem']);
+			unset($paleoArr['latestperiodorhighestsystem']);
+
+			$epochTerm = '';
+			if(isset($paleoArr['earliestepochorlowestseries']) && $paleoArr['earliestepochorlowestseries']) $epochTerm = $paleoArr['earliestepochorlowestseries'];
+			if(isset($paleoArr['latestepochorhighestseries']) && $paleoArr['latestepochorhighestseries'] != $epochTerm) $epochTerm .= ' - '.$paleoArr['latestepochorhighestseries'];
+			if($epochTerm && !isset($paleoArr['epoch'])) $paleoArr['epoch'] = $epochTerm;
+			unset($paleoArr['earliestepochorlowestseries']);
+			unset($paleoArr['latestepochorhighestseries']);
+
+			$stageTerm = '';
+			if(isset($paleoArr['earliestageorloweststage']) && $paleoArr['earliestageorloweststage']) $stageTerm = $paleoArr['earliestageorloweststage'];
+			if(isset($paleoArr['latestageorhigheststage']) && $paleoArr['latestageorhigheststage'] != $stageTerm) $stageTerm .= ' - '.$paleoArr['latestageorhigheststage'];
+			if($stageTerm && !isset($paleoArr['stage'])) $paleoArr['stage'] = $stageTerm;
+			unset($paleoArr['earliestageorloweststage']);
+			unset($paleoArr['latestageorhigheststage']);
+
+			$biostratigraphyTerm = '';
+			if(isset($paleoArr['lowestbiostratigraphiczone']) && $paleoArr['lowestbiostratigraphiczone']) $biostratigraphyTerm = $paleoArr['lowestbiostratigraphiczone'];
+			if(isset($paleoArr['highestbiostratigraphiczone']) && $paleoArr['highestbiostratigraphiczone'] != $biostratigraphyTerm) $biostratigraphyTerm .= ' - '.$paleoArr['highestbiostratigraphiczone'];
+			if($biostratigraphyTerm && !isset($paleoArr['biostratigraphy'])) $paleoArr['biostratigraphy'] = $biostratigraphyTerm;
+			unset($paleoArr['lowestbiostratigraphiczone']);
+			unset($paleoArr['highestbiostratigraphiczone']);
+
+			$insertSQL = '';
+			$valueSQL = '';
+			foreach($paleoArr as $k => $v){
+				$insertSQL .= ','.$k;
+				$valueSQL .= ',"'.$this->cleanInStr($v).'"';
+			}
+			$sql = 'REPLACE INTO omoccurpaleo(occid'.$insertSQL.') VALUES('.$r->occid.$valueSQL.')';
+			if(!$this->conn->query($sql)){
+				$this->outputMsg('<li>ERROR adding paleo resources: '.$this->conn->error.'</li>',1);
 			}
 		}
 		$rs->free();
@@ -1243,8 +1292,8 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	protected function finalCleanup(){
-		$this->outputMsg('<li>Records Transferred</li>');
-		$this->outputMsg('<li>Cleaning house</li>');
+		$this->outputMsg('<li>Record transfer complete!</li>');
+		$this->outputMsg('<li>Cleaning house...</li>');
 
 		//Update uploaddate
 		$sql = 'UPDATE omcollectionstats SET uploaddate = CURDATE() WHERE collid IN('.$this->collId.')';
@@ -1280,19 +1329,18 @@ class SpecUploadBase extends SpecUpload{
 		if(!$occurMain->generalOccurrenceCleaning($this->collId)){
 			$errorArr = $occurMain->getErrorArr();
 			foreach($errorArr as $errorStr){
-				$this->outputMsg('<li style="margin-left:20px;">'.$errorStr.'</li>');
+				$this->outputMsg('<li style="margin-left:20px;">'.$errorStr.'</li>',1);
 			}
 		}
 
 		$this->outputMsg('<li style="margin-left:10px;">Protecting sensitive species...</li>');
 		$protectCnt = $occurMain->protectRareSpecies($this->collId);
-		$this->outputMsg('<li style="margin-left:20px;">'.$protectCnt.' records protected</li>');
 
 		$this->outputMsg('<li style="margin-left:10px;">Updating statistics...</li>');
 		if(!$occurMain->updateCollectionStats($this->collId)){
 			$errorArr = $occurMain->getErrorArr();
 			foreach($errorArr as $errorStr){
-				$this->outputMsg('<li style="margin-left:20px;">'.$errorStr.'</li>');
+				$this->outputMsg('<li style="margin-left:20px;">'.$errorStr.'</li>',1);
 			}
 		}
 
@@ -1362,6 +1410,8 @@ class SpecUploadBase extends SpecUpload{
 				$recMap['basisofrecord'] = ($this->collMetadataArr["colltype"]=="Preserved Specimens"?'PreservedSpecimen':'HumanObservation');
 			}
 
+			$this->buildPaleoJSON($recMap);
+
 			$sqlFragments = $this->getSqlFragments($recMap,$this->fieldMap);
 			if($sqlFragments){
 				$sql = 'INSERT INTO uploadspectemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
@@ -1380,6 +1430,19 @@ class SpecUploadBase extends SpecUpload{
 				}
 			}
 		}
+	}
+
+	private function buildPaleoJSON(&$recMap){
+		$paleoTermArr = $this->getPaleoTerms();
+		$paleoArr = array();
+		foreach($paleoTermArr as $fieldName){
+			$k = strtolower($fieldName);
+			if(isset($recMap[$k])){
+				if($recMap[$k] !== '') $paleoArr[substr($k,6)] = $recMap[$k];
+				unset($recMap[$k]);
+			}
+		}
+		if($paleoArr) $recMap['paleoJSON'] = json_encode($paleoArr);
 	}
 
 	protected function loadIdentificationRecord($recMap){
@@ -1749,6 +1812,36 @@ class SpecUploadBase extends SpecUpload{
 
 	public function getSourceArr(){
 		return $this->sourceArr;
+	}
+
+	private function getPaleoTerms(){
+		$paleoTermArr = array_merge($this->getPaleoDwcTerms(),$this->getPaleoSymbTerms());
+		sort($paleoTermArr);
+		return $paleoTermArr;
+	}
+
+	private function getPaleoDwcTerms(){
+		/*
+		$paleoTermArr = array('paleo-earliestEonOrLowestEonothem','paleo-latestEonOrHighestEonothem','paleo-earliestEraOrLowestErathem',
+			'paleo-latestEraOrHighestErathem','paleo-earliestPeriodOrLowestSystem','paleo-latestPeriodOrHighestSystem','paleo-earliestEpochOrLowestSeries',
+			'paleo-latestEpochOrHighestSeries','paleo-earliestAgeOrLowestStage','paleo-latestAgeOrHighestStage','paleo-lowestBiostratigraphicZone','paleo-highestBiostratigraphicZone');
+		*/
+		$paleoTermArr = array('paleo-earliesteonorlowesteonothem','paleo-latesteonorhighesteonothem','paleo-earliesteraorlowesterathem',
+			'paleo-latesteraorhighesterathem','paleo-earliestperiodorlowestsystem','paleo-latestperiodorhighestsystem','paleo-earliestepochorlowestseries',
+			'paleo-latestepochorhighestseries','paleo-earliestageorloweststage','paleo-latestageorhigheststage','paleo-lowestbiostratigraphiczone','paleo-highestbiostratigraphiczone');
+		return $paleoTermArr;
+	}
+
+	private function getPaleoSymbTerms(){
+		/*
+		$paleoTermArr = array('paleo-geologicalcontextid','paleo-lithogroup','paleo-formation','paleo-member','paleo-bed','paleo-eon','paleo-era','paleo-period','paleo-epoch',
+			'paleo-earlyInterval','paleo-lateInterval','paleo-absoluteAge','paleo-storageAge','paleo-stage','paleo-localStage','paleo-biota','biostratigraphy',
+			'paleo-taxonEnvironment','paleo-lithology','paleo-stratRemarks','paleo-lithDescription','paleo-element','paleo-slideProperties');
+		*/
+		$paleoTermArr = array('paleo-geologicalcontextid','paleo-lithogroup','paleo-formation','paleo-member','paleo-bed','paleo-eon','paleo-era','paleo-period','paleo-epoch',
+			'paleo-earlyinterval','paleo-lateinterval','paleo-absoluteage','paleo-storageage','paleo-stage','paleo-localstage','paleo-biota','biostratigraphy',
+			'paleo-taxonenvironment','paleo-lithology','paleo-stratremarks','paleo-lithdescription','paleo-element','paleo-slideproperties');
+		return $paleoTermArr;
 	}
 
 	public function getObserverUidArr(){

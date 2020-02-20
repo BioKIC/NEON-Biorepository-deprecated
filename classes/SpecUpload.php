@@ -6,7 +6,8 @@ class SpecUpload{
 	protected $conn;
 	protected $collId;
 	protected $uspid;
-	protected $collMetadataArr = Array();
+	protected $collMetadataArr = array();
+	protected $skipOccurFieldArr = array();
 
 	protected $title = "";
 	protected $platform;
@@ -214,20 +215,19 @@ class SpecUpload{
 	}
 
 	private function getPendingImportSql($searchVariables){
-		$occFieldArr = array('catalognumber', 'othercatalognumbers', 'occurrenceid','family', 'scientificname', 'sciname',
-			'scientificnameauthorship', 'identifiedby', 'dateidentified', 'identificationreferences',
-			'identificationremarks', 'taxonremarks', 'identificationqualifier', 'typestatus', 'recordedby', 'recordnumber',
-			'associatedcollectors', 'eventdate', 'year', 'month', 'day', 'startdayofyear', 'enddayofyear',
-			'verbatimeventdate', 'habitat', 'substrate', 'fieldnumber','occurrenceremarks', 'associatedsequences', 'associatedtaxa',
-			'verbatimattributes','dynamicproperties', 'reproductivecondition', 'cultivationstatus', 'establishmentmeans',
-			'lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations',
-			'country', 'stateprovince', 'county', 'municipality', 'locality', 'localitysecurity', 'localitysecurityreason',
-			'decimallatitude', 'decimallongitude','geodeticdatum', 'coordinateuncertaintyinmeters', 'footprintwkt',
-			'locationremarks', 'verbatimcoordinates', 'georeferencedby', 'georeferenceprotocol', 'georeferencesources',
-			'georeferenceverificationstatus', 'georeferenceremarks', 'minimumelevationinmeters', 'maximumelevationinmeters',
-			'verbatimelevation', 'minimumdepthinmeters', 'maximumdepthinmeters', 'verbatimdepth',
-			'disposition', 'language', 'duplicatequantity', 'genericcolumn1', 'genericcolumn2',
-			'labelproject','basisofrecord','ownerinstitutioncode', 'processingstatus', 'recordenteredby');
+		$occFieldArr = array();
+		$this->setSkipOccurFieldArr();
+		$schemaSQL = 'SHOW COLUMNS FROM uploadspectemp';
+		if($searchVariables == 'exist') $schemaSQL = 'SHOW COLUMNS FROM omoccurrences';
+		$schemaRS = $this->conn->query($schemaSQL);
+		while($schemaRow = $schemaRS->fetch_object()){
+			$fieldName = strtolower($schemaRow->Field);
+			if(!in_array($fieldName,$this->skipOccurFieldArr)){
+				$occFieldArr[] = $fieldName;
+			}
+		}
+		$schemaRS->free();
+
 		$sql = 'SELECT occid, dbpk, '.implode(',',$occFieldArr).' FROM uploadspectemp WHERE collid IN('.$this->collId.') ';
 		if($searchVariables){
 			if($searchVariables == 'matchappend'){
@@ -279,6 +279,17 @@ class SpecUpload{
 			}
 		}
 		return $sql;
+	}
+
+	protected function setSkipOccurFieldArr(){
+		$this->skipOccurFieldArr = array('dbpk','initialtimestamp','occid','collid','tidinterpreted','fieldnotes','coordinateprecision',
+			'verbatimcoordinatesystem','institutionid','collectionid','associatedoccurrences','datasetid','associatedreferences',
+			'previousidentifications','storagelocation','genericcolumn1','genericcolumn2');
+		if($this->collMetadataArr['managementtype'] == 'Live Data' && $this->collMetadataArr['guidtarget'] != 'occurrenceId'){
+			//Do not import occurrenceID if dataset is a live dataset, unless occurrenceID is explicitly defined as the guidSource.
+			//This avoids the situtation where folks are exporting data from one collection and importing into their collection along with the other collection's occurrenceID GUID, which is very bad
+			$this->skipOccurFieldArr[] = 'occurrenceid';
+		}
 	}
 
 	public function getUploadCount(){

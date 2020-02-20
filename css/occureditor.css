@@ -834,6 +834,8 @@ body{
 #elementDiv{ float:left; margin:3px; }
 #slidePropertiesDiv{ float:left; margin:3px; }
 #slidePropertiesDiv input{ width:400px; }
+#geologicalContextIdDiv{ float:left; margin:3px; }
+#geologicalContextIdDiv input{ width:120px; }
 
 /* Button Controls */
 #bottomSubmitDiv{

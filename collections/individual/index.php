@@ -803,6 +803,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>remarks:</b> '.$occArr['stratremarks'].'</div>';
 									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>element:</b> '.$occArr['element'].'</div>';
 									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>slide properties:</b> '.$occArr['slideproperties'].'</div>';
+									if($occArr['geologicalcontextid']) echo '<div style="float:left;margin-right:25px"><b>context ID:</b> '.$occArr['geologicalcontextid'].'</div>';
 									?>
 								</div>
 							</div>
@@ -903,7 +904,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							?>
 						</div>
-						<div style="margin:3px 0px;"><b>Record Id:</b> <?php echo $occArr['guid']; ?></div>
+						<div style="margin:3px 0px;"><b>Record ID:</b> <?php echo $occArr['guid']; ?></div>
 
 						<div style="margin-top:10px;clear:both;">
 							For additional information on this specimen, please contact:

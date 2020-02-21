@@ -204,14 +204,14 @@ $specList = $loanManager->getSpecList($loanId);
 				<img src="../../images/add.png" title="Add New Specimen" />
 			</a>
 		</div>
-		<div id="newspecdiv" style="display:<?php echo ($eMode?'block':'none'); ?>;">
+		<div id="newspecdiv" style="display:none;">
 			<fieldset>
 				<legend>Add Specimen</legend>
 				<form name="addspecform" style="margin-bottom:0px;padding-bottom:0px;" action="index.php?collid=<?php echo $collid; ?>&loanid=<?php echo $loanId; ?>&loantype=<?php echo $loanType; ?>#addspecdiv" method="post" onsubmit="addSpecimen(this,<?php echo (!$specList?'0':'1'); ?>);return false;">
 					<div style="float:left;padding-bottom:2px;">
 						<b>Catalog Number: </b><input type="text" autocomplete="off" name="catalognumber" maxlength="255" style="width:200px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
 					</div>
-					<div id="addspecsuccess" style="float:left;margin-left:30px;padding-bottom:2px;color:green;display:<?php echo ($eMode?'block':'none'); ?>;">
+					<div id="addspecsuccess" style="float:left;margin-left:30px;padding-bottom:2px;color:green;display:none;">
 						SUCCESS: Specimen record added to loan.
 					</div>
 					<div id="addspecerr1" style="float:left;margin-left:30px;padding-bottom:2px;color:red;display:none;">

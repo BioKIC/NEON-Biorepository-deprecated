@@ -46,6 +46,7 @@ $qryCnt = false;
 $statusStr = '';
 $navStr = '';
 
+$isEditor = 0;
 if($SYMB_UID){
 	//Set variables
 	$occManager->setSymbUid($SYMB_UID);
@@ -96,7 +97,6 @@ if($SYMB_UID){
 		}
 	}
 
-	$isEditor = 0;
 	//0 = not editor, 1 = admin, 2 = editor, 3 = taxon editor, 4 = crowdsource editor or collection allows public edits
 	//If not editor, edits will be submitted to omoccuredits table but not applied to omoccurrences
 	if($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"]))){

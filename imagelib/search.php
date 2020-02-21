@@ -2,15 +2,19 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/imagelib/search.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/ImageLibraryManager.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+header('Content-Type: text/html; charset='.$CHARSET);
 
-$cntPerPage = array_key_exists("cntperpage",$_REQUEST)?$_REQUEST["cntperpage"]:100;
+$cntPerPage = array_key_exists("cntperpage",$_REQUEST)?$_REQUEST["cntperpage"]:200;
 $pageNumber = array_key_exists("page",$_REQUEST)?$_REQUEST["page"]:1;
 $catId = array_key_exists("catid",$_REQUEST)?$_REQUEST["catid"]:0;
 if(!$catId && isset($DEFAULTCATID) && $DEFAULTCATID) $catId = $DEFAULTCATID;
 $action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:'';
 
+//Sanitation
+if(!is_numeric($cntPerPage)) $cntPerPage = 100;
+if(!is_numeric($pageNumber)) $pageNumber = 100;
 if(!preg_match('/^[,\d]+$/', $catId)) $catId = 0;
+if(preg_match('/[^\D]+/', $action)) $action = '';
 
 $imgLibManager = new ImageLibraryManager();
 ?>

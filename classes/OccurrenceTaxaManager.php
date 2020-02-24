@@ -254,33 +254,39 @@ class OccurrenceTaxaManager {
 						}
 					}
 					else{
-						$term = $searchTaxon;
-						if(stripos($term,'x') || !mb_check_encoding($term, 'ASCII')) $term = preg_replace('/\s{1}\D{1,2}\s{1}/', ' _ ', $term);
+						$term = $this->cleanInStr(trim($searchTaxon,'%'));
+						//$term = preg_replace('/\s{1}.{1,2}\s{1}/', ' _ ', $term);
+						$term = preg_replace(array('/\s{1}x\s{1}/','/\s{1}X\s{1}/','/\s{1}\x{00D7}\s{1}/u'), ' _ ', $term);
 						if(array_key_exists("tid",$searchArr)){
 							$rankid = current($searchArr['tid']);
 							$tidArr = array_keys($searchArr['tid']);
 							//$sqlWhereTaxa .= "OR (o.tidinterpreted IN(".implode(',',$tidArr).")) ";
 							$tidInArr = array_merge($tidInArr,$tidArr);
 							//Return matches that are not linked to thesaurus
-							if($rankid > 219 && in_array($term, $this->taxaSearchTerms)){
-								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$this->cleanInStr($term)."%') ";
+							if($rankid > 219){
+								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term."%') ";
 							}
 							elseif($rankid == 180){
-								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$this->cleanInStr($term)." %') ";
+								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term." %') ";
 							}
 						}
 						else{
-							$term = $this->cleanInStr(trim($term,'%'));
 							//Protect against someone trying to download big pieces of the occurrence table through the user interface
 							if(strlen($term) < 4) $term .= ' ';
-							//Return matches for "Pinus a"
+							/*
 							if(strpos($term, ' ') || strpos($term, '%')){
+								//Return matches for "Pinus a"
 								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term."%') ";
 							}
 							else{
 								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term." %') ";
 							}
-							//$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term."%') ";
+							*/
+							$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term."%') ";
+							if(!strpos($term,' _ ')){
+								$term2 = preg_replace('/^([^\s]+\s{1})/', '$1 _ ', $term);
+								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term2."%') ";
+							}
 						}
 					}
 					if(array_key_exists("synonyms",$searchArr)){
@@ -301,6 +307,7 @@ class OccurrenceTaxaManager {
 			}
 			if($tidInArr) $sqlWhereTaxa .= 'OR (o.tidinterpreted IN('.implode(',',$tidInArr).')) ';
 		}
+		echo $sqlWhereTaxa;
 		if($sqlWhereTaxa) return "AND (".substr($sqlWhereTaxa,3).") ";
 		else return false;
 	}

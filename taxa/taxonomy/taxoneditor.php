@@ -158,11 +158,18 @@ if($editable){
 						<div style="clear:both;">
 							<div style="float:left;width:110px;font-weight:bold;">UnitName1: </div>
 							<div class="editfield">
-								<?php echo $taxonEditorObj->getUnitInd1()." ".$taxonEditorObj->getUnitName1();?>
+								<?php
+								$unitInd1 = $taxonEditorObj->getUnitInd1();
+								echo $unitInd1." ".$taxonEditorObj->getUnitName1();
+								?>
 							</div>
 							<div class="editfield" style="display:none;">
 								<div style="float:left;">
-									<input type="text" id="unitind1" name="unitind1" style="width:20px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitInd1(); ?>" />
+									<select name="unitind1">
+										<option value=""></option>
+										<option value="&#215;" <?php echo (ord($unitInd1)==195 || strtolower($unitInd1) = 'x'?'selected':''); ?>>&#215;</option>
+										<option value="&#8224;" <?php echo (ord($unitInd1)==226?'selected':''); ?>>&#8224;</option>
+									</select>
 								</div>
 								<div>
 									<input type="text" id="unitname1" name="unitname1" style="width:300px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitName1(); ?>" />
@@ -172,11 +179,17 @@ if($editable){
 						<div style="clear:both;">
 							<div style="float:left;width:110px;font-weight:bold;">UnitName2: </div>
 							<div class="editfield">
-								<?php echo $taxonEditorObj->getUnitInd2()." ".$taxonEditorObj->getUnitName2();?>
+								<?php
+								$unitInd2 = $taxonEditorObj->getUnitInd2();
+								echo $unitInd2." ".$taxonEditorObj->getUnitName2();
+								?>
 							</div>
 							<div class="editfield" style="display:none;">
 								<div style="float:left;">
-									<input type="text" id="unitind2" name="unitind2" style="width:20px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitInd2(); ?>" />
+									<select name="unitind2">
+										<option value=""></option>
+										<option value="&#215;" <?php echo (ord($unitInd2)==195 || strtolower($unitInd2) = 'x'?'selected':''); ?>>&#215;</option>
+									</select>
 								</div>
 								<div>
 									<input type="text" id="unitname2" name="unitname2" style="width:300px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitName2(); ?>" />

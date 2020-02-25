@@ -14,7 +14,7 @@ class OccurrenceCollectionProfile extends Manager {
 	private $idigbioKey;
 
 	public function __construct($connType = 'readonly'){
-		parent::__construct();
+		parent::__construct(null,$connType);
 	}
 
 	public function __destruct(){

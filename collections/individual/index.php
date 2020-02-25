@@ -803,6 +803,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>remarks:</b> '.$occArr['stratremarks'].'</div>';
 									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>element:</b> '.$occArr['element'].'</div>';
 									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>slide properties:</b> '.$occArr['slideproperties'].'</div>';
+									if($occArr['geologicalcontextid']) echo '<div style="float:left;margin-right:25px"><b>context ID:</b> '.$occArr['geologicalcontextid'].'</div>';
 									?>
 								</div>
 							</div>
@@ -903,7 +904,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							?>
 						</div>
-						<div style="margin:3px 0px;"><b>Record Id:</b> <?php echo $occArr['guid']; ?></div>
+						<div style="margin:3px 0px;"><b>Record ID:</b> <?php echo $occArr['guid']; ?></div>
 
 						<div style="margin-top:10px;clear:both;">
 							For additional information on this specimen, please contact:
@@ -1118,14 +1119,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<div id="edittab">
 						<div style="padding:15px;">
 							<?php
-							//Display basic stats
-							if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']) && in_array($collid,$USER_RIGHTS['CollEditor'])){
+							/*
+							 if($USER_RIGHTS && array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
 								?>
 								<div style="float:right;" title="Manage Edits">
 									<a href="../editor/editreviewer.php?collid=<?php echo $collid.'&occid='.$occid; ?>"><img src="../../images/edit.png" style="border:0px;width:14px;" /></a>
 								</div>
 								<?php
 							}
+							*/
 							echo '<div style="margin:20px 0px 30px 0px;">';
 							echo '<b>Entered By:</b> '.($occArr['recordenteredby']?$occArr['recordenteredby']:'not recorded').'<br/>';
 							echo '<b>Date entered:</b> '.($occArr['dateentered']?$occArr['dateentered']:'not recorded').'<br/>';

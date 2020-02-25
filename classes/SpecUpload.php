@@ -24,6 +24,7 @@ class SpecUpload{
 	protected $lastUploadDate;
 	protected $uploadType;
 	private $securityKey;
+	protected $paleoSupport = false;
 
 	protected $verboseMode = 1;	// 0 = silent, 1 = echo, 2 = log
 	private $logFH;
@@ -101,23 +102,30 @@ class SpecUpload{
 
 	private function setCollInfo(){
 		if($this->collId){
-			$sql = 'SELECT DISTINCT c.collid, c.collectionname, c.institutioncode, c.collectioncode, c.collectionguid, c.icon, c.colltype, c.managementtype, cs.uploaddate, c.securitykey, c.guidtarget '.
+			$sql = 'SELECT DISTINCT c.collid, c.collectionname, c.institutioncode, c.collectioncode, c.collectionguid, c.icon, c.colltype, c.managementtype, '.
+				'cs.uploaddate, c.securitykey, c.guidtarget, c.dynamicproperties '.
 				'FROM omcollections c LEFT JOIN omcollectionstats cs ON c.collid = cs.collid '.
 				'WHERE (c.collid = '.$this->collId.')';
 			//echo $sql;
 			$result = $this->conn->query($sql);
-			while($row = $result->fetch_object()){
-				$this->collMetadataArr["collid"] = $row->collid;
-				$this->collMetadataArr["name"] = $row->collectionname;
-				$this->collMetadataArr["institutioncode"] = $row->institutioncode;
-				$this->collMetadataArr["collectioncode"] = $row->collectioncode;
-				$this->collMetadataArr["collguid"] = $row->collectionguid;
-				$dateStr = ($row->uploaddate?date("d F Y g:i:s", strtotime($row->uploaddate)):"");
+			while($r = $result->fetch_object()){
+				$this->collMetadataArr["collid"] = $r->collid;
+				$this->collMetadataArr["name"] = $r->collectionname;
+				$this->collMetadataArr["institutioncode"] = $r->institutioncode;
+				$this->collMetadataArr["collectioncode"] = $r->collectioncode;
+				$this->collMetadataArr["collguid"] = $r->collectionguid;
+				$dateStr = ($r->uploaddate?date("d F Y g:i:s", strtotime($r->uploaddate)):"");
 				$this->collMetadataArr["uploaddate"] = $dateStr;
-				$this->collMetadataArr["colltype"] = $row->colltype;
-				$this->collMetadataArr["managementtype"] = $row->managementtype;
-				$this->collMetadataArr["securitykey"] = $row->securitykey;
-				$this->collMetadataArr["guidtarget"] = $row->guidtarget;
+				$this->collMetadataArr["colltype"] = $r->colltype;
+				$this->collMetadataArr["managementtype"] = $r->managementtype;
+				$this->collMetadataArr["securitykey"] = $r->securitykey;
+				$this->collMetadataArr["guidtarget"] = $r->guidtarget;
+				if($r->dynamicproperties){
+					$propArr = json_decode($r->dynamicproperties,true);
+					if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
+						if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->paleoSupport = true;
+					}
+				}
 			}
 			$result->free();
 		}
@@ -136,9 +144,7 @@ class SpecUpload{
 
 	public function validateSecurityKey($k){
 		if(!$this->collId){
-			$sql = 'SELECT collid '.
-			'FROM omcollections '.
-    		'WHERE securitykey = "'.$k.'"';
+			$sql = 'SELECT collid FROM omcollections WHERE securitykey = "'.$k.'"';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 	    	if($r = $rs->fetch_object()){

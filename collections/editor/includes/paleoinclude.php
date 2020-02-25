@@ -267,5 +267,10 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<a href="#" onclick="return dwcDoc('slideProperties')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 			<input type="text" name="slideproperties" value="<?php echo isset($occArr['slideproperties'])?$occArr['slideproperties']:''; ?>" onchange="fieldChanged('slideproperties');" />
 		</div>
+		<div id="geologicalContextIdDiv">
+			<?php echo (defined('GEOLOGICALCONTEXTIDLABEL')?GEOLOGICALCONTEXTIDLABEL:'Context ID'); ?>
+			<a href="#" onclick="return dwcDoc('geologicalContextID')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
+			<input type="text" name="geologicalcontextid" value="<?php echo isset($occArr['geologicalcontextid'])?$occArr['geologicalcontextid']:''; ?>" onchange="fieldChanged('geologicalcontextid');" />
+		</div>
 	</div>
 </fieldset>

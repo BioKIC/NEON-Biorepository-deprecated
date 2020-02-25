@@ -100,69 +100,70 @@ $isEditor = 0;
 if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
 	$isEditor = 1;
 }
-$duManager->readUploadParameters();
+if($isEditor && $collid){
+	$duManager->readUploadParameters();
 
-$isLiveData = false;
-if($duManager->getCollInfo('managementtype') == 'Live Data') $isLiveData = true;
+	$isLiveData = false;
+	if($duManager->getCollInfo('managementtype') == 'Live Data') $isLiveData = true;
 
-//Grab field mapping, if mapping form was submitted
-if(array_key_exists("sf",$_POST)){
-	if($action == "Reset Field Mapping"){
-		$statusStr = $duManager->deleteFieldMap();
-	}
-	else{
-		//Set field map for occurrences using mapping form
-		$targetFields = $_POST["tf"];
-		$sourceFields = $_POST["sf"];
-		$fieldMap = Array();
-		for($x = 0;$x<count($targetFields);$x++){
-			if($targetFields[$x]){
-				$tField = $targetFields[$x];
-				if($tField == 'unmapped') $tField .= '-'.$x;
-				$fieldMap[$tField]["field"] = $sourceFields[$x];
-			}
+	//Grab field mapping, if mapping form was submitted
+	if(array_key_exists("sf",$_POST)){
+		if($action == "Reset Field Mapping"){
+			$statusStr = $duManager->deleteFieldMap();
 		}
-		//Set Source PK
-		if($dbpk) $fieldMap["dbpk"]["field"] = $dbpk;
-		$duManager->setFieldMap($fieldMap);
-
-		//Set field map for identification history
-		if(array_key_exists("ID-sf",$_POST)){
-			$targetIdFields = $_POST["ID-tf"];
-			$sourceIdFields = $_POST["ID-sf"];
-			$fieldIdMap = Array();
-			for($x = 0;$x<count($targetIdFields);$x++){
-				if($targetIdFields[$x]){
-					$tIdField = $targetIdFields[$x];
-					if($tIdField == 'unmapped') $tIdField .= '-'.$x;
-					$fieldIdMap[$tIdField]["field"] = $sourceIdFields[$x];
+		else{
+			//Set field map for occurrences using mapping form
+			$targetFields = $_POST["tf"];
+			$sourceFields = $_POST["sf"];
+			$fieldMap = Array();
+			for($x = 0;$x<count($targetFields);$x++){
+				if($targetFields[$x]){
+					$tField = $targetFields[$x];
+					if($tField == 'unmapped') $tField .= '-'.$x;
+					$fieldMap[$tField]["field"] = $sourceFields[$x];
 				}
 			}
-			$duManager->setIdentFieldMap($fieldIdMap);
-		}
-		//Set field map for image history
-		if(array_key_exists("IM-sf",$_POST)){
-			$targetImFields = $_POST["IM-tf"];
-			$sourceImFields = $_POST["IM-sf"];
-			$fieldImMap = Array();
-			for($x = 0;$x<count($targetImFields);$x++){
-				if($targetImFields[$x]){
-					$tImField = $targetImFields[$x];
-					if($tImField == 'unmapped') $tImField .= '-'.$x;
-					$fieldImMap[$tImField]["field"] = $sourceImFields[$x];
+			//Set Source PK
+			if($dbpk) $fieldMap["dbpk"]["field"] = $dbpk;
+			$duManager->setFieldMap($fieldMap);
+
+			//Set field map for identification history
+			if(array_key_exists("ID-sf",$_POST)){
+				$targetIdFields = $_POST["ID-tf"];
+				$sourceIdFields = $_POST["ID-sf"];
+				$fieldIdMap = Array();
+				for($x = 0;$x<count($targetIdFields);$x++){
+					if($targetIdFields[$x]){
+						$tIdField = $targetIdFields[$x];
+						if($tIdField == 'unmapped') $tIdField .= '-'.$x;
+						$fieldIdMap[$tIdField]["field"] = $sourceIdFields[$x];
+					}
 				}
+				$duManager->setIdentFieldMap($fieldIdMap);
 			}
-			$duManager->setImageFieldMap($fieldImMap);
+			//Set field map for image history
+			if(array_key_exists("IM-sf",$_POST)){
+				$targetImFields = $_POST["IM-tf"];
+				$sourceImFields = $_POST["IM-sf"];
+				$fieldImMap = Array();
+				for($x = 0;$x<count($targetImFields);$x++){
+					if($targetImFields[$x]){
+						$tImField = $targetImFields[$x];
+						if($tImField == 'unmapped') $tImField .= '-'.$x;
+						$fieldImMap[$tImField]["field"] = $sourceImFields[$x];
+					}
+				}
+				$duManager->setImageFieldMap($fieldImMap);
+			}
+		}
+		if($action == "Save Mapping"){
+			$statusStr = $duManager->saveFieldMap($_POST);
+			if(!$uspid) $uspid = $duManager->getUspid();
 		}
 	}
-	if($action == "Save Mapping"){
-		$statusStr = $duManager->saveFieldMap($_POST);
-		if(!$uspid) $uspid = $duManager->getUspid();
-	}
+	$duManager->loadFieldMap();
 }
-$duManager->loadFieldMap();
 ?>
-
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
@@ -182,7 +183,6 @@ $duManager->loadFieldMap();
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
 	<script>
-
 		function verifyFileUploadForm(f){
 			var fileName = "";
 			if(f.uploadfile || f.ulfnoverride){
@@ -1051,7 +1051,7 @@ $duManager->loadFieldMap();
 		}
 	}
 	else{
-		if(!$isEditor){
+		if(!$isEditor || !$collid){
 			echo '<div style="font-weight:bold;font-size:120%;">ERROR: you are not authorized to upload to this collection</div>';
 		}
 		else{

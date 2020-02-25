@@ -164,7 +164,9 @@ class OccurrenceSesar extends Manager {
 			if(!$this->igsnExists($igsn)) $this->setSampleXmlNode($igsn);
 			//$this->logOrEcho('#'.$increment.': IGSN created for <a href="../editor/occurrenceeditor.php?occid='.$this->fieldMap['occid']['value'].'" target="_blank">'.$this->fieldMap['catalogNumber']['value'].'</a>',1);
 			if($this->registrationMethod == 'api'){
-				$this->registerIdentifiersViaApi();
+				if($this->registerIdentifiersViaApi()){
+					$this->logOrEcho('#'.$increment.': IGSN registered: <a href="../editor/occurrenceeditor.php?occid='.$r['occid'].'" target="_blank">'.$igsn.'</a>',1);
+				}
 				$this->igsnDom = null;
 			}
 			$status = true;
@@ -246,8 +248,7 @@ class OccurrenceSesar extends Manager {
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd, 'content' => $contentStr);
 		$responseXML = $this->getSesarApiData($baseUrl, $requestData);
 		if($responseXML){
-			$this->processRegistrationResponse($responseXML);
-			$status = true;
+			$status = $this->processRegistrationResponse($responseXML);
 		}
 		return $status;
 	}
@@ -287,6 +288,7 @@ class OccurrenceSesar extends Manager {
 							$this->errorMessage = 'ERROR registering IGSN: unknown1';
 						}
 						$this->logOrEcho('FAILED processing: '.$this->errorMessage,1);
+						$status = false;
 						break;
 					}
 					elseif($resultNode->nodeName == 'sample'){
@@ -303,6 +305,7 @@ class OccurrenceSesar extends Manager {
 							if(isset($sampleArr['catnum']) && $sampleArr['catnum']) $msgStr .= '; ID = '.$sampleArr['catnum'];
 							if(isset($sampleArr['status']) && $sampleArr['status']) $msgStr .= '; status = '.$sampleArr['status'];
 							if(isset($sampleArr['error']) && $sampleArr['error']) $msgStr .= '; error = '.$sampleArr['error'];
+							$status = false;
 							$this->logOrEcho('FAILED: '.$msgStr,1);
 						}
 						elseif(isset($sampleArr['igsn']) && $sampleArr['igsn']){
@@ -316,8 +319,10 @@ class OccurrenceSesar extends Manager {
 								$this->errorMessage = 'WARNING: unable to extract occid to add igsn ('.$sampleArr['name'].')';
 								//$this->logOrEcho('WARNING: unable to extract occid to add igsn ('.$sampleArr['name'].')',2);
 							}
-							$this->logOrEcho('IGSN registered: <a href="../editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">'.$sampleArr['igsn'].'</a>',1);
-							if(!$dbStatus) $this->logOrEcho($this->errorMessage,2);
+							if(!$dbStatus){
+								$status = false;
+								$this->logOrEcho($this->errorMessage,2);
+							}
 						}
 					}
 				}
@@ -372,12 +377,13 @@ class OccurrenceSesar extends Manager {
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'current_archive', $this->collArr['collectionName']);
 		$this->addSampleElem($this->igsnDom, $sampleElem, 'current_archive_contact', $this->collArr['contact'].($this->collArr['email']?' ('.$this->collArr['email'].')':''));
 
-		$serverDomain = "http://";
-		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverDomain = "https://";
-		$serverDomain .= $_SERVER["SERVER_NAME"];
-		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER["SERVER_PORT"] != 443) $serverDomain .= ':'.$_SERVER["SERVER_PORT"];
-		$url = $serverDomain.$GLOBALS['CLIENT_ROOT'].(substr($GLOBALS['CLIENT_ROOT'],-1)=='/'?'':'/');
-		$url .= 'collections/individual/index.php?occid='.$this->fieldMap['occid']['value'];
+		$baseUrl = 'http://';
+		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $baseUrl = 'https://';
+		$baseUrl .= $_SERVER['SERVER_NAME'];
+		if($_SERVER['SERVER_PORT'] && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) $baseUrl .= ':'.$_SERVER['SERVER_PORT'];
+		$baseUrl .= $GLOBALS['CLIENT_ROOT'].(substr($GLOBALS['CLIENT_ROOT'],-1)=='/'?'':'/');
+		//$baseUrl = 'http://swbiodiversity.org/seinet/';
+		$url = $baseUrl.'collections/individual/index.php?occid='.$this->fieldMap['occid']['value'];
 		$externalUrlsElem = $this->igsnDom->createElement('external_urls');
 		$externalUrlElem = $this->igsnDom->createElement('external_url');
 		$urlElem = $this->igsnDom->createElement('url');
@@ -715,8 +721,10 @@ class OccurrenceSesar extends Manager {
 		$sqlBase = 'FROM omoccurrences o WHERE (o.occurrenceid IS NULL) ';
 		if($this->namespace && $this->namespace == 'NEON'){
 			$rs = $this->conn->query('SELECT 1 FROM NeonSample LIMIT 1');
-			if($rs->num_rows) $sqlBase = 'FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid WHERE (o.occurrenceid IS NULL) AND (s.errorMessage IS NULL) ';
-			$rs->free();
+			if($rs){
+				if($rs->num_rows) $sqlBase = 'FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid WHERE (o.occurrenceid IS NULL) AND (s.errorMessage IS NULL) ';
+				$rs->free();
+			}
 		}
 		if($this->collid) $sqlBase .= 'AND (o.collid = '.$this->collid.') ';
 		return $sqlBase;
@@ -804,6 +812,10 @@ class OccurrenceSesar extends Manager {
 
 	public function setGenerationMethod($method){
 		if($method == 'inhouse') $this->generationMethod = $method;
+	}
+
+	public function getProductionMode(){
+		return $this->productionMode;
 	}
 }
 ?>

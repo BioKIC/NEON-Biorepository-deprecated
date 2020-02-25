@@ -14,7 +14,7 @@ class OccurrenceSesar extends Manager {
 	private $registrationMethod;
 	private $dynPropArr = false;
 	private $fieldMap = array();
-	private $devMode = false;
+	private $productionMode = false;
 
 	public function __construct($type = 'write'){
 		parent::__construct(null, $type);
@@ -36,6 +36,7 @@ class OccurrenceSesar extends Manager {
 		$this->fieldMap['minimumElevationInMeters']['sesar'] = 'elevation';
 		//$this->fieldMap['parentOccurrenceID']['sesar'] = 'parent_igsn';
 		//$this->fieldMap['parentOccurrenceID']['sql'] = ' AS parentOccurrenceID';
+		if(isset($GLOBALS['IGSN_ACTIVATION']) && $GLOBALS['IGSN_ACTIVATION']) $this->productionMode = true;
 	}
 
 	public function __destruct(){
@@ -100,7 +101,7 @@ class OccurrenceSesar extends Manager {
 
 	//Processing functions
 	public function batchProcessIdentifiers($processingCount){
-		$status = true;
+		$status = false;
 		if($this->registrationMethod == 'api') $this->setVerboseMode(3);
 		else  $this->setVerboseMode(1);
 		$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/')."content/logs/igsn/IGSN_".date('Y-m-d').".log";
@@ -143,8 +144,8 @@ class OccurrenceSesar extends Manager {
 		$sql .= ' '.$this->getSqlBase();
 		if($processingCount) $sql .= 'LIMIT '.$processingCount;
 		$rs = $this->conn->query($sql);
-		if($rs->num_rows) $this->initiateDom();
 		while($r = $rs->fetch_assoc()){
+			if(!$this->igsnDom) $this->initiateDom();
 			$igsn = '';
 			if($this->generationMethod == 'inhouse'){
 				$igsn = base_convert($baseTenID,10,36);
@@ -162,20 +163,22 @@ class OccurrenceSesar extends Manager {
 
 			if(!$this->igsnExists($igsn)) $this->setSampleXmlNode($igsn);
 			//$this->logOrEcho('#'.$increment.': IGSN created for <a href="../editor/occurrenceeditor.php?occid='.$this->fieldMap['occid']['value'].'" target="_blank">'.$this->fieldMap['catalogNumber']['value'].'</a>',1);
+			if($this->registrationMethod == 'api'){
+				$this->registerIdentifiersViaApi();
+				$this->igsnDom = null;
+			}
+			$status = true;
 			$increment++;
 		}
 		$rs->free();
-		$this->logOrEcho('XML document created');
 
 		if($this->igsnDom){
 			//Register identifier with SESAR
-			if($this->registrationMethod == 'api'){
-				$this->registerIdentifiersViaApi();
-			}
-			elseif($this->registrationMethod == 'csv'){
+			if($this->registrationMethod == 'csv'){
 
 			}
 			elseif($this->registrationMethod == 'xml'){
+				$this->logOrEcho('XML document created');
 				header('Content-Description: ');
 				header('Content-Type: application/xml');
 				header('Content-Disposition: attachment; filename=SESAR_IGSN_registration_'.date('Y-m-d_His').'.xml');
@@ -188,11 +191,6 @@ class OccurrenceSesar extends Manager {
 				//echo $this->igsnDom->saveXML();
 				$this->igsnDom->save('php://output');
 			}
-		}
-		else{
-			$this->errorMessage = 'No records available to process';
-			$this->logOrEcho($this->errorMessage);
-			$status = false;
 		}
 
 		$this->logOrEcho('Finished ('.date('Y-m-d H:i:s').')');
@@ -241,9 +239,9 @@ class OccurrenceSesar extends Manager {
 
 	private function registerIdentifiersViaApi(){
 		$status = false;
-		$this->logOrEcho('Submitting XML to SESAR Systems');
+		//$this->logOrEcho('Submitting XML to SESAR Systems');
 		$baseUrl = 'https://app.geosamples.org/webservices/upload.php';
-		if($this->devMode) $baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
+		if(!$this->productionMode) $baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
 		$contentStr = $this->igsnDom->saveXML();
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd, 'content' => $contentStr);
 		$responseXML = $this->getSesarApiData($baseUrl, $requestData);
@@ -273,12 +271,11 @@ class OccurrenceSesar extends Manager {
 
 	private function processRegistrationResponse($responseXML){
 		$status = true;
-		$this->logOrEcho('Processing response');
+		//$this->logOrEcho('Processing response');
 		$dom = new DOMDocument('1.0','UTF-8');
 		if($dom->loadXML($responseXML)){
 			$rootElem = $dom->documentElement;
 			$resultNodeList = $rootElem->childNodes;
-			$this->logOrEcho('RESULTS:');
 			foreach($resultNodeList as $resultNode){
 				if(isset($resultNode->nodeName)){
 					if($resultNode->nodeName == 'valid'){
@@ -558,7 +555,7 @@ class OccurrenceSesar extends Manager {
 		if(isset($sesarResultArr['checkedCnt'])) $cnt = $sesarResultArr['checkedCnt'];
 		$ns = substr($this->namespace,0,3);
 		$url = 'https://app.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
-		if($this->devMode) $url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
+		if(!$this->productionMode) $url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
 		$responseArr = $this->getSesarApiGetData($url);
 		if($responseArr['retCode'] == 200){
 			if($retJson = $responseArr['retJson']){
@@ -602,7 +599,7 @@ class OccurrenceSesar extends Manager {
 		//Grab SESAR meta for unmatched IGSNs
 		$this->logOrEcho(count($sesarResultArr['missing']).' records unlink IGSNs found. Getting metadata from SESAR Systems...',1);
 		$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
-		if($this->devMode) $url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
+		if(!$this->productionMode) $url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
 		$cnt = 0;
 		foreach(array_keys($sesarResultArr['missing']) as $lostIGSN){
 			$resArr = $this->getSesarApiGetData($url.$lostIGSN);

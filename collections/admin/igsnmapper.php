@@ -195,6 +195,9 @@ include($SERVER_ROOT."/header.php");
 			</fieldset>
 			<?php
 		}
+		if(!$guidManager->getProductionMode()){
+			echo '<h2 style="color:orange">-- In Development Mode --</h2>';
+		}
 		if($namespace && $generationMethod){
 			if($action == 'populateGUIDs'){
 				if($registrationMethod == 'api'){

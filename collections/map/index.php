@@ -1253,14 +1253,14 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 									<div id="noshapecriteria" style="display:<?php echo ((!$_REQUEST || ((!$_REQUEST['poly_array']) && (!$_REQUEST['upperlat'])))?'block':'none'); ?>;">
 										<div id="geocriteria" style="display:<?php echo ((!$_REQUEST || ((!$_REQUEST['poly_array']) && (!isset($_REQUEST['distFromMe'])) && (!$_REQUEST['pointlat']) && (!$_REQUEST['upperlat'])))?'block':'none'); ?>;">
 											<div>
-												<?php echo (isset($LANG['SHAPE_TOOLS_1'])?$LANG['SHAPE_TOOLS_1']:'Use the shape tools on the map to select occurrences within a given shape'); ?>.
+												<?php echo (isset($LANG['SHAPE_TOOLS'])?$LANG['SHAPE_TOOLS']:'Use the shape tools on the map to select occurrences within a given shape'); ?>.
 											</div>
 										</div>
 										<div id="distancegeocriteria" style="display:<?php echo ((!$_REQUEST || ($_REQUEST && array_key_exists('distFromMe',$_REQUEST) && $_REQUEST['distFromMe']))?'block':'none'); ?>;">
 											<div>
 												<?php echo (isset($LANG['WITHIN'])?$LANG['WITHIN']:'Within'); ?>
 												 <input data-role="none" type="text" id="distFromMe" style="width:40px;" name="distFromMe" value="<?php if(array_key_exists('distFromMe',$_REQUEST)) echo $_REQUEST['distFromMe']; ?>" /> miles from me, or
-												<?php echo (isset($LANG['SHAPE_TOOLS_2'])?$LANG['SHAPE_TOOLS_2']:'use the shape tools on the map to select occurrences within a given shape'); ?>.
+												<?php echo (isset($LANG['SHAPE_TOOLS'])?strtolower($LANG['SHAPE_TOOLS']):'use the shape tools on the map to select occurrences within a given shape'); ?>.
 											</div>
 										</div>
 									</div>

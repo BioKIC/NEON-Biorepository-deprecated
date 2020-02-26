@@ -254,12 +254,7 @@ class ImageShared{
 				$url = $GLOBALS['imageDomain'].$url;
 			}
 			else{
-				//Use local domain
-				$urlPrefix = "http://";
-				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
-				$urlPrefix .= $_SERVER["SERVER_NAME"];
-				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
-				$url = $urlPrefix.$url;
+				$url = $this->getDomainUrl().$url;
 			}
 		}
 
@@ -597,6 +592,14 @@ class ImageShared{
 		return $status;
 	}
 
+	public function getUrlBase(){
+		$urlBase = $this->urlBase;
+		//If central images are on remote server and new ones stored locally, then we need to use full domain
+		//e.g. this portal is sister portal to central portal
+		if($GLOBALS['imageDomain']) $urlBase = $this->getDomainUrl().$urlBase;
+		return $urlBase;
+	}
+
 	public function deleteImage($imgIdDel, $removeImg){
 		$imgUrl = ""; $imgThumbnailUrl = ""; $imgOriginalUrl = ""; $occid = 0;
 		$sqlQuery = "SELECT * FROM images WHERE (imgid = ".$imgIdDel.')';
@@ -635,10 +638,7 @@ class ImageShared{
 			if($removeImg){
 				//Search url with and without local domain name
 				$imgUrl2 = '';
-				$domain = "http://";
-				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $domain = "https://";
-				$domain .= $_SERVER["SERVER_NAME"];
-				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $domain .= ':'.$_SERVER["SERVER_PORT"];
+				$domain = $this->getDomainUrl();
 				if(stripos($imgUrl,$domain) === 0){
 					$imgUrl2 = $imgUrl;
 					$imgUrl = substr($imgUrl,strlen($domain));
@@ -707,10 +707,7 @@ class ImageShared{
 			//If central images are on remote server and new ones stored locally, then we need to use full domain
 			//e.g. this portal is sister portal to central portal
 			if($GLOBALS['imageDomain']){
-				$urlPrefix = "http://";
-				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
-				$urlPrefix .= $_SERVER["SERVER_NAME"];
-				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
+				$urlPrefix = $this->getDomainUrl();
 				if(substr($imgWebUrl,0,1) == '/'){
 					$imgWebUrl = $urlPrefix.$imgWebUrl;
 				}
@@ -757,10 +754,7 @@ class ImageShared{
 			//If central images are on remote server and new ones stored locally, then we need to use full domain
 			//e.g. this portal is sister portal to central portal
 			if($GLOBALS['imageDomain']){
-				$urlPrefix = "http://";
-				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
-				$urlPrefix .= $_SERVER["SERVER_NAME"];
-				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
+				$urlPrefix = $this->getDomainUrl();
 				if(substr($imgWebUrl,0,1) == '/'){
 					$imgWebUrl = $urlPrefix.$imgWebUrl;
 				}
@@ -873,20 +867,6 @@ class ImageShared{
 
 	public function getSourcePath(){
 		return $this->sourcePath;
-	}
-
-	public function getUrlBase(){
-		$urlBase = $this->urlBase;
-		//If central images are on remote server and new ones stored locally, then we need to use full domain
-		//e.g. this portal is sister portal to central portal
-	 	if($GLOBALS['imageDomain']){
-			$urlPrefix = "http://";
-			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
-			$urlPrefix .= $_SERVER["SERVER_NAME"];
-			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
-			$urlBase = $urlPrefix.$urlBase;
-		}
-		return $urlBase;
 	}
 
 	public function getImgName(){
@@ -1090,6 +1070,14 @@ class ImageShared{
 		}
 	}
 
+	private function getDomainUrl(){
+		$domainPath = "http://";
+		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $domainPath = "https://";
+		$domainPath .= $_SERVER["SERVER_NAME"];
+		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $domainPath .= ':'.$_SERVER["SERVER_PORT"];
+		return $domainPath;
+	}
+
 	public function getSourceFileSize(){
 		if(!$this->sourceFileSize) $this->setSourceFileSize();
 		return $this->sourceFileSize;
@@ -1132,10 +1120,7 @@ class ImageShared{
 	public function uriExists($uri) {
 		$exists = false;
 
-		$urlPrefix = "http://";
-		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
-		$urlPrefix .= $_SERVER["SERVER_NAME"];
-		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
+		$urlPrefix = $this->getDomainUrl();
 
 		if(strpos($uri,$urlPrefix) === 0){
 			$uri = substr($uri,strlen($urlPrefix));
@@ -1215,7 +1200,7 @@ class ImageShared{
 		$urlPrefix = "http://";
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
 		$urlPrefix .= $_SERVER["SERVER_NAME"];
-		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
+		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
 
 		if(strpos($imgUrl,$urlPrefix) === 0){
 			$imgUrl = substr($imgUrl,strlen($urlPrefix));

@@ -121,7 +121,7 @@ class GamesManager {
 					$domain = "http://";
 					if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $domain = "https://";
 					$domain .= $_SERVER["HTTP_HOST"];
-					if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $domain .= ':'.$_SERVER["SERVER_PORT"];
+					if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $domain .= ':'.$_SERVER["SERVER_PORT"];
 
 					$files = Array();
 					$sql3 = 'SELECT url FROM images WHERE (tid = '.$randTaxa.' AND url != "empty") ORDER BY sortsequence ';

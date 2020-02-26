@@ -18,7 +18,7 @@ $action = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 if(!is_numeric($collid)) $collid = 0;
 if(!in_array($registrationMethod,array('api','csv','xml'))) $registrationMethod = '';
 if(preg_match('/[^A-Z0-9]+/', $igsnSeed)) $igsnSeed = '';
-if(!is_numeric($processingCount)) $processingCount = 10;
+if($processingCount && !is_numeric($processingCount)) $processingCount = 10;
 
 $statusStr = '';
 $isEditor = 0;

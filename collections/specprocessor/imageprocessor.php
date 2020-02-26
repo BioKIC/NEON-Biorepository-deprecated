@@ -155,14 +155,6 @@ if($spprid) $specManager->setProjVariables($spprid);
 						alert("JPG compression needs to be a numeric value between 30 and 100");
 						return false;
 					}
-					else if(f.sourcepath.value == ""){
-						alert("Image source path must have a value");
-						return false;
-					}
-					else if(f.imgurl.value == ""){
-						alert("Image URL base must have a value");
-						return false;
-					}
 				}
 				if(f.patternreplace.value == "-- Optional --") f.patternreplace.value = "";
 				if(f.replacestr.value == "-- Optional --") f.replacestr.value = "";

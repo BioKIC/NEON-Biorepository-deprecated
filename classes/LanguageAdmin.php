@@ -22,7 +22,7 @@ class LanguageAdmin extends Manager {
 		$filePath = substr($filePath, 0, strlen($filePath)-4);
 		foreach($this->langArr as $langCode){
 			$path = $filePath.'.'.$langCode.'.php';
-			$handlerUrl = $this->getServerDomain().$GLOBALS['CLIENT_ROOT'].'/content/lang/admin/varhandler.php?path='.$path;
+			$handlerUrl = $this->getDomainPath().$GLOBALS['CLIENT_ROOT'].'/content/lang/admin/varhandler.php?path='.$path;
 			if($jsonStr = file_get_contents($handlerUrl)){
 				$retArr[$langCode] = json_decode($jsonStr,true);
 			}
@@ -31,14 +31,6 @@ class LanguageAdmin extends Manager {
 			}
 		}
 		return $retArr;
-	}
-
-	private function getServerDomain(){
-		$serverDomain = "http://";
-		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverDomain = "https://";
-		$serverDomain .= $_SERVER["SERVER_NAME"];
-		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $serverDomain .= ':'.$_SERVER["SERVER_PORT"];
-		return $serverDomain;
 	}
 }
 ?>

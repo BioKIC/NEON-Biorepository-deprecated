@@ -110,7 +110,7 @@ if($traitID){
 				$imgDomain = 'http://';
 				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $imgDomain = 'https://';
 				$imgDomain .= $_SERVER['SERVER_NAME'];
-				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $imgDomain .= ':'.$_SERVER["SERVER_PORT"];
+				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $imgDomain .= ':'.$_SERVER["SERVER_PORT"];
 			}
 			foreach($imgArr as $cnt => $iArr){
 				//Regular url

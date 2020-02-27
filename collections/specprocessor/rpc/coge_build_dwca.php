@@ -2,7 +2,7 @@
 include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 header("Cache-Control: no-cache, must-revalidate");
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); 
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collid = $_REQUEST["collid"];
@@ -13,14 +13,14 @@ if($collid && is_numeric($collid)){
 	if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
 	 	$isEditor = true;
 	}
-	
+
 	if($isEditor){
 		$processingStatus = array_key_exists('ps',$_REQUEST)?$_REQUEST['ps']:'';
 		$customField1 = array_key_exists('cf1',$_POST)?$_POST['cf1']:'';
 		$customField2 = array_key_exists('cf2',$_POST)?$_POST['cf2']:'';
-		
+
 		$dwcaHandler = new DwcArchiverCore();
-	
+
 		$dwcaHandler->setCollArr($collid);
 		$dwcaHandler->setCharSetOut('UTF-8');
 		$dwcaHandler->setSchemaType('coge');
@@ -58,13 +58,13 @@ if($collid && is_numeric($collid)){
 		$urlPrefix = "http://";
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
 		$urlPrefix .= $_SERVER["SERVER_NAME"];
-		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
+		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $urlPrefix .= ':'.$_SERVER["SERVER_PORT"];
 		$urlPath = $urlPrefix.$CLIENT_ROOT;
 		if(substr($urlPath,-1) != '/' && substr($urlPath,-1) != '\\'){
 			$urlPath .= '/';
 		}
 		$urlPath .= $pathFrag.$fileName.'_DwC-A.zip';
-		
+
 		if($cnt){
 			if((@fclose(@fopen($urlPath,"r")))){
 				$retArr['result']['cnt'] = $cnt;

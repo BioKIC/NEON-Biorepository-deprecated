@@ -105,7 +105,7 @@ class PluginsManager {
 			$localDomain = "http://";
 			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $localDomain = "https://";
 			$localDomain .= $_SERVER["SERVER_NAME"];
-			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $localDomain .= ':'.$_SERVER["SERVER_PORT"];
+			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $localDomain .= ':'.$_SERVER["SERVER_PORT"];
 			//Get records
 			$cnt = 1;
  			$conn = MySQLiConnectionFactory::getCon("readonly");

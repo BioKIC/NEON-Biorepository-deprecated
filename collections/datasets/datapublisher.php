@@ -391,7 +391,7 @@ include($SERVER_ROOT. '/header.php');
 									$collPath = "http://";
 									if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $collPath = "https://";
 									$collPath .= $_SERVER["SERVER_NAME"];
-									if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $collPath .= ':'.$_SERVER["SERVER_PORT"];
+									if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $collPath .= ':'.$_SERVER["SERVER_PORT"];
 									$collPath .= $CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$collid;
 									$bodyStr = 'Please provide the following GBIF user permission to create and update datasets for the following GBIF publisher.<br/>'.
 										'Once these permissions are assigned, we will be pushing a DwC-Archive from the following Symbiota collection to GBIF.<br/><br/>'.

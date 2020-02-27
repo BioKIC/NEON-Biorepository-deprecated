@@ -2152,7 +2152,7 @@ class DwcArchiverCore extends Manager{
 			$this->serverDomain = "http://";
 			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $this->serverDomain = "https://";
 			$this->serverDomain .= $_SERVER["SERVER_NAME"];
-			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $this->serverDomain .= ':'.$_SERVER["SERVER_PORT"];
+			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $this->serverDomain .= ':'.$_SERVER["SERVER_PORT"];
 		}
 	}
 

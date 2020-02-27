@@ -30,13 +30,13 @@ class GlossaryManager{
 	private $mapLargeImg = false;
 	private $targetUrl;
 	private $fileName;
-	
+
 	private $errorStr;
-	
+
  	public function __construct(){
  		$this->conn = MySQLiConnectionFactory::getCon("write");
 		$this->imageRootPath = $GLOBALS["imageRootPath"];
-		if(substr($this->imageRootPath,-1) != "/") $this->imageRootPath .= "/";  
+		if(substr($this->imageRootPath,-1) != "/") $this->imageRootPath .= "/";
 		$this->imageRootUrl = $GLOBALS["imageRootUrl"];
 		if(substr($this->imageRootUrl,-1) != "/") $this->imageRootUrl .= "/";
 		if(array_key_exists('imgTnWidth',$GLOBALS)){
@@ -49,11 +49,11 @@ class GlossaryManager{
 			$this->webFileSizeLimit = $GLOBALS['imgFileSizeLimit'];
 		}
  	}
- 	
+
  	public function __destruct(){
 		if($this->conn) $this->conn->close();
 	}
-	
+
 	public function getTermSearch($keyword,$language,$tid,$deepSearch = 1){
 		$retArr = array();
 		$sqlWhere = '';
@@ -134,7 +134,7 @@ class GlossaryManager{
 		}
 		return $retArr;
 	}
-	
+
 	public function getImgArr(){
 		$retArr = array();
 		/*
@@ -162,7 +162,7 @@ class GlossaryManager{
 		}
 		return $retArr;
 	}
-	
+
 	public function getTranslations(){
 		$retArr = array();
 		if($this->glossGroupId){
@@ -183,7 +183,7 @@ class GlossaryManager{
 				}
 				$rs->free();
 			}
-			//Get core term (e.g. translationGroup term) 
+			//Get core term (e.g. translationGroup term)
 			$sql2 = 'SELECT glossid, term, definition, `language`, source, notes '.
 				'FROM glossary '.
 				'WHERE (glossid IN('.implode(',',$this->translationGroup).'))';
@@ -204,7 +204,7 @@ class GlossaryManager{
 		}
 		return $retArr;
 	}
-	
+
 	public function getSynonyms(){
 		$retArr = array();
 		if($this->glossGroupId){
@@ -223,7 +223,7 @@ class GlossaryManager{
 				$retArr[$r->glossid]['notes'] = $r->notes;
 			}
 			$rs->free();
-			//Get core term (e.g. translationGroup term) 
+			//Get core term (e.g. translationGroup term)
 			$sql2 = 'SELECT glossid, term, definition, `language`, source, notes '.
 				'FROM glossary '.
 				'WHERE (glossid IN('.implode(',',$this->synonymGroup).'))';
@@ -247,7 +247,7 @@ class GlossaryManager{
 	public function getOtherRelatedTerms(){
 		$retArr = array();
 		if($this->glossGroupId){
-			//Get parent terms 
+			//Get parent terms
 			$sql = 'SELECT g.glossid, g.term, g.definition, g.`language`, g.source, g.notes, l.relationshiptype, l.gltlinkid '.
 				'FROM glossary g INNER JOIN glossarytermlink l ON g.glossid = l.glossgrpid '.
 				'WHERE (l.glossid = '.$this->glossId.') AND (l.relationshiptype IN("partOf","subClassOf"))';
@@ -263,8 +263,8 @@ class GlossaryManager{
 			}
 			$rs->free();
 
-			//Relationship in other direction 
-			$sql2 = 'SELECT g.glossid, g.term, g.definition, g.`language`, g.source, g.notes, l.relationshiptype, l.gltlinkid '. 
+			//Relationship in other direction
+			$sql2 = 'SELECT g.glossid, g.term, g.definition, g.`language`, g.source, g.notes, l.relationshiptype, l.gltlinkid '.
 				'FROM glossary g INNER JOIN glossarytermlink l ON g.glossid = l.glossid '.
 				'WHERE (l.glossgrpid = '.$this->glossId.') AND (l.relationshiptype IN("partOf","subClassOf"))';
 			//echo $sql; exit;
@@ -406,7 +406,7 @@ class GlossaryManager{
 		}
 		return true;
 	}
-	
+
 	//Term relationships
 	public function linkTranslation($relGlossId){
 		$status = true;
@@ -414,7 +414,7 @@ class GlossaryManager{
 		//$sql1 = 'DELETE FROM glossarytermlink WHERE glossid = '.$relGlossId.' AND glossgrpid = '.$relGlossId;
 		//$this->conn->query($sql1);
 		//Add relationship
-		
+
 		$rootTerm = min($this->translationGroup);
 		$sql = 'INSERT IGNORE INTO glossarytermlink(glossid,glossgrpid,relationshipType) '.
 			'VALUES('.$relGlossId.','.$rootTerm.',"translation") ';
@@ -475,10 +475,10 @@ class GlossaryManager{
 			$termArr[$r->glossgrpid][] = $r->glossid;
 		}
 		$rs->free();
-		
+
 		unset($termArr[$minGlossId]);
 		foreach($termArr as $groupId => $idArr){
-			//Move taxon relationships to lowest values 
+			//Move taxon relationships to lowest values
 			$sql1 = 'UPDATE glossarytaxalink SET glossid = '.$minGlossId.' WHERE glossid IN('.$groupId.','.implode(',',$idArr).')';
 			$this->conn->query($sql1);
 			//Delete taxon relationships that failed to transfer
@@ -498,7 +498,7 @@ class GlossaryManager{
 	public function removeRelation($gltLinkId, $relGlossId = ''){
 		if(is_numeric($gltLinkId)){
 			$status = true;
-			//Remove terms relationship 
+			//Remove terms relationship
 			$sql1 = 'DELETE FROM glossarytermlink WHERE gltlinkid = '.$gltLinkId;
 			//echo $sql1.'<br/>';
 			if(!$this->conn->query($sql1)){
@@ -651,7 +651,7 @@ class GlossaryManager{
 			$imgTnUrl = $row->thumbnailurl;
 		}
 		$result->close();
-				
+
 		$sql = "DELETE FROM glossaryimages WHERE (glimgid = ".$imgIdDel.')';
 		//echo $sql;
 		if($this->conn->query($sql)){
@@ -664,7 +664,7 @@ class GlossaryManager{
 			elseif(stripos($imgUrl,$this->imageRootUrl) === 0){
 				$imgUrl2 = $domain.$imgUrl;
 			}
-			
+
 			//Remove images only if there are no other references to the image
 			$sql = "SELECT glimgid FROM glossaryimages WHERE (url = '".$imgUrl."') ";
 			if($imgUrl2) $sql .= 'OR (url = "'.$imgUrl2.'")';
@@ -677,12 +677,12 @@ class GlossaryManager{
 						$this->errArr[] = 'WARNING: Deleted records from database successfully but FAILED to delete image from server (path: '.$imgDelPath.')';
 					}
 				}
-				
+
 				//Delete thumbnail image
 				if($imgTnUrl){
 					if(stripos($imgTnUrl,$domain) === 0){
 						$imgTnUrl = substr($imgTnUrl,strlen($domain));
-					}				
+					}
 					$imgTnDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgTnUrl);
 					if(file_exists($imgTnDelPath) && substr($imgTnDelPath,0,4) != 'http') unlink($imgTnDelPath);
 				}
@@ -699,19 +699,19 @@ class GlossaryManager{
 		set_time_limit(120);
 		ini_set("max_input_time",120);
 		$this->setTargetPath();
-		
+
 		if($_REQUEST["imgurl"]){
 			if(!$this->copyImageFromUrl($_REQUEST["imgurl"])) return;
 		}
 		else{
 			if(!$this->loadImage()) return;
 		}
-		
+
 		$status = $this->processImage();
-		
+
 		return $status;
 	}
-	
+
 	public function processImage(){
 		global $paramsArr;
 
@@ -744,7 +744,7 @@ class GlossaryManager{
 				}
 				else{
 					if($this->sourceWidth < ($this->lgPixWidth*1.2)){
-						//Image width is small enough to serve as large image 
+						//Image width is small enough to serve as large image
 						if(copy($this->sourcePath,$this->targetPath.$this->imgName.'_lg'.$this->imgExt)){
 							$imgLgUrl = $this->imgName.'_lg'.$this->imgExt;
 						}
@@ -784,7 +784,7 @@ class GlossaryManager{
 		}
 		return $status;
 	}
-	
+
 	public function copyImageFromUrl($sourceUri){
 		//Returns full path
 		if(!$sourceUri){
@@ -818,15 +818,15 @@ class GlossaryManager{
 		$this->errArr[] = 'ERROR: Unable to copy image to target ('.$this->targetPath.$fileName.$this->imgExt.')';
 		return false;
 	}
-	
+
 	public function cleanFileName($fPath){
 		$fName = $fPath;
 		$imgInfo = null;
 		if(strtolower(substr($fPath,0,7)) == 'http://' || strtolower(substr($fPath,0,8)) == 'https://'){
-			//Image is URL 
+			//Image is URL
 			$imgInfo = getimagesize(str_replace(' ', '%20', $fPath));
 			list($this->sourceWidth, $this->sourceHeight) = $imgInfo;
-		
+
 			if($pos = strrpos($fName,'/')){
 				$fName = substr($fName,$pos+1);
 			}
@@ -836,7 +836,7 @@ class GlossaryManager{
 			$this->imgExt = strtolower(substr($fName,$p));
 			$fName = substr($fName,0,$p);
 		}
-		
+
 		if(!$this->imgExt && $imgInfo){
 			if($imgInfo[2] == IMAGETYPE_GIF){
 				$this->imgExt = 'gif';
@@ -861,7 +861,7 @@ class GlossaryManager{
 		$fName = str_replace(array(chr(264),chr(265)),"n",$fName);
 		$fName = preg_replace("/[^a-zA-Z0-9\-_]/", "", $fName);
 		$fName = trim($fName,' _-');
-		
+
 		if(strlen($fName) > 30) {
 			$fName = substr($fName,0,30);
 		}
@@ -876,11 +876,11 @@ class GlossaryManager{
 			}
 			if($cnt) $fName = $tempFileName;
 		}
-		
+
 		//Returns file name without extension
 		return $fName;
  	}
-	
+
 	private function loadImage(){
 		$imgFile = basename($_FILES['imgfile']['name']);
 		$fileName = $this->cleanFileName($imgFile);
@@ -897,7 +897,7 @@ class GlossaryManager{
 		global $SYMB_UID;
 		if(!$imgWebUrl) return 'ERROR: web url is null ';
 		$urlBase = $this->getUrlBase();
-		if(strtolower(substr($imgWebUrl,0,7)) != 'http://' && strtolower(substr($imgWebUrl,0,8)) != 'https://'){ 
+		if(strtolower(substr($imgWebUrl,0,7)) != 'http://' && strtolower(substr($imgWebUrl,0,8)) != 'https://'){
 			$imgWebUrl = $urlBase.$imgWebUrl;
 		}
 		if($imgTnUrl && strtolower(substr($imgTnUrl,0,7)) != 'http://' && strtolower(substr($imgTnUrl,0,8)) != 'https://'){
@@ -913,7 +913,7 @@ class GlossaryManager{
 		}
 		return $status;
 	}
-	
+
 	public function uriExists($url){
 		$exists = false;
 		$localUrl = '';
@@ -928,7 +928,7 @@ class GlossaryManager{
 				$url = $this->getServerDomain().$url;
 			}
 		}
-		
+
 		//First simple check
 		if(file_exists($url) || ($localUrl && file_exists($localUrl))){
 			return true;
@@ -943,48 +943,48 @@ class GlossaryManager{
 		    }
 		    curl_setopt($handle, CURLOPT_HEADER, false);
 		    curl_setopt($handle, CURLOPT_FAILONERROR, true);  // this works
-		    curl_setopt($handle, CURLOPT_HTTPHEADER, Array("User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15") ); // request as if Firefox   
+		    curl_setopt($handle, CURLOPT_HTTPHEADER, Array("User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15") ); // request as if Firefox
 		    curl_setopt($handle, CURLOPT_NOBODY, true);
 		    curl_setopt($handle, CURLOPT_RETURNTRANSFER, false);
 		    $exists = curl_exec($handle);
 		    curl_close($handle);
 	    }
-	     
+
 	    //One last check
 	    if(!$exists){
 	    	$exists = (@fclose(@fopen($url,"r")));
 	    }
-	    
-	    //Test to see if file is an image 
+
+	    //Test to see if file is an image
 	    if(function_exists('exif_imagetype')){
 			if(!exif_imagetype($url)) $exists = false;
 		}
-		
+
 	    return $exists;
 	}
-	
+
 	public function createNewImage($subExt, $targetWidth, $qualityRating = 0){
 		global $useImageMagick;
 		$status = false;
 		if($this->sourcePath && $this->uriExists($this->sourcePath)){
 			if(!$qualityRating) $qualityRating = $this->jpgCompression;
-			
+
 	        if($useImageMagick) {
-				// Use ImageMagick to resize images 
+				// Use ImageMagick to resize images
 				$status = $this->createNewImageImagick($subExt,$targetWidth,$qualityRating);
-			} 
+			}
 			elseif(extension_loaded('gd') && function_exists('gd_info')) {
-				// GD is installed and working 
+				// GD is installed and working
 				$status = $this->createNewImageGD($subExt,$targetWidth,$qualityRating);
 			}
 			else{
-				// Neither ImageMagick nor GD are installed 
+				// Neither ImageMagick nor GD are installed
 				$this->errArr[] = 'ERROR: No appropriate image handler for image conversions';
 			}
 		}
 		return $status;
 	}
-	
+
 	private function createNewImageImagick($subExt,$newWidth,$qualityRating = 0){
 		$targetPath = $this->targetPath.$this->imgName.$subExt.$this->imgExt;
 		$ct;
@@ -1025,12 +1025,12 @@ class GlossaryManager{
 			   		$this->sourceGdImg = imagecreatefromjpeg($this->sourcePath);
 				}
 			}
-			
+
 			$tmpImg = imagecreatetruecolor($newWidth,$newHeight);
 			//imagecopyresampled($tmpImg,$sourceImg,0,0,0,0,$newWidth,$newHeight,$sourceWidth,$sourceHeight);
 			imagecopyresized($tmpImg,$this->sourceGdImg,0,0,0,0,$newWidth,$newHeight,$this->sourceWidth,$this->sourceHeight);
-	
-			//Irrelevant of import image, output JPG 
+
+			//Irrelevant of import image, output JPG
 			$targetPath = $this->targetPath.$this->imgName.$subExt.'.jpg';
 			if($qualityRating){
 				$status = imagejpeg($tmpImg, $targetPath, $qualityRating);
@@ -1038,11 +1038,11 @@ class GlossaryManager{
 			else{
 				$status = imagejpeg($tmpImg, $targetPath);
 			}
-				
+
 			if(!$status){
 				$this->errArr[] = 'ERROR: failed to create images in target path ('.$targetPath.')';
 			}
-	
+
 			imagedestroy($tmpImg);
 		}
 		else{
@@ -1050,7 +1050,7 @@ class GlossaryManager{
 		}
 		return $status;
 	}
-	
+
 	public function getUrlBase(){
 		$urlBase = $this->urlBase;
 		//If central images are on remote server and new ones stored locally, then we need to use full domain
@@ -1060,17 +1060,17 @@ class GlossaryManager{
     	}
 		return $urlBase;
 	}
-	
+
 	public function getSourceFileSize(){
 		$fileSize = 0;
 		if($this->sourcePath){
 			if(strtolower(substr($this->sourcePath,0,7)) == 'http://' || strtolower(substr($this->sourcePath,0,8)) == 'https://'){
-				$x = array_change_key_case(get_headers($this->sourcePath, 1),CASE_LOWER); 
-				if ( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) { 
-					$fileSize = $x['content-length'][1]; 
+				$x = array_change_key_case(get_headers($this->sourcePath, 1),CASE_LOWER);
+				if ( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) {
+					$fileSize = $x['content-length'][1];
 				}
-	 			else { 
-	 				$fileSize = $x['content-length']; 
+	 			else {
+	 				$fileSize = $x['content-length'];
 	 			}
 	 		}
 			else{
@@ -1084,7 +1084,7 @@ class GlossaryManager{
 		$this->fileName = $fName;
 		//echo $fName;
 	}
- 	
+
 	private function setTargetPath(){
  		$folderName = date("Y-m");
 		if(!file_exists($this->imageRootPath."glossimg")){
@@ -1095,7 +1095,7 @@ class GlossaryManager{
 		}
 		$path = $this->imageRootPath."glossimg/".$folderName."/";
 		$url = $this->imageRootUrl."glossimg/".$folderName."/";
-		
+
 		$this->targetPath = $path;
 		$this->urlBase = $url;
 	}
@@ -1108,7 +1108,7 @@ class GlossaryManager{
 		$contributorsArr = array();
 		$groupMap = array();
 		$sql = 'SELECT DISTINCT g.glossid, g.term, g.definition, g.language, g.source, g.translator, g.author, gt.glossgrpid '.
-			'FROM glossary g LEFT JOIN glossarytermlink gt ON gt.glossid = g.glossid '. 
+			'FROM glossary g LEFT JOIN glossarytermlink gt ON gt.glossid = g.glossid '.
 			'LEFT JOIN glossarytaxalink gx ON gt.glossgrpid = gx.glossid '.
 			'LEFT JOIN glossarytaxalink gx2 ON g.glossid = gx2.glossid '.
 			'WHERE ((gx.tid = '.$taxon.') OR (gx2.tid = '.$taxon.')) AND (g.`language` = "'.$language.'") '.
@@ -1158,7 +1158,7 @@ class GlossaryManager{
 					}
 				}
 				$targetArr = array_unique($targetArr);
-				
+
 				foreach($targetArr as $targetId){
 					$targetTerm = $r->term;
 					if(isset($retArr[$targetId]['trans'][$r->language]['term'])){
@@ -1177,8 +1177,8 @@ class GlossaryManager{
 			}
 			$rs->free();
 		}
-		
-		//Get images 
+
+		//Get images
 		if($images && $retArr){
 			if(!$glossIdArr){
 				$glossIdArr = array_keys($retArr);
@@ -1187,7 +1187,7 @@ class GlossaryManager{
 			$sql2 = 'SELECT glossid, glimgid, url, createdBy, structures, notes '.
 				'FROM glossaryimages '.
 				'WHERE glossid IN('.implode(',', $glossIdArr).') ';
-			//echo $sql2.'<br/>'; exit; 
+			//echo $sql2.'<br/>'; exit;
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_object()){
 				$targetId = $r2->glossid;
@@ -1211,7 +1211,7 @@ class GlossaryManager{
 		$retArr['meta'] = $this->getExportMetadata($taxon, $referencesArr, $contributorsArr);
 		return $retArr;
 	}
-	
+
 	private function getExportMetadata($taxon,$referencesArr,$contributorsArr){
 		$retArr = array();
 		//Get taxa for group
@@ -1230,12 +1230,12 @@ class GlossaryManager{
 		$sourceArr = $this->getGlossarySources($taxon);
 		if(isset($sourceArr['ref'])) $referencesArr = array_unique(array_merge($sourceArr['ref'],$referencesArr));
 		if(isset($sourceArr['con'])) $contributorsArr = array_unique(array_merge($sourceArr['con'],$contributorsArr));
-		
+
 		$retArr['references'] = $referencesArr;
 		$retArr['contributors'] = $contributorsArr;
 		return $retArr;
 	}
-	
+
 	private function getGlossarySources($tid){
 		$retArr = array();
 		$sql = 'SELECT contributorTerm, contributorImage, translator, additionalSources '.
@@ -1256,7 +1256,7 @@ class GlossaryManager{
 	//Misc data retrival functions
 	public function getStats(){
 		/*
-		
+
 		// Report output for csv export
 		SELECT g.term, g.definition, g.language, GROUP_CONCAT(t.sciname) as sciname, syn.term as syn
 		FROM glossary g LEFT JOIN glossarytermlink te ON g.glossid = te.glossid
@@ -1268,78 +1268,78 @@ class GlossaryManager{
 		GROUP BY g.language, g.term
 		LIMIT 10000000;
 
-		
-		 
-		
+
+
+
 		SELECT language, count(*)
 		FROM glossary
 		GROUP BY language;
-		
+
 		SELECT t.sciname, count(g.glossid) as cnt
 		FROM glossary g INNER JOIN glossarytermlink gp ON g.glossid = gp.glossid
 		INNER JOIN glossarytaxalink tl ON gp.glossgrpid = tl.glossid
 		INNER JOIN taxa t ON tl.tid = t.tid
 		GROUP BY tl.tid;
-		
+
 		SELECT t.sciname, g.language, count(g.glossid) as cnt
 		FROM glossary g INNER JOIN glossarytermlink gp ON g.glossid = gp.glossid
 		INNER JOIN glossarytaxalink tl ON gp.glossgrpid = tl.glossid
 		INNER JOIN taxa t ON tl.tid = t.tid
 		GROUP BY t.sciname, g.language;
-		
+
 		SELECT t.sciname, count(g.glossid) as cnt
 		FROM glossary g INNER JOIN glossarytermlink gp ON g.glossid = gp.glossid
 		INNER JOIN glossarytaxalink tl ON gp.glossgrpid = tl.glossid
 		INNER JOIN taxa t ON tl.tid = t.tid
 		WHERE g.language = "English"
 		GROUP BY t.sciname;
-		
+
 		SELECT count(g.glossid)
 		FROM glossary g INNER JOIN glossaryimages i ON g.glossid = i.glossid;
 
 		//Second round of queries
 		SELECT count(*) as termcnt
 		FROM glossary;
-		
+
 		SELECT count(DISTINCT IFNULL(gl.glossgrpid,g.glossid)) AS clustercnt
 		FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid;
-		
+
 		SELECT language, count(*)
 		FROM glossary
 		GROUP BY language;
-				
+
 		SELECT t.sciname, count(gloss.id) as cnt
 		FROM taxa t INNER JOIN glossarytaxalink tl ON t.tid = tl.tid
 		INNER JOIN (SELECT IFNULL(gl.glossgrpid,g.glossid) AS id FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid) as gloss ON tl.glossid = gloss.id
 		GROUP BY t.sciname;
-				
+
 		SELECT t.sciname, gloss.language, count(gloss.id) as cnt
 		FROM taxa t INNER JOIN glossarytaxalink tl ON t.tid = tl.tid
 		INNER JOIN (SELECT IFNULL(gl.glossgrpid,g.glossid) AS id, g.language FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid) as gloss ON tl.glossid = gloss.id
 		GROUP BY t.sciname, gloss.language;
-		
+
 		SELECT t.sciname, count(DISTINCT i.glossid) as cnt
 		FROM taxa t INNER JOIN glossarytaxalink tl ON t.tid = tl.tid
 		INNER JOIN glossarytermlink l ON tl.glossid = l.glossid OR tl.glossid = l.glossgrpid
-		INNER JOIN glossaryimages i ON l.glossid = i.glossid OR l.glossgrpid = i.glossid 
+		INNER JOIN glossaryimages i ON l.glossid = i.glossid OR l.glossgrpid = i.glossid
 		GROUP by t.sciname;
-		
+
 		SELECT t.sciname, count(DISTINCT i.glossid) as cnt
 		FROM taxa t INNER JOIN glossarytaxalink tl ON t.tid = tl.tid
 		INNER JOIN (SELECT IFNULL(gl.glossgrpid,g.glossid) AS id FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid) AS gloss ON tl.glossid = gloss.id
 		INNER JOIN glossaryimages i ON gloss.id = i.glossid
 		GROUP by t.sciname;
-		
+
 		SELECT count(DISTINCT i.glossid) as imgcnt
 		FROM glossaryimages i INNER JOIN glossary g ON i.glossid = g.glossid
 		INNER JOIN glossarytaxalink t ON g.glossid = t.glossid;
-		
-		
+
+
 		SELECT distinct i.*
 		FROM glossaryimages i INNER JOIN (SELECT IFNULL(gl.glossgrpid,i.glossid) AS id FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid) AS gloss ON i.glossid = gloss.id
 		LEFT JOIN glossarytaxalink tl ON gloss.id = tl.glossid
 		WHERE tl.glossid IS NULL;
-		
+
 		SELECT t.sciname, count(distinct i.glimgid) as cnt
 		FROM glossaryimages i LEFT JOIN glossarytermlink gl ON i.glossid = gl.glossgrpid
 		INNER JOIN glossarytaxalink tl ON IFNULL(gl.glossgrpid,i.glossid) = tl.glossid
@@ -1376,7 +1376,7 @@ class GlossaryManager{
 		if($returnTag && isset($retArr[$returnTag])) return $retArr[$returnTag];
 		return $retArr;
 	}
-	
+
 	public function getTaxaGroupArr(){
 		$retArr = array();
 		$sql = 'SELECT DISTINCT t.tid, t.sciname, v.vernacularname '.
@@ -1400,7 +1400,7 @@ class GlossaryManager{
 		}
 		elseif($lang){
 			$taxaArr = array();
-			
+
 			if($type == 'translation'){
 				//Get all terms of another language or only linked
 				if($this->tidArr){
@@ -1463,7 +1463,7 @@ class GlossaryManager{
 			$this->synonymGroup = $this->getSynonymGroup($this->glossId);
 
 			$this->glossGroupId = min(array_merge($this->synonymGroup, $this->translationGroup));
-				
+
 			//Set base group ID, which can be different than the translation and synonym group ids
 			$sql3 = 'SELECT glossgrpid FROM glossarytermlink WHERE (glossid = '.($this->glossGroupId?$this->glossGroupId:$this->glossId).') ';
 			$rs3 = $this->conn->query($sql3);
@@ -1485,7 +1485,7 @@ class GlossaryManager{
 		//echo 'synonym group id: '.implode(',',$this->synonymGroup).'<br/>';
 		//echo 'translation group id: '.implode(',',$this->translationGroup).'<br/>';
 	}
-	
+
 	private function getTranslationGroup($id){
 		$retArr = array($id);
 		if($id){
@@ -1535,16 +1535,16 @@ class GlossaryManager{
 	public function getGlossGroupId(){
 		return $this->glossGroupId;
 	}
-	
+
 	public function getErrorStr(){
 		return $this->errorStr;
 	}
-	
+
 	private function getServerDomain(){
 		$domain = "http://";
 		if(!(empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $domain = "https://";
 		$domain .= $_SERVER["SERVER_NAME"];
-		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $domain .= ':'.$_SERVER["SERVER_PORT"];
+		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $domain .= ':'.$_SERVER["SERVER_PORT"];
 		return $domain;
 	}
 

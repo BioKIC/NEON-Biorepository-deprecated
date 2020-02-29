@@ -294,7 +294,7 @@ class OccurrenceHarvester{
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
 				//Get data that was provided within manifest
 				$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
-				if($sampleArr['collectDate']) $dwcArr['eventDate'] = $sampleArr['collectDate'];
+				if($sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
 				if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
 				if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
 

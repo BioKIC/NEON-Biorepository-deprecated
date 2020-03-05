@@ -8,6 +8,7 @@ Language:  Español (Spanish)
 $LANG['NAV_HOME'] = 'Inicio';
 $LANG['CHECKADMIN'] = 'Administraci&oacute;n de Listados de Comprobaci&oacute;n';
 $LANG['RETURNCHECK'] = 'Regresar al Listado de Comprobaci&oacute;n';
+$LANG['ADDIMGVOUCHER'] = 'Agregar Im&aacute;gen Voucher';
 $LANG['EDITSEARCH'] = 'Editar Instrucci&oacute;n de B&uacute;squeda';
 $LANG['COUNTRY'] = 'Pa&iacute;s';
 $LANG['STATE'] = 'Estado';

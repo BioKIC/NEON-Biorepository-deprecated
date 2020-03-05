@@ -526,6 +526,79 @@ class ChecklistVoucherAdmin {
 		return $tidRet;
 	}
 
+	public function getVoucherProjects(){
+		global $USER_RIGHTS;
+		$retArr = array();
+		$runQuery = true;
+		$sql = 'SELECT collid, collectionname FROM omcollections WHERE (colltype = "Observations" OR colltype = "General Observations") ';
+		if(!array_key_exists('SuperAdmin',$USER_RIGHTS)){
+			$collInStr = '';
+			foreach($USER_RIGHTS as $k => $v){
+				if($k == 'CollAdmin' || $k == 'CollEditor'){
+					$collInStr .= ','.implode(',',$v);
+				}
+			}
+			if($collInStr){
+				$sql .= 'AND collid IN ('.substr($collInStr,1).') ';
+			}
+			else{
+				$runQuery = false;
+			}
+		}
+		$sql .= 'ORDER BY colltype,collectionname';
+		//echo $sql;
+		if($runQuery){
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$retArr[$r->collid] = $r->collectionname;
+				}
+				$rs->free();
+			}
+			if($retArr){
+				//Tag collection most likely to be target
+				$sql = 'SELECT o.collid, COUNT(v.occid) as cnt FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
+					'WHERE v.clid = '.$this->clid.' AND o.collid IN('.implode(',', array_keys($retArr)).') GROUP BY o.collid ORDER BY cnt DESC';
+				if($rs = $this->conn->query($sql)){
+					if($r = $rs->fetch_object()) $retArr['target'] = $r->collid;
+					$rs->free();
+				}
+			}
+		}
+		return $retArr;
+	}
+
+	public function hasVoucherProjects(){
+		global $USER_RIGHTS;
+		$retBool = false;
+		$runQuery = true;
+		$sql = 'SELECT collid, collectionname FROM omcollections WHERE (colltype = "Observations" OR colltype = "General Observations") ';
+		if(!array_key_exists('SuperAdmin',$USER_RIGHTS)){
+			$collInStr = '';
+			foreach($USER_RIGHTS as $k => $v){
+				if($k == 'CollAdmin' || $k == 'CollEditor'){
+					$collInStr .= ','.implode(',',$v);
+				}
+			}
+			if($collInStr){
+				$sql .= 'AND collid IN ('.substr($collInStr,1).') ';
+			}
+			else{
+				$runQuery = false;
+			}
+		}
+		$sql .= ' LIMIT 1';
+		//echo $sql;
+		if($runQuery){
+			if($rs = $this->conn->query($sql)){
+				if($r = $rs->fetch_object()){
+					$retBool = true;
+				}
+				$rs->free();
+			}
+		}
+		return $retBool;
+	}
+
 	//Setters and getters
 	public function getClid(){
 		return $this->clid;

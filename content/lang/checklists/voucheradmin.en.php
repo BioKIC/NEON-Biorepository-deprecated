@@ -8,6 +8,7 @@ Language: English
 $LANG['NAV_HOME'] = 'Home';
 $LANG['CHECKADMIN'] = 'Checklist Administration';
 $LANG['RETURNCHECK'] = 'Return to Checklist';
+$LANG['ADDIMGVOUCHER'] = 'Add Image Voucher';
 $LANG['EDITSEARCH'] = 'Edit Search Statement';
 $LANG['COUNTRY'] = 'Country';
 $LANG['STATE'] = 'State';

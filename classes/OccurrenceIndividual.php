@@ -95,7 +95,10 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function loadOccurData(){
-		$sql = 'SELECT o.occid, o.collid, o.institutioncode AS secondaryinstcode, o.collectioncode AS secondarycollcode, '.
+		$sql = 'SELECT o.*, MAKEDATE(YEAR(o.eventDate),o.enddayofyear) AS eventdateend, g.guid FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
+		/*
+		 * Can use explicit SQL once database patch is applied to all releases
+		$sql = 'SELECT o.occid, o.collid, o.institutioncode, o.collectioncode, '.
 			'o.occurrenceid, o.catalognumber, o.occurrenceremarks, o.tidinterpreted, o.family, o.sciname, '.
 			'o.scientificnameauthorship, o.identificationqualifier, o.identificationremarks, o.identificationreferences, o.taxonremarks, '.
 			'o.identifiedby, o.dateidentified, o.recordedby, o.associatedcollectors, o.recordnumber, o.eventdate, MAKEDATE(YEAR(o.eventDate),o.enddayofyear) AS eventdateend, '.
@@ -106,6 +109,7 @@ class OccurrenceIndividual extends Manager{
 			'o.typestatus, o.dbpk, o.habitat, o.substrate, o.associatedtaxa, o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, '.
 			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.modified, o.observeruid, g.guid, o.recordenteredby, o.dateentered, o.datelastmodified '.
 			'FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
+		*/
 		if($this->occid){
 			$sql .= 'WHERE (o.occid = '.$this->occid.')';
 		}
@@ -117,7 +121,7 @@ class OccurrenceIndividual extends Manager{
 		}
 
 		if($result = $this->conn->query($sql)){
-			if($this->occArr = $result->fetch_assoc()){
+			if($this->occArr = array_change_key_case($result->fetch_assoc())){
 				if(!$this->occid) $this->occid = $this->occArr['occid'];
 				if(!$this->collid) $this->collid = $this->occArr['collid'];
 				$this->loadMetadata();
@@ -131,16 +135,16 @@ class OccurrenceIndividual extends Manager{
 						$this->occArr['occurrenceid'] = $this->occArr['guid'];
 					}
 				}
-				if($this->occArr['secondaryinstcode']){
-					if(!$this->metadataArr['institutioncode']) $this->metadataArr['institutioncode'] = $this->occArr['secondaryinstcode'];
-					elseif($this->metadataArr['institutioncode'] != $this->occArr['secondaryinstcode']) $this->metadataArr['institutioncode'] .= '-'.$this->occArr['secondaryinstcode'];
+				if($this->occArr['institutioncode']){
+					if(!$this->metadataArr['institutioncode']) $this->metadataArr['institutioncode'] = $this->occArr['institutioncode'];
+					elseif($this->metadataArr['institutioncode'] != $this->occArr['institutioncode']) $this->metadataArr['institutioncode'] .= '-'.$this->occArr['institutioncode'];
 				}
-				if($this->occArr['secondarycollcode']){
-					if(!$this->metadataArr['collectioncode']) $this->metadataArr['collectioncode'] = $this->occArr['secondarycollcode'];
-					elseif($this->metadataArr['collectioncode'] != $this->occArr['secondarycollcode']) $this->metadataArr['collectioncode'] .= '-'.$this->occArr['secondarycollcode'];
+				if($this->occArr['collectioncode']){
+					if(!$this->metadataArr['collectioncode']) $this->metadataArr['collectioncode'] = $this->occArr['institutioncode'];
+					elseif($this->metadataArr['collectioncode'] != $this->occArr['collectioncode']) $this->metadataArr['collectioncode'] .= '-'.$this->occArr['institutioncode'];
 				}
 				/*
-				if($this->occArr['secondaryinstcode'] && $this->occArr['secondaryinstcode'] != $this->metadataArr['institutioncode']){
+				if($this->occArr['institutioncode'] && $this->occArr['institutioncode'] != $this->metadataArr['institutioncode']){
 					$sqlSec = 'SELECT collectionname, homepage, individualurl, contact, email, icon  FROM omcollsecondary WHERE (collid = '.$this->occArr['collid'].')';
 					$rsSec = $this->conn->query($sqlSec);
 					if($r = $rsSec->fetch_object()){
@@ -173,8 +177,7 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function loadDeterminations(){
-		$sql = 'SELECT detid, dateidentified, identifiedby, sciname, scientificnameauthorship, identificationqualifier, '.
-			'identificationreferences, identificationremarks '.
+		$sql = 'SELECT detid, dateidentified, identifiedby, sciname, scientificnameauthorship, identificationqualifier, identificationreferences, identificationremarks '.
 			'FROM omoccurdeterminations '.
 			'WHERE (occid = '.$this->occid.') AND appliedstatus = 1 '.
 			'ORDER BY sortsequence';

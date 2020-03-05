@@ -39,8 +39,8 @@ if($collMap){
 	}
 	if(!$recordedBy) $recordedBy = $obsManager->getUserName();
 }
+$clArr = $obsManager->getChecklists();
 ?>
-
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
@@ -97,10 +97,18 @@ if($collMap){
 						SUCCESS: Image loaded successfully!
 					</div>
 					<div style="font:weight;font-size:120%;margin-top:10px;">
-						Open
-						<a href="../individual/index.php?occid=<?php echo $occid; ?>" target="_blank">Occurrence Details Viewer</a> to see the new record
+						Open <a href="../individual/index.php?occid=<?php echo $occid; ?>" target="_blank">Occurrence Details Viewer</a> to see the new record
 					</div>
 					<?php
+					if($clid){
+						$checklistName = 'target';
+						if(isset($clArr[$clid])) $checklistName = $clArr[$clid];
+						?>
+						<div style="font:weight;font-size:120%;margin-top:10px;">
+							Go to <a href="../checklists/checklist.php?clid=<?php echo $clid; ?>" target="_blank"><?php echo $checklistName; ?></a> checklist
+						</div>
+						<?php
+					}
 				}
 				$errArr = $obsManager->getErrorArr();
 				if($errArr){
@@ -347,7 +355,6 @@ if($collMap){
 						</div>
 					</fieldset>
 					<?php
-					$clArr = $obsManager->getChecklists();
 					if($clArr){
 						?>
 						<fieldset>

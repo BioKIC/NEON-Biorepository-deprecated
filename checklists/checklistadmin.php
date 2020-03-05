@@ -55,8 +55,6 @@ $defaultArr = array();
 if($clArray["defaultsettings"]){
 	$defaultArr = json_decode($clArray["defaultsettings"], true);
 }
-
-$voucherProjects = $clManager->getVoucherProjects();
 ?>
 <html>
 <head>
@@ -138,11 +136,7 @@ if($clid && $isEditor){
 		<!-- 					<li><a href="#pointtab"><span>Non-vouchered Points</span></a></li> -->
 		<li><a href="checklistadminchildren.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><span><?php echo $LANG['RELATEDCHECK'];?></span></a></li>
 		<?php
-		if($voucherProjects){
-			?>
-			<li><a href="#imgvouchertab"><?php echo $LANG['ADDIMGV'];?></a></li>
-		<?php
-		}
+		if($clManager->hasVoucherProjects()) echo '<li><a href="imgvouchertab.php?clid='.$clid.'">'.(isset($LANG['ADDIMGVOUCHER'])?$LANG['ADDIMGVOUCHER']:'Add Image Voucher').'</a></li>';
 		?>
 	</ul>
 	<div id="admintab">
@@ -272,34 +266,6 @@ if($clid && $isEditor){
 		</fieldset>
 	</div>
 	-->
-	<?php
-	if($voucherProjects){
-		?>
-		<div id="imgvouchertab">
-			<form name="addimagevoucher" action="../collections/editor/observationsubmit.php" method="post" target="_blank">
-				<fieldset style="margin:15px;padding:25px;">
-					<legend><b><?php echo $LANG['ADDIMGVOUC'];?></b></legend>
-					<?php echo $LANG['FORMADDVOUCH'];?><br><br>
-					<?php echo $LANG['SELECTVOUCPROJ'];?>
-					<div style="margin:5px;">
-						<select name="collid">
-							<?php
-							foreach($voucherProjects as $k => $v){
-								echo '<option value="'.$k.'">'.$v.'</option>';
-							}
-							?>
-						</select><br/>
-						<input type="hidden" name="clid" value="<?php echo $clid; ?>" />
-					</div>
-					<div style="margin:5px;">
-						<input type="submit" name="submitvoucher" value=<?php echo $LANG['ADDIMGVOUC'];?> /><br/>
-					</div>
-				</fieldset>
-			</form>
-		</div>
-	<?php
-	}
-	?>
 	</div>
 <?php
 }
@@ -316,6 +282,5 @@ else{
 <?php
 include($SERVER_ROOT.'/footer.php');
 ?>
-
 </body>
 </html>

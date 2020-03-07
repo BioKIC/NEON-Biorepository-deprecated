@@ -43,12 +43,9 @@ class ProfileManager{
 		unset($_SESSION['userparams']);
 		if($this->userName){
 			if(!$this->authSql){
-				$this->authSql = 'SELECT u.uid, u.firstname, u.lastname '.
-			   		'FROM users AS u INNER JOIN userlogin AS ul ON u.uid = ul.uid '.
-			   		'WHERE (ul.username = "'.$this->userName.'") ';
-				if($pwdStr) $this->authSql .= 'AND (ul.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
+				$this->authSql = 'SELECT u.uid, u.firstname, u.lastname FROM users u INNER JOIN userlogin l ON u.uid = l.uid WHERE (l.username = "'.$this->userName.'") ';
+				if($pwdStr) $this->authSql .= 'AND (l.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
 			}
-			//echo $this->authSql;
 			$result = $this->conn->query($this->authSql);
 			if($row = $result->fetch_object()){
 				$this->uid = $row->uid;
@@ -60,9 +57,7 @@ class ProfileManager{
 				$this->reset();
 				$this->setUserRights();
 				$this->setUserParams();
-				if($this->rememberMe){
-					$this->setTokenCookie();
-				}
+				if($this->rememberMe) $this->setTokenCookie();
 
 				//Update last login data
 				$conn = $this->getConnection("write");
@@ -824,15 +819,11 @@ class ProfileManager{
 		$GLOBALS['USERNAME'] = $this->userName;
 	}
 
-	public function setTokenAuthSql(){
-		$this->authSql = 'SELECT u.uid, u.firstname, u.lastname '.
-			'FROM users AS u INNER JOIN userlogin AS ul ON u.uid = ul.uid '.
-			'INNER JOIN useraccesstokens AS ut ON u.uid = ut.uid '.
-			'WHERE (ul.username = "'.$this->userName.'") AND (ut.token = "'.$this->token.'") ';
-	}
-
 	public function setToken($token){
 		$this->token = $token;
+		$this->authSql = 'SELECT u.uid, u.firstname, u.lastname '.
+			'FROM users u INNER JOIN userlogin l ON u.uid = l.uid INNER JOIN useraccesstokens t ON u.uid = t.uid '.
+			'WHERE (l.username = "'.$this->userName.'") AND (t.token = "'.$this->token.'") ';
 	}
 
 	public function setRememberMe($test){

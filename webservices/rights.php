@@ -49,7 +49,6 @@ if(!$un && $uId){
 if($un && $token){
     if($pHandler->setUserName($un)){
         $pHandler->setToken($token);
-        $pHandler->setTokenAuthSql();
         if($pHandler->authenticate()){
             $accessPacket = $pHandler->generateAccessPacket();
             echo json_encode($accessPacket);

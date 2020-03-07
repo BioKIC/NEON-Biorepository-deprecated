@@ -1,59 +1,40 @@
 <?php
 header('X-Frame-Options: deny');
-if(!isset($CLIENT_ROOT) && isset($clientRoot)) $CLIENT_ROOT = $clientRoot;
-if(!isset($SERVER_ROOT) && isset($serverRoot)) $SERVER_ROOT = $serverRoot;
-include_once($SERVER_ROOT.'/classes/Encryption.php');
-include_once($SERVER_ROOT.'/classes/ProfileManager.php');
-ini_set('session.gc_maxlifetime',3600);
-session_start();
 header('Cache-control: private'); // IE 6 FIX
-
-set_include_path(get_include_path() . PATH_SEPARATOR . $SERVER_ROOT . PATH_SEPARATOR . $SERVER_ROOT."/config/" . PATH_SEPARATOR . $SERVER_ROOT."/classes/");
 date_default_timezone_set('America/Phoenix');
 
-if(substr($CLIENT_ROOT,-1) == '/'){
-	$CLIENT_ROOT = substr($CLIENT_ROOT,0,strlen($CLIENT_ROOT)-1);
-}
-if(substr($SERVER_ROOT,-1) == '/'){
-	$SERVER_ROOT = substr($SERVER_ROOT,0,strlen($SERVER_ROOT)-1);
-}
+if(!isset($CLIENT_ROOT) && isset($clientRoot)) $CLIENT_ROOT = $clientRoot;
+if(substr($CLIENT_ROOT,-1) == '/') $CLIENT_ROOT = substr($CLIENT_ROOT,0,strlen($CLIENT_ROOT)-1);
+if(!isset($SERVER_ROOT) && isset($serverRoot)) $SERVER_ROOT = $serverRoot;
+if(substr($SERVER_ROOT,-1) == '/') $SERVER_ROOT = substr($SERVER_ROOT,0,strlen($SERVER_ROOT)-1);
+set_include_path(get_include_path() . PATH_SEPARATOR . $SERVER_ROOT . PATH_SEPARATOR . $SERVER_ROOT.'/config/' . PATH_SEPARATOR . $SERVER_ROOT.'/classes/');
+
+session_start(array('gc_maxlifetime'=>3600,'cookie_path'=>$CLIENT_ROOT));
+
+include_once($SERVER_ROOT.'/classes/Encryption.php');
+include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 
 //Check cookie to see if signed in
 $PARAMS_ARR = Array();				//params => 'un=egbot&dn=Edward&uid=301'
 $USER_RIGHTS = Array();
-if((isset($_COOKIE["SymbiotaCrumb"]) && (!isset($_REQUEST['submit']) || $_REQUEST['submit'] != "logout"))){
-    $tokenArr = json_decode(Encryption::decrypt($_COOKIE["SymbiotaCrumb"]), true);
-    if($tokenArr){
-        $pHandler = new ProfileManager();
-        if($pHandler->setUserName($tokenArr[0])){
-            $pHandler->setRememberMe(true);
-            $pHandler->setToken($tokenArr[1]);
-            $pHandler->setTokenAuthSql();
-            if(!$pHandler->authenticate()){
-                $pHandler->reset();
-            }
-        }
-        $pHandler->__destruct();
-    }
+if(isset($_COOKIE['SymbiotaCrumb'])){
+	$tokenArr = json_decode(Encryption::decrypt($_COOKIE['SymbiotaCrumb']), true);
+	if($tokenArr){
+		$pHandler = new ProfileManager();
+		if((isset($_REQUEST['submit']) && $_REQUEST['submit'] == 'logout') || isset($_REQUEST['loginas'])){
+	        $pHandler->deleteToken($pHandler->getUid($tokenArr[0]),$tokenArr[1]);
+		}
+		else{
+			if($pHandler->setUserName($tokenArr[0])){
+				$pHandler->setRememberMe(true);
+				$pHandler->setToken($tokenArr[1]);
+				if(!$pHandler->authenticate()) $pHandler->reset();
+			}
+		}
+	}
 }
-
-if((isset($_COOKIE["SymbiotaCrumb"]) && ((isset($_REQUEST['submit']) && $_REQUEST['submit'] == "logout") || isset($_REQUEST['loginas'])))){
-    $tokenArr = json_decode(Encryption::decrypt($_COOKIE["SymbiotaCrumb"]), true);
-    if($tokenArr){
-        $pHandler = new ProfileManager();
-        $uid = $pHandler->getUid($tokenArr[0]);
-        $pHandler->deleteToken($uid,$tokenArr[1]);
-        $pHandler->__destruct();
-    }
-}
-
-if(isset($_SESSION['userparams'])){
-    $PARAMS_ARR = $_SESSION['userparams'];
-}
-
-if(isset($_SESSION['userrights'])){
-    $USER_RIGHTS = $_SESSION['userrights'];
-}
+if(isset($_SESSION['userparams'])) $PARAMS_ARR = $_SESSION['userparams'];
+if(isset($_SESSION['userrights'])) $USER_RIGHTS = $_SESSION['userrights'];
 
 $CSS_VERSION = '11';
 $USER_DISPLAY_NAME = (array_key_exists("dn",$PARAMS_ARR)?$PARAMS_ARR["dn"]:"");
@@ -134,7 +115,7 @@ if(!isset($glossaryExportBanner) && isset($GLOSSARY_EXPORT_BANNER)) $glossaryExp
 $LANG_TAG = 'en';
 if(isset($_REQUEST['lang']) && $_REQUEST['lang']){
 	$LANG_TAG = $_REQUEST['lang'];
-	setcookie('lang', $LANG_TAG, time() + (3600 * 24 * 30));
+	setcookie('lang', $LANG_TAG, time() + (3600 * 24 * 30),$CLIENT_ROOT);
 }
 else if(isset($_COOKIE['lang']) && $_COOKIE['lang']){
 	$LANG_TAG = $_COOKIE['lang'];

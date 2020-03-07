@@ -1,7 +1,7 @@
 <?php
 $specList = $loanManager->getSpecList($loanId);
 ?>
-<script type="text/javascript" src="../../js/symb/collections.occureditormain.js?ver=141210"></script>
+<script type="text/javascript" src="../../js/symb/collections.editor.main.js?ver=1"></script>
 <div id="tabs" style="margin:0px;">
     <ul>
 		<li><a href="#outloandetaildiv"><span>Loan Details</span></a></li>

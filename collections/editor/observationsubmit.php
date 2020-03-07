@@ -70,7 +70,7 @@ $clArr = $obsManager->getChecklists();
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/collections.coordinateValidation.js" type="text/javascript"></script>
-	<script src="../../js/symb/collections.observationsubmit.js?ver=1903" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.observations.js?ver=1903" type="text/javascript"></script>
 </head>
 <body>
 	<?php

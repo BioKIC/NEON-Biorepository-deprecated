@@ -1281,6 +1281,13 @@ function verifyImgRemapForm(f){
 }
 
 //Misc
+function verifyLeaveForm(){
+	if(document.fullform && document.fullform.submitaction.disabled == false && document.fullform.submitaction.type == "submit"){
+		return confirm("It appears that you didn't save your changes. Are you sure you want to leave without saving?"); 
+	}
+	return true;
+}
+
 function dwcDoc(dcTag){
 	dwcWindow=open("http://symbiota.org/docs/symbiota-occurrence-data-fields-2/#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
 	//dwcWindow=open("http://rs.tdwg.org/dwc/terms/index.htm#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
@@ -1372,6 +1379,32 @@ function getCookie(cName){
 		x=x.replace(/^\s+|\s+$/g,"");
 		if (x==cName){
 			return unescape(y);
+		}
+	}
+}
+
+function toggle(target){
+	var ele = document.getElementById(target);
+	if(ele){
+		if(ele.style.display=="none" || ele.style.display==""){
+			ele.style.display="block";
+  		}
+	 	else {
+	 		ele.style.display="none";
+	 	}
+	}
+	else{
+		var divObjs = document.getElementsByTagName("div");
+	  	for (i = 0; i < divObjs.length; i++) {
+	  		var divObj = divObjs[i];
+	  		if(divObj.getAttribute("class") == target || divObj.getAttribute("className") == target){
+				if(divObj.style.display=="none"){
+					divObj.style.display="";
+				}
+			 	else {
+			 		divObj.style.display="none";
+			 	}
+			}
 		}
 	}
 }

@@ -1,81 +1,4 @@
 //Query form 
-function submitQueryForm(qryIndex){
-	if(verifyLeaveForm()){
-		var f = document.queryform;
-		if(qryIndex == 'forward' || qryIndex == 'back'){
-			f.direction.value = qryIndex;
-		}
-		else if(qryIndex === parseInt(qryIndex)){
-			f.occindex.value = qryIndex;
-			f.direction.value = "";
-			f.occidlist.value = "";
-			f.occid.value = "";
-		}
-		if(verifyQueryForm(f)) f.submit();
-	}
-	return false;
-}
-
-function verifyLeaveForm(){
-	if(document.fullform && document.fullform.submitaction.disabled == false && document.fullform.submitaction.type == "submit"){
-		return confirm("It appears that you didn't save your changes. Are you sure you want to leave without saving?"); 
-	}
-	return true;
-}
-
-function submitQueryEditor(f){
-	f.action = "occurrenceeditor.php"
-	f.direction.value = "";
-	f.occid.value = "";
-	f.occindex.value = "0"
-	f.occidlist.value = "";
-	if(verifyQueryForm(f)) f.submit();
-	return true;
-}
-
-function submitQueryTable(f){
-	f.action = "occurrencetabledisplay.php";
-	f.direction.value = "";
-	f.occid.value = "";
-	f.occindex.value = "0"
-	f.occidlist.value = "";
-	if(verifyQueryForm(f)) f.submit();
-	return true;
-}
-
-function setOrderBy(formObject){
-	/*
-	if(formObject.value != ""){
-		var inputName = formObject.name;
-		inputName.substring(2)
-		if(formObject.form.orderby.value == "") formObject.form.orderby.value = inputName.substring(2);
-	}
-	*/
-}
-
-function detectBatchUpdateField(){
-	var fieldSelected = document.getElementById('bufieldname').value;
-	if(fieldSelected == "processingstatus"){
-		var buNewValue = '<select name="bunewvalue">';
-		buNewValue += '<option value="unprocessed">Unprocessed</option>';
-		buNewValue += '<option value="unprocessed/nlp">Unprocessed/NLP</option>';
-		buNewValue += '<option value="stage 1">Stage 1</option>';
-		buNewValue += '<option value="stage 2">Stage 2</option>';
-		buNewValue += '<option value="stage 3">Stage 3</option>';
-		buNewValue += '<option value="pending review-nfn">Pending Review-NfN</option>';
-		buNewValue += '<option value="pending review">Pending Review</option>';
-		buNewValue += '<option value="expert required">Expert Required</option>';
-		buNewValue += '<option value="reviewed">Reviewed</option>';
-		buNewValue += '<option value="closed">Closed</option>';
-		buNewValue += '<option value="">No Set Status</option>';
-		buNewValue += '</select>';
-		document.getElementById("bunewvaluediv").innerHTML = buNewValue;
-	}
-	else if(!$("input[name='bunewvalue']").val()){
-		document.getElementById("bunewvaluediv").innerHTML = '<input name="bunewvalue" type="text" value="" />';
-	}
-}
-
 function verifyQueryForm(f){
 	//if(f.q_catalognumber.value == "" && f.q_othercatalognumbers.value == ""  
 	//	&& f.q_recordedby.value == "" && f.q_recordnumber.value == "" && f.q_eventdate.value == ""
@@ -137,6 +60,53 @@ function verifyQueryForm(f){
 	return true;
 }
 
+function submitQueryForm(qryIndex){
+	if(verifyLeaveForm()){
+		var f = document.queryform;
+		if(qryIndex == 'forward' || qryIndex == 'back'){
+			f.direction.value = qryIndex;
+		}
+		else if(qryIndex === parseInt(qryIndex)){
+			f.occindex.value = qryIndex;
+			f.direction.value = "";
+			f.occidlist.value = "";
+			f.occid.value = "";
+		}
+		if(verifyQueryForm(f)) f.submit();
+	}
+	return false;
+}
+
+function submitQueryEditor(f){
+	f.action = "occurrenceeditor.php"
+	f.direction.value = "";
+	f.occid.value = "";
+	f.occindex.value = "0"
+	f.occidlist.value = "";
+	if(verifyQueryForm(f)) f.submit();
+	return true;
+}
+
+function submitQueryTable(f){
+	f.action = "occurrencetabledisplay.php";
+	f.direction.value = "";
+	f.occid.value = "";
+	f.occindex.value = "0"
+	f.occidlist.value = "";
+	if(verifyQueryForm(f)) f.submit();
+	return true;
+}
+
+function setOrderBy(formObject){
+	/*
+	if(formObject.value != ""){
+		var inputName = formObject.name;
+		inputName.substring(2)
+		if(formObject.form.orderby.value == "") formObject.form.orderby.value = inputName.substring(2);
+	}
+	*/
+}
+
 function resetQueryForm(f){
 	f.occid.value = "";
 	f.occidlist.value = "";
@@ -169,36 +139,6 @@ function resetQueryForm(f){
 	f.orderbydir.value = "ASC";
 }
 
-function submitBatchUpdate(f){
-	var fieldName = f.bufieldname.options[f.bufieldname.selectedIndex].value;
-	var oldValue = f.buoldvalue.value;
-	var newValue = f.bunewvalue.value;
-	var buMatch = 0;
-	if(f.bumatch[1].checked) buMatch = 1;
-	if(!fieldName){
-		alert("Please select a target field name");
-		return false;
-	}
-	if(!oldValue && !newValue){
-		alert("Please enter a value in the current or new value fields");
-		return false;
-	}
-	if(oldValue == newValue){
-		alert("The values within current and new fields cannot be equal to one another");
-		return false;
-	}
-
-	$.ajax({
-		type: "POST",
-		url: "rpc/batchupdateverify.php",
-		dataType: "json",
-		data: { collid: f.collid.value, fieldname: fieldName, oldvalue: oldValue, bumatch: buMatch, ouid: f.ouid.value }
-	}).done(function( retCnt ) {
-		if(confirm("You are about to update "+retCnt+" records.\nNote that you won't be able to undo this Replace operation!\nDo you want to continue?")){
-			f.submit();
-		}
-	});
-}
 
 function customSelectChanged(targetSelect){
 	var sourceObj = document.queryform.q_customfield1;
@@ -225,7 +165,7 @@ function toggleCustomDiv2(){
 	f.q_customtype3.options[0].selected = true;
 	f.q_customvalue3.value = "";
 	document.getElementById('customdiv3').style.display = "none";
-	toggle('customdiv2');
+	$('#customdiv2').toggle();
 }
 
 function toggleCustomDiv3(){
@@ -233,41 +173,5 @@ function toggleCustomDiv3(){
 	f.q_customfield3.options[0].selected = true;
 	f.q_customtype3.options[0].selected = true;
 	f.q_customvalue3.value = "";
-	toggle('customdiv3');
-}
-
-function toggle(target){
-	var ele = document.getElementById(target);
-	if(ele){
-		if(ele.style.display=="none" || ele.style.display==""){
-			ele.style.display="block";
-  		}
-	 	else {
-	 		ele.style.display="none";
-	 	}
-	}
-	else{
-		var divObjs = document.getElementsByTagName("div");
-	  	for (i = 0; i < divObjs.length; i++) {
-	  		var divObj = divObjs[i];
-	  		if(divObj.getAttribute("class") == target || divObj.getAttribute("className") == target){
-				if(divObj.style.display=="none"){
-					divObj.style.display="";
-				}
-			 	else {
-			 		divObj.style.display="none";
-			 	}
-			}
-		}
-	}
-}
-
-function toggleSearch(){
-	if(document.getElementById("batchupdatediv")) document.getElementById("batchupdatediv").style.display = "none";
-	toggle("querydiv");
-}
-
-function toggleBatchUpdate(){
-	document.getElementById("querydiv").style.display = "none";
-	toggle("batchupdatediv");
+	$("#customdiv3").toggle();
 }

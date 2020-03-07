@@ -3,9 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ExsiccatiManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID){
-	header('Location: ../../profile/index.php?refurl=../collections/exsiccati/batchimport.php?'.$_SERVER['QUERY_STRING']);
-}
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/exsiccati/batchimport.php?'.$_SERVER['QUERY_STRING']);
 
 $ometid = array_key_exists('ometid',$_REQUEST)?$_REQUEST['ometid']:0;
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
@@ -247,7 +245,7 @@ if($isEditor && $formSubmit){
 		}
 		else{
 			?>
-			<form name="queryform" action="batchimport.php" method="post" onsubmit="return verifyQueryForm(this)">
+			<form name="queryform" action="batchimport.php" method="post">
 				<fieldset>
 					<legend><b>Batch Import Module</b></legend>
 					<?php

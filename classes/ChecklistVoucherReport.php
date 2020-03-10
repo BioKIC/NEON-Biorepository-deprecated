@@ -140,11 +140,13 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 	public function getMissingTaxa(){
 		$retArr = Array();
 		if($sqlFrag = $this->getSqlFrag()){
-			$sql = 'SELECT DISTINCT t.tid, t.sciname '.$this->getMissingTaxaBaseSql($sqlFrag);
+			$sql = 'SELECT DISTINCT t.tid, t.sciname, o.sciname AS occur_sciname '.$this->getMissingTaxaBaseSql($sqlFrag);
 			//echo '<div>'.$sql.'</div>';
 			$rs = $this->conn->query($sql);
-			while($row = $rs->fetch_object()){
-				$retArr[$row->tid] = $this->cleanOutStr($row->sciname);
+			while($r = $rs->fetch_object()){
+				$sciStr = $r->sciname;
+				if($r->sciname != $r->occur_sciname) $sciStr .= ' (syn: '.$r->occur_sciname.')';
+				$retArr[$r->tid] = $this->cleanOutStr($sciStr);
 			}
 			asort($retArr);
 			$rs->free();
@@ -158,12 +160,13 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		if($sqlFrag = $this->getSqlFrag()){
 			$sqlBase = $this->getMissingTaxaBaseSql($sqlFrag);
 			$sql = 'SELECT DISTINCT o.occid, c.institutioncode ,c.collectioncode, o.catalognumber, '.
-				'o.tidinterpreted, o.sciname, o.recordedby, o.recordnumber, o.eventdate, '.
+				'o.tidinterpreted, t.sciname, o.sciname AS occur_sciname, o.recordedby, o.recordnumber, o.eventdate, '.
 				'CONCAT_WS("; ",o.country, o.stateprovince, o.county, o.locality) as locality '.
-				$sqlBase.' ORDER BY o.sciname LIMIT '.($limitIndex?($limitIndex*1000).',':'').'1000';
+				$sqlBase.' ORDER BY t.sciname LIMIT '.($limitIndex?($limitIndex*1000).',':'').'1000';
 			//echo '<div>'.$sql.'</div>'; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
+				$retArr[$r->sciname][$r->occid]['o_sn'] = $r->occur_sciname;
 				$retArr[$r->sciname][$r->occid]['tid'] = $r->tidinterpreted;
 				$collCode = '';
 				if(!$r->catalognumber || strpos($r->catalognumber, $r->institutioncode) === false){
@@ -252,7 +255,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			'INNER JOIN taxa t ON ts.tidaccepted = t.tid ';
 		if($asExport) $retSql .= 'LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
 		$retSql .= $this->getTableJoinFrag($sqlFrag);
-		$retSql .= 'WHERE ('.$sqlFrag.') AND (t.rankid IN(220,230,240,260,230)) AND (ts.taxauthid = 1) ';
+		$retSql .= 'WHERE ('.$sqlFrag.') AND (t.rankid > 219) AND (ts.taxauthid = 1) ';
 		$idArr = $this->getVoucherIDs('occid');
 		if($idArr) $retSql .= 'AND (o.occid NOT IN('.implode(',',$idArr).')) ';
 		$retSql .= 'AND (ts.tidaccepted NOT IN(SELECT ts.tidaccepted FROM fmchklsttaxalink cl INNER JOIN taxstatus ts ON cl.tid = ts.tid WHERE ts.taxauthid = 1 AND cl.clid IN('.$clidStr.'))) ';

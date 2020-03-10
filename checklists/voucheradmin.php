@@ -100,7 +100,7 @@ if($statusStr){
 <?php
 }
 if($clid && $isEditor){
-	$termArr = $clManager->getQueryVariablesArr();
+	$termArr = $clManager->getQueryVariableArr();
 	$collList = $clManager->getCollectionList();
 	if($termArr){
 		?>
@@ -182,10 +182,6 @@ if($clid && $isEditor){
 								<div>
 									<b><?php echo $LANG['LONGW'];?>:</b>
 									<input id="leftlong" name="lngwest" type="text" style="width:80px;" value="<?php echo isset($termArr['lngwest'])?$termArr['lngwest']:''; ?>" title="Longitude West" />
-								</div>
-								<div>
-									<input name="latlngor" type="checkbox" value="1" <?php if(isset($termArr['latlngor'])) echo 'CHECKED'; ?> onclick="coordInputSelected(this)" />
-									<?php echo (isset($LANG['INCLUDELATLONG']) && $LANG['INCLUDELATLONG']?$LANG['INCLUDELATLONG']:'Match on lat/long OR locality (include non-georeferenced occurrences)');?>
 								</div>
 								<div>
 									<input name="onlycoord" value="1" type="checkbox" <?php if(isset($termArr['onlycoord'])) echo 'CHECKED'; ?> onclick="coordInputSelected(this)" />

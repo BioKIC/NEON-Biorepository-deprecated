@@ -50,9 +50,26 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 	protected function setSqlWhere(){
 		$sqlWhere = "";
 		if(array_key_exists("targetclid",$this->searchTermArr) && is_numeric($this->searchTermArr["targetclid"])){
-			//Used to exclude vouchers already linked to target checklist
-			$sqlWhere .= 'AND ('.$this->voucherManager->getSqlFrag().') ';
+			$voucherVariableArr = $this->voucherManager->getQueryVariableArr();
+			if($voucherVariableArr){
+				if(isset($voucherVariableArr['collid'])) $this->searchTermArr['db'] = $voucherVariableArr['collid'];
+				if(isset($voucherVariableArr['country'])) $this->searchTermArr['country'] = $voucherVariableArr['country'];
+				if(isset($voucherVariableArr['state'])) $this->searchTermArr['state'] = $voucherVariableArr['state'];
+				if(isset($voucherVariableArr['county'])) $this->searchTermArr['county'] = $voucherVariableArr['county'];
+				if(isset($voucherVariableArr['locality'])) $this->searchTermArr['local'] = $voucherVariableArr['locality'];
+				if(isset($voucherVariableArr['recordedby'])) $this->searchTermArr['collector'] = $voucherVariableArr['recordedby'];
+				if(isset($voucherVariableArr['taxon']) && !$this->taxaArr) $this->setTaxonRequestVariable(array('taxa'=>$voucherVariableArr['taxon'],'usethes'=>1));
+				if(isset($voucherVariableArr['latsouth'])) $this->searchTermArr['llbound'] = $voucherVariableArr['latnorth'].';'.$voucherVariableArr['latsouth'].';'.$voucherVariableArr['lngwest'].';'.$voucherVariableArr['lngeast'];
+				if(isset($voucherVariableArr['includewkt'])) $this->searchTermArr['footprintwkt'] = $this->footprintWkt;
+				if(!isset($voucherVariableArr['excludecult'])) $this->searchTermArr['includecult'] = 1;
+				if(isset($voucherVariableArr['onlycoord'])){
+					//Include details to limit to coordinates
+					$this->displaySearchArr[] = 'Only include occurrences with coordinates';
+					$sqlWhere .= 'AND (o.decimallatitude IS NOT NULL) ';
+				}
+			}
 			if(array_key_exists('mode', $_REQUEST) && $_REQUEST['mode'] == 'voucher'){
+				//Exclude vouchers already linked to target checklist
 				$clOccidArr = array();
 				if(isset($this->taxaArr['search']) && is_numeric($this->taxaArr['search'])){
 					$sql = 'SELECT DISTINCT v.occid '.
@@ -67,7 +84,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				}
 				if($clOccidArr) $sqlWhere .= 'AND (o.occid NOT IN('.implode(',',$clOccidArr).')) ';
 			}
-			$this->displaySearchArr[] = $this->voucherManager->getQueryVariableStr();
+			//$this->displaySearchArr[] = $this->voucherManager->getQueryVariableStr();
 		}
 		elseif(array_key_exists('clid',$this->searchTermArr) && is_numeric($this->searchTermArr['clid'])){
 			if(isset($this->searchTermArr["cltype"]) && $this->searchTermArr["cltype"] == 'all'){

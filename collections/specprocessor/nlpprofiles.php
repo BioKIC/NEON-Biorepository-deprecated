@@ -41,9 +41,18 @@ if($isEditor){
 <html>
 	<head>
 		<title>Specimen NLP Profile Manager</title>
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<script language="javascript">
+		<?php
+		$activateJQuery = false;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+		}
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
+		<script>
 			function toggle(target){
 				divObj = document.getElementById(target);
 				if(divObj != null){
@@ -70,7 +79,7 @@ if($isEditor){
 					}
 				}
 			}
-			
+
 		</script>
 	</head>
 	<body>
@@ -81,15 +90,15 @@ if($isEditor){
 		<!-- This is inner text! -->
 		<div id="innertext">
 			<h1>Specimen NLP Profile Manager</h1>
-			<?php 
-			if($status){ 
+			<?php
+			if($status){
 				?>
 				<div style='margin:20px 0px 20px 0px;'>
 					<hr/>
 					<?php echo $status; ?>
 					<hr/>
 				</div>
-				<?php 
+				<?php
 			}
 			if($isEditor && $SYMB_UID && $collId){
 				$profileArr = $nlpManager->getProfileArr($spNlpId);
@@ -103,15 +112,15 @@ if($isEditor){
 							<fieldset>
 								<legend>Add New Profile</legend>
 								<div>
-									Title: 
+									Title:
 									<input name="title" type="text" />
 								</div>
 								<div>
-									SQL Fragment: 
+									SQL Fragment:
 									<input name="sqlfrag" type="text" style="width:200px;" />
 								</div>
 								<div>
-									Pattern Match: 
+									Pattern Match:
 									<input name="patternmatch" type="text" style="width:200px;" />
 								</div>
 								<div>
@@ -130,7 +139,7 @@ if($isEditor){
 						if($profileArr){
 							?>
 							<ul>
-								<?php 
+								<?php
 								foreach($profileArr as $k => $vArr){
 									?>
 									<li>
@@ -138,18 +147,18 @@ if($isEditor){
 											<?php echo $vArr['title']; ?>
 										</a>
 									</li>
-									<?php 
+									<?php
 								}
 								?>
 							</ul>
-							<?php 
+							<?php
 						}
 						else{
 							echo '<div style="margin:20px;font-weight:bold;">There are no NLP profiles for this collection</div>';
 						}
 						?>
-					</div>	
-					<?php 
+					</div>
+					<?php
 				}
 				else{
 					$pArr = array_shift($profileArr);
@@ -166,29 +175,29 @@ if($isEditor){
 								</div>
 								<div class="editdiv" style="float:left;">
 									<?php echo $pArr['sqlfrag']; ?>
-								</div> 
+								</div>
 								<div class="editdiv" style="float:left;display:none;">
 									<input name="sqlfrag" type="text" value="<?php echo $pArr['sqlfrag']; ?>" />
 								</div>
 							</div>
 							<div style="clear:both;">
 								<div style="float:left;width:150px;">
-									<b>Pattern Match:</b> 
+									<b>Pattern Match:</b>
 								</div>
 								<div class="editdiv" style="float:left;">
 									<?php echo $pArr['patternmatch']; ?>
-								</div> 
+								</div>
 								<div class="editdiv" style="float:left;display:none;">
 									<input name="patternmatch" type="text" value="<?php echo $pArr['patternmatch']; ?>" />
 								</div>
 							</div>
 							<div style="clear:both;">
 								<div style="float:left;width:150px;">
-									<b>Notes:</b> 
+									<b>Notes:</b>
 								</div>
 								<div class="editdiv" style="float:left;">
 									<?php echo $pArr['notes']; ?>
-								</div> 
+								</div>
 								<div class="editdiv" style="float:left;display:none;">
 									<input name="notes" type="text" value="<?php echo $pArr['notes']; ?>" />
 								</div>
@@ -200,7 +209,7 @@ if($isEditor){
 							</div>
 						</form>
 						<div style="font-weight:bold;clear:both;">Field Parsing Fragments</div>
-						<?php 
+						<?php
 						$profileFragArr = $nlpManager->getProfileFragments($spNlpId);
 						?>
 						<div id="fragadddiv" style="display:none;">
@@ -208,19 +217,19 @@ if($isEditor){
 								<fieldset>
 									<legend>Add New Parsing Fragment</legend>
 									<div>
-										<b>Field Name:</b> 
+										<b>Field Name:</b>
 										<input name="fieldname" type="text" />
 									</div>
 									<div>
-										<b>Pattern Match:</b> 
+										<b>Pattern Match:</b>
 										<input name="patternmatch" type="text" />
 									</div>
 									<div>
-										<b>Notes:</b> 
+										<b>Notes:</b>
 										<input name="notes" type="text" />
 									</div>
 									<div>
-										<b>Sort Sequence:</b> 
+										<b>Sort Sequence:</b>
 										<input name="sortseq" type="text" />
 									</div>
 									<div>
@@ -232,7 +241,7 @@ if($isEditor){
 							</form>
 						</div>
 						<ul>
-							<?php 
+							<?php
 							if($profileFragArr){
 								foreach($profileFragArr as $k => $vArr){
 									?>
@@ -246,19 +255,19 @@ if($isEditor){
 													<fieldset>
 														<legend>Editor</legend>
 														<div>
-															<b>Field Name:</b> 
+															<b>Field Name:</b>
 															<input name="fieldname" type="text" value="<?php echo $vArr['fieldname']; ?>" />
 														</div>
 														<div>
-															<b>Pattern Match:</b> 
+															<b>Pattern Match:</b>
 															<input name="patternmatch" type="text" value="<?php echo $vArr['patternmatch']; ?>" />
 														</div>
 														<div>
-															<b>Notes:</b> 
+															<b>Notes:</b>
 															<input name="notes" type="text" value="<?php echo $vArr['notes']; ?>" />
 														</div>
 														<div>
-															<b>Sort Sequence:</b> 
+															<b>Sort Sequence:</b>
 															<input name="sortseq" type="text" value="<?php echo $vArr['sortseq']; ?>" />
 														</div>
 														<div>
@@ -283,11 +292,11 @@ if($isEditor){
 											</div>
 										</div>
 									</li>
-									<?php 
+									<?php
 								}
 							}
 							else{
-								echo '<li>There are no parsing fragments</li>'; 	
+								echo '<li>There are no parsing fragments</li>';
 							}
 							?>
 						</ul>
@@ -303,7 +312,7 @@ if($isEditor){
 								</div>
 							</fieldset>
 						</form>
-						
+
 					</div>
 					<?php
 				}
@@ -319,7 +328,7 @@ if($isEditor){
 				elseif(!$isEditor){
 					?>
 					<div style='font-weight:bold;'>
-						You do not have the necessary rights to access NLP profiles 
+						You do not have the necessary rights to access NLP profiles
 					</div>
 					<?php
 				}

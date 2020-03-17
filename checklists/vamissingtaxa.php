@@ -11,12 +11,17 @@ $startIndex = array_key_exists("start",$_REQUEST)?$_REQUEST["start"]:0;
 $vManager = new ChecklistVoucherReport();
 $vManager->setClid($clid);
 $vManager->setCollectionVariables();
+$limitRange = 1000;
 
 $isEditor = false;
 if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USER_RIGHTS["ClAdmin"]))){
 	$isEditor = true;
 }
 if($isEditor){
+	$missingArr = array();
+	if($displayMode==1) $missingArr = $vManager->getMissingTaxaSpecimens($startIndex, $limitRange);
+	elseif($displayMode==2) $missingArr = $vManager->getMissingProblemTaxa();
+	else $missingArr = $vManager->getMissingTaxa();
 	?>
 	<div id="innertext" style="background-color:white;">
 		<div style='float:left;font-weight:bold;margin-left:5px'>
@@ -54,9 +59,8 @@ if($isEditor){
 		<div>
 			<?php
 			$recCnt = 0;
-			if($displayMode==1){
-				$missingArr = $vManager->getMissingTaxaSpecimens($startIndex);
-				if($missingArr){
+			if($missingArr){
+				if($displayMode==1){
 					?>
 					<div style="clear:both;margin:10px;">
 						Listed below are specimens identified to a species not found in the checklist. Use the form to add the
@@ -115,12 +119,9 @@ if($isEditor){
 					<?php
 					echo '<div style="float:left">Specimen count: '.$recCnt.'</div>';
 					$queryStr = 'tabindex=1&displaymode=1&clid='.$clid.'&pid='.$pid.'&start='.(++$startIndex);
-					if($recCnt > 399) echo '<div style="float:right;margin-right:30px;"><a style="margin-left:10px;" href="voucheradmin.php?'.$queryStr.'">View Next 1000</a></div>';
+					if($recCnt > $limitRange) echo '<div style="float:right;margin-right:30px;"><a style="margin-left:10px;" href="voucheradmin.php?'.$queryStr.'">View Next '.$limitRange.'</a></div>';
 				}
-			}
-			elseif($displayMode==2){
-				$missingArr = $vManager->getMissingProblemTaxa();
-				if($missingArr){
+				elseif($displayMode==2){
 					?>
 					<div style="clear:both;margin:10px;">
 						Listed below are species name obtained from specimens matching the above search term but
@@ -165,10 +166,7 @@ if($isEditor){
 					</table>
 					<?php
 				}
-			}
-			else{
-				$missingArr = $vManager->getMissingTaxa();
-				if($missingArr){
+				else{
 					?>
 					<div style="margin:20px;clear:both;">
 						<div style="clear:both;margin:10px;">

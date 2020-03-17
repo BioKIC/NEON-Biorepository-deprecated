@@ -141,7 +141,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		$retArr = Array();
 		if($sqlFrag = $this->getSqlFrag()){
 			$sql = 'SELECT DISTINCT t.tid, t.sciname, o.sciname AS occur_sciname '.$this->getMissingTaxaBaseSql($sqlFrag);
-			//echo '<div>'.$sql.'</div>';
+			//echo '<div>'.$sql.'</div>'; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$sciStr = $r->sciname;
@@ -155,14 +155,14 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		return $retArr;
 	}
 
-	public function getMissingTaxaSpecimens($limitIndex){
+	public function getMissingTaxaSpecimens($limitIndex, $limitRange = 1000){
 		$retArr = Array();
 		if($sqlFrag = $this->getSqlFrag()){
 			$sqlBase = $this->getMissingTaxaBaseSql($sqlFrag);
 			$sql = 'SELECT DISTINCT o.occid, c.institutioncode ,c.collectioncode, o.catalognumber, '.
 				'o.tidinterpreted, t.sciname, o.sciname AS occur_sciname, o.recordedby, o.recordnumber, o.eventdate, '.
 				'CONCAT_WS("; ",o.country, o.stateprovince, o.county, o.locality) as locality '.
-				$sqlBase.' ORDER BY t.sciname LIMIT '.($limitIndex?($limitIndex*1000).',':'').'1000';
+				$sqlBase.' ORDER BY t.sciname LIMIT '.($limitIndex?($limitIndex*1000).',':'').$limitRange;
 			//echo '<div>'.$sql.'</div>'; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){

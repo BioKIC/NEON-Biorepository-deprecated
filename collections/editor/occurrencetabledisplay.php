@@ -101,7 +101,7 @@ if($SYMB_UID){
 	if(!is_numeric($occIndex)) $occIndex = 0;
 	$recStart = floor($occIndex/$recLimit)*$recLimit;
 	$recArr = $occManager->getOccurMap($recStart, $recLimit);
-	$navStr = '<div style="float:right;">';
+	$navStr = '<div class="navpath" style="float:right;">';
 	if($recStart >= $recLimit){
 		$navStr .= '<a href="#" onclick="return submitQueryForm('.($recStart-$recLimit).');" title="Previous '.$recLimit.' records">&lt;&lt;</a>';
 	}
@@ -121,30 +121,32 @@ else{
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Occurrence Table View</title>
-  <style type="text/css">
-  table.styledtable td {
-      white-space: nowrap;
-  }
-  </style>
-  <?php
-    $activateJQuery = false;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.table.js?ver=2" type="text/javascript" ></script>
 	<script src="../../js/symb/collections.editor.query.js?ver=2" type="text/javascript" ></script>
+	<style type="text/css">
+		table.styledtable td { white-space: nowrap; }
+		fieldset{ padding:15px }
+		fieldset > legend{ font-weight:bold }
+		.fieldGroupDiv{ clear:both; margin-bottom:2px; overflow: auto}
+		.fieldDiv{ float:left; margin-right: 20px}
+		#innertext{ background-color: white }
+	</style>
 </head>
 <body style="margin-left: 0px; margin-right: 0px;background-color:white;">
-	<!-- inner text -->
-	<div id="">
+	<div id="innertext">
 		<?php
 		if($collMap){
 			echo '<div>';
@@ -266,46 +268,31 @@ else{
 				<?php
 			}
 			?>
-			<div style="width:790px;clear:both;">
-				<?php
-				if(isset($collections_editor_occurrencetableviewCrumbs)){
-					if($collections_editor_occurrencetableviewCrumbs){
+			<div style="width:850px;clear:both;">
+				<div class='navpath' style="float:left">
+					<a href="../../index.php">Home</a> &gt;&gt;
+					<?php
+					if($crowdSourceMode){
 						?>
-						<div class='navpath'>
-							<a href='../../index.php'>Home</a> &gt;&gt;
-							<?php echo $collections_editor_occurrencetableviewCrumbs; ?>
-							<b>Occurrence Record Table View</b>
-						</div>
+						<a href="../specprocessor/crowdsource/index.php">Crowd Sourcing Central</a> &gt;&gt;
 						<?php
 					}
-				}
-				else{
-					?>
-					<span class='navpath'>
-						<a href="../../index.php">Home</a> &gt;&gt;
-						<?php
-						if($crowdSourceMode){
+					else{
+						if(!$isGenObs || $IS_ADMIN){
 							?>
-							<a href="../specprocessor/crowdsource/index.php">Crowd Sourcing Central</a> &gt;&gt;
+							<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1">Collection Management</a> &gt;&gt;
 							<?php
 						}
-						else{
-							if(!$isGenObs || $IS_ADMIN){
-								?>
-								<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1">Collection Management</a> &gt;&gt;
-								<?php
-							}
-							if($isGenObs){
-								?>
-								<a href="../../profile/viewprofile.php?tabindex=1">Personal Management</a> &gt;&gt;
-								<?php
-							}
+						if($isGenObs){
+							?>
+							<a href="../../profile/viewprofile.php?tabindex=1">Personal Management</a> &gt;&gt;
+							<?php
 						}
-						?>
-						<b>Occurrence Record Table View</b>
-					</span>
-					<?php
-				}
+					}
+					?>
+					<b>Occurrence Record Table View</b>
+				</div>
+				<?php
 				echo $navStr; ?>
 			</div>
 			<?php

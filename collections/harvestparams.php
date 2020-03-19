@@ -47,7 +47,7 @@ $searchVar = $collManager->getQueryTermStr();
 <body>
 <?php
 	$displayLeftMenu = (isset($collections_harvestparamsMenu)?$collections_harvestparamsMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_harvestparamsCrumbs)){
 		if($collections_harvestparamsCrumbs){
 			echo '<div class="navpath">';
@@ -66,14 +66,13 @@ $searchVar = $collManager->getQueryTermStr();
 		<?php
 	}
 	?>
-
 	<div id="innertext">
 		<form name="harvestparams" id="harvestparams" action="list.php" method="post" onsubmit="return checkHarvestParamsForm(this)">
 			<div style="margin:10 0 10 0;"><hr/></div>
 			<div style='float:right;margin:-5px 10px;'>
-				<div><button type="submit" class="ui-button ui-widget ui-corner-all"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
-				<div style="margin-bottom:10px"><button type="button" class="ui-button ui-widget ui-corner-all" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
-				<div><button type="reset" class="ui-button ui-widget ui-corner-all" style="padding:3px 10px;" onclick="resetHarvestParamsForm()"><?php echo isset($LANG['BUTTON_RESET'])?$LANG['BUTTON_RESET']:'Reset Form'; ?></button></div>
+				<div><button type="submit"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
+				<div style="margin-bottom:10px"><button type="button" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
+				<div><button type="reset" onclick="resetHarvestParamsForm()"><?php echo isset($LANG['BUTTON_RESET'])?$LANG['BUTTON_RESET']:'Reset Form'; ?></button></div>
 			</div>
 			<div>
 				<div style="font-weight:bold; font-size: 18px; margin-bottom: 10px;"><?php echo $LANG['TAXON_HEADER']; ?></div>
@@ -210,8 +209,8 @@ $searchVar = $collManager->getQueryTermStr();
 			</div>
 			<hr/>
 			<div style="float:right;">
-				<div><button type="submit" class="ui-button ui-widget ui-corner-all"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
-				<div style="margin-bottom:10px"><button type="button" class="ui-button ui-widget ui-corner-all" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
+				<div><button type="submit"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
+				<div style="margin-bottom:10px"><button type="button" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
 			</div>
 			<div>
 				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['SPECIMEN_HEADER']; ?></div>
@@ -240,7 +239,7 @@ $searchVar = $collManager->getQueryTermStr();
 		</form>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

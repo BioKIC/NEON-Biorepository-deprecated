@@ -76,7 +76,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 <body>
 <?php
 	$displayLeftMenu = (isset($collections_listMenu)?$collections_listMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_listCrumbs)){
 		if($collections_listCrumbs){
 			echo '<div class="navpath">';
@@ -118,19 +118,19 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 			<div id="queryrecords">
 				<div style="float:right;">
 					<form action="listtabledisplay.php" method="post" style="float:left">
-						<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo (isset($LANG['TABLE_DISPLAY'])?$LANG['TABLE_DISPLAY']:'Table Display'); ?>">
+						<button class="icon-button" title="<?php echo (isset($LANG['TABLE_DISPLAY'])?$LANG['TABLE_DISPLAY']:'Table Display'); ?>">
 							<img src="../images/table.png" style="width:15px; height:15px" />
 						</button>
 						<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 					</form>
 					<form action="download/index.php" method="post" style="float:left" onsubmit="targetPopup(this)">
-						<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
+						<button class="icon-button" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
 							<img src="../../images/dl2.png" srcset="../images/download.svg" class="svg-icon" style="width:15px; height:15px" />
 						</button>
 						<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 						<input name="dltype" type="hidden" value="specimen" />
 					</form>
-					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" onclick="copyUrl()" title="Copy URL to Clipboard">
+					<button class="icon-button" onclick="copyUrl()" title="Copy URL to Clipboard">
 						<img src="../../images/dl2.png" srcset="../images/link.svg" class="svg-icon" style="width:15px; height:15px" />
 					</button>
 				</div>
@@ -290,7 +290,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 		</div>
 		<div id="maps" style="min-height:400px;margin-bottom:10px;">
 			<form action="download/index.php" method="post" style="float:right" onsubmit="targetPopup(this)">
-				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
+				<button class="icon-button" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
 					<img src="../../images/dl2.png" srcset="../images/download.svg" class="svg-icon" style="width:15px; height:15px" />
 				</button>
 				<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
@@ -349,7 +349,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 	</div>
 </div>
 <?php
-include($SERVER_ROOT."/footer.php");
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

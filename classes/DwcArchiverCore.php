@@ -90,7 +90,7 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'],false);
-		$sql .= $this->conditionSql.$this->getTableJoins();
+		$sql .= $this->getTableJoins().$this->conditionSql;
 		//if($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 		if($sql){
 			$sql = 'SELECT COUNT(o.occid) as cnt '.$sql;
@@ -678,7 +678,7 @@ class DwcArchiverCore extends Manager{
 		}
 		$this->applyConditions();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
-		$sql .= $this->conditionSql.$this->getTableJoins();
+		$sql .= $this->getTableJoins().$this->conditionSql;
 		if(!$sql) return false;
 		$sql .= ' LIMIT 1000000';
 		$fieldArr = $this->occurrenceFieldArr['fields'];
@@ -1598,7 +1598,7 @@ class DwcArchiverCore extends Manager{
 		//Output records
 		$this->applyConditions();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
-		$sql .= $this->conditionSql.$this->getTableJoins();
+		$sql .= $this->getTableJoins().$this->conditionSql;
 		if(!$sql) return false;
 		if($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 

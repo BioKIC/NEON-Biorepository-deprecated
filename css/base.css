@@ -82,20 +82,17 @@ span[class=link]:hover {
 
 
 /*  navpath styles */
-
-div.navpath {
+.navpath {
     color: #000000;
-    font-size: 11px;
+    font-size: 12px;
 }
 
-div.navpath a {
-    font-size: 11px;
+.navpath a {
     color: #000000;
 }
 
-div.navpath a:hover {
+.navpath a:hover {
     color: #C0C0C0;
-    font-size: 11px;
 }
 
 button {

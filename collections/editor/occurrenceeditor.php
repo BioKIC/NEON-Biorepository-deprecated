@@ -491,9 +491,14 @@ else{
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.query.js?ver=2" type="text/javascript"></script>
+	<style type="text/css">
+		fieldset{ padding:15px }
+		fieldset > legend{ font-weight:bold; }
+		.fieldGroupDiv{ clear:both; margin-bottom:2px; overflow: auto; }
+		.fieldDiv{ float:left; margin-right: 20px; }
+	</style>
 </head>
 <body>
-	<!-- inner text -->
 	<div id="innertext">
 		<?php
 		if($collMap){
@@ -678,7 +683,7 @@ else{
 								<div id="occdiv">
 									<form id="fullform" name="fullform" action="occurrenceeditor.php" method="post" onsubmit="return verifyFullForm(this);">
 										<fieldset>
-											<legend><b>Collector Info</b></legend>
+											<legend>Collector Info</legend>
 											<?php
 											if($occId){
 												if($fragArr || $specImgArr){
@@ -767,8 +772,8 @@ else{
 												<?php
 												if(array_key_exists('loan',$occArr)){
 													?>
-													<fieldset style="float:right;margin:3px;border:1px solid red;">
-														<legend style="color:red;font-weight:bold;">Out On Loan</legend>
+													<fieldset style="float:right;margin:3px;padding:5px;border:1px solid red;">
+														<legend style="color:red;">Out On Loan</legend>
 														<b>To:</b> <a href="../loans/index.php?loantype=out&collid=<?php echo $collId.'&loanid='.$occArr['loan']['id']; ?>">
 															<?php echo $occArr['loan']['code']; ?></a><br/>
 														<b>Due date:</b> <?php echo (isset($occArr['loan']['date'])?$occArr['loan']['date']:'Not Defined'); ?>
@@ -820,7 +825,7 @@ else{
 											?>
 										</fieldset>
 										<fieldset>
-											<legend><b>Latest Identification</b></legend>
+											<legend>Latest Identification</legend>
 											<div style="clear:both;">
 												<div id="scinameDiv">
 													<?php echo (defined('SCIENTIFICNAMELABEL')?SCIENTIFICNAMELABEL:'Scientific Name'); ?>
@@ -905,7 +910,7 @@ else{
 											</div>
 										</fieldset>
 										<fieldset>
-											<legend><b>Locality</b></legend>
+											<legend>Locality</legend>
 											<div style="clear:both;">
 												<div id="countryDiv">
 													<?php echo (defined('COUNTRYLABEL')?COUNTRYLABEL:'Country'); ?>
@@ -1165,7 +1170,7 @@ else{
 										if($collType == 'paleo') include('includes/paleoinclude.php');
 										?>
 										<fieldset>
-											<legend><b>Misc</b></legend>
+											<legend>Misc</legend>
 											<div id="habitatDiv">
 												<?php echo (defined('HABITATLABEL')?HABITATLABEL:'Habitat'); ?>
 												<a href="#" onclick="return dwcDoc('habitat')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
@@ -1286,7 +1291,7 @@ else{
 											</div>
 										</fieldset>
 										<fieldset>
-											<legend><b>Curation</b></legend>
+											<legend>Curation</legend>
 											<div style="padding:3px;clear:both;">
 												<div id="typeStatusDiv">
 													<?php echo (defined('TYPESTATUSLABEL')?TYPESTATUSLABEL:'Type Status'); ?>
@@ -1422,7 +1427,7 @@ else{
 											if($userChecklists){
 												?>
 												<fieldset>
-													<legend><b>Checklist Voucher</b></legend>
+													<legend>Checklist Voucher</legend>
 													Link Occurrence to Checklist:
 													<select name="clidvoucher">
 														<option value="">No Checklist Selected</option>
@@ -1463,8 +1468,8 @@ else{
 												if($isEditor == 1 || $isEditor == 2){
 													?>
 													<div style="float:right;">
-														<fieldset style="padding:15px;background-color:lightyellow;">
-															<legend><b>Additional Options</b></legend>
+														<fieldset class="optionBox">
+															<legend>Additional Options</legend>
 															<input type="button" value="Go to New Occurrence Record" onclick="verifyGotoNew(this.form);" /><br/>
 															<input type="hidden" name="gotomode" value="" />
 															<input type="checkbox" name="carryloc" value="1" /> Carry over locality values

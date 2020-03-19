@@ -175,3 +175,37 @@ function toggleCustomDiv3(){
 	f.q_customvalue3.value = "";
 	$("#customdiv3").toggle();
 }
+
+function toggle(target){
+	var ele = document.getElementById(target);
+	if(ele){
+		if(ele.style.display=="none" || ele.style.display==""){
+			ele.style.display="block";
+  		}
+	 	else {
+	 		ele.style.display="none";
+	 	}
+	}
+	else{
+		var divObjs = document.getElementsByTagName("div");
+	  	for (i = 0; i < divObjs.length; i++) {
+	  		var divObj = divObjs[i];
+	  		if(divObj.getAttribute("class") == target || divObj.getAttribute("className") == target){
+				if(divObj.style.display=="none"){
+					divObj.style.display="";
+				}
+			 	else {
+			 		divObj.style.display="none";
+			 	}
+			}
+		}
+	}
+}
+
+//Misc
+function verifyLeaveForm(){
+	if(document.fullform && document.fullform.submitaction.disabled == false && document.fullform.submitaction.type == "submit"){
+		return confirm("It appears that you didn't save your changes. Are you sure you want to leave without saving?"); 
+	}
+	return true;
+}

@@ -83,7 +83,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 	}
 </script>
 <fieldset>
-	<legend><b>Paleontology</b></legend>
+	<legend>Paleontology</legend>
 	<div style="clear:both">
 		<div id="eonDiv">
 			<?php echo (defined('EONLABEL')?EONLABEL:'Eon'); ?>

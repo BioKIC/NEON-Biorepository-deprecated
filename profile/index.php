@@ -55,17 +55,17 @@ if(!is_numeric($resetPwd)) $resetPwd = 0;
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 
 if($remMe) $pHandler->setRememberMe(true);
-if($action == "logout"){
+if($action == 'logout'){
 	$pHandler->reset();
-	header("Location: ../index.php");
+	header('Location: ../index.php');
 }
-elseif($action == "login"){
-	if($pHandler->authenticate($_POST["password"])){
+elseif($action == 'login'){
+	if($pHandler->authenticate($_POST['password'])){
 		if(!$refUrl || (strtolower(substr($refUrl,0,4)) == 'http') || strpos($refUrl,'newprofile.php')){
-			header("Location: ../index.php");
+			header('Location: ../index.php');
 		}
 		else{
-			header("Location: ".$refUrl);
+			header('Location: '.$refUrl);
 		}
 	}
 	else{
@@ -143,7 +143,6 @@ else{
 	<script src="../js/symb/shared.js" type="text/javascript"></script>
 </head>
 <body>
-
 <?php
 $displayLeftMenu = (isset($profile_indexMenu)?$profile_indexMenu:'true');
 include($SERVER_ROOT.'/header.php');
@@ -172,7 +171,7 @@ include($SERVER_ROOT.'/header.php');
 					<input type="password" id="password" name="password"  style="border-style:inset;" autocomplete="off" />
 				</div>
 				<div style="margin:10px">
-					<input type="checkbox" value='1' name="remember" >
+					<input type="checkbox" value='1' name="remember" checked >
 					<?php echo (isset($LANG['REMEMBER'])?$LANG['REMEMBER']:'Remember me on this computer'); ?>
 				</div>
 				<div style="margin-right:10px;float:right;">

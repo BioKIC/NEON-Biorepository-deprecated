@@ -8,6 +8,7 @@ Language:  Español (Spanish)
 $LANG['NAV_HOME'] = 'Inicio';
 $LANG['CHECKADMIN'] = 'Administraci&oacute;n de Listados de Comprobaci&oacute;n';
 $LANG['RETURNCHECK'] = 'Regresar al Listado de Comprobaci&oacute;n';
+$LANG['ADDIMGVOUCHER'] = 'Agregar Im&aacute;gen Voucher';
 $LANG['EDITSEARCH'] = 'Editar Instrucci&oacute;n de B&uacute;squeda';
 $LANG['COUNTRY'] = 'Pa&iacute;s';
 $LANG['STATE'] = 'Estado';
@@ -22,7 +23,6 @@ $LANG['LATN'] = 'Lat Norte';
 $LANG['LATS'] = 'Lat Sur';
 $LANG['LONGE'] = 'Long Este';
 $LANG['LONGW'] = 'Long Oeste';
-$LANG['INCLUDELATLONG'] = 'Incluir Lat/Long y localidad como una condici&oacute;n "OR"';
 $LANG['ONLYCOORD'] = 'Solamente incluir ocurrencias con coordenadas';
 $LANG['POLYGON_SEARCH'] = 'B&uacute;squeda basada en el pol&iacute;gono que define los l&iacute;mites de investigaci&oacute;n de la lista de verificaci&oacute;n';
 $LANG['EXCLUDE'] = 'Excluir especies cultivadas/cautivas';

@@ -27,32 +27,25 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 	//Image browser functions
 	public function getFamilyList(){
 		$returnArray = Array();
-		$sql = 'SELECT DISTINCT ts.Family ';
-		$sql .= $this->getListSql();
-		$sql .= 'AND (ts.Family Is Not Null) ';
-		//echo $sql;
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
-			$returnArray[] = $row->Family;
+		$sql = 'SELECT DISTINCT ts.Family '.$this->getListSql().' AND (ts.Family Is Not Null) ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$returnArray[] = $r->Family;
 		}
-		$result->free();
+		$rs->free();
 		sort($returnArray);
 		return $returnArray;
 	}
 
 	public function getGenusList($taxon = ''){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT t.UnitName1 ';
-		$sql .= $this->getListSql();
-		if($taxon){
-			$taxon = $this->cleanInStr($taxon);
-			$sql .= "AND (ts.Family = '".$taxon."') ";
+		$sql = 'SELECT DISTINCT t.UnitName1 '.$this->getListSql();
+		if($taxon) $sql .= "AND (ts.Family = '".$this->cleanInStr($taxon)."') ";
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[] = $r->UnitName1;
 		}
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
-			$retArr[] = $row->UnitName1;
-		}
-		$result->free();
+		$rs->free();
 		sort($retArr);
 		return $retArr;
 	}
@@ -61,36 +54,35 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		$retArr = Array();
 		$tidArr = Array();
 		if($taxon){
+			$this->setTaxonRequestVariable(array('taxa'=>$taxon,'usethes'=>1,'taxontype'=>2));
+			foreach($this->taxaArr['taxa'] as $taxName => $taxArr){
+				if(isset($taxArr['tid'])) $tidArr = array_merge($tidArr,array_keys($taxArr['tid']));
+				if(isset($taxArr['synonyms'])) $tidArr = array_merge($tidArr,array_keys($taxArr['synonyms']));
+			}
 			$taxon = $this->cleanInStr($taxon);
-			if(strpos($taxon, ' ')) $tidArr = array_keys($this->getSynonyms($taxon));
 		}
-		$sql = 'SELECT DISTINCT t.tid, t.SciName ';
-		$sql .= $this->getListSql();
-		if($tidArr){
-			$sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (t.tid IN('.implode(',', $tidArr).'))) ';
+		$sql = 'SELECT DISTINCT t.tid, t.SciName '.$this->getListSql();
+		if($tidArr) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (t.tid IN('.implode(',', $tidArr).')) OR (e.parenttid IN('.implode(',', $tidArr).'))) ';
+		elseif($taxon) $sql .= "AND ((t.SciName LIKE '".$taxon."%') OR (ts.family = '".$taxon."')) ";
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->tid] = $r->SciName;
 		}
-		elseif($taxon){
-			$sql .= "AND ((t.SciName LIKE '".$taxon."%') OR (ts.family = '".$taxon."')) ";
-		}
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
-			$retArr[$row->tid] = $row->SciName;
-		}
-		$result->free();
+		$rs->free();
 		asort($retArr);
 		return $retArr;
 	}
 
 	private function getListSql(){
-		$sql = 'FROM images i INNER JOIN taxa t ON i.tid = t.tid '.
-			'INNER JOIN taxstatus ts ON t.tid = ts.tid ';
+		$sql = 'FROM images i INNER JOIN taxstatus ts ON i.tid = ts.tid '.
+			'INNER JOIN taxa t ON ts.tidaccepted = t.tid '.
+			'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
 		if(array_key_exists("tags",$this->searchTermArr) && $this->searchTermArr["tags"]){
 			$sql .= 'INNER JOIN imagetag it ON i.imgid = it.imgid ';
 		}
 		if(array_key_exists("keywords",$this->searchTermArr) && $this->searchTermArr["keywords"]){
 			$sql .= 'INNER JOIN imagekeywords ik ON i.imgid = ik.imgid ';
 		}
-		if($this->tidFocus) $sql .= 'INNER JOIN taxaenumtree e ON ts.tid = e.tid ';
 		if($this->sqlWhere) $sql .= $this->sqlWhere.' AND ';
 		else $sql .= 'WHERE ';
 		$sql .= '(ts.taxauthid = 1) AND (t.RankId > 219) ';

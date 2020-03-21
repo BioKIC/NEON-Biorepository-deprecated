@@ -307,7 +307,7 @@ class OccurrenceTaxaManager {
 			}
 			if($tidInArr) $sqlWhereTaxa .= 'OR (o.tidinterpreted IN('.implode(',',$tidInArr).')) ';
 		}
-		echo $sqlWhereTaxa;
+		//echo $sqlWhereTaxa;
 		if($sqlWhereTaxa) return "AND (".substr($sqlWhereTaxa,3).") ";
 		else return false;
 	}

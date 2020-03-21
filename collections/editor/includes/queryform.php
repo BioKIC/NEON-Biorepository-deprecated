@@ -47,50 +47,50 @@ else{
 	$processingStatusArr = array('unprocessed','unprocessed/NLP','stage 1','stage 2','stage 3','pending review-nfn','pending review','expert required','reviewed','closed');
 }
 ?>
-<div id="querydiv" style="clear:both;width:790px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
+<div id="querydiv" style="clear:both;width:850px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
 	<form name="queryform" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" onsubmit="return verifyQueryForm(this)">
 		<fieldset style="padding:5px;">
-			<legend><b>Record Search Form</b></legend>
+			<legend>Record Search Form</legend>
 			<?php
 			if(!$crowdSourceMode){
 				?>
-				<div style="margin:2px;">
-					<span title="Full name of collector as entered in database. To search just on last name, place the wildcard character (%) before name (%Gentry).">
-						<b>Collector:</b>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv" title="Full name of collector as entered in database. To search just on last name, place the wildcard character (%) before name (%Gentry).">
+						Collector:
 						<input type="text" name="q_recordedby" value="<?php echo $qRecordedBy; ?>" onchange="setOrderBy(this)" />
-					</span>
-					<span style="margin-left:25px;"><b>Number:</b></span>
-					<span title="Separate multiple terms by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
+					</div>
+					<div class="fieldDiv" title="Separate multiple terms by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
+						Number:
 						<input type="text" name="q_recordnumber" value="<?php echo $qRecordNumber; ?>" style="width:120px;" onchange="setOrderBy(this)" />
-					</span>
-					<span style="margin-left:15px;" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
-						<b>Date:</b>
+					</div>
+					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
+						Date:
 						<input type="text" name="q_eventdate" value="<?php echo $qEventDate; ?>" style="width:160px" onchange="setOrderBy(this)" />
-					</span>
+					</div>
 				</div>
 				<?php
 			}
 			?>
-			<div style="margin:2px;">
-				<b>Catalog Number:</b>
-				<span title="Separate multiples by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
+			<div class="fieldGroupDiv">
+				<div class="fieldDiv" title="Separate multiples by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
+					Catalog Number:
 					<input type="text" name="q_catalognumber" value="<?php echo $qCatalogNumber; ?>" onchange="setOrderBy(this)" />
-				</span>
+				</div>
 				<?php
 				if($crowdSourceMode){
 					?>
-					<span style="margin-left:25px;"><b>OCR Fragment:</b></span>
-					<span title="Search for term embedded within OCR block of text">
+					<div class="fieldDiv" title="Search for term embedded within OCR block of text">
+						OCR Fragment:
 						<input type="text" name="q_ocrfrag" value="<?php echo $qOcrFrag; ?>" style="width:200px;" />
-					</span>
+					</div>
 					<?php
 				}
 				else{
 					?>
-					<span style="margin-left:25px;"><b>Other Catalog Numbers:</b></span>
-					<span title="Separate multiples by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
+					<div class="fieldDiv" title="Separate multiples by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
+						Other Catalog Numbers:
 						<input type="text" name="q_othercatalognumbers" value="<?php echo $qOtherCatalogNumbers; ?>" />
-					</span>
+					</div>
 					<?php
 				}
 				?>
@@ -98,14 +98,14 @@ else{
 			<?php
 			if(!$crowdSourceMode){
 				?>
-				<div style="margin:2px;">
+				<div class="fieldGroupDiv">
 					<?php
 					if($isGenObs && ($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"])))){
 						?>
-						<span style="margin-right:25px;">
+						<div class="fieldDiv">
 							<input type="checkbox" name="q_observeruid" value="<?php echo $SYMB_UID; ?>" <?php echo ($qObserverUid?'CHECKED':''); ?> />
-							<b>Only My Records</b>
-						</span>
+							Only My Records
+						</div>
 						<?php
 					}
 					else{
@@ -114,60 +114,64 @@ else{
 						<?php
 					}
 					?>
-					<span style="margin-right:15px;<?php echo ($isGenObs?'display:none':''); ?>">
-						<b>Entered by:</b>
+					<div class="fieldDiv" style="<?php echo ($isGenObs?'display:none':''); ?>">
+						Entered by:
 						<input type="text" name="q_recordenteredby" value="<?php echo $qRecordEnteredBy; ?>" style="width:70px;" onchange="setOrderBy(this)" />
-					</span>
-					<span style="margin-right:15px;" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
-						<b>Date entered:</b>
+					</div>
+					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
+						Date entered:
 						<input type="text" name="q_dateentered" value="<?php echo $qDateEntered; ?>" style="width:160px" onchange="setOrderBy(this)" />
-					</span>
-					<span title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
-						<b>Date modified:</b>
+					</div>
+					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
+						Date modified:
 						<input type="text" name="q_datelastmodified" value="<?php echo $qDateLastModified; ?>" style="width:160px" onchange="setOrderBy(this)" />
-					</span>
+					</div>
 				</div>
-				<div style="margin:2px;">
-					<span><b>Processing Status:</b></span>
-					<select name="q_processingstatus" onchange="setOrderBy(this)">
-						<option value=''>All Records</option>
-						<option>-------------------</option>
-						<?php
-						foreach($processingStatusArr as $v){
-							//Don't display these options is editor is crowd sourced
-							$keyOut = strtolower($v);
-							echo '<option value="'.$keyOut.'" '.($qProcessingStatus==$keyOut?'SELECTED':'').'>'.ucwords($v).'</option>';
-						}
-						echo '<option value="isnull" '.($qProcessingStatus=='isnull'?'SELECTED':'').'>No Set Status</option>';
-						if($qProcessingStatus && $qProcessingStatus != 'isnull' && !in_array($qProcessingStatus,$processingStatusArr)){
-							echo '<option value="'.$qProcessingStatus.'" SELECTED>'.$qProcessingStatus.'</option>';
-						}
-						?>
-					</select>
-					<span style="margin-left:8px">
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						Processing Status:
+						<select name="q_processingstatus" onchange="setOrderBy(this)">
+							<option value=''>All Records</option>
+							<option>-------------------</option>
+							<?php
+							foreach($processingStatusArr as $v){
+								//Don't display these options is editor is crowd sourced
+								$keyOut = strtolower($v);
+								echo '<option value="'.$keyOut.'" '.($qProcessingStatus==$keyOut?'SELECTED':'').'>'.ucwords($v).'</option>';
+							}
+							echo '<option value="isnull" '.($qProcessingStatus=='isnull'?'SELECTED':'').'>No Set Status</option>';
+							if($qProcessingStatus && $qProcessingStatus != 'isnull' && !in_array($qProcessingStatus,$processingStatusArr)){
+								echo '<option value="'.$qProcessingStatus.'" SELECTED>'.$qProcessingStatus.'</option>';
+							}
+							?>
+						</select>
+					</div>
+					<div class="fieldDiv">
 						<input name="q_imgonly" type="checkbox" value="1" <?php echo ($qImgOnly==1?'checked':''); ?> onchange="this.form.q_withoutimg.checked = false;" />
-						<b>With images</b>
-					</span>
-					<span style="margin-left:8px">
+						with images
+					</div>
+					<div class="fieldDiv">
 						<input name="q_withoutimg" type="checkbox" value="1" <?php echo ($qWithoutImg==1?'checked':''); ?> onchange="this.form.q_imgonly.checked = false;" />
-						<b>Without images</b>
-					</span>
+						without images
+					</div>
 				</div>
 				<?php
 				if($ACTIVATE_EXSICCATI){
 					if($exsList = $occManager->getExsiccatiList()){
 						?>
-						<div style="margin:2px;" title="Enter Exsiccati Title">
-							<b>Exsiccati Title:</b>
-							<select name="q_exsiccatiid" style="width:650px">
-								<option value=""></option>
-								<option value="">-------------------------</option>
-								<?php
-								foreach($exsList as $exsID => $exsTitle){
-									echo '<option value="'.$exsID.'" '.($qExsiccatiId==$exsID?'SELECTED':'').'>'.$exsTitle.'</option>';
-								}
-								?>
-							</select>
+						<div class="fieldGroupDiv" title="Enter Exsiccati Title">
+							<div class="fieldDiv">
+								Exsiccati Title:
+								<select name="q_exsiccatiid" style="width:650px">
+									<option value=""></option>
+									<option value="">-------------------------</option>
+									<?php
+									foreach($exsList as $exsID => $exsTitle){
+										echo '<option value="'.$exsID.'" '.($qExsiccatiId==$exsID?'SELECTED':'').'>'.$exsTitle.'</option>';
+									}
+									?>
+								</select>
+							</div>
 						</div>
 						<?php
 					}
@@ -207,8 +211,8 @@ else{
 			}
 			//sort($advFieldArr);
 			?>
-			<div style="margin:2px 0px;">
-				<b>Custom Field 1:</b>
+			<div class="fieldGroupDiv">
+				Custom Field 1:
 				<select name="q_customfield1" onchange="customSelectChanged(1)">
 					<option value="">Select Field Name</option>
 					<option value="">---------------------------------</option>
@@ -233,8 +237,8 @@ else{
 					<img src="../../images/editplus.png" />
 				</a>
 			</div>
-			<div id="customdiv2" style="margin:2px 0px;display:<?php echo ($qCustomValue2||$qCustomType2=='NULL'||$qCustomType2=='NOTNULL'?'block':'none');?>;">
-				<b>Custom Field 2:</b>
+			<div id="customdiv2" class="fieldGroupDiv" style="display:<?php echo ($qCustomValue2||$qCustomType2=='NULL'||$qCustomType2=='NOTNULL'?'block':'none');?>;">
+				Custom Field 2:
 				<select name="q_customfield2" onchange="customSelectChanged(2)">
 					<option value="">Select Field Name</option>
 					<option value="">---------------------------------</option>
@@ -259,8 +263,8 @@ else{
 					<img src="../../images/editplus.png" />
 				</a>
 			</div>
-			<div id="customdiv3" style="margin:2px 0px;display:<?php echo ($qCustomValue3||$qCustomType3=='NULL'||$qCustomType3=='NOTNULL'?'block':'none');?>;">
-				<b>Custom Field 3:</b>
+			<div id="customdiv3" class="fieldGroupDiv" style="display:<?php echo ($qCustomValue3||$qCustomType3=='NULL'||$qCustomType3=='NOTNULL'?'block':'none');?>;">
+				Custom Field 3:
 				<select name="q_customfield3" onchange="customSelectChanged(3)">
 					<option value="">Select Field Name</option>
 					<option value="">---------------------------------</option>
@@ -305,7 +309,7 @@ else{
 				}
 			}
 			?>
-			<div style="margin:5px;">
+			<div class="fieldGroupDiv">
 				<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
 				<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 				<input type="hidden" name="occid" value="<?php echo $occManager->getOccId(); ?>" />
@@ -318,7 +322,7 @@ else{
 					<input type="button" name="reset" value="Reset Form" onclick="resetQueryForm(this.form)" />
 				</span>
 				<span style="margin-left:10px;">
-					<b>Sort by:</b>
+					Sort by:
 					<select name="orderby">
 						<option value=""></option>
 						<option value="recordedby" <?php echo ($qOrderBy=='recordedby'?'SELECTED':''); ?>>Collector</option>

@@ -206,9 +206,7 @@ else{
 			function setSelection(shape) {
 				selectedShape = shape;
 				selectedShape.setEditable(<?php echo ($eMode?'true':'false'); ?>);
-				if (shape.type == 'polygon') {
-					setPolygonStr(shape);
-				}
+				if (shape.type == 'polygon') setPolygonStr(shape);
 			}
 
 			function clearSelection() {
@@ -227,7 +225,7 @@ else{
 					var latlngArr = mvcString.split(",");
 					coordinates.push(parseFloat(latlngArr[0]).toFixed(6)+" "+parseFloat(latlngArr[1]).toFixed(6));
 				}
-				//if(coordinates[0] != coordinates[i-1]) coordinates.push(coordinates[0]);
+				if(coordinates[0] != coordinates[i-1]) coordinates.push(coordinates[0]);
 				var coordStr = coordinates.toString();
 				if(coordStr && coordStr != "" && coordStr != undefined){
 					document.getElementById("footprintwkt").value = "POLYGON (("+coordStr+"))";

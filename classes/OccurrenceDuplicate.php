@@ -642,115 +642,112 @@ class OccurrenceDuplicate {
 
 	public function batchLinkDuplicates($collid = 0, $verbose = true){
 		//The code is setup so that it can be triggered for all collections (collid = 0)
-		ini_set('max_execution_time', 1800);
-		$startDate = '1700-00-00';
-		$recCnt = 0;
+		ini_set('max_execution_time', 3600);
+		$startDate = '1900-00-00';
 		if($verbose) echo '<li>Starting to search for duplicates '.date('Y-m-d H:i:s').'</li>';
 		ob_flush();
 		flush();
-		do{
-			$sql = 'SELECT DISTINCT o.eventdate '.
+		$sql = 'SELECT o.eventdate, COUNT(o.occid) as cnt '.
+			'FROM omoccurrences o LEFT JOIN omoccurduplicatelink d ON o.occid = d.occid '.
+			'WHERE o.eventdate > "'.$startDate.'" AND o.eventdate NOT LIKE "%-00%" AND d.occid IS NULL ';
+		if($collid) $sql .= 'AND o.collid = '.$collid.' ';
+		if($this->obsUid) $sql .= 'AND o.observeruid = '.$this->obsUid.' ';
+		$sql .= 'GROUP BY o.eventdate ';
+		$rs = $this->conn->query($sql);
+		if($verbose) echo '<li>Start date '.$startDate.' with '.$rs->num_rows.' dates to be evaluated</li>';
+		ob_flush();
+		flush();
+		$recCnt = 0;
+		while($r = $rs->fetch_object()){
+			$recCnt++;
+			if($verbose) echo '<li>#'.$recCnt.': checking '.$r->eventdate.' with '.$r->cnt.' occurrences to be evaluated</li>';
+			//Grab all recs with matching date
+			$sql2 = 'SELECT o.recordedby, o.recordnumber, o.occid, IFNULL(d.duplicateid,0) as dupid, o.collid, o.observeruid '.
 				'FROM omoccurrences o LEFT JOIN omoccurduplicatelink d ON o.occid = d.occid '.
-				'WHERE o.eventdate > "'.$startDate.'" AND d.occid IS NULL ';
-			if($collid) $sql .= 'AND o.collid = '.$collid.' ';
-			if($this->obsUid) $sql .= 'AND o.observeruid = '.$this->obsUid.' ';
-			$sql .= 'ORDER BY o.eventdate LIMIT 500';
-			$rs = $this->conn->query($sql);
-			$recCnt = $rs->num_rows;
-			if($verbose) echo '<li>Start date '.$startDate.' with '.$recCnt.' dates to be evaluated</li>';
-			ob_flush();
-			flush();
-			while($r = $rs->fetch_object()){
-				$startDate = $r->eventdate;
-				//Grab all recs with matching date
-				$sql2 = 'SELECT o.recordedby, o.recordnumber, o.occid, IFNULL(d.duplicateid,0) as dupid, o.collid, o.observeruid '.
-					'FROM omoccurrences o LEFT JOIN omoccurduplicatelink d ON o.occid = d.occid '.
-					'WHERE o.eventdate = "'.$r->eventdate.'" AND o.recordedby IS NOT NULL AND o.recordnumber IS NOT NULL ';
-				$rs2 = $this->conn->query($sql2);
-				$rArr = array();
-				$keepArr = array();
-				while($r2 = $rs2->fetch_object()){
-					$recNum = str_replace(array(' ','-',':'),'',$r2->recordnumber);
-					if(preg_match('#\d#',$recNum)){
-						$lastName = $this->parseLastName($r2->recordedby);
-						if(strpos($lastName,'.')) $lastName = $r2->recordedby;
-						if(isset($lastName) && $lastName && !preg_match('#\d#',$lastName)){
-							$rArr[$recNum][$lastName][$r2->dupid][] = $r2->occid;
-							if($r2->collid == $collid && ($this->obsUid || $r2->observeruid == $this->obsUid)) $keepArr[$recNum][$lastName] = 1;
-						}
-					}
-				}
-				$recArr = array();
-				if($collid){
-					//Only use the sets that have a reference to given collid
-					foreach($keepArr as $n => $lArr){
-						foreach($lArr as $l => $v){
-							$recArr[$n][$l] = $rArr[$n][$l];
-						}
-					}
-				}
-				else{
-					$recArr = $rArr;
-				}
-				//if($verbose) echo '<li>Event date '.$r->eventdate.' with '.count($recArr).' records</li>';
-				//ob_flush();
-				//flush();
-				//Process rec array
-				foreach($recArr as $numStr => $collArr){
-					foreach($collArr as $lastnameStr => $mArr){
-						$unlinkedArr = isset($mArr[0])?$mArr[0]:null;
-						unset($mArr[0]);
-						if(count($unlinkedArr) > 1 || ($unlinkedArr && $mArr)){
-							$dupIdStr = $lastnameStr.' '.$numStr.' '.$r->eventdate;
-							if($verbose) echo '<li>Duplicates located: '.$dupIdStr.'</li>';
-							ob_flush();
-							flush();
-							$dupId = 0;
-							if($mArr) $dupId = key($mArr);
-							if(!$dupId){
-								//Create a new dupliate project
-								$sqlI1 = 'INSERT INTO omoccurduplicates(title,dupetype) VALUES("'.$this->cleanInStr($dupIdStr).'",1)';
-								if($this->conn->query($sqlI1)){
-									$dupId = $this->conn->insert_id;
-									if($verbose) echo '<li style="margin-left:10px;">New duplicate project created: #'.$dupId.'</li>';
-								}
-								else{
-									if($verbose) echo '<li style="margin-left:10px;">ERROR creating dupe project: '.$this->conn->error.'</li>';
-									if($verbose) echo '<li style="margin-left:10px;">sql: '.$sqlI1.'</li>';
-								}
-								ob_flush();
-								flush();
-							}
-							if($dupId){
-								//Add unlinked to duplicate project
-								$outLink = '';
-								$sqlI2 = 'INSERT INTO omoccurduplicatelink(duplicateid,occid) VALUES ';
-								foreach($unlinkedArr as $v){
-									$sqlI2 .= '('.$dupId.','.$v.'),';
-									$outLink .= ' <a href="../individual/index.php?occid='.$v.'" target="_blank">'.$v.'</a>,';
-								}
-								if($this->conn->query(trim($sqlI2,','))){
-									if($verbose) echo '<li style="margin-left:10px;">'.count($unlinkedArr).' duplicates linked ('.trim($outLink,' ,').')</li>';
-								}
-								else{
-									if($verbose) echo '<li style="margin-left:10px;">ERROR linking dupes: '.$this->conn->error.'</li>';
-								}
-								ob_flush();
-								flush();
-							}
-						}
-						//Check to see if two duplicate projects exists; if so, they should maybe be merged
-						if(count($mArr) > 1){
-							if($verbose) echo '<li style="margin-left:10px;">Two matching duplicate projects located</li>';
-							ob_flush();
-							flush();
-
-						}
+				'WHERE o.eventdate = "'.$r->eventdate.'" AND o.recordedby IS NOT NULL AND o.recordnumber IS NOT NULL ';
+			$rs2 = $this->conn->query($sql2);
+			$rArr = array();
+			$keepArr = array();
+			while($r2 = $rs2->fetch_object()){
+				$recNum = str_replace(array(' ','-',':'),'',$r2->recordnumber);
+				if(preg_match('#\d#',$recNum)){
+					$lastName = $this->parseLastName($r2->recordedby);
+					if(strpos($lastName,'.')) $lastName = $r2->recordedby;
+					if(isset($lastName) && $lastName && !preg_match('#\d#',$lastName)){
+						$rArr[$recNum][$lastName][$r2->dupid][] = $r2->occid;
+						if($r2->collid == $collid && ($this->obsUid || $r2->observeruid == $this->obsUid)) $keepArr[$recNum][$lastName] = 1;
 					}
 				}
 			}
-			$rs->close();
-		}while($recCnt);
+			$recArr = array();
+			if($collid){
+				//Only use the sets that have a reference to given collid
+				foreach($keepArr as $n => $lArr){
+					foreach($lArr as $l => $v){
+						$recArr[$n][$l] = $rArr[$n][$l];
+					}
+				}
+			}
+			else{
+				$recArr = $rArr;
+			}
+			//Process rec array
+			foreach($recArr as $numStr => $collArr){
+				foreach($collArr as $lastnameStr => $mArr){
+					$unlinkedArr = isset($mArr[0])?$mArr[0]:null;
+					unset($mArr[0]);
+					if(count($unlinkedArr) > 1 || ($unlinkedArr && $mArr)){
+						$dupIdStr = $lastnameStr.' '.$numStr.' '.$r->eventdate;
+						if($verbose) echo '<li style="margin-left:10px;">Duplicates located: '.$dupIdStr.'</li>';
+						ob_flush();
+						flush();
+						$dupId = 0;
+						if($mArr) $dupId = key($mArr);
+						if(!$dupId){
+							//Create a new dupliate project
+							$sqlI1 = 'INSERT INTO omoccurduplicates(title,dupetype) VALUES("'.$this->cleanInStr($dupIdStr).'",1)';
+							if($this->conn->query($sqlI1)){
+								$dupId = $this->conn->insert_id;
+								if($verbose) echo '<li style="margin-left:20px;">New duplicate project created: #'.$dupId.'</li>';
+							}
+							else{
+								if($verbose){
+									echo '<li style="margin-left:20px;">ERROR creating dupe project: '.$this->conn->error.'</li>';
+									echo '<li style="margin-left:20px;">sql: '.$sqlI1.'</li>';
+								}
+							}
+							ob_flush();
+							flush();
+						}
+						if($dupId){
+							//Add unlinked to duplicate project
+							$outLink = '';
+							$sqlI2 = 'INSERT INTO omoccurduplicatelink(duplicateid,occid) VALUES ';
+							foreach($unlinkedArr as $v){
+								$sqlI2 .= '('.$dupId.','.$v.'),';
+								$outLink .= ' <a href="../individual/index.php?occid='.$v.'" target="_blank">'.$v.'</a>,';
+							}
+							if($this->conn->query(trim($sqlI2,','))){
+								if($verbose) echo '<li style="margin-left:20px;">'.count($unlinkedArr).' duplicates linked ('.trim($outLink,' ,').')</li>';
+							}
+							else{
+								if($verbose) echo '<li style="margin-left:20px;">ERROR linking dupes: '.$this->conn->error.'</li>';
+							}
+							ob_flush();
+							flush();
+						}
+					}
+					//Check to see if two duplicate projects exists; if so, they should maybe be merged
+					if(count($mArr) > 1){
+						if($verbose) echo '<li style="margin-left:20px;">Two matching duplicate projects located</li>';
+						ob_flush();
+						flush();
+
+					}
+				}
+			}
+		}
+		$rs->free();
 		if($verbose) echo '<li>Finished linking duplicates '.date('Y-m-d H:i:s').'</li>';
 	}
 

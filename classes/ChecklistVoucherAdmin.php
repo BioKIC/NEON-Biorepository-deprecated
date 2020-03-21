@@ -182,9 +182,6 @@ class ChecklistVoucherAdmin {
 			if(preg_match('/collid = (\d+)\D/',$sqlFrag,$m)){
 				$retArr['collid'] = $m[1];
 			}
-			if(preg_match('/ OR \(\(o.decimallatitude/',$sqlFrag) || preg_match('/ OR \(\(o.decimallongitude/',$sqlFrag)){
-				$retArr['latlngor'] = 1;
-			}
 			if(preg_match('/decimallatitude/',$sqlFrag)){
 				$retArr['onlycoord'] = 1;
 			}
@@ -196,7 +193,7 @@ class ChecklistVoucherAdmin {
 	}
 
 	public function saveQueryVariables($postArr){
-		$fieldArr = array('country','state','county','locality','taxon','collid','recordedby','latnorth','latsouth','lngeast','lngwest','latlngor','onlycoord','includewkt','excludecult');
+		$fieldArr = array('country','state','county','locality','taxon','collid','recordedby','latnorth','latsouth','lngeast','lngwest','onlycoord','includewkt','excludecult');
 		$jsonArr = array();
 		foreach($fieldArr as $fieldName){
 			if(isset($postArr[$fieldName]) && $postArr[$fieldName]) $jsonArr[$fieldName] = $postArr[$fieldName];
@@ -220,7 +217,7 @@ class ChecklistVoucherAdmin {
 		return $statusStr;
 	}
 
-	public function getQueryVariablesArr(){
+	public function getQueryVariableArr(){
 		return $this->queryVariablesArr;
 	}
 
@@ -239,7 +236,6 @@ class ChecklistVoucherAdmin {
 		if(isset($this->queryVariablesArr['latsouth']) && isset($this->queryVariablesArr['latnorth'])) $retStr .= 'Lat between '.$this->queryVariablesArr['latsouth'].' and '.$this->queryVariablesArr['latnorth'].'; ';
 		if(isset($this->queryVariablesArr['lngwest']) && isset($this->queryVariablesArr['lngeast'])) $retStr .= 'Long between '.$this->queryVariablesArr['lngwest'].' and '.$this->queryVariablesArr['lngeast'].'; ';
 		if(isset($this->queryVariablesArr['includewkt'])) $retStr .= 'Search based on polygon; ';
-		if(isset($this->queryVariablesArr['latlngor'])) $retStr .= 'Include Lat/Long and locality as an "OR" condition; ';
 		if(isset($this->queryVariablesArr['excludecult'])) $retStr .= 'Exclude cultivated/captive records; ';
 		if(isset($this->queryVariablesArr['onlycoord'])) $retStr .= 'Only include occurrences with coordinates; ';
 		return trim($retStr,' ;');
@@ -269,16 +265,8 @@ class ChecklistVoucherAdmin {
 			$tStr = $this->cleanInStr($this->queryVariablesArr['taxon']);
 			$tidPar = $this->getTid($tStr);
 			if($tidPar){
-				$sqlFrag .= 'AND (o.tidinterpreted IN (SELECT tid FROM taxaenumtree WHERE taxauthid = 1 AND parenttid = '.$tidPar.')) ';
+				$sqlFrag .= 'AND (o.tidinterpreted IN (SELECT ts.tid FROM taxaenumtree e INNER JOIN taxstatus ts ON e.tid = ts.tidaccepted WHERE ts.taxauthid = 1 AND e.taxauthid = 1 AND e.parenttid = '.$tidPar.')) ';
 			}
-			/*
-			 if(strpos($tStr,'aceae') || strpos($tStr,'idae')){
-			 $sqlFrag .= 'AND (o.family LIKE "'.$tStr.'") ';
-			 }
-			 else{
-			 $sqlFrag .= 'AND (o.sciname LIKE "'.$tStr.'%") ';
-			 }
-			 */
 		}
 		//Locality and Latitude and longitude
 		$locStr = '';
@@ -328,7 +316,6 @@ class ChecklistVoucherAdmin {
 		if(isset($this->queryVariablesArr['collid']) && is_numeric($this->queryVariablesArr['collid'])){
 			$sqlFrag .= 'AND (o.collid IN('.$this->queryVariablesArr['collid'].')) ';
 		}
-
 		//Limit by collector
 		if(isset($this->queryVariablesArr['recordedby']) && $this->queryVariablesArr['recordedby']){
 			$collStr = str_replace(',', ';', $this->queryVariablesArr['recordedby']);
@@ -345,7 +332,6 @@ class ChecklistVoucherAdmin {
 			}
 			$sqlFrag .= 'AND ('.implode(' OR ', $tempArr).') ';
 		}
-
 		//Save SQL fragment
 		if($sqlFrag) $sqlFrag = trim(substr($sqlFrag,3));
 		return $sqlFrag;
@@ -524,6 +510,79 @@ class ChecklistVoucherAdmin {
 		}
 		$rs->free();
 		return $tidRet;
+	}
+
+	public function getVoucherProjects(){
+		global $USER_RIGHTS;
+		$retArr = array();
+		$runQuery = true;
+		$sql = 'SELECT collid, collectionname FROM omcollections WHERE (colltype = "Observations" OR colltype = "General Observations") ';
+		if(!array_key_exists('SuperAdmin',$USER_RIGHTS)){
+			$collInStr = '';
+			foreach($USER_RIGHTS as $k => $v){
+				if($k == 'CollAdmin' || $k == 'CollEditor'){
+					$collInStr .= ','.implode(',',$v);
+				}
+			}
+			if($collInStr){
+				$sql .= 'AND collid IN ('.substr($collInStr,1).') ';
+			}
+			else{
+				$runQuery = false;
+			}
+		}
+		$sql .= 'ORDER BY colltype,collectionname';
+		//echo $sql;
+		if($runQuery){
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$retArr[$r->collid] = $r->collectionname;
+				}
+				$rs->free();
+			}
+			if($retArr){
+				//Tag collection most likely to be target
+				$sql = 'SELECT o.collid, COUNT(v.occid) as cnt FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
+					'WHERE v.clid = '.$this->clid.' AND o.collid IN('.implode(',', array_keys($retArr)).') GROUP BY o.collid ORDER BY cnt DESC';
+				if($rs = $this->conn->query($sql)){
+					if($r = $rs->fetch_object()) $retArr['target'] = $r->collid;
+					$rs->free();
+				}
+			}
+		}
+		return $retArr;
+	}
+
+	public function hasVoucherProjects(){
+		global $USER_RIGHTS;
+		$retBool = false;
+		$runQuery = true;
+		$sql = 'SELECT collid, collectionname FROM omcollections WHERE (colltype = "Observations" OR colltype = "General Observations") ';
+		if(!array_key_exists('SuperAdmin',$USER_RIGHTS)){
+			$collInStr = '';
+			foreach($USER_RIGHTS as $k => $v){
+				if($k == 'CollAdmin' || $k == 'CollEditor'){
+					$collInStr .= ','.implode(',',$v);
+				}
+			}
+			if($collInStr){
+				$sql .= 'AND collid IN ('.substr($collInStr,1).') ';
+			}
+			else{
+				$runQuery = false;
+			}
+		}
+		$sql .= ' LIMIT 1';
+		//echo $sql;
+		if($runQuery){
+			if($rs = $this->conn->query($sql)){
+				if($r = $rs->fetch_object()){
+					$retBool = true;
+				}
+				$rs->free();
+			}
+		}
+		return $retBool;
 	}
 
 	//Setters and getters

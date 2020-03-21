@@ -100,7 +100,7 @@ if($statusStr){
 <?php
 }
 if($clid && $isEditor){
-	$termArr = $clManager->getQueryVariablesArr();
+	$termArr = $clManager->getQueryVariableArr();
 	$collList = $clManager->getCollectionList();
 	if($termArr){
 		?>
@@ -184,10 +184,6 @@ if($clid && $isEditor){
 									<input id="leftlong" name="lngwest" type="text" style="width:80px;" value="<?php echo isset($termArr['lngwest'])?$termArr['lngwest']:''; ?>" title="Longitude West" />
 								</div>
 								<div>
-									<input name="latlngor" type="checkbox" value="1" <?php if(isset($termArr['latlngor'])) echo 'CHECKED'; ?> onclick="coordInputSelected(this)" />
-									<?php echo (isset($LANG['INCLUDELATLONG']) && $LANG['INCLUDELATLONG']?$LANG['INCLUDELATLONG']:'Match on lat/long OR locality (include non-georeferenced occurrences)');?>
-								</div>
-								<div>
 									<input name="onlycoord" value="1" type="checkbox" <?php if(isset($termArr['onlycoord'])) echo 'CHECKED'; ?> onclick="coordInputSelected(this)" />
 									<?php echo (isset($LANG['ONLYCOORD'])?$LANG['ONLYCOORD']:'Only include occurrences with coordinates');?>
 								</div>
@@ -242,6 +238,9 @@ if($clid && $isEditor){
 				<li><a href="nonvoucheredtab.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos.'&displaymode='.$displayMode; ?>"><span><?php echo $LANG['NEWVOUCH'];?></span></a></li>
 				<li><a href="vamissingtaxa.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos.'&displaymode='.($tabIndex==1?$displayMode:0).'&excludevouchers='.(isset($_POST['excludevouchers'])?$_POST['excludevouchers']:''); ?>"><span><?php echo $LANG['MISSINGTAXA'];?></span></a></li>
 				<li><a href="vaconflicts.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos; ?>"><span><?php echo $LANG['VOUCHCONF'];?></span></a></li>
+				<?php
+				if($clManager->hasVoucherProjects()) echo '<li><a href="imgvouchertab.php?clid='.$clid.'">'.(isset($LANG['ADDIMGV'])?$LANG['ADDIMGV']:'Add Image Voucher').'</a></li>';
+				?>
 				<li><a href="#reportDiv"><span><?php echo $LANG['REPORTS'];?></span></a></li>
 			</ul>
 			<div id="reportDiv">

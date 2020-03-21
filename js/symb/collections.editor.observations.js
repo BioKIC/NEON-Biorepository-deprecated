@@ -1,8 +1,8 @@
-
 $(document).ready(function() {
 	$("#sciname").autocomplete({ 
 		source: "rpc/getspeciessuggest.php", 
 		minLength: 3,
+		autoFocus: true,
 		change: function(event, ui) {
 			var f = document.obsform;
 			if( f.sciname.value ){

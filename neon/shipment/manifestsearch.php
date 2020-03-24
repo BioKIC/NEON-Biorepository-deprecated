@@ -75,7 +75,6 @@ if($isEditor){
 		fieldset{ padding:15px }
 		.fieldGroupDiv{ clear:both; margin-top:2px; height: 25px; }
 		.fieldDiv{ float:left; margin-left: 25px}
-		.displayFieldDiv{ margin-bottom: 3px }
 	</style>
 </head>
 <body>

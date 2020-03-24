@@ -114,6 +114,10 @@ if($IS_ADMIN){
 				listElem.insertBefore(newDiv,listElem.childNodes[0]);
 			}
 		</script>
+		<style type="text/css">
+			fieldset{ padding:15px;width:600px }
+			.displayFieldDiv{ margin-bottom: 3px }
+		</style>
 	</head>
 	<body>
 		<?php
@@ -130,7 +134,7 @@ if($IS_ADMIN){
 			if($isEditor){
 				?>
 				<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:0px;right:200px">
-					<fieldset style="padding:15px;width:600px">
+					<fieldset>
 						<legend><b>Sample Check-in</b></legend>
 						<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
 							<div class="displayFieldDiv">
@@ -170,7 +174,7 @@ if($IS_ADMIN){
 						</form>
 					</fieldset>
 				</div>
-				<fieldset style="padding:15px;width:600px">
+				<fieldset>
 					<legend><b>Samples Checked In</b></legend>
 					<div id="samplelistdiv"></div>
 				</fieldset>

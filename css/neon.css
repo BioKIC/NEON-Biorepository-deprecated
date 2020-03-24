@@ -123,7 +123,7 @@ form {
 button,
 input {
     font-size: 100%;
-    margin: 0;
+    margin: 2px;
     vertical-align: baseline;
     vertical-align: middle;
 }
@@ -268,7 +268,7 @@ a.button:hover {
         font-size: 16px;
         font-size: 1rem;
         line-height: 24px;
-        line-height: 1.5rem;
+        line-height: 1.3rem;
     }
 }
 
@@ -3016,7 +3016,7 @@ body.node-type-update #content .field-update-related-content .views-row:not(.vie
 #styleguide-header .markers-filter>ul.navbar-nav [type="checkbox"]:not(:checked)+label:after,
 .markers-filter>.nav.navbar-nav [type="checkbox"]:checked+label:after,
 #styleguide-header .markers-filter>ul.navbar-nav [type="checkbox"]:checked+label:after {
-    content: 'âœ”';
+    content: '\2713';
     position: absolute;
     top: .2em;
     left: .3em;

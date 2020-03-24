@@ -42,6 +42,7 @@ $searchVar = $collManager->getQueryTermStr();
 	</script>
 	<style type="text/css">
 		hr{ margin: 10px 0px }
+		.coordBox{ float:left; border:2px solid brown; padding:10px; margin:5px; height:100%; }
 	</style>
 </head>
 <body>
@@ -114,80 +115,82 @@ $searchVar = $collManager->getQueryTermStr();
 				<hr>
 				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['LAT_LNG_HEADER']; ?></div>
 			</div>
-			<div style="float:left;border:2px solid brown;padding:10px;margin-bottom:10px;">
-				<div style="clear:both;float:right;">
-					<a href="#" onclick="openCoordAid('rectangle');return false;"><img src="../images/world.png" srcset="../images/globe.svg" width="15px" title="<?php echo $LANG['GLOBE_TITLE']; ?>" /></a>
+			<div style="height:110px;">
+				<div class="coordBox">
+					<div style="clear:both;float:right;">
+						<a href="#" onclick="openCoordAid('rectangle');return false;"><img src="../images/map.png" width="18px" title="<?php echo (isset($LANG['MAP_AID'])?$LANG['MAP_AID']:'Mapping Aid'); ?>" /></a>
+					</div>
+					<div style="font-weight:bold;">
+						<?php echo $LANG['LL_BOUND_TEXT']; ?>
+					</div>
+					<div style="margin-top: 3px">
+						<?php echo $LANG['LL_BOUND_NLAT']; ?>: <input type="text" id="upperlat" name="upperlat" size="7" value="" onchange="cleanNumericInput(this);">
+						<select id="upperlat_NS" name="upperlat_NS">
+							<option id="ulN" value="N"><?php echo $LANG['LL_N_SYMB']; ?></option>
+							<option id="ulS" value="S"><?php echo $LANG['LL_S_SYMB']; ?></option>
+						</select>
+					</div>
+					<div>
+						<?php echo $LANG['LL_BOUND_SLAT']; ?>: <input type="text" id="bottomlat" name="bottomlat" size="7" value="" onchange="cleanNumericInput(this);">
+						<select id="bottomlat_NS" name="bottomlat_NS">
+							<option id="blN" value="N"><?php echo $LANG['LL_N_SYMB']; ?></option>
+							<option id="blS" value="S"><?php echo $LANG['LL_S_SYMB']; ?></option>
+						</select>
+					</div>
+					<div>
+						<?php echo $LANG['LL_BOUND_WLNG']; ?>: <input type="text" id="leftlong" name="leftlong" size="7" value="" onchange="cleanNumericInput(this);">
+						<select id="leftlong_EW" name="leftlong_EW">
+							<option id="llW" value="W"><?php echo $LANG['LL_W_SYMB']; ?></option>
+							<option id="llE" value="E"><?php echo $LANG['LL_E_SYMB']; ?></option>
+						</select>
+					</div>
+					<div>
+						<?php echo $LANG['LL_BOUND_ELNG']; ?>: <input type="text" id="rightlong" name="rightlong" size="7" value="" onchange="cleanNumericInput(this);" style="margin-left:3px;">
+						<select id="rightlong_EW" name="rightlong_EW">
+							<option id="rlW" value="W"><?php echo $LANG['LL_W_SYMB']; ?></option>
+							<option id="rlE" value="E"><?php echo $LANG['LL_E_SYMB']; ?></option>
+						</select>
+					</div>
 				</div>
-				<div style="font-weight:bold;">
-					<?php echo $LANG['LL_BOUND_TEXT']; ?>
+				<div class="coordBox">
+					<div style="clear:both;float:right;">
+						<a href="#" onclick="openCoordAid('polygon');return false;"><img src="../images/map.png" width="18px" title="<?php echo (isset($LANG['MAP_AID'])?$LANG['MAP_AID']:'Mapping Aid'); ?>" /></a>
+					</div>
+					<div style="font-weight:bold;">
+						<?php echo isset($LANG['LL_POLYGON_TEXT'])?$LANG['LL_POLYGON_TEXT']:''; ?>
+					</div>
+					<div style="margin-top:3px;">
+						<textarea id="footprintwkt" name="footprintwkt" style="zIndex:999;width:100%;height:90px"></textarea>
+					</div>
 				</div>
-				<div style="margin-top: 3px">
-					<?php echo $LANG['LL_BOUND_NLAT']; ?>: <input type="text" id="upperlat" name="upperlat" size="7" value="" onchange="cleanNumericInput(this);">
-					<select id="upperlat_NS" name="upperlat_NS">
-						<option id="ulN" value="N"><?php echo $LANG['LL_N_SYMB']; ?></option>
-						<option id="ulS" value="S"><?php echo $LANG['LL_S_SYMB']; ?></option>
-					</select>
-				</div>
-				<div>
-					<?php echo $LANG['LL_BOUND_SLAT']; ?>: <input type="text" id="bottomlat" name="bottomlat" size="7" value="" onchange="cleanNumericInput(this);">
-					<select id="bottomlat_NS" name="bottomlat_NS">
-						<option id="blN" value="N"><?php echo $LANG['LL_N_SYMB']; ?></option>
-						<option id="blS" value="S"><?php echo $LANG['LL_S_SYMB']; ?></option>
-					</select>
-				</div>
-				<div>
-					<?php echo $LANG['LL_BOUND_WLNG']; ?>: <input type="text" id="leftlong" name="leftlong" size="7" value="" onchange="cleanNumericInput(this);">
-					<select id="leftlong_EW" name="leftlong_EW">
-						<option id="llW" value="W"><?php echo $LANG['LL_W_SYMB']; ?></option>
-						<option id="llE" value="E"><?php echo $LANG['LL_E_SYMB']; ?></option>
-					</select>
-				</div>
-				<div>
-					<?php echo $LANG['LL_BOUND_ELNG']; ?>: <input type="text" id="rightlong" name="rightlong" size="7" value="" onchange="cleanNumericInput(this);" style="margin-left:3px;">
-					<select id="rightlong_EW" name="rightlong_EW">
-						<option id="rlW" value="W"><?php echo $LANG['LL_W_SYMB']; ?></option>
-						<option id="rlE" value="E"><?php echo $LANG['LL_E_SYMB']; ?></option>
-					</select>
-				</div>
-			</div>
-			<div style="float:left;border:2px solid brown;padding:10px;margin-left:10px;">
-				<div style="clear:both;float:right;">
-					<a href="#" onclick="openCoordAid('polygon');return false;"><img src="../images/world.png" srcset="../images/globe.svg" width="15px" title="<?php echo $LANG['GLOBE_TITLE']; ?>" /></a>
-				</div>
-				<div style="font-weight:bold;">
-					<?php echo isset($LANG['LL_POLYGON_TEXT'])?$LANG['LL_POLYGON_TEXT']:''; ?>
-				</div>
-				<div style="margin-top:3px;">
-					<textarea id="footprintwkt" name="footprintwkt" style="zIndex:999;height:95px"></textarea>
-				</div>
-			</div>
-			<div style="float:left;border:2px solid brown;padding:10px;margin-left:10px;">
-				<div style="clear:both;float:right;">
-					<a href="#" onclick="openCoordAid('circle');return false;"><img src="../images/world.png" srcset="../images/globe.svg" width="15px" title="<?php echo $LANG['GLOBE_TITLE']; ?>" /></a>
-				</div>
-				<div style="font-weight:bold;">
-					<?php echo $LANG['LL_P-RADIUS_TEXT']; ?>
-				</div>
-				<div>
-					<?php echo $LANG['LL_P-RADIUS_LAT']; ?>: <input type="text" id="pointlat" name="pointlat" size="7" value="" onchange="cleanNumericInput(this);">
-					<select id="pointlat_NS" name="pointlat_NS">
-						<option id="N" value="N"><?php echo $LANG['LL_N_SYMB']; ?></option>
-						<option id="S" value="S"><?php echo $LANG['LL_S_SYMB']; ?></option>
-					</select>
-				</div>
-				<div>
-					<?php echo $LANG['LL_P-RADIUS_LNG']; ?>: <input type="text" id="pointlong" name="pointlong" size="7" value="" onchange="cleanNumericInput(this);">
-					<select id="pointlong_EW" name="pointlong_EW">
-						<option id="W" value="W"><?php echo $LANG['LL_W_SYMB']; ?></option>
-						<option id="E" value="E"><?php echo $LANG['LL_E_SYMB']; ?></option>
-					</select>
-				</div>
-				<div>
-					<?php echo $LANG['LL_P-RADIUS_RADIUS']; ?>: <input type="text" id="radius" name="radius" size="5" value="" onchange="cleanNumericInput(this);">
-					<select id="radiusunits" name="radiusunits">
-						<option value="km"><?php echo $LANG['LL_P-RADIUS_KM']; ?></option>
-						<option value="mi"><?php echo $LANG['LL_P-RADIUS_MI']; ?></option>
-					</select>
+				<div class="coordBox">
+					<div style="clear:both;float:right;">
+						<a href="#" onclick="openCoordAid('circle');return false;"><img src="../images/map.png" width="18px" title="<?php echo (isset($LANG['MAP_AID'])?$LANG['MAP_AID']:'Mapping Aid'); ?>" /></a>
+					</div>
+					<div style="font-weight:bold;">
+						<?php echo $LANG['LL_P-RADIUS_TEXT']; ?>
+					</div>
+					<div>
+						<?php echo $LANG['LL_P-RADIUS_LAT']; ?>: <input type="text" id="pointlat" name="pointlat" size="7" value="" onchange="cleanNumericInput(this);">
+						<select id="pointlat_NS" name="pointlat_NS">
+							<option id="N" value="N"><?php echo $LANG['LL_N_SYMB']; ?></option>
+							<option id="S" value="S"><?php echo $LANG['LL_S_SYMB']; ?></option>
+						</select>
+					</div>
+					<div>
+						<?php echo $LANG['LL_P-RADIUS_LNG']; ?>: <input type="text" id="pointlong" name="pointlong" size="7" value="" onchange="cleanNumericInput(this);">
+						<select id="pointlong_EW" name="pointlong_EW">
+							<option id="W" value="W"><?php echo $LANG['LL_W_SYMB']; ?></option>
+							<option id="E" value="E"><?php echo $LANG['LL_E_SYMB']; ?></option>
+						</select>
+					</div>
+					<div>
+						<?php echo $LANG['LL_P-RADIUS_RADIUS']; ?>: <input type="text" id="radius" name="radius" size="5" value="" onchange="cleanNumericInput(this);">
+						<select id="radiusunits" name="radiusunits">
+							<option value="km"><?php echo $LANG['LL_P-RADIUS_KM']; ?></option>
+							<option value="mi"><?php echo $LANG['LL_P-RADIUS_MI']; ?></option>
+						</select>
+					</div>
 				</div>
 			</div>
 			<div style=";clear:both;"><hr/></div>
@@ -209,8 +212,8 @@ $searchVar = $collManager->getQueryTermStr();
 			</div>
 			<hr/>
 			<div style="float:right;">
-				<div><button type="submit"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
-				<div style="margin-bottom:10px"><button type="button" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
+				<div><button type="submit" style="width:100%"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
+				<div><button type="button" style="width:100%" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
 			</div>
 			<div>
 				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['SPECIMEN_HEADER']; ?></div>

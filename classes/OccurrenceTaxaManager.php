@@ -213,7 +213,14 @@ class OccurrenceTaxaManager {
 					if(isset($searchArr['tid'])){
 						$tidArr = array_keys($searchArr['tid']);
 						//$sqlWhereTaxa .= 'OR (o.tidinterpreted IN(SELECT DISTINCT tid FROM taxaenumtree WHERE (taxauthid = '.$this->taxAuthId.') AND (parenttid IN('.trim($tidStr,',').') OR (tid = '.trim($tidStr,',').')))) ';
-						$sqlWhereTaxa .= 'OR ((e.taxauthid = '.$this->taxAuthId.') AND (e.parenttid IN('.implode(',', $tidArr).') OR (o.tidinterpreted = '.implode(',', $tidArr).'))) ';
+						$sqlWhereTaxa .= 'OR (e.parenttid IN('.implode(',', $tidArr).') ';
+						$tidInArr = array_merge($tidInArr,$tidArr);
+						if(isset($searchArr['synonyms'])) $tidInArr = array_merge($tidInArr,array_keys($searchArr['synonyms']));
+						$sqlWhereTaxa .= ') ';
+					}
+					else{
+						//Unable to find higher taxon within taxonomic tree, thus return nothing
+						$sqlWhereTaxa .= 'OR (o.tidinterpreted = 0) ';
 					}
 				}
 				elseif($taxonType == TaxaSearchType::FAMILY_ONLY){
@@ -222,7 +229,7 @@ class OccurrenceTaxaManager {
 					//$sqlWhereTaxa .= 'OR (((ts.family = "'.$searchTaxon.'") AND (ts.taxauthid = '.$this->taxAuthId.')) OR o.sciname = "'.$searchTaxon.'") ';
 					if(isset($searchArr['tid'])){
 						$tidArr = array_keys($searchArr['tid']);
-						$sqlWhereTaxa .= 'OR ((ts.taxauthid = '.$this->taxAuthId.') AND ((ts.family = "'.$searchTaxon.'") OR (ts.tid IN('.implode(',', $tidArr).')))) ';
+						$sqlWhereTaxa .= 'OR ((ts.family = "'.$searchTaxon.'") OR (ts.tid IN('.implode(',', $tidArr).'))) ';
 					}
 					else{
 						$sqlWhereTaxa .= 'OR ((o.family = "'.$searchTaxon.'") OR (o.sciname = "'.$searchTaxon.'")) ';
@@ -232,10 +239,10 @@ class OccurrenceTaxaManager {
 					if($taxonType == TaxaSearchType::COMMON_NAME){
 						//Common name search
 						$famArr = array();
-						if(array_key_exists("families",$searchArr)){
-							$famArr = $searchArr["families"];
+						if(array_key_exists('families',$searchArr)){
+							$famArr = $searchArr['families'];
 						}
-						if(array_key_exists("tid",$searchArr)){
+						if(array_key_exists('tid',$searchArr)){
 							$tidArr = array_keys($searchArr['tid']);
 							$sql = 'SELECT DISTINCT t.sciname '.
 	   							'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
@@ -264,10 +271,10 @@ class OccurrenceTaxaManager {
 							$tidInArr = array_merge($tidInArr,$tidArr);
 							//Return matches that are not linked to thesaurus
 							if($rankid > 219){
-								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term."%') ";
+								$sqlWhereTaxa .= 'OR (o.sciname LIKE "'.$term.'%") ';
 							}
 							elseif($rankid == 180){
-								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term." %') ";
+								$sqlWhereTaxa .= 'OR (o.sciname LIKE "'.$term.' %") ';
 							}
 						}
 						else{
@@ -282,20 +289,20 @@ class OccurrenceTaxaManager {
 								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term." %') ";
 							}
 							*/
-							$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term."%') ";
+							$sqlWhereTaxa .= 'OR (o.sciname LIKE "'.$term.'%") ';
 							if(!strpos($term,' _ ')){
 								$term2 = preg_replace('/^([^\s]+\s{1})/', '$1 _ ', $term);
-								$sqlWhereTaxa .= "OR (o.sciname LIKE '".$term2."%') ";
+								$sqlWhereTaxa .= 'OR (o.sciname LIKE "'.$term2.'%") ';
 							}
 						}
 					}
-					if(array_key_exists("synonyms",$searchArr)){
-						$synArr = $searchArr["synonyms"];
+					if(array_key_exists('synonyms',$searchArr)){
+						$synArr = $searchArr['synonyms'];
 						if($synArr){
 							if($taxonType == TaxaSearchType::SCIENTIFIC_NAME || $taxonType == TaxaSearchType::COMMON_NAME){
 								foreach($synArr as $synTid => $sciName){
 									if(strpos($sciName,'aceae') || strpos($sciName,'idae')){
-										$sqlWhereTaxa .= "OR (o.family = '".$sciName."') ";
+										$sqlWhereTaxa .= 'OR (o.family = "'.$sciName.'") ';
 									}
 								}
 							}
@@ -305,10 +312,13 @@ class OccurrenceTaxaManager {
 					}
 				}
 			}
-			if($tidInArr) $sqlWhereTaxa .= 'OR (o.tidinterpreted IN('.implode(',',$tidInArr).')) ';
+			if($tidInArr) $sqlWhereTaxa .= 'OR (o.tidinterpreted IN('.implode(',',array_unique($tidInArr)).')) ';
+			$sqlWhereTaxa = 'AND ('.trim(substr($sqlWhereTaxa,3)).') ';
+			if(strpos($sqlWhereTaxa,'e.parenttid')) $sqlWhereTaxa .= 'AND (e.taxauthid = '.$this->taxAuthId.') ';
+			if(strpos($sqlWhereTaxa,'ts.family')) $sqlWhereTaxa .= 'AND (ts.taxauthid = '.$this->taxAuthId.') ';
 		}
 		//echo $sqlWhereTaxa;
-		if($sqlWhereTaxa) return "AND (".substr($sqlWhereTaxa,3).") ";
+		if($sqlWhereTaxa) return $sqlWhereTaxa;
 		else return false;
 	}
 

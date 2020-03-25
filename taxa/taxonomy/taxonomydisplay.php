@@ -120,17 +120,17 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 		</div>
 		<div style="clear:both;">
 			<form id="tdform" name="tdform" action="taxonomydisplay.php" method='POST'>
-				<fieldset style="padding:10px;width:550px;">
+				<fieldset style="padding:10px;max-width:850px;">
 					<legend><b>Taxon Search</b></legend>
-					<div>
+					<div style="float:left;">
 						<b>Taxon:</b>
 						<input id="taxontarget" name="target" type="text" style="width:400px;" value="<?php echo $taxonDisplayObj->getTargetStr(); ?>" />
 					</div>
-					<div style="float:right;margin:15px 80px 15px 15px;">
+					<div style="float:left;margin-left:15px;">
 						<input name="tdsubmit" type="submit" value="Display Taxon Tree"/>
 						<input name="taxauthid" type="hidden" value="<?php echo $taxAuthId; ?>" />
 					</div>
-					<div style="margin-top:15px; margin-left:60px;">
+					<div style="clear:both;padding-top:15px; margin-left:60px;">
 						<div style="margin:3px;">
 							<input name="displayauthor" type="checkbox" value="1" <?php echo ($displayAuthor?'checked':''); ?> /> Display authors
 						</div>

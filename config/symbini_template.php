@@ -44,8 +44,9 @@ $GBIF_ORG_KEY = '';                 //GBIF organization key for organization whi
 //Misc variables
 $DEFAULT_TAXON_SEARCH = 2;			//Default taxonomic search type: 1 = Any Name, 2 = Scientific Name, 3 = Family, 4 = Taxonomic Group, 5 = Common Name
 $GOOGLE_MAP_KEY = '';				//Needed for Google Map; get from Google
+$GOOGLE_MAP_THUMBNAILS = true;		//Display Google Map static thumbnails within taxon profile, checklist, etc
 $MAPPING_BOUNDARIES = '';			//Project bounding box; default map centering; (e.g. 42.3;-100.5;18.0;-127)
-$ACTIVATE_GEOLOCATION = false;			//Activates HTML5 geolocation services in Map Search
+$ACTIVATE_GEOLOCATION = false;		//Activates HTML5 geolocation services in Map Search
 $GOOGLE_ANALYTICS_KEY = '';			//Needed for setting up Google Analytics
 $RECAPTCHA_PUBLIC_KEY = '';			//Now called site key
 $RECAPTCHA_PRIVATE_KEY = '';		//Now called secret key

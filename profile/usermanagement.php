@@ -508,7 +508,7 @@ if($IS_ADMIN){
 										?>
 										<td>
 											<?php
-											echo '<a href="'.$clientRoot.'/collections/misc/collprofiles.php?collid='.$collid.'&emode=1" target="_blank" >';
+											echo '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$collid.'&emode=1" target="_blank" >';
 											echo $cArr['collectionname'];
 											echo ' ('.$cArr['institutioncode'].($cArr['collectioncode']?'-'.$cArr['collectioncode']:'').')';
 											echo '</a>';
@@ -556,7 +556,7 @@ if($IS_ADMIN){
 										?>
 										<td>
 											<?php
-											echo '<a href="'.$clientRoot.'/collections/misc/collprofiles.php?collid='.$obsid.'&emode=1" target="_blank" >';
+											echo '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$obsid.'&emode=1" target="_blank" >';
 											echo $oArr['collectionname'];
 											echo ' ('.$oArr['institutioncode'].($oArr['collectioncode']?'-'.$oArr['collectioncode']:'').')';
 											echo '</a>';
@@ -594,7 +594,7 @@ if($IS_ADMIN){
 										</td>
 										<td>
 											<?php
-											echo '<a href="'.$clientRoot.'/collections/misc/collprofiles.php?collid='.$genObsID.'&emode=1" target="_blank" >';
+											echo '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$genObsID.'&emode=1" target="_blank" >';
 											echo $genObjArr['collectionname'];
 											echo ' ('.$genObjArr['institutioncode'].($genObjArr['collectioncode']?'-'.$genObjArr['collectioncode']:'').')';
 											echo '</a>';

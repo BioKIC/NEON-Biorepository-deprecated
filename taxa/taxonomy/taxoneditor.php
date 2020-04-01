@@ -369,7 +369,7 @@ if($editable){
 										<?php echo '<a href="taxoneditor.php?tid='.$taxonEditorObj->getParentTid().'">'.$taxonEditorObj->getParentNameFull().'</a>';?>
 									</div>
 									<div class="tsedit" style="display:none;margin:3px;">
-										<input id="parentstr" name="parentstr" type="text" value="<?php echo $taxonEditorObj->getParentName(); ?>" />
+										<input id="parentstr" name="parentstr" type="text" value="<?php echo $taxonEditorObj->getParentName(); ?>" style="width:450px" />
 										<input name="parenttid" type="hidden" value="<?php echo $taxonEditorObj->getParentTid(); ?>" />
 									</div>
 								</div>
@@ -423,11 +423,11 @@ if($editable){
 								?>
 								<div class="acceptedits" style="display:none;">
 									<form id="accepteditsform" name="accepteditsform" action="taxoneditor.php" method="post" onsubmit="return verifyLinkToAcceptedForm(this);" >
-										<fieldset style="width:400px;margin:20px;padding:15px">
+										<fieldset style="width:80%;margin:20px;padding:15px">
 											<legend><b>Link to Another Accepted Name</b></legend>
 											<div>
 												Accepted Taxon:
-												<input id="aefacceptedstr" name="acceptedstr" type="text" style="width:300px;" />
+												<input id="aefacceptedstr" name="acceptedstr" type="text" style="width:450px;" />
 												<input name="tidaccepted" type="hidden" />
 											</div>
 											<div>
@@ -443,7 +443,7 @@ if($editable){
 										</fieldset>
 									</form>
 									<form id="changetoacceptedform" name="changetoacceptedform" action="taxoneditor.php" method="post">
-										<fieldset style="width:400px;margin:20px;padding:15px;">
+										<fieldset style="width:80%;margin:20px;padding:15px;">
 											<legend><b>Change to Accepted</b></legend>
 											<?php
 											$acceptedTid = key($acceptedArr);
@@ -551,16 +551,16 @@ if($editable){
 											<legend><b>Change to Not Accepted</b></legend>
 											<div style="margin:5px;">
 												<b>Accepted Name:</b>
-												<input id="ctnafacceptedstr" name="acceptedstr" type="text" style="width:270px;" />
+												<input id="ctnafacceptedstr" name="acceptedstr" type="text" style="width:450px;" />
 												<input name="tidaccepted" type="hidden" value="" />
 											</div>
 											<div style="margin:5px;">
 												<b>Reason:</b>
-												<input name="unacceptabilityreason" type="text" style="width:400px;" />
+												<input name="unacceptabilityreason" type="text" style="width:90%;" />
 											</div>
 											<div style="margin:5px;">
 												<b>Notes:</b>
-												<input name="notes" type="text" style="width:400px;" />
+												<input name="notes" type="text" style="width:90%;" />
 											</div>
 											<div style="margin:5px;">
 												<input name="tid" type="hidden" value="<?php echo $taxonEditorObj->getTid();?>" />

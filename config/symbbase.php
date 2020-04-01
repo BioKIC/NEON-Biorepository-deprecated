@@ -18,6 +18,7 @@ include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 $PARAMS_ARR = Array();				//params => 'un=egbot&dn=Edward&uid=301'
 $USER_RIGHTS = Array();
 if(isset($_COOKIE['SymbiotaCrumb'])){
+	/*
 	$tokenArr = json_decode(Encryption::decrypt($_COOKIE['SymbiotaCrumb']), true);
 	if($tokenArr){
 		$pHandler = new ProfileManager();
@@ -32,6 +33,7 @@ if(isset($_COOKIE['SymbiotaCrumb'])){
 			}
 		}
 	}
+	*/
 }
 if(isset($_SESSION['userparams'])) $PARAMS_ARR = $_SESSION['userparams'];
 if(isset($_SESSION['userrights'])) $USER_RIGHTS = $_SESSION['userrights'];

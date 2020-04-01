@@ -58,12 +58,14 @@ class ProfileManager{
 				$this->setUserRights();
 				$this->setUserParams();
 				if($this->rememberMe) $this->setTokenCookie();
-
-				//Update last login data
-				$conn = $this->getConnection("write");
-				$sql = 'UPDATE userlogin SET lastlogindate = NOW() WHERE (username = "'.$this->userName.'")';
-				$conn->query($sql);
-				$conn->close();
+				if(!$GLOBALS['SYMB_UID']){
+					//Update last login data
+					$conn = $this->getConnection("write");
+					$sql = 'UPDATE userlogin SET lastlogindate = NOW() WHERE (username = "'.$this->userName.'")';
+					echo $sql;
+					$conn->query($sql);
+					$conn->close();
+				}
 			}
 		}
 		return $authStatus;
@@ -185,14 +187,11 @@ class ProfileManager{
 		if($newPwd){
 			$editCon = $this->getConnection("write");
 			if($isSelf){
-				$sqlTest = 'SELECT ul.uid FROM userlogin ul WHERE (ul.uid = '.$this->uid.') '.
-					'AND (ul.password = PASSWORD("'.$this->cleanInStr($oldPwd).
-					'"))';
+				$sqlTest = 'SELECT ul.uid FROM userlogin ul WHERE (ul.uid = '.$this->uid.') AND (ul.password = PASSWORD("'.$this->cleanInStr($oldPwd).'"))';
 				$rsTest = $editCon->query($sqlTest);
 				if(!$rsTest->num_rows) return false;
 			}
-			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPwd).'") '.
-				'WHERE (uid = '.$this->uid.')';
+			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPwd).'") WHERE (uid = '.$this->uid.')';
 			$successCnt = $editCon->query($sql);
 			$editCon->close();
 			if($successCnt > 0) $success = true;
@@ -207,16 +206,14 @@ class ProfileManager{
 		$returnStr = "";
 		if($un){
 			$editCon = $this->getConnection('write');
-			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPassword).'") '.
-					'WHERE (ul.username = "'.$this->cleanInStr($un).'")';
+			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPassword).'") WHERE (ul.username = "'.$this->cleanInStr($un).'")';
 			$status = $editCon->query($sql);
 			$editCon->close();
 		}
 		if($status){
 			//Get email address
 			$emailStr = "";
-			$sql = 'SELECT u.email FROM users u INNER JOIN userlogin ul ON u.uid = ul.uid '.
-				'WHERE (ul.username = "'.$this->cleanInStr($un).'")';
+			$sql = 'SELECT u.email FROM users u INNER JOIN userlogin ul ON u.uid = ul.uid WHERE (ul.username = "'.$this->cleanInStr($un).'")';
 			$result = $this->conn->query($sql);
 			if($row = $result->fetch_object()){
 				$emailStr = $row->email;
@@ -445,9 +442,7 @@ class ProfileManager{
 				}
 				if($status){
 					//Change login
-					$sql = 'UPDATE userlogin '.
-						'SET username = "'.$newLogin.'" '.
-						'WHERE (uid = '.$this->uid.') AND (username = "'.$this->userName.'")';
+					$sql = 'UPDATE userlogin SET username = "'.$newLogin.'" WHERE (uid = '.$this->uid.') AND (username = "'.$this->userName.'")';
 					//echo $sql;
 					$editCon = $this->getConnection('write');
 					if($editCon->query($sql)){

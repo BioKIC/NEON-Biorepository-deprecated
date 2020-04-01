@@ -971,10 +971,10 @@ class TaxonomyHarvester extends Manager{
 			if(strlen($unitname1) == 1) $unitname1 = array_shift($taxonStringArr);
 			$unitname2 = array_shift($taxonStringArr);
 			if(strlen($unitname2) == 1) $unitname2 = array_shift($taxonStringArr);
-			$unitname3= array_shift($taxonStringArr);
+			$unitname3 = array_shift($taxonStringArr);
 			if($taxonStringArr){
 				while($val = array_shift($taxonStringArr)){
-					if(in_array(str_replace('.', '', $val),$infraArr)) $unitname3= array_shift($taxonStringArr);
+					if(in_array(str_replace('.', '', $val),$infraArr)) $unitname3 = array_shift($taxonStringArr);
 				}
 			}
 			if($unitname3){
@@ -995,7 +995,7 @@ class TaxonomyHarvester extends Manager{
 					//Look for match where
 					$searchStr = substr($unitname1,0,4).'%';
 					$searchStr .= ' '.substr($unitname2,0,4).'%';
-					if(count($unitname3) > 2) $searchStr .= ' '.substr($unitname3,0,5).'%';
+					if(strlen($unitname3) > 2) $searchStr .= ' '.substr($unitname3,0,5).'%';
 					$sql = 'SELECT tid, sciname FROM taxa WHERE (sciname LIKE "'.$searchStr.'") ';
 					if($this->kingdomName) $sql .= 'AND (kingdomname = "'.$this->kingdomName.'" OR kingdomname IS NULL) ';
 					$sql .= 'ORDER BY sciname LIMIT 15';

@@ -529,8 +529,9 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 						<div style="text-align:center;padding:10px">
 							<?php
 							$coordArr = $clManager->getVoucherCoordinates(0,true);
-							//$googleUrl = '//maps.googleapis.com/maps/api/staticmap?size=170x170&maptype=terrain';
-							$googleUrl = $CLIENT_ROOT.'/images/world.png?';
+							$googleUrl = '';
+							if(isset($GOOGLE_MAP_THUMBNAILS) && $GOOGLE_MAP_THUMBNAILS) $googleUrl = '//maps.googleapis.com/maps/api/staticmap?size=170x170&maptype=terrain';
+							else $googleUrl = $CLIENT_ROOT.'/images/world.png?';
 							if(array_key_exists('GOOGLE_MAP_KEY',$GLOBALS) && $GLOBALS['GOOGLE_MAP_KEY']) $googleUrl .= '&key='.$GLOBALS['GOOGLE_MAP_KEY'];
 							if($coordArr){
 								//$googleUrl .= '&markers=size:tiny|'.implode('|',$coordArr);

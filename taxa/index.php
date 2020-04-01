@@ -54,9 +54,7 @@ if($SYMB_UID){
 		$isEditor = true;
 	}
 }
-$descr = Array();
 ?>
-
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE." - ".$taxonManager->getSciName(); ?></title>
@@ -232,8 +230,9 @@ include($SERVER_ROOT.'/includes/header.php');
 						<?php
 						//Map
 						$aUrl = ''; $gAnchor = '';
-						//$url = $taxonManager->getGoogleStaticMap();
-						$url = $CLIENT_ROOT.'/images/mappoint.png';
+						$url = '';
+						if(isset($GOOGLE_MAP_THUMBNAILS) && $GOOGLE_MAP_THUMBNAILS) $url = $taxonManager->getGoogleStaticMap();
+						else $url = $CLIENT_ROOT.'/images/mappoint.png';
 						if($occurrenceModIsActive && $taxonManager->getDisplayLocality()){
 							$gAnchor = "openMapPopup('".$taxonManager->getTid()."',".$clid.")";
 						}
@@ -408,20 +407,19 @@ include($SERVER_ROOT.'/includes/header.php');
 										echo '<div class="spptext">'.(isset($LANG['IMAGE_NOT_AVAILABLE'])?$LANG['IMAGE_NOT_AVAILABLE']:'Images<br/>not available').'</div>';
 									}
 									echo "</div>\n";
-
-									//Display thumbnail map
-									/* Deactivating display of static map to reduce Google charges
-									if($taxonManager->getRankId() > 140){
-										echo '<div class="sppmap">';
-										if(array_key_exists("map",$subArr) && $subArr["map"]){
-											echo '<img src="'.$subArr['map'].'" title="'.$taxonManager->getSciName().'" alt="'.$taxonManager->getSciName().'" />';
+									if(isset($GOOGLE_MAP_THUMBNAILS) && $GOOGLE_MAP_THUMBNAILS){
+										//Display thumbnail map
+										if($taxonManager->getRankId() > 140){
+											echo '<div class="sppmap">';
+											if(array_key_exists("map",$subArr) && $subArr["map"]){
+												echo '<img src="'.$subArr['map'].'" title="'.$taxonManager->getSciName().'" alt="'.$taxonManager->getSciName().'" />';
+											}
+											else{
+												echo '<div class="spptext">'.(isset($LANG['MAP_NOT_AVAILABLE'])?$LANG['MAP_NOT_AVAILABLE']:'Map not<br />Available').'</div>';
+											}
+											echo '</div>';
 										}
-										else{
-											echo '<div class="spptext">'.(isset($LANG['MAP_NOT_AVAILABLE'])?$LANG['MAP_NOT_AVAILABLE']:'Map not<br />Available').'</div>';
-										}
-										echo '</div>';
 									}
-									*/
 									echo "</div>";
 									$cnt++;
 									if($cnt > $taxaLimit) break;

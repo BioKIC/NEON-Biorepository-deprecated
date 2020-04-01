@@ -301,20 +301,23 @@ class OccurrenceGeorefTools {
 		$rightArr = array();
 		if(isset($USER_RIGHTS['CollAdmin'])) $rightArr = $USER_RIGHTS['CollAdmin'];
 		if(isset($USER_RIGHTS['CollEditor'])) $rightArr = array_merge($rightArr, $USER_RIGHTS['CollEditor']);
-		$sql = 'SELECT collid, CONCAT_WS("-",institutioncode, collectioncode) AS code, collectionname, icon, colltype, managementtype FROM omcollections '.
-			'WHERE (colltype IN("Preserved Specimens","Observations")) AND (collid IN('.implode(',', $rightArr).')) ';
-		if($IS_ADMIN) $sql .= 'OR (collid IN('.$this->collStr.')) ';
-		$sql .= 'ORDER BY collectionname, collectioncode ';
-		//echo $sql;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->collid]['code'] = $r->code;
-			$retArr[$r->collid]['collectionname'] = $r->collectionname;
-			$retArr[$r->collid]['icon'] = $r->icon;
-			$retArr[$r->collid]['colltype'] = $r->colltype;
-			$retArr[$r->collid]['managementtype'] = $r->managementtype;
+		if($rightArr || $IS_ADMIN){
+			$sql = 'SELECT collid, CONCAT_WS("-",institutioncode, collectioncode) AS code, collectionname, icon, colltype, managementtype FROM omcollections '.
+				'WHERE ((colltype IN("Preserved Specimens","Observations")) ';
+			if($rightArr) $sql .= 'AND (collid IN('.implode(',', $rightArr).')) ';
+			$sql .= ') ';
+			if($IS_ADMIN) $sql .= 'OR (collid IN('.$this->collStr.')) ';
+			$sql .= 'ORDER BY collectionname, collectioncode ';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->collid]['code'] = $r->code;
+				$retArr[$r->collid]['collectionname'] = $r->collectionname;
+				$retArr[$r->collid]['icon'] = $r->icon;
+				$retArr[$r->collid]['colltype'] = $r->colltype;
+				$retArr[$r->collid]['managementtype'] = $r->managementtype;
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retArr;
 	}
 

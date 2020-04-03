@@ -1,6 +1,6 @@
 <table id="maintable" cellspacing="0">
 	<tr>
-		<td id="header" colspan="3">
+		<td id="header" colspan="3" style="background-image:url(<?php echo $CLIENT_ROOT; ?>/images/layout/background_poppy.jpg)">
 			<div style="clear:both; width:100%; height:170px; border-bottom:1px solid #000000;">
 				<div style="float:left">
 					<img src="<?php echo $CLIENT_ROOT; ?>/images/layout/CCH_logo_filled.png" style="margin:0px 30px;width:130px" />
@@ -48,7 +48,7 @@
 					<span style="margin-left:5px;margin-right:5px;">
 						<a href='<?php echo $CLIENT_ROOT; ?>/sitemap.php'>Sitemap</a>
 					</span>
-					
+
 				</div>
 				<ul id="hor_dropdown">
 					<li>
@@ -79,4 +79,4 @@
     <tr>
 		<td id='middlecenter'  colspan="3">
 
-		
+

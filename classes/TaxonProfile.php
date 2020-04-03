@@ -4,13 +4,14 @@ include_once('Manager.php');
 class TaxonProfile extends Manager {
 
 	private $tid;
-	private $sciName;
-	private $author;
-	private $taxAuthId = 1;
 	private $rankId;
 	private $parentTid;
-	private $family;
-	private $acceptedTaxa = array();
+	private $taxAuthId = 1;
+	private $displayName;
+	private $displayAuthor;
+	private $displayFamily;
+
+	private $acceptedArr = array();
 	private $synonymArr = array();
 	private $submittedArr = array();
 
@@ -33,9 +34,7 @@ class TaxonProfile extends Manager {
 		if(is_numeric($tid)){
 			$this->tid = $tid;
 			if($this->setTaxon()){
-				if(count($this->acceptedTaxa) < 2){
-					$this->setSynonyms();
-				}
+				if(count($this->acceptedArr) == 1) $this->setSynonyms();
 			}
 		}
 		//If name was redirected to accepted name, tid returned will be different
@@ -45,13 +44,18 @@ class TaxonProfile extends Manager {
 	private function setTaxon(){
 		$status = false;
 		if($this->tid){
-			$sql = 'SELECT tid, sciname, author FROM taxa WHERE (tid = '.$this->tid.') ';
+			$sql = 'SELECT tid, sciname, author, rankid FROM taxa WHERE (tid = '.$this->tid.') ';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->submittedArr['tid'] = $r->tid;
 				$this->submittedArr['sciname'] = $r->sciname;
 				$this->submittedArr['author'] = $r->author;
+				$this->submittedArr['rankid'] = $r->rankid;
+				$this->tid = $r->tid;
+				$this->displayName = $r->sciname;
+				$this->displayAuthor = $r->author;
+				$this->rankId = $r->rankid;
 			}
 			$rs->free();
 
@@ -62,17 +66,16 @@ class TaxonProfile extends Manager {
 			//echo $sql;
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_object()){
-				$this->tid = $r2->tid;
-				$this->sciName = $r2->sciname;
-				$this->author = $r2->author;
-				$this->rankId = $r2->rankid;
-				$this->family = $r2->family;
-				$this->parentTid = $r2->parenttid;
-				$this->acceptedTaxa[$r2->tid] = array('sciname'=>$r2->sciname,'author'=>$r2->author);
+				$this->acceptedArr[$r2->tid]['sciname'] = $r2->sciname;
+				$this->acceptedArr[$r2->tid]['author'] = $r2->author;
+				$this->acceptedArr[$r2->tid]['rankid'] = $r2->rankid;
+				$this->acceptedArr[$r2->tid]['family'] = $r2->family;
+				$this->acceptedArr[$r2->tid]['parenttid'] = $r2->parenttid;
 				if($r2->securitystatus > 0) $this->displayLocality = 0;
 				$status = true;
 			}
 			$rs2->free();
+
 			if(!$this->displayLocality){
 				if(isset($GLOBALS['IS_ADMIN']) && $GLOBALS['IS_ADMIN']) $this->displayLocality = 1;
 				elseif(isset($GLOBALS['USER_RIGHTS'])){
@@ -154,8 +157,8 @@ class TaxonProfile extends Manager {
 			}
 			echo '<div class="tptnimg"><a href="'.$imgAnchor.'">';
 			$titleStr = $imgObj['caption'];
-			if($imgObj['sciname'] != $this->sciName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
-			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->sciName.' image" />';
+			if($imgObj['sciname'] != $this->displayName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
+			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->displayName.' image" />';
 			/*
 			 if($length){
 			 echo '<img src="'.$imgUrl.'" title="'.$imgObj['caption'].'" alt="'.$spDisplay.' image" />';
@@ -334,7 +337,47 @@ class TaxonProfile extends Manager {
 	}
 
 	//Taxon Descriptions
-	public function getDescriptionStr(){
+	private function getDescriptions(){
+		$retArr = Array();
+		if($this->tid){
+			$rsArr = array();
+			$sql = 'SELECT ts.tid, tdb.tdbid, tdb.caption, tdb.source, tdb.sourceurl, '.
+				'tds.tdsid, tds.heading, tds.statement, tds.displayheader, tdb.language '.
+				'FROM taxstatus ts INNER JOIN taxadescrblock tdb ON ts.tid = tdb.tid '.
+				'INNER JOIN taxadescrstmts tds ON tdb.tdbid = tds.tdbid '.
+				'WHERE (ts.tidaccepted = '.$this->tid.') AND (ts.taxauthid = 1) '.
+				'ORDER BY tdb.displaylevel,tds.sortsequence';
+			//echo $sql; exit;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_assoc()){
+				$rsArr[] = $r;
+			}
+			$rs->free();
+
+			//Get descriptions associated with target name only
+			$usedCaptionArr = array();
+			foreach($rsArr as $n => $rowArr){
+				//if($rowArr['tid'] == $this->tid){
+				if(!array_key_exists($rowArr['caption'], $usedCaptionArr) || $rowArr['caption'] != $rowArr['tdbid']){
+					$retArr = $this->loadDescriptionArr($rowArr, $retArr);
+					$usedCaptionArr[$rowArr['caption']] = $rowArr['tdbid'];
+				}
+			}
+			/*
+			 //Then add description linked to synonyms ONLY if one doesn't exist with same caption
+			 reset($rsArr);
+			 foreach($rsArr as $n => $rowArr){
+			 if($rowArr['tid'] != $this->tid && !in_array($rowArr['caption'], $usedCaptionArr)){
+			 $retArr = $this->loadDescriptionArr($rowArr, $retArr);
+			 }
+			 }
+			 ksort($retArr);
+			*/
+		}
+		return $retArr;
+	}
+
+	public function getDescriptionTabs(){
 		global $LANG;
 		$retStr = '';
 		$descArr = $this->getDescriptions();
@@ -383,7 +426,7 @@ class TaxonProfile extends Manager {
 				$retStr .= '<div id="tab-links" class="sptab" style="width:94%;">';
 				$retStr .= '<ul style="margin-top: 50px">';
 				foreach($this->taxaLinks as $l){
-					$urlStr = str_replace('--SCINAME--',rawurlencode($this->sciName),$l['url']);
+					$urlStr = str_replace('--SCINAME--',rawurlencode($this->displayName),$l['url']);
 					$retStr .= '<li><a href="'.$urlStr.'" target="_blank">'.$l['title'].'</a></li>';
 					if($l['notes']) $retStr .= ' '.$l['notes'];
 				}
@@ -396,46 +439,6 @@ class TaxonProfile extends Manager {
 			$retStr = '<div style="margin:70px 0px 20px 50px">'.$LANG['DESCRIPTION_NOT_AVAILABLE'].'</div>';
 		}
 		return $retStr;
-	}
-
-	private function getDescriptions(){
-		$retArr = Array();
-		if($this->tid){
-			$rsArr = array();
-			$sql = 'SELECT ts.tid, tdb.tdbid, tdb.caption, tdb.source, tdb.sourceurl, '.
-				'tds.tdsid, tds.heading, tds.statement, tds.displayheader, tdb.language '.
-				'FROM taxstatus ts INNER JOIN taxadescrblock tdb ON ts.tid = tdb.tid '.
-				'INNER JOIN taxadescrstmts tds ON tdb.tdbid = tds.tdbid '.
-				'WHERE (ts.tidaccepted = '.$this->tid.') AND (ts.taxauthid = 1) '.
-				'ORDER BY tdb.displaylevel,tds.sortsequence';
-			//echo $sql; exit;
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_assoc()){
-				$rsArr[] = $r;
-			}
-			$rs->free();
-
-			//Get descriptions associated with accepted name only
-			$usedCaptionArr = array();
-			foreach($rsArr as $n => $rowArr){
-				//if($rowArr['tid'] == $this->tid){
-				if(!array_key_exists($rowArr['caption'], $usedCaptionArr) || $rowArr['caption'] != $rowArr['tdbid']){
-					$retArr = $this->loadDescriptionArr($rowArr, $retArr);
-					$usedCaptionArr[$rowArr['caption']] = $rowArr['tdbid'];
-				}
-			}
-			/*
-			//Then add description linked to synonyms ONLY if one doesn't exist with same caption
-			reset($rsArr);
-			foreach($rsArr as $n => $rowArr){
-				if($rowArr['tid'] != $this->tid && !in_array($rowArr['caption'], $usedCaptionArr)){
-					$retArr = $this->loadDescriptionArr($rowArr, $retArr);
-				}
-			}
-			ksort($retArr);
-			*/
-		}
-		return $retArr;
 	}
 
 	private function loadDescriptionArr($rowArr,$retArr){
@@ -677,12 +680,12 @@ class TaxonProfile extends Manager {
 		return $this->tid;
 	}
 
-	public function getSciName(){
-		return $this->sciName;
+	public function getDisplayName(){
+		return $this->displayName;
 	}
 
 	public function getAuthor(){
-		return $this->author;
+		return $this->displayAuthor;
 	}
 
 	public function getSubmittedValue($k=0){
@@ -695,8 +698,8 @@ class TaxonProfile extends Manager {
 		}
 	}
 
-	public function getFamily(){
-		return $this->family;
+	public function getDislayFamily(){
+		return $this->displayFamily;
 	}
 
 	public function getRankId(){
@@ -705,6 +708,10 @@ class TaxonProfile extends Manager {
 
 	public function getParentTid(){
 		return $this->parentTid;
+	}
+
+	public function getAcceptedArr(){
+		return $this->acceptedArr;
 	}
 
 	public function getSynonymArr(){

@@ -118,7 +118,7 @@ elseif($coordRange > 40){
 <body style="background-color:#ffffff;" onload="initialize()">
 	<?php
 		$displayLeftMenu = false;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		if(isset($checklists_dynamicmapCrumbs)){
 			if($checklists_dynamicmapCrumbs){
 				echo "<div class='navpath'>";
@@ -186,7 +186,7 @@ elseif($coordRange > 40){
 			<div id='map_canvas' style='width:95%; height:650px; clear:both;'></div>
 		</div>
 	<?php
- 	include_once($SERVER_ROOT.'/footer.php');
+ 	include_once($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

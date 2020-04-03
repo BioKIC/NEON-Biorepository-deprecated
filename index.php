@@ -53,17 +53,17 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				$numDays = 30;
 
 				//---------------------------DO NOT CHANGE BELOW HERE-----------------------------
-				ini_set('max_execution_time', 120);
-				include_once($SERVER_ROOT.'/classes/PluginsManager.php');
-				$pluginManager = new PluginsManager();
-				echo $pluginManager->createSlideShow($ssId,$numSlides,$width,$numDays,$imageType,$clid,$dayInterval,$interval);
+				//ini_set('max_execution_time', 120);
+				//include_once($SERVER_ROOT.'/classes/PluginsManager.php');
+				//$pluginManager = new PluginsManager();
+				//echo $pluginManager->createSlideShow($ssId,$numSlides,$width,$numDays,$imageType,$clid,$dayInterval,$interval);
 				?>
 			//---------------------------END SLIDESHOW SETTINGS---------------------------------------
 		</div>
 			-->
 		</div>
 		<div style="padding: 0px 10px;font-size:120%">
-			<div style="float:right"><img src="images/UC1278733_small.jpg" style="width:300px;margin:0px 15px" /></div>
+			<div style="float:right"><img src="images/layout/UC1278733_small.jpg" style="width:300px;margin:0px 15px" /></div>
 			<p>
 				<b>CCH2</b> serves data from specimens housed in CCH member herbaria. The data included in this database represents all
 				specimen records from partner institutions.  The data served through this portal are currently growing due to the work of the

@@ -89,6 +89,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				Special thanks to the National Park Service who provided funds for the initial setup of the CCH2 website and database (November 2016).<br />
 			</p>
 			<p>
+				Consortium of California Herbaria, CCH2 Portal asks that users not redistribute data obtained from this site.
+				However, links or references to this site may be freely posted.  If you have any questions about this policy,
+				please contact Jason Alexander (<a href="mailto:jason_alexander@berkeley.edu">jason_alexander@berkeley.edu</a>) or Katie Pearson (<a href="mailto:kdpearso@calpoly.edu">kdpearso@calpoly.edu</a>).
+			</p>
+			<p>
 				Note also these other portals that will better serve the data needs of more-specialized users:
 			</p>
 

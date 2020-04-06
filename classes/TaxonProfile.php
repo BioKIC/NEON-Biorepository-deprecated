@@ -7,9 +7,9 @@ class TaxonProfile extends Manager {
 	private $rankId;
 	private $parentTid;
 	private $taxAuthId = 1;
-	private $displayName;
-	private $displayAuthor;
-	private $displayFamily;
+	private $taxonName;
+	private $taxonAuthor;
+	private $taxonFamily;
 
 	private $acceptedArr = array();
 	private $synonymArr = array();
@@ -53,8 +53,8 @@ class TaxonProfile extends Manager {
 				$this->submittedArr['author'] = $r->author;
 				$this->submittedArr['rankid'] = $r->rankid;
 				$this->tid = $r->tid;
-				$this->displayName = $r->sciname;
-				$this->displayAuthor = $r->author;
+				$this->taxonName = $r->sciname;
+				$this->taxonAuthor = $r->author;
 				$this->rankId = $r->rankid;
 			}
 			$rs->free();
@@ -71,6 +71,8 @@ class TaxonProfile extends Manager {
 				$this->acceptedArr[$r2->tid]['rankid'] = $r2->rankid;
 				$this->acceptedArr[$r2->tid]['family'] = $r2->family;
 				$this->acceptedArr[$r2->tid]['parenttid'] = $r2->parenttid;
+				$this->taxonFamily = $r2->family;
+				$this->parentTid = $r2->parenttid;
 				if($r2->securitystatus > 0) $this->displayLocality = 0;
 				$status = true;
 			}
@@ -157,8 +159,8 @@ class TaxonProfile extends Manager {
 			}
 			echo '<div class="tptnimg"><a href="'.$imgAnchor.'">';
 			$titleStr = $imgObj['caption'];
-			if($imgObj['sciname'] != $this->displayName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
-			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->displayName.' image" />';
+			if($imgObj['sciname'] != $this->taxonName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
+			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->taxonName.' image" />';
 			/*
 			 if($length){
 			 echo '<img src="'.$imgUrl.'" title="'.$imgObj['caption'].'" alt="'.$spDisplay.' image" />';
@@ -426,7 +428,7 @@ class TaxonProfile extends Manager {
 				$retStr .= '<div id="tab-links" class="sptab" style="width:94%;">';
 				$retStr .= '<ul style="margin-top: 50px">';
 				foreach($this->taxaLinks as $l){
-					$urlStr = str_replace('--SCINAME--',rawurlencode($this->displayName),$l['url']);
+					$urlStr = str_replace('--SCINAME--',rawurlencode($this->taxonName),$l['url']);
 					$retStr .= '<li><a href="'.$urlStr.'" target="_blank">'.$l['title'].'</a></li>';
 					if($l['notes']) $retStr .= ' '.$l['notes'];
 				}
@@ -680,12 +682,16 @@ class TaxonProfile extends Manager {
 		return $this->tid;
 	}
 
-	public function getDisplayName(){
-		return $this->displayName;
+	public function getTaxonName(){
+		return $this->taxonName;
 	}
 
-	public function getAuthor(){
-		return $this->displayAuthor;
+	public function getTaxonAuthor(){
+		return $this->taxonAuthor;
+	}
+
+	public function getTaxonFamily(){
+		return $this->taxonFamily;
 	}
 
 	public function getSubmittedValue($k=0){
@@ -696,10 +702,6 @@ class TaxonProfile extends Manager {
 		if(is_numeric($id)){
 			$this->taxAuthId = $id;
 		}
-	}
-
-	public function getDislayFamily(){
-		return $this->displayFamily;
 	}
 
 	public function getRankId(){

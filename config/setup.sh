@@ -13,8 +13,6 @@ echo "Creating footer include: /includes/footer.php"
 cp ../includes/footer_template.php ../includes/footer.php
 echo "Creating head include: /includes/head.php"
 cp ../includes/head_template.php ../includes/head.php
-echo "Creating species profile head include: /spprofilehead.php"
-cp ../includes/spprofilehead_template.php ../includes/spprofilehead.php
 echo "Creating usage policy include: /includes/usagepolicy.php"
 cp ../includes/usagepolicy_template.php ../includes/usagepolicy.php
 

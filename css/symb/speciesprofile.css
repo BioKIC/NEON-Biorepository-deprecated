@@ -87,13 +87,13 @@ fieldset legend{
 
 #editorDiv{
 	float:right;
-	border:	0;
+	border:	0px;
 }
 
 .navIcon{
-	border:			0;
-	margin:			0;
-	height:			15px;
+	border: 0px;
+	margin: 0px;
+	height: 15px;
 }
 
 #linkDiv{
@@ -275,7 +275,7 @@ div.spptab{
 
 #descsource{
 	text-align:	right;
-	width:		400px;
+	width:		100%;
 	float:		right;
 	padding:	10px 20px 10px 10px;
 }

@@ -10,6 +10,8 @@ class TaxonProfile extends Manager {
 	private $taxonName;
 	private $taxonAuthor;
 	private $taxonFamily;
+	private $acceptance = true;
+	private $forwarded = false;
 
 	private $acceptedArr = array();
 	private $synonymArr = array();
@@ -33,12 +35,8 @@ class TaxonProfile extends Manager {
 	public function setTid($tid){
 		if(is_numeric($tid)){
 			$this->tid = $tid;
-			if($this->setTaxon()){
-				if(count($this->acceptedArr) == 1) $this->setSynonyms();
-			}
+			if($this->setTaxon()) if(count($this->acceptedArr) == 1) $this->setSynonyms();
 		}
-		//If name was redirected to accepted name, tid returned will be different
-		return $this->tid;
 	}
 
 	private function setTaxon(){
@@ -60,10 +58,10 @@ class TaxonProfile extends Manager {
 			$rs->free();
 
 			//Set acceptance, parent, and family
-			$sql2 = 'SELECT ts.family, ts.parenttid, t.tid, t.sciname, t.author, t.rankid, t.securitystatus '.
+			$sql2 = 'SELECT ts2.family, ts2.parenttid, t.tid, t.sciname, t.author, t.rankid, t.securitystatus '.
 				'FROM taxstatus ts INNER JOIN taxa t ON ts.tidaccepted = t.tid '.
-				'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tid = '.$this->tid.') ';
-			//echo $sql;
+				'INNER JOIN taxstatus ts2 ON ts.tidaccepted = ts2.tid '.
+				'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts2.taxauthid = '.$this->taxAuthId.') AND (ts.tid = '.$this->tid.') ';
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_object()){
 				$this->acceptedArr[$r2->tid]['sciname'] = $r2->sciname;
@@ -77,6 +75,21 @@ class TaxonProfile extends Manager {
 				$status = true;
 			}
 			$rs2->free();
+
+			if($this->tid != key($this->acceptedArr)){
+				if(count($this->acceptedArr) == 1){
+					$this->forwarded = true;
+					$this->tid = key($this->acceptedArr);
+					$this->taxonName = $this->acceptedArr[$this->tid]['sciname'];
+					$this->taxonAuthor = $this->acceptedArr[$this->tid]['author'];
+					$this->rankId = $this->acceptedArr[$this->tid]['rankid'];
+					$this->taxonFamily = $this->acceptedArr[$this->tid]['family'];
+					$this->parentTid = $this->acceptedArr[$this->tid]['parenttid'];
+				}
+				else{
+					$this->acceptance = false;
+				}
+			}
 
 			if(!$this->displayLocality){
 				if(isset($GLOBALS['IS_ADMIN']) && $GLOBALS['IS_ADMIN']) $this->displayLocality = 1;
@@ -712,16 +725,20 @@ class TaxonProfile extends Manager {
 		return $this->parentTid;
 	}
 
+	public function isAccepted(){
+		return $this->acceptance;
+	}
+
+	public function isForwarded(){
+		return $this->forwarded;
+	}
+
 	public function getAcceptedArr(){
 		return $this->acceptedArr;
 	}
 
 	public function getSynonymArr(){
 		return $this->synonymArr;
-	}
-
-	public function isAccepted(){
-		return ($this->tid == $this->submittedArr['tid']);
 	}
 
 	public function getDisplayLocality(){

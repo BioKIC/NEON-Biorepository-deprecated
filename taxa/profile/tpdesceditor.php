@@ -1,23 +1,21 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TPDescEditorManager.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+header('Content-Type: text/html; charset='.$CHARSET);
 
-$tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:0;
-$lang = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:'';
-$action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
+$tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:0;
+$lang = array_key_exists('lang',$_REQUEST)?$_REQUEST['lang']:'';
+$action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 
 $descEditor = new TPDescEditorManager();
 if($tid) $descEditor->setTid($tid);
 if($lang) $descEditor->setLanguage($lang);
 
-$statusStr = '';
-$editable = false;
-if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)){
-	$editable = true;
-}
+$isEditor = false;
+if($IS_ADMIN || array_key_exists('TaxonProfile',$USER_RIGHTS)) $isEditor = true;
 
-if($editable){
+if($isEditor){
+	$descList = $descEditor->getDescriptions(true)
 	?>
 	<script type="text/javascript">
 		tinymce.init({
@@ -34,12 +32,12 @@ if($editable){
 	<div style="float:right;" onclick="toggle('adddescrblock');" title="Add a New Description">
 		<img style='border:0px;width:15px;' src='../../images/add.png'/>
 	</div>
-	<div id='adddescrblock' style='display:none;'>
-		<form name='adddescrblockform' action="tpeditor.php" method="get">
+	<div id='adddescrblock' style='display:<?php echo ($descList?'none':''); ?>;'>
+		<form name='adddescrblockform' action="tpeditor.php" method="post">
 			<fieldset style='width:90%;margin:10px;padding:10px;'>
     			<legend><b>New Description Block</b></legend>
 				<div style=''>
-					Language: <input id="language" name="language" type="text" value="<?php echo $defaultLang; ?>" />
+					Language: <input id="language" name="language" type="text" value="<?php echo $DEFAULT_LANG; ?>" />
 				</div>
 				<div style=''>
 					Caption: <input id='caption' name='caption' style='width:300px;' type='text' />
@@ -65,7 +63,7 @@ if($editable){
 		</form>
 	</div>
 	<?php
-	if($descList = $descEditor->getDescriptions(true)){
+	if($descList){
 		foreach($descList as $tdbid => $dArr){
     		?>
     		<fieldset style='width:90%;margin:10px 5px 5px 5px;padding:10px;'>
@@ -141,7 +139,7 @@ if($editable){
 						<div onclick="toggle('addstmt-<?php echo $tdbid;?>');" style="float:right;" title="Add a New Statement">
 							<img style='border:0px;width:15px;' src='../../images/add.png'/>
 						</div>
-						<div id='addstmt-<?php echo $tdbid;?>' style='display:<?php echo ($action == 'Add Description Block'?'block':'none'); ?>'>
+						<div id='addstmt-<?php echo $tdbid;?>' style='display:<?php echo (isset($dArr["stmts"])?'none':'block'); ?>'>
 							<form name='adddescrstmtform' action="tpeditor.php" method="post">
 								<fieldset style='margin:5px 0px 0px 15px;'>
 					    			<legend><b>New Description Statement</b></legend>

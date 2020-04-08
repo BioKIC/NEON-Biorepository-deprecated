@@ -11,6 +11,8 @@ $lang = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:"";
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 $tabIndex = array_key_exists("tabindex",$_REQUEST)?$_REQUEST["tabindex"]:0;
 
+if(!is_numeric($tabIndex)) $tabIndex = 0;
+
 $tEditor;
 if($tabIndex == 1 || $tabIndex == 2){
 	$tEditor = new TPImageEditorManager();

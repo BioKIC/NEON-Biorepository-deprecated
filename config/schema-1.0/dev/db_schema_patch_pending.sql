@@ -73,6 +73,18 @@ ADD INDEX `Index_tid` (`tid` ASC);
 ALTER TABLE `taxaresourcelinks` 
   ADD UNIQUE INDEX `UNIQUE_taxaresource` (`tid` ASC, `sourcename` ASC);
 
+ALTER TABLE `taxadescrblock` 
+  DROP FOREIGN KEY `FK_taxadescrblock_tid`;
+ALTER TABLE `taxadescrblock` 
+  DROP INDEX `Index_unique` ;
+ALTER TABLE `taxadescrblock` 
+  ADD INDEX `FK_taxadescrblock_tid_idx` (`tid` ASC);
+ALTER TABLE `taxadescrblock` 
+  ADD CONSTRAINT `FK_taxadescrblock_tid` FOREIGN KEY (`tid`) REFERENCES `taxa` (`TID`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
+ALTER TABLE `taxadescrstmts` 
+  CHANGE COLUMN `heading` `heading` VARCHAR(75) NULL ;
+
+
 #Paleo tables
 CREATE TABLE `omoccurpaleo` (
   `paleoID` INT UNSIGNED NOT NULL AUTO_INCREMENT,

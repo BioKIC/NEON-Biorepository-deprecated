@@ -1,29 +1,25 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TPImageEditorManager.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+header('Content-Type: text/html; charset='.$CHARSET);
 
-$tid = $_REQUEST["tid"];
-$category = array_key_exists("cat",$_REQUEST)?$_REQUEST["cat"]:"";
-$lang = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:"";
+$tid = $_REQUEST['tid'];
+$category = array_key_exists('cat',$_REQUEST)?$_REQUEST['cat']:'';
+$lang = array_key_exists('lang',$_REQUEST)?$_REQUEST['lang']:'';
 
 $imageEditor = new TPImageEditorManager();
-$editable = false;
+$isEditor = false;
 
 if($tid){
 	$imageEditor->setTid($tid);
 	$imageEditor->setLanguage($lang);
-
-	if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)){
-		$editable = true;
-	}
-
+	if($IS_ADMIN || array_key_exists('TaxonProfile',$USER_RIGHTS)) $isEditor = true;
 }
 ?>
 <!-- This is inner text! -->
 <div id="innertext" style="background-color:white;">
 	<?php
-	if($editable && $tid){
+	if($isEditor && $tid){
 		if($category == "imagequicksort"){
 			if($images = $imageEditor->getImages()){
 				?>
@@ -265,19 +261,22 @@ if($tid){
 								}
 								?>
 								<div style='margin:60px 0px 10px 10px;clear:both;'>
-									<?php if($imgArr["tid"] != $tid){ ?>
-									<div>
-										<b>Image linked from:</b>
-										<a href="tpeditor.php?tid=<?php echo $imgArr["tid"];?>" target=""><?php echo $imgArr["sciname"];?></a>
-									</div>
 									<?php
+									if($imgArr["tid"] != $tid){
+										?>
+										<div>
+											<b>Image linked from:</b>
+											<a href="tpeditor.php?tid=<?php echo $imgArr["tid"];?>" target=""><?php echo $imgArr["sciname"];?></a>
+										</div>
+										<?php
 									}
-									if($imgArr["caption"]){ ?>
-									<div>
-										<b>Caption:</b>
-										<?php echo $imgArr["caption"];?>
-									</div>
-									<?php
+									if($imgArr["caption"]){
+										?>
+										<div>
+											<b>Caption:</b>
+											<?php echo $imgArr["caption"];?>
+										</div>
+										<?php
 									}
 									?>
 									<div>
@@ -286,54 +285,54 @@ if($tid){
 									</div>
 									<?php
 									if($imgArr["owner"]){
-									?>
-									<div>
-										<b>Manager:</b>
-										<?php echo $imgArr["owner"];?>
-									</div>
-									<?php
+										?>
+										<div>
+											<b>Manager:</b>
+											<?php echo $imgArr["owner"];?>
+										</div>
+										<?php
 									}
 									if($imgArr["sourceurl"]){
-									?>
-									<div>
-										<b>Source URL:</b>
-										<a href="<?php echo $imgArr["sourceurl"];?>" target="_blank"><?php echo $imgArr["sourceurl"]; ?></a>
-									</div>
-									<?php
+										?>
+										<div>
+											<b>Source URL:</b>
+											<a href="<?php echo $imgArr["sourceurl"];?>" target="_blank"><?php echo $imgArr["sourceurl"]; ?></a>
+										</div>
+										<?php
 									}
 									if($imgArr["copyright"]){
-									?>
-									<div>
-										<b>Copyright:</b>
-										<?php echo $imgArr["copyright"];?>
-									</div>
-									<?php
+										?>
+										<div>
+											<b>Copyright:</b>
+											<?php echo $imgArr["copyright"];?>
+										</div>
+										<?php
 									}
 									if($imgArr["locality"]){
-									?>
-									<div>
-										<b>Locality:</b>
-										<?php echo $imgArr["locality"];?>
-									</div>
-									<?php
+										?>
+										<div>
+											<b>Locality:</b>
+											<?php echo $imgArr["locality"];?>
+										</div>
+										<?php
 									}
 									if($imgArr["occid"]){
-									?>
-									<div>
-										<b>Occurrence Record #:</b>
-										<a href="<?php echo $CLIENT_ROOT;?>/collections/individual/index.php?occid=<?php echo $imgArr["occid"]; ?>">
-											<?php echo $imgArr["occid"];?>
-										</a>
-									</div>
-									<?php
+										?>
+										<div>
+											<b>Occurrence Record #:</b>
+											<a href="<?php echo $CLIENT_ROOT;?>/collections/individual/index.php?occid=<?php echo $imgArr["occid"]; ?>">
+												<?php echo $imgArr["occid"];?>
+											</a>
+										</div>
+										<?php
 									}
 									if($imgArr["notes"]){
-									?>
-									<div>
-										<b>Notes:</b>
-										<?php echo $imgArr["notes"];?>
-									</div>
-									<?php
+										?>
+										<div>
+											<b>Notes:</b>
+											<?php echo $imgArr["notes"];?>
+										</div>
+										<?php
 									}
 									?>
 									<div>

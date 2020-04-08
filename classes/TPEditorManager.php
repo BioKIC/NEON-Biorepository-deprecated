@@ -6,7 +6,7 @@ class TPEditorManager extends Manager {
 	protected $tid;
 	protected $rankid;
 	private $parentTid;
-	private $taxAuthId = 1;
+	protected $taxAuthId = 1;
 	private $sciname;
 	private $author;
 	protected $family;
@@ -28,15 +28,9 @@ class TPEditorManager extends Manager {
 	}
 
 	public function setTid($tid){
+		$status = false;
 		if(is_numeric($tid)){
 			$this->tid = $tid;
-			if($this->setTaxon()) if(count($this->acceptedArr) == 1) $this->setSynonyms();
-		}
-	}
-
-	private function setTaxon(){
-		$status = false;
-		if($this->tid){
 			$sql = 'SELECT tid, sciname, author, rankid FROM taxa WHERE (tid = '.$this->tid.') ';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
@@ -103,7 +97,7 @@ class TPEditorManager extends Manager {
 		$childrenArr = Array();
 		$sql = "SELECT t.Tid, t.SciName, t.Author ".
 			"FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid ".
-			"WHERE ts.taxauthid = 1 AND (ts.ParentTid = ".$this->tid.") ORDER BY t.SciName";
+			"WHERE ts.taxauthid = '.$this->taxAuthId.' AND (ts.ParentTid = ".$this->tid.") ORDER BY t.SciName";
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$childrenArr[$r->Tid]["sciname"] = $r->SciName;
@@ -118,7 +112,7 @@ class TPEditorManager extends Manager {
 		$sql = "SELECT t2.tid, t2.SciName, ts.SortSequence ".
 			"FROM (taxa t1 INNER JOIN taxstatus ts ON t1.tid = ts.tidaccepted) ".
 			"INNER JOIN taxa t2 ON ts.tid = t2.tid ".
-			"WHERE (ts.taxauthid = 1) AND (ts.tid <> ts.TidAccepted) AND (t1.tid = ".$this->tid.") ".
+			"WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tid <> ts.TidAccepted) AND (t1.tid = ".$this->tid.") ".
 			"ORDER BY ts.SortSequence, t2.SciName";
 		//echo $sql."<br>";
 		$rs = $this->conn->query($sql);
@@ -215,7 +209,7 @@ class TPEditorManager extends Manager {
 	public function getChildrenArr(){
 		$returnArr = Array();
 		$sql = 'SELECT t.tid, t.sciname FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-			'WHERE ts.taxauthid = 1 AND (ts.parenttid = '.$this->tid.')';
+			'WHERE ts.taxauthid = '.$this->taxAuthId.' AND (ts.parenttid = '.$this->tid.')';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){

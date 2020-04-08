@@ -51,12 +51,19 @@
 }
 
 #leftPanel{
-	width: 400px;
+	width: 30%;
 	float: left;
 }
 
 #rightPanel{
-	float: right;
+	width: 70%;
+	float: left;
+}
+
+@media screen and (max-width: 800px) {
+	#leftPanel #rightPanel {
+		width: 100%; 
+	}
 }
 
 fieldset{

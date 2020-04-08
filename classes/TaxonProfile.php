@@ -356,12 +356,16 @@ class TaxonProfile extends Manager {
 		$retArr = Array();
 		if($this->tid){
 			$rsArr = array();
-			$sql = 'SELECT ts.tid, tdb.tdbid, tdb.caption, tdb.source, tdb.sourceurl, '.
-				'tds.tdsid, tds.heading, tds.statement, tds.displayheader, tdb.language '.
-				'FROM taxstatus ts INNER JOIN taxadescrblock tdb ON ts.tid = tdb.tid '.
-				'INNER JOIN taxadescrstmts tds ON tdb.tdbid = tds.tdbid '.
-				'WHERE (ts.tidaccepted = '.$this->tid.') AND (ts.taxauthid = 1) '.
-				'ORDER BY tdb.displaylevel,tds.sortsequence';
+			$sql = 'SELECT d.tid, d.tdbid, d.caption, d.source, d.sourceurl, s.tdsid, s.heading, s.statement, s.displayheader, d.language ';
+			if($this->acceptance){
+				$sql .= 'FROM taxstatus ts INNER JOIN taxadescrblock d ON ts.tid = d.tid '.
+					'INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid '.
+					'WHERE (ts.tidaccepted = '.$this->tid.') AND (ts.taxauthid = '.$this->taxAuthId.') ';
+			}
+			else{
+				$sql .= 'FROM taxadescrblock d INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid WHERE (d.tid = '.$this->tid.') ';
+			}
+			$sql .= 'ORDER BY d.displaylevel, s.sortsequence';
 			//echo $sql; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_assoc()){

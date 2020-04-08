@@ -423,20 +423,22 @@ include($SERVER_ROOT.'/includes/header.php');
 				}
 				?>
 				<div id="scinameDiv"><span id="taxon"><?php echo $taxonManager->getTaxonName(); ?></span></div>
-				<div id="leftPanel">
-					<fieldset style="clear:both">
-						<legend><?php echo (isset($LANG['ACCEPTED_TAXA'])?$LANG['ACCEPTED_TAXA']:'Accepted Taxa'); ?></legend>
-						<div>
-							<?php
-							$acceptedArr = $taxonManager->getAcceptedArr();
-							foreach($acceptedArr as $accTid => $accArr){
-								echo '<div><a href="index.php?tid='.$accTid.'"><b>'.$accArr['sciname'].'</b></a></div>';
-							}
-							?>
-						</div>
-					</fieldset>
+				<div>
+					<div id="leftPanel">
+						<fieldset style="clear:both">
+							<legend><?php echo (isset($LANG['ACCEPTED_TAXA'])?$LANG['ACCEPTED_TAXA']:'Accepted Taxa'); ?></legend>
+							<div>
+								<?php
+								$acceptedArr = $taxonManager->getAcceptedArr();
+								foreach($acceptedArr as $accTid => $accArr){
+									echo '<div><a href="index.php?tid='.$accTid.'"><b>'.$accArr['sciname'].'</b></a></div>';
+								}
+								?>
+							</div>
+						</fieldset>
+					</div>
+					<div id="rightPanel"><?php echo $taxonManager->getDescriptionTabs(); ?></div>
 				</div>
-				<div id="rightPanel"><?php echo $taxonManager->getDescriptionTabs(); ?></div>
 			</div>
 			<?php
 		}

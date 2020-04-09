@@ -51,10 +51,10 @@ class OccurrenceHarvester{
 				$sqlWhere .= 'AND (o.'.$postArr['nullfilter'].' IS NULL) ';
 				if($postArr['nullfilter'] == 'sciname') $sqlWhere .= 'AND (o.collid NOT IN(5,23,30,31,41,42)) AND (s.sampleid REGEXP BINARY "\.[0-9]{8}\.[A-Z]{3,8}[0-9]{0,2}\.") ';
 			}
-			if($postArr['errorStr'] == 'noError'){
+			if($postArr['errorStr'] == 'nullError'){
 				$sqlWhere .= 'AND (s.errorMessage IS NULL) ';
 			}
-			else{
+			elseif($postArr['errorStr']){
 				$sqlWhere .= 'AND (s.errorMessage LIKE "'.$this->cleanInStr($postArr['errorStr']).'%") ';
 			}
 			$sqlWhere .= 'ORDER BY s.shipmentPK ';

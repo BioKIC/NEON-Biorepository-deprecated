@@ -116,8 +116,8 @@ include($SERVER_ROOT.'/header.php');
 					<div class="fieldDiv">
 						Error Group:
 						<select name="errorStr" >
+							<option value="nullError">NULL Error Message</option>
 							<option value="">---------------------</option>
-							<option value="noError">No Error Message</option>
 							<?php
 							foreach($reportArr as $msg => $repCntArr){
 								echo '<option>'.$msg.'</option>';

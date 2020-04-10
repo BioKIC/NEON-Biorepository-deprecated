@@ -324,7 +324,7 @@ class OccurrenceHarvester{
 				}
 				else{
 					$dwcArr['locality'] = $sampleArr['namedLocation'];
-					$this->setSampleErrorMessage($sampleArr['samplePK'], 'locatity data failed to populate');
+					$this->setSampleErrorMessage($sampleArr['samplePK'], 'locality data failed to populate');
 					//return false;
 				}
 

@@ -10,7 +10,7 @@ $cssPathPrefix = $CLIENT_ROOT.'/css/symb';
 <?php
 if($activateJQuery){
 	//For an alternate jQuery UI styling, point link below to another css file
-	echo '<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet">'."/n";
+	echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet">';
 }
 ?>
 <link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=1" type="text/css" rel="stylesheet">

@@ -188,7 +188,7 @@ if(!$researchList && !$editMode){
 	$HEADER_URL = '';
 	if(isset($projArr['headerurl']) && $projArr['headerurl']) $HEADER_URL = $CLIENT_ROOT.$projArr['headerurl'];
 	$displayLeftMenu = (isset($projects_indexMenu)?$projects_indexMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	echo "<div class='navpath'>";
 	if(isset($projects_indexCrumbs) && $projArr){
 		if($projects_indexCrumbs) echo $projects_indexCrumbs.' &gt;&gt; ';
@@ -453,7 +453,7 @@ if(!$researchList && !$editMode){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

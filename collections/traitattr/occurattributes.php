@@ -245,7 +245,7 @@ if($traitID){
 	<body>
 		<?php
 		$displayLeftMenu = false;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		if($isEditor == 2){
 			echo '<div style="float:right;margin:0px 3px;font-size:90%">';
 			if($mode == 1){
@@ -590,7 +590,7 @@ if($traitID){
 		?>
 		</div>
 		<?php
-		include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

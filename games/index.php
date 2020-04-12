@@ -40,7 +40,7 @@ $clArr = $gameManager->getChecklistArr($pid);
 
 	<?php
 	$displayLeftMenu = (isset($games_indexMenu)?$games_indexMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($gamess_indexCrumbs)){
 		?>
 		<div class="navpath">
@@ -115,7 +115,7 @@ $clArr = $gameManager->getChecklistArr($pid);
 	</div>
 	<!-- This ends inner text! -->
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

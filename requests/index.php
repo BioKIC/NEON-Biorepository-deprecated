@@ -98,7 +98,7 @@ if (isset($_POST['formsubmit'])) {
 
 	<?php
 	$displayLeftMenu = (isset($collections_indexMenu)?$collections_indexMenu:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_indexCrumbs)){
 		if($collections_indexCrumbs){
 			echo "<div class='navpath'>";
@@ -260,7 +260,7 @@ if (isset($_POST['formsubmit'])) {
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	</body>
 </html>

@@ -145,7 +145,7 @@ if($action == "Create Login"){
 <body>
 	<?php
 	$displayLeftMenu = (isset($profile_newprofileMenu)?$profile_newprofileMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($profile_newprofileCrumbs)){
 		echo "<div class='navpath'>";
 		echo $profile_newprofileCrumbs;
@@ -323,7 +323,7 @@ if($action == "Create Login"){
 	</fieldset>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

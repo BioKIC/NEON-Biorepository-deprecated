@@ -568,7 +568,7 @@ include($SERVER_ROOT. '/header.php');
 	?>
 </div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

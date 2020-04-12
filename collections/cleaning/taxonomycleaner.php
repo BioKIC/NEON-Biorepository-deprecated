@@ -151,7 +151,7 @@ elseif($activeCollArr){
 	<body>
 		<?php
 		$displayLeftMenu = (isset($taxa_admin_taxonomycleanerMenu)?$taxa_admin_taxonomycleanerMenu:'true');
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class='navpath'>
 			<a href="../../index.php">Home</a> &gt;&gt;
@@ -354,6 +354,6 @@ elseif($activeCollArr){
 			}
 			?>
 		</div>
-		<?php include($SERVER_ROOT.'/footer.php');?>
+		<?php include($SERVER_ROOT.'/includes/footer.php');?>
 	</body>
 </html>

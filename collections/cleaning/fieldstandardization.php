@@ -55,7 +55,7 @@ if($collMap['colltype'] == 'General Observations' && $obsUid !== 0){
 <body>
 	<?php
 	$displayLeftMenu = false;
-	if(!$dupArr) include($SERVER_ROOT.'/header.php');
+	if(!$dupArr) include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href="../../index.php">Home</a> &gt;&gt;
@@ -124,7 +124,7 @@ if($collMap['colltype'] == 'General Observations' && $obsUid !== 0){
 	</div>
 <?php
 if(!$dupArr){
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 }
 ?>
 </body>

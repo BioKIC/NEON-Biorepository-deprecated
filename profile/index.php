@@ -145,7 +145,7 @@ else{
 <body>
 <?php
 $displayLeftMenu = (isset($profile_indexMenu)?$profile_indexMenu:'true');
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <!-- inner text -->
 <div id="innertext" style="padding-left:0px;margin-left:0px;">
@@ -209,6 +209,6 @@ include($SERVER_ROOT.'/header.php');
 		</div>
 	</div>
 </div>
-<?php include($SERVER_ROOT.'/footer.php'); ?>
+<?php include($SERVER_ROOT.'/includes/footer.php'); ?>
 </body>
 </html>

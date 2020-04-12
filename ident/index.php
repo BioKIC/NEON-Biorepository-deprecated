@@ -31,7 +31,7 @@ $pid = $clManager->getPid();
 	<?php
 
 	$displayLeftMenu = (isset($ident_indexMenu)?$ident_indexMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($ident_indexCrumbs)){
 		echo "<div class='navpath'>";
 		echo $ident_indexCrumbs;
@@ -65,7 +65,7 @@ $pid = $clManager->getPid();
 		</div>
 	</div>
 	<?php
-		include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

@@ -113,7 +113,7 @@ if($isEditor){
 	<body>
 		<?php
 		$displayLeftMenu = false;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		if(isset($collections_specprocessor_indexCrumbs)){
 			if($collections_specprocessor_indexCrumbs){
 				echo "<div class='navpath'>";
@@ -226,7 +226,7 @@ if($isEditor){
 			?>
 		</div>
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+			include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

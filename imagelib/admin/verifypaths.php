@@ -28,7 +28,7 @@ $verifyPathsObj = new VerifyPaths();
 <body>
 	<?php
 	$displayLeftMenu = (isset($imagelib_misc_verifypathsMenu)?$imagelib_misc_verifypathsMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($imagelib_misc_verifypathsCrumbs)){
 		echo "<div class='navpath'>";
 		echo "<a href='../index.php'>Home</a> &gt; ";
@@ -62,7 +62,7 @@ $verifyPathsObj = new VerifyPaths();
 		</form>
 	</div>
 	<?php 
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	
 </body>

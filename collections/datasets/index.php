@@ -71,7 +71,7 @@ if($action == 'Create New Dataset'){
 	<body>
 	<?php
 	$displayLeftMenu = (isset($collections_datasets_indexMenu)?$collections_datasets_indexMenu:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
@@ -201,7 +201,7 @@ if($action == 'Create New Dataset'){
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	</body>
 </html>

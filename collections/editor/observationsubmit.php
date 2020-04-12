@@ -75,7 +75,7 @@ $clArr = $obsManager->getChecklists();
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_editor_observationsubmitMenu)?$collections_editor_observationsubmitMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_editor_observationsubmitCrumbs)){
 		echo "<div class='navpath'>";
 		echo $collections_editor_observationsubmitCrumbs;
@@ -388,7 +388,7 @@ $clArr = $obsManager->getChecklists();
 		?>
 	</div>
 	<?php
-		include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

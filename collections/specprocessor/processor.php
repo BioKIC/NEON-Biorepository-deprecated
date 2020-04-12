@@ -51,7 +51,7 @@ $statusStr = "";
 	<body>
 		<?php
 		$displayLeftMenu = false;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		echo '<div class="navpath">';
 		echo '<a href="../../index.php">Home</a> &gt;&gt; ';
 		echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Control Panel</a> &gt;&gt; ';
@@ -72,7 +72,7 @@ $statusStr = "";
 						$imageProcessor->setLogMode(3);
 						$imageProcessor->setCollid($collid);
 						$imageProcessor->setSpprid($spprid);
-						$imageProcessor->processIPlantImages($specManager->getSpecKeyPattern(), $_POST);
+						$imageProcessor->processCyVerseImages($specManager->getSpecKeyPattern(), $_POST);
 						echo '</ul>';
 					}
 					else{
@@ -167,7 +167,7 @@ $statusStr = "";
 			<div style="font-weight:bold;font-size:120%;"><a href="index.php?collid=<?php echo $collid.'&tabindex='.$tabIndex; ?>"><b>Return to Specimen Processor</b></a></div>
 		</div>
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+			include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

@@ -167,7 +167,7 @@ if($isEditor){
 <body>
 <?php
 $displayLeftMenu = (isset($profile_viewprofileMenu)?$profile_viewprofileMenu:"true");
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 if(isset($profile_viewprofileCrumbs)){
 	echo "<div class='navpath'>";
 	echo $profile_viewprofileCrumbs;
@@ -207,7 +207,7 @@ if(isset($profile_viewprofileCrumbs)){
 	?>
 	</div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

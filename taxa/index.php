@@ -144,7 +144,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							}
 							$vernStr = array_shift($primerArr);
 							if($primerArr || $vernArr){
-								$vernStr.= '<span class="verns"><a href="#" onclick="toggle(\'verns\')" title="Click here to show more common names">,&nbsp;&nbsp;more...</a></span>';
+								$vernStr.= ', <span class="verns"><a href="#" onclick="toggle(\'verns\')" title="Click here to show more common names">more...</a></span>';
 								$vernStr.= '<span class="verns" onclick="toggle(\'verns\');" style="display:none;">';
 								$vernStr.= implode(', ',$primerArr);
 								foreach($vernArr as $langName => $vArr){
@@ -163,12 +163,12 @@ include($SERVER_ROOT.'/includes/header.php');
 							$primerArr = array_shift($synArr);
 							$synStr = '<i>'.$primerArr['sciname'].'</i>'.(isset($primerArr['author']) && $primerArr['author']?' '.$primerArr['author']:'');
 							if($synArr){
-								$synStr .= '<span class="synSpan"><a href="#" onclick="toggle(\'synSpan\')" title="Click here to show more synonyms">,&nbsp;&nbsp;more</a></span>';
+								$synStr .= ', <span class="synSpan"><a href="#" onclick="toggle(\'synSpan\')" title="Click here to show more synonyms">more</a></span>';
 								$synStr .= '<span class="synSpan" onclick="toggle(\'synSpan\')" style="display:none">';
 								foreach($synArr as $synKey => $sArr){
-									$synStr .= ', <i>'.$sArr['sciname'].'</i> '.$sArr['author'];
+									$synStr .= '<i>'.$sArr['sciname'].'</i> '.$sArr['author'].', ';
 								}
-								$synStr .= '</span>';
+								$synStr = trim($synStr,', ').'</span>';
 							}
 							echo '<div id="synonymDiv" title="'.(isset($LANG['SYNONYMS'])?$LANG['SYNONYMS']:'Synonyms').'">[';
 							echo $synStr;

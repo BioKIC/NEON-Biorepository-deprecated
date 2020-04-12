@@ -213,17 +213,19 @@ class OccurrenceCollectionProfile extends Manager {
 
 	private function getDwcaPath($collid){
 		$retArr = array();
-		$sql = 'SELECT uspid, title, path FROM uploadspecparameters WHERE (collid = '.$collid.') AND (uploadtype = 8)';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			if(trim($r->path)){
-				$retArr[$r->uspid]['title'] = $r->title;
-				$retStr = $r->path;
-				$retStr = str_replace('/archive.do', '/resource.do', $retStr);
-				$retArr[$r->uspid]['path'] = $retStr;
+		if(is_numeric($collid)){
+			$sql = 'SELECT uspid, title, path FROM uploadspecparameters WHERE (collid = '.$collid.') AND (uploadtype = 8)';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				if(trim($r->path)){
+					$retArr[$r->uspid]['title'] = $r->title;
+					$retStr = $r->path;
+					$retStr = str_replace('/archive.do', '/resource.do', $retStr);
+					$retArr[$r->uspid]['path'] = $retStr;
+				}
 			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retArr;
 	}
 
@@ -360,9 +362,9 @@ class OccurrenceCollectionProfile extends Manager {
 		$retArr = Array();
 		if($this->collid){
 			$sql = 'SELECT i.iid, i.institutioncode, i.institutionname, i.institutionname2, i.address1, i.address2, '.
-					'i.city, i.stateprovince, i.postalcode, i.country, i.phone, i.contact, i.email, i.url, i.notes '.
-					'FROM institutions i INNER JOIN omcollections c ON i.iid = c.iid '.
-					'WHERE (c.collid = '.$this->collid.") ";
+				'i.city, i.stateprovince, i.postalcode, i.country, i.phone, i.contact, i.email, i.url, i.notes '.
+				'FROM institutions i INNER JOIN omcollections c ON i.iid = c.iid '.
+				'WHERE (c.collid = '.$this->collid.") ";
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -637,32 +639,16 @@ class OccurrenceCollectionProfile extends Manager {
 
 	//Get taxon and geo statistics
 	public function getTaxonCounts($f=''){
-		$family = $this->cleanInStr($f);
 		$returnArr = Array();
+		$family = $this->cleanInStr($f);
 		$sql = '';
 		if($family){
-			/*
-			$sql = 'SELECT t.unitname1 as taxon, Count(o.occid) AS cnt '.
-				'FROM omoccurrences o INNER JOIN taxa t ON o.tidinterpreted = t.tid '.
-				'GROUP BY o.CollID, t.unitname1, o.Family '.
-				'HAVING (o.CollID = '.$this->collid.') '.
-				'AND (o.Family = "'.$family.'") AND (t.unitname1 != "'.$family.'") '.
-				'ORDER BY t.unitname1';
-			*/
 			$sql = 'SELECT t.unitname1 as taxon, Count(o.occid) AS cnt '.
 				'FROM omoccurrences o INNER JOIN taxa t ON o.tidinterpreted = t.tid '.
 				'WHERE (o.CollID = '.$this->collid.') AND (o.Family = "'.$family.'") AND (t.unitname1 != "'.$family.'") '.
 				'GROUP BY o.CollID, t.unitname1, o.Family ';
 		}
 		else{
-			/*
-			$sql = 'SELECT o.family as taxon, Count(*) AS cnt '.
-				'FROM omoccurrences o '.
-				'GROUP BY o.CollID, o.Family '.
-				'HAVING (o.CollID = '.$this->collid.') '.
-				'AND (o.Family IS NOT NULL) AND (o.Family <> "") '.
-				'ORDER BY o.Family';
-			*/
 			$sql = 'SELECT o.family as taxon, Count(*) AS cnt '.
 				'FROM omoccurrences o '.
 				'WHERE (o.CollID = '.$this->collid.') AND (o.Family IS NOT NULL) AND (o.Family <> "") '.
@@ -723,22 +709,11 @@ class OccurrenceCollectionProfile extends Manager {
 			'FROM omoccurrences o LEFT JOIN taxstatus ts ON o.tidinterpreted = ts.tid '.
 			'WHERE (o.collid = '.$this->collid.') AND (ts.taxauthid = 1 OR ts.taxauthid IS NULL) '.
 			'GROUP BY IFNULL(ts.family,o.family)';
-		/*
-		$sql = 'SELECT ts.family as taxon, count(o.occid) as cnt '.
-			'FROM omoccurrences o INNER JOIN taxstatus ts ON o.tidinterpreted = ts.tid '.
-			'WHERE (o.collid = '.$this->collid.') AND (ts.taxauthid = 1) AND (ts.family IS NOT NULL) GROUP BY ts.family';
-		*/
 		if($famStr){
 			$sql = 'SELECT t.unitname1 as taxon, count(o.occid) as cnt '.
 				'FROM omoccurrences o INNER JOIN taxa t ON o.tidinterpreted = t.tid '.
 				'WHERE (o.family = "'.$this->cleanInStr($famStr).'" OR o.sciname = "'.$this->cleanInStr($famStr).'") AND (o.collid = '.$this->collid.') AND (t.unitname1 IS NOT NULL) AND (t.rankid > 140) '.
 				'GROUP BY t.unitname1';
-			/*
-			$sql = 'SELECT t.unitname1 as taxon, count(o.occid) as cnt '.
-				'FROM omoccurrences o INNER JOIN taxa t ON o.tidinterpreted = t.tid '.
-				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-				'WHERE (ts.family = "'.$this->cleanInStr($famStr).'") AND (o.collid = '.$this->collid.')  AND (ts.taxauthid = 1) AND (t.unitname1 IS NOT NULL) GROUP BY t.unitname1';
-			*/
 		}
 		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
@@ -859,172 +834,178 @@ class OccurrenceCollectionProfile extends Manager {
 	}
 
 	public function batchUpdateStatistics($collId){
-		echo 'Updating collection statistics...';
-		echo '<ul>';
-		//echo '<li>General cleaning in preparation for collecting stats... </li>';
-		flush();
-		ob_flush();
-		$occurMaintenance = new OccurrenceMaintenance();
-		//$occurMaintenance->generalOccurrenceCleaning();
-		$sql = 'SELECT collid, collectionname FROM omcollections WHERE collid IN('.$collId.') ';
-		//echo $sql;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			echo '<li style="margin-left:15px;">Cleaning statistics for: '.$r->collectionname.'</li>';
+		if(is_numeric($collId)){
+			echo 'Updating collection statistics...';
+			echo '<ul>';
+			//echo '<li>General cleaning in preparation for collecting stats... </li>';
 			flush();
 			ob_flush();
-			$occurMaintenance->updateCollectionStats($r->collid, true);
+			$occurMaintenance = new OccurrenceMaintenance();
+			//$occurMaintenance->generalOccurrenceCleaning();
+			$sql = 'SELECT collid, collectionname FROM omcollections WHERE collid IN('.$collId.') ';
+			//echo $sql;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				echo '<li style="margin-left:15px;">Cleaning statistics for: '.$r->collectionname.'</li>';
+				flush();
+				ob_flush();
+				$occurMaintenance->updateCollectionStats($r->collid, true);
+			}
+			$rs->free();
+			echo '<li>Statistics update complete!</li>';
+			echo '</ul>';
+			flush();
+			ob_flush();
 		}
-		$rs->free();
-		echo '<li>Statistics update complete!</li>';
-		echo '</ul>';
-		flush();
-		ob_flush();
 	}
 
 	public function runStatistics($collId){
 		$returnArr = Array();
-		$sql = "SELECT c.collid, c.CollectionName, IFNULL(cs.recordcnt,0) AS recordcnt, IFNULL(cs.georefcnt,0) AS georefcnt, ".
-			"cs.dynamicProperties ".
-			"FROM omcollections AS c INNER JOIN omcollectionstats AS cs ON c.collid = cs.collid ".
-			"WHERE c.collid IN(".$collId.") ";
-		//echo $sql;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$returnArr[$r->CollectionName]['collid'] = $r->collid;
-			$returnArr[$r->CollectionName]['CollectionName'] = $r->CollectionName;
-			$returnArr[$r->CollectionName]['recordcnt'] = $r->recordcnt;
-			$returnArr[$r->CollectionName]['georefcnt'] = $r->georefcnt;
-			$returnArr[$r->CollectionName]['dynamicProperties'] = $r->dynamicProperties;
+		if(is_numeric($collId)){
+			$sql = "SELECT c.collid, c.CollectionName, IFNULL(cs.recordcnt,0) AS recordcnt, IFNULL(cs.georefcnt,0) AS georefcnt, ".
+				"cs.dynamicProperties ".
+				"FROM omcollections AS c INNER JOIN omcollectionstats AS cs ON c.collid = cs.collid ".
+				"WHERE c.collid IN(".$collId.") ";
+			//echo $sql;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$returnArr[$r->CollectionName]['collid'] = $r->collid;
+				$returnArr[$r->CollectionName]['CollectionName'] = $r->CollectionName;
+				$returnArr[$r->CollectionName]['recordcnt'] = $r->recordcnt;
+				$returnArr[$r->CollectionName]['georefcnt'] = $r->georefcnt;
+				$returnArr[$r->CollectionName]['dynamicProperties'] = $r->dynamicProperties;
+			}
+			$rs->free();
+			$sql2 = 'SELECT c.CollectionName, COUNT(DISTINCT o.family) AS FamilyCount, '.
+				'COUNT(DISTINCT CASE WHEN t.RankId >= 180 THEN t.UnitName1 ELSE NULL END) AS GeneraCount, '.
+				'COUNT(DISTINCT CASE WHEN t.RankId = 220 THEN t.SciName ELSE NULL END) AS SpeciesCount, '.
+				'COUNT(DISTINCT CASE WHEN t.RankId >= 220 THEN t.SciName ELSE NULL END) AS TotalTaxaCount, '.
+				'COUNT(DISTINCT i.occid) AS OccurrenceImageCount '.
+				'FROM omoccurrences AS o LEFT JOIN taxa AS t ON o.tidinterpreted = t.TID '.
+				'INNER JOIN omcollections AS c ON o.collid = c.CollID '.
+				'LEFT JOIN images AS i ON o.occid = i.occid '.
+				'WHERE c.CollID IN('.$collId.') '.
+				'GROUP BY c.CollectionName ';
+			//echo $sql2;
+			$rs = $this->conn->query($sql2);
+			while($r = $rs->fetch_object()){
+				$returnArr[$r->CollectionName]['familycnt'] = $r->FamilyCount;
+				$returnArr[$r->CollectionName]['genuscnt'] = $r->GeneraCount;
+				$returnArr[$r->CollectionName]['speciescnt'] = $r->SpeciesCount;
+				$returnArr[$r->CollectionName]['TotalTaxaCount'] = $r->TotalTaxaCount;
+				$returnArr[$r->CollectionName]['OccurrenceImageCount'] = $r->OccurrenceImageCount;
+			}
+			$rs->free();
+			$sql3 = 'SELECT COUNT(DISTINCT o.family) AS FamilyCount, '.
+				'COUNT(DISTINCT CASE WHEN t.RankId >= 180 THEN t.UnitName1 ELSE NULL END) AS GeneraCount, '.
+				'COUNT(DISTINCT CASE WHEN t.RankId = 220 THEN t.SciName ELSE NULL END) AS SpeciesCount, '.
+				'COUNT(DISTINCT CASE WHEN t.RankId >= 220 THEN t.SciName ELSE NULL END) AS TotalTaxaCount, '.
+				'COUNT(DISTINCT CASE WHEN i.occid IS NOT NULL THEN i.occid ELSE NULL END) AS TotalImageCount '.
+				'FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.TID '.
+				'LEFT JOIN images AS i ON o.occid = i.occid '.
+				'WHERE o.collid IN('.$collId.') ';
+			//echo $sql3;
+			$rs = $this->conn->query($sql3);
+			while($r = $rs->fetch_object()){
+				$returnArr['familycnt'] = $r->FamilyCount;
+				$returnArr['genuscnt'] = $r->GeneraCount;
+				$returnArr['speciescnt'] = $r->SpeciesCount;
+				$returnArr['TotalTaxaCount'] = $r->TotalTaxaCount;
+				$returnArr['TotalImageCount'] = $r->TotalImageCount;
+			}
+			$rs->free();
 		}
-		$sql2 = 'SELECT c.CollectionName, COUNT(DISTINCT o.family) AS FamilyCount, '.
-			'COUNT(DISTINCT CASE WHEN t.RankId >= 180 THEN t.UnitName1 ELSE NULL END) AS GeneraCount, '.
-			'COUNT(DISTINCT CASE WHEN t.RankId = 220 THEN t.SciName ELSE NULL END) AS SpeciesCount, '.
-			'COUNT(DISTINCT CASE WHEN t.RankId >= 220 THEN t.SciName ELSE NULL END) AS TotalTaxaCount, '.
-			'COUNT(DISTINCT i.occid) AS OccurrenceImageCount '.
-			'FROM omoccurrences AS o LEFT JOIN taxa AS t ON o.tidinterpreted = t.TID '.
-			'INNER JOIN omcollections AS c ON o.collid = c.CollID '.
-			'LEFT JOIN images AS i ON o.occid = i.occid '.
-			'WHERE c.CollID IN('.$collId.') '.
-			'GROUP BY c.CollectionName ';
-		//echo $sql2;
-		$rs = $this->conn->query($sql2);
-		while($r = $rs->fetch_object()){
-			$returnArr[$r->CollectionName]['familycnt'] = $r->FamilyCount;
-			$returnArr[$r->CollectionName]['genuscnt'] = $r->GeneraCount;
-			$returnArr[$r->CollectionName]['speciescnt'] = $r->SpeciesCount;
-			$returnArr[$r->CollectionName]['TotalTaxaCount'] = $r->TotalTaxaCount;
-			$returnArr[$r->CollectionName]['OccurrenceImageCount'] = $r->OccurrenceImageCount;
-		}
-		$sql3 = 'SELECT COUNT(DISTINCT o.family) AS FamilyCount, '.
-			'COUNT(DISTINCT CASE WHEN t.RankId >= 180 THEN t.UnitName1 ELSE NULL END) AS GeneraCount, '.
-			'COUNT(DISTINCT CASE WHEN t.RankId = 220 THEN t.SciName ELSE NULL END) AS SpeciesCount, '.
-			'COUNT(DISTINCT CASE WHEN t.RankId >= 220 THEN t.SciName ELSE NULL END) AS TotalTaxaCount, '.
-			'COUNT(DISTINCT CASE WHEN i.occid IS NOT NULL THEN i.occid ELSE NULL END) AS TotalImageCount '.
-			'FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.TID '.
-			'LEFT JOIN images AS i ON o.occid = i.occid '.
-			'WHERE o.collid IN('.$collId.') ';
-		//echo $sql3;
-		$rs = $this->conn->query($sql3);
-		while($r = $rs->fetch_object()){
-			$returnArr['familycnt'] = $r->FamilyCount;
-			$returnArr['genuscnt'] = $r->GeneraCount;
-			$returnArr['speciescnt'] = $r->SpeciesCount;
-			$returnArr['TotalTaxaCount'] = $r->TotalTaxaCount;
-			$returnArr['TotalImageCount'] = $r->TotalImageCount;
-		}
-		$rs->free();
-
 		return $returnArr;
 	}
 
 	public function runStatisticsQuery($collId,$taxon,$country){
 		$returnArr = Array();
-		$pTID = '';
-		$sqlFrom = 'FROM omoccurrences AS o LEFT JOIN taxa AS t ON o.tidinterpreted = t.TID '.
-			'LEFT JOIN omcollections AS c ON o.collid = c.CollID ';
-		$sqlWhere = 'WHERE o.collid IN('.$collId.') ';
-		if($taxon){
-			$sql = 'SELECT TID FROM taxa WHERE SciName = "'.$taxon.'" ';
-			$rs = $this->conn->query($sql);
+		if(is_numeric($collId)){
+			$sqlFrom = 'FROM omoccurrences AS o LEFT JOIN taxa AS t ON o.tidinterpreted = t.TID LEFT JOIN omcollections AS c ON o.collid = c.CollID ';
+			$sqlWhere = 'WHERE o.collid IN('.$collId.') ';
+			if($taxon){
+				$pTID = '';
+				$sql = 'SELECT TID FROM taxa WHERE SciName = "'.$this->cleanInStr($taxon).'" ';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$pTID = $r->TID;
+				}
+				$rs->free();
+				$sqlWhere .= 'AND ((o.sciname = "'.$this->cleanInStr($taxon).'") OR (o.tidinterpreted IN(SELECT DISTINCT tid FROM taxaenumtree WHERE taxauthid = 1 AND parenttid IN('.$pTID.')))) ';
+			}
+			if($country) $sqlWhere .= 'AND o.country = "'.$this->cleanInStr($country).'" ';
+			$sql2 = 'SELECT c.CollID, c.CollectionName, COUNT(DISTINCT o.occid) AS SpecimenCount, COUNT(o.decimalLatitude) AS GeorefCount, '.
+				'COUNT(DISTINCT o.family) AS FamilyCount, COUNT(DISTINCT t.UnitName1) AS GeneraCount, COUNT(o.typeStatus) AS TypeCount, '.
+				'COUNT(CASE WHEN t.RankId >= 220 THEN o.occid ELSE NULL END) AS SpecimensCountID, '.
+				'COUNT(DISTINCT CASE WHEN t.RankId = 220 THEN t.SciName ELSE NULL END) AS SpeciesCount, '.
+				'COUNT(DISTINCT CASE WHEN t.RankId >= 220 THEN t.SciName ELSE NULL END) AS TotalTaxaCount, '.
+				'COUNT(CASE WHEN ISNULL(o.family) THEN o.occid ELSE NULL END) AS SpecimensNullFamily, '.
+				'COUNT(CASE WHEN ISNULL(o.country) THEN o.occid ELSE NULL END) AS SpecimensNullCountry, '.
+				'COUNT(CASE WHEN ISNULL(o.decimalLatitude) THEN o.occid ELSE NULL END) AS SpecimensNullLatitude ';
+			$sql2 .= $sqlFrom.$sqlWhere;
+			$sql2 .= 'GROUP BY c.CollectionName ';
+			//echo 'sql2: '.$sql2;
+			$rs = $this->conn->query($sql2);
 			while($r = $rs->fetch_object()){
-				$pTID = $r->TID;
+				$returnArr[$r->CollectionName]['CollID'] = $r->CollID;
+				$returnArr[$r->CollectionName]['CollectionName'] = $r->CollectionName;
+				$returnArr[$r->CollectionName]['recordcnt'] = $r->SpecimenCount;
+				$returnArr[$r->CollectionName]['georefcnt'] = $r->GeorefCount;
+				$returnArr[$r->CollectionName]['speciesID'] = $r->SpecimensCountID;
+				$returnArr[$r->CollectionName]['familycnt'] = $r->FamilyCount;
+				$returnArr[$r->CollectionName]['genuscnt'] = $r->GeneraCount;
+				$returnArr[$r->CollectionName]['speciescnt'] = $r->SpeciesCount;
+				$returnArr[$r->CollectionName]['TotalTaxaCount'] = $r->TotalTaxaCount;
+				$returnArr[$r->CollectionName]['types'] = $r->TypeCount;
+				$returnArr[$r->CollectionName]['SpecimensNullFamily'] = $r->SpecimensNullFamily;
+				$returnArr[$r->CollectionName]['SpecimensNullCountry'] = $r->SpecimensNullCountry;
+				$returnArr[$r->CollectionName]['SpecimensNullLatitude'] = $r->SpecimensNullLatitude;
 			}
-			$sqlWhere .= 'AND ((o.sciname = "'.$taxon.'") OR (o.tidinterpreted IN(SELECT DISTINCT tid FROM taxaenumtree WHERE taxauthid = 1 AND parenttid IN('.$pTID.')))) ';
-		}
-		if($country){
-			$sqlWhere .= 'AND o.country = "'.$country.'" ';
-		}
-		$sql2 = 'SELECT c.CollID, c.CollectionName, COUNT(DISTINCT o.occid) AS SpecimenCount, COUNT(o.decimalLatitude) AS GeorefCount, '.
-			'COUNT(DISTINCT o.family) AS FamilyCount, COUNT(DISTINCT t.UnitName1) AS GeneraCount, COUNT(o.typeStatus) AS TypeCount, '.
-			'COUNT(CASE WHEN t.RankId >= 220 THEN o.occid ELSE NULL END) AS SpecimensCountID, '.
-			'COUNT(DISTINCT CASE WHEN t.RankId = 220 THEN t.SciName ELSE NULL END) AS SpeciesCount, '.
-			'COUNT(DISTINCT CASE WHEN t.RankId >= 220 THEN t.SciName ELSE NULL END) AS TotalTaxaCount, '.
-			'COUNT(CASE WHEN ISNULL(o.family) THEN o.occid ELSE NULL END) AS SpecimensNullFamily, '.
-			'COUNT(CASE WHEN ISNULL(o.country) THEN o.occid ELSE NULL END) AS SpecimensNullCountry, '.
-			'COUNT(CASE WHEN ISNULL(o.decimalLatitude) THEN o.occid ELSE NULL END) AS SpecimensNullLatitude ';
-		$sql2 .= $sqlFrom.$sqlWhere;
-		$sql2 .= 'GROUP BY c.CollectionName ';
-		//echo 'sql2: '.$sql2;
-		$rs = $this->conn->query($sql2);
-		while($r = $rs->fetch_object()){
-			$returnArr[$r->CollectionName]['CollID'] = $r->CollID;
-			$returnArr[$r->CollectionName]['CollectionName'] = $r->CollectionName;
-			$returnArr[$r->CollectionName]['recordcnt'] = $r->SpecimenCount;
-			$returnArr[$r->CollectionName]['georefcnt'] = $r->GeorefCount;
-			$returnArr[$r->CollectionName]['speciesID'] = $r->SpecimensCountID;
-			$returnArr[$r->CollectionName]['familycnt'] = $r->FamilyCount;
-			$returnArr[$r->CollectionName]['genuscnt'] = $r->GeneraCount;
-			$returnArr[$r->CollectionName]['speciescnt'] = $r->SpeciesCount;
-			$returnArr[$r->CollectionName]['TotalTaxaCount'] = $r->TotalTaxaCount;
-			$returnArr[$r->CollectionName]['types'] = $r->TypeCount;
-			$returnArr[$r->CollectionName]['SpecimensNullFamily'] = $r->SpecimensNullFamily;
-			$returnArr[$r->CollectionName]['SpecimensNullCountry'] = $r->SpecimensNullCountry;
-			$returnArr[$r->CollectionName]['SpecimensNullLatitude'] = $r->SpecimensNullLatitude;
-		}
-		$sql3 = 'SELECT o.family, COUNT(o.occid) AS SpecimensPerFamily, COUNT(o.decimalLatitude) AS GeorefSpecimensPerFamily, '.
-			'COUNT(CASE WHEN t.RankId >= 220 THEN o.occid ELSE NULL END) AS IDSpecimensPerFamily, '.
-			'COUNT(CASE WHEN t.RankId >= 220 AND o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS IDGeorefSpecimensPerFamily ';
-		$sql3 .= $sqlFrom.$sqlWhere;
-		$sql3 .= 'GROUP BY o.family ';
-		//echo 'sql3: '.$sql3;
-		$rs = $this->conn->query($sql3);
-		while($r = $rs->fetch_object()){
-			if($r->family){
-				$returnArr['families'][$r->family]['SpecimensPerFamily'] = $r->SpecimensPerFamily;
-				$returnArr['families'][$r->family]['GeorefSpecimensPerFamily'] = $r->GeorefSpecimensPerFamily;
-				$returnArr['families'][$r->family]['IDSpecimensPerFamily'] = $r->IDSpecimensPerFamily;
-				$returnArr['families'][$r->family]['IDGeorefSpecimensPerFamily'] = $r->IDGeorefSpecimensPerFamily;
+			$rs->free();
+			$sql3 = 'SELECT o.family, COUNT(o.occid) AS SpecimensPerFamily, COUNT(o.decimalLatitude) AS GeorefSpecimensPerFamily, '.
+				'COUNT(CASE WHEN t.RankId >= 220 THEN o.occid ELSE NULL END) AS IDSpecimensPerFamily, '.
+				'COUNT(CASE WHEN t.RankId >= 220 AND o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS IDGeorefSpecimensPerFamily ';
+			$sql3 .= $sqlFrom.$sqlWhere;
+			$sql3 .= 'GROUP BY o.family ';
+			//echo 'sql3: '.$sql3;
+			$rs = $this->conn->query($sql3);
+			while($r = $rs->fetch_object()){
+				if($r->family){
+					$returnArr['families'][$r->family]['SpecimensPerFamily'] = $r->SpecimensPerFamily;
+					$returnArr['families'][$r->family]['GeorefSpecimensPerFamily'] = $r->GeorefSpecimensPerFamily;
+					$returnArr['families'][$r->family]['IDSpecimensPerFamily'] = $r->IDSpecimensPerFamily;
+					$returnArr['families'][$r->family]['IDGeorefSpecimensPerFamily'] = $r->IDGeorefSpecimensPerFamily;
+				}
 			}
-		}
-		$sql4 = 'SELECT o.country, COUNT(o.occid) AS CountryCount, COUNT(o.decimalLatitude) AS GeorefSpecimensPerCountry, '.
-			'COUNT(CASE WHEN t.RankId >= 220 THEN o.occid ELSE NULL END) AS IDSpecimensPerCountry, '.
-			'COUNT(CASE WHEN t.RankId >= 220 AND o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS IDGeorefSpecimensPerCountry ';
-		$sql4 .= $sqlFrom.$sqlWhere;
-		$sql4 .= 'GROUP BY o.country ';
-		//echo 'sql4: '.$sql4;
-		$rs = $this->conn->query($sql4);
-		while($r = $rs->fetch_object()){
-			if($r->country){
-				$returnArr['countries'][$r->country]['CountryCount'] = $r->CountryCount;
-				$returnArr['countries'][$r->country]['GeorefSpecimensPerCountry'] = $r->GeorefSpecimensPerCountry;
-				$returnArr['countries'][$r->country]['IDSpecimensPerCountry'] = $r->IDSpecimensPerCountry;
-				$returnArr['countries'][$r->country]['IDGeorefSpecimensPerCountry'] = $r->IDGeorefSpecimensPerCountry;
+			$rs->free();
+			$sql4 = 'SELECT o.country, COUNT(o.occid) AS CountryCount, COUNT(o.decimalLatitude) AS GeorefSpecimensPerCountry, '.
+				'COUNT(CASE WHEN t.RankId >= 220 THEN o.occid ELSE NULL END) AS IDSpecimensPerCountry, '.
+				'COUNT(CASE WHEN t.RankId >= 220 AND o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS IDGeorefSpecimensPerCountry ';
+			$sql4 .= $sqlFrom.$sqlWhere;
+			$sql4 .= 'GROUP BY o.country ';
+			//echo 'sql4: '.$sql4;
+			$rs = $this->conn->query($sql4);
+			while($r = $rs->fetch_object()){
+				if($r->country){
+					$returnArr['countries'][$r->country]['CountryCount'] = $r->CountryCount;
+					$returnArr['countries'][$r->country]['GeorefSpecimensPerCountry'] = $r->GeorefSpecimensPerCountry;
+					$returnArr['countries'][$r->country]['IDSpecimensPerCountry'] = $r->IDSpecimensPerCountry;
+					$returnArr['countries'][$r->country]['IDGeorefSpecimensPerCountry'] = $r->IDGeorefSpecimensPerCountry;
+				}
 			}
+			$rs->free();
+			$sql5 = 'SELECT c.CollID, c.CollectionName, COUNT(DISTINCT CASE WHEN i.occid IS NOT NULL THEN i.occid ELSE NULL END) AS TotalImageCount ';
+			$sql5 .= $sqlFrom;
+			$sql5 .= 'LEFT JOIN images AS i ON o.occid = i.occid ';
+			$sql5 .= $sqlWhere;
+			$sql5 .= 'GROUP BY c.CollectionName ';
+			//echo 'sql5: '.$sql5;
+			$rs = $this->conn->query($sql5);
+			while($r = $rs->fetch_object()){
+				$returnArr[$r->CollectionName]['OccurrenceImageCount'] = $r->TotalImageCount;
+			}
+			$rs->free();
 		}
-		$sql5 = 'SELECT c.CollID, c.CollectionName, '.
-			'COUNT(DISTINCT CASE WHEN i.occid IS NOT NULL THEN i.occid ELSE NULL END) AS TotalImageCount ';
-		$sql5 .= $sqlFrom;
-		$sql5 .= 'LEFT JOIN images AS i ON o.occid = i.occid ';
-		$sql5 .= $sqlWhere;
-		$sql5 .= 'GROUP BY c.CollectionName ';
-		//echo 'sql5: '.$sql5;
-		$rs = $this->conn->query($sql5);
-		while($r = $rs->fetch_object()){
-			$returnArr[$r->CollectionName]['OccurrenceImageCount'] = $r->TotalImageCount;
-		}
-		$rs->free();
-
 		return $returnArr;
 	}
 
@@ -1044,104 +1025,106 @@ class OccurrenceCollectionProfile extends Manager {
 
 	public function getYearStatsDataArr($collId,$days){
 		$statArr = array();
-		$sql = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname '.
-			'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
-			'LEFT JOIN images AS i ON o.occid = i.occid '.
-			'WHERE o.collid in('.$collId.') AND ((o.dateLastModified IS NOT NULL AND datediff(curdate(), o.dateLastModified) < '.$days.') OR (datediff(curdate(), i.InitialTimeStamp) < '.$days.')) '.
-			'ORDER BY c.collectionname ';
-		//echo $sql;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$statArr[$r->collcode]['collcode'] = $r->collcode;
-			$statArr[$r->collcode]['collectionname'] = $r->collectionname;
-		}
+		if(is_numeric($collId) && is_numeric($days)){
+			$sql = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname '.
+				'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
+				'LEFT JOIN images AS i ON o.occid = i.occid '.
+				'WHERE o.collid in('.$collId.') AND ((o.dateLastModified IS NOT NULL AND datediff(curdate(), o.dateLastModified) < '.$days.') OR (datediff(curdate(), i.InitialTimeStamp) < '.$days.')) '.
+				'ORDER BY c.collectionname ';
+			//echo $sql;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$statArr[$r->collcode]['collcode'] = $r->collcode;
+				$statArr[$r->collcode]['collectionname'] = $r->collectionname;
+			}
 
-		$sql = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, CONCAT_WS("-",year(o.dateEntered),month(o.dateEntered)) as dateEntered, '.
-			'c.collectionname, month(o.dateEntered) as monthEntered, year(o.dateEntered) as yearEntered, COUNT(o.occid) AS speccnt '.
-			'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
-			'WHERE o.collid in('.$collId.') AND o.dateEntered IS NOT NULL AND datediff(curdate(), o.dateEntered) < '.$days.' '.
-			'GROUP BY yearEntered,monthEntered,o.collid ORDER BY c.collectionname ';
-		//echo $sql;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$statArr[$r->collcode]['stats'][$r->dateEntered]['speccnt'] = $r->speccnt;
-		}
+			$sql = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, CONCAT_WS("-",year(o.dateEntered),month(o.dateEntered)) as dateEntered, '.
+				'c.collectionname, month(o.dateEntered) as monthEntered, year(o.dateEntered) as yearEntered, COUNT(o.occid) AS speccnt '.
+				'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
+				'WHERE o.collid in('.$collId.') AND o.dateEntered IS NOT NULL AND datediff(curdate(), o.dateEntered) < '.$days.' '.
+				'GROUP BY yearEntered,monthEntered,o.collid ORDER BY c.collectionname ';
+			//echo $sql;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$statArr[$r->collcode]['stats'][$r->dateEntered]['speccnt'] = $r->speccnt;
+			}
 
-		$sql = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, CONCAT_WS("-",year(o.dateLastModified),month(o.dateLastModified)) as dateEntered, '.
-			'c.collectionname, month(o.dateLastModified) as monthEntered, year(o.dateLastModified) as yearEntered, '.
-			'COUNT(CASE WHEN o.processingstatus = "unprocessed" THEN o.occid ELSE NULL END) AS unprocessedCount, '.
-			'COUNT(CASE WHEN o.processingstatus = "stage 1" THEN o.occid ELSE NULL END) AS stage1Count, '.
-			'COUNT(CASE WHEN o.processingstatus = "stage 2" THEN o.occid ELSE NULL END) AS stage2Count, '.
-			'COUNT(CASE WHEN o.processingstatus = "stage 3" THEN o.occid ELSE NULL END) AS stage3Count '.
-			'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
-			'WHERE o.collid in('.$collId.') AND o.dateLastModified IS NOT NULL AND datediff(curdate(), o.dateLastModified) < '.$days.' '.
-			'GROUP BY yearEntered,monthEntered,o.collid ORDER BY c.collectionname ';
-		//echo $sql;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$statArr[$r->collcode]['stats'][$r->dateEntered]['unprocessedCount'] = $r->unprocessedCount;
-			$statArr[$r->collcode]['stats'][$r->dateEntered]['stage1Count'] = $r->stage1Count;
-			$statArr[$r->collcode]['stats'][$r->dateEntered]['stage2Count'] = $r->stage2Count;
-			$statArr[$r->collcode]['stats'][$r->dateEntered]['stage3Count'] = $r->stage3Count;
-		}
+			$sql = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, CONCAT_WS("-",year(o.dateLastModified),month(o.dateLastModified)) as dateEntered, '.
+				'c.collectionname, month(o.dateLastModified) as monthEntered, year(o.dateLastModified) as yearEntered, '.
+				'COUNT(CASE WHEN o.processingstatus = "unprocessed" THEN o.occid ELSE NULL END) AS unprocessedCount, '.
+				'COUNT(CASE WHEN o.processingstatus = "stage 1" THEN o.occid ELSE NULL END) AS stage1Count, '.
+				'COUNT(CASE WHEN o.processingstatus = "stage 2" THEN o.occid ELSE NULL END) AS stage2Count, '.
+				'COUNT(CASE WHEN o.processingstatus = "stage 3" THEN o.occid ELSE NULL END) AS stage3Count '.
+				'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
+				'WHERE o.collid in('.$collId.') AND o.dateLastModified IS NOT NULL AND datediff(curdate(), o.dateLastModified) < '.$days.' '.
+				'GROUP BY yearEntered,monthEntered,o.collid ORDER BY c.collectionname ';
+			//echo $sql;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$statArr[$r->collcode]['stats'][$r->dateEntered]['unprocessedCount'] = $r->unprocessedCount;
+				$statArr[$r->collcode]['stats'][$r->dateEntered]['stage1Count'] = $r->stage1Count;
+				$statArr[$r->collcode]['stats'][$r->dateEntered]['stage2Count'] = $r->stage2Count;
+				$statArr[$r->collcode]['stats'][$r->dateEntered]['stage3Count'] = $r->stage3Count;
+			}
 
-		$sql2 = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, CONCAT_WS("-",year(i.InitialTimeStamp),month(i.InitialTimeStamp)) as dateEntered, '.
-			'c.collectionname, month(i.InitialTimeStamp) as monthEntered, year(i.InitialTimeStamp) as yearEntered, '.
-			'COUNT(i.imgid) AS imgcnt '.
-			'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
-			'LEFT JOIN images AS i ON o.occid = i.occid '.
-			'WHERE o.collid in('.$collId.') AND datediff(curdate(), i.InitialTimeStamp) < '.$days.' '.
-			'GROUP BY yearEntered,monthEntered,o.collid ORDER BY c.collectionname ';
-		//echo $sql2;
-		$rs = $this->conn->query($sql2);
-		while($r = $rs->fetch_object()){
-			$statArr[$r->collcode]['stats'][$r->dateEntered]['imgcnt'] = $r->imgcnt;
-		}
+			$sql2 = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, CONCAT_WS("-",year(i.InitialTimeStamp),month(i.InitialTimeStamp)) as dateEntered, '.
+				'c.collectionname, month(i.InitialTimeStamp) as monthEntered, year(i.InitialTimeStamp) as yearEntered, '.
+				'COUNT(i.imgid) AS imgcnt '.
+				'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
+				'LEFT JOIN images AS i ON o.occid = i.occid '.
+				'WHERE o.collid in('.$collId.') AND datediff(curdate(), i.InitialTimeStamp) < '.$days.' '.
+				'GROUP BY yearEntered,monthEntered,o.collid ORDER BY c.collectionname ';
+			//echo $sql2;
+			$rs = $this->conn->query($sql2);
+			while($r = $rs->fetch_object()){
+				$statArr[$r->collcode]['stats'][$r->dateEntered]['imgcnt'] = $r->imgcnt;
+			}
 
-		$sql3 = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, CONCAT_WS("-",year(e.InitialTimeStamp),month(e.InitialTimeStamp)) as dateEntered, '.
-			'c.collectionname, month(e.InitialTimeStamp) as monthEntered, year(e.InitialTimeStamp) as yearEntered, '.
-			'COUNT(DISTINCT e.occid) AS georcnt '.
-			'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
-			'LEFT JOIN omoccuredits AS e ON o.occid = e.occid '.
-			'WHERE o.collid in('.$collId.') AND datediff(curdate(), e.InitialTimeStamp) < '.$days.' '.
-			'AND ((e.FieldName = "decimallongitude" AND e.FieldValueNew IS NOT NULL) '.
-			'OR (e.FieldName = "decimallatitude" AND e.FieldValueNew IS NOT NULL)) '.
-			'GROUP BY yearEntered,monthEntered,o.collid ORDER BY c.collectionname ';
-		//echo $sql2;
-		$rs = $this->conn->query($sql3);
-		while($r = $rs->fetch_object()){
-			$statArr[$r->collcode]['stats'][$r->dateEntered]['georcnt'] = $r->georcnt;
+			$sql3 = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, CONCAT_WS("-",year(e.InitialTimeStamp),month(e.InitialTimeStamp)) as dateEntered, '.
+				'c.collectionname, month(e.InitialTimeStamp) as monthEntered, year(e.InitialTimeStamp) as yearEntered, '.
+				'COUNT(DISTINCT e.occid) AS georcnt '.
+				'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
+				'LEFT JOIN omoccuredits AS e ON o.occid = e.occid '.
+				'WHERE o.collid in('.$collId.') AND datediff(curdate(), e.InitialTimeStamp) < '.$days.' '.
+				'AND ((e.FieldName = "decimallongitude" AND e.FieldValueNew IS NOT NULL) '.
+				'OR (e.FieldName = "decimallatitude" AND e.FieldValueNew IS NOT NULL)) '.
+				'GROUP BY yearEntered,monthEntered,o.collid ORDER BY c.collectionname ';
+			//echo $sql2;
+			$rs = $this->conn->query($sql3);
+			while($r = $rs->fetch_object()){
+				$statArr[$r->collcode]['stats'][$r->dateEntered]['georcnt'] = $r->georcnt;
+			}
+			$rs->free();
 		}
-		$rs->free();
-
 		return $statArr;
 	}
 
 	public function getOrderStatsDataArr($collId){
 		$statsArr = Array();
-		$sql = 'SELECT (CASE WHEN t.RankId = 100 THEN t.SciName WHEN t2.RankId = 100 THEN t2.SciName ELSE NULL END) AS SciName, '.
-			'COUNT(DISTINCT o.occid) AS SpecimensPerOrder, '.
-			'COUNT(DISTINCT CASE WHEN o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS GeorefSpecimensPerOrder, '.
-			'COUNT(DISTINCT CASE WHEN t2.RankId >= 220 THEN o.occid ELSE NULL END) AS IDSpecimensPerOrder, '.
-			'COUNT(DISTINCT CASE WHEN t2.RankId >= 220 AND o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS IDGeorefSpecimensPerOrder '.
-			'FROM omoccurrences AS o LEFT JOIN taxaenumtree AS e ON o.tidinterpreted = e.tid '.
-			'LEFT JOIN taxa AS t ON e.parenttid = t.TID '.
-			'LEFT JOIN taxa AS t2 ON o.tidinterpreted = t2.TID '.
-			'WHERE (o.collid IN('.$collId.')) AND (t.RankId = 100 OR t2.RankId = 100) AND e.taxauthid = 1 '.
-			'GROUP BY SciName ';
-		$rs = $this->conn->query($sql);
-		//echo $sql;
-		while($r = $rs->fetch_object()){
-			$order = str_replace(array('"',"'"),"",$r->SciName);
-			if($order){
-				$statsArr[$order]['SpecimensPerOrder'] = $r->SpecimensPerOrder;
-				$statsArr[$order]['GeorefSpecimensPerOrder'] = $r->GeorefSpecimensPerOrder;
-				$statsArr[$order]['IDSpecimensPerOrder'] = $r->IDSpecimensPerOrder;
-				$statsArr[$order]['IDGeorefSpecimensPerOrder'] = $r->IDGeorefSpecimensPerOrder;
+		if(is_numeric($collId)){
+			$sql = 'SELECT (CASE WHEN t.RankId = 100 THEN t.SciName WHEN t2.RankId = 100 THEN t2.SciName ELSE NULL END) AS SciName, '.
+				'COUNT(DISTINCT o.occid) AS SpecimensPerOrder, '.
+				'COUNT(DISTINCT CASE WHEN o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS GeorefSpecimensPerOrder, '.
+				'COUNT(DISTINCT CASE WHEN t2.RankId >= 220 THEN o.occid ELSE NULL END) AS IDSpecimensPerOrder, '.
+				'COUNT(DISTINCT CASE WHEN t2.RankId >= 220 AND o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS IDGeorefSpecimensPerOrder '.
+				'FROM omoccurrences AS o LEFT JOIN taxaenumtree AS e ON o.tidinterpreted = e.tid '.
+				'LEFT JOIN taxa AS t ON e.parenttid = t.TID '.
+				'LEFT JOIN taxa AS t2 ON o.tidinterpreted = t2.TID '.
+				'WHERE (o.collid IN('.$collId.')) AND (t.RankId = 100 OR t2.RankId = 100) AND e.taxauthid = 1 '.
+				'GROUP BY SciName ';
+			$rs = $this->conn->query($sql);
+			//echo $sql;
+			while($r = $rs->fetch_object()){
+				$order = str_replace(array('"',"'"),"",$r->SciName);
+				if($order){
+					$statsArr[$order]['SpecimensPerOrder'] = $r->SpecimensPerOrder;
+					$statsArr[$order]['GeorefSpecimensPerOrder'] = $r->GeorefSpecimensPerOrder;
+					$statsArr[$order]['IDSpecimensPerOrder'] = $r->IDSpecimensPerOrder;
+					$statsArr[$order]['IDGeorefSpecimensPerOrder'] = $r->IDGeorefSpecimensPerOrder;
+				}
 			}
+			$rs->free();
 		}
-		$rs->free();
-
 		return $statsArr;
 	}
 
@@ -1163,9 +1146,7 @@ class OccurrenceCollectionProfile extends Manager {
 	//General data retrival functions
 	public function getInstitutionArr(){
 		$retArr = array();
-		$sql = 'SELECT iid,institutionname,institutioncode '.
-	  	'FROM institutions '.
-	  	'ORDER BY institutionname,institutioncode ';
+		$sql = 'SELECT iid,institutionname,institutioncode FROM institutions ORDER BY institutionname,institutioncode ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->iid] = $r->institutionname.' ('.$r->institutioncode.')';
@@ -1175,9 +1156,7 @@ class OccurrenceCollectionProfile extends Manager {
 
 	public function getCategoryArr(){
 		$retArr = array();
-		$sql = 'SELECT ccpk, category '.
-	  	'FROM omcollcategories '.
-	  	'ORDER BY category ';
+		$sql = 'SELECT ccpk, category FROM omcollcategories ORDER BY category ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->ccpk] = $r->category;

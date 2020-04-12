@@ -81,7 +81,7 @@ $editorArr = $utManager->getTaxonomyEditors();
 <body>
 	<?php
 	$displayLeftMenu = (isset($profile_usertaxonomymanagerMenu)?$profile_usertaxonomymanagerMenu:true);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($profile_usertaxonomymanagerCrumbs)){
 		if($profile_usertaxonomymanagerCrumbs){
 			echo "<div class='navpath'>";
@@ -215,6 +215,6 @@ $editorArr = $utManager->getTaxonomyEditors();
 	else{
 		echo '<div style="color:red;">You are not authorized to access this page</div>';
 	}
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>

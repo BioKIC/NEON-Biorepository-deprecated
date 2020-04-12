@@ -101,7 +101,7 @@ if($isEditor && $action){
 <body>
 <?php
 	$displayLeftMenu = (isset($ident_tools_editorMenu)?$ident_tools_editorMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($ident_tools_editorCrumbs) && $ident_tools_editorCrumbs){
 		echo "<div class='navpath'>";
 		echo $ident_tools_editorCrumbs;
@@ -203,7 +203,7 @@ else{
 ?>
 </div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

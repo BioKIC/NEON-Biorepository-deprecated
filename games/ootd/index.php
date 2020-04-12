@@ -97,7 +97,7 @@ if($submitAction){
 
 	<?php
 	$displayLeftMenu = (isset($indexMenu)?$indexMenu:"true");
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<!-- This is inner text! -->
 	<div id="innertext" style="">
@@ -338,7 +338,7 @@ if($submitAction){
 	</div>
 
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

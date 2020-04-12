@@ -59,7 +59,7 @@ $imgLibManager = new ImageLibraryManager();
 <body>
 	<?php
 	$displayLeftMenu = (isset($imagelib_searchMenu)?$imagelib_searchMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($imagelib_indexCrumbs)){
 		echo "<div class='navpath'>";
 		echo $imagelib_indexCrumbs;
@@ -342,7 +342,7 @@ $imgLibManager = new ImageLibraryManager();
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

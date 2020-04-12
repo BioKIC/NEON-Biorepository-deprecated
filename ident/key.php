@@ -77,7 +77,7 @@ if($chars){
 <body>
 	<?php
 	$displayLeftMenu = (isset($ident_keyMenu)?$ident_keyMenu:true);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($ident_keyCrumbs)){
 		if($ident_keyCrumbs){
 			echo '<div class="navpath">';
@@ -240,7 +240,7 @@ if($chars){
 	</form>
 </div>
 <?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

@@ -57,8 +57,8 @@ class ImageProcessor {
 		}
 	}
 
-	//iPlant functions
-	public function batchProcessIPlantImages(){
+	//CyVerse functions
+	public function batchProcessCyVerseImages(){
 		//Start processing images for each day from the start date to the current date
 		$status = false;
 		if($this->logMode == 1) echo '<ul>';
@@ -68,7 +68,7 @@ class ImageProcessor {
 		while($r = $rs->fetch_object()){
 			$this->collid = $r->collid;
 			$this->setLogMode(2);
-			$status = $this->processIPlantImages();
+			$status = $this->processCyVerseImages();
 			if($status){
 				$processList[] = $this->collid;
 			}
@@ -79,15 +79,15 @@ class ImageProcessor {
 		if($this->logMode == 1) echo '</ul>';
 	}
 
-	public function processIPlantImages($pmTerm, $postArr){
+	public function processCyVerseImages($pmTerm, $postArr){
 		set_time_limit(1000);
 		$lastRunDate = $postArr['startdate'];
 		$iPlantSourcePath = (array_key_exists('sourcepath', $postArr)?$postArr['sourcepath']:'');
 		$this->matchCatalogNumber = (array_key_exists('matchcatalognumber', $postArr)?true:false);
 		$this->matchOtherCatalogNumbers = (array_key_exists('matchothercatalognumbers', $postArr)?true:false);
 		if($this->collid){
-			$iPlantDataUrl = 'https://bisque.cyverse.org/data_service/';
-			$iPlantImageUrl = 'https://bisque.cyverse.org/image_service/image/';
+			$iCyVerseDataUrl = 'https://bisque.cyverse.org/data_service/';
+			$iCyVerseImageUrl = 'https://bisque.cyverse.org/image_service/image/';
 
 			if(!$iPlantSourcePath && array_key_exists('IPLANT_IMAGE_IMPORT_PATH', $GLOBALS)) $iPlantSourcePath = $GLOBALS['IPLANT_IMAGE_IMPORT_PATH'];
 			if($iPlantSourcePath){
@@ -117,9 +117,9 @@ class ImageProcessor {
 			//Get start date
 			if(!$lastRunDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$lastRunDate)) $lastRunDate = '2019-05-01';
 			while(strtotime($lastRunDate) < strtotime('now')){
-				$url = $iPlantDataUrl.'image?value=*'.$iPlantSourcePath.'*&tag_query=upload_datetime:'.$lastRunDate.'*';
+				$url = $iCyVerseDataUrl.'image?value=*'.$iPlantSourcePath.'*&tag_query=upload_datetime:'.$lastRunDate.'*';
 				$contents = @file_get_contents($url);
-				//check if response is received from iPlant
+				//check if response is received from CyVerse
 				if(!empty($http_response_header)) {
 					$result = $http_response_header;
 					//check if response is 200
@@ -143,7 +143,7 @@ class ImageProcessor {
 										if($postArr['patternreplace']) $specPk = preg_replace($postArr['patternreplace'],$postArr['replacestr'],$specPk);
 										$guid = $i['resource_uniq'];
 										if($occid = $this->getOccid($specPk,$guid,$fileName)){
-											$baseUrl = $iPlantImageUrl.$guid;
+											$baseUrl = $iCyVerseImageUrl.$guid;
 											$webUrl = $baseUrl.'/resize:1250/format:jpeg';
 											$tnUrl = $baseUrl.'/thumbnail:200,200';
 											$lgUrl = $baseUrl.'/resize:4000/format:jpeg';
@@ -458,8 +458,7 @@ class ImageProcessor {
 		if($this->collid){
 			//Check to see if record with pk already exists
 			if($this->matchCatalogNumber){
-				$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') '.
-					'AND (catalognumber IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) ';
+				$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') AND (catalognumber IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) ';
 				$rs = $this->conn->query($sql);
 				if($row = $rs->fetch_object()){
 					$occid = $row->occid;
@@ -467,8 +466,7 @@ class ImageProcessor {
 				$rs->free();
 			}
 			if(!$occid && $this->matchOtherCatalogNumbers){
-				$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') '.
-					'AND (othercatalognumbers IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) ';
+				$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') AND (othercatalognumbers IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) ';
 				$rs = $this->conn->query($sql);
 				if($row = $rs->fetch_object()){
 					$occid = $row->occid;
@@ -479,7 +477,7 @@ class ImageProcessor {
 				$occLink = '<a href="../individual/index.php?occid='.$occid.'" target="_blank">'.$occid.'</a>';
 				$extraMsg = '';
 				if($fileName){
-					//Is iPlant mapped image
+					//Is CyVerse mapped image
 					//Check to see if image has already been linked
 					$fileBaseName = $fileName;
 					$fileExt = '';

@@ -72,7 +72,7 @@ $statusStr = "";
 						$imageProcessor->setLogMode(3);
 						$imageProcessor->setCollid($collid);
 						$imageProcessor->setSpprid($spprid);
-						$imageProcessor->processIPlantImages($specManager->getSpecKeyPattern(), $_POST);
+						$imageProcessor->processCyVerseImages($specManager->getSpecKeyPattern(), $_POST);
 						echo '</ul>';
 					}
 					else{

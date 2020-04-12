@@ -37,7 +37,7 @@ $smManager = new SiteMapManager();
 <body>
 	<?php
 	$displayLeftMenu = (isset($sitemapMenu)?$sitemapMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($sitemapCrumbs)){
 		echo "<div class='navpath'>";
 		echo '<a href="index.php">'.$LANG['HOME'].'</a> &gt; ';
@@ -456,7 +456,7 @@ $smManager = new SiteMapManager();
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

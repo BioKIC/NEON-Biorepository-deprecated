@@ -40,6 +40,9 @@ body {
     width: 15px;
 }
 
+#footer p{ text-align: justify; margin: 20px 200px 0px 200px;  }
+#footer p img{ display:inline-block; width: 100px; margin-top: auto; margin-bottom: auto; vertical-align: middle; }
+#footer p:after{ content:""; display: inline-block; width: 100%; height: 0; }
 
 /*Central div and general components */
 

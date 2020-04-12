@@ -176,7 +176,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 	$HEADER_URL = '';
 	if(isset($clArray['headerurl']) && $clArray['headerurl']) $HEADER_URL = $CLIENT_ROOT.$clArray['headerurl'];
 	$displayLeftMenu = (isset($checklists_checklistMenu)?$checklists_checklistMenu:false);
-	if(!$printMode) include($SERVER_ROOT.'/header.php');
+	if(!$printMode) include($SERVER_ROOT.'/includes/header.php');
 	echo '<div class="navpath printoff">';
 	if($pid){
 		echo '<a href="../index.php">'.$LANG['NAV_HOME'].'</a> &gt; ';
@@ -810,7 +810,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 		?>
 	</div>
 	<?php
-	if(!$printMode) include($SERVER_ROOT.'/footer.php');
+	if(!$printMode) include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

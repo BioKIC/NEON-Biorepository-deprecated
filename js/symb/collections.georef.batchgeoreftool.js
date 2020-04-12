@@ -151,6 +151,7 @@ function geoLocateUpdateCoord(latValue,lngValue,coordErrValue,footprintWKTValue)
 	f.decimallongitude.value = lngValue;
 	if(!isNumeric(coordErrValue)) coordErrValue = "";
 	f.coordinateuncertaintyinmeters.value = coordErrValue;
+	f.geodeticdatum.value = "WGS84";
 	if(footprintWKTValue == "Unavailable") footprintWKTValue = "";
 	else if(footprintWKTValue.length > 65000) footprintWKTValue = "";	//WKT footprint is too large to save in the database
 	else if(footprintWKTValue.indexOf("NaN") > -1) footprintWKTValue = "";

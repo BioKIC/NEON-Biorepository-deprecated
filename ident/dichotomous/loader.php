@@ -142,7 +142,7 @@ if($IS_ADMIN || array_key_exists("KeyEditor",$USER_RIGHTS)){
 
 	<?php
 	$displayLeftMenu = (isset($ident_dichotomous_loaderMenu)?$ident_dichotomous_loaderMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($ident_dichotomous_loaderCrumbs)) echo "<div class='navpath'>".$ident_dichotomous_loaderCrumbs."</div>";
 	?> 
 	<!-- This is inner text! -->
@@ -275,7 +275,7 @@ if($IS_ADMIN || array_key_exists("KeyEditor",$USER_RIGHTS)){
 		</ul>
 	</div>
 	<?php 
-		include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	
 </body>

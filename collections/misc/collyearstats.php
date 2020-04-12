@@ -43,7 +43,7 @@ if($collId){
 	<body>
 		<?php
 		$displayLeftMenu = (isset($collections_misc_collstatsMenu)?$collections_misc_collstatsMenu:false);
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div id="innertext">
 			<fieldset id="yearstatsbox" style="clear:both;margin-top:15px;width:97%;">
@@ -219,7 +219,7 @@ if($collId){
 		</div>
 		<!-- end inner text -->
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+			include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

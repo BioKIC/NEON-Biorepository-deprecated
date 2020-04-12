@@ -237,7 +237,7 @@ $collManager->cleanOutArr($collData);
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_misc_collmetadataMenu)?$collections_misc_collmetadataMenu:true);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	echo '<div class="navpath">';
 	echo '<a href="../../index.php">Home</a> &gt;&gt; ';
 	if($collid){
@@ -780,7 +780,7 @@ $collManager->cleanOutArr($collData);
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

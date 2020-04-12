@@ -110,7 +110,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <body>
 	<?php
 	$displayLeftMenu = (isset($reference_indexMenu)?$reference_indexMenu:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($reference_indexCrumbs)){
 		if($reference_indexCrumbs){
 			?>
@@ -561,7 +561,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

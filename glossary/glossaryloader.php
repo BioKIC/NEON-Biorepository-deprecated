@@ -126,7 +126,7 @@ if($isEditor){
 <body>
 <?php
 $displayLeftMenu = (isset($glossary_admin_glossaryloaderMenu)?$glossary_admin_glossaryloaderMenu:false);
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 if(isset($glossary_admin_glossaryloaderCrumbs)){
 	if($glossary_admin_glossaryloaderCrumbs){
 		echo '<div class="navpath">';
@@ -336,7 +336,7 @@ else{
 }
 
 
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

@@ -372,7 +372,7 @@ if($action != "Update Statistics"){
 		<body>
 			<?php
 			$displayLeftMenu = (isset($collections_misc_collstatsMenu)?$collections_misc_collstatsMenu:false);
-			include($SERVER_ROOT.'/header.php');
+			include($SERVER_ROOT.'/includes/header.php');
 			if(isset($collections_misc_collstatsCrumbs)){
 				if($collections_misc_collstatsCrumbs){
 					echo "<div class='navpath'>";
@@ -989,7 +989,7 @@ if($action != "Update Statistics"){
 			</div>
 			<!-- end inner text -->
 			<?php
-				include($SERVER_ROOT.'/footer.php');
+				include($SERVER_ROOT.'/includes/footer.php');
 			?>
 		</body>
 	</html>

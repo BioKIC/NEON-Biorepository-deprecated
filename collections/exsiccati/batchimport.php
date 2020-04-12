@@ -120,7 +120,7 @@ if($isEditor && $formSubmit){
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_exsiccati_batchimport)?$collections_exsiccati_batchimport:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href="../../index.php">Home</a> &gt;&gt;
@@ -301,7 +301,7 @@ if($isEditor && $formSubmit){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

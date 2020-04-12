@@ -67,7 +67,7 @@ if($SYMB_UID){
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_misc_collprofilesMenu)?$collections_misc_collprofilesMenu:true);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	echo "<div class='navpath'>";
 	if(isset($collections_misc_collprofilesCrumbs)){
 		if($collections_misc_collprofilesCrumbs){
@@ -537,7 +537,7 @@ if($SYMB_UID){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

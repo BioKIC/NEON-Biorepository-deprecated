@@ -317,14 +317,14 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 						<span style="font-weight:bold;">
 							<?php echo (isset($LANG['AUTHORS'])?$LANG['AUTHORS']:'Authors'); ?>:
 						</span>
-						<?php echo $clArray["authors"]; ?>
+						<?php echo $clArray['authors']; ?>
 					</div>
 					<?php
 				}
-				if($clArray["publication"]){
-					$pubStr = $clArray["publication"];
-					if(substr($pubStr,0,4)=='http' && !strpos($pubStr,' ')) $pubStr = '<a href="'.$pubStr.'" target="_blank">'.$pubStr."</a>";
-					echo "<div><span style='font-weight:bold;'>".(isset($LANG['CITATION'])?$LANG['CITATION']:'Citation').":</span> ".$pubStr."</div>";
+				if($clArray['publication']){
+					$pubStr = $clArray['publication'];
+					if(substr($pubStr,0,4)=='http' && !strpos($pubStr,' ')) $pubStr = '<a href="'.$pubStr.'" target="_blank">'.$pubStr.'</a>';
+					echo '<div style="clear:both;"><span style="font-weight:bold;">'.(isset($LANG['CITATION'])?$LANG['CITATION']:'Citation').':</span> '.$pubStr.'</div>';
 				}
 			}
 

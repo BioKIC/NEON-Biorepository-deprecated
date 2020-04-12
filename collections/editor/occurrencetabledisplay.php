@@ -341,7 +341,7 @@ else{
 			}
 			else{
 				?>
-				<div style="font-weight:bold;font-size:120%;">
+				<div style="clear:both;padding:20px;font-weight:bold;font-size:120%;">
 					No records found matching the query
 				</div>
 				<?php

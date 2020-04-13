@@ -73,7 +73,7 @@ $uuidManager = new UuidFactory();
 <body>
 <?php 
 $displayLeftMenu = (isset($admin_guidmapperMenu)?$admin_guidmapperMenu:"true");
-include($SERVER_ROOT."/header.php");
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <!-- This is inner text! -->
 <div id="innertext">
@@ -144,7 +144,7 @@ include($SERVER_ROOT."/header.php");
 	?>
 </div>
 <?php 
-include($SERVER_ROOT."/footer.php");
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

@@ -80,7 +80,7 @@ reset($treePath);
 <body class="claro">
 	<?php
 	$displayLeftMenu = (isset($taxa_admin_taxonomydisplayMenu)?$taxa_admin_taxonomydisplayMenu:'false');
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class="navpath">
 		<a href="../../index.php">Home</a> &gt;&gt;
@@ -274,7 +274,7 @@ reset($treePath);
 		</script>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

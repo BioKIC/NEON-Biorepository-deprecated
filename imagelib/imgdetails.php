@@ -128,7 +128,7 @@ if($imgArr){
 	</script>
 	<?php
 	$displayLeftMenu = (isset($taxa_imgdetailsMenu)?$taxa_imgdetailsMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($taxa_imgdetailsCrumbs)){
 		echo "<div class='navpath'>";
 		echo $taxa_imgdetailsCrumbs;
@@ -409,7 +409,7 @@ if($imgArr){
 		?>
 	</div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

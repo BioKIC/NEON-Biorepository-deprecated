@@ -7,9 +7,11 @@ class TaxonProfile extends Manager {
 	private $rankId;
 	private $parentTid;
 	private $taxAuthId = 1;
-	private $displayName;
-	private $displayAuthor;
-	private $displayFamily;
+	private $taxonName;
+	private $taxonAuthor;
+	private $taxonFamily;
+	private $acceptance = true;
+	private $forwarded = false;
 
 	private $acceptedArr = array();
 	private $synonymArr = array();
@@ -33,12 +35,8 @@ class TaxonProfile extends Manager {
 	public function setTid($tid){
 		if(is_numeric($tid)){
 			$this->tid = $tid;
-			if($this->setTaxon()){
-				if(count($this->acceptedArr) == 1) $this->setSynonyms();
-			}
+			if($this->setTaxon()) if(count($this->acceptedArr) == 1) $this->setSynonyms();
 		}
-		//If name was redirected to accepted name, tid returned will be different
-		return $this->tid;
 	}
 
 	private function setTaxon(){
@@ -53,17 +51,17 @@ class TaxonProfile extends Manager {
 				$this->submittedArr['author'] = $r->author;
 				$this->submittedArr['rankid'] = $r->rankid;
 				$this->tid = $r->tid;
-				$this->displayName = $r->sciname;
-				$this->displayAuthor = $r->author;
+				$this->taxonName = $r->sciname;
+				$this->taxonAuthor = $r->author;
 				$this->rankId = $r->rankid;
 			}
 			$rs->free();
 
 			//Set acceptance, parent, and family
-			$sql2 = 'SELECT ts.family, ts.parenttid, t.tid, t.sciname, t.author, t.rankid, t.securitystatus '.
+			$sql2 = 'SELECT ts2.family, ts2.parenttid, t.tid, t.sciname, t.author, t.rankid, t.securitystatus '.
 				'FROM taxstatus ts INNER JOIN taxa t ON ts.tidaccepted = t.tid '.
-				'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tid = '.$this->tid.') ';
-			//echo $sql;
+				'INNER JOIN taxstatus ts2 ON ts.tidaccepted = ts2.tid '.
+				'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts2.taxauthid = '.$this->taxAuthId.') AND (ts.tid = '.$this->tid.') ';
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_object()){
 				$this->acceptedArr[$r2->tid]['sciname'] = $r2->sciname;
@@ -71,10 +69,27 @@ class TaxonProfile extends Manager {
 				$this->acceptedArr[$r2->tid]['rankid'] = $r2->rankid;
 				$this->acceptedArr[$r2->tid]['family'] = $r2->family;
 				$this->acceptedArr[$r2->tid]['parenttid'] = $r2->parenttid;
+				$this->taxonFamily = $r2->family;
+				$this->parentTid = $r2->parenttid;
 				if($r2->securitystatus > 0) $this->displayLocality = 0;
 				$status = true;
 			}
 			$rs2->free();
+
+			if($this->tid != key($this->acceptedArr)){
+				if(count($this->acceptedArr) == 1){
+					$this->forwarded = true;
+					$this->tid = key($this->acceptedArr);
+					$this->taxonName = $this->acceptedArr[$this->tid]['sciname'];
+					$this->taxonAuthor = $this->acceptedArr[$this->tid]['author'];
+					$this->rankId = $this->acceptedArr[$this->tid]['rankid'];
+					$this->taxonFamily = $this->acceptedArr[$this->tid]['family'];
+					$this->parentTid = $this->acceptedArr[$this->tid]['parenttid'];
+				}
+				else{
+					$this->acceptance = false;
+				}
+			}
 
 			if(!$this->displayLocality){
 				if(isset($GLOBALS['IS_ADMIN']) && $GLOBALS['IS_ADMIN']) $this->displayLocality = 1;
@@ -157,8 +172,8 @@ class TaxonProfile extends Manager {
 			}
 			echo '<div class="tptnimg"><a href="'.$imgAnchor.'">';
 			$titleStr = $imgObj['caption'];
-			if($imgObj['sciname'] != $this->displayName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
-			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->displayName.' image" />';
+			if($imgObj['sciname'] != $this->taxonName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
+			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->taxonName.' image" />';
 			/*
 			 if($length){
 			 echo '<img src="'.$imgUrl.'" title="'.$imgObj['caption'].'" alt="'.$spDisplay.' image" />';
@@ -341,12 +356,16 @@ class TaxonProfile extends Manager {
 		$retArr = Array();
 		if($this->tid){
 			$rsArr = array();
-			$sql = 'SELECT ts.tid, tdb.tdbid, tdb.caption, tdb.source, tdb.sourceurl, '.
-				'tds.tdsid, tds.heading, tds.statement, tds.displayheader, tdb.language '.
-				'FROM taxstatus ts INNER JOIN taxadescrblock tdb ON ts.tid = tdb.tid '.
-				'INNER JOIN taxadescrstmts tds ON tdb.tdbid = tds.tdbid '.
-				'WHERE (ts.tidaccepted = '.$this->tid.') AND (ts.taxauthid = 1) '.
-				'ORDER BY tdb.displaylevel,tds.sortsequence';
+			$sql = 'SELECT d.tid, d.tdbid, d.caption, d.source, d.sourceurl, s.tdsid, s.heading, s.statement, s.displayheader, d.language ';
+			if($this->acceptance){
+				$sql .= 'FROM taxstatus ts INNER JOIN taxadescrblock d ON ts.tid = d.tid '.
+					'INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid '.
+					'WHERE (ts.tidaccepted = '.$this->tid.') AND (ts.taxauthid = '.$this->taxAuthId.') ';
+			}
+			else{
+				$sql .= 'FROM taxadescrblock d INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid WHERE (d.tid = '.$this->tid.') ';
+			}
+			$sql .= 'ORDER BY d.displaylevel, s.sortsequence';
 			//echo $sql; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_assoc()){
@@ -426,7 +445,7 @@ class TaxonProfile extends Manager {
 				$retStr .= '<div id="tab-links" class="sptab" style="width:94%;">';
 				$retStr .= '<ul style="margin-top: 50px">';
 				foreach($this->taxaLinks as $l){
-					$urlStr = str_replace('--SCINAME--',rawurlencode($this->displayName),$l['url']);
+					$urlStr = str_replace('--SCINAME--',rawurlencode($this->taxonName),$l['url']);
 					$retStr .= '<li><a href="'.$urlStr.'" target="_blank">'.$l['title'].'</a></li>';
 					if($l['notes']) $retStr .= ' '.$l['notes'];
 				}
@@ -680,12 +699,16 @@ class TaxonProfile extends Manager {
 		return $this->tid;
 	}
 
-	public function getDisplayName(){
-		return $this->displayName;
+	public function getTaxonName(){
+		return $this->taxonName;
 	}
 
-	public function getAuthor(){
-		return $this->displayAuthor;
+	public function getTaxonAuthor(){
+		return $this->taxonAuthor;
+	}
+
+	public function getTaxonFamily(){
+		return $this->taxonFamily;
 	}
 
 	public function getSubmittedValue($k=0){
@@ -698,10 +721,6 @@ class TaxonProfile extends Manager {
 		}
 	}
 
-	public function getDislayFamily(){
-		return $this->displayFamily;
-	}
-
 	public function getRankId(){
 		return $this->rankId;
 	}
@@ -710,16 +729,20 @@ class TaxonProfile extends Manager {
 		return $this->parentTid;
 	}
 
+	public function isAccepted(){
+		return $this->acceptance;
+	}
+
+	public function isForwarded(){
+		return $this->forwarded;
+	}
+
 	public function getAcceptedArr(){
 		return $this->acceptedArr;
 	}
 
 	public function getSynonymArr(){
 		return $this->synonymArr;
-	}
-
-	public function isAccepted(){
-		return ($this->tid == $this->submittedArr['tid']);
 	}
 
 	public function getDisplayLocality(){

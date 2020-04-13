@@ -134,7 +134,7 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 <body>
 	<?php
 	$displayLeftMenu = (isset($glossary_indexMenu)?$glossary_indexMenu:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($glossary_indexCrumbs)){
 		if($glossary_indexCrumbs){
 			?>
@@ -412,7 +412,7 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

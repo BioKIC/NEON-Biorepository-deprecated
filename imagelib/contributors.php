@@ -27,7 +27,7 @@ $pManager = new ImageLibraryManager();
 <body>
 	<?php
 	$displayLeftMenu = (isset($imagelib_photographersMenu)?$imagelib_photographersMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class="navpath">
 		<a href="../index.php">Home</a> &gt;&gt;
@@ -85,7 +85,7 @@ $pManager = new ImageLibraryManager();
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

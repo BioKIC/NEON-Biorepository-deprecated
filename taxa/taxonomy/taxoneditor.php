@@ -91,7 +91,7 @@ if($editable){
 <body>
 <?php
 	$displayLeftMenu = (isset($taxa_admin_taxonomyeditorMenu)?$taxa_admin_taxonomyeditorMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($taxa_admin_taxonomyeditorCrumbs)){
 		if($taxa_admin_taxonomyeditorCrumbs){
 			echo "<div class='navpath'>";
@@ -636,7 +636,7 @@ if($editable){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

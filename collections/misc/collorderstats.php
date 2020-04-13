@@ -40,7 +40,7 @@ $_SESSION['statsOrderArr'] = $orderArr;
 	<body>
 		<?php
 		$displayLeftMenu = (isset($collections_misc_collstatsMenu)?$collections_misc_collstatsMenu:false);
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div id="innertext">
 			<fieldset id="orderdistbox" style="clear:both;margin-top:15px;width:800px;">
@@ -89,7 +89,7 @@ $_SESSION['statsOrderArr'] = $orderArr;
 		</div>
 		<!-- end inner text -->
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+			include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

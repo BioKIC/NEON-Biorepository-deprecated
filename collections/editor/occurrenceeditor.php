@@ -359,36 +359,28 @@ if($SYMB_UID){
 	}
 
 	if($qryCnt !== false){
-		if($qryCnt == 0){
-			if(!$goToMode){
-				$navStr .= '<div style="margin:20px;font-size:150%;font-weight:bold;">';
-				$navStr .= 'Search returned 0 records</div>'."\n";
-			}
-		}
-		else{
-			$navStr = '<b>';
-			if($occIndex > 0) $navStr .= '<a href="#" onclick="return submitQueryForm(0);" title="First Record">';
-			$navStr .= '|&lt;';
-			if($occIndex > 0) $navStr .= '</a>';
+		$navStr = '<b>';
+		if($occIndex > 0) $navStr .= '<a href="#" onclick="return submitQueryForm(0);" title="First Record">';
+		$navStr .= '|&lt;';
+		if($occIndex > 0) $navStr .= '</a>';
+		$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
+		if($occIndex > 0) $navStr .= '<a href="#" onclick="return submitQueryForm(\'back\');" title="Previous Record">';
+		$navStr .= '&lt;&lt;';
+		if($occIndex > 0) $navStr .= '</a>';
+		$recIndex = ($occIndex<$qryCnt?($occIndex + 1):'*');
+		$navStr .= '&nbsp;&nbsp;| '.$recIndex.' of '.$qryCnt.' |&nbsp;&nbsp;';
+		if($occIndex<$qryCnt-1) $navStr .= '<a href="#" onclick="return submitQueryForm(\'forward\');"  title="Next Record">';
+		$navStr .= '&gt;&gt;';
+		if($occIndex<$qryCnt-1) $navStr .= '</a>';
+		$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
+		if($occIndex<$qryCnt-1) $navStr .= '<a href="#" onclick="return submitQueryForm('.($qryCnt-1).');" title="Last Record">';
+		$navStr .= '&gt;|';
+		if($occIndex<$qryCnt-1) $navStr .= '</a> ';
+		if(!$crowdSourceMode){
 			$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
-			if($occIndex > 0) $navStr .= '<a href="#" onclick="return submitQueryForm(\'back\');" title="Previous Record">';
-			$navStr .= '&lt;&lt;';
-			if($occIndex > 0) $navStr .= '</a>';
-			$recIndex = ($occIndex<$qryCnt?($occIndex + 1):'*');
-			$navStr .= '&nbsp;&nbsp;| '.$recIndex.' of '.$qryCnt.' |&nbsp;&nbsp;';
-			if($occIndex<$qryCnt-1) $navStr .= '<a href="#" onclick="return submitQueryForm(\'forward\');"  title="Next Record">';
-			$navStr .= '&gt;&gt;';
-			if($occIndex<$qryCnt-1) $navStr .= '</a>';
-			$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
-			if($occIndex<$qryCnt-1) $navStr .= '<a href="#" onclick="return submitQueryForm('.($qryCnt-1).');" title="Last Record">';
-			$navStr .= '&gt;|';
-			if($occIndex<$qryCnt-1) $navStr .= '</a> ';
-			if(!$crowdSourceMode){
-				$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
-				$navStr .= '<a href="occurrenceeditor.php?gotomode=1&collid='.$collId.'" onclick="return verifyLeaveForm()" title="New Record">&gt;*</a>';
-			}
-			$navStr .= '</b>';
+			$navStr .= '<a href="occurrenceeditor.php?gotomode=1&collid='.$collId.'" onclick="return verifyLeaveForm()" title="New Record">&gt;*</a>';
 		}
+		$navStr .= '</b>';
 	}
 
 	//Images and other things needed for OCR
@@ -592,6 +584,7 @@ else{
 				</div>
 				<?php
 			}
+			if($qryCnt == 0) echo '<div style="clear:both;padding:20px;font-size:150%;font-weight:bold;">Search returned 0 records</div>'."\n";
 			if($occArr || $goToMode == 1 || $goToMode == 2){		//$action == 'gotonew'
 				if($occId && $isLocked){
 					?>

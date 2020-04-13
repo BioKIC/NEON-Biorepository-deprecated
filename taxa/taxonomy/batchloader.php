@@ -148,7 +148,7 @@ if($isEditor){
 <body>
 <?php
 $displayLeftMenu = (isset($taxa_admin_taxaloaderMenu)?$taxa_admin_taxaloaderMenu:false);
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 if(isset($taxa_admin_taxaloaderCrumbs)){
 	if($taxa_admin_taxaloaderCrumbs){
 		echo '<div class="navpath">';
@@ -517,7 +517,7 @@ else{
 	</div>
 	<?php
 }
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

@@ -51,7 +51,7 @@ if($isEditor){
 <body>
 	<?php
 	$displayLeftMenu = false;
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class="navpath">
 		<a href="../../index.php">Homepage</a> &gt;&gt;
@@ -88,7 +88,7 @@ if($isEditor){
 	else{
 		echo '<b>ERROR: collection identifier is not set</b>';
 	}
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

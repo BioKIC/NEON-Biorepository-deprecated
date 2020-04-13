@@ -89,7 +89,7 @@ $status = "";
 	<body>
 		<?php
 		$displayLeftMenu = (isset($taxa_admin_taxonomycleanerMenu)?$taxa_admin_taxonomycleanerMenu:'true');
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		if(isset($taxa_admin_taxonomycleanerCrumbs)){
 			?>
 			<div class='navpath'>
@@ -264,6 +264,6 @@ $status = "";
 			}
 			?>
 		</div>
-		<?php include($SERVER_ROOT.'/footer.php');?>
+		<?php include($SERVER_ROOT.'/includes/footer.php');?>
 	</body>
 </html>

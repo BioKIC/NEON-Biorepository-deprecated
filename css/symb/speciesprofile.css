@@ -1,99 +1,116 @@
 #innertable{
-	width:			100%;
-	display:		table;
-	margin:			0 auto;
+	width: 95%;
+	display: table;
+	margin-top: 15px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #toprow{
-	width:			100%;
-	display:		table-row;
-	clear:			both;
+	width: 100%;
+	display: table-row;
+	clear: both;
 }
 
 #middlerow{
-	width:			100%;
-	display:		table;
-	clear:			both;
+	width: 100%;
+	display: table;
+	clear: both;
 }
 
 #leftcolumn{
-	display:		table-cell;
-}
-
-#leftcolumn.species{
-	width:			300px;
-}
-
-#leftcolumn.genus{
-	width:			250px;
-}
-
-#leftcolumn.higher{
-	width:			250px;
+	display: table-cell;
 }
 
 #rightcolumn{
-	display:		table-cell;
+	display: table-cell;
 	vertical-align:	top;
-	width:			525px;
+	width: 525px;
 }
 
 #bottomrow{
-	width:			100%;
-	display:		table-row;
-	clear:			both;
+	width: 100%;
+	display: table-row;
+	clear: both;
 }
 
 #footerrow{
-	width:			100%;
-	display:		block;
-	margin-top:		10px;
-	text-align:		center;
-	clear:			both;
+	width: 100%;
+	display: block;
+	margin-top: 10px;
+	text-align: center;
+	clear: both;
 }
 
-#scinameheader{
-	display:		block;
+#innerDiv{
+	width: 95%;
+	display: table;
+	margin-top: 15px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
-#scinameheader.species{
-	float: 			left;
-	font-size:		16px;
-	margin-left:	10px;
-	margin-bottom:	0;
+#leftPanel{
+	width: 30%;
+	float: left;
 }
 
-#scinameheader.genus{
-	font-size:		16px;
-	margin-left:	10px;
+#rightPanel{
+	width: 70%;
+	float: left;
 }
 
-#scinameheader.higher{
-	font-size:		16px;
-	margin-left:	10px;
+@media screen and (max-width: 800px) {
+	#leftPanel #rightPanel {
+		width: 100%; 
+	}
 }
 
-#sciname.species{
-	font-weight:	bold;
-	color:			#990000;
+fieldset{
+	margin: 10px;
+	padding: 10px
 }
 
-#sciname.genus{
-	font-weight:	bold;
-	margin-top:		15px;
-	margin-left:	10px;
+fieldset legend{
+	font-weight: bold;
 }
 
-#sciname.higher{
-	font-weight:	bold;
-	margin-top:		15px;
-	margin-left:	10px;
+#scinameDiv{
+	font-size: 1.3em;
+	font-weight: bold; 
 }
 
-#parenttaxonicon{
-	border:			0;
-	margin:			0;
-	height:			10px;
+#sciname{ 
+	color: #990000; 
+	font-style: italic;
+}
+
+#taxon{ 
+	color: #990000; 
+}
+
+#author{ 
+}
+
+#editorDiv{
+	float:right;
+	border:	0px;
+}
+
+.navIcon{
+	border: 0px;
+	margin: 0px;
+	height: 15px;
+}
+
+#linkDiv{
+	margin-left:25px;
+	clear:both;
+}
+
+#family{ 
+	margin-left:25px; 
+	font-size: 14px;
 }
 
 #redirectedfrom{
@@ -101,23 +118,25 @@
 	margin-left: 	25px;
 }
 
-#ambiguous{
+#vernacularDiv{
 	display:		block;
-	float:			left;
-	font-weight:	bold;
-	clear:			both;
+	margin-left:	10px;
+	margin-top:		0.5em;
 }
 
-#editbutton{
-	float: 			right;
-	width:			16px;
-	margin:			0;
-	padding:		0;
+#vernacularDiv a{
+	font-size:70%;
+} 
+
+#synonymDiv{
+	display:		block;
+	margin-left:	10px;
+	margin-top:		0.5em;
 }
 
-#editicon{
-	border:			0;
-}
+#synonymDiv a{
+	font-size:70%;
+} 
 
 #weblinks{
 	margin-left: 	25px;
@@ -125,40 +144,10 @@
 	clear: 			both;
 }
 
-#family.species{
-	display:		block;
-	margin-left:	25px;
-}
-
-#family.genus{
-	display:		block;
-	margin-top:		3px;
-	margin-left:	20px;
-}
-
-#family.higher{
-	display:		block;
-	margin-top:		3px;
-	margin-left:	20px;
-}
-
 #project{
 	display:		block;
 	margin-top:		3px;
 	margin-left:	20px;
-}
-
-#vernaculars{
-	display:		block;
-	margin-left:	10px;
-	margin-top:		0.5em;
-	font-size:		130%;
-}
-
-#synonyms{
-	display:		block;
-	margin-left:	20px;
-	margin-top:		0.5em;
 }
 
 #nocentralimage{
@@ -172,23 +161,10 @@
 }
 
 #desctabs{
-	height:			400px;
-}
-
-#desctabs.species{
-	display:		none;
-}
-
-#desctabs.genus{
-	display:		none;
-	margin:			10px;
-	clear:			both;
-}
-
-#desctabs.higher{
-	display:		none;
-	margin:			10px;
-	clear:			both;
+	width: 100%;
+	height: 100%;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #nodesc{
@@ -306,7 +282,7 @@ div.spptab{
 
 #descsource{
 	text-align:	right;
-	width:		400px;
+	width:		100%;
 	float:		right;
 	padding:	10px 20px 10px 10px;
 }

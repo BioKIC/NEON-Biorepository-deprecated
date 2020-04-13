@@ -144,7 +144,7 @@ $sciArr = array();
 <body onload="init();">
 <?php
 	$displayLeftMenu = (isset($checklists_flashcardsMenu)?$checklists_flashcardsMenu:'true');
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	echo '<div class="navpath">';
 	echo '<a href="../index.php">Home</a> &gt;&gt; ';
 	if(isset($checklists_flashcardsCrumbs) && $checklists_flashcardsCrumbs){
@@ -232,7 +232,7 @@ $sciArr = array();
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

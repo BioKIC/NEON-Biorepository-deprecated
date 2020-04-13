@@ -63,7 +63,7 @@ $dichoKeyManager = new DichoKeyManager();
 
 	<?php
 	$displayLeftMenu = (isset($ident_dichotomous_keyMenu)?$ident_dichotomous_keyMenu:"true");
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($ident_dichotomous_keyCrumbs)){
 		echo "<div class='navpath'>";
 		echo "<a href='../index.php'>Home</a> &gt; ";
@@ -82,7 +82,7 @@ $dichoKeyManager = new DichoKeyManager();
 	
 	</div>
 	<?php 
-		include($SERVER_ROOT."/footer.php");
+		include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

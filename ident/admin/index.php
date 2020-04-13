@@ -63,7 +63,7 @@ if($IS_ADMIN || array_key_exists("KeyAdmin",$USER_RIGHTS)){
 </head>
 <body>
 	<?php
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
@@ -196,7 +196,7 @@ if($IS_ADMIN || array_key_exists("KeyAdmin",$USER_RIGHTS)){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

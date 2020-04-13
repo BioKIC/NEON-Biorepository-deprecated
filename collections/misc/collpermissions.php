@@ -96,7 +96,7 @@ if($collMetadata['colltype'] == 'General Observations') $isGenObs = 1;
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_misc_collpermissionsMenu)?$collections_misc_collpermissionsMenu:true);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_misc_collpermissionsCrumbs)){
 		if($collections_misc_collpermissionsCrumbs){
 			echo "<div class='navpath'>";
@@ -457,7 +457,7 @@ if($collMetadata['colltype'] == 'General Observations') $isGenObs = 1;
 		?>
 	</div>
 	<?php
-		include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 	?>
 
 </body>

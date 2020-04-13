@@ -50,7 +50,7 @@ if($IS_ADMIN || array_key_exists("KeyEditor",$USER_RIGHTS) || array_key_exists("
 <body>
 	<?php
 	$displayLeftMenu = (isset($ident_tools_chardeficitMenu)?$ident_tools_chardeficitMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($ident_tools_chardeficitCrumbs)){
 		echo "<div class='navpath'>";
 		echo $ident_tools_chardeficitCrumbs;
@@ -151,6 +151,6 @@ if($IS_ADMIN || array_key_exists("KeyEditor",$USER_RIGHTS) || array_key_exists("
  }
  ?>
 </div>
-<?php include($SERVER_ROOT.'/footer.php'); ?>
+<?php include($SERVER_ROOT.'/includes/footer.php'); ?>
 </body>
 </html>

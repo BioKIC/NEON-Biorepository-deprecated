@@ -563,7 +563,7 @@ $imgloc = "../images/games/namegame/";
 
 	<?php
 	$displayLeftMenu = (isset($games_namegameMenu)?$games_namegameMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	echo '<div class="navpath">';
 	echo '<a href="../index.php">Home</a> &gt;&gt; ';
 	if(isset($games_namegameCrumbs) && $games_namegameCrumbs){
@@ -694,7 +694,7 @@ $imgloc = "../images/games/namegame/";
 	</div>
 	<!-- This ends inner text! -->
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

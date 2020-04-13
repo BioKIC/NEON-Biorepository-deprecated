@@ -109,7 +109,7 @@ else{
 	<body>
 		<?php
 		$displayLeftMenu = false;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		echo '<div class="navpath">';
 		echo '<a href="../../index.php">Home</a> &gt;&gt; ';
 		echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
@@ -251,6 +251,6 @@ else{
 			}
 			?>
 		</div>
-		<?php include($SERVER_ROOT.'/footer.php');?>
+		<?php include($SERVER_ROOT.'/includes/footer.php');?>
 	</body>
 </html>

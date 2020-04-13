@@ -157,7 +157,7 @@ echo '</script>
 </head>
 <body>';
    $displayLeftMenu = FALSE;
-   include($SERVER_ROOT.'/header.php');
+   include($SERVER_ROOT.'/includes/header.php');
    if(!isset($agent_indexCrumbs)){
       $agent_indexCrumbs = array();
       array_push($agent_indexCrumbs,"<a href='$CLIENT_ROOT/index.php'>Home</a>");
@@ -184,7 +184,7 @@ echo '</script>
 
 function footer() { 
    global $SERVER_ROOT,$CLIENT_ROOT;
-  include($SERVER_ROOT.'/footer.php');
+  include($SERVER_ROOT.'/includes/footer.php');
   echo "</body>\n</html>";
 }
 ?>

@@ -106,7 +106,7 @@ unset($rsArr['stats']);
 <body>
 <?php
 $displayLeftMenu = (isset($collections_misc_rarespeciesMenu)?$collections_misc_rarespeciesMenu:true);
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 if(isset($collections_misc_rarespeciesCrumbs)){
 	echo "<div class='navpath'>";
 	echo "<a href='../index.php'>Home</a> &gt;&gt; ";
@@ -265,7 +265,7 @@ if(isset($collections_misc_rarespeciesCrumbs)){
 	</div>
 </div>
 <?php
-include($SERVER_ROOT.'/footer.php')
+include($SERVER_ROOT.'/includes/footer.php')
 ?>
 </body>
 </html>

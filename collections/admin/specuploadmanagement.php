@@ -165,7 +165,7 @@ $duManager->readUploadParameters();
 <body onload="<?php if($uspid && $action) echo 'adjustParameterForm()'; ?>">
 <?php
 	$displayLeftMenu = (isset($collections_admin_specuploadMenu)?$collections_admin_specuploadMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_admin_specuploadCrumbs)){
 		if($collections_admin_specuploadCrumbs){
 			?>
@@ -386,7 +386,7 @@ $duManager->readUploadParameters();
 	?>
 </div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

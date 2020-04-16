@@ -58,11 +58,10 @@ class ProfileManager{
 				$this->setUserRights();
 				$this->setUserParams();
 				if($this->rememberMe) $this->setTokenCookie();
-				if(!$GLOBALS['SYMB_UID']){
+				if(!isset($GLOBALS['SYMB_UID']) || !$GLOBALS['SYMB_UID']){
 					//Update last login data
 					$conn = $this->getConnection("write");
 					$sql = 'UPDATE userlogin SET lastlogindate = NOW() WHERE (username = "'.$this->userName.'")';
-					echo $sql;
 					$conn->query($sql);
 					$conn->close();
 				}

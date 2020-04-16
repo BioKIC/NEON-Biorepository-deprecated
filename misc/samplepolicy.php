@@ -11,7 +11,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<body>
 		<?php
 		$displayLeftMenu = true;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class="navpath">
 			<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
@@ -31,7 +31,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       <p>Please read the <a href="NEON-Sample-Use-Policy_20181217.pdf" target=_blank>full policy</a> for more details and <a href="mailto:biorepo@asu.edu">contact us</a> for more information.</p>
 		</div>
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+			include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

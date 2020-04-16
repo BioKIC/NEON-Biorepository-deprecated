@@ -5,8 +5,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <html>
 	<head>
 		<title>Checklists</title>
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+		<?php
+		$activateJQuery = false;
+		include_once($SERVER_ROOT.'/includes/head.php');
+		?>
 	</head>
 	<body>
 		<?php

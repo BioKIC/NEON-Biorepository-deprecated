@@ -1,14 +1,14 @@
 <?php
-//error_reporting(E_ALL);
- include_once('../config/symbini.php');
- header("Content-Type: text/html; charset=".$CHARSET);
-
+include_once('../config/symbini.php');
+header("Content-Type: text/html; charset=".$CHARSET);
 ?>
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Data Usage Guidelines</title>
-		<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+		<?php
+		$activateJQuery = true;
+		include_once($SERVER_ROOT.'/includes/head.php');
+		?>
 	</head>
 	<body>
 		<?php

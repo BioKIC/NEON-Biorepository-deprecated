@@ -36,8 +36,10 @@ if($isEditor){
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Manifest Loader</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php
+	$activateJQuery = false;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script type="text/javascript">
 		function verifyUploadForm(f){
 			var status = true;

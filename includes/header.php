@@ -1,17 +1,6 @@
 <?php
  include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 ?>
-<!-- CSS -->
-<!-- <link href="https://fonts.googleapis.com/css?family=EB+Garamond|Playfair+Display+SC" rel="stylesheet" /> -->
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700" rel="stylesheet" type="text/css">
-<link href="<?php echo $CLIENT_ROOT; ?>/css/neon.css?ver=<?php echo $CSS_VERSION_LOCAL; ?>" type="text/css" rel="Stylesheet" />
-<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/base.js?ver=7"></script>
-<script type="text/javascript">
-	//Uncomment following line to support toggling of database content containing DIVs with lang classes in form of: <div class="lang en">Content in English</div><div class="lang es">Content in Spanish</div>
-	//setLanguageDiv();
-</script>
-
 <div id="main-header">
 
 		<!-- NEON Main Top Bar -->
@@ -112,7 +101,7 @@
 							<a href="<?php echo $CLIENT_ROOT; ?>/misc/samplerequest.php">Sample Request</a>
             </li>
             <li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Usage Policy</a>
+							<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">Data Usage Policy</a>
 						</li>
 					</ul>
 				</li>
@@ -158,39 +147,37 @@
 				?>
 			</ul>
 		</header>
-
 </div>
-
-		<!-- Symbiota log in bar -->
-		<div id="top_navbar">
-			<div id="right_navbarlinks">
-				<?php
-				if($USER_DISPLAY_NAME){
-					?>
-					<span style="">
-						<?php echo (isset($LANG['H_WELCOME'])?$LANG['H_WELCOME']:'Welcome').' '.$USER_DISPLAY_NAME; ?>!
-					</span>
-					<span style="margin-left:5px;">
-						<a href="<?php echo $CLIENT_ROOT; ?>/profile/viewprofile.php"><?php echo (isset($LANG['H_MY_PROFILE'])?$LANG['H_MY_PROFILE']:'My Profile')?></a>
-					</span>
-					<span style="margin-left:5px;">
-						<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php?submit=logout"><?php echo (isset($LANG['H_LOGOUT'])?$LANG['H_LOGOUT']:'Logout')?></a>
-					</span>
-					<?php
-				}
-				else{
-					?>
-					<span style="">
-						<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']; ?>"><?php echo (isset($LANG['H_LOGIN'])?$LANG['H_LOGIN']:'Login')?></a>
-					</span>
-					<span style="margin-left:5px;">
-						<a href="<?php echo $CLIENT_ROOT; ?>/profile/newprofile.php"><?php echo (isset($LANG['H_NEW_ACCOUNT'])?$LANG['H_NEW_ACCOUNT']:'New Account')?></a>
-					</span>
-					<?php
-				}
-				?>
-				<span style="margin-left:5px;">
-					<a href='<?php echo $CLIENT_ROOT; ?>/sitemap.php'><?php echo (isset($LANG['H_SITEMAP'])?$LANG['H_SITEMAP']:'Sitemap'); ?></a>
-				</span>
-			</div>
-		</div>
+<!-- Symbiota log in bar -->
+<div id="top_navbar">
+	<div id="right_navbarlinks">
+		<?php
+		if($USER_DISPLAY_NAME){
+			?>
+			<span style="">
+				<?php echo (isset($LANG['H_WELCOME'])?$LANG['H_WELCOME']:'Welcome').' '.$USER_DISPLAY_NAME; ?>!
+			</span>
+			<span style="margin-left:5px;">
+				<a href="<?php echo $CLIENT_ROOT; ?>/profile/viewprofile.php"><?php echo (isset($LANG['H_MY_PROFILE'])?$LANG['H_MY_PROFILE']:'My Profile')?></a>
+			</span>
+			<span style="margin-left:5px;">
+				<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php?submit=logout"><?php echo (isset($LANG['H_LOGOUT'])?$LANG['H_LOGOUT']:'Logout')?></a>
+			</span>
+			<?php
+		}
+		else{
+			?>
+			<span style="">
+				<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']; ?>"><?php echo (isset($LANG['H_LOGIN'])?$LANG['H_LOGIN']:'Login')?></a>
+			</span>
+			<span style="margin-left:5px;">
+				<a href="<?php echo $CLIENT_ROOT; ?>/profile/newprofile.php"><?php echo (isset($LANG['H_NEW_ACCOUNT'])?$LANG['H_NEW_ACCOUNT']:'New Account')?></a>
+			</span>
+			<?php
+		}
+		?>
+		<span style="margin-left:5px;">
+			<a href='<?php echo $CLIENT_ROOT; ?>/sitemap.php'><?php echo (isset($LANG['H_SITEMAP'])?$LANG['H_SITEMAP']:'Sitemap'); ?></a>
+		</span>
+	</div>
+</div>

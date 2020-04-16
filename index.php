@@ -12,9 +12,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<title><?php echo $DEFAULT_TITLE; ?> Home</title>
 	<meta http-equiv="Expires" content="Tue, 01 Jan 1995 12:12:12 GMT">
 	<meta http-equiv="Pragma" content="no-cache">
-	<!-- META AND CSS -->
-	<?php include_once($SERVER_ROOT.'/styles.php'); ?>
-
+	<!-- UNIVERSAL CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/skeleton.css">
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>

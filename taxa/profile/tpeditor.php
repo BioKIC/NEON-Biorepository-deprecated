@@ -209,7 +209,7 @@ if($editable && $action){
 				if($tEditor->getRankId() > 140) echo "&nbsp;<a href='tpeditor.php?tid=".$tEditor->getParentTid()."'><img src='../../images/toparent.png' title='Go to Parent' /></a>";
 				echo "</div>\n";
 				if($tEditor->getFamily()) echo '<div id="familyDiv"><b>Family:</b> '.$tEditor->getFamily().'</div>'."\n";
-				if($statusStr) echo '<h3 style="color:'.(stripos($statusStr,'error') !== false?'red':'green') .';">'.$statusStr.'<h3>';
+				if($statusStr) echo '<div style="margin:15px;font-weight:bold;font-size:120%;color:'.(stripos($statusStr,'error') !== false?'red':'green') .';">'.$statusStr.'</div>';
 				?>
 				<div id="tabs" style="margin:10px;">
 					<ul>

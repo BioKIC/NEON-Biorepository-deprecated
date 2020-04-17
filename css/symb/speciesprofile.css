@@ -78,6 +78,7 @@ fieldset legend{
 #scinameDiv{
 	font-size: 1.3em;
 	font-weight: bold; 
+	margin-bootm: 10px;
 }
 
 #sciname{ 
@@ -270,13 +271,11 @@ fieldset legend{
 /*Text Description*/
 div.sptab{
 	height:		330px;
-	width:		94%;
 	overflow: 	auto;
 }
 
 div.spptab{
 	height:		330px;
-	width:		94%;
 	overflow: 	auto;
 }
 

@@ -16,8 +16,8 @@ class TPDescEditorManager extends TPEditorManager{
 		$sql = 'SELECT t.tid, t.sciname, d.tdbid, d.caption, d.source, d.sourceurl, d.displaylevel, d.notes, d.language ';
 		if($this->acceptance){
 			$sql .= 'FROM taxstatus ts INNER JOIN taxadescrblock d ON ts.tid = d.tid '.
-					'INNER JOIN taxa t ON ts.tid = t.tid '.
-					'WHERE (ts.TidAccepted = '.$this->tid.') AND (ts.taxauthid = '.$this->taxAuthId.') ';
+				'INNER JOIN taxa t ON ts.tid = t.tid '.
+				'WHERE (ts.TidAccepted = '.$this->tid.') AND (ts.taxauthid = '.$this->taxAuthId.') ';
 		}
 		else{
 			$sql .= 'FROM taxadescrblock d INNER JOIN taxa t ON d.tid = t.tid WHERE (d.tid = '.$this->tid.') ';
@@ -68,20 +68,16 @@ class TPDescEditorManager extends TPEditorManager{
 		$status = false;
 		if(is_numeric($postArr['tid'])){
 			$sql = 'INSERT INTO taxadescrblock(tid,uid,language,displaylevel,notes,caption,source,sourceurl) '.
-			'VALUES('.$postArr['tid'].','.$GLOBALS['SYMB_UID'].','.
-			($postArr['language']?'"'.$this->cleanInStr($postArr['language']).'"':'NULL').','.
-			(is_numeric($postArr['displaylevel'])?$postArr['displaylevel']:'NULL').','.
-			($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.
-			($postArr['caption']?'"'.$this->cleanInStr($postArr['caption']).'"':'NULL').','.
-			($postArr['source']?'"'.$this->cleanInStr($postArr['source']).'"':'NULL').','.
-			($postArr['sourceurl']?'"'.$postArr['sourceurl'].'"':'NULL').')';
+				'VALUES('.$postArr['tid'].','.$GLOBALS['SYMB_UID'].','.
+				($postArr['language']?'"'.$this->cleanInStr($postArr['language']).'"':'NULL').','.
+				(is_numeric($postArr['displaylevel'])?$postArr['displaylevel']:30).','.
+				($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.
+				($postArr['caption']?'"'.$this->cleanInStr($postArr['caption']).'"':'NULL').','.
+				($postArr['source']?'"'.$this->cleanInStr($postArr['source']).'"':'NULL').','.
+				($postArr['sourceurl']?'"'.$postArr['sourceurl'].'"':'NULL').')';
 			//echo $sql;
-			if($this->conn->query($sql)){
-				$status = true;
-			}
-			else{
-				$this->errorMessage = 'ERROR adding description block: '.$this->conn->error;
-			}
+			if($this->conn->query($sql)) $status = true;
+			else $this->errorMessage = 'ERROR adding description block: '.$this->conn->error;
 		}
 		return $status;
 	}

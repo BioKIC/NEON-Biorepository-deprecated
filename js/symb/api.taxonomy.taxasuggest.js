@@ -83,7 +83,7 @@ function urlExists(url){
 }
 
 function verifyQuickSearch(f){
-	if(f.quicksearchtaxon.value == ""){
+	if(f.taxa.value == ""){
 		alert("Scientific name?");
 		return false;
 	}

@@ -420,7 +420,7 @@ class TaxonProfile extends Manager {
 			$retStr .= '</ul>';
 			foreach($descArr as $dArr){
 				foreach($dArr as $id => $vArr){
-					$retStr .= '<div id="tab'.$id.'" class="sptab" style="width:94%;">';
+					$retStr .= '<div id="tab'.$id.'" class="sptab">';
 					if($vArr["source"]){
 						$retStr .= '<div id="descsource" style="float:right;">';
 						if($vArr["url"]){
@@ -442,7 +442,7 @@ class TaxonProfile extends Manager {
 				}
 			}
 			if($this->taxaLinks){
-				$retStr .= '<div id="tab-links" class="sptab" style="width:94%;">';
+				$retStr .= '<div id="tab-links" class="sptab">';
 				$retStr .= '<ul style="margin-top: 50px">';
 				foreach($this->taxaLinks as $l){
 					$urlStr = str_replace('--SCINAME--',rawurlencode($this->taxonName),$l['url']);

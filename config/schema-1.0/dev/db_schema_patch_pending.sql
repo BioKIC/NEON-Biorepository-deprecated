@@ -207,6 +207,8 @@ ALTER TABLE `omcollections`
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;
   
+ALTER TABLE `userroles` 
+  ADD UNIQUE INDEX `Unique_userroles` (`uid` ASC, `role` ASC, `tablename` ASC, `tablepk` ASC);
 
 #Tag all collection admin and editors as non-volunteer crowdsource editors   
 UPDATE omcrowdsourcecentral c INNER JOIN omcrowdsourcequeue q ON c.omcsid = q.omcsid

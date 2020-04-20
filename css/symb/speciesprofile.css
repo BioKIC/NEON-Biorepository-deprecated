@@ -78,7 +78,7 @@ fieldset legend{
 #scinameDiv{
 	font-size: 1.3em;
 	font-weight: bold; 
-	margin-bootm: 10px;
+	margin-bottom: 10px;
 }
 
 #sciname{ 
@@ -88,6 +88,7 @@ fieldset legend{
 
 #taxon{ 
 	color: #990000; 
+	margin-bottom: 10px;
 }
 
 #author{ 

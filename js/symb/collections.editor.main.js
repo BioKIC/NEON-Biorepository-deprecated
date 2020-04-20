@@ -79,6 +79,7 @@ $(document).ready(function() {
 	$("#ffsciname").autocomplete({ 
 		source: "rpc/getspeciessuggest.php", 
 		minLength: 3,
+		autoFocus: true,
 		change: function(event, ui) {
 			$( "#tidinterpreted" ).val("");
 			$( 'input[name=scientificnameauthorship]' ).val("");

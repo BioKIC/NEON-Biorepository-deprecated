@@ -44,7 +44,7 @@ class TaxonomyDisplayManager extends Manager{
 			'FROM taxa t LEFT JOIN taxstatus ts ON t.tid = ts.tid '.
 			'WHERE (ts.taxauthid = '.$this->taxAuthId.') ';
 		if(is_numeric($this->targetStr)){
-			$sql .= 'AND (ts1.tid = '.$this->targetStr.') ';
+			$sql .= 'AND (ts.tid = '.$this->targetStr.') ';
 		}
 		elseif($this->targetStr){
 			$operator = '=';

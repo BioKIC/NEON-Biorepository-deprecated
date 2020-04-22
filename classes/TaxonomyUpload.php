@@ -698,8 +698,8 @@ class TaxonomyUpload{
 	public function transferUpload(){
 		$this->outputMsg('Starting data transfer...');
 		//Prime table with kingdoms that are not yet in table
-		$sql = 'INSERT INTO taxa(kingdomName, SciName, RankId, UnitInd1, UnitName1, UnitInd2, UnitName2, UnitInd3, UnitName3, Author, Source, Notes) '.
-			'SELECT DISTINCT "'.$this->kingdomName.'", SciName, RankId, UnitInd1, UnitName1, UnitInd2, UnitName2, UnitInd3, UnitName3, Author, Source, Notes '.
+		$sql = 'INSERT INTO taxa(kingdomName, SciName, RankId, UnitInd1, UnitName1, UnitInd2, UnitName2, UnitInd3, UnitName3, Author, Source, Notes, modifiedUid, modifiedTimeStamp) '.
+			'SELECT DISTINCT "'.$this->kingdomName.'", SciName, RankId, UnitInd1, UnitName1, UnitInd2, UnitName2, UnitInd3, UnitName3, Author, Source, Notes, '.$GLOBALS['SYMB_UID'].' as uid, now() '.
 			'FROM uploadtaxa '.
 			'WHERE (TID IS NULL) AND (rankid = 10)';
 		if($this->conn->query($sql)){

@@ -529,7 +529,7 @@ class SpecUploadBase extends SpecUpload{
 
 		$sql = 'UPDATE IGNORE uploadspectemp u '.
 			'SET u.eventDate = CONCAT_WS("-",LPAD(u.year,4,"19"),IFNULL(LPAD(u.month,2,"0"),"00"),IFNULL(LPAD(u.day,2,"0"),"00")) '.
-			'WHERE (u.eventDate IS NULL) AND (u.year > 1300) AND (u.year < 2020) AND (collid = IN('.$this->collId.'))';
+			'WHERE (u.eventDate IS NULL) AND (u.year > 1300) AND (u.year <= '.date('Y').') AND (collid = IN('.$this->collId.'))';
 		$this->conn->query($sql);
 
 		$this->outputMsg('<li style="margin-left:10px;">Cleaning country and state/province ...</li>');

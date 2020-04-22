@@ -1606,8 +1606,9 @@ class DwcArchiverCore extends Manager{
 		$fieldArr = $this->occurrenceFieldArr['fields'];
 		if($this->schemaType == 'dwc' || $this->schemaType == 'pensoft'){
 			unset($fieldArr['localitySecurity']);
+			unset($fieldArr['collId']);
 		}
-		if($this->schemaType == 'dwc' || $this->schemaType == 'pensoft' || $this->schemaType == 'backup'){
+		elseif($this->schemaType == 'backup'){
 			unset($fieldArr['collId']);
 		}
 		$fieldOutArr = array();
@@ -1658,10 +1659,7 @@ class DwcArchiverCore extends Manager{
 				//$typeArr = array('Other material', 'Holotype', 'Paratype', 'Hapantotype', 'Syntype', 'Isotype', 'Neotype', 'Lectotype', 'Paralectotype', 'Isoparatype', 'Isolectotype', 'Isoneotype', 'Isosyntype');
 			}
 			$statsManager = new OccurrenceAccessStats();
-			$previousOccid = 0;
 			while($r = $rs->fetch_assoc()){
-				if($previousOccid == $r['occid']) continue;
-				$previousOccid = $r['occid'];
 				if(!$r['occurrenceID']){
 					//Set occurrence GUID based on GUID target, but only if occurrenceID field isn't already populated
 					$guidTarget = $this->collArr[$r['collid']]['guidtarget'];
@@ -2020,7 +2018,7 @@ class DwcArchiverCore extends Manager{
 		return true;
 	}
 
-	//getters, setters, and misc functions
+	// misc support functions
 	private function setUpperTaxonomy(){
 		if(!$this->upperTaxonomy){
 			$sqlOrder = 'SELECT t.sciname AS family, t2.sciname AS taxonorder '.
@@ -2065,6 +2063,51 @@ class DwcArchiverCore extends Manager{
 		}
 	}
 
+	private function setUpperTaxonomy_ver2(){
+		if(!$this->upperTaxonomy){
+			$sqlOrder = 'SELECT t.sciname AS family, t2.sciname AS taxonorder '.
+					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
+					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
+					'WHERE t.rankid = 140 AND t2.rankid = 100';
+			$rsOrder = $this->conn->query($sqlOrder);
+			while($rowOrder = $rsOrder->fetch_object()){
+				$this->upperTaxonomy[strtolower($rowOrder->family)]['o'] = $rowOrder->taxonorder;
+			}
+			$rsOrder->free();
+
+			$sqlClass = 'SELECT t.sciname AS family, t2.sciname AS taxonclass '.
+					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
+					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
+					'WHERE t.rankid = 140 AND t2.rankid = 60';
+			$rsClass = $this->conn->query($sqlClass);
+			while($rowClass = $rsClass->fetch_object()){
+				$this->upperTaxonomy[strtolower($rowClass->family)]['c'] = $rowClass->taxonclass;
+			}
+			$rsClass->free();
+
+			$sqlPhylum = 'SELECT t.sciname AS family, t2.sciname AS taxonphylum '.
+					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
+					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
+					'WHERE t.rankid = 140 AND t2.rankid = 30';
+			$rsPhylum = $this->conn->query($sqlPhylum);
+			while($rowPhylum = $rsPhylum->fetch_object()){
+				$this->upperTaxonomy[strtolower($rowPhylum->family)]['p'] = $rowPhylum->taxonphylum;
+			}
+			$rsPhylum->free();
+
+			$sqlKing = 'SELECT t.sciname AS family, t2.sciname AS kingdom '.
+					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
+					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
+					'WHERE t.rankid = 140 AND t2.rankid = 10';
+			$rsKing = $this->conn->query($sqlKing);
+			while($rowKing = $rsKing->fetch_object()){
+				$this->upperTaxonomy[strtolower($rowKing->family)]['k'] = $rowKing->kingdom;
+			}
+			$rsKing->free();
+		}
+	}
+
+	//getters, setters, and misc functions
 	public function setOverrideConditionLimit($bool){
 		if($bool) $this->overrideConditionLimit = true;
 		else $this->overrideConditionLimit = false;

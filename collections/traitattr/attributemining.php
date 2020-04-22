@@ -283,7 +283,7 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 									<select name="fieldvalue[]" multiple="multiple" style="width:100%;height:100%">
 										<?php
 										foreach($valueArr as $v){
-											if($v) echo '<option value="'.$v.'">'.$v.'</option>';
+											if($v) echo '<option value="'.htmlspecialchars($v).'">'.$v.'</option>';
 										}
 										?>
 									</select>

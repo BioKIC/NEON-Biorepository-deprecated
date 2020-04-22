@@ -30,61 +30,62 @@ if($tid){
 								<?php
 								$imgCnt = 0;
 								foreach($images as $imgArr){
-									$webUrl = $imgArr["url"];
 									$tnUrl = $imgArr["thumbnailurl"];
-									if($GLOBALS["imageDomain"]){
-										if(substr($imgArr["url"],0,1)=="/") $webUrl = $GLOBALS["imageDomain"].$imgArr["url"];
-										if(substr($imgArr["thumbnailurl"],0,1)=="/") $tnUrl = $GLOBALS["imageDomain"].$imgArr["thumbnailurl"];
-									}
-									if(!$tnUrl) $tnUrl = $webUrl;
-									?>
-									<td align='center' valign='bottom'>
-										<div style='margin:20px 0px 0px 0px;'>
-											<a href="<?php echo $webUrl; ?>" target="_blank">
-												<img width="150" src="<?php echo $tnUrl;?>" />
-											</a>
+									if($tnUrl && substr($tnUrl,0,10) != 'processing'){
+										$webUrl = $imgArr["url"];
+										if($GLOBALS["imageDomain"]){
+											if(substr($imgArr["url"],0,1)=="/") $webUrl = $GLOBALS["imageDomain"].$imgArr["url"];
+											if(substr($imgArr["thumbnailurl"],0,1)=="/") $tnUrl = $GLOBALS["imageDomain"].$imgArr["thumbnailurl"];
+										}
+										?>
+										<td align='center' valign='bottom'>
+											<div style='margin:20px 0px 0px 0px;'>
+												<a href="<?php echo $webUrl; ?>" target="_blank">
+													<img width="150" src="<?php echo $tnUrl;?>" />
+												</a>
 
-										</div>
-										<?php
-										if($imgArr["photographerdisplay"]){
-											?>
-											<div>
-												<?php echo $imgArr["photographerdisplay"];?>
 											</div>
 											<?php
-										}
-										if($imgArr["tid"] != $tid){
-											?>
-											<div>
-												<a href="tpeditor.php?tid=<?php echo $imgArr["tid"];?>" target="" title="Linked from"><?php echo $imgArr["sciname"];?></a>
-											</div>
-											<?php
-										}
-										?>
-										<div style='margin-top:2px;'>
-											Sort sequence:
-											<b><?php echo $imgArr["sortsequence"];?></b>
-										</div>
-										<div>
-											New Value:
-											<input name="imgid-<?php echo $imgArr["imgid"];?>" type="text" size="5" maxlength="5" />
-										</div>
-									</td>
-									<?php
-									$imgCnt++;
-									if($imgCnt%5 == 0){
-										?>
-										</tr>
-										<tr>
-											<td colspan='5'>
-												<hr>
-												<div style='margin-top:2px;'>
-													<input type='submit' name='action' id='submit' value='Submit Image Sort Edits' />
+											if($imgArr["photographerdisplay"]){
+												?>
+												<div>
+													<?php echo $imgArr["photographerdisplay"];?>
 												</div>
-											</td>
-										</tr>
-										<tr>
+												<?php
+											}
+											if($imgArr["tid"] != $tid){
+												?>
+												<div>
+													<a href="tpeditor.php?tid=<?php echo $imgArr["tid"];?>" target="" title="Linked from"><?php echo $imgArr["sciname"];?></a>
+												</div>
+												<?php
+											}
+											?>
+											<div style='margin-top:2px;'>
+												Sort sequence:
+												<b><?php echo $imgArr["sortsequence"];?></b>
+											</div>
+											<div>
+												New Value:
+												<input name="imgid-<?php echo $imgArr["imgid"];?>" type="text" size="5" maxlength="5" />
+											</div>
+										</td>
 										<?php
+										$imgCnt++;
+										if($imgCnt%5 == 0){
+											?>
+											</tr>
+											<tr>
+												<td colspan='5'>
+													<hr>
+													<div style='margin-top:2px;'>
+														<input type='submit' name='action' id='submit' value='Submit Image Sort Edits' />
+													</div>
+												</td>
+											</tr>
+											<tr>
+											<?php
+										}
 									}
 								}
 								for($i = (5 - $imgCnt%5);$i > 0; $i--){

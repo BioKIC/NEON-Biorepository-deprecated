@@ -50,7 +50,7 @@ class OccurrenceAttributes extends Manager {
 				}
 				if(is_numeric($stateId)){
 					$sql = 'INSERT INTO tmattributes(stateid,xvalue,occid,source,notes,createduid) '.
-						'VALUES('.$stateId.','.$xValue.','.$this->occid.','.($sourceStr?'"'.$this->cleanInStr($sourceStr).'"':'NULL').','.
+						'VALUES('.$stateId.','.$this->cleanInStr($xValue).','.$this->occid.','.($sourceStr?'"'.$this->cleanInStr($sourceStr).'"':'NULL').','.
 						($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.$uid.') ';
 					if(!$this->conn->query($sql)){
 						$this->errorMessage .= 'ERROR saving occurrence attribute: '.$this->conn->error.'; ';
@@ -101,7 +101,7 @@ class OccurrenceAttributes extends Manager {
 			if($addArr){
 				foreach($addArr as $stateIdAdd => $addValue){
 					if(is_numeric($stateIdAdd)){
-						$sql = 'INSERT INTO tmattributes(stateid,xvalue,occid,createduid) VALUES('.$stateIdAdd.','.$addValue.','.$this->occid.','.$GLOBALS['SYMB_UID'].') ';
+						$sql = 'INSERT INTO tmattributes(stateid,xvalue,occid,createduid) VALUES('.$stateIdAdd.','.$this->cleanInStr($addValue).','.$this->occid.','.$GLOBALS['SYMB_UID'].') ';
 						//echo $sql.'<br/>';
 						if($this->conn->query($sql)){
 							$status = true;
@@ -552,10 +552,9 @@ class OccurrenceAttributes extends Manager {
 	public function getFieldValueArr($traitID, $fieldName, $tidFilter, $stringFilter){
 		$retArr = array();
 		if(is_numeric($traitID)){
-			$sql = 'SELECT o.'.$fieldName.', count(DISTINCT o.occid) AS cnt FROM omoccurrences o '.
+			$sql = 'SELECT o.'.$this->cleanInStr($fieldName).', count(DISTINCT o.occid) AS cnt FROM omoccurrences o '.
 				$this->getMiningSqlFrag($traitID, $fieldName, $tidFilter, $stringFilter).
 				'GROUP BY o.'.$fieldName;
-			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_assoc()){
 				if($r[$fieldName]) $retArr[] = strtolower($r[$fieldName]).' - ['.$r['cnt'].']';
@@ -571,9 +570,8 @@ class OccurrenceAttributes extends Manager {
 		$status = true;
 		$fieldArr = array();
 		foreach($fieldValueArr as $fieldValue){
-			if(preg_match('/(.+) - \[\d+\]$/',$fieldValue,$m)){
-				$fieldValue = $m[1];
-			}
+			$fieldValue = htmlspecialchars_decode($fieldValue);
+			if(preg_match('/(.+) - \[\d+\]$/',$fieldValue,$m)) $fieldValue = $m[1];
 			$fieldArr[] = $this->conn->real_escape_string($fieldValue);
 		}
 		if($fieldArr){
@@ -581,7 +579,6 @@ class OccurrenceAttributes extends Manager {
 			$sql = 'SELECT DISTINCT occid FROM omoccurrences o '.
 				$this->getMiningSqlFrag($traitID, $fieldName, $tidFilter).
 				'AND ('.$this->cleanInStr($fieldName).' IN("'.implode('","',$fieldArr).'")) ';
-			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$occArr[] = $r->occid;
@@ -608,8 +605,7 @@ class OccurrenceAttributes extends Manager {
 			//Add notes, source, and editor uid
 			$occidChuckArr = array_chunk($occArr, '200000');
 			foreach($occidChuckArr as $oArr){
-				$sqlUpdate = 'UPDATE tmattributes '.
-					'SET source = "verbatimTextMining:'.$this->cleanInStr($fieldName).'", createduid = '.$GLOBALS['SYMB_UID'];
+				$sqlUpdate = 'UPDATE tmattributes SET source = "verbatimTextMining:'.$this->cleanInStr($fieldName).'", createduid = '.$GLOBALS['SYMB_UID'];
 				if($notes) $sqlUpdate .= ', notes = "'.$this->cleanInStr($notes).'"';
 				if(is_numeric($reviewStatus)) $sqlUpdate .= ', statuscode = "'.$this->cleanInStr($reviewStatus).'"';
 				$sqlUpdate .= ' WHERE stateid IN('.implode(',',$stateIDArr).') AND occid IN('.implode(',',$oArr).')';
@@ -625,19 +621,12 @@ class OccurrenceAttributes extends Manager {
 
 	private function getMiningSqlFrag($traitID, $fieldName, $tidFilter, $stringFilter = ''){
 		$sql = '';
-		if($tidFilter){
-			$sql = 'INNER JOIN taxaenumtree e ON o.tidinterpreted = e.tid ';
-		}
-		$sql .= 'WHERE (o.'.$fieldName.' IS NOT NULL) '.
-			'AND (o.occid NOT IN(SELECT t.occid FROM tmattributes t INNER JOIN tmstates s ON t.stateid = s.stateid WHERE s.traitid = '.$traitID.')) ';
-		if($tidFilter){
-			$sql .= 'AND (e.taxauthid = 1) AND (e.parenttid = '.$tidFilter.' OR o.tidinterpreted = '.$tidFilter.') ';
-		}
-		if($this->collidStr != 'all'){
-			$sql .= 'AND (o.collid IN('.$this->collidStr.')) ';
-		}
-		if($stringFilter){
-			$sql .= 'AND (o.'.$fieldName.' LIKE "%'.$this->cleanInStr($stringFilter).'%") ';
+		if(is_numeric($traitID)){
+			if($tidFilter && is_numeric($tidFilter)) $sql = 'INNER JOIN taxaenumtree e ON o.tidinterpreted = e.tid ';
+			$sql .= 'WHERE (o.'.$fieldName.' IS NOT NULL) AND (o.occid NOT IN(SELECT t.occid FROM tmattributes t INNER JOIN tmstates s ON t.stateid = s.stateid WHERE s.traitid = '.$traitID.')) ';
+			if($tidFilter && is_numeric($tidFilter)) $sql .= 'AND (e.taxauthid = 1) AND (e.parenttid = '.$tidFilter.' OR o.tidinterpreted = '.$tidFilter.') ';
+			if($this->collidStr != 'all') $sql .= 'AND (o.collid IN('.$this->collidStr.')) ';
+			if($stringFilter) $sql .= 'AND (o.'.$this->cleanInStr($fieldName).' LIKE "%'.$this->cleanInStr($stringFilter).'%") ';
 		}
 		return $sql;
 	}

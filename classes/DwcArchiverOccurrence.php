@@ -7,12 +7,8 @@ class DwcArchiverOccurrence{
 	private $includePaleo = false;
 
 	public function getOccurrenceArr(){
-		if($this->schemaType == 'pensoft'){
-			$this->occurDefArr['fields']['Taxon_Local_ID'] = 'v.tid AS Taxon_Local_ID';
-		}
-		else{
-			$this->occurDefArr['fields']['id'] = 'o.occid';
-		}
+		if($this->schemaType == 'pensoft') $this->occurDefArr['fields']['Taxon_Local_ID'] = 'v.tid AS Taxon_Local_ID';
+		else $this->occurDefArr['fields']['id'] = 'o.occid';
 		$this->occurDefArr['terms']['institutionCode'] = 'http://rs.tdwg.org/dwc/terms/institutionCode';
 		$this->occurDefArr['fields']['institutionCode'] = 'IFNULL(o.institutionCode,c.institutionCode) AS institutionCode';
 		$this->occurDefArr['terms']['collectionCode'] = 'http://rs.tdwg.org/dwc/terms/collectionCode';
@@ -316,7 +312,7 @@ class DwcArchiverOccurrence{
 					$sqlFrag .= ', "" AS t_'.$fieldName;
 				}
 			}
-			$sql = 'SELECT '.trim($sqlFrag,', ');
+			$sql = 'SELECT DISTINCT '.trim($sqlFrag,', ');
 		}
 		$sql .= ' FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid '.
 			'INNER JOIN guidoccurrences g ON o.occid = g.occid '.

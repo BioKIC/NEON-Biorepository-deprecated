@@ -180,7 +180,6 @@ class OccurrenceAttributes extends Manager {
 		if($this->collidStr){
 			if(!$this->sqlBody) $this->setSqlBody();
 			$sql = 'SELECT i.occid, IFNULL(o.catalognumber, o.othercatalognumbers) AS catnum '.$this->sqlBody.'ORDER BY RAND() LIMIT 1';
-			//echo $sql;
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$retArr[$r->occid]['catnum'] = $r->catnum;
@@ -236,6 +235,9 @@ class OccurrenceAttributes extends Manager {
 				'LEFT JOIN tmattributes a ON i.occid = a.occid '.
 				'WHERE (e.parenttid IN('.$this->filterArr['tidfilter'].') OR e.tid IN('.implode(',',$tidArr).')) '.
 				'AND (a.occid IS NULL) AND (o.collid = '.$this->collidStr.') AND (e.taxauthid = 1) ';
+		}
+		if(isset($this->filterArr['localfilter']) && $this->filterArr['localfilter']){
+			$this->sqlBody .= 'AND (o.country = "'.$this->filterArr['localfilter'].'" OR o.stateProvince = "'.$this->filterArr['localfilter'].'") ';
 		}
 	}
 

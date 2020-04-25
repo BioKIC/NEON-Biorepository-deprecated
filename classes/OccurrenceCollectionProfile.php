@@ -167,8 +167,8 @@ class OccurrenceCollectionProfile extends Manager {
 				$outStr .= '<div style="float:left"><b>'.(isset($LANG['IPT_SOURCE'])?$LANG['IPT_SOURCE']:'IPT / DwC-A Source').':</b> </div>';
 				$outStr .= '<div style="float:left;margin-left:3px;">';
 				$delimiter = '';
-				foreach($pathArr as $pArr){
-					$outStr .= $delimiter.'<a href="'.$pArr['path'].'" target="_blank">'.$pArr['title'].'</a>';
+				foreach($pathArr as $pathStr => $titleStr){
+					$outStr .= $delimiter.'<a href="'.$pathStr.'" target="_blank">'.$titleStr.'</a>';
 					$delimiter = '<br/>';
 				}
 				$outStr .= '</div>';
@@ -218,10 +218,7 @@ class OccurrenceCollectionProfile extends Manager {
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				if(trim($r->path)){
-					$retArr[$r->uspid]['title'] = $r->title;
-					$retStr = $r->path;
-					$retStr = str_replace('/archive.do', '/resource.do', $retStr);
-					$retArr[$r->uspid]['path'] = $retStr;
+					$retArr[$r->title] = str_replace('/archive.do', '/resource.do', $r->path);
 				}
 			}
 			$rs->free();

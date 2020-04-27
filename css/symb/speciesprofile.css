@@ -350,11 +350,13 @@ div.mapthumb a:hover img {
 }
 
 div.spptaxon{
-	text-align: 	center;
-	width:			170px;
-	float:	 		left;
-  	border: 		1px dotted gray;
-  	margin:			3px;
+	text-align: center;
+	width: 170px;
+	float: left;
+	border: 1px dotted gray;
+	margin: 3px;
+	max-height: 175px;
+	overflow: hidden;
 }
 
 div.sppimg{

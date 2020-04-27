@@ -33,10 +33,10 @@ ALTER TABLE `uploadimagetemp`
   ADD COLUMN `locality` VARCHAR(250) NULL AFTER `rights`;
 
 ALTER TABLE `uploadimagetemp` 
-  CHANGE COLUMN `url` `url` VARCHAR(255) NULL ;
+  CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
 
 ALTER TABLE `images` 
-  CHANGE COLUMN `url` `url` VARCHAR(255) NULL ;
+  CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
 
 ALTER TABLE `images` 
   ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);

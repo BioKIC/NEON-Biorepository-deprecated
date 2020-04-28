@@ -33,10 +33,10 @@ ALTER TABLE `uploadimagetemp`
   ADD COLUMN `locality` VARCHAR(250) NULL AFTER `rights`;
 
 ALTER TABLE `uploadimagetemp` 
-  CHANGE COLUMN `url` `url` VARCHAR(255) NULL ;
+  CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
 
 ALTER TABLE `images` 
-  CHANGE COLUMN `url` `url` VARCHAR(255) NULL ;
+  CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
 
 ALTER TABLE `images` 
   ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);
@@ -207,6 +207,8 @@ ALTER TABLE `omcollections`
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;
   
+ALTER TABLE `userroles` 
+  ADD UNIQUE INDEX `Unique_userroles` (`uid` ASC, `role` ASC, `tablename` ASC, `tablepk` ASC);
 
 #Tag all collection admin and editors as non-volunteer crowdsource editors   
 UPDATE omcrowdsourcecentral c INNER JOIN omcrowdsourcequeue q ON c.omcsid = q.omcsid

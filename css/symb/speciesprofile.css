@@ -78,7 +78,7 @@ fieldset legend{
 #scinameDiv{
 	font-size: 1.3em;
 	font-weight: bold; 
-	margin-bootm: 10px;
+	margin-bottom: 10px;
 }
 
 #sciname{ 
@@ -88,6 +88,7 @@ fieldset legend{
 
 #taxon{ 
 	color: #990000; 
+	margin-bottom: 10px;
 }
 
 #author{ 
@@ -349,11 +350,13 @@ div.mapthumb a:hover img {
 }
 
 div.spptaxon{
-	text-align: 	center;
-	width:			170px;
-	float:	 		left;
-  	border: 		1px dotted gray;
-  	margin:			3px;
+	text-align: center;
+	width: 170px;
+	float: left;
+	border: 1px dotted gray;
+	margin: 3px;
+	max-height: 175px;
+	overflow: hidden;
 }
 
 div.sppimg{

@@ -207,7 +207,7 @@ if($traitID){
 			}
 
 			function verifyFilterForm(f){
-				if(f.taxonFilter.value=="All Taxa") f.taxonFilter.value = '';
+				if(f.taxonfilter.value=="All Taxa") f.taxonfilter.value = '';
 				if(f.traitid.value == ""){
 					alert("An occurrence trait must be selected");
 					return false;
@@ -301,18 +301,6 @@ if($traitID){
 									}
 									else{
 										echo '<option value="0">No attributes are available</option>';
-									}
-									?>
-								</select>
-							</div>
-							<div>
-								<select name="sourcefilter">
-									<option value="">All Source Types</option>
-									<option value="">-----------------------------</option>
-									<?php
-									$sourceControlArr = $attrManager->getSourceControlledArr();
-									foreach($sourceControlArr as $sourceTerm){
-										echo '<option '.($sourceFilter==$sourceTerm?'selected':'').'>'.$sourceTerm.'</option>';
 									}
 									?>
 								</select>

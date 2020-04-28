@@ -601,8 +601,8 @@ class ImageShared{
 	}
 
 	public function deleteImage($imgIdDel, $removeImg){
-		$imgUrl = ""; $imgThumbnailUrl = ""; $imgOriginalUrl = ""; $occid = 0;
-		$sqlQuery = "SELECT * FROM images WHERE (imgid = ".$imgIdDel.')';
+		$imgUrl = ''; $imgThumbnailUrl = ''; $imgOriginalUrl = ''; $occid = 0;
+		$sqlQuery = 'SELECT * FROM images WHERE (imgid = '.$imgIdDel.')';
 		$rs = $this->conn->query($sqlQuery);
 		if($r = $rs->fetch_object()){
 			$imgUrl = $r->url;
@@ -637,49 +637,33 @@ class ImageShared{
 		if($this->conn->query($sql)){
 			if($removeImg){
 				//Search url with and without local domain name
-				$imgUrl2 = '';
 				$domain = $this->getDomainUrl();
-				if(stripos($imgUrl,$domain) === 0){
-					$imgUrl2 = $imgUrl;
-					$imgUrl = substr($imgUrl,strlen($domain));
-				}
-				elseif(stripos($imgUrl,$this->imageRootUrl) === 0){
-					$imgUrl2 = $domain.$imgUrl;
+				if(stripos($imgUrl,$domain) === 0) $imgUrl = substr($imgUrl,strlen($domain));
+
+				//Delete image from server
+				$imgDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgUrl);
+				if(substr($imgDelPath,0,4) != 'http'){
+					if(!unlink($imgDelPath)){
+						$this->errArr[] = 'WARNING: Deleted records from database successfully but FAILED to delete image from server (path: '.$imgDelPath.')';
+					}
 				}
 
-				//Remove images only if there are no other references to the image
-				$sql = 'SELECT imgid FROM images WHERE (url = "'.$imgUrl.'") ';
-				if($imgUrl2) $sql .= 'OR (url = "'.$imgUrl2.'")';
-				$rs = $this->conn->query($sql);
-				if($rs->num_rows){
-					$this->errArr[] = 'WARNING: Deleted records from database successfully but FAILED to delete image from server because it is being referenced by another record.';
+				//Delete thumbnail image
+				if($imgThumbnailUrl){
+					if(stripos($imgThumbnailUrl,$domain) === 0){
+						$imgThumbnailUrl = substr($imgThumbnailUrl,strlen($domain));
+					}
+					$imgTnDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgThumbnailUrl);
+					if(file_exists($imgTnDelPath) && substr($imgTnDelPath,0,4) != 'http') unlink($imgTnDelPath);
 				}
-				else{
-					//Delete image from server
-					$imgDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgUrl);
-					if(substr($imgDelPath,0,4) != 'http'){
-						if(!unlink($imgDelPath)){
-							$this->errArr[] = 'WARNING: Deleted records from database successfully but FAILED to delete image from server (path: '.$imgDelPath.')';
-						}
-					}
 
-					//Delete thumbnail image
-					if($imgThumbnailUrl){
-						if(stripos($imgThumbnailUrl,$domain) === 0){
-							$imgThumbnailUrl = substr($imgThumbnailUrl,strlen($domain));
-						}
-						$imgTnDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgThumbnailUrl);
-						if(file_exists($imgTnDelPath) && substr($imgTnDelPath,0,4) != 'http') unlink($imgTnDelPath);
+				//Delete large version of image
+				if($imgOriginalUrl){
+					if(stripos($imgOriginalUrl,$domain) === 0){
+						$imgOriginalUrl = substr($imgOriginalUrl,strlen($domain));
 					}
-
-					//Delete large version of image
-					if($imgOriginalUrl){
-						if(stripos($imgOriginalUrl,$domain) === 0){
-							$imgOriginalUrl = substr($imgOriginalUrl,strlen($domain));
-						}
-						$imgOriginalDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgOriginalUrl);
-						if(file_exists($imgOriginalDelPath) && substr($imgOriginalDelPath,0,4) != 'http') unlink($imgOriginalDelPath);
-					}
+					$imgOriginalDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgOriginalUrl);
+					if(file_exists($imgOriginalDelPath) && substr($imgOriginalDelPath,0,4) != 'http') unlink($imgOriginalDelPath);
 				}
 			}
 		}

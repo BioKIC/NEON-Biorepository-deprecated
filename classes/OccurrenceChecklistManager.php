@@ -24,29 +24,29 @@ class OccurrenceChecklistManager extends OccurrenceManager{
 		if($sqlWhere){
 			$sql = "";
 			if($taxonAuthorityId && is_numeric($taxonAuthorityId)){
-				$sql = 'SELECT DISTINCT ts2.family, t.sciname '.
+				$sql = 'SELECT DISTINCT ts2.family, t.sciname, o.tidinterpreted '.
 					'FROM omoccurrences o INNER JOIN taxstatus ts1 ON o.TidInterpreted = ts1.Tid '.
 					'INNER JOIN taxa t ON ts1.TidAccepted = t.Tid '.
-					'INNER JOIN taxstatus ts2 ON t.tid = ts2.tid ';
-				$sql .= $this->getTableJoins($sqlWhere);
-				$sql .= str_ireplace("o.sciname","t.sciname",str_ireplace("o.family","ts.family",$sqlWhere));
-				$sql .= ' AND ts1.taxauthid = '.$taxonAuthorityId.' AND ts2.taxauthid = '.$taxonAuthorityId.' AND t.RankId > 140 ';
+					'INNER JOIN taxstatus ts2 ON t.tid = ts2.tid '.
+					$this->getTableJoins($sqlWhere).
+					str_ireplace('o.sciname','t.sciname',str_ireplace('o.family','ts.family',$sqlWhere)).
+					' AND ts1.taxauthid = '.$taxonAuthorityId.' AND ts2.taxauthid = '.$taxonAuthorityId.' AND t.RankId > 140 ';
 			}
 			else{
-				$sql = 'SELECT DISTINCT IFNULL(ts1.family,o.family) AS family, o.sciname '.
+				$sql = 'SELECT DISTINCT IFNULL(ts1.family,o.family) AS family, o.sciname, o.tidinterpreted '.
 					'FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.tid '.
-					'LEFT JOIN taxstatus ts1 ON t.tid = ts1.tid ';
-				$sql .= $this->getTableJoins($sqlWhere);
-				$sql .= $sqlWhere." AND (t.rankid > 140) AND (ts1.taxauthid = 1) ";
+					'LEFT JOIN taxstatus ts1 ON t.tid = ts1.tid '.
+					$this->getTableJoins($sqlWhere).
+					$sqlWhere.' AND (t.rankid > 140) AND (ts1.taxauthid = 1) ';
 			}
-			//echo "<div>".$sql."</div>";
+			//echo '<div>'.$sql.'</div>';
 			$result = $this->conn->query($sql);
-			while($row = $result->fetch_object()){
-				$family = strtoupper($row->family);
+			while($r = $result->fetch_object()){
+				$family = strtoupper($r->family);
 				if(!$family) $family = 'undefined';
-				$sciName = $row->sciname;
+				$sciName = $r->sciname;
 				if($sciName && substr($sciName,-5)!='aceae' && substr($sciName,-4)!='idae'){
-					$returnVec[$family][] = $sciName;
+					$returnVec[$family][$sciName] = $r->tidinterpreted;
 					$this->checklistTaxaCnt++;
 				}
 			}

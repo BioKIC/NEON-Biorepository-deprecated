@@ -52,7 +52,7 @@ $searchVarEncoded = urlencode($searchVar);
 		<form name="changetaxonomy" id="changetaxonomy" action="list.php" method="post">
 			<?php echo $LANG['TAXONOMIC_FILTER']; ?>:
 			<select id="taxonfilter" name="taxonfilter" onchange="this.form.submit();">
-				<option value="0"><?php echo $LANG['RAW_DATA'];?></option>
+				<option value="0"><?php echo (isset($LANG['UNRESOLVED'])?$LANG['UNRESOLVED']:'Unresolved');?></option>
 				<?php
 					$taxonAuthList = $checklistManager->getTaxonAuthorityList();
 					foreach($taxonAuthList as $taCode => $taValue){
@@ -75,10 +75,14 @@ $searchVarEncoded = urlencode($searchVar);
 		}
 		ksort($checklistArr);
 		foreach($checklistArr as $family => $sciNameArr){
-			sort($sciNameArr);
+			ksort($sciNameArr);
 			echo '<div style="margin-left:5;margin-top:5;"><h3>'.$family.'</h3></div>';
-			foreach($sciNameArr as $sciName){
-				echo '<div style="margin-left:20;font-style:italic;"><a target="_blank" href="../taxa/index.php?taxon='.$sciName.'">'.$sciName.'</a></div>';
+			foreach($sciNameArr as $sciName => $tid){
+				echo '<div style="margin-left:20;font-style:italic;">';
+				if($tid) echo '<a target="_blank" href="../taxa/index.php?tid='.$tid.'">';
+				echo $sciName;
+				if($tid) echo '</a>';
+				echo '</div>';
 			}
 		}
 		if($undFamilyArray){

@@ -43,7 +43,6 @@ class TaxonProfile extends Manager {
 		$status = false;
 		if($this->tid){
 			$sql = 'SELECT tid, sciname, author, rankid FROM taxa WHERE (tid = '.$this->tid.') ';
-			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->submittedArr['tid'] = $r->tid;
@@ -649,7 +648,6 @@ class TaxonProfile extends Manager {
 		}
 		$stmt->execute();
 		$stmt->bind_result($tid, $family, $sciname, $author, $rankid, $parentTid);
-
 		while($stmt->fetch()){
 			$retArr[$tid]['sciname'] = $sciname;
 			$retArr[$tid]['family'] = $family;
@@ -671,6 +669,7 @@ class TaxonProfile extends Manager {
 			}
 			$rs2->free();
 		}
+		if(!$this->tid) $this->setTid(key($retArr));
 		return $retArr;
 	}
 

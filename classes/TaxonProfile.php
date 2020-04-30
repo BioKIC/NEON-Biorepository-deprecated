@@ -43,7 +43,6 @@ class TaxonProfile extends Manager {
 		$status = false;
 		if($this->tid){
 			$sql = 'SELECT tid, sciname, author, rankid FROM taxa WHERE (tid = '.$this->tid.') ';
-			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->submittedArr['tid'] = $r->tid;
@@ -507,10 +506,8 @@ class TaxonProfile extends Manager {
 	}
 
 	//Set children data for taxon higher than species level
-	private function setSppData($page, $taxaLimit, $pid, $clid){
-		if(!is_numeric($page)) $page = 0;
-		if(!is_numeric($taxaLimit)) $taxaLimit = 50;
-		if($this->tid){
+	public function getSppArray($page, $taxaLimit, $pid, $clid){
+		if(!$this->sppArray && $this->tid){
 			$this->sppArray = Array();
 			$start = ($page*$taxaLimit);
 			$sql = '';
@@ -611,10 +608,6 @@ class TaxonProfile extends Manager {
 			}
 			*/
 		}
-	}
-
-	public function getSppArray($page, $taxaLimit, $pid = 0, $clid = 0){
-		if(!$this->sppArray) $this->setSppData($page, $taxaLimit, $pid, $clid);
 		return $this->sppArray;
 	}
 
@@ -655,7 +648,6 @@ class TaxonProfile extends Manager {
 		}
 		$stmt->execute();
 		$stmt->bind_result($tid, $family, $sciname, $author, $rankid, $parentTid);
-
 		while($stmt->fetch()){
 			$retArr[$tid]['sciname'] = $sciname;
 			$retArr[$tid]['family'] = $family;
@@ -677,6 +669,7 @@ class TaxonProfile extends Manager {
 			}
 			$rs2->free();
 		}
+		if(!$this->tid) $this->setTid(key($retArr));
 		return $retArr;
 	}
 

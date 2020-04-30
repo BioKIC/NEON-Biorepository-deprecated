@@ -304,15 +304,13 @@ if($imgArr){
 			<div>
 				<div style="width:350px;padding:10px;float:left;">
 					<?php
-					if($imgUrl == 'empty' && $origUrl) $imgUrl = $origUrl;
+					if((!$imgUrl || $imgUrl == 'empty') && $origUrl) $imgUrl = $origUrl;
 					?>
 					<a href="<?php echo $imgUrl;?>">
 						<img src="<?php echo $imgUrl;?>" style="width:300px;" />
 					</a>
 					<?php
-					if($origUrl){
-						echo '<div><a href="'.$origUrl.'">Click on Image to Enlarge</a></div>';
-					}
+					if($origUrl && $imgUrl != $origUrl) echo '<div><a href="'.$origUrl.'">Click on Image to Enlarge</a></div>';
 					?>
 				</div>
 				<div style="padding:10px;float:left;">

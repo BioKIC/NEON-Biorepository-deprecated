@@ -15,7 +15,7 @@ $page = array_key_exists("page",$_REQUEST)?$_REQUEST["page"]:0;
 
 //Sanitation
 $taxonValue = strip_tags($taxonValue);
-$taxonValue = preg_replace('/[^a-zA-Z0-9\-\s.]/', '', $taxonValue);
+$taxonValue = preg_replace('/[^a-zA-Z0-9\-\s.†×]/', '', $taxonValue);
 $taxonValue = htmlspecialchars($taxonValue, ENT_QUOTES, 'UTF-8');
 if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
@@ -26,16 +26,14 @@ if(!is_numeric($page)) $page = 0;
 
 $taxonManager = new TaxonProfile();
 if($taxAuthId) $taxonManager->setTaxAuthId($taxAuthId);
-if(!$tid && $taxonValue){
+if($tid) $taxonManager->setTid($tid);
+elseif($taxonValue){
 	$tidArr = $taxonManager->taxonSearch($taxonValue);
 	$tid = key($tidArr);
 	//Need to add code that allows user to select target taxon when more than one homonym is returned
 }
-
-if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_PROJ_ID;
 if($lang) $lang = $taxonManager->setLanguage($lang);
-$tidSubmit = $tid;
-$tid = $taxonManager->setTid($tidSubmit);
+if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_PROJ_ID;
 
 $links = $taxonManager->getTaxaLinks();
 if($links){
@@ -459,7 +457,7 @@ include($SERVER_ROOT.'/includes/header.php');
 					<div style=margin-left:25px;>
 						<?php
 						foreach($matchArr as $t => $n){
-							echo '<a href="index.php?taxon='.$t.'">'.$n.'</a><br/>';
+							echo '<a href="index.php?tid='.$t.'">'.$n.'</a><br/>';
 						}
 						?>
 					</div>

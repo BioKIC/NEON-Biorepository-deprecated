@@ -411,7 +411,6 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	protected function prepUploadData(){
-		//First, delete all records in uploadspectemp and uploadimagetemp table associated with this collection
 		$this->outputMsg('<li>Clearing staging tables</li>');
 		$sqlDel1 = 'DELETE FROM uploadspectemp WHERE (collid IN('.$this->collId.'))';
 		$this->conn->query($sqlDel1);
@@ -1133,7 +1132,7 @@ class SpecUploadBase extends SpecUpload{
 				foreach($mediaArr as $mediaUrl){
 					$mediaUrl = trim($mediaUrl);
 					if(strpos($mediaUrl,'"')) continue;
-					$this->loadImageRecord(array('occid'=>$r->occid,'tid'=>($r->tidinterpreted?$r->tidinterpreted:''),'originalurl'=>$mediaUrl,'url'=>'empty'));
+					$this->loadImageRecord(array('occid'=>$r->occid,'tid'=>($r->tidinterpreted?$r->tidinterpreted:''),'originalurl'=>$mediaUrl));
 				}
 			}
 		}
@@ -1146,71 +1145,36 @@ class SpecUploadBase extends SpecUpload{
 		if($rs->num_rows){
 			$this->outputMsg('<li>Preparing images for transfer... </li>');
 			//Remove images that are obviously not JPGs
-			$sql = 'DELETE FROM uploadimagetemp '.
-				'WHERE (originalurl LIKE "%.dng" OR originalurl LIKE "%.tif") AND (collid = '.$this->collId.')';
+			$sql = 'DELETE FROM uploadimagetemp WHERE (originalurl LIKE "%.dng" OR originalurl LIKE "%.tif") AND (collid = '.$this->collId.')';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 1 of 5... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 1 of 4... </li>');
 			}
 			else{
 				$this->outputMsg('<li style="margin-left:20px;">WARNING removing non-jpgs from uploadimagetemp: '.$this->conn->error.'</li> ');
 			}
-
 			//Update occid for images of occurrence records already in portal
 			$sql = 'UPDATE uploadimagetemp ui INNER JOIN uploadspectemp u ON ui.collid = u.collid AND ui.dbpk = u.dbpk '.
 				'SET ui.occid = u.occid '.
 				'WHERE (ui.occid IS NULL) AND (u.occid IS NOT NULL) AND (ui.collid = '.$this->collId.')';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 2 of 5... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 2 of 4... </li>');
 			}
 			else{
 				$this->outputMsg('<li style="margin-left:20px;">WARNING updating occids within uploadimagetemp: '.$this->conn->error.'</li> ');
 			}
-
-			//Remove previously loaded images where urls match exactly
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = i.sourceIdentifier)';
-			$this->conn->query($sql);
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl) AND (u.url = i.url)';
+			//Remove and skip previously loaded images where urls match exactly
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 3 of 5... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 3 of 4... </li>');
 			}
 			else{
 				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting uploadimagetemp records with matching urls: '.$this->conn->error.'</li> ');
 			}
-			if($this->collMetadataArr["managementtype"] == 'Snapshot'){
-				//Flush non-matching image derivatives (e.g. thumbnails)
-				$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
-				if($this->conn->query($sql)){
-					$this->outputMsg('<li style="margin-left:10px;">step 4 of 5... </li>');
-				}
-				else{
-					$this->outputMsg('<li style="margin-left:20px;">ERROR deleting image records with matching originalurls: '.$this->conn->error.'</li> ');
-				}
-			}
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.url = i.url) AND (i.url != "") AND (i.url != "empty")';
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl IS NULL) AND (i.originalurl IS NULL) AND (u.url = i.url)';
 			if(!$this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting uploadimagetemp records with matching originalurls: '.$this->conn->error.'</li> ');
+				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting image records with matching originalurls: '.$this->conn->error.'</li> ');
 			}
 
-			//Compare image file names to make sure link wasn't previously loaded
-			/*
-			$sqlTest = 'SELECT i.occid, i.url, u.url as url_new, i.originalurl, u.originalurl as originalurl_new '.
-				'FROM images i INNER JOIN uploadimagetemp u ON i.occid = u.occid '.
-				'WHERE (u.collid = '.$this->collId.')';
-			//echo $sqlTest;
-			$rsTest = $this->conn->query($sqlTest);
-			while($rTest = $rsTest->fetch_object()){
-				if($rTest->originalurl_new){
-					$filename = array_pop(explode('/',$rTest->originalurl));
-					$filenameNew = array_pop(explode('/',$rTest->originalurl_new));
-					if($filename && $filename == $filenameNew){
-						if(!$this->conn->query('DELETE FROM uploadimagetemp WHERE (occid = '.$rTest.') AND (originalurl = "'.$rTest->originalurl_new.'")')){
-							$this->outputMsg('ERROR deleting uploadimagetemp record with matching file names ('.$filename.' != '.$filenameNew.'): '.$this->conn->error.'</li> ');
-						}
-					}
-				}
-			}
-			$rsTest->free();
-			*/
 			//Reset transfer count
 			$this->setImageTransferCount();
 			$this->outputMsg('<li style="margin-left:10px;">Revised count: '.$this->imageTransferCount.' images</li> ');
@@ -1254,6 +1218,19 @@ class SpecUploadBase extends SpecUpload{
 				}
 				unset($imageFieldArr['sortsequence']);
 				unset($imageFieldArr['initialtimestamp']);
+
+				//Remap URLs and remove from import images where source identifiers match, but original URLs differ (e.g. host server is changed)
+				$sql = 'UPDATE uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
+					'SET i.originalurl = u.originalurl, i.url = IFNULL(u.url,if(SUBSTRING(i.url,1,1)="/",i.url,NULL)), i.thumbnailurl = IFNULL(u.thumbnailurl,if(SUBSTRING(i.thumbnailurl,1,1)="/",i.thumbnailurl,NULL)) '.
+					'WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = i.sourceIdentifier) ';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:20px;">ERROR remapping URL with matching sourceIdentifier: '.$this->conn->error.'</li> ');
+				}
+				$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = i.sourceIdentifier)';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:20px;">ERROR deleting incoming image records that have matching sourceIdentifier: '.$this->conn->error.'</li> ');
+				}
+
 				//Load images
 				$sql = 'INSERT INTO images('.implode(',',array_keys($imageFieldArr)).') '.
 					'SELECT '.implode(',',array_keys($imageFieldArr)).' FROM uploadimagetemp WHERE (occid IS NOT NULL) AND (collid = '.$this->collId.')';
@@ -1592,7 +1569,6 @@ class SpecUploadBase extends SpecUpload{
 			$sqlFragments = $this->getSqlFragments($recMap,$this->imageFieldMap);
 			if($sqlFragments){
 				$sql = 'INSERT INTO uploadimagetemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-				//echo $sql.'<br/>';
 				if($this->conn->query($sql)){
 					$this->imageTransferCount++;
 					$repInt = 1000;

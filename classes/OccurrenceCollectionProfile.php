@@ -167,7 +167,7 @@ class OccurrenceCollectionProfile extends Manager {
 				$outStr .= '<div style="float:left"><b>'.(isset($LANG['IPT_SOURCE'])?$LANG['IPT_SOURCE']:'IPT / DwC-A Source').':</b> </div>';
 				$outStr .= '<div style="float:left;margin-left:3px;">';
 				$delimiter = '';
-				foreach($pathArr as $pathStr => $titleStr){
+				foreach($pathArr as $titleStr => $pathStr){
 					$outStr .= $delimiter.'<a href="'.$pathStr.'" target="_blank">'.$titleStr.'</a>';
 					$delimiter = '<br/>';
 				}

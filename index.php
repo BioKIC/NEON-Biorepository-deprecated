@@ -23,9 +23,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<?php
 	include($SERVER_ROOT.'/includes/header.php');
 	?>
-	<!-- This is inner text! -->
-	<div id="innertext">
-		<h1>Welcome to the Consortium of California Herbaria Portal (CCH2)</h1>
+<table id="maintable" cellspacing="0">
+    <tr>
+		<td id='middlecenter'  colspan="3">		
+        <!-- This is inner text! -->
+		<div id="innertext">
 		<div style="float:right;margin-left:15px">
 			<!--
 			<div>
@@ -63,68 +65,54 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			-->
 		</div>
 		<div style="padding: 0px 10px;font-size:120%">
-			<div style="float:right"><img src="images/layout/UC1278733_small.jpg" style="width:300px;margin:0px 15px" /></div>
-			<p>
-				<b>CCH2</b> serves data from specimens housed in CCH member herbaria. The data included in this database represents all
-				specimen records from partner institutions.  The data served through this portal are currently growing due to the work of the
-				<b>California Phenology Thematic Collections Network (CAP-TCN)</b>. This collaboration of 22 California universities, research stations,
+
+			<h1 style="font-family:'Mate', serif">Welcome to the Consortium of California Herbaria Portal (CCH2)</h1>
+			<div style="float:right;padding: 30px 50px 10px 20px; id="quicksearchdiv; font-family:'Mate', serif">
+			<!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
+			<form name="quicksearch" id="quicksearch" action="/taxa/index.php" method="get" onsubmit="return verifyQuickSearch(this);">
+				<div id="quicksearchtext" style="font-family:'Mate', serif">Search Taxon</div>
+				<input id="taxa" type="text" name="taxon" />
+				<button name="formsubmit"  id="quicksearchbutton" type="submit" value="Search Terms">Search</button>
+			</form>
+			</div>
+			<p style="font-family:'Mate', serif">
+				<b>CCH2</b> serves data from specimens housed in CCH member herbaria. These data are currently growing due to the work of the
+				<b>California Phenology Thematic Collections Network</b> (<b>CAP-TCN;</b> <a href="https://www.capturingcaliforniasflowers.org" target="_blank">https://www.capturingcaliforniasflowers.org</a>).
+				This collaboration of 22 California universities, research stations,
 				natural history collections, and botanical gardens aims to capture images, label data, and phenological (i.e., flowering time)
 				data from nearly 1 million herbarium specimens by 2022. Data contained in the CCH2 portal will continue to grow even after
 				this time through the activities of the CCH member institutions.
 			</p>
-
-			<p>For more information about the California Phenology TCN, visit the project website:</p>
-				<div style="margin-left:15px;"><p><a href="https://www.capturingcaliforniasflowers.org" target="_blank">https://www.capturingcaliforniasflowers.org</a></p></div>
-
-			<p>	For more information about the California Consortium of Herbaria (CCH) see:</p>
-			<div style="margin-left:15px"><p><a href="http://ucjeps.berkeley.edu/consortium/about.html" target="_blank">http://ucjeps.berkeley.edu/consortium/about.html</a></p></div>
-
-			<p>
-				The California Phenology TCN is made possible by the National Science Foundation Award
-				<a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1802312&HistoricalAwards=false" target="_blank">1802312</a>.
-				Any opinions, findings, and conclusions or recommendations expressed in this material are
-				those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
+			<p style="font-family:'Mate', serif">
+				The CCH2 portal is managed by UC Berkeley and Cal Poly, San Luis Obispo.
 			</p>
-			<p>
-				Special thanks to the National Park Service who provided funds for the initial setup of the CCH2 website and database (November 2016).<br />
-			</p>
-			<p>
-				Consortium of California Herbaria, CCH2 Portal asks that users not redistribute data obtained from this site.
-				However, links or references to this site may be freely posted.  If you have any questions about this policy,
+			<div style="float:right"><img src="images/layout/UC1278733_small.jpg" style="width:200px;margin:0px 90px" /></div>
+			<p style="font-family:'Mate', serif">	For more information about the California Consortium of Herbaria (CCH) see:</p>
+			<div style="margin-left:15px"><p style="font-family:'Mate', serif"><a href="http://ucjeps.berkeley.edu/consortium/about.html" target="_blank">http://ucjeps.berkeley.edu/consortium/about.html</a></p></div>
+            <div style="font-family:'Mate', serif">
+            <b>Using CCH2 data:</b>
+            </div>
+			<div style="margin-top:15px;padding: 0px 10px;font-family:'Mate', serif">
+				Please refer to our <a href="http://cch2.org/portal/misc/usagepolicy.php">Data Use Policy</a>. The Consortium of California Herbaria asks that users not redistribute data obtained from this site.
+				However, links or references to this site may be freely posted. If you have any questions about this policy,
 				please contact Jason Alexander (<a href="mailto:jason_alexander@berkeley.edu">jason_alexander@berkeley.edu</a>) or Katie Pearson (<a href="mailto:kdpearso@calpoly.edu">kdpearso@calpoly.edu</a>).
-			</p>
-			<p>
-				Note also these other portals that will better serve the data needs of more-specialized users:
-			</p>
+            </div>
 
-				<div style="margin:10px 15px">
-					California vascular plants - CCH1:
-					For California vascular plants linked to the statewide flora project
-					(the <a href="http://ucjeps.berkeley.edu/eflora/" target="_blank">Jepson eFlora: http://ucjeps.berkeley.edu/eflora/</a>),
-					please see the original the <a href="http://ucjeps.berkeley.edu/consortium/" target="_blank">CCH1 portal (active since 2003)</a>.
-				</div>
-				<div style="margin:10px 15px">
-				Pteridophytes: For world-wide ferns, lycophytes, and their extinct, free-sporing relatives, see the <a href="http://www.pteridoportal.org/portal/" target="_blank">Pteridophyte Collections Consortium (PCC)</a>. The CCH2 taxonomic thesaurus has been augmented based on the Checklist of Ferns and Lycophytes of the World, generously provided by Michael Hassler (who also supplied these data for the PCC Thesaurus).
-				</div>
-				<div style="margin:10px 15px">
-					Macroalgae:
-					For algae specimens, see the <a href="http://macroalgae.org" target="_blank">Macroalgal Herbarium Consortium Portal</a>.
-				</div>
-				<div style="margin:10px 15px">
-					Brytophytes:
-					For bryophyte specimens, see the <a href="http://bryophyteportal.org" blank="_blank">Consortium of North American Bryophyte Herbaria (CNABH)</a>.
-				</div>
-				<div style="margin:10px 15px">
-					Lichens:
-					For lichen specimens, see the <a href="http://lichenportal.org" target="_blank">Consortium of North American Lichen Herbaria (CNALH)</a>.
-				</div>
-				<div style="margin:10px 15px">
-					Fungi:
-					For fungi, see the <a href="http://mycoportal.org" target="_blank">Mycology Collections data Portal (MyCoPortal)</a>.
-				</div>
+			<div style="margin-top:15px;padding: 0px 10px;font-family:'Mate', serif">
+            	<b>More California specimen data may be found at the following portals:</b>
+				<ul>
+                    <li>Only California vascular plants, linked to the statewide Jepson eFlora project: <a href="http://ucjeps.berkeley.edu/consortium/" target="_blank">CCH1 Portal</a></li>
+					<li>Bryophytes: <a hrf="http://bryophyteportal.org" target="_blank">Consortium of North American Bryophyte Herbaria</a></li>
+					<li>Fungi: <a href="http://mycoportal.org" target="_blank">Mycology Collections Portal (MyCoPortal)</a></li>
+					<li>Lichens: <a hrf="http://lichenportal.org" target="_blank">Consortium of North American Lichen Herbaria</a></li>
+					<li>Macroalgae: <a href="http://macroalgae.org" targert="_blank">Macroalgal Herbarium Consortium</a></li>
+					<li>Pteridophytes: <a href="http://www.pteridoportal.org/portal/" target="_blank">Pteridophyte Collections Consortium</a></li>
+				</ul>
+			</div>
 		</div>
-
-	</div>
+	    </td>
+	</tr>
+</table>
 	<?php
 	include($SERVER_ROOT.'/includes/footer.php');
 	?>

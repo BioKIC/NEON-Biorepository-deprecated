@@ -61,7 +61,7 @@
 						<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">Map Search</a>
 					</li>
 					<li>
-						<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php">Checklists</a>
+						<a href="<?php echo $CLIENT_ROOT; ?>/checklists/index.php">Checklists</a>
 						<ul>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3" >California</a>

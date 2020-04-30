@@ -25,7 +25,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	?>
 <table id="maintable" cellspacing="0">
     <tr>
-		<td id='middlecenter'  colspan="3">		
+		<td id='middlecenter'  colspan="3">
         <!-- This is inner text! -->
 		<div id="innertext">
 		<div style="float:right;margin-left:15px">
@@ -67,13 +67,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<div style="padding: 0px 10px;font-size:120%">
 
 			<h1 style="font-family:'Mate', serif">Welcome to the Consortium of California Herbaria Portal (CCH2)</h1>
-			<div style="float:right;padding: 30px 50px 10px 20px; id="quicksearchdiv; font-family:'Mate', serif">
-			<!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
-			<form name="quicksearch" id="quicksearch" action="/taxa/index.php" method="get" onsubmit="return verifyQuickSearch(this);">
-				<div id="quicksearchtext" style="font-family:'Mate', serif">Search Taxon</div>
-				<input id="taxa" type="text" name="taxon" />
-				<button name="formsubmit"  id="quicksearchbutton" type="submit" value="Search Terms">Search</button>
-			</form>
+			<div id="quicksearchdiv" style="float:right;padding: 30px 50px 10px 20px;font-family:'Mate', serif">
+				<!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
+				<form name="quicksearch" id="quicksearch" action="<?php echo $CLIENT_ROOT; ?>/taxa/index.php" method="get" onsubmit="return verifyQuickSearch(this);">
+					<div id="quicksearchtext" style="font-family:'Mate', serif">Search Taxon</div>
+					<input id="taxa" type="text" name="taxon" />
+					<button name="formsubmit"  id="quicksearchbutton" type="submit" value="Search Terms">Search</button>
+				</form>
 			</div>
 			<p style="font-family:'Mate', serif">
 				<b>CCH2</b> serves data from specimens housed in CCH member herbaria. These data are currently growing due to the work of the

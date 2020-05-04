@@ -12,7 +12,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 //Use following ONLY if login is required
 if(!$SYMB_UID){
-	header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../misc/generaltemplate.php?'.$_SERVER['QUERY_STRING']);
+	header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../misc/generaltemplate.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 }
 
 $generalVariable = $_REQUEST['var1'];

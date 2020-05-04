@@ -2,7 +2,7 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SpecLoans.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/loans/index.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/loans/index.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = $_REQUEST['collid'];
 $loanId = array_key_exists('loanid',$_REQUEST)?$_REQUEST['loanid']:0;

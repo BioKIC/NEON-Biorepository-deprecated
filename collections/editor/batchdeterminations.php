@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/batchdeterminations.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/batchdeterminations.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = $_REQUEST["collid"];
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';

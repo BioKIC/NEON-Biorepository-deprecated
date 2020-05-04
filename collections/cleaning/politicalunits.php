@@ -9,7 +9,7 @@ $target = array_key_exists('target',$_REQUEST)?$_REQUEST['target']:'geolocal';
 $mode = array_key_exists('mode',$_REQUEST)?$_REQUEST['mode']:'';
 $action = array_key_exists('action',$_POST)?$_POST['action']:'';
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/politicalunits.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/politicalunits.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 //Sanitation
 if(!is_numeric($collid)) $collid = 0;

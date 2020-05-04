@@ -7,7 +7,7 @@ $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $obsUid = array_key_exists('obsuid',$_REQUEST)?$_REQUEST['obsuid']:'';
 $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/fieldstandardization.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/fieldstandardization.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 //Sanitation
 if(!is_numeric($collid)) $collid = 0;

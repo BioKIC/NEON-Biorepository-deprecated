@@ -64,7 +64,7 @@
 	else{
 	?>
 		<div class="menuitem">
-			<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']; ?>">
+			<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['SCRIPT_NAME']."?".$_SERVER['QUERY_STRING']; ?>">
 				Log In
 			</a>
 		</div>

@@ -91,6 +91,11 @@ $EDITOR_PROPERTIES = array(
 // json: {"editorProps":{"modules-panel":{"paleo":{"status":1}}}}
 */
 
+$COOKIE_SECURE = false;
+if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443){
+	header("strict-transport-security: max-age=600");
+	$COOKIE_SECURE = true;
+}
 
 //Base code shared by all pages; leave as is
 include_once("symbbase.php");

@@ -7,7 +7,7 @@ include_once($SERVER_ROOT.'/classes/SpecProcessorOcr.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/specprocessor/processor.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/specprocessor/processor.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;

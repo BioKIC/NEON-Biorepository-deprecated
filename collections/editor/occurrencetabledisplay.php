@@ -114,7 +114,7 @@ if($SYMB_UID){
 	$navStr .= '</div>';
 }
 else{
-	header('Location: ../../profile/index.php?refurl=../collections/editor/occurrencetabledisplay.php?'.$_SERVER['QUERY_STRING']);
+	header('Location: ../../profile/index.php?refurl=../collections/editor/occurrencetabledisplay.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 }
 ?>
 <html>

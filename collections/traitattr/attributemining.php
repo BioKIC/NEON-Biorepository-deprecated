@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceAttributes.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/traitattr/attributemining.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/traitattr/attributemining.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:'';
 $selectAll = array_key_exists('selectall',$_POST)?$_POST['selectall']:'';

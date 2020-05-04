@@ -2,7 +2,7 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceAccessStats.php');
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/reports/accessstatsreview.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/reports/accessstatsreview.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;

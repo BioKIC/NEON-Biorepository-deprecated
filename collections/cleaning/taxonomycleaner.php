@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyCleaner.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/taxonomycleaner.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/taxonomycleaner.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST["collid"]:0;
 $autoClean = array_key_exists('autoclean',$_POST)?$_POST['autoclean']:0;

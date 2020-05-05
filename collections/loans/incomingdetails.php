@@ -31,7 +31,7 @@ $specList = $loanManager->getSpecList($loanId);
 						Entered By:
 					</span><br />
 					<span>
-						<input type="text" autocomplete="off" name="createdbyborr" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo ($loanArr['createdbyborr']?$loanArr['createdbyborr']:$paramsArr['un']); ?>" onchange=" " disabled />
+						<input type="text" autocomplete="off" name="createdbyborr" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo ($loanArr['createdbyborr']?$loanArr['createdbyborr']:$PARAMS_ARR['un']); ?>" onchange=" " disabled />
 					</span>
 				</div>
 				<div style="margin-left:20px;padding-top:4px;float:left;">

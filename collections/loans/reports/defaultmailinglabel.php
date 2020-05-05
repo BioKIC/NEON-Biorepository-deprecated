@@ -95,7 +95,7 @@ if($export){
 		$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
 	}
 
-	$targetFile = $SERVER_ROOT.'/temp/report/'.$paramsArr['un'].'_mailing_label.docx';
+	$targetFile = $SERVER_ROOT.'/temp/report/'.$PARAMS_ARR['un'].'_mailing_label.docx';
 	$phpWord->save($targetFile, 'Word2007');
 
 	header('Content-Description: File Transfer');

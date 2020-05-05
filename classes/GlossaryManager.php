@@ -713,8 +713,6 @@ class GlossaryManager{
 	}
 
 	public function processImage(){
-		global $paramsArr;
-
 		if(!$this->imgName){
 			//trigger_error('Image file name null in processImage function',E_USER_ERROR);
 			return false;

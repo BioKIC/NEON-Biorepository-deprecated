@@ -333,7 +333,7 @@ if($SYMB_UID){
 							</div>
 							<div style="padding:10px;">
 								<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-								<input type="hidden" name="userid" value="<?php echo $paramsArr['un']; ?>" />
+								<input type="hidden" name="userid" value="<?php echo $PARAMS_ARR['un']; ?>" />
 								<input type="hidden" name="observeruid" value="<?php echo $SYMB_UID; ?>" />
 							</div>
 						</fieldset>

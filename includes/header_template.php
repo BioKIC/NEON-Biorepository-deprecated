@@ -23,10 +23,10 @@ if (top.frames.length!=0)
 			<div id="top_navbar">
 				<div id="right_navbarlinks">
 					<?php
-					if($userDisplayName){
+					if($USER_DISPLAY_NAME){
 					?>
 						<span style="">
-							Welcome <?php echo $userDisplayName; ?>!
+							Welcome <?php echo $USER_DISPLAY_NAME; ?>!
 						</span>
 						<span style="margin-left:5px;">
 							<a href="<?php echo $CLIENT_ROOT; ?>/profile/viewprofile.php">My Profile</a>

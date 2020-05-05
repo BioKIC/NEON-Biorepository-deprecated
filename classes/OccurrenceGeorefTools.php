@@ -120,7 +120,6 @@ class OccurrenceGeorefTools {
 	}
 
 	public function updateCoordinates($geoRefArr){
-		global $paramsArr;
 		if($this->collStr){
 			if(is_numeric($geoRefArr['decimallatitude']) && is_numeric($geoRefArr['decimallongitude'])){
 				set_time_limit(1000);

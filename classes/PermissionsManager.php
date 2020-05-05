@@ -206,7 +206,7 @@ class PermissionsManager{
 				$sql1 = 'INSERT INTO userroles(uid,role,tablepk,secondaryVariable,uidassignedby) '.
 					'VALUES('.$uid.',"'.$role.'",'.($tablePk?'"'.$tablePk.'"':'NULL').','.($secondaryVariable?'"'.$secondaryVariable.'"':'NULL').','.$GLOBALS["SYMB_UID"].')';
 				//$sql = 'INSERT INTO userpermissions(uid,pname,assignedby,secondaryVariable) '.
-				//	'VALUES('.$uid.',"'.$pname.'","'.$paramsArr['un'].'")';
+				//	'VALUES('.$uid.',"'.$pname.'","'.$PARAMS_ARR['un'].'")';
 				//echo $sql1;
 				if(!$this->conn->query($sql1)){
 					$statusStr = 'ERROR adding user permission: '.$this->conn->error;

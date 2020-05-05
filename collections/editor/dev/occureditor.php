@@ -253,7 +253,7 @@ if($SYMB_UID){
 	if($goToMode){
 		//Adding new record, override query form and prime for current user's dataentry for the day
 		$occid = 0;
-		$occManager->setQueryVariables(array('eb'=>$paramsArr['un'],'dm'=>date('Y-m-d')));
+		$occManager->setQueryVariables(array('eb'=>$PARAMS_ARR['un'],'dm'=>date('Y-m-d')));
 		if(!$qryCnt){
 			$qryCnt = $occManager->getQueryRecordCount();
 			$occIndex = $qryCnt;
@@ -575,7 +575,7 @@ else{
 										$anchorVars = 'occid='.$occid.'&occindex='.$occIndex.'&csmode='.$crowdSourceMode.'&collid='.$collid;
 										$detVars = 'identby='.urlencode($occArr['identifiedby']).'&dateident='.urlencode($occArr['dateidentified']).
 											'&sciname='.urlencode($occArr['sciname']).'&em='.$isEditor.
-											'&annotatorname='.urlencode($userDisplayName).'&annotatoremail='.urlencode($userEmail).
+											'&annotatorname='.urlencode($USER_DISPLAY_NAME).'&annotatoremail='.urlencode($userEmail).
 											(isset($collMap['collectioncode'])?'&collectioncode='.urlencode($collMap['collectioncode']):'').
 											(isset($collMap['institutioncode'])?'&institutioncode='.urlencode($collMap['institutioncode']):'').
 											'&catalognumber='.urlencode($occArr['catalognumber']);
@@ -1404,7 +1404,7 @@ else{
 											else{
 												?>
 												<div id="addButtonDiv">
-													<input type="hidden" name="recordenteredby" value="<?php echo $paramsArr['un']; ?>" />
+													<input type="hidden" name="recordenteredby" value="<?php echo $PARAMS_ARR['un']; ?>" />
 													<input type="button" name="submitaddbutton" value="Add Record" onclick="this.disabled=true;this.form.submit();" style="width:150px;font-weight:bold;margin:10px;" />
 													<input type="hidden" name="submitaction" value="Add Record" />
 													<input type="hidden" name="qrycnt" value="<?php echo $qryCnt?$qryCnt:''; ?>" />

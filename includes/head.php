@@ -1,10 +1,14 @@
 <?php
 /*
- * Customize css links below as needed to establish custom look-and-feel for portal
+ * Customize styling by adding or modifying CSS file links below
+ * Default styling for individual page is defined within /css/symb/
+ * Individual styling can be customized by:
+ *     1) Uncommenting the $CUSTOM_CSS_PATH variable below
+ *     2) Copying individual CCS file to the /css/symb/custom directory
+ *     3) Modifying the sytle definiation within the file
  */
-//Customized styling: copy all /css/symb/*.css files into alternate directory (e.g. /css/symb/custom) and then modify $cssPathPrefix to point into that directory
-$cssPathPrefix = $CLIENT_ROOT.'/css/symb';
-//$cssPathPrefix = $CLIENT_ROOT.'/css/symb/custom';
+
+//$CUSTOM_CSS_PATH = '/css/symb/custom';
 ?>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
 <?php

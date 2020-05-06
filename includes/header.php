@@ -18,7 +18,7 @@
 				<div id="right_navbarlinks">
 					<?php
 					if($USER_DISPLAY_NAME){
-					?>
+						?>
 						<span style="">
 							Welcome <?php echo $USER_DISPLAY_NAME; ?>!
 						</span>
@@ -28,12 +28,12 @@
 						<span style="margin-left:5px;">
 							<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php?submit=logout">Logout</a>
 						</span>
-					<?php
+						<?php
 					}
 					else{
-					?>
+						?>
 						<span style="">
-							<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']; ?>">
+							<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['SCRIPT_NAME']."?".htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
 								Log In
 							</a>
 						</span>
@@ -42,7 +42,7 @@
 								New Account
 							</a>
 						</span>
-					<?php
+						<?php
 					}
 					?>
 					<span style="margin-left:5px;margin-right:5px;">
@@ -92,5 +92,3 @@
 	</tr>
     <tr>
 		<td id='middlecenter'  colspan="3">
-
-

@@ -1,5 +1,5 @@
 <?php
-header('X-Frame-Options: deny');
+header('X-Frame-Options: DENY');
 header('Cache-control: private'); // IE 6 FIX
 date_default_timezone_set('America/Phoenix');
 

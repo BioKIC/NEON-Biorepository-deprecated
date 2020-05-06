@@ -831,7 +831,7 @@ class OccurrenceCollectionProfile extends Manager {
 	}
 
 	public function batchUpdateStatistics($collId){
-		if(is_numeric($collId)){
+		if(preg_match('/^[0-9,]+$/',$collId)){
 			echo 'Updating collection statistics...';
 			echo '<ul>';
 			//echo '<li>General cleaning in preparation for collecting stats... </li>';
@@ -858,7 +858,7 @@ class OccurrenceCollectionProfile extends Manager {
 
 	public function runStatistics($collId){
 		$returnArr = Array();
-		if(is_numeric($collId)){
+		if(preg_match('/^[0-9,]+$/',$collId)){
 			$sql = "SELECT c.collid, c.CollectionName, IFNULL(cs.recordcnt,0) AS recordcnt, IFNULL(cs.georefcnt,0) AS georefcnt, ".
 				"cs.dynamicProperties ".
 				"FROM omcollections AS c INNER JOIN omcollectionstats AS cs ON c.collid = cs.collid ".
@@ -917,7 +917,7 @@ class OccurrenceCollectionProfile extends Manager {
 
 	public function runStatisticsQuery($collId,$taxon,$country){
 		$returnArr = Array();
-		if(is_numeric($collId)){
+		if(preg_match('/^[0-9,]+$/',$collId)){
 			$sqlFrom = 'FROM omoccurrences AS o LEFT JOIN taxa AS t ON o.tidinterpreted = t.TID LEFT JOIN omcollections AS c ON o.collid = c.CollID ';
 			$sqlWhere = 'WHERE o.collid IN('.$collId.') ';
 			if($taxon){
@@ -1022,11 +1022,11 @@ class OccurrenceCollectionProfile extends Manager {
 
 	public function getYearStatsDataArr($collId,$days){
 		$statArr = array();
-		if(is_numeric($collId) && is_numeric($days)){
+		if(preg_match('/^[0-9,]+$/',$collId) && is_numeric($days)){
 			$sql = 'SELECT CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname '.
 				'FROM omoccurrences AS o INNER JOIN omcollections AS c ON o.collid = c.collid '.
 				'LEFT JOIN images AS i ON o.occid = i.occid '.
-				'WHERE o.collid in('.$collId.') AND ((o.dateLastModified IS NOT NULL AND datediff(curdate(), o.dateLastModified) < '.$days.') OR (datediff(curdate(), i.InitialTimeStamp) < '.$days.')) '.
+				'WHERE o.collid IN('.$collId.') AND ((o.dateLastModified IS NOT NULL AND datediff(curdate(), o.dateLastModified) < '.$days.') OR (datediff(curdate(), i.InitialTimeStamp) < '.$days.')) '.
 				'ORDER BY c.collectionname ';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
@@ -1098,7 +1098,7 @@ class OccurrenceCollectionProfile extends Manager {
 
 	public function getOrderStatsDataArr($collId){
 		$statsArr = Array();
-		if(is_numeric($collId)){
+		if(preg_match('/^[0-9,]+$/',$collId)){
 			$sql = 'SELECT (CASE WHEN t.RankId = 100 THEN t.SciName WHEN t2.RankId = 100 THEN t2.SciName ELSE NULL END) AS SciName, '.
 				'COUNT(DISTINCT o.occid) AS SpecimensPerOrder, '.
 				'COUNT(DISTINCT CASE WHEN o.decimalLatitude IS NOT NULL THEN o.occid ELSE NULL END) AS GeorefSpecimensPerOrder, '.

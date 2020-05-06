@@ -7,7 +7,7 @@ include_once($SERVER_ROOT.'/classes/SpecUploadDwca.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/specupload.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/specupload.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = $_REQUEST["collid"];
 $uploadType = $_REQUEST["uploadtype"];

@@ -3,7 +3,7 @@ include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SalixUtilities.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID){
-	header('Location: ../../../profile/index.php?refurl=../collections/specprocessor/salix/salixhandler.php?'.$_SERVER['QUERY_STRING']);
+	header('Location: ../../../profile/index.php?refurl=../collections/specprocessor/salix/salixhandler.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 }
 
 $action = (isset($_REQUEST['formsubmit'])?$_REQUEST['formsubmit']:'');

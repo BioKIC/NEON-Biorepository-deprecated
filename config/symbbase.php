@@ -1,5 +1,5 @@
 <?php
-header('X-Frame-Options: deny');
+header('X-Frame-Options: DENY');
 header('Cache-control: private'); // IE 6 FIX
 date_default_timezone_set('America/Phoenix');
 
@@ -9,7 +9,7 @@ if(!isset($SERVER_ROOT) && isset($serverRoot)) $SERVER_ROOT = $serverRoot;
 if(substr($SERVER_ROOT,-1) == '/') $SERVER_ROOT = substr($SERVER_ROOT,0,strlen($SERVER_ROOT)-1);
 set_include_path(get_include_path() . PATH_SEPARATOR . $SERVER_ROOT . PATH_SEPARATOR . $SERVER_ROOT.'/config/' . PATH_SEPARATOR . $SERVER_ROOT.'/classes/');
 
-session_start(array('gc_maxlifetime'=>3600,'cookie_path'=>$CLIENT_ROOT));
+session_start(array('gc_maxlifetime'=>3600,'cookie_path'=>$CLIENT_ROOT,'cookie_secure'=>(isset($COOKIE_SECURE)&&$COOKIE_SECURE?true:false),'cookie_httponly'=>true));
 
 include_once($SERVER_ROOT.'/classes/Encryption.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
@@ -45,12 +45,6 @@ $USER_DISPLAY_NAME = (array_key_exists("dn",$PARAMS_ARR)?$PARAMS_ARR["dn"]:"");
 $USERNAME = (array_key_exists("un",$PARAMS_ARR)?$PARAMS_ARR["un"]:0);
 $SYMB_UID = (array_key_exists("uid",$PARAMS_ARR)?$PARAMS_ARR["uid"]:0);
 $IS_ADMIN = (array_key_exists("SuperAdmin",$USER_RIGHTS)?1:0);
-//Can get rid of following once all parameters are remapped to constants
-$paramsArr = $PARAMS_ARR;
-$userRights = $USER_RIGHTS;
-$userDisplayName = $USER_DISPLAY_NAME;
-$symbUid = $SYMB_UID;
-$isAdmin = $IS_ADMIN;
 
 //Temporarly needed so that old configuration will still work
 if(!isset($DEFAULT_LANG) && isset($defaultLang)) $DEFAULT_LANG = $defaultLang;

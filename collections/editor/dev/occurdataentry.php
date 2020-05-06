@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/occurdataentry.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/occurdataentry.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $action = array_key_exists('submitaction',$_POST)?$_POST['submitaction']:'';
@@ -333,7 +333,7 @@ if($SYMB_UID){
 							</div>
 							<div style="padding:10px;">
 								<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-								<input type="hidden" name="userid" value="<?php echo $paramsArr['un']; ?>" />
+								<input type="hidden" name="userid" value="<?php echo $PARAMS_ARR['un']; ?>" />
 								<input type="hidden" name="observeruid" value="<?php echo $SYMB_UID; ?>" />
 							</div>
 						</fieldset>

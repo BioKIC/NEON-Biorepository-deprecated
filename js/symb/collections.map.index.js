@@ -610,35 +610,6 @@ function shiftKeyBox(tid){
 	document.getElementById("symbologykeysbox").innerHTML = currentkeys+newKeyToAdd;
 }
 
-function openGarminDownloader(type){
-	if(type=="query"){
-		var jsonSelections = JSON.stringify(selections);
-	}
-	if(type=="dataset"){
-		if(dsselections.length!=0){
-			var jsonSelections = JSON.stringify(dsselections);
-		}
-		else{
-			alert("Please select records from the dataset to send to the GPS unit.");
-			return;
-		}
-	}
-	var url = 'garmin.php?selections='+jsonSelections;
-	newWindow = window.open(url,'popup','scrollbars=1,toolbar=0,resizable=1,width=450,height=350,left=20,top=20');
-	if (newWindow.opener == null) newWindow.opener = self;
-	return false;
-}
-
-function openLogin(){
-	if(starr){
-		loginstarr = starr.replace(/"/g, "'");
-		window.location='../../profile/index.php?refurl=../collections/map/index.php?starr='+loginstarr;
-	}
-	else{
-		window.location='../../profile/index.php?refurl=../collections/map/index.php';
-	}
-}
-
 function prepSelectionKml(f){
 	if(f.kmltype.value=='dsselectionquery'){
 		if(dsselections.length!=0){

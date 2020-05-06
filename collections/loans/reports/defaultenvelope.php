@@ -80,7 +80,7 @@ if($export){
 		$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
 	}
 
-	$targetFile = $SERVER_ROOT.'/temp/report/'.$paramsArr['un'].'_addressed_envelope.'.$exportExtension;
+	$targetFile = $SERVER_ROOT.'/temp/report/'.$PARAMS_ARR['un'].'_addressed_envelope.'.$exportExtension;
 	$phpWord->save($targetFile, $exportEngine);
 
 	header('Content-Description: File Transfer');

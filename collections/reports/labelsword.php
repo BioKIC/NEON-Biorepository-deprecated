@@ -354,7 +354,7 @@ if($isEditor && $action){
 	}
 }
 
-$targetFile = $SERVER_ROOT.'/temp/report/'.$paramsArr['un'].'_'.date('Ymd').'_labels_'.$ses_id.'.docx';
+$targetFile = $SERVER_ROOT.'/temp/report/'.$PARAMS_ARR['un'].'_'.date('Ymd').'_labels_'.$ses_id.'.docx';
 $phpWord->save($targetFile, 'Word2007');
 
 header('Content-Description: File Transfer');

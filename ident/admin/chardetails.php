@@ -19,14 +19,14 @@ $keyManager->setCid($cid);
 $statusStr = '';
 if($formSubmit){
 	if($formSubmit == 'Create'){
-		$statusStr = $keyManager->createCharacter($_POST,$paramsArr['un']);
+		$statusStr = $keyManager->createCharacter($_POST,$PARAMS_ARR['un']);
 		$cid = $keyManager->getCid();
 	}
 	elseif($formSubmit == 'Save Char'){
 		$statusStr = $keyManager->editCharacter($_POST);
 	}
 	elseif($formSubmit == 'Add State'){
-		$keyManager->createCharState($_POST['charstatename'],$_POST['illustrationurl'],$_POST['description'],$_POST['notes'],$_POST['sortsequence'],$paramsArr['un']);
+		$keyManager->createCharState($_POST['charstatename'],$_POST['illustrationurl'],$_POST['description'],$_POST['notes'],$_POST['sortsequence'],$PARAMS_ARR['un']);
 		$tabIndex = 1;
 	}
 	elseif($formSubmit == 'Save State'){

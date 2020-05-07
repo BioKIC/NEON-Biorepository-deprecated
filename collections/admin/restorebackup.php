@@ -4,7 +4,7 @@ include_once($SERVER_ROOT.'/classes/SpecUploadDwca.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/reloadbackup.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/reloadbackup.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = $_REQUEST["collid"];
 $action = array_key_exists("action",$_REQUEST)?$_POST["action"]:"";

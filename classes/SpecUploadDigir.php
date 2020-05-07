@@ -32,8 +32,8 @@ class SpecUploadDigir extends SpecUploadBase {
 		$this->prepUploadData();
 
 		if($this->schemaName){
-			if(substr($this->schemaName,0,4) != "http"){
-				$this->schemaName = "http://".$_SERVER["HTTP_HOST"].substr($_SERVER["PHP_SELF"],0,strrpos($_SERVER["PHP_SELF"],"/"))."/".$this->schemaName;
+			if(substr($this->schemaName,0,4) != 'http'){
+				$this->schemaName = 'http://'.$_SERVER['HTTP_HOST'].substr($_SERVER['SCRIPT_NAME'],0,strrpos($_SERVER['SCRIPT_NAME'],'/')).'/'.$this->schemaName;
 			}
 		}
 		else{

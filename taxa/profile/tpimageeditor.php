@@ -158,7 +158,7 @@ if($tid){
 							<select name='photographeruid' name='photographeruid'>
 								<option value="">Select Photographer</option>
 								<option value="">---------------------------------------</option>
-								<?php $imageEditor->echoPhotographerSelect($paramsArr["uid"]); ?>
+								<?php $imageEditor->echoPhotographerSelect($PARAMS_ARR["uid"]); ?>
 							</select>
 							<a href="#" onclick="toggle('photooveridediv');return false;" title="Display photographer override field">
 								<img src="../../images/editplus.png" style="border:0px;width:12px;" />

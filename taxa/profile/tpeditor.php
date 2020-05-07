@@ -51,7 +51,7 @@ if($editable && $action){
 		$editVernArr["notes"] = str_replace("\"","-",$_REQUEST["notes"]);
 		$editVernArr["source"] = $_REQUEST["source"];
 		if($_REQUEST["sortsequence"]) $editVernArr["sortsequence"] = $_REQUEST["sortsequence"];
-		$editVernArr["username"] = $paramsArr["un"];
+		$editVernArr["username"] = $PARAMS_ARR["un"];
 		$statusStr = $tEditor->editVernacular($editVernArr);
 	}
 	elseif($action == "Add Common Name"){
@@ -61,7 +61,7 @@ if($editable && $action){
 		if($_REQUEST["notes"]) $addVernArr["notes"] = str_replace("\"","-",$_REQUEST["notes"]);
 		if($_REQUEST["source"]) $addVernArr["source"] = $_REQUEST["source"];
 		if($_REQUEST["sortsequence"]) $addVernArr["sortsequence"] = $_REQUEST["sortsequence"];
-		$addVernArr["username"] = $paramsArr["un"];
+		$addVernArr["username"] = $PARAMS_ARR["un"];
 		$statusStr = $tEditor->addVernacular($addVernArr);
 	}
 	elseif($action == "Delete Common Name"){

@@ -2158,6 +2158,15 @@ class DwcArchiverCore extends Manager{
 		$this->includeAttributes = $include;
 	}
 
+	public function hasAttributes(){
+		$bool = false;
+		$sql = 'SELECT occid FROM tmattributes LIMIT 1';
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows) $bool = true;
+		$rs->free();
+		return $bool;
+	}
+
 	public function setRedactLocalities($redact){
 		$this->redactLocalities = $redact;
 	}

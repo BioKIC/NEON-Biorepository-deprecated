@@ -1,13 +1,15 @@
 <?php
 include_once('../../config/symbini.php');
+include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $sourcePage = array_key_exists("sourcepage",$_REQUEST)?$_REQUEST["sourcepage"]:"specimen";
 $downloadType = array_key_exists("dltype",$_REQUEST)?$_REQUEST["dltype"]:"specimen";
 $taxonFilterCode = array_key_exists("taxonFilterCode",$_REQUEST)?$_REQUEST["taxonFilterCode"]:0;
 $displayHeader = array_key_exists("displayheader",$_REQUEST)?$_REQUEST["displayheader"]:0;
-
 $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
+
+$dwcManager = new DwcArchiverCore();
 ?>
 <html>
 <head>
@@ -67,6 +69,7 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 			if(obj.checked == false){
 				obj.form.images.checked = false;
 				obj.form.identifications.checked = false;
+				obj.form.attributes.checked = false;
 			}
 		}
 
@@ -176,7 +179,9 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 									<div style="margin:10px 0px;">
 										<input type="checkbox" name="identifications" value="1" onchange="extensionSelected(this)" checked /> include Determination History<br/>
 										<input type="checkbox" name="images" value="1" onchange="extensionSelected(this)" checked /> include Image Records<br/>
-										<input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> include Occurrence Trait Attributes (MeasurementOrFact extension)<br/>
+										<?php
+										if($dwcManager->hasAttributes()) echo '<input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> include Occurrence Trait Attributes<br/>';
+										?>
 										*Output must be a compressed archive
 									</div>
 								</td>

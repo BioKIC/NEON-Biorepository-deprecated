@@ -11,6 +11,7 @@ include_once($SERVER_ROOT.'/classes/OccurrenceAccessStats.php');
 
 class DwcArchiverCore extends Manager{
 
+	private $dataConn;
 	private $ts;
 
 	protected $collArr;
@@ -706,7 +707,7 @@ class DwcArchiverCore extends Manager{
 
 		$this->setUpperTaxonomy();
 		$this->setTaxonRank();
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$typeArr = null;
 			if($this->schemaType == 'pensoft'){
 				$typeArr = array('Other material', 'Holotype', 'Paratype', 'Isotype', 'Isoparatype', 'Isolectotype', 'Isoneotype', 'Isosyntype');
@@ -849,6 +850,7 @@ class DwcArchiverCore extends Manager{
 			$this->logOrEcho("FATAL ERROR: PHP ZipArchive class is not installed, please contact your server admin\n");
 			exit('FATAL ERROR: PHP ZipArchive class is not installed, please contact your server admin');
 		}
+		$this->dataConn = MySQLiConnectionFactory::getCon('readonly');
 		$status = $this->writeOccurrenceFile();
 		if($status){
 			$archiveFile = $this->targetPath.$fileName;
@@ -912,6 +914,7 @@ class DwcArchiverCore extends Manager{
 			unset($this->collArr[$collid]);
 		}
 		$this->logOrEcho("\n-----------------------------------------------------\n");
+		$this->dataConn->close();
 		return $archiveFile;
 	}
 
@@ -1636,11 +1639,11 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
-		$this->setUpperTaxonomy();
+		//$this->setUpperTaxonomy();
 		$this->setTaxonRank();
 
 		//echo $sql; exit;
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$this->setServerDomain();
 			$urlPathPrefix = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].(substr($GLOBALS['CLIENT_ROOT'],-1)=='/'?'':'/');
 			$typeArr = null;
@@ -1730,7 +1733,8 @@ class DwcArchiverCore extends Manager{
 					unset($r['collid']);
 				}
 
-				$this->appendUpperTaxonomy($r);
+				//$this->appendUpperTaxonomy($r);
+				$this->appendUpperTaxonomy2($r);
 				if(array_key_exists($r['rankid'], $this->taxonRankArr)) $r['t_taxonRank'] = $this->taxonRankArr[$r['rankid']];
 				unset($r['rankid']);
 
@@ -1764,7 +1768,9 @@ class DwcArchiverCore extends Manager{
 
 	public function getOccurrenceFile(){
 		if(!$this->targetPath) $this->setTargetPath();
+		$this->dataConn = MySQLiConnectionFactory::getCon('readonly');
 		$filePath = $this->writeOccurrenceFile();
+		$this->dataConn->close();
 		return $filePath;
 	}
 
@@ -1787,7 +1793,7 @@ class DwcArchiverCore extends Manager{
 
 		//Output records
 		$sql = DwcArchiverDetermination::getSqlDeterminations($this->determinationFieldArr['fields'],$this->conditionSql);
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$previousDetID = 0;
 			while($r = $rs->fetch_assoc()){
 				if($previousDetID == $r['detid']) continue;
@@ -1827,8 +1833,7 @@ class DwcArchiverCore extends Manager{
 
 		//Output records
 		$sql = DwcArchiverImage::getSqlImages($this->imageFieldArr['fields'], $this->conditionSql, $this->redactLocalities, $this->rareReaderArr);
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
-
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$this->setServerDomain();
 			$urlPathPrefix = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].(substr($GLOBALS['CLIENT_ROOT'],-1)=='/'?'':'/');
 
@@ -1932,7 +1937,7 @@ class DwcArchiverCore extends Manager{
 		//Output records
 		$sql = DwcArchiverAttribute::getSql($this->attributeFieldArr['fields'],$this->conditionSql);
 		//echo $sql; exit;
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			while($r = $rs->fetch_assoc()){
 				$this->encodeArr($r);
 				$this->addcslashesArr($r);
@@ -2052,69 +2057,46 @@ class DwcArchiverCore extends Manager{
 
 	private function appendUpperTaxonomy(&$targetArr){
 		if($targetArr['family'] && $this->upperTaxonomy){
-			$higherClassification = '';
+			$higherStr = '';
 			$famStr = strtolower($targetArr['family']);
 			if(isset($this->upperTaxonomy[$famStr]['k'])){
 				$targetArr['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
-				$higherClassification = $targetArr['t_kingdom'];
+				$higherStr = $targetArr['t_kingdom'];
 			}
 			if(isset($this->upperTaxonomy[$famStr]['p'])){
 				$targetArr['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
-				$higherClassification .= ','.$targetArr['t_phylum'];
+				$higherStr .= '|'.$targetArr['t_phylum'];
 			}
 			if(isset($this->upperTaxonomy[$famStr]['c'])){
 				$targetArr['t_class'] = $this->upperTaxonomy[$famStr]['c'];
-				$higherClassification .= ','.trim($targetArr['t_class'],',');
+				$higherStr .= '|'.trim($targetArr['t_class'],'|');
 			}
 			if(isset($this->upperTaxonomy[$famStr]['o'])){
 				$targetArr['t_order'] = $this->upperTaxonomy[$famStr]['o'];
-				$higherClassification .= ','.trim($targetArr['t_class'],',');
+				$higherStr .= '|'.trim($targetArr['t_class'],'|');
 			}
-			$targetArr['t_higherClassification'] = trim($higherClassification,', ');
+			$targetArr['t_higherClassification'] = trim($higherStr,'| ');
 		}
 	}
 
-	private function appendFullUpperTaxonomy(){
-		if(!$this->upperTaxonomy){
-			$sqlOrder = 'SELECT t.sciname AS family, t2.sciname AS taxonorder '.
-					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
-					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
-					'WHERE t.rankid = 140 AND t2.rankid = 100';
-			$rsOrder = $this->conn->query($sqlOrder);
-			while($rowOrder = $rsOrder->fetch_object()){
-				$this->upperTaxonomy[strtolower($rowOrder->family)]['o'] = $rowOrder->taxonorder;
+	private function appendUpperTaxonomy2(&$r){
+		if($r['taxonID']){
+			$higherStr = '';
+			$sql = 'SELECT t.tid, t.sciname, t.rankid '.
+				'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
+				'WHERE e.taxauthid = 1 AND e.tid = '.$r['taxonID'].' ORDER BY t.rankid';
+			$rs = $this->conn->query($sql);
+			while($row = $rs->fetch_object()){
+				if($row->rankid == 10) $r['t_kingdom'] = $row->sciname;
+				elseif($row->rankid == 30) $r['t_phylum'] = $row->sciname;
+				elseif($row->rankid == 60) $r['t_class'] = $row->sciname;
+				elseif($row->rankid == 100) $r['t_order'] = $row->sciname;
+				elseif($row->rankid == 140 && !$r['family']) $r['family'] = $row->sciname;
+				elseif($row->rankid == 190) $r['t_subgenus'] = $row->sciname;
+				$higherStr .= '|'.$row->sciname;
 			}
-			$rsOrder->free();
-
-			$sqlClass = 'SELECT t.sciname AS family, t2.sciname AS taxonclass '.
-					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
-					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
-					'WHERE t.rankid = 140 AND t2.rankid = 60';
-			$rsClass = $this->conn->query($sqlClass);
-			while($rowClass = $rsClass->fetch_object()){
-				$this->upperTaxonomy[strtolower($rowClass->family)]['c'] = $rowClass->taxonclass;
-			}
-			$rsClass->free();
-
-			$sqlPhylum = 'SELECT t.sciname AS family, t2.sciname AS taxonphylum '.
-					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
-					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
-					'WHERE t.rankid = 140 AND t2.rankid = 30';
-			$rsPhylum = $this->conn->query($sqlPhylum);
-			while($rowPhylum = $rsPhylum->fetch_object()){
-				$this->upperTaxonomy[strtolower($rowPhylum->family)]['p'] = $rowPhylum->taxonphylum;
-			}
-			$rsPhylum->free();
-
-			$sqlKing = 'SELECT t.sciname AS family, t2.sciname AS kingdom '.
-					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
-					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
-					'WHERE t.rankid = 140 AND t2.rankid = 10';
-			$rsKing = $this->conn->query($sqlKing);
-			while($rowKing = $rsKing->fetch_object()){
-				$this->upperTaxonomy[strtolower($rowKing->family)]['k'] = $rowKing->kingdom;
-			}
-			$rsKing->free();
+			$rs->free();
+			$r['t_higherClassification'] = trim($higherStr,'| ');
 		}
 	}
 

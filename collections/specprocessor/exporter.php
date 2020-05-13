@@ -422,7 +422,8 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 									</td>
 								</tr>
 								<?php
-								if($traitArr = $dlManager->getAttributeTraits($collid)){
+								$traitArr = $dlManager->getAttributeTraits($collid);
+								if($traitArr){
 									?>
 									<tr>
 										<td valign="top">
@@ -503,7 +504,9 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 										<div style="margin:10px 0px;">
 											<input type="checkbox" name="identifications" value="1" onchange="extensionSelected(this)" checked /> include Determination History<br/>
 											<input type="checkbox" name="images" value="1" onchange="extensionSelected(this)" checked /> include Image Records<br/>
-											<input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> include Occurrence Trait Attributes (MeasurementOrFact extension)<br/>
+											<?php
+											if($traitArr) echo '<input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> include Occurrence Trait Attributes (MeasurementOrFact extension)<br/>';
+											?>
 											*Output must be a compressed archive
 										</div>
 									</td>

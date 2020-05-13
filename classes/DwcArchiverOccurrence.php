@@ -25,6 +25,8 @@ class DwcArchiverOccurrence{
 		$this->occurDefArr['fields']['catalogNumber'] = 'o.catalogNumber';
 		$this->occurDefArr['terms']['otherCatalogNumbers'] = 'http://rs.tdwg.org/dwc/terms/otherCatalogNumbers';
 		$this->occurDefArr['fields']['otherCatalogNumbers'] = 'o.otherCatalogNumbers';
+		$this->occurDefArr['terms']['higherClassification'] = 'http://rs.tdwg.org/dwc/terms/higherClassification';
+		$this->occurDefArr['fields']['higherClassification'] = '';
 		$this->occurDefArr['terms']['kingdom'] = 'http://rs.tdwg.org/dwc/terms/kingdom';
 		$this->occurDefArr['fields']['kingdom'] = '';
 		$this->occurDefArr['terms']['phylum'] = 'http://rs.tdwg.org/dwc/terms/phylum';
@@ -45,13 +47,17 @@ class DwcArchiverOccurrence{
 		$this->occurDefArr['fields']['scientificNameAuthorship'] = 'IFNULL(t.author,o.scientificNameAuthorship) AS scientificNameAuthorship';
 		$this->occurDefArr['terms']['genus'] = 'http://rs.tdwg.org/dwc/terms/genus';
 		$this->occurDefArr['fields']['genus'] = 'IF(t.rankid >= 180,CONCAT_WS(" ",t.unitind1,t.unitname1),NULL) AS genus';
+		$this->occurDefArr['terms']['subgenus'] = 'http://rs.tdwg.org/dwc/terms/subgenus';
+		$this->occurDefArr['fields']['subgenus'] = '';
 		$this->occurDefArr['terms']['specificEpithet'] = 'http://rs.tdwg.org/dwc/terms/specificEpithet';
 		$this->occurDefArr['fields']['specificEpithet'] = 'CONCAT_WS(" ",t.unitind2,t.unitname2) AS specificEpithet';
-		$this->occurDefArr['terms']['taxonRank'] = 'http://rs.tdwg.org/dwc/terms/taxonRank';
-		$this->occurDefArr['fields']['taxonRank'] = 't.unitind3 AS taxonRank';
+		$this->occurDefArr['terms']['verbatimTaxonRank'] = 'http://rs.tdwg.org/dwc/terms/verbatimTaxonRank';
+		$this->occurDefArr['fields']['verbatimTaxonRank'] = 't.unitind3 AS verbatimTaxonRank';
 		$this->occurDefArr['terms']['infraspecificEpithet'] = 'http://rs.tdwg.org/dwc/terms/infraspecificEpithet';
 		$this->occurDefArr['fields']['infraspecificEpithet'] = 't.unitname3 AS infraspecificEpithet';
- 		$this->occurDefArr['terms']['identifiedBy'] = 'http://rs.tdwg.org/dwc/terms/identifiedBy';
+		$this->occurDefArr['terms']['taxonRank'] = 'http://rs.tdwg.org/dwc/terms/taxonRank';
+		$this->occurDefArr['fields']['taxonRank'] = '';
+		$this->occurDefArr['terms']['identifiedBy'] = 'http://rs.tdwg.org/dwc/terms/identifiedBy';
  		$this->occurDefArr['fields']['identifiedBy'] = 'o.identifiedBy';
  		$this->occurDefArr['terms']['dateIdentified'] = 'http://rs.tdwg.org/dwc/terms/dateIdentified';
  		$this->occurDefArr['fields']['dateIdentified'] = 'o.dateIdentified';
@@ -312,6 +318,7 @@ class DwcArchiverOccurrence{
 					$sqlFrag .= ', "" AS t_'.$fieldName;
 				}
 			}
+			$sqlFrag .= ', t.rankid';
 			$sql = 'SELECT DISTINCT '.trim($sqlFrag,', ');
 		}
 		$sql .= ' FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid '.

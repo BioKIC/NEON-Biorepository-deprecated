@@ -54,7 +54,7 @@
 	</div>
 	<?php
 	if($USER_DISPLAY_NAME){
-	?>
+		?>
 		<div class='menuitem'>
 			Welcome <?php echo $USER_DISPLAY_NAME; ?>!
 		</div>
@@ -64,10 +64,10 @@
 		<div class="menuitem">
 			<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php?submit=logout">Logout</a>
 		</div>
-	<?php
+		<?php
 	}
 	else{
-	?>
+		?>
 		<div class="menuitem">
 			<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['SCRIPT_NAME']."?".htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
 				Log In
@@ -78,7 +78,7 @@
 				New Account
 			</a>
 		</div>
-	<?php
+		<?php
 	}
 	?>
 	<div class='menuitem'>

@@ -48,34 +48,33 @@ $securityCode = ($occArr['localitysecurity']?$occArr['localitysecurity']:0);
 $isEditor = false;
 
 //  If other than HTML was requested, return just that content.
-$done=FALSE;
-$accept = RdfUtility::parseHTTPAcceptHeader($_SERVER['HTTP_ACCEPT']);
-while (!$done && list($key, $mediarange) = each($accept)) {
-	if ($mediarange=='text/turtle' || $format == 'turtle') {
-	   Header("Content-Type: text/turtle; charset=".$CHARSET);
-	   $dwcManager = new DwcArchiverCore();
-	   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-	   echo $dwcManager->getAsTurtle();
-	   $done = TRUE;
+if(isset($_SERVER['HTTP_ACCEPT'])){
+	$done=FALSE;
+	$accept = RdfUtility::parseHTTPAcceptHeader($_SERVER['HTTP_ACCEPT']);
+	while (!$done && list($key, $mediarange) = each($accept)) {
+		if ($mediarange=='text/turtle' || $format == 'turtle') {
+		   Header("Content-Type: text/turtle; charset=".$CHARSET);
+		   $dwcManager = new DwcArchiverCore();
+		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
+		   echo $dwcManager->getAsTurtle();
+		   $done = TRUE;
+		}
+		if ($mediarange=='application/rdf+xml' || $format == 'rdf') {
+		   Header("Content-Type: application/rdf+xml; charset=".$CHARSET);
+		   $dwcManager = new DwcArchiverCore();
+		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
+		   echo $dwcManager->getAsRdfXml();
+		   $done = TRUE;
+		}
+		if ($mediarange=='application/json' || $format == 'json') {
+		   Header("Content-Type: application/json; charset=".$CHARSET);
+		   $dwcManager = new DwcArchiverCore();
+		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
+		   echo $dwcManager->getAsJson();
+		   $done = TRUE;
+		}
 	}
-	if ($mediarange=='application/rdf+xml' || $format == 'rdf') {
-	   Header("Content-Type: application/rdf+xml; charset=".$CHARSET);
-	   $dwcManager = new DwcArchiverCore();
-	   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-	   echo $dwcManager->getAsRdfXml();
-	   $done = TRUE;
-	}
-	if ($mediarange=='application/json' || $format == 'json') {
-	   Header("Content-Type: application/json; charset=".$CHARSET);
-	   $dwcManager = new DwcArchiverCore();
-	   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-	   echo $dwcManager->getAsJson();
-	   $done = TRUE;
-	}
-
-}
-if ($done) {
-  die;
+	if($done) die;
 }
 
 if($SYMB_UID){

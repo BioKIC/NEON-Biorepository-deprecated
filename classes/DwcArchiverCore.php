@@ -20,6 +20,7 @@ class DwcArchiverCore extends Manager{
 	private $condAllowArr;
 	private $overrideConditionLimit = false;
 	private $upperTaxonomy = array();
+	private $taxonRankArr = array();
 
 	private $targetPath;
 	protected $serverDomain;
@@ -704,6 +705,7 @@ class DwcArchiverCore extends Manager{
 		}
 
 		$this->setUpperTaxonomy();
+		$this->setTaxonRank();
 		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
 			$typeArr = null;
 			if($this->schemaType == 'pensoft'){
@@ -787,22 +789,10 @@ class DwcArchiverCore extends Manager{
 					}
 				}
 
-				//Add upper taxonomic data
-				if($r['family'] && $this->upperTaxonomy){
-					$famStr = strtolower($r['family']);
-					if(isset($this->upperTaxonomy[$famStr]['o'])){
-						$r['t_order'] = $this->upperTaxonomy[$famStr]['o'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['c'])){
-						$r['t_class'] = $this->upperTaxonomy[$famStr]['c'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['p'])){
-						$r['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['k'])){
-						$r['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
-					}
-				}
+				$this->appendUpperTaxonomy($r);
+				if(array_key_exists($r['rankid'], $this->taxonRankArr)) $r['t_taxonRank'] = $this->taxonRankArr[$r['rankid']];
+				unset($r['rankid']);
+
 				if($urlPathPrefix) $r['t_references'] = $urlPathPrefix.'collections/individual/index.php?occid='.$r['occid'];
 
 				foreach($r as $rKey => $rValue){
@@ -1646,8 +1636,8 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
-		//Populate Upper Taxonomic data
 		$this->setUpperTaxonomy();
+		$this->setTaxonRank();
 
 		//echo $sql; exit;
 		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
@@ -1739,23 +1729,11 @@ class DwcArchiverCore extends Manager{
 				elseif($this->schemaType == 'backup'){
 					unset($r['collid']);
 				}
-				//Add upper taxonomic data
-				if($r['family'] && $this->upperTaxonomy){
-					$famStr = strtolower($r['family']);
-					if(isset($this->upperTaxonomy[$famStr]['o'])){
-						$r['t_order'] = $this->upperTaxonomy[$famStr]['o'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['c'])){
-						$r['t_class'] = $this->upperTaxonomy[$famStr]['c'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['p'])){
-						$r['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['k'])){
-						$r['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
-					}
-				}
-				//print_r($r); exit;
+
+				$this->appendUpperTaxonomy($r);
+				if(array_key_exists($r['rankid'], $this->taxonRankArr)) $r['t_taxonRank'] = $this->taxonRankArr[$r['rankid']];
+				unset($r['rankid']);
+
 				$this->encodeArr($r);
 				$this->addcslashesArr($r);
 				$this->writeOutRecord($fh,$r);
@@ -2063,7 +2041,40 @@ class DwcArchiverCore extends Manager{
 		}
 	}
 
-	private function setUpperTaxonomy_ver2(){
+	private function setTaxonRank(){
+		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->taxonRankArr[$r->rankid] = $r->rankname;
+		}
+		$rs->free();
+	}
+
+	private function appendUpperTaxonomy(&$targetArr){
+		if($targetArr['family'] && $this->upperTaxonomy){
+			$higherClassification = '';
+			$famStr = strtolower($targetArr['family']);
+			if(isset($this->upperTaxonomy[$famStr]['k'])){
+				$targetArr['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
+				$higherClassification = $targetArr['t_kingdom'];
+			}
+			if(isset($this->upperTaxonomy[$famStr]['p'])){
+				$targetArr['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
+				$higherClassification .= ','.$targetArr['t_phylum'];
+			}
+			if(isset($this->upperTaxonomy[$famStr]['c'])){
+				$targetArr['t_class'] = $this->upperTaxonomy[$famStr]['c'];
+				$higherClassification .= ','.trim($targetArr['t_class'],',');
+			}
+			if(isset($this->upperTaxonomy[$famStr]['o'])){
+				$targetArr['t_order'] = $this->upperTaxonomy[$famStr]['o'];
+				$higherClassification .= ','.trim($targetArr['t_class'],',');
+			}
+			$targetArr['t_higherClassification'] = trim($higherClassification,', ');
+		}
+	}
+
+	private function appendFullUpperTaxonomy(){
 		if(!$this->upperTaxonomy){
 			$sqlOrder = 'SELECT t.sciname AS family, t2.sciname AS taxonorder '.
 					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.

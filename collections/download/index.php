@@ -74,6 +74,8 @@ $dwcManager = new DwcArchiverCore();
 		}
 
 		function validateDownloadForm(f){
+			workingcircle
+			document.getElementById("workingcircle").style.display = "inline";
 			return true;
 		}
 
@@ -247,6 +249,7 @@ $dwcManager = new DwcArchiverCore();
 									<input name="sourcepage" type="hidden" value="<?php echo $sourcePage; ?>" />
 									<input name="searchvar" type="hidden" value="<?php echo str_replace('"','&quot;',$searchVar); ?>" />
 									<button type="submit" name="submitaction">Download Data</button>
+									<img id="workingcircle" src="../../images/ajax-loader_sm.gif" style="margin-bottom:-4px;width:20px;display:none;" />
 								</div>
 							</td>
 						</tr>

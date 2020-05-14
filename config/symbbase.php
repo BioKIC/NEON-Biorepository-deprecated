@@ -78,11 +78,8 @@ if(!isset($REPRODUCTIVE_CONDITION_TERMS) && isset($reproductiveConditionTerms)) 
 if(!isset($GLOSSARY_EXPORT_BANNER) && isset($glossaryExportBanner)) $GLOSSARY_EXPORT_BANNER = $glossaryExportBanner;
 
 //temporatly needed until all variables within code are mapped to constants
-if(!isset($clientRoot) && isset($CLIENT_ROOT)) $clientRoot = $CLIENT_ROOT;
-if(!isset($serverRoot) && isset($SERVER_ROOT)) $serverRoot = $SERVER_ROOT;
 if(!isset($defaultLang) && isset($DEFAULT_LANG)) $defaultLang = $DEFAULT_LANG;
 if(!isset($defaultProjId) && isset($DEFAULT_PROJ_ID)) $defaultProjId = $DEFAULT_PROJ_ID;
-if(!isset($defaultTitle) && isset($DEFAULT_TITLE)) $defaultTitle = $DEFAULT_TITLE;
 if(!isset($adminEmail) && isset($ADMIN_EMAIL)) $adminEmail = $ADMIN_EMAIL;
 if(!isset($charset) && isset($CHARSET)) $charset = $CHARSET;
 if(!isset($tempDirRoot) && isset($TEMP_DIR_ROOT)) $tempDirRoot = $TEMP_DIR_ROOT;

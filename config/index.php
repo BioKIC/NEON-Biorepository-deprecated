@@ -1,13 +1,11 @@
 <?php
-//error_reporting(E_ALL);
 include_once('../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 header("Location: ".$CLIENT_ROOT."/index.php");
-
 ?>
 <html>
 	<head>
-		<title>Page</title>
+		<title>Forbidden</title>
 		<?php
 		$activateJQuery = false;
 		if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -23,7 +21,7 @@ header("Location: ".$CLIENT_ROOT."/index.php");
 	<body>
 		<?php
 		$displayLeftMenu = true;
-		include($serverRoot.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<!-- This is inner text! -->
 		<div id="innertext">
@@ -36,7 +34,7 @@ header("Location: ".$CLIENT_ROOT."/index.php");
 			</div>
 		</div>
 		<?php
-			include($serverRoot.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

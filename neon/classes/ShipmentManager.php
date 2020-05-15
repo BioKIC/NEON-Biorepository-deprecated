@@ -226,6 +226,7 @@ class ShipmentManager{
 				$indexMap[$targetField][$sourceField] = $index;
 			}
 			echo '<li>Beginning to load records...</li>';
+			$errCnt = 0;
 			while($recordArr = fgetcsv($fh)){
 				$recMap = Array('filename' => $this->uploadFileName);
 				$dynPropArr = array();
@@ -252,13 +253,13 @@ class ShipmentManager{
 				}
 				if($this->shipmentPK === false) $this->shipmentPK = $this->loadShipmentRecord($recMap);
 				if($this->shipmentPK){
-					$status = $this->addSample($recMap,true);
+					if(!$this->addSample($recMap,true)) $errCnt++;
 					$recCnt++;
 				}
 				unset($recMap);
 			}
 			fclose($fh);
-			if(!$status) echo '<li><span style="color:red">Errors, warnings, and/or notices occurrenced during the upload process. Please review list above for more details.</li>';
+			if($errCnt) echo '<li><span style="color:red">Important: '.$errCnt.' errors, warnings, and/or notices occurrenced during the upload process. Review list above for more details.</li>';
 			echo '<li>Complete!!!</li>';
 		}
 		else{
@@ -575,9 +576,13 @@ class ShipmentManager{
 				}
 				else{
 					if($this->conn->errno == 1062){
-						$this->errorStr = 'Sample already exists with sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].
-						'" target="_blank" onclick="window.close()">'.$recArr['sampleid'].'</a>';
-						if($verbose) echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> '.$this->errorStr.'</li>';
+						if(strpos($this->conn->error,'sampleCode')){
+							$this->errorStr = 'barcode: <a href="manifestviewer.php?quicksearch='.$recArr['samplecode'].'" target="_blank">'.$recArr['samplecode'].'</a>';
+						}
+						else{
+							$this->errorStr = 'sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].'" target="_blank" >'.$recArr['sampleid'].'</a>';
+						}
+						if($verbose) echo '<li style="margin-left:15px"><span style="color:red">FAILURE:</span> record already exits with '.$this->errorStr.'</li>';
 					}
 					else{
 						$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;

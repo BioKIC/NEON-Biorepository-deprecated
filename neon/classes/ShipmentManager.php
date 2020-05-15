@@ -380,32 +380,46 @@ class ShipmentManager{
 
 	public function checkinSample($sampleID, $sampleReceived, $acceptedForAnalysis, $condition, $alternativeSampleID, $notes){
 		$status = 3;
-		// status: 0 = check-in failed, 1 = check-in success, 2 = sample already checked-in, 3 = sample not found
+		$samplePK = 0;
+		// status: 0 = check-in failed, 1 = check-in success, 2 = sample already checked-in, 3 = sample not found, 4 = shipment not yet checked in
 		if($sampleID){
-			$samplePK = 0;
-			$sql = 'SELECT samplePK, alternativeSampleID, checkinTimestamp FROM NeonSample '.
-				'WHERE (sampleID = "'.$this->cleanInStr($sampleID).'" OR sampleCode = "'.$this->cleanInStr($sampleID).'") ';
-			if($this->shipmentPK) $sql .= 'AND (shipmentpk = '.$this->shipmentPK.') ';
+			//Make sure shipment has been checked in
+			$sql = 'SELECT p.checkintimestamp '.
+				'FROM NeonShipment p INNER JOIN NeonSample s ON p.shipmentpk = s.shipmentpk '.
+				'WHERE s.sampleID = "'.$this->cleanInStr($sampleID).'" OR s.sampleCode = "'.$this->cleanInStr($sampleID).'"';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$samplePK = $r->samplePK;
-				if($alternativeSampleID && $r->alternativeSampleID && $alternativeSampleID != $r->alternativeSampleID) $alternativeSampleID .= '; '.$r->alternativeSampleID;
-				if($r->checkinTimestamp) $status = 2;
-				else $status = 1;
+				if(!$r->checkintimestamp) $status = 4;
+				else $status = 0;
 			}
 			$rs->free();
-			if($status == 1 && $samplePK){
-				$sampleReceived = ($sampleReceived?1:0);
-				if($acceptedForAnalysis === '') $acceptedForAnalysis = 'NULL';
-				else $acceptedForAnalysis = ($acceptedForAnalysis?1:0);
-				$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.' ';
-				if($condition) $sqlUpdate .= ', sampleCondition = CONCAT_WS("; ",sampleCondition,"'.$this->cleanInStr($condition).'") ';
-				if($notes) $sqlUpdate .= ', checkinRemarks = "'.$this->cleanInStr($notes).'" ';
-				if($alternativeSampleID) $sqlUpdate .= ', alternativeSampleID = "'.$this->cleanInStr($alternativeSampleID).'" ';
-				$sqlUpdate .= 'WHERE (samplePK = "'.$samplePK.'") ';
-				if(!$this->conn->query($sqlUpdate)){
-					$this->errorStr = 'ERROR checking-in NEON sample: '.$this->conn->error;
-					$status = 0;
+
+			if(!$status){
+				//Check to see if sample has already been checked in
+				$sql = 'SELECT samplePK, alternativeSampleID, checkinTimestamp FROM NeonSample WHERE (sampleID = "'.$this->cleanInStr($sampleID).'" OR sampleCode = "'.$this->cleanInStr($sampleID).'") ';
+				if($this->shipmentPK) $sql .= 'AND (shipmentpk = '.$this->shipmentPK.') ';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$samplePK = $r->samplePK;
+					if($alternativeSampleID && $r->alternativeSampleID && $alternativeSampleID != $r->alternativeSampleID) $alternativeSampleID .= '; '.$r->alternativeSampleID;
+					if($r->checkinTimestamp) $status = 2;
+					else $status = 1;
+				}
+				$rs->free();
+				if($status == 1 && $samplePK){
+					//Let's check-in sample
+					$sampleReceived = ($sampleReceived?1:0);
+					if($acceptedForAnalysis === '') $acceptedForAnalysis = 'NULL';
+					else $acceptedForAnalysis = ($acceptedForAnalysis?1:0);
+					$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = '.$sampleReceived.', acceptedForAnalysis = '.$acceptedForAnalysis.' ';
+					if($condition) $sqlUpdate .= ', sampleCondition = CONCAT_WS("; ",sampleCondition,"'.$this->cleanInStr($condition).'") ';
+					if($notes) $sqlUpdate .= ', checkinRemarks = "'.$this->cleanInStr($notes).'" ';
+					if($alternativeSampleID) $sqlUpdate .= ', alternativeSampleID = "'.$this->cleanInStr($alternativeSampleID).'" ';
+					$sqlUpdate .= 'WHERE (samplePK = "'.$samplePK.'") ';
+					if(!$this->conn->query($sqlUpdate)){
+						$this->errorStr = 'ERROR checking-in NEON sample: '.$this->conn->error;
+						$status = 0;
+					}
 				}
 			}
 		}

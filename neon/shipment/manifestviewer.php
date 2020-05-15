@@ -571,81 +571,105 @@ include($SERVER_ROOT.'/includes/header.php');
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 											<fieldset style="width:450px;">
 												<legend>Batch Check-in Selected Samples</legend>
-												<div class="displayFieldDiv">
-													<b>Sample Received:</b>
-													<input name="sampleReceived" type="radio" value="1" checked /> Yes
-													<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" /> No
-												</div>
-												<div class="displayFieldDiv">
-													<b>Accepted for Analysis:</b>
-													<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
-													<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
-												</div>
-												<div class="displayFieldDiv">
-													<b>Sample Condition:</b>
-													<select name="sampleCondition">
-														<option value="">Not Set</option>
-														<option value="">--------------------------------</option>
-														<?php
-														$condArr = $shipManager->getConditionArr();
-														foreach($condArr as $condKey => $condValue){
-															echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
-														}
-														?>
-													</select>
-												</div>
-												<div class="displayFieldDiv">
-													<b>Check-in Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
-												</div>
-												<div style="margin:5px 10px">
-													<button name="action" type="submit" value="batchCheckin">Check-in Selected Samples</button>
-												</div>
+												<?php
+												if($shipArr['checkinTimestamp']){
+													?>
+													<div class="displayFieldDiv">
+														<b>Sample Received:</b>
+														<input name="sampleReceived" type="radio" value="1" checked /> Yes
+														<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" /> No
+													</div>
+													<div class="displayFieldDiv">
+														<b>Accepted for Analysis:</b>
+														<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
+														<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
+													</div>
+													<div class="displayFieldDiv">
+														<b>Sample Condition:</b>
+														<select name="sampleCondition">
+															<option value="">Not Set</option>
+															<option value="">--------------------------------</option>
+															<?php
+															$condArr = $shipManager->getConditionArr();
+															foreach($condArr as $condKey => $condValue){
+																echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
+															}
+															?>
+														</select>
+													</div>
+													<div class="displayFieldDiv">
+														<b>Check-in Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
+													</div>
+													<div style="margin:5px 10px">
+														<button name="action" type="submit" value="batchCheckin" >Check-in Selected Samples</button>
+													</div>
+													<?php
+												}
+												else{
+													echo '<div style="color:orange;margin-bottom:140px">Shipment needs to be checked in before you can check-in samples</div>';
+												}
+												?>
 											</fieldset>
 										</div>
-										<div style="margin:15px;float:left">
-											<div style="margin:5px;">
-												<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+										<?php
+										if($shipArr['checkinTimestamp']){
+											?>
+											<div style="margin:15px;float:left">
+												<div style="margin:5px;">
+													<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+												</div>
+												<fieldset style="margin:5px">
+													<legend>Occurrence Harvesting</legend>
+													<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest</button>
+													<div style="margin:10px" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
+														<input name="replaceFieldValues" type="checkbox" value="1" /> Replace Existing Field Values
+													</div>
+												</fieldset>
 											</div>
-											<fieldset style="margin:5px">
-												<legend>Occurrence Harvesting</legend>
-												<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest</button>
-												<div style="margin:10px" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
-													<input name="replaceFieldValues" type="checkbox" value="1" /> Replace Existing Field Values
-												</div>
-											</fieldset>
-										</div>
+											<?php
+										}
+										?>
 									</form>
 									<div style="clear:both">
 										<div style="float:left;margin-left:15px;">
 											<fieldset style="width:450px;">
 												<a id="receiptStatus"></a>
 												<legend>Receipt Status</legend>
-												<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
-													<?php
-													$receiptStatus = '';
-													if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
-													$statusArr = explode(':', $receiptStatus);
-													if($statusArr) $receiptStatus = $statusArr[0];
+												<?php
+												if($shipArr['checkinTimestamp']){
 													?>
-													<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
-													<b>Status Not Set</b><br/>
-													<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
-													<b>Receipt Downloaded</b><br/>
-													<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
-													<b>Receipt Submitted to NEON</b>
-													<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-													<input name="action" type="hidden" value="receiptsubmitted" />
-												</form>
-												<div style="margin:15px">
-													<form name="exportReceiptForm" action="exporthandler.php" method="post">
+													<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
+														<?php
+														$receiptStatus = '';
+														if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
+														$statusArr = explode(':', $receiptStatus);
+														if($statusArr) $receiptStatus = $statusArr[0];
+														?>
+														<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
+														<b>Status Not Set</b><br/>
+														<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
+														<b>Receipt Downloaded</b><br/>
+														<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
+														<b>Receipt Submitted to NEON</b>
 														<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-														<input name="exportTask" type="hidden" value="receipt" />
-														<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
+														<input name="action" type="hidden" value="receiptsubmitted" />
 													</form>
-													<div style="margin-top:15px">
-														<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
+													<div style="margin:15px">
+														<form name="exportReceiptForm" action="exporthandler.php" method="post">
+															<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+															<input name="exportTask" type="hidden" value="receipt" />
+															<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
+														</form>
+														<div style="margin-top:15px">
+															<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
+														</div>
 													</div>
-												</div>
+													<?php
+												}
+												else{
+													echo '<div style="color:orange;margin-bottom:140px">Shipment needs to be checked in before receipt can be submitted</div>';
+												}
+												?>
 											</fieldset>
 										</div>
 										<div style="float:left;margin-left:30px;">

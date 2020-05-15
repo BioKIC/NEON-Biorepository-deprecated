@@ -80,6 +80,10 @@ if($IS_ADMIN){
 							$("#checkinText").css('color', 'red');
 							$("#checkinText").text('sample not found!');
 						}
+						else if(retJson.status == 4){
+							$("#checkinText").css('color', 'red');
+							$("#checkinText").text('shipment must be checked in first!');
+						}
 						else{
 							$("#checkinText").css('color', 'red');
 							$("#checkinText").text('Failed: unknown error!');
@@ -87,7 +91,7 @@ if($IS_ADMIN){
 						$("#checkinText").animate({fontSize: "125%"}, "slow");
 						$("#checkinText").animate({fontSize: "100%"}, "slow");
 						$("#checkinText").animate({fontSize: "125%"}, "slow");
-						$("#checkinText").animate({fontSize: "100%"}, "slow").delay(5000).fadeOut();
+						$("#checkinText").animate({fontSize: "100%"}, "slow").delay(6000).fadeOut();
 						f.identifier.focus();
 					});
 				}
@@ -134,12 +138,12 @@ if($IS_ADMIN){
 			<?php
 			if($isEditor){
 				?>
-				<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:0px;right:200px">
-					<fieldset>
+				<div id="sampleCheckinDiv" style="width:900">
+					<fieldset style="width:100%">
 						<legend><b>Sample Check-in</b></legend>
 						<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
 							<div class="displayFieldDiv">
-								<b>Identifier:</b> <input name="identifier" type="text" style="width:250px" required />
+								<b>Identifier:</b> <input name="identifier" type="text" style="width:275px" required />
 								<div id="checkinText" style="display:inline"></div>
 							</div>
 							<div class="displayFieldDiv">

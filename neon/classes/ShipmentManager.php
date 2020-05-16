@@ -1039,8 +1039,15 @@ class ShipmentManager{
 	public function transferOccurrence($occid,$targetCollid){
 		$retCode = 0;
 		if(is_numeric($occid) && is_numeric($targetCollid)){
-			$sql = 'UPDATE omoccurrences SET collid = '.$targetCollid.' WHERE occid = '.$occid;
-			if($this->conn->query($sql)){
+			$attrStr = '';
+			$sql = 'SELECT datasetname FROM omcollections WHERE collid = '.$targetCollid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$attrStr = $r->datasetname;
+			}
+			$rs->free();
+			$sql2 = 'UPDATE omoccurrences SET collid = '.$targetCollid.', verbatimAttributes = '.($attrStr?'"'.$attrStr.'"':NULL).' WHERE occid = '.$occid;
+			if($this->conn->query($sql2)){
 				$retCode = 1;
 			}
 		}

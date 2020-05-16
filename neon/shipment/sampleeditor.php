@@ -178,7 +178,7 @@ if($isEditor){
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo isset($sampleArr['sampleClass'])?$sampleArr['sampleClass']:''; ?>" onchange="checkCollectionTransfer(this.form)" style="width:250px" required />
+						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo isset($sampleArr['sampleClass'])?$sampleArr['sampleClass']:''; ?>" onchange="checkCollectionTransfer(this.form)" style="width:300px" required />
 					</div>
 					<div class="fieldDiv">
 						<b>Quarantine Status:</b>

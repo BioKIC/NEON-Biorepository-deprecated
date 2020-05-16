@@ -211,7 +211,7 @@ class ShipmentManager{
 
 	public function uploadData(){
 		$status = true;
-		$this->shipmentPK = false;
+		$shipmentArr = array();
 		if($this->uploadFileName){
 			echo '<li>Initiating import from: '.$this->uploadFileName.'</li>';
 			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
@@ -251,27 +251,30 @@ class ShipmentManager{
 				if($symTargetArr){
 					$recMap['symbiotatarget'] = json_encode($symTargetArr);
 				}
-				if($this->shipmentPK === false) $this->shipmentPK = $this->loadShipmentRecord($recMap);
+				$recMap = array_change_key_case($recMap);
+				if(!array_key_exists($recMap['shipmentid'],$shipmentArr)) $shipmentArr[$recMap['shipmentid']] = $this->loadShipmentRecord($recMap);
+				$this->shipmentPK = $shipmentArr[$recMap['shipmentid']];
 				if($this->shipmentPK){
 					if(!$this->addSample($recMap,true)) $errCnt++;
 					$recCnt++;
+					if(!$recCnt%1000){
+						echo '<li>'.$recCnt.' record loaded</li>';
+					}
 				}
 				unset($recMap);
 			}
 			fclose($fh);
-			if($errCnt) echo '<li><span style="color:red">Important: '.$errCnt.' errors, warnings, and/or notices occurrenced during the upload process. Review list above for more details.</li>';
-			echo '<li>Complete!!!</li>';
+			echo '<li>Complete: '.$recCnt.' records loaded</li>';
 		}
 		else{
 			$this->outputMsg('<li>File Upload FAILED: unable to locate file</li>');
 		}
-		return $this->shipmentPK;
+		return $shipmentArr;
 	}
 
-	public function loadShipmentRecord($recArr){
+	private function loadShipmentRecord($recArr){
 		$shipmentPK = 0;
 		$trackingId = '';
-		$recArr = array_change_key_case($recArr);
 		if(isset($recArr['trackingnumber'])){
 			$trackingId = trim($recArr['trackingnumber'],' #');
 			$trackingId = str_replace(array("\n",','), ';', $trackingId);
@@ -293,7 +296,7 @@ class ShipmentManager{
 		//echo '<div>'.$sql.'</div>';
 		if($this->conn->query($sql)){
 			$shipmentPK = $this->conn->insert_id;
-			echo '<li>Shipment record loaded...</li>';
+			echo '<li>New shipment created (#<a href="manifestviewer.php?shipmentPK='.$shipmentPK.'" target="_blank">'.$recArr['shipmentid'].'</a>)</li>';
 		}
 		else{
 			if($this->conn->errno == 1062){
@@ -303,7 +306,7 @@ class ShipmentManager{
 					$shipmentPK = $r->shipmentpk;
 				}
 				$rs->free();
-				echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> Shipment record with that shipmentID already exists (shipmentPK: '.$shipmentPK.')...</li>';
+				echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
 			}
 			else{
 				echo '<li style="margin-left:15px"><span style="color:red">ERROR</span> loading shipment record (errNo: '.$this->conn->errno.'): '.$this->conn->error.'</li>';
@@ -553,8 +556,7 @@ class ShipmentManager{
 						$status = $this->editSample($recArr);
 						$insertRecord = false;
 						if($verbose){
-							if($status) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' updated...</li>';
-							else echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> '.$this->errorStr.'</li>';
+							if(!$status) echo '<li style="margin-left:15px"><span style="color:orange">NOTICE:</span> '.$this->errorStr.'</li>';
 						}
 					}
 					$rs->free();
@@ -579,7 +581,6 @@ class ShipmentManager{
 					(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
 				if($this->conn->query($sql)){
 					$status = true;
-					if($verbose) echo '<li style="margin-left:15px">Sample record '.$recArr['sampleid'].' loaded...</li>';
 					if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
 						$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = 1, acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
 						if(!$this->conn->query($sqlUpdate)){
@@ -596,13 +597,13 @@ class ShipmentManager{
 						else{
 							$this->errorStr = 'sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].'" target="_blank" >'.$recArr['sampleid'].'</a>';
 						}
-						if($verbose) echo '<li style="margin-left:15px"><span style="color:red">FAILURE:</span> record already exits with '.$this->errorStr.'</li>';
+						if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
 					}
 					else{
 						$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
 						if($verbose){
 							echo '<li style="margin-left:15px">'.$this->errorStr.'</li>';
-							echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
+							//echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
 						}
 					}
 					$status = false;

@@ -181,11 +181,20 @@ if($isEditor){
 				$loaderManager->setUploadFileName($ulFileName);
 				$loaderManager->setFieldMap($fieldMap);
 				if(array_key_exists('reloadSamples',$_POST)) $loaderManager->setReloadSampleRecs($_POST['reloadSamples']);
-				$shipmentPK = $loaderManager->uploadData();
+				$shipmentPKArr = $loaderManager->uploadData();
 				echo '</ul>';
-				echo '<div style="margin:10px 0px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">Proceed to Manifest Check-in</a></div>';
-				echo '<div style="margin:10px 0px"><a href="manifestloader.php">Load Another Manifest</a></div>';
-				echo '<div style="margin:10px 0px"><a href="manifestsearch.php">List and Search Manifests</a></div>';
+				?>
+				<fieldset>
+					<legend><b>Manifests Associated with Shipment</b></legend>
+					<?php
+					foreach($shipmentPKArr as $shipmentID => $shipmentPK){
+						echo '<div style="margin-left:10px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">#'.$shipmentID.'</a></div>';
+					}
+					?>
+				</fieldset>
+				<div style="margin:10px 0px"><a href="manifestloader.php">Load Another Manifest</a></div>
+				<div style="margin:10px 0px"><a href="manifestsearch.php">List and Search Manifests</a></div>
+				<?php
 			}
 			else{
 				?>

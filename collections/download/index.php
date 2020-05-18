@@ -116,7 +116,7 @@ $dwcManager = new DwcArchiverCore();
 		<h2>Data Usage Guidelines</h2>
 	 	 <div style="margin:15px;">
 	 	 	By downloading data, the user confirms that he/she has read and agrees with the general
-	 	 	<a href="../../misc/usagepolicy.php#images">data usage terms</a>.
+	 	 	<a href="../../includes/usagepolicy.php#images">data usage terms</a>.
 	 	 	Note that additional terms of use specific to the individual collections
 	 	 	may be distributed with the data download. When present, the terms
 	 	 	supplied by the owning institution should take precedence over the

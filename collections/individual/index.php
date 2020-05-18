@@ -895,12 +895,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						?>
 						<div style="margin:5px 0px 5px 0px;">
 							<?php
-							if($rightsStr){
-								echo $rightsStr;
-							}
-							else{
-								echo '<a href="../../misc/usagepolicy.php">General Data Usage Policy</a>';
-							}
+							if($rightsStr) echo $rightsStr;
+							else echo '<a href="../../includes/usagepolicy.php">General Data Usage Policy</a>';
 							?>
 						</div>
 						<div style="margin:3px 0px;"><b>Record ID:</b> <?php echo $occArr['guid']; ?></div>

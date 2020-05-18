@@ -379,7 +379,7 @@ if($imgArr){
 							echo "</div>";
 						}
 						else{
-							echo '<div><a href="../misc/usagepolicy.php#images">Copyright Details</a></div>';
+							echo '<div><a href="../includes/usagepolicy.php#images">Copyright Details</a></div>';
 						}
 						if($imgArr["occid"]) echo '<div><a href="../collections/individual/index.php?occid='.$imgArr['occid'].'">Display Specimen Details</a></div>';
 						echo '<div><a href="'.$imgUrl.'">Open Medium Sized Image</a></div>';

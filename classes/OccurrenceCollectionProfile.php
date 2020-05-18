@@ -192,8 +192,8 @@ class OccurrenceCollectionProfile extends Manager {
 			$outStr .= $rights;
 			if($rightsUrl) $outStr .= '</a>';
 		}
-		elseif(file_exists('../../misc/usagepolicy.php')){
-			$outStr .= '<a href="../../misc/usagepolicy.php" target="_blank">'.(isset($LANG['USAGE_POLICY'])?$LANG['USAGE_POLICY']:'Usage policy').'</a>';
+		elseif(file_exists('../../includes/usagepolicy.php')){
+			$outStr .= '<a href="../../includes/usagepolicy.php" target="_blank">'.(isset($LANG['USAGE_POLICY'])?$LANG['USAGE_POLICY']:'Usage policy').'</a>';
 		}
 		$outStr .= '</div>';
 		if($collArr['rightsholder']){

@@ -248,7 +248,7 @@ include($SERVER_ROOT.'/includes/header.php');
 		<div style="margin:10px;">
 			<h3>Data Usage Policy:</h3>
 			Use of these datasets requires agreement with the terms and conditions in our
-			<a href="../../misc/usagepolicy.php">Data Usage Policy</a>.
+			<a href="../../includes/usagepolicy.php">Data Usage Policy</a>.
 			Locality details for rare, threatened, or sensitive records have been redacted from these data files.
 			One must contact the collections directly to obtain access to sensitive locality data.
 		</div>

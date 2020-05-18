@@ -81,7 +81,7 @@
 						<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/index.php" >Browse Images</a>
 					</li>
 					<li>
-						<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Use Policy</a>
+						<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">Data Use Policy</a>
 					</li>
 					<li>
 						<a href="http://ucjeps.berkeley.edu/consortium/about.html" target="_blank">About CCH</a>

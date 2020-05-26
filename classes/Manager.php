@@ -40,7 +40,7 @@ class Manager  {
 		if($this->verboseMode){
 			if($this->verboseMode == 3 || $this->verboseMode == 1){
 				if($this->logFH){
-					fwrite($this->logFH,str_repeat("\t", $indexLevel).$str."\n");
+					fwrite($this->logFH,str_repeat("\t", $indexLevel).strip_tags($str)."\n");
 				}
 			}
 			if($this->verboseMode == 3 || $this->verboseMode == 2){
@@ -65,6 +65,14 @@ class Manager  {
 
    public function getWarningArr(){
 		return $this->warningArr;
+	}
+
+	protected function getDomainPath(){
+		$urlDomain = "http://";
+		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlDomain = "https://";
+		$urlDomain .= $_SERVER["SERVER_NAME"];
+		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $urlDomain .= ':'.$_SERVER["SERVER_PORT"];
+		return $urlDomain;
 	}
 
 	protected function cleanOutStr($str){

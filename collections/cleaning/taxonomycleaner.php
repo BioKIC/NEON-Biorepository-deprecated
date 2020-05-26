@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyCleaner.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/taxonomycleaner.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/taxonomycleaner.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST["collid"]:0;
 $autoClean = array_key_exists('autoclean',$_POST)?$_POST['autoclean']:0;
@@ -34,9 +34,17 @@ elseif($activeCollArr){
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Occurrence Taxon Cleaner</title>
-		<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css?ver=3" type="text/css" rel="Stylesheet" />
+    <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 		<script src="../../js/jquery-3.2.1.min.js?ver=3" type="text/javascript"></script>
 		<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js?ver=3" type="text/javascript"></script>
 		<script>
@@ -143,7 +151,7 @@ elseif($activeCollArr){
 	<body>
 		<?php
 		$displayLeftMenu = (isset($taxa_admin_taxonomycleanerMenu)?$taxa_admin_taxonomycleanerMenu:'true');
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class='navpath'>
 			<a href="../../index.php">Home</a> &gt;&gt;
@@ -346,6 +354,6 @@ elseif($activeCollArr){
 			}
 			?>
 		</div>
-		<?php include($SERVER_ROOT.'/footer.php');?>
+		<?php include($SERVER_ROOT.'/includes/footer.php');?>
 	</body>
 </html>

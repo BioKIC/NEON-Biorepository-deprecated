@@ -6,6 +6,7 @@ class OccurrenceHarvester{
 	private $conn;
 	private $stateArr = array();
 	private $sampleClassArr = array();
+	private $replaceFieldValues = false;
 	private $errorStr;
 
  	public function __construct(){
@@ -21,6 +22,7 @@ class OccurrenceHarvester{
 		$retArr = array();
 		$sql = 'SELECT SUBSTRING_INDEX(s.errorMessage,":",1) AS errMsg, COUNT(s.samplePK) as sampleCnt, COUNT(o.occid) as occurrenceCnt '.
 			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
+			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 '.
 			'GROUP BY errMsg';
 		$rs= $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -35,6 +37,7 @@ class OccurrenceHarvester{
 
 	public function batchHarvestOccid($postArr){
 		set_time_limit(3600);
+		if(isset($postArr['replaceFieldValues']) && $postArr['replaceFieldValues']) $this->setReplaceFieldValues(true);
 		$sqlWhere = '';
 		if(isset($postArr['scbox'])){
 			$sqlWhere = 'AND s.samplePK IN('.implode(',',$postArr['scbox']).')';
@@ -48,10 +51,10 @@ class OccurrenceHarvester{
 				$sqlWhere .= 'AND (o.'.$postArr['nullfilter'].' IS NULL) ';
 				if($postArr['nullfilter'] == 'sciname') $sqlWhere .= 'AND (o.collid NOT IN(5,23,30,31,41,42)) AND (s.sampleid REGEXP BINARY "\.[0-9]{8}\.[A-Z]{3,8}[0-9]{0,2}\.") ';
 			}
-			if($postArr['errorStr'] == 'noError'){
+			if($postArr['errorStr'] == 'nullError'){
 				$sqlWhere .= 'AND (s.errorMessage IS NULL) ';
 			}
-			else{
+			elseif($postArr['errorStr']){
 				$sqlWhere .= 'AND (s.errorMessage LIKE "'.$this->cleanInStr($postArr['errorStr']).'%") ';
 			}
 			$sqlWhere .= 'ORDER BY s.shipmentPK ';
@@ -67,7 +70,7 @@ class OccurrenceHarvester{
 				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
 					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-					'WHERE '.substr($sqlWhere,3);
+					'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 '.$sqlWhere;
 				//echo $sql.'<br/>'; exit;
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
@@ -75,7 +78,7 @@ class OccurrenceHarvester{
 						$shipmentPK = $r->shipmentPK;
 						echo '<li><b>Processing shipment #'.$shipmentPK.'</b></li>';
 					}
-					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?'Appending':'Harvesting').' '.$r->sampleID.'... ';
+					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?($this->replaceFieldValues?'Rebuilding':'Appending'):'Harvesting').' '.$r->sampleID.'... ';
 					$sampleArr = array();
 					$sampleArr['samplePK'] = $r->samplePK;
 					$sampleArr['sampleID'] = strtoupper($r->sampleID);
@@ -207,25 +210,26 @@ class OccurrenceHarvester{
 		$viewArr = current($sampleViewArr['sampleViews']);
 		//parse Sample Event details
 		$eventArr = $viewArr['sampleEvents'];
+		$earliestDate = '2050-01-01';
+		$preferredLocation = '';
 		foreach($eventArr as $k => $eArr){
 			if(substr($eArr['ingestTableName'],0,4) == 'scs_') continue;
-			if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false){
-				$fieldArr = $eArr['smsFieldEntries'];
-				foreach($fieldArr as $k => $fArr){
-					if($fArr['smsKey'] == 'fate_location'){
-						$viewArr['namedLocation'] = $fArr['smsValue'];
-					}
-					/*
-					 elseif($fArr['smsKey'] == 'fate_date'){
-						 if($fArr['smsValue']){
-							 $viewArr['collectDate'] = $this->formatDate($fArr['smsValue']);
-						 }
-					}
-					*/
-				}
+			$fateLocation = '';
+			$fateDate = '';
+			$fieldArr = $eArr['smsFieldEntries'];
+			foreach($fieldArr as $k => $fArr){
+				if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
+				elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
+			}
+			if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false && $fateLocation){
+				$preferredLocation = $fateLocation;
 				break;
 			}
+			elseif($fateDate && $fateDate < $earliestDate){
+				$preferredLocation = $fateLocation;
+			}
 		}
+		if($preferredLocation) $viewArr['namedLocation'] = $preferredLocation;
 
 		//Get parent identifier
 		if(isset($viewArr['parentSampleIdentifiers'][0]['sampleUuid'])){
@@ -290,7 +294,7 @@ class OccurrenceHarvester{
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
 				//Get data that was provided within manifest
 				$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
-				if($sampleArr['collectDate']) $dwcArr['eventDate'] = $sampleArr['collectDate'];
+				if($sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
 				if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
 				if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
 
@@ -306,7 +310,7 @@ class OccurrenceHarvester{
 						$this->adjustMosquitoData($sampleArr, $dwcArr);
 					}
 				}
-				else{
+				elseif(!isset($dwcArr['eventDate'])){
 					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
@@ -320,7 +324,7 @@ class OccurrenceHarvester{
 				}
 				else{
 					$dwcArr['locality'] = $sampleArr['namedLocation'];
-					$this->setSampleErrorMessage($sampleArr['samplePK'], 'locatity data failed to populate');
+					$this->setSampleErrorMessage($sampleArr['samplePK'], 'locality data failed to populate');
 					//return false;
 				}
 
@@ -328,7 +332,7 @@ class OccurrenceHarvester{
 					$dwcArr['sciname'] = $sampleArr['taxonID'];
 				}
 				else{
-					if(!in_array($dwcArr['collid'], array(5,21,23,30,31,41,42))){
+					if(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,57))){
 						if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
 							$dwcArr['sciname'] = $m[1];
 						}
@@ -355,13 +359,12 @@ class OccurrenceHarvester{
 
 	private function setCollectionIdentifier(&$dwcArr,$sampleClass){
 		$status = false;
-		$sql = 'SELECT collid FROM omcollections WHERE (collectionID LIKE "%'.$sampleClass.'%")';
+		$sql = 'SELECT collid FROM omcollections WHERE (datasetID = "'.$sampleClass.'") OR (datasetID LIKE "%,'.$sampleClass.',%") OR (datasetID LIKE "'.$sampleClass.',%") OR (datasetID LIKE "%,'.$sampleClass.'")';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows == 1){
-			while($r = $rs->fetch_object()){
-				$dwcArr['collid'] = $r->collid;
-				$status = true;
-			}
+			$r = $rs->fetch_object();
+			$dwcArr['collid'] = $r->collid;
+			$status = true;
 		}
 		$rs->free();
 		return $status;
@@ -494,13 +497,32 @@ class OccurrenceHarvester{
 			$sql = '';
 			if($occid){
 				$skipFieldArr = array('occid','collid');
+				if($this->replaceFieldValues){
+					//Only replace values that have not yet been expllicitly modified
+					$sqlEdit = 'SELECT DISTINCT fieldname FROM omoccuredits WHERE occid = '.$occid;
+					$rsEdit = $this->conn->query($sqlEdit);
+					while($rEdit = $rsEdit->fetch_object()){
+						$skipFieldArr[] = $rEdit->fieldname;
+					}
+					$rsEdit->free();
+				}
 				foreach($dwcArr as $fieldName => $fieldValue){
-					if(!in_array($fieldName,$skipFieldArr)){
-						if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
-							$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.','.$this->cleanInStr($fieldValue).') ';
+					if(!in_array(strtolower($fieldName),$skipFieldArr)){
+						if($this->replaceFieldValues){
+							if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+								$sql .= ', '.$fieldName.' = '.$this->cleanInStr($fieldValue).' ';
+							}
+							else{
+								$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
+							}
 						}
 						else{
-							$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
+							if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+								$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.','.$this->cleanInStr($fieldValue).') ';
+							}
+							else{
+								$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
+							}
 						}
 					}
 				}
@@ -523,7 +545,6 @@ class OccurrenceHarvester{
 				}
 				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').',dateentered) VALUES('.trim($sql2,',').',NOW())';
 			}
-			//echo '<br/>'.$sql.'<br/>';
 			if($this->conn->query($sql)){
 				if(!$occid){
 					$occid = $this->conn->insert_id;
@@ -664,7 +685,12 @@ class OccurrenceHarvester{
 			*/
 
 			//Run custon stored procedure that preforms some special assignment tasks
-			if(!$this->conn->query('call higher_taxon_assignment()')){
+			if(!$this->conn->query('call occurrence_harvesting_sql()')){
+				echo 'ERROR running stored procedure: '.$sql;
+			}
+
+			//Run stored procedure that protects rare and sensitive species
+			if(!$this->conn->query('call sensitive_species_protection()')){
 				echo 'ERROR running stored procedure: '.$sql;
 			}
 		}
@@ -702,6 +728,10 @@ class OccurrenceHarvester{
 
 
 	//Setters and getters
+	public function setReplaceFieldValues($bool){
+		if($bool) $this->replaceFieldValues = true;
+	}
+
 	public function getErrorStr(){
 		return $this->errorStr;
 	}

@@ -64,16 +64,16 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 					  	for (i = 0; i < gtsObj.length; i++) {
 					  		var rankid = gtsObj[i].rankid;
 							if(rankid == 10 || rankid == 20){
-								$("select[name=eon]").val(gtsObj[i].value);
+								if($("select[name=eon]").val() == "") $("select[name=eon]").val(gtsObj[i].value);
 							}
 							else if(rankid == 30){
-								$("select[name=era]").val(gtsObj[i].value);
+								if($("select[name=era]").val() == "") $("select[name=era]").val(gtsObj[i].value);
 							}
 							else if(rankid == 40){
-								$("select[name=period]").val(gtsObj[i].value);
+								if($("select[name=period]").val() == "") $("select[name=period]").val(gtsObj[i].value);
 							}
 							else if(rankid == 50){
-								$("select[name=epoch]").val(gtsObj[i].value);
+								if($("select[name=epoch]").val() == "") $("select[name=epoch]").val(gtsObj[i].value);
 							}
 					  	}
 					});
@@ -83,7 +83,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 	}
 </script>
 <fieldset>
-	<legend><b>Paleontology</b></legend>
+	<legend>Paleontology</legend>
 	<div style="clear:both">
 		<div id="eonDiv">
 			<?php echo (defined('EONLABEL')?EONLABEL:'Eon'); ?>
@@ -181,14 +181,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 		<div id="absoluteAgeDiv">
 			<?php echo (defined('ABSOLUTEAGELABEL')?ABSOLUTEAGELABEL:'Absolute Age'); ?>
 			<a href="#" onclick="return dwcDoc('absoluteAge')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-			<select name="absoluteage" onchange="fieldChanged('absoluteage');">
-				<option value=""></option>
-				<?php
-				foreach($gtsTermArr as $term => $rankid){
-					if($rankid == 60) echo '<option value="'.$term.'" '.(isset($occArr['absoluteage']) && $occArr['absoluteage']==$term?'SELECTED':'').'>'.$term.'</option>';
-				}
-				?>
-			</select>
+			<input type="text" name="absoluteage" value="<?php echo isset($occArr['absoluteage'])?$occArr['absoluteage']:''; ?>" onchange="fieldChanged('absoluteage');" />
 		</div>
 		<div id="storageAgeDiv">
 			<?php echo (defined('STORAGEAGELABEL')?STORAGEAGELABEL:'Storage Age'); ?>
@@ -273,6 +266,11 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<?php echo (defined('SLIDEPROPERTIESLABEL')?SLIDEPROPERTIESLABEL:'Slide Properties'); ?>
 			<a href="#" onclick="return dwcDoc('slideProperties')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 			<input type="text" name="slideproperties" value="<?php echo isset($occArr['slideproperties'])?$occArr['slideproperties']:''; ?>" onchange="fieldChanged('slideproperties');" />
+		</div>
+		<div id="geologicalContextIdDiv">
+			<?php echo (defined('GEOLOGICALCONTEXTIDLABEL')?GEOLOGICALCONTEXTIDLABEL:'Context ID'); ?>
+			<a href="#" onclick="return dwcDoc('geologicalContextID')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
+			<input type="text" name="geologicalcontextid" value="<?php echo isset($occArr['geologicalcontextid'])?$occArr['geologicalcontextid']:''; ?>" onchange="fieldChanged('geologicalcontextid');" />
 		</div>
 	</div>
 </fieldset>

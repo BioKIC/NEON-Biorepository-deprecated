@@ -5,7 +5,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../taxa/profile/eolmapper.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../taxa/profile/eolmapper.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $submitAction = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 $statusStr = array_key_exists('status',$_REQUEST)?$_REQUEST['status']:'';
@@ -22,8 +22,17 @@ $eolManager = new EOLManager();
 <head>
 	<title><?php echo $DEFAULT_TITLE." EOL Manager: "; ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>"/>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+    <?php
+      $activateJQuery = false;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 	<script language=javascript>
 
 	</script>
@@ -31,7 +40,7 @@ $eolManager = new EOLManager();
 <body>
 <?php
 $displayLeftMenu = false;
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class='navpath'>";
 	<a href="../index.php">Home</a> &gt;&gt;
@@ -133,7 +142,7 @@ include($SERVER_ROOT.'/header.php');
 		?>
 	</div>
 	<?php 
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

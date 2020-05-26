@@ -92,7 +92,6 @@ function coordInputSelected(formElem){
 	if(formElem.checked == true){
 		var f = formElem.form;
 		var name = formElem.name;
-		if(name != "latlngor") f.latlngor.checked = false;
 		if(name != "onlycoord") f.onlycoord.checked = false;
 		if(name != "includewkt") f.includewkt.checked = false;
 		if(name == "includewkt"){

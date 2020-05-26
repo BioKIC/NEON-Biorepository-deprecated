@@ -182,9 +182,6 @@ class ChecklistVoucherAdmin {
 			if(preg_match('/collid = (\d+)\D/',$sqlFrag,$m)){
 				$retArr['collid'] = $m[1];
 			}
-			if(preg_match('/ OR \(\(o.decimallatitude/',$sqlFrag) || preg_match('/ OR \(\(o.decimallongitude/',$sqlFrag)){
-				$retArr['latlngor'] = 1;
-			}
 			if(preg_match('/decimallatitude/',$sqlFrag)){
 				$retArr['onlycoord'] = 1;
 			}
@@ -196,7 +193,7 @@ class ChecklistVoucherAdmin {
 	}
 
 	public function saveQueryVariables($postArr){
-		$fieldArr = array('country','state','county','locality','taxon','collid','recordedby','latnorth','latsouth','lngeast','lngwest','latlngor','onlycoord','includewkt','excludecult');
+		$fieldArr = array('country','state','county','locality','taxon','collid','recordedby','latnorth','latsouth','lngeast','lngwest','onlycoord','includewkt','excludecult');
 		$jsonArr = array();
 		foreach($fieldArr as $fieldName){
 			if(isset($postArr[$fieldName]) && $postArr[$fieldName]) $jsonArr[$fieldName] = $postArr[$fieldName];
@@ -220,7 +217,7 @@ class ChecklistVoucherAdmin {
 		return $statusStr;
 	}
 
-	public function getQueryVariablesArr(){
+	public function getQueryVariableArr(){
 		return $this->queryVariablesArr;
 	}
 
@@ -239,7 +236,6 @@ class ChecklistVoucherAdmin {
 		if(isset($this->queryVariablesArr['latsouth']) && isset($this->queryVariablesArr['latnorth'])) $retStr .= 'Lat between '.$this->queryVariablesArr['latsouth'].' and '.$this->queryVariablesArr['latnorth'].'; ';
 		if(isset($this->queryVariablesArr['lngwest']) && isset($this->queryVariablesArr['lngeast'])) $retStr .= 'Long between '.$this->queryVariablesArr['lngwest'].' and '.$this->queryVariablesArr['lngeast'].'; ';
 		if(isset($this->queryVariablesArr['includewkt'])) $retStr .= 'Search based on polygon; ';
-		if(isset($this->queryVariablesArr['latlngor'])) $retStr .= 'Include Lat/Long and locality as an "OR" condition; ';
 		if(isset($this->queryVariablesArr['excludecult'])) $retStr .= 'Exclude cultivated/captive records; ';
 		if(isset($this->queryVariablesArr['onlycoord'])) $retStr .= 'Only include occurrences with coordinates; ';
 		return trim($retStr,' ;');
@@ -264,10 +260,19 @@ class ChecklistVoucherAdmin {
 			}
 			$sqlFrag .= 'AND ('.substr($cStr, 2).') ';
 		}
+		//taxonomy
+		if(isset($this->queryVariablesArr['taxon']) && $this->queryVariablesArr['taxon']){
+			$tStr = $this->cleanInStr($this->queryVariablesArr['taxon']);
+			$tidPar = $this->getTid($tStr);
+			if($tidPar){
+				$sqlFrag .= 'AND (o.tidinterpreted IN (SELECT ts.tid FROM taxaenumtree e INNER JOIN taxstatus ts ON e.tid = ts.tidaccepted WHERE ts.taxauthid = 1 AND e.taxauthid = 1 AND e.parenttid = '.$tidPar.')) ';
+			}
+		}
+		//Locality and Latitude and longitude
+		$locStr = '';
 		if(isset($this->queryVariablesArr['locality']) && $this->queryVariablesArr['locality']){
 			$localityStr = str_replace(';',',',$this->queryVariablesArr['locality']);
 			$locArr = explode(',', $localityStr);
-			$locStr = '';
 			foreach($locArr as $str){
 				$str = $this->cleanInStr($str);
 				if(strlen($str) > 4){
@@ -278,46 +283,30 @@ class ChecklistVoucherAdmin {
 				}
 				//$locStr .= 'OR (o.locality LIKE "%'.$this->cleanInStr($str).'%") ';
 			}
-			$sqlFrag .= 'AND ('.substr($locStr, 2).') ';
 		}
-		//taxonomy
-		if(isset($this->queryVariablesArr['taxon']) && $this->queryVariablesArr['taxon']){
-			$tStr = $this->cleanInStr($this->queryVariablesArr['taxon']);
-			$tidPar = $this->getTid($tStr);
-			if($tidPar){
-				$sqlFrag .= 'AND (o.tidinterpreted IN (SELECT tid FROM taxaenumtree WHERE taxauthid = 1 AND parenttid = '.$tidPar.')) ';
-			}
-			/*
-			 if(strpos($tStr,'aceae') || strpos($tStr,'idae')){
-			 $sqlFrag .= 'AND (o.family LIKE "'.$tStr.'") ';
-			 }
-			 else{
-			 $sqlFrag .= 'AND (o.sciname LIKE "'.$tStr.'%") ';
-			 }
-			 */
-		}
-		//Latitude and longitude
 		$llStr = '';
 		if(isset($this->queryVariablesArr['latnorth']) && isset($this->queryVariablesArr['latsouth']) && is_numeric($this->queryVariablesArr['latnorth']) && is_numeric($this->queryVariablesArr['latsouth'])){
-			$llStr .= 'AND (o.decimallatitude BETWEEN '.$this->queryVariablesArr['latsouth'].' AND '.$this->queryVariablesArr['latnorth'].') ';
-		}
-		if(isset($this->queryVariablesArr['lngwest']) && isset($this->queryVariablesArr['lngeast']) && is_numeric($this->queryVariablesArr['lngwest']) && is_numeric($this->queryVariablesArr['lngeast'])){
-			$llStr .= 'AND (o.decimallongitude BETWEEN '.$this->queryVariablesArr['lngwest'].' AND '.$this->queryVariablesArr['lngeast'].') ';
-		}
-		if(isset($this->queryVariablesArr['latlngor']) && $this->queryVariablesArr['latlngor']){
-			//Query coordinates or locality string
-			if($llStr){
-				$llStr = 'OR ('.trim(substr($llStr,3)).') ';
-				$sqlFrag .= $llStr;
+			if(isset($this->queryVariablesArr['lngwest']) && isset($this->queryVariablesArr['lngeast']) && is_numeric($this->queryVariablesArr['lngwest']) && is_numeric($this->queryVariablesArr['lngeast'])){
+				$llStr .= '(o.decimallatitude BETWEEN '.$this->queryVariablesArr['latsouth'].' AND '.$this->queryVariablesArr['latnorth'].') '.
+					'AND (o.decimallongitude BETWEEN '.$this->queryVariablesArr['lngwest'].' AND '.$this->queryVariablesArr['lngeast'].') ';
 			}
 		}
-		elseif(isset($this->queryVariablesArr['onlycoord']) && $this->queryVariablesArr['onlycoord']){
-			//Use occurrences only with decimallatitude
-			$sqlFrag .= 'AND (o.decimallatitude IS NOT NULL) ';
-		}
-		elseif(isset($this->queryVariablesArr['includewkt']) && $this->queryVariablesArr['includewkt']){
+		if(isset($this->queryVariablesArr['includewkt']) && $this->queryVariablesArr['includewkt'] && $this->footprintWkt){
 			//Searh based on polygon
-			if($this->footprintWkt) $sqlFrag .= 'AND (ST_Within(p.point,GeomFromText("'.$this->footprintWkt.'"))) ';
+			$sqlFrag .= 'AND (ST_Within(p.point,GeomFromText("'.$this->footprintWkt.'"))) ';
+			$llStr = false;
+		}
+		if(isset($this->queryVariablesArr['latlngor']) && $this->queryVariablesArr['latlngor'] && $locStr && $llStr){
+			//Query coordinates or locality string
+			$sqlFrag .= 'AND (('.substr($locStr, 2).') OR ('.trim($llStr).')) ';
+		}
+		else{
+			if($locStr) $sqlFrag .= 'AND ('.substr($locStr, 2).') ';
+			if($llStr) $sqlFrag .= 'AND ('.trim($llStr).') ';
+		}
+		if(isset($this->queryVariablesArr['onlycoord']) && $this->queryVariablesArr['onlycoord'] && !$llStr && $llStr !== false){
+			//Use occurrences only with coordinates
+			$sqlFrag .= 'AND (o.decimallatitude IS NOT NULL) ';
 		}
 		//Exclude taxonomy
 		if(isset($this->queryVariablesArr['excludecult']) && $this->queryVariablesArr['excludecult']){
@@ -325,9 +314,8 @@ class ChecklistVoucherAdmin {
 		}
 		//Limit by collection
 		if(isset($this->queryVariablesArr['collid']) && is_numeric($this->queryVariablesArr['collid'])){
-			$sqlFrag .= 'AND (o.collid = '.$this->queryVariablesArr['collid'].') ';
+			$sqlFrag .= 'AND (o.collid IN('.$this->queryVariablesArr['collid'].')) ';
 		}
-
 		//Limit by collector
 		if(isset($this->queryVariablesArr['recordedby']) && $this->queryVariablesArr['recordedby']){
 			$collStr = str_replace(',', ';', $this->queryVariablesArr['recordedby']);
@@ -344,7 +332,6 @@ class ChecklistVoucherAdmin {
 			}
 			$sqlFrag .= 'AND ('.implode(' OR ', $tempArr).') ';
 		}
-
 		//Save SQL fragment
 		if($sqlFrag) $sqlFrag = trim(substr($sqlFrag,3));
 		return $sqlFrag;
@@ -525,6 +512,79 @@ class ChecklistVoucherAdmin {
 		return $tidRet;
 	}
 
+	public function getVoucherProjects(){
+		global $USER_RIGHTS;
+		$retArr = array();
+		$runQuery = true;
+		$sql = 'SELECT collid, collectionname FROM omcollections WHERE (colltype = "Observations" OR colltype = "General Observations") ';
+		if(!array_key_exists('SuperAdmin',$USER_RIGHTS)){
+			$collInStr = '';
+			foreach($USER_RIGHTS as $k => $v){
+				if($k == 'CollAdmin' || $k == 'CollEditor'){
+					$collInStr .= ','.implode(',',$v);
+				}
+			}
+			if($collInStr){
+				$sql .= 'AND collid IN ('.substr($collInStr,1).') ';
+			}
+			else{
+				$runQuery = false;
+			}
+		}
+		$sql .= 'ORDER BY colltype,collectionname';
+		//echo $sql;
+		if($runQuery){
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$retArr[$r->collid] = $r->collectionname;
+				}
+				$rs->free();
+			}
+			if($retArr){
+				//Tag collection most likely to be target
+				$sql = 'SELECT o.collid, COUNT(v.occid) as cnt FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
+					'WHERE v.clid = '.$this->clid.' AND o.collid IN('.implode(',', array_keys($retArr)).') GROUP BY o.collid ORDER BY cnt DESC';
+				if($rs = $this->conn->query($sql)){
+					if($r = $rs->fetch_object()) $retArr['target'] = $r->collid;
+					$rs->free();
+				}
+			}
+		}
+		return $retArr;
+	}
+
+	public function hasVoucherProjects(){
+		global $USER_RIGHTS;
+		$retBool = false;
+		$runQuery = true;
+		$sql = 'SELECT collid, collectionname FROM omcollections WHERE (colltype = "Observations" OR colltype = "General Observations") ';
+		if(!array_key_exists('SuperAdmin',$USER_RIGHTS)){
+			$collInStr = '';
+			foreach($USER_RIGHTS as $k => $v){
+				if($k == 'CollAdmin' || $k == 'CollEditor'){
+					$collInStr .= ','.implode(',',$v);
+				}
+			}
+			if($collInStr){
+				$sql .= 'AND collid IN ('.substr($collInStr,1).') ';
+			}
+			else{
+				$runQuery = false;
+			}
+		}
+		$sql .= ' LIMIT 1';
+		//echo $sql;
+		if($runQuery){
+			if($rs = $this->conn->query($sql)){
+				if($r = $rs->fetch_object()){
+					$retBool = true;
+				}
+				$rs->free();
+			}
+		}
+		return $retBool;
+	}
+
 	//Setters and getters
 	public function getClid(){
 		return $this->clid;
@@ -536,6 +596,10 @@ class ChecklistVoucherAdmin {
 
 	public function getClName(){
 		return $this->clName;
+	}
+
+	public function getClMetadata(){
+		return $this->clMetadata;
 	}
 
 	public function getClFootprintWkt(){

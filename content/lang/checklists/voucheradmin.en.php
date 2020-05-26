@@ -8,6 +8,7 @@ Language: English
 $LANG['NAV_HOME'] = 'Home';
 $LANG['CHECKADMIN'] = 'Checklist Administration';
 $LANG['RETURNCHECK'] = 'Return to Checklist';
+$LANG['ADDIMGVOUCHER'] = 'Add Image Voucher';
 $LANG['EDITSEARCH'] = 'Edit Search Statement';
 $LANG['COUNTRY'] = 'Country';
 $LANG['STATE'] = 'State';
@@ -22,7 +23,6 @@ $LANG['LATN'] = 'Lat North';
 $LANG['LATS'] = 'Lat South';
 $LANG['LONGE'] = 'Long East';
 $LANG['LONGW'] = 'Long West';
-$LANG['INCLUDELATLONG'] = 'Match on Lat/Long OR locality (include non-georeferenced occurrences)';
 $LANG['ONLYCOORD'] = 'Only include occurrences with coordinates';
 $LANG['POLYGON_SEARCH'] = 'Search based on polygon defining checklist research boundaries';
 $LANG['EXCLUDE'] = 'Exclude cultivated/captive occurrences';

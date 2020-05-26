@@ -21,9 +21,17 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE.' '.$LANG['PAGE_TITLE']; ?></title>
-		<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link href="../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
+		<?php
+		$activateJQuery = true;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+		}
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 		<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 		<script src="../js/symb/collections.index.js?ver=20171215" type="text/javascript"></script>
@@ -41,20 +49,20 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 			});
 		</script>
 		<script type="text/javascript">
-			<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+			<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 		</script>
 	</head>
 	<body>
 
 	<?php
 	$displayLeftMenu = (isset($collections_indexMenu)?$collections_indexMenu:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_indexCrumbs)){
 		if($collections_indexCrumbs){
-			echo "<div class='navpath'>";
+			echo '<div class="navpath">';
 			echo $collections_indexCrumbs;
 			echo ' <b>'.$LANG['NAV_COLLECTIONS'].'</b>';
-			echo "</div>";
+			echo '</div>';
 		}
 	}
 	else{
@@ -68,6 +76,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 	<div id="innertext">
 		<div class="disclaimer">
 			<p><span>Please note:</span> this search integrates NEON samples with voucher specimens from the same sites in other natural history collections, allowing for research on biodiversity at NEON sites over a broader taxonomic and temporal extent. <span>Scroll towards the end of the page to activate or deactivate the search in the external collections</span>.</p>
+			<p>Additionally, not all collections are currently available. If you would like to be notified via email when a collection becomes available, please sign up <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE0NCJfObUji6r9tRDuH4sSGyKHFDw2IoqVYHm9Vtg7cnKrg/viewform?usp=sf_link">here</a>.</p>
 		</div>
         <div id="tabs" style="margin:0px;">
 			<ul>
@@ -141,7 +150,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 							<fieldset style="margin:10px;padding:10px;">
 								<legend style="font-weight:bold;"><?php echo $catTitle; ?></legend>
 								<div style="margin:0px 15px;float:right;">
-									<input type="submit" class="nextbtn searchcollnextbtn" value="<?php echo isset($LANG['BUTTON_NEXT'])?$LANG['BUTTON_NEXT']:'Next >'; ?>" />
+									<button type="submit" name="submitaction"><?php echo isset($LANG['BUTTON_NEXT'])?$LANG['BUTTON_NEXT']:'Next >'; ?></button>
 								</div>
 								<?php
 								$projTitleArr = $otherCatArr['titles'][$catPid]['proj'];
@@ -182,7 +191,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	</body>
 </html>

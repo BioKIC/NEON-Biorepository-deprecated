@@ -27,32 +27,25 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 	//Image browser functions
 	public function getFamilyList(){
 		$returnArray = Array();
-		$sql = 'SELECT DISTINCT ts.Family ';
-		$sql .= $this->getListSql();
-		$sql .= 'AND (ts.Family Is Not Null) ';
-		//echo $sql;
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
-			$returnArray[] = $row->Family;
+		$sql = 'SELECT DISTINCT ts.Family '.$this->getListSql().' AND (ts.Family Is Not Null) ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$returnArray[] = $r->Family;
 		}
-		$result->free();
+		$rs->free();
 		sort($returnArray);
 		return $returnArray;
 	}
 
 	public function getGenusList($taxon = ''){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT t.UnitName1 ';
-		$sql .= $this->getListSql();
-		if($taxon){
-			$taxon = $this->cleanInStr($taxon);
-			$sql .= "AND (ts.Family = '".$taxon."') ";
+		$sql = 'SELECT DISTINCT t.UnitName1 '.$this->getListSql();
+		if($taxon) $sql .= "AND (ts.Family = '".$this->cleanInStr($taxon)."') ";
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[] = $r->UnitName1;
 		}
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
-			$retArr[] = $row->UnitName1;
-		}
-		$result->free();
+		$rs->free();
 		sort($retArr);
 		return $retArr;
 	}
@@ -61,42 +54,37 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		$retArr = Array();
 		$tidArr = Array();
 		if($taxon){
+			$this->setTaxonRequestVariable(array('taxa'=>$taxon,'usethes'=>1,'taxontype'=>2));
+			foreach($this->taxaArr['taxa'] as $taxName => $taxArr){
+				if(isset($taxArr['tid'])) $tidArr = array_merge($tidArr,array_keys($taxArr['tid']));
+				if(isset($taxArr['synonyms'])) $tidArr = array_merge($tidArr,array_keys($taxArr['synonyms']));
+			}
 			$taxon = $this->cleanInStr($taxon);
-			if(strpos($taxon, ' ')) $tidArr = array_keys($this->getSynonyms($taxon));
 		}
-		$sql = 'SELECT DISTINCT t.tid, t.SciName ';
-		$sql .= $this->getListSql();
-		if($tidArr){
-			$sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (t.tid IN('.implode(',', $tidArr).'))) ';
+		$sql = 'SELECT DISTINCT t.tid, t.SciName '.$this->getListSql();
+		if($tidArr) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (t.tid IN('.implode(',', $tidArr).')) OR (e.parenttid IN('.implode(',', $tidArr).'))) ';
+		elseif($taxon) $sql .= "AND ((t.SciName LIKE '".$taxon."%') OR (ts.family = '".$taxon."')) ";
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->tid] = $r->SciName;
 		}
-		elseif($taxon){
-			$sql .= "AND ((t.SciName LIKE '".$taxon."%') OR (ts.family = '".$taxon."')) ";
-		}
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
-			$retArr[$row->tid] = $row->SciName;
-		}
-		$result->free();
+		$rs->free();
 		asort($retArr);
 		return $retArr;
 	}
 
 	private function getListSql(){
-		$sql = 'FROM images i INNER JOIN taxa t ON i.tid = t.tid '.
-			'INNER JOIN taxstatus ts ON t.tid = ts.tid ';
+		$sql = 'FROM images i INNER JOIN taxstatus ts ON i.tid = ts.tid '.
+			'INNER JOIN taxa t ON ts.tidaccepted = t.tid '.
+			'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
 		if(array_key_exists("tags",$this->searchTermArr) && $this->searchTermArr["tags"]){
 			$sql .= 'INNER JOIN imagetag it ON i.imgid = it.imgid ';
 		}
 		if(array_key_exists("keywords",$this->searchTermArr) && $this->searchTermArr["keywords"]){
 			$sql .= 'INNER JOIN imagekeywords ik ON i.imgid = ik.imgid ';
 		}
-		if($this->tidFocus) $sql .= 'INNER JOIN taxaenumtree e ON ts.tid = e.tid ';
-		if($this->sqlWhere){
-			$sql .= $this->sqlWhere.' AND ';
-		}
-		else{
-			$sql .= 'WHERE ';
-		}
+		if($this->sqlWhere) $sql .= $this->sqlWhere.' AND ';
+		else $sql .= 'WHERE ';
 		$sql .= '(ts.taxauthid = 1) AND (t.RankId > 219) ';
 		if($this->tidFocus) $sql .= 'AND (e.parenttid IN('.$this->tidFocus.')) AND (e.taxauthid = 1) ';
 		return $sql;
@@ -104,35 +92,50 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 
 	//Image contributor listings
 	public function getCollectionImageList(){
-		//Get collection names
-		$stagingArr = array();
-		$sql = 'SELECT collid, CONCAT(collectionname, " (", CONCAT_WS("-",institutioncode,collectioncode),")") as collname, colltype FROM omcollections ORDER BY collectionname';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$stagingArr[$r->collid]['name'] = $r->collname;
-			$stagingArr[$r->collid]['type'] = (strpos($r->colltype,'Observations') !== false?'obs':'coll');
-		}
-		$rs->free();
-		//Get image counts
-		$sql = 'SELECT o.collid, COUNT(i.imgid) AS imgcnt '.
-			'FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid ';
-		if($this->tidFocus){
-			$sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid '.
-				'WHERE (e.parenttid IN('.$this->tidFocus.')) AND (e.taxauthid = 1) ';
-		}
-		$sql .= 'GROUP BY o.collid ';
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
-			$stagingArr[$row->collid]['imgcnt'] = $row->imgcnt;
-		}
-		$result->free();
-		//Only return collections with images
 		$retArr = array();
-		foreach($stagingArr as $id => $collArr){
-			if(array_key_exists('imgcnt', $collArr)){
-				$retArr[$collArr['type']][$id]['imgcnt'] = $collArr['imgcnt'];
-				$retArr[$collArr['type']][$id]['name'] = $collArr['name'];
+		if($this->tidFocus){
+			//Get collection names
+			$stagingArr = array();
+			$sql = 'SELECT collid, CONCAT(collectionname, " (", CONCAT_WS("-",institutioncode,collectioncode),")") as collname, colltype FROM omcollections ORDER BY collectionname';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$stagingArr[$r->collid]['name'] = $r->collname;
+				$stagingArr[$r->collid]['type'] = (strpos($r->colltype,'Observations') !== false?'obs':'coll');
 			}
+			$rs->free();
+			//Get image counts
+			$sql = 'SELECT o.collid, COUNT(i.imgid) AS imgcnt FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid ';
+			if($this->tidFocus) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid WHERE (e.parenttid IN('.$this->tidFocus.')) AND (e.taxauthid = 1) ';
+			$sql .= 'GROUP BY o.collid ';
+			$result = $this->conn->query($sql);
+			while($row = $result->fetch_object()){
+				$stagingArr[$row->collid]['imgcnt'] = $row->imgcnt;
+			}
+			$result->free();
+			//Only return collections with images
+			foreach($stagingArr as $id => $collArr){
+				if(array_key_exists('imgcnt', $collArr)){
+					$retArr[$collArr['type']][$id]['imgcnt'] = number_format($collArr['imgcnt']);
+					$retArr[$collArr['type']][$id]['name'] = $collArr['name'];
+				}
+			}
+		}
+		else{
+			$sql = 'SELECT c.collid, CONCAT(c.collectionname, " (", CONCAT_WS("-",c.institutioncode,c.collectioncode),")") as collname, c.colltype, '.
+				'SUBSTRING_INDEX(SUBSTRING_INDEX(s.dynamicProperties,\'"imgcnt":"\',-1),\'"\',1) as imgcnt '.
+				'FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid '.
+				'WHERE s.dynamicProperties LIKE "%imgcnt%" '.
+				'ORDER BY collectionname';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$imgCntArr = explode(':',$r->imgcnt);
+				if($imgCntArr[0]){
+					$collType = (strpos($r->colltype,'Observations') !== false?'obs':'coll');
+					$retArr[$collType][$r->collid]['name'] = $r->collname;
+					$retArr[$collType][$r->collid]['imgcnt'] = number_format($imgCntArr[0]);
+				}
+			}
+			$rs->free();
 		}
 		return $retArr;
 	}
@@ -141,17 +144,13 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		$retArr = array();
 		$sql = 'SELECT u.uid, CONCAT_WS(", ", u.lastname, u.firstname) as pname, CONCAT_WS(", ", u.firstname, u.lastname) as fullname, u.email, Count(ti.imgid) AS imgcnt '.
 			'FROM users u INNER JOIN images ti ON u.uid = ti.photographeruid ';
-		if($this->tidFocus){
-			$sql .= 'INNER JOIN taxaenumtree e ON ti.tid = e.tid '.
-				'WHERE (e.parenttid IN('.$this->tidFocus.')) AND (e.taxauthid = 1) ';
-		}
-		$sql .= 'GROUP BY u.uid '.
-			'ORDER BY u.lastname, u.firstname';
+		if($this->tidFocus) $sql .= 'INNER JOIN taxaenumtree e ON ti.tid = e.tid WHERE (e.parenttid IN('.$this->tidFocus.')) AND (e.taxauthid = 1) ';
+		$sql .= 'GROUP BY u.uid ORDER BY u.lastname, u.firstname';
 		$result = $this->conn->query($sql);
 		while($row = $result->fetch_object()){
 			$retArr[$row->uid]['name'] = $row->pname;
 			$retArr[$row->uid]['fullname'] = $row->fullname;
-			$retArr[$row->uid]['imgcnt'] = $row->imgcnt;
+			$retArr[$row->uid]['imgcnt'] = number_format($row->imgcnt);
 		}
 		$result->free();
 		return $retArr;
@@ -365,7 +364,8 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 							$rankid = current($searchArr['tid']);
 							$tidArr = array_keys($searchArr['tid']);
 							$sqlWhereTaxa .= "OR (i.tid IN(".implode(',',$tidArr).")) ";
-							if($rankid < 230) $sqlWhereTaxa .= 'OR ((e.taxauthid = '.$this->taxAuthId.') AND (e.parenttid IN('.implode(',', $tidArr).')) AND (ts.taxauthid = '.$this->taxAuthId.' AND ts.tid = ts.tidaccepted)) ';
+							if($rankid < 220) $sqlWhereTaxa .= 'OR ((e.taxauthid = '.$this->taxAuthId.') AND (e.parenttid IN('.implode(',', $tidArr).')) AND (ts.taxauthid = '.$this->taxAuthId.' AND ts.tid = ts.tidaccepted)) ';
+							elseif($rankid == 220) $sqlWhereTaxa .= 'OR (ts.parenttid IN('.implode(',', $tidArr).') AND ts.taxauthid = '.$this->taxAuthId.' AND ts.tid = ts.tidaccepted) ';
 						}
 						else{
 							//Return matches for "Pinus a"
@@ -413,14 +413,13 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 				$sqlWhere .= 'AND (i.occid IS NULL) ';
 			}
 		}
-		if($sqlWhere){
-			$this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
-		}
+		if(strpos($sqlWhere,'ts.taxauthid')) $sqlWhere = str_replace('i.', 'ts.', $sqlWhere);
+		if($sqlWhere) $this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
 		//echo $this->sqlWhere;
 	}
 
 	private function setRecordCnt(){
-		$sql = '';
+		$sql = 'SELECT COUNT(DISTINCT i.imgid) AS cnt ';
 		if(array_key_exists("imagecount",$this->searchTermArr) && $this->searchTermArr["imagecount"]){
 			if($this->searchTermArr["imagecount"] == 'taxon'){
 				$sql = "SELECT COUNT(DISTINCT i.tid) AS cnt ";
@@ -431,9 +430,6 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 			else{
 				$sql = "SELECT COUNT(DISTINCT i.imgid) AS cnt ";
 			}
-		}
-		else{
-			$sql = "SELECT COUNT(DISTINCT i.imgid) AS cnt ";
 		}
 		$sql .= 'FROM images i ';
 		if($this->taxaArr){
@@ -489,7 +485,7 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		else{
 			$sql = 'SELECT tid, vernacularname FROM taxavernaculars WHERE VernacularName LIKE "'.$queryString.'%" LIMIT 10 ';
 		}
-		$rs = $con->query($sql);
+		$rs = $this->conn->query($sql);
 		while ($r = $rs->fetch_object()) {
 			$retArr[$r->tid] = htmlspecialchars($r->sciname);
 		}

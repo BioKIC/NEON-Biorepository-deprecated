@@ -38,8 +38,17 @@ if($IS_ADMIN){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> User Management</title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+  <?php
+      $activateJQuery = false;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 	<style type="text/css">
 		th{ font-size: 90% }
 	</style>
@@ -47,7 +56,7 @@ if($IS_ADMIN){
 <body>
 	<?php
 	$displayLeftMenu = (isset($profile_usermanagementMenu)?$profile_usermanagementMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($profile_usermanagementCrumbs)){
 		echo "<div class='navpath'>";
 		echo "<a href='../index.php'>Home</a> &gt; ";
@@ -499,7 +508,7 @@ if($IS_ADMIN){
 										?>
 										<td>
 											<?php
-											echo '<a href="'.$clientRoot.'/collections/misc/collprofiles.php?collid='.$collid.'&emode=1" target="_blank" >';
+											echo '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$collid.'&emode=1" target="_blank" >';
 											echo $cArr['collectionname'];
 											echo ' ('.$cArr['institutioncode'].($cArr['collectioncode']?'-'.$cArr['collectioncode']:'').')';
 											echo '</a>';
@@ -547,7 +556,7 @@ if($IS_ADMIN){
 										?>
 										<td>
 											<?php
-											echo '<a href="'.$clientRoot.'/collections/misc/collprofiles.php?collid='.$obsid.'&emode=1" target="_blank" >';
+											echo '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$obsid.'&emode=1" target="_blank" >';
 											echo $oArr['collectionname'];
 											echo ' ('.$oArr['institutioncode'].($oArr['collectioncode']?'-'.$oArr['collectioncode']:'').')';
 											echo '</a>';
@@ -585,7 +594,7 @@ if($IS_ADMIN){
 										</td>
 										<td>
 											<?php
-											echo '<a href="'.$clientRoot.'/collections/misc/collprofiles.php?collid='.$genObsID.'&emode=1" target="_blank" >';
+											echo '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$genObsID.'&emode=1" target="_blank" >';
 											echo $genObjArr['collectionname'];
 											echo ' ('.$genObjArr['institutioncode'].($genObjArr['collectioncode']?'-'.$genObjArr['collectioncode']:'').')';
 											echo '</a>';
@@ -667,7 +676,7 @@ if($IS_ADMIN){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

@@ -17,14 +17,27 @@ if($IS_ADMIN){
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Sample Check-in</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
-		<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
+		<?php
+		$activateJQuery = true;
+		include_once($SERVER_ROOT.'/includes/head.php');
+		?>
 		<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			function checkinSample(f){
-				if(f.acceptedForAnalysis.value == 0){
+				if(f.sampleReceived.value == "0"){
+					if(f.acceptedForAnalysis.value != "" || f.sampleCondition.value != ""){
+						alert("If sample is not received, Accepted for Analysis and Sample Condition must be NULL");
+						return false;
+					}
+				}
+				else if(f.sampleReceived.value == "1"){
+					if(f.acceptedForAnalysis.value == ""){
+						alert("Please select if accepted for analysis");
+						return false;
+					}
+				}
+				if(f.acceptedForAnalysis.value === 0){
 					if(f.sampleCondition.value == "ok"){
 						alert("Sample Condition cannot be OK when sample is tagged as Not Accepted for Analysis");
 						return false;
@@ -36,11 +49,12 @@ if($IS_ADMIN){
 				}
 				var sampleIdentifier = f.identifier.value.trim();
 				if(sampleIdentifier != ""){
+					//alert("rpc/checkinsample.php?identifier="+sampleIdentifier+"&received="+f.sampleReceived.value+"&accepted="+f.acceptedForAnalysis.value+"&condition="+f.sampleCondition.value+"&altSampleID="+f.alternativeSampleID.value+"&notes="+f.checkinRemarks.value);
 					$.ajax({
 						type: "POST",
 						url: "rpc/checkinsample.php",
 						dataType: 'json',
-						data: { identifier: sampleIdentifier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
+						data: { identifier: sampleIdentifier, received: f.sampleReceived.value, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
 					}).done(function( retJson ) {
 						$("#checkinText").show();
 						if(retJson.status == 0){
@@ -66,6 +80,10 @@ if($IS_ADMIN){
 							$("#checkinText").css('color', 'red');
 							$("#checkinText").text('sample not found!');
 						}
+						else if(retJson.status == 4){
+							$("#checkinText").css('color', 'red');
+							$("#checkinText").text('shipment must be checked in first!');
+						}
 						else{
 							$("#checkinText").css('color', 'red');
 							$("#checkinText").text('Failed: unknown error!');
@@ -73,13 +91,18 @@ if($IS_ADMIN){
 						$("#checkinText").animate({fontSize: "125%"}, "slow");
 						$("#checkinText").animate({fontSize: "100%"}, "slow");
 						$("#checkinText").animate({fontSize: "125%"}, "slow");
-						$("#checkinText").animate({fontSize: "100%"}, "slow").delay(5000).fadeOut();
+						$("#checkinText").animate({fontSize: "100%"}, "slow").delay(6000).fadeOut();
 						f.identifier.focus();
 					});
 				}
 			}
 //			$this->errorStr = 'Sample already exists with sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].
 //			'" target="_blank" onclick="window.close()">'.$recArr['sampleid'].'</a>';
+
+			function sampleReceivedChanged(f){
+				$(f.acceptedForAnalysis).prop("checked", false );
+				$('[name=sampleCondition]').val( '' );
+			}
 
 			function addToSuccessList(identifierStr){
 				var newAnchor = document.createElement('a');
@@ -96,11 +119,15 @@ if($IS_ADMIN){
 				listElem.insertBefore(newDiv,listElem.childNodes[0]);
 			}
 		</script>
+		<style type="text/css">
+			fieldset{ padding:15px;width:600px }
+			.displayFieldDiv{ margin-bottom: 3px }
+		</style>
 	</head>
 	<body>
 		<?php
 		$displayLeftMenu = false;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class="navpath">
 			<a href="../../index.php">Home</a> &gt;&gt;
@@ -111,13 +138,18 @@ if($IS_ADMIN){
 			<?php
 			if($isEditor){
 				?>
-				<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:0px;right:200px">
-					<fieldset style="padding:15px;width:600px">
+				<div id="sampleCheckinDiv" style="width:900">
+					<fieldset style="width:100%">
 						<legend><b>Sample Check-in</b></legend>
 						<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
 							<div class="displayFieldDiv">
-								<b>Identifier:</b> <input name="identifier" type="text" style="width:250px" required />
+								<b>Identifier:</b> <input name="identifier" type="text" style="width:275px" required />
 								<div id="checkinText" style="display:inline"></div>
+							</div>
+							<div class="displayFieldDiv">
+								<b>Sample Received:</b>
+								<input name="sampleReceived" type="radio" value="1" checked /> Yes
+								<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" /> No
 							</div>
 							<div class="displayFieldDiv">
 								<b>Accepted for Analysis:</b>
@@ -147,7 +179,7 @@ if($IS_ADMIN){
 						</form>
 					</fieldset>
 				</div>
-				<fieldset style="padding:15px;width:600px">
+				<fieldset>
 					<legend><b>Samples Checked In</b></legend>
 					<div id="samplelistdiv"></div>
 				</fieldset>
@@ -156,7 +188,7 @@ if($IS_ADMIN){
 			?>
 		</div>
 		<?php
-		include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

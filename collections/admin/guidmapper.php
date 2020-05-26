@@ -4,7 +4,7 @@ include_once($SERVER_ROOT.'/classes/UuidFactory.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/guidmapper.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/guidmapper.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collId = array_key_exists("collid",$_REQUEST)?$_REQUEST["collid"]:0;
 $action = array_key_exists("formsubmit",$_POST)?$_POST["formsubmit"]:'';
@@ -20,8 +20,17 @@ $uuidManager = new UuidFactory();
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title>UUID GUID Mapper</title>
-	<link rel="stylesheet" href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" />
-    <link rel="stylesheet" href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" />
+  <?php
+    $activateJQuery = false;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+  ?>
 	<script type="text/javascript">
 		function toggle(target){
 			var objDiv = document.getElementById(target);
@@ -64,7 +73,7 @@ $uuidManager = new UuidFactory();
 <body>
 <?php 
 $displayLeftMenu = (isset($admin_guidmapperMenu)?$admin_guidmapperMenu:"true");
-include($SERVER_ROOT."/header.php");
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <!-- This is inner text! -->
 <div id="innertext">
@@ -135,7 +144,7 @@ include($SERVER_ROOT."/header.php");
 	?>
 </div>
 <?php 
-include($SERVER_ROOT."/footer.php");
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

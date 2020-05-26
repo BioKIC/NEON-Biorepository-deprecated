@@ -41,7 +41,7 @@ class OccurrenceEditorManager {
 			'verbatimeventdate', 'habitat', 'substrate', 'fieldnumber','occurrenceremarks', 'associatedtaxa', 'verbatimattributes',
 			'dynamicproperties', 'reproductivecondition', 'cultivationstatus', 'establishmentmeans',
 			'lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations','datageneralizations',
-			'country', 'stateprovince', 'county', 'municipality', 'locality', 'localitysecurity', 'localitysecurityreason',
+			'country', 'stateprovince', 'county', 'municipality', 'locationid', 'locality', 'localitysecurity', 'localitysecurityreason',
 			'decimallatitude', 'decimallongitude','geodeticdatum', 'coordinateuncertaintyinmeters', 'footprintwkt',
 			'locationremarks', 'verbatimcoordinates', 'georeferencedby', 'georeferenceprotocol', 'georeferencesources',
 			'georeferenceverificationstatus', 'georeferenceremarks', 'minimumelevationinmeters', 'maximumelevationinmeters','verbatimelevation',
@@ -49,7 +49,7 @@ class OccurrenceEditorManager {
 			'labelproject','observeruid','basisofrecord','institutioncode','collectioncode','ownerinstitutioncode','datelastmodified', 'processingstatus',
 			'recordenteredby', 'dateentered');
 		$this->paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
-			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element','slideproperties');
+			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element','slideproperties','geologicalcontextid');
 	}
 
 	public function __destruct(){
@@ -1037,7 +1037,7 @@ class OccurrenceEditorManager {
 				'verbatimEventDate' => 's', 'habitat' => 's', 'substrate' => 's', 'fieldnumber' => 's', 'occurrenceRemarks' => 's', 'associatedTaxa' => 's', 'verbatimattributes' => 's',
 				'dynamicProperties' => 's', 'reproductiveCondition' => 's', 'cultivationStatus' => 's', 'establishmentMeans' => 's',
 				'lifestage' => 's', 'sex' => 's', 'individualcount' => 's', 'samplingprotocol' => 's', 'preparations' => 's',
-				'country' => 's', 'stateProvince' => 's', 'county' => 's', 'municipality' => 's', 'locality' => 's', 'localitySecurity' => 'n', 'localitysecurityreason' => 's',
+				'country' => 's', 'stateProvince' => 's', 'county' => 's', 'municipality' => 's', 'locationid' => 's', 'locality' => 's', 'localitySecurity' => 'n', 'localitysecurityreason' => 's',
 				'locationRemarks' => 'n', 'decimalLatitude' => 'n', 'decimalLongitude' => 'n', 'geodeticDatum' => 's', 'coordinateUncertaintyInMeters' => 'n', 'verbatimCoordinates' => 's',
 				'footprintwkt' => 's', 'georeferencedBy' => 's', 'georeferenceProtocol' => 's', 'georeferenceSources' => 's', 'georeferenceVerificationStatus' => 's',
 				'georeferenceRemarks' => 's', 'minimumElevationInMeters' => 'n', 'maximumElevationInMeters' => 'n','verbatimElevation' => 's',
@@ -1164,7 +1164,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function deleteOccurrence($delOccid){
-		global $CHARSET, $userDisplayName;
+		global $CHARSET, $USER_DISPLAY_NAME;
 		$status = true;
 		if(is_numeric($delOccid)){
 			//Archive data, first grab occurrence data
@@ -1266,7 +1266,7 @@ class OccurrenceEditorManager {
 				$archiveArr['exsiccati'] = $exsArr;
 
 				//Archive complete occurrence record
-				$archiveArr['dateDeleted'] = date('r').' by '.$userDisplayName;
+				$archiveArr['dateDeleted'] = date('r').' by '.$USER_DISPLAY_NAME;
 				$archiveObj = json_encode($archiveArr);
 				$sqlArchive = 'UPDATE guidoccurrences '.
 					'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($archiveObj,'utf8',$CHARSET)).'" '.
@@ -1626,7 +1626,7 @@ class OccurrenceEditorManager {
 
 	public function carryOverValues($fArr){
 		$locArr = Array('recordedby','associatedcollectors','eventdate','verbatimeventdate','month','day','year',
-			'startdayofyear','enddayofyear','country','stateprovince','county','municipality','locality','decimallatitude','decimallongitude',
+			'startdayofyear','enddayofyear','country','stateprovince','county','municipality','locationid','locality','decimallatitude','decimallongitude',
 			'verbatimcoordinates','coordinateuncertaintyinmeters','footprintwkt','geodeticdatum','georeferencedby','georeferenceprotocol',
 			'georeferencesources','georeferenceverificationstatus','georeferenceremarks',
 			'minimumelevationinmeters','maximumelevationinmeters','verbatimelevation','minimumdepthinmeters','maximumdepthinmeters','verbatimdepth',

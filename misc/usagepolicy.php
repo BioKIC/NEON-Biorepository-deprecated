@@ -7,18 +7,20 @@
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Data Usage Guidelines</title>
-		<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+		<?php
+		$activateJQuery = false;
+		include_once($SERVER_ROOT.'/includes/head.php');
+		?>
 	</head>
 	<body>
 		<?php
 		$displayLeftMenu = true;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class="navpath">
 			<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
 			<b>Data Usage Guidelines</b>
-		</div>			
+		</div>
 		<!-- This is inner text! -->
 		<div id="innertext">
 			<h1>Guidelines for Acceptable Use of Data</h1><br />
@@ -105,7 +107,7 @@
 			</div>
 		</div>
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+			include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

@@ -38,9 +38,10 @@ if($isEditor){
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Manifest Viewer</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -63,7 +64,19 @@ if($isEditor){
 				alert("Select samples to check-in");
 				return false;
 			}
-			if(f.acceptedForAnalysis.value == 0){
+			if(f.sampleReceived.value == "0"){
+				if(f.acceptedForAnalysis.value != "" || f.sampleCondition.value != ""){
+					alert("If sample is not received, Accepted for Analysis and Sample Condition must be NULL");
+					return false;
+				}
+			}
+			else if(f.sampleReceived.value == "1"){
+				if(f.acceptedForAnalysis.value == ""){
+					alert("Please select if accepted for analysis");
+					return false;
+				}
+			}
+			if(f.acceptedForAnalysis.value === 0){
 				if(f.sampleCondition.value == "ok"){
 					alert("Sample Condition cannot be OK if sample is Not Accepted for Analysis");
 					return false;
@@ -147,7 +160,19 @@ if($isEditor){
 		}
 
 		function checkinSample(f){
-			if(f.acceptedForAnalysis.value == 0){
+			if(f.sampleReceived.value == "0"){
+				if(f.acceptedForAnalysis.value != "" || f.sampleCondition.value != ""){
+					alert("If sample is not received, Accepted for Analysis and Sample Condition must be NULL");
+					return false;
+				}
+			}
+			else if(f.sampleReceived.value == "1"){
+				if(f.acceptedForAnalysis.value == ""){
+					alert("Please select if accepted for analysis");
+					return false;
+				}
+			}
+			if(f.acceptedForAnalysis.value === 0){
 				if(f.sampleCondition.value == "ok"){
 					alert("Sample Condition cannot be OK when sample is tagged as Not Accepted for Analysis");
 					return false;
@@ -159,11 +184,12 @@ if($isEditor){
 			}
 			var sampleIdentifier = f.identifier.value.trim();
 			if(sampleIdentifier != ""){
+				//alert("rpc/checkinsample.php?shipmentpk=<?php echo $shipmentPK; ?>&identifier="+sampleIdentifier+"&received="+f.sampleReceived.value+"&accepted="+f.acceptedForAnalysis.value+"&condition="+f.sampleCondition.value+"&altSampleID="+f.alternativeSampleID.value+"&notes="+f.checkinRemarks.value);
 				$.ajax({
 					type: "POST",
 					url: "rpc/checkinsample.php",
 					dataType: 'json',
-					data: { shipmentpk: "<?php echo $shipmentPK; ?>", identifier: sampleIdentifier, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
+					data: { shipmentpk: "<?php echo $shipmentPK; ?>", identifier: sampleIdentifier, received: f.sampleReceived.value, accepted: f.acceptedForAnalysis.value, condition: f.sampleCondition.value, altSampleID: f.alternativeSampleID.value, notes: f.checkinRemarks.value }
 				}).done(function( retJson ) {
 					$("#checkinText").show();
 					if(retJson.status == 0){
@@ -175,6 +201,7 @@ if($isEditor){
 						$("#checkinText").text('success!!!');
 						$("#scSpan-"+retJson.samplePK).html("checked in");
 						f.identifier.value = "";
+						f.sampleReceived.value = 1;
 						f.acceptedForAnalysis.value = 1;
 						f.sampleCondition.value = "ok";
 						f.alternativeSampleID.value = "";
@@ -182,11 +209,11 @@ if($isEditor){
 					}
 					else if(retJson.status == 2){
 						$("#checkinText").css('color', 'orange');
-						$("#checkinText").text('sample already checked in!');
+						$("#checkinText").text('already checked!');
 					}
 					else if(retJson.status == 3){
 						$("#checkinText").css('color', 'red');
-						$("#checkinText").text('sample not found!');
+						$("#checkinText").text('not found!');
 					}
 					else{
 						$("#checkinText").css('color', 'red');
@@ -199,6 +226,11 @@ if($isEditor){
 					f.identifier.focus();
 				});
 			}
+		}
+
+		function sampleReceivedChanged(f){
+			$(f.acceptedForAnalysis).prop("checked", false );
+			$('[name=sampleCondition]').val( '' );
 		}
 
 		function popoutCheckinBox(){
@@ -256,12 +288,13 @@ if($isEditor){
 		.fieldGroupDiv{ clear:both; margin-top:2px; height: 25px; }
 		.fieldDiv{ float:left; margin-left: 10px}
 		.displayFieldDiv{ margin-bottom: 3px }
+		fieldset legend{ font-weight:bold; }
 	</style>
 </head>
 <body>
 <?php
 $displayLeftMenu = false;
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class="navpath">
 	<a href="../../index.php">Home</a> &gt;&gt;
@@ -275,7 +308,7 @@ include($SERVER_ROOT.'/header.php');
 		if($action == 'batchHarvestOccid'){
 			?>
 			<fieldset style="padding:15px">
-				<legend><b>Action Panel</b></legend>
+				<legend>Action Panel</legend>
 				<ul>
 				<?php
 				$occurManager = new OccurrenceHarvester();
@@ -289,7 +322,7 @@ include($SERVER_ROOT.'/header.php');
 		if($shipArr){
 			?>
 			<fieldset style="margin-top:30px">
-				<legend><b>Shipment #<?php echo $shipmentPK; ?></b></legend>
+				<legend>Shipment #<?php echo $shipmentPK; ?></legend>
 				<div style="float:left;margin-right:40px;width:400px;">
 					<div class="displayFieldDiv">
 						<b>Shipment ID:</b> <?php echo $shipArr['shipmentID']; ?>
@@ -343,13 +376,18 @@ include($SERVER_ROOT.'/header.php');
 							?>
 							<div id="sampleCheckinDiv" style="margin-top:15px;background-color:white;top:50px;right:200px">
 								<fieldset style="padding:10px;width:500px">
-									<legend><b>Sample Check-in</b></legend>
+									<legend>Sample Check-in</legend>
 									<form name="submitform" method="post" onsubmit="checkinSample(this); return false;">
 										<div id="popoutDiv" style="float:right"><a href="#" onclick="popoutCheckinBox();return false" title="Popout Sample Check-in Box">&gt;&gt;</a></div>
 										<div id="bindDiv" style="float:right;display:none"><a href="#" onclick="bindCheckinBox();return false" title="Bind Sample Check-in Box to top of form">&lt;&lt;</a></div>
 										<div class="displayFieldDiv">
 											<b>Identifier:</b> <input name="identifier" type="text" style="width:250px" required />
 											<div id="checkinText" style="display:inline"></div>
+										</div>
+										<div class="displayFieldDiv">
+											<b>Sample Received:</b>
+											<input name="sampleReceived" type="radio" value="1" checked /> Yes
+											<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" /> No
 										</div>
 										<div class="displayFieldDiv">
 											<b>Accepted for Analysis:</b>
@@ -389,7 +427,7 @@ include($SERVER_ROOT.'/header.php');
 					if(!$shipArr['checkinTimestamp']){
 						?>
 						<fieldset style="padding:10px;">
-							<legend><b>Check-in Shipment</b></legend>
+							<legend>Check-in Shipment</legend>
 							<form action="manifestviewer.php" method="post">
 								<?php
 								$deliveryArr = $shipManager->getDeliveryArr();
@@ -416,7 +454,7 @@ include($SERVER_ROOT.'/header.php');
 					?>
 					<div style="clear:both;padding-top:30px;">
 						<fieldset id="samplePanel">
-							<legend><b>Sample Listing</b></legend>
+							<legend>Sample Listing</legend>
 							<div>
 								<div style="float:left">Records displayed: <?php echo count($sampleList); ?></div>
 								<div style="float:right;">
@@ -445,12 +483,12 @@ include($SERVER_ROOT.'/header.php');
 												$headerOutArr = current($sampleList);
 												echo '<th><input name="selectall" type="checkbox" onclick="selectAll(this)" /></th>';
 												$headerArr = array('sampleID'=>'Sample ID', 'sampleCode'=>'Sample<br/>Code', 'sampleClass'=>'Sample<br/>Class', 'taxonID'=>'Taxon ID',
-													'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status',
-													'sampleCondition'=>'Sample<br/>Condition','acceptedForAnalysis'=>'Accepted<br/>for<br/>Analysis','checkinUser'=>'Check-in','occid'=>'occid');
+													'namedLocation'=>'Named<br/>Location', 'collectDate'=>'Collection<br/>Date', 'quarantineStatus'=>'Quarantine<br/>Status','sampleReceived'=>'Sample<br/>Received',
+													'acceptedForAnalysis'=>'Accepted<br/>for<br/>Analysis','sampleCondition'=>'Sample<br/>Condition','checkinUser'=>'Check-in','occid'=>'occid');
 													//'individualCount'=>'Individual Count', 'filterVolume'=>'Filter Volume', 'domainRemarks'=>'Domain Remarks', 'sampleNotes'=>'Sample Notes',
 												$rowCnt = 1;
 												foreach($headerArr as $fieldName => $headerTitle){
-													if(array_key_exists($fieldName, $headerOutArr) || $fieldName == 'checkinUser'){
+													if(array_key_exists($fieldName, $headerOutArr) || $fieldName == 'checkinUser' || $fieldName == 'occid'){
 														echo '<th>'.$headerTitle.'</th>';
 														$rowCnt++;
 													}
@@ -477,18 +515,29 @@ include($SERVER_ROOT.'/header.php');
 												}
 												if(array_key_exists('collectDate', $sampleArr)) echo '<td>'.$sampleArr['collectDate'].'</td>';
 												echo '<td>'.$sampleArr['quarantineStatus'].'</td>';
-												if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
+												if(array_key_exists('sampleReceived', $sampleArr)){
+													$sampleReceived = $sampleArr['sampleReceived'];
+													if($sampleArr['sampleReceived']==1) $sampleReceived = 'Y';
+													if($sampleArr['sampleReceived']==='0') $sampleReceived = 'N';
+													echo '<td>'.$sampleReceived.'</td>';
+												}
 												if(array_key_exists('acceptedForAnalysis', $sampleArr)){
 													$acceptedForAnalysis = $sampleArr['acceptedForAnalysis'];
 													if($sampleArr['acceptedForAnalysis']==1) $acceptedForAnalysis = 'Y';
 													if($sampleArr['acceptedForAnalysis']==='0') $acceptedForAnalysis = 'N';
 													echo '<td>'.$acceptedForAnalysis.'</td>';
 												}
+												if(array_key_exists('sampleCondition', $sampleArr)) echo '<td>'.$sampleArr['sampleCondition'].'</td>';
 												echo '<td title="'.$sampleArr['checkinUser'].'">';
 												echo '<span id="scSpan-'.$samplePK.'">'.$sampleArr['checkinTimestamp'].'</span> ';
 												if($sampleArr['checkinTimestamp']) echo '<a href="#" onclick="return openSampleCheckinEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:13px" /></a>';
 												echo '</td>';
-												if(array_key_exists('occid',$sampleArr)) echo '<td><a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank">'.$sampleArr['occid'].'</a></td>';
+												echo '<td style="text-align:center">';
+												if(array_key_exists('occid',$sampleArr) && $sampleArr['occid']){
+													echo '<a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank"><img src="../../images/list.png" style="width:13px" /></a>&nbsp;&nbsp;&nbsp;';
+													echo '<a href="../../collections/editor/occurrenceeditor.php?occid='.$sampleArr['occid'].'" target="_blank"><img src="../../images/edit.png" style="width:13px" /></a>';
+												}
+												echo '</td>';
 												echo '</tr>';
 												$str = '';
 												if(isset($sampleArr['alternativeSampleID'])) $str .= '<div>Alternative Sample ID: '.$sampleArr['alternativeSampleID'].'</div>';
@@ -521,73 +570,106 @@ include($SERVER_ROOT.'/header.php');
 										<div style="margin:15px;float:left">
 											<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 											<fieldset style="width:450px;">
-												<legend><b>Batch Check-in Selected Samples</b></legend>
-												<div class="displayFieldDiv">
-													<b>Accepted for Analysis:</b>
-													<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
-													<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
-												</div>
-												<div class="displayFieldDiv">
-													<b>Sample Condition:</b>
-													<select name="sampleCondition">
-														<option value="">Not Set</option>
-														<option value="">--------------------------------</option>
-														<?php
-														$condArr = $shipManager->getConditionArr();
-														foreach($condArr as $condKey => $condValue){
-															echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
-														}
-														?>
-													</select>
-												</div>
-												<div class="displayFieldDiv">
-													<b>Check-in Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
-												</div>
-												<div style="margin:5px 10px">
-													<button name="action" type="submit" value="batchCheckin">Check-in Selected Samples</button>
-												</div>
+												<legend>Batch Check-in Selected Samples</legend>
+												<?php
+												if($shipArr['checkinTimestamp']){
+													?>
+													<div class="displayFieldDiv">
+														<b>Sample Received:</b>
+														<input name="sampleReceived" type="radio" value="1" checked /> Yes
+														<input name="sampleReceived" type="radio" value="0" onchange="sampleReceivedChanged(this.form)" /> No
+													</div>
+													<div class="displayFieldDiv">
+														<b>Accepted for Analysis:</b>
+														<input name="acceptedForAnalysis" type="radio" value="1" checked /> Yes
+														<input name="acceptedForAnalysis" type="radio" value="0" onchange="this.form.sampleCondition.value = ''" /> No
+													</div>
+													<div class="displayFieldDiv">
+														<b>Sample Condition:</b>
+														<select name="sampleCondition">
+															<option value="">Not Set</option>
+															<option value="">--------------------------------</option>
+															<?php
+															$condArr = $shipManager->getConditionArr();
+															foreach($condArr as $condKey => $condValue){
+																echo '<option value="'.$condKey.'" '.($condKey=='ok'?'SELECTED':'').'>'.$condValue.'</option>';
+															}
+															?>
+														</select>
+													</div>
+													<div class="displayFieldDiv">
+														<b>Check-in Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
+													</div>
+													<div style="margin:5px 10px">
+														<button name="action" type="submit" value="batchCheckin" >Check-in Selected Samples</button>
+													</div>
+													<?php
+												}
+												else{
+													echo '<div style="color:orange;margin-bottom:140px">Shipment needs to be checked in before you can check-in samples</div>';
+												}
+												?>
 											</fieldset>
 										</div>
-										<div style="margin:15px;float:left">
-											<div style="margin:5px;">
-												<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+										<?php
+										if($shipArr['checkinTimestamp']){
+											?>
+											<div style="margin:15px;float:left">
+												<div style="margin:5px;">
+													<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
+												</div>
+												<fieldset style="margin:5px">
+													<legend>Occurrence Harvesting</legend>
+													<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest</button>
+													<div style="margin:10px" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
+														<input name="replaceFieldValues" type="checkbox" value="1" /> Replace Existing Field Values
+													</div>
+												</fieldset>
 											</div>
-											<div style="margin:5px">
-												<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest Occurrences</button>
-											</div>
-										</div>
+											<?php
+										}
+										?>
 									</form>
 									<div style="clear:both">
 										<div style="float:left;margin-left:15px;">
 											<fieldset style="width:450px;">
 												<a id="receiptStatus"></a>
-												<legend><b>Receipt Status</b></legend>
-												<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
-													<?php
-													$receiptStatus = '';
-													if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
-													$statusArr = explode(':', $receiptStatus);
-													if($statusArr) $receiptStatus = $statusArr[0];
+												<legend>Receipt Status</legend>
+												<?php
+												if($shipArr['checkinTimestamp']){
 													?>
-													<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
-													<b>Status Not Set</b><br/>
-													<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
-													<b>Receipt Downloaded</b><br/>
-													<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
-													<b>Receipt Submitted to NEON</b>
-													<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-													<input name="action" type="hidden" value="receiptsubmitted" />
-												</form>
-												<div style="margin:15px">
-													<form name="exportReceiptForm" action="exporthandler.php" method="post">
+													<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
+														<?php
+														$receiptStatus = '';
+														if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
+														$statusArr = explode(':', $receiptStatus);
+														if($statusArr) $receiptStatus = $statusArr[0];
+														?>
+														<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
+														<b>Status Not Set</b><br/>
+														<input name="submitted" type="radio" value="1" <?php echo ($receiptStatus=='Downloaded'?'checked':''); ?> onchange="this.form.submit()" />
+														<b>Receipt Downloaded</b><br/>
+														<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
+														<b>Receipt Submitted to NEON</b>
 														<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-														<input name="exportTask" type="hidden" value="receipt" />
-														<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
+														<input name="action" type="hidden" value="receiptsubmitted" />
 													</form>
-													<div style="margin-top:15px">
-														<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
+													<div style="margin:15px">
+														<form name="exportReceiptForm" action="exporthandler.php" method="post">
+															<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
+															<input name="exportTask" type="hidden" value="receipt" />
+															<button name="action" type="submit" value="downloadReceipt">Download Receipt</button>
+														</form>
+														<div style="margin-top:15px">
+															<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank"><b>Proceed to NEON submission page</b></a>
+														</div>
 													</div>
-												</div>
+													<?php
+												}
+												else{
+													echo '<div style="color:orange;margin-bottom:140px">Shipment needs to be checked in before receipt can be submitted</div>';
+												}
+												?>
 											</fieldset>
 										</div>
 										<div style="float:left;margin-left:30px;">
@@ -604,7 +686,7 @@ include($SERVER_ROOT.'/header.php');
 											?>
 											<div style="float:left;margin:15px 30px;">
 												<fieldset style="width:400px;padding:15px;">
-													<legend><b>Append Data to Occurrence Records via File Upload</b></legend>
+													<legend>Append Data to Occurrence Records via File Upload</legend>
 													<?php
 													foreach($collectionArr as $collid => $collName){
 														echo '<div><a href="../../collections/admin/specupload.php?uploadtype=7&matchothercatnum=1&collid='.$collid.'" target="_blank">'.$collName.'</a></div>';
@@ -662,7 +744,7 @@ include($SERVER_ROOT.'/header.php');
 	?>
 </div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

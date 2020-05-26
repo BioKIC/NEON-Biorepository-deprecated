@@ -1,9 +1,8 @@
 <?php
-include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/Manager.php');
 
-class TaxonomyEditorManager{
+class TaxonomyEditorManager extends Manager{
 
-	private $conn;
 	private $taxAuthId = 1;
 	private $tid = 0;
 	private $family;
@@ -29,14 +28,12 @@ class TaxonomyEditorManager{
 	private $acceptedArr = Array();
 	private $synonymArr = Array();
 
-	private $errorStr = '';
-
 	function __construct($type = 'write') {
-		$this->conn = MySQLiConnectionFactory::getCon($type);
+		parent::__construct(null,$type);
 	}
 
 	function __destruct(){
-		if($this->conn) $this->conn->close();
+		parent::__destruct();
 	}
 
 	public function setTaxon(){
@@ -165,9 +162,7 @@ class TaxonomyEditorManager{
 	private function setHierarchy(){
 		unset($this->hierarchyArr);
 		$this->hierarchyArr = array();
-		$sql = 'SELECT parenttid '.
-			'FROM taxaenumtree '.
-			'WHERE (tid = '.$this->tid.') AND (taxauthid = '.$this->taxAuthId.')';
+		$sql = 'SELECT parenttid FROM taxaenumtree WHERE (tid = '.$this->tid.') AND (taxauthid = '.$this->taxAuthId.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$this->hierarchyArr[] = $r->parenttid;
@@ -175,9 +170,7 @@ class TaxonomyEditorManager{
 		$rs->free();
 		//Set kingdom name
 		if($this->hierarchyArr){
-			$sql2 = 'SELECT sciname '.
-				'FROM taxa '.
-				'WHERE (tid IN('.implode(',',$this->hierarchyArr).')) AND (rankid = 10)';
+			$sql2 = 'SELECT sciname FROM taxa WHERE (tid IN('.implode(',',$this->hierarchyArr).')) AND (rankid = 10)';
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_object()){
 				$this->kingdomName = $r2->sciname;
@@ -1040,20 +1033,20 @@ class TaxonomyEditorManager{
 
 	public function getRankArr(){
 		$retArr = array();
-		$sql = 'SELECT rankid, rankname FROM taxonunits ';
+		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits ';
 		if($this->kingdomName) $sql .= 'WHERE (kingdomname = "'.($this->kingdomName?$this->kingdomName:'Organism').'") ';
 		$sql .= 'ORDER BY rankid ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
-			$retArr[$row->rankid] = $row->rankname;
+			$retArr[$row->rankid][] = $row->rankname;
 		}
 		$rs->free();
 		if(!$retArr){
-			$sql2 = 'SELECT rankid, rankname FROM taxonunits ORDER BY rankid ';
+			$sql2 = 'SELECT DISTINCT rankid, rankname FROM taxonunits ORDER BY rankid ';
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_object()){
-				$retArr[$r2->rankid] = $r2->rankname;
+				$retArr[$r2->rankid][] = $r2->rankname;
 			}
 			$rs2->free();
 		}
@@ -1133,20 +1126,6 @@ class TaxonomyEditorManager{
 		}
 		$rs->free();
 		return $retArr;
-	}
-
-	//Misc functions
-	private function cleanInArr(&$arr){
-		foreach($arr as $k => $v){
-			$arr[$k] = $this->cleanInStr($v);
-		}
-	}
-
-	private function cleanInStr($str){
-		$newStr = trim($str);
-		$newStr = preg_replace('/\s\s+/', ' ',$newStr);
-		$newStr = $this->conn->real_escape_string($newStr);
-		return $newStr;
 	}
 }
 ?>

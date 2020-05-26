@@ -289,18 +289,18 @@ class ChecklistManager {
 				//echo $vSql; exit;
 		 		$vResult = $this->conn->query($vSql);
 				while ($row = $vResult->fetch_object()){
-					$collector = ($row->recordedby?$row->recordedby:$row->catalognumber);
-					if(strlen($collector) > 25){
+					$displayStr = ($row->recordedby?$row->recordedby:$row->catalognumber);
+					if(strlen($displayStr) > 25){
 						//Collector string is too big, thus reduce
-						$strPos = strpos($collector,';');
-						if(!$strPos) $strPos = strpos($collector,',');
-						if(!$strPos) $strPos = strpos($collector,' ',10);
-						if($strPos) $collector = substr($collector,0,$strPos).'...';
+						$strPos = strpos($displayStr,';');
+						if(!$strPos) $strPos = strpos($displayStr,',');
+						if(!$strPos) $strPos = strpos($displayStr,' ',10);
+						if($strPos) $displayStr = substr($displayStr,0,$strPos).'...';
 					}
-					if($row->recordnumber) $collector .= ' '.$row->recordnumber;
-					else $collector .= ' '.$row->eventdate;
-					$collector .= ' ['.$row->institutioncode.']';
-					$this->voucherArr[$row->tid][$row->occid] = $collector;
+					if($row->recordnumber) $displayStr .= ' '.$row->recordnumber;
+					else $displayStr .= ' '.$row->eventdate;
+					$displayStr .= ' ['.$row->institutioncode.']';
+					$this->voucherArr[$row->tid][$row->occid] = $displayStr;
 				}
 				$vResult->free();
 			}

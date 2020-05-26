@@ -7,12 +7,22 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <html>
 	<head>
 		<title>Page</title>
-		<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" />
+    <?php
+      $activateJQuery = false;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 	</head>
 	<body>
 		<?php
 		$displayLeftMenu = true;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<!-- This is inner text! -->
 		<div id="innertext">
@@ -25,7 +35,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			</div>
 		</div>
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+			include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

@@ -2,30 +2,42 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/imagelib/search.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/ImageLibraryManager.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+header('Content-Type: text/html; charset='.$CHARSET);
 
-$cntPerPage = array_key_exists("cntperpage",$_REQUEST)?$_REQUEST["cntperpage"]:100;
+$cntPerPage = array_key_exists("cntperpage",$_REQUEST)?$_REQUEST["cntperpage"]:200;
 $pageNumber = array_key_exists("page",$_REQUEST)?$_REQUEST["page"]:1;
 $catId = array_key_exists("catid",$_REQUEST)?$_REQUEST["catid"]:0;
 if(!$catId && isset($DEFAULTCATID) && $DEFAULTCATID) $catId = $DEFAULTCATID;
 $action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:'';
 
+//Sanitation
+if(!is_numeric($cntPerPage)) $cntPerPage = 100;
+if(!is_numeric($pageNumber)) $pageNumber = 100;
 if(!preg_match('/^[,\d]+$/', $catId)) $catId = 0;
+if(preg_match('/[^\D]+/', $action)) $action = '';
 
 $imgLibManager = new ImageLibraryManager();
 ?>
 <html>
 <head>
-<title><?php echo $DEFAULT_TITLE; ?> Image Library</title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
-	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+  <title><?php echo $DEFAULT_TITLE; ?> Image Library</title>
+  <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+  ?>
+  <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script src="../js/symb/collections.index.js?ver=2" type="text/javascript"></script>
 	<meta name='keywords' content='' />
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		jQuery(document).ready(function($) {
@@ -47,7 +59,7 @@ $imgLibManager = new ImageLibraryManager();
 <body>
 	<?php
 	$displayLeftMenu = (isset($imagelib_searchMenu)?$imagelib_searchMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($imagelib_indexCrumbs)){
 		echo "<div class='navpath'>";
 		echo $imagelib_indexCrumbs;
@@ -330,7 +342,7 @@ $imgLibManager = new ImageLibraryManager();
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SpecProcessorManager.php');
 include_once($SERVER_ROOT.'/classes/ImageProcessor.php');
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/collections/specprocessor/index.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/collections/specprocessor/index.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
@@ -23,10 +23,18 @@ if($spprid) $specManager->setProjVariables($spprid);
 <html>
 	<head>
 		<title>Image Processor</title>
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+		<?php
+		$activateJQuery = true;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+		}
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<style type="text/css">.profileDiv{ clear:both; margin:2px 0px } </style>
-		<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
 		<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 		<script src="../../js/symb/shared.js" type="text/javascript"></script>
@@ -124,12 +132,13 @@ if($spprid) $specManager->setProjVariables($spprid);
 				}
 				if(f.projecttype.value == 'file'){
 					var fileName = f.uploadfile.value;
+					var fileExt = fileName.split('.').pop().toLowerCase();
 					if(fileName == ""){
 						alert("Select a CSV file to upload");
 						return false;
 					}
-					else if(fileName.split('.').pop().toLowerCase() != "csv"){
-						alert("File must be a CSV file with .csv as the file extension");
+					else if(fileExt != "csv" && fileExt != "zip"){
+						alert("Input file must be a CSV spreadsheet (comma or tab delimited), or ZIP file containing a CSV file");
 						return false;
 					}
 				}
@@ -152,14 +161,6 @@ if($spprid) $specManager->setProjVariables($spprid);
 					}
 					else if(!isNumeric(f.jpgcompression.value) || f.jpgcompression.value < 30 || f.jpgcompression.value > 100){
 						alert("JPG compression needs to be a numeric value between 30 and 100");
-						return false;
-					}
-					else if(f.sourcepath.value == ""){
-						alert("Image source path must have a value");
-						return false;
-					}
-					else if(f.imgurl.value == ""){
-						alert("Image URL base must have a value");
 						return false;
 					}
 				}

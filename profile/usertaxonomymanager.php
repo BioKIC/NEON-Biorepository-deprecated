@@ -38,9 +38,17 @@ $editorArr = $utManager->getTaxonomyEditors();
 <html>
 <head>
 	<title>Taxonomic Interest User permissions</title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link type="text/css" href="../css/jquery-ui.css" rel="stylesheet" />
+    <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script language=javascript>
@@ -73,7 +81,7 @@ $editorArr = $utManager->getTaxonomyEditors();
 <body>
 	<?php
 	$displayLeftMenu = (isset($profile_usertaxonomymanagerMenu)?$profile_usertaxonomymanagerMenu:true);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($profile_usertaxonomymanagerCrumbs)){
 		if($profile_usertaxonomymanagerCrumbs){
 			echo "<div class='navpath'>";
@@ -207,6 +215,6 @@ $editorArr = $utManager->getTaxonomyEditors();
 	else{
 		echo '<div style="color:red;">You are not authorized to access this page</div>';
 	}
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>

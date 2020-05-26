@@ -12,17 +12,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<title><?php echo $DEFAULT_TITLE; ?> Home</title>
 	<meta http-equiv="Expires" content="Tue, 01 Jan 1995 12:12:12 GMT">
 	<meta http-equiv="Pragma" content="no-cache">
-	<!-- META AND CSS -->
-	<?php include_once($SERVER_ROOT.'/styles.php'); ?>
-
+	<!-- UNIVERSAL CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/skeleton.css">
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 </head>
 <body class="home-page">
-	<?php include($SERVER_ROOT.'/header.php'); ?>
+	<?php include($SERVER_ROOT.'/includes/header.php'); ?>
 	<!-- This is inner text! -->
-	<div id="innertext" class="container" style="margin-top: 8em">
+	<div id="innertext" class="container" style="margin-top: 6em">
 		<h1 class="centered">Discover and access sample-based data</h1>
 
 		<section>
@@ -48,31 +52,31 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">
 						<div>
 							<img src="images/layout/glyphicon-globe.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
-							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>	
+							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Map search</p>
 						</div>
 					</a>
 				</div>
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
-					<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">
+					<a href="<?php echo $CLIENT_ROOT; ?>/misc/checklists.php">
 						<div>
 							<img src="images/layout/glyphicon-list-alt.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Checklists</p>
 						</div>
 					</a>
-				</div>    		    		    	
+				</div>
 			</div>
-		</section>		
+		</section>
 
 		<section>
 			<div class="row" style="vertical-align: bottom">
 				<div class="six columns centered">
-					<h4 class="centered">> 62,000 samples</h4>
-					<img src="images/layout/SamplesByColl.png" usemap="#image-map" width="100%">				
+					<h4 class="centered">> 103,000 samples</h4>
+					<img src="images/layout/SamplesByColl-2020-01.png" usemap="#image-map" width="100%">
 					<p><span style="font-size: 70%">Distribution of samples by collection type.</span></p>
 				</div>
 				<div class="six columns centered">
-					<h4 class="centered">> 400 taxa</h4>
-					<img src="images/layout/TaxaByGroup.png">
+					<h4 class="centered">> 700 taxa</h4>
+					<img src="images/layout/TaxaByGroup-2020-01.png">
 					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa.</span></p>
 				</div>
 
@@ -94,10 +98,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<p>Join the portal as a regular visitor or contributor, and send direct feedback or inquiries to <a href="mailto:BioRepo@asu.edu">BioRepo@asu.edu</a>.</p>
 				</div>
 			</div>
-		</section>		
+		</section>
 
 		<section>
-			<div class="row">	    
+			<div class="row">
 				<div class="six columns">
 					<h2 class="centered">Services</h2>
 					<p>NEON Biorepository Data Portal services:</p>
@@ -122,6 +126,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		</section>
 
 	</div>
-	<?php include($SERVER_ROOT.'/footer.php'); ?>
+	<?php include($SERVER_ROOT.'/includes/footer.php'); ?>
 </body>
 </html>

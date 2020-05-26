@@ -37,7 +37,7 @@ CREATE TABLE `NeonSample` (
   `samplePK` INT NOT NULL AUTO_INCREMENT,
   `shipmentPK` INT NOT NULL,
   `sampleID` VARCHAR(75) NOT NULL,
-  `alternativeSampleID` VARCHAR(45) NOT NULL,
+  `alternativeSampleID` VARCHAR(250) NOT NULL,
   `sampleUuid` VARCHAR(75) NOT NULL,
   `sampleCode` VARCHAR(45) NULL,
   `sampleClass` VARCHAR(100) NULL,
@@ -48,6 +48,7 @@ CREATE TABLE `NeonSample` (
   `domainRemarks` VARCHAR(250) NULL,
   `collectDate` DATE NULL,
   `quarantineStatus` VARCHAR(4) NULL,
+  `sampleReceived` INT UNSIGNED NULL,
   `acceptedForAnalysis` INT UNSIGNED NULL,
   `sampleCondition` VARCHAR(45) NULL,
   `dynamicProperties` TEXT NULL,
@@ -74,4 +75,6 @@ ALTER TABLE `NeonSample`
 ALTER TABLE `NeonSample` 
   ADD CONSTRAINT `FK_neon_sample_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
+ALTER TABLE `NeonSample` 
+   ADD UNIQUE INDEX `UNIQUE_sampleCode` (`sampleCode` ASC);
 

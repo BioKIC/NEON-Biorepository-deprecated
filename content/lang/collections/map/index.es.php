@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Español (Spanish)
+Language: Espaï¿½ol (Spanish)
 ------------------
 */
 include_once($SERVER_ROOT.'/content/lang/collections/harvestparams.es.php');
@@ -13,8 +13,7 @@ $LANG['MAP_OPTIONS'] = 'Map Options';
 $LANG['RESET'] = 'Reset';
 $LANG['SEARCH'] = 'Search';
 $LANG['TAXA'] = 'Taxa';
-$LANG['SHAPE_TOOLS_1'] = 'Use the shape tools on the map to select occurrences within a given shape';
-$LANG['SHAPE_TOOLS_2'] = 'use the shape tools on the map to select occurrences within a given shape';
+$LANG['SHAPE_TOOLS'] = 'Use the shape tools on the map to select occurrences within a given shape';
 $LANG['WITHIN_POLYGON'] = 'Within the selected polygon';
 $LANG['WITHIN_CIRCLE'] = 'Within the selected circle';
 $LANG['WITHIN_RECTANGLE'] = 'Within the selected rectangle';

@@ -22,6 +22,7 @@ $LANG['PAGINATION_RECORDS'] = 'records';
 $LANG['PAGINATION_OF'] = 'of';
 $LANG['OCCUR_EDIT_TITLE'] = 'Edit Occurrence Record';
 $LANG['VOUCHER_LINK_TITLE'] = 'Link specimen voucher to';
+$LANG['PROTECTED'] = 'detailed locality information protected';
 $LANG['FULL_DETAILS'] = 'Full Record Details';
 $LANG['NO_RESULTS'] = 'Your query did not return any results. Please modify your query parameters';
 $LANG['PERHAPS_LOOKING_FOR'] = 'Perhaps you were looking for:';

@@ -55,17 +55,17 @@ if(!is_numeric($resetPwd)) $resetPwd = 0;
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 
 if($remMe) $pHandler->setRememberMe(true);
-if($action == "logout"){
+if($action == 'logout'){
 	$pHandler->reset();
-	header("Location: ../index.php");
+	header('Location: ../index.php');
 }
-elseif($action == "login"){
-	if($pHandler->authenticate($_POST["password"])){
+elseif($action == 'login'){
+	if($pHandler->authenticate($_POST['password'])){
 		if(!$refUrl || (strtolower(substr($refUrl,0,4)) == 'http') || strpos($refUrl,'newprofile.php')){
-			header("Location: ../index.php");
+			header('Location: ../index.php');
 		}
 		else{
-			header("Location: ".$refUrl);
+			header('Location: '.$refUrl);
 		}
 	}
 	else{
@@ -94,8 +94,17 @@ else{
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['LOGIN_NAME'])?$LANG['LOGIN_NAME']:'Login'); ?></title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+    <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		if(!navigator.cookieEnabled){
@@ -134,10 +143,9 @@ else{
 	<script src="../js/symb/shared.js" type="text/javascript"></script>
 </head>
 <body>
-
 <?php
 $displayLeftMenu = (isset($profile_indexMenu)?$profile_indexMenu:'true');
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <!-- inner text -->
 <div id="innertext" style="padding-left:0px;margin-left:0px;">
@@ -163,7 +171,7 @@ include($SERVER_ROOT.'/header.php');
 					<input type="password" id="password" name="password"  style="border-style:inset;" autocomplete="off" />
 				</div>
 				<div style="margin:10px">
-					<input type="checkbox" value='1' name="remember" >
+					<input type="checkbox" value='1' name="remember" checked >
 					<?php echo (isset($LANG['REMEMBER'])?$LANG['REMEMBER']:'Remember me on this computer'); ?>
 				</div>
 				<div style="margin-right:10px;float:right;">
@@ -201,6 +209,6 @@ include($SERVER_ROOT.'/header.php');
 		</div>
 	</div>
 </div>
-<?php include($SERVER_ROOT.'/footer.php'); ?>
+<?php include($SERVER_ROOT.'/includes/footer.php'); ?>
 </body>
 </html>

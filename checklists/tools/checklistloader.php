@@ -2,7 +2,7 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistLoaderManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../checklists/tools/checklistloader.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../checklists/tools/checklistloader.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:"";
 $pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:"";
@@ -21,8 +21,17 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Species Checklist Loader</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php
+    $activateJQuery = false;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+	?>
 	<script type="text/javascript">
 		function validateUploadForm(thisForm){
 			var testStr = document.getElementById("uploadfile").value;
@@ -47,7 +56,7 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 <body>
 	<?php
 	$displayLeftMenu = true;
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
@@ -172,7 +181,7 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 		?>
 	</div>
 	<?php
-		include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

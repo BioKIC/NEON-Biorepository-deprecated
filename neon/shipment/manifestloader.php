@@ -36,8 +36,10 @@ if($isEditor){
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Manifest Loader</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php
+	$activateJQuery = false;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script type="text/javascript">
 		function verifyUploadForm(f){
 			var status = true;
@@ -85,7 +87,7 @@ if($isEditor){
 <body>
 <?php
 $displayLeftMenu = false;
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class="navpath">
 	<a href="../../index.php">Home</a> &gt;&gt;
@@ -121,8 +123,9 @@ if($isEditor){
 							$sourceArr = $loaderManager->getSourceArr();
 							$targetArr = $loaderManager->getTargetArr();
 							$symbTargetArr = $loaderManager->getSymbTargetArr();
-							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation',
-								'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties');
+							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation','deprecatedsampleid'=>'alternativesampleid',
+								'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties','containerid'=>'dynamicproperties',
+								'plateid'=>'dynamicproperties','platebarcode'=>'dynamicproperties', 'wellcoordinates'=>'dynamicproperties', 'samplesecondarybag'=>'dynamicproperties');
 							foreach($sourceArr as $sourceField){
 								?>
 								<tr>
@@ -178,11 +181,20 @@ if($isEditor){
 				$loaderManager->setUploadFileName($ulFileName);
 				$loaderManager->setFieldMap($fieldMap);
 				if(array_key_exists('reloadSamples',$_POST)) $loaderManager->setReloadSampleRecs($_POST['reloadSamples']);
-				$shipmentPK = $loaderManager->uploadData();
+				$shipmentPKArr = $loaderManager->uploadData();
 				echo '</ul>';
-				echo '<div style="margin:10px 0px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">Proceed to Manifest Check-in</a></div>';
-				echo '<div style="margin:10px 0px"><a href="manifestloader.php">Load Another Manifest</a></div>';
-				echo '<div style="margin:10px 0px"><a href="manifestsearch.php">List and Search Manifests</a></div>';
+				?>
+				<fieldset>
+					<legend><b>Manifests Associated with Shipment</b></legend>
+					<?php
+					foreach($shipmentPKArr as $shipmentID => $shipmentPK){
+						echo '<div style="margin-left:10px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">#'.$shipmentID.'</a></div>';
+					}
+					?>
+				</fieldset>
+				<div style="margin:10px 0px"><a href="manifestloader.php">Load Another Manifest</a></div>
+				<div style="margin:10px 0px"><a href="manifestsearch.php">List and Search Manifests</a></div>
+				<?php
 			}
 			else{
 				?>
@@ -218,7 +230,7 @@ else{
 	</div>
 	<?php
 }
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

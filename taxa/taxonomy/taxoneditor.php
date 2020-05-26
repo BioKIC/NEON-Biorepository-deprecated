@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyEditorManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../taxa/taxonomy/taxoneditor.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../taxa/taxonomy/taxoneditor.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $submitAction = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
@@ -69,9 +69,17 @@ if($editable){
 <head>
 	<title><?php echo $DEFAULT_TITLE." Taxon Editor: ".$tid; ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>"/>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
+  <?php
+    $activateJQuery = true;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+  ?>
 	<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script>
@@ -83,7 +91,7 @@ if($editable){
 <body>
 <?php
 	$displayLeftMenu = (isset($taxa_admin_taxonomyeditorMenu)?$taxa_admin_taxonomyeditorMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($taxa_admin_taxonomyeditorCrumbs)){
 		if($taxa_admin_taxonomyeditorCrumbs){
 			echo "<div class='navpath'>";
@@ -150,11 +158,18 @@ if($editable){
 						<div style="clear:both;">
 							<div style="float:left;width:110px;font-weight:bold;">UnitName1: </div>
 							<div class="editfield">
-								<?php echo $taxonEditorObj->getUnitInd1()." ".$taxonEditorObj->getUnitName1();?>
+								<?php
+								$unitInd1 = $taxonEditorObj->getUnitInd1();
+								echo ($unitInd1?$unitInd1.' ':'').$taxonEditorObj->getUnitName1();
+								?>
 							</div>
 							<div class="editfield" style="display:none;">
 								<div style="float:left;">
-									<input type="text" id="unitind1" name="unitind1" style="width:20px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitInd1(); ?>" />
+									<select name="unitind1">
+										<option value=""></option>
+										<option value="&#215;" <?php echo (ord($unitInd1)==195 || strtolower($unitInd1) == 'x'?'selected':''); ?>>&#215;</option>
+										<option value="&#8224;" <?php echo (ord($unitInd1)==226?'selected':''); ?>>&#8224;</option>
+									</select>
 								</div>
 								<div>
 									<input type="text" id="unitname1" name="unitname1" style="width:300px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitName1(); ?>" />
@@ -164,11 +179,17 @@ if($editable){
 						<div style="clear:both;">
 							<div style="float:left;width:110px;font-weight:bold;">UnitName2: </div>
 							<div class="editfield">
-								<?php echo $taxonEditorObj->getUnitInd2()." ".$taxonEditorObj->getUnitName2();?>
+								<?php
+								$unitInd2 = $taxonEditorObj->getUnitInd2();
+								echo ($unitInd2?$unitInd2.' ':'').$taxonEditorObj->getUnitName2();
+								?>
 							</div>
 							<div class="editfield" style="display:none;">
 								<div style="float:left;">
-									<input type="text" id="unitind2" name="unitind2" style="width:20px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitInd2(); ?>" />
+									<select name="unitind2">
+										<option value=""></option>
+										<option value="&#215;" <?php echo (ord($unitInd2)==195 || strtolower($unitInd2) == 'x'?'selected':''); ?>>&#215;</option>
+									</select>
 								</div>
 								<div>
 									<input type="text" id="unitname2" name="unitname2" style="width:300px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitName2(); ?>" />
@@ -217,8 +238,10 @@ if($editable){
 									<option value="">---------------------------------</option>
 									<?php
 									$rankArr = $taxonEditorObj->getRankArr();
-									foreach($rankArr as $rankId => $rName){
-										echo '<option value="'.$rankId.'" '.($taxonEditorObj->getRankId()==$rankId?'SELECTED':'').'>'.$rName.'</option>';
+									foreach($rankArr as $rankId => $nameArr){
+										foreach($nameArr as $rName){
+											echo '<option value="'.$rankId.'" '.($taxonEditorObj->getRankId()==$rankId?'SELECTED':'').'>'.$rName.'</option>';
+										}
 									}
 									?>
 								</select>
@@ -346,7 +369,7 @@ if($editable){
 										<?php echo '<a href="taxoneditor.php?tid='.$taxonEditorObj->getParentTid().'">'.$taxonEditorObj->getParentNameFull().'</a>';?>
 									</div>
 									<div class="tsedit" style="display:none;margin:3px;">
-										<input id="parentstr" name="parentstr" type="text" value="<?php echo $taxonEditorObj->getParentName(); ?>" />
+										<input id="parentstr" name="parentstr" type="text" value="<?php echo $taxonEditorObj->getParentName(); ?>" style="width:450px" />
 										<input name="parenttid" type="hidden" value="<?php echo $taxonEditorObj->getParentTid(); ?>" />
 									</div>
 								</div>
@@ -400,11 +423,11 @@ if($editable){
 								?>
 								<div class="acceptedits" style="display:none;">
 									<form id="accepteditsform" name="accepteditsform" action="taxoneditor.php" method="post" onsubmit="return verifyLinkToAcceptedForm(this);" >
-										<fieldset style="width:400px;margin:20px;padding:15px">
+										<fieldset style="width:80%;margin:20px;padding:15px">
 											<legend><b>Link to Another Accepted Name</b></legend>
 											<div>
 												Accepted Taxon:
-												<input id="aefacceptedstr" name="acceptedstr" type="text" style="width:300px;" />
+												<input id="aefacceptedstr" name="acceptedstr" type="text" style="width:450px;" />
 												<input name="tidaccepted" type="hidden" />
 											</div>
 											<div>
@@ -420,7 +443,7 @@ if($editable){
 										</fieldset>
 									</form>
 									<form id="changetoacceptedform" name="changetoacceptedform" action="taxoneditor.php" method="post">
-										<fieldset style="width:400px;margin:20px;padding:15px;">
+										<fieldset style="width:80%;margin:20px;padding:15px;">
 											<legend><b>Change to Accepted</b></legend>
 											<?php
 											$acceptedTid = key($acceptedArr);
@@ -528,16 +551,16 @@ if($editable){
 											<legend><b>Change to Not Accepted</b></legend>
 											<div style="margin:5px;">
 												<b>Accepted Name:</b>
-												<input id="ctnafacceptedstr" name="acceptedstr" type="text" style="width:270px;" />
+												<input id="ctnafacceptedstr" name="acceptedstr" type="text" style="width:450px;" />
 												<input name="tidaccepted" type="hidden" value="" />
 											</div>
 											<div style="margin:5px;">
 												<b>Reason:</b>
-												<input name="unacceptabilityreason" type="text" style="width:400px;" />
+												<input name="unacceptabilityreason" type="text" style="width:90%;" />
 											</div>
 											<div style="margin:5px;">
 												<b>Notes:</b>
-												<input name="notes" type="text" style="width:400px;" />
+												<input name="notes" type="text" style="width:90%;" />
 											</div>
 											<div style="margin:5px;">
 												<input name="tid" type="hidden" value="<?php echo $taxonEditorObj->getTid();?>" />
@@ -613,7 +636,7 @@ if($editable){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

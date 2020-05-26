@@ -1,25 +1,35 @@
 <?php
 include_once('../../config/symbini.php');
+include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $sourcePage = array_key_exists("sourcepage",$_REQUEST)?$_REQUEST["sourcepage"]:"specimen";
 $downloadType = array_key_exists("dltype",$_REQUEST)?$_REQUEST["dltype"]:"specimen";
 $taxonFilterCode = array_key_exists("taxonFilterCode",$_REQUEST)?$_REQUEST["taxonFilterCode"]:0;
 $displayHeader = array_key_exists("displayheader",$_REQUEST)?$_REQUEST["displayheader"]:0;
-
 $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
+
+$dwcManager = new DwcArchiverCore();
 ?>
 <html>
 <head>
 	<title>Collections Search Download</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script>
 		$(document).ready(function() {
@@ -59,10 +69,13 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 			if(obj.checked == false){
 				obj.form.images.checked = false;
 				obj.form.identifications.checked = false;
+				obj.form.attributes.checked = false;
 			}
 		}
 
 		function validateDownloadForm(f){
+			workingcircle
+			document.getElementById("workingcircle").style.display = "inline";
 			return true;
 		}
 
@@ -77,7 +90,7 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 	<?php
 	if($displayHeader){
 		$displayLeftMenu = (isset($collections_download_downloadMenu)?$collections_download_downloadMenu:false);
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		if(isset($collections_download_downloadCrumbs)){
 			if($collections_download_downloadCrumbs){
 				?>
@@ -103,7 +116,7 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 		<h2>Data Usage Guidelines</h2>
 	 	 <div style="margin:15px;">
 	 	 	By downloading data, the user confirms that he/she has read and agrees with the general
-	 	 	<a href="../../misc/usagepolicy.php#images">data usage terms</a>.
+	 	 	<a href="../../includes/usagepolicy.php#images">data usage terms</a>.
 	 	 	Note that additional terms of use specific to the individual collections
 	 	 	may be distributed with the data download. When present, the terms
 	 	 	supplied by the owning institution should take precedence over the
@@ -168,7 +181,9 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 									<div style="margin:10px 0px;">
 										<input type="checkbox" name="identifications" value="1" onchange="extensionSelected(this)" checked /> include Determination History<br/>
 										<input type="checkbox" name="images" value="1" onchange="extensionSelected(this)" checked /> include Image Records<br/>
-										<!--  <input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> include Occurrence Trait Attributes (MeasurementOrFact extension)<br/>  -->
+										<?php
+										if($dwcManager->hasAttributes()) echo '<input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> include Occurrence Trait Attributes<br/>';
+										?>
 										*Output must be a compressed archive
 									</div>
 								</td>
@@ -233,7 +248,8 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 									<input name="taxonFilterCode" type="hidden" value="<?php echo $taxonFilterCode; ?>" />
 									<input name="sourcepage" type="hidden" value="<?php echo $sourcePage; ?>" />
 									<input name="searchvar" type="hidden" value="<?php echo str_replace('"','&quot;',$searchVar); ?>" />
-									<input type="submit" name="submitaction" value="Download Data" />
+									<button type="submit" name="submitaction">Download Data</button>
+									<img id="workingcircle" src="../../images/ajax-loader_sm.gif" style="margin-bottom:-4px;width:20px;display:none;" />
 								</div>
 							</td>
 						</tr>
@@ -243,7 +259,7 @@ $searchVar = array_key_exists("searchvar",$_REQUEST)?$_REQUEST['searchvar']:'';
 		</div>
 	</div>
 	<?php
-	if($displayHeader) include($SERVER_ROOT.'/footer.php');
+	if($displayHeader) include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

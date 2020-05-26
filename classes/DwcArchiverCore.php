@@ -11,6 +11,7 @@ include_once($SERVER_ROOT.'/classes/OccurrenceAccessStats.php');
 
 class DwcArchiverCore extends Manager{
 
+	private $dataConn;
 	private $ts;
 
 	protected $collArr;
@@ -20,6 +21,7 @@ class DwcArchiverCore extends Manager{
 	private $condAllowArr;
 	private $overrideConditionLimit = false;
 	private $upperTaxonomy = array();
+	private $taxonRankArr = array();
 
 	private $targetPath;
 	protected $serverDomain;
@@ -39,6 +41,7 @@ class DwcArchiverCore extends Manager{
 	private $includeDets = 1;
 	private $includeImgs = 1;
 	private $includeAttributes = 0;
+	private $hasPaleo = false;
 	private $redactLocalities = 1;
 	private $rareReaderArr = array();
 	private $charSetSource = '';
@@ -83,8 +86,13 @@ class DwcArchiverCore extends Manager{
 	public function getOccurrenceCnt(){
 		$retStr = 0;
 		$this->applyConditions();
-		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = DwcArchiverOccurrence::getOccurrenceArr($this->schemaType, $this->extended);
-		$sql = DwcArchiverOccurrence::getSqlOccurrences($this->occurrenceFieldArr['fields'],$this->conditionSql,$this->getTableJoins(),false);
+		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager->setSchemaType($this->schemaType);
+		$dwcOccurManager->setExtended($this->extended);
+		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
+		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
+		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'],false);
+		$sql .= $this->getTableJoins().$this->conditionSql;
 		//if($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 		if($sql){
 			$sql = 'SELECT COUNT(o.occid) as cnt '.$sql;
@@ -144,7 +152,7 @@ class DwcArchiverCore extends Manager{
 		}
 		if($sqlWhere){
 			$sql = 'SELECT c.collid, c.institutioncode, c.collectioncode, c.collectionname, c.fulldescription, c.collectionguid, IFNULL(c.homepage,i.url) AS url, c.contact, c.email, '.
-				'c.guidtarget, c.dwcaurl, c.latitudedecimal, c.longitudedecimal, c.icon, c.managementtype, c.colltype, c.rights, c.rightsholder, c.usageterm, '.
+				'c.guidtarget, c.dwcaurl, c.latitudedecimal, c.longitudedecimal, c.icon, c.managementtype, c.colltype, c.rights, c.rightsholder, c.usageterm, c.dynamicproperties, '.
 				'i.address1, i.address2, i.city, i.stateprovince, i.postalcode, i.country, i.phone '.
 				'FROM omcollections c LEFT JOIN institutions i ON c.iid = i.iid '.
 				'WHERE '.$sqlWhere;
@@ -176,6 +184,12 @@ class DwcArchiverCore extends Manager{
 				$this->collArr[$r->collid]['postalcode'] = $r->postalcode;
 				$this->collArr[$r->collid]['country'] = $r->country;
 				$this->collArr[$r->collid]['phone'] = $r->phone;
+				if($r->dynamicproperties){
+					$propArr = json_decode($r->dynamicproperties,true);
+					if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
+						if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->hasPaleo = true;
+					}
+				}
 			}
 			$rs->free();
 		}
@@ -657,12 +671,16 @@ class DwcArchiverCore extends Manager{
 
     public function getDwcArray() {
 		$retArr = Array();
+		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager->setSchemaType($this->schemaType);
+		$dwcOccurManager->setExtended($this->extended);
+		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if(!$this->occurrenceFieldArr){
-			$this->occurrenceFieldArr = DwcArchiverOccurrence::getOccurrenceArr($this->schemaType, $this->extended);
+			$this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		}
-
 		$this->applyConditions();
-		$sql = DwcArchiverOccurrence::getSqlOccurrences($this->occurrenceFieldArr['fields'],$this->conditionSql,$this->getTableJoins());
+		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
+		$sql .= $this->getTableJoins().$this->conditionSql;
 		if(!$sql) return false;
 		$sql .= ' LIMIT 1000000';
 		$fieldArr = $this->occurrenceFieldArr['fields'];
@@ -687,9 +705,9 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
-		//Populate Upper Taxonomic data
 		$this->setUpperTaxonomy();
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
+		$this->setTaxonRank();
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$typeArr = null;
 			if($this->schemaType == 'pensoft'){
 				$typeArr = array('Other material', 'Holotype', 'Paratype', 'Isotype', 'Isoparatype', 'Isolectotype', 'Isoneotype', 'Isosyntype');
@@ -772,22 +790,10 @@ class DwcArchiverCore extends Manager{
 					}
 				}
 
-				//Add upper taxonomic data
-				if($r['family'] && $this->upperTaxonomy){
-					$famStr = strtolower($r['family']);
-					if(isset($this->upperTaxonomy[$famStr]['o'])){
-						$r['t_order'] = $this->upperTaxonomy[$famStr]['o'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['c'])){
-						$r['t_class'] = $this->upperTaxonomy[$famStr]['c'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['p'])){
-						$r['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['k'])){
-						$r['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
-					}
-				}
+				$this->appendUpperTaxonomy($r);
+				if(array_key_exists($r['rankid'], $this->taxonRankArr)) $r['t_taxonRank'] = $this->taxonRankArr[$r['rankid']];
+				unset($r['rankid']);
+
 				if($urlPathPrefix) $r['t_references'] = $urlPathPrefix.'collections/individual/index.php?occid='.$r['occid'];
 
 				foreach($r as $rKey => $rValue){
@@ -844,6 +850,7 @@ class DwcArchiverCore extends Manager{
 			$this->logOrEcho("FATAL ERROR: PHP ZipArchive class is not installed, please contact your server admin\n");
 			exit('FATAL ERROR: PHP ZipArchive class is not installed, please contact your server admin');
 		}
+		$this->dataConn = MySQLiConnectionFactory::getCon('readonly');
 		$status = $this->writeOccurrenceFile();
 		if($status){
 			$archiveFile = $this->targetPath.$fileName;
@@ -907,6 +914,7 @@ class DwcArchiverCore extends Manager{
 			unset($this->collArr[$collid]);
 		}
 		$this->logOrEcho("\n-----------------------------------------------------\n");
+		$this->dataConn->close();
 		return $archiveFile;
 	}
 
@@ -1573,12 +1581,17 @@ class DwcArchiverCore extends Manager{
 		}
 		$hasRecords = false;
 
+		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager->setSchemaType($this->schemaType);
+		$dwcOccurManager->setExtended($this->extended);
+		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if(!$this->occurrenceFieldArr){
-			$this->occurrenceFieldArr = DwcArchiverOccurrence::getOccurrenceArr($this->schemaType, $this->extended);
+			$this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		}
 		//Output records
 		$this->applyConditions();
-		$sql = DwcArchiverOccurrence::getSqlOccurrences($this->occurrenceFieldArr['fields'],$this->conditionSql,$this->getTableJoins());
+		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
+		$sql .= $this->getTableJoins().$this->conditionSql;
 		if(!$sql) return false;
 		if($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 
@@ -1586,8 +1599,9 @@ class DwcArchiverCore extends Manager{
 		$fieldArr = $this->occurrenceFieldArr['fields'];
 		if($this->schemaType == 'dwc' || $this->schemaType == 'pensoft'){
 			unset($fieldArr['localitySecurity']);
+			unset($fieldArr['collId']);
 		}
-		if($this->schemaType == 'dwc' || $this->schemaType == 'pensoft' || $this->schemaType == 'backup'){
+		elseif($this->schemaType == 'backup'){
 			unset($fieldArr['collId']);
 		}
 		$fieldOutArr = array();
@@ -1625,11 +1639,11 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
-		//Populate Upper Taxonomic data
-		$this->setUpperTaxonomy();
+		//$this->setUpperTaxonomy();
+		$this->setTaxonRank();
 
 		//echo $sql; exit;
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$this->setServerDomain();
 			$urlPathPrefix = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].(substr($GLOBALS['CLIENT_ROOT'],-1)=='/'?'':'/');
 			$typeArr = null;
@@ -1638,10 +1652,7 @@ class DwcArchiverCore extends Manager{
 				//$typeArr = array('Other material', 'Holotype', 'Paratype', 'Hapantotype', 'Syntype', 'Isotype', 'Neotype', 'Lectotype', 'Paralectotype', 'Isoparatype', 'Isolectotype', 'Isoneotype', 'Isosyntype');
 			}
 			$statsManager = new OccurrenceAccessStats();
-			$previousOccid = 0;
 			while($r = $rs->fetch_assoc()){
-				if($previousOccid == $r['occid']) continue;
-				$previousOccid = $r['occid'];
 				if(!$r['occurrenceID']){
 					//Set occurrence GUID based on GUID target, but only if occurrenceID field isn't already populated
 					$guidTarget = $this->collArr[$r['collid']]['guidtarget'];
@@ -1721,23 +1732,12 @@ class DwcArchiverCore extends Manager{
 				elseif($this->schemaType == 'backup'){
 					unset($r['collid']);
 				}
-				//Add upper taxonomic data
-				if($r['family'] && $this->upperTaxonomy){
-					$famStr = strtolower($r['family']);
-					if(isset($this->upperTaxonomy[$famStr]['o'])){
-						$r['t_order'] = $this->upperTaxonomy[$famStr]['o'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['c'])){
-						$r['t_class'] = $this->upperTaxonomy[$famStr]['c'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['p'])){
-						$r['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
-					}
-					if(isset($this->upperTaxonomy[$famStr]['k'])){
-						$r['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
-					}
-				}
-				//print_r($r); exit;
+
+				//$this->appendUpperTaxonomy($r);
+				$this->appendUpperTaxonomy2($r);
+				if(array_key_exists($r['rankid'], $this->taxonRankArr)) $r['t_taxonRank'] = $this->taxonRankArr[$r['rankid']];
+				unset($r['rankid']);
+
 				$this->encodeArr($r);
 				$this->addcslashesArr($r);
 				$this->writeOutRecord($fh,$r);
@@ -1768,7 +1768,9 @@ class DwcArchiverCore extends Manager{
 
 	public function getOccurrenceFile(){
 		if(!$this->targetPath) $this->setTargetPath();
+		$this->dataConn = MySQLiConnectionFactory::getCon('readonly');
 		$filePath = $this->writeOccurrenceFile();
+		$this->dataConn->close();
 		return $filePath;
 	}
 
@@ -1791,7 +1793,7 @@ class DwcArchiverCore extends Manager{
 
 		//Output records
 		$sql = DwcArchiverDetermination::getSqlDeterminations($this->determinationFieldArr['fields'],$this->conditionSql);
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$previousDetID = 0;
 			while($r = $rs->fetch_assoc()){
 				if($previousDetID == $r['detid']) continue;
@@ -1831,8 +1833,7 @@ class DwcArchiverCore extends Manager{
 
 		//Output records
 		$sql = DwcArchiverImage::getSqlImages($this->imageFieldArr['fields'], $this->conditionSql, $this->redactLocalities, $this->rareReaderArr);
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
-
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$this->setServerDomain();
 			$urlPathPrefix = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].(substr($GLOBALS['CLIENT_ROOT'],-1)=='/'?'':'/');
 
@@ -1936,7 +1937,7 @@ class DwcArchiverCore extends Manager{
 		//Output records
 		$sql = DwcArchiverAttribute::getSql($this->attributeFieldArr['fields'],$this->conditionSql);
 		//echo $sql; exit;
-		if($rs = $this->conn->query($sql,MYSQLI_USE_RESULT)){
+		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			while($r = $rs->fetch_assoc()){
 				$this->encodeArr($r);
 				$this->addcslashesArr($r);
@@ -2000,7 +2001,7 @@ class DwcArchiverCore extends Manager{
 		return true;
 	}
 
-	//getters, setters, and misc functions
+	// misc support functions
 	private function setUpperTaxonomy(){
 		if(!$this->upperTaxonomy){
 			$sqlOrder = 'SELECT t.sciname AS family, t2.sciname AS taxonorder '.
@@ -2045,6 +2046,89 @@ class DwcArchiverCore extends Manager{
 		}
 	}
 
+	private function setTaxonRank(){
+		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->taxonRankArr[$r->rankid] = $r->rankname;
+		}
+		$rs->free();
+	}
+
+	private function appendUpperTaxonomy(&$targetArr){
+		if($targetArr['family'] && $this->upperTaxonomy){
+			$higherStr = '';
+			$famStr = strtolower($targetArr['family']);
+			if(isset($this->upperTaxonomy[$famStr]['k'])){
+				$targetArr['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
+				$higherStr = $targetArr['t_kingdom'];
+			}
+			if(isset($this->upperTaxonomy[$famStr]['p'])){
+				$targetArr['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
+				$higherStr .= '|'.$targetArr['t_phylum'];
+			}
+			if(isset($this->upperTaxonomy[$famStr]['c'])){
+				$targetArr['t_class'] = $this->upperTaxonomy[$famStr]['c'];
+				$higherStr .= '|'.trim($targetArr['t_class'],'|');
+			}
+			if(isset($this->upperTaxonomy[$famStr]['o'])){
+				$targetArr['t_order'] = $this->upperTaxonomy[$famStr]['o'];
+				$higherStr .= '|'.trim($targetArr['t_class'],'|');
+			}
+			$targetArr['t_higherClassification'] = trim($higherStr,'| ');
+		}
+	}
+
+	private function appendUpperTaxonomy2(&$r){
+		$target = $r['taxonID'];
+		if(!$target) $target = ucfirst($r['family']);
+		if($target){
+			if(array_key_exists($target, $this->upperTaxonomy)){
+				if(isset($this->upperTaxonomy[$target]['k'])) $r['t_kingdom'] = $this->upperTaxonomy[$target]['k'];
+				if(isset($this->upperTaxonomy[$target]['p'])) $r['t_phylum'] = $this->upperTaxonomy[$target]['p'];
+				if(isset($this->upperTaxonomy[$target]['c'])) $r['t_class'] = $this->upperTaxonomy[$target]['c'];
+				if(isset($this->upperTaxonomy[$target]['o'])) $r['t_order'] = $this->upperTaxonomy[$target]['o'];
+				if(isset($this->upperTaxonomy[$target]['f']) && !$r['family']) $r['family'] = $this->upperTaxonomy[$target]['f'];
+				if(isset($this->upperTaxonomy[$target]['s'])) $r['t_subgenus'] = $this->upperTaxonomy[$target]['s'];
+				if(isset($this->upperTaxonomy[$target]['u'])) $r['t_higherClassification'] = $this->upperTaxonomy[$target]['u'];
+			}
+			else{
+				$higherStr = '';
+				$sql = 'SELECT t.tid, t.sciname, t.rankid '.
+					'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
+					'WHERE e.taxauthid = 1 AND e.tid = '.$r['taxonID'].' ORDER BY t.rankid';
+				if(!is_numeric($target)){
+					$sql = 'SELECT t.tid, t.sciname, t.rankid '.
+						'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
+						'INNER JOIN taxa t2 ON e.tid = t2.tid '.
+						'WHERE e.taxauthid = 1 AND t2.sciname = "'.$this->cleanInStr($target).'" ORDER BY t.rankid';
+				}
+				$rs = $this->conn->query($sql);
+				while($row = $rs->fetch_object()){
+					if($row->rankid == 10) $r['t_kingdom'] = $row->sciname;
+					elseif($row->rankid == 30) $r['t_phylum'] = $row->sciname;
+					elseif($row->rankid == 60) $r['t_class'] = $row->sciname;
+					elseif($row->rankid == 100) $r['t_order'] = $row->sciname;
+					elseif($row->rankid == 140 && !$r['family']) $r['family'] = $row->sciname;
+					elseif($row->rankid == 190) $r['t_subgenus'] = $row->sciname;
+					$higherStr .= '|'.$row->sciname;
+				}
+				$rs->free();
+				if($higherStr) $r['t_higherClassification'] = trim($higherStr,'| ');
+				if(count($this->upperTaxonomy)<1000 || !is_numeric($target)){
+					if($r['t_kingdom']) $this->upperTaxonomy[$target]['k'] = $r['t_kingdom'];
+					if($r['t_phylum']) $this->upperTaxonomy[$target]['p'] = $r['t_phylum'];
+					if($r['t_class']) $this->upperTaxonomy[$target]['c'] = $r['t_class'];
+					if($r['t_order']) $this->upperTaxonomy[$target]['o'] = $r['t_order'];
+					if($r['family']) $this->upperTaxonomy[$target]['f'] = $r['family'];
+					if($r['t_subgenus']) $this->upperTaxonomy[$target]['s'] = $r['t_subgenus'];
+					if($r['t_higherClassification']) $this->upperTaxonomy[$target]['u'] = $r['t_higherClassification'];
+				}
+			}
+		}
+	}
+
+	//getters, setters, and misc functions
 	public function setOverrideConditionLimit($bool){
 		if($bool) $this->overrideConditionLimit = true;
 		else $this->overrideConditionLimit = false;
@@ -2095,6 +2179,15 @@ class DwcArchiverCore extends Manager{
 		$this->includeAttributes = $include;
 	}
 
+	public function hasAttributes(){
+		$bool = false;
+		$sql = 'SELECT occid FROM tmattributes LIMIT 1';
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows) $bool = true;
+		$rs->free();
+		return $bool;
+	}
+
 	public function setRedactLocalities($redact){
 		$this->redactLocalities = $redact;
 	}
@@ -2132,7 +2225,7 @@ class DwcArchiverCore extends Manager{
 			$this->serverDomain = "http://";
 			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $this->serverDomain = "https://";
 			$this->serverDomain .= $_SERVER["SERVER_NAME"];
-			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $this->serverDomain .= ':'.$_SERVER["SERVER_PORT"];
+			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $this->serverDomain .= ':'.$_SERVER["SERVER_PORT"];
 		}
 	}
 

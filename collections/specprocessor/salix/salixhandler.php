@@ -3,7 +3,7 @@ include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SalixUtilities.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID){
-	header('Location: ../../../profile/index.php?refurl=../collections/specprocessor/salix/salixhandler.php?'.$_SERVER['QUERY_STRING']);
+	header('Location: ../../../profile/index.php?refurl=../collections/specprocessor/salix/salixhandler.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 }
 
 $action = (isset($_REQUEST['formsubmit'])?$_REQUEST['formsubmit']:'');
@@ -28,9 +28,17 @@ if($SYMB_UID){
 <html>
 	<head>
 		<title>SALIX Wordstat Manager</title>
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet" />
+		<?php
+		$activateJQuery = true;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+		}
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js" type="text/javascript"></script>
 		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js" type="text/javascript"></script>
 		<script type="text/javascript">
@@ -44,20 +52,20 @@ if($SYMB_UID){
 	<body>
 		<?php
 		$displayLeftMenu = true;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class='navpath'>
 			<a href="../../../index.php">Home</a> &gt;&gt;
-			<?php 
+			<?php
 			if($collid){
 				?>
 				<a href="../../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management</a> &gt;&gt;
-				<?php 
+				<?php
 			}
 			else{
 				?>
 				<a href="../../../sitemap.php">Sitemap</a> &gt;&gt;
-				<?php 
+				<?php
 			}
 			echo '<a href="salixhandler.php?collid='.$collid.'&actiontype='.$actionType.'&limit='.$limit.'">';
 			echo '<b>SALIX Wordstat Manager</b>';
@@ -67,7 +75,7 @@ if($SYMB_UID){
 
 		<!-- This is inner text! -->
 		<div id="innertext">
-			<?php 
+			<?php
 			if($isEditor){
 				$salixHanlder = new SalixUtilities();
 				$salixHanlder->setVerbose($verbose);
@@ -82,27 +90,27 @@ if($SYMB_UID){
 						<form name="salixmanagerform" action="salixhandler.php" method="post" onsubmit="return verifySalixManagerForm(this)">
 							<div style="margin:15px;">
 								<b>Actions</b><br/>
-								<input name="actiontype" type="radio" value="1" /> Rebuild with randomly selected occurrences<br/> 
-								<input name="actiontype" type="radio" value="2" /> Rebuild with most recently entered occurrences<br/> 
+								<input name="actiontype" type="radio" value="1" /> Rebuild with randomly selected occurrences<br/>
+								<input name="actiontype" type="radio" value="2" /> Rebuild with most recently entered occurrences<br/>
 								<input name="actiontype" type="radio" value="3" checked />Append using occurrences entered since last build (<?php echo $salixHanlder->getLastBuildTimestamp(); ?>)<br/><br/>
 								Limit to <input name="limit" type="text" value="100000" /> unique values per column
 							</div>
 							<div style="margin:15px;">
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-								<input name="formsubmit" type="submit" value="Build Wordstat Tables" /> 
+								<input name="formsubmit" type="submit" value="Build Wordstat Tables" />
 							</div>
 						</form>
 					</fieldset>
 					<?php
-				} 
+				}
 			}
 			else{
 				echo '<div style="margin:25px;font-weight">You are not authorized to build Word Stats</div>';
 			}
-			?> 
+			?>
 		</div>
 		<?php
-			include($SERVER_ROOT.'/footer.php');
+			include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

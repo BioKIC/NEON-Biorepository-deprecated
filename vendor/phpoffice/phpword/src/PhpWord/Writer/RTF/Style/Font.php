@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -53,7 +53,7 @@ class Font extends AbstractStyle
         $content .= '\f' . $this->nameIndex;
 
         $size = $style->getSize();
-        $content .= $this->getValueIf(is_numeric($size), '\fs' . ($size * 2));
+        $content .= $this->getValueIf(is_numeric($size), '\fs' . round($size * 2));
 
         $content .= $this->getValueIf($style->isBold(), '\b');
         $content .= $this->getValueIf($style->isItalic(), '\i');

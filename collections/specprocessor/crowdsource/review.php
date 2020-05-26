@@ -3,7 +3,7 @@ include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceCrowdSource.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: ../../../profile/index.php?refurl=../collections/specprocessor/index.php?tabindex=2&'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../../profile/index.php?refurl=../collections/specprocessor/index.php?tabindex=2?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $uid = array_key_exists('uid',$_REQUEST)?$_REQUEST['uid']:0;

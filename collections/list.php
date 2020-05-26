@@ -24,17 +24,21 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 	<title><?php echo $DEFAULT_TITLE.' '.$LANG['PAGE_TITLE']; ?></title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<style type="text/css">
-		.ui-tabs .ui-tabs-nav li { width:32%; }
-		.ui-tabs .ui-tabs-nav li a { margin-left:10px;}
-	</style>
-	<link href="../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		var urlQueryStr = "<?php echo $searchVar.'&page='.$pageNumber; ?>";
@@ -64,11 +68,15 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 		});
 	</script>
 	<script src="../js/symb/collections.list.js?ver=9" type="text/javascript"></script>
+	<style type="text/css">
+		.ui-tabs .ui-tabs-nav li { width:32%; }
+		.ui-tabs .ui-tabs-nav li a { margin-left:10px;}
+	</style>
 </head>
 <body>
 <?php
 	$displayLeftMenu = (isset($collections_listMenu)?$collections_listMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_listCrumbs)){
 		if($collections_listCrumbs){
 			echo '<div class="navpath">';
@@ -110,19 +118,19 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 			<div id="queryrecords">
 				<div style="float:right;">
 					<form action="listtabledisplay.php" method="post" style="float:left">
-						<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo (isset($LANG['TABLE_DISPLAY'])?$LANG['TABLE_DISPLAY']:'Table Display'); ?>">
+						<button class="icon-button" title="<?php echo (isset($LANG['TABLE_DISPLAY'])?$LANG['TABLE_DISPLAY']:'Table Display'); ?>">
 							<img src="../images/table.png" style="width:15px; height:15px" />
 						</button>
 						<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 					</form>
 					<form action="download/index.php" method="post" style="float:left" onsubmit="targetPopup(this)">
-						<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
+						<button class="icon-button" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
 							<img src="../../images/dl2.png" srcset="../images/download.svg" class="svg-icon" style="width:15px; height:15px" />
 						</button>
 						<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 						<input name="dltype" type="hidden" value="specimen" />
 					</form>
-					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" onclick="copyUrl()" title="Copy URL to Clipboard">
+					<button class="icon-button" onclick="copyUrl()" title="Copy URL to Clipboard">
 						<img src="../../images/dl2.png" srcset="../images/link.svg" class="svg-icon" style="width:15px; height:15px" />
 					</button>
 				</div>
@@ -184,8 +192,6 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 							if($SYMB_UID && ($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollAdmin'])) || (array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollEditor'])))){
 								$isEditor = true;
 							}
-							$instCode = $fieldArr["instcode"];
-							if($fieldArr["collcode"]) $instCode .= ":".$fieldArr["collcode"];
 							echo '<tr><td colspan="2"><h2>';
 							echo '<a href="misc/collprofiles.php?collid='.$collId.'">'.$fieldArr["collname"].'</a>';
 							echo '</h2><hr /></td></tr>';
@@ -198,6 +204,8 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 						}
 						echo '</a>';
 						echo '<div style="font-weight:bold;font-size:75%;">';
+						$instCode = $fieldArr["instcode"];
+						if($fieldArr["collcode"]) $instCode .= ":".$fieldArr["collcode"];
 						echo $instCode;
 						echo '</div></td><td>';
 						if($isEditor || ($SYMB_UID && $SYMB_UID == $fieldArr['obsuid'])){
@@ -236,8 +244,13 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 						if($fieldArr["country"]) $localStr .= $fieldArr["country"].", ";
 						if($fieldArr["state"]) $localStr .= $fieldArr["state"].", ";
 						if($fieldArr["county"]) $localStr .= $fieldArr["county"].", ";
-						if($fieldArr["locality"]) $localStr .= $fieldArr["locality"].", ";
-						if(isset($fieldArr["elev"]) && $fieldArr["elev"]) $localStr .= $fieldArr["elev"].'m';
+						if($fieldArr['locality'] == 'PROTECTED'){
+							$localStr .= '<span style="color:red;">'.$LANG['PROTECTED'].'</span>';
+						}
+						else{
+							if($fieldArr['locality']) $localStr .= $fieldArr['locality'].', ';
+							if(isset($fieldArr['elev']) && $fieldArr['elev']) $localStr .= $fieldArr['elev'].'m';
+						}
 						if(strlen($localStr) > 2) $localStr = trim($localStr,' ,');
 						echo $localStr;
 						echo '</div><div style="margin:4px">';
@@ -277,7 +290,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 		</div>
 		<div id="maps" style="min-height:400px;margin-bottom:10px;">
 			<form action="download/index.php" method="post" style="float:right" onsubmit="targetPopup(this)">
-				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
+				<button class="icon-button" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
 					<img src="../../images/dl2.png" srcset="../images/download.svg" class="svg-icon" style="width:15px; height:15px" />
 				</button>
 				<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
@@ -336,7 +349,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 	</div>
 </div>
 <?php
-include($SERVER_ROOT."/footer.php");
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

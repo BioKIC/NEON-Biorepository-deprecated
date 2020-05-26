@@ -2,7 +2,7 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceGeorefTools.php');
 
-if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../collections/georef/batchgeoreftool.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../collections/georef/batchgeoreftool.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $submitAction = array_key_exists('submitaction',$_POST)?$_POST['submitaction']:'';
@@ -87,12 +87,20 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <html>
 	<head>
 		<title>Georeferencing Tools</title>
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link type="text/css" href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" rel="Stylesheet" />
+    <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js"></script>
 		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js"></script>
-		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.georef.batchgeoreftool.js?ver=201808"></script>
+		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.georef.batchgeoreftool.js?ver=201912"></script>
 	</head>
 	<body>
 		<!-- This is inner text! -->
@@ -319,8 +327,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								echo 'Return Count: '.$localCnt;
 								?>
 							</div>
-							<div style="clear:both;">
-								<select id="locallist" name="locallist[]" size="15" multiple="multiple" style="width:100%">
+							<div style="clear:both;border:2px solid;width:100%;height:200px;resize: both;overflow: auto">
+								<select id="locallist" name="locallist[]" multiple="multiple" style="width:100%;height:100%">
 									<?php
 									if(isset($localArr)){
 										if($localArr){

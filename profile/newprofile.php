@@ -70,8 +70,17 @@ if($action == "Create Login"){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> - New User Profile</title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+    <?php
+      $activateJQuery = false;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 	<script type="text/javascript">
 		function validateform(f){
 			<?php
@@ -136,7 +145,7 @@ if($action == "Create Login"){
 <body>
 	<?php
 	$displayLeftMenu = (isset($profile_newprofileMenu)?$profile_newprofileMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($profile_newprofileCrumbs)){
 		echo "<div class='navpath'>";
 		echo $profile_newprofileCrumbs;
@@ -314,7 +323,7 @@ if($action == "Create Login"){
 	</fieldset>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

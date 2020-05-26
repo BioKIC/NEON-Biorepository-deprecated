@@ -140,11 +140,13 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 	public function getMissingTaxa(){
 		$retArr = Array();
 		if($sqlFrag = $this->getSqlFrag()){
-			$sql = 'SELECT DISTINCT t.tid, t.sciname '.$this->getMissingTaxaBaseSql($sqlFrag);
-			//echo '<div>'.$sql.'</div>';
+			$sql = 'SELECT DISTINCT t.tid, t.sciname, o.sciname AS occur_sciname '.$this->getMissingTaxaBaseSql($sqlFrag);
+			//echo '<div>'.$sql.'</div>'; exit;
 			$rs = $this->conn->query($sql);
-			while($row = $rs->fetch_object()){
-				$retArr[$row->tid] = $this->cleanOutStr($row->sciname);
+			while($r = $rs->fetch_object()){
+				$sciStr = $r->sciname;
+				if($r->sciname != $r->occur_sciname) $sciStr .= ' (syn: '.$r->occur_sciname.')';
+				$retArr[$r->tid] = $this->cleanOutStr($sciStr);
 			}
 			asort($retArr);
 			$rs->free();
@@ -153,17 +155,18 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		return $retArr;
 	}
 
-	public function getMissingTaxaSpecimens($limitIndex){
+	public function getMissingTaxaSpecimens($limitIndex, $limitRange = 1000){
 		$retArr = Array();
 		if($sqlFrag = $this->getSqlFrag()){
 			$sqlBase = $this->getMissingTaxaBaseSql($sqlFrag);
 			$sql = 'SELECT DISTINCT o.occid, c.institutioncode ,c.collectioncode, o.catalognumber, '.
-				'o.tidinterpreted, o.sciname, o.recordedby, o.recordnumber, o.eventdate, '.
+				'o.tidinterpreted, t.sciname, o.sciname AS occur_sciname, o.recordedby, o.recordnumber, o.eventdate, '.
 				'CONCAT_WS("; ",o.country, o.stateprovince, o.county, o.locality) as locality '.
-				$sqlBase.' LIMIT '.($limitIndex?($limitIndex*400).',':'').'400';
+				$sqlBase.' ORDER BY t.sciname LIMIT '.($limitIndex?($limitIndex*1000).',':'').$limitRange;
 			//echo '<div>'.$sql.'</div>'; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
+				$retArr[$r->sciname][$r->occid]['o_sn'] = $r->occur_sciname;
 				$retArr[$r->sciname][$r->occid]['tid'] = $r->tidinterpreted;
 				$collCode = '';
 				if(!$r->catalognumber || strpos($r->catalognumber, $r->institutioncode) === false){
@@ -238,21 +241,21 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			$localitySecurityFields = $this->getLocalitySecurityArr();
 
 			$exportSql = 'SELECT '.implode(',',$fieldArr).', o.localitysecurity, o.collid '.
-				$this->getMissingTaxaBaseSql($sqlFrag);
+				$this->getMissingTaxaBaseSql($sqlFrag,true);
 			//echo $exportSql;
 			$this->exportCsv($fileName,$exportSql,$localitySecurityFields);
 		}
 	}
 
-	private function getMissingTaxaBaseSql($sqlFrag){
+	private function getMissingTaxaBaseSql($sqlFrag, $asExport = false){
 		$clidStr = $this->clid;
 		if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
 		$retSql = 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid '.
 			'INNER JOIN taxstatus ts ON o.tidinterpreted = ts.tid '.
-			'INNER JOIN taxa t ON ts.tidaccepted = t.tid '.
-			'LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
+			'INNER JOIN taxa t ON ts.tidaccepted = t.tid ';
+		if($asExport) $retSql .= 'LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
 		$retSql .= $this->getTableJoinFrag($sqlFrag);
-		$retSql .= 'WHERE ('.$sqlFrag.') AND (t.rankid IN(220,230,240,260,230)) AND (ts.taxauthid = 1) ';
+		$retSql .= 'WHERE ('.$sqlFrag.') AND (t.rankid > 219) AND (ts.taxauthid = 1) ';
 		$idArr = $this->getVoucherIDs('occid');
 		if($idArr) $retSql .= 'AND (o.occid NOT IN('.implode(',',$idArr).')) ';
 		$retSql .= 'AND (ts.tidaccepted NOT IN(SELECT ts.tidaccepted FROM fmchklsttaxalink cl INNER JOIN taxstatus ts ON cl.tid = ts.tid WHERE ts.taxauthid = 1 AND cl.clid IN('.$clidStr.'))) ';
@@ -298,16 +301,16 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		if($sqlFrag = $this->getSqlFrag()){
 			$fieldArr = $this->getOccurrenceFieldArr();
 			$localitySecurityFields = $this->getLocalitySecurityArr();
-			$sql = 'SELECT DISTINCT '.implode(',',$fieldArr).', o.localitysecurity, o.collid '.
-				$this->getProblemTaxaSql($sqlFrag);
+			$sql = 'SELECT DISTINCT '.implode(',',$fieldArr).', o.localitysecurity, o.collid '.$this->getProblemTaxaSql($sqlFrag,true);
 			$this->exportCsv($fileName,$sql,$localitySecurityFields);
 		}
 	}
 
-	private function getProblemTaxaSql($sqlFrag){
-		$clidStr = $this->clid;
-		if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
-		$retSql = 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.CollID LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
+	private function getProblemTaxaSql($sqlFrag, $asExport = false){
+		//$clidStr = $this->clid;
+		//if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
+		$retSql = 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.CollID ';
+		if($asExport) $retSql .= 'LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
 		$retSql .= $this->getTableJoinFrag($sqlFrag);
 		$retSql .= 'WHERE ('.$sqlFrag.') AND (o.tidinterpreted IS NULL) AND (o.sciname IS NOT NULL) ';
 		$idArr = $this->getVoucherIDs('occid');
@@ -502,7 +505,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		$serverDomain = "http://";
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverDomain = "https://";
 		$serverDomain .= $_SERVER["SERVER_NAME"];
-		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $serverDomain .= ':'.$_SERVER["SERVER_PORT"];
+		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $serverDomain .= ':'.$_SERVER["SERVER_PORT"];
 		$retArr[] = 'CONCAT("'.$serverDomain.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid=",o.occid) as `references`';
 		return $retArr;
 

@@ -75,9 +75,17 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Reference Management</title>
-    <link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" rel="stylesheet" type="text/css" />
-    <link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" rel="stylesheet" type="text/css" />
-	<link href="../css/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 	<style type="text/css">
 		#tabs a{
 			outline-color: transparent;
@@ -102,7 +110,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <body>
 	<?php
 	$displayLeftMenu = (isset($reference_indexMenu)?$reference_indexMenu:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($reference_indexCrumbs)){
 		if($reference_indexCrumbs){
 			?>
@@ -553,7 +561,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

@@ -4,7 +4,7 @@ include_once($SERVER_ROOT.'/classes/OccurrenceSesar.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/igsnmapper.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/igsnmapper.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $username = array_key_exists('username',$_REQUEST)?$_REQUEST['username']:'';
@@ -18,11 +18,11 @@ $action = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 if(!is_numeric($collid)) $collid = 0;
 if(!in_array($registrationMethod,array('api','csv','xml'))) $registrationMethod = '';
 if(preg_match('/[^A-Z0-9]+/', $igsnSeed)) $igsnSeed = '';
-if(!is_numeric($processingCount)) $processingCount = 10;
+if($processingCount && !is_numeric($processingCount)) $processingCount = 10;
 
 $statusStr = '';
 $isEditor = 0;
-if($IS_ADMIN || array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
+if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']))){
 	$isEditor = 1;
 }
 $guidManager = new OccurrenceSesar();
@@ -62,8 +62,17 @@ if($action == 'populateGUIDs'){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title>IGSN GUID Mapper</title>
-	<link rel="stylesheet" href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" />
-	<link rel="stylesheet" href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" />
+  <?php
+    $activateJQuery = false;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+  ?>
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript">
 		function validateCredentials(f){
@@ -84,30 +93,30 @@ if($action == 'populateGUIDs'){
 			.done(function(xml) {
 				var valid = $(xml).find('valid').text();
 				if(valid == "yes"){
-					$(xml).find('user_codes').each(function(){
-	                    $(this).find("user_code").each(function(){
-	                        var userCode = $(this).text();
-	                        $("#igsn-reg-div").show();
-	                        $("#validate-button").hide();
-	                        $("#valid-span").show();
-	                        $("#notvalid-span").hide();
-	                    });
-	                });
+					//$(xml).find('user_codes').each(function(){
+						//$(this).find("user_code").each(function(){
+							//var userCode = $(this).text();
+						//});
+					//});
+					$("#igsn-reg-div").show();
+					$("#validate-button").hide();
+					$("#valid-span").show();
+					$("#notvalid-span").hide();
 				}
 				else{
 					alert($(xml).find('error').text());
-                    $("#igsn-reg-div").hide();
-                    $("#validate-button").show();
-                    $("#valid-span").hide();
-                    $("#notvalid-span").show();
+					$("#igsn-reg-div").hide();
+					$("#validate-button").show();
+					$("#valid-span").hide();
+					$("#notvalid-span").show();
 				}
 			})
 			.fail(function() {
 				alert("Validation call failed");
-                $("#igsn-reg-div").hide();
-                $("#validate-button").show();
-                $("#valid-span").hide();
-                $("#notvalid-span").show();
+				$("#igsn-reg-div").hide();
+				$("#validate-button").show();
+				$("#valid-span").hide();
+				$("#notvalid-span").show();
 			});
 		}
 
@@ -165,11 +174,12 @@ if($action == 'populateGUIDs'){
 <body>
 <?php
 $displayLeftMenu = 'false';
-include($SERVER_ROOT."/header.php");
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class='navpath'>
 	<a href="../../index.php">Home</a> &gt;&gt;
 	<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management</a> &gt;&gt;
+	<a href="igsnmanagement.php?collid=<?php echo $collid; ?>">IGSN GUID Management</a> &gt;&gt;
 	<b>IGSN Mapper</b>
 </div>
 <!-- This is inner text! -->
@@ -185,6 +195,9 @@ include($SERVER_ROOT."/header.php");
 			</fieldset>
 			<?php
 		}
+		if(!$guidManager->getProductionMode()){
+			echo '<h2 style="color:orange">-- In Development Mode --</h2>';
+		}
 		if($namespace && $generationMethod){
 			if($action == 'populateGUIDs'){
 				if($registrationMethod == 'api'){
@@ -197,9 +210,6 @@ include($SERVER_ROOT."/header.php");
 				}
 			}
 			?>
-			<p>
-				<b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?>
-			</p>
 			<form id="guidform" name="guidform" action="igsnmapper.php" method="post" onsubmit="return verifyGuidForm(this)">
 				<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 				<fieldset>
@@ -214,6 +224,10 @@ include($SERVER_ROOT."/header.php");
 						<div><span class="form-label">Password:</span> <input name="pwd" type="password" value="<?php echo $pwd; ?>" /></div>
 						<button id="validate-button" type="button" onclick="validateCredentials(this.form)">Validate Credentials</button>
 					</p>
+					<div style="margin:10px 0px"><hr/></div>
+					<div style="margin:10px 0px">
+						<p><b>Occurrences without GUIDs:</b> <?php echo $guidManager->getMissingGuidCount(); ?></p>
+					</div>
 					<div id="igsn-reg-div" style="margin-top:20px;display:none;">
 						<p>
 							<span class="form-label">IGSN Namespace:</span>
@@ -235,7 +249,7 @@ include($SERVER_ROOT."/header.php");
 							<select name="registrationMethod">
 								<option value=''>-- Select Method --</option>
 								<option value=''>----------------------------</option>
-								<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>Batch API submission</option>
+								<option value='api' <?php echo ($registrationMethod=='api'?'SELECTED':''); ?>>SESAR API</option>
 								<!--  <option value='csv' <?php echo ($registrationMethod=='csv'?'SELECTED':''); ?>>Export CSV</option>  -->
 								<option value='xml' <?php echo ($registrationMethod=='xml'?'SELECTED':''); ?>>Export XML</option>
 							</select>
@@ -262,7 +276,7 @@ include($SERVER_ROOT."/header.php");
 	?>
 </div>
 <?php
-include($SERVER_ROOT."/footer.php");
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

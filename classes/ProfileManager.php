@@ -386,8 +386,8 @@ class ProfileManager{
 		$result->free();
 		if($loginStr){
 			//Email login
-			$subject = $GLOBALS['defaultTitle'].' Login Name';
-			$bodyStr = 'Your '.$GLOBALS['defaultTitle'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.
+			$subject = $GLOBALS['DEFAULT_TITLE'].' Login Name';
+			$bodyStr = 'Your '.$GLOBALS['DEFAULT_TITLE'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.
 				$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a>) login name is: '.$loginStr.'<br/><br/>'.
 				'If you continue to have login issues, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'];
 			$headerStr = "Organization: ".$GLOBALS["DEFAULT_TITLE"]." \r\n".

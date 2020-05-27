@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Sample Search Mockup Option 1</title>
+  <link rel="stylesheet" href="css/app.css">
+  <!-- FONT
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700" rel="stylesheet" type="text/css">
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <h1>Sample Search</h1>
+  <form id="params-form">
+    <!-- Criteria forms -->
+    <div class="accordions">
+      <section>
+        <!-- Accordion selector -->
+        <input type="checkbox" id="title1" class="accordion-selector" checked />
+        <!-- Accordion header -->
+        <label for="title1" class="accordion-header">Taxonomy</label>
+        <!-- Taxonomy -->
+        <div id="search-form-taxonomy" class="content">
+          <div class="input-text-container">
+            <label for="" class="input-text--outlined">
+              <input type="text" name="taxa">
+              <span data-label="Taxon"></span></label>
+            <span class="assistive-text">Type any taxonomic name, or select on the right.</span>
+          </div>
+          <div class="select-container">
+            <!-- <label for="taxon-type">Taxon Type</label> -->
+            <select name="taxontype">
+                <option value="1">Any name</option>
+                <option value="2">Scientific name</option>
+                <option value="3">Family</option>
+                <option value="4">Taxonomic group</option>
+                <option value="5">Common name</option>
+              </select>
+            <span class="assistive-text">Taxon type.</span>
+          </div>
+        </div>
+      </section>
+      <!-- Colections -->
+      <section>
+        <!-- Accordion selector -->
+        <input type="checkbox" id="title2" class="accordion-selector" checked />
+        <!-- Accordion header -->
+        <label for="title2" class="accordion-header">Collections</label>
+        <!-- Accordion content -->
+        <div id="search-form-colls" class="content">
+          <!-- <ul id="collections-list"></ul> -->
+          <ul id="biorepo-collections-list">
+            <li><input id="allCollections" name="db" value="all" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Collections</span>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Algae</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="db" value="50" class="child" checked=""><span>Aquatic Macroalgae Collection (Chemical Preservation [Clip Harvests])</span></li>
+                    <li><input type="checkbox" name="db" value="73" class="child" checked=""><span>Aquatic Macroalgae Collection (Chemical Preservation [Point Counts])</span></li>
+                    <li><input type="checkbox" name="db" value="47" class="child" checked=""><span>Aquatic Microalgae Collection (Chemical Preservation)</span></li>
+                    <li><input type="checkbox" name="db" value="46" class="child" checked=""><span>Aquatic Microalgae Collection (Freeze-dried)</span></li>
+                    <li><input type="checkbox" name="db" value="49" class="child" checked=""><span>Aquatic Microalgae Collection (Microscope Slides)</span></li>
+                    <li><input type="checkbox" name="db" value="9" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Clip Harvests])</span></li>
+                    <li><input type="checkbox" name="db" value="7" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Point Counts])</span></li>
+                    <li><input type="checkbox" name="db" value="8" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Standard Sampling])</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Environmental</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="db" value="41" class="child" checked=""><span>Particulate Mass Filter Collection</span></li>
+                    <li><input type="checkbox" name="db" value="30" class="child" checked=""><span>Soil Collection</span></li>
+                    <li><input type="checkbox" name="db" value="42" class="child" checked=""><span>Wet Deposition Collection</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Invertebrates</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="db" value="22" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Chironomids)</span></li>
+                    <li><input type="checkbox" name="db" value="61" class="child" checked=""><span>Benthic Macroinvertebrate Collection (DNA Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="53" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Microscope Slides)</span></li>
+                    <li><input type="checkbox" name="db" value="52" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Oligochaetes)</span></li>
+                    <li><input type="checkbox" name="db" value="48" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Taxonomy Reference Collection)</span></li>
+                    <li><input type="checkbox" name="db" value="57" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Taxonomy Subsample)</span></li>
+                    <li><input type="checkbox" name="db" value="21" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Unsorted Bulk Sample)</span></li>
+                    <li><input type="checkbox" name="db" value="11" class="child" checked=""><span>Carabid Collection (Archive Pooling)</span></li>
+                    <li><input type="checkbox" name="db" value="63" class="child" checked=""><span>Carabid Collection (DNA Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="39" class="child" checked=""><span>Carabid Collection (Pinned Vouchers)</span></li>
+                    <li><input type="checkbox" name="db" value="14" class="child" checked=""><span>Carabid Collection (Trap Sorting)</span></li>
+                    <li><input type="checkbox" name="db" value="13" class="child" checked=""><span>Invertebrate Bycatch Collection (Archive Pooling)</span></li>
+                    <li><input type="checkbox" name="db" value="16" class="child" checked=""><span>Invertebrate Bycatch Collection (Trap Sorting)</span></li>
+                    <li><input type="checkbox" name="db" value="56" class="child" checked=""><span>Mosquito Collection (Bulk Identified)</span></li>
+                    <li><input type="checkbox" name="db" value="58" class="child" checked=""><span>Mosquito Collection (Bulk Unidentified)</span></li>
+                    <li><input type="checkbox" name="db" value="65" class="child" checked=""><span>Mosquito Collection (DNA Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="59" class="child" checked=""><span>Mosquito Collection (Pathogen Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="29" class="child" checked=""><span>Mosquito Collection (Pinned Vouchers)</span></li>
+                    <li><input type="checkbox" name="db" value="4" class="child" checked=""><span>NEON Biorepository Invertebrate Collections at Arizona State University</span></li>
+                    <li><input type="checkbox" name="db" value="75" class="child" checked=""><span>Tick Collection (Pathogen Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="62" class="child" checked=""><span>Zooplankton Collection (DNA Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="45" class="child" checked=""><span>Zooplankton Collection (Remaining Bulk Taxonomy Sample)</span></li>
+                    <li><input type="checkbox" name="db" value="55" class="child" checked=""><span>Zooplankton Collection (Taxonomy Reference Collection)</span></li>
+                    <li><input type="checkbox" name="db" value="60" class="child" checked=""><span>Zooplankton Collection (Unsorted Bulk Sample)</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Microbes</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="db" value="67" class="child" checked=""><span>Benthic Microbe Collection (DNA Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="5" class="child" checked=""><span>Benthic Microbe Collection (Sterivex Filters)</span></li>
+                    <li><input type="checkbox" name="db" value="31" class="child" checked=""><span>Soil Microbe Collection (Bulk Subsamples)</span></li>
+                    <li><input type="checkbox" name="db" value="69" class="child" checked=""><span>Soil Microbe Collection (DNA Extracts )</span></li>
+                    <li><input type="checkbox" name="db" value="68" class="child" checked=""><span>Surface Water Microbe Collection (DNA Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="6" class="child" checked=""><span>Surface Water Microbe Collection (Sterivex Filters)</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Plants</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="db" value="9" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Clip Harvests])</span></li>
+                    <li><input type="checkbox" name="db" value="7" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Point Counts])</span></li>
+                    <li><input type="checkbox" name="db" value="8" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Standard Sampling])</span></li>
+                    <li><input type="checkbox" name="db" value="76" class="child" checked=""><span>Terrestrial Plant Collection (Belowground Biomass [Megapit])</span></li>
+                    <li><input type="checkbox" name="db" value="10" class="child" checked=""><span>Terrestrial Plant Collection (Belowground Biomass [Standard Sampling])</span></li>
+                    <li><input type="checkbox" name="db" value="18" class="child" checked=""><span>Terrestrial Plant Collection (Canopy Foliage)</span></li>
+                    <li><input type="checkbox" name="db" value="54" class="child" checked=""><span>Terrestrial Plant Collection (Herbarium Vouchers)</span></li>
+                    <li><input type="checkbox" name="db" value="40" class="child" checked=""><span>Terrestrial Plant Collection (Leaf Tissue)</span></li>
+                    <li><input type="checkbox" name="db" value="23" class="child" checked=""><span>Terrestrial Plant Collection (Litterfall)</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Vertebrates</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="db" value="66" class="child" checked=""><span>Fish Collection (DNA Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="20" class="child" checked=""><span>Fish Collection (Vouchers)</span></li>
+                    <li><input type="checkbox" name="db" value="12" class="child" checked=""><span>Herptile Voucher Collection (Ground Beetle Sampling Bycatch Archive Pooling)</span></li>
+                    <li><input type="checkbox" name="db" value="15" class="child" checked=""><span>Herptile Voucher Collection (Ground Beetle Sampling Bycatch Trap Sorting)</span></li>
+                    <li><input type="checkbox" name="db" value="70" class="child" checked=""><span>Herptile Voucher Collection (Small Mammal Sampling Bycatch)</span></li>
+                    <li><input type="checkbox" name="db" value="24" class="child" checked=""><span>Mammal Collection (Blood Samples)</span></li>
+                    <li><input type="checkbox" name="db" value="71" class="child" checked=""><span>Mammal Collection (DNA Extracts)</span></li>
+                    <li><input type="checkbox" name="db" value="25" class="child" checked=""><span>Mammal Collection (Ear Tissue)</span></li>
+                    <li><input type="checkbox" name="db" value="26" class="child" checked=""><span>Mammal Collection (Fecal Samples)</span></li>
+                    <li><input type="checkbox" name="db" value="27" class="child" checked=""><span>Mammal Collection (Hair Samples)</span></li>
+                    <li><input type="checkbox" name="db" value="64" class="child" checked=""><span>Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Archive Pooling])</span></li>
+                    <li><input type="checkbox" name="db" value="17" class="child" checked=""><span>Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Trap Sorting])</span></li>
+                    <li><input type="checkbox" name="db" value="19" class="child" checked=""><span>Mammal Collection (Vouchers [Standard Sampling at Diversity Plots])</span></li>
+                    <li><input type="checkbox" name="db" value="28" class="child" checked=""><span>Mammal Collection (Vouchers [Standard Sampling at Pathogen Plots])</span></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <div>
+            <ul id="neonext-collections-list">
+              <li><input id="allNeonExtCollections" name="db" value="all" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
+                <ul class="collapsed">
+                  <li><input type="checkbox" name="db" value="43" class="child"><span>Consortium of Small Vertebrate Collections</span></li>
+                  <li><input type="checkbox" name="db" value="44" class="child"><span>Essig Museum of Entomology</span></li>
+                  <li><input type="checkbox" name="db" value="74" class="child"><span>Museum of Southwestern Biology - Mammal specimens</span></li>
+                </ul>
+              </li>
+            </ul>
+            <ul id="ext-collections-list">
+              <li><input id="allExternalCollections" name="db" value="all" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All non-NEON External Collections</span>
+                <ul class="collapsed">
+                  <li><input type="checkbox" name="db" value="37" class="child"><span>SCAN Portal Network Arthropod Specimens</span></li>
+                  <li><input type="checkbox" name="db" value="2" class="child"><span>SEINet Portal Network Botanical Specimens</span></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <!-- Locality -->
+      <section>
+        <!-- Accordion selector -->
+        <input type="checkbox" id="title3" class="accordion-selector" checked=true />
+        <!-- Accordion header -->
+        <label for="title3" class="accordion-header">Locality</label>
+        <!-- Accordion content -->
+        <div id="search-form-locality" class="content">
+          <!-- <ul id="site-list"></ul> -->
+          <ul id="site-list">
+            <li><input id="allSites" name="dataset" value="all" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D01 - Northeast</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BART" class="child" checked=""><span>(BART) Bartlett Experimental Forest</span></li>
+                    <li><input type="checkbox" name="dataset" value="HARV" class="child" checked=""><span>(HARV) Harvard Forest</span></li>
+                    <li><input type="checkbox" name="dataset" value="HOPB" class="child" checked=""><span>(HOPB) Lower Hop Brook</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D02 - Mid-Atlantic</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BLAN" class="child" checked=""><span>(BLAN) Blandy Experimental Farm</span></li>
+                    <li><input type="checkbox" name="dataset" value="LEWI" class="child" checked=""><span>(LEWI) Lewis Run</span></li>
+                    <li><input type="checkbox" name="dataset" value="POSE" class="child" checked=""><span>(POSE) Posey Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="SCBI" class="child" checked=""><span>(SCBI) Smithsonian Conservation Biology Institute</span></li>
+                    <li><input type="checkbox" name="dataset" value="SERC" class="child" checked=""><span>(SERC) Smithsonian Environmental Research Center</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D03 - Southeast</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BARC" class="child" checked=""><span>(BARC) Ordway-Swisher Biological Station - Barco Lake</span></li>
+                    <li><input type="checkbox" name="dataset" value="DSNY" class="child" checked=""><span>(DSNY) Disney Wilderness Preserve</span></li>
+                    <li><input type="checkbox" name="dataset" value="FLNT" class="child" checked=""><span>(FLNT) Flint River</span></li>
+                    <li><input type="checkbox" name="dataset" value="JERC" class="child" checked=""><span>(JERC) Jones Ecological Research Center</span></li>
+                    <li><input type="checkbox" name="dataset" value="OSBS" class="child" checked=""><span>(OSBS) Ordway-Swisher Biological Station</span></li>
+                    <li><input type="checkbox" name="dataset" value="SUGG" class="child" checked=""><span>(SUGG) Ordway-Swisher Biological Station - Suggs Lake</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D04 - Atlantic Neotropical</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="CUPE" class="child" checked=""><span>(CUPE) Rio Cupeyes</span></li>
+                    <li><input type="checkbox" name="dataset" value="GUAN" class="child" checked=""><span>(GUAN) Guanica Forest</span></li>
+                    <li><input type="checkbox" name="dataset" value="GUIL" class="child" checked=""><span>(GUIL) Rio Guilarte</span></li>
+                    <li><input type="checkbox" name="dataset" value="LAJA" class="child" checked=""><span>(LAJA) Lajas Experimental Station</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D05 - Great Lakes</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="CRAM" class="child" checked=""><span>(CRAM) Crampton Lake</span></li>
+                    <li><input type="checkbox" name="dataset" value="LIRO" class="child" checked=""><span>(LIRO) Little Rock Lake</span></li>
+                    <li><input type="checkbox" name="dataset" value="STEI" class="child" checked=""><span>(STEI) Steigerwaldt Land Services</span></li>
+                    <li><input type="checkbox" name="dataset" value="TREE" class="child" checked=""><span>(TREE) Treehaven</span></li>
+                    <li><input type="checkbox" name="dataset" value="UNDE" class="child" checked=""><span>(UNDE) UNDERC</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D06 - Prairie Peninsula</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="KING" class="child" checked=""><span>(KING) Kings Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="KONA" class="child" checked=""><span>(KONA) Konza Prairie Biological Station - Relocatable</span></li>
+                    <li><input type="checkbox" name="dataset" value="KONZ" class="child" checked=""><span>(KONZ) Konza Prairie Biological Station</span></li>
+                    <li><input type="checkbox" name="dataset" value="MCDI" class="child" checked=""><span>(MCDI) McDiffett Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="UKFS" class="child" checked=""><span>(UKFS) The University of Kansas Field Station</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D07 - Appalachians &amp; Cumberland Plateau</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="GRSM" class="child" checked=""><span>(GRSM) Great Smoky Mountains National Park, Twin Creeks</span></li>
+                    <li><input type="checkbox" name="dataset" value="LECO" class="child" checked=""><span>(LECO) LeConte Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="MLBS" class="child" checked=""><span>(MLBS) Mountain Lake Biological Station</span></li>
+                    <li><input type="checkbox" name="dataset" value="ORNL" class="child" checked=""><span>(ORNL) Oak Ridge</span></li>
+                    <li><input type="checkbox" name="dataset" value="WALK" class="child" checked=""><span>(WALK) Walker Branch</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D08 - Ozarks Complex</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BLWA" class="child" checked=""><span>(BLWA) Black Warrior River near Dead Lake</span></li>
+                    <li><input type="checkbox" name="dataset" value="DELA" class="child" checked=""><span>(DELA) Dead Lake</span></li>
+                    <li><input type="checkbox" name="dataset" value="LENO" class="child" checked=""><span>(LENO) Lenoir Landing</span></li>
+                    <li><input type="checkbox" name="dataset" value="MAYF" class="child" checked=""><span>(MAYF) Mayfield Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="TALL" class="child" checked=""><span>(TALL) Talladega National Forest</span></li>
+                    <li><input type="checkbox" name="dataset" value="TOMB" class="child" checked=""><span>(TOMB) Lower Tombigbee River at Choctaw Refuge</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D09 - Northern Plains</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="DCFS" class="child" checked=""><span>(DCFS) Dakota Coteau Field School</span></li>
+                    <li><input type="checkbox" name="dataset" value="NOGP" class="child" checked=""><span>(NOGP) Northern Great Plains Research Laboratory</span></li>
+                    <li><input type="checkbox" name="dataset" value="PRLA" class="child" checked=""><span>(PRLA) Prairie Lake at Dakota Coteau Field School</span></li>
+                    <li><input type="checkbox" name="dataset" value="PRPO" class="child" checked=""><span>(PRPO) Prairie Pothole </span></li>
+                    <li><input type="checkbox" name="dataset" value="WOOD" class="child" checked=""><span>(WOOD) Woodworth</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D10 - Central Plains</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="ARIK" class="child" checked=""><span>(ARIK) Arikaree River</span></li>
+                    <li><input type="checkbox" name="dataset" value="CPER" class="child" checked=""><span>(CPER) Central Plains Experimental Range</span></li>
+                    <li><input type="checkbox" name="dataset" value="RMNP" class="child" checked=""><span>(RMNP) Rocky Mountain National Park, CASTNET</span></li>
+                    <li><input type="checkbox" name="dataset" value="STER" class="child" checked=""><span>(STER) North Sterling, CO</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D11 - Southern Plains</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BLUE" class="child" checked=""><span>(BLUE) Blue River</span></li>
+                    <li><input type="checkbox" name="dataset" value="CLBJ" class="child" checked=""><span>(CLBJ) LBJ National Grassland </span></li>
+                    <li><input type="checkbox" name="dataset" value="OAES" class="child" checked=""><span>(OAES) Klemme Range Research Station</span></li>
+                    <li><input type="checkbox" name="dataset" value="PRIN" class="child" checked=""><span>(PRIN) Pringle Creek</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D12 - Northern Rockies</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BLDE" class="child" checked=""><span>(BLDE) Blacktail Deer Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="YELL" class="child" checked=""><span>(YELL) Yellowstone Northern Range (Frog Rock)</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D13 - Southern Rockies &amp; Colorado Plateau</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="COMO" class="child" checked=""><span>(COMO) Como Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="MOAB" class="child" checked=""><span>(MOAB) Moab</span></li>
+                    <li><input type="checkbox" name="dataset" value="NIWO" class="child" checked=""><span>(NIWO) Niwot Ridge Mountain Research Station</span></li>
+                    <li><input type="checkbox" name="dataset" value="WLOU" class="child" checked=""><span>(WLOU) West St Louis Creek</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D14 - Desert Southwest</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="JORN" class="child" checked=""><span>(JORN) Jornada LTER</span></li>
+                    <li><input type="checkbox" name="dataset" value="SRER" class="child" checked=""><span>(SRER) Santa Rita Experimental Range</span></li>
+                    <li><input type="checkbox" name="dataset" value="SYCA" class="child" checked=""><span>(SYCA) Sycamore Creek</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D15 - Great Basin</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="ONAQ" class="child" checked=""><span>(ONAQ) Onaqui</span></li>
+                    <li><input type="checkbox" name="dataset" value="REDB" class="child" checked=""><span>(REDB) Red Butte Creek</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D16 - Pacific Northwest</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="ABBY" class="child" checked=""><span>(ABBY) Abby Road</span></li>
+                    <li><input type="checkbox" name="dataset" value="MART" class="child" checked=""><span>(MART) Martha Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="MCRA" class="child" checked=""><span>(MCRA) McRae Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="WREF" class="child" checked=""><span>(WREF) Wind River Experimental Forest</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D17 - Pacific Southwest</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BIGC" class="child" checked=""><span>(BIGC) Upper Big Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="SJER" class="child" checked=""><span>(SJER) San Joaquin Experimental Range</span></li>
+                    <li><input type="checkbox" name="dataset" value="SOAP" class="child" checked=""><span>(SOAP) Soaproot Saddle</span></li>
+                    <li><input type="checkbox" name="dataset" value="TEAK" class="child" checked=""><span>(TEAK) Lower Teakettle</span></li>
+                    <li><input type="checkbox" name="dataset" value="TECR" class="child" checked=""><span>(TECR) Teakettle 2 Creek</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D18 - Tundra</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BARR" class="child" checked=""><span>(BARR) Barrow Environmental Observatory</span></li>
+                    <li><input type="checkbox" name="dataset" value="OKSR" class="child" checked=""><span>(OKSR) Oksrukuyik Creek</span></li>
+                    <li><input type="checkbox" name="dataset" value="TOOK" class="child" checked=""><span>(TOOK) Toolik Lake</span></li>
+                    <li><input type="checkbox" name="dataset" value="TOOL" class="child" checked=""><span>(TOOL) Toolik</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D19 - Taiga</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="BONA" class="child" checked=""><span>(BONA) Caribou-Poker Creeks Research Watershed</span></li>
+                    <li><input type="checkbox" name="dataset" value="CARI" class="child" checked=""><span>(CARI) Caribou Creek, Caribou-Poker Creeks Research Watershed</span></li>
+                    <li><input type="checkbox" name="dataset" value="DEJU" class="child" checked=""><span>(DEJU) Delta Junction</span></li>
+                    <li><input type="checkbox" name="dataset" value="HEAL" class="child" checked=""><span>(HEAL) Healy</span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D20 - Pacific Tropical</span>
+                  <ul class="collapsed">
+                    <li><input type="checkbox" name="dataset" value="PUUM" class="child" checked=""><span>(PUUM) Pu'u Maka'ala Natural Area Reserve</span></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <div>
+            <div>
+              <div class="input-text-container">
+                <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="State"></span></label>
+                <span class="assistive-text">Assistive text.</span>
+              </div>
+              <div class="input-text-container">
+                <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="County"></span></label>
+                <span class="assistive-text">Assistive text.</span>
+              </div>
+              <div class="input-text-container">
+                <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Locality"></span></label>
+                <span class="assistive-text">Assistive text.</span>
+              </div>
+            </div>
+            <div class="grid grid--half">
+              <div class="input-text-container">
+                <label for="" class="input-text--outlined">
+                    <input type="text" value="" >
+                    <span data-label="Minimum Elevation"></span></label>
+                <span class="assistive-text">Assistive text.</span>
+              </div>
+              <div class="input-text-container">
+                <label for="" class="input-text--outlined">
+                    <input type="text" value="" >
+                    <span data-label="Maximum Elevation"></span></label>
+                <span class="assistive-text">Assistive text.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Latitude & Longitude -->
+      <section>
+        <!-- Accordion selector -->
+        <input type="checkbox" id="title4" class="accordion-selector" checked=true />
+        <!-- Accordion header -->
+        <label for="title4" class="accordion-header">Latitude & Longitude</label>
+        <!-- Accordion content -->
+        <div id="search-form-latlong" class="content">
+          <div>
+            <h3>Bounding Box</h3>
+            <button>Map</button>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Northern Latitude"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Southern Latitude"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Western Longitude"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Eastern Longitude"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+          </div>
+          <div>
+            <h3>Polygon (WKT footpring)</h3>
+            <button>Map</button> SUBSTITUIR POR "TEXT AREA"
+            <div class="text-area-container">
+              <label for="textarea1" class="text-area--outlined">
+              <textarea name="polygonWKT" wrap="off" cols="30%" rows="5"></textarea>
+              <span data-label="Polygon"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+          </div>
+          <div>
+            <h3>Point-Radius</h3>
+            <button>Map</button>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Latitude"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Longitude"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Radius"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Collecting Event -->
+      <section>
+        <!-- Accordion selector -->
+        <input type="checkbox" id="title5" class="accordion-selector" checked=true />
+        <!-- Accordion header -->
+        <label for="title5" class="accordion-header">Collecting Event</label>
+        <!-- Accordion content -->
+        <div id="search-form-coll-event" class="content">
+          <div class="input-text-container">
+            <label for="" class="input-text--outlined">
+            <input type="text" value="" >
+            <span data-label="Collection Start Date"></span></label>
+            <span class="assistive-text">Assistive text.</span>
+          </div>
+          <div class="input-text-container">
+            <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Collection End Date"></span></label>
+            <span class="assistive-text">Assistive text.</span>
+          </div>
+        </div>
+      </section>
+      <!-- Sample Properties -->
+      <section>
+        <!-- Accordion selector -->
+        <input type="checkbox" id="title6" class="accordion-selector" checked=true />
+        <!-- Accordion header -->
+        <label for="title6" class="accordion-header">Sample Properties</label>
+        <!-- Accordion content -->
+        <div id="search-form-sample" class="content">
+          <div>
+            <div>
+              <input type="checkbox" name="otherCat" checked>
+              <label for="otherCat">Include other catalogue numbers and GUIds</label>
+            </div>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" value="" >
+              <span data-label="Collection End Date"></span></label>
+              <span class="assistive-text">Assistive text.</span>
+            </div>
+          </div>
+          <div>
+            <div>
+              <input type="checkbox" name="withImg" checked>
+              <label for="withImg">Limit to specimens with images</label>
+            </div>
+            <div>
+              <input type="checkbox" name="withDNA" checked>
+              <label for="withDNA">Limit to specimens with genetic data</label>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <!-- Criteria panel -->
+    <div id="criteria-panel">
+      <h2>Criteria</h2>
+      <!-- <button>Clear</button>
+      <button>Search</button> -->
+      <button id="teste-btn">Get all params</button>
+      <a href="#" id="test-url" target="_blank"></a>
+    </div>
+  </form>
+</body>
+
+<script src="js/searchform.js"></script>
+<!-- <script src="js/creates-form-elements.js"></script> -->
+
+</html>

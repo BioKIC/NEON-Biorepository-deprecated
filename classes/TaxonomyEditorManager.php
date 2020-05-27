@@ -525,8 +525,8 @@ class TaxonomyEditorManager extends Manager{
 				'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (e.taxauthid = '.$this->taxAuthId.') '.
 				'AND ((ts.tid = '.$tid.') OR (e.parenttid = '.$tid.'))';
 			if(!$this->conn->query($sql)){
-				$this->errorStr = 'ERROR attempting to reset family string: '.$this->conn->error;
-				echo $this->errorStr;
+				$this->errorMessage = 'ERROR attempting to reset family string: '.$this->conn->error;
+				echo $this->errorMessage;
 			}
 		}
 	}
@@ -642,9 +642,9 @@ class TaxonomyEditorManager extends Manager{
 			$this->conn->query($sql3);
 		}
 		else{
-			$this->errorStr = 'ERROR inserting new taxon: '.$this->conn->error;
-			//$this->errorStr .= '; SQL = '.$sqlTaxa;
-			return $this->errorStr;
+			$this->errorMessage = 'ERROR inserting new taxon: '.$this->conn->error;
+			//$this->errorMessage .= '; SQL = '.$sqlTaxa;
+			return $this->errorMessage;
 		}
 		return $tid;
 	}
@@ -743,163 +743,138 @@ class TaxonomyEditorManager extends Manager{
 	}
 
 	public function transferResources($targetTid){
-		$statusStr = '';
+		$status = false;
 		if(is_numeric($targetTid)){
 			//Set occurrence and determination tids to NULL within delete function function below
 
 			//Field images; specimen images set to null within delete function
 			$sql ='UPDATE IGNORE images SET tid = '.$targetTid.' WHERE occid IS NULL AND tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR transferring image links ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring image links ('.$this->conn->error.')';
 
 			//Vernaculars
 			$sql ='UPDATE IGNORE taxavernaculars SET tid = '.$targetTid.' WHERE tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR transferring vernaculars ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring vernaculars ('.$this->conn->error.')';
 
 			//Text Descriptions
 			$sql ='UPDATE IGNORE taxadescrblock SET tid = '.$targetTid.' WHERE tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR transferring taxadescblocks ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring taxadescblocks ('.$this->conn->error.')';
 
 			//Vouchers and checklists
 			$sql ='UPDATE IGNORE fmchklsttaxalink SET tid = '.$targetTid.' WHERE tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR transferring checklist links ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring checklist links ('.$this->conn->error.')';
+
 			$sql ='UPDATE IGNORE fmvouchers SET tid = '.$targetTid.' WHERE tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR transferring vouchers ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring vouchers ('.$this->conn->error.')';
+
 			$sql ='DELETE FROM fmvouchers WHERE tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR deleting leftover vouchers ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting leftover vouchers ('.$this->conn->error.')';
+
 			$sql ='DELETE FROM fmchklsttaxalink WHERE tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR deleting leftover checklist links ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting leftover checklist links ('.$this->conn->error.')';
 
 			//Key descriptions
 			$sql ='UPDATE IGNORE kmdescr SET tid = '.$targetTid.' WHERE inherited IS NULL AND tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR transferring morphology for ID key ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring morphology for ID key ('.$this->conn->error.')';
 
 			//Taxon links
 			$sql ='UPDATE IGNORE taxalinks SET tid = '.$targetTid.' WHERE tid = '.$this->tid;
-			if(!$this->conn->query($sql)){
-				$statusStr .= 'ERROR transferring taxa links ('.$this->conn->error.')<br/>';
-			}
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring taxa links ('.$this->conn->error.')';
 
-			$delStatusStr = $this->deleteTaxon();
-			if($statusStr) $delStatusStr .= $statusStr;
-			return $delStatusStr;
+			//Taxon links
+			$sql ='UPDATE IGNORE taxalinks SET tid = '.$targetTid.' WHERE tid = '.$this->tid;
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring taxa links ('.$this->conn->error.')';
+
+			//Transfer children taxa
+			$sql ='UPDATE taxstatus SET parenttid = '.$targetTid.' WHERE parenttid = '.$this->tid;
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring child taxa ('.$this->conn->error.')';
+
+			//Transfer Synonyms
+			$sql ='UPDATE taxstatus SET tidaccepted = '.$targetTid.' WHERE tidaccepted = '.$this->tid;
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring synonyms taxa ('.$this->conn->error.')';
+
+			$status = $this->deleteTaxon();
 		}
+		return $status;
 	}
 
 	public function deleteTaxon(){
-		$statusStr = '';
 		//Specimen images
 		$sql ='UPDATE images SET tid = NULL WHERE occid IS NOT NULL AND tid = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR setting tid to NULL for occurrence images in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR setting tid to NULL for occurrence images in deleteTaxon method ('.$this->conn->error.')';
+
 		/*
 		$sql ='DELETE FROM images WHERE tid = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR deleting remaining links in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting remaining links in deleteTaxon method ('.$this->conn->error.')';
 		*/
 
 		//Vernaculars
 		$sql ='DELETE FROM taxavernaculars WHERE tid = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR deleting vernaculars in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting vernaculars in deleteTaxon method ('.$this->conn->error.')';
 
 		//Text Descriptions
 		$sql ='DELETE FROM taxadescrblock WHERE tid = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR deleting taxa description blocks in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting taxa description blocks in deleteTaxon method ('.$this->conn->error.')';
 
 		//Set occurrence and determination tids to NULL; collection can clean later using the taxonomic cleaning tools
 		$sql = 'UPDATE omoccurrences SET tidinterpreted = NULL WHERE tidinterpreted = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR setting tidinterpreted to NULL in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR setting tidinterpreted to NULL in deleteTaxon method ('.$this->conn->error.')';
+
 		$sql ='UPDATE omoccurdeterminations SET tidinterpreted = NULL WHERE tidinterpreted = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR transferring occurrence determination records ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring occurrence determination records ('.$this->conn->error.')';
 
 		//Vouchers
 		$sql ='DELETE FROM fmvouchers WHERE tid = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR deleting voucher links in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting voucher links in deleteTaxon method ('.$this->conn->error.')';
 
 		//Links to checklists
 		$sql ='DELETE FROM fmchklsttaxalink WHERE tid = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR deleting checklist links in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting checklist links in deleteTaxon method ('.$this->conn->error.')';
 
 		//Key descriptions
 		$sql ='DELETE FROM kmdescr WHERE tid = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR deleting morphology for ID Key in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting morphology for ID Key in deleteTaxon method ('.$this->conn->error.')';
 
 		//Taxon links
 		$sql ='DELETE FROM taxalinks WHERE tid = '.$this->tid;
-		if(!$this->conn->query($sql)){
-			$statusStr .= 'ERROR deleting taxa links in deleteTaxon method ('.$this->conn->error.')<br/>';
-		}
+		if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR deleting taxa links in deleteTaxon method ('.$this->conn->error.')';
 
 		//Get taxon status details so if taxa removal fails, we can still initiate old name
 		$taxStatusArr = array();
-		$sqlTS = 'SELECT tidaccepted, parenttid, family, unacceptabilityreason, notes, sortsequence '.
-			'FROM taxstatus WHERE tid = '.$this->tid;
+		$sqlTS = 'SELECT taxauthid, tidaccepted, parenttid, family, unacceptabilityreason, notes, sortsequence FROM taxstatus WHERE tid = '.$this->tid;
 		$rs = $this->conn->query($sqlTS);
-		if($r = $rs->fetch_object()){
-			$taxStatusArr[0]['tidaccepted'] = $r->tidaccepted;
-			$taxStatusArr[0]['parenttid'] = $r->parenttid;
-			$taxStatusArr[0]['family'] = $r->family;
-			$taxStatusArr[0]['unacceptabilityreason'] = $r->unacceptabilityreason;
-			$taxStatusArr[0]['notes'] = $r->notes;
-			$taxStatusArr[0]['sortsequence'] = $r->sortsequence;
+		while($r = $rs->fetch_object()){
+			$taxStatusArr[$r->taxauthid]['tidaccepted'] = $r->tidaccepted;
+			$taxStatusArr[$r->taxauthid]['parenttid'] = $r->parenttid;
+			$taxStatusArr[$r->taxauthid]['family'] = $r->family;
+			$taxStatusArr[$r->taxauthid]['unacceptabilityreason'] = $r->unacceptabilityreason;
+			$taxStatusArr[$r->taxauthid]['notes'] = $r->notes;
+			$taxStatusArr[$r->taxauthid]['sortsequence'] = $r->sortsequence;
 		}
 		$rs->free();
 
 		//Delete taxon
-		$statusStrFinal = 'SUCCESS: taxon deleted!<br/>';
+		$status = true;
 		$sql ='DELETE FROM taxstatus WHERE (tid = '.$this->tid.') OR (tidaccepted = '.$this->tid.')';
 		if($this->conn->query($sql)){
-			//Delete taxon
 			$sql ='DELETE FROM taxa WHERE (tid = '.$this->tid.')';
 			if(!$this->conn->query($sql)){
-				$statusStrFinal = 'ERROR attempting to delete taxon: '.$this->conn->error.'<br/>';
+				$this->errorMessage = 'ERROR attempting to delete taxon: '.$this->conn->error;
+				$status = false;
 				//Reinstate taxstatus record
-				$tsNewSql = 'INSERT INTO taxstatus(tid,taxauthid,tidaccepted, parenttid, family, unacceptabilityreason, notes, sortsequence) '.
-					'VALUES('.$this->tid.','.$this->taxAuthId.','.$taxStatusArr[0]['tidaccepted'].','.$taxStatusArr[0]['parenttid'].',"'.
-					$taxStatusArr[0]['family'].'","'.$taxStatusArr[0]['unacceptabilityreason'].'","'.
-					$taxStatusArr[0]['unacceptabilityreason'].'",'.$taxStatusArr[0]['sortsequence'].')';
-				$this->conn->query($tsNewSql);
+				foreach($taxStatusArr as $taxAuthId => $tsArr){
+					$tsNewSql = 'INSERT INTO taxstatus(tid,taxauthid,tidaccepted, parenttid, family, unacceptabilityreason, notes, sortsequence) '.
+						'VALUES('.$this->tid.','.$taxAuthId.','.$taxStatusArr[$taxAuthId]['tidaccepted'].','.$taxStatusArr[$taxAuthId]['parenttid'].',"'.
+						$taxStatusArr[$taxAuthId]['family'].'","'.$taxStatusArr[$taxAuthId]['unacceptabilityreason'].'","'.
+						$taxStatusArr[$taxAuthId]['unacceptabilityreason'].'",'.$taxStatusArr[$taxAuthId]['sortsequence'].')';
+					if(!$this->conn->query($tsNewSql)) $this->warningArr[] = 'ERROR attempting to re-establish taxon ('.$this->conn->error.')';
+				}
 			}
 		}
 		else{
-			$statusStrFinal = 'ERROR attempting to delete taxon status: '.$this->conn->error.'<br/>';
+			$this->warningArr[] = 'ERROR attempting to delete taxon status: '.$this->conn->error;
 		}
 
-		if($statusStr){
-			$statusStrFinal .= $statusStr;
-		}
-		return $statusStrFinal;
+		return $status;
 	}
 
 	//setters and  getters
@@ -993,10 +968,6 @@ class TaxonomyEditorManager extends Manager{
 
 	public function getNotes(){
 		return $this->notes;
-	}
-
-	public function getErrorStr(){
-		return $this->errorStr;
 	}
 
 	public function getSecurityStatus(){

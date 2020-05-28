@@ -31,9 +31,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
       <h1 style="text-align: center;">Tutorials and Help</h1>
       <p>Find more information on how to use the NEON Biorepository Data Portal by clicking on these links:</p>
       <ul>
-        <li><a href="<?php echo $CLIENT_ROOT; ?>/misc/X.php">View the Homepage</a></li>
-        <li><a href="<?php echo $CLIENT_ROOT; ?>/misc/X.php">Conduct a Sample Search</a></li>
-        <li><a href="<?php echo $CLIENT_ROOT; ?>/misc/X.php">Conduct a Map Search</a></li>
+        <li><a href="<?php echo $CLIENT_ROOT; ?>/misc/hometutorial.php">View the Homepage</a></li>
+        <li><a href="<?php echo $CLIENT_ROOT; ?>/misc/searchtutorial.php">Conduct a Sample Search</a></li>
+        <li><a href="<?php echo $CLIENT_ROOT; ?>/misc/mapsearchtutorial.php">Conduct a Map Search</a></li>
         <li><a href="<?php echo $CLIENT_ROOT; ?>/misc/gettingstarted.php">Getting Started and Frequently Asked Questions</a></li>
       </ul>
 

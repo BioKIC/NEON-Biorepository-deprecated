@@ -792,6 +792,10 @@ class TaxonomyEditorManager extends Manager{
 			$sql ='UPDATE taxstatus SET tidaccepted = '.$targetTid.' WHERE tidaccepted = '.$this->tid;
 			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR transferring synonyms taxa ('.$this->conn->error.')';
 
+			//Adjust taxaEnumTree index table
+			$sql ='UPDATE taxaenumtree SET parenttid = '.$targetTid.' WHERE parenttid = '.$this->tid;
+			if(!$this->conn->query($sql)) $this->warningArr[] = 'ERROR resetting taxaEnumTree index ('.$this->conn->error.')';
+
 			$status = $this->deleteTaxon();
 		}
 		return $status;

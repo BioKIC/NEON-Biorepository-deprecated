@@ -104,10 +104,13 @@
 							<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">Data Usage Policy</a>
 						</li>
 					</ul>
-				</li>
+        </li>
 				<li>
 					<a href="#">Additional Information</a>
 					<ul>
+            <li>
+              <a href="<?php echo $CLIENT_ROOT; ?>/misc/tutorials.php" target="_blank" rel="noopener noreferrer">Tutorials and Help</a>
+            </li>
 						<li>
 							<a href="https://www.neonscience.org" target="_blank" >About NEON</a>
 						</li>
@@ -121,7 +124,10 @@
 							<a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">About Symbiota</a>
 						</li>
 					</ul>
-				</li>
+        </li>
+        <li style="background-color: #004cc4;">
+          <a href="<?php echo $CLIENT_ROOT; ?>/misc/gettingstarted.php">Getting Started</a>
+        </li>
 				<?php
 				if($IS_ADMIN){
 					?>

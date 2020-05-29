@@ -179,7 +179,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>This brings us to the "Occurrence Records" tab of the <a href="https://biorepo.neonscience.org/portal/collections/list.php?db=26%252C27%26llbound=49.15165%253B23.42108%253B-126.20996%253B-93.64648%26taxa=Peromyscus%26usethes=1%26taxontype=2">search results</a>. At the top of that page, you see the search criteria used to generate the results. We can see that as of April 23, 2020, 3379 samples from the NEON-MAMC-FE (fecal) and NEON-MAMC-HA (hair) collections met our criteria.</p>
+        <p>This brings us to the "Occurrence Records" tab of the <a href="https://biorepo.neonscience.org/portal/collections/list.php?db=26%2C27&llbound=49.15165%3B23.42108%3B-126.20996%3B-93.64648&taxa=Peromyscus&usethes=1&taxontype=2">search results</a>. At the top of that page, you see the search criteria used to generate the results. We can see that as of April 23, 2020, 3379 samples from the NEON-MAMC-FE (fecal) and NEON-MAMC-HA (hair) collections met our criteria.</p>
         <figure>
           <img src="../misc/images/tutorial_44.jpg" alt="Example search results">
           <figcaption>Example search results</figcaption>
@@ -203,7 +203,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>This will bring up a pop-up window where we can select whether we would like to download our results as a <a href="http://symbiota.org/docs/&sa=D&ust=1590701809712000">Symbiota</a> Native or <a href="https://www.tdwg.org/standards/dwc/&sa=D&ust=1590701809712000">Darwin Core Archive</a> file. These formats are very similar, but Symbiota Native files supports more fields. Click the icon to the right of these names for brief descriptions of these file structures.</p>
+        <p>This will bring up a pop-up window where we can select whether we would like to download our results as a <a href="http://symbiota.org/docs/">Symbiota</a> Native or <a href="https://www.tdwg.org/standards/dwc/">Darwin Core Archive</a> file. These formats are very similar, but Symbiota Native files supports more fields. Click the icon to the right of these names for brief descriptions of these file structures.</p>
         <figure>
           <img src="../misc/images/tutorial_36.jpg" alt="Download options">
           <figcaption>Download options</figcaption>

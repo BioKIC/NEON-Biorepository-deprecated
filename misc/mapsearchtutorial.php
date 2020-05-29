@@ -52,7 +52,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       <p>We can use the "Map Search" feature of the NEON Biorepository data portal to visualize and download available NEON samples based on collection, taxon, location, and more. To do so we will:</p>
 
         <article>
-          <p>We navigate to <a href="https://biorepo.neonscience.org/portal/collections/map/index.php&sa=D&ust=1590701809716000">Map Search</a> under "Search" in the main menu. This opens a new Google Maps tab.</p>
+          <p>We navigate to <a href="https://biorepo.neonscience.org/portal/collections/map/index.php">Map Search</a> under "Search" in the main menu. This opens a new Google Maps tab.</p>
           <figure>
             <img src="../misc/images/tutorial_45.jpg" alt="Map Search option in menu">
             <figcaption>Map Search option in menu</figcaption>

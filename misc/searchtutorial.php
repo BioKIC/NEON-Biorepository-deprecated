@@ -166,7 +166,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
           <li>
             <p>Other Collector and Specimen Criteria can be used to limit the search. Of interest for a select number of NEON collections is the ability to "Limit to Specimens with Genetic Data." This search will limit results to those linked to sequences available in the <a class="c5" href="http://www.boldsystems.org/">Barcode of Life Database (BOLD)</a>.</p>
             <figure>
-          <img src="../misc/images/tutorial_8.jpg" alt="Other criteria">
+          <img src="../misc/images/tutorial_31.jpg" alt="Other criteria">
           <figcaption>Other criteria</figcaption>
         </figure></li>
           <li>
@@ -311,8 +311,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
       <article>
         <p>Note that you can click "Add Extra Fields" to select additional Symbiota fields to include in the KML download.</p>
         <figure>
-          <img src="../misc/images/tutorial_1.jpg" alt="Google Earch KML option">
-          <figcaption>Google Earch KML option</figcaption>
+          <img src="../misc/images/tutorial_1.jpg" alt="Google Search KML option">
+          <figcaption>Google Search KML option</figcaption>
         </figure>
       </article>
 		</div>

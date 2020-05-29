@@ -49,7 +49,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<!-- This is inner text! -->
 		<div id="innertext">
       <h1 style="text-align: center;">Conduct a Map Search</h1>
-      <p>We can use the “Map Search” feature of the NEON Biorepository data portal to visualize and download available NEON samples based on collection, taxon, location, and more. To do so we will:</p>
+      <p>We can use the "Map Search" feature of the NEON Biorepository data portal to visualize and download available NEON samples based on collection, taxon, location, and more. To do so we will:</p>
 
         <article>
           <p>We navigate to <a href="https://biorepo.neonscience.org/portal/collections/map/index.php&sa=D&ust=1590701809716000">Map Search</a> under "Search" in the main menu. This opens a new Google Maps tab.</p>
@@ -60,7 +60,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>We can click “Open Search Panel” in the upper left hand corner to expand a panel to input search terms.</p>
+          <p>We can click "Open Search Panel" in the upper left hand corner to expand a panel to input search terms.</p>
           <figure>
             <img src="../misc/images/tutorial_23.jpg" alt="Map search panel button">
             <figcaption>Map search panel button</figcaption>
@@ -68,7 +68,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>In the now visible search panel, entering search criteria is done in the same way as in the “Sample Search” described above. We will again search for <span style="font-style: italic;">Peromyscus</span>.</p>
+          <p>In the now visible search panel, entering search criteria is done in the same way as in the "Sample Search" described above. We will again search for <span style="font-style: italic;">Peromyscus</span>.</p>
           <figure>
             <img src="../misc/images/tutorial_37.jpg" alt="Map search panel">
             <figcaption>Map search panel</figcaption>
@@ -76,7 +76,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>Then, we then click the “Collections” tab to select the collections of interest.</p>
+          <p>Then, we then click the "Collections" tab to select the collections of interest.</p>
           <figure>
             <img src="../misc/images/tutorial_22.jpg" alt="Collections tab in map search panel">
             <figcaption>Collections tab in map search panel</figcaption>
@@ -100,7 +100,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>We click “Search” in the “Criteria” tab of the search panel to see the collection locations for the samples.</p>
+          <p>We click "Search" in the "Criteria" tab of the search panel to see the collection locations for the samples.</p>
           <figure>
             <img src="../misc/images/tutorial_2.jpg" alt="Search button">
             <figcaption>Search button</figcaption>
@@ -108,7 +108,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>When the results appear, we will open the search panel again to see the records and taxa. To color the points by taxa, we switch to the “Taxa List” tab.</p>
+          <p>When the results appear, we will open the search panel again to see the records and taxa. To color the points by taxa, we switch to the "Taxa List" tab.</p>
           <figure>
             <img src="../misc/images/tutorial_28.jpg" alt="Taxa list tab">
             <figcaption>Taxa list tab</figcaption>
@@ -116,7 +116,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>We select “Auto Color” to color the points by taxon. There we also see a list of taxa. Each name links to the Taxon Page like those described in the above section on the “Sample Search” feature.</p>
+          <p>We select "Auto Color" to color the points by taxon. There we also see a list of taxa. Each name links to the Taxon Page like those described in the above section on the "Sample Search" feature.</p>
           <figure>
             <img src="../misc/images/tutorial_38.jpg" alt="Auto color button">
             <figcaption>Auto color button</figcaption>
@@ -124,7 +124,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>As when the results of the “Sample Search” feature are mapped, we can zoom and select individual record. Clicking on “See Details” will bring us to the “Full Record Details” page.</p>
+          <p>As when the results of the "Sample Search" feature are mapped, we can zoom and select individual record. Clicking on "See Details" will bring us to the "Full Record Details" page.</p>
           <figure>
             <img src="../misc/images/tutorial_42.jpg" alt="Record details link">
             <figcaption>Record details link</figcaption>
@@ -132,7 +132,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>We can return to the “Records and Taxa” tab to download the Symbiota or Darwin Core records resulting from the search (download button), download the KML file (KML download button), and copy a link to the search results to the clipboard (link button).</p>
+          <p>We can return to the "Records and Taxa" tab to download the Symbiota or Darwin Core records resulting from the search (download button), download the KML file (KML download button), and copy a link to the search results to the clipboard (link button).</p>
           <figure>
             <img src="../misc/images/tutorial_27.jpg" alt="Records and taxa tab">
             <figcaption>Records and taxa tab</figcaption>

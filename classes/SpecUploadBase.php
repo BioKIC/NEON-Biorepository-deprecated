@@ -1508,9 +1508,8 @@ class SpecUploadBase extends SpecUpload{
 				//Abort, no images avaialble
 				return false;
 			}
-			if(stripos($testUrl,'.dng') || stripos($testUrl,'.tif')){
-				return false;
-			}
+			if(strtolower(substr($testUrl,0,4)) != 'http') return false;
+			if(stripos($testUrl,'.dng') || stripos($testUrl,'.tif')) return false;
 			$skipFormats = array('image/tiff','image/dng','image/bmp','text/html','application/xml','application/pdf','tif','tiff','dng','html','pdf');
 			$allowedFormats = array('image/jpeg','image/gif','image/png');
 			$imgFormat = $this->imgFormatDefault;

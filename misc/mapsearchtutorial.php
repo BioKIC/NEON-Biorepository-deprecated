@@ -68,7 +68,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>In the now visible search panel, entering search criteria is done in the same way as in the "Sample Search" described above. We will again search for <span style="font-style: italic;">Peromyscus</span>.</p>
+          <p>In the now visible search panel, entering search criteria is done in the same way as in the "Sample Search" tutorial. We will search for <span style="font-style: italic;">Peromyscus</span>.</p>
           <figure>
             <img src="../misc/images/tutorial_37.jpg" alt="Map search panel">
             <figcaption>Map search panel</figcaption>
@@ -84,7 +84,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>We will again focus only on the mammal fecal and hair samples.</p>
+          <p>We will focus only on the mammal fecal and hair samples.</p>
           <figure>
             <img src="../misc/images/tutorial_21.jpg" alt="Example mammal fecal and hair samples collections">
             <figcaption>Example mammal fecal and hair samples collections</figcaption>
@@ -92,7 +92,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         </article>
 
         <article>
-          <p>We can use the map area selection tools at the center top area of the screen. We will again focus on the western half of the continental US.</p>
+          <p>We can use the map area selection tools at the center top area of the screen. We will focus on the western half of the continental US.</p>
           <figure>
             <img src="../misc/images/tutorial_3.jpg" alt="Map area selection tool">
             <figcaption>Map area selection tool</figcaption>

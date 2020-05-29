@@ -311,8 +311,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
       <article>
         <p>Note that you can click "Add Extra Fields" to select additional Symbiota fields to include in the KML download.</p>
         <figure>
-          <img src="../misc/images/tutorial_1.jpg" alt="Google Search KML option">
-          <figcaption>Google Search KML option</figcaption>
+          <img src="../misc/images/tutorial_1.jpg" alt="Google Earth KML option">
+          <figcaption>Google Earth KML option</figcaption>
         </figure>
       </article>
 		</div>

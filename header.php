@@ -115,10 +115,15 @@
 							<a href="<?php echo $CLIENT_ROOT; ?>/misc/usagepolicy.php">Data Usage Policy</a>
 						</li>
 					</ul>
-				</li>
+        </li>
+        <li><a href="<?php echo $CLIENT_ROOT; ?>/misc/gettingstarted.php">Getting Started</a>
+        </li>
 				<li>
 					<a href="#">Additional Information</a>
 					<ul>
+            <li>
+              <a href="<?php echo $CLIENT_ROOT; ?>/misc/tutorials.php" target="_blank" rel="noopener noreferrer">Tutorials and Help</a>
+            </li>
 						<li>
 							<a href="https://www.neonscience.org" target="_blank" >About NEON</a>
 						</li>

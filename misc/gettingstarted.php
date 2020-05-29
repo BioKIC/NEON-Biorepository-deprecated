@@ -81,7 +81,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
   </article>
 
   <article><h3 class="anchor" id="h.dupjcs7lsdqj">Where is the NEON Biorepository located?</h3>
-  <p>The NEON Biorepository is part of the <a href="https://biokic.asu.edu/">Arizona State University Biodiversity Knowledge Integration Center</a>&nbsp;and located at the ASU Biocollections at <a href="https://www.asu.edu/map/interactive/?id%3D120%26mrkIid%3D66206">734 W Alameda Drive, Tempe, AZ 85282</a>.</p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
+  <p>The NEON Biorepository is part of the <a href="https://biokic.asu.edu/">Arizona State University Biodiversity Knowledge Integration Center</a>&nbsp;and located at the ASU Biocollections at <a href="https://www.asu.edu/map/interactive/?id=120%26mrkIid=66206">734 W Alameda Drive, Tempe, AZ 85282</a>.</p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
 
   <article><h3 class="anchor" id="h.svmnyswsw36">What is this portal (NEON Biorepository Data Portal)?</h3>
   <p>The <a href="https://biorepo.neonscience.org/">NEON Biorepository data portal</a>&nbsp;is a <a href="http://symbiota.org/docs/project-summary/">Symbiota-based collections portal</a>&nbsp;that
@@ -104,7 +104,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
     you can submit issues and feature requests online. You can also always contact us at <a href="mailto:biorepo@asu.edu">biorepo@asu.edu</a>&nbsp;with any questions or concerns. </p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
 
   <article><h3 class="anchor" id="h.o92dard0pqfu">How can I get more information about a collection that interests me?</h3>
-  <p>You can read more about any collection by clicking the &ldquo;more info...&rdquo; link at the end of the collection name in the &ldquo;Sample Search&rdquo;. <span class="c4 c14"><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid%3D26">This page for the fecal sample collection </a><span class="c14">provides an example. On these pages you will also find summary statistics for the collection at the bottom of the page and links to related NEON data products under &ldquo;Relevant link.&rdquo;&nbsp;</p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
+  <p>You can read more about any collection by clicking the &ldquo;more info...&rdquo; link at the end of the collection name in the &ldquo;Sample Search&rdquo;. <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=26">This page for the fecal sample collection </a>provides an example. On these pages you will also find summary statistics for the collection at the bottom of the page and links to related NEON data products under &ldquo;Relevant link.&rdquo;&nbsp;</p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
 
 
   <article><h3 class="anchor" id="h.ekw5yvr0ga3">Some of the online collections contain no samples. How can I get notified when these samples become available?</h3>

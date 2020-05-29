@@ -4,7 +4,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 ?>
 <html>
 	<head>
-		<title>Getting Started</title>
+		<title>Getting Started & FAQ</title>
     <?php
       $activateJQuery = false;
       if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -36,7 +36,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		</div>
 		<!-- This is inner text! -->
 		<div id="innertext">
-  <h1 style="text-align: center;">Getting Started</h1>
+  <h1 style="text-align: center;">Getting Started and Frequently Asked Questions</h1>
+  <p>For tutorials, click <a href="<?php echo $CLIENT_ROOT; ?>/misc/tutorials.php" target="_blank" rel="noopener noreferrer">here</a>.</p>
   <!-- Table of Contents -->
   <h2 class="anchor" id="getting-started-toc">Table of Contents</h2>
 

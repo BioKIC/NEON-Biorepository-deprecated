@@ -95,9 +95,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
   </ol>
   <p>While the main NEON data portal will often include observational data from data products relevant to a sample, the NEON Biorepository data portal collates all occurence information for those samples that are available for research.</p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
 
-  <!-- //////////////////////// Add link to search tutorial here -->
   <article><h3 class="anchor" id="h.umiu0nb3f0np">How do I search for samples?</h3>
-  <p>There are several different ways that you can search for samples. View our tutorials <a href="">here</a> that provide step-by-step instructions for searching via the most common methods.</p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
+  <p>There are several different ways that you can search for samples. View our tutorials <a href="<?php echo $CLIENT_ROOT; ?>/misc/tutorials.php">here</a> that provide step-by-step instructions for searching via the most common methods.</p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
 
   <article><h3 class="anchor" id="h.tuzvhhy4kbdq">Something is wrong with my search or with the portal. Where can I report bugs or ask for help?</h3>
   <p>We have public Github repositories for the NEON Biorepository <a href="https://github.com/BioKIC/NEON-Biorepository">Portal Development</a>&nbsp;and <a href="https://github.com/BioKIC/NEON-Biorepository-Data-Docs">Data Documentation</a>.&nbsp;There

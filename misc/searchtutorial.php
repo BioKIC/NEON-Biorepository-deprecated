@@ -53,10 +53,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
       <p>To do so, follow the following steps (or download the tutorial <a href="<?php echo $CLIENT_ROOT; ?>/misc/20200427_portalTutorial.pdf">here</a>):</p>
 
       <article>
-        <p>Navigate to <a href="https://biorepo.neonscience.org/portal/collections/index.php&amp;sa=D&amp;ust=1590701809706000">Sample Search</a> under "Search" in the main menu.</p>
+        <p>Navigate to <a href="https://biorepo.neonscience.org/portal/collections/index.php">Sample Search</a> under "Search" in the main menu.</p>
         <figure>
           <img src="../misc/images/tutorial_11.jpg" alt="">
-          <figcaption>Navigate to <a href="https://biorepo.neonscience.org/portal/collections/index.php&amp;sa=D&amp;ust=1590701809706000">Sample Search</a> under "Search" in the main menu.</figcaption>
+          <figcaption>Navigate to <a href="https://biorepo.neonscience.org/portal/collections/index.php">Sample Search</a> under "Search" in the main menu.</figcaption>
         </figure>
       </article>
 
@@ -90,10 +90,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>To be notified of when collections of interest are updated, fill out the linked <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE0NCJfObUji6r9tRDuH4sSGyKHFDw2IoqVYHm9Vtg7cnKrg/viewform&amp;sa=D&amp;ust=1590701809707000">Google Form</a>.</p>
+        <p>To be notified of when collections of interest are updated, fill out the linked <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE0NCJfObUji6r9tRDuH4sSGyKHFDw2IoqVYHm9Vtg7cnKrg/viewform">Google Form</a>.</p>
         <ol>
           <li>To begin a sample search, select the collections that are of interest. Collections are broken down into five categories: Algae, Environmental, Invertebrate, Plant, Vertebrate, and External. For illustration, we will search for samples relevant to deer mouse physiology in the western continental United States. Therefore, we will begin by finding the small mammal fecal and hair samples under Vertebrates.</li>
-          <li>Note that you can read more about any collection by clicking the "more info..." link at the end of the collection name. To see an example navigate to <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid%3D26&amp;sa=D&amp;ust=1590701809707000">this page for the fecal sample collection.</a></li>
+          <li>Note that you can read more about any collection by clicking the "more info..." link at the end of the collection name. To see an example navigate to <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid%3D26">this page for the fecal sample collection.</a></li>
         </ol>
         <figure>
           <img src="../misc/images/tutorial_32.jpg" alt="Click on more info to open collection profiles">
@@ -107,7 +107,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
           <img src="../misc/images/tutorial_39.jpg" alt="Collection metadata">
           <figcaption>Collection metadata</figcaption>
         </figure>
-        <p>Note that this information includes a link to a related NEON data product for small mammal captures using the <a href="https://data.neonscience.org/data-products/DP1.10072.001&amp;sa=D&amp;ust=1590701809708000">Related Link</a></p>
+        <p>Note that this information includes a link to a related NEON data product for small mammal captures using the <a href="https://data.neonscience.org/data-products/DP1.10072.001">Related Link</a></p>
       </article>
 
       <article>
@@ -164,7 +164,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
           <figcaption>Spatial criteria</figcaption>
         </figure></li>
           <li>
-            <p>Other Collector and Specimen Criteria can be used to limit the search. Of interest for a select number of NEON collections is the ability to "Limit to Specimens with Genetic Data." This search will limit results to those linked to sequences available in the <a class="c5" href="http://www.boldsystems.org/&amp;sa=D&amp;ust=1590701809710000">Barcode of Life Database (BOLD)</a>.</p>
+            <p>Other Collector and Specimen Criteria can be used to limit the search. Of interest for a select number of NEON collections is the ability to "Limit to Specimens with Genetic Data." This search will limit results to those linked to sequences available in the <a class="c5" href="http://www.boldsystems.org/">Barcode of Life Database (BOLD)</a>.</p>
             <figure>
           <img src="../misc/images/tutorial_8.jpg" alt="Other criteria">
           <figcaption>Other criteria</figcaption>
@@ -179,7 +179,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>This brings us to the "Occurrence Records" tab of the <a href="https://biorepo.neonscience.org/portal/collections/list.php?db%3D26%252C27%26llbound%3D49.15165%253B23.42108%253B-126.20996%253B-93.64648%26taxa%3DPeromyscus%26usethes%3D1%26taxontype%3D2&amp;sa=D&amp;ust=1590701809711000">search results</a>. At the top of that page, you see the search criteria used to generate the results. We can see that as of April 23, 2020, 3379 samples from the NEON-MAMC-FE (fecal) and NEON-MAMC-HA (hair) collections met our criteria.</p>
+        <p>This brings us to the "Occurrence Records" tab of the <a href="https://biorepo.neonscience.org/portal/collections/list.php?db%3D26%252C27%26llbound%3D49.15165%253B23.42108%253B-126.20996%253B-93.64648%26taxa%3DPeromyscus%26usethes%3D1%26taxontype%3D2">search results</a>. At the top of that page, you see the search criteria used to generate the results. We can see that as of April 23, 2020, 3379 samples from the NEON-MAMC-FE (fecal) and NEON-MAMC-HA (hair) collections met our criteria.</p>
         <figure>
           <img src="../misc/images/tutorial_44.jpg" alt="Example search results">
           <figcaption>Example search results</figcaption>

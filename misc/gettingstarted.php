@@ -74,7 +74,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
   <article><h3 class="anchor" id="h.92fs9knk10ri">What is the NEON Biorepository?</h3>
   <p>The NEON Biorepository at the <a href="https://biokic.asu.edu/collections">Arizona State University Biocollections</a>&nbsp;receives, curates, and makes nearly all of the samples collectedby the
     <a href="https://www.neonscience.org/">National Ecological Observatory Network</a>&nbsp;(NEON) available to researchers. NEON aims to provide open data that will enable researchers, educatorsand the public to better
-    understand how aquatic and terrestrial ecosystems are changing over time. Funded by the National Science Foundation and operated by Battelle Memorial Institute, the network publishes over<a href="https://data.neonscience.org/home">180 standardized ecological and environmental datasets</a>&nbsp;collected
+    understand how aquatic and terrestrial ecosystems are changing over time. Funded by the National Science Foundation and operated by Battelle Memorial Institute, the network publishes over <a href="https://data.neonscience.org/home">180 standardized ecological and environmental datasets</a>&nbsp;collected
     from 81 field sites across the United States, including Puerto Rico, Alaska, and Hawaii, and is intended to run for 30 years. NEON also collects over 100,000 biological and environmental samples and specimens each year from those sites, which are
     then analyzed and sent to the NEON Biorepository for future use.</p>
 <button><a href="#getting-started-toc">Go back to TOC</a></button>

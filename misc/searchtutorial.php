@@ -93,7 +93,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         <p>To be notified of when collections of interest are updated, fill out the linked <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE0NCJfObUji6r9tRDuH4sSGyKHFDw2IoqVYHm9Vtg7cnKrg/viewform&amp;sa=D&amp;ust=1590701809707000">Google Form</a>.</p>
         <ol>
           <li>To begin a sample search, select the collections that are of interest. Collections are broken down into five categories: Algae, Environmental, Invertebrate, Plant, Vertebrate, and External. For illustration, we will search for samples relevant to deer mouse physiology in the western continental United States. Therefore, we will begin by finding the small mammal fecal and hair samples under Vertebrates.</li>
-          <li>Note that you can read more about any collection by clicking the “more info...” link at the end of the collection name. To see an example navigate to <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid%3D26&amp;sa=D&amp;ust=1590701809707000">this page for the fecal sample collection.</a></li>
+          <li>Note that you can read more about any collection by clicking the "more info..." link at the end of the collection name. To see an example navigate to <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid%3D26&amp;sa=D&amp;ust=1590701809707000">this page for the fecal sample collection.</a></li>
         </ol>
         <figure>
           <img src="../misc/images/tutorial_32.jpg" alt="Click on more info to open collection profiles">
@@ -111,7 +111,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>At the bottom of the page, we can see some summary statistics for the collection. We can click on “Show Geographic Distribution” and “Show Family Distribution” to explore the number of samples at different geographic and taxonomic scales.</p>
+        <p>At the bottom of the page, we can see some summary statistics for the collection. We can click on "Show Geographic Distribution" and "Show Family Distribution" to explore the number of samples at different geographic and taxonomic scales.</p>
         <figure>
           <img src="../misc/images/tutorial_14.jpg" alt="Collection profile">
           <figcaption>Collection profile</figcaption>
@@ -146,7 +146,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         <p>Some commonly used criteria are explained below.</p>
         <ol>
           <li>
-            <p>Taxonomic Criteria can be applied. When searching based on a taxon loaded into the portal’s taxonomic tree, suggested criteria will help you populate the text. For illustration, we will search for deer mice (Peromyscus) specimens. With “include Synonyms” checked, we will see all specimens identified as being from within that genus. Otherwise we would see only those specimens identified as Peromyscus but not to species.</p>
+            <p>Taxonomic Criteria can be applied. When searching based on a taxon loaded into the portal’s taxonomic tree, suggested criteria will help you populate the text. For illustration, we will search for deer mice (Peromyscus) specimens. With "include Synonyms" checked, we will see all specimens identified as being from within that genus. Otherwise we would see only those specimens identified as Peromyscus but not to species.</p>
             <figure>
           <img src="../misc/images/tutorial_26.jpg" alt="Taxonomic criteria">
           <figcaption>Taxonomic criteria</figcaption>
@@ -164,13 +164,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
           <figcaption>Spatial criteria</figcaption>
         </figure></li>
           <li>
-            <p>Other Collector and Specimen Criteria can be used to limit the search. Of interest for a select number of NEON collections is the ability to “Limit to Specimens with Genetic Data.” This search will limit results to those linked to sequences available in the <a class="c5" href="http://www.boldsystems.org/&amp;sa=D&amp;ust=1590701809710000">Barcode of Life Database (BOLD)</a>.</p>
+            <p>Other Collector and Specimen Criteria can be used to limit the search. Of interest for a select number of NEON collections is the ability to "Limit to Specimens with Genetic Data." This search will limit results to those linked to sequences available in the <a class="c5" href="http://www.boldsystems.org/&amp;sa=D&amp;ust=1590701809710000">Barcode of Life Database (BOLD)</a>.</p>
             <figure>
           <img src="../misc/images/tutorial_8.jpg" alt="Other criteria">
           <figcaption>Other criteria</figcaption>
         </figure></li>
           <li>
-            <p>When all search criteria of interest have been applied, we will click “List Display” either at the top or the bottom of the search form.</p>
+            <p>When all search criteria of interest have been applied, we will click "List Display" either at the top or the bottom of the search form.</p>
             <figure>
           <img src="../misc/images/tutorial_6.jpg" alt="List display option">
           <figcaption>List display option</figcaption>
@@ -179,7 +179,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>This brings us to the “Occurrence Records” tab of the <a href="https://biorepo.neonscience.org/portal/collections/list.php?db%3D26%252C27%26llbound%3D49.15165%253B23.42108%253B-126.20996%253B-93.64648%26taxa%3DPeromyscus%26usethes%3D1%26taxontype%3D2&amp;sa=D&amp;ust=1590701809711000">search results</a>. At the top of that page, you see the search criteria used to generate the results. We can see that as of April 23, 2020, 3379 samples from the NEON-MAMC-FE (fecal) and NEON-MAMC-HA (hair) collections met our criteria.</p>
+        <p>This brings us to the "Occurrence Records" tab of the <a href="https://biorepo.neonscience.org/portal/collections/list.php?db%3D26%252C27%26llbound%3D49.15165%253B23.42108%253B-126.20996%253B-93.64648%26taxa%3DPeromyscus%26usethes%3D1%26taxontype%3D2&amp;sa=D&amp;ust=1590701809711000">search results</a>. At the top of that page, you see the search criteria used to generate the results. We can see that as of April 23, 2020, 3379 samples from the NEON-MAMC-FE (fecal) and NEON-MAMC-HA (hair) collections met our criteria.</p>
         <figure>
           <img src="../misc/images/tutorial_44.jpg" alt="Example search results">
           <figcaption>Example search results</figcaption>
@@ -208,11 +208,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
           <img src="../misc/images/tutorial_36.jpg" alt="Download options">
           <figcaption>Download options</figcaption>
         </figure>
-        <p>We can also choose the data extensions (determination history and/or images) that we would like to include in our download, the file format, and whether we would like the results as a zip file. We select “Download Data” when we have identified our preferences.</p>
+        <p>We can also choose the data extensions (determination history and/or images) that we would like to include in our download, the file format, and whether we would like the results as a zip file. We select "Download Data" when we have identified our preferences.</p>
       </article>
 
       <article>
-        <p>In a default download, we will see a folder like below in which the “occurences.csv” file is the primary results file containing a table of all available sample-associated data.</p>
+        <p>In a default download, we will see a folder like below in which the "occurences.csv" file is the primary results file containing a table of all available sample-associated data.</p>
         <figure>
           <img src="../misc/images/tutorial_18.jpg" alt="DwCA contents">
           <figcaption>DwCA contents</figcaption>
@@ -220,7 +220,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>Returning to the portal results, we will navigate to the “Species List” tab to see a list of all taxa represented in the results.</p>
+        <p>Returning to the portal results, we will navigate to the "Species List" tab to see a list of all taxa represented in the results.</p>
         <figure>
           <img src="../misc/images/tutorial_33.jpg" alt="Species list tab in results page">
           <figcaption>Species list tab in results page</figcaption>
@@ -236,7 +236,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>From there, you can click “Open Interactive Map” underneath the main text box on the Taxon Page to view the collection locations for samples from that taxon.</p>
+        <p>From there, you can click "Open Interactive Map" underneath the main text box on the Taxon Page to view the collection locations for samples from that taxon.</p>
         <figure>
           <img src="../misc/images/tutorial_43.jpg" alt="Interactive Map window">
           <figcaption>Interactive Map window</figcaption>
@@ -260,7 +260,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>Clicking on “Full Record Details” opens a pop-up window that allows us to read more about an individual sample.</p>
+        <p>Clicking on "Full Record Details" opens a pop-up window that allows us to read more about an individual sample.</p>
         <figure>
           <img src="../misc/images/tutorial_47.jpg" alt="Figure Caption">
           <figcaption>Full record details link</figcaption>
@@ -277,7 +277,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>Back to the main search results page, we can navigate to the “Maps” tab to map of search results.</p>
+        <p>Back to the main search results page, we can navigate to the "Maps" tab to map of search results.</p>
         <figure>
           <img src="../misc/images/tutorial_41.jpg" alt="Maps tab of search results">
           <figcaption>Maps tab of search results</figcaption>
@@ -285,7 +285,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>We can click “Display Coordinates in Google Map” to visualize the collection locations of the samples in a pop-up Google Maps window.</p>
+        <p>We can click "Display Coordinates in Google Map" to visualize the collection locations of the samples in a pop-up Google Maps window.</p>
         <figure>
           <img src="../misc/images/tutorial_10.jpg" alt="Google Map with coordinates">
           <figcaption>Google Map with coordinates</figcaption>
@@ -293,7 +293,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>We can zoom in and click on individual markers to see the “Full Record Details” pop-up window for the corresponding sample like that we saw above from the “Occurrence Records” tab.</p>
+        <p>We can zoom in and click on individual markers to see the "Full Record Details" pop-up window for the corresponding sample like that we saw above from the "Occurrence Records" tab.</p>
         <figure>
           <img src="../misc/images/tutorial_34.jpg" alt="Occurrence markers">
           <figcaption>Occurrence markers</figcaption>
@@ -301,7 +301,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>Back on the “Maps” tab in the search results, we can download a KML file of occurrences suitable for mapping in Google Earth.</p>
+        <p>Back on the "Maps" tab in the search results, we can download a KML file of occurrences suitable for mapping in Google Earth.</p>
         <figure>
           <img src="../misc/images/tutorial_40.jpg" alt="Maps tab in search results">
           <figcaption>Maps tab in search results</figcaption>
@@ -309,7 +309,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
       </article>
 
       <article>
-        <p>Note that you can click “Add Extra Fields” to select additional Symbiota fields to include in the KML download.</p>
+        <p>Note that you can click "Add Extra Fields" to select additional Symbiota fields to include in the KML download.</p>
         <figure>
           <img src="../misc/images/tutorial_1.jpg" alt="Google Earch KML option">
           <figcaption>Google Earch KML option</figcaption>

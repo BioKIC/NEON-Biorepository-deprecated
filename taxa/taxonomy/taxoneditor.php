@@ -254,8 +254,8 @@ if($isEditor){
 							<div class="editfield">
 								<?php echo htmlspecialchars($taxonEditorObj->getNotes());?>
 							</div>
-							<div class="editfield" style="display:none;">
-								<input type="text" id="notes" name="notes" value="<?php echo htmlspecialchars($taxonEditorObj->getNotes()); ?>" style="width:85%;" />
+							<div class="editfield" style="display:none;width:90%;">
+								<input type="text" id="notes" name="notes" style="width:100%;" value="<?php echo htmlspecialchars($taxonEditorObj->getNotes()); ?>" />
 							</div>
 						</div>
 						<div class="editDiv">
@@ -269,8 +269,8 @@ if($isEditor){
 								echo $source;
 								?>
 							</div>
-							<div class="editfield" style="display:none;">
-								<input type="text" id="source" name="source" style="width:85%;" value="<?php echo htmlspecialchars($taxonEditorObj->getSource()); ?>" />
+							<div class="editfield" style="display:none;width:90%;">
+								<input type="text" id="source" name="source" style="width:100%;" value="<?php echo htmlspecialchars($taxonEditorObj->getSource()); ?>" />
 							</div>
 						</div>
 						<div class="editDiv">
@@ -300,10 +300,10 @@ if($isEditor){
 								<input type='hidden' name='securitystatusstart' value='<?php echo $taxonEditorObj->getSecurityStatus(); ?>' />
 							</div>
 						</div>
-						<div class="editfield" style="display:none;">
+						<div class="editfield" style="display:none;clear:both;margin:15px 0px">
 							<input type="hidden" name="tid" value="<?php echo $taxonEditorObj->getTid(); ?>" />
 							<input type="hidden" name="taxauthid" value="<?php echo $taxAuthId;?>">
-							<input type="submit" id="taxoneditsubmit" name="taxonedits" value="Submit Edits" />
+							<button type="submit" id="taxoneditsubmit" name="taxonedits" value="Submit Edits" >Submit Edits</button>
 						</div>
 					</form>
 				</div>

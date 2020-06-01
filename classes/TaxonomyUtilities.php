@@ -255,21 +255,26 @@ class TaxonomyUtilities {
 				'SELECT DISTINCT ts.tid, ts.parenttid, ts.taxauthid '.
 				'FROM taxstatus ts '.
 				'WHERE (ts.taxauthid = '.$taxAuthId.') AND ts.tid NOT IN(SELECT tid FROM taxaenumtree WHERE taxauthid = '.$taxAuthId.')';
-			//echo $sql;
 			if(!$conn->query($sql)){
 				$status = 'ERROR seeding taxaenumtree: '.$conn->error;
 			}
-			if($status == true){
-				//Continue building taxaenumtree
+			if($status === true){
+				//Set direct parents for all taxa
 				$sql2 = 'INSERT INTO taxaenumtree(tid,parenttid,taxauthid) '.
+					'SELECT DISTINCT ts.tid, ts.parenttid, ts.taxauthid '.
+					'FROM taxstatus ts LEFT JOIN taxaenumtree e ON ts.tid = e.tid AND ts.parenttid = e.parenttid AND ts.taxauthid = e.taxauthid '.
+					'WHERE (ts.taxauthid = '.$taxAuthId.') AND (e.tid IS NULL)';
+				if(!$conn->query($sql2)) $status = 'ERROR setting direct parents within taxaenumtree: '.$conn->error;
+
+				//Continue adding more distint parents
+				$sql3 = 'INSERT INTO taxaenumtree(tid,parenttid,taxauthid) '.
 					'SELECT DISTINCT e.tid, ts.parenttid, ts.taxauthid '.
 					'FROM taxaenumtree e INNER JOIN taxstatus ts ON e.parenttid = ts.tid AND e.taxauthid = ts.taxauthid '.
 					'LEFT JOIN taxaenumtree e2 ON e.tid = e2.tid AND ts.parenttid = e2.parenttid AND e.taxauthid = e2.taxauthid '.
 					'WHERE (ts.taxauthid = '.$taxAuthId.') AND (e2.tid IS NULL)';
-				//echo $sql;
 				$cnt = 0;
 				do{
-					if(!$conn->query($sql2)){
+					if(!$conn->query($sql3)){
 						$status = 'ERROR building taxaenumtree: '.$conn->error;
 						break;
 					}

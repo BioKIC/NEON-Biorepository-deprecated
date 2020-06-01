@@ -337,7 +337,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		}
 		if(array_key_exists('catnum',$this->searchTermArr)){
 			$catStr = $this->cleanInStr($this->searchTermArr['catnum']);
-			$includeOtherCatNum = array_key_exists('othercatnum',$this->searchTermArr)?true:false;
+			$includeOtherCatNum = array_key_exists('includeothercatnum',$this->searchTermArr)?true:false;
 
 			$catArr = explode(',',str_replace(';',',',$catStr));
 			$betweenFrag = array();
@@ -728,7 +728,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($catNum){
 				$this->searchTermArr["catnum"] = $catNum;
 				if(array_key_exists("includeothercatnum",$_REQUEST)){
-					$this->searchTermArr["othercatnum"] = '1';
+					$this->searchTermArr["includeothercatnum"] = '1';
 				}
 			}
 			else{

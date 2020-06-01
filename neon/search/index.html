@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700" rel="stylesheet" type="text/css">
   <!--Import Google Icon Font-->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -30,7 +31,7 @@
             <label for="" class="input-text--outlined">
               <input type="text" name="taxa">
               <span data-label="Taxon"></span></label>
-            <span class="assistive-text">Type any taxonomic name, or select on the right.</span>
+            <span class="assistive-text">Type any taxonomic name, or select taxon type on the right.</span>
           </div>
           <div class="select-container">
             <!-- <label for="taxon-type">Taxon Type</label> -->
@@ -55,7 +56,7 @@
         <div id="search-form-colls" class="content">
           <!-- <ul id="collections-list"></ul> -->
           <ul id="biorepo-collections-list">
-            <li><input id="allCollections" name="db" value="all" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Collections</span>
+            <li><input id="allCollections" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Collections</span>
               <ul>
                 <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Algae</span>
                   <ul class="collapsed">
@@ -157,10 +158,10 @@
                 </li>
               </ul>
             </li>
-          </ul>
+          </ul> -->
           <div>
             <ul id="neonext-collections-list">
-              <li><input id="allNeonExtCollections" name="db" value="all" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
+              <li><input id="allNeonExtCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
                 <ul class="collapsed">
                   <li><input type="checkbox" name="db" value="43" class="child"><span>Consortium of Small Vertebrate Collections</span></li>
                   <li><input type="checkbox" name="db" value="44" class="child"><span>Essig Museum of Entomology</span></li>
@@ -169,7 +170,7 @@
               </li>
             </ul>
             <ul id="ext-collections-list">
-              <li><input id="allExternalCollections" name="db" value="all" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All non-NEON External Collections</span>
+              <li><input id="allExternalCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All non-NEON External Collections</span>
                 <ul class="collapsed">
                   <li><input type="checkbox" name="db" value="37" class="child"><span>SCAN Portal Network Arthropod Specimens</span></li>
                   <li><input type="checkbox" name="db" value="2" class="child"><span>SEINet Portal Network Botanical Specimens</span></li>
@@ -189,7 +190,7 @@
         <div id="search-form-locality" class="content">
           <!-- <ul id="site-list"></ul> -->
           <ul id="site-list">
-            <li><input id="allSites" name="dataset" value="all" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
+            <li><input id="allSites" name="dataset" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
               <ul>
                 <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D01 - Northeast</span>
                   <ul class="collapsed">
@@ -562,11 +563,11 @@
       <!-- <button>Clear</button>
       <button>Search</button> -->
       <button id="teste-btn">Get all params</button>
-      <a href="#" id="test-url" target="_blank"></a>
+      <p><a href="#" id="test-url" target="_blank" style="max-width: 50px">Search URL</a></p>
     </div>
   </form>
 </body>
-<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
+
 <script src="js/searchform.js"></script>
 <!-- <script src="js/creates-form-elements.js"></script> -->
 

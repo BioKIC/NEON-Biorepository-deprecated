@@ -1,23 +1,32 @@
 /* PLUGINS */
+
+
 /* ==============================
    BASE STYLES
    @mixin ============================= */
+
+
 /* BASE STYLES ******************************************/
+
+
 /* Typography */
+
 html {
   color: #444444;
-  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+  font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
   font-size: 1em;
   font-size: 16px;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   color: #444444;
   font-weight: 600;
 }
 
 a {
-  color: #005DAB;
+  color: #005dab;
 }
 
 fieldset {
@@ -33,11 +42,11 @@ input {
   font-style: normal;
   font-weight: 400;
   src: url(../fonts/MaterialIcons-Regular.eot);
-  src: local("Material Icons");
-  src: local("MaterialIcons-Regular");
-  src: url(../fonts/MaterialIcons-Regular.woff2) format("woff2");
-  src: url(../fonts/MaterialIcons-Regular.woff) format("woff");
-  src: url(../fonts/MaterialIcons-Regular.ttf) format("truetype");
+  src: local('Material Icons');
+  src: local('MaterialIcons-Regular');
+  src: url(../fonts/MaterialIcons-Regular.woff2) format('woff2');
+  src: url(../fonts/MaterialIcons-Regular.woff) format('woff');
+  src: url(../fonts/MaterialIcons-Regular.ttf) format('truetype');
 }
 
 .material-icons {
@@ -60,11 +69,15 @@ input {
   -moz-osx-font-smoothing: grayscale;
   /* Support for IE. */
   -webkit-font-feature-settings: 'liga';
-          font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
 }
 
+
 /* COMMON */
+
+
 /* CSS GRID HELPERS */
+
 .grid {
   display: -ms-grid;
   display: grid;
@@ -72,30 +85,40 @@ input {
 
 .grid--half {
   -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-gap: 20px;
   -webkit-box-align: end;
-      -ms-flex-align: end;
-          align-items: end;
+  -ms-flex-align: end;
+  align-items: end;
 }
 
+
 /* INPUTS */
+
 .assistive-text {
   color: #939292;
   font-size: 0.8em;
   margin-left: 20px;
 }
 
+
 /* NAV */
+
+
 /* FOOTER */
+
 section {
   margin: 1em 0;
 }
 
+
 /* ==============================
    LAYOUT STYLES
    @mixin ============================= */
+
+
 /* Search Form Layout ********************/
+
 body {
   max-width: 1024px;
   margin: 0 auto;
@@ -105,11 +128,12 @@ body {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 3fr 1fr;
-      grid-template-columns: 3fr 1fr;
+  grid-template-columns: 3fr 1fr;
   grid-gap: 20px;
 }
 
 #criteria-panel {
+  display: block;
   background-color: #939292;
   padding: 0.5rem 1rem;
 }
@@ -118,18 +142,18 @@ body {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 2fr 1fr;
-      grid-template-columns: 2fr 1fr;
+  grid-template-columns: 2fr 1fr;
   grid-gap: 20px;
   -webkit-box-align: self-start;
-      -ms-flex-align: self-start;
-          align-items: self-start;
+  -ms-flex-align: self-start;
+  align-items: self-start;
 }
 
 #search-form-colls {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-gap: 20px;
 }
 
@@ -156,7 +180,7 @@ body {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-gap: 20px;
 }
 
@@ -183,7 +207,7 @@ body {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 1fr 1fr 1fr;
-      grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-gap: 20px;
 }
 
@@ -191,7 +215,7 @@ body {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-gap: 20px;
 }
 
@@ -199,14 +223,18 @@ body {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-gap: 20px;
 }
+
 
 /* ==============================
    LAYOUT STYLES
    @mixin ============================= */
+
+
 /* COLOR BOXES */
+
 span.text-color {
   color: #444444;
   background-color: #444444;
@@ -226,24 +254,26 @@ span.h-color {
 }
 
 span.link-color {
-  color: #005DAB;
-  background-color: #005DAB;
+  color: #005dab;
+  background-color: #005dab;
   line-height: 0.5em;
 }
 
 span.accent-color {
-  color: #005DAB;
-  background-color: #005DAB;
+  color: #005dab;
+  background-color: #005dab;
   line-height: 0.5em;
 }
 
 span.accent-color-darker {
-  color: #002D74;
-  background-color: #002D74;
+  color: #002d74;
+  background-color: #002d74;
   line-height: 0.5em;
 }
 
+
 /* CHIPS */
+
 .chip {
   display: inline-block;
   background: #e0e0e0;
@@ -257,7 +287,8 @@ span.accent-color-darker {
   background: #ccc;
 }
 
-.chip, .chip-icon {
+.chip,
+.chip-icon {
   height: 32px;
   line-height: 32px;
 }
@@ -265,7 +296,7 @@ span.accent-color-darker {
 .chip-icon {
   display: block;
   float: left;
-  background: #005DAB;
+  background: #005dab;
   width: 32px;
   line-height: 32px !important;
   border-radius: 50%;
@@ -303,7 +334,7 @@ span.accent-color-darker {
 
 .btn {
   color: #ffffff;
-  background-color: #002D74;
+  background-color: #002d74;
   display: inline-block;
   position: relative;
   cursor: pointer;
@@ -312,7 +343,7 @@ span.accent-color-darker {
   padding: 0 1.5rem;
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: .8px;
+  letter-spacing: 0.8px;
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
@@ -321,14 +352,14 @@ span.accent-color-darker {
   outline: none;
   border: none;
   -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   border-radius: 2px;
-  -webkit-transition: all .3s ease-out;
-  transition: all .3s ease-out;
+  -webkit-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
   -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.225);
-          box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.225);
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.225);
 }
 
 .btn:hover {
@@ -336,7 +367,7 @@ span.accent-color-darker {
   background-color: #0041a7;
   text-decoration: none;
   -webkit-box-shadow: 0 4px 10px 0px rgba(0, 0, 0, 0.225);
-          box-shadow: 0 4px 10px 0px rgba(0, 0, 0, 0.225);
+  box-shadow: 0 4px 10px 0px rgba(0, 0, 0, 0.225);
 }
 
 .btn-icon {
@@ -350,8 +381,12 @@ span.accent-color-darker {
   margin: 0 8px 0 -12px;
 }
 
+
 /* Accordions ********************************************************************************/
+
+
 /* Dependencies: Material Design Icons */
+
 .accordions input.accordion-selector {
   display: none;
 }
@@ -363,9 +398,9 @@ span.accent-color-darker {
   margin: 0 0 1px 0;
   cursor: pointer;
   background-color: #444444;
-  color: #FFF;
-  -webkit-transition: ease .5s;
-  transition: ease .5s;
+  color: #fff;
+  -webkit-transition: ease 0.5s;
+  transition: ease 0.5s;
   position: relative;
 }
 
@@ -374,9 +409,9 @@ span.accent-color-darker {
 }
 
 .accordions label.accordion-header::after {
-  font-family: "Material Icons";
+  font-family: 'Material Icons';
   font-size: 24px;
-  content: "\e313";
+  content: '\e313';
   position: absolute;
   right: 20px;
   top: 10px;
@@ -389,34 +424,37 @@ span.accent-color-darker {
   margin: -1px 0 10px 0;
 }
 
-.accordions input.accordion-selector + label + .content {
+.accordions input.accordion-selector+label+.content {
   opacity: 0;
   height: 0;
   padding: 0 25px;
-  -webkit-transition: ease-in-out .2s;
-  transition: ease-in-out .2s;
+  -webkit-transition: ease-in-out 0.2s;
+  transition: ease-in-out 0.2s;
 }
 
-.accordions input.accordion-selector:checked + label + .content {
+.accordions input.accordion-selector:checked+label+.content {
   opacity: 1;
   height: 100%;
   padding: 10px 25px;
 }
 
-.accordions input.accordion-selector:checked + label::after {
-  content: "\e316";
+.accordions input.accordion-selector:checked+label::after {
+  content: '\e316';
 }
 
+
 /* Input Text ********************************************************************************/
+
 .input-text-container {
   --bg: $neon-lighter-gray;
   --height: 46px;
-  --bg-hover1: rgba(0,0,0,0.08);
-  --bbc: rgba(0,0,0,.42);
-  --opaq1: .08;
+  --bg-hover1: rgba(0, 0, 0, 0.08);
+  --bbc: rgba(0, 0, 0, 0.42);
+  --opaq1: 0.08;
   --padding: 10px;
   --fz: 16px {
-   margin: 10px auto; }
+    margin: 10px auto;
+  }
   width: 100%;
   max-width: 600px;
 }
@@ -427,7 +465,8 @@ span.accent-color-darker {
   display: inline-block;
 }
 
-.input-text-container label span::after, .input-text-container label span::before {
+.input-text-container label span::after,
+.input-text-container label span::before {
   position: absolute;
   -webkit-transition: 200ms ease-in-out;
   transition: 200ms ease-in-out;
@@ -445,14 +484,15 @@ span.accent-color-darker {
   line-height: 1;
 }
 
-.input-text-container label input:focus ~ span::before, .input-text-container label input:valid ~ span::before {
+.input-text-container label input:focus~span::before,
+.input-text-container label input:valid~span::before {
   font-size: 0.8em;
-  color: #005DAB;
+  color: #005dab;
 }
 
 .input-text-container input {
   -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   width: 100%;
   border: 0;
   height: var(--height);
@@ -460,7 +500,8 @@ span.accent-color-darker {
   font-size: 1em;
 }
 
-.input-text-container input:focus, .input-text-container input:active {
+.input-text-container input:focus,
+.input-text-container input:active {
   outline: 0;
   border: 0;
 }
@@ -469,23 +510,25 @@ span.accent-color-darker {
   border-bottom: 1px solid var(--bbc);
 }
 
-.input-text-container .input-text--filled > input {
+.input-text-container .input-text--filled>input {
   background-color: var(--bg);
   border-radius: 4px 4px 0 0;
 }
 
-.input-text-container .input-text--filled > input:hover {
+.input-text-container .input-text--filled>input:hover {
   background-color: var(--bg-hover1);
 }
 
-.input-text-container .input-text--filled > input:focus ~ span::before, .input-text-container .input-text--filled > input:valid ~ span::before {
+.input-text-container .input-text--filled>input:focus~span::before,
+.input-text-container .input-text--filled>input:valid~span::before {
   -webkit-transform: translateY(-12px);
-          transform: translateY(-12px);
+  transform: translateY(-12px);
   font-size: 0.8em;
-  color: #005DAB;
+  color: #005dab;
 }
 
-.input-text-container .input-text--filled > input:focus ~ span::after, .input-text-container .input-text--filled > input:valid ~ span::after {
+.input-text-container .input-text--filled>input:focus~span::after,
+.input-text-container .input-text--filled>input:valid~span::after {
   width: 100%;
 }
 
@@ -493,7 +536,7 @@ span.accent-color-darker {
   content: '';
   width: 0;
   height: 1px;
-  background-color: #005DAB;
+  background-color: #005dab;
   bottom: 0;
   left: 0;
   right: 0;
@@ -502,25 +545,28 @@ span.accent-color-darker {
   transition: 300ms;
 }
 
-.input-text-container .input-text--outlined > input {
+.input-text-container .input-text--outlined>input {
   border: 1px solid var(--bbc);
   border-radius: 0;
 }
 
-.input-text-container .input-text--outlined > input:focus {
-  -webkit-box-shadow: 0 0 0 2px #005DAB;
-          box-shadow: 0 0 0 2px #005DAB;
+.input-text-container .input-text--outlined>input:focus {
+  -webkit-box-shadow: 0 0 0 2px #005dab;
+  box-shadow: 0 0 0 2px #005dab;
   border-color: transparent;
 }
 
-.input-text-container .input-text--outlined > input:focus ~ span::before, .input-text-container .input-text--outlined > input:valid ~ span::before {
+.input-text-container .input-text--outlined>input:focus~span::before,
+.input-text-container .input-text--outlined>input:valid~span::before {
   -webkit-transform: translateY(-22px);
-          transform: translateY(-22px);
+  transform: translateY(-22px);
   background-color: white;
   padding: 2px 4px;
 }
 
+
 /* Select control ***********************************/
+
 .select-container label {
   font-size: 0.8em;
   postion: relative;
@@ -544,22 +590,25 @@ span.accent-color-darker {
   height: 46px;
   border: 2px solid #939292;
   -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.17);
-          box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.17);
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.17);
   font-family: inherit;
   font-size: 1em;
   width: 100%;
 }
 
-.select-container select:active, .select-container select:focus {
-  border-color: #005DAB;
+.select-container select:active,
+.select-container select:focus {
+  border-color: #005dab;
 }
 
+
 /* Text Area ********************************************************************************/
+
 .text-area-container {
   --bg: $neon-lighter-gray;
-  --bg-hover1: rgba(0,0,0,0.08);
-  --bbc: rgba(0,0,0,.42);
-  --opaq1: .08;
+  --bg-hover1: rgba(0, 0, 0, 0.08);
+  --bbc: rgba(0, 0, 0, 0.42);
+  --opaq1: 0.08;
   --padding: 10px;
   --fz: 16px;
   margin: 10px auto;
@@ -573,7 +622,8 @@ span.accent-color-darker {
   display: inline-block;
 }
 
-.text-area-container label span::after, .text-area-container label span::before {
+.text-area-container label span::after,
+.text-area-container label span::before {
   position: absolute;
   -webkit-transition: 200ms ease-in-out;
   transition: 200ms ease-in-out;
@@ -597,15 +647,15 @@ span.accent-color-darker {
   display: inline;
 }
 
-.text-area-container label textarea:focus ~ span::before {
+.text-area-container label textarea:focus~span::before {
   top: -67px;
   font-size: 0.8em;
-  color: #005DAB;
+  color: #005dab;
 }
 
 .text-area-container textarea {
   -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   resize: none;
   border: 0;
   height: 100px;
@@ -613,26 +663,30 @@ span.accent-color-darker {
   font-size: 1em;
 }
 
-.text-area-container textarea:focus, .text-area-container textarea:active {
+.text-area-container textarea:focus,
+.text-area-container textarea:active {
   outline: 0;
   border: 0;
 }
 
-.text-area-container .text-area--outlined > textarea {
+.text-area-container .text-area--outlined>textarea {
   border: 1px solid var(--bbc);
   border-radius: 0;
 }
 
-.text-area-container .text-area--outlined > textarea:focus {
-  -webkit-box-shadow: 0 0 0 2px #005DAB;
-          box-shadow: 0 0 0 2px #005DAB;
+.text-area-container .text-area--outlined>textarea:focus {
+  -webkit-box-shadow: 0 0 0 2px #005dab;
+  box-shadow: 0 0 0 2px #005dab;
   border-color: transparent;
 }
 
-.text-area-container .text-area--outlined > textarea:focus ~ span::before, .text-area-container .text-area--outlined > textarea:valid ~ span::before {
+.text-area-container .text-area--outlined>textarea:focus~span::before,
+.text-area-container .text-area--outlined>textarea:valid~span::before {
   -webkit-transform: translateY(-22px);
-          transform: translateY(-22px);
+  transform: translateY(-22px);
   background-color: white;
   padding: 2px 4px;
 }
+
+
 /*# sourceMappingURL=app.css.map */

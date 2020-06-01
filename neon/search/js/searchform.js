@@ -35,22 +35,30 @@ function autoToggleSelector() {
 const criteriaPanel = document.getElementById("criteria-panel");
 const testURL = document.getElementById("test-url");
 var paramsArr = []
-
-//////// Update chip on event change
+  //////// Update chip on event change
 const taxaInput = document.getElementsByName('taxa');
 taxaInput[0].addEventListener('change', updateChip);
-let taxaChip = document.createElement("p");
+// let taxaChip = document.createElement("p");
+
+// Chip definitions
+let inputChip = document.createElement("span"),
+  chipBtn = document.createElement("button");
+inputChip.setAttribute("class", "chip");
+chipBtn.setAttribute("type", "button");
+chipBtn.setAttribute("class", "chip-remove-btn");
 
 // Make this function generic? Or adapt function for each criterion?
 // How to deal with defaults?
 function updateChip(e) {
   // taxaChip.textContent = taxaInput[0].name + ': ' + e.target.value;
   // Deletes current object before appending chips, to avoid redundancy
+  let eInput = document.getElementsByName(e.target.name);
   paramsArr.splice(paramsArr[e.target.name], 1);
-  let chipArr = getParam(taxaInput[0].name);
+  let chipArr = getParam(eInput[0].name);
   console.log(chipArr);
-  taxaChip.textContent = chipArr.taxa;
-  criteriaPanel.appendChild(taxaChip);
+  inputChip.textContent = chipArr.taxa;
+  inputChip.appendChild(chipBtn);
+  criteriaPanel.appendChild(inputChip);
 }
 /////////
 
@@ -61,6 +69,7 @@ function testButton() {
 
 // Function that will go through a group of fields and will capture fields and concatenate them to pass to search array
 function getParam(paramName) {
+  paramsArr["country"] = "USA";
   let element = document.getElementsByName(paramName);
   // Deals with dropdown options
   // const answer = element[0].tagName === "SELECT" ? "it's a dropdown" : "it's not a dropdown";
@@ -123,6 +132,8 @@ function getSearchUrl() {
     baseURL.searchParams.append(key, paramsArr[key]);
   })
   console.log(baseURL.href);
+  testURL.innerHTML = baseURL.href;
+  testURL.href = baseURL.href;
 };
 
 // function getSearchParams() {

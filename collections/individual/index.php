@@ -269,6 +269,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		}
 		?>
 	</script>
+	<style>
+		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
+	</style>
 </head>
 <body>
 	<div id="fb-root"></div>
@@ -831,11 +834,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									<?php
 									foreach($iArr as $imgId => $imgArr){
 										?>
-										<div style="max-width:180;float:left;text-align:center;padding:5px;">
+										<div class="imgDiv">
 											<a href='<?php echo $imgArr['url']; ?>' target="_blank">
 												<img border="1" src="<?php echo ($imgArr['tnurl']?$imgArr['tnurl']:$imgArr['url']); ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
 											</a>
 											<?php
+											if($imgArr['photographer']) echo '<div>Author: '.$imgArr['photographer'].'</div>';
 											if($imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
 											if($imgArr['lgurl']) echo '<div><a href="'.$imgArr['lgurl'].'" target="_blank">Open Large Image</a></div>';
 											if($imgArr['sourceurl']) echo '<div><a href="'.$imgArr['sourceurl'].'" target="_blank">Open Source Image</a></div>';

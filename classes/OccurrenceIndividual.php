@@ -202,7 +202,9 @@ class OccurrenceIndividual extends Manager{
 
 	private function loadImages(){
 		global $imageDomain;
-		$sql = 'SELECT imgid, url, thumbnailurl, originalurl, sourceurl, notes, caption FROM images WHERE (occid = '.$this->occid.') ORDER BY sortsequence';
+		$sql = 'SELECT i.imgid, i.url, i.thumbnailurl, i.originalurl, i.sourceurl, i.notes, i.caption, CONCAT_WS(" ",u.firstname,u.lastname) as photographer '.
+			'FROM images i LEFT JOIN users u ON i.photographeruid = u.uid '.
+			'WHERE (i.occid = '.$this->occid.') ORDER BY i.sortsequence';
 		$result = $this->conn->query($sql);
 		if($result){
 			while($row = $result->fetch_object()){
@@ -222,6 +224,7 @@ class OccurrenceIndividual extends Manager{
 				$this->occArr['imgs'][$imgId]['lgurl'] = $lgUrl;
 				$this->occArr['imgs'][$imgId]['sourceurl'] = $row->sourceurl;
 				$this->occArr['imgs'][$imgId]['caption'] = $row->caption;
+				$this->occArr['imgs'][$imgId]['photographer'] = $row->photographer;
 			}
 			$result->free();
 		}

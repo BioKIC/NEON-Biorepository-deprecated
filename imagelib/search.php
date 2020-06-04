@@ -60,22 +60,14 @@ $imgLibManager = new ImageLibraryManager();
 	<?php
 	$displayLeftMenu = (isset($imagelib_searchMenu)?$imagelib_searchMenu:false);
 	include($SERVER_ROOT.'/includes/header.php');
-	if(isset($imagelib_indexCrumbs)){
-		echo "<div class='navpath'>";
-		echo $imagelib_indexCrumbs;
-		echo " <b>Image Search</b>";
-		echo "</div>";
-	}
-	else{
-		echo '<div class="navpath">';
-		echo '<a href="../index.php">Home</a> &gt;&gt; ';
-		echo '<a href="contributors.php">Image Contributors</a> &gt;&gt; ';
-		echo '<b>Image Search</b>';
-		echo "</div>";
-	}
 	$imageType = 0;
-	if(isset($_REQUEST["imagetype"]) && $_REQUEST["imagetype"]) $imageType = $_REQUEST["imagetype"];
+	if(isset($_REQUEST['imagetype']) && $_REQUEST['imagetype']) $imageType = $_REQUEST['imagetype'];
 	?>
+	<div class="navpath">
+		<a href="../index.php">Home</a> &gt;&gt;
+		<a href="contributors.php">Image Contributors</a> &gt;&gt;
+		<b>Image Search</b>
+	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<div id="tabs" style="margin:0px;">
@@ -218,12 +210,12 @@ $imgLibManager = new ImageLibraryManager();
 						<?php
 						$imageArr = $imgLibManager->getImageArr($pageNumber,$cntPerPage);
 						$recordCnt = $imgLibManager->getRecordCnt();
+						echo '<div style="margin-bottom:5px">Search criteria: '.$imgLibManager->getSearchTermDisplayStr().'</div>';
 						if($imageArr){
 							$lastPage = ceil($recordCnt / $cntPerPage);
 							$startPage = ($pageNumber > 4?$pageNumber - 4:1);
 							$endPage = ($lastPage > $startPage + 9?$startPage + 9:$lastPage);
 							$url = 'search.php?'.$imgLibManager->getQueryTermStr().'&submitaction=search';
-							$hrefPrefix = "<a href='".$url;
 							$pageBar = '<div style="float:left" >';
 							if($startPage > 1){
 								$pageBar .= '<span class="pagination" style="margin-right:5px;"><a href="'.$url.'&page=1">First</a></span>';
@@ -264,25 +256,23 @@ $imgLibManager = new ImageLibraryManager();
 								$imgTn = $imgArr['thumbnailurl'];
 								if($imgTn){
 									$imgUrl = $imgTn;
-									if($imageDomain && substr($imgTn,0,1)=='/'){
-										$imgUrl = $imageDomain.$imgTn;
-									}
+									if($IMAGE_DOMAIN && substr($imgTn,0,1)=='/') $imgUrl = $IMAGE_DOMAIN.$imgTn;
 								}
-								elseif($imageDomain && substr($imgUrl,0,1)=='/'){
-									$imgUrl = $imageDomain.$imgUrl;
+								elseif($IMAGE_DOMAIN && substr($imgUrl,0,1)=='/'){
+									$imgUrl = $IMAGE_DOMAIN.$imgUrl;
 								}
 								?>
 								<div class="tndiv" style="margin-bottom:15px;margin-top:15px;">
 									<div class="tnimg">
 										<?php
+										$anchorLink = '';
 										if($imgArr['occid']){
-											echo '<a href="#" onclick="openIndPU('.$imgArr['occid'].');return false;">';
+											$anchorLink = '<a href="#" onclick="openIndPU('.$imgArr['occid'].');return false;">';
 										}
 										else{
-											echo '<a href="#" onclick="openImagePopup('.$imgId.');return false;">';
+											$anchorLink = '<a href="#" onclick="openImagePopup('.$imgId.');return false;">';
 										}
-										echo '<img src="'.$imgUrl.'" />';
-										echo '</a>';
+										echo $anchorLink.'<img src="'.$imgUrl.'" /></a>';
 										?>
 									</div>
 									<div>
@@ -296,26 +286,28 @@ $imgLibManager = new ImageLibraryManager();
 											if($imgArr['tid']) echo '</a>';
 											echo '<br />';
 										}
+										$photoAuthor = '';
+										$authorLink = '';
+										if($imgArr['uid']){
+											$photoAuthor = $uidList[$imgArr['uid']];
+											if(strlen($photoAuthor) > 23){
+												$nameArr = explode(',',$photoAuthor);
+												$photoAuthor = array_shift($nameArr);
+											}
+										}
 										if($imgArr['occid']){
-											echo '<a href="#" onclick="openIndPU('.$imgArr['occid'].');return false;">';
-											if($occArr[$imgArr['occid']]['recordedby']){
-												echo $occArr[$imgArr['occid']]['recordedby'];
+											$authorLink = '<a href="#" onclick="openIndPU('.$imgArr['occid'].');return false;">';
+											if(!$photoAuthor){
+												if($occArr[$imgArr['occid']]['recordedby']) $photoAuthor = $occArr[$imgArr['occid']]['recordedby'];
+												else{
+													if(strpos($occArr[$imgArr['occid']]['catnum'], $collArr[$occArr[$imgArr['occid']]['collid']]) !== 0)
+														$photoAuthor = $collArr[$occArr[$imgArr['occid']]['collid']].': ';
+													$photoAuthor .=  $occArr[$imgArr['occid']]['catnum'];
+												}
 											}
-											else{
-												if(strpos($occArr[$imgArr['occid']]['catnum'], $collArr[$occArr[$imgArr['occid']]['collid']]) !== 0) echo $collArr[$occArr[$imgArr['occid']]['collid']].': ';
-												echo $occArr[$imgArr['occid']]['catnum'];
-											}
-											echo '</a>';
 										}
-										elseif($imgArr['uid']){
-											$pName = $uidList[$imgArr['uid']];
-											if(strlen($pName) > 23){
-												$nameArr = explode(',',$pName);
-												$pName = array_shift($nameArr);
-											}
-											echo htmlspecialchars($pName).'<br />';
-										}
-										//if($imgArr['occid'] && $occArr[$imgArr['occid']]['state']) echo $occArr[$imgArr['occid']]['state'] . "<br />";
+										if(!$authorLink) $authorLink = $anchorLink;
+										echo $authorLink.htmlspecialchars($photoAuthor).'</a>';
 										?>
 									</div>
 								</div>

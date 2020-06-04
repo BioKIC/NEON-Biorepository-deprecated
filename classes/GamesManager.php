@@ -52,14 +52,9 @@ class GamesManager {
 				$oldArr = json_decode(file_get_contents($SERVER_ROOT.'/temp/ootd/'.$oodID.'_info.json'), true);
 				$lastDate = $oldArr['lastDate'];
 				$lastCLID = $oldArr['clid'];
-				if(($currentDate > $lastDate) || ($clid != $lastCLID)){
-					$replace = 1;
-				}
+				if(($currentDate > $lastDate) || ($clid && $clid != $lastCLID)) $replace = 1;
 			}
-			else{
-				$replace = 1;
-			}
-
+			else $replace = 1;
 			if($replace == 1){
 				//Delete old files
 				$previous = Array();
@@ -88,6 +83,12 @@ class GamesManager {
 					'LEFT JOIN omcollections c ON o.collid = c.collid '.
 					'WHERE (l.CLID IN('.$clid.')) AND (i.occid IS NULL OR c.CollType LIKE "%Observations") '.
 					'GROUP BY l.TID';
+				/*
+				$sql = 'SELECT l.TID, COUNT(i.imgid) AS cnt '.
+					'FROM fmchklsttaxalink l INNER JOIN images i ON l.TID = i.tid '.
+					'WHERE (l.CLID IN('.$clid.')) '.
+					'GROUP BY l.TID';
+				*/
 				//echo '<div>'.$sql.'</div>';
 				$rs = $this->conn->query($sql);
 				while($row = $rs->fetch_object()){
@@ -363,6 +364,19 @@ class GamesManager {
 			$sql = $sqlBase.substr($childStr,1).')';
 		}while($childStr);
 		$this->clidStr = implode(',',$clidArr);
+	}
+
+	public function getSynonymArr($tid){
+		$retArr = array();
+		if(is_numeric($tid)){
+			$sql = 'SELECT DISTINCT t.sciname FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid INNER JOIN taxstatus ts2 ON ts.tidaccepted = ts2.tidaccepted WHERE ts2.tid = '.$tid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[] = strtolower($r->sciname);
+			}
+			$rs->free();
+		}
+		return $retArr;
 	}
 
 	//Setters and getters

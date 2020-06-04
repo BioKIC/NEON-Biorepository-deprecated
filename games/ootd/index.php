@@ -244,7 +244,7 @@ $genusAnswer = strtok($scinameAnswer, " ");
 								</div>
 								<div style="margin-top:40px;font-size:16px;" >
 									<div>
-										<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$clidStr.'&title='.$ootdTitle.'&type='.$ootdType; ?>">Click Here to try again!</a>
+										<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$clidStr.'&title='.$ootdTitle.'&type='.$ootdType; ?>">Click here to try again!</a>
 									</div>
 									<div>-- OR --</div>
 									<div>

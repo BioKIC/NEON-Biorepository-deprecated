@@ -48,6 +48,7 @@ $genusAnswer = strtok($scinameAnswer, " ");
 	<script type="text/javascript">
 		var clientRoot = "<?php echo $CLIENT_ROOT; ?>";
 		var giveUp = false;
+		var imgIndex = 0;
 
 		$(document).ready(function() {
 			var dialogArr = new Array("game");
@@ -93,16 +94,14 @@ $genusAnswer = strtok($scinameAnswer, " ");
 			window.open('../../taxa/index.php?tid=<?php echo $gameInfo['tid']; ?>','plantwindow','width=1200,height=650');
 		}
 
-		//<!-------------cycles the images-->
 		function chgImg(direction){
-			var NewImg = <?php echo json_encode($imageArr); ?>;
-			var ImgNum = 0;
-			var ImgLength = NewImg.length - 1;
-			if (document.images) {
-				ImgNum = ImgNum + direction;
-				if (ImgNum > ImgLength) { ImgNum = 0; }
-				if (ImgNum < 0) { ImgNum = ImgLength; }
-				document.getElementById('slideshow').src = NewImg[ImgNum];
+			var imgArr = <?php echo json_encode($imageArr); ?>;
+			var imgLength = imgArr.length - 1;
+			if(document.images){
+				imgIndex = imgIndex + direction;
+				if(imgIndex > imgLength) imgIndex = 0;
+				else if(imgIndex < 0) imgNum = imgLength;
+				document.getElementById('slideshow').src = imgArr[imgIndex];
 			}
 		}
 	</script>

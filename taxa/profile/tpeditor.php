@@ -7,7 +7,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:0;
 $taxon = array_key_exists("taxon",$_REQUEST)?$_REQUEST["taxon"]:"";
-$lang = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:"";
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 $tabIndex = array_key_exists("tabindex",$_REQUEST)?$_REQUEST["tabindex"]:0;
 
@@ -25,15 +24,14 @@ else{
 }
 
 $tid = $tEditor->setTid($tid?$tid:$taxon);
-if($lang) $tEditor->setLanguage($lang);
 
 $statusStr = "";
-$editable = false;
+$isEditor = false;
 if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)){
-	$editable = true;
+	$isEditor = true;
 }
 
-if($editable && $action){
+if($isEditor && $action){
 	if($action == "Edit Synonym Sort Order"){
 		$synSortArr = Array();
 		foreach($_REQUEST as $sortKey => $sortValue){
@@ -44,29 +42,13 @@ if($editable && $action){
 		$statusStr = $tEditor->editSynonymSort($synSortArr);
 	}
 	elseif($action == "Submit Common Name Edits"){
-		$editVernArr = Array();
-		$editVernArr["vid"] = $_REQUEST["vid"];
-		if($_REQUEST["vernacularname"]) $editVernArr["vernacularname"] = str_replace("\"","-",$_REQUEST["vernacularname"]);
-		if($_REQUEST["language"]) $editVernArr["language"] = $_REQUEST["language"];
-		$editVernArr["notes"] = str_replace("\"","-",$_REQUEST["notes"]);
-		$editVernArr["source"] = $_REQUEST["source"];
-		if($_REQUEST["sortsequence"]) $editVernArr["sortsequence"] = $_REQUEST["sortsequence"];
-		$editVernArr["username"] = $PARAMS_ARR["un"];
-		$statusStr = $tEditor->editVernacular($editVernArr);
+		if(!$tEditor->editVernacular($_POST)) $statusStr = $tEditor->getErrorMessage();
 	}
 	elseif($action == "Add Common Name"){
-		$addVernArr = Array();
-		$addVernArr["vernacularname"] = str_replace("\"","-",$_REQUEST["vern"]);
-		if($_REQUEST["language"]) $addVernArr["language"] = $_REQUEST["language"];
-		if($_REQUEST["notes"]) $addVernArr["notes"] = str_replace("\"","-",$_REQUEST["notes"]);
-		if($_REQUEST["source"]) $addVernArr["source"] = $_REQUEST["source"];
-		if($_REQUEST["sortsequence"]) $addVernArr["sortsequence"] = $_REQUEST["sortsequence"];
-		$addVernArr["username"] = $PARAMS_ARR["un"];
-		$statusStr = $tEditor->addVernacular($addVernArr);
+		if(!$tEditor->addVernacular($_POST)) $statusStr = $tEditor->getErrorMessage();
 	}
 	elseif($action == "Delete Common Name"){
-		$delVern = $_REQUEST["delvern"];
-		$statusStr = $tEditor->deleteVernacular($delVern);
+		if(!$tEditor->deleteVernacular($_REQUEST["delvern"])) $statusStr = $tEditor->getErrorMessage();
 	}
 	elseif($action == 'Add Description Block'){
 		if(!$tEditor->addDescriptionBlock($_POST)){
@@ -83,36 +65,36 @@ if($editable && $action){
 			$statusStr = $tEditor->getErrorMessage();
 		}
 	}
-	elseif($action == "remap"){
+	elseif($action == 'remap'){
 		if(!$tEditor->remapDescriptionBlock($_GET['tdbid'])){
 			$statusStr = $tEditor->getErrorMessage();
 		}
 	}
-	elseif($action == "Add Statement"){
+	elseif($action == 'Add Statement'){
 		if(!$tEditor->addStatement($_POST)){
 			$statusStr = $tEditor->getErrorMessage();
 		}
 	}
-	elseif($action == "saveStatementEdit"){
+	elseif($action == 'saveStatementEdit'){
 		if(!$tEditor->editStatement($_POST)){
 			$statusStr = $tEditor->getErrorMessage();
 		}
 	}
-	elseif($action == "Delete Statement"){
+	elseif($action == 'Delete Statement'){
 		if(!$tEditor->deleteStatement($_POST['tdsid'])){
 			$statusStr = $tEditor->getErrorMessage();
 		}
 	}
-	elseif($action == "Submit Image Sort Edits"){
+	elseif($action == 'Submit Image Sort Edits'){
 		$imgSortArr = Array();
 		foreach($_REQUEST as $sortKey => $sortValue){
-			if($sortValue && substr($sortKey,0,6) == "imgid-"){
+			if($sortValue && substr($sortKey,0,6) == 'imgid-'){
 				$imgSortArr[substr($sortKey,6)]  = $sortValue;
 			}
 		}
 		$statusStr = $tEditor->editImageSort($imgSortArr);
 	}
-	elseif($action == "Upload Image"){
+	elseif($action == 'Upload Image'){
 		if($tEditor->loadImage($_POST)){
 			$statusStr = 'Image uploaded successful';
 		}
@@ -124,7 +106,7 @@ if($editable && $action){
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE." Taxon Editor: ".$tEditor->getSciName(); ?></title>
+	<title><?php echo $DEFAULT_TITLE.' Taxon Editor: '.$tEditor->getSciName(); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
 	<?php
 	$activateJQuery = true;
@@ -179,13 +161,16 @@ if($editable && $action){
 		}
 	</script>
 	<style type="text/css">
+		.sectionDiv{ clear:both; }
+		.sectionDiv div{ float:left }
+		.labelDiv{ margin-right: 5px }
 		#redirectedfrom{ font-size:16px; margin-top:5px; margin-left:10px; font-weight:bold; }
 		#taxonDiv{ font-size:18px; margin-top:15px; margin-left:10px; }
 		#taxonDiv a{ color:#990000; font-weight: bold; font-style: italic; }
 		#taxonDiv img{ border: 0px; margin: 0px; height: 15px; }
 		#family{ margin-left:20px; margin-top:0.25em; }
 		.tox-dialog{ min-height: 400px }
-		input{ margin:3px; }
+		input{ margin:3px; border:inset; }
 		hr{ margin:30px 0px; }
 	</style>
 </head>
@@ -203,7 +188,7 @@ if($editable && $action){
 	<div id="innertext">
 		<?php
 		if($tEditor->getTid()){
-			if($editable){
+			if($isEditor){
 				if($tEditor->isForwarded()) echo '<div id="redirectedfrom">Redirected from: <i>'.$tEditor->getSubmittedValue('sciname').'</i></div>';
 				echo '<div id="taxonDiv"><a href="../index.php?taxon='.$tEditor->getTid().'">'.$tEditor->getSciName().'</a> '.$tEditor->getAuthor();
 				if($tEditor->getRankId() > 140) echo "&nbsp;<a href='tpeditor.php?tid=".$tEditor->getParentTid()."'><img src='../../images/toparent.png' title='Go to Parent' /></a>";
@@ -222,38 +207,46 @@ if($editable && $action){
 					<div id="commontab">
 						<?php
 						//Display Common Names (vernaculars)
-						$vernList = $tEditor->getVernaculars();
+						$vernacularList = $tEditor->getVernaculars();
+						$langArr = $tEditor->getLangArr();
 						?>
 						<div>
-							<div style="margin:10px 0px">
-								<b><?php echo ($vernList?'Common Names':'No common names in system'); ?></b>
-								<span onclick="toggle('addvern');" title="Add a New Common Name">
+							<div style="margin:10px 0px" title="Add a New Common Name">
+								<b><?php echo ($vernacularList?'Common Names':'No common names in system'); ?></b>
+								<a href="#" onclick="toggle('addvern');return false;">
 									<img style="border:0px;width:15px;" src="../../images/add.png"/>
-								</span>
+								</a>
 							</div>
-							<div id="addvern" class="addvern" style="display:<?php echo ($vernList?'none':'block'); ?>;">
+							<div id="addvern" class="addvern" style="display:<?php echo ($vernacularList?'none':'block'); ?>;">
 								<form name="addvernform" action="tpeditor.php" method="post" >
-									<fieldset style="width:250px;margin:5px 0px 0px 20px;">
+									<fieldset style="width:650px;margin:5px 0px 0px 20px;">
 										<legend><b>New Common Name</b></legend>
 										<div>
 											Common Name:
-											<input name="vern" style="margin-top:5px;border:inset;" type="text" />
+											<input name="vernname" type="text" style="width:250px" />
 										</div>
 										<div>
 											Language:
-											<input name="language" style="margin-top:5px;border:inset;" type="text" />
+											<select name="langid">
+												<option value="">Select Language</option>
+												<?php
+												foreach($langArr as $langID => $langName){
+													echo '<option value="'.$langID.'" '.(strpos($langName,'('.$DEFAULT_LANG.')')?'SELECTED':'').'>'.$langName.'</option>';
+												}
+												?>
+											</select>
 										</div>
 										<div>
 											Notes:
-											<input name="notes" style="margin-top:5px;border:inset;" type="text" />
+											<input name="notes" type="text" style="width:500px" />
 										</div>
 										<div>
 											Source:
-											<input name="source" style="margin-top:5px;border:inset;" type="text" />
+											<input name="source" type="text" style="width:500px" />
 										</div>
 										<div>
 											Sort Sequence:
-											<input name="sortsequence" style="margin-top:5px;border:inset;width:40px" type="text" />
+											<input name="sortsequence" style="width:40px" type="text" />
 										</div>
 										<div>
 											<input type="hidden" name="tid" value="<?php echo $tEditor->getTid(); ?>" />
@@ -263,59 +256,77 @@ if($editable && $action){
 								</form>
 							</div>
 							<?php
-							foreach($vernList as $lang => $vernsList){
+							foreach($vernacularList as $lang => $vernsList){
 								?>
-								<div style="width:250px;margin:5px 0px 0px 15px;">
-									<fieldset>
-									<legend><b><?php echo $lang; ?></b></legend>
-									<?php
-										foreach($vernsList as $vernArr){
+								<div style="width:650px;margin:5px 0px 0px 15px;">
+									<fieldset style="width:650px;margin:5px 0px 0px 15px;">
+										<legend><b><?php echo $lang; ?></b></legend>
+										<?php
+										foreach($vernsList as $vid => $vernArr){
 											?>
-											<div style="margin-left:10px;">
-												<b><?php echo $vernArr["vernacularname"]; ?></b>
-												<span onclick="toggle('vid-<?php echo $vernArr["vid"]; ?>');" title="Edit Common Name">
+											<div style="margin-left:10px;" title="Edit Common Name">
+												<b><?php echo $vernArr['vernname']; ?></b>
+												<a href="#" onclick="toggle('vid-<?php echo $vid; ?>');return false;">
 													<img style="border:0px;width:12px;" src="../../images/edit.png" />
-												</span>
+												</a>
 											</div>
-											<form name="updatevern" action="tpeditor.php" method="post" style="margin-left:20px;">
-												<div class='vid-<?php echo $vernArr["vid"]; ?>' style='display:none;'>
-													<input id='vernacularname' name='vernacularname' style='margin:2px 0px 5px 15px;border:inset;' type='text' value='<?php echo $vernArr["vernacularname"]; ?>' />
+											<form name="updatevern" action="tpeditor.php" method="post" style="margin:15px;clear:both">
+												<div class="sectionDiv">
+													<div class='vid-<?php echo $vid; ?>' style='display:none;'>
+														<input id="vernname" name="vernname" type="text" value="<?php echo $vernArr["vernname"]; ?>" style="width:250px" />
+													</div>
 												</div>
-												<div>
-													Language: <?php echo $vernArr["language"]; ?>
+												<div class="sectionDiv">
+													<div class="labelDiv">Language:</div>
+													<div class='vid-<?php echo $vid; ?>'><?php echo $langArr[$vernArr['langid']]; ?></div>
+													<div class='vid-<?php echo $vid; ?>' style='display:none;'>
+														<select name="langid">
+															<option value="">Select Language</option>
+															<?php
+															foreach($langArr as $langID => $langName){
+																echo '<option value="'.$langID.'" '.($vernArr['langid']==$langID?'SELECTED':'').'>'.$langName.'</option>';
+															}
+															?>
+														</select>
+													</div>
 												</div>
-												<div class='vid-<?php echo $vernArr["vid"]; ?>' style='display:none;'>
-													<input id='language' name='language' style='margin:2px 0px 5px 15px;border:inset;' type='text' value='<?php echo $vernArr["language"]; ?>' />
+												<div class="sectionDiv">
+													<div class="labelDiv">Notes:</div>
+													<div class="vid-<?php echo $vid; ?>"><?php echo $vernArr['notes']; ?></div>
+													<div class="vid-<?php echo $vid; ?>" style="display:none;">
+														<input id='notes' name='notes' type='text' value='<?php echo $vernArr['notes'];?>' style="width:500px" />
+													</div>
 												</div>
-												<div>
-													Notes: <?php echo $vernArr["notes"]; ?>
+												<div class="sectionDiv">
+													<div class="labelDiv">Source:</div>
+													<div class="vid-<?php echo $vid; ?>"> <?php echo $vernArr['source']; ?></div>
+													<div class="vid-<?php echo $vid; ?>" style='display:none;'>
+														<input id='source' name='source' type='text' value='<?php echo $vernArr['source']; ?>' style="width:500px" />
+													</div>
 												</div>
-												<div class='vid-<?php echo $vernArr["vid"]; ?>' style='display:none;'>
-													<input id='notes' name='notes' style='margin:2px 0px 5px 15px;border:inset;' type='text' value='<?php echo $vernArr["notes"];?>' />
+												<div class="sectionDiv">
+													<div class="labelDiv">Sort Sequence:</div>
+													<div class='vid-<?php echo $vid; ?>'><?php echo $vernArr['sort'];?></div>
+													<div class='vid-<?php echo $vid; ?>' style='display:none;'>
+														<input id='sortsequence' name='sortsequence' style='width:40px;' type='text' value='<?php echo $vernArr['sort']; ?>' />
+													</div>
 												</div>
-												<div style=''>Source: <?php echo $vernArr["source"]; ?></div>
-												<div class='vid-<?php echo $vernArr["vid"]; ?>' style='display:none;'>
-													<input id='source' name='source' style='margin:2px 0px 5px 15px;border:inset;' type='text' value='<?php echo $vernArr["source"]; ?>' />
-												</div>
-												<div style=''>Sort Sequence: <?php echo $vernArr["sortsequence"];?></div>
-												<div class='vid-<?php echo $vernArr["vid"]; ?>' style='display:none;'>
-													<input id='sortsequence' name='sortsequence' style='margin:2px 0px 5px 15px;border:inset;width:40px;' type='text' value='<?php echo $vernArr["sortsequence"]; ?>' />
-												</div>
-												<input type='hidden' name='vid' value='<?php echo $vernArr["vid"]; ?>' />
-												<input type='hidden' name='tid' value='<?php echo $tEditor->getTid();?>' />
-												<div class='vid-<?php echo $vernArr["vid"];?>' style='display:none;'>
-													<input id='vernssubmit' name='action' type='submit' value='Submit Common Name Edits' />
+												<div class="sectionDiv">
+													<input type='hidden' name='vid' value='<?php echo $vid; ?>' />
+													<input type='hidden' name='tid' value='<?php echo $tEditor->getTid();?>' />
+													<div class='vid-<?php echo $vid;?>' style='display:none;'>
+														<button name='action' type='submit' value='Submit Common Name Edits' >Submit Common Name Edits</button>
+													</div>
 												</div>
 											</form>
-											<div class='vid-<?php echo $vernArr["vid"]; ?>' style='display:none;margin:15px;'>
-												<form id='delvern' name='delvern' action='tpeditor.php' method='post' onsubmit="return window.confirm('Are you sure you want to delete this Common Name?')">
-													<input type='hidden' name='delvern' value='<?php echo $vernArr["vid"]; ?>' />
-													<input type='hidden' name='tid' value='<?php echo $tEditor->getTid(); ?>' />
-													<input name='action' type='hidden' value='Delete Common Name' />
-													<input name='submitaction' type='image' value='Delete Common Name' style='height:12px;' src='../../images/del.png' />
-													Delete Common Name
+											<div class="vid-<?php echo $vid; ?>" style="display:none;padding-top:15px;padding-left:15px;clear:both">
+												<form id="delvern" name="delvern" action="tpeditor.php" method="post" onsubmit="return window.confirm('Are you sure you want to delete this Common Name?')">
+													<input type="hidden" name="delvern" value="<?php echo $vid; ?>" />
+													<input type="hidden" name="tid" value="<?php echo $tEditor->getTid(); ?>" />
+													<button name="action" type="submit" value="Delete Common Name">Delete Common Name</button>
 												</form>
 											</div>
+											<div style="clear:both;margin:10px 0px"><hr/></div>
 											<?php
 										}
 										?>
@@ -326,7 +337,7 @@ if($editable && $action){
 							?>
 						</div>
 						<hr/>
-						<fieldset style='padding:10px;margin:30px 0px;width:400px;'>
+						<fieldset style="width:650px;margin:5px 0px 0px 15px;">
 							<legend><b>Synonyms</b></legend>
 							<?php
 							//Display Synonyms

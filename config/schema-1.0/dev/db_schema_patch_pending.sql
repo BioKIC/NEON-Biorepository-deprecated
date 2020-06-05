@@ -70,6 +70,21 @@ ALTER TABLE `taxstatus`
 ALTER TABLE `taxstatus` 
 ADD INDEX `Index_tid` (`tid` ASC);
 
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.langname 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.iso639_1 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.iso639_2 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+
+ALTER TABLE `taxavernaculars` 
+  CHANGE COLUMN `Language` `Language` VARCHAR(15) NULL ,
+  DROP INDEX `unique-key` ,
+  ADD UNIQUE INDEX `unique-key` (`VernacularName` ASC, `TID` ASC, `langid` ASC);
+
 ALTER TABLE `taxaresourcelinks` 
   ADD UNIQUE INDEX `UNIQUE_taxaresource` (`tid` ASC, `sourcename` ASC);
 
@@ -174,6 +189,11 @@ INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT epoch, 50, "epoch", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.period = g.gtsterm WHERE epoch IS NOT NULL;
 INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT p.stage, 60, "age", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.epoch = g.gtsterm WHERE stage IS NOT NULL;
+
+UPDATE omoccurpaleogts
+SET rankid = 40, rankname = "period", parentgtsid = 13
+WHERE gtsterm IN("Pennsylvanian","Mississippian");
+
 
 DROP TABLE omoccurlithostratigraphy;
 DROP TABLE paleochronostratigraphy;

@@ -16,8 +16,7 @@ class TPEditorManager extends Manager {
 	private $acceptedArr = array();
 	private $synonymArr = array();
 	private $submittedArr = array();
-
-	protected $language = 'English';
+	private $langArr = false;
 
 	public function __construct(){
 		parent::__construct(null,'write');
@@ -141,66 +140,85 @@ class TPEditorManager extends Manager {
 
 	public function getVernaculars(){
 		$vernArr = Array();
-		$sql = "SELECT v.VID, v.VernacularName, v.Language, v.Source, v.username, v.notes, v.SortSequence ".
-			"FROM taxavernaculars v ".
-			"WHERE (v.tid = ".$this->tid.") ";
-		//if($this->language) $sql .= "AND (v.Language = '".$this->language."') ";
-		$sql .= "ORDER BY v.Language, v.SortSequence";
+		$sql = 'SELECT v.vid, v.vernacularname, v.langid, l.langname, v.source, v.username, v.notes, v.sortsequence '.
+			'FROM taxavernaculars v INNER JOIN adminlanguages l ON v.langid = l.langid '.
+			'WHERE (tid = '.$this->tid.') '.
+			'ORDER BY sortsequence';
 		$rs = $this->conn->query($sql);
-		$vernCnt = 0;
 		while($r = $rs->fetch_object()){
-			$lang = $r->Language;
-			$vernArr[$lang][$vernCnt]["vid"] = $r->VID;
-			$vernArr[$lang][$vernCnt]["vernacularname"] = $r->VernacularName;
-			$vernArr[$lang][$vernCnt]["source"] = $r->Source;
-			$vernArr[$lang][$vernCnt]["username"] = $r->username;
-			$vernArr[$lang][$vernCnt]["notes"] = $r->notes;
-			$vernArr[$lang][$vernCnt]["language"] = $r->Language;
-			$vernArr[$lang][$vernCnt]["sortsequence"] = $r->SortSequence;
-			$vernCnt++;
+			$vernArr[$r->langname][$r->vid]['vernname'] = $this->cleanOutStr($r->vernacularname);
+			$vernArr[$r->langname][$r->vid]['source'] = $this->cleanOutStr($r->source);
+			$vernArr[$r->langname][$r->vid]['username'] = $r->username;
+			$vernArr[$r->langname][$r->vid]['notes'] = $this->cleanOutStr($r->notes);
+			$langID = $r->langid;
+			if(!$langID){
+				if($this->langArr === false) $this->setLangArr();
+				if(array_key_exists($langID, $this->langArr)) $langID = $this->langArr[$langID];
+				else $langID = 1;
+			}
+			$vernArr[$r->langname][$r->vid]['langid'] = $langID;
+			$vernArr[$r->langname][$r->vid]['sort'] = $r->sortsequence;
 		}
 		$rs->free();
 		return $vernArr;
 	}
 
-	public function editVernacular($inArray){
-		$editArr = $this->cleanInArray($inArray);
-		$vid = $editArr["vid"];
-		unset($editArr["vid"]);
-		$setFrag = "";
-		foreach($editArr as $keyField => $value){
-			$setFrag .= ','.$keyField.' = "'.$value.'" ';
-		}
-		$sql = "UPDATE taxavernaculars SET ".substr($setFrag,1)." WHERE (vid = ".$this->conn->real_escape_string($vid).')';
-		//echo $sql;
-		$status = "";
-		if(!$this->conn->query($sql)){
-			$status = "Error:editingVernacular: ".$this->conn->error."\nSQL: ".$sql;
+	public function editVernacular($postArr){
+		$status = false;
+		$vid = $postArr["vid"];
+		if(is_numeric($vid)){
+			$vernName = $this->cleanInStr($postArr['vernname']);
+			$langID = $postArr['langid'];
+			if(!is_numeric($langID)) $langID = 1;
+			$sortSequence = $postArr['sortsequence'];
+			$source = $this->cleanInStr($postArr['source']);
+			$notes = $this->cleanInStr($postArr['notes']);
+			if(!is_numeric($sortSequence)) $sortSequence = 1;
+			$username = $this->cleanInStr($GLOBALS['PARAMS_ARR']['un']);
+
+			$sql = 'UPDATE taxavernaculars SET VernacularName = "'.$vernName.'", langid = '.$langID.', SortSequence = '.$sortSequence;
+			if($source) $sql .= ', source = "'.$source.'"';
+			if($notes) $sql .= ', notes = "'.$notes.'"';
+			if($username) $sql .= ', username = "'.$username.'"';
+			$sql .= ' WHERE (vid = '.$vid.')';
+			//echo $sql;
+			if($this->conn->query($sql)) $status = true;
+			else{
+				$status = false;
+				$this->errorMessage = "Error:editingVernacular: ".$this->conn->error;
+			}
 		}
 		return $status;
 	}
 
-	public function addVernacular($inArray){
-		$newVerns = $this->cleanInArray($inArray);
-		$sql = "INSERT INTO taxavernaculars (tid,".implode(",",array_keys($newVerns)).") VALUES (".$this->getTid().",\"".implode("\",\"",$newVerns)."\")";
-		//echo $sql;
-		$status = "";
-		if(!$this->conn->query($sql)){
-			$status = "Error:addingNewVernacular: ".$this->conn->error."\nSQL: ".$sql;
+	public function addVernacular($postArr){
+		$status = false;
+		$vernName = $this->cleanInStr($postArr['vernname']);
+		$langID = $postArr['langid'];
+		if(!is_numeric($langID)) $langID = 1;
+		$source = $this->cleanInStr($postArr['source']);
+		$notes = $this->cleanInStr($postArr['notes']);
+		$username = $this->cleanInStr($GLOBALS['PARAMS_ARR']['un']);
+		$sortSeq = $postArr['sortsequence'];
+		if(!is_numeric($sortSeq)) $sortSeq = 1;
+		$sql = 'INSERT INTO taxavernaculars (tid,vernacularname,langid,source,notes,username,sortsequence) '.
+			'VALUES ('.$this->getTid().',"'.$vernName.'",'.$langID.','.($source?'"'.$source.'"':'NULL').','.($notes?'"'.$notes.'"':'NULL').','.($username?'"'.$username.'"':'NULL').','.$sortSeq.')';
+		if($this->conn->query($sql)) $status = true;
+		else{
+			$this->errorMessage = "Error:addingNewVernacular: ".$this->conn->error."\nSQL: ".$sql;
+			$status = false;
 		}
 		return $status;
 	}
 
 	public function deleteVernacular($delVid){
-		$status = '';
+		$status = false;
 		if(is_numeric($delVid)){
-			$sql = "DELETE FROM taxavernaculars WHERE (VID = ".$delVid.')';
-			//echo $sql;
-			if(!$this->conn->query($sql)){
-				$status = "Error:deleteVernacular: ".$this->conn->error."\nSQL: ".$sql;
-			}
+			$sql = 'DELETE FROM taxavernaculars WHERE (VID = '.$delVid.')';
+			if($this->conn->query($sql)) $status = true;
 			else{
-				$status = "";
+				$this->errorMessage = 'Error:deleteVernacular: '.$this->conn->error;
+				$status = false;
 			}
 		}
 		return $status;
@@ -251,6 +269,32 @@ class TPEditorManager extends Manager {
 		return $linkArr;
 	}
 
+	//Misc data functions
+	private function setLangArr(){
+		if($this->langArr === false){
+			$this->langArr = array();
+			$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->langArr[$r->langname] = $r->langid;
+				$this->langArr[$r->iso639_1] = $r->langid;
+			}
+			$rs->free();
+		}
+	}
+
+	public function getLangArr(){
+		$retArr = array();
+		$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages ORDER BY langname';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->langid] = $r->langname.' ('.$r->iso639_1.')';
+		}
+		$rs->free();
+		return $retArr;
+	}
+
+	//Setters and getters
 	public function getAuthor(){
 		return $this->author;
 	}
@@ -273,10 +317,6 @@ class TPEditorManager extends Manager {
 
 	public function isForwarded(){
 		return $this->forwarded;
-	}
-
-	public function setLanguage($lang){
-		return $this->language = $this->conn->real_escape_string($lang);
 	}
 }
 ?>

@@ -9,7 +9,7 @@ class GamesManager {
 	private $dynClid;
 	private $taxonFilter;
 	private $showCommon = 0;
-	private $lang;
+	private $langId;
 
 	public function __construct(){
 		$this->conn = MySQLiConnectionFactory::getCon("readonly");
@@ -211,7 +211,7 @@ class GamesManager {
 				//Grab vernaculars
 				$sqlV = 'SELECT ts.tidaccepted, v.vernacularname '.
 					'FROM taxavernaculars v INNER JOIN taxstatus ts ON v.tid = ts.tid '.
-					'WHERE v.Language = "'.$this->lang.'" AND ts.tidaccepted IN('.$tidStr.') '.
+					'WHERE v.langid = '.$this->langId.' AND ts.tidaccepted IN('.$tidStr.') '.
 					'ORDER BY v.SortSequence';
 				if($rsV = $this->conn->query($sqlV)){
 					while($rV = $rsV->fetch_object()){
@@ -411,13 +411,15 @@ class GamesManager {
 	}
 
 	public function setLang($l){
-		$lang = strtolower($l);
-		if(strlen($lang) == 2){
-			if($lang == 'en') $lang = 'english';
-			if($lang == 'es') $lang = 'spanish';
-			if($lang == 'fr') $lang = 'french';
+		if(is_numeric($l)) $this->langId = $l;
+		else{
+			$sql = 'SELECT langid FROM adminlanguages WHERE langname = "'.$this->cleanInStr($l).'" OR iso639_1 = "'.$this->cleanInStr($l).'"';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->langId = $r->langid;
+			}
+			$rs->free();
 		}
-		$this->lang = $lang;
 	}
 
 	public function getClName(){

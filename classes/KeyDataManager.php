@@ -191,7 +191,7 @@ class KeyDataManager extends Manager {
 	    $sqlTaxa = "";
 		if($this->commonDisplay){
 			$sqlTaxa = "SELECT innert.tid, innert.Family, IFNULL(v.VernacularName, innert.DisplayName) AS DisplayName, innert.ParentTID ".
-				"FROM (".$this->sql.") innert LEFT JOIN (SELECT vern.tid, vern.VernacularName FROM taxavernaculars vern WHERE vern.Language = 'English' AND vern.SortSequence = 1) v ON innert.tid = v.tid ";
+				"FROM (".$this->sql.") innert LEFT JOIN (SELECT tid, VernacularName FROM taxavernaculars WHERE langid = 1 AND SortSequence = 1) v ON innert.tid = v.tid ";
 		}
 		else{
 			$sqlTaxa = $this->sql;

@@ -7,14 +7,20 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $collid = $_REQUEST['collid'];
 $displayMode = array_key_exists('display',$_REQUEST)?$_REQUEST['display']:'1';
-$faStatus = array_key_exists('fastatus',$_REQUEST)?$_REQUEST['fastatus']:'';
-$frStatus = array_key_exists('frstatus',$_REQUEST)?$_REQUEST['frstatus']:'1,2';
-$editor = array_key_exists('editor',$_REQUEST)?$_REQUEST['editor']:'';
-$queryOccid = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
-$startDate = array_key_exists('startdate',$_REQUEST)?$_REQUEST['startdate']:'';
-$endDate = array_key_exists('enddate',$_REQUEST)?$_REQUEST['enddate']:'';
+$faStatus = array_key_exists('fastatus',$_REQUEST)?strip_tags($_REQUEST['fastatus']):'';
+$frStatus = array_key_exists('frstatus',$_REQUEST)?strip_tags($_REQUEST['frstatus']):'1,2';
+$editor = array_key_exists('editor',$_REQUEST)?strip_tags($_REQUEST['editor']):'';
+$queryOccid = array_key_exists('occid',$_REQUEST)?strip_tags($_REQUEST['occid']):'';
+$startDate = array_key_exists('startdate',$_REQUEST)?strip_tags($_REQUEST['startdate']):'';
+$endDate = array_key_exists('enddate',$_REQUEST)?strip_tags($_REQUEST['enddate']):'';
 $pageNum = array_key_exists('pagenum',$_REQUEST)?$_REQUEST['pagenum']:'0';
 $limitCnt = array_key_exists('limitcnt',$_REQUEST)?$_REQUEST['limitcnt']:'1000';
+
+if(!is_numeric($collid)) $collid = 0;
+if(!is_numeric($displayMode)) $displayMode = 1;
+if(!is_numeric($queryOccid)) $queryOccid = '';
+if(!is_numeric($pageNum)) $pageNum = 0;
+if(!is_numeric($limitCnt)) $limitCnt = 1000;
 
 $reviewManager = new OccurrenceEditReview();
 $collName = $reviewManager->setCollId($collid);
@@ -213,7 +219,7 @@ $navStr .= '</div>';
 				?>
 				<div id="filterDiv" style="float:right;">
 					<form name="filter" action="editreviewer.php" method="post" onsubmit="return validateFilterForm(this)">
-						<fieldset style="width:375px;text-align:left;">
+						<fieldset style="width:400px;text-align:left;">
 							<legend><b>Filter</b></legend>
 							<div style="margin:3px;">
 								Applied Status:
@@ -251,10 +257,6 @@ $navStr .= '</div>';
 								<input name="startdate" type="date" value="<?php echo $startDate; ?>" /> to
 								<input name="enddate" type="date" value="<?php echo $endDate; ?>" />
 							</div>
-							<div style="margin:10px;float:right;">
-								<button name="submitbutton" type="submit" value="submitfilter">Submit Filter</button>
-								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-							</div>
 							<?php
 							if($reviewManager->hasRevisionRecords() && !$reviewManager->getObsUid()){
 								?>
@@ -268,6 +270,15 @@ $navStr .= '</div>';
 								<?php
 							}
 							?>
+							<div style="margin:10px;float:right;">
+								<button name="submitbutton" type="submit" value="submitfilter">Submit Filter</button>
+								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+							</div>
+							<!--
+							<div style="margin:3px;">
+								Records per page: <input name="limitcnt" type="text" value="<?php echo $limitCnt; ?>" style="width:60px" />
+							</div>
+							 -->
 						</fieldset>
 					</form>
 				</div>

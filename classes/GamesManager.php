@@ -125,7 +125,7 @@ class GamesManager {
 					if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $domain .= ':'.$_SERVER["SERVER_PORT"];
 
 					$files = Array();
-					$sql3 = 'SELECT url FROM images WHERE (tid = '.$randTaxa.' AND url != "empty") ORDER BY sortsequence ';
+					$sql3 = 'SELECT url FROM images WHERE (tid = '.$randTaxa.' AND url IS NOT NULL AND url != "empty") ORDER BY sortsequence ';
 					//echo '<div>'.$sql.'</div>';
 					$cnt = 1;
 					$repcnt = 1;
@@ -134,21 +134,14 @@ class GamesManager {
 					while(($row = $rs->fetch_object()) && ($cnt < 6)){
 						$file = '';
 						if (substr($row->url, 0, 1) == '/'){
-							//If imageDomain variable is set within symbini file, image
-							if(isset($GLOBALS['imageDomain']) && $GLOBALS['imageDomain']){
-								$file = $GLOBALS['imageDomain'].$row->url;
-							}
-							else{
-								//Use local domain
-								$file = $domain.$row->url;
-							}
+							if(isset($GLOBALS['imageDomain']) && $GLOBALS['imageDomain']) $file = $GLOBALS['imageDomain'].$row->url;
+							else $file = $domain.$row->url;
 						}
 						else{
 							$file = $row->url;
 						}
 						$newfile = $newfileBase.$cnt.'.jpg';
-						if(fopen($file, "r")){
-							copy($file, $SERVER_ROOT.$newfile);
+						if(copy($file, $SERVER_ROOT.$newfile)){
 							$files[] = $GLOBALS['CLIENT_ROOT'].$newfile;
 							$cnt++;
 						}

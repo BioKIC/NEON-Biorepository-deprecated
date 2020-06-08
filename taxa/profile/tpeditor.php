@@ -166,7 +166,7 @@ if($isEditor && $action){
 		#taxonDiv{ font-size:18px; margin-top:15px; margin-left:10px; }
 		#taxonDiv a{ color:#990000; font-weight: bold; font-style: italic; }
 		#taxonDiv img{ border: 0px; margin: 0px; height: 15px; }
-		#family{ margin-left:20px; margin-top:0.25em; }
+		#familyDiv{ margin-left:20px; margin-top:0.25em; }
 		.tox-dialog{ min-height: 400px }
 		input{ margin:3px; border:inset; }
 		hr{ margin:30px 0px; }
@@ -197,11 +197,11 @@ if($isEditor && $action){
 				<div id="tabs" style="margin:10px;">
 					<ul>
 						<li><a href="#commontab"><span>Synonyms / Vernaculars</span></a></li>
-				        <li><a href="tpimageeditor.php?tid=<?php echo $tEditor->getTid().'&lang='.$lang; ?>"><span>Images</span></a></li>
-				        <li><a href="tpimageeditor.php?tid=<?php echo $tEditor->getTid().'&lang='.$lang.'&cat=imagequicksort'; ?>"><span>Image Sort</span></a></li>
-				        <li><a href="tpimageeditor.php?tid=<?php echo $tEditor->getTid().'&lang='.$lang.'&cat=imageadd'; ?>"><span>Add Image</span></a></li>
-				        <li><a href="tpdesceditor.php?tid=<?php echo $tEditor->getTid().'&lang='.$lang.'&action='.$action; ?>"><span>Descriptions</span></a></li>
-				    </ul>
+						<li><a href="tpimageeditor.php?tid=<?php echo $tEditor->getTid(); ?>"><span>Images</span></a></li>
+						<li><a href="tpimageeditor.php?tid=<?php echo $tEditor->getTid().'&cat=imagequicksort'; ?>"><span>Image Sort</span></a></li>
+						<li><a href="tpimageeditor.php?tid=<?php echo $tEditor->getTid().'&cat=imageadd'; ?>"><span>Add Image</span></a></li>
+						<li><a href="tpdesceditor.php?tid=<?php echo $tEditor->getTid().'&action='.$action; ?>"><span>Descriptions</span></a></li>
+					</ul>
 					<div id="commontab">
 						<?php
 						//Display Common Names (vernaculars)

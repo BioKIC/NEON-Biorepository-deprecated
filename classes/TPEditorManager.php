@@ -38,7 +38,6 @@ class TPEditorManager extends Manager {
 				$this->submittedArr['sciname'] = $r->sciname;
 				$this->submittedArr['author'] = $r->author;
 				$this->submittedArr['rankid'] = $r->rankid;
-				$this->tid = $r->tid;
 				$this->sciname = $r->sciname;
 				$this->author = $r->author;
 				$this->rankid = $r->rankid;
@@ -141,8 +140,8 @@ class TPEditorManager extends Manager {
 	public function getVernaculars(){
 		$vernArr = Array();
 		$langArr = false;
-		$sql = 'SELECT v.vid, v.vernacularname, v.langid, l.langname, v.source, v.username, v.notes, v.sortsequence '.
-			'FROM taxavernaculars v INNER JOIN adminlanguages l ON v.langid = l.langid '.
+		$sql = 'SELECT v.vid, v.vernacularname, v.langid, l.langname, v.language, v.source, v.username, v.notes, v.sortsequence '.
+			'FROM taxavernaculars v LEFT JOIN adminlanguages l ON v.langid = l.langid '.
 			'WHERE (tid = '.$this->tid.') '.
 			'ORDER BY sortsequence';
 		$rs = $this->conn->query($sql);
@@ -154,7 +153,7 @@ class TPEditorManager extends Manager {
 			$langID = $r->langid;
 			if(!$langID){
 				if($langArr === false) $langArr = $this->getLangMap();
-				if(array_key_exists($langID, $langArr)) $langID = $langArr[$langID];
+				if(array_key_exists($r->language, $langArr)) $langID = $langArr[$r->language];
 				else $langID = 1;
 			}
 			$vernArr[$r->langname][$r->vid]['langid'] = $langID;
@@ -271,7 +270,7 @@ class TPEditorManager extends Manager {
 	}
 
 	//Misc data functions
-	private function getLangMap(){
+	protected function getLangMap(){
 		$retArr = array();
 		$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages';
 		$rs = $this->conn->query($sql);

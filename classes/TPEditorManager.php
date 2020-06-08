@@ -140,6 +140,7 @@ class TPEditorManager extends Manager {
 
 	public function getVernaculars(){
 		$vernArr = Array();
+		$langArr = false;
 		$sql = 'SELECT v.vid, v.vernacularname, v.langid, l.langname, v.source, v.username, v.notes, v.sortsequence '.
 			'FROM taxavernaculars v INNER JOIN adminlanguages l ON v.langid = l.langid '.
 			'WHERE (tid = '.$this->tid.') '.
@@ -152,8 +153,8 @@ class TPEditorManager extends Manager {
 			$vernArr[$r->langname][$r->vid]['notes'] = $this->cleanOutStr($r->notes);
 			$langID = $r->langid;
 			if(!$langID){
-				if($this->langArr === false) $this->setLangArr();
-				if(array_key_exists($langID, $this->langArr)) $langID = $this->langArr[$langID];
+				if($langArr === false) $langArr = $this->getLangMap();
+				if(array_key_exists($langID, $langArr)) $langID = $langArr[$langID];
 				else $langID = 1;
 			}
 			$vernArr[$r->langname][$r->vid]['langid'] = $langID;
@@ -270,17 +271,16 @@ class TPEditorManager extends Manager {
 	}
 
 	//Misc data functions
-	private function setLangArr(){
-		if($this->langArr === false){
-			$this->langArr = array();
-			$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$this->langArr[$r->langname] = $r->langid;
-				$this->langArr[$r->iso639_1] = $r->langid;
-			}
-			$rs->free();
+	private function getLangMap(){
+		$retArr = array();
+		$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->langname] = $r->langid;
+			$retArr[$r->iso639_1] = $r->langid;
 		}
+		$rs->free();
+		return $retArr;
 	}
 
 	public function getLangArr(){

@@ -4,12 +4,10 @@ include_once($SERVER_ROOT.'/classes/TPDescEditorManager.php');
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:0;
-$lang = array_key_exists('lang',$_REQUEST)?$_REQUEST['lang']:'';
 $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 
 $descEditor = new TPDescEditorManager();
 if($tid) $descEditor->setTid($tid);
-if($lang) $descEditor->setLanguage($lang);
 
 $isEditor = false;
 if($IS_ADMIN || array_key_exists('TaxonProfile',$USER_RIGHTS)) $isEditor = true;

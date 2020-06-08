@@ -27,9 +27,7 @@ $tid = $tEditor->setTid($tid?$tid:$taxon);
 
 $statusStr = "";
 $isEditor = false;
-if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)){
-	$isEditor = true;
-}
+if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)) $isEditor = true;
 
 if($isEditor && $action){
 	if($action == "Edit Synonym Sort Order"){

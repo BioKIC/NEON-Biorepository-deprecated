@@ -192,6 +192,7 @@ class PluginsManager {
 				#slideshowcontainer{ clear:both; width:'.$width.'px; height:'.($width + 75).'px; }
 				.slideshowDiv{ width:'.$width.'px; height:'.($width+50).'px;position:relative; }
 				.slideshowImageDiv{ width:'.$width.'px; max-height:'.($width+50).'px; overflow:hidden; }
+				.slideshowImageDiv img{ position: absolute; top: -9999px; bottom: -9999px; left: -9999px; right: -9999px; margin: auto; max-width:'.$width.'px; max-height:'.($width+50).'px; }
 				.slideshowBaseDiv{ width:'.$width.'px; position:absolute; bottom:0; font-size:12px; background-color:rgba(255,255,255,0.8); }
 				.slideshowHideCaption{ font-size:9px; text-decoration:none; float:right; clear:both; margin-right:5px; }
 				.slideshowCitationDiv{ clear:both; padding-left:3px; padding-right:3px; }
@@ -226,7 +227,7 @@ class PluginsManager {
 			$html .= '<div class="slideshowDiv">
 				<div class="slideshowImageDiv">
 					<a href="'.$linkUrl.'" target="_blank">
-						<img src="'.$imgIdArr["url"].'" style="'.$imgSize.'" alt="'.($imgIdArr["occsciname"]?$imgIdArr["occsciname"]:$imgIdArr["sciname"]).'">
+						<img src="'.$imgIdArr["url"].'" alt="'.($imgIdArr["occsciname"]?$imgIdArr["occsciname"]:$imgIdArr["sciname"]).'">
 					</a>
 				</div>';
 			$hideCaptionClick = "$('#slidecaption".$imgId."').hide();$('#showcaption".$imgId."').hide();";

@@ -18,8 +18,9 @@ class PluginsManager {
 		$showHtml .= '<div id="slideshowcontainer">';
 		$showHtml .= '<div class="container">';
 		$showHtml .= '<div id="slides">';
-		$showHtml .= $this->getImageList($ssid, $width, $interval);
+		$showHtml .= $this->getImageList($ssid);
 		$showHtml .= '</div></div></div>';
+		$showHtml .= $this->getSlideshowScript($width,$interval);
 		return $showHtml;
 	}
 
@@ -201,26 +202,32 @@ class PluginsManager {
 		return $html;
 	}
 
-	public function getImageList($ssid, $width, $interval){
-		global $LANG;
-		$CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
+	public function getSlideshowScript($width,$interval){
+		$html = '<script type="text/javascript">
+				$(function() {
+					$("#slides").slidesjs({
+								width: '.$width.',
+								height: '.($width + 50).',
+								play: {
+									active: true,
+									auto: true,
+									interval: '.$interval.',
+									swap: true
+								}
+					});
+				});
+			</script>';
+		return $html;
+	}
 
-		$imageHeight = $width + 50;
+	public function getImageList($ssid){
+		global $LANG;
 		$infoArr = json_decode(file_get_contents($GLOBALS['SERVER_ROOT'].'/temp/slideshow/'.$ssid.'_info.json'), true);
 		//echo json_encode($infoArr);
 		$imageArr = $infoArr['files'];
 		$html = '';
 		foreach($imageArr as $imgId => $imgIdArr){
-			$imgSize = '';
-			if($imgIdArr["width"] > $imgIdArr["height"]){
-				$offSet = (($imgIdArr["width"]/$imgIdArr["height"])*$imageHeight)/2;
-				$imgSize = 'height:'.$imageHeight.'px;position:absolute;left:50%;margin-left:-'.$offSet.'px;';
-			}
-			else{
-				$offSet = (($imgIdArr["height"]/$imgIdArr["width"])*$width)/2;
-				$imgSize = 'width:'.$width.'px;position:absolute;top:50%;margin-top:-'.$offSet.'px;';
-			}
-			$linkUrl = $CLIENT_ROOT;
+			$linkUrl = $GLOBALS['CLIENT_ROOT'];
 			if($imgIdArr['occid']) $linkUrl .= '/collections/individual/index.php?occid='.$imgIdArr['occid'].'&clid=0';
 			elseif($imgIdArr["tid"]) $linkUrl .= '/taxa/index.php?taxon='.str_replace(' ','%20',$imgIdArr['sciname']);
 
@@ -249,20 +256,6 @@ class PluginsManager {
 			$html .= '<a class="slideshowCaptionLink" href="#" id="showcaption'.$imgId.'" onclick="'.$showCaptionClick.'">'.(isset($LANG['SHOW_CAPTION'])?$LANG['SHOW_CAPTION']:'SHOW CAPTION').'</a>';
 			$html .= "</div></div>\n";
 		}
-		$html .= '<script type="text/javascript">
-				$(function() {
-					$("#slides").slidesjs({
-								width: '.$width.',
-								height: '.($width + 50).',
-								play: {
-									active: true,
-									auto: true,
-									interval: '.$interval.',
-									swap: true
-								}
-					});
-				});
-			</script>';
 		return $html;
 	}
 }

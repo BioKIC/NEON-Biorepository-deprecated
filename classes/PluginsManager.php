@@ -15,7 +15,7 @@ class PluginsManager {
 		if($width < 275) $width = 275;
 		$this->initiateSlideShow($ssid,$numSlides,$numDays,$imageType,$clid,$dayInterval);
 		$showHtml = $this->getSlideshowStyle($width);
-		$showHtml = '<div id="slideshowcontainer">';
+		$showHtml .= '<div id="slideshowcontainer">';
 		$showHtml .= '<div class="container">';
 		$showHtml .= '<div id="slides">';
 		$showHtml .= $this->getImageList($ssid, $width, $interval);
@@ -83,7 +83,6 @@ class PluginsManager {
 			$ssIdInfo['imagetype'] = $imageType;
 
 			$files = Array();
-			$limit = $numSlides * 3;
 			$sql = 'SELECT i.imgid, i.tid, i.occid, i.url, i.photographer, i.`owner`, t.sciname, o.sciname AS occsciname, '.
 				'CONCAT_WS(" ",u.firstname,u.lastname) AS photographerName, '.
 				'CONCAT_WS("; ",o.sciname, o.catalognumber, CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate))) AS identifier '.
@@ -190,7 +189,7 @@ class PluginsManager {
 				.slidesjs-pagination li a {
 					background-image: url('.$GLOBALS['CLIENT_ROOT'].'/css/images/pagination.png); background-position: 0 0;
 				}
-				.slideshowcontainer{ clear:both; width:'.$width.'px; height:'.($width + 75).'px; }
+				#slideshowcontainer{ clear:both; width:'.$width.'px; height:'.($width + 75).'px; }
 				.slideshowDiv{ width:'.$width.'px; height:'.($width+50).'px;position:relative; }
 				.slideshowImageDiv{ width:'.$width.'px; max-height:'.($width+50).'px; overflow:hidden; }
 				.slideshowBaseDiv{ width:'.$width.'px; position:absolute; bottom:0; font-size:12px; background-color:rgba(255,255,255,0.8); }
@@ -209,6 +208,7 @@ class PluginsManager {
 		$infoArr = json_decode(file_get_contents($GLOBALS['SERVER_ROOT'].'/temp/slideshow/'.$ssid.'_info.json'), true);
 		//echo json_encode($infoArr);
 		$imageArr = $infoArr['files'];
+		$html = '';
 		foreach($imageArr as $imgId => $imgIdArr){
 			$imgSize = '';
 			if($imgIdArr["width"] > $imgIdArr["height"]){
@@ -223,24 +223,19 @@ class PluginsManager {
 			if($imgIdArr['occid']) $linkUrl .= '/collections/individual/index.php?occid='.$imgIdArr['occid'].'&clid=0';
 			elseif($imgIdArr["tid"]) $linkUrl .= '/taxa/index.php?taxon='.str_replace(' ','%20',$imgIdArr['sciname']);
 
-			$html = '<div class="slideshowDiv">';
-
-			$html .= '<div class="slideshowImageDiv">';
-			$html .= '<a href="'.$linkUrl.'" target="_blank">';
-			$html .= '<img src="'.$imgIdArr["url"].'" style="'.$imgSize.'" alt="'.($imgIdArr["occsciname"]?$imgIdArr["occsciname"]:$imgIdArr["sciname"]).'">';
-			$html .= '</a>';
-			$html .= '</div>';
-
-			$html .= '<div class="slideshowBaseDiv">';
+			$html .= '<div class="slideshowDiv">
+				<div class="slideshowImageDiv">
+					<a href="'.$linkUrl.'" target="_blank">
+						<img src="'.$imgIdArr["url"].'" style="'.$imgSize.'" alt="'.($imgIdArr["occsciname"]?$imgIdArr["occsciname"]:$imgIdArr["sciname"]).'">
+					</a>
+				</div>';
 			$hideCaptionClick = "$('#slidecaption".$imgId."').hide();$('#showcaption".$imgId."').hide();";
-			$html .= '<div id="slidecaption'.$imgId.'">';
-			$html .= '<a class="slideshowHideCaption" href="#" onclick="'.$hideCaptionClick.'">'.(isset($LANG['HIDE_CAPTION'])?$LANG['HIDE_CAPTION']:'HIDE CAPTION').'</a>';
-
+			$html .= '<div class="slideshowBaseDiv">
+				<div id="slidecaption'.$imgId.'">
+					<a class="slideshowHideCaption" href="#" onclick="'.$hideCaptionClick.'">'.(isset($LANG['HIDE_CAPTION'])?$LANG['HIDE_CAPTION']:'HIDE CAPTION').'</a>';
 			$html .= '<div class="slideshowCitationDiv">';
 			if($imgIdArr["sciname"] || $imgIdArr["identifier"]){
-				$html .= '<a href="'.$linkUrl.'" target="_blank">';
-				$html .= ($imgIdArr["identifier"]?$imgIdArr["identifier"]:$imgIdArr["sciname"]);
-				$html .= '</a>. ';
+				$html .= '<a href="'.$linkUrl.'" target="_blank">'.($imgIdArr["identifier"]?$imgIdArr["identifier"]:$imgIdArr["sciname"]).'</a>. ';
 			}
 			if($imgIdArr["photographer"] || $imgIdArr["photographerName"]){
 				$html .= (isset($LANG['IMAGE_BY'])?$LANG['IMAGE_BY']:'Image by').': '.($imgIdArr["photographer"]?$imgIdArr["photographer"]:$imgIdArr["photographerName"]).'. ';
@@ -248,14 +243,12 @@ class PluginsManager {
 			if($imgIdArr["owner"]){
 				$html .= (isset($LANG['COURTESY_OF'])?$LANG['COURTESY_OF']:'Courtesy of').': '.$imgIdArr["owner"].'. ';
 			}
-			$html .= '</div>';
-
-			$html .= '</div>';
+			$html .= "</div></div>\n";
 			$showCaptionClick = "$('#slidecaption".$imgId."').show();$('#showcaption".$imgId."').show();";
 			$html .= '<a class="slideshowCaptionLink" href="#" id="showcaption'.$imgId.'" onclick="'.$showCaptionClick.'">'.(isset($LANG['SHOW_CAPTION'])?$LANG['SHOW_CAPTION']:'SHOW CAPTION').'</a>';
-			$html .= '</div></div>';
+			$html .= "</div></div>\n";
 		}
-		$html .= '<script>
+		$html .= '<script type="text/javascript">
 				$(function() {
 					$("#slides").slidesjs({
 								width: '.$width.',

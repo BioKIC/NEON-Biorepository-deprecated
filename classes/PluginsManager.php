@@ -13,12 +13,17 @@ class PluginsManager {
 	public function createSlideShow($ssid, $numSlides, $width, $numDays, $imageType, $clid, $dayInterval, $interval=7000){
 		if($width > 800) $width = 800;
 		if($width < 275) $width = 275;
-		$this->setSlideShow($ssid,$numSlides,$numDays,$imageType,$clid,$dayInterval);
-		$showHtml = $this->getSlideshowHtml($ssid, $width, $interval);
+		$this->initiateSlideShow($ssid,$numSlides,$numDays,$imageType,$clid,$dayInterval);
+		$showHtml = $this->getSlideshowStyle($width);
+		$showHtml = '<div id="slideshowcontainer">';
+		$showHtml .= '<div class="container">';
+		$showHtml .= '<div id="slides">';
+		$showHtml .= $this->getImageList($ssid, $width, $interval);
+		$showHtml .= '</div></div></div>';
 		return $showHtml;
 	}
 
-	private function setSlideShow($ssid,$numSlides,$numDays,$imageType,$clid,$dayInterval){
+	public function initiateSlideShow($ssid,$numSlides,$numDays,$imageType,$clid,$dayInterval){
 		global $SERVER_ROOT;
 		$previousFile = $SERVER_ROOT.'/temp/slideshow/'.$ssid.'_previous.json';
 		$infoFile = $SERVER_ROOT.'/temp/slideshow/'.$ssid.'_info.json';
@@ -163,17 +168,15 @@ class PluginsManager {
 		}
 	}
 
-	private function getSlideshowHtml($ssid, $width, $interval){
-		$CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
-		$height = $width + 50;
-		$html = '<link rel="stylesheet" href="'.$CLIENT_ROOT.'/css/slideshowstyle.css">
+	public function getSlideshowStyle($width){
+		$html = '<link rel="stylesheet" href="'.$GLOBALS['CLIENT_ROOT'].'/css/slideshowstyle.css">
 			<style>
 				@font-face{
 					font-family:"FontAwesome";
-					src:url("'.$CLIENT_ROOT.'/css/images/fontawesome-webfont.eot?v=3.0.1");
-					src:url("'.$CLIENT_ROOT.'/css/images/fontawesome-webfont.eot?#iefix&v=3.0.1") format("embedded-opentype"),
-						url("'.$CLIENT_ROOT.'/css/images/fontawesome-webfont.woff?v=3.0.1") format("woff"),
-						url("'.$CLIENT_ROOT.'/css/images/fontawesome-webfont.ttf?v=3.0.1") format("truetype");
+					src:url("'.$GLOBALS['CLIENT_ROOT'].'/css/images/fontawesome-webfont.eot?v=3.0.1");
+					src:url("'.$GLOBALS['CLIENT_ROOT'].'/css/images/fontawesome-webfont.eot?#iefix&v=3.0.1") format("embedded-opentype"),
+						url("'.$GLOBALS['CLIENT_ROOT'].'/css/images/fontawesome-webfont.woff?v=3.0.1") format("woff"),
+						url("'.$GLOBALS['CLIENT_ROOT'].'/css/images/fontawesome-webfont.ttf?v=3.0.1") format("truetype");
 					font-weight: normal;
 					font-style:normal
 				}
@@ -182,43 +185,30 @@ class PluginsManager {
 				a.slidesjs-previous,
 				a.slidesjs-play,
 				a.slidesjs-stop {
-					background-image: url('.$CLIENT_ROOT.'/css/images/btns-next-prev.png);
-					background-repeat: no-repeat;
+					background-image: url('.$GLOBALS['CLIENT_ROOT'].'/css/images/btns-next-prev.png); background-repeat: no-repeat;
 				}
 				.slidesjs-pagination li a {
-					background-image: url('.$CLIENT_ROOT.'/css/images/pagination.png);
-					background-position: 0 0;
+					background-image: url('.$GLOBALS['CLIENT_ROOT'].'/css/images/pagination.png); background-position: 0 0;
 				}
+				.slideshowcontainer{ clear:both; width:'.$width.'px; height:'.($width + 75).'px; }
+				.slideshowDiv{ width:'.$width.'px; height:'.($width+50).'px;position:relative; }
+				.slideshowImageDiv{ width:'.$width.'px; max-height:'.($width+50).'px; overflow:hidden; }
+				.slideshowBaseDiv{ width:'.$width.'px; position:absolute; bottom:0; font-size:12px; background-color:rgba(255,255,255,0.8); }
+				.slideshowHideCaption{ font-size:9px; text-decoration:none; float:right; clear:both; margin-right:5px; }
+				.slideshowCitationDiv{ clear:both; padding-left:3px; padding-right:3px; }
+				.slideshowCaptionLink{ font-size:9px; text-decoration:none; float:right; clear:both; margin-right:5px; display:none; }
 			</style>';
-		$html .= $this->getImageList($ssid, $width);
-		$html .= '<script>
-				$(function() {
-					$("#slides").slidesjs({
-								width: '.$width.',
-								height: '.$height.',
-								play: {
-									active: true,
-									auto: true,
-									interval: '.$interval.',
-									swap: true
-								}
-					});
-				});
-			</script>';
-
 		return $html;
 	}
 
-	private function getImageList($ssid, $width){
+	public function getImageList($ssid, $width, $interval){
 		global $LANG;
 		$CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
 
-		$windowHeight = $width + 75;
 		$imageHeight = $width + 50;
-		$html = '<div id="slideshowcontainer" style="clear:both;width:'.$width.'px;height:'.$windowHeight.'px;">';
-		$html .= '<div class="container">';
-		$html .= '<div id="slides">';
-		$imageArr = $this->getImages($ssid);
+		$infoArr = json_decode(file_get_contents($GLOBALS['SERVER_ROOT'].'/temp/slideshow/'.$ssid.'_info.json'), true);
+		//echo json_encode($infoArr);
+		$imageArr = $infoArr['files'];
 		foreach($imageArr as $imgId => $imgIdArr){
 			$imgSize = '';
 			if($imgIdArr["width"] > $imgIdArr["height"]){
@@ -229,25 +219,24 @@ class PluginsManager {
 				$offSet = (($imgIdArr["height"]/$imgIdArr["width"])*$width)/2;
 				$imgSize = 'width:'.$width.'px;position:absolute;top:50%;margin-top:-'.$offSet.'px;';
 			}
-			$linkUrl = '';
-			if($imgIdArr["occid"]){
-				$linkUrl = $CLIENT_ROOT.'/collections/individual/index.php?occid='.$imgIdArr["occid"].'&clid=0';
-			}
-			elseif($imgIdArr["tid"]){
-				$name = str_replace(' ','%20',$imgIdArr["sciname"]);
-				$linkUrl = $CLIENT_ROOT.'/taxa/index.php?taxon='.$name;
-			}
-			$html .= '<div style="width:'.$width.'px;height:'.$imageHeight.'px;position:relative;">';
-			$html .= '<div style="width:'.$width.'px;max-height:'.$imageHeight.'px;overflow:hidden;">';
+			$linkUrl = $CLIENT_ROOT;
+			if($imgIdArr['occid']) $linkUrl .= '/collections/individual/index.php?occid='.$imgIdArr['occid'].'&clid=0';
+			elseif($imgIdArr["tid"]) $linkUrl .= '/taxa/index.php?taxon='.str_replace(' ','%20',$imgIdArr['sciname']);
+
+			$html = '<div class="slideshowDiv">';
+
+			$html .= '<div class="slideshowImageDiv">';
 			$html .= '<a href="'.$linkUrl.'" target="_blank">';
 			$html .= '<img src="'.$imgIdArr["url"].'" style="'.$imgSize.'" alt="'.($imgIdArr["occsciname"]?$imgIdArr["occsciname"]:$imgIdArr["sciname"]).'">';
 			$html .= '</a>';
 			$html .= '</div>';
-			$html .= '<div style="width:'.$width.'px;position:absolute;bottom:0;font-size:12px;background-color:rgba(255,255,255,0.8);">';
+
+			$html .= '<div class="slideshowBaseDiv">';
 			$hideCaptionClick = "$('#slidecaption".$imgId."').hide();$('#showcaption".$imgId."').hide();";
 			$html .= '<div id="slidecaption'.$imgId.'">';
-			$html .= '<a href="#" style="font-size:9px;text-decoration:none;float:right;clear:both;margin-right:5px;" onclick="'.$hideCaptionClick.'">'.(isset($LANG['HIDE_CAPTION'])?$LANG['HIDE_CAPTION']:'HIDE CAPTION').'</a>';
-			$html .= '<div style="clear:both;padding-left:3px;padding-right:3px;"><b>';
+			$html .= '<a class="slideshowHideCaption" href="#" onclick="'.$hideCaptionClick.'">'.(isset($LANG['HIDE_CAPTION'])?$LANG['HIDE_CAPTION']:'HIDE CAPTION').'</a>';
+
+			$html .= '<div class="slideshowCitationDiv">';
 			if($imgIdArr["sciname"] || $imgIdArr["identifier"]){
 				$html .= '<a href="'.$linkUrl.'" target="_blank">';
 				$html .= ($imgIdArr["identifier"]?$imgIdArr["identifier"]:$imgIdArr["sciname"]);
@@ -259,21 +248,28 @@ class PluginsManager {
 			if($imgIdArr["owner"]){
 				$html .= (isset($LANG['COURTESY_OF'])?$LANG['COURTESY_OF']:'Courtesy of').': '.$imgIdArr["owner"].'. ';
 			}
-			$html .= '</b></div>';
+			$html .= '</div>';
+
 			$html .= '</div>';
 			$showCaptionClick = "$('#slidecaption".$imgId."').show();$('#showcaption".$imgId."').show();";
-			$html .= '<a href="#" id="showcaption'.$imgId.'" style="font-size:9px;text-decoration:none;float:right;clear:both;margin-right:5px;display:none;" onclick="'.$showCaptionClick.'">'.(isset($LANG['SHOW_CAPTION'])?$LANG['SHOW_CAPTION']:'SHOW CAPTION').'</a>';
+			$html .= '<a class="slideshowCaptionLink" href="#" id="showcaption'.$imgId.'" onclick="'.$showCaptionClick.'">'.(isset($LANG['SHOW_CAPTION'])?$LANG['SHOW_CAPTION']:'SHOW CAPTION').'</a>';
 			$html .= '</div></div>';
 		}
-		$html .= '</div></div></div>';
-
+		$html .= '<script>
+				$(function() {
+					$("#slides").slidesjs({
+								width: '.$width.',
+								height: '.($width + 50).',
+								play: {
+									active: true,
+									auto: true,
+									interval: '.$interval.',
+									swap: true
+								}
+					});
+				});
+			</script>';
 		return $html;
-	}
-
-	private function getImages($ssid){
-		$infoArr = json_decode(file_get_contents($GLOBALS['SERVER_ROOT'].'/temp/slideshow/'.$ssid.'_info.json'), true);
-		//echo json_encode($infoArr);
-		return $infoArr['files'];
 	}
 }
 ?>

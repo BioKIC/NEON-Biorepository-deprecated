@@ -141,7 +141,7 @@ class GamesManager {
 							$file = $row->url;
 						}
 						$newfile = $newfileBase.$cnt.'.jpg';
-						if(copy($file, $SERVER_ROOT.$newfile)){
+						if(copy($file, $SERVER_ROOT.$newfile, stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))))){
 							$files[] = $GLOBALS['CLIENT_ROOT'].$newfile;
 							$cnt++;
 						}

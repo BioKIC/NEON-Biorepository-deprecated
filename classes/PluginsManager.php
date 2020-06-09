@@ -195,9 +195,9 @@ class PluginsManager {
 				.slideshowImageDiv{ width:'.$width.'px; max-height:'.($width+50).'px; overflow:hidden; }
 				.slideshowImageDiv img{ position: absolute; top: -9999px; bottom: -9999px; left: -9999px; right: -9999px; margin: auto; max-width:'.$width.'px; max-height:'.($width+50).'px; }
 				.slideshowBaseDiv{ width:'.$width.'px; position:absolute; bottom:0; font-size:12px; background-color:rgba(255,255,255,0.8); }
-				.slideshowHideCaption{ font-size:9px; text-decoration:none; float:right; clear:both; margin-right:5px; }
 				.slideshowCitationDiv{ clear:both; padding-left:3px; padding-right:3px; }
-				.slideshowCaptionLink{ font-size:9px; text-decoration:none; float:right; clear:both; margin-right:5px; display:none; }
+				.slideshowHideLink{ font-size:9px; text-decoration:none; float:right; clear:both; margin-right:5px; }
+				.slideshowShowLink{ font-size:9px; text-decoration:none; float:right; clear:both; margin-right:5px; display:none; }
 			</style>';
 		return $html;
 	}
@@ -237,10 +237,10 @@ class PluginsManager {
 						<img src="'.$imgIdArr["url"].'" alt="'.($imgIdArr["occsciname"]?$imgIdArr["occsciname"]:$imgIdArr["sciname"]).'">
 					</a>
 				</div>';
-			$hideCaptionClick = "$('.slideshowCaptionDiv').hide();$('.slideshowCaptionLink').hide();return false;";
+			$hideCaptionClick = "$('.slideshowCaptionDiv').hide();$('.slideshowShowLink').show();return false;";
 			$html .= '<div class="slideshowBaseDiv">
 				<div class="slideshowCaptionDiv">
-					<a class="slideshowHideCaption" href="#" onclick="'.$hideCaptionClick.'">'.(isset($LANG['HIDE_CAPTION'])?$LANG['HIDE_CAPTION']:'HIDE CAPTION').'</a>';
+					<a class="slideshowHideLink" href="#" onclick="'.$hideCaptionClick.'">'.(isset($LANG['HIDE_CAPTION'])?$LANG['HIDE_CAPTION']:'HIDE CAPTION').'</a>';
 			$html .= '<div class="slideshowCitationDiv">';
 			if($imgIdArr["sciname"] || $imgIdArr["identifier"]){
 				$html .= '<a href="'.$linkUrl.'" target="_blank">'.($imgIdArr["identifier"]?$imgIdArr["identifier"]:$imgIdArr["sciname"]).'</a>. ';
@@ -252,8 +252,8 @@ class PluginsManager {
 				$html .= (isset($LANG['COURTESY_OF'])?$LANG['COURTESY_OF']:'Courtesy of').': '.$imgIdArr["owner"].'. ';
 			}
 			$html .= "</div></div>\n";
-			$showCaptionClick = "$('.slideshowCaptionDiv').show();$('.slideshowCaptionLink').show();return false;";
-			$html .= '<a class="slideshowCaptionLink" href="#" onclick="'.$showCaptionClick.'">'.(isset($LANG['SHOW_CAPTION'])?$LANG['SHOW_CAPTION']:'SHOW CAPTION').'</a>';
+			$showCaptionClick = "$('.slideshowCaptionDiv').show();$('.slideshowShowLink').hide();return false;";
+			$html .= '<a class="slideshowShowLink" href="#" onclick="'.$showCaptionClick.'">'.(isset($LANG['SHOW_CAPTION'])?$LANG['SHOW_CAPTION']:'SHOW CAPTION').'</a>';
 			$html .= "</div></div>\n";
 		}
 		return $html;

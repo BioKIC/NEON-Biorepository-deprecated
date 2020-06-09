@@ -237,9 +237,9 @@ class PluginsManager {
 						<img src="'.$imgIdArr["url"].'" alt="'.($imgIdArr["occsciname"]?$imgIdArr["occsciname"]:$imgIdArr["sciname"]).'">
 					</a>
 				</div>';
-			$hideCaptionClick = "$('#slidecaption".$imgId."').hide();$('#showcaption".$imgId."').hide();";
+			$hideCaptionClick = "$('.slideshowCaptionDiv').hide();$('.slideshowCaptionLink').hide();return false;";
 			$html .= '<div class="slideshowBaseDiv">
-				<div id="slidecaption'.$imgId.'">
+				<div class="slideshowCaptionDiv">
 					<a class="slideshowHideCaption" href="#" onclick="'.$hideCaptionClick.'">'.(isset($LANG['HIDE_CAPTION'])?$LANG['HIDE_CAPTION']:'HIDE CAPTION').'</a>';
 			$html .= '<div class="slideshowCitationDiv">';
 			if($imgIdArr["sciname"] || $imgIdArr["identifier"]){
@@ -252,8 +252,8 @@ class PluginsManager {
 				$html .= (isset($LANG['COURTESY_OF'])?$LANG['COURTESY_OF']:'Courtesy of').': '.$imgIdArr["owner"].'. ';
 			}
 			$html .= "</div></div>\n";
-			$showCaptionClick = "$('#slidecaption".$imgId."').show();$('#showcaption".$imgId."').show();";
-			$html .= '<a class="slideshowCaptionLink" href="#" id="showcaption'.$imgId.'" onclick="'.$showCaptionClick.'">'.(isset($LANG['SHOW_CAPTION'])?$LANG['SHOW_CAPTION']:'SHOW CAPTION').'</a>';
+			$showCaptionClick = "$('.slideshowCaptionDiv').show();$('.slideshowCaptionLink').show();return false;";
+			$html .= '<a class="slideshowCaptionLink" href="#" onclick="'.$showCaptionClick.'">'.(isset($LANG['SHOW_CAPTION'])?$LANG['SHOW_CAPTION']:'SHOW CAPTION').'</a>';
 			$html .= "</div></div>\n";
 		}
 		return $html;

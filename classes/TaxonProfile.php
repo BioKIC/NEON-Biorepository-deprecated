@@ -355,7 +355,7 @@ class TaxonProfile extends Manager {
 		$retArr = Array();
 		if($this->tid){
 			$rsArr = array();
-			$sql = 'SELECT d.tid, d.tdbid, d.caption, d.source, d.sourceurl, s.tdsid, s.heading, s.statement, s.displayheader, d.language ';
+			$sql = 'SELECT d.tid, d.tdbid, d.caption, d.source, d.sourceurl, s.tdsid, s.heading, s.statement, s.displayheader, d.language, d.langid ';
 			if($this->acceptance){
 				$sql .= 'FROM taxstatus ts INNER JOIN taxadescrblock d ON ts.tid = d.tid '.
 					'INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid '.
@@ -377,7 +377,16 @@ class TaxonProfile extends Manager {
 			foreach($rsArr as $n => $rowArr){
 				//if($rowArr['tid'] == $this->tid){
 				if(!array_key_exists($rowArr['caption'], $usedCaptionArr) || $rowArr['caption'] != $rowArr['tdbid']){
-					$retArr = $this->loadDescriptionArr($rowArr, $retArr);
+					$indexKey = 0;
+					if(!array_key_exists(strtolower($rowArr['language']), $this->langArr) && !in_array($rowArr['langid'], $this->langArr)){
+						$indexKey = 1;
+					}
+					if(!isset($retArr[$indexKey]) || !array_key_exists($rowArr['tdbid'],$retArr[$indexKey])){
+						$retArr[$indexKey][$rowArr['tdbid']]['caption'] = $rowArr['caption'];
+						$retArr[$indexKey][$rowArr['tdbid']]['source'] = $rowArr['source'];
+						$retArr[$indexKey][$rowArr['tdbid']]['url'] = $rowArr['sourceurl'];
+					}
+					$retArr[$indexKey][$rowArr['tdbid']]['desc'][$rowArr['tdsid']] = ($rowArr['displayheader'] && $rowArr['heading']?'<b>'.$rowArr['heading'].'</b>: ':'').$rowArr['statement'];
 					$usedCaptionArr[$rowArr['caption']] = $rowArr['tdbid'];
 				}
 			}
@@ -385,13 +394,23 @@ class TaxonProfile extends Manager {
 			 //Then add description linked to synonyms ONLY if one doesn't exist with same caption
 			 reset($rsArr);
 			 foreach($rsArr as $n => $rowArr){
-			 if($rowArr['tid'] != $this->tid && !in_array($rowArr['caption'], $usedCaptionArr)){
-			 $retArr = $this->loadDescriptionArr($rowArr, $retArr);
-			 }
+			 	if($rowArr['tid'] != $this->tid && !in_array($rowArr['caption'], $usedCaptionArr)){
+					$indexKey = 0;
+					if(array_key_exists(strtolower($rowArr['language']), $this->langArr) || in_array($rowArr['langid'], $this->langArr)){
+						$indexKey = 1;
+					}
+					if(!isset($retArr[$indexKey]) || !array_key_exists($rowArr['tdbid'],$retArr[$indexKey])){
+						$retArr[$indexKey][$rowArr['tdbid']]["caption"] = $rowArr['caption'];
+						$retArr[$indexKey][$rowArr['tdbid']]["source"] = $rowArr['source'];
+						$retArr[$indexKey][$rowArr['tdbid']]["url"] = $rowArr['sourceurl'];
+					}
+					$retArr[$indexKey][$rowArr['tdbid']]["desc"][$rowArr['tdsid']] = ($rowArr['displayheader'] && $rowArr['heading']?"<b>".$rowArr['heading']."</b>: ":"").$rowArr['statement'];
+			 	}
 			 }
 			 ksort($retArr);
 			*/
 		}
+		ksort($retArr);
 		return $retArr;
 	}
 
@@ -457,20 +476,6 @@ class TaxonProfile extends Manager {
 			$retStr = '<div style="margin:70px 0px 20px 50px">'.$LANG['DESCRIPTION_NOT_AVAILABLE'].'</div>';
 		}
 		return $retStr;
-	}
-
-	private function loadDescriptionArr($rowArr,$retArr){
-		$indexKey = 0;
-		if(!in_array(strtolower($rowArr['language']), $this->langArr)){
-			$indexKey = 1;
-		}
-		if(!isset($retArr[$indexKey]) || !array_key_exists($rowArr['tdbid'],$retArr[$indexKey])){
-			$retArr[$indexKey][$rowArr['tdbid']]["caption"] = $rowArr['caption'];
-			$retArr[$indexKey][$rowArr['tdbid']]["source"] = $rowArr['source'];
-			$retArr[$indexKey][$rowArr['tdbid']]["url"] = $rowArr['sourceurl'];
-		}
-		$retArr[$indexKey][$rowArr['tdbid']]["desc"][$rowArr['tdsid']] = ($rowArr['displayheader'] && $rowArr['heading']?"<b>".$rowArr['heading']."</b>: ":"").$rowArr['statement'];
-		return $retArr;
 	}
 
 	//Taxon Link functions
@@ -796,12 +801,15 @@ class TaxonProfile extends Manager {
 	}
 
 	public function setLanguage($lang){
-		$lang = strtolower($lang);
-		if($lang == 'en' || $lang == 'english') $this->langArr = array('en','english');
-		elseif($lang == 'es' || $lang == 'spanish') $this->langArr = array('es','spanish','espanol');
-		elseif($lang == 'fr' || $lang == 'french') $this->langArr =  array('fr','french');
-		else $lang = 'en';
-		return $lang;
+		$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages ';
+		if(is_numeric($lang)) $sql .= 'WHERE langid = '.$lang;
+		else $sql .= 'WHERE langname = "'.$this->cleanInStr($lang).'" OR iso639_1 = "'.$this->cleanInStr($lang).'"';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->langArr[strtolower($r->langname)] = $r->langid;
+			$this->langArr[strtolower($r->iso639_1)] = $r->langid;
+		}
+		$rs->free();
 	}
 }
 ?>

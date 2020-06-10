@@ -11,54 +11,57 @@ class TPDescEditorManager extends TPEditorManager{
  		parent::__destruct();
  	}
 
-	public function getDescriptions($editor = false){
+	public function getDescriptions(){
 		$descrArr = Array();
-		$sql = 'SELECT t.tid, t.sciname, d.tdbid, d.caption, d.source, d.sourceurl, d.displaylevel, d.notes, d.language ';
+		$langArr = false;
+		$sql = 'SELECT t.tid, t.sciname, d.tdbid, d.caption, d.source, d.sourceurl, d.displaylevel, d.notes, l.langid, d.language '.
+			'FROM taxadescrblock d LEFT JOIN adminlanguages l ON d.langid = l.langid ';
 		if($this->acceptance){
-			$sql .= 'FROM taxstatus ts INNER JOIN taxadescrblock d ON ts.tid = d.tid '.
+			$sql .= 'INNER JOIN taxstatus ts ON d.tid = ts.tid '.
 				'INNER JOIN taxa t ON ts.tid = t.tid '.
 				'WHERE (ts.TidAccepted = '.$this->tid.') AND (ts.taxauthid = '.$this->taxAuthId.') ';
 		}
 		else{
-			$sql .= 'FROM taxadescrblock d INNER JOIN taxa t ON d.tid = t.tid WHERE (d.tid = '.$this->tid.') ';
+			$sql .= 'INNER JOIN taxa t ON d.tid = t.tid WHERE (d.tid = '.$this->tid.') ';
 		}
-		if(!$editor) $sql .= 'AND (d.Language = "'.$this->language.'") ';
 		$sql .= 'ORDER BY d.DisplayLevel ';
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
-				//Load description block info
-				$descrArr[$r->tdbid]['caption'] = $r->caption;
-				$descrArr[$r->tdbid]['source'] = $r->source;
-				$descrArr[$r->tdbid]['sourceurl'] = $r->sourceurl;
-				$descrArr[$r->tdbid]['displaylevel'] = $r->displaylevel;
-				$descrArr[$r->tdbid]['notes'] = $r->notes;
-				$descrArr[$r->tdbid]['language'] = $r->language;
-				$descrArr[$r->tdbid]['tid'] = $r->tid;
-				$descrArr[$r->tdbid]['sciname'] = $r->sciname;
+				$langID = $r->langid;
+				if(!$langID){
+					if($langArr === false) $langArr = $this->getLangMap();
+					if(array_key_exists($r->language, $langArr)) $langID = $langArr[$r->language];
+					else $langID = 1;
+				}
+				$descrArr[$langID][$r->tdbid]['caption'] = $r->caption;
+				$descrArr[$langID][$r->tdbid]['source'] = $r->source;
+				$descrArr[$langID][$r->tdbid]['sourceurl'] = $r->sourceurl;
+				$descrArr[$langID][$r->tdbid]['displaylevel'] = $r->displaylevel;
+				$descrArr[$langID][$r->tdbid]['notes'] = $r->notes;
+				$descrArr[$langID][$r->tdbid]['tid'] = $r->tid;
+				$descrArr[$langID][$r->tdbid]['sciname'] = $r->sciname;
 			}
 			$rs->free();
 		}
 		else{
 			trigger_error('Unable to get descriptions; '.$this->conn->error);
 		}
-		if($descrArr){
-			//Grab statements
-			$sql2 = 'SELECT tdbid, tdsid, heading, statement, notes, displayheader, sortsequence '.
-				'FROM taxadescrstmts '.
-				'WHERE (tdbid IN('.implode(',',array_keys($descrArr)).')) '.
-				'ORDER BY sortsequence';
-			if($rs2 = $this->conn->query($sql2)){
-				while($r2 = $rs2->fetch_object()){
-					$descrArr[$r2->tdbid]['stmts'][$r2->tdsid]['heading'] = $r2->heading;
-					$descrArr[$r2->tdbid]['stmts'][$r2->tdsid]['statement'] = $r2->statement;
-					$descrArr[$r2->tdbid]['stmts'][$r2->tdsid]['notes'] = $r2->notes;
-					$descrArr[$r2->tdbid]['stmts'][$r2->tdsid]['displayheader'] = $r2->displayheader;
-					$descrArr[$r2->tdbid]['stmts'][$r2->tdsid]['sortsequence'] = $r2->sortsequence;
+		foreach($descrArr as $langId => $dArr){
+			foreach($dArr as $tdbid => $d2Arr){
+				$sql2 = 'SELECT tdbid, tdsid, heading, statement, notes, displayheader, sortsequence FROM taxadescrstmts WHERE (tdbid = '.$tdbid.') ORDER BY sortsequence';
+				if($rs2 = $this->conn->query($sql2)){
+					while($r2 = $rs2->fetch_object()){
+						$descrArr[$langId][$tdbid]['stmts'][$r2->tdsid]['heading'] = $r2->heading;
+						$descrArr[$langId][$tdbid]['stmts'][$r2->tdsid]['statement'] = $r2->statement;
+						$descrArr[$langId][$tdbid]['stmts'][$r2->tdsid]['notes'] = $r2->notes;
+						$descrArr[$langId][$tdbid]['stmts'][$r2->tdsid]['displayheader'] = $r2->displayheader;
+						$descrArr[$langId][$tdbid]['stmts'][$r2->tdsid]['sortsequence'] = $r2->sortsequence;
+					}
+					$rs2->free();
 				}
-				$rs2->free();
-			}
-			else{
-				trigger_error('Unable to get statements; '.$this->conn->error);
+				else{
+					trigger_error('Unable to get statements; '.$this->conn->error);
+				}
 			}
 		}
 		return $descrArr;
@@ -67,9 +70,9 @@ class TPDescEditorManager extends TPEditorManager{
 	public function addDescriptionBlock($postArr){
 		$status = false;
 		if(is_numeric($postArr['tid'])){
-			$sql = 'INSERT INTO taxadescrblock(tid,uid,language,displaylevel,notes,caption,source,sourceurl) '.
+			$sql = 'INSERT INTO taxadescrblock(tid,uid,langid,displaylevel,notes,caption,source,sourceurl) '.
 				'VALUES('.$postArr['tid'].','.$GLOBALS['SYMB_UID'].','.
-				($postArr['language']?'"'.$this->cleanInStr($postArr['language']).'"':'NULL').','.
+				($postArr['langid']?$this->cleanInStr($postArr['langid']):'NULL').','.
 				(is_numeric($postArr['displaylevel'])?$postArr['displaylevel']:30).','.
 				($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.
 				($postArr['caption']?'"'.$this->cleanInStr($postArr['caption']).'"':'NULL').','.
@@ -84,9 +87,9 @@ class TPDescEditorManager extends TPEditorManager{
 
 	public function editDescriptionBlock($postArr){
 		$status = false;
-		if(is_numeric($postArr['tdbid']) && $postArr['tdbid']){
+		if(is_numeric($postArr['tdbid'])){
 			$sql = 'UPDATE taxadescrblock '.
-				'SET language = '.($postArr['language']?'"'.$this->cleanInStr($postArr['language']).'"':'NULL').','.
+				'SET langid = '.($postArr['langid']?$this->cleanInStr($postArr['langid']):'NULL').','.
 				(is_numeric($postArr['displaylevel'])?'displaylevel = '.$postArr['displaylevel'].',':'').
 				'notes = '.($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.
 				'caption = '.($postArr['caption']?'"'.$this->cleanInStr($postArr['caption']).'"':'NULL').','.
@@ -138,7 +141,7 @@ class TPDescEditorManager extends TPEditorManager{
 		if(substr($stmtStr,0,3) == '<p>' && substr($stmtStr,-4) == '</p>') $stmtStr = trim(substr($stmtStr,3,strlen($stmtStr)-7));
 		if($stmtStr && $stArr['tdbid'] && is_numeric($stArr['tdbid'])){
 			$sql = 'INSERT INTO taxadescrstmts(tdbid,heading,statement,displayheader'.($stArr['sortsequence']?',sortsequence':'').') '.
-				'VALUES('.$stArr['tdbid'].','.($stArr['heading']?'"'.$this->cleanInStr($stArr['heading']).'"':'NULL').',"'.$stmtStr.'",'.(array_key_exists('displayheader',$stArr)?'1':'0').
+				'VALUES('.$stArr['tdbid'].','.($stArr['heading']?'"'.$this->cleanInStr($stArr['heading']).'"':'""').',"'.$stmtStr.'",'.(array_key_exists('displayheader',$stArr)?'1':'0').
 				($stArr['sortsequence']?','.$this->cleanInStr($stArr['sortsequence']):'').')';
 			if($this->conn->query($sql)) $status = true;
 			else $this->errorMessage = 'ERROR adding description statement: '.$this->conn->error;
@@ -152,7 +155,7 @@ class TPDescEditorManager extends TPEditorManager{
 		if(substr($stmtStr,0,3) == '<p>' && substr($stmtStr,-4) == '</p>') $stmtStr = trim(substr($stmtStr,3,strlen($stmtStr)-7));
 		if($stmtStr && $stArr['tdsid'] && is_numeric($stArr["tdsid"])){
 			$sql = 'UPDATE taxadescrstmts '.
-				'SET heading = '.($stArr['heading']?'"'.$this->cleanInStr($stArr['heading']).'"':'NULL').','.
+				'SET heading = '.($stArr['heading']?'"'.$this->cleanInStr($stArr['heading']).'"':'""').','.
 				'statement = "'.$stmtStr.'",displayheader = '.(array_key_exists('displayheader',$stArr)?'1':'0').
 				(is_numeric($stArr['sortsequence'])?',sortsequence = '.$stArr['sortsequence']:'').
 				' WHERE (tdsid = '.$stArr['tdsid'].')';

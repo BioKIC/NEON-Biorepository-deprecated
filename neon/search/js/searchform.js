@@ -1,41 +1,70 @@
-// Toggles expanded items
+/**
+ * Global Variables
+ */
+const criteriaPanel = document.getElementById("criteria-panel");
+const testURL = document.getElementById("test-url");
+// const paramsArr = []
+//////////////////////////////////////////////////////////////////////////
+
+/**
+ * Toggles state of checkboxes in nested lists when there is an "all-selector"
+ * Uses jQuery
+ */
 function toggleSelectorAll() {
   $(this)
     .siblings()
     .find("input:checkbox")
     .prop("checked", this.checked)
     .attr("checked", this.checked)
-    //console.log($(this).siblings().find("input:checkbox"))
 }
 
-function autoToggleSelector() {
-  // length of subcriteria list:
-  // console.log($(this).closest(".subcriteria").find(".child").length);
+/**
+ * Automatically toggles checked/unchecked boxes in nested lists
+ * i. e., when there is an "all-selector", unchecking internal
+ * checkboxes toggles the "all-selector" to be unchecked as well.
+ * Default is all boxes are checked in HTML.
+ * @param {String} e.data.element Selector for element containing list,
+ * should be passed when binding function to element
+ */
+function autoToggleSelector(e) {
+  // Gets the higher level element for lists
+  let element = e.data.element;
 
-  // figure out where in tree I am before applying checking/unchecking
+  // Figure out where in tree I am before applying checking/unchecking
+  // Compare lengths of array with checked vs unchecked elements
 
+  // First checks nearest elements to clicked checkbox
   let allSubChecked = ($(this).closest("ul").find(".child").filter(":checked").length == $(this).closest("ul").find(".child").length);
-  //console.log("all checked: " + allChecked)
-  // if all subcriteria items are checked, then check parent, if not, uncheck
-  //console.log($(this).closest("ul").siblings(".all-selector")[0])
   $(this).closest("ul").siblings(".all-selector").change().prop("checked", allSubChecked);
-  $(this).closest("ul").siblings(".all-selector").change().attr("checked", allSubChecked);
-  // Add a check for ALL items
-  //console.log($("#allDomains").siblings().find(".child").filter(":checked").length)
-  let allChecked = ($("#allDomains").siblings().find(".child").filter(":checked").length == $("#allDomains").siblings().find(".child").length);
-  $("#allDomains").prop("checked", allChecked);
-  $("#allDomains").attr("checked", allChecked);
-  // Repeat for allCollections div
-  let allCollsChecked = ($("#allCollections").siblings().find(".child").filter(":checked").length == $("#allCollections").siblings().find(".child").length);
-  $("#allCollections").prop("checked", allCollsChecked);
-  $("#allCollections").attr("checked", allCollsChecked);
 
+  // Then checks most outer "all-selector"
+  let allHigherChecked = (
+    $(element).siblings().find(".child").filter(":checked").length == $(element).siblings().find(".child").length
+  );
+  $(element).prop("checked", allHigherChecked);
 }
 
-const criteriaPanel = document.getElementById("criteria-panel");
-const testURL = document.getElementById("test-url");
-var paramsArr = []
-  //////// Update chip on event change
+/**
+ * Opens modal with id selector
+ * @param {String} elementid Selector for modal to be opened
+ */
+function openModal(elementid) {
+  $(elementid).css("display", "block");
+};
+
+/**
+ * Closes modal with id selector
+ * @param {String} elementid Selector for modal to be opened
+ */
+function closeModal(elementid) {
+  $(elementid).css("display", "none");
+}
+
+/**
+ * Chips
+ */
+
+//////// Update chip on event change
 const taxaInput = document.getElementsByName('taxa');
 taxaInput[0].addEventListener('change', updateChip);
 // let taxaChip = document.createElement("p");
@@ -62,14 +91,17 @@ function updateChip(e) {
 }
 /////////
 
-function testButton() {
-  testURL.innerHTML = "hello";
-}
 
-
-// Function that will go through a group of fields and will capture fields and concatenate them to pass to search array
+/**
+ * Searches specified fields and capture values
+ * @param {String} paramName Name of parameter to be looked for in form
+ * Passes objects to `paramsArr`
+ * Passes default objects
+ */
 function getParam(paramName) {
+  //Default country
   paramsArr["country"] = "USA";
+
   let element = document.getElementsByName(paramName);
   // Deals with dropdown options
   // const answer = element[0].tagName === "SELECT" ? "it's a dropdown" : "it's not a dropdown";
@@ -110,15 +142,25 @@ function getParam(paramName) {
   return paramsArr;
 }
 
+/**
+ * Creates search URL with parameters
+ * Define parameters to be looked for in `paramNames` array
+ */
 function getSearchUrl() {
   const baseURL = new URL("https://biorepo.neonscience.org/portal/collections/list.php");
   // Clears array temporarily to avoid redundancy
   paramsArr = [];
   const paramNames = [
+    'db',
+    // 'dataset',
+    'state',
+    'county',
+    'local',
+    'elevlow',
+    'elevhigh',
     'taxa',
     'taxontype',
-    'db',
-    // 'dataset'
+    'usethes'
   ];
   // Grabs params from form for each param name
   paramNames.forEach((param, i) => {
@@ -132,56 +174,43 @@ function getSearchUrl() {
     baseURL.searchParams.append(key, paramsArr[key]);
   })
   console.log(baseURL.href);
+  // Appends URL to `testURL` link
   testURL.innerHTML = baseURL.href;
   testURL.href = baseURL.href;
 };
 
-// function getSearchParams() {
-//   console.log("Here");
-//   const paramsForm = document.getElementById("params-form");
-//   let param = "";
-//   let i;
-//   for (i = 0; i < paramsForm.length; i++) {
-//     param = paramsForm.elements[i].getAttribute("name") + "=" + paramsForm.elements[i].value;
-//     console.log(param);
-//   }
-// const sampleSearchWithParams = new URL("https://biorepo.neonscience.org/portal/collections/list.php");
+//////////////////////////////////////////////////////////////////////////
 
-// // Search params for all db
-// sampleSearchWithParams.searchParams.append("db", "all");
-
-// // Search params for taxa
-// sampleSearchWithParams.searchParams.append("taxa", "Acer");
-// sampleSearchWithParams.searchParams.append("usethes", "1");
-// sampleSearchWithParams.searchParams.append("taxontype", "2");
-// sampleSearchWithParams.searchParams.append("tabindex", "1");
-
-// $("#testUrl").text(sampleSearchWithParams);
-// $("#testUrl").attr("href", sampleSearchWithParams);
-
-
-// These calls work:
-// https://biorepo.neonscience.org/portal/collections/list.php?db=all&taxa=Acer&usethes=1&taxontype=2&tabindex=1
-// https://biorepo.neonscience.org/portal/collections/list.php?db=allspec&country=USA%3BUnited+States%3BU.S.A.%3BUnited+States+of+America
-
-// https: //biorepo.neonscience.org/portal/collections/list.php?db=all&taxa=Acer&usethes=1&taxontype=2&tabindex=1
-// }
+/**
+ * Event Listeners and binders
+ */
 
 // Binds function to test button
 // $("#teste-btn").click(getSearchParams);
 $("#teste-btn").click(function(event) {
   event.preventDefault();
   getSearchUrl();
-  // Loop through all params and create OBJECTS (change from ARRAYS) from each param group, then pass to the URL builder
 });
-// $("#teste-btn").click(function(event) {
-//   event.preventDefault();
-//   testButton();
-// });
 
-// Binds selector toggles to NEON collections element
+// Nested checkboxes functions
 $(".all-selector").click(toggleSelectorAll);
-$(".child").click(autoToggleSelector);
+$("#allSites").siblings().find(".child").bind('click', { element: "#allSites" }, autoToggleSelector);
+$("#all-neon-colls").siblings().find(".child").bind('click', { element: "#all-neon-colls" }, autoToggleSelector);
+$("#neonext-collections-list").find(".child").bind('click', { element: "#neonext-collections-list" }, autoToggleSelector);
+$("#ext-collections-list").find(".child").bind('click', { element: "#ext-collections-list" }, autoToggleSelector);
+
+// When checking "all neon collections" box, toggle the property of the modal
+$("#all-neon-colls-quick").click(function() {
+  let isChecked = $(this).prop("checked");
+  $("#all-neon-colls").prop("checked", isChecked);
+  $("#all-neon-colls").siblings().find(".child").prop("checked", isChecked);
+});
+
+// When clicking in "accept and close button, pass "all-selector" state to this one
+$("#neon-modal-close").click(function() {
+  let isChecked = $("#all-neon-colls").prop("checked");
+  $("#all-neon-colls-quick").prop("checked", isChecked);
+});
 
 // Binds expansion function to plus and minus icons in selectors
 $(".expansion-icon").click(function() {
@@ -197,3 +226,18 @@ $(".expansion-icon").click(function() {
       .addClass("collapsed")
   }
 });
+
+// Listen for open modal click
+$("#neon-modal-open").click(function(event) {
+  event.preventDefault();
+  openModal('#biorepo-collections-list');
+});
+
+// Listen for close modal click
+$("#neon-modal-close").click(function(event) {
+  event.preventDefault();
+  closeModal('#biorepo-collections-list');
+  // Checks if the "all" selector is checked and toggle main one accordingly
+});
+
+//////////////////////////////////////////////////////////////////////////

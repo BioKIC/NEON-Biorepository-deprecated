@@ -119,6 +119,20 @@ section {
 
 /* Search Form Layout ********************/
 
+.material-icons {
+  font-size: 18px !important;
+  cursor: pointer;
+}
+
+.collapsed {
+  display: none;
+}
+
+.modal ul {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
 body {
   max-width: 1024px;
   margin: 0 auto;
@@ -162,15 +176,6 @@ body {
   height: 16px;
 }
 
-#search-form-colls .material-icons {
-  font-size: 18px !important;
-  cursor: pointer;
-}
-
-#search-form-colls .collapsed {
-  display: none;
-}
-
 #search-form-colls ul {
   list-style-type: none;
   padding-left: 20px;
@@ -187,15 +192,6 @@ body {
 #search-form-locality input[type='checkbox'] {
   width: 16px;
   height: 16px;
-}
-
-#search-form-locality .material-icons {
-  font-size: 18px !important;
-  cursor: pointer;
-}
-
-#search-form-locality .collapsed {
-  display: none;
 }
 
 #search-form-locality ul {
@@ -451,10 +447,9 @@ span.accent-color-darker {
   --bg-hover1: rgba(0, 0, 0, 0.08);
   --bbc: rgba(0, 0, 0, 0.42);
   --opaq1: 0.08;
-  --padding: 10px;
-  --fz: 16px {
-    margin: 10px auto;
-  }
+  --fz: 16px;
+  margin: 0 auto;
+  padding-top: 14px;
   width: 100%;
   max-width: 600px;
 }
@@ -496,7 +491,7 @@ span.accent-color-darker {
   width: 100%;
   border: 0;
   height: var(--height);
-  padding: var(--padding);
+  padding: 10px 0;
   font-size: 1em;
 }
 
@@ -587,6 +582,7 @@ span.accent-color-darker {
 }
 
 .select-container select {
+  margin-top: 14px;
   height: 46px;
   border: 2px solid #939292;
   -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.17);
@@ -686,6 +682,31 @@ span.accent-color-darker {
   transform: translateY(-22px);
   background-color: white;
   padding: 2px 4px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal .modal-content {
+  background-color: white;
+  margin: 20px auto;
+  padding: 20px;
+  width: 80%;
+  -webkit-box-shadow: 0 5px 8px 0;
+  box-shadow: 0 5px 8px 0;
+}
+
+.modal button {
+  float: right;
 }
 
 

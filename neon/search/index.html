@@ -20,18 +20,21 @@
   <form id="params-form">
     <!-- Criteria forms -->
     <div class="accordions">
+      <!-- Taxonomy -->
       <section>
         <!-- Accordion selector -->
-        <input type="checkbox" id="title1" class="accordion-selector" checked />
+        <input type="checkbox" id="taxonomy" class="accordion-selector" checked=true />
+
         <!-- Accordion header -->
-        <label for="title1" class="accordion-header">Taxonomy</label>
+        <label for="taxonomy" class="accordion-header">Taxonomy</label>
+
         <!-- Taxonomy -->
         <div id="search-form-taxonomy" class="content">
           <div class="input-text-container">
-            <label for="" class="input-text--outlined">
+            <label for="taxa" class="input-text--outlined">
               <input type="text" name="taxa">
               <span data-label="Taxon"></span></label>
-            <span class="assistive-text">Type any taxonomic name, or select taxon type on the right.</span>
+            <span class="assistive-text">Separate multiple with commas.</span>
           </div>
           <div class="select-container">
             <!-- <label for="taxon-type">Taxon Type</label> -->
@@ -44,126 +47,25 @@
               </select>
             <span class="assistive-text">Taxon type.</span>
           </div>
+          <div><input type="checkbox" name="usethes" value="1" checked>Include Synonyms</div>
         </div>
       </section>
       <!-- Colections -->
       <section>
         <!-- Accordion selector -->
-        <input type="checkbox" id="title2" class="accordion-selector" checked />
+        <input type="checkbox" id="collections" class="accordion-selector" checked />
         <!-- Accordion header -->
-        <label for="title2" class="accordion-header">Collections</label>
+        <label for="collections" class="accordion-header">Collections</label>
         <!-- Accordion content -->
         <div id="search-form-colls" class="content">
           <!-- <ul id="collections-list"></ul> -->
-          <ul id="biorepo-collections-list">
-            <li><input id="allCollections" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Collections</span>
-              <ul>
-                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Algae</span>
-                  <ul class="collapsed">
-                    <li><input type="checkbox" name="db" value="50" class="child" checked=""><span>Aquatic Macroalgae Collection (Chemical Preservation [Clip Harvests])</span></li>
-                    <li><input type="checkbox" name="db" value="73" class="child" checked=""><span>Aquatic Macroalgae Collection (Chemical Preservation [Point Counts])</span></li>
-                    <li><input type="checkbox" name="db" value="47" class="child" checked=""><span>Aquatic Microalgae Collection (Chemical Preservation)</span></li>
-                    <li><input type="checkbox" name="db" value="46" class="child" checked=""><span>Aquatic Microalgae Collection (Freeze-dried)</span></li>
-                    <li><input type="checkbox" name="db" value="49" class="child" checked=""><span>Aquatic Microalgae Collection (Microscope Slides)</span></li>
-                    <li><input type="checkbox" name="db" value="9" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Clip Harvests])</span></li>
-                    <li><input type="checkbox" name="db" value="7" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Point Counts])</span></li>
-                    <li><input type="checkbox" name="db" value="8" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Standard Sampling])</span></li>
-                  </ul>
-                </li>
-              </ul>
-              <ul>
-                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Environmental</span>
-                  <ul class="collapsed">
-                    <li><input type="checkbox" name="db" value="41" class="child" checked=""><span>Particulate Mass Filter Collection</span></li>
-                    <li><input type="checkbox" name="db" value="30" class="child" checked=""><span>Soil Collection</span></li>
-                    <li><input type="checkbox" name="db" value="42" class="child" checked=""><span>Wet Deposition Collection</span></li>
-                  </ul>
-                </li>
-              </ul>
-              <ul>
-                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Invertebrates</span>
-                  <ul class="collapsed">
-                    <li><input type="checkbox" name="db" value="22" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Chironomids)</span></li>
-                    <li><input type="checkbox" name="db" value="61" class="child" checked=""><span>Benthic Macroinvertebrate Collection (DNA Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="53" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Microscope Slides)</span></li>
-                    <li><input type="checkbox" name="db" value="52" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Oligochaetes)</span></li>
-                    <li><input type="checkbox" name="db" value="48" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Taxonomy Reference Collection)</span></li>
-                    <li><input type="checkbox" name="db" value="57" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Taxonomy Subsample)</span></li>
-                    <li><input type="checkbox" name="db" value="21" class="child" checked=""><span>Benthic Macroinvertebrate Collection (Unsorted Bulk Sample)</span></li>
-                    <li><input type="checkbox" name="db" value="11" class="child" checked=""><span>Carabid Collection (Archive Pooling)</span></li>
-                    <li><input type="checkbox" name="db" value="63" class="child" checked=""><span>Carabid Collection (DNA Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="39" class="child" checked=""><span>Carabid Collection (Pinned Vouchers)</span></li>
-                    <li><input type="checkbox" name="db" value="14" class="child" checked=""><span>Carabid Collection (Trap Sorting)</span></li>
-                    <li><input type="checkbox" name="db" value="13" class="child" checked=""><span>Invertebrate Bycatch Collection (Archive Pooling)</span></li>
-                    <li><input type="checkbox" name="db" value="16" class="child" checked=""><span>Invertebrate Bycatch Collection (Trap Sorting)</span></li>
-                    <li><input type="checkbox" name="db" value="56" class="child" checked=""><span>Mosquito Collection (Bulk Identified)</span></li>
-                    <li><input type="checkbox" name="db" value="58" class="child" checked=""><span>Mosquito Collection (Bulk Unidentified)</span></li>
-                    <li><input type="checkbox" name="db" value="65" class="child" checked=""><span>Mosquito Collection (DNA Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="59" class="child" checked=""><span>Mosquito Collection (Pathogen Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="29" class="child" checked=""><span>Mosquito Collection (Pinned Vouchers)</span></li>
-                    <li><input type="checkbox" name="db" value="4" class="child" checked=""><span>NEON Biorepository Invertebrate Collections at Arizona State University</span></li>
-                    <li><input type="checkbox" name="db" value="75" class="child" checked=""><span>Tick Collection (Pathogen Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="62" class="child" checked=""><span>Zooplankton Collection (DNA Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="45" class="child" checked=""><span>Zooplankton Collection (Remaining Bulk Taxonomy Sample)</span></li>
-                    <li><input type="checkbox" name="db" value="55" class="child" checked=""><span>Zooplankton Collection (Taxonomy Reference Collection)</span></li>
-                    <li><input type="checkbox" name="db" value="60" class="child" checked=""><span>Zooplankton Collection (Unsorted Bulk Sample)</span></li>
-                  </ul>
-                </li>
-              </ul>
-              <ul>
-                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Microbes</span>
-                  <ul class="collapsed">
-                    <li><input type="checkbox" name="db" value="67" class="child" checked=""><span>Benthic Microbe Collection (DNA Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="5" class="child" checked=""><span>Benthic Microbe Collection (Sterivex Filters)</span></li>
-                    <li><input type="checkbox" name="db" value="31" class="child" checked=""><span>Soil Microbe Collection (Bulk Subsamples)</span></li>
-                    <li><input type="checkbox" name="db" value="69" class="child" checked=""><span>Soil Microbe Collection (DNA Extracts )</span></li>
-                    <li><input type="checkbox" name="db" value="68" class="child" checked=""><span>Surface Water Microbe Collection (DNA Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="6" class="child" checked=""><span>Surface Water Microbe Collection (Sterivex Filters)</span></li>
-                  </ul>
-                </li>
-              </ul>
-              <ul>
-                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Plants</span>
-                  <ul class="collapsed">
-                    <li><input type="checkbox" name="db" value="9" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Clip Harvests])</span></li>
-                    <li><input type="checkbox" name="db" value="7" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Point Counts])</span></li>
-                    <li><input type="checkbox" name="db" value="8" class="child" checked=""><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Standard Sampling])</span></li>
-                    <li><input type="checkbox" name="db" value="76" class="child" checked=""><span>Terrestrial Plant Collection (Belowground Biomass [Megapit])</span></li>
-                    <li><input type="checkbox" name="db" value="10" class="child" checked=""><span>Terrestrial Plant Collection (Belowground Biomass [Standard Sampling])</span></li>
-                    <li><input type="checkbox" name="db" value="18" class="child" checked=""><span>Terrestrial Plant Collection (Canopy Foliage)</span></li>
-                    <li><input type="checkbox" name="db" value="54" class="child" checked=""><span>Terrestrial Plant Collection (Herbarium Vouchers)</span></li>
-                    <li><input type="checkbox" name="db" value="40" class="child" checked=""><span>Terrestrial Plant Collection (Leaf Tissue)</span></li>
-                    <li><input type="checkbox" name="db" value="23" class="child" checked=""><span>Terrestrial Plant Collection (Litterfall)</span></li>
-                  </ul>
-                </li>
-              </ul>
-              <ul>
-                <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Vertebrates</span>
-                  <ul class="collapsed">
-                    <li><input type="checkbox" name="db" value="66" class="child" checked=""><span>Fish Collection (DNA Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="20" class="child" checked=""><span>Fish Collection (Vouchers)</span></li>
-                    <li><input type="checkbox" name="db" value="12" class="child" checked=""><span>Herptile Voucher Collection (Ground Beetle Sampling Bycatch Archive Pooling)</span></li>
-                    <li><input type="checkbox" name="db" value="15" class="child" checked=""><span>Herptile Voucher Collection (Ground Beetle Sampling Bycatch Trap Sorting)</span></li>
-                    <li><input type="checkbox" name="db" value="70" class="child" checked=""><span>Herptile Voucher Collection (Small Mammal Sampling Bycatch)</span></li>
-                    <li><input type="checkbox" name="db" value="24" class="child" checked=""><span>Mammal Collection (Blood Samples)</span></li>
-                    <li><input type="checkbox" name="db" value="71" class="child" checked=""><span>Mammal Collection (DNA Extracts)</span></li>
-                    <li><input type="checkbox" name="db" value="25" class="child" checked=""><span>Mammal Collection (Ear Tissue)</span></li>
-                    <li><input type="checkbox" name="db" value="26" class="child" checked=""><span>Mammal Collection (Fecal Samples)</span></li>
-                    <li><input type="checkbox" name="db" value="27" class="child" checked=""><span>Mammal Collection (Hair Samples)</span></li>
-                    <li><input type="checkbox" name="db" value="64" class="child" checked=""><span>Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Archive Pooling])</span></li>
-                    <li><input type="checkbox" name="db" value="17" class="child" checked=""><span>Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Trap Sorting])</span></li>
-                    <li><input type="checkbox" name="db" value="19" class="child" checked=""><span>Mammal Collection (Vouchers [Standard Sampling at Diversity Plots])</span></li>
-                    <li><input type="checkbox" name="db" value="28" class="child" checked=""><span>Mammal Collection (Vouchers [Standard Sampling at Pathogen Plots])</span></li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-          </ul>
+          <!-- Open NEON Collections modal -->
+          <div><input id="all-neon-colls-quick" type="checkbox" checked=""><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Collections</span></div>
+          <!-- External Collections -->
           <div>
             <ul id="neonext-collections-list">
               <li><input id="allNeonExtCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
                 <ul class="collapsed">
-                  <li><input type="checkbox" name="db" value="43" class="child"><span>Consortium of Small Vertebrate Collections</span></li>
                   <li><input type="checkbox" name="db" value="44" class="child"><span>Essig Museum of Entomology</span></li>
                   <li><input type="checkbox" name="db" value="74" class="child"><span>Museum of Southwestern Biology - Mammal specimens</span></li>
                 </ul>
@@ -172,8 +74,120 @@
             <ul id="ext-collections-list">
               <li><input id="allExternalCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All non-NEON External Collections</span>
                 <ul class="collapsed">
+                  <li><input type="checkbox" name="db" value="43" class="child"><span>Consortium of Small Vertebrate Collections</span></li>
                   <li><input type="checkbox" name="db" value="37" class="child"><span>SCAN Portal Network Arthropod Specimens</span></li>
                   <li><input type="checkbox" name="db" value="2" class="child"><span>SEINet Portal Network Botanical Specimens</span></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+        <!-- NEON COllections Modal -->
+        <div class="modal" id="biorepo-collections-list">
+          <div class="modal-content">
+            <button id="neon-modal-close" class="btn">Accept and close</button>
+            <ul>
+              <li><input id="all-neon-colls" type="checkbox" class="all-selector" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Collections</span>
+                <ul>
+                  <li><input type="checkbox" class="all-selector child" checked><span class="material-icons expansion-icon">add_box</span><span>Algae</span>
+                    <ul class="collapsed">
+                      <li><input type="checkbox" name="db" value="50" class="child" checked><span>Aquatic Macroalgae Collection (Chemical Preservation [Clip Harvests])</span></li>
+                      <li><input type="checkbox" name="db" value="73" class="child" checked><span>Aquatic Macroalgae Collection (Chemical Preservation [Point Counts])</span></li>
+                      <li><input type="checkbox" name="db" value="47" class="child" checked><span>Aquatic Microalgae Collection (Chemical Preservation)</span></li>
+                      <li><input type="checkbox" name="db" value="46" class="child" checked><span>Aquatic Microalgae Collection (Freeze-dried)</span></li>
+                      <li><input type="checkbox" name="db" value="49" class="child" checked><span>Aquatic Microalgae Collection (Microscope Slides)</span></li>
+                      <li><input type="checkbox" name="db" value="9" class="child" checked><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Clip Harvests])</span></li>
+                      <li><input type="checkbox" name="db" value="7" class="child" checked><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Point Counts])</span></li>
+                      <li><input type="checkbox" name="db" value="8" class="child" checked><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Standard Sampling])</span></li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul>
+                  <li><input type="checkbox" class="all-selector child" checked><span class="material-icons expansion-icon">add_box</span><span>Environmental</span>
+                    <ul class="collapsed">
+                      <li><input type="checkbox" name="db" value="41" class="child" checked><span>Particulate Mass Filter Collection</span></li>
+                      <li><input type="checkbox" name="db" value="30" class="child" checked><span>Soil Collection</span></li>
+                      <li><input type="checkbox" name="db" value="42" class="child" checked><span>Wet Deposition Collection</span></li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul>
+                  <li><input type="checkbox" class="all-selector child" checked><span class="material-icons expansion-icon">add_box</span><span>Invertebrates</span>
+                    <ul class="collapsed">
+                      <li><input type="checkbox" name="db" value="22" class="child" checked><span>Benthic Macroinvertebrate Collection (Chironomids)</span></li>
+                      <li><input type="checkbox" name="db" value="61" class="child" checked><span>Benthic Macroinvertebrate Collection (DNA Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="53" class="child" checked><span>Benthic Macroinvertebrate Collection (Microscope Slides)</span></li>
+                      <li><input type="checkbox" name="db" value="52" class="child" checked><span>Benthic Macroinvertebrate Collection (Oligochaetes)</span></li>
+                      <li><input type="checkbox" name="db" value="48" class="child" checked><span>Benthic Macroinvertebrate Collection (Taxonomy Reference Collection)</span></li>
+                      <li><input type="checkbox" name="db" value="57" class="child" checked><span>Benthic Macroinvertebrate Collection (Taxonomy Subsample)</span></li>
+                      <li><input type="checkbox" name="db" value="21" class="child" checked><span>Benthic Macroinvertebrate Collection (Unsorted Bulk Sample)</span></li>
+                      <li><input type="checkbox" name="db" value="11" class="child" checked><span>Carabid Collection (Archive Pooling)</span></li>
+                      <li><input type="checkbox" name="db" value="63" class="child" checked><span>Carabid Collection (DNA Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="39" class="child" checked><span>Carabid Collection (Pinned Vouchers)</span></li>
+                      <li><input type="checkbox" name="db" value="14" class="child" checked><span>Carabid Collection (Trap Sorting)</span></li>
+                      <li><input type="checkbox" name="db" value="13" class="child" checked><span>Invertebrate Bycatch Collection (Archive Pooling)</span></li>
+                      <li><input type="checkbox" name="db" value="16" class="child" checked><span>Invertebrate Bycatch Collection (Trap Sorting)</span></li>
+                      <li><input type="checkbox" name="db" value="56" class="child" checked><span>Mosquito Collection (Bulk Identified)</span></li>
+                      <li><input type="checkbox" name="db" value="58" class="child" checked><span>Mosquito Collection (Bulk Unidentified)</span></li>
+                      <li><input type="checkbox" name="db" value="65" class="child" checked><span>Mosquito Collection (DNA Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="59" class="child" checked><span>Mosquito Collection (Pathogen Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="29" class="child" checked><span>Mosquito Collection (Pinned Vouchers)</span></li>
+                      <li><input type="checkbox" name="db" value="4" class="child" checked><span>NEON Biorepository Invertebrate Collections at Arizona State University</span></li>
+                      <li><input type="checkbox" name="db" value="75" class="child" checked><span>Tick Collection (Pathogen Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="62" class="child" checked><span>Zooplankton Collection (DNA Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="45" class="child" checked><span>Zooplankton Collection (Remaining Bulk Taxonomy Sample)</span></li>
+                      <li><input type="checkbox" name="db" value="55" class="child" checked><span>Zooplankton Collection (Taxonomy Reference Collection)</span></li>
+                      <li><input type="checkbox" name="db" value="60" class="child" checked><span>Zooplankton Collection (Unsorted Bulk Sample)</span></li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul>
+                  <li><input type="checkbox" class="all-selector child" checked><span class="material-icons expansion-icon">add_box</span><span>Microbes</span>
+                    <ul class="collapsed">
+                      <li><input type="checkbox" name="db" value="67" class="child" checked><span>Benthic Microbe Collection (DNA Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="5" class="child" checked><span>Benthic Microbe Collection (Sterivex Filters)</span></li>
+                      <li><input type="checkbox" name="db" value="31" class="child" checked><span>Soil Microbe Collection (Bulk Subsamples)</span></li>
+                      <li><input type="checkbox" name="db" value="69" class="child" checked><span>Soil Microbe Collection (DNA Extracts )</span></li>
+                      <li><input type="checkbox" name="db" value="68" class="child" checked><span>Surface Water Microbe Collection (DNA Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="6" class="child" checked><span>Surface Water Microbe Collection (Sterivex Filters)</span></li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul>
+                  <li><input type="checkbox" class="all-selector child" checked><span class="material-icons expansion-icon">add_box</span><span>Plants</span>
+                    <ul class="collapsed">
+                      <li><input type="checkbox" name="db" value="9" class="child" checked><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Clip Harvests])</span></li>
+                      <li><input type="checkbox" name="db" value="7" class="child" checked><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Point Counts])</span></li>
+                      <li><input type="checkbox" name="db" value="8" class="child" checked><span>Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Standard Sampling])</span></li>
+                      <li><input type="checkbox" name="db" value="76" class="child" checked><span>Terrestrial Plant Collection (Belowground Biomass [Megapit])</span></li>
+                      <li><input type="checkbox" name="db" value="10" class="child" checked><span>Terrestrial Plant Collection (Belowground Biomass [Standard Sampling])</span></li>
+                      <li><input type="checkbox" name="db" value="18" class="child" checked><span>Terrestrial Plant Collection (Canopy Foliage)</span></li>
+                      <li><input type="checkbox" name="db" value="54" class="child" checked><span>Terrestrial Plant Collection (Herbarium Vouchers)</span></li>
+                      <li><input type="checkbox" name="db" value="40" class="child" checked><span>Terrestrial Plant Collection (Leaf Tissue)</span></li>
+                      <li><input type="checkbox" name="db" value="23" class="child" checked><span>Terrestrial Plant Collection (Litterfall)</span></li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul>
+                  <li><input type="checkbox" class="all-selector child" checked><span class="material-icons expansion-icon">add_box</span><span>Vertebrates</span>
+                    <ul class="collapsed">
+                      <li><input type="checkbox" name="db" value="66" class="child" checked><span>Fish Collection (DNA Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="20" class="child" checked><span>Fish Collection (Vouchers)</span></li>
+                      <li><input type="checkbox" name="db" value="12" class="child" checked><span>Herptile Voucher Collection (Ground Beetle Sampling Bycatch Archive Pooling)</span></li>
+                      <li><input type="checkbox" name="db" value="15" class="child" checked><span>Herptile Voucher Collection (Ground Beetle Sampling Bycatch Trap Sorting)</span></li>
+                      <li><input type="checkbox" name="db" value="70" class="child" checked><span>Herptile Voucher Collection (Small Mammal Sampling Bycatch)</span></li>
+                      <li><input type="checkbox" name="db" value="24" class="child" checked><span>Mammal Collection (Blood Samples)</span></li>
+                      <li><input type="checkbox" name="db" value="71" class="child" checked><span>Mammal Collection (DNA Extracts)</span></li>
+                      <li><input type="checkbox" name="db" value="25" class="child" checked><span>Mammal Collection (Ear Tissue)</span></li>
+                      <li><input type="checkbox" name="db" value="26" class="child" checked><span>Mammal Collection (Fecal Samples)</span></li>
+                      <li><input type="checkbox" name="db" value="27" class="child" checked><span>Mammal Collection (Hair Samples)</span></li>
+                      <li><input type="checkbox" name="db" value="64" class="child" checked><span>Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Archive Pooling])</span></li>
+                      <li><input type="checkbox" name="db" value="17" class="child" checked><span>Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Trap Sorting])</span></li>
+                      <li><input type="checkbox" name="db" value="19" class="child" checked><span>Mammal Collection (Vouchers [Standard Sampling at Diversity Plots])</span></li>
+                      <li><input type="checkbox" name="db" value="28" class="child" checked><span>Mammal Collection (Vouchers [Standard Sampling at Pathogen Plots])</span></li>
+                    </ul>
+                  </li>
                 </ul>
               </li>
             </ul>
@@ -183,9 +197,9 @@
       <!-- Locality -->
       <section>
         <!-- Accordion selector -->
-        <input type="checkbox" id="title3" class="accordion-selector" checked=true />
+        <input type="checkbox" id="locality" class="accordion-selector" checked=true />
         <!-- Accordion header -->
-        <label for="title3" class="accordion-header">Locality</label>
+        <label for="locality" class="accordion-header">Locality</label>
         <!-- Accordion content -->
         <div id="search-form-locality" class="content">
           <!-- <ul id="site-list"></ul> -->
@@ -215,11 +229,11 @@
                 <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D03 - Southeast</span>
                   <ul class="collapsed">
                     <li><input type="checkbox" name="dataset" value="BARC" class="child" checked=""><span>(BARC) Ordway-Swisher Biological Station - Barco Lake</span></li>
-                    <li><input type="checkbox" name="dataset" value="DSNY" class="child" checked=""><span>(DSNY) Disney Wilderness Preserve</span></li>
-                    <li><input type="checkbox" name="dataset" value="FLNT" class="child" checked=""><span>(FLNT) Flint River</span></li>
-                    <li><input type="checkbox" name="dataset" value="JERC" class="child" checked=""><span>(JERC) Jones Ecological Research Center</span></li>
-                    <li><input type="checkbox" name="dataset" value="OSBS" class="child" checked=""><span>(OSBS) Ordway-Swisher Biological Station</span></li>
-                    <li><input type="checkbox" name="dataset" value="SUGG" class="child" checked=""><span>(SUGG) Ordway-Swisher Biological Station - Suggs Lake</span></li>
+                    <li><input type="checkbox" name="dataset" value="DSNY" class="child" checked="" checked=""><span>(DSNY) Disney Wilderness Preserve</span></li>
+                    <li><input type="checkbox" name="dataset" value="FLNT" class="child" checked="" checked=""><span>(FLNT) Flint River</span></li>
+                    <li><input type="checkbox" name="dataset" value="JERC" class="child" checked="" checked=""><span>(JERC) Jones Ecological Research Center</span></li>
+                    <li><input type="checkbox" name="dataset" value="OSBS" class="child" checked="" checked=""><span>(OSBS) Ordway-Swisher Biological Station</span></li>
+                    <li><input type="checkbox" name="dataset" value="SUGG" class="child" checked="" checked=""><span>(SUGG) Ordway-Swisher Biological Station - Suggs Lake</span></li>
                   </ul>
                 </li>
               </ul>
@@ -398,35 +412,35 @@
             <div>
               <div class="input-text-container">
                 <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <input type="text" name="state">
               <span data-label="State"></span></label>
-                <span class="assistive-text">Assistive text.</span>
+                <span class="assistive-text">Separate multiple with commas.</span>
               </div>
               <div class="input-text-container">
                 <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <input type="text" name="county">
               <span data-label="County"></span></label>
-                <span class="assistive-text">Assistive text.</span>
+                <span class="assistive-text">Separate multiple with commas.</span>
               </div>
               <div class="input-text-container">
                 <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <input type="text" name="local">
               <span data-label="Locality"></span></label>
-                <span class="assistive-text">Assistive text.</span>
+                <span class="assistive-text">Separate multiple with commas.</span>
               </div>
             </div>
             <div class="grid grid--half">
               <div class="input-text-container">
                 <label for="" class="input-text--outlined">
-                    <input type="text" value="" >
+                    <input type="text" name="elevlow">
                     <span data-label="Minimum Elevation"></span></label>
-                <span class="assistive-text">Assistive text.</span>
+                <span class="assistive-text">Only numbers.</span>
               </div>
               <div class="input-text-container">
                 <label for="" class="input-text--outlined">
-                    <input type="text" value="" >
+                    <input type="text" name="elevhigh" >
                     <span data-label="Maximum Elevation"></span></label>
-                <span class="assistive-text">Assistive text.</span>
+                <span class="assistive-text">Only numbers.</span>
               </div>
             </div>
           </div>
@@ -435,67 +449,95 @@
       <!-- Latitude & Longitude -->
       <section>
         <!-- Accordion selector -->
-        <input type="checkbox" id="title4" class="accordion-selector" checked=true />
+        <input type="checkbox" id="lat-long" class="accordion-selector" checked=true />
         <!-- Accordion header -->
-        <label for="title4" class="accordion-header">Latitude & Longitude</label>
+        <label for="lat-long" class="accordion-header">Latitude & Longitude</label>
         <!-- Accordion content -->
         <div id="search-form-latlong" class="content">
           <div>
             <h3>Bounding Box</h3>
-            <button>Map</button>
+            <button>Select in map</button>
             <div class="input-text-container">
-              <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <label for="upperlat" class="input-text--outlined">
+              <input type="text" name="upperlat">
+              <select id="upperlat_NS" name="upperlat_NS">
+								<option id="ulN" value="N">N</option>
+								<option id="ulS" value="S">S</option>
+							</select>
               <span data-label="Northern Latitude"></span></label>
               <span class="assistive-text">Assistive text.</span>
             </div>
             <div class="input-text-container">
-              <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <label for="bottomlat" class="input-text--outlined">
+              <input type="text" name="bottomlat">
+              <select id="bottomlat_NS" name="bottomlat_NS">
+								<option id="blN" value="N">N</option>
+								<option id="blS" value="S">S</option>
+							</select>
               <span data-label="Southern Latitude"></span></label>
               <span class="assistive-text">Assistive text.</span>
             </div>
             <div class="input-text-container">
-              <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <label for="leftlong" class="input-text--outlined">
+              <input type="text" name="leftlong">
+              <select id="leftlong_EW" name="leftlong_EW">
+								<option id="llW" value="W">W</option>
+								<option id="llE" value="E">E</option>
+							</select>
               <span data-label="Western Longitude"></span></label>
               <span class="assistive-text">Assistive text.</span>
             </div>
             <div class="input-text-container">
-              <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <label for="rightlong" class="input-text--outlined">
+              <input type="text" name="rightlong">
+              <select id="rightlong_EW" name="rightlong_EW">
+								<option id="rlW" value="W">W</option>
+								<option id="rlE" value="E">E</option>
+							</select>
               <span data-label="Eastern Longitude"></span></label>
               <span class="assistive-text">Assistive text.</span>
             </div>
           </div>
           <div>
             <h3>Polygon (WKT footpring)</h3>
-            <button>Map</button> SUBSTITUIR POR "TEXT AREA"
+            <button>Select in map</button>
             <div class="text-area-container">
-              <label for="textarea1" class="text-area--outlined">
-              <textarea name="polygonWKT" wrap="off" cols="30%" rows="5"></textarea>
+              <label for="footpringwkt" class="text-area--outlined">
+              <textarea name="footprintwkt" wrap="off" cols="30%" rows="5"></textarea>
               <span data-label="Polygon"></span></label>
               <span class="assistive-text">Assistive text.</span>
             </div>
           </div>
           <div>
             <h3>Point-Radius</h3>
-            <button>Map</button>
+            <button>Select in map</button>
             <div class="input-text-container">
-              <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <label for="pointlat" class="input-text--outlined">
+              <input type="text" name="pointlat">
+              <select id="pointlat_NS" name="pointlat_NS">
+								<option id="N" value="N">N</option>
+								<option id="S" value="S">S</option>
+							</select>
               <span data-label="Latitude"></span></label>
               <span class="assistive-text">Assistive text.</span>
             </div>
             <div class="input-text-container">
-              <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <label for="pointlong" class="input-text--outlined">
+              <input type="text" name="pointlong">
+              <select id="pointlong_EW" name="pointlong_EW">
+								<option id="W" value="W">W</option>
+								<option id="E" value="E">E</option>
+							</select>
               <span data-label="Longitude"></span></label>
               <span class="assistive-text">Assistive text.</span>
             </div>
             <div class="input-text-container">
-              <label for="" class="input-text--outlined">
-              <input type="text" value="" >
+              <label for="radius" class="input-text--outlined">
+              <input type="text" name="radius">
+              <select id="radiusunits" name="radiusunits">
+								<option value="km">Kilometers</option>
+								<option value="mi">Miles</option>
+							</select>
               <span data-label="Radius"></span></label>
               <span class="assistive-text">Assistive text.</span>
             </div>
@@ -505,9 +547,9 @@
       <!-- Collecting Event -->
       <section>
         <!-- Accordion selector -->
-        <input type="checkbox" id="title5" class="accordion-selector" checked=true />
+        <input type="checkbox" id="coll-event" class="accordion-selector" checked=true />
         <!-- Accordion header -->
-        <label for="title5" class="accordion-header">Collecting Event</label>
+        <label for="coll-event" class="accordion-header">Collecting Event</label>
         <!-- Accordion content -->
         <div id="search-form-coll-event" class="content">
           <div class="input-text-container">
@@ -527,9 +569,9 @@
       <!-- Sample Properties -->
       <section>
         <!-- Accordion selector -->
-        <input type="checkbox" id="title6" class="accordion-selector" checked=true />
+        <input type="checkbox" id="sample" class="accordion-selector" checked=true />
         <!-- Accordion header -->
-        <label for="title6" class="accordion-header">Sample Properties</label>
+        <label for="sample" class="accordion-header">Sample Properties</label>
         <!-- Accordion content -->
         <div id="search-form-sample" class="content">
           <div>

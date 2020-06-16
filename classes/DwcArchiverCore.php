@@ -165,8 +165,7 @@ class DwcArchiverCore extends Manager{
 				$this->collArr[$r->collid]['description'] = $r->fulldescription;
 				$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
 				$this->collArr[$r->collid]['url'] = $r->url;
-				$this->collArr[$r->collid]['contact'][0]['individualName'] = $r->contact;
-				$this->collArr[$r->collid]['contact'][0]['electronicMailAddress'] = $r->email;
+				$this->setContacts($r->collid, $r->contact, $r->email);
 				$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
 				$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
 				$this->collArr[$r->collid]['lat'] = $r->latitudedecimal;
@@ -193,62 +192,21 @@ class DwcArchiverCore extends Manager{
 			}
 			$rs->free();
 		}
-		//$this->setCollectionContacts();
 	}
 
-	private function setCollectionContacts(){
-		if($this->collArr){
-			$sql = 'SELECT DISTINCT c.uid, c.collid, IFNULL(c.positionname,u.title) as positionname, c.role, u.firstname, u.lastname, c.nameoverride, u.title, CONCAT_WS(" ", u.firstname, u.lastname) AS contactname, '.
-				'u.institution, u.department, u.address, u.city, u.state, u.zip, u.country, u.phone, c.emailoverride, coll.email AS emailcoll, u.email AS emailuser, u.ispublic '.
-				'FROM omcollections coll INNER JOIN omcollectioncontacts c ON coll.collid = c.collid '.
-				'LEFT JOIN users u ON c.uid = u.uid '.
-				'WHERE c.collid IN('.implode(',',array_keys($this->collArr)).')';
-			//echo 'SQL: '.$sql.'<br/>';
-			$rs = null;
-			if(!$rs = $this->conn->query($sql)){
-				$sql2 = 'SELECT DISTINCT  c.uid, c.collid, IFNULL(c.positionname,u.title) as positionname, c.role, CONCAT_WS(" ", u.firstname, u.lastname) AS contactname, '.
-					'u.firstname, u.lastname, u.institution, u.department, u.address, u.city, u.state, u.zip, u.country, u.phone, coll.email AS emailcoll, u.email AS emailuser, u.ispublic '.
-					'FROM omcollections coll INNER JOIN omcollectioncontacts c ON coll.collid = c.collid '.
-					'LEFT JOIN users u ON c.uid = u.uid '.
-					'WHERE c.collid IN('.implode(',',array_keys($this->collArr)).')';
-				$rs = $this->conn->query($sql2);
+	private function setContacts($collid, $contact, $email){
+		$contactObj = json_decode($contact,true);
+		if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
+			$contactArr = $contactObj['contact'];
+			foreach($contactArr as $cnt => $cArr){
+				$this->collArr[$collid]['contact'][$cnt]['individualName'] = $cArr['individualName'];
+				if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $this->collArr[$collid]['contact'][$cnt]['positionName'] = $cArr['positionName'];
+				if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) $this->collArr[$collid]['contact'][$cnt]['electronicMailAddress'] = $cArr['electronicMailAddress'];
 			}
-			while($r = $rs->fetch_object()){
-				unset($contactArr);
-				$contactArr = array();
-				if($r->uid) $contactArr['userId'] = $r->uid;
-				if(isset($r->nameoverride) && $r->nameoverride){
-					$contactArr['individualName'] = $r->nameoverride;
-				}
-				else{
-					if($r->contactname) $contactArr['individualName'] = trim($r->contactname);
-					if($r->lastname) $contactArr['surname'] = $r->lastname;
-					if($r->firstname) $contactArr['givenname'] = $r->firstname;
-				}
-				if($r->institution) $contactArr['organizationName'] = $r->institution;
-				if(isset($r->emailoverride) && $r->emailoverride){
-					$contactArr['electronicMailAddress'] = $r->emailoverride;
-				}
-				elseif($r->emailuser){
-					$contactArr['electronicMailAddress'] = $r->emailuser;
-				}
-				elseif($r->emailcoll){
-					$contactArr['electronicMailAddress'] = $r->emailcoll;
-				}
-				if($r->positionname) $contactArr['positionName'] = $r->positionname;
-				if($r->role) $contactArr['role'] = $r->role;
-				if($r->ispublic){
-					if($r->phone) $contactArr['phone'] = $r->phone;
-					if($r->department) $contactArr['address']['deliveryPoint'][] = $r->department;
-					if($r->address) $contactArr['address']['deliveryPoint'][] = $r->address;
-					if($r->city) $contactArr['address']['city'] = $r->city;
-					if($r->state) $contactArr['address']['administrativeArea'] = $r->state;
-					if($r->zip) $contactArr['address']['postalCode'] = $r->zip;
-					if($r->country) $contactArr['address']['country'] = $r->country;
-				}
-				$this->collArr[$r->collid]['contact'][] = $contactArr;
-			}
-			$rs->free();
+		}
+		else{
+			$this->collArr[$collid]['contact'][0]['individualName'] = $contact;
+			$this->collArr[$collid]['contact'][0]['electronicMailAddress'] = $email;
 		}
 	}
 

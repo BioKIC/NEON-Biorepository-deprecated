@@ -906,15 +906,35 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						<div style="margin:3px 0px;"><b>Record ID:</b> <?php echo $occArr['guid']; ?></div>
 
 						<div style="margin-top:10px;clear:both;">
-							For additional information on this specimen, please contact:
 							<?php
-							$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
-							$emailBody = 'Specimen being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
-							$emailRef = 'subject='.$emailSubject.'&cc='.$adminEmail.'&body='.$emailBody;
+							if($collMetadata['contact']){
+								echo 'For additional information on this specimen, please contact: ';
+								$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
+								$emailBody = 'Specimen being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
+								$emailRef = 'subject='.$emailSubject.'&cc='.$ADMIN_EMAIL.'&body='.$emailBody;
+								//Test to see if contact is a JSON object or a simple string
+								$contactObj = json_decode($collMetadata['contact'],true);
+								if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
+									$contactArr = $contactObj['contact'];
+									$contactStr = '';
+									foreach($contactArr as $cArr){
+										if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) {
+											$contactStr .= ', '.$cArr['individualName'];
+											if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $contactStr .= ', '.$cArr['positionName'];
+											$contactStr .= ' (<a href="mailto:'.$cArr['electronicMailAddress'].'?'.$emailRef.'">'.$cArr['electronicMailAddress'].'</a>)';
+										}
+									}
+									echo trim($contactStr,', ');
+								}
+								else{
+									?>
+									<a href="mailto:<?php echo $collMetadata['email'].'?'.$emailRef; ?>">
+										<?php echo $collMetadata['contact'].' ('.$collMetadata['email'].')'; ?>
+									</a>
+									<?php
+								}
+							}
 							?>
-							<a href="mailto:<?php echo $collMetadata['email'].'?'.$emailRef; ?>">
-								<?php echo $collMetadata['contact'].' ('.$collMetadata['email'].')'; ?>
-							</a>
 						</div>
 						<?php
 						if($isEditor || (!$securityCode && $collMetadata['publicedits'])){
@@ -953,7 +973,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					?>
 					<div id="genetictab">
 						<?php
-						foreach($genticArr as $genId => $gArr){
+						foreach($genticArr as $gArr){
 							?>
 							<div style="margin:15px;">
 								<div style="font-weight:bold;margin-bottom:5px;"><?php echo $gArr['name']; ?></div>

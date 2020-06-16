@@ -199,14 +199,16 @@ DROP TABLE omoccurlithostratigraphy;
 DROP TABLE paleochronostratigraphy;
 
 
-DROP TABLE `omcollectioncontacts`;
-
 ALTER TABLE `omcollections` 
   ADD COLUMN `dynamicProperties` TEXT NULL AFTER `accessrights`,
   ADD COLUMN `datasetID` VARCHAR(250) NULL AFTER `collectionId`;
 
 ALTER TABLE `omcollections` 
-  CHANGE COLUMN `Contact` `Contact` TEXT NULL DEFAULT NULL ;
+  ADD COLUMN `contactJson` LONGTEXT NULL AFTER `email`;
+ALTER TABLE `omcollections` 
+  CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL ;
+
+DROP TABLE `omcollectioncontacts`;
 
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;

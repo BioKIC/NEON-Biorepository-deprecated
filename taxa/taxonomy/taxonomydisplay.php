@@ -16,6 +16,8 @@ if(!is_numeric($matchOnWords)) $matchOnWords = 0;
 if(!is_numeric($displayFullTree)) $displayFullTree = 0;
 if(!is_numeric($displaySubGenera)) $displaySubGenera = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
+$statusStr = strip_tags($statusStr);
+if($statusStr) str_replace(';', '<br/>', $statusStr);
 
 if(!array_key_exists("target",$_REQUEST)){
 	$matchOnWords = 1;
@@ -85,7 +87,7 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 		if($statusStr){
 			?>
 			<hr/>
-			<div style="color:<?php echo (strpos($statusStr,'SUCCESS') !== false?'green':'red'); ?>;margin:15px;">
+			<div style="color:<?php echo (stripos($statusStr,'SUCCESS') !== false?'green':'red'); ?>;margin:15px;">
 				<?php echo $statusStr; ?>
 			</div>
 			<hr/>

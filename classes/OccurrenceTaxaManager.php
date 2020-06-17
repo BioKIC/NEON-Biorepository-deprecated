@@ -214,8 +214,10 @@ class OccurrenceTaxaManager {
 						$tidArr = array_keys($searchArr['tid']);
 						//$sqlWhereTaxa .= 'OR (o.tidinterpreted IN(SELECT DISTINCT tid FROM taxaenumtree WHERE (taxauthid = '.$this->taxAuthId.') AND (parenttid IN('.trim($tidStr,',').') OR (tid = '.trim($tidStr,',').')))) ';
 						$sqlWhereTaxa .= 'OR (e.parenttid IN('.implode(',', $tidArr).') ';
-						$tidInArr = array_merge($tidInArr,$tidArr);
-						if(isset($searchArr['synonyms'])) $tidInArr = array_merge($tidInArr,array_keys($searchArr['synonyms']));
+						$sqlWhereTaxa .= 'OR (e.tid IN('.implode(',', $tidArr).')) ';
+						if(isset($searchArr['synonyms'])) $sqlWhereTaxa .= 'OR (e.tid IN('.implode(',',array_keys($searchArr['synonyms'])).')) ';
+						//$tidInArr = array_merge($tidInArr,$tidArr);
+						//if(isset($searchArr['synonyms'])) $tidInArr = array_merge($tidInArr,array_keys($searchArr['synonyms']));
 						$sqlWhereTaxa .= ') ';
 					}
 					else{

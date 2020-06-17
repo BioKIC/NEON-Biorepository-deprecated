@@ -47,6 +47,7 @@ class OccurrenceUtilities {
 		elseif(preg_match('/^([\d-]{1,5})\.{1}([IVX]{1,4})\.{1}(\d{2,4})/i',$dateStr,$match)){
 			//Roman numerial format: dd.IV.yyyy, dd.IV.yy, dd-IV-yyyy, dd-IV-yy
 			$d = $match[1];
+			if(!is_numeric($d)) $d = '00';
 			$mStr = strtoupper($match[2]);
 			$y = $match[3];
 			if(array_key_exists($mStr,self::$monthRoman)){
@@ -532,8 +533,8 @@ class OccurrenceUtilities {
 			//Place into verbatim coord field
 			$vCoord = '';
 			if(isset($recMap['verbatimcoordinates']) && $recMap['verbatimcoordinates']) $vCoord = $recMap['verbatimcoordinates'].'; ';
-			if(isset($recMap['verbatimlatitude']) && stripos($vCoord,$recMap['verbatimlatitude']) === false) $vCoord = $recMap['verbatimlatitude'].', ';
-			if(isset($recMap['verbatimlongitude']) && stripos($vCoord,$recMap['verbatimlongitude']) === false) $vCoord = $recMap['verbatimlongitude'];
+			if(isset($recMap['verbatimlatitude']) && stripos($vCoord,$recMap['verbatimlatitude']) === false) $vCoord .= $recMap['verbatimlatitude'].', ';
+			if(isset($recMap['verbatimlongitude']) && stripos($vCoord,$recMap['verbatimlongitude']) === false) $vCoord .= $recMap['verbatimlongitude'];
 			if($vCoord) $recMap['verbatimcoordinates'] = trim($vCoord,' ,;');
 		}
 		//Transfer DMS to verbatim coords

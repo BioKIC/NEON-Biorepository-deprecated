@@ -1,6 +1,7 @@
 <?php
 require_once($SERVER_ROOT.'/config/dbconnection.php');
 require_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
+include_once($SERVER_ROOT.'/classes/UuidFactory.php');
 
 class ImageProcessor {
 
@@ -30,20 +31,17 @@ class ImageProcessor {
 	}
 
 	function __destruct(){
-		//Close connection
 		if($this->destructConn && !($this->conn === false)) $this->conn->close();
-
-		//Close log file
+		fwrite($this->logFH,"\n\n");
 		if($this->logFH) fclose($this->logFH);
 	}
 
-	private function initProcessor($processorType){
+	private function initProcessor($logDir){
 		//Close log file
 		if($this->logFH) fclose($this->logFH);
 		if($this->logMode > 1){
-			//Create log File
 			$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) == '/'?'':'/').'content/logs/';
-			if($processorType) $logPath .= $processorType.'/';
+			if($logDir) $logPath .= $logDir.'/';
 			if(!file_exists($logPath)) mkdir($logPath);
 			if(file_exists($logPath)){
 				$logFile = $logPath.$this->collid.'_'.$this->collArr['instcode'];
@@ -144,19 +142,22 @@ class ImageProcessor {
 										$guid = $i['resource_uniq'];
 										if($occid = $this->getOccid($specPk,$guid,$fileName)){
 											$baseUrl = $iCyVerseImageUrl.$guid;
-											$webUrl = $baseUrl.'/resize:1250/format:jpeg';
-											$tnUrl = $baseUrl.'/thumbnail:200,200';
-											$lgUrl = $baseUrl.'/resize:4000/format:jpeg';
-											//$webUrl = $baseUrl.'?resize=1250&format=jpeg';
-											//$tnUrl = $baseUrl.'?thumbnail=200,200';
-											//$lgUrl = $baseUrl.'?resize=4000&format=jpeg';
-
-											$this->databaseImage($occid,$webUrl,$tnUrl,$lgUrl,$baseUrl,$this->collArr['collname'],$guid.'; filename: '.$fileName);
+											$fieldArr = array();
+											$fieldArr['url'] = $baseUrl.'/resize:1250/format:jpeg';
+											$fieldArr['thumbnailurl'] = $baseUrl.'/thumbnail:200,200';
+											$fieldArr['originalurl'] = $baseUrl.'/resize:4000/format:jpeg';
+											$fieldArr['archiveurl'] = $baseUrl;
+											$fieldArr['owner'] = $this->collArr['collname'];
+											$fieldArr['sourceIdentifier'] = $guid.'; filename: '.$fileName;
+											//$fieldArr['url'] = $baseUrl.'?resize=1250&format=jpeg';
+											//$fieldArr['thumbnailurl'] = $baseUrl.'?thumbnail=200,200';
+											//$fieldArr['originalurl'] = $baseUrl.'?resize=4000&format=jpeg';
+											$this->databaseImage($occid,$fieldArr);
 											//$this->logOrEcho("Image processed successfully (".date('Y-m-d h:i:s A').")!",2);
 										}
 									}
 									else{
-										$this->logOrEcho("NOTICE: File skipped, unable to extract specimen identifier (".$sourcePathFrag.$fileName.")",2);
+										$this->logOrEcho("NOTICE: File skipped, unable to extract specimen identifier (".$fileName.")",2);
 									}
 								}
 								$cnt++;
@@ -189,93 +190,6 @@ class ImageProcessor {
 			$this->logOrEcho("Image upload process finished! (".date('Y-m-d h:i:s A').") \n");
 		}
 		return true;
-	}
-
-	//iDigBio Image ingestion processing functions
-	public function processiDigBioOutput($pmTerm,$postArr){
-		$status = '';
-		$this->matchCatalogNumber = (array_key_exists('matchcatalognumber', $postArr)?1:0);
-		$this->matchOtherCatalogNumbers = (array_key_exists('matchothercatalognumbers', $postArr)?1:0);
-		$idigbioImageUrl = 'https://api.idigbio.org/v2/media/';
-		$this->initProcessor('idigbio');
-		$collStr = $this->collArr['instcode'].($this->collArr['collcode']?'-'.$this->collArr['collcode']:'');
-		$this->logOrEcho('Starting image processing for '.$collStr.' ('.date('Y-m-d h:i:s A').')');
-		if($pmTerm){
-			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/idigbio_'.time().'.csv';
-			if(move_uploaded_file($_FILES['idigbiofile']['tmp_name'],$fullPath)){
-				if($fh = fopen($fullPath,'rb')){
-					$headerArr = fgetcsv($fh,0,',');
-					$origFileNameIndex = (in_array('OriginalFileName',$headerArr)?array_search('OriginalFileName',$headerArr):(in_array('idigbio:OriginalFileName',$headerArr)?array_search('idigbio:OriginalFileName',$headerArr):''));
-					$mediaMd5Index = (in_array('MediaMD5',$headerArr)?array_search('MediaMD5',$headerArr):(in_array('ac:hashValue',$headerArr)?array_search('ac:hashValue',$headerArr):''));
-					if(is_numeric($origFileNameIndex) && is_numeric($mediaMd5Index)){
-						while(($data = fgetcsv($fh,1000,",")) !== FALSE){
-							if($data[$mediaMd5Index]){
-								$origFileName = basename($data[$origFileNameIndex]);
-								//basename() function is system specific, thus following code needed to parse filename independent of source file from PC, Mac, etc
-								if(strpos($origFileName,'/') !== false){
-									$origFileName = substr($origFileName,(strrpos($origFileName,'/')+1));
-								}
-								elseif(strpos($origFileName,'\\') !== false){
-									$origFileName = substr($origFileName,(strrpos($origFileName,'\\')+1));
-								}
-								if(preg_match($pmTerm,$origFileName,$matchArr)){
-									if(array_key_exists(1,$matchArr) && $matchArr[1]){
-										$specPk = $matchArr[1];
-										if($postArr['patternreplace']) $specPk = preg_replace($postArr['patternreplace'],$postArr['replacestr'],$specPk);
-										$occid = $this->getOccid($specPk,$origFileName);
-										if($occid){
-											//Image hasn't been loaded, thus insert image urls into image table
-											$baseUrl = $idigbioImageUrl.$data[$mediaMd5Index];
-											$webUrl = $baseUrl.'?size=webview';
-											$tnUrl = $baseUrl.'?size=thumbnail';
-											//$lgUrl = $baseUrl.'?size=fullsize';
-											$lgUrl = $baseUrl;
-											$this->databaseImage($occid,$webUrl,$tnUrl,$lgUrl,$baseUrl,$this->collArr['collname'],$origFileName);
-										}
-									}
-								}
-								else{
-									$this->logOrEcho('NOTICE: File skipped, unable to extract specimen identifier ('.$origFileName.', pmTerm: '.$pmTerm.')',2);
-								}
-							}
-							else{
-								$errMsg = trim($data[array_search('idigbio:mediaStatusDetail',$headerArr)]);
-								if($errMsg) $this->logOrEcho('NOTICE: File skipped due to apparent iDigBio upload failure (iDigBio Error:'.$errMsg.') ',2);
-							}
-						}
-						$this->cleanHouse(array($this->collid));
-						$this->logOrEcho("Image upload process finished! (".date('Y-m-d h:i:s A').") \n");
-					}
-					else{
-						//Output to error log file
-						$this->logOrEcho('Bad input fields: '.$origFileNameIndex.', '.$mediaMd5Index,2);
-					}
-					fclose($fh);
-				}
-				else{
-					$this->logOrEcho('Cannot open input file',2);
-				}
-				unlink($fullPath);
-			}
-		}
-		else{
-			$this->logOrEcho('ERROR: Pattern matching term has not been defined ',2);
-		}
-		return $status;
-	}
-
-	public function initiateFileUpload(){
-		$this->initProcessor('imageFile');
-		$collStr = $this->collArr['instcode'].($this->collArr['collcode']?'-'.$this->collArr['collcode']:'');
-		$this->logOrEcho('Starting image processing for '.$collStr.' ('.date('Y-m-d h:i:s A').')');
-		if($pmTerm){
-			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/idigbio_'.time().'.csv';
-			if(move_uploaded_file($_FILES['idigbiofile']['tmp_name'],$fullPath)){
-				if($fh = fopen($fullPath,'rb')){
-					$headerArr = fgetcsv($fh,0,',');
-				}
-			}
-		}
 	}
 
 	//Image file upload
@@ -348,7 +262,9 @@ class ImageProcessor {
 			$fieldMap = array_flip($postArr['tf']);
 			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/'.$postArr['filename'];
 			if($fh = fopen($fullPath,'rb')){
-				$headerArr = fgetcsv($fh);
+				$this->initProcessor('processing\imgmap');
+				$this->logOrEcho('Starting to process image URLs within image mapping file '.$postArr['filename'].' ('.date('Y-m-d H:i:s').')');
+				fgetcsv($fh);	//Advance one row to skipper header row
 				$cnt = 1;
 				while($recordArr = fgetcsv($fh)){
 					$catalogNumber = (isset($fieldMap['catalognumber'])?$this->cleanInStr($recordArr[$fieldMap['catalognumber']]):'');
@@ -359,7 +275,7 @@ class ImageProcessor {
 					$thumbnailUrl = (isset($fieldMap['thumbnailurl'])?$this->cleanInStr($recordArr[$fieldMap['thumbnailurl']]):'');
 					$sourceUrl = (isset($fieldMap['sourceurl'])?$this->cleanInStr($recordArr[$fieldMap['sourceurl']]):'');
 					if(($catalogNumber || $otherCatalogNumbers) && ($originalUrl || ($url && $url != 'empty'))){
-						echo '<li>#'.$cnt.': Processing Catalog Number: '.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</li>';
+						$this->logOrEcho('#'.$cnt.': Processing Catalog Number: '.($catalogNumber?$catalogNumber:$otherCatalogNumbers));
 						$occArr = array();
 						$sql = 'SELECT occid, tidinterpreted FROM omoccurrences WHERE (collid = '.$this->collid.') ';
 						if($catalogNumber){
@@ -394,7 +310,7 @@ class ImageProcessor {
 											'sourceurl = '.($sourceUrl?'"'.$sourceUrl.'"':'NULL').' '.
 											'WHERE imgid = '.$r1->imgid;
 										if($this->conn->query($sql2)){
-											echo '<li style="margin-left:10px">Existing image replaced with new image mapping: <a href="../editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</a></li>';
+											$this->logOrEcho('Existing image replaced with new image mapping: <a href="../editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</a>',1);
 											//Delete physical images it previous version was mapped locally
 											$this->deleteImage($r1->url);
 											$this->deleteImage($r1->originalurl);
@@ -403,7 +319,7 @@ class ImageProcessor {
 											break;
 										}
 										else{
-											echo '<li style="margin-left:10px">ERROR updating existing image record: '.$this->conn->error.'</li>';
+											$this->logOrEcho('ERROR updating existing image record: '.$this->conn->error,1);
 										}
 									}
 								}
@@ -416,29 +332,48 @@ class ImageProcessor {
 								'VALUES('.$this->collid.',"'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'","unprocessed",now())';
 							if($this->conn->query($sqlIns)){
 								$occArr[$this->conn->insert_id] = 0;
-								echo '<li style="margin-left:10px">Unable to find record with matching '.($catalogNumber?'catalogNumber':'otherCatalogNumbers').'; new occurrence record created</li>';
+								$this->logOrEcho('Unable to find record with matching '.($catalogNumber?'catalogNumber':'otherCatalogNumbers').'; new occurrence record created',1);
 							}
 							else{
-								echo '<li style="margin-left:10px">ERROR creating new occurrence record: '.$this->conn->error.'</li>';
+								$this->logOrEcho('ERROR creating new occurrence record: '.$this->conn->error,1);
 							}
 						}
 						foreach($occArr as $occid => $tid){
-							//Load image URLs
-							$sqlInsert = 'INSERT INTO images(occid,tid,url,originalurl,thumbnailurl,sourceurl) '.
-								'VALUES('.$occid.','.($tid?$tid:'NULL').',"'.$url.'","'.$originalUrl.'",'.($thumbnailUrl?'"'.$thumbnailUrl.'"':'NULL').','.($sourceUrl?'"'.$sourceUrl.'"':'NULL').')';
-							if($this->conn->query($sqlInsert)){
-								echo '<li style="margin-left:10px">Image URLs linked to: <a href="../editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</a></li>';
+							$fieldArr = array();
+							$fieldArr['url'] =  $url;
+							if($thumbnailUrl) $fieldArr['thumbnailurl'] =  $thumbnailUrl;
+							$fieldArr['originalurl'] =  $originalUrl;
+							if($sourceUrl) $fieldArr['sourceurl'] = $sourceUrl;
+							if($tid) $fieldArr['tid'] =  $tid;
+							if($this->databaseImage($occid,$fieldArr)){
+								$this->logOrEcho('Image URLs linked to: <a href="../editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</a>',1);
 							}
 							else{
-								echo '<li style="margin-left:10px">ERROR loading image: '.$this->conn->error.' ('.$sqlInsert.')</li>';
+								$this->logOrEcho('ERROR loading image: '.$this->conn->error,1);
 							}
 						}
 					}
 					$cnt++;
 				}
+				fclose($fh);
+
+				$occurMain = new OccurrenceMaintenance($this->conn);
+
+				$this->logOrEcho('Updating statistics...');
+				if(!$occurMain->updateCollectionStats($this->collid)){
+					$errorArr = $occurMain->getErrorArr();
+					foreach($errorArr as $errorStr){
+						$this->logOrEcho($errorStr,1);
+					}
+				}
+
+				$this->logOrEcho('Generating recordID GUID for all new records...');
+				$uuidManager = new UuidFactory();
+				$uuidManager->setSilent(1);
+				$uuidManager->populateGuids($this->collid);
 			}
-			fclose($fh);
 			unlink($fullPath);
+			$this->logOrEcho('Done process image mapping ('.date('Y-m-d H:i:s').')');
 		}
 	}
 
@@ -561,33 +496,31 @@ class ImageProcessor {
 		return $occid;
 	}
 
-	private function databaseImage($occid,$webUrl,$tnUrl,$lgUrl,$archiveUrl,$ownerStr,$sourceIdentifier){
+	private function databaseImage($occid,$targetFieldArr){
 		$status = true;
 		if($occid){
-			//All idigbio and iPlant iamge returns are JPG, even if input is different
 			$format = 'image/jpeg';
 			/*
 			$testUrl = $lgUrl;
 			if(!$testUrl) $testUrl = $webUrl;
 			$imgInfo = getimagesize(str_replace(' ', '%20', $testUrl));
 			if($imgInfo){
-				if($imgInfo[2] == IMAGETYPE_GIF){
-					$format = 'image/gif';
-				}
-				elseif($imgInfo[2] == IMAGETYPE_PNG){
-					$format = 'image/png';
-				}
-				elseif($imgInfo[2] == IMAGETYPE_JPEG){
-					$format = 'image/jpeg';
-				}
+				if($imgInfo[2] == IMAGETYPE_GIF) $format = 'image/gif';
+				elseif($imgInfo[2] == IMAGETYPE_PNG) $format = 'image/png';
+				elseif($imgInfo[2] == IMAGETYPE_JPEG) $format = 'image/jpeg';
 			}
 			*/
+			if(!array_key_exists('format', $targetFieldArr) || !$targetFieldArr['format']) $targetFieldArr['format'] = $format;
 
-			//$this->logOrEcho("Preparing to load record into database",2);
-			$sql = 'INSERT INTO images(occid,url,thumbnailurl,originalurl,archiveurl,owner,sourceIdentifier,format) '.
-				'VALUES ('.$occid.',"'.$webUrl.'",'.($tnUrl?'"'.$tnUrl.'"':'NULL').','.($lgUrl?'"'.$lgUrl.'"':'NULL').','.
-				($archiveUrl?'"'.$archiveUrl.'"':'NULL').','.($ownerStr?'"'.$this->cleanInStr($ownerStr).'"':'NULL').','.
-				($sourceIdentifier?'"'.$this->cleanInStr($sourceIdentifier).'"':'NULL').',"'.$format.'")';
+			$sqlInsert = ''.
+			$sqlValues = '';
+			foreach($targetFieldArr as $fieldName => $value){
+				if($value){
+					$sqlInsert .= ','.$fieldName;
+					$sqlValues .= ',"'.$this->cleanInStr($value).'"';
+				}
+			}
+			$sql = 'INSERT INTO images(occid'.$sqlInsert.') VALUES ('.$occid.$sqlValues.')';
 			if($this->conn->query($sql)){
 				//$this->logOrEcho('Image loaded into database (<a href="../individual/index.php?occid='.$occid.'" target="_blank">#'.$occid.($sourceIdentifier?'</a>: '.$sourceIdentifier:'').')',2);
 			}

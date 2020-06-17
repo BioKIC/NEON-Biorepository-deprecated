@@ -66,7 +66,7 @@ class TaxonomyDisplayManager extends Manager{
 				}
 			}
 			if($this->matchOnWholeWords){
-				$sql .= 'AND ((t.sciname '.$operator.' "'.$term.'") ';
+				$sql .= 'AND ((t.sciname '.$operator.' "'.$term.'") OR (t.sciname LIKE "'.$term.' %") ';
 				if($term2) $sql .= 'OR (t.sciname LIKE "'.$term2.'") ';
 			}
 			else{

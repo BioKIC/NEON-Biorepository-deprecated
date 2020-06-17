@@ -270,7 +270,6 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 					$term1 = trim(substr($v,0,$p));
 					$term2 = trim(substr($v,$p+3));
 					if(is_numeric($term1) && is_numeric($term2)){
-						$rnIsNum = true;
 						$rnWhere .= 'OR (o.recordnumber BETWEEN '.$term1.' AND '.$term2.')';
 					}
 					else{
@@ -337,7 +336,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		}
 		if(array_key_exists('catnum',$this->searchTermArr)){
 			$catStr = $this->cleanInStr($this->searchTermArr['catnum']);
-			$includeOtherCatNum = array_key_exists('othercatnum',$this->searchTermArr)?true:false;
+			$includeOtherCatNum = array_key_exists('includeothercatnum',$this->searchTermArr)?true:false;
 
 			$catArr = explode(',',str_replace(';',',',$catStr));
 			$betweenFrag = array();
@@ -558,21 +557,23 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	protected function readRequestVariables(){
 		if(array_key_exists('searchvar',$_REQUEST)){
-			parse_str($_REQUEST['searchvar'],$retArr);
-			if(isset($retArr['taxa'])){
-				$taxaArr['taxa'] = $retArr['taxa'];
-				unset($retArr['taxa']);
-				if(isset($retArr['usethes'])){
-					$taxaArr['usethes'] = $retArr['usethes'];
-					unset($retArr['usethes']);
+			$parsedArr = array();
+			$taxaArr = array();
+			parse_str($_REQUEST['searchvar'],$parsedArr);
+			if(isset($parsedArr['taxa'])){
+				$taxaArr['taxa'] = $parsedArr['taxa'];
+				unset($parsedArr['taxa']);
+				if(isset($parsedArr['usethes'])){
+					$taxaArr['usethes'] = $parsedArr['usethes'];
+					unset($parsedArr['usethes']);
 				}
-				if(isset($retArr['taxontype'])){
-					$taxaArr['taxontype'] = $retArr['taxontype'];
-					unset($retArr['taxontype']);
+				if(isset($parsedArr['taxontype'])){
+					$taxaArr['taxontype'] = $parsedArr['taxontype'];
+					unset($parsedArr['taxontype']);
 				}
 				$this->setTaxonRequestVariable($taxaArr);
 			}
-			if($retArr) $this->searchTermArr = $retArr;
+			if($parsedArr) $this->searchTermArr = $parsedArr;
 		}
 		//Search will be confinded to a clid vouchers, collid, catid, or will remain open to all collection
 		if(array_key_exists("targetclid",$_REQUEST) && is_numeric($_REQUEST['targetclid'])){
@@ -728,7 +729,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($catNum){
 				$this->searchTermArr["catnum"] = $catNum;
 				if(array_key_exists("includeothercatnum",$_REQUEST)){
-					$this->searchTermArr["othercatnum"] = '1';
+					$this->searchTermArr["includeothercatnum"] = '1';
 				}
 			}
 			else{

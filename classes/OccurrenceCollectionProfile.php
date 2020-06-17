@@ -116,10 +116,8 @@ class OccurrenceCollectionProfile extends Manager {
 
 	public function getMetadataHtml($collArr, $LANG){
 		$outStr = '<div>'.$collArr["fulldescription"].'</div>';
-		$emailStr = '';
-		if($collArr['email']) $emailStr = ' (<a href="mailto:'.$collArr["email"].'">'.str_replace('@','&#64;',$collArr['email']).'</a>)';
-		$outStr .= '<div style="margin-top:5px;"><b>'.$LANG['CONTACT'].':</b> '.$collArr["contact"].$emailStr.'</div>';
-		if($collArr["homepage"]){
+		$outStr .= '<div style="margin-top:5px;"><b>'.$LANG['CONTACT'].':</b> '.$this->getContactStr($collArr['contact'],$collArr['email']).'</div>';
+		if($collArr['homepage']){
 			$outStr .= '<div style="margin-top:5px;"><b>'.$LANG['HOMEPAGE'].':</b> ';
 			$outStr .= '<a href="'.$collArr["homepage"].'" target="_blank">'.$collArr["homepage"].'</a>';
 			$outStr .= '</div>';
@@ -420,30 +418,23 @@ class OccurrenceCollectionProfile extends Manager {
 	}
 
 	//Contact editing functions
-	public function getContactArr(){
-		$retArr = array();
-		$sql = 'SELECT c.collcontid, c.uid, c.nameoverride, CONCAT_WS(" ",u.firstname,u.lastname) AS contactName, c.emailoverride, u.email, '.
-			'c.positionname, u.title, c.role, c.notes, c.initialtimestamp '.
-			'FROM omcollectioncontacts c LEFT JOIN users u ON c.uid = c.uid '.
-			'WHERE (c.collid = ?)';
-		$stmt = $this->conn->prepare($sql);
-		$stmt->bind_param('i', $this->collid);
-		$stmt->execute();
-		$stmt->bind_result($contactID, $uid, $nameOverride, $contactName, $emailOverride, $email, $positionName, $title, $role, $notes, $ts);
-		while($stmt->fetch()){
-			$retArr[$contactID]['uid'] = $uid;
-			$retArr[$contactID]['nameOverride'] = $nameOverride;
-			$retArr[$contactID]['contactName'] = $contactName;
-			$retArr[$contactID]['emailOverride'] = $emailOverride;
-			$retArr[$contactID]['email'] = $email;
-			$retArr[$contactID]['positionName'] = $positionName;
-			$retArr[$contactID]['title'] = $title;
-			$retArr[$contactID]['role'] = $role;
-			$retArr[$contactID]['notes'] = $notes;
-			$retArr[$contactID]['ts'] = $ts;
+	private function getContactStr($contact, $email){
+		$retStr = '';
+		$contactObj = json_decode($contact,true);
+		if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
+			$contactArr = $contactObj['contact'];
+			foreach($contactArr as $cArr){
+				$retStr .= '; '.$cArr['individualName'];
+				if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $retStr .= ', '.$cArr['positionName'];
+				if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) $retStr .= ' (<a href="mailto:'.$cArr['electronicMailAddress'].'">'.$cArr['electronicMailAddress'].'</a>)';
+			}
+			$retStr = trim($retStr,'; ');
 		}
-		$stmt->free();
-		return $retArr;
+		else{
+			$retStr = $contact;
+			if($email) $retStr .= ' (<a href="mailto:'.$email.'">'.$email.'</a>)';
+		}
+		return $retStr;
 	}
 
 	public function submitContactEdits(){

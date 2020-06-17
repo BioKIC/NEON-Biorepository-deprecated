@@ -235,14 +235,7 @@ if($isEditor){
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
-		<?php
-		if(isset($collections_datasets_indexCrumbs)){
-			echo $collections_datasets_indexCrumbs;
-		}
-		else{
-			echo '<a href="../../profile/viewprofile.php?tabindex=1">My Profile</a> &gt;&gt; ';
-		}
-		?>
+		<a href="../../profile/viewprofile.php?tabindex=1">My Profile</a> &gt;&gt;
 		<a href="index.php">
 			Return to Dataset Listing
 		</a> &gt;&gt;
@@ -331,75 +324,12 @@ if($isEditor){
 									<?php
 								}
 								?>
-								<div style="margin:5px"><input type="submit" name="submitaction" value="Export Selected Occurrences" /></div>
-								<div id='showoptdiv'><a href="#" onclick="toggle('optdiv');toggle('showoptdiv');return false;">Show Options</a></div>
-								<div id="optdiv" style="display:none;">
-									<fieldset>
-										<legend><b>Options</b></legend>
-										<table>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>Structure:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<input type="radio" name="schema" value="symbiota" onclick="georefRadioClicked(this)" CHECKED />
-														Symbiota Native
-														<a id="schemanativeinfo" href="#" onclick="return false" title="More Information">
-															<img src="../../images/info.png" style="width:13px;" />
-														</a><br/>
-														<div id="schemanativeinfodialog">
-															Symbiota native is very similar to Darwin Core except with the addtion of a few fields
-															such as substrate, associated collectors, verbatim description.
-														</div>
-														<input type="radio" name="schema" value="dwc" onclick="georefRadioClicked(this)" />
-														Darwin Core
-														<a id="schemadwcinfo" href="#" target="" title="More Information">
-															<img src="../../images/info.png" style="width:13px;" />
-														</a><br/>
-														<div id="schemadwcinfodialog">
-															Darwin Core (DwC) is a TDWG endorsed exchange standard specifically for biodiversity datasets.
-															For more information on what data fields are included in DwC, visit the
-															<a href="http://rs.tdwg.org/dwc/index.htm"target='_blank'>DwC Quick Reference Guide</a>.
-														</div>
-														*<a href='http://rs.tdwg.org/dwc/index.htm' class='bodylink' target='_blank'>What is Darwin Core?</a>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>File Format:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<input type="radio" name="format" value="csv" CHECKED /> Comma Delimited (CSV)<br/>
-														<input type="radio" name="format" value="tab" /> Tab Delimited<br/>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>Character Set:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<?php
-														$cSet = strtolower($CHARSET);
-														?>
-														<input type="radio" name="cset" value="iso-8859-1" <?php echo ($cSet=='iso-8859-1'?'checked':''); ?> /> ISO-8859-1 (western)<br/>
-														<input type="radio" name="cset" value="utf-8" <?php echo ($cSet=='utf-8'?'checked':''); ?> /> UTF-8 (unicode)
-													</div>
-												</td>
-											</tr>
-										</table>
-									</fieldset>
-								</div>
+							</div>
+						</form>
+						<form name="occurform" action="../download/index.php" method="post" onsubmit="return validateOccurForm(this)">
+							<div style="margin: 15px 50px;">
+								<input name="searchvar" type="hidden" value="dataset=<?php echo $datasetId; ?>" />
+								<input type="submit" name="submitaction" value="Export Selected Occurrences" />
 							</div>
 						</form>
 					</div>
@@ -446,28 +376,30 @@ if($isEditor){
 									<div style="margin:15px;">
 										<?php
 										if(array_key_exists($roleStr,$userArr)){
-											echo '<ul>';
-											$uArr = $userArr[$roleStr];
-											foreach($uArr as $uid => $name){
-												?>
-												<li>
-													<?php echo $name; ?>
-													<form name="deluserform" method="post" action="datasetmanager.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove <?php echo $name; ?>')">
-														<input name="submitaction" type="hidden" value="DelUser" />
-														<input name="role" type="hidden" value="<?php echo $roleStr; ?>" />
-														<input name="uid" type="hidden" value="<?php echo $uid; ?>" />
-														<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
-														<input name="tabindex" type="hidden" value="2" />
-														<input name="submitimage" type="image" src="../../images/drop.png" />
-													</form>
-												</li>
+											?>
+											<ul>
 												<?php
-											}
-											echo '</ul>';
+												$uArr = $userArr[$roleStr];
+												foreach($uArr as $uid => $name){
+													?>
+													<li>
+														<?php echo $name; ?>
+														<form name="deluserform" method="post" action="datasetmanager.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove <?php echo $name; ?>')">
+															<input name="submitaction" type="hidden" value="DelUser" />
+															<input name="role" type="hidden" value="<?php echo $roleStr; ?>" />
+															<input name="uid" type="hidden" value="<?php echo $uid; ?>" />
+															<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
+															<input name="tabindex" type="hidden" value="2" />
+															<input name="submitimage" type="image" src="../../images/drop.png" />
+														</form>
+													</li>
+													<?php
+												}
+												?>
+											</ul>
+											<?php
 										}
-										else{
-											echo '<div style="margin:15px;">None Assigned</div>';
-										}
+										else echo '<div style="margin:15px;">None Assigned</div>';
 										?>
 									</div>
 									<?php

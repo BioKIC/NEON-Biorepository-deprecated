@@ -14,7 +14,7 @@ class ChecklistManager {
 	private $pid = '';
 	private $projName = '';
 	private $taxaList = Array();
-	private $language = "English";
+	private $langId;
 	private $thesFilter = 0;
 	private $taxonFilter;
 	private $showAuthors = false;
@@ -117,14 +117,14 @@ class ChecklistManager {
 
 	private function setDynamicMetaData(){
 		if($this->dynClid){
-			$sql = 'SELECT name, details, notes, uid, type, initialtimestamp FROM fmdynamicchecklists WHERE (dynclid = '.$this->dynClid.')';
+			$sql = 'SELECT name, details, uid, type, initialtimestamp FROM fmdynamicchecklists WHERE (dynclid = '.$this->dynClid.')';
 			$result = $this->conn->query($sql);
 			if($result){
 				if($row = $result->fetch_object()){
 					$this->clName = $row->name;
-					$this->clMetadata["locality"] = $row->details;
-					$this->clMetadata["notes"] = $row->notes;
-					$this->clMetadata["type"] = $row->type;
+					$this->clMetadata['notes'] = $row->details;
+					$this->clMetadata['type'] = $row->type;
+					$this->clMetadata['locality'] = '';
 				}
 				$result->free();
 			}
@@ -272,13 +272,13 @@ class ChecklistManager {
 				if($this->childClidArr){
 					$clidStr .= ','.implode(',',array_keys($this->childClidArr));
 				}
-				$vSql = 'SELECT DISTINCT v.tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.recordedby, o.recordnumber, o.eventdate, o.collid '.
+				$vSql = 'SELECT DISTINCT v.tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid '.
 					'FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
 					'INNER JOIN omcollections c ON o.collid = c.collid '.
 					'WHERE (v.clid IN ('.$clidStr.')) AND v.tid IN('.implode(',',array_keys($this->taxaList)).') '.
 					'ORDER BY o.collid';
 				if($this->thesFilter){
-					$vSql = 'SELECT DISTINCT ts.tidaccepted AS tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.recordedby, o.recordnumber, o.eventdate, o.collid '.
+					$vSql = 'SELECT DISTINCT ts.tidaccepted AS tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid '.
 						'FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
 						'INNER JOIN omcollections c ON o.collid = c.collid '.
 						'INNER JOIN taxstatus ts ON v.tid = ts.tid '.
@@ -289,7 +289,7 @@ class ChecklistManager {
 				//echo $vSql; exit;
 		 		$vResult = $this->conn->query($vSql);
 				while ($row = $vResult->fetch_object()){
-					$displayStr = ($row->recordedby?$row->recordedby:$row->catalognumber);
+					$displayStr = ($row->recordedby?$row->recordedby:($row->catalognumber?$row->catalognumber:$row->othercatalognumbers));
 					if(strlen($displayStr) > 25){
 						//Collector string is too big, thus reduce
 						$strPos = strpos($displayStr,';');
@@ -299,8 +299,9 @@ class ChecklistManager {
 					}
 					if($row->recordnumber) $displayStr .= ' '.$row->recordnumber;
 					else $displayStr .= ' '.$row->eventdate;
+					if(!trim($displayStr)) $displayStr = 'undefined voucher';
 					$displayStr .= ' ['.$row->institutioncode.']';
-					$this->voucherArr[$row->tid][$row->occid] = $displayStr;
+					$this->voucherArr[$row->tid][$row->occid] = trim($displayStr);
 				}
 				$vResult->free();
 			}
@@ -333,8 +334,8 @@ class ChecklistManager {
 			$rs = $this->conn->query($sql);
 			$matchedArr = array();
 			while($row = $rs->fetch_object()){
-				$this->taxaList[$row->tid]["url"] = $row->url;
-				$this->taxaList[$row->tid]["tnurl"] = $row->thumbnailurl;
+				$this->taxaList[$row->tid]['url'] = $row->url;
+				$this->taxaList[$row->tid]['tnurl'] = $row->thumbnailurl;
 				$matchedArr[] = $row->tid;
 			}
 			$rs->free();
@@ -350,8 +351,8 @@ class ChecklistManager {
 				//echo $sql;
 				$rs2 = $this->conn->query($sql2);
 				while($row2 = $rs2->fetch_object()){
-					$this->taxaList[$row2->tid]["url"] = $row2->url;
-					$this->taxaList[$row2->tid]["tnurl"] = $row2->thumbnailurl;
+					$this->taxaList[$row2->tid]['url'] = $row2->url;
+					$this->taxaList[$row2->tid]['tnurl'] = $row2->thumbnailurl;
 				}
 				$rs2->free();
 			}
@@ -365,7 +366,7 @@ class ChecklistManager {
 				'FROM taxstatus ts1 INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
 				'INNER JOIN taxavernaculars v ON ts2.tid = v.tid '.
 				'WHERE ts1.taxauthid = 1 AND ts2.taxauthid = 1 AND (ts1.tid IN('.implode(',',array_keys($this->taxaList)).')) ';
-			if($this->language) $sql .= 'AND v.language = "'.$this->language.'" ';
+			if($this->langId) $sql .= 'AND v.langid = '.$this->langId.' ';
 			$sql .= 'ORDER BY v.sortsequence DESC ';
 			//echo $sql; exit;
 			$rs = $this->conn->query($sql);
@@ -523,14 +524,16 @@ class ChecklistManager {
 		$this->showAuthors = 1;
 		if($taxaArr = $this->getTaxaList(1,0)){
 			$fh = fopen('php://output', 'w');
-			$headerArr = array('Family','ScientificName','ScientificNameAuthorship');
+			$headerArr = array('Family','ScientificName','ScientificNameAuthorship','morphoSpecies');
 			if($this->showCommon) $headerArr[] = 'CommonName';
 			$headerArr[] = 'Notes';
 			$headerArr[] = 'TaxonId';
 			fputcsv($fh,$headerArr);
 			foreach($taxaArr as $tid => $tArr){
-				unset($outArr);
-				$outArr = array($tArr['family'],html_entity_decode($tArr['sciname'],ENT_QUOTES|ENT_XML1),html_entity_decode($tArr['author'],ENT_QUOTES|ENT_XML1));
+				$outArr = array($tArr['family']);
+				$outArr[] = html_entity_decode($tArr['sciname'],ENT_QUOTES|ENT_XML1);
+				$outArr[] = html_entity_decode($tArr['author'],ENT_QUOTES|ENT_XML1);
+				$outArr[] = html_entity_decode($tArr['morphospecies'],ENT_QUOTES|ENT_XML1);
 				if($this->showCommon) $outArr[] = (array_key_exists('vern',$tArr)?html_entity_decode($tArr['vern'],ENT_QUOTES|ENT_XML1):'');
 				$outArr[] = (array_key_exists('notes',$tArr)?strip_tags(html_entity_decode($tArr['notes'],ENT_QUOTES|ENT_XML1)):'');
 				$outArr[] = $tid;
@@ -549,7 +552,7 @@ class ChecklistManager {
 			if($this->childClidArr){
 				$clidStr .= ','.implode(',',array_keys($this->childClidArr));
 			}
-			$this->basicSql = 'SELECT t.tid, ctl.clid, CONCAT_WS(" ",t.sciname, ctl.morphospecies) as sciname, t.author, t.unitname1, t.rankid, ctl.habitat, ctl.abundance, ctl.notes, ctl.source, ts.parenttid, ';
+			$this->basicSql = 'SELECT t.tid, ctl.clid, t.sciname, t.author, ctl.morphospecies, t.unitname1, t.rankid, ctl.habitat, ctl.abundance, ctl.notes, ctl.source, ts.parenttid, ';
 			if($this->thesFilter){
 				$this->basicSql .= 'ts2.family FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tidaccepted '.
 					'INNER JOIN fmchklsttaxalink ctl ON ts.tid = ctl.tid '.
@@ -601,34 +604,28 @@ class ChecklistManager {
 	}
 
 	//Checklist editing functions
-	public function addNewSpecies($dataArr){
+	public function addNewSpecies($postArr){
 		if(!$this->clid) return 'ERROR adding species: checklist identifier not set';
 		$insertStatus = false;
+		$dataArr = array('tid','familyoverride','morphospecies','habitat','abundance','notes','source','internalnotes');
 		$colSql = '';
 		$valueSql = '';
-		foreach($dataArr as $k =>$v){
-			$colSql .= ','.$k;
-			if($v){
-				if(is_numeric($v)){
-					$valueSql .= ','.$v;
-				}
-				else{
-					$valueSql .= ',"'.$this->cleanInStr($v).'"';
-				}
-			}
-			else{
-				$valueSql .= ',NULL';
+		foreach($dataArr as $v){
+			if(isset($postArr[$v]) && $postArr[$v]){
+				$colSql .= ','.$v;
+				if(is_numeric($postArr[$v])) $valueSql .= ','.$postArr[$v];
+				else $valueSql .= ',"'.$this->cleanInStr($postArr[$v]).'"';
 			}
 		}
 		$conn = MySQLiConnectionFactory::getCon('write');
 		$sql = 'INSERT INTO fmchklsttaxalink (clid'.$colSql.') VALUES ('.$this->clid.$valueSql.')';
 		if($conn->query($sql)){
-			if($this->clMetadata['type'] == 'rarespp' && $this->clMetadata['locality'] && is_numeric($dataArr['tid'])){
+			if($this->clMetadata['type'] == 'rarespp' && $this->clMetadata['locality'] && is_numeric($postArr['tid'])){
 				$sqlRare = 'UPDATE omoccurrences o INNER JOIN taxstatus ts1 ON o.tidinterpreted = ts1.tid '.
 					'INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
 					'SET o.localitysecurity = 1 '.
 					'WHERE (o.localitysecurity IS NULL OR o.localitysecurity = 0) AND (o.localitySecurityReason IS NULL) '.
-					'AND (ts1.taxauthid = 1) AND (ts2.taxauthid = 1) AND (o.stateprovince = "'.$this->clMetadata['locality'].'") AND (ts2.tid = '.$dataArr['tid'].')';
+					'AND (ts1.taxauthid = 1) AND (ts2.taxauthid = 1) AND (o.stateprovince = "'.$this->clMetadata['locality'].'") AND (ts2.tid = '.$postArr['tid'].')';
 				//echo $sqlRare; exit;
 				$conn->query($sqlRare);
 			}
@@ -851,15 +848,14 @@ class ChecklistManager {
 	}
 
 	public function setLanguage($l){
-		$l = strtolower($l);
-		if($l == "en"){
-			$this->language = 'English';
-		}
-		elseif($l == "es"){
-			$this->language = 'Spanish';
-		}
+		if(is_numeric($l)) $this->langId = $l;
 		else{
-			$this->language = $l;
+			$sql = 'SELECT langid FROM adminlanguages WHERE langname = "'.$this->cleanInStr($l).'" OR iso639_1 = "'.$this->cleanInStr($l).'"';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->langId = $r->langid;
+			}
+			$rs->free();
 		}
 	}
 

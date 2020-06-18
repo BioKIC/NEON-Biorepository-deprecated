@@ -80,17 +80,17 @@ class ImageProcessor {
 	public function processCyVerseImages($pmTerm, $postArr){
 		set_time_limit(1000);
 		$lastRunDate = $postArr['startdate'];
-		$iPlantSourcePath = (array_key_exists('sourcepath', $postArr)?$postArr['sourcepath']:'');
+		$CyVerseSourcePath = (array_key_exists('sourcepath', $postArr)?$postArr['sourcepath']:'');
 		$this->matchCatalogNumber = (array_key_exists('matchcatalognumber', $postArr)?true:false);
 		$this->matchOtherCatalogNumbers = (array_key_exists('matchothercatalognumbers', $postArr)?true:false);
 		if($this->collid){
 			$iCyVerseDataUrl = 'https://bisque.cyverse.org/data_service/';
 			$iCyVerseImageUrl = 'https://bisque.cyverse.org/image_service/image/';
 
-			if(!$iPlantSourcePath && array_key_exists('IPLANT_IMAGE_IMPORT_PATH', $GLOBALS)) $iPlantSourcePath = $GLOBALS['IPLANT_IMAGE_IMPORT_PATH'];
-			if($iPlantSourcePath){
-				if(strpos($iPlantSourcePath, '--INSTITUTION_CODE--')) $iPlantSourcePath = str_replace('--INSTITUTION_CODE--', $this->collArr['instcode'], $iPlantSourcePath);
-				if(strpos($iPlantSourcePath, '--COLLECTION_CODE--')) $iPlantSourcePath = str_replace('--COLLECTION_CODE--', $this->collArr['collcode'], $iPlantSourcePath);
+			if(!$CyVerseSourcePath && array_key_exists('IPLANT_IMAGE_IMPORT_PATH', $GLOBALS)) $CyVerseSourcePath = $GLOBALS['IPLANT_IMAGE_IMPORT_PATH'];
+			if($CyVerseSourcePath){
+				if(strpos($CyVerseSourcePath, '--INSTITUTION_CODE--')) $CyVerseSourcePath = str_replace('--INSTITUTION_CODE--', $this->collArr['instcode'], $CyVerseSourcePath);
+				if(strpos($CyVerseSourcePath, '--COLLECTION_CODE--')) $CyVerseSourcePath = str_replace('--COLLECTION_CODE--', $this->collArr['collcode'], $CyVerseSourcePath);
 			}
 			else{
 				echo '<div style="color:red">iPlant image import path (IPLANT_IMAGE_IMPORT_PATH) not set within symbini configuration file</div>';
@@ -112,10 +112,13 @@ class ImageProcessor {
 				$this->logOrEcho("COLLECTION SKIPPED: Regular Expression term illegal due to missing capture term: ".$pmTerm);
 				return false;
 			}
+			$cyVerseBasePath = $iCyVerseDataUrl.'image?value=*'.$CyVerseSourcePath.'*&tag_query=upload_datetime:';
+			$this->logOrEcho('CyVerse base path used: '.$cyVerseBasePath);
+
 			//Get start date
 			if(!$lastRunDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$lastRunDate)) $lastRunDate = '2019-05-01';
 			while(strtotime($lastRunDate) < strtotime('now')){
-				$url = $iCyVerseDataUrl.'image?value=*'.$iPlantSourcePath.'*&tag_query=upload_datetime:'.$lastRunDate.'*';
+				$url = $cyVerseBasePath.$lastRunDate.'*';
 				$contents = @file_get_contents($url);
 				//check if response is received from CyVerse
 				if(!empty($http_response_header)) {
@@ -127,8 +130,8 @@ class ImageProcessor {
 							$xml = new SimpleXMLElement($contents);
 						}
 						catch (Exception $e) {
-							$this->logOrEcho('ABORTED: bad content received from iPlant: '.$contents);
-							return false;
+							$this->logOrEcho('ABORTED: bad content received from CyVerse: '.$contents);
+							//return false;
 						}
 						if(count($xml->image)){
 							$this->logOrEcho('Starting to process '.count($xml->image).' images uploaded on '.$lastRunDate,1);

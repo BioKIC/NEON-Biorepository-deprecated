@@ -50,12 +50,8 @@ if($action != "Rebuild List" && !array_key_exists('dllist_x',$_POST)) $searchSyn
 if($action == "Rebuild List") $defaultOverride = 1;
 
 $clManager = new ChecklistManager();
-if($clid){
-	$clManager->setClid($clid);
-}
-elseif($dynClid){
-	$clManager->setDynClid($dynClid);
-}
+if($clid) $clManager->setClid($clid);
+elseif($dynClid) $clManager->setDynClid($dynClid);
 $clArray = $clManager->getClMetaData();
 $activateKey = $KEY_MOD_IS_ACTIVE;
 $showDetails = 0;
@@ -103,18 +99,9 @@ $isEditor = false;
 if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USER_RIGHTS["ClAdmin"]))){
 	$isEditor = true;
 }
-if($isEditor){
-	if(array_key_exists("tidtoadd",$_POST) && is_numeric($_POST["tidtoadd"])){
-		$dataArr = array();
-		$dataArr["tid"] = $_POST["tidtoadd"];
-		if($_POST["familyoverride"]) $dataArr["familyoverride"] = $_POST["familyoverride"];
-		if($_POST['morphospecies']) $dataArr['morphospecies'] = $_POST['morphospecies'];
-		if($_POST["habitat"]) $dataArr["habitat"] = $_POST["habitat"];
-		if($_POST["abundance"]) $dataArr["abundance"] = $_POST["abundance"];
-		if($_POST["notes"]) $dataArr["notes"] = $_POST["notes"];
-		if($_POST["source"]) $dataArr["source"] = $_POST["source"];
-		if($_POST["internalnotes"]) $dataArr["internalnotes"] = $_POST["internalnotes"];
-		$statusStr = $clManager->addNewSpecies($dataArr);
+if($isEditor && array_key_exists('formsubmit',$_POST)){
+	if($_POST['formsubmit'] == 'AddSpecies'){
+		$statusStr = $clManager->addNewSpecies($_POST);
 	}
 }
 $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
@@ -122,17 +109,17 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 <html>
 <head>
 	<meta charset="<?php echo $CHARSET; ?>">
-  <title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['RESCHECK'];?>: <?php echo $clManager->getClName(); ?></title>
+	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['RESCHECK'];?>: <?php echo $clManager->getClName(); ?></title>
 	<?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
@@ -146,7 +133,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 		} );
 
 	</script>
-	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=201901"></script>
+	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=202004"></script>
 	<style type="text/css">
 		#sddm{margin:0;padding:0;z-index:30;}
 		#sddm:hover {background-color:#EAEBD8;}
@@ -327,7 +314,6 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					echo '<div style="clear:both;"><span style="font-weight:bold;">'.(isset($LANG['CITATION'])?$LANG['CITATION']:'Citation').':</span> '.$pubStr.'</div>';
 				}
 			}
-
 			if(($clArray["locality"] || ($clid && ($clArray["latcentroid"] || $clArray["abstract"])) || $clArray["notes"])){
 				?>
 				<div class="moredetails printoff" style="<?php echo (($showDetails)?'display:none;':''); ?>"><a href="#" onclick="toggle('moredetails');return false;"><?php echo $LANG['MOREDETS'];?></a></div>
@@ -345,7 +331,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 						if($clArray['type'] == 'excludespp') $abstractTitle = $LANG['COMMENTS'];
 						echo "<div><span style='font-weight:bold;'>".$abstractTitle.": </span>".$clArray["abstract"]."</div>";
 					}
-					if($clid && $clArray['notes']){
+					if($clArray['notes']){
 						echo '<div><span style="font-weight:bold;">'.(isset($LANG['NOTES'])?$LANG['NOTES']:'Notes').': </span>'.$clArray['notes'].'</div>';
 					}
 					?>
@@ -470,7 +456,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									<div>
 										<?php echo $LANG['TAXON']; ?>:<br/>
 										<input type="text" id="speciestoadd" name="speciestoadd" style="width:174px;" />
-										<input type="hidden" id="tidtoadd" name="tidtoadd" value="" />
+										<input type="hidden" id="tid" name="tid" />
 									</div>
 									<!--
 									<div>
@@ -513,7 +499,8 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 										<input type='hidden' name='taxonfilter' value='<?php echo $taxonFilter; ?>' />
 										<input type='hidden' name='searchcommon' value='<?php echo $searchCommon; ?>' />
 										<input type="hidden" name="emode" value="1" />
-										<button name="submitadd" type="submit" value="Add Species to List"><?php echo (isset($LANG['ADD_SPECIES'])?$LANG['ADD_SPECIES']:'Add Species to List'); ?></button>
+										<input type="hidden" name="formsubmit" value="AddSpecies" />
+										<button name="submitbtn" type="submit"><?php echo (isset($LANG['ADD_SPECIES'])?$LANG['ADD_SPECIES']:'Add Species to List'); ?></button>
 										<hr />
 									</div>
 									<div style="text-align:center;">
@@ -723,7 +710,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							if(array_key_exists('vern',$sppArr)){
 								echo ' - <span class="vern-span">'.$sppArr['vern'].'</span>';
 							}
-							if($clArray["dynamicsql"]){
+							if($clid && $clArray['dynamicsql']){
 								?>
 								<span class="view-specimen-span printoff">
 									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank">

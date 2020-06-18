@@ -1,9 +1,7 @@
 <?php
 include_once('../../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/SpecLoans.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceLoans.php');
 require_once $SERVER_ROOT.'/vendor/phpoffice/phpword/bootstrap.php';
-
-$loanManager = new SpecLoans();
 
 $collId = $_REQUEST['collid'];
 $printMode = $_POST['print'];
@@ -13,9 +11,6 @@ $loanType = array_key_exists('loantype',$_REQUEST)?$_REQUEST['loantype']:0;
 $institution = array_key_exists('institution',$_POST)?$_POST['institution']:0;
 $international = array_key_exists('international',$_POST)?$_POST['international']:0;
 $accountNum = array_key_exists('mailaccnum',$_POST)?$_POST['mailaccnum']:0;
-$searchTerm = array_key_exists('searchterm',$_POST)?$_POST['searchterm']:'';
-$displayAll = array_key_exists('displayall',$_POST)?$_POST['displayall']:0;
-$formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
 $export = false;
 $exportEngine = '';
@@ -26,6 +21,7 @@ if($printMode == 'doc'){
 	$exportExtension = 'docx';
 }
 
+$loanManager = new OccurrenceLoans();
 if($collId) $loanManager->setCollId($collId);
 
 $identifier = 0;
@@ -42,7 +38,6 @@ if($institution){
 else{
 	$invoiceArr = $loanManager->getInvoiceInfo($identifier,$loanType);
 }
-$addressArr = $loanManager->getFromAddress($collId);
 
 if($export){
 	$phpWord = new \PhpOffice\PhpWord\PhpWord();
@@ -96,18 +91,18 @@ else{
 	<html>
 		<head>
 			<title>Addressed Envelope</title>
+			<?php
+			$activateJQuery = false;
+			if(file_exists($SERVER_ROOT.'/includes/head.php')){
+				include_once($SERVER_ROOT.'/includes/head.php');
+			}
+			else{
+				echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+				echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+				echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+			}
+			?>
 			<style type="text/css">
-        <?php
-          $activateJQuery = false;
-          if(file_exists($SERVER_ROOT.'/includes/head.php')){
-            include_once($SERVER_ROOT.'/includes/head.php');
-          }
-          else{
-            echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-            echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-            echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-          }
-        ?>
 				body {font-family:arial,sans-serif;}
 				p.printbreak {page-break-after:always;}
 				.accnum {margin-left:2.5in;font:8pt arial,sans-serif;}
@@ -126,9 +121,7 @@ else{
 					<tr style="">
 						<td>
 							<?php
-								if($accountNum){
-									echo '<div class="accnum">Acct. #'.$accountNum.'</div>';
-								}
+							if($accountNum) echo '<div class="accnum">Acct. #'.$accountNum.'</div>';
 							?>
 						</td>
 					</tr>

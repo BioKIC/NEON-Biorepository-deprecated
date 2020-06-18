@@ -32,8 +32,10 @@ class ImageProcessor {
 
 	function __destruct(){
 		if($this->destructConn && !($this->conn === false)) $this->conn->close();
-		fwrite($this->logFH,"\n\n");
-		if($this->logFH) fclose($this->logFH);
+		if($this->logFH){
+			fwrite($this->logFH,"\n\n");
+			fclose($this->logFH);
+		}
 	}
 
 	private function initProcessor($logDir){
@@ -230,34 +232,17 @@ class ImageProcessor {
 		return '';
 	}
 
-	public function echoFileMapping($fileName){
+	public function getHeaderArr($fileName){
+		$retArr = array();
 		$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/'.$fileName;
 		if($fh = fopen($fullPath,'rb')){
-			$translationMap = array('catalognumber' => 'catalognumber', 'othercatalognumbers' => 'othercatalognumbers', 'othercatalognumber' => 'othercatalognumbers', 'url' => 'url',
-				'web' => 'url','thumbnailurl' => 'thumbnailurl', 'thumbnail' => 'thumbnailurl', 'originalurl' => 'originalurl', 'large' => 'originalurl', 'sourceurl' => 'sourceurl');
 			$headerArr = fgetcsv($fh,0,',');
 			foreach($headerArr as $i => $sourceField){
-				if($sourceField != 'collid'){
-					echo '<tr><td style="padding:2px;">';
-					echo $sourceField;
-					$sourceField = strtolower($sourceField);
-					echo '<input type="hidden" name="sf['.$i.']" value="'.$sourceField.'" />';
-					$sourceField = preg_replace('/[^a-z]+/','',$sourceField);
-					echo '</td><td>';
-					echo '<select name="tf['.$i.']" style="background:'.(!array_key_exists($sourceField,$translationMap)?'yellow':'').'">';
-					echo '<option value="">Select Target Field</option>';
-					echo '<option value="">-------------------------</option>';
-					echo '<option value="catalognumber" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='catalognumber'?'SELECTED':'').'>Catalog Number</option>';
-					echo '<option value="othercatalognumbers" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='othercatalognumbers'?'SELECTED':'').'>Other Catalog Numbers</option>';
-					echo '<option value="originalurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='originalurl'?'SELECTED':'').'>Large Image URL (required)</option>';
-					echo '<option value="url" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='url'?'SELECTED':'').'>Web Image URL</option>';
-					echo '<option value="thumbnailurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='thumbnailurl'?'SELECTED':'').'>Thumbnail URL</option>';
-					echo '<option value="sourceurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='sourceurl'?'SELECTED':'').'>Source URL</option>';
-					echo '</select>';
-					echo '</td></tr>';
-				}
+				if($sourceField != 'collid') $retArr[$i] = $sourceField;
 			}
+			fclose($fh);
 		}
+		return $retArr;
 	}
 
 	public function loadFileData($postArr){

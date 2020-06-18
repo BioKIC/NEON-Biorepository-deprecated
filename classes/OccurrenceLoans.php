@@ -2,7 +2,7 @@
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once('Manager.php');
 
-class SpecLoans extends Manager{
+class OccurrenceLoans extends Manager{
 
 	private $collid = 0;
 

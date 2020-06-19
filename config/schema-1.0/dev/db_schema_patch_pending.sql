@@ -70,6 +70,21 @@ ALTER TABLE `taxstatus`
 ALTER TABLE `taxstatus` 
 ADD INDEX `Index_tid` (`tid` ASC);
 
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.langname 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.iso639_1 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+UPDATE taxavernaculars v INNER JOIN adminlanguages l ON v.language = l.iso639_2 
+SET v.langid = l.langid
+WHERE v.langid IS NULL;
+
+ALTER TABLE `taxavernaculars` 
+  CHANGE COLUMN `Language` `Language` VARCHAR(15) NULL ,
+  DROP INDEX `unique-key` ,
+  ADD UNIQUE INDEX `unique-key` (`VernacularName` ASC, `TID` ASC, `langid` ASC);
+
 ALTER TABLE `taxaresourcelinks` 
   ADD UNIQUE INDEX `UNIQUE_taxaresource` (`tid` ASC, `sourcename` ASC);
 
@@ -175,34 +190,25 @@ INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
 INSERT INTO omoccurpaleogts(gtsterm,rankid,rankname,parentgtsid)
   SELECT DISTINCT p.stage, 60, "age", g.gtsid FROM paleochronostratigraphy p INNER JOIN omoccurpaleogts g ON p.epoch = g.gtsterm WHERE stage IS NOT NULL;
 
+UPDATE omoccurpaleogts
+SET rankid = 40, rankname = "period", parentgtsid = 13
+WHERE gtsterm IN("Pennsylvanian","Mississippian");
+
+
 DROP TABLE omoccurlithostratigraphy;
 DROP TABLE paleochronostratigraphy;
 
 
-ALTER TABLE `omcollectioncontacts` 
-  DROP FOREIGN KEY `FK_contact_uid`;
-  
-ALTER TABLE `omcollectioncontacts` 
-  DROP FOREIGN KEY `FK_contact_collid`;
-
-ALTER TABLE `omcollectioncontacts` 
-  CHANGE COLUMN `uid` `uid` INT(10) UNSIGNED NULL ,
-  ADD COLUMN `nameoverride` VARCHAR(100) NULL AFTER `uid`,
-  ADD COLUMN `emailoverride` VARCHAR(100) NULL AFTER `nameoverride`,
-  ADD COLUMN `collcontid` INT NOT NULL AUTO_INCREMENT FIRST,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`collcontid`);
-
-ALTER TABLE `omcollectioncontacts` 
-  ADD CONSTRAINT `FK_contact_uid` FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_contact_collid` FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`collid`)  ON DELETE CASCADE  ON UPDATE CASCADE;
-
-ALTER TABLE `omcollectioncontacts` 
-  ADD UNIQUE INDEX `UNIQUE_coll_contact` (`collid` ASC, `uid` ASC, `nameoverride` ASC, `emailoverride` ASC);
-
 ALTER TABLE `omcollections` 
   ADD COLUMN `dynamicProperties` TEXT NULL AFTER `accessrights`,
   ADD COLUMN `datasetID` VARCHAR(250) NULL AFTER `collectionId`;
+
+ALTER TABLE `omcollections` 
+  ADD COLUMN `contactJson` LONGTEXT NULL AFTER `email`;
+ALTER TABLE `omcollections` 
+  CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL ;
+
+DROP TABLE `omcollectioncontacts`;
 
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;

@@ -11,15 +11,15 @@ $smManager = new SiteMapManager();
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['SITEMAP'];?></title>
 	<?php
-    $activateJQuery = false;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 	<script type="text/javascript">
 		function submitTaxaNoImgForm(f){
@@ -78,7 +78,7 @@ $smManager = new SiteMapManager();
 				<li><a href="imagelib/index.php"><?php echo $LANG['IMGLIB'];?></a></li>
 				<li><a href="imagelib/search.php"><?php echo ($LANG['IMAGE_SEARCH']?$LANG['IMAGE_SEARCH']:'Interactive Search Tool'); ?></a></li>
 				<li><a href="imagelib/contributors.php"><?php echo $LANG['CONTRIB'];?></a></li>
-				<li><a href="misc/usagepolicy.php"><?php echo $LANG['USAGEPOLICY'];?></a></li>
+				<li><a href="includes/usagepolicy.php"><?php echo $LANG['USAGEPOLICY'];?></a></li>
 			</ul>
 
 			<div style="margin-top:10px;"><h2><?php echo $LANG['TAXONOMY'];?></h2></div>

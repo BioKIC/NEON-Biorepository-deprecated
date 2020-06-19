@@ -22,7 +22,7 @@ class OccurrenceUtilities {
 	 */
 	public static function formatDate($inStr){
 		$retDate = '';
-		$dateStr = trim($inStr);
+		$dateStr = trim($inStr,'.,; ');
 		if(!$dateStr) return;
 		$t = '';
 		$y = '';
@@ -47,6 +47,7 @@ class OccurrenceUtilities {
 		elseif(preg_match('/^([\d-]{1,5})\.{1}([IVX]{1,4})\.{1}(\d{2,4})/i',$dateStr,$match)){
 			//Roman numerial format: dd.IV.yyyy, dd.IV.yy, dd-IV-yyyy, dd-IV-yy
 			$d = $match[1];
+			if(!is_numeric($d)) $d = '00';
 			$mStr = strtoupper($match[2]);
 			$y = $match[3];
 			if(array_key_exists($mStr,self::$monthRoman)){
@@ -69,7 +70,7 @@ class OccurrenceUtilities {
 			$d = $match[2];
 			$y = $match[3];
 		}
-		elseif(preg_match('/^(\D{3,})\.*\s{0,1}(\d{1,2})[,\s]+([1,2]{1}[0,5-9]{1}\d{2})$/',$dateStr,$match)){
+		elseif(preg_match('/^(\D{3,})\.*\s{0,2}(\d{1,2})[,\s]+([1,2]{1}[0,5-9]{1}\d{2})$/',$dateStr,$match)){
 			//Format: mmm dd, yyyy
 			$mStr = $match[1];
 			$d = $match[2];
@@ -86,16 +87,12 @@ class OccurrenceUtilities {
 		elseif(preg_match('/^(\D{3,})\.*\s+([1,2]{1}[0,5-9]{1}\d{2})/',$dateStr,$match)){
 			//Format: mmm yyyy
 			$mStr = strtolower(substr($match[1],0,3));
-			if(array_key_exists($mStr,self::$monthNames)){
-				$m = self::$monthNames[$mStr];
-			}
-			else{
-				$m = '00';
-			}
+			if(array_key_exists($mStr,self::$monthNames)) $m = self::$monthNames[$mStr];
+			else $m = '00';
 			$y = $match[2];
 		}
 		else{
-			if(preg_match('/([1,2]{1}[0,5-9]{1}\d{2})/',$dateStr,$match)) $y = $match[1];
+			if(preg_match('/(1[5-9]{1}\d{2}|20\d{2})/',$dateStr,$match)) $y = $match[1];
 			if(preg_match_all('/([a-z]+)/i',$dateStr,$match)){
 				foreach($match[1] as $test){
 					$subStr = strtolower(substr($test,0,3));
@@ -103,6 +100,12 @@ class OccurrenceUtilities {
 						$m = self::$monthNames[$subStr];
 						break;
 					}
+				}
+			}
+			if(!(int)$m){
+				if(preg_match_all('/([IVX]{1,4})/',$dateStr,$match)){
+					$mStr = $match[1];
+					if(array_key_exists($mStr,self::$monthRoman)) $m = self::$monthRoman[$mStr];
 				}
 			}
 			if(!(int)$m){
@@ -117,6 +120,9 @@ class OccurrenceUtilities {
 			}
 		}
 		//Clean, configure, return
+		if(!is_numeric($y)) $y = 0;
+		if(!is_numeric($m)) $m = '00';
+		if(!is_numeric($d)) $d = '00';
 		if($y){
 			if(strlen($m) == 1) $m = '0'.$m;
 			if(strlen($d) == 1) $d = '0'.$d;
@@ -532,8 +538,8 @@ class OccurrenceUtilities {
 			//Place into verbatim coord field
 			$vCoord = '';
 			if(isset($recMap['verbatimcoordinates']) && $recMap['verbatimcoordinates']) $vCoord = $recMap['verbatimcoordinates'].'; ';
-			if(isset($recMap['verbatimlatitude']) && stripos($vCoord,$recMap['verbatimlatitude']) === false) $vCoord = $recMap['verbatimlatitude'].', ';
-			if(isset($recMap['verbatimlongitude']) && stripos($vCoord,$recMap['verbatimlongitude']) === false) $vCoord = $recMap['verbatimlongitude'];
+			if(isset($recMap['verbatimlatitude']) && stripos($vCoord,$recMap['verbatimlatitude']) === false) $vCoord .= $recMap['verbatimlatitude'].', ';
+			if(isset($recMap['verbatimlongitude']) && stripos($vCoord,$recMap['verbatimlongitude']) === false) $vCoord .= $recMap['verbatimlongitude'];
 			if($vCoord) $recMap['verbatimcoordinates'] = trim($vCoord,' ,;');
 		}
 		//Transfer DMS to verbatim coords

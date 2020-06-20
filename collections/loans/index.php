@@ -24,16 +24,15 @@ if($collid) $loanManager->setCollId($collid);
 $statusStr = '';
 if($isEditor){
 	if($formSubmit){
-		if($formSubmit == 'createLoanIn'){
-			$loanId = $loanManager->createNewLoanIn($_POST);
-			if(!$loanId) $statusStr = $loanManager->getErrorMessage();
-		}
-		elseif($formSubmit == 'Delete Loan'){
-			$status = $loanManager->deleteLoan($loanId);
-			if($status) $loanId = 0;
+		if($formSubmit == 'Delete Loan'){
+			if($loanManager->deleteLoan($_POST['loanid'])){
+				$statusStr = 'Loan deleted successfully!';
+			}
 		}
 		elseif($formSubmit == 'Delete Exchange'){
-			$status = $loanManager->deleteExchange($exchangeId);
+			if($loanManager->deleteExchange($_POST['exchangeid'])){
+				$statusStr = 'Exchange deleted successfully!';
+			}
 		}
 		elseif($formSubmit == 'Save Incoming'){
 			$statusStr = $loanManager->editLoanIn($_POST);
@@ -59,12 +58,7 @@ if($isEditor){
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript">
-		$(document).ready(function() {
-			if(!navigator.cookieEnabled){
-				alert("Your browser cookies are disabled. To be able to login and access your profile, they must be enabled for this domain.");
-			}
-			$('#tabs').tabs({ active: <?php echo $tabIndex; ?> });
-		});
+		var tabIndex = <?php echo $tabIndex; ?>;
 
 		function verifyLoanInAddForm(f){
 			if(f.iidowner.options[f.iidowner.selectedIndex].value == 0){
@@ -110,6 +104,28 @@ if($isEditor){
 			return false;
 		}
 
+		function verfifyExchangeAddForm(f){
+			if(f.iid.options[f.iid.selectedIndex].value == 0){
+				alert("Select an institution");
+				return false;
+			}
+			if(f.identifier.value == ""){
+				alert("Enter an exchange identifier");
+				return false;
+			}
+			$.ajax({
+				method: "POST",
+				data: { ident: f.identifier.value, collid: f.collid.value, type: "ex" },
+				dataType: "text",
+				url: "rpc/identifierCheck.php"
+			})
+			.done(function(retCode) {
+				if(retCode == 1) alert("There is already a transaction with that identifier, please enter a different one.");
+				else f.submit();
+			});
+			return false;
+		}
+
 		function displayNewLoanOut(){
 			if(document.getElementById("loanoutToggle")){
 				toggle('newloanoutdiv');
@@ -130,6 +146,16 @@ if($isEditor){
 			}
 		}
 
+		function displayNewExchange(){
+			if(document.getElementById("exchangeToggle")){
+				toggle('newexchangediv');
+			}
+			var f = document.newexchangegiftform;
+			if(f.identifier.value == ""){
+				generateNewId(f.collid.value,f.identifier,"ex");
+			}
+		}
+
 		function generateNewId(collId,targetObj,idType){
 			$.ajax({
 				method: "POST",
@@ -145,6 +171,7 @@ if($isEditor){
 			});
 		}
 	</script>
+	<script type="text/javascript" src="../../js/symb/collections.loans.js?ver=1"></script>
 	<style>
 		fieldset{ padding:10px; }
 		fieldset legend{ font-weight:bold }
@@ -216,7 +243,7 @@ if($isEditor){
 						<?php
 					}
 					?>
-					<div id="newloanoutdiv" style="display:<?php echo ($loanOutList?'none':'block'); ?>;">
+					<div id="newloanoutdiv" style="display:<?php echo ($loanOutList || $searchTerm?'none':'block'); ?>;">
 						<form name="newloanoutform" action="outgoing.php" method="post" onsubmit="return verfifyLoanOutAddForm(this);">
 							<fieldset>
 								<legend>New Outgoing Loan</legend>
@@ -225,7 +252,7 @@ if($isEditor){
 										Entered By:
 									</span><br />
 									<span>
-										<input type="text" autocomplete="off" name="createdbyown" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $PARAMS_ARR['un']; ?>" />
+										<input type="text" autocomplete="off" name="createdbyown" maxlength="32" style="width:100px;" value="<?php echo $PARAMS_ARR['un']; ?>" />
 									</span>
 								</div>
 								<div style="padding-top:15px;float:right;">
@@ -264,27 +291,25 @@ if($isEditor){
 						</form>
 					</div>
 					<?php
-					if(!$loanOutList){
-						echo '<script type="text/javascript">displayNewLoanOut();</script>';
-					}
+					if(!$loanOutList) echo '<script type="text/javascript">displayNewLoanOut();</script>';
 					?>
 					<div>
 						<?php
 						if($loanOutList){
-							echo '<h3>Outgoing Loan Records</h3>';
 							echo '<ul>';
 							foreach($loanOutList as $k => $loanArr){
 								echo '<li>';
-								echo '<a href="outgoing.php?collid='.$collid.'&loanid='.$k.'">';
-								echo $loanArr['loanidentifierown'];
-								echo '</a>: '.$loanArr['institutioncode'].' ('.$loanArr['forwhom'].')';
-								echo ' - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN</b>');
+								echo '<a href="outgoing.php?collid='.$collid.'&loanid='.$k.'">'.$loanArr['loanidentifierown'].' <img src="../../images/edit.png" style="width:12px" /></a>: ';
+								echo $loanArr['institutioncode'].' ('.$loanArr['forwhom'].') - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN</b>');
 								echo '</li>';
 							}
 							echo '</ul>';
 						}
 						else{
-							echo '<div style="font-weight:bold;font-size:120%;margin-top:10px;">There are no loans out registered for this collection</div>';
+							echo '<div style="font-size:120%;margin:20px;">';
+							if($searchTerm) echo 'There are no outgoing loans mathcing your search criteria';
+							else echo 'There are no outgoing loans registered for this collection';
+							echo '</div>';
 						}
 						?>
 					</div>
@@ -306,6 +331,7 @@ if($isEditor){
 								</div>
 								<div style="float:right;">
 									<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
+									<input type="hidden" name="tabindex" value="1" />
 									<input type="submit" name="formsubmit" value="Refresh List" />
 								</div>
 							</fieldset>
@@ -320,7 +346,7 @@ if($isEditor){
 							<img src="../../images/add.png" alt="Create New Loan" />
 						</a>
 					</div>
-					<div id="newloanindiv" style="display:<?php echo (($loansOnWay || $loanInList)?'none':'block'); ?>;">
+					<div id="newloanindiv" style="display:<?php echo (($loanInList || $loansOnWay || $searchTerm)?'none':'block'); ?>;">
 						<form name="newloaninform" action="incoming.php" method="post" onsubmit="return verifyLoanInAddForm(this);">
 							<fieldset>
 								<legend>New Incoming Loan</legend>
@@ -329,7 +355,7 @@ if($isEditor){
 										Entered By:
 									</span><br />
 									<span>
-										<input type="text" autocomplete="off" name="createdbyborr" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $PARAMS_ARR['un']; ?>" />
+										<input type="text" autocomplete="off" name="createdbyborr" maxlength="32" style="width:100px;" value="<?php echo $PARAMS_ARR['un']; ?>" />
 									</span>
 								</div>
 								<div style="padding-top:15px;float:right;">
@@ -362,6 +388,7 @@ if($isEditor){
 								</div>
 								<div style="clear:both;padding-top:8px;float:right;">
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+									<input type="hidden" name="tabindex" value="1" />
 									<input name="formsubmit" type="hidden" value="createLoanIn" />
 									<button name="submitbutton" type="submit" value="Create Loan In">Create Loan</button>
 								</div>
@@ -369,21 +396,22 @@ if($isEditor){
 						</form>
 					</div>
 					<div>
-						<h3>Loans Received</h3>
-						<ul>
 						<?php
 						if($loanInList){
+							echo '<ul>';
 							foreach($loanInList as $k => $loanArr){
 								echo '<li>';
-								echo '<a href="incoming.php?collid='.$collid.'&loanid='.$k.'">';
-								echo $loanArr['loanidentifierborr'];
-								echo '</a>: '.$loanArr['institutioncode'].' ('.$loanArr['forwhom'].')';
-								echo ' - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN</b>');
+								echo '<a href="incoming.php?collid='.$collid.'&loanid='.$k.'">'.$loanArr['loanidentifierborr'].' <img src="../../images/edit.png" style="width:12px" /></a>: ';
+								echo $loanArr['institutioncode'].' ('.$loanArr['forwhom'].') - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN</b>');
 								echo '</li>';
 							}
+							echo '</ul>';
 						}
 						else{
-							echo '<li>There are no loans received</li>';
+							echo '<div style="font-size:120%;margin:20px;">';
+							if($searchTerm) echo 'There are no loans mathcing your search criteria';
+							else echo 'There are no loans received';
+							echo '</div>';
 						}
 						?>
 						</ul>

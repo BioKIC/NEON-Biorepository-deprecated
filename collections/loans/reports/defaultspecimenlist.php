@@ -4,27 +4,18 @@ include_once($SERVER_ROOT.'/classes/OccurrenceLoans.php');
 require_once $SERVER_ROOT.'/vendor/phpoffice/phpword/bootstrap.php';
 
 $collId = $_REQUEST['collid'];
-$printMode = $_POST['print'];
-$loanId = array_key_exists('loanid',$_REQUEST)?$_REQUEST['loanid']:0;
-$exchangeId = array_key_exists('exchangeid',$_REQUEST)?$_REQUEST['exchangeid']:0;
+$outputMode = $_POST['outputmode'];
+$loanId = array_key_exists('identifier',$_REQUEST)?$_REQUEST['identifier']:0;
 $loanType = array_key_exists('loantype',$_REQUEST)?$_REQUEST['loantype']:0;
-
-$export = false;
-if($printMode == 'doc') $export = true;
 
 $loanManager = new OccurrenceLoans();
 if($collId) $loanManager->setCollId($collId);
 
-$identifier = 0;
-if($loanId) $identifier = $loanId;
-elseif($exchangeId) $identifier = $exchangeId;
-
-$invoiceArr = $loanManager->getInvoiceInfo($identifier,$loanType);
+$invoiceArr = $loanManager->getInvoiceInfo($loanId,$loanType);
 $addressArr = $loanManager->getFromAddress($collId);
-$specTotal = $loanManager->getSpecTotal($loanId);
 $specList = $loanManager->getSpecList($loanId);
 
-if($export){
+if($outputMode == 'doc'){
 	$phpWord = new \PhpOffice\PhpWord\PhpWord();
 	$phpWord->addParagraphStyle('header', array('align'=>'left','lineHeight'=>1.0,'spaceAfter'=>0,'keepNext'=>true,'keepLines'=>true));
 	$phpWord->addFontStyle('headerFont', array('size'=>14,'name'=>'Arial'));
@@ -51,7 +42,7 @@ if($export){
 	$textrun->addTextBreak(1);
 	$textrun->addText(htmlspecialchars('Date sent: '.$invoiceArr['datesent']),'infoFont');
 	$textrun->addTextBreak(1);
-	$textrun->addText(htmlspecialchars('Total specimens: '.($specTotal?$specTotal['speccount']:0)),'infoFont');
+	$textrun->addText(htmlspecialchars('Total specimens: '.$loanManager->getSpecTotal($loanId)),'infoFont');
 	$section->addTextBreak(1);
 	$table = $section->addTable('headerTable');
 	$table->addRow();
@@ -59,7 +50,7 @@ if($export){
 	$table->addCell(4500,$cellStyle)->addText(htmlspecialchars('Collector + Number'),'colHeaderFont','colHeadSpace');
 	$table->addCell(6000,$cellStyle)->addText(htmlspecialchars('Current Determination'),'colHeaderFont','colHeadSpace');
 	$table = $section->addTable('listTable');
-	foreach($specList as $k => $specArr){
+	foreach($specList as $specArr){
 		$table->addRow();
 		$table->addCell(2250,$cellStyle)->addText(htmlspecialchars($specArr['catalognumber']),'colFont','colSpace');
 		$table->addCell(4500,$cellStyle)->addText(htmlspecialchars($specArr['collector']),'colFont','colSpace');
@@ -81,7 +72,7 @@ else{
 	?>
 	<html>
 		<head>
-			<title><?php echo $identifier; ?> Specimen List</title>
+			<title><?php echo $invoiceArr['loanidentifierown']; ?> Specimen List</title>
 			<?php
 			$activateJQuery = false;
 			if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -111,7 +102,7 @@ else{
 				<div class="loaninfo">
 					<?php echo $addressArr['institutioncode']; ?> Loan ID: <?php echo $invoiceArr['loanidentifierown']; ?><br />
 					Date sent: <?php echo $invoiceArr['datesent']; ?><br />
-					Total specimens: <?php echo ($specTotal?$specTotal['speccount']:0);?>
+					Total specimens: <?php echo $loanManager->getSpecTotal($loanId);?>
 				</div>
 				<br />
 				<table class="colheader">
@@ -131,7 +122,7 @@ else{
 				</table>
 				<table class="specimen">
 					<?php
-					foreach($specList as $k => $specArr){
+					foreach($specList as $specArr){
 						echo '<tr>';
 						echo '<td style="width:150px;">'.$specArr['catalognumber'].'</td>';
 						echo '<td style="width:300px;">'.$specArr['collector'].'</td>';

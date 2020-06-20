@@ -4,27 +4,14 @@ include_once($SERVER_ROOT.'/classes/OccurrenceLoans.php');
 require_once $SERVER_ROOT.'/vendor/phpoffice/phpword/bootstrap.php';
 
 $collId = $_REQUEST['collid'];
-$printMode = $_POST['print'];
-$loanId = array_key_exists('loanid',$_REQUEST)?$_REQUEST['loanid']:0;
-$exchangeId = array_key_exists('exchangeid',$_REQUEST)?$_REQUEST['exchangeid']:0;
+$outputMode = $_POST['outputmode'];
+$identifier = array_key_exists('identifier',$_REQUEST)?$_REQUEST['identifier']:0;
 $loanType = array_key_exists('loantype',$_REQUEST)?$_REQUEST['loantype']:0;
 $institution = array_key_exists('institution',$_POST)?$_POST['institution']:0;
-$international = array_key_exists('international',$_POST)?$_POST['international']:0;
 $accountNum = array_key_exists('mailaccnum',$_POST)?$_POST['mailaccnum']:0;
-
-$export = false;
-if($printMode == 'doc') $export = true;
 
 $loanManager = new OccurrenceLoans();
 if($collId) $loanManager->setCollId($collId);
-
-$identifier = 0;
-if($loanId){
-	$identifier = $loanId;
-}
-elseif($exchangeId){
-	$identifier = $exchangeId;
-}
 
 if($institution){
 	$invoiceArr = $loanManager->getToAddress($institution);
@@ -33,8 +20,10 @@ else{
 	$invoiceArr = $loanManager->getInvoiceInfo($identifier,$loanType);
 }
 $addressArr = $loanManager->getFromAddress($collId);
+$isInternational = true;
+if($invoiceArr['country'] == $addressArr['country']) $isInternational = false;
 
-if($export){
+if($outputMode == 'doc'){
 	$phpWord = new \PhpOffice\PhpWord\PhpWord();
 	$phpWord->addParagraphStyle('fromAddress', array('align'=>'left','lineHeight'=>1.0,'spaceAfter'=>0,'keepNext'=>true,'keepLines'=>true));
 	$phpWord->addFontStyle('fromAddressFont', array('size'=>10,'name'=>'Arial'));
@@ -59,7 +48,7 @@ if($export){
 		$textrun->addTextBreak(1);
 	}
 	$textrun->addText(htmlspecialchars($addressArr['city'].', '.$addressArr['stateprovince'].' '.$addressArr['postalcode']),'fromAddressFont');
-	if($international){
+	if($isInternational){
 		$textrun->addTextBreak(1);
 		$textrun->addText(htmlspecialchars($addressArr['country']),'fromAddressFont');
 	}
@@ -86,7 +75,7 @@ if($export){
 		$textrun->addTextBreak(1);
 	}
 	$textrun->addText(htmlspecialchars($invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode']),'toAddressFont');
-	if($international){
+	if($isInternational){
 		$textrun->addTextBreak(1);
 		$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
 	}
@@ -144,7 +133,7 @@ else{
 									echo $addressArr['address2'].'<br />';
 								}
 								echo $addressArr['city'].', '.$addressArr['stateprovince'].' '.$addressArr['postalcode'].'<br />';
-								if($international){
+								if($isInternational){
 									echo $addressArr['country'].'<br />';
 								}
 								if($accountNum){
@@ -169,7 +158,7 @@ else{
 									echo $invoiceArr['address2'].'<br />';
 								}
 								echo $invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode'];
-								if($international){
+								if($isInternational){
 									echo '<br />'.$invoiceArr['country'];
 								}
 								?>

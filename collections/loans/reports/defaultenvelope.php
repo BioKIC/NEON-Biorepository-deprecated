@@ -4,33 +4,14 @@ include_once($SERVER_ROOT.'/classes/OccurrenceLoans.php');
 require_once $SERVER_ROOT.'/vendor/phpoffice/phpword/bootstrap.php';
 
 $collId = $_REQUEST['collid'];
-$printMode = $_POST['print'];
-$loanId = array_key_exists('loanid',$_REQUEST)?$_REQUEST['loanid']:0;
-$exchangeId = array_key_exists('exchangeid',$_REQUEST)?$_REQUEST['exchangeid']:0;
+$outputMode = $_POST['outputmode'];
+$identifier = array_key_exists('identifier',$_REQUEST)?$_REQUEST['identifier']:0;
 $loanType = array_key_exists('loantype',$_REQUEST)?$_REQUEST['loantype']:0;
 $institution = array_key_exists('institution',$_POST)?$_POST['institution']:0;
-$international = array_key_exists('international',$_POST)?$_POST['international']:0;
 $accountNum = array_key_exists('mailaccnum',$_POST)?$_POST['mailaccnum']:0;
-
-$export = false;
-$exportEngine = '';
-$exportExtension = '';
-if($printMode == 'doc'){
-	$export = true;
-	$exportEngine = 'Word2007';
-	$exportExtension = 'docx';
-}
 
 $loanManager = new OccurrenceLoans();
 if($collId) $loanManager->setCollId($collId);
-
-$identifier = 0;
-if($loanId){
-	$identifier = $loanId;
-}
-elseif($exchangeId){
-	$identifier = $exchangeId;
-}
 
 if($institution){
 	$invoiceArr = $loanManager->getToAddress($institution);
@@ -39,7 +20,7 @@ else{
 	$invoiceArr = $loanManager->getInvoiceInfo($identifier,$loanType);
 }
 
-if($export){
+if($outputMode == 'doc'){
 	$phpWord = new \PhpOffice\PhpWord\PhpWord();
 	$phpWord->addParagraphStyle('acctnum', array('align'=>'left','indent'=>5.5,'lineHeight'=>1.0,'spaceAfter'=>0,'keepNext'=>true,'keepLines'=>true));
 	$phpWord->addFontStyle('acctnumFont', array('size'=>8,'name'=>'Arial'));
@@ -70,13 +51,11 @@ if($export){
 		$textrun->addTextBreak(1);
 	}
 	$textrun->addText(htmlspecialchars($invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode']),'toAddressFont');
-	if($international){
-		$textrun->addTextBreak(1);
-		$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
-	}
+	$textrun->addTextBreak(1);
+	$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
 
-	$targetFile = $SERVER_ROOT.'/temp/report/'.$PARAMS_ARR['un'].'_addressed_envelope.'.$exportExtension;
-	$phpWord->save($targetFile, $exportEngine);
+	$targetFile = $SERVER_ROOT.'/temp/report/'.$PARAMS_ARR['un'].'_addressed_envelope.docx';
+	$phpWord->save($targetFile, 'Word2007');
 
 	header('Content-Description: File Transfer');
 	header('Content-type: application/force-download');
@@ -131,19 +110,11 @@ else{
 								<?php
 								echo $invoiceArr['contact'].'<br />';
 								echo $invoiceArr['institutionname'].' ('.$invoiceArr['institutioncode'].')<br />';
-								if($invoiceArr['institutionname2']){
-									echo $invoiceArr['institutionname2'].'<br />';
-								}
-								if($invoiceArr['address1']){
-									echo $invoiceArr['address1'].'<br />';
-								}
-								if($invoiceArr['address2']){
-									echo $invoiceArr['address2'].'<br />';
-								}
-								echo $invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode'];
-								if($international){
-									echo '<br />'.$invoiceArr['country'];
-								}
+								if($invoiceArr['institutionname2']) echo $invoiceArr['institutionname2'].'<br />';
+								if($invoiceArr['address1']) echo $invoiceArr['address1'].'<br />';
+								if($invoiceArr['address2']) echo $invoiceArr['address2'].'<br />';
+								echo $invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode'].'<br/>';
+								echo $invoiceArr['country'];
 								?>
 							</div>
 						</td>

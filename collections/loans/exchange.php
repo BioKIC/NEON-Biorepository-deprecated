@@ -52,42 +52,10 @@ if($isEditor){
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
-
-		function displayNewExchange(){
-			if(document.getElementById("exchangeToggle")){
-				toggle('newexchangediv');
-			}
-			var f = document.newexchangegiftform;
-			if(f.identifier.value == ""){
-				generateNewId(f.collid.value,f.identifier,"ex");
-			}
-		}
-
-		function verfifyExchangeAddForm(f){
-			if(f.iid.options[f.iid.selectedIndex].value == 0){
-				alert("Select an institution");
-				return false;
-			}
-			if(f.identifier.value == ""){
-				alert("Enter an exchange identifier");
-				return false;
-			}
-			$.ajax({
-				method: "POST",
-				data: { ident: f.identifier.value, collid: f.collid.value, type: "ex" },
-				dataType: "text",
-				url: "rpc/identifierCheck.php"
-			})
-			.done(function(retCode) {
-				if(retCode == 1) alert("There is already a transaction with that identifier, please enter a different one.");
-				else f.submit();
-			});
-			return false;
-		}
 	</script>
-	<script type="text/javascript" src="../../js/symb/collections.loans.js"></script>
+	<script type="text/javascript" src="../../js/symb/collections.loans.js?ver=1"></script>
 	<style>
-		fieldset{ padding:10px; }
+		fieldset{ padding:15px; margin:15px }
 		fieldset legend{ font-weight:bold }
 	</style>
 </head>
@@ -99,14 +67,13 @@ if($isEditor){
 	<div class="navpath">
 		<a href='../../index.php'>Home</a> &gt;&gt;
 		<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Menu</a> &gt;&gt;
-		<a href="index.php?collid=<?php echo $collid; ?>">Loan Index</a> &gt;&gt;
-		<a href="incoming.php?collid=<?php echo $collid; ?>"><b>Exchange Management</b></a>
+		<a href="index.php?tabindex=2&collid=<?php echo $collid; ?>">Loan Index</a> &gt;&gt;
+		<a href="exchange.php?exchangeid=<?php echo $exchangeId; ?>&collid=<?php echo $collid; ?>"><b>Exchange Management</b></a>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
 		if($isEditor && $collid){
-			//Collection is defined and User is logged-in and have permissions
 			if($statusStr){
 				$colorStr = 'red';
 				if(stripos($statusStr,'SUCCESS') !== false) $colorStr = 'green';
@@ -126,15 +93,12 @@ if($isEditor){
 				</ul>
 				<div id="exchangedetaildiv" style="">
 					<?php
-					//Show loan details
 					$exchangeArr = $loanManager->getExchangeDetails($exchangeId);
-					$exchangeValue = $loanManager->getExchangeValue($exchangeId);
-					$exchangeTotal = $loanManager->getExchangeTotal($exchangeId);
 					?>
 					<form name="editexchangegiftform" action="exchange.php" method="post">
-						<?php
-						if($exchangeArr['transactiontype']=='Adjustment'){ ?>
-							<fieldset>
+						<fieldset>
+							<?php
+							if($exchangeArr['transactiontype']=='Adjustment'){ ?>
 								<legend>Edit Adjustment</legend>
 								<div style="padding-top:4px;float:left;">
 									<div style="padding-top:12px;float:left;">
@@ -162,7 +126,7 @@ if($isEditor){
 											Entered By:
 										</span><br />
 										<span>
-											<input type="text" autocomplete="off" name="createdby" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $exchangeArr['createdby']; ?>" onchange=" " disabled />
+											<input type="text" autocomplete="off" name="createdby" maxlength="32" style="width:100px;" value="<?php echo $exchangeArr['createdby']; ?>" disabled />
 										</span>
 									</div>
 								</div>
@@ -184,16 +148,14 @@ if($isEditor){
 									</div>
 									<div style="float:left;">
 										<span style="margin-left:40px;">
-											<b>Adjustment Amount:</b>&nbsp;&nbsp;<input type="text" autocomplete="off" name="adjustment" tabindex="100" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['adjustment']; ?>" onchange=" " />
+											<b>Adjustment Amount:</b> <input type="text" autocomplete="off" name="adjustment" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['adjustment']; ?>" />
 										</span>
 									</div>
 								</div>
-							</fieldset>
-							<?php
-						}
-						else{
-							?>
-							<fieldset>
+								<?php
+							}
+							else{
+								?>
 								<legend>Edit Gift/Exchange</legend>
 								<div style="padding-top:4px;float:left;">
 									<div style="padding-top:12px;float:left;">
@@ -206,7 +168,7 @@ if($isEditor){
 											Entered By:
 										</span><br />
 										<span>
-											<input type="text" autocomplete="off" name="createdby" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $exchangeArr['createdby']; ?>" onchange=" " disabled />
+											<input type="text" autocomplete="off" name="createdby" maxlength="32" style="width:100px;" value="<?php echo $exchangeArr['createdby']; ?>" disabled />
 										</span>
 									</div>
 									<div style="margin-left:40px;float:left;">
@@ -214,7 +176,7 @@ if($isEditor){
 											Date Shipped:
 										</span><br />
 										<span>
-											<input type="text" autocomplete="off" name="datesent" tabindex="100" maxlength="32" style="width:100px;" value="<?php echo $exchangeArr['datesent']; ?>" onchange="verifyDate(this);" title="format: yyyy-mm-dd" />
+											<input type="date" name="datesent" value="<?php echo $exchangeArr['datesent']; ?>" />
 										</span>
 									</div>
 									<div style="margin-left:40px;float:left;">
@@ -222,7 +184,7 @@ if($isEditor){
 											Date Received:
 										</span><br />
 										<span>
-											<input type="text" autocomplete="off" name="datereceived" tabindex="100" maxlength="32" style="width:100px;" value="<?php echo $exchangeArr['datereceived']; ?>" onchange="verifyDate(this);" title="format: yyyy-mm-dd" />
+											<input type="date" name="datereceived" value="<?php echo $exchangeArr['datereceived']; ?>" />
 										</span>
 									</div>
 								</div>
@@ -282,21 +244,21 @@ if($isEditor){
 											<th style="width:220px;text-align:center;">Transaction Totals</th>
 										</tr>
 										<tr style="text-align:right;">
-											<td><b>Total Gifts:</b>&nbsp;&nbsp;<input type="text" autocomplete="off" name="totalgift" tabindex="100" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['totalgift']; ?>" onchange=" " <?php echo ($exchangeArr['transactiontype']=='Adjustment'?'disabled':'');?> /></td>
-											<td><b>Total Unmounted:</b>&nbsp;&nbsp;<input type="text" autocomplete="off" name="totalexunmounted" tabindex="100" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['totalexunmounted']; ?>" onchange=" " <?php echo ($exchangeArr['transactiontype']=='Adjustment'?'disabled':'');?> /></td>
-											<td><b>Exchange Value:</b>&nbsp;&nbsp;<input type="text" name="exchangevalue" tabindex="100" maxlength="32" style="width:80px;border:1px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo ($exchangeValue?$exchangeValue:'');?>" onchange=" " disabled="disabled" /></td>
+											<td><b>Total Gifts:</b> <input type="text" autocomplete="off" name="totalgift"  maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['totalgift']; ?>" <?php echo ($exchangeArr['transactiontype']=='Adjustment'?'disabled':'');?> /></td>
+											<td><b>Total Unmounted:</b> <input type="text" autocomplete="off" name="totalexunmounted" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['totalexunmounted']; ?>" <?php echo ($exchangeArr['transactiontype']=='Adjustment'?'disabled':'');?> /></td>
+											<td><b>Exchange Value:</b> <input type="text" name="exchangevalue" maxlength="32" style="width:80px;border:1px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $loanManager->getExchangeValue($exchangeId); ?>" disabled="disabled" /></td>
 										</tr>
 										<tr style="text-align:right;">
-											<td><b>Total Gifts For Det:</b>&nbsp;&nbsp;<input type="text" autocomplete="off" name="totalgiftdet" tabindex="100" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['totalgiftdet']; ?>" onchange=" " <?php echo ($exchangeArr['transactiontype']=='Adjustment'?'disabled':'');?> /></td>
-											<td><b>Total Mounted:</b>&nbsp;&nbsp;<input type="text" autocomplete="off" name="totalexmounted" tabindex="100" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['totalexmounted']; ?>" onchange=" " <?php echo ($exchangeArr['transactiontype']=='Adjustment'?'disabled':'');?> /></td>
-											<td><b>Total Specimens:</b>&nbsp;&nbsp;<input type="text" name="totalspecimens" tabindex="100" maxlength="32" style="width:80px;border:1px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo ($exchangeTotal?$exchangeTotal:'');?>" onchange=" " disabled="disabled" /></td>
+											<td><b>Total Gifts For Det:</b> <input type="text" autocomplete="off" name="totalgiftdet" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['totalgiftdet']; ?>" <?php echo ($exchangeArr['transactiontype']=='Adjustment'?'disabled':'');?> /></td>
+											<td><b>Total Mounted:</b> <input type="text" autocomplete="off" name="totalexmounted" maxlength="32" style="width:80px;" value="<?php echo $exchangeArr['totalexmounted']; ?>" <?php echo ($exchangeArr['transactiontype']=='Adjustment'?'disabled':'');?> /></td>
+											<td><b>Total Specimens:</b> <input type="text" name="totalspecimens" maxlength="32" style="width:80px;border:1px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $loanManager->getExchangeTotal($exchangeId); ?>" disabled="disabled" /></td>
 										</tr>
 									</table>
 								</div>
 								<div style="padding-top:8px;float:left;">
 									<div style="padding-top:15px;float:left;">
 										<span style="margin-left:25px;">
-											<b>Current Balance:</b> <input type="text" name="invoicebalance" tabindex="100" maxlength="32" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $exchangeArr['invoicebalance']; ?>" onchange=" " disabled />
+											<b>Current Balance:</b> <input type="text" name="invoicebalance" maxlength="32" style="width:120px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $exchangeArr['invoicebalance']; ?>" disabled />
 										</span>
 									</div>
 									<div style="margin-left:100px;float:left;">
@@ -304,7 +266,7 @@ if($isEditor){
 											# of Boxes:
 										</span><br />
 										<span>
-											<input type="text" autocomplete="off" name="totalboxes" tabindex="100" maxlength="32" style="width:50px;" value="<?php echo $exchangeArr['totalboxes']; ?>" onchange=" " />
+											<input type="text" autocomplete="off" name="totalboxes" maxlength="32" style="width:50px;" value="<?php echo $exchangeArr['totalboxes']; ?>" />
 										</span>
 									</div>
 									<div style="margin-left:60px;float:left;">
@@ -312,7 +274,7 @@ if($isEditor){
 											Shipping Service:
 										</span><br />
 										<span>
-											<input type="text" autocomplete="off" name="shippingmethod" tabindex="100" maxlength="32" style="width:180px;" value="<?php echo $exchangeArr['shippingmethod']; ?>" onchange=" " />
+											<input type="text" autocomplete="off" name="shippingmethod" maxlength="32" style="width:180px;" value="<?php echo $exchangeArr['shippingmethod']; ?>" />
 										</span>
 									</div>
 								</div>
@@ -322,7 +284,7 @@ if($isEditor){
 											Description:
 										</span><br />
 										<span>
-											<textarea name="description" rows="10" style="width:320px;resize:vertical;" onchange=" "><?php echo $exchangeArr['description']; ?></textarea>
+											<textarea name="description" rows="10" style="width:320px;resize:vertical;"><?php echo $exchangeArr['description']; ?></textarea>
 										</span>
 									</div>
 									<div style="margin-left:40px;float:left;">
@@ -330,7 +292,7 @@ if($isEditor){
 											Notes:
 										</span><br />
 										<span>
-											<textarea name="notes" rows="10" style="width:320px;resize:vertical;" onchange=" "><?php echo $exchangeArr['notes']; ?></textarea>
+											<textarea name="notes" rows="10" style="width:320px;resize:vertical;"><?php echo $exchangeArr['notes']; ?></textarea>
 										</span>
 									</div>
 								</div>
@@ -342,58 +304,42 @@ if($isEditor){
 										Additional Message:
 									</span><br />
 									<span>
-										<textarea name="invoicemessage" rows="5" style="width:700px;resize:vertical;" onchange=" "><?php echo $exchangeArr['invoicemessage']; ?></textarea>
+										<textarea name="invoicemessage" rows="5" style="width:700px;resize:vertical;"><?php echo $exchangeArr['invoicemessage']; ?></textarea>
 									</span>
 								</div>
-							</fieldset>
-							<?php
-						}
-						?>
-						<div style="clear:both;padding-top:8px;float:right;">
-							<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-							<input name="exchangeid" type="hidden" value="<?php echo $exchangeId; ?>" />
-							<button name="formsubmit" type="submit" value="Save Exchange">Save</button>
-						</div>
-					</form>
-					<?php
-					if($exchangeArr['transactiontype']=='Shipment'){ ?>
-						<form name="reportsform" method="post" onsubmit="return ProcessReport();">
-							<fieldset>
-								<legend>Generate Loan Paperwork</legend>
-								<div style="float:right;">
-									<b>International Shipment:</b> <input type="checkbox" name="international" value="1" /><br /><br />
-									<b>Mailing Account #:</b> <input type="text" autocomplete="off" name="mailaccnum" tabindex="100" maxlength="32" style="width:100px;" value="" />
-								</div>
-								<div style="padding-bottom:2px;">
-									<b>Print Method:</b> <input type="radio" name="print" id="printbrowser" value="browser" checked /> Print in Browser
-									<input type="radio" name="print" id="printdoc" value="doc" /> Export to DOCX
-								</div>
-								<div style="padding-bottom:8px;">
-									<b>Invoice Language:</b> <input type="radio" name="languagedef" value="0" checked /> English
-									<input type="radio" name="languagedef" value="1" /> English/Spanish
-									<input type="radio" name="languagedef" value="2" /> Spanish
-								</div>
+								<?php
+							}
+							?>
+							<div style="clear:both;padding-top:8px;">
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 								<input name="exchangeid" type="hidden" value="<?php echo $exchangeId; ?>" />
-								<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="invoice">Invoice</button>
-								<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="label">Mailing Label</button>
-								<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="envelope">Envelope</button>
-							</fieldset>
-						</form>
-					<?php } ?>
+								<input name="tabindex" type="hidden" value="2" />
+								<button name="formsubmit" type="submit" value="Save Exchange">Save</button>
+							</div>
+						</fieldset>
+					</form>
+					<?php
+					if($exchangeArr['transactiontype']=='Shipment'){
+						$loanType = 'exchange';
+						$identifier = $exchangeId;
+						include('reportsinclude.php');
+					}
+					?>
+					<div style="margin:20px"><b>&lt;&lt; <a href="index.php?collid=<?php echo $collid; ?>">Return to Loan Index Page</a></b></div>
 				</div>
 				<div id="exchangedeldiv">
 					<form name="delexchangeform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this exchange?')">
-						<fieldset style="width:350px;margin:20px;padding:20px;">
+						<fieldset>
 							<legend>Delete Exchange</legend>
-							<input name="formsubmit" type="submit" value="Delete Exchange" />
 							<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+							<input name="tabindex" type="hidden" value="2" />
 							<input name="exchangeid" type="hidden" value="<?php echo $exchangeId; ?>" />
+							<input name="formsubmit" type="submit" value="Delete Exchange" />
 						</fieldset>
 					</form>
 				</div>
 			</div>
-		<?php
+			<?php
 		}
 		else{
 			if(!$isEditor) echo '<h2>You are not authorized to add occurrence records</h2>';

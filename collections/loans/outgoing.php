@@ -31,7 +31,9 @@ if($isEditor){
 			$statusStr = $loanManager->editLoanOut($_POST);
 		}
 		elseif($formSubmit == 'Perform Action'){
-			$statusStr = $loanManager->editSpecimen($_REQUEST);
+			if(!$loanManager->editSpecimen($_REQUEST)){
+				$statusStr = $loanManager->getErrorMessage();
+			}
 		}
 		elseif($formSubmit == 'Add New Determinations'){
 			include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
@@ -146,28 +148,6 @@ if($isEditor){
 			return false;
 		}
 
-		function ProcessReport(){
-			if(document.pressed == 'invoice'){
-				document.reportsform.action ="reports/defaultinvoice.php";
-			}
-			else if(document.pressed == 'spec'){
-				document.reportsform.action ="reports/defaultspecimenlist.php";
-			}
-			else if(document.pressed == 'label'){
-				document.reportsform.action ="reports/defaultmailinglabel.php";
-			}
-			else if(document.pressed == 'envelope'){
-				document.reportsform.action ="reports/defaultenvelope.php";
-			}
-			if(document.getElementById("printbrowser").checked){
-				document.reportsform.target = "_blank";
-			}
-			if(document.getElementById("printdoc").checked){
-				document.reportsform.target = "_self";
-			}
-			return true;
-		}
-
 		function verifySpecEditForm(f){
 			//Make sure at least on specimen checkbox is checked
 			var cbChecked = false;
@@ -274,36 +254,10 @@ if($isEditor){
 			}
 		}
 
-		function toggle(target){
-			var objDiv = document.getElementById(target);
-			if(objDiv){
-				if(objDiv.style.display=="none"){
-					objDiv.style.display = "block";
-				}
-				else{
-					objDiv.style.display = "none";
-				}
-			}
-			else{
-			  	var divs = document.getElementsByTagName("div");
-			  	for (var h = 0; h < divs.length; h++) {
-			  	var divObj = divs[h];
-					if(divObj.className == target){
-						if(divObj.style.display=="none"){
-							divObj.style.display="block";
-						}
-					 	else {
-					 		divObj.style.display="none";
-					 	}
-					}
-				}
-			}
-		}
-
 	</script>
-	<script type="text/javascript" src="../../js/symb/collections.loans.js"></script>
+	<script type="text/javascript" src="../../js/symb/collections.loans.js?ver=1"></script>
 	<style>
-		fieldset{ padding:10px; }
+		fieldset{ padding:15px; margin:15px }
 		fieldset legend{ font-weight:bold }
 	</style>
 </head>
@@ -316,7 +270,7 @@ if($isEditor){
 		<a href='../../index.php'>Home</a> &gt;&gt;
 		<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Menu</a> &gt;&gt;
 		<a href="index.php?collid=<?php echo $collid; ?>">Loan Index</a> &gt;&gt;
-		<a href="outgoing.php?collid=<?php echo $collid; ?>"><b>Outgoing Loan Management</b></a>
+		<a href="outgoing.php?collid=<?php echo $collid.'&loanid='.$loanId; ?>"><b>Outgoing Loan Management</b></a>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
@@ -359,7 +313,7 @@ if($isEditor){
 									Entered By:
 								</span><br />
 								<span>
-									<input type="text" autocomplete="off" name="createdbyown" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $loanArr['createdbyown']; ?>" onchange=" " disabled />
+									<input type="text" autocomplete="off" name="createdbyown" maxlength="32" style="width:100px;" value="<?php echo $loanArr['createdbyown']; ?>" onchange=" " disabled />
 								</span>
 							</div>
 							<div style="margin-left:20px;padding-top:4px;float:left;">
@@ -367,7 +321,7 @@ if($isEditor){
 									Processed By:
 								</span><br />
 								<span>
-									<input type="text" autocomplete="off" name="processedbyown" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $loanArr['processedbyown']; ?>" onchange=" " />
+									<input type="text" autocomplete="off" name="processedbyown" maxlength="32" style="width:100px;" value="<?php echo $loanArr['processedbyown']; ?>" onchange=" " />
 								</span>
 							</div>
 							<div style="margin-left:20px;padding-top:4px;float:left;">
@@ -375,7 +329,7 @@ if($isEditor){
 									Date Sent:
 								</span><br />
 								<span>
-									<input type="text" autocomplete="off" name="datesent" tabindex="100" maxlength="32" style="width:100px;" value="<?php echo $loanArr['datesent']; ?>" onchange="verifyDate(this);" title="format: yyyy-mm-dd" />
+									<input type="date" name="datesent" value="<?php echo $loanArr['datesent']; ?>" />
 								</span>
 							</div>
 							<div style="margin-left:20px;padding-top:4px;float:left;">
@@ -383,7 +337,7 @@ if($isEditor){
 									Date Due:
 								</span><br />
 								<span>
-									<input type="text" autocomplete="off" name="datedue" tabindex="100" maxlength="32" style="width:100px;" value="<?php echo $loanArr['datedue']; ?>" onchange="verifyDueDate(this);" title="format: yyyy-mm-dd" />
+									<input type="date" name="datedue" value="<?php echo $loanArr['datedue']; ?>" />
 								</span>
 							</div>
 							<div style="padding-top:8px;float:left;">
@@ -418,12 +372,12 @@ if($isEditor){
 										Requested for:
 									</span><br />
 									<span>
-										<input type="text" autocomplete="off" name="forwhom" tabindex="100" maxlength="32" style="width:180px;" value="<?php echo $loanArr['forwhom']; ?>" onchange=" " />
+										<input type="text" autocomplete="off" name="forwhom" maxlength="32" style="width:180px;" value="<?php echo $loanArr['forwhom']; ?>" onchange=" " />
 									</span>
 								</div>
 								<div style="padding-top:15px;margin-left:20px;float:left;">
 									<span>
-										<b>Specimen Total:</b> <input type="text" name="totalspecimens" tabindex="100" maxlength="32" style="width:80px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo count($specList); ?>" onchange=" " disabled />
+										<b>Specimen Total:</b> <input type="text" name="totalspecimens" maxlength="32" style="width:80px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo count($specList); ?>" onchange=" " disabled />
 									</span>
 								</div>
 								<div style="margin-left:20px;float:left;">
@@ -431,7 +385,7 @@ if($isEditor){
 										# of Boxes:
 									</span><br />
 									<span>
-										<input type="text" autocomplete="off" name="totalboxes" tabindex="100" maxlength="32" style="width:50px;" value="<?php echo $loanArr['totalboxes']; ?>" onchange=" " />
+										<input type="text" autocomplete="off" name="totalboxes" maxlength="32" style="width:50px;" value="<?php echo $loanArr['totalboxes']; ?>" onchange=" " />
 									</span>
 								</div>
 								<div style="margin-left:20px;float:left;">
@@ -439,7 +393,7 @@ if($isEditor){
 										Shipping Service:
 									</span><br />
 									<span>
-										<input type="text" autocomplete="off" name="shippingmethod" tabindex="100" maxlength="32" style="width:180px;" value="<?php echo $loanArr['shippingmethod']; ?>" onchange=" " />
+										<input type="text" autocomplete="off" name="shippingmethod" maxlength="32" style="width:180px;" value="<?php echo $loanArr['shippingmethod']; ?>" onchange=" " />
 									</span>
 								</div>
 							</div>
@@ -470,7 +424,7 @@ if($isEditor){
 										Date Received:
 									</span><br />
 									<span>
-										<input type="text" autocomplete="off" name="datereceivedown" tabindex="100" maxlength="32" style="width:100px;" value="<?php echo $loanArr['datereceivedown']; ?>" onchange="verifyDate(this);" title="format: yyyy-mm-dd" />
+										<input type="date" name="datereceivedown" value="<?php echo $loanArr['datereceivedown']; ?>" />
 									</span>
 								</div>
 								<div style="margin-left:40px;float:left;">
@@ -478,7 +432,7 @@ if($isEditor){
 										Ret. Processed By:
 									</span><br />
 									<span>
-										<input type="text" autocomplete="off" name="processedbyreturnown" tabindex="96" maxlength="32" style="width:100px;" value="<?php echo $loanArr['processedbyreturnown']; ?>" onchange=" " />
+										<input type="text" autocomplete="off" name="processedbyreturnown" maxlength="32" style="width:100px;" value="<?php echo $loanArr['processedbyreturnown']; ?>" onchange=" " />
 									</span>
 								</div>
 								<div style="margin-left:40px;float:left;">
@@ -486,7 +440,7 @@ if($isEditor){
 										Date Closed:
 									</span><br />
 									<span>
-										<input type="text" autocomplete="off" name="dateclosed" tabindex="100" maxlength="32" style="width:100px;" value="<?php echo $loanArr['dateclosed']; ?>" onchange="verifyDate(this);" title="format: yyyy-mm-dd" />
+										<input type="date" name="dateclosed" value="<?php echo $loanArr['dateclosed']; ?>" />
 									</span>
 								</div>
 							</div>
@@ -495,40 +449,22 @@ if($isEditor){
 									Additional Invoice Message:
 								</span><br />
 								<span>
-									<textarea name="invoicemessageown" rows="5" style="width:700px;resize:vertical;" onchange=" "><?php echo $loanArr['invoicemessageown']; ?></textarea>
+									<textarea name="invoicemessageown" rows="5" style="width:700px;resize:vertical;"><?php echo $loanArr['invoicemessageown']; ?></textarea>
 								</span>
 							</div>
-							<div style="clear:both;padding-top:8px;float:right;">
+							<div style="clear:both;padding:10px;">
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 								<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 								<button name="formsubmit" type="submit" value="Save Outgoing">Save</button>
 							</div>
 						</fieldset>
 					</form>
-					<form name="reportsform" onsubmit="return ProcessReport();" method="post" onsubmit="">
-						<fieldset>
-							<legend>Generate Loan Paperwork</legend>
-							<div style="float:right;">
-								<b>International Shipment:</b> <input type="checkbox" name="international" value="1" /><br /><br />
-								<b>Mailing Account #:</b> <input type="text" autocomplete="off" name="mailaccnum" tabindex="100" maxlength="32" style="width:100px;" value="" />
-							</div>
-							<div style="padding-bottom:2px;">
-								<b>Print Method:</b> <input type="radio" name="print" id="printbrowser" value="browser" checked /> Print in Browser
-								<input type="radio" name="print" id="printdoc" value="doc" /> Export to DOCX
-							</div>
-							<div style="padding-bottom:8px;">
-								<b>Invoice Language:</b> <input type="radio" name="languagedef" value="0" checked /> English
-								<input type="radio" name="languagedef" value="1" /> English/Spanish
-								<input type="radio" name="languagedef" value="2" /> Spanish
-							</div>
-							<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-							<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
-							<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="invoice">Invoice</button>
-							<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="spec">Specimen List</button>
-							<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="label">Mailing Label</button>
-							<button name="formsubmit" type="submit" onclick="document.pressed=this.value" value="envelope">Envelope</button>
-						</fieldset>
-					</form>
+					<?php
+					$loanType = 'out';
+					$identifier = $loanId;
+					include('reportsinclude.php');
+					?>
+					<div style="margin:20px"><b>&lt;&lt; <a href="index.php?collid=<?php echo $collid; ?>">Return to Loan Index Page</a></b></div>
 				</div>
 				<div id="outloanspecdiv">
 					<div style="float:right;margin:10px;">
@@ -595,17 +531,17 @@ if($isEditor){
 									<th style="width:75px;text-align:center;">Date Returned</th>
 								</tr>
 								<?php
-								foreach($specList as $k => $specArr){
+								foreach($specList as $occid => $specArr){
 									?>
 									<tr>
 										<td>
-											<input name="occid[]" type="checkbox" value="<?php echo $specArr['occid']; ?>" />
+											<input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" />
 										</td>
 										<td>
-											<a href="#" onclick="openIndPopup(<?php echo $specArr['occid']; ?>); return false;">
+											<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
 												<?php echo $specArr['catalognumber']; ?>
 											</a>
-											<a href="#" onclick="openEditorPopup(<?php echo $specArr['occid']; ?>); return false;">
+											<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;">
 												<img src="../../images/edit.png" />
 											</a>
 										</td>
@@ -628,7 +564,7 @@ if($isEditor){
 								<tr>
 									<td colspan="10" valign="bottom">
 										<div id="newdetdiv" style="display:none;">
-											<fieldset style="margin: 15px 15px 0px 15px;">
+											<fieldset>
 												<legend><b>Add a New Determinations</b></legend>
 												<div style='margin:3px;'>
 													<b>Identification Qualifier:</b>
@@ -703,11 +639,11 @@ if($isEditor){
 							</table>
 						</form>
 					</div>
-					<div id="nospecdiv" style="font-weight:bold;font-size:120%;<?php echo ($specList?'display:none;':''); ?>">There are no specimens registered for this loan.</div>
+					<div id="nospecdiv" style="margin:20px;font-size:120%;<?php echo ($specList?'display:none;':''); ?>">There are no specimens registered for this loan.</div>
 				</div>
 				<div id="outloandeldiv">
 					<form name="deloutloanform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this loan?')">
-						<fieldset style="width:550px;margin:20px;padding:20px;">
+						<fieldset>
 							<legend>Delete Outgoing Loan</legend>
 							<?php
 							if($specList){

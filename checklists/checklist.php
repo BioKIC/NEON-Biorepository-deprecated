@@ -233,7 +233,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					<ul id="sddm">
 						<li>
 							<span onmouseover="mopen('m1')" onmouseout="mclosetime()">
-								<img src="../images/games/games.png" style="height:17px;" title="<?php echo (isset($LANG['ACCESS_GAMES'])?$LANG['ACCESS_GAMES']:'Access Species List Games'); ?>" />
+								<img src="../images/games/games.png" style="height:17px;" />
 							</span>
 							<div id="m1" onmouseover="mcancelclosetime()" onmouseout="mclosetime()">
 								<?php

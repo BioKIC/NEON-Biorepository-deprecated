@@ -666,7 +666,7 @@ class ChecklistManager {
 			}
 			else{
 				$pid = 0;
-				$projName = 'Undefinded Inventory Project';
+				$projName = 'Miscellaneous Inventories';
 			}
 			$retArr[$pid]['name'] = $this->cleanOutStr($projName);
 			$retArr[$pid]['clid'][$row->clid] = $this->cleanOutStr($row->name).($row->access=='private'?' (Private)':'');

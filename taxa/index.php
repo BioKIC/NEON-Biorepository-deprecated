@@ -97,38 +97,38 @@ include($SERVER_ROOT.'/includes/header.php');
 				<table id="innertable">
 				<tr>
 					<td colspan="2" valign="bottom">
-					<?php
-					if($isEditor){
+						<?php
+						if($isEditor){
+							?>
+							<div id="editorDiv">
+								<a href="profile/tpeditor.php?tid=<?php echo $taxonManager->getTid(); ?>" <?php echo 'title="'.(isset($LANG['EDIT_TAXON_DATA'])?$LANG['EDIT_TAXON_DATA']:'Edit Taxon Data').'"'; ?>>
+									<img class="navIcon" src='../images/edit.png'/>
+								</a>
+							</div>
+							<?php
+						}
 						?>
-						<div id="editorDiv">
-							<a href="profile/tpeditor.php?tid=<?php echo $taxonManager->getTid(); ?>" <?php echo 'title="'.(isset($LANG['EDIT_TAXON_DATA'])?$LANG['EDIT_TAXON_DATA']:'Edit Taxon Data').'"'; ?>>
-								<img class="navIcon" src='../images/edit.png'/>
-							</a>
+						<div id="scinameDiv">
+							<?php echo '<span id="'.($taxonManager->getRankId() > 179?'sciname':'taxon').'">'.$taxonManager->getTaxonName().'</span>'; ?>
+							<span id="author"><?php echo $taxonManager->getTaxonAuthor(); ?></span>
+							<?php
+							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
+							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
+							if($taxonManager->isForwarded()){
+						 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';
+						 	}
+						 	?>
 						</div>
 						<?php
-					}
-					?>
-					<div id="scinameDiv">
-						<?php echo '<span id="'.($taxonManager->getRankId() > 179?'sciname':'taxon').'">'.$taxonManager->getTaxonName().'</span>'; ?>
-						<span id="author"><?php echo $taxonManager->getTaxonAuthor(); ?></span>
-						<?php
-						$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
-						echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
-						if($taxonManager->isForwarded()){
-					 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';
-					 	}
-					 	?>
-					</div>
-					<?php
-					if($links && $links[0]['sortseq'] == 1){
-						$uStr = str_replace('--SCINAME--',rawurlencode($taxonManager->getTaxonName()),$links[0]['url']);
+						if($links && $links[0]['sortseq'] == 1){
+							$uStr = str_replace('--SCINAME--',rawurlencode($taxonManager->getTaxonName()),$links[0]['url']);
+							?>
+							<div id="linkDiv">
+								<?php echo (isset($LANG['GO_TO'])?$LANG['GO_TO']:'Go to'); ?> <a href="<?php echo $uStr; ?>" target="_blank"><?php echo $links[0]['title']; ?></a>...
+							</div>
+							<?php
+						}
 						?>
-						<div id="linkDiv">
-							<?php echo (isset($LANG['GO_TO'])?$LANG['GO_TO']:'Go to'); ?> <a href="<?php echo $uStr; ?>" target="_blank"><?php echo $links[0]['title']; ?></a>...
-						</div>
-						<?php
-					}
-					?>
 					</td>
 				</tr>
 				<tr>
@@ -160,7 +160,6 @@ include($SERVER_ROOT.'/includes/header.php');
 							</div>
 							<?php
 						}
-
 						if($synArr = $taxonManager->getSynonymArr()){
 							$primerArr = array_shift($synArr);
 							$synStr = '<i>'.$primerArr['sciname'].'</i>'.(isset($primerArr['author']) && $primerArr['author']?' '.$primerArr['author']:'');
@@ -251,32 +250,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				?>
 				<table id="innertable">
 				<tr>
-					<td style="width:250px;vertical-align:top;">
-						<div id="scinameDiv">
-							<?php
-							$displayName = $taxonManager->getTaxonName();
-							if($taxonRank > 140){
-								$parentLink = "index.php?tid=".$taxonManager->getParentTid()."&clid=".$clid."&pid=".$pid."&taxauthid=".$taxAuthId;
-								$displayName .= ' <a href="'.$parentLink.'">';
-								$displayName .= '<img class="navIcon" src="../images/toparent.png" title="'.(isset($LANG['GO_TO_PARENT'])?$LANG['GO_TO_PARENT']:'Go to Parent Taxon').'" />';
-								$displayName .= '</a>';
-							}
-							echo '<div id="taxon">'.$displayName.'</div>';
-							if($taxonRank > 140) echo '<div id="family"><b>Family:</b> '.$taxonManager->getTaxonFamily().'</div>';
-							if(!$taxonManager->echoImages(0,1,0)){
-								echo "<div class='image' style='width:260px;height:260px;border-style:solid;margin-top:5px;margin-left:20px;text-align:center;'>";
-								if($isEditor){
-									echo '<a href="profile/tpeditor.php?category=imageadd&tid='.$taxonManager->getTid().'"><b>'.(isset($LANG['ADD_IMAGE'])?$LANG['ADD_IMAGE']:'Add an Image').'</b></a>';
-								}
-								else{
-									echo (isset($LANG['IMAGE_NOT_AVAILABLE'])?$LANG['IMAGE_NOT_AVAILABLE']:'Images<br/>not available');
-								}
-								echo '</div>';
-							}
-							?>
-						</div>
-					</td>
-					<td>
+					<td colspan="2" style="vertical-align:top;">
 						<?php
 						if($isEditor){
 							?>
@@ -287,6 +261,39 @@ include($SERVER_ROOT.'/includes/header.php');
 							</div>
 							<?php
 						}
+						?>
+						<div id="scinameDiv">
+							<?php
+							$displayName = $taxonManager->getTaxonName();
+							if($taxonRank > 140){
+								$parentLink = "index.php?tid=".$taxonManager->getParentTid()."&clid=".$clid."&pid=".$pid."&taxauthid=".$taxAuthId;
+								$displayName .= ' <a href="'.$parentLink.'">';
+								$displayName .= '<img class="navIcon" src="../images/toparent.png" title="'.(isset($LANG['GO_TO_PARENT'])?$LANG['GO_TO_PARENT']:'Go to Parent Taxon').'" />';
+								$displayName .= '</a>';
+							}
+							echo '<div id="taxon">'.$displayName.'</div>';
+							?>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="300" valign="top">
+						<?php
+						if($taxonRank > 140) echo '<div id="family"><b>Family:</b> '.$taxonManager->getTaxonFamily().'</div>';
+						if(!$taxonManager->echoImages(0,1,0)){
+							echo "<div class='image' style='width:260px;height:260px;border-style:solid;margin-top:5px;margin-left:20px;text-align:center;'>";
+							if($isEditor){
+								echo '<a href="profile/tpeditor.php?category=imageadd&tid='.$taxonManager->getTid().'"><b>'.(isset($LANG['ADD_IMAGE'])?$LANG['ADD_IMAGE']:'Add an Image').'</b></a>';
+							}
+							else{
+								echo (isset($LANG['IMAGE_NOT_AVAILABLE'])?$LANG['IMAGE_NOT_AVAILABLE']:'Images<br/>not available');
+							}
+							echo '</div>';
+						}
+						?>
+					</td>
+					<td class="desc">
+						<?php
 						echo $taxonManager->getDescriptionTabs();
 						?>
 					</td>

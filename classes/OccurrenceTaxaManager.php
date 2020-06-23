@@ -37,8 +37,8 @@ class OccurrenceTaxaManager {
 	protected $taxAuthId = 1;
 	private $taxaSearchTerms = array();
 
-	public function __construct(){
-		$this->conn = MySQLiConnectionFactory::getCon('readonly');
+	public function __construct($type='readonly'){
+		$this->conn = MySQLiConnectionFactory::getCon($type);
 	}
 	public function __destruct(){
 		if ((!($this->conn === false)) && (!($this->conn === null))) {

@@ -1,9 +1,8 @@
 <?php
-include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/Manager.php');
 
-class GamesManager {
+class GamesManager extends Manager{
 
-	private $conn;
 	private $clid;
 	private $clidStr;
 	private $dynClid;
@@ -12,11 +11,11 @@ class GamesManager {
 	private $langId;
 
 	public function __construct(){
-		$this->conn = MySQLiConnectionFactory::getCon("readonly");
+		parent::__construct();
 	}
 
 	public function __destruct(){
-		if(!($this->conn === null)) $this->conn->close();
+		parent::__destruct();
 	}
 
 	public function getChecklistArr($projId = 0){

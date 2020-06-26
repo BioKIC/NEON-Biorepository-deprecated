@@ -1,5 +1,8 @@
 INSERT IGNORE INTO schemaversion (versionnumber) values ("1.2");
 
+ALTER TABLE `adminlanguages` 
+  ADD COLUMN `ISO 639-3` VARCHAR(3) NULL AFTER `iso639_2`;
+
 ALTER TABLE `lkupstateprovince` 
   CHANGE COLUMN `abbrev` `abbrev` VARCHAR(3) NULL DEFAULT NULL ;
 

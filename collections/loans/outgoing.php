@@ -44,8 +44,43 @@ if($isEditor){
 				$occManager->addDetermination($_REQUEST,$isEditor);
 			}
 		}
+		elseif($formSubmit == 'batchLinkSpecimens'){
+			$cnt = $loanManager->batchLinkSpecimens($_POST);
+			$statusStr = '<ul>';
+			$statusStr .= '<li><b>'.$cnt.'</b> specimens linked successfully</li>';
+			if($warnArr = $loanManager->getWarningArr()){
+				$statusStr .= '<li>Errors and Warnings</li>';
+				if(isset($warnArr['missing'])){
+					$statusStr .= '<li style="margin-left:10px"><b>Unable to locate following catalog numbers</b></li>';
+					foreach($warnArr['missing'] as $errStr){
+						$statusStr .= '<li style="margin-left:20px">'.$errStr.'</li>';
+					}
+				}
+				if(isset($warnArr['multiple'])){
+					$statusStr .= '<li style="margin-left:10px"><b>Catalog numbers with multiple matches</b></li>';
+					foreach($warnArr['multiple'] as $errStr){
+						$statusStr .= '<li style="margin-left:20px">'.$errStr.'</li>';
+					}
+				}
+				if(isset($warnArr['dupe'])){
+					$statusStr .= '<li style="margin-left:10px"><b>Specimens already linked to loan</b></li>';
+					foreach($warnArr['dupe'] as $errStr){
+						$statusStr .= '<li style="margin-left:20px">'.$errStr.'</li>';
+					}
+				}
+				if(isset($warnArr['error'])){
+					$statusStr .= '<li style="margin-left:10px"><b>Misc errors</b></li>';
+					foreach($warnArr['error'] as $errStr){
+						$statusStr .= '<li style="margin-left:20px">'.$errStr.'</li>';
+					}
+				}
+				$statusStr .= '</ul>';
+			}
+			$tabIndex = 1;
+		}
 	}
 }
+$specimenTotal = $loanManager->getSpecimenTotal($loanId);
 ?>
 <html>
 <head>
@@ -288,12 +323,11 @@ if($isEditor){
 				<hr/>
 				<?php
 			}
-			$specList = $loanManager->getSpecList($loanId);
 			?>
 			<div id="tabs" style="margin:0px;">
 			    <ul>
 					<li><a href="#outloandetaildiv"><span>Loan Details</span></a></li>
-					<li><a href="#outloanspecdiv"><span>Specimens</span></a></li>
+					<li><a href="specimentab.php?collid=<?php echo $collid.'&loanid='.$loanId; ?>"><span>Specimens</span></a></li>
 					<li><a href="#outloandeldiv"><span>Admin</span></a></li>
 				</ul>
 				<div id="outloandetaildiv">
@@ -377,7 +411,7 @@ if($isEditor){
 								</div>
 								<div style="padding-top:15px;margin-left:20px;float:left;">
 									<span>
-										<b>Specimen Total:</b> <input type="text" name="totalspecimens" maxlength="32" style="width:80px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo count($specList); ?>" onchange=" " disabled />
+										<b>Specimen Total:</b> <input type="text" name="totalspecimens" maxlength="32" style="width:80px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $specimenTotal; ?>" onchange=" " disabled />
 									</span>
 								</div>
 								<div style="margin-left:20px;float:left;">
@@ -466,187 +500,12 @@ if($isEditor){
 					?>
 					<div style="margin:20px"><b>&lt;&lt; <a href="index.php?collid=<?php echo $collid; ?>">Return to Loan Index Page</a></b></div>
 				</div>
-				<div id="outloanspecdiv">
-					<div style="float:right;margin:10px;">
-						<a href="#" onclick="toggle('newspecdiv');">
-							<img src="../../images/add.png" title="Add New Specimen" />
-						</a>
-					</div>
-					<div id="newspecdiv" style="display:none;">
-						<fieldset>
-							<legend>Add Specimen</legend>
-							<form name="addspecform" style="margin-bottom:0px;padding-bottom:0px;" action="outgoing.php" method="post" onsubmit="addSpecimen(this,<?php echo (!$specList?'0':'1'); ?>);return false;">
-								<div style="float:left;padding-bottom:2px;">
-									<b>Catalog Number: </b><input type="text" autocomplete="off" name="catalognumber" maxlength="255" style="width:200px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
-								</div>
-								<div id="addspecsuccess" style="float:left;margin-left:30px;padding-bottom:2px;color:green;display:none;">
-									SUCCESS: Specimen record added to loan.
-								</div>
-								<div id="addspecerr1" style="float:left;margin-left:30px;padding-bottom:2px;color:red;display:none;">
-									ERROR: No specimens found with that catalog number.
-								</div>
-								<div id="addspecerr2" style="float:left;margin-left:30px;padding-bottom:2px;color:red;display:none;">
-									ERROR: More than one specimen located with same catalog number.
-								</div>
-								<div id="addspecerr3" style="float:left;margin-left:30px;padding-bottom:2px;color:orange;display:none;">
-									Warning: Specimen already linked to loan.
-								</div>
-								<div style="padding-top:8px;clear:left;float:left;">
-									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-									<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
-									<input name="formsubmit" type="submit" value="Add Specimen" />
-								</div>
-							</form>
-							<div id="refreshbut" style="float:left;padding-top:10px;margin-left:10px;">
-								<form style="margin-bottom:0px;" name="refreshspeclist" action="outgoing.php" method="post">
-									<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
-									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-									<input name="tabindex" type="hidden" value="1" />
-									<input name="formsubmit" type="submit" value="Refresh List" />
-								</form>
-							</div>
-						</fieldset>
-					</div>
-					<div id="speclistdiv" style="<?php echo (!$specList?'display:none;':''); ?>">
-						<div style="height:25px;margin-top:15px;">
-							<div style="float:left;margin-left:15px;">
-								<input name="" value="" type="checkbox" onclick="selectAll(this);" />
-								Select/Deselect All
-							</div>
-							<div id="refreshbut" style="display:none;float:right;margin-right:15px;">
-								<form name="refreshspeclist" action="outgoing.php" method="post">
-									<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
-									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-									<input name="tabindex" type="hidden" value="1" />
-									<input name="formsubmit" type="submit" value="Refresh List" />
-								</form>
-							</div>
-						</div>
-						<form name="speceditform" action="outgoing.php" method="post" onsubmit="return verifySpecEditForm(this)" >
-							<table class="styledtable" style="font-family:Arial;font-size:12px;">
-								<tr>
-									<th style="width:25px;text-align:center;">&nbsp;</th>
-									<th style="width:100px;text-align:center;">Catalog Number</th>
-									<th style="width:375px;text-align:center;">Details</th>
-									<th style="width:75px;text-align:center;">Date Returned</th>
-								</tr>
-								<?php
-								foreach($specList as $occid => $specArr){
-									?>
-									<tr>
-										<td>
-											<input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" />
-										</td>
-										<td>
-											<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
-												<?php echo $specArr['catalognumber']; ?>
-											</a>
-											<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;">
-												<img src="../../images/edit.png" />
-											</a>
-										</td>
-										<td>
-											<?php
-											$loc = $specArr['locality'];
-											if(strlen($loc) > 500) $loc = substr($loc,400);
-											echo '<i>'.$specArr['sciname'].'</i>; ';
-											echo  $specArr['collector'].'; '.$loc;
-											?>
-
-										</td>
-										<td><?php echo $specArr['returndate']; ?></td>
-									</tr>
-									<?php
-								}
-							?>
-							</table>
-							<table style="width:100%;">
-								<tr>
-									<td colspan="10" valign="bottom">
-										<div id="newdetdiv" style="display:none;">
-											<fieldset>
-												<legend><b>Add a New Determinations</b></legend>
-												<div style='margin:3px;'>
-													<b>Identification Qualifier:</b>
-													<input type="text" name="identificationqualifier" title="e.g. cf, aff, etc" />
-												</div>
-												<div style='margin:3px;'>
-													<b>Scientific Name:</b>
-													<input type="text" id="dafsciname" name="sciname" style="background-color:lightyellow;width:350px;" onfocus="initLoanDetAutocomplete(this.form)" />
-													<input type="hidden" id="daftidtoadd" name="tidtoadd" value="" />
-													<input type="hidden" name="family" value="" />
-												</div>
-												<div style='margin:3px;'>
-													<b>Author:</b>
-													<input type="text" name="scientificnameauthorship" style="width:200px;" />
-												</div>
-												<div style='margin:3px;'>
-													<b>Confidence of Determination:</b>
-													<select name="confidenceranking">
-														<option value="8">High</option>
-														<option value="5" selected>Medium</option>
-														<option value="2">Low</option>
-													</select>
-												</div>
-												<div style='margin:3px;'>
-													<b>Determiner:</b>
-													<input type="text" name="identifiedby" id="identifiedby" style="background-color:lightyellow;width:200px;" />
-												</div>
-												<div style='margin:3px;'>
-													<b>Date:</b>
-													<input type="text" name="dateidentified" id="dateidentified" style="background-color:lightyellow;" onchange="detDateChanged(this.form);" />
-												</div>
-												<div style='margin:3px;'>
-													<b>Reference:</b>
-													<input type="text" name="identificationreferences" style="width:350px;" />
-												</div>
-												<div style='margin:3px;'>
-													<b>Notes:</b>
-													<input type="text" name="identificationremarks" style="width:350px;" />
-												</div>
-												<div style='margin:3px;'>
-													<input type="checkbox" name="makecurrent" value="1" /> Make this the current determination
-												</div>
-												<div style='margin:3px;'>
-													<input type="checkbox" name="printqueue" value="1" /> Add to Annotation Print Queue
-												</div>
-												<div style='margin:15px;'>
-													<div style="float:left;">
-														<input type="submit" name="formsubmit" onclick="verifyLoanDet();" value="Add New Determinations" />
-													</div>
-												</div>
-											</fieldset>
-										</div>
-										<div style="margin:10px;float:left;">
-											<div style="float:left;">
-												<input name="applytask" type="radio" value="check" title="Check-in Specimens" CHECKED />Check-in Specimens<br/>
-												<input name="applytask" type="radio" value="delete" title="Delete Specimens" />Delete Specimens from Loan
-											</div>
-											<span style="margin-left:25px;float:left;">
-												<input name="formsubmit" type="submit" value="Perform Action" />
-												<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-												<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
-												<input name="tabindex" type="hidden" value="1" />
-											</span>
-										</div>
-										<div style="margin:10px;float:right;">
-											<div id="detAddToggleDiv" onclick="toggle('newdetdiv');">
-												<a href="#" onclick="return false;">Add New Determinations</a>
-											</div>
-										</div>
-									</td>
-								</tr>
-							</table>
-						</form>
-					</div>
-					<div id="nospecdiv" style="margin:20px;font-size:120%;<?php echo ($specList?'display:none;':''); ?>">There are no specimens registered for this loan.</div>
-				</div>
 				<div id="outloandeldiv">
 					<form name="deloutloanform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this loan?')">
 						<fieldset>
 							<legend>Delete Outgoing Loan</legend>
 							<?php
-							if($specList){
+							if($specimenTotal){
 								?>
 								<div style=";margin-bottom:15px;">
 									Loan cannot be deleted until all linked specimens are removed
@@ -654,7 +513,7 @@ if($isEditor){
 								<?php
 							}
 							?>
-							<input name="formsubmit" type="submit" value="Delete Loan" <?php if($specList) echo 'DISABLED'; ?> />
+							<input name="formsubmit" type="submit" value="Delete Loan" <?php if($specimenTotal) echo 'DISABLED'; ?> />
 							<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 							<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 						</fieldset>

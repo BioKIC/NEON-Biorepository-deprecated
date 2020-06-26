@@ -42,7 +42,7 @@ if($outputMode == 'doc'){
 	$textrun->addTextBreak(1);
 	$textrun->addText(htmlspecialchars('Date sent: '.$invoiceArr['datesent']),'infoFont');
 	$textrun->addTextBreak(1);
-	$textrun->addText(htmlspecialchars('Total specimens: '.$loanManager->getSpecTotal($loanId)),'infoFont');
+	$textrun->addText(htmlspecialchars('Total specimens: '.$loanManager->getSpecimenTotal($loanId)),'infoFont');
 	$section->addTextBreak(1);
 	$table = $section->addTable('headerTable');
 	$table->addRow();
@@ -102,7 +102,7 @@ else{
 				<div class="loaninfo">
 					<?php echo $addressArr['institutioncode']; ?> Loan ID: <?php echo $invoiceArr['loanidentifierown']; ?><br />
 					Date sent: <?php echo $invoiceArr['datesent']; ?><br />
-					Total specimens: <?php echo $loanManager->getSpecTotal($loanId);?>
+					Total specimens: <?php echo $loanManager->getSpecimenTotal($loanId);?>
 				</div>
 				<br />
 				<table class="colheader">

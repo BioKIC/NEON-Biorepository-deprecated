@@ -452,12 +452,12 @@ class OccurrenceLoans extends Manager{
 		return $retArr;
 	}
 
-	public function getSpecTotal($loanid){
+	public function getSpecimenTotal($loanid){
 		$retStr = 0;
 		if(is_numeric($loanid)){
 			$sql = 'SELECT COUNT(*) AS cnt FROM omoccurloanslink WHERE loanid = '.$loanid;
 			if($rs = $this->conn->query($sql)){
-				while($r = $rs->fetch_object()){
+				if($r = $rs->fetch_object()){
 					$retStr = $r->cnt;
 				}
 				$rs->free();
@@ -466,45 +466,79 @@ class OccurrenceLoans extends Manager{
 		return $retStr;
 	}
 
-	public function addSpecimen($loanid, $catNum){
+	public function linkSpecimen($loanid, $catNum){
 		//This method is used by the ajax script insertLoanSpecimen.php
 		if($this->collid && is_numeric($loanid)){
-			$occArr = array();
-			$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') AND (catalognumber = "'.$this->cleanInStr($catNum).'") ';
-			//echo $sql;
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()) {
-				$occArr[] = $r->occid;
-			}
-			$rs->free();
-			//Check to see if number exists in the otherCatalogNumbers
-			if(!$occArr){
-				$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') AND (othercatalognumbers = "'.$this->cleanInStr($catNum).'")';
-				$rs = $this->conn->query($sql);
-				while($r = $rs->fetch_object()) {
-					$occArr[] = $r->occid;
-				}
-				$rs->free();
-			}
-			//Return results
-			if(!$occArr){
-				return 0;
-			}
-			elseif(count($occArr) > 1){
-				return 2;
-			}
+			$occArr = $this->getOccid($catNum);
+			if(!$occArr) $occArr = $this->getOccid($catNum,true);
+			if(!$occArr) return 0;
+			elseif(count($occArr) > 1) return 2;
 			else{
-				$sql = 'INSERT INTO omoccurloanslink(loanid,occid) VALUES ('.$loanid.','.$occArr[0].') ';
-				//echo $sql;
-				if($this->conn->query($sql)){
-					return 1;
-				}
-				else{
-					return 3;
-				}
+				if($this->addLoanSpecimen($loanid, $occArr[0])) return 1;
+				else return 3;
 			}
 		}
 		return 0;
+	}
+
+	public function batchLinkSpecimens($postArr){
+		$cnt = 0;
+		$loanid = $postArr['loanid'];
+		if($this->collid && is_numeric($loanid)){
+			$catNumStr = $postArr['catalogNumbers'];
+			if($catNumStr){
+				$otherCatNum = false;
+				if($postArr['targetidentifier'] == 'other') $otherCatNum = true;
+				$catNumStr = str_replace(array("\n", "\r\n", ";"), ",", $catNumStr);
+				$catArr = array_unique(explode(',',$catNumStr));
+				foreach($catArr as $catStr){
+					$catStr = trim($catStr);
+					if($catStr){
+						$occArr = $this->getOccid($catStr,$otherCatNum);
+						if($occArr){
+							if(count($occArr) > 1) $this->warningArr['multiple'][] = $catStr;
+							foreach($occArr as $occid){
+								if($this->addLoanSpecimen($loanid,$occid)) $cnt++;
+								else{
+									if(strpos($this->errorMessage,'Duplicate entry') === 0) $this->warningArr['dupe'][] = $catStr;
+									else $this->warningArr['error'][] = $this->errorMessage;
+								}
+
+							}
+						}
+						else $this->warningArr['missing'][] = $catStr;
+					}
+				}
+			}
+		}
+		return $cnt;
+	}
+
+	private function getOccid($catNum, $otherCatNum = false){
+		$occArr = array();
+		$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') ';
+		if($otherCatNum) $sql .= 'AND (othercatalognumbers = "'.$this->cleanInStr($catNum).'") ';
+		else $sql .= 'AND (catalognumber = "'.$this->cleanInStr($catNum).'") ';
+		//echo $sql;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()) {
+			$occArr[] = $r->occid;
+		}
+		$rs->free();
+		return $occArr;
+	}
+
+	private function addLoanSpecimen($loanid,$occid){
+		$status = false;
+		$sql = 'INSERT INTO omoccurloanslink(loanid,occid) VALUES ('.$loanid.','.$occid.') ';
+		//echo $sql;
+		if($this->conn->query($sql)){
+			$status = true;
+		}
+		else{
+			$this->errorMessage = $this->conn->error;
+		}
+		return $status;
 	}
 
 	public function editSpecimen($reqArr){

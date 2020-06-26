@@ -1,5 +1,8 @@
 INSERT IGNORE INTO schemaversion (versionnumber) values ("1.2");
 
+ALTER TABLE `adminlanguages` 
+  ADD COLUMN `ISO 639-3` VARCHAR(3) NULL AFTER `iso639_2`;
+
 ALTER TABLE `lkupstateprovince` 
   CHANGE COLUMN `abbrev` `abbrev` VARCHAR(3) NULL DEFAULT NULL ;
 
@@ -199,30 +202,16 @@ DROP TABLE omoccurlithostratigraphy;
 DROP TABLE paleochronostratigraphy;
 
 
-ALTER TABLE `omcollectioncontacts` 
-  DROP FOREIGN KEY `FK_contact_uid`;
-  
-ALTER TABLE `omcollectioncontacts` 
-  DROP FOREIGN KEY `FK_contact_collid`;
-
-ALTER TABLE `omcollectioncontacts` 
-  CHANGE COLUMN `uid` `uid` INT(10) UNSIGNED NULL ,
-  ADD COLUMN `nameoverride` VARCHAR(100) NULL AFTER `uid`,
-  ADD COLUMN `emailoverride` VARCHAR(100) NULL AFTER `nameoverride`,
-  ADD COLUMN `collcontid` INT NOT NULL AUTO_INCREMENT FIRST,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`collcontid`);
-
-ALTER TABLE `omcollectioncontacts` 
-  ADD CONSTRAINT `FK_contact_uid` FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_contact_collid` FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`collid`)  ON DELETE CASCADE  ON UPDATE CASCADE;
-
-ALTER TABLE `omcollectioncontacts` 
-  ADD UNIQUE INDEX `UNIQUE_coll_contact` (`collid` ASC, `uid` ASC, `nameoverride` ASC, `emailoverride` ASC);
-
 ALTER TABLE `omcollections` 
   ADD COLUMN `dynamicProperties` TEXT NULL AFTER `accessrights`,
   ADD COLUMN `datasetID` VARCHAR(250) NULL AFTER `collectionId`;
+
+ALTER TABLE `omcollections` 
+  ADD COLUMN `contactJson` LONGTEXT NULL AFTER `email`;
+ALTER TABLE `omcollections` 
+  CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL ;
+
+DROP TABLE `omcollectioncontacts`;
 
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;

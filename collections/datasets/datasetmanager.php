@@ -130,6 +130,7 @@ if($isEditor){
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
 		<script type="text/javascript">
+			var isDownloadAction = false;
 			$(document).ready(function() {
 				var dialogArr = new Array("schemanative","schemadwc");
 				var dialogStr = "";
@@ -204,13 +205,24 @@ if($isEditor){
 			}
 
 			function validateOccurForm(f){
+				var occidChecked = false;
 				var dbElements = document.getElementsByName("occid[]");
 				for(i = 0; i < dbElements.length; i++){
 					var dbElement = dbElements[i];
-					if(dbElement.checked) return true;
+					if(dbElement.checked){
+						occidChecked = true;
+						break;
+					}
 				}
-			   	alert("Please select at least one specimen!");
-			  	return false;
+				if(!occidChecked){
+				   	alert("Please select at least one specimen!");
+				   	return false;
+				}
+				if(isDownloadAction){
+					f.action = "../download/index.php";
+					targetDownloadPopup(f);
+				}
+			  	return true;
 			}
 
 			function openIndPopup(occid){
@@ -225,6 +237,11 @@ if($isEditor){
 				if (newWindow.opener == null) newWindow.opener = self;
 				newWindow.focus();
 				return false;
+			}
+
+			function targetDownloadPopup(f) {
+				window.open('', 'downloadpopup', 'left=100,top=50,width=900,height=700');
+				f.target = 'downloadpopup';
 			}
 		</script>
 	</head>
@@ -320,17 +337,19 @@ if($isEditor){
 								<?php
 								if($isEditor < 3){
 									?>
-									<div style="margin:5px"><input type="submit" name="submitaction" value="Remove Selected Occurrences" /></div>
+									<div style="margin:5px"><button type="submit" name="submitaction" value="Remove Selected Occurrences">Remove Selected Occurrences</button></div>
 									<?php
 								}
 								?>
 							</div>
-						</form>
-						<form name="occurform" action="../download/index.php" method="post" onsubmit="return validateOccurForm(this)">
 							<div style="margin: 15px 50px;">
-								<input name="searchvar" type="hidden" value="dataset=<?php echo $datasetId; ?>" />
-								<input type="submit" name="submitaction" value="Export Selected Occurrences" />
+								<button type="submit" name="submitaction" value="exportSelected" onclick="isDownloadAction=true">Export Selected Occurrences</button>
 							</div>
+						</form>
+						<form name="exportAllForm" action="../download/index.php" method="post" onsubmit="targetDownloadPopup(this)">
+							<input name="searchvar" type="hidden" value="dataset=<?php echo $datasetId; ?>" />
+							<input name="dltype" type="hidden" value="specimen" />
+							<button type="submit" name="submitaction" value="exportAll">Export Complete Dataset</button>
 						</form>
 					</div>
 					<?php

@@ -32,8 +32,10 @@ class ImageProcessor {
 
 	function __destruct(){
 		if($this->destructConn && !($this->conn === false)) $this->conn->close();
-		fwrite($this->logFH,"\n\n");
-		if($this->logFH) fclose($this->logFH);
+		if($this->logFH){
+			fwrite($this->logFH,"\n\n");
+			fclose($this->logFH);
+		}
 	}
 
 	private function initProcessor($logDir){
@@ -80,17 +82,17 @@ class ImageProcessor {
 	public function processCyVerseImages($pmTerm, $postArr){
 		set_time_limit(1000);
 		$lastRunDate = $postArr['startdate'];
-		$iPlantSourcePath = (array_key_exists('sourcepath', $postArr)?$postArr['sourcepath']:'');
+		$CyVerseSourcePath = (array_key_exists('sourcepath', $postArr)?$postArr['sourcepath']:'');
 		$this->matchCatalogNumber = (array_key_exists('matchcatalognumber', $postArr)?true:false);
 		$this->matchOtherCatalogNumbers = (array_key_exists('matchothercatalognumbers', $postArr)?true:false);
 		if($this->collid){
 			$iCyVerseDataUrl = 'https://bisque.cyverse.org/data_service/';
 			$iCyVerseImageUrl = 'https://bisque.cyverse.org/image_service/image/';
 
-			if(!$iPlantSourcePath && array_key_exists('IPLANT_IMAGE_IMPORT_PATH', $GLOBALS)) $iPlantSourcePath = $GLOBALS['IPLANT_IMAGE_IMPORT_PATH'];
-			if($iPlantSourcePath){
-				if(strpos($iPlantSourcePath, '--INSTITUTION_CODE--')) $iPlantSourcePath = str_replace('--INSTITUTION_CODE--', $this->collArr['instcode'], $iPlantSourcePath);
-				if(strpos($iPlantSourcePath, '--COLLECTION_CODE--')) $iPlantSourcePath = str_replace('--COLLECTION_CODE--', $this->collArr['collcode'], $iPlantSourcePath);
+			if(!$CyVerseSourcePath && array_key_exists('IPLANT_IMAGE_IMPORT_PATH', $GLOBALS)) $CyVerseSourcePath = $GLOBALS['IPLANT_IMAGE_IMPORT_PATH'];
+			if($CyVerseSourcePath){
+				if(strpos($CyVerseSourcePath, '--INSTITUTION_CODE--')) $CyVerseSourcePath = str_replace('--INSTITUTION_CODE--', $this->collArr['instcode'], $CyVerseSourcePath);
+				if(strpos($CyVerseSourcePath, '--COLLECTION_CODE--')) $CyVerseSourcePath = str_replace('--COLLECTION_CODE--', $this->collArr['collcode'], $CyVerseSourcePath);
 			}
 			else{
 				echo '<div style="color:red">iPlant image import path (IPLANT_IMAGE_IMPORT_PATH) not set within symbini configuration file</div>';
@@ -112,10 +114,13 @@ class ImageProcessor {
 				$this->logOrEcho("COLLECTION SKIPPED: Regular Expression term illegal due to missing capture term: ".$pmTerm);
 				return false;
 			}
+			$cyVerseBasePath = $iCyVerseDataUrl.'image?value=*'.$CyVerseSourcePath.'*&tag_query=upload_datetime:';
+			$this->logOrEcho('CyVerse base path used: '.$cyVerseBasePath);
+
 			//Get start date
 			if(!$lastRunDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$lastRunDate)) $lastRunDate = '2019-05-01';
 			while(strtotime($lastRunDate) < strtotime('now')){
-				$url = $iCyVerseDataUrl.'image?value=*'.$iPlantSourcePath.'*&tag_query=upload_datetime:'.$lastRunDate.'*';
+				$url = $cyVerseBasePath.$lastRunDate.'*';
 				$contents = @file_get_contents($url);
 				//check if response is received from CyVerse
 				if(!empty($http_response_header)) {
@@ -127,8 +132,8 @@ class ImageProcessor {
 							$xml = new SimpleXMLElement($contents);
 						}
 						catch (Exception $e) {
-							$this->logOrEcho('ABORTED: bad content received from iPlant: '.$contents);
-							return false;
+							$this->logOrEcho('ABORTED: bad content received from CyVerse: '.$contents);
+							//return false;
 						}
 						if(count($xml->image)){
 							$this->logOrEcho('Starting to process '.count($xml->image).' images uploaded on '.$lastRunDate,1);
@@ -227,34 +232,17 @@ class ImageProcessor {
 		return '';
 	}
 
-	public function echoFileMapping($fileName){
+	public function getHeaderArr($fileName){
+		$retArr = array();
 		$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/'.$fileName;
 		if($fh = fopen($fullPath,'rb')){
-			$translationMap = array('catalognumber' => 'catalognumber', 'othercatalognumbers' => 'othercatalognumbers', 'othercatalognumber' => 'othercatalognumbers', 'url' => 'url',
-				'web' => 'url','thumbnailurl' => 'thumbnailurl', 'thumbnail' => 'thumbnailurl', 'originalurl' => 'originalurl', 'large' => 'originalurl', 'sourceurl' => 'sourceurl');
 			$headerArr = fgetcsv($fh,0,',');
 			foreach($headerArr as $i => $sourceField){
-				if($sourceField != 'collid'){
-					echo '<tr><td style="padding:2px;">';
-					echo $sourceField;
-					$sourceField = strtolower($sourceField);
-					echo '<input type="hidden" name="sf['.$i.']" value="'.$sourceField.'" />';
-					$sourceField = preg_replace('/[^a-z]+/','',$sourceField);
-					echo '</td><td>';
-					echo '<select name="tf['.$i.']" style="background:'.(!array_key_exists($sourceField,$translationMap)?'yellow':'').'">';
-					echo '<option value="">Select Target Field</option>';
-					echo '<option value="">-------------------------</option>';
-					echo '<option value="catalognumber" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='catalognumber'?'SELECTED':'').'>Catalog Number</option>';
-					echo '<option value="othercatalognumbers" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='othercatalognumbers'?'SELECTED':'').'>Other Catalog Numbers</option>';
-					echo '<option value="originalurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='originalurl'?'SELECTED':'').'>Large Image URL (required)</option>';
-					echo '<option value="url" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='url'?'SELECTED':'').'>Web Image URL</option>';
-					echo '<option value="thumbnailurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='thumbnailurl'?'SELECTED':'').'>Thumbnail URL</option>';
-					echo '<option value="sourceurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='sourceurl'?'SELECTED':'').'>Source URL</option>';
-					echo '</select>';
-					echo '</td></tr>';
-				}
+				if($sourceField != 'collid') $retArr[$i] = $sourceField;
 			}
+			fclose($fh);
 		}
+		return $retArr;
 	}
 
 	public function loadFileData($postArr){

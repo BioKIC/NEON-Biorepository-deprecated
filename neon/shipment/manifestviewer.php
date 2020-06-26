@@ -254,6 +254,21 @@ if($isEditor){
 			}
 		}
 
+		function batchSelectSamples(selectObj){
+			if(selectObj.value != ""){
+				var f = selectObj.form;
+				if(selectObj.name != "batchContainerID") f.batchContainerID.value = "";
+				if(selectObj.name != "batchPlateID") f.batchPlateID.value = "";
+				if(selectObj.name != "batchPlateBarcode") f.batchPlateBarcode.value = "";
+				var selectCnt = 0;
+				for(var i=0;i<f.length;i++){
+					if(f.elements[i].name == "scbox[]") f.elements[i].checked = false;
+				}
+				$("."+selectObj.value).prop('checked', true);
+				$("#selectedMsgDiv").text($("."+selectObj.value).length+' samples have been selected');
+			}
+		}
+
 		function openShipmentEditor(){
 			var url = "shipmenteditor.php?shipmentPK=<?php echo $shipmentPK; ?>";
 			openPopup(url,"shipwindow");
@@ -496,9 +511,28 @@ include($SERVER_ROOT.'/includes/header.php');
 												?>
 											</tr>
 											<?php
+											$tagArr = array();
 											foreach($sampleList as $samplePK => $sampleArr){
+												$classStr = '';
+												$propStr = '';
+												$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
+												foreach($dynPropArr as $category => $propValue){
+													if(strtolower($category) == 'containerid'){
+														$tagArr['containerid'][$propValue] = (isset($tagArr['containerid'][$propValue])?++$tagArr['containerid'][$propValue]:1);
+														$classStr .= str_replace(' ','_',$propValue).' ';
+													}
+													elseif(strtolower($category) == 'plateid'){
+														$tagArr['plateid'][$propValue] = (isset($tagArr['plateid'][$propValue])?++$tagArr['plateid'][$propValue]:1);
+														$classStr .= str_replace(' ','_',$propValue).' ';
+													}
+													elseif(strtolower($category) == 'platebarcode'){
+														$tagArr['platebarcode'][$propValue] = (isset($tagArr['platebarcode'][$propValue])?++$tagArr['platebarcode'][$propValue]:1);
+														$classStr .= str_replace(' ','_',$propValue).' ';
+													}
+													$propStr .= $category.': '.$propValue.'; ';
+												}
 												echo '<tr>';
-												echo '<td><input id="scbox-'.$samplePK.'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
+												echo '<td><input id="scbox-'.$samplePK.'" class="'.trim($classStr).'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
 												$sampleID = $sampleArr['sampleID'];
 												if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
 												echo '<td>';
@@ -547,11 +581,6 @@ include($SERVER_ROOT.'/includes/header.php');
 												if(isset($sampleArr['sampleNotes'])) $str .= '<div>Sample Notes: '.$sampleArr['sampleNotes'].'</div>';
 												if(isset($sampleArr['checkinRemarks'])) $str .= '<div>Check-in Remarks: '.$sampleArr['checkinRemarks'].'</div>';
 												if(isset($sampleArr['dynamicProperties']) && $sampleArr['dynamicProperties']){
-													$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
-													$propStr = '';
-													foreach($dynPropArr as $category => $propValue){
-														$propStr .= $category.': '.$propValue.'; ';
-													}
 													$str .= '<div>'.trim($propStr,'; ').'</div>';
 												}
 												if(isset($sampleArr['symbiotaTarget']) && $sampleArr['symbiotaTarget']){
@@ -618,7 +647,74 @@ include($SERVER_ROOT.'/includes/header.php');
 												<div style="margin:5px;">
 													<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
 												</div>
-												<fieldset style="margin:5px">
+												<?php
+												if($tagArr){
+													?>
+													<fieldset style="margin:5px;float:left">
+														<legend>Batch select based on plate or container IDs</legend>
+														<div style="margin:10px">
+															<?php
+															if(array_key_exists('containerid',$tagArr)){
+																?>
+																<select name="batchContainerID" onchange="batchSelectSamples(this);">
+																	<option value="">Select Container ID</option>
+																	<option value="">----------------------</option>
+																	<?php
+																	$containerArr = $tagArr['containerid'];
+																	ksort($containerArr);
+																	foreach($containerArr as $containerTag => $cnt){
+																		echo '<option value="'.str_replace(' ','_',$containerTag).'">'.$containerTag.' ('.$cnt.')'.'</option>';
+																	}
+																	?>
+																</select>
+																<?php
+															}
+															?>
+														</div>
+														<div style="margin:10px">
+															<?php
+															if(array_key_exists('plateid',$tagArr)){
+																?>
+																<select name="batchPlateID" onchange="batchSelectSamples(this);">
+																	<option value="">Select Plate ID</option>
+																	<option value="">----------------------</option>
+																	<?php
+																	$plateArr = $tagArr['plateid'];
+																	ksort($plateArr);
+																	foreach($plateArr as $plateTag => $cnt){
+																		echo '<option value="'.str_replace(' ','_',$plateTag).'">'.$plateTag.' ('.$cnt.')'.'</option>';
+																	}
+																	?>
+																</select>
+																<?php
+															}
+															?>
+														</div>
+														<div style="margin:10px">
+															<?php
+															if(array_key_exists('platebarcode',$tagArr)){
+																?>
+																<select name="batchPlateBarcode" onchange="batchSelectSamples(this);">
+																	<option value="">Select Plate Barcode</option>
+																	<option value="">----------------------</option>
+																	<?php
+																	$plateBarcodeArr = $tagArr['platebarcode'];
+																	ksort($plateBarcodeArr);
+																	foreach($plateBarcodeArr as $barcodeTag => $cnt){
+																		echo '<option value="'.str_replace(' ','_',$barcodeTag).'">'.$barcodeTag.' ('.$cnt.')'.'</option>';
+																	}
+																	?>
+																</select>
+																<?php
+															}
+															?>
+														</div>
+														<div id="selectedMsgDiv" style="margin:10px;color:orange"></div>
+													</fieldset>
+													<?php
+												}
+												?>
+												<fieldset style="margin:5px;float:left">
 													<legend>Occurrence Harvesting</legend>
 													<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest</button>
 													<div style="margin:10px" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">

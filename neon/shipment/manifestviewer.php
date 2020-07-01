@@ -515,21 +515,23 @@ include($SERVER_ROOT.'/includes/header.php');
 											foreach($sampleList as $samplePK => $sampleArr){
 												$classStr = '';
 												$propStr = '';
-												$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
-												foreach($dynPropArr as $category => $propValue){
-													if(strtolower($category) == 'containerid'){
-														$tagArr['containerid'][$propValue] = (isset($tagArr['containerid'][$propValue])?++$tagArr['containerid'][$propValue]:1);
-														$classStr .= str_replace(' ','_',$propValue).' ';
+												if(isset($sampleArr['dynamicProperties'])){
+													$dynPropArr = json_decode($sampleArr['dynamicProperties'],true);
+													foreach($dynPropArr as $category => $propValue){
+														if(strtolower($category) == 'containerid'){
+															$tagArr['containerid'][$propValue] = (isset($tagArr['containerid'][$propValue])?++$tagArr['containerid'][$propValue]:1);
+															$classStr .= str_replace(' ','_',$propValue).' ';
+														}
+														elseif(strtolower($category) == 'plateid'){
+															$tagArr['plateid'][$propValue] = (isset($tagArr['plateid'][$propValue])?++$tagArr['plateid'][$propValue]:1);
+															$classStr .= str_replace(' ','_',$propValue).' ';
+														}
+														elseif(strtolower($category) == 'platebarcode'){
+															$tagArr['platebarcode'][$propValue] = (isset($tagArr['platebarcode'][$propValue])?++$tagArr['platebarcode'][$propValue]:1);
+															$classStr .= str_replace(' ','_',$propValue).' ';
+														}
+														$propStr .= $category.': '.$propValue.'; ';
 													}
-													elseif(strtolower($category) == 'plateid'){
-														$tagArr['plateid'][$propValue] = (isset($tagArr['plateid'][$propValue])?++$tagArr['plateid'][$propValue]:1);
-														$classStr .= str_replace(' ','_',$propValue).' ';
-													}
-													elseif(strtolower($category) == 'platebarcode'){
-														$tagArr['platebarcode'][$propValue] = (isset($tagArr['platebarcode'][$propValue])?++$tagArr['platebarcode'][$propValue]:1);
-														$classStr .= str_replace(' ','_',$propValue).' ';
-													}
-													$propStr .= $category.': '.$propValue.'; ';
 												}
 												echo '<tr>';
 												echo '<td><input id="scbox-'.$samplePK.'" class="'.trim($classStr).'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';

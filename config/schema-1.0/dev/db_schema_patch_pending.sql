@@ -12,6 +12,8 @@ ALTER TABLE `fmprojects`
 ALTER TABLE `fmchklstprojlink` 
    ADD COLUMN `sortSequence` INT NULL AFTER `mapChecklist`;
 
+ALTER TABLE `fmchklsttaxalink` 
+  ADD INDEX `FK_chklsttaxalink_tid` (`TID` ASC);
 
 ALTER TABLE `uploadspectemp` 
   ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;

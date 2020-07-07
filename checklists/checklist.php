@@ -557,7 +557,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							}
 							?>
 						</div>
-					<?php
+						<?php
 					}
 					?>
 				</div>
@@ -748,28 +748,21 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							}
 							if($showVouchers){
 								$voucStr = '';
+								if(array_key_exists('notes',$sppArr)) $voucStr .= $sppArr['notes'].'; ';
 								if(array_key_exists($tid,$voucherArr)){
 									$voucCnt = 0;
 									foreach($voucherArr[$tid] as $occid => $collName){
-										$voucStr .= ', ';
 										if($voucCnt == 4 && !$printMode){
 											$voucStr .= '<a href="#" id="morevouch-'.$tid.'" onclick="return toggleVoucherDiv('.$tid.');">'.$LANG['MORE'].'...</a>'.
 												'<span id="voucdiv-'.$tid.'" style="display:none;">';
 										}
-										$voucStr .= '<a href="#" onclick="return openIndividualPopup('.$occid.')">'.$collName."</a>\n";
+										$voucStr .= '<a href="#" onclick="return openIndividualPopup('.$occid.')">'.$collName.'</a>, ';
 										$voucCnt++;
 									}
 									if($voucCnt > 4 && !$printMode) $voucStr .= '</span><a href="#" id="lessvouch-'.$tid.'" style="display:none;" onclick="return toggleVoucherDiv('.$tid.');">...'.$LANG['LESS'].'</a>';
-									$voucStr = substr($voucStr,2);
 								}
-								$noteStr = '';
-								if(array_key_exists('notes',$sppArr)){
-									$noteStr = $sppArr['notes'];
-								}
-								if($noteStr || $voucStr){
-								//Edit notes and voucher display style here
-									echo '<div class="note-div">'.$noteStr.($noteStr && $voucStr?'; ':'').$voucStr.'</div>';
-								}
+								$voucStr = trim($voucStr,' ;,');
+								if($voucStr) echo '<div class="note-div">'.$voucStr.'</div>';
 							}
 							echo "</div>\n";
 						}

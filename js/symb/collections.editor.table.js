@@ -45,7 +45,7 @@ function submitBatchUpdate(f){
 		type: "POST",
 		url: "rpc/batchupdateverify.php",
 		dataType: "json",
-		data: { collid: f.collid.value, fieldname: fieldName, oldvalue: oldValue, bumatch: buMatch, ouid: f.ouid.value }
+		data: { collid: f.collid.value, fieldname: fieldName, oldvalue: oldValue, bumatch: buMatch }
 	}).done(function( retCnt ) {
 		if(confirm("You are about to update "+retCnt+" records.\nNote that you won't be able to undo this Replace operation!\nDo you want to continue?")){
 			f.submit();

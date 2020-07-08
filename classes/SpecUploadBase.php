@@ -246,7 +246,7 @@ class SpecUploadBase extends SpecUpload{
 			'errorradius'=>'coordinateuncertaintyradius','positionalaccuracy'=>'coordinateuncertaintyinmeters','errorradiusunits'=>'coordinateuncertaintyunits','elevationmeters'=>'minimumelevationinmeters',
 			'field:associatedspecies'=>'associatedtaxa','associatedspecies'=>'associatedtaxa','specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks',
 			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','field:habitat'=>'habitat','habitatdescription'=>'habitat',
-			'group'=>'paleo-lithogroup','lithostratigraphictermsproperty'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
+			'group'=>'paleo-lithogroup','lithostratigraphicterms'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
 		);
 		if($this->paleoSupport){
 			$paleoArr = $this->getPaleoTerms();
@@ -1811,11 +1811,6 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	private function getPaleoDwcTerms(){
-		/*
-		$paleoTermArr = array('paleo-earliestEonOrLowestEonothem','paleo-latestEonOrHighestEonothem','paleo-earliestEraOrLowestErathem',
-			'paleo-latestEraOrHighestErathem','paleo-earliestPeriodOrLowestSystem','paleo-latestPeriodOrHighestSystem','paleo-earliestEpochOrLowestSeries',
-			'paleo-latestEpochOrHighestSeries','paleo-earliestAgeOrLowestStage','paleo-latestAgeOrHighestStage','paleo-lowestBiostratigraphicZone','paleo-highestBiostratigraphicZone');
-		*/
 		$paleoTermArr = array('paleo-earliesteonorlowesteonothem','paleo-latesteonorhighesteonothem','paleo-earliesteraorlowesterathem',
 			'paleo-latesteraorhighesterathem','paleo-earliestperiodorlowestsystem','paleo-latestperiodorhighestsystem','paleo-earliestepochorlowestseries',
 			'paleo-latestepochorhighestseries','paleo-earliestageorloweststage','paleo-latestageorhigheststage','paleo-lowestbiostratigraphiczone','paleo-highestbiostratigraphiczone');
@@ -1823,13 +1818,8 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	private function getPaleoSymbTerms(){
-		/*
 		$paleoTermArr = array('paleo-geologicalcontextid','paleo-lithogroup','paleo-formation','paleo-member','paleo-bed','paleo-eon','paleo-era','paleo-period','paleo-epoch',
-			'paleo-earlyInterval','paleo-lateInterval','paleo-absoluteAge','paleo-storageAge','paleo-stage','paleo-localStage','paleo-biota','biostratigraphy',
-			'paleo-taxonEnvironment','paleo-lithology','paleo-stratRemarks','paleo-lithDescription','paleo-element','paleo-slideProperties');
-		*/
-		$paleoTermArr = array('paleo-geologicalcontextid','paleo-lithogroup','paleo-formation','paleo-member','paleo-bed','paleo-eon','paleo-era','paleo-period','paleo-epoch',
-			'paleo-earlyinterval','paleo-lateinterval','paleo-absoluteage','paleo-storageage','paleo-stage','paleo-localstage','paleo-biota','biostratigraphy',
+			'paleo-earlyinterval','paleo-lateinterval','paleo-absoluteage','paleo-storageage','paleo-stage','paleo-localstage','paleo-biota','paleo-biostratigraphy',
 			'paleo-taxonenvironment','paleo-lithology','paleo-stratremarks','paleo-lithdescription','paleo-element','paleo-slideproperties');
 		return $paleoTermArr;
 	}

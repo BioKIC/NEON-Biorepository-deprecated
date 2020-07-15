@@ -257,15 +257,15 @@ if($isEditor){
 		function batchSelectSamples(selectObj){
 			if(selectObj.value != ""){
 				var f = selectObj.form;
-				if(selectObj.name != "batchContainerID") f.batchContainerID.value = "";
-				if(selectObj.name != "batchPlateID") f.batchPlateID.value = "";
-				if(selectObj.name != "batchPlateBarcode") f.batchPlateBarcode.value = "";
 				var selectCnt = 0;
 				for(var i=0;i<f.length;i++){
 					if(f.elements[i].name == "scbox[]") f.elements[i].checked = false;
 				}
 				$("."+selectObj.value).prop('checked', true);
 				$("#selectedMsgDiv").text($("."+selectObj.value).length+' samples have been selected');
+				if(f.batchContainerID && selectObj.name != "batchContainerID") f.batchContainerID.value = "";
+				if(f.batchPlateID && selectObj.name != "batchPlateID") f.batchPlateID.value = "";
+				if(f.batchPlateBarcode && selectObj.name != "batchPlateBarcode") f.batchPlateBarcode.value = "";
 			}
 		}
 

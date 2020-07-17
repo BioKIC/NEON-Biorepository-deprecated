@@ -583,10 +583,8 @@ class SpecUploadBase extends SpecUpload{
 			'WHERE collid IN('.$this->collId.') AND (DecimalLatitude < -90 OR DecimalLatitude > 90 OR DecimalLongitude < -180 OR DecimalLongitude > 180)';
 		$this->conn->query($sql);
 
-
 		$this->outputMsg('<li style="margin-left:10px;">Cleaning taxonomy...</li>');
-		$sql = 'UPDATE uploadspectemp SET family = sciname '.
-			'WHERE (family IS NULL) AND (sciname LIKE "%aceae" OR sciname LIKE "%idae")';
+		$sql = 'UPDATE uploadspectemp SET family = sciname WHERE (family IS NULL) AND (sciname LIKE "%aceae" OR sciname LIKE "%idae")';
 		$this->conn->query($sql);
 
 		$sql = 'UPDATE uploadspectemp SET sciname = family WHERE (family IS NOT NULL) AND (sciname IS NULL) ';
@@ -600,7 +598,7 @@ class SpecUploadBase extends SpecUpload{
 
 		//Lock security setting if set so that local system can't override
 		$sql = 'UPDATE uploadspectemp '.
-			'SET localitySecurityReason = "locked" '.
+			'SET localitySecurityReason = "Locked: set via import file" '.
 			'WHERE localitySecurity > 0 AND localitySecurityReason IS NULL AND collid IN('.$this->collId.')';
 		$this->conn->query($sql);
 	}

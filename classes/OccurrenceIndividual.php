@@ -121,7 +121,8 @@ class OccurrenceIndividual extends Manager{
 		}
 
 		if($result = $this->conn->query($sql)){
-			if($this->occArr = array_change_key_case($result->fetch_assoc())){
+			if($occArr = $result->fetch_assoc()){
+				$this->occArr = array_change_key_case($occArr);
 				if(!$this->occid) $this->occid = $this->occArr['occid'];
 				if(!$this->collid) $this->collid = $this->occArr['collid'];
 				$this->loadMetadata();
@@ -143,21 +144,6 @@ class OccurrenceIndividual extends Manager{
 					if(!$this->metadataArr['collectioncode']) $this->metadataArr['collectioncode'] = $this->occArr['institutioncode'];
 					elseif($this->metadataArr['collectioncode'] != $this->occArr['collectioncode']) $this->metadataArr['collectioncode'] .= '-'.$this->occArr['institutioncode'];
 				}
-				/*
-				if($this->occArr['institutioncode'] && $this->occArr['institutioncode'] != $this->metadataArr['institutioncode']){
-					$sqlSec = 'SELECT collectionname, homepage, individualurl, contact, email, icon  FROM omcollsecondary WHERE (collid = '.$this->occArr['collid'].')';
-					$rsSec = $this->conn->query($sqlSec);
-					if($r = $rsSec->fetch_object()){
-						$this->metadataArr['collectionname'] = $r->collectionname;
-						$this->metadataArr['homepage'] = $r->homepage;
-						$this->metadataArr['individualurl'] = $r->individualurl;
-						$this->metadataArr['contact'] = $r->contact;
-						$this->metadataArr['email'] = $r->email;
-						$this->metadataArr['icon'] = $r->icon;
-					}
-					$rsSec->free();
-				}
-				*/
 				$this->loadDeterminations();
 				$this->loadImages();
 				$this->loadPaleo();
@@ -293,24 +279,25 @@ class OccurrenceIndividual extends Manager{
 	//Occurrence comment functions
 	public function getCommentArr($isEditor){
 		$retArr = array();
-		//return $retArr;
-		$sql = 'SELECT c.comid, c.comment, u.username, c.reviewstatus, c.initialtimestamp FROM omoccurcomments c INNER JOIN userlogin u ON c.uid = u.uid WHERE (c.occid = '.$this->occid.') ';
-		if(!$isEditor) $sql .= 'AND c.reviewstatus IN(1,3) ';
-		$sql .= 'ORDER BY c.initialtimestamp';
-		//echo $sql.'<br/><br/>';
-		$result = $this->conn->query($sql);
-		if($result){
-			while($row = $result->fetch_object()){
-				$comId = $row->comid;
-				$retArr[$comId]['comment'] = $row->comment;
-				$retArr[$comId]['reviewstatus'] = $row->reviewstatus;
-				$retArr[$comId]['username'] = $row->username;
-				$retArr[$comId]['initialtimestamp'] = $row->initialtimestamp;
+		if($this->occid){
+			$sql = 'SELECT c.comid, c.comment, u.username, c.reviewstatus, c.initialtimestamp FROM omoccurcomments c INNER JOIN userlogin u ON c.uid = u.uid WHERE (c.occid = '.$this->occid.') ';
+			if(!$isEditor) $sql .= 'AND c.reviewstatus IN(1,3) ';
+			$sql .= 'ORDER BY c.initialtimestamp';
+			//echo $sql.'<br/><br/>';
+			$result = $this->conn->query($sql);
+			if($result){
+				while($row = $result->fetch_object()){
+					$comId = $row->comid;
+					$retArr[$comId]['comment'] = $row->comment;
+					$retArr[$comId]['reviewstatus'] = $row->reviewstatus;
+					$retArr[$comId]['username'] = $row->username;
+					$retArr[$comId]['initialtimestamp'] = $row->initialtimestamp;
+				}
+				$result->free();
 			}
-			$result->free();
-		}
-		else{
-			trigger_error('Unable to set comments; '.$this->conn->error,E_USER_WARNING);
+			else{
+				trigger_error('Unable to set comments; '.$this->conn->error,E_USER_WARNING);
+			}
 		}
 		return $retArr;
 	}
@@ -640,20 +627,8 @@ class OccurrenceIndividual extends Manager{
 
 	public function checkArchive(){
 		$retArr = array();
-		$sql = 'SELECT archiveobj, notes FROM guidoccurrences WHERE occid = '.$this->occid.' AND archiveobj IS NOT NULL ';
-		//echo $sql;
-		if($rs = $this->conn->query($sql)){
-			if($r = $rs->fetch_object()){
-				$retArr['obj'] = json_decode($r->archiveobj,true);
-				$retArr['notes'] = $r->notes;
-			}
-			$rs->free();
-		}
-		else{
-			trigger_error('ERROR checking archive: '.$this->conn->error,E_USER_WARNING);
-		}
-		if(!$retArr){
-			$sql = 'SELECT archiveobj, notes FROM guidoccurrences WHERE occid IS NULL AND archiveobj LIKE \'%"occid":"'.$this->occid.'"%\'';
+		if($this->occid){
+			$sql = 'SELECT archiveobj, notes FROM guidoccurrences WHERE occid = '.$this->occid.' AND archiveobj IS NOT NULL ';
 			//echo $sql;
 			if($rs = $this->conn->query($sql)){
 				if($r = $rs->fetch_object()){
@@ -663,7 +638,21 @@ class OccurrenceIndividual extends Manager{
 				$rs->free();
 			}
 			else{
-				trigger_error('ERROR checking archive (step2): '.$this->conn->error,E_USER_WARNING);
+				trigger_error('ERROR checking archive: '.$this->conn->error,E_USER_WARNING);
+			}
+			if(!$retArr){
+				$sql = 'SELECT archiveobj, notes FROM guidoccurrences WHERE occid IS NULL AND archiveobj LIKE \'%"occid":"'.$this->occid.'"%\'';
+				//echo $sql;
+				if($rs = $this->conn->query($sql)){
+					if($r = $rs->fetch_object()){
+						$retArr['obj'] = json_decode($r->archiveobj,true);
+						$retArr['notes'] = $r->notes;
+					}
+					$rs->free();
+				}
+				else{
+					trigger_error('ERROR checking archive (step2): '.$this->conn->error,E_USER_WARNING);
+				}
 			}
 		}
 		return $retArr;

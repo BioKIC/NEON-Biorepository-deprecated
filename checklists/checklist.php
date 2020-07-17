@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
+include_once($SERVER_ROOT.'/classes/MapSupport.php');
 include_once($SERVER_ROOT.'/content/lang/checklists/checklist.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -513,31 +514,33 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					}
 					if(!$showImages){
 						?>
-						<div style="text-align:center;padding:10px">
+						<div style="text-align:center">
 							<?php
-							$coordArr = $clManager->getVoucherCoordinates(0,true);
-							$googleUrl = '';
-							if(isset($GOOGLE_MAP_THUMBNAILS) && $GOOGLE_MAP_THUMBNAILS) $googleUrl = '//maps.googleapis.com/maps/api/staticmap?size=170x170&maptype=terrain';
-							else $googleUrl = $CLIENT_ROOT.'/images/world.png?';
-							if(array_key_exists('GOOGLE_MAP_KEY',$GLOBALS) && $GLOBALS['GOOGLE_MAP_KEY']) $googleUrl .= '&key='.$GLOBALS['GOOGLE_MAP_KEY'];
+							$coordArr = $clManager->getVoucherCoordinates(200);
 							if($coordArr){
-								//$googleUrl .= '&markers=size:tiny|'.implode('|',$coordArr);
+								$tnUrl = MapSupport::getStaticMap($coordArr);
+								$tnWidth = 100;
+								if(strpos($tnUrl,$CLIENT_ROOT) === 0) $tnWidth = 50;
 								?>
-								<span title="<?php echo (isset($LANG['VOUCHERS_SIMPLE_MAP'])?$LANG['VOUCHERS_SIMPLE_MAP']:'Display Vouchers in Simply Map'); ?>">
-									<a href="checklistmap.php?clid=<?php echo $clid.'&thesfilter='.$thesFilter.'&taxonfilter='.$taxonFilter; ?>" target="_blank">
-										<img src="<?php echo $googleUrl; ?>" srcset="../images/globe.svg" style="border:0px;width:30px" />
-									</a>
-								</span>
-								<?php
-							}
-							if($coordArr){
-								?>
-								<span style="margin:5px">
-									<a href="../collections/map/index.php?clid=<?php echo $clid.'&cltype=vouchers&taxonfilter='.$taxonFilter; ?>&db=all&type=1&reset=1" target="_blank"><img src="../images/world.png" srcset="../images/globe.svg" style="width:30px" title="<?php echo (isset($LANG['VOUCHERS_DYNAMIC_MAP'])?$LANG['VOUCHERS_DYNAMIC_MAP']:'Display Vouchers in Dynamic Map'); ?>" /></a>
-								</span>
+								<div style="text-align:center;font-weight:bold;margin-bottom:5px"><?php echo (isset($LANG['VOUCHER_MAPPING'])?$LANG['VOUCHER_MAPPING']:'Voucher Mapping'); ?></div>
+								<div style="display: flex; align-items: center; justify-content: center;">
+									<div style="float:left;" title="<?php echo (isset($LANG['VOUCHERS_SIMPLE_MAP'])?$LANG['VOUCHERS_SIMPLE_MAP']:'Display Vouchers in Simply Map'); ?>">
+										<a href="checklistmap.php?clid=<?php echo $clid.'&thesfilter='.$thesFilter.'&taxonfilter='.$taxonFilter; ?>" target="_blank">
+											<img src="<?php echo $tnUrl; ?>" style="border:0px;width:<?php echo $tnWidth; ?>px" /><br/>
+											<?php echo (isset($LANG['SIMPLE_MAP'])?$LANG['SIMPLE_MAP']:'Simply Map'); ?>
+										</a>
+									</div>
+									<div style="float:left;margin-left:15px" title="<?php echo (isset($LANG['VOUCHERS_DYNAMIC_MAP'])?$LANG['VOUCHERS_DYNAMIC_MAP']:'Display Vouchers in Dynamic Map'); ?>">
+										<a href="../collections/map/index.php?clid=<?php echo $clid.'&cltype=vouchers&taxonfilter='.$taxonFilter; ?>&db=all&type=1&reset=1" target="_blank">
+											<img src="<?php echo $tnUrl; ?>" style="width:<?php echo $tnWidth; ?>px" /><br/>
+											<?php echo (isset($LANG['DYNAMIC_MAP'])?$LANG['DYNAMIC_MAP']:'Dynamic Map'); ?>
+										</a>
+									</div>
+								</div>
 								<?php
 							}
 							if(false && $clArray['dynamicsql']){
+								//Temporarily turned off
 								?>
 								<span style="margin:5px">
 									<a href="../collections/map/index.php?clid=<?php echo $clid.'&cltype=all&taxonfilter='.$taxonFilter; ?>&db=all&type=1&reset=1" target="_blank">

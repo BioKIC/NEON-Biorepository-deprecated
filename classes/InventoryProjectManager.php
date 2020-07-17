@@ -216,15 +216,6 @@ class InventoryProjectManager {
 		return $retArr;
 	}
 
-	public function getGoogleStaticMap(){
-		$googleUrlLocal = $this->googleUrl;
-		//$googleUrlLocal .= "&zoom=6";
-		$coordStr = implode('%7C',$this->checklistCoordArr);
-		if(!$coordStr) return "";
-		$googleUrlLocal .= "&markers=size:tiny%7C".$coordStr;
-		return $googleUrlLocal;
-	}
-
 	public function getClAddArr(){
 		global $USER_RIGHTS;
 		$returnArr = Array();

@@ -41,12 +41,12 @@ if($SYMB_UID){
 			</div>
 			<ul>
 				<li>
-					<a href="../collections/editor/occurrencetabledisplay.php?collid=<?php echo $collId.'&ouid='.$SYMB_UID; ?>">
+					<a href="../collections/editor/occurrencetabledisplay.php?collid=<?php echo $collId; ?>">
 						Display All Records
 					</a>
 				</li>
 				<li>
-					<a href="../collections/editor/occurrencetabledisplay.php?collid=<?php echo $collId.'&ouid='.$SYMB_UID; ?>&displayquery=1">
+					<a href="../collections/editor/occurrencetabledisplay.php?collid=<?php echo $collId; ?>&displayquery=1">
 						Search Records
 					</a>
 				</li>

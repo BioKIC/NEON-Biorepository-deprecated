@@ -398,91 +398,59 @@ class ChecklistManager {
 		}
 	}
 
-	public function getVoucherCoordinates($tid = 0,$abbreviated=false){
+	public function getVoucherCoordinates($limit=0){
 		$retArr = array();
 		if(!$this->basicSql) $this->setClSql();
 		if($this->clid){
 			//Add children checklists to query
 			$clidStr = $this->clid;
-			if($this->childClidArr){
-				$clidStr .= ','.implode(',',array_keys($this->childClidArr));
-			}
+			if($this->childClidArr) $clidStr .= ','.implode(',',array_keys($this->childClidArr));
 
-			$retCnt = 0;
 			//Grab general points
-			try{
-				$sql1 = '';
-				if($tid){
-					$sql1 = 'SELECT DISTINCT cc.tid, t.sciname, cc.decimallatitude, cc.decimallongitude, cc.notes '.
-						'FROM fmchklstcoordinates cc INNER JOIN taxa t ON cc.tid = t.tid '.
-						'WHERE cc.tid = '.$tid.' AND cc.clid IN ('.$clidStr.') AND cc.decimallatitude IS NOT NULL AND cc.decimallongitude IS NOT NULL ';
-				}
-				else{
-					$sql1 = 'SELECT DISTINCT cc.tid, t.sciname, cc.decimallatitude, cc.decimallongitude, cc.notes '.
-						'FROM fmchklstcoordinates cc INNER JOIN ('.$this->basicSql.') t ON cc.tid = t.tid '.
-						'WHERE cc.clid IN ('.$clidStr.') AND cc.decimallatitude IS NOT NULL AND cc.decimallongitude IS NOT NULL ';
-				}
-				if($abbreviated){
-					$sql1 .= 'ORDER BY RAND() LIMIT 50';
-				}
-				//echo $sql1;
-				$rs1 = $this->conn->query($sql1);
-				if($rs1){
-					while($r1 = $rs1->fetch_object()){
-						if(abs($r1->decimallatitude) < 90 && abs($r1->decimallongitude) < 180){
-							if($abbreviated){
-								$retArr[] = $r1->decimallatitude.','.$r1->decimallongitude;
-							}
-							else{
-								$retArr[$r1->tid][] = array('ll'=>$r1->decimallatitude.','.$r1->decimallongitude,'sciname'=>$this->cleanOutStr($r1->sciname),'notes'=>$this->cleanOutStr($r1->notes));
-							}
-							$retCnt++;
-						}
-					}
-					$rs1->free();
-				}
-			}
-			catch(Exception $e){
-				echo 'Caught exception getting general coordinates: ',  $e->getMessage(), "\n";
-			}
-
-			if(!$abbreviated || $retCnt < 50){
-				try{
-					//Grab voucher points
-					$sql2 = 'SELECT DISTINCT v.tid, o.occid, o.decimallatitude, o.decimallongitude, '.
-						'CONCAT(o.recordedby," (",IFNULL(o.recordnumber,o.eventdate),")") as notes '.
-						'FROM omoccurrences o INNER JOIN fmvouchers v ON o.occid = v.occid ';
-					if($tid){
-						$sql2 .= 'WHERE v.tid = '.$tid.' AND v.clid IN ('.$clidStr.') AND o.decimallatitude IS NOT NULL AND o.decimallongitude IS NOT NULL '.
-							'AND (o.localitysecurity = 0 OR o.localitysecurity IS NULL) ';
+			$retCnt = 0;
+			$sql1 = 'SELECT DISTINCT cc.tid, t.sciname, cc.decimallatitude, cc.decimallongitude, cc.notes '.
+				'FROM fmchklstcoordinates cc INNER JOIN ('.$this->basicSql.') t ON cc.tid = t.tid '.
+				'WHERE cc.clid IN ('.$clidStr.') AND cc.decimallatitude BETWEEN -90 AND 90 AND cc.decimallongitude  BETWEEN -180 AND 180 ';
+			if($limit) $sql1 .= 'ORDER BY RAND() LIMIT '.$limit;
+			//echo $sql1;
+			$rs1 = $this->conn->query($sql1);
+			if($rs1){
+				while($r1 = $rs1->fetch_object()){
+					if($limit){
+						$retArr[] = $r1->decimallatitude.','.$r1->decimallongitude;
 					}
 					else{
-						$sql2 .= 'INNER JOIN ('.$this->basicSql.') t ON v.tid = t.tid '.
-							'WHERE v.clid IN ('.$clidStr.') AND o.decimallatitude IS NOT NULL AND o.decimallongitude IS NOT NULL '.
-							'AND (o.localitysecurity = 0 OR o.localitysecurity IS NULL) ';
+						$retArr[$r1->tid][] = array('ll'=>$r1->decimallatitude.','.$r1->decimallongitude,'sciname'=>$this->cleanOutStr($r1->sciname),'notes'=>$this->cleanOutStr($r1->notes));
 					}
-					if($abbreviated){
-						$sql2 .= 'ORDER BY RAND() LIMIT 50';
-					}
-					//echo $sql2;
-					$rs2 = $this->conn->query($sql2);
-					if($rs2){
-						while($r2 = $rs2->fetch_object()){
-							if(abs($r2->decimallatitude) < 90 && abs($r2->decimallongitude) < 180){
-								if($abbreviated){
-									$retArr[] = $r2->decimallatitude.','.$r2->decimallongitude;
-								}
-								else{
-									$retArr[$r2->tid][] = array('ll'=>$r2->decimallatitude.','.$r2->decimallongitude,'notes'=>$this->cleanOutStr($r2->notes),'occid'=>$r2->occid);
-								}
-							}
+					$retCnt++;
+				}
+				$rs1->free();
+			}
+			else echo 'ERROR getting general coordinates: '.$this->conn->error;
+
+			if(!$limit || $retCnt < 50){
+				//Grab voucher points
+				$sql2 = 'SELECT DISTINCT v.tid, o.occid, o.decimallatitude, o.decimallongitude, '.
+					'CONCAT(o.recordedby," (",IFNULL(o.recordnumber,o.eventdate),")") as notes '.
+					'FROM omoccurrences o INNER JOIN fmvouchers v ON o.occid = v.occid '.
+					'INNER JOIN ('.$this->basicSql.') t ON v.tid = t.tid '.
+					'WHERE v.clid IN ('.$clidStr.') AND o.decimallatitude IS NOT NULL AND o.decimallongitude IS NOT NULL '.
+					'AND (o.localitysecurity = 0 OR o.localitysecurity IS NULL) ';
+				if($limit) $sql2 .= 'ORDER BY RAND() LIMIT '.$limit;
+				//echo $sql2;
+				$rs2 = $this->conn->query($sql2);
+				if($rs2){
+					while($r2 = $rs2->fetch_object()){
+						if($limit){
+							$retArr[] = $r2->decimallatitude.','.$r2->decimallongitude;
 						}
-						$rs2->free();
+						else{
+							$retArr[$r2->tid][] = array('ll'=>$r2->decimallatitude.','.$r2->decimallongitude,'notes'=>$this->cleanOutStr($r2->notes),'occid'=>$r2->occid);
+						}
 					}
+					$rs2->free();
 				}
-				catch(Exception $e){
-					//echo 'Caught exception getting voucher coordinates: ',  $e->getMessage(), "\n";
-				}
+				//else echo 'ERROR getting voucher coordinates: '.$this->conn->error;
 			}
 		}
 		return $retArr;

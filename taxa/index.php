@@ -201,7 +201,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							//Map
 							$aUrl = ''; $gAnchor = '';
 							$url = '';
-							if(isset($GOOGLE_MAP_THUMBNAILS) && $GOOGLE_MAP_THUMBNAILS) $url = $taxonManager->getGoogleStaticMap();
+							if(isset($MAP_THUMBNAILS) && $MAP_THUMBNAILS) $url = $taxonManager->getGoogleStaticMap();
 							else $url = $CLIENT_ROOT.'/images/mappoint.png';
 							if($occurrenceModIsActive && $taxonManager->getDisplayLocality()){
 								$gAnchor = "openMapPopup('".$taxonManager->getTid()."',".$clid.")";
@@ -388,7 +388,7 @@ include($SERVER_ROOT.'/includes/header.php');
 											echo '<div class="spptext">'.(isset($LANG['IMAGE_NOT_AVAILABLE'])?$LANG['IMAGE_NOT_AVAILABLE']:'Images<br/>not available').'</div>';
 										}
 										echo "</div>\n";
-										if(isset($GOOGLE_MAP_THUMBNAILS) && $GOOGLE_MAP_THUMBNAILS){
+										if(isset($MAP_THUMBNAILS) && $MAP_THUMBNAILS){
 											//Display thumbnail map
 											if($taxonManager->getRankId() > 140){
 												echo '<div class="sppmap">';

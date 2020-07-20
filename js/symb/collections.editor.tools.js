@@ -341,7 +341,7 @@ function searchDupesCatalogNumber(f,verbose){
 			url: "rpc/dupequerycatnum.php",
 			data: { catnum: cnValue, collid: f.collid.value, occid: f.occid.value }
 		}).done(function( msg ) {
-			if(msg){
+			if(msg.trim()){
 				if(confirm("Record(s) of same catalog number already exists. Do you want to view this record?")){
 					var occWindow=open("dupesearch.php?occidquery=catnu:"+msg+"&collid="+f.collid.value+"&curoccid="+occid,"occsearch","resizable=1,scrollbars=1,toolbar=0,width=900,height=600,left=20,top=20");
 					if(occWindow != null){

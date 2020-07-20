@@ -126,7 +126,7 @@ class ImageLocalProcessor {
 	public function batchLoadImages(){
 		if(substr($this->sourcePathBase,0,4) == 'http'){
 			//http protocol, thus test for a valid page
-			$headerArr = get_headers($this->sourcePathBase);
+			$headerArr = get_headers($this->sourcePathBase,0,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))));
 			if(!$headerArr){
 				$this->logOrEcho('ABORT: sourcePathBase returned bad headers ('.$this->sourcePathBase.')');
 				exit();
@@ -886,8 +886,8 @@ class ImageLocalProcessor {
 	 * patternReplacingTerm and replacement are modified, they are applied
 	 * before the result is returned.
 	 *
-	 * @param str  String from which to extract the catalogNumber
-	 * @return an empty string if there is no match of patternMatchingTerm on
+	 * param: str  String from which to extract the catalogNumber
+	 * return: an empty string if there is no match of patternMatchingTerm on
 	 *        str, otherwise the match as described above.
 	 */
 	private function getPrimaryKey($str){

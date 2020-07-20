@@ -363,7 +363,7 @@ class ImageLocalProcessor {
 		set_time_limit(3600);
 		//$this->logOrEcho("Processing: ".$this->sourcePathBase.$pathFrag);
 		//Check  to make sure page is readable
-		$headerArr = get_headers($this->sourcePathBase.$pathFrag);
+		$headerArr = get_headers($this->sourcePathBase.$pathFrag,0,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))));
 		preg_match('/http.+\s{1}(\d{3})\s{1}/i',$headerArr[0],$codeArr);
 		if($codeArr[1] == '200'){
 			$dom = new DOMDocument();
@@ -630,7 +630,7 @@ class ImageLocalProcessor {
 					//Get File size
 					$fileSize = 0;
 					if(substr($sourcePath,0,7)=='http://' || substr($sourcePath,0,8)=='https://') {
-						$x = array_change_key_case(get_headers($sourcePath.$fileName, 1),CASE_LOWER);
+						$x = array_change_key_case(get_headers($sourcePath.$fileName,1,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false)))),CASE_LOWER);
 						if ( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) {
 							$fileSize = $x['content-length'][1];
 						}
@@ -1068,7 +1068,7 @@ class ImageLocalProcessor {
 
 	private function processSkeletalFile($filePath){
 		$this->logOrEcho("Preparing to load Skeletal file into database",1);
-		$fh = fopen($filePath,'r');
+		$fh = fopen($filePath,'r',false,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))));
 		$hArr = array();
 		if($fh){
 			$fileExt = substr($filePath,-4);
@@ -1960,7 +1960,7 @@ class ImageLocalProcessor {
 
 	    //One last check
 	    if(!$exists){
-	    	$exists = (@fclose(@fopen($url,"r")));
+	    	$exists = (@fclose(@fopen($url,'r',false,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))))));
 	    }
 
 	    //Test to see if file is an image

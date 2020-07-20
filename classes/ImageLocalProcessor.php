@@ -366,6 +366,8 @@ class ImageLocalProcessor {
 		$headerArr = get_headers($this->sourcePathBase.$pathFrag,0,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))));
 		preg_match('/http.+\s{1}(\d{3})\s{1}/i',$headerArr[0],$codeArr);
 		if($codeArr[1] == '200'){
+			$context = stream_context_create(array( "ssl"=>array( 'verify_peer' => false, 'verify_peer_name' => false ) ));
+			libxml_set_streams_context($context);
 			$dom = new DOMDocument();
 			$dom->loadHTMLFile($this->sourcePathBase.$pathFrag);
 			$aNodes= $dom->getElementsByTagName('a');

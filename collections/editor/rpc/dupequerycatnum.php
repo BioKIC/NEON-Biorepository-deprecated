@@ -8,5 +8,5 @@ $occid = array_key_exists('occid',$_POST)?$_POST['occid']:'';
 
 $dupeManager = new OccurrenceDuplicate();
 $retArr = $dupeManager->getDupesCatalogNumber($catNum,$collid,$occid);
-echo implode(',',$retArr);
+echo trim(implode(',',$retArr));
 ?>

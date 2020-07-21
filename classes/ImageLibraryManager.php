@@ -40,8 +40,8 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 
 	public function getGenusList($taxon = ''){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT t.UnitName1 '.$this->getListSql();
-		if($taxon) $sql .= 'AND (ts.Family = "'.$this->cleanInStr($taxon).'") AND (i.sortsequence < 500) ';
+		$sql = 'SELECT DISTINCT t.UnitName1 '.$this->getListSql().' AND (i.sortsequence < 500) ';
+		if($taxon) $sql .= 'AND (ts.Family = "'.$this->cleanInStr($taxon).'") ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[] = $r->UnitName1;
@@ -62,9 +62,9 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 			}
 			$taxon = $this->cleanInStr($taxon);
 		}
-		$sql = 'SELECT DISTINCT t.tid, t.SciName '.$this->getListSql($tidArr?true:false);
+		$sql = 'SELECT DISTINCT t.tid, t.SciName '.$this->getListSql($tidArr?true:false).' AND (i.sortsequence < 500) ';
 		if($tidArr) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (t.tid IN('.implode(',', $tidArr).')) OR (e.parenttid IN('.implode(',', $tidArr).'))) ';
-		elseif($taxon) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (ts.family = "'.$taxon.'")) AND (i.sortsequence < 500)';
+		elseif($taxon) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (ts.family = "'.$taxon.'")) ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->tid] = $r->SciName;

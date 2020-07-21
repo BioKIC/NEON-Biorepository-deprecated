@@ -3,6 +3,7 @@ if(isset($SERVER_ROOT) && $SERVER_ROOT){
 	include_once($SERVER_ROOT.'/config/dbconnection.php');
 	include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
 	include_once($SERVER_ROOT.'/classes/UuidFactory.php');
+	include_once($SERVER_ROOT.'/classes/ImageShared.php');
 }
 
 class ImageLocalProcessor {
@@ -627,7 +628,7 @@ class ImageLocalProcessor {
 					}
 				}
 				//Start the processing procedure
-				list($width, $height) = @getimagesize($sourcePath.$fileName);
+				list($width, $height) = ImageShared::getImgDim($sourcePath.$fileName);
 				if($width && $height){
 					//Get File size
 					$fileSize = 0;

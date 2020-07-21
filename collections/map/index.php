@@ -44,7 +44,7 @@ if(!array_key_exists("upperlat",$_REQUEST)) $_REQUEST["upperlat"] = '';
 if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 
 $activateGeolocation = 0;
-if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION = 1) $activateGeolocation = 1;
+if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocation = 1;
 ?>
 <html>
 <head>

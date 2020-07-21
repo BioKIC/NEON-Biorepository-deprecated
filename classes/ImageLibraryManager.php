@@ -41,7 +41,7 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 	public function getGenusList($taxon = ''){
 		$retArr = array();
 		$sql = 'SELECT DISTINCT t.UnitName1 '.$this->getListSql();
-		if($taxon) $sql .= "AND (ts.Family = '".$this->cleanInStr($taxon)."') ";
+		if($taxon) $sql .= 'AND (ts.Family = "'.$this->cleanInStr($taxon).'") AND (i.sortsequence < 500) ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[] = $r->UnitName1;
@@ -62,9 +62,9 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 			}
 			$taxon = $this->cleanInStr($taxon);
 		}
-		$sql = 'SELECT DISTINCT t.tid, t.SciName '.$this->getListSql();
+		$sql = 'SELECT DISTINCT t.tid, t.SciName '.$this->getListSql($tidArr?true:false);
 		if($tidArr) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (t.tid IN('.implode(',', $tidArr).')) OR (e.parenttid IN('.implode(',', $tidArr).'))) ';
-		elseif($taxon) $sql .= "AND ((t.SciName LIKE '".$taxon."%') OR (ts.family = '".$taxon."')) ";
+		elseif($taxon) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (ts.family = "'.$taxon.'")) AND (i.sortsequence < 500)';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->tid] = $r->SciName;
@@ -74,10 +74,9 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		return $retArr;
 	}
 
-	private function getListSql(){
-		$sql = 'FROM images i INNER JOIN taxstatus ts ON i.tid = ts.tid '.
-			'INNER JOIN taxa t ON ts.tidaccepted = t.tid '.
-			'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
+	private function getListSql($includeEnumTree=false){
+		$sql = 'FROM images i INNER JOIN taxstatus ts ON i.tid = ts.tid INNER JOIN taxa t ON ts.tidaccepted = t.tid ';
+		if($this->tidFocus || $includeEnumTree) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
 		if(array_key_exists("tags",$this->searchTermArr) && $this->searchTermArr["tags"]){
 			$sql .= 'INNER JOIN imagetag it ON i.imgid = it.imgid ';
 		}

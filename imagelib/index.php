@@ -50,7 +50,7 @@ $imgLibManager = new ImageLibraryManager();
 				<a href='index.php?target=genus'>Browse by Genus</a>
 			</div>
 			<div style='margin-top:10px;'>
-				<a href='index.php?target=species'>Browse by Species</a>
+				Browse by Species
 			</div>
 			<div style='margin:2px 0px 0px 10px;'>
 				<div><a href='index.php?taxon=A'>A</a>|<a href='index.php?taxon=B'>B</a>|<a href='index.php?taxon=C'>C</a>|<a href='index.php?taxon=D'>D</a>|<a href='index.php?taxon=E'>E</a>|<a href='index.php?taxon=F'>F</a>|<a href='index.php?taxon=G'>G</a>|<a href='index.php?taxon=H'>H</a></div>
@@ -84,7 +84,7 @@ $imgLibManager = new ImageLibraryManager();
 		<?php
 			$taxaList = Array();
 			if($target == 'genus'){
-				$taxaList = $imgLibManager->getGenusList();
+				$taxaList = $imgLibManager->getGenusList($taxon);
 				if($taxaList){
 					echo '<h2>Select a Genus to see species list.</h2>';
 					foreach($taxaList as $value){
@@ -115,7 +115,7 @@ $imgLibManager = new ImageLibraryManager();
 				if($taxaList){
 					echo '<h2>Select a family to see species list.</h2>';
 					foreach($taxaList as $value){
-						echo '<div style="margin-left:30px;"><a href="index.php?taxon='.$value.'">'.strtoupper($value).'</a></div>';
+						echo '<div style="margin-left:30px;"><a href="index.php?target=genus&taxon='.$value.'">'.strtoupper($value).'</a></div>';
 					}
 				}
 				else{

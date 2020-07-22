@@ -40,7 +40,7 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 
 	public function getGenusList($taxon = ''){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT t.UnitName1 '.$this->getListSql().' AND (i.sortsequence < 500) ';
+		$sql = 'SELECT DISTINCT t.UnitName1 '.$this->getListSql().' ';
 		if($taxon) $sql .= 'AND (ts.Family = "'.$this->cleanInStr($taxon).'") ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -54,17 +54,22 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 	public function getSpeciesList($taxon = ''){
 		$retArr = Array();
 		$tidArr = Array();
+		$taxon = $this->cleanInStr(trim($taxon,' %'));
 		if($taxon){
 			$this->setTaxonRequestVariable(array('taxa'=>$taxon,'usethes'=>1,'taxontype'=>2));
 			foreach($this->taxaArr['taxa'] as $taxName => $taxArr){
 				if(isset($taxArr['tid'])) $tidArr = array_merge($tidArr,array_keys($taxArr['tid']));
 				if(isset($taxArr['synonyms'])) $tidArr = array_merge($tidArr,array_keys($taxArr['synonyms']));
 			}
-			$taxon = $this->cleanInStr($taxon);
 		}
-		$sql = 'SELECT DISTINCT t.tid, t.SciName '.$this->getListSql($tidArr?true:false).' AND (i.sortsequence < 500) ';
-		if($tidArr) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (t.tid IN('.implode(',', $tidArr).')) OR (e.parenttid IN('.implode(',', $tidArr).'))) ';
-		elseif($taxon) $sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") OR (ts.family = "'.$taxon.'")) ';
+		if(!$taxon) $taxon = 'A';
+		$sql = 'SELECT DISTINCT t.tid, t.SciName '.$this->getListSql().' AND (i.sortsequence < 500) ';
+		if(strtolower(substr($taxon,-5)) == 'aceae' || strtolower(substr($taxon,-4)) == 'idae') $sql .= 'AND ((ts.family = "'.$taxon.'") ';
+		else{
+			$sql .= 'AND ((t.SciName LIKE "'.$taxon.'%") ';
+			if($tidArr && strpos($taxon,' ')) $sql .= 'OR (t.tid IN('.implode(',', $tidArr).')) OR (ts.parenttid IN('.implode(',', $tidArr).'))';
+		}
+		$sql .= ') ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->tid] = $r->SciName;
@@ -74,9 +79,9 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 		return $retArr;
 	}
 
-	private function getListSql($includeEnumTree=false){
+	private function getListSql(){
 		$sql = 'FROM images i INNER JOIN taxstatus ts ON i.tid = ts.tid INNER JOIN taxa t ON ts.tidaccepted = t.tid ';
-		if($this->tidFocus || $includeEnumTree) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
+		if($this->tidFocus) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
 		if(array_key_exists("tags",$this->searchTermArr) && $this->searchTermArr["tags"]){
 			$sql .= 'INNER JOIN imagetag it ON i.imgid = it.imgid ';
 		}

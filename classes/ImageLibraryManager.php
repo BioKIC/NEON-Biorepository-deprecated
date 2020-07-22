@@ -581,7 +581,8 @@ class ImageLibraryManager extends OccurrenceTaxaManager{
 	}
 
 	public function getSearchTermDisplayStr(){
-		return htmlspecialchars(trim(implode('; ',$this->searchDisplayArr),';,'));
+		// return htmlspecialchars(trim(implode('; ',$this->searchDisplayArr),';,'));
+		return filter_var(trim(implode('; ',$this->searchDisplayArr),';,'), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
 	}
 }
 ?>

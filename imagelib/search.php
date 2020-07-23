@@ -99,7 +99,7 @@ $imgLibManager = new ImageLibraryManager();
 						<div style="float:left;">
 							<?php
 							$taxonStr = '';
-							if(isset($_REQUEST["taxa"])) $taxonStr = $_REQUEST["taxa"];
+							if(isset($_REQUEST["taxa"])) $taxonStr = filter_var($_REQUEST["taxa"], FILTER_SANITIZE_STRING);
 							if(is_numeric($taxonStr)) $taxonStr = $imgLibManager->getTaxaStr($taxonStr);
 							?>
 							<input id="taxa" name="taxa" type="text" style="width:450px;" value="<?php echo $taxonStr; ?>" title="Separate multiple names w/ commas" autocomplete="off" />

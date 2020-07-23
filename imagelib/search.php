@@ -4,19 +4,34 @@ include_once($SERVER_ROOT.'/content/lang/imagelib/search.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/ImageLibraryManager.php');
 header('Content-Type: text/html; charset='.$CHARSET);
 
+$taxonStr = isset($_REQUEST['taxa'])?$_REQUEST['taxa']:'';
+$imageType = isset($_REQUEST['imagetype'])?$_REQUEST['imagetype']:0;
+$taxonType = isset($_REQUEST['taxontype'])?$_REQUEST['taxontype']:0;
+$tags = array_key_exists('tags',$_REQUEST)?$_REQUEST["tags"]:'';
+$useThes = array_key_exists('usethes',$_REQUEST)?$_REQUEST["usethes"]:1;
+$phUid = array_key_exists('phuid',$_REQUEST)?$_REQUEST['phuid']:0;
 $cntPerPage = array_key_exists("cntperpage",$_REQUEST)?$_REQUEST["cntperpage"]:200;
 $pageNumber = array_key_exists("page",$_REQUEST)?$_REQUEST["page"]:1;
 $catId = array_key_exists("catid",$_REQUEST)?$_REQUEST["catid"]:0;
 if(!$catId && isset($DEFAULTCATID) && $DEFAULTCATID) $catId = $DEFAULTCATID;
 $action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:'';
 
+if(!$taxonType && isset($DEFAULT_TAXON_SEARCH)) $taxonType = $DEFAULT_TAXON_SEARCH;
+
 //Sanitation
+$taxonStr = filter_var($_REQUEST['taxa'], FILTER_SANITIZE_STRING);
+if(!is_numeric($imageType)) $imageType = 0;
+if(!is_numeric($taxonType)) $taxonType = 2;
+$tags = filter_var($_REQUEST['tags'], FILTER_SANITIZE_STRING);
+if(!is_numeric($useThes)) $useThes = 1;
 if(!is_numeric($cntPerPage)) $cntPerPage = 100;
 if(!is_numeric($pageNumber)) $pageNumber = 100;
 if(!preg_match('/^[,\d]+$/', $catId)) $catId = 0;
 if(preg_match('/[^\D]+/', $action)) $action = '';
 
 $imgLibManager = new ImageLibraryManager();
+if(is_numeric($taxonStr)) $taxonStr = $imgLibManager->getTaxaStr($taxonStr);
+
 ?>
 <html>
 <head>
@@ -60,8 +75,6 @@ $imgLibManager = new ImageLibraryManager();
 	<?php
 	$displayLeftMenu = (isset($imagelib_searchMenu)?$imagelib_searchMenu:false);
 	include($SERVER_ROOT.'/includes/header.php');
-	$imageType = 0;
-	if(isset($_REQUEST['imagetype']) && $_REQUEST['imagetype']) $imageType = $_REQUEST['imagetype'];
 	?>
 	<div class="navpath">
 		<a href="../index.php">Home</a> &gt;&gt;
@@ -87,9 +100,6 @@ $imgLibManager = new ImageLibraryManager();
 						<div style="float:left;margin-top:3px">
 							<select id="taxontype" name="taxontype">
 								<?php
-								$taxonType = 1;
-								if(isset($DEFAULT_TAXON_SEARCH) && $DEFAULT_TAXON_SEARCH) $taxonType = $DEFAULT_TAXON_SEARCH;
-								if(array_key_exists('taxontype',$_REQUEST)) $taxonType = $_REQUEST['taxontype'];
 								for($h=1;$h<6;$h++){
 									echo '<option value="'.$h.'" '.($taxonType==$h?'SELECTED':'').'>'.$LANG['SELECT_1-'.$h].'</option>';
 								}
@@ -97,15 +107,10 @@ $imgLibManager = new ImageLibraryManager();
 							</select>
 						</div>
 						<div style="float:left;">
-							<?php
-							$taxonStr = '';
-							if(isset($_REQUEST["taxa"])) $taxonStr = filter_var($_REQUEST["taxa"], FILTER_SANITIZE_STRING);
-							if(is_numeric($taxonStr)) $taxonStr = $imgLibManager->getTaxaStr($taxonStr);
-							?>
 							<input id="taxa" name="taxa" type="text" style="width:450px;" value="<?php echo $taxonStr; ?>" title="Separate multiple names w/ commas" autocomplete="off" />
 						</div>
 						<div style="float:left;margin-left:10px;" >
-							<input name="usethes" type="checkbox" value="1" <?php if(!$action || (array_key_exists("usethes",$_REQUEST) && $_REQUEST["usethes"])) echo "CHECKED"; ?> >Include Synonyms
+							<input name="usethes" type="checkbox" value="1" <?php if(!$action || $useThes) echo "CHECKED"; ?> >Include Synonyms
 						</div>
 					</div>
 					<div style="clear:both;margin-bottom:5px;">
@@ -116,7 +121,7 @@ $imgLibManager = new ImageLibraryManager();
 							<?php
 							$uidList = $imgLibManager->getPhotographerUidArr();
 							foreach($uidList as $uid => $name){
-								echo '<option value="'.$uid.'" '.((isset($_REQUEST['phuid']) && $_REQUEST['phuid'] == $uid)?'SELECTED':'').'>'.$name.'</option>';
+								echo '<option value="'.$uid.'" '.($phUid?'SELECTED':'').'>'.$name.'</option>';
 							}
 							?>
 						</select>
@@ -131,7 +136,7 @@ $imgLibManager = new ImageLibraryManager();
 								<option value="">--------------</option>
 								<?php
 								foreach($tagArr as $k){
-									echo '<option value="'.$k.'" '.((array_key_exists("tags",$_REQUEST))&&($_REQUEST["tags"]==$k)?'SELECTED ':'').'>'.$k.'</option>';
+									echo '<option value="'.$k.'" '.($tags==$k?'SELECTED ':'').'>'.$k.'</option>';
 								}
 								?>
 							</select>

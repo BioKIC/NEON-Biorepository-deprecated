@@ -286,7 +286,6 @@ class OccurrenceSearchSupport {
 		$dbStr = $reqArr['db'];
 		if(is_array($dbStr)) $dbStr = implode(',',array_unique($dbStr)).';';
 		else $dbStr = $dbStr;
-		if(!preg_match('/^[a-z0-9,;]+$/', $dbStr)) $dbStr = 'all';
 		if(strpos($dbStr,'allspec') !== false) $dbStr = 'allspec';
 		elseif(strpos($dbStr,'allobs') !== false) $dbStr = 'allobs';
 		elseif(strpos($dbStr,'all') !== false) $dbStr = 'all';
@@ -296,9 +295,10 @@ class OccurrenceSearchSupport {
 			if(is_string($catid)) $catArr = Array($catid);
 			else $catArr = $catid;
 			if(!$dbStr) $dbStr = ';';
-			$dbStr .= implode(",",$catArr);
+			$dbStr .= implode(',',$catArr);
 		}
 		if(!$dbStr) $dbStr = 'all';
+		if(!preg_match('/^[a-z0-9,;]+$/', $dbStr)) $dbStr = 'all';
 		return $dbStr;
 	}
 

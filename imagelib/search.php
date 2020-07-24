@@ -5,8 +5,8 @@ include_once($SERVER_ROOT.'/classes/ImageLibrarySearch.php');
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $taxonType = isset($_REQUEST['taxontype'])?$_REQUEST['taxontype']:0;
-$taxaStr = isset($_REQUEST['taxa'])?$_REQUEST['taxa']:'';
 $useThes = array_key_exists('usethes',$_REQUEST)?$_REQUEST['usethes']:0;
+$taxaStr = isset($_REQUEST['taxa'])?$_REQUEST['taxa']:'';
 $phUid = array_key_exists('phuid',$_REQUEST)?$_REQUEST['phuid']:0;
 $tags = array_key_exists('tags',$_REQUEST)?$_REQUEST['tags']:'';
 $keywords = array_key_exists('keywords',$_REQUEST)?$_REQUEST['keywords']:'';
@@ -29,14 +29,14 @@ if(preg_match('/[^\D]+/', $action)) $action = '';
 
 $imgLibManager = new ImageLibrarySearch();
 $imgLibManager->setTaxonType($taxonType);
-$imgLibManager->setTaxaStr($taxaStr);
 $imgLibManager->setUseThes($useThes);
+$imgLibManager->setTaxaStr($taxaStr);
 $imgLibManager->setPhotographerUid($phUid);
 $imgLibManager->setTags($tags);
 $imgLibManager->setKeywords($keywords);
 $imgLibManager->setImageCount($imageCount);
 $imgLibManager->setImageType($imageType);
-$imgLibManager->setAdditionalRequestVariables();
+if(isset($_REQUEST['db'])) $imgLibManager->setCollectionVariables($_REQUEST);
 ?>
 <html>
 <head>
@@ -333,7 +333,7 @@ $imgLibManager->setAdditionalRequestVariables();
 							<?php
 						}
 						else{
-							echo '<h2>No images exist matching your search criteria. Please modify your search and try again.</h2>';
+							echo '<h3>No images exist matching your search criteria. Please modify your search and try again.</h3>';
 						}
 						?>
 					</div>

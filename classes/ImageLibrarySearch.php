@@ -24,21 +24,20 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 		if(array_key_exists('TID_FOCUS', $GLOBALS) && preg_match('/^[\d,]+$/', $GLOBALS['TID_FOCUS'])){
 			$this->tidFocus = $GLOBALS['TID_FOCUS'];
 		}
-		$this->readRequestVariables();
-		$this->setSqlWhere();
 	}
 
 	function __destruct(){
 		parent::__destruct();
 	}
 
-	private function readRequestVariables(){
+	public function setAdditionalRequestVariables(){
 		if(array_key_exists('db',$_REQUEST) && $_REQUEST['db']){
 			$this->dbStr = OccurrenceSearchSupport::getDbRequestVariable($_REQUEST);
 		}
 		if(array_key_exists('taxa',$_REQUEST) && $_REQUEST['taxa']){
 			$this->setTaxonRequestVariable();
 		}
+		$this->setSqlWhere();
 	}
 
 	public function getImageArr($pageRequest,$cntPerPage){
@@ -49,11 +48,12 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 		$sql = 'SELECT DISTINCT i.imgid, o.tidinterpreted, t.tid, t.sciname, i.url, i.thumbnailurl, i.originalurl, i.photographeruid, i.caption, '.
 			'o.occid, o.stateprovince, o.catalognumber, CONCAT_WS("-",c.institutioncode, c.collectioncode) as instcode ';
 		*/
-		$sqlOrderBy = 'ORDER BY sciname ';
-		if($this->imageCount == 'taxon') $sqlOrderBy = 'GROUP BY sciname ';
-		elseif($this->imageCount == 'specimen') $sqlOrderBy = 'GROUP BY i.occid ';
+		$sqlWhere = $this->sqlWhere;
+		if($this->imageCount == 'taxon') $sqlWhere .= 'GROUP BY sciname ';
+		elseif($this->imageCount == 'specimen') $sqlWhere .= 'GROUP BY i.occid ';
+		$sqlWhere .= 'ORDER BY sciname ';
 		$bottomLimit = ($pageRequest - 1)*$cntPerPage;
-		$sql .= $this->getSqlBase().$this->sqlWhere.$sqlOrderBy.'LIMIT '.$bottomLimit.','.$cntPerPage;
+		$sql .= $this->getSqlBase().$sqlWhere.'LIMIT '.$bottomLimit.','.$cntPerPage;
 		//echo '<div>Spec sql: '.$sql.'</div>';
 		$occArr = array();
 		$result = $this->conn->query($sql);
@@ -233,7 +233,6 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 		}
 		if(strpos($sqlWhere,'ts.taxauthid')) $sqlWhere = str_replace('i.tid', 'ts.tid', $sqlWhere);
 		if($sqlWhere) $this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
-		//echo $this->sqlWhere;
 	}
 
 	private function setRecordCnt(){
@@ -398,7 +397,7 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 	}
 
 	public function getTaxaStr(){
-		return $this->taxonStr;
+		return $this->taxaStr;
 	}
 
 	public function setUseThes($u){
@@ -409,12 +408,12 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 		return $this->useThes;
 	}
 
-	public function getTaxonType(){
-		return $this->taxonType;
-	}
-
 	public function setPhotographerUid($uid){
 		if(is_numeric($uid)) $this->photographerUid = $uid;
+	}
+
+	public function getPhotographerUid(){
+		return $this->photographerUid;
 	}
 
 	public function setTags($t){

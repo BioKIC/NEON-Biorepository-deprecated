@@ -43,6 +43,8 @@ if(!array_key_exists("poly_array",$_REQUEST)) $_REQUEST["poly_array"] = '';
 if(!array_key_exists("upperlat",$_REQUEST)) $_REQUEST["upperlat"] = '';
 if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 
+$activateGeolocation = 0;
+if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocation = 1;
 ?>
 <html>
 <head>
@@ -106,7 +108,7 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 		var oms;
 		var dsoms;
 		var selectedShape = null;
-		var gotCoords = <?php echo ($ACTIVATE_GEOLOCATION?'true':'false'); ?>;
+		var gotCoords = <?php echo ($activateGeolocation?'true':'false'); ?>;
 		var mapSymbol = 'coll';
 		var selected = false;
 		var deselected = false;
@@ -1096,10 +1098,10 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 		}
 		*/
 
-		<?php echo ($ACTIVATE_GEOLOCATION?"google.maps.event.addDomListener(window, 'load', getCoords);":""); ?>
+		<?php echo ($activateGeolocation?"google.maps.event.addDomListener(window, 'load', getCoords);":""); ?>
 	</script>
 </head>
-<body style='width:100%;max-width:100%;min-width:500px;' <?php echo (!$ACTIVATE_GEOLOCATION?'onload="initialize();"':''); ?>>
+<body style='width:100%;max-width:100%;min-width:500px;' <?php echo (!$activateGeolocation?'onload="initialize();"':''); ?>>
 <div data-role="page" id="page1">
 	<div role="main" class="ui-content" style="height:400px;">
 		<a href="#defaultpanel" style="position:absolute;top:0;left:0;margin-top:0px;z-index:10;padding-top:3px;padding-bottom:3px;text-decoration:none;" data-role="button" data-inline="true" data-icon="bars">Open Search Panel</a>

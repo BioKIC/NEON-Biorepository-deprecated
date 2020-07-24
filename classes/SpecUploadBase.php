@@ -246,7 +246,7 @@ class SpecUploadBase extends SpecUpload{
 			'errorradius'=>'coordinateuncertaintyradius','positionalaccuracy'=>'coordinateuncertaintyinmeters','errorradiusunits'=>'coordinateuncertaintyunits','elevationmeters'=>'minimumelevationinmeters',
 			'field:associatedspecies'=>'associatedtaxa','associatedspecies'=>'associatedtaxa','specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks',
 			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','field:habitat'=>'habitat','habitatdescription'=>'habitat',
-			'group'=>'paleo-lithogroup','lithostratigraphictermsproperty'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
+			'group'=>'paleo-lithogroup','lithostratigraphicterms'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
 		);
 		if($this->paleoSupport){
 			$paleoArr = $this->getPaleoTerms();
@@ -583,10 +583,8 @@ class SpecUploadBase extends SpecUpload{
 			'WHERE collid IN('.$this->collId.') AND (DecimalLatitude < -90 OR DecimalLatitude > 90 OR DecimalLongitude < -180 OR DecimalLongitude > 180)';
 		$this->conn->query($sql);
 
-
 		$this->outputMsg('<li style="margin-left:10px;">Cleaning taxonomy...</li>');
-		$sql = 'UPDATE uploadspectemp SET family = sciname '.
-			'WHERE (family IS NULL) AND (sciname LIKE "%aceae" OR sciname LIKE "%idae")';
+		$sql = 'UPDATE uploadspectemp SET family = sciname WHERE (family IS NULL) AND (sciname LIKE "%aceae" OR sciname LIKE "%idae")';
 		$this->conn->query($sql);
 
 		$sql = 'UPDATE uploadspectemp SET sciname = family WHERE (family IS NOT NULL) AND (sciname IS NULL) ';
@@ -600,7 +598,7 @@ class SpecUploadBase extends SpecUpload{
 
 		//Lock security setting if set so that local system can't override
 		$sql = 'UPDATE uploadspectemp '.
-			'SET localitySecurityReason = "locked" '.
+			'SET localitySecurityReason = "Locked: set via import file" '.
 			'WHERE localitySecurity > 0 AND localitySecurityReason IS NULL AND collid IN('.$this->collId.')';
 		$this->conn->query($sql);
 	}
@@ -1811,11 +1809,6 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	private function getPaleoDwcTerms(){
-		/*
-		$paleoTermArr = array('paleo-earliestEonOrLowestEonothem','paleo-latestEonOrHighestEonothem','paleo-earliestEraOrLowestErathem',
-			'paleo-latestEraOrHighestErathem','paleo-earliestPeriodOrLowestSystem','paleo-latestPeriodOrHighestSystem','paleo-earliestEpochOrLowestSeries',
-			'paleo-latestEpochOrHighestSeries','paleo-earliestAgeOrLowestStage','paleo-latestAgeOrHighestStage','paleo-lowestBiostratigraphicZone','paleo-highestBiostratigraphicZone');
-		*/
 		$paleoTermArr = array('paleo-earliesteonorlowesteonothem','paleo-latesteonorhighesteonothem','paleo-earliesteraorlowesterathem',
 			'paleo-latesteraorhighesterathem','paleo-earliestperiodorlowestsystem','paleo-latestperiodorhighestsystem','paleo-earliestepochorlowestseries',
 			'paleo-latestepochorhighestseries','paleo-earliestageorloweststage','paleo-latestageorhigheststage','paleo-lowestbiostratigraphiczone','paleo-highestbiostratigraphiczone');
@@ -1823,13 +1816,8 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	private function getPaleoSymbTerms(){
-		/*
 		$paleoTermArr = array('paleo-geologicalcontextid','paleo-lithogroup','paleo-formation','paleo-member','paleo-bed','paleo-eon','paleo-era','paleo-period','paleo-epoch',
-			'paleo-earlyInterval','paleo-lateInterval','paleo-absoluteAge','paleo-storageAge','paleo-stage','paleo-localStage','paleo-biota','biostratigraphy',
-			'paleo-taxonEnvironment','paleo-lithology','paleo-stratRemarks','paleo-lithDescription','paleo-element','paleo-slideProperties');
-		*/
-		$paleoTermArr = array('paleo-geologicalcontextid','paleo-lithogroup','paleo-formation','paleo-member','paleo-bed','paleo-eon','paleo-era','paleo-period','paleo-epoch',
-			'paleo-earlyinterval','paleo-lateinterval','paleo-absoluteage','paleo-storageage','paleo-stage','paleo-localstage','paleo-biota','biostratigraphy',
+			'paleo-earlyinterval','paleo-lateinterval','paleo-absoluteage','paleo-storageage','paleo-stage','paleo-localstage','paleo-biota','paleo-biostratigraphy',
 			'paleo-taxonenvironment','paleo-lithology','paleo-stratremarks','paleo-lithdescription','paleo-element','paleo-slideproperties');
 		return $paleoTermArr;
 	}

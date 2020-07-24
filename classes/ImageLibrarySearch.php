@@ -30,18 +30,9 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 		parent::__destruct();
 	}
 
-	public function setAdditionalRequestVariables(){
-		if(array_key_exists('db',$_REQUEST) && $_REQUEST['db']){
-			$this->dbStr = OccurrenceSearchSupport::getDbRequestVariable($_REQUEST);
-		}
-		if(array_key_exists('taxa',$_REQUEST) && $_REQUEST['taxa']){
-			$this->setTaxonRequestVariable();
-		}
-		$this->setSqlWhere();
-	}
-
 	public function getImageArr($pageRequest,$cntPerPage){
 		$retArr = Array();
+		$this->setSqlWhere();
 		$this->setRecordCnt();
 		$sql = 'SELECT DISTINCT i.imgid, i.tid, IFNULL(t.sciname,o.sciname) as sciname, i.url, i.thumbnailurl, i.originalurl, i.photographeruid, i.caption, i.occid ';
 		/*
@@ -51,7 +42,7 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 		$sqlWhere = $this->sqlWhere;
 		if($this->imageCount == 'taxon') $sqlWhere .= 'GROUP BY sciname ';
 		elseif($this->imageCount == 'specimen') $sqlWhere .= 'GROUP BY i.occid ';
-		$sqlWhere .= 'ORDER BY sciname ';
+		if($this->sqlWhere) $sqlWhere .= 'ORDER BY sciname ';
 		$bottomLimit = ($pageRequest - 1)*$cntPerPage;
 		$sql .= $this->getSqlBase().$sqlWhere.'LIMIT '.$bottomLimit.','.$cntPerPage;
 		//echo '<div>Spec sql: '.$sql.'</div>';
@@ -383,6 +374,10 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 	}
 
 	//Setters and getters
+	public function setCollectionVariables($reqArr){
+		$this->dbStr = OccurrenceSearchSupport::getDbRequestVariable($reqArr);
+	}
+
 	public function setTaxonType($t){
 		if(is_numeric($t)) $this->taxonType = $t;
 	}
@@ -392,8 +387,13 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 	}
 
 	public function setTaxaStr($str){
-		$this->taxaStr = filter_var($str, FILTER_SANITIZE_STRING);
-		if(is_numeric($this->taxaStr)) $this->resetTaxaStr();
+		if(strpos($str,'<') === false){
+			$this->taxaStr = filter_var(trim($str), FILTER_SANITIZE_STRING);
+			if($this->taxaStr){
+				if(is_numeric($this->taxaStr)) $this->resetTaxaStr();
+				$this->setTaxonRequestVariable(array('taxa'=>$this->taxaStr,'taxontype'=>$this->taxonType,'usethes'=>$this->useThes));
+			}
+		}
 	}
 
 	public function getTaxaStr(){
@@ -417,7 +417,7 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 	}
 
 	public function setTags($t){
-		$this->tags = filter_var($t, FILTER_SANITIZE_STRING);
+		if(strpos($t,'<') === false) $this->tags = filter_var($t, FILTER_SANITIZE_STRING);
 	}
 
 	public function getTags(){
@@ -425,7 +425,7 @@ class ImageLibrarySearch extends OccurrenceTaxaManager{
 	}
 
 	public function setKeywords($k){
-		$this->keywords = filter_var($k, FILTER_SANITIZE_STRING);
+		if(strpos($k,'<') === false) $this->keywords = filter_var($k, FILTER_SANITIZE_STRING);
 	}
 
 	public function getKeywords(){

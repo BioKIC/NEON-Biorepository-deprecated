@@ -7,7 +7,7 @@ include_once($SERVER_ROOT . '/classes/ImageExplorer.php');
 $collId = array_key_exists("collid",$_REQUEST)?$_REQUEST["collid"]:0;
 $formSubmit = array_key_exists("formsubmit",$_REQUEST)?$_REQUEST["formsubmit"]:"";
 
-$pManager = new ImageLibraryManager();
+$imgManager = new ImageLibraryManager();
 $imageExplorer = new ImageExplorer();
 
 ?>
@@ -65,7 +65,7 @@ our animation centered, and no-repeating */
     <script type="text/javascript">
         <?php
             $pList = array();
-            foreach($pManager->getPhotographerList() as $uid => $pArr){
+            foreach($imgManager->getPhotographerList() as $uid => $pArr){
                 $pList[] = (object)array(
                     'value' => (string)$uid,
                     'label' => $pArr['name']);

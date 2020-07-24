@@ -1,26 +1,27 @@
 <?php
 include_once('../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/ImageLibraryManager.php');
+include_once($SERVER_ROOT.'/classes/ImageLibraryBrowser.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$taxon = array_key_exists("taxon",$_REQUEST)?htmlspecialchars(strip_tags($_REQUEST["taxon"])):"";
-$target = array_key_exists("target",$_REQUEST)?trim($_REQUEST["target"]):"";
+$taxon = array_key_exists('taxon',$_REQUEST)?htmlspecialchars(strip_tags($_REQUEST['taxon'])):'';
+$target = array_key_exists('target',$_REQUEST)?trim($_REQUEST['target']):'';
 
-$imgLibManager = new ImageLibraryManager();
+$imgManager = new ImageLibraryBrowser();
+$imgManager->setSearchTerm($taxon);
 ?>
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Image Library</title>
 	<?php
-		$activateJQuery = false;
-		if(file_exists($SERVER_ROOT.'/includes/head.php')){
-			include_once($SERVER_ROOT.'/includes/head.php');
-		}
-		else{
-			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-		}
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
@@ -50,7 +51,7 @@ $imgLibManager = new ImageLibraryManager();
 				<a href='index.php?target=genus'>Browse by Genus</a>
 			</div>
 			<div style='margin-top:10px;'>
-				<a href='index.php?target=species'>Browse by Species</a>
+				Browse by Species
 			</div>
 			<div style='margin:2px 0px 0px 10px;'>
 				<div><a href='index.php?taxon=A'>A</a>|<a href='index.php?taxon=B'>B</a>|<a href='index.php?taxon=C'>C</a>|<a href='index.php?taxon=D'>D</a>|<a href='index.php?taxon=E'>E</a>|<a href='index.php?taxon=F'>F</a>|<a href='index.php?taxon=G'>G</a>|<a href='index.php?taxon=H'>H</a></div>
@@ -84,7 +85,7 @@ $imgLibManager = new ImageLibraryManager();
 		<?php
 			$taxaList = Array();
 			if($target == 'genus'){
-				$taxaList = $imgLibManager->getGenusList();
+				$taxaList = $imgManager->getGenusList($taxon);
 				if($taxaList){
 					echo '<h2>Select a Genus to see species list.</h2>';
 					foreach($taxaList as $value){
@@ -96,7 +97,7 @@ $imgLibManager = new ImageLibraryManager();
 				}
 			}
 			elseif($target == 'species' || $taxon){
-				$taxaList = $imgLibManager->getSpeciesList($taxon);
+				$taxaList = $imgManager->getSpeciesList($taxon);
 				if($taxaList){
 					echo '<h2>Select a species to access available images</h2>';
 					foreach($taxaList as $key => $value){
@@ -111,11 +112,11 @@ $imgLibManager = new ImageLibraryManager();
 				}
 			}
 			else{ //Family display
-				$taxaList = $imgLibManager->getFamilyList();
+				$taxaList = $imgManager->getFamilyList();
 				if($taxaList){
 					echo '<h2>Select a family to see species list.</h2>';
 					foreach($taxaList as $value){
-						echo '<div style="margin-left:30px;"><a href="index.php?taxon='.$value.'">'.strtoupper($value).'</a></div>';
+						echo '<div style="margin-left:30px;"><a href="index.php?target=genus&taxon='.$value.'">'.strtoupper($value).'</a></div>';
 					}
 				}
 				else{

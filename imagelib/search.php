@@ -6,18 +6,18 @@ header('Content-Type: text/html; charset='.$CHARSET);
 
 $taxonType = isset($_REQUEST['taxontype'])?$_REQUEST['taxontype']:0;
 $taxaStr = isset($_REQUEST['taxa'])?$_REQUEST['taxa']:'';
-$useThes = array_key_exists('usethes',$_REQUEST)?$_REQUEST['usethes']:1;
+$useThes = array_key_exists('usethes',$_REQUEST)?$_REQUEST['usethes']:0;
 $phUid = array_key_exists('phuid',$_REQUEST)?$_REQUEST['phuid']:0;
 $tags = array_key_exists('tags',$_REQUEST)?$_REQUEST['tags']:'';
 $keywords = array_key_exists('keywords',$_REQUEST)?$_REQUEST['keywords']:'';
 $imageCount = isset($_REQUEST['imagecount'])?$_REQUEST['imagecount']:'all';
 $imageType = isset($_REQUEST['imagetype'])?$_REQUEST['imagetype']:0;
-
 $pageNumber = array_key_exists('page',$_REQUEST)?$_REQUEST['page']:1;
 $cntPerPage = array_key_exists('cntperpage',$_REQUEST)?$_REQUEST['cntperpage']:200;
 $catId = array_key_exists('catid',$_REQUEST)?$_REQUEST['catid']:0;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 
+if(!$useThes && !$action) $useThes = 1;
 if(!$taxonType && isset($DEFAULT_TAXON_SEARCH)) $taxonType = $DEFAULT_TAXON_SEARCH;
 if(!$catId && isset($DEFAULTCATID) && $DEFAULTCATID) $catId = $DEFAULTCATID;
 
@@ -29,13 +29,14 @@ if(preg_match('/[^\D]+/', $action)) $action = '';
 
 $imgLibManager = new ImageLibrarySearch();
 $imgLibManager->setTaxonType($taxonType);
-$imgLibManager->setTaxonStr($taxaStr);
+$imgLibManager->setTaxaStr($taxaStr);
 $imgLibManager->setUseThes($useThes);
 $imgLibManager->setPhotographerUid($phUid);
 $imgLibManager->setTags($tags);
 $imgLibManager->setKeywords($keywords);
 $imgLibManager->setImageCount($imageCount);
 $imgLibManager->setImageType($imageType);
+$imgLibManager->setAdditionalRequestVariables();
 ?>
 <html>
 <head>
@@ -125,7 +126,7 @@ $imgLibManager->setImageType($imageType);
 							<?php
 							$uidList = $imgLibManager->getPhotographerUidArr();
 							foreach($uidList as $uid => $name){
-								echo '<option value="'.$uid.'" '.($imgLibManager->getPhotographerUidArr()==$uid?'SELECTED':'').'>'.$name.'</option>';
+								echo '<option value="'.$uid.'" '.($imgLibManager->getPhotographerUid()==$uid?'SELECTED':'').'>'.$name.'</option>';
 							}
 							?>
 						</select>
@@ -151,7 +152,7 @@ $imgLibManager->setImageType($imageType);
 					<!--
 					<div style="clear:both;margin-bottom:5px;">
 						Image Keywords:
-						<input type="text" id="keywords" style="width:350px;" name="keywords" value="<?php echo $imgLibManager->getKeywordSuggest(); ?>" title="Separate multiple keywords w/ commas" />
+						<input type="text" id="keywords" style="width:350px;" name="keywords" value="<?php //echo $imgLibManager->getKeywordSuggest(); ?>" title="Separate multiple keywords w/ commas" />
 					</div>
 					 -->
 					<?php
@@ -167,7 +168,7 @@ $imgLibManager->setImageType($imageType);
 							<?php
 							if($specArr){
 								?>
-								<option value="specimen" <?php echo ($imgLibManager->getImageCount()?'SELECTED ':''); ?>>One per specimen</option>
+								<option value="specimen" <?php echo ($imgLibManager->getImageCount()=='specimen'?'SELECTED ':''); ?>>One per specimen</option>
 								<?php
 							}
 							?>

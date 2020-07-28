@@ -1,34 +1,17 @@
 <?php
 include_once('../../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/SpecLoans.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceLoans.php');
 require_once $SERVER_ROOT.'/vendor/phpoffice/phpword/bootstrap.php';
 
-$loanManager = new SpecLoans();
-
 $collId = $_REQUEST['collid'];
-$printMode = $_POST['print'];
-$loanId = array_key_exists('loanid',$_REQUEST)?$_REQUEST['loanid']:0;
-$exchangeId = array_key_exists('exchangeid',$_REQUEST)?$_REQUEST['exchangeid']:0;
+$outputMode = $_POST['outputmode'];
+$identifier = array_key_exists('identifier',$_REQUEST)?$_REQUEST['identifier']:0;
 $loanType = array_key_exists('loantype',$_REQUEST)?$_REQUEST['loantype']:0;
 $institution = array_key_exists('institution',$_POST)?$_POST['institution']:0;
-$international = array_key_exists('international',$_POST)?$_POST['international']:0;
 $accountNum = array_key_exists('mailaccnum',$_POST)?$_POST['mailaccnum']:0;
-$searchTerm = array_key_exists('searchterm',$_POST)?$_POST['searchterm']:'';
-$displayAll = array_key_exists('displayall',$_POST)?$_POST['displayall']:0;
-$formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
-$export = false;
-if($printMode == 'doc') $export = true;
-
+$loanManager = new OccurrenceLoans();
 if($collId) $loanManager->setCollId($collId);
-
-$identifier = 0;
-if($loanId){
-	$identifier = $loanId;
-}
-elseif($exchangeId){
-	$identifier = $exchangeId;
-}
 
 if($institution){
 	$invoiceArr = $loanManager->getToAddress($institution);
@@ -37,8 +20,10 @@ else{
 	$invoiceArr = $loanManager->getInvoiceInfo($identifier,$loanType);
 }
 $addressArr = $loanManager->getFromAddress($collId);
+$isInternational = true;
+if($invoiceArr['country'] == $addressArr['country']) $isInternational = false;
 
-if($export){
+if($outputMode == 'doc'){
 	$phpWord = new \PhpOffice\PhpWord\PhpWord();
 	$phpWord->addParagraphStyle('fromAddress', array('align'=>'left','lineHeight'=>1.0,'spaceAfter'=>0,'keepNext'=>true,'keepLines'=>true));
 	$phpWord->addFontStyle('fromAddressFont', array('size'=>10,'name'=>'Arial'));
@@ -63,7 +48,7 @@ if($export){
 		$textrun->addTextBreak(1);
 	}
 	$textrun->addText(htmlspecialchars($addressArr['city'].', '.$addressArr['stateprovince'].' '.$addressArr['postalcode']),'fromAddressFont');
-	if($international){
+	if($isInternational){
 		$textrun->addTextBreak(1);
 		$textrun->addText(htmlspecialchars($addressArr['country']),'fromAddressFont');
 	}
@@ -90,7 +75,7 @@ if($export){
 		$textrun->addTextBreak(1);
 	}
 	$textrun->addText(htmlspecialchars($invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode']),'toAddressFont');
-	if($international){
+	if($isInternational){
 		$textrun->addTextBreak(1);
 		$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
 	}
@@ -111,18 +96,18 @@ else{
 	<html>
 		<head>
 			<title>Mailing Label</title>
+			<?php
+			$activateJQuery = false;
+			if(file_exists($SERVER_ROOT.'/includes/head.php')){
+				include_once($SERVER_ROOT.'/includes/head.php');
+			}
+			else{
+				echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+				echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+				echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+			}
+			?>
 			<style type="text/css">
-        <?php
-          $activateJQuery = false;
-          if(file_exists($SERVER_ROOT.'/includes/head.php')){
-            include_once($SERVER_ROOT.'/includes/head.php');
-          }
-          else{
-            echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-            echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-            echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-          }
-        ?>
 				body {font-family:arial,sans-serif;}
 				p.printbreak {page-break-after:always;}
 				.fromaddress {font:10pt arial,sans-serif;}
@@ -148,7 +133,7 @@ else{
 									echo $addressArr['address2'].'<br />';
 								}
 								echo $addressArr['city'].', '.$addressArr['stateprovince'].' '.$addressArr['postalcode'].'<br />';
-								if($international){
+								if($isInternational){
 									echo $addressArr['country'].'<br />';
 								}
 								if($accountNum){
@@ -173,7 +158,7 @@ else{
 									echo $invoiceArr['address2'].'<br />';
 								}
 								echo $invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode'];
-								if($international){
+								if($isInternational){
 									echo '<br />'.$invoiceArr['country'];
 								}
 								?>

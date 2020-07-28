@@ -272,11 +272,9 @@ class OccurrenceDuplicate {
 
 	public function getDupesCatalogNumber($catNum, $collid, $skipOccid){
 		$retArr = array();
-		if(is_numeric($collid) && is_numeric($skipOccid) && $catNum){
-			$catNumber = $this->cleanInStr($catNum);
-			$sql = 'SELECT occid FROM omoccurrences '.
-				'WHERE (catalognumber = "'.$catNumber.'") AND (collid = '.$collid.') AND (occid != '.$skipOccid.') ';
-			//echo $sql;
+		$catNumber = $this->cleanInStr($catNum);
+		if(is_numeric($collid) && is_numeric($skipOccid) && $catNumber){
+			$sql = 'SELECT occid FROM omoccurrences WHERE (catalognumber = "'.$catNumber.'") AND (collid = '.$collid.') AND (occid != '.$skipOccid.') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->occid] = $r->occid;
@@ -288,10 +286,9 @@ class OccurrenceDuplicate {
 
 	public function getDupesOtherCatalogNumbers($otherCatNum, $collid, $skipOccid){
 		$retArr = array();
+		$otherCatNum = $this->cleanInStr($otherCatNum);
 		if(is_numeric($collid) && is_numeric($skipOccid) && $otherCatNum){
-			$sql = 'SELECT occid FROM omoccurrences '.
-				'WHERE (othercatalognumbers = "'.$this->cleanInStr($otherCatNum).'") AND (collid = '.$collid.') AND (occid != '.$skipOccid.') ';
-			//echo $sql;
+			$sql = 'SELECT occid FROM omoccurrences WHERE (othercatalognumbers = "'.$otherCatNum.'") AND (collid = '.$collid.') AND (occid != '.$skipOccid.') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->occid] = $r->occid;

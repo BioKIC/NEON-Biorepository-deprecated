@@ -110,7 +110,7 @@ class OccurrenceHarvester{
 					flush();
 					ob_flush();
 				}
-				if(!$shipmentPK) echo '<li><b>No records to process matching filter criteria</b></li>';
+				if(!$shipmentPK) echo '<li><b>No records processed. Note that records have to be checked in before occurrences can be harvested.</b></li>';
 				$rs->free();
 
 				$this->setNeonTaxonomy($occidArr);

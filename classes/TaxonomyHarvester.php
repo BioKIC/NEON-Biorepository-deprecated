@@ -14,6 +14,7 @@ class TaxonomyHarvester extends Manager{
 	private $kingdomName;
 	private $kingdomTid;
 	private $fullyResolved;
+	private $langArr = false;
 
 	function __construct() {
 		parent::__construct(null,'write');
@@ -808,11 +809,13 @@ class TaxonomyHarvester extends Manager{
 		}
 		//Add common names
 		if(isset($taxonArr['verns'])){
+			if($this->langArr === false) $this->setLangArr();
 			foreach($taxonArr['verns'] as $k => $vernArr){
-				$sqlVern = 'INSERT INTO taxavernaculars(tid,vernacularname,language) '.
-					'VALUES('.$newTid.',"'.$vernArr['vernacularName'].'","'.$vernArr['language'].'")';
-				if(!$this->conn->query($sqlVern)){
-					$this->logOrEcho('ERROR loading vernacular '.$taxonArr['sciname'].': '.$this->conn->error,1);
+				if(array_key_exists($vernArr['language'],$this->langArr)){
+					$sqlVern = 'INSERT INTO taxavernaculars(tid,vernacularname,language) VALUES('.$newTid.',"'.$vernArr['vernacularName'].'",'.$this->langArr[$vernArr['vernacularName']].')';
+					if(!$this->conn->query($sqlVern)){
+						$this->logOrEcho('ERROR loading vernacular '.$taxonArr['sciname'].': '.$this->conn->error,1);
+					}
 				}
 			}
 		}
@@ -1124,6 +1127,19 @@ class TaxonomyHarvester extends Manager{
 		}
 		$rs->free();
 		return $retTid;
+	}
+
+	private function setLangArr(){
+		if($this->langArr === false){
+			$this->langArr = array();
+			$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->langArr[$r->langname] = $r->langid;
+				$this->langArr[$r->iso639_1] = $r->langid;
+			}
+			$rs->free();
+		}
 	}
 
 	//Setters and getters

@@ -19,6 +19,13 @@ if($action == 'Create New Dataset'){
 		$statusStr = implode(',',$datasetManager->getErrorArr());
 	}
 }
+elseif($action == 'addSelectedToDataset'){
+	$datasetID = $_POST['datasetid'];
+	if(!$datasetID && $_POST['name']) $datasetManager->createDataset($_POST['name'],'',$SYMB_UID);
+}
+elseif($action == 'addAllToDataset'){
+
+}
 ?>
 <html>
 	<head>

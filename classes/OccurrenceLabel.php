@@ -57,7 +57,6 @@ class OccurrenceLabel{
 
 				$sqlOrderBy .= ','.$dateTarget;
 			}
-			$rnIsNum = false;
 			if($postArr['recordnumber']){
 				$rnArr = explode(',',$this->cleanInStr($postArr['recordnumber']));
 				$rnBetweenFrag = array();
@@ -68,7 +67,6 @@ class OccurrenceLabel{
 						$term1 = trim(substr($v,0,$p));
 						$term2 = trim(substr($v,$p+3));
 						if(is_numeric($term1) && is_numeric($term2)){
-							$rnIsNum = true;
 							$rnBetweenFrag[] = '(o.recordnumber BETWEEN '.$term1.' AND '.$term2.')';
 						}
 						else{
@@ -99,7 +97,6 @@ class OccurrenceLabel{
 				else{
 					$sqlWhere .= 'AND (MATCH(f.recordedby) AGAINST("'.$recordedBy.'")) ';
 				}
-				$sqlOrderBy .= ',(o.recordnumber'.($rnIsNum?'+1':'').')';
 			}
 			if($postArr['identifier']){
 				$iArr = explode(',',$this->cleanInStr($postArr['identifier']));
@@ -148,9 +145,10 @@ class OccurrenceLabel{
 				$sql.= 'INNER JOIN omoccurrencesfulltext f ON o.occid = f.occid ';
 			}
 			if($sqlWhere) $sql .= 'WHERE '.substr($sqlWhere, 4);
-			//if($sqlOrderBy) $sql .= ' ORDER BY '.substr($sqlOrderBy,1);
+			if($sqlOrderBy) $sql .= ' ORDER BY '.substr($sqlOrderBy,1);
+			else $sql .= ' ORDER BY (o.recordnumber+1)';
 			$sql .= ' LIMIT 400';
-			//echo '<div>'.$sql.'</div>'; exit;
+			//echo '<div>'.$sql.'</div>';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$localitySecurity = $r->localitySecurity;

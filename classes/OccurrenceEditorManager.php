@@ -21,6 +21,7 @@ class OccurrenceEditorManager {
 	private $qryArr = array();
 	private $crowdSourceMode = 0;
 	private $SYMB_UID;
+	private $catNumIsNum;
 	protected $errorArr = array();
 	protected $isShareConn = false;
 
@@ -116,7 +117,7 @@ class OccurrenceEditorManager {
 			if(array_key_exists('q_recordnumber',$_REQUEST) && $_REQUEST['q_recordnumber']) $this->qryArr['rn'] = trim($_REQUEST['q_recordnumber']);
 			if(array_key_exists('q_eventdate',$_REQUEST) && $_REQUEST['q_eventdate']) $this->qryArr['ed'] = trim($_REQUEST['q_eventdate']);
 			if(array_key_exists('q_recordenteredby',$_REQUEST) && $_REQUEST['q_recordenteredby']) $this->qryArr['eb'] = trim($_REQUEST['q_recordenteredby']);
-			if(array_key_exists('q_observeruid',$_REQUEST) && is_numeric($_REQUEST['q_observeruid'])) $this->qryArr['ouid'] = $_REQUEST['q_observeruid'];
+			if(array_key_exists('q_returnall',$_REQUEST) && is_numeric($_REQUEST['q_returnall'])) $this->qryArr['returnall'] = $_REQUEST['q_returnall'];
 			if(array_key_exists('q_processingstatus',$_REQUEST) && $_REQUEST['q_processingstatus']) $this->qryArr['ps'] = trim($_REQUEST['q_processingstatus']);
 			if(array_key_exists('q_datelastmodified',$_REQUEST) && $_REQUEST['q_datelastmodified']) $this->qryArr['dm'] = trim($_REQUEST['q_datelastmodified']);
 			if(array_key_exists('q_exsiccatiid',$_REQUEST) && is_numeric($_REQUEST['q_exsiccatiid'])) $this->qryArr['exsid'] = $_REQUEST['q_exsiccatiid'];
@@ -143,12 +144,13 @@ class OccurrenceEditorManager {
 	}
 
 	private function setSqlWhere(){
+		$this->setCollMap();
 		if ($this->qryArr==null) {
 			// supress warnings on array_key_exists(key,null) calls below
 			$this->qryArr=array();
 		}
 		$sqlWhere = '';
-		$catNumIsNum = false;
+		$this->catNumIsNum = false;
 		if(array_key_exists('cn',$this->qryArr)){
 			$idTerm = $this->qryArr['cn'];
 			if(strtolower($idTerm) == 'is null'){
@@ -173,7 +175,7 @@ class OccurrenceEditorManager {
 						$term1 = $this->cleanInStr(substr($v,0,$p));
 						$term2 = $this->cleanInStr(substr($v,$p+3));
 						if(is_numeric($term1) && is_numeric($term2)){
-							$catNumIsNum = true;
+							$this->catNumIsNum = true;
 							if($isOccid){
 								$iBetweenFrag[] = '(o.occid BETWEEN '.$term1.' AND '.$term2.')';
 							}
@@ -192,7 +194,7 @@ class OccurrenceEditorManager {
 						if(is_numeric($vStr)){
 							if($iInFrag){
 								//Only tag as numeric if there are more than one term (if not, it doesn't match what the sort order is)
-								$catNumIsNum = true;
+								$this->catNumIsNum = true;
 							}
 							if(substr($vStr,0,1) == '0'){
 								//Add value with left padded zeros removed
@@ -404,9 +406,6 @@ class OccurrenceEditorManager {
 				$sqlWhere .= 'AND (o.recordEnteredBy = "'.$this->cleanInStr($this->qryArr['eb']).'") ';
 			}
 		}
-		if(array_key_exists('ouid',$this->qryArr) && is_numeric($this->qryArr['ouid'])){
-			$sqlWhere .= 'AND (o.observeruid = '.$this->qryArr['ouid'].') ';
-		}
 		if(array_key_exists('de',$this->qryArr)){
 			$de = $this->cleanInStr($this->qryArr['de']);
 			if(preg_match('/^>{1}.*\s{1,3}AND\s{1,3}<{1}.*/i',$de)){
@@ -523,6 +522,10 @@ class OccurrenceEditorManager {
 		if($this->crowdSourceMode){
 			$sqlWhere .= 'AND (q.reviewstatus = 0) ';
 		}
+		if($this->collMap['colltype'] == 'General Observations' && !isset($this->qryArr['returnall'])){
+			//Ensure that General Observation projects edits are limited to active user
+			$sqlWhere .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
+		}
 		if($this->collId) $sqlWhere .= 'AND (o.collid = '.$this->collId.') ';
 		if($sqlWhere) $sqlWhere = 'WHERE '.substr($sqlWhere,4);
 
@@ -535,7 +538,7 @@ class OccurrenceEditorManager {
 			$sqlOrderBy = '';
 			$orderBy = $this->cleanInStr($this->qryArr['orderby']);
 			if($orderBy == "catalognumber"){
-				if($catNumIsNum){
+				if($this->catNumIsNum){
 					$sqlOrderBy = 'catalogNumber+1';
 				}
 				else{

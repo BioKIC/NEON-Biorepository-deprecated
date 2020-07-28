@@ -248,8 +248,30 @@ if($spprid) $specManager->setProjVariables($spprid);
 									<table class="styledtable" style="width:600px;font-family:Arial;font-size:12px;">
 										<tr><th>Source Field</th><th>Target Field</th></tr>
 										<?php
+										$translationMap = array('catalognumber' => 'catalognumber', 'othercatalognumbers' => 'othercatalognumbers', 'othercatalognumber' => 'othercatalognumbers', 'url' => 'url',
+											'web' => 'url','webviewoptional' => 'url','thumbnailurl' => 'thumbnailurl', 'thumbnail' => 'thumbnailurl','thumbnailoptional' => 'thumbnailurl',
+											'largejpg' => 'originalurl', 'originalurl' => 'originalurl', 'large' => 'originalurl', 'sourceurl' => 'sourceurl');
 										$imgProcessor = new ImageProcessor();
-										$imgProcessor->echoFileMapping($fileName);
+										$headerArr = $imgProcessor->getHeaderArr($fileName);
+										foreach($headerArr as $i => $sourceField){
+											echo '<tr><td>';
+											echo $sourceField;
+											$sourceField = strtolower($sourceField);
+											echo '<input type="hidden" name="sf['.$i.']" value="'.$sourceField.'" />';
+											$sourceField = preg_replace('/[^a-z]+/','',$sourceField);
+											echo '</td><td>';
+											echo '<select name="tf['.$i.']" style="background:'.(!array_key_exists($sourceField,$translationMap)?'yellow':'').'">';
+											echo '<option value="">Select Target Field</option>';
+											echo '<option value="">-------------------------</option>';
+											echo '<option value="catalognumber" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='catalognumber'?'SELECTED':'').'>Catalog Number</option>';
+											echo '<option value="othercatalognumbers" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='othercatalognumbers'?'SELECTED':'').'>Other Catalog Numbers</option>';
+											echo '<option value="originalurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='originalurl'?'SELECTED':'').'>Large Image URL (required)</option>';
+											echo '<option value="url" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='url'?'SELECTED':'').'>Web Image URL</option>';
+											echo '<option value="thumbnailurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='thumbnailurl'?'SELECTED':'').'>Thumbnail URL</option>';
+											echo '<option value="sourceurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='sourceurl'?'SELECTED':'').'>Source URL</option>';
+											echo '</select>';
+											echo '</td></tr>';
+										}
 										?>
 									</table>
 								</div>

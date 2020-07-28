@@ -211,6 +211,7 @@ class ShipmentManager{
 
 	public function uploadData(){
 		$status = true;
+		set_time_limit(1800);
 		$shipmentArr = array();
 		if($this->uploadFileName){
 			echo '<li>Initiating import from: '.$this->uploadFileName.'</li>';
@@ -226,6 +227,8 @@ class ShipmentManager{
 				$indexMap[$targetField][$sourceField] = $index;
 			}
 			echo '<li>Beginning to load records...</li>';
+			ob_flush();
+			flush();
 			$errCnt = 0;
 			while($recordArr = fgetcsv($fh)){
 				$recMap = Array('filename' => $this->uploadFileName);
@@ -257,8 +260,10 @@ class ShipmentManager{
 				if($this->shipmentPK){
 					if(!$this->addSample($recMap,true)) $errCnt++;
 					$recCnt++;
-					if(!$recCnt%1000){
+					if($recCnt%1000 == 0){
 						echo '<li>'.$recCnt.' record loaded</li>';
+						ob_flush();
+						flush();
 					}
 				}
 				unset($recMap);

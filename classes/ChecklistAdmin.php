@@ -53,9 +53,7 @@ class ChecklistAdmin{
 				$rs->free();
 			}
 			if($pid && is_numeric($pid)){
-				$sql = 'SELECT clNameOverride, mapChecklist, sortSequence, notes '.
-					'FROM fmchklstprojlink '.
-					'WHERE clid = '.$this->clid.' AND pid = '.$pid;
+				$sql = 'SELECT clNameOverride, mapChecklist, sortSequence, notes FROM fmchklstprojlink WHERE clid = '.$this->clid.' AND pid = '.$pid;
 				$rs = $this->conn->query($sql);
 				if($rs){
 					if($r = $rs->fetch_object()){
@@ -461,6 +459,41 @@ class ChecklistAdmin{
 			$rs->free();
 		}
 		return $retArr;
+	}
+
+	public function getPotentialProjects($pidArr){
+		$retArr = Array();
+		if($pidArr){
+			$sql = 'SELECT pid, projname FROM fmprojects WHERE pid IN('.implode(',',$pidArr).') ORDER BY projname';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->pid] = $r->projname;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
+	public function addProject($pid){
+		$statusStr = '';
+		if(is_numeric($pid)){
+			$sql = 'INSERT INTO fmchklstprojlink(pid, clid) VALUES('.$pid.','.$this->clid.')';
+			if(!$this->conn->query($sql)){
+				$statusStr = 'ERROR adding project: '.$this->conn->error;
+			}
+		}
+		return $statusStr;
+	}
+
+	public function deleteProject($pid){
+		$statusStr = '';
+		if(is_numeric($pid)){
+			$sql = 'DELETE FROM fmchklstprojlink WHERE (pid = '.$pid.') AND (clid = '.$this->clid.')';
+			if(!$this->conn->query($sql)){
+				$statusStr = 'ERROR deleting project: '.$this->conn->error;
+			}
+		}
+		return $statusStr;
 	}
 
 	public function hasVoucherProjects(){

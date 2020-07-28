@@ -125,15 +125,15 @@ if($clid && $isEditor){
 						<td>
 							<div style="margin:2px;">
 								<b><?php echo $LANG['COUNTRY'];?>:</b>
-								<input type="text" name="country" value="<?php echo isset($termArr['country'])?$termArr['country']:''; ?>" />
+								<input type="text" name="country" value="<?php echo isset($termArr['country'])?$termArr['country']:''; ?>" title="Enter multiple countries separated by semicolons" />
 							</div>
 							<div style="margin:2px;">
 								<b><?php echo $LANG['STATE'];?>:</b>
-								<input type="text" name="state" value="<?php echo isset($termArr['state'])?$termArr['state']:''; ?>" />
+								<input type="text" name="state" value="<?php echo isset($termArr['state'])?$termArr['state']:''; ?>" title="Enter multiple states separated by semicolons" />
 							</div>
 							<div style="margin:2px;">
 								<b><?php echo $LANG['COUNTY'];?>:</b>
-								<input type="text" name="county" value="<?php echo isset($termArr['county'])?$termArr['county']:''; ?>" />
+								<input type="text" name="county" value="<?php echo isset($termArr['county'])?$termArr['county']:''; ?>" title="Enter multiple counties separated by semicolons" />
 							</div>
 							<div style="margin:2px;">
 								<b><?php echo $LANG['LOCALITY'];?>:</b>

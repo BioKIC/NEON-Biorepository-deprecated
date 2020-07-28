@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
+include_once($SERVER_ROOT.'/classes/MapSupport.php');
 include_once($SERVER_ROOT.'/content/lang/checklists/checklist.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -50,12 +51,8 @@ if($action != "Rebuild List" && !array_key_exists('dllist_x',$_POST)) $searchSyn
 if($action == "Rebuild List") $defaultOverride = 1;
 
 $clManager = new ChecklistManager();
-if($clid){
-	$clManager->setClid($clid);
-}
-elseif($dynClid){
-	$clManager->setDynClid($dynClid);
-}
+if($clid) $clManager->setClid($clid);
+elseif($dynClid) $clManager->setDynClid($dynClid);
 $clArray = $clManager->getClMetaData();
 $activateKey = $KEY_MOD_IS_ACTIVE;
 $showDetails = 0;
@@ -103,18 +100,9 @@ $isEditor = false;
 if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USER_RIGHTS["ClAdmin"]))){
 	$isEditor = true;
 }
-if($isEditor){
-	if(array_key_exists("tidtoadd",$_POST) && is_numeric($_POST["tidtoadd"])){
-		$dataArr = array();
-		$dataArr["tid"] = $_POST["tidtoadd"];
-		if($_POST["familyoverride"]) $dataArr["familyoverride"] = $_POST["familyoverride"];
-		if($_POST['morphospecies']) $dataArr['morphospecies'] = $_POST['morphospecies'];
-		if($_POST["habitat"]) $dataArr["habitat"] = $_POST["habitat"];
-		if($_POST["abundance"]) $dataArr["abundance"] = $_POST["abundance"];
-		if($_POST["notes"]) $dataArr["notes"] = $_POST["notes"];
-		if($_POST["source"]) $dataArr["source"] = $_POST["source"];
-		if($_POST["internalnotes"]) $dataArr["internalnotes"] = $_POST["internalnotes"];
-		$statusStr = $clManager->addNewSpecies($dataArr);
+if($isEditor && array_key_exists('formsubmit',$_POST)){
+	if($_POST['formsubmit'] == 'AddSpecies'){
+		$statusStr = $clManager->addNewSpecies($_POST);
 	}
 }
 $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
@@ -122,17 +110,17 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 <html>
 <head>
 	<meta charset="<?php echo $CHARSET; ?>">
-  <title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['RESCHECK'];?>: <?php echo $clManager->getClName(); ?></title>
+	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['RESCHECK'];?>: <?php echo $clManager->getClName(); ?></title>
 	<?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
@@ -146,7 +134,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 		} );
 
 	</script>
-	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=201901"></script>
+	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=202004"></script>
 	<style type="text/css">
 		#sddm{margin:0;padding:0;z-index:30;}
 		#sddm:hover {background-color:#EAEBD8;}
@@ -246,7 +234,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					<ul id="sddm">
 						<li>
 							<span onmouseover="mopen('m1')" onmouseout="mclosetime()">
-								<img src="../images/games/games.png" style="height:17px;" title="<?php echo (isset($LANG['ACCESS_GAMES'])?$LANG['ACCESS_GAMES']:'Access Species List Games'); ?>" />
+								<img src="../images/games/games.png" style="height:17px;" />
 							</span>
 							<div id="m1" onmouseover="mcancelclosetime()" onmouseout="mclosetime()">
 								<?php
@@ -327,7 +315,6 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					echo '<div style="clear:both;"><span style="font-weight:bold;">'.(isset($LANG['CITATION'])?$LANG['CITATION']:'Citation').':</span> '.$pubStr.'</div>';
 				}
 			}
-
 			if(($clArray["locality"] || ($clid && ($clArray["latcentroid"] || $clArray["abstract"])) || $clArray["notes"])){
 				?>
 				<div class="moredetails printoff" style="<?php echo (($showDetails)?'display:none;':''); ?>"><a href="#" onclick="toggle('moredetails');return false;"><?php echo $LANG['MOREDETS'];?></a></div>
@@ -345,7 +332,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 						if($clArray['type'] == 'excludespp') $abstractTitle = $LANG['COMMENTS'];
 						echo "<div><span style='font-weight:bold;'>".$abstractTitle.": </span>".$clArray["abstract"]."</div>";
 					}
-					if($clid && $clArray['notes']){
+					if($clArray['notes']){
 						echo '<div><span style="font-weight:bold;">'.(isset($LANG['NOTES'])?$LANG['NOTES']:'Notes').': </span>'.$clArray['notes'].'</div>';
 					}
 					?>
@@ -470,7 +457,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									<div>
 										<?php echo $LANG['TAXON']; ?>:<br/>
 										<input type="text" id="speciestoadd" name="speciestoadd" style="width:174px;" />
-										<input type="hidden" id="tidtoadd" name="tidtoadd" value="" />
+										<input type="hidden" id="tid" name="tid" />
 									</div>
 									<!--
 									<div>
@@ -513,7 +500,8 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 										<input type='hidden' name='taxonfilter' value='<?php echo $taxonFilter; ?>' />
 										<input type='hidden' name='searchcommon' value='<?php echo $searchCommon; ?>' />
 										<input type="hidden" name="emode" value="1" />
-										<button name="submitadd" type="submit" value="Add Species to List"><?php echo (isset($LANG['ADD_SPECIES'])?$LANG['ADD_SPECIES']:'Add Species to List'); ?></button>
+										<input type="hidden" name="formsubmit" value="AddSpecies" />
+										<button name="submitbtn" type="submit"><?php echo (isset($LANG['ADD_SPECIES'])?$LANG['ADD_SPECIES']:'Add Species to List'); ?></button>
 										<hr />
 									</div>
 									<div style="text-align:center;">
@@ -526,31 +514,33 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					}
 					if(!$showImages){
 						?>
-						<div style="text-align:center;padding:10px">
+						<div style="text-align:center">
 							<?php
-							$coordArr = $clManager->getVoucherCoordinates(0,true);
-							$googleUrl = '';
-							if(isset($GOOGLE_MAP_THUMBNAILS) && $GOOGLE_MAP_THUMBNAILS) $googleUrl = '//maps.googleapis.com/maps/api/staticmap?size=170x170&maptype=terrain';
-							else $googleUrl = $CLIENT_ROOT.'/images/world.png?';
-							if(array_key_exists('GOOGLE_MAP_KEY',$GLOBALS) && $GLOBALS['GOOGLE_MAP_KEY']) $googleUrl .= '&key='.$GLOBALS['GOOGLE_MAP_KEY'];
+							$coordArr = $clManager->getVoucherCoordinates(200);
 							if($coordArr){
-								//$googleUrl .= '&markers=size:tiny|'.implode('|',$coordArr);
+								$tnUrl = MapSupport::getStaticMap($coordArr);
+								$tnWidth = 100;
+								if(strpos($tnUrl,$CLIENT_ROOT) === 0) $tnWidth = 50;
 								?>
-								<span title="<?php echo (isset($LANG['VOUCHERS_SIMPLE_MAP'])?$LANG['VOUCHERS_SIMPLE_MAP']:'Display Vouchers in Simply Map'); ?>">
-									<a href="checklistmap.php?clid=<?php echo $clid.'&thesfilter='.$thesFilter.'&taxonfilter='.$taxonFilter; ?>" target="_blank">
-										<img src="<?php echo $googleUrl; ?>" srcset="../images/globe.svg" style="border:0px;width:30px" />
-									</a>
-								</span>
-								<?php
-							}
-							if($coordArr){
-								?>
-								<span style="margin:5px">
-									<a href="../collections/map/index.php?clid=<?php echo $clid.'&cltype=vouchers&taxonfilter='.$taxonFilter; ?>&db=all&type=1&reset=1" target="_blank"><img src="../images/world.png" srcset="../images/globe.svg" style="width:30px" title="<?php echo (isset($LANG['VOUCHERS_DYNAMIC_MAP'])?$LANG['VOUCHERS_DYNAMIC_MAP']:'Display Vouchers in Dynamic Map'); ?>" /></a>
-								</span>
+								<div style="text-align:center;font-weight:bold;margin-bottom:5px"><?php echo (isset($LANG['VOUCHER_MAPPING'])?$LANG['VOUCHER_MAPPING']:'Voucher Mapping'); ?></div>
+								<div style="display: flex; align-items: center; justify-content: center;">
+									<div style="float:left;" title="<?php echo (isset($LANG['VOUCHERS_SIMPLE_MAP'])?$LANG['VOUCHERS_SIMPLE_MAP']:'Display Vouchers in Simply Map'); ?>">
+										<a href="checklistmap.php?clid=<?php echo $clid.'&thesfilter='.$thesFilter.'&taxonfilter='.$taxonFilter; ?>" target="_blank">
+											<img src="<?php echo $tnUrl; ?>" style="border:0px;width:<?php echo $tnWidth; ?>px" /><br/>
+											<?php echo (isset($LANG['SIMPLE_MAP'])?$LANG['SIMPLE_MAP']:'Simply Map'); ?>
+										</a>
+									</div>
+									<div style="float:left;margin-left:15px" title="<?php echo (isset($LANG['VOUCHERS_DYNAMIC_MAP'])?$LANG['VOUCHERS_DYNAMIC_MAP']:'Display Vouchers in Dynamic Map'); ?>">
+										<a href="../collections/map/index.php?clid=<?php echo $clid.'&cltype=vouchers&taxonfilter='.$taxonFilter; ?>&db=all&type=1&reset=1" target="_blank">
+											<img src="<?php echo $tnUrl; ?>" style="width:<?php echo $tnWidth; ?>px" /><br/>
+											<?php echo (isset($LANG['DYNAMIC_MAP'])?$LANG['DYNAMIC_MAP']:'Dynamic Map'); ?>
+										</a>
+									</div>
+								</div>
 								<?php
 							}
 							if(false && $clArray['dynamicsql']){
+								//Temporarily turned off
 								?>
 								<span style="margin:5px">
 									<a href="../collections/map/index.php?clid=<?php echo $clid.'&cltype=all&taxonfilter='.$taxonFilter; ?>&db=all&type=1&reset=1" target="_blank">
@@ -570,7 +560,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							}
 							?>
 						</div>
-					<?php
+						<?php
 					}
 					?>
 				</div>
@@ -723,7 +713,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							if(array_key_exists('vern',$sppArr)){
 								echo ' - <span class="vern-span">'.$sppArr['vern'].'</span>';
 							}
-							if($clArray["dynamicsql"]){
+							if($clid && $clArray['dynamicsql']){
 								?>
 								<span class="view-specimen-span printoff">
 									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank">
@@ -761,28 +751,21 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							}
 							if($showVouchers){
 								$voucStr = '';
+								if(array_key_exists('notes',$sppArr)) $voucStr .= $sppArr['notes'].'; ';
 								if(array_key_exists($tid,$voucherArr)){
 									$voucCnt = 0;
 									foreach($voucherArr[$tid] as $occid => $collName){
-										$voucStr .= ', ';
 										if($voucCnt == 4 && !$printMode){
 											$voucStr .= '<a href="#" id="morevouch-'.$tid.'" onclick="return toggleVoucherDiv('.$tid.');">'.$LANG['MORE'].'...</a>'.
 												'<span id="voucdiv-'.$tid.'" style="display:none;">';
 										}
-										$voucStr .= '<a href="#" onclick="return openIndividualPopup('.$occid.')">'.$collName."</a>\n";
+										$voucStr .= '<a href="#" onclick="return openIndividualPopup('.$occid.')">'.$collName.'</a>, ';
 										$voucCnt++;
 									}
 									if($voucCnt > 4 && !$printMode) $voucStr .= '</span><a href="#" id="lessvouch-'.$tid.'" style="display:none;" onclick="return toggleVoucherDiv('.$tid.');">...'.$LANG['LESS'].'</a>';
-									$voucStr = substr($voucStr,2);
 								}
-								$noteStr = '';
-								if(array_key_exists('notes',$sppArr)){
-									$noteStr = $sppArr['notes'];
-								}
-								if($noteStr || $voucStr){
-								//Edit notes and voucher display style here
-									echo '<div class="note-div">'.$noteStr.($noteStr && $voucStr?'; ':'').$voucStr.'</div>';
-								}
+								$voucStr = trim($voucStr,' ;,');
+								if($voucStr) echo '<div class="note-div">'.$voucStr.'</div>';
 							}
 							echo "</div>\n";
 						}

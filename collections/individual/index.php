@@ -38,12 +38,12 @@ $indManager->setDisplayFormat($format);
 $occArr = $indManager->getOccData();
 if(!$occid) $occid = $indManager->getOccid();
 $collMetadata = $indManager->getMetadata();
-if(!$collid) $collid = $occArr['collid'];
+if(!$collid && $occArr) $collid = $occArr['collid'];
 
 $genticArr = $indManager->getGeneticArr();
 
 $statusStr = '';
-$securityCode = ($occArr['localitysecurity']?$occArr['localitysecurity']:0);
+$securityCode = ($occArr && $occArr['localitysecurity']?$occArr['localitysecurity']:0);
 
 $isEditor = false;
 
@@ -146,7 +146,7 @@ if($SYMB_UID){
 }
 
 $displayMap = false;
-if(!$securityCode && is_numeric($occArr['decimallatitude']) && is_numeric($occArr['decimallongitude'])) $displayMap = true;
+if(!$securityCode && $occArr && is_numeric($occArr['decimallatitude']) && is_numeric($occArr['decimallongitude'])) $displayMap = true;
 $dupClusterArr = $indManager->getDuplicateArr();
 $commentArr = $indManager->getCommentArr($isEditor);
 
@@ -269,6 +269,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		}
 		?>
 	</script>
+	<style>
+		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
+	</style>
 </head>
 <body>
 	<div id="fb-root"></div>
@@ -830,13 +833,17 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									<legend><b>Specimen Images</b></legend>
 									<?php
 									foreach($iArr as $imgId => $imgArr){
+										$thumbUrl = $imgArr['tnurl'];
+										if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['url'];
+										if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['lgurl'];
 										?>
-										<div style="max-width:180;float:left;text-align:center;padding:5px;">
+										<div class="imgDiv">
 											<a href='<?php echo $imgArr['url']; ?>' target="_blank">
-												<img border="1" src="<?php echo ($imgArr['tnurl']?$imgArr['tnurl']:$imgArr['url']); ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
+												<img border="1" src="<?php echo $thumbUrl; ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
 											</a>
 											<?php
-											if($imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
+											if($imgArr['photographer']) echo '<div>Author: '.$imgArr['photographer'].'</div>';
+											if($imgArr['url'] && substr($thumbUrl,0,7)=='process' && $imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
 											if($imgArr['lgurl']) echo '<div><a href="'.$imgArr['lgurl'].'" target="_blank">Open Large Image</a></div>';
 											if($imgArr['sourceurl']) echo '<div><a href="'.$imgArr['sourceurl'].'" target="_blank">Open Source Image</a></div>';
 											?>
@@ -902,15 +909,35 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						<div style="margin:3px 0px;"><b>Record ID:</b> <?php echo $occArr['guid']; ?></div>
 
 						<div style="margin-top:10px;clear:both;">
-							For additional information on this specimen, please contact:
 							<?php
-							$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
-							$emailBody = 'Specimen being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
-							$emailRef = 'subject='.$emailSubject.'&cc='.$adminEmail.'&body='.$emailBody;
+							if($collMetadata['contact']){
+								echo 'For additional information on this specimen, please contact: ';
+								$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
+								$emailBody = 'Specimen being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
+								$emailRef = 'subject='.$emailSubject.'&cc='.$ADMIN_EMAIL.'&body='.$emailBody;
+								//Test to see if contact is a JSON object or a simple string
+								$contactObj = json_decode($collMetadata['contact'],true);
+								if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
+									$contactArr = $contactObj['contact'];
+									$contactStr = '';
+									foreach($contactArr as $cArr){
+										if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) {
+											$contactStr .= ', '.$cArr['individualName'];
+											if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $contactStr .= ', '.$cArr['positionName'];
+											$contactStr .= ' (<a href="mailto:'.$cArr['electronicMailAddress'].'?'.$emailRef.'">'.$cArr['electronicMailAddress'].'</a>)';
+										}
+									}
+									echo trim($contactStr,', ');
+								}
+								else{
+									?>
+									<a href="mailto:<?php echo $collMetadata['email'].'?'.$emailRef; ?>">
+										<?php echo $collMetadata['contact'].' ('.$collMetadata['email'].')'; ?>
+									</a>
+									<?php
+								}
+							}
 							?>
-							<a href="mailto:<?php echo $collMetadata['email'].'?'.$emailRef; ?>">
-								<?php echo $collMetadata['contact'].' ('.$collMetadata['email'].')'; ?>
-							</a>
 						</div>
 						<?php
 						if($isEditor || (!$securityCode && $collMetadata['publicedits'])){
@@ -949,7 +976,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					?>
 					<div id="genetictab">
 						<?php
-						foreach($genticArr as $genId => $gArr){
+						foreach($genticArr as $gArr){
 							?>
 							<div style="margin:15px;">
 								<div style="font-weight:bold;margin-bottom:5px;"><?php echo $gArr['name']; ?></div>

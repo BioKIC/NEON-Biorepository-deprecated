@@ -5,8 +5,8 @@ class OccurrenceChecklistManager extends OccurrenceManager{
 
 	private $checklistTaxaCnt = 0;
 
-	public function __construct(){
-		parent::__construct();
+	public function __construct($type='readonly'){
+		parent::__construct($type);
 	}
 
 	public function __destruct(){
@@ -80,28 +80,12 @@ class OccurrenceChecklistManager extends OccurrenceManager{
 	}
 
 	public function buildSymbiotaChecklist($taxonAuthorityId,$tidArr = ''){
-		global $CLIENT_ROOT,$SYMB_UID;
-		$conn = $this->getConnection("write");
-		$sqlCreateCl = "";
-		$expirationTime = date('Y-m-d H:i:s',time()+259200);
-		$searchStr = "";
-		$tidStr = "";
-		if($tidArr){
-			$tidStr = implode(',',$tidArr);
-		}
-		if($this->getTaxaSearchStr()) $searchStr .= "; ".$this->getTaxaSearchStr();
-		if($this->getLocalSearchStr()) $searchStr .= "; ".$this->getLocalSearchStr();
-		if($this->getDatasetSearchStr()) $searchStr .= "; ".$this->getDatasetSearchStr();
-		//$searchStr = substr($searchStr,2,250);
-		//$nameStr = substr($searchStr,0,35)."-".time();
 		$sqlTaxaBase = '';
-		if($tidStr){
+		if($tidArr){
 			if(is_numeric($taxonAuthorityId)){
-				$sqlTaxaBase .= 'FROM taxstatus ts INNER JOIN taxa t ON ts.TidAccepted = t.Tid WHERE ts.tid IN('.$tidStr.') AND ts.taxauthid = '.$taxonAuthorityId;
+				$sqlTaxaBase .= 'FROM taxstatus ts INNER JOIN taxa t ON ts.TidAccepted = t.Tid WHERE ts.tid IN('.implode(',',$tidArr).') AND ts.taxauthid = '.$taxonAuthorityId;
 			}
-			else{
-				$sqlTaxaBase .= 'FROM taxa t WHERE t.tid IN('.$tidStr.') ';
-			}
+			else $sqlTaxaBase .= 'FROM taxa t WHERE t.tid IN('.implode(',',$tidArr).') ';
 		}
 		else{
 			$sqlWhere = $this->getSqlWhere();
@@ -111,30 +95,30 @@ class OccurrenceChecklistManager extends OccurrenceManager{
 						'INNER JOIN taxa t ON ts1.TidAccepted = t.Tid '.$this->getTableJoins($sqlWhere).
 						str_ireplace('o.sciname','t.sciname',str_ireplace('o.family','ts1.family',$sqlWhere)).'AND ts1.taxauthid = '.$taxonAuthorityId;
 				}
-				else{
-					$sqlTaxaBase .= 'FROM omoccurrences o INNER JOIN taxa t ON o.TidInterpreted = t.tid '.$this->getTableJoins($sqlWhere).$sqlWhere;
-				}
+				else $sqlTaxaBase .= 'FROM omoccurrences o INNER JOIN taxa t ON o.TidInterpreted = t.tid '.$this->getTableJoins($sqlWhere).$sqlWhere;
 			}
 		}
-		//echo "sqlTaxaInsert: ".$sqlTaxa; exit;
-
 		$dynClid = 0;
 		if($sqlTaxaBase){
-			$sqlCreateCl = 'INSERT INTO fmdynamicchecklists ( name, details, uid, type, notes, expiration ) '.
-				"VALUES ('Specimen Checklist #".time()."', 'Generated ".date('Y-m-d H:i:s',time())."', '".$SYMB_UID."', 'Specimen Checklist', '', '".$expirationTime."') ";
-			if($conn->query($sqlCreateCl)){
-				$dynClid = $conn->insert_id;
+			$searchStr = "";
+			if($this->getTaxaSearchStr()) $searchStr .= "; ".$this->getTaxaSearchStr();
+			if($this->getLocalSearchStr()) $searchStr .= "; ".$this->getLocalSearchStr();
+			if($this->getCollectionSearchStr()) $searchStr .= "; ".$this->getCollectionSearchStr();
+			$searchStr = trim($searchStr,'; ');
+			if(strlen($searchStr) > 250) $searchStr = substr($searchStr,0,246).'...';
+			$sql = 'INSERT INTO fmdynamicchecklists( name, details, uid, type, expiration ) '.
+				'VALUES ("Specimen Checklist #'.time().'", "'.$this->cleanInStr($searchStr).'",'.($GLOBALS['SYMB_UID']?$GLOBALS['SYMB_UID']:'NULL').
+				',"Specimen Checklist","'.date('Y-m-d H:i:s',time()+259200).'") ';
+			if($this->conn->query($sql)){
+				$dynClid = $this->conn->insert_id;
 				$sqlTaxa = 'INSERT IGNORE INTO fmdyncltaxalink ( tid, dynclid ) SELECT DISTINCT t.tid, '.$dynClid.' '.$sqlTaxaBase.' AND t.RankId > 180';
-				$conn->query($sqlTaxa);
-
+				$this->conn->query($sqlTaxa);
 				//Delete checklists that are greater than one week old
-				$conn->query('DELETE FROM fmdynamicchecklists WHERE expiration < now()');
+				$this->conn->query('DELETE FROM fmdynamicchecklists WHERE expiration < now()');
 			}
 			else{
-				echo "ERROR: ".$conn->error;
-				//echo "insertSql: ".$sqlCreateCl;
+				echo "ERROR: ".$this->conn->error;
 			}
-			if($conn !== false) $conn->close();
 		}
 		return $dynClid;
 	}

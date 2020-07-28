@@ -11,6 +11,7 @@ class TaxonomyUpload{
 	private $kingdomName;
 	private $taxonUnitArr = array();
 	private $statArr = array();
+	private $langArr = false;
 
 	private $verboseMode = 1; // 0 = silent, 1 = echo only, 2 = echo and log
 	private $logFH;
@@ -814,6 +815,7 @@ class TaxonomyUpload{
 	}
 
 	private function transferVernaculars($secondRound = 0){
+		if($this->langArr === false) $this->setLangArr();
 		$sql = 'SELECT tid, vernacular, vernlang, source FROM uploadtaxa WHERE tid IS NOT NULL AND Vernacular IS NOT NULL ';
 		if($secondRound) $sql .= 'AND tidaccepted IS NOT NULL';
 		$rs = $this->conn->query($sql);
@@ -835,12 +837,11 @@ class TaxonomyUpload{
 			else{
 				$vernArr[] = $vernStr;
 			}
-			$langStr = $r->vernlang;
-			if(!$langStr) $langStr = 'en';
+			$langId = 1;
+			if(array_key_exists($r->vernlang,$this->langArr)) $langId = $this->langArr[$r->vernlang];
 			foreach($vernArr as $vStr){
 				if($vStr){
-					$sqlInsert = 'INSERT INTO taxavernaculars(tid, VernacularName, Language, Source) '.
-						'VALUES('.$r->tid.',"'.$this->cleanInStr($vStr).'","'.$langStr.'",'.($r->source?'"'.$r->source.'"':'NULL').')';
+					$sqlInsert = 'INSERT INTO taxavernaculars(tid, VernacularName, langid, source) VALUES('.$r->tid.',"'.$this->cleanInStr($vStr).'",'.$langId.','.($r->source?'"'.$r->source.'"':'NULL').')';
 					if(!$this->conn->query($sqlInsert)){
 						if(substr($this->conn->error,0,9) != 'Duplicate') $this->outputMsg('ERROR: '.$this->conn->error,1);
 					}
@@ -986,6 +987,19 @@ class TaxonomyUpload{
 		}
 		$rs->free();
 		return $retArr;
+	}
+
+	private function setLangArr(){
+		if($this->langArr === false){
+			$this->langArr = array();
+			$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->langArr[$r->langname] = $r->langid;
+				$this->langArr[$r->iso639_1] = $r->langid;
+			}
+			$rs->free();
+		}
 	}
 
 	//Setters and getters

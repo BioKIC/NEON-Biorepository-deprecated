@@ -53,7 +53,6 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 		</script>
 	</head>
 	<body>
-
 	<?php
 	$displayLeftMenu = (isset($collections_indexMenu)?$collections_indexMenu:false);
 	include($SERVER_ROOT.'/includes/header.php');
@@ -104,7 +103,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 						<div style="clear:both;">&nbsp;</div>
 					</form>
 				</div>
-			<?php
+				<?php
 			}
 			if($specArr){
 				?>

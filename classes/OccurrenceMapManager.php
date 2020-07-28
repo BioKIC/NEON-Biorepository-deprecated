@@ -113,9 +113,8 @@ class OccurrenceMapManager extends OccurrenceManager {
 			$sql .= 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid ';
 			$sql .= $this->getTableJoins($this->sqlWhere);
 			$sql .= $this->sqlWhere;
-			if(is_numeric($start) && $recLimit && is_numeric($recLimit)){
-				$sql .= "LIMIT ".$start.",".$recLimit;
-			}
+			$sql .= 'AND (o.decimallatitude BETWEEN -90 AND 90) AND (o.decimallongitude BETWEEN -180 AND 180) ';
+			if(is_numeric($start) && $recLimit && is_numeric($recLimit)) $sql .= "LIMIT ".$start.",".$recLimit;
 			//echo "<div>SQL: ".$sql."</div>";
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_assoc()){

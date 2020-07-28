@@ -6,7 +6,7 @@ Language: English
 */
 
 $LANG['RSS_FEED'] = 'RSS Feed';
-$LANG['CONTACT'] = 'Contact';
+$LANG['CONTACT'] = 'Contacts';
 $LANG['HOMEPAGE'] = 'Related link';
 $LANG['MORE_INFO'] = 'More Information';
 $LANG['COLLECTION_SEARCH'] = 'Collection Search Page';

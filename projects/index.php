@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/InventoryProjectManager.php');
+include_once($SERVER_ROOT.'/classes/MapSupport.php');
 include_once($SERVER_ROOT.'/content/lang/projects/index.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -70,17 +71,17 @@ if(!$researchList && !$editMode){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['INVPROJ'];?></title>
-    <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">
@@ -389,15 +390,17 @@ if(!$researchList && !$editMode){
 							</div>
 							<?php
 						}
-						$gMapUrl = '';
-						if(isset($GOOGLE_MAP_THUMBNAILS) && $GOOGLE_MAP_THUMBNAILS) $gMapUrl = $projManager->getGoogleStaticMap();
-						else $gMapUrl = $CLIENT_ROOT.'/images/mappoint.png';
 						$coordArr = $projManager->getChecklistCoordArr();
-						if($gMapUrl && $coordArr){
+						if($coordArr){
+							$tnUrl = MapSupport::getStaticMap($coordArr);
+							$tnWidth = 200;
+							if(strpos($tnUrl,$CLIENT_ROOT) === 0) $tnWidth = 100;
+							$mapTitle = '';
+							if(isset($LANG['MAPREP'])) $mapTitle = $LANG['MAPREP'];
 							?>
 							<div style="float:right;text-align:center;">
-								<a href="../checklists/clgmap.php?pid=<?php echo $pid;?>" title="Map Checklists">
-									<img src="<?php echo $gMapUrl; ?>" title="<?php echo $LANG['MAPREP'];?>" style="width:100px;" alt="Map representation of checklists" />
+								<a href="../checklists/clgmap.php?pid=<?php echo $pid;?>" title="<?php echo $mapTitle; ?>">
+									<img src="<?php echo $tnUrl; ?>" style="width:<?php echo $tnWidth; ?>px;" alt="<?php echo $mapTitle; ?>" />
 									<br/>
 									<?php echo $LANG['OPENMAP'];?>
 								</a>

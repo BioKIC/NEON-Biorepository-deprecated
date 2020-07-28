@@ -14,7 +14,6 @@ $tabTarget = array_key_exists('tabtarget',$_REQUEST)?$_REQUEST['tabtarget']:0;
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $goToMode = array_key_exists('gotomode',$_REQUEST)?$_REQUEST['gotomode']:0;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:false;
-$ouid = array_key_exists('ouid',$_REQUEST)?$_REQUEST['ouid']:0;
 $crowdSourceMode = array_key_exists('csmode',$_REQUEST)?$_REQUEST['csmode']:0;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 if(!$action && array_key_exists('carryloc',$_REQUEST)){
@@ -259,10 +258,7 @@ if($SYMB_UID){
 			$occIndex = $qryCnt;
 		}
 	}
-	if($ouid){
-		$occManager->setQueryVariables(array('ouid' => $ouid));
-	}
-	elseif(is_numeric($occIndex)){
+	if(is_numeric($occIndex)){
 		//Query Form has been activated
 		$occManager->setQueryVariables();
 		if($action == 'Delete Occurrence'){

@@ -284,31 +284,17 @@ class OccurrenceSearchSupport {
 
 	public static function getDbRequestVariable($reqArr){
 		$dbStr = $reqArr['db'];
-		if(is_array($dbStr)){
-			$dbStr = implode(',',array_unique($dbStr)).';';
-		}
-		else{
-			$dbStr = $dbStr;
-		}
+		if(is_array($dbStr)) $dbStr = implode(',',array_unique($dbStr)).';';
+		else $dbStr = $dbStr;
 		if(!preg_match('/^[a-z0-9,;]+$/', $dbStr)) $dbStr = 'all';
-		if(strpos($dbStr,'allspec') !== false){
-			$dbStr = 'allspec';
-		}
-		elseif(strpos($dbStr,'allobs') !== false){
-			$dbStr = 'allobs';
-		}
-		elseif(strpos($dbStr,'all') !== false){
-			$dbStr = 'all';
-		}
+		if(strpos($dbStr,'allspec') !== false) $dbStr = 'allspec';
+		elseif(strpos($dbStr,'allobs') !== false) $dbStr = 'allobs';
+		elseif(strpos($dbStr,'all') !== false) $dbStr = 'all';
 		if(substr($dbStr,0,3) != 'all' && array_key_exists('cat',$reqArr) && $reqArr['cat']){
 			$catArr = array();
 			$catid = $reqArr['cat'];
-			if(is_string($catid)){
-				$catArr = Array($catid);
-			}
-			else{
-				$catArr = $catid;
-			}
+			if(is_string($catid)) $catArr = Array($catid);
+			else $catArr = $catid;
 			if(!$dbStr) $dbStr = ';';
 			$dbStr .= implode(",",$catArr);
 		}

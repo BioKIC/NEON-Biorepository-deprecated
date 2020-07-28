@@ -2,7 +2,7 @@
  * Global variables
  */
 
-const url = '../api/taxonomy/taxasuggest.php?term=';
+const url = '../../api/taxonomy/taxasuggest.php?term=';
 
 const taxonInput = document.getElementById('taxa-search');
 const matchList = document.getElementById('match-list-container');

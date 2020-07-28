@@ -133,6 +133,22 @@ section {
   padding-left: 20px;
 }
 
+.box {
+  padding: 20px;
+  display: none;
+  background-color: #f3f5f5;
+}
+
+.tab {
+  margin-right: 15px;
+  padding: 10px 15px 15px 15px;
+}
+
+.tab-active {
+  background-color: #f3f5f5;
+  font-weight: 600;
+}
+
 body {
   max-width: 1024px;
   margin: 0 auto;
@@ -491,7 +507,7 @@ span.accent-color-darker {
   width: 100%;
   border: 0;
   height: var(--height);
-  padding: 10px 0;
+  padding: 10px 5px;
   font-size: 1em;
 }
 
@@ -707,6 +723,38 @@ span.accent-color-darker {
 
 .modal button {
   float: right;
+}
+
+.hide {
+  display: none;
+}
+
+.suggestion-box {
+  --height: 300px;
+  --bbc: #005dab;
+  background-color: white;
+  position: absolute;
+  z-index: 2;
+  top: 44px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--height);
+  overflow-y: scroll;
+  border-right: 2px solid white;
+  border-right: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-left: 2px solid transparent;
+  -webkit-box-shadow: 0 0 0 2px var(--bbc);
+  box-shadow: 0 0 0 2px var(--bbc);
+  padding: 5px;
+  font-size: 1em;
+}
+
+.suggestion-box:focus,
+.suggestion-box:active {
+  outline: 0;
+  border: 0;
 }
 
 

@@ -150,10 +150,9 @@ function updateChip(e) {
 function getParam(paramName) {
   //Default country
   paramsArr['country'] = 'USA';
-  // If parameter is 'db', go only through currently selected radio option in modal
-  // plus external collections in form
-  console.log(criterionSelected);
-  console.log(paramName);
+  // If parameter is 'db', go only through currently selected radio option in modal plus external collections in form
+  // console.log(criterionSelected);
+  // console.log(paramName);
   let element = '';
   if (paramName === 'db') {
     let query = '#' + criterionSelected + ' input[name="db"]';
@@ -161,18 +160,19 @@ function getParam(paramName) {
     let selectedInForm = Array.from(
       document.querySelectorAll('#search-form-colls input[name="db"]')
     );
-    console.log('Selected in Form: ', selectedInForm);
-    console.log('Selected in Modal: ', selectedInModal);
-    console.log(typeof selectedInModal);
+    // console.log('Selected in Form: ', selectedInForm);
+    // console.log('Selected in Modal: ', selectedInModal);
+    // console.log(typeof selectedInModal);
     element = selectedInForm.concat(selectedInModal);
-    console.log(typeof element);
+    // console.log(typeof element);
   } else element = document.getElementsByName(paramName);
+
   // Deals with dropdown options
   // const answer = element[0].tagName === "SELECT" ? "it's a dropdown" : "it's not a dropdown";
   // console.log(answer);
   // console.log(element[0].tagName);
   // Deals with inputs
-  console.log(element.length);
+  // console.log(element.length);
   if (element[0].tagName === 'INPUT') {
     // Deals with checkboxes
     if (element[0].getAttribute('type') === 'checkbox') {
@@ -195,7 +195,6 @@ function getParam(paramName) {
         //   [paramName]: elementValue
         // });
         paramsArr[paramName] = elementValue;
-        console.log('here');
       }
     }
   } else if (element[0].tagName === 'SELECT') {
@@ -205,7 +204,6 @@ function getParam(paramName) {
     // });
     paramsArr[paramName] = elementValue;
   }
-  console.log(paramsArr);
   return paramsArr;
 }
 
@@ -217,12 +215,11 @@ function getSearchUrl() {
   // const baseURL = new URL(
   //   'https://biorepo.neonscience.org/portal/collections/list.php'
   // );
-  const baseURL = new URL(
-    'http://github.localhost:8080/NEON-Biorepository/collections/list.php'
-  );
+  const baseURL = new URL('../../collections/list.php');
 
   // Clears array temporarily to avoid redundancy
   paramsArr = [];
+
   const paramNames = [
     'db',
     // 'datasetid',
@@ -246,13 +243,36 @@ function getSearchUrl() {
   paramNames.forEach((param, i) => {
     return getParam(paramNames[i]);
   });
+
+  // Deals with absent taxa
+  if (!('taxa' in paramsArr)) {
+    delete paramsArr.usethes;
+    delete paramsArr.taxontype;
+  }
+
+  // Deals with absent catalog number
+  if (!('catnum' in paramsArr)) {
+    delete paramsArr.includeothercatnum;
+  }
+
+  // for (const [key, value] of Object.entries(paramsArr)) {
+  //   console.log(`${key}: ${value}`);
+  // }
+
+  for (const [key, value] of Object.entries(paramsArr)) {
+    // If value is null or empty, don't pass to url
+    value.length === 0 ? delete paramsArr[key] : false;
+    // paramsArr[key].length === 0 ? delete paramsArr.key : false;
+  }
+
   // Appends each key value for each param in search url
-  var queryString = Object.keys(paramsArr).map((key) => {
+  let queryString = Object.keys(paramsArr).map((key) => {
     //   return encodeURIComponent(key) + '=' + encodeURIComponent(paramsArr[key])
     // }).join('&');
     // console.log(baseURL + queryString);
     baseURL.searchParams.append(key, paramsArr[key]);
   });
+  console.log(paramsArr);
   console.log(baseURL.href);
   // Appends URL to `testURL` link
   testURL.innerHTML = baseURL.href;

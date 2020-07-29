@@ -119,23 +119,27 @@ const taxaInput = document.getElementsByName('taxa');
 taxaInput[0].addEventListener('change', updateChip);
 let taxaChip = document.createElement('p');
 
-// Chip definitions
-let inputChip = document.createElement('span'),
-  chipBtn = document.createElement('button');
-inputChip.setAttribute('class', 'chip');
-chipBtn.setAttribute('type', 'button');
-chipBtn.setAttribute('class', 'chip-remove-btn');
-
 // Make this function generic? Or adapt function for each criterion?
 // How to deal with defaults?
 function updateChip(e) {
   // taxaChip.textContent = taxaInput[0].name + ': ' + e.target.value;
   // Deletes current object before appending chips, to avoid redundancy
-  let eInput = document.getElementsByName(e.target.name);
-  paramsArr.splice(paramsArr[e.target.name], 1);
-  let chipArr = getParam(eInput[0].name);
-  console.log(chipArr);
-  inputChip.textContent = chipArr.taxa;
+  // let eInput = document.getElementsByName(e.target.name);
+  // paramsArr.splice(paramsArr[e.target.name], 1);
+  // let chipArr = getParam(eInput[0].name);
+  // console.log(chipArr);
+  // Chip definitions
+  let inputChip = document.createElement('span'),
+    chipBtn = document.createElement('button');
+  inputChip.setAttribute('class', 'chip');
+  chipBtn.setAttribute('type', 'button');
+  chipBtn.setAttribute('class', 'chip-remove-btn');
+  chipBtn.onclick = function () {
+    console.log('reset this value: ', e.target);
+    inputChip.remove();
+    e.target.value = e.target.defaultValue;
+  };
+  inputChip.textContent = e.target.name.toUpperCase();
   inputChip.appendChild(chipBtn);
   criteriaPanel.appendChild(inputChip);
 }

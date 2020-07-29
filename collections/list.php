@@ -96,6 +96,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 	?>
 <!-- This is inner text! -->
 <div id="innertext">
+<?php echo print_r($_REQUEST) ;?>
 	<div id="tabs" style="width:95%;">
 		<ul>
 			<li>

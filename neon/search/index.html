@@ -831,7 +831,7 @@
         <div id="search-form-sample" class="content">
           <div>
             <div>
-              <input type="checkbox" name="includeothercatnum" checked>
+              <input type="checkbox" name="includeothercatnum" value="1" checked>
               <label for="includeothercatnum">Include other catalogue numbers and GUIds</label>
             </div>
             <div class="input-text-container">
@@ -843,11 +843,11 @@
           </div>
           <div>
             <div>
-              <input type="checkbox" name="hasimages">
+              <input type="checkbox" name="hasimages" value=1>
               <label for="hasimages">Limit to specimens with images</label>
             </div>
             <div>
-              <input type="checkbox" name="hasgenetic">
+              <input type="checkbox" name="hasgenetic" value=1>
               <label for="hasgenetic">Limit to specimens with genetic data</label>
             </div>
           </div>
@@ -861,6 +861,7 @@
       <button>Search</button> -->
       <button id="teste-btn">Get all params</button>
       <p><a href="#" id="test-url" target="_blank" style="max-width: 50px">Search URL</a></p>
+      <button type="reset">Reset Form</button>
     </div>
   </form>
 </body>

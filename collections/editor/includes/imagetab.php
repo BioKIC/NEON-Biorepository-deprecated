@@ -147,6 +147,8 @@ $photographerArr = $occManager->getPhotographerArr();
 							$imgUrl = $imgArr["url"];
 							$origUrl = $imgArr["origurl"];
 							$tnUrl = $imgArr["tnurl"];
+							if((!$imgUrl || $imgUrl == 'empty') && $origUrl) $imgUrl = $origUrl;
+							if(!$tnUrl && $imgUrl) $tnUrl = $imgUrl;
 							if(array_key_exists("imageDomain",$GLOBALS)){
 								if(substr($imgUrl,0,1)=="/"){
 									$imgUrl = $GLOBALS["imageDomain"].$imgUrl;
@@ -158,9 +160,6 @@ $photographerArr = $occManager->getPhotographerArr();
 									$tnUrl = $GLOBALS["imageDomain"].$tnUrl;
 								}
 							}
-
-							if($imgUrl == 'empty' && $origUrl) $imgUrl = $origUrl;
-							if(!$tnUrl && $imgUrl) $tnUrl = $imgUrl;
 							echo '<a href="'.$imgUrl.'" target="_blank">';
 							if(array_key_exists('error', $imgArr)){
 								echo '<div style="font-weight:bold;font-size:140%">'.$imgArr['error'].'</div>';

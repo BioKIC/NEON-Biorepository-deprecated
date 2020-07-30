@@ -1229,8 +1229,6 @@ class ImageShared{
 		);
 		$context = stream_context_create($opts);
 		if($handle = fopen($imgUrl, "rb", false, $context)){
-			echo 'imgUrl: '.$imgUrl.'<br/>';
-			echo 'here: '.$context; exit;
 			$new_block = NULL;
 			if(!feof($handle)) {
 				$new_block = fread($handle, 32);
@@ -1284,6 +1282,7 @@ class ImageShared{
 		//curl_setopt($curl, CURLOPT_HTTPHEADER, array( "Range: bytes=0-32768" ));
 		curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36');
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($curl, CURLOPT_TIMEOUT, 10);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);

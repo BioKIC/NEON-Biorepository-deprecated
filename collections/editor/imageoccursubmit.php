@@ -138,13 +138,20 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
 					</div>
 					<div class="targetdiv" style="display:none;">
 						<div style="margin-bottom:10px;">
-							Enter a URL to an image already located on a web server.
-							If the image is larger than a typical web image, the url will be saved as the large version
-							and a basic web derivative will be created.
+							Enter a web accessable URL to an image.
+							If the medium and thumbnail urls are left blank, local image derivatives (e.g. thumbnail) will be created.
 						</div>
 						<div>
-							<b>Image URL:</b><br/>
+							<b>Image URL (required):</b><br/>
 							<input type='text' name='imgurl' size='70' />
+						</div>
+						<div>
+							<b>Medium Web URL (optional):</b><br/>
+							<input type='text' name='weburl' size='70' />
+						</div>
+						<div>
+							<b>Thumbnail URL (optional):</b><br/>
+							<input type='text' name='tnurl' size='70' />
 						</div>
 						<div>
 							<input type="checkbox" name="copytoserver" value="1" <?php echo (isset($_POST['copytoserver'])&&$_POST['copytoserver']?'checked':''); ?> />

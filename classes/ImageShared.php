@@ -26,6 +26,8 @@ class ImageShared{
 	private $jpgCompression= 70;
 
 	private $mapLargeImg = true;
+	private $createWebDerivative = true;
+	private $createThumbnailDerivative = true;
 
 	//Image metadata
 	private $caption;
@@ -365,7 +367,7 @@ class ImageShared{
 		}
 
 		//Create thumbnail
-		if(!$this->imgTnUrl){
+		if(!$this->imgTnUrl && $this->createThumbnailDerivative){
 			if($this->createNewImage('_tn',$this->tnPixWidth,70)){
 				$this->imgTnUrl = $this->imgName.'_tn.jpg';
 			}
@@ -401,7 +403,7 @@ class ImageShared{
 		}
 
 		//Create web url
-		if(!$this->imgWebUrl){
+		if(!$this->imgWebUrl && $this->createWebDerivative){
 			if($this->sourceWidth < ($this->webPixWidth*1.2) && $this->sourceFileSize < $this->webFileSizeLimit){
 				//Source image width and file size is small enough to serve as web image
 				if(strtolower(substr($this->sourcePath,0,7)) == 'http://' || strtolower(substr($this->sourcePath,0,8)) == 'https://'){
@@ -530,10 +532,10 @@ class ImageShared{
 
 	private function databaseImage(){
 		$status = false;
-		if($this->imgWebUrl){
+		if($this->imgLgUrl || $this->imgWebUrl){
 			$status = true;
 			$urlBase = $this->getUrlBase();
-			if(strtolower(substr($this->imgWebUrl,0,7)) != 'http://' && strtolower(substr($this->imgWebUrl,0,8)) != 'https://'){
+			if($this->imgWebUrl && strtolower(substr($this->imgWebUrl,0,7)) != 'http://' && strtolower(substr($this->imgWebUrl,0,8)) != 'https://'){
 				$this->imgWebUrl = $urlBase.$this->imgWebUrl;
 			}
 			if($this->imgTnUrl && strtolower(substr($this->imgTnUrl,0,7)) != 'http://' && strtolower(substr($this->imgTnUrl,0,8)) != 'https://'){
@@ -555,8 +557,7 @@ class ImageShared{
 
 			//Save currently loaded record
 			$sql = 'INSERT INTO images (tid, url, thumbnailurl, originalurl, photographer, photographeruid, format, caption, '.
-				'owner, sourceurl, copyright, locality, occid, notes, username, sortsequence, sourceIdentifier, ' .
-				' rights, accessrights) '.
+				'owner, sourceurl, copyright, locality, occid, notes, username, sortsequence, sourceIdentifier, rights, accessrights) '.
 				'VALUES ('.($this->tid?$this->tid:'NULL').',"'.$this->imgWebUrl.'",'.
 				($this->imgTnUrl?'"'.$this->imgTnUrl.'"':'NULL').','.
 				($this->imgLgUrl?'"'.$this->imgLgUrl.'"':'NULL').','.
@@ -879,6 +880,16 @@ class ImageShared{
 
 	public function setMapLargeImg($t){
 		$this->mapLargeImg = $t;
+	}
+
+	public function setCreateWebDerivative($bool){
+		if($bool === false || $bool === 0) $this->createWebDerivative = false;
+		else $this->createWebDerivative = true;
+	}
+
+	public function setCreateThumbnailDerivative($bool){
+		if($bool === false || $bool === 0) $this->createThumbnailDerivative = false;
+		else $this->createThumbnailDerivative = true;
 	}
 
 	public function setCaption($v){
@@ -1218,6 +1229,8 @@ class ImageShared{
 		);
 		$context = stream_context_create($opts);
 		if($handle = fopen($imgUrl, "rb", false, $context)){
+			echo 'imgUrl: '.$imgUrl.'<br/>';
+			echo 'here: '.$context; exit;
 			$new_block = NULL;
 			if(!feof($handle)) {
 				$new_block = fread($handle, 32);

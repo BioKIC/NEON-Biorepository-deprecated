@@ -665,6 +665,7 @@ class DwcArchiverCore extends Manager{
 
 		$this->setUpperTaxonomy();
 		$this->setTaxonRank();
+		if(!$this->dataConn) $this->dataConn = MySQLiConnectionFactory::getCon('readonly');
 		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$typeArr = null;
 			if($this->schemaType == 'pensoft'){
@@ -767,6 +768,7 @@ class DwcArchiverCore extends Manager{
 			$this->logOrEcho("ERROR creating occurrence file: ".$this->conn->error."\n");
 			$this->logOrEcho("\tSQL: ".$sql."\n");
 		}
+		$this->dataConn->close();
 		return $retArr;
     }
 

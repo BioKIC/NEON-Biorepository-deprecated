@@ -256,7 +256,7 @@ class OccurrenceSesar extends Manager {
 	private function getSesarApiData($url, $requestData = null){
 		$responseXML = false;
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, true);
 		if($requestData) curl_setopt($ch, CURLOPT_POSTFIELDS, $requestData);
@@ -677,7 +677,7 @@ class OccurrenceSesar extends Manager {
 	private function getSesarApiGetData($url){
 		$retArr = array();
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array ( 'Accept: application/json' ));

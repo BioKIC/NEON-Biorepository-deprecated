@@ -1081,7 +1081,7 @@ class ImageShared{
 	private function setSourceFileSize(){
 		if($this->sourcePath && !$this->sourceFileSize){
 			if(strtolower(substr($this->sourcePath,0,7)) == 'http://' || strtolower(substr($this->sourcePath,0,8)) == 'https://'){
-				$x = array_change_key_case(get_headers($this->sourcePath, 1,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false)))),CASE_LOWER);
+				$x = array_change_key_case(get_headers($this->sourcePath, 1),CASE_LOWER);
 				if ( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) {
 					if(isset($x['content-length'][1])) $this->sourceFileSize = $x['content-length'][1];
 					elseif(isset($x['content-length'])) $this->sourceFileSize = $x['content-length'];
@@ -1094,8 +1094,6 @@ class ImageShared{
 				curl_setopt($ch, CURLOPT_NOBODY, true);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36');
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 				curl_setopt($ch, CURLOPT_HEADER, true);
 				$data = curl_exec($ch);
 				curl_close($ch);
@@ -1146,8 +1144,6 @@ class ImageShared{
 				curl_setopt($handle, CURLOPT_NOBODY, true);
 				curl_setopt($handle, CURLOPT_FAILONERROR, true);
 				curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true );
-				curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
-				curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, 2);
 				curl_setopt($handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36');
 				curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 				$exists = curl_exec($handle);
@@ -1185,7 +1181,7 @@ class ImageShared{
 
 		//One last check
 		if(!$exists){
-			$exists = (@fclose(@fopen($uri,'r',false,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))))));
+			$exists = (@fclose(@fopen($uri,'r')));
 		}
 		//Test to see if file is an image
 		//if(!@exif_imagetype($uri)) $exists = false;
@@ -1224,8 +1220,7 @@ class ImageShared{
 				'user_agent' => $GLOBALS['DEFAULT_TITLE'],
 				'method'=>"GET",
 				'header'=> implode("\r\n", array('Content-type: text/plain;'))
-			),
-			'ssl' => array('verify_peer' => false, 'verify_peer_name' => false)
+			)
 		);
 		$context = stream_context_create($opts);
 		if($handle = fopen($imgUrl, "rb", false, $context)){
@@ -1281,11 +1276,9 @@ class ImageShared{
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array( "Range: bytes=0-65536" ));
 		//curl_setopt($curl, CURLOPT_HTTPHEADER, array( "Range: bytes=0-32768" ));
 		curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36');
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
 		$data = curl_exec($curl);
 		curl_close($curl);
 		$width = 0; $height = 0;

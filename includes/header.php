@@ -45,7 +45,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
                                                         <option value="en">English</option>
                                                         <option value="es" <?php echo ($LANG_TAG=='es'?'SELECTED':''); ?>>Espa&ntilde;ol</option>
                                                         <option value="pt" <?php echo ($LANG_TAG=='pt'?'SELECTED':''); ?>>Português do Brasil</option>
-                                                        <option value="es" <?php echo ($LANG_TAG=='ko'?'SELECTED':''); ?>>Korean</option>
+                                                        <option value="ko" <?php echo ($LANG_TAG=='ko'?'SELECTED':''); ?>>Korean</option>
                                                 </select>
                                                 <?php
                                                 if($IS_ADMIN){

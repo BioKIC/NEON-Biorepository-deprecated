@@ -37,5 +37,5 @@ $LANG['H_LOGOUT'] = '로그아웃';
 $LANG['H_LOGIN'] = '로그인';
 $LANG['H_NEW_ACCOUNT'] = '회원가입';
 
-$LANG['H_SUBTITLE'] = 'A portal for live-data arthropod collections (실시간 절지동물표본통합정보 포털사이트)';
+$LANG['H_SUBTITLE'] = '실시간 절지동물표본통합정보 포털사이트';
 ?>

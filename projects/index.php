@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/InventoryProjectManager.php');
+include_once($SERVER_ROOT.'/classes/MapSupport.php');
 include_once($SERVER_ROOT.'/content/lang/projects/index.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -70,13 +71,21 @@ if(!$researchList && !$editMode){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['INVPROJ'];?></title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link type="text/css" href="../css/jquery-ui.css" rel="Stylesheet" />
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
@@ -180,7 +189,7 @@ if(!$researchList && !$editMode){
 	$HEADER_URL = '';
 	if(isset($projArr['headerurl']) && $projArr['headerurl']) $HEADER_URL = $CLIENT_ROOT.$projArr['headerurl'];
 	$displayLeftMenu = (isset($projects_indexMenu)?$projects_indexMenu:"true");
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	echo "<div class='navpath'>";
 	if(isset($projects_indexCrumbs) && $projArr){
 		if($projects_indexCrumbs) echo $projects_indexCrumbs.' &gt;&gt; ';
@@ -381,14 +390,17 @@ if(!$researchList && !$editMode){
 							</div>
 							<?php
 						}
-						//$gMapUrl = $projManager->getGoogleStaticMap();
-						$gMapUrl = $CLIENT_ROOT.'/images/mappoint.png';
 						$coordArr = $projManager->getChecklistCoordArr();
-						if($gMapUrl && $coordArr){
+						if($coordArr){
+							$tnUrl = MapSupport::getStaticMap($coordArr);
+							$tnWidth = 200;
+							if(strpos($tnUrl,$CLIENT_ROOT) === 0) $tnWidth = 100;
+							$mapTitle = '';
+							if(isset($LANG['MAPREP'])) $mapTitle = $LANG['MAPREP'];
 							?>
 							<div style="float:right;text-align:center;">
-								<a href="../checklists/clgmap.php?pid=<?php echo $pid;?>" title="Map Checklists">
-									<img src="<?php echo $gMapUrl; ?>" title="<?php echo $LANG['MAPREP'];?>" style="width:100px;" alt="Map representation of checklists" />
+								<a href="../checklists/clgmap.php?pid=<?php echo $pid;?>" title="<?php echo $mapTitle; ?>">
+									<img src="<?php echo $tnUrl; ?>" style="width:<?php echo $tnWidth; ?>px;" alt="<?php echo $mapTitle; ?>" />
 									<br/>
 									<?php echo $LANG['OPENMAP'];?>
 								</a>
@@ -444,7 +456,7 @@ if(!$researchList && !$editMode){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -54,6 +54,10 @@ class Paragraph extends AbstractStyle
             $xmlWriter->writeAttribute('fo:margin-bottom', $marginBottom . 'cm');
             $xmlWriter->writeAttribute('fo:text-align', $style->getAlignment());
         }
+
+        //Right to left
+        $xmlWriter->writeAttributeIf($style->isBidi(), 'style:writing-mode', 'rl-tb');
+
         $xmlWriter->endElement(); //style:paragraph-properties
 
         $xmlWriter->endElement(); //style:style

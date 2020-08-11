@@ -43,17 +43,28 @@ if(!array_key_exists("poly_array",$_REQUEST)) $_REQUEST["poly_array"] = '';
 if(!array_key_exists("upperlat",$_REQUEST)) $_REQUEST["upperlat"] = '';
 if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 
+$activateGeolocation = 0;
+if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocation = 1;
 ?>
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo $DEFAULT_TITLE; ?> - Map Interface</title>
+  <title><?php echo $DEFAULT_TITLE; ?> - Map Interface</title>
+  <!-- JQuery Mobile -->
 	<link href="../../css/jquery.mobile-1.4.0.min.css" type="text/css" rel="stylesheet" />
 	<link href="../../css/jquery.symbiota.css" type="text/css" rel="stylesheet" />
 	<link href="../../css/jquery-ui_accordian.css" type="text/css" rel="stylesheet" />
-	<link href="../../js/jquery-ui-1.12.1/jquery-ui.min.css?ver=3" type="text/css" rel="Stylesheet" />
-	<link href="../../css/base.css?ver=6" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+  <?php
+    $activateJQuery = true;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+  ?>
 	<style type="text/css">
 		.panel-content a{ outline-color: transparent; font-size: 12px; font-weight: normal; }
 		.categorytitle{ font-size:	12px; }
@@ -66,7 +77,7 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 	</style>
 
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script src="../../js/jquery-1.10.2.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.10.4.js" type="text/javascript"></script>
@@ -97,7 +108,7 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 		var oms;
 		var dsoms;
 		var selectedShape = null;
-		var gotCoords = <?php echo ($ACTIVATE_GEOLOCATION?'true':'false'); ?>;
+		var gotCoords = <?php echo ($activateGeolocation?'true':'false'); ?>;
 		var mapSymbol = 'coll';
 		var selected = false;
 		var deselected = false;
@@ -1087,10 +1098,10 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 		}
 		*/
 
-		<?php echo ($ACTIVATE_GEOLOCATION?"google.maps.event.addDomListener(window, 'load', getCoords);":""); ?>
+		<?php echo ($activateGeolocation?"google.maps.event.addDomListener(window, 'load', getCoords);":""); ?>
 	</script>
 </head>
-<body style='width:100%;max-width:100%;min-width:500px;' <?php echo (!$ACTIVATE_GEOLOCATION?'onload="initialize();"':''); ?>>
+<body style='width:100%;max-width:100%;min-width:500px;' <?php echo (!$activateGeolocation?'onload="initialize();"':''); ?>>
 <div data-role="page" id="page1">
 	<div role="main" class="ui-content" style="height:400px;">
 		<a href="#defaultpanel" style="position:absolute;top:0;left:0;margin-top:0px;z-index:10;padding-top:3px;padding-bottom:3px;text-decoration:none;" data-role="button" data-inline="true" data-icon="bars">Open Search Panel</a>
@@ -1244,14 +1255,14 @@ if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 									<div id="noshapecriteria" style="display:<?php echo ((!$_REQUEST || ((!$_REQUEST['poly_array']) && (!$_REQUEST['upperlat'])))?'block':'none'); ?>;">
 										<div id="geocriteria" style="display:<?php echo ((!$_REQUEST || ((!$_REQUEST['poly_array']) && (!isset($_REQUEST['distFromMe'])) && (!$_REQUEST['pointlat']) && (!$_REQUEST['upperlat'])))?'block':'none'); ?>;">
 											<div>
-												<?php echo (isset($LANG['SHAPE_TOOLS_1'])?$LANG['SHAPE_TOOLS_1']:'Use the shape tools on the map to select occurrences within a given shape'); ?>.
+												<?php echo (isset($LANG['SHAPE_TOOLS'])?$LANG['SHAPE_TOOLS']:'Use the shape tools on the map to select occurrences within a given shape'); ?>.
 											</div>
 										</div>
 										<div id="distancegeocriteria" style="display:<?php echo ((!$_REQUEST || ($_REQUEST && array_key_exists('distFromMe',$_REQUEST) && $_REQUEST['distFromMe']))?'block':'none'); ?>;">
 											<div>
 												<?php echo (isset($LANG['WITHIN'])?$LANG['WITHIN']:'Within'); ?>
 												 <input data-role="none" type="text" id="distFromMe" style="width:40px;" name="distFromMe" value="<?php if(array_key_exists('distFromMe',$_REQUEST)) echo $_REQUEST['distFromMe']; ?>" /> miles from me, or
-												<?php echo (isset($LANG['SHAPE_TOOLS_2'])?$LANG['SHAPE_TOOLS_2']:'use the shape tools on the map to select occurrences within a given shape'); ?>.
+												<?php echo (isset($LANG['SHAPE_TOOLS'])?strtolower($LANG['SHAPE_TOOLS']):'use the shape tools on the map to select occurrences within a given shape'); ?>.
 											</div>
 										</div>
 									</div>

@@ -8,18 +8,22 @@ Language: English
 include_once('checklist.en.php');
 
 $LANG['NAV_HOME'] = 'Home';
-$LANG['CHECKADMIN'] = ' Checklist Administration';
+$LANG['CHECKADMIN'] = 'Checklist Administration';
+$LANG['SELECTPROJECT'] = 'Select a project';
 $LANG['RETURNCHECK'] = 'Return to Checklist';
 $LANG['ADMIN'] = 'Admin';
 $LANG['DESCRIPTION'] = 'Description';
 $LANG['RELATEDCHECK'] = 'Related Checklists';
-$LANG['ADDIMGV'] = 'Add Image Voucher';
+$LANG['ADDIMGVOUCHER'] = 'Add Image Voucher';
 $LANG['NOEDITOR'] = 'No one has been explicitly assigned as an editor';
-$LANG['ADDNEWU'] = 'Add New User';
-$LANG['SELECTU'] = 'Select User';
-$LANG['INVPROJAS'] = 'Inventory Project Assignments';
-$LANG['CHECKNOTAS'] = 'Checklist has not been assigned to any inventory projects';
-$LANG['FILTER'] = 'Filter:';
+$LANG['ADDNEWUSER'] = 'Add New User';
+$LANG['SELECTUSER'] = 'Select User';
+$LANG['INVENTORYPROJECTS'] = 'Inventory Project Assignments';
+$LANG['REMOVEPROJECTCONFIRM'] = 'Are you sure you want to unlink project?';
+$LANG['REMOVEPROJECT'] = 'Unlink checklist from project';
+$LANG['CHECKNOTASSIGNED'] = 'Checklist has not been assigned to any inventory projects';
+$LANG['LINKTOPROJECT'] = 'Add to a Project';
+$LANG['SUBMIT'] = 'Submit';
 $LANG['PERMREMOVECHECK'] = 'Permanently Remove Checklist';
 $LANG['REMOVEUSERCHECK'] = 'Before a checklist can be deleted, all editors (except yourself) and inventory project assignments must be removed.
 							Inventory project assignments can only be removed by active managers of the project or a system administrator. ';

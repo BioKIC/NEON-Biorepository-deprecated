@@ -1,7 +1,5 @@
 <?php
 include_once($SERVER_ROOT.'/config/dbconnection.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceEditorImages.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
 
@@ -23,6 +21,7 @@ class OccurrenceEditorManager {
 	private $qryArr = array();
 	private $crowdSourceMode = 0;
 	private $SYMB_UID;
+	private $catNumIsNum;
 	protected $errorArr = array();
 	protected $isShareConn = false;
 
@@ -43,7 +42,7 @@ class OccurrenceEditorManager {
 			'verbatimeventdate', 'habitat', 'substrate', 'fieldnumber','occurrenceremarks', 'associatedtaxa', 'verbatimattributes',
 			'dynamicproperties', 'reproductivecondition', 'cultivationstatus', 'establishmentmeans',
 			'lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations','datageneralizations',
-			'country', 'stateprovince', 'county', 'municipality', 'locality', 'localitysecurity', 'localitysecurityreason',
+			'country', 'stateprovince', 'county', 'municipality', 'locationid', 'locality', 'localitysecurity', 'localitysecurityreason',
 			'decimallatitude', 'decimallongitude','geodeticdatum', 'coordinateuncertaintyinmeters', 'footprintwkt',
 			'locationremarks', 'verbatimcoordinates', 'georeferencedby', 'georeferenceprotocol', 'georeferencesources',
 			'georeferenceverificationstatus', 'georeferenceremarks', 'minimumelevationinmeters', 'maximumelevationinmeters','verbatimelevation',
@@ -51,7 +50,7 @@ class OccurrenceEditorManager {
 			'labelproject','observeruid','basisofrecord','institutioncode','collectioncode','ownerinstitutioncode','datelastmodified', 'processingstatus',
 			'recordenteredby', 'dateentered');
 		$this->paleoFieldArr = array('eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
-			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element','slideproperties');
+			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element','slideproperties','geologicalcontextid');
 	}
 
 	public function __destruct(){
@@ -118,7 +117,7 @@ class OccurrenceEditorManager {
 			if(array_key_exists('q_recordnumber',$_REQUEST) && $_REQUEST['q_recordnumber']) $this->qryArr['rn'] = trim($_REQUEST['q_recordnumber']);
 			if(array_key_exists('q_eventdate',$_REQUEST) && $_REQUEST['q_eventdate']) $this->qryArr['ed'] = trim($_REQUEST['q_eventdate']);
 			if(array_key_exists('q_recordenteredby',$_REQUEST) && $_REQUEST['q_recordenteredby']) $this->qryArr['eb'] = trim($_REQUEST['q_recordenteredby']);
-			if(array_key_exists('q_observeruid',$_REQUEST) && is_numeric($_REQUEST['q_observeruid'])) $this->qryArr['ouid'] = $_REQUEST['q_observeruid'];
+			if(array_key_exists('q_returnall',$_REQUEST) && is_numeric($_REQUEST['q_returnall'])) $this->qryArr['returnall'] = $_REQUEST['q_returnall'];
 			if(array_key_exists('q_processingstatus',$_REQUEST) && $_REQUEST['q_processingstatus']) $this->qryArr['ps'] = trim($_REQUEST['q_processingstatus']);
 			if(array_key_exists('q_datelastmodified',$_REQUEST) && $_REQUEST['q_datelastmodified']) $this->qryArr['dm'] = trim($_REQUEST['q_datelastmodified']);
 			if(array_key_exists('q_exsiccatiid',$_REQUEST) && is_numeric($_REQUEST['q_exsiccatiid'])) $this->qryArr['exsid'] = $_REQUEST['q_exsiccatiid'];
@@ -145,12 +144,13 @@ class OccurrenceEditorManager {
 	}
 
 	private function setSqlWhere(){
+		$this->setCollMap();
 		if ($this->qryArr==null) {
 			// supress warnings on array_key_exists(key,null) calls below
 			$this->qryArr=array();
 		}
 		$sqlWhere = '';
-		$catNumIsNum = false;
+		$this->catNumIsNum = false;
 		if(array_key_exists('cn',$this->qryArr)){
 			$idTerm = $this->qryArr['cn'];
 			if(strtolower($idTerm) == 'is null'){
@@ -175,7 +175,7 @@ class OccurrenceEditorManager {
 						$term1 = $this->cleanInStr(substr($v,0,$p));
 						$term2 = $this->cleanInStr(substr($v,$p+3));
 						if(is_numeric($term1) && is_numeric($term2)){
-							$catNumIsNum = true;
+							$this->catNumIsNum = true;
 							if($isOccid){
 								$iBetweenFrag[] = '(o.occid BETWEEN '.$term1.' AND '.$term2.')';
 							}
@@ -194,7 +194,7 @@ class OccurrenceEditorManager {
 						if(is_numeric($vStr)){
 							if($iInFrag){
 								//Only tag as numeric if there are more than one term (if not, it doesn't match what the sort order is)
-								$catNumIsNum = true;
+								$this->catNumIsNum = true;
 							}
 							if(substr($vStr,0,1) == '0'){
 								//Add value with left padded zeros removed
@@ -406,9 +406,6 @@ class OccurrenceEditorManager {
 				$sqlWhere .= 'AND (o.recordEnteredBy = "'.$this->cleanInStr($this->qryArr['eb']).'") ';
 			}
 		}
-		if(array_key_exists('ouid',$this->qryArr) && is_numeric($this->qryArr['ouid'])){
-			$sqlWhere .= 'AND (o.observeruid = '.$this->qryArr['ouid'].') ';
-		}
 		if(array_key_exists('de',$this->qryArr)){
 			$de = $this->cleanInStr($this->qryArr['de']);
 			if(preg_match('/^>{1}.*\s{1,3}AND\s{1,3}<{1}.*/i',$de)){
@@ -525,6 +522,10 @@ class OccurrenceEditorManager {
 		if($this->crowdSourceMode){
 			$sqlWhere .= 'AND (q.reviewstatus = 0) ';
 		}
+		if($this->collMap['colltype'] == 'General Observations' && !isset($this->qryArr['returnall'])){
+			//Ensure that General Observation projects edits are limited to active user
+			$sqlWhere .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
+		}
 		if($this->collId) $sqlWhere .= 'AND (o.collid = '.$this->collId.') ';
 		if($sqlWhere) $sqlWhere = 'WHERE '.substr($sqlWhere,4);
 
@@ -537,7 +538,7 @@ class OccurrenceEditorManager {
 			$sqlOrderBy = '';
 			$orderBy = $this->cleanInStr($this->qryArr['orderby']);
 			if($orderBy == "catalognumber"){
-				if($catNumIsNum){
+				if($this->catNumIsNum){
 					$sqlOrderBy = 'catalogNumber+1';
 				}
 				else{
@@ -1039,7 +1040,7 @@ class OccurrenceEditorManager {
 				'verbatimEventDate' => 's', 'habitat' => 's', 'substrate' => 's', 'fieldnumber' => 's', 'occurrenceRemarks' => 's', 'associatedTaxa' => 's', 'verbatimattributes' => 's',
 				'dynamicProperties' => 's', 'reproductiveCondition' => 's', 'cultivationStatus' => 's', 'establishmentMeans' => 's',
 				'lifestage' => 's', 'sex' => 's', 'individualcount' => 's', 'samplingprotocol' => 's', 'preparations' => 's',
-				'country' => 's', 'stateProvince' => 's', 'county' => 's', 'municipality' => 's', 'locality' => 's', 'localitySecurity' => 'n', 'localitysecurityreason' => 's',
+				'country' => 's', 'stateProvince' => 's', 'county' => 's', 'municipality' => 's', 'locationid' => 's', 'locality' => 's', 'localitySecurity' => 'n', 'localitysecurityreason' => 's',
 				'locationRemarks' => 'n', 'decimalLatitude' => 'n', 'decimalLongitude' => 'n', 'geodeticDatum' => 's', 'coordinateUncertaintyInMeters' => 'n', 'verbatimCoordinates' => 's',
 				'footprintwkt' => 's', 'georeferencedBy' => 's', 'georeferenceProtocol' => 's', 'georeferenceSources' => 's', 'georeferenceVerificationStatus' => 's',
 				'georeferenceRemarks' => 's', 'minimumElevationInMeters' => 'n', 'maximumElevationInMeters' => 'n','verbatimElevation' => 's',
@@ -1166,7 +1167,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function deleteOccurrence($delOccid){
-		global $CHARSET, $userDisplayName;
+		global $CHARSET, $USER_DISPLAY_NAME;
 		$status = true;
 		if(is_numeric($delOccid)){
 			//Archive data, first grab occurrence data
@@ -1268,7 +1269,7 @@ class OccurrenceEditorManager {
 				$archiveArr['exsiccati'] = $exsArr;
 
 				//Archive complete occurrence record
-				$archiveArr['dateDeleted'] = date('r').' by '.$userDisplayName;
+				$archiveArr['dateDeleted'] = date('r').' by '.$USER_DISPLAY_NAME;
 				$archiveObj = json_encode($archiveArr);
 				$sqlArchive = 'UPDATE guidoccurrences '.
 					'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($archiveObj,'utf8',$CHARSET)).'" '.
@@ -1628,7 +1629,7 @@ class OccurrenceEditorManager {
 
 	public function carryOverValues($fArr){
 		$locArr = Array('recordedby','associatedcollectors','eventdate','verbatimeventdate','month','day','year',
-			'startdayofyear','enddayofyear','country','stateprovince','county','municipality','locality','decimallatitude','decimallongitude',
+			'startdayofyear','enddayofyear','country','stateprovince','county','municipality','locationid','locality','decimallatitude','decimallongitude',
 			'verbatimcoordinates','coordinateuncertaintyinmeters','footprintwkt','geodeticdatum','georeferencedby','georeferenceprotocol',
 			'georeferencesources','georeferenceverificationstatus','georeferenceremarks',
 			'minimumelevationinmeters','maximumelevationinmeters','verbatimelevation','minimumdepthinmeters','maximumdepthinmeters','verbatimdepth',
@@ -2286,10 +2287,6 @@ class OccurrenceEditorManager {
 	protected function encodeStr($inStr){
 		global $CHARSET;
 		$retStr = $inStr;
-		//Get rid of Windows curly (smart) quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 
 		if($inStr){
 			if(strtolower($CHARSET) == "utf-8" || strtolower($CHARSET) == "utf8"){

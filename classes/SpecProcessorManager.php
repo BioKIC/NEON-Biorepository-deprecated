@@ -438,18 +438,22 @@ class SpecProcessorManager {
 	//Detailed user stats
 	public function getUserList(){
 		$retArr = array();
+		$sql = 'SELECT DISTINCT e.uid FROM omoccurrences o INNER JOIN omoccuredits e ON o.occid = e.occid WHERE (o.collid = '.$this->collid.')';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->uid] = '';
+		}
+		$rs->free();
+
 		$sql = 'SELECT DISTINCT u.uid, CONCAT(CONCAT_WS(", ",u.lastname, u.firstname)," (",l.username,")") AS username '.
-			'FROM omoccurrences o INNER JOIN omoccuredits e ON o.occid = e.occid '.
-			'INNER JOIN users u ON e.uid = u.uid '.
-			'INNER JOIN userlogin l ON u.uid = l.uid '.
-			'WHERE (o.collid = '.$this->collid.') '.
-			'ORDER BY u.lastname, u.firstname';
+			'FROM users u INNER JOIN userlogin l ON u.uid = l.uid '.
+			'WHERE (u.uid IN('.implode(',', array_keys($retArr)).')) ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->uid] = $r->username;
 		}
 		$rs->free();
-		//asort($retArr);
+		asort($retArr);
 		return $retArr;
 	}
 

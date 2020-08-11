@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -119,6 +119,21 @@ abstract class AbstractStyle
             $writer = new $class($xmlWriter, $value);
             $writer->write();
         }
+    }
+
+    /**
+     * Writes boolean as 0 or 1
+     *
+     * @param bool $value
+     * @return null|string
+     */
+    protected function writeOnOf($value = null)
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return $value ? '1' : '0';
     }
 
     /**

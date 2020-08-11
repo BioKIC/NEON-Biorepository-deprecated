@@ -7,7 +7,7 @@ include_once($SERVER_ROOT.'/classes/SpecUploadDwca.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/specupload.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/specupload.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = $_REQUEST["collid"];
 $uploadType = $_REQUEST["uploadtype"];
@@ -17,6 +17,7 @@ $autoMap = array_key_exists("automap",$_POST)?true:false;
 $ulPath = array_key_exists("ulpath",$_REQUEST)?$_REQUEST["ulpath"]:"";
 $importIdent = array_key_exists("importident",$_REQUEST)?true:false;
 $importImage = array_key_exists("importimage",$_REQUEST)?true:false;
+$observerUid = array_key_exists('observeruid',$_POST)?$_POST['observeruid']:'';
 $matchCatNum = array_key_exists("matchcatnum",$_REQUEST)?true:false;
 $matchOtherCatNum = array_key_exists('matchothercatnum',$_REQUEST)&&$_REQUEST['matchothercatnum']?true:false;
 $verifyImages = array_key_exists("verifyimages",$_REQUEST)&&$_REQUEST['verifyimages']?true:false;
@@ -32,6 +33,7 @@ if(!is_numeric($uploadType)) $uploadType = 0;
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 if($autoMap !== true) $autoMap = false;
 if($importIdent !== true) $importIdent = false;
+if(!is_numeric($observerUid)) $observerUid = 0;
 if($matchCatNum !== true) $matchCatNum = false;
 if($matchOtherCatNum !== true) $matchOtherCatNum = false;
 if($verifyImages !== true) $verifyImages = false;
@@ -83,6 +85,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD){
 $duManager->setCollId($collid);
 $duManager->setUspid($uspid);
 $duManager->setUploadType($uploadType);
+$duManager->setObserverUid($observerUid);
 $duManager->setMatchCatalogNumber($matchCatNum);
 $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVerifyImageUrls($verifyImages);
@@ -97,81 +100,89 @@ $isEditor = 0;
 if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
 	$isEditor = 1;
 }
-$duManager->readUploadParameters();
+if($isEditor && $collid){
+	$duManager->readUploadParameters();
 
-$isLiveData = false;
-if($duManager->getCollInfo("managementtype") == 'Live Data') $isLiveData = true;
+	$isLiveData = false;
+	if($duManager->getCollInfo('managementtype') == 'Live Data') $isLiveData = true;
 
-//Grab field mapping, if mapping form was submitted
-if(array_key_exists("sf",$_POST)){
-	if($action == "Reset Field Mapping"){
-		$statusStr = $duManager->deleteFieldMap();
-	}
-	else{
-		//Set field map for occurrences using mapping form
-		$targetFields = $_POST["tf"];
-		$sourceFields = $_POST["sf"];
-		$fieldMap = Array();
-		for($x = 0;$x<count($targetFields);$x++){
-			if($targetFields[$x]){
-				$tField = $targetFields[$x];
-				if($tField == 'unmapped') $tField .= '-'.$x;
-				$fieldMap[$tField]["field"] = $sourceFields[$x];
-			}
+	//Grab field mapping, if mapping form was submitted
+	if(array_key_exists("sf",$_POST)){
+		if($action == "Reset Field Mapping"){
+			$statusStr = $duManager->deleteFieldMap();
 		}
-		//Set Source PK
-		if($dbpk) $fieldMap["dbpk"]["field"] = $dbpk;
-		$duManager->setFieldMap($fieldMap);
-
-		//Set field map for identification history
-		if(array_key_exists("ID-sf",$_POST)){
-			$targetIdFields = $_POST["ID-tf"];
-			$sourceIdFields = $_POST["ID-sf"];
-			$fieldIdMap = Array();
-			for($x = 0;$x<count($targetIdFields);$x++){
-				if($targetIdFields[$x]){
-					$tIdField = $targetIdFields[$x];
-					if($tIdField == 'unmapped') $tIdField .= '-'.$x;
-					$fieldIdMap[$tIdField]["field"] = $sourceIdFields[$x];
+		else{
+			//Set field map for occurrences using mapping form
+			$targetFields = $_POST["tf"];
+			$sourceFields = $_POST["sf"];
+			$fieldMap = Array();
+			for($x = 0;$x<count($targetFields);$x++){
+				if($targetFields[$x]){
+					$tField = $targetFields[$x];
+					if($tField == 'unmapped') $tField .= '-'.$x;
+					$fieldMap[$tField]["field"] = $sourceFields[$x];
 				}
 			}
-			$duManager->setIdentFieldMap($fieldIdMap);
-		}
-		//Set field map for image history
-		if(array_key_exists("IM-sf",$_POST)){
-			$targetImFields = $_POST["IM-tf"];
-			$sourceImFields = $_POST["IM-sf"];
-			$fieldImMap = Array();
-			for($x = 0;$x<count($targetImFields);$x++){
-				if($targetImFields[$x]){
-					$tImField = $targetImFields[$x];
-					if($tImField == 'unmapped') $tImField .= '-'.$x;
-					$fieldImMap[$tImField]["field"] = $sourceImFields[$x];
+			//Set Source PK
+			if($dbpk) $fieldMap["dbpk"]["field"] = $dbpk;
+			$duManager->setFieldMap($fieldMap);
+
+			//Set field map for identification history
+			if(array_key_exists("ID-sf",$_POST)){
+				$targetIdFields = $_POST["ID-tf"];
+				$sourceIdFields = $_POST["ID-sf"];
+				$fieldIdMap = Array();
+				for($x = 0;$x<count($targetIdFields);$x++){
+					if($targetIdFields[$x]){
+						$tIdField = $targetIdFields[$x];
+						if($tIdField == 'unmapped') $tIdField .= '-'.$x;
+						$fieldIdMap[$tIdField]["field"] = $sourceIdFields[$x];
+					}
 				}
+				$duManager->setIdentFieldMap($fieldIdMap);
 			}
-			$duManager->setImageFieldMap($fieldImMap);
+			//Set field map for image history
+			if(array_key_exists("IM-sf",$_POST)){
+				$targetImFields = $_POST["IM-tf"];
+				$sourceImFields = $_POST["IM-sf"];
+				$fieldImMap = Array();
+				for($x = 0;$x<count($targetImFields);$x++){
+					if($targetImFields[$x]){
+						$tImField = $targetImFields[$x];
+						if($tImField == 'unmapped') $tImField .= '-'.$x;
+						$fieldImMap[$tImField]["field"] = $sourceImFields[$x];
+					}
+				}
+				$duManager->setImageFieldMap($fieldImMap);
+			}
+		}
+		if($action == "Save Mapping"){
+			$statusStr = $duManager->saveFieldMap($_POST);
+			if(!$uspid) $uspid = $duManager->getUspid();
 		}
 	}
-	if($action == "Save Mapping"){
-		$statusStr = $duManager->saveFieldMap($_POST);
-		if(!$uspid) $uspid = $duManager->getUspid();
-	}
+	$duManager->loadFieldMap();
 }
-$duManager->loadFieldMap();
 ?>
-
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Specimen Uploader</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
+  <?php
+    $activateJQuery = true;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+  ?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
 	<script>
-
 		function verifyFileUploadForm(f){
 			var fileName = "";
 			if(f.uploadfile || f.ulfnoverride){
@@ -326,6 +337,10 @@ $duManager->loadFieldMap();
 					}
 				}
 			}
+			if(f.observeruid && f.observeruid.value == ""){
+				alert("Since this is a group managed observation project, you need to select a target user to which the occurrence will be linked");
+				return false;
+			}
 			if(possibleMappingErr){
 				return confirm("Does the first row of the input file contain the column names? It appears that you may be mapping directly to the first row of active data rather than a header row. If so, the first row of data will be lost and some columns might be skipped. Select OK to proceed, or cancel to abort");
 			}
@@ -356,7 +371,7 @@ $duManager->loadFieldMap();
 <body>
 <?php
 	$displayLeftMenu = (isset($collections_admin_specuploadMenu)?$collections_admin_specuploadMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_admin_specuploadCrumbs)){
 		if($collections_admin_specuploadCrumbs){
 			?>
@@ -501,6 +516,7 @@ $duManager->loadFieldMap();
 					<form name="finaltransferform" action="specupload.php" method="post" style="margin-top:10px;" onsubmit="return confirm('Are you sure you want to transfer records from temporary table to central specimen table?');">
 						<input type="hidden" name="collid" value="<?php echo $collid;?>" />
 						<input type="hidden" name="uploadtype" value="<?php echo $uploadType; ?>" />
+						<input type="hidden" name="observeruid" value="<?php echo $observerUid; ?>" />
 						<input type="hidden" name="verifyimages" value="<?php echo ($verifyImages?'1':'0'); ?>" />
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
@@ -781,6 +797,17 @@ $duManager->loadFieldMap();
 											<div style="margin-top:30px;">
 												<?php
 												if($isLiveData){
+													if($duManager->getCollInfo('colltype') == 'General Observations'){
+														echo 'Target User: ';
+														echo '<select name="observeruid">';
+														echo '<option value="">Select Target User</option>';
+														echo '<option value="">----------------------------</option>';
+														$obsUidArr = $duManager->getObserverUidArr();
+														foreach($obsUidArr as $uid => $userName){
+															echo '<option value="'.$uid.'">'.$userName.'</option>';
+														}
+														echo '</select>';
+													}
 													?>
 													<div>
 														<input name="matchcatnum" type="checkbox" value="1" checked />
@@ -937,6 +964,17 @@ $duManager->loadFieldMap();
 								<div id="uldiv" style="margin-top:30px;">
 									<?php
 									if($isLiveData || $uploadType == $SKELETAL){
+										if($duManager->getCollInfo('colltype') == 'General Observations'){
+											echo 'Target User: ';
+											echo '<select name="observeruid">';
+											echo '<option value="">Select Target User</option>';
+											echo '<option value="">----------------------------</option>';
+											$obsUidArr = $duManager->getObserverUidArr();
+											foreach($obsUidArr as $uid => $userName){
+												echo '<option value="'.$uid.'">'.$userName.'</option>';
+											}
+											echo '</select>';
+										}
 										?>
 										<div>
 											<input name="matchcatnum" type="checkbox" value="1" checked />
@@ -1013,7 +1051,7 @@ $duManager->loadFieldMap();
 		}
 	}
 	else{
-		if(!$isEditor){
+		if(!$isEditor || !$collid){
 			echo '<div style="font-weight:bold;font-size:120%;">ERROR: you are not authorized to upload to this collection</div>';
 		}
 		else{
@@ -1032,7 +1070,7 @@ $duManager->loadFieldMap();
 	?>
 </div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

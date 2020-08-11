@@ -1,6 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceIndividualManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 include_once($SERVER_ROOT.'/classes/RdfUtility.php');
 
@@ -22,7 +22,7 @@ if(!is_numeric($clid)) $clid = 0;
 if($pk && !preg_match('/^[a-zA-Z0-9\s_]+$/',$pk)) $pk = '';
 if($submit && !preg_match('/^[a-zA-Z0-9\s_]+$/',$submit)) $submit = '';
 
-$indManager = new OccurrenceIndividualManager();
+$indManager = new OccurrenceIndividual();
 if($occid){
 	$indManager->setOccid($occid);
 }
@@ -38,44 +38,43 @@ $indManager->setDisplayFormat($format);
 $occArr = $indManager->getOccData();
 if(!$occid) $occid = $indManager->getOccid();
 $collMetadata = $indManager->getMetadata();
-if(!$collid) $collid = $occArr['collid'];
+if(!$collid && $occArr) $collid = $occArr['collid'];
 
 $genticArr = $indManager->getGeneticArr();
 
 $statusStr = '';
-$securityCode = ($occArr['localitysecurity']?$occArr['localitysecurity']:0);
+$securityCode = ($occArr && $occArr['localitysecurity']?$occArr['localitysecurity']:0);
 
 $isEditor = false;
 
 //  If other than HTML was requested, return just that content.
-$done=FALSE;
-$accept = RdfUtility::parseHTTPAcceptHeader($_SERVER['HTTP_ACCEPT']);
-while (!$done && list($key, $mediarange) = each($accept)) {
-	if ($mediarange=='text/turtle' || $format == 'turtle') {
-	   Header("Content-Type: text/turtle; charset=".$CHARSET);
-	   $dwcManager = new DwcArchiverCore();
-	   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-	   echo $dwcManager->getAsTurtle();
-	   $done = TRUE;
+if(isset($_SERVER['HTTP_ACCEPT'])){
+	$done=FALSE;
+	$accept = RdfUtility::parseHTTPAcceptHeader($_SERVER['HTTP_ACCEPT']);
+	while (!$done && list($key, $mediarange) = each($accept)) {
+		if ($mediarange=='text/turtle' || $format == 'turtle') {
+		   Header("Content-Type: text/turtle; charset=".$CHARSET);
+		   $dwcManager = new DwcArchiverCore();
+		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
+		   echo $dwcManager->getAsTurtle();
+		   $done = TRUE;
+		}
+		if ($mediarange=='application/rdf+xml' || $format == 'rdf') {
+		   Header("Content-Type: application/rdf+xml; charset=".$CHARSET);
+		   $dwcManager = new DwcArchiverCore();
+		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
+		   echo $dwcManager->getAsRdfXml();
+		   $done = TRUE;
+		}
+		if ($mediarange=='application/json' || $format == 'json') {
+		   Header("Content-Type: application/json; charset=".$CHARSET);
+		   $dwcManager = new DwcArchiverCore();
+		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
+		   echo $dwcManager->getAsJson();
+		   $done = TRUE;
+		}
 	}
-	if ($mediarange=='application/rdf+xml' || $format == 'rdf') {
-	   Header("Content-Type: application/rdf+xml; charset=".$CHARSET);
-	   $dwcManager = new DwcArchiverCore();
-	   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-	   echo $dwcManager->getAsRdfXml();
-	   $done = TRUE;
-	}
-	if ($mediarange=='application/json' || $format == 'json') {
-	   Header("Content-Type: application/json; charset=".$CHARSET);
-	   $dwcManager = new DwcArchiverCore();
-	   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-	   echo $dwcManager->getAsJson();
-	   $done = TRUE;
-	}
-
-}
-if ($done) {
-  die;
+	if($done) die;
 }
 
 if($SYMB_UID){
@@ -147,7 +146,7 @@ if($SYMB_UID){
 }
 
 $displayMap = false;
-if(!$securityCode && is_numeric($occArr['decimallatitude']) && is_numeric($occArr['decimallongitude'])) $displayMap = true;
+if(!$securityCode && $occArr && is_numeric($occArr['decimallatitude']) && is_numeric($occArr['decimallongitude'])) $displayMap = true;
 $dupClusterArr = $indManager->getDuplicateArr();
 $commentArr = $indManager->getCommentArr($isEditor);
 
@@ -157,17 +156,24 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Detailed Collection Record Information</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
-	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	<meta name="description" content="<?php echo 'Occurrence author: '.$occArr['recordedby'].','.$occArr['recordnumber']; ?>" />
 	<meta name="keywords" content="<?php echo $occArr['guid']; ?>">
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet">
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet">
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
@@ -263,6 +269,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		}
 		?>
 	</script>
+	<style>
+		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
+	</style>
 </head>
 <body>
 	<div id="fb-root"></div>
@@ -343,15 +352,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						echo '</div>';
 					}
 					$instCode = $collMetadata['institutioncode'];
-					if(isset($collMetadata['collectioncode']) && $collMetadata['collectioncode']){
-						$instCode .= ':'.$collMetadata['collectioncode'];
-					}
-					if($occArr['secondaryinstcode']){
-						$instCode .= ' || '.$occArr['secondaryinstcode'];
-						if(isset($occArr['secondarycollcode']) && $occArr['secondarycollcode']){
-							$instCode .= ':'.$occArr['secondarycollcode'];
-						}
-					}
+					if($collMetadata['collectioncode']) $instCode .= ':'.$collMetadata['collectioncode'];
 					?>
 					<div style="padding:25px;font-size:18px;font-weight:bold;">
 						<div style="float:left;margin-right:5px">
@@ -573,15 +574,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							<?php
 							if($securityCode != 1){
 								$localityStr1 .= $occArr['locality'];
+								if($occArr['locationid']) $localityStr1 .= ' [locationID: '.$occArr['locationid'].']';
 							}
 							else{
 								$localityStr1 .= '<span style="color:red;">locality details protected: ';
-								if($occArr['localitysecurityreason']){
-									$localityStr1 .= $occArr['localitysecurityreason'];
-								}
-								else{
-									$localityStr1 .= 'typically done to protect locations of rare or threatened species';
-								}
+								if($occArr['localitysecurityreason']) $localityStr1 .= $occArr['localitysecurityreason'];
+								else $localityStr1 .= 'typically done to protect locations of rare or threatened species';
 								$localityStr1 .= '</span>';
 							}
 							echo trim($localityStr1,',; ');
@@ -633,28 +631,46 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									if($occArr['maximumelevationinmeters']){
 										echo '-'.$occArr['maximumelevationinmeters'];
 									}
-									?>
-									meters
-									<?php
-									if(!$occArr['verbatimelevation']){
-										echo '('.round($occArr['minimumelevationinmeters']*3.28).($occArr['maximumelevationinmeters']?'-'.round($occArr['maximumelevationinmeters']*3.28):'').'ft)';
+									echo ' meters';
+									if($occArr['verbatimelevation']){
+										?>
+										<span style="margin-left:20px">
+											<b>Verbatim Elevation: </b>
+											<?php echo $occArr['verbatimelevation']; ?>
+										</span>
+										<?php
+									}
+									else{
+										echo ' ('.round($occArr['minimumelevationinmeters']*3.28).($occArr['maximumelevationinmeters']?'-'.round($occArr['maximumelevationinmeters']*3.28):'').'ft)';
 									}
 									?>
 								</div>
 								<?php
-								if($occArr['verbatimelevation']){
-									?>
-									<div style="margin-left:10px">
-										<b>Verbatim Elevation: </b>
-										<?php echo $occArr['verbatimelevation']; ?>
-									</div>
-									<?php
-								}
 							}
-							if($occArr['localitysecurity'] == 1 || $occArr['localitysecurity'] == 3){
-								echo '<div style="margin-left:10px;color:orange">Note: Locality ';
-								if($occArr['localitysecurity'] == 3) echo 'and Taxonomic ';
-								echo 'protection applied for non-authorized users</div>';
+							if($occArr['minimumdepthinmeters'] || $occArr['verbatimdepth']){
+								?>
+								<div style="margin-left:10px;">
+									<b>Depth:</b>
+									<?php
+									echo $occArr['minimumdepthinmeters'];
+									if($occArr['maximumdepthinmeters']){
+										echo '-'.$occArr['maximumdepthinmeters'];
+									}
+									echo ' meters';
+									if($occArr['verbatimdepth']){
+										?>
+										<span style="margin-left:20px">
+											<b>Verbatim Depth: </b>
+											<?php echo $occArr['verbatimdepth']; ?>
+										</span>
+										<?php
+									}
+									?>
+								</div>
+								<?php
+							}
+							if($occArr['localitysecurity'] == 1){
+								echo '<div style="margin-left:10px;color:orange">Locality protection applied for non-authorized users</div>';
 							}
 							if($occArr['habitat']){
 								?>
@@ -789,6 +805,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>remarks:</b> '.$occArr['stratremarks'].'</div>';
 									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>element:</b> '.$occArr['element'].'</div>';
 									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>slide properties:</b> '.$occArr['slideproperties'].'</div>';
+									if($occArr['geologicalcontextid']) echo '<div style="float:left;margin-right:25px"><b>context ID:</b> '.$occArr['geologicalcontextid'].'</div>';
 									?>
 								</div>
 							</div>
@@ -816,13 +833,17 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									<legend><b>Specimen Images</b></legend>
 									<?php
 									foreach($iArr as $imgId => $imgArr){
+										$thumbUrl = $imgArr['tnurl'];
+										if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['url'];
+										if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['lgurl'];
 										?>
-										<div style="max-width:180;float:left;text-align:center;padding:5px;">
+										<div class="imgDiv">
 											<a href='<?php echo $imgArr['url']; ?>' target="_blank">
-												<img border="1" src="<?php echo ($imgArr['tnurl']?$imgArr['tnurl']:$imgArr['url']); ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
+												<img border="1" src="<?php echo $thumbUrl; ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
 											</a>
 											<?php
-											if($imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
+											if($imgArr['photographer']) echo '<div>Author: '.$imgArr['photographer'].'</div>';
+											if($imgArr['url'] && substr($thumbUrl,0,7)=='process' && $imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
 											if($imgArr['lgurl']) echo '<div><a href="'.$imgArr['lgurl'].'" target="_blank">Open Large Image</a></div>';
 											if($imgArr['sourceurl']) echo '<div><a href="'.$imgArr['sourceurl'].'" target="_blank">Open Source Image</a></div>';
 											?>
@@ -837,21 +858,29 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						</div>
 						<?php
 						if($collMetadata['individualurl']){
+							$displayID = '';
 							$indUrl = '';
 							if(strpos($collMetadata['individualurl'],'--DBPK--') !== false && $occArr['dbpk']){
+								$displayID = $occArr['dbpk'];
 								$indUrl = str_replace('--DBPK--',$occArr['dbpk'],$collMetadata['individualurl']);
 							}
 							elseif(strpos($collMetadata['individualurl'],'--CATALOGNUMBER--') !== false && $occArr['catalognumber']){
+								$displayID = $occArr['catalognumber'];
 								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$collMetadata['individualurl']);
 							}
+							elseif(strpos($collMetadata['individualurl'],'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
+								$otherCatNum = trim($occArr['othercatalognumbers']);
+								if($p = strpos($otherCatNum,';')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
+								elseif($p = strpos($otherCatNum,',')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
+								$displayID = $otherCatNum;
+								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$otherCatNum,$collMetadata['individualurl']);
+							}
 							elseif(strpos($collMetadata['individualurl'],'--OCCURRENCEID--') !== false && $occArr['occurrenceid']){
+								$displayID = $occArr['occurrenceid'];
 								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$collMetadata['individualurl']);
 							}
 							if($indUrl){
-								echo '<div style="margin-top:10px;clear:both;">';
-								echo '<b>Link to Source:</b> <a href="'.$indUrl.'" target="_blank">';
-								echo $collMetadata['institutioncode'].' #'.($occArr['catalognumber']?$occArr['catalognumber']:$occArr['dbpk']);
-								echo '</a></div>';
+								echo '<div style="margin-top:10px;clear:both;"><b>Link to Source:</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
 							}
 						}
 						//Rights
@@ -873,26 +902,42 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						?>
 						<div style="margin:5px 0px 5px 0px;">
 							<?php
-							if($rightsStr){
-								echo $rightsStr;
-							}
-							else{
-								echo '<a href="../../misc/usagepolicy.php">General Data Usage Policy</a>';
-							}
+							if($rightsStr) echo $rightsStr;
+							else echo '<a href="../../includes/usagepolicy.php">General Data Usage Policy</a>';
 							?>
 						</div>
-						<div style="margin:3px 0px;"><b>Record Id:</b> <?php echo $occArr['guid']; ?></div>
+						<div style="margin:3px 0px;"><b>Record ID:</b> <?php echo $occArr['guid']; ?></div>
 
 						<div style="margin-top:10px;clear:both;">
-							For additional information on this specimen, please contact:
 							<?php
-							$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
-							$emailBody = 'Specimen being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
-							$emailRef = 'subject='.$emailSubject.'&cc='.$adminEmail.'&body='.$emailBody;
+							if($collMetadata['contact']){
+								echo 'For additional information on this specimen, please contact: ';
+								$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
+								$emailBody = 'Specimen being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
+								$emailRef = 'subject='.$emailSubject.'&cc='.$ADMIN_EMAIL.'&body='.$emailBody;
+								//Test to see if contact is a JSON object or a simple string
+								$contactObj = json_decode($collMetadata['contact'],true);
+								if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
+									$contactArr = $contactObj['contact'];
+									$contactStr = '';
+									foreach($contactArr as $cArr){
+										if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) {
+											$contactStr .= ', '.$cArr['individualName'];
+											if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $contactStr .= ', '.$cArr['positionName'];
+											$contactStr .= ' (<a href="mailto:'.$cArr['electronicMailAddress'].'?'.$emailRef.'">'.$cArr['electronicMailAddress'].'</a>)';
+										}
+									}
+									echo trim($contactStr,', ');
+								}
+								else{
+									?>
+									<a href="mailto:<?php echo $collMetadata['email'].'?'.$emailRef; ?>">
+										<?php echo $collMetadata['contact'].' ('.$collMetadata['email'].')'; ?>
+									</a>
+									<?php
+								}
+							}
 							?>
-							<a href="mailto:<?php echo $collMetadata['email'].'?'.$emailRef; ?>">
-								<?php echo $collMetadata['contact'].' ('.$collMetadata['email'].')'; ?>
-							</a>
 						</div>
 						<?php
 						if($isEditor || (!$securityCode && $collMetadata['publicedits'])){
@@ -931,7 +976,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					?>
 					<div id="genetictab">
 						<?php
-						foreach($genticArr as $genId => $gArr){
+						foreach($genticArr as $gArr){
 							?>
 							<div style="margin:15px;">
 								<div style="font-weight:bold;margin-bottom:5px;"><?php echo $gArr['name']; ?></div>
@@ -1096,14 +1141,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<div id="edittab">
 						<div style="padding:15px;">
 							<?php
-							//Display basic stats
-							if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']) && in_array($collid,$USER_RIGHTS['CollEditor'])){
+							/*
+							 if($USER_RIGHTS && array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
 								?>
 								<div style="float:right;" title="Manage Edits">
 									<a href="../editor/editreviewer.php?collid=<?php echo $collid.'&occid='.$occid; ?>"><img src="../../images/edit.png" style="border:0px;width:14px;" /></a>
 								</div>
 								<?php
 							}
+							*/
 							echo '<div style="margin:20px 0px 30px 0px;">';
 							echo '<b>Entered By:</b> '.($occArr['recordenteredby']?$occArr['recordenteredby']:'not recorded').'<br/>';
 							echo '<b>Date entered:</b> '.($occArr['dateentered']?$occArr['dateentered']:'not recorded').'<br/>';

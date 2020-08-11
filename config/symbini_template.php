@@ -43,9 +43,13 @@ $GBIF_ORG_KEY = '';                 //GBIF organization key for organization whi
 
 //Misc variables
 $DEFAULT_TAXON_SEARCH = 2;			//Default taxonomic search type: 1 = Any Name, 2 = Scientific Name, 3 = Family, 4 = Taxonomic Group, 5 = Common Name
+
 $GOOGLE_MAP_KEY = '';				//Needed for Google Map; get from Google
+$MAPBOX_API_KEY = '';
+$MAP_THUMBNAILS = false;				//Display Static Map thumbnails within taxon profile, checklist, etc
+
 $MAPPING_BOUNDARIES = '';			//Project bounding box; default map centering; (e.g. 42.3;-100.5;18.0;-127)
-$ACTIVATE_GEOLOCATION = false;			//Activates HTML5 geolocation services in Map Search
+$ACTIVATE_GEOLOCATION = false;		//Activates HTML5 geolocation services in Map Search
 $GOOGLE_ANALYTICS_KEY = '';			//Needed for setting up Google Analytics
 $RECAPTCHA_PUBLIC_KEY = '';			//Now called site key
 $RECAPTCHA_PRIVATE_KEY = '';		//Now called secret key
@@ -57,6 +61,8 @@ $DISPLAY_COMMON_NAMES = 1;			//Display common names in species profile page and 
 $ACTIVATE_EXSICCATI = 0;			//Activates exsiccati fields within data entry pages; adding link to exsiccati search tools to portal menu is recommended
 $ACTIVATE_GEOLOCATE_TOOLKIT = 0;	//Activates GeoLocate Toolkit located within the Processing Toolkit menu items
 $OCCUR_SECURITY_OPTION = 1;			//Occurrence security options supported: value 1-7; 1 = Locality security, 2 = Taxon security, 4 = Full security, 3 = L & T, 5 = L & F, 6 = T & F, 7 = all
+
+$IGSN_ACTIVATION = 0;
 
 $RIGHTS_TERMS = array(
 	'CC0 1.0 (Public-domain)' => 'http://creativecommons.org/publicdomain/zero/1.0/',
@@ -88,6 +94,11 @@ $EDITOR_PROPERTIES = array(
 // json: {"editorProps":{"modules-panel":{"paleo":{"status":1}}}}
 */
 
+$COOKIE_SECURE = false;
+if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443){
+	header("strict-transport-security: max-age=600");
+	$COOKIE_SECURE = true;
+}
 
 //Base code shared by all pages; leave as is
 include_once("symbbase.php");

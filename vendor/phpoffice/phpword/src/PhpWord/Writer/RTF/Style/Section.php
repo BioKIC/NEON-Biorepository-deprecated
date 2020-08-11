@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -43,16 +43,16 @@ class Section extends AbstractStyle
         $content .= '\sectd ';
 
         // Size & margin
-        $content .= $this->getValueIf($style->getPageSizeW() !== null, '\pgwsxn' . $style->getPageSizeW());
-        $content .= $this->getValueIf($style->getPageSizeH() !== null, '\pghsxn' . $style->getPageSizeH());
+        $content .= $this->getValueIf($style->getPageSizeW() !== null, '\pgwsxn' . round($style->getPageSizeW()));
+        $content .= $this->getValueIf($style->getPageSizeH() !== null, '\pghsxn' . round($style->getPageSizeH()));
         $content .= ' ';
-        $content .= $this->getValueIf($style->getMarginTop() !== null, '\margtsxn' . $style->getMarginTop());
-        $content .= $this->getValueIf($style->getMarginRight() !== null, '\margrsxn' . $style->getMarginRight());
-        $content .= $this->getValueIf($style->getMarginBottom() !== null, '\margbsxn' . $style->getMarginBottom());
-        $content .= $this->getValueIf($style->getMarginLeft() !== null, '\marglsxn' . $style->getMarginLeft());
-        $content .= $this->getValueIf($style->getHeaderHeight() !== null, '\headery' . $style->getHeaderHeight());
-        $content .= $this->getValueIf($style->getFooterHeight() !== null, '\footery' . $style->getFooterHeight());
-        $content .= $this->getValueIf($style->getGutter() !== null, '\guttersxn' . $style->getGutter());
+        $content .= $this->getValueIf($style->getMarginTop() !== null, '\margtsxn' . round($style->getMarginTop()));
+        $content .= $this->getValueIf($style->getMarginRight() !== null, '\margrsxn' . round($style->getMarginRight()));
+        $content .= $this->getValueIf($style->getMarginBottom() !== null, '\margbsxn' . round($style->getMarginBottom()));
+        $content .= $this->getValueIf($style->getMarginLeft() !== null, '\marglsxn' . round($style->getMarginLeft()));
+        $content .= $this->getValueIf($style->getHeaderHeight() !== null, '\headery' . round($style->getHeaderHeight()));
+        $content .= $this->getValueIf($style->getFooterHeight() !== null, '\footery' . round($style->getFooterHeight()));
+        $content .= $this->getValueIf($style->getGutter() !== null, '\guttersxn' . round($style->getGutter()));
         $content .= ' ';
 
         // Borders

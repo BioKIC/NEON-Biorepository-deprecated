@@ -7,7 +7,7 @@ class SpecUploadDigir extends SpecUploadBase {
 	private $searchLimit = 1000;
 	private $defaultSchema = "";	//http://digir.sourceforge.net/schema/conceptual/darwin/brief/2003/1.0/darwin2brief.xsd
 	private $recCount = 0;
-	
+
 	//XML parser stuff
 	private $withinRecordElement = false;
 	private $activeFieldName = "";
@@ -20,20 +20,20 @@ class SpecUploadDigir extends SpecUploadBase {
 
  	public function __construct(){
  		parent::__construct();
- 		$this->defaultSchema = $GLOBALS["clientRoot"]."/collections/admin/darwinsymbiota.xsd";
+ 		$this->defaultSchema = $GLOBALS['CLIENT_ROOT']."/collections/admin/darwinsymbiota.xsd";
  		set_time_limit(10000);
  	}
 
 	public function __destruct(){
  		parent::__destruct();
 	}
- 	
+
 	public function uploadData($finalTransfer){
 		$this->prepUploadData();
-		
+
 		if($this->schemaName){
-			if(substr($this->schemaName,0,4) != "http"){
-				$this->schemaName = "http://".$_SERVER["HTTP_HOST"].substr($_SERVER["PHP_SELF"],0,strrpos($_SERVER["PHP_SELF"],"/"))."/".$this->schemaName;
+			if(substr($this->schemaName,0,4) != 'http'){
+				$this->schemaName = 'http://'.$_SERVER['HTTP_HOST'].substr($_SERVER['SCRIPT_NAME'],0,strrpos($_SERVER['SCRIPT_NAME'],'/')).'/'.$this->schemaName;
 			}
 		}
 		else{
@@ -42,7 +42,7 @@ class SpecUploadDigir extends SpecUploadBase {
  		//Delete all records in uploadspectemp table
 		$sqlDel = "DELETE FROM uploadspectemp WHERE (collid = ".$this->collId.')';
 		$this->conn->query($sqlDel);
- 		
+
 		echo "<li style='font-weight:bold;'>Starting record harvest</li>\n";
 		$this->submitReq();
 		$this->cleanUpload();
@@ -61,7 +61,7 @@ class SpecUploadDigir extends SpecUploadBase {
 		if($this->queryStr){
 			$qStr = trim($this->queryStr);
 		}
-		
+
 		do{
 			$url = (stripos($this->server,"http://")!==false?"":"http://").$this->server.$this->path."?doc=".urlencode("<request ".
 				"xmlns='http://digir.net/schema/protocol/2003/1.0' ".
@@ -115,7 +115,7 @@ class SpecUploadDigir extends SpecUploadBase {
 					}
 			    }
 			    xml_parser_free($xml_parser);
-			    
+
 				//Process $diagnosticStr
 				$diagnosticStr = substr($diagnosticStr,0,strpos($diagnosticStr,"</response>"));
 				if($diagnosticStr){
@@ -123,7 +123,7 @@ class SpecUploadDigir extends SpecUploadBase {
 					//echo $xmlStr;
 					$xml = new SimpleXMLElement($xmlStr);
 					foreach ($xml->diagnostic as $diag) {
-						switch((string) $diag['code']) { 
+						switch((string) $diag['code']) {
 							case 'MATCH_COUNT':
 								$matchCount = (int)$diag;
 								break;
@@ -155,7 +155,7 @@ class SpecUploadDigir extends SpecUploadBase {
 			//sleep(3);
 		} while (!$digirEof);
 	}
-	
+
 	private function startElement($parser, $name, $attrs){
 		if($name == "RECORD"){
 			$this->withinRecordElement = true;
@@ -292,7 +292,7 @@ class SpecUploadDigir extends SpecUploadBase {
 			$this->activeFieldValue .= $value;
 		}
 	}
-	
+
 	public function setSearchStart($start){
 		$this->searchStart = $start;
 	}
@@ -304,11 +304,11 @@ class SpecUploadDigir extends SpecUploadBase {
 	public function setSearchLimit($limit){
 		$this->searchLimit = $limit;
 	}
-	
+
 	public function getSearchLimit(){
 		return $this->searchLimit;
 	}
-	
+
 	private function cleanXmlStr($inStr){
 		$retStr = $inStr;
 		$retStr = str_replace(chr(10),' ',$retStr);

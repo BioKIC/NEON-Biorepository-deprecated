@@ -7,7 +7,7 @@ if(file_exists('../../../config/symbini.php')){
 	require_once($SERVER_ROOT.'/classes/ImageBatchProcessor.php');
 	if(!$serverRoot) $serverRoot = $SERVER_ROOT;
 }
-elseif(isset($serverRoot) && $serverRoot){ 
+elseif(isset($serverRoot) && $serverRoot){
 	include_once($serverRoot.'/config/symbini.php');
 	@include_once($serverRoot.'/collections/specprocessor/standalone_scripts/ImageBatchConnectionFactory.php');
 	require_once($serverRoot.'/classes/ImageBatchProcessor.php');
@@ -49,6 +49,7 @@ $imageProcessor->setKeepOrig($keepOrig);
 $imageProcessor->setCreateNewRec($createNewRec);
 if(isset($imgExists)) $imageProcessor->setImgExists($imgExists);
 elseif(isset($copyOverImg)) $imageProcessor->setCopyOverImg($copyOverImg);
+if(isset($matchOtherCatalogNumbers)) $imageProcessor->setMatchOtherCatalogNumbers($matchOtherCatalogNumbers);
 
 $imageProcessor->initProcessor($logTitle);
 $imageProcessor->setCollArr($collArr);

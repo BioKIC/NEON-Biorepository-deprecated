@@ -1,3 +1,12 @@
+function imageTypeChanged(selectObj){
+	if(selectObj.value == 1 || selectObj.value == 2){
+		$("#collection-div").show();
+	}
+	else{
+		$("#collection-div").hide();
+	}
+}
+
 function openIndPU(occId,clid){
 	openPopup("../collections/individual/index.php?occid="+occId, "indspec" + occId);
 	return false;

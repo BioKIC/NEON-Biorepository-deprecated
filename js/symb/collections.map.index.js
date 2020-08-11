@@ -508,16 +508,18 @@ function verifyCollForm(f){
 	else{
 		for(var i=0;i<f.length;i++){
 			if(f.elements[i].name == "cat[]" && f.elements[i].checked){
-				//Uncheck all db input elements within cat div 
-				var childrenEle = document.getElementById('cat-'+f.elements[i].value).children;
-				for(var j=0;j<childrenEle.length;j++){
-					if(childrenEle[j].tagName == "DIV"){
-						var divChildren = childrenEle[j].children;
-						for(var k=0;k<divChildren.length;k++){
-							var divChildren2 = divChildren[k].children;
-							for(var l=0;l<divChildren2.length;l++){
-								if(divChildren2[l].tagName == "INPUT"){
-									divChildren2[l].checked = false;
+				if(document.getElementById('cat-'+f.elements[i].value)){
+					//Uncheck all db input elements within cat div 
+					var childrenEle = document.getElementById('cat-'+f.elements[i].value).children;
+					for(var j=0;j<childrenEle.length;j++){
+						if(childrenEle[j].tagName == "DIV"){
+							var divChildren = childrenEle[j].children;
+							for(var k=0;k<divChildren.length;k++){
+								var divChildren2 = divChildren[k].children;
+								for(var l=0;l<divChildren2.length;l++){
+									if(divChildren2[l].tagName == "INPUT"){
+										divChildren2[l].checked = false;
+									}
 								}
 							}
 						}
@@ -608,35 +610,6 @@ function shiftKeyBox(tid){
 	var newKeyToAdd = document.getElementById(keyDivName).innerHTML;
 	document.getElementById(colorBoxName).color.hidePicker();
 	document.getElementById("symbologykeysbox").innerHTML = currentkeys+newKeyToAdd;
-}
-
-function openGarminDownloader(type){
-	if(type=="query"){
-		var jsonSelections = JSON.stringify(selections);
-	}
-	if(type=="dataset"){
-		if(dsselections.length!=0){
-			var jsonSelections = JSON.stringify(dsselections);
-		}
-		else{
-			alert("Please select records from the dataset to send to the GPS unit.");
-			return;
-		}
-	}
-	var url = 'garmin.php?selections='+jsonSelections;
-	newWindow = window.open(url,'popup','scrollbars=1,toolbar=0,resizable=1,width=450,height=350,left=20,top=20');
-	if (newWindow.opener == null) newWindow.opener = self;
-	return false;
-}
-
-function openLogin(){
-	if(starr){
-		loginstarr = starr.replace(/"/g, "'");
-		window.location='../../profile/index.php?refurl=../collections/map/index.php?starr='+loginstarr;
-	}
-	else{
-		window.location='../../profile/index.php?refurl=../collections/map/index.php';
-	}
 }
 
 function prepSelectionKml(f){

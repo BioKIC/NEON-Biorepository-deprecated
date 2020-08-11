@@ -2,7 +2,7 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorImages.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/imageoccursubmit.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/imageoccursubmit.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid  = $_REQUEST["collid"];
 $action = array_key_exists("action",$_POST)?$_POST["action"]:"";
@@ -48,9 +48,17 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Occurrence Image Submission</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-    <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
+  <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/collections.imageoccursubmit.js?ver=141119" type="text/javascript"></script>
@@ -99,7 +107,7 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
 <body>
 	<?php
 	$displayLeftMenu = false;
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href="../../index.php">Home</a> &gt;&gt;
@@ -130,13 +138,20 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
 					</div>
 					<div class="targetdiv" style="display:none;">
 						<div style="margin-bottom:10px;">
-							Enter a URL to an image already located on a web server.
-							If the image is larger than a typical web image, the url will be saved as the large version
-							and a basic web derivative will be created.
+							Enter a web accessable URL to an image.
+							If the medium and thumbnail urls are left blank, local image derivatives (e.g. thumbnail) will be created.
 						</div>
 						<div>
-							<b>Image URL:</b><br/>
+							<b>Image URL (required):</b><br/>
 							<input type='text' name='imgurl' size='70' />
+						</div>
+						<div>
+							<b>Medium Web URL (optional):</b><br/>
+							<input type='text' name='weburl' size='70' />
+						</div>
+						<div>
+							<b>Thumbnail URL (optional):</b><br/>
+							<input type='text' name='tnurl' size='70' />
 						</div>
 						<div>
 							<input type="checkbox" name="copytoserver" value="1" <?php echo (isset($_POST['copytoserver'])&&$_POST['copytoserver']?'checked':''); ?> />
@@ -240,7 +255,7 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
 		?>
 	</div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

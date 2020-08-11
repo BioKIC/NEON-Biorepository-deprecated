@@ -113,9 +113,8 @@ class OccurrenceMapManager extends OccurrenceManager {
 			$sql .= 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid ';
 			$sql .= $this->getTableJoins($this->sqlWhere);
 			$sql .= $this->sqlWhere;
-			if(is_numeric($start) && $recLimit && is_numeric($recLimit)){
-				$sql .= "LIMIT ".$start.",".$recLimit;
-			}
+			$sql .= 'AND (o.decimallatitude BETWEEN -90 AND 90) AND (o.decimallongitude BETWEEN -180 AND 180) ';
+			if(is_numeric($start) && $recLimit && is_numeric($recLimit)) $sql .= "LIMIT ".$start.",".$recLimit;
 			//echo "<div>SQL: ".$sql."</div>";
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_assoc()){
@@ -397,35 +396,6 @@ class OccurrenceMapManager extends OccurrenceManager {
 		echo "</Folder>\n";
 		echo "</Document>\n";
 		echo "</kml>\n";
-	}
-
-	//Garmin functions
-	public function getGpxText($seloccids){
-		global $DEFAULT_TITLE;
-		$seloccids = preg_match('#\[(.*?)\]#', $seloccids, $match);
-		$seloccids = $match[1];
-		$gpxText = '';
-		$gpxText = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
-		$gpxText .= '<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="mymy">';
-		$sql = "";
-		$sql = 'SELECT o.occid, o.basisOfRecord, c.institutioncode, o.catalognumber, CONCAT_WS(" ",o.recordedby,o.recordnumber) AS collector, '.
-			'o.eventdate, o.family, o.sciname, o.locality, o.DecimalLatitude, o.DecimalLongitude '.
-			'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid ';
-		$sql .= 'WHERE o.occid IN('.$seloccids.') ';
-		//echo "<div>".$sql."</div>";
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
-			$comment = $row->institutioncode.($row->catalognumber?': '.$row->catalognumber.'. ':'. ');
-			$comment .= $row->collector.'. '.$row->eventdate.'. Locality: '.$row->locality.' (occid: '.$row->occid.')';
-			$gpxText .= '<wpt lat="'.$row->DecimalLatitude.'" lon="'.$row->DecimalLongitude.'">';
-			$gpxText .= '<name>'.$row->sciname.'</name>';
-			$gpxText .= '<cmt>'.$comment.'</cmt>';
-			$gpxText .= '<sym>Waypoint</sym>';
-			$gpxText .= '</wpt>';
-		}
-		$gpxText .= '</gpx>';
-
-		return $gpxText;
 	}
 
 	//Dataset functions

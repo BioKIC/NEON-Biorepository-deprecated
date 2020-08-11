@@ -1,6 +1,6 @@
 <?php
 include_once('../../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceEditorImages.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceActionManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -147,6 +147,8 @@ $photographerArr = $occManager->getPhotographerArr();
 							$imgUrl = $imgArr["url"];
 							$origUrl = $imgArr["origurl"];
 							$tnUrl = $imgArr["tnurl"];
+							if((!$imgUrl || $imgUrl == 'empty') && $origUrl) $imgUrl = $origUrl;
+							if(!$tnUrl && $imgUrl) $tnUrl = $imgUrl;
 							if(array_key_exists("imageDomain",$GLOBALS)){
 								if(substr($imgUrl,0,1)=="/"){
 									$imgUrl = $GLOBALS["imageDomain"].$imgUrl;
@@ -158,9 +160,6 @@ $photographerArr = $occManager->getPhotographerArr();
 									$tnUrl = $GLOBALS["imageDomain"].$tnUrl;
 								}
 							}
-
-							if($imgUrl == 'empty' && $origUrl) $imgUrl = $origUrl;
-							if(!$tnUrl && $imgUrl) $tnUrl = $imgUrl;
 							echo '<a href="'.$imgUrl.'" target="_blank">';
 							if(array_key_exists('error', $imgArr)){
 								echo '<div style="font-weight:bold;font-size:140%">'.$imgArr['error'].'</div>';
@@ -394,6 +393,16 @@ $photographerArr = $occManager->getPhotographerArr();
 											<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 											<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 											<input type="submit" name="submitaction" value="Remap Image" />
+										</div>
+									</fieldset>
+								</form>
+								<form action="occurrenceeditor.php" method="post">
+									<fieldset style="padding:15px">
+										<legend><b>Link to a New Blank Occurrence Record within Collection</b></legend>
+										<div style="margin:10px 20px;">
+											<input name="occid" type="hidden" value="<?php echo $occId; ?>" />
+											<input name="imgid" type="hidden" value="<?php echo $imgId; ?>" />
+											<button name="submitaction" type="submit" value="remapImageToNewRecord">Link to New Occurrence</button>
 										</div>
 									</fieldset>
 								</form>

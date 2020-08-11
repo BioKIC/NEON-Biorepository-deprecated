@@ -9,7 +9,7 @@ $action = array_key_exists("action",$_REQUEST)?htmlspecialchars($_REQUEST["actio
 $eMode = array_key_exists('emode',$_REQUEST)?htmlspecialchars($_REQUEST['emode']):0;
 
 if($eMode && !$SYMB_UID){
-	header('Location: ../../profile/index.php?refurl=../collections/misc/collprofiles.php?'.$_SERVER['QUERY_STRING']);
+	header('Location: ../../profile/index.php?refurl=../collections/misc/collprofiles.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 }
 
 $collManager = new OccurrenceCollectionProfile();
@@ -36,9 +36,17 @@ if($SYMB_UID){
 <head>
 	<title><?php echo $DEFAULT_TITLE." ".($collid?$collData[$collid]["collectionname"]:"") ; ?> Collection Profiles</title>
 	<meta name="keywords" content="Natural history collections,<?php echo ($collid?$collData[$collid]["collectionname"]:""); ?>" />
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/jquery-ui.css" rel="Stylesheet" type="text/css" />
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+    }
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../../js/jquery.js?ver=20130917" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js?ver=20130917" type="text/javascript"></script>
 	<script>
@@ -59,7 +67,7 @@ if($SYMB_UID){
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_misc_collprofilesMenu)?$collections_misc_collprofilesMenu:true);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	echo "<div class='navpath'>";
 	if(isset($collections_misc_collprofilesCrumbs)){
 		if($collections_misc_collprofilesCrumbs){
@@ -228,50 +236,48 @@ if($SYMB_UID){
 										<?php echo $LANG['MANAGE_PERMISSIONS']; ?>
 									</a>
 								</li>
+								<li>
+									<a href="#" onclick="$('li.importItem').show(); return false;" >
+										<?php echo (isset($LANG['IMPORT_SPECIMEN'])?$LANG['IMPORT_SPECIMEN']:'Import/Update Specimen Records'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specupload.php?uploadtype=7&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['SKELETAL_FILE_IMPORT'])?$LANG['SKELETAL_FILE_IMPORT']:'Skeletal File Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none">
+									<a href="../admin/specupload.php?uploadtype=3&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['TEXT_FILE_IMPORT'])?$LANG['TEXT_FILE_IMPORT']:'Text File Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specupload.php?uploadtype=6&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['DWCA_IMPORT'])?$LANG['DWCA_IMPORT']:'DwC-Archive Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specupload.php?uploadtype=8&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['IPT_IMPORT'])?$LANG['IPT_IMPORT']:'IPT Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specupload.php?uploadtype=9&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['NFN_IMPORT'])?$LANG['NFN_IMPORT']:'Notes from Nature Import'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specuploadmanagement.php?collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['IMPORT_PROFILES'])?$LANG['IMPORT_PROFILES']:'Saved Import Profiles'); ?>
+									</a>
+								</li>
+								<li class="importItem" style="margin-left:10px;display:none;">
+									<a href="../admin/specuploadmanagement.php?action=addprofile&collid=<?php echo $collid; ?>">
+										<?php echo (isset($LANG['CREATE_PROFILE'])?$LANG['CREATE_PROFILE']:'Create a new Import Profile'); ?>
+									</a>
+								</li>
 								<?php
 								if($collData['colltype'] != 'General Observations'){
-									?>
-									<li>
-										<a href="#" onclick="$('li.importItem').show(); return false;" >
-											<?php echo (isset($LANG['IMPORT_SPECIMEN'])?$LANG['IMPORT_SPECIMEN']:'Import/Update Specimen Records'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specupload.php?uploadtype=7&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['SKELETAL_FILE_IMPORT'])?$LANG['SKELETAL_FILE_IMPORT']:'Skeletal File Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none">
-										<a href="../admin/specupload.php?uploadtype=3&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['TEXT_FILE_IMPORT'])?$LANG['TEXT_FILE_IMPORT']:'Text File Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specupload.php?uploadtype=6&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['DWCA_IMPORT'])?$LANG['DWCA_IMPORT']:'DwC-Archive Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specupload.php?uploadtype=8&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['IPT_IMPORT'])?$LANG['IPT_IMPORT']:'IPT Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specupload.php?uploadtype=9&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['NFN_IMPORT'])?$LANG['NFN_IMPORT']:'Notes from Nature Import'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specuploadmanagement.php?collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['IMPORT_PROFILES'])?$LANG['IMPORT_PROFILES']:'Saved Import Profiles'); ?>
-										</a>
-									</li>
-									<li class="importItem" style="margin-left:10px;display:none;">
-										<a href="../admin/specuploadmanagement.php?action=addprofile&collid=<?php echo $collid; ?>">
-											<?php echo (isset($LANG['CREATE_PROFILE'])?$LANG['CREATE_PROFILE']:'Create a new Import Profile'); ?>
-										</a>
-									</li>
-									<?php
 									if($collData['managementtype'] != 'Aggregate'){
 										?>
 										<li>
@@ -337,6 +343,13 @@ if($SYMB_UID){
 									<?php
 								}
 								?>
+								<!--
+								<li style="margin-left:10px;">
+									<a href="../../imagelib/admin/igsnmapper.php?collid=<?php echo $collid; ?>">
+										<?php echo $LANG['GUID_MANAGEMENT']; ?>
+									</a>
+								</li>
+								 -->
 								<li style="margin-left:10px;">
 									<a href="../../imagelib/admin/thumbnailbuilder.php?collid=<?php echo $collid; ?>">
 										<?php echo $LANG['THUMBNAIL_MAINTENANCE']; ?>
@@ -373,7 +386,7 @@ if($SYMB_UID){
 				}
 				if($collData['publishtoidigbio']){
 					$idigbioKey = $collManager->getIdigbioKey();
-					if(!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collData['guid']);
+					if(!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collData['recordid']);
 					if($idigbioKey){
 						$dataUrl = 'https://www.idigbio.org/portal/recordsets/'.$idigbioKey;
 						?>
@@ -407,24 +420,8 @@ if($SYMB_UID){
 				}
 				//Collection Statistics
 				$statsArr = $collManager->getBasicStats();
-				$extrastatsArr = Array();
 				$georefPerc = 0;
-				if($statsArr['georefcnt']&&$statsArr['recordcnt']){
-					$georefPerc = (100*($statsArr['georefcnt']/$statsArr['recordcnt']));
-				}
-				$spidPerc = 0;
-				$imgPerc = 0;
-				if($statsArr['dynamicProperties']){
-					$extrastatsArr = json_decode($statsArr['dynamicProperties'],true);
-					if(is_array($extrastatsArr)){
-						if($extrastatsArr['SpecimensCountID']){
-							$spidPerc = (100*($extrastatsArr['SpecimensCountID']/$statsArr['recordcnt']));
-						}
-						if($extrastatsArr['imgcnt']){
-							$imgPerc = (100*($extrastatsArr['imgcnt']/$statsArr['recordcnt']));
-						}
-					}
-				}
+				if($statsArr['georefcnt']&&$statsArr['recordcnt']) $georefPerc = (100*($statsArr['georefcnt']/$statsArr['recordcnt']));
 				?>
 				<div style="clear:both;margin-top:5px;">
 					<div style="font-weight:bold;"><?php echo $LANG['COLL_STATISTICS']; ?></div>
@@ -432,18 +429,37 @@ if($SYMB_UID){
 						<li><?php echo number_format($statsArr["recordcnt"]).' '.$LANG['SPECIMEN_RECORDS'];?></li>
 						<li><?php echo ($statsArr['georefcnt']?number_format($statsArr['georefcnt']):0).($georefPerc?" (".($georefPerc>1?round($georefPerc):round($georefPerc,2))."%)":'').' '.(isset($LANG['GEOREFERENCED'])?$LANG['GEOREFERENCED']:'georeferenced');?></li>
 						<?php
+						$extrastatsArr = Array();
+						if($statsArr['dynamicProperties']) $extrastatsArr = json_decode($statsArr['dynamicProperties'],true);
 						if($extrastatsArr){
-							if($extrastatsArr['imgcnt']) echo '<li>'.number_format($extrastatsArr['imgcnt']).($imgPerc?" (".($imgPerc>1?round($imgPerc):round($imgPerc,2))."%)":'').' '.(isset($LANG['WITH_IMAGES'])?$LANG['WITH_IMAGES']:'with images').'</li>';
+							if($extrastatsArr['imgcnt']){
+								$imgSpecCnt = $extrastatsArr['imgcnt'];
+								$imgCnt = 0;
+								if(strpos($imgSpecCnt,':')){
+									$imgCntArr = explode(':', $imgSpecCnt);
+									$imgCnt = $imgCntArr[0];
+									$imgSpecCnt = $imgCntArr[1];
+								}
+								if($imgSpecCnt){
+									$imgPerc = 0;
+									if($statsArr['recordcnt']) $imgPerc = (100*($imgSpecCnt/$statsArr['recordcnt']));
+									echo '<li>';
+									echo number_format($imgSpecCnt).($imgPerc?" (".($imgPerc>1?round($imgPerc):round($imgPerc,2))."%)":'').' '.(isset($LANG['WITH_IMAGES'])?$LANG['WITH_IMAGES']:'with images');
+									if($imgCnt) echo ' ('.number_format($imgCnt).' '.(isset($LANG['TOTAL_IMAGES'])?$LANG['TOTAL_IMAGES']:'total images').')';
+									echo '</li>';
+								}
+							}
 							if($extrastatsArr['gencnt']) echo '<li>'.number_format($extrastatsArr['gencnt']).' '.(isset($LANG['GENBANK_REF'])?$LANG['GENBANK_REF']:'GenBank references').'</li>';
 							if($extrastatsArr['boldcnt']) echo '<li>'.number_format($extrastatsArr['boldcnt']).' '.(isset($LANG['BOLD_REF'])?$LANG['BOLD_REF']:'BOLD references').'</li>';
 							if($extrastatsArr['refcnt']) echo '<li>'.number_format($extrastatsArr['refcnt']).' '.(isset($LANG['PUB_REFS'])?$LANG['PUB_REFS']:'publication references').'</li>';
-							if($extrastatsArr['SpecimensCountID']) echo '<li>'.number_format($extrastatsArr['SpecimensCountID']).($spidPerc?" (".($spidPerc>1?round($spidPerc):round($spidPerc,2))."%)":'').' '.(isset($LANG['IDED_TO_SPECIES'])?$LANG['IDED_TO_SPECIES']:'identified to species').'</li>';
+							if($extrastatsArr['SpecimensCountID']){
+								$spidPerc = (100*($extrastatsArr['SpecimensCountID']/$statsArr['recordcnt']));
+								echo '<li>'.number_format($extrastatsArr['SpecimensCountID']).($spidPerc?" (".($spidPerc>1?round($spidPerc):round($spidPerc,2))."%)":'').' '.(isset($LANG['IDED_TO_SPECIES'])?$LANG['IDED_TO_SPECIES']:'identified to species').'</li>';
+							}
 						}
-						?>
-						<li><?php echo number_format($statsArr["familycnt"]).' '.$LANG['FAMILIES'];?></li>
-						<li><?php echo number_format($statsArr["genuscnt"]).' '.$LANG['GENERA'];?></li>
-						<li><?php echo number_format($statsArr["speciescnt"]).' '.$LANG['SPECIES'];?></li>
-						<?php
+						if($statsArr['familycnt']) echo '<li>'.number_format($statsArr['familycnt']).' '.$LANG['FAMILIES'].'</li>';
+						if($statsArr['genuscnt']) echo '<li>'.number_format($statsArr['genuscnt']).' '.$LANG['GENERA'].'</li>';
+						if($statsArr['speciescnt']) echo '<li>'.number_format($statsArr['speciescnt']).' '.$LANG['SPECIES'].'</li>';
 						if($extrastatsArr&&$extrastatsArr['TotalTaxaCount']) echo '<li>'.number_format($extrastatsArr['TotalTaxaCount']).' '.(isset($LANG['TOTAL_TAXA'])?$LANG['TOTAL_TAXA']:'total taxa (including subsp. and var.)').'</li>';
 						//if($extrastatsArr&&$extrastatsArr['TypeCount']) echo '<li>'.number_format($extrastatsArr['TypeCount']).' '.(isset($LANG['TYPE_SPECIMENS'])?$LANG['TYPE_SPECIMENS']:'type specimens').'</li>';
 						?>
@@ -470,7 +486,7 @@ if($SYMB_UID){
 				$serverDomain = "http://";
 				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverDomain = "https://";
 				$serverDomain .= $_SERVER["SERVER_NAME"];
-				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $serverDomain .= ':'.$_SERVER["SERVER_PORT"];
+				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $serverDomain .= ':'.$_SERVER["SERVER_PORT"];
 				echo (isset($LANG['RSS_FEED'])?$LANG['RSS_FEED']:'RSS feed').': <a href="../datasets/rsshandler.php" target="_blank">'.$serverDomain.$CLIENT_ROOT.'collections/datasets/rsshandler.php</a>';
 				?>
 				<hr/>
@@ -521,7 +537,7 @@ if($SYMB_UID){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

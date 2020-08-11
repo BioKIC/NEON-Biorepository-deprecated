@@ -6,8 +6,8 @@ Language: English
 */
 
 $LANG['RSS_FEED'] = 'RSS Feed';
-$LANG['CONTACT'] = 'Contact';
-$LANG['HOMEPAGE'] = 'Home Page';
+$LANG['CONTACT'] = 'Contacts';
+$LANG['HOMEPAGE'] = 'Related link';
 $LANG['MORE_INFO'] = 'More Information';
 $LANG['COLLECTION_SEARCH'] = 'Collection Search Page';
 $LANG['UPDATE_STATISTICS'] = 'Updating statistics related to this collection...';
@@ -44,7 +44,7 @@ $LANG['DUP_CLUSTER'] = 'Duplicate Clustering';
 $LANG['MAINTENANCE_TASKS'] = 'General Maintenance Tasks';
 $LANG['BACKUP_DATA_FILE'] = 'Download Backup Data File';
 $LANG['RESTORE_BACKUP'] = 'Restore Backup File';
-$LANG['GUIDMAP'] = 'Collection GUID Mapper';
+$LANG['GUID_MANAGEMENT'] = 'IGSN GUID Management';
 $LANG['THUMBNAIL_MAINTENANCE'] = 'Thumbnail Maintenance';
 $LANG['UPDATE_STATS'] = 'Update Statistics';
 $LANG['COLLECTION_TYPE'] = 'Collection Type';
@@ -72,6 +72,7 @@ $LANG['COLL_STATISTICS'] = 'Collection Statistics';
 $LANG['SPECIMEN_RECORDS'] = 'specimen records';
 $LANG['GEOREFERENCED'] = 'georeferenced';
 $LANG['WITH_IMAGES'] = 'with images';
+$LANG['TOTAL_IMAGES'] = 'total images';
 $LANG['GENBANK_REF'] = 'GenBank references';
 $LANG['BOLD_REF'] = 'BOLD references';
 $LANG['PUB_REFS'] = 'publication references';

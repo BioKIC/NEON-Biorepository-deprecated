@@ -40,6 +40,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 	function setPaloParents(timePeriod){
 		if(timePeriod){
 			fieldChanged(timePeriod);
+			/*
 			switch(timePeriod) {
 				case "eon":
 					$("select[name=era]").val("");
@@ -50,6 +51,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 				case "epoch":
 					$("select[name=stage]").val("");
 			}
+			*/
 			var childValue = $("select[name="+timePeriod+"]").val();
 			if(childValue){
 				if($("select[name=earlyInterval]").val() == "") $("select[name=earlyInterval]").val(childValue);
@@ -64,16 +66,16 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 					  	for (i = 0; i < gtsObj.length; i++) {
 					  		var rankid = gtsObj[i].rankid;
 							if(rankid == 10 || rankid == 20){
-								$("select[name=eon]").val(gtsObj[i].value);
+								if($("select[name=eon]").val() == "") $("select[name=eon]").val(gtsObj[i].value);
 							}
 							else if(rankid == 30){
-								$("select[name=era]").val(gtsObj[i].value);
+								if($("select[name=era]").val() == "") $("select[name=era]").val(gtsObj[i].value);
 							}
 							else if(rankid == 40){
-								$("select[name=period]").val(gtsObj[i].value);
+								if($("select[name=period]").val() == "") $("select[name=period]").val(gtsObj[i].value);
 							}
 							else if(rankid == 50){
-								$("select[name=epoch]").val(gtsObj[i].value);
+								if($("select[name=epoch]").val() == "") $("select[name=epoch]").val(gtsObj[i].value);
 							}
 					  	}
 					});
@@ -83,7 +85,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 	}
 </script>
 <fieldset>
-	<legend><b>Paleontology</b></legend>
+	<legend>Paleontology</legend>
 	<div style="clear:both">
 		<div id="eonDiv">
 			<?php echo (defined('EONLABEL')?EONLABEL:'Eon'); ?>
@@ -91,12 +93,17 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<select name="eon" onchange="setPaloParents('eon');">
 				<option value=""></option>
 				<?php
+				$eonTerm = '';
+				if(isset($occArr['eon'])) $eonTerm = $occArr['eon'];
+				if($eonTerm && (!array_key_exists($eonTerm, $gtsTermArr) || $gtsTermArr[$eonTerm]>=30)){
+					echo '<option value="'.$eonTerm.'" SELECTED>'.$eonTerm.' - mismatched term</option>';
+					echo '<option value="">---------------------------</option>';
+				}
 				foreach($gtsTermArr as $term => $rankid ){
-					if($rankid < 30) echo '<option value="'.$term.'" '.(isset($occArr['eon']) && $occArr['eon']==$term?'SELECTED':'').'>'.$term.'</option>';
+					if($rankid < 30) echo '<option value="'.$term.'" '.($eonTerm==$term?'SELECTED':'').'>'.$term.'</option>';
 				}
 				?>
 			</select>
-			<!-- <input type="text" name="eon" value="<?php echo isset($occArr['eon'])?$occArr['eon']:''; ?>" onchange="fieldChanged('eon');" /> -->
 		</div>
 		<div id="eraDiv">
 			<?php echo (defined('ERALABEL')?ERALABEL:'Era'); ?>
@@ -104,12 +111,17 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<select name="era" onchange="setPaloParents('era');">
 				<option value=""></option>
 				<?php
+				$eraTerm = '';
+				if(isset($occArr['era'])) $eraTerm = $occArr['era'];
+				if($eraTerm && (!array_key_exists($eraTerm, $gtsTermArr) || $gtsTermArr[$eraTerm]!=30)){
+					echo '<option value="'.$eraTerm.'" SELECTED>'.$eraTerm.' - mismatched term</option>';
+					echo '<option value="">---------------------------</option>';
+				}
 				foreach($gtsTermArr as $term => $rankid ){
-					if($rankid == 30) echo '<option value="'.$term.'" '.(isset($occArr['era']) && $occArr['era']==$term?'SELECTED':'').'>'.$term.'</option>';
+					if($rankid == 30) echo '<option value="'.$term.'" '.($eraTerm==$term?'SELECTED':'').'>'.$term.'</option>';
 				}
 				?>
 			</select>
-			<!-- <input type="text" name="era" value="<?php echo isset($occArr['era'])?$occArr['era']:''; ?>" onchange="fieldChanged('era');" />  -->
 		</div>
 		<div id="periodDiv">
 			<?php echo (defined('PERIODLABEL')?PERIODLABEL:'Period'); ?>
@@ -117,12 +129,17 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<select name="period" onchange="setPaloParents('period');">
 				<option value=""></option>
 				<?php
+				$periodTerm = '';
+				if(isset($occArr['period'])) $periodTerm = $occArr['period'];
+				if($periodTerm && (!array_key_exists($periodTerm, $gtsTermArr) || $gtsTermArr[$periodTerm]!=40)){
+					echo '<option value="'.$periodTerm.'" SELECTED>'.$periodTerm.' - mismatched term</option>';
+					echo '<option value="">---------------------------</option>';
+				}
 				foreach($gtsTermArr as $term => $rankid){
-					if($rankid == 40) echo '<option value="'.$term.'" '.(isset($occArr['period']) && $occArr['period']==$term?'SELECTED':'').'>'.$term.'</option>';
+					if($rankid == 40) echo '<option value="'.$term.'" '.($periodTerm==$term?'SELECTED':'').'>'.$term.'</option>';
 				}
 				?>
 			</select>
-			<!-- <input type="text" name="period" value="<?php echo isset($occArr['period'])?$occArr['period']:''; ?>" onchange="fieldChanged('period');" /> -->
 		</div>
 		<div id="epochDiv">
 			<?php echo (defined('EPOCHLABEL')?EPOCHLABEL:'Epoch'); ?>
@@ -130,12 +147,17 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<select name="epoch" onchange="setPaloParents('epoch');">
 				<option value=""></option>
 				<?php
+				$epochTerm = '';
+				if(isset($occArr['epoch'])) $epochTerm = $occArr['epoch'];
+				if($epochTerm && (!array_key_exists($epochTerm, $gtsTermArr) || $gtsTermArr[$epochTerm]!=50)){
+					echo '<option value="'.$epochTerm.'" SELECTED>'.$epochTerm.' - mismatched term</option>';
+					echo '<option value="">---------------------------</option>';
+				}
 				foreach($gtsTermArr as $term => $rankid){
-					if($rankid == 50) echo '<option value="'.$term.'" '.(isset($occArr['epoch']) && $occArr['epoch']==$term?'SELECTED':'').'>'.$term.'</option>';
+					if($rankid == 50) echo '<option value="'.$term.'" '.($epochTerm==$term?'SELECTED':'').'>'.$term.'</option>';
 				}
 				?>
 			</select>
-			<!-- <input type="text" name="epoch" value="<?php echo isset($occArr['epoch'])?$occArr['epoch']:''; ?>" onchange="fieldChanged('epoch');" />  -->
 		</div>
 		<div id="stageDiv">
 			<?php echo (defined('STAGELABEL')?STAGELABEL:'Stage'); ?>
@@ -143,12 +165,17 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<select name="stage" onchange="setPaloParents('stage');">
 				<option value=""></option>
 				<?php
+				$stageTerm = '';
+				if(isset($occArr['stage'])) $stageTerm = $occArr['stage'];
+				if($stageTerm && (!array_key_exists($stageTerm, $gtsTermArr) || $gtsTermArr[$stageTerm]!=60)){
+					echo '<option value="'.$stageTerm.'" SELECTED>'.$stageTerm.' - mismatched term</option>';
+					echo '<option value="">---------------------------</option>';
+				}
 				foreach($gtsTermArr as $term => $rankid){
-					if($rankid == 60) echo '<option value="'.$term.'" '.(isset($occArr['stage']) && $occArr['stage']==$term?'SELECTED':'').'>'.$term.'</option>';
+					if($rankid == 60) echo '<option value="'.$term.'" '.($stageTerm==$term?'SELECTED':'').'>'.$term.'</option>';
 				}
 				?>
 			</select>
-			<!-- <input type="text" name="stage" value="<?php echo isset($occArr['stage'])?$occArr['stage']:''; ?>" onchange="fieldChanged('stage');" />  -->
 		</div>
 	</div>
 	<div>
@@ -158,8 +185,14 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<select name="earlyinterval" onchange="earlyIntervalChanged(this)">
 				<option value=""></option>
 				<?php
+				$earlyIntervalTerm = '';
+				if(isset($occArr['earlyinterval'])) $earlyIntervalTerm = $occArr['earlyinterval'];
+				if($earlyIntervalTerm && !array_key_exists($earlyIntervalTerm, $gtsTermArr)){
+					echo '<option value="'.$earlyIntervalTerm.'" SELECTED>'.$earlyIntervalTerm.' - mismatched term</option>';
+					echo '<option value="">---------------------------</option>';
+				}
 				foreach($gtsTermArr as $term => $rankid){
-					echo '<option value="'.$term.'" '.(isset($occArr['earlyinterval']) && $occArr['earlyinterval']==$term?'SELECTED':'').'>'.$term.'</option>';
+					echo '<option value="'.$term.'" '.($earlyIntervalTerm==$term?'SELECTED':'').'>'.$term.'</option>';
 				}
 				?>
 			</select>
@@ -170,8 +203,14 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<select name="lateinterval" onchange="lateIntervalChanged(this)">
 				<option value=""></option>
 				<?php
+				$lateIntervalTerm = '';
+				if(isset($occArr['lateinterval'])) $lateIntervalTerm = $occArr['lateinterval'];
+				if($lateIntervalTerm && !array_key_exists($lateIntervalTerm, $gtsTermArr)){
+					echo '<option value="'.$lateIntervalTerm.'" SELECTED>'.$lateIntervalTerm.' - mismatched term</option>';
+					echo '<option value="">---------------------------</option>';
+				}
 				foreach($gtsTermArr as $term => $rankid){
-					echo '<option value="'.$term.'" '.(isset($occArr['lateinterval']) && $occArr['lateinterval']==$term?'SELECTED':'').'>'.$term.'</option>';
+					echo '<option value="'.$term.'" '.($lateIntervalTerm==$term?'SELECTED':'').'>'.$term.'</option>';
 				}
 				?>
 			</select>
@@ -181,14 +220,7 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 		<div id="absoluteAgeDiv">
 			<?php echo (defined('ABSOLUTEAGELABEL')?ABSOLUTEAGELABEL:'Absolute Age'); ?>
 			<a href="#" onclick="return dwcDoc('absoluteAge')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-			<select name="absoluteage" onchange="fieldChanged('absoluteage');">
-				<option value=""></option>
-				<?php
-				foreach($gtsTermArr as $term => $rankid){
-					if($rankid == 60) echo '<option value="'.$term.'" '.(isset($occArr['absoluteage']) && $occArr['absoluteage']==$term?'SELECTED':'').'>'.$term.'</option>';
-				}
-				?>
-			</select>
+			<input type="text" name="absoluteage" value="<?php echo isset($occArr['absoluteage'])?$occArr['absoluteage']:''; ?>" onchange="fieldChanged('absoluteage');" />
 		</div>
 		<div id="storageAgeDiv">
 			<?php echo (defined('STORAGEAGELABEL')?STORAGEAGELABEL:'Storage Age'); ?>
@@ -273,6 +305,11 @@ $gtsTermArr = $occManager->getPaleoGtsTerms();
 			<?php echo (defined('SLIDEPROPERTIESLABEL')?SLIDEPROPERTIESLABEL:'Slide Properties'); ?>
 			<a href="#" onclick="return dwcDoc('slideProperties')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 			<input type="text" name="slideproperties" value="<?php echo isset($occArr['slideproperties'])?$occArr['slideproperties']:''; ?>" onchange="fieldChanged('slideproperties');" />
+		</div>
+		<div id="geologicalContextIdDiv">
+			<?php echo (defined('GEOLOGICALCONTEXTIDLABEL')?GEOLOGICALCONTEXTIDLABEL:'Context ID'); ?>
+			<a href="#" onclick="return dwcDoc('geologicalContextID')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
+			<input type="text" name="geologicalcontextid" value="<?php echo isset($occArr['geologicalcontextid'])?$occArr['geologicalcontextid']:''; ?>" onchange="fieldChanged('geologicalcontextid');" />
 		</div>
 	</div>
 </fieldset>

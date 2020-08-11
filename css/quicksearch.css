@@ -13,8 +13,9 @@
 #quicksearchtext{
 }
 
-#quicksearchtaxon{
-	width: 240px;
+#quicksearch input{
+	width: 250px;
+	float: left;
 	margin-bottom:0px;
 	padding-bottom:0px;
 	font-family: Arial, Helvetica, sans-serif;

@@ -63,9 +63,17 @@ if($isEditor){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title>Darwin Core Archiver Publisher</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet">
-	<link href="../../css/jquery-ui.css" type="text/css" rel="Stylesheet" />
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<style type="text/css">
 		.nowrap { white-space: nowrap; }
 	</style>
@@ -131,8 +139,8 @@ if($isEditor){
 				}
 				$.ajax({
 					method: "GET",
-					dateType: "json",
-					url: "http://api.gbif.org/v1/organization/" + keyValue
+					dataType: "json",
+					url: "https://api.gbif.org/v1/organization/" + keyValue
 				})
 				.done(function( retJson ) {
 					f.submit();
@@ -175,7 +183,7 @@ if($isEditor){
 <body>
 <?php
 $displayLeftMenu = (isset($collections_datasets_datapublisherMenu)?$collections_datasets_datapublisherMenu: 'true');
-include($SERVER_ROOT. '/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class='navpath'>
 	<a href="../../index.php">Home</a> &gt;&gt;
@@ -240,7 +248,7 @@ include($SERVER_ROOT. '/header.php');
 		<div style="margin:10px;">
 			<h3>Data Usage Policy:</h3>
 			Use of these datasets requires agreement with the terms and conditions in our
-			<a href="../../misc/usagepolicy.php">Data Usage Policy</a>.
+			<a href="../../includes/usagepolicy.php">Data Usage Policy</a>.
 			Locality details for rare, threatened, or sensitive records have been redacted from these data files.
 			One must contact the collections directly to obtain access to sensitive locality data.
 		</div>
@@ -269,8 +277,10 @@ include($SERVER_ROOT. '/header.php');
 			$dwcaManager->createDwcArchive();
 			$dwcaManager->writeRssFile();
 			echo '</ul>';
-			if($publishGBIF && $collManager->getEndpointKey()){
-				$collManager->triggerGBIFCrawl($collManager->getDatasetKey(),$collArr['dwcaurl']);
+			if($publishGBIF){
+				echo '<ul>';
+				$collManager->triggerGBIFCrawl($collManager->getDatasetKey(),$collArr['dwcaurl'], $collid, $collArr['collectionname']);
+				echo '</ul>';
 			}
 		}
 		$dwcUri = '';
@@ -278,7 +288,7 @@ include($SERVER_ROOT. '/header.php');
 		if($dwcaArr){
 			$dArr = current($dwcaArr);
 			$dwcUri = ($dArr['collid'] == $collid?$dArr['link']:'');
-			if(!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collArr['guid']);
+			if(!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collArr['recordid']);
 			?>
 			<div style="margin:10px;">
 				<div>
@@ -341,7 +351,7 @@ include($SERVER_ROOT. '/header.php');
 				$blockSubmitMsg = 'Archive cannot be published until occurrenceID GUID source is set<br/>';
 			}
 			if($recFlagArr['nullBasisRec']){
-				echo '<div style="margin:10px;font-weight:bold;color:red;">There are '.$recFlagArr['nullBasisRec'].' records missing basisOfRecord and will not be published. Please go to <a href="../editor/occurrencetabledisplay.php?q_recordedby=&q_recordnumber=&q_eventdate=&q_catalognumber=&q_othercatalognumbers=&q_observeruid=&q_recordenteredby=&q_dateentered=&q_datelastmodified=&q_processingstatus=&q_customfield1=basisOfRecord&q_customtype1=NULL&q_customvalue1=&q_customfield2=&q_customtype2=EQUALS&q_customvalue2=&q_customfield3=&q_customtype3=EQUALS&q_customvalue3=&collid='.$collid.'&csmode=0&occid=&occindex=0&orderby=&orderbydir=ASC">Edit Existing Occurrence Records</a> to correct this.</div>';
+				echo '<div style="margin:10px;font-weight:bold;color:red;">There are '.$recFlagArr['nullBasisRec'].' records missing basisOfRecord and will not be published. Please go to <a href="../editor/occurrencetabledisplay.php?q_recordedby=&q_recordnumber=&q_catalognumber&collid='.$collid.'&csmode=0&occid=&occindex=0">Edit Existing Occurrence Records</a> to correct this.</div>';
 			}
 			if($publishGBIF && $dwcUri && isset($GBIF_USERNAME) && isset($GBIF_PASSWORD) && isset($GBIF_ORG_KEY) && $GBIF_ORG_KEY){
 				if($collManager->getDatasetKey()){
@@ -381,7 +391,7 @@ include($SERVER_ROOT. '/header.php');
 									$collPath = "http://";
 									if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $collPath = "https://";
 									$collPath .= $_SERVER["SERVER_NAME"];
-									if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $collPath .= ':'.$_SERVER["SERVER_PORT"];
+									if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $collPath .= ':'.$_SERVER["SERVER_PORT"];
 									$collPath .= $CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$collid;
 									$bodyStr = 'Please provide the following GBIF user permission to create and update datasets for the following GBIF publisher.<br/>'.
 										'Once these permissions are assigned, we will be pushing a DwC-Archive from the following Symbiota collection to GBIF.<br/><br/>'.
@@ -460,7 +470,9 @@ include($SERVER_ROOT. '/header.php');
 				$dwcaManager->setLimitToGuids(true);
 				$dwcaManager->batchCreateDwca($_POST['coll']);
 				echo '</ul>';
+				echo '<ul>';
 				$collManager->batchTriggerGBIFCrawl($_POST['coll']);
+				echo '</ul>';
 			}
 			?>
 			<div id="dwcaadmindiv" style="margin:10px;display:<?php echo ($emode?'block':'none'); ?>;" >
@@ -556,7 +568,7 @@ include($SERVER_ROOT. '/header.php');
 	?>
 </div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

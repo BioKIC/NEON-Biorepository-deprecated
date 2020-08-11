@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -92,7 +92,7 @@ class Border extends AbstractStyle
 
         $content .= '\pgbrdr' . substr($side, 0, 1);
         $content .= '\brdrs'; // Single-thickness border; @todo Get other type of border
-        $content .= '\brdrw' . $width; // Width
+        $content .= '\brdrw' . round($width); // Width
         $content .= '\brdrcf' . $colorIndex; // Color
         $content .= '\brsp480'; // Space in twips between borders and the paragraph (24pt, following OOXML)
         $content .= ' ';

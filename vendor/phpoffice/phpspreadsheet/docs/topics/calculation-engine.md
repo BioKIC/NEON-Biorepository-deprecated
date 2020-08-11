@@ -43,6 +43,30 @@ inserted 2 new rows), changed to "SUM(E4:E11)". Also, the inserted cells
 duplicate style information of the previous cell, just like Excel's
 behaviour. Note that you can both insert rows and columns.
 
+## Calculation Cache
+
+Once the Calculation engine has evaluated the formula in a cell, the result
+will be cached, so if you call `getCalculatedValue()` a second time for the
+same cell, the result will be returned from the cache rather than evaluating
+the formula a second time. This helps boost performance, because evaluating
+a formula is an expensive operation in terms of performance and speed.
+
+However, there may be times when you don't want this, perhaps you've changed
+the underlying data and need to re-evaluate the same formula with that new
+data.
+
+```
+Calculation::getInstance($spreadsheet)->disableCalculationCache();
+```
+
+Will disable calculation caching, and flush the current calculation cache.
+
+If you want only to flush the cache, then you can call
+
+```
+Calculation::getInstance($spreadsheet)->clearCalculationCache();
+```
+
 ## Known limitations
 
 There are some known limitations to the PhpSpreadsheet calculation
@@ -62,7 +86,7 @@ algebra. The former rule is not what one finds using the calculation
 engine shipped with PhpSpreadsheet.
 
 - [Reference for Excel](https://support.office.com/en-us/article/Calculation-operators-and-precedence-in-Excel-48be406d-4975-4d31-b2b8-7af9e0e2878a)
-- [Reference for PHP](http://php.net/manual/en/language.operators.php)
+- [Reference for PHP](https://php.net/manual/en/language.operators.php)
 
 #### Formulas involving numbers and text
 
@@ -74,7 +98,7 @@ formula is evaluated as 3 instead of evaluating as an error. This also
 causes the Excel document being generated as containing unreadable
 content.
 
-- [Reference for this behaviour in PHP](http://php.net/manual/en/language.types.string.php#language.types.string.conversion)
+- [Reference for this behaviour in PHP](https://php.net/manual/en/language.types.string.php#language.types.string.conversion)
 
 #### Formulas don’t seem to be calculated in Excel2003 using compatibility pack?
 
@@ -262,6 +286,28 @@ return an Excel date timestamp.
 
 Takes year, month and day values (and optional hour, minute and second
 values) and returns an Excel date timestamp value.
+
+### Timezone support for Excel date timestamp conversions
+
+The default timezone for the date functions in PhpSpreadsheet is UST (Universal Standard Time).
+If a different timezone needs to be used, these methods are available:
+
+#### \PhpOffice\PhpSpreadsheet\Shared\Date::getDefaultTimezone()
+
+Returns the current timezone value PhpSpeadsheet is using to handle dates and times.
+
+#### \PhpOffice\PhpSpreadsheet\Shared\Date::setDefaultTimezone($timeZone)
+
+Sets the timezone for Excel date timestamp conversions to $timeZone,
+which must be a valid PHP DateTimeZone value.
+The return value is a Boolean, where true is success,
+and false is failure (e.g. an invalid DateTimeZone value was passed.)
+
+#### \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($excelDate, $timeZone)
+#### \PhpOffice\PhpSpreadsheet\Shared\Date::excelToTimeStamp($excelDate, $timeZone)
+
+These functions support a timezone as an optional second parameter.
+This applies a specific timezone to that function call without affecting the default PhpSpreadsheet Timezone.
 
 ## Function Reference
 
@@ -1046,7 +1092,7 @@ $retVal = $worksheet->getCell('D1')->getCalculatedValue();
 ``` php
 // We're going to be calling the same cell calculation multiple times,
 //    and expecting different return values, so disable calculation cacheing
-\PhpOffice\PhpSpreadsheet\Calculation::getInstance()->setCalculationCacheEnabled(FALSE);
+\PhpOffice\PhpSpreadsheet\Calculation\Calculation::getInstance()->setCalculationCacheEnabled(FALSE);
 
 $saveFormat = \PhpOffice\PhpSpreadsheet\Calculation\Functions::getReturnDateType();
 
@@ -1258,7 +1304,7 @@ $retVal = $worksheet->getCell('B4')->getCalculatedValue();
 ``` php
 // We're going to be calling the same cell calculation multiple times,
 //    and expecting different return values, so disable calculation cacheing
-\PhpOffice\PhpSpreadsheet\Calculation::getInstance()->setCalculationCacheEnabled(FALSE);
+\PhpOffice\PhpSpreadsheet\Calculation\Calculation::getInstance()->setCalculationCacheEnabled(FALSE);
 
 $saveFormat = \PhpOffice\PhpSpreadsheet\Calculation\Functions::getReturnDateType();
 

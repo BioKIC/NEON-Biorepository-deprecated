@@ -22,7 +22,7 @@ class OccurrenceUtilities {
 	 */
 	public static function formatDate($inStr){
 		$retDate = '';
-		$dateStr = trim($inStr);
+		$dateStr = trim($inStr,'.,; ');
 		if(!$dateStr) return;
 		$t = '';
 		$y = '';
@@ -47,6 +47,7 @@ class OccurrenceUtilities {
 		elseif(preg_match('/^([\d-]{1,5})\.{1}([IVX]{1,4})\.{1}(\d{2,4})/i',$dateStr,$match)){
 			//Roman numerial format: dd.IV.yyyy, dd.IV.yy, dd-IV-yyyy, dd-IV-yy
 			$d = $match[1];
+			if(!is_numeric($d)) $d = '00';
 			$mStr = strtoupper($match[2]);
 			$y = $match[3];
 			if(array_key_exists($mStr,self::$monthRoman)){
@@ -69,7 +70,7 @@ class OccurrenceUtilities {
 			$d = $match[2];
 			$y = $match[3];
 		}
-		elseif(preg_match('/^(\D{3,})\.*\s{0,1}(\d{1,2})[,\s]+([1,2]{1}[0,5-9]{1}\d{2})$/',$dateStr,$match)){
+		elseif(preg_match('/^(\D{3,})\.*\s{0,2}(\d{1,2})[,\s]+([1,2]{1}[0,5-9]{1}\d{2})$/',$dateStr,$match)){
 			//Format: mmm dd, yyyy
 			$mStr = $match[1];
 			$d = $match[2];
@@ -86,19 +87,42 @@ class OccurrenceUtilities {
 		elseif(preg_match('/^(\D{3,})\.*\s+([1,2]{1}[0,5-9]{1}\d{2})/',$dateStr,$match)){
 			//Format: mmm yyyy
 			$mStr = strtolower(substr($match[1],0,3));
-			if(array_key_exists($mStr,self::$monthNames)){
-				$m = self::$monthNames[$mStr];
-			}
-			else{
-				$m = '00';
-			}
+			if(array_key_exists($mStr,self::$monthNames)) $m = self::$monthNames[$mStr];
+			else $m = '00';
 			$y = $match[2];
 		}
-		elseif(preg_match('/([1,2]{1}[0,5-9]{1}\d{2})/',$dateStr,$match)){
-			//Format: yyyy
-			$y = $match[1];
+		else{
+			if(preg_match('/(1[5-9]{1}\d{2}|20\d{2})/',$dateStr,$match)) $y = $match[1];
+			if(preg_match_all('/([a-z]+)/i',$dateStr,$match)){
+				foreach($match[1] as $test){
+					$subStr = strtolower(substr($test,0,3));
+					if(array_key_exists($subStr, self::$monthNames)){
+						$m = self::$monthNames[$subStr];
+						break;
+					}
+				}
+			}
+			if(!(int)$m){
+				if(preg_match('/([IVX]{1,4})/',$dateStr,$match)){
+					$mStr = $match[1];
+					if(array_key_exists($mStr,self::$monthRoman)) $m = self::$monthRoman[$mStr];
+				}
+			}
+			if(!(int)$m){
+				if(preg_match_all('/(\d+)/',$dateStr,$match)){
+					foreach($match[1] as $test){
+						if($test < 13){
+							$m = $test;
+							break;
+						}
+					}
+				}
+			}
 		}
 		//Clean, configure, return
+		if(!is_numeric($y)) $y = 0;
+		if(!is_numeric($m)) $m = '00';
+		if(!is_numeric($d)) $d = '00';
 		if($y){
 			if(strlen($m) == 1) $m = '0'.$m;
 			if(strlen($d) == 1) $d = '0'.$d;
@@ -108,16 +132,11 @@ class OccurrenceUtilities {
 				$d = '00';
 			}
 			//check to see if day is valid for month
-			if($d > 31){
-				//Bad day for any month
-				$d = '00';
+			if($m == 2 && $d == 29){
+				//Test leap date
+				if(!checkdate($m,$d,$y)) $d = '00';
 			}
-			elseif($d == 30 && $m == 2){
-				//Bad day for feb
-				$d = '00';
-			}
-			elseif($d == 31 && ($m == 4 || $m == 6 || $m == 9 || $m == 11)){
-				//Bad date, month w/o 31 days
+			elseif($d > 31 || $m == 2 && $d > 29 || (in_array($m, array(4,6,9,11)) && $d > 30)){
 				$d = '00';
 			}
 			//Do some cleaning
@@ -164,10 +183,6 @@ class OccurrenceUtilities {
 	 */
 	public static function parseVerbatimElevation($inStr){
 		$retArr = array();
-		//Get rid of curly quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 		//Start parsing
 		if(preg_match('/([\.\d]+)\s*-\s*([\.\d]+)\s*meter/i',$inStr,$m)){
 			$retArr['minelev'] = $m[1];
@@ -191,11 +206,11 @@ class OccurrenceUtilities {
 			$retArr['minelev'] = $m[1];
 		}
 		elseif(preg_match('/([\.\d]+)[fet\']{,4}\s*-\s*([\.\d]+)\s{,1}[f\']{1}/i',$inStr,$m)){
-			$retArr['minelev'] = (round($m[1]*.3048));
-			$retArr['maxelev'] = (round($m[2]*.3048));
+			if(is_numeric($m[1])) $retArr['minelev'] = (round($m[1]*.3048));
+			if(is_numeric($m[2])) $retArr['maxelev'] = (round($m[2]*.3048));
 		}
 		elseif(preg_match('/([\.\d]+)\s*[f\']{1}/i',$inStr,$m)){
-			$retArr['minelev'] = (round($m[1]*.3048));
+			if(is_numeric($m[1])) $retArr['minelev'] = (round($m[1]*.3048));
 		}
 		//Clean
 		if($retArr){
@@ -215,10 +230,6 @@ class OccurrenceUtilities {
 		$retArr = array();
 		if(strpos($inStr,' to ')) return $retArr;
 		if(strpos($inStr,' betw ')) return $retArr;
-		//Get rid of curly quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
 
 		//Try to parse lat/lng
 		$latDeg = 'null';$latMin = 0;$latSec = 0;$latNS = 'N';
@@ -525,26 +536,30 @@ class OccurrenceUtilities {
 				}
 			}
 			//Place into verbatim coord field
-			$vCoord = (isset($recMap['verbatimcoordinates'])?$recMap['verbatimcoordinates']:'');
-			if($vCoord) $vCoord .= '; ';
-			if(stripos($vCoord,$recMap['verbatimlatitude']) === false && stripos($vCoord,$recMap['verbatimlongitude']) === false){
-				$recMap['verbatimcoordinates'] = trim($vCoord.$recMap['verbatimlatitude'].', '.$recMap['verbatimlongitude'],' ,;');
-			}
+			$vCoord = '';
+			if(isset($recMap['verbatimcoordinates']) && $recMap['verbatimcoordinates']) $vCoord = $recMap['verbatimcoordinates'].'; ';
+			if(isset($recMap['verbatimlatitude']) && stripos($vCoord,$recMap['verbatimlatitude']) === false) $vCoord .= $recMap['verbatimlatitude'].', ';
+			if(isset($recMap['verbatimlongitude']) && stripos($vCoord,$recMap['verbatimlongitude']) === false) $vCoord .= $recMap['verbatimlongitude'];
+			if($vCoord) $recMap['verbatimcoordinates'] = trim($vCoord,' ,;');
 		}
 		//Transfer DMS to verbatim coords
 		if(isset($recMap['latdeg']) && $recMap['latdeg'] && isset($recMap['lngdeg']) && $recMap['lngdeg']){
 			//Attempt to create decimal lat/long
 			if(is_numeric($recMap['latdeg']) && is_numeric($recMap['lngdeg']) && (!isset($recMap['decimallatitude']) || !isset($recMap['decimallongitude']))){
-				$latDec = $recMap['latdeg'];
+				$latDec = abs($recMap['latdeg']);
 				if(isset($recMap['latmin']) && $recMap['latmin'] && is_numeric($recMap['latmin'])) $latDec += $recMap['latmin']/60;
 				if(isset($recMap['latsec']) && $recMap['latsec'] && is_numeric($recMap['latsec'])) $latDec += $recMap['latsec']/3600;
-				if(stripos($recMap['latns'],'s') === 0 && $latDec > 0) $latDec *= -1;
-				$lngDec = $recMap['lngdeg'];
+				if($latDec > 0){
+					if(isset($recMap['latns']) && stripos($recMap['latns'],'s') === 0) $latDec *= -1;
+					elseif($recMap['latdeg'] < 0) $latDec *= -1;
+				}
+				$lngDec = abs($recMap['lngdeg']);
 				if(isset($recMap['lngmin']) && $recMap['lngmin'] && is_numeric($recMap['lngmin'])) $lngDec += $recMap['lngmin']/60;
 				if(isset($recMap['lngsec']) && $recMap['lngsec'] && is_numeric($recMap['lngsec'])) $lngDec += $recMap['lngsec']/3600;
-				if(stripos($recMap['lngew'],'w') === 0  && $lngDec > 0) $lngDec *= -1;
 				if($lngDec > 0){
-					if(in_array(strtolower($recMap['country']), array('usa','united states','canada','mexico','panama'))) $lngDec *= -1;
+					if(isset($recMap['lngew']) && stripos($recMap['lngew'],'w') === 0) $lngDec *= -1;
+					elseif($recMap['lngdeg'] < 0) $lngDec *= -1;
+					elseif(in_array(strtolower($recMap['country']), array('usa','united states','canada','mexico','panama'))) $lngDec *= -1;
 				}
 				$recMap['decimallatitude'] = round($latDec,6);
 				$recMap['decimallongitude'] = round($lngDec,6);
@@ -552,11 +567,11 @@ class OccurrenceUtilities {
 			//Place into verbatim coord field
 			$vCoord = (isset($recMap['verbatimcoordinates'])?$recMap['verbatimcoordinates']:'');
 			if($vCoord) $vCoord .= '; ';
-			$vCoord .= $recMap['latdeg'].chr(167).' ';
+			$vCoord .= $recMap['latdeg'].chr(176).' ';
 			if(isset($recMap['latmin']) && $recMap['latmin']) $vCoord .= $recMap['latmin'].'m ';
 			if(isset($recMap['latsec']) && $recMap['latsec']) $vCoord .= $recMap['latsec'].'s ';
 			if(isset($recMap['latns'])) $vCoord .= $recMap['latns'].'; ';
-			$vCoord .= $recMap['lngdeg'].chr(167).' ';
+			$vCoord .= $recMap['lngdeg'].chr(176).' ';
 			if(isset($recMap['lngmin']) && $recMap['lngmin']) $vCoord .= $recMap['lngmin'].'m ';
 			if(isset($recMap['lngsec']) && $recMap['lngsec']) $vCoord .= $recMap['lngsec'].'s ';
 			if(isset($recMap['lngew'])) $vCoord .= $recMap['lngew'];

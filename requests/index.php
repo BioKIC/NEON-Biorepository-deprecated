@@ -21,14 +21,22 @@ if (isset($_POST['formsubmit'])) {
 ?>
 <html>
 	<head>
-	    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
+    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE; ?> Action Requests</title>
-		<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+    <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 		<script type="text/javascript">
-			<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+			<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 		</script>
-		<link type="text/css" href="../css/jquery-ui.css" rel="Stylesheet" />
 		<script type="text/javascript" src="../js/jquery.js"></script>
 		<script type="text/javascript" src="../js/jquery-ui.js"></script>
         <!--  Supporting visualsearch search box widget -->
@@ -90,7 +98,7 @@ if (isset($_POST['formsubmit'])) {
 
 	<?php
 	$displayLeftMenu = (isset($collections_indexMenu)?$collections_indexMenu:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($collections_indexCrumbs)){
 		if($collections_indexCrumbs){
 			echo "<div class='navpath'>";
@@ -252,7 +260,7 @@ if (isset($_POST['formsubmit'])) {
 		</div>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	</body>
 </html>

@@ -53,9 +53,7 @@ class ChecklistAdmin{
 				$rs->free();
 			}
 			if($pid && is_numeric($pid)){
-				$sql = 'SELECT clNameOverride, mapChecklist, sortSequence, notes '.
-					'FROM fmchklstprojlink '.
-					'WHERE clid = '.$this->clid.' AND pid = '.$pid;
+				$sql = 'SELECT clNameOverride, mapChecklist, sortSequence, notes FROM fmchklstprojlink WHERE clid = '.$this->clid.' AND pid = '.$pid;
 				$rs = $this->conn->query($sql);
 				if($rs){
 					if($r = $rs->fetch_object()){
@@ -297,29 +295,26 @@ class ChecklistAdmin{
 
 	public function getUserChecklistArr(){
 		$retArr = array();
-		$clidStr = '';
-		if(isset($GLOBALS['USER_RIGHTS']) && $GLOBALS['USER_RIGHTS']['ClAdmin']){
+		if(isset($GLOBALS['USER_RIGHTS']['ClAdmin'])){
 			$clidStr = implode(',',$GLOBALS['USER_RIGHTS']['ClAdmin']);
-		}
-		if($clidStr){
-			$sql = 'SELECT clid, name FROM fmchecklists WHERE (clid IN('.$clidStr.')) AND (type != "excludespp") ';
-			if($this->clid) $sql .= 'AND (clid <> '.$this->clid.') ';
-			$sql .= 'ORDER BY name';
-			//echo $sql;
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$r->clid] = $r->name;
+			if($clidStr){
+				$sql = 'SELECT clid, name FROM fmchecklists WHERE (clid IN('.$clidStr.')) AND (type != "excludespp") ';
+				if($this->clid) $sql .= 'AND (clid <> '.$this->clid.') ';
+				$sql .= 'ORDER BY name';
+				//echo $sql;
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$retArr[$r->clid] = $r->name;
+				}
+				$rs->free();
 			}
-			$rs->free();
 		}
 		return $retArr;
 	}
 
 	public function addChildChecklist($clidAdd){
 		$statusStr = '';
-		$sql = 'INSERT INTO fmchklstchildren(clid, clidchild, modifieduid) '.
-			'VALUES('.$this->clid.','.$clidAdd.','.$GLOBALS['SYMB_UID'].') ';
-		//echo $sql;
+		$sql = 'INSERT INTO fmchklstchildren(clid, clidchild, modifieduid) VALUES('.$this->clid.','.$clidAdd.','.$GLOBALS['SYMB_UID'].') ';
 		if(!$this->conn->query($sql)){
 			$statusStr = 'ERROR adding child checklist link';
 		}
@@ -329,7 +324,6 @@ class ChecklistAdmin{
 	public function deleteChildChecklist($clidDel){
 		$statusStr = '';
 		$sql = 'DELETE FROM fmchklstchildren WHERE clid = '.$this->clid.' AND clidchild = '.$clidDel;
-		//echo $sql;
 		if(!$this->conn->query($sql)){
 			$statusStr = 'ERROR deleting child checklist link';
 		}
@@ -340,8 +334,7 @@ class ChecklistAdmin{
 	public function addPoint($tid,$lat,$lng,$notes){
 		$statusStr = '';
 		if(is_numeric($tid) && is_numeric($lat) && is_numeric($lng)){
-			$sql = 'INSERT INTO fmchklstcoordinates(clid,tid,decimallatitude,decimallongitude,notes) '.
-				'VALUES('.$this->clid.','.$tid.','.$lat.','.$lng.',"'.$this->cleanInStr($notes).'")';
+			$sql = 'INSERT INTO fmchklstcoordinates(clid,tid,decimallatitude,decimallongitude,notes) VALUES('.$this->clid.','.$tid.','.$lat.','.$lng.',"'.$this->cleanInStr($notes).'")';
 			if(!$this->conn->query($sql)){
 				$statusStr = 'ERROR: unable to add point. '.$this->conn->error;
 			}
@@ -410,7 +403,6 @@ class ChecklistAdmin{
 			if($clidStr) $sql .= 'OR clid IN('.$clidStr.') ';
 		}
 		$sql .= 'ORDER BY name';
-		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			$retArr[$row->clid] = $row->name;
@@ -421,10 +413,7 @@ class ChecklistAdmin{
 
 	public function getPoints($tid){
 		$retArr = array();
-		$sql = 'SELECT c.chklstcoordid, c.decimallatitude, c.decimallongitude, c.notes '.
-			'FROM fmchklstcoordinates c '.
-			'WHERE c.clid = '.$this->clid.' AND c.tid = '.$tid;
-		//echo $sql;
+		$sql = 'SELECT c.chklstcoordid, c.decimallatitude, c.decimallongitude, c.notes FROM fmchklstcoordinates c WHERE c.clid = '.$this->clid.' AND c.tid = '.$tid;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->chklstcoordid]['lat'] = $r->decimallatitude;
@@ -437,10 +426,7 @@ class ChecklistAdmin{
 
 	public function getTaxa(){
 		$retArr = array();
-		$sql = 'SELECT t.tid, t.sciname '.
-			'FROM fmchklsttaxalink l INNER JOIN taxa t ON l.tid = t.tid '.
-			'WHERE l.clid = '.$this->clid.' ORDER BY t.sciname';
-		//echo $sql;
+		$sql = 'SELECT t.tid, t.sciname FROM fmchklsttaxalink l INNER JOIN taxa t ON l.tid = t.tid WHERE l.clid = '.$this->clid.' ORDER BY t.sciname';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->tid] = $r->sciname;
@@ -454,7 +440,6 @@ class ChecklistAdmin{
 		$sql = 'SELECT u.uid, CONCAT(CONCAT_WS(", ",u.lastname,u.firstname)," (",l.username,")") AS uname '.
 			'FROM users u INNER JOIN userlogin l ON u.uid = l.uid '.
 			'ORDER BY u.lastname,u.firstname';
-		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$returnArr[$r->uid] = $r->uname;
@@ -466,10 +451,7 @@ class ChecklistAdmin{
 	public function getInventoryProjects(){
 		$retArr = Array();
 		if($this->clid){
-			$sql = 'SELECT p.pid, p.projname '.
-				'FROM fmprojects p INNER JOIN fmchklstprojlink pl ON p.pid = pl.pid '.
-				'WHERE pl.clid = '.$this->clid.' ORDER BY p.projname';
-			//echo $sql;
+			$sql = 'SELECT p.pid, p.projname FROM fmprojects p INNER JOIN fmchklstprojlink pl ON p.pid = pl.pid WHERE pl.clid = '.$this->clid.' ORDER BY p.projname';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->pid] = $r->projname;
@@ -479,12 +461,46 @@ class ChecklistAdmin{
 		return $retArr;
 	}
 
-	public function getVoucherProjects(){
+	public function getPotentialProjects($pidArr){
+		$retArr = Array();
+		if($pidArr){
+			$sql = 'SELECT pid, projname FROM fmprojects WHERE pid IN('.implode(',',$pidArr).') ORDER BY projname';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->pid] = $r->projname;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
+	public function addProject($pid){
+		$statusStr = '';
+		if(is_numeric($pid)){
+			$sql = 'INSERT INTO fmchklstprojlink(pid, clid) VALUES('.$pid.','.$this->clid.')';
+			if(!$this->conn->query($sql)){
+				$statusStr = 'ERROR adding project: '.$this->conn->error;
+			}
+		}
+		return $statusStr;
+	}
+
+	public function deleteProject($pid){
+		$statusStr = '';
+		if(is_numeric($pid)){
+			$sql = 'DELETE FROM fmchklstprojlink WHERE (pid = '.$pid.') AND (clid = '.$this->clid.')';
+			if(!$this->conn->query($sql)){
+				$statusStr = 'ERROR deleting project: '.$this->conn->error;
+			}
+		}
+		return $statusStr;
+	}
+
+	public function hasVoucherProjects(){
 		global $USER_RIGHTS;
-		$retArr = array();
+		$retBool = false;
 		$runQuery = true;
-		$sql = 'SELECT collid, collectionname '.
-			'FROM omcollections WHERE (colltype = "Observations" OR colltype = "General Observations") ';
+		$sql = 'SELECT collid, collectionname FROM omcollections WHERE (colltype = "Observations" OR colltype = "General Observations") ';
 		if(!array_key_exists('SuperAdmin',$USER_RIGHTS)){
 			$collInStr = '';
 			foreach($USER_RIGHTS as $k => $v){
@@ -499,17 +515,17 @@ class ChecklistAdmin{
 				$runQuery = false;
 			}
 		}
-		$sql .= 'ORDER BY colltype,collectionname';
+		$sql .= ' LIMIT 1';
 		//echo $sql;
 		if($runQuery){
 			if($rs = $this->conn->query($sql)){
-				while($r = $rs->fetch_object()){
-					$retArr[$r->collid] = $r->collectionname;
+				if($r = $rs->fetch_object()){
+					$retBool = true;
 				}
 				$rs->free();
 			}
 		}
-		return $retArr;
+		return $retBool;
 	}
 
 	public function getManagementLists($uid){

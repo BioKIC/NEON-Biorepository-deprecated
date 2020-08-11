@@ -2,7 +2,7 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceGeorefTools.php');
 
-if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../collections/georef/batchgeoreftool.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../collections/georef/batchgeoreftool.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $submitAction = array_key_exists('submitaction',$_POST)?$_POST['submitaction']:'';
@@ -32,6 +32,7 @@ $lngEW = array_key_exists('lngew',$_POST)?$_POST['lngew']:'';
 $coordinateUncertaintyInMeters = array_key_exists('coordinateuncertaintyinmeters',$_POST)?$_POST['coordinateuncertaintyinmeters']:'';
 $geodeticDatum = array_key_exists('geodeticdatum',$_POST)?$_POST['geodeticdatum']:'';
 $georeferenceSources = array_key_exists('georeferencesources',$_POST)?$_POST['georeferencesources']:'';
+$georeferenceProtocol = array_key_exists('georeferenceprotocol',$_POST)?$_POST['georeferenceprotocol']:'';
 $georeferenceRemarks = array_key_exists('georeferenceremarks',$_POST)?$_POST['georeferenceremarks']:'';
 $footprintWKT = array_key_exists('footprintwkt',$_POST)?$_POST['footprintwkt']:'';
 $georeferenceVerificationStatus = array_key_exists('georeferenceverificationstatus',$_POST)?$_POST['georeferenceverificationstatus']:'';
@@ -64,7 +65,7 @@ elseif($activeCollArr){
 }
 
 $statusStr = '';
-$localArr;
+$localArr = array();
 if($isEditor && $submitAction){
 	if($qCountry) $geoManager->setQueryVariables('qcountry',$qCountry);
 	if($qState) $geoManager->setQueryVariables('qstate',$qState);
@@ -86,12 +87,20 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <html>
 	<head>
 		<title>Georeferencing Tools</title>
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link type="text/css" href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" rel="Stylesheet" />
+    <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js"></script>
 		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js"></script>
-		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.georef.batchgeoreftool.js?ver=201808"></script>
+		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.georef.batchgeoreftool.js?ver=201912"></script>
 	</head>
 	<body>
 		<!-- This is inner text! -->
@@ -318,8 +327,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								echo 'Return Count: '.$localCnt;
 								?>
 							</div>
-							<div style="clear:both;">
-								<select id="locallist" name="locallist[]" size="15" multiple="multiple" style="width:100%">
+							<div style="clear:both;border:2px solid;width:100%;height:200px;resize: both;overflow: auto">
+								<select id="locallist" name="locallist[]" multiple="multiple" style="width:100%;height:100%">
 									<?php
 									if(isset($localArr)){
 										if($localArr){
@@ -468,6 +477,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
+											<b>Protocols:</b>
+										</td>
+										<td colspan="4">
+											<input id="georeferenceprotocol" name="georeferenceprotocol" type="text" value="<?php echo $georeferenceProtocol; ?>" style="width:500px;" />
+										</td>
+									</tr>
+									<tr>
+										<td colspan="3" style="vertical-align:middle">
 											<b>Remarks:</b>
 										</td>
 										<td colspan="4">
@@ -515,7 +532,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 											</select>
 											<span style="margin-left:20px;font-size:80%">
 												Georefer by:
-												<input name="georeferencedby" type="text" value="<?php echo $paramsArr['un']; ?>" style="width:75px" readonly />
+												<input name="georeferencedby" type="text" value="<?php echo $USERNAME; ?>" style="width:75px" readonly />
 											</span>
 										</td>
 									</tr>
@@ -542,7 +559,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								However, elevation data will only be added when the target fields are null.
 								No incoming data will replace existing elevational data.
 								Georeference fields that will be replaced: decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, geodeticdatum,
-								footprintwkt, georeferencedby, georeferenceRemarks, georeferenceSources, georeferenceVerificationStatus </div>
+								footprintwkt, georeferencedby, georeferenceRemarks, georeferenceSources, georeferenceProtocol, georeferenceVerificationStatus </div>
 							</div>
 						</form>
 					</div>

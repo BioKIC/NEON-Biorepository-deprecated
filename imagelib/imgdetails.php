@@ -72,15 +72,23 @@ if($imgArr){
 	}
 	?>
 	<title><?php echo $DEFAULT_TITLE." Image Details: #".$imgId; ?></title>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link type="text/css" href="../css/jquery-ui.css" rel="Stylesheet" />
+  <?php
+      $activateJQuery = true;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+  ?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../js/symb/shared.js" type="text/javascript"></script>
 	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=3" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 </head>
 <body>
@@ -120,7 +128,7 @@ if($imgArr){
 	</script>
 	<?php
 	$displayLeftMenu = (isset($taxa_imgdetailsMenu)?$taxa_imgdetailsMenu:false);
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($taxa_imgdetailsCrumbs)){
 		echo "<div class='navpath'>";
 		echo $taxa_imgdetailsCrumbs;
@@ -296,15 +304,13 @@ if($imgArr){
 			<div>
 				<div style="width:350px;padding:10px;float:left;">
 					<?php
-					if($imgUrl == 'empty' && $origUrl) $imgUrl = $origUrl;
+					if((!$imgUrl || $imgUrl == 'empty') && $origUrl) $imgUrl = $origUrl;
 					?>
 					<a href="<?php echo $imgUrl;?>">
 						<img src="<?php echo $imgUrl;?>" style="width:300px;" />
 					</a>
 					<?php
-					if($origUrl){
-						echo '<div><a href="'.$origUrl.'">Click on Image to Enlarge</a></div>';
-					}
+					if($origUrl && $imgUrl != $origUrl) echo '<div><a href="'.$origUrl.'">Click on Image to Enlarge</a></div>';
 					?>
 				</div>
 				<div style="padding:10px;float:left;">
@@ -373,7 +379,7 @@ if($imgArr){
 							echo "</div>";
 						}
 						else{
-							echo '<div><a href="../misc/usagepolicy.php#images">Copyright Details</a></div>';
+							echo '<div><a href="../includes/usagepolicy.php#images">Copyright Details</a></div>';
 						}
 						if($imgArr["occid"]) echo '<div><a href="../collections/individual/index.php?occid='.$imgArr['occid'].'">Display Specimen Details</a></div>';
 						echo '<div><a href="'.$imgUrl.'">Open Medium Sized Image</a></div>';
@@ -401,7 +407,7 @@ if($imgArr){
 		?>
 	</div>
 <?php
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

@@ -8,18 +8,22 @@ Language: Español (Spanish)
 include_once('checklist.en.php');
 
 $LANG['NAV_HOME'] = 'Inicio';
-$LANG['CHECKADMIN'] = ' Administraci&oacute;n de Listado de Comprobaci&oacute;n';
+$LANG['CHECKADMIN'] = 'Administraci&oacute;n de Listado de Comprobaci&oacute;n';
+$LANG['SELECTPROJECT'] = 'Selecciona un proyecto';
 $LANG['RETURNCHECK'] = 'Volver al Listado de Comprobaci&oacute;n';
 $LANG['ADMIN'] = 'Admin';
 $LANG['DESCRIPTION'] = 'Descripci&oacute;n';
 $LANG['RELATEDCHECK'] = 'Listados de Comprobaci&oacute;n Relacionados';
-$LANG['ADDIMGV'] = 'Agregar Im&aacute;gen Voucher';
+$LANG['ADDIMGVOUCHER'] = 'Agregar Im&aacute;gen Voucher';
 $LANG['NOEDITOR'] = 'Nadie ha sido asignado expl&iacute;citamente como un editor';
-$LANG['ADDNEWU'] = 'Agregar Usuario Nuevo';
-$LANG['SELECTU'] = 'Seleccionar Usuario';
-$LANG['INVPROJAS'] = 'Asignaciones a Proyecto de Inventario';
-$LANG['CHECKNOTAS'] = 'Listado de Comprobaci&oacute;n no ha sido asignado a ning&uacute;n Proyecto de Inventario';
-$LANG['FILTER'] = 'Filtro:';
+$LANG['ADDNEWUSER'] = 'Agregar Usuario Nuevo';
+$LANG['SELECTUSER'] = 'Seleccionar Usuario';
+$LANG['INVENTORYPROJECTS'] = 'Asignaciones a Proyecto de Inventario';
+$LANG['REMOVEPROJECTCONFIRM'] = '&#191Est&aacute;s seguro de que quieres desvincular el proyecto?';
+$LANG['REMOVEPROJECT'] = 'Desvincular lista del proyecto';
+$LANG['CHECKNOTASSIGNED'] = 'Listado de Comprobaci&oacute;n no ha sido asignado a ning&uacute;n Proyecto de Inventario';
+$LANG['LINKTOPROJECT'] = 'Enlace a un Proyecto';
+$LANG['SUBMIT'] = 'Enviar';
 $LANG['PERMREMOVECHECK'] = 'Retirar permanentemente Listado de Comprobaci&oacute;n';
 $LANG['REMOVEUSERCHECK'] = 'Antes de que una lista de comprobaci&oacute;n se pueda eliminar, todos los editores (excepto a s&iacute; mismo) y las asignaciones del proyecto de inventario deben ser eliminados.
 							Las asignaciones del proyecto de inventario s&oacute;lo pueden ser eliminados por el administrador activo del proyecto o un administrador del sistema. ';

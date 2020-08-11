@@ -43,12 +43,9 @@ class ProfileManager{
 		unset($_SESSION['userparams']);
 		if($this->userName){
 			if(!$this->authSql){
-				$this->authSql = 'SELECT u.uid, u.firstname, u.lastname '.
-			   		'FROM users AS u INNER JOIN userlogin AS ul ON u.uid = ul.uid '.
-			   		'WHERE (ul.username = "'.$this->userName.'") ';
-				if($pwdStr) $this->authSql .= 'AND (ul.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
+				$this->authSql = 'SELECT u.uid, u.firstname, u.lastname FROM users u INNER JOIN userlogin l ON u.uid = l.uid WHERE (l.username = "'.$this->userName.'") ';
+				if($pwdStr) $this->authSql .= 'AND (l.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
 			}
-			//echo $this->authSql;
 			$result = $this->conn->query($this->authSql);
 			if($row = $result->fetch_object()){
 				$this->uid = $row->uid;
@@ -60,15 +57,14 @@ class ProfileManager{
 				$this->reset();
 				$this->setUserRights();
 				$this->setUserParams();
-				if($this->rememberMe){
-					$this->setTokenCookie();
+				if($this->rememberMe) $this->setTokenCookie();
+				if(!isset($GLOBALS['SYMB_UID']) || !$GLOBALS['SYMB_UID']){
+					//Update last login data
+					$conn = $this->getConnection("write");
+					$sql = 'UPDATE userlogin SET lastlogindate = NOW() WHERE (username = "'.$this->userName.'")';
+					$conn->query($sql);
+					$conn->close();
 				}
-
-				//Update last login data
-				$conn = $this->getConnection("write");
-				$sql = 'UPDATE userlogin SET lastlogindate = NOW() WHERE (username = "'.$this->userName.'")';
-				$conn->query($sql);
-				$conn->close();
 			}
 		}
 		return $authStatus;
@@ -190,14 +186,11 @@ class ProfileManager{
 		if($newPwd){
 			$editCon = $this->getConnection("write");
 			if($isSelf){
-				$sqlTest = 'SELECT ul.uid FROM userlogin ul WHERE (ul.uid = '.$this->uid.') '.
-					'AND (ul.password = PASSWORD("'.$this->cleanInStr($oldPwd).
-					'"))';
+				$sqlTest = 'SELECT ul.uid FROM userlogin ul WHERE (ul.uid = '.$this->uid.') AND (ul.password = PASSWORD("'.$this->cleanInStr($oldPwd).'"))';
 				$rsTest = $editCon->query($sqlTest);
 				if(!$rsTest->num_rows) return false;
 			}
-			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPwd).'") '.
-				'WHERE (uid = '.$this->uid.')';
+			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPwd).'") WHERE (uid = '.$this->uid.')';
 			$successCnt = $editCon->query($sql);
 			$editCon->close();
 			if($successCnt > 0) $success = true;
@@ -212,16 +205,14 @@ class ProfileManager{
 		$returnStr = "";
 		if($un){
 			$editCon = $this->getConnection('write');
-			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPassword).'") '.
-					'WHERE (ul.username = "'.$this->cleanInStr($un).'")';
+			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPassword).'") WHERE (ul.username = "'.$this->cleanInStr($un).'")';
 			$status = $editCon->query($sql);
 			$editCon->close();
 		}
 		if($status){
 			//Get email address
 			$emailStr = "";
-			$sql = 'SELECT u.email FROM users u INNER JOIN userlogin ul ON u.uid = ul.uid '.
-				'WHERE (ul.username = "'.$this->cleanInStr($un).'")';
+			$sql = 'SELECT u.email FROM users u INNER JOIN userlogin ul ON u.uid = ul.uid WHERE (ul.username = "'.$this->cleanInStr($un).'")';
 			$result = $this->conn->query($sql);
 			if($row = $result->fetch_object()){
 				$emailStr = $row->email;
@@ -395,8 +386,8 @@ class ProfileManager{
 		$result->free();
 		if($loginStr){
 			//Email login
-			$subject = $GLOBALS['defaultTitle'].' Login Name';
-			$bodyStr = 'Your '.$GLOBALS['defaultTitle'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.
+			$subject = $GLOBALS['DEFAULT_TITLE'].' Login Name';
+			$bodyStr = 'Your '.$GLOBALS['DEFAULT_TITLE'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.
 				$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a>) login name is: '.$loginStr.'<br/><br/>'.
 				'If you continue to have login issues, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'];
 			$headerStr = "Organization: ".$GLOBALS["DEFAULT_TITLE"]." \r\n".
@@ -450,9 +441,7 @@ class ProfileManager{
 				}
 				if($status){
 					//Change login
-					$sql = 'UPDATE userlogin '.
-						'SET username = "'.$newLogin.'" '.
-						'WHERE (uid = '.$this->uid.') AND (username = "'.$this->userName.'")';
+					$sql = 'UPDATE userlogin SET username = "'.$newLogin.'" WHERE (uid = '.$this->uid.') AND (username = "'.$this->userName.'")';
 					//echo $sql;
 					$editCon = $this->getConnection('write');
 					if($editCon->query($sql)){
@@ -824,15 +813,11 @@ class ProfileManager{
 		$GLOBALS['USERNAME'] = $this->userName;
 	}
 
-	public function setTokenAuthSql(){
-		$this->authSql = 'SELECT u.uid, u.firstname, u.lastname '.
-			'FROM users AS u INNER JOIN userlogin AS ul ON u.uid = ul.uid '.
-			'INNER JOIN useraccesstokens AS ut ON u.uid = ut.uid '.
-			'WHERE (ul.username = "'.$this->userName.'") AND (ut.token = "'.$this->token.'") ';
-	}
-
 	public function setToken($token){
 		$this->token = $token;
+		$this->authSql = 'SELECT u.uid, u.firstname, u.lastname '.
+			'FROM users u INNER JOIN userlogin l ON u.uid = l.uid INNER JOIN useraccesstokens t ON u.uid = t.uid '.
+			'WHERE (l.username = "'.$this->userName.'") AND (t.token = "'.$this->token.'") ';
 	}
 
 	public function setRememberMe($test){

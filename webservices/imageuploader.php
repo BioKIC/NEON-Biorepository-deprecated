@@ -55,7 +55,6 @@ if($size){
     if($un && $token){
         if($pHandler->setUserName($un)){
             $pHandler->setToken($token);
-            $pHandler->setTokenAuthSql();
             $authenticated = $pHandler->authenticate();
         }
     }

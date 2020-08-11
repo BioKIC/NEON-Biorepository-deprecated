@@ -1,5 +1,5 @@
 <?php
-include_once('../../config/symbini.php'); 
+include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -11,14 +11,14 @@ $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
 if(!$SYMB_UID){
-	header('Location: ../../profile/index.php?refurl=../collections/datasets/duplicatemanager.php?'.$_SERVER['QUERY_STRING']);
+	header('Location: ../../profile/index.php?refurl=../collections/datasets/duplicatemanager.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 }
 
 $dupManager = new OccurrenceDuplicate();
 $collMap = $dupManager->getCollMap($collId);
 
 $statusStr = '';
-$isEditor = 0; 
+$isEditor = 0;
 if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"]))
 	|| ($collMap['colltype'] == 'General Observations')){
 	$isEditor = 1;
@@ -45,8 +45,17 @@ if($isEditor && $formSubmit){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Occurrence Cleaner</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-    <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+    }
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
     <style type="text/css">
 		table.styledtable td { white-space: nowrap; }
     </style>
@@ -92,14 +101,14 @@ if($isEditor && $formSubmit){
 	</script>
 </head>
 <body>
-	<?php 	
+	<?php
 	$displayLeftMenu = true;
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href="../../index.php">Home</a> &gt;&gt;
 		<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1">Collection Management</a> &gt;&gt;
-		<?php 
+		<?php
 		if($action){
 			echo '<a href="duplicatemanager.php?collid='.$collId.'">';
 			echo 'Duplicate Management';
@@ -122,28 +131,28 @@ if($isEditor && $formSubmit){
 				<?php echo $statusStr; ?>
 			</div>
 			<hr/>
-			<?php 
-		} 
+			<?php
+		}
 		if($isEditor){
 			if(!$action){
 				?>
 				<fieldset style="padding:20px;">
 					<legend><b>Duplicate Linkages</b></legend>
 						<div>
-						It is common within some collection domains to collect specimens in duplicate. 
-						Links below list duplicate cluster and aid collection managers in batch linking 
-						their specimen records to duplicate specimens housed at other institutions. 
-						The main method of batch clustering duplicates is by matching 
+						It is common within some collection domains to collect specimens in duplicate.
+						Links below list duplicate cluster and aid collection managers in batch linking
+						their specimen records to duplicate specimens housed at other institutions.
+						The main method of batch clustering duplicates is by matching
 						the collector, collector number, and collection date.
 					</div>
 					<div style="margin:25px;font-weight:bold;font-size:120%;">
 						<a href="duplicatemanager.php?collid=<?php echo $collId; ?>&action=listdupes">
-							List linked duplicate clusters 
+							List linked duplicate clusters
 						</a>
 					</div>
 					<div style="margin:25px;font-weight:bold;font-size:120%;">
 						<a href="duplicatemanager.php?collid=<?php echo $collId; ?>&dupedepth=2&action=listdupeconflicts">
-							List linked duplicate clusters with conflicted identifications 
+							List linked duplicate clusters with conflicted identifications
 						</a>
 					</div>
 					<div style="margin:25px;font-weight:bold;font-size:120%;">
@@ -158,11 +167,11 @@ if($isEditor && $formSubmit){
 				if($action == 'batchlinkdupes'){
 					?>
 					<ul>
-						<?php 
+						<?php
 						$dupManager->batchLinkDuplicates($collId,true);
 						?>
 					</ul>
-					<?php 
+					<?php
 				}
 				elseif($action == 'listdupes' || $action == 'listdupeconflicts'){
 					$clusterArr = $dupManager->getDuplicateClusterList($collId, $dupeDepth, $start, $limit);
@@ -170,13 +179,13 @@ if($isEditor && $formSubmit){
 					unset($clusterArr['cnt']);
 					if($clusterArr){
 						$paginationStr = '<span>';
-						if($start) $paginationStr .= '<a href="duplicatemanager.php?collid='.$collId.'&action='.$action.'&start='.($start - $limit).'&limit='.$limit.'">';
+						if($start) $paginationStr .= '<a href="duplicatemanager.php?collid='.$collId.'&dupeDepth='.$dupeDepth.'&action='.$action.'&start='.($start - $limit).'&limit='.$limit.'">';
 						$paginationStr .= '&lt;&lt; Previous';
 						if($start) $paginationStr .= '</a>';
 						$paginationStr .= '</span>';
 						$paginationStr .= ' || '.($start+1).' - '.(count($clusterArr)<$limit?$totalCnt:($start + $limit)).' || ';
 						$paginationStr .= '<span>';
-						if($totalCnt >= ($start+$limit)) $paginationStr .= '<a href="duplicatemanager.php?collid='.$collId.'&action='.$action.'&start='.($start + $limit).'&limit='.$limit.'">';
+						if($totalCnt >= ($start+$limit)) $paginationStr .= '<a href="duplicatemanager.php?collid='.$collId.'&dupeDepth='.$dupeDepth.'&action='.$action.'&start='.($start + $limit).'&limit='.$limit.'">';
 						$paginationStr .= 'Next &gt;&gt;';
 						if($totalCnt >= ($start+$limit)) $paginationStr .= '</a>';
 						$paginationStr .= '</span>';
@@ -191,15 +200,15 @@ if($isEditor && $formSubmit){
 							<?php echo $totalCnt.' Duplicate Clusters '.($action == 'listdupeconflicts'?'with Identification Differences':''); ?>
 						</div>
 						<div style="margin:20px 0px;clear:both;">
-							<?php 
+							<?php
 							foreach($clusterArr as $dupId => $dupArr){
 								?>
 								<div style="clear:both;margin:10px 0px;">
 									<div style="font-weight:bold;font-size:120%;">
-										<?php echo $dupArr['title']; ?> 
-										<span onclick="toggle('editdiv-<?php echo $dupId; ?>')" title="Display Editing Controls"><img src="../../images/edit.png" style="width:13px;" /></span> 
+										<?php echo $dupArr['title']; ?>
+										<span onclick="toggle('editdiv-<?php echo $dupId; ?>')" title="Display Editing Controls"><img src="../../images/edit.png" style="width:13px;" /></span>
 									</div>
-									<?php 
+									<?php
 									if(isset($dupArr['desc'])) echo '<div style="margin-left:10px;">'.$dupArr['desc'].'</div>';
 									if(isset($dupArr['notes'])) echo '<div style="margin-left:10px;">'.$dupArr['notes'].'</div>';
 									?>
@@ -230,7 +239,7 @@ if($isEditor && $formSubmit){
 										</fieldset>
 									</div>
 									<div style="margin:7px 10px;">
-										<?php 
+										<?php
 										unset($dupArr['title']);
 										unset($dupArr['desc']);
 										unset($dupArr['notes']);
@@ -238,9 +247,9 @@ if($isEditor && $formSubmit){
 											?>
 											<div style="margin:10px">
 												<div style="float:left;">
-													<a href="#" onclick="openOccurPopup(<?php echo $occid; ?>); return false;"><b><?php echo $oArr['id']; ?></b></a> =&gt; 
+													<a href="#" onclick="openOccurPopup(<?php echo $occid; ?>); return false;"><b><?php echo $oArr['id']; ?></b></a> =&gt;
 													<?php echo $oArr['recby']; ?>
-												</div> 
+												</div>
 												<div class="editdiv-<?php echo $dupId; ?>" style="display:none;float:left;" title="Delete Specimen from Cluster">
 													<form name="dupdelform-<?php echo $dupId.'-'.$occid; ?>" method="post" action="duplicatemanager.php" onsubmit="return confirm('Are you sure you want to remove this occurrence record from this cluster?');" style="display:inline;">
 														<input name="dupid" type="hidden" value="<?php echo $dupId; ?>" />
@@ -260,12 +269,12 @@ if($isEditor && $formSubmit){
 													?>
 												</div>
 											</div>
-											<?php 
+											<?php
 										}
 										?>
 									</div>
 								</div>
-								<?php 
+								<?php
 							}
 							?>
 						</div>
@@ -279,8 +288,8 @@ if($isEditor && $formSubmit){
 				?>
 				<div>
 					<a href="duplicatemanager.php?collid=<?php echo $collId; ?>">Return to main menu</a>
-				</div> 
-				<?php 
+				</div>
+				<?php
 			}
 		}
 		else{
@@ -288,9 +297,8 @@ if($isEditor && $formSubmit){
 		}
 		?>
 	</div>
-<?php 	
-include($SERVER_ROOT.'/footer.php');
+<?php
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
-
 </body>
 </html>

@@ -197,7 +197,7 @@ foreach($labelArr as $occid => $occArr){
 	}
 }
 
-$targetFile = $SERVER_ROOT.'/temp/report/'.$paramsArr['un'].'_annoLabel_'.date('Y-m-d').'_'.time().'.docx';
+$targetFile = $SERVER_ROOT.'/temp/report/'.$PARAMS_ARR['un'].'_annoLabel_'.date('Y-m-d').'_'.time().'.docx';
 $phpWord->save($targetFile, 'Word2007');
 
 header('Content-Description: File Transfer');

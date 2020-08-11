@@ -30,7 +30,7 @@ class OccurrenceSearchSupport {
 			'LEFT JOIN omcollcatlink ccl ON c.collid = ccl.collid '.
 			'LEFT JOIN omcollcategories cat ON ccl.ccpk = cat.ccpk '.
 			'WHERE s.recordcnt > 0 AND (cat.inclusive IS NULL OR cat.inclusive = 1 OR cat.ccpk = 1) ';
-		if($limitByImages) $sql .= 'AND dynamicproperties NOT LIKE \'%imgcnt":"0"%\' ';
+		if($limitByImages) $sql .= 'AND s.dynamicproperties NOT LIKE \'%imgcnt":"0"%\' ';
 		$sql .= 'ORDER BY ccl.sortsequence, cat.category, c.sortseq, c.CollectionName ';
 		//echo "<div>SQL: ".$sql."</div>";
 		$result = $this->conn->query($sql);
@@ -88,13 +88,13 @@ class OccurrenceSearchSupport {
 		global $CLIENT_ROOT, $DEFAULTCATID, $LANG;
 		$catSelArr = array();
 		$collSelArr = array();
-		if(isset($_POST['db'])) $catSelArr = $_POST['cat'];
+		if(isset($_POST['cat'])) $catSelArr = $_POST['cat'];
 		if(isset($_POST['db'])) $collSelArr = $_POST['db'];
 		$targetCatArr = array();
 		$targetCatID = (string)$targetCatID;
 		if($targetCatID != '') $targetCatArr = explode(',', $targetCatID);
 		elseif($DEFAULTCATID != '') $targetCatArr = explode(',', $DEFAULTCATID);
-		$buttonStr = '<button type="submit" class="ui-button ui-widget ui-corner-all" value="search">'.(isset($LANG['BUTTON_NEXT'])?$LANG['BUTTON_NEXT']:'Next &gt;').'</button>';
+		$buttonStr = '<button type="submit" value="search">'.(isset($LANG['BUTTON_NEXT'])?$LANG['BUTTON_NEXT']:'Next &gt;').'</button>';
 		$collCnt = 0;
 		$borderStyle = ($displayIcons?'margin:10px;padding:10px 20px;border:inset':'margin-left:10px;');
 		echo '<div style="position:relative">';
@@ -284,35 +284,21 @@ class OccurrenceSearchSupport {
 
 	public static function getDbRequestVariable($reqArr){
 		$dbStr = $reqArr['db'];
-		if(is_array($dbStr)){
-			$dbStr = implode(',',array_unique($dbStr)).';';
-		}
-		else{
-			$dbStr = $dbStr;
-		}
-		if(!preg_match('/^[0-9,;]+$/', $dbStr)) $dbStr = 'all';
-		if(strpos($dbStr,'allspec') !== false){
-			$dbStr = 'allspec';
-		}
-		elseif(strpos($dbStr,'allobs') !== false){
-			$dbStr = 'allobs';
-		}
-		elseif(strpos($dbStr,'all') !== false){
-			$dbStr = 'all';
-		}
+		if(is_array($dbStr)) $dbStr = implode(',',array_unique($dbStr)).';';
+		else $dbStr = $dbStr;
+		if(strpos($dbStr,'allspec') !== false) $dbStr = 'allspec';
+		elseif(strpos($dbStr,'allobs') !== false) $dbStr = 'allobs';
+		elseif(strpos($dbStr,'all') !== false) $dbStr = 'all';
 		if(substr($dbStr,0,3) != 'all' && array_key_exists('cat',$reqArr) && $reqArr['cat']){
 			$catArr = array();
 			$catid = $reqArr['cat'];
-			if(is_string($catid)){
-				$catArr = Array($catid);
-			}
-			else{
-				$catArr = $catid;
-			}
+			if(is_string($catid)) $catArr = Array($catid);
+			else $catArr = $catid;
 			if(!$dbStr) $dbStr = ';';
-			$dbStr .= implode(",",$catArr);
+			$dbStr .= implode(',',$catArr);
 		}
 		if(!$dbStr) $dbStr = 'all';
+		if(!preg_match('/^[a-z0-9,;]+$/', $dbStr)) $dbStr = 'all';
 		return $dbStr;
 	}
 

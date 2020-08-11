@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceLabel.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/reports/annotationmanager.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/reports/annotationmanager.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = $_REQUEST["collid"];
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
@@ -27,8 +27,17 @@ if($isEditor){
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE; ?> Annotation Label Manager</title>
-		<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+    <?php
+      $activateJQuery = false;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+    ?>
 		<script type="text/javascript">
 			function selectAll(cb){
 				boxesChecked = true;
@@ -85,7 +94,7 @@ if($isEditor){
 	<body>
 	<?php
 	$displayLeftMenu = false;
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
@@ -119,9 +128,9 @@ if($isEditor){
 				if($annoArr){
 					?>
 					<form name="annoselectform" id="annoselectform" action="defaultannotations.php" method="post" onsubmit="return validateSelectForm(this);">
-						<table class="styledtable" style="font-family:Arial;font-size:12px;">
+						<table class="styledtable" style="width:800px;">
 							<tr>
-								<th title="Select/Deselect all Specimens"><input name="" value="" type="checkbox" onclick="selectAll(this);" /></th>
+								<th title="Select/Deselect all Specimens" style="width:30px;"><input name="" value="" type="checkbox" onclick="selectAll(this);" /></th>
 								<th style="width:25px;text-align:center;">#</th>
 								<th style="width:125px;text-align:center;">Collector</th>
 								<th style="width:300px;text-align:center;">Scientific Name</th>
@@ -225,7 +234,7 @@ if($isEditor){
 				else{
 					?>
 					<div style="font-weight:bold;margin:20px;font-weight:150%;">
-						There are no annotations queued to be printed. An annotation can be added to the queue from the
+						There are no annotations queued to be printed.
 					</div>
 					<?php
 				}
@@ -244,7 +253,7 @@ if($isEditor){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	</body>
 </html>

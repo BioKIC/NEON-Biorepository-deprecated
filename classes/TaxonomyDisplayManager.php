@@ -1,10 +1,9 @@
 <?php
-include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/Manager.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyUtilities.php');
 
-class TaxonomyDisplayManager{
+class TaxonomyDisplayManager extends Manager{
 
-	private $conn;
 	private $taxaArr = Array();
 	private $targetStr = "";
 	private $targetRankId = 0;
@@ -19,7 +18,7 @@ class TaxonomyDisplayManager{
 	private $nodeCnt = 0;
 
 	function __construct(){
-		$this->conn = MySQLiConnectionFactory::getCon("readonly");
+		parent::__construct();
 		if($GLOBALS['USER_RIGHTS']){
 			if($GLOBALS['IS_ADMIN'] || array_key_exists("Taxonomy",$GLOBALS['USER_RIGHTS'])){
 				$this->isEditor = true;
@@ -27,8 +26,8 @@ class TaxonomyDisplayManager{
 		}
 	}
 
- 	public function __destruct(){
-		if(!($this->conn === null)) $this->conn->close();
+	public function __destruct(){
+		parent::__destruct();
 	}
 
 	public function displayTaxonomyHierarchy(){
@@ -39,54 +38,86 @@ class TaxonomyDisplayManager{
 
 	private function setTaxa(){
 		$this->primeTaxaEnumTree();
-
 		$subGenera = array();
 		$taxaParentIndex = Array();
-		$sql1 = 'SELECT DISTINCT t.tid, t.sciname, t.author, t.rankid, ts.parenttid, ts.tidaccepted '.
+		$sql = 'SELECT DISTINCT t.tid, ts.tidaccepted, t.sciname, t.author, t.rankid, ts.parenttid '.
 			'FROM taxa t LEFT JOIN taxstatus ts ON t.tid = ts.tid '.
-			'LEFT JOIN taxstatus ts1 ON t.tid = ts1.tidaccepted '.
-			'LEFT JOIN taxa t1 ON ts1.tid = t1.tid '.
-			'WHERE (ts.taxauthid = '.$this->taxAuthId.' OR ts.taxauthid IS NULL) AND (ts1.taxauthid = '.$this->taxAuthId.' OR ts1.taxauthid IS NULL) ';
+			'WHERE (ts.taxauthid = '.$this->taxAuthId.') ';
 		if(is_numeric($this->targetStr)){
-			$sql1 .= 'AND (ts1.tid = '.$this->targetStr.') ';
+			$sql .= 'AND (ts.tid = '.$this->targetStr.') ';
 		}
 		elseif($this->targetStr){
+			$operator = '=';
+			$term = $this->targetStr;
+			$term2 = '';
+			if(strpos($term, ' ')){
+				if(preg_match('/^\D{1}\s/', $term)){
+					$term = preg_replace('/^\D{1}\s/', '_ ', $this->targetStr);
+					$operator = 'LIKE';
+				}
+				elseif(preg_match('/\s.{1}\s/', $term)){
+					$term = preg_replace('/\s.{1}\s/', ' _ ', $this->targetStr);
+					$term2 = preg_replace('/\s.{1}\s/', ' ', $this->targetStr);
+					$operator = 'LIKE';
+				}
+				else{
+					$term2 = preg_replace('/^([^\s]+\s{1})/', '$1 _ ', $this->targetStr);
+					//$term2 = str_replace(' ', ' _ ', $term);
+				}
+			}
 			if($this->matchOnWholeWords){
-				$sql1 .= 'AND ((t.sciname = "'.$this->targetStr.'") OR (t1.sciname = "'.$this->targetStr.'") ';
+				$sql .= 'AND ((t.sciname '.$operator.' "'.$term.'") OR (t.sciname LIKE "'.$term.' %") ';
+				if($term2) $sql .= 'OR (t.sciname LIKE "'.$term2.'") ';
 			}
 			else{
 				//Rankid >= species level and not will author included
-				$sql1 .= 'AND ((t.sciname LIKE "'.$this->targetStr.'%") OR (t1.sciname LIKE "'.$this->targetStr.'%") ';
+				$sql .= 'AND ((t.sciname LIKE "'.$term.'%") ';
+				if($term2) $sql .= 'OR (t.sciname LIKE "'.$term2.'%") ';
 			}
 			//Let's include author in search by default
-			$sql1 .= 'OR (CONCAT(t.sciname," ",t.author) = "'.$this->targetStr.'") OR (CONCAT(t1.sciname," ",t1.author) = "'.$this->targetStr.'")) ';
+			$sql .= 'OR (CONCAT(t.sciname," ",t.author) '.$operator.' "'.$term.'") ';
+			if($term2) $sql .= 'OR (CONCAT(t.sciname," ",t.author) LIKE "'.$term2.'") ';
+			$sql .= ') ';
 		}
 		else{
-			$sql1 .= 'AND (t.rankid = 10) ';
+			$sql .= 'AND (t.rankid = 10) ';
 		}
-		$sql1 .= 'ORDER BY t.rankid DESC ';
-		//echo "<div>".$sql1."</div>"; exit;
-		$rs1 = $this->conn->query($sql1);
-		while($row1 = $rs1->fetch_object()){
-			$tid = $row1->tid;
-			$parentTid = $row1->parenttid;
-			//$this->targetStr = $row1->sciname;
-			if($tid == $row1->tidaccepted || !$row1->tidaccepted){
-				$this->taxaArr[$tid]["sciname"] = $row1->sciname;
-				$this->taxaArr[$tid]["author"] = $row1->author;
-				$this->taxaArr[$tid]["rankid"] = $row1->rankid;
-				$this->taxaArr[$tid]["parenttid"] = $parentTid;
-				if($row1->rankid == 190) $subGenera[] = $tid;
-				$this->targetRankId = $row1->rankid;
-				$taxaParentIndex[$tid] = ($parentTid?$parentTid:0);
+		$sql .= 'ORDER BY t.rankid DESC ';
+		$tidAcceptedArr = array();
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$tid = $r->tid;
+			if($tid == $r->tidaccepted || !$r->tidaccepted){
+				$this->taxaArr[$tid]['sciname'] = $r->sciname;
+				$this->taxaArr[$tid]['author'] = $r->author;
+				$this->taxaArr[$tid]['rankid'] = $r->rankid;
+				$this->taxaArr[$tid]['parenttid'] = $r->parenttid;
+				if($r->rankid == 190) $subGenera[] = $tid;
+				$this->targetRankId = $r->rankid;
+				$taxaParentIndex[$tid] = ($r->parenttid?$r->parenttid:0);
 			}
 			else{
-				$synName = $row1->sciname;
-				if($this->displayAuthor) $synName .= ' '.$row1->author;
-				$this->taxaArr[$row1->tidaccepted]["synonyms"][$tid] = $synName;
+				$tidAcceptedArr[] = $r->tidaccepted;
 			}
 		}
-		$rs1->free();
+		$rs->free();
+		//Get details for synonyms
+		if($tidAcceptedArr){
+			$sql1 = 'SELECT t.tid, t.sciname, t.author, t.rankid, ts.parenttid FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE t.tid IN('.implode(',',$tidAcceptedArr).')';
+			$rs1 = $this->conn->query($sql1);
+			while($r1 = $rs1->fetch_object()){
+				$tid = $r1->tid;
+				$this->taxaArr[$tid]['sciname'] = $r1->sciname;
+				$this->taxaArr[$tid]['author'] = $r1->author;
+				$this->taxaArr[$tid]['rankid'] = $r1->rankid;
+				$this->taxaArr[$tid]['parenttid'] = $r1->parenttid;
+				if($r1->rankid == 190) $subGenera[] = $tid;
+				$this->targetRankId = $r1->rankid;
+				$taxaParentIndex[$tid] = ($r1->parenttid?$r1->parenttid:0);
+			}
+			$rs1->free();
+		}
+
 		$hierarchyArr = Array();
 		if($this->taxaArr){
 			//Get direct children, but only accepted children
@@ -99,7 +130,7 @@ class TaxonomyDisplayManager{
 				'AND ((te.parenttid IN('.$tidStr.')) OR (t.tid IN('.$tidStr.'))) ';
 			if(!$this->targetStr) $sql2 .= 'AND t.rankid <= 10 ';
 			elseif($this->targetRankId < 140 && !$this->displayFullTree) $sql2 .= 'AND t.rankid <= 140 ';
-			//echo $sql2."<br>";
+			//echo $sql2.'<br>';
 			$rs2 = $this->conn->query($sql2);
 			while($row2 = $rs2->fetch_object()){
 				$tid = $row2->tid;
@@ -526,12 +557,12 @@ class TaxonomyDisplayManager{
 
 	//Setters and getters
 	public function setTargetStr($target){
-		$this->targetStr = $this->conn->real_escape_string(trim(ucfirst($target)));
+		$this->targetStr = $this->cleanInStr(ucfirst($target));
 	}
 
 	public function setTaxAuthId($id){
-		if($id){
-			if(is_numeric($id)) $this->taxAuthId = $id;
+		if($id && is_numeric($id)){
+			$this->taxAuthId = $id;
 		}
 		else{
 			$sql = 'SELECT taxauthid FROM taxauthority WHERE isprimary = 1 ORDER BY taxauthid';
@@ -541,10 +572,10 @@ class TaxonomyDisplayManager{
 			}
 			$rs->free();
 		}
-		$this->setTaxonomyMeta();
+		if(!$this->taxAuthId) $this->taxAuthId = 1;
 	}
 
-	private function setTaxonomyMeta(){
+	public function setTaxonomyMeta(){
 		if($this->taxAuthId){
 			$sql = 'SELECT name, description, editors, contact, email, url, notes, isprimary FROM taxauthority WHERE taxauthid = '.$this->taxAuthId;
 			$rs = $this->conn->query($sql);
@@ -579,6 +610,7 @@ class TaxonomyDisplayManager{
 	}
 
 	public function getTaxonomyMeta(){
+		if(!$this->taxonomyMeta) $this->setTaxonomyMeta();
 		return $this->taxonomyMeta;
 	}
 
@@ -588,6 +620,48 @@ class TaxonomyDisplayManager{
 
 	public function setMatchOnWholeWords($bool){
 		$this->matchOnWholeWords = $bool;
+	}
+
+	//Functions retriving autocomplete data
+	public function getTaxaSuggest($rankLimit, $rankLow, $rankHigh){
+		$retArr = Array();
+		//sanitation
+		if(!is_numeric($rankLimit)) $rankLimit = 0;
+		if(!is_numeric($rankLow)) $rankLow = 0;
+		if(!is_numeric($rankHigh)) $rankHigh = 0;
+
+		if($this->targetStr){
+			$term = $this->targetStr;
+			$term2 = '';
+			if(strpos($term, ' ')){
+				if(preg_match('/^\D{1}\s/', $term)){
+					$term = preg_replace('/^\D{1}\s/', '_ ', $this->targetStr);
+				}
+				elseif(preg_match('/\s.{1}\s/', $term)){
+					$term = preg_replace('/\s.{1}\s/', ' _ ', $this->targetStr);
+				}
+				else{
+					$term2 = str_replace(' ', ' _ ', $term);
+				}
+			}
+			$sql = 'SELECT DISTINCT t.tid, t.sciname, t.author '.
+				'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+				'WHERE ts.taxauthid = '.$this->taxAuthId.' AND (t.sciname LIKE "'.$term.'%" ';
+			if($term2) $sql .=  'OR t.sciname LIKE "'.$term2.'%") ';
+			else $sql .= ') ';
+			if($rankLimit) $sql .= 'AND (t.rankid = '.$rankLimit.') ';
+			else{
+				if($rankLow) $sql .= 'AND (t.rankid > '.$rankLow.' OR t.rankid IS NULL) ';
+				if($rankHigh) $sql .= 'AND (t.rankid < '.$rankHigh.' OR t.rankid IS NULL) ';
+			}
+			//$sql .= 'ORDER BY t.sciname';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()) {
+				$retArr[] = $r->sciname.' '.$r->author;
+			}
+			$rs->free();
+		}
+		return $retArr;
 	}
 
 	//Misc functions

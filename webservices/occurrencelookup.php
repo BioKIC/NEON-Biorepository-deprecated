@@ -68,7 +68,6 @@ if(!$un && $uId){
 if($un && $token){
     if($pHandler->setUserName($un)){
         $pHandler->setToken($token);
-        $pHandler->setTokenAuthSql();
         $pHandler->authenticate();
     }
 }

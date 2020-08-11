@@ -11,7 +11,7 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
@@ -106,6 +106,7 @@ class Document extends AbstractPart
     {
         $styleDefs = array(
             'breakType'     => array(self::READ_VALUE, 'w:type'),
+            'vAlign'        => array(self::READ_VALUE, 'w:vAlign'),
             'pageSizeW'     => array(self::READ_VALUE, 'w:pgSz', 'w:w'),
             'pageSizeH'     => array(self::READ_VALUE, 'w:pgSz', 'w:h'),
             'orientation'   => array(self::READ_VALUE, 'w:pgSz', 'w:orient'),

@@ -6,7 +6,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 $collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $recLimit = array_key_exists('reclimit',$_REQUEST)?$_REQUEST['reclimit']:1000;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:0;
-$ouid = array_key_exists('ouid',$_REQUEST)?$_REQUEST['ouid']:0;
 $crowdSourceMode = array_key_exists('csmode',$_REQUEST)?$_REQUEST['csmode']:0;
 $reset = array_key_exists('reset',$_REQUEST)?$_REQUEST['reset']:false;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
@@ -76,20 +75,11 @@ if($SYMB_UID){
 	}
 
 	if(array_key_exists('bufieldname',$_POST)){
-		if($ouid){
-			$occManager->setQueryVariables(array('ouid' => $ouid));
-		}
-		else{
-			$occManager->setQueryVariables();
-		}
+		$occManager->setQueryVariables();
 		$statusStr = $occManager->batchUpdateField($_POST['bufieldname'],$_POST['buoldvalue'],$_POST['bunewvalue'],$_POST['bumatch']);
 	}
 
-	if($ouid){
-		$occManager->setQueryVariables(array('ouid' => $ouid));
-		$qryCnt = $occManager->getQueryRecordCount();
-	}
-	elseif($occIndex !== false){
+	if($occIndex !== false){
 		//Query Form has been activated
 		$occManager->setQueryVariables();
 		$qryCnt = $occManager->getQueryRecordCount(1);
@@ -101,7 +91,7 @@ if($SYMB_UID){
 	if(!is_numeric($occIndex)) $occIndex = 0;
 	$recStart = floor($occIndex/$recLimit)*$recLimit;
 	$recArr = $occManager->getOccurMap($recStart, $recLimit);
-	$navStr = '<div style="float:right;">';
+	$navStr = '<div class="navpath" style="float:right;">';
 	if($recStart >= $recLimit){
 		$navStr .= '<a href="#" onclick="return submitQueryForm('.($recStart-$recLimit).');" title="Previous '.$recLimit.' records">&lt;&lt;</a>';
 	}
@@ -114,27 +104,39 @@ if($SYMB_UID){
 	$navStr .= '</div>';
 }
 else{
-	header('Location: ../../profile/index.php?refurl=../collections/editor/occurrencetabledisplay.php?'.$_SERVER['QUERY_STRING']);
+	header('Location: ../../profile/index.php?refurl=../collections/editor/occurrencetabledisplay.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 }
 ?>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Occurrence Table View</title>
-    <style type="text/css">
-		table.styledtable td {
-		    white-space: nowrap;
-		}
-    </style>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-    <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<script src="../../js/symb/collections.occureditorshare.js?ver=201906" type="text/javascript" ></script>
+	<script src="../../js/symb/collections.editor.table.js?ver=2" type="text/javascript" ></script>
+	<script src="../../js/symb/collections.editor.query.js?ver=2" type="text/javascript" ></script>
+	<style type="text/css">
+		table.styledtable td { white-space: nowrap; }
+		fieldset{ padding:15px }
+		fieldset > legend{ font-weight:bold }
+		.fieldGroupDiv{ clear:both; margin-bottom:2px; overflow: auto}
+		.fieldDiv{ float:left; margin-right: 20px}
+		#innertext{ background-color: white }
+	</style>
 </head>
 <body style="margin-left: 0px; margin-right: 0px;background-color:white;">
-	<!-- inner text -->
-	<div id="">
+	<div id="innertext">
 		<?php
 		if($collMap){
 			echo '<div>';
@@ -244,7 +246,6 @@ else{
 								</div>
 								<div style="margin:2px;">
 									<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
-									<input name="ouid" type="hidden" value="<?php echo $ouid; ?>" />
 									<input name="occid" type="hidden" value="0" />
 									<input name="occindex" type="hidden" value="0" />
 									<input name="submitaction" type="submit" value="Batch Update Field" onclick="submitBatchUpdate(this.form); return false;" />
@@ -256,46 +257,31 @@ else{
 				<?php
 			}
 			?>
-			<div style="width:790px;clear:both;">
-				<?php
-				if(isset($collections_editor_occurrencetableviewCrumbs)){
-					if($collections_editor_occurrencetableviewCrumbs){
+			<div style="width:850px;clear:both;">
+				<div class='navpath' style="float:left">
+					<a href="../../index.php">Home</a> &gt;&gt;
+					<?php
+					if($crowdSourceMode){
 						?>
-						<div class='navpath'>
-							<a href='../../index.php'>Home</a> &gt;&gt;
-							<?php echo $collections_editor_occurrencetableviewCrumbs; ?>
-							<b>Occurrence Record Table View</b>
-						</div>
+						<a href="../specprocessor/crowdsource/index.php">Crowd Sourcing Central</a> &gt;&gt;
 						<?php
 					}
-				}
-				else{
-					?>
-					<span class='navpath'>
-						<a href="../../index.php">Home</a> &gt;&gt;
-						<?php
-						if($crowdSourceMode){
+					else{
+						if(!$isGenObs || $IS_ADMIN){
 							?>
-							<a href="../specprocessor/crowdsource/index.php">Crowd Sourcing Central</a> &gt;&gt;
+							<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1">Collection Management</a> &gt;&gt;
 							<?php
 						}
-						else{
-							if(!$isGenObs || $IS_ADMIN){
-								?>
-								<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1">Collection Management</a> &gt;&gt;
-								<?php
-							}
-							if($isGenObs){
-								?>
-								<a href="../../profile/viewprofile.php?tabindex=1">Personal Management</a> &gt;&gt;
-								<?php
-							}
+						if($isGenObs){
+							?>
+							<a href="../../profile/viewprofile.php?tabindex=1">Personal Management</a> &gt;&gt;
+							<?php
 						}
-						?>
-						<b>Occurrence Record Table View</b>
-					</span>
-					<?php
-				}
+					}
+					?>
+					<b>Occurrence Record Table View</b>
+				</div>
+				<?php
 				echo $navStr; ?>
 			</div>
 			<?php
@@ -344,7 +330,7 @@ else{
 			}
 			else{
 				?>
-				<div style="font-weight:bold;font-size:120%;">
+				<div style="clear:both;padding:20px;font-weight:bold;font-size:120%;">
 					No records found matching the query
 				</div>
 				<?php

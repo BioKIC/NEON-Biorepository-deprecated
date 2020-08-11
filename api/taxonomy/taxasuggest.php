@@ -2,14 +2,21 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonSearchSupport.php');
 
-$term = $_REQUEST['term'];
+$term = (array_key_exists('term',$_REQUEST)?$_REQUEST['term']:'');
 $taxonType = (array_key_exists('t',$_REQUEST)?$_REQUEST['t']:0);
+$rankLow = (array_key_exists('ranklow',$_REQUEST)?$_REQUEST['ranklow']:0);
+$rankHigh = (array_key_exists('rankhigh',$_REQUEST)?$_REQUEST['rankhigh']:0);
 
-if(!is_numeric($taxonType)) $taxonType = 0;
-if(isset($DEFAULT_TAXON_SEARCH) && !$taxonType) $taxonType = $DEFAULT_TAXON_SEARCH;
+$nameArr = array();
+if($term){
+	if(isset($DEFAULT_TAXON_SEARCH) && !$taxonType) $taxonType = $DEFAULT_TAXON_SEARCH;
+	$searchManager = new TaxonSearchSupport();
+	$searchManager->setQueryString($term);
+	$searchManager->setTaxonType($taxonType);
+	$searchManager->setRankLow($rankLow);
+	$searchManager->setRankHigh($rankHigh);
 
-$searchManager = new TaxonSearchSupport();
-$nameArr = $searchManager->getTaxaSuggest($term, $taxonType);
-
+	$nameArr = $searchManager->getTaxaSuggest($term, $taxonType);
+}
 echo json_encode($nameArr);
 ?>

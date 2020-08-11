@@ -6,7 +6,8 @@ class SpecUpload{
 	protected $conn;
 	protected $collId;
 	protected $uspid;
-	protected $collMetadataArr = Array();
+	protected $collMetadataArr = array();
+	protected $skipOccurFieldArr = array();
 
 	protected $title = "";
 	protected $platform;
@@ -23,6 +24,7 @@ class SpecUpload{
 	protected $lastUploadDate;
 	protected $uploadType;
 	private $securityKey;
+	protected $paleoSupport = false;
 
 	protected $verboseMode = 1;	// 0 = silent, 1 = echo, 2 = log
 	private $logFH;
@@ -100,23 +102,30 @@ class SpecUpload{
 
 	private function setCollInfo(){
 		if($this->collId){
-			$sql = 'SELECT DISTINCT c.collid, c.collectionname, c.institutioncode, c.collectioncode, c.collectionguid, c.icon, c.colltype, c.managementtype, cs.uploaddate, c.securitykey, c.guidtarget '.
+			$sql = 'SELECT DISTINCT c.collid, c.collectionname, c.institutioncode, c.collectioncode, c.collectionguid, c.icon, c.colltype, c.managementtype, '.
+				'cs.uploaddate, c.securitykey, c.guidtarget, c.dynamicproperties '.
 				'FROM omcollections c LEFT JOIN omcollectionstats cs ON c.collid = cs.collid '.
 				'WHERE (c.collid = '.$this->collId.')';
 			//echo $sql;
 			$result = $this->conn->query($sql);
-			while($row = $result->fetch_object()){
-				$this->collMetadataArr["collid"] = $row->collid;
-				$this->collMetadataArr["name"] = $row->collectionname;
-				$this->collMetadataArr["institutioncode"] = $row->institutioncode;
-				$this->collMetadataArr["collectioncode"] = $row->collectioncode;
-				$this->collMetadataArr["collguid"] = $row->collectionguid;
-				$dateStr = ($row->uploaddate?date("d F Y g:i:s", strtotime($row->uploaddate)):"");
+			while($r = $result->fetch_object()){
+				$this->collMetadataArr["collid"] = $r->collid;
+				$this->collMetadataArr["name"] = $r->collectionname;
+				$this->collMetadataArr["institutioncode"] = $r->institutioncode;
+				$this->collMetadataArr["collectioncode"] = $r->collectioncode;
+				$this->collMetadataArr["collguid"] = $r->collectionguid;
+				$dateStr = ($r->uploaddate?date("d F Y g:i:s", strtotime($r->uploaddate)):"");
 				$this->collMetadataArr["uploaddate"] = $dateStr;
-				$this->collMetadataArr["colltype"] = $row->colltype;
-				$this->collMetadataArr["managementtype"] = $row->managementtype;
-				$this->collMetadataArr["securitykey"] = $row->securitykey;
-				$this->collMetadataArr["guidtarget"] = $row->guidtarget;
+				$this->collMetadataArr["colltype"] = $r->colltype;
+				$this->collMetadataArr["managementtype"] = $r->managementtype;
+				$this->collMetadataArr["securitykey"] = $r->securitykey;
+				$this->collMetadataArr["guidtarget"] = $r->guidtarget;
+				if($r->dynamicproperties){
+					$propArr = json_decode($r->dynamicproperties,true);
+					if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
+						if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->paleoSupport = true;
+					}
+				}
 			}
 			$result->free();
 		}
@@ -135,9 +144,7 @@ class SpecUpload{
 
 	public function validateSecurityKey($k){
 		if(!$this->collId){
-			$sql = 'SELECT collid '.
-			'FROM omcollections '.
-    		'WHERE securitykey = "'.$k.'"';
+			$sql = 'SELECT collid FROM omcollections WHERE securitykey = "'.$k.'"';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 	    	if($r = $rs->fetch_object()){
@@ -214,21 +221,20 @@ class SpecUpload{
 	}
 
 	private function getPendingImportSql($searchVariables){
-		$occFieldArr = array('catalognumber', 'othercatalognumbers', 'occurrenceid','family', 'scientificname', 'sciname',
-			'scientificnameauthorship', 'identifiedby', 'dateidentified', 'identificationreferences',
-			'identificationremarks', 'taxonremarks', 'identificationqualifier', 'typestatus', 'recordedby', 'recordnumber',
-			'associatedcollectors', 'eventdate', 'year', 'month', 'day', 'startdayofyear', 'enddayofyear',
-			'verbatimeventdate', 'habitat', 'substrate', 'fieldnumber','occurrenceremarks', 'associatedtaxa', 'verbatimattributes',
-			'dynamicproperties', 'reproductivecondition', 'cultivationstatus', 'establishmentmeans',
-			'lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations',
-			'country', 'stateprovince', 'county', 'municipality', 'locality', 'localitysecurity', 'localitysecurityreason',
-			'decimallatitude', 'decimallongitude','geodeticdatum', 'coordinateuncertaintyinmeters', 'footprintwkt',
-			'locationremarks', 'verbatimcoordinates', 'georeferencedby', 'georeferenceprotocol', 'georeferencesources',
-			'georeferenceverificationstatus', 'georeferenceremarks', 'minimumelevationinmeters', 'maximumelevationinmeters',
-			'verbatimelevation', 'disposition', 'language', 'duplicatequantity', 'genericcolumn1', 'genericcolumn2',
-			'labelproject','basisofrecord','ownerinstitutioncode', 'processingstatus', 'recordenteredby');
-		$sql = 'SELECT occid, dbpk, '.implode(',',$occFieldArr).' FROM uploadspectemp '.
-				'WHERE collid IN('.$this->collId.') ';
+		$occFieldArr = array();
+		$this->setSkipOccurFieldArr();
+		$schemaSQL = 'SHOW COLUMNS FROM uploadspectemp';
+		if($searchVariables == 'exist') $schemaSQL = 'SHOW COLUMNS FROM omoccurrences';
+		$schemaRS = $this->conn->query($schemaSQL);
+		while($schemaRow = $schemaRS->fetch_object()){
+			$fieldName = strtolower($schemaRow->Field);
+			if(!in_array($fieldName,$this->skipOccurFieldArr)){
+				$occFieldArr[] = $fieldName;
+			}
+		}
+		$schemaRS->free();
+
+		$sql = 'SELECT occid, dbpk, '.implode(',',$occFieldArr).' FROM uploadspectemp WHERE collid IN('.$this->collId.') ';
 		if($searchVariables){
 			if($searchVariables == 'matchappend'){
 				$sql = 'SELECT DISTINCT u.occid, u.dbpk, u.'.implode(',u.',$occFieldArr).' '.
@@ -247,6 +253,7 @@ class SpecUpload{
 					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NULL OR o.occid IS NULL) ';
 			}
 			elseif($searchVariables == 'exist'){
+				unset($occFieldArr[array_search('associatedsequences', $occFieldArr)]);
 				$sql = 'SELECT DISTINCT o.occid, o.dbpk, o.'.implode(',o.',$occFieldArr).' '.
 					'FROM omoccurrences o LEFT JOIN uploadspectemp u  ON (o.occid = u.occid) '.
 					'WHERE (o.collid IN('.$this->collId.')) AND (u.occid IS NULL) ';
@@ -278,6 +285,17 @@ class SpecUpload{
 			}
 		}
 		return $sql;
+	}
+
+	protected function setSkipOccurFieldArr(){
+		$this->skipOccurFieldArr = array('dbpk','initialtimestamp','occid','collid','tidinterpreted','fieldnotes','coordinateprecision',
+			'verbatimcoordinatesystem','institutionid','collectionid','associatedoccurrences','datasetid','associatedreferences',
+			'previousidentifications','storagelocation','genericcolumn1','genericcolumn2');
+		if($this->collMetadataArr['managementtype'] == 'Live Data' && $this->collMetadataArr['guidtarget'] != 'occurrenceId'){
+			//Do not import occurrenceID if dataset is a live dataset, unless occurrenceID is explicitly defined as the guidSource.
+			//This avoids the situtation where folks are exporting data from one collection and importing into their collection along with the other collection's occurrenceID GUID, which is very bad
+			$this->skipOccurFieldArr[] = 'occurrenceid';
+		}
 	}
 
 	public function getUploadCount(){
@@ -467,13 +485,15 @@ class SpecUpload{
 				$this->logFH = fopen($logPath, 'a');
 				$this->outputMsg('Start time: '.date('Y-m-d h:i:s A'));
 				if(isset($_SERVER['REMOTE_ADDR'])) $this->outputMsg('REMOTE_ADDR: '.$_SERVER['REMOTE_ADDR']);
-				if(isset($_SERVER['QUERY_STRING'])) $this->outputMsg('QUERY_STRING: '.$_SERVER['QUERY_STRING']);
+				if(isset($_SERVER['REMOTE_PORT'])) $this->outputMsg('REMOTE_PORT: '.$_SERVER['REMOTE_PORT']);
+				if(isset($_SERVER['QUERY_STRING'])) $this->outputMsg('QUERY_STRING: '.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 			}
 		}
 	}
 
 	public function outputMsg($str, $indent = 0){
 		if($this->verboseMode == 1){
+			if($indent) $str = str_replace('<li>', '<li style="margin-left:'.($indent*10).'px">', $str);
 			echo $str;
 			ob_flush();
 			flush();

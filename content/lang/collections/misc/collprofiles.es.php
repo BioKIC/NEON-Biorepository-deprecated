@@ -6,7 +6,7 @@ Language: Español (Spanish)
 */
 
 $LANG['RSS_FEED'] = 'RSS Feed';
-$LANG['CONTACT'] = 'Contacto';
+$LANG['CONTACT'] = 'Contactos';
 $LANG['HOMEPAGE'] = 'Sitio Web';
 $LANG['MORE_INFO'] = 'M&aacute;s Informaci&oacute;n';
 $LANG['COLLECTION_SEARCH'] = 'P&aacute;gina de B&uacute;squeda de Colecci&oacute;n';
@@ -20,7 +20,7 @@ $LANG['ADD_BATCH_DETER'] = 'Agregar Determinaciones por lotes/Ajustes de nomencl
 $LANG['PRINT_LABELS'] = 'Imprimir Etiquetas de Espec&iacute;menes';
 $LANG['PRINT_ANNOTATIONS'] = 'Imprimir Etiquetas de los Anotaciones';
 $LANG['TRAIT_CODING_TOOLS'] = 'Herramientas para codificaci&oacute;n de rasgos';
-$LANG['TRAIT_CODING'] = 'Codificaci&oacute;n de rasgos de imagenes';
+$LANG['TRAIT_CODING'] = 'Codificaci&oacute;n de rasgos de im&aacute;genes';
 $LANG['TRAIT_MINING'] = 'Cosecha de rasgo campos de texto';
 $LANG['BATCH_GEOREF'] = 'Georreferir Espec&iacute;menes por Lote';
 $LANG['LOAN_MANAGEMENT'] = 'Administraci&oacute;n de Pr&eacute;stamos';
@@ -44,7 +44,7 @@ $LANG['DUP_CLUSTER'] = 'Duplicar Agrupamiento';
 $LANG['MAINTENANCE_TASKS'] = 'Tareas de Mantenimiento';
 $LANG['BACKUP_DATA_FILE'] = 'Descargar Archivo de Respaldo de Datos';
 $LANG['RESTORE_BACKUP'] = 'Restaurar archivo de respaldo';
-$LANG['GUIDMAP'] = 'Mapeador de GUIDs';
+$LANG['GUID_MANAGEMENT'] = 'administraci&oacute;n de GUIDs de IGSN';
 $LANG['THUMBNAIL_MAINTENANCE'] = 'Herramientas de Limpieza las miniaturas';
 $LANG['UPDATE_STATS'] = 'Actualizar Estad&iacute;sticas';
 $LANG['COLLECTION_TYPE'] = 'Tipo de Colecci&oacute;n';
@@ -71,7 +71,8 @@ $LANG['EDIT_INST'] = 'Revisar la informaci&oacute;n de la instituci&oacute;n';
 $LANG['COLL_STATISTICS'] = 'Estad&iacute;sticas de Colecci&oacute;n';
 $LANG['SPECIMEN_RECORDS'] = 'registros de espec&iacute;menes';
 $LANG['GEOREFERENCED'] = 'georeferenciado';
-$LANG['WITH_IMAGES'] = 'con imagenes';
+$LANG['WITH_IMAGES'] = 'con im&aacute;genes';
+$LANG['TOTAL_IMAGES'] = 'im&aacute;genes en total';
 $LANG['GENBANK_REF'] = 'Referencias de GenBank';
 $LANG['BOLD_REF'] = 'Referencias de BOLD';
 $LANG['PUB_REFS'] = 'referencias de publicaciones';

@@ -15,8 +15,17 @@ if($IS_ADMIN || array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>" />
 	<title>Occurrences download</title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+    }
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
     <script>
     	function submitBuForm(f){
 			f.formsubmit.disabled = true;
@@ -28,17 +37,17 @@ if($IS_ADMIN || array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$
 <body>
 	<!-- This is inner text! -->
 	<div id="innertext">
-		<?php 
+		<?php
 		if($isEditor){
 			?>
 			<form name="buform" action="../download/downloadhandler.php" method="post" onsubmit="return submitBuForm(this);">
 				<fieldset style="padding:15px;width:350px">
 					<legend>Download Module</legend>
 					<div style="float:left;">
-						Data Set: 
+						Data Set:
 					</div>
 					<div style="float:left;height:50px">
-						<?php 
+						<?php
 						//$cSet = str_replace('-','',strtolower($CHARSET));
 						?>
 						<input type="radio" name="cset" value="iso-8859-1" <?php echo (!$cSet || $cSet=='iso88591'?'checked':''); ?> /> ISO-8859-1 (western)<br/>
@@ -51,12 +60,12 @@ if($IS_ADMIN || array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$
 							<input type="submit" name="formsubmit" value="Perform Backup" />
 						</div>
 						<div id="workingdiv" style="float:left;margin-left:15px;display:<?php echo ($action == 'Perform Backup'?'block':'none'); ?>;">
-							<b>Downloading backup file...</b> 
+							<b>Downloading backup file...</b>
 						</div>
 					</div>
 				</fieldset>
 			</form>
-			<?php 
+			<?php
 		}
 		?>
 	</div>

@@ -2,8 +2,6 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyDisplayManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
 $target = array_key_exists("target",$_REQUEST)?$_REQUEST["target"]:"";
 $displayAuthor = array_key_exists('displayauthor',$_REQUEST)?$_REQUEST['displayauthor']:0;
@@ -18,6 +16,8 @@ if(!is_numeric($matchOnWords)) $matchOnWords = 0;
 if(!is_numeric($displayFullTree)) $displayFullTree = 0;
 if(!is_numeric($displaySubGenera)) $displaySubGenera = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
+$statusStr = strip_tags($statusStr);
+if($statusStr) str_replace(';', '<br/>', $statusStr);
 
 if(!array_key_exists("target",$_REQUEST)){
 	$matchOnWords = 1;
@@ -40,13 +40,21 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 <head>
 	<title><?php echo $DEFAULT_TITLE." Taxonomy Display: ".$taxonDisplayObj->getTargetStr(); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link type="text/css" href="../../css/jquery-ui.css" rel="Stylesheet" />
+  <?php
+    $activateJQuery = true;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+  ?>
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -65,10 +73,10 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 	</script>
 </head>
 <body>
-<?php
-$displayLeftMenu = (isset($taxa_admin_taxonomydisplayMenu)?$taxa_admin_taxonomydisplayMenu:'false');
-include($SERVER_ROOT.'/header.php');
-?>
+	<?php
+	$displayLeftMenu = (isset($taxa_admin_taxonomydisplayMenu)?$taxa_admin_taxonomydisplayMenu:'false');
+	include($SERVER_ROOT.'/includes/header.php');
+	?>
 	<div class="navpath">
 		<a href="../../index.php">Home</a> &gt;&gt;
 		<a href="taxonomydisplay.php"><b>Taxonomic Tree Viewer</b></a>
@@ -79,7 +87,7 @@ include($SERVER_ROOT.'/header.php');
 		if($statusStr){
 			?>
 			<hr/>
-			<div style="color:<?php echo (strpos($statusStr,'SUCCESS') !== false?'green':'red'); ?>;margin:15px;">
+			<div style="color:<?php echo (stripos($statusStr,'SUCCESS') !== false?'green':'red'); ?>;margin:15px;">
 				<?php echo $statusStr; ?>
 			</div>
 			<hr/>
@@ -114,17 +122,17 @@ include($SERVER_ROOT.'/header.php');
 		</div>
 		<div style="clear:both;">
 			<form id="tdform" name="tdform" action="taxonomydisplay.php" method='POST'>
-				<fieldset style="padding:10px;width:550px;">
+				<fieldset style="padding:10px;max-width:850px;">
 					<legend><b>Taxon Search</b></legend>
-					<div>
+					<div style="float:left;">
 						<b>Taxon:</b>
 						<input id="taxontarget" name="target" type="text" style="width:400px;" value="<?php echo $taxonDisplayObj->getTargetStr(); ?>" />
 					</div>
-					<div style="float:right;margin:15px 80px 15px 15px;">
+					<div style="float:left;margin-left:15px;">
 						<input name="tdsubmit" type="submit" value="Display Taxon Tree"/>
 						<input name="taxauthid" type="hidden" value="<?php echo $taxAuthId; ?>" />
 					</div>
-					<div style="margin-top:15px; margin-left:60px;">
+					<div style="clear:both;padding-top:15px; margin-left:60px;">
 						<div style="margin:3px;">
 							<input name="displayauthor" type="checkbox" value="1" <?php echo ($displayAuthor?'checked':''); ?> /> Display authors
 						</div>
@@ -146,7 +154,7 @@ include($SERVER_ROOT.'/header.php');
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

@@ -21,7 +21,7 @@ elseif($mapMode == 'circle'){
 	$mapMode = 'google.maps.drawing.OverlayType.CIRCLE';
 }
 else{
-	$mapMode = 'NULL';
+	$mapMode = '';
 }
 
 $clManager = new ChecklistAdmin();
@@ -75,7 +75,7 @@ else{
 				map = new google.maps.Map(document.getElementById("map_canvas"), dmOptions);
 
 				var drawingManager = new google.maps.drawing.DrawingManager({
-					drawingMode: <?php echo $mapMode; ?>,
+					<?php if($mapMode) echo 'drawingMode: '.$mapMode.','; ?>
 					drawingControl: true,
 					drawingControlOptions: {
 						position: google.maps.ControlPosition.TOP_CENTER,
@@ -254,10 +254,12 @@ else{
 						var southLat = opener.document.getElementById("bottomlat").value;
 						var westLng = opener.document.getElementById("leftlong").value;
 						var eastLng = opener.document.getElementById("rightlong").value;
-						if(opener.document.getElementById("upperlat_NS").value == "S") northLat = northLat*-1;
-						if(opener.document.getElementById("bottomlat_NS").value == "S") southLat = southLat*-1;
-						if(opener.document.getElementById("leftlong_EW").value == "W") westLng = westLng*-1;
-						if(opener.document.getElementById("rightlong_EW").value == "W") eastLng = eastLng*-1;
+						if(opener.document.getElementById("upperlat_NS")){
+							if(opener.document.getElementById("upperlat_NS").value == "S") northLat = northLat*-1;
+							if(opener.document.getElementById("bottomlat_NS").value == "S") southLat = southLat*-1;
+							if(opener.document.getElementById("leftlong_EW").value == "W") westLng = westLng*-1;
+							if(opener.document.getElementById("rightlong_EW").value == "W") eastLng = eastLng*-1;
+						}
 
 						var newShape = new google.maps.Rectangle({
 							strokeWeight: 0,
@@ -292,38 +294,54 @@ else{
 
 			function setShapeToSearchForm(){
 				//Clear all coordinate values
-				opener.document.getElementById("pointlat").value = "";
-				opener.document.getElementById("pointlong").value = "";
-				opener.document.getElementById("radius").value = "";
-				opener.document.getElementById("radiusunits").value = "km";
-				opener.document.getElementById("footprintwkt").value = "";
-				opener.document.getElementById("upperlat").value = "";
-				opener.document.getElementById("bottomlat").value = "";
-				opener.document.getElementById("leftlong").value = "";
-				opener.document.getElementById("rightlong").value = "";
+				if(opener.document.getElementById("pointlat")) opener.document.getElementById("pointlat").value = "";
+				if(opener.document.getElementById("pointlong")) opener.document.getElementById("pointlong").value = "";
+				if(opener.document.getElementById("radius")) opener.document.getElementById("radius").value = "";
+				if(opener.document.getElementById("radiusunits")) opener.document.getElementById("radiusunits").value = "km";
+				if(opener.document.getElementById("footprintwkt")) opener.document.getElementById("footprintwkt").value = "";
+				if(opener.document.getElementById("upperlat")) opener.document.getElementById("upperlat").value = "";
+				if(opener.document.getElementById("bottomlat")) opener.document.getElementById("bottomlat").value = "";
+				if(opener.document.getElementById("leftlong")) opener.document.getElementById("leftlong").value = "";
+				if(opener.document.getElementById("rightlong")) opener.document.getElementById("rightlong").value = "";
 				//Add shapes
 				var shapeType = activeShape.type;
 
 				if(shapeType == "rectangle"){
 					var latUpperValue = activeShape.getBounds().getNorthEast().lat();
-					if(latUpperValue > 0) opener.document.getElementById("upperlat_NS").value = 'N';
-					else if(latUpperValue < 0) opener.document.getElementById("upperlat_NS").value = 'S';
-					opener.document.getElementById("upperlat").value = Math.abs(parseFloat(latUpperValue).toFixed(6));
+					latUpperValue = parseFloat(latUpperValue).toFixed(6);
+					if(opener.document.getElementById("upperlat_NS")){
+						if(latUpperValue > 0) opener.document.getElementById("upperlat_NS").value = 'N';
+						else if(latUpperValue < 0) opener.document.getElementById("upperlat_NS").value = 'S';
+						latUpperValue = Math.abs(latUpperValue);
+					}
+					opener.document.getElementById("upperlat").value = latUpperValue;
 
 					var latBottomValue = activeShape.getBounds().getSouthWest().lat();
-					if(latBottomValue > 0) opener.document.getElementById("bottomlat_NS").value = 'N';
-					else if(latBottomValue < 0) opener.document.getElementById("bottomlat_NS").value = 'S';
-					opener.document.getElementById("bottomlat").value = Math.abs(parseFloat(latBottomValue)).toFixed(6);
+					latBottomValue = parseFloat(latBottomValue).toFixed(6);
+					if(opener.document.getElementById("bottomlat_NS")){
+						if(latBottomValue > 0) opener.document.getElementById("bottomlat_NS").value = 'N';
+						else if(latBottomValue < 0) opener.document.getElementById("bottomlat_NS").value = 'S';
+						latBottomValue = Math.abs(latBottomValue);
+					}
+					opener.document.getElementById("bottomlat").value = latBottomValue;
 
 					var lngLeftValue = activeShape.getBounds().getSouthWest().lng();
-					if(lngLeftValue > 0) opener.document.getElementById("leftlong_EW").value = 'E';
-					else if(lngLeftValue < 0) opener.document.getElementById("leftlong_EW").value = 'W';
-					opener.document.getElementById("leftlong").value = Math.abs(parseFloat(lngLeftValue)).toFixed(6);
+					lngLeftValue = parseFloat(lngLeftValue).toFixed(6);
+					if(opener.document.getElementById("leftlong_EW")){
+						if(lngLeftValue > 0) opener.document.getElementById("leftlong_EW").value = 'E';
+						else if(lngLeftValue < 0) opener.document.getElementById("leftlong_EW").value = 'W';
+						lngLeftValue = Math.abs(lngLeftValue);
+					}
+					opener.document.getElementById("leftlong").value = lngLeftValue;
 
 					var lngRightValue = activeShape.getBounds().getNorthEast().lng();
-					if(lngRightValue > 0) opener.document.getElementById("rightlong_EW").value = 'E';
-					else if(lngRightValue < 0) opener.document.getElementById("rightlong_EW").value = 'W';
-					opener.document.getElementById("rightlong").value = Math.abs(parseFloat(lngRightValue)).toFixed(6);
+					lngRightValue = parseFloat(lngRightValue).toFixed(6);
+					if(opener.document.getElementById("rightlong_EW")){
+						if(lngRightValue > 0) opener.document.getElementById("rightlong_EW").value = 'E';
+						else if(lngRightValue < 0) opener.document.getElementById("rightlong_EW").value = 'W';
+						lngRightValue = Math.abs(lngRightValue);
+					}
+					opener.document.getElementById("rightlong").value = lngRightValue;
 				}
 				else if(shapeType == "polygon"){
 					var coordinates = [];
@@ -364,7 +382,7 @@ else{
 	</head>
 	<body style="background-color:#ffffff;" onload="initialize()">
 		<div style="float:right;margin-top:5px;margin-right:15px;">
-			<button name="closebutton" type="button" onclick="self.close()">Close Mapping Aid</button>
+			<button name="closebutton" type="button" onclick="self.close()">Save and Close</button>
 		</div>
 		<div id="helptext">
 			Click on shape symbol to create a rectangle, circle, or polygon.<br/>Close mapping tool to transfer shape definition to search form.

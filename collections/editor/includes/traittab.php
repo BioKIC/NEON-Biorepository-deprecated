@@ -5,16 +5,16 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = $_GET['occid'];
 $occIndex = $_GET['occindex'];
-$action = isset($_GET['submitaction'])?$_GET['submitaction']:'';
+$collid = isset($_GET['collid'])?$_GET['collid']:'';
 
 $attrManager = new OccurrenceAttributes();
 $attrManager->setOccid($occid);
 
 $isEditor = 0;
-if($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"]))){
+if($IS_ADMIN || ($collid && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
 	$isEditor = 1;
 }
-elseif(array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollEditor"])){
+elseif(array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollEditor"])){
 	$isEditor = 2;
 }
 elseif($attrManager->getObserverUid() == $SYMB_UID){
@@ -23,8 +23,8 @@ elseif($attrManager->getObserverUid() == $SYMB_UID){
 }
 
 if($isEditor){
-	if(isset($_GET['delstates']) && $_GET['delstates']){
-		$attrManager->deleteAttributes($_GET['delstates']);
+	if(isset($_GET['deltraitid']) && $_GET['deltraitid']){
+		$attrManager->deleteAttributes($_GET['deltraitid']);
 	}
 }
 ?>
@@ -39,9 +39,10 @@ if($isEditor){
 	function submitEditForm(butElem){
 		var f = butElem.form;
 		var action = butElem.value;
-		var hasStates = false;
+		var continueProcessing = false;
 		var stateJson = {};
-		$('input[name^="stateid"]').each(function(index,data) {
+
+		$("form[name='"+f.name+"'] input[name^='traitid']").each(function(index,data) {
 			if($(this).prop('checked')){
 				if($(this).attr('name') in stateJson){
 					stateJson[$(this).attr('name')].push($(this).val());
@@ -49,32 +50,41 @@ if($isEditor){
 				else{
 					stateJson[$(this).attr('name')] = [$(this).val()];
 				}
-				hasStates = true;
+				continueProcessing = true;
 			}
 		});
-		if(hasStates){
-			var traitIdStr = f.traitid.value;
-			$("#msgDiv-"+traitIdStr).text('saving data...');
-			$("#msgDiv-"+traitIdStr).css('color', 'orange');
-			$.ajax({
-				type: "POST",
-				url: "rpc/editorTraitHandler.php",
-				data: { occid: f.occid.value, traitID: traitIdStr, submitAction: action, source: f.source.value, notes: f.notes.value, setStatus: f.setstatus.value, stateData: JSON.stringify(stateJson) }
-			}).done(function( retStatus ) {
-				if(retStatus == 1){
-					$("#msgDiv-"+traitIdStr).css('color', 'green');
-					$("#msgDiv-"+traitIdStr).text('data saved!');
-
-				}
-				else{
-					$("#msgDiv-"+traitIdStr).css('color', 'red');
-					$("#msgDiv-"+traitIdStr).text('ERROR saving data: '+retStatus);
-				}
-			});
-		}
-		else{
+		if(!continueProcessing){
 			alert("No traits have been selected");
+			return false;
 		}
+		if(action == "deleteTraitCoding"){
+			if(!confirm('Are you sure you want to delete this trait coding?')) return false;
+		}
+		var traitIdStr = f.traitid.value;
+		$("#msgDiv-"+traitIdStr).text('applying action...');
+		$("#msgDiv-"+traitIdStr).css('color', 'orange');
+		//alert("collid"+f.collid.value+"&occid="+f.occid.value+"&traitID="+traitIdStr+"&submitAction="+action+"&source="+f.source.value+"&notes="+f.notes.value+"&setStatus="+f.setstatus.value+"&stateData="+JSON.stringify(stateJson));
+		$.ajax({
+			type: "POST",
+			url: "rpc/editorTraitHandler.php",
+			data: { collid: f.collid.value, occid: f.occid.value, traitID: traitIdStr, submitAction: action, source: f.source.value, notes: f.notes.value, setStatus: f.setstatus.value, stateData: JSON.stringify(stateJson) }
+		}).done(function( retStatus ) {
+			if(retStatus == 1){
+				$("#msgDiv-"+traitIdStr).css('color', 'green');
+				$("#msgDiv-"+traitIdStr).text('data saved!');
+			}
+			else if(retStatus == 2){
+				$("form[name='"+f.name+"'] input[name^='traitid']").each(function(index,data) {
+					$(this).prop('checked',false);
+				});
+				$("#msgDiv-"+traitIdStr).css('color', 'green');
+				$("#msgDiv-"+traitIdStr).text('data deleted!');
+			}
+			else{
+				$("#msgDiv-"+traitIdStr).css('color', 'red');
+				$("#msgDiv-"+traitIdStr).text('ERROR saving data: '+retStatus);
+			}
+		});
 	}
 
 </script>
@@ -113,7 +123,7 @@ if($isEditor){
 								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
 								?>
 								<input name="tabtarget" type="hidden" value="3" />
-								<input type="image" src="../../images/refresh.png" />
+								<input type="image" src="../../images/refresh.png" style="width:14px;vertical-align: middle;" />
 							</form>
 						</div>
 						<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
@@ -121,39 +131,49 @@ if($isEditor){
 							<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
 						</div>
 					</div>
-					<form name="submitform" method="post" action="occurrenceeditor.php" onsubmit="">
-						<div class="traitDiv" style="margin:5px">
+					<form name="submitform<?php echo '-'.$traitID; ?>" method="post" action="occurrenceeditor.php" onsubmit="return false">
+						<div class="traitDiv" style="margin-left:5px;float:left">
 							<?php
 							$attrManager->echoFormTraits($traitID);
 							?>
 						</div>
-						<div style="margin:10px 5px;">
-							Notes:
-							<input name="notes" type="text" style="width:300px" value="<?php echo $notes; ?>" />
-						</div>
-						<div style="margin:10px 5px;">
-							Source:
-							<input name="source" type="text" style="width:300px" value="<?php echo $source; ?>" />
-						</div>
-						<div style="margin-left:5;">
-							Status:
-							<select name="setstatus">
-								<option value="0">Not reviewed</option>
-								<option value="5" <?php echo ($statusCode=='5'?'selected':''); ?>>Expert Needed</option>
-								<option value="10" <?php echo ($statusCode=='10'?'selected':''); ?>>Reviewed</option>
-							</select>
-						</div>
-						<div style="margin:20px;float:left">
-							<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-							<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
-							<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
-							<input name="delstates" type="hidden" value="<?php echo $attrManager->getStateCodedStr(); ?>" />
-							<input name="tabtarget" type="hidden" value="3" />
-							<button name="submitbutton" type="submit" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
-							<span id="msgDiv-<?php echo $traitID; ?>"></span>
-						</div>
-						<div style="margin:20px;float:right;">
-							<button name="submitaction" type="submit" value="deleteCoding" style="border:1px solid red;" onclick="return confirm('Are you sure you want to delete this trait coding?')">Delete Coding</button>
+						<div style="clear:both;padding:10px 5px;">
+							<div >
+								Notes:
+								<input name="notes" type="text" style="width:300px" value="<?php echo $notes; ?>" />
+							</div>
+							<div style="margin:10px 0px">
+								Source:
+								<select name="source">
+									<option value=""></option>
+									<?php
+									$sourceControlArr = $attrManager->getSourceControlledArr($source);
+									foreach($sourceControlArr as $sourceTerm){
+										echo '<option '.($source==$sourceTerm?'selected':'').'>'.$sourceTerm.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div style="margin-left:5;">
+								Status:
+								<select name="setstatus">
+									<option value="0">Not reviewed</option>
+									<option value="5" <?php echo ($statusCode=='5'?'selected':''); ?>>Expert Needed</option>
+									<option value="10" <?php echo ($statusCode=='10'?'selected':''); ?>>Reviewed</option>
+								</select>
+							</div>
+							<div style="margin:20px;float:left">
+								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+								<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
+								<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
+								<input name="tabtarget" type="hidden" value="3" />
+								<button type="button" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
+								<span id="msgDiv-<?php echo $traitID; ?>"></span>
+							</div>
+							<div style="margin:20px;float:right;">
+								<button type="button" value="deleteTraitCoding" style="border:1px solid red;"  onclick="submitEditForm(this); return false">Delete Coding</button>
+							</div>
 						</div>
 					</form>
 				</fieldset>

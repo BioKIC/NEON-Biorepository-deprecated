@@ -3,40 +3,54 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/GamesManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:0;
-$submitAction = array_key_exists("submitaction",$_POST)?$_POST["submitaction"]:'';
 $oodID = array_key_exists("oodid",$_REQUEST)?$_REQUEST["oodid"]:1;
-$ootdGameChecklist = array_key_exists("cl",$_REQUEST)?$_REQUEST["cl"]:0;
-$ootdGameTitle = array_key_exists("title",$_REQUEST)?$_REQUEST["title"]:0;
-$ootdGameType = array_key_exists("type",$_REQUEST)?$_REQUEST["type"]:0;
+$clidStr = array_key_exists("cl",$_REQUEST)?$_REQUEST["cl"]:0;
+$ootdTitle = array_key_exists("title",$_REQUEST)?$_REQUEST["title"]:'Organism of the Day';
+$ootdType = array_key_exists("type",$_REQUEST)?$_REQUEST["type"]:'organism';
+$familyAnswer = array_key_exists('family_answer',$_POST)&&$_POST['family_answer']!='Family'?trim(strtolower($_POST['family_answer'])):'';
+$scinameAnswer = array_key_exists('sciname_answer',$_POST)&&$_POST['sciname_answer']!='Genus species'?trim(strtolower($_POST['sciname_answer'])):'';
+$submitAction = array_key_exists("submitaction",$_POST)?$_POST["submitaction"]:'';
+
+//Sanitation
+if(!is_numeric($oodID)) $oodID = 1;
+if(!preg_match('/^[\d,]+$/',$clidStr)) $clidStr = 0;
+$ootdTitle = strip_tags($ootdTitle);
+$ootdType = strip_tags($ootdType);
+$familyAnswer = strip_tags($familyAnswer);
+$scinameAnswer = strip_tags($scinameAnswer);
 
 $gameManager = new GamesManager();
-$clArr = $gameManager->getChecklistArr($pid);
-
-$gameInfo = $gameManager->setOOTD($oodID,$ootdGameChecklist);
+$gameInfo = $gameManager->setOOTD($oodID,$clidStr);
 $imageArr = $gameInfo['images'];
+$synArr = $gameManager->getSynonymArr($gameInfo['tid']);
 $cacheRefresh = date('YdmH');
 foreach($imageArr as $k => $imgValue){
 	$imageArr[$k] = $imgValue.'?ver='.$cacheRefresh;
 }
-
-if($submitAction){
-	$scinameAnswerArr = explode(' ',trim($_POST['sciname_answer']));
-	$genusAnswer = strtolower($scinameAnswerArr[0]);
-}
+$genusAnswer = strtok($scinameAnswer, " ");
 ?>
 <html>
 <head>
-	<title><?php echo (isset($ootdGameTitle)?$ootdGameTitle:'Organism of the Day'); ?></title>
-	<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link type="text/css" href="../../css/jquery-ui.css" rel="Stylesheet" />
-	<script type="text/javascript" src="../../js/jquery.js"></script>
-	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
-	<script type="text/javascript" src="../../js/symb/games.ootd.js"></script>
-
+	<title><?php echo $ootdTitle; ?></title>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
+	<script src="../../js/jquery.js" type="text/javascript"></script>
+	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		$(function() {
+		var clientRoot = "<?php echo $CLIENT_ROOT; ?>";
+		var giveUp = false;
+		var imgIndex = 0;
+
+		$(document).ready(function() {
 			var dialogArr = new Array("game");
 			var dialogStr = "";
 			for(i=0;i<dialogArr.length;i++){
@@ -52,7 +66,18 @@ if($submitAction){
 				});
 			}
 
+			initiateTaxonSuggest("family_answer", 140, 0);
+			initiateTaxonSuggest("sciname_answer", 180, 221);
 		});
+
+		function verifyAnswerForm(f){
+			if(giveUp) return true;
+			if((f.sciname_answer.value == "" || f.sciname_answer.value == "Genus species") && (f.family_answer.value == "" || f.family_answer.value == "Family")){
+				alert("Please enter a guess within the Scientific Name or Family fields!");
+				return false;
+			}
+			return true;
+		}
 
 		function toggleById(target){
 			var obj = document.getElementById(target);
@@ -64,46 +89,41 @@ if($submitAction){
 			}
 		}
 
-		//<!-------------cycles the images-->
-		var ImgNum = 0;
-		var ImgLength = NewImg.length - 1;
-		var delay = 3000; // Time delay between Slides in milliseconds
-		var lock = false;
-		var run;
-
-		var ImgNum = 0;
+		function openTaxonProfile(){
+			giveUp = true;
+			window.open('../../taxa/index.php?tid=<?php echo $gameInfo['tid']; ?>','plantwindow','width=1200,height=650');
+		}
 
 		function chgImg(direction){
-			var NewImg = <?php echo json_encode($imageArr); ?>;
-			var ImgLength = NewImg.length - 1;
-			if (document.images) {
-				ImgNum = ImgNum + direction;
-				if (ImgNum > ImgLength) { ImgNum = 0; }
-				if (ImgNum < 0) { ImgNum = ImgLength; }
-				document.getElementById('slideshow').src = NewImg[ImgNum];
+			var imgArr = <?php echo json_encode($imageArr); ?>;
+			var imgLength = imgArr.length - 1;
+			if(document.images){
+				imgIndex = imgIndex + direction;
+				if(imgIndex > imgLength) imgIndex = 0;
+				else if(imgIndex < 0) imgNum = imgLength;
+				document.getElementById('slideshow').src = imgArr[imgIndex];
 			}
 		}
 	</script>
+	<script src="../../js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
+	<style>
+	</style>
 </head>
-
 <body>
-
 	<?php
 	$displayLeftMenu = (isset($indexMenu)?$indexMenu:"true");
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
-	<!-- This is inner text! -->
 	<div id="innertext" style="">
 		<!-- This is inner text! -->
 		<div style="width:80%;margin-left:auto;margin-right:auto;">
 			<div style="text-align:center;margin-bottom:20px;">
-				<h1><?php echo (isset($ootdGameTitle)?$ootdGameTitle:'Organism of the Day'); ?></h1>
+				<h1><?php echo $ootdTitle; ?></h1>
 			</div>
 			<?php
 			if(!$submitAction){
 				?>
 				<div style="z-index:1;width:500px;margin-left:auto;margin-right:auto;" >
-					<!--Organism of the Day body here-->
 					<div class = "dailypicture" align = "center">
 						<div>
 							<div style="vertical-align:middle;">
@@ -114,39 +134,39 @@ if($submitAction){
 						</div>
 					</div>
 					<div style="margin-left:auto;margin-right:auto;font-size:18px;text-align:center;margin-top:20px;margin-bottom:20px;" >
-						<b>Name that <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?>!</b>
+						<b>Name that <?php echo $ootdType; ?>!</b>
 						<a id="gameinfo" href="#" onclick="return false" title="How to Play?">
 							<img src="../../images/games/ootd/qmark.png" style="height:20px;"/>
 						</a>
 						<div id="gameinfodialog" title="How to Play">
-							Look at the picture, and see if you can figure out what the <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?> is. If you get completely stumped, you can
-							click the "I give up" button. A new <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?> is updated daily, so make sure you check back every day to test your knowledge!
+							Look at the picture, and see if you can figure out what the <?php echo $ootdType; ?> is. If you get completely stumped, you can
+							click the "I give up" button. A new <?php echo $ootdType; ?> is updated daily, so make sure you check back every day to test your knowledge!
 						</div>
 					</div>
 					<div>
-						<form name="answers" id="answers" method="post" action="index.php" class="asholder">
+						<form name="answers" id="answers" method="post" action="index.php" onsubmit="return verifyAnswerForm(this)">
 							<div style="width:500px;margin-left:auto;margin-right:auto;" >
 								<div style="float:left;" >
-									<div style="float:left;" >
-										<b>Family:</b> <input type="text" id="family_answer" name = "family_answer" style="width:200px;color:#888;font-weight:bold;" value = "Family" onfocus="if(this.value=='Family') {this.value='', this.style.color='black', this.style.fontWeight='normal'}" onblur="if(this.value=='') {this.value='Family', this.style.color='#888', this.style.fontWeight='bold'}" />
+									<div>
+										<b>Family:</b> <input type="text" id="family_answer" name="family_answer" style="width:200px;color:#888;font-weight:bold;" value="Family" onfocus="if(this.value=='Family') {this.value='', this.style.color='black', this.style.fontWeight='normal'}" onblur="if(this.value=='') {this.value='Family', this.style.color='#888', this.style.fontWeight='bold'}" />
 									</div>
-									<div style="margin-top:20px;float:left;clear:left;" >
-										<b>Scientific name:</b> <input type="text" id="sciname_answer" style="width:200px;color:#888;font-weight:bold;" name = "sciname_answer" value = "Genus species" onfocus="if(this.value=='Genus species') {this.value='', this.style.color='black', this.style.fontWeight='normal'}" onblur="if(this.value=='') {this.value='Genus species', this.style.color='#888', this.style.fontWeight='bold'}" />
-									</div>
-								</div>
-								<div style="float:right;margin-bottom:15px;" >
-									<div style="float:right;" >
-										<input name="submitaction" type="submit" value="Submit" style="height:7em; width:10em;"/>
-									</div>
-									<div style="margin-top:20px;float:right;clear:right;" >
-										<button name="submitaction" type="submit" value="giveup" style="height:2em; width:8em;" onClick="window.open('../../taxa/index.php?taxauthid=1&taxon=<?php echo $gameInfo['tid']; ?>','plantwindow','width=1000,height=650')" >I give up!</button>
+									<div style="margin-top:20px;" >
+										<b>Scientific name:</b> <input type="text" id="sciname_answer" style="width:200px;color:#888;font-weight:bold;" name="sciname_answer" value="Genus species" onfocus="if(this.value=='Genus species') {this.value='', this.style.color='black', this.style.fontWeight='normal'}" onblur="if(this.value=='') {this.value='Genus species', this.style.color='#888', this.style.fontWeight='bold'}" />
 									</div>
 								</div>
-								<div>
+								<div style="float:right;">
+									<div>
+										<button name="submitaction" type="submit" value="giveup" onClick="openTaxonProfile()" >I give up!</button>
+									</div>
+									<div style="margin-top:10px;">
+										<button name="submitaction" type="submit" value="Submit" >Submit Answer</button>
+									</div>
+								</div>
+								<div style="clear:both">
 									<input name="oodid" type="hidden" value="<?php echo $oodID; ?>" />
-									<input name="cl" type="hidden" value="<?php echo $ootdGameChecklist; ?>" />
-									<input name="title" type="hidden" value="<?php echo $ootdGameTitle; ?>" />
-									<input name="type" type="hidden" value="<?php echo $ootdGameType; ?>" />
+									<input name="cl" type="hidden" value="<?php echo $clidStr; ?>" />
+									<input name="title" type="hidden" value="<?php echo $ootdTitle; ?>" />
+									<input name="type" type="hidden" value="<?php echo $ootdType; ?>" />
 								</div>
 							</div>
 						</form>
@@ -154,184 +174,94 @@ if($submitAction){
 				</div>
 				<?php
 			}
-			elseif((strtolower($_POST['family_answer']) == strtolower($gameInfo['family'])) && (strtolower($_POST['sciname_answer']) == strtolower($gameInfo['sciname']))){
-				?>
-				<div id="correct" style="">
-					<div style="width:700px;margin-top:20px;margin-left:auto;margin-right:auto;clear:both;text-align:center;display:table;">
-						<div style="display:table-row;" >
-							<div style="width:160px;float:left;display:table-cell;" >
-								<img src = "../../images/games/ootd/balloons-150.png">
+			else{
+				if($submitAction == 'giveup'){
+					?>
+					<div id="giveup">
+						<div style="width:670px;margin-top:30px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
+							<div style="margin-top:25px;font-size:18px;" >
+								It was <br /><br />
+								<b><?php echo $gameInfo['family']; ?></b><br />
+								<i><?php echo $gameInfo['sciname']; ?></i>
 							</div>
-							<div style="width:350px;font-size:25px;float:left;margin-top:50px;display:table-cell;" >
-								<b>Congratulations! That is<br />correct!</b>
+							<div style="margin-top:40px;font-size:16px;" >
+								<a href = "#" onClick="openTaxonProfile()" >-Click here to learn more about this <?php echo $ootdType; ?>-</a>
+								<div>Thank you for playing!</div>
+								<div>Check back tomorrow for a new <?php echo $ootdType; ?>!</div>
 							</div>
-							<div style="width:160px;float:right;display:table-cell;" >
-								<img src = "../../images/games/ootd/balloons-150.png">
+						</div>
+					</div>
+					<?php
+				}
+				else{
+					if($scinameAnswer == strtolower($gameInfo['sciname']) || in_array($scinameAnswer, $synArr)){
+						?>
+						<div id="correct" style="text-align:center;clear:both;">
+							<div style="width:700px;margin-top:20px;margin-left:auto;margin-right:auto;display:table;">
+								<div style="display:table-row;" >
+									<div style="width:160px;float:left;display:table-cell;" >
+										<img src = "../../images/games/ootd/balloons-150.png">
+									</div>
+									<div style="width:350px;font-size:15px;float:left;margin-top:50px;display:table-cell;" >
+										<b>Congratulations! That is correct!</b>
+										<?php
+										if($scinameAnswer != strtolower($gameInfo['sciname']))
+											echo '<div style="margin-top:10px"><i>'.ucfirst($scinameAnswer).'</i> is a synonym of <i>'.$gameInfo['sciname'].'</i></div>';
+										if($familyAnswer && $familyAnswer != strtolower($gameInfo['family']))
+											echo '<div style="margin-top:10px">However, '.ucfirst($familyAnswer).' is not the correct family</div>';
+										?>
+									</div>
+									<div style="width:160px;float:right;display:table-cell;" >
+										<img src = "../../images/games/ootd/balloons-150.png">
+									</div>
+								</div>
+							</div>
+							<div style="margin-left:auto;margin-right:auto;" >
+								<div style="font-size:18px;" ><b><?php echo $gameInfo['family']; ?></b><br />
+									<i><?php echo $gameInfo['sciname']; ?></i>
+								</div>
+								<div style="margin-top:30px;font-size:16px;" >
+									<a href = "#" onClick="openTaxonProfile()" >Click here to learn more about this <?php echo $ootdType; ?></a>
+								</div>
 							</div>
 						</div>
-					</div>
-					<div style="width:670px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
-						<div style="font-size:18px;" ><b><?php echo $gameInfo['family']; ?></b><br />
-							<i><?php echo $gameInfo['sciname']; ?></i>
+						<?php
+					}
+					else{
+						?>
+						<div id="incorrect_sciname">
+							<div style="width:670px;margin-top:30px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
+								<div style="font-size:15px;" >
+									<b>Sorry, <i><?php echo ucfirst($scinameAnswer); ?></i> is not correct</b>
+								</div>
+								<div style="font-size:15px;margin-top:10px" >
+									<?php
+									$howeverStr = '';
+									if($familyAnswer == strtolower($gameInfo['family'])) $howeverStr = 'family ('.$gameInfo['family'].') ';
+									if($genusAnswer == strtolower($gameInfo['genus'])) $howeverStr .= ($howeverStr?'and ':'').'genus ('.$gameInfo['genus'].') ';
+									if($howeverStr) echo 'However, you did get the '.$howeverStr.'correct!'
+									?>
+								</div>
+								<div style="margin-top:40px;font-size:16px;" >
+									<div>
+										<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$clidStr.'&title='.$ootdTitle.'&type='.$ootdType; ?>">Click here to try again!</a>
+									</div>
+									<div>-- OR --</div>
+									<div>
+										<a href = "index.php?submitaction=giveup?oodid=<?php echo $oodID.'&cl='.$clidStr.'&title='.$ootdTitle.'&type='.$ootdType; ?>" onClick="openTaxonProfile()" >-Click here reveal what the <?php echo $ootdType; ?> was-</a>
+									</div>
+								</div>
+							</div>
 						</div>
-						<div style="margin-top:30px;font-size:16px;" >
-							<a href = "#" onClick="window.open('../../taxa/index.php?taxon=<?php echo $gameInfo['tid']; ?>','plantwindow','width=1100,height=650')" >-Click here to learn more about this <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?>-</a>
-						</div>
-					</div>
-				</div>
-				<?php
-			}
-
-			elseif(($submitAction != 'giveup') && (strtolower($_POST['family_answer']) != strtolower($gameInfo['family'])) && (strtolower($_POST['sciname_answer']) != strtolower($gameInfo['sciname'])) && ($genusAnswer != strtolower($gameInfo['genus']))){
-				?>
-				<div id="incorrect_both" class="middlecenter">
-					<!-- This is inner text! -->
-					<div style="width:670px;margin-top:30px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
-						<div style="font-size:25px;" >
-							<b>Sorry, that is not correct</b>
-						</div>
-						<div style="margin-top:25px;font-size:18px;" >
-							<b>Hint:</b> The family is <u>not</u>
-							<?php echo $_POST['family_answer']; ?>.
-						</div>
-						<div style="margin-top:40px;font-size:16px;" >
-							<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>" onClick="window.open('../../taxa/index.php?taxauthid=1&taxon=<?php echo $gameInfo['tid']; ?>">Click Here to try again!</a>
-							<br /><br />
-							OR
-							<br /><br />
-							<a href = "index.php?submitaction=giveup?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>" onClick="window.open('../../taxa/index.php?taxauthid=1&taxon=<?php echo $gameInfo['tid']; ?>','plantwindow','width=900,height=650')" >-Click here reveal what the <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?> was-</a>
-						</div>
-					</div>
-				</div>
-				<?php
-			}
-
-			elseif(($submitAction != 'giveup') && (strtolower($_POST['family_answer']) == strtolower($gameInfo['family'])) && (strtolower($_POST['sciname_answer']) != strtolower($gameInfo['sciname'])) && ($genusAnswer != strtolower($gameInfo['genus']))){
-				?>
-				<div id="incorrect_sciname" class="middlecenter">
-					<!-- This is inner text! -->
-					<div style="width:670px;margin-top:30px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
-						<div style="font-size:25px;" >
-							<b>Sorry, that is not correct</b>
-						</div>
-						<div style="margin-top:25px;font-size:18px;" >
-							On the bright side, <b>you did get the family right</b>; it's
-							<?php echo $gameInfo['family']; ?>.
-						</div>
-						<div style="margin-top:40px;font-size:16px;" >
-							<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>">Click Here to try again!</a>
-							<br /><br />
-							OR
-							<br /><br />
-							<a href = "index.php?submitaction=giveup?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>" onClick="window.open('../../taxa/index.php?taxauthid=1&taxon=<?php echo $gameInfo['tid']; ?>','plantwindow','width=900,height=650')" >-Click here reveal what the <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?> was-</a>
-						</div>
-					</div>
-				</div>
-				<?php
-			}
-
-			elseif(($submitAction != 'giveup') && (strtolower($_POST['family_answer']) != strtolower($gameInfo['family'])) && (strtolower($_POST['sciname_answer']) == strtolower($gameInfo['sciname']))){
-				?>
-				<div id="incorrect_sciname" class="middlecenter">
-					<!-- This is inner text! -->
-					<div style="width:670px;margin-top:30px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
-						<div style="font-size:25px;" >
-							<b>Sorry, that is not correct</b>
-						</div>
-						<div style="margin-top:25px;font-size:18px;" >
-							<b>You did get the scientific name right</b>; it's
-							<?php echo $gameInfo['sciname']; ?>, but the family is not <?php echo $_POST['family_answer']; ?>.
-						</div>
-						<div style="margin-top:40px;font-size:16px;" >
-							<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>">Click Here to try again!</a>
-							<br /><br />
-							OR
-							<br /><br />
-							<a href = "index.php?submitaction=giveup?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>" onClick="window.open('../../taxa/index.php?taxauthid=1&taxon=<?php echo $gameInfo['tid']; ?>','plantwindow','width=900,height=650')" >-Click here reveal what the <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?> was-</a>
-						</div>
-					</div>
-				</div>
-				<?php
-			}
-
-			elseif(($submitAction != 'giveup') && (strtolower($_POST['family_answer']) != strtolower($gameInfo['family'])) && (strtolower($_POST['sciname_answer']) != strtolower($gameInfo['sciname'])) && ($genusAnswer == strtolower($gameInfo['genus']))){
-				?>
-				<div id="incorrect_sciname" class="middlecenter">
-					<!-- This is inner text! -->
-					<div style="width:670px;margin-top:30px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
-						<div style="font-size:25px;" >
-							<b>Sorry, that is not correct</b>
-						</div>
-						<div style="margin-top:25px;font-size:18px;" >
-							On the bright side, <b>you did get the genus right</b>; it's
-							<?php echo $gameInfo['genus']; ?>.
-						</div>
-						<div style="margin-top:40px;font-size:16px;" >
-							<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>">Click Here to try again!</a>
-							<br /><br />
-							OR
-							<br /><br />
-							<a href = "index.php?submitaction=giveup?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>" onClick="window.open('../../taxa/index.php?taxauthid=1&taxon=<?php echo $gameInfo['tid']; ?>','plantwindow','width=900,height=650')" >-Click here reveal what the <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?> was-</a>
-						</div>
-					</div>
-				</div>
-				<?php
-			}
-
-			elseif(($submitAction != 'giveup') && (strtolower($_POST['family_answer']) == strtolower($gameInfo['family'])) && (strtolower($_POST['sciname_answer']) != strtolower($gameInfo['sciname'])) && ($genusAnswer == strtolower($gameInfo['genus']))){
-				?>
-				<div id="incorrect_sciname" class="middlecenter">
-					<!-- This is inner text! -->
-					<div style="width:670px;margin-top:30px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
-						<div style="font-size:25px;" >
-							<b>Sorry, that is not correct</b>
-						</div>
-						<div style="margin-top:25px;font-size:18px;" >
-							On the bright side, <b>you did get the family and genus right</b>; The family
-							is <?php echo $gameInfo['family']; ?>, and the genus is <?php echo $gameInfo['genus']; ?>.
-						</div>
-						<div style="margin-top:40px;font-size:16px;" >
-							<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>">Click Here to try again!</a>
-							<br /><br />
-							OR
-							<br /><br />
-							<a href = "index.php?submitaction=giveup?oodid=<?php echo $oodID.'&cl='.$ootdGameChecklist.'&title='.$ootdGameTitle.'&type='.$ootdGameType; ?>" onClick="window.open('../../taxa/index.php?taxauthid=1&taxon=<?php echo $gameInfo['tid']; ?>','plantwindow','width=900,height=650')" >-Click here reveal what the <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?> was-</a>
-						</div>
-					</div>
-				</div>
-				<?php
-			}
-
-			elseif($submitAction == 'giveup'){
-				?>
-				<div id="giveup" class="middlecenter">
-					<!-- This is inner text! -->
-					<div style="width:670px;margin-top:30px;margin-left:auto;margin-right:auto;clear:both;text-align:center;" >
-						<div style="font-size:25px;" >
-							<b>Too bad!</b>
-						</div>
-						<div style="margin-top:25px;font-size:18px;" >
-							It was <br /><br />
-							<b><?php echo $gameInfo['family']; ?></b><br />
-							<i><?php echo $gameInfo['sciname']; ?></i>
-						</div>
-						<div style="margin-top:40px;font-size:16px;" >
-							<a href = "#" onClick="window.open('../../taxa/index.php?taxauthid=1&taxon=<?php echo $gameInfo['tid']; ?>','plantwindow','width=900,height=650')" >-Click here to learn more about this <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?>-</a>
-							<br /><br />
-							Thank you for playing!
-							<br /><br />
-							Check back tomorrow for a new <?php echo (isset($ootdGameType)?$ootdGameType:'organism'); ?>!
-						</div>
-					</div>
-				</div>
-				<?php
+						<?php
+					}
+				}
 			}
 			?>
 		</div>
 	</div>
-
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

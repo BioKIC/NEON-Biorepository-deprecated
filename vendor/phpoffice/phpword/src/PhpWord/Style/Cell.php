@@ -11,11 +11,14 @@
  * contributors, visit https://github.com/PHPOffice/PHPWord/contributors.
  *
  * @see         https://github.com/PHPOffice/PHPWord
- * @copyright   2010-2017 PHPWord contributors
+ * @copyright   2010-2018 PHPWord contributors
  * @license     http://www.gnu.org/licenses/lgpl.txt LGPL version 3
  */
 
 namespace PhpOffice\PhpWord\Style;
+
+use PhpOffice\PhpWord\SimpleType\TblWidth;
+use PhpOffice\PhpWord\SimpleType\VerticalJc;
 
 /**
  * Table cell style
@@ -26,10 +29,20 @@ class Cell extends Border
      * Vertical alignment constants
      *
      * @const string
+     * @deprecated Use \PhpOffice\PhpWord\SimpleType\VerticalJc::TOP instead
      */
     const VALIGN_TOP = 'top';
+    /**
+     * @deprecated Use \PhpOffice\PhpWord\SimpleType\VerticalJc::CENTER instead
+     */
     const VALIGN_CENTER = 'center';
+    /**
+     * @deprecated Use \PhpOffice\PhpWord\SimpleType\VerticalJc::BOTTOM instead
+     */
     const VALIGN_BOTTOM = 'bottom';
+    /**
+     * @deprecated Use \PhpOffice\PhpWord\SimpleType\VerticalJc::BOTH instead
+     */
     const VALIGN_BOTH = 'both';
 
     //Text direction constants
@@ -123,7 +136,7 @@ class Cell extends Border
      *
      * @var string
      */
-    private $unit = Table::WIDTH_TWIP;
+    private $unit = TblWidth::TWIP;
 
     /**
      * Get vertical align.
@@ -143,8 +156,8 @@ class Cell extends Border
      */
     public function setVAlign($value = null)
     {
-        $enum = array(self::VALIGN_TOP, self::VALIGN_CENTER, self::VALIGN_BOTTOM, self::VALIGN_BOTH);
-        $this->vAlign = $this->setEnumVal($value, $enum, $this->vAlign);
+        VerticalJc::validate($value);
+        $this->vAlign = $this->setEnumVal($value, VerticalJc::values(), $this->vAlign);
 
         return $this;
     }
@@ -308,7 +321,7 @@ class Cell extends Border
      */
     public function setUnit($value)
     {
-        $this->unit = $this->setEnumVal($value, array(Table::WIDTH_AUTO, Table::WIDTH_PERCENT, Table::WIDTH_TWIP), Table::WIDTH_TWIP);
+        $this->unit = $this->setEnumVal($value, array(TblWidth::AUTO, TblWidth::PERCENT, TblWidth::TWIP), TblWidth::TWIP);
 
         return $this;
     }

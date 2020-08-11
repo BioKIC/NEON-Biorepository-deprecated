@@ -11,6 +11,7 @@ class SpecUploadBase extends SpecUpload{
 	protected $imageTransferCount = 0;
 	protected $includeIdentificationHistory = true;
 	protected $includeImages = true;
+	private $observerUid;
 	private $matchCatalogNumber = 1;
 	private $matchOtherCatalogNumbers = 0;
 	private $verifyImageUrls = false;
@@ -29,12 +30,20 @@ class SpecUploadBase extends SpecUpload{
 	protected $imageSymbFields = array();
 	protected $filterArr = array();
 
+	private $sourceCharset;
+	private $targetCharset = 'UTF-8';
+	private $imgFormatDefault = '';
 	private $sourceDatabaseType = '';
+	private $dbpkCnt = 0;
 
 	function __construct() {
 		parent::__construct();
 		set_time_limit(7200);
 		ini_set("max_input_time",240);
+		if(isset($GLOBALS['CHARSET']) && $GLOBALS['CHARSET']){
+			$this->targetCharset = strtoupper($GLOBALS['CHARSET']);
+			if($this->targetCharset == 'UTF8') $this->targetCharset == 'UTF-8';
+		}
 	}
 
 	function __destruct(){
@@ -79,16 +88,16 @@ class SpecUploadBase extends SpecUpload{
 					$sql = 'SELECT usm.sourcefield, usm.symbspecfield FROM uploadspecmap usm WHERE (usm.uspid = '.$this->uspid.')';
 					$rs = $this->conn->query($sql);
 					while($row = $rs->fetch_object()){
-						$sourceField = $row->sourcefield;
-						$symbField = $row->symbspecfield;
-						if(substr($symbField,0,3) == 'ID-'){
-							$this->identFieldMap[substr($symbField,3)]["field"] = $sourceField;
+						$symbFieldPrefix = substr($row->symbspecfield,0,3);
+						$symbFieldName = substr($row->symbspecfield,3);
+						if($symbFieldPrefix == 'ID-'){
+							$this->identFieldMap[$symbFieldName]["field"] = $row->sourcefield;
 						}
-						elseif(substr($symbField,0,3) == 'IM-'){
-							$this->imageFieldMap[substr($symbField,3)]["field"] = $sourceField;
+						elseif($symbFieldPrefix == 'IM-'){
+							$this->imageFieldMap[$symbFieldName]["field"] = $row->sourcefield;
 						}
 						else{
-							$this->fieldMap[$symbField]["field"] = $sourceField;
+							$this->fieldMap[$row->symbspecfield]["field"] = $row->sourcefield;
 						}
 					}
 					$rs->free();
@@ -96,24 +105,17 @@ class SpecUploadBase extends SpecUpload{
 		}
 
 		//Get uploadspectemp metadata
-		$skipOccurFields = array('dbpk','initialtimestamp','occid','collid','tidinterpreted','fieldnotes','coordinateprecision',
-			'verbatimcoordinatesystem','institutionid','collectionid','associatedoccurrences','datasetid','associatedreferences',
-			'previousidentifications','associatedsequences');
-		if($this->collMetadataArr['managementtype'] == 'Live Data' && $this->collMetadataArr['guidtarget'] != 'occurrenceId'){
-			//Do not import occurrenceID if dataset is a live dataset, unless occurrenceID is explicitly defined as the guidSource.
-			//This avoids the situtation where folks are exporting data from one collection and importing into their collection along with the other collection's occurrenceID GUID, which is very bad
-			$skipOccurFields[] = 'occurrenceid';
-		}
+		$this->setSkipOccurFieldArr();
 		if($this->uploadType == $this->RESTOREBACKUP){
-			unset($skipOccurFields);
-			$skipOccurFields = array();
+			unset($this->skipOccurFieldArr);
+			$this->skipOccurFieldArr = array();
 		}
 		//Other to deal with/skip later: 'ownerinstitutioncode'
 		$sql = "SHOW COLUMNS FROM uploadspectemp";
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			$field = strtolower($row->Field);
-			if(!in_array($field,$skipOccurFields)){
+			if(!in_array($field,$this->skipOccurFieldArr)){
 				if($autoBuildFieldMap){
 					$this->fieldMap[$field]["field"] = $field;
 				}
@@ -145,25 +147,7 @@ class SpecUploadBase extends SpecUpload{
 		//Add additional fields that are used for mapping to other fields just before record is imported into uploadspectemp
 		$this->symbFields[] = 'coordinateuncertaintyradius';
 		$this->symbFields[] = 'coordinateuncertaintyunits';
-		//Add DwC GeologicalContext (paleo) terms
-		$this->symbFields[] = 'geologicalcontextid';
-		$this->symbFields[] = 'earliestEonOrLowestEonothem';
-		$this->symbFields[] = 'latestEonOrHighestEonothem';
-		$this->symbFields[] = 'earliestEraOrLowestErathem';
-		$this->symbFields[] = 'latestEraOrHighestErathem';
-		$this->symbFields[] = 'earliestPeriodOrLowestSystem';
-		$this->symbFields[] = 'latestPeriodOrHighestSystem';
-		$this->symbFields[] = 'earliestEpochOrLowestSeries';
-		$this->symbFields[] = 'latestEpochOrHighestSeries';
-		$this->symbFields[] = 'earliestAgeOrLowestStage';
-		$this->symbFields[] = 'latestAgeOrHighestStage';
-		$this->symbFields[] = 'lowestBiostratigraphicZone';
-		$this->symbFields[] = 'highestBiostratigraphicZone';
-		$this->symbFields[] = 'lithostratigraphicTermsProperty';
-		$this->symbFields[] = 'group';
-		$this->symbFields[] = 'formation';
-		$this->symbFields[] = 'member';
-		$this->symbFields[] = 'bed';
+		if($this->paleoSupport) $this->symbFields = array_merge($this->symbFields,$this->getPaleoTerms());
 
 		switch ($this->uploadType) {
 			case $this->FILEUPLOAD:
@@ -173,7 +157,7 @@ class SpecUploadBase extends SpecUpload{
 			case $this->RESTOREBACKUP:
 			case $this->DIRECTUPLOAD:
 				//Get identification metadata
-				$skipDetFields = array('detid','occid','tidinterpreted','idbyid','appliedstatus','sortsequence','sourceidentifier','initialtimestamp');
+				$skipDetFields = array('detid','occid','tidinterpreted','idbyid','appliedstatus','sortsequence','initialtimestamp');
 				if($this->uploadType == $this->RESTOREBACKUP){
 					unset($skipDetFields);
 					$skipDetFields = array();
@@ -261,14 +245,21 @@ class SpecUploadBase extends SpecUpload{
 			'field:localitydescription'=>'locality','placeguess'=>'locality','latitude'=>'verbatimlatitude','longitude'=>'verbatimlongitude','placeadmin1name'=>'stateprovince','placeadmin2name'=>'county',
 			'errorradius'=>'coordinateuncertaintyradius','positionalaccuracy'=>'coordinateuncertaintyinmeters','errorradiusunits'=>'coordinateuncertaintyunits','elevationmeters'=>'minimumelevationinmeters',
 			'field:associatedspecies'=>'associatedtaxa','associatedspecies'=>'associatedtaxa','specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks',
-			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','field:habitat'=>'habitat',
-			'habitatdescription'=>'habitat','imageurl'=>'associatedMedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02');
+			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','field:habitat'=>'habitat','habitatdescription'=>'habitat',
+			'group'=>'paleo-lithogroup','lithostratigraphicterms'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
+		);
+		if($this->paleoSupport){
+			$paleoArr = $this->getPaleoTerms();
+			foreach($paleoArr as $v){
+				$translationMap[substr($v,6)] = $v;
+			}
+		}
 		if($mode == 'ident'){
 			$prefix = 'ID-';
 			$fieldMap = $this->identFieldMap;
 			$symbFields = $this->identSymbFields;
 			$sourceArr = $this->identSourceArr;
-			$translationMap = array('scientificname'=>'sciname','detby'=>'identifiedby','determinor'=>'identifiedby',
+			$translationMap = array('scientificname'=>'sciname','identificationiscurrent'=>'iscurrent','detby'=>'identifiedby','determinor'=>'identifiedby',
 				'determinationdate'=>'dateidentified','notes'=>'identificationremarks','cf' => 'identificationqualifier');
 		}
 		elseif($mode == 'image'){
@@ -375,7 +366,6 @@ class SpecUploadBase extends SpecUpload{
 					$statusStr = 'ERROR saving custom filter variables: '.$this->conn->error;
 				}
 			}
-
 			//Save identification field map
 			foreach($this->identFieldMap as $k => $v){
 				$sourceField = $v["field"];
@@ -385,7 +375,6 @@ class SpecUploadBase extends SpecUpload{
 					$statusStr = 'ERROR saving identification field map: '.$this->conn->error;
 				}
 			}
-
 			//Save image field map
 			foreach($this->imageFieldMap as $k => $v){
 				$sourceField = $v["field"];
@@ -422,7 +411,6 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	protected function prepUploadData(){
-		//First, delete all records in uploadspectemp and uploadimagetemp table associated with this collection
 		$this->outputMsg('<li>Clearing staging tables</li>');
 		$sqlDel1 = 'DELETE FROM uploadspectemp WHERE (collid IN('.$this->collId.'))';
 		$this->conn->query($sqlDel1);
@@ -486,6 +474,7 @@ class SpecUploadBase extends SpecUpload{
 				$sql = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON (u.catalogNumber = o.catalogNumber) AND (u.collid = o.collid) '.
 					'SET u.occid = o.occid '.
 					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NULL) AND (u.catalogNumber IS NOT NULL) AND (o.catalogNumber IS NOT NULL) ';
+				if($this->collMetadataArr['colltype'] == 'General Observations' && $this->observerUid) $sql .= ' AND o.observeruid = '.$this->observerUid;
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li><span style="color:red;">Warning: unable to match on catalog number: '.$this->conn->error.'</span></li>');
 				}
@@ -495,6 +484,7 @@ class SpecUploadBase extends SpecUpload{
 				$sql2 = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON (u.otherCatalogNumbers = o.otherCatalogNumbers) AND (u.collid = o.collid) '.
 					'SET u.occid = o.occid '.
 					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NULL) AND (u.othercatalogNumbers IS NOT NULL) AND (o.othercatalogNumbers IS NOT NULL) ';
+				if($this->collMetadataArr['colltype'] == 'General Observations' && $this->observerUid) $sql .= ' AND o.observeruid = '.$this->observerUid;
 				if(!$this->conn->query($sql2)){
 					$this->outputMsg('<li><span style="color:red;">Warning: unable to match on other catalog numbers: '.$this->conn->error.'</span></li>');
 				}
@@ -538,7 +528,7 @@ class SpecUploadBase extends SpecUpload{
 
 		$sql = 'UPDATE IGNORE uploadspectemp u '.
 			'SET u.eventDate = CONCAT_WS("-",LPAD(u.year,4,"19"),IFNULL(LPAD(u.month,2,"0"),"00"),IFNULL(LPAD(u.day,2,"0"),"00")) '.
-			'WHERE (u.eventDate IS NULL) AND (u.year > 1300) AND (u.year < 2020) AND (collid = IN('.$this->collId.'))';
+			'WHERE (u.eventDate IS NULL) AND (u.year > 1300) AND (u.year <= '.date('Y').') AND (collid = IN('.$this->collId.'))';
 		$this->conn->query($sql);
 
 		$this->outputMsg('<li style="margin-left:10px;">Cleaning country and state/province ...</li>');
@@ -593,10 +583,8 @@ class SpecUploadBase extends SpecUpload{
 			'WHERE collid IN('.$this->collId.') AND (DecimalLatitude < -90 OR DecimalLatitude > 90 OR DecimalLongitude < -180 OR DecimalLongitude > 180)';
 		$this->conn->query($sql);
 
-
 		$this->outputMsg('<li style="margin-left:10px;">Cleaning taxonomy...</li>');
-		$sql = 'UPDATE uploadspectemp SET family = sciname '.
-			'WHERE (family IS NULL) AND (sciname LIKE "%aceae" OR sciname LIKE "%idae")';
+		$sql = 'UPDATE uploadspectemp SET family = sciname WHERE (family IS NULL) AND (sciname LIKE "%aceae" OR sciname LIKE "%idae")';
 		$this->conn->query($sql);
 
 		$sql = 'UPDATE uploadspectemp SET sciname = family WHERE (family IS NOT NULL) AND (sciname IS NULL) ';
@@ -610,7 +598,7 @@ class SpecUploadBase extends SpecUpload{
 
 		//Lock security setting if set so that local system can't override
 		$sql = 'UPDATE uploadspectemp '.
-			'SET localitySecurityReason = "locked" '.
+			'SET localitySecurityReason = "Locked: set via import file" '.
 			'WHERE localitySecurity > 0 AND localitySecurityReason IS NULL AND collid IN('.$this->collId.')';
 		$this->conn->query($sql);
 	}
@@ -671,6 +659,18 @@ class SpecUploadBase extends SpecUpload{
 			$rs->free();
 		}
 
+		if($this->uploadType == $this->RESTOREBACKUP || ($this->collMetadataArr["managementtype"] == 'Snapshot' && $this->uploadType != $this->SKELETAL)){
+			//Records already in portal that won't match with an incoming record
+			$sql = 'SELECT count(o.occid) AS cnt '.
+					'FROM omoccurrences o LEFT JOIN uploadspectemp u  ON (o.occid = u.occid) '.
+					'WHERE (o.collid IN('.$this->collId.')) AND (u.occid IS NULL)';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$reportArr['exist'] = $r->cnt;
+			}
+			$rs->free();
+		}
+
 		if($this->uploadType != $this->SKELETAL && $this->collMetadataArr["managementtype"] == 'Snapshot' && $this->uploadType != $this->RESTOREBACKUP){
 			//Match records that were processed via the portal, walked back to collection's central database, and come back to portal
 			$sql = 'SELECT count(o.occid) AS cnt '.
@@ -680,18 +680,11 @@ class SpecUploadBase extends SpecUpload{
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$reportArr['sync'] = $r->cnt;
-			}
-			$rs->free();
-		}
-
-		if($this->uploadType == $this->RESTOREBACKUP || ($this->collMetadataArr["managementtype"] == 'Snapshot' && $this->uploadType != $this->SKELETAL)){
-			//Records already in portal that won't match with an incoming record
-			$sql = 'SELECT count(o.occid) AS cnt '.
-				'FROM omoccurrences o LEFT JOIN uploadspectemp u  ON (o.occid = u.occid) '.
-				'WHERE (o.collid IN('.$this->collId.')) AND (u.occid IS NULL)';
-			$rs = $this->conn->query($sql);
-			if($r = $rs->fetch_object()){
-				$reportArr['exist'] = $r->cnt;
+				$newCnt = $reportArr['new'] - $r->cnt;
+				if($newCnt >= -1) $reportArr['new'] = $newCnt;
+				$reportArr['update'] += $r->cnt;
+				$existCnt = $reportArr['exist'] - $r->cnt;
+				if($existCnt >= -1) $reportArr['exist'] = $existCnt;
 			}
 			$rs->free();
 		}
@@ -777,7 +770,18 @@ class SpecUploadBase extends SpecUpload{
 			$this->outputMsg('<li>Transferring edits to versioning tables...</li>');
 			$this->versionOccurrenceEdits();
 		}
-		$this->outputMsg('<li>Updating existing records... </li>');
+		$transactionInterval = 1000;
+		$this->outputMsg('<li>Updating existing records in batches of '.$transactionInterval.'... </li>');
+		//Grab specimen intervals for updating reords in batches
+		$intervalArr = array();
+		$sql = 'SELECT occid FROM ( SELECT @row := @row +1 AS rownum, occid FROM ( SELECT @row :=0) r, uploadspectemp WHERE occid IS NOT NULL AND collid = '.
+			$this->collId.' ORDER BY occid) ranked WHERE rownum % '.$transactionInterval.' = 1';
+		//echo $sql; exit;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$intervalArr[] = $r->occid;
+		}
+		$rs->free();
 		$fieldArr = array('basisOfRecord', 'catalogNumber','otherCatalogNumbers','occurrenceid',
 			'ownerInstitutionCode','institutionID','collectionID','institutionCode','collectionCode',
 			'family','scientificName','sciname','tidinterpreted','genus','specificEpithet','datasetID','taxonRank','infraspecificEpithet',
@@ -791,7 +795,9 @@ class SpecUploadBase extends SpecUpload{
 			'decimalLatitude','decimalLongitude','geodeticDatum','coordinateUncertaintyInMeters','footprintWKT','coordinatePrecision',
 			'locationRemarks','verbatimCoordinates','verbatimCoordinateSystem','georeferencedBy','georeferenceProtocol','georeferenceSources',
 			'georeferenceVerificationStatus','georeferenceRemarks','minimumElevationInMeters','maximumElevationInMeters','verbatimElevation',
+			'minimumDepthInMeters','maximumDepthInMeters','verbatimDepth',
 			'previousIdentifications','disposition','modified','language','recordEnteredBy','labelProject','duplicateQuantity','processingStatus');
+
 		//Update matching records
 		$sqlFragArr = array();
 		foreach($fieldArr as $v){
@@ -805,30 +811,69 @@ class SpecUploadBase extends SpecUpload{
 				$sqlFragArr[$v] = 'o.'.$v.' = u.'.$v;
 			}
 		}
-		$sql = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid '.
-			'SET '.implode(',',$sqlFragArr).' WHERE (u.collid IN('.$this->collId.'))';
-		//echo '<div>'.$sql.'</div>'; exit;
-		if(!$this->conn->query($sql)){
-			$this->outputMsg('<li style="margin-left:10px">FAILED! ERROR: '.$this->conn->error.'</li> ');
-		}
-
-		if($this->uploadType != $this->NFNUPLOAD){
-			$this->outputMsg('<li>Transferring new records...</li>');
-			$sql = 'INSERT IGNORE INTO omoccurrences (collid, dbpk, dateentered, '.implode(', ',$fieldArr).' ) '.
-				'SELECT u.collid, u.dbpk, "'.date('Y-m-d H:i:s').'", u.'.implode(', u.',$fieldArr).' FROM uploadspectemp u '.
-				'WHERE u.occid IS NULL AND u.collid IN('.$this->collId.')';
-			//echo '<div>'.$sql.'</div>'; exit;
-			if(!$this->conn->query($sql)){
-				$this->outputMsg('<li>FAILED! ERROR: '.$this->conn->error.'</li> ');
-				//$this->outputMsg($sql);
+		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid SET o.observeruid = '.($this->observerUid?$this->observerUid:'NULL').','.implode(',',$sqlFragArr);
+		if($this->collMetadataArr["managementtype"] == 'Snapshot') $sqlBase .= ', o.dateLastModified = CURRENT_TIMESTAMP() ';
+		$sqlBase .= ' WHERE (u.collid IN('.$this->collId.')) ';
+		$cnt = 1;
+		$previousInterval = 0;
+		foreach($intervalArr as $intValue){
+			if($previousInterval){
+				$sql = $sqlBase.'AND (o.occid BETWEEN '.$previousInterval.' AND '.($intValue-1).') ';
+				//echo '<div>'.$sql.'</div>';
+				if($this->conn->query($sql)) $this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$transactionInterval.' updated ('.$this->conn->affected_rows.' changed)</li>');
+				else $this->outputMsg('<li style="margin-left:10px">FAILED updating records: '.$this->conn->error.'</li> ');
+				$cnt++;
 			}
+			$previousInterval = $intValue;
+		}
+		$sql = $sqlBase.'AND (o.occid >= '.$previousInterval.')';
+		if($this->conn->query($sql)) $this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$this->conn->affected_rows.' updated</li>');
+		else $this->outputMsg('<li style="margin-left:10px">ERROR updating records: '.$this->conn->error.'</li> ');
+
+		//Insert new records
+		if($this->uploadType != $this->NFNUPLOAD){
+			$this->outputMsg('<li>Transferring new records in batches of '.$transactionInterval.'...</li>');
+			$insertTarget = 0;
+			$sql = 'SELECT COUNT(*) AS cnt FROM uploadspectemp WHERE occid IS NULL AND collid IN('.$this->collId.')';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()) $insertTarget = $r->cnt;
+			$rs->free();
+			$cnt = 1;
+			while($insertTarget > 0){
+				$sql = 'INSERT IGNORE INTO omoccurrences (collid, dbpk, dateentered, observerUid, '.implode(', ',$fieldArr).' ) '.
+					'SELECT u.collid, u.dbpk, "'.date('Y-m-d H:i:s').'", '.($this->observerUid?$this->observerUid:'NULL').', u.'.implode(', u.',$fieldArr).' FROM uploadspectemp u '.
+					'WHERE u.occid IS NULL AND u.collid IN('.$this->collId.') LIMIT '.$transactionInterval;
+				//echo '<div>'.$sql.'</div>';
+				$insertCnt = 0;
+				if($this->conn->query($sql)){
+					$insertCnt = $this->conn->affected_rows;
+					$warnCnt = $this->conn->warning_count;
+					if($warnCnt){
+						if(strpos($this->conn->get_warnings()->message,'UNIQUE_occurrenceID'))
+							$this->outputMsg('<li style="margin-left:10px"><span style="color:orange">WARNING</span>: '.$warnCnt.' records failed to load due to duplicate occurrenceID values which must be unique across all collections)</li>');
+					}
+				}
+				else{
+					$this->outputMsg('<li>FAILED! ERROR: '.$this->conn->error.'</li> ');
+					//$this->outputMsg($sql);
+				}
+				$sql = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON u.dbpk = o.dbpk '.
+					'SET u.occid = o.occid '.
+					'WHERE o.collid = '.$this->collId.' AND u.collid = '.$this->collId.' AND u.occid IS NULL';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li>ERROR updating occid on recent Insert batch: '.$this->conn->error.'</li> ');
+				}
+				$this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$insertCnt.' inserted</li>');
+				$insertTarget -= $transactionInterval;
+				$cnt++;
+			};
 
 			//Link all newly intersted records back to uploadspectemp in prep for loading determiantion history and associatedmedia
-			$this->outputMsg('<li>Linking records in prep for loading determination history and associatedmedia...</li>');
+			$this->outputMsg('<li>Linking records in prep for loading extended data...</li>');
 			//Update occid by matching dbpk
 			$sqlOcc1 = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON (u.dbpk = o.dbpk) AND (u.collid = o.collid) '.
 				'SET u.occid = o.occid '.
-				'WHERE (u.occid IS NULL) AND (u.dbpk IS NOT NULL) AND (o.dbpk IS NOT NULL) AND (u.collid IN('.$this->collId.'))';
+				'WHERE (u.occid IS NULL) AND (u.dbpk IS NOT NULL) AND (u.collid IN('.$this->collId.'))';
 			if(!$this->conn->query($sqlOcc1)){
 				$this->outputMsg('<li>ERROR updating occid after occurrence insert: '.$this->conn->error.'</li>');
 			}
@@ -840,31 +885,9 @@ class SpecUploadBase extends SpecUpload{
 				$this->outputMsg('<li>ERROR updating occid (2nd step) after occurrence insert: '.$this->conn->error.'</li>');
 			}
 
-			//Exsiccati transfer
-			$rsTest = $this->conn->query('SHOW COLUMNS FROM uploadspectemp WHERE field = "exsiccatiIdentifier"');
-			if($rsTest->num_rows){
-				//Add any new exsiccati numbers
-				$sqlExs2 = 'INSERT INTO omexsiccatinumbers(ometid, exsnumber) '.
-					'SELECT DISTINCT u.exsiccatiIdentifier, u.exsiccatinumber '.
-					'FROM uploadspectemp u LEFT JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
-					'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NOT NULL) '.
-					'AND (u.exsiccatiIdentifier IS NOT NULL) AND (u.exsiccatinumber IS NOT NULL) AND (e.exsnumber IS NULL)';
-				if(!$this->conn->query($sqlExs2)){
-					$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>');
-				}
-				//Load exsiccati
-				$sqlExs3 = 'INSERT IGNORE INTO omexsiccatiocclink(omenid,occid) '.
-					'SELECT e.omenid, u.occid '.
-					'FROM uploadspectemp u INNER JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
-					'WHERE (u.collid IN('.$this->collId.')) AND (e.omenid IS NOT NULL) AND (u.occid IS NOT NULL)';
-				if($this->conn->query($sqlExs3)){
-					$this->outputMsg('<li>Specimens linked to exsiccati index </li>');
-				}
-				else{
-					$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>');
-				}
-			}
-			$rsTest->free();
+			$this->transferExsiccati();
+			$this->transferGeneticLinks();
+			$this->transferPaleoData();
 
 			//Setup and add datasets and link datasets to current user
 
@@ -873,7 +896,6 @@ class SpecUploadBase extends SpecUpload{
 
 	private function versionOccurrenceEdits(){
 		$nfnFieldArr = array();
-		$occArr = array();
 		$sql = "SHOW COLUMNS FROM omoccurrences";
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
@@ -886,12 +908,10 @@ class SpecUploadBase extends SpecUpload{
 		foreach($nfnFieldArr as $field){
 			$sqlFrag .= ',u.'.$field.',o.'.$field.' as old_'.$field;
 		}
-		$sql = 'SELECT o.occid'.$sqlFrag.' FROM omoccurrences o INNER JOIN uploadspectemp u ON o.occid = u.occid '.
-			'WHERE o.collid IN('.$this->collId.') AND u.collid IN('.$this->collId.')';
+		$sql = 'SELECT o.occid'.$sqlFrag.' FROM omoccurrences o INNER JOIN uploadspectemp u ON o.occid = u.occid WHERE o.collid IN('.$this->collId.') AND u.collid IN('.$this->collId.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
 			$editArr = array();
-			$notAppliedArr = array();
 			foreach($nfnFieldArr as $field){
 				if($r[$field] && $r['old_'.$field] != $r[$field]){
 					if($r['old_'.$field] && $field != 'processingstatus'){
@@ -907,13 +927,143 @@ class SpecUploadBase extends SpecUpload{
 			//Load into revisions table
 			foreach($editArr as $appliedStatus => $eArr){
 				$sql = 'INSERT INTO omoccurrevisions(occid, oldValues, newValues, externalSource, reviewStatus, appliedStatus) '.
-					'VALUES('.$r['occid'].',"'.$this->cleanInStr(json_encode($eArr['old'])).'","'.$this->cleanInStr(json_encode($eArr['new'])).'","Notes from Nature Expedition",1,'.$appliedStatus.')';
+						'VALUES('.$r['occid'].',"'.$this->cleanInStr(json_encode($eArr['old'])).'","'.$this->cleanInStr(json_encode($eArr['new'])).'","Notes from Nature Expedition",1,'.$appliedStatus.')';
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:10px;">ERROR adding edit revision ('.$this->conn->error.')</li>');
 				}
 			}
 		}
 		$rs->free();
+	}
+
+	private function transferExsiccati(){
+		$rs = $this->conn->query('SHOW COLUMNS FROM uploadspectemp WHERE field = "exsiccatiIdentifier"');
+		if($rs->num_rows){
+			$this->outputMsg('<li>Loading Exsiccati numbers...</li>');
+			//Add any new exsiccati numbers
+			$sqlNum = 'INSERT INTO omexsiccatinumbers(ometid, exsnumber) '.
+				'SELECT DISTINCT u.exsiccatiIdentifier, u.exsiccatinumber '.
+				'FROM uploadspectemp u LEFT JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
+				'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NOT NULL) '.
+				'AND (u.exsiccatiIdentifier IS NOT NULL) AND (u.exsiccatinumber IS NOT NULL) AND (e.exsnumber IS NULL)';
+			if(!$this->conn->query($sqlNum)){
+				$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>');
+			}
+			//Load exsiccati
+			$sqlLink = 'INSERT IGNORE INTO omexsiccatiocclink(omenid,occid) '.
+				'SELECT e.omenid, u.occid '.
+				'FROM uploadspectemp u INNER JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
+				'WHERE (u.collid IN('.$this->collId.')) AND (e.omenid IS NOT NULL) AND (u.occid IS NOT NULL)';
+			if(!$this->conn->query($sqlLink)){
+				$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>',1);
+			}
+		}
+		$rs->free();
+	}
+
+	private function transferGeneticLinks(){
+		$this->outputMsg('<li>Linking genetic records (aka associatedSequences)...</li>');
+		$sql = 'SELECT occid, associatedSequences FROM uploadspectemp WHERE occid IS NOT NULL AND associatedSequences IS NOT NULL ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$seqArr = explode(';', str_replace(array(',','|',''),';',$r->associatedSequences));
+			foreach($seqArr as $str){
+				//$urlPattern = '/((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z0-9\&\.\/\?\:@\-_=#])*/';
+				if(preg_match('$((http|https)\://[^\s;,]+)$', $str, $match)){
+					$url = $match[1];
+					$noteStr = trim(str_replace($url, '', $str),',;| ');
+					$resNameStr = 'undefined';
+					$idenStr = '';
+					if(preg_match('$ncbi\.nlm\.nih\.gov.+/([A-Z]+\d+)$', $str, $matchNCBI)){
+						//https://www.ncbi.nlm.nih.gov/nuccore/AY138416
+						$resNameStr = 'GenBank';
+						$idenStr = $matchNCBI[1];
+					}
+					elseif(preg_match('/boldsystems\.org.*processid=([A-Z\d-]+)/', $str, $matchBOLD)){
+						//http://www.boldsystems.org/index.php/Public_RecordView?processid=BSAMQ088-09
+						$resNameStr = 'BOLD Systems';
+						$idenStr = $matchBOLD[1];
+					}
+					$seqSQL = 'INSERT INTO omoccurgenetic(occid, resourcename, identifier, resourceurl, notes) '.
+						'VALUES('.$r->occid.',"'.$this->cleanInStr($resNameStr).'",'.($idenStr?'"'.$this->cleanInStr($idenStr).'"':'NULL').
+						',"'.$url.'",'.($noteStr?'"'.$this->cleanInStr($noteStr).'"':'NULL').')';
+					if(!$this->conn->query($seqSQL) && $this->conn->errno != '1062'){
+						$this->outputMsg('<li>ERROR adding genetic resource: '.$this->conn->error.'</li>',1);
+					}
+				}
+			}
+		}
+		$rs->free();
+	}
+
+	private function transferPaleoData(){
+		if($this->paleoSupport){
+			$this->outputMsg('<li>Linking Paleo data...</li>');
+			$sql = 'SELECT occid, catalogNumber, paleoJSON FROM uploadspectemp WHERE (occid IS NOT NULL) AND (paleoJSON IS NOT NULL) ';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				try{
+					$paleoArr = json_decode($r->paleoJSON,true);
+					//Deal with DwC terms
+					$eonTerm = '';
+					if(isset($paleoArr['earliesteonorlowesteonothem']) && $paleoArr['earliesteonorlowesteonothem']) $eonTerm = $paleoArr['earliesteonorlowesteonothem'];
+					if(isset($paleoArr['latesteonorhighesteonothem']) && $paleoArr['latesteonorhighesteonothem'] != $eonTerm) $eonTerm .= ' - '.$paleoArr['latesteonorhighesteonothem'];
+					if($eonTerm && !isset($paleoArr['eon'])) $paleoArr['eon'] = $eonTerm;
+					unset($paleoArr['earliesteonorlowesteonothem']);
+					unset($paleoArr['latesteonorhighesteonothem']);
+
+					$eraTerm = '';
+					if(isset($paleoArr['earliesteraorlowesterathem']) && $paleoArr['earliesteraorlowesterathem']) $eraTerm = $paleoArr['earliesteraorlowesterathem'];
+					if(isset($paleoArr['latesteraorhighesterathem']) && $paleoArr['latesteraorhighesterathem'] != $eraTerm) $eraTerm .= ' - '.$paleoArr['latesteraorhighesterathem'];
+					if($eraTerm && !isset($paleoArr['era'])) $paleoArr['era'] = $eraTerm;
+					unset($paleoArr['earliesteraorlowesterathem']);
+					unset($paleoArr['latesteraorhighesterathem']);
+
+					$periodTerm = '';
+					if(isset($paleoArr['earliestperiodorlowestsystem']) && $paleoArr['earliestperiodorlowestsystem']) $periodTerm = $paleoArr['earliestperiodorlowestsystem'];
+					if(isset($paleoArr['latestperiodorhighestsystem']) && $paleoArr['latestperiodorhighestsystem'] != $periodTerm) $periodTerm .= ' - '.$paleoArr['latestperiodorhighestsystem'];
+					if($periodTerm && !isset($paleoArr['period'])) $paleoArr['period'] = $periodTerm;
+					unset($paleoArr['earliestperiodorlowestsystem']);
+					unset($paleoArr['latestperiodorhighestsystem']);
+
+					$epochTerm = '';
+					if(isset($paleoArr['earliestepochorlowestseries']) && $paleoArr['earliestepochorlowestseries']) $epochTerm = $paleoArr['earliestepochorlowestseries'];
+					if(isset($paleoArr['latestepochorhighestseries']) && $paleoArr['latestepochorhighestseries'] != $epochTerm) $epochTerm .= ' - '.$paleoArr['latestepochorhighestseries'];
+					if($epochTerm && !isset($paleoArr['epoch'])) $paleoArr['epoch'] = $epochTerm;
+					unset($paleoArr['earliestepochorlowestseries']);
+					unset($paleoArr['latestepochorhighestseries']);
+
+					$stageTerm = '';
+					if(isset($paleoArr['earliestageorloweststage']) && $paleoArr['earliestageorloweststage']) $stageTerm = $paleoArr['earliestageorloweststage'];
+					if(isset($paleoArr['latestageorhigheststage']) && $paleoArr['latestageorhigheststage'] != $stageTerm) $stageTerm .= ' - '.$paleoArr['latestageorhigheststage'];
+					if($stageTerm && !isset($paleoArr['stage'])) $paleoArr['stage'] = $stageTerm;
+					unset($paleoArr['earliestageorloweststage']);
+					unset($paleoArr['latestageorhigheststage']);
+
+					$biostratigraphyTerm = '';
+					if(isset($paleoArr['lowestbiostratigraphiczone']) && $paleoArr['lowestbiostratigraphiczone']) $biostratigraphyTerm = $paleoArr['lowestbiostratigraphiczone'];
+					if(isset($paleoArr['highestbiostratigraphiczone']) && $paleoArr['highestbiostratigraphiczone'] != $biostratigraphyTerm) $biostratigraphyTerm .= ' - '.$paleoArr['highestbiostratigraphiczone'];
+					if($biostratigraphyTerm && !isset($paleoArr['biostratigraphy'])) $paleoArr['biostratigraphy'] = $biostratigraphyTerm;
+					unset($paleoArr['lowestbiostratigraphiczone']);
+					unset($paleoArr['highestbiostratigraphiczone']);
+
+					$insertSQL = '';
+					$valueSQL = '';
+					foreach($paleoArr as $k => $v){
+						$insertSQL .= ','.$k;
+						$valueSQL .= ',"'.$this->cleanInStr($v).'"';
+					}
+					$sql = 'REPLACE INTO omoccurpaleo(occid'.$insertSQL.') VALUES('.$r->occid.$valueSQL.')';
+					if(!$this->conn->query($sql)){
+						$this->outputMsg('<li>ERROR adding paleo resources: '.$this->conn->error.'</li>',1);
+					}
+				}
+				catch(Exception $e){
+					$this->outputMsg('<li>ERROR adding paleo record (occid: '.$r->occid.', catalogNumber: '.$r->catalogNumber.'): '.$e->getMessage().'</li>',1);
+				}
+			}
+			$rs->free();
+		}
 	}
 
 	protected function transferIdentificationHistory(){
@@ -931,11 +1081,25 @@ class SpecUploadBase extends SpecUpload{
 					$this->outputMsg('<li style="margin-left:20px;">WARNING updating occids within uploaddetermtemp: '.$this->conn->error.'</li> ');
 				}
 
-				//Delete already existing determinations
-				$sqlDel = 'DELETE u.* '.
+				//Update determinations where the sourceIdentifiers match
+				$sql = 'UPDATE IGNORE omoccurdeterminations d INNER JOIN uploaddetermtemp u ON d.occid = u.occid '.
+					'SET d.sciname = u.sciname, d.scientificNameAuthorship = u.scientificNameAuthorship, d.identifiedBy = u.identifiedBy, d.dateIdentified = u.dateIdentified, '.
+					'd.identificationQualifier = u.identificationQualifier, d.iscurrent = u.iscurrent, d.identificationReferences = u.identificationReferences, '.
+					'd.identificationRemarks = u.identificationRemarks, d.sourceIdentifier = u.sourceIdentifier '.
+					'WHERE (u.collid IN('.$this->collId.')) AND (d.sourceIdentifier = u.sourceIdentifier)';
+				//echo $sql;
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:20px;">ERROR updating determinations with matching sourceIdentifiers: '.$this->conn->error.'</li> ');
+				}
+				$sql = 'DELETE u.* FROM omoccurdeterminations d INNER JOIN uploaddetermtemp u ON d.occid = u.occid WHERE (u.collid IN('.$this->collId.')) AND (d.sourceIdentifier = u.sourceIdentifier) ';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:20px;">ERROR removing determinations with matching sourceIdentifiers: '.$this->conn->error.'</li> ');
+				}
+
+				//Delete duplicate determinations (likely previously loaded)
+				$sqlDel = 'DELETE IGNORE u.* '.
 					'FROM uploaddetermtemp u INNER JOIN omoccurdeterminations d ON u.occid = d.occid '.
-					'WHERE (u.collid IN('.$this->collId.')) '.
-					'AND (d.sciname = u.sciname) AND (d.identifiedBy = u.identifiedBy) AND (d.dateIdentified = u.dateIdentified)';
+					'WHERE (u.collid IN('.$this->collId.')) AND (d.sciname = u.sciname) AND (d.identifiedBy = u.identifiedBy) AND (d.dateIdentified = u.dateIdentified)';
 				$this->conn->query($sqlDel);
 
 				//Load identification history records
@@ -947,9 +1111,7 @@ class SpecUploadBase extends SpecUpload{
 					'WHERE u.occid IS NOT NULL AND (u.collid IN('.$this->collId.'))';
 				if($this->conn->query($sql)){
 					//Delete all determinations
-					$sqlDel = 'DELETE * '.
-						'FROM uploaddetermtemp '.
-						'WHERE (collid IN('.$this->collId.'))';
+					$sqlDel = 'DELETE * FROM uploaddetermtemp WHERE (collid IN('.$this->collId.'))';
 					$this->conn->query($sqlDel);
 				}
 				else{
@@ -973,7 +1135,7 @@ class SpecUploadBase extends SpecUpload{
 				foreach($mediaArr as $mediaUrl){
 					$mediaUrl = trim($mediaUrl);
 					if(strpos($mediaUrl,'"')) continue;
-					$this->loadImageRecord(array('occid'=>$r->occid,'tid'=>($r->tidinterpreted?$r->tidinterpreted:''),'originalurl'=>$mediaUrl,'url'=>'empty'));
+					$this->loadImageRecord(array('occid'=>$r->occid,'tid'=>($r->tidinterpreted?$r->tidinterpreted:''),'originalurl'=>$mediaUrl));
 				}
 			}
 		}
@@ -981,76 +1143,41 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	private function prepareImages(){
-		$sql = 'SELECT * FROM uploadimagetemp WHERE collid = '.$this->collId;
+		$sql = 'SELECT collid FROM uploadimagetemp WHERE collid = '.$this->collId.' LIMIT 1';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$this->outputMsg('<li>Preparing images for transfer... </li>');
 			//Remove images that are obviously not JPGs
-			$sql = 'DELETE FROM uploadimagetemp '.
-				'WHERE (originalurl LIKE "%.dng" OR originalurl LIKE "%.tif") AND (collid = '.$this->collId.')';
+			$sql = 'DELETE FROM uploadimagetemp WHERE (originalurl LIKE "%.dng" OR originalurl LIKE "%.tif") AND (collid = '.$this->collId.')';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 1 of 5... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 1 of 4... </li>');
 			}
 			else{
 				$this->outputMsg('<li style="margin-left:20px;">WARNING removing non-jpgs from uploadimagetemp: '.$this->conn->error.'</li> ');
 			}
-
 			//Update occid for images of occurrence records already in portal
 			$sql = 'UPDATE uploadimagetemp ui INNER JOIN uploadspectemp u ON ui.collid = u.collid AND ui.dbpk = u.dbpk '.
 				'SET ui.occid = u.occid '.
 				'WHERE (ui.occid IS NULL) AND (u.occid IS NOT NULL) AND (ui.collid = '.$this->collId.')';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 2 of 5... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 2 of 4... </li>');
 			}
 			else{
 				$this->outputMsg('<li style="margin-left:20px;">WARNING updating occids within uploadimagetemp: '.$this->conn->error.'</li> ');
 			}
-
-			//Remove previously loaded images where urls match exactly
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
-				'WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl) AND (u.url = i.url)';
+			//Remove and skip previously loaded images where urls match exactly
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
 			if($this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:10px;">step 3 of 5... </li>');
+				$this->outputMsg('<li style="margin-left:10px;">step 3 of 4... </li>');
 			}
 			else{
 				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting uploadimagetemp records with matching urls: '.$this->conn->error.'</li> ');
 			}
-			if($this->collMetadataArr["managementtype"] == 'Snapshot'){
-				//Flush non-matching image derivatives (e.g. thumbnails)
-				$sql = 'DELETE i.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl = i.originalurl)';
-				if($this->conn->query($sql)){
-					$this->outputMsg('<li style="margin-left:10px;">step 4 of 5... </li>');
-				}
-				else{
-					$this->outputMsg('<li style="margin-left:20px;">ERROR deleting image records with matching originalurls: '.$this->conn->error.'</li> ');
-				}
-			}
-			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
-				'WHERE (u.collid = '.$this->collId.') AND (u.url = i.url) AND (i.url != "") AND (i.url != "empty")';
+			$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.originalurl IS NULL) AND (i.originalurl IS NULL) AND (u.url = i.url)';
 			if(!$this->conn->query($sql)){
-				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting uploadimagetemp records with matching originalurls: '.$this->conn->error.'</li> ');
+				$this->outputMsg('<li style="margin-left:20px;">ERROR deleting image records with matching originalurls: '.$this->conn->error.'</li> ');
 			}
 
-			//Compare image file names to make sure link wasn't previously loaded
-			/*
-			$sqlTest = 'SELECT i.occid, i.url, u.url as url_new, i.originalurl, u.originalurl as originalurl_new '.
-				'FROM images i INNER JOIN uploadimagetemp u ON i.occid = u.occid '.
-				'WHERE (u.collid = '.$this->collId.')';
-			//echo $sqlTest;
-			$rsTest = $this->conn->query($sqlTest);
-			while($rTest = $rsTest->fetch_object()){
-				if($rTest->originalurl_new){
-					$filename = array_pop(explode('/',$rTest->originalurl));
-					$filenameNew = array_pop(explode('/',$rTest->originalurl_new));
-					if($filename && $filename == $filenameNew){
-						if(!$this->conn->query('DELETE FROM uploadimagetemp WHERE (occid = '.$rTest.') AND (originalurl = "'.$rTest->originalurl_new.'")')){
-							$this->outputMsg('ERROR deleting uploadimagetemp record with matching file names ('.$filename.' != '.$filenameNew.'): '.$this->conn->error.'</li> ');
-						}
-					}
-				}
-			}
-			$rsTest->free();
-			*/
 			//Reset transfer count
 			$this->setImageTransferCount();
 			$this->outputMsg('<li style="margin-left:10px;">Revised count: '.$this->imageTransferCount.' images</li> ');
@@ -1094,6 +1221,19 @@ class SpecUploadBase extends SpecUpload{
 				}
 				unset($imageFieldArr['sortsequence']);
 				unset($imageFieldArr['initialtimestamp']);
+
+				//Remap URLs and remove from import images where source identifiers match, but original URLs differ (e.g. host server is changed)
+				$sql = 'UPDATE uploadimagetemp u INNER JOIN images i ON u.occid = i.occid '.
+					'SET i.originalurl = u.originalurl, i.url = IFNULL(u.url,if(SUBSTRING(i.url,1,1)="/",i.url,NULL)), i.thumbnailurl = IFNULL(u.thumbnailurl,if(SUBSTRING(i.thumbnailurl,1,1)="/",i.thumbnailurl,NULL)) '.
+					'WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = i.sourceIdentifier) ';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:20px;">ERROR remapping URL with matching sourceIdentifier: '.$this->conn->error.'</li> ');
+				}
+				$sql = 'DELETE u.* FROM uploadimagetemp u INNER JOIN images i ON u.occid = i.occid WHERE (u.collid = '.$this->collId.') AND (u.sourceIdentifier = i.sourceIdentifier)';
+				if(!$this->conn->query($sql)){
+					$this->outputMsg('<li style="margin-left:20px;">ERROR deleting incoming image records that have matching sourceIdentifier: '.$this->conn->error.'</li> ');
+				}
+
 				//Load images
 				$sql = 'INSERT INTO images('.implode(',',array_keys($imageFieldArr)).') '.
 					'SELECT '.implode(',',array_keys($imageFieldArr)).' FROM uploadimagetemp WHERE (occid IS NOT NULL) AND (collid = '.$this->collId.')';
@@ -1140,8 +1280,8 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	protected function finalCleanup(){
-		$this->outputMsg('<li>Records Transferred</li>');
-		$this->outputMsg('<li>Cleaning house</li>');
+		$this->outputMsg('<li>Record transfer complete!</li>');
+		$this->outputMsg('<li>Cleaning house...</li>');
 
 		//Update uploaddate
 		$sql = 'UPDATE omcollectionstats SET uploaddate = CURDATE() WHERE collid IN('.$this->collId.')';
@@ -1165,25 +1305,30 @@ class SpecUploadBase extends SpecUpload{
 		//Optimize table to reset indexes
 		$this->conn->query('OPTIMIZE TABLE uploadimagetemp');
 
+		//Remove temporary dbpk values
+		if($this->collMetadataArr["managementtype"] == 'Live Data'){
+			$sql = 'UPDATE omoccurrences SET dbpk = NULL WHERE (collid IN('.$this->collId.')) AND (dbpk LIKE "SYMBDBPK-%")';
+			$this->conn->query($sql);
+		}
+
 		//Do some more cleaning of the data after it haas been indexed in the omoccurrences table
 		$occurMain = new OccurrenceMaintenance($this->conn);
 
 		if(!$occurMain->generalOccurrenceCleaning($this->collId)){
 			$errorArr = $occurMain->getErrorArr();
 			foreach($errorArr as $errorStr){
-				$this->outputMsg('<li style="margin-left:20px;">'.$errorStr.'</li>');
+				$this->outputMsg('<li style="margin-left:20px;">'.$errorStr.'</li>',1);
 			}
 		}
 
 		$this->outputMsg('<li style="margin-left:10px;">Protecting sensitive species...</li>');
 		$protectCnt = $occurMain->protectRareSpecies($this->collId);
-		$this->outputMsg('<li style="margin-left:20px;">'.$protectCnt.' records protected</li>');
 
 		$this->outputMsg('<li style="margin-left:10px;">Updating statistics...</li>');
 		if(!$occurMain->updateCollectionStats($this->collId)){
 			$errorArr = $occurMain->getErrorArr();
 			foreach($errorArr as $errorStr){
-				$this->outputMsg('<li style="margin-left:20px;">'.$errorStr.'</li>');
+				$this->outputMsg('<li style="margin-left:20px;">'.$errorStr.'</li>',1);
 			}
 		}
 
@@ -1225,8 +1370,15 @@ class SpecUploadBase extends SpecUpload{
 			}
 
 			//Do some cleaning on the dbpk; remove leading and trailing whitespaces and convert multiple spaces to a single space
-			if(array_key_exists('dbpk',$recMap)){
+			if(array_key_exists('dbpk',$recMap) && $recMap['dbpk']){
 				$recMap['dbpk'] = trim(preg_replace('/\s\s+/',' ',$recMap['dbpk']));
+			}
+			else{
+				if($this->collMetadataArr["managementtype"] == 'Live Data'){
+					//If dbpk does not exist, set a temp value
+					$recMap['dbpk'] = 'SYMBDBPK-'.$this->dbpkCnt;
+					$this->dbpkCnt++;
+				}
 			}
 
 			//Set processingStatus to value defined by loader
@@ -1246,10 +1398,11 @@ class SpecUploadBase extends SpecUpload{
 				$recMap['basisofrecord'] = ($this->collMetadataArr["colltype"]=="Preserved Specimens"?'PreservedSpecimen':'HumanObservation');
 			}
 
+			$this->buildPaleoJSON($recMap);
+
 			$sqlFragments = $this->getSqlFragments($recMap,$this->fieldMap);
 			if($sqlFragments){
-				$sql = 'INSERT INTO uploadspectemp(collid'.$sqlFragments['fieldstr'].') '.
-					'VALUES('.$this->collId.$sqlFragments['valuestr'].')';
+				$sql = 'INSERT INTO uploadspectemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
 				//echo "<div>SQL: ".$sql."</div>";
 				if($this->conn->query($sql)){
 					$this->transferCount++;
@@ -1264,6 +1417,21 @@ class SpecUploadBase extends SpecUpload{
 					$this->outputMsg("<li style='margin:0px 0px 10px 10px;'>SQL: $sql</li>");
 				}
 			}
+		}
+	}
+
+	private function buildPaleoJSON(&$recMap){
+		if($this->paleoSupport){
+			$paleoTermArr = $this->getPaleoTerms();
+			$paleoArr = array();
+			foreach($paleoTermArr as $fieldName){
+				$k = strtolower($fieldName);
+				if(isset($recMap[$k])){
+					if($recMap[$k] !== '') $paleoArr[substr($k,6)] = $recMap[$k];
+					unset($recMap[$k]);
+				}
+			}
+			if($paleoArr) $recMap['paleoJSON'] = json_encode($paleoArr);
 		}
 	}
 
@@ -1306,14 +1474,13 @@ class SpecUploadBase extends SpecUpload{
 					}
 				}
 
-				if($recMap['identifiedby'] || $recMap['dateidentified']){
+				if((isset($recMap['identifiedby']) && $recMap['identifiedby']) || (isset($recMap['dateidentified']) && $recMap['dateidentified']) || (isset($recMap['sciname']) && $recMap['sciname'])){
 					if(!isset($recMap['identifiedby']) || !$recMap['identifiedby']) $recMap['identifiedby'] = 'not specified';
-					if(!isset($recMap['dateidentified']) || $recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
+					if(!isset($recMap['dateidentified']) || !$recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
 					$sqlFragments = $this->getSqlFragments($recMap,$this->identFieldMap);
 					if($sqlFragments){
 						$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-						//echo "<div>SQL: ".$sql."</div>"; exit;
-
+						//echo "<div>SQL: ".$sql."</div>";
 						if($this->conn->query($sql)){
 							$this->identTransferCount++;
 							if($this->identTransferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->identTransferCount.'</li>');
@@ -1344,12 +1511,11 @@ class SpecUploadBase extends SpecUpload{
 				//Abort, no images avaialble
 				return false;
 			}
-			if(stripos($testUrl,'.dng') || stripos($testUrl,'.tif')){
-				return false;
-			}
+			if(strtolower(substr($testUrl,0,4)) != 'http') return false;
+			if(stripos($testUrl,'.dng') || stripos($testUrl,'.tif')) return false;
 			$skipFormats = array('image/tiff','image/dng','image/bmp','text/html','application/xml','application/pdf','tif','tiff','dng','html','pdf');
 			$allowedFormats = array('image/jpeg','image/gif','image/png');
-			$imgFormat = '';
+			$imgFormat = $this->imgFormatDefault;
 			if(isset($recMap['format']) && $recMap['format']){
 				$imgFormat = strtolower($recMap['format']);
 				if(in_array($imgFormat, $skipFormats)) return false;
@@ -1361,9 +1527,14 @@ class SpecUploadBase extends SpecUpload{
 				if($ext== 'png') $imgFormat = 'image/png';
 				if($ext== 'jpg') $imgFormat = 'image/jpeg';
 				elseif($ext== 'jpeg') $imgFormat = 'image/jpeg';
-				if(!$imgFormat){
-					$imgFormat = $this->getMimeType($testUrl);
-					if(!in_array(strtolower($imgFormat), $allowedFormats)) return false;
+				if($imgFormat === ''){
+					if($this->imgFormatDefault) $imgFormat = $this->imgFormatDefault;
+					else {
+						$imgFormat = $this->getMimeType($testUrl);
+						if($imgFormat) $this->imgFormatDefault = $imgFormat;
+						else $this->imgFormatDefault = false;
+					}
+					//if(!in_array(strtolower($imgFormat), $allowedFormats)) return false;
 				}
 			}
 			if($imgFormat) $recMap['format'] = $imgFormat;
@@ -1389,16 +1560,17 @@ class SpecUploadBase extends SpecUpload{
 				}
 			}
 
-			if(!isset($recMap['url'])) $recMap['url'] = 'empty';
-
+			if(!isset($recMap['url'])) $recMap['url'] = '';
+			if(!array_key_exists('sourceidentifier', $recMap) && in_array('sourceidentifier',$this->imageSymbFields)){
+				$url = $recMap['originalurl'];
+				if(!$url) $url = $recMap['url'];
+				if(preg_match('=/([^/?*;:{}\\\\]+\.[jpegpn]{3,4}$)=', $url, $m)){
+					$recMap['sourceidentifier'] = $m[1];
+				}
+			}
 			$sqlFragments = $this->getSqlFragments($recMap,$this->imageFieldMap);
 			if($sqlFragments){
-				$sql = 'INSERT INTO uploadimagetemp(collid'.$sqlFragments['fieldstr'].') '.
-					'VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-				//echo $sql.'<br/>';
-				//$this->conn->query('SET autocommit=0');
-				//$this->conn->query('SET unique_checks=0');
-				//$this->conn->query('SET foreign_key_checks=0');
+				$sql = 'INSERT INTO uploadimagetemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
 				if($this->conn->query($sql)){
 					$this->imageTransferCount++;
 					$repInt = 1000;
@@ -1410,10 +1582,6 @@ class SpecUploadBase extends SpecUpload{
 					$this->outputMsg("<li style='margin-left:10px;'>Error: ".$this->conn->error."</li>");
 					$this->outputMsg("<li style='margin:0px 0px 10px 10px;'>SQL: $sql</li>");
 				}
-				//$this->conn->query('COMMIT');
-				//$this->conn->query('SET autocommit=1');
-				//$this->conn->query('SET unique_checks=1');
-				//$this->conn->query('SET foreign_key_checks=1');
 			}
 		}
 	}
@@ -1442,6 +1610,7 @@ class SpecUploadBase extends SpecUpload{
 				switch($type){
 					case "numeric":
 						if(is_numeric($valueStr)){
+							if($symbField == 'coordinateuncertaintyinmeters' && $valueStr < 0) $valueStr = abs($valueStr);
 							$sqlValues .= ",".$valueStr;
 						}
 						elseif(is_numeric(str_replace(',',"",$valueStr))){
@@ -1601,6 +1770,10 @@ class SpecUploadBase extends SpecUpload{
 		$this->includeImages = $boolIn;
 	}
 
+	public function setObserverUid($id){
+		if(is_numeric($id)) $this->observerUid = $id;
+	}
+
 	public function setMatchCatalogNumber($match){
 		$this->matchCatalogNumber = $match;
 	}
@@ -1617,12 +1790,52 @@ class SpecUploadBase extends SpecUpload{
 		$this->processingStatus = $s;
 	}
 
+	public function setSourceCharset($cs){
+		$this->sourceCharset = $cs;
+	}
+
 	public function setSourceDatabaseType($type){
 		$this->sourceDatabaseType = $type;
 	}
 
 	public function getSourceArr(){
 		return $this->sourceArr;
+	}
+
+	private function getPaleoTerms(){
+		$paleoTermArr = array_merge($this->getPaleoDwcTerms(),$this->getPaleoSymbTerms());
+		sort($paleoTermArr);
+		return $paleoTermArr;
+	}
+
+	private function getPaleoDwcTerms(){
+		$paleoTermArr = array('paleo-earliesteonorlowesteonothem','paleo-latesteonorhighesteonothem','paleo-earliesteraorlowesterathem',
+			'paleo-latesteraorhighesterathem','paleo-earliestperiodorlowestsystem','paleo-latestperiodorhighestsystem','paleo-earliestepochorlowestseries',
+			'paleo-latestepochorhighestseries','paleo-earliestageorloweststage','paleo-latestageorhigheststage','paleo-lowestbiostratigraphiczone','paleo-highestbiostratigraphiczone');
+		return $paleoTermArr;
+	}
+
+	private function getPaleoSymbTerms(){
+		$paleoTermArr = array('paleo-geologicalcontextid','paleo-lithogroup','paleo-formation','paleo-member','paleo-bed','paleo-eon','paleo-era','paleo-period','paleo-epoch',
+			'paleo-earlyinterval','paleo-lateinterval','paleo-absoluteage','paleo-storageage','paleo-stage','paleo-localstage','paleo-biota','paleo-biostratigraphy',
+			'paleo-taxonenvironment','paleo-lithology','paleo-stratremarks','paleo-lithdescription','paleo-element','paleo-slideproperties');
+		return $paleoTermArr;
+	}
+
+	public function getObserverUidArr(){
+		$retArr = array();
+		if($this->collId){
+			$sql = 'SELECT u.uid, CONCAT_WS(", ",u.lastname, u.firstname) as user '.
+				'FROM users u INNER JOIN userroles r ON u.uid = r.uid '.
+				'WHERE r.tablepk = '.$this->collId.' AND r.role IN("CollEditor","CollAdmin")';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->uid] = $r->user;
+			}
+			$rs->free();
+		}
+		asort($retArr);
+		return $retArr;
 	}
 
 	//Misc functions
@@ -1656,8 +1869,8 @@ class SpecUploadBase extends SpecUpload{
 		curl_setopt($handle, CURLOPT_NOBODY, true);
 		curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true );
+		curl_setopt($handle, CURLOPT_TIMEOUT, 3);
 		curl_exec($handle);
-
 		return curl_getinfo($handle, CURLINFO_CONTENT_TYPE);
 	}
 
@@ -1693,39 +1906,49 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	protected function encodeString($inStr){
-		global $CHARSET;
 		$retStr = $inStr;
-		//Get rid of Windows curly (smart) quotes
-		$search = array(chr(145),chr(146),chr(147),chr(148),chr(149),chr(150),chr(151));
-		$replace = array("'","'",'"','"','*','-','-');
-		$inStr= str_replace($search, $replace, $inStr);
-
-		//Get rid of UTF-8 curly smart quotes and dashes
-		$badwordchars=array("\xe2\x80\x98", // left single quote
-							"\xe2\x80\x99", // right single quote
-							"\xe2\x80\x9c", // left double quote
-							"\xe2\x80\x9d", // right double quote
-							"\xe2\x80\x94", // em dash
-							"\xe2\x80\xa6" // elipses
-		);
-		$fixedwordchars=array("'", "'", '"', '"', '-', '...');
-		$inStr = str_replace($badwordchars, $fixedwordchars, $inStr);
 
 		if($inStr){
-			if(strtolower($CHARSET) == "utf-8" || strtolower($CHARSET) == "utf8"){
-				if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1',true) == "ISO-8859-1"){
-					$retStr = utf8_encode($inStr);
-					//$retStr = iconv("ISO-8859-1//TRANSLIT","UTF-8",$inStr);
+			if($this->targetCharset == 'UTF-8'){
+				if($this->sourceCharset){
+					if($this->sourceCharset == 'ISO-8859-1') $retStr = utf8_encode($inStr);
+					elseif($this->sourceCharset == 'MAC'){
+						$retStr = iconv('macintosh', 'UTF-8', $inStr);
+						//$retStr = mb_convert_encoding($inStr,"UTF-8","auto");
+					}
+				}
+				else{
+					if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1',true) == 'ISO-8859-1'){
+						$retStr = utf8_encode($inStr);
+						//$retStr = iconv("ISO-8859-1//TRANSLIT","UTF-8",$inStr);
+					}
 				}
 			}
-			elseif(strtolower($CHARSET) == "iso-8859-1"){
-				if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1') == "UTF-8"){
-					$retStr = utf8_decode($inStr);
-					//$retStr = iconv("UTF-8","ISO-8859-1//TRANSLIT",$inStr);
+			elseif($this->targetCharset == "ISO-8859-1"){
+				if($this->sourceCharset){
+					if($this->sourceCharset == 'UTF-8') $retStr = utf8_decode($inStr);
+					elseif($this->sourceCharset == 'MAC'){
+						$retStr = iconv('macintosh', 'ISO-8859-1', $inStr);
+						//$retStr = mb_convert_encoding($inStr,"ISO-8859-1","auto");
+					}
+				}
+				else{
+					if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1') == "UTF-8"){
+						$retStr = utf8_decode($inStr);
+					}
 				}
 			}
-			//$line = iconv('macintosh', 'UTF-8', $line);
-			//mb_detect_encoding($buffer, 'windows-1251, macroman, UTF-8');
+
+			//Get rid of UTF-8 curly smart quotes and dashes
+			$badwordchars=array("\xe2\x80\x98", // left single quote
+					"\xe2\x80\x99", // right single quote
+					"\xe2\x80\x9c", // left double quote
+					"\xe2\x80\x9d", // right double quote
+					"\xe2\x80\x94", // em dash
+					"\xe2\x80\xa6" // elipses
+			);
+			$fixedwordchars=array("'", "'", '"', '"', '-', '...');
+			$inStr = str_replace($badwordchars, $fixedwordchars, $inStr);
 		}
 		return $retStr;
 	}

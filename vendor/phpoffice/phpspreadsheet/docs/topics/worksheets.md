@@ -31,8 +31,6 @@ index, use the `getSheet()` method.
 $spreadsheet->getSheet(1);
 ```
 
-If you don't specify a sheet index, then the first worksheet will be
-returned.
 
 Methods also exist allowing you to reorder the worksheets in the
 workbook.
@@ -71,7 +69,7 @@ $spreadsheet->createSheet();
 ```
 
 A new worksheet created using this method will be called
-"Worksheet&lt;n&gt;" where "&lt;n&gt;" is the lowest number possible to
+`Worksheet<n>` where `<n>` is the lowest number possible to
 guarantee that the title is unique.
 
 Alternatively, you can instantiate a new worksheet (setting the title to
@@ -80,7 +78,7 @@ whatever you choose) and then insert it into your workbook using the
 
 ``` php
 // Create a new worksheet called "My Data"
-$myWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet($spreadsheet, 'My Data');
+$myWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'My Data');
 
 // Attach the "My Data" worksheet as the first worksheet in the Spreadsheet object
 $spreadsheet->addSheet($myWorkSheet, 0);

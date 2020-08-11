@@ -5,16 +5,22 @@
  * Variables:
  *   collid (default: 0 [all collections]): PK for targeted collection. More than one codes can be supplied by separating them commas (e.g. collid=2,3,77)
  *   cond: search variable conditions to limit return based on the indexed Darwin Core fields
- *   Format: cond=<field1>-<optional operator>:<value1>;<field2>-<optional operator>:<value2>
- *   Fields allowed: catalognumber, othercatalognumbers, occurrenceid, family, sciname, country, stateprovince, county, municipality, recordedby, recordnumber, eventdate, decimallatitude, decimallongitude, minimumelevationinmeters, maximumelevationinmeters, processingstatus, datelastmodified, dateentered
- *   Optional operators: EQUALS, NULL, NOTNULL, START, LIKE, LESSTHAN, GREATERTHAN
- *   Note the dash separating the field and operator; operator is not case specific
- *   Multiple conditions can be supplied separated by semicolons
- *   Multiple values can be supplied is separated by commas
- *   usethes (0 or 1, default: 0): when searching on a taxonomic name, setting usethes to 1 will run search term through the taxonomic thesaurus to include synonym within the search
- *   Occurrence record return limited to 1,000,000 records
+ *       Format: cond=<field1>-<optional operator>:<value1>;<field2>-<optional operator>:<value2>
+ *       Fields allowed: catalognumber, othercatalognumbers, occurrenceid, family, sciname, country, stateprovince, county, municipality, recordedby, recordnumber, eventdate, decimallatitude, decimallongitude, minimumelevationinmeters, maximumelevationinmeters, processingstatus, datelastmodified, dateentered
+ *       Optional operators: EQUALS, NULL, NOTNULL, START, LIKE, LESSTHAN, GREATERTHAN
+ *       Note the dash separating the field and operator; operator is not case specific
+ *       Multiple conditions can be supplied separated by semicolons
+ *       Multiple values can be supplied separated by commas
+ *   colltype (specimens [default], observations): limit output to specimens or observation projects
+ *   usethes (0 [default] or 1): when searching on a taxonomic name, setting usethes to 1 will run search term through the taxonomic thesaurus to include synonym within the search
+ *   schema (dwc [default], symbiota): schema type
+ *   extended (0 [default], 1): true outputs extended data fields such as: collectionID,rights fields, storageLocation, observerUid, processingStatus, duplicateQuantity, dateEntered, dateLastModified
+ *   imgs (0, 1 [default]): Output image URLs within an media extension file
+ *   dets (0, 1 [default]): Output determination history within an identification extension file
+ *   attr (0 [default], 1): Output occurrence attribute values within a MeasurementOrFact extension file
  *
  * Return: Darwin Core Archive of matching occurrences, associated images, identification history, and other associated data extensions
+ *   Occurrence record return limited to 1,000,000 records
  *
  * Examples:
  *
@@ -43,6 +49,22 @@ $dwcaHandler = new DwcArchiverCore();
 
 $dwcaHandler->setVerboseMode(0);
 $dwcaHandler->setCollArr($collid,$collType);
+
+$redactLocalities = 1;
+if($IS_ADMIN || array_key_exists("CollAdmin", $USER_RIGHTS)){
+	$redactLocalities = 0;
+}
+elseif(array_key_exists("RareSppAdmin", $USER_RIGHTS) || array_key_exists("RareSppReadAll", $USER_RIGHTS)){
+	$redactLocalities = 0;
+}
+elseif(array_key_exists('CollEditor', $USER_RIGHTS) && in_array($collid, $USER_RIGHTS['CollEditor'])){
+	$redactLocalities = 0;
+}
+elseif(array_key_exists('RareSppReader', $USER_RIGHTS) && in_array($collid, $USER_RIGHTS['RareSppReader'])){
+	$redactLocalities = 0;
+}
+$dwcaHandler->setRedactLocalities($redactLocalities);
+
 if($cond){
 	//String of cond-key/value pairs (e.g. country:USA,United States;stateprovince:Arizona,New Mexico;county-start:Pima,Eddy
 	$cArr = explode(';',$cond);

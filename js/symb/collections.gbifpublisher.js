@@ -53,7 +53,7 @@ function processGbifOrgKey(f){
 
 function createGbifInstallation(gbifOrgKey,collName){
 	var type = 'POST';
-	var url = 'http://api.gbif.org/v1/installation';
+	var url = 'https://api.gbif.org/v1/installation';
 	var data = JSON.stringify({
 		organizationKey: gbifOrgKey,
 		type: "SYMBIOTA_INSTALLATION",
@@ -68,7 +68,7 @@ function createGbifInstallation(gbifOrgKey,collName){
 
 function createGbifDataset(gbifInstKey,gbifOrgKey,collName){
 	var type = 'POST';
-	var url = 'http://api.gbif.org/v1/dataset';
+	var url = 'https://api.gbif.org/v1/dataset';
 	var data = JSON.stringify({
 		installationKey: gbifInstKey,
 		publishingOrganizationKey: gbifOrgKey,
@@ -80,7 +80,7 @@ function createGbifDataset(gbifInstKey,gbifOrgKey,collName){
 
 function createGbifEndpoint(gbifDatasetKey,dwcUri){
 	var type = 'POST';
-	var url = 'http://api.gbif.org/v1/dataset/'+gbifDatasetKey+'/endpoint';
+	var url = 'https://api.gbif.org/v1/dataset/'+gbifDatasetKey+'/endpoint';
 	var data = JSON.stringify({
 		type: "DWC_ARCHIVE",
 		url: dwcUri
@@ -112,11 +112,11 @@ function datasetExists(f){
 		var urlStr = f.dwcUri.value;
 		if(urlStr.indexOf("/content/") > 0){
 			urlStr = urlStr.substring(0,urlStr.indexOf("/content/"));
-			urlStr = "http://api.gbif.org/v1/dataset?identifier=" + urlStr + "/collections/misc/collprofiles.php?collid=" + f.collid.value;
+			urlStr = "https://api.gbif.org/v1/dataset?identifier=" + urlStr + "/collections/misc/collprofiles.php?collid=" + f.collid.value;
 			$.ajax({
 				method: "GET",
 				async: false,
-				dateType: "json",
+				dataType: "json",
 				url: urlStr
 			})
 			.done(function( retJson ) {

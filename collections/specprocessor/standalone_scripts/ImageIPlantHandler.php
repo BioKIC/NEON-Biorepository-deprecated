@@ -6,5 +6,5 @@ $imageProcessor = new ImageProcessor();
 
 //Run process
 $imageProcessor->initProcessor();
-$imageProcessor->processIPlantImages();
+$imageProcessor->processCyVerseImages();
 ?>

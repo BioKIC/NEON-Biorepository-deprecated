@@ -1,23 +1,24 @@
+var acUrlBase = "/api/taxonomy/taxasuggest.php";
+var acUrl = acUrlBase;
+
 $(document).ready(function() {
-	var acUrlBase = "/api/taxonomy/taxasuggest.php";
-	var acUrl = acUrlBase;
-	var dirArr = window.location.pathname.split('/');
-	dirArr.shift(); dirArr.pop();
-	var loopCnt = 0;
-	while(!urlExists(acUrl) && dirArr.length > loopCnt){
-		var newUrl = '';
-		for(i = 0; i <= loopCnt; i++){
-			newUrl = newUrl + "/" + dirArr[i];
+	if(typeof clientRoot !== 'undefined') acUrl = clientRoot + acUrlBase;
+	else{
+		var dirArr = window.location.pathname.split('/');
+		dirArr.shift(); dirArr.pop();
+		var loopCnt = 0;
+		while(!urlExists(acUrl) && dirArr.length > loopCnt){
+			var newUrl = '';
+			for(i = 0; i <= loopCnt; i++){
+				newUrl = newUrl + "/" + dirArr[i];
+			}
+			acUrl = newUrl + acUrlBase;
+			loopCnt = loopCnt + 1;
 		}
-		acUrl = newUrl + acUrlBase;
-		loopCnt = loopCnt + 1;
 	}
 	
-	function split( val ) {
-		return val.split( /,\s*/ );
-	}
 	function extractLast( term ) {
-		return split( term ).pop();
+		return term.split( /,\s*/ ).pop();
 	}
 
 	$( "#taxa" )
@@ -64,7 +65,7 @@ $(document).ready(function() {
 				return false;
 			},
 			select: function( event, ui ) {
-				var terms = split( this.value );
+				var terms = this.value.split( /,\s*/ );
 				// remove the current input
 				terms.pop();
 				// add the selected item
@@ -75,6 +76,16 @@ $(document).ready(function() {
 		},{});
 });
 
+function initiateTaxonSuggest(inputID, rLow, rHigh){
+	$( "#"+inputID )
+		.autocomplete({
+			source: function( request, response ) {
+				$.getJSON( acUrl, { term: request.term, ranklow: rLow, rankhigh: rHigh }, response );
+			},
+			autoFocus: true
+		},{});
+}
+
 function urlExists(url){
     var http = new XMLHttpRequest();
     http.open('HEAD', url, false);
@@ -83,7 +94,7 @@ function urlExists(url){
 }
 
 function verifyQuickSearch(f){
-	if(f.quicksearchtaxon.value == ""){
+	if(f.taxa.value == ""){
 		alert("Scientific name?");
 		return false;
 	}

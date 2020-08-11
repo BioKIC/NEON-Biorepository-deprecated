@@ -27,10 +27,10 @@ if($IS_ADMIN || array_key_exists('CollAdmin',$USER_RIGHTS)){
 $exsManager = new ExsiccatiManager();
 if($isEditor && $formSubmit){
 	if($formSubmit == 'Add Exsiccati Title'){
-		$exsManager->addTitle($_POST,$paramsArr['un']);
+		$exsManager->addTitle($_POST,$PARAMS_ARR['un']);
 	}
 	elseif($formSubmit == 'Save'){
-		$exsManager->editTitle($_POST,$paramsArr['un']);
+		$exsManager->editTitle($_POST,$PARAMS_ARR['un']);
 	}
 	elseif($formSubmit == 'Delete Exsiccati'){
 		$statusStr = $exsManager->deleteTitle($ometId);
@@ -74,10 +74,19 @@ if($formSubmit == 'dlexsiccati'){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Exsiccati</title>
-    <link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-    <link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
+  <?php
+    $activateJQuery = false;
+    if(file_exists($SERVER_ROOT.'/includes/head.php')){
+      include_once($SERVER_ROOT.'/includes/head.php');
+    }
+    else{
+      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+    }
+  ?>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript" src="../../js/symb/shared.js?ver=130926"></script>
 	<script type="text/javascript">
@@ -246,7 +255,7 @@ if($formSubmit == 'dlexsiccati'){
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_exsiccati_index)?$collections_exsiccati_index:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href="../../index.php">Home</a> &gt;&gt;
@@ -788,7 +797,7 @@ if($formSubmit == 'dlexsiccati'){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

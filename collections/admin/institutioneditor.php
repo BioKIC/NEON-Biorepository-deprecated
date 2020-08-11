@@ -1,7 +1,7 @@
 <?php 
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/InstitutionManager.php');
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/institutioneditor.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/institutioneditor.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $iid = array_key_exists("iid",$_REQUEST)?$_REQUEST["iid"]:0;
 $targetCollid = array_key_exists("targetcollid",$_REQUEST)?$_REQUEST["targetcollid"]:0;
@@ -86,8 +86,17 @@ if($editorCode){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Institution Editor</title>
-	<link type="text/css" href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" rel="stylesheet" />
-	<link type="text/css" href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" rel="stylesheet" />
+  <?php
+      $activateJQuery = false;
+      if(file_exists($SERVER_ROOT.'/includes/head.php')){
+        include_once($SERVER_ROOT.'/includes/head.php');
+      }
+      else{
+        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+      }
+  ?>
 	<script language=javascript>
 		
 		function toggle(target){
@@ -129,7 +138,7 @@ if($editorCode){
 <body>
 <?php
 $displayLeftMenu = (isset($collections_admin_institutioneditor)?$collections_admin_institutioneditor:true);
-include($SERVER_ROOT.'/header.php');
+include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class='navpath'>
 	<a href='../../index.php'>Home</a> &gt;&gt; 
@@ -596,7 +605,7 @@ include($SERVER_ROOT.'/header.php');
 	?>
 </div>
 <?php 
-include($SERVER_ROOT.'/footer.php');
+include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

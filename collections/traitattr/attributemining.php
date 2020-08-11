@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceAttributes.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/traitattr/attributemining.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/traitattr/attributemining.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:'';
 $selectAll = array_key_exists('selectall',$_POST)?$_POST['selectall']:'';
@@ -84,9 +84,17 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 <html>
 	<head>
 		<title>Occurrence Attribute Mining Tool</title>
-		<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
+		<?php
+		$activateJQuery = true;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+	    }
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<script src="../../js/jquery.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 		<script type="text/javascript">
@@ -163,7 +171,7 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 	<body>
 		<?php
 		$displayLeftMenu = false;
-		include($SERVER_ROOT.'/header.php');
+		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class="navpath">
 			<a href="../../index.php">Home</a> &gt;&gt;
@@ -203,9 +211,9 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 					echo '</fieldset>';
 				}
 				?>
-				<div style="width:650px;">
+				<div style="width:700px;">
 					<div>
-						This module allows one to code Occurrence Traits based on content entered into verbatium text fields.<span id="moreSpan">.. <a href="#" onclick="displayDetailDiv(this)">more</a></span>
+						This module maps Occurrence Traits to specimens based on verbatium text field content.<span id="moreSpan">.. <a href="#" onclick="displayDetailDiv(this)">more</a></span>
 						<div id="detailDiv" style="display:none">For instance, phenology traits can be coded in bulk by mapping various
 						text strings displayed within Reproductive Condition text field to a controled phenology defined within the occurrence trait fields.
 						Coded trait attributes can be downloaded and shared via the Darwin Core (DwC) Archive export and publishing tools.
@@ -266,16 +274,16 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 				if($traitID && $fieldName){
 					$valueArr = $attrManager->getFieldValueArr($traitID, $fieldName, $tidFilter, $stringFilter);
 					?>
-					<div id="traitdiv" style="width:600px">
+					<div id="traitdiv" style="width:700px">
 						<fieldset style="margin:15px;padding:15px">
 							<legend><b><?php echo $fieldArr[$fieldName]; ?></b></legend>
 							<form name="miningform" method="post" action="attributemining.php" onsubmit="return verifyMiningForm(this)">
-								<div style="margin:5px;">
-									<b>Select Source Field Value(s)</b> - hold down control or shift buttons to select more than one value<br/>
-									<select name="fieldvalue[]" size="15" multiple="multiple" style="width:100%">
+								<b>Select Source Field Values</b> - hold down control or shift buttons to select more than one value<br/>
+								<div style="margin:5px;border:2px solid;width:100%;height:200px;resize: both;overflow: auto">
+									<select name="fieldvalue[]" multiple="multiple" style="width:100%;height:100%">
 										<?php
 										foreach($valueArr as $v){
-											if($v) echo '<option value="'.$v.'">'.$v.'</option>';
+											if($v) echo '<option value="'.htmlspecialchars($v).'">'.$v.'</option>';
 										}
 										?>
 									</select>
@@ -310,6 +318,7 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 									<input name="fieldname" type="hidden" value="<?php echo $fieldName; ?>" />
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 									<input name="submitform" type="submit" value="Batch Assign State(s)" />
+									<input name="resetform" type="reset" value="Reset Form" />
 								</div>
 							</form>
 						</fieldset>
@@ -340,7 +349,7 @@ $fieldArr = array('habitat' => 'Habitat', 'substrate' => 'Substrate', 'occurrenc
 			?>
 		</div>
 		<?php
-		include($SERVER_ROOT.'/footer.php');
+		include($SERVER_ROOT.'/includes/footer.php');
 		?>
 	</body>
 </html>

@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDataset.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/datasets/datasetmanager.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/datasets/datasetmanager.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $datasetId = $_REQUEST['datasetid'];
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
@@ -115,13 +115,22 @@ if($isEditor){
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE; ?> Occurrence Dataset Manager</title>
-		<link href="../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-		<link href="../../css/jquery-ui.css" type="text/css" rel="Stylesheet" />
+		<?php
+		$activateJQuery = true;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+	    }
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<script type="text/javascript" src="../../js/jquery.js"></script>
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
 		<script type="text/javascript">
+			var isDownloadAction = false;
 			$(document).ready(function() {
 				var dialogArr = new Array("schemanative","schemadwc");
 				var dialogStr = "";
@@ -196,13 +205,24 @@ if($isEditor){
 			}
 
 			function validateOccurForm(f){
+				var occidChecked = false;
 				var dbElements = document.getElementsByName("occid[]");
 				for(i = 0; i < dbElements.length; i++){
 					var dbElement = dbElements[i];
-					if(dbElement.checked) return true;
+					if(dbElement.checked){
+						occidChecked = true;
+						break;
+					}
 				}
-			   	alert("Please select at least one specimen!");
-			  	return false;
+				if(!occidChecked){
+				   	alert("Please select at least one specimen!");
+				   	return false;
+				}
+				if(isDownloadAction){
+					f.action = "../download/index.php";
+					targetDownloadPopup(f);
+				}
+			  	return true;
 			}
 
 			function openIndPopup(occid){
@@ -218,23 +238,21 @@ if($isEditor){
 				newWindow.focus();
 				return false;
 			}
+
+			function targetDownloadPopup(f) {
+				window.open('', 'downloadpopup', 'left=100,top=50,width=900,height=700');
+				f.target = 'downloadpopup';
+			}
 		</script>
 	</head>
 	<body>
 	<?php
 	$displayLeftMenu = (isset($collections_datasets_indexMenu)?$collections_datasets_indexMenu:false);
-	include($SERVER_ROOT."/header.php");
+	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
-		<?php
-		if(isset($collections_datasets_indexCrumbs)){
-			echo $collections_datasets_indexCrumbs;
-		}
-		else{
-			echo '<a href="../../profile/viewprofile.php?tabindex=1">My Profile</a> &gt;&gt; ';
-		}
-		?>
+		<a href="../../profile/viewprofile.php?tabindex=1">My Profile</a> &gt;&gt;
 		<a href="index.php">
 			Return to Dataset Listing
 		</a> &gt;&gt;
@@ -319,80 +337,19 @@ if($isEditor){
 								<?php
 								if($isEditor < 3){
 									?>
-									<div style="margin:5px"><input type="submit" name="submitaction" value="Remove Selected Occurrences" /></div>
+									<div style="margin:5px"><button type="submit" name="submitaction" value="Remove Selected Occurrences">Remove Selected Occurrences</button></div>
 									<?php
 								}
 								?>
-								<div style="margin:5px"><input type="submit" name="submitaction" value="Export Selected Occurrences" /></div>
-								<div id='showoptdiv'><a href="#" onclick="toggle('optdiv');toggle('showoptdiv');return false;">Show Options</a></div>
-								<div id="optdiv" style="display:none;">
-									<fieldset>
-										<legend><b>Options</b></legend>
-										<table>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>Structure:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<input type="radio" name="schema" value="symbiota" onclick="georefRadioClicked(this)" CHECKED />
-														Symbiota Native
-														<a id="schemanativeinfo" href="#" onclick="return false" title="More Information">
-															<img src="../../images/info.png" style="width:13px;" />
-														</a><br/>
-														<div id="schemanativeinfodialog">
-															Symbiota native is very similar to Darwin Core except with the addtion of a few fields
-															such as substrate, associated collectors, verbatim description.
-														</div>
-														<input type="radio" name="schema" value="dwc" onclick="georefRadioClicked(this)" />
-														Darwin Core
-														<a id="schemadwcinfo" href="#" target="" title="More Information">
-															<img src="../../images/info.png" style="width:13px;" />
-														</a><br/>
-														<div id="schemadwcinfodialog">
-															Darwin Core (DwC) is a TDWG endorsed exchange standard specifically for biodiversity datasets.
-															For more information on what data fields are included in DwC, visit the
-															<a href="http://rs.tdwg.org/dwc/index.htm"target='_blank'>DwC Quick Reference Guide</a>.
-														</div>
-														*<a href='http://rs.tdwg.org/dwc/index.htm' class='bodylink' target='_blank'>What is Darwin Core?</a>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>File Format:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<input type="radio" name="format" value="csv" CHECKED /> Comma Delimited (CSV)<br/>
-														<input type="radio" name="format" value="tab" /> Tab Delimited<br/>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td valign="top">
-													<div style="margin:10px;">
-														<b>Character Set:</b>
-													</div>
-												</td>
-												<td>
-													<div style="margin:10px 0px;">
-														<?php
-														$cSet = strtolower($CHARSET);
-														?>
-														<input type="radio" name="cset" value="iso-8859-1" <?php echo ($cSet=='iso-8859-1'?'checked':''); ?> /> ISO-8859-1 (western)<br/>
-														<input type="radio" name="cset" value="utf-8" <?php echo ($cSet=='utf-8'?'checked':''); ?> /> UTF-8 (unicode)
-													</div>
-												</td>
-											</tr>
-										</table>
-									</fieldset>
-								</div>
 							</div>
+							<div style="margin: 15px 50px;">
+								<button type="submit" name="submitaction" value="exportSelected" onclick="isDownloadAction=true">Export Selected Occurrences</button>
+							</div>
+						</form>
+						<form name="exportAllForm" action="../download/index.php" method="post" onsubmit="targetDownloadPopup(this)">
+							<input name="searchvar" type="hidden" value="dataset=<?php echo $datasetId; ?>" />
+							<input name="dltype" type="hidden" value="specimen" />
+							<button type="submit" name="submitaction" value="exportAll">Export Complete Dataset</button>
 						</form>
 					</div>
 					<?php
@@ -438,28 +395,30 @@ if($isEditor){
 									<div style="margin:15px;">
 										<?php
 										if(array_key_exists($roleStr,$userArr)){
-											echo '<ul>';
-											$uArr = $userArr[$roleStr];
-											foreach($uArr as $uid => $name){
-												?>
-												<li>
-													<?php echo $name; ?>
-													<form name="deluserform" method="post" action="datasetmanager.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove <?php echo $name; ?>')">
-														<input name="submitaction" type="hidden" value="DelUser" />
-														<input name="role" type="hidden" value="<?php echo $roleStr; ?>" />
-														<input name="uid" type="hidden" value="<?php echo $uid; ?>" />
-														<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
-														<input name="tabindex" type="hidden" value="2" />
-														<input name="submitimage" type="image" src="../../images/drop.png" />
-													</form>
-												</li>
+											?>
+											<ul>
 												<?php
-											}
-											echo '</ul>';
+												$uArr = $userArr[$roleStr];
+												foreach($uArr as $uid => $name){
+													?>
+													<li>
+														<?php echo $name; ?>
+														<form name="deluserform" method="post" action="datasetmanager.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove <?php echo $name; ?>')">
+															<input name="submitaction" type="hidden" value="DelUser" />
+															<input name="role" type="hidden" value="<?php echo $roleStr; ?>" />
+															<input name="uid" type="hidden" value="<?php echo $uid; ?>" />
+															<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
+															<input name="tabindex" type="hidden" value="2" />
+															<input name="submitimage" type="image" src="../../images/drop.png" />
+														</form>
+													</li>
+													<?php
+												}
+												?>
+											</ul>
+											<?php
 										}
-										else{
-											echo '<div style="margin:15px;">None Assigned</div>';
-										}
+										else echo '<div style="margin:15px;">None Assigned</div>';
 										?>
 									</div>
 									<?php
@@ -503,7 +462,7 @@ if($isEditor){
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT."/footer.php");
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	</body>
 </html>

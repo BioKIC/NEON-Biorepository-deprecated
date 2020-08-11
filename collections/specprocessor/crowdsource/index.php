@@ -32,7 +32,7 @@ $statusStr = '';
 <body>
 	<?php
 	$displayLeftMenu = false;
-	include($SERVER_ROOT.'/header.php');
+	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($crowdsourcecentral_listCrumbs)){
 		if($crowdsourcecentral_listCrumbs){
 			echo $crowdsourcecentral_listCrumbs;
@@ -146,7 +146,7 @@ $statusStr = '';
 		?>
 	</div>
 	<?php
-	include($SERVER_ROOT.'/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

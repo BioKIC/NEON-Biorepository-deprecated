@@ -14,7 +14,7 @@ function verifyCoordinates(f){
 			if(data){
 				if(data.status != "ZERO_RESULTS"){
 					var result = data.results[0];
-					if(result.address_components){
+					if(result && result.address_components){
 						var compArr = result.address_components;
 						var coordCountry = "";
 						var coordState = "";

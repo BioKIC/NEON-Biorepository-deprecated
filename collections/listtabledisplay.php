@@ -4,7 +4,6 @@ include_once($SERVER_ROOT.'/content/lang/collections/list.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceListManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$targetTid = array_key_exists("targettid",$_REQUEST)?$_REQUEST["targettid"]:0;
 $page = array_key_exists('page',$_REQUEST)?$_REQUEST['page']:1;
 $tableCount= array_key_exists('tablecount',$_REQUEST)?$_REQUEST['tablecount']:1000;
 $sortField1 = array_key_exists('sortfield1',$_REQUEST)?$_REQUEST['sortfield1']:'collectionname';
@@ -13,10 +12,13 @@ $sortOrder = array_key_exists('sortorder',$_REQUEST)?$_REQUEST['sortorder']:'';
 
 //Sanitation
 if(!is_numeric($page) || $page < 1) $page = 1;
+if(!is_numeric($tableCount)) $tableCount = 1000;
+$sortField1 = strip_tags($sortField1);
+$sortField2 = strip_tags($sortField2);
+$sortOrder = strip_tags($sortOrder);
 
 $collManager = new OccurrenceListManager();
 $searchVar = $collManager->getQueryTermStr();
-$urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST'].$CLIENT_ROOT.'/collections/listtabledisplay.php';
 ?>
 <html>
 <head>
@@ -27,13 +29,21 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 			white-space: nowrap;
 		}
 	</style>
-	<link href="../css/base.css?ver=<?php echo $CSS_VERSION; ?>" type="text/css" rel="stylesheet" />
-	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
-	<link href="../js/jquery-ui-1.12.1/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/config/googleanalytics.php'); ?>
+		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -52,6 +62,13 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 	<div id="">
 		<div style="width:850px;margin-bottom:5px;">
 			<div style="float:right;">
+				<!--
+				<div style="float:left">
+					<button class="icon-button" onclick="$('.datasetDiv').toggle();" title="Dataset Management">
+						<img src="../images/dataset.png" style="width:15px;" />
+					</button>
+				</div>
+				-->
 				<form action="list.php" method="post" style="float:left">
 					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" title="<?php echo (isset($LANG['LIST_DISPLAY'])?$LANG['LIST_DISPLAY']:'List Display'); ?>">
 						<img src="../images/list.png" style="width:15px; height:15px" />
@@ -65,9 +82,11 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 					<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 					<input name="dltype" type="hidden" value="specimen" />
 				</form>
-				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" onclick="copyUrl()" title="Copy URL to Clipboard">
-					<img src="../../images/dl2.png" srcset="../images/link.svg" class="svg-icon" style="width:15px; height:15px" />
-				</button>
+				<div style="float:left">
+					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;" onclick="copyUrl()" title="Copy URL to Clipboard">
+						<img src="../../images/dl2.png" srcset="../images/link.svg" class="svg-icon" style="width:15px; height:15px" />
+					</button>
+				</div>
 			</div>
 			<fieldset style="padding:5px;width:650px;">
 				<legend><b>Sort Results</b></legend>
@@ -136,113 +155,103 @@ $urlPrefix = (isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST
 				echo $navStr;
 				?>
 			</div>
-			<div>
+			<div class="navpath">
+				<a href="../index.php">Home</a> &gt;&gt;
+				<a href="index.php">Collections</a> &gt;&gt;
+				<a href="harvestparams.php">Search Criteria</a> &gt;&gt;
+				<b>Specimen Records Table</b>
+			</div>
+		</div>
+		<form name="occurListForm" method="post" action="datasets/index.php" onsubmit="return validateOccurListForm(this)" target="_blank">
+			<?php include('datasetinclude.php'); ?>
+			<div id="tablediv">
 				<?php
-				if(isset($collections_listCrumbs)){
-					if($collections_listCrumbs){
-						echo '<span class="navpath">';
-						echo $collections_listCrumbs.' &gt;&gt; ';
-						echo ' <b>Specimen Records Table</b>';
-						echo '</span>';
-					}
+				if($recArr){
+					?>
+					<div style="clear:both;height:5px;"></div>
+					<table class="styledtable" style="font-family:Arial;font-size:12px;">
+						<tr>
+							<th>Symbiota ID</th>
+							<th>Collection</th>
+							<th>Catalog Number</th>
+							<th>Family</th>
+							<th>Scientific Name</th>
+							<th>Collector</th>
+							<th>Number</th>
+							<th>Event Date</th>
+							<th>Country</th>
+							<th>State/Province</th>
+							<th>County</th>
+							<th>Locality</th>
+							<th>Habitat</th>
+							<th>Substrate</th>
+							<th>Elevation</th>
+						</tr>
+						<?php
+						$recCnt = 0;
+						foreach($recArr as $occid => $occArr){
+							$isEditor = false;
+							if($SYMB_UID && ($IS_ADMIN
+									|| (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($occArr['collid'],$USER_RIGHTS['CollAdmin']))
+									|| (array_key_exists('CollEditor',$USER_RIGHTS) && in_array($occArr['collid'],$USER_RIGHTS['CollEditor'])))){
+								$isEditor = true;
+							}
+							$collection = $occArr['instcode'];
+							if($occArr['collcode']) $collection .= ':'.$occArr['collcode'];
+							if($occArr['sciname']) $occArr['sciname'] = '<i>'.$occArr['sciname'].'</i> ';
+							?>
+							<tr <?php echo ($recCnt%2?'class="alt"':''); ?>>
+								<td>
+									<div class="datasetDiv" style="float:left;display:none"><input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" /></div>
+									<?php
+									echo '<a href="#" onclick="return openIndPU('.$occid.",".($targetClid?$targetClid:"0").');">'.$occid.'</a> ';
+									if($isEditor || ($SYMB_UID && $SYMB_UID == $occArr['obsuid'])){
+										echo '<a href="editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">';
+										echo '<img src="../images/edit.png" style="height:13px;" title="Edit Record" />';
+										echo '</a>';
+									}
+									if(isset($occArr['img'])){
+										echo '<img src="../images/image.png" style="height:13px;margin-left:5px;" title="Has Image" />';
+									}
+									?>
+								</td>
+								<td><?php echo $collection; ?></td>
+								<td><?php echo $occArr['catnum']; ?></td>
+								<td><?php echo $occArr['family']; ?></td>
+								<td><?php echo $occArr['sciname'].($occArr['author']?" ".$occArr['author']:""); ?></td>
+								<td><?php echo $occArr['collector']; ?></td>
+								<td><?php echo (array_key_exists("collnum",$occArr)?$occArr['collnum']:""); ?></td>
+								<td><?php echo (array_key_exists("date",$occArr)?$occArr['date']:""); ?></td>
+								<td><?php echo $occArr['country']; ?></td>
+								<td><?php echo $occArr['state']; ?></td>
+								<td><?php echo $occArr['county']; ?></td>
+								<td>
+								<?php
+								$locStr = $occArr['locality'];
+								$locStr = preg_replace('/<div.*?>.*?<\/div>/', '', $locStr);
+								if(strlen($locStr)>80) $locStr = substr($locStr,0,80).'...';
+								echo $locStr;
+								?></td>
+								<td><?php if(isset($occArr['habitat'])) echo ((strlen($occArr['habitat'])>80)?substr($occArr['habitat'],0,80).'...':$occArr['habitat']); ?></td>
+								<td><?php if(isset($occArr['substrate'])) echo ((strlen($occArr['substrate'])>80)?substr($occArr['substrate'],0,80).'...':$occArr['substrate']); ?></td>
+								<td><?php echo (array_key_exists("elev",$occArr)?$occArr['elev']:""); ?></td>
+							</tr>
+							<?php
+							$recCnt++;
+						}
+						?>
+					</table>
+					<div style="clear:both;height:5px;"></div>
+					<div style="width:790px;"><?php echo $navStr; ?></div>
+					*Click on the Symbiota identifier in the first column to see Full Record Details.';
+					<?php
 				}
 				else{
-					echo '<span class="navpath">';
-					echo '<a href="../index.php">Home</a> &gt;&gt; ';
-					echo '<a href="index.php">Collections</a> &gt;&gt; ';
-					echo '<a href="harvestparams.php">Search Criteria</a> &gt;&gt; ';
-					echo '<b>Specimen Records Table</b>';
-					echo '</span>';
+					echo '<div style="font-weight:bold;font-size:120%;">No records found matching the query</div>';
 				}
 				?>
 			</div>
-		</div>
-		<div id="tablediv">
-			<?php
-			if($recArr){
-				?>
-				<div style="clear:both;height:5px;"></div>
-				<table class="styledtable" style="font-family:Arial;font-size:12px;">
-					<tr>
-						<th>Symbiota ID</th>
-						<th>Collection</th>
-						<th>Catalog Number</th>
-						<th>Family</th>
-						<th>Scientific Name</th>
-						<th>Collector</th>
-						<th>Number</th>
-						<th>Event Date</th>
-						<th>Country</th>
-						<th>State/Province</th>
-						<th>County</th>
-						<th>Locality</th>
-						<th>Habitat</th>
-						<th>Substrate</th>
-						<th>Elevation</th>
-					</tr>
-					<?php
-					$recCnt = 0;
-					foreach($recArr as $occid => $occArr){
-						$isEditor = false;
-						if($SYMB_UID && ($IS_ADMIN
-								|| (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($occArr['collid'],$USER_RIGHTS['CollAdmin']))
-								|| (array_key_exists('CollEditor',$USER_RIGHTS) && in_array($occArr['collid'],$USER_RIGHTS['CollEditor'])))){
-							$isEditor = true;
-						}
-						$collection = $occArr['instcode'];
-						if($occArr['collcode']) $collection .= ':'.$occArr['collcode'];
-						if($occArr['sciname']) $occArr['sciname'] = '<i>'.$occArr['sciname'].'</i> ';
-						?>
-						<tr <?php echo ($recCnt%2?'class="alt"':''); ?>>
-							<td>
-								<?php
-								echo '<a href="#" onclick="return openIndPU('.$occid.",".($targetClid?$targetClid:"0").');">'.$occid.'</a> ';
-								if($isEditor || ($SYMB_UID && $SYMB_UID == $occArr['obsuid'])){
-									echo '<a href="editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">';
-									echo '<img src="../images/edit.png" style="height:13px;" title="Edit Record" />';
-									echo '</a>';
-								}
-								if(isset($occArr['img'])){
-									echo '<img src="../images/image.png" style="height:13px;margin-left:5px;" title="Has Image" />';
-								}
-								?>
-							</td>
-							<td><?php echo $collection; ?></td>
-							<td><?php echo $occArr['catnum']; ?></td>
-							<td><?php echo $occArr['family']; ?></td>
-							<td><?php echo $occArr['sciname'].($occArr['author']?" ".$occArr['author']:""); ?></td>
-							<td><?php echo $occArr['collector']; ?></td>
-							<td><?php echo (array_key_exists("collnum",$occArr)?$occArr['collnum']:""); ?></td>
-							<td><?php echo (array_key_exists("date",$occArr)?$occArr['date']:""); ?></td>
-							<td><?php echo $occArr['country']; ?></td>
-							<td><?php echo $occArr['state']; ?></td>
-							<td><?php echo $occArr['county']; ?></td>
-							<td>
-							<?php
-							$locStr = $occArr['locality'];
-							$locStr = preg_replace('/<div.*?>.*?<\/div>/', '', $locStr);
-							if(strlen($locStr)>80) $locStr = substr($locStr,0,80).'...';
-							echo $locStr;
-							?></td>
-							<td><?php if(isset($occArr['habitat'])) echo ((strlen($occArr['habitat'])>80)?substr($occArr['habitat'],0,80).'...':$occArr['habitat']); ?></td>
-							<td><?php if(isset($occArr['substrate'])) echo ((strlen($occArr['substrate'])>80)?substr($occArr['substrate'],0,80).'...':$occArr['substrate']); ?></td>
-							<td><?php echo (array_key_exists("elev",$occArr)?$occArr['elev']:""); ?></td>
-						</tr>
-						<?php
-						$recCnt++;
-					}
-					?>
-				</table>
-				<div style="clear:both;height:5px;"></div>
-				<div style="width:790px;"><?php echo $navStr; ?></div>
-				*Click on the Symbiota identifier in the first column to see Full Record Details.';
-				<?php
-			}
-			else{
-				echo '<div style="font-weight:bold;font-size:120%;">No records found matching the query</div>';
-			}
-			?>
-		</div>
+		</form>
 	</div>
 </body>
 </html>

@@ -148,7 +148,7 @@ echo '<!DOCTYPE HTML>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">';
-    // include_once($SERVER_ROOT.'/config/googleanalytics.php'); 
+    // include_once($SERVER_ROOT.'/includes/googleanalytics.php'); 
 echo '</script>
 	<script type="text/javascript">
 		var currentLevel = ' . ($descrDisplayLevel?$descrDisplayLevel:"1"). ';
@@ -157,7 +157,7 @@ echo '</script>
 </head>
 <body>';
    $displayLeftMenu = FALSE;
-   include($SERVER_ROOT.'/header.php');
+   include($SERVER_ROOT.'/includes/header.php');
    if(!isset($agent_indexCrumbs)){
       $agent_indexCrumbs = array();
       array_push($agent_indexCrumbs,"<a href='$CLIENT_ROOT/index.php'>Home</a>");
@@ -184,7 +184,7 @@ echo '</script>
 
 function footer() { 
    global $SERVER_ROOT,$CLIENT_ROOT;
-  include($SERVER_ROOT.'/footer.php');
+  include($SERVER_ROOT.'/includes/footer.php');
   echo "</body>\n</html>";
 }
 ?>

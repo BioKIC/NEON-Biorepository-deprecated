@@ -1,22 +1,21 @@
 <?php
-include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/Manager.php');
 
-class GamesManager {
+class GamesManager extends Manager{
 
-	private $conn;
 	private $clid;
 	private $clidStr;
 	private $dynClid;
 	private $taxonFilter;
 	private $showCommon = 0;
-	private $lang;
+	private $langId;
 
 	public function __construct(){
-		$this->conn = MySQLiConnectionFactory::getCon("readonly");
+		parent::__construct();
 	}
 
 	public function __destruct(){
-		if(!($this->conn === null)) $this->conn->close();
+		parent::__destruct();
 	}
 
 	public function getChecklistArr($projId = 0){
@@ -52,14 +51,9 @@ class GamesManager {
 				$oldArr = json_decode(file_get_contents($SERVER_ROOT.'/temp/ootd/'.$oodID.'_info.json'), true);
 				$lastDate = $oldArr['lastDate'];
 				$lastCLID = $oldArr['clid'];
-				if(($currentDate > $lastDate) || ($clid != $lastCLID)){
-					$replace = 1;
-				}
+				if(($currentDate > $lastDate) || ($clid && $clid != $lastCLID)) $replace = 1;
 			}
-			else{
-				$replace = 1;
-			}
-
+			else $replace = 1;
 			if($replace == 1){
 				//Delete old files
 				$previous = Array();
@@ -88,6 +82,12 @@ class GamesManager {
 					'LEFT JOIN omcollections c ON o.collid = c.collid '.
 					'WHERE (l.CLID IN('.$clid.')) AND (i.occid IS NULL OR c.CollType LIKE "%Observations") '.
 					'GROUP BY l.TID';
+				/*
+				$sql = 'SELECT l.TID, COUNT(i.imgid) AS cnt '.
+					'FROM fmchklsttaxalink l INNER JOIN images i ON l.TID = i.tid '.
+					'WHERE (l.CLID IN('.$clid.')) '.
+					'GROUP BY l.TID';
+				*/
 				//echo '<div>'.$sql.'</div>';
 				$rs = $this->conn->query($sql);
 				while($row = $rs->fetch_object()){
@@ -121,10 +121,10 @@ class GamesManager {
 					$domain = "http://";
 					if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $domain = "https://";
 					$domain .= $_SERVER["HTTP_HOST"];
-					if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80) $domain .= ':'.$_SERVER["SERVER_PORT"];
+					if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $domain .= ':'.$_SERVER["SERVER_PORT"];
 
 					$files = Array();
-					$sql3 = 'SELECT url FROM images WHERE (tid = '.$randTaxa.' AND url != "empty") ORDER BY sortsequence ';
+					$sql3 = 'SELECT url FROM images WHERE (tid = '.$randTaxa.' AND url IS NOT NULL AND url != "empty") ORDER BY sortsequence ';
 					//echo '<div>'.$sql.'</div>';
 					$cnt = 1;
 					$repcnt = 1;
@@ -133,21 +133,14 @@ class GamesManager {
 					while(($row = $rs->fetch_object()) && ($cnt < 6)){
 						$file = '';
 						if (substr($row->url, 0, 1) == '/'){
-							//If imageDomain variable is set within symbini file, image
-							if(isset($GLOBALS['imageDomain']) && $GLOBALS['imageDomain']){
-								$file = $GLOBALS['imageDomain'].$row->url;
-							}
-							else{
-								//Use local domain
-								$file = $domain.$row->url;
-							}
+							if(isset($GLOBALS['imageDomain']) && $GLOBALS['imageDomain']) $file = $GLOBALS['imageDomain'].$row->url;
+							else $file = $domain.$row->url;
 						}
 						else{
 							$file = $row->url;
 						}
 						$newfile = $newfileBase.$cnt.'.jpg';
-						if(fopen($file, "r")){
-							copy($file, $SERVER_ROOT.$newfile);
+						if(copy($file, $SERVER_ROOT.$newfile)){
 							$files[] = $GLOBALS['CLIENT_ROOT'].$newfile;
 							$cnt++;
 						}
@@ -210,7 +203,7 @@ class GamesManager {
 				//Grab vernaculars
 				$sqlV = 'SELECT ts.tidaccepted, v.vernacularname '.
 					'FROM taxavernaculars v INNER JOIN taxstatus ts ON v.tid = ts.tid '.
-					'WHERE v.Language = "'.$this->lang.'" AND ts.tidaccepted IN('.$tidStr.') '.
+					'WHERE v.langid = '.$this->langId.' AND ts.tidaccepted IN('.$tidStr.') '.
 					'ORDER BY v.SortSequence';
 				if($rsV = $this->conn->query($sqlV)){
 					while($rV = $rsV->fetch_object()){
@@ -365,6 +358,19 @@ class GamesManager {
 		$this->clidStr = implode(',',$clidArr);
 	}
 
+	public function getSynonymArr($tid){
+		$retArr = array();
+		if(is_numeric($tid)){
+			$sql = 'SELECT DISTINCT t.sciname FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid INNER JOIN taxstatus ts2 ON ts.tidaccepted = ts2.tidaccepted WHERE ts2.tid = '.$tid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[] = strtolower($r->sciname);
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
 	//Setters and getters
 	public function getClid(){
 		return $this->clid;
@@ -397,13 +403,15 @@ class GamesManager {
 	}
 
 	public function setLang($l){
-		$lang = strtolower($l);
-		if(strlen($lang) == 2){
-			if($lang == 'en') $lang = 'english';
-			if($lang == 'es') $lang = 'spanish';
-			if($lang == 'fr') $lang = 'french';
+		if(is_numeric($l)) $this->langId = $l;
+		else{
+			$sql = 'SELECT langid FROM adminlanguages WHERE langname = "'.$this->cleanInStr($l).'" OR iso639_1 = "'.$this->cleanInStr($l).'"';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->langId = $r->langid;
+			}
+			$rs->free();
 		}
-		$this->lang = $lang;
 	}
 
 	public function getClName(){

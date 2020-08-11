@@ -9,13 +9,13 @@ $LANG['H_HOME'] = 'Inicio';
 
 $LANG['H_SEARCH'] = 'B&uacute;squeda';
 $LANG['H_COLLECTIONS'] = 'Colecciones';
-$LANG['H_MAP'] = 'Mapa';
+$LANG['H_MAP'] = 'Búsqueda en Mapa ';
 $LANG['H_DYN_LISTS'] = 'Listados Din&aacute;micos';
 $LANG['H_TAXONOMIC_EXPLORER'] = 'Explorador Taxon&oacute;mico';
 
 $LANG['H_IMAGES'] = 'Im&aacute;genes';
-$LANG['H_IMAGE_BROWSER'] = 'Navegador de Im&aacute;genes';
-$LANG['H_IMAGE_SEARCH'] = 'B&uacute;squeda de Im&aacute;genes';
+$LANG['H_IMAGE_BROWSER'] = 'Navegador de Imágenes';
+$LANG['H_IMAGE_SEARCH'] = 'Búsqueda de Imágenes';
 
 $LANG['H_INVENTORIES'] = 'Biota de L&iacute;quenes';
 $LANG['H_CENTRAL_AMER'] = 'AmÃ©rica Central';

@@ -1259,10 +1259,7 @@ function verifyImgAddForm(f){
 }
 
 function verifyImgEditForm(f){
-	if(f.url.value == ""){
-		alert("Web URL field must have a value");
-		return false;
-	}
+
 	return true;
 }
 

@@ -102,8 +102,7 @@ function closeModal(elementid) {
 // Map Selector
 function openCoordAid(mapMode) {
   mapWindow = open(
-    'http://github.localhost:8080/NEON-Biorepository/collections/tools/mapcoordaid.php?mapmode=' +
-      mapMode,
+    '../../collections/tools/mapcoordaid.php?mapmode=' + mapMode,
     'polygon',
     'resizable=0,width=900,height=630,left=20,top=20'
   );
@@ -248,9 +247,7 @@ function getSearchUrl() {
   // const baseURL = new URL(
   //   'https://biorepo.neonscience.org/portal/collections/list.php'
   // );
-  const baseURL = new URL(
-    'http://github.localhost:8080/NEON-Biorepository/collections/list.php'
-  );
+  const baseURL = new URL('../../collections/list.php');
 
   // Clears array temporarily to avoid redundancy
   paramsArr = [];

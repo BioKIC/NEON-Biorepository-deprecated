@@ -41,6 +41,9 @@
 							<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >Sample search</a>
 						</li>
 						<li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/neon/search/index.html" >NEW sample search</a>
+						</li>
+						<li>
 							<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">Map search</a>
 						</li>
 						<li>

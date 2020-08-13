@@ -32,7 +32,7 @@
         <div id="search-form-taxonomy" class="content">
           <div id="taxa-text" class="input-text-container">
             <label for="taxa" class="input-text--outlined">
-              <input type="text" name="taxa" id="taxa-search" list="match-list">
+              <input type="text" name="taxa" id="taxa-search" data-chip="Taxa" list="match-list">
               <!-- <div id="match-list" class="suggestion-box hide" ></div> -->
               <div id="match-list-container"></div>
               <span data-label="Taxon"></span></label>
@@ -62,11 +62,11 @@
         <div id="search-form-colls" class="content">
           <!-- <ul id="collections-list"></ul> -->
           <!-- Open NEON Collections modal -->
-          <div><input id="all-neon-colls-quick" class="all-selector" type="checkbox" checked=""><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Collections</span></div>
+          <div><input id="all-neon-colls-quick" data-chip="All NEON Collections" class="all-selector" type="checkbox" checked=""><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Collections</span></div>
           <!-- External Collections -->
           <div>
             <ul id="neonext-collections-list">
-              <li><input id="allNeonExtCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
+              <li><input id="allNeonExtCollections" data-chip="All NEON External Collections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
                 <ul class="collapsed">
                   <li><input type="checkbox" name="db" value="44" class="child"><span>Essig Museum of Entomology</span></li>
                   <li><input type="checkbox" name="db" value="74" class="child"><span>Museum of Southwestern Biology - Mammal specimens</span></li>
@@ -449,6 +449,38 @@
           </div>
         </div>
       </section>
+      <!-- Sample Properties -->
+      <section>
+        <!-- Accordion selector -->
+        <input type="checkbox" id="sample" class="accordion-selector" checked=true />
+        <!-- Accordion header -->
+        <label for="sample" class="accordion-header">Sample Properties</label>
+        <!-- Accordion content -->
+        <div id="search-form-sample" class="content">
+          <div>
+            <div>
+              <input type="checkbox" name="includeothercatnum" value="1" checked>
+              <label for="includeothercatnum">Include other catalogue numbers and GUIds</label>
+            </div>
+            <div class="input-text-container">
+              <label for="" class="input-text--outlined">
+              <input type="text" name="catnum">
+              <span data-label="Catalog Number"></span></label>
+              <span class="assistive-text">Separate multiple with commas.</span>
+            </div>
+          </div>
+          <div>
+            <div>
+              <input type="checkbox" name="hasimages" value=1>
+              <label for="hasimages">Limit to specimens with images</label>
+            </div>
+            <div>
+              <input type="checkbox" name="hasgenetic" value=1>
+              <label for="hasgenetic">Limit to specimens with genetic data</label>
+            </div>
+          </div>
+        </div>
+      </section>
       <!-- Locality -->
       <section>
         <!-- Accordion selector -->
@@ -459,7 +491,7 @@
         <div id="search-form-locality" class="content">
           <!-- <ul id="site-list"></ul> -->
           <ul id="site-list">
-            <li><input id="allSites" name="datasetid" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
+            <li><input id="allSites" name="datasetid" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
               <ul>
                 <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D01 - Northeast</span>
                   <ul class="collapsed">
@@ -818,38 +850,6 @@
               <input type="text" name="eventdate2" >
               <span data-label="Collection End Date"></span></label>
             <span class="assistive-text">Single date or start date of range.</span>
-          </div>
-        </div>
-      </section>
-      <!-- Sample Properties -->
-      <section>
-        <!-- Accordion selector -->
-        <input type="checkbox" id="sample" class="accordion-selector" checked=true />
-        <!-- Accordion header -->
-        <label for="sample" class="accordion-header">Sample Properties</label>
-        <!-- Accordion content -->
-        <div id="search-form-sample" class="content">
-          <div>
-            <div>
-              <input type="checkbox" name="includeothercatnum" value="1" checked>
-              <label for="includeothercatnum">Include other catalogue numbers and GUIds</label>
-            </div>
-            <div class="input-text-container">
-              <label for="" class="input-text--outlined">
-              <input type="text" name="catnum">
-              <span data-label="Catalog Number"></span></label>
-              <span class="assistive-text">Separate multiple with commas.</span>
-            </div>
-          </div>
-          <div>
-            <div>
-              <input type="checkbox" name="hasimages" value=1>
-              <label for="hasimages">Limit to specimens with images</label>
-            </div>
-            <div>
-              <input type="checkbox" name="hasgenetic" value=1>
-              <label for="hasgenetic">Limit to specimens with genetic data</label>
-            </div>
           </div>
         </div>
       </section>

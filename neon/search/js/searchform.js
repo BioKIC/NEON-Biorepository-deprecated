@@ -102,7 +102,8 @@ function closeModal(elementid) {
 // Map Selector
 function openCoordAid(mapMode) {
   mapWindow = open(
-    '../../collections/tools/mapcoordaid.php?mapmode=' + mapMode,
+    'http://github.localhost:8080/NEON-Biorepository/collections/tools/mapcoordaid.php?mapmode=' +
+      mapMode,
     'polygon',
     'resizable=0,width=900,height=630,left=20,top=20'
   );
@@ -114,20 +115,28 @@ function openCoordAid(mapMode) {
  * Chips
  */
 
-//////// Update chip on event change
-const taxaInput = document.getElementsByName('taxa');
-taxaInput[0].addEventListener('change', updateChip);
-let taxaChip = document.createElement('p');
+//////// Binds Update chip on event change
+const taxaInput = document.getElementById('taxa-search');
+taxaInput.addEventListener('change', updateChip);
+const catNumInput = document.getElementById('taxa-search');
+taxaInput.addEventListener('change', updateChip);
 
-// Make this function generic? Or adapt function for each criterion?
-// How to deal with defaults?
-function updateChip(e) {
-  // taxaChip.textContent = taxaInput[0].name + ': ' + e.target.value;
-  // Deletes current object before appending chips, to avoid redundancy
-  // let eInput = document.getElementsByName(e.target.name);
-  // paramsArr.splice(paramsArr[e.target.name], 1);
-  // let chipArr = getParam(eInput[0].name);
-  // console.log(chipArr);
+const allNeon = document.getElementById('all-neon-colls-quick');
+const allNeonExt = document.getElementById('all-neon-colls-quick');
+const allSites = document.getElementById('allSites');
+
+// const locInput = document.getElementById('')
+
+// on default (on document load): All Neon Collections, All Domains & Sites
+document.addEventListener('DOMContentLoaded', defaultChips);
+
+function defaultChips() {
+  addChip(allSites);
+  addChip(allNeon);
+}
+
+// Adds default chips
+function addChip(element) {
   // Chip definitions
   let inputChip = document.createElement('span'),
     chipBtn = document.createElement('button');
@@ -135,11 +144,31 @@ function updateChip(e) {
   chipBtn.setAttribute('type', 'button');
   chipBtn.setAttribute('class', 'chip-remove-btn');
   chipBtn.onclick = function () {
-    console.log('reset this value: ', e.target);
+    // console.log('reset this value: ', e.target);
+    inputChip.remove();
+    element.type === 'checkbox'
+      ? (element.checked = false)
+      : (element.value = element.defaultValue);
+  };
+  inputChip.textContent = element.dataset.chip;
+  inputChip.appendChild(chipBtn);
+  criteriaPanel.appendChild(inputChip);
+}
+
+// On event change (for chips that have text inputs)
+function updateChip(e) {
+  // Chip definitions
+  let inputChip = document.createElement('span'),
+    chipBtn = document.createElement('button');
+  inputChip.setAttribute('class', 'chip');
+  chipBtn.setAttribute('type', 'button');
+  chipBtn.setAttribute('class', 'chip-remove-btn');
+  chipBtn.onclick = function () {
+    // console.log('reset this value: ', e.target);
     inputChip.remove();
     e.target.value = e.target.defaultValue;
   };
-  inputChip.textContent = e.target.name.toUpperCase();
+  inputChip.textContent = e.target.dataset.chip;
   inputChip.appendChild(chipBtn);
   criteriaPanel.appendChild(inputChip);
 }
@@ -220,7 +249,7 @@ function getSearchUrl() {
   //   'https://biorepo.neonscience.org/portal/collections/list.php'
   // );
   const baseURL = new URL(
-    'https://serv.biokic.asu.edu/lrochapr/NEON-Biorepository/collections/list.php'
+    'http://github.localhost:8080/NEON-Biorepository/collections/list.php'
   );
 
   // Clears array temporarily to avoid redundancy

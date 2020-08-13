@@ -5,19 +5,8 @@
 /* BASE STYLES ******************************************/
 /* Typography */
 html {
-  color: #444444;
-  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
   font-size: 1em;
   font-size: 16px;
-}
-
-h1, h2, h3 {
-  color: #444444;
-  font-weight: 600;
-}
-
-a {
-  color: #005DAB;
 }
 
 fieldset {
@@ -86,6 +75,7 @@ input {
   margin-left: 20px;
 }
 
+/* Main */
 /* NAV */
 /* FOOTER */
 section {
@@ -412,7 +402,7 @@ span.accent-color-darker {
 
 .accordions input.accordion-selector:checked + label + .content {
   opacity: 1;
-  height: 100%;
+  height: auto;
   padding: 10px 25px;
 }
 

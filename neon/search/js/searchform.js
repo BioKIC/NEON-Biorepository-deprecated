@@ -130,6 +130,7 @@ const allSites = document.getElementById('allSites');
 document.addEventListener('DOMContentLoaded', defaultChips);
 
 function defaultChips() {
+  console.log('Added default chips');
   addChip(allSites);
   addChip(allNeon);
 }

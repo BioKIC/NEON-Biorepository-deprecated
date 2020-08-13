@@ -25,7 +25,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
     </script>
     <!-- Search-specific styles -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="../css/app.css">
   </head>
   <body>
     <?php

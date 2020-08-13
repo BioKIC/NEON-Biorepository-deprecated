@@ -1,0 +1,55 @@
+/* Accordions ********************************************************************************/
+/* Dependencies: Material Design Icons */
+$accordion-label-color: #ffffff
+$accordion-label-bg-color: $text-color
+$accordion-content-color: $text-color
+$accordion-content-border-color: $neon-light-gray
+$accordion-content-bg-color: #ffffff
+
+// Testing better styles based off of: https://supfort.com/pure-css-accordion-without-javascript
+.accordions
+  input
+    &.accordion-selector
+      display: none
+  label
+    &.accordion-header
+      font-size: 24px
+      display: block    
+      padding: 8px 22px
+      margin: 0 0 1px 0
+      cursor: pointer
+      background-color: $accordion-label-bg-color
+      // border-radius: 3px
+      color: #FFF
+      transition: ease .5s
+      position: relative
+      &:hover
+        background: darken($accordion-label-bg-color, 10%)
+      &::after
+        font-family: "Material Icons"
+        font-size: 24px
+        content: "\e313"
+        position: absolute
+        right: 20px
+        top: 10px
+
+  .content
+    background: #ffffff
+    padding: 10px 25px
+    border: 1px solid $accordion-content-border-color
+    margin: -1px 0 10px 0
+    // border-radius: 3px
+  
+  input.accordion-selector + label + .content
+    // display: none --> use just this if I'd like to remove animation
+    opacity: 0
+    height: 0
+    padding: 0 25px
+    transition: ease-in-out .2s
+  input.accordion-selector:checked + label + .content
+    // display: block --> use just this if I'd like to remove animation
+    opacity: 1
+    height: 100%
+    padding: 10px 25px
+  input.accordion-selector:checked + label::after
+    content: "\e316"

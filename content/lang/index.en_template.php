@@ -6,7 +6,7 @@ Language: English
 */
 
 //Taxon Quick Search plugin variables
-$LANG['QSEARCH_SEARCH'] = 'Search Taxon';
+$LANG['QSEARCH_SEARCH'] = 'Taxon Search';
 $LANG['QSEARCH_SEARCH_BUTTON'] = 'Search';
 
 //Slideshow plugin variables

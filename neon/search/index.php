@@ -771,7 +771,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   <button onclick="openCoordAid('rectangle');return false;">Select in map</button>
                   <div class="input-text-container">
                     <label for="upperlat" class="input-text--outlined">
-                    <input type="text" name="upperlat">
+                    <input type="text" id="upperlat" name="upperlat">
                     <select id="upperlat_NS" name="upperlat_NS">
                       <option id="ulN" value="N">N</option>
                       <option id="ulS" value="S">S</option>
@@ -781,7 +781,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   </div>
                   <div class="input-text-container">
                     <label for="bottomlat" class="input-text--outlined">
-                    <input type="text" name="bottomlat">
+                    <input type="text" id="bottomlat" name="bottomlat">
                     <select id="bottomlat_NS" name="bottomlat_NS">
                       <option id="blN" value="N">N</option>
                       <option id="blS" value="S">S</option>
@@ -791,7 +791,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   </div>
                   <div class="input-text-container">
                     <label for="leftlong" class="input-text--outlined">
-                    <input type="text" name="leftlong">
+                    <input type="text" id="leftlong" name="leftlong">
                     <select id="leftlong_EW" name="leftlong_EW">
                       <option id="llW" value="W">W</option>
                       <option id="llE" value="E">E</option>
@@ -801,7 +801,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   </div>
                   <div class="input-text-container">
                     <label for="rightlong" class="input-text--outlined">
-                    <input type="text" name="rightlong">
+                    <input type="text" id="rightlong" name="rightlong">
                     <select id="rightlong_EW" name="rightlong_EW">
                       <option id="rlW" value="W">W</option>
                       <option id="rlE" value="E">E</option>
@@ -815,7 +815,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   <button onclick="openCoordAid('polygon');return false;">Select in map</button>
                   <div class="text-area-container">
                     <label for="footpringwkt" class="text-area--outlined">
-                    <textarea name="footprintwkt" wrap="off" cols="30%" rows="5"></textarea>
+                    <textarea id="footprintwkt" name="footprintwkt" wrap="off" cols="30%" rows="5"></textarea>
                     <span data-label="Polygon"></span></label>
                     <span class="assistive-text">Assistive text.</span>
                   </div>
@@ -825,7 +825,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   <button onclick="openCoordAid('circle');return false;">Select in map</button>
                   <div class="input-text-container">
                     <label for="pointlat" class="input-text--outlined">
-                    <input type="text" name="pointlat">
+                    <input type="text" id="pointlat" name="pointlat">
                     <select id="pointlat_NS" name="pointlat_NS">
                       <option id="N" value="N">N</option>
                       <option id="S" value="S">S</option>
@@ -835,7 +835,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   </div>
                   <div class="input-text-container">
                     <label for="pointlong" class="input-text--outlined">
-                    <input type="text" name="pointlong">
+                    <input type="text" id="pointlong" name="pointlong">
                     <select id="pointlong_EW" name="pointlong_EW">
                       <option id="W" value="W">W</option>
                       <option id="E" value="E">E</option>
@@ -845,7 +845,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   </div>
                   <div class="input-text-container">
                     <label for="radius" class="input-text--outlined">
-                    <input type="text" name="radius">
+                    <input type="text" id="radius" name="radius">
                     <select id="radiusunits" name="radiusunits">
                       <option value="km">Kilometers</option>
                       <option value="mi">Miles</option>

@@ -811,10 +811,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
                   </div>
                 </div>
                 <div>
-                  <h3>Polygon (WKT footpring)</h3>
+                  <h3>Polygon (WKT footprint)</h3>
                   <button onclick="openCoordAid('polygon');return false;">Select in map</button>
                   <div class="text-area-container">
-                    <label for="footpringwkt" class="text-area--outlined">
+                    <label for="footprintwkt" class="text-area--outlined">
                     <textarea id="footprintwkt" name="footprintwkt" wrap="off" cols="30%" rows="5"></textarea>
                     <span data-label="Polygon"></span></label>
                     <span class="assistive-text">Assistive text.</span>

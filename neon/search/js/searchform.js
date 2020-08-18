@@ -204,6 +204,7 @@ function getParam(paramName) {
   // const answer = element[0].tagName === "SELECT" ? "it's a dropdown" : "it's not a dropdown";
   // console.log(answer);
   // console.log(element[0].tagName);
+
   // Deals with inputs
   // console.log(element.length);
   if (element[0].tagName === 'INPUT') {
@@ -236,6 +237,15 @@ function getParam(paramName) {
     //   [paramName]: elementValue
     // });
     paramsArr[paramName] = elementValue;
+    // Deals with textarea
+  } else if (element[0].tagName === 'TEXTAREA') {
+    let elementValue = element[0].value;
+    if (elementValue) {
+      // paramsArr.push({
+      //   [paramName]: elementValue
+      // });
+      paramsArr[paramName] = elementValue;
+    }
   }
   return paramsArr;
 }
@@ -248,8 +258,11 @@ function getSearchUrl() {
   // const baseURL = new URL(
   //   'https://biorepo.neonscience.org/portal/collections/list.php'
   // );
-  const baseURL = new URL('../../collections/list.php');
+  const baseURL = new URL(
+    'http://github.localhost:8080/NEON-Biorepository/collections/list.php'
+  );
 
+  console.log(baseURL);
   // Clears array temporarily to avoid redundancy
   paramsArr = [];
 
@@ -266,6 +279,21 @@ function getSearchUrl() {
     'local',
     'elevlow',
     'elevhigh',
+    // 'upperlat',
+    // 'upperlat_NS',
+    // 'bottomlat',
+    // 'bottomlat_NS',
+    // 'leftlong',
+    // 'leftlong_EW',
+    // 'rightlong',
+    // 'rightlong_EW',
+    'footprintwkt',
+    // 'pointlat',
+    // 'pointlat_NS',
+    // 'pointlong_NS',
+    // 'pointlong_EW',
+    // 'radius',
+    // 'radiusunits',
     'eventdate1',
     'eventdate2',
     'taxa',

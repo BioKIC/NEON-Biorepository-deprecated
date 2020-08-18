@@ -40,16 +40,16 @@ $accordion-content-bg-color: #ffffff
     margin: -1px 0 10px 0
     // border-radius: 3px
   
-  input.accordion-selector + label + .content
-    // display: none --> use just this if I'd like to remove animation
+  .accordion-selector + label + .content
+    display: none
     opacity: 0
     height: 0
     padding: 0 25px
     transition: ease-in-out .2s
-  input.accordion-selector:checked + label + .content
-    // display: block --> use just this if I'd like to remove animation
+  .accordion-selector:checked + label + .content
+    display: block
     opacity: 1
     height: auto
     padding: 10px 25px
-  input.accordion-selector:checked + label::after
+  .accordion-selector:checked + label::after
     content: "\e316"

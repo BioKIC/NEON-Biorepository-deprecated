@@ -392,7 +392,8 @@ span.accent-color-darker {
   margin: -1px 0 10px 0;
 }
 
-.accordions input.accordion-selector + label + .content {
+.accordions .accordion-selector + label + .content {
+  display: none;
   opacity: 0;
   height: 0;
   padding: 0 25px;
@@ -400,13 +401,14 @@ span.accent-color-darker {
   transition: ease-in-out .2s;
 }
 
-.accordions input.accordion-selector:checked + label + .content {
+.accordions .accordion-selector:checked + label + .content {
+  display: block;
   opacity: 1;
   height: auto;
   padding: 10px 25px;
 }
 
-.accordions input.accordion-selector:checked + label::after {
+.accordions .accordion-selector:checked + label::after {
   content: "\e316";
 }
 

@@ -77,31 +77,33 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <!-- Accordion header -->
             <label for="collections" class="accordion-header">Collections</label>
             <!-- Accordion content -->
-            <div id="search-form-colls" class="content">
-              <!-- <ul id="collections-list"></ul> -->
-              <!-- Open NEON Collections modal -->
-              <div><input id="all-neon-colls-quick" data-chip="All NEON Collections" class="all-selector" type="checkbox" checked=""><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Collections</span></div>
-              <!-- External Collections -->
-              <div>
-                <ul id="neonext-collections-list">
-                  <li><input id="allNeonExtCollections" data-chip="All NEON External Collections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
-                    <ul class="collapsed">
-                      <li><input type="checkbox" name="db" value="44" class="child"><span>Essig Museum of Entomology</span></li>
-                      <li><input type="checkbox" name="db" value="74" class="child"><span>Museum of Southwestern Biology - Mammal specimens</span></li>
-                    </ul>
-                  </li>
-                </ul>
-                <ul id="ext-collections-list">
-                  <li><input id="allExternalCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All non-NEON External Collections</span>
-                    <ul class="collapsed">
-                      <li><input type="checkbox" name="db" value="43" class="child"><span>Consortium of Small Vertebrate Collections</span></li>
-                      <li><input type="checkbox" name="db" value="37" class="child"><span>SCAN Portal Network Arthropod Specimens</span></li>
-                      <li><input type="checkbox" name="db" value="2" class="child"><span>SEINet Portal Network Botanical Specimens</span></li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
+            <div class="content">
+              <div id="search-form-colls">
+                <!-- <ul id="collections-list"></ul> -->
+                <!-- Open NEON Collections modal -->
+                <div><input id="all-neon-colls-quick" data-chip="All NEON Collections" class="all-selector" type="checkbox" checked=""><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Collections</span></div>
+                <!-- External Collections -->
+                <div>
+                  <ul id="neonext-collections-list">
+                    <li><input id="allNeonExtCollections" data-chip="All NEON External Collections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
+                      <ul class="collapsed">
+                        <li><input type="checkbox" name="db" value="44" class="child"><span>Essig Museum of Entomology</span></li>
+                        <li><input type="checkbox" name="db" value="74" class="child"><span>Museum of Southwestern Biology - Mammal specimens</span></li>
+                      </ul>
+                    </li>
+                  </ul>
+                  <ul id="ext-collections-list">
+                    <li><input id="allExternalCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All non-NEON External Collections</span>
+                      <ul class="collapsed">
+                        <li><input type="checkbox" name="db" value="43" class="child"><span>Consortium of Small Vertebrate Collections</span></li>
+                        <li><input type="checkbox" name="db" value="37" class="child"><span>SCAN Portal Network Arthropod Specimens</span></li>
+                        <li><input type="checkbox" name="db" value="2" class="child"><span>SEINet Portal Network Botanical Specimens</span></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
 
+              </div>
             </div>
             <!-- NEON COllections Modal -->
             <div class="modal" id="biorepo-collections-list">
@@ -474,27 +476,29 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <!-- Accordion header -->
             <label for="sample" class="accordion-header">Sample Properties</label>
             <!-- Accordion content -->
-            <div id="search-form-sample" class="content">
-              <div>
+            <div class="content">
+              <div id="search-form-sample">
                 <div>
-                  <input type="checkbox" name="includeothercatnum" value="1" checked>
-                  <label for="includeothercatnum">Include other catalogue numbers and GUIds</label>
-                </div>
-                <div class="input-text-container">
-                  <label for="" class="input-text--outlined">
-                  <input type="text" name="catnum">
-                  <span data-label="Catalog Number"></span></label>
-                  <span class="assistive-text">Separate multiple with commas.</span>
-                </div>
-              </div>
-              <div>
-                <div>
-                  <input type="checkbox" name="hasimages" value=1>
-                  <label for="hasimages">Limit to specimens with images</label>
+                  <div>
+                    <input type="checkbox" name="includeothercatnum" value="1" checked>
+                    <label for="includeothercatnum">Include other catalogue numbers and GUIds</label>
+                  </div>
+                  <div class="input-text-container">
+                    <label for="" class="input-text--outlined">
+                    <input type="text" name="catnum">
+                    <span data-label="Catalog Number"></span></label>
+                    <span class="assistive-text">Separate multiple with commas.</span>
+                  </div>
                 </div>
                 <div>
-                  <input type="checkbox" name="hasgenetic" value=1>
-                  <label for="hasgenetic">Limit to specimens with genetic data</label>
+                  <div>
+                    <input type="checkbox" name="hasimages" value=1>
+                    <label for="hasimages">Limit to specimens with images</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" name="hasgenetic" value=1>
+                    <label for="hasgenetic">Limit to specimens with genetic data</label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -506,7 +510,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <!-- Accordion header -->
             <label for="locality" class="accordion-header">Locality</label>
             <!-- Accordion content -->
-            <div id="search-form-locality" class="content">
+            <div class="content">
+              <div id="search-form-locality">
               <!-- <ul id="site-list"></ul> -->
               <ul id="site-list">
                 <li><input id="allSites" name="datasetid" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
@@ -750,6 +755,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                 </div>
               </div>
             </div>
+            </div>
           </section>
           <!-- Latitude & Longitude -->
           <section>
@@ -758,93 +764,95 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <!-- Accordion header -->
             <label for="lat-long" class="accordion-header">Latitude & Longitude</label>
             <!-- Accordion content -->
-            <div id="search-form-latlong" class="content">
-              <div>
-                <h3>Bounding Box</h3>
-                <button onclick="openCoordAid('rectangle');return false;">Select in map</button>
-                <div class="input-text-container">
-                  <label for="upperlat" class="input-text--outlined">
-                  <input type="text" name="upperlat">
-                  <select id="upperlat_NS" name="upperlat_NS">
-                    <option id="ulN" value="N">N</option>
-                    <option id="ulS" value="S">S</option>
-                  </select>
-                  <span data-label="Northern Latitude"></span></label>
-                  <span class="assistive-text">Assistive text.</span>
+            <div class="content">
+              <div id="search-form-latlong">
+                <div>
+                  <h3>Bounding Box</h3>
+                  <button onclick="openCoordAid('rectangle');return false;">Select in map</button>
+                  <div class="input-text-container">
+                    <label for="upperlat" class="input-text--outlined">
+                    <input type="text" name="upperlat">
+                    <select id="upperlat_NS" name="upperlat_NS">
+                      <option id="ulN" value="N">N</option>
+                      <option id="ulS" value="S">S</option>
+                    </select>
+                    <span data-label="Northern Latitude"></span></label>
+                    <span class="assistive-text">Assistive text.</span>
+                  </div>
+                  <div class="input-text-container">
+                    <label for="bottomlat" class="input-text--outlined">
+                    <input type="text" name="bottomlat">
+                    <select id="bottomlat_NS" name="bottomlat_NS">
+                      <option id="blN" value="N">N</option>
+                      <option id="blS" value="S">S</option>
+                    </select>
+                    <span data-label="Southern Latitude"></span></label>
+                    <span class="assistive-text">Assistive text.</span>
+                  </div>
+                  <div class="input-text-container">
+                    <label for="leftlong" class="input-text--outlined">
+                    <input type="text" name="leftlong">
+                    <select id="leftlong_EW" name="leftlong_EW">
+                      <option id="llW" value="W">W</option>
+                      <option id="llE" value="E">E</option>
+                    </select>
+                    <span data-label="Western Longitude"></span></label>
+                    <span class="assistive-text">Assistive text.</span>
+                  </div>
+                  <div class="input-text-container">
+                    <label for="rightlong" class="input-text--outlined">
+                    <input type="text" name="rightlong">
+                    <select id="rightlong_EW" name="rightlong_EW">
+                      <option id="rlW" value="W">W</option>
+                      <option id="rlE" value="E">E</option>
+                    </select>
+                    <span data-label="Eastern Longitude"></span></label>
+                    <span class="assistive-text">Assistive text.</span>
+                  </div>
                 </div>
-                <div class="input-text-container">
-                  <label for="bottomlat" class="input-text--outlined">
-                  <input type="text" name="bottomlat">
-                  <select id="bottomlat_NS" name="bottomlat_NS">
-                    <option id="blN" value="N">N</option>
-                    <option id="blS" value="S">S</option>
-                  </select>
-                  <span data-label="Southern Latitude"></span></label>
-                  <span class="assistive-text">Assistive text.</span>
+                <div>
+                  <h3>Polygon (WKT footpring)</h3>
+                  <button onclick="openCoordAid('polygon');return false;">Select in map</button>
+                  <div class="text-area-container">
+                    <label for="footpringwkt" class="text-area--outlined">
+                    <textarea name="footprintwkt" wrap="off" cols="30%" rows="5"></textarea>
+                    <span data-label="Polygon"></span></label>
+                    <span class="assistive-text">Assistive text.</span>
+                  </div>
                 </div>
-                <div class="input-text-container">
-                  <label for="leftlong" class="input-text--outlined">
-                  <input type="text" name="leftlong">
-                  <select id="leftlong_EW" name="leftlong_EW">
-                    <option id="llW" value="W">W</option>
-                    <option id="llE" value="E">E</option>
-                  </select>
-                  <span data-label="Western Longitude"></span></label>
-                  <span class="assistive-text">Assistive text.</span>
-                </div>
-                <div class="input-text-container">
-                  <label for="rightlong" class="input-text--outlined">
-                  <input type="text" name="rightlong">
-                  <select id="rightlong_EW" name="rightlong_EW">
-                    <option id="rlW" value="W">W</option>
-                    <option id="rlE" value="E">E</option>
-                  </select>
-                  <span data-label="Eastern Longitude"></span></label>
-                  <span class="assistive-text">Assistive text.</span>
-                </div>
-              </div>
-              <div>
-                <h3>Polygon (WKT footpring)</h3>
-                <button onclick="openCoordAid('polygon');return false;">Select in map</button>
-                <div class="text-area-container">
-                  <label for="footpringwkt" class="text-area--outlined">
-                  <textarea name="footprintwkt" wrap="off" cols="30%" rows="5"></textarea>
-                  <span data-label="Polygon"></span></label>
-                  <span class="assistive-text">Assistive text.</span>
-                </div>
-              </div>
-              <div>
-                <h3>Point-Radius</h3>
-                <button onclick="openCoordAid('circle');return false;">Select in map</button>
-                <div class="input-text-container">
-                  <label for="pointlat" class="input-text--outlined">
-                  <input type="text" name="pointlat">
-                  <select id="pointlat_NS" name="pointlat_NS">
-                    <option id="N" value="N">N</option>
-                    <option id="S" value="S">S</option>
-                  </select>
-                  <span data-label="Latitude"></span></label>
-                  <span class="assistive-text">Assistive text.</span>
-                </div>
-                <div class="input-text-container">
-                  <label for="pointlong" class="input-text--outlined">
-                  <input type="text" name="pointlong">
-                  <select id="pointlong_EW" name="pointlong_EW">
-                    <option id="W" value="W">W</option>
-                    <option id="E" value="E">E</option>
-                  </select>
-                  <span data-label="Longitude"></span></label>
-                  <span class="assistive-text">Assistive text.</span>
-                </div>
-                <div class="input-text-container">
-                  <label for="radius" class="input-text--outlined">
-                  <input type="text" name="radius">
-                  <select id="radiusunits" name="radiusunits">
-                    <option value="km">Kilometers</option>
-                    <option value="mi">Miles</option>
-                  </select>
-                  <span data-label="Radius"></span></label>
-                  <span class="assistive-text">Assistive text.</span>
+                <div>
+                  <h3>Point-Radius</h3>
+                  <button onclick="openCoordAid('circle');return false;">Select in map</button>
+                  <div class="input-text-container">
+                    <label for="pointlat" class="input-text--outlined">
+                    <input type="text" name="pointlat">
+                    <select id="pointlat_NS" name="pointlat_NS">
+                      <option id="N" value="N">N</option>
+                      <option id="S" value="S">S</option>
+                    </select>
+                    <span data-label="Latitude"></span></label>
+                    <span class="assistive-text">Assistive text.</span>
+                  </div>
+                  <div class="input-text-container">
+                    <label for="pointlong" class="input-text--outlined">
+                    <input type="text" name="pointlong">
+                    <select id="pointlong_EW" name="pointlong_EW">
+                      <option id="W" value="W">W</option>
+                      <option id="E" value="E">E</option>
+                    </select>
+                    <span data-label="Longitude"></span></label>
+                    <span class="assistive-text">Assistive text.</span>
+                  </div>
+                  <div class="input-text-container">
+                    <label for="radius" class="input-text--outlined">
+                    <input type="text" name="radius">
+                    <select id="radiusunits" name="radiusunits">
+                      <option value="km">Kilometers</option>
+                      <option value="mi">Miles</option>
+                    </select>
+                    <span data-label="Radius"></span></label>
+                    <span class="assistive-text">Assistive text.</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -856,18 +864,20 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <!-- Accordion header -->
             <label for="coll-event" class="accordion-header">Collecting Event</label>
             <!-- Accordion content -->
-            <div id="search-form-coll-event" class="content">
-              <div class="input-text-container">
-                <label for="eventdate1" class="input-text--outlined">
-                <input type="text" name="eventdate1" >
-                <span data-label="Collection Start Date"></span></label>
-                <span class="assistive-text">Single date or start date of range.</span>
-              </div>
-              <div class="input-text-container">
-                <label for="eventdate2" class="input-text--outlined">
-                  <input type="text" name="eventdate2" >
-                  <span data-label="Collection End Date"></span></label>
-                <span class="assistive-text">Single date or start date of range.</span>
+            <div class="content">
+              <div id="search-form-coll-event">
+                <div class="input-text-container">
+                  <label for="eventdate1" class="input-text--outlined">
+                  <input type="text" name="eventdate1" >
+                  <span data-label="Collection Start Date"></span></label>
+                  <span class="assistive-text">Single date or start date of range.</span>
+                </div>
+                <div class="input-text-container">
+                  <label for="eventdate2" class="input-text--outlined">
+                    <input type="text" name="eventdate2" >
+                    <span data-label="Collection End Date"></span></label>
+                  <span class="assistive-text">Single date or start date of range.</span>
+                </div>
               </div>
             </div>
           </section>

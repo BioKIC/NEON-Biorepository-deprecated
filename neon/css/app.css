@@ -86,8 +86,16 @@ section {
    LAYOUT STYLES
    @mixin ============================= */
 /* Search Form Layout ********************/
+input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  vertical-align: baseline !important;
+}
+
 .material-icons {
-  font-size: 18px !important;
+  width: 16px;
+  height: 16px;
+  font-size: 16px !important;
   cursor: pointer;
 }
 
@@ -149,11 +157,6 @@ section {
   grid-gap: 20px;
 }
 
-#search-form-colls input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-}
-
 #search-form-colls ul {
   list-style-type: none;
   padding-left: 20px;
@@ -165,11 +168,6 @@ section {
   -ms-grid-columns: 1fr 1fr;
       grid-template-columns: 1fr 1fr;
   grid-gap: 20px;
-}
-
-#search-form-locality input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
 }
 
 #search-form-locality ul {

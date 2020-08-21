@@ -63,7 +63,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			</div>
 			<div style="display:block;width: 46%;min-width:250px;float:right;padding: px;vertical-align: top;">
 
-				<h1 style="text-align:center;vertical-align:top;"><?php echo (isset($LANG['LEFT_TITLE'])?$LANG['LEFT_TITLE']:'Decentralized Portal Networks'); ?></h1>
+				<h1 style="text-align:center;vertical-align:top;"><?php echo (isset($LANG['RIGHT_TITLE'])?$LANG['RIGHT_TITLE']:'Decentralized Portal Networks'); ?></h1>
 				<font size="4">
 
 

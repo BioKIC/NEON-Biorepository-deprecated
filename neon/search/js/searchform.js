@@ -258,6 +258,7 @@ function getParam(paramName) {
 function getSearchUrl() {
   // const baseURL = new URL(
   //   'https://biorepo.neonscience.org/portal/collections/list.php'
+  //  http://biokic4.rc.asu.edu/biorepo/collections/list.php
   // );
   const baseURL = new URL(
     'http://github.localhost:8080/NEON-Biorepository/collections/list.php'

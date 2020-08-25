@@ -244,7 +244,7 @@ span.accent-color-darker {
   display: inline-block;
   background: #e0e0e0;
   padding: 0 12px;
-  margin: 0;
+  margin: 5px 0;
   border-radius: 32px;
   font-size: 13px;
 }
@@ -649,7 +649,7 @@ span.accent-color-darker {
 
 .modal .modal-content {
   background-color: white;
-  margin: 20px auto;
+  margin: 80px auto;
   padding: 20px;
   width: 80%;
   -webkit-box-shadow: 0 5px 8px 0;

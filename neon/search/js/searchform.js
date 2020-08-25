@@ -89,6 +89,7 @@ function autoToggleSelector(e) {
  */
 function openModal(elementid) {
   $(elementid).css('display', 'block');
+  $(body).css('overflow: hidden');
 }
 
 /**

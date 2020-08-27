@@ -11,33 +11,32 @@ $resetPwd = ((array_key_exists("resetpwd",$_REQUEST) && is_numeric($_REQUEST["re
 $action = array_key_exists("action",$_POST)?$_POST["action"]:"";
 if(!$action && array_key_exists('submit',$_REQUEST)) $action = $_REQUEST['submit'];
 
-$refUrl = "";
-if(array_key_exists("refurl",$_REQUEST)){
-	$refGetStr = "";
+$refUrl = '';
+if(array_key_exists('refurl',$_REQUEST)){
+	$refGetStr = '';
 	foreach($_GET as $k => $v){
-		if($k != "refurl"){
-			if($k == "attr" && is_array($v)){
+		$k = filter_var($k, FILTER_SANITIZE_STRING);
+		if($k != 'refurl'){
+			if($k == 'attr' && is_array($v)){
 				foreach($v as $v2){
-					$refGetStr .= "&attr[]=".$v2;
+					$v2 = filter_var($v2, FILTER_SANITIZE_STRING);
+					$refGetStr .= '&attr[]='.$v2;
 				}
 			}
 			else{
-				$refGetStr .= "&".$k."=".$v;
+				$v = filter_var($v, FILTER_SANITIZE_STRING);
+				$refGetStr .= '&'.$k.'='.$v;
 			}
 		}
 	}
-	$refUrl = str_replace('&amp;','&',htmlspecialchars($_REQUEST["refurl"]));
-	if(substr($refUrl,-4) == ".php"){
-		$refUrl .= "?".substr($refGetStr,1);
-	}
-	else{
-		$refUrl .= $refGetStr;
-	}
+	$refUrl = str_replace('&amp;','&',htmlspecialchars(filter_var($_REQUEST['refurl'], FILTER_SANITIZE_STRING)));
+	if(substr($refUrl,-4) == '.php') $refUrl .= '?'.substr($refGetStr,1);
+	else $refUrl .= $refGetStr;
 }
 
 $pHandler = new ProfileManager();
 
-$statusStr = "";
+$statusStr = '';
 //Sanitation
 if($login){
 	if(!$pHandler->setUserName($login)){
@@ -73,7 +72,7 @@ elseif($action == 'login'){
 		else $statusStr = 'Your username or password was incorrect. Please try again.<br/> If you are unable to remember your login credentials,<br/> use the controls below to retrieve your login or reset your password.';
 	}
 }
-elseif($action == "Retrieve Login"){
+elseif($action == 'Retrieve Login'){
 	if($emailAddr){
 		if($pHandler->lookupUserName($emailAddr)){
 			if(isset($LANG['LOGIN_EMAILED'])) $statusStr = $LANG['LOGIN_EMAILED'];

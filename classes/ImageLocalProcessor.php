@@ -294,7 +294,7 @@ class ImageLocalProcessor {
 							if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
 								$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
 								$fileExt = strtolower(substr($fileName,strrpos($fileName,'.')));
-								if($fileExt == ".jpg"){
+								if($fileExt == '.jpg' || $fileExt == '.jpeg'){
 									//Clean file name
 									$cleanName = str_replace(array(' '), '_', $fileName);
 									$cleanName = str_replace(array('(',')'), '', $cleanName);
@@ -310,7 +310,7 @@ class ImageLocalProcessor {
 										if($this->errorMessage == 'abort') return false;
 									}
 								}
-								elseif($fileExt == ".tif"){
+								elseif($fileExt == '.tif' || $fileExt == '.tiff'){
 									$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
 									//Do something, like convert to jpg???
 									//but for now do nothing
@@ -326,13 +326,13 @@ class ImageLocalProcessor {
 									// The loop through collArr can result in same file being processed more than
 									// once if the same pathFrag is associated with more than one collection.
 									if (!in_array("$pathFrag$fileName",$this->processedFiles)) {
-									$this->processXMLFile($fileName,$pathFrag);
-										 $this->processedFiles[] = "$pathFrag$fileName";
-										 // TODO: It would seem that adding the collection to collProcessedArr
-										 // should accomplish what processedFiles[] is being added above to
-										 // do, need to investigate further and perhaps use it as a fix.
-									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
-								}
+										$this->processXMLFile($fileName,$pathFrag);
+											 $this->processedFiles[] = "$pathFrag$fileName";
+											 // TODO: It would seem that adding the collection to collProcessedArr
+											 // should accomplish what processedFiles[] is being added above to
+											 // do, need to investigate further and perhaps use it as a fix.
+										if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
+									}
 								}
 								elseif($fileExt==".ds_store" || strtolower($fileName)=='thumbs.db'){
 									unlink($this->sourcePathBase.$pathFrag.$fileName);
@@ -380,7 +380,7 @@ class ImageLocalProcessor {
 					if($fileExt){
 						if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
 							$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
-							if($fileExt == "jpg"){
+							if($fileExt == 'jpg' || $fileExt == 'jpeg'){
 								if($this->processImageFile($fileName,$pathFrag)){
 									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
 								}
@@ -388,7 +388,7 @@ class ImageLocalProcessor {
 									if($this->errorMessage == 'abort') return false;
 								}
 							}
-							elseif($fileExt == "tif"){
+							elseif($fileExt == 'tif' || $fileExt == 'tiff'){
 								$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
 								//Do something, like convert to jpg???
 								//but for now do nothing

@@ -2,16 +2,16 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/taxa/index.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
-Header("Content-Type: text/html; charset=".$CHARSET);
+Header('Content-Type: text/html; charset='.$CHARSET);
 
-$taxonValue = array_key_exists("taxon",$_REQUEST)?$_REQUEST["taxon"]:"";
-$tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:"";
-$taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
-$clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
-$pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:'';
-$lang = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:$DEFAULT_LANG;
-$taxaLimit = array_key_exists("taxalimit",$_REQUEST)?$_REQUEST["taxalimit"]:50;
-$page = array_key_exists("page",$_REQUEST)?$_REQUEST["page"]:0;
+$taxonValue = array_key_exists('taxon',$_REQUEST)?$_REQUEST['taxon']:'';
+$tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:'';
+$taxAuthId = array_key_exists('taxauthid',$_REQUEST)?$_REQUEST['taxauthid']:1;
+$clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
+$pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:'';
+$lang = array_key_exists('lang',$_REQUEST)?$_REQUEST['lang']:$DEFAULT_LANG;
+$taxaLimit = array_key_exists('taxalimit',$_REQUEST)?$_REQUEST['taxalimit']:50;
+$page = array_key_exists('page',$_REQUEST)?$_REQUEST['page']:0;
 
 //Sanitation
 $taxonValue = strip_tags($taxonValue);
@@ -20,7 +20,7 @@ $taxonValue = htmlspecialchars($taxonValue, ENT_QUOTES, 'UTF-8');
 if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
 if(!is_numeric($clid)) $clid = 0;
-if(!is_numeric($pid)) $pid = 1;
+if(!is_numeric($pid)) $pid = '';
 if(!is_numeric($taxaLimit)) $taxaLimit = 50;
 if(!is_numeric($page)) $page = 0;
 
@@ -48,7 +48,7 @@ if($links){
 
 $isEditor = false;
 if($SYMB_UID){
-	if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)){
+	if($IS_ADMIN || array_key_exists('TaxonProfile',$USER_RIGHTS)){
 		$isEditor = true;
 	}
 }

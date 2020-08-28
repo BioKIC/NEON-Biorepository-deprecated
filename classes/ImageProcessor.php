@@ -250,7 +250,7 @@ class ImageProcessor {
 			$fieldMap = array_flip($postArr['tf']);
 			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/'.$postArr['filename'];
 			if($fh = fopen($fullPath,'rb')){
-				$this->initProcessor('processing\imgmap');
+				$this->initProcessor('processing/imgmap');
 				$this->logOrEcho('Starting to process image URLs within image mapping file '.$postArr['filename'].' ('.date('Y-m-d H:i:s').')');
 				fgetcsv($fh);	//Advance one row to skipper header row
 				$cnt = 1;

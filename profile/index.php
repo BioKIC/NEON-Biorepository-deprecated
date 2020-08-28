@@ -41,13 +41,13 @@ $statusStr = '';
 if($login){
 	if(!$pHandler->setUserName($login)){
 		$login = '';
-		$statusStr = (isset($LANG['INVALID_LOGIN'])?$LANG['INVALID_LOGIN']:'Invalid login name');
+		$statusStr = (isset($LANG['INVALID_LOGIN'])?$LANG['INVALID_LOGIN']:'Invalid login name').'<ERR/>';
 	}
 }
 if($emailAddr){
 	if(!$pHandler->validateEmailAddress($emailAddr)){
 		$emailAddr = '';
-		$statusStr = (isset($LANG['INVALID_EMAIL'])?$LANG['INVALID_EMAIL']:'Invalid email');
+		$statusStr = (isset($LANG['INVALID_EMAIL'])?$LANG['INVALID_EMAIL']:'Invalid email').'<ERR/>';
 	}
 }
 if(!is_numeric($resetPwd)) $resetPwd = 0;
@@ -70,6 +70,7 @@ elseif($action == 'login'){
 	else{
 		if(isset($LANG['INCORRECT'])) $statusStr = $LANG['INCORRECT'];
 		else $statusStr = 'Your username or password was incorrect. Please try again.<br/> If you are unable to remember your login credentials,<br/> use the controls below to retrieve your login or reset your password.';
+		$statusStr .= '<ERR/>';
 	}
 }
 elseif($action == 'Retrieve Login'){
@@ -79,12 +80,18 @@ elseif($action == 'Retrieve Login'){
 			else $statusStr = 'Your login name will be emailed to you.';
 		}
 		else{
-			$statusStr = $pHandler->getErrorStr();
+			$statusStr = (isset($LANG['EMAIL_ERROR'])?$LANG['EMAIL_ERROR']:'Error sending email, contact administrator').' ('.$pHandler->getErrorStr().')<ERR/>';
 		}
 	}
 }
 elseif($resetPwd){
-	$statusStr = $pHandler->resetPassword($login);
+	if($email = $pHandler->resetPassword($login)){
+		$statusStr = (isset($LANG['PWD_EMAILED'])?$LANG['PWD_EMAILED']:'Your new password was just emailed to').': '.$email.'<ERR/>';
+	}
+	else{
+		$statusStr = (isset($LANG['RESET_FAILED'])?$LANG['RESET_FAILED']:'Reset Failed! Contact Administrator').'<ERR/>';
+		if($pHandler->getErrorStr()) $statusStr .= ' ('.$pHandler->getErrorStr().')';
+	}
 }
 else{
 	$statusStr = $pHandler->getErrorStr();
@@ -150,8 +157,10 @@ include($SERVER_ROOT.'/includes/header.php');
 <div id="innertext" style="padding-left:0px;margin-left:0px;">
 	<?php
 	if($statusStr){
+		$color = 'green';
+		if(strpos($statusStr, '<ERR/>')) $color = 'red';
 		?>
-		<div style='color:#FF0000;margin: 1em 1em 0em 1em;'>
+		<div style='color:<?php echo $color; ?>;margin: 1em 1em 0em 1em;'>
 			<?php
 			echo $statusStr;
 			?>

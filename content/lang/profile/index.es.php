@@ -8,7 +8,10 @@ Language: Español (Spanish)
 $LANG['INVALID_LOGIN'] = 'Inicio de sesi&oacute;n inv&aacute;lido';
 $LANG['INVALID_EMAIL'] = 'Correo electr&oacute;nico inv&aacute;lido';
 $LANG['INCORRECT'] = 'Su nombre de usuario o contrase&ntilde;a es incorrecto. Intente de nuevo por favor.<br/> Si no puede recordar sus credenciales de inicio de sesi&oacute;n,<br/> utilice los controles siguientes para recuperar su inicio de sesi&oacute;n o restablecer su contrase&ntilde;a.';
+$LANG['EMAIL_ERROR'] = 'Error al enviar correo electr&oacute;nico; P&oacute;ngase en contacto con el administrador';
 $LANG['LOGIN_EMAILED'] = 'Su nombre de usuario le ser&aacute; enviado por correo electr&oacute;nico.';
+$LANG['PWD_EMAILED'] = 'Su nueva contrase&ntilde;a fue enviada por correo electr&oacute;nico a';
+$LANG['RESET_FAILED'] = '¡Reinicio fallido! P&oacute;ngase en contacto con el administrador';
 $LANG['COOKIES'] = 'Las cookies de su navegador est&aacute;n deshabilitadas. Para poder iniciar la sesi&oacute;n y acceder a su perfil, deben estar habilitadas para este dominio.';
 $LANG['ENTER_LOGIN_NO_PWD'] = 'Ingrese su nombre de usuario en el campo de inicio de sesi&oacute;n y deje la contrase&ntilde;a en blanco';
 $LANG['ENTER_LOGIN'] = 'Por favor, introduzca su nombre de usuario y contrase&ntilde;a.';

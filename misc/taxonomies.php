@@ -16,6 +16,35 @@
         echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
       }
     ?>
+
+    <style>
+      td {
+        color: #444444;
+        padding: 1em;
+        vertical-align: top;
+        border-top: 2px solid #e7e7e7;
+        border-bottom: 2px solid #e7e7e7;
+        border-right: 0;
+        border-left: 0;
+      }
+
+      tbody tr {
+        max-width: 100%;
+        width: 100%;
+        border: none;
+        border-collapse: collapse;
+        border-spacing: 0;
+        margin-bottom: 0.75em;
+      }
+
+      tbody th:first-child td {
+        border-top: 0;
+      }
+
+      tbody th {
+        padding: 1em;
+      }
+    </style>
 	</head>
 	<body>
 		<?php
@@ -41,7 +70,7 @@
     <div>
       <h2>Taxonomic sources by collection (in database)</h2>
       <p>Below is a non-exaustive list of taxonomic sources used to match agains our data, by taxonomic category/collection (alphabetically sorted by category).</p>
-      <table id="sources-by-coll">
+      <table id="sources-by-coll" style="font-size: small; text-align: left">
         <tr>
           <th>Category</th>
           <th>Collection</th>
@@ -53,13 +82,13 @@
     <div>
       <h2>List of taxonomic sources (in database)</h2>
       <p>Below is a full list of unique taxonomic sources used in our collections, in alphabetical order.</p>
-      <ul id="unique-sources"></ul>
+      <ul id="unique-sources" style="font-size: small; text-align: left"></ul>
     </div>
 
-    <div>
+    <!-- <div>
       <h2>List of official NEON taxonomic sources by taxonomic category, in use in our database</h2>
 
-    </div>
+    </div> -->
 
     </div>
 		<?php

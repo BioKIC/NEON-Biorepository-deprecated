@@ -3,7 +3,6 @@ include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once('Person.php');
 include_once('Encryption.php');
 @include_once 'Mail.php';
-@include_once 'Mail.php';
 
 class ProfileManager{
 

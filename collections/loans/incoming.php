@@ -162,7 +162,7 @@ if($isEditor){
 										Sent From:
 									</span><br />
 									<span>
-										<select name="iidowner" style="width:400px;" >
+										<select name="iidowner">
 											<?php
 											$instArr = $loanManager->getInstitutionArr();
 											foreach($instArr as $k => $v){
@@ -172,7 +172,9 @@ if($isEditor){
 										</select>
 									</span>
 								</div>
-								<div style="margin-left:100px;float:left;">
+							</div>
+							<div style="padding-top:8px;float:left;">
+								<div style="float:left;margin-right:40px;">
 									<span>
 										Sender's Loan Number:
 									</span><br />
@@ -180,9 +182,7 @@ if($isEditor){
 										<input type="text" autocomplete="off" name="loanidentifierown" maxlength="255" style="width:160px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $loanArr['loanidentifierown']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> />
 									</span>
 								</div>
-							</div>
-							<div style="padding-top:8px;float:left;">
-								<div style="float:left;">
+								<div style="float:left;margin-right:40px;">
 									<span>
 										Requested for:
 									</span><br />
@@ -190,9 +190,10 @@ if($isEditor){
 										<input type="text" autocomplete="off" name="forwhom" maxlength="32" style="width:180px;" value="<?php echo $loanArr['forwhom']; ?>" onchange=" " />
 									</span>
 								</div>
-								<div style="padding-top:15px;margin-left:40px;float:left;">
+								<div style="float:left;">
 									<span>
-										<b>Specimen Total:</b> <input type="text" autocomplete="off" name="numspecimens" maxlength="32" style="width:80px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo ($loanArr['collidown']?count($specList):$loanArr['numspecimens']); ?>" onchange=" " <?php echo ($loanArr['collidown']?'disabled':''); ?> />
+										<b>Specimen Total:</b><br />
+										<input type="text" autocomplete="off" name="numspecimens" maxlength="32" style="width:150px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo ($loanArr['collidown']?count($specList):$loanArr['numspecimens']); ?>" onchange=" " <?php echo ($loanArr['collidown']?'disabled':''); ?> />
 									</span>
 								</div>
 							</div>
@@ -276,6 +277,7 @@ if($isEditor){
 						</fieldset>
 					</form>
 					<?php
+					$specimenTotal = count($specList);
 					$loanType = 'in';
 					$identifier = $loanId;
 					include('reportsinclude.php');

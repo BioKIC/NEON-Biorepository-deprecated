@@ -378,20 +378,11 @@ class ProfileManager{
 	private function sendEmail($to, $subject, $body){
 		$status = true;
 		$from = 'portal admin <'.$GLOBALS["ADMIN_EMAIL"].'>';
-		if(class_exists('Mail') && ini_get('SMTP') && ini_get('SMTP') != 'localhost'){
-			$host = ini_get('SMTP');
-			$username = '';
-			$password = '';
-			$headers = array ('From' => $from, 'To' => $to, 'Subject' => $subject);
-			$mailArr = array('host' => $host);
-			if($username && $password){
-				$mailArr['auth'] = true;
-				$mailArr['username'] = $username;
-				$mailArr['password'] = $password;
-			}
+		if(class_exists('Mail') && class_exists('Net_SMTP') && isset($SMTP_ARR) && $SMTP_ARR){
+			$mailArr = $SMTP_ARR;
 			$smtp = Mail::factory('smtp', $mailArr);
+			$headers = array ('From' => $from, 'To' => $to, 'Subject' => $subject);
 			$mail = $smtp->send($to, $headers, $body);
-
 			if(PEAR::isError($mail)){
 				$status = false;
 				$this->errorStr = $mail->getMessage();

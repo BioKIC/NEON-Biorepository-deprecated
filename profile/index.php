@@ -77,7 +77,8 @@ elseif($action == 'Retrieve Login'){
 	if($emailAddr){
 		if($pHandler->lookupUserName($emailAddr)){
 			if(isset($LANG['LOGIN_EMAILED'])) $statusStr = $LANG['LOGIN_EMAILED'];
-			else $statusStr = 'Your login name will be emailed to you.';
+			else $statusStr = 'Your login name will be emailed to';
+			$statusStr .= ': '.$emailAddr;
 		}
 		else{
 			$statusStr = (isset($LANG['EMAIL_ERROR'])?$LANG['EMAIL_ERROR']:'Error sending email, contact administrator').' ('.$pHandler->getErrorStr().')<ERR/>';

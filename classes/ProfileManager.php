@@ -3,6 +3,7 @@ include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once('Person.php');
 include_once('Encryption.php');
 @include_once 'Mail.php';
+@include_once 'Mail.php';
 
 class ProfileManager{
 
@@ -378,9 +379,10 @@ class ProfileManager{
 	private function sendEmail($to, $subject, $body){
 		$status = true;
 		$from = 'portal admin <'.$GLOBALS["ADMIN_EMAIL"].'>';
-		if(class_exists('Mail') && class_exists('Net_SMTP') && isset($SMTP_ARR) && $SMTP_ARR){
-			$mailArr = $SMTP_ARR;
-			$smtp = Mail::factory('smtp', $mailArr);
+		$smtpArr = null;
+		if(isset($GLOBALS['SMTP_ARR']) && $GLOBALS['SMTP_ARR']) $smtpArr = $GLOBALS['SMTP_ARR'];
+		if(class_exists('Mail') && $smtpArr){
+			$smtp = Mail::factory('smtp', $smtpArr);
 			$headers = array ('From' => $from, 'To' => $to, 'Subject' => $subject);
 			$mail = $smtp->send($to, $headers, $body);
 			if(PEAR::isError($mail)){

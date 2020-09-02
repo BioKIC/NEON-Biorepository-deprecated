@@ -19,7 +19,7 @@
 		<input name="identifier" type="hidden" value="<?php echo $identifier; ?>" />
 		<button name="formsubmit" type="submit" onclick="this.form.action ='reports/defaultinvoice.php'" value="invoice">Invoice</button>
 		<?php
-		if(isset($specList) && $specList){
+		if(isset($specimenTotal) && $specimenTotal){
 			?>
 			<button name="formsubmit" type="submit" onclick="this.form.action ='reports/defaultspecimenlist.php'" value="spec">Specimen List</button>
 			<?php

@@ -289,12 +289,12 @@ class ImageLocalProcessor {
 		if(file_exists($this->sourcePathBase.$pathFrag)){
 			if($dirFH = opendir($this->sourcePathBase.$pathFrag)){
 				while($fileName = readdir($dirFH)){
-					if($fileName != "." && $fileName != ".." && $fileName != ".svn"){
+					if(substr($fileName,0,1) != '.'){
 						if(is_file($this->sourcePathBase.$pathFrag.$fileName)){
 							if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
 								$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
 								$fileExt = strtolower(substr($fileName,strrpos($fileName,'.')));
-								if($fileExt == ".jpg"){
+								if($fileExt == '.jpg' || $fileExt == '.jpeg'){
 									//Clean file name
 									$cleanName = str_replace(array(' '), '_', $fileName);
 									$cleanName = str_replace(array('(',')'), '', $cleanName);
@@ -310,7 +310,7 @@ class ImageLocalProcessor {
 										if($this->errorMessage == 'abort') return false;
 									}
 								}
-								elseif($fileExt == ".tif"){
+								elseif($fileExt == '.tif' || $fileExt == '.tiff'){
 									$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
 									//Do something, like convert to jpg???
 									//but for now do nothing
@@ -322,17 +322,17 @@ class ImageLocalProcessor {
 										if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
 									}
 								}
-								elseif($fileExt==".xml") {
+								elseif($fileExt=='.xml') {
 									// The loop through collArr can result in same file being processed more than
 									// once if the same pathFrag is associated with more than one collection.
 									if (!in_array("$pathFrag$fileName",$this->processedFiles)) {
-									$this->processXMLFile($fileName,$pathFrag);
-										 $this->processedFiles[] = "$pathFrag$fileName";
-										 // TODO: It would seem that adding the collection to collProcessedArr
-										 // should accomplish what processedFiles[] is being added above to
-										 // do, need to investigate further and perhaps use it as a fix.
-									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
-								}
+										$this->processXMLFile($fileName,$pathFrag);
+											 $this->processedFiles[] = "$pathFrag$fileName";
+											 // TODO: It would seem that adding the collection to collProcessedArr
+											 // should accomplish what processedFiles[] is being added above to
+											 // do, need to investigate further and perhaps use it as a fix.
+										if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
+									}
 								}
 								elseif($fileExt==".ds_store" || strtolower($fileName)=='thumbs.db'){
 									unlink($this->sourcePathBase.$pathFrag.$fileName);
@@ -380,7 +380,7 @@ class ImageLocalProcessor {
 					if($fileExt){
 						if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
 							$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
-							if($fileExt == "jpg"){
+							if($fileExt == 'jpg' || $fileExt == 'jpeg'){
 								if($this->processImageFile($fileName,$pathFrag)){
 									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
 								}
@@ -388,7 +388,7 @@ class ImageLocalProcessor {
 									if($this->errorMessage == 'abort') return false;
 								}
 							}
-							elseif($fileExt == "tif"){
+							elseif($fileExt == 'tif' || $fileExt == 'tiff'){
 								$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
 								//Do something, like convert to jpg???
 								//but for now do nothing
@@ -934,9 +934,10 @@ class ImageLocalProcessor {
 			$rs->free();
 		}
 		if($this->matchOtherCatalogNumbers){
-			$sql = 'SELECT occid FROM omoccurrences '.
-				'WHERE (othercatalognumbers IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) '.
-				'AND (collid = '.$this->activeCollid.')';
+			$sql = 'SELECT DISTINCT o.occid '.
+				'FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid '.
+				'WHERE (o.collid = '.$this->activeCollid.') '.
+				'AND ((o.othercatalognumbers IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) OR (i.identifierValue = "'.$specPk.'")) ';
 			$rs = $this->conn->query($sql);
 			if($row = $rs->fetch_object()){
 				$occId = $row->occid;
@@ -1286,13 +1287,16 @@ class ImageLocalProcessor {
 
 							//Check to see if matching record already exists in database
 							$termArr = array();
-							if($this->matchCatalogNumber) $termArr[] = '(catalognumber IN("'.$catNum.'"'.(substr($catNum,0,1)=='0'?',"'.ltrim($catNum,"0 ").'"':'').'))';
-							if($this->matchOtherCatalogNumbers) $termArr[] = '(othercatalognumbers IN("'.$catNum.'"'.(substr($catNum,0,1)=='0'?',"'.ltrim($catNum,"0 ").'"':'').'))';
+							if($this->matchCatalogNumber) $termArr[] = '(o.catalognumber IN("'.$catNum.'"'.(substr($catNum,0,1)=='0'?',"'.ltrim($catNum,"0 ").'"':'').'))';
+							if($this->matchOtherCatalogNumbers){
+								$termArr[] = '(o.othercatalognumbers IN("'.$catNum.'"'.(substr($catNum,0,1)=='0'?',"'.ltrim($catNum,"0 ").'"':'').'))';
+								$termArr[] = '(i.identifierValue = "'.$catNum.'")';
+							}
 							if($termArr){
-								$sql = 'SELECT occid'.(!array_key_exists('occurrenceremarks',$recMap)?',occurrenceremarks':'').
+								$sql = 'SELECT DISTINCT o.occid'.(!array_key_exists('occurrenceremarks',$recMap)?',o.occurrenceremarks':'').
 									($activeFields?','.implode(',',$activeFields):'').' '.
-									'FROM omoccurrences '.
-									'WHERE (collid = '.$this->activeCollid.') AND ('.implode(' OR ', $termArr).')';
+									'FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid '.
+									'WHERE (o.collid = '.$this->activeCollid.') AND ('.implode(' OR ', $termArr).')';
 								//echo $sql;
 								$rs = $this->conn->query($sql);
 								if($r = $rs->fetch_assoc()){

@@ -338,18 +338,20 @@ if(!$researchList && !$editMode){
 						if($pid){
 							?>
 							<fieldset class="form-color">
-								<legend><b>Delete Project</b></legend>
-								<form action="index.php" method="post" onsubmit="return confirm('Warning: Action cannot be undone! Are you sure you want to delete this inventory Project?')">
+								<legend><b><?php (isset($LANG['DELPROJECT'])?$LANG['DELPROJECT']:'Delete Project') ?></b></legend>
+								<form action="index.php" method="post" onsubmit="return confirm('<?php (isset($LANG['CONFIRMDEL'])?$LANG['CONFIRMDEL']:'Are you sure you want to delete this inventory Project') ?>?')">
 									<input type="hidden" name="pid" value="<?php echo $pid;?>">
 									<input type="hidden" name="projsubmit" value="subdelete" />
 									<?php
-									echo '<input type="submit" name="submit" value="'.$LANG['SUBMITDELETE'].'" '.((count($managerArr)>1 || $researchList)?'disabled':'').' />';
+									echo '<input type="submit" name="submit" value="'.(isset($LANG['SUBMITDELETE'])?$LANG['SUBMITDELETE']:'Delete Project').'" '.((count($managerArr)>1 || $researchList)?'disabled':'').' />';
 									echo '<div style="margin:10px;color:orange">';
 									if(count($managerArr) > 1){
-										echo 'Inventory project cannot be deleted until all other managers are removed as project managers';
+										if(isset($LANG['DELCONDITION1'])) echo $LANG['DELCONDITION1'];
+										else echo 'Inventory project cannot be deleted until all other managers are removed as project managers';
 									}
 									elseif($researchList){
-										echo 'Inventory project cannot be deleted until all checklists are removed from the project';
+										if(isset($LANG['DELCONDITION2'])) echo $LANG['DELCONDITION2'];
+										else echo 'Inventory project cannot be deleted until all checklists are removed from the project';
 									}
 									echo '</div>';
 									?>
@@ -440,8 +442,7 @@ if(!$researchList && !$editMode){
 			}
 		}
 		else{
-			echo '<h2 style="color:red">Project not found, see project list below</h2>';
-			echo '<h1>'.$DEFAULT_TITLE.' Projects</h1>';
+			echo '<h2>'.(isset($LANG['INVPROJ'])?$LANG['INVPROJ']:'Inventory Projects').'</h2>';
 			$projectArr = $projManager->getProjectList();
 			foreach($projectArr as $pid => $projList){
 				?>

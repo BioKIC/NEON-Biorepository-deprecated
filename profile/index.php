@@ -11,44 +11,43 @@ $resetPwd = ((array_key_exists("resetpwd",$_REQUEST) && is_numeric($_REQUEST["re
 $action = array_key_exists("action",$_POST)?$_POST["action"]:"";
 if(!$action && array_key_exists('submit',$_REQUEST)) $action = $_REQUEST['submit'];
 
-$refUrl = "";
-if(array_key_exists("refurl",$_REQUEST)){
-	$refGetStr = "";
+$refUrl = '';
+if(array_key_exists('refurl',$_REQUEST)){
+	$refGetStr = '';
 	foreach($_GET as $k => $v){
-		if($k != "refurl"){
-			if($k == "attr" && is_array($v)){
+		$k = filter_var($k, FILTER_SANITIZE_STRING);
+		if($k != 'refurl'){
+			if($k == 'attr' && is_array($v)){
 				foreach($v as $v2){
-					$refGetStr .= "&attr[]=".$v2;
+					$v2 = filter_var($v2, FILTER_SANITIZE_STRING);
+					$refGetStr .= '&attr[]='.$v2;
 				}
 			}
 			else{
-				$refGetStr .= "&".$k."=".$v;
+				$v = filter_var($v, FILTER_SANITIZE_STRING);
+				$refGetStr .= '&'.$k.'='.$v;
 			}
 		}
 	}
-	$refUrl = str_replace('&amp;','&',htmlspecialchars($_REQUEST["refurl"]));
-	if(substr($refUrl,-4) == ".php"){
-		$refUrl .= "?".substr($refGetStr,1);
-	}
-	else{
-		$refUrl .= $refGetStr;
-	}
+	$refUrl = str_replace('&amp;','&',htmlspecialchars(filter_var($_REQUEST['refurl'], FILTER_SANITIZE_STRING)));
+	if(substr($refUrl,-4) == '.php') $refUrl .= '?'.substr($refGetStr,1);
+	else $refUrl .= $refGetStr;
 }
 
 $pHandler = new ProfileManager();
 
-$statusStr = "";
+$statusStr = '';
 //Sanitation
 if($login){
 	if(!$pHandler->setUserName($login)){
 		$login = '';
-		$statusStr = (isset($LANG['INVALID_LOGIN'])?$LANG['INVALID_LOGIN']:'Invalid login name');
+		$statusStr = (isset($LANG['INVALID_LOGIN'])?$LANG['INVALID_LOGIN']:'Invalid login name').'<ERR/>';
 	}
 }
 if($emailAddr){
 	if(!$pHandler->validateEmailAddress($emailAddr)){
 		$emailAddr = '';
-		$statusStr = (isset($LANG['INVALID_EMAIL'])?$LANG['INVALID_EMAIL']:'Invalid email');
+		$statusStr = (isset($LANG['INVALID_EMAIL'])?$LANG['INVALID_EMAIL']:'Invalid email').'<ERR/>';
 	}
 }
 if(!is_numeric($resetPwd)) $resetPwd = 0;
@@ -71,21 +70,29 @@ elseif($action == 'login'){
 	else{
 		if(isset($LANG['INCORRECT'])) $statusStr = $LANG['INCORRECT'];
 		else $statusStr = 'Your username or password was incorrect. Please try again.<br/> If you are unable to remember your login credentials,<br/> use the controls below to retrieve your login or reset your password.';
+		$statusStr .= '<ERR/>';
 	}
 }
-elseif($action == "Retrieve Login"){
+elseif($action == 'Retrieve Login'){
 	if($emailAddr){
 		if($pHandler->lookupUserName($emailAddr)){
 			if(isset($LANG['LOGIN_EMAILED'])) $statusStr = $LANG['LOGIN_EMAILED'];
-			else $statusStr = 'Your login name will be emailed to you.';
+			else $statusStr = 'Your login name will be emailed to';
+			$statusStr .= ': '.$emailAddr;
 		}
 		else{
-			$statusStr = $pHandler->getErrorStr();
+			$statusStr = (isset($LANG['EMAIL_ERROR'])?$LANG['EMAIL_ERROR']:'Error sending email, contact administrator').' ('.$pHandler->getErrorStr().')<ERR/>';
 		}
 	}
 }
 elseif($resetPwd){
-	$statusStr = $pHandler->resetPassword($login);
+	if($email = $pHandler->resetPassword($login)){
+		$statusStr = (isset($LANG['PWD_EMAILED'])?$LANG['PWD_EMAILED']:'Your new password was just emailed to').': '.$email.'<ERR/>';
+	}
+	else{
+		$statusStr = (isset($LANG['RESET_FAILED'])?$LANG['RESET_FAILED']:'Reset Failed! Contact Administrator').'<ERR/>';
+		if($pHandler->getErrorStr()) $statusStr .= ' ('.$pHandler->getErrorStr().')';
+	}
 }
 else{
 	$statusStr = $pHandler->getErrorStr();
@@ -151,8 +158,10 @@ include($SERVER_ROOT.'/includes/header.php');
 <div id="innertext" style="padding-left:0px;margin-left:0px;">
 	<?php
 	if($statusStr){
+		$color = 'green';
+		if(strpos($statusStr, '<ERR/>')) $color = 'red';
 		?>
-		<div style='color:#FF0000;margin: 1em 1em 0em 1em;'>
+		<div style='color:<?php echo $color; ?>;margin: 1em 1em 0em 1em;'>
 			<?php
 			echo $statusStr;
 			?>

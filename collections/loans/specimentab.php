@@ -21,7 +21,7 @@ $specList = $loanManager->getSpecList($loanId);
 					<div style="float:left;margin:0px 15px"><input name="targetidentifier" type="radio" value="catnum" checked /> Target Catalog Number</div>
 					<div style="float:left;"><input name="targetidentifier" type="radio" value="other" /> Target Other Catalog Numbers</div>
 				</div>
-				<div><textarea name="catalogNumbers" cols="6" style="width:100%"></textarea></div>
+				<div style="clear:both"><textarea name="catalogNumbers" cols="6" style="width:100%"></textarea></div>
 				<div>
 					<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 					<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />

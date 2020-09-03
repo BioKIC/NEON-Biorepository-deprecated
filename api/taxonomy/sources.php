@@ -2,32 +2,24 @@
 
   include_once('../../config/symbini.php');
   include_once('../../config/dbconnection.php');
+  include_once($SERVER_ROOT.'/neon/classes/Sources.php');
 
-  $conn = MySQLiConnectionFactory::getCon('readonly');
   $filter = (array_key_exists("filter",$_REQUEST)?$_REQUEST["filter"]:'');
+  $sources = new Sources();
 
   switch ($filter) {
     case "coll":
-      $sql = 'SELECT category, collectionname, collid, source FROM taxsourcescoll ORDER BY category';
+      $sourceArr = $sources->getOccSourcesByColl();
     break;
     case "unique":
-      $sql = 'SELECT DISTINCT source FROM taxsourcescoll ORDER BY source';
+      $sourceArr = $sources->getUniqueOccSources();
     break;
   }
 
-  $sql = $conn->real_escape_string($sql);
-  $result = $conn->query($sql);
-  $dataArr = array();
+  if ($sourceArr === false) {
+    http_response_code(403);
+  } else {
+    echo json_encode($sourceArr);
+  }
 
-  if ($result->num_rows > 0) {
-    // output data of each row
-    while($row = $result->fetch_assoc()){
-      $dataArr[] = $row;
-    }
-    echo json_encode($dataArr);
-    }
-    else {
-      http_response_code(403);
-    }
-   $conn->close();
 ?>

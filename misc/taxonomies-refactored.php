@@ -87,7 +87,7 @@
           $sourceTable = $sources->htmlTable($sourceArr, $headerArr);
           echo $sourceTable;
         } else {
-          echo 'An error occurred while displaying this table.';
+          $this_>logOrEcho($sources->errorMessage, 0, 'div');
         }
       ;?>
     </div>
@@ -100,11 +100,11 @@
         if($sourceListArr){
           echo '<ul>';
           foreach ($sourceListArr as $item) {
-            echo '<li>'. implode('', $item) . '</li>';
+            echo '<li>'. $item . '</li>';
           }
           echo '</ul>';
         } else {
-          echo 'An error occurred while displaying this list.';
+          $this->logOrEcho($sources->errorMessage, 0 , 'div');
         }
       ;?>
     </div>

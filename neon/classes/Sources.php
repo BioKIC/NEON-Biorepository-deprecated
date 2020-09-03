@@ -36,12 +36,13 @@ class Sources extends Manager {
     while($row = $result->fetch_assoc()){
       $dataArr[] = $row;
     }
-    return $dataArr;
+    $result->free();
     }
     else {
-      http_response_code(403);
+      $this->errorMessage = 'Sources by Coll query was not successfull';
+      $dataArr = false;
     }
-   $conn->close();
+    return $dataArr;
   }
 
   // Gets a list of unique sources from occurrences
@@ -55,15 +56,14 @@ class Sources extends Manager {
     if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()){
-      $dataArr[] = $row;
+      $dataArr[] = $row["source"];
     }
+    $result->free();
     return $dataArr;
     }
     else {
-      http_response_code(403);
+      $this->errorMessage = 'Sources by Coll query was not successfull';
     }
-   $conn->close();
-
   }
 	
   // Formats array in tabular form (pass array name and headers array as arguments)
@@ -82,15 +82,5 @@ class Sources extends Manager {
     return "<table>" . implode('', array_merge($headers, $rows)) . "</table>";
   }
 	
-	//Setters and getters
-	// public function setGeneralVariable($var){
-	// 	$this->variable1 = $this->cleanInStr($var);
-	// }
-	
-	// public function setNumericVariable($var){
-	// 	if(is_numeric($var)){
-	// 		$this->variable2 = $var;
-	// 	}
-	// }
 } 
 ?>

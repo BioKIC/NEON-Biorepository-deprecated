@@ -1,6 +1,14 @@
 <?php
   include_once('../config/symbini.php');
+  include_once($SERVER_ROOT.'/neon/classes/Sources.php');
   header("Content-Type: text/html; charset=".$CHARSET);
+
+  $sources = new Sources();
+
+  $sourceArr = $sources->getOccSourcesByColl();
+  $headerArr = ['Category', 'Collection', 'Taxonomic Source'];
+
+  $sourceListArr = $sources->getUniqueOccSources();
 ?>
 <html>
 	<head>
@@ -18,6 +26,11 @@
     ?>
 
     <style>
+      table, ul {
+        font-size: small; 
+        text-align: left
+        }
+
       td {
         color: #444444;
         padding: 1em;
@@ -69,20 +82,34 @@
     <p>Below are available source lists used in our database. External, NON-NEON collections (seinet, cvscoll, etc) were not contemplated by this brief analysis.</p>
     <div>
       <h2>Taxonomic sources by collection (in database)</h2>
-      <p>Below is a non-exaustive list of taxonomic sources used to match agains our data, by taxonomic category/collection (alphabetically sorted by category).</p>
-      <table id="sources-by-coll" style="font-size: small; text-align: left">
-        <tr>
-          <th>Category</th>
-          <th>Collection</th>
-          <th>Source</th>
-        </tr>
-      </table>
+      <p>
+        Below is a non-exaustive list of taxonomic sources used to match against our data, by taxonomic category/collection (alphabetically sorted by category <?php echo '- ' .count($sourceArr). ' results' ;?>.)
+      </p>
+
+      <?php 
+        if($sourceArr){
+          $sourceTable = $sources->htmlTable($sourceArr, $headerArr);
+          echo $sourceTable;
+        } else {
+          $this_>logOrEcho($sources->errorMessage, 0, 'div');
+        }
+      ;?>
     </div>
     
     <div>
       <h2>List of taxonomic sources (in database)</h2>
-      <p>Below is a full list of unique taxonomic sources used in our collections, in alphabetical order.</p>
-      <ul id="unique-sources" style="font-size: small; text-align: left"></ul>
+      <p>Below is a full list of unique taxonomic sources used in our collections, in alphabetical order (<?php echo count($sourceListArr). ' results' ;?>).</p>
+      <?php 
+        if($sourceListArr){
+          echo '<ul>';
+          foreach ($sourceListArr as $item) {
+            echo '<li>'. $item . '</li>';
+          }
+          echo '</ul>';
+        } else {
+          $this->logOrEcho($sources->errorMessage, 0 , 'div');
+        }
+      ;?>
     </div>
 
     <!-- <div>
@@ -95,44 +122,4 @@
 			include($SERVER_ROOT.'/includes/footer.php');
 		?>
   </body>
-  <script>
-    const sourcesByColl = document.getElementById('sources-by-coll');
-    const uniqueSources = document.getElementById('unique-sources');
-
-    function createTable() {
-
-      fetch('../api/taxonomy/sources.php?filter=coll')
-        .then(res => res.json())
-        .then((items) => {
-          for (var [key, value] of Object.entries(items)) {
-            var row = document.createElement('tr');
-            var cell1 = document.createElement('td');
-            cell1.innerHTML = items[key].category;
-            var cell2 = document.createElement('td');
-            cell2.innerHTML = items[key].collectionname;
-            var cell3 = document.createElement('td');
-            cell3.innerHTML = items[key].source;
-            row.appendChild(cell1);
-            row.appendChild(cell2);
-            row.appendChild(cell3);
-            sourcesByColl.appendChild(row);
-          }})
-    }
-
-    function createList() {
-
-      fetch('../api/taxonomy/sources.php?filter=unique')
-        .then(res => res.json())
-        .then((items) => {
-          for (var [key] of Object.entries(items)) {
-            var row = document.createElement('li');
-            row.innerHTML = items[key].source;
-            uniqueSources.appendChild(row);
-          }})
-    }
-
-    createTable();
-    createList();
-
-  </script>
 </html>

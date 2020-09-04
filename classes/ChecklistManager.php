@@ -465,10 +465,10 @@ class ChecklistManager {
 					$sql .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid WHERE (ST_Within(p.point,GeomFromText("'.$this->clMetadata['footprintwkt'].'"))) ';
 				}
 				else{
-					$this->voucherManager = new ChecklistVoucherAdmin($this->conn);
-					$this->voucherManager->setClid($this->clid);
-					$this->voucherManager->setCollectionVariables();
-					$sql .= 'WHERE ('.$this->voucherManager->getSqlFrag().') ';
+					$voucherManager = new ChecklistVoucherAdmin($this->conn);
+					$voucherManager->setClid($this->clid);
+					$voucherManager->setCollectionVariables();
+					$sql .= 'WHERE ('.$voucherManager->getSqlFrag().') ';
 				}
 				$sql .= 'LIMIT 50';
 				//echo $sql; exit;

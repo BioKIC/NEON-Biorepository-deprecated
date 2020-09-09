@@ -5,16 +5,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../imagelib/admin/thumbnailbuilder.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
-$action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
-$collid = array_key_exists("collid",$_REQUEST)?$_REQUEST["collid"]:"";
-$tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:"";
+$action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
+$collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
+$tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:0;
+
+//Sanitation
+if(!is_numeric($collid)) $collid = 0;
+if(!is_numeric($tid)) $tid = 0;
+$action = filter_var($action,FILTER_SANITIZE_STRING);
 
 $isEditor = false;
 if($IS_ADMIN){
 	$isEditor = true;
 }
 elseif($collid){
-	if(array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"])){
+	if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
 		$isEditor = true;
 	}
 }
@@ -25,18 +30,18 @@ $imgManager->setTid($tid);
 ?>
 <html>
 <head>
-  <title><?php echo $DEFAULT_TITLE; ?> Thumbnail Builder</title>
-  <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-  ?>
+	<title><?php echo $DEFAULT_TITLE; ?> Thumbnail Builder</title>
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script type="text/javascript">
 		function resetRebuildForm(f){
 			f.catNumLow.value = "";

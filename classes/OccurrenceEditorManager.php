@@ -737,7 +737,8 @@ class OccurrenceEditorManager {
 		global $USER_RIGHTS;
 		$status = '';
 
-		if($editorStatus){
+		$occid = $occArr['occid'];
+		if(is_numeric($occid) && $editorStatus){
 			$quickHostEntered = false;
 			$autoCommit = false;
 			if($editorStatus == 1 || $editorStatus == 2){
@@ -808,7 +809,7 @@ class OccurrenceEditorManager {
 					if($this->paleoActivated && array_intersect($editArr, $this->paleoFieldArr)){
 						$sql .= 'LEFT JOIN omoccurpaleo p ON o.occid = p.occid ';
 					}
-					$sql .= 'WHERE o.occid = '.$occArr['occid'];
+					$sql .= 'WHERE o.occid = '.$occid;
 					//echo $sql;
 					$rs = $this->conn->query($sql);
 					$oldValues = $rs->fetch_assoc();
@@ -822,7 +823,7 @@ class OccurrenceEditorManager {
 
 					//Version edits
 					$sqlEditsBase = 'INSERT INTO omoccuredits(occid,reviewstatus,appliedstatus,uid,fieldname,fieldvaluenew,fieldvalueold) '.
-						'VALUES ('.$occArr['occid'].',1,'.($autoCommit?'1':'0').','.$GLOBALS['SYMB_UID'].',';
+						'VALUES ('.$occid.',1,'.($autoCommit?'1':'0').','.$GLOBALS['SYMB_UID'].',';
 					foreach($editArr as $fieldName){
 						if(!array_key_exists($fieldName,$occArr)){
 							//Field is a checkbox that is unchecked: cultivationstatus, localitysecurity
@@ -877,7 +878,7 @@ class OccurrenceEditorManager {
 					//If sciname was changed, update image tid link
 					if(in_array('tidinterpreted',$editArr)){
 						//Remap images
-						$sqlImgTid = 'UPDATE images SET tid = '.($occArr['tidinterpreted']?$occArr['tidinterpreted']:'NULL').' WHERE occid = ('.$occArr['occid'].')';
+						$sqlImgTid = 'UPDATE images SET tid = '.(is_numeric($occArr['tidinterpreted'])?$occArr['tidinterpreted']:'NULL').' WHERE occid = ('.$occid.')';
 						$this->conn->query($sqlImgTid);
 					}
 					//If host was entered in quickhost field, update record
@@ -891,12 +892,12 @@ class OccurrenceEditorManager {
 							}
 						}
 						else{
-							$sqlHost = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) VALUES('.$occArr['occid'].',"host","'.$occArr['host'].'")';
+							$sqlHost = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) VALUES('.$occid.',"host","'.$occArr['host'].'")';
 						}
 						$this->conn->query($sqlHost);
 					}
 					//Update occurrence record
-					$sql = 'UPDATE omoccurrences SET '.substr($sql,1).' WHERE (occid = '.$occArr['occid'].')';
+					$sql = 'UPDATE omoccurrences SET '.substr($sql,1).' WHERE (occid = '.$occid.')';
 					if($this->conn->query($sql)){
 						if(strtolower($occArr['processingstatus']) != 'unprocessed'){
 							//UPDATE uid within omcrowdsourcequeue, only if not yet processed
@@ -910,16 +911,16 @@ class OccurrenceEditorManager {
 
 							$sql = 'UPDATE omcrowdsourcequeue SET uidprocessor = '.$this->symbUid.', reviewstatus = 5 ';
 							if(!$isVolunteer) $sql .= ', isvolunteer = 0 ';
-							$sql .= 'WHERE (uidprocessor IS NULL) AND (occid = '.$occArr['occid'].')';
+							$sql .= 'WHERE (uidprocessor IS NULL) AND (occid = '.$occid.')';
 							if(!$this->conn->query($sql)){
-								$status = 'ERROR tagging user as the crowdsourcer (#'.$occArr['occid'].'): '.$this->conn->error.' ';
+								$status = 'ERROR tagging user as the crowdsourcer (#'.$occid.'): '.$this->conn->error.' ';
 							}
 						}
 						//Deal with paleo fields
 						if($this->paleoActivated && array_key_exists('eon',$occArr)){
 							//Check to see if paleo record already exists
 							$paleoRecordExist = false;
-							$paleoSql = 'SELECT paleoid FROM omoccurpaleo WHERE occid = '.$occArr['occid'];
+							$paleoSql = 'SELECT paleoid FROM omoccurpaleo WHERE occid = '.$occid;
 							$paleoRS = $this->conn->query($paleoSql);
 							if($paleoRS){
 								if($paleoRS->num_rows) $paleoRecordExist = true;
@@ -937,11 +938,11 @@ class OccurrenceEditorManager {
 								}
 								$paleoSql = '';
 								if($paleoHasValue){
-									if($paleoFrag) $paleoSql = 'UPDATE omoccurpaleo SET '.substr($paleoFrag, 1).' WHERE occid = '.$occArr['occid'];
-									$this->conn->query('UPDATE omoccurpaleo SET '.substr($paleoFrag, 1).' WHERE occid = '.$occArr['occid']);
+									if($paleoFrag) $paleoSql = 'UPDATE omoccurpaleo SET '.substr($paleoFrag, 1).' WHERE occid = '.$occid;
+									$this->conn->query('UPDATE omoccurpaleo SET '.substr($paleoFrag, 1).' WHERE occid = '.$occid);
 								}
 								else{
-									$paleoSql = 'DELETE FROM omoccurpaleo WHERE occid = '.$occArr['occid'];
+									$paleoSql = 'DELETE FROM omoccurpaleo WHERE occid = '.$occid;
 								}
 								if($paleoSql){
 									if(!$this->conn->query($paleoSql)){
@@ -960,7 +961,7 @@ class OccurrenceEditorManager {
 									}
 								}
 								if($paleoFrag1){
-									$paleoSql = 'INSERT INTO omoccurpaleo(occid'.$paleoFrag1.') VALUES('.$occArr['occid'].$paleoFrag2.')';
+									$paleoSql = 'INSERT INTO omoccurpaleo(occid'.$paleoFrag1.') VALUES('.$occid.$paleoFrag2.')';
 									if(!$this->conn->query($paleoSql)){
 										$status = 'ERROR adding new record for paleo data edit: '.$this->conn->error;
 									}
@@ -995,7 +996,7 @@ class OccurrenceEditorManager {
 								//Exsiccati was editted
 								if($exsNumberId){
 									//Use REPLACE rather than INSERT so that if record with occid already exists, it will be removed before insert
-									$sql1 = 'REPLACE INTO omexsiccatiocclink(omenid, occid) VALUES('.$exsNumberId.','.$occArr['occid'].')';
+									$sql1 = 'REPLACE INTO omexsiccatiocclink(omenid, occid) VALUES('.$exsNumberId.','.$occid.')';
 									//echo $sql1;
 									if(!$this->conn->query($sql1)){
 										$status = 'ERROR adding exsiccati: '.$this->conn->error.' ';
@@ -1004,7 +1005,7 @@ class OccurrenceEditorManager {
 							}
 							else{
 								//No exsiccati title or number values, thus need to remove
-								$sql = 'DELETE FROM omexsiccatiocclink WHERE occid = '.$occArr['occid'];
+								$sql = 'DELETE FROM omexsiccatiocclink WHERE occid = '.$occid;
 								$this->conn->query($sql);
 							}
 						}
@@ -1015,7 +1016,7 @@ class OccurrenceEditorManager {
 						}
 					}
 					else{
-						$status = 'ERROR: failed to edit occurrence record (#'.$occArr['occid'].'): '.$this->conn->error;
+						$status = 'ERROR: failed to edit occurrence record (#'.$occid.'): '.$this->conn->error;
 					}
 				}
 				else{
@@ -1023,7 +1024,7 @@ class OccurrenceEditorManager {
 				}
 			}
 			else{
-				$status = 'ERROR: edits empty for occid #'.$occArr['occid'].': '.$this->conn->error;
+				$status = 'ERROR: edits empty for occid #'.$occid.': '.$this->conn->error;
 			}
 		}
 		return $status;
@@ -1784,25 +1785,32 @@ class OccurrenceEditorManager {
 	}
 
 	public function editGeneticResource($genArr){
-		$sql = 'UPDATE omoccurgenetic SET '.
-			'identifier = "'.$this->cleanInStr($genArr['identifier']).'", '.
-			'resourcename = "'.$this->cleanInStr($genArr['resourcename']).'", '.
-			'locus = '.($genArr['locus']?'"'.$this->cleanInStr($genArr['locus']).'"':'NULL').', '.
-			'resourceurl = '.($genArr['resourceurl']?'"'.$genArr['resourceurl'].'"':'').', '.
-			'notes = '.($genArr['notes']?'"'.$this->cleanInStr($genArr['notes']).'"':'NULL').' '.
-			'WHERE idoccurgenetic = '.$genArr['genid'];
-		if(!$this->conn->query($sql)){
-			return 'ERROR editing genetic resource #'.$genArr['genid'].': '.$this->conn->error;
+		$genId = $genArr['genid'];
+		if(is_numeric($genId)){
+			$sql = 'UPDATE omoccurgenetic SET '.
+				'identifier = "'.$this->cleanInStr($genArr['identifier']).'", '.
+				'resourcename = "'.$this->cleanInStr($genArr['resourcename']).'", '.
+				'locus = '.($genArr['locus']?'"'.$this->cleanInStr($genArr['locus']).'"':'NULL').', '.
+				'resourceurl = '.($genArr['resourceurl']?'"'.$genArr['resourceurl'].'"':'').', '.
+				'notes = '.($genArr['notes']?'"'.$this->cleanInStr($genArr['notes']).'"':'NULL').' '.
+				'WHERE idoccurgenetic = '.$genArr['genid'];
+			if(!$this->conn->query($sql)){
+				return 'ERROR editing genetic resource #'.$genArr['genid'].': '.$this->conn->error;
+			}
+			return 'Genetic resource editted successfully';
 		}
-		return 'Genetic resource editted successfully';
+		return false;
 	}
 
 	public function deleteGeneticResource($id){
-		$sql = 'DELETE FROM omoccurgenetic WHERE idoccurgenetic = '.$id;
-		if(!$this->conn->query($sql)){
-			return 'ERROR deleting genetic resource #'.$id.': '.$this->conn->error;
+		if(is_numeric($id)){
+			$sql = 'DELETE FROM omoccurgenetic WHERE idoccurgenetic = '.$id;
+			if(!$this->conn->query($sql)){
+				return 'ERROR deleting genetic resource #'.$id.': '.$this->conn->error;
+			}
+			return 'Genetic resource deleted successfully!';
 		}
-		return 'Genetic resource deleted successfully!';
+		return false;
 	}
 
 	public function addGeneticResource($genArr){
@@ -1857,7 +1865,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function saveTextFragment($prlId,$rawFrag,$notes,$source){
-		if($prlId && $rawFrag){
+		if(is_numeric($prlId) && $rawFrag){
 			$statusStr = '';
 			//$rawFrag = preg_replace('/[^(\x20-\x7F)]*/','', $rawFrag);
 			$sql = 'UPDATE specprocessorrawlabels '.
@@ -1865,7 +1873,6 @@ class OccurrenceEditorManager {
 				'notes = '.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').', '.
 				'source = '.($source?'"'.$this->cleanInStr($source).'"':'NULL').' '.
 				'WHERE (prlid = '.$prlId.')';
-			//echo $sql;
 			if(!$this->conn->query($sql)){
 				$statusStr = 'ERROR: unable to UPDATE text fragment; '.$this->conn->error;
 				$statusStr .= '; SQL = '.$sql;
@@ -1875,11 +1882,9 @@ class OccurrenceEditorManager {
 	}
 
 	public function deleteTextFragment($prlId){
-		if($prlId){
+		if(is_numeric($prlId)){
 			$statusStr = '';
-			$sql = 'DELETE FROM specprocessorrawlabels '.
-				'WHERE (prlid = '.$prlId.')';
-			//echo $sql;
+			$sql = 'DELETE FROM specprocessorrawlabels WHERE (prlid = '.$prlId.')';
 			if(!$this->conn->query($sql)){
 				$statusStr = 'ERROR: unable DELETE text fragment; '.$this->conn->error;
 			}
@@ -2157,16 +2162,18 @@ class OccurrenceEditorManager {
 		return $retArr;
 	}
 
-	public function getQuickHost($occId){
+	public function getQuickHost(){
 		$retArr = Array();
-		$sql = 'SELECT associd, verbatimsciname FROM omoccurassociations WHERE relationship = "host" AND occid = '.$occId.' ';
-		//echo $sql; exit;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr['associd'] = $r->associd;
-			$retArr['verbatimsciname'] = $r->verbatimsciname;
+		if($this->occid){
+			$sql = 'SELECT associd, verbatimsciname FROM omoccurassociations WHERE relationship = "host" AND occid = '.$this->occid.' ';
+			//echo $sql; exit;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr['associd'] = $r->associd;
+				$retArr['verbatimsciname'] = $r->verbatimsciname;
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retArr;
 	}
 
@@ -2224,7 +2231,7 @@ class OccurrenceEditorManager {
 		}
 	}
 
-	public function setOccidIndexArr($occidStr){
+	private function setOccidIndexArr($occidStr){
 		if(preg_match('/^[,\d]+$/', $occidStr)){
 			$this->occidIndexArr = explode(',',$occidStr);
 		}
@@ -2235,7 +2242,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function setCollId($id){
-		if($id && is_numeric($id)){
+		if(is_numeric($id)){
 			if($id != $this->collId){
 				unset($this->collMap);
 				$this->collMap = array();

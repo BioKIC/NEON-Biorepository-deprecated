@@ -393,6 +393,10 @@ class OccurrenceLabel{
 		}
 	}
 
+	public function getCollid(){
+		return $collid;
+	}
+
 	public function getCollName(){
 		return $this->collArr['collname'].' ('.$this->collArr['instcode'].($this->collArr['collcode']?':'.$this->collArr['collcode']:'').')';
 	}

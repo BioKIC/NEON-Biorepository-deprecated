@@ -1,7 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceLabel.php');
-header("Content-Type: text/html; charset=".$CHARSET);
 
 $collid = $_POST['collid'];
 $hPrefix = $_POST['lhprefix'];
@@ -15,6 +14,17 @@ $useBarcode = array_key_exists('bc',$_POST)?$_POST['bc']:0;
 $useSymbBarcode = array_key_exists('symbbc',$_POST)?$_POST['symbbc']:0;
 $barcodeOnly = array_key_exists('bconly',$_POST)?$_POST['bconly']:0;
 $action = array_key_exists('submitaction',$_POST)?$_POST['submitaction']:'';
+$outputType = array_key_exists('outputtype',$_POST)?$_POST['outputtype']:'html';
+
+if($outputType == 'word'){
+	header("Content-Type: application/vnd.ms-word; charset=".$CHARSET);
+	header("Expires: 0");
+	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+	header("content-disposition: attachment;filename=labels.doc");
+}
+else{
+	header("Content-Type: text/html; charset=".$CHARSET);
+}
 
 //Sanitation
 $hPrefix = filter_var($hPrefix, FILTER_SANITIZE_STRING);
@@ -31,6 +41,35 @@ $action = filter_var($action, FILTER_SANITIZE_STRING);
 
 $labelManager = new OccurrenceLabel();
 $labelManager->setCollid($collid);
+
+/*
+ * Example of a label profile definition
+ *
+ * {"labelFormats": [
+	{"labelFormat":[
+		{"name":"simple label","labelFormat":"2","rowsPerPage":"2","displayCatNum":0,"displayBarcode":0,"style":[{"font-style":"time roman","font-size":"12px"}],"lines":[
+			{"labelHeader":[
+				{"style":[{"text-align":"center","font-weight":"bold","font-size":"120%"}]},
+				{"hPrefix":"<i>Carex</i> of"},
+				{"hMidCol":"county"},
+				{"hSuffix":"county"}
+			]},
+			{"1":[
+				{"col":"sciname","style":[{"float":"left","font-weight":"bold"}]},
+				{"col":"family","style":[{"float":"right"}]}
+			]},
+			{"2":[
+				{"col":"sciname","style":[{"float":"left","font-weight":"bold"}]},
+				{"col":"family","style":[{"float":"right"}]}
+			]},
+			{"labelFooter":[
+				{"style":[{"text-align":"center","font-weight":"bold","font-size":"120%"}]},
+				{"textValue":"Arizona State University"}
+			]},
+		]}
+	]}
+]}
+ */
 
 $columnCount = 1;
 if(is_numeric($labelFormat)) $columnCount = $labelFormat;
@@ -50,54 +89,38 @@ else{
 		<head>
 			<title><?php echo $DEFAULT_TITLE; ?> Labels</title>
 			<style type="text/css">
-				body { font-family:arial,sans-serif; font-size:10pt; }
-
-				table.labels { table-layout:fixed; width:100%; page-break-before:auto; page-break-inside:avoid; }
-				table.labels td { width: 600px; }
-
-				p.printbreak { page-break-after:always; }
-
-				.lheader { text-align:center; font:bold 14pt arial,sans-serif; margin-bottom:10px; }
-
-				.family { text-align:right; }
-				.scientificnamediv { font-size:11pt; }
-				.identifiedbydiv { margin-left:15px; }
-				.identificationreferences { margin-left:15px; }
-				.identificationremarks { margin-left:15px; }
-				.taxonremarks { margin-left:15px; }
-				.loc1div { font-size:11pt; }
-				.country { font-weight:bold; }
-				.stateprovince { font-weight:bold; }
-				.county { font-weight:bold; }
-				.municipality { font-weight:bold; }
-				.associatedtaxa { font-style:italic; }
-				.collectordiv { margin-top:10px; }
-				.recordnumber { margin-left:10px; }
-				.associatedcollectors { margin-left:15px; clear:both; }
-
-				.lfooter { text-align:center; font:bold 12pt arial,sans-serif; padding-top:10px; clear:both; }
-
-				.cnbarcode { width:100%; text-align:center; }
-				.barcodeonly { width:220px; height:50px; float:left; padding:10px; text-align:center; }
-				.symbbarcode { width:100%; text-align:center; margin-top:10px; }
 				<?php
+				if($columnCount != 1){
+					?>
+					table.labels td { width:<?php echo (1000/$columnCount); ?>;font-size:10pt; }
+					table.labels td:first-child {padding:10px 23px 10px 0px;}
+					table.labels td:not(:first-child):not(:last-child) {padding:10px 23px 10px 23px;}
+					table.labels td:last-child {padding:10px 0px 10px 23px;}
+					<?php
+				}
 				if($labelFormat == 'packet'){
 					?>
 					.foldMarks1 { clear:both;padding-top:285px; }
 					.foldMarks1 span { margin-left:77px; margin-right:80px; }
 					.foldMarks2 { clear:both;padding-top:355px;padding-bottom:10px; }
 					.foldMarks2 span { margin-left:77px; margin-right:80px; }
-					table.labels { clear:both; margin-top: 10px; margin-left: auto; margin-right: auto; width: 500px; page-break-before:auto; page-break-inside:avoid; }
-					table.labels td { width:500px; margin:50px; padding:10px 50px; font-size: 80%; }
+					table.labels {
+						clear:both;
+						margin-top: 10px;
+						margin-left: auto;
+						margin-right: auto;
+						width: 500px;
+						page-break-before:auto;
+						page-break-inside:avoid;
+					}
+					table.labels td {
+						width:500px;
+						margin:50px;
+						padding:10px 50px;
+						font-size: 80%;
+					}
 					.family { display:none }
-					<?php
-				}
-				elseif($columnCount != 1){
-					?>
-					table.labels td { width:<?php echo (100/$columnCount); ?>%; font-size:10pt; }
-					table.labels td:first-child { padding:10px 23px 10px 0px; }
-					table.labels td:not(:first-child):not(:last-child) { padding:10px 23px 10px 23px; }
-					table.labels td:last-child { padding:10px 0px 10px 23px; }
+
 					<?php
 				}
 				?>
@@ -400,7 +423,8 @@ else{
 									?>
 									</tr></table>
 									<?php
-									//if($rowCnt%$rowPerPage === 0) echo '<p style="page-break-before: always" />';
+									echo 'row: '.$rowCnt.' rowPerPage: '.$rowPerPage.' mod: '.$rowCnt%$rowPerPage;
+									if($rowCnt%$rowPerPage === 0) echo '<p style="page-break-before: always" />';
 								}
 							}
 						}

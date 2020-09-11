@@ -31,17 +31,17 @@ if($collid){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Occurrence Skeletal Record Submission</title>
-  <?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.skeletal.js?ver=1" type="text/javascript"></script>
@@ -102,19 +102,19 @@ if($collid){
 							<legend><b>Options</b></legend>
 							<div style="float:right;"><a href="#" onclick="hideOptions()" style="color:red" >X Close</a></div>
 							<div style="font-weight:bold">Field Display:</div>
-							<input type="checkbox" onclick="toggle('othercatalognumbersdiv')" /> Other Catalog Numbers<br/>
-							<input type="checkbox" onclick="toggle('authordiv')" CHECKED /> Author<br/>
-							<input type="checkbox" onclick="toggle('familydiv')" CHECKED /> Family<br/>
-							<input type="checkbox" onclick="toggle('localitysecuritydiv')" CHECKED /> Locality Security<br/>
-							<input type="checkbox" onclick="toggle('countrydiv')" /> Country<br/>
-							<input type="checkbox" onclick="toggle('statediv')" CHECKED /> State / Province<br/>
-							<input type="checkbox" onclick="toggle('countydiv')" CHECKED /> County / Parish<br/>
-							<input type="checkbox" onclick="toggle('recordedbydiv')" /> Collector<br/>
-							<input type="checkbox" onclick="toggle('recordnumberdiv')" /> Collector Number<br/>
-							<input type="checkbox" onclick="toggle('eventdatediv')" /> Collection Date<br/>
-							<input type="checkbox" onclick="toggle('labelprojectdiv')" /> Label Project<br/>
-							<input type="checkbox" onclick="toggle('processingstatusdiv')" /> Processing Status<br/>
-							<input type="checkbox" onclick="toggle('languagediv')" /> Language<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('othercatalognumbersdiv')" /> Other Catalog Numbers<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('authordiv')" CHECKED /> Author<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('familydiv')" CHECKED /> Family<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('localitysecuritydiv')" CHECKED /> Locality Security<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('countrydiv')" /> Country<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('statediv')" CHECKED /> State / Province<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('countydiv')" CHECKED /> County / Parish<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('recordedbydiv')" /> Collector<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('recordnumberdiv')" /> Collector Number<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('eventdatediv')" /> Collection Date<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('labelprojectdiv')" /> Label Project<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('processingstatusdiv')" /> Processing Status<br/>
+							<input type="checkbox" onclick="toggleFieldDiv('languagediv')" /> Language<br/>
 							<div style="font-weight:bold">Catalog Number Match Action:</div>
 							<input name="addaction" type="radio" value="1" checked /> Restrict entry if record exists <br/>
 							<input name="addaction" type="radio" value="2" /> Append values to existing records

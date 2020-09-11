@@ -24,15 +24,11 @@ class ImageCleaner extends Manager{
 	//Thumbnail building tools
 	public function getReportArr(){
 		$retArr = array();
-
 		$sql = 'SELECT c.collid, CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname, count(DISTINCT i.imgid) AS cnt '.
 			'FROM images i LEFT JOIN omoccurrences o ON i.occid = o.occid '.
 			'LEFT JOIN omcollections c ON o.collid = c.collid ';
-		if($this->tidArr){
-			$sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
-		}
-		$sql .= $this->getSqlWhere().
-			'GROUP BY c.collid ORDER BY c.collectionname';
+		if($this->tidArr) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
+		$sql .= $this->getSqlWhere().'GROUP BY c.collid ORDER BY c.collectionname';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -65,9 +61,7 @@ class ImageCleaner extends Manager{
 		else{
 			$sql .= 'FROM images i ';
 		}
-		if($this->tidArr){
-			$sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
-		}
+		if($this->tidArr) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
 		$sql .= $this->getSqlWhere().'ORDER BY RAND()';
 		//echo $sql; exit;
 		$result = $this->conn->query($sql);
@@ -150,17 +144,11 @@ class ImageCleaner extends Manager{
 					if(is_numeric($catPath) && strlen($catPath)<5) $catPath = str_pad($catPath, 5, "0", STR_PAD_LEFT);
 					$targetPath .= $catPath.'/';
 				}
-				else{
-					$targetPath .= '00000/';
-				}
+				else $targetPath .= '00000/';
 			}
-			else{
-				$targetPath .= date('Ym').'/';
-			}
+			else $targetPath .= date('Ym').'/';
 		}
-		else{
-			$targetPath = 'misc/'.date('Ym').'/';
-		}
+		else $targetPath = 'misc/'.date('Ym').'/';
 		$this->imgManager->setTargetPath($targetPath);
 
 		$imgUrl = '';
@@ -653,13 +641,13 @@ class ImageCleaner extends Manager{
 
 	//Setters and getters
 	public function setCollid($id){
-		if(is_numeric($id)){
+		if(is_numeric($id) && $id){
 			$this->collid = $id;
 		}
 	}
 
 	public function setTid($id){
-		if(is_numeric($id)){
+		if(is_numeric($id) && $id){
 			$this->tidArr[] = $id;
 			$sql = 'SELECT DISTINCT ts.tid '.
 				'FROM taxstatus ts INNER JOIN taxstatus ts2 ON ts.tidaccepted = ts2.tidaccepted '.

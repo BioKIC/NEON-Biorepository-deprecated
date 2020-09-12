@@ -22,7 +22,6 @@ echo "Adjusting file permissions"
 chmod 777 ../webservices/dwc/rss.xml
 chmod -R 777 ../temp
 chmod -R 777 ../content/collicon
-chmod -R 777 ../content/css
 chmod -R 777 ../content/dwca
 chmod -R 777 ../content/geolocate
 chmod -R 777 ../content/imglib

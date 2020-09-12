@@ -98,29 +98,30 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 						<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php" ><?php echo (isset($LANG['H_INVENTORIES'])?$LANG['H_INVENTORIES']:'Species Checklists'); ?></a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1"><?php echo (isset($LANG['H_FIRST_PROJECT'])?$LANG['H_FIRST_PROJECT']:'Checklist Project 1'); ?></a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1"><?php echo (isset($LANG['H_PROJECT_1'])?$LANG['H_PROJECT_1']:'Project 1'); ?></a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2"><?php echo (isset($LANG['H_PROJECT_2'])?$LANG['H_PROJECT_2']:'Project 2'); ?></a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3"><?php echo (isset($LANG['H_PROJECT_3'])?$LANG['H_PROJECT_3']:'Project 3'); ?></a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=4"><?php echo (isset($LANG['H_PROJECT_4'])?$LANG['H_PROJECT_4']:'Project 4'); ?></a>
 							</li>
 						</ul>
 					</li>
 					<li>
-						<a href="#" ><?php echo (isset($LANG['H_SYMBIOTA'])?$LANG['H_SYMBIOTA']:'Symbiota'); ?></a>
+						<a href="#" ><?php echo (isset($LANG['H_MORE_INFO'])?$LANG['H_MORE_INFO']:'Additional Info'); ?></a>
 						<ul>
 							<li>
-									<a href="http://symbiota.org/docs/symbiota-introduction/symbiota-help-pages/" target="_blank" ><?php echo (isset($LANG['H_HELP'])?$LANG['H_HELP']:'Help'); ?></a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/collections/misc/aboutproject.php" ><?php echo (isset($LANG['H_ABOUT_PROJECT'])?$LANG['H_ABOUT_PROJECT']:'About Project'); ?></a>
 							</li>
-							<li>
-								<a href='<?php echo $CLIENT_ROOT; ?>/sitemap.php'><?php echo (isset($LANG['H_SITEMAP'])?$LANG['H_SITEMAP']:'Sitemap'); ?></a>
-							</li>
-						</ul>
-					</li>
-					<li>
-						<a href="#" ><?php echo (isset($LANG['H_CONTACTS'])?$LANG['H_CONTACTS']:'Contacts'); ?></a>
-						<ul>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/collections/misc/collprofiles.php" ><?php echo (isset($LANG['H_PARTNERS'])?$LANG['H_PARTNERS']:'Partners'); ?></a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/misc/contacts.php" ><?php echo (isset($LANG['H_CONTACTS'])?$LANG['H_CONTACTS']:'Contacts'); ?></a>
+							</li>
+							<li>
+								<a href="http://symbiota.org/docs/symbiota-introduction/symbiota-help-pages/" target="_blank" ><?php echo (isset($LANG['H_HELP'])?$LANG['H_HELP']:'Help'); ?></a>
+							</li>
+							<li>
+								<a href='<?php echo $CLIENT_ROOT; ?>/sitemap.php'><?php echo (isset($LANG['H_SITEMAP'])?$LANG['H_SITEMAP']:'Sitemap'); ?></a>
 							</li>
 						</ul>
 					</li>

@@ -1190,7 +1190,7 @@ class ImageShared{
 
 	public static function getImgDim($imgUrl){
 		if(!$imgUrl) return false;
-
+		$imgDim = false;
 		$urlPrefix = "http://";
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
 		$urlPrefix .= $_SERVER["SERVER_NAME"];

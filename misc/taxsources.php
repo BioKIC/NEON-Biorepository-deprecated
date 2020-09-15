@@ -9,6 +9,8 @@
   $headerArr = ['Category', 'Collection', 'Taxonomic Source'];
 
   $sourceListArr = $sources->getUniqueOccSources();
+  $neonListArr = $sources->getNeonSourcesByColl();
+  $neonHeaderArr = ['Taxonomic Category', 'NEON Taxonomic Source']
 ?>
 <html>
 	<head>
@@ -112,10 +114,19 @@
       ;?>
     </div>
 
-    <!-- <div>
-      <h2>List of official NEON taxonomic sources by taxonomic category, in use in our database</h2>
+    <div>
+      <h2>List of official NEON taxonomic sources</h2>
+      <p>List of unique taxonomic sources by NEON's taxonomic category, in use in our database (<?php echo count($neonListArr). ' results' ;?>).</p>
+      <?php 
+        if($neonListArr){
+          $neonSourceTable = $sources->htmlTable($neonListArr, $neonHeaderArr);
+          echo $neonSourceTable;
+        } else {
+          $this_>logOrEcho($sources->errorMessage, 0, 'div');
+        }
+      ;?>
 
-    </div> -->
+    </div>
 
     </div>
 		<?php

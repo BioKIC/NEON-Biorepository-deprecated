@@ -65,6 +65,28 @@ class Sources extends Manager {
       $this->errorMessage = 'Sources by Coll query was not successfull';
     }
   }
+
+  // Gets a list of NEON sources from occurrences by collection
+  public function getNeonSourcesByColl(){
+    $dataArr = array();
+
+    $sql = 'SELECT taxoncategory, source FROM neontaxsources ORDER BY taxoncategory, source';
+
+    $result = $this->conn->query($sql);
+
+    if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()){
+      $dataArr[] = $row;
+    }
+    $result->free();
+    }
+    else {
+      $this->errorMessage = 'NEON Sources by Coll query was not successfull';
+      $dataArr = false;
+    }
+    return $dataArr;
+  }
 	
   // Formats array in tabular form (pass array name and headers array as arguments)
   public function htmlTable($data, $headerArr){

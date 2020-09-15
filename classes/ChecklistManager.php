@@ -197,7 +197,7 @@ class ChecklistManager {
 		$result = $this->conn->query($this->basicSql);
 		while($row = $result->fetch_object()){
 			$family = strtoupper($row->family);
-			if(!$family) $family = 'Family Incertae Sedis';
+			if($row->rankid > 140 && !$family) $family = 'Incertae Sedis';
 			$this->filterArr[$family] = '';
 			$taxonGroup = $family;
 			if($this->showAlphaTaxa) $taxonGroup = $row->unitname1;
@@ -214,7 +214,7 @@ class ChecklistManager {
 				$taxonTokens = $newArr;
 			}
 			if(!$retLimit || ($this->taxaCount >= (($pageNumber-1)*$retLimit) && $this->taxaCount <= ($pageNumber)*$retLimit)){
-				if(count($taxonTokens) == 1) $sciName .= " sp.";
+				if($row->rankid == 180) $sciName .= " sp.";
 				if($row->rankid > 220 && $this->clMetadata['type'] != 'rarespp' && !array_key_exists($row->parenttid, $this->taxaList)){
 					$this->taxaList[$row->parenttid]['taxongroup'] = '<i>'.$taxonGroup.'</i>';
 					$this->taxaList[$row->parenttid]['family'] = $family;

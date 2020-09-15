@@ -107,6 +107,7 @@ if($isEditor){
 					alert("Packet labels are not yet available as a Word document");
 					return false;
 				}
+				if(f.bconly && f.bconly.checked && action == "labels.php") action = "barcodes.php";
 				f.action = action;
 				f.target = target;
 				return true;
@@ -127,7 +128,6 @@ if($isEditor){
 				}
 			}
 		</script>
-		<script src="../../js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
 	</head>
 	<body>
 	<?php
@@ -356,12 +356,6 @@ if($isEditor){
 										<input type="radio" name="labelformat" value="2" checked /> 2 columns per page<br/>
 										<input type="radio" name="labelformat" value="3" /> 3 columns per page<br/>
 										<input id="packetradio" type="radio" name="labelformat" value="packet" /> packet labels<br/>
-									</fieldset>
-									<fieldset style="float:left;margin:10px;width:150px;">
-										<legend><b>Rows per Page</b></legend>
-										<input type="radio" name="rowperpage" value="1" /> 1 row<br/>
-										<input type="radio" name="rowperpage" value="2" checked /> 2 rows<br/>
-										<input type="radio" name="rowperpage" value="3" /> 3 rows<br/>
 									</fieldset>
 									<div style="float:left;margin: 15px 50px;">
 										<input type="hidden" name="collid" value="<?php echo $collid; ?>" />

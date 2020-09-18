@@ -18,18 +18,17 @@ $LANG['H_IMAGE_BROWSER'] = 'Image Browser';
 $LANG['H_IMAGE_SEARCH'] = 'Image Search';
 
 $LANG['H_INVENTORIES'] = 'Species Checklists';
-$LANG['H_CENTRAL_AMER'] = 'Central America';
-$LANG['H_ECUADOR'] = 'Ecuador';
-$LANG['H_SUBPOLAR'] = 'Subpolar Regions';
+$LANG['H_PROJECT_1'] = 'Checklist Project 1';
+$LANG['H_PROJECT_2'] = 'Checklist Project 2';
+$LANG['H_PROJECT_3'] = 'Checklist Project 3';
+$LANG['H_PROJECT_4'] = 'Checklist Project 4';
 
 $LANG['H_MORE_INFO'] = 'More Information';
-$LANG['H_SYMBIOTA'] = 'Symbiota';
+$LANG['H_ABOUT_PROJECT'] = 'About Project';
+$LANG['H_PARTNERS'] = 'Partners';
+$LANG['H_CONTACTS'] = 'Contacts';
 $LANG['H_HELP'] = 'Symbiota Help';
 $LANG['H_SITEMAP'] = 'Sitemap';
-
-$LANG['H_CONTACTS'] = 'Contacts';
-$LANG['H_PARTNERS'] = 'Partners';
-$LANG['H_RESPONSIBLE'] = 'Contacts';
 
 $LANG['H_WELCOME'] = 'Welcome';
 $LANG['H_MY_PROFILE'] = 'My Profile';

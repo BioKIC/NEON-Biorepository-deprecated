@@ -7,18 +7,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Home</title>
 	<?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<link href="css/quicksearch.css" type="text/css" rel="Stylesheet" />
-  <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
+	<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script src="js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -44,7 +37,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<div id="quicksearchdiv">
 			<!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
 			<form name="quicksearch" id="quicksearch" action="<?php echo $CLIENT_ROOT; ?>/taxa/index.php" method="get" onsubmit="return verifyQuickSearch(this);">
-				<div id="quicksearchtext" ><?php echo (isset($LANG['QSEARCH_SEARCH'])?$LANG['QSEARCH_SEARCH']:'Search Taxon'); ?></div>
+				<div id="quicksearchtext" ><?php echo (isset($LANG['QSEARCH_SEARCH'])?$LANG['QSEARCH_SEARCH']:'Taxon Search'); ?></div>
 				<input id="taxa" type="text" name="taxon" />
 				<button name="formsubmit"  id="quicksearchbutton" type="submit" value="Search Terms"><?php echo (isset($LANG['QSEARCH_SEARCH_BUTTON'])?$LANG['QSEARCH_SEARCH_BUTTON']:'Search'); ?></button>
 			</form>

@@ -26,6 +26,8 @@ class ImageShared{
 	private $jpgCompression= 70;
 
 	private $mapLargeImg = true;
+	private $createWebDerivative = true;
+	private $createThumbnailDerivative = true;
 
 	//Image metadata
 	private $caption;
@@ -365,7 +367,7 @@ class ImageShared{
 		}
 
 		//Create thumbnail
-		if(!$this->imgTnUrl){
+		if(!$this->imgTnUrl && $this->createThumbnailDerivative){
 			if($this->createNewImage('_tn',$this->tnPixWidth,70)){
 				$this->imgTnUrl = $this->imgName.'_tn.jpg';
 			}
@@ -401,7 +403,7 @@ class ImageShared{
 		}
 
 		//Create web url
-		if(!$this->imgWebUrl){
+		if(!$this->imgWebUrl && $this->createWebDerivative){
 			if($this->sourceWidth < ($this->webPixWidth*1.2) && $this->sourceFileSize < $this->webFileSizeLimit){
 				//Source image width and file size is small enough to serve as web image
 				if(strtolower(substr($this->sourcePath,0,7)) == 'http://' || strtolower(substr($this->sourcePath,0,8)) == 'https://'){
@@ -530,10 +532,10 @@ class ImageShared{
 
 	private function databaseImage(){
 		$status = false;
-		if($this->imgWebUrl){
+		if($this->imgLgUrl || $this->imgWebUrl){
 			$status = true;
 			$urlBase = $this->getUrlBase();
-			if(strtolower(substr($this->imgWebUrl,0,7)) != 'http://' && strtolower(substr($this->imgWebUrl,0,8)) != 'https://'){
+			if($this->imgWebUrl && strtolower(substr($this->imgWebUrl,0,7)) != 'http://' && strtolower(substr($this->imgWebUrl,0,8)) != 'https://'){
 				$this->imgWebUrl = $urlBase.$this->imgWebUrl;
 			}
 			if($this->imgTnUrl && strtolower(substr($this->imgTnUrl,0,7)) != 'http://' && strtolower(substr($this->imgTnUrl,0,8)) != 'https://'){
@@ -555,8 +557,7 @@ class ImageShared{
 
 			//Save currently loaded record
 			$sql = 'INSERT INTO images (tid, url, thumbnailurl, originalurl, photographer, photographeruid, format, caption, '.
-				'owner, sourceurl, copyright, locality, occid, notes, username, sortsequence, sourceIdentifier, ' .
-				' rights, accessrights) '.
+				'owner, sourceurl, copyright, locality, occid, notes, username, sortsequence, sourceIdentifier, rights, accessrights) '.
 				'VALUES ('.($this->tid?$this->tid:'NULL').',"'.$this->imgWebUrl.'",'.
 				($this->imgTnUrl?'"'.$this->imgTnUrl.'"':'NULL').','.
 				($this->imgLgUrl?'"'.$this->imgLgUrl.'"':'NULL').','.
@@ -881,6 +882,16 @@ class ImageShared{
 		$this->mapLargeImg = $t;
 	}
 
+	public function setCreateWebDerivative($bool){
+		if($bool === false || $bool === 0) $this->createWebDerivative = false;
+		else $this->createWebDerivative = true;
+	}
+
+	public function setCreateThumbnailDerivative($bool){
+		if($bool === false || $bool === 0) $this->createThumbnailDerivative = false;
+		else $this->createThumbnailDerivative = true;
+	}
+
 	public function setCaption($v){
 		$this->caption = $this->cleanInStr($v);
 	}
@@ -1070,7 +1081,7 @@ class ImageShared{
 	private function setSourceFileSize(){
 		if($this->sourcePath && !$this->sourceFileSize){
 			if(strtolower(substr($this->sourcePath,0,7)) == 'http://' || strtolower(substr($this->sourcePath,0,8)) == 'https://'){
-				$x = array_change_key_case(get_headers($this->sourcePath, 1,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false)))),CASE_LOWER);
+				$x = array_change_key_case(get_headers($this->sourcePath, 1),CASE_LOWER);
 				if ( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) {
 					if(isset($x['content-length'][1])) $this->sourceFileSize = $x['content-length'][1];
 					elseif(isset($x['content-length'])) $this->sourceFileSize = $x['content-length'];
@@ -1083,8 +1094,6 @@ class ImageShared{
 				curl_setopt($ch, CURLOPT_NOBODY, true);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36');
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 				curl_setopt($ch, CURLOPT_HEADER, true);
 				$data = curl_exec($ch);
 				curl_close($ch);
@@ -1135,8 +1144,6 @@ class ImageShared{
 				curl_setopt($handle, CURLOPT_NOBODY, true);
 				curl_setopt($handle, CURLOPT_FAILONERROR, true);
 				curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true );
-				curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
-				curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, 2);
 				curl_setopt($handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36');
 				curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 				$exists = curl_exec($handle);
@@ -1174,7 +1181,7 @@ class ImageShared{
 
 		//One last check
 		if(!$exists){
-			$exists = (@fclose(@fopen($uri,'r',false,stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))))));
+			$exists = (@fclose(@fopen($uri,'r')));
 		}
 		//Test to see if file is an image
 		//if(!@exif_imagetype($uri)) $exists = false;
@@ -1183,7 +1190,7 @@ class ImageShared{
 
 	public static function getImgDim($imgUrl){
 		if(!$imgUrl) return false;
-
+		$imgDim = false;
 		$urlPrefix = "http://";
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
 		$urlPrefix .= $_SERVER["SERVER_NAME"];
@@ -1196,9 +1203,9 @@ class ImageShared{
 			if($GLOBALS['IMAGE_ROOT_URL'] && strpos($imgUrl,$GLOBALS['IMAGE_ROOT_URL']) === 0){
 				$imgUrl = str_replace($GLOBALS['IMAGE_ROOT_URL'],$GLOBALS['IMAGE_ROOT_PATH'],$imgUrl);
 			}
-			$imgDim = getimagesize($imgUrl);
+			$imgDim = @getimagesize($imgUrl);
 		}
-		else{
+		if(!$imgDim){
 			$imgDim = self::getImgDim1($imgUrl);
 			if(!$imgDim) $imgDim = self::getImgDim2($imgUrl);
 			if(!$imgDim) $imgDim = @getimagesize($imgUrl);
@@ -1213,8 +1220,7 @@ class ImageShared{
 				'user_agent' => $GLOBALS['DEFAULT_TITLE'],
 				'method'=>"GET",
 				'header'=> implode("\r\n", array('Content-type: text/plain;'))
-			),
-			'ssl' => array('verify_peer' => false, 'verify_peer_name' => false)
+			)
 		);
 		$context = stream_context_create($opts);
 		if($handle = fopen($imgUrl, "rb", false, $context)){
@@ -1270,10 +1276,9 @@ class ImageShared{
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array( "Range: bytes=0-65536" ));
 		//curl_setopt($curl, CURLOPT_HTTPHEADER, array( "Range: bytes=0-32768" ));
 		curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36');
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
 		$data = curl_exec($curl);
 		curl_close($curl);
 		$width = 0; $height = 0;

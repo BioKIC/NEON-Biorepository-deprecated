@@ -64,6 +64,8 @@ $OCCUR_SECURITY_OPTION = 1;			//Occurrence security options supported: value 1-7
 
 $IGSN_ACTIVATION = 0;
 
+//$SMTP_ARR = array('host'=>'','port'=>587,'username'=>'','password'=>'','timeout'=>60);  //Host is requiered, others are optional and can be removed
+
 $RIGHTS_TERMS = array(
 	'CC0 1.0 (Public-domain)' => 'http://creativecommons.org/publicdomain/zero/1.0/',
 	'CC BY (Attribution)' => 'http://creativecommons.org/licenses/by/4.0/',

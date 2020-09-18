@@ -220,7 +220,7 @@ class ProfileManager{
 				$status = $this->sendEmail($email, $subject, $body);
 				if($status){
 					$this->resetConnection();
-					$sql = 'UPDATE userlogin SET password = PASSWORD("'.$this->cleanInStr($newPassword).'") WHERE (uid = '.$uid.'")';
+					$sql = 'UPDATE userlogin SET password = PASSWORD("'.$this->cleanInStr($newPassword).'") WHERE (uid = '.$uid.')';
 					if($this->conn->query($sql)) $status = $email;
 					else{
 						$status = false;

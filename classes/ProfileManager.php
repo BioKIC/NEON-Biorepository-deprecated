@@ -199,13 +199,13 @@ class ProfileManager{
 		$status = false;
 		if($un && $newPassword){
 			$uid = 0;
-			$to = '';
+			$email = '';
 			$un = $this->cleanInStr($un);
-			$sql = 'SELECT u.uid, u.email FROM users u INNER JOIN userlogin l ON u.uid = l.uid WHERE (l.username = "'.$un.'") AND (u.email = "'.$un.'")';
+			$sql = 'SELECT u.uid, u.email FROM users u INNER JOIN userlogin l ON u.uid = l.uid WHERE (l.username = "'.$un.'") OR (u.email = "'.$un.'")';
 			$rs = $this->conn->query($sql);
 			if($row = $rs->fetch_object()){
-				$uid = $roe->uid;
-				$to = $row->email;
+				$uid = $row->uid;
+				$email = $row->email;
 			}
 			$rs->free();
 
@@ -217,12 +217,15 @@ class ProfileManager{
 					'Data portal: <a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a><br/>'.
 					'Direct link to your user profile: <a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/profile/viewprofile.php?tabindex=2">http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/profile/viewprofile.php</a>';
 
-				$status = $this->sendEmail($to, $subject, $body);
+				$status = $this->sendEmail($email, $subject, $body);
 				if($status){
 					$this->resetConnection();
 					$sql = 'UPDATE userlogin SET password = PASSWORD("'.$this->cleanInStr($newPassword).'") WHERE (uid = '.$uid.'")';
-					$status = $this->conn->query($sql);
-					$status = $to;
+					if($this->conn->query($sql)) $status = $email;
+					else{
+						$status = false;
+						$this->errorStr = $this->conn->error;
+					}
 				}
 			}
 		}

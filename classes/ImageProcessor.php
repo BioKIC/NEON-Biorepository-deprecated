@@ -230,13 +230,17 @@ class ImageProcessor {
 										if($postArr['patternreplace']) $specPk = preg_replace($postArr['patternreplace'],$postArr['replacestr'],$specPk);
 										$occid = $this->getOccid($specPk,$origFileName);
 										if($occid){
+											$fieldArr = array();
 											//Image hasn't been loaded, thus insert image urls into image table
 											$baseUrl = $idigbioImageUrl.$data[$mediaMd5Index];
-											$webUrl = $baseUrl.'?size=webview';
-											$tnUrl = $baseUrl.'?size=thumbnail';
-											//$lgUrl = $baseUrl.'?size=fullsize';
-											$lgUrl = $baseUrl;
-											$this->databaseImage($occid,$webUrl,$tnUrl,$lgUrl,$baseUrl,$this->collArr['collname'],$origFileName);
+											$fieldArr['url'] = $baseUrl.'?size=webview';
+											$fieldArr['thumbnailurl'] = $baseUrl.'?size=thumbnail';
+											//$fieldArr['originalurl'] = $baseUrl.'?size=fullsize';
+											$fieldArr['originalurl'] = $baseUrl;
+											$fieldArr['archiveurl'] = $this->collArr['collname'];
+											$fieldArr['owner'] = $this->collArr['collname'];
+											$fieldArr['sourceIdentifier'] = $origFileName;
+											$this->databaseImage($occid,$fieldArr);
 										}
 									}
 								}
@@ -575,7 +579,7 @@ class ImageProcessor {
 
 	private function databaseImage($occid,$targetFieldArr){
 		$status = true;
-		if($occid){
+		if($occid && $targetFieldArr){
 			$format = 'image/jpeg';
 			/*
 			$testUrl = $lgUrl;
@@ -603,13 +607,14 @@ class ImageProcessor {
 			}
 			else{
 				$status = false;
-				$this->logOrEcho("ERROR: Unable to load image record into database: ".$this->conn->error,3);
+				$this->logOrEcho('ERROR: Unable to load image record into database: '.$this->conn->error,3);
 				//$this->logOrEcho($sql);
 			}
 		}
 		else{
 			$status = false;
-			$this->logOrEcho("ERROR: Missing occid (omoccurrences PK), unable to load record ",2);
+			if(!$occid) $this->logOrEcho('ERROR: Missing occid (omoccurrences PK), unable to load record ',2);
+			else $this->logOrEcho('ERROR: Missing image data, unable to load record ',2);
 		}
 		return $status;
 	}

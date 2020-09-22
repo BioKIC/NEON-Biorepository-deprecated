@@ -3,28 +3,23 @@
   include_once($SERVER_ROOT.'/neon/classes/CollectionMetadata.php');
   header("Content-Type: text/html; charset=".$CHARSET);
 
-  $coll = new CollectionMetadata();
+  // collid -> get from http request and assign to variable
+  $id = (array_key_exists("collid",$_REQUEST)?$_REQUEST["collid"]:'');
 
-  $collInfo = $coll->getCollMetaById(50);
-
-  echo json_encode($collInfo);
-
-  // $conn = MySQLiConnectionFactory::getCon('readonly');
-  // $id = ((array_key_exists("collid",$_REQUEST) && is_numeric($_REQUEST["collid"]))?$_REQUEST["collid"]:0);
-  // $sql = 'SELECT collid, institutioncode, collectionname, datasetname, fulldescription, homepage, dwcaurl FROM omcollections WHERE collid='.$id.'';
-  // $sql = $conn->real_escape_string($sql);
-  // $result = $conn->query($sql);
-  // $dataArr = array();
-
-  // if ($id && $result->num_rows > 0) {
-  //   // output data of each row
-  //   while($row = $result->fetch_assoc()){
-  //     $dataArr[] = $row;
-  //   }
-  //   echo json_encode($dataArr);
-  //   }
-  //   else {
-  //     http_response_code(403);
-  //   }
-  //  $conn->close();
+  if ($id) {
+    $coll = new CollectionMetadata();
+    // pass variable to function below
+    $collInfo = $coll->getCollMetaById($id);
+  
+    if (!$collInfo) {
+      echo json_encode([]);
+    } 
+    else {
+      echo json_encode($collInfo);
+    }
+  }
+  else {
+    echo 'Add the collection id parameter to your request';
+  }
+  
 ?>

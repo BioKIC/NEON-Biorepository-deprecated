@@ -3,7 +3,14 @@
   include_once($SERVER_ROOT.'/neon/classes/CollectionMetadata.php');
   header("Content-Type: text/html; charset=".$CHARSET);
 
-  // collid -> get from http request and assign to variable
+  /*
+  * Collection Metadata API endpoint
+  * Parameter: collection id (collid)
+  * Returns: JSON-encoded array containing metadata 
+  * for a particular collection record. If no results 
+  * are found, returns empty array.
+  */
+
   $id = (array_key_exists("collid",$_REQUEST)?$_REQUEST["collid"]:'');
 
   if ($id) {

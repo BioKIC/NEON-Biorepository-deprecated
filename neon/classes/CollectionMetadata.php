@@ -2,7 +2,7 @@
 
   include_once($SERVER_ROOT.'/classes/Manager.php');
 
-  /**
+ /**
  * Controler class for /neon/classes/CollectionMetadata.php
  * 
  */

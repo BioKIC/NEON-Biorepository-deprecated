@@ -1,6 +1,6 @@
 <?php
 include_once('../../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceEditorAssoc.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -8,7 +8,7 @@ $occid = $_GET['occid'];
 $occIndex = $_GET['occindex'];
 $crowdSourceMode = $_GET['csmode'];
 
-$occManager = new OccurrenceEditorManager();
+$occManager = new OccurrenceEditorAssoc();
 $occManager->setOccId($occid);
 $oArr = $occManager->getOccurMap();
 $occArr = $oArr[$occid];
@@ -19,6 +19,54 @@ $dupManager = new OccurrenceDuplicate();
 $dupClusterArr = $dupManager->getClusterArr($occid);
 ?>
 <script>
+	function assocIdentifierChanged(f){
+		if(f.identifier.value){
+			$.ajax({
+				type: "POST",
+				url: "rpc/getAssocOccurrence.php",
+				dataType: "json",
+				data: { id: f.identifier.value, target: f.target.value, collidtarget: f.collidtarget.value }
+			}).done(function( retObj ) {
+				if(retObj){
+					$.each(retObj, function(i, item) {
+						$( "#searchResultDiv" ).append( createAssocInput(occid,catnum,collinfo) );
+					});
+				}
+				else{
+
+				}
+			});
+		}
+	}
+
+	function createAssocInput(occid,catnum,collinfo){
+
+		var newInput = document.createElement('input');
+		newInput.setAttribute("name", "occid");
+		newInput.setAttribute("type", "radio");
+		newInput.setAttribute("value", occid);
+		var newText = document.createTextNode(catnum+": "+collinfo);
+		newInput.appendChild(newText);
+
+		var newDiv = document.createElement("div");
+		newDiv.appendChild(newInput);
+
+		return newDiv;
+	}
+
+	function validateAssocForm(f){
+		if(f.occidAssociate.value == ""){
+			alert("Related occurrence is not defined");
+			return false;
+		}
+		if(f.relationship.value == ""){
+			alert("Relationship needs to be defined");
+			return false;
+		}
+
+		return true;
+	}
+
 	function validateVoucherAddForm(f){
 		if(f.clidvoucher.value == ""){
 			alert("Select a checklist to which you want to link the voucher");
@@ -87,6 +135,92 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 
 <div id="voucherdiv" style="width:795px;">
 	<?php
+	$assocArr = $occManager->getAssociatedOccurrences();
+	?>
+	<fieldset style="padding:20px">
+		<legend><b>Associated Occurrences</b></legend>
+		<form name="addOccurAssocForm" action="resourcehandler.php" method="post" onsubmit="return validateAssocForm(this)">
+			<div class="fieldRowDiv">
+				<div class="fieldDiv">
+					<input name="identifier" type="text" value="" />
+					<input name="occidAssociate" type="hidden" value="" />
+				</div>
+				<div class="fieldDiv">
+					<span>Search Target</span>
+					<select name="target">
+						<option value="occid">occurrence PK (occid)</option>
+						<option value="catnum">Catalog Numbers</option>
+						<!-- <option value="occurrenceID">occurrenceID</option>  -->
+					</select>
+				</div>
+				<div class="fieldDiv">
+					<span>Search Collections:</span>
+					<select name="collidtarget">
+						<option value="">All Collections</option>
+						<option value="">-------------------------</option>
+						<?php
+						$collList = $occManager->getCollectionList();
+						foreach($collList as $collid => $collName){
+							echo '<option value="'.$collid.'">'.$collName.'</option>';
+						}
+						?>
+					</select>
+				</div>
+				<div class="fieldDiv">
+					<button type="button" onchange="assocIdentifierChanged(this)">Search</button>
+				</div>
+				<div class="fieldDiv">
+					<div id="searchResultDiv"></div>
+				</div>
+			</div>
+			<div class="fieldRowDiv">
+				<div class="fieldDiv">
+					<select name="relationship" required>
+						<option value="">Select Relationship</option>
+						<option value="">--------------------</option>
+						<option value="isParentOf">Parent Occurrence</option>
+						<option value="isChildOf">Child Occurrence</option>
+						<option value="isSiblingOf">Sibling Occurrence</option>
+
+					</select>
+				</div>
+				<div class="fieldDiv">
+					<select name="subType">
+						<option value="">Select Subtype</option>
+						<option value="">--------------------</option>
+						<option value="tissue">Tissue</option>
+						<option value="genetic">Genetic</option>
+
+					</select>
+				</div>
+			</div>
+			<div class="fieldRowDiv">
+				<div class="fieldDiv">
+					<input name="resourceurl" type="text" value="" />
+					<input name="externalIdentifier" type="text" value="" />
+				</div>
+			</div>
+
+			<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />
+			<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+			<input name="tabtarget" type="hidden" value="3" />
+			<input name="submitaction" type="submit" value="Link to Checklist as Voucher" />
+		</form>
+		<div id="occurAssocDiv">
+			<?php
+			foreach($assocArr as $assocUnit){
+				echo '<div>';
+				$occidAssoc = $assocUnit['occidAssociate'];
+				if($occidAssoc) echo '<a href="#" onclick="openIndividual('.$occidAssoc.')">'.$assocUnit['collcode'].'-'.$assocUnit['catnum'].'</a>: ';
+				else echo '<a href="'.$assocUnit['resourceUrl'].'" target="_blank">'.$assocUnit['externalIdentifier'].'</a>: ';
+				echo '<span title="Defined by: '.$assocUnit['definedBy'].' ('.$assocUnit['ts'].')'.'">'.$assocUnit['relationship'].($assocUnit['subType']?', '.$assocUnit['subType']:'').'</span>';
+				echo '</div>';
+			}
+			?>
+		</div>
+	</fieldset>
+
+	<?php
 	$userChecklists = $occManager->getUserChecklists();
 	$checklistArr = $occManager->getVoucherChecklists();
 	?>
@@ -137,7 +271,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 </div>
 <div id="duplicatediv" style="margin-top:20px;">
 	<fieldset>
-		<legend><b>Duplicate Specimens</b></legend>
+		<legend><b>Specimen Duplicates</b></legend>
 		<div style="float:right;margin-right:15px;">
 			<button onclick="openDupeWindow();return false;">Search for Records to Link</button>
 		</div>

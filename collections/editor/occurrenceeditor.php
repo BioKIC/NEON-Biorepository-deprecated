@@ -648,6 +648,10 @@ else{
 												<a href="includes/imagetab.php?<?php echo $anchorVars; ?>"
 													style="">Images</a>
 											</li>
+											<li id="resourceTab">
+												<a href="includes/resourcetab.php?<?php echo $anchorVars; ?>"
+													style="">Linked Resources</a>
+											</li>
 											<?php
 											if($occManager->traitCodingActivated()){
 												$traitAnchor = $anchorVars;
@@ -659,10 +663,6 @@ else{
 												<?php
 											}
 											?>
-											<li id="resourceTab">
-												<a href="includes/resourcetab.php?<?php echo $anchorVars; ?>"
-													style="">Linked Resources</a>
-											</li>
 											<li id="adminTab">
 												<a href="includes/admintab.php?<?php echo $anchorVars; ?>"
 													style="">Admin</a>

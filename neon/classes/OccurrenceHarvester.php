@@ -1,5 +1,6 @@
 <?php
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
+include_once($SERVER_ROOT.'/config/symbini.php');
 
 class OccurrenceHarvester{
 
@@ -131,7 +132,7 @@ class OccurrenceHarvester{
 		$this->setSampleErrorMessage($sampleArr['samplePK'], '');
 		//Verify central identifiers
 		if($sampleArr['sampleCode']){
-			$url = 'https://data.neonscience.org/api/v0/samples/view?barcode='.$sampleArr['sampleCode'];
+			$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$NEON_API_KEY.'&barcode='.$sampleArr['sampleCode'];
 			$viewArr = $this->getSampleApiData($url);
 			if($viewArr){
 				if($viewArr['sampleTag'] != $sampleArr['sampleID']){
@@ -153,7 +154,7 @@ class OccurrenceHarvester{
 		if(!$viewArr){
 			if($sampleArr['sampleID'] && $sampleArr['sampleClass']){
 				//If sampleId and sampleClass are not correct, nothing will be returned
-				$url = 'https://data.neonscience.org/api/v0/samples/view?sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
+        $url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$NEON_API_KEY.'&sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
 				//echo $url;
 				$viewArr = $this->getSampleApiData($url);
 				if($viewArr){
@@ -372,7 +373,7 @@ class OccurrenceHarvester{
 
 	private function adjustMosquitoData(&$sampleArr, &$dwcArr){
 		$parentID = $sampleArr['parentID'];
-		$url = 'https://data.neonscience.org/api/v0/samples/view?sampleUuid=';
+		$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$NEON_API_KEY.'&sampleUuid=';
 		do{
 			$urlActive = $url.$parentID;
 			$parentID = '';
@@ -404,7 +405,7 @@ class OccurrenceHarvester{
 	private function setNeonLocationData(&$dwcArr, $locationName){
 		//https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
 		//echo 'loc name1: '.$locationName.'<br/>';
-		$url = 'https://data.neonscience.org/api/v0/locations/'.$locationName;
+		$url = 'https://data.neonscience.org/api/v0/locations/'.$locationName.'?apiToken='.$NEON_API_KEY;
 		$resultArr = $this->getNeonApiArr($url);
 		//echo 'url: '.$url.'<br/>'; print_r($resultArr); echo '<br/><br/>';
 		if(!$resultArr) return false;
@@ -709,7 +710,7 @@ class OccurrenceHarvester{
 
 	private function setSampleClassArr(){
 		$status = false;
-		$result = $this->getNeonApiArr('https://data.neonscience.org/api/v0/samples/supportedClasses');
+		$result = $this->getNeonApiArr('https://data.neonscience.org/api/v0/samples/supportedClasses?apiToken='.$NEON_API_KEY);
 		if(isset($result['entries'])){
 			foreach($result['entries'] as $k => $classArr){
 				$this->sampleClassArr[$classArr['key']] = $classArr['value'];

@@ -1,10 +1,10 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-include_once('../../config/symbini.php');
+include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/neon/classes/OccurrenceHarvester.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/shipment/occurrenceharvester.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/occurrenceharvester.php?'.$_SERVER['QUERY_STRING']);
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 
@@ -28,8 +28,8 @@ if($isEditor){
 	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
-	<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
-	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		function selectAll(cbObj){
 			var boxesChecked = true;
@@ -64,8 +64,8 @@ $displayLeftMenu = false;
 include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class="navpath">
-	<a href="../../index.php">Home</a> &gt;&gt;
-	<a href="../index.php">NEON Biorepository Tools</a> &gt;&gt;
+	<a href="../index.php">Home</a> &gt;&gt;
+	<a href="index.php">NEON Biorepository Tools</a> &gt;&gt;
 	<a href="manifestsearch.php">Manifest Search</a> &gt;&gt;
 	<a href="occurrenceharvester.php"><b>Occurrence Harvester</b></a>
 </div>

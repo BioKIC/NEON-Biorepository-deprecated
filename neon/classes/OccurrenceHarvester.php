@@ -1,6 +1,5 @@
 <?php
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
-include_once($SERVER_ROOT.'/config/symbini.php');
 
 class OccurrenceHarvester{
 
@@ -13,7 +12,7 @@ class OccurrenceHarvester{
 
  	public function __construct(){
 		$this->conn = MySQLiConnectionFactory::getCon("write");
-		$this->NEON_API_KEY = $GLOBALS['NEON_API_KEY'];
+		if(isset($GLOBALS['NEON_API_KEY'])) $this->NEON_API_KEY = $GLOBALS['NEON_API_KEY'];
  	}
 
  	public function __destruct(){

@@ -20,18 +20,36 @@ class OccurrenceHarvester{
 	}
 
 	//Occurrence harvesting functions
-	public function getHarvestReport(){
+	public function getHarvestReport($shipmentPK){
 		$retArr = array();
 		$sql = 'SELECT SUBSTRING_INDEX(s.errorMessage,":",1) AS errMsg, COUNT(s.samplePK) as sampleCnt, COUNT(o.occid) as occurrenceCnt '.
 			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 '.
-			'GROUP BY errMsg';
+			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1  AND s.acceptedForAnalysis = 1 ';
+		if($shipmentPK) $sql .= 'AND s.shipmentPK = '.$shipmentPK;
+		$sql .= ' GROUP BY errMsg';
 		$rs= $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$errMsg = $r->errMsg;
 			if(!$errMsg) $errMsg = 'null';
 			$retArr[$errMsg]['s-cnt'] = $r->sampleCnt;
 			$retArr[$errMsg]['o-cnt'] = $r->occurrenceCnt;
+		}
+		$rs->free();
+		return $retArr;
+	}
+
+	public function getShipmentList(){
+		$retArr = array();
+		$sql = 'SELECT m.shipmentPK, m.shipmentID, COUNT(s.samplePK) as sampleCnt, COUNT(s.errorMessage) as errCnt '.
+			'FROM NeonSample s INNER JOIN NeonShipment m ON s.shipmentPK = m.shipmentPK '.
+			'LEFT JOIN omoccurrences o ON s.occid = o.occid '.
+			'WHERE o.occid IS NULL AND s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 '.
+			'GROUP BY m.shipmentID';
+		$rs= $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->shipmentPK]['shipmentID'] = $r->shipmentID;
+			$retArr[$r->shipmentPK]['sampleCnt'] = $r->sampleCnt;
+			$retArr[$r->shipmentPK]['errCnt'] = $r->errCnt;
 		}
 		$rs->free();
 		return $retArr;
@@ -61,7 +79,7 @@ class OccurrenceHarvester{
 			}
 			$sqlWhere .= 'ORDER BY s.shipmentPK ';
 			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
-			else  $sqlWhere .= 'LIMIT 1000 ';
+			else $sqlWhere .= 'LIMIT 1000 ';
 		}
 		if($sqlWhere){
 			$this->setStateArr();
@@ -155,7 +173,7 @@ class OccurrenceHarvester{
 		if(!$viewArr){
 			if($sampleArr['sampleID'] && $sampleArr['sampleClass']){
 				//If sampleId and sampleClass are not correct, nothing will be returned
-        $url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->NEON_API_KEY.'&sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
+				$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->NEON_API_KEY.'&sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
 				//echo $url;
 				$viewArr = $this->getSampleApiData($url);
 				if($viewArr){

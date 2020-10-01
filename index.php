@@ -18,6 +18,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
+	<script src="<?PHP echo $CLIENT_ROOT; ?>/js/jquery.slides.js"></script>
 </head>
 <body>
 	<?php
@@ -31,7 +32,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<div style="float:right;margin-left:15px">
 			<!--
 			<div>
-				<?php
+				//<?php
 				//---------------------------SLIDESHOW SETTINGS---------------------------------------
 				//If more than one slideshow will be active, assign unique numerical ids for each slideshow.
 				//If only one slideshow will be active, leave set to 1.
@@ -48,9 +49,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				//leave as 0 if you do not wish for images to come from a checklist
 				//if you would like to use more than one checklist, separate their ids with a comma ex. "1,2,3,4"
 				//$clid = '1279';
-				$clid = '2';
+				$clid = '39';
 				//Enter field, specimen, or both to specify whether to use only field or specimen images, or both
-				$imageType = 'field';
+				$imageType = 'specimen';
 				//Enter number of days of most recent images that should be included
 				$numDays = 30;
 
@@ -59,15 +60,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				//include_once($SERVER_ROOT.'/classes/PluginsManager.php');
 				//$pluginManager = new PluginsManager();
 				//echo $pluginManager->createSlideShow($ssId,$numSlides,$width,$numDays,$imageType,$clid,$dayInterval,$interval);
-				?>
+				//?>
 			//---------------------------END SLIDESHOW SETTINGS---------------------------------------
 		</div>
 			-->
 		</div>
 		<div style="padding: 0px 10px;font-size:120%">
-
-			<h1 style="font-family:'Mate', serif">Welcome to the Consortium of California Herbaria Portal (CCH2)</h1>
-			<div id="quicksearchdiv" style="float:right;padding: 30px 50px 10px 20px;font-family:'Mate', serif">
+			<h1 style="font-family:'Mate', serif">Welcome to the CCH2 data portal</h1>
+			<div id="quicksearchdiv" style="float:right;padding: 10px 20px 10px 20px;font-family:'Mate', serif">
 				<!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
 				<form name="quicksearch" id="quicksearch" action="<?php echo $CLIENT_ROOT; ?>/taxa/index.php" method="get" onsubmit="return verifyQuickSearch(this);">
 					<div id="quicksearchtext" style="font-family:'Mate', serif">Search Taxon</div>
@@ -76,12 +76,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				</form>
 			</div>
 			<p style="font-family:'Mate', serif">
-				<b>CCH2</b> serves data from specimens housed in CCH member herbaria. These data are currently growing due to the work of the
-				<b>California Phenology Thematic Collections Network</b> (<b>CAP-TCN;</b> <a href="https://www.capturingcaliforniasflowers.org" target="_blank">https://www.capturingcaliforniasflowers.org</a>).
-				This collaboration of 22 California universities, research stations,
-				natural history collections, and botanical gardens aims to capture images, label data, and phenological (i.e., flowering time)
-				data from nearly 1 million herbarium specimens by 2022. Data contained in the CCH2 portal will continue to grow even after
-				this time through the activities of the CCH member institutions.
+				<b>CCH2</b> serves data from specimens housed in member herbaria of the <b>Consortium of California Herbaria (CCH)</b>. This portal has a worldwide scope and a broad taxonomic basis including vascular plants, bryophytes, algae, fungi, and lichens.
+			</p>
+			<p style="font-family:'Mate', serif">	
+				These data are currently growing due to the work of the <b>California Phenology Thematic Collections Network</b> (<b>CAP-TCN;</b> <a href="https://www.capturingcaliforniasflowers.org" target="_blank">https://www.capturingcaliforniasflowers.org</a>).
+				This collaboration of 28 universities, research stations, natural history collections, and botanical gardens aims to capture images, label data, and phenological (i.e., flowering time)
+				data from nearly 1 million herbarium specimens by 2022. Data contained in the CCH2 portal
+				will continue to grow even after this time through the activities of the CCH member institutions.
 			</p>
 			<p style="font-family:'Mate', serif">
 				The CCH2 portal is managed by UC Berkeley and Cal Poly, San Luis Obispo.
@@ -98,8 +99,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				please contact Jason Alexander (<a href="mailto:jason_alexander@berkeley.edu">jason_alexander@berkeley.edu</a>) or Katie Pearson (<a href="mailto:kdpearso@calpoly.edu">kdpearso@calpoly.edu</a>).
             </div>
 
-			<div style="margin-top:15px;padding: 0px 10px;font-family:'Mate', serif">
-            	<b>More California specimen data may be found at the following portals:</b>
+			<div style="margin-top:15px;padding: 0px 0px;font-family:'Mate', serif">
+            <b>More California specimen data may be found at the following portals:</b>
 				<ul>
                     <li>Only California vascular plants, linked to the statewide Jepson eFlora project: <a href="http://ucjeps.berkeley.edu/consortium/" target="_blank">CCH1 Portal</a></li>
 					<li>Bryophytes: <a hrf="http://bryophyteportal.org" target="_blank">Consortium of North American Bryophyte Herbaria</a></li>

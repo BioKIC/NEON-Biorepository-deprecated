@@ -168,7 +168,7 @@ class OccurrenceLabel{
 		return $retArr;
 	}
 
-	public function getLabelArray($occidArr, $speciesAuthors){
+	public function getLabelArray($occidArr, $speciesAuthors = false){
 		$retArr = array();
 		if($occidArr){
 			$authorArr = array();
@@ -391,6 +391,10 @@ class OccurrenceLabel{
 			$this->collid = $collid;
 			$this->setCollMetadata();
 		}
+	}
+
+	public function getCollid(){
+		return $this->collid;
 	}
 
 	public function getCollName(){

@@ -197,6 +197,99 @@ class ImageProcessor {
 		return true;
 	}
 
+	//iDigBio Image ingestion processing functions
+	public function processiDigBioOutput($pmTerm,$postArr){
+		$status = '';
+		$this->matchCatalogNumber = (array_key_exists('matchcatalognumber', $postArr)?1:0);
+		$this->matchOtherCatalogNumbers = (array_key_exists('matchothercatalognumbers', $postArr)?1:0);
+		$idigbioImageUrl = 'https://api.idigbio.org/v2/media/';
+		$this->initProcessor('idigbio');
+		$collStr = $this->collArr['instcode'].($this->collArr['collcode']?'-'.$this->collArr['collcode']:'');
+		$this->logOrEcho('Starting image processing for '.$collStr.' ('.date('Y-m-d h:i:s A').')');
+		if($pmTerm){
+			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/idigbio_'.time().'.csv';
+			if(move_uploaded_file($_FILES['idigbiofile']['tmp_name'],$fullPath)){
+				if($fh = fopen($fullPath,'rb')){
+					$headerArr = fgetcsv($fh,0,',');
+					$origFileNameIndex = (in_array('OriginalFileName',$headerArr)?array_search('OriginalFileName',$headerArr):(in_array('idigbio:OriginalFileName',$headerArr)?array_search('idigbio:OriginalFileName',$headerArr):''));
+					$mediaMd5Index = (in_array('MediaMD5',$headerArr)?array_search('MediaMD5',$headerArr):(in_array('ac:hashValue',$headerArr)?array_search('ac:hashValue',$headerArr):''));
+					if(is_numeric($origFileNameIndex) && is_numeric($mediaMd5Index)){
+						while(($data = fgetcsv($fh,1000,",")) !== FALSE){
+							if(isset($data[$mediaMd5Index]) && $data[$mediaMd5Index]){
+								$origFileName = basename($data[$origFileNameIndex]);
+								//basename() function is system specific, thus following code needed to parse filename independent of source file from PC, Mac, etc
+								if(strpos($origFileName,'/') !== false){
+									$origFileName = substr($origFileName,(strrpos($origFileName,'/')+1));
+								}
+								elseif(strpos($origFileName,'\\') !== false){
+									$origFileName = substr($origFileName,(strrpos($origFileName,'\\')+1));
+								}
+								if(preg_match($pmTerm,$origFileName,$matchArr)){
+									if(array_key_exists(1,$matchArr) && $matchArr[1]){
+										$specPk = $matchArr[1];
+										if($postArr['patternreplace']) $specPk = preg_replace($postArr['patternreplace'],$postArr['replacestr'],$specPk);
+										$occid = $this->getOccid($specPk,$origFileName);
+										if($occid){
+											$fieldArr = array();
+											//Image hasn't been loaded, thus insert image urls into image table
+											$baseUrl = $idigbioImageUrl.$data[$mediaMd5Index];
+											$fieldArr['url'] = $baseUrl.'?size=webview';
+											$fieldArr['thumbnailurl'] = $baseUrl.'?size=thumbnail';
+											//$fieldArr['originalurl'] = $baseUrl.'?size=fullsize';
+											$fieldArr['originalurl'] = $baseUrl;
+											$fieldArr['archiveurl'] = $this->collArr['collname'];
+											$fieldArr['owner'] = $this->collArr['collname'];
+											$fieldArr['sourceIdentifier'] = $origFileName;
+											$this->databaseImage($occid,$fieldArr);
+										}
+									}
+								}
+								else{
+									$this->logOrEcho('NOTICE: File skipped, unable to extract specimen identifier ('.$origFileName.', pmTerm: '.$pmTerm.')',2);
+								}
+							}
+							else{
+								$errMsg = '';
+								$errIndex = array_search('idigbio:mediaStatusDetail',$headerArr);
+								if($errIndex && isset($data[$errIndex])) $errMsg = trim($data[$errIndex]);
+								if($errMsg) $this->logOrEcho('NOTICE: File skipped due to apparent iDigBio upload failure (iDigBio Error:'.$errMsg.') ',2);
+							}
+						}
+						$this->cleanHouse(array($this->collid));
+						$this->logOrEcho("Image upload process finished! (".date('Y-m-d h:i:s A').") \n");
+					}
+					else{
+						//Output to error log file
+						$this->logOrEcho('Bad input fields: '.$origFileNameIndex.', '.$mediaMd5Index,2);
+					}
+					fclose($fh);
+				}
+				else{
+					$this->logOrEcho('Cannot open input file',2);
+				}
+				unlink($fullPath);
+			}
+		}
+		else{
+			$this->logOrEcho('ERROR: Pattern matching term has not been defined ',2);
+		}
+		return $status;
+	}
+
+	public function initiateFileUpload(){
+		$this->initProcessor('imageFile');
+		$collStr = $this->collArr['instcode'].($this->collArr['collcode']?'-'.$this->collArr['collcode']:'');
+		$this->logOrEcho('Starting image processing for '.$collStr.' ('.date('Y-m-d h:i:s A').')');
+		if($pmTerm){
+			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/idigbio_'.time().'.csv';
+			if(move_uploaded_file($_FILES['idigbiofile']['tmp_name'],$fullPath)){
+				if($fh = fopen($fullPath,'rb')){
+					$headerArr = fgetcsv($fh,0,',');
+				}
+			}
+		}
+	}
+
 	//Image file upload
 	public function loadImageFile(){
 		$inFileName = basename($_FILES['uploadfile']['name']);
@@ -486,7 +579,7 @@ class ImageProcessor {
 
 	private function databaseImage($occid,$targetFieldArr){
 		$status = true;
-		if($occid){
+		if($occid && $targetFieldArr){
 			$format = 'image/jpeg';
 			/*
 			$testUrl = $lgUrl;
@@ -514,13 +607,14 @@ class ImageProcessor {
 			}
 			else{
 				$status = false;
-				$this->logOrEcho("ERROR: Unable to load image record into database: ".$this->conn->error,3);
+				$this->logOrEcho('ERROR: Unable to load image record into database: '.$this->conn->error,3);
 				//$this->logOrEcho($sql);
 			}
 		}
 		else{
 			$status = false;
-			$this->logOrEcho("ERROR: Missing occid (omoccurrences PK), unable to load record ",2);
+			if(!$occid) $this->logOrEcho('ERROR: Missing occid (omoccurrences PK), unable to load record ',2);
+			else $this->logOrEcho('ERROR: Missing image data, unable to load record ',2);
 		}
 		return $status;
 	}

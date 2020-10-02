@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Espa�ol (Spanish)
+Language: Espa�ol (Spanish)
 ------------------
 */
 
@@ -17,19 +17,18 @@ $LANG['H_IMAGES'] = 'Im&aacute;genes';
 $LANG['H_IMAGE_BROWSER'] = 'Navegador de Im&aacute;genes';
 $LANG['H_IMAGE_SEARCH'] = 'B&uacute;squeda de Im&aacute;genes';
 
-$LANG['H_INVENTORIES'] = 'Biota de L&iacute;quenes';
-$LANG['H_CENTRAL_AMER'] = 'América Central';
-$LANG['H_ECUADOR'] = 'Ecuador';
-$LANG['H_SUBPOLAR'] = 'Región Subpolar del Sur';
+$LANG['H_INVENTORIES'] = 'Lista de Especies';
+$LANG['H_PROJECT_1'] = 'Proyecto 1';
+$LANG['H_PROJECT_2'] = 'Proyecto 2';
+$LANG['H_PROJECT_3'] = 'Proyecto 3';
+$LANG['H_PROJECT_4'] = 'Proyecto 4';
 
 $LANG['H_MORE_INFO'] = 'M&aacute;s Informaci&oacute;n';
-$LANG['H_SYMBIOTA'] = 'Symbiota';
+$LANG['H_ABOUT_PROJECT'] = 'Información sobre el Proyecto';
+$LANG['H_PARTNERS'] = 'Socios';
+$LANG['H_CONTACTS'] = 'Contactos';
 $LANG['H_HELP'] = 'Ayuda de Symbiota';
 $LANG['H_SITEMAP'] = 'Mapa del Sitio';
-
-$LANG['H_CONTACTS'] = 'Contactos';
-$LANG['H_PARTNERS'] = 'Socios';
-$LANG['H_RESPONSIBLE'] = 'Responsables';
 
 $LANG['H_WELCOME'] = 'Bienvenido';
 $LANG['H_MY_PROFILE'] = 'Mi Perfil';

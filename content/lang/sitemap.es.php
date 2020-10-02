@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Espa�ol (Spanish)
+Language: Espa�ol (Spanish)
 ------------------
 */
 
@@ -59,7 +59,7 @@ funcionalidad. ';
 $LANG['BASICFIELD'] = 'Procedimiento b&aacute;sico para subir im&aacute;genes del campo';
 $LANG['IMGOBSER'] = 'Modulo para subir Im&aacute;genes de Observaci&oacute;n';
 $LANG['SELECTCHECK'] = 'Seleccionar lista de especies';
-$LANG['ADDNEWPROJ'] = 'A&‌ntilde;adir nuevo proyecto';
+$LANG['ADDNEWPROJ'] = 'Añadir nuevo proyecto';
 $LANG['LISTOFCURR'] = 'Listado de proyectos actuales';
 $LANG['CLICKEDIT'] = '(hace clic aqu&iacute; para editar)';
 $LANG['NOPROJ'] = 'No hay proyectos en el sistema';
@@ -73,7 +73,7 @@ $LANG['TAXTREE'] = 'Visualizador del &aacute;rbol taxon&oacute;mico';
 $LANG['DYNTAXTREE'] = 'Navegador de Taxonom&iacute;a';
 $LANG['EDITTAXPL'] = 'Editar ubicaci&oacute;n taxon&oacute;mica (hay que usar';
 $LANG['TAXTREEVIEW'] = 'visualizador del &aacute;rbol taxon&oacute;mico)';
-$LANG['ADDTAXANAME'] = 'A&‌ntilde;adir nuevo nombre de un taxon';
+$LANG['ADDTAXANAME'] = 'Añadir nuevo nombre de un taxon';
 $LANG['BATCHTAXA'] = 'Subir masivo de un archivo taxon&oacute;mico';
 $LANG['EOLLINK'] = 'Gesti&oacute;n de enlaces al Encyclopedia of Life';
 $LANG['NOTEDITTAXA'] = 'Usted no esta autorizado/a de editar la taxonom&iacute;a';
@@ -119,5 +119,5 @@ $LANG['TEXTDESC'] = 'Descripciones textuales';
 $LANG['PERSONAL'] = 'Gesti&oacute;n del manejo personal de especimenes y imprimir etiquetas';
 $LANG['EDITIMG'] = 'Modificar Im&aacute;genes';
 $LANG['IMGSORTORD'] = 'Modificar la secuencia de im&aacute;genes';
-$LANG['ADDNEWIMG'] = 'A&‌ntilde;adir nuevo imagen';
+$LANG['ADDNEWIMG'] = 'Añadir nuevo imagen';
 ?>

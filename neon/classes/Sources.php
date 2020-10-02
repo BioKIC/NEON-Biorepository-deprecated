@@ -87,6 +87,43 @@ class Sources extends Manager {
     }
     return $dataArr;
   }
+
+  // Gets a list of taxa with Symbiota sources and NEON codes
+  public function getTaxaWithSources(){
+    $dataArr = array();
+
+    $sql = 'SELECT * FROM taxsources LIMIT 10';
+
+    $result = $this->conn->query($sql);
+
+    if ($result->num_rows > 0){
+      //output data of each row
+      while($row = $result->fetch_assoc()){
+        $dataArr[] = $row;
+      }
+      $result->free();
+    }
+    else {
+      $this->errorMessage = 'Taxa with sources query was not successfull';
+      $dataArr = false;
+    }
+    return $dataArr;
+  }
+
+  // Gets taxon reference from NEON API
+  // Needs to handle multiple responses... currently just gets first one
+  public function getNeonSourcesFromAPI($sciname){
+    $apiUrl = 'https://data.neonscience.org/api/v0/taxonomy?scientificname='.urlencode($sciname);
+    
+    if($resJson = file_get_contents($apiUrl)){
+      $resArr = json_decode($resJson, true);
+      $source = $resArr['data'][0]['dwc:nameAccordingToID'];
+    }
+    else {
+      $source = 'error';
+    };
+    return $source;
+  }
 	
   // Formats array in tabular form (pass array name and headers array as arguments)
   public function htmlTable($data, $headerArr){

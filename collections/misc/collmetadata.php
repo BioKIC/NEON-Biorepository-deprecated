@@ -724,7 +724,7 @@ $collManager->cleanOutArr($collData);
 							echo '<div>';
 							echo $instArr['institutionname'].($instArr['institutioncode']?' ('.$instArr['institutioncode'].')':'');
 							?>
-							<a href="../admin/institutioneditor.php?emode=1&targetcollid=<?php echo $collid.'&iid='.$instArr['iid']; ?>" title="Edit institution address">
+							<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid.'&iid='.$instArr['iid']; ?>" title="Edit institution address">
 								<img src="../../images/edit.png" style="width:14px;" />
 							</a>
 							<a href="collmetadata.php?collid=<?php echo $collid.'&removeiid='.$instArr['iid']; ?>" title="Unlink institution address">
@@ -765,7 +765,7 @@ $collManager->cleanOutArr($collData);
 								<input name="action" type="submit" value="Link Address" />
 							</form>
 							<div style="margin:15px;">
-								<a href="../admin/institutioneditor.php?emode=1&targetcollid=<?php echo $collid; ?>" title="Add a new address not on the list">
+								<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid; ?>" title="Add a new address not on the list">
 									<b>Add an institution not on list</b>
 								</a>
 							</div>

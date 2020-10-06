@@ -61,7 +61,7 @@ if(!$transInstList) echo '<script type="text/javascript">displayNewExchange();</
 					</select>
 				</span>
 				<span>
-					<a href="../admin/institutioneditor.php?emode=1" target="_blank" title="Add a New Institution">
+					<a href="../misc/institutioneditor.php?emode=1" target="_blank" title="Add a New Institution">
 						<img src="../../images/add.png" style="width:15px;" />
 					</a>
 				</span>

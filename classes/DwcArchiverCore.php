@@ -157,40 +157,45 @@ class DwcArchiverCore extends Manager{
 				'FROM omcollections c LEFT JOIN institutions i ON c.iid = i.iid '.
 				'WHERE '.$sqlWhere;
 			//echo 'SQL: '.$sql.'<br/>';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$this->collArr[$r->collid]['instcode'] = $r->institutioncode;
-				$this->collArr[$r->collid]['collcode'] = $r->collectioncode;
-				$this->collArr[$r->collid]['collname'] = $r->collectionname;
-				$this->collArr[$r->collid]['description'] = $r->fulldescription;
-				$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
-				$this->collArr[$r->collid]['url'] = $r->url;
-				$this->setContacts($r->collid, $r->contact, $r->email);
-				$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
-				$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
-				$this->collArr[$r->collid]['lat'] = $r->latitudedecimal;
-				$this->collArr[$r->collid]['lng'] = $r->longitudedecimal;
-				$this->collArr[$r->collid]['icon'] = $r->icon;
-				$this->collArr[$r->collid]['colltype'] = $r->colltype;
-				$this->collArr[$r->collid]['managementtype'] = $r->managementtype;
-				$this->collArr[$r->collid]['rights'] = $r->rights;
-				$this->collArr[$r->collid]['rightsholder'] = $r->rightsholder;
-				$this->collArr[$r->collid]['usageterm'] = $r->usageterm;
-				$this->collArr[$r->collid]['address1'] = $r->address1;
-				$this->collArr[$r->collid]['address2'] = $r->address2;
-				$this->collArr[$r->collid]['city'] = $r->city;
-				$this->collArr[$r->collid]['state'] = $r->stateprovince;
-				$this->collArr[$r->collid]['postalcode'] = $r->postalcode;
-				$this->collArr[$r->collid]['country'] = $r->country;
-				$this->collArr[$r->collid]['phone'] = $r->phone;
-				if($r->dynamicproperties){
-					$propArr = json_decode($r->dynamicproperties,true);
-					if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
-						if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->hasPaleo = true;
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$this->collArr[$r->collid]['instcode'] = $r->institutioncode;
+					$this->collArr[$r->collid]['collcode'] = $r->collectioncode;
+					$this->collArr[$r->collid]['collname'] = $r->collectionname;
+					$this->collArr[$r->collid]['description'] = $r->fulldescription;
+					$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
+					$this->collArr[$r->collid]['url'] = $r->url;
+					$this->setContacts($r->collid, $r->contact, $r->email);
+					$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
+					$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
+					$this->collArr[$r->collid]['lat'] = $r->latitudedecimal;
+					$this->collArr[$r->collid]['lng'] = $r->longitudedecimal;
+					$this->collArr[$r->collid]['icon'] = $r->icon;
+					$this->collArr[$r->collid]['colltype'] = $r->colltype;
+					$this->collArr[$r->collid]['managementtype'] = $r->managementtype;
+					$this->collArr[$r->collid]['rights'] = $r->rights;
+					$this->collArr[$r->collid]['rightsholder'] = $r->rightsholder;
+					$this->collArr[$r->collid]['usageterm'] = $r->usageterm;
+					$this->collArr[$r->collid]['address1'] = $r->address1;
+					$this->collArr[$r->collid]['address2'] = $r->address2;
+					$this->collArr[$r->collid]['city'] = $r->city;
+					$this->collArr[$r->collid]['state'] = $r->stateprovince;
+					$this->collArr[$r->collid]['postalcode'] = $r->postalcode;
+					$this->collArr[$r->collid]['country'] = $r->country;
+					$this->collArr[$r->collid]['phone'] = $r->phone;
+					if($r->dynamicproperties){
+						if($propArr = json_decode($r->dynamicproperties,true)){
+							if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
+								if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->hasPaleo = true;
+							}
+							if(isset($propArr['publicationProps']['titleOverride']) && $propArr['publicationProps']['titleOverride']){
+								$this->collArr[$r->collid]['collname'] = $propArr['publicationProps']['titleOverride'];
+							}
+						}
 					}
 				}
+				$rs->free();
 			}
-			$rs->free();
 		}
 	}
 

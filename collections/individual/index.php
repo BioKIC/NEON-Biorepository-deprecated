@@ -670,7 +670,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								<?php
 							}
 							if($occArr['localitysecurity'] == 1){
-								echo '<div style="margin-left:10px;color:orange">Locality protection applied for non-authorized users</div>';
+								echo '<div style="margin-left:10px;color:orange">Locality protection applied for non-authorized users (current user: approved to view)</div>';
 							}
 							if($occArr['habitat']){
 								?>

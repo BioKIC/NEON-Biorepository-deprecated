@@ -227,10 +227,37 @@ if($SYMB_UID){
 									<?php if($commCnt = $collManager->unreviewedCommentsExist()) echo '- <span style="color:orange">'.$commCnt.' '.(isset($LANG['UNREVIEWED_COMMENTS'])?$LANG['UNREVIEWED_COMMENTS']:'unreviewed comments').'</span>'; ?>
 								</li>
 								<li>
-									<a href="collmetadata.php?collid=<?php echo $collid; ?>" >
+									<a href="collmetadata.php?collid=<?php echo $collid; ?>">
 										<?php echo $LANG['EDIT_META']; ?>
 									</a>
 								</li>
+								<!--
+								<li>
+									<a href="" onclick="$('li.metadataItem').show(); return false;"  >
+										<?php echo $LANG['OPEN_META']; ?>
+									</a>
+								</li>
+								<li class="metadataItem" style="margin-left:10px;display:none;">
+									<a href="collmetadata.php?collid=<?php echo $collid; ?>">
+										<?php echo $LANG['EDIT_META']; ?>
+									</a>
+								</li>
+								<li class="metadataItem" style="margin-left:10px;display:none;">
+									<a href="collcontact.php?collid=<?php echo $collid; ?>" >
+										<?php echo $LANG['EDIT_CONTACT']; ?>
+									</a>
+								</li>
+								<li class="metadataItem" style="margin-left:10px;display:none;">
+									<a href="colladdress.php?collid=<?php echo $collid; ?>">
+										<?php echo $LANG['EDIT_ADDRESS']; ?>
+									</a>
+								</li>
+								<li class="metadataItem" style="margin-left:10px;display:none;">
+									<a href="collproperties.php?collid=<?php echo $collid; ?>">
+										<?php echo $LANG['EDIT_COLL_PROPS']; ?>
+									</a>
+								</li>
+								 -->
 								<li>
 									<a href="collpermissions.php?collid=<?php echo $collid; ?>" >
 										<?php echo $LANG['MANAGE_PERMISSIONS']; ?>
@@ -403,7 +430,7 @@ if($SYMB_UID){
 						<div style="float:left;margin-left:10px;">
 							<?php
 							echo "<div>".$addrArr["institutionname"];
-							if($editCode > 1) echo ' <a href="../admin/institutioneditor.php?emode=1&targetcollid='.$collid.'&iid='.$addrArr['iid'].'" title="'.(isset($LANG['EDIT_INST'])?$LANG['EDIT_INST']:'Edit institution information').'"><img src="../../images/edit.png" style="width:13px;" /></a>';
+							if($editCode > 1) echo ' <a href="institutioneditor.php?emode=1&targetcollid='.$collid.'&iid='.$addrArr['iid'].'" title="'.(isset($LANG['EDIT_INST'])?$LANG['EDIT_INST']:'Edit institution information').'"><img src="../../images/edit.png" style="width:13px;" /></a>';
 							echo '</div>';
 							if($addrArr["institutionname2"]) echo "<div>".$addrArr["institutionname2"]."</div>";
 							if($addrArr["address1"]) echo "<div>".$addrArr["address1"]."</div>";

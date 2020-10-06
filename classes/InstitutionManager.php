@@ -1,14 +1,13 @@
 <?php
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 
-//Used by /collections/misc/collprofiles.php page
 class InstitutionManager {
 
 	private $conn;
 	private $iid;
 	private $collid;
 	private $errorStr;
-	
+
 	public function __construct(){
 		$this->conn = MySQLiConnectionFactory::getCon("write");
 	}
@@ -112,7 +111,7 @@ class InstitutionManager {
 		}
 		$rs->free();
 		if(!$status) return false;
-		
+
 		//Check outgoing and incoming loans
 		$sql = 'SELECT loanid '.
 			'FROM omoccurloans '.
@@ -135,7 +134,7 @@ class InstitutionManager {
 		}
 		return $status;
 	}
-	
+
 	public function removeCollection($collid){
 		$status = true;
 		$sql = 'UPDATE omcollections SET iid = NULL WHERE collid = '.$collid;
@@ -146,7 +145,7 @@ class InstitutionManager {
 		}
 		return $status;
 	}
-	
+
 	public function addCollection($collid,$iid){
 		$status = true;
 		if(is_numeric($collid) && is_numeric($iid)){
@@ -159,20 +158,20 @@ class InstitutionManager {
 		}
 		return $status;
 	}
-	
+
 	public function setInstitutionId($id){
 		if(is_numeric($id)){
 			$this->iid = $id;
 		}
 	}
-	
+
 	public function getInstitutionId(){
 		return $this->iid;
 	}
 
 	public function getErrorStr(){
 		return $this->errorStr;
-	} 
+	}
 
 	public function getInstitutionList(){
 		$retArr = Array();
@@ -217,7 +216,7 @@ class InstitutionManager {
 		}
 		return $outArr;
 	}
-	
+
  	private function cleanOutStr($str){
 		$newStr = str_replace('"',"&quot;",$str);
 		$newStr = str_replace("'","&apos;",$newStr);

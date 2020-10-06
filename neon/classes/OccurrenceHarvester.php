@@ -94,6 +94,7 @@ class OccurrenceHarvester{
 				//echo $sql.'<br/>'; exit;
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
+					$this->errorStr = '';
 					if($shipmentPK != $r->shipmentPK){
 						$shipmentPK = $r->shipmentPK;
 						echo '<li><b>Processing shipment #'.$shipmentPK.'</b></li>';
@@ -116,8 +117,10 @@ class OccurrenceHarvester{
 						if($dwcArr = $this->harvestNeonOccurrence($sampleArr)){
 							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
 								$occidArr[] = $occid;
-								echo '<a href="../../collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a></li>';
+								echo '<a href="../collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
 							}
+							if($this->errorStr) echo '</li><li style="margin-left:30px">WARNING: '.$this->errorStr.'</li>';
+							else echo '</li>';
 						}
 						else{
 							echo '</li><li style="margin-left:30px">'.$this->errorStr.'</li>';
@@ -344,7 +347,8 @@ class OccurrenceHarvester{
 				}
 				else{
 					$dwcArr['locality'] = $sampleArr['namedLocation'];
-					$this->setSampleErrorMessage($sampleArr['samplePK'], 'locality data failed to populate');
+					$this->errorStr = 'locality data failed to populate';
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 					//return false;
 				}
 

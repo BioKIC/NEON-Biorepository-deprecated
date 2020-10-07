@@ -6,10 +6,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
 $collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $recLimit = array_key_exists('reclimit',$_REQUEST)?$_REQUEST['reclimit']:1000;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:0;
-$ouid = array_key_exists('ouid',$_REQUEST)?$_REQUEST['ouid']:0;
 $crowdSourceMode = array_key_exists('csmode',$_REQUEST)?$_REQUEST['csmode']:0;
-$reset = array_key_exists('reset',$_REQUEST)?$_REQUEST['reset']:false;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
+
+//Sanitation
+if(!is_numeric($collId)) $collId = 0;
+if(!is_numeric($recLimit)) $recLimit = 1000;
+if(!is_numeric($occIndex)) $occIndex = false;
+if(!is_numeric($crowdSourceMode)) $crowdSourceMode = 0;
+$action = filter_var($action,FILTER_SANITIZE_STRING);
 
 $occManager = new OccurrenceEditorManager();
 
@@ -76,20 +81,11 @@ if($SYMB_UID){
 	}
 
 	if(array_key_exists('bufieldname',$_POST)){
-		if($ouid){
-			$occManager->setQueryVariables(array('ouid' => $ouid));
-		}
-		else{
-			$occManager->setQueryVariables();
-		}
+		$occManager->setQueryVariables();
 		$statusStr = $occManager->batchUpdateField($_POST['bufieldname'],$_POST['buoldvalue'],$_POST['bunewvalue'],$_POST['bumatch']);
 	}
 
-	if($ouid){
-		$occManager->setQueryVariables(array('ouid' => $ouid));
-		$qryCnt = $occManager->getQueryRecordCount();
-	}
-	elseif($occIndex !== false){
+	if($occIndex !== false){
 		//Query Form has been activated
 		$occManager->setQueryVariables();
 		$qryCnt = $occManager->getQueryRecordCount(1);
@@ -256,7 +252,6 @@ else{
 								</div>
 								<div style="margin:2px;">
 									<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
-									<input name="ouid" type="hidden" value="<?php echo $ouid; ?>" />
 									<input name="occid" type="hidden" value="0" />
 									<input name="occindex" type="hidden" value="0" />
 									<input name="submitaction" type="submit" value="Batch Update Field" onclick="submitBatchUpdate(this.form); return false;" />
@@ -315,8 +310,9 @@ else{
 						}
 						echo "<tr ".($recCnt%2?'class="alt"':'').">\n";
 						echo '<td>';
-						echo '<a href="occurrenceeditor.php?csmode='.$crowdSourceMode.'&occindex='.($recCnt+$recStart).'&occid='.$id.'&collid='.$collId.'" title="open in same window">'.$id.'</a> ';
-						echo '<a href="occurrenceeditor.php?csmode='.$crowdSourceMode.'&occindex='.($recCnt+$recStart).'&occid='.$id.'&collid='.$collId.'" target="_blank" title="open in new window">';
+						$url = 'occurrenceeditor.php?csmode='.$crowdSourceMode.'&occindex='.($recCnt+$recStart).'&occid='.$id.'&collid='.$collId;
+						echo '<a href="'.$url.'" title="open in same window">'.$id.'</a> ';
+						echo '<a href="'.$url.'" target="_blank" title="open in new window">';
 						echo '<img src="../../images/newwin.png" style="width:10px;" />';
 						echo '</a>';
 						echo '</td>'."\n";

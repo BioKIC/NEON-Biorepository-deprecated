@@ -89,11 +89,11 @@ function validateAddSpecies(f){
 			}
 			else{
 				if(retCnt == 1){
-					f.tidtoadd.value = Object.keys(taxaObj)[0];
+					f.tid.value = Object.keys(taxaObj)[0];
 					f.submit();
 				}
 				else{
-					f.tidtoadd.value = Object.keys(taxaObj)[0];
+					f.tid.value = Object.keys(taxaObj)[0];
 					f.submit();
 					//alert(Object.keys(taxaObj)[0]);
 					//alert(Object.keys(taxaObj)[1]);

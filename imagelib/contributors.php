@@ -1,9 +1,9 @@
 <?php
 include_once('../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/ImageLibraryManager.php');
+include_once($SERVER_ROOT.'/classes/ImageLibraryBrowser.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$pManager = new ImageLibraryManager();
+$imgManager = new ImageLibraryBrowser();
 ?>
 <html>
 <head>
@@ -38,7 +38,7 @@ $pManager = new ImageLibraryManager();
 	<!-- This is inner text! -->
 	<div id="innertext" style="height:100%">
 		<?php
-		$pList = $pManager->getPhotographerList();
+		$pList = $imgManager->getPhotographerList();
 		if($pList){
 			echo '<div style="float:left;;margin-right:40px;">';
 			echo '<h2>Image Contributors</h2>';
@@ -57,7 +57,7 @@ $pManager = new ImageLibraryManager();
 			<?php
 			ob_flush();
 			flush();
-			$collList = $pManager->getCollectionImageList();
+			$collList = $imgManager->getCollectionImageList();
 			$specList = $collList['coll'];
 			if($specList){
 				echo '<h2>Specimens</h2>';

@@ -14,9 +14,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 	private $occurSearchProjectExists = 0;
 	protected $searchSupportManager = null;
 
- 	public function __construct(){
- 		parent::__construct();
- 		if(array_key_exists("reset",$_REQUEST) && $_REQUEST["reset"])  $this->reset();
+	public function __construct($type='readonly'){
+		parent::__construct($type);
+ 		if(array_key_exists('reset',$_REQUEST) && $_REQUEST['reset'])  $this->reset();
 		$this->readRequestVariables();
  	}
 
@@ -98,10 +98,12 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		elseif(array_key_exists("db",$this->searchTermArr) && $this->searchTermArr['db']){
 			$sqlWhere .= OccurrenceSearchSupport::getDbWhereFrag($this->cleanInStr($this->searchTermArr['db']));
 		}
-
+		if(array_key_exists('datasetid',$this->searchTermArr)){
+			$sqlWhere .= 'AND (d.datasetid IN('.$this->searchTermArr['datasetid'].')) ';
+			$this->displaySearchArr[] = 'Dataset(s): '.$this->getDatasetTitle($this->searchTermArr['datasetid']);
+		}
 		$sqlWhere .= $this->getTaxonWhereFrag();
-
-		if(array_key_exists("country",$this->searchTermArr)){
+		if(array_key_exists('country',$this->searchTermArr)){
 			$countryArr = explode(";",$this->searchTermArr["country"]);
 			$tempArr = Array();
 			foreach($countryArr as $k => $value){
@@ -456,7 +458,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if(strpos($sqlWhere,'ts.family')){
 			$sqlJoin .= 'LEFT JOIN taxstatus ts ON o.tidinterpreted = ts.tid ';
 		}
-		if(array_key_exists("polycoords",$this->searchTermArr) || strpos($sqlWhere,'p.point')){
+		if(strpos($sqlWhere,'d.datasetid')){
+			$sqlJoin .= 'INNER JOIN omoccurdatasetlink d ON o.occid = d.occid ';
+		}
+		if(array_key_exists('polycoords',$this->searchTermArr) || strpos($sqlWhere,'p.point')){
 			$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
 		}
 		return $sqlJoin;
@@ -493,7 +498,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return $retArr;
 	}
 
-	public function getDatasetSearchStr(){
+	public function getCollectionSearchStr(){
 		$retStr ="";
 		if(!array_key_exists('db',$this->searchTermArr) || $this->searchTermArr['db'] == 'all'){
 			$retStr = "All Collections";
@@ -555,6 +560,17 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return trim($retStr,' &');
 	}
 
+	private function getDatasetTitle($dsIdStr){
+		$retStr = '';
+		$sql = 'SELECT name FROM omoccurdatasets WHERE datasetid IN('.$dsIdStr.')';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retStr .= ', '.$r->name;
+		}
+		$rs->free();
+		return trim($retStr,', ');
+	}
+
 	protected function readRequestVariables(){
 		if(array_key_exists('searchvar',$_REQUEST)){
 			$parsedArr = array();
@@ -576,9 +592,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($parsedArr) $this->searchTermArr = $parsedArr;
 		}
 		//Search will be confinded to a clid vouchers, collid, catid, or will remain open to all collection
-		if(array_key_exists("targetclid",$_REQUEST) && is_numeric($_REQUEST['targetclid'])){
-			$this->searchTermArr["targetclid"] = $_REQUEST["targetclid"];
-			$this->setChecklistVariables($_REQUEST["targetclid"]);
+		if(array_key_exists('targetclid',$_REQUEST) && is_numeric($_REQUEST['targetclid'])){
+			$this->searchTermArr['targetclid'] = $_REQUEST['targetclid'];
+			$this->setChecklistVariables($_REQUEST['targetclid']);
 		}
 		elseif(array_key_exists('clid',$_REQUEST) && $_REQUEST['clid']){
 			//Limit by checklist voucher links
@@ -592,13 +608,20 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			if(!preg_match('/^[0-9,]+$/', $clidStr)) $clidStr = '';
 			$this->setChecklistVariables($clidStr);
-			$this->searchTermArr["clid"] = $clidStr;
+			$this->searchTermArr['clid'] = $clidStr;
 		}
-		elseif(array_key_exists("db",$_REQUEST) && $_REQUEST['db']){
+		elseif(array_key_exists('db',$_REQUEST) && $_REQUEST['db']){
 			$dbStr = $this->cleanInputStr(OccurrenceSearchSupport::getDbRequestVariable($_REQUEST));
-			if($dbStr) $this->searchTermArr["db"] = $dbStr;
+			if($dbStr) $this->searchTermArr['db'] = $dbStr;
 		}
-		if(array_key_exists("taxa",$_REQUEST) && $_REQUEST["taxa"]){
+		if(array_key_exists('datasetid',$_REQUEST) && $_REQUEST['datasetid']){
+			if(is_numeric($_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
+			elseif(is_array($_REQUEST['datasetid'])){
+				$dsStr = implode(',',$_REQUEST['datasetid']);
+				if(preg_match('/^[\d,]+$/',$dsStr)) $this->searchTermArr['datasetid'] = $dsStr;
+			}
+		}
+		if(array_key_exists('taxa',$_REQUEST) && $_REQUEST['taxa']){
 			$this->setTaxonRequestVariable();
 		}
 		if(array_key_exists("country",$_REQUEST)){

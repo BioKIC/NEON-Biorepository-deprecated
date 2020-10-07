@@ -43,8 +43,11 @@ $GBIF_ORG_KEY = '';                 //GBIF organization key for organization whi
 
 //Misc variables
 $DEFAULT_TAXON_SEARCH = 2;			//Default taxonomic search type: 1 = Any Name, 2 = Scientific Name, 3 = Family, 4 = Taxonomic Group, 5 = Common Name
+
 $GOOGLE_MAP_KEY = '';				//Needed for Google Map; get from Google
-$GOOGLE_MAP_THUMBNAILS = true;		//Display Google Map static thumbnails within taxon profile, checklist, etc
+$MAPBOX_API_KEY = '';
+$MAP_THUMBNAILS = false;				//Display Static Map thumbnails within taxon profile, checklist, etc
+
 $MAPPING_BOUNDARIES = '';			//Project bounding box; default map centering; (e.g. 42.3;-100.5;18.0;-127)
 $ACTIVATE_GEOLOCATION = false;		//Activates HTML5 geolocation services in Map Search
 $GOOGLE_ANALYTICS_KEY = '';			//Needed for setting up Google Analytics
@@ -60,6 +63,8 @@ $ACTIVATE_GEOLOCATE_TOOLKIT = 0;	//Activates GeoLocate Toolkit located within th
 $OCCUR_SECURITY_OPTION = 1;			//Occurrence security options supported: value 1-7; 1 = Locality security, 2 = Taxon security, 4 = Full security, 3 = L & T, 5 = L & F, 6 = T & F, 7 = all
 
 $IGSN_ACTIVATION = 0;
+
+//$SMTP_ARR = array('host'=>'','port'=>587,'username'=>'','password'=>'','timeout'=>60);  //Host is requiered, others are optional and can be removed
 
 $RIGHTS_TERMS = array(
 	'CC0 1.0 (Public-domain)' => 'http://creativecommons.org/publicdomain/zero/1.0/',

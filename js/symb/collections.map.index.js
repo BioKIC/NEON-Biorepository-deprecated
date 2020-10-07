@@ -508,16 +508,18 @@ function verifyCollForm(f){
 	else{
 		for(var i=0;i<f.length;i++){
 			if(f.elements[i].name == "cat[]" && f.elements[i].checked){
-				//Uncheck all db input elements within cat div 
-				var childrenEle = document.getElementById('cat-'+f.elements[i].value).children;
-				for(var j=0;j<childrenEle.length;j++){
-					if(childrenEle[j].tagName == "DIV"){
-						var divChildren = childrenEle[j].children;
-						for(var k=0;k<divChildren.length;k++){
-							var divChildren2 = divChildren[k].children;
-							for(var l=0;l<divChildren2.length;l++){
-								if(divChildren2[l].tagName == "INPUT"){
-									divChildren2[l].checked = false;
+				if(document.getElementById('cat-'+f.elements[i].value)){
+					//Uncheck all db input elements within cat div 
+					var childrenEle = document.getElementById('cat-'+f.elements[i].value).children;
+					for(var j=0;j<childrenEle.length;j++){
+						if(childrenEle[j].tagName == "DIV"){
+							var divChildren = childrenEle[j].children;
+							for(var k=0;k<divChildren.length;k++){
+								var divChildren2 = divChildren[k].children;
+								for(var l=0;l<divChildren2.length;l++){
+									if(divChildren2[l].tagName == "INPUT"){
+										divChildren2[l].checked = false;
+									}
 								}
 							}
 						}

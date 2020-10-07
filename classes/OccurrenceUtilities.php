@@ -103,7 +103,7 @@ class OccurrenceUtilities {
 				}
 			}
 			if(!(int)$m){
-				if(preg_match_all('/([IVX]{1,4})/',$dateStr,$match)){
+				if(preg_match('/([IVX]{1,4})/',$dateStr,$match)){
 					$mStr = $match[1];
 					if(array_key_exists($mStr,self::$monthRoman)) $m = self::$monthRoman[$mStr];
 				}

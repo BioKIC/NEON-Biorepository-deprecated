@@ -38,12 +38,12 @@ $indManager->setDisplayFormat($format);
 $occArr = $indManager->getOccData();
 if(!$occid) $occid = $indManager->getOccid();
 $collMetadata = $indManager->getMetadata();
-if(!$collid) $collid = $occArr['collid'];
+if(!$collid && $occArr) $collid = $occArr['collid'];
 
 $genticArr = $indManager->getGeneticArr();
 
 $statusStr = '';
-$securityCode = ($occArr['localitysecurity']?$occArr['localitysecurity']:0);
+$securityCode = ($occArr && $occArr['localitysecurity']?$occArr['localitysecurity']:0);
 
 $isEditor = false;
 
@@ -146,7 +146,7 @@ if($SYMB_UID){
 }
 
 $displayMap = false;
-if(!$securityCode && is_numeric($occArr['decimallatitude']) && is_numeric($occArr['decimallongitude'])) $displayMap = true;
+if(!$securityCode && $occArr && is_numeric($occArr['decimallatitude']) && is_numeric($occArr['decimallongitude'])) $displayMap = true;
 $dupClusterArr = $indManager->getDuplicateArr();
 $commentArr = $indManager->getCommentArr($isEditor);
 
@@ -833,14 +833,17 @@ header("Content-Type: text/html; charset=".$CHARSET);
 									<legend><b>Specimen Images</b></legend>
 									<?php
 									foreach($iArr as $imgId => $imgArr){
+										$thumbUrl = $imgArr['tnurl'];
+										if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['url'];
+										if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['lgurl'];
 										?>
 										<div class="imgDiv">
 											<a href='<?php echo $imgArr['url']; ?>' target="_blank">
-												<img border="1" src="<?php echo ($imgArr['tnurl']?$imgArr['tnurl']:$imgArr['url']); ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
+												<img border="1" src="<?php echo $thumbUrl; ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
 											</a>
 											<?php
 											if($imgArr['photographer']) echo '<div>Author: '.$imgArr['photographer'].'</div>';
-											if($imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
+											if($imgArr['url'] && substr($thumbUrl,0,7)=='process' && $imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
 											if($imgArr['lgurl']) echo '<div><a href="'.$imgArr['lgurl'].'" target="_blank">Open Large Image</a></div>';
 											if($imgArr['sourceurl']) echo '<div><a href="'.$imgArr['sourceurl'].'" target="_blank">Open Source Image</a></div>';
 											?>

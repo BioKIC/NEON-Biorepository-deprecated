@@ -1,38 +1,58 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/imagelib/search.'.$LANG_TAG.'.php');
-include_once($SERVER_ROOT.'/classes/ImageLibraryManager.php');
+include_once($SERVER_ROOT.'/classes/ImageLibrarySearch.php');
 header('Content-Type: text/html; charset='.$CHARSET);
 
-$cntPerPage = array_key_exists("cntperpage",$_REQUEST)?$_REQUEST["cntperpage"]:200;
-$pageNumber = array_key_exists("page",$_REQUEST)?$_REQUEST["page"]:1;
-$catId = array_key_exists("catid",$_REQUEST)?$_REQUEST["catid"]:0;
+$taxonType = isset($_REQUEST['taxontype'])?$_REQUEST['taxontype']:0;
+$useThes = array_key_exists('usethes',$_REQUEST)?$_REQUEST['usethes']:0;
+$taxaStr = isset($_REQUEST['taxa'])?$_REQUEST['taxa']:'';
+$phUid = array_key_exists('phuid',$_REQUEST)?$_REQUEST['phuid']:0;
+$tags = array_key_exists('tags',$_REQUEST)?$_REQUEST['tags']:'';
+$keywords = array_key_exists('keywords',$_REQUEST)?$_REQUEST['keywords']:'';
+$imageCount = isset($_REQUEST['imagecount'])?$_REQUEST['imagecount']:'all';
+$imageType = isset($_REQUEST['imagetype'])?$_REQUEST['imagetype']:0;
+$pageNumber = array_key_exists('page',$_REQUEST)?$_REQUEST['page']:1;
+$cntPerPage = array_key_exists('cntperpage',$_REQUEST)?$_REQUEST['cntperpage']:200;
+$catId = array_key_exists('catid',$_REQUEST)?$_REQUEST['catid']:0;
+$action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
+
+if(!$useThes && !$action) $useThes = 1;
+if(!$taxonType && isset($DEFAULT_TAXON_SEARCH)) $taxonType = $DEFAULT_TAXON_SEARCH;
 if(!$catId && isset($DEFAULTCATID) && $DEFAULTCATID) $catId = $DEFAULTCATID;
-$action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:'';
 
 //Sanitation
-if(!is_numeric($cntPerPage)) $cntPerPage = 100;
 if(!is_numeric($pageNumber)) $pageNumber = 100;
+if(!is_numeric($cntPerPage)) $cntPerPage = 100;
 if(!preg_match('/^[,\d]+$/', $catId)) $catId = 0;
 if(preg_match('/[^\D]+/', $action)) $action = '';
 
-$imgLibManager = new ImageLibraryManager();
+$imgLibManager = new ImageLibrarySearch();
+$imgLibManager->setTaxonType($taxonType);
+$imgLibManager->setUseThes($useThes);
+$imgLibManager->setTaxaStr($taxaStr);
+$imgLibManager->setPhotographerUid($phUid);
+$imgLibManager->setTags($tags);
+$imgLibManager->setKeywords($keywords);
+$imgLibManager->setImageCount($imageCount);
+$imgLibManager->setImageType($imageType);
+if(isset($_REQUEST['db'])) $imgLibManager->setCollectionVariables($_REQUEST);
 ?>
 <html>
 <head>
-  <title><?php echo $DEFAULT_TITLE; ?> Image Library</title>
-  <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-  ?>
-  <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+	<title><?php echo $DEFAULT_TITLE; ?> Image Library</title>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
+	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script src="../js/symb/collections.index.js?ver=2" type="text/javascript"></script>
 	<meta name='keywords' content='' />
@@ -60,8 +80,6 @@ $imgLibManager = new ImageLibraryManager();
 	<?php
 	$displayLeftMenu = (isset($imagelib_searchMenu)?$imagelib_searchMenu:false);
 	include($SERVER_ROOT.'/includes/header.php');
-	$imageType = 0;
-	if(isset($_REQUEST['imagetype']) && $_REQUEST['imagetype']) $imageType = $_REQUEST['imagetype'];
 	?>
 	<div class="navpath">
 		<a href="../index.php">Home</a> &gt;&gt;
@@ -87,25 +105,17 @@ $imgLibManager = new ImageLibraryManager();
 						<div style="float:left;margin-top:3px">
 							<select id="taxontype" name="taxontype">
 								<?php
-								$taxonType = 1;
-								if(isset($DEFAULT_TAXON_SEARCH) && $DEFAULT_TAXON_SEARCH) $taxonType = $DEFAULT_TAXON_SEARCH;
-								if(array_key_exists('taxontype',$_REQUEST)) $taxonType = $_REQUEST['taxontype'];
 								for($h=1;$h<6;$h++){
-									echo '<option value="'.$h.'" '.($taxonType==$h?'SELECTED':'').'>'.$LANG['SELECT_1-'.$h].'</option>';
+									echo '<option value="'.$h.'" '.($imgLibManager->getTaxonType()==$h?'SELECTED':'').'>'.$LANG['SELECT_1-'.$h].'</option>';
 								}
 								?>
 							</select>
 						</div>
 						<div style="float:left;">
-							<?php
-							$taxonStr = '';
-							if(isset($_REQUEST["taxa"])) $taxonStr = $_REQUEST["taxa"];
-							if(is_numeric($taxonStr)) $taxonStr = $imgLibManager->getTaxaStr($taxonStr);
-							?>
-							<input id="taxa" name="taxa" type="text" style="width:450px;" value="<?php echo $taxonStr; ?>" title="Separate multiple names w/ commas" autocomplete="off" />
+							<input id="taxa" name="taxa" type="text" style="width:450px;" value="<?php echo $imgLibManager->getTaxaStr(); ?>" title="Separate multiple names w/ commas" autocomplete="off" />
 						</div>
 						<div style="float:left;margin-left:10px;" >
-							<input name="usethes" type="checkbox" value="1" <?php if(!$action || (array_key_exists("usethes",$_REQUEST) && $_REQUEST["usethes"])) echo "CHECKED"; ?> >Include Synonyms
+							<input name="usethes" type="checkbox" value="1" <?php if(!$action || $imgLibManager->getUseThes()) echo "CHECKED"; ?> >Include Synonyms
 						</div>
 					</div>
 					<div style="clear:both;margin-bottom:5px;">
@@ -116,7 +126,7 @@ $imgLibManager = new ImageLibraryManager();
 							<?php
 							$uidList = $imgLibManager->getPhotographerUidArr();
 							foreach($uidList as $uid => $name){
-								echo '<option value="'.$uid.'" '.((isset($_REQUEST['phuid']) && $_REQUEST['phuid'] == $uid)?'SELECTED':'').'>'.$name.'</option>';
+								echo '<option value="'.$uid.'" '.($imgLibManager->getPhotographerUid()==$uid?'SELECTED':'').'>'.$name.'</option>';
 							}
 							?>
 						</select>
@@ -131,7 +141,7 @@ $imgLibManager = new ImageLibraryManager();
 								<option value="">--------------</option>
 								<?php
 								foreach($tagArr as $k){
-									echo '<option value="'.$k.'" '.((array_key_exists("tags",$_REQUEST))&&($_REQUEST["tags"]==$k)?'SELECTED ':'').'>'.$k.'</option>';
+									echo '<option value="'.$k.'" '.($imgLibManager->getTags()==$k?'SELECTED ':'').'>'.$k.'</option>';
 								}
 								?>
 							</select>
@@ -142,7 +152,7 @@ $imgLibManager = new ImageLibraryManager();
 					<!--
 					<div style="clear:both;margin-bottom:5px;">
 						Image Keywords:
-						<input type="text" id="keywords" style="width:350px;" name="keywords" value="" title="Separate multiple keywords w/ commas" />
+						<input type="text" id="keywords" style="width:350px;" name="keywords" value="<?php //echo $imgLibManager->getKeywordSuggest(); ?>" title="Separate multiple keywords w/ commas" />
 					</div>
 					 -->
 					<?php
@@ -153,12 +163,12 @@ $imgLibManager = new ImageLibraryManager();
 					<div style="margin-bottom:5px;">
 						Image Counts:
 						<select id="imagecount" name="imagecount">
-							<option value="all" <?php echo ((array_key_exists("imagecount",$_REQUEST))&&($_REQUEST["imagecount"]=='all')?'SELECTED ':''); ?>>All images</option>
-							<option value="taxon" <?php echo ((array_key_exists("imagecount",$_REQUEST))&&($_REQUEST["imagecount"]=='taxon')?'SELECTED ':''); ?>>One per taxon</option>
+							<option value="all" <?php echo ($imgLibManager->getImageCount()=='all'?'SELECTED ':''); ?>>All images</option>
+							<option value="taxon" <?php echo ($imgLibManager->getImageCount()=='taxon'?'SELECTED ':''); ?>>One per taxon</option>
 							<?php
 							if($specArr){
 								?>
-								<option value="specimen" <?php echo ((array_key_exists("imagecount",$_REQUEST))&&($_REQUEST["imagecount"]=='specimen')?'SELECTED ':''); ?>>One per specimen</option>
+								<option value="specimen" <?php echo ($imgLibManager->getImageCount()=='specimen'?'SELECTED ':''); ?>>One per specimen</option>
 								<?php
 							}
 							?>
@@ -169,9 +179,9 @@ $imgLibManager = new ImageLibraryManager();
 							Image Type:
 							<select name="imagetype" onchange="imageTypeChanged(this)">
 								<option value="0">All Images</option>
-								<option value="1" <?php echo ($imageType == 1?'SELECTED':''); ?>>Specimen Images</option>
-								<option value="2" <?php echo ($imageType == 2?'SELECTED':''); ?>>Image Vouchered Observations</option>
-								<option value="3" <?php echo ($imageType == 3?'SELECTED':''); ?>>Field Images (lacking specific locality details)</option>
+								<option value="1" <?php echo ($imgLibManager->getImageType() == 1?'SELECTED':''); ?>>Specimen Images</option>
+								<option value="2" <?php echo ($imgLibManager->getImageType() == 2?'SELECTED':''); ?>>Image Vouchered Observations</option>
+								<option value="3" <?php echo ($imgLibManager->getImageType() == 3?'SELECTED':''); ?>>Field Images (lacking specific locality details)</option>
 							</select>
 						</div>
 						<div style="margin:0px 40px;float:left">
@@ -181,7 +191,7 @@ $imgLibManager = new ImageLibraryManager();
 					<?php
 					if($specArr || $obsArr){
 						?>
-						<div id="collection-div" style="margin:15px;clear:both;display:<?php echo ($imageType == 1 || $imageType == 2?'':'none'); ?>">
+						<div id="collection-div" style="margin:15px;clear:both;display:<?php echo ($imgLibManager->getImageType() == 1 || $imgLibManager->getImageType() == 2?'':'none'); ?>">
 							<fieldset>
 								<legend>Collections</legend>
 								<div id="specobsdiv">
@@ -323,7 +333,7 @@ $imgLibManager = new ImageLibraryManager();
 							<?php
 						}
 						else{
-							echo '<h2>No images exist matching your search criteria. Please modify your search and try again.</h2>';
+							echo '<h3>No images exist matching your search criteria. Please modify your search and try again.</h3>';
 						}
 						?>
 					</div>

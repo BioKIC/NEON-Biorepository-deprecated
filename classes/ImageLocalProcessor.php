@@ -3,6 +3,7 @@ if(isset($SERVER_ROOT) && $SERVER_ROOT){
 	include_once($SERVER_ROOT.'/config/dbconnection.php');
 	include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
 	include_once($SERVER_ROOT.'/classes/UuidFactory.php');
+	include_once($SERVER_ROOT.'/classes/ImageShared.php');
 }
 
 class ImageLocalProcessor {
@@ -57,12 +58,12 @@ class ImageLocalProcessor {
 	private $monthNames = array('jan'=>'01','ene'=>'01','feb'=>'02','mar'=>'03','abr'=>'04','apr'=>'04',
 		'may'=>'05','jun'=>'06','jul'=>'07','ago'=>'08','aug'=>'08','sep'=>'09','oct'=>'10','nov'=>'11','dec'=>'12','dic'=>'12');
 
-    /**  Track the list of xml files that have been processed to avoid
-     *   processing the same file more than once when collArr is configured
-     *   to contain more than one record for the same path (for image
-     *   uploads from an institution with more than one collection code).
-     */
-    private $processedFiles = Array();
+	/**  Track the list of xml files that have been processed to avoid
+	 *   processing the same file more than once when collArr is configured
+	 *   to contain more than one record for the same path (for image
+	 *   uploads from an institution with more than one collection code).
+	 */
+	private $processedFiles = Array();
 
 
 	function __construct(){
@@ -288,12 +289,12 @@ class ImageLocalProcessor {
 		if(file_exists($this->sourcePathBase.$pathFrag)){
 			if($dirFH = opendir($this->sourcePathBase.$pathFrag)){
 				while($fileName = readdir($dirFH)){
-					if($fileName != "." && $fileName != ".." && $fileName != ".svn"){
+					if(substr($fileName,0,1) != '.'){
 						if(is_file($this->sourcePathBase.$pathFrag.$fileName)){
 							if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
 								$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
 								$fileExt = strtolower(substr($fileName,strrpos($fileName,'.')));
-								if($fileExt == ".jpg"){
+								if($fileExt == '.jpg' || $fileExt == '.jpeg'){
 									//Clean file name
 									$cleanName = str_replace(array(' '), '_', $fileName);
 									$cleanName = str_replace(array('(',')'), '', $cleanName);
@@ -309,7 +310,7 @@ class ImageLocalProcessor {
 										if($this->errorMessage == 'abort') return false;
 									}
 								}
-								elseif($fileExt == ".tif"){
+								elseif($fileExt == '.tif' || $fileExt == '.tiff'){
 									$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
 									//Do something, like convert to jpg???
 									//but for now do nothing
@@ -321,17 +322,17 @@ class ImageLocalProcessor {
 										if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
 									}
 								}
-								elseif($fileExt==".xml") {
-                                    // The loop through collArr can result in same file being processed more than
-                                    // once if the same pathFrag is associated with more than one collection.
-                                    if (!in_array("$pathFrag$fileName",$this->processedFiles)) {
-									$this->processXMLFile($fileName,$pathFrag);
-                                         $this->processedFiles[] = "$pathFrag$fileName";
-                                         // TODO: It would seem that adding the collection to collProcessedArr
-                                         // should accomplish what processedFiles[] is being added above to
-                                         // do, need to investigate further and perhaps use it as a fix.
-									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
-								}
+								elseif($fileExt=='.xml') {
+									// The loop through collArr can result in same file being processed more than
+									// once if the same pathFrag is associated with more than one collection.
+									if (!in_array("$pathFrag$fileName",$this->processedFiles)) {
+										$this->processXMLFile($fileName,$pathFrag);
+											 $this->processedFiles[] = "$pathFrag$fileName";
+											 // TODO: It would seem that adding the collection to collProcessedArr
+											 // should accomplish what processedFiles[] is being added above to
+											 // do, need to investigate further and perhaps use it as a fix.
+										if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
+									}
 								}
 								elseif($fileExt==".ds_store" || strtolower($fileName)=='thumbs.db'){
 									unlink($this->sourcePathBase.$pathFrag.$fileName);
@@ -379,7 +380,7 @@ class ImageLocalProcessor {
 					if($fileExt){
 						if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
 							$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
-							if($fileExt == "jpg"){
+							if($fileExt == 'jpg' || $fileExt == 'jpeg'){
 								if($this->processImageFile($fileName,$pathFrag)){
 									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
 								}
@@ -387,7 +388,7 @@ class ImageLocalProcessor {
 									if($this->errorMessage == 'abort') return false;
 								}
 							}
-							elseif($fileExt == "tif"){
+							elseif($fileExt == 'tif' || $fileExt == 'tiff'){
 								$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
 								//Do something, like convert to jpg???
 								//but for now do nothing
@@ -625,12 +626,12 @@ class ImageLocalProcessor {
 					}
 				}
 				//Start the processing procedure
-				list($width, $height) = @getimagesize($sourcePath.$fileName);
+				list($width, $height) = ImageShared::getImgDim($sourcePath.$fileName);
 				if($width && $height){
 					//Get File size
 					$fileSize = 0;
 					if(substr($sourcePath,0,7)=='http://' || substr($sourcePath,0,8)=='https://') {
-						$x = array_change_key_case(get_headers($sourcePath.$fileName, 1),CASE_LOWER);
+						$x = array_change_key_case(get_headers($sourcePath.$fileName,1),CASE_LOWER);
 						if ( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) {
 							$fileSize = $x['content-length'][1];
 						}
@@ -886,9 +887,9 @@ class ImageLocalProcessor {
 	 * patternReplacingTerm and replacement are modified, they are applied
 	 * before the result is returned.
 	 *
-	 * @param str  String from which to extract the catalogNumber
-	 * @return an empty string if there is no match of patternMatchingTerm on
-	 *        str, otherwise the match as described above.
+	 * param: str  String from which to extract the catalogNumber
+	 * return: an empty string if there is no match of patternMatchingTerm on
+	 *		str, otherwise the match as described above.
 	 */
 	private function getPrimaryKey($str){
 		$specPk = '';
@@ -933,9 +934,10 @@ class ImageLocalProcessor {
 			$rs->free();
 		}
 		if($this->matchOtherCatalogNumbers){
-			$sql = 'SELECT occid FROM omoccurrences '.
-				'WHERE (othercatalognumbers IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) '.
-				'AND (collid = '.$this->activeCollid.')';
+			$sql = 'SELECT DISTINCT o.occid '.
+				'FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid '.
+				'WHERE (o.collid = '.$this->activeCollid.') '.
+				'AND ((o.othercatalognumbers IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) OR (i.identifierValue = "'.$specPk.'")) ';
 			$rs = $this->conn->query($sql);
 			if($row = $rs->fetch_object()){
 				$occId = $row->occid;
@@ -1285,13 +1287,16 @@ class ImageLocalProcessor {
 
 							//Check to see if matching record already exists in database
 							$termArr = array();
-							if($this->matchCatalogNumber) $termArr[] = '(catalognumber IN("'.$catNum.'"'.(substr($catNum,0,1)=='0'?',"'.ltrim($catNum,"0 ").'"':'').'))';
-							if($this->matchOtherCatalogNumbers) $termArr[] = '(othercatalognumbers IN("'.$catNum.'"'.(substr($catNum,0,1)=='0'?',"'.ltrim($catNum,"0 ").'"':'').'))';
+							if($this->matchCatalogNumber) $termArr[] = '(o.catalognumber IN("'.$catNum.'"'.(substr($catNum,0,1)=='0'?',"'.ltrim($catNum,"0 ").'"':'').'))';
+							if($this->matchOtherCatalogNumbers){
+								$termArr[] = '(o.othercatalognumbers IN("'.$catNum.'"'.(substr($catNum,0,1)=='0'?',"'.ltrim($catNum,"0 ").'"':'').'))';
+								$termArr[] = '(i.identifierValue = "'.$catNum.'")';
+							}
 							if($termArr){
-								$sql = 'SELECT occid'.(!array_key_exists('occurrenceremarks',$recMap)?',occurrenceremarks':'').
+								$sql = 'SELECT DISTINCT o.occid'.(!array_key_exists('occurrenceremarks',$recMap)?',o.occurrenceremarks':'').
 									($activeFields?','.implode(',',$activeFields):'').' '.
-									'FROM omoccurrences '.
-									'WHERE (collid = '.$this->activeCollid.') AND ('.implode(' OR ', $termArr).')';
+									'FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid '.
+									'WHERE (o.collid = '.$this->activeCollid.') AND ('.implode(' OR ', $termArr).')';
 								//echo $sql;
 								$rs = $this->conn->query($sql);
 								if($r = $rs->fetch_assoc()){
@@ -1940,33 +1945,31 @@ class ImageLocalProcessor {
 		//First simple check
 		if(file_exists($url) || ($localUrl && file_exists($localUrl))){
 			return true;
-	    }
+		}
 
-	    //Second check
-	    if(!$exists){
-		    // Version 4.x supported
-		    $handle   = curl_init($url);
-		    if (false === $handle){
+		//Second check
+		if(!$exists){
+			// Version 4.x supported
+			$handle   = curl_init($url);
+			if (false === $handle){
 				$exists = false;
-		    }
-		    curl_setopt($handle, CURLOPT_HEADER, false);
-		    curl_setopt($handle, CURLOPT_FAILONERROR, true);  // this works
-		    curl_setopt($handle, CURLOPT_HTTPHEADER, Array("User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15") ); // request as if Firefox
-		    curl_setopt($handle, CURLOPT_NOBODY, true);
-		    curl_setopt($handle, CURLOPT_RETURNTRANSFER, false);
-		    $exists = curl_exec($handle);
-		    curl_close($handle);
-	    }
+			}
+			curl_setopt($handle, CURLOPT_HEADER, false);
+			curl_setopt($handle, CURLOPT_FAILONERROR, true);  // this works
+			curl_setopt($handle, CURLOPT_HTTPHEADER, Array("User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15") ); // request as if Firefox
+			curl_setopt($handle, CURLOPT_NOBODY, true);
+			curl_setopt($handle, CURLOPT_RETURNTRANSFER, false);
+			$exists = curl_exec($handle);
+			curl_close($handle);
+		}
 
-	    //One last check
-	    if(!$exists){
-	    	$exists = (@fclose(@fopen($url,"r")));
-	    }
+		//One last check
+		if(!$exists) $exists = (@fclose(@fopen($url,'r')));
 
-	    //Test to see if file is an image
-	    if(!@exif_imagetype($url)) $exists = false;
+		//Test to see if file is an image
+		if(!@exif_imagetype($url)) $exists = false;
 
-	    return $exists;
+		return $exists;
 	}
 
 	private function encodeString($inStr){

@@ -32,8 +32,10 @@ class ImageProcessor {
 
 	function __destruct(){
 		if($this->destructConn && !($this->conn === false)) $this->conn->close();
-		fwrite($this->logFH,"\n\n");
-		if($this->logFH) fclose($this->logFH);
+		if($this->logFH){
+			fwrite($this->logFH,"\n\n");
+			fclose($this->logFH);
+		}
 	}
 
 	private function initProcessor($logDir){
@@ -80,17 +82,17 @@ class ImageProcessor {
 	public function processCyVerseImages($pmTerm, $postArr){
 		set_time_limit(1000);
 		$lastRunDate = $postArr['startdate'];
-		$iPlantSourcePath = (array_key_exists('sourcepath', $postArr)?$postArr['sourcepath']:'');
+		$CyVerseSourcePath = (array_key_exists('sourcepath', $postArr)?$postArr['sourcepath']:'');
 		$this->matchCatalogNumber = (array_key_exists('matchcatalognumber', $postArr)?true:false);
 		$this->matchOtherCatalogNumbers = (array_key_exists('matchothercatalognumbers', $postArr)?true:false);
 		if($this->collid){
 			$iCyVerseDataUrl = 'https://bisque.cyverse.org/data_service/';
 			$iCyVerseImageUrl = 'https://bisque.cyverse.org/image_service/image/';
 
-			if(!$iPlantSourcePath && array_key_exists('IPLANT_IMAGE_IMPORT_PATH', $GLOBALS)) $iPlantSourcePath = $GLOBALS['IPLANT_IMAGE_IMPORT_PATH'];
-			if($iPlantSourcePath){
-				if(strpos($iPlantSourcePath, '--INSTITUTION_CODE--')) $iPlantSourcePath = str_replace('--INSTITUTION_CODE--', $this->collArr['instcode'], $iPlantSourcePath);
-				if(strpos($iPlantSourcePath, '--COLLECTION_CODE--')) $iPlantSourcePath = str_replace('--COLLECTION_CODE--', $this->collArr['collcode'], $iPlantSourcePath);
+			if(!$CyVerseSourcePath && array_key_exists('IPLANT_IMAGE_IMPORT_PATH', $GLOBALS)) $CyVerseSourcePath = $GLOBALS['IPLANT_IMAGE_IMPORT_PATH'];
+			if($CyVerseSourcePath){
+				if(strpos($CyVerseSourcePath, '--INSTITUTION_CODE--')) $CyVerseSourcePath = str_replace('--INSTITUTION_CODE--', $this->collArr['instcode'], $CyVerseSourcePath);
+				if(strpos($CyVerseSourcePath, '--COLLECTION_CODE--')) $CyVerseSourcePath = str_replace('--COLLECTION_CODE--', $this->collArr['collcode'], $CyVerseSourcePath);
 			}
 			else{
 				echo '<div style="color:red">iPlant image import path (IPLANT_IMAGE_IMPORT_PATH) not set within symbini configuration file</div>';
@@ -112,10 +114,13 @@ class ImageProcessor {
 				$this->logOrEcho("COLLECTION SKIPPED: Regular Expression term illegal due to missing capture term: ".$pmTerm);
 				return false;
 			}
+			$cyVerseBasePath = $iCyVerseDataUrl.'image?value=*'.$CyVerseSourcePath.'*&tag_query=upload_datetime:';
+			$this->logOrEcho('CyVerse base path used: '.$cyVerseBasePath);
+
 			//Get start date
 			if(!$lastRunDate || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$lastRunDate)) $lastRunDate = '2019-05-01';
 			while(strtotime($lastRunDate) < strtotime('now')){
-				$url = $iCyVerseDataUrl.'image?value=*'.$iPlantSourcePath.'*&tag_query=upload_datetime:'.$lastRunDate.'*';
+				$url = $cyVerseBasePath.$lastRunDate.'*';
 				$contents = @file_get_contents($url);
 				//check if response is received from CyVerse
 				if(!empty($http_response_header)) {
@@ -127,8 +132,8 @@ class ImageProcessor {
 							$xml = new SimpleXMLElement($contents);
 						}
 						catch (Exception $e) {
-							$this->logOrEcho('ABORTED: bad content received from iPlant: '.$contents);
-							return false;
+							$this->logOrEcho('ABORTED: bad content received from CyVerse: '.$contents);
+							//return false;
 						}
 						if(count($xml->image)){
 							$this->logOrEcho('Starting to process '.count($xml->image).' images uploaded on '.$lastRunDate,1);
@@ -192,6 +197,99 @@ class ImageProcessor {
 		return true;
 	}
 
+	//iDigBio Image ingestion processing functions
+	public function processiDigBioOutput($pmTerm,$postArr){
+		$status = '';
+		$this->matchCatalogNumber = (array_key_exists('matchcatalognumber', $postArr)?1:0);
+		$this->matchOtherCatalogNumbers = (array_key_exists('matchothercatalognumbers', $postArr)?1:0);
+		$idigbioImageUrl = 'https://api.idigbio.org/v2/media/';
+		$this->initProcessor('idigbio');
+		$collStr = $this->collArr['instcode'].($this->collArr['collcode']?'-'.$this->collArr['collcode']:'');
+		$this->logOrEcho('Starting image processing for '.$collStr.' ('.date('Y-m-d h:i:s A').')');
+		if($pmTerm){
+			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/idigbio_'.time().'.csv';
+			if(move_uploaded_file($_FILES['idigbiofile']['tmp_name'],$fullPath)){
+				if($fh = fopen($fullPath,'rb')){
+					$headerArr = fgetcsv($fh,0,',');
+					$origFileNameIndex = (in_array('OriginalFileName',$headerArr)?array_search('OriginalFileName',$headerArr):(in_array('idigbio:OriginalFileName',$headerArr)?array_search('idigbio:OriginalFileName',$headerArr):''));
+					$mediaMd5Index = (in_array('MediaMD5',$headerArr)?array_search('MediaMD5',$headerArr):(in_array('ac:hashValue',$headerArr)?array_search('ac:hashValue',$headerArr):''));
+					if(is_numeric($origFileNameIndex) && is_numeric($mediaMd5Index)){
+						while(($data = fgetcsv($fh,1000,",")) !== FALSE){
+							if(isset($data[$mediaMd5Index]) && $data[$mediaMd5Index]){
+								$origFileName = basename($data[$origFileNameIndex]);
+								//basename() function is system specific, thus following code needed to parse filename independent of source file from PC, Mac, etc
+								if(strpos($origFileName,'/') !== false){
+									$origFileName = substr($origFileName,(strrpos($origFileName,'/')+1));
+								}
+								elseif(strpos($origFileName,'\\') !== false){
+									$origFileName = substr($origFileName,(strrpos($origFileName,'\\')+1));
+								}
+								if(preg_match($pmTerm,$origFileName,$matchArr)){
+									if(array_key_exists(1,$matchArr) && $matchArr[1]){
+										$specPk = $matchArr[1];
+										if($postArr['patternreplace']) $specPk = preg_replace($postArr['patternreplace'],$postArr['replacestr'],$specPk);
+										$occid = $this->getOccid($specPk,$origFileName);
+										if($occid){
+											$fieldArr = array();
+											//Image hasn't been loaded, thus insert image urls into image table
+											$baseUrl = $idigbioImageUrl.$data[$mediaMd5Index];
+											$fieldArr['url'] = $baseUrl.'?size=webview';
+											$fieldArr['thumbnailurl'] = $baseUrl.'?size=thumbnail';
+											//$fieldArr['originalurl'] = $baseUrl.'?size=fullsize';
+											$fieldArr['originalurl'] = $baseUrl;
+											$fieldArr['archiveurl'] = $this->collArr['collname'];
+											$fieldArr['owner'] = $this->collArr['collname'];
+											$fieldArr['sourceIdentifier'] = $origFileName;
+											$this->databaseImage($occid,$fieldArr);
+										}
+									}
+								}
+								else{
+									$this->logOrEcho('NOTICE: File skipped, unable to extract specimen identifier ('.$origFileName.', pmTerm: '.$pmTerm.')',2);
+								}
+							}
+							else{
+								$errMsg = '';
+								$errIndex = array_search('idigbio:mediaStatusDetail',$headerArr);
+								if($errIndex && isset($data[$errIndex])) $errMsg = trim($data[$errIndex]);
+								if($errMsg) $this->logOrEcho('NOTICE: File skipped due to apparent iDigBio upload failure (iDigBio Error:'.$errMsg.') ',2);
+							}
+						}
+						$this->cleanHouse(array($this->collid));
+						$this->logOrEcho("Image upload process finished! (".date('Y-m-d h:i:s A').") \n");
+					}
+					else{
+						//Output to error log file
+						$this->logOrEcho('Bad input fields: '.$origFileNameIndex.', '.$mediaMd5Index,2);
+					}
+					fclose($fh);
+				}
+				else{
+					$this->logOrEcho('Cannot open input file',2);
+				}
+				unlink($fullPath);
+			}
+		}
+		else{
+			$this->logOrEcho('ERROR: Pattern matching term has not been defined ',2);
+		}
+		return $status;
+	}
+
+	public function initiateFileUpload(){
+		$this->initProcessor('imageFile');
+		$collStr = $this->collArr['instcode'].($this->collArr['collcode']?'-'.$this->collArr['collcode']:'');
+		$this->logOrEcho('Starting image processing for '.$collStr.' ('.date('Y-m-d h:i:s A').')');
+		if($pmTerm){
+			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/idigbio_'.time().'.csv';
+			if(move_uploaded_file($_FILES['idigbiofile']['tmp_name'],$fullPath)){
+				if($fh = fopen($fullPath,'rb')){
+					$headerArr = fgetcsv($fh,0,',');
+				}
+			}
+		}
+	}
+
 	//Image file upload
 	public function loadImageFile(){
 		$inFileName = basename($_FILES['uploadfile']['name']);
@@ -227,34 +325,17 @@ class ImageProcessor {
 		return '';
 	}
 
-	public function echoFileMapping($fileName){
+	public function getHeaderArr($fileName){
+		$retArr = array();
 		$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/'.$fileName;
 		if($fh = fopen($fullPath,'rb')){
-			$translationMap = array('catalognumber' => 'catalognumber', 'othercatalognumbers' => 'othercatalognumbers', 'othercatalognumber' => 'othercatalognumbers', 'url' => 'url',
-				'web' => 'url','thumbnailurl' => 'thumbnailurl', 'thumbnail' => 'thumbnailurl', 'originalurl' => 'originalurl', 'large' => 'originalurl', 'sourceurl' => 'sourceurl');
 			$headerArr = fgetcsv($fh,0,',');
 			foreach($headerArr as $i => $sourceField){
-				if($sourceField != 'collid'){
-					echo '<tr><td style="padding:2px;">';
-					echo $sourceField;
-					$sourceField = strtolower($sourceField);
-					echo '<input type="hidden" name="sf['.$i.']" value="'.$sourceField.'" />';
-					$sourceField = preg_replace('/[^a-z]+/','',$sourceField);
-					echo '</td><td>';
-					echo '<select name="tf['.$i.']" style="background:'.(!array_key_exists($sourceField,$translationMap)?'yellow':'').'">';
-					echo '<option value="">Select Target Field</option>';
-					echo '<option value="">-------------------------</option>';
-					echo '<option value="catalognumber" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='catalognumber'?'SELECTED':'').'>Catalog Number</option>';
-					echo '<option value="othercatalognumbers" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='othercatalognumbers'?'SELECTED':'').'>Other Catalog Numbers</option>';
-					echo '<option value="originalurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='originalurl'?'SELECTED':'').'>Large Image URL (required)</option>';
-					echo '<option value="url" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='url'?'SELECTED':'').'>Web Image URL</option>';
-					echo '<option value="thumbnailurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='thumbnailurl'?'SELECTED':'').'>Thumbnail URL</option>';
-					echo '<option value="sourceurl" '.(isset($translationMap[$sourceField]) && $translationMap[$sourceField]=='sourceurl'?'SELECTED':'').'>Source URL</option>';
-					echo '</select>';
-					echo '</td></tr>';
-				}
+				if($sourceField != 'collid') $retArr[$i] = $sourceField;
 			}
+			fclose($fh);
 		}
+		return $retArr;
 	}
 
 	public function loadFileData($postArr){
@@ -262,7 +343,7 @@ class ImageProcessor {
 			$fieldMap = array_flip($postArr['tf']);
 			$fullPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1) != '/'?'/':'').'temp/data/'.$postArr['filename'];
 			if($fh = fopen($fullPath,'rb')){
-				$this->initProcessor('processing\imgmap');
+				$this->initProcessor('processing/imgmap');
 				$this->logOrEcho('Starting to process image URLs within image mapping file '.$postArr['filename'].' ('.date('Y-m-d H:i:s').')');
 				fgetcsv($fh);	//Advance one row to skipper header row
 				$cnt = 1;
@@ -498,7 +579,7 @@ class ImageProcessor {
 
 	private function databaseImage($occid,$targetFieldArr){
 		$status = true;
-		if($occid){
+		if($occid && $targetFieldArr){
 			$format = 'image/jpeg';
 			/*
 			$testUrl = $lgUrl;
@@ -526,13 +607,14 @@ class ImageProcessor {
 			}
 			else{
 				$status = false;
-				$this->logOrEcho("ERROR: Unable to load image record into database: ".$this->conn->error,3);
+				$this->logOrEcho('ERROR: Unable to load image record into database: '.$this->conn->error,3);
 				//$this->logOrEcho($sql);
 			}
 		}
 		else{
 			$status = false;
-			$this->logOrEcho("ERROR: Missing occid (omoccurrences PK), unable to load record ",2);
+			if(!$occid) $this->logOrEcho('ERROR: Missing occid (omoccurrences PK), unable to load record ',2);
+			else $this->logOrEcho('ERROR: Missing image data, unable to load record ',2);
 		}
 		return $status;
 	}

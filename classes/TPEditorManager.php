@@ -270,6 +270,27 @@ class TPEditorManager extends Manager {
 	}
 
 	//Misc data functions
+	public function getTidFromStr($sciname){
+		$retArr = array();
+		$sql = 'SELECT t.tid, t.sciname, t.author, t.rankid, k.sciname as kingdom, u.rankname, u.kingdomname '.
+			'FROM taxa t LEFT JOIN taxaenumtree e ON t.tid = e.tid '.
+			'LEFT JOIN taxa k ON e.parenttid = k.tid '.
+			'INNER JOIN taxonunits u ON t.rankid = u.rankid '.
+			'WHERE (t.sciname = "'.$this->cleanInStr($sciname).'") AND (e.taxauthid = 1) AND (k.rankid = 10 OR k.rankid IS NULL)';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			if(!isset($retArr[$r->tid])){
+				$retArr[$r->tid]['sciname'] = $r->sciname;
+				$retArr[$r->tid]['author'] = $r->author;
+				$retArr[$r->tid]['rankid'] = $r->rankid;
+				$retArr[$r->tid]['kingdom'] = $r->kingdom;
+			}
+			if(!isset($retArr[$r->tid]['rankname']) || $retArr[$r->tid]['kingdom'] == $r->kingdomname) $retArr[$r->tid]['rankname'] = $r->rankname;
+		}
+		$rs->free();
+		return $retArr;
+	}
+
 	protected function getLangMap(){
 		$retArr = array();
 		$sql = 'SELECT langid, langname, iso639_1 FROM adminlanguages';

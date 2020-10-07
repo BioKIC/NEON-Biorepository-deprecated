@@ -1,42 +1,27 @@
 <?php
 include_once('../../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/SpecLoans.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceLoans.php');
 require_once $SERVER_ROOT.'/vendor/phpoffice/phpword/bootstrap.php';
 
-$loanManager = new SpecLoans();
-
 $collId = $_REQUEST['collid'];
-$printMode = $_POST['print'];
-$language = $_POST['languagedef'];
-$loanId = array_key_exists('loanid',$_REQUEST)?$_REQUEST['loanid']:0;
-$exchangeId = array_key_exists('exchangeid',$_REQUEST)?$_REQUEST['exchangeid']:0;
+$outputMode = $_POST['outputmode'];
+$loanId = array_key_exists('identifier',$_REQUEST)?$_REQUEST['identifier']:0;
 $loanType = array_key_exists('loantype',$_REQUEST)?$_REQUEST['loantype']:0;
-$international = array_key_exists('international',$_POST)?$_POST['international']:0;
-$searchTerm = array_key_exists('searchterm',$_POST)?$_POST['searchterm']:'';
-$displayAll = array_key_exists('displayall',$_POST)?$_POST['displayall']:0;
-$formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
-$export = false;
-if($printMode == 'doc') $export = true;
-
+$loanManager = new OccurrenceLoans();
 if($collId) $loanManager->setCollId($collId);
 
-$spanish = ($language == 'span'?1:0);
-
-$identifier = 0;
-if($loanId){
-	$identifier = $loanId;
-}
-elseif($exchangeId){
-	$identifier = $exchangeId;
-}
-
-$invoiceArr = $loanManager->getInvoiceInfo($identifier,$loanType);
+$invoiceArr = $loanManager->getInvoiceInfo($loanId,$loanType);
 $addressArr = $loanManager->getFromAddress($collId);
-$specTotal = $loanManager->getSpecTotal($loanId);
 $specList = $loanManager->getSpecList($loanId);
+$targetCode = $invoiceArr['institutioncode'];
+$sourceCode = $addressArr['institutioncode'];
+if($loanType == 'in'){
+	$targetCode = $addressArr['institutioncode'];
+	$sourceCode = $invoiceArr['institutioncode'];
+}
 
-if($export){
+if($outputMode == 'doc'){
 	$phpWord = new \PhpOffice\PhpWord\PhpWord();
 	$phpWord->addParagraphStyle('header', array('align'=>'left','lineHeight'=>1.0,'spaceAfter'=>0,'keepNext'=>true,'keepLines'=>true));
 	$phpWord->addFontStyle('headerFont', array('size'=>14,'name'=>'Arial'));
@@ -56,14 +41,14 @@ if($export){
 	$section = $phpWord->addSection(array('pageSizeW'=>12240,'pageSizeH'=>15840,'marginLeft'=>1080,'marginRight'=>1080,'marginTop'=>1080,'marginBottom'=>1080,'headerHeight'=>0,'footerHeight'=>0));
 
 	$textrun = $section->addTextRun('header');
-	$textrun->addText(htmlspecialchars('List of specimens loaned to: '.$invoiceArr['institutioncode']),'headerFont');
+	$textrun->addText(htmlspecialchars('List of specimens loaned to: '.$targetCode),'headerFont');
 	$section->addTextBreak(1);
 	$textrun = $section->addTextRun('info');
-	$textrun->addText(htmlspecialchars($addressArr['institutioncode'].' Loan ID: '.$invoiceArr['loanidentifierown']),'infoFont');
+	$textrun->addText(htmlspecialchars($sourceCode.' Loan ID: '.$invoiceArr['loanidentifierown']),'infoFont');
 	$textrun->addTextBreak(1);
 	$textrun->addText(htmlspecialchars('Date sent: '.$invoiceArr['datesent']),'infoFont');
 	$textrun->addTextBreak(1);
-	$textrun->addText(htmlspecialchars('Total specimens: '.($specTotal?$specTotal['speccount']:0)),'infoFont');
+	$textrun->addText(htmlspecialchars('Total specimens: '.$loanManager->getSpecimenTotal($loanId)),'infoFont');
 	$section->addTextBreak(1);
 	$table = $section->addTable('headerTable');
 	$table->addRow();
@@ -71,7 +56,7 @@ if($export){
 	$table->addCell(4500,$cellStyle)->addText(htmlspecialchars('Collector + Number'),'colHeaderFont','colHeadSpace');
 	$table->addCell(6000,$cellStyle)->addText(htmlspecialchars('Current Determination'),'colHeaderFont','colHeadSpace');
 	$table = $section->addTable('listTable');
-	foreach($specList as $k => $specArr){
+	foreach($specList as $specArr){
 		$table->addRow();
 		$table->addCell(2250,$cellStyle)->addText(htmlspecialchars($specArr['catalognumber']),'colFont','colSpace');
 		$table->addCell(4500,$cellStyle)->addText(htmlspecialchars($specArr['collector']),'colFont','colSpace');
@@ -93,19 +78,19 @@ else{
 	?>
 	<html>
 		<head>
-			<title><?php echo $identifier; ?> Specimen List</title>
+			<title><?php echo $sourceCode.' '.$invoiceArr['loanidentifierown']; ?> Specimen List</title>
+			<?php
+			$activateJQuery = false;
+			if(file_exists($SERVER_ROOT.'/includes/head.php')){
+				include_once($SERVER_ROOT.'/includes/head.php');
+			}
+			else{
+				echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+				echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+				echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+			}
+			?>
 			<style type="text/css">
-        <?php
-          $activateJQuery = false;
-          if(file_exists($SERVER_ROOT.'/includes/head.php')){
-            include_once($SERVER_ROOT.'/includes/head.php');
-          }
-          else{
-            echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-            echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-            echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-          }
-        ?>
 				body {font-family:arial,sans-serif;}
 				p.printbreak {page-break-after:always;}
 				.header {width:100%;text-align:left;font:14pt arial,sans-serif;}
@@ -117,19 +102,19 @@ else{
 		<body style="background-color:#ffffff;">
 			<div>
 				<div class="header">
-					List of specimens loaned to: <?php echo $invoiceArr['institutioncode']; ?>
+					List of specimens loaned to: <?php echo $targetCode; ?>
 				</div>
 				<br />
 				<div class="loaninfo">
-					<?php echo $addressArr['institutioncode']; ?> Loan ID: <?php echo $invoiceArr['loanidentifierown']; ?><br />
+					<?php echo $sourceCode; ?> Loan ID: <?php echo $invoiceArr['loanidentifierown']; ?><br />
 					Date sent: <?php echo $invoiceArr['datesent']; ?><br />
-					Total specimens: <?php echo ($specTotal?$specTotal['speccount']:0);?>
+					Total specimens: <?php echo $loanManager->getSpecimenTotal($loanId);?>
 				</div>
 				<br />
 				<table class="colheader">
 					<tr>
 						<td style="width:150px;">
-							<?php echo $addressArr['institutioncode']; ?><br />
+							<?php echo $sourceCode; ?><br />
 							Catalog &#35;
 						</td>
 						<td style="width:300px;">
@@ -143,7 +128,7 @@ else{
 				</table>
 				<table class="specimen">
 					<?php
-					foreach($specList as $k => $specArr){
+					foreach($specList as $specArr){
 						echo '<tr>';
 						echo '<td style="width:150px;">'.$specArr['catalognumber'].'</td>';
 						echo '<td style="width:300px;">'.$specArr['collector'].'</td>';

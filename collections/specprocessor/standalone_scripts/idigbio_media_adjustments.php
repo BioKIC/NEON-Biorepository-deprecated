@@ -89,7 +89,7 @@ class iDigBioMediaTools {
 		curl_setopt($handle, CURLOPT_NOBODY, true);
 		curl_setopt($handle, CURLOPT_FAILONERROR, true);
 		curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true );
-		curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
+		//curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36');
 		curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 		curl_exec($handle);

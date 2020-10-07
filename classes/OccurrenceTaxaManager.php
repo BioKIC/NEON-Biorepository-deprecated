@@ -37,8 +37,8 @@ class OccurrenceTaxaManager {
 	protected $taxAuthId = 1;
 	private $taxaSearchTerms = array();
 
-	public function __construct(){
-		$this->conn = MySQLiConnectionFactory::getCon('readonly');
+	public function __construct($type='readonly'){
+		$this->conn = MySQLiConnectionFactory::getCon($type);
 	}
 	public function __destruct(){
 		if ((!($this->conn === false)) && (!($this->conn === null))) {
@@ -335,7 +335,7 @@ class OccurrenceTaxaManager {
 		if(isset($this->taxaArr['taxa'])){
 			foreach($this->taxaArr['taxa'] as $taxonName => $taxonArr){
 				$str = '';
-				if($this->taxaArr["taxontype"] == TaxaSearchType::ANY_NAME) $str .= TaxaSearchType::anyNameSearchTag($taxonArr["taxontype"]).": ";
+				if(isset($taxonArr['taxontype']) && $this->taxaArr['taxontype'] == TaxaSearchType::ANY_NAME) $str .= TaxaSearchType::anyNameSearchTag($taxonArr['taxontype']).': ';
 				$str .= $taxonName;
 				if(array_key_exists("scinames",$taxonArr)){
 					$str .= " => ".implode(",",$taxonArr["scinames"]);

@@ -10,9 +10,10 @@ $taxon = array_key_exists("taxon",$_REQUEST)?$_REQUEST["taxon"]:"";
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 $tabIndex = array_key_exists("tabindex",$_REQUEST)?$_REQUEST["tabindex"]:0;
 
+if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($tabIndex)) $tabIndex = 0;
 
-$tEditor;
+$tEditor = null;
 if($tabIndex == 1 || $tabIndex == 2){
 	$tEditor = new TPImageEditorManager();
 }
@@ -23,7 +24,17 @@ else{
 	$tEditor = new TPEditorManager();
 }
 
-$tid = $tEditor->setTid($tid?$tid:$taxon);
+$taxaArr = array();
+if(!$tid && $taxon){
+	if(is_numeric($taxon)) $tid = $taxon;
+	else{
+		$taxaArr = $tEditor->getTidFromStr($taxon);
+		if($taxaArr){
+			if(count($taxaArr) == 1) $tid = key($taxaArr);
+		}
+	}
+}
+$tid = $tEditor->setTid($tid);
 
 $statusStr = "";
 $isEditor = false;
@@ -122,14 +133,9 @@ if($isEditor && $action){
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
 	<script type="text/javascript">
-		$(document).ready(function() {
-			$("#sninput").autocomplete({
-				source: function( request, response ) {
-					$.getJSON( "rpc/gettaxasuggest.php", { "term": request.term, "taid": "1" }, response );
-				}
-			},{ minLength: 3, autoFocus: true }
-			);
+		var clientRoot = "<?php echo $CLIENT_ROOT; ?>";
 
+		$(document).ready(function() {
 			$('#tabs').tabs({
 				active: <?php echo $tabIndex; ?>
 			});
@@ -158,6 +164,7 @@ if($isEditor && $action){
 			if (occWindow.opener == null) occWindow.opener = self;
 		}
 	</script>
+	<script src="../../js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
 	<style type="text/css">
 		.sectionDiv{ clear:both; }
 		.sectionDiv div{ float:left }
@@ -176,13 +183,10 @@ if($isEditor && $action){
 	<?php
 	$displayLeftMenu = (isset($taxa_admin_tpeditorMenu)?$taxa_admin_tpeditorMenu:false);
 	include($SERVER_ROOT.'/includes/header.php');
-	if(isset($taxa_admin_tpeditorCrumbs)){
-		echo "<div class='navpath'>";
-		echo $taxa_admin_tpeditorCrumbs;
-		echo " <b>Taxon Profile Editor</b>";
-		echo "</div>";
-	}
 	?>
+	<div class="navpath">
+		<b>Taxon Profile Editor</b>
+	</div>
 	<div id="innertext">
 		<?php
 		if($tEditor->getTid()){
@@ -403,24 +407,31 @@ if($isEditor && $action){
 		else{
 			?>
 			<div style="margin:20px;">
-				<div style="font-weight:bold;">
-				<?php
-				if($taxon){
-					echo "<i>".ucfirst($taxon)."</i> not found in system. Check to see if spelled correctly and if so, add to system.";
-				}
-				else{
-					echo "Enter scientific name you wish to edit:";
-				}
-				?>
-				</div>
 				<form name="gettidform" action="tpeditor.php" method="post" onsubmit="return checkGetTidForm(this);">
-					<input id="sninput" name="taxon" value="<?php echo $taxon; ?>" size="40" />
-					<input type="hidden" name="lang" value="<?php echo $lang; ?>" />
+					<b>Taxon search: </b><input id="taxa" name="taxon" value="<?php echo $taxon; ?>" size="40" />
 					<input type="hidden" name="tabindex" value="<?php echo $tabIndex; ?>" />
 					<input type="submit" name="action" value="Edit Taxon" />
 				</form>
 			</div>
 			<?php
+			if(count($taxaArr) > 1){
+				echo '<div style="margin:15px">Your search term matched on more than one taxa. Select the target taxon below: </div>';
+				echo '<div style="margin:10px">';
+				foreach($taxaArr as $tidKey => $sciArr){
+					$outStr = '<b>'.$sciArr['sciname'];
+					if($sciArr['rankid'] > 179) $outStr = '<i>'.$outStr.'</i> ';
+					$outStr .= $sciArr['author'].'</b> ';
+					if(isset($sciArr['rankname'])) $outStr .= '- '.$sciArr['rankname'].' rank ';
+					if(isset($sciArr['kingdom'])) $outStr .= ' ('.$sciArr['kingdom'].')';
+					echo '<div><a href="tpeditor.php?tid='.$tidKey.'">'.$outStr.'</a></div>';
+				}
+				echo '</div>';
+			}
+			else{
+				echo '<div style="margin:15px">';
+				if($taxon) echo "<i>".ucfirst($taxon)."</i> not found in system. Check spelleing, or contact administrator to request name to be added into system.";
+				echo '</div>';
+			}
 		}
 		?>
 	</div>

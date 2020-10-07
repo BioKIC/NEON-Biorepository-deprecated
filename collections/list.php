@@ -145,7 +145,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 				</div>
 				<div style="margin:5px;">
 					<?php
-					echo '<div><b>'.$LANG['DATASET'].':</b> '.$collManager->getDatasetSearchStr().'</div>';
+					echo '<div><b>'.$LANG['DATASET'].':</b> '.$collManager->getCollectionSearchStr().'</div>';
 					if($taxaSearchStr = $collManager->getTaxaSearchStr()){
 						echo '<div><b>'.$LANG['TAXA'].':</b> '.$taxaSearchStr.'</div>';
 					}

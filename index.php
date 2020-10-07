@@ -66,40 +66,32 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			-->
 		</div>
 		<div style="padding: 0px 10px;font-size:120%">
-			<h1 style="font-family:'Mate', serif">Welcome to the CCH2 data portal</h1>
-			<div id="quicksearchdiv" style="float:right;padding: 10px 20px 10px 20px;font-family:'Mate', serif">
-				<!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
-				<form name="quicksearch" id="quicksearch" action="<?php echo $CLIENT_ROOT; ?>/taxa/index.php" method="get" onsubmit="return verifyQuickSearch(this);">
-					<div id="quicksearchtext" style="font-family:'Mate', serif">Search Taxon</div>
-					<input id="taxa" type="text" name="taxon" />
-					<button name="formsubmit"  id="quicksearchbutton" type="submit" value="Search Terms">Search</button>
-				</form>
-			</div>
-			<p style="font-family:'Mate', serif">
+			<h1 style=>Welcome to the CCH2 data portal</h1>
+			<p>
 				<b>CCH2</b> serves data from specimens housed in member herbaria of the <b>Consortium of California Herbaria (CCH)</b>. This portal has a worldwide scope and a broad taxonomic basis including vascular plants, bryophytes, algae, fungi, and lichens.
 			</p>
-			<p style="font-family:'Mate', serif">	
+			<p>	
 				These data are currently growing due to the work of the <b>California Phenology Thematic Collections Network</b> (<b>CAP-TCN;</b> <a href="https://www.capturingcaliforniasflowers.org" target="_blank">https://www.capturingcaliforniasflowers.org</a>).
 				This collaboration of 28 universities, research stations, natural history collections, and botanical gardens aims to capture images, label data, and phenological (i.e., flowering time)
 				data from nearly 1 million herbarium specimens by 2022. Data contained in the CCH2 portal
 				will continue to grow even after this time through the activities of the CCH member institutions.
 			</p>
-			<p style="font-family:'Mate', serif">
+			<p>
 				The CCH2 portal is managed by UC Berkeley and Cal Poly, San Luis Obispo.
 			</p>
 			<div style="float:right"><img src="images/layout/UC1278733_small.jpg" style="width:200px;margin:0px 90px" /></div>
-			<p style="font-family:'Mate', serif">	For more information about the California Consortium of Herbaria (CCH) see:</p>
-			<div style="margin-left:15px"><p style="font-family:'Mate', serif"><a href="http://ucjeps.berkeley.edu/consortium/about.html" target="_blank">http://ucjeps.berkeley.edu/consortium/about.html</a></p></div>
-            <div style="font-family:'Mate', serif">
+			<p>	For more information about the California Consortium of Herbaria (CCH) see:</p>
+			<div style="margin-left:15px"><p><a href="http://ucjeps.berkeley.edu/consortium/about.html" target="_blank">http://ucjeps.berkeley.edu/consortium/about.html</a></p></div>
+            <div>
             <b>Using CCH2 data:</b>
             </div>
-			<div style="margin-top:15px;padding: 0px 10px;font-family:'Mate', serif">
+			<div style="margin-top:15px;padding: 0px 10px>
 				Please refer to our <a href="http://cch2.org/portal/includes/usagepolicy.php">Data Use Policy</a>. The Consortium of California Herbaria asks that users not redistribute data obtained from this site.
 				However, links or references to this site may be freely posted. If you have any questions about this policy,
 				please contact Jason Alexander (<a href="mailto:jason_alexander@berkeley.edu">jason_alexander@berkeley.edu</a>) or Katie Pearson (<a href="mailto:kdpearso@calpoly.edu">kdpearso@calpoly.edu</a>).
             </div>
 
-			<div style="margin-top:15px;padding: 0px 0px;font-family:'Mate', serif">
+			<div style="margin-top:15px;padding: 0px 0px">
             <b>More California specimen data may be found at the following portals:</b>
 				<ul>
                     <li>Only California vascular plants, linked to the statewide Jepson eFlora project: <a href="http://ucjeps.berkeley.edu/consortium/" target="_blank">CCH1 Portal</a></li>

@@ -8,7 +8,7 @@ require_once $SERVER_ROOT.'/vendor/phpoffice/phpword/bootstrap.php';
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 180); //180 seconds = 3 minutes
 
-$ses_id = session_id();
+$ses_id = time();
 
 if(class_exists('Image_Barcode2')){
 	$bcObj = new Image_Barcode2;

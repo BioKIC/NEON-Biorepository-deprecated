@@ -2,8 +2,7 @@
  * 
  **/
 body{
-	width: 80%;
-	min-width:950px;
+	width: 1220px;
 	margin-top:0px;
 }
 
@@ -23,10 +22,6 @@ body{
 	color:#FFFFFF;
 	text-align:left;
 	padding:0px;
-	background-repeat: no-repeat !important;
-	background-position: 50.00% 34.65% !important;
-	background-size: 100% !important;
-	background-color: transparent !important;
 }
 
 #header a{

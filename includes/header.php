@@ -1,8 +1,8 @@
 <table id="maintable" cellspacing="0">
 	<tr>
 		<td id="header" colspan="3">
-			<div style="clear:both; width:100%; height:200px; border-bottom:1px solid #000000;">
-				<img src="<?php echo $CLIENT_ROOT; ?>/images/layout/NewCCH2Banner.jpg" style="width:100%;height:100%"/>
+			<div style="clear:both; width:100%; border-bottom:1px solid #000000;">
+				<img src="<?php echo $CLIENT_ROOT; ?>/images/layout/NewCCH2Banner.jpg"/>
 			</div>
 			<div id="top_navbar" style="clear:both">
 				<div id="right_navbarlinks">

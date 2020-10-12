@@ -5,11 +5,12 @@ include_once('ImageShared.php');
 class ImageCleaner extends Manager{
 
 	private $collid;
-	private $collCodeArr = array();
+	private $collMetaArr = array();
 	private $tidArr = array();
 	private $imgRecycleBin;
 	private $imgDelRecOverride = false;
 	private $imgManager = null;
+	private $buildMediumDerivative = true;
 
 	function __construct() {
 		parent::__construct(null,'write');
@@ -29,7 +30,6 @@ class ImageCleaner extends Manager{
 			'LEFT JOIN omcollections c ON o.collid = c.collid ';
 		if($this->tidArr) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
 		$sql .= $this->getSqlWhere().'GROUP BY c.collid ORDER BY c.collectionname';
-		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$id = $r->collid;
@@ -55,12 +55,8 @@ class ImageCleaner extends Manager{
 
 		//Get image recordset to be processed
 		$sql = 'SELECT DISTINCT i.imgid, i.url, i.originalurl, i.thumbnailurl, i.format ';
-		if($this->collid){
-			$sql .= ', o.catalognumber FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid ';
-		}
-		else{
-			$sql .= 'FROM images i ';
-		}
+		if($this->collid) $sql .= ', o.catalognumber FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid ';
+		else $sql .= 'FROM images i ';
 		if($this->tidArr) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
 		$sql .= $this->getSqlWhere().'ORDER BY RAND()';
 		//echo $sql; exit;
@@ -79,10 +75,6 @@ class ImageCleaner extends Manager{
 			if($testR = $textRS->fetch_object()){
 				if(!$testR->thumbnailurl || (substr($testR->thumbnailurl,0,10) == 'processing' && $testR->thumbnailurl != 'processing '.date('Y-m-d'))){
 					$tagSql = 'UPDATE images SET thumbnailurl = "processing '.date('Y-m-d').'" WHERE (imgid = '.$imgId.')';
-					$this->conn->query($tagSql);
-				}
-				elseif($testR->url == 'empty' || (substr($testR->url,0,10) == 'processing' && $testR->url != 'processing '.date('Y-m-d'))){
-					$tagSql = 'UPDATE images SET url = "processing '.date('Y-m-d').'" WHERE (imgid = '.$imgId.')';
 					$this->conn->query($tagSql);
 				}
 				else{
@@ -110,11 +102,12 @@ class ImageCleaner extends Manager{
 	}
 
 	private function setCollectionCode(){
-		if($this->collid){
-			$sql = 'SELECT collid, CONCAT_WS("_",institutioncode, collectioncode) AS code FROM omcollections WHERE collid = '.$this->collid;
+		if($this->collid && !$this->collMetaArr){
+			$sql = 'SELECT collid, CONCAT_WS("_",institutioncode, collectioncode) AS code, collectionname FROM omcollections WHERE collid = '.$this->collid;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$this->collCodeArr[$r->collid] = $r->code;
+				$this->collMetaArr[$r->collid]['code'] = $r->code;
+				$this->collMetaArr[$r->collid]['name'] = $r->collectionname;
 			}
 			$rs->free();
 		}
@@ -135,8 +128,8 @@ class ImageCleaner extends Manager{
 		//Build target path
 		$targetPath = '';
 		if($this->collid){
-			if(!array_key_exists($this->collid, $this->collCodeArr)) $this->setCollectionCode();
-			$targetPath = $this->collCodeArr[$this->collid].'/';
+			if(!array_key_exists($this->collid, $this->collMetaArr)) $this->setCollectionCode();
+			$targetPath = $this->collMetaArr[$this->collid]['code'].'/';
 			if($catNum){
 				$catNum = str_replace(array('/','\\',' '), '', $catNum);
 				if(preg_match('/^(\D{0,8}\d{4,})/', $catNum, $m)){
@@ -202,7 +195,7 @@ class ImageCleaner extends Manager{
 						$webIsEmpty = true;
 					}
 				}
-				if($webIsEmpty){
+				if($this->buildMediumDerivative && $webIsEmpty){
 					if($sourceWidth && $sourceWidth < $this->imgManager->getWebPixWidth()){
 						if(copy($this->imgManager->getSourcePath(),$this->imgManager->getTargetPath().$this->imgManager->getImgName().'_web'.$this->imgManager->getImgExt())){
 							$webFullUrl = $this->imgManager->getUrlBase().$this->imgManager->getImgName().'_web'.$this->imgManager->getImgExt();
@@ -216,12 +209,8 @@ class ImageCleaner extends Manager{
 				}
 
 				$sql = 'UPDATE images ti SET ti.thumbnailurl = "'.$imgTnUrl.'" ';
-				if($webFullUrl){
-					$sql .= ',url = "'.$webFullUrl.'" ';
-				}
-				if($lgFullUrl){
-					$sql .= ',originalurl = "'.$lgFullUrl.'" ';
-				}
+				if($webFullUrl) $sql .= ',url = "'.$webFullUrl.'" ';
+				if($lgFullUrl) $sql .= ',originalurl = "'.$lgFullUrl.'" ';
 				if($setFormat){
 					if($this->imgManager->getFormat()){
 						$sql .= ',format = "'.$this->imgManager->getFormat().'" ';
@@ -641,7 +630,7 @@ class ImageCleaner extends Manager{
 
 	//Setters and getters
 	public function setCollid($id){
-		if(is_numeric($id) && $id){
+		if(is_numeric($id)){
 			$this->collid = $id;
 		}
 	}
@@ -671,6 +660,20 @@ class ImageCleaner extends Manager{
 			$rs->free();
 		}
 		return $sciname;
+	}
+
+	public function getCollectionName(){
+		$retStr = '';
+		if($this->collid){
+			if(!$this->collMetaArr) $this->setCollectionCode();
+			$retStr = $this->collMetaArr[$this->collid]['name'];
+		}
+		return $retStr;
+	}
+
+	public function setBuildMediumDerivative($bool){
+		if($bool) $this->buildMediumDerivative = true;
+		else $this->buildMediumDerivative = false;
 	}
 }
 ?>

@@ -5,7 +5,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $taxa = new Sources();
 
-$taxaArr = $taxa->getTaxaWithSources(10);
+$taxaArr = $taxa->getTaxaWithSources(20);
 $headerArr = ['Collection Category', 'NEON Taxon Type Code', 'collid', 'NEON Taxon ID', 'sciname', 'Source in Symbiota', 'Source in NEON API'];
 ?>
 <html>

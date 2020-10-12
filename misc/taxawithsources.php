@@ -67,6 +67,9 @@ $headerArr = ['Collection Category', 'NEON Taxon Type Code', 'collid', 'NEON Tax
 		</div>
 		<!-- This is inner text! -->
 		<div id="innertext">
+    <button>
+      <a href="taxawithsourcescsv.php">Download CSV</a>
+    </button>
       <?php 
         if(!empty($taxaArr)){
           $neonArr = array();

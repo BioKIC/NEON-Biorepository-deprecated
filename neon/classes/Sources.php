@@ -140,6 +140,23 @@ class Sources extends Manager {
     }
     return "<table>" . implode('', array_merge($headers, $rows)) . "</table>";
   }
-	
-} 
+
+  // Generates CSV file to download
+  public function downloadTaxSources($data, $header, $fileName){
+    header ('Content-Type: text/csv');
+    header ("Content-Disposition: attachment; filename=\"$fileName\"");
+    if($data){
+      $outstream = fopen("php://output", "w");
+      fputcsv($outstream,$header);
+
+      foreach($data as $row){
+        fputcsv($outstream,$row);
+      }
+      fclose($outstream);
+    }
+    else{
+      echo "Recordset is empty.\n";
+    }
+  }
+}
 ?>

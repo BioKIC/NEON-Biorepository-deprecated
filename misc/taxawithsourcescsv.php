@@ -5,7 +5,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $taxa = new Sources();
 
-$taxaArr = $taxa->getTaxaWithSources(10);
+$taxaArr = $taxa->getTaxaWithSources(20);
 $taxaCsv = $taxa->getTaxaWithSources(1000);
 $headerArr = ['Collection Category', 'NEON Taxon Type Code', 'collid', 'NEON Taxon ID', 'sciname', 'Source in Symbiota', 'Source in NEON API'];
 
@@ -18,6 +18,6 @@ $headerArr = ['Collection Category', 'NEON Taxon Type Code', 'collid', 'NEON Tax
       // echo "$sciname - $neonSource <br>";
     };
     $taxaTable = $taxa->htmlTable($taxaArr, $headerArr);
-    $taxa->downloadTaxSources($taxaArr,$headerArr,'biorepo-taxa-with-sources.csv');
+    $taxa->downloadTaxSources($taxaCsv,$headerArr,'biorepo-taxa-with-sources.csv');
     };
 ?>

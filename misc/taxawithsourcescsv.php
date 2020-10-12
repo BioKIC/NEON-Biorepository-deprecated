@@ -5,7 +5,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $taxa = new Sources();
 
-$taxaArr = $taxa->getTaxaWithSources();
+$taxaArr = $taxa->getTaxaWithSources(10);
+$taxaCsv = $taxa->getTaxaWithSources(1000);
 $headerArr = ['Collection Category', 'NEON Taxon Type Code', 'collid', 'NEON Taxon ID', 'sciname', 'Source in Symbiota', 'Source in NEON API'];
 
   if(!empty($taxaArr)){

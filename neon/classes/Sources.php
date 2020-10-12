@@ -89,10 +89,10 @@ class Sources extends Manager {
   }
 
   // Gets a list of taxa with Symbiota sources and NEON codes
-  public function getTaxaWithSources(){
+  public function getTaxaWithSources($limit){
     $dataArr = array();
 
-    $sql = 'SELECT * FROM taxsources LIMIT 10';
+    $sql = 'SELECT * FROM taxsources LIMIT '.$limit;
 
     $result = $this->conn->query($sql);
 

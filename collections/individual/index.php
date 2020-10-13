@@ -857,6 +857,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						</div>
 						<?php
 						if($collMetadata['individualurl']){
+							$sourceTitle = 'Link to Source';
+							if(strpos($collMetadata['individualurl'], ':')) $sourceTitle = array_shift(explode(':', $collMetadata['individualurl']));
 							$displayID = '';
 							$indUrl = '';
 							if(strpos($collMetadata['individualurl'],'--DBPK--') !== false && $occArr['dbpk']){
@@ -868,7 +870,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$collMetadata['individualurl']);
 							}
 							elseif(strpos($collMetadata['individualurl'],'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
-								$otherCatNum = trim($occArr['othercatalognumbers']);
+								$otherCatNum = trim(array_pop(explode(':', $occArr['othercatalognumbers'])));
 								if($p = strpos($otherCatNum,';')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
 								elseif($p = strpos($otherCatNum,',')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
 								$displayID = $otherCatNum;
@@ -879,14 +881,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$collMetadata['individualurl']);
 							}
 							if($indUrl){
-								echo '<div style="margin-top:10px;clear:both;"><b>Link to Source:</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
+								echo '<div style="margin-top:10px;clear:both;"><b>'.$sourceTitle.':</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
 							}
 						}
 						//Rights
 						$rightsStr = $collMetadata['rights'];
 						if($collMetadata['rights']){
 							$rightsHeading = '';
-							if(isset($rightsTerms)) $rightsHeading = array_search($rightsStr,$rightsTerms);
+							if(isset($RIGHTS_TERMS)) $rightsHeading = array_search($rightsStr,$RIGHTS_TERMS);
 							if(substr($collMetadata['rights'],0,4) == 'http'){
 								$rightsStr = '<a href="'.$rightsStr.'" target="_blank">'.($rightsHeading?$rightsHeading:$rightsStr).'</a>';
 							}

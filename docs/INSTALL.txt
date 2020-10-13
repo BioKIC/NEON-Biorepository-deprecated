@@ -24,8 +24,8 @@ INSTRUCTIONS
 http://symbiota.org/docs/symbiota-introduction/establishing-a-regional-flora-or-fauna/ 
 
 1. Download Symbiota code from GitHub repository
-   https://github.com/Symbiota/Symbiota-light  
-   Command line checkout: git clone https://github.com/Symbiota/Symbiota-light.git
+   https://github.com/BioKIC/Symbiota-light  
+   Command line checkout: git clone https://github.com/BioKIC/Symbiota-light.git
 2. Install Symbiota database schema
    a. Create new database (e.g. CREATE SCHEMA symbdb CHARACTER SET utf8 COLLATE utf8_general_ci) 
    b. Create read-only and read/write users for Symbiota database 
@@ -34,10 +34,10 @@ http://symbiota.org/docs/symbiota-introduction/establishing-a-regional-flora-or-
       GRANT SELECT,EXECUTE ON `symbdb`.* TO `symbreader`@localhost;
       GRANT SELECT,UPDATE,INSERT,DELETE,EXECUTE ON `symbdb`.* TO `symbwriter`@localhost;
    c. Load databse schema from scripts. Schema definition files are  
-      located in <SymbiotaBaseFolder>/config/schema-1.0/utf-8/. By default, 
+      located in <SymbiotaBaseFolder>/config/schema-1.0/utf8/. By default, 
       the database is assumed to be configured to a UTF8 character set.  
       Run db_schema-1.0.sql to install the core table structure. 
-      From MySQL commandline: SOURCE /BaseFolderPath/config/schema-1.0/utf-8/db_schema-1.0.sql 
+      From MySQL commandline: SOURCE /BaseFolderPath/config/schema-1.0/utf8/db_schema-1.0.sql 
    d. Run database patch scripts to bring database up to current structure. 
       Make sure to run the scripts in the correct order 
       e.g. db_schema_patch-1.1.sql, db_schema_patch-1.2.sql, etc.
@@ -50,13 +50,12 @@ http://symbiota.org/docs/symbiota-introduction/establishing-a-regional-flora-or-
       subject.
    b. Database connection - rename 
       /config/dbconnection_template.php to /config/dbconnection.php. 
-      modify with readonly and read/write logs, passwords, and schema names.
+      modify with readonly and read/write logins, passwords, and schema names.
    c. Homepage - rename /index_template.php to index.php. This is your  
       home page to which will need introductory text, graphics, etc.
-   d. Layout - header.php and footer.php are used by all pages to establish 
-      uniform layout. left_menu.php is needed if a left menu is preferred. 
-      Within the /includes directory, rename header_template.php to header.php, and 
-      footer_template.php to footer.php  
+   d. Layout - Within the /includes directory, rename header_template.php to header.php, and 
+      footer_template.php to footer.php. The header.php and footer.php files are used by all  
+      pages to establish uniform layout. left_menu.php is needed if a left menu is preferred. 
       * header.php: Within file, change /images/layout/defaultheader.jpg 
         to /images/layout/header.jpg. Add your header to /images/layout/
         folder. Establishing the header using an image is easy, yet more 
@@ -68,7 +67,7 @@ http://symbiota.org/docs/symbiota-introduction/establishing-a-regional-flora-or-
       For instance, you can create a copy of base.css renamed as main.css, link it within the head.php after the base.css, 
       and then override the css definitions called within base.css 
 4. File permissions - the web server needs write access to the following files and folders
-   - All folders in /temp/
+   - All folders in /temp/ (e.g. sudo chmod -R 777 temp/) 
    - /webservices/dwc/rss.xml
    - /content/collicon/
    - /content/dwca/
@@ -84,9 +83,9 @@ http://symbiota.org/docs/symbiota-introduction/establishing-a-regional-flora-or-
    loading the different layers of data needed.
    a. User and permissions - Default administrative user has been 
       installed with following login: username = admin; password: admin.
-      Make sure to change password or better yet, create a new admin user 
-      (/profile/newprofile.php), assign admin rights (/profile/usermanagement.php), 
-      and then delete default admin user. 
+      Make sure to change password or better yet, create a new admin user, 
+      assign admin rights, and then delete default admin user. Permission 
+      controlls are found within Data Managment Panel within sitemap. 
    b. Taxonomic Thesaurus - Taxon names are stored within the 'taxa' table. 
       Taxonomic hierarchy and placement definitions are controled in the 
       'taxstatus' table. A recursive data relationship within the 'taxstatus' 
@@ -94,12 +93,11 @@ http://symbiota.org/docs/symbiota-introduction/establishing-a-regional-flora-or-
       can be defined, one of the thesauri needs to function as the central 
       taxonomy. Names must be added in order from upper taxonomic levels to 
       lower (e.g. kingdom, class, order, variety). Accepted names must be 
-      loaded before non-accepted names. See Taxonomic Schema Page for more 
-      details on taxonomic layout.  
+      loaded before non-accepted names.  
       i. Names can be added one-by-one using taxonomic management tools (see sitemap.php)
       ii. Name can be imported from taxnomic authorities (e.g. Catalog of Life, WoRMS, TROPICOS, etc)
           based on occurrence data loaded into the system using cleaning tools 
-          found in Data Cleaning Tools => Analyze taxonomic names... 
+          found in Data Cleaning Tools => Analyze taxonomic names... This is recommended.  
       iii. Batch Loader - Multiple names can be loaded from a flat, 
          tab-delimited text file. See instructions on the Batch Taxon 
          Loader for detailed instructions. See instructions on the 
@@ -107,10 +105,9 @@ http://symbiota.org/docs/symbiota-introduction/establishing-a-regional-flora-or-
       iv. Look in /config/schema/data/ folder to find taxonomic 
          thesaurus data that may serve as a base for your taxonomic 
          thesaurus.
-c. Occurrence (Specimen) Data
-   i. SuperAdmin are provided link to create new collection instances 
-      within Data Management pane within sitemap 
-   ii. See occurrence import options found within each collection's management menu 
+c. Occurrence (Specimen) Data: SuperAdmin can create new collection instances via
+   Data Management pane within sitemap. Within the collection's data managment menu, one can  
+   provide admin and read access to new users, add/edit occurrences, batch load data, etc.
 d. Images - to be completed
 e. Floristic data - to be completed
 f. Identification key data - to be completed
@@ -130,6 +127,3 @@ b. Database schema updates - Some php code updates will require database
    in the correct order (e.g. db_schema_patch_1.1.sql, then 
    db_schema_patch_1.2.sql, etc) 
    
-
-
-* Automatic updates will be enabled once a stable release is made public.

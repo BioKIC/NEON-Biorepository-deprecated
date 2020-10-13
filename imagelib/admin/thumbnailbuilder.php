@@ -6,18 +6,18 @@ header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../imagelib/admin/thumbnailbuilder.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
-$collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
+$collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:'';
 $tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:0;
+$buildMediumDerivatives = array_key_exists('buildmed',$_POST)?$_POST['buildmed']:0;
 
 //Sanitation
-if(!is_numeric($collid)) $collid = 0;
+if(!is_numeric($collid)) $collid = '';
 if(!is_numeric($tid)) $tid = 0;
+if(!is_numeric($buildMediumDerivatives)) $buildMediumDerivatives = 0;
 $action = filter_var($action,FILTER_SANITIZE_STRING);
 
 $isEditor = false;
-if($IS_ADMIN){
-	$isEditor = true;
-}
+if($IS_ADMIN) $isEditor = true;
 elseif($collid){
 	if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
 		$isEditor = true;
@@ -27,6 +27,7 @@ elseif($collid){
 $imgManager = new ImageCleaner();
 $imgManager->setCollid($collid);
 $imgManager->setTid($tid);
+$imgManager->setBuildMediumDerivative($buildMediumDerivatives);
 ?>
 <html>
 <head>
@@ -49,6 +50,14 @@ $imgManager->setTid($tid);
 			f.catNumList.value = "";
 		}
 	</script>
+	<style type="text/css">
+		fieldset{ padding: 10px }
+		fieldset legend{ font-weight: bold }
+		.fieldRowDiv{ clear:both; margin: 2px 0px; }
+		.fieldDiv{ float:left; margin: 2px 10px 2px 0px; }
+		.fieldLabel{ }
+		.fieldDiv button{ margin-top: 10px; }
+	</style>
 </head>
 <body>
 	<?php
@@ -58,12 +67,8 @@ $imgManager->setTid($tid);
 	<div class="navpath">
 		<a href="../../index.php">Home</a> &gt;&gt;
 		<?php
-		if($collid){
-			echo '<a href="../../collections/misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Menu</a> &gt;&gt;';
-		}
-		else{
-			echo '<a href="../../sitemap.php">Sitemap</a> &gt;&gt;';
-		}
+		if($collid) echo '<a href="../../collections/misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Menu</a> &gt;&gt;';
+		else echo '<a href="../../sitemap.php">Sitemap</a> &gt;&gt;';
 		?>
 		<b>Thumbnail Builder</b>
 	</div>
@@ -71,6 +76,10 @@ $imgManager->setTid($tid);
 	<div id="innertext">
 		<?php
 		if($isEditor){
+			echo '<h2>Thumbnail Maintenance Tool';
+			if($collid) echo ' - '.$imgManager->getCollectionName();
+			elseif($collid==='0') echo ' - field images';
+			echo '</h2>';
 			if($action && $action != 'none'){
 				if($action == 'resetprocessing'){
 					$imgManager->resetProcessing();
@@ -81,9 +90,7 @@ $imgManager->setTid($tid);
 						<legend><b>Processing Panel</b></legend>
 						<div style="font-weight:bold;">Start processing...</div>
 						<?php
-						if($action == 'Build Thumbnails'){
-							$imgManager->buildThumbnailImages();
-						}
+						if($action == 'buildThumbnails') $imgManager->buildThumbnailImages();
 						elseif($action == 'Refresh Thumbnails'){
 							echo '<div style="margin-bottom:10px;">Number of images to be refreshed: '.$imgManager->getProcessingCnt($_POST).'</div>';
 							$imgManager->refreshThumbnails($_POST);
@@ -122,16 +129,16 @@ $imgManager->setTid($tid);
 				<div style="margin:25px;">
 					<?php
 					if($reportArr){
-						if($collid && $action == 'Build Thumbnails' && $reportArr[$collid]['cnt']){
+						if($collid && $action == 'buildThumbnails' && $reportArr[$collid]['cnt']){
 							//Thumbnails have been processed but there are still some that missed processing
 							?>
 							<div>There appears to be some images that are not processing, perhaps because they have been tagged as being handled by another process.<br/>
 							Click the reset processing button to do a full reset of all images for reprocessing. This process can take a few minutes, so be patient. </div>
 							<div style="margin:10px">
 								<form name="resetform" action="thumbnailbuilder.php" method="post">
-									<button name="action" type="submit" value="resetprocessing">Reset Proccessing</button>
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>">
 									<input name="tid" type="hidden" value="<?php echo $tid; ?>">
+									<button name="action" type="submit" value="resetprocessing">Reset Proccessing</button>
 								</form>
 							</div>
 							<?php
@@ -139,9 +146,17 @@ $imgManager->setTid($tid);
 						else{
 							?>
 							<form name="tnbuilderform" action="thumbnailbuilder.php" method="post">
-								<input name="collid" type="hidden" value="<?php echo $collid; ?>">
-								<input name="tid" type="hidden" value="<?php echo $tid; ?>">
-								<input name="action" type="submit" value="Build Thumbnails">
+								<div class="fieldRowDiv">
+									<div class="fieldDiv">
+										<input name="buildmed" type="checkbox" value="1" <?php echo ($buildMediumDerivatives?'checked':''); ?> />
+										<span class="fieldLabel"> include medium-sized image derivatives in addition to thumbnails</span>
+									</div>
+								</div>
+								<div class="fieldRowDiv">
+									<input name="collid" type="hidden" value="<?php echo $collid; ?>">
+									<input name="tid" type="hidden" value="<?php echo $tid; ?>">
+									<button name="action" type="submit" value="buildThumbnails">Build Thumbnails</button>
+								</div>
 							</form>
 							<?php
 						}

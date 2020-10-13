@@ -16,6 +16,7 @@ class IgsnManager{
 	}
 
 	public function getIgsnTaskReport(){
+		$this->setNullNeonIdentifiers();
 		$retArr = array();
 		$sql = 'SELECT c.collid, CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname, count(o.occid) as cnt '.
 			'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid '.
@@ -30,6 +31,13 @@ class IgsnManager{
 		}
 		$rs->free();
 		return $retArr;
+	}
+
+	private function setNullNeonIdentifiers(){
+		$sql = 'UPDATE omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid '.
+			'SET o.catalognumber = o.occurrenceID '.
+			'WHERE o.occurrenceID LIKE "NEON%" AND o.catalognumber IS NULL';
+		$this->conn->query($sql);
 	}
 
 

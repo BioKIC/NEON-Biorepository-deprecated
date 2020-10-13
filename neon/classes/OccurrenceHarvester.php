@@ -470,6 +470,7 @@ class OccurrenceHarvester{
 				elseif(!isset($dwcArr['country']) && $propArr['locationPropertyName'] == 'Value for Country'){
 					$countryValue = $propArr['locationPropertyValue'];
 					if($countryValue == 'unitedStates') $countryValue = 'United States';
+					elseif($countryValue == 'USA') $countryValue = 'United States';
 					$dwcArr['country'] = $countryValue;
 				}
 				elseif(!isset($dwcArr['county']) && $propArr['locationPropertyName'] == 'Value for County'){

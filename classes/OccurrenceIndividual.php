@@ -146,6 +146,7 @@ class OccurrenceIndividual extends Manager{
 				}
 				$this->loadDeterminations();
 				$this->loadImages();
+				$this->loadAdditionalIdentifiers();
 				$this->loadPaleo();
 				$this->loadLoan();
 				$this->loadExsiccati();
@@ -217,6 +218,21 @@ class OccurrenceIndividual extends Manager{
 		else{
 			trigger_error('Unable to set images; '.$this->conn->error,E_USER_WARNING);
 		}
+	}
+
+	private function loadAdditionalIdentifiers(){
+		$idStr = '';
+		$sql = 'SELECT idomoccuridentifiers, occid, identifiervalue, identifiername '.
+			'FROM omoccuridentifiers '.
+			'WHERE occid = '.$this->occid;
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($r = $rs->fetch_object()){
+				$idStr .= '; '.($r->identifiername?$r->identifiername.': ':'').$r->identifiervalue;
+			}
+			$rs->free();
+		}
+		if($idStr) $this->occArr['othercatalognumbers'] = trim($idStr,'; ');
 	}
 
 	private function loadPaleo(){

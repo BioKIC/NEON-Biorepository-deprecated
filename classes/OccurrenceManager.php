@@ -343,6 +343,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$catArr = explode(',',str_replace(';',',',$catStr));
 			$betweenFrag = array();
 			$inFrag = array();
+			$identFrag = array();
 			foreach($catArr as $v){
 				if($p = strpos($v,' - ')){
 					$term1 = trim(substr($v,0,$p));
@@ -351,6 +352,8 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 						$betweenFrag[] = '(o.catalogNumber BETWEEN '.$term1.' AND '.$term2.')';
 						if($includeOtherCatNum){
 							$betweenFrag[] = '(o.othercatalognumbers BETWEEN '.$term1.' AND '.$term2.')';
+							//$betweenFrag[] = '(oi.identifiervalue BETWEEN '.$term1.' AND '.$term2.')';
+							$identFrag[] = '(identifiervalue BETWEEN '.$term1.' AND '.$term2.')';
 						}
 					}
 					else{
@@ -359,6 +362,8 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 						$betweenFrag[] = '('.$catTerm.')';
 						if($includeOtherCatNum){
 							$betweenFrag[] = '(o.othercatalognumbers BETWEEN "'.$term1.'" AND "'.$term2.'")';
+							//$betweenFrag[] = '(oi.identifiervalue BETWEEN "'.$term1.'" AND "'.$term2.'")';
+							$identFrag[] = '(identifiervalue BETWEEN "'.$term1.'" AND "'.$term2.'")';
 						}
 					}
 				}
@@ -378,14 +383,20 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$catWhere .= 'OR (o.catalogNumber IN("'.implode('","',$inFrag).'")) ';
 				if($includeOtherCatNum){
 					$catWhere .= 'OR (o.othercatalognumbers IN("'.implode('","',$inFrag).'")) ';
+					$catWhere .= 'OR (o.occurrenceID IN("'.implode('","',$inFrag).'")) ';
+					//$catWhere .= 'OR (oi.identifiervalue IN("'.implode('","',$inFrag).'")) ';
+					$identFrag[] = '(identifiervalue IN("'.implode('","',$inFrag).'"))';
 					if(strlen($inFrag[0]) == 36){
 						$guidOccid = $this->queryRecordID($inFrag);
 						if($guidOccid){
 							$catWhere .= 'OR (o.occid IN('.implode(',',$guidOccid).')) ';
-							$catWhere .= 'OR (o.occurrenceID IN("'.implode('","',$inFrag).'")) ';
 						}
 					}
 				}
+			}
+			if($identFrag){
+				$occidList = $this->getAdditionIdentifiers($identFrag);
+				if($occidList) $catWhere .= 'OR (o.occid IN('.implode(',',$occidList).')) ';
 			}
 			$sqlWhere .= 'AND ('.substr($catWhere,3).') ';
 			$this->displaySearchArr[] = $this->searchTermArr['catnum'];
@@ -419,6 +430,21 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			//$this->sqlWhere = 'WHERE o.occid IS NULL ';
 		}
 		//echo $this->sqlWhere; exit;
+	}
+
+	private function getAdditionIdentifiers($identFrag){
+		$retArr = array();
+		if($identFrag){
+			$sql = 'SELECT occid FROM omoccuridentifiers WHERE '.implode(' OR ',$identFrag);
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retArr[] = $r->occid;
+				}
+				$rs->free();
+			}
+		}
+		return $retArr;
 	}
 
 	private function queryRecordID($idArr){
@@ -463,6 +489,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		}
 		if(array_key_exists('polycoords',$this->searchTermArr) || strpos($sqlWhere,'p.point')){
 			$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
+		}
+		if(array_key_exists('includeothercatnum',$this->searchTermArr)){
+			//$sqlJoin .= 'LEFT JOIN omoccuridentifiers oi ON o.occid = oi.occid ';
 		}
 		return $sqlJoin;
 	}

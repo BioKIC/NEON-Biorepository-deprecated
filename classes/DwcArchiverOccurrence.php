@@ -1,10 +1,21 @@
 <?php
 class DwcArchiverOccurrence{
 
+	private $conn;
 	private $occurDefArr = array();
 	private $schemaType;
 	private $extended = false;
 	private $includePaleo = false;
+	private $upperTaxonomy = array();
+	private $taxonRankArr = array();
+
+	public function __construct($conn=null){
+		if($conn) $this->conn = $conn;
+	}
+
+	public function __destruct(){
+		if(!($this->conn === null)) $this->conn->close();
+	}
 
 	public function getOccurrenceArr(){
 		if($this->schemaType == 'pensoft') $this->occurDefArr['fields']['Taxon_Local_ID'] = 'v.tid AS Taxon_Local_ID';
@@ -330,6 +341,152 @@ class DwcArchiverOccurrence{
 		return $sql;
 	}
 
+	//Special functions for appending additional data
+	public function getAdditionalCatalogNumbers($occid){
+		$retStr = '';
+		if($occid){
+			$sql = 'SELECT GROUP_CONCAT(CONCAT_WS(": ",identifierName, identifierValue) SEPARATOR "; ") as idStr FROM omoccuridentifiers WHERE occid = '.$occid;
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retStr = $r->idStr;
+			}
+			$rs->free();
+		}
+		return $retStr;
+	}
+
+	public function appendUpperTaxonomy(&$targetArr){
+		if($targetArr['family'] && $this->upperTaxonomy){
+			$higherStr = '';
+			$famStr = strtolower($targetArr['family']);
+			if(isset($this->upperTaxonomy[$famStr]['k'])){
+				$targetArr['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
+				$higherStr = $targetArr['t_kingdom'];
+			}
+			if(isset($this->upperTaxonomy[$famStr]['p'])){
+				$targetArr['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
+				$higherStr .= '|'.$targetArr['t_phylum'];
+			}
+			if(isset($this->upperTaxonomy[$famStr]['c'])){
+				$targetArr['t_class'] = $this->upperTaxonomy[$famStr]['c'];
+				$higherStr .= '|'.trim($targetArr['t_class'],'|');
+			}
+			if(isset($this->upperTaxonomy[$famStr]['o'])){
+				$targetArr['t_order'] = $this->upperTaxonomy[$famStr]['o'];
+				$higherStr .= '|'.trim($targetArr['t_class'],'|');
+			}
+			$targetArr['t_higherClassification'] = trim($higherStr,'| ');
+		}
+	}
+
+	public function appendUpperTaxonomy2(&$r){
+		$target = $r['taxonID'];
+		if(!$target) $target = ucfirst($r['family']);
+		if($target){
+			if(array_key_exists($target, $this->upperTaxonomy)){
+				if(isset($this->upperTaxonomy[$target]['k'])) $r['t_kingdom'] = $this->upperTaxonomy[$target]['k'];
+				if(isset($this->upperTaxonomy[$target]['p'])) $r['t_phylum'] = $this->upperTaxonomy[$target]['p'];
+				if(isset($this->upperTaxonomy[$target]['c'])) $r['t_class'] = $this->upperTaxonomy[$target]['c'];
+				if(isset($this->upperTaxonomy[$target]['o'])) $r['t_order'] = $this->upperTaxonomy[$target]['o'];
+				if(isset($this->upperTaxonomy[$target]['f']) && !$r['family']) $r['family'] = $this->upperTaxonomy[$target]['f'];
+				if(isset($this->upperTaxonomy[$target]['s'])) $r['t_subgenus'] = $this->upperTaxonomy[$target]['s'];
+				if(isset($this->upperTaxonomy[$target]['u'])) $r['t_higherClassification'] = $this->upperTaxonomy[$target]['u'];
+			}
+			else{
+				$higherStr = '';
+				$sql = 'SELECT t.tid, t.sciname, t.rankid '.
+						'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
+						'WHERE e.taxauthid = 1 AND e.tid = '.$r['taxonID'].' ORDER BY t.rankid';
+				if(!is_numeric($target)){
+					$sql = 'SELECT t.tid, t.sciname, t.rankid '.
+							'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
+							'INNER JOIN taxa t2 ON e.tid = t2.tid '.
+							'WHERE e.taxauthid = 1 AND t2.sciname = "'.$this->cleanInStr($target).'" ORDER BY t.rankid';
+				}
+				$rs = $this->conn->query($sql);
+				while($row = $rs->fetch_object()){
+					if($row->rankid == 10) $r['t_kingdom'] = $row->sciname;
+					elseif($row->rankid == 30) $r['t_phylum'] = $row->sciname;
+					elseif($row->rankid == 60) $r['t_class'] = $row->sciname;
+					elseif($row->rankid == 100) $r['t_order'] = $row->sciname;
+					elseif($row->rankid == 140 && !$r['family']) $r['family'] = $row->sciname;
+					elseif($row->rankid == 190) $r['t_subgenus'] = $row->sciname;
+					$higherStr .= '|'.$row->sciname;
+				}
+				$rs->free();
+				if($higherStr) $r['t_higherClassification'] = trim($higherStr,'| ');
+				if(count($this->upperTaxonomy)<1000 || !is_numeric($target)){
+					if($r['t_kingdom']) $this->upperTaxonomy[$target]['k'] = $r['t_kingdom'];
+					if($r['t_phylum']) $this->upperTaxonomy[$target]['p'] = $r['t_phylum'];
+					if($r['t_class']) $this->upperTaxonomy[$target]['c'] = $r['t_class'];
+					if($r['t_order']) $this->upperTaxonomy[$target]['o'] = $r['t_order'];
+					if($r['family']) $this->upperTaxonomy[$target]['f'] = $r['family'];
+					if($r['t_subgenus']) $this->upperTaxonomy[$target]['s'] = $r['t_subgenus'];
+					if($r['t_higherClassification']) $this->upperTaxonomy[$target]['u'] = $r['t_higherClassification'];
+				}
+			}
+		}
+	}
+
+	public function setUpperTaxonomy(){
+		if(!$this->upperTaxonomy){
+			$sqlOrder = 'SELECT t.sciname AS family, t2.sciname AS taxonorder '.
+					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
+					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
+					'WHERE t.rankid = 140 AND t2.rankid = 100';
+			$rsOrder = $this->conn->query($sqlOrder);
+			while($rowOrder = $rsOrder->fetch_object()){
+				$this->upperTaxonomy[strtolower($rowOrder->family)]['o'] = $rowOrder->taxonorder;
+			}
+			$rsOrder->free();
+
+			$sqlClass = 'SELECT t.sciname AS family, t2.sciname AS taxonclass '.
+					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
+					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
+					'WHERE t.rankid = 140 AND t2.rankid = 60';
+			$rsClass = $this->conn->query($sqlClass);
+			while($rowClass = $rsClass->fetch_object()){
+				$this->upperTaxonomy[strtolower($rowClass->family)]['c'] = $rowClass->taxonclass;
+			}
+			$rsClass->free();
+
+			$sqlPhylum = 'SELECT t.sciname AS family, t2.sciname AS taxonphylum '.
+					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
+					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
+					'WHERE t.rankid = 140 AND t2.rankid = 30';
+			$rsPhylum = $this->conn->query($sqlPhylum);
+			while($rowPhylum = $rsPhylum->fetch_object()){
+				$this->upperTaxonomy[strtolower($rowPhylum->family)]['p'] = $rowPhylum->taxonphylum;
+			}
+			$rsPhylum->free();
+
+			$sqlKing = 'SELECT t.sciname AS family, t2.sciname AS kingdom '.
+					'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
+					'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
+					'WHERE t.rankid = 140 AND t2.rankid = 10';
+			$rsKing = $this->conn->query($sqlKing);
+			while($rowKing = $rsKing->fetch_object()){
+				$this->upperTaxonomy[strtolower($rowKing->family)]['k'] = $rowKing->kingdom;
+			}
+			$rsKing->free();
+		}
+	}
+
+	public function setTaxonRank(){
+		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->taxonRankArr[$r->rankid] = $r->rankname;
+		}
+		$rs->free();
+	}
+
+	public function getTaxonRank($rankID){
+		if(array_key_exists($rankID, $this->taxonRankArr)) return $this->taxonRankArr[$rankID];
+		else return '';
+	}
+
+	//Setter and getter
 	public function setSchemaType($t){
 		$this->schemaType = $t;
 	}
@@ -340,6 +497,16 @@ class DwcArchiverOccurrence{
 
 	public function setIncludePaleo($bool){
 		if($bool) $this->includePaleo = true;
+	}
+
+	//Misc functions
+	private function cleanInStr($str){
+		$newStr = trim($str);
+		if($newStr){
+			$newStr = preg_replace('/\s\s+/', ' ',$newStr);
+			$newStr = $this->conn->real_escape_string($newStr);
+		}
+		return $newStr;
 	}
 }
 ?>

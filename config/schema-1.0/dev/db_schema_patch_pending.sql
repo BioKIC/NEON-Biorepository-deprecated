@@ -26,6 +26,11 @@ ALTER TABLE `kmcharacters`
   ADD INDEX `FK_kmchar_glossary_idx` (`glossid` ASC);
 ALTER TABLE `kmcharacters` 
   ADD CONSTRAINT `FK_kmchar_glossary`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+ALTER TABLE `kmcharheading` 
+  CHANGE COLUMN `language` `language` VARCHAR(45) NULL DEFAULT 'English' ;
+
+ALTER TABLE `kmcharacterlang` 
+  CHANGE COLUMN `language` `language` VARCHAR(45) NULL ;
 
 ALTER TABLE `kmcs` 
   ADD COLUMN `referenceUrl` VARCHAR(250) NULL AFTER `IllustrationUrl`;
@@ -35,6 +40,17 @@ ALTER TABLE `kmcs`
   ADD INDEX `FK_kmcs_glossid_idx` (`glossid` ASC);
 ALTER TABLE `kmcs` 
   ADD CONSTRAINT `FK_kmcs_glossid`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+CREATE TABLE `kmcharheadinglang` (
+  `hid` INT UNSIGNED NOT NULL,
+  `langid` INT NOT NULL,
+  `headingname` VARCHAR(100) NOT NULL,
+  `notes` VARCHAR(250) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`hid`, `langid`),
+  CONSTRAINT `FK_kmcharheadinglang_hid`  FOREIGN KEY (`hid`)  REFERENCES `kmcharheading` (`hid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_kmcharheadinglang_langid`  FOREIGN KEY (`langid`)  REFERENCES `adminlanguage` (`langid`)  ON DELETE CASCADE  ON UPDATE CASCADE
+);
 
 ALTER TABLE `glossary` 
   ADD COLUMN `langid` INT UNSIGNED NULL AFTER `language`;

@@ -83,29 +83,27 @@ class KeyDataManager extends Manager {
 				"GROUP BY cs.CID, cs.CS, cs.CharStateName, charnames.CharName, charnames.Heading, charnames.URL, characters.DifficultyRank, charnames.Language, characters.Type ".
 				"HAVING (((cs.CID) In (".implode(",",$charList).")) AND ((cs.CS)<>'-') AND ((characters.Type)='UM' Or (characters.Type)='OM') AND characters.DifficultyRank < 3) ".
 				"ORDER BY charnames.Heading, characters.SortSequence, cs.SortSequence";*/
-			$sqlChar = "SELECT DISTINCT cs.CID, cs.CS, cs.CharStateName, cs.Description AS csdescr, chars.CharName,
-				chars.description AS chardescr, chars.hid, chead.headingname, chars.helpurl, Count(cs.CS) AS Ct, chars.DifficultyRank,
-				chars.defaultlang FROM (((($this->sql) AS tList INNER JOIN kmdescr d ON tList.TID = d.TID)
-				INNER JOIN kmcs cs ON (d.CS = cs.CS)	AND (d.CID = cs.CID)) INNER JOIN kmcharacters chars ON chars.cid = cs.CID)
+			$sqlChar = 'SELECT DISTINCT cs.CID, cs.CS, cs.CharStateName, cs.Description AS csdescr, chars.CharName,
+				chars.description AS chardescr, chars.hid, chead.headingname, chars.helpurl, Count(cs.CS) AS Ct, chars.DifficultyRank
+				FROM ('.$this->sql.') AS tList INNER JOIN kmdescr d ON tList.TID = d.TID
+				INNER JOIN kmcs cs ON (d.CS = cs.CS) AND (d.CID = cs.CID)
+				INNER JOIN kmcharacters chars ON chars.cid = cs.CID
 				INNER JOIN kmcharheading chead ON chars.hid = chead.hid
-				GROUP BY chead.language, cs.CID, cs.CS, cs.CharStateName, chars.CharName, chead.headingname, chars.helpurl,
-				chars.DifficultyRank, chars.defaultlang, chars.chartype HAVING (chead.language = 'English' AND (cs.CID In (".implode(",",$charList).")) AND (cs.CS <> '-') AND
-				(chars.chartype='UM' Or chars.chartype = 'OM') AND chars.DifficultyRank < 3)
-				ORDER BY chead.hid,	chars.SortSequence, cs.SortSequence ";
+				GROUP BY chead.language, cs.CID, cs.CS, cs.CharStateName, chars.CharName, chead.headingname, chars.helpurl, chars.DifficultyRank, chars.chartype
+				HAVING (chead.language = "English" AND (cs.CID In ('.implode(",",$charList).')) AND (cs.CS <> "-") AND (chars.chartype="UM" Or chars.chartype = "OM") AND chars.DifficultyRank < 3)
+				ORDER BY chead.hid,	chars.SortSequence, cs.SortSequence ';
 			//echo $sqlChar.'<br/>';
 			$result = $this->conn->query($sqlChar);
 
 			//Process recordset
-			$langList = Array();
+			$langList = Array('English');
 			$headingArray = Array();
-			$statesArray = Array();
 			if(!$result) return null;
 			while($row = $result->fetch_object()){
 				$ct = $row->Ct;			//count of how many times the CS was used in this species list
 				$charCID = $row->CID;
 				if($ct < $this->taxaCount || array_key_exists($charCID,$this->charArr)){		//add to return if stateUseCount is less than taxaCount (ie: state is useless if all taxa code true) or is an attribute selected by user
-					$language = $row->defaultlang;
-					if(!in_array($language, $langList)) $langList[] = $language;
+					$language = 'English';
 					$headingName = $row->headingname;
 					$headingID = $row->hid;
 					$charName = $row->CharName;

@@ -193,7 +193,7 @@ $smManager = new SiteMapManager();
 									echo '<li>'.$LANG['CODINGCHARA'].'</li>';
 									echo '<ul>';
 									foreach($clAdmin as $vClid => $name){
-										echo "<li><a href='".$CLIENT_ROOT."/ident/tools/massupdate.php?clid=".$vClid."'>".$name."</a></li>";
+										echo "<li><a href='".$CLIENT_ROOT."/ident/tools/matrixeditor.php?clid=".$vClid."'>".$name."</a></li>";
 									}
 									echo '</ul>';
 								}

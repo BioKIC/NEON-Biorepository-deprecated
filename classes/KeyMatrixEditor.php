@@ -1,7 +1,7 @@
 <?php
 include_once($SERVER_ROOT.'/classes/KeyManager.php');
 
-class KeyMassUpdate extends KeyManager{
+class KeyMatrixEditor extends KeyManager{
 
 	private $clid;
 	private $childClidArr = array();
@@ -9,7 +9,6 @@ class KeyMassUpdate extends KeyManager{
 	private $taxaArr = array();
 	private $stateArr = array();
 	private $descrArr = array();
-	private $headerStr;
 	private $cnt = 0;
 
 	public function __construct(){
@@ -151,19 +150,16 @@ class KeyMassUpdate extends KeyManager{
 
 			//Create and output header
 			$this->setStates();
-			$this->headerStr = '<tr><th><b><span style="font-size:120%;">'.$this->getCharacterName().':</span></b></th>';
+			echo '<tr><th><b><span style="font-size:120%;">'.$this->getCharacterName().':</span></b><br/><input type="submit" name="action" value="Save Changes" onclick="submitAttrs()" /></th>';
 			foreach($this->stateArr as $cs => $csName){
-				$this->headerStr .= '<th>'.str_replace(" ","<br/>",$csName).'</th>';
+				echo '<th style="text-align:center">'.str_replace(" ","<br/>",$csName).'</th>';
 			}
-			$this->headerStr .= '</tr>'."\n";
-			$this->headerStr .= '<tr><td align="right" colspan="'.(count($this->stateArr)+1).'"><input type="submit" name="action" value="Save Changes" onclick="submitAttrs()" /></td></tr>';
-			echo $this->headerStr;
+			echo '</tr>';
 			foreach($this->taxaArr as $parentTid => $tArr){
 				if(!in_array($parentTid, $tidArr)){
 					$this->processTaxa($parentTid);
 				}
 			}
-			echo $this->headerStr;
 		}
 	}
 
@@ -193,21 +189,12 @@ class KeyMassUpdate extends KeyManager{
 					$isSelected = true;
 					if($this->descrArr[$tid][$cs]) $isInherited = true;
 				}
-				if($isSelected && !$isInherited){
-					//State is true and not inherited for this taxon
-					$jsStr = "removeAttr('".$tid."-".$cs."');";
-				}
-				else{
-					//State is false for this taxon or it is inherited
-					$jsStr = "addAttr('".$tid."-".$cs."');";
-				}
 				echo '<td align="center" style="width:15px;white-space:nowrap;">';
-				echo '<input type="checkbox" name="csDisplay" onclick="'.$jsStr.'" '.($isSelected && !$isInherited?'CHECKED':'').' title="'.$csName.'"/>'.($isInherited?'(I)':'');
+				echo '<input type="checkbox" name="csDisplay" onclick="attrChanged(this,\''.$tid.'-'.$cs.'\')" '.($isSelected && !$isInherited?'CHECKED':'').' title="'.$csName.'"/>'.($isInherited?'(I)':'');
 				echo "</td>\n";
 			}
 			echo '</tr>';
 			$this->cnt++;
-			if($this->cnt%40 == 0) echo $this->headerStr;
 		}
 	}
 
@@ -217,8 +204,8 @@ class KeyMassUpdate extends KeyManager{
 		$tidUsedStr = implode(',',array_unique(array_merge(array_keys($removeArr),array_keys($addArr))));
 		if($tidUsedStr){
 			$this->deleteInheritance($tidUsedStr,$this->cid);
-			if($removeArr) $this->processRemoveAttributes($removeArr);
 			if($addArr) $this->processAddAttributes($addArr);
+			if($removeArr) $this->processRemoveAttributes($removeArr);
 			$this->resetInheritance($tidUsedStr,$this->cid);
 		}
 	}
@@ -262,7 +249,7 @@ class KeyMassUpdate extends KeyManager{
 		$sql = 'SELECT DISTINCT t.tid, t.sciname '.
 			'FROM fmchklsttaxalink c INNER JOIN taxaenumtree e ON c.tid = e.tid '.
 			'INNER JOIN taxa t ON e.parenttid = t.tid '.
-			'WHERE (c.clid IN('.$clidStr.')) AND (t.rankid < 180) AND (e.taxauthid = 1) '.
+			'WHERE (c.clid IN('.$clidStr.')) AND (t.rankid < 181) AND (e.taxauthid = 1) '.
 			'ORDER BY t.sciname ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);

@@ -47,8 +47,11 @@ if($isEditor && $action){
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
 	?>
+	<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js"></script>
+	<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js"></script>
 	<script type="text/javascript">
 		var dataChanged = false;
+		var headingDivOpen = true;
 		window.onbeforeunload = verifyClose;
 
 		function verifyClose() {
@@ -58,29 +61,19 @@ if($isEditor && $action){
 		}
 
 		function toggle(target){
-			var divObjs = document.getElementsByTagName("div");
-			for (i = 0; i < divObjs.length; i++) {
-				var obj = divObjs[i];
-				if(obj.getAttribute("class") == target || obj.getAttribute("className") == target){
-						if(obj.style.display=="none"){
-							obj.style.display="inline";
-						}
-					else {
-						obj.style.display="none";
-					}
-				}
+			$("#"+target).toggle();
+			$("#plus-"+target).toggle();
+			$("#minus-"+target).toggle();
+		}
+
+		function toggleAll(){
+			if(headingDivOpen){
+				$(".headingDiv").hide();
+				headingDivOpen = false;
 			}
-			var spanObjs = document.getElementsByTagName("span");
-			for (i = 0; i < spanObjs.length; i++) {
-				var obj = spanObjs[i];
-				if(obj.getAttribute("class") == target || obj.getAttribute("className") == target){
-					if(obj.style.display=="none"){
-						obj.style.display="inline";
-					}
-					else {
-						obj.style.display="none";
-					}
-				}
+			else{
+				$(".headingDiv").show();
+				headingDivOpen = true;
 			}
 		}
 
@@ -124,16 +117,17 @@ if(!$charValue)	include($SERVER_ROOT.'/includes/header.php');
 			$depArr = $editorManager->getCharDepArray();
 			$charStatesList = $editorManager->getCharStates();
 			if($cList){
+				echo '<div><a href="#" onclick="toggleAll();return false;">open/close all</a></div>';
 				$count = 0;
 				foreach($cList as $heading => $charArray){
 					if(!$charValue){
 						echo '<fieldset>';
 						echo '<legend style="font-weight:bold;font-size:120%;color:#990000;">';
-						echo '<span class="'.$heading.'" onclick="toggle(\''.$heading.'\')" style="display:none;"><img src="../../images/minus_sm.png"></span> ';
-						echo '<span class="'.$heading.'" onclick="toggle(\''.$heading.'\')"><img src="../../images/plus_sm.png"></span> ';
+						echo '<span id="minus-'.$heading.'" onclick="toggle(\''.$heading.'\')" style="display:none;"><img src="../../images/minus_sm.png"></span> ';
+						echo '<span id="plus-'.$heading.'" onclick="toggle(\''.$heading.'\')"><img src="../../images/plus_sm.png"></span> ';
 						echo $heading.'</legend>';
 					}
-					echo '<div class="'.$heading.'" id="'.$heading.'" style="text-indent:1em;">';
+					echo '<div class="headingDiv" id="'.$heading.'" style="text-indent:1em;">';
 					foreach($charArray as $cidKey => $charNameStr){
 						if(!$charValue || $charValue == $cidKey){
 							echo "<div id='chardiv".$cidKey."' style='display:".(array_key_exists($cidKey,$depArr)?"hidden":"block").";'>";

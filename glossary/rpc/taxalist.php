@@ -1,41 +1,18 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/config/dbconnection.php');
-$con = MySQLiConnectionFactory::getCon("readonly");
-$returnArr = Array();
-$queryString = array_key_exists("term",$_REQUEST)?$con->real_escape_string($_REQUEST['term']):$con->real_escape_string($_REQUEST['q']);
-$type = $con->real_escape_string($_REQUEST['t']);
-if($queryString) {
-	$sql = 'SELECT DISTINCT ts.tidaccepted, t.SciName, v.VernacularName '.
-		'FROM taxa AS t LEFT JOIN taxstatus AS ts ON t.TID = ts.tid '.
-		'LEFT JOIN taxavernaculars AS v ON t.TID = v.TID '.
-		'WHERE (t.SciName LIKE "'.$queryString.'%" OR v.VernacularName LIKE "'.$queryString.'%") AND t.RankId < 185 AND ts.taxauthid = 1 '.
-		'LIMIT 10 ';
-	$result = $con->query($sql);
-	if($type == 'single'){
-		while ($row = $result->fetch_object()) {
-			$sciName = $row->SciName;
-			if($row->VernacularName){
-				$sciName .= ' ('.$row->VernacularName.')';
-			}
-			$retArrRow['label'] = htmlentities($sciName, ENT_COMPAT, $CHARSET);
-			$retArrRow['value'] = $row->tidaccepted;
-			array_push($returnArr, $retArrRow);
-		}
-	}
-	elseif($type == 'batch'){
-		$i = 0;
-		while ($row = $result->fetch_object()) {
-			$sciName = $row->SciName;
-			if($row->VernacularName){
-				$sciName .= ' ('.$row->VernacularName.')';
-			}
-			$returnArr[$i]['name'] = htmlentities($sciName, ENT_COMPAT, $CHARSET);
-			$returnArr[$i]['id'] = $row->tidaccepted;
-			$i++;
-		}
-	}
+include_once($SERVER_ROOT.'/classes/GlossaryManager.php');
+
+$queryStr = array_key_exists('term',$_REQUEST)?$_REQUEST['term']:$_REQUEST['q'];
+$type = $_REQUEST['t'];
+
+$isEditor = false;
+if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
+
+$retArr = array();
+if($isEditor){
+	$glosManager = new GlossaryManager();
+	$retArr = $glosManager->getTaxaList($queryStr, $type);
 }
-$con->close();
-echo json_encode($returnArr);
+
+echo json_encode($retArr);
 ?>

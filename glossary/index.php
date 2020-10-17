@@ -16,9 +16,7 @@ if($language == 'en') $language = 'English';
 if($language == 'es') $language = 'Spanish';
 
 $isEditor = false;
-if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
-	$isEditor = true;
-}
+if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
 
 $glosManager = new GlossaryManager();
 

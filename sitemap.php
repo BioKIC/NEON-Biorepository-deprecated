@@ -81,8 +81,15 @@ $smManager = new SiteMapManager();
 				<li><a href="includes/usagepolicy.php"><?php echo $LANG['USAGEPOLICY'];?></a></li>
 			</ul>
 
-			<div style="margin-top:10px;"><h2><?php echo $LANG['TAXONOMY'];?></h2></div>
+			<div style="margin-top:10px;"><h2><?php echo isset($LANG['ADDITIONAL_RESOURCES'])?$LANG['ADDITIONAL_RESOURCES']:'Additional Resources';?></h2></div>
 			<ul>
+				<?php
+				if($smManager->hasGlossary()){
+					?>
+					<li><a href="glossary/index.php"><?php echo isset($LANG['GLOSSARY'])?$LANG['GLOSSARY']:'Glossary';?></a></li>
+					<?php
+				}
+				?>
 				<li><a href="taxa/taxonomy/taxonomydisplay.php"><?php echo $LANG['TAXTREE'];?></a></li>
 				<li><a href="taxa/taxonomy/taxonomydynamicdisplay.php"><?php echo $LANG['DYNTAXTREE'];?></a></li>
 			</ul>
@@ -155,6 +162,11 @@ $smManager = new SiteMapManager();
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/collections/specprocessor/salix/salixhandler.php">
 									<?php echo $LANG['SALIX'];?>
+								</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/glossary/index.php">
+									<?php echo $LANG['GLOSSARY'];?>
 								</a>
 							</li>
 						</ul>

@@ -1452,6 +1452,70 @@ class GlossaryManager{
 		return $retArr;
 	}
 
+	//Functions used by AJAX calls
+	public function getTaxaList($queryString, $type){
+		$retArr = Array();
+		$queryString = $this->cleanInStr($queryString);
+		$type = $this->cleanInStr($type);
+		if($queryString) {
+			$sql = 'SELECT DISTINCT ts.tidaccepted, t.SciName, v.VernacularName '.
+					'FROM taxa t LEFT JOIN taxstatus ts ON t.TID = ts.tid '.
+					'LEFT JOIN taxavernaculars v ON t.TID = v.TID '.
+					'WHERE (t.SciName LIKE "'.$queryString.'%" OR v.VernacularName LIKE "'.$queryString.'%") AND t.RankId < 185 AND ts.taxauthid = 1 '.
+					'LIMIT 10 ';
+			$rs = $this->conn->query($sql);
+			if($type == 'single'){
+				while ($row = $rs->fetch_object()) {
+					$sciName = $row->SciName;
+					if($row->VernacularName) $sciName .= ' ('.$row->VernacularName.')';
+					$retArrRow['label'] = htmlentities($sciName, ENT_COMPAT, $GLOBALS['CHARSET']);
+					$retArrRow['value'] = $row->tidaccepted;
+					$retArr[] = $retArrRow;
+				}
+			}
+			elseif($type == 'batch'){
+				$i = 0;
+				while ($row = $rs->fetch_object()) {
+					$sciName = $row->SciName;
+					if($row->VernacularName) $sciName .= ' ('.$row->VernacularName.')';
+					$retArr[$i]['name'] = htmlentities($sciName, ENT_COMPAT, $GLOBALS['CHARSET']);
+					$retArr[$i]['id'] = $row->tidaccepted;
+					$i++;
+				}
+			}
+		}
+		return $retArr;
+	}
+
+	public function checkTerm($term, $language, $relGlossId, $tid){
+		$retStr = 0;
+		if(!is_numeric($relGlossId)) $relGlossId = 0;
+		if(!is_numeric($tid)) $tid = 0;
+
+		if($term && $language && ($tid || $relGlossId)) {
+			$sql = '';
+			if($tid){
+				$sql = 'SELECT g.glossid '.
+						'FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid '.
+						'LEFT JOIN glossarytaxalink t ON gl.glossgrpid = t.glossid '.
+						'LEFT JOIN glossarytaxalink t2 ON g.glossid = t2.glossid '.
+						'WHERE (g.term = "'.$this->cleanInStr($term).'") AND (g.`language` = "'.$this->cleanInStr($language).'") AND (t.tid = '.$tid.' OR t2.tid = '.$tid.')';
+			}
+			else{
+				$sql = 'SELECT g.glossid '.
+						'FROM glossary g INNER JOIN glossarytermlink gl ON g.glossid = gl.glossid '.
+						'INNER JOIN glossarytaxalink t ON gl.glossgrpid = t.glossid '.
+						'INNER JOIN glossarytermlink gl2 ON gl.glossgrpid = gl2.glossgrpid '.
+						'WHERE (g.term = "'.$this->cleanInStr($term).'") AND (g.`language` = "'.$this->cleanInStr($language).'") AND (gl2.glossid = '.$relGlossId.')';
+			}
+			$rs = $this->conn->query($sql);
+			if($rs->num_rows) $retStr = 1;
+			$rs->free();
+		}
+
+		return $retStr;
+	}
+
 	//Setters and getters
 	public function setGlossId($id){
 		if(is_numeric($id) && $id){

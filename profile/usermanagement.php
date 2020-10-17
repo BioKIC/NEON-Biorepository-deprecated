@@ -38,17 +38,17 @@ if($IS_ADMIN){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> User Management</title>
-  <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<style type="text/css">
 		th{ font-size: 90% }
 	</style>
@@ -198,6 +198,20 @@ if($IS_ADMIN){
 								</li>
 								<?php
 							}
+							if(array_key_exists('GlossaryEditor',$userPermissions)){
+								?>
+								<li>
+									<b><?php
+									echo '<span title="'.$userPermissions['GlossaryEditor']['aby'].'">';
+									echo str_replace('GlossaryEditor','Glossary Editor',$userPermissions['GlossaryEditor']['role']);
+									echo '</span>';
+									?></b>
+									<a href="usermanagement.php?delrole=GlossaryEditor&userid=<?php echo $userId; ?>">
+										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+									</a>
+								</li>
+								<?php
+							}
 							if(array_key_exists("KeyAdmin",$userPermissions)){
 								?>
 								<li>
@@ -260,7 +274,6 @@ if($IS_ADMIN){
 								$collList = $userPermissions["CollAdmin"];
 								echo "<ul>";
 								foreach($collList as $k => $v){
-									$cName = '';
 									echo '<li><span title="'.$v['aby'].'"><a href="../collections/misc/collprofiles.php?collid='.$k.'" target="_blank">'.$v['name'].'</a></span> ';
 									echo "<a href='usermanagement.php?delrole=CollAdmin&tablepk=$k&userid=$userId'>";
 									echo "<img src='../images/del.png' style='border:0px;width:15px;' title='Delete permission' />";
@@ -309,7 +322,6 @@ if($IS_ADMIN){
 								$collList = $userPermissions['PersonalObsAdmin'];
 								echo "<ul>";
 								foreach($collList as $k => $v){
-									$cName = '';
 									echo '<li><span title="'.$v['aby'].'"><a href="../collections/misc/collprofiles.php?collid='.$k.'" target="_blank">'.$v['name'].'</a></span> ';
 									echo "<a href='usermanagement.php?delrole=CollAdmin&tablepk=$k&userid=$userId'>";
 									echo "<img src='../images/del.png' style='border:0px;width:15px;' title='Delete permission' />";
@@ -424,6 +436,9 @@ if($IS_ADMIN){
 							if(!array_key_exists("TaxonProfile",$userPermissions)){
 								echo "<div><input type='checkbox' name='p[]' value='TaxonProfile' /> Taxon Profile Editor</div>";
 							}
+							if(!array_key_exists('GlossaryEditor',$userPermissions)){
+								echo "<div><input type='checkbox' name='p[]' value='GlossaryEditor' /> Glossary Editor</div>";
+							}
 							if(!array_key_exists("KeyAdmin",$userPermissions)){
 								echo "<div><input type='checkbox' name='p[]' value='KeyAdmin' /> Identification Key Administrator</div>";
 							}
@@ -441,7 +456,6 @@ if($IS_ADMIN){
 								$showRareSppOption = false;
 							}
 							else{
-								$isRareSppDude = false;
 								?>
 								<div style="margin-left:5px;">
 									<input type='checkbox' name='p[]' value='RareSppAdmin' />

@@ -9,12 +9,11 @@ class DwcArchiverOccurrence{
 	private $upperTaxonomy = array();
 	private $taxonRankArr = array();
 
-	public function __construct($conn=null){
-		if($conn) $this->conn = $conn;
+	public function __construct($conn){
+		$this->conn = $conn;
 	}
 
 	public function __destruct(){
-		if(!($this->conn === null)) $this->conn->close();
 	}
 
 	public function getOccurrenceArr(){

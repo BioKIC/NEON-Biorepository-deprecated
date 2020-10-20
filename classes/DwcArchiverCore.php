@@ -84,7 +84,7 @@ class DwcArchiverCore extends Manager{
 	public function getOccurrenceCnt(){
 		$retStr = 0;
 		$this->applyConditions();
-		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
 		//$dwcOccurManager->setIncludePaleo($this->hasPaleo);

@@ -243,7 +243,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		$retArr = array();
 		$sql = 'SELECT c.collid, c.collectionname, CONCAT_WS("-",c.institutioncode,c.collectioncode) as instcode, c.guidtarget, c.dwcaurl, c.managementtype '.
 			'FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid '.
-			'INNER JOIN omcollcatlink l ON c.collid = l.collid '.
+			'LEFT JOIN omcollcatlink l ON c.collid = l.collid '.
 			'WHERE (c.colltype = "Preserved Specimens") AND (s.recordcnt > 0) ';
 		if($catID && preg_match('/^[,\d]+$/', $catID)) $sql .= 'AND (l.ccpk IN('.$catID.')) ';
 		$sql .= 'ORDER BY c.collectionname';

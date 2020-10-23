@@ -31,17 +31,17 @@ if($isEditor){
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE; ?> Specimen Label Manager</title>
-    <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+		<?php
+		$activateJQuery = false;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+		}
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<script type="text/javascript">
 			function selectAll(cb){
 				boxesChecked = true;
@@ -107,6 +107,7 @@ if($isEditor){
 					alert("Packet labels are not yet available as a Word document");
 					return false;
 				}
+				if(f.bconly && f.bconly.checked && action == "labels.php") action = "barcodes.php";
 				f.action = action;
 				f.target = target;
 				return true;
@@ -127,7 +128,6 @@ if($isEditor){
 				}
 			}
 		</script>
-		<script src="../../js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
 	</head>
 	<body>
 	<?php
@@ -352,9 +352,9 @@ if($isEditor){
 									?>
 									<fieldset style="float:left;margin:10px;width:150px;">
 										<legend><b>Label Format</b></legend>
-										<input type="radio" name="labelformat" value="1" /> 1 row per page<br/>
-										<input type="radio" name="labelformat" value="2" checked /> 2 row per page<br/>
-										<input type="radio" name="labelformat" value="3" /> 3 row per page<br/>
+										<input type="radio" name="labelformat" value="1" /> 1 columns per page<br/>
+										<input type="radio" name="labelformat" value="2" checked /> 2 columns per page<br/>
+										<input type="radio" name="labelformat" value="3" /> 3 columns per page<br/>
 										<input id="packetradio" type="radio" name="labelformat" value="packet" /> packet labels<br/>
 									</fieldset>
 									<div style="float:left;margin: 15px 50px;">

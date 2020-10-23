@@ -379,7 +379,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 									Sent To:
 								</span><br />
 								<span>
-									<select name="iidborrower" style="width:400px;">
+									<select name="iidborrower">
 										<?php
 										$instArr = $loanManager->getInstitutionArr();
 										foreach($instArr as $k => $v){
@@ -392,7 +392,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 								if($IS_ADMIN){
 									?>
 									<span>
-										<a href="../admin/institutioneditor.php?iid=<?php echo $loanArr['iidborrower']; ?>" target="_blank" title="Edit institution details (option available only to Super Admin)">
+										<a href="../misc/institutioneditor.php?iid=<?php echo $loanArr['iidborrower']; ?>" target="_blank" title="Edit institution details (option available only to Super Admin)">
 											<img src="../../images/edit.png" style="width:15px;" />
 										</a>
 									</span>
@@ -409,9 +409,10 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 										<input type="text" autocomplete="off" name="forwhom" maxlength="32" style="width:180px;" value="<?php echo $loanArr['forwhom']; ?>" onchange=" " />
 									</span>
 								</div>
-								<div style="padding-top:15px;margin-left:20px;float:left;">
+								<div style="margin-left:20px;float:left;">
 									<span>
-										<b>Specimen Total:</b> <input type="text" name="totalspecimens" maxlength="32" style="width:80px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $specimenTotal; ?>" onchange=" " disabled />
+										<b>Specimen Total:</b><br />
+										<input type="text" name="totalspecimens" maxlength="32" style="width:150px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $specimenTotal; ?>" onchange=" " disabled />
 									</span>
 								</div>
 								<div style="margin-left:20px;float:left;">

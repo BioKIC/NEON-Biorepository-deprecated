@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Espa�ol (Spanish)
+Language: Espa�ol (Spanish)
 ------------------
 */
 
@@ -22,6 +22,8 @@ $LANG['IMGLIB'] = 'Librar&iacute;a de im&aacute;genes';
 $LANG['IMAGE_SEARCH'] = 'Herramienta de b&uacute;squeda interactiva';
 $LANG['CONTRIB'] = 'Contribuyentes de imagenes';
 $LANG['USAGEPOLICY'] = 'Normas para usuarios y informaci&oacute;n sobre los derechos de la propiedad intelectual';
+$LANG['ADDITIONAL_RESOURCES'] = 'Recursos adicionales';
+$LANG['GLOSSARY'] = 'Glosario';
 $LANG['PROTECTED_SPECIES'] = 'Protecti&oacute;n de Especies';
 $LANG['LISTOFTAXA'] = 'Listado de taxones raras y/o amenazadas para cuales se ha ocultado sus sitios de distribuci&oacute;n por razones de conservaci&oacute;n';
 $LANG['BIOINV'] = 'Inventarios de biodiversidad';
@@ -44,8 +46,8 @@ $LANG['IDKEYS'] = 'Claves de identificaci&oacute;n';
 $LANG['KEYMODULE'] = 'Aviso: el modulo para generar Claves de Identificaci&oacute;n es desactivado para este portal. No obstante es posible evitar esta restricci&oacute;n activando esta funcionalidad para claves individuales desde de la pagina administrativa para listas de especies.';
 $LANG['AUTHOKEY'] = 'Usted es autorizado/a de utilizar los siguientes partes';
 $LANG['CHARASTATES'] = 'Editor de caracteres y editor del estado de caracteres';
-$LANG['AUTHIDKEY'] = 'Usted esta autorizado de editar Claves de Identificaci&oacute;n.';
-$LANG['CODINGCHARA'] = 'Para codificar caracteres en formato de tabla hay que abrir el Editor de Actualizaci&oacute;n Masivo para los siguientes listas de especies';
+$LANG['AUTHIDKEY'] = 'Usted esta autorizado de editar Claves de Identificaci&oacute;n';
+$LANG['CODINGCHARA'] = 'Para codificar caracteres en formato de tabla hay que abrir el Editor de Matrices para los siguientes listas de especies';
 $LANG['NOTAUTHIDKEY'] = 'Usted no es autorizado para editar Claves de Identificaci&oacute;n';
 $LANG['IMAGES'] = 'Im&aacute;genes';
 $LANG['SEESYMBDOC'] = 'Revisa la documentaci&oacute;n de Symbiota para';
@@ -59,7 +61,7 @@ funcionalidad. ';
 $LANG['BASICFIELD'] = 'Procedimiento b&aacute;sico para subir im&aacute;genes del campo';
 $LANG['IMGOBSER'] = 'Modulo para subir Im&aacute;genes de Observaci&oacute;n';
 $LANG['SELECTCHECK'] = 'Seleccionar lista de especies';
-$LANG['ADDNEWPROJ'] = 'A&‌ntilde;adir nuevo proyecto';
+$LANG['ADDNEWPROJ'] = 'Añadir nuevo proyecto';
 $LANG['LISTOFCURR'] = 'Listado de proyectos actuales';
 $LANG['CLICKEDIT'] = '(hace clic aqu&iacute; para editar)';
 $LANG['NOPROJ'] = 'No hay proyectos en el sistema';
@@ -73,7 +75,7 @@ $LANG['TAXTREE'] = 'Visualizador del &aacute;rbol taxon&oacute;mico';
 $LANG['DYNTAXTREE'] = 'Navegador de Taxonom&iacute;a';
 $LANG['EDITTAXPL'] = 'Editar ubicaci&oacute;n taxon&oacute;mica (hay que usar';
 $LANG['TAXTREEVIEW'] = 'visualizador del &aacute;rbol taxon&oacute;mico)';
-$LANG['ADDTAXANAME'] = 'A&‌ntilde;adir nuevo nombre de un taxon';
+$LANG['ADDTAXANAME'] = 'Añadir nuevo nombre de un taxon';
 $LANG['BATCHTAXA'] = 'Subir masivo de un archivo taxon&oacute;mico';
 $LANG['EOLLINK'] = 'Gesti&oacute;n de enlaces al Encyclopedia of Life';
 $LANG['NOTEDITTAXA'] = 'Usted no esta autorizado/a de editar la taxonom&iacute;a';
@@ -119,5 +121,5 @@ $LANG['TEXTDESC'] = 'Descripciones textuales';
 $LANG['PERSONAL'] = 'Gesti&oacute;n del manejo personal de especimenes y imprimir etiquetas';
 $LANG['EDITIMG'] = 'Modificar Im&aacute;genes';
 $LANG['IMGSORTORD'] = 'Modificar la secuencia de im&aacute;genes';
-$LANG['ADDNEWIMG'] = 'A&‌ntilde;adir nuevo imagen';
+$LANG['ADDNEWIMG'] = 'Añadir nuevo imagen';
 ?>

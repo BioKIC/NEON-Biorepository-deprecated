@@ -1190,7 +1190,7 @@ class ImageShared{
 
 	public static function getImgDim($imgUrl){
 		if(!$imgUrl) return false;
-
+		$imgDim = false;
 		$urlPrefix = "http://";
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlPrefix = "https://";
 		$urlPrefix .= $_SERVER["SERVER_NAME"];
@@ -1203,9 +1203,9 @@ class ImageShared{
 			if($GLOBALS['IMAGE_ROOT_URL'] && strpos($imgUrl,$GLOBALS['IMAGE_ROOT_URL']) === 0){
 				$imgUrl = str_replace($GLOBALS['IMAGE_ROOT_URL'],$GLOBALS['IMAGE_ROOT_PATH'],$imgUrl);
 			}
-			$imgDim = getimagesize($imgUrl);
+			$imgDim = @getimagesize($imgUrl);
 		}
-		else{
+		if(!$imgDim){
 			$imgDim = self::getImgDim1($imgUrl);
 			if(!$imgDim) $imgDim = self::getImgDim2($imgUrl);
 			if(!$imgDim) $imgDim = @getimagesize($imgUrl);

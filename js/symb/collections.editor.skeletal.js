@@ -236,6 +236,15 @@ function deleteOccurrence(occid){
 	}
 }
 
+function toggleFieldDiv(divName){
+	toggle(divName);
+	var allInputs = $("#"+divName+" > :input");
+	allInputs.each(function(){
+		if(this.type == "checkbox") $(this).prop("checked", false);
+		else this.value = "";
+	});
+}
+
 function eventDateChanged(eventDateInput){
 	var dateStr = eventDateInput.value;
 	if(dateStr == "") return true;

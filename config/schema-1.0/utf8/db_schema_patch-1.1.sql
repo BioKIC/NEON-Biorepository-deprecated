@@ -445,10 +445,12 @@ ALTER TABLE `taxa`
   DROP INDEX `sciname_unique`,
   ADD UNIQUE INDEX `sciname_unique` (`SciName` ASC, `RankId` ASC, `Author` ASC),
   ADD INDEX `sciname_index` (`SciName` ASC);
+
+ALTER TABLE `taxa` 
+  ADD INDEX `idx_taxa_kingdomName` (`kingdomName` ASC);
   
 ALTER TABLE `taxalinks` 
   ADD COLUMN `inherit` INT NULL DEFAULT 1 AFTER `icon`;
-
 
 # Needed for FP functions
 CREATE INDEX idx_taxacreated ON taxa(initialtimestamp);
@@ -907,11 +909,6 @@ CREATE TABLE `useraccesstokens` (
   CONSTRAINT `FK_useraccess_uid` FOREIGN KEY (`uid`) REFERENCES `users` (`uid`) ON DELETE CASCADE  ON UPDATE CASCADE
 );
 
-
-# OK if fails: put at end because may fail due to collid not existing (depending on verion of installation)
-ALTER TABLE `omoccurrencesfulltext` 
-  DROP COLUMN `collid`,
-  DROP INDEX `Index_occurfull_collid` ;
 
 
 

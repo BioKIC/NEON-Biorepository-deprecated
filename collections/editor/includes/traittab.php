@@ -122,7 +122,7 @@ if($isEditor){
 								<?php
 								if($occIndex) echo '<input name="occindex" type="hidden" value="'.$occIndex.'" />';
 								?>
-								<input name="tabtarget" type="hidden" value="3" />
+								<input name="tabtarget" type="hidden" value="4" />
 								<input type="image" src="../../images/refresh.png" style="width:14px;vertical-align: middle;" />
 							</form>
 						</div>
@@ -167,7 +167,7 @@ if($isEditor){
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 								<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
 								<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
-								<input name="tabtarget" type="hidden" value="3" />
+								<input name="tabtarget" type="hidden" value="4" />
 								<button type="button" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
 								<span id="msgDiv-<?php echo $traitID; ?>"></span>
 							</div>

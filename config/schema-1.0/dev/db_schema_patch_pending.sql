@@ -15,16 +15,59 @@ ALTER TABLE `fmchklstprojlink`
 ALTER TABLE `fmchklsttaxalink` 
   ADD INDEX `FK_chklsttaxalink_tid` (`TID` ASC);
 
+
+ALTER TABLE `kmcharacters` 
+  CHANGE COLUMN `helpurl` `helpurl` VARCHAR(500) NULL DEFAULT NULL AFTER `description`,
+  ADD COLUMN `referenceUrl` VARCHAR(250) NULL AFTER `helpurl`;
+
+ALTER TABLE `kmcharacters` 
+  CHANGE COLUMN `sortsequence` `sortsequence` INT(10) UNSIGNED NULL DEFAULT NULL AFTER `notes`,
+  ADD COLUMN `glossid` INT UNSIGNED NULL AFTER `description`,
+  ADD INDEX `FK_kmchar_glossary_idx` (`glossid` ASC);
+ALTER TABLE `kmcharacters` 
+  ADD CONSTRAINT `FK_kmchar_glossary`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `kmcharacterlang` 
+  CHANGE COLUMN `language` `language` VARCHAR(45) NULL ;
+
+ALTER TABLE `kmcharheading` 
+  CHANGE COLUMN `language` `language` VARCHAR(45) NULL DEFAULT 'English' ;
+CREATE TABLE `kmcharheadinglang` (
+  `hid` INT UNSIGNED NOT NULL,
+  `langid` INT NOT NULL,
+  `headingname` VARCHAR(100) NOT NULL,
+  `notes` VARCHAR(250) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`hid`, `langid`),
+  CONSTRAINT `FK_kmcharheadinglang_hid`  FOREIGN KEY (`hid`)  REFERENCES `kmcharheading` (`hid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_kmcharheadinglang_langid`  FOREIGN KEY (`langid`)  REFERENCES `adminlanguage` (`langid`)  ON DELETE CASCADE  ON UPDATE CASCADE
+);
+
+ALTER TABLE `kmcs` 
+  ADD COLUMN `referenceUrl` VARCHAR(250) NULL AFTER `IllustrationUrl`;
+
+ALTER TABLE `kmcs` 
+  ADD COLUMN `glossid` INT UNSIGNED NULL AFTER `referenceUrl`,
+  ADD INDEX `FK_kmcs_glossid_idx` (`glossid` ASC);
+ALTER TABLE `kmcs` 
+  ADD CONSTRAINT `FK_kmcs_glossid`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+
+ALTER TABLE `glossary` 
+  ADD COLUMN `langid` INT UNSIGNED NULL AFTER `language`;
+
+ALTER TABLE `glossaryimages` 
+  ADD COLUMN `sortSequence` INT NULL AFTER `structures`;
+
+
 ALTER TABLE `uploadspectemp` 
   ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;
-
 
 ALTER TABLE `uploadspectemp` 
   CHANGE COLUMN `basisOfRecord` `basisOfRecord` VARCHAR(32) NULL DEFAULT NULL COMMENT 'PreservedSpecimen, LivingSpecimen, HumanObservation' ;
 
 ALTER TABLE `uploadspectemp` 
   ADD INDEX `Index_uploadspec_othercatalognumbers` (`otherCatalogNumbers` ASC);
-
 
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(150) NULL DEFAULT NULL;
@@ -238,6 +281,30 @@ ALTER TABLE `omoccurgenetic`
 ALTER TABLE `omoccurgenetic` 
   ADD UNIQUE INDEX `UNIQUE_omoccurgenetic` (`occid` ASC, `resourceurl` ASC);
 
+CREATE TABLE `omassociatedoccurrence` (
+  `assocOccurID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `occid` INT UNSIGNED NOT NULL,
+  `relationship` VARCHAR(45) NOT NULL COMMENT 'subSample; parentSample; siblingSample',
+  `subType` VARCHAR(45) NULL COMMENT 'tissue, skeleton, wiskers, genetic',
+  `occidAssociate` INT UNSIGNED NULL,
+  `resourceurl` VARCHAR(250) NULL,
+  `externalIdentifier` VARCHAR(45) NULL,
+  `dynamicProperties` TEXT NULL,
+  `createdUid` INT UNSIGNED NULL,
+  `modifiedUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` TIMESTAMP NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`assocOccurID`),
+  INDEX `FK_assocOccur_assocOccid_idx` (`occidAssociate` ASC),
+  INDEX `FK_assocOccur_occid_idx` (`occid` ASC),
+  INDEX `FK_assocOccur_uid_idx` (`createdUid` ASC),
+  INDEX `FK_assocOccur_uidMod_idx` (`modifiedUid` ASC),
+  CONSTRAINT `FK_assocOccur_assocOccid`  FOREIGN KEY (`occidAssociate`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_assocOccur_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_assocOccur_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  CONSTRAINT `FK_assocOccur_uidMod`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+
+
 CREATE TABLE `igsnverification` (
   `igsn` VARCHAR(15) NOT NULL,
   `occid` INT UNSIGNED NULL,
@@ -252,6 +319,16 @@ ALTER TABLE `omoccurrences`
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,
   CHANGE COLUMN `georeferenceRemarks` `georeferenceRemarks` VARCHAR(500) NULL DEFAULT NULL,
   DROP INDEX `idx_occrecordedby`;
+  
+ALTER TABLE `omoccurrences` 
+  ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
+  ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
+  ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
+  ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`;
+
+ALTER TABLE `omoccurrences` 
+  CHANGE COLUMN `waterBody` `waterBody` VARCHAR(75) NULL DEFAULT NULL AFTER `continent`;
+  
   
 ALTER TABLE `omoccurrences` 
   ADD INDEX `Index_locationID` (`locationID` ASC),

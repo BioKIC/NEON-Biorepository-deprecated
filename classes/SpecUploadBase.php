@@ -490,6 +490,13 @@ class SpecUploadBase extends SpecUpload{
 				}
 			}
 		}
+		if($this->collMetadataArr["managementtype"] == 'Live Data'){
+			//Make sure that explicitly set occurrenceID GUIDs are not lost during special imports using catalogNumber matching
+			$sql = 'UPDATE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid SET u.occurrenceID = o.occurrenceID WHERE o.occurrenceID IS NOT NULL AND u.occurrenceID IS NULL ';
+			if(!$this->conn->query($sql)){
+				$this->outputMsg('<li><span style="color:red;">Warning: issue attempting to preserve explicitly defined GUID (e.g. externally generated GUIDs) within a Live Managed collection: '.$this->conn->error.'</span></li>');
+			}
+		}
 
 		//Reset $treansferCnt so that count is accurate since some records may have been deleted due to data integrety issues
 		$this->setTransferCount();

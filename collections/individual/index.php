@@ -670,7 +670,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								<?php
 							}
 							if($occArr['localitysecurity'] == 1){
-								echo '<div style="margin-left:10px;color:orange">Locality protection applied for non-authorized users</div>';
+								echo '<div style="margin-left:10px;color:orange">Locality protection applied for non-authorized users (current user: approved to view)</div>';
 							}
 							if($occArr['habitat']){
 								?>
@@ -776,7 +776,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						if(isset($occArr['paleoid'])){
 							?>
 							<div style="clear:both;">
-								<b>Paleontology terms: </b>
+								<b>Paleontology Terms: </b>
 								<?php
 								$paleoStr1 = '';
 								if($occArr['eon']) $paleoStr1 .= '; '.$occArr['eon'];
@@ -790,22 +790,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								?>
 								<div style="margin-left:10px">
 									<?php
-									$paleoStr2 = '';
-									if($occArr['absoluteage']) echo '<div style="float:left;margin-right:25px"><b>absolute age:</b> '.$occArr['absoluteage'].'</div>';
-									if($occArr['storageage']) echo '<div style="float:left;margin-right:25px"><b>storage age:</b> '.$occArr['storageage'].'</div>';
-									if($occArr['localstage']) echo '<div style="float:left;margin-right:25px"><b>local stage:</b> '.$occArr['localstage'].'</div>';
-									if($occArr['biota']) echo '<div style="float:left;margin-right:25px"><b>biota:</b> '.$occArr['biota'].'</div>';
-									if($occArr['biostratigraphy']) echo '<div style="float:left;margin-right:25px"><b>biostratigraphy:</b> '.$occArr['biostratigraphy'].'</div>';
-									if($occArr['lithogroup']) echo '<div style="float:left;margin-right:25px"><b>group:</b> '.$occArr['lithogroup'].'</div>';
-									if($occArr['formation']) echo '<div style="float:left;margin-right:25px"><b>formation:</b> '.$occArr['formation'].'</div>';
-									if($occArr['taxonenvironment']) echo '<div style="float:left;margin-right:25px"><b>taxon environment:</b> '.$occArr['taxonenvironment'].'</div>';
-									if($occArr['member']) echo '<div style="float:left;margin-right:25px"><b>member:</b> '.$occArr['member'].'</div>';
-									if($occArr['bed']) echo '<div style="float:left;margin-right:25px"><b>bed:</b> '.$occArr['bed'].'</div>';
-									if($occArr['lithology']) echo '<div style="float:left;margin-right:25px"><b>lithology:</b> '.$occArr['lithology'].'</div>';
-									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>remarks:</b> '.$occArr['stratremarks'].'</div>';
-									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>element:</b> '.$occArr['element'].'</div>';
-									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>slide properties:</b> '.$occArr['slideproperties'].'</div>';
-									if($occArr['geologicalcontextid']) echo '<div style="float:left;margin-right:25px"><b>context ID:</b> '.$occArr['geologicalcontextid'].'</div>';
+									if($occArr['absoluteage']) echo '<div style="float:left;margin-right:25px"><b>Absolute Age:</b> '.$occArr['absoluteage'].'</div>';
+									if($occArr['storageage']) echo '<div style="float:left;margin-right:25px"><b>Storage Age:</b> '.$occArr['storageage'].'</div>';
+									if($occArr['localstage']) echo '<div style="float:left;margin-right:25px"><b>Local Stage:</b> '.$occArr['localstage'].'</div>';
+									if($occArr['biota']) echo '<div style="float:left;margin-right:25px"><b>Biota:</b> '.$occArr['biota'].'</div>';
+									if($occArr['biostratigraphy']) echo '<div style="float:left;margin-right:25px"><b>Biostratigraphy:</b> '.$occArr['biostratigraphy'].'</div>';
+									if($occArr['lithogroup']) echo '<div style="float:left;margin-right:25px"><b>Group:</b> '.$occArr['lithogroup'].'</div>';
+									if($occArr['formation']) echo '<div style="float:left;margin-right:25px"><b>Formation:</b> '.$occArr['formation'].'</div>';
+									if($occArr['taxonenvironment']) echo '<div style="float:left;margin-right:25px"><b>Taxon Environment:</b> '.$occArr['taxonenvironment'].'</div>';
+									if($occArr['member']) echo '<div style="float:left;margin-right:25px"><b>Member:</b> '.$occArr['member'].'</div>';
+									if($occArr['bed']) echo '<div style="float:left;margin-right:25px"><b>Bed:</b> '.$occArr['bed'].'</div>';
+									if($occArr['lithology']) echo '<div style="float:left;margin-right:25px"><b>Lithology:</b> '.$occArr['lithology'].'</div>';
+									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>Remarks:</b> '.$occArr['stratremarks'].'</div>';
+									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>Element:</b> '.$occArr['element'].'</div>';
+									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>Slide Properties:</b> '.$occArr['slideproperties'].'</div>';
+									if($occArr['geologicalcontextid']) echo '<div style="float:left;margin-right:25px"><b>Context ID:</b> '.$occArr['geologicalcontextid'].'</div>';
 									?>
 								</div>
 							</div>
@@ -858,6 +857,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						</div>
 						<?php
 						if($collMetadata['individualurl']){
+							$sourceTitle = 'Link to Source';
+							if(strpos($collMetadata['individualurl'], ':')) $sourceTitle = array_shift(explode(':', $collMetadata['individualurl']));
 							$displayID = '';
 							$indUrl = '';
 							if(strpos($collMetadata['individualurl'],'--DBPK--') !== false && $occArr['dbpk']){
@@ -869,7 +870,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$collMetadata['individualurl']);
 							}
 							elseif(strpos($collMetadata['individualurl'],'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
-								$otherCatNum = trim($occArr['othercatalognumbers']);
+								$otherCatNum = trim(array_pop(explode(':', $occArr['othercatalognumbers'])));
 								if($p = strpos($otherCatNum,';')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
 								elseif($p = strpos($otherCatNum,',')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
 								$displayID = $otherCatNum;
@@ -880,14 +881,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$collMetadata['individualurl']);
 							}
 							if($indUrl){
-								echo '<div style="margin-top:10px;clear:both;"><b>Link to Source:</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
+								echo '<div style="margin-top:10px;clear:both;"><b>'.$sourceTitle.':</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
 							}
 						}
 						//Rights
 						$rightsStr = $collMetadata['rights'];
 						if($collMetadata['rights']){
 							$rightsHeading = '';
-							if(isset($rightsTerms)) $rightsHeading = array_search($rightsStr,$rightsTerms);
+							if(isset($RIGHTS_TERMS)) $rightsHeading = array_search($rightsStr,$RIGHTS_TERMS);
 							if(substr($collMetadata['rights'],0,4) == 'http'){
 								$rightsStr = '<a href="'.$rightsStr.'" target="_blank">'.($rightsHeading?$rightsHeading:$rightsStr).'</a>';
 							}

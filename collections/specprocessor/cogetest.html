@@ -19,8 +19,7 @@
 					$("#coge-status").html("Connected");
 					$("#coge-status").css("color", "green");
 					var result = data.result;
-					if  (result != "authentication required")
-					{
+					if(result != "authentication required"){
 						$("#coge-name").html(result.name);
 						$("#coge-name").css("color", "green");
 						$("#coge-description").html(result.description);
@@ -28,11 +27,11 @@
 						$("#coge-version").html(result.version);
 						$("#coge-version").css("color", "green");
 					}
-					else
-					{
+					else{
 						$("#coge-status").html("Unauthorized");
 						$("#coge-status").css("color", "red");
 					}
+					$("#coge-result").html(JSON.stringify(result));
 			})
 			.fail(function(){
 				$("#coge-status").html("Failed");
@@ -66,6 +65,10 @@
 		<div style="clear:both;height:20px;">
 			<div style="float:left;font-weight:bold;">Version:</div> 
 			<div id="coge-version" style="float:left;margin-left:5px;color:green;"></div>
+		</div>
+		<div style="clear:both;height:20px;">
+			<div style="float:left;font-weight:bold;">Result (json):</div> 
+			<div id="coge-result" style="float:left;margin-left:5px;"></div>
 		</div>
 		<div style="clear:both;margin:15px">
 			<div style="float:left"><input type="button" name="cogeCheckStatusButton" value="Check Status" onclick="cogeCheckStatus()" /></div>

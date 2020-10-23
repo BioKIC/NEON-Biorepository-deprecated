@@ -2,12 +2,12 @@
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 
 class SiteMapManager{
-	
+
 	private $conn;
 	private $collArr = array();
 	private $obsArr = array();
 	private $genObsArr = array();
-	
+
 	function __construct() {
 		$this->conn = MySQLiConnectionFactory::getCon("readonly");
 	}
@@ -46,22 +46,22 @@ class SiteMapManager{
 					$isCollAdmin = ($IS_ADMIN||in_array($row->collid,$adminArr)?1:0);
 					if($row->colltype == 'Observations'){
 						$this->obsArr[$row->collid]['name'] = $name;
-						$this->obsArr[$row->collid]['isadmin'] = $isCollAdmin; 
+						$this->obsArr[$row->collid]['isadmin'] = $isCollAdmin;
 					}
 					elseif($row->colltype == 'General Observations'){
 						$this->genObsArr[$row->collid]['name'] = $name;
-						$this->genObsArr[$row->collid]['isadmin'] = $isCollAdmin; 
+						$this->genObsArr[$row->collid]['isadmin'] = $isCollAdmin;
 					}
 					else{
 						$this->collArr[$row->collid]['name'] = $name;
-						$this->collArr[$row->collid]['isadmin'] = $isCollAdmin; 
+						$this->collArr[$row->collid]['isadmin'] = $isCollAdmin;
 					}
 				}
 				$rs->close();
 			}
 		}
 	}
-	
+
 	public function getCollArr(){
 		return $this->collArr;
 	}
@@ -117,25 +117,34 @@ class SiteMapManager{
 		}
 		return $returnArr;
 	}
-	
+
+	public function hasGlossary(){
+		$bool = false;
+		if($rs = $this->conn->query('SELECT glossid FROM glossary LIMIT 1')){
+			if($rs->fetch_object()) $bool = true;
+			$rs->free();
+		}
+		return $bool;
+	}
+
 	/**
-	 * 
+	 *
 	 * Determine the version number of the underlying schema.
-	 * 
+	 *
 	 * @return string representation of the most recently applied schema version
 	 */
 	public function getSchemaVersion() {
-		$result = "No Schema Version Found"; 
+		$result = "No Schema Version Found";
 		$sql = "select versionnumber, dateapplied from schemaversion order by dateapplied desc limit 1 ";
 		$statement = $this->conn->prepare($sql);
 		$statement->execute();
 		$statement->bind_result($version,$dateapplied);
-		while ($statement->fetch())  { 
+		while ($statement->fetch())  {
 			$result = $version;
 		}
 		$statement->close();
-		return $result;		
+		return $result;
 	}
-	
+
 }
 ?>

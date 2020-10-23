@@ -197,7 +197,7 @@ class ChecklistManager {
 		$result = $this->conn->query($this->basicSql);
 		while($row = $result->fetch_object()){
 			$family = strtoupper($row->family);
-			if(!$family) $family = 'Family Incertae Sedis';
+			if($row->rankid > 140 && !$family) $family = 'Incertae Sedis';
 			$this->filterArr[$family] = '';
 			$taxonGroup = $family;
 			if($this->showAlphaTaxa) $taxonGroup = $row->unitname1;
@@ -214,7 +214,7 @@ class ChecklistManager {
 				$taxonTokens = $newArr;
 			}
 			if(!$retLimit || ($this->taxaCount >= (($pageNumber-1)*$retLimit) && $this->taxaCount <= ($pageNumber)*$retLimit)){
-				if(count($taxonTokens) == 1) $sciName .= " sp.";
+				if($row->rankid == 180) $sciName .= " sp.";
 				if($row->rankid > 220 && $this->clMetadata['type'] != 'rarespp' && !array_key_exists($row->parenttid, $this->taxaList)){
 					$this->taxaList[$row->parenttid]['taxongroup'] = '<i>'.$taxonGroup.'</i>';
 					$this->taxaList[$row->parenttid]['family'] = $family;
@@ -465,10 +465,10 @@ class ChecklistManager {
 					$sql .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid WHERE (ST_Within(p.point,GeomFromText("'.$this->clMetadata['footprintwkt'].'"))) ';
 				}
 				else{
-					$this->voucherManager = new ChecklistVoucherAdmin($this->conn);
-					$this->voucherManager->setClid($this->clid);
-					$this->voucherManager->setCollectionVariables();
-					$sql .= 'WHERE ('.$this->voucherManager->getSqlFrag().') ';
+					$voucherManager = new ChecklistVoucherAdmin($this->conn);
+					$voucherManager->setClid($this->clid);
+					$voucherManager->setCollectionVariables();
+					$sql .= 'WHERE ('.$voucherManager->getSqlFrag().') ';
 				}
 				$sql .= 'LIMIT 50';
 				//echo $sql; exit;

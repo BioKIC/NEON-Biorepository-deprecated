@@ -4,15 +4,22 @@ header("Content-Type: text/html; charset=".$CHARSET);
 header('Access-Control-Allow-Origin: http://www.catalogueoflife.org/col/webservice');
 
 $occId = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
-$tabTarget = array_key_exists('tabtarget',$_REQUEST)?$_REQUEST['tabtarget']:0;
 $collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
+$tabTarget = array_key_exists('tabtarget',$_REQUEST)?$_REQUEST['tabtarget']:0;
 $goToMode = array_key_exists('gotomode',$_REQUEST)?$_REQUEST['gotomode']:0;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:false;
 $crowdSourceMode = array_key_exists('csmode',$_REQUEST)?$_REQUEST['csmode']:0;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
-if(!$action && array_key_exists('carryloc',$_REQUEST)){
-	$goToMode = 2;
-}
+if(!$action && array_key_exists('carryloc',$_REQUEST)) $goToMode = 2;
+
+//Sanitation
+if(!is_numeric($occId)) $occId = '';
+if(!is_numeric($collId)) $collId = 0;
+if(!is_numeric($tabTarget)) $tabTarget = 0;
+if(!is_numeric($goToMode)) $goToMode = 0;
+if(!is_numeric($occIndex)) $occIndex = false;
+if(!is_numeric($crowdSourceMode)) $crowdSourceMode = 0;
+$action = filter_var($action,FILTER_SANITIZE_STRING);
 
 //Create Occurrence Manager
 $occManager;
@@ -374,7 +381,7 @@ if($SYMB_UID){
 		if($occIndex<$qryCnt-1) $navStr .= '</a> ';
 		if(!$crowdSourceMode){
 			$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
-			$navStr .= '<a href="occurrenceeditor.php?gotomode=1&collid='.$collId.'" onclick="return verifyLeaveForm()" title="New Record">&gt;*</a>';
+			$navStr .= '<a href="occurrenceeditor.php?gotomode=1&collid='.$occManager->getCollId().'" onclick="return verifyLeaveForm()" title="New Record">&gt;*</a>';
 		}
 		$navStr .= '</b>';
 	}
@@ -442,7 +449,7 @@ else{
 		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
-		var collId = "<?php echo (isset($collMap['collid'])?$collMap['collid']:$collId); ?>";
+		var collId = "<?php echo (isset($collMap['collid'])?$collMap['collid']:$occManager->getCollId()); ?>";
 		var csMode = "<?php echo $crowdSourceMode; ?>";
 		var tabTarget = <?php echo (is_numeric($tabTarget)?$tabTarget:'0'); ?>;
 		var imgArr = [];
@@ -464,7 +471,7 @@ else{
             $.ajax({
                 type: "POST",
                 url: 'rpc/makeactionrequest.php',
-                data: { <?php echo " occid: '$occId' , "; ?> requesttype: 'Image' },
+                data: { <?php echo ' occid: '.$occManager->getOccId(); ?>, requesttype: 'Image' },
                 success: function( response ) {
                    $('div#imagerequestresult').html(response);
                 }
@@ -548,12 +555,12 @@ else{
 							else{
 								if($isEditor == 1 || $isEditor == 2){
 									?>
-									<a href="../misc/collprofiles.php?collid=<?php echo (isset($collMap['collid'])?$collMap['collid']:$collId); ?>&emode=1" onclick="return verifyLeaveForm()">Collection Management</a> &gt;&gt;
+									<a href="../misc/collprofiles.php?collid=<?php echo $occManager->getCollId(); ?>&emode=1" onclick="return verifyLeaveForm()">Collection Management</a> &gt;&gt;
 									<?php
 								}
 							}
 						}
-						if($occId) echo '<a href="../individual/index.php?occid='.$occId.'">Public Display</a> &gt;&gt;';
+						if($occId) echo '<a href="../individual/index.php?occid='.$occManager->getOccId().'">Public Display</a> &gt;&gt;';
 						?>
 						<b><?php if($isEditor == 3) echo 'Taxonomic '; ?>Editor</b>
 					</div>
@@ -592,7 +599,7 @@ else{
 							This record is locked for editing by another user. Once the user is done with the record, the lock will be removed. Records are locked for a maximum of 15 minutes.
 						</div>
 						<div style="margin:20px;font-weight:bold;">
-							<a href="../individual/index.php?occid=<?php echo $occId; ?>" target="_blank">Read-only Display</a>
+							<a href="../individual/index.php?occid=<?php echo $occManager->getOccId(); ?>" target="_blank">Read-only Display</a>
 						</div>
 					</div>
 					<?php
@@ -606,12 +613,8 @@ else{
 									<li>
 										<a href="#occdiv"  style="">
 											<?php
-											if($occId){
-												echo 'Occurrence Data';
-											}
-											else{
-												echo '<span style="color:red;">New Occurrence Record</span>';
-											}
+											if($occId) echo 'Occurrence Data';
+											else echo '<span style="color:red;">New Occurrence Record</span>';
 											?>
 										</a>
 									</li>
@@ -624,7 +627,7 @@ else{
 										$person = $pHandler->getPerson();
 										$userEmail = ($person?$person->getEmail():'');
 
-										$anchorVars = 'occid='.$occId.'&occindex='.$occIndex.'&csmode='.$crowdSourceMode.'&collid='.$collId;
+										$anchorVars = 'occid='.$occManager->getOccId().'&occindex='.$occIndex.'&csmode='.$crowdSourceMode.'&collid='.$occManager->getCollId();
 										$detVars = 'identby='.urlencode($occArr['identifiedby']).'&dateident='.urlencode($occArr['dateidentified']).
 											'&sciname='.urlencode($occArr['sciname']).'&em='.$isEditor.
 											'&annotatorname='.urlencode($USER_DISPLAY_NAME).'&annotatoremail='.urlencode($userEmail).
@@ -645,6 +648,10 @@ else{
 												<a href="includes/imagetab.php?<?php echo $anchorVars; ?>"
 													style="">Images</a>
 											</li>
+											<li id="resourceTab">
+												<a href="includes/resourcetab.php?<?php echo $anchorVars; ?>"
+													style="">Linked Resources</a>
+											</li>
 											<?php
 											if($occManager->traitCodingActivated()){
 												$traitAnchor = $anchorVars;
@@ -656,10 +663,6 @@ else{
 												<?php
 											}
 											?>
-											<li id="resourceTab">
-												<a href="includes/resourcetab.php?<?php echo $anchorVars; ?>"
-													style="">Linked Resources</a>
-											</li>
 											<li id="adminTab">
 												<a href="includes/admintab.php?<?php echo $anchorVars; ?>"
 													style="">Admin</a>
@@ -702,7 +705,7 @@ else{
 													<?php echo (defined('CATALOGNUMBERLABEL')?CATALOGNUMBERLABEL:'Catalog Number'); ?>
 													<a href="#" onclick="return dwcDoc('catalogNumber')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
 													<br/>
-													<input type="text" id="catalognumber" name="catalognumber" tabindex="2" maxlength="32" value="<?php echo array_key_exists('catalognumber',$occArr)?$occArr['catalognumber']:''; ?>" onchange="fieldChanged('catalognumber');<?php if(!defined('CATNUMDUPECHECK') || CATNUMDUPECHECK) echo 'searchDupesCatalogNumber(this.form,true)'; ?>" <?php if($isEditor > 2) echo 'disabled'; ?> autocomplete="off" />
+													<input type="text" id="catalognumber" name="catalognumber" tabindex="2" value="<?php echo array_key_exists('catalognumber',$occArr)?$occArr['catalognumber']:''; ?>" onchange="fieldChanged('catalognumber');<?php if(!defined('CATNUMDUPECHECK') || CATNUMDUPECHECK) echo 'searchDupesCatalogNumber(this.form,true)'; ?>" <?php if($isEditor > 2) echo 'disabled'; ?> autocomplete="off" />
 												</div>
 												<div id="otherCatalogNumbersDiv">
 													<?php echo (defined('OTHERCATALOGNUMBERSLABEL')?OTHERCATALOGNUMBERSLABEL:'Other Cat. #s'); ?>
@@ -763,7 +766,7 @@ else{
 													?>
 													<fieldset style="float:right;margin:3px;padding:5px;border:1px solid red;">
 														<legend style="color:red;">Out On Loan</legend>
-														<b>To:</b> <a href="../loans/index.php?loantype=out&collid=<?php echo $collId.'&loanid='.$occArr['loan']['id']; ?>">
+														<b>To:</b> <a href="../loans/index.php?loantype=out&collid=<?php echo $occManager->getCollId().'&loanid='.$occArr['loan']['id']; ?>">
 															<?php echo $occArr['loan']['code']; ?></a><br/>
 														<b>Due date:</b> <?php echo (isset($occArr['loan']['date'])?$occArr['loan']['date']:'Not Defined'); ?>
 													</fieldset>
@@ -1174,7 +1177,7 @@ else{
 											</div>
 											<?php
 											if(isset($QuickHostEntryIsActive) && $QuickHostEntryIsActive) { // Quick host field
-												$quickHostArr = $occManager->getQuickHost($occId);
+												$quickHostArr = $occManager->getQuickHost();
 												?>
 												<div id="hostDiv">
 													<?php echo (defined('HOSTLABEL')?HOSTLABEL:'Host'); ?><br/>
@@ -1389,7 +1392,7 @@ else{
 												<div id="pkDiv">
 													<hr/>
 													<div style="float:left;" title="Internal occurrence record Primary Key (occid)">
-														<?php if($occId) echo 'Key: '.$occId; ?>
+														<?php if($occId) echo 'Key: '.$occManager->getOccId(); ?>
 													</div>
 													<div style="float:left;margin-left:50px;">
 														<?php if(array_key_exists('datelastmodified',$occArr)) echo 'Modified: '.$occArr['datelastmodified']; ?>
@@ -1433,8 +1436,8 @@ else{
 										}
 										?>
 										<div id="bottomSubmitDiv">
-											<input type="hidden" name="occid" value="<?php echo $occId; ?>" />
-											<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
+											<input type="hidden" name="occid" value="<?php echo $occManager->getOccId(); ?>" />
+											<input type="hidden" name="collid" value="<?php echo $occManager->getCollId(); ?>" />
 											<input type="hidden" name="observeruid" value="<?php echo $SYMB_UID; ?>" />
 											<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 											<input type="hidden" name="linkdupe" value="" />

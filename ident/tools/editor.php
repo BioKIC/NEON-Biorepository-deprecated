@@ -36,19 +36,22 @@ if($isEditor && $action){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Identification Character Editor</title>
-  <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
+	<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js"></script>
+	<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js"></script>
 	<script type="text/javascript">
 		var dataChanged = false;
+		var headingDivOpen = true;
 		window.onbeforeunload = verifyClose;
 
 		function verifyClose() {
@@ -58,29 +61,19 @@ if($isEditor && $action){
 		}
 
 		function toggle(target){
-			var divObjs = document.getElementsByTagName("div");
-		  	for (i = 0; i < divObjs.length; i++) {
-		  		var obj = divObjs[i];
-		  		if(obj.getAttribute("class") == target || obj.getAttribute("className") == target){
-						if(obj.style.display=="none"){
-							obj.style.display="inline";
-						}
-				 	else {
-				 		obj.style.display="none";
-				 	}
-				}
+			$("#"+target).toggle();
+			$("#plus-"+target).toggle();
+			$("#minus-"+target).toggle();
+		}
+
+		function toggleAll(){
+			if(headingDivOpen){
+				$(".headingDiv").hide();
+				headingDivOpen = false;
 			}
-			var spanObjs = document.getElementsByTagName("span");
-			for (i = 0; i < spanObjs.length; i++) {
-				var obj = spanObjs[i];
-				if(obj.getAttribute("class") == target || obj.getAttribute("className") == target){
-					if(obj.style.display=="none"){
-						obj.style.display="inline";
-					}
-					else {
-						obj.style.display="none";
-					}
-				}
+			else{
+				$(".headingDiv").show();
+				headingDivOpen = true;
 			}
 		}
 
@@ -93,117 +86,101 @@ if($isEditor && $action){
 			var wWidth = 900;
 			if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
 			if(wWidth > 1200) wWidth = 1200;
-			newWindow = window.open(urlStr,windowName,'scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
+			newWindow = window.open(urlStr,windowName,'scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=500,left=50,top=150');
 			if (newWindow.opener == null) newWindow.opener = self;
 		}
 	</script>
 </head>
 <body>
 <?php
-	$displayLeftMenu = (isset($ident_tools_editorMenu)?$ident_tools_editorMenu:false);
-	include($SERVER_ROOT.'/includes/header.php');
-	if(isset($ident_tools_editorCrumbs) && $ident_tools_editorCrumbs){
-		echo "<div class='navpath'>";
-		echo $ident_tools_editorCrumbs;
-		echo "<b>Character Editor</b>";
-		echo "</div>";
-	}
-	else{
-		?>
-		<div class="navpath">
-			<a href="../../index.php">Home</a> &gt;&gt;
-			<b>Character Editor</b>
-		</div>
-		<?php
-	}
+$displayLeftMenu = false;
+if(!$charValue)	include($SERVER_ROOT.'/includes/header.php');
 ?>
-<div style="margin:15px;">
-<?php
-if($isEditor){
-	?>
-  	<form action="editor.php" method="post" onsubmit="dataChanged=false;">
+<div id="innertext">
 	<?php
-	if($tid){
- 		$sn = $editorManager->getTaxonName();
- 		if($editorManager->getRankId() > 140){
-	  		$sn = "<i>$sn</i>";
- 		}
- 		echo "<div style='float:right;'>";
- 		if($editorManager->getRankId() > 140){
-			echo "<a href='editor.php?tid=".$editorManager->getParentTid()."&children=".($childrenStr?$childrenStr.',':'').$tid."'>edit parent</a>&nbsp;&nbsp;";
- 		}
-		if($childrenStr){
-			echo "<br><a href='editor.php?children=".$childrenStr."'>back to child</a>";
-		}
-		echo "</div>";
- 		echo "<h2>$sn</h2>";
-		$cList = $editorManager->getCharList();
-		$depArr = $editorManager->getCharDepArray();
-		$charStatesList = $editorManager->getCharStates();
-		if($cList){
-			$count = 0;
-			$minusGif = "<img src='../../images/minus_sm.png'>";
-			$plusGif = "<img src='../../images/plus_sm.png'>";
-			foreach($cList as $heading => $charArray){
-				echo "<div style='font-weight:bold; font-size:150%; margin:1em 0em 1em 0em; color:#990000;".($charValue?" display:none;":"")."'>";
-				echo "<span class='".$heading."' onclick=\"toggle('".$heading."');\" style=\"display:none;\">$minusGif</span>";
-				echo "<span class='".$heading."' onclick=\"toggle('".$heading."');\" style=\"display:;\">$plusGif</span>";
-				echo " $heading</div>\n";
-				echo "<div class='".$heading."' id='".$heading."' style='text-indent:1em;".($charValue?"":" display:none;")."'>";
-				foreach($charArray as $cidKey => $charNameStr){
-					if(!$charValue || $charValue == $cidKey){
-						echo "<div id='chardiv".$cidKey."' style='display:".(array_key_exists($cidKey,$depArr)?"hidden":"block").";'>";
-						echo "<div style='margin-top:1em;'><span style='font-weight:bold; font-size:larger;'>$charNameStr</span>\n";
-						if($editorManager->getRankId() > 140){
-							echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:smaller;'>";
-							echo "<a href=\"#\" onclick=\"openPopup('editor.php?tid=".$editorManager->getParentTid()."&char=".$cidKey."','technical');\">parent</a>";
-							echo "</span>\n";
-						}
-						echo "</div>\n";
-						echo "<div style='font-size:smaller; text-indent:2.5em;'>Add&nbsp;&nbsp;Remove</div>\n";
-						$cStates = $charStatesList[$cidKey];
-						foreach($cStates as $csKey => $csValue){
-							$testStr = $cidKey."_".$csKey;
-							$charPresent = $editorManager->isSelected($testStr);
-							$inh = $editorManager->getInheritedStr($testStr);
-							$displayStr = ($charPresent?"<span style='font-size:larger;font-weight:bold;'>":"").$csValue.$inh.($charPresent?"</span>":"");
-							echo "<div style='text-indent:2em;'><input type='checkbox' name='add[]' ".($charPresent && !$inh?"disabled='true' ":" ")." value='".$testStr."' onChange='dataChanged=true;'/>";
-							echo "&nbsp;&nbsp;&nbsp;<input type='checkbox' name='remove[]' ".(!$charPresent || $inh?"disabled='true' ":" ")."value='".$testStr."'  onChange='dataChanged=true;'/>";
-							echo "&nbsp;&nbsp;&nbsp;$displayStr</div>\n";
-						}
-						echo "</div>";
-						$count++;
-						if($count%3 == 0) echo "<div style='margin-top:1em;'><input type='submit' name='action' value='Submit Changes'/></div>\n";
-					}
-				}
-				echo "</div>\n";
+	if($isEditor && $tid){
+		?>
+		<form action="editor.php" method="post" onsubmit="dataChanged=false;">
+			<?php
+			$sn = $editorManager->getTaxonName();
+			if($editorManager->getRankId() > 140) $sn = "<i>$sn</i>";
+			echo "<div style='float:right;'>";
+			if($editorManager->getRankId() > 140){
+				echo "<a href='editor.php?tid=".$editorManager->getParentTid()."&children=".($childrenStr?$childrenStr.',':'').$tid."'>edit parent</a>&nbsp;&nbsp;";
 			}
-			echo "<div style='margin-top:1em;'><input type='submit' name='action' value='Submit Changes'/></div>\n";
-			//Hidden values to maintain values and display mode
-			if($charValue){
-				echo "<div><br><b>Note:</b> changes made here will not be reflected on child page until page is refreshed.</div>";
-				echo "<div><input type='hidden' name='char' value='".$charValue."'/></div>";
+			if($childrenStr){
+				echo "<br><a href='editor.php?children=".$childrenStr."'>back to child</a>";
+			}
+			echo "</div>";
+			echo "<h2>$sn</h2>";
+			$cList = $editorManager->getCharList();
+			$depArr = $editorManager->getCharDepArray();
+			$charStatesList = $editorManager->getCharStates();
+			if($cList){
+				echo '<div><a href="#" onclick="toggleAll();return false;">open/close all</a></div>';
+				$count = 0;
+				foreach($cList as $heading => $charArray){
+					if(!$charValue){
+						echo '<fieldset>';
+						echo '<legend style="font-weight:bold;font-size:120%;color:#990000;">';
+						echo '<span id="minus-'.$heading.'" onclick="toggle(\''.$heading.'\')" style="display:none;"><img src="../../images/minus_sm.png"></span> ';
+						echo '<span id="plus-'.$heading.'" onclick="toggle(\''.$heading.'\')"><img src="../../images/plus_sm.png"></span> ';
+						echo $heading.'</legend>';
+					}
+					echo '<div class="headingDiv" id="'.$heading.'" style="text-indent:1em;">';
+					foreach($charArray as $cidKey => $charNameStr){
+						if(!$charValue || $charValue == $cidKey){
+							echo "<div id='chardiv".$cidKey."' style='display:".(array_key_exists($cidKey,$depArr)?"hidden":"block").";'>";
+							echo "<div style='margin-top:1em;'><span style='font-weight:bold;'>$charNameStr</span>\n";
+							if($editorManager->getRankId() > 140){
+								echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:smaller;'>";
+								echo "<a href=\"#\" onclick=\"openPopup('editor.php?tid=".$editorManager->getParentTid()."&char=".$cidKey."','technical');\">parent</a>";
+								echo "</span>\n";
+							}
+							echo "</div>\n";
+							echo "<div style='font-size:smaller; text-indent:2.5em;'>Add&nbsp;&nbsp;Remove</div>\n";
+							$cStates = $charStatesList[$cidKey];
+							foreach($cStates as $csKey => $csValue){
+								$testStr = $cidKey."_".$csKey;
+								$charPresent = $editorManager->isSelected($testStr);
+								$inh = $editorManager->getInheritedStr($testStr);
+								$displayStr = ($charPresent?"<span style='font-weight:bold;'>":"").$csValue.$inh.($charPresent?"</span>":"");
+								echo "<div style='text-indent:2em;'><input type='checkbox' name='add[]' ".($charPresent && !$inh?"disabled='true' ":" ")." value='".$testStr."' onChange='dataChanged=true;'/>";
+								echo "&nbsp;&nbsp;&nbsp;<input type='checkbox' name='remove[]' ".(!$charPresent || $inh?"disabled='true' ":" ")."value='".$testStr."'  onChange='dataChanged=true;'/>";
+								echo "&nbsp;&nbsp;&nbsp;$displayStr</div>\n";
+							}
+							echo "</div>";
+							$count++;
+							if($count%3 == 0) echo "<div style='margin-top:1em;'><input type='submit' name='action' value='Submit Changes'/></div>\n";
+						}
+					}
+					if(!$charValue) echo '</fieldset>';
+				}
+				echo '<div style="margin-top:1em;"><input type="submit" name="action" value="Submit Changes"/></div>';
+				//Hidden values to maintain values and display mode
+				if($charValue){
+					echo "<div><br><b>Note:</b> changes made here will not be reflected on child page until page is refreshed.</div>";
+					echo "<div><input type='hidden' name='char' value='".$charValue."'/></div>";
+				}
+				?>
+				<div>
+					<input type="hidden" name="tid" value="<?php echo $editorManager->getTid(); ?>" />
+					<input type="hidden" name="children" value="<?php echo $childrenStr; ?>" />
+					<input type="hidden" name="lang" value="<?php echo $langValue; ?>" />
+				</div>
+				<?php
 			}
 			?>
-			<div>
-				<input type="hidden" name="tid" value="<?php echo $editorManager->getTid(); ?>" />
-				<input type="hidden" name="children" value="<?php echo $childrenStr; ?>" />
-				<input type="hidden" name="lang" value="<?php echo $langValue; ?>" />
-			</div>
-			<?php
-		}
-  	}
+		</form>
+		<?php
+	}
+	else{
+		echo "<h1>You do not have authority to edit character data or there is a problem with the database connection.</h1>";
+	}
 	?>
-	</form>
-	<?php
-}
-else{
-	echo "<h1>You do not have authority to edit character data or there is a problem with the database connection.</h1>";
-}
-?>
 </div>
 <?php
-include($SERVER_ROOT.'/includes/footer.php');
+if(!$charValue) include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>
 </html>

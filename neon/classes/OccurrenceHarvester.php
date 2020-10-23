@@ -117,7 +117,7 @@ class OccurrenceHarvester{
 						if($dwcArr = $this->harvestNeonOccurrence($sampleArr)){
 							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
 								$occidArr[] = $occid;
-								echo '<a href="../collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
+								echo '<a href="../../collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
 							}
 							if($this->errorStr) echo '</li><li style="margin-left:30px">WARNING: '.$this->errorStr.'</li>';
 							else echo '</li>';

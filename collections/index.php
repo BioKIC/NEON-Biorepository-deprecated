@@ -193,4 +193,10 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 	</body>
+    <script>
+    // Forces external collections to be unchecked by default
+    var external = document.getElementById('cat-0-6-Input');
+    external.checked = false;
+    selectAllCat(this,'cat-0-6');
+  </script>
 </html>

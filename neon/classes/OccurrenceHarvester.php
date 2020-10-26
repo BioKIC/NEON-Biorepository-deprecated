@@ -1,6 +1,7 @@
 <?php
 include_once($SERVER_ROOT.'/classes/OccurrenceCollectionProfile.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
+include_once($SERVER_ROOT.'/config/symbini.php');
 
 class OccurrenceHarvester{
 
@@ -9,11 +10,13 @@ class OccurrenceHarvester{
 	private $sampleClassArr = array();
 	private $replaceFieldValues = false;
 	private $errorStr;
-	private $NEON_API_KEY;
+  private $NEON_API_KEY;
+  private $CLIENT_ROOT;
 
  	public function __construct(){
 		$this->conn = MySQLiConnectionFactory::getCon("write");
-		if(isset($GLOBALS['NEON_API_KEY'])) $this->NEON_API_KEY = $GLOBALS['NEON_API_KEY'];
+    if(isset($GLOBALS['NEON_API_KEY'])) $this->NEON_API_KEY = $GLOBALS['NEON_API_KEY'];
+    if(isset($GLOBALS['CLIENT_ROOT'])) $this->CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
  	}
 
  	public function __destruct(){
@@ -120,7 +123,7 @@ class OccurrenceHarvester{
 							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
 								if(!in_array($dwcArr['collid'],$collArr)) $collArr[] = $dwcArr['collid'];
 								$occidArr[] = $occid;
-								echo '<a href="../../collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
+								echo '<a href="'.$this->CLIENT_ROOT.'/collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
 							}
 							if($this->errorStr) echo '</li><li style="margin-left:30px">WARNING: '.$this->errorStr.'</li>';
 							else echo '</li>';
@@ -149,7 +152,7 @@ class OccurrenceHarvester{
 						echo '<li>Update stats for each collection...</li>';
 						$collManager = new OccurrenceCollectionProfile();
 						foreach($collArr as $collID){
-							echo '<li style="margin-left:15px">Stat update for collection <a href="../../collections/misc/collprofiles.php?collid='.$collID.'" target="_blank">#'.$collID.'</a>...</li>';
+							echo '<li style="margin-left:15px">Stat update for collection <a href="'.$this->CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$collID.'" target="_blank">#'.$collID.'</a>...</li>';
 							$collManager->setCollid($collID);
 							$collManager->updateStatistics(false);
 							flush();

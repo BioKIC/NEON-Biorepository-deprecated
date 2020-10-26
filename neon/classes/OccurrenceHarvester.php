@@ -1,4 +1,5 @@
 <?php
+include_once($SERVER_ROOT.'/classes/OccurrenceCollectionProfile.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
 
 class OccurrenceHarvester{
@@ -84,6 +85,7 @@ class OccurrenceHarvester{
 		if($sqlWhere){
 			$this->setStateArr();
 			if($this->setSampleClassArr()){
+				$collArr = array();
 				$occidArr = array();
 				$cnt = 1;
 				$shipmentPK = '';
@@ -116,6 +118,7 @@ class OccurrenceHarvester{
 					if($this->validateSampleArr($sampleArr)){
 						if($dwcArr = $this->harvestNeonOccurrence($sampleArr)){
 							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
+								if(!in_array($dwcArr['collid'],$collArr)) $collArr[] = $dwcArr['collid'];
 								$occidArr[] = $occid;
 								echo '<a href="../../collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
 							}
@@ -133,18 +136,30 @@ class OccurrenceHarvester{
 					flush();
 					ob_flush();
 				}
-				if(!$shipmentPK) echo '<li><b>No records processed. Note that records have to be checked in before occurrences can be harvested.</b></li>';
 				$rs->free();
-
-				$this->setNeonTaxonomy($occidArr);
-				//Set recordID GUIDs
-				$uuidManager = new UuidFactory();
-				$uuidManager->setSilent(1);
-				$uuidManager->populateGuids();
+				if($shipmentPK){
+					$this->setNeonTaxonomy($occidArr);
+					//Set recordID GUIDs
+					echo '<li>Setting recordID UUIDs for all occurrence records...</li>';
+					$uuidManager = new UuidFactory();
+					$uuidManager->setSilent(1);
+					$uuidManager->populateGuids();
+					//Update stats for each collection affected
+					if($collArr){
+						echo '<li>Update stats for each collection...</li>';
+						$collManager = new OccurrenceCollectionProfile();
+						foreach($collArr as $collID){
+							echo '<li style="margin-left:15px">Stat update for collection <a href="../../collections/misc/collprofiles.php?collid='.$collID.'" target="_blank">#'.$collID.'</a>...</li>';
+							$collManager->setCollid($collID);
+							$collManager->updateStatistics(false);
+							flush();
+							ob_flush();
+						}
+					}
+				}
+				else echo '<li><b>No records processed. Note that records have to be checked in before occurrences can be harvested.</b></li>';
 			}
-			else{
-				echo '<li>'.$this->errorStr.'</li>';
-			}
+			else echo '<li>'.$this->errorStr.'</li>';
 		}
 		return false;
 	}

@@ -11,7 +11,7 @@ class KeyEditorManager extends KeyManager{
 	private $parentTid;
 	private $rankId;
 	private $charDepArray = Array();
-  
+
 	public function __construct(){
 		parent::__construct();
 	}
@@ -19,7 +19,7 @@ class KeyEditorManager extends KeyManager{
 	public function __destruct(){
 		parent::__destruct();
 	}
-	
+
 	public function setTid($t){
 		if(is_numeric($t)){
 			$this->tid = $t;
@@ -38,15 +38,15 @@ class KeyEditorManager extends KeyManager{
 	public function getTaxonName(){
 		return $this->taxonName;
 	}
-	
+
 	public function getTid(){
 		return $this->tid;
 	}
-	
+
 	public function getParentTid(){
 		return $this->parentTid;
 	}
-	
+
 	public function getRankId(){
 		return $this->rankId;
 	}
@@ -74,19 +74,18 @@ class KeyEditorManager extends KeyManager{
 		$this->setSelectedStates();
 		return $this->chars;
 	}
-	
+
 	private function setCharList(){
 		//chars Array: HeadingName => (cid => charName)
 		$cidArray = Array();
 		$parentStr = implode(',',$this->getParentArr($this->tid));
 		$sql = 'SELECT c.CharName, c.CID, ch.headingname, dep.CIDDependance, dep.CSDependance '.
-			'FROM ((kmcharacters c INNER JOIN kmchartaxalink ctl ON c.CID = ctl.CID) '.
-			'INNER JOIN kmcharheading ch ON c.hid = ch.hid) LEFT JOIN kmchardependance dep ON c.CID = dep.CID '.
-			'WHERE ((ch.language = "'.$this->language.'") AND (c.CID Not In (SELECT DISTINCT chartl.CID FROM kmchartaxalink chartl '.
-			'WHERE (chartl.TID In ('.$parentStr.')) AND (chartl.Relation="exclude"))) '.
-			'AND (c.chartype = "UM" Or c.chartype="OM") AND (ctl.TID In ('.$parentStr.')) AND '.
-			'(c.defaultlang="'.$this->language.'") AND (ctl.Relation="include")) '.
-			'ORDER BY c.SortSequence';
+			'FROM kmcharacters c INNER JOIN kmchartaxalink ctl ON c.CID = ctl.CID '.
+			'INNER JOIN kmcharheading ch ON c.hid = ch.hid '.
+			'LEFT JOIN kmchardependance dep ON c.CID = dep.CID '.
+			'WHERE (ch.language = "English") AND (c.CID Not In (SELECT DISTINCT chartl.CID FROM kmchartaxalink chartl WHERE (chartl.TID In ('.$parentStr.')) AND (chartl.Relation="exclude"))) '.
+			'AND (c.chartype = "UM" Or c.chartype="OM") AND (ctl.TID In ('.$parentStr.')) AND (ctl.Relation="include") '.
+			'ORDER BY ch.SortSequence,c.SortSequence';
 		//echo $sql;
 		$result = $this->conn->query($sql);
 		while($row = $result->fetch_object()){
@@ -102,12 +101,12 @@ class KeyEditorManager extends KeyManager{
 			$cidDepValue = $row->CIDDependance;
 			$csDepValue = $row->CSDependance;
 			if($cidDepValue) $this->charDepArray[$charKey] = $cidDepValue.":".$csDepValue;
-			
+
 		}
 		if($cidArray) $this->setCharStates(implode(",",array_keys($cidArray)));
 		$result->free();
 	}
-	
+
 	public function getCharDepArray(){
 		return $this->charDepArray;
 	}
@@ -121,7 +120,7 @@ class KeyEditorManager extends KeyManager{
 	    }
 		$result->free();
 	}
-	
+
 	public function getCharStates(){
 		return $this->charStates;
 	}
@@ -143,8 +142,8 @@ class KeyEditorManager extends KeyManager{
 		$rStates = $this->processStateArr($removeStates);
 		$charUsedStr = implode(',',array_unique(array_merge(array_keys($aStates),array_keys($rStates))));
 
-		if($charUsedStr) $this->deleteInheritance($this->tid,$charUsedStr); 
-		
+		if($charUsedStr) $this->deleteInheritance($this->tid,$charUsedStr);
+
 		if($rStates){
 			//Delete all char/cs combinations in $rStates
 			foreach($rStates as $cid => $csArr){
@@ -173,10 +172,10 @@ class KeyEditorManager extends KeyManager{
 				$tok = explode("_",$value);
 				$cid = $tok[0];
 				$cs = $tok[1];
-				$retArr[$cid][] = $cs; 
+				$retArr[$cid][] = $cs;
 			}
 		}
 		return $retArr;
-	} 
+	}
 }
 ?>

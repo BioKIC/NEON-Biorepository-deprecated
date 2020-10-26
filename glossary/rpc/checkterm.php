@@ -1,40 +1,20 @@
 <?php
-include_once('../../config/dbconnection.php');
-$con = MySQLiConnectionFactory::getCon("readonly");
-$returnArr = Array();
+include_once('../../config/symbini.php');
+include_once($SERVER_ROOT.'/classes/GlossaryManager.php');
 
-$term = $con->real_escape_string($_REQUEST['term']);
-$language = $con->real_escape_string($_REQUEST['language']);
-$relGlossId = $_REQUEST['relglossid'];
-if(!is_numeric($relGlossId)) $relGlossId = 0;
-$tid = $_REQUEST['tid'];
-if(!is_numeric($tid)) $tid = 0;
+$term = $_POST['term'];
+$language = $_POST['language'];
+$relGlossId = $_POST['relglossid'];
+$tid = $_POST['tid'];
 
-// Is the string length greater than 0?
-if($term && $language && ($tid || $relGlossId)) {
-	$sql = '';
-	if($tid){
-		$sql = 'SELECT g.glossid '.
-			'FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid '.
-			'LEFT JOIN glossarytaxalink t ON gl.glossgrpid = t.glossid '.
-			'LEFT JOIN glossarytaxalink t2 ON g.glossid = t2.glossid '.
-			'WHERE (g.term = "'.$term.'") AND (g.`language` = "'.$language.'") AND (t.tid = '.$tid.' OR t2.tid = '.$tid.')';
-	}
-	else{
-		$sql = 'SELECT g.glossid '.
-			'FROM glossary g INNER JOIN glossarytermlink gl ON g.glossid = gl.glossid '.
-			'INNER JOIN glossarytaxalink t ON gl.glossgrpid = t.glossid '.
-			'INNER JOIN glossarytermlink gl2 ON gl.glossgrpid = gl2.glossgrpid '.
-			'WHERE (g.term = "'.$term.'") AND (g.`language` = "'.$language.'") AND (gl2.glossid = '.$relGlossId.')';
-	}
-	$result = $con->query($sql);
-	if($row = $result->fetch_object()) {
-		$returnArr[] = $row->glossid;
-	}
-	$result->free();
+$isEditor = false;
+if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
+
+$retStr = '';
+if($isEditor){
+	$glosManager = new GlossaryManager();
+	if($glosManager->checkTerm($term, $language, $relGlossId, $tid)) $retStr = 1;
 }
-$con->close();
 
-if(!$returnArr) echo '';
-else echo '1';
+echo $retStr;
 ?>

@@ -7,21 +7,23 @@ if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/gl
 
 $glossId = array_key_exists('glossid',$_REQUEST)?$_REQUEST['glossid']:0;
 $glimgId = array_key_exists('glimgid',$_REQUEST)?$_REQUEST['glimgid']:0;
+$statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
-$isEditor = false;
-if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
-	$isEditor = true;
-}
+//Sanitation
+if(!is_numeric($glossId)) $glossId = 0;
+if(!is_numeric($glimgId)) $glimgId = 0;
+$statusStr = filter_var($statusStr,FILTER_SANITIZE_STRING);
+$formSubmit = filter_var($formSubmit,FILTER_SANITIZE_STRING);
 
-$tidStr = '';
-$hasImages = false;
+$isEditor = false;
+if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
 
 $glosManager = new GlossaryManager();
 $glosManager->setGlossId($glossId);
 
+$hasImages = false;
 $closeWindow = false;
-$statusStr = '';
 if($formSubmit){
 	if($formSubmit == 'Edit Term'){
 		if(!$glosManager->editTerm($_POST)){
@@ -86,6 +88,7 @@ if($formSubmit){
 		}
 	}
 }
+if($statusStr=='successadd') $statusStr = 'New term successfully created!';
 
 if($glossId){
 	$termArr = $glosManager->getTermArr();
@@ -119,7 +122,7 @@ if($glossId){
 	<script type="text/javascript" src="../js/symb/glossary.index.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			<?php 
+			<?php
 			if($closeWindow){
 				echo 'window.opener.searchform.submit();';
 				echo 'self.close();';
@@ -132,13 +135,13 @@ if($glossId){
 				alert("Term and language must have a value");
 				return false;
 			}
-	
+
 			if(f.definition.value.length > 1998){
 				if(!confirm("Warning, your definition is close to maximum size limit and may be cut off. Are you sure the definition is completely entered?")) return false;
 			}
 			return true;
 		}
-	
+
 		function verifyRelLinkForm(f){
 			if(!f.relglossid.value){
 				alert("Please select a related term");
@@ -146,7 +149,7 @@ if($glossId){
 			}
 			return true;
 		}
-	
+
 		function verifyTransLinkForm(f){
 			if(!f.relglossid.value){
 				alert("Please select a translation term");
@@ -154,7 +157,7 @@ if($glossId){
 			}
 			return true;
 		}
-	
+
 		function verifyNewImageForm(f){
 			if(!document.getElementById("imgfile").files[0] && document.getElementById("imgurl").value == ""){
 				alert("Please either upload an image or enter the url of an existing image.");
@@ -162,7 +165,7 @@ if($glossId){
 			}
 			return true;
 		}
-	
+
 		function verifyImageEditForm(f){
 			if(document.getElementById("editurl").value == ""){
 				document.getElementById("editurl").value = document.getElementById("oldurl").value;
@@ -182,33 +185,33 @@ if($glossId){
 		if($glossary_indexCrumbs){
 			?>
 			<div class='navpath'>
-				<a href='../index.php'>Home</a> &gt;&gt; 
+				<a href='../index.php'>Home</a> &gt;&gt;
 				<?php echo $glossary_indexCrumbs; ?>
 				<a href='index.php?language=<?php echo $glosManager->getTermLanguage(); ?>'> <b>Glossary Management</b></a>
 			</div>
-			<?php 
+			<?php
 		}
 	}
 	else{
 		?>
 		<div class='navpath'>
-			<a href='../index.php'>Home</a> &gt;&gt; 
+			<a href='../index.php'>Home</a> &gt;&gt;
 			<a href='index.php?language=<?php echo $glosManager->getTermLanguage(); ?>'> <b>Glossary Management</b></a>
 		</div>
-		<?php 
+		<?php
 	}
 	*/
 	?>
 	<!-- This is inner text! -->
 	<div id="innertext">
-		<?php 
+		<?php
 		if($glossId && $isEditor){
 			if($statusStr){
 				?>
-				<div style="margin:15px;color:<?php echo (strpos($statusStr, 'SUCCESS') !== false?'green':'red'); ?>;">
+				<div style="margin:15px;color:<?php echo (stripos($statusStr, 'SUCCESS') !== false?'green':'red'); ?>;">
 					<?php echo $statusStr; ?>
 				</div>
-				<?php 
+				<?php
 			}
 			?>
 			<div id="tabs" style="margin:0px;">
@@ -219,7 +222,7 @@ if($glossId){
 					<li><a href="#termimagediv">Images</a></li>
 					<li><a href="#termadmindiv">Admin</a></li>
 				</ul>
-				
+
 				<div id="termdetaildiv" style="">
 					<div id="termdetails" style="overflow:auto;">
 						<form name="termeditform" id="termeditform" action="termdetails.php" method="post" onsubmit="return verifyTermEditForm(this);">
@@ -245,17 +248,17 @@ if($glossId){
 								</div>
 								<div style="float:left;margin-left:10px;">
 									<select id="langSelect" name="language">
-										<?php 
+										<?php
 										$langArr = $glosManager->getLanguageArr('all');
 										foreach($langArr as $langStr ){
 											echo '<option '.($glosManager->getTermLanguage()==$langStr?'SELECTED':'').'>'.$langStr.'</option>';
 										}
 										?>
-									</select> 
+									</select>
 									<a href="#" onclick="toggle('addLangDiv');return false;"><img src="../images/add.png" /></a>&nbsp;&nbsp;
 								</div>
 								<div id="addLangDiv" style="float:left;display:none">
-									<input name="newlang" type="text" maxlength="45" style="width:200px;" /> 
+									<input name="newlang" type="text" maxlength="45" style="width:200px;" />
 									<button onclick="addNewLang(this.form);return false;">Add language</button>
 								</div>
 							</div>
@@ -343,7 +346,7 @@ if($glossId){
 					</div>
 				</div>
 				<div id="termrelateddiv">
-					<?php 
+					<?php
 					$synonymArr = $glosManager->getSynonyms();
 					$otherRelationshipsArr = $glosManager->getOtherRelatedTerms();
 					?>
@@ -356,18 +359,18 @@ if($glossId){
 								<legend><b>Link A Related Term</b></legend>
 								<div style="clear:both;padding-top:4px;">
 									<div style="">
-										<b>This term</b> 
+										<b>This term</b>
 										<select name="relationship">
 											<option value="synonym">is Synonym Of</option>
 											<option value="subClassOf">is Subclass of... (Child of...)</option>
 											<option value="superClassOf">is Superclass of... (Parent of...)</option>
 											<option value="hasPart">has Part...</option>
 											<option value="partOf">is Part of...</option>
-										</select> 
+										</select>
 										<select name="relglossid">
 											<option value=''>Select Related Term</option>
 											<option value=''>------------------------</option>
-											<?php 
+											<?php
 											$relList = $glosManager->getTermList('related',$glosManager->getTermLanguage());
 											unset($relList[$glossId]);
 											$relList = array_diff_key($relList, $synonymArr, $otherRelationshipsArr);
@@ -375,7 +378,7 @@ if($glossId){
 												echo '<option value="'.$relId.'">'.$relName.'</option>';
 											}
 											?>
-										</select> 
+										</select>
 										<input name="glossid" type="hidden" value="<?php echo $glossId; ?>" />
 										<button name="formsubmit" type="submit" value="Link Related Term">Link Related Term</button>
 									</div>
@@ -392,7 +395,7 @@ if($glossId){
 						?>
 						<fieldset style='clear:both;padding:15px;margin-bottom:10px;'>
 							<legend><b>Synonyms</b></legend>
-							<?php 
+							<?php
 							foreach($synonymArr as $synGlossId => $synArr){
 								?>
 								<div style="margin:15px;padding:10px;border:1px solid gray">
@@ -418,22 +421,22 @@ if($glossId){
 										</a>
 									</div>
 									<div style='' >
-										<b>Term:</b> 
+										<b>Term:</b>
 										<?php echo $synArr['term']; ?>
 									</div>
 									<div style='margin-top:8px;' >
-										<b>Definition:</b> 
+										<b>Definition:</b>
 										<?php echo $synArr['definition']; ?>
 									</div>
 									<div style='margin-top:8px;' >
-										<b>Source:</b> 
+										<b>Source:</b>
 										<?php echo $synArr['source']; ?>
 									</div>
 								</div>
 								<?php
 							}
 							?>
-						</fieldset>	
+						</fieldset>
 						<?php
 					}
 					//Other relationships (superclass, subclass, partOf, hasPart)
@@ -441,7 +444,7 @@ if($glossId){
 						?>
 						<fieldset style='clear:both;padding:15px;margin-bottom:10px;'>
 							<legend><b>Other Relationships</b></legend>
-							<?php 
+							<?php
 							foreach($otherRelationshipsArr as $relType => $relTypeArr){
 								$relStr = 'is related to';
 								if($relType == 'partOf') $relStr = 'is part of';
@@ -474,7 +477,7 @@ if($glossId){
 											Current term <?php echo $relStr.': <b>'.$relArr['term'].'</b>'; ?>
 										</div>
 										<div style='clear:both;margin-top:3px;' >
-											<b>Definition:</b> 
+											<b>Definition:</b>
 											<?php echo $relArr['definition']; ?>
 										</div>
 									</div>
@@ -482,13 +485,13 @@ if($glossId){
 								}
 							}
 							?>
-						</fieldset>	
-						<?php 
+						</fieldset>
+						<?php
 					}
 					?>
 				</div>
 				<div id="termtransdiv" style="">
-					<?php 
+					<?php
 					$translationArr = $glosManager->getTranslations();
 					?>
 					<div style="margin:10px;float:right;cursor:pointer;<?php echo (!$translationArr?'display:none;':''); ?>" onclick="toggle('addtransdiv');" title="Add a New Translation">
@@ -506,7 +509,7 @@ if($glossId){
 										<select name="relglossid">
 											<option value=''>Select Translation Term</option>
 											<option value=''>------------------------</option>
-											<?php 
+											<?php
 											$transList = $glosManager->getTermList('translation',$glosManager->getTermLanguage());
 											$transList = array_diff_key($transList, $translationArr);
 											foreach($transList as $transId => $transName){
@@ -544,7 +547,7 @@ if($glossId){
 												<input type="image" name="formsubmit" src='../images/del.png' value="Remove Translation" style="width:13px;">
 											</form>
 										</div>
-										<?php 
+										<?php
 									}
 									?>
 									<div style="float:right;margin:5px;" title="Edit Term Data">
@@ -553,19 +556,19 @@ if($glossId){
 										</a>
 									</div>
 									<div>
-										<b>Term:</b> 
+										<b>Term:</b>
 										<?php echo $transArr['term']; ?>
 									</div>
 									<div style='margin-top:8px;' >
-										<b>Definition:</b> 
+										<b>Definition:</b>
 										<?php echo $transArr['definition']; ?>
 									</div>
 									<div style='margin-top:8px;' >
-										<b>Language:</b> 
+										<b>Language:</b>
 										<?php echo $transArr['language']; ?>
 									</div>
 									<div style='margin-top:8px;' >
-										<b>Source:</b> 
+										<b>Source:</b>
 										<?php echo $transArr['source']; ?>
 									</div>
 								</div>
@@ -605,10 +608,10 @@ if($glossId){
 												</a>
 											</div>
 											<div style="margin-bottom:10px;">
-												Enter a URL to an image already located on a web server. 
+												Enter a URL to an image already located on a web server.
 											</div>
 											<div>
-												<b>Image URL:</b><br/> 
+												<b>Image URL:</b><br/>
 												<input type='text' name='imgurl' id='imgurl' size='70'/>
 											</div>
 										</div>
@@ -631,7 +634,7 @@ if($glossId){
 									</div>
 									<div style="clear:both;padding-top:4px;float:left;">
 										<div style="float:left;">
-											<b>Notes:</b> 
+											<b>Notes:</b>
 										</div>
 										<div style="float:left;margin-left:10px;">
 											<textarea name="notes" id="notes" rows="10" style="width:380px;height:70px;resize:vertical;" ></textarea>
@@ -665,7 +668,7 @@ if($glossId){
 												if(substr($imgUrl,0,1)=="/"){
 													$imgUrl = $GLOBALS["imageDomain"].$imgUrl;
 												}
-											}			
+											}
 											$displayUrl = $imgUrl;
 											?>
 											<a href="<?php echo $imgUrl;?>" target="_blank">
@@ -678,7 +681,7 @@ if($glossId){
 												if($imgArr["createdBy"]){
 													?>
 													<div style="overflow:hidden;">
-														<b>Created By:</b> 
+														<b>Created By:</b>
 														<?php echo wordwrap($imgArr["createdBy"], 150, "<br />\n"); ?>
 													</div>
 													<?php
@@ -686,7 +689,7 @@ if($glossId){
 												if($imgArr["structures"]){
 													?>
 													<div style="overflow:hidden;">
-														<b>Structures:</b> 
+														<b>Structures:</b>
 														<?php echo wordwrap($imgArr["structures"], 150, "<br />\n"); ?>
 													</div>
 													<?php
@@ -694,7 +697,7 @@ if($glossId){
 												if($imgArr["notes"]){
 													?>
 													<div style="overflow:hidden;margin-top:8px;">
-														<b>Notes:</b> 
+														<b>Notes:</b>
 														<?php echo wordwrap($imgArr["notes"], 150, "<br />\n"); ?>
 													</div>
 													<?php
@@ -724,7 +727,7 @@ if($glossId){
 													</div>
 													<div style="clear:both;padding-top:10px;">
 														<div style="float:left;">
-															<b>Notes:</b> 
+															<b>Notes:</b>
 														</div>
 														<div style="float:left;margin-left:10px;">
 															<textarea name="notes" id="notes" rows="10" style="width:380px;height:70px;resize:vertical;" ><?php echo $imgArr["notes"]; ?></textarea>
@@ -750,14 +753,14 @@ if($glossId){
 											</form>
 										</div>
 									</fieldset>
-									<?php 
+									<?php
 								}
 							}
 							?>
 						</div>
 					</div>
 				</div>
-				
+
 				<div id="termadmindiv" style="">
 					<form name="deltermform" action="termdetails.php" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this term?')">
 						<fieldset style="width:350px;margin:20px;padding:20px;">
@@ -775,7 +778,7 @@ if($glossId){
 					</form>
 				</div>
 			</div>
-			<?php 
+			<?php
 		}
 		else{
 			echo '<h2>Permissions or data error, please contact system administrator</h2>';

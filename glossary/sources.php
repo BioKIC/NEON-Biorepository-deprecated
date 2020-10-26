@@ -10,9 +10,7 @@ $taxa = array_key_exists('taxa',$_REQUEST)?$_REQUEST['taxa']:'';
 $editMode = array_key_exists('emode',$_REQUEST)?1:0;
 
 $isEditor = false;
-if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
-	$isEditor = true;
-}
+if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
 
 $glosManager = new GlossaryManager();
 $sourceArr = $glosManager->getTaxonSources($tid);
@@ -41,7 +39,7 @@ $sourceArr = $glosManager->getTaxonSources($tid);
 	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
-		<a href='../index.php'>Home</a> &gt;&gt; 
+		<a href='../index.php'>Home</a> &gt;&gt;
 		<a href='index.php'> <b>Main Glossary</b></a> &gt;&gt;
 		<b>Glossary Contributors</b>
 	</div>
@@ -92,7 +90,7 @@ $sourceArr = $glosManager->getTaxonSources($tid);
 								<input name="searchlanguage" type="hidden" value="<?php echo $language; ?>" />
 								<input name="searchtaxa" type="hidden" value="<?php echo $taxa; ?>" />
 							</div>
-							<?php 
+							<?php
 							if($sourceArr){
 								?>
 								<div style="margin:20px;">
@@ -101,7 +99,7 @@ $sourceArr = $glosManager->getTaxonSources($tid);
 								<div style="margin:20px;">
 									<button name="formsubmit" type="submit" value="Delete Source" onclick="return confirm('Are you sure you want to delete this source?')">Delete Source</button>
 								</div>
-								<?php 
+								<?php
 							}
 							else{
 								echo '<div style="margin:20px;"><button name="formsubmit" type="submit" value="Add Source">Add Source</button></div>';
@@ -110,7 +108,7 @@ $sourceArr = $glosManager->getTaxonSources($tid);
 						</form>
 					</div>
 				</div>
-				<?php 
+				<?php
 			}
 			else{
 				echo '<h2>You need to login or perhaps do not have the necessary permissions to edit glossary data, please contact your portal manager</h2>';

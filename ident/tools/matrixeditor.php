@@ -1,8 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/KeyMassUpdate.php');
+include_once($SERVER_ROOT.'/classes/KeyMatrixEditor.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../ident/tools/massupdate.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../ident/tools/matrixeditor.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $clid = $_REQUEST['clid'];
 $taxonFilter = array_key_exists("tf",$_REQUEST)?$_REQUEST["tf"]:'';
@@ -16,7 +16,7 @@ if(!is_numeric($clid)) $clid = 0;
 if(!is_numeric($taxonFilter)) $taxonFilter = 0;
 if(!is_numeric($cidValue)) $cidValue = 0;
 
-$muManager = new KeyMassUpdate();
+$muManager = new KeyMatrixEditor();
 $muManager->setClid($clid);
 if($langValue) $muManager->setLang($langValue);
 if($cidValue) $muManager->setCid($cidValue);
@@ -47,8 +47,8 @@ if($isEditor){
       }
 	?>
 	<script>
-		var addStr = ";";
-		var removeStr = ";";
+		var addAttrArr = [];
+		var removeAttrArr = [];
 		var dataChanged = false;
 
 		window.onbeforeunload = verifyClose();
@@ -59,23 +59,14 @@ if($isEditor){
 			}
 		}
 
-		function addAttr(target){
-			var indexOfAdd = addStr.indexOf(";"+target+";");
-			if(indexOfAdd == -1){
-				addStr += target + ";";
+		function attrChanged(cbElem,target){
+			if(cbElem.checked == true){
+				if(removeAttrArr.indexOf(target) > -1) removeAttrArr.splice(removeAttrArr.indexOf(target),1);
+				else if(addAttrArr.indexOf(target) == -1) addAttrArr.push(target);
 			}
 			else{
-				removeAttr(target);
-			}
-		}
-
-		function removeAttr(target){
-			var indexOfRemove = removeStr.indexOf(";"+target+";");
-			if(indexOfRemove == -1){
-				removeStr += target + ";";
-			}
-			else{
-				addAttr(target);
+				if(addAttrArr.indexOf(target) > -1) addAttrArr.splice(addAttrArr.indexOf(target),1);
+				else if(removeAttrArr.indexOf(target) == -1) removeAttrArr.push(target);
 			}
 		}
 
@@ -85,10 +76,9 @@ if($isEditor){
 			var r;
 			var submitForm = false;
 
-			if(addStr.length > 1){
-				var addAttrs = addStr.split(";");
-				for(a in addAttrs){
-					var addValue = addAttrs[a];
+			if(addAttrArr.length > 0){
+				for(a in addAttrArr){
+					var addValue = addAttrArr[a];
 					if(addValue.length > 1){
 						var newInput = document.createElement("input");
 						newInput.setAttribute("type","hidden");
@@ -100,10 +90,9 @@ if($isEditor){
 				submitForm = true;
 			}
 
-			if(removeStr.length > 1){
-				var removeAttrs = removeStr.split(";");
-				for(r in removeAttrs){
-					var removeValue = removeAttrs[r];
+			if(removeAttrArr.length > 0){
+				for(r in removeAttrArr){
+					var removeValue = removeAttrArr[r];
 					if(removeValue.length > 1){
 						var newInput = document.createElement("input");
 						newInput.setAttribute("type","hidden");
@@ -122,6 +111,16 @@ if($isEditor){
 			}
 		}
 	</script>
+	<style type="text/css">
+		table {
+			text-align: left;
+			position: relative;
+		}
+		th {
+			position: sticky;
+			top: 0;
+		}
+	</style>
 </head>
 <body>
 <?php
@@ -140,7 +139,7 @@ include($SERVER_ROOT.'/includes/header.php');
 	if($cidValue){
 		?>
 		&gt;&gt;
-		<a href='massupdate.php?clid=<?php echo $clid.'&tf='.$taxonFilter.'&lang='.$langValue; ?>'>
+		<a href='matrixeditor.php?clid=<?php echo $clid.'&tf='.$taxonFilter.'&lang='.$langValue; ?>'>
 			<b>Return to Character List</b>
 		</a>
 		<?php
@@ -153,7 +152,7 @@ include($SERVER_ROOT.'/includes/header.php');
 	if($clid && $isEditor){
 		if(!$cidValue){
 			?>
-			<form id="filterform" action="massupdate.php" method="post" onsubmit="return verifyFilterForm(this)">
+			<form id="filterform" action="matrixeditor.php" method="post" onsubmit="return verifyFilterForm(this)">
 				<fieldset>
 		  			<div style="margin: 10px 0px;">Select character to edit</div>
 		  			<div>
@@ -200,7 +199,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				$muManager->echoTaxaList($taxonFilter,$generaOnly);
 				?>
 			</table>
-			<form name="submitform" action="massupdate.php" method="post">
+			<form name="submitform" action="matrixeditor.php" method="post">
 				<input type='hidden' name='tf' value='<?php echo $taxonFilter; ?>' />
 				<input type='hidden' name='cid' value='<?php echo $cidValue; ?>' />
 				<input type='hidden' name='clid' value='<?php echo $clid; ?>' />

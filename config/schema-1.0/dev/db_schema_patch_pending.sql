@@ -27,6 +27,22 @@ ALTER TABLE `kmcharacters`
 ALTER TABLE `kmcharacters` 
   ADD CONSTRAINT `FK_kmchar_glossary`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
+ALTER TABLE `kmcharacterlang` 
+  CHANGE COLUMN `language` `language` VARCHAR(45) NULL ;
+
+ALTER TABLE `kmcharheading` 
+  CHANGE COLUMN `language` `language` VARCHAR(45) NULL DEFAULT 'English' ;
+CREATE TABLE `kmcharheadinglang` (
+  `hid` INT UNSIGNED NOT NULL,
+  `langid` INT NOT NULL,
+  `headingname` VARCHAR(100) NOT NULL,
+  `notes` VARCHAR(250) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`hid`, `langid`),
+  CONSTRAINT `FK_kmcharheadinglang_hid`  FOREIGN KEY (`hid`)  REFERENCES `kmcharheading` (`hid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_kmcharheadinglang_langid`  FOREIGN KEY (`langid`)  REFERENCES `adminlanguage` (`langid`)  ON DELETE CASCADE  ON UPDATE CASCADE
+);
+
 ALTER TABLE `kmcs` 
   ADD COLUMN `referenceUrl` VARCHAR(250) NULL AFTER `IllustrationUrl`;
 
@@ -35,6 +51,7 @@ ALTER TABLE `kmcs`
   ADD INDEX `FK_kmcs_glossid_idx` (`glossid` ASC);
 ALTER TABLE `kmcs` 
   ADD CONSTRAINT `FK_kmcs_glossid`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
 
 ALTER TABLE `glossary` 
   ADD COLUMN `langid` INT UNSIGNED NULL AFTER `language`;
@@ -302,6 +319,16 @@ ALTER TABLE `omoccurrences`
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,
   CHANGE COLUMN `georeferenceRemarks` `georeferenceRemarks` VARCHAR(500) NULL DEFAULT NULL,
   DROP INDEX `idx_occrecordedby`;
+  
+ALTER TABLE `omoccurrences` 
+  ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
+  ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
+  ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
+  ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`;
+
+ALTER TABLE `omoccurrences` 
+  CHANGE COLUMN `waterBody` `waterBody` VARCHAR(75) NULL DEFAULT NULL AFTER `continent`;
+  
   
 ALTER TABLE `omoccurrences` 
   ADD INDEX `Index_locationID` (`locationID` ASC),

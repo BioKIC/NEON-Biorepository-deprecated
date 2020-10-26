@@ -8,9 +8,7 @@ $glimgId = array_key_exists('glimgid',$_REQUEST)?$_REQUEST['glimgid']:0;
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
 $isEditor = false;
-if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
-	$isEditor = true;
-}
+if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
 
 $glosManager = new GlossaryManager();
 $termArr = array();

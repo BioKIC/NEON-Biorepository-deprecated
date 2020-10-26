@@ -37,15 +37,11 @@ class KeyCharAdmin{
 	public function getCharDetails(){
 		$retArr = array();
 		if($this->cid){
-			$sql = 'SELECT cid, charname, chartype, defaultlang, difficultyrank, hid, units, '.
-				'description, notes, helpurl, enteredby, sortsequence '.
-				'FROM kmcharacters '.
-				'WHERE cid = '.$this->cid;
+			$sql = 'SELECT cid, charname, chartype, difficultyrank, hid, units, description, notes, helpurl, enteredby, sortsequence FROM kmcharacters WHERE cid = '.$this->cid;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$retArr['charname'] = $this->cleanOutStr($r->charname);
 					$retArr['chartype'] = $r->chartype;
-					$retArr['defaultlang'] = $this->cleanOutStr($r->defaultlang);
 					$retArr['difficultyrank'] = $r->difficultyrank;
 					$retArr['hid'] = $r->hid;
 					$retArr['units'] = $this->cleanOutStr($r->units);
@@ -74,7 +70,7 @@ class KeyCharAdmin{
 		if($this->conn->query($sql)){
 			$this->cid = $this->conn->insert_id;
 			if(($pArr['chartype'] == 'IN') || ($pArr['chartype'] == 'RN')){
-				//If new character is a numeric type, automatically load character sets with set values 
+				//If new character is a numeric type, automatically load character sets with set values
 				$sql2 = 'INSERT INTO kmcs(cid,cs,charstatename) '.
 					'VALUES('.$this->cid.',"+High","Upper value of unspecified range (could be µ+s.d., but not known)"),'.
 					'('.$this->cid.',"-Low","Lower value of unspecified range (could be µ-s.d., but not known)"),'.
@@ -172,9 +168,8 @@ class KeyCharAdmin{
 				trigger_error('unable to return character state array; '.$this->conn->error);
 			}
 			if($retArr){
-				//Grab character set illustration 
-				$sql2 = 'SELECT cs, url, csimgid FROM kmcsimages '.
-					'WHERE cid = '.$this->cid.' AND cs IN ('.implode(',',array_keys($retArr)).')';
+				//Grab character set illustration
+				$sql2 = 'SELECT cs, url, csimgid FROM kmcsimages WHERE cid = '.$this->cid.' AND cs IN ('.implode(',',array_keys($retArr)).')';
 				//echo $sql2;
 				$rs = $this->conn->query($sql2);
 				while($r = $rs->fetch_object()){
@@ -218,7 +213,7 @@ class KeyCharAdmin{
 		}
 		return $csValue;
 	}
-	
+
 	public function editCharState($pArr){
 		$statusStr = '';
 		$cs = $pArr['cs'];
@@ -240,7 +235,7 @@ class KeyCharAdmin{
 		}
 		return $statusStr;
 	}
-	
+
 	public function deleteCharState($cs){
 		$status = '';
 		if(is_numeric($cs)){
@@ -250,28 +245,28 @@ class KeyCharAdmin{
 			if(!$this->conn->query($sql)){
 				$status = 'ERROR deleting character state images: '.$this->conn->error.', '.$sql;
 			}
-	
+
 			//Delete language links
 			$sql = 'DELETE FROM kmcslang WHERE (cid = '.$this->cid.') AND (cs = '.$cs.')';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				$status = 'ERROR deleting character state languages: '.$this->conn->error.', '.$sql;
 			}
-	
+
 			//Delete character dependance links
 			$sql = 'DELETE FROM kmchardependance WHERE (ciddependance = '.$this->cid.') AND (csdependance = '.$cs.')';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				$status = 'ERROR deleting character dependance linked to character state: '.$this->conn->error.', '.$sql;
 			}
-	
+
 			//Delete description links
 			$sql = 'DELETE FROM kmdescr WHERE (cid = '.$this->cid.') AND (cs = '.$cs.')';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				$status = 'ERROR deleting descriptions linked to character state: '.$this->conn->error.', '.$sql;
 			}
-	
+
 			//Delete character states
 			$sql = 'DELETE FROM kmcs WHERE (cid = '.$this->cid.') AND (cs = '.$cs.')';
 			//echo $sql;
@@ -281,7 +276,7 @@ class KeyCharAdmin{
 		}
 		return $status;
 	}
-	
+
 	public function uploadCsImage($formArr){
 		global $PARAMS_ARR;
 		$statusStr = '';
@@ -301,18 +296,18 @@ class KeyCharAdmin{
 						return 'ERROR, unable to create upload directory: '.$imageRootPath;
 					}
 				}
-				//Create url prefix 
+				//Create url prefix
 				$imageRootUrl = $GLOBALS["imageRootUrl"];
 				if(substr($imageRootUrl,-1) != "/") $imageRootUrl .= "/";
 				$imageRootUrl .= 'ident/csimgs/';
-				
+
 				//Image is to be downloaded
 				$fileName = $this->cleanFileName(basename($_FILES['urlupload']['name']),$imageRootUrl);
 				$imagePath = $imageRootPath.str_replace('.','_temp.',$fileName);
 				move_uploaded_file($_FILES['urlupload']['tmp_name'], $imagePath);
 				if(file_exists($imagePath)){
 					if($this->createNewCsImage($imagePath)){
-						//Add url to database 
+						//Add url to database
 						$notes = $this->cleanInStr($formArr['notes']);
 						$sql = 'INSERT INTO kmcsimages(cid, cs, url, notes, sortsequence, username) '.
 							'VALUES('.$formArr['cid'].','.$formArr['cs'].',"'.$imageRootUrl.$fileName.'",'.
@@ -334,7 +329,7 @@ class KeyCharAdmin{
 		}
 		return $statusStr;
 	}
-	
+
 
 	private function cleanFileName($fName,$subPath){
 		if($fName){
@@ -366,12 +361,8 @@ class KeyCharAdmin{
 	private function createNewCsImage($path){
 		$status = false;
 		$imgWidth = 800;
-		$webFileSizeLimit = 300000;
 		$qualityRating= 100;
-		
 		list($width, $height) = getimagesize(str_replace(' ', '%20', $path));
-		$fileSize = filesize($path);
-		
 		$imgHeight = ($imgWidth*($height/$width));
 		echo $imgHeight;
    		$sourceImg = imagecreatefromjpeg($path);
@@ -412,9 +403,7 @@ class KeyCharAdmin{
 	public function getTaxonRelevance(){
 		$retArr = array();
 		if($this->cid){
-			$sql = 'SELECT l.tid, l.relation, l.notes, t.sciname '.
-				'FROM kmchartaxalink l INNER JOIN taxa t ON l.tid = t.tid '.
-				'WHERE l.cid = '.$this->cid;
+			$sql = 'SELECT l.tid, l.relation, l.notes, t.sciname FROM kmchartaxalink l INNER JOIN taxa t ON l.tid = t.tid WHERE l.cid = '.$this->cid;
 			//echo $sql;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
@@ -433,8 +422,7 @@ class KeyCharAdmin{
 	public function saveTaxonRelevance($tid,$rel,$notes){
 		$statusStr = '';
 		if($this->cid && is_numeric($tid)){
-			$sql = 'INSERT INTO kmchartaxalink(cid,tid,relation,notes) '.
-				'VALUES('.$this->cid.','.$tid.',"'.$this->cleanInStr($rel).'","'.$this->cleanInStr($notes).'")';
+			$sql = 'INSERT INTO kmchartaxalink(cid,tid,relation,notes) VALUES('.$this->cid.','.$tid.',"'.$this->cleanInStr($rel).'","'.$this->cleanInStr($notes).'")';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				$statusStr = 'ERROR: unable to add Taxon Relevance; '.$this->conn->error;
@@ -443,12 +431,11 @@ class KeyCharAdmin{
 		}
 		return $statusStr;
 	}
-	
+
 	public function deleteTaxonRelevance($tid){
 		$statusStr = 'SUCCESS: taxon linkage removed';
 		if($this->cid && is_numeric($tid)){
-			$sql = 'DELETE FROM kmchartaxalink '.
-				'WHERE cid = '.$this->cid.' AND tid = '.$tid;
+			$sql = 'DELETE FROM kmchartaxalink WHERE cid = '.$this->cid.' AND tid = '.$tid;
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				$statusStr = 'ERROR: unable to delete Taxon Relevance; '.$this->conn->error;
@@ -460,8 +447,7 @@ class KeyCharAdmin{
 
 	public function getHeadingArr(){
 		$retArr = array();
-		$sql = 'SELECT hid, headingname, notes, sortsequence '.
-			'FROM kmcharheading ';
+		$sql = 'SELECT hid, headingname, notes, sortsequence FROM kmcharheading ';
 		if($this->langId) $sql .= 'WHERE (langid = '.$this->langId.') ';
 		$sql .= 'ORDER BY sortsequence,headingname';
 		//echo $sql;
@@ -502,40 +488,33 @@ class KeyCharAdmin{
 	public function deleteHeading($hid){
 		$statusStr = '';
 		$sql = 'DELETE FROM kmcharheading WHERE hid = '.$hid;
-		if(!$this->conn->query($sql)){ 
+		if(!$this->conn->query($sql)){
 			$statusStr = 'Error deleting heading: '.$this->conn->error;
 		}
 		return $statusStr;
 	}
 
-	//Get and set functions 
+	//Get and set functions
 	public function getCid(){
 		return $this->cid;
 	}
-	
+
 	public function setCid($cid){
 		if(is_numeric($cid)) $this->cid = $cid;
 	}
-	
+
 	public function setLanguage($l){
 		$this->lang = $l;
 	}
 
 	public function setLangId($lang=''){
 		if(!$lang){
-			if($GLOBALS['defaultLang']){
-				$lang = $GLOBALS['defaultLang'];
-			}
-			else{
-				$lang = 'English';
-			}
+			if($GLOBALS['defaultLang']) $lang = $GLOBALS['defaultLang'];
+			else $lang = 'English';
 		}
-		if(is_numeric($lang)){
-			$this->langId = $lang;
-		}
+		if(is_numeric($lang)) $this->langId = $lang;
 		else{
-			$sql = 'SELECT langid FROM adminlanguages '.
-				'WHERE langname = "'.$lang.'" OR iso639_1 = "'.$lang.'" OR iso639_2 = "'.$lang.'" ';
+			$sql = 'SELECT langid FROM adminlanguages WHERE langname = "'.$lang.'" OR iso639_1 = "'.$lang.'" OR iso639_2 = "'.$lang.'" ';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$this->langId = $r->langid;
@@ -546,9 +525,7 @@ class KeyCharAdmin{
 
 	public function getLanguageArr(){
 		$retArr = array();
-		$sql = 'SELECT langid, langname '.
-			'FROM adminlanguages '.
-			'ORDER BY langname';
+		$sql = 'SELECT langid, langname FROM adminlanguages ORDER BY langname';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->langid] = $r->langname;
@@ -556,7 +533,7 @@ class KeyCharAdmin{
 		$rs->free();
 		return $retArr;
 	}
-	
+
 	//General functions
 	private function cleanOutStr($str){
 		$newStr = str_replace('"',"&quot;",$str);
@@ -564,7 +541,7 @@ class KeyCharAdmin{
 		//$newStr = $this->conn->real_escape_string($newStr);
 		return $newStr;
 	}
-	
+
 	private function cleanInStr($str){
 		$newStr = trim($str);
 		$newStr = preg_replace('/\s\s+/', ' ',$newStr);

@@ -95,9 +95,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <b>More California specimen data may be found at the following portals:</b>
 				<ul>
                     <li>Only California vascular plants, linked to the statewide Jepson eFlora project: <a href="http://ucjeps.berkeley.edu/consortium/" target="_blank">CCH1 Portal</a></li>
-					<li>Bryophytes: <a hrf="http://bryophyteportal.org" target="_blank">Consortium of North American Bryophyte Herbaria</a></li>
+					<li>Bryophytes: <a href="https://bryophyteportal.org/portal/" target="_blank">Consortium of North American Bryophyte Herbaria</a></li>
 					<li>Fungi: <a href="http://mycoportal.org" target="_blank">Mycology Collections Portal (MyCoPortal)</a></li>
-					<li>Lichens: <a hrf="http://lichenportal.org" target="_blank">Consortium of North American Lichen Herbaria</a></li>
+					<li>Lichens: <a href="https://lichenportal.org/cnalh/" target="_blank">Consortium of North American Lichen Herbaria</a></li>
 					<li>Macroalgae: <a href="http://macroalgae.org" targert="_blank">Macroalgal Herbarium Consortium</a></li>
 					<li>Pteridophytes: <a href="http://www.pteridoportal.org/portal/" target="_blank">Pteridophyte Collections Consortium</a></li>
 				</ul>

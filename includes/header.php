@@ -135,13 +135,13 @@
 						<a href="#" >Management Tools</a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/neon/index.php">Quick Search</a>
-							</li>
-							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php">Manifest Submission</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/index.php">Management Menu</a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestsearch.php">Manifest Search</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php">Submit New Manifest</a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/samplecheckin.php">Sample Check-In</a>

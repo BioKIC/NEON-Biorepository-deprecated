@@ -67,7 +67,7 @@ include($SERVER_ROOT.'/includes/header.php');
 <div class="navpath">
 	<a href="../index.php">Home</a> &gt;&gt;
 	<a href="index.php">NEON Biorepository Tools</a> &gt;&gt;
-	<a href="manifestsearch.php">Manifest Search</a> &gt;&gt;
+	<a href="shipment/manifestsearch.php">Manifest Search</a> &gt;&gt;
 	<a href="occurrenceharvester.php"><b>Occurrence Harvester</b></a>
 </div>
 <div id="innertext">

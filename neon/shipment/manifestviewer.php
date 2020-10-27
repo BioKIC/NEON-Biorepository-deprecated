@@ -360,7 +360,15 @@ include($SERVER_ROOT.'/includes/header.php');
 					if($shipArr['ts']) echo '<div class="displayFieldDiv"><b>Import Date:</b> '.$shipArr['ts'].'</div>';
 					if($shipArr['modifiedUser']) echo '<div class="displayFieldDiv"><b>Modified By User:</b> '.$shipArr['modifiedUser'].' ('.$shipArr['modifiedTimestamp'].')</div>';
 					if($shipArr['shipmentNotes']) echo '<div class="displayFieldDiv"><b>General Notes:</b> '.$shipArr['shipmentNotes'].'</div>';
-					if($shipArr['fileName']) echo '<div class="displayFieldDiv"><b>Import file:</b> <a href="'.$CLIENT_ROOT.'/neon/content/manifests/'.$shipArr['fileName'].'">'.$shipArr['fileName'].'</a></div>';
+					if($shipArr['fileName']){
+						echo '<div class="displayFieldDiv"><b>Import file:</b> ';
+						$filePath = $shipManager->getContentPath('url');
+						$fileNameArr = explode('|',$shipArr['fileName']);
+						foreach($fileNameArr as $fileName){
+							echo '<div style="margin-left:15px"><a href="'.$filePath.$fileName.'">'.$fileName.'</a></div>';
+						}
+						echo '</div>';
+					}
 					?>
 				</div>
 				<div style="float:left;">

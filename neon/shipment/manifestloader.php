@@ -188,7 +188,10 @@ if($isEditor){
 					<legend><b>Manifests Associated with Shipment</b></legend>
 					<?php
 					foreach($shipmentPKArr as $shipmentID => $shipmentPK){
-						echo '<div style="margin-left:10px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">#'.$shipmentID.'</a></div>';
+						echo '<div style="margin-left:10px">';
+						if($shipmentPK) echo '<a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">#'.$shipmentID.'</a>';
+						else echo 'Manifest #'.$shipmentID.' failed to load';
+						echo '</div>';
 					}
 					?>
 				</fieldset>

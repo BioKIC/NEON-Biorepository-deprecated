@@ -152,15 +152,12 @@ class ShipmentManager{
 	public function uploadManifestFile(){
 		$status = false;
 		//Load file onto server
-		$uploadPath = $this->getContentPath().'manifests/';
+		$uploadPath = $this->getContentPath();
 		if(array_key_exists("uploadfile",$_FILES)){
-			$this->uploadFileName = $_FILES['uploadfile']['name'];
-			$fullPath = $uploadPath.$_FILES['uploadfile']['name'];
+			$this->initiateUploadFileName($_FILES['uploadfile']['name'],$uploadPath);
 			if(!move_uploaded_file($_FILES['uploadfile']['tmp_name'], $uploadPath.$this->uploadFileName)){
 				$this->errorStr = 'ERROR uploading file (code '.$_FILES['uploadfile']['error'].'): ';
-				if(!is_writable($uploadPath)){
-					$this->errorStr .= 'Target path ('.$uploadPath.') is not writable ';
-				}
+				if(!is_writable($uploadPath)) $this->errorStr .= 'Target path ('.$uploadPath.') is not writable ';
 				return false;
 			}
 			//If a zip file, unpackage and assume that last or only file is the occurrrence file
@@ -181,7 +178,7 @@ class ShipmentManager{
 						}
 					}
 					if($fileName){
-						$this->uploadFileName = $fileName;
+						$this->initiateUploadFileName($fileName,$uploadPath);
 						$zip->extractTo($uploadPath,$this->uploadFileName);
 					}
 					else{
@@ -199,10 +196,24 @@ class ShipmentManager{
 		return $status;
 	}
 
+	private function initiateUploadFileName($fileName,$uploadPath){
+		$fName = str_replace(array(' ','(',')',';','%','$',","),'_',$fileName);
+		$fName = substr($fName,0,strrpos($fName,'.'));
+		if(strlen($fName) > 35) $fName = substr($fName,35);
+		$ext = substr($fileName,strrpos($fileName,'.')+1);
+		$cnt = 1;
+		$fileName = $fName.'.'.$ext;
+		while(file_exists($uploadPath.$fileName)){
+			$fileName = $fName.'_'.$cnt.'.'.$ext;
+			$cnt++;
+		}
+		$this->uploadFileName = $fileName;
+	}
+
 	public function analyzeUpload(){
 		//Just read first line of file to report what fields will be loaded, ignored, and required fulfilled
 		if($this->uploadFileName){
-			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
+			$fullPath = $this->getContentPath().$this->uploadFileName;
 			$fh = fopen($fullPath,'rb') or die("Can't open file");
 			$this->sourceArr = $this->getHeaderArr($fh);
 			fclose($fh);
@@ -215,7 +226,7 @@ class ShipmentManager{
 		$shipmentArr = array();
 		if($this->uploadFileName){
 			echo '<li>Initiating import from: '.$this->uploadFileName.'</li>';
-			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
+			$fullPath = $this->getContentPath().$this->uploadFileName;
 			$fh = fopen($fullPath,'rb') or die("Can't open file");
 			$headerArr = $this->getHeaderArr($fh);
 			$recCnt = 0;
@@ -231,7 +242,7 @@ class ShipmentManager{
 			flush();
 			$errCnt = 0;
 			while($recordArr = fgetcsv($fh)){
-				$recMap = Array('filename' => $this->uploadFileName);
+				$recMap = Array();
 				$dynPropArr = array();
 				$symTargetArr = array();
 				foreach($indexMap as $targetField => $indexValueArr){
@@ -296,7 +307,7 @@ class ShipmentManager{
 			(isset($recArr['shipmentmethod'])?'"'.$this->cleanInStr($recArr['shipmentmethod']).'"':'NULL').','.
 			($trackingId?'"'.$trackingId.'"':'NULL').','.
 			(isset($recArr['shipmentnotes'])?'"'.$this->cleanInStr($recArr['shipmentnotes']).'"':'NULL').','.
-			(isset($recArr['filename'])?'"'.$this->cleanInStr($recArr['filename']).'"':'NULL').','.
+			($this->uploadFileName?'"'.$this->cleanInStr($this->uploadFileName).'"':'NULL').','.
 			$GLOBALS['SYMB_UID'].')';
 		//echo '<div>'.$sql.'</div>';
 		if($this->conn->query($sql)){
@@ -305,12 +316,16 @@ class ShipmentManager{
 		}
 		else{
 			if($this->conn->errno == 1062){
-				$sql = 'SELECT shipmentpk FROM NeonShipment WHERE shipmentID = "'.$this->cleanInStr($recArr['shipmentid']).'"';
+				$existingFileName = '';
+				$sql = 'SELECT shipmentpk, filename FROM NeonShipment WHERE shipmentID = "'.$this->cleanInStr($recArr['shipmentid']).'"';
 				$rs = $this->conn->query($sql);
-				while($r = $rs->fetch_object()){
+				if($r = $rs->fetch_object()){
 					$shipmentPK = $r->shipmentpk;
+					$existingFileName = $r->filename;
 				}
 				$rs->free();
+				//Append new filename to existing
+				$this->conn->query('UPDATE NeonShipment SET filename = "'.trim($this->cleanInStr($existingFileName.'|'.$this->uploadFileName),' |').'" WHERE shipmentpk = '.$shipmentPK);
 				echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
 			}
 			else{
@@ -947,10 +962,11 @@ class ShipmentManager{
 		return trim($retStr,' ;');
 	}
 
-	private function getContentPath(){
+	public function getContentPath($pathType='root'){
 		$contentPath = $GLOBALS['SERVER_ROOT'];
+		if($pathType == 'url') $contentPath = $GLOBALS['CLIENT_ROOT'];
 		if(substr($contentPath,-1) != '/') $contentPath .= '/';
-		$contentPath .= 'neon/content/';
+		$contentPath .= 'neon/content/manifests/';
 		return $contentPath;
 	}
 

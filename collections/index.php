@@ -196,11 +196,11 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
     <script>
     // Forces external collections to be unchecked by default
     function deselectColls(categoryId){
-      let category = document.getElementById(`'cat-0-${categoryId}-Input'`);
+      let category = document.getElementById(`cat-0-${categoryId}-Input`);
       category.checked = false;
-      selectAllCat(this, `'cat-0-${categoryId}'`);
+      selectAllCat(this, `cat-0-${categoryId}`);
     }
     deselectColls(6);
-    deselectColls(9);
+    deselectColls(8);
   </script>
 </html>

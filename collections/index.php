@@ -201,7 +201,6 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
       selectAllCat(this, `'cat-0-${categoryId}'`);
     }
     deselectColls(6);
-    deselectColls(8);
     deselectColls(9);
   </script>
 </html>

@@ -15,10 +15,28 @@ class OccurrenceLoans extends Manager{
 
 	public function getLoanOutList($searchTerm,$displayAll){
 		$retArr = array();
+		//Get loans that are assigned to other collections but have linked occurrences from this collection (NEON Biorepo portal issue)
+		/*
+		$extLoanArr = array();
+		$sql = 'SELECT DISTINCT l.loanid, o.collid '.
+			'FROM omoccurloans l INNER JOIN omoccurloanslink ll ON l.loanid = ll.loanid '.
+			'INNER JOIN omoccurrences o ON ll.occid = o.occid '.
+			'WHERE o.collid = '.$this->collid.' AND l.collidown != '.$this->collid;
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_object()){
+				$extLoanArr[$r->loanid] = $r->collid;
+			}
+			$rs->free();
+		}
+		*/
+
+		//Get loan details
 		$sql = 'SELECT l.loanid, l.datesent, l.loanidentifierown, l.loanidentifierborr, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom, l.dateclosed '.
 			'FROM omoccurloans l LEFT JOIN institutions i ON l.iidborrower = i.iid '.
 			'LEFT JOIN omcollections c ON l.collidborr = c.collid '.
-			'WHERE l.collidown = '.$this->collid.' ';
+			'WHERE (l.collidown = '.$this->collid.' ';
+		//if($extLoanArr) $sql .= 'OR l.loanid IN('.implode(',',$extLoanArr).')';
+		$sql .= ') ';
 		if(!$displayAll) $sql .= 'AND l.dateclosed IS NULL ';
 		$sql .= 'ORDER BY l.loanidentifierown + 1 DESC';
 		if($rs = $this->conn->query($sql)){
@@ -28,6 +46,7 @@ class OccurrenceLoans extends Manager{
 					$retArr[$r->loanid]['institutioncode'] = $r->instcode1;
 					$retArr[$r->loanid]['forwhom'] = $r->forwhom;
 					$retArr[$r->loanid]['dateclosed'] = $r->dateclosed;
+					//if(array_key_exists($r->loanid, $extLoanArr)) $retArr[$r->loanid]['isexternal'] = $extLoanArr[$r->loanid];
 				}
 			}
 			$rs->free();
@@ -470,7 +489,7 @@ class OccurrenceLoans extends Manager{
 
 	public function linkSpecimen($loanid, $catNum){
 		//This method is used by the ajax script insertLoanSpecimen.php
-		if($this->collid && is_numeric($loanid)){
+		if(is_numeric($loanid)){
 			$occArr = $this->getOccid($catNum);
 			if(!$occArr) $occArr = $this->getOccid($catNum,true);
 			if(!$occArr) return 0;
@@ -535,12 +554,8 @@ class OccurrenceLoans extends Manager{
 		$status = false;
 		$sql = 'INSERT INTO omoccurloanslink(loanid,occid) VALUES ('.$loanid.','.$occid.') ';
 		//echo $sql;
-		if($this->conn->query($sql)){
-			$status = true;
-		}
-		else{
-			$this->errorMessage = $this->conn->error;
-		}
+		if($this->conn->query($sql)) $status = true;
+		else $this->errorMessage = $this->conn->error;
 		return $status;
 	}
 

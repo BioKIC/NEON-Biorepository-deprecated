@@ -85,12 +85,14 @@ $specList = $loanManager->getSpecList($loanId);
 							<input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" />
 						</td>
 						<td>
-							<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
-								<?php echo $specArr['catalognumber']; ?>
-							</a>
-							<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;">
-								<img src="../../images/edit.png" />
-							</a>
+							<div style="float:right">
+								<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;"><img src="../../images/list.png" style="width:13px" title="Open Specimen Details page" /></a>
+								<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;"><img src="../../images/edit.png" style="margin-left:5px;width:13px" title="Open Occurrence Editor" /></a>
+							</div>
+							<?php
+							if($specArr['catalognumber']) echo '<div>'.$specArr['catalognumber'].'</div>';
+							if($specArr['othercatalognumbers']) echo '<div>'.$specArr['othercatalognumbers'].'</a></div>';
+							?>
 						</td>
 						<td>
 							<?php

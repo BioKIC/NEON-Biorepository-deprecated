@@ -89,6 +89,9 @@ ALTER TABLE `images`
 ALTER TABLE `images` 
   ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);
 
+ALTER TABLE `images` 
+  ADD COLUMN `sortOccurrence` INT NULL DEFAULT 5 AFTER `sortsequence`;
+
   
 ALTER TABLE `uploadspecparameters` 
   CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;

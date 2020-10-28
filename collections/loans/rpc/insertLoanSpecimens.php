@@ -13,7 +13,7 @@ if($loanid && $collid && $catalogNumber){
 	|| ((array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']))
 	|| (array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollEditor'])))){
 		$loanManager = new OccurrenceLoans();
-		$loanManager->setCollId($collid);
+		//$loanManager->setCollId($collid);
 		$retMsg = $loanManager->linkSpecimen($loanid,$catalogNumber);
 	}
 }

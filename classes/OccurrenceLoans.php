@@ -433,14 +433,16 @@ class OccurrenceLoans extends Manager{
 	public function getSpecList($loanid){
 		$retArr = array();
 		if(is_numeric($loanid)){
-			$sql = 'SELECT l.loanid, l.occid, IFNULL(o.catalognumber,o.othercatalognumbers) AS catalognumber, o.sciname, '.
-				'CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, CONCAT_WS(", ",stateprovince,county,locality) AS locality, l.returndate '.
+			$sql = 'SELECT o.collid, l.loanid, l.occid, l.returndate, o.catalognumber, o.othercatalognumbers, o.sciname, '.
+				'CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, CONCAT_WS(", ",stateprovince,county,locality) AS locality '.
 				'FROM omoccurloanslink l INNER JOIN omoccurrences o ON l.occid = o.occid '.
 				'WHERE l.loanid = '.$loanid.' '.
 				'ORDER BY o.catalognumber+1,o.othercatalognumbers+1';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
+					$retArr[$r->occid]['collid'] = $r->collid;
 					$retArr[$r->occid]['catalognumber'] = $r->catalognumber;
+					$retArr[$r->occid]['othercatalognumbers'] = $r->othercatalognumbers;
 					$retArr[$r->occid]['sciname'] = $r->sciname;
 					$retArr[$r->occid]['collector'] = $r->collector;
 					$retArr[$r->occid]['locality'] = $r->locality;
@@ -516,9 +518,10 @@ class OccurrenceLoans extends Manager{
 
 	private function getOccid($catNum, $otherCatNum = false){
 		$occArr = array();
-		$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') ';
-		if($otherCatNum) $sql .= 'AND (othercatalognumbers = "'.$this->cleanInStr($catNum).'") ';
-		else $sql .= 'AND (catalognumber = "'.$this->cleanInStr($catNum).'") ';
+		$sql = 'SELECT occid FROM omoccurrences WHERE ';
+		if($otherCatNum) $sql .= '(othercatalognumbers = "'.$this->cleanInStr($catNum).'") ';
+		else $sql .= '(catalognumber = "'.$this->cleanInStr($catNum).'") ';
+		if($this->collid) $sql .= 'AND (collid = '.$this->collid.')';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()) {

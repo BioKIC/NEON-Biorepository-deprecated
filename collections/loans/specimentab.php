@@ -86,12 +86,13 @@ $specList = $loanManager->getSpecList($loanId);
 						</td>
 						<td>
 							<div style="float:right">
-								<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;"><img src="../../images/list.png" style="width:13px" title="Open Specimen Details page" /></a>
-								<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;"><img src="../../images/edit.png" style="margin-left:5px;width:13px" title="Open Occurrence Editor" /></a>
+								<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;"><img src="../../images/list.png" style="width:13px" title="Open Specimen Details page" /></a><br/>
+								<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;"><img src="../../images/edit.png" style="width:13px" title="Open Occurrence Editor" /></a>
 							</div>
 							<?php
 							if($specArr['catalognumber']) echo '<div>'.$specArr['catalognumber'].'</div>';
 							if($specArr['othercatalognumbers']) echo '<div>'.$specArr['othercatalognumbers'].'</a></div>';
+							if($specArr['collid'] != $collid) echo '<div style="color:orange">external</div>';
 							?>
 						</td>
 						<td>

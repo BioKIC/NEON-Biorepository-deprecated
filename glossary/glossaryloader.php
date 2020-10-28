@@ -12,9 +12,7 @@ $batchTaxaStr = array_key_exists("batchtid",$_REQUEST)?$_REQUEST["batchtid"]:"";
 $batchSource = array_key_exists("batchsources",$_REQUEST)?str_replace("'","&#39;",$_REQUEST["batchsources"]):"";
 
 $isEditor = false;
-if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
-	$isEditor = true;
-}
+if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
 
 $loaderManager = new GlossaryUpload();
 $glosManager = new GlossaryManager();

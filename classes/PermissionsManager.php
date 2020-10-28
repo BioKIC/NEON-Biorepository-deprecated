@@ -85,9 +85,7 @@ class PermissionsManager{
 
 			//If there are collections, get names
 			if(array_key_exists('CollAdmin',$perArr)){
-				$sql = 'SELECT collid, collectionname, colltype FROM omcollections '.
-					'WHERE (collid IN('.implode(',',array_keys($perArr['CollAdmin'])).')) '.
-					'ORDER BY collectionname';
+				$sql = 'SELECT collid, collectionname, colltype FROM omcollections WHERE (collid IN('.implode(',',array_keys($perArr['CollAdmin'])).')) ORDER BY collectionname';
 				$result = $this->conn->query($sql);
 				while($row = $result->fetch_object()){
 					if($row->colltype == 'General Observations'){
@@ -105,9 +103,7 @@ class PermissionsManager{
 				if(array_key_exists('CollAdmin', $perArr) && !$perArr['CollAdmin']) unset($perArr['CollAdmin']);
 			}
 			if(array_key_exists('CollEditor',$perArr)){
-				$sql = 'SELECT collid, collectionname, colltype FROM omcollections '.
-					'WHERE (collid IN('.implode(',',array_keys($perArr['CollEditor'])).')) '.
-					'ORDER BY collectionname';
+				$sql = 'SELECT collid, collectionname, colltype FROM omcollections WHERE (collid IN('.implode(',',array_keys($perArr['CollEditor'])).')) ORDER BY collectionname';
 				$result = $this->conn->query($sql);
 				while($row = $result->fetch_object()){
 					if($row->colltype == 'General Observations'){
@@ -125,9 +121,7 @@ class PermissionsManager{
 				if(array_key_exists('CollEditor', $perArr) && !$perArr['CollEditor']) unset($perArr['CollEditor']);
 			}
 			if(array_key_exists('RareSppReader',$perArr)){
-				$sql = 'SELECT collid, collectionname, colltype FROM omcollections '.
-					'WHERE (collid IN('.implode(',',array_keys($perArr['RareSppReader'])).')) '.
-					'ORDER BY collectionname';
+				$sql = 'SELECT collid, collectionname, colltype FROM omcollections WHERE (collid IN('.implode(',',array_keys($perArr['RareSppReader'])).')) ORDER BY collectionname';
 				$result = $this->conn->query($sql);
 				while($row = $result->fetch_object()){
 					if($row->colltype == 'General Observations'){
@@ -160,14 +154,12 @@ class PermissionsManager{
 
 			//If there are project admins, fetch project names
 			if(array_key_exists("ProjAdmin",$perArr)){
-				$sql = "SELECT pid, projname FROM fmprojects ".
-					"WHERE (pid IN(".implode(",",array_keys($perArr["ProjAdmin"])).")) ".
-					"ORDER BY projname";
+				$sql = 'SELECT pid, projname FROM fmprojects WHERE (pid IN('.implode(',',array_keys($perArr['ProjAdmin'])).')) ORDER BY projname';
 				$result = $this->conn->query($sql);
 				while($row = $result->fetch_object()){
 					$perArr["ProjAdmin"][$row->pid]['name'] = $row->projname;
 				}
-				uasort($perArr["ProjAdmin"], array($this,'sortByName'));
+				uasort($perArr['ProjAdmin'], array($this,'sortByName'));
 				$result->free();
 			}
 		}
@@ -177,15 +169,8 @@ class PermissionsManager{
 	public function deletePermission($id, $role, $tablePk, $secondaryVariable = ''){
 		$statusStr = '';
 		if(is_numeric($id)){
-			$sql = 'DELETE FROM userroles '.
-				'WHERE (uid = '.$id.') AND (role = "'.$role.'") '.
-				'AND (tablepk '.($tablePk?' = '.$tablePk:' IS NULL').') ';
-			if($secondaryVariable){
-				$sql .= 'AND (secondaryVariable = "'.$secondaryVariable.'") ';
-			}
-			//$sql = 'DELETE FROM userpermissions '.
-			//	'WHERE (uid = '.$id.') AND (pname = "'.$this->cleanInStr($delStr).'")';
-			//echo $sql;
+			$sql = 'DELETE FROM userroles WHERE (uid = '.$id.') AND (role = "'.$role.'") AND (tablepk '.($tablePk?' = '.$tablePk:' IS NULL').') ';
+			if($secondaryVariable) $sql .= 'AND (secondaryVariable = "'.$secondaryVariable.'") ';
 			$this->conn->query($sql);
 		}
 		return $statusStr;
@@ -205,9 +190,6 @@ class PermissionsManager{
 			if(!$rs->num_rows){
 				$sql1 = 'INSERT INTO userroles(uid,role,tablepk,secondaryVariable,uidassignedby) '.
 					'VALUES('.$uid.',"'.$role.'",'.($tablePk?'"'.$tablePk.'"':'NULL').','.($secondaryVariable?'"'.$secondaryVariable.'"':'NULL').','.$GLOBALS["SYMB_UID"].')';
-				//$sql = 'INSERT INTO userpermissions(uid,pname,assignedby,secondaryVariable) '.
-				//	'VALUES('.$uid.',"'.$pname.'","'.$PARAMS_ARR['un'].'")';
-				//echo $sql1;
 				if(!$this->conn->query($sql1)){
 					$statusStr = 'ERROR adding user permission: '.$this->conn->error;
 				}
@@ -220,10 +202,7 @@ class PermissionsManager{
 	public function getTaxonEditorArr($collid, $limitByColl = 0){
 		//grab the current permissions
 		$pArr = array();
-		$sql2 = 'SELECT uid, role, tablepk, secondaryvariable '.
-			'FROM userroles WHERE role = ("CollTaxon") AND (tablepk = '.$collid.') ';
-		//$sql2 = 'SELECT uid, pname FROM userpermissions WHERE pname LIKE "CollTaxon-'.$collid.':%" ';
-		//echo $sql2;
+		$sql2 = 'SELECT uid, role, tablepk, secondaryvariable FROM userroles WHERE role = ("CollTaxon") AND (tablepk = '.$collid.') ';
 		$rs2 = $this->conn->query($sql2);
 		while($r2 = $rs2->fetch_object()){
 			if(($r2->role == 'CollTaxon') && ($r2->tablepk = $collid) && ($r2->secondaryvariable = 'all')){
@@ -317,14 +296,6 @@ class PermissionsManager{
 				'WHERE (ur.role = "CollAdmin" AND ur.tablepk = '.$collid.') OR (ur.role = "CollEditor" AND ur.tablepk = '.$collid.') '.
 				'OR (ur.role = "RareSppReader" AND ur.tablepk = '.$collid.') '.
 				'ORDER BY u.lastname,u.firstname';
-			/*
-			$sql = 'SELECT up.uid, up.pname, CONCAT_WS(", ",u.lastname,u.firstname) AS uname, up.assignedby, up.initialtimestamp '.
-				'FROM userpermissions up INNER JOIN users u ON up.uid = u.uid '.
-				'WHERE up.pname = "CollAdmin-'.$collid.'" OR up.pname = "CollEditor-'.$collid.'" '.
-				'OR up.pname = "RareSppReader-'.$collid.'" '.
-				'ORDER BY u.lastname,u.firstname';
-			*/
-			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$pGroup = 'rarespp';

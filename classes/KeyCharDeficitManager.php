@@ -68,19 +68,19 @@ class KeyCharDeficitManager{
 				"AND ((chartaxalink.Relation)='exclude')))) AND ((characters.Type)='UM' Or (characters.Type)='OM') AND ((charnames.Language)='".
 				$this->language."') AND ((chartaxalink.TID) In ($strFrag))) ".
 				"ORDER BY charnames.Heading, charnames.CID";*/
-			$sql = "SELECT DISTINCT ch.headingname, c.CID, c.CharName ".
-				"FROM (kmchartaxalink ctl INNER JOIN kmcharacters c ON ctl.CID = c.CID) INNER JOIN kmcharheading ch ON c.hid = ch.hid ".
-				"WHERE (((c.CID) Not In (SELECT DISTINCT CID FROM kmchartaxalink WHERE ((TID In ($strFrag)) ".
-				"AND (Relation='exclude')))) AND ((c.chartype)='UM' Or (c.chartype)='OM') AND (c.defaultlang='".
-				$this->language."') AND (ch.language='".$this->language."') AND (ctl.TID In ($strFrag))) ".
-				"ORDER BY c.hid, c.CID";
+			$sql = 'SELECT DISTINCT ch.headingname, c.CID, c.CharName '.
+				'FROM kmchartaxalink ctl INNER JOIN kmcharacters c ON ctl.CID = c.CID '.
+				'INNER JOIN kmcharheading ch ON c.hid = ch.hid '.
+				'WHERE (c.CID NOT IN (SELECT DISTINCT CID FROM kmchartaxalink WHERE (TID In('.$strFrag.')) AND (Relation="exclude")) '.
+				'AND (c.chartype IN("UM","OM")) AND (ch.language="English") AND (ctl.TID In ('.$strFrag.')) '.
+				'ORDER BY c.hid, c.CID';
 			//echo $sql;
 			$headingArray = Array();		//Heading => Array(CID => CharName)
 			$result = $this->conn->query($sql);
 			while($row = $result->fetch_object()){
 				$headingArray[$row->headingname][$row->CID] = $row->CharName;
 			}
-			$result->close();
+			$result->free();
 
 			//Put harvested data into a simple output array
 			ksort($headingArray);
@@ -112,7 +112,7 @@ class KeyCharDeficitManager{
 				if($targetTid) $parentList[] = $targetTid;
 		    }
 		}
-		if($targetTid) $result->close();
+		if($targetTid) $result->free();
 		return $parentList;
 	}
 
@@ -146,7 +146,7 @@ class KeyCharDeficitManager{
  			$excludeArray[] = $row->TID;
 		}
 		$excludeStr = implode(",",$excludeArray);
-		$resultEx->close();
+		$resultEx->free();
 
 		//get Children
 		$clidStr = $this->clid;

@@ -16,9 +16,7 @@ if($language == 'en') $language = 'English';
 if($language == 'es') $language = 'Spanish';
 
 $isEditor = false;
-if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
-	$isEditor = true;
-}
+if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
 
 $glosManager = new GlossaryManager();
 
@@ -61,13 +59,15 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
 	<script type="text/javascript">
-		var langArr = {<?php
+		var langArr = {
+			<?php
 			$d = '';
 			foreach($languageArr as $k => $v){
 				echo $d.'"'.$k.'":['.$v.']';
 				$d = ',';
 			}
-		?>};
+			?>
+		};
 
 		function verifySearchForm(f){
 			var language = f.searchlanguage.value;
@@ -258,60 +258,69 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 				</form>
 			</div>
 		</div>
-		<h2>Search/Browse Glossary</h2>
-		<div style="float:left;">
-			<form id="searchform" name="searchform" action="index.php" method="post" onsubmit="return verifySearchForm(this);">
-				<div style="height:25px;">
-					<?php
-					if(count($taxaArr) > 1){
-						?>
-						<div style="float:left;">
-							<b>Taxonomic Group:</b>
-							<select id="searchtaxa" name="searchtaxa" style="margin-top:2px;width:300px;" onchange="resetLanguageSelect(this.form)">
-								<?php
-								foreach($taxaArr as $k => $v){
-									echo '<option value="'.$k.'" '.($k==$tid?'SELECTED':'').'>'.$v.'</option>';
-								}
-								?>
-							</select>
-						</div>
+		<?php
+		if($langArr){
+			?>
+			<h2>Search/Browse Glossary</h2>
+			<div style="float:left;">
+				<form id="searchform" name="searchform" action="index.php" method="post" onsubmit="return verifySearchForm(this);">
+					<div style="height:25px;">
 						<?php
-					}
-					else{
-						echo '<input name="searchtaxa" type="hidden" value="'.key($taxaArr).'" />';
-					}
-					if(count($langArr) > 1){
+						if(count($taxaArr) > 1){
+							?>
+							<div style="float:left;">
+								<b>Taxonomic Group:</b>
+								<select id="searchtaxa" name="searchtaxa" style="margin-top:2px;width:300px;" onchange="resetLanguageSelect(this.form)">
+									<?php
+									foreach($taxaArr as $k => $v){
+										echo '<option value="'.$k.'" '.($k==$tid?'SELECTED':'').'>'.$v.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<?php
+						}
+						else{
+							echo '<input name="searchtaxa" type="hidden" value="'.key($taxaArr).'" />';
+						}
+						if(count($langArr) > 1){
+							?>
+							<div style="float:left;margin-left:10px;">
+								<b>Language:</b>
+								<select id="searchlanguage" name="searchlanguage" style="margin-top:2px;" onchange="">
+									<?php
+									foreach($langArr as $k => $v){
+										echo '<option value="'.$v.'" '.($v==$language||$k==$language?'SELECTED':'').'>'.$v.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<?php
+						}
+						else{
+							echo '<input name="searchlanguage" type="hidden" value="'.reset($langArr).'" />';
+						}
 						?>
-						<div style="float:left;margin-left:10px;">
-							<b>Language:</b>
-							<select id="searchlanguage" name="searchlanguage" style="margin-top:2px;" onchange="">
-								<?php
-								foreach($langArr as $k => $v){
-									echo '<option value="'.$v.'" '.($v==$language||$k==$language?'SELECTED':'').'>'.$v.'</option>';
-								}
-								?>
-							</select>
-						</div>
-						<?php
-					}
-					else{
-						echo '<input name="searchlanguage" type="hidden" value="'.reset($langArr).'" />';
-					}
-					?>
-				</div>
-				<div style="clear:both;">
-					<b>Search Term:</b>
-					<input type="text" autocomplete="off" name="searchterm" size="25" value="<?php echo $searchTerm; ?>" />
-				</div>
-				<div style="margin-left:40px">
-					<input name="deepsearch" type="checkbox" value="1" <?php echo $deepSearch?'checked':''; ?> />
-					<b>search within definitions</b>
-				</div>
-				<div style="margin:20px">
-					<button name="formsubmit" type="submit" value="Search Terms">Search/Browse Terms</button>
-				</div>
-			</form>
-		</div>
+					</div>
+					<div style="clear:both;">
+						<b>Search Term:</b>
+						<input type="text" autocomplete="off" name="searchterm" size="25" value="<?php echo $searchTerm; ?>" />
+					</div>
+					<div style="margin-left:40px">
+						<input name="deepsearch" type="checkbox" value="1" <?php echo $deepSearch?'checked':''; ?> />
+						<b>search within definitions</b>
+					</div>
+					<div style="margin:20px">
+						<button name="formsubmit" type="submit" value="Search Terms">Search/Browse Terms</button>
+					</div>
+				</form>
+			</div>
+			<?php
+		}
+		else{
+			echo '<div style="40px 20px"><h2>A glossary has not yet been established for this portal</h2></div>';
+		}
+		?>
 		<div>
 			<div style="min-height:200px;clear:both">
 				<?php

@@ -21,7 +21,7 @@ $specList = $loanManager->getSpecList($loanId);
 					<div style="float:left;margin:0px 15px"><input name="targetidentifier" type="radio" value="catnum" checked /> Target Catalog Number</div>
 					<div style="float:left;"><input name="targetidentifier" type="radio" value="other" /> Target Other Catalog Numbers</div>
 				</div>
-				<div style="clear:both"><textarea name="catalogNumbers" cols="6" style="width:100%"></textarea></div>
+				<div style="clear:both"><textarea name="catalogNumbers" cols="6" style="width:600px"></textarea></div>
 				<div>
 					<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 					<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
@@ -37,7 +37,7 @@ $specList = $loanManager->getSpecList($loanId);
 			<form name="barcodeaddform" method="post" onsubmit="addSpecimen(this,<?php echo (!$specList?'0':'1'); ?>);return false;">
 				<div id="infoBarcodeDiv" style="display:none;margin-bottom:10px;">Scan a set of barcodes to link a stack of specimens. If the barcode reader includes a "return" after the barcode (typically the default), you will not need to click the Add Specimen button </div>
 				<div style="float:left;padding-bottom:2px;">
-					<b>Barcode/Catalog #: </b><input type="text" autocomplete="off" name="catalognumber" maxlength="255" style="width:200px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
+					<b>Barcode/Catalog #: </b><input type="text" autocomplete="off" name="catalognumber" maxlength="255" style="width:300px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
 				</div>
 				<div id="addspecsuccess" style="float:left;margin-left:30px;padding-bottom:2px;color:green;display:none;">
 					SUCCESS: Specimen record added to loan.
@@ -85,21 +85,26 @@ $specList = $loanManager->getSpecList($loanId);
 							<input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" />
 						</td>
 						<td>
-							<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
-								<?php echo $specArr['catalognumber']; ?>
-							</a>
-							<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;">
-								<img src="../../images/edit.png" />
-							</a>
+							<div style="float:right">
+								<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;"><img src="../../images/list.png" style="width:13px" title="Open Specimen Details page" /></a><br/>
+								<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;"><img src="../../images/edit.png" style="width:13px" title="Open Occurrence Editor" /></a>
+							</div>
+							<?php
+							if($specArr['catalognumber']) echo '<div>'.$specArr['catalognumber'].'</div>';
+							if($specArr['othercatalognumbers']) echo '<div>'.$specArr['othercatalognumbers'].'</a></div>';
+							if($specArr['collid'] != $collid) echo '<div style="color:orange">external</div>';
+							?>
 						</td>
 						<td>
 							<?php
+							$editorLink = 'specnoteseditor.php?loanid='.$loanId.'&occid='.$occid.'&collid='.$collid;
+							echo '<div style="float:right"><a href="#" onclick="openPopup(\''.$editorLink.'\');return false"><img src="../../images/edit.png" style="width:13px" title="Edit notes" /></a></div>';
+							echo '<i>'.$specArr['sciname'].'</i>; ';
 							$loc = $specArr['locality'];
 							if(strlen($loc) > 500) $loc = substr($loc,400);
-							echo '<i>'.$specArr['sciname'].'</i>; ';
-							echo  $specArr['collector'].'; '.$loc;
+							echo $specArr['collector'].'; '.$loc;
+							if($specArr['notes']) echo '<div class="notesDiv"><b>Notes:</b> '.$specArr['notes'],'</div>';
 							?>
-
 						</td>
 						<td><?php echo $specArr['returndate']; ?></td>
 					</tr>

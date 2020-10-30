@@ -89,6 +89,9 @@ ALTER TABLE `images`
 ALTER TABLE `images` 
   ADD INDEX `Index_images_datelastmod` (`InitialTimeStamp` ASC);
 
+ALTER TABLE `images` 
+  ADD COLUMN `sortOccurrence` INT NULL DEFAULT 5 AFTER `sortsequence`;
+
   
 ALTER TABLE `uploadspecparameters` 
   CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
@@ -315,6 +318,21 @@ CREATE TABLE `igsnverification` (
   CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
 
 
+CREATE TABLE `omoccurloanuser` (
+  `loanid` INT UNSIGNED NOT NULL,
+  `uid` INT UNSIGNED NOT NULL,
+  `accessType` VARCHAR(45) NOT NULL,
+  `notes` VARCHAR(250) NULL,
+  `modifiedByUid` INT UNSIGNED NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`loanid`, `uid`),
+  INDEX `FK_occurloan_uid_idx` (`uid` ASC),
+  INDEX `FK_occurloan_modifiedByUid_idx` (`modifiedByUid` ASC),
+  CONSTRAINT `FK_occurloan_loanid`  FOREIGN KEY (`loanid`)  REFERENCES `omoccurloans` (`loanid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_occurloan_uid`  FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_occurloan_modifiedByUid`  FOREIGN KEY (`modifiedByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+
+
 ALTER TABLE `omoccurrences`
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,
   CHANGE COLUMN `georeferenceRemarks` `georeferenceRemarks` VARCHAR(500) NULL DEFAULT NULL,
@@ -324,7 +342,8 @@ ALTER TABLE `omoccurrences`
   ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
   ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
   ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
-  ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`;
+  ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`,
+  ADD COLUMN `availability` INT(2) NULL AFTER `previousIdentifications`;
 
 ALTER TABLE `omoccurrences` 
   CHANGE COLUMN `waterBody` `waterBody` VARCHAR(75) NULL DEFAULT NULL AFTER `continent`;

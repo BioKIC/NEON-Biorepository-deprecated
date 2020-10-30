@@ -253,17 +253,18 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 								if(isset($fieldArr["date"])) echo '<span style="margin-left:30px;">'.$fieldArr["date"].'</span>';
 								echo '</div><div style="margin:4px">';
 								$localStr = '';
-								if($fieldArr["country"]) $localStr .= $fieldArr["country"].", ";
-								if($fieldArr["state"]) $localStr .= $fieldArr["state"].", ";
-								if($fieldArr["county"]) $localStr .= $fieldArr["county"].", ";
+								if($fieldArr["country"]) $localStr .= $fieldArr["country"];
+								if($fieldArr["state"]) $localStr .= ', '.$fieldArr["state"];
+								if($fieldArr["county"]) $localStr .= ', '.$fieldArr["county"];
 								if($fieldArr['locality'] == 'PROTECTED'){
-									$localStr .= '<span style="color:red;">'.$LANG['PROTECTED'].'</span>';
+									$localStr .= ', <span style="color:red;">'.$LANG['PROTECTED'].'</span>';
 								}
 								else{
-									if($fieldArr['locality']) $localStr .= $fieldArr['locality'].', ';
-									if(isset($fieldArr['elev']) && $fieldArr['elev']) $localStr .= $fieldArr['elev'].'m';
+									if($fieldArr['locality']) $localStr .= ', '.$fieldArr['locality'];
+									if($fieldArr['declat']) $localStr .= ', '.$fieldArr['declat'].' '.$fieldArr['declong'];
+									if(isset($fieldArr['elev']) && $fieldArr['elev']) $localStr .= ', '.$fieldArr['elev'].'m';
 								}
-								if(strlen($localStr) > 2) $localStr = trim($localStr,' ,');
+								$localStr = trim($localStr,' ,');
 								echo $localStr;
 								echo '</div><div style="margin:4px">';
 								echo '<b><a href="#" onclick="return openIndPU('.$occid.','.($targetClid?$targetClid:"0").');">'.$LANG['FULL_DETAILS'].'</a></b>';

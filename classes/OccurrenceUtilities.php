@@ -830,12 +830,14 @@ class OccurrenceUtilities {
 		}
 		if(isset($recMap['specify:latitude1']) && $recMap['specify:latitude1']){
 			$llStr = $recMap['specify:latitude1'];
-			if(isset($recMap['specify:latitude2']) && $recMap['specify:latitude2'] && $recMap['specify:latitude1'] != $recMap['specify:latitude2']) $llStr .= ' to '.$recMap['specify:latitude2'];
+			if(isset($recMap['specify:latitude2']) && $recMap['specify:latitude1'] != $recMap['specify:latitude2']){
+				if($recMap['specify:latitude2'] && $recMap['specify:latitude2'] != 'null') $llStr .= ' to '.$recMap['specify:latitude2'];
+			}
 			unset($recMap['specify:latitude1']);
 			unset($recMap['specify:latitude2']);
 			if(isset($recMap['specify:longitude1']) && $recMap['specify:longitude1']) $llStr .= '; '.$recMap['specify:longitude1'];
-			if(isset($recMap['specify:longitude2']) && $recMap['specify:longitude2'] && $recMap['specify:longitude1'] != $recMap['specify:longitude2']){
-				$llStr .= ' to '.$recMap['specify:longitude1'];
+			if(isset($recMap['specify:longitude2']) && $recMap['specify:longitude1'] != $recMap['specify:longitude2']){
+				if($recMap['specify:longitude2'] && $recMap['specify:longitude2'] != 'null') $llStr .= ' to '.$recMap['specify:longitude2'];
 				//todo: populate decimal Lat/long with mid-point and radius
 
 			}

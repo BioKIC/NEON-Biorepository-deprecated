@@ -18,7 +18,8 @@ function openPopup(urlStr){
 	if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
 	if(wWidth > 1400) wWidth = 1400;
 	newWindow = window.open(urlStr,'popup','scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=600,left=20,top=20');
-	if (newWindow.opener == null) newWindow.opener = self;
+	window.name = "parentWin";
+	if(newWindow.opener == null) newWindow.opener = self;
 	return false;
 }
 

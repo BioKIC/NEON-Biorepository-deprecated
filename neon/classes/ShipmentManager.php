@@ -817,7 +817,7 @@ class ShipmentManager{
 			'IF(s.acceptedForAnalysis = 0,s.sampleCondition,"") AS sampleCondition, CONCAT_WS("; ",s.checkinRemarks,CONCAT("deprecatedSampleID: ",s.alternativeSampleID)) AS remarks '.
 			'FROM NeonShipment n INNER JOIN NeonSample s ON n.shipmentPK = s.shipmentPK '.
 			'LEFT JOIN users u ON s.checkinUid = u.uid '.
-			'WHERE (s.shipmentPK = '.$this->shipmentPK.')';
+			'WHERE (s.shipmentPK = '.$this->shipmentPK.') AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) ';
 		$this->exportData($fileName, $sql);
 		$this->setReceiptStatus(1,true);
 	}

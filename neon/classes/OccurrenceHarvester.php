@@ -27,7 +27,6 @@ class OccurrenceHarvester{
 			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) ';
 		if($shipmentPK) $sql .= 'AND s.shipmentPK = '.$shipmentPK;
 		$sql .= ' GROUP BY errMsg';
-
 		$rs= $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$errMsg = $r->errMsg;
@@ -726,12 +725,12 @@ class OccurrenceHarvester{
 
 			//Run custon stored procedure that preforms some special assignment tasks
 			if(!$this->conn->query('call occurrence_harvesting_sql()')){
-				echo 'ERROR running stored procedure: '.$sql;
+				echo 'ERROR running stored procedure: occurrence_harvesting_sql';
 			}
 
 			//Run stored procedure that protects rare and sensitive species
 			if(!$this->conn->query('call sensitive_species_protection()')){
-				echo 'ERROR running stored procedure: '.$sql;
+				echo 'ERROR running stored procedure: sensitive_species_protection';
 			}
 		}
 	}

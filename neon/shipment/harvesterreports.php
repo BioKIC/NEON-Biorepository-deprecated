@@ -73,6 +73,7 @@ if($IS_ADMIN){
 			if($isEditor){
 				?>
         <?php 
+        echo '<h1>Current Occurrence Harvester Errors</h1>';
         if(!empty($reportsArr)){
           $reportsTable = $reports->htmlTable($reportsArr, $headerArr);
           echo $reportsTable;

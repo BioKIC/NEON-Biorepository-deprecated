@@ -6,6 +6,8 @@ include_once($SERVER_ROOT.'/neon/classes/OccHarvesterReports.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $reports = new OccHarvesterReports();
+$reportsArr = $reports->getHarvestReport();
+$headerArr = ['collid', 'sampleClass', 'errorMessage', 'count'];
 
 $isEditor = false;
 if($IS_ADMIN){
@@ -22,6 +24,39 @@ if($IS_ADMIN){
 		?>
 		<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+            <style>
+      table, ul {
+        font-size: small; 
+        text-align: left
+        }
+
+      td {
+        color: #444444;
+        padding: 1em;
+        vertical-align: top;
+        border-top: 2px solid #e7e7e7;
+        border-bottom: 2px solid #e7e7e7;
+        border-right: 0;
+        border-left: 0;
+      }
+
+      tbody tr {
+        max-width: 100%;
+        width: 100%;
+        border: none;
+        border-collapse: collapse;
+        border-spacing: 0;
+        margin-bottom: 0.75em;
+      }
+
+      tbody th:first-child td {
+        border-top: 0;
+      }
+
+      tbody th {
+        padding: 1em;
+      }
+    </style>
 	</head>
 	<body>
 		<?php
@@ -37,9 +72,16 @@ if($IS_ADMIN){
 			<?php
 			if($isEditor){
 				?>
-        
+        <?php 
+        if(!empty($reportsArr)){
+          $reportsTable = $reports->htmlTable($reportsArr, $headerArr);
+          echo $reportsTable;
+          };
+          ?>
 				<?php
-			}
+			} else {
+        echo '<h3>Please login to get access to this page.</h3>';
+      }
 			?>
 		</div>
 		<?php

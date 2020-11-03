@@ -986,7 +986,7 @@ class ShipmentManager{
 	public function getConditionArr(){
 		//Removed from array on 2019-10-29 by request of NEON: 'ok'=>'OK - No Known Compromise',
 		$condArr = array('ok'=>'OK - No Known Compromise', 'cold chain broken'=>'Cold Chain Broken', 'damaged'=>'Damaged - Analysis Affected',
-			'sample incomplete'=>'Sample Incomplete','handling error'=>'Handling Error', 'other'=>'Other - Described in Remarks');
+			'sample incomplete'=>'Sample Incomplete','handling error'=>'Handling Error', 'other'=>'Other - Described in Remarks','opal sample'=>'OPAL Sample');
 		return $condArr;
 	}
 

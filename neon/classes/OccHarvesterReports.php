@@ -42,6 +42,22 @@
     }
     return $dataArr;
   }
+
+   // Formats array in tabular form (pass array name and headers array as arguments)
+  public function htmlTable($data, $headerArr){
+    foreach ($headerArr as $header){
+      $headers[] = "<th>{$header}</th>";
+    }
+    $rows = array();
+    foreach ($data as $row) {
+        $cells = array();
+        foreach ($row as $cell) {
+            $cells[] = "<td>{$cell}</td>";
+        }
+        $rows[] = "<tr>" . implode('', $cells) . "</tr>";
+    }
+    return "<table>" . implode('', array_merge($headers, $rows)) . "</table>";
+  }
 }
 
 ;?>

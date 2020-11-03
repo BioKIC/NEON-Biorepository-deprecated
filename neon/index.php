@@ -47,6 +47,7 @@ if($isEditor){
 				<li><a href="shipment/manifestsearch.php">Manifest Listing and Advanced Search</a></li>
 				<li><a href="igsnmanager.php">NEON IGSN Contorl Panel</a></li>
 				<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>
+        <li><a href="shipment/harvesterreports.php">Occurrence Harvester Reports</a></li>
 			</ul>
 		</fieldset>
 	</div>

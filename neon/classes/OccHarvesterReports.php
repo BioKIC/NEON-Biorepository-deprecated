@@ -25,7 +25,7 @@
   public function getHarvestReport(){
     $dataArr = array();
 
-    $sql = 'SELECT collid, sampleClass, errorMessage, count(*) as cnt FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid WHERE errorMessage IS NOT NULL GROUP BY errorMessage, sampleClass, collid;';
+    $sql = 'SELECT IF(collid IS NULL, "n/a", collid) AS collid, sampleClass, errorMessage, count(*) AS cnt FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid WHERE errorMessage IS NOT NULL GROUP BY errorMessage, sampleClass, collid;';
 
     $result = $this->conn->query($sql);
 
@@ -56,7 +56,7 @@
         }
         $rows[] = "<tr>" . implode('', $cells) . "</tr>";
     }
-    return "<table>" . implode('', array_merge($headers, $rows)) . "</table>";
+    return '<table class="table-sortable"><thead>'. implode('', array_merge($headers)).'</thead>' . implode('', array_merge($rows)) . "</table>";
   }
 }
 

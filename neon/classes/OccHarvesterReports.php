@@ -25,7 +25,7 @@
   public function getHarvestReport(){
     $dataArr = array();
 
-    $sql = 'SELECT IF(collid IS NULL, "n/a", collid) AS collid, sampleClass, errorMessage, count(*) AS cnt FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid WHERE errorMessage IS NOT NULL GROUP BY errorMessage, sampleClass, collid;';
+    $sql = 'SELECT IF(collid IS NULL, " ", collid) AS collid, sampleClass, errorMessage, count(*) AS cnt FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid WHERE errorMessage IS NOT NULL GROUP BY errorMessage, sampleClass, collid;';
 
     $result = $this->conn->query($sql);
 

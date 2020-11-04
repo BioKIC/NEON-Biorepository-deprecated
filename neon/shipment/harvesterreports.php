@@ -7,7 +7,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $reports = new OccHarvesterReports();
 $reportsArr = $reports->getHarvestReport();
-$headerArr = ['collid', 'sampleClass', 'errorMessage', 'count'];
+$headerArr = ['collid', 'sampleClass', 'errorMessage', 'count', 'shipment(s)'];
 
 $isEditor = false;
 if($IS_ADMIN){

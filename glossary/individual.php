@@ -178,10 +178,12 @@ if($glossId){
 							<b>Relevant Taxa:</b>
 							<?php
 							$sourceArr = $glosManager->getTaxonSources();
-							foreach($sourceArr as $tid => $arr){
-								echo '<div style="margin-left:20px">';
-								echo $arr['sciname'].' [<a href="#" onclick="toggle(\''.$tid.'-sourcesdiv\');return false;"><span style="font-size:90%">show sources</span></a>]';
-								echo '</div>';
+							$taxaArr = $glosManager->getTermTaxaArr();
+							$delimter = '';
+							foreach($taxaArr as $tid => $sciname){
+								echo $delimter.$sciname;
+								if(array_key_exists($tid, $sourceArr)) echo ' [<a href="#" onclick="toggle(\''.$tid.'-sourcesdiv\');return false;"><span style="font-size:90%">show sources</span></a>]';
+								$delimter = ',';
 							}
 							?>
 						</div>

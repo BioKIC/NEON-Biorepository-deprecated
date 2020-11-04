@@ -28,7 +28,7 @@
 
     $urlList = '';
     foreach ($pksArr as $pk){
-      $urlList = $urlList.'<a href="manifestviewer.php?shipmentPK='.$pk.'">'.$idsArr[(array_search($pk, $pksArr))].'</a></br>';
+      $urlList = $urlList.'<a href="manifestviewer.php?shipmentPK='.$pk.'&sampleFilter=harvestingError">'.$idsArr[(array_search($pk, $pksArr))].'</a></br>';
     }
     return $urlList;
   }

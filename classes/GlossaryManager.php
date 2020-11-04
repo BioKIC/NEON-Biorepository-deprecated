@@ -386,9 +386,7 @@ class GlossaryManager{
 	//Taxa links
 	public function addGroupTaxaLink($tid){
 		if(is_numeric($tid)){
-			$sql = 'INSERT INTO glossarytaxalink(glossid,tid) '.
-				'VALUES('.$this->glossGroupId.','.$tid.') ';
-			//echo $sql; exit;
+			$sql = 'INSERT INTO glossarytaxalink(glossid,tid) VALUES('.$this->glossGroupId.','.$tid.') ';
 			if(!$this->conn->query($sql)){
 				$this->errorStr = 'ERROR inserting glossaryTaxaLink: '.$this->conn->error;
 				return false;
@@ -1496,17 +1494,17 @@ class GlossaryManager{
 			$sql = '';
 			if($tid){
 				$sql = 'SELECT g.glossid '.
-						'FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid '.
-						'LEFT JOIN glossarytaxalink t ON gl.glossgrpid = t.glossid '.
-						'LEFT JOIN glossarytaxalink t2 ON g.glossid = t2.glossid '.
-						'WHERE (g.term = "'.$this->cleanInStr($term).'") AND (g.`language` = "'.$this->cleanInStr($language).'") AND (t.tid = '.$tid.' OR t2.tid = '.$tid.')';
+					'FROM glossary g LEFT JOIN glossarytermlink gl ON g.glossid = gl.glossid '.
+					'LEFT JOIN glossarytaxalink t ON gl.glossgrpid = t.glossid '.
+					'LEFT JOIN glossarytaxalink t2 ON g.glossid = t2.glossid '.
+					'WHERE (g.term = "'.$this->cleanInStr($term).'") AND (g.`language` = "'.$this->cleanInStr($language).'") AND (t.tid = '.$tid.' OR t2.tid = '.$tid.')';
 			}
 			else{
 				$sql = 'SELECT g.glossid '.
-						'FROM glossary g INNER JOIN glossarytermlink gl ON g.glossid = gl.glossid '.
-						'INNER JOIN glossarytaxalink t ON gl.glossgrpid = t.glossid '.
-						'INNER JOIN glossarytermlink gl2 ON gl.glossgrpid = gl2.glossgrpid '.
-						'WHERE (g.term = "'.$this->cleanInStr($term).'") AND (g.`language` = "'.$this->cleanInStr($language).'") AND (gl2.glossid = '.$relGlossId.')';
+					'FROM glossary g INNER JOIN glossarytermlink gl ON g.glossid = gl.glossid '.
+					'INNER JOIN glossarytaxalink t ON gl.glossgrpid = t.glossid '.
+					'INNER JOIN glossarytermlink gl2 ON gl.glossgrpid = gl2.glossgrpid '.
+					'WHERE (g.term = "'.$this->cleanInStr($term).'") AND (g.`language` = "'.$this->cleanInStr($language).'") AND (gl2.glossid = '.$relGlossId.')';
 			}
 			$rs = $this->conn->query($sql);
 			if($rs->num_rows) $retStr = 1;

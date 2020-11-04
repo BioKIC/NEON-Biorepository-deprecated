@@ -12,7 +12,13 @@ $exportType = array_key_exists('exporttype',$_POST)?$_POST['exporttype']:'';
 $translations = array_key_exists('language',$_POST)?$_POST['language']:array();
 $definitions = array_key_exists('definitions',$_POST)?$_POST['definitions']:'';
 $images = array_key_exists('images',$_POST)?$_POST['images']:'';
-$formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
+
+//Sanitation
+$language = filter_var($language,FILTER_SANITIZE_STRING);
+$taxon = filter_var($taxon,FILTER_SANITIZE_STRING);
+$exportType = filter_var($exportType,FILTER_SANITIZE_STRING);
+$definitions = filter_var($definitions,FILTER_SANITIZE_STRING);
+$images = filter_var($images,FILTER_SANITIZE_STRING);
 
 $fileName = '';
 $citationFormat = $DEFAULT_TITLE.'. '.date('Y').'. ';

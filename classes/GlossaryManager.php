@@ -71,9 +71,9 @@ class GlossaryManager{
 		$sql = 'SELECT DISTINCT g.glossid, g.term '.
 			'FROM glossary g LEFT JOIN glossarytermlink tl ON g.glossid = tl.glossid '.
 			'LEFT JOIN glossarytaxalink t ON tl.glossgrpid = t.glossid '.
-			'LEFT JOIN glossarytaxalink t2 ON g.glossid = t2.glossid '.
-			'WHERE '.substr($sqlWhere, 3).
-			'ORDER BY g.term ';
+			'LEFT JOIN glossarytaxalink t2 ON g.glossid = t2.glossid ';
+		if($sqlWhere) $sql .= 'WHERE '.substr($sqlWhere, 3);
+		$sql .= 'ORDER BY g.term ';
 		//echo '<div>'.$sql.'</div>';
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
@@ -590,10 +590,10 @@ class GlossaryManager{
 	public function addSource($pArr){
 		$status = true;
 		if(is_numeric($pArr['tid'])){
-			$terms = $this->cleanInStr($_REQUEST["contributorTerm"]);
-			$images = $this->cleanInStr($_REQUEST["contributorImage"]);
-			$translator = $this->cleanInStr($_REQUEST["translator"]);
-			$sources = $this->cleanInStr($_REQUEST["additionalSources"]);
+			$terms = $this->cleanInStr($pArr['contributorTerm']);
+			$images = $this->cleanInStr($pArr['contributorImage']);
+			$translator = $this->cleanInStr($pArr['translator']);
+			$sources = $this->cleanInStr($pArr['additionalSources']);
 			$sql = 'INSERT INTO glossarysources(tid,contributorTerm,contributorImage,translator,additionalSources) '.
 				'VALUES('.$pArr['tid'].','.($terms?'"'.$terms.'"':'NULL').','.($images?'"'.$images.'"':'NULL').','.
 				($translator?'"'.$translator.'"':'NULL').','.($sources?'"'.$sources.'"':'NULL').')';
@@ -609,10 +609,10 @@ class GlossaryManager{
 	public function editSource($pArr){
 		$status = true;
 		if(is_numeric($pArr['tid'])){
-			$terms = $this->cleanInStr($_REQUEST["contributorTerm"]);
-			$images = $this->cleanInStr($_REQUEST["contributorImage"]);
-			$translator = $this->cleanInStr($_REQUEST["translator"]);
-			$sources = $this->cleanInStr($_REQUEST["additionalSources"]);
+			$terms = $this->cleanInStr($pArr['contributorTerm']);
+			$images = $this->cleanInStr($pArr['contributorImage']);
+			$translator = $this->cleanInStr($pArr['translator']);
+			$sources = $this->cleanInStr($pArr['additionalSources']);
 			$sql = 'UPDATE glossarysources '.
 				'SET contributorTerm = '.($terms?'"'.$terms.'"':'NULL').', contributorImage = '.($images?'"'.$images.'"':'NULL').', '.
 				'translator = '.($translator?'"'.$translator.'"':'NULL').', additionalSources = '.($sources?'"'.$sources.'"':'NULL').' '.

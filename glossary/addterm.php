@@ -5,16 +5,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/glossary/addterm.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
-$relatedGlossId = array_key_exists('relglossid',$_REQUEST)?$_REQUEST['relglossid']:'';
+$relatedGlossId = array_key_exists('relglossid',$_REQUEST)?$_REQUEST['relglossid']:0;
 $taxaTid  = array_key_exists('taxatid',$_REQUEST)?$_REQUEST['taxatid']:0;
 $taxaName  = array_key_exists('taxaname',$_REQUEST)?$_REQUEST['taxaname']:'';
 $relationship = array_key_exists('relationship',$_REQUEST)?$_REQUEST['relationship']:'';
 $relatedLanguage = array_key_exists('rellanguage',$_REQUEST)?$_REQUEST['rellanguage']:'';
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
-if(!$relatedLanguage){
-	$relatedLanguage = $DEFAULT_LANG;
-}
+//Sanitation
+if(!is_numeric($relatedGlossId)) $relatedGlossId = 0;
+if(!is_numeric($taxaTid)) $taxaTid = 0;
+$taxaName = filter_var($taxaName,FILTER_SANITIZE_STRING);
+$relationship = filter_var($relationship,FILTER_SANITIZE_STRING);
+$relatedLanguage = filter_var($relatedLanguage,FILTER_SANITIZE_STRING);
+
+if(!$relatedLanguage) $relatedLanguage = $DEFAULT_LANG;
 if($relatedLanguage == 'en') $relatedLanguage = 'English';
 if($relatedLanguage == 'es') $relatedLanguage = 'Spanish';
 

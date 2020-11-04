@@ -9,6 +9,13 @@ $language = array_key_exists('language',$_REQUEST)?$_REQUEST['language']:'';
 $taxa = array_key_exists('taxa',$_REQUEST)?$_REQUEST['taxa']:'';
 $editMode = array_key_exists('emode',$_REQUEST)?1:0;
 
+//Sanitation
+if(!is_numeric($tid)) $tid = 0;
+$searchTerm = filter_var($searchTerm,FILTER_SANITIZE_STRING);
+$language = filter_var($language,FILTER_SANITIZE_STRING);
+$taxa = filter_var($taxa,FILTER_SANITIZE_STRING);
+if(!is_numeric($editMode)) $editMode = 0;
+
 $isEditor = false;
 if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
 

@@ -452,7 +452,7 @@ class OccurrenceLoans extends Manager{
 	public function getSpecList($loanid){
 		$retArr = array();
 		if(is_numeric($loanid)){
-			$sql = 'SELECT o.collid, l.loanid, l.occid, l.returndate, o.catalognumber, o.othercatalognumbers, o.sciname, '.
+			$sql = 'SELECT o.collid, l.loanid, l.occid, l.returndate, l.notes, o.catalognumber, o.othercatalognumbers, o.sciname, '.
 				'CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, CONCAT_WS(", ",stateprovince,county,locality) AS locality '.
 				'FROM omoccurloanslink l INNER JOIN omoccurrences o ON l.occid = o.occid '.
 				'WHERE l.loanid = '.$loanid.' '.
@@ -466,6 +466,7 @@ class OccurrenceLoans extends Manager{
 					$retArr[$r->occid]['collector'] = $r->collector;
 					$retArr[$r->occid]['locality'] = $r->locality;
 					$retArr[$r->occid]['returndate'] = $r->returndate;
+					$retArr[$r->occid]['notes'] = $r->notes;
 				}
 				$rs->free();
 			}
@@ -578,6 +579,30 @@ class OccurrenceLoans extends Manager{
 					else $this->errorMessage = 'ERROR checking in specimen: '.$this->conn->error;
 				}
 			}
+		}
+		return $status;
+	}
+
+	public function getSpecimenNotes($loanId, $occid){
+		$noteStr = '';
+		if(is_numeric($loanId) && is_numeric($occid)){
+			$sql = 'SELECT notes FROM omoccurloanslink WHERE loanid = '.$loanId.' AND occid = '.$occid;
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$noteStr = $r->notes;
+				}
+				$rs->free();
+			}
+		}
+		return $noteStr;
+	}
+
+	public function editSpecimenNotes($loanId, $occid, $noteStr){
+		$status = false;
+		if(is_numeric($loanId) && is_numeric($occid)){
+			$sql = 'UPDATE omoccurloanslink SET notes = '.($noteStr?'"'.$this->cleanInStr($noteStr).'"':'NULL').' WHERE (loanid = '.$loanId.') AND (occid = '.$occid.')';
+			if($this->conn->query($sql)) $status = true;
+			else $this->errorMessage = 'ERROR updating specimen notes: '.$this->conn->error;
 		}
 		return $status;
 	}

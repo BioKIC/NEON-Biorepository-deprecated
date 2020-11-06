@@ -78,6 +78,10 @@ if($isEditor){
 			}
 			$tabIndex = 1;
 		}
+		elseif($formSubmit == 'saveSpecimenNotes'){
+			if($loanManager->editSpecimenNotes($loanId,$_POST['occid'],$_POST['notes'])) $statusStr = true;
+			echo $statusStr = $loanManager->getErrorMessage();
+		}
 	}
 }
 $specimenTotal = $loanManager->getSpecimenTotal($loanId);

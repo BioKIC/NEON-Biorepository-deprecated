@@ -122,6 +122,7 @@ else{
 	header('Expires: 0');
 	header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 	header('Pragma: public');
-	echo 'Error: unable to create archive';
+	if($dwcaHandler->getErrorMessage()) echo $dwcaHandler->getErrorMessage();
+	else echo 'ERROR: unable to create archive';
 }
 ?>

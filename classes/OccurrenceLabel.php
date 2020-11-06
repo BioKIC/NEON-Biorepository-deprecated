@@ -6,6 +6,7 @@ class OccurrenceLabel{
 	private $conn;
 	private $collid;
 	private $collArr = array();
+	private $labelFieldArr = array();
 	private $errorArr = array();
 
 	public function __construct(){
@@ -172,7 +173,9 @@ class OccurrenceLabel{
 		$retArr = array();
 		if($occidArr){
 			$authorArr = array();
-			$sqlWhere = 'WHERE (o.occid IN('.implode(',',$occidArr).')) ';
+			$occidStr = implode(',',$occidArr);
+			if(!preg_match('/^[,\d]+$/', $occidStr)) return null;
+			$sqlWhere = 'WHERE (o.occid IN('.$occidStr.')) ';
 			if($this->collArr['colltype'] == 'General Observations') $sqlWhere .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
 			//Get species authors for infraspecific taxa
 			$sql1 = 'SELECT o.occid, t2.author '.
@@ -180,9 +183,7 @@ class OccurrenceLabel{
 				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 				'INNER JOIN taxa t2 ON ts.parenttid = t2.tid '.
 				$sqlWhere.' AND t.rankid > 220 AND ts.taxauthid = 1 ';
-			if(!$speciesAuthors){
-				$sql1 .= 'AND t.unitname2 = t.unitname3 ';
-			}
+			if(!$speciesAuthors) $sql1 .= 'AND t.unitname2 = t.unitname3 ';
 			//echo $sql1; exit;
 			if($rs1 = $this->conn->query($sql1)){
 				while($row1 = $rs1->fetch_object()){
@@ -192,25 +193,13 @@ class OccurrenceLabel{
 			}
 
 			//Get occurrence records
-			$sql2 = 'SELECT o.occid, o.collid, o.catalognumber, o.othercatalognumbers, o.family, o.sciname AS scientificname, CONCAT_WS(" ",o.sciname,o.scientificnameauthorship) AS scientificname_with_author, '.
-				'CONCAT_WS(" ",t.unitind1,t.unitname1) AS genus, CONCAT_WS(" ",t.unitind2,t.unitname2) AS specificepithet, t.unitind3 AS taxonrank, '.
-				't.unitname3 AS infraspecificepithet, o.scientificnameauthorship, "" AS parentauthor, o.identifiedby, o.dateidentified, o.identificationreferences, '.
-				'o.identificationremarks, o.taxonremarks, o.identificationqualifier, o.typestatus, o.recordedby, o.recordnumber, o.associatedcollectors, '.
-				'DATE_FORMAT(o.eventdate,"%e %M %Y") AS eventdate, o.year, o.month, o.day, DATE_FORMAT(o.eventdate,"%M") AS monthname, '.
-				'o.verbatimeventdate, o.habitat, o.substrate, o.occurrenceremarks, o.associatedtaxa, o.verbatimattributes, '.
-				'o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, o.country, '.
-				'o.stateprovince, o.county, o.municipality, o.locality, o.decimallatitude, o.decimallongitude, '.
-				'o.geodeticdatum, o.coordinateuncertaintyinmeters, o.verbatimcoordinates, '.
-				'o.minimumelevationinmeters, o.maximumelevationinmeters, '.
-				'o.verbatimelevation, o.disposition, o.duplicatequantity, o.datelastmodified '.
-				'FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.tid '.$sqlWhere;
+			$this->setLabelFieldArr();
+			$sql2 = 'SELECT '.implode(',',$this->labelFieldArr).' FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.tid '.$sqlWhere;
 			//echo 'SQL: '.$sql2;
 			if($rs2 = $this->conn->query($sql2)){
 				while($row2 = $rs2->fetch_assoc()){
 					$row2 = array_change_key_case($row2);
-					if(array_key_exists($row2['occid'],$authorArr)){
-						$row2['parentauthor'] = $authorArr[$row2['occid']];
-					}
+					if(array_key_exists($row2['occid'],$authorArr)) $row2['parentauthor'] = $authorArr[$row2['occid']];
 					$retArr[$row2['occid']] = $row2;
 				}
 				$rs2->free();
@@ -237,13 +226,8 @@ class OccurrenceLabel{
 				header('Pragma: public');
 
 				$fh = fopen('php://output','w');
-				$headerArr = array('occid','catalogNumber','otherCatalogNumbers','family','scientificName','scientificName_with_author','genus','specificEpithet','taxonRank','infraSpecificEpithet',
-					'scientificNameAuthorship','parentAuthor','identifiedBy','dateIdentified','identificationReferences','identificationRemarks','taxonRemarks','identificationQualifier',
-					'typeStatus','recordedBy','recordNumber','associatedCollectors','eventDate','year','month','day','monthName','verbatimEventDate',
-					'habitat','substrate','occurrenceRemarks','associatedTaxa','verbatimAttributes','reproductiveCondition','establishmentMeans','country',
-					'stateProvince','county','municipality','locality','decimalLatitude','decimalLongitude','geodeticDatum','coordinateUncertaintyInMeters','verbatimCoordinates',
-					'minimumElevationInMeters','maximumElevationInMeters','verbatimElevation','disposition');
-
+				$this->setLabelFieldArr();
+				$headerArr = array_diff(array_keys($this->labelFieldArr), array('collid','duplicateQuantity','dateLastModified'));
 				fputcsv($fh,$headerArr);
 				//change header value to lower case
 				$headerLcArr = array();
@@ -254,7 +238,7 @@ class OccurrenceLabel{
 				foreach($labelArr as $occid => $occArr){
 					$dupCnt = $postArr['q-'.$occid];
 					if(isset($occArr['parentauthor']) && $occArr['parentauthor']){
-						$occArr['scientificname_with_author'] = trim($occArr['genus'].' '.$occArr['specificepithet'].' '.trim($occArr['parentauthor'].' '.$occArr['taxonrank']).' '.$occArr['infraspecificepithet'].' '.$occArr['scientificnameauthorship']);
+						$occArr['scientificname_with_author'] = trim($occArr['speciesname'].' '.trim($occArr['parentauthor'].' '.$occArr['taxonrank']).' '.$occArr['infraspecificepithet'].' '.$occArr['scientificnameauthorship']);
 					}
 					for($i = 0;$i < $dupCnt;$i++){
 						fputcsv($fh,array_intersect_key($occArr,$headerLcArr));
@@ -266,6 +250,50 @@ class OccurrenceLabel{
 				echo "Recordset is empty.\n";
 			}
 		}
+	}
+
+	private function setLabelFieldArr(){
+		if(!$this->labelFieldArr){
+			$this->labelFieldArr = array('occid'=>'o.occid', 'collid'=>'o.collid', 'catalogNumber'=>'o.catalognumber', 'otherCatalogNumbers'=>'o.othercatalognumbers', 'family'=>'o.family',
+				'scientificName'=>'o.sciname AS scientificname', 'scientificName_with_author'=>'CONCAT_WS(" ",o.sciname,o.scientificnameauthorship) AS scientificname_with_author',
+				'speciesName'=>'TRIM(CONCAT_WS(" ",t.unitind1,t.unitname1,t.unitind2,t.unitname2)) AS speciesname', 'taxonRank'=>'t.unitind3 AS taxonrank',
+				'infraSpecificEpithet'=>'t.unitname3 AS infraspecificepithet', 'scientificNameAuthorship'=>'o.scientificnameauthorship', 'parentAuthor'=>'"" AS parentauthor','identifiedBy'=>'o.identifiedby',
+				'dateIdentified'=>'o.dateidentified', 'identificationReferences'=>'o.identificationreferences', 'identificationRemarks'=>'o.identificationremarks', 'taxonRemarks'=>'o.taxonremarks',
+				'identificationQualifier'=>'o.identificationqualifier', 'typeStatus'=>'o.typestatus', 'recordedBy'=>'o.recordedby', 'recordNumber'=>'o.recordnumber', 'associatedCollectors'=>'o.associatedcollectors',
+				'eventDate'=>'DATE_FORMAT(o.eventdate,"%e %M %Y") AS eventdate', 'year'=>'o.year', 'month'=>'o.month', 'day'=>'o.day', 'monthName'=>'DATE_FORMAT(o.eventdate,"%M") AS monthname',
+				'verbatimEventDate'=>'o.verbatimeventdate', 'habitat'=>'o.habitat', 'substrate'=>'o.substrate', 'occurrenceRemarks'=>'o.occurrenceremarks', 'associatedTaxa'=>'o.associatedtaxa',
+				'verbatimAttributes'=>'o.verbatimattributes', 'reproductiveCondition'=>'o.reproductivecondition', 'cultivationStatus'=>'o.cultivationstatus', 'establishmentMeans'=>'o.establishmentmeans',
+				'country'=>'o.country', 'stateProvince'=>'o.stateprovince', 'county'=>'o.county', 'municipality'=>'o.municipality', 'locality'=>'o.locality', 'decimalLatitude'=>'o.decimallatitude',
+				'decimalLongitude'=>'o.decimallongitude', 'geodeticDatum'=>'o.geodeticdatum', 'coordinateUncertaintyInMeters'=>'o.coordinateuncertaintyinmeters', 'verbatimCoordinates'=>'o.verbatimcoordinates',
+				'elevationInMeters'=>'CONCAT_WS(" - ",o.minimumelevationinmeters,o.maximumelevationinmeters) AS elevationinmeters', 'verbatimElevation'=>'o.verbatimelevation',
+				'disposition'=>'o.disposition', 'duplicateQuantity'=>'o.duplicatequantity', 'dateLastModified'=>'o.datelastmodified');
+		}
+	}
+
+	public function getLabelFormatArr($index){
+		if(is_numeric($index) && $this->collArr['dynprops']){
+			$dymPropArr = json_decode($this->collArr['dynprops'],true);
+			if(isset($dymPropArr['labelFormats'][$index])){
+				return $dymPropArr['labelFormats'][$index];
+			}
+		}
+		return false;
+	}
+
+	public function getLabelFormatAnnotatedArr(){
+		if($this->collArr['dynprops']){
+			if($dymPropArr = json_decode($this->collArr['dynprops'],true)){
+				if(isset($dymPropArr['labelFormats'])){
+					$labelFormatArr = $dymPropArr['labelFormats'];
+					foreach($labelFormatArr as $k => $labelObj){
+						unset($labelFormatArr[$k]['blocks']);
+					}
+					if($labelFormatArr) return $labelFormatArr;
+					else return false;
+				}
+			}
+		}
+		return null;
 	}
 
 	//Annotation functions
@@ -414,13 +442,14 @@ class OccurrenceLabel{
 
 	private function setCollMetadata(){
 		if($this->collid){
-			$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype FROM omcollections WHERE collid = '.$this->collid;
+			$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype, dynamicProperties FROM omcollections WHERE collid = '.$this->collid;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$this->collArr['instcode'] = $r->institutioncode;
 					$this->collArr['collcode'] = $r->collectioncode;
 					$this->collArr['collname'] = $r->collectionname;
 					$this->collArr['colltype'] = $r->colltype;
+					$this->collArr['dynprops'] = $r->dynamicProperties;
 				}
 				$rs->free();
 			}

@@ -867,9 +867,8 @@ class DwcArchiverCore extends Manager{
 			}
 		}
 		else{
-			$errStr = '<span style="color:red;">FAILED to create archive file due to failure to return occurrence records. '.
-				'Note that OccurrenceID GUID assignments are required for Darwin Core Archive publishing. Contact portal manager for more details.</span>';
-			$this->logOrEcho($errStr);
+			$this->errorMessage = 'FAILED to create archive file due to failure to return occurrence records; check and adjust search variables';
+			$this->logOrEcho($this->errorMessage);
 			$collid = key($this->collArr);
 			if($collid) $this->deleteArchive($collid);
 			unset($this->collArr[$collid]);
@@ -1712,7 +1711,8 @@ class DwcArchiverCore extends Manager{
 			$rs->free();
 		}
 		else{
-			$this->logOrEcho("ERROR creating occurrence file: ".$this->conn->error."\n");
+			$this->errorMessage = 'ERROR creating occurrence file: '.$this->conn->error;
+			$this->logOrEcho($this->errorMessage);
 			//$this->logOrEcho("\tSQL: ".$sql."\n");
 		}
 
@@ -1720,7 +1720,8 @@ class DwcArchiverCore extends Manager{
 		if(!$hasRecords){
 			$filePath = false;
 			//$this->writeOutRecord($fh,array('No records returned. Modify query variables to be more inclusive.'));
-			$this->logOrEcho("No records returned. Modify query variables to be more inclusive. \n");
+			$this->errorMessage = 'No records returned. Modify query variables to be more inclusive.';
+			$this->logOrEcho($this->errorMessage);
 		}
 		$this->logOrEcho("Done!! (".date('h:i:s A').")\n");
 		return $filePath;

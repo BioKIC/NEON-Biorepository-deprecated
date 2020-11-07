@@ -267,9 +267,9 @@ if($isEditor && $action){
 					if($occArr['coordinateuncertaintyinmeters']) $textrun->addText(htmlspecialchars(' +-'.$occArr['coordinateuncertaintyinmeters'].' meters'),'otherFont');
 					if($occArr['geodeticdatum']) $textrun->addText(htmlspecialchars(' '.$occArr['geodeticdatum']),'otherFont');
 				}
-				if($occArr['minimumelevationinmeters']){
+				if($occArr['elevationinmeters']){
 					$textrun = $section->addTextRun('other');
-					$textrun->addText(htmlspecialchars('Elev: '.$occArr['minimumelevationinmeters'].($occArr['maximumelevationinmeters']?' - '.$occArr['maximumelevationinmeters']:'').'m. '),'otherFont');
+					$textrun->addText(htmlspecialchars('Elev: '.$occArr['elevationinmeters'].'m. '),'otherFont');
 					if($occArr['verbatimelevation']) $textrun->addText(htmlspecialchars(' ('.$occArr['verbatimelevation'].')'),'otherFont');
 				}
 				if($occArr['habitat']){

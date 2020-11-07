@@ -233,13 +233,12 @@ else{
 									</div>
 									<?php
 								}
-								if($occArr['minimumelevationinmeters']){
+								if($occArr['elevationinmeters']){
 									?>
 									<div class="elevdiv">
 										Elev:
 										<?php
-										echo '<span class="minimumelevationinmeters">'.$occArr['minimumelevationinmeters'].'</span>'.
-										($occArr['maximumelevationinmeters']?' - <span class="maximumelevationinmeters">'.$occArr['maximumelevationinmeters'].'<span>':''),'m. ';
+										echo '<span class="elevationinmeters">'.$occArr['elevationinmeters'].'m.</span> ';
 										if($occArr['verbatimelevation']) echo ' ('.$occArr['verbatimelevation'].')';
 										?>
 									</div>

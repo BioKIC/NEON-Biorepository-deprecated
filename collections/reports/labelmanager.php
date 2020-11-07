@@ -27,7 +27,6 @@ if($isEditor){
 	}
 }
 $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
-print_r($labelFormatArr);
 ?>
 <html>
 	<head>

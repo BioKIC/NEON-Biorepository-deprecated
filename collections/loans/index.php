@@ -7,8 +7,14 @@ if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../co
 $collid = $_REQUEST['collid'];
 $searchTerm = array_key_exists('searchterm',$_POST)?$_POST['searchterm']:'';
 $displayAll = array_key_exists('displayall',$_POST)?$_POST['displayall']:0;
-$formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
+$formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
+
+//Sanitation
+$searchTerm = filter_var($searchTerm, FILTER_SANITIZE_STRING);
+if(!is_numeric($collid)) $collid = 0;
+if(!is_numeric($displayAll)) $displayAll = 0;
+if(!is_numeric($tabIndex)) $tabIndex = 0;
 
 $isEditor = 0;
 if($SYMB_UID && $collid){
@@ -298,9 +304,12 @@ if($isEditor){
 						if($loanOutList){
 							echo '<ul>';
 							foreach($loanOutList as $k => $loanArr){
+								$targetCollid = $collid;
+								if(isset($loanArr['isexternal'])) $targetCollid = $loanArr['isexternal'];
 								echo '<li>';
-								echo '<a href="outgoing.php?collid='.$collid.'&loanid='.$k.'">'.$loanArr['loanidentifierown'].' <img src="../../images/edit.png" style="width:12px" /></a>: ';
-								echo $loanArr['institutioncode'].' ('.$loanArr['forwhom'].') - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN</b>');
+								echo '<a href="outgoing.php?collid='.$targetCollid.'&loanid='.$k.'">'.$loanArr['loanidentifierown'].' <img src="../../images/edit.png" style="width:12px" /></a> ';
+								if(isset($loanArr['isexternal'])) echo '<span style="color:orange">external collection</span>';
+								echo ': '.$loanArr['institutioncode'].' ('.$loanArr['forwhom'].') - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN</b>');
 								echo '</li>';
 							}
 							echo '</ul>';

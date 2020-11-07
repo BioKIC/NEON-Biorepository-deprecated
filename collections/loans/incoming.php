@@ -299,9 +299,14 @@ if($isEditor){
 								?>
 								<tr>
 									<td>
-										<a href="#" onclick="openIndPopup(<?php echo $occid; ?>);">
-											<?php echo $specArr['catalognumber']; ?>
-										</a>
+										<div style="float:right">
+											<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;"><img src="../../images/list.png" style="width:13px" title="Open Specimen Details page" /></a><br/>
+											<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;"><img src="../../images/edit.png" style="width:13px" title="Open Occurrence Editor" /></a>
+										</div>
+										<?php
+										if($specArr['catalognumber']) echo '<div>'.$specArr['catalognumber'].'</div>';
+										if($specArr['othercatalognumbers']) echo '<div>'.$specArr['othercatalognumbers'].'</a></div>';
+										?>
 									</td>
 									<td>
 										<?php
@@ -309,8 +314,8 @@ if($isEditor){
 										if(strlen($loc) > 500) $loc = substr($loc,400);
 										echo '<i>'.$specArr['sciname'].'</i>; ';
 										echo  $specArr['collector'].'; '.$loc;
+										if($specArr['notes']) echo '<div class="notesDiv"><b>Notes:</b> '.$specArr['notes'],'</div>';
 										?>
-
 									</td>
 									<td><?php echo $specArr['returndate']; ?></td>
 								</tr>

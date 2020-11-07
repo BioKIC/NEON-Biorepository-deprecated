@@ -147,7 +147,43 @@ class SpecUploadBase extends SpecUpload{
 		//Add additional fields that are used for mapping to other fields just before record is imported into uploadspectemp
 		$this->symbFields[] = 'coordinateuncertaintyradius';
 		$this->symbFields[] = 'coordinateuncertaintyunits';
+		$this->symbFields[] = 'authorspecies';
+		$this->symbFields[] = 'authorinfraspecific';
 		if($this->paleoSupport) $this->symbFields = array_merge($this->symbFields,$this->getPaleoTerms());
+		//Specify fields
+		$this->symbFields[] = 'specify:subspecies';
+		$this->symbFields[] = 'specify:subspecies_author';
+		$this->symbFields[] = 'specify:variety';
+		$this->symbFields[] = 'specify:variety_author';
+		$this->symbFields[] = 'specify:forma';
+		$this->symbFields[] = 'specify:forma_author';
+		$this->symbFields[] = 'specify:collector_first_name';
+		$this->symbFields[] = 'specify:collector_middle_initial';
+		$this->symbFields[] = 'specify:collector_last_name';
+		$this->symbFields[] = 'specify:determiner_first_name';
+		$this->symbFields[] = 'specify:determiner_middle_initial';
+		$this->symbFields[] = 'specify:determiner_last_name';
+		$this->symbFields[] = 'specify:qualifier_position';
+		$this->symbFields[] = 'specify:latitude1';
+		$this->symbFields[] = 'specify:latitude2';
+		$this->symbFields[] = 'specify:longitude1';
+		$this->symbFields[] = 'specify:longitude2';
+		$this->symbFields[] = 'specify:land_ownership';
+		$this->symbFields[] = 'specify:topo_quad';
+		$this->symbFields[] = 'specify:georeferenced_by_first_name';
+		$this->symbFields[] = 'specify:georeferenced_by_middle_initial';
+		$this->symbFields[] = 'specify:georeferenced_by_last_name';
+		$this->symbFields[] = 'specify:locality_continued';
+		$this->symbFields[] = 'specify:georeferenced_date';
+		$this->symbFields[] = 'specify:elevation_(ft)';
+		$this->symbFields[] = 'specify:preparer_first_name';
+		$this->symbFields[] = 'specify:preparer_middle_initial';
+		$this->symbFields[] = 'specify:preparer_last_name';
+		$this->symbFields[] = 'specify:prepared_by_date';
+		$this->symbFields[] = 'specify:cataloger_first_name';
+		$this->symbFields[] = 'specify:cataloger_middle_initial';
+		$this->symbFields[] = 'specify:cataloger_last_name';
+		$this->symbFields[] = 'specify:cataloged_date';
 
 		switch ($this->uploadType) {
 			case $this->FILEUPLOAD:
@@ -235,19 +271,24 @@ class SpecUploadBase extends SpecUpload{
 		$fieldMap = $this->fieldMap;
 		$symbFields = $this->symbFields;
 		$sourceArr = $this->sourceArr;
-		$translationMap = array('accession'=>'catalognumber','accessionid'=>'catalognumber','accessionnumber'=>'catalognumber',
-			'taxonfamilyname'=>'family','scientificname'=>'sciname','species'=>'specificepithet','commonname'=>'taxonremarks',
+		$translationMap = array('accession'=>'catalognumber','accessionid'=>'catalognumber','accessionnumber'=>'catalognumber','guid'=>'occurrenceid',
+			'taxonfamilyname'=>'family','scientificname'=>'sciname','fullname'=>'sciname','speciesauthor'=>'authorspecies','species'=>'specificepithet','commonname'=>'taxonremarks',
 			'observer'=>'recordedby','collector'=>'recordedby','primarycollector'=>'recordedby','field:collector'=>'recordedby','collectedby'=>'recordedby',
-			'userlogin'=>'recordedby','collectornumber'=>'recordnumber','collectionnumber'=>'recordnumber','field:collectorfieldnumber'=>'recordnumber',
-			'datecollected'=>'eventdate','date'=>'eventdate','collectiondate'=>'eventdate','observedon'=>'eventdate','dateobserved'=>'eventdate',
-			'cf' => 'identificationqualifier','detby'=>'identifiedby','determinor'=>'identifiedby','determinationdate'=>'dateidentified',
-			'placecountryname'=>'country','placestatename'=>'stateprovince','state'=>'stateprovince','placecountyname'=>'county','municipiocounty'=>'county','location'=>'locality',
-			'field:localitydescription'=>'locality','placeguess'=>'locality','latitude'=>'verbatimlatitude','longitude'=>'verbatimlongitude','placeadmin1name'=>'stateprovince','placeadmin2name'=>'county',
-			'errorradius'=>'coordinateuncertaintyradius','positionalaccuracy'=>'coordinateuncertaintyinmeters','errorradiusunits'=>'coordinateuncertaintyunits','elevationmeters'=>'minimumelevationinmeters',
-			'field:associatedspecies'=>'associatedtaxa','associatedspecies'=>'associatedtaxa','specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks',
-			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','field:habitat'=>'habitat','habitatdescription'=>'habitat',
+			'userlogin'=>'recordedby','collectornumber'=>'recordnumber','collectionnumber'=>'recordnumber','field:collectorfieldnumber'=>'recordnumber','collectors'=>'associatedcollectors',
+			'datecollected'=>'eventdate','date'=>'eventdate','collectiondate'=>'eventdate','observedon'=>'eventdate','dateobserved'=>'eventdate','collectionstartdate'=>'eventdate','collectionverbatimdate'=>'verbatimeventdate',
+			'cf' => 'identificationqualifier','qualifier'=>'identificationqualifier','position'=>'specify:qualifier_position','detby'=>'identifiedby','determinor'=>'identifiedby',
+			'determinationdate'=>'dateidentified','determineddate'=>'dateidentified','determinedremarks'=>'identificationremarks','placecountryname'=>'country',
+			'placestatename'=>'stateprovince','state'=>'stateprovince','placecountyname'=>'county','municipiocounty'=>'county','location'=>'locality','field:localitydescription'=>'locality',
+			'placeguess'=>'locality','localitynotes'=>'locationremarks','latitude'=>'verbatimlatitude','longitude'=>'verbatimlongitude','placeadmin1name'=>'stateprovince','placeadmin2name'=>'county',
+			'errorradius'=>'coordinateuncertaintyradius','positionalaccuracy'=>'coordinateuncertaintyinmeters','errorradiusunits'=>'coordinateuncertaintyunits','errorradiusunit'=>'coordinateuncertaintyunits',
+			'datum'=>'geodeticdatum','utmzone'=>'utmzoning','township'=>'trstownship','range'=>'trsrange','section'=>'trssection','georeferencingsource'=>'georeferencesources','georefremarks'=>'georeferenceremarks',
+			'elevationmeters'=>'minimumelevationinmeters','minelevationm'=>'minimumelevationinmeters','maxelevationm'=>'maximumelevationinmeters','verbatimelev'=>'verbatimelevation',
+			'field:associatedspecies'=>'associatedtaxa','associatedspecies'=>'associatedtaxa','assoctaxa'=>'associatedtaxa','specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks',
+			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','specimendescription'=>'verbatimattributes',
+			'phenology'=>'reproductivecondition','field:habitat'=>'habitat','habitatdescription'=>'habitat','sitedeschabitat'=>'habitat',
 			'group'=>'paleo-lithogroup','lithostratigraphicterms'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
 		);
+
 		if($this->paleoSupport){
 			$paleoArr = $this->getPaleoTerms();
 			foreach($paleoArr as $v){
@@ -298,12 +339,16 @@ class SpecUploadBase extends SpecUpload{
 			else{
 				if($this->uploadType == $this->NFNUPLOAD && substr($fieldName,0,8) == 'subject_') continue;
 				$isAutoMapped = false;
-				$tranlatedFieldName = str_replace(array('_',' ','.'),'',$fieldName);
+				$tranlatedFieldName = str_replace(array('_',' ','.','(',')'),'',$fieldName);
 				if($autoMap){
 					if(array_key_exists($tranlatedFieldName,$translationMap)) $tranlatedFieldName = strtolower($translationMap[$tranlatedFieldName]);
 					if(in_array($tranlatedFieldName,$symbFields)){
 						$isAutoMapped = true;
 						$autoMapArr[$tranlatedFieldName] = $fieldName;
+					}
+					elseif(in_array('specify:'.$fieldName,$symbFields)){
+						$tranlatedFieldName = strtolower('specify:'.$fieldName);
+						$isAutoMapped = true;
 					}
 				}
 				echo "<tr>\n";
@@ -619,9 +664,7 @@ class SpecUploadBase extends SpecUpload{
 			if($this->includeImages) $reportArr['image'] = $this->getImageTransferCount();
 		}
 		//Append image counts from Associated Media
-		$sql = 'SELECT count(*) AS cnt '.
-			'FROM uploadspectemp '.
-			'WHERE (associatedMedia IS NOT NULL) AND (collid IN('.$this->collId.'))';
+		$sql = 'SELECT count(*) AS cnt FROM uploadspectemp WHERE (associatedMedia IS NOT NULL) AND (collid IN('.$this->collId.'))';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$cnt = (isset($reportArr['image'])?$reportArr['image']:0) + $r->cnt;
@@ -645,9 +688,7 @@ class SpecUploadBase extends SpecUpload{
 		$rs->free();
 
 		//Number of matching records that will be updated
-		$sql = 'SELECT count(*) AS cnt '.
-			'FROM uploadspectemp '.
-			'WHERE (occid IS NOT NULL) AND (collid IN('.$this->collId.'))';
+		$sql = 'SELECT count(*) AS cnt FROM uploadspectemp WHERE (occid IS NOT NULL) AND (collid IN('.$this->collId.'))';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$reportArr['update'] = $r->cnt;
@@ -669,8 +710,8 @@ class SpecUploadBase extends SpecUpload{
 		if($this->uploadType == $this->RESTOREBACKUP || ($this->collMetadataArr["managementtype"] == 'Snapshot' && $this->uploadType != $this->SKELETAL)){
 			//Records already in portal that won't match with an incoming record
 			$sql = 'SELECT count(o.occid) AS cnt '.
-					'FROM omoccurrences o LEFT JOIN uploadspectemp u  ON (o.occid = u.occid) '.
-					'WHERE (o.collid IN('.$this->collId.')) AND (u.occid IS NULL)';
+				'FROM omoccurrences o LEFT JOIN uploadspectemp u  ON (o.occid = u.occid) '.
+				'WHERE (o.collid IN('.$this->collId.')) AND (u.occid IS NULL)';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$reportArr['exist'] = $r->cnt;

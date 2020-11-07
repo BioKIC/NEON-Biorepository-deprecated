@@ -15,10 +15,28 @@ class OccurrenceLoans extends Manager{
 
 	public function getLoanOutList($searchTerm,$displayAll){
 		$retArr = array();
+		//Get loans that are assigned to other collections but have linked occurrences from this collection (NEON Biorepo portal issue)
+		/*
+		$extLoanArr = array();
+		$sql = 'SELECT DISTINCT l.loanid, o.collid '.
+			'FROM omoccurloans l INNER JOIN omoccurloanslink ll ON l.loanid = ll.loanid '.
+			'INNER JOIN omoccurrences o ON ll.occid = o.occid '.
+			'WHERE o.collid = '.$this->collid.' AND l.collidown != '.$this->collid;
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_object()){
+				$extLoanArr[$r->loanid] = $r->collid;
+			}
+			$rs->free();
+		}
+		*/
+
+		//Get loan details
 		$sql = 'SELECT l.loanid, l.datesent, l.loanidentifierown, l.loanidentifierborr, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom, l.dateclosed '.
 			'FROM omoccurloans l LEFT JOIN institutions i ON l.iidborrower = i.iid '.
 			'LEFT JOIN omcollections c ON l.collidborr = c.collid '.
-			'WHERE l.collidown = '.$this->collid.' ';
+			'WHERE (l.collidown = '.$this->collid.' ';
+		//if($extLoanArr) $sql .= 'OR l.loanid IN('.implode(',',$extLoanArr).')';
+		$sql .= ') ';
 		if(!$displayAll) $sql .= 'AND l.dateclosed IS NULL ';
 		$sql .= 'ORDER BY l.loanidentifierown + 1 DESC';
 		if($rs = $this->conn->query($sql)){
@@ -28,6 +46,7 @@ class OccurrenceLoans extends Manager{
 					$retArr[$r->loanid]['institutioncode'] = $r->instcode1;
 					$retArr[$r->loanid]['forwhom'] = $r->forwhom;
 					$retArr[$r->loanid]['dateclosed'] = $r->dateclosed;
+					//if(array_key_exists($r->loanid, $extLoanArr)) $retArr[$r->loanid]['isexternal'] = $extLoanArr[$r->loanid];
 				}
 			}
 			$rs->free();
@@ -433,18 +452,21 @@ class OccurrenceLoans extends Manager{
 	public function getSpecList($loanid){
 		$retArr = array();
 		if(is_numeric($loanid)){
-			$sql = 'SELECT l.loanid, l.occid, IFNULL(o.catalognumber,o.othercatalognumbers) AS catalognumber, o.sciname, '.
-				'CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, CONCAT_WS(", ",stateprovince,county,locality) AS locality, l.returndate '.
+			$sql = 'SELECT o.collid, l.loanid, l.occid, l.returndate, l.notes, o.catalognumber, o.othercatalognumbers, o.sciname, '.
+				'CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, CONCAT_WS(", ",stateprovince,county,locality) AS locality '.
 				'FROM omoccurloanslink l INNER JOIN omoccurrences o ON l.occid = o.occid '.
 				'WHERE l.loanid = '.$loanid.' '.
 				'ORDER BY o.catalognumber+1,o.othercatalognumbers+1';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
+					$retArr[$r->occid]['collid'] = $r->collid;
 					$retArr[$r->occid]['catalognumber'] = $r->catalognumber;
+					$retArr[$r->occid]['othercatalognumbers'] = $r->othercatalognumbers;
 					$retArr[$r->occid]['sciname'] = $r->sciname;
 					$retArr[$r->occid]['collector'] = $r->collector;
 					$retArr[$r->occid]['locality'] = $r->locality;
 					$retArr[$r->occid]['returndate'] = $r->returndate;
+					$retArr[$r->occid]['notes'] = $r->notes;
 				}
 				$rs->free();
 			}
@@ -468,7 +490,7 @@ class OccurrenceLoans extends Manager{
 
 	public function linkSpecimen($loanid, $catNum){
 		//This method is used by the ajax script insertLoanSpecimen.php
-		if($this->collid && is_numeric($loanid)){
+		if(is_numeric($loanid)){
 			$occArr = $this->getOccid($catNum);
 			if(!$occArr) $occArr = $this->getOccid($catNum,true);
 			if(!$occArr) return 0;
@@ -516,9 +538,10 @@ class OccurrenceLoans extends Manager{
 
 	private function getOccid($catNum, $otherCatNum = false){
 		$occArr = array();
-		$sql = 'SELECT occid FROM omoccurrences WHERE (collid = '.$this->collid.') ';
-		if($otherCatNum) $sql .= 'AND (othercatalognumbers = "'.$this->cleanInStr($catNum).'") ';
-		else $sql .= 'AND (catalognumber = "'.$this->cleanInStr($catNum).'") ';
+		$sql = 'SELECT occid FROM omoccurrences WHERE ';
+		if($otherCatNum) $sql .= '(othercatalognumbers = "'.$this->cleanInStr($catNum).'") ';
+		else $sql .= '(catalognumber = "'.$this->cleanInStr($catNum).'") ';
+		if($this->collid) $sql .= 'AND (collid = '.$this->collid.')';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()) {
@@ -532,12 +555,8 @@ class OccurrenceLoans extends Manager{
 		$status = false;
 		$sql = 'INSERT INTO omoccurloanslink(loanid,occid) VALUES ('.$loanid.','.$occid.') ';
 		//echo $sql;
-		if($this->conn->query($sql)){
-			$status = true;
-		}
-		else{
-			$this->errorMessage = $this->conn->error;
-		}
+		if($this->conn->query($sql)) $status = true;
+		else $this->errorMessage = $this->conn->error;
 		return $status;
 	}
 
@@ -560,6 +579,30 @@ class OccurrenceLoans extends Manager{
 					else $this->errorMessage = 'ERROR checking in specimen: '.$this->conn->error;
 				}
 			}
+		}
+		return $status;
+	}
+
+	public function getSpecimenNotes($loanId, $occid){
+		$noteStr = '';
+		if(is_numeric($loanId) && is_numeric($occid)){
+			$sql = 'SELECT notes FROM omoccurloanslink WHERE loanid = '.$loanId.' AND occid = '.$occid;
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$noteStr = $r->notes;
+				}
+				$rs->free();
+			}
+		}
+		return $noteStr;
+	}
+
+	public function editSpecimenNotes($loanId, $occid, $noteStr){
+		$status = false;
+		if(is_numeric($loanId) && is_numeric($occid)){
+			$sql = 'UPDATE omoccurloanslink SET notes = '.($noteStr?'"'.$this->cleanInStr($noteStr).'"':'NULL').' WHERE (loanid = '.$loanId.') AND (occid = '.$occid.')';
+			if($this->conn->query($sql)) $status = true;
+			else $this->errorMessage = 'ERROR updating specimen notes: '.$this->conn->error;
 		}
 		return $status;
 	}

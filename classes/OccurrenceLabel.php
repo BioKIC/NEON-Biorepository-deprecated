@@ -262,12 +262,54 @@ class OccurrenceLabel{
 				'identificationQualifier'=>'o.identificationqualifier', 'typeStatus'=>'o.typestatus', 'recordedBy'=>'o.recordedby', 'recordNumber'=>'o.recordnumber', 'associatedCollectors'=>'o.associatedcollectors',
 				'eventDate'=>'DATE_FORMAT(o.eventdate,"%e %M %Y") AS eventdate', 'year'=>'o.year', 'month'=>'o.month', 'day'=>'o.day', 'monthName'=>'DATE_FORMAT(o.eventdate,"%M") AS monthname',
 				'verbatimEventDate'=>'o.verbatimeventdate', 'habitat'=>'o.habitat', 'substrate'=>'o.substrate', 'occurrenceRemarks'=>'o.occurrenceremarks', 'associatedTaxa'=>'o.associatedtaxa',
-				'verbatimAttributes'=>'o.verbatimattributes', 'reproductiveCondition'=>'o.reproductivecondition', 'cultivationStatus'=>'o.cultivationstatus', 'establishmentMeans'=>'o.establishmentmeans',
+				'dynamicProperties'=>'o.dynamicproperties','verbatimAttributes'=>'o.verbatimattributes', 'behavior'=>'behavior', 'reproductiveCondition'=>'o.reproductivecondition', 'cultivationStatus'=>'o.cultivationstatus',
+					'establishmentMeans'=>'o.establishmentmeans','lifeStage'=>'lifestage','sex'=>'sex','individualCount'=>'individualcount','samplingProtocol'=>'samplingprotocol','preparations'=>'preparations',
 				'country'=>'o.country', 'stateProvince'=>'o.stateprovince', 'county'=>'o.county', 'municipality'=>'o.municipality', 'locality'=>'o.locality', 'decimalLatitude'=>'o.decimallatitude',
 				'decimalLongitude'=>'o.decimallongitude', 'geodeticDatum'=>'o.geodeticdatum', 'coordinateUncertaintyInMeters'=>'o.coordinateuncertaintyinmeters', 'verbatimCoordinates'=>'o.verbatimcoordinates',
 				'elevationInMeters'=>'CONCAT_WS(" - ",o.minimumelevationinmeters,o.maximumelevationinmeters) AS elevationinmeters', 'verbatimElevation'=>'o.verbatimelevation',
-				'disposition'=>'o.disposition', 'duplicateQuantity'=>'o.duplicatequantity', 'dateLastModified'=>'o.datelastmodified');
+				'minimumDepthInMeters'=>'minimumdepthinmeters', 'maximumDepthInMeters'=>'maximumdepthinmeters', 'verbatimDepth'=>'verbatimdepth',
+				'disposition'=>'o.disposition', 'storageLocation'=>'storagelocation', 'duplicateQuantity'=>'o.duplicatequantity', 'dateLastModified'=>'o.datelastmodified');
 		}
+	}
+
+	public function getLabelBlock($blockArr,$occArr){
+		$outStr = '';
+		foreach($blockArr as $bArr){
+			if(array_key_exists('divElem', $bArr)){
+				$outStr .= $this->getDivElem($bArr['divElem'],$occArr);
+			}
+			elseif(array_key_exists('fields', $bArr)){
+				$delimiter = (isset($bArr['delimiter'])?$bArr['delimiter']:'');
+				$cnt = 0;
+				$fieldDivStr = '';
+				foreach($bArr['fields'] as $fieldArr){
+					$fieldName = $fieldArr['field'];
+					$fieldValue = trim($occArr[$fieldName]);
+					if($fieldValue){
+						if($delimiter && $cnt) $fieldDivStr .= $delimiter;
+						if(isset($fieldArr['prefix']) && $fieldArr['prefix']){
+							$fieldDivStr .= '<span class="'.$fieldName.'Prefix" '.(isset($fieldArr['prefixStyle'])?'style="'.$fieldArr['prefixStyle'].'"':'').'>'.$fieldArr['prefix'].'</span>';
+						}
+						$fieldDivStr .= '<span class="'.$fieldName.'" '.(isset($fieldArr['style'])?'style="'.$fieldArr['style'].'"':'').'>'.$fieldValue.'</span>';
+						if(isset($fieldArr['suffix']) && $fieldArr['suffix']){
+							$fieldDivStr .= '<span class="'.$fieldName.'Suffix" '.(isset($fieldArr['suffixStyle'])?'style="'.$fieldArr['sufffixStyle'].'"':'').'>'.$fieldArr['suffix'].'</span>';
+						}
+						$cnt++;
+					}
+				}
+				if($fieldDivStr) $outStr .= '<div class="fieldBlockDiv" '.(isset($bArr['style'])?'style="'.$bArr['style'].'"':'').'>'.$fieldDivStr.'</div>';
+			}
+		}
+		return $outStr;
+	}
+
+	private function getDivElem($divArr,$occArr){
+		if(array_key_exists('blocks', $divArr)){
+			if($blockStr = $this->getLabelBlock($divArr['blocks'],$occArr)){
+				return '<div '.(isset($divArr['className'])?'class="'.$divArr['className'].'"':'').' '.(isset($divArr['style'])?'style="'.$divArr['style'].'"':'').'>'.$blockStr.'</div>'."\n";
+			}
+		}
+		return '';
 	}
 
 	public function getLabelFormatArr($index){
@@ -458,24 +500,6 @@ class OccurrenceLabel{
 
 	public function getErrorArr(){
 		return $this->errorArr;
-	}
-
-	//Misc functions
-	function parseCSS($fileName){
-		global $SERVER_ROOT;
-		if(!$fileName) $fileName = 'defaultlabels.css';
-		$fh = fopen($SERVER_ROOT.'/collections/reports/css/'.$fileName);
-		$retArr = array();
-		preg_match_all('/(.+?)\s?\{\s?(.+?)\s?\}/', $css, $matches);
-		foreach($matches[0] AS $i => $original){
-			foreach(explode(';', $matches[2][$i]) AS $attr){
-				if (strlen(trim($attr)) > 0){
-					list($name, $value) = explode(':', $attr);
-					$retArr[$matches[1][$i]][trim($name)] = trim($value);
-				}
-			}
-		}
-		return $retArr;
 	}
 
 	//Internal cleaning functions

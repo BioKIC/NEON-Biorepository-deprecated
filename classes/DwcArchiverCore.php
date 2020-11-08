@@ -277,37 +277,39 @@ class DwcArchiverCore extends Manager{
 					$sqlFrag .= $taxaManager->getTaxonWhereFrag();
 				}
 				else{
+					if($field == 'datelastmodified') $field = 'IFNULL(o.modified,o.datelastmodified)';
+					else $field = 'o.'.$field;
 					$sqlFrag2 = '';
 					foreach($condArr as $cond => $valueArr){
 						if($cond == 'NULL'){
-							$sqlFrag2 .= 'AND (o.'.$field.' IS NULL) ';
+							$sqlFrag2 .= 'AND ('.$field.' IS NULL) ';
 						}
 						elseif($cond == 'NOTNULL'){
-							$sqlFrag2 .= 'AND (o.'.$field.' IS NOT NULL) ';
+							$sqlFrag2 .= 'AND ('.$field.' IS NOT NULL) ';
 						}
 						elseif($cond == 'EQUALS'){
-							$sqlFrag2 .= 'AND (o.'.$field.' IN("'.implode('","',$valueArr).'")) ';
+							$sqlFrag2 .= 'AND ('.$field.' IN("'.implode('","',$valueArr).'")) ';
 						}
 						elseif($cond == 'NOTEQUALS'){
-							$sqlFrag2 .= 'AND (o.'.$field.' NOT IN("'.implode('","',$valueArr).'")) ';
+							$sqlFrag2 .= 'AND ('.$field.' NOT IN("'.implode('","',$valueArr).'")) ';
 						}
 						else{
 							$sqlFrag3 = '';
 							foreach($valueArr as $value){
 								if($cond == 'STARTS'){
-									$sqlFrag3 .= 'OR (o.'.$field.' LIKE "'.$value.'%") ';
+									$sqlFrag3 .= 'OR ('.$field.' LIKE "'.$value.'%") ';
 								}
 								elseif($cond == 'LIKE'){
-									$sqlFrag3 .= 'OR (o.'.$field.' LIKE "%'.$value.'%") ';
+									$sqlFrag3 .= 'OR ('.$field.' LIKE "%'.$value.'%") ';
 								}
 								elseif($cond == 'NOTLIKE'){
-									$sqlFrag3 .= 'OR (o.'.$field.' NOT LIKE "%'.$value.'%") ';
+									$sqlFrag3 .= 'OR ('.$field.' NOT LIKE "%'.$value.'%") ';
 								}
 								elseif($cond == 'LESSTHAN'){
-									$sqlFrag3 .= 'OR (o.'.$field.' < "'.$value.'") ';
+									$sqlFrag3 .= 'OR ('.$field.' < "'.$value.'") ';
 								}
 								elseif($cond == 'GREATERTHAN'){
-									$sqlFrag3 .= 'OR (o.'.$field.' > "'.$value.'") ';
+									$sqlFrag3 .= 'OR ('.$field.' > "'.$value.'") ';
 								}
 							}
 							$sqlFrag2 .= 'AND ('.substr($sqlFrag3,3).') ';

@@ -150,7 +150,6 @@ else{
 									if($occArr['identificationqualifier']) echo '<span class="identificationqualifier">'.$occArr['identificationqualifier'].'</span> ';
 									$scinameStr = $occArr['scientificname'];
 									$parentAuthor = (array_key_exists('parentauthor',$occArr)?' '.$occArr['parentauthor']:'');
-									$scinameStr = str_replace(' sp. ','</i></b>'.$parentAuthor.' <b>sp.</b>',$scinameStr);
 									$scinameStr = str_replace(' subsp. ','</i></b>'.$parentAuthor.' <b>subsp. <i>',$scinameStr);
 									$scinameStr = str_replace(' ssp. ','</i></b>'.$parentAuthor.' <b>ssp. <i>',$scinameStr);
 									$scinameStr = str_replace(' var. ','</i></b>'.$parentAuthor.' <b>var. <i>',$scinameStr);
@@ -234,13 +233,12 @@ else{
 									</div>
 									<?php
 								}
-								if($occArr['minimumelevationinmeters']){
+								if($occArr['elevationinmeters']){
 									?>
 									<div class="elevdiv">
 										Elev:
 										<?php
-										echo '<span class="minimumelevationinmeters">'.$occArr['minimumelevationinmeters'].'</span>'.
-										($occArr['maximumelevationinmeters']?' - <span class="maximumelevationinmeters">'.$occArr['maximumelevationinmeters'].'<span>':''),'m. ';
+										echo '<span class="elevationinmeters">'.$occArr['elevationinmeters'].'m.</span> ';
 										if($occArr['verbatimelevation']) echo ' ('.$occArr['verbatimelevation'].')';
 										?>
 									</div>

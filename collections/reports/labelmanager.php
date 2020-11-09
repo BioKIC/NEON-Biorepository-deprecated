@@ -364,10 +364,10 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 										<div class="fieldLabel">Heading Mid-Section:</div>
 										<div class="fieldElement">
 											<input type="radio" id="lhmid1" name="lhmid" value="1" />Country
-											<input type="radio" id="lhmid2" name="lhmid" value="2" checked />State
+											<input type="radio" id="lhmid2" name="lhmid" value="2" />State
 											<input type="radio" id="lhmid3" name="lhmid" value="3" />County
 											<input type="radio" id="lhmid4" name="lhmid" value="4" />Family
-											<input type="radio" id="lhmid5" name="lhmid" value="0" />Blank
+											<input type="radio" id="lhmid0" name="lhmid" value="0" />Blank
 										</div>
 									</div>
 									<div class="fieldDiv">

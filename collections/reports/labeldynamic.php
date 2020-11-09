@@ -50,21 +50,21 @@ if(!$targetLabelFormatArr){
 	$labelFormatJson =
 		'{"labelFormats": [
 			{
-				"name":"simple label",
+				"name":"Default Herbarium Label",
 				"displaySpeciesAuthor":1,
-				"displayCatNum":1,
-				"displayBarcode":1,
-				"labelFormat":"2",
+				"displayCatNum":0,
+				"displayBarcode":0,
+				"labelFormat":"1",
 				"defaultStyles":"font-style:time roman;font-size:10pt",
 				"defaultCss":"",
 				"labelHeader":{
-					"hPrefix":"<i>Carex</i> of",
+					"hPrefix":"Flora of ",
 					"hMidCol":3,
-					"hSuffix":"county",
+					"hSuffix":" county",
 					"style":"text-align:center;margin-bottom:10px;font:bold 14pt arial,sans-serif;clear:both;"
 				},
 				"labelFooter":{
-					"textValue":"Arizona State University",
+					"textValue":"",
 					"style":"text-align:center;margin-top:10px;font:bold 10pt arial,sans-serif;clear:both;"
 				},
 				"labelBlocks":[
@@ -103,6 +103,55 @@ if(!$targetLabelFormatArr){
 						]}}
 					]}}
 				]
+			},
+			{
+				"name":"Bird Dry Specimen",
+				"displaySpeciesAuthor":0,
+				"displayCatNum":1,
+				"displayBarcode":0,
+				"labelFormat":"2",
+				"defaultStyles":"font-style:time roman;font-size:8pt",
+				"defaultCss":"",
+				"labelHeader":{
+					"hPrefix":"Arizona State University Ornithology Collection",
+					"hMidCol":0,
+					"hSuffix":"",
+					"style":"margin-bottom:5px;font:bold 7pt arial,sans-serif;clear:both;"
+				},
+				"labelFooter":{
+					"textValue":"",
+					"style":"text-align:center;margin-top:10px;font:bold 10pt arial,sans-serif;clear:both;"
+				},
+				"labelBlocks":[
+					{"divElem":{"className":"labelBlockDiv","blocks":[
+						{"fields":[{"field":"family","styles":["margin-bottom:2px;font-size:pt"]}]},
+						{"divElem":{"className":"taxonomyDiv","style":"font-size:10pt;","blocks":[
+							{"fields":[
+								{"field":"identificationqualifier"},
+								{"field":"speciesname","style":"font-weight:bold;font-style:italic"},
+								{"field":"parentauthor"},
+								{"field":"taxonrank","style":"font-weight:bold"},
+								{"field":"infraspecificepithet","style":"font-weight:bold;font-style:italic"},
+								{"field":"scientificnameauthorship"}
+								],"delimiter":" "
+							}
+						]}},
+						{"fields":[{"field":"identifiedby","prefix":"Det by: "},{"field":"dateidentified"}]},
+						{"fields":[{"field":"identificationreferences"}]},
+						{"fields":[{"field":"identificationremarks"}]},
+						{"fields":[{"field":"taxonremarks"}]},
+						{"fields":[{"field":"catalognumber","style":"font-weight:bold;font-size:14pt;margin:5pt 0pt;"}]},
+						{"divElem":{"className":"localDiv","style":"margin-top:3px;padding-top:3px;border-top:3px solid black","blocks":[
+							{"fields":[{"field":"country"},{"field":"stateprovince","prefix":", "},{"field":"county","prefix":", "},{"field":"municipality","prefix":", "},{"field":"locality","prefix":": "},{"field":"decimallatitude","prefix":": ","suffix":"° N"},{"field":"decimallongitude","prefix":" ","suffix":"° W"},{"field":"coordinateuncertaintyinmeters","prefix":" +-","suffix":" meters","style":"margin-left:10px"},{"field":"elevationinmeters","prefix":", ","suffix":"m."}]}
+						]}},
+						{"divElem":{"className":"collectorDiv","style":"margin-top:10px;font-size:6pt;clear:both;","blocks":[
+							{"fields":[{"field":"recordedby","style":"float:left;","prefix":"Coll.: "},{"field":"preparations","style":"float:right","prefix":"Prep.: "}]}
+						]}},
+						{"divElem":{"className":"collectorDiv","style":"margin-top:10px;font-size:6pt;clear:both;","blocks":[
+							{"fields":[{"field":"recordnumber","style":"float:left;","prefix":"Coll. No: "},{"field":"eventdate","style":"float:right","prefix":"Date: "}]}
+						]}}
+					]}}
+				]
 			}
 		]}';
 	$labelFormatArr = json_decode($labelFormatJson,true);
@@ -130,7 +179,7 @@ if($SYMB_UID){
 			<?php
 			if($columnCount != 1){
 				?>
-				.labelDiv { width:47%;padding:10px; }
+				.labelDiv { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
 				<?php
 			}
 			if($labelFormat == 'packet'){

@@ -107,7 +107,7 @@ if(!$targetLabelFormatArr){
 			{
 				"name":"Bird Dry Specimen",
 				"displaySpeciesAuthor":0,
-				"displayCatNum":1,
+				"displayCatNum":0,
 				"displayBarcode":0,
 				"labelFormat":"2",
 				"defaultStyles":"font-style:time roman;font-size:8pt",
@@ -116,7 +116,7 @@ if(!$targetLabelFormatArr){
 					"hPrefix":"Arizona State University Ornithology Collection",
 					"hMidCol":0,
 					"hSuffix":"",
-					"style":"margin-bottom:5px;font:bold 7pt arial,sans-serif;clear:both;"
+					"style":"text-align:center;margin-bottom:5px;font:bold 7pt arial,sans-serif;clear:both;"
 				},
 				"labelFooter":{
 					"textValue":"",

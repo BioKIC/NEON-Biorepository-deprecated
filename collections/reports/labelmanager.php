@@ -159,9 +159,10 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 		<style>
 			fieldset{ margin:10px; padding:15px; }
 			fieldset legend{ font-weight:bold; }
-			.fieldDiv{ clear:both; padding:5px 0px; height:20px; vertical-align:center; }
-			.fieldLabel{ float:left; font-weight: bold; margin: 3px 5px; }
-			.fieldElement{ float:left; }
+			.fieldDiv{ clear:both; padding:5px 0px; margin:5px 0px }
+			.fieldLabel{ font-weight: bold; display:block }
+			.checkboxLabel{ font-weight: bold; }
+			.fieldElement{  }
 		</style>
 	</head>
 	<body>
@@ -340,27 +341,27 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 									?>
 								</table>
 								<fieldset style="margin-top:15px;">
-									<legend><b>Label Printing</b></legend>
-									<div class="fieldDiv">
+									<legend>Label Printing</legend>
 										<?php
 										if($labelFormatArr){
 											?>
-											<div class="fieldLabel">Predefined Label Format:</div>
-											<div class="fieldElement">
-												<select name="labelformatindex" onchange="labelFormatChanged(this)">
-													<option value="">Select Label Profile</option>
-													<option value="">---------------------------------------</option>
-													<?php
-													foreach($labelFormatArr as $k => $labelArr){
-														echo '<option value="'.$k.'">'.$labelArr['name'].'</option>';
-													}
-													?>
-												</select>
+											<div class="fieldDiv">
+												<div class="fieldLabel">Predefined Label Format:</div>
+												<div class="fieldElement">
+													<select name="labelformatindex" onchange="labelFormatChanged(this)">
+														<option value="">Select Label Profile</option>
+														<option value="">---------------------------------------</option>
+														<?php
+														foreach($labelFormatArr as $k => $labelArr){
+															echo '<option value="'.$k.'">'.$labelArr['name'].'</option>';
+														}
+														?>
+													</select>
+												</div>
 											</div>
 											<?php
 										}
 										?>
-									</div>
 									<div class="fieldDiv">
 										<div class="fieldLabel">Heading Prefix:</div>
 										<div class="fieldElement">
@@ -368,7 +369,7 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 										</div>
 									</div>
 									<div class="fieldDiv">
-										<div class="fieldLabel">Heading Mid-Section:</div>
+										<div class="checkboxLabel">Heading Mid-Section:</div>
 										<div class="fieldElement">
 											<input type="radio" id="lhmid1" name="lhmid" value="1" />Country
 											<input type="radio" id="lhmid2" name="lhmid" value="2" />State
@@ -378,60 +379,52 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 										</div>
 									</div>
 									<div class="fieldDiv">
-										<div class="fieldLabel">Heading Suffix:</div>
-										<div class="fieldElement">
+										<span class="fieldLabel">Heading Suffix:</span>
+										<span class="fieldElement">
 											<input type="text" name="lhsuffix" value="" style="width:450px" />
-										</div>
+										</span>
 									</div>
 									<div class="fieldDiv">
-										<div class="fieldLabel">Label Footer:</div>
-										<div class="fieldElement">
+										<span class="fieldLabel">Label Footer:</span>
+										<span class="fieldElement">
 											<input type="text" name="lfooter" value="" style="width:450px" />
-										</div>
+										</span>
 									</div>
 									<div class="fieldDiv">
-										<div class="fieldElement">
-											<input type="checkbox" name="speciesauthors" value="1" onclick="checkBarcodeCheck(this.form);" />
-										</div>
-										<div class="fieldLabel">Print species authors for infraspecific taxa</div>
+										<input type="checkbox" name="speciesauthors" value="1" onclick="checkBarcodeCheck(this.form);" />
+										<span class="checkboxLabel">Print species authors for infraspecific taxa</span>
 									</div>
 									<div class="fieldDiv">
-										<div class="fieldElement">
-											<input type="checkbox" name="catalognumbers" value="1" onclick="checkBarcodeCheck(this.form);" />
-										</div>
-										<div class="fieldLabel">Print Catalog Numbers</div>
+										<input type="checkbox" name="catalognumbers" value="1" onclick="checkBarcodeCheck(this.form);" />
+										<span class="checkboxLabel">Print Catalog Numbers</span>
 									</div>
 									<?php
 									if(class_exists('Image_Barcode2') || class_exists('Image_Barcode')){
 										?>
 										<div class="fieldDiv">
-											<div class="fieldElement">
-												<input type="checkbox" name="bc" value="1" onclick="checkBarcodeCheck(this.form);" />
-											</div>
-											<div class="fieldLabel">Include barcode of Catalog Number</div>
+											<input type="checkbox" name="bc" value="1" onclick="checkBarcodeCheck(this.form);" />
+											<span class="checkboxLabel">Include barcode of Catalog Number</span>
 										</div>
 										<div class="fieldDiv">
-											<div class="fieldElement">
-												<input type="checkbox" name="symbbc" value="1" onclick="checkBarcodeCheck(this.form);" />
-											</div>
-											<div class="fieldLabel">Include barcode of Symbiota Identifier</div>
+											<input type="checkbox" name="symbbc" value="1" onclick="checkBarcodeCheck(this.form);" />
+											<span class="checkboxLabel">Include barcode of Symbiota Identifier</span>
 										</div>
 										<div class="fieldDiv">
-											<div class="fieldElement">
-												<input type="checkbox" name="bconly" value="1" onclick="checkPrintOnlyCheck(this.form);" />
-											</div>
-											<div class="fieldLabel">Print only Barcode</div>
+											<input type="checkbox" name="bconly" value="1" onclick="checkPrintOnlyCheck(this.form);" />
+											<span class="checkboxLabel">Print only Barcode</span>
 										</div>
 										<?php
 									}
 									?>
-									<fieldset style="float:left;margin:10px;width:150px;">
-										<legend><b>Label Format</b></legend>
-										<input type="radio" id="labelformat1" name="labelformat" value="1" /> 1 columns per page<br/>
-										<input type="radio" id="labelformat2" name="labelformat" value="2" /> 2 columns per page<br/>
-										<input type="radio" id="labelformat3" name="labelformat" value="3" /> 3 columns per page<br/>
-										<input id="packetradio" type="radio" name="labelformat" value="packet" /> packet labels<br/>
-									</fieldset>
+									<div style="float:left;">
+										<fieldset style="margin:10px;width:150px;">
+											<legend><b>Label Format</b></legend>
+											<input type="radio" id="labelformat1" name="labelformat" value="1" /> 1 columns per page<br/>
+											<input type="radio" id="labelformat2" name="labelformat" value="2" /> 2 columns per page<br/>
+											<input type="radio" id="labelformat3" name="labelformat" value="3" /> 3 columns per page<br/>
+											<input id="packetradio" type="radio" name="labelformat" value="packet" /> packet labels<br/>
+										</fieldset>
+									</div>
 									<div style="float:left;margin: 15px 50px;">
 										<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
 										<input type="submit" name="submitaction" onclick="changeFormExport('labeldynamic.php','_blank');" value="Print in Browser" />

@@ -216,18 +216,20 @@ else{
 									?>
 									<div class="loc2div">
 										<?php
+										if($occArr['decimallatitude'] && $occArr['decimallatitude']){
+											echo '<span class="decimallatitude">'.$occArr['decimallatitude'].'</span>'.($occArr['decimallatitude']>0?'N':'S');
+											echo '<span class="decimallongitude" style="margin-left:10px;">'.$occArr['decimallongitude'].'</span>'.($occArr['decimallongitude']>0?'E':'W').' ';
+										}
+										if($occArr['coordinateuncertaintyinmeters']) echo '<span style="margin-left:10px;">+-'.$occArr['coordinateuncertaintyinmeters'].' meters</span>';
 										if($occArr['verbatimcoordinates']){
+											if($occArr['decimallatitude']) echo ' [';
 											?>
 											<span class="verbatimcoordinates">
 												<?php echo $occArr['verbatimcoordinates']; ?>
 											</span>
 											<?php
+											if($occArr['decimallatitude']) echo ']';
 										}
-										else{
-											echo '<span class="decimallatitude">'.$occArr['decimallatitude'].'</span>'.($occArr['decimallatitude']>0?'N':'S');
-											echo '<span class="decimallongitude" style="margin-left:10px;">'.$occArr['decimallongitude'].'</span>'.($occArr['decimallongitude']>0?'E':'W').' ';
-										}
-										if($occArr['coordinateuncertaintyinmeters']) echo '<span style="margin-left:10px;">+-'.$occArr['coordinateuncertaintyinmeters'].' meters</span>';
 										if($occArr['geodeticdatum']) echo '<span style="margin-left:10px;">['.$occArr['geodeticdatum'].']</span>';
 										?>
 									</div>

@@ -144,8 +144,15 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 					f.lhsuffix.value = labelFormatObj[labelIndex].labelHeader.hSuffix;
 					f.lfooter.value = labelFormatObj[labelIndex].labelFooter.textValue;
 					if(labelFormatObj[labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
-					if(f.bc && labelFormatObj[labelIndex].displayBarcode == 1) f.bc.checked = true;
+					else f.speciesauthors.checked = false;
+					if(f.bc){
+						if(labelFormatObj[labelIndex].displayBarcode == 1) f.bc.checked = true;
+						else f.bc.checked = false;
+					}
 					if(labelFormatObj[labelIndex].displayCatNum == 1) f.catalognumbers.checked = true;
+					else f.catalognumbers.checked = true;
+					var labelFormatIndex = labelFormatObj[labelIndex].labelFormat;
+					document.getElementById("labelformat"+labelFormatIndex).checked = true;
 				}
 			}
 		</script>
@@ -421,7 +428,7 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 									<fieldset style="float:left;margin:10px;width:150px;">
 										<legend><b>Label Format</b></legend>
 										<input type="radio" id="labelformat1" name="labelformat" value="1" /> 1 columns per page<br/>
-										<input type="radio" id="labelformat2" name="labelformat" value="2" checked /> 2 columns per page<br/>
+										<input type="radio" id="labelformat2" name="labelformat" value="2" /> 2 columns per page<br/>
 										<input type="radio" id="labelformat3" name="labelformat" value="3" /> 3 columns per page<br/>
 										<input id="packetradio" type="radio" name="labelformat" value="packet" /> packet labels<br/>
 									</fieldset>

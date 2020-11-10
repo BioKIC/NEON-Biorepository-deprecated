@@ -120,14 +120,15 @@ if(!$charValue)	include($SERVER_ROOT.'/includes/header.php');
 				echo '<div><a href="#" onclick="toggleAll();return false;">open/close all</a></div>';
 				$count = 0;
 				foreach($cList as $heading => $charArray){
+					$headingID = str_replace(array(' ','&'),'_',$heading);
 					if(!$charValue){
 						echo '<fieldset>';
 						echo '<legend style="font-weight:bold;font-size:120%;color:#990000;">';
-						echo '<span id="minus-'.$heading.'" onclick="toggle(\''.$heading.'\')" style="display:none;"><img src="../../images/minus_sm.png"></span> ';
-						echo '<span id="plus-'.$heading.'" onclick="toggle(\''.$heading.'\')"><img src="../../images/plus_sm.png"></span> ';
+						echo '<span id="minus-'.$headingID.'" onclick="toggle(\''.$headingID.'\')" style="display:none;"><img src="../../images/minus_sm.png"></span> ';
+						echo '<span id="plus-'.$headingID.'" onclick="toggle(\''.$headingID.'\')"><img src="../../images/plus_sm.png"></span> ';
 						echo $heading.'</legend>';
 					}
-					echo '<div class="headingDiv" id="'.$heading.'" style="text-indent:1em;">';
+					echo '<div class="headingDiv" id="'.$headingID.'" style="text-indent:1em;">';
 					foreach($charArray as $cidKey => $charNameStr){
 						if(!$charValue || $charValue == $cidKey){
 							echo "<div id='chardiv".$cidKey."' style='display:".(array_key_exists($cidKey,$depArr)?"hidden":"block").";'>";

@@ -34,7 +34,7 @@ $cloudHandler->buildWordFile($collTarget);
 			<?php
 			$cloudPath = $CLIENT_ROOT;
 			if(substr($cloudPath,-1) != '/' && substr($cloudPath,-1) != "\\") $cloudPath .= '/';
-			$cloudPath = 'temp/wordclouds/ocrcloud'.$collTarget.'.html';
+			$cloudPath = 'content/collections/wordclouds/ocrcloud'.$collTarget.'.html';
 			echo '<a href="'.$cloudPath.'">Cloud'.$collTarget.'</a>';
 			?>
 		</div>

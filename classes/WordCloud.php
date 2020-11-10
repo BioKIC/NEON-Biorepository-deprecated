@@ -2,14 +2,14 @@
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 
 class WordCloud{
-	
+
 	private $conn;
 	private $frequencyArr = array();
-	private $commonWordArr = array(); 
-	
+	private $commonWordArr = array();
+
 	//custom parameters
 	private $displayedWordCount;
-	private $tagUrl; 
+	private $tagUrl;
 	private $backgroundImage;
 	private $backgroundColor;
 	private $cloudWidth;
@@ -18,11 +18,11 @@ class WordCloud{
 
 	public function __construct(){
 		$this->conn = MySQLiConnectionFactory::getCon("readonly");
-		
+
 		$this->displayedWordCount = 100;
 		if($GLOBALS['charset'] == 'ISO-8859-1') $this->supportUtf8 = false;
 		$this->tagUrl = "http://www.google.com/search?hl=en&q=";
-		
+
 		$this->backgroundColor = "#000";
 		$this->wordColors[0] = "#5122CC";
 		$this->wordColors[1] = "#229926";
@@ -34,7 +34,7 @@ class WordCloud{
 		$this->wordColors[7] = "#B23B3B";
 		$this->wordColors[8] = "#229938";
 		$this->wordColors[9] = "#419922";
-		
+
 		$commonWordStr = "a,able,about,across,after,all,almost,also,am,among,an,and,any,are,arent," .
 			"as,at,be,because,been,but,by,can,cant,cannot,could,couldve,couldnt,dear,did,didnt,do,does,doesnt," .
 			"dont,either,else,ever,every,for,from,get,got,had,has,hasnt,have,he,her,him,his,how,however," .
@@ -55,7 +55,7 @@ class WordCloud{
 		$sqlFrag = 'FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
 			'INNER JOIN specprocessorrawlabels r ON i.imgid = r.imgid ';
 		if($csMode){
-			$sqlFrag .= 'INNER JOIN omcrowdsourcequeue q ON o.occid = q.occid '; 
+			$sqlFrag .= 'INNER JOIN omcrowdsourcequeue q ON o.occid = q.occid ';
 		}
 		$sqlColl = 'SELECT DISTINCT c.collid, c.collectionname '.$sqlFrag.
 			'INNER JOIN omcollections c ON c.collid = o.collid ';
@@ -87,8 +87,8 @@ class WordCloud{
 			echo $cloudStr.'<br/><br/>';
 			//Write word out to text file
 			$wcPath = $GLOBALS['serverRoot'];
-			if(substr($wcPath,-1) != '/' && substr($wcPath,-1) != "\\") $wcPath .= '/'; 
-			$wcPath .= 'temp/wordclouds/ocrcloud'.$collid.'.html';
+			if(substr($wcPath,-1) != '/' && substr($wcPath,-1) != "\\") $wcPath .= '/';
+			$wcPath .= 'content/collections/wordclouds/ocrcloud'.$collid.'.html';
 			if(file_exists($wcPath)){
 				$wcFH = fopen($wcPath, 'a');
 			    if(!$wcFH = fopen($wcPath, 'a')) {
@@ -124,9 +124,9 @@ class WordCloud{
 		$seedText = preg_replace('/\s+/',' ',$seedText);
 		$seedText = trim($seedText);
 
-		//Remove common words 
+		//Remove common words
 		$wordArr = array_diff(explode(" ", $seedText),$this->commonWordArr);
-		
+
 		foreach ($wordArr as $key => $value){
 			$this->addTag($value);
 		}
@@ -150,24 +150,24 @@ class WordCloud{
 		if($this->frequencyArr){
 			arsort($this->frequencyArr);
 			$topTags = array_slice($this->frequencyArr, 0, $this->displayedWordCount);
-			
+
 			/* randomize the order of elements */
 			uasort($topTags, 'randomSort');
-			
+
 			$maxCount = max($this->frequencyArr);
 			foreach ($topTags as $tag => $useCount){
 				$grade = $this->gradeFrequency(($useCount * 100) / $maxCount);
 				$retStr .= ('<a href="'. $this->tagUrl.urlencode($tag).'" title="More info on '.
 					$tag.'" style="color:'.$this->wordColors[$grade].';">'.
 					'<span style="color:'.$this->wordColors[$grade].'; letter-spacing:3px; '.
-					'padding:4px; font-family:Tahoma; font-weight:900; font-size:'. 
+					'padding:4px; font-family:Tahoma; font-weight:900; font-size:'.
 					(0.6 + 0.1 * $grade).'em">'.$tag.'</span></a> ');
 			}
 			$retStr .= '</div></div><br />';
 		}
 		return $retStr;
 	}
-	
+
 	private function gradeFrequency($frequency){
 		$grade = 0;
 		if ($frequency >= 90)
@@ -188,15 +188,15 @@ class WordCloud{
 			$grade = 2;
 		else if ($frequency >= 5)
 			$grade = 1;
-		 
+
 		return $grade;
 	}
-	
+
 	//Setters and getters
 	public function setDisplayedWordCount($cnt){
 		$this->displayedWordCount = $cnt;
 	}
-	
+
 	public function setSearchURL($searchURL){
 		$this->tagUrl = $searchURL;
 	}

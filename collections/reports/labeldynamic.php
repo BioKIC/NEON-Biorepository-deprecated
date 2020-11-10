@@ -7,12 +7,15 @@ $hPrefix = $_POST['lhprefix'];
 $hMid = $_POST['lhmid'];
 $hSuffix = $_POST['lhsuffix'];
 $lFooter = $_POST['lfooter'];
-$labelFormat = $_POST['labelformat'];
-$labelFormatIndex = $_POST['labelformatindex'];
+$columnCount = $_POST['columncount'];
+$labelIndexGlobal = (isset($_POST['labelformatindex-g'])?$_POST['labelformatindex-g']:'');
+$labelIndexColl = (isset($_POST['labelformatindex-c'])?$_POST['labelformatindex-c']:'');
+$labelIndexUser = (isset($_POST['labelformatindex-u'])?$_POST['labelformatindex-u']:'');
 $showcatalognumbers = ((array_key_exists('catalognumbers',$_POST) && $_POST['catalognumbers'])?1:0);
 $useBarcode = array_key_exists('bc',$_POST)?$_POST['bc']:0;
 $useSymbBarcode = array_key_exists('symbbc',$_POST)?$_POST['symbbc']:0;
 $barcodeOnly = array_key_exists('bconly',$_POST)?$_POST['bconly']:0;
+$includeSpeciesAuthor = ((array_key_exists('speciesauthors',$_POST) && $_POST['speciesauthors'])?1:0);
 $outputType = array_key_exists('outputtype',$_POST)?$_POST['outputtype']:'html';
 $action = array_key_exists('submitaction',$_POST)?$_POST['submitaction']:'';
 
@@ -21,12 +24,15 @@ $hPrefix = filter_var($hPrefix, FILTER_SANITIZE_STRING);
 $hMid = filter_var($hMid, FILTER_SANITIZE_STRING);
 $hSuffix = filter_var($hSuffix, FILTER_SANITIZE_STRING);
 $lFooter = filter_var($lFooter, FILTER_SANITIZE_STRING);
-if(!is_numeric($labelFormatIndex)) $labelFormatIndex = '';
-if(!is_numeric($labelFormat) && $labelFormat != 'packet') $labelFormat = 3;
+if(!is_numeric($labelIndexGlobal)) $labelIndexGlobal = '';
+if(!is_numeric($labelIndexColl)) $labelIndexColl = '';
+if(!is_numeric($labelIndexUser)) $labelIndexUser = '';
+if(!is_numeric($columnCount) && $columnCount != 'packet') $columnCount = 2;
 if(!is_numeric($showcatalognumbers)) $showcatalognumbers = 0;
 if(!is_numeric($useBarcode)) $useBarcode = 0;
 if(!is_numeric($useSymbBarcode)) $useSymbBarcode = 0;
 if(!is_numeric($barcodeOnly)) $barcodeOnly = 0;
+if(!is_numeric($includeSpeciesAuthor)) $includeSpeciesAuthor = 0;
 
 $labelManager = new OccurrenceLabel();
 $labelManager->setCollid($collid);
@@ -45,121 +51,10 @@ else{
 	header("Content-Type: text/html; charset=".$CHARSET);
 }
 
-$targetLabelFormatArr = $labelManager->getLabelFormatArr($labelFormatIndex);
-if(!$targetLabelFormatArr){
-	$labelFormatJson =
-		'{"labelFormats": [
-			{
-				"name":"Default Herbarium Label",
-				"displaySpeciesAuthor":1,
-				"displayCatNum":0,
-				"displayBarcode":0,
-				"labelFormat":"1",
-				"defaultStyles":"font-style:time roman;font-size:10pt",
-				"defaultCss":"",
-				"labelHeader":{
-					"hPrefix":"Flora of ",
-					"hMidCol":3,
-					"hSuffix":" county",
-					"style":"text-align:center;margin-bottom:10px;font:bold 14pt arial,sans-serif;clear:both;"
-				},
-				"labelFooter":{
-					"textValue":"",
-					"style":"text-align:center;margin-top:10px;font:bold 10pt arial,sans-serif;clear:both;"
-				},
-				"labelBlocks":[
-					{"divElem":{"className":"labelBlockDiv","blocks":[
-						{"divElem":{"className":"taxonomyDiv","style":"margin-top:5px;font-size:11pt;","blocks":[
-							{"fields":[
-								{"field":"identificationqualifier"},
-								{"field":"speciesname","style":"font-weight:bold;font-style:italic"},
-								{"field":"parentauthor"},
-								{"field":"taxonrank","style":"font-weight:bold"},
-								{"field":"infraspecificepithet","style":"font-weight:bold;font-style:italic"},
-								{"field":"scientificnameauthorship"}
-								],"delimiter":" "
-							},
-							{"fields":[{"field":"family","styles":["float:right"]}]}
-						]}},
-						{"fields":[{"field":"identifiedby","prefix":"Det by: "},{"field":"dateidentified"}]},
-						{"fields":[{"field":"identificationreferences"}]},
-						{"fields":[{"field":"identificationremarks"}]},
-						{"fields":[{"field":"taxonremarks"}]},
-						{"divElem":{"className":"localDiv","style":"margin-top:10px;font-size:11pt","blocks":[
-							{"fields":[{"field":"country","style":"font-weight:bold"},{"field":"stateprovince","style":"font-weight:bold"},{"field":"county"},{"field":"municipality"},{"field":"locality"}],"delimiter":", "}
-						]}},
-						{"fields":[{"field":"verbatimcoordinates"}]},
-						{"fields":[{"field":"decimallatitude"},{"field":"decimallongitude","style":"margin-left:10px"},{"field":"coordinateuncertaintyinmeters","prefix":"+-","suffix":" meters","style":"margin-left:10px"},{"field":"geodeticdatum","prefix":"[","suffix":"]","style":"margin-left:10px"}]},
-						{"fields":[{"field":"elevationinmeters","prefix":"Elev: ","suffix":"m. "},{"field":"verbatimelevation"}]},
-						{"fields":[{"field":"habitat","suffix":"."}]},
-						{"fields":[{"field":"substrate","suffix":"."}]},
-						{"fields":[{"field":"verbatimattributes"},{"field":"establishmentmeans"}],"delimiter":"; "},
-						{"fields":[{"field":"associatedtaxa","prefix":"Associated species: ","style":"font-style:italic"}]},
-						{"fields":[{"field":"occurrenceremarks"}]},
-						{"fields":[{"field":"typestatus"}]},
-						{"divElem":{"className":"collectorDiv","style":"margin-top:10px;","blocks":[
-							{"fields":[{"field":"recordedby","style":"float:left"},{"field":"recordnumber","style":"float:left;margin-left:10px"},{"field":"eventdate","style":"float:right"}]},
-							{"fields":[{"field":"associatedcollectors","prefix":"with: "}],"style":"clear:both; margin-left:10px;"}
-						]}}
-					]}}
-				]
-			},
-			{
-				"name":"Bird Dry Specimen",
-				"displaySpeciesAuthor":0,
-				"displayCatNum":0,
-				"displayBarcode":0,
-				"labelFormat":"2",
-				"defaultStyles":"font-style:time roman;font-size:8pt",
-				"defaultCss":"",
-				"labelHeader":{
-					"hPrefix":"Arizona State University Ornithology Collection",
-					"hMidCol":0,
-					"hSuffix":"",
-					"style":"text-align:center;margin-bottom:5px;font:bold 7pt arial,sans-serif;clear:both;"
-				},
-				"labelFooter":{
-					"textValue":"",
-					"style":"text-align:center;margin-top:10px;font:bold 10pt arial,sans-serif;clear:both;"
-				},
-				"labelBlocks":[
-					{"divElem":{"className":"labelBlockDiv","blocks":[
-						{"fields":[{"field":"family","styles":["margin-bottom:2px;font-size:pt"]}]},
-						{"divElem":{"className":"taxonomyDiv","style":"font-size:10pt;","blocks":[
-							{"fields":[
-								{"field":"identificationqualifier"},
-								{"field":"speciesname","style":"font-weight:bold;font-style:italic"},
-								{"field":"parentauthor"},
-								{"field":"taxonrank","style":"font-weight:bold"},
-								{"field":"infraspecificepithet","style":"font-weight:bold;font-style:italic"},
-								{"field":"scientificnameauthorship"}
-								],"delimiter":" "
-							}
-						]}},
-						{"fields":[{"field":"identifiedby","prefix":"Det by: "},{"field":"dateidentified"}]},
-						{"fields":[{"field":"identificationreferences"}]},
-						{"fields":[{"field":"identificationremarks"}]},
-						{"fields":[{"field":"taxonremarks"}]},
-						{"fields":[{"field":"catalognumber","style":"font-weight:bold;font-size:14pt;margin:5pt 0pt;"}]},
-						{"divElem":{"className":"localDiv","style":"margin-top:3px;padding-top:3px;border-top:3px solid black","blocks":[
-							{"fields":[{"field":"country"},{"field":"stateprovince","prefix":", "},{"field":"county","prefix":", "},{"field":"municipality","prefix":", "},{"field":"locality","prefix":": "},{"field":"decimallatitude","prefix":": ","suffix":"° N"},{"field":"decimallongitude","prefix":" ","suffix":"° W"},{"field":"coordinateuncertaintyinmeters","prefix":" +-","suffix":" meters","style":"margin-left:10px"},{"field":"elevationinmeters","prefix":", ","suffix":"m."}]}
-						]}},
-						{"divElem":{"className":"collectorDiv","style":"margin-top:10px;font-size:6pt;clear:both;","blocks":[
-							{"fields":[{"field":"recordedby","style":"float:left;","prefix":"Coll.: "},{"field":"preparations","style":"float:right","prefix":"Prep.: "}]}
-						]}},
-						{"divElem":{"className":"collectorDiv","style":"margin-top:10px;font-size:6pt;clear:both;","blocks":[
-							{"fields":[{"field":"recordnumber","style":"float:left;","prefix":"Coll. No: "},{"field":"eventdate","style":"float:right","prefix":"Date: "}]}
-						]}}
-					]}}
-				]
-			}
-		]}';
-	$labelFormatArr = json_decode($labelFormatJson,true);
-	$targetLabelFormatArr = $labelFormatArr['labelFormats'][0];
-}
-
-$columnCount = 1;
-if(is_numeric($labelFormat)) $columnCount = $labelFormat;
+$targetLabelFormatArr = false;
+if(is_numeric($labelIndexGlobal)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('global',$labelIndexGlobal);
+elseif(is_numeric($labelIndexColl)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('coll',$labelIndexGlobal);
+elseif(is_numeric($labelIndexUser)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('user',$labelIndexGlobal);
 
 $isEditor = 0;
 if($SYMB_UID){
@@ -177,12 +72,7 @@ if($SYMB_UID){
 			?>
 			.labelDiv { float:left; page-break-before:auto; page-break-inside:avoid; }
 			<?php
-			if($columnCount != 1){
-				?>
-				.labelDiv { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
-				<?php
-			}
-			if($labelFormat == 'packet'){
+			if($columnCount == 'packet'){
 				?>
 				.foldMarks1 { clear:both;padding-top:285px; }
 				.foldMarks1 span { margin-left:77px; margin-right:80px; }
@@ -206,6 +96,11 @@ if($SYMB_UID){
 				.family { display:none }
 				<?php
 			}
+			elseif($columnCount != 1){
+				?>
+				.labelDiv { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
+				<?php
+			}
 			?>
 			.cnBarcodeDiv { clear:both; padding-top:15px; }
 			.catalogNumber { clear:both; text-align:center; }
@@ -217,7 +112,6 @@ if($SYMB_UID){
 		<div class="bodyDiv">
 			<?php
 			if($targetLabelFormatArr && $isEditor){
-				$includeSpeciesAuthor = ((array_key_exists('speciesauthors',$_POST) && $_POST['speciesauthors'])?1:0);
 				$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
 				$labelCnt = 0;
 				$rowCnt = 0;
@@ -251,11 +145,11 @@ if($SYMB_UID){
 						$dupCnt = $_POST['q-'.$occid];
 						for($i = 0;$i < $dupCnt;$i++){
 							$labelCnt++;
-							if($labelFormat == 'packet'){
+							if($columnCount == 'packet'){
 								echo '<div class="foldMarks1"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
 								echo '<div class="foldMarks2"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
 							}
-							if($labelCnt%$columnCount == 1){
+							elseif($labelCnt%$columnCount == 1){
 								if($labelCnt > 1) echo '</div>';
 								echo '<div class="pageDiv">';
 								$rowCnt++;
@@ -323,7 +217,7 @@ if($SYMB_UID){
 			}
 			else{
 				echo '<div style="font-weight:bold;text-size: 120%">';
-				if($labelFormatArr) echo 'ERROR: Unable to parse JSON that defines the label format profile ';
+				if($targetLabelFormatArr) echo 'ERROR: Unable to parse JSON that defines the label format profile ';
 				else 'ERROR: Permissions issue';
 				echo '</div>';
 			}

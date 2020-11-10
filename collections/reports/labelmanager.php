@@ -133,26 +133,29 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 				}
 			}
 
-			function labelFormatChanged(selObj){
+			function labelFormatChanged(selObj,catStr){
 				if(selObj && labelFormatObj){
 					var labelIndex = selObj.value;
 					var f = document.selectform;
 
-					f.lhprefix.value = labelFormatObj[labelIndex].labelHeader.hPrefix;
-					var midIndex = labelFormatObj[labelIndex].labelHeader.hMidCol;
+					f.lhprefix.value = labelFormatObj[catStr][labelIndex].labelHeader.hPrefix;
+					var midIndex = labelFormatObj[catStr][labelIndex].labelHeader.hMidCol;
 					document.getElementById("lhmid"+midIndex).checked = true;
-					f.lhsuffix.value = labelFormatObj[labelIndex].labelHeader.hSuffix;
-					f.lfooter.value = labelFormatObj[labelIndex].labelFooter.textValue;
-					if(labelFormatObj[labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
+					f.lhsuffix.value = labelFormatObj[catStr][labelIndex].labelHeader.hSuffix;
+					f.lfooter.value = labelFormatObj[catStr][labelIndex].labelFooter.textValue;
+					if(labelFormatObj[catStr][labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
 					else f.speciesauthors.checked = false;
 					if(f.bc){
-						if(labelFormatObj[labelIndex].displayBarcode == 1) f.bc.checked = true;
+						if(labelFormatObj[catStr][labelIndex].displayBarcode == 1) f.bc.checked = true;
 						else f.bc.checked = false;
 					}
-					if(labelFormatObj[labelIndex].displayCatNum == 1) f.catalognumbers.checked = true;
+					if(labelFormatObj[catStr][labelIndex].displayCatNum == 1) f.catalognumbers.checked = true;
 					else f.catalognumbers.checked = true;
-					var labelFormatIndex = labelFormatObj[labelIndex].labelFormat;
-					document.getElementById("labelformat"+labelFormatIndex).checked = true;
+					var columnCountIndex = labelFormatObj[catStr][labelIndex].columnCount;
+					if(document.getElementById("columncount"+columnCountIndex)) document.getElementById("columncount"+columnCountIndex).checked = true;
+					if(catStr != 'g' && f["labelformatindex-g"]) f["labelformatindex-g"].value = "";
+					if(catStr != 'c' && f["labelformatindex-c"]) f["labelformatindex-c"].value = "";
+					if(catStr != 'u' && f["labelformatindex-u"]) f["labelformatindex-u"].value = "";
 				}
 			}
 		</script>
@@ -348,15 +351,26 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 											<div class="fieldDiv">
 												<div class="fieldLabel">Predefined Label Format:</div>
 												<div class="fieldElement">
-													<select name="labelformatindex" onchange="labelFormatChanged(this)">
-														<option value="">Select Label Profile</option>
-														<option value="">---------------------------------------</option>
-														<?php
-														foreach($labelFormatArr as $k => $labelArr){
-															echo '<option value="'.$k.'">'.$labelArr['name'].'</option>';
-														}
+													<?php
+													foreach($labelFormatArr as $cat => $catArr){
+														$catStr = 'Portal defined profiles';
+														if($cat == 'c') $catStr = 'Collection defined profiles';
+														if($cat == 'u') $catStr = 'User defined profiles';
 														?>
-													</select>
+														<div>
+															<select name="labelformatindex<?php echo '-'.$cat; ?>" onchange="labelFormatChanged(this,'<?php echo $cat; ?>')">
+																<option value=""><?php echo $catStr; ?></option>
+																<option value="">=========================================</option>
+																<?php
+																foreach($catArr as $k => $labelArr){
+																	echo '<option value="'.$k.'">'.$labelArr['name'].'</option>';
+																}
+																?>
+															</select>
+														</div>
+														<?php
+													}
+													?>
 												</div>
 											</div>
 											<?php
@@ -417,12 +431,12 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 									}
 									?>
 									<div style="float:left;">
-										<fieldset style="margin:10px;width:150px;">
+										<fieldset style="margin:10px;width:225px;">
 											<legend><b>Label Format</b></legend>
-											<input type="radio" id="labelformat1" name="labelformat" value="1" /> 1 columns per page<br/>
-											<input type="radio" id="labelformat2" name="labelformat" value="2" /> 2 columns per page<br/>
-											<input type="radio" id="labelformat3" name="labelformat" value="3" /> 3 columns per page<br/>
-											<input id="packetradio" type="radio" name="labelformat" value="packet" /> packet labels<br/>
+											<input type="radio" id="columncount1" name="columncount" value="1" /> 1 columns per page<br/>
+											<input type="radio" id="columncount2" name="columncount" value="2" /> 2 columns per page<br/>
+											<input type="radio" id="columncount3" name="columncount" value="3" /> 3 columns per page<br/>
+											<input id="packetradio" type="radio" name="columncount" value="packet" /> packet labels<br/>
 										</fieldset>
 									</div>
 									<div style="float:left;margin: 15px 50px;">

@@ -107,6 +107,12 @@ if($SYMB_UID){
 			.otherCatalogNumbers { clear:both; text-align:center; }
 			.symbBarcode { padding-top:10px; }
 		</style>
+		<?php
+		if(isset($targetLabelFormatArr['defaultCss']) && $targetLabelFormatArr['defaultCss']){
+			$cssPath = $CLIENT_ROOT.$targetLabelFormatArr['defaultCss'];
+			if(file_exists($cssPath)) echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet">';
+		}
+		?>
 	</head>
 	<body style="background-color:#ffffff;">
 		<div class="bodyDiv">

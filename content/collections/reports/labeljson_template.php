@@ -4,7 +4,6 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 	{
 		"name":"Generic Herbarium Label",
 		"displaySpeciesAuthor":1,
-		"displayCatNum":0,
 		"displayBarcode":0,
 		"columnCount":"2",
 		"defaultStyles":"font-style:time roman;font-size:10pt",
@@ -59,7 +58,6 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 	{
 		"name":"Generic Vertebrate Label",
 		"displaySpeciesAuthor":0,
-		"displayCatNum":0,
 		"displayBarcode":0,
 		"columnCount":"3",
 		"defaultStyles":"font-style:time roman;font-size:8pt",

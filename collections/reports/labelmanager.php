@@ -149,8 +149,6 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 						if(labelFormatObj[catStr][labelIndex].displayBarcode == 1) f.bc.checked = true;
 						else f.bc.checked = false;
 					}
-					if(labelFormatObj[catStr][labelIndex].displayCatNum == 1) f.catalognumbers.checked = true;
-					else f.catalognumbers.checked = true;
 					var columnCountIndex = labelFormatObj[catStr][labelIndex].columnCount;
 					if(document.getElementById("columncount"+columnCountIndex)) document.getElementById("columncount"+columnCountIndex).checked = true;
 					if(catStr != 'g' && f["labelformatindex-g"]) f["labelformatindex-g"].value = "";
@@ -419,10 +417,12 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 											<input type="checkbox" name="bc" value="1" onclick="checkBarcodeCheck(this.form);" />
 											<span class="checkboxLabel">Include barcode of Catalog Number</span>
 										</div>
+										<!--
 										<div class="fieldDiv">
 											<input type="checkbox" name="symbbc" value="1" onclick="checkBarcodeCheck(this.form);" />
 											<span class="checkboxLabel">Include barcode of Symbiota Identifier</span>
 										</div>
+										 -->
 										<div class="fieldDiv">
 											<input type="checkbox" name="bconly" value="1" onclick="checkPrintOnlyCheck(this.form);" />
 											<span class="checkboxLabel">Print only Barcode</span>

@@ -263,7 +263,10 @@ DROP TABLE `omcollectioncontacts`;
 
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;
-  
+
+ALTER TABLE `users` 
+  ADD COLUMN `dynamicProperties` TEXT NULL AFTER `usergroups`;
+
 ALTER TABLE `userroles` 
   ADD UNIQUE INDEX `Unique_userroles` (`uid` ASC, `role` ASC, `tablename` ASC, `tablepk` ASC);
 

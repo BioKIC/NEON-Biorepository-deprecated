@@ -106,9 +106,19 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 				return false;
 			}
 
-			function changeFormExport(action,target){
-				var f = document.selectform;
-				if(action == "labelsword.php" && document.getElementById('packetradio').checked == true){
+			function changeFormExport(buttonElem, action, target){
+				var f = buttonElem.form;
+				if(action == "labeldynamic.php" && buttonElem.value == "Print in Browser"){
+					labelFormatSelected = false;
+					if(f["labelformatindex-g"] && f["labelformatindex-g"].value != "") labelFormatSelected = true;
+					if(f["labelformatindex-c"] && f["labelformatindex-c"].value != "") labelFormatSelected = true;
+					if(f["labelformatindex-u"] && f["labelformatindex-u"].value != "") labelFormatSelected = true;
+					if(!labelFormatSelected){
+						alert("Please select a Label Format Profile");
+						return false;
+					}
+				}
+				else if(action == "labelsword.php" && f.packetradio.checked == true){
 					alert("Packet labels are not yet available as a Word document");
 					return false;
 				}
@@ -133,26 +143,27 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 				}
 			}
 
-			function labelFormatChanged(selObj){
+			function labelFormatChanged(selObj,catStr){
 				if(selObj && labelFormatObj){
 					var labelIndex = selObj.value;
 					var f = document.selectform;
 
-					f.lhprefix.value = labelFormatObj[labelIndex].labelHeader.hPrefix;
-					var midIndex = labelFormatObj[labelIndex].labelHeader.hMidCol;
+					f.lhprefix.value = labelFormatObj[catStr][labelIndex].labelHeader.hPrefix;
+					var midIndex = labelFormatObj[catStr][labelIndex].labelHeader.hMidCol;
 					document.getElementById("lhmid"+midIndex).checked = true;
-					f.lhsuffix.value = labelFormatObj[labelIndex].labelHeader.hSuffix;
-					f.lfooter.value = labelFormatObj[labelIndex].labelFooter.textValue;
-					if(labelFormatObj[labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
+					f.lhsuffix.value = labelFormatObj[catStr][labelIndex].labelHeader.hSuffix;
+					f.lfooter.value = labelFormatObj[catStr][labelIndex].labelFooter.textValue;
+					if(labelFormatObj[catStr][labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
 					else f.speciesauthors.checked = false;
 					if(f.bc){
-						if(labelFormatObj[labelIndex].displayBarcode == 1) f.bc.checked = true;
+						if(labelFormatObj[catStr][labelIndex].displayBarcode == 1) f.bc.checked = true;
 						else f.bc.checked = false;
 					}
-					if(labelFormatObj[labelIndex].displayCatNum == 1) f.catalognumbers.checked = true;
-					else f.catalognumbers.checked = true;
-					var labelFormatIndex = labelFormatObj[labelIndex].labelFormat;
-					document.getElementById("labelformat"+labelFormatIndex).checked = true;
+					var columnCountIndex = labelFormatObj[catStr][labelIndex].columnCount;
+					if(document.getElementById("columncount"+columnCountIndex)) document.getElementById("columncount"+columnCountIndex).checked = true;
+					if(catStr != 'g' && f["labelformatindex-g"]) f["labelformatindex-g"].value = "";
+					if(catStr != 'c' && f["labelformatindex-c"]) f["labelformatindex-c"].value = "";
+					if(catStr != 'u' && f["labelformatindex-u"]) f["labelformatindex-u"].value = "";
 				}
 			}
 		</script>
@@ -342,26 +353,31 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 								</table>
 								<fieldset style="margin-top:15px;">
 									<legend>Label Printing</legend>
-										<?php
-										if($labelFormatArr){
-											?>
-											<div class="fieldDiv">
-												<div class="fieldLabel">Predefined Label Format:</div>
-												<div class="fieldElement">
-													<select name="labelformatindex" onchange="labelFormatChanged(this)">
-														<option value="">Select Label Profile</option>
-														<option value="">---------------------------------------</option>
-														<?php
-														foreach($labelFormatArr as $k => $labelArr){
-															echo '<option value="'.$k.'">'.$labelArr['name'].'</option>';
-														}
-														?>
-													</select>
-												</div>
+										<div class="fieldDiv">
+											<div class="fieldLabel">Label Format Profiles:</div>
+											<div class="fieldElement">
+												<?php
+												foreach($labelFormatArr as $cat => $catArr){
+													$catStr = 'Portal defined profiles';
+													if($cat == 'c') $catStr = 'Collection defined profiles';
+													if($cat == 'u') $catStr = 'User defined profiles';
+													?>
+													<div>
+														<select name="labelformatindex<?php echo '-'.$cat; ?>" onchange="labelFormatChanged(this,'<?php echo $cat; ?>')">
+															<option value=""><?php echo $catStr; ?></option>
+															<option value="">=========================================</option>
+															<?php
+															foreach($catArr as $k => $labelArr){
+																echo '<option value="'.$k.'">'.$labelArr['name'].'</option>';
+															}
+															?>
+														</select>
+													</div>
+													<?php
+												}
+												?>
 											</div>
-											<?php
-										}
-										?>
+										</div>
 									<div class="fieldDiv">
 										<div class="fieldLabel">Heading Prefix:</div>
 										<div class="fieldElement">
@@ -375,7 +391,7 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 											<input type="radio" id="lhmid2" name="lhmid" value="2" />State
 											<input type="radio" id="lhmid3" name="lhmid" value="3" />County
 											<input type="radio" id="lhmid4" name="lhmid" value="4" />Family
-											<input type="radio" id="lhmid0" name="lhmid" value="0" />Blank
+											<input type="radio" id="lhmid0" name="lhmid" value="0" checked/>Blank
 										</div>
 									</div>
 									<div class="fieldDiv">
@@ -405,10 +421,12 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 											<input type="checkbox" name="bc" value="1" onclick="checkBarcodeCheck(this.form);" />
 											<span class="checkboxLabel">Include barcode of Catalog Number</span>
 										</div>
+										<!--
 										<div class="fieldDiv">
 											<input type="checkbox" name="symbbc" value="1" onclick="checkBarcodeCheck(this.form);" />
 											<span class="checkboxLabel">Include barcode of Symbiota Identifier</span>
 										</div>
+										 -->
 										<div class="fieldDiv">
 											<input type="checkbox" name="bconly" value="1" onclick="checkPrintOnlyCheck(this.form);" />
 											<span class="checkboxLabel">Print only Barcode</span>
@@ -417,28 +435,42 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 									}
 									?>
 									<div style="float:left;">
-										<fieldset style="margin:10px;width:150px;">
-											<legend><b>Label Format</b></legend>
-											<input type="radio" id="labelformat1" name="labelformat" value="1" /> 1 columns per page<br/>
-											<input type="radio" id="labelformat2" name="labelformat" value="2" /> 2 columns per page<br/>
-											<input type="radio" id="labelformat3" name="labelformat" value="3" /> 3 columns per page<br/>
-											<input id="packetradio" type="radio" name="labelformat" value="packet" /> packet labels<br/>
+										<fieldset style="margin:10px;width:225px;">
+											<legend><b>Column Count</b></legend>
+											<input type="radio" id="columncount1" name="columncount" value="1" /> 1 columns per page<br/>
+											<input type="radio" id="columncount2" name="columncount" value="2" checked /> 2 columns per page<br/>
+											<input type="radio" id="columncount3" name="columncount" value="3" /> 3 columns per page<br/>
+											<input id="packetradio" type="radio" name="columncount" value="packet" /> packet labels<br/>
 										</fieldset>
 									</div>
 									<div style="float:left;margin: 15px 50px;">
 										<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-										<input type="submit" name="submitaction" onclick="changeFormExport('labeldynamic.php','_blank');" value="Print in Browser" />
-										<br/><br/>
-										<input type="submit" name="submitaction" onclick="changeFormExport('labeldynamic.php','_self');" value="Export to CSV" />
+										<div style="margin:10px">
+											<input type="submit" name="submitaction" onclick="return changeFormExport(this,'labeldynamic.php','_blank');" value="Print in Browser" <?php echo ($labelFormatArr?'':'DISABLED title="Browser based label printing has not been activated within the portal. Contact Portal Manager to activate this feature."'); ?> />
+										</div>
+										<div style="margin:10px">
+											<input type="submit" name="submitaction" onclick="return changeFormExport(this,'labeldynamic.php','_self');" value="Export to CSV" />
+										</div>
 										<?php
 										if($reportsWritable){
 											?>
-											<br/><br/>
-											<input type="submit" name="submitaction" onclick="return changeFormExport('labelsword.php','_self');" value="Export to DOCX" />
+											<div style="margin:10px">
+												<input type="submit" name="submitaction" onclick="return changeFormExport(this,'labelsword.php','_self');" value="Export to DOCX" />
+											</div>
 											<?php
 										}
 										?>
 									</div>
+										<?php
+										if($reportsWritable){
+											?>
+											<div style="clear:both;padding:10px 0px">
+												Note: Output of variable Label Formats as a Word document is not yet supported<br/>A possible work around is to print labels as PDF and
+												then convert to a Word doc using Adobe tools.<br/>Another alternatively, is to output the data as CSV and then setup a Mail Merge Word document.
+											</div>
+											<?php
+										}
+										?>
 								</fieldset>
 							</form>
 							<?php

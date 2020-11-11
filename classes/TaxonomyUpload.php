@@ -981,7 +981,7 @@ class TaxonomyUpload{
 
 	public function getKingdomArr(){
 		$retArr = array();
-		$rs = $this->conn->query('SELECT tid, sciname FROM taxa WHERE rankid = 10');
+		$rs = $this->conn->query('SELECT tid, sciname FROM taxa WHERE rankid = 10 ORDER BY sciname');
 		while($r = $rs->fetch_object()){
 			$retArr[$r->tid] = $r->sciname;
 		}

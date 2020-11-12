@@ -109,7 +109,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"displayBarcode":0,
 		"columnCount":"3",
 		"defaultStyles":"font-style:arial, helvetica, sans-serif;font-size:3.5pt",
-		"defaultCss":"content/collections/reports/insect_labels.css",
+		"defaultCss":"/content/collections/reports/insect_labels.css",
 		"labelHeader":{
 			"hPrefix":"",
 			"hMidCol":0,
@@ -142,7 +142,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"displayBarcode":0,
 		"columnCount":"3",
 		"defaultStyles":"font-style:arial, helvetica, sans-serif;font-size:3.5pt",
-		"defaultCss":"content/collections/reports/insect_labels.css",
+		"defaultCss":"/content/collections/reports/insect_labels.css",
 		"labelHeader":{
 			"hPrefix":"",
 			"hMidCol":0,

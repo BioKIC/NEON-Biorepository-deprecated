@@ -107,7 +107,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"name":"Generic Pinned Insect Label",
 		"displaySpeciesAuthor":0,
 		"displayBarcode":0,
-		"columnCount":"3",
+		"columnCount":"8",
 		"defaultStyles":"font-style:arial, helvetica, sans-serif;font-size:3.5pt",
 		"defaultCss":"",
 		"labelHeader":{
@@ -116,9 +116,10 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		},
 		"labelBlocks":[
 				{"fieldBlock":[{"field":"country"},{"field":"stateprovince","prefix":": "},{"field":"county","prefix":", "}]},
-				{"fieldBlock":[{"field":"locality"},{"field":"decimallatitude","prefix":" ","suffix":"°"},{"field":"decimallongitude","prefix":",","suffix":"°"},{"field":"elevationinmeters","prefix":", ","suffix":"m."}]},
-				{"fieldBlock":[{"field":"recordedby","suffix":" leg."}]},
-				{"divBlock":{"className":"taxonomyDiv","style":"font-size:4pt;padding:1px; border:2px solid black","blocks":[
+				{"fieldBlock":[{"field":"locality"}]},
+				{"fieldBlock":[{"field":"decimallatitude","prefix":" ","suffix":"°"},{"field":"decimallongitude","prefix":",","suffix":"°"},{"field":"elevationinmeters","prefix":", ","suffix":"m."}]},
+				{"fieldBlock":[{"field":"eventdate","suffix":" "},{"field":"recordedby","suffix":" leg."}]},
+				{"divBlock":{"className":"taxonomyDiv","style":"font-size:4pt;padding:1px; border:0.5px solid black","blocks":[
 					{"fieldBlock":[
 						{"field":"speciesname","style":"font-weight:bold;font-style:italic"},
 						{"field":"infraspecificepithet","style":"font-weight:bold;font-style:italic"},
@@ -126,7 +127,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 						],"delimiter":" "},
 					{"fieldBlock":[{"field":"identifiedby","prefix":"Det. "},{"field":"dateidentified","prefix":" "}]}
 				]}},
-				{"fieldBlock":[{"field":"catalognumber","style":"font-weight:bold;font-size:6pt;margin:5pt 0pt;border:2px solid black;"}]}
+				{"fieldBlock":[{"field":"catalognumber","style":"font-weight:bold;font-size:6pt;margin:5pt 0pt;border:0.5px solid black;"}]}
 		]
 	}
 ]}';

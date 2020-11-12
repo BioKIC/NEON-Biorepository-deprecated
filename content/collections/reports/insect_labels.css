@@ -1,9 +1,8 @@
 labelDiv {
 		clear:both;
-		margin-top: 1px;
-		margin-left: auto;
-		margin-right: auto;
-		width: 200px;
+		margin: 0px;
+		padding: 0px;
+		width: 125px;
 		page-break-before:auto;
 		page-break-inside:avoid;
 		}

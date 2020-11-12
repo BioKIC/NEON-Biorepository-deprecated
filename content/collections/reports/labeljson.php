@@ -111,6 +111,10 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"defaultStyles":"font-style:arial, helvetica, sans-serif;font-size:3.5pt",
 		"defaultCss":"",
 		"labelHeader":{
+			"hPrefix":"",
+			"hMidCol":0,
+			"hSuffix":"",
+			"style":"height:0px;clear:both;"
 		},
 		"labelFooter":{
 		},
@@ -138,6 +142,10 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"defaultStyles":"font-style:arial, helvetica, sans-serif;font-size:3.5pt",
 		"defaultCss":"",
 		"labelHeader":{
+			"hPrefix":"",
+			"hMidCol":0,
+			"hSuffix":"",
+			"style":"height:0px;clear:both;"
 		},
 		"labelFooter":{
 		},

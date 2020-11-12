@@ -262,38 +262,161 @@ class OccurrenceLabel{
 				'identificationQualifier'=>'o.identificationqualifier', 'typeStatus'=>'o.typestatus', 'recordedBy'=>'o.recordedby', 'recordNumber'=>'o.recordnumber', 'associatedCollectors'=>'o.associatedcollectors',
 				'eventDate'=>'DATE_FORMAT(o.eventdate,"%e %M %Y") AS eventdate', 'year'=>'o.year', 'month'=>'o.month', 'day'=>'o.day', 'monthName'=>'DATE_FORMAT(o.eventdate,"%M") AS monthname',
 				'verbatimEventDate'=>'o.verbatimeventdate', 'habitat'=>'o.habitat', 'substrate'=>'o.substrate', 'occurrenceRemarks'=>'o.occurrenceremarks', 'associatedTaxa'=>'o.associatedtaxa',
-				'verbatimAttributes'=>'o.verbatimattributes', 'reproductiveCondition'=>'o.reproductivecondition', 'cultivationStatus'=>'o.cultivationstatus', 'establishmentMeans'=>'o.establishmentmeans',
+				'dynamicProperties'=>'o.dynamicproperties','verbatimAttributes'=>'o.verbatimattributes', 'behavior'=>'behavior', 'reproductiveCondition'=>'o.reproductivecondition', 'cultivationStatus'=>'o.cultivationstatus',
+					'establishmentMeans'=>'o.establishmentmeans','lifeStage'=>'lifestage','sex'=>'sex','individualCount'=>'individualcount','samplingProtocol'=>'samplingprotocol','preparations'=>'preparations',
 				'country'=>'o.country', 'stateProvince'=>'o.stateprovince', 'county'=>'o.county', 'municipality'=>'o.municipality', 'locality'=>'o.locality', 'decimalLatitude'=>'o.decimallatitude',
 				'decimalLongitude'=>'o.decimallongitude', 'geodeticDatum'=>'o.geodeticdatum', 'coordinateUncertaintyInMeters'=>'o.coordinateuncertaintyinmeters', 'verbatimCoordinates'=>'o.verbatimcoordinates',
 				'elevationInMeters'=>'CONCAT_WS(" - ",o.minimumelevationinmeters,o.maximumelevationinmeters) AS elevationinmeters', 'verbatimElevation'=>'o.verbatimelevation',
-				'disposition'=>'o.disposition', 'duplicateQuantity'=>'o.duplicatequantity', 'dateLastModified'=>'o.datelastmodified');
+				'minimumDepthInMeters'=>'minimumdepthinmeters', 'maximumDepthInMeters'=>'maximumdepthinmeters', 'verbatimDepth'=>'verbatimdepth',
+				'disposition'=>'o.disposition', 'storageLocation'=>'storagelocation', 'duplicateQuantity'=>'o.duplicatequantity', 'dateLastModified'=>'o.datelastmodified');
 		}
 	}
 
-	public function getLabelFormatArr($index){
-		if(is_numeric($index) && $this->collArr['dynprops']){
-			$dymPropArr = json_decode($this->collArr['dynprops'],true);
-			if(isset($dymPropArr['labelFormats'][$index])){
-				return $dymPropArr['labelFormats'][$index];
+	public function getLabelBlock($blockArr,$occArr){
+		$outStr = '';
+		foreach($blockArr as $bArr){
+			if(array_key_exists('divBlock', $bArr)){
+				$outStr .= $this->getDivBlock($bArr['divBlock'],$occArr);
+			}
+			elseif(array_key_exists('fieldBlock', $bArr)){
+				$delimiter = (isset($bArr['delimiter'])?$bArr['delimiter']:'');
+				$cnt = 0;
+				$fieldDivStr = '';
+				foreach($bArr['fieldBlock'] as $fieldArr){
+					$fieldName = $fieldArr['field'];
+					$fieldValue = trim($occArr[$fieldName]);
+					if($fieldValue){
+						if($delimiter && $cnt) $fieldDivStr .= $delimiter;
+						$fieldDivStr .= '<span class="'.$fieldName.'" '.(isset($fieldArr['style'])?'style="'.$fieldArr['style'].'"':'').'>';
+						if(isset($fieldArr['prefix']) && $fieldArr['prefix']){
+							$fieldDivStr .= '<span class="'.$fieldName.'Prefix" '.(isset($fieldArr['prefixStyle'])?'style="'.$fieldArr['prefixStyle'].'"':'').'>'.$fieldArr['prefix'].'</span>';
+						}
+						$fieldDivStr .= $fieldValue;
+						if(isset($fieldArr['suffix']) && $fieldArr['suffix']){
+							$fieldDivStr .= '<span class="'.$fieldName.'Suffix" '.(isset($fieldArr['suffixStyle'])?'style="'.$fieldArr['suffixStyle'].'"':'').'>'.$fieldArr['suffix'].'</span>';
+						}
+						$fieldDivStr .= '</span>';
+						$cnt++;
+					}
+				}
+				if($fieldDivStr) $outStr .= '<div class="fieldBlockDiv" '.(isset($bArr['style'])?'style="'.$bArr['style'].'"':'').'>'.$fieldDivStr.'</div>';
+			}
+		}
+		return $outStr;
+	}
+
+	private function getDivBlock($divArr,$occArr){
+		if(array_key_exists('blocks', $divArr)){
+			if($blockStr = $this->getLabelBlock($divArr['blocks'],$occArr)){
+				return '<div '.(isset($divArr['className'])?'class="'.$divArr['className'].'"':'').' '.(isset($divArr['style'])?'style="'.$divArr['style'].'"':'').'>'.$blockStr.'</div>'."\n";
+			}
+		}
+		return '';
+	}
+
+	public function getLabelFormatArr($labelCat, $labelIndex){
+		if(is_numeric($labelIndex)){
+			if($labelCat == 'global'){
+				if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
+					include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
+					if(isset($LABEL_FORMAT_JSON)){
+						if($labelFormatArr = json_decode($LABEL_FORMAT_JSON,true)){
+							if(isset($labelFormatArr['labelFormats'][$labelIndex])){
+								return $labelFormatArr['labelFormats'][$labelIndex];
+							}
+							else $this->errorArr[] = 'ERROR returning global format: index does not exist';
+						}
+						else $this->errorArr[] = 'ERROR returning global format: issue parsing JSON string';
+					}
+					else $this->errorArr[] = 'ERROR returning global format: $LABEL_FORMAT_JSON does not exist';
+				}
+				else $this->errorArr[] = 'ERROR returning global format: /content/collections/reports/labeljson.php does not exist';
+				return false;
+			}
+			elseif($labelCat == 'coll'){
+				if($this->collArr['dynprops']){
+					if($dymPropArr = json_decode($this->collArr['dynprops'],true)){
+						if(isset($dymPropArr['labelFormats'][$labelIndex])){
+							return $dymPropArr['labelFormats'][$labelIndex];
+						}
+						else $this->errorArr[] = 'ERROR returning collection format: labelFormats or index does not exist';
+					}
+					else $this->errorArr[] = 'ERROR returning collection format: issue parsing JSON string';
+				}
+				else $this->errorArr[] = 'ERROR returning collection format: dynamicProperties not defined';
+			}
+			elseif($labelCat == 'user'){
+				$dynPropStr = '';
+				$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
+				$rs = $this->conn->query($sql);
+				if($r = $rs->fetch_object()){
+					$dynPropStr = $r->dynamicProperties;
+				}
+				$rs->free();
+				if($dynPropStr){
+					if($dymPropArr = json_decode($dynPropStr,true)){
+						if(isset($dymPropArr['labelFormats'][$labelIndex])){
+							return $dymPropArr['labelFormats'][$labelIndex];
+						}
+						else $this->errorArr[] = 'ERROR returning user format: labelFormats or index does not exist';
+					}
+					else $this->errorArr[] = 'ERROR returning user format: issue parsing JSON string';
+				}
+				else $this->errorArr[] = 'ERROR returning user format: dynamicProperties not defined';
 			}
 		}
 		return false;
 	}
 
 	public function getLabelFormatAnnotatedArr(){
-		if($this->collArr['dynprops']){
-			if($dymPropArr = json_decode($this->collArr['dynprops'],true)){
-				if(isset($dymPropArr['labelFormats'])){
-					$labelFormatArr = $dymPropArr['labelFormats'];
-					foreach($labelFormatArr as $k => $labelObj){
-						unset($labelFormatArr[$k]['blocks']);
+		$labelFormatArr = array();
+		//Add global portal defined label formats
+		if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
+			include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
+			if(isset($LABEL_FORMAT_JSON)){
+				if($globalFormatArr = json_decode($LABEL_FORMAT_JSON,true)){
+					if(isset($globalFormatArr['labelFormats'])){
+						foreach($globalFormatArr['labelFormats'] as $k => $labelObj){
+							unset($labelObj['labelBlocks']);
+							$labelFormatArr['g'][$k] = $labelObj;
+						}
 					}
-					if($labelFormatArr) return $labelFormatArr;
-					else return false;
 				}
 			}
 		}
-		return null;
+		//Add collection defined label formats
+		if($this->collArr['dynprops']){
+			if($collFormatArr = json_decode($this->collArr['dynprops'],true)){
+				if(isset($collFormatArr['labelFormats'])){
+					foreach($collFormatArr['labelFormats'] as $k => $labelObj){
+						unset($labelObj['labelBlocks']);
+						$labelFormatArr['c'][$k] = $labelObj;
+					}
+				}
+			}
+		}
+		//Add label formats associated with user profile
+		/*
+		$dynPropStr = '';
+		$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
+		$rs = $this->conn->query($sql);
+		if($r = $rs->fetch_object()){
+			$dynPropStr = $r->dynamicProperties;
+		}
+		$rs->free();
+		if($dynPropStr){
+			if($dymPropArr = json_decode($dynPropStr,true)){
+				if(isset($dymPropArr['labelFormats'])){
+					foreach($dymPropArr['labelFormats'] as $k => $labelObj){
+						unset($labelObj['labelBlocks']);
+						$labelFormatArr['u'][$k] = $labelObj;
+					}
+
+				}
+			}
+		}
+		*/
+		return $labelFormatArr;
 	}
 
 	//Annotation functions
@@ -458,24 +581,6 @@ class OccurrenceLabel{
 
 	public function getErrorArr(){
 		return $this->errorArr;
-	}
-
-	//Misc functions
-	function parseCSS($fileName){
-		global $SERVER_ROOT;
-		if(!$fileName) $fileName = 'defaultlabels.css';
-		$fh = fopen($SERVER_ROOT.'/collections/reports/css/'.$fileName);
-		$retArr = array();
-		preg_match_all('/(.+?)\s?\{\s?(.+?)\s?\}/', $css, $matches);
-		foreach($matches[0] AS $i => $original){
-			foreach(explode(';', $matches[2][$i]) AS $attr){
-				if (strlen(trim($attr)) > 0){
-					list($name, $value) = explode(':', $attr);
-					$retArr[$matches[1][$i]][trim($name)] = trim($value);
-				}
-			}
-		}
-		return $retArr;
 	}
 
 	//Internal cleaning functions

@@ -10,12 +10,9 @@ ini_set('max_execution_time', 180); //180 seconds = 3 minutes
 
 $ses_id = time();
 
-if(class_exists('Image_Barcode2')){
-	$bcObj = new Image_Barcode2;
-}
-elseif(class_exists('Image_Barcode')){
-	$bcObj = new Image_Barcode;
-}
+$bcObj = null;
+if(class_exists('Image_Barcode2')) $bcObj = new Image_Barcode2;
+elseif(class_exists('Image_Barcode')) $bcObj = new Image_Barcode;
 
 $labelManager = new OccurrenceLabel();
 
@@ -24,37 +21,43 @@ $hPrefix = $_POST['lhprefix'];
 $hMid = $_POST['lhmid'];
 $hSuffix = $_POST['lhsuffix'];
 $lFooter = $_POST['lfooter'];
-$occIdArr = $_POST['occid'];
-$labelFormat = $_POST['labelformat'];
-$speciesAuthors = ((array_key_exists('speciesauthors',$_POST) && $_POST['speciesauthors'])?1:0);
+$columnCount = $_POST['columncount'];
+$includeSpeciesAuthor = ((array_key_exists('speciesauthors',$_POST) && $_POST['speciesauthors'])?1:0);
 $showcatalognumbers = ((array_key_exists('catalognumbers',$_POST) && $_POST['catalognumbers'])?1:0);
 $useBarcode = array_key_exists('bc',$_POST)?$_POST['bc']:0;
 $useSymbBarcode = array_key_exists('symbbc',$_POST)?$_POST['symbbc']:0;
 $barcodeOnly = array_key_exists('bconly',$_POST)?$_POST['bconly']:0;
 $action = array_key_exists('submitaction',$_POST)?$_POST['submitaction']:'';
 
-$rowsPerPage = 1;
-if(is_numeric($labelFormat)){
-	$rowsPerPage = $labelFormat;
-}
+//Sanitation
+$hPrefix = filter_var($hPrefix, FILTER_SANITIZE_STRING);
+$hMid = filter_var($hMid, FILTER_SANITIZE_STRING);
+$hSuffix = filter_var($hSuffix, FILTER_SANITIZE_STRING);
+$lFooter = filter_var($lFooter, FILTER_SANITIZE_STRING);
+if(!is_numeric($columnCount) && $columnCount != 'packet') $columnCount = 2;
+if(!is_numeric($includeSpeciesAuthor)) $includeSpeciesAuthor = 0;
+if(!is_numeric($showcatalognumbers)) $showcatalognumbers = 0;
+if(!is_numeric($useBarcode)) $useBarcode = 0;
+if(!is_numeric($useSymbBarcode)) $useSymbBarcode = 0;
+if(!is_numeric($barcodeOnly)) $barcodeOnly = 0;
 
 $sectionStyle = array('pageSizeW'=>12240,'pageSizeH'=>15840,'marginLeft'=>360,'marginRight'=>360,'marginTop'=>360,'marginBottom'=>360,'headerHeight'=>0,'footerHeight'=>0);
-if($labelFormat == 1){
+if($columnCount == 1){
 	$lineWidth = 740;
 }
-elseif($labelFormat == 2){
+elseif($columnCount == 2){
 	$lineWidth = 350;
 	$sectionStyle['colsNum'] = 2;
 	$sectionStyle['colsSpace'] = 690;
 	$sectionStyle['breakType'] = 'continuous';
 }
-elseif($labelFormat == 3){
+elseif($columnCount == 3){
 	$lineWidth = 220;
 	$sectionStyle['colsNum'] = 3;
 	$sectionStyle['colsSpace'] = 690;
 	$sectionStyle['breakType'] = 'continuous';
 }
-elseif($labelFormat == 'packet'){
+elseif($columnCount == 'packet'){
 	//$lineWidth = 540;
 }
 
@@ -101,10 +104,10 @@ if($isEditor && $action){
 
 	$section = $phpWord->addSection($sectionStyle);
 
-	$labelArr = $labelManager->getLabelArray($_POST['occid'], $speciesAuthors);
+	$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
 
 	foreach($labelArr as $occid => $occArr){
-		if($labelFormat == 'packet'){
+		if($columnCount == 'packet'){
 			$textrun = $section->addTextRun('foldMarks1');
 			$textrun->addText('++','foldMarksFont');
 			$textrun = $section->addTextRun('foldMarks2');
@@ -114,7 +117,6 @@ if($isEditor && $action){
 			$table->addRow();
 			$table->addCell(1750)->addText("+");
 			$table->addCell(1750)->addText("+");
-
 		}
 
 		if($barcodeOnly){
@@ -128,18 +130,10 @@ if($isEditor && $action){
 		}
 		else{
 			$midStr = '';
-			if($hMid == 1){
-				$midStr = $occArr['country'];
-			}
-			elseif($hMid == 2){
-				$midStr = $occArr['stateprovince'];
-			}
-			elseif($hMid == 3){
-				$midStr = $occArr['county'];
-			}
-			elseif($hMid == 4){
-				$midStr = $occArr['family'];
-			}
+			if($hMid == 1) $midStr = $occArr['country'];
+			elseif($hMid == 2) $midStr = $occArr['stateprovince'];
+			elseif($hMid == 3) $midStr = $occArr['county'];
+			elseif($hMid == 4) $midStr = $occArr['family'];
 			$headerStr = '';
 			if($hPrefix || $midStr || $hSuffix){
 				$headerStrArr = array();
@@ -267,9 +261,9 @@ if($isEditor && $action){
 					if($occArr['coordinateuncertaintyinmeters']) $textrun->addText(htmlspecialchars(' +-'.$occArr['coordinateuncertaintyinmeters'].' meters'),'otherFont');
 					if($occArr['geodeticdatum']) $textrun->addText(htmlspecialchars(' '.$occArr['geodeticdatum']),'otherFont');
 				}
-				if($occArr['minimumelevationinmeters']){
+				if($occArr['elevationinmeters']){
 					$textrun = $section->addTextRun('other');
-					$textrun->addText(htmlspecialchars('Elev: '.$occArr['minimumelevationinmeters'].($occArr['maximumelevationinmeters']?' - '.$occArr['maximumelevationinmeters']:'').'m. '),'otherFont');
+					$textrun->addText(htmlspecialchars('Elev: '.$occArr['elevationinmeters'].'m. '),'otherFont');
 					if($occArr['verbatimelevation']) $textrun->addText(htmlspecialchars(' ('.$occArr['verbatimelevation'].')'),'otherFont');
 				}
 				if($occArr['habitat']){

@@ -125,7 +125,6 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 						{"field":"scientificnameauthorship"}
 						],"delimiter":" "},
 					{"fieldBlock":[{"field":"identifiedby","prefix":"Det. "},{"field":"dateidentified","prefix":" "}]}
-					}
 				]},
 
 				{"fieldBlock":[{"field":"catalognumber","style":"font-weight:bold;font-size:6pt;margin:5pt 0pt;border:2px solid black;"}]}

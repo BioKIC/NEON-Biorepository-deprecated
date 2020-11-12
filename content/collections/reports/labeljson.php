@@ -119,7 +119,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 				{"fieldBlock":[{"field":"locality"}]},
 				{"fieldBlock":[{"field":"decimallatitude","prefix":" ","suffix":"°"},{"field":"decimallongitude","prefix":",","suffix":"°"},{"field":"elevationinmeters","prefix":", ","suffix":"m."}]},
 				{"fieldBlock":[{"field":"eventdate","suffix":" "},{"field":"recordedby","suffix":" leg."}]},
-				{"divBlock":{"className":"taxonomyDiv","style":"font-size:4pt;margin:5px 2px;padding:1px; border:0.5px solid black","blocks":[
+				{"divBlock":{"className":"taxonomyDiv","style":"font-size:4pt;margin:5px 0px;padding:1px; border:0.5px solid black","blocks":[
 					{"fieldBlock":[
 						{"field":"speciesname","style":"font-weight:bold;font-style:italic"},
 						{"field":"infraspecificepithet","style":"font-weight:bold;font-style:italic"},

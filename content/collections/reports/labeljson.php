@@ -107,7 +107,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"name":"Generic Pinned Insect Label",
 		"displaySpeciesAuthor":0,
 		"displayBarcode":0,
-		"columnCount":"3",
+		"columnCount":"8",
 		"defaultStyles":"font-style:arial, helvetica, sans-serif;font-size:3.5pt",
 		"defaultCss":"",
 		"labelHeader":{

@@ -118,7 +118,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		},
 		"labelFooter":{
 			"textValue":"",
-			"style":height:0px;clear:both;"
+			"style":"height:0px;clear:both;"
 		},
 		"labelBlocks":[
 				{"fieldBlock":[{"field":"country"},{"field":"stateprovince","prefix":": "},{"field":"county","prefix":", "}]},
@@ -151,7 +151,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		},
 		"labelFooter":{
 			"textValue":"",
-			"style":height:0px;clear:both;"
+			"style":"height:0px;clear:both;"
 			},
 		"labelBlocks":[
 				{"fieldBlock":[{"field":"country"},{"field":"stateprovince","prefix":": "},{"field":"county","prefix":", "}]},

@@ -117,6 +117,8 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 			"style":"height:0px;clear:both;"
 		},
 		"labelFooter":{
+			"textValue":"",
+			"style":height:0px;clear:both;"
 		},
 		"labelBlocks":[
 				{"fieldBlock":[{"field":"country"},{"field":"stateprovince","prefix":": "},{"field":"county","prefix":", "}]},
@@ -148,13 +150,15 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 			"style":"height:0px;clear:both;"
 		},
 		"labelFooter":{
-		},
+			"textValue":"",
+			"style":height:0px;clear:both;"
+			},
 		"labelBlocks":[
 				{"fieldBlock":[{"field":"country"},{"field":"stateprovince","prefix":": "},{"field":"county","prefix":", "}]},
 				{"fieldBlock":[{"field":"locality"}]},
 				{"fieldBlock":[{"field":"decimallatitude","prefix":" ","suffix":"°"},{"field":"decimallongitude","prefix":",","suffix":"°"},{"field":"elevationinmeters","prefix":", ","suffix":"m."}]},
 				{"fieldBlock":[{"field":"eventdate","suffix":" "},{"field":"recordedby","suffix":""}]},
-				{"fieldBlock":[{"field":"catalognumber","style":"font-weight:bold;font-size:6pt;margin:5px 0px;padding:2px;border:0.5px solid black;"}]}
+				{"fieldBlock":[{"field":"catalognumber","style":"font-weight:bold;"}]}
 		]
 	}
 ]}';

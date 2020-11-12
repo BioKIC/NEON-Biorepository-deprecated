@@ -1,0 +1,9 @@
+labelDiv {
+		clear:both;
+		margin-top: 1px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 200px;
+		page-break-before:auto;
+		page-break-inside:avoid;
+		}

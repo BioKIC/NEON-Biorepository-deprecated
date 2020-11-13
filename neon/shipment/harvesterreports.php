@@ -8,6 +8,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 $reports = new OccHarvesterReports();
 $reportsArr = $reports->getHarvestReport();
 $headerArr = ['collid', 'sampleClass', 'errorMessage', 'count', 'shipment(s)'];
+$total = $reports->getTotalSamples();
 
 $isEditor = false;
 if($IS_ADMIN){
@@ -142,6 +143,7 @@ if($IS_ADMIN){
 				?>
         <?php 
         echo '<h1>Current Occurrence Harvester Errors</h1>';
+        echo '<p>Total number of samples with erros: '.$total.'</p>';
         echo '<p class="helper"> <svg class="MuiSvgIcon-root jss173 MuiSvgIcon-fontSizeLarge" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path></svg> Click columns names to sort (click again to toggle ascending/descending)</p>';
         if(!empty($reportsArr)){
           $reportsTable = $reports->htmlTable($reportsArr, $headerArr);

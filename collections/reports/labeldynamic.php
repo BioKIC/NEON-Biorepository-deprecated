@@ -177,7 +177,7 @@ if($SYMB_UID){
               ?>
               <?php echo '<div class="labelDiv'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">'; ;?>
 								<?php
-								echo '<div class="labelHeader" '.(isset($targetLabelFormatArr['labelHeader']['style'])?'style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
+                echo '<div class="labelHeader'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelHeader']['className']:'').(isset($targetLabelFormatArr['labelHeader']['style'])?'style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
 								//Output field data
 								echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
 								if($useBarcode && $occArr['catalognumber']){

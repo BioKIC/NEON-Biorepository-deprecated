@@ -302,7 +302,7 @@ class DwcArchiverOccurrence{
 					'kingdom','phylum','class','order','genus','specificEpithet','infraSpecificEpithet',
 					'recordedBy','recordNumber','eventDate','year','month','day','fieldNumber','country','stateProvince','county','municipality',
 					'locality','localitySecurity','geodeticDatum','decimalLatitude','decimalLongitude','verbatimCoordinates',
-					'minimumElevationInMeters','maximumElevationInMeters','verbatimElevation','maximumDepthInMeters','minimumDepthInMeters',
+					'minimumElevationInMeters','maximumElevationInMeters','verbatimElevation','maximumDepthInMeters','minimumDepthInMeters','establishmentMeans','cultivationStatus',
 					'sex','occurrenceRemarks','preparationType','individualCount','dateEntered','dateLastModified','recordId','references','collId');
 				$this->occurDefArr[$k] = array_intersect_key($vArr,array_flip($targetArr));
 			}
@@ -379,7 +379,7 @@ class DwcArchiverOccurrence{
 	}
 
 	public function appendUpperTaxonomy2(&$r){
-		$target = $r['taxonID'];
+		$target = (isset($r['taxonID'])?$r['taxonID']:false);
 		if(!$target) $target = ucfirst($r['family']);
 		if($target){
 			if(array_key_exists($target, $this->upperTaxonomy)){
@@ -393,15 +393,9 @@ class DwcArchiverOccurrence{
 			}
 			else{
 				$higherStr = '';
-				$sql = 'SELECT t.tid, t.sciname, t.rankid '.
-						'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
-						'WHERE e.taxauthid = 1 AND e.tid = '.$r['taxonID'].' ORDER BY t.rankid';
-				if(!is_numeric($target)){
-					$sql = 'SELECT t.tid, t.sciname, t.rankid '.
-							'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
-							'INNER JOIN taxa t2 ON e.tid = t2.tid '.
-							'WHERE e.taxauthid = 1 AND t2.sciname = "'.$this->cleanInStr($target).'" ORDER BY t.rankid';
-				}
+				$sql = 'SELECT t.tid, t.sciname, t.rankid FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid ';
+				if(!is_numeric($target)) $sql .= 'INNER JOIN taxa t2 ON e.tid = t2.tid WHERE e.taxauthid = 1 AND t2.sciname = "'.$this->cleanInStr($target).'" ORDER BY t.rankid';
+				else $sql .= 'WHERE e.taxauthid = 1 AND e.tid = '.$target.' ORDER BY t.rankid';
 				$rs = $this->conn->query($sql);
 				while($row = $rs->fetch_object()){
 					if($row->rankid == 10) $r['t_kingdom'] = $row->sciname;
@@ -415,13 +409,13 @@ class DwcArchiverOccurrence{
 				$rs->free();
 				if($higherStr) $r['t_higherClassification'] = trim($higherStr,'| ');
 				if(count($this->upperTaxonomy)<1000 || !is_numeric($target)){
-					if($r['t_kingdom']) $this->upperTaxonomy[$target]['k'] = $r['t_kingdom'];
-					if($r['t_phylum']) $this->upperTaxonomy[$target]['p'] = $r['t_phylum'];
-					if($r['t_class']) $this->upperTaxonomy[$target]['c'] = $r['t_class'];
-					if($r['t_order']) $this->upperTaxonomy[$target]['o'] = $r['t_order'];
-					if($r['family']) $this->upperTaxonomy[$target]['f'] = $r['family'];
-					if($r['t_subgenus']) $this->upperTaxonomy[$target]['s'] = $r['t_subgenus'];
-					if($r['t_higherClassification']) $this->upperTaxonomy[$target]['u'] = $r['t_higherClassification'];
+					if(isset($r['t_kingdom'])) $this->upperTaxonomy[$target]['k'] = $r['t_kingdom'];
+					if(isset($r['t_phylum'])) $this->upperTaxonomy[$target]['p'] = $r['t_phylum'];
+					if(isset($r['t_class'])) $this->upperTaxonomy[$target]['c'] = $r['t_class'];
+					if(isset($r['t_order'])) $this->upperTaxonomy[$target]['o'] = $r['t_order'];
+					if(isset($r['family'])) $this->upperTaxonomy[$target]['f'] = $r['family'];
+					if(isset($r['t_subgenus'])) $this->upperTaxonomy[$target]['s'] = $r['t_subgenus'];
+					if(isset($r['t_higherClassification'])) $this->upperTaxonomy[$target]['u'] = $r['t_higherClassification'];
 				}
 			}
 		}

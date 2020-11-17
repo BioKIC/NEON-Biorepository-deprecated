@@ -171,7 +171,7 @@ if($SYMB_UID){
 							}
 							elseif($labelCnt%$columnCount == 1){
 								if($labelCnt > 1) echo '</div>';
-								echo '<div class="pageDiv">';
+								echo '<div class="row">';
 								$rowCnt++;
 							}
               ?>
@@ -232,7 +232,7 @@ if($SYMB_UID){
 						}
 					}
 				}
-				echo '</div>';		//Closing pageDiv
+				echo '</div>';		//Closing row
 				if(!$labelCnt) echo '<div style="font-weight:bold;text-size: 120%">No records were retrieved. Perhaps the quantity values were all set to 0?</div>';
 			}
 			else{

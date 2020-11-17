@@ -70,7 +70,7 @@ if($SYMB_UID){
 			<?php
 			if(isset($targetLabelFormatArr['defaultStyles'])) echo 'body{ '.$targetLabelFormatArr['defaultStyles']." } \n";
 			?>
-			.labelDiv { page-break-before:auto; page-break-inside:avoid; }
+			.label { page-break-before:auto; page-break-inside:avoid; }
 			<?php
 			if($columnCount == 'packet'){
 				?>
@@ -79,8 +79,6 @@ if($SYMB_UID){
 				.foldMarks2 { clear:both;padding-top:355px;padding-bottom:10px; }
 				.foldMarks2 span { margin-left:77px; margin-right:80px; }
 				.label {
-					clear:both;
-					margin-top: 10px;
 					margin-left: auto;
 					margin-right: auto;
 					width: 500px;
@@ -171,7 +169,7 @@ if($SYMB_UID){
 							}
 							elseif($labelCnt%$columnCount == 1){
 								if($labelCnt > 1) echo '</div>';
-								echo '<div class="row">';
+								echo '<div class="row flex flex-wrap">';
 								$rowCnt++;
 							}
               ?>

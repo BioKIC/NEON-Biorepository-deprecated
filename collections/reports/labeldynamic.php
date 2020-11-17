@@ -78,7 +78,7 @@ if($SYMB_UID){
 				.foldMarks1 span { margin-left:77px; margin-right:80px; }
 				.foldMarks2 { clear:both;padding-top:355px;padding-bottom:10px; }
 				.foldMarks2 span { margin-left:77px; margin-right:80px; }
-				.labelDiv {
+				.label {
 					clear:both;
 					margin-top: 10px;
 					margin-left: auto;
@@ -87,7 +87,7 @@ if($SYMB_UID){
 					page-break-before:auto;
 					page-break-inside:avoid;
 				}
-				.labelDiv {
+				.label {
 					width:500px;
 					margin:50px;
 					padding:10px 50px;
@@ -98,7 +98,7 @@ if($SYMB_UID){
 			}
 			elseif($columnCount != 1){
 				?>
-				.labelDiv { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
+				.label { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
 				<?php
 			}
       ?>
@@ -129,7 +129,7 @@ if($SYMB_UID){
 
 	</head>
 	<body style="background-color:#ffffff;">
-		<div class="bodyDiv">
+		<div class="body">
 			<?php
 			if($targetLabelFormatArr && $isEditor){
 				$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
@@ -175,20 +175,20 @@ if($SYMB_UID){
 								$rowCnt++;
 							}
               ?>
-              <?php echo '<div class="labelDiv'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">'; ;?>
+              <?php echo '<div class="label'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">'; ;?>
 								<?php
-                echo '<div class="labelHeader'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelHeader']['className']:'').(isset($targetLabelFormatArr['labelHeader']['style'])?'style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
+                echo '<div class="label-header'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelHeader']['className']:'').(isset($targetLabelFormatArr['labelHeader']['style'])?'style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
 								//Output field data
 								echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
 								if($useBarcode && $occArr['catalognumber']){
 									?>
-									<div class="cnBarcodeDiv">
+									<div class="cn-barcode">
 										<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
 									</div>
 									<?php
 									if($occArr['othercatalognumbers']){
 										?>
-										<div class="otherCatalogNumbers">
+										<div class="other-catalog-numbers">
 											<?php echo $occArr['othercatalognumbers']; ?>
 										</div>
 										<?php
@@ -197,30 +197,30 @@ if($SYMB_UID){
 								elseif($showcatalognumbers){
 									if($occArr['catalognumber']){
 										?>
-										<div class="catalogNumber">
+										<div class="catalog-number">
 											<?php echo $occArr['catalognumber']; ?>
 										</div>
 										<?php
 									}
 									if($occArr['othercatalognumbers']){
 										?>
-										<div class="otherCatalogNumbers">
+										<div class="other-catalog-numbers">
 											<?php echo $occArr['othercatalognumbers']; ?>
 										</div>
 										<?php
 									}
 								}
-								if($lFooter) echo '<div class="labelFooter" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
+								if($lFooter) echo '<div class="label-footer" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
 								if($useSymbBarcode){
 									?>
 									<hr style="border:dashed;" />
-									<div class="symbBarcode">
+									<div class="symb-barcode">
 										<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occid; ?>" />
 									</div>
 									<?php
 									if($occArr['catalognumber']){
 										?>
-										<div class="catalogNumber">
+										<div class="catalog-number">
 											<?php echo $occArr['catalognumber']; ?>
 										</div>
 										<?php

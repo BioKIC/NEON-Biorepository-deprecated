@@ -287,7 +287,7 @@ class OccurrenceLabel{
 					$fieldValue = trim($occArr[$fieldName]);
 					if($fieldValue){
 						if($delimiter && $cnt) $fieldDivStr .= $delimiter;
-						$fieldDivStr .= '<span class="'.$fieldName.'" '.(isset($fieldArr['style'])?'style="'.$fieldArr['style'].'"':'').'>';
+						$fieldDivStr .= '<span class="'.$fieldName.(isset($fieldArr['className'])?' '.$fieldArr['className']:'').'" '.(isset($fieldArr['style'])?'style="'.$fieldArr['style'].'"':'').'>';
 						if(isset($fieldArr['prefix']) && $fieldArr['prefix']){
 							$fieldDivStr .= '<span class="'.$fieldName.'Prefix" '.(isset($fieldArr['prefixStyle'])?'style="'.$fieldArr['prefixStyle'].'"':'').'>'.$fieldArr['prefix'].'</span>';
 						}
@@ -299,7 +299,7 @@ class OccurrenceLabel{
 						$cnt++;
 					}
 				}
-				if($fieldDivStr) $outStr .= '<div class="field-block" '.(isset($bArr['style'])?'style="'.$bArr['style'].'"':'').'>'.$fieldDivStr.'</div>';
+				if($fieldDivStr) $outStr .= '<div class="field-block'.(isset($bArr['className'])?' '.$bArr['className']:'').'"'.(isset($bArr['style'])?'style="'.$bArr['style'].'"':'').'>'.$fieldDivStr.'</div>';
 			}
 		}
 		return $outStr;

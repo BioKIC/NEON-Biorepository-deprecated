@@ -23,6 +23,12 @@ body {
 
 /* Placing and ordering things */
 
+.grid {
+  /* Makes container fixed height and adds css-grid*/
+  min-height: 100%;
+  display: grid;
+}
+
 .block {
   display: block;
 }

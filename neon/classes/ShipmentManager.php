@@ -211,13 +211,53 @@ class ShipmentManager{
 	}
 
 	public function analyzeUpload(){
-		//Just read first line of file to report what fields will be loaded, ignored, and required fulfilled
+		$status = false;
+		//Read first line of file to obtain source field names
 		if($this->uploadFileName){
 			$fullPath = $this->getContentPath().$this->uploadFileName;
 			$fh = fopen($fullPath,'rb') or die("Can't open file");
 			$this->sourceArr = $this->getHeaderArr($fh);
+			$status = true;
+			//Continue iterating through file to obtain all shipmentIDs, and then insure shipment doesn't already exist
+			$shipmentIdIndex = false;
+			foreach($this->sourceArr as $k => $colName){
+				if(strtolower(str_replace(array(' ','_'),'',$colName)) == 'shipmentid') $shipmentIdIndex = $k;
+			}
+			if($shipmentIdIndex){
+				$shipmentIDArr = array();
+				while($recordArr = fgetcsv($fh)){
+					$shipmentIDArr[$recordArr[$shipmentIdIndex]] = '';
+				}
+				if($shipmentIDArr){
+					//Check to make sure shipments IDs were not previously entered
+					$dupeShipmentExists = false;
+					$sql = 'SELECT shipmentPK, shipmentID FROM NeonShipment WHERE shipmentid IN("'.implode('","',array_keys($shipmentIDArr)).'")';
+					$rs = $this->conn->query($sql);
+					while($r = $rs->fetch_object()){
+						$shipmentIDArr[$r->shipmentID] = $r->shipmentPK;
+						$dupeShipmentExists = true;
+					}
+					$rs->free();
+					if($dupeShipmentExists){
+						$status = false;
+						$this->errorStr = '<div>ERROR: shipment already in system</div>';
+						foreach($shipmentIDArr as $id => $pk){
+							if($pk) $this->errorStr .= '<div style="margin-left:10px"><a href="manifestviewer.php?shipmentPK='.$pk.'" target="_blank">'.$id.'</a></div>';
+						}
+					}
+				}
+				else{
+					$this->errorStr = 'ERROR: failed to return shipmentID ';
+					$status = false;
+				}
+			}
+			else{
+				$this->errrorStr = 'ERROR: Unable to locate shipmentID column (required). Please make sure the column exists and is named appropriately';
+				$status = false;
+			}
 			fclose($fh);
 		}
+		return $status;
 	}
 
 	public function uploadData(){
@@ -329,8 +369,8 @@ class ShipmentManager{
 				if(!in_array($this->uploadFileName,explode('|',$existingFileName))){
 					//Append new filename to existing
 					$this->conn->query('UPDATE NeonShipment SET filename = "'.trim($this->cleanInStr($existingFileName.'|'.$this->uploadFileName),' |').'" WHERE shipmentpk = '.$shipmentPK);
-					echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
 				}
+				echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
 			}
 			else{
 				echo '<li style="margin-left:15px"><span style="color:red">ERROR</span> loading shipment record (errNo: '.$this->conn->errno.'): '.$this->conn->error.'</li>';

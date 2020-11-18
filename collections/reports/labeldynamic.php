@@ -69,8 +69,9 @@ if($SYMB_UID){
 		<style type="text/css">
 			<?php
 			if(isset($targetLabelFormatArr['defaultStyles'])) echo 'body{ '.$targetLabelFormatArr['defaultStyles']." } \n";
-			?>
-			.label { page-break-before:auto; page-break-inside:avoid; }
+      ?>
+      .row { display: flex; flex-wrap: wrap; margin-left: auto; margin-right: auto;}
+			.label { page-break-before: auto; page-break-inside: avoid; }
 			<?php
 			if($columnCount == 'packet'){
 				?>
@@ -124,10 +125,10 @@ if($SYMB_UID){
        echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet">';
       }
 		?>
-
 	</head>
-	<body style="background-color:#ffffff;">
-		<div class="body">
+  <body style="background-color:#ffffff;">
+  <?php echo '<div class="body'.(isset($targetLabelFormatArr['pageSize'])?' '.$targetLabelFormatArr['pageSize']:'').'">'  ;?>
+		<!-- <div class="body"> -->
 			<?php
 			if($targetLabelFormatArr && $isEditor){
 				$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
@@ -169,7 +170,7 @@ if($SYMB_UID){
 							}
 							elseif($labelCnt%$columnCount == 1){
 								if($labelCnt > 1) echo '</div>';
-								echo '<div class="row flex flex-wrap">';
+								echo '<div class="row">';
 								$rowCnt++;
 							}
               ?>

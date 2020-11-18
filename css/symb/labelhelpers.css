@@ -7,17 +7,41 @@
 
 /* Basic page view formatting */
 
-body {
-  width: 980px;
-  margin: 0 auto;
+.body {
+  width: 950px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
-/* Label sizes */
+/* Page & Label sizes */
 
-.label-md {
-  /* letter page: 2 cols x 4 rows */
-  height: 310px;
+@media print {
+  .row {
+    page-break-before: auto;
+    break-before: auto;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  /* A4 size */
+  .a4 {
+    width: 21cm;
+    height: 29.7cm;
+    /* margin-top: 10mm;
+    margin-right: 20mm;
+    margin-left: 20mm; */
+  }
+  /* US-letter size */
+  .letter {
+    width: 8.5in;
+    height: 11in;
+    /* margin-top: 20mm; */
+  }
+}
+
+.label-3-rows {
+  /* letter page: 2 cols x 3 rows */
+  height: 360px;
 }
 
 

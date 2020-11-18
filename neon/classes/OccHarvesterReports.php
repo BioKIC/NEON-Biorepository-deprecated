@@ -62,6 +62,27 @@
     }
     return $dataArr;
   }
+  // Gets total sum of samples with error messages
+  public function getTotalSamples(){
+      $totalSamples = '';
+  
+      $sql = 'SELECT count(s.samplePK) AS totalSamples FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid JOIN NeonShipment sh ON s.shipmentPK = sh.shipmentPK WHERE errorMessage IS NOT NULL;';
+
+    $result = $this->conn->query($sql);
+
+    if ($result->num_rows > 0) {
+      //output data of each row
+      while ($row = $result->fetch_assoc()){
+        $totalSamples = $row['totalSamples'];
+      }
+      $result->free();
+    } 
+    else {
+      $this->errorMessage = 'Harvest report query was not successfull';
+      $totalSamples = false;
+    }
+    return $totalSamples;
+  }
 
    // Formats array in tabular form (pass array name and headers array as arguments)
   public function htmlTable($data, $headerArr){

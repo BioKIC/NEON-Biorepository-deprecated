@@ -269,18 +269,20 @@ class ShipmentManager{
 				if(!array_key_exists($recMap['shipmentid'],$shipmentArr)) $shipmentArr[$recMap['shipmentid']] = $this->loadShipmentRecord($recMap);
 				$this->shipmentPK = $shipmentArr[$recMap['shipmentid']];
 				if($this->shipmentPK){
-					if(!$this->addSample($recMap,true)) $errCnt++;
-					$recCnt++;
-					if($recCnt%1000 == 0){
-						echo '<li>'.$recCnt.' record loaded</li>';
-						ob_flush();
-						flush();
+					if($this->addSample($recMap,true)){
+						$recCnt++;
+						if($recCnt%1000 == 0){
+							echo '<li>'.$recCnt.' record loaded</li>';
+							ob_flush();
+							flush();
+						}
 					}
+					else $errCnt++;
 				}
 				unset($recMap);
 			}
 			fclose($fh);
-			echo '<li>Complete: '.$recCnt.' records loaded</li>';
+			echo '<li>Complete: '.$recCnt.' records loaded '.($errCnt?'('.$errCnt.' errors)':'').'</li>';
 		}
 		else{
 			$this->outputMsg('<li>File Upload FAILED: unable to locate file</li>');
@@ -324,9 +326,11 @@ class ShipmentManager{
 					$existingFileName = $r->filename;
 				}
 				$rs->free();
-				//Append new filename to existing
-				$this->conn->query('UPDATE NeonShipment SET filename = "'.trim($this->cleanInStr($existingFileName.'|'.$this->uploadFileName),' |').'" WHERE shipmentpk = '.$shipmentPK);
-				echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
+				if(!in_array($this->uploadFileName,explode('|',$existingFileName))){
+					//Append new filename to existing
+					$this->conn->query('UPDATE NeonShipment SET filename = "'.trim($this->cleanInStr($existingFileName.'|'.$this->uploadFileName),' |').'" WHERE shipmentpk = '.$shipmentPK);
+					echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
+				}
 			}
 			else{
 				echo '<li style="margin-left:15px"><span style="color:red">ERROR</span> loading shipment record (errNo: '.$this->conn->errno.'): '.$this->conn->error.'</li>';
@@ -583,54 +587,75 @@ class ShipmentManager{
 				}
 			}
 			if($insertRecord){
-				$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, alternativeSampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, '.
-					'dynamicproperties, symbiotatarget, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
-					'VALUES('.$this->shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.
-					(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
-					(isset($recArr['samplecode']) && $recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').','.
-					(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
-					(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
-					(isset($recArr['namedlocation']) && $recArr['namedlocation']?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
-					(isset($recArr['collectdate']) && $recArr['collectdate']?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
-					(isset($recArr['dynamicproperties']) && $recArr['dynamicproperties']?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
-					(isset($recArr['symbiotatarget']) && $recArr['symbiotatarget']?'"'.$this->cleanInStr($recArr['symbiotatarget']).'"':'NULL').','.
-					(isset($recArr['taxonid']) && $recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
-					(isset($recArr['individualcount']) && $recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
-					(isset($recArr['filtervolume']) && $recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
-					(isset($recArr['domainremarks']) && $recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
-					(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
-				if($this->conn->query($sql)){
-					$status = true;
-					if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
-						$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = 1, acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
-						if(!$this->conn->query($sqlUpdate)){
-							$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
-							$status = false;
+				$duplicateArr = $this->duplicateSampleExists($recArr['sampleid'],$recArr['sampleclass']);
+				if(!$duplicateArr){
+					$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, alternativeSampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, '.
+						'dynamicproperties, symbiotatarget, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
+						'VALUES('.$this->shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.
+						(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
+						(isset($recArr['samplecode']) && $recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').','.
+						(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
+						(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
+						(isset($recArr['namedlocation']) && $recArr['namedlocation']?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
+						(isset($recArr['collectdate']) && $recArr['collectdate']?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
+						(isset($recArr['dynamicproperties']) && $recArr['dynamicproperties']?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
+						(isset($recArr['symbiotatarget']) && $recArr['symbiotatarget']?'"'.$this->cleanInStr($recArr['symbiotatarget']).'"':'NULL').','.
+						(isset($recArr['taxonid']) && $recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
+						(isset($recArr['individualcount']) && $recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
+						(isset($recArr['filtervolume']) && $recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
+						(isset($recArr['domainremarks']) && $recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
+						(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
+					if($this->conn->query($sql)){
+						$status = true;
+						if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
+							$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = 1, acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
+							if(!$this->conn->query($sqlUpdate)){
+								$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
+								$status = false;
+							}
 						}
+					}
+					else{
+						if($this->conn->errno == 1062){
+							$this->errorStr = 'barcode: <a href="manifestviewer.php?quicksearch='.$recArr['samplecode'].'" target="_blank">'.$recArr['samplecode'].'</a>';
+							if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
+						}
+						else{
+							$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
+							if($verbose){
+								echo '<li style="margin-left:15px">'.$this->errorStr.'</li>';
+								//echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
+							}
+						}
+						$status = false;
 					}
 				}
 				else{
-					if($this->conn->errno == 1062){
-						if(strpos($this->conn->error,'sampleCode')){
-							$this->errorStr = 'barcode: <a href="manifestviewer.php?quicksearch='.$recArr['samplecode'].'" target="_blank">'.$recArr['samplecode'].'</a>';
-						}
-						else{
-							$this->errorStr = 'sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].'" target="_blank" >'.$recArr['sampleid'].'</a>';
-						}
-						if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
+					$errStr = '';
+					foreach($duplicateArr as $dupSamplePK => $idArr){
+						$idStr = $idArr['sampleID'];
+						if(isset($idArr['sampleCode'])) $idStr .= ' ('.$idArr['sampleCode'].')';
+						$errStr .= '<a href="manifestviewer.php?shipmentPK='.$dupSamplePK.'&sampleFilter=displaySamples&quicksearch='.$idArr['sampleID'].'#samplePanel" target="_blank">'.$idStr.'</a>, ';
 					}
-					else{
-						$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
-						if($verbose){
-							echo '<li style="margin-left:15px">'.$this->errorStr.'</li>';
-							//echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
-						}
-					}
-					$status = false;
+					$this->errorStr = trim($errStr,', ');
+					if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
+
 				}
 			}
 		}
 		return $status;
+	}
+
+	private function duplicateSampleExists($sampleID, $sampleClass){
+		$retArr = array();
+		$sql = 'SELECT shipmentPK, sampleID, sampleCode FROM NeonSample WHERE sampleID = "'.$this->cleanInStr($sampleID).'" AND sampleClass = "'.$this->cleanInStr($sampleClass).'" AND sampleReceived IS NULL';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->shipmentPK]['sampleID'] = $r->sampleID;
+			if($r->sampleCode) $retArr[$r->shipmentPK]['sampleCode'] = $r->sampleCode;
+		}
+		$rs->free();
+		return $retArr;
 	}
 
 	public function deleteSample($samplePK){

@@ -20,19 +20,6 @@ $isEditor = false;
 if($IS_ADMIN){
 	$isEditor = true;
 }
-
-$status = "";
-if($isEditor){
-	if($action == 'checkinShipment'){
-		$shipManager->checkinShipment($_POST);
-	}
-	elseif($action == 'batchCheckin'){
-		$shipManager->batchCheckinSamples($_POST);
-	}
-	elseif($action == 'receiptsubmitted'){
-		$shipManager->setReceiptStatus($_POST['submitted']);
-	}
-}
 ?>
 <html>
 <head>
@@ -320,18 +307,35 @@ include($SERVER_ROOT.'/includes/header.php');
 <div id="innertext">
 	<?php
 	if($isEditor){
-		if($action == 'batchHarvestOccid'){
-			?>
-			<fieldset style="padding:15px">
-				<legend>Action Panel</legend>
-				<ul>
-				<?php
+		if($action){
+			$errStr = '';
+			if($action == 'checkinShipment'){
+				if(!$shipManager->checkinShipment($_POST)) $errStr = $shipManager->getErrorStr();
+			}
+			elseif($action == 'batchCheckin'){
+				if(!$shipManager->batchCheckinSamples($_POST)) $errStr = $shipManager->getErrorStr();
+			}
+			elseif($action == 'receiptsubmitted'){
+				if(!$shipManager->setReceiptStatus($_POST['submitted'])) $errStr = $shipManager->getErrorStr();
+			}
+			elseif($action == 'batchHarvestOccid'){
+				echo '<fieldset style="padding:15px"><legend>Action Panel</legend><ul>';
 				$occurManager = new OccurrenceHarvester();
 				$occurManager->batchHarvestOccid($_POST);
+				echo '</ul></fieldset>';
+			}
+			if($errStr){
 				?>
-				</ul>
-			</fieldset>
-			<?php
+				<fieldset style="padding:15px">
+					<legend>Action Panel</legend>
+					<ul>
+					<?php
+					echo $errStr;
+					?>
+					</ul>
+				</fieldset>
+				<?php
+			}
 		}
 		$shipArr = $shipManager->getShipmentArr();
 		if($shipArr){

@@ -167,6 +167,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"defaultStyles":"font-size:10pt",
     "defaultCss":"../../css/symb/labelhelpers.css",
     "customCss":"",
+    "pageSize":"letter",
 		"labelHeader":{
 			"hPrefix":"Flora of ",
 			"hMidCol":3,

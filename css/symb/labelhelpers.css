@@ -2,6 +2,10 @@
 * Helper CSS classes for custom label styling
 * Author: Laura Rocha Prado
 * Version: Nov 2020
+* Usage: add this file path to `labeljson.php` 
+* in either `defaultCss` or `customCss` 
+* properties and refer to appropriate class
+* in desired element `className` property.
 *-----------------------------------------*/
 
 

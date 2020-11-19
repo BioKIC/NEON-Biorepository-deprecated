@@ -8,7 +8,7 @@
 /* Basic page view formatting */
 
 .body {
-  width: 950px;
+  width: 980px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -17,6 +17,11 @@
 /* Page & Label sizes */
 
 @media print {
+  .body {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+  }
   .row {
     page-break-before: auto;
     break-before: auto;
@@ -35,13 +40,13 @@
   .letter {
     width: 8.5in;
     height: 11in;
-    /* margin-top: 20mm; */
+    margin-top: 0;
   }
 }
 
 .label-3-rows {
   /* letter page: 2 cols x 3 rows */
-  height: 360px;
+  height: 320px;
 }
 
 

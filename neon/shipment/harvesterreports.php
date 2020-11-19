@@ -64,7 +64,7 @@ if($IS_ADMIN){
         width: 100%;
       }
       table, ul {
-        font-size: small; 
+        font-size: small;
         text-align: left
         }
 
@@ -141,7 +141,7 @@ if($IS_ADMIN){
 			<?php
 			if($isEditor){
 				?>
-        <?php 
+        <?php
         echo '<h1>Current Occurrence Harvester Errors</h1>';
         echo '<p>Total number of samples with erros: '.$total.'</p>';
         echo '<p class="helper"> <svg class="MuiSvgIcon-root jss173 MuiSvgIcon-fontSizeLarge" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path></svg> Click columns names to sort (click again to toggle ascending/descending)</p>';
@@ -187,12 +187,12 @@ if($IS_ADMIN){
           aColText = qAS.trim().toLowerCase();
         } else {
           aColText = parseInt(qAS);
-        } 
-          
+        }
+
 
         if (isNaN(parseInt(qBS))){
           bColText = qBS.trim().toLowerCase();
-        } else { 
+        } else {
           bColText = parseInt(qBS); }
 
         // const aColText = qAS.trim();

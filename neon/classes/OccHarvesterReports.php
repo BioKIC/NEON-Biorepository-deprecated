@@ -1,14 +1,14 @@
-<?php 
+<?php
 
   include_once($SERVER_ROOT.'/classes/Manager.php');
 
  /**
  * Controler class for /neon/classes/OccHarvesterReports.php
- * 
+ *
  */
 
  class OccHarvesterReports extends Manager {
-   
+
   public function __construct() {
     parent::__construct(null,'readonly');
     $this->verboseMode = 2;
@@ -22,7 +22,7 @@
   // Main functions
 
   // Formats shipment urls (dependes heavily on specific query)
-  public function getShipmentUrl($pkCol, $idCol){
+  private function getShipmentUrl($pkCol, $idCol){
     $pksArr = explode(';', $pkCol);
     $idsArr = explode(';', $idCol);
 
@@ -41,42 +41,43 @@
 
     $result = $this->conn->query($sql);
 
-    if ($result->num_rows > 0) {
+    if ($result) {
       //output data of each row
       while ($row = $result->fetch_assoc()){
         // originally
         // $dataArr[] = $row;
         $dataArr[] = array(
-          $row['collid'],  
-          $row['sampleClass'],  
-          $row['errorMessage'],  
+          $row['collid'],
+          $row['sampleClass'],
+          $row['errorMessage'],
           $row['cnt'],
           $this->getShipmentUrl($row['shipmentPK'], $row['shipmentID']),
         );
       }
       $result->free();
-    } 
+    }
     else {
       $this->errorMessage = 'Harvest report query was not successfull';
       $dataArr = false;
     }
     return $dataArr;
   }
+
   // Gets total sum of samples with error messages
   public function getTotalSamples(){
       $totalSamples = '';
-  
+
       $sql = 'SELECT count(s.samplePK) AS totalSamples FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid JOIN NeonShipment sh ON s.shipmentPK = sh.shipmentPK WHERE errorMessage IS NOT NULL;';
 
     $result = $this->conn->query($sql);
 
-    if ($result->num_rows > 0) {
+    if ($result) {
       //output data of each row
       while ($row = $result->fetch_assoc()){
         $totalSamples = $row['totalSamples'];
       }
       $result->free();
-    } 
+    }
     else {
       $this->errorMessage = 'Harvest report query was not successfull';
       $totalSamples = false;
@@ -101,5 +102,4 @@
     return '<table class="table-sortable"><thead>'. implode('', array_merge($headers)).'</thead>' . implode('', array_merge($rows)) . "</table>";
   }
 }
-
-;?>
+?>

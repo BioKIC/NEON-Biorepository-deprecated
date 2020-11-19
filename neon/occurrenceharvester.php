@@ -85,113 +85,90 @@ include($SERVER_ROOT.'/includes/header.php');
 			</fieldset>
 			<?php
 		}
-		if($action == 'shipmentlist'){
-			$shipmentList = $occurManager->getShipmentList();
-			?>
-			<ul>
+		?>
+		<fieldset>
+			<legend><b>Harvesting Report - <?php echo ($shipmentPK?'shipment #'.$shipmentPK:'across all shipments'); ?></b></legend>
+			<div style="margin-bottom:25px; margin-left:15px">
 				<?php
-				foreach($shipmentList as $shipPK => $shipArr){
-					echo '<li>'.$shipArr['shipmentID'].': ';
-					echo '<a href="shipment/manifestviewer.php?shipmentPK='.$shipPK.'&sampleFilter=missingOccid#samplePanel">'.$shipArr['sampleCnt'].'</a>';
-					echo ($shipArr['sampleCnt']==$shipArr['errCnt']?'*':'');
-					echo '</li>';
+				$reportArr = $occurManager->getHarvestReport($shipmentPK);
+				$occurCnt = (array_key_exists('null',$reportArr)?$reportArr['null']['s-cnt']-$reportArr['null']['o-cnt']:'0');
+				echo '<div><b>Occurrences not yet harvested:</b> '.$occurCnt.'</div>';
+				unset($reportArr['null']);
+				echo '<hr style="margin:10px 0px"/>';
+				foreach($reportArr as $msg => $repCntArr){
+					$cnt = $repCntArr['s-cnt']-$repCntArr['o-cnt'];
+					echo '<div><b>'.$msg.'</b>: ';
+					if($cnt) echo $cnt.' failed harvest';
+					if($cnt && $repCntArr['o-cnt']) echo '; ';
+					if($repCntArr['o-cnt']) echo $repCntArr['o-cnt'].' partial harvest ';
+					echo '</div>';
 				}
 				?>
-			</ul>
-			<div>* Harvesting errors exist</div>
-			<div style="margin:25px 0px;">
-				<a href="occurrenceharvester.php">Display Group Stats</a>
 			</div>
-			<?php
-		}
-		else{
-			?>
-			<fieldset>
-				<legend><b>Harvesting Report - <?php echo ($shipmentPK?'shipment #'.$shipmentPK:'across all shipments'); ?></b></legend>
-				<div style="margin-bottom:25px; margin-left:15px">
-					<?php
-					$reportArr = $occurManager->getHarvestReport($shipmentPK);
-					$occurCnt = (array_key_exists('null',$reportArr)?$reportArr['null']['s-cnt']-$reportArr['null']['o-cnt']:'0');
-					echo '<div><b>Occurrences not yet harvested:</b> '.$occurCnt.'</div>';
-					unset($reportArr['null']);
-					echo '<hr style="margin:10px 0px"/>';
-					foreach($reportArr as $msg => $repCntArr){
-						$cnt = $repCntArr['s-cnt']-$repCntArr['o-cnt'];
-						echo '<div><b>'.$msg.'</b>: ';
-						if($cnt) echo $cnt.' failed harvest';
-						if($cnt && $repCntArr['o-cnt']) echo '; ';
-						if($repCntArr['o-cnt']) echo $repCntArr['o-cnt'].' partial harvest ';
-						echo '</div>';
-					}
-					?>
+			<div style="margin-bottom:25px; margin-left:15px">
+				<a href="shipment/harvesterreports.php?action=shipmentlist">List Errors by Category and Shipments</a>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend><b>Action Panel</b></legend>
+			<form action="occurrenceharvester.php" method="post">
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						<input name="nullOccurrencesOnly" type="checkbox" value="1" checked /> Target New Samples only (NULL occurrences)
+					</div>
 				</div>
-				<div style="margin-bottom:25px; margin-left:15px">
-					<a href="occurrenceharvester.php?action=shipmentlist">List by Shipment</a>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						Error Group:
+						<select name="errorStr" >
+							<option value="nullError">NULL Error Message</option>
+							<option value="">---------------------</option>
+							<?php
+							foreach($reportArr as $msg => $repCntArr){
+								echo '<option>'.$msg.'</option>';
+							}
+							?>
+						</select>
+					</div>
 				</div>
-			</fieldset>
-			<fieldset>
-				<legend><b>Action Panel</b></legend>
-				<form action="occurrenceharvester.php" method="post">
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							<input name="nullOccurrencesOnly" type="checkbox" value="1" checked /> Target New Samples only (NULL occurrences)
-						</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						WHERE
+						<select name="nullfilter" onchange="occurSearchTermChanged(this)">
+							<option value="">Target Field...</option>
+							<option value="">---------------------</option>
+							<option value="sciname">Scientific Name</option>
+							<option value="recordedBy">Collector</option>
+							<option value="eventDate">Event Date</option>
+							<option value="country">Country</option>
+							<option value="stateProvince">State/Province</option>
+							<option value="county">County</option>
+							<option value="decimalLatitude">Lat/Long</option>
+						</select>
+						IS NULL
 					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							Error Group:
-							<select name="errorStr" >
-								<option value="nullError">NULL Error Message</option>
-								<option value="">---------------------</option>
-								<?php
-								foreach($reportArr as $msg => $repCntArr){
-									echo '<option>'.$msg.'</option>';
-								}
-								?>
-							</select>
-						</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
+						<input name="replaceFieldValues" type="checkbox" value="1"  onchange="occurSearchTermChanged(this)" /> Replace existing field values if they have not been explicitly modified (previously harvested occurrences only)
 					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							WHERE
-							<select name="nullfilter" onchange="occurSearchTermChanged(this)">
-								<option value="">Target Field...</option>
-								<option value="">---------------------</option>
-								<option value="sciname">Scientific Name</option>
-								<option value="recordedBy">Collector</option>
-								<option value="eventDate">Event Date</option>
-								<option value="country">Country</option>
-								<option value="stateProvince">State/Province</option>
-								<option value="county">County</option>
-								<option value="decimalLatitude">Lat/Long</option>
-							</select>
-							IS NULL
-						</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						Limit: <input name="limit" type="text" value="1000" />
 					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
-							<input name="replaceFieldValues" type="checkbox" value="1"  onchange="occurSearchTermChanged(this)" /> Replace existing field values if they have not been explicitly modified (previously harvested occurrences only)
-						</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div style="float:left;margin:20px">
+						<button name="action" type="submit" value="harvestOccurrences">Harvest Occurrences</button>
+						<!--  <button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>  -->
 					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							Limit: <input name="limit" type="text" value="1000" />
-						</div>
+					<div style="float:right; margin:20px">
+						<button name="action" type="submit" value="exportOccurrences">Export Occurrences</button>
 					</div>
-					<div class="fieldGroupDiv">
-						<div style="float:left;margin:20px">
-							<button name="action" type="submit" value="harvestOccurrences">Harvest Occurrences</button>
-							<!--  <button type="button" value="Reset" onclick="fullResetForm(this.form)">Reset Form</button>  -->
-						</div>
-						<div style="float:right; margin:20px">
-							<button name="action" type="submit" value="exportOccurrences">Export Occurrences</button>
-						</div>
-					</div>
-				</form>
-			</fieldset>
-			<?php
-		}
-		?>
+				</div>
+			</form>
+		</fieldset>
 		<?php
 	}
 	else{

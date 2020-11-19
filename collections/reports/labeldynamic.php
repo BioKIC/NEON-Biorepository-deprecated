@@ -176,7 +176,7 @@ if($SYMB_UID){
               ?>
               <?php echo '<div class="label'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">'; ;?>
 								<?php
-                echo '<div class="label-header'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelHeader']['className']:'').(isset($targetLabelFormatArr['labelHeader']['style'])?'style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
+                echo '<div class="label-header'.(isset($targetLabelFormatArr['labelHeader']['className'])?' '.$targetLabelFormatArr['labelHeader']['className']:'').'"'.(isset($targetLabelFormatArr['labelHeader']['style'])?' style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
 								//Output field data
 								echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
 								if($useBarcode && $occArr['catalognumber']){
@@ -231,7 +231,7 @@ if($SYMB_UID){
 						}
 					}
 				}
-				echo '</div>';		//Closing row
+				echo '</div>'; //Closing row
 				if(!$labelCnt) echo '<div style="font-weight:bold;text-size: 120%">No records were retrieved. Perhaps the quantity values were all set to 0?</div>';
 			}
 			else{

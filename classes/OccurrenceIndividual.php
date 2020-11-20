@@ -1,5 +1,4 @@
 <?php
-include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once('Manager.php');
 include_once('OccurrenceDuplicate.php');
 include_once('OccurrenceAccessStats.php');
@@ -83,7 +82,7 @@ class OccurrenceIndividual extends Manager{
 
 	public function getOccData($fieldKey = ""){
 		if($this->occid){
-			if(!$this->occArr) $this->loadOccurData();
+			if(!$this->occArr) $this->setOccurData();
 			if($fieldKey){
 				if(array_key_exists($fieldKey,$this->occArr)){
 					return $this->occArr($fieldKey);
@@ -94,7 +93,7 @@ class OccurrenceIndividual extends Manager{
 		return $this->occArr;
 	}
 
-	private function loadOccurData(){
+	private function setOccurData(){
 		$sql = 'SELECT o.*, MAKEDATE(YEAR(o.eventDate),o.enddayofyear) AS eventdateend, g.guid FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
 		/*
 		 * Can use explicit SQL once database patch is applied to all releases
@@ -110,18 +109,12 @@ class OccurrenceIndividual extends Manager{
 			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.modified, o.observeruid, g.guid, o.recordenteredby, o.dateentered, o.datelastmodified '.
 			'FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
 		*/
-		if($this->occid){
-			$sql .= 'WHERE (o.occid = '.$this->occid.')';
-		}
-		elseif($this->collid && $this->dbpk){
-			$sql .= 'WHERE (o.collid = '.$this->collid.') AND (o.dbpk = "'.$this->dbpk.'")';
-		}
-		else{
-			trigger_error('Specimen identifier is null or invalid; '.$this->conn->error,E_USER_ERROR);
-		}
+		if($this->occid) $sql .= 'WHERE (o.occid = '.$this->occid.')';
+		elseif($this->collid && $this->dbpk) $sql .= 'WHERE (o.collid = '.$this->collid.') AND (o.dbpk = "'.$this->dbpk.'")';
+		else trigger_error('Specimen identifier is null or invalid; '.$this->conn->error,E_USER_ERROR);
 
-		if($result = $this->conn->query($sql)){
-			if($occArr = $result->fetch_assoc()){
+		if($rs = $this->conn->query($sql)){
+			if($occArr = $rs->fetch_assoc()){
 				$this->occArr = array_change_key_case($occArr);
 				if(!$this->occid) $this->occid = $this->occArr['occid'];
 				if(!$this->collid) $this->collid = $this->occArr['collid'];
@@ -144,13 +137,14 @@ class OccurrenceIndividual extends Manager{
 					if(!$this->metadataArr['collectioncode']) $this->metadataArr['collectioncode'] = $this->occArr['institutioncode'];
 					elseif($this->metadataArr['collectioncode'] != $this->occArr['collectioncode']) $this->metadataArr['collectioncode'] .= '-'.$this->occArr['institutioncode'];
 				}
-				$this->loadDeterminations();
-				$this->loadImages();
-				$this->loadAdditionalIdentifiers();
-				$this->loadPaleo();
-				$this->loadLoan();
-				$this->loadExsiccati();
-				$result->free();
+				$rs->free();
+				$this->setDeterminations();
+				$this->setImages();
+				$this->setAdditionalIdentifiers();
+				$this->setPaleo();
+				$this->setLoan();
+				$this->setExsiccati();
+				$this->setOccurrenceRelationships();
 			}
 			//Set access statistics
 			$accessType = 'view';
@@ -163,14 +157,14 @@ class OccurrenceIndividual extends Manager{
 		}
 	}
 
-	private function loadDeterminations(){
+	private function setDeterminations(){
 		$sql = 'SELECT detid, dateidentified, identifiedby, sciname, scientificnameauthorship, identificationqualifier, identificationreferences, identificationremarks '.
 			'FROM omoccurdeterminations '.
 			'WHERE (occid = '.$this->occid.') AND appliedstatus = 1 '.
 			'ORDER BY sortsequence';
-		$result = $this->conn->query($sql);
-		if($result){
-			while($row = $result->fetch_object()){
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($row = $rs->fetch_object()){
 				$detId = $row->detid;
 				$this->occArr['dets'][$detId]['date'] = $row->dateidentified;
 				$this->occArr['dets'][$detId]['identifiedby'] = $row->identifiedby;
@@ -180,21 +174,21 @@ class OccurrenceIndividual extends Manager{
 				$this->occArr['dets'][$detId]['ref'] = $row->identificationreferences;
 				$this->occArr['dets'][$detId]['notes'] = $row->identificationremarks;
 			}
-			$result->free();
+			$rs->free();
 		}
 		else{
-			trigger_error('Unable to loadDeterminations; '.$this->conn->error,E_USER_NOTICE);
+			trigger_error('Unable to setDeterminations; '.$this->conn->error,E_USER_NOTICE);
 		}
 	}
 
-	private function loadImages(){
+	private function setImages(){
 		global $imageDomain;
 		$sql = 'SELECT i.imgid, i.url, i.thumbnailurl, i.originalurl, i.sourceurl, i.notes, i.caption, CONCAT_WS(" ",u.firstname,u.lastname) as photographer '.
 			'FROM images i LEFT JOIN users u ON i.photographeruid = u.uid '.
 			'WHERE (i.occid = '.$this->occid.') ORDER BY i.sortsequence';
-		$result = $this->conn->query($sql);
-		if($result){
-			while($row = $result->fetch_object()){
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($row = $rs->fetch_object()){
 				$imgId = $row->imgid;
 				$url = $row->url;
 				$tnUrl = $row->thumbnailurl;
@@ -213,14 +207,14 @@ class OccurrenceIndividual extends Manager{
 				$this->occArr['imgs'][$imgId]['caption'] = $row->caption;
 				$this->occArr['imgs'][$imgId]['photographer'] = $row->photographer;
 			}
-			$result->free();
+			$rs->free();
 		}
 		else{
 			trigger_error('Unable to set images; '.$this->conn->error,E_USER_WARNING);
 		}
 	}
 
-	private function loadAdditionalIdentifiers(){
+	private function setAdditionalIdentifiers(){
 		$idStr = '';
 		$sql = 'SELECT idomoccuridentifiers, occid, identifiervalue, identifiername '.
 			'FROM omoccuridentifiers '.
@@ -235,7 +229,7 @@ class OccurrenceIndividual extends Manager{
 		if($idStr) $this->occArr['othercatalognumbers'] = trim($idStr,'; ');
 	}
 
-	private function loadPaleo(){
+	private function setPaleo(){
 		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biota, '.
 			'biostratigraphy, lithogroup, formation, taxonenvironment, member, bed, lithology, stratremarks, element, slideproperties, geologicalcontextid '.
 			'FROM omoccurpaleo WHERE occid = '.$this->occid;
@@ -248,25 +242,25 @@ class OccurrenceIndividual extends Manager{
 		}
 	}
 
-	private function loadLoan(){
+	private function setLoan(){
 		$sql = 'SELECT l.loanIdentifierOwn, i.institutioncode '.
 			'FROM omoccurloanslink llink INNER JOIN omoccurloans l ON llink.loanid = l.loanid '.
 			'INNER JOIN institutions i ON l.iidBorrower = i.iid '.
 			'WHERE (llink.occid = '.$this->occid.') AND (l.dateclosed IS NULL) AND (llink.returndate IS NULL)';
-		$result = $this->conn->query($sql);
-		if($result){
-			while($row = $result->fetch_object()){
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($row = $rs->fetch_object()){
 				$this->occArr['loan']['identifier'] = $row->loanIdentifierOwn;
 				$this->occArr['loan']['code'] = $row->institutioncode;
 			}
-			$result->free();
+			$rs->free();
 		}
 		else{
 			trigger_error('Unable to load loan info; '.$this->conn->error,E_USER_WARNING);
 		}
 	}
 
-	private function loadExsiccati(){
+	private function setExsiccati(){
 		$sql = 'SELECT t.title, t.editor, n.omenid, n.exsnumber '.
 			'FROM omexsiccatititles t INNER JOIN omexsiccatinumbers n ON t.ometid = n.ometid '.
 			'INNER JOIN omexsiccatiocclink l ON n.omenid = l.omenid '.
@@ -285,6 +279,44 @@ class OccurrenceIndividual extends Manager{
 		}
 	}
 
+	private function setOccurrenceRelationships(){
+		$sql = 'SELECT a.assocOccurID, a.occid, a.relationship, a.subType, a.occidAssociate, a.resourceurl, a.externalIdentifier, a.dynamicProperties, '.
+			'o.catalogNumber, o.otherCatalogNumbers, o.occurrenceID '.
+			'FROM omassociatedoccurrence a LEFT JOIN omoccurrences o ON a.occidAssociate = o.occid '.
+			'WHERE a.occid = '.$this->occid.' OR a.occidAssociate = '.$this->occid;
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($r = $rs->fetch_object()){
+				$relOccid = $r->occidAssociate;
+				$relationship = $r->relationship;
+				if($this->occid == $r->occidAssociate){
+					$relOccid = $r->occid;
+					$relationship = $this->getInverseRelationship($relationship);
+				}
+				$this->occArr['relation'][$r->assocOccurID]['relationship'] = $relationship;
+				$this->occArr['relation'][$r->assocOccurID]['subtype'] = $r->subType;
+				$this->occArr['relation'][$r->assocOccurID]['occidassoc'] = $relOccid;
+				$this->occArr['relation'][$r->assocOccurID]['resourceurl'] = $r->resourceurl;
+				$this->occArr['relation'][$r->assocOccurID]['extid'] = $r->externalIdentifier;
+				$this->occArr['relation'][$r->assocOccurID]['catalognumber'] = $r->catalogNumber;
+				$this->occArr['relation'][$r->assocOccurID]['othercatalognumbers'] = $r->otherCatalogNumbers;
+				$this->occArr['relation'][$r->assocOccurID]['occurrenceid'] = $r->occurrenceID;
+			}
+			$rs->free();
+		}
+		//Set catalog numbers
+
+	}
+
+	private function getInverseRelationship($relationship){
+		//Need to expand infrastructure to define inverse relationships
+		//isParentOf, isChildOf, isSiblingOf, isOriginatorSampleOf, isSubsampleOf, isPartOf
+		$baseArr = array('isOriginatorSampleOf'=>'isSubsampleOf');
+		$inverseArr = array_merge($baseArr,array_flip($baseArr));
+		if(array_key_exists($relationship, $inverseArr)) return $inverseArr[$relationship];
+		return $relationship;
+	}
+
 	public function getDuplicateArr(){
 		$dupManager = new OccurrenceDuplicate();
 		$retArr = $dupManager->getClusterArr($this->occid);
@@ -300,16 +332,16 @@ class OccurrenceIndividual extends Manager{
 			if(!$isEditor) $sql .= 'AND c.reviewstatus IN(1,3) ';
 			$sql .= 'ORDER BY c.initialtimestamp';
 			//echo $sql.'<br/><br/>';
-			$result = $this->conn->query($sql);
-			if($result){
-				while($row = $result->fetch_object()){
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($row = $rs->fetch_object()){
 					$comId = $row->comid;
 					$retArr[$comId]['comment'] = $row->comment;
 					$retArr[$comId]['reviewstatus'] = $row->reviewstatus;
 					$retArr[$comId]['username'] = $row->username;
 					$retArr[$comId]['initialtimestamp'] = $row->initialtimestamp;
 				}
-				$result->free();
+				$rs->free();
 			}
 			else{
 				trigger_error('Unable to set comments; '.$this->conn->error,E_USER_WARNING);
@@ -397,16 +429,16 @@ class OccurrenceIndividual extends Manager{
 		$retArr = array();
 		if($this->occid){
 			$sql = 'SELECT idoccurgenetic, identifier, resourcename, locus, resourceurl, notes FROM omoccurgenetic WHERE occid = '.$this->occid;
-			$result = $this->conn->query($sql);
-			if($result){
-				while($r = $result->fetch_object()){
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_object()){
 					$retArr[$r->idoccurgenetic]['id'] = $r->identifier;
 					$retArr[$r->idoccurgenetic]['name'] = $r->resourcename;
 					$retArr[$r->idoccurgenetic]['locus'] = $r->locus;
 					$retArr[$r->idoccurgenetic]['resourceurl'] = $r->resourceurl;
 					$retArr[$r->idoccurgenetic]['notes'] = $r->notes;
 				}
-				$result->free();
+				$rs->free();
 			}
 			else{
 				trigger_error('Unable to get genetic data; '.$this->conn->error,E_USER_WARNING);
@@ -422,9 +454,9 @@ class OccurrenceIndividual extends Manager{
 			'FROM omoccuredits e INNER JOIN users u ON e.uid = u.uid '.
 			'WHERE e.occid = '.$this->occid.' ORDER BY e.initialtimestamp DESC ';
 		//echo $sql;
-		$result = $this->conn->query($sql);
-		if($result){
-			while($r = $result->fetch_object()){
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($r = $rs->fetch_object()){
 				$k = substr($r->initialtimestamp,0,16);
 				if(!isset($retArr[$k]['editor'])){
 					$retArr[$k]['editor'] = $r->editor;
@@ -436,7 +468,7 @@ class OccurrenceIndividual extends Manager{
 				$retArr[$k]['edits'][$r->ocedid]['old'] = $r->fieldvalueold;
 				$retArr[$k]['edits'][$r->ocedid]['new'] = $r->fieldvaluenew;
 			}
-			$result->free();
+			$rs->free();
 		}
 		else{
 			trigger_error('Unable to get edits; '.$this->conn->error,E_USER_WARNING);
@@ -496,14 +528,14 @@ class OccurrenceIndividual extends Manager{
 		}
 		$sql .= 'ORDER BY c.name';
 		//echo $sql;
-		$result = $this->conn->query($sql);
-		if($result){
-			while($row = $result->fetch_object()){
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($row = $rs->fetch_object()){
 				$nameStr = $row->name;
 				if($row->access == 'private') $nameStr .= ' (private status)';
 				$returnArr[$row->clid] = $nameStr;
 			}
-			$result->free();
+			$rs->free();
 		}
 		else{
 			trigger_error('Unable to get checklist data; '.$this->conn->error,E_USER_WARNING);
@@ -628,11 +660,11 @@ class OccurrenceIndividual extends Manager{
 		if($targetArr){
 			$sql = 'SELECT name, clid FROM fmchecklists WHERE clid IN('.implode(",",$targetArr).') ORDER BY Name';
 			//echo $sql;
-			if($result = $this->conn->query($sql)){
-				while($row = $result->fetch_object()){
+			if($rs = $this->conn->query($sql)){
+				while($row = $rs->fetch_object()){
 					$returnArr[$row->clid] = $row->name;
 				}
-				$result->free();
+				$rs->free();
 			}
 			else{
 				trigger_error('Unable to get checklist data; '.$this->conn->error,E_USER_WARNING);

@@ -270,6 +270,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		?>
 	</script>
 	<style>
+		fieldset{ margin:10px; padding:15px; }
+		fieldset legend{ font-weight:bold; }
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
 	</style>
 </head>
@@ -373,6 +375,29 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								</div>
 								<?php
 							}
+							if(array_key_exists('relation',$occArr)){
+								?>
+								<fieldset style="float:right;">
+									<legend>Related Occurrences</legend>
+									<?php
+									foreach($occArr['relation'] as $id => $assocArr){
+										echo '<div>';
+										echo $assocArr['relationship'];
+										if($assocArr['subtype']) echo ', '.$assocArr['subtype'];
+										$relUrl = $assocArr['resourceurl'];
+										if(!$relUrl && $assocArr['occidassoc']) $relUrl = $GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$assocArr['occidassoc'];
+										$relID = $assocArr['extid'];
+										if(!$relID) $relID = $assocArr['occurrenceid'];
+										if(!$relID) $relID = $assocArr['catalognumber'];
+										if(!$relID) $relID = $assocArr['othercatalognumbers'];
+										if(!$relID) $relID = 'unknown ID';
+										echo ': <a href="'.$relUrl.'" target="_blank">'.$relID.'</a>';
+										echo '</div>';
+									}
+									?>
+								</fieldset>
+								<?php
+							}
 							if($occArr['catalognumber']){
 								?>
 								<div>
@@ -406,26 +431,26 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							?>
 						</div>
 						<div>
-							<b>Taxon:</b>
 							<?php
-							if($securityCode < 2){
-								echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
-								if($occArr['localitysecurity'] == 2 || $occArr['localitysecurity'] == 3){
-									echo '<span style="margin-left:10px;color:orange">[taxonomic protection applied for non-authorized users]</span>';
+							if($occArr['sciname']){
+								echo '<b>Taxon:</b>';
+								if($securityCode < 2){
+									echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
+									if($occArr['localitysecurity'] == 2 || $occArr['localitysecurity'] == 3){
+										echo '<span style="margin-left:10px;color:orange">[taxonomic protection applied for non-authorized users]</span>';
+									}
 								}
+								else echo 'identification protected';
+								if($occArr['tidinterpreted']){
+									//echo ' <a href="../../taxa/index.php?taxon='.$occArr['tidinterpreted'].'" title="Open Species Profile Page"><img src="" /></a>';
+								}
+								?>
+								<br/>
+								<?php
+								if($occArr['identificationqualifier']) echo '<b>Identification Qualifier:</b> '.$occArr['identificationqualifier'].'<br/>';
 							}
-							else{
-								echo 'identification protected';
-							}
-							if($occArr['tidinterpreted']){
-								//echo ' <a href="../../taxa/index.php?taxon='.$occArr['tidinterpreted'].'" title="Open Species Profile Page"><img src="" /></a>';
-							}
+							if($occArr['family']) echo '<b>Family:</b> '.$occArr['family'];
 							?>
-							<br/>
-							<?php
-							if($occArr['identificationqualifier']) echo '<b>Identification Qualifier:</b> '.$occArr['identificationqualifier'].'<br/>';
-							?>
-							<b>Family:</b> <?php echo $occArr['family']; ?>
 						</div>
 						<div>
 							<?php
@@ -471,8 +496,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 										<img src="../../images/minus_sm.png" style="border:0px;" />
 										Hide Determination History
 									</div>
-									<fieldset style="width:350px;margin:5px 0px 10px 10px;border:1px solid grey;">
-										<legend><b>Determination History</b></legend>
+									<fieldset style="width:350px;border:1px solid grey;">
+										<legend>Determination History</legend>
 										<?php
 										$firstIsOut = false;
 										$dArr = $occArr['dets'];
@@ -528,14 +553,18 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							?>
 						</div>
-						<div style="clear:both;">
-							<b>Collector:</b>
-							<?php
-							echo $occArr['recordedby'].'&nbsp;&nbsp;&nbsp;';
-							if(!$securityCode || $securityCode == 2) echo $occArr['recordnumber'].'&nbsp;&nbsp;&nbsp;';
-							?>
-						</div>
 						<?php
+						if($occArr['recordedby']){
+							?>
+							<div>
+								<b>Collector:</b>
+								<?php
+								echo $occArr['recordedby'].'&nbsp;&nbsp;&nbsp;';
+								if(!$securityCode || $securityCode == 2) echo $occArr['recordnumber'].'&nbsp;&nbsp;&nbsp;';
+								?>
+							</div>
+							<?php
+						}
 						if(!$securityCode || $securityCode == 2){
 							if($occArr['eventdate']){
 								echo '<div><b>Date: </b>';
@@ -828,8 +857,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							if(!$securityCode && array_key_exists('imgs',$occArr)){
 								$iArr = $occArr['imgs'];
 								?>
-								<fieldset style="padding:10px;">
-									<legend><b>Specimen Images</b></legend>
+								<fieldset>
+									<legend>Specimen Images</legend>
 									<?php
 									foreach($iArr as $imgId => $imgArr){
 										$thumbUrl = $imgArr['tnurl'];
@@ -842,7 +871,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 											</a>
 											<?php
 											if($imgArr['photographer']) echo '<div>Author: '.$imgArr['photographer'].'</div>';
-											if($imgArr['url'] && substr($thumbUrl,0,7)=='process' && $imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
+											if($imgArr['url'] && substr($thumbUrl,0,7)!='process' && $imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
 											if($imgArr['lgurl']) echo '<div><a href="'.$imgArr['lgurl'].'" target="_blank">Open Large Image</a></div>';
 											if($imgArr['sourceurl']) echo '<div><a href="'.$imgArr['sourceurl'].'" target="_blank">Open Source Image</a></div>';
 											?>
@@ -858,7 +887,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						<?php
 						if($collMetadata['individualurl']){
 							$sourceTitle = 'Link to Source';
-							if(strpos($collMetadata['individualurl'], ':')) $sourceTitle = array_shift(explode(':', $collMetadata['individualurl']));
+							$iUrl = explode(': ', $collMetadata['individualurl']);
+							if(strpos($collMetadata['individualurl'], ': ')) $sourceTitle = array_shift($iUrl);
 							$displayID = '';
 							$indUrl = '';
 							if(strpos($collMetadata['individualurl'],'--DBPK--') !== false && $occArr['dbpk']){
@@ -870,7 +900,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$collMetadata['individualurl']);
 							}
 							elseif(strpos($collMetadata['individualurl'],'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
-								$otherCatNum = trim(array_pop(explode(':', $occArr['othercatalognumbers'])));
+								$ocn = explode(':', $occArr['othercatalognumbers']);
+								$otherCatNum = trim(array_pop($ocn));
 								if($p = strpos($otherCatNum,';')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
 								elseif($p = strpos($otherCatNum,',')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
 								$displayID = $otherCatNum;
@@ -880,9 +911,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								$displayID = $occArr['occurrenceid'];
 								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$collMetadata['individualurl']);
 							}
-							if($indUrl){
-								echo '<div style="margin-top:10px;clear:both;"><b>'.$sourceTitle.':</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
-							}
+							if($indUrl) echo '<div style="margin-top:10px;clear:both;"><b>'.$sourceTitle.':</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
 						}
 						//Rights
 						$rightsStr = $collMetadata['rights'];
@@ -1107,8 +1136,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						echo '<div style="font-weight:bold;font-size:120%;margin:20px;">No comments have been submitted</div>';
 					}
 					?>
-					<fieldset style="padding:20px;">
-						<legend><b>New Comment</b></legend>
+					<fieldset>
+						<legend>New Comment</legend>
 						<?php
 						if($SYMB_UID){
 							?>
@@ -1163,8 +1192,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							if($editArr || $externalEdits){
 								if($editArr){
 									?>
-									<fieldset style="padding:20px;">
-										<legend><b>Internal Edits</b></legend>
+									<fieldset>
+										<legend>Internal Edits</legend>
 										<?php
 										foreach($editArr as $k => $eArr){
 											$reviewStr = 'OPEN';
@@ -1196,8 +1225,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								}
 								if($externalEdits){
 									?>
-									<fieldset style="margin-top:20px;padding:20px;">
-										<legend><b>External Edits</b></legend>
+									<fieldset>
+										<legend>External Edits</legend>
 										<?php
 										foreach($externalEdits as $orid => $eArr){
 											foreach($eArr as $appliedStatus => $eArr2){

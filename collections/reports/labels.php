@@ -8,7 +8,8 @@ $hPrefix = $_POST['lhprefix'];
 $hMid = $_POST['lhmid'];
 $hSuffix = $_POST['lhsuffix'];
 $lFooter = $_POST['lfooter'];
-$labelFormat = $_POST['labelformat'];
+$columnCount = $_POST['columncount'];
+$includeSpeciesAuthor = ((array_key_exists('speciesauthors',$_POST) && $_POST['speciesauthors'])?1:0);
 $showcatalognumbers = ((array_key_exists('catalognumbers',$_POST) && $_POST['catalognumbers'])?1:0);
 $useBarcode = array_key_exists('bc',$_POST)?$_POST['bc']:0;
 $useSymbBarcode = array_key_exists('symbbc',$_POST)?$_POST['symbbc']:0;
@@ -19,7 +20,8 @@ $hPrefix = filter_var($hPrefix, FILTER_SANITIZE_STRING);
 $hMid = filter_var($hMid, FILTER_SANITIZE_STRING);
 $hSuffix = filter_var($hSuffix, FILTER_SANITIZE_STRING);
 $lFooter = filter_var($lFooter, FILTER_SANITIZE_STRING);
-if(!is_numeric($labelFormat) && $labelFormat != 'packet') $labelFormat = 3;
+if(!is_numeric($columnCount) && $columnCount != 'packet') $columnCount = 2;
+if(!is_numeric($includeSpeciesAuthor)) $includeSpeciesAuthor = 0;
 if(!is_numeric($showcatalognumbers)) $showcatalognumbers = 0;
 if(!is_numeric($useBarcode)) $useBarcode = 0;
 if(!is_numeric($useSymbBarcode)) $useSymbBarcode = 0;
@@ -27,9 +29,6 @@ $action = filter_var($action, FILTER_SANITIZE_STRING);
 
 $labelManager = new OccurrenceLabel();
 $labelManager->setCollid($collid);
-
-$columnCount = 1;
-if(is_numeric($labelFormat)) $columnCount = $labelFormat;
 
 $isEditor = 0;
 if($SYMB_UID){
@@ -76,7 +75,7 @@ else{
 				.cnbarcode { width:100%; text-align:center; }
 				.symbbarcode { width:100%; text-align:center; margin-top:10px; }
 				<?php
-				if($labelFormat == 'packet'){
+				if($columnCount == 'packet'){
 					?>
 					.foldMarks1 { clear:both;padding-top:285px; }
 					.foldMarks1 span { margin-left:77px; margin-right:80px; }
@@ -102,7 +101,6 @@ else{
 			<div>
 				<?php
 				if($action && $isEditor){
-					$includeSpeciesAuthor = ((array_key_exists('speciesauthors',$_POST) && $_POST['speciesauthors'])?1:0);
 					$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
 					$totalLabelCnt = count($labelArr);
 					$labelCnt = 0;
@@ -125,11 +123,11 @@ else{
 						$dupCnt = $_POST['q-'.$occid];
 						for($i = 0;$i < $dupCnt;$i++){
 							$labelCnt++;
-							if($labelFormat == 'packet'){
+							if($columnCount == 'packet'){
 								echo '<div class="foldMarks1"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
 								echo '<div class="foldMarks2"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
 							}
-							if($labelCnt%$columnCount == 1){
+							elseif($labelCnt%$columnCount == 1){
 								if($labelCnt > 1) echo '</tr></table>';
 								echo '<table class="labels"><tr>';
 								$rowCnt++;
@@ -216,18 +214,20 @@ else{
 									?>
 									<div class="loc2div">
 										<?php
+										if($occArr['decimallatitude'] && $occArr['decimallatitude']){
+											echo '<span class="decimallatitude">'.$occArr['decimallatitude'].'</span>'.($occArr['decimallatitude']>0?'N':'S');
+											echo '<span class="decimallongitude" style="margin-left:10px;">'.$occArr['decimallongitude'].'</span>'.($occArr['decimallongitude']>0?'E':'W').' ';
+										}
+										if($occArr['coordinateuncertaintyinmeters']) echo '<span style="margin-left:10px;">+-'.$occArr['coordinateuncertaintyinmeters'].' meters</span>';
 										if($occArr['verbatimcoordinates']){
+											if($occArr['decimallatitude']) echo ' [';
 											?>
 											<span class="verbatimcoordinates">
 												<?php echo $occArr['verbatimcoordinates']; ?>
 											</span>
 											<?php
+											if($occArr['decimallatitude']) echo ']';
 										}
-										else{
-											echo '<span class="decimallatitude">'.$occArr['decimallatitude'].'</span>'.($occArr['decimallatitude']>0?'N':'S');
-											echo '<span class="decimallongitude" style="margin-left:10px;">'.$occArr['decimallongitude'].'</span>'.($occArr['decimallongitude']>0?'E':'W').' ';
-										}
-										if($occArr['coordinateuncertaintyinmeters']) echo '<span style="margin-left:10px;">+-'.$occArr['coordinateuncertaintyinmeters'].' meters</span>';
 										if($occArr['geodeticdatum']) echo '<span style="margin-left:10px;">['.$occArr['geodeticdatum'].']</span>';
 										?>
 									</div>
@@ -373,7 +373,7 @@ else{
 						}
 					}
 					//Add missing <td> tags and close the table
-					if($labelCnt%$columnCount){
+					if(is_numeric($columnCount) && $labelCnt%$columnCount){
 						$remaining = $columnCount-$labelCnt%$columnCount;
 						for($i = 0;$i < $remaining;$i++){
 							echo '<td>&nbsp;</td>';

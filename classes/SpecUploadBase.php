@@ -820,7 +820,7 @@ class SpecUploadBase extends SpecUpload{
 		}
 		$transactionInterval = 1000;
 		$this->outputMsg('<li>Updating existing records in batches of '.$transactionInterval.'... </li>');
-		//Grab specimen intervals for updating reords in batches
+		//Grab specimen intervals for updating records in batches
 		$intervalArr = array();
 		$sql = 'SELECT occid FROM ( SELECT @row := @row +1 AS rownum, occid FROM ( SELECT @row :=0) r, uploadspectemp WHERE occid IS NOT NULL AND collid = '.
 			$this->collId.' ORDER BY occid) ranked WHERE rownum % '.$transactionInterval.' = 1';

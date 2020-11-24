@@ -1,6 +1,6 @@
 <?php
 include_once('../../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceEditorAssoc.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceEditorResource.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -8,7 +8,7 @@ $occid = $_GET['occid'];
 $occIndex = $_GET['occindex'];
 $crowdSourceMode = $_GET['csmode'];
 
-$occManager = new OccurrenceEditorAssoc();
+$occManager = new OccurrenceEditorResource();
 $occManager->setOccId($occid);
 $oArr = $occManager->getOccurMap();
 $occArr = $oArr[$occid];
@@ -21,6 +21,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 <script>
 	function assocIdentifierChanged(f){
 		if(f.identifier.value){
+			//alert("rpc/getAssocOccurrence.php?id="+f.identifier.value+"&target="+f.target.value+"&collidtarget"+f.collidtarget.value);
 			$.ajax({
 				type: "POST",
 				url: "rpc/getAssocOccurrence.php",
@@ -28,8 +29,8 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 				data: { id: f.identifier.value, target: f.target.value, collidtarget: f.collidtarget.value }
 			}).done(function( retObj ) {
 				if(retObj){
-					$.each(retObj, function(i, item) {
-						$( "#searchResultDiv" ).append( createAssocInput(occid,catnum,collinfo) );
+					$.each(retObj, function(occid, item) {
+						$( "#searchResultDiv" ).append( createAssocInput(occid,item.catnum,item.collinfo) );
 					});
 				}
 				else{
@@ -132,79 +133,110 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 		}
 	}
 </script>
+<style type="text/css">
+	fieldset{ padding: 10px }
+	legend{ font-weight: bold }
+	.fieldRowDiv{ clear:both; margin: 2px 0px; }
+	.fieldDiv{ float:left; margin: 2px 10px 2px 0px; }
+	.fieldLabel{ font-weight: bold; display: block; }
+	.fieldDiv button{ margin-top: 10px; }
+</style>
 
 <div id="voucherdiv" style="width:795px;">
 	<?php
-	$assocArr = $occManager->getAssociatedOccurrences();
+	$assocArr = $occManager->getOccurrenceRelationships();
 	?>
 	<fieldset style="padding:20px">
 		<legend><b>Associated Occurrences</b></legend>
 		<form name="addOccurAssocForm" action="resourcehandler.php" method="post" onsubmit="return validateAssocForm(this)">
+			<fieldset>
+				<legend>Occurrence within System</legend>
+				<div class="fieldRowDiv">
+					<div class="fieldDiv">
+						<span class="fieldLabel">Identifier: </span>
+						<input name="identifier" type="text" value="" />
+						<input name="occidAssociate" type="hidden" value="" />
+					</div>
+					<div class="fieldDiv">
+						<span class="fieldLabel">Search Target: </span>
+						<select name="target">
+							<option value="catnum">Catalog Numbers</option>
+							<option value="occid">Occurrence PK (occid)</option>
+							<!-- <option value="occurrenceID">occurrenceID</option>  -->
+						</select>
+					</div>
+				</div>
+				<div class="fieldRowDiv">
+					<div class="fieldDiv">
+						<span class="fieldLabel">Search Collections: </span>
+						<select name="collidtarget">
+							<option value="">All Collections</option>
+							<option value="">-------------------------</option>
+							<?php
+							$collList = $occManager->getCollectionList();
+							foreach($collList as $collid => $collName){
+								echo '<option value="'.$collid.'">'.$collName.'</option>';
+							}
+							?>
+						</select>
+					</div>
+					<div class="fieldDiv">
+						<button type="button" onclick="assocIdentifierChanged(this.form)">Search</button>
+					</div>
+				</div>
+				<div class="fieldRowDiv">
+					<div class="fieldDiv">
+						<div id="searchResultDiv"></div>
+					</div>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>External Occurrence</legend>
+				<div class="fieldRowDiv">
+					<div class="fieldDiv">
+						<span class="fieldLabel">External Identifier: </span>
+						<input name="externalIdentifier" type="text" value="" />
+					</div>
+					<div class="fieldDiv">
+						<span class="fieldLabel">Resource URL: </span>
+						<input name="resourceurl" type="text" value="" />
+					</div>
+				</div>
+			</fieldset>
 			<div class="fieldRowDiv">
 				<div class="fieldDiv">
-					<input name="identifier" type="text" value="" />
-					<input name="occidAssociate" type="hidden" value="" />
-				</div>
-				<div class="fieldDiv">
-					<span>Search Target</span>
-					<select name="target">
-						<option value="occid">occurrence PK (occid)</option>
-						<option value="catnum">Catalog Numbers</option>
-						<!-- <option value="occurrenceID">occurrenceID</option>  -->
-					</select>
-				</div>
-				<div class="fieldDiv">
-					<span>Search Collections:</span>
-					<select name="collidtarget">
-						<option value="">All Collections</option>
-						<option value="">-------------------------</option>
+					<span class="fieldLabel">Relationship: </span>
+					<select name="relationship" required>
+						<option value="">--------------------</option>
 						<?php
-						$collList = $occManager->getCollectionList();
-						foreach($collList as $collid => $collName){
-							echo '<option value="'.$collid.'">'.$collName.'</option>';
+						$relArr = $occManager->getRelationshipArr();
+						foreach($relArr as $rKey => $rValue){
+							echo '<option value="'.$rKey.'">'.$rValue.'</option>';
 						}
 						?>
 					</select>
 				</div>
 				<div class="fieldDiv">
-					<button type="button" onchange="assocIdentifierChanged(this)">Search</button>
-				</div>
-				<div class="fieldDiv">
-					<div id="searchResultDiv"></div>
-				</div>
-			</div>
-			<div class="fieldRowDiv">
-				<div class="fieldDiv">
-					<select name="relationship" required>
-						<option value="">Select Relationship</option>
-						<option value="">--------------------</option>
-						<option value="isParentOf">Parent Occurrence</option>
-						<option value="isChildOf">Child Occurrence</option>
-						<option value="isSiblingOf">Sibling Occurrence</option>
-
-					</select>
-				</div>
-				<div class="fieldDiv">
+					<span class="fieldLabel">Relationship subtype: </span>
 					<select name="subType">
-						<option value="">Select Subtype</option>
 						<option value="">--------------------</option>
-						<option value="tissue">Tissue</option>
-						<option value="genetic">Genetic</option>
-
+						<?php
+						$subtypeArr = $occManager->getSubtypeArr();
+						foreach($subtypeArr as $tKey => $tValue){
+							echo '<option value="'.$tKey.'">'.$tValue.'</option>';
+						}
+						?>
 					</select>
 				</div>
 			</div>
 			<div class="fieldRowDiv">
 				<div class="fieldDiv">
-					<input name="resourceurl" type="text" value="" />
-					<input name="externalIdentifier" type="text" value="" />
+					<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />
+					<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+					<input name="tabtarget" type="hidden" value="3" />
+					<button name="submitaction" type="submit" value="createAssociation">Create Association</button>
 				</div>
 			</div>
-
-			<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />
-			<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-			<input name="tabtarget" type="hidden" value="3" />
-			<input name="submitaction" type="submit" value="Link to Checklist as Voucher" />
 		</form>
 		<div id="occurAssocDiv">
 			<?php

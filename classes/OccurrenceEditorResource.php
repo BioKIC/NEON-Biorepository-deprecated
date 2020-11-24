@@ -1,6 +1,6 @@
 <?php
 include_once 'OccurrenceEditorManager.php';
-class OccurrenceEditorAssoc extends OccurrenceEditorManager {
+class OccurrenceEditorResource extends OccurrenceEditorManager {
 
 	public function __construct($conn = null){
 		parent::__construct();
@@ -10,32 +10,32 @@ class OccurrenceEditorAssoc extends OccurrenceEditorManager {
 		parent::__destruct();
 	}
 
-	//Occurrence associations
-	public function getAssociatedOccurrences(){
+	//Occurrence relationships
+	public function getOccurrenceRelationships(){
 		$retArr = array();
-		$assocOccidArr = array();
+		$relOccidArr = array();
 		$uidArr = array();
 		$sql = 'SELECT assocOccurID, occid, occidAssociate, relationship, subType, resourceUrl, externalIdentifier, dynamicProperties, createdUid, modifiedUid, modifiedTimestamp, initialTimestamp '.
 			'FROM omassociatedoccurrence'.
 			'WHERE (occid = '.$this->occid.') OR (occidAssociate = '.$this->occid.')';
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
-				$assocOccid = $r->occidAssociate;
+				$relOccid = $r->occidAssociate;
 				$relationship = $r->relationship;
 				if($this->occid == $r->occidAssociate){
-					$assocOccid = $r->occid;
+					$relOccid = $r->occid;
 					$relationship = $this->getInverseRelationship($relationship);
 				}
-				$assocOccidArr[$assocOccid] = $r->assocOccurID;
-				$retArr[$r->assocOccurID]['occidAssociate'] = $assocOccid;
+				$relOccidArr[$relOccid] = $r->assocOccurID;
+				$retArr[$r->assocOccurID]['occidAssociate'] = $relOccid;
 				$retArr[$r->assocOccurID]['relationship'] = $relationship;
-				$retArr[$r->assocOccurID]['subType'] = $assocOccid;
+				$retArr[$r->assocOccurID]['subType'] = $r->subType;
 				$retArr[$r->assocOccurID]['resourceUrl'] = $r->resourceUrl;
 				$retArr[$r->assocOccurID]['externalIdentifier'] = $r->externalIdentifier;
 				$retArr[$r->assocOccurID]['dynamicProperties'] = $r->dynamicProperties;
 				$retArr[$r->assocOccurID]['ts'] = $r->modifiedTimestamp;
 				$uid = ($r->modifiedUid?$r->modifiedUid:$r->createdUid);
-				$uidArr[$uid] = $r->assocOccurID;
+				if($uid) $uidArr[$uid] = $r->assocOccurID;
 			}
 			$rs->free();
 			//Update modifiedBy data
@@ -46,41 +46,61 @@ class OccurrenceEditorAssoc extends OccurrenceEditorManager {
 			}
 			$rs->free();
 			//Grab catalog number of associations
-			$sql = 'SELECT o.occid, IFNULL(c.institutioncode, c.collectioncode) as collcode, IFNULL(o.catalogNumber,o.otherCatalogNumbers) as catnum '.
+			$sql = 'SELECT o.occid, IFNULL(IFNULL(o.institutioncode,c.institutioncode), IFNULL(o.collectioncode,c.collectioncode) as collcode, IFNULL(o.catalogNumber,o.otherCatalogNumbers) as catnum '.
 				'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid '.
-				'WHERE o.occid IN('.implode(',',array_keys($assocOccidArr)).')';
+				'WHERE o.occid IN('.implode(',',array_keys($relOccidArr)).')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$retArr[$assocOccidArr[$r->occid]]['collcode'] = $r->collcode;
-				$retArr[$assocOccidArr[$r->occid]]['catnum'] = $r->catnum;
-
+				$retArr[$relOccidArr[$r->occid]]['collcode'] = $r->collcode;
+				$retArr[$relOccidArr[$r->occid]]['catnum'] = $r->catnum;
 			}
 			$rs->free();
 		}
 		return $retArr;
 	}
 
-	public function getAssociateByIdentifier($id,$target,$collidTarget){
+	public function getOccurrenceByIdentifier($id,$target,$collidTarget){
 		$retArr = array();
 		$id = $this->cleanInStr($id);
-		$sql = '';
-		if($collidTarget && is_numeric($collidTarget)) $sql .= 'AND (o.collid = '.$collidTarget.') ';
+		$sqlWhere = '';
 		if($target == 'occid'){
-			if(is_numeric($id)) $sql .= 'AND (occid = '.$id.') ';
+			if(is_numeric($id)) $sqlWhere .= 'AND (occid = '.$id.') ';
 		}
-		else $sql .= 'AND (catalogNumber = '.$id.') OR (othercatalognumber = '.$id.') ';
-		$sql = 'SELECT o.occid, o.catalogNumber, o.otherCatalogNumbers, o.recordedBy, o.recordNumber, IFNULL(o.eventDate,o.verbatimEventDate) as eventDate, '.
-			'IFNULL(c.institutionCode,c.collectionCode) AS collcode, c.collectionName '.
-			'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid WHERE '.substr($sql, 4);
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->occid]['catnum'] = $r->catalogNumber?$r->catalogNumber:$r->otherCatalogNumbers;
-			$retArr[$r->occid]['collinfo'] = $r->recordedBy.($r->recordNumber?' ('.$r->recordNumber.')':'').' '.$r->eventDate;
+		else $sqlWhere .= 'AND (catalogNumber = "'.$id.'") OR (othercatalognumbers = "'.$id.'") ';
+		if($sqlWhere){
+			$sql = 'SELECT o.occid, o.catalogNumber, o.otherCatalogNumbers, o.recordedBy, o.recordNumber, IFNULL(o.eventDate,o.verbatimEventDate) as eventDate, '.
+				'IFNULL(c.institutionCode,c.collectionCode) AS collcode, c.collectionName '.
+				'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid WHERE '.substr($sqlWhere, 4);
+			if($collidTarget && is_numeric($collidTarget)) $sqlWhere .= 'AND (o.collid = '.$collidTarget.') ';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->occid]['catnum'] = $r->catalogNumber?$r->catalogNumber:$r->otherCatalogNumbers;
+				$retArr[$r->occid]['collinfo'] = $r->recordedBy.($r->recordNumber?' ('.$r->recordNumber.')':'').' '.$r->eventDate;
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retArr;
 	}
 
+	private function getInverseRelationship($relationship){
+		//Need to expand infrastructure to define inverse relationships
+		//isParentOf, isChildOf, isSiblingOf, isOriginatorSampleOf, isSubsampleOf, isPartOf
+
+		$baseArr = array('isOriginatorSampleOf'=>'isSubsampleOf');
+		$inverseArr = array_merge($baseArr,array_flip($baseArr));
+		if(array_key_exists($relationship, $inverseArr)) return $inverseArr[$relationship];
+		return $relationship;
+	}
+
+	public function getRelationshipArr(){
+		$relationshipArr = array('isOriginatorSampleOf'=>'isOriginatorSampleOf', 'isSubsampleOf'=>'isSubsampleOf', 'isPartOf'=>'isPartOf');
+		return $relationshipArr;
+	}
+
+	public function getSubtypeArr(){
+		$subTypeArr = array('genetic'=>'genetic','specimenMount'=>'specimen mount','tissue'=>'tissue');
+		return $subTypeArr;
+	}
 
 	//Checklist voucher functions
 	public function getVoucherChecklists(){

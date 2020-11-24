@@ -229,13 +229,9 @@ class DwcArchiverCore extends Manager{
 		if($field){
 			if($this->overrideConditionLimit || in_array(strtolower($field),$this->condAllowArr)){
 				if(!$cond) $cond = 'EQUALS';
-				if($value || ($cond == 'NULL' || $cond == 'NOTNULL')){
-					if(is_array($value)){
-						$this->conditionArr[$field][$cond] = $this->cleanInArray($value);
-					}
-					else{
-						$this->conditionArr[$field][$cond][] = $this->cleanInStr($value);
-					}
+				if($value != '' || ($cond == 'NULL' || $cond == 'NOTNULL')){
+					if(is_array($value)) $this->conditionArr[$field][$cond] = $this->cleanInArray($value);
+					else $this->conditionArr[$field][$cond][] = $this->cleanInStr($value);
 				}
 			}
 		}
@@ -275,6 +271,10 @@ class DwcArchiverCore extends Manager{
 					$taxaArr['taxa'] = implode(';',$condArr['EQUALS']);
 					$taxaManager->setTaxonRequestVariable($taxaArr);
 					$sqlFrag .= $taxaManager->getTaxonWhereFrag();
+				}
+				elseif($field == 'cultivationStatus'){
+					if(current(current($condArr)) === '0') $sqlFrag .= 'AND (o.cultivationStatus = 0 OR o.cultivationStatus IS NULL) ';
+					else $sqlFrag .= 'AND (o.cultivationStatus = 1) ';
 				}
 				else{
 					if($field == 'datelastmodified') $field = 'IFNULL(o.modified,o.datelastmodified)';

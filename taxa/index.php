@@ -317,14 +317,18 @@ include($SERVER_ROOT.'/includes/header.php');
 										$legendStr .= '</a>';
 									}
 									elseif($pid){
-										$titleStr = (isset($LANG['WITHIN_INVENTORY'])?$LANG['WITHIN_INVENTORY']:'Species within inventory project').': '.$taxonManager->getProjName($pid);
+										$projName = $taxonManager->getProjName($pid);
+										if($projName) $titleStr = (isset($LANG['WITHIN_INVENTORY'])?$LANG['WITHIN_INVENTORY']:'Species within inventory project').': '.$projName;
+										else $titleStr = (isset($LANG['SHOW_ALL_TAXA'])?$LANG['SHOW_ALL_TAXA']:'Show all taxa');
 										$legendStr .= ' <a href="index.php?tid='.$tid.'&clid=0&pid='.$pid.'&taxauthid='.$taxAuthId.'" title="'.$titleStr.'">';
 										$legendStr .= '<img style="border:0px;width:10px;" src="../images/toparent.png"/>';
 										$legendStr .= '</a>';
 									}
 								}
 								elseif($pid){
-									$legendStr .= (isset($LANG['WITHIN_INVENTORY'])?$LANG['WITHIN_INVENTORY']:'Species within inventory project').': <b>'.$taxonManager->getProjName($pid).'</b>';
+									$projName = $taxonManager->getProjName($pid);
+									if($projName) $legendStr .= (isset($LANG['WITHIN_INVENTORY'])?$LANG['WITHIN_INVENTORY']:'Species within inventory project').': <b>'.$projName.'</b>';
+									else $legendStr = (isset($LANG['SHOW_ALL_TAXA'])?$LANG['SHOW_ALL_TAXA']:'Show all taxa');
 									$titleStr = (isset($LANG['SHOW_ALL_TAXA'])?$LANG['SHOW_ALL_TAXA']:'Show all taxa');
 									$legendStr .= ' <a href="index.php?tid='.$tid.'&clid=0&pid=0&taxauthid='.$taxAuthId.'" title="'.$titleStr.'">';
 									$legendStr .= '<img style="border:0px;width:10px;" src="../images/toparent.png"/>';

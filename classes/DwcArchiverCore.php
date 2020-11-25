@@ -1177,7 +1177,7 @@ class DwcArchiverCore extends Manager{
 		$rootElem->setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance');
 		$rootElem->setAttribute('xsi:schemaLocation','eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.0.1/eml.xsd');
 		$rootElem->setAttribute('packageId',UuidFactory::getUuidV4());
-		$rootElem->setAttribute('system','http://symbiota.org');
+		$rootElem->setAttribute('system','https://symbiota.org');
 		$rootElem->setAttribute('scope','system');
 		$rootElem->setAttribute('xml:lang','eng');
 

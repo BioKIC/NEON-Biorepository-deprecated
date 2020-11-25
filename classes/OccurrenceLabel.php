@@ -311,6 +311,9 @@ class OccurrenceLabel{
 				return '<div '.(isset($divArr['className'])?'class="'.$divArr['className'].'"':'').' '.(isset($divArr['style'])?'style="'.$divArr['style'].'"':'').'>'.$blockStr.'</div>'."\n";
 			}
 		}
+		else if($contentStr = $divArr['content']) {
+			return '<div '.(isset($divArr['className'])?'class="'.$divArr['className'].'"':'').' '.(isset($divArr['style'])?'style="'.$divArr['style'].'"':'').'>'.$contentStr.'</div>'."\n";
+		}
 		return '';
 	}
 

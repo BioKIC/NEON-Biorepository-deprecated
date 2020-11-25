@@ -2,20 +2,24 @@
 // Rename labeljson_template.php to labeljson.php and modify or replace example label formats below
 $LABEL_FORMAT_JSON = '{"labelFormats": [
 	{
-		"name":"Generic Herbarium Label",
+		"title":"Generic Herbarium Label",
 		"displaySpeciesAuthor":1,
 		"displayBarcode":0,
-		"columnCount":"2",
-		"defaultStyles":"font-style:time roman;font-size:10pt",
-		"defaultCss":"",
+		"labelType":"2",
+		"defaultStyles":"font-size:10pt",
+		"defaultCss":"../../css/symb/labelhelpers.css",
+		"customCss":"",
+		"pageSize":"letter",
 		"labelHeader":{
-			"hPrefix":"Flora of ",
-			"hMidCol":3,
-			"hSuffix":" county",
+			"prefix":"Flora of ",
+			"midText":3,
+			"suffix":" county",
+			"className": "text-center font-bold font-sans text-2xl",
 			"style":"text-align:center;margin-bottom:10px;font:bold 14pt arial,sans-serif;clear:both;"
 		},
 		"labelFooter":{
 			"textValue":"",
+			"className": "text-center font-bold font-sans text-2xl",
 			"style":"text-align:center;margin-top:10px;font:bold 10pt arial,sans-serif;clear:both;"
 		},
 		"labelBlocks":[
@@ -56,20 +60,24 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		]
 	},
 	{
-		"name":"Generic Vertebrate Label",
+		"title":"Generic Vertebrate Label",
 		"displaySpeciesAuthor":0,
 		"displayBarcode":0,
-		"columnCount":"3",
-		"defaultStyles":"font-style:time roman;font-size:8pt",
-		"defaultCss":"",
+		"labelType":"3",
+		"defaultStyles":"font-size:10pt",
+		"defaultCss":"../../css/symb/labelhelpers.css",
+		"customCss":"",
+		"pageSize":"letter",
 		"labelHeader":{
-			"hPrefix":"",
-			"hMidCol":0,
-			"hSuffix":"",
+			"prefix":"",
+			"midText":0,
+			"suffix":"",
+			"className": "text-center font-bold font-sans text-2xl",
 			"style":"text-align:center;margin-bottom:5px;font:bold 7pt arial,sans-serif;clear:both;"
 		},
 		"labelFooter":{
 			"textValue":"",
+			"className": "text-center font-bold font-sans text-2xl",
 			"style":"text-align:center;margin-top:10px;font:bold 10pt arial,sans-serif;clear:both;"
 		},
 		"labelBlocks":[
@@ -102,6 +110,64 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 				]}}
 			]}}
 		]
+	},
+	{
+		"title":"Generic Herbarium Label - experiments by Laura",
+		"displaySpeciesAuthor":1,
+		"displayBarcode":0,
+		"labelType":"2",
+		"defaultStyles":"font-size:10pt",
+		"defaultCss":"../../css/symb/labelhelpers.css",
+		"customCss":"",
+		"pageSize":"letter",
+		"labelHeader":{
+			"prefix":"Flora of ",
+			"midText":3,
+			"suffix":" county",
+			"className":"text-center font-bold font-sans text-2xl",
+			"style":"margin-bottom:10px;"
+		},
+		"labelBlocks":[
+			{"divBlock":{"className":"label-block","blocks":[
+				{"divBlock":{"className":"taxonomy my-2 text-lg","blocks":[
+					{"fieldBlock":[
+						{"field":"identificationqualifier"},
+						{"field":"speciesname","className":"font-bold italic"},
+						{"field":"parentauthor"},
+						{"field":"taxonrank","className":"font-bold"},
+						{"field":"infraspecificepithet","className":"font-bold italic"},
+						{"field":"scientificnameauthorship"}
+						],"delimiter":" "
+					},
+					{"fieldBlock":[{"field":"family","styles":["float:right"]}]}
+				]}},
+				{"fieldBlock":[{"field":"identifiedby","prefix":"Det by: "},{"field":"dateidentified"}]},
+				{"fieldBlock":[{"field":"identificationreferences"}]},
+				{"fieldBlock":[{"field":"identificationremarks"}]},
+				{"fieldBlock":[{"field":"taxonremarks"}]},
+				{"divBlock":{"className":"localDiv","className":"text-lg","style":"margin-top:10px;","blocks":[
+					{"fieldBlock":[{"field":"country","className":"font-bold"},{"field":"stateprovince","style":"font-weight:bold"},{"field":"county"},{"field":"municipality"},{"field":"locality"}],"delimiter":", "}
+				]}},
+				{"fieldBlock":[{"field":"decimallatitude"},{"field":"decimallongitude","style":"margin-left:10px"},{"field":"coordinateuncertaintyinmeters","prefix":"+-","suffix":" meters","style":"margin-left:10px"},{"field":"geodeticdatum","prefix":"[","suffix":"]","style":"margin-left:10px"}]},
+				{"fieldBlock":[{"field":"verbatimcoordinates"}]},
+				{"fieldBlock":[{"field":"elevationinmeters","prefix":"Elev: ","suffix":"m. "},{"field":"verbatimelevation"}]},
+				{"fieldBlock":[{"field":"habitat","suffix":"."}]},
+				{"fieldBlock":[{"field":"substrate","suffix":"."}]},
+				{"fieldBlock":[{"field":"verbatimattributes"},{"field":"establishmentmeans"}],"delimiter":"; "},
+				{"fieldBlock":[{"field":"associatedtaxa","prefix":"Associated species: ","className":"italic"}]},
+				{"fieldBlock":[{"field":"occurrenceremarks"}]},
+				{"fieldBlock":[{"field":"typestatus"}]},
+				{"divBlock":{"className":"collector","style":"margin-top:10px;","blocks":[
+					{"fieldBlock":[{"field":"recordedby","style":"float:left"},{"field":"recordnumber","style":"float:left;margin-left:10px"},{"field":"eventdate","style":"float:right"}]},
+					{"fieldBlock":[{"field":"associatedcollectors","prefix":"with: "}],"style":"clear:both; margin-left:10px;"}
+				]}}
+			]}}
+		],
+		"labelFooter":{
+			"textValue":"",
+			"className":"text-center font-bold font-sans",
+			"style":"margin-top:10px;"
+		}
 	}
 ]}';
 ?>

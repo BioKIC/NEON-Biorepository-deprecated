@@ -3,9 +3,9 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceLabel.php');
 
 $collid = $_POST['collid'];
-$hPrefix = $_POST['lhprefix'];
-$hMid = $_POST['lhmid'];
-$hSuffix = $_POST['lhsuffix'];
+$hPrefix = $_POST['hprefix'];
+$hMid = $_POST['hmid'];
+$hSuffix = $_POST['hsuffix'];
 $lFooter = $_POST['lfooter'];
 $columnCount = $_POST['columncount'];
 $labelIndexGlobal = (isset($_POST['labelformatindex-g'])?$_POST['labelformatindex-g']:'');
@@ -52,9 +52,9 @@ else{
 }
 
 $targetLabelFormatArr = false;
-if(is_numeric($labelIndexGlobal)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('global',$labelIndexGlobal);
-elseif(is_numeric($labelIndexColl)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('coll',$labelIndexGlobal);
-elseif(is_numeric($labelIndexUser)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('user',$labelIndexGlobal);
+if(is_numeric($labelIndexGlobal)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('global',$labelIndexGlobal);
+elseif(is_numeric($labelIndexColl)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('coll',$labelIndexGlobal);
+elseif(is_numeric($labelIndexUser)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('user',$labelIndexGlobal);
 
 $isEditor = 0;
 if($SYMB_UID){
@@ -173,61 +173,57 @@ if($SYMB_UID){
 								echo '<div class="row">';
 								$rowCnt++;
 							}
-              ?>
-              <?php echo '<div class="label'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">'; ;?>
-								<?php
-                echo '<div class="label-header'.(isset($targetLabelFormatArr['labelHeader']['className'])?' '.$targetLabelFormatArr['labelHeader']['className']:'').'"'.(isset($targetLabelFormatArr['labelHeader']['style'])?' style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
-								//Output field data
-								echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
-								if($useBarcode && $occArr['catalognumber']){
-									?>
-									<div class="cn-barcode">
-										<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
-									</div>
-									<?php
-									if($occArr['othercatalognumbers']){
-										?>
-										<div class="other-catalog-numbers">
-											<?php echo $occArr['othercatalognumbers']; ?>
-										</div>
-										<?php
-									}
-								}
-								elseif($showcatalognumbers){
-									if($occArr['catalognumber']){
-										?>
-										<div class="catalog-number">
-											<?php echo $occArr['catalognumber']; ?>
-										</div>
-										<?php
-									}
-									if($occArr['othercatalognumbers']){
-										?>
-										<div class="other-catalog-numbers">
-											<?php echo $occArr['othercatalognumbers']; ?>
-										</div>
-										<?php
-									}
-								}
-								if($lFooter) echo '<div class="label-footer" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
-								if($useSymbBarcode){
-									?>
-									<hr style="border:dashed;" />
-									<div class="symb-barcode">
-										<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occid; ?>" />
-									</div>
-									<?php
-									if($occArr['catalognumber']){
-										?>
-										<div class="catalog-number">
-											<?php echo $occArr['catalognumber']; ?>
-										</div>
-										<?php
-									}
-								}
+							echo '<div class="label'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">';
+							echo '<div class="label-header'.(isset($targetLabelFormatArr['labelHeader']['className'])?' '.$targetLabelFormatArr['labelHeader']['className']:'').'"'.(isset($targetLabelFormatArr['labelHeader']['style'])?' style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
+							//Output field data
+							echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
+							if($useBarcode && $occArr['catalognumber']){
 								?>
-							</div>
-							<?php
+								<div class="cn-barcode">
+									<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
+								</div>
+								<?php
+								if($occArr['othercatalognumbers']){
+									?>
+									<div class="other-catalog-numbers">
+										<?php echo $occArr['othercatalognumbers']; ?>
+									</div>
+									<?php
+								}
+							}
+							elseif($showcatalognumbers){
+								if($occArr['catalognumber']){
+									?>
+									<div class="catalog-number">
+										<?php echo $occArr['catalognumber']; ?>
+									</div>
+									<?php
+								}
+								if($occArr['othercatalognumbers']){
+									?>
+									<div class="other-catalog-numbers">
+										<?php echo $occArr['othercatalognumbers']; ?>
+									</div>
+									<?php
+								}
+							}
+							if($lFooter) echo '<div class="label-footer" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
+							if($useSymbBarcode){
+								?>
+								<hr style="border:dashed;" />
+								<div class="symb-barcode">
+									<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occid; ?>" />
+								</div>
+								<?php
+								if($occArr['catalognumber']){
+									?>
+									<div class="catalog-number">
+										<?php echo $occArr['catalognumber']; ?>
+									</div>
+									<?php
+								}
+							}
+							echo '</div>';
 						}
 					}
 				}

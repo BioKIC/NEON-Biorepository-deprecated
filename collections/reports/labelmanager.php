@@ -26,7 +26,7 @@ if($isEditor){
 		$occArr = $labelManager->queryOccurrences($_POST);
 	}
 }
-$labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
+$labelFormatArr = $labelManager->getLabelFormatArr(true);
 ?>
 <html>
 	<head>
@@ -148,10 +148,10 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 					var labelIndex = selObj.value;
 					var f = document.selectform;
 
-					f.lhprefix.value = labelFormatObj[catStr][labelIndex].labelHeader.hPrefix;
-					var midIndex = labelFormatObj[catStr][labelIndex].labelHeader.hMidCol;
-					document.getElementById("lhmid"+midIndex).checked = true;
-					f.lhsuffix.value = labelFormatObj[catStr][labelIndex].labelHeader.hSuffix;
+					f.hprefix.value = labelFormatObj[catStr][labelIndex].labelHeader.prefix;
+					var midIndex = labelFormatObj[catStr][labelIndex].labelHeader.midText;
+					document.getElementById("hmid"+midIndex).checked = true;
+					f.hsuffix.value = labelFormatObj[catStr][labelIndex].labelHeader.suffix;
 					f.lfooter.value = labelFormatObj[catStr][labelIndex].labelFooter.textValue;
 					if(labelFormatObj[catStr][labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
 					else f.speciesauthors.checked = false;
@@ -159,8 +159,7 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 						if(labelFormatObj[catStr][labelIndex].displayBarcode == 1) f.bc.checked = true;
 						else f.bc.checked = false;
 					}
-					var columnCountIndex = labelFormatObj[catStr][labelIndex].columnCount;
-					if(document.getElementById("columncount"+columnCountIndex)) document.getElementById("columncount"+columnCountIndex).checked = true;
+					f.labelType.value = labelFormatObj[catStr][labelIndex].labelType;
 					if(catStr != 'g' && f["labelformatindex-g"]) f["labelformatindex-g"].value = "";
 					if(catStr != 'c' && f["labelformatindex-c"]) f["labelformatindex-c"].value = "";
 					if(catStr != 'u' && f["labelformatindex-u"]) f["labelformatindex-u"].value = "";
@@ -368,36 +367,37 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 															<option value="">=========================================</option>
 															<?php
 															foreach($catArr as $k => $labelArr){
-																echo '<option value="'.$k.'">'.$labelArr['name'].'</option>';
+																echo '<option value="'.$k.'">'.$labelArr['title'].'</option>';
 															}
 															?>
 														</select>
 													</div>
 													<?php
 												}
+												if(!$labelFormatArr) echo '<b>label profiles have not yet been set within portal</b>';
 												?>
 											</div>
 										</div>
 									<div class="fieldDiv">
 										<div class="fieldLabel">Heading Prefix:</div>
 										<div class="fieldElement">
-											<input type="text" name="lhprefix" value="" style="width:450px" /> (e.g. Plants of, Insects of, Vertebrates of)
+											<input type="text" name="hprefix" value="" style="width:450px" /> (e.g. Plants of, Insects of, Vertebrates of)
 										</div>
 									</div>
 									<div class="fieldDiv">
 										<div class="checkboxLabel">Heading Mid-Section:</div>
 										<div class="fieldElement">
-											<input type="radio" id="lhmid1" name="lhmid" value="1" />Country
-											<input type="radio" id="lhmid2" name="lhmid" value="2" />State
-											<input type="radio" id="lhmid3" name="lhmid" value="3" />County
-											<input type="radio" id="lhmid4" name="lhmid" value="4" />Family
-											<input type="radio" id="lhmid0" name="lhmid" value="0" checked/>Blank
+											<input type="radio" id="hmid1" name="hmid" value="1" />Country
+											<input type="radio" id="hmid2" name="hmid" value="2" />State
+											<input type="radio" id="hmid3" name="hmid" value="3" />County
+											<input type="radio" id="hmid4" name="hmid" value="4" />Family
+											<input type="radio" id="hmid0" name="hmid" value="0" checked/>Blank
 										</div>
 									</div>
 									<div class="fieldDiv">
 										<span class="fieldLabel">Heading Suffix:</span>
 										<span class="fieldElement">
-											<input type="text" name="lhsuffix" value="" style="width:450px" />
+											<input type="text" name="hsuffix" value="" style="width:450px" />
 										</span>
 									</div>
 									<div class="fieldDiv">
@@ -436,11 +436,17 @@ $labelFormatArr = $labelManager->getLabelFormatAnnotatedArr();
 									?>
 									<div style="float:left;">
 										<fieldset style="margin:10px;width:225px;">
-											<legend><b>Column Count</b></legend>
-											<input type="radio" id="columncount1" name="columncount" value="1" /> 1 columns per page<br/>
-											<input type="radio" id="columncount2" name="columncount" value="2" checked /> 2 columns per page<br/>
-											<input type="radio" id="columncount3" name="columncount" value="3" /> 3 columns per page<br/>
-											<input id="packetradio" type="radio" name="columncount" value="packet" /> packet labels<br/>
+											<legend><b>Label Type</b></legend>
+											<select name="labelType">
+												<option value="1">1 columns per page</option>
+												<option value="2" selected>2 columns per page</option>
+												<option value="3">3 columns per page</option>
+												<option value="4">4 columns per page</option>
+												<option value="5">5 columns per page</option>
+												<option value="6">6 columns per page</option>
+												<option value="7">7 columns per page</option>
+												<option value="packet">Packet labels</option>
+											</select>
 										</fieldset>
 									</div>
 									<div style="float:left;margin: 15px 50px;">

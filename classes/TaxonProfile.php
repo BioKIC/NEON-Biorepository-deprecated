@@ -544,8 +544,8 @@ class TaxonProfile extends Manager {
 			$result = $this->conn->query($sql);
 			while($row = $result->fetch_object()){
 				$sn = ucfirst(strtolower($row->sciname));
-				$this->sppArray[$sn]["tid"] = $row->tid;
-				$this->sppArray[$sn]["security"] = $row->securitystatus;
+				$this->sppArray[$sn]['tid'] = $row->tid;
+				$this->sppArray[$sn]['security'] = $row->securitystatus;
 				$tids[] = $row->tid;
 			}
 			$result->free();
@@ -553,17 +553,17 @@ class TaxonProfile extends Manager {
 			//If no tids exist because there are no species in default project, grab all species from that taxon
 			if(!$tids){
 				$sql = 'SELECT DISTINCT t.sciname, t.tid, t.securitystatus '.
-					'FROM taxa t INNER JOIN taxstatus ts ON t.Tid = ts.tidaccepted '.
-					'INNER JOIN taxaenumtree te ON ts.tid = te.tid '.
-					'WHERE (te.taxauthid = 1) AND (ts.taxauthid = 1) AND (t.rankid = 220) AND (te.parenttid = '.$this->tid.') '.
+					'FROM taxa t INNER JOIN taxstatus ts ON t.Tid = ts.tid '.
+					'INNER JOIN taxaenumtree te ON t.tid = te.tid '.
+					'WHERE (te.taxauthid = 1) AND (ts.taxauthid = 1) AND (t.rankid = 220) AND (ts.tidaccepted = ts.tid) AND (te.parenttid = '.$this->tid.') '.
 					'ORDER BY t.sciname LIMIT '.$start.','.($taxaLimit+1);
 				//echo $sql;
 
 				$result = $this->conn->query($sql);
 				while($row = $result->fetch_object()){
 					$sn = ucfirst(strtolower($row->sciname));
-					$this->sppArray[$sn]["tid"] = $row->tid;
-					$this->sppArray[$sn]["security"] = $row->securitystatus;
+					$this->sppArray[$sn]['tid'] = $row->tid;
+					$this->sppArray[$sn]['security'] = $row->securitystatus;
 					$tids[] = $row->tid;
 				}
 				$result->free();
@@ -762,7 +762,7 @@ class TaxonProfile extends Manager {
 
 	public function getParentChecklist($clid){
 		$retArr = array();
-		if(is_numeric($clid)){
+		if($clid && is_numeric($clid)){
 			//Direct parent checklist
 			$sql = 'SELECT c.clid, c.name '.
 				'FROM fmchecklists c INNER JOIN fmchklstchildren cp ON c.clid = cp.clid '.
@@ -789,8 +789,8 @@ class TaxonProfile extends Manager {
 
 	public function getProjName($pid){
 		$projName = '';
-		if(is_numeric($pid)){
-			$sql = "SELECT projname FROM fmprojects WHERE (pid = ".$pid.')';
+		if($pid && is_numeric($pid)){
+			$sql = 'SELECT projname FROM fmprojects WHERE (pid = '.$pid.')';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$projName = $r->projname;

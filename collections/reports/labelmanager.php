@@ -356,7 +356,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 								<fieldset style="margin-top:15px;">
 									<legend>Label Printing</legend>
 										<div class="fieldDiv">
-											<div class="fieldLabel">Label Format Profiles:</div>
+											<div class="fieldLabel">Label Profiles <span title="Open label profile manager"><a href="labeljsoneditor.php?collid=<?php echo $collid; ?>"><img src="../../images/edit.png" /></a></span>:</div>
 											<div class="fieldElement">
 												<?php
 												foreach($labelFormatArr as $cat => $catArr){

@@ -39,7 +39,8 @@ class SpecUploadBase extends SpecUpload{
 	function __construct() {
 		parent::__construct();
 		set_time_limit(7200);
-		ini_set("max_input_time",240);
+		ini_set('max_input_time',600);
+		ini_set('default_socket_timeout', 6000);
 		if(isset($GLOBALS['CHARSET']) && $GLOBALS['CHARSET']){
 			$this->targetCharset = strtoupper($GLOBALS['CHARSET']);
 			if($this->targetCharset == 'UTF8') $this->targetCharset == 'UTF-8';

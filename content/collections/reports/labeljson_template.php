@@ -2,20 +2,24 @@
 // Rename labeljson_template.php to labeljson.php and modify or replace example label formats below
 $LABEL_FORMAT_JSON = '{"labelFormats": [
 	{
-		"name":"Generic Herbarium Label",
+		"title":"Generic Herbarium Label",
 		"displaySpeciesAuthor":1,
 		"displayBarcode":0,
-		"columnCount":"2",
-		"defaultStyles":"font-style:time roman;font-size:10pt",
-		"defaultCss":"",
+		"labelType":"2",
+		"defaultStyles":"font-size:10pt",
+		"defaultCss":"../../css/symb/labelhelpers.css",
+		"customCss":"",
+		"pageSize":"letter",
 		"labelHeader":{
-			"hPrefix":"Flora of ",
-			"hMidCol":3,
-			"hSuffix":" county",
+			"prefix":"Flora of ",
+			"midText":3,
+			"suffix":" county",
+			"className": "text-center font-bold font-sans text-2xl",
 			"style":"text-align:center;margin-bottom:10px;font:bold 14pt arial,sans-serif;clear:both;"
 		},
 		"labelFooter":{
 			"textValue":"",
+			"className": "text-center font-bold font-sans text-2xl",
 			"style":"text-align:center;margin-top:10px;font:bold 10pt arial,sans-serif;clear:both;"
 		},
 		"labelBlocks":[
@@ -56,20 +60,24 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		]
 	},
 	{
-		"name":"Generic Vertebrate Label",
+		"title":"Generic Vertebrate Label",
 		"displaySpeciesAuthor":0,
 		"displayBarcode":0,
-		"columnCount":"3",
-		"defaultStyles":"font-style:time roman;font-size:8pt",
-		"defaultCss":"",
+		"labelType":"3",
+		"defaultStyles":"font-size:10pt",
+		"defaultCss":"../../css/symb/labelhelpers.css",
+		"customCss":"",
+		"pageSize":"letter",
 		"labelHeader":{
-			"hPrefix":"",
-			"hMidCol":0,
-			"hSuffix":"",
+			"prefix":"",
+			"midText":0,
+			"suffix":"",
+			"className": "text-center font-bold font-sans text-2xl",
 			"style":"text-align:center;margin-bottom:5px;font:bold 7pt arial,sans-serif;clear:both;"
 		},
 		"labelFooter":{
 			"textValue":"",
+			"className": "text-center font-bold font-sans text-2xl",
 			"style":"text-align:center;margin-top:10px;font:bold 10pt arial,sans-serif;clear:both;"
 		},
 		"labelBlocks":[
@@ -102,21 +110,21 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 				]}}
 			]}}
 		]
-  },
-  {
-		"name":"Generic Herbarium Label - experiments by Laura",
+	},
+	{
+		"title":"Generic Herbarium Label - experiments by Laura",
 		"displaySpeciesAuthor":1,
 		"displayBarcode":0,
-		"columnCount":"2",
+		"labelType":"2",
 		"defaultStyles":"font-size:10pt",
-    "defaultCss":"../../css/symb/labelhelpers.css",
-    "customCss":"",
-    "pageSize":"letter",
+		"defaultCss":"../../css/symb/labelhelpers.css",
+		"customCss":"",
+		"pageSize":"letter",
 		"labelHeader":{
-			"hPrefix":"Flora of ",
-			"hMidCol":3,
-      "hSuffix":" county",
-      "className":"text-center font-bold font-sans text-2xl",
+			"prefix":"Flora of ",
+			"midText":3,
+			"suffix":" county",
+			"className":"text-center font-bold font-sans text-2xl",
 			"style":"margin-bottom:10px;"
 		},
 		"labelBlocks":[
@@ -154,12 +162,12 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 					{"fieldBlock":[{"field":"associatedcollectors","prefix":"with: "}],"style":"clear:both; margin-left:10px;"}
 				]}}
 			]}}
-    ],
+		],
 		"labelFooter":{
-      "textValue":"",
-      "className":"text-center font-bold font-sans",
+			"textValue":"",
+			"className":"text-center font-bold font-sans",
 			"style":"margin-top:10px;"
-		}  
-  }
+		}
+	}
 ]}';
 ?>

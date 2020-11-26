@@ -391,6 +391,7 @@ class OccurrenceLabel{
 					}
 				}
 			}
+			else $retArr['g'] = array('labelFormats'=>array());
 		}
 		//Add collection defined label formats
 		if($this->collid && $this->collArr['dynprops']){
@@ -445,7 +446,6 @@ class OccurrenceLabel{
 					if(isset($LABEL_FORMAT_JSON)) $globalFormatArr = json_decode($LABEL_FORMAT_JSON,true);
 				}
 				$this->setLabelFormatAttributes($globalFormatArr,$labelIndex,$postArr);
-				print_r($globalFormatArr);
 				$status = $this->saveGlobalJson($globalFormatArr);
 			}
 			elseif($group == 'c'){

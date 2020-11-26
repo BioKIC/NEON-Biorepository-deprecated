@@ -38,6 +38,7 @@ if($isEditor && $action){
 		}
 	}
 }
+$isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General Observations')?true:false);
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -77,8 +78,9 @@ if($isEditor && $action){
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
 		<?php
-		if($collid) echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
-		else echo '<a href="../../profile/viewprofile.php?tabindex=1">Personal Management Menu</a> &gt;&gt; ';
+		if($isGeneralObservation) echo '<a href="../../profile/viewprofile.php?tabindex=1">Personal Management Menu</a> &gt;&gt; ';
+		else echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
+		if($collid) echo '<a href="../../profile/labelmanager.php?collid='.$collid.'">Personal Management Menu</a> &gt;&gt; ';
 		?>
 		<b>Label JSON Editor</b>
 	</div>

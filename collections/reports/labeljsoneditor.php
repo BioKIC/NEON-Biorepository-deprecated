@@ -8,23 +8,33 @@ if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/r
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 
+//Sanitation
+if(!is_numeric($collid)) $collid = 0;
+
 $labelManager = new OccurrenceLabel();
 $labelManager->setCollid($collid);
 
 $isEditor = 0;
-if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']))){
-	$isEditor = 1;
-}
+if($SYMB_UID) $isEditor = 1;
+if($collid && array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])) $isEditor = 2;
+if($IS_ADMIN) $isEditor = 3;
+
 $statusStr = '';
-if($isEditor){
-	if($action == 'saveJsonStr'){
-		if(!$labelManager->saveLabelJson($_POST)){
-			$statusStr = implode('; ', $labelManager->getErrorArr());
+if($isEditor && $action){
+	$applyEdits = true;
+	$group = (isset($_POST['group'])?$_POST['group']:'');
+	if($group == 'g' && $isEditor < 3) $applyEdits = false;
+	if($group == 'c' && $isEditor < 2) $applyEdits = false;
+	if($applyEdits){
+		if($action == 'saveJsonStr'){
+			if(!$labelManager->saveLabelJson($_POST)){
+				$statusStr = implode('; ', $labelManager->getErrorArr());
+			}
 		}
-	}
-	elseif($action == 'deleteJsonStr'){
-		if(!$labelManager->deleteLabelFormat($_POST['group'],$_POST['index'])){
-			$statusStr = implode('; ', $labelManager->getErrorArr());
+		elseif($action == 'deleteJsonStr'){
+			if(!$labelManager->deleteLabelFormat($_POST['group'],$_POST['index'])){
+				$statusStr = implode('; ', $labelManager->getErrorArr());
+			}
 		}
 	}
 }
@@ -67,12 +77,8 @@ if($isEditor){
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
 		<?php
-		if(stripos(strtolower($labelManager->getMetaDataTerm('colltype')), "observation") !== false){
-			echo '<a href="../../profile/viewprofile.php?tabindex=1">Personal Management Menu</a> &gt;&gt; ';
-		}
-		else{
-			echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
-		}
+		if($collid) echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
+		else echo '<a href="../../profile/viewprofile.php?tabindex=1">Personal Management Menu</a> &gt;&gt; ';
 		?>
 		<b>Label JSON Editor</b>
 	</div>
@@ -87,13 +93,15 @@ if($isEditor){
 			</div>
 			<?php
 		}
-		echo '<h2>'.$labelManager->getCollName().'</h2>';
+		echo '<h2>Specimen Label Profiles</h2>';
 		$labelFormatArr = $labelManager->getLabelFormatArr();
 		foreach($labelFormatArr as $group => $groupArr){
+			if($group == 'g' && $isEditor < 3) continue;
+			if($group == 'c' && $isEditor < 2) continue;
 			echo '<fieldset>';
 			echo '<legend>';
 			if($group == 'g') echo 'Portal Profiles ';
-			elseif($group == 'c') echo 'Collection Profiles ';
+			elseif($group == 'c') echo $labelManager->getCollName().' Label Profiles ';
 			elseif($group == 'u') echo 'User Profiles ';
 			echo '('.count($groupArr).' formats)';
 			echo '</legend>';
@@ -255,14 +263,18 @@ if($isEditor){
 					</form>
 				</div>
 				<?php
-				$index = key($groupArr);
-				if(is_numeric($index)){
-					$formatArr = $groupArr[$index];
-					next($groupArr);
+				if($groupArr){
+					$index = key($groupArr);
+					if(is_numeric($index)){
+						$formatArr = $groupArr[$index];
+						next($groupArr);
+					}
 				}
 			} while(is_numeric($index));
+			if(!$formatArr) echo '<div>No label profile yet defined. Click green plus sign to right to create a new profile</div>';
 			echo '</fieldset>';
 		}
+		if(!$labelFormatArr) echo '<div>You are not authorized to manage any label profiles. Contact portal administrator for more details.</div>';
 		?>
 	</div>
 	<?php

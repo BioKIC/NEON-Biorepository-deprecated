@@ -374,24 +374,26 @@ class OccurrenceLabel{
 	public function getLabelFormatArr($annotated = false){
 		$retArr = array();
 		//Add global portal defined label formats
-		if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
-			include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
-			if(isset($LABEL_FORMAT_JSON)){
-				if($globalFormatArr = json_decode($LABEL_FORMAT_JSON,true)){
-					if($annotated){
-						if(isset($globalFormatArr['labelFormats'])){
-							foreach($globalFormatArr['labelFormats'] as $k => $labelObj){
-								unset($labelObj['labelFormats']);
-								$retArr['g'][$k] = $labelObj;
+		if($GLOBALS['IS_ADMIN']){
+			if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
+				include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
+				if(isset($LABEL_FORMAT_JSON)){
+					if($globalFormatArr = json_decode($LABEL_FORMAT_JSON,true)){
+						if($annotated){
+							if(isset($globalFormatArr['labelFormats'])){
+								foreach($globalFormatArr['labelFormats'] as $k => $labelObj){
+									unset($labelObj['labelFormats']);
+									$retArr['g'][$k] = $labelObj;
+								}
 							}
 						}
+						else $retArr['g'] = $globalFormatArr['labelFormats'];
 					}
-					else $retArr['g'] = $globalFormatArr['labelFormats'];
 				}
 			}
 		}
 		//Add collection defined label formats
-		if($this->collArr['dynprops']){
+		if($this->collid && $this->collArr['dynprops']){
 			if($collFormatArr = json_decode($this->collArr['dynprops'],true)){
 				if($annotated){
 					if(isset($collFormatArr['labelFormats'])){
@@ -405,27 +407,26 @@ class OccurrenceLabel{
 			}
 		}
 		//Add label formats associated with user profile
-		$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
-		$rs = $this->conn->query($sql);
-		if($rs){
-			$dynPropStr = '';
-			if($r = $rs->fetch_object()){
-				$dynPropStr = $r->dynamicProperties;
-			}
-			$rs->free();
-			if($dynPropStr){
-				if($dynPropArr = json_decode($dynPropStr,true)){
-					if($annotated){
-						if(isset($dynPropArr['labelFormats'])){
-							foreach($dynPropArr['labelFormats'] as $k => $labelObj){
-								unset($labelObj['labelBlocks']);
-								$retArr['u'][$k] = $labelObj;
-							}
-
-						}
-					}
-					else $retArr['u'] = $dynPropArr['labelFormats'];
+		if($GLOBALS['SYMB_UID']){
+			$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
+			$rs = $this->conn->query($sql);
+			if($rs){
+				$dynPropStr = '';
+				if($r = $rs->fetch_object()){
+					$dynPropStr = $r->dynamicProperties;
 				}
+				$rs->free();
+				$dynPropArr = json_decode($dynPropStr,true);
+				if($annotated){
+					if(isset($dynPropArr['labelFormats'])){
+						foreach($dynPropArr['labelFormats'] as $k => $labelObj){
+							unset($labelObj['labelBlocks']);
+							$retArr['u'][$k] = $labelObj;
+						}
+
+					}
+				}
+				else $retArr['u'] = $dynPropArr['labelFormats'];
 			}
 		}
 		return $retArr;
@@ -434,8 +435,8 @@ class OccurrenceLabel{
 	public function saveLabelJson($postArr){
 		$status = true;
 		$group = $postArr['group'];
-		$labelIndex = 0;
-		if($postArr['index']) $labelIndex = $postArr['index'];
+		$labelIndex = '';
+		if(isset($postArr['index'])) $labelIndex = $postArr['index'];
 		if(is_numeric($labelIndex) || $labelIndex == ''){
 			if($group == 'g'){
 				$globalFormatArr = array();
@@ -444,6 +445,7 @@ class OccurrenceLabel{
 					if(isset($LABEL_FORMAT_JSON)) $globalFormatArr = json_decode($LABEL_FORMAT_JSON,true);
 				}
 				$this->setLabelFormatAttributes($globalFormatArr,$labelIndex,$postArr);
+				print_r($globalFormatArr);
 				$status = $this->saveGlobalJson($globalFormatArr);
 			}
 			elseif($group == 'c'){
@@ -497,7 +499,8 @@ class OccurrenceLabel{
 		if(isset($postArr['displayBarcode']) && $postArr['displayBarcode']) $labelArr['displayBarcode'] = 1;
 		else $labelArr['displayBarcode'] = 0;
 		$labelArr['labelBlocks'] = json_decode($postArr['json'],true);
-		$labelFormatArr['labelFormats'][$labelIndex] = $labelArr;
+		if(is_numeric($labelIndex)) $labelFormatArr['labelFormats'][$labelIndex] = $labelArr;
+		else $labelFormatArr['labelFormats'][] = $labelArr;
 	}
 
 	public function deleteLabelFormat($group, $labelIndex){

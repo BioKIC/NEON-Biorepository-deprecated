@@ -7,8 +7,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/reports/labelmanager.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
-$collid = $_REQUEST["collid"];
+$collid = $_REQUEST['collid'];
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
+
+//Sanitation
+if(!is_numeric($collid)) $collid = 0;
 
 $labelManager = new OccurrenceLabel();
 $labelManager->setCollid($collid);

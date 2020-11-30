@@ -7,7 +7,7 @@ $hPrefix = $_POST['hprefix'];
 $hMid = $_POST['hmid'];
 $hSuffix = $_POST['hsuffix'];
 $lFooter = $_POST['lfooter'];
-$columnCount = $_POST['columncount'];
+$columnCount = $_POST['labeltype'];
 $labelIndexGlobal = (isset($_POST['labelformatindex-g'])?$_POST['labelformatindex-g']:'');
 $labelIndexColl = (isset($_POST['labelformatindex-c'])?$_POST['labelformatindex-c']:'');
 $labelIndexUser = (isset($_POST['labelformatindex-u'])?$_POST['labelformatindex-u']:'');
@@ -69,8 +69,8 @@ if($SYMB_UID){
 		<style type="text/css">
 			<?php
 			if(isset($targetLabelFormatArr['defaultStyles'])) echo 'body{ '.$targetLabelFormatArr['defaultStyles']." } \n";
-      ?>
-      .row { display: flex; flex-wrap: wrap; margin-left: auto; margin-right: auto;}
+			?>
+			.row { display: flex; flex-wrap: wrap; margin-left: auto; margin-right: auto;}
 			.label { page-break-before: auto; page-break-inside: avoid; }
 			<?php
 			if($columnCount == 'packet'){
@@ -100,30 +100,28 @@ if($SYMB_UID){
 				.label { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
 				<?php
 			}
-      ?>
-      /* Move to custom? Move to packets? */
+			?>
+			/* Move to custom? Move to packets? */
 			/* .cnBarcodeDiv { clear:both; padding-top:15px; }
 			.catalogNumber { clear:both; text-align:center; }
 			.otherCatalogNumbers { clear:both; text-align:center; }
 			.symbBarcode { padding-top:10px; } */
 		</style>
 		<?php
-    if(isset($targetLabelFormatArr['defaultCss']) && $targetLabelFormatArr['defaultCss']){
-       $cssPath = $targetLabelFormatArr['defaultCss'];
-       if(substr($cssPath,0,1) == '/' && !file_exists($cssPath)){
-              if(file_exists($SERVER_ROOT.$targetLabelFormatArr['defaultCss'])) $cssPath = $CLIENT_ROOT.$targetLabelFormatArr['defaultCss'];
-       }
-       echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet">';
-      }
-		?>
-		<?php
-    if(isset($targetLabelFormatArr['customCss']) && $targetLabelFormatArr['customCss']){
-       $cssPath = $targetLabelFormatArr['customCss'];
-       if(substr($cssPath,0,1) == '/' && !file_exists($cssPath)){
-              if(file_exists($SERVER_ROOT.$targetLabelFormatArr['customCss'])) $cssPath = $CLIENT_ROOT.$targetLabelFormatArr['customCss'];
-       }
-       echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet">';
-      }
+		if(isset($targetLabelFormatArr['defaultCss']) && $targetLabelFormatArr['defaultCss']){
+			$cssPath = $targetLabelFormatArr['defaultCss'];
+			if(substr($cssPath,0,1) == '/' && !file_exists($cssPath)){
+				if(file_exists($SERVER_ROOT.$targetLabelFormatArr['defaultCss'])) $cssPath = $CLIENT_ROOT.$targetLabelFormatArr['defaultCss'];
+			}
+			echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet" />'."\n";
+		}
+		if(isset($targetLabelFormatArr['customCss']) && $targetLabelFormatArr['customCss']){
+			$cssPath = $targetLabelFormatArr['customCss'];
+			if(substr($cssPath,0,1) == '/' && !file_exists($cssPath)){
+				if(file_exists($SERVER_ROOT.$targetLabelFormatArr['customCss'])) $cssPath = $CLIENT_ROOT.$targetLabelFormatArr['customCss'];
+			}
+			echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet" />'."\n";
+		}
 		?>
 	</head>
   <body style="background-color:#ffffff;">

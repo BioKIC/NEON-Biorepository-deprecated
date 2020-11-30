@@ -48,7 +48,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 		?>
 		<script type="text/javascript">
 			<?php
-			if($labelFormatArr) echo "var labelFormatObj = JSON.parse('".json_encode($labelFormatArr)."');";
+			if($labelFormatArr) echo "var labelFormatObj = ".json_encode($labelFormatArr).";";
 			?>
 
 			function selectAll(cb){
@@ -162,7 +162,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 						if(labelFormatObj[catStr][labelIndex].displayBarcode == 1) f.bc.checked = true;
 						else f.bc.checked = false;
 					}
-					f.labelType.value = labelFormatObj[catStr][labelIndex].labelType;
+					f.labeltype.value = labelFormatObj[catStr][labelIndex].labelType;
 					if(catStr != 'g' && f["labelformatindex-g"]) f["labelformatindex-g"].value = "";
 					if(catStr != 'c' && f["labelformatindex-c"]) f["labelformatindex-c"].value = "";
 					if(catStr != 'u' && f["labelformatindex-u"]) f["labelformatindex-u"].value = "";
@@ -437,10 +437,10 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 										<?php
 									}
 									?>
-									<div style="float:left;">
-										<fieldset style="margin:10px;width:225px;">
-											<legend><b>Label Type</b></legend>
-											<select name="labelType">
+									<div class="fieldDiv">
+										<span class="fieldLabel">Label Type:</span>
+										<span class="fieldElement">
+											<select name="labeltype">
 												<option value="1">1 columns per page</option>
 												<option value="2" selected>2 columns per page</option>
 												<option value="3">3 columns per page</option>
@@ -450,7 +450,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 												<option value="7">7 columns per page</option>
 												<option value="packet">Packet labels</option>
 											</select>
-										</fieldset>
+										</span>
 									</div>
 									<div style="float:left;margin: 15px 50px;">
 										<input type="hidden" name="collid" value="<?php echo $collid; ?>" />

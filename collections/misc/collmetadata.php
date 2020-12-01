@@ -82,7 +82,7 @@ $collManager->cleanOutArr($collData);
 				$( "#"+dialogStr+"dialog" ).dialog({
 					autoOpen: false,
 					modal: true,
-					position: { my: "right", at: "center", of: "#"+dialogStr }
+					position: { my: "left", at: "center", of: "#"+dialogStr }
 				});
 
 				$( "#"+dialogStr ).click(function() {
@@ -102,19 +102,21 @@ $collManager->cleanOutArr($collData);
 				alert("Institution Code must have a value");
 				return false;
 			}
-			else if(f.collectionname.value == ''){
+			if(f.collectionname.value == ''){
 				alert("Collection Name must have a value");
 				return false;
 			}
-			else if(f.managementtype.value == "Snapshot" && f.guidtarget.value == "symbiotaUUID"){
-				alert("The Symbiota Generated GUID option cannot be selected for a collection that is managed locally outside of the data portal (e.g. Snapshot management type). In this case, the GUID must be generated within the source collection database and delivered to the data portal as part of the upload process.");
-				return false;
+			if(f.managementtype.value == "Snapshot"){
+				if(f.guidtarget.value == "symbiotaUUID"){
+					alert("The Symbiota Generated GUID option cannot be selected for a collection that is managed locally outside of the data portal (e.g. Snapshot management type). In this case, the GUID must be generated within the source collection database and delivered to the data portal as part of the upload process.");
+					return false;
+				}
 			}
-			else if(!isNumeric(f.latitudedecimal.value) || !isNumeric(f.longitudedecimal.value)){
+			if(!isNumeric(f.latitudedecimal.value) || !isNumeric(f.longitudedecimal.value)){
 				alert("Latitdue and longitude values must be in the decimal format (numeric only)");
 				return false;
 			}
-			else if(f.rights.value == ""){
+			if(f.rights.value == ""){
 				alert("Rights field (e.g. Creative Commons license) must have a selection");
 				return false;
 			}
@@ -128,17 +130,22 @@ $collManager->cleanOutArr($collData);
 			return true;
 		}
 
-		function mtypeguidChanged(f){
+		function managementTypeChanged(selElem){
+			if(selElem.value == "Live Data") $(".sourceurl-div").hide();
+			else $(".sourceurl-div").show();
+			checkManagementTypeGuidSource(selElem.form);
+		}
+
+		function checkManagementTypeGuidSource(f){
 			if(f.managementtype.value == "Snapshot" && f.guidtarget.value == "symbiotaUUID"){
 				alert("The Symbiota Generated GUID option cannot be selected for a collection that is managed locally outside of the data portal (e.g. Snapshot management type). In this case, the GUID must be generated within the source collection database and delivered to the data portal as part of the upload process.");
+				f.guidtarget.value = '';
 			}
 			else if(f.managementtype.value == "Aggregate" && f.guidtarget.value != "" && f.guidtarget.value != "occurrenceId"){
 				alert("An Aggregate dataset (e.g. specimens coming from multiple collections) can only have occurrenceID selected for the GUID source");
 				f.guidtarget.value = 'occurrenceId';
 			}
-			if(!f.guidtarget.value){
-				f.publishToGbif.checked = false;
-			}
+			if(!f.guidtarget.value) f.publishToGbif.checked = false;
 		}
 
 		function checkGUIDSource(f){
@@ -159,26 +166,26 @@ $collManager->cleanOutArr($collData);
 		}
 
 		function toggle(target){
-			var objDiv = document.getElementById(target);
-			if(objDiv){
-				if(objDiv.style.display=="none"){
-					objDiv.style.display = "block";
-				}
-				else{
-					objDiv.style.display = "none";
-				}
+			var objElem = document.getElementById(target);
+			if(objElem){
+				if(objElem.style.display=="none") objElem.style.display = "";
+				else objElem.style.display = "none";
 			}
 			else{
-				var divs = document.getElementsByTagName("div");
-				for (var h = 0; h < divs.length; h++) {
-				var divObj = divs[h];
+				var divElems = document.getElementsByTagName("div");
+				for (var h = 0; h < divElems.length; h++) {
+				var divObj = divElems[h];
 					if(divObj.className == target){
-						if(divObj.style.display=="none"){
-							divObj.style.display="block";
-						}
-						else {
-							divObj.style.display="none";
-						}
+						if(divObj.style.display=="none") divObj.style.display="";
+						else divObj.style.display="none";
+					}
+				}
+				var spanElems = document.getElementsByTagName("span");
+				for (var h = 0; h < spanElems.length; h++) {
+				var spanElem = spanElems[h];
+					if(spanElem.className == target){
+						if(spanElem.style.display=="none") spanElem.style.display="";
+						else spanElem.style.display="none";
 					}
 				}
 			}
@@ -233,6 +240,13 @@ $collManager->cleanOutArr($collData);
 			return IsNumber;
 		}
 	</script>
+	<style type="text/css">
+		fieldset { background-color: #f2f2f2; padding:15px }
+		legend { font-weight: bold; }
+		.field-block { margin: 5px 0px; }
+		.field-label {  }
+
+	</style>
 </head>
 <body>
 	<?php
@@ -267,455 +281,398 @@ $collManager->cleanOutArr($collData);
 			}
 			?>
 			<div id="colledit">
-				<fieldset style="background-color:#FFF380;">
-					<legend><b><?php echo ($collid?'Edit':'Add New'); ?> Collection Information</b></legend>
+				<fieldset>
+					<legend><?php echo ($collid?'Edit':'Add New'); ?> Collection Information</legend>
 					<form id="colleditform" name="colleditform" action="collmetadata.php" method="post" enctype="multipart/form-data" onsubmit="return verifyCollEditForm(this)">
-						<table style="width:100%;">
-							<tr>
-								<td>
-									Institution Code:
-								</td>
-								<td>
-									<input type="text" name="institutioncode" value="<?php echo ($collid?$collData["institutioncode"]:'');?>" style="width:75px;" />
-									<a id="instcodeinfo" href="#" onclick="return false" title="More information about Institution Code">
-										<img src="../../images/info.png" style="width:15px;" />
-									</a>
-									<div id="instcodeinfodialog">
-										The name (or acronym) in use by the institution having custody of the occurrence records. This field is required.
-										For more details, see <a href="http://rs.tdwg.org/dwc/terms/index.htm#institutionCode" target="_blank">Darwin Core definition</a>.
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Collection Code:
-								</td>
-								<td>
-									<input type="text" name="collectioncode" value="<?php echo ($collid?$collData["collectioncode"]:'');?>" style="width:75px;" />
-									<a id="collcodeinfo" href="#" onclick="return false" title="More information about Collection Code">
-										<img src="../../images/info.png" style="width:15px;" />
-									</a>
-									<div id="collcodeinfodialog">
-										The name, acronym, or code identifying the collection or data set from which the record was derived. This field is optional.
-										For more details, see <a href="http://rs.tdwg.org/dwc/terms/index.htm#collectionCode" target="_blank">Darwin Core definition</a>.
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Collection Name:
-								</td>
-								<td>
-									<input type="text" name="collectionname" value="<?php echo ($collid?$collData["collectionname"]:'');?>" style="width:95%;" title="Required field" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Description<br/>
-									(2000 character max):
-								</td>
-								<td>
-									<textarea name="fulldescription" style="width:95%;height:90px;"><?php echo ($collid?$collData["fulldescription"]:'');?></textarea>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Homepage:
-								</td>
-								<td>
-									<input type="text" name="homepage" value="<?php echo ($collid?$collData["homepage"]:'');?>" style="width:90%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-								Contact:
-									</td>
-								<td>
-									<input type="text" name="contact" value="<?php echo ($collid?$collData["contact"]:'');?>" style="width:90%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Email:
-								</td>
-								<td>
-									<input type="text" name="email" value="<?php echo ($collid?$collData["email"]:'');?>" style="width:90%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Latitude:
-								</td>
-								<td>
-									<input id="decimallatitude" name="latitudedecimal" type="text" value="<?php echo ($collid?$collData["latitudedecimal"]:'');?>" />
-									<a href="#" onclick="openMappingAid();">
-										<img src="../../images/world.png" style="width:12px;" />
-									</a>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Longitude:
-								</td>
-								<td>
-									<input id="decimallongitude" name="longitudedecimal" type="text" value="<?php echo ($collid?$collData["longitudedecimal"]:'');?>" />
-								</td>
-							</tr>
-							<?php
-							$fullCatArr = $collManager->getCategoryArr();
-							if($fullCatArr){
-								?>
-								<tr>
-									<td>
-										Category:
-									</td>
-									<td>
-										<select name="ccpk">
-											<option value="">No Category</option>
-											<option value="">-------------------------------------------</option>
-											<?php
-											$catArr = $collManager->getCollectionCategories();
-											foreach($fullCatArr as $ccpk => $category){
-												echo '<option value="'.$ccpk.'" '.($collid && array_key_exists($ccpk, $catArr)?'SELECTED':'').'>'.$category.'</option>';
-											}
-											?>
-										</select>
-									</td>
-								</tr>
-								<?php
-							}
+						<div class="field-block">
+							<span class="field-label">Institution Code:</span>
+							<span class="field-elem">
+								<input type="text" name="institutioncode" value="<?php echo ($collid?$collData["institutioncode"]:'');?>" />
+								<a id="instcodeinfo" href="#" onclick="return false" title="More information about Institution Code">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="instcodeinfodialog">
+									The name (or acronym) in use by the institution having custody of the occurrence records. This field is required.
+									For more details, see <a href="http://rs.tdwg.org/dwc/terms/index.htm#institutionCode" target="_blank">Darwin Core definition</a>.
+								</span>
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Collection Code:</span>
+							<span class="field-elem">
+								<input type="text" name="collectioncode" value="<?php echo ($collid?$collData["collectioncode"]:'');?>" />
+								<a id="collcodeinfo" href="#" onclick="return false" title="More information about Collection Code">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="collcodeinfodialog">
+									The name, acronym, or code identifying the collection or data set from which the record was derived. This field is optional.
+									For more details, see <a href="http://rs.tdwg.org/dwc/terms/index.htm#collectionCode" target="_blank">Darwin Core definition</a>.
+								</span>
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Collection Name:</span>
+							<span class="field-elem">
+								<input type="text" name="collectionname" value="<?php echo ($collid?$collData["collectionname"]:'');?>" style="width:600px;" title="Required field" />
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Description (2000 character max):</span>
+							<div class="field-elem">
+								<textarea name="fulldescription" style="width:95%;height:90px;"><?php echo ($collid?$collData["fulldescription"]:'');?></textarea>
+							</div>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Homepage:</span>
+							<span class="field-elem">
+								<input type="text" name="homepage" value="<?php echo ($collid?$collData["homepage"]:'');?>" style="width:600px;" />
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Contact:</span>
+							<span class="field-elem">
+								<input type="text" name="contact" value="<?php echo ($collid?$collData["contact"]:'');?>" style="width:600px;" />
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Email:</span>
+							<span class="field-elem">
+								<input type="text" name="email" value="<?php echo ($collid?$collData["email"]:'');?>" style="width:600px" />
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Latitude:</span>
+							<span class="field-elem">
+								<input id="decimallatitude" name="latitudedecimal" type="text" value="<?php echo ($collid?$collData["latitudedecimal"]:'');?>" />
+								<a href="#" onclick="openMappingAid();"><img src="../../images/world.png" style="width:12px;" /></a>
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Longitude:</span>
+							<span class="field-elem">
+								<input id="decimallongitude" name="longitudedecimal" type="text" value="<?php echo ($collid?$collData["longitudedecimal"]:'');?>" />
+							</span>
+						</div>
+						<?php
+						$fullCatArr = $collManager->getCategoryArr();
+						if($fullCatArr){
 							?>
-							<tr>
-								<td>
-									Allow Public Edits:
-								</td>
-								<td>
-									<input type="checkbox" name="publicedits" value="1" <?php echo ($collData && $collData['publicedits']?'CHECKED':''); ?> />
-									<a id="peditsinfo" href="#" onclick="return false" title="More information about Public Edits">
-										<img src="../../images/info.png" style="width:15px;" />
-									</a>
-									<div id="peditsinfodialog">
-										Checking public edits will allow any user logged into the system to modify specimen records
-										and resolve errors found within the collection. However, if the user does not have explicit
-										authorization for the given collection, edits will not be applied until they are
-										reviewed and approved by collection administrator.
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									License:
-								</td>
-								<td>
-									<?php
-									if(isset($rightsTerms)){
-										?>
-										<select name="rights">
-											<?php
-											$hasOrphanTerm = true;
-											foreach($rightsTerms as $k => $v){
-												$selectedTerm = '';
-												if($collid && strtolower($collData["rights"])==strtolower($v)){
-													$selectedTerm = 'SELECTED';
-													$hasOrphanTerm = false;
-												}
-												echo '<option value="'.$v.'" '.$selectedTerm.'>'.$k.'</option>'."\n";
-											}
-											if($hasOrphanTerm && array_key_exists("rights",$collData)){
-												echo '<option value="'.$collData["rights"].'" SELECTED>'.$collData["rights"].' [orphaned term]</option>'."\n";
-											}
-											?>
-										</select>
+							<div class="field-block">
+								<span class="field-label">Category:</span>
+								<span class="field-elem">
+									<select name="ccpk">
+										<option value="">No Category</option>
+										<option value="">-------------------------------------------</option>
 										<?php
-									}
-									else{
+										$catArr = $collManager->getCollectionCategories();
+										foreach($fullCatArr as $ccpk => $category){
+											echo '<option value="'.$ccpk.'" '.($collid && array_key_exists($ccpk, $catArr)?'SELECTED':'').'>'.$category.'</option>';
+										}
 										?>
-										<input type="text" name="rights" value="<?php echo ($collid?$collData["rights"]:'');?>" style="width:90%;" />
-										<?php
-									}
-									?>
-									<a id="rightsinfo" href="#" onclick="return false" title="More information about Rights">
-										<img src="../../images/info.png" style="width:15px;" />
-									</a>
-									<div id="rightsinfodialog">
-										A legal document giving official permission to do something with the resource.
-										This field can be limited to a set of values by modifying the portal's central configuration file.
-										For more details, see <a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:license" target="_blank">Darwin Core definition</a>.
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Rights Holder:
-								</td>
-								<td>
-									<input type="text" name="rightsholder" value="<?php echo ($collid?$collData["rightsholder"]:'');?>" style="width:90%;" />
-									<a id="rightsholderinfo" href="#" onclick="return false" title="More information about Rights Holder">
-										<img src="../../images/info.png" style="width:15px;" />
-									</a>
-									<div id="rightsholderinfodialog">
-										The organization or person managing or owning the rights of the resource.
-										For more details, see <a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:rightsHolder" target="_blank">Darwin Core definition</a>.
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Access Rights:
-								</td>
-								<td>
-									<input type="text" name="accessrights" value="<?php echo ($collid?$collData["accessrights"]:'');?>" style="width:90%;" />
-									<a id="accessrightsinfo" href="#" onclick="return false" title="More information about Access Rights">
-										<img src="../../images/info.png" style="width:15px;" />
-									</a>
-									<div id="accessrightsinfodialog">
-										Informations or a URL link to page with details explaining how one can use the data.
-										See <a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:accessRights" target="_blank">Darwin Core definition</a>.
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<span title="Source of Global Unique Identifier">GUID source:</span>
-								</td>
-								<td>
-									<select name="guidtarget" onchange="mtypeguidChanged(this.form)">
-										<option value="">Not defined</option>
-										<option value="">-------------------</option>
-										<option value="occurrenceId" <?php echo ($collid && $collData["guidtarget"]=='occurrenceId'?'SELECTED':''); ?>>Occurrence Id</option>
-										<option value="catalogNumber" <?php echo ($collid && $collData["guidtarget"]=='catalogNumber'?'SELECTED':''); ?>>Catalog Number</option>
-										<option value="symbiotaUUID" <?php echo ($collid && $collData["guidtarget"]=='symbiotaUUID'?'SELECTED':''); ?>>Symbiota Generated GUID (UUID)</option>
 									</select>
-									<a id="guidinfo" href="#" onclick="return false" title="More information about Global Unique Identifier">
+								</span>
+							</div>
+							<?php
+						}
+						?>
+						<div class="field-block">
+							<span class="field-label">Allow Public Edits:</span>
+							<span class="field-elem">
+								<input type="checkbox" name="publicedits" value="1" <?php echo ($collData && $collData['publicedits']?'CHECKED':''); ?> />
+								<a id="peditsinfo" href="#" onclick="return false" title="More information about Public Edits">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="peditsinfodialog">
+									Checking public edits will allow any user logged into the system to modify specimen records
+									and resolve errors found within the collection. However, if the user does not have explicit
+									authorization for the given collection, edits will not be applied until they are
+									reviewed and approved by collection administrator.
+								</span>
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">License:</span>
+							<span class="field-elem">
+								<?php
+								if(isset($RIGHTS_TERMS)){
+									?>
+									<select name="rights">
+										<?php
+										$hasOrphanTerm = true;
+										foreach($RIGHTS_TERMS as $k => $v){
+											$selectedTerm = '';
+											if($collid && strtolower($collData["rights"])==strtolower($v)){
+												$selectedTerm = 'SELECTED';
+												$hasOrphanTerm = false;
+											}
+											echo '<option value="'.$v.'" '.$selectedTerm.'>'.$k.'</option>'."\n";
+										}
+										if($hasOrphanTerm && array_key_exists("rights",$collData)){
+											echo '<option value="'.$collData["rights"].'" SELECTED>'.$collData["rights"].' [orphaned term]</option>'."\n";
+										}
+										?>
+									</select>
+									<?php
+								}
+								else{
+									?>
+									<input type="text" name="rights" value="<?php echo ($collid?$collData["rights"]:'');?>" style="width:90%;" />
+									<?php
+								}
+								?>
+								<a id="rightsinfo" href="#" onclick="return false" title="More information about Rights">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="rightsinfodialog">
+									A legal document giving official permission to do something with the resource.
+									This field can be limited to a set of values by modifying the portal's central configuration file.
+									For more details, see <a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:license" target="_blank">Darwin Core definition</a>.
+								</span>
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Rights Holder:</span>
+							<span class="field-elem">
+								<input type="text" name="rightsholder" value="<?php echo ($collid?$collData["rightsholder"]:'');?>" style="width:600px" />
+								<a id="rightsholderinfo" href="#" onclick="return false" title="More information about Rights Holder">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="rightsholderinfodialog">
+									The organization or person managing or owning the rights of the resource.
+									For more details, see <a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:rightsHolder" target="_blank">Darwin Core definition</a>.
+								</span>
+							</span>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Access Rights:</span>
+							<span class="field-elem">
+								<input type="text" name="accessrights" value="<?php echo ($collid?$collData["accessrights"]:'');?>" style="width:600px" />
+								<a id="accessrightsinfo" href="#" onclick="return false" title="More information about Access Rights">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="accessrightsinfodialog">
+									Informations or a URL link to page with details explaining how one can use the data.
+									See <a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:accessRights" target="_blank">Darwin Core definition</a>.
+								</span>
+							</span>
+						</div>
+						<?php
+						if($IS_ADMIN){
+							?>
+							<div class="field-block">
+								<span class="field-label">Dataset Type:</span>
+								<span class="field-elem">
+									<select name="colltype">
+										<option value="Preserved Specimens">Preserved Specimens</option>
+										<option <?php echo ($collid && $collData["colltype"]=='Observations'?'SELECTED':''); ?> value="Observations">Observations</option>
+										<option <?php echo ($collid && $collData["colltype"]=='General Observations'?'SELECTED':''); ?> value="General Observations">Personal Observation Management</option>
+									</select>
+									<a id="colltypeinfo" href="#" onclick="return false" title="More information about Collection Type">
 										<img src="../../images/info.png" style="width:15px;" />
 									</a>
-									<div id="guidinfodialog">
-										Occurrence Id is generally used for Snapshot datasets when a Global Unique Identifier (GUID) field
-										is supplied by the source database (e.g. Specify database) and the GUID is mapped to the
-										<a href="http://rs.tdwg.org/dwc/terms/index.htm#occurrenceID" target="_blank">occurrenceId</a> field.
-										The use of the Occurrence Id as the GUID is not recommended for live datasets.
-										Catalog Number can be used when the value within the catalog number field is globally unique.
-										The Symbiota Generated GUID (UUID) option will trigger the Symbiota data portal to automatically
-										generate UUID GUIDs for each record. This option is recommended for many for Live Datasets
-										but not allowed for Snapshot collections that are managed in local management system.
-									</div>
-								</td>
-							</tr>
+									<span id="colltypeinfodialog">
+										Preserved Specimens signify a collection type that contains physical samples that are available for inspection by researchers and taxonomic experts.
+										Use Observations when the record is not based on a physical specimen.
+										Personal Observation Management is a dataset where registered users
+										can independently manage their own subset of records. Records entered into this dataset are explicitly linked to the user&apos;s profile
+										and can only be edited by them. This type of collection
+										is typically used by field researchers to manage their collection data and print labels
+										prior to depositing the physical material within a collection. Even though personal collections
+										are represented by a physical sample, they are classified as &quot;observations&quot; until the
+										physical material is publicly available within a collection.
+									</span>
+								</span>
+							</div>
+							<div class="field-block">
+								<span class="field-label">Management:</span>
+								<span class="field-elem">
+									<select name="managementtype" onchange="managementTypeChanged(this)">
+										<option>Snapshot</option>
+										<option <?php echo ($collid && $collData["managementtype"]=='Live Data'?'SELECTED':''); ?>>Live Data</option>
+										<option <?php echo ($collid && $collData["managementtype"]=='Aggregate'?'SELECTED':''); ?>>Aggregate</option>
+									</select>
+									<a id="managementinfo" href="#" onclick="return false" title="More information about Management Type">
+										<img src="../../images/info.png" style="width:15px;" />
+									</a>
+									<span id="managementinfodialog">
+										Use Snapshot when there is a separate in-house database maintained in the collection and the dataset
+										within the Symbiota portal is only a periodically updated snapshot of the central database.
+										A Live dataset is when the data is managed directly within the portal and the central database is the portal data.
+									</span>
+								</span>
+							</div>
 							<?php
-							if(isset($GBIF_USERNAME) && isset($GBIF_PASSWORD) && isset($GBIF_ORG_KEY) && $GBIF_ORG_KEY) {
-								?>
-								<tr>
-									<td>
-										Publish to Aggregators:
-									</td>
-									<td>
-										<div>
-											GBIF <input type="checkbox" name="publishToGbif" value="1"
-														onchange="checkGUIDSource(this.form);" <?php echo($collData['publishtogbif'] ? 'CHECKED' : ''); ?> />
-											<a id="pubagginfo" href="#" onclick="return false"
-											   title="More information about Publishing to Aggregators">
-												<img src="../../images/info.png" style="width:15px;"/>
-											</a>
-										</div>
-										<!--
-										<div>
-											iDigBio <input type="checkbox" name="publishToIdigbio" value="1" onchange="checkGUIDSource(this.form);" <?php echo($collData['publishtoidigbio']?'CHECKED':''); ?> />
-										</div>
-										 -->
-										<div id="pubagginfodialog">
-											Activates GBIF publishing tools available within Darwin Core Archive Publishing menu option.
-										</div>
-									</td>
-								</tr>
-								<?php
-							}
+						}
+						?>
+						<div class="field-block">
+							<span class="field-label" title="Source of Global Unique Identifier">GUID source:</span>
+							<span class="field-elem">
+								<select name="guidtarget" onchange="checkManagementTypeGuidSource(this.form)">
+									<option value="">Not defined</option>
+									<option value="">-------------------</option>
+									<option value="occurrenceId" <?php echo ($collid && $collData["guidtarget"]=='occurrenceId'?'SELECTED':''); ?>>Occurrence Id</option>
+									<option value="catalogNumber" <?php echo ($collid && $collData["guidtarget"]=='catalogNumber'?'SELECTED':''); ?>>Catalog Number</option>
+									<option value="symbiotaUUID" <?php echo ($collid && $collData["guidtarget"]=='symbiotaUUID'?'SELECTED':''); ?>>Symbiota Generated GUID (UUID)</option>
+								</select>
+								<a id="guidinfo" href="#" onclick="return false" title="More information about Global Unique Identifier">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="guidinfodialog">
+									Occurrence Id is generally used for Snapshot datasets when a Global Unique Identifier (GUID) field
+									is supplied by the source database (e.g. Specify database) and the GUID is mapped to the
+									<a href="http://rs.tdwg.org/dwc/terms/index.htm#occurrenceID" target="_blank">occurrenceId</a> field.
+									The use of the Occurrence Id as the GUID is not recommended for live datasets.
+									Catalog Number can be used when the value within the catalog number field is globally unique.
+									The Symbiota Generated GUID (UUID) option will trigger the Symbiota data portal to automatically
+									generate UUID GUIDs for each record. This option is recommended for many for Live Datasets
+									but not allowed for Snapshot collections that are managed in local management system.
+								</span>
+							</span>
+						</div>
+						<?php
+						if(isset($GBIF_USERNAME) && isset($GBIF_PASSWORD) && isset($GBIF_ORG_KEY) && $GBIF_ORG_KEY) {
 							?>
-							<tr>
-								<td>
-									Source Record URL:
-								</td>
-								<td>
-									<input type="text" name="individualurl" style="width:90%;" value="<?php echo ($collid?$collData["individualurl"]:'');?>" title="Dynamic link to source database individual record page" />
+							<div class="field-block">
+								<span class="field-label">Publish to Aggregators:</span>
+								<span class="field-elem">
+									GBIF <input type="checkbox" name="publishToGbif" value="1" onchange="checkGUIDSource(this.form);" <?php echo($collData['publishtogbif'] ? 'CHECKED' : ''); ?> />
+									<a id="pubagginfo" href="#" onclick="return false"
+									   title="More information about Publishing to Aggregators">
+										<img src="../../images/info.png" style="width:15px;"/>
+									</a>
+									<!--
+									<span>
+										iDigBio <input type="checkbox" name="publishToIdigbio" value="1" onchange="checkGUIDSource(this.form);" <?php echo($collData['publishtoidigbio']?'CHECKED':''); ?> />
+									</span>
+									 -->
+									<span id="pubagginfodialog">
+										Activates GBIF publishing tools available within Darwin Core Archive Publishing menu option.
+									</span>
+								</span>
+							</div>
+							<?php
+						}
+						?>
+						<div class="field-block">
+							<div class="sourceurl-div" style="display:<?php echo ($collData["managementtype"]=='Live Data'?'none':'');?>">
+								<span class="field-label">Source Record URL:</span>
+								<span class="field-elem">
+									<input type="text" name="individualurl" style="width:700px" value="<?php echo ($collid?$collData["individualurl"]:'');?>" title="Dynamic link to source database individual record page" />
 									<a id="sourceurlinfo" href="#" onclick="return false" title="More information about Source Records URL">
 										<img src="../../images/info.png" style="width:15px;" />
 									</a>
-									<div id="sourceurlinfodialog">
-										Advance setting: Adding a URL template here will add a link to the source record to the specimen details page.
-										For example, &quot;http://swbiodiversity.org/seinet/collections/individual/index.php?occid=--DBPK--&quot;
-										will generate a url to the original record managed in SEINet is an ASU snapshot collection was created using a DWC-A import from SEINet.
-										Or &quot;http://www.inaturalist.org/observations/--DBPK--&quot; can be used for an iNaturalist import if you mapped their ID field
-										as the source Identifier (e.g. dbpk) during import.
+									<span id="sourceurlinfodialog">
+										Advance setting: Adding a URL template here will insert a link to the source record within the specimen details page.
+										A optional URL title can be include with a colon delimiting the title and URL.
+										For example, &quot;SEINet source record:http://swbiodiversity.org/seinet/collections/individual/index.php?occid=--DBPK--&quot;
+										will display the ID with the url pointing to the original record managed within SEINet. Or &quot;http://www.inaturalist.org/observations/--DBPK--&quot; can be used for an
+										iNaturalist import if you mapped their ID field as the source Identifier (e.g. dbpk) during import.
 										Template patterns --CATALOGNUMBER--, --OTHERCATALOGNUMBERS--, and --OCCURRENCEID-- are additional options.
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									Icon URL:
-								</td>
-								<td>
-									<div style='float:left;width:90%;margin-top:0px;'>
-										<div class="targetdiv" style="<?php echo (($collid&&$collData["icon"])?'display:none;':'display:block;'); ?>margin-top:0px;">
-											<!-- following line sets MAX_FILE_SIZE (must precede the file input field)  -->
-											<div style="float:left;">
-												<input type='hidden' name='MAX_FILE_SIZE' value='20000000' />
-												<input name='iconfile' id='iconfile' type='file' size='70' onchange="verifyIconImage(this.form);" />
-											</div>
-											<div style="margin-right:15px;text-decoration:underline;float:right;font-weight:bold;">
-												<a href="#" onclick="toggle('targetdiv');return false;">Enter URL</a>
-											</div>
-										</div>
-										<div class="targetdiv" style="<?php echo (($collid&&$collData["icon"])?'display:block;':'display:none;'); ?>margin-top:0px;">
-											<div style="float:left;width:65%;">
-												<input style="width:100%;margin-top:0px;" type='text' name='iconurl' id='iconurl' value="<?php echo ($collid?$collData["icon"]:'');?>" onchange="verifyIconURL(this.form);" />
-											</div>
-											<div style="margin-right:15px;text-decoration:underline;float:right;font-weight:bold;">
-												<a href="#" onclick="toggle('targetdiv');return false;">
-													Upload Local Image
-												</a>
-											</div>
-										</div>
-									</div>
-									<a id="iconinfo" href="#" onclick="return false" title="What is an Icon?">
+									</span>
+								</span>
+							</div>
+						</div>
+						<div class="field-block">
+							<span class="field-label">Icon URL:</span>
+							<span class="field-elem">
+								<span class="icon-elem" style="display:<?php echo (($collid&&$collData["icon"])?'none;':''); ?>">
+									<input type='hidden' name='MAX_FILE_SIZE' value='20000000' />
+									<input name='iconfile' id='iconfile' type='file' onchange="verifyIconImage(this.form);" />
+								</span>
+								<span class="icon-elem" style="display:<?php echo (($collid&&$collData["icon"])?'':'none'); ?>">
+									<input style="width:600px;" type='text' name='iconurl' id='iconurl' value="<?php echo ($collid?$collData["icon"]:'');?>" onchange="verifyIconURL(this.form);" />
+								</span>
+								<a id="iconinfo" href="#" onclick="return false" title="What is an Icon?">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="iconinfodialog">
+									Upload an icon image file or enter the URL of an image icon that represents the collection. If entering the URL of an image already located
+									on a server, click on &quot;Enter URL&quot;. The URL path can be absolute or relative. The use of icons are optional.
+								</span>
+							</span>
+							<span class="icon-elem" style="display:<?php echo (($collid&&$collData["icon"])?'none;':''); ?>">
+								<a href="#" onclick="toggle('icon-elem');return false;">Enter URL</a>
+							</span>
+							<span class="icon-elem" style="display:<?php echo (($collid&&$collData["icon"])?'':'none;'); ?>">
+								<a href="#" onclick="toggle('icon-elem');return false;">
+									Upload Local Image
+								</a>
+							</span>
+						</div>
+						<?php
+						if($IS_ADMIN){
+							?>
+							<div class="field-block" style="clear:both">
+								<span class="field-label">Sort Sequence:</span>
+								<span class="field-elem">
+									<input type="text" name="sortseq" value="<?php echo ($collid?$collData["sortseq"]:'');?>" />
+									<a id="sortinfo" href="#" onclick="return false" title="More information about Sorting">
 										<img src="../../images/info.png" style="width:15px;" />
 									</a>
-									<div id="iconinfodialog">
-										Upload an icon image file or enter the URL of an image icon that represents the collection. If entering the URL of an image already located
-										on a server, click on &quot;Enter URL&quot;. The URL path can be absolute or relative. The use of icons are optional.
-									</div>
-								</td>
-							</tr>
+									<span id="sortinfodialog">
+										Leave this field empty if you want the collections to sort alphabetically (default)
+									</span>
+								</span>
+							</div>
 							<?php
-							if($IS_ADMIN){
-								?>
-								<tr>
-									<td>
-										Dataset Type:
-									</td>
-									<td>
-										<select name="colltype">
-											<option value="Preserved Specimens">Preserved Specimens</option>
-											<option <?php echo ($collid && $collData["colltype"]=='Observations'?'SELECTED':''); ?> value="Observations">Observations</option>
-											<option <?php echo ($collid && $collData["colltype"]=='General Observations'?'SELECTED':''); ?> value="General Observations">Personal Observation Management</option>
-										</select>
-										<a id="colltypeinfo" href="#" onclick="return false" title="More information about Collection Type">
-											<img src="../../images/info.png" style="width:15px;" />
-										</a>
-										<div id="colltypeinfodialog">
-											Preserved Specimens signify a collection type that contains physical samples that are available for inspection by researchers and taxonomic experts.
-											Use Observations when the record is not based on a physical specimen.
-											Personal Observation Management is a dataset where registered users
-											can independently manage their own subset of records. Records entered into this dataset are explicitly linked to the user&apos;s profile
-											and can only be edited by them. This type of collection
-											is typically used by field researchers to manage their collection data and print labels
-											prior to depositing the physical material within a collection. Even though personal collections
-											are represented by a physical sample, they are classified as &quot;observations&quot; until the
-											physical material is publicly available within a collection.
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										Management:
-									</td>
-									<td>
-										<select name="managementtype" onchange="mtypeguidChanged(this.form)">
-											<option>Snapshot</option>
-											<option <?php echo ($collid && $collData["managementtype"]=='Live Data'?'SELECTED':''); ?>>Live Data</option>
-											<option <?php echo ($collid && $collData["managementtype"]=='Aggregate'?'SELECTED':''); ?>>Aggregate</option>
-										</select>
-										<a id="managementinfo" href="#" onclick="return false" title="More information about Management Type">
-											<img src="../../images/info.png" style="width:15px;" />
-										</a>
-										<div id="managementinfodialog">
-											Use Snapshot when there is a separate in-house database maintained in the collection and the dataset
-											within the Symbiota portal is only a periodically updated snapshot of the central database.
-											A Live dataset is when the data is managed directly within the portal and the central database is the portal data.
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										Sort Sequence:
-									</td>
-									<td>
-										<input type="text" name="sortseq" value="<?php echo ($collid?$collData["sortseq"]:'');?>" />
-										<a id="sortinfo" href="#" onclick="return false" title="More information about Sorting">
-											<img src="../../images/info.png" style="width:15px;" />
-										</a>
-										<div id="sortinfodialog">
-											Leave this field empty if you want the collections to sort alphabetically (default)
-										</div>
-									</td>
-								</tr>
-								<?php
-							}
+						}
+						?>
+						<div class="field-block">
+							<span class="field-label">Collection ID (GUID):</span>
+							<span class="field-elem">
+								<input type="text" name="collectionid" value="<?php echo ($collid?$collData["collectionid"]:'');?>" style="width:400px" />
+								<a id="collectionidinfo" href="#" onclick="return false" title="More information">
+									<img src="../../images/info.png" style="width:15px;" />
+								</a>
+								<span id="collectionidinfodialog">
+									Global Unique Identifier for this collection (see <a href="https://dwc.tdwg.org/terms/#dwc:collectionID" target="_blank">dwc:collectionID</a>):
+									If your collection already has a previously assigned GUID, that identifier should be represented here.
+									For physical specimens, the recommended best practice is to use an identifier from a collections registry such as the
+									Global Registry of Biodiversity Repositories (<a href="http://grbio.org" target="_blank">http://grbio.org</a>).
+								</span>
+							</span>
+						</div>
+						<?php
+						if($collid){
 							?>
-							<tr>
-								<td>
-									Collection ID (GUID):
-								</td>
-								<td>
-									<input type="text" name="collectionid" value="<?php echo ($collid?$collData["collectionid"]:'');?>" style="width:90%;" />
-									<a id="collectionidinfo" href="#" onclick="return false" title="More information">
-										<img src="../../images/info.png" style="width:15px;" />
-									</a>
-									<div id="collectionidinfodialog">
-										Global Unique Identifier for this collection (see <a href="https://dwc.tdwg.org/terms/#dwc:collectionID" target="_blank">dwc:collectionID</a>):
-										If your collection already has a previously assigned GUID, that identifier should be represented here.
-										For physical specimens, the recommended best practice is to use an identifier from a collections registry such as the
-										Global Registry of Biodiversity Repositories (<a href="http://grbio.org" target="_blank">http://grbio.org</a>).
-									</div>
-								</td>
-							</tr>
+							<div class="field-block">
+								<span class="field-label">Security Key:</span>
+								<span class="field-elem">
+									<?php echo $collData['skey']; ?>
+								</span>
+							</div>
+							<div class="field-block">
+								<span class="field-label">recordID:</span>
+								<span class="field-elem">
+									<?php echo $collData['recordid']; ?>
+								</span>
+							</div>
 							<?php
-							if($collid){
-								?>
-								<tr>
-									<td>
-										Security Key:
-									</td>
-									<td>
-										<?php echo $collData['skey']; ?>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										recordID:
-									</td>
-									<td>
-										<?php echo $collData['recordid']; ?>
-									</td>
-								</tr>
+						}
+						?>
+						<div class="field-block">
+							<div style="margin:20px;">
 								<?php
-							}
-							?>
-							<tr>
-								<td colspan="2">
-									<div style="margin:20px;">
-										<?php
-										if($collid){
-											?>
-											<input type="hidden" name="collid" value="<?php echo $collid;?>" />
-											<input type="submit" name="action" value="Save Edits" />
-											<?php
-										}
-										else{
-											?>
-											<input type="submit" name="action" value="Create New Collection" />
-											<?php
-										}
-										?>
-									</div>
-								</td>
-							</tr>
-						</table>
+								if($collid){
+									?>
+									<input type="hidden" name="collid" value="<?php echo $collid;?>" />
+									<input type="submit" name="action" value="Save Edits" />
+									<?php
+								}
+								else{
+									?>
+									<input type="submit" name="action" value="Create New Collection" />
+									<?php
+								}
+								?>
+							</div>
+						</div>
 					</form>
 				</fieldset>
 			</div>
 			<div>
-				<fieldset style="background-color:#FFF380;">
-					<legend><b>Mailing Address</b></legend>
+				<fieldset>
+					<legend>Mailing Address</legend>
 					<?php
 					if($instArr = $collManager->getAddress()){
 						?>

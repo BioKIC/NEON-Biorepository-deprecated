@@ -273,6 +273,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		fieldset{ margin:10px; padding:15px; }
 		fieldset legend{ font-weight:bold; }
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
+		.occur-ref{ margin: 10px 0px }
 	</style>
 </head>
 <body>
@@ -887,29 +888,34 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						<?php
 						if($collMetadata['individualurl']){
 							$sourceTitle = 'Link to Source';
-							$iUrl = explode(': ', $collMetadata['individualurl']);
-							if(strpos($collMetadata['individualurl'], ': ')) $sourceTitle = array_shift($iUrl);
+							$iUrl = $collMetadata['individualurl'];
+							if(substr($iUrl, 0, 4) != 'http'){
+								if($pos = strpos($iUrl, ':')){
+									$sourceTitle = substr($iUrl, 0, $pos);
+									$iUrl = trim(substr($iUrl, $pos+1));
+								}
+							}
 							$displayID = '';
 							$indUrl = '';
-							if(strpos($collMetadata['individualurl'],'--DBPK--') !== false && $occArr['dbpk']){
+							if(strpos($iUrl,'--DBPK--') !== false && $occArr['dbpk']){
 								$displayID = $occArr['dbpk'];
-								$indUrl = str_replace('--DBPK--',$occArr['dbpk'],$collMetadata['individualurl']);
+								$indUrl = str_replace('--DBPK--',$occArr['dbpk'],$iUrl);
 							}
-							elseif(strpos($collMetadata['individualurl'],'--CATALOGNUMBER--') !== false && $occArr['catalognumber']){
+							elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $occArr['catalognumber']){
 								$displayID = $occArr['catalognumber'];
-								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$collMetadata['individualurl']);
+								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$iUrl);
 							}
-							elseif(strpos($collMetadata['individualurl'],'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
+							elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
 								$ocn = explode(':', $occArr['othercatalognumbers']);
 								$otherCatNum = trim(array_pop($ocn));
 								if($p = strpos($otherCatNum,';')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
 								elseif($p = strpos($otherCatNum,',')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
 								$displayID = $otherCatNum;
-								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$otherCatNum,$collMetadata['individualurl']);
+								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$otherCatNum,$iUrl);
 							}
-							elseif(strpos($collMetadata['individualurl'],'--OCCURRENCEID--') !== false && $occArr['occurrenceid']){
+							elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $occArr['occurrenceid']){
 								$displayID = $occArr['occurrenceid'];
-								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$collMetadata['individualurl']);
+								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$iUrl);
 							}
 							if($indUrl) echo '<div style="margin-top:10px;clear:both;"><b>'.$sourceTitle.':</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
 						}

@@ -60,6 +60,11 @@ ALTER TABLE `glossaryimages`
   ADD COLUMN `sortSequence` INT NULL AFTER `structures`;
 
 
+ALTER TABLE `referenceobject` 
+  CHANGE COLUMN `cheatauthors` `cheatauthors` VARCHAR(400) NULL DEFAULT NULL ,
+  CHANGE COLUMN `cheatcitation` `cheatcitation` VARCHAR(500) NULL DEFAULT NULL ;
+
+
 ALTER TABLE `uploadspectemp` 
   ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;
 

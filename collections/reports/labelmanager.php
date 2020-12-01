@@ -474,8 +474,9 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 										if($reportsWritable){
 											?>
 											<div style="clear:both;padding:10px 0px">
-												Note: Output of variable Label Formats as a Word document is not yet supported<br/>A possible work around is to print labels as PDF and
-												then convert to a Word doc using Adobe tools.<br/>Another alternatively, is to output the data as CSV and then setup a Mail Merge Word document.
+												<b>Note:</b> Currently, Word (DOCX) output only generates the old static label format.<br/>Output of variable Label Formats (pulldown options) as a Word document is not yet supported.<br/>
+												A possible work around is to print labels as PDF and then convert to a Word doc using Adobe tools.<br/>
+												Another alternatively, is to output the data as CSV and then setup a Mail Merge Word document.
 											</div>
 											<?php
 										}

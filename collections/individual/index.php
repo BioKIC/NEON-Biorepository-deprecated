@@ -999,6 +999,24 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						?>
 					</div>
+					<?php
+					if(array_key_exists('ref',$occArr)){
+						?>
+						<fieldset>
+							<legend>Associated References</legend>
+							<?php
+							foreach($occArr['ref'] as $refid => $refArr){
+								echo '<div class="occur-ref">';
+								if($refArr['url']) echo '<a href="'.$refArr['url'].'" target="_blank">';
+								echo $refArr['display'];
+								if($refArr['url']) echo '</a>';
+								echo '</div>';
+							}
+							?>
+						</fieldset>
+						<?php
+					}
+					?>
 				</div>
 				<?php
 				if($displayMap){

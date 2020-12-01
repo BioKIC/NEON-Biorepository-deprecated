@@ -145,6 +145,7 @@ class OccurrenceIndividual extends Manager{
 				$this->setLoan();
 				$this->setExsiccati();
 				$this->setOccurrenceRelationships();
+				$this->setReferences();
 			}
 			//Set access statistics
 			$accessType = 'view';
@@ -315,6 +316,24 @@ class OccurrenceIndividual extends Manager{
 		$inverseArr = array_merge($baseArr,array_flip($baseArr));
 		if(array_key_exists($relationship, $inverseArr)) return $inverseArr[$relationship];
 		return $relationship;
+	}
+
+	private function setReferences(){
+		$sql = 'SELECT r.refid, r.title, r.secondarytitle, r.shorttitle, r.tertiarytitle, r.pubdate, r.edition, r.volume, r.numbervolumes, r.number, '.
+			' r.pages, r.section, r.placeofpublication, r.publisher, r.isbn_issn, r.url, r.guid, r.cheatauthors, r.cheatcitation '.
+			'FROM referenceobject r INNER JOIN referenceoccurlink l ON r.occid = l.occid '.
+			'WHERE (occid = '.$this->occid.')';
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($r = $rs->fetch_object()){
+				$this->occArr['ref'][$r->refid]['display'] = $r->cheatcitation;
+				$this->occArr['ref'][$r->refid]['url'] = $r->url;
+			}
+			$rs->free();
+		}
+		else{
+			$this->warningArr[] = 'Unable to set occurrence references: '.$this->conn->error;
+		}
 	}
 
 	public function getDuplicateArr(){

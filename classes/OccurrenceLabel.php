@@ -287,32 +287,33 @@ class OccurrenceLabel{
 					$fieldValue = trim($occArr[$fieldName]);
 					if($fieldValue){
 						if($delimiter && $cnt) $fieldDivStr .= $delimiter;
-						$fieldDivStr .= '<span class="'.$fieldName.'" '.(isset($fieldArr['style'])?'style="'.$fieldArr['style'].'"':'').'>';
+						$fieldDivStr .= '<span class="'.$fieldName.(isset($fieldArr['className'])?' '.$fieldArr['className']:'').'" '.(isset($fieldArr['style'])?'style="'.$fieldArr['style'].'"':'').'>';
 						if(isset($fieldArr['prefix']) && $fieldArr['prefix']){
-							$fieldDivStr .= '<span class="'.$fieldName.'Prefix" '.(isset($fieldArr['prefixStyle'])?'style="'.$fieldArr['prefixStyle'].'"':'').'>'.$fieldArr['prefix'].'</span>';
+							$fieldDivStr .= '<span class="'.$fieldName.'Prefix"'.(isset($fieldArr['prefixStyle'])?' style="'.$fieldArr['prefixStyle'].'"':'').'>'.$fieldArr['prefix'].'</span>';
 						}
 						$fieldDivStr .= $fieldValue;
 						if(isset($fieldArr['suffix']) && $fieldArr['suffix']){
-							$fieldDivStr .= '<span class="'.$fieldName.'Suffix" '.(isset($fieldArr['suffixStyle'])?'style="'.$fieldArr['suffixStyle'].'"':'').'>'.$fieldArr['suffix'].'</span>';
+							$fieldDivStr .= '<span class="'.$fieldName.'Suffix"'.(isset($fieldArr['suffixStyle'])?' style="'.$fieldArr['suffixStyle'].'"':'').'>'.$fieldArr['suffix'].'</span>';
 						}
 						$fieldDivStr .= '</span>';
 						$cnt++;
 					}
 				}
-				if($fieldDivStr) $outStr .= '<div class="fieldBlockDiv" '.(isset($bArr['style'])?'style="'.$bArr['style'].'"':'').'>'.$fieldDivStr.'</div>';
+				if($fieldDivStr) $outStr .= '<div class="field-block'.(isset($bArr['className'])?' '.$bArr['className']:'').'"'.(isset($bArr['style'])?' style="'.$bArr['style'].'"':'').'>'.$fieldDivStr.'</div>';
 			}
 		}
 		return $outStr;
 	}
 
 	private function getDivBlock($divArr,$occArr){
-		if(array_key_exists('blocks', $divArr)){
-			if($blockStr = $this->getLabelBlock($divArr['blocks'],$occArr)){
-				return '<div '.(isset($divArr['className'])?'class="'.$divArr['className'].'"':'').' '.(isset($divArr['style'])?'style="'.$divArr['style'].'"':'').'>'.$blockStr.'</div>'."\n";
-			}
-		}
-		else if($contentStr = $divArr['content']) {
-			return '<div '.(isset($divArr['className'])?'class="'.$divArr['className'].'"':'').' '.(isset($divArr['style'])?'style="'.$divArr['style'].'"':'').'>'.$contentStr.'</div>'."\n";
+		$contentStr = '';
+		if(array_key_exists('blocks', $divArr)) $contentStr = $this->getLabelBlock($divArr['blocks'],$occArr);
+		elseif(array_key_exists('content', $divArr)) $contentStr = $divArr['content'];
+		if($contentStr){
+			$attrStr = '';
+			if(isset($divArr['className'])) $attrStr = 'class="'.$divArr['className'].'" ';
+			if(isset($divArr['style']) && $divArr['style']) $attrStr = 'style="'.$divArr['style'].'" ';
+			return '<div '.trim($attrStr).'>'.$contentStr.'</div>'."\n";
 		}
 		return '';
 	}
@@ -551,7 +552,7 @@ class OccurrenceLabel{
 
 	private function saveGlobalJson($formatArr){
 		$status = false;
-		$jsonStr = "<?php\n ".'$LABEL_FORMAT_JSON = \''.json_encode($formatArr,JSON_PRETTY_PRINT)."'; \n?>";
+		$jsonStr = "<?php\n ".'$LABEL_FORMAT_JSON = \''.json_encode($formatArr,JSON_PRETTY_PRINT | JSON_HEX_APOS)."'; \n?>";
 		if($fh = fopen($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php','w')){
 			if(!fwrite($fh,$jsonStr)){
 				$this->errorArr[] = 'ERROR saving label format to global file ';

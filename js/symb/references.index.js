@@ -9,59 +9,6 @@ $(document).ready(function() {
 		}
 	});
 	
-	function split( val ) {
-		return val.split( /,\s*/ );
-	}
-	function extractLast( term ) {
-		return split( term ).pop();
-	}
-
-	$( "#addauthorsearch" )
-		// don't navigate away from the field on tab when selecting an item
-		.bind( "keydown", function( event ) {
-			if ( event.keyCode === $.ui.keyCode.TAB &&
-					$( this ).data( "autocomplete" ).menu.active ) {
-				event.preventDefault();
-			}
-		})
-		.autocomplete({
-			source: function( request, response ) {
-				$.getJSON( "rpc/authorlist.php", {
-					term: extractLast( request.term ), t: function() { return document.authorform.addauthorsearch.value; }
-				}, response );
-			},
-			search: function() {
-				// custom minLength
-				var term = extractLast( this.value );
-				if ( term.length < 3 ) {
-					return false;
-				}
-			},
-			focus: function() {
-				// prevent value inserted on focus
-				return false;
-			},
-			select: function( event, ui ) {
-				var terms = split( this.value );
-				// remove the current input
-				terms.pop();
-				// add the selected item
-				terms.push( ui.item.label );
-				document.getElementById('refauthorid').value = ui.item.value;
-				this.value = terms;
-				addAuthorToRef();
-				return false;
-			},
-			change: function (event, ui) {
-				if (!ui.item) {
-					this.value = '';
-					if (confirm("Would you like to add a new author to the database?")) {
-						openNewAuthorWindow();
-					}
-				}
-			}
-		},{});
-		
 	if(parentChild){
 		var url = '';
 		if(document.getElementById("ReferenceTypeId").value == 2 || document.getElementById("ReferenceTypeId").value == 4 || document.getElementById("ReferenceTypeId").value == 7 || document.getElementById("ReferenceTypeId").value == 8){
@@ -81,12 +28,12 @@ $(document).ready(function() {
 			.autocomplete({
 				source: function( request, response ) {
 					$.getJSON( url, {
-						term: extractLast( request.term ), t: function() { return document.referenceeditform.secondarytitle.value; }
+						term: request.term, t: function() { return document.referenceeditform.secondarytitle.value; }
 					}, response );
 				},
 				search: function() {
 					// custom minLength
-					var term = extractLast( this.value );
+					var term = this.value;
 					if ( term.length < 3 ) {
 						return false;
 					}
@@ -96,7 +43,7 @@ $(document).ready(function() {
 					return false;
 				},
 				select: function( event, ui ) {
-					var terms = split( this.value );
+					var terms = this.value;
 					// remove the current input
 					terms.pop();
 					// add the selected item
@@ -119,12 +66,12 @@ $(document).ready(function() {
 			.autocomplete({
 				source: function( request, response ) {
 					$.getJSON( "rpc/seriestitlelist.php", {
-						term: extractLast( request.term ), t: function() { return document.referenceeditform.tertiarytitle.value; }
+						term: request.term, t: function() { return document.referenceeditform.tertiarytitle.value; }
 					}, response );
 				},
 				search: function() {
 					// custom minLength
-					var term = extractLast( this.value );
+					var term = this.value;
 					if ( term.length < 3 ) {
 						return false;
 					}
@@ -134,7 +81,7 @@ $(document).ready(function() {
 					return false;
 				},
 				select: function( event, ui ) {
-					var terms = split( this.value );
+					var terms = this.value;
 					// remove the current input
 					terms.pop();
 					// add the selected item
@@ -347,18 +294,6 @@ function toggle(target){
 			}
 		}
 	}
-}
-
-function verifyNewRefForm(f){
-	if(document.getElementById("newreftitle").value == ""){
-		alert("Please enter the title of the reference.");
-		return false;
-	}
-	if(document.getElementById("newreftype").selectedIndex < 2){
-		alert("Please select the type of reference.");
-		return false;
-	}
-	return true;
 }
 
 function verifyNewAuthForm(f){

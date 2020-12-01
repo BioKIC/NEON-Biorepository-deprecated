@@ -137,8 +137,7 @@ class OccurrenceMaintenance {
 			}
 		}
 		$rs->free();
-		$this->batchUpdateAuthor($occidArr);
-		unset($occidArr);
+		if(isset($occidArr)) $this->batchUpdateAuthor($occidArr);
 
 		/*
 		if($this->verbose) $this->outputMsg('Updating georeference index... ',1);

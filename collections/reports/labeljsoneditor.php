@@ -119,14 +119,14 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 							<div class="field-block">
 								<div class="label">Title:</div>
 								<div class="field-block">
-									<input name="title" type="text" value="<?php echo (isset($formatArr['title'])?$formatArr['title']:''); ?>" />
+									<input name="title" type="text" value="<?php echo (isset($formatArr['title'])?htmlspecialchars($formatArr['title']):''); ?>" />
 								</div>
 							</div>
 							<fieldset class="fieldset-block">
 								<legend>Label Header</legend>
 								<div class="field-block">
 									<span class="label-inline">Prefix:</span>
-									<input name="hPrefix" type="text" value="<?php echo (isset($formatArr['labelHeader']['prefix'])?$formatArr['labelHeader']['prefix']:''); ?>" />
+									<input name="hPrefix" type="text" value="<?php echo (isset($formatArr['labelHeader']['prefix'])?htmlspecialchars($formatArr['labelHeader']['prefix']):''); ?>" />
 								</div>
 								<div class="field-block">
 									<?php
@@ -156,7 +156,7 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 								</div>
 								<div class="field-block">
 									<span class="label-inline">Suffix:</span>
-									<input name="hSuffix" type="text" value="<?php echo (isset($formatArr['labelHeader']['suffix'])?$formatArr['labelHeader']['suffix']:''); ?>" />
+									<input name="hSuffix" type="text" value="<?php echo (isset($formatArr['labelHeader']['suffix'])?htmlspecialchars($formatArr['labelHeader']['suffix']):''); ?>" />
 								</div>
 								<div class="field-block">
 									<span class="label-inline">Class names:</span>
@@ -171,7 +171,7 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 								<legend>Label Footer</legend>
 								<div class="field-block">
 									<span class="label-inline">Footer text:</span>
-									<input name="fTextValue" type="text" value="<?php echo (isset($formatArr['labelFooter']['textValue'])?$formatArr['labelFooter']['textValue']:''); ?>" />
+									<input name="fTextValue" type="text" value="<?php echo (isset($formatArr['labelFooter']['textValue'])?htmlspecialchars($formatArr['labelFooter']['textValue']):''); ?>" />
 								</div>
 								<div class="field-block">
 									<span class="label-inline">Class names:</span>

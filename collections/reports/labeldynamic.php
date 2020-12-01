@@ -53,8 +53,8 @@ else{
 
 $targetLabelFormatArr = false;
 if(is_numeric($labelIndexGlobal)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('global',$labelIndexGlobal);
-elseif(is_numeric($labelIndexColl)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('coll',$labelIndexGlobal);
-elseif(is_numeric($labelIndexUser)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('user',$labelIndexGlobal);
+elseif(is_numeric($labelIndexColl)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('coll',$labelIndexColl);
+elseif(is_numeric($labelIndexUser)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('user',$labelIndexUser);
 
 $isEditor = 0;
 if($SYMB_UID){
@@ -124,117 +124,120 @@ if($SYMB_UID){
 		}
 		?>
 	</head>
-  <body style="background-color:#ffffff;">
-  <?php echo '<div class="body'.(isset($targetLabelFormatArr['pageSize'])?' '.$targetLabelFormatArr['pageSize']:'').'">'  ;?>
-		<!-- <div class="body"> -->
-			<?php
-			if($targetLabelFormatArr && $isEditor){
-				$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
-				$labelCnt = 0;
-				$rowCnt = 0;
-				foreach($labelArr as $occid => $occArr){
-					if($barcodeOnly){
-						if($occArr['catalognumber']){
+	<body style="background-color:#ffffff;">
+		<?php
+		echo '<div class="body'.(isset($targetLabelFormatArr['pageSize'])?' '.$targetLabelFormatArr['pageSize']:'').'">'  ;
+		if($targetLabelFormatArr && $isEditor){
+			$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
+			$labelCnt = 0;
+			$rowCnt = 0;
+			foreach($labelArr as $occid => $occArr){
+				if($barcodeOnly){
+					if($occArr['catalognumber']){
+						?>
+						<div class="barcodeonly">
+							<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
+						</div>
+						<?php
+						$labelCnt++;
+					}
+				}
+				else{
+					//Build label header string
+					$midStr = '';
+					if($hMid == 1) $midStr = $occArr['country'];
+					elseif($hMid == 2) $midStr = $occArr['stateprovince'];
+					elseif($hMid == 3) $midStr = $occArr['county'];
+					elseif($hMid == 4) $midStr = $occArr['family'];
+					$headerStr = '';
+					if($hPrefix || $midStr || $hSuffix){
+						$headerStrArr = array();
+						$headerStrArr[] = trim($hPrefix);
+						$headerStrArr[] = trim($midStr);
+						$headerStrArr[] = trim($hSuffix);
+						$headerStr = implode(" ",$headerStrArr);
+					}
+
+					$dupCnt = $_POST['q-'.$occid];
+					for($i = 0;$i < $dupCnt;$i++){
+						$labelCnt++;
+						if($columnCount == 'packet'){
+							echo '<div class="foldMarks1"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
+							echo '<div class="foldMarks2"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
+						}
+						elseif($labelCnt%$columnCount == 1){
+							if($labelCnt > 1) echo '</div>';
+							echo '<div class="row">';
+							$rowCnt++;
+						}
+						echo '<div class="label'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">';
+						$attrStr = 'class="label-header';
+						if(isset($targetLabelFormatArr['labelHeader']['className'])) $attrStr .= ' '.$targetLabelFormatArr['labelHeader']['className'];
+						$attrStr .= '"';
+						if(isset($targetLabelFormatArr['labelHeader']['style']) && $targetLabelFormatArr['labelHeader']['style']) $attrStr .= ' style="'.$targetLabelFormatArr['labelHeader']['style'].'"';
+						echo '<div '.trim($attrStr).'>'.$headerStr.'</div>';
+						//Output field data
+						echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
+						if($useBarcode && $occArr['catalognumber']){
 							?>
-							<div class="barcodeonly">
+							<div class="cn-barcode">
 								<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
 							</div>
 							<?php
-							$labelCnt++;
-						}
-					}
-					else{
-						//Build label header string
-						$midStr = '';
-						if($hMid == 1) $midStr = $occArr['country'];
-						elseif($hMid == 2) $midStr = $occArr['stateprovince'];
-						elseif($hMid == 3) $midStr = $occArr['county'];
-						elseif($hMid == 4) $midStr = $occArr['family'];
-						$headerStr = '';
-						if($hPrefix || $midStr || $hSuffix){
-							$headerStrArr = array();
-							$headerStrArr[] = trim($hPrefix);
-							$headerStrArr[] = trim($midStr);
-							$headerStrArr[] = trim($hSuffix);
-							$headerStr = implode(" ",$headerStrArr);
-						}
-
-						$dupCnt = $_POST['q-'.$occid];
-						for($i = 0;$i < $dupCnt;$i++){
-							$labelCnt++;
-							if($columnCount == 'packet'){
-								echo '<div class="foldMarks1"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
-								echo '<div class="foldMarks2"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
-							}
-							elseif($labelCnt%$columnCount == 1){
-								if($labelCnt > 1) echo '</div>';
-								echo '<div class="row">';
-								$rowCnt++;
-							}
-							echo '<div class="label'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">';
-							echo '<div class="label-header'.(isset($targetLabelFormatArr['labelHeader']['className'])?' '.$targetLabelFormatArr['labelHeader']['className']:'').'"'.(isset($targetLabelFormatArr['labelHeader']['style'])?' style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
-							//Output field data
-							echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
-							if($useBarcode && $occArr['catalognumber']){
+							if($occArr['othercatalognumbers']){
 								?>
-								<div class="cn-barcode">
-									<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
+								<div class="other-catalog-numbers">
+									<?php echo $occArr['othercatalognumbers']; ?>
 								</div>
 								<?php
-								if($occArr['othercatalognumbers']){
-									?>
-									<div class="other-catalog-numbers">
-										<?php echo $occArr['othercatalognumbers']; ?>
-									</div>
-									<?php
-								}
 							}
-							elseif($showcatalognumbers){
-								if($occArr['catalognumber']){
-									?>
-									<div class="catalog-number">
-										<?php echo $occArr['catalognumber']; ?>
-									</div>
-									<?php
-								}
-								if($occArr['othercatalognumbers']){
-									?>
-									<div class="other-catalog-numbers">
-										<?php echo $occArr['othercatalognumbers']; ?>
-									</div>
-									<?php
-								}
-							}
-							if($lFooter) echo '<div class="label-footer" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
-							if($useSymbBarcode){
+						}
+						elseif($showcatalognumbers){
+							if($occArr['catalognumber']){
 								?>
-								<hr style="border:dashed;" />
-								<div class="symb-barcode">
-									<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occid; ?>" />
+								<div class="catalog-number">
+									<?php echo $occArr['catalognumber']; ?>
 								</div>
 								<?php
-								if($occArr['catalognumber']){
-									?>
-									<div class="catalog-number">
-										<?php echo $occArr['catalognumber']; ?>
-									</div>
-									<?php
-								}
 							}
-							echo '</div>';
+							if($occArr['othercatalognumbers']){
+								?>
+								<div class="other-catalog-numbers">
+									<?php echo $occArr['othercatalognumbers']; ?>
+								</div>
+								<?php
+							}
 						}
+						if($lFooter) echo '<div class="label-footer" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
+						if($useSymbBarcode){
+							?>
+							<hr style="border:dashed;" />
+							<div class="symb-barcode">
+								<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occid; ?>" />
+							</div>
+							<?php
+							if($occArr['catalognumber']){
+								?>
+								<div class="catalog-number">
+									<?php echo $occArr['catalognumber']; ?>
+								</div>
+								<?php
+							}
+						}
+						echo '</div>';
 					}
 				}
-				echo '</div>'; //Closing row
-				if(!$labelCnt) echo '<div style="font-weight:bold;text-size: 120%">No records were retrieved. Perhaps the quantity values were all set to 0?</div>';
 			}
-			else{
-				echo '<div style="font-weight:bold;text-size: 120%">';
-				if($targetLabelFormatArr) echo 'ERROR: Unable to parse JSON that defines the label format profile ';
-				else 'ERROR: Permissions issue';
-				echo '</div>';
-			}
-			?>
-		</div>
+			echo '</div>'; //Closing row
+			if(!$labelCnt) echo '<div style="font-weight:bold;text-size: 120%">No records were retrieved. Perhaps the quantity values were all set to 0?</div>';
+		}
+		else{
+			echo '<div style="font-weight:bold;text-size: 120%">';
+			if($targetLabelFormatArr) echo 'ERROR: Unable to parse JSON that defines the label format profile ';
+			else 'ERROR: Permissions issue';
+			echo '</div>';
+		}
+		echo '</div>';
+		?>
 	</body>
 </html>

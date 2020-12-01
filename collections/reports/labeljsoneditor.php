@@ -79,13 +79,13 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 		<a href='../../index.php'>Home</a> &gt;&gt;
 		<?php
 		if($isGeneralObservation) echo '<a href="../../profile/viewprofile.php?tabindex=1">Personal Management Menu</a> &gt;&gt; ';
-		else echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
-		if($collid) echo '<a href="../../profile/labelmanager.php?collid='.$collid.'">Personal Management Menu</a> &gt;&gt; ';
+		elseif($collid) echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
 		?>
 		<b>Label JSON Editor</b>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
+		<div style="width:700px"><span style="color:orange;font-weight:bold;">In development!</span> We are currently working on developing a new system that will allow collection managers and general users to create their own custom label formats that can be saved within the collection and user profiles. We are trying our best to develop these tools with minimum disruptions to normal label printing. More details to provided in the near future.</div>
 		<?php
 		if($statusStr){
 			?>

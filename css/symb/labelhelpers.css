@@ -56,12 +56,6 @@
 
 /* Placing and ordering things */
 
-.grid {
-  /* Makes container fixed height and adds css-grid*/
-  min-height: 100%;
-  display: grid;
-}
-
 .block {
   display: block;
 }
@@ -152,6 +146,23 @@
 
 .order-9 {
   order: 9;
+}
+
+
+/* CSS-Grid */
+
+.grid {
+  /* Makes container fixed height and adds css-grid*/
+  /* min-height: 100%; */
+  display: grid;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 

@@ -175,7 +175,7 @@ class OccurrenceHarvester{
 		if(!$viewArr){
 			if($sampleArr['sampleID'] && $sampleArr['sampleClass']){
 				//If sampleId and sampleClass are not correct, nothing will be returned
-				$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->neonApiKey.'&sampleTag='.$sampleArr['sampleID'].'&sampleClass='.$sampleArr['sampleClass'];
+				$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->neonApiKey.'&sampleTag='.urlencode($sampleArr['sampleID']).'&sampleClass='.urlencode($sampleArr['sampleClass']);
 				//echo $url;
 				$viewArr = $this->getSampleApiData($url);
 				if($viewArr){
@@ -353,13 +353,13 @@ class OccurrenceHarvester{
 
 				if($sampleArr['taxonID']){
 					$dwcArr['sciname'] = $sampleArr['taxonID'];
-					$dwcArr['taxonRemarks'] = $sampleArr['Identification source: inferred from shipment manifest'];
+					$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
 				}
 				else{
 					if(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,57))){
 						if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
 							$dwcArr['sciname'] = $m[1];
-							$dwcArr['taxonRemarks'] = $sampleArr['Identification source: parsed from NEON sampleID'];
+							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
 						}
 					}
 				}
@@ -429,7 +429,7 @@ class OccurrenceHarvester{
 	private function setNeonLocationData(&$dwcArr, $locationName){
 		//https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
 		//echo 'loc name1: '.$locationName.'<br/>';
-		$url = 'https://data.neonscience.org/api/v0/locations/'.$locationName.'?apiToken='.$this->neonApiKey;
+		$url = 'https://data.neonscience.org/api/v0/locations/'.urlencode($locationName).'?apiToken='.$this->neonApiKey;
 		$resultArr = $this->getNeonApiArr($url);
 		//echo 'url: '.$url.'<br/>'; print_r($resultArr); echo '<br/><br/>';
 		if(!$resultArr) return false;

@@ -215,6 +215,10 @@ $collManager->cleanOutArr($collData);
 			return IsNumber;
 		}
 	</script>
+	<style type="text/css">
+	 	fieldset { background-color: #f2f2f2 }
+	 	legend { font-weight: bold }
+	</style>
 </head>
 <body>
 	<?php
@@ -245,8 +249,8 @@ $collManager->cleanOutArr($collData);
 			if($collid) echo '<h1>'.$collData['collectionname'].(array_key_exists('institutioncode',$collData)?' ('.$collData['institutioncode'].')':'').'</h1>';
 			?>
 			<div>
-				<fieldset style="background-color:#FFF380;">
-					<legend><b>Mailing Address</b></legend>
+				<fieldset>
+					<legend>Mailing Address</legend>
 					<?php
 					if($instArr = $addressManager->getAddress()){
 						?>

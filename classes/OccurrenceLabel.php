@@ -311,8 +311,8 @@ class OccurrenceLabel{
 		elseif(array_key_exists('content', $divArr)) $contentStr = $divArr['content'];
 		if($contentStr){
 			$attrStr = '';
-			if(isset($divArr['className'])) $attrStr = 'class="'.$divArr['className'].'" ';
-			if(isset($divArr['style']) && $divArr['style']) $attrStr = 'style="'.$divArr['style'].'" ';
+			if(isset($divArr['className'])) $attrStr .= 'class="'.$divArr['className'].'"';
+			if(isset($divArr['style']) && $divArr['style']) $attrStr .= 'style="'.$divArr['style'].'"';
 			return '<div '.trim($attrStr).'>'.$contentStr.'</div>'."\n";
 		}
 		return '';

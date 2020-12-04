@@ -181,7 +181,8 @@ if(!$researchList && !$editMode){
 		}
 	</script>
 	<style>
-		fieldset.form-color{background-color:#FFF380;margin:15px;padding:20px;}
+		fieldset.form-color{ background-color:#f2f2f2; margin:15px; padding:20px; }
+		fieldset.form-color legend{ font-weight: bold; }
 	</style>
 </head>
 <body>
@@ -254,7 +255,7 @@ if(!$researchList && !$editMode){
 					</ul>
 					<div id="mdtab">
 						<fieldset class="form-color">
-							<legend><b><?php echo ($newProj?'Add New':'Edit'); ?> Project</b></legend>
+							<legend><?php echo ($newProj?'Add New':'Edit'); ?> Project</legend>
 							<form name='projeditorform' action='index.php' method='post' onsubmit="return validateProjectForm(this)">
 								<table style="width:100%;">
 									<tr>
@@ -338,7 +339,7 @@ if(!$researchList && !$editMode){
 						if($pid){
 							?>
 							<fieldset class="form-color">
-								<legend><b><?php (isset($LANG['DELPROJECT'])?$LANG['DELPROJECT']:'Delete Project') ?></b></legend>
+								<legend><?php (isset($LANG['DELPROJECT'])?$LANG['DELPROJECT']:'Delete Project') ?></legend>
 								<form action="index.php" method="post" onsubmit="return confirm('<?php (isset($LANG['CONFIRMDEL'])?$LANG['CONFIRMDEL']:'Are you sure you want to delete this inventory Project') ?>?')">
 									<input type="hidden" name="pid" value="<?php echo $pid;?>">
 									<input type="hidden" name="projsubmit" value="subdelete" />

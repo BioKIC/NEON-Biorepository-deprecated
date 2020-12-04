@@ -52,7 +52,6 @@ $navStr = '';
 
 if($SYMB_UID){
 	//Set variables
-	$occManager->setSymbUid($SYMB_UID);
 	$occManager->setOccId($occid);
 	$occManager->setCollId($collid);
 	$collMap = $occManager->getCollMap();

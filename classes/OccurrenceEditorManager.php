@@ -20,7 +20,7 @@ class OccurrenceEditorManager {
 	private $otherCatNumIsNum = false;
 	private $qryArr = array();
 	private $crowdSourceMode = 0;
-	private $SYMB_UID;
+	protected $isPersonalManagement = false;	//e.g. General Observations and owned by user
 	private $catNumIsNum;
 	protected $errorArr = array();
 	protected $isShareConn = false;
@@ -66,7 +66,7 @@ class OccurrenceEditorManager {
 		if(!$this->collMap){
 			if(!$this->occid && !$this->collId) return false;
 			if(!$this->collId){
-				$sql = 'SELECT collid FROM omoccurrences WHERE occid = '.$this->occid;
+				$sql = 'SELECT collid, observeruid FROM omoccurrences WHERE occid = '.$this->occid;
 				$rs = $this->conn->query($sql);
 				if($r = $rs->fetch_object()){
 					$this->collId = $r->collid;
@@ -672,6 +672,7 @@ class OccurrenceEditorManager {
 					elseif($this->occid == $row['occid']){
 						//Is target specimen
 						$retArr[$row['occid']] = array_change_key_case($row);
+						if($this->collMap['colltype'] == 'General Observations' && $row->observeruid == $GLOBALS['SYMB_UID']) $this->isPersonalManagement = true;
 					}
 					elseif(is_numeric($localIndex) && $localIndex == $rsCnt){
 						$retArr[$row['occid']] = array_change_key_case($row);
@@ -909,7 +910,7 @@ class OccurrenceEditorManager {
 								$isVolunteer = false;
 							}
 
-							$sql = 'UPDATE omcrowdsourcequeue SET uidprocessor = '.$this->symbUid.', reviewstatus = 5 ';
+							$sql = 'UPDATE omcrowdsourcequeue SET uidprocessor = '.$GLOBALS['SYMB_UID'].', reviewstatus = 5 ';
 							if(!$isVolunteer) $sql .= ', isvolunteer = 0 ';
 							$sql .= 'WHERE (uidprocessor IS NULL) AND (occid = '.$occid.')';
 							if(!$this->conn->query($sql)){
@@ -1140,9 +1141,8 @@ class OccurrenceEditorManager {
 				}
 				//Deal with host data
 				if(array_key_exists('host',$occArr)){
-					$sql1 = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) '.
-						'VALUES('.$this->occid.',"host","'.$this->cleanInStr($occArr['host']).'")';
-					if(!$this->conn->query($sql1)){
+					$sql = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) VALUES('.$this->occid.',"host","'.$this->cleanInStr($occArr['host']).'")';
+					if(!$this->conn->query($sql)){
 						$status .= '(WARNING adding host: '.$this->conn->error.') ';
 					}
 				}
@@ -1370,12 +1370,15 @@ class OccurrenceEditorManager {
 		}
 
 		//Remap associations
-		if($QUICK_HOST_ENTRY_IS_ACTIVE){
-			$sql = 'UPDATE omoccurassociations SET occid = '.$targetOccid.' WHERE occid = '.$sourceOccid;
-			if(!$this->conn->query($sql)){
-				$this->errorArr[] .= '; ERROR remapping associations: '.$this->conn->error;
-				$status = false;
-			}
+		$sql = 'UPDATE omoccurassociations SET occid = '.$targetOccid.' WHERE occid = '.$sourceOccid;
+		if(!$this->conn->query($sql)){
+			$this->errorArr[] .= '; ERROR remapping associations (1): '.$this->conn->error;
+			$status = false;
+		}
+		$sql = 'UPDATE omoccurassociations SET occidAssociate = '.$targetOccid.' WHERE occidAssociate = '.$sourceOccid;
+		if(!$this->conn->query($sql)){
+			$this->errorArr[] .= '; ERROR remapping associations (2): '.$this->conn->error;
+			$status = false;
 		}
 
 		//Remap comments
@@ -1988,11 +1991,10 @@ class OccurrenceEditorManager {
 	public function getLock(){
 		$isLocked = false;
 		//Check lock
-		$delSql = 'DELETE FROM omoccureditlocks WHERE (ts < '.(time()-900).') OR (uid = '.$this->symbUid.')';
+		$delSql = 'DELETE FROM omoccureditlocks WHERE (ts < '.(time()-900).') OR (uid = '.$GLOBALS['SYMB_UID'].')';
 		if(!$this->conn->query($delSql)) return false;
 		//Try to insert lock for , existing lock is assumed if fails
-		$sql = 'INSERT INTO omoccureditlocks(occid,uid,ts) '.
-			'VALUES ('.$this->occid.','.$this->symbUid.','.time().')';
+		$sql = 'INSERT INTO omoccureditlocks(occid,uid,ts) VALUES ('.$this->occid.','.$GLOBALS['SYMB_UID'].','.time().')';
 		if(!$this->conn->query($sql)){
 			$isLocked = true;
 		}
@@ -2246,7 +2248,7 @@ class OccurrenceEditorManager {
 			if($id != $this->collId){
 				unset($this->collMap);
 				$this->collMap = array();
-				$this->getCollMap();
+				$this->setCollMap();
 			}
 			$this->collId = $id;
 		}
@@ -2261,8 +2263,8 @@ class OccurrenceEditorManager {
 		return $this->qryArr;
 	}
 
-	public function setSymbUid($id){
-		if(is_numeric($id)) $this->symbUid = $id;
+	public function isPersonalManagement(){
+		return $this->isPersonalManagement;
 	}
 
 	public function setCrowdSourceMode($m){

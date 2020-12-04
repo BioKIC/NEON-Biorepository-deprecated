@@ -5,6 +5,7 @@ include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = $_GET['occid'];
+$collid = $_GET['collid'];
 $occIndex = $_GET['occindex'];
 $crowdSourceMode = $_GET['csmode'];
 
@@ -29,34 +30,39 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 				data: { id: f.identifier.value, target: f.target.value, collidtarget: f.collidtarget.value }
 			}).done(function( retObj ) {
 				if(retObj){
+					$( "#searchResultDiv" ).html("");
+					var cnt = 0;
 					$.each(retObj, function(occid, item) {
 						$( "#searchResultDiv" ).append( createAssocInput(occid,item.catnum,item.collinfo) );
+						cnt++;
 					});
+					if(cnt == 0) $( "#searchResultDiv" ).html("No results returned");
 				}
 				else{
-
+					$( "#searchResultDiv" ).html("ERROR: Unable to get results");
 				}
 			});
 		}
 	}
 
 	function createAssocInput(occid,catnum,collinfo){
-
+		var newDiv = document.createElement("div");
 		var newInput = document.createElement('input');
-		newInput.setAttribute("name", "occid");
+		newInput.setAttribute("name", "occidAssoc");
 		newInput.setAttribute("type", "radio");
 		newInput.setAttribute("value", occid);
-		var newText = document.createTextNode(catnum+": "+collinfo);
-		newInput.appendChild(newText);
-
-		var newDiv = document.createElement("div");
 		newDiv.appendChild(newInput);
-
+		var newText = document.createTextNode(catnum+": "+collinfo);
+		var newAnchor = document.createElement("a");
+		newAnchor.setAttribute("href","#");
+		newAnchor.setAttribute("onclick","openIndividual("+occid+");return false;");
+		newAnchor.appendChild(newText);
+		newDiv.appendChild(newAnchor);
 		return newDiv;
 	}
 
 	function validateAssocForm(f){
-		if(f.occidAssociate.value == ""){
+		if(f.occidAssoc.value == ""){
 			alert("Related occurrence is not defined");
 			return false;
 		}
@@ -134,7 +140,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 	}
 </script>
 <style type="text/css">
-	fieldset{ padding: 10px }
+	fieldset{ clear:both; margin:10px; padding:10px; }
 	legend{ font-weight: bold }
 	.fieldRowDiv{ clear:both; margin: 2px 0px; }
 	.fieldDiv{ float:left; margin: 2px 10px 2px 0px; }
@@ -146,118 +152,133 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 	<?php
 	$assocArr = $occManager->getOccurrenceRelationships();
 	?>
-	<fieldset style="padding:20px">
-		<legend><b>Associated Occurrences</b></legend>
-		<form name="addOccurAssocForm" action="resourcehandler.php" method="post" onsubmit="return validateAssocForm(this)">
-			<fieldset>
-				<legend>Occurrence within System</legend>
+	<fieldset>
+		<legend>Associated Occurrences</legend>
+		<div style="float:right;margin-right:10px;">
+			<a href="#" onclick="toggle('new-association');return false;" title="Create a New Association" ><img src="../../images/add.png" /></a>
+		</div>
+		<fieldset id="new-association" style="display:none">
+			<legend>Create New Association</legend>
+			<form name="addOccurAssocForm" action="resourcehandler.php" method="post" onsubmit="return validateAssocForm(this)">
+				<fieldset>
+					<legend>Occurrence within System</legend>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<span class="fieldLabel">Identifier: </span>
+							<input name="identifier" type="text" value="" />
+						</div>
+						<div class="fieldDiv">
+							<span class="fieldLabel">Search Target: </span>
+							<select name="target">
+								<option value="catnum">Catalog Numbers</option>
+								<option value="occid">Occurrence PK (occid)</option>
+								<!-- <option value="occurrenceID">occurrenceID</option>  -->
+							</select>
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<span class="fieldLabel">Search Collections: </span>
+							<select name="collidtarget">
+								<option value="">All Collections</option>
+								<option value="">-------------------------</option>
+								<?php
+								$collList = $occManager->getCollectionList();
+								foreach($collList as $collID => $collName){
+									echo '<option value="'.$collID.'">'.$collName.'</option>';
+								}
+								?>
+							</select>
+						</div>
+						<div class="fieldDiv">
+							<button type="button" onclick="assocIdentifierChanged(this.form)">Search</button>
+						</div>
+					</div>
+					<fieldset style="margin:0px">
+						<legend>Occurrence Matches Available to Link</legend>
+						<div class="fieldDiv">
+							<div id="searchResultDiv">--------------------------------------------</div>
+						</div>
+					</fieldset>
+				</fieldset>
+				<fieldset>
+					<legend>External Occurrence</legend>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<span class="fieldLabel">External Identifier: </span>
+							<input name="identifier" type="text" value="" />
+						</div>
+						<div class="fieldDiv">
+							<span class="fieldLabel">Resource URL: </span>
+							<input name="resourceurl" type="text" value="" />
+						</div>
+					</div>
+				</fieldset>
 				<div class="fieldRowDiv">
 					<div class="fieldDiv">
-						<span class="fieldLabel">Identifier: </span>
-						<input name="identifier" type="text" value="" />
-						<input name="occidAssociate" type="hidden" value="" />
-					</div>
-					<div class="fieldDiv">
-						<span class="fieldLabel">Search Target: </span>
-						<select name="target">
-							<option value="catnum">Catalog Numbers</option>
-							<option value="occid">Occurrence PK (occid)</option>
-							<!-- <option value="occurrenceID">occurrenceID</option>  -->
-						</select>
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<span class="fieldLabel">Search Collections: </span>
-						<select name="collidtarget">
-							<option value="">All Collections</option>
-							<option value="">-------------------------</option>
+						<span class="fieldLabel">Relationship: </span>
+						<select name="relationship" required>
+							<option value="">--------------------</option>
 							<?php
-							$collList = $occManager->getCollectionList();
-							foreach($collList as $collid => $collName){
-								echo '<option value="'.$collid.'">'.$collName.'</option>';
+							$relArr = $occManager->getRelationshipArr();
+							foreach($relArr as $rKey => $rValue){
+								echo '<option value="'.$rKey.'">'.$rValue.'</option>';
 							}
 							?>
 						</select>
 					</div>
 					<div class="fieldDiv">
-						<button type="button" onclick="assocIdentifierChanged(this.form)">Search</button>
+						<span class="fieldLabel">Relationship subtype: </span>
+						<select name="subtype">
+							<option value="">--------------------</option>
+							<?php
+							$subtypeArr = $occManager->getSubtypeArr();
+							foreach($subtypeArr as $tValue){
+								echo '<option value="'.$tValue.'">'.$tValue.'</option>';
+							}
+							?>
+						</select>
 					</div>
 				</div>
 				<div class="fieldRowDiv">
 					<div class="fieldDiv">
-						<div id="searchResultDiv"></div>
+						<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+						<input name="occindex" type="hidden" value="<?php echo $occIndex ?>" />
+						<button name="submitaction" type="submit" value="createAssociation">Create Association</button>
 					</div>
 				</div>
-			</fieldset>
-			<fieldset>
-				<legend>External Occurrence</legend>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<span class="fieldLabel">External Identifier: </span>
-						<input name="externalIdentifier" type="text" value="" />
-					</div>
-					<div class="fieldDiv">
-						<span class="fieldLabel">Resource URL: </span>
-						<input name="resourceurl" type="text" value="" />
-					</div>
-				</div>
-			</fieldset>
-			<div class="fieldRowDiv">
-				<div class="fieldDiv">
-					<span class="fieldLabel">Relationship: </span>
-					<select name="relationship" required>
-						<option value="">--------------------</option>
-						<?php
-						$relArr = $occManager->getRelationshipArr();
-						foreach($relArr as $rKey => $rValue){
-							echo '<option value="'.$rKey.'">'.$rValue.'</option>';
-						}
-						?>
-					</select>
-				</div>
-				<div class="fieldDiv">
-					<span class="fieldLabel">Relationship subtype: </span>
-					<select name="subType">
-						<option value="">--------------------</option>
-						<?php
-						$subtypeArr = $occManager->getSubtypeArr();
-						foreach($subtypeArr as $tKey => $tValue){
-							echo '<option value="'.$tKey.'">'.$tValue.'</option>';
-						}
-						?>
-					</select>
-				</div>
-			</div>
-			<div class="fieldRowDiv">
-				<div class="fieldDiv">
-					<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />
-					<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-					<input name="tabtarget" type="hidden" value="3" />
-					<button name="submitaction" type="submit" value="createAssociation">Create Association</button>
-				</div>
-			</div>
-		</form>
-		<div id="occurAssocDiv">
+			</form>
+		</fieldset>
+		<div id="occurAssocDiv" style="clear:both;margin:15px;">
 			<?php
-			foreach($assocArr as $assocUnit){
-				echo '<div>';
-				$occidAssoc = $assocUnit['occidAssociate'];
-				if($occidAssoc) echo '<a href="#" onclick="openIndividual('.$occidAssoc.')">'.$assocUnit['collcode'].'-'.$assocUnit['catnum'].'</a>: ';
-				else echo '<a href="'.$assocUnit['resourceUrl'].'" target="_blank">'.$assocUnit['externalIdentifier'].'</a>: ';
-				echo '<span title="Defined by: '.$assocUnit['definedBy'].' ('.$assocUnit['ts'].')'.'">'.$assocUnit['relationship'].($assocUnit['subType']?', '.$assocUnit['subType']:'').'</span>';
-				echo '</div>';
+			if($assocArr){
+				foreach($assocArr as $assocUnit){
+					echo '<div>';
+					echo '<span title="Defined by: '.(isset($assocUnit['definedBy'])?$assocUnit['definedBy']:'').' ('.$assocUnit['ts'].')'.'">'.$assocUnit['relationship'];
+					if($assocUnit['subType']) echo ' ('.$assocUnit['subType'].')';
+					echo ': ';
+					if($assocUnit['identifier']){
+						$identifier = $assocUnit['identifier'];
+						if($assocUnit['occidAssociate']) $identifier = '<a href="#" onclick="openIndividual('.$assocUnit['occidAssociate'].')">'.$identifier.'</a>';
+						elseif($assocUnit['resourceUrl']) $identifier = '<a href="'.$assocUnit['resourceUrl'].'" target="_blank">'.$identifier.'</a>';
+						echo $identifier;
+					}
+					elseif($assocUnit['sciname']) echo $assocUnit['sciname'];
+					echo '</span>';
+					echo '</div>';
+				}
 			}
+			else echo '<div>No associations have been established</div>';
 			?>
 		</div>
 	</fieldset>
-
 	<?php
 	$userChecklists = $occManager->getUserChecklists();
 	$checklistArr = $occManager->getVoucherChecklists();
 	?>
-	<fieldset style="padding:20px">
-		<legend><b>Checklist Voucher Linkages</b></legend>
+	<fieldset>
+		<legend>Checklist Voucher Linkages</legend>
 		<?php
 		if($userChecklists){
 			?>
@@ -301,9 +322,9 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 		?>
 	</fieldset>
 </div>
-<div id="duplicatediv" style="margin-top:20px;">
+<div id="duplicatediv">
 	<fieldset>
-		<legend><b>Specimen Duplicates</b></legend>
+		<legend>Specimen Duplicates</legend>
 		<div style="float:right;margin-right:15px;">
 			<button onclick="openDupeWindow();return false;">Search for Records to Link</button>
 		</div>
@@ -380,9 +401,9 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 		</div>
 	</fieldset>
 </div>
-<div id="geneticdiv" style="margin-top:20px;">
+<div id="geneticdiv">
 	<fieldset>
-		<legend><b>Genetic Resources</b></legend>
+		<legend>Genetic Resources</legend>
 		<div style="float:right;">
 			<a href="#" onclick="toggle('genadddiv');return false;" title="Add a new genetic resource" ><img src="../../images/add.png" /></a>
 		</div>
@@ -438,7 +459,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 				</div>
 				<div id="genedit-<?php echo $genId; ?>" style="display:none;margin-left:25px;">
 					<fieldset>
-						<legend><b>Genetic Resource Editor</b></legend>
+						<legend>Genetic Resource Editor</legend>
 						<form name="editgeneticform" method="post" action="occurrenceeditor.php">
 							<div style="margin:2px;">
 								<b>Name:</b><br/>
@@ -471,7 +492,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						</form>
 					</fieldset>
 					<fieldset>
-						<legend><b>Delete Genetic Resource</b></legend>
+						<legend>Delete Genetic Resource</legend>
 						<form name="delgeneticform" method="post" action="occurrenceeditor.php">
 							<div style="margin:2px;">
 								<input name="submitaction" type="hidden" value="deletegeneticsubmit" />

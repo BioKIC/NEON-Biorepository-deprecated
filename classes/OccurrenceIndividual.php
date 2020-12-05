@@ -11,6 +11,7 @@ class OccurrenceIndividual extends Manager{
 	private $occArr = array();
 	private $metadataArr = array();
 	private $displayFormat = 'html';
+	private $relationshipArr;
 
 	public function __construct() {
 		parent::__construct();
@@ -281,9 +282,9 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setOccurrenceRelationships(){
-		$sql = 'SELECT a.assocOccurID, a.occid, a.relationship, a.subType, a.occidAssociate, a.resourceurl, a.externalIdentifier, a.dynamicProperties, '.
-			'o.catalogNumber, o.otherCatalogNumbers, o.occurrenceID '.
-			'FROM omassociatedoccurrence a LEFT JOIN omoccurrences o ON a.occidAssociate = o.occid '.
+		$sql = 'SELECT a.assocID, a.occid, a.occidAssociate, a.relationship, a.subType, a.resourceUrl, a.identifier, a.dynamicProperties, '.
+			'a.verbatimSciname, a.tid, o.catalogNumber, o.otherCatalogNumbers, o.occurrenceID '.
+			'FROM omoccurassociations a LEFT JOIN omoccurrences o ON a.occidAssociate = o.occid '.
 			'WHERE a.occid = '.$this->occid.' OR a.occidAssociate = '.$this->occid;
 		$rs = $this->conn->query($sql);
 		if($rs){
@@ -294,28 +295,39 @@ class OccurrenceIndividual extends Manager{
 					$relOccid = $r->occid;
 					$relationship = $this->getInverseRelationship($relationship);
 				}
-				$this->occArr['relation'][$r->assocOccurID]['relationship'] = $relationship;
-				$this->occArr['relation'][$r->assocOccurID]['subtype'] = $r->subType;
-				$this->occArr['relation'][$r->assocOccurID]['occidassoc'] = $relOccid;
-				$this->occArr['relation'][$r->assocOccurID]['resourceurl'] = $r->resourceurl;
-				$this->occArr['relation'][$r->assocOccurID]['extid'] = $r->externalIdentifier;
-				$this->occArr['relation'][$r->assocOccurID]['catalognumber'] = $r->catalogNumber;
-				$this->occArr['relation'][$r->assocOccurID]['othercatalognumbers'] = $r->otherCatalogNumbers;
-				$this->occArr['relation'][$r->assocOccurID]['occurrenceid'] = $r->occurrenceID;
+				$this->occArr['relation'][$r->assocID]['relationship'] = $relationship;
+				$this->occArr['relation'][$r->assocID]['subtype'] = $r->subType;
+				$this->occArr['relation'][$r->assocID]['occidassoc'] = $relOccid;
+				$this->occArr['relation'][$r->assocID]['resourceurl'] = $r->resourceUrl;
+				$identifier = $r->identifier;
+				if(!$identifier) $identifier = $r->occurrenceID;
+				if(!$identifier) $identifier = $r->catalogNumber;
+				if(!$identifier) $identifier = $r->otherCatalogNumbers;
+				if(!$identifier && ($relOccid || $r->resourceUrl)) $identifier = 'unknown ID';
+				$this->occArr['relation'][$r->assocID]['identifier'] = $identifier;
+				$this->occArr['relation'][$r->assocID]['sciname'] = $r->verbatimSciname;
 			}
 			$rs->free();
 		}
-		//Set catalog numbers
-
 	}
 
 	private function getInverseRelationship($relationship){
-		//Need to expand infrastructure to define inverse relationships
-		//isParentOf, isChildOf, isSiblingOf, isOriginatorSampleOf, isSubsampleOf, isPartOf
-		$baseArr = array('isOriginatorSampleOf'=>'isSubsampleOf');
-		$inverseArr = array_merge($baseArr,array_flip($baseArr));
-		if(array_key_exists($relationship, $inverseArr)) return $inverseArr[$relationship];
+		if(!$this->relationshipArr) $this->setRelationshipArr();
+		if(array_key_exists($relationship, $this->relationshipArr)) return $this->relationshipArr[$relationship];
 		return $relationship;
+	}
+
+	private function setRelationshipArr(){
+		if(!$this->relationshipArr){
+			$sql = 'SELECT t.term, t.inverseRelationship FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid WHERE v.tableName = "omoccurassociations" AND v.fieldName = "relationship"';
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$this->relationshipArr[$r->term] = $r->inverseRelationship;
+				}
+				$rs->free();
+			}
+			$this->relationshipArr = array_merge($this->relationshipArr,array_flip($this->relationshipArr));
+		}
 	}
 
 	private function setReferences(){

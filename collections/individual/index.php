@@ -270,7 +270,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		?>
 	</script>
 	<style>
-		fieldset{ margin:10px; padding:15px; }
+		fieldset{ margin:10px; padding:15px; width:90% }
 		fieldset legend{ font-weight:bold; }
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
 		.occur-ref{ margin: 10px 0px }
@@ -378,23 +378,30 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							if(array_key_exists('relation',$occArr)){
 								?>
-								<fieldset style="float:right;">
+								<fieldset style="float:right; width:40%">
 									<legend>Related Occurrences</legend>
 									<?php
+									$displayLimit = 5;
+									$cnt = 0;
 									foreach($occArr['relation'] as $id => $assocArr){
+										if($cnt == $displayLimit){
+											echo '<div class="relation-hidden"><a href="#" onclick="$(\'.relation-hidden\').toggle();return false;">show all records</a></div>';
+											echo '<div class="relation-hidden" style="display:none">';
+										}
 										echo '<div>';
 										echo $assocArr['relationship'];
-										if($assocArr['subtype']) echo ', '.$assocArr['subtype'];
+										if($assocArr['subtype']) echo ' ('.$assocArr['subtype'].')';
+										echo ': ';
+										$relID = $assocArr['identifier'];
 										$relUrl = $assocArr['resourceurl'];
 										if(!$relUrl && $assocArr['occidassoc']) $relUrl = $GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$assocArr['occidassoc'];
-										$relID = $assocArr['extid'];
-										if(!$relID) $relID = $assocArr['occurrenceid'];
-										if(!$relID) $relID = $assocArr['catalognumber'];
-										if(!$relID) $relID = $assocArr['othercatalognumbers'];
-										if(!$relID) $relID = 'unknown ID';
-										echo ': <a href="'.$relUrl.'" target="_blank">'.$relID.'</a>';
+										if($relUrl) $relID = '<a href="'.$relUrl.'" target="_blank">'.$relID.'</a>';
+										if($relID) echo $relID;
+										elseif($assocArr['sciname']) echo $assocArr['sciname'];
 										echo '</div>';
+										$cnt++;
 									}
+									if(count($occArr['relation']) > $displayLimit) echo '</div>';
 									?>
 								</fieldset>
 								<?php
@@ -497,7 +504,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 										<img src="../../images/minus_sm.png" style="border:0px;" />
 										Hide Determination History
 									</div>
-									<fieldset style="width:350px;border:1px solid grey;">
+									<fieldset>
 										<legend>Determination History</legend>
 										<?php
 										$firstIsOut = false;
@@ -704,7 +711,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							if($occArr['habitat']){
 								?>
-								<div style="clear:both;">
+								<div style="">
 									<b>Habitat:</b>
 									<?php echo $occArr['habitat']; ?>
 								</div>
@@ -712,7 +719,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							if($occArr['substrate']){
 								?>
-								<div style="clear:both;">
+								<div>
 									<b>Substrate:</b>
 									<?php echo $occArr['substrate']; ?>
 								</div>
@@ -720,7 +727,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							if($occArr['associatedtaxa']){
 								?>
-								<div style="clear:both;">
+								<div>
 									<b>Associated Species:</b>
 									<?php echo $occArr['associatedtaxa']; ?>
 								</div>
@@ -729,7 +736,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if($occArr['verbatimattributes']){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Description:</b>
 								<?php echo $occArr['verbatimattributes']; ?>
 							</div>
@@ -737,7 +744,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if($occArr['reproductivecondition']){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Reproductive Condition:</b>
 								<?php echo $occArr['reproductivecondition']; ?>
 							</div>
@@ -745,7 +752,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if($occArr['lifestage']){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Life Stage:</b>
 								<?php echo $occArr['lifestage']; ?>
 							</div>
@@ -753,7 +760,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if($occArr['sex']){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Sex:</b>
 								<?php echo $occArr['sex']; ?>
 							</div>
@@ -761,7 +768,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if($occArr['individualcount']){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Individual Count:</b>
 								<?php echo $occArr['individualcount']; ?>
 							</div>
@@ -769,7 +776,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if($occArr['samplingprotocol']){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Sampling Protocol:</b>
 								<?php echo $occArr['samplingprotocol']; ?>
 							</div>
@@ -777,7 +784,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if($occArr['preparations']){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Preparations:</b>
 								<?php echo $occArr['preparations']; ?>
 							</div>
@@ -789,7 +796,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						if($occArr['cultivationstatus']) $noteStr .= "; Cultivated or Captive";
 						if($noteStr){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Notes:</b>
 								<?php echo substr($noteStr,2); ?>
 							</div>
@@ -797,7 +804,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if($occArr['disposition']){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Disposition: </b>
 								<?php echo $occArr['disposition']; ?>
 							</div>

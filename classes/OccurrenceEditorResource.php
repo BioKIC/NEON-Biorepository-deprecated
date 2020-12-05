@@ -2,6 +2,8 @@
 include_once 'OccurrenceEditorManager.php';
 class OccurrenceEditorResource extends OccurrenceEditorManager {
 
+	private $relationshipArr;
+
 	public function __construct($conn = null){
 		parent::__construct();
 	}
@@ -15,8 +17,8 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 		$retArr = array();
 		$relOccidArr = array();
 		$uidArr = array();
-		$sql = 'SELECT assocOccurID, occid, occidAssociate, relationship, subType, resourceUrl, externalIdentifier, dynamicProperties, createdUid, modifiedUid, modifiedTimestamp, initialTimestamp '.
-			'FROM omassociatedoccurrence'.
+		$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, identifier, verbatimSciname, tid, dynamicProperties, createdUid, modifiedUid, modifiedTimestamp, initialTimestamp '.
+			'FROM omoccurassociations '.
 			'WHERE (occid = '.$this->occid.') OR (occidAssociate = '.$this->occid.')';
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
@@ -26,33 +28,105 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 					$relOccid = $r->occid;
 					$relationship = $this->getInverseRelationship($relationship);
 				}
-				$relOccidArr[$relOccid] = $r->assocOccurID;
-				$retArr[$r->assocOccurID]['occidAssociate'] = $relOccid;
-				$retArr[$r->assocOccurID]['relationship'] = $relationship;
-				$retArr[$r->assocOccurID]['subType'] = $r->subType;
-				$retArr[$r->assocOccurID]['resourceUrl'] = $r->resourceUrl;
-				$retArr[$r->assocOccurID]['externalIdentifier'] = $r->externalIdentifier;
-				$retArr[$r->assocOccurID]['dynamicProperties'] = $r->dynamicProperties;
-				$retArr[$r->assocOccurID]['ts'] = $r->modifiedTimestamp;
+				if($relOccid) $relOccidArr[$relOccid] = $r->assocID;
+				$retArr[$r->assocID]['occidAssociate'] = $relOccid;
+				$retArr[$r->assocID]['relationship'] = $relationship;
+				$retArr[$r->assocID]['subType'] = $r->subType;
+				$retArr[$r->assocID]['resourceUrl'] = $r->resourceUrl;
+				$retArr[$r->assocID]['identifier'] = $r->identifier;
+				$retArr[$r->assocID]['sciname'] = $r->verbatimSciname;
+				$retArr[$r->assocID]['tid'] = $r->tid;
+				$retArr[$r->assocID]['dynamicProperties'] = $r->dynamicProperties;
+				$retArr[$r->assocID]['ts'] = $r->modifiedTimestamp;
 				$uid = ($r->modifiedUid?$r->modifiedUid:$r->createdUid);
-				if($uid) $uidArr[$uid] = $r->assocOccurID;
+				if($uid) $uidArr[$uid] = $r->assocID;
 			}
 			$rs->free();
-			//Update modifiedBy data
-			$sql = 'SELECT uid, CONCAT_WS("; ",lastname, firstname) as username FROM users WHERE uid IN('.implode(',',array_keys($uidArr)).')';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$uidArr[$r->uid]]['definedBy'] = $r->username;
+			if($uidArr){
+				//Update modifiedBy data
+				$sql = 'SELECT uid, CONCAT_WS("; ",lastname, firstname) as username FROM users WHERE uid IN('.implode(',',array_keys($uidArr)).')';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$retArr[$uidArr[$r->uid]]['definedBy'] = $r->username;
+				}
+				$rs->free();
 			}
-			$rs->free();
-			//Grab catalog number of associations
-			$sql = 'SELECT o.occid, IFNULL(IFNULL(o.institutioncode,c.institutioncode), IFNULL(o.collectioncode,c.collectioncode) as collcode, IFNULL(o.catalogNumber,o.otherCatalogNumbers) as catnum '.
-				'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid '.
-				'WHERE o.occid IN('.implode(',',array_keys($relOccidArr)).')';
-			$rs = $this->conn->query($sql);
+			if($relOccidArr){
+				//Grab catalog number of associations
+				$sql = 'SELECT o.occid, CONCAT_WS("-",IFNULL(o.institutioncode,c.institutioncode),IFNULL(o.collectioncode,c.collectioncode)) as collcode, IFNULL(o.catalogNumber,o.otherCatalogNumbers) as catnum '.
+					'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid '.
+					'WHERE o.occid IN('.implode(',',array_keys($relOccidArr)).')';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$retArr[$relOccidArr[$r->occid]]['identifier'] = $r->collcode.': '.$r->catnum;
+				}
+				$rs->free();
+			}
+		}
+		return $retArr;
+	}
+
+	private function getInverseRelationship($relationship){
+		if(!$this->relationshipArr) $this->setRelationshipArr();
+		if(array_key_exists($relationship, $this->relationshipArr)) return $this->relationshipArr[$relationship];
+		return $relationship;
+	}
+
+	private function setRelationshipArr(){
+		if(!$this->relationshipArr){
+			$sql = 'SELECT t.term, t.inverseRelationship FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid '.
+				'WHERE v.tableName = "omoccurassociations" AND v.fieldName = "relationship" ORDER BY t.term';
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$this->relationshipArr[$r->term] = $r->inverseRelationship;
+				}
+				$rs->free();
+			}
+			$this->relationshipArr = array_merge($this->relationshipArr,array_flip($this->relationshipArr));
+		}
+	}
+
+	public function addAssociation($postArr){
+		$status = true;
+		$sql = 'INSERT INTO omoccurassociations(occid, occidAssociate, relationship, subType, identifier, basisOfRecord, resourceUrl, verbatimSciname, createdUid) '.
+			'VALUES('.$postArr['occid'].','.(isset($postArr['occidAssoc']) && $postArr['occidAssoc']?$this->cleanInStr($postArr['occidAssoc']):'NULL').','.
+			($postArr['relationship']?'"'.$this->cleanInStr($postArr['relationship']).'"':'NULL').','.
+			($postArr['subtype']?'"'.$this->cleanInStr($postArr['subtype']).'"':'NULL').','.
+			($postArr['identifier']?'"'.$this->cleanInStr($postArr['identifier']).'"':'NULL').','.
+			($postArr['basisofrecord']?'"'.$this->cleanInStr($postArr['basisofrecord']).'"':'NULL').','.
+			($postArr['resourceurl']?'"'.$this->cleanInStr($postArr['resourceurl']).'"':'NULL').','.
+			($postArr['verbatimsciname']?'"'.$this->cleanInStr($postArr['verbatimsciname']).'"':'NULL').','.
+			$GLOBALS['SYMB_UID'].')';
+		if(!$this->conn->query($sql)){
+			$this->errorArr = 'ERROR saving occurrence association: '.$this->conn->error;
+			$status = false;
+		}
+		return $status;
+	}
+
+	public function deleteAssociation($assocID){
+		$status = true;
+		if(is_numeric($assocID)){
+			$sql = 'DELETE FROM omoccurassociations WHERE associd = '.$assocID;
+			if(!$this->conn->query($sql)){
+				$this->errorArr = 'ERROR deleting occurrence association: '.$this->conn->error;
+				$status = false;
+			}
+		}
+		return $status;
+	}
+
+	public function getRelationshipArr(){
+		if(!$this->relationshipArr) $this->setRelationshipArr();
+		return $this->relationshipArr;
+	}
+
+	public function getSubtypeArr(){
+		$retArr = array();
+		$sql = 'SELECT t.term FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid WHERE v.tableName = "omoccurassociations" AND v.fieldName = "subType" ORDER BY t.term';
+		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
-				$retArr[$relOccidArr[$r->occid]]['collcode'] = $r->collcode;
-				$retArr[$relOccidArr[$r->occid]]['catnum'] = $r->catnum;
+				$this->retArr[] = $r->term;
 			}
 			$rs->free();
 		}
@@ -60,6 +134,7 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 	}
 
 	public function getOccurrenceByIdentifier($id,$target,$collidTarget){
+		//Used within occurrence editor rpc getAssocOccurrence AJAX call
 		$retArr = array();
 		$id = $this->cleanInStr($id);
 		$sqlWhere = '';
@@ -74,32 +149,17 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 			if($collidTarget && is_numeric($collidTarget)) $sqlWhere .= 'AND (o.collid = '.$collidTarget.') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$retArr[$r->occid]['catnum'] = $r->catalogNumber?$r->catalogNumber:$r->otherCatalogNumbers;
+				$catNum = $r->catalogNumber;
+				if($r->otherCatalogNumbers){
+					if($catNum) $catNum .= ' ('.$r->otherCatalogNumbers.')';
+					else $catNum = $r->otherCatalogNumbers;
+				}
+				$retArr[$r->occid]['catnum'] = $catNum;
 				$retArr[$r->occid]['collinfo'] = $r->recordedBy.($r->recordNumber?' ('.$r->recordNumber.')':'').' '.$r->eventDate;
 			}
 			$rs->free();
 		}
 		return $retArr;
-	}
-
-	private function getInverseRelationship($relationship){
-		//Need to expand infrastructure to define inverse relationships
-		//isParentOf, isChildOf, isSiblingOf, isOriginatorSampleOf, isSubsampleOf, isPartOf
-
-		$baseArr = array('isOriginatorSampleOf'=>'isSubsampleOf');
-		$inverseArr = array_merge($baseArr,array_flip($baseArr));
-		if(array_key_exists($relationship, $inverseArr)) return $inverseArr[$relationship];
-		return $relationship;
-	}
-
-	public function getRelationshipArr(){
-		$relationshipArr = array('isOriginatorSampleOf'=>'isOriginatorSampleOf', 'isSubsampleOf'=>'isSubsampleOf', 'isPartOf'=>'isPartOf');
-		return $relationshipArr;
-	}
-
-	public function getSubtypeArr(){
-		$subTypeArr = array('genetic'=>'genetic','specimenMount'=>'specimen mount','tissue'=>'tissue');
-		return $subTypeArr;
 	}
 
 	//Checklist voucher functions

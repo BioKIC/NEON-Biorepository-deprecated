@@ -66,7 +66,75 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 		return $retArr;
 	}
 
+	private function getInverseRelationship($relationship){
+		if(!$this->relationshipArr) $this->setRelationshipArr();
+		if(array_key_exists($relationship, $this->relationshipArr)) return $this->relationshipArr[$relationship];
+		return $relationship;
+	}
+
+	private function setRelationshipArr(){
+		if(!$this->relationshipArr){
+			$sql = 'SELECT t.term, t.inverseRelationship FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid '.
+				'WHERE v.tableName = "omoccurassociations" AND v.fieldName = "relationship" ORDER BY t.term';
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$this->relationshipArr[$r->term] = $r->inverseRelationship;
+				}
+				$rs->free();
+			}
+			$this->relationshipArr = array_merge($this->relationshipArr,array_flip($this->relationshipArr));
+		}
+	}
+
+	public function addAssociation($postArr){
+		$status = true;
+		$sql = 'INSERT INTO omoccurassociations(occid, occidAssociate, relationship, subType, identifier, basisOfRecord, resourceUrl, verbatimSciname, createdUid) '.
+			'VALUES('.$postArr['occid'].','.(isset($postArr['occidAssoc']) && $postArr['occidAssoc']?$this->cleanInStr($postArr['occidAssoc']):'NULL').','.
+			($postArr['relationship']?'"'.$this->cleanInStr($postArr['relationship']).'"':'NULL').','.
+			($postArr['subtype']?'"'.$this->cleanInStr($postArr['subtype']).'"':'NULL').','.
+			($postArr['identifier']?'"'.$this->cleanInStr($postArr['identifier']).'"':'NULL').','.
+			($postArr['basisofrecord']?'"'.$this->cleanInStr($postArr['basisofrecord']).'"':'NULL').','.
+			($postArr['resourceurl']?'"'.$this->cleanInStr($postArr['resourceurl']).'"':'NULL').','.
+			($postArr['verbatimsciname']?'"'.$this->cleanInStr($postArr['verbatimsciname']).'"':'NULL').','.
+			$GLOBALS['SYMB_UID'].')';
+		if(!$this->conn->query($sql)){
+			$this->errorArr = 'ERROR saving occurrence association: '.$this->conn->error;
+			$status = false;
+		}
+		return $status;
+	}
+
+	public function deleteAssociation($assocID){
+		$status = true;
+		if(is_numeric($assocID)){
+			$sql = 'DELETE FROM omoccurassociations WHERE associd = '.$assocID;
+			if(!$this->conn->query($sql)){
+				$this->errorArr = 'ERROR deleting occurrence association: '.$this->conn->error;
+				$status = false;
+			}
+		}
+		return $status;
+	}
+
+	public function getRelationshipArr(){
+		if(!$this->relationshipArr) $this->setRelationshipArr();
+		return $this->relationshipArr;
+	}
+
+	public function getSubtypeArr(){
+		$retArr = array();
+		$sql = 'SELECT t.term FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid WHERE v.tableName = "omoccurassociations" AND v.fieldName = "subType" ORDER BY t.term';
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_object()){
+				$this->retArr[] = $r->term;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
 	public function getOccurrenceByIdentifier($id,$target,$collidTarget){
+		//Used within occurrence editor rpc getAssocOccurrence AJAX call
 		$retArr = array();
 		$id = $this->cleanInStr($id);
 		$sqlWhere = '';
@@ -88,43 +156,6 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 				}
 				$retArr[$r->occid]['catnum'] = $catNum;
 				$retArr[$r->occid]['collinfo'] = $r->recordedBy.($r->recordNumber?' ('.$r->recordNumber.')':'').' '.$r->eventDate;
-			}
-			$rs->free();
-		}
-		return $retArr;
-	}
-
-	private function getInverseRelationship($relationship){
-		if(!$this->relationshipArr) $this->setRelationshipArr();
-		if(array_key_exists($relationship, $this->relationshipArr)) return $this->relationshipArr[$relationship];
-		return $relationship;
-	}
-
-	private function setRelationshipArr(){
-		if(!$this->relationshipArr){
-			$sql = 'SELECT t.term, t.inverseRelationship FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid '.
-				'WHERE v.tableName = "omoccurassociations" AND v.fieldName = "relationship" ORDER BY t.term';
-			if($rs = $this->conn->query($sql)){
-				while($r = $rs->fetch_object()){
-					$this->relationshipArr[$r->term] = $r->inverseRelationship;
-				}
-				$rs->free();
-			}
-			$this->relationshipArr = array_merge($this->relationshipArr,array_flip($this->relationshipArr));
-		}
-	}
-
-	public function getRelationshipArr(){
-		if(!$this->relationshipArr) $this->setRelationshipArr();
-		return $this->relationshipArr;
-	}
-
-	public function getSubtypeArr(){
-		$retArr = array();
-		$sql = 'SELECT t.term FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid WHERE v.tableName = "omoccurassociations" AND v.fieldName = "subType" ORDER BY t.term';
-		if($rs = $this->conn->query($sql)){
-			while($r = $rs->fetch_object()){
-				$this->retArr[] = $r->term;
 			}
 			$rs->free();
 		}

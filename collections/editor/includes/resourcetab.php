@@ -9,8 +9,14 @@ $collid = $_GET['collid'];
 $occIndex = $_GET['occindex'];
 $crowdSourceMode = $_GET['csmode'];
 
+//Sanitation
+if(!is_numeric($occid)) $occid = 0;
+if(!is_numeric($collid)) $collid = 0;
+if(!is_numeric($occIndex)) $occIndex = 0;
+
 $occManager = new OccurrenceEditorResource();
 $occManager->setOccId($occid);
+$occManager->setCollId($collid);
 $oArr = $occManager->getOccurMap();
 $occArr = $oArr[$occid];
 
@@ -21,13 +27,13 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 ?>
 <script>
 	function assocIdentifierChanged(f){
-		if(f.identifier.value){
-			//alert("rpc/getAssocOccurrence.php?id="+f.identifier.value+"&target="+f.target.value+"&collidtarget"+f.collidtarget.value);
+		if(f.internalidentifier.value){
+			//alert("rpc/getAssocOccurrence.php?id="+f.internalidentifier.value+"&target="+f.target.value+"&collidtarget"+f.collidtarget.value);
 			$.ajax({
 				type: "POST",
 				url: "rpc/getAssocOccurrence.php",
 				dataType: "json",
-				data: { id: f.identifier.value, target: f.target.value, collidtarget: f.collidtarget.value }
+				data: { id: f.internalidentifier.value, target: f.target.value, collidtarget: f.collidtarget.value }
 			}).done(function( retObj ) {
 				if(retObj){
 					$( "#searchResultDiv" ).html("");
@@ -165,7 +171,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
 							<span class="fieldLabel">Identifier: </span>
-							<input name="identifier" type="text" value="" />
+							<input name="internalidentifier" type="text" value="" />
 						</div>
 						<div class="fieldDiv">
 							<span class="fieldLabel">Search Target: </span>
@@ -214,7 +220,16 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						</div>
 					</div>
 				</fieldset>
-				<div class="fieldRowDiv">
+				<fieldset>
+					<legend>Observational Reference</legend>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<span class="fieldLabel">Verbatim Scientific Name: </span>
+							<input name="verbatimsciname" type="text" value="" />
+						</div>
+					</div>
+				</fieldset>
+				<div class="fieldRowDiv" style="margin:10px">
 					<div class="fieldDiv">
 						<span class="fieldLabel">Relationship: </span>
 						<select name="relationship" required>
@@ -239,8 +254,20 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 							?>
 						</select>
 					</div>
+					<div class="fieldDiv">
+						<span class="fieldLabel">Basis of Record: </span>
+						<select name="basisofrecord">
+							<option value="">--------------------</option>
+							<option value="HumanObservation">Human Observation</option>
+							<option value="LivingSpecimen">Living Specimen</option>
+							<option value="MachineObservation">Machine Observation</option>
+							<option value="MaterialSample">Material Sample</option>
+							<option value="PreservedSpecimen">Preserved Specimen</option>
+							<option value="ReferenceCitation">Reference Citation</option>
+						</select>
+					</div>
 				</div>
-				<div class="fieldRowDiv">
+				<div class="fieldRowDiv" style="margin:10px">
 					<div class="fieldDiv">
 						<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
@@ -253,7 +280,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 		<div id="occurAssocDiv" style="clear:both;margin:15px;">
 			<?php
 			if($assocArr){
-				foreach($assocArr as $assocUnit){
+				foreach($assocArr as $assocID => $assocUnit){
 					echo '<div>';
 					echo '<span title="Defined by: '.(isset($assocUnit['definedBy'])?$assocUnit['definedBy']:'').' ('.$assocUnit['ts'].')'.'">'.$assocUnit['relationship'];
 					if($assocUnit['subType']) echo ' ('.$assocUnit['subType'].')';
@@ -266,6 +293,15 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					}
 					elseif($assocUnit['sciname']) echo $assocUnit['sciname'];
 					echo '</span>';
+					?>
+					<form action="resourcehandler.php" method="post" style="display:inline">
+						<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+						<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
+						<input name="delassocid" type="hidden" value="<?php echo $assocID; ?>" />
+						<input type="image" src="../../images/del.png" style="width:13px" />
+					</form>
+					<?php
 					echo '</div>';
 				}
 			}

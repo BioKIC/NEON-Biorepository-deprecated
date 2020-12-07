@@ -496,6 +496,7 @@ class OccurrenceLabel{
 		$labelArr['defaultStyles'] = $postArr['defaultStyles'];
 		$labelArr['defaultCss'] = $postArr['defaultCss'];
 		$labelArr['customCss'] = $postArr['customCss'];
+		$labelArr['customJS'] = $postArr['customJS'];
 		$labelArr['labelType'] = $postArr['labelType'];
 		$labelArr['pageSize'] = $postArr['pageSize'];
 		if(isset($postArr['displaySpeciesAuthor']) && $postArr['displaySpeciesAuthor']) $labelArr['displaySpeciesAuthor'] = 1;

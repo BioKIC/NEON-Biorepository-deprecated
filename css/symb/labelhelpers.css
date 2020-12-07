@@ -21,6 +21,10 @@
 /* Page & Label sizes */
 
 @media print {
+  .controls {
+    display: none;
+  }
+  
   .body {
     width: auto;
     margin-left: auto;

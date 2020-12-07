@@ -45,9 +45,11 @@ function toggleEdits() {
     console.log(isEditable);
     page.contentEditable = 'false';
     document.querySelector('#edit').innerText = 'Edit Labels Text';
+    page.style.border = 'none';
   } else {
     console.log(isEditable);
     page.contentEditable = 'true';
     document.querySelector('#edit').innerText = 'Save';
+    page.style.border = '2px solid #03fc88';
   }
 }

@@ -254,5 +254,5 @@ if($SYMB_UID){
     echo '<script src="'.$jsPath.'"></script>'."\n";
   }
   ?>
-  <script src="../../js/symb/collections.labeldynamic.php"></script>
+  <script src="../../js/symb/collections.labeldynamic.js"></script>
 </html>

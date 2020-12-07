@@ -105,7 +105,12 @@ if($SYMB_UID){
 			/* .cnBarcodeDiv { clear:both; padding-top:15px; }
 			.catalogNumber { clear:both; text-align:center; }
 			.otherCatalogNumbers { clear:both; text-align:center; }
-			.symbBarcode { padding-top:10px; } */
+      .symbBarcode { padding-top:10px; } */
+      @media print {
+        .controls {
+          display: none;
+        }
+      }
 		</style>
 		<?php
 		if(isset($targetLabelFormatArr['defaultCss']) && $targetLabelFormatArr['defaultCss']){
@@ -240,4 +245,14 @@ if($SYMB_UID){
 		echo '</div>';
 		?>
 	</body>
+  <?php
+  if(isset($targetLabelFormatArr['customJS']) && $targetLabelFormatArr['customJS']){
+    $jsPath = $targetLabelFormatArr['customJS'];
+    if(substr($jsPath,0,1) == '/' && !file_exists($jsPath)){
+      if(file_exists($SERVER_ROOT.$targetLabelFormatArr['customJS'])) $jsPath = $CLIENT_ROOT.$targetLabelFormatArr['customJS'];
+    }
+    echo '<script src="'.$jsPath.'"></script>'."\n";
+  }
+  ?>
+  <script src="../../js/symb/collections.labeldynamic.js"></script>
 </html>

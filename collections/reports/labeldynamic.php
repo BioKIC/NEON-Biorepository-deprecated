@@ -240,4 +240,13 @@ if($SYMB_UID){
 		echo '</div>';
 		?>
 	</body>
+  <?php
+  if(isset($targetLabelFormatArr['customJS']) && $targetLabelFormatArr['customJS']){
+    $jsPath = $targetLabelFormatArr['customJS'];
+    if(substr($jsPath,0,1) == '/' && !file_exists($jsPath)){
+      if(file_exists($SERVER_ROOT.$targetLabelFormatArr['customJS'])) $jsPath = $CLIENT_ROOT.$targetLabelFormatArr['customJS'];
+    }
+    echo '<script src="'.$jsPath.'"></script>'."\n";
+  }
+  ?>
 </html>

@@ -2115,13 +2115,16 @@ class OccurrenceEditorManager {
 	}
 
 	//Misc data support functions
-	public function getCollectionList(){
+	public function getCollectionList($limitToUser = true){
 		$retArr = array();
-		$collArr = array('0');
-		if(isset($GLOBALS['USER_RIGHTS']['CollAdmin'])) $collArr = $GLOBALS['USER_RIGHTS']['CollAdmin'];
-		$sql = 'SELECT collid, collectionname FROM omcollections WHERE (collid IN('.implode(',',$collArr).')) ';
-		if(isset($GLOBALS['USER_RIGHTS']['CollEditor'])){
-			$sql .= 'OR (collid IN('.implode(',',$GLOBALS['USER_RIGHTS']['CollEditor']).') AND colltype = "General Observations")';
+		$sql = 'SELECT collid, collectionname FROM omcollections ';
+		if($limitToUser){
+			$collArr = array('0');
+			if(isset($GLOBALS['USER_RIGHTS']['CollAdmin'])) $collArr = $GLOBALS['USER_RIGHTS']['CollAdmin'];
+			$sql .= 'WHERE (collid IN('.implode(',',$collArr).')) ';
+			if(isset($GLOBALS['USER_RIGHTS']['CollEditor'])){
+				$sql .= 'OR (collid IN('.implode(',',$GLOBALS['USER_RIGHTS']['CollEditor']).') AND colltype = "General Observations")';
+			}
 		}
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){

@@ -39,8 +39,10 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					$( "#searchResultDiv" ).html("");
 					var cnt = 0;
 					$.each(retObj, function(occid, item) {
-						$( "#searchResultDiv" ).append( createAssocInput(occid,item.catnum,item.collinfo) );
-						cnt++;
+						if(f.occid.value != occid){
+							$( "#searchResultDiv" ).append( createAssocInput(occid,item.catnum,item.collinfo) );
+							cnt++;
+						}
 					});
 					if(cnt == 0) $( "#searchResultDiv" ).html("No results returned");
 				}
@@ -68,15 +70,14 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 	}
 
 	function validateAssocForm(f){
-		if(f.occidAssoc.value == ""){
-			alert("Related occurrence is not defined");
-			return false;
-		}
 		if(f.relationship.value == ""){
 			alert("Relationship needs to be defined");
 			return false;
 		}
-
+		else if(f.resourceurl.value == "" && f.identifier.value == "" && f.verbatimsciname.value == "" && (!f.occidAssoc || f.occidAssoc.value == "")){
+			alert("Related occurrence is not defined!");
+			return false;
+		}
 		return true;
 	}
 
@@ -216,7 +217,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						</div>
 						<div class="fieldDiv">
 							<span class="fieldLabel">Resource URL: </span>
-							<input name="resourceurl" type="text" value="" />
+							<input name="resourceurl" type="text" value="" style="width:400px" />
 						</div>
 					</div>
 				</fieldset>
@@ -282,7 +283,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 			if($assocArr){
 				foreach($assocArr as $assocID => $assocUnit){
 					echo '<div>';
-					echo '<span title="Defined by: '.(isset($assocUnit['definedBy'])?$assocUnit['definedBy']:'').' ('.$assocUnit['ts'].')'.'">'.$assocUnit['relationship'];
+					echo '<span title="Defined by: '.(isset($assocUnit['definedBy'])?$assocUnit['definedBy']:'unknown').' ('.$assocUnit['ts'].')'.'">'.$assocUnit['relationship'];
 					if($assocUnit['subType']) echo ' ('.$assocUnit['subType'].')';
 					echo ': ';
 					if($assocUnit['identifier']){

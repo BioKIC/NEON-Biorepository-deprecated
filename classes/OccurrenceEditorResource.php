@@ -17,7 +17,8 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 		$retArr = array();
 		$relOccidArr = array();
 		$uidArr = array();
-		$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, identifier, verbatimSciname, tid, dynamicProperties, createdUid, modifiedUid, modifiedTimestamp, initialTimestamp '.
+		$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, identifier, verbatimSciname, tid, dynamicProperties, '.
+			'IFNULL(modifiedUid,createdUid) as uid, IFNULL(modifiedTimestamp, initialTimestamp) as ts '.
 			'FROM omoccurassociations '.
 			'WHERE (occid = '.$this->occid.') OR (occidAssociate = '.$this->occid.')';
 		if($rs = $this->conn->query($sql)){
@@ -28,7 +29,7 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 					$relOccid = $r->occid;
 					$relationship = $this->getInverseRelationship($relationship);
 				}
-				if($relOccid) $relOccidArr[$relOccid] = $r->assocID;
+				if($relOccid) $relOccidArr[$relOccid][] = $r->assocID;
 				$retArr[$r->assocID]['occidAssociate'] = $relOccid;
 				$retArr[$r->assocID]['relationship'] = $relationship;
 				$retArr[$r->assocID]['subType'] = $r->subType;
@@ -37,9 +38,9 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 				$retArr[$r->assocID]['sciname'] = $r->verbatimSciname;
 				$retArr[$r->assocID]['tid'] = $r->tid;
 				$retArr[$r->assocID]['dynamicProperties'] = $r->dynamicProperties;
-				$retArr[$r->assocID]['ts'] = $r->modifiedTimestamp;
-				$uid = ($r->modifiedUid?$r->modifiedUid:$r->createdUid);
-				if($uid) $uidArr[$uid] = $r->assocID;
+				$retArr[$r->assocID]['ts'] = $r->ts;
+				if(!$retArr[$r->assocID]['identifier'] && $retArr[$r->assocID]['resourceUrl']) $retArr[$r->assocID]['identifier'] = 'identifier undefined';
+				if($r->uid) $uidArr[$r->uid][] = $r->assocID;
 			}
 			$rs->free();
 			if($uidArr){
@@ -47,7 +48,9 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 				$sql = 'SELECT uid, CONCAT_WS("; ",lastname, firstname) as username FROM users WHERE uid IN('.implode(',',array_keys($uidArr)).')';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
-					$retArr[$uidArr[$r->uid]]['definedBy'] = $r->username;
+					foreach($uidArr[$r->uid] as $targetAssocID){
+						$retArr[$targetAssocID]['definedBy'] = $r->username;
+					}
 				}
 				$rs->free();
 			}
@@ -58,7 +61,9 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 					'WHERE o.occid IN('.implode(',',array_keys($relOccidArr)).')';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
-					$retArr[$relOccidArr[$r->occid]]['identifier'] = $r->collcode.': '.$r->catnum;
+					foreach($relOccidArr[$r->occid] as $targetAssocID){
+						$retArr[$targetAssocID]['identifier'] = $r->collcode.': '.$r->catnum;
+					}
 				}
 				$rs->free();
 			}

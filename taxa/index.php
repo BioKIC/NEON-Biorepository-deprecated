@@ -141,18 +141,16 @@ include($SERVER_ROOT.'/includes/header.php');
 								$primerArr = $vernArr[$DEFAULT_LANG];
 								unset($vernArr[$DEFAULT_LANG]);
 							}
-							else{
-								$primerArr = array_shift($vernArr);
-							}
+							else $primerArr = array_shift($vernArr);
 							$vernStr = array_shift($primerArr);
 							if($primerArr || $vernArr){
 								$vernStr.= ', <span class="verns"><a href="#" onclick="toggle(\'verns\')" title="Click here to show more common names">more...</a></span>';
 								$vernStr.= '<span class="verns" onclick="toggle(\'verns\');" style="display:none;">';
 								$vernStr.= implode(', ',$primerArr);
 								foreach($vernArr as $langName => $vArr){
-									$vernStr.= ', ('.$langName.': '.implode(', ',$vArr).')';
+									$vernStr.= '('.$langName.': '.implode(', ',$vArr).'), ';
 								}
-								$vernStr.= '</span>';
+								$vernStr = trim($vernStr,', ').'</span>';
 							}
 							?>
 							<div id="vernacularDiv">

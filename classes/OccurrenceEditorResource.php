@@ -75,7 +75,7 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 	private function setRelationshipArr(){
 		if(!$this->relationshipArr){
 			$sql = 'SELECT t.term, t.inverseRelationship FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid '.
-				'WHERE v.tableName = "omoccurassociations" AND v.fieldName = "relationship" ORDER BY t.term';
+				'WHERE v.tableName = "omoccurassociations" AND v.fieldName = "relationship" ';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$this->relationshipArr[$r->term] = $r->inverseRelationship;
@@ -83,6 +83,7 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 				$rs->free();
 			}
 			$this->relationshipArr = array_merge($this->relationshipArr,array_flip($this->relationshipArr));
+			ksort($this->relationshipArr);
 		}
 	}
 
@@ -126,7 +127,7 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 		$sql = 'SELECT t.term FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v  ON t.cvid = v.cvid WHERE v.tableName = "omoccurassociations" AND v.fieldName = "subType" ORDER BY t.term';
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
-				$this->retArr[] = $r->term;
+				$retArr[] = $r->term;
 			}
 			$rs->free();
 		}
@@ -141,12 +142,12 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 		if($target == 'occid'){
 			if(is_numeric($id)) $sqlWhere .= 'AND (occid = '.$id.') ';
 		}
-		else $sqlWhere .= 'AND (catalogNumber = "'.$id.'") OR (othercatalognumbers = "'.$id.'") ';
+		else $sqlWhere .= 'AND ((catalogNumber = "'.$id.'") OR (othercatalognumbers = "'.$id.'")) ';
 		if($sqlWhere){
 			$sql = 'SELECT o.occid, o.catalogNumber, o.otherCatalogNumbers, o.recordedBy, o.recordNumber, IFNULL(o.eventDate,o.verbatimEventDate) as eventDate, '.
 				'IFNULL(c.institutionCode,c.collectionCode) AS collcode, c.collectionName '.
 				'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid WHERE '.substr($sqlWhere, 4);
-			if($collidTarget && is_numeric($collidTarget)) $sqlWhere .= 'AND (o.collid = '.$collidTarget.') ';
+			if($collidTarget && is_numeric($collidTarget)) $sql .= ' AND (o.collid = '.$collidTarget.') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$catNum = $r->catalogNumber;

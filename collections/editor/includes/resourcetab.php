@@ -28,7 +28,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 <script>
 	function assocIdentifierChanged(f){
 		if(f.internalidentifier.value){
-			//alert("rpc/getAssocOccurrence.php?id="+f.internalidentifier.value+"&target="+f.target.value+"&collidtarget"+f.collidtarget.value);
+			//alert("rpc/getAssocOccurrence.php?id="+f.internalidentifier.value+"&target="+f.target.value+"&collidtarget="+f.collidtarget.value);
 			$.ajax({
 				type: "POST",
 				url: "rpc/getAssocOccurrence.php",
@@ -189,7 +189,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 								<option value="">All Collections</option>
 								<option value="">-------------------------</option>
 								<?php
-								$collList = $occManager->getCollectionList();
+								$collList = $occManager->getCollectionList(false);
 								foreach($collList as $collID => $collName){
 									echo '<option value="'.$collID.'">'.$collName.'</option>';
 								}
@@ -237,7 +237,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 							<?php
 							$relArr = $occManager->getRelationshipArr();
 							foreach($relArr as $rKey => $rValue){
-								echo '<option value="'.$rKey.'">'.$rValue.'</option>';
+								echo '<option value="'.$rKey.'">'.$rKey.'</option>';
 							}
 							?>
 						</select>

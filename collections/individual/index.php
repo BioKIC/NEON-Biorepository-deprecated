@@ -395,7 +395,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 										$relID = $assocArr['identifier'];
 										$relUrl = $assocArr['resourceurl'];
 										if(!$relUrl && $assocArr['occidassoc']) $relUrl = $GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$assocArr['occidassoc'];
-										if($relUrl) $relID = '<a href="'.$relUrl.'" target="_blank">'.$relID.'</a>';
+										if($relUrl) $relID = '<a href="'.$relUrl.'">'.$relID.'</a>';
 										if($relID) echo $relID;
 										elseif($assocArr['sciname']) echo $assocArr['sciname'];
 										echo '</div>';

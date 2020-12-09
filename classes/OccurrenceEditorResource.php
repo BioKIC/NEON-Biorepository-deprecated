@@ -55,14 +55,13 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 				$rs->free();
 			}
 			if($relOccidArr){
-				//Grab catalog number of associations
 				$sql = 'SELECT o.occid, CONCAT_WS("-",IFNULL(o.institutioncode,c.institutioncode),IFNULL(o.collectioncode,c.collectioncode)) as collcode, IFNULL(o.catalogNumber,o.otherCatalogNumbers) as catnum '.
 					'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid '.
 					'WHERE o.occid IN('.implode(',',array_keys($relOccidArr)).')';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					foreach($relOccidArr[$r->occid] as $targetAssocID){
-						$retArr[$targetAssocID]['identifier'] = $r->collcode.': '.$r->catnum;
+						$retArr[$targetAssocID]['identifier'] = $r->collcode.':'.$r->catnum;
 					}
 				}
 				$rs->free();
@@ -150,12 +149,14 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 		else $sqlWhere .= 'AND ((catalogNumber = "'.$id.'") OR (othercatalognumbers = "'.$id.'")) ';
 		if($sqlWhere){
 			$sql = 'SELECT o.occid, o.catalogNumber, o.otherCatalogNumbers, o.recordedBy, o.recordNumber, IFNULL(o.eventDate,o.verbatimEventDate) as eventDate, '.
-				'IFNULL(c.institutionCode,c.collectionCode) AS collcode, c.collectionName '.
+				'CONCAT_WS("-",c.institutionCode,c.collectionCode) AS collcode '.
 				'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid WHERE '.substr($sqlWhere, 4);
 			if($collidTarget && is_numeric($collidTarget)) $sql .= ' AND (o.collid = '.$collidTarget.') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$catNum = $r->catalogNumber;
+				$catNum = '';
+				if(strpos($r->catalogNumber,$r->collcode) === false) $catNum = $r->collcode.':';
+				$catNum .= $r->catalogNumber;
 				if($r->otherCatalogNumbers){
 					if($catNum) $catNum .= ' ('.$r->otherCatalogNumbers.')';
 					else $catNum = $r->otherCatalogNumbers;

@@ -172,7 +172,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
 							<span class="fieldLabel">Identifier: </span>
-							<input name="internalidentifier" type="text" value="" />
+							<input name="internalidentifier" type="text" value="" style="width:300px" />
 						</div>
 						<div class="fieldDiv">
 							<span class="fieldLabel">Search Target: </span>
@@ -186,7 +186,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
 							<span class="fieldLabel">Search Collections: </span>
-							<select name="collidtarget">
+							<select name="collidtarget" style="width:90%">
 								<option value="">All Collections</option>
 								<option value="">-------------------------</option>
 								<?php

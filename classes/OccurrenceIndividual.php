@@ -282,10 +282,10 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setOccurrenceRelationships(){
-		$sql = 'SELECT a.assocID, a.occid, a.occidAssociate, a.relationship, a.subType, a.resourceUrl, a.identifier, a.dynamicProperties, '.
-			'a.verbatimSciname, a.tid, o.catalogNumber, o.otherCatalogNumbers, o.occurrenceID '.
-			'FROM omoccurassociations a LEFT JOIN omoccurrences o ON a.occidAssociate = o.occid '.
-			'WHERE a.occid = '.$this->occid.' OR a.occidAssociate = '.$this->occid;
+		$relOccidArr = array();
+		$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, identifier, dynamicProperties, verbatimSciname, tid '.
+			'FROM omoccurassociations '.
+			'WHERE occid = '.$this->occid.' OR occidAssociate = '.$this->occid;
 		$rs = $this->conn->query($sql);
 		if($rs){
 			while($r = $rs->fetch_object()){
@@ -295,17 +295,26 @@ class OccurrenceIndividual extends Manager{
 					$relOccid = $r->occid;
 					$relationship = $this->getInverseRelationship($relationship);
 				}
+				if($relOccid) $relOccidArr[$relOccid][] = $r->assocID;
 				$this->occArr['relation'][$r->assocID]['relationship'] = $relationship;
 				$this->occArr['relation'][$r->assocID]['subtype'] = $r->subType;
 				$this->occArr['relation'][$r->assocID]['occidassoc'] = $relOccid;
 				$this->occArr['relation'][$r->assocID]['resourceurl'] = $r->resourceUrl;
-				$identifier = $r->identifier;
-				if(!$identifier) $identifier = $r->occurrenceID;
-				if(!$identifier) $identifier = $r->catalogNumber;
-				if(!$identifier) $identifier = $r->otherCatalogNumbers;
-				if(!$identifier && ($relOccid || $r->resourceUrl)) $identifier = 'unknown ID';
-				$this->occArr['relation'][$r->assocID]['identifier'] = $identifier;
+				$this->occArr['relation'][$r->assocID]['identifier'] = $r->identifier;
 				$this->occArr['relation'][$r->assocID]['sciname'] = $r->verbatimSciname;
+				if(!$r->identifier && $r->resourceUrl) $this->occArr['relation'][$r->assocID]['identifier'] = 'unknown ID';
+			}
+			$rs->free();
+		}
+		if($relOccidArr){
+			$sql = 'SELECT o.occid, CONCAT_WS("-",IFNULL(o.institutioncode,c.institutioncode),IFNULL(o.collectioncode,c.collectioncode)) as collcode, IFNULL(o.catalogNumber,o.otherCatalogNumbers) as catnum '.
+				'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid '.
+				'WHERE o.occid IN('.implode(',',array_keys($relOccidArr)).')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				foreach($relOccidArr[$r->occid] as $targetAssocID){
+					$this->occArr['relation'][$targetAssocID]['identifier'] = $r->collcode.':'.$r->catnum;
+				}
 			}
 			$rs->free();
 		}

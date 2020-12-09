@@ -374,7 +374,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							if(array_key_exists('relation',$occArr)){
 								?>
-								<fieldset style="float:right; width:40%">
+								<fieldset style="float:right; width:45%">
 									<legend>Related Occurrences</legend>
 									<?php
 									$displayLimit = 5;

@@ -15,20 +15,16 @@ $format = isset($_GET['format'])?$_GET['format']:'';
 
 //Sanitize input variables
 if(!is_numeric($occid)) $occid = 0;
-if($guid && !preg_match('/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/', $guid)) $guid = '';
 if(!is_numeric($collid)) $collid = 0;
+if($guid) $guid = filter_var($guid,FILTER_SANITIZE_STRING);
 if(!is_numeric($tabIndex)) $tabIndex = 0;
 if(!is_numeric($clid)) $clid = 0;
 if($pk && !preg_match('/^[a-zA-Z0-9\s_]+$/',$pk)) $pk = '';
 if($submit && !preg_match('/^[a-zA-Z0-9\s_]+$/',$submit)) $submit = '';
 
 $indManager = new OccurrenceIndividual();
-if($occid){
-	$indManager->setOccid($occid);
-}
-elseif($guid){
-	$occid = $indManager->setGuid($guid);
-}
+if($occid) $indManager->setOccid($occid);
+elseif($guid) $occid = $indManager->setGuid($guid);
 elseif($collid && $pk){
 	$indManager->setCollid($collid);
 	$indManager->setDbpk($pk);

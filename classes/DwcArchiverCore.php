@@ -1616,21 +1616,16 @@ class DwcArchiverCore extends Manager{
 				if(!$r['occurrenceID']){
 					//Set occurrence GUID based on GUID target, but only if occurrenceID field isn't already populated
 					$guidTarget = $this->collArr[$r['collid']]['guidtarget'];
-					if($guidTarget == 'catalogNumber'){
-						$r['occurrenceID'] = $r['catalogNumber'];
-					}
-					elseif($guidTarget == 'symbiotaUUID'){
-						$r['occurrenceID'] = $r['recordId'];
-					}
+					if($guidTarget == 'catalogNumber') $r['occurrenceID'] = $r['catalogNumber'];
+					elseif($guidTarget == 'symbiotaUUID') $r['occurrenceID'] = $r['recordId'];
 				}
 				if($this->limitToGuids && (!$r['occurrenceID'] || !$r['basisOfRecord'])){
 					// Skip record because there is no occurrenceID guid
 					continue;
 				}
 				$hasRecords = true;
-				if($ocnStr = $dwcOccurManager->getAdditionalCatalogNumbers($r['occid'])) $r['otherCatalogNumbers'] =  $ocnStr;
 				//Protect sensitive records
-				if($this->redactLocalities && $r["localitySecurity"] == 1 && !in_array($r['collid'],$this->rareReaderArr)){
+				if($this->redactLocalities && $r['localitySecurity'] == 1 && !in_array($r['collid'],$this->rareReaderArr)){
 					$protectedFields = array();
 					foreach($this->securityArr as $v){
 						if(array_key_exists($v,$r) && $r[$v]){
@@ -1638,9 +1633,7 @@ class DwcArchiverCore extends Manager{
 							$protectedFields[] = $v;
 						}
 					}
-					if($protectedFields){
-						$r['informationWithheld'] = trim($r['informationWithheld'].'; field values redacted: '.implode(', ',$protectedFields),' ;');
-					}
+					if($protectedFields) $r['informationWithheld'] = trim($r['informationWithheld'].'; field values redacted: '.implode(', ',$protectedFields),' ;');
 				}
 
 				if($urlPathPrefix) $r['t_references'] = $urlPathPrefix.'collections/individual/index.php?occid='.$r['occid'];
@@ -1686,14 +1679,12 @@ class DwcArchiverCore extends Manager{
 							$r['occurrenceRemarks'] = $invalidText;
 						}
 					}
-					else{
-						$r['typeStatus'] = 'Other material';
-					}
+					else $r['typeStatus'] = 'Other material';
 				}
-				elseif($this->schemaType == 'backup'){
-					unset($r['collid']);
-				}
+				elseif($this->schemaType == 'backup') unset($r['collid']);
 
+				if($ocnStr = $dwcOccurManager->getAdditionalCatalogNumberStr($r['occid'])) $r['otherCatalogNumbers'] = $ocnStr;
+				if($assocStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocStr;
 				//$dwcOccurManager->appendUpperTaxonomy($r);
 				$dwcOccurManager->appendUpperTaxonomy2($r);
 				if($rankStr = $dwcOccurManager->getTaxonRank($r['rankid'])) $r['t_taxonRank'] = $rankStr;

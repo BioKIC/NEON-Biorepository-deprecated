@@ -112,7 +112,7 @@ if($isEditor){
 					if(strpos($errStr,'shipment already in system')){
 						echo $errStr;
 						?>
-						<div>Are you surre you want to append the data to existing shipment?</div>
+						<div>Are you sure you want to append the data to existing shipment?</div>
 						<div style="margin-left:15px">If so, <a href="#" onclick="$('#mappingFormDiv').show();return false">click here to continue</a></div>
 						<div style="margin-left:15px">If not, modify the shipmentIDs for each record and <a href="manifestloader.php">reload the manifest</a></div>
 						<?php

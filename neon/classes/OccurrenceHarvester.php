@@ -433,7 +433,10 @@ class OccurrenceHarvester{
 		$resultArr = $this->getNeonApiArr($url);
 		//echo 'url: '.$url.'<br/>'; print_r($resultArr); echo '<br/><br/>';
 		if(!$resultArr) return false;
-
+		if(isset($resultArr['locationType']) && $resultArr['locationType']){
+			if($resultArr['locationType'] == 'SITE') $dwcArr['siteID'] = $resultArr['locationName'];
+			elseif($resultArr['locationType'] == 'DOMAIN') $dwcArr['domainID'] = $resultArr['locationName'];
+		}
 		if(isset($resultArr['locationDescription']) && $resultArr['locationDescription']){
 			$parStr = str_replace(array('"',', RELOCATABLE',', CORE','Parent'),'',$resultArr['locationDescription']);
 			$parStr = preg_replace('/ at site [A-Z]+/', '', $parStr);
@@ -519,6 +522,10 @@ class OccurrenceHarvester{
 
 	private function loadOccurrenceRecord($dwcArr, $samplePK, $occid){
 		if($dwcArr){
+			$domainID = (isset($dwcArr['domainID'])?$dwcArr['domainID']:0);
+			$siteID = (isset($dwcArr['siteID'])?$dwcArr['siteID']:0);
+			unset($dwcArr['domainID']);
+			unset($dwcArr['siteID']);
 			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters');
 			$sql = '';
 			if($occid){
@@ -574,7 +581,11 @@ class OccurrenceHarvester{
 			if($this->conn->query($sql)){
 				if(!$occid){
 					$occid = $this->conn->insert_id;
-					if($occid) $this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
+					if($occid){
+						$this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
+						$this->datasetIndexing($domainID,$occid);
+						$this->datasetIndexing($siteID,$occid);
+					}
 				}
 			}
 			else{
@@ -583,6 +594,15 @@ class OccurrenceHarvester{
 			}
 		}
 		return $occid;
+	}
+
+	private function datasetIndexing($datasetName, $occid){
+		if($datasetName){
+			$sql = 'INSERT INTO omoccurdatasetlink(datasetid, occid) SELECT datasetid, '.$occid.' FROM omoccurdatasets WHERE name = "'.$datasetName.'"';
+			if(!$this->conn->query($sql)){
+				$this->errorStr = 'ERROR assigning occurrence to '.$datasetName.' dataset';
+			}
+		}
 	}
 
 	private function getNeonApiArr($url){

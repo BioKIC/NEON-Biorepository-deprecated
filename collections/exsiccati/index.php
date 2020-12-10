@@ -74,17 +74,17 @@ if($formSubmit == 'dlexsiccati'){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Exsiccati</title>
-  <?php
-    $activateJQuery = false;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
@@ -251,6 +251,10 @@ if($formSubmit == 'dlexsiccati'){
 		}
 		?>
 	</script>
+	<style type="text/css">
+		#option-div { margin: 5px; width: 300px; text-align: left; float: right; min-height: 325px; }
+		#option-div fieldset { background-color:#f2f2f2; }
+	</style>
 </head>
 <body>
 	<?php
@@ -278,9 +282,9 @@ if($formSubmit == 'dlexsiccati'){
 		}
 		if(!$ometId && !$omenId){
 			?>
-			<div id="cloptiondiv" style="width:249px;float:right;">
+			<div id="option-div">
 				<form name="optionform" action="index.php" method="post">
-					<fieldset style="background-color:#FFD700;">
+					<fieldset>
 					    <legend><b>Options</b></legend>
 				    	<div>
 				    		<b>Search:</b>

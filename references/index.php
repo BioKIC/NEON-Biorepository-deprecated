@@ -98,7 +98,7 @@ if(!$formSubmit || $formSubmit != 'Search References'){
 		?>
 		<div id="" style="float:right;width:240px;">
 			<form name="filterrefform" action="index.php" method="post">
-				<fieldset style="background-color:#FFD700;">
+				<fieldset style="background-color:#f2f2f2;">
 				    <legend><b>Filter List</b></legend>
 			    	<div>
 						<div>

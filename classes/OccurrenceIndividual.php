@@ -340,10 +340,10 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setReferences(){
-		$sql = 'SELECT r.refid, r.title, r.secondarytitle, r.shorttitle, r.tertiarytitle, r.pubdate, r.edition, r.volume, r.numbervolumes, r.number, '.
+		$sql = 'SELECT r.refid, r.title, r.secondarytitle, r.shorttitle, r.tertiarytitle, r.pubdate, r.edition, r.volume, r.numbervolumnes, r.number, '.
 			' r.pages, r.section, r.placeofpublication, r.publisher, r.isbn_issn, r.url, r.guid, r.cheatauthors, r.cheatcitation '.
-			'FROM referenceobject r INNER JOIN referenceoccurlink l ON r.occid = l.occid '.
-			'WHERE (occid = '.$this->occid.')';
+			'FROM referenceobject r INNER JOIN referenceoccurlink l ON r.refid = l.refid '.
+			'WHERE (l.occid = '.$this->occid.')';
 		$rs = $this->conn->query($sql);
 		if($rs){
 			while($r = $rs->fetch_object()){

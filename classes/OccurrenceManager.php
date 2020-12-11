@@ -644,7 +644,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($dbStr) $this->searchTermArr['db'] = $dbStr;
 		}
 		if(array_key_exists('datasetid',$_REQUEST) && $_REQUEST['datasetid']){
-			if(is_numeric($_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
+			if(preg_match('/^[\d,]+$/',$_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
 			elseif(is_array($_REQUEST['datasetid'])){
 				$dsStr = implode(',',$_REQUEST['datasetid']);
 				if(preg_match('/^[\d,]+$/',$dsStr)) $this->searchTermArr['datasetid'] = $dsStr;

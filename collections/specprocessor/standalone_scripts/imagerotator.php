@@ -1,18 +1,22 @@
 <?php
+$targetPath = '';
+$recursive = true;
+$degree = 90;
+$rotateMode = 1;
+$msgMode = 1;
 
-$targetPath = $_REQUEST['path'];
-$recursive = (isset($_REQUEST['recursive']) && !$_REQUEST['recursive']?false:true);
-$degree = (isset($_REQUEST['degree'])?$_REQUEST['degree']:90);
-$rotateMode = (isset($_REQUEST['rotmode'])?$_REQUEST['rotmode']:1);
-
-if(!is_numeric($degree)) $degree = 90;
-if(!is_numeric($rotateMode)) $rotateMode = 90;
+if(isset($_REQUEST['path']) && $_REQUEST['path']) $targetPath = $_REQUEST['path'];
+if(isset($_REQUEST['recursive']) && !$_REQUEST['recursive']) $recursive = false;
+if(isset($_REQUEST['degree']) && is_numeric($_REQUEST['degree'])) $degree = $_REQUEST['degree'];
+if(isset($_REQUEST['rotmode']) && is_numeric($_REQUEST['rotmode'])) $rotateMode = $_REQUEST['rotmode'];
+if(isset($_REQUEST['msgmode']) && is_numeric($_REQUEST['msgmode'])) $msgMode = $_REQUEST['msgmode'];
 
 $rotateManager = new ImageRotator();
 
 $rotateManager->setRecursive($recursive);
 $rotateManager->setDegree($degree);
 $rotateManager->setRotateMode($rotateMode);
+$rotateManager->setMsgOutMode($msgMode);
 
 if($targetPath) $rotateManager->batchRotateImages($targetPath);
 else echo 'ERROR: target path is empty';
@@ -22,6 +26,7 @@ class ImageRotator{
 	private $recursive = true;
 	private $degree = 90;
 	private $rotateMode = 1;		//1 = php, 2 = jpegtran, 3 = ImageMagick
+	private $msgOutMode = 1;		//1 = text, 2 = html
 
 	function __construct() {
 	}
@@ -32,29 +37,29 @@ class ImageRotator{
 	public function batchRotateImages($targetPath){
 		if($targetPath){
 			if($fh = opendir($targetPath)){
-				echo '<ul>';
-				echo '<li>Stating directory: '.$targetPath.'</li>';
+				if($this->msgOutMode == 2) echo '<ul>';
+				$this->msgOut('Stating directory: '.$targetPath);
 				while (false !== ($entry = readdir($fh))){
 					if($entry != "." && $entry != ".."){
 						if(is_file($targetPath.'/'.$entry)){
-							echo '<li>Evaluating: '.$targetPath.'/'.$entry.'</li>';
+							$this->msgOut('Evaluating: '.$targetPath.'/'.$entry);
 							if(pathinfo($targetPath.'/'.$entry,PATHINFO_EXTENSION ) == 'jpg'){
 								$imgInfoArr = getimagesize($targetPath.'/'.$entry);
 								$ratio = $imgInfoArr[0]/$imgInfoArr[1];
-								if($ratio < 1){
-									echo '<li style="margin-left:15px">Rotating...</li>';
+								if($ratio > 1){
+									$this->msgOut('Rotating...',1);
 									$this->rotateImage($targetPath.'/'.$entry);
 								}
-								else echo '<li style="margin-left:15px">Skipping ('.$ratio.')</li>';
+								else $this->msgOut('Skipping ('.$ratio.')',1);
 							}
-							else echo '<li style="margin-left:15px">ERROR: not a jpg</li>';
+							else $this->msgOut('ERROR: not a jpg',1);
 						}
 						elseif(is_dir($targetPath.'/'.$entry)){
 							if($this->recursive) $this->batchRotateImages($targetPath.'/'.$entry);
 						}
 					}
 				}
-				echo '</ul>';
+				if($this->msgOutMode == 2) echo '</ul>';
 				closedir($fh);
 			}
 		}
@@ -105,7 +110,14 @@ class ImageRotator{
 	public function setRotateMode($mode){
 		$this->rotateMode = $mode;
 	}
+
+	public function setMsgOutMode($mode){
+		$this->msgOutMode = $mode;
+	}
+
+	private function msgOut($msgStr,$indent=0){
+		if($this->msgOutMode == 1) echo str_repeat("\t",$indent).$msgStr."\n";
+		elseif($this->msgOutMode == 2) echo '<li style="margin-left:'.($indent*10).'px">'.$msgStr.'</li>';
+	}
 }
-
-
 ?>

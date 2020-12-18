@@ -1,4 +1,4 @@
-<?php
+cd <?php
 $targetPath = '';
 $recursive = true;
 $degree = 90;
@@ -87,7 +87,18 @@ class ImageRotator{
 	}
 
 	private function jpegtranRotate($imgPath){
-		exec('jpegtran -rotate '.$this->degree.' -trim '.$imgPath.' > '.$imgPath);
+		$pathInfo = pathinfo($imgPath);
+		$path = $pathInfo['dirname'];
+		$fileName = $pathInfo['filename'];
+		$ext = $pathInfo['extension'];
+		$newImgPath = $path.'/'.$fileName.'_r.'.$ext;
+		$cmd = 'jpegtran -rotate '.$this->degree.' -trim '.$imgPath.' > '.$newImgPath;
+		exec($cmd);
+		$newsize = filesize($newImgPath);
+		if($newsize){
+			rename($newImgPath, $imgPath);
+			$this->msgOut('Success, image rotated!',1);
+		}
 	}
 
 	private function imageMagickRotate($imgPath){

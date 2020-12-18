@@ -3,6 +3,7 @@ $DEFAULT_LANG = 'en';			//Default language
 $DEFAULT_PROJ_ID = 1;
 $DEFAULTCATID = 0;
 $DEFAULT_TITLE = '';
+$EXTENDED_LANG = 'en,es';		//Add all languages you want to support separated by commas
 $TID_FOCUS = '';
 $ADMIN_EMAIL = '';
 $CHARSET = '';					//ISO-8859-1 or UTF-8

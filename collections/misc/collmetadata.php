@@ -72,8 +72,8 @@ $collManager->cleanOutArr($collData);
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
+	<script src="../../js/symb/common.js" type="text/javascript"></script>
 	<script>
-
 		$(function() {
 			var dialogArr = new Array("instcode","collcode","pedits","pubagg","rights","rightsholder","accessrights","guid","colltype","management","icon","collectionid","sourceurl","sort");
 			var dialogStr = "";
@@ -84,18 +84,11 @@ $collManager->cleanOutArr($collData);
 					modal: true,
 					position: { my: "left", at: "center", of: "#"+dialogStr }
 				});
-
 				$( "#"+dialogStr ).click(function() {
 					$( "#"+this.id+"dialog" ).dialog( "open" );
 				});
 			}
-
 		});
-
-		function openMappingAid() {
-			mapWindow=open("../tools/mappointaid.php?errmode=0","mappointaid","resizable=0,width=800,height=700,left=20,top=20");
-			if (mapWindow.opener == null) mapWindow.opener = self;
-		}
 
 		function verifyCollEditForm(f){
 			if(f.institutioncode.value == ''){
@@ -165,32 +158,6 @@ $collManager->cleanOutArr($collData);
 			return true;
 		}
 
-		function toggle(target){
-			var objElem = document.getElementById(target);
-			if(objElem){
-				if(objElem.style.display=="none") objElem.style.display = "";
-				else objElem.style.display = "none";
-			}
-			else{
-				var divElems = document.getElementsByTagName("div");
-				for (var h = 0; h < divElems.length; h++) {
-				var divObj = divElems[h];
-					if(divObj.className == target){
-						if(divObj.style.display=="none") divObj.style.display="";
-						else divObj.style.display="none";
-					}
-				}
-				var spanElems = document.getElementsByTagName("span");
-				for (var h = 0; h < spanElems.length; h++) {
-				var spanElem = spanElems[h];
-					if(spanElem.className == target){
-						if(spanElem.style.display=="none") spanElem.style.display="";
-						else spanElem.style.display="none";
-					}
-				}
-			}
-		}
-
 		function verifyIconImage(f){
 			var iconImageFile = document.getElementById("iconfile").value;
 			if(iconImageFile){
@@ -225,19 +192,8 @@ $collManager->cleanOutArr($collData);
 			}
 		}
 
-		function isNumeric(sText){
-		   	var ValidChars = "0123456789-.";
-		   	var IsNumber = true;
-		   	var Char;
-
-		   	for(var i = 0; i < sText.length && IsNumber == true; i++){
-			   Char = sText.charAt(i);
-				if(ValidChars.indexOf(Char) == -1){
-					IsNumber = false;
-					break;
-			  	}
-		   	}
-			return IsNumber;
+		function openMappingAid() {
+			openPopup("../tools/mappointaid.php?errmode=0");
 		}
 	</script>
 	<style type="text/css">
@@ -322,19 +278,28 @@ $collManager->cleanOutArr($collData);
 								<textarea name="fulldescription" style="width:95%;height:90px;"><?php echo ($collid?$collData["fulldescription"]:'');?></textarea>
 							</div>
 						</div>
-						<div class="field-block">
+						<div id="url-div" class="field-block">
 							<span class="field-label">Homepage:</span>
 							<span class="field-elem">
-								<input type="text" name="homepage" value="<?php echo ($collid?$collData["homepage"]:'');?>" style="width:600px;" />
+								<?php
+								$disabledStr = '';
+								$urlStr = '';
+								if($collid){
+									$urlStr = $collData['homepage'];
+									if(substr($urlStr,0,1) == '[') $disabledStr = 'disabled';
+								}
+								echo '<input type="text" name="homepage" value="'.$urlStr.'" style="width:600px;" '.$disabledStr.' />';
+								?>
+								<a href="#" onclick="openPopup('linkaid.php');return false;"><img src="../../images/editplus.png" style="width:13px" /></a>
 							</span>
 						</div>
-						<div class="field-block">
+						<div id="contact-div" class="field-block">
 							<span class="field-label">Contact:</span>
 							<span class="field-elem">
 								<input type="text" name="contact" value="<?php echo ($collid?$collData["contact"]:'');?>" style="width:600px;" />
 							</span>
 						</div>
-						<div class="field-block">
+						<div id="email-div" class="field-block">
 							<span class="field-label">Email:</span>
 							<span class="field-elem">
 								<input type="text" name="email" value="<?php echo ($collid?$collData["email"]:'');?>" style="width:600px" />
@@ -344,7 +309,7 @@ $collManager->cleanOutArr($collData);
 							<span class="field-label">Latitude:</span>
 							<span class="field-elem">
 								<input id="decimallatitude" name="latitudedecimal" type="text" value="<?php echo ($collid?$collData["latitudedecimal"]:'');?>" />
-								<a href="#" onclick="openMappingAid();"><img src="../../images/world.png" style="width:12px;" /></a>
+								<a href="#" onclick="openPopup('../tools/mappointaid.php?errmode=0');return false;"><img src="../../images/world.png" style="width:12px;" /></a>
 							</span>
 						</div>
 						<div class="field-block">

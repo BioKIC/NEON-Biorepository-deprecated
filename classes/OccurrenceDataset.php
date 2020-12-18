@@ -20,7 +20,7 @@ class OccurrenceDataset {
 
 	public function getDatasetMetadata($dsid){
 		$retArr = array();
-		if($this->symbUid && $dsid){
+		if($GLOBALS['SYMB_UID'] && $dsid){
 			//Get and return individual dataset
 			$sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp FROM omoccurdatasets WHERE (datasetid = '.$dsid.') ';
 			$rs = $this->conn->query($sql);
@@ -33,7 +33,7 @@ class OccurrenceDataset {
 			}
 			$rs->free();
 			//Get roles for current user
-			$sql1 = 'SELECT role FROM userroles WHERE (tablename = "omoccurdatasets") AND (tablepk = '.$dsid.') AND (uid = '.$this->symbUid.') ';
+			$sql1 = 'SELECT role FROM userroles WHERE (tablename = "omoccurdatasets") AND (tablepk = '.$dsid.') AND (uid = '.$GLOBALS['SYMB_UID'].') ';
 			$rs1 = $this->conn->query($sql1);
 			while($r1 = $rs1->fetch_object()){
 				$retArr['roles'][] = $r1->role;
@@ -45,9 +45,8 @@ class OccurrenceDataset {
 
 	public function getDatasetArr(){
 		$retArr = array();
-		if($this->symbUid){
-			//Get datasets owned by user
-			$sql = 'SELECT datasetid, name, notes, sortsequence, initialtimestamp FROM omoccurdatasets WHERE (uid = '.$this->symbUid.') ORDER BY sortsequence,name';
+		if($GLOBALS['SYMB_UID']){
+			$sql = 'SELECT datasetid, name, notes, sortsequence, initialtimestamp FROM omoccurdatasets WHERE (uid = '.$GLOBALS['SYMB_UID'].') ORDER BY sortsequence,name';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr['owner'][$r->datasetid]['name'] = $r->name;
@@ -60,7 +59,7 @@ class OccurrenceDataset {
 			//Get shared datasets
 			$sql1 = 'SELECT d.datasetid, d.name, d.notes, d.sortsequence, d.initialtimestamp, r.role '.
 				'FROM omoccurdatasets d INNER JOIN userroles r ON d.datasetid = r.tablepk '.
-				'WHERE (r.uid = '.$this->symbUid.') AND (r.role IN("DatasetAdmin","DatasetEditor","DatasetReader")) '.
+				'WHERE (r.uid = '.$GLOBALS['SYMB_UID'].') AND (r.role IN("DatasetAdmin","DatasetEditor","DatasetReader")) '.
 				'ORDER BY sortsequence,name';
 			//echo $sql1;
 			$rs1 = $this->conn->query($sql1);
@@ -224,7 +223,7 @@ class OccurrenceDataset {
 			$rs->free();
 		}
 		if($uid && is_numeric($uid)){
-			$sql1 = 'INSERT INTO userroles(uid,role,tablename,tablepk,uidassignedby) VALUES('.$uid.',"'.$role.'","omoccurdatasets",'.$dsid.','.$this->symbUid.')';
+			$sql1 = 'INSERT INTO userroles(uid,role,tablename,tablepk,uidassignedby) VALUES('.$uid.',"'.$role.'","omoccurdatasets",'.$dsid.','.$GLOBALS['SYMB_UID'].')';
 			if(!$this->conn->query($sql1)){
 				$this->errorArr[] = 'ERROR adding new user: '.$this->conn->error;
 				return false;
@@ -336,9 +335,7 @@ class OccurrenceDataset {
 			$dwcaHandler->setIncludeImgs($includeImages);
 			$includeAttributes = (array_key_exists('attributes',$_POST)?1:0);
 			$dwcaHandler->setIncludeAttributes($includeAttributes);
-
 			$outputFile = $dwcaHandler->createDwcArchive();
-
 		}
 		else{
 			//Output file is a flat occurrence file (not a zip file)
@@ -346,16 +343,10 @@ class OccurrenceDataset {
 		}
 		//ob_start();
 		$contentDesc = '';
-		if($schema == 'dwc'){
-			$contentDesc = 'Darwin Core ';
-		}
-		else{
-			$contentDesc = 'Symbiota ';
-		}
+		if($schema == 'dwc') $contentDesc = 'Darwin Core ';
+		else $contentDesc = 'Symbiota ';
 		$contentDesc .= 'Occurrence ';
-		if($zip){
-			$contentDesc .= 'Archive ';
-		}
+		if($zip) $contentDesc .= 'Archive ';
 		$contentDesc .= 'File';
 		header('Content-Description: '.$contentDesc);
 
@@ -363,10 +354,10 @@ class OccurrenceDataset {
 			header('Content-Type: application/zip');
 		}
 		elseif($format == 'csv'){
-			header('Content-Type: text/csv; charset='.$CHARSET);
+			header('Content-Type: text/csv; charset='.$GLOBALS['CHARSET']);
 		}
 		else{
-			header('Content-Type: text/html; charset='.$CHARSET);
+			header('Content-Type: text/html; charset='.$GLOBALS['$CHARSET']);
 		}
 
 		header('Content-Disposition: attachment; filename='.basename($outputFile));
@@ -405,10 +396,6 @@ class OccurrenceDataset {
 			}
 			$rs->free();
 		}
-	}
-
-	public function setSymbUid($uid){
-		$this->symbUid = $uid;
 	}
 
 	public function getErrorArr(){

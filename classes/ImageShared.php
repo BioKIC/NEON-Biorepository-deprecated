@@ -88,7 +88,6 @@ class ImageShared{
 			)
 		);
 		$this->context = stream_context_create($opts);
-		//$context = stream_context_create( array( "http" => array( "header" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36" ) ) );
 		ini_set('memory_limit','512M');
  	}
 
@@ -222,7 +221,6 @@ class ImageShared{
 		//Clean and copy file
 		$fileName = $this->cleanFileName($this->sourceUrl);
 		$origFileName = $fileName.'_orig'.$this->imgExt;
-		$context = stream_context_create( array( "http" => array( "header" => "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36" ) ) );
 		if(copy($this->sourceUrl, $this->targetPath.$origFileName, $this->context)){
 			$this->sourcePath = $this->targetPath.$origFileName;
 			$this->imgName = $fileName;
@@ -239,7 +237,6 @@ class ImageShared{
 					$this->imgTnUrl = $tnFileName;
 				}
 			}
-
 			//$this->testOrientation();
 			return true;
 		}
@@ -275,7 +272,6 @@ class ImageShared{
 
 	public function cleanFileName($fPath){
 		$fName = $fPath;
-		$imgInfo = null;
 		if(strtolower(substr($fPath,0,7)) == 'http://' || strtolower(substr($fPath,0,8)) == 'https://'){
 			//Image is URL
 			if($dimArr = $this->getImgDim($fPath)){
@@ -383,7 +379,7 @@ class ImageShared{
 		if($this->mapLargeImg && !$this->imgLgUrl){
 			if($this->sourceWidth > ($this->webPixWidth*1.2) || $this->sourceFileSize > $this->webFileSizeLimit){
 				//Source image is wide enough can serve as large image, or it's too large to serve as basic web image
-				if(substr($this->sourcePath,0,7)=='http://' || substr($this->sourcePath,0,8)=='https://') {
+				if(substr($this->sourcePath,0,4)=='http') {
 					$this->imgLgUrl = $this->sourcePath;
 				}
 				else{

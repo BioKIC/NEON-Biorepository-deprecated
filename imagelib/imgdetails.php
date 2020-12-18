@@ -72,17 +72,17 @@ if($imgArr){
 	}
 	?>
 	<title><?php echo $DEFAULT_TITLE." Image Details: #".$imgId; ?></title>
-  <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-  ?>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../js/symb/shared.js" type="text/javascript"></script>
@@ -129,15 +129,18 @@ if($imgArr){
 	<?php
 	$displayLeftMenu = (isset($taxa_imgdetailsMenu)?$taxa_imgdetailsMenu:false);
 	include($SERVER_ROOT.'/includes/header.php');
-	if(isset($taxa_imgdetailsCrumbs)){
-		echo "<div class='navpath'>";
-		echo $taxa_imgdetailsCrumbs;
-		echo " <b>Image #$imgId</b>";
-		echo "</div>";
-	}
 	?>
-	<!-- This is inner text! -->
+	<div class="navpath">
+		<a href="../index.php">Home</a> &gt;&gt;
+		<a href="index.php">Image Browser</a> &gt;&gt;
+		<a href="search.php">Image Search</a> &gt;&gt;
+		<?php
+		if(isset($imgArr['tid']) && $imgArr['tid']) echo '<a href="../taxa/index.php?tid='.$imgArr['tid'].'">Image Search</a> &gt;&gt;';
+		echo '<b>Image Profile: image <a href="imgdetails.php?imgid='.$imgId.'">#'.$imgId.'</a></b>';
+		?>
+	</div>
 	<div id="innertext">
+		<!-- This is inner text! -->
 		<?php
 		if($imgArr){
 			?>

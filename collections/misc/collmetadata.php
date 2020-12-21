@@ -60,15 +60,15 @@ $collManager->cleanOutArr($collData);
 <head>
 	<title><?php echo $DEFAULT_TITLE." ".($collid?$collData["collectionname"]:"") ; ?> Collection Profiles</title>
 	<?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
@@ -191,10 +191,6 @@ $collManager->cleanOutArr($collData);
 				alert("The url you have entered is not for a supported image file. Please enter a url for a jpg, png, or gif file.");
 			}
 		}
-
-		function openMappingAid() {
-			openPopup("../tools/mappointaid.php?errmode=0");
-		}
 	</script>
 	<style type="text/css">
 		fieldset { background-color: #f2f2f2; padding:15px }
@@ -282,15 +278,15 @@ $collManager->cleanOutArr($collData);
 							<span class="field-label">Homepage:</span>
 							<span class="field-elem">
 								<?php
-								$disabledStr = '';
+								$readOnlyStr = '';
 								$urlStr = '';
 								if($collid){
 									$urlStr = $collData['homepage'];
-									if(substr($urlStr,0,1) == '[') $disabledStr = 'disabled';
+									if(substr($urlStr,0,1) == '[') $readOnlyStr = 'readonly';
 								}
-								echo '<input type="text" name="homepage" value="'.$urlStr.'" style="width:600px;" '.$disabledStr.' />';
+								echo '<input type="text" name="homepage" value="'.$urlStr.'" style="width:600px;" '.$readOnlyStr.' />';
 								?>
-								<a href="#" onclick="openPopup('linkaid.php');return false;"><img src="../../images/editplus.png" style="width:13px" /></a>
+								<a href="#" onclick="openPopup('linkaid.php',650);return false;"><img src="../../images/editplus.png" style="width:13px" /></a>
 							</span>
 						</div>
 						<div id="contact-div" class="field-block">

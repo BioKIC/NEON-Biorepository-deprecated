@@ -31,15 +31,22 @@ class OccurrenceCollectionProfile extends Manager {
 
 	public function getCollectionMetadata(){
 		$retArr = array();
+		/*
 		$sql = 'SELECT c.collid, c.institutioncode, c.CollectionCode, c.CollectionName, c.collectionid, c.FullDescription, c.Homepage, c.individualurl, c.Contact, c.email, '.
 			'c.latitudedecimal, c.longitudedecimal, c.icon, c.colltype, c.managementtype, c.publicedits, c.guidtarget, c.rights, '.
 			'c.rightsholder, c.accessrights, c.dwcaurl, c.sortseq, c.securitykey, c.collectionguid, c.publishtogbif, c.publishtoidigbio, c.aggkeysstr, s.uploaddate '.
 			'FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid ';
+		*/
+		$sql = 'SELECT c.*, s.uploaddate FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid ';
 		if($this->collid) $sql .= 'WHERE (c.collid = '.$this->collid.') ';
 		else $sql .= 'WHERE s.recordcnt > 0 ORDER BY c.SortSeq, c.CollectionName';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
+			$retArr[$row->collid] = array_change_key_case($row);
+			$retArr[$row->collid]['skey'] = $row->securitykey;
+			$retArr[$row->collid]['recordid'] = $row->collectionguid;
+			/*
 			$retArr[$row->collid]['collid'] = $row->collid;
 			$retArr[$row->collid]['institutioncode'] = $row->institutioncode;
 			$retArr[$row->collid]['collectioncode'] = $row->CollectionCode;
@@ -67,6 +74,7 @@ class OccurrenceCollectionProfile extends Manager {
 			$retArr[$row->collid]['publishtogbif'] = $row->publishtogbif;
 			$retArr[$row->collid]['publishtoidigbio'] = $row->publishtoidigbio;
 			$retArr[$row->collid]['aggkeysstr'] = $row->aggkeysstr;
+			*/
 			$uDate = "";
 			if($row->uploaddate){
 				$uDate = $row->uploaddate;

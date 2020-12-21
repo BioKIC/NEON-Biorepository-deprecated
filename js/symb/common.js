@@ -37,11 +37,15 @@ function openIndividualPopup(clientRoot, occid,clid){
     return false;
 }
 
-function openPopup(url){
-    var wWidth = 1000;
-    if(document.body.offsetWidth) wWidth = document.body.offsetWidth*0.9;
-	if(wWidth > 1200) wWidth = 1200;
-    newWindow = window.open(url,'genericPopup','scrollbars=1,toolbar=0,resizable=1,width='+(wWidth)+',height=700,left=20,top=20');
+function openPopup(url,width){
+	var height=700;
+	if(width) height = width*.8;
+	else{
+	    var width = 1000;
+	    if(document.body.offsetWidth) width = document.body.offsetWidth*0.9;
+		if(width > 1200) width = 1200;
+	}
+    newWindow = window.open(url,"genericPopup","scrollbars=1,toolbar=0,resizable=1,width="+(width)+",height="+height+",left=20,top=20");
     if(newWindow.opener == null) newWindow.opener = self;
     return false;
 }

@@ -318,13 +318,13 @@ class ChecklistVoucherAdmin {
 		}
 		//Limit by collector
 		if(isset($this->queryVariablesArr['recordedby']) && $this->queryVariablesArr['recordedby']){
-			$collStr = str_replace(',', ';', $this->queryVariablesArr['recordedby']);
+			$collStr = str_replace(',', ';', strtolower($this->queryVariablesArr['recordedby']));
 			$collArr = explode(';',$collStr);
 			$tempArr = array();
 			foreach($collArr as $str){
-				if(strlen($str) < 4 || strtolower($str) == 'best'){
+				if(strlen($str) < 4 || in_array($str,array('best','little'))){
 					//Need to avoid FULLTEXT stopwords interfering with return
-					$tempArr[] = '(o.recordedby LIKE "%'.$this->cleanInStr($postArr['recordedby']).'%")';
+					$tempArr[] = '(o.recordedby LIKE "%'.$this->cleanInStr($str).'%")';
 				}
 				else{
 					$tempArr[] = '(MATCH(f.recordedby) AGAINST("'.$this->cleanInStr($str).'"))';

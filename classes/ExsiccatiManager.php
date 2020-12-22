@@ -438,7 +438,7 @@ class ExsiccatiManager {
 					$sql1 .= 'AND (o.catalogNumber = '.(is_numeric($identifier)?$identifier:'"'.$identifier.'"').') ';
 				}
 				else{
-					if(strlen($pArr['recordedby']) < 4 || strtolower($pArr['recordedby']) == 'best'){
+					if(strlen($pArr['recordedby']) < 4 || in_array(strtolower($pArr['recordedby']),array('best','little'))){
 						//Need to avoid FULLTEXT stopwords interfering with return
 						$sql1 .= 'AND (o.recordedby LIKE "%'.$pArr['recordedby'].'%")';
 					}

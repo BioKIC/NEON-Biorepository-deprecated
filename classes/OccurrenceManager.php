@@ -238,7 +238,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 					$tempInnerArr = array();
 					$collValueArr = explode(" ",trim($collectorArr[0]));
 					foreach($collValueArr as $collV){
-						if(strlen($collV) == 2 || strlen($collV) == 3 || strtolower($collV) == 'best'){
+						if(strlen($collV) == 2 || strlen($collV) == 3 || in_array(strtolower($collV),array('best','little'))){
 							//Need to avoid FULLTEXT stopwords interfering with return
 							$tempInnerArr[] = '(o.recordedBy LIKE "%'.$this->cleanInStr($collV).'%")';
 						}
@@ -251,7 +251,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			elseif(count($collectorArr) > 1){
 				foreach($collectorArr AS $collStr){
-					if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
+					if(strlen($collStr) < 4 || in_array(strtolower($collStr),array('best','little'))){
 						//Need to avoid FULLTEXT stopwords interfering with return
 						$tempArr[] = '(o.recordedBy LIKE "%'.$this->cleanInStr($collStr).'%")';
 					}

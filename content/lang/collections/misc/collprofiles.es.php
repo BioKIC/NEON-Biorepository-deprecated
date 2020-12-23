@@ -29,7 +29,6 @@ $LANG['VIEW_COMMENTS'] = 'Ver Comentarios Publicados';
 $LANG['UNREVIEWED_COMMENTS'] = 'comentarios no revisados';
 $LANG['OPEN_META'] = 'Metadatos, Direcci&oacute;n, e Informaci&oacute;n de Contacto';
 $LANG['EDIT_META'] = 'Editar Metadatos';
-$LANG['EDIT_CONTACT'] = 'Editar Informaci&oacute;n de Contacto';
 $LANG['EDIT_ADDRESS'] = 'Editar Direcci&oacute;n de Envio';
 $LANG['EDIT_COLL_PROPS'] = 'Propiedades Especiales';
 $LANG['MANAGE_PERMISSIONS'] = 'Administrar Permisos';

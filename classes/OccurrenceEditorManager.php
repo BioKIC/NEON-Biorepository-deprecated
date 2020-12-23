@@ -363,7 +363,7 @@ class OccurrenceEditorManager {
 			}
 			elseif(substr($this->qryArr['rb'],0,1) == '%'){
 				$collStr = $this->cleanInStr(substr($this->qryArr['rb'],1));
-				if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
+				if(strlen($collStr) < 4 || in_array(strtolower($collStr),array('best','little'))){
 					//Need to avoid FULLTEXT stopwords interfering with return
 					$sqlWhere .= 'AND (o.recordedby LIKE "%'.$collStr.'%") ';
 				}

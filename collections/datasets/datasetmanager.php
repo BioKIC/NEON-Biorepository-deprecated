@@ -15,7 +15,6 @@ if(!is_numeric($tabIndex)) $tabIndex = 0;
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 
 $datasetManager = new OccurrenceDataset();
-$datasetManager->setSymbUid($SYMB_UID);
 
 $mdArr = $datasetManager->getDatasetMetadata($datasetId);
 $role = '';

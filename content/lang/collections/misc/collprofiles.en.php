@@ -7,7 +7,7 @@ Language: English
 
 $LANG['RSS_FEED'] = 'RSS Feed';
 $LANG['CONTACT'] = 'Contacts';
-$LANG['HOMEPAGE'] = 'Related link';
+$LANG['HOMEPAGE'] = 'Homepage';
 $LANG['MORE_INFO'] = 'More Information';
 $LANG['COLLECTION_SEARCH'] = 'Collection Search Page';
 $LANG['UPDATE_STATISTICS'] = 'Updating statistics related to this collection...';
@@ -29,7 +29,6 @@ $LANG['VIEW_COMMENTS'] = 'View Posted Comments';
 $LANG['UNREVIEWED_COMMENTS'] = 'unreviewed comments';
 $LANG['OPEN_META'] = 'Metadata, Address, and Contact Details';
 $LANG['EDIT_META'] = 'Edit Metadata';
-$LANG['EDIT_CONTACT'] = 'Edit Contacts';
 $LANG['EDIT_ADDRESS'] = 'Edit Mailing Address';
 $LANG['EDIT_COLL_PROPS'] = 'Special Properties';
 $LANG['MANAGE_PERMISSIONS'] = 'Manage Permissions';

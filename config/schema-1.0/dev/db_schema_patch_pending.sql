@@ -319,7 +319,19 @@ ALTER TABLE `omcollections`
 ALTER TABLE `omcollections` 
   ADD COLUMN `contactJson` LONGTEXT NULL AFTER `email`;
 ALTER TABLE `omcollections` 
-  CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL ;
+  CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL;
+
+ALTER TABLE `omcollections` 
+  ADD COLUMN `resourceJson` LONGTEXT NULL AFTER `homepage`;
+ALTER TABLE `omcollections` 
+  CHANGE COLUMN `resourceJson` `resourceJson` JSON NULL DEFAULT NULL;
+UPDATE omcollections
+  SET resourceJson = CONCAT('[{"title":{"en":"Homepage"},"url":"',homepage,'"}]')
+  WHERE homepage LIKE "http%" AND resourceJson IS NULL;
+UPDATE omcollections
+  SET contactJson = CONCAT('[{"firstName":"","lastName":"',contact,'","email":"',email,'"}]')
+  WHERE contact IS NOT NULL AND contactJson IS NULL;
+
 
 DROP TABLE `omcollectioncontacts`;
 

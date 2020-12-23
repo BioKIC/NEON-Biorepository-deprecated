@@ -357,6 +357,9 @@ class DwcArchiverCore extends Manager{
 				//Search criteria came from custom search page
 				$sql .= 'LEFT JOIN fmvouchers v ON o.occid = v.occid ';
 			}
+			if(stripos($this->conditionSql,'d.datasetid')){
+				$sql .= 'INNER JOIN omoccurdatasetlink d ON o.occid = d.occid ';
+			}
 			if(stripos($this->conditionSql,'p.point')){
 				//Search criteria came from map search page
 				$sql .= 'LEFT JOIN omoccurpoints p ON o.occid = p.occid ';

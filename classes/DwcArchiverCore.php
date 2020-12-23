@@ -163,7 +163,8 @@ class DwcArchiverCore extends Manager{
 					$this->collArr[$r->collid]['description'] = $r->fulldescription;
 					$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
 					$this->collArr[$r->collid]['url'] = $r->url;
-					$this->setContacts($r->collid, $r->contact, $r->email);
+					$this->collArr[$r->collid]['contact'][0]['individualName'] = $r->contact;
+					$this->collArr[$r->collid]['contact'][0]['electronicMailAddress'] = $r->email;
 					$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
 					$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
 					$this->collArr[$r->collid]['lat'] = $r->latitudedecimal;
@@ -193,23 +194,33 @@ class DwcArchiverCore extends Manager{
 					}
 				}
 				$rs->free();
+				$this->setJsonResources();
 			}
 		}
 	}
 
-	private function setContacts($collid, $contact, $email){
-		$contactObj = json_decode($contact,true);
-		if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
-			$contactArr = $contactObj['contact'];
-			foreach($contactArr as $cnt => $cArr){
-				$this->collArr[$collid]['contact'][$cnt]['individualName'] = $cArr['individualName'];
-				if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $this->collArr[$collid]['contact'][$cnt]['positionName'] = $cArr['positionName'];
-				if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) $this->collArr[$collid]['contact'][$cnt]['electronicMailAddress'] = $cArr['electronicMailAddress'];
+	private function setJsonResources(){
+		//Temporary function needed until pending patch is pushed to production
+		$sql = 'SELECT collid, resourceJson, contactJson FROM omcollections WHERE collid IN('.implode(',',array_keys($this->collArr)).')';
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_object()){
+				if($r->resourceJson){
+					if($resourceArr = json_decode($r->resourceJson,true)){
+						$this->collArr[$r->collid]['url'] = $resourceArr[0]['url'];
+					}
+				}
+				if($r->contactJson){
+					if($contactArr = json_decode($r->contactJson,true)){
+						foreach($contactArr as $key => $cArr){
+							$this->collArr[$r->collid]['contact'][$key]['individualName'] = $cArr['firstName'].' '.$cArr['lastName'];
+							if(isset($cArr['role']) && $cArr['role']) $this->collArr[$r->collid]['contact'][$key]['positionName'] = $cArr['role'];
+							if(isset($cArr['email']) && $cArr['email']) $this->collArr[$r->collid]['contact'][$key]['electronicMailAddress'] = $cArr['email'];
+							if(isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/'.$cArr['orcid'];
+						}
+					}
+				}
 			}
-		}
-		else{
-			$this->collArr[$collid]['contact'][0]['individualName'] = $contact;
-			$this->collArr[$collid]['contact'][0]['electronicMailAddress'] = $email;
+			$rs->free();
 		}
 	}
 
@@ -1043,10 +1054,11 @@ class DwcArchiverCore extends Manager{
 			$emlArr['title'] = $this->collArr[$collId]['collname'];
 			$emlArr['description'] = $this->collArr[$collId]['description'];
 
-			$emlArr['contact']['individualName'] = $this->collArr[$collId]['contact'][0]['individualName'];
+			if(isset($this->collArr[$collId]['contact'][0]['individualName'])) $emlArr['contact']['individualName'] = $this->collArr[$collId]['contact'][0]['individualName'];
 			$emlArr['contact']['organizationName'] = $this->collArr[$collId]['collname'];
 			$emlArr['contact']['phone'] = $this->collArr[$collId]['phone'];
-			$emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
+			if(isset($this->collArr[$collId]['contact'][0]['electronicMailAddress'])) $emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
+			if(isset($this->collArr[$collId]['contact'][0]['userId'])) $emlArr['contact']['userId'] = $this->collArr[$collId]['contact'][0]['userId'];
 			$emlArr['contact']['onlineUrl'] = $this->collArr[$collId]['url'];
 
 			$emlArr['contact']['addr']['deliveryPoint'] = $this->collArr[$collId]['address1'].($this->collArr[$collId]['address2']?', '.$this->collArr[$collId]['address2']:'');
@@ -1138,8 +1150,8 @@ class DwcArchiverCore extends Manager{
 						$emlArr['associatedParty'][] = $cArr;
 					}
 					//Also set info within collMetadata element
-					$keepContectArr = array('userId','individualName','givenname','surname','electronicMailAddress','positionName');
-					$emlArr['collMetadata'][$id]['contact'][$cnt] = array_intersect_key($cArr, array_flip($keepContectArr));
+					$keepContactArr = array('userId','individualName','givenname','surname','electronicMailAddress','positionName','onlineUrl');
+					$emlArr['collMetadata'][$id]['contact'][$cnt] = array_intersect_key($cArr, array_flip($keepContactArr));
 				}
 			}
 		}
@@ -1266,7 +1278,7 @@ class DwcArchiverCore extends Manager{
 				$conElem->appendChild($newDoc->createTextNode($contactValue));
 				$contactElem->appendChild($conElem);
 			}
-			if(isset($contactArr['addr'])){
+			if($addrArr){
 				$addressElem = $newDoc->createElement('address');
 				foreach($addrArr as $aKey => $aVal){
 					$childAddrElem = $newDoc->createElement($aKey);

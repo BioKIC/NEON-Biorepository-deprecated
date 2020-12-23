@@ -322,12 +322,15 @@ ALTER TABLE `omcollections`
   CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL;
 
 ALTER TABLE `omcollections` 
-  ADD COLUMN `resourceJson` LONGTEXT NULL AFTER `email`;
+  ADD COLUMN `resourceJson` LONGTEXT NULL AFTER `homepage`;
 ALTER TABLE `omcollections` 
-  CHANGE COLUMN `resourceJson` `contactJson` JSON NULL DEFAULT NULL;
+  CHANGE COLUMN `resourceJson` `resourceJson` JSON NULL DEFAULT NULL;
 UPDATE omcollections
-  SET resourceJson, CONCAT('[{"title":{"en":"Homepage"},"url":"',homepage,'"}]')
-  WHERE homepage LIKE "http%";
+  SET resourceJson = CONCAT('[{"title":{"en":"Homepage"},"url":"',homepage,'"}]')
+  WHERE homepage LIKE "http%" AND resourceJson IS NULL;
+UPDATE omcollections
+  SET contactJson = CONCAT('[{"firstName":"","lastName":"',contact,'","email":"',email,'"}]')
+  WHERE contact IS NOT NULL AND contactJson IS NULL;
 
 
 DROP TABLE `omcollectioncontacts`;

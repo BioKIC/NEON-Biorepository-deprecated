@@ -3,10 +3,10 @@ include_once($SERVER_ROOT.'/classes/Manager.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
 
-//Used by collprofiles.php, collmetadata, and collcontact.php pages
 class OccurrenceCollectionProfile extends Manager {
 
 	private $collid;
+	private $collMeta;
 	private $organizationKey;
 	private $installationKey;
 	private $datasetKey;
@@ -30,7 +30,11 @@ class OccurrenceCollectionProfile extends Manager {
 	}
 
 	public function getCollectionMetadata(){
-		$retArr = array();
+		if(!$this->collMeta) $this->setCollectionMeta();
+		return $this->collMeta;
+	}
+
+	private function setCollectionMeta(){
 		/*
 		$sql = 'SELECT c.collid, c.institutioncode, c.CollectionCode, c.CollectionName, c.collectionid, c.FullDescription, c.Homepage, c.individualurl, c.Contact, c.email, '.
 			'c.latitudedecimal, c.longitudedecimal, c.icon, c.colltype, c.managementtype, c.publicedits, c.guidtarget, c.rights, '.
@@ -42,71 +46,71 @@ class OccurrenceCollectionProfile extends Manager {
 		else $sql .= 'WHERE s.recordcnt > 0 ORDER BY c.SortSeq, c.CollectionName';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
-		while($row = $rs->fetch_object()){
-			$retArr[$row->collid] = array_change_key_case($row);
-			$retArr[$row->collid]['skey'] = $row->securitykey;
-			$retArr[$row->collid]['recordid'] = $row->collectionguid;
+		while($row = $rs->fetch_assoc()){
+			$r = array_change_key_case($row);
+			$this->collMeta[$r['collid']] = $r;
+			$this->collMeta[$r['collid']]['skey'] = $r['securitykey'];
+			$this->collMeta[$r['collid']]['recordid'] = $r['collectionguid'];
 			/*
-			$retArr[$row->collid]['collid'] = $row->collid;
-			$retArr[$row->collid]['institutioncode'] = $row->institutioncode;
-			$retArr[$row->collid]['collectioncode'] = $row->CollectionCode;
-			$retArr[$row->collid]['collectionname'] = $row->CollectionName;
-			$retArr[$row->collid]['collectionid'] = $row->collectionid;
-			$retArr[$row->collid]['fulldescription'] = $row->FullDescription;
-			$retArr[$row->collid]['homepage'] = $row->Homepage;
-			$retArr[$row->collid]['individualurl'] = $row->individualurl;
-			$retArr[$row->collid]['contact'] = $row->Contact;
-			$retArr[$row->collid]['email'] = $row->email;
-			$retArr[$row->collid]['latitudedecimal'] = $row->latitudedecimal;
-			$retArr[$row->collid]['longitudedecimal'] = $row->longitudedecimal;
-			$retArr[$row->collid]['icon'] = $row->icon;
-			$retArr[$row->collid]['colltype'] = $row->colltype;
-			$retArr[$row->collid]['managementtype'] = $row->managementtype;
-			$retArr[$row->collid]['publicedits'] = $row->publicedits;
-			$retArr[$row->collid]['guidtarget'] = $row->guidtarget;
-			$retArr[$row->collid]['rights'] = $row->rights;
-			$retArr[$row->collid]['rightsholder'] = $row->rightsholder;
-			$retArr[$row->collid]['accessrights'] = $row->accessrights;
-			$retArr[$row->collid]['dwcaurl'] = $row->dwcaurl;
-			$retArr[$row->collid]['sortseq'] = $row->sortseq;
-			$retArr[$row->collid]['skey'] = $row->securitykey;
-			$retArr[$row->collid]['recordid'] = $row->collectionguid;
-			$retArr[$row->collid]['publishtogbif'] = $row->publishtogbif;
-			$retArr[$row->collid]['publishtoidigbio'] = $row->publishtoidigbio;
-			$retArr[$row->collid]['aggkeysstr'] = $row->aggkeysstr;
+			$this->collMeta[$r['collid']]['collid'] = $r['collid'];
+			$this->collMeta[$r['collid']]['institutioncode'] = $r['institutioncode'];
+			$this->collMeta[$r['collid']]['collectioncode'] = $r['CollectionCode'];
+			$this->collMeta[$r['collid']]['collectionname'] = $r['CollectionName'];
+			$this->collMeta[$r['collid']]['collectionid'] = $r['collectionid'];
+			$this->collMeta[$r['collid']]['fulldescription'] = $r['FullDescription'];
+			$this->collMeta[$r['collid']]['homepage'] = $r['Homepage'];
+			$this->collMeta[$r['collid']]['individualurl'] = $r['individualurl'];
+			$this->collMeta[$r['collid']]['contact'] = $r['Contact'];
+			$this->collMeta[$r['collid']]['email'] = $r['email'];
+			$this->collMeta[$r['collid']]['latitudedecimal'] = $r['latitudedecimal'];
+			$this->collMeta[$r['collid']]['longitudedecimal'] = $r['longitudedecimal'];
+			$this->collMeta[$r['collid']]['icon'] = $r['icon'];
+			$this->collMeta[$r['collid']]['colltype'] = $r['colltype'];
+			$this->collMeta[$r['collid']]['managementtype'] = $r['managementtype'];
+			$this->collMeta[$r['collid']]['publicedits'] = $r['publicedits'];
+			$this->collMeta[$r['collid']]['guidtarget'] = $r['guidtarget'];
+			$this->collMeta[$r['collid']]['rights'] = $r['rights'];
+			$this->collMeta[$r['collid']]['rightsholder'] = $r['rightsholder'];
+			$this->collMeta[$r['collid']]['accessrights'] = $r['accessrights'];
+			$this->collMeta[$r['collid']]['dwcaurl'] = $r['dwcaurl'];
+			$this->collMeta[$r['collid']]['sortseq'] = $r['sortseq'];
+			$this->collMeta[$r['collid']]['skey'] = $r['securitykey'];
+			$this->collMeta[$r['collid']]['recordid'] = $r['collectionguid'];
+			$this->collMeta[$r['collid']]['publishtogbif'] = $r['publishtogbif'];
+			$this->collMeta[$r['collid']]['publishtoidigbio'] = $r['publishtoidigbio'];
+			$this->collMeta[$r['collid']]['aggkeysstr'] = $r['aggkeysstr'];
 			*/
 			$uDate = "";
-			if($row->uploaddate){
-				$uDate = $row->uploaddate;
+			if($r['uploaddate']){
+				$uDate = $r['uploaddate'];
 				$month = substr($uDate,5,2);
 				$day = substr($uDate,8,2);
 				$year = substr($uDate,0,4);
 				$uDate = date("j F Y",mktime(0,0,0,$month,$day,$year));
 			}
-			$retArr[$row->collid]['uploaddate'] = $uDate;
+			$this->collMeta[$r['collid']]['uploaddate'] = $uDate;
 		}
 		$rs->free();
 		if($this->collid){
 			//Check to make sure Security Key and collection GUIDs exist
-			if(!$retArr[$this->collid]['recordid']){
+			if(!$this->collMeta[$this->collid]['recordid']){
 				$guid= UuidFactory::getUuidV4();
-				$retArr[$this->collid]['recordid'] = $guid;
+				$this->collMeta[$this->collid]['recordid'] = $guid;
 				$conn = MySQLiConnectionFactory::getCon('write');
 				$sql = 'UPDATE omcollections SET collectionguid = "'.$guid.'" WHERE collectionguid IS NULL AND collid = '.$this->collid;
 				$conn->query($sql);
 			}
-			if(!$retArr[$this->collid]['skey']){
+			if(!$this->collMeta[$this->collid]['skey']){
 				$guid2 = UuidFactory::getUuidV4();
-				$retArr[$this->collid]['skey'] = $guid2;
+				$this->collMeta[$this->collid]['skey'] = $guid2;
 				$conn = MySQLiConnectionFactory::getCon('write');
 				$sql = 'UPDATE omcollections SET securitykey = "'.$guid2.'" WHERE securitykey IS NULL AND collid = '.$this->collid;
 				$conn->query($sql);
 			}
-			if(isset($retArr[$this->collid]['aggkeysstr']) && $retArr[$this->collid]['aggkeysstr']){
-				$this->setAggKeys(json_decode($retArr[$this->collid]['aggkeysstr'],true));
+			if(isset($this->collMeta[$this->collid]['aggkeysstr']) && $this->collMeta[$this->collid]['aggkeysstr']){
+				$this->setAggKeys(json_decode($this->collMeta[$this->collid]['aggkeysstr'],true));
 			}
 		}
-		return $retArr;
 	}
 
 	public function getCollectionCategories(){
@@ -122,33 +126,55 @@ class OccurrenceCollectionProfile extends Manager {
 		return $retArr;
 	}
 
-	public function getMetadataHtml($collArr, $LANG, $LANG_TAG){
-		$outStr = '<div class="coll-description">'.$collArr["fulldescription"].'</div>';
-		$outStr .= '<div class="field-div"><span class="label">'.$LANG['CONTACT'].':</span> '.$this->getContactStr($collArr['contact'],$collArr['email']).'</div>';
-		if($collArr['homepage']){
-			$urlArr = array();
-			if(substr($collArr['homepage'],0,1) == '[') $urlArr = json_decode($collArr['homepage'],true);
-			if(!$urlArr) $urlArr[0]['url'] = $collArr['homepage'];
-			foreach($urlArr as $linkArr){
-				$title = '';
-				if(isset($linkArr['title'][$LANG_TAG])) $title = $linkArr['title'][$LANG_TAG];
-				elseif(isset($linkArr['title']['en'])) $title = $linkArr['title']['en'];
-				if(!$title) $title = (isset($LANG['HOMEPAGE'])?$LANG['HOMEPAGE']:'Homepage');
-				$outStr .= '<div class="field-div"><span class="label">'.$title.':</span> ';
-				$outStr .= '<a href="'.$linkArr['url'].'" target="_blank">'.$linkArr['url'].'</a>';
-				$outStr .= '</div>';
+	public function getMetadataHtml($LANG, $LANG_TAG){
+		$outStr = '<div class="coll-description">'.$this->collMeta[$this->collid]["fulldescription"].'</div>';
+		if(isset($this->collMeta[$this->collid]['contactjson']) && $this->collMeta[$this->collid]['contactjson']){
+			if($contactArr = json_decode($this->collMeta[$this->collid]['contactjson'],true)){
+				foreach($contactArr as $cArr){
+					$title = (isset($LANG['CONTACT'])?$LANG['CONTACT']:'Contact');
+					if(isset($cArr['role']) && $cArr['role']) $title = $cArr['role'];
+					$outStr .= '<div class="field-div"><span class="label">'.$title.':</span> ';
+					$outStr .= $cArr['firstName'].' '.$cArr['lastName'];
+					if(isset($cArr['email']) && $cArr['email']) $outStr .= ', '.$cArr['email'];
+					if(isset($cArr['phone']) && $cArr['phone']) $outStr .= ', '.$cArr['phone'];
+					if(isset($cArr['orcid']) && $cArr['orcid']) $outStr .= ' (ORCID #: <a href="https://orcid.org/'.$cArr['orcid'].'" target="_blank">'.$cArr['orcid'].'</a>)';
+					$outStr .= '</div>';
+				}
 			}
 		}
+		else{
+			$outStr .= '<div class="field-div"><span class="label">'.$LANG['CONTACT'].':</span> ';
+			$outStr .= $this->collMeta[$this->collid]['contact'];
+			$outStr .= ' (<a href="mailto:'.$this->collMeta[$this->collid]['email'].'">'.$this->collMeta[$this->collid]['email'].'</a>)';
+			$outStr .= '</div>';
+		}
+		if(isset($this->collMeta[$this->collid]['resourcejson']) && $this->collMeta[$this->collid]['resourcejson']){
+			if($resourceArr = json_decode($this->collMeta[$this->collid]['resourcejson'],true)){
+				$title = (isset($LANG['HOMEPAGE'])?$LANG['HOMEPAGE']:'Homepage');
+				foreach($resourceArr as $rArr){
+					if(isset($rArr['title'][$LANG_TAG]) && $rArr['title'][$LANG_TAG]) $title = $rArr['title'][$LANG_TAG];
+					$outStr .= '<div class="field-div"><span class="label">'.$title.':</span> ';
+					$outStr .= '<a href="'.$rArr['url'].'" target="_blank">'.$rArr['url'].'</a>';
+					$outStr .= '</div>';
+				}
+			}
+		}
+		elseif($this->collMeta[$this->collid]['homepage'] && substr($this->collMeta[$this->collid]['homepage'],0,1) != '['){
+			$title = (isset($LANG['HOMEPAGE'])?$LANG['HOMEPAGE']:'Homepage');
+			$outStr .= '<div class="field-div"><span class="label">'.$title.':</span> ';
+			$outStr .= '<a href="'.$this->collMeta[$this->collid]['homepage'].'" target="_blank">'.$this->collMeta[$this->collid]['homepage'].'</a>';
+			$outStr .= '</div>';
+		}
 		$outStr .= '<div class="field-div">';
-		$outStr .= '<span class="label">'.$LANG['COLLECTION_TYPE'].':</span> '.$collArr['colltype'];
+		$outStr .= '<span class="label">'.$LANG['COLLECTION_TYPE'].':</span> '.$this->collMeta[$this->collid]['colltype'];
 		$outStr .= '</div>';
 		$outStr .= '<div class="field-div">';
 		$outStr .= '<span class="label">'.$LANG['MANAGEMENT'].':</span> ';
-		if($collArr['managementtype'] == 'Live Data'){
+		if($this->collMeta[$this->collid]['managementtype'] == 'Live Data'){
 			$outStr .= (isset($LANG['LIVE_DATA'])?$LANG['LIVE_DATA']:'Live Data managed directly within data portal');
 		}
 		else{
-			if($collArr['managementtype'] == 'Aggregate'){
+			if($this->collMeta[$this->collid]['managementtype'] == 'Aggregate'){
 				$outStr .= (isset($LANG['DATA_AGGREGATE'])?$LANG['DATA_AGGREGATE']:'Data harvested from a data aggregator');
 			}
 			else{
@@ -156,28 +182,28 @@ class OccurrenceCollectionProfile extends Manager {
 			}
 		}
 		$outStr .= '</div>';
-		if($collArr['managementtype'] != 'Live Data') $outStr .= '<div class="field-div"><span class="label">'.$LANG['LAST_UPDATE'].':</span> '.$collArr['uploaddate'].'</div>';
-		if($collArr['managementtype'] == 'Live Data'){
+		if($this->collMeta[$this->collid]['managementtype'] != 'Live Data') $outStr .= '<div class="field-div"><span class="label">'.$LANG['LAST_UPDATE'].':</span> '.$this->collMeta[$this->collid]['uploaddate'].'</div>';
+		if($this->collMeta[$this->collid]['managementtype'] == 'Live Data'){
 			$outStr .= '<div class="field-div">';
-			$outStr .= '<span class="label">'.$LANG['GLOBAL_UNIQUE_ID'].':</span> '.$collArr['recordid'];
+			$outStr .= '<span class="label">'.$LANG['GLOBAL_UNIQUE_ID'].':</span> '.$this->collMeta[$this->collid]['recordid'];
 			$outStr .= '</div>';
 		}
-		if($collArr['dwcaurl']){
-			$dwcaUrl = $collArr['dwcaurl'];
+		if($this->collMeta[$this->collid]['dwcaurl']){
+			$dwcaUrl = $this->collMeta[$this->collid]['dwcaurl'];
 			$outStr .= '<div class="field-div">';
 			$outStr .= '<span class="label">'.(isset($LANG['DWCA_PUB'])?$LANG['DWCA_PUB']:'DwC-Archive Access Point').':</span> ';
 			$outStr .= '<a href="'.$dwcaUrl.'">'.$dwcaUrl.'</a>';
 			$outStr .= '</div>';
 		}
 		$outStr .= '<div class="field-div">';
-		if($collArr['managementtype'] == 'Live Data'){
+		if($this->collMeta[$this->collid]['managementtype'] == 'Live Data'){
 			if($GLOBALS['SYMB_UID']){
 				$outStr .= '<span class="label">'.(isset($LANG['LIVE_DOWNLOAD'])?$LANG['LIVE_DOWNLOAD']:'Live Data Download').':</span> ';
-				$outStr .= '<a href="../../webservices/dwc/dwcapubhandler.php?collid='.$collArr['collid'].'">'.(isset($LANG['FULL_DATA'])?$LANG['FULL_DATA']:'DwC-Archive File').'</a>';
+				$outStr .= '<a href="../../webservices/dwc/dwcapubhandler.php?collid='.$this->collMeta[$this->collid]['collid'].'">'.(isset($LANG['FULL_DATA'])?$LANG['FULL_DATA']:'DwC-Archive File').'</a>';
 			}
 		}
-		elseif($collArr['managementtype'] == 'Snapshot'){
-			$pathArr = $this->getDwcaPath($collArr['collid']);
+		elseif($this->collMeta[$this->collid]['managementtype'] == 'Snapshot'){
+			$pathArr = $this->getDwcaPath($this->collMeta[$this->collid]['collid']);
 			if($pathArr){
 				$outStr .= '<div style="float:left"><span class="label">'.(isset($LANG['IPT_SOURCE'])?$LANG['IPT_SOURCE']:'IPT / DwC-A Source').':</span> </div>';
 				$outStr .= '<div style="float:left;margin-left:5px;">';
@@ -188,10 +214,10 @@ class OccurrenceCollectionProfile extends Manager {
 			}
 		}
 		$outStr .= '</div>';
-		$outStr .= '<div class="field-div"><span class="label">'.(isset($LANG['DIGITAL_METADATA'])?$LANG['DIGITAL_METADATA']:'Digital Metadata').':</span> <a href="../datasets/emlhandler.php?collid='.$collArr['collid'].'" target="_blank">EML File</a></div>';
+		$outStr .= '<div class="field-div"><span class="label">'.(isset($LANG['DIGITAL_METADATA'])?$LANG['DIGITAL_METADATA']:'Digital Metadata').':</span> <a href="../datasets/emlhandler.php?collid='.$this->collMeta[$this->collid]['collid'].'" target="_blank">EML File</a></div>';
 		$outStr .= '<div class="field-div"><span class="label">'.$LANG['USAGE_RIGHTS'].':</span> ';
-		if($collArr['rights']){
-			$rights = $collArr['rights'];
+		if($this->collMeta[$this->collid]['rights']){
+			$rights = $this->collMeta[$this->collid]['rights'];
 			$rightsUrl = '';
 			if(substr($rights,0,4) == 'http'){
 				$rightsUrl = $rights;
@@ -209,16 +235,16 @@ class OccurrenceCollectionProfile extends Manager {
 			$outStr .= '<a href="../../includes/usagepolicy.php" target="_blank">'.(isset($LANG['USAGE_POLICY'])?$LANG['USAGE_POLICY']:'Usage policy').'</a>';
 		}
 		$outStr .= '</div>';
-		if($collArr['rightsholder']){
+		if($this->collMeta[$this->collid]['rightsholder']){
 			$outStr .= '<div class="field-div">';
 			$outStr .= '<span class="label">'.$LANG['RIGHTS_HOLDER'].':</span> ';
-			$outStr .= $collArr['rightsholder'];
+			$outStr .= $this->collMeta[$this->collid]['rightsholder'];
 			$outStr .= '</div>';
 		}
-		if($collArr['accessrights']){
+		if($this->collMeta[$this->collid]['accessrights']){
 			$outStr .= '<div class="field-div">'.
 				'<span class="label">'.$LANG['ACCESS_RIGHTS'].':</span> '.
-				$collArr['accessrights'].
+				$this->collMeta[$this->collid]['accessrights'].
 				'</div>';
 		}
 		return $outStr;
@@ -367,6 +393,68 @@ class OccurrenceCollectionProfile extends Manager {
 		return $fullUrl;
 	}
 
+	//Resource link functions
+	public function saveResourceLink($postArr){
+		if($this->collid){
+			$sql = 'UPDATE omcollections SET resourceJson = '.($postArr['resourcejson']?'"'.$this->cleanInStr($postArr['resourcejson']).'"':'NULL').' WHERE collid = '.$this->collid;
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'ERROR updating resource link: '.$this->conn->error;
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//Collection contact functions
+	public function saveContact($postArr){
+		$modArr = array();
+		if($postArr['firstName']) $modArr['firstName'] = $postArr['firstName'];
+		if($postArr['lastName']) $modArr['lastName'] = $postArr['lastName'];
+		if($postArr['role']) $modArr['role'] = $postArr['role'];
+		if($postArr['email']) $modArr['email'] = $postArr['email'];
+		if($postArr['phone']) $modArr['phone'] = $postArr['phone'];
+		if($postArr['orcid']){
+			if(preg_match('/(\d{4}-\d{4}-\d{4}-\d{4})/', $postArr['orcid'], $m)){
+				$modArr['orcid'] = $m[1];
+			}
+		}
+		$contactArr = $this->getContactArr();
+		$contactIndex = $postArr['contactIndex'];
+		if(is_numeric($contactIndex)) $contactArr[$contactIndex] = $modArr;
+		else $contactArr[] = $modArr;
+		return $this->updateContactJson($contactArr);
+	}
+
+	public function deleteContact($index){
+		$contactArr = $this->getContactArr();
+		unset($contactArr[$index]);
+		return $this->updateContactJson($contactArr);
+	}
+
+	private function updateContactJson($contactArr){
+		if($this->collid){
+			$sql = 'UPDATE omcollections SET contactJson = "'.$this->cleanInStr(json_encode($contactArr)).'" WHERE collid = '.$this->collid;
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'ERROR updating contact: '.$this->conn->error;
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private function getContactArr(){
+		$jsonStr = '';
+		$sql = 'SELECT contactJson FROM omcollections WHERE collid = '.$this->collid;
+		if($rs = $this->conn->query($sql)){
+			if($r = $rs->fetch_object()){
+				$jsonStr = $r->contactJson;
+			}
+			$rs->free();
+		}
+		return json_decode($jsonStr,true);
+	}
+
 	//Institution address functions
 	public function getAddress(){
 		$retArr = Array();
@@ -430,36 +518,6 @@ class OccurrenceCollectionProfile extends Manager {
 			$con->close();
 		}
 		return $status;
-	}
-
-	//Contact editing functions
-	private function getContactStr($contact, $email){
-		$retStr = '';
-		$contactObj = json_decode($contact,true);
-		if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
-			$contactArr = $contactObj['contact'];
-			foreach($contactArr as $cArr){
-				$retStr .= '; '.$cArr['individualName'];
-				if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $retStr .= ', '.$cArr['positionName'];
-				if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) $retStr .= ' (<a href="mailto:'.$cArr['electronicMailAddress'].'">'.$cArr['electronicMailAddress'].'</a>)';
-			}
-			$retStr = trim($retStr,'; ');
-		}
-		else{
-			$retStr = $contact;
-			if($email) $retStr .= ' (<a href="mailto:'.$email.'">'.$email.'</a>)';
-		}
-		return $retStr;
-	}
-
-	public function submitContactEdits(){
-		$sql = '';
-
-	}
-
-	public function submitContactAdd(){
-		$sql = '';
-
 	}
 
 	//Publishing functions

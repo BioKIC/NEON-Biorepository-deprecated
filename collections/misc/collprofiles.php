@@ -237,11 +237,6 @@ if($SYMB_UID){
 									</a>
 								</li>
 								<li class="metadataItem" style="margin-left:10px;display:none;">
-									<a href="collcontact.php?collid=<?php echo $collid; ?>" >
-										<?php echo $LANG['EDIT_CONTACT']; ?>
-									</a>
-								</li>
-								<li class="metadataItem" style="margin-left:10px;display:none;">
 									<a href="colladdress.php?collid=<?php echo $collid; ?>">
 										<?php echo $LANG['EDIT_ADDRESS']; ?>
 									</a>
@@ -392,7 +387,7 @@ if($SYMB_UID){
 			?>
 			<div style='margin:10px;'>
 				<?php
-				echo $collManager->getMetadataHtml($collData,$LANG,$LANG_TAG);
+				echo $collManager->getMetadataHtml($LANG,$LANG_TAG);
 				$datasetKey = $collManager->getDatasetKey();
 				if($collData['publishtogbif'] && $datasetKey){
 					$datasetKey = $collManager->getDatasetKey();
@@ -538,7 +533,8 @@ if($SYMB_UID){
 							</h3>
 							<div style='margin:10px;'>
 								<?php
-								echo $collManager->getMetadataHtml($collArr,$LANG,$LANG_TAG);
+								$collManager->setCollid($cid);
+								echo $collManager->getMetadataHtml($LANG,$LANG_TAG);
 								?>
 							</div>
 							<div style='margin:5px 0px 15px 10px;'>

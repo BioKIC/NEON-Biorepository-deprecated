@@ -5,13 +5,12 @@ include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 class OccurrenceDataset {
 
 	private $conn;
-	private $symbUid;
 	private $collArr = array();
 	private $datasetId = 0;
 	private $errorArr = array();
 
-	public function __construct(){
- 		$this->conn = MySQLiConnectionFactory::getCon("write");
+	public function __construct($type = 'write'){
+		$this->conn = MySQLiConnectionFactory::getCon($type);
 	}
 
 	public function __destruct(){
@@ -206,39 +205,20 @@ class OccurrenceDataset {
 		return $retArr;
 	}
 
-	public function addUser($dsid,$userStr,$role){
-		$status = true;
-		$uid = 0;
-		if(preg_match('/\D\[#(.+)\]$/',$userStr,$m)) $uid = $m[1];
-		if(!$uid || !is_numeric($uid)){
-			$sql = 'SELECT uid FROM userlogin WHERE username = "'.$userStr.'"';
-			$rs = $this->conn->query($sql);
-			if($r = $rs->fetch_object()){
-				$uid = $r->uid;
-			}
-			else{
-				$this->errorArr[] = 'ERROR adding new user; unable to locate user name: '.$userStr;
-				return false;
-			}
-			$rs->free();
-		}
-		if($uid && is_numeric($uid)){
-			$sql1 = 'INSERT INTO userroles(uid,role,tablename,tablepk,uidassignedby) VALUES('.$uid.',"'.$role.'","omoccurdatasets",'.$dsid.','.$GLOBALS['SYMB_UID'].')';
-			if(!$this->conn->query($sql1)){
+	public function addUser($datasetID,$uid,$role){
+		if(is_numeric($uid)){
+			$sql = 'INSERT INTO userroles(uid,role,tablename,tablepk,uidassignedby) VALUES('.$uid.',"'.$this->cleanInStr($role).'","omoccurdatasets",'.$datasetID.','.$GLOBALS['SYMB_UID'].')';
+			if(!$this->conn->query($sql)){
 				$this->errorArr[] = 'ERROR adding new user: '.$this->conn->error;
 				return false;
 			}
 		}
-		else{
-			$this->errorArr[] = 'ERROR adding new user; unable to locate user name(2): '.$userStr;
-			return false;
-		}
-		return $status;
+		return true;
 	}
 
-	public function deleteUser($dsid,$uid,$role){
+	public function deleteUser($datasetID,$uid,$role){
 		$status = true;
-		$sql = 'DELETE FROM userroles WHERE (uid = '.$uid.') AND (role = "'.$role.'") AND (tablename = "omoccurdatasets") AND (tablepk = '.$dsid.') ';
+		$sql = 'DELETE FROM userroles WHERE (uid = '.$uid.') AND (role = "'.$role.'") AND (tablename = "omoccurdatasets") AND (tablepk = '.$datasetID.') ';
 		if(!$this->conn->query($sql)){
 			$this->errorArr[] = 'ERROR deleting user: '.$this->conn->error;
 			return false;
@@ -299,82 +279,21 @@ class OccurrenceDataset {
 		return $status;
 	}
 
-	public function exportDataset($dsid){
-		//Get occurrence records
-		$zip = (array_key_exists('zip',$_POST)?$_POST['zip']:0);
-		$format = $_POST['format'];
-		$extended = (array_key_exists('extended',$_POST)?$_POST['extended']:0);
-
-		$userRights = $GLOBALS['USER_RIGHTS'];
-		$redactLocalities = 1;
-		$rareReaderArr = array();
-		if($GLOBALS['IS_ADMIN'] || array_key_exists("CollAdmin", $userRights)) $redactLocalities = 0;
-		elseif(array_key_exists("RareSppAdmin", $userRights) || array_key_exists("RareSppReadAll", $userRights)) $redactLocalities = 0;
-		else{
-			if(array_key_exists('CollEditor', $userRights)) $rareReaderArr = $userRights['CollEditor'];
-			if(array_key_exists('RareSppReader', $userRights)) $rareReaderArr = array_unique(array_merge($rareReaderArr,$userRights['RareSppReader']));
+	//General setters and getters
+	public function getUserList($term){
+		$retArr = array();
+		$sql = 'SELECT u.uid, CONCAT(CONCAT_WS(", ",u.lastname, u.firstname)," - ",l.username," [#",u.uid,"]") AS username '.
+			'FROM users u INNER JOIN userlogin l ON u.uid = l.uid '.
+			'WHERE u.lastname LIKE "%'.$this->cleanInStr($term).'%" OR l.username LIKE "%'.$this->cleanInStr($term).'%" '.
+			'ORDER BY u.lastname,u.firstname';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()) {
+			$retArr[] = array('id'=>$r->uid,'label'=>$r->username);
 		}
-		$dwcaHandler = new DwcArchiverCore();
-		$dwcaHandler->setCharSetOut($cSet);
-		$dwcaHandler->setSchemaType($schema);
-		$dwcaHandler->setExtended($extended);
-		$dwcaHandler->setDelimiter($format);
-		$dwcaHandler->setVerboseMode(0);
-		$dwcaHandler->setRedactLocalities($redactLocalities);
-		if($rareReaderArr) $dwcaHandler->setRareReaderArr($rareReaderArr);
-
-		$occurManager = new OccurrenceManager();
-		$dwcaHandler->setCustomWhereSql($occurManager->getSqlWhere());
-
-		$outputFile = null;
-		if($zip){
-			//Ouput file is a zip file
-			$includeIdent = (array_key_exists('identifications',$_POST)?1:0);
-			$dwcaHandler->setIncludeDets($includeIdent);
-			$includeImages = (array_key_exists('images',$_POST)?1:0);
-			$dwcaHandler->setIncludeImgs($includeImages);
-			$includeAttributes = (array_key_exists('attributes',$_POST)?1:0);
-			$dwcaHandler->setIncludeAttributes($includeAttributes);
-			$outputFile = $dwcaHandler->createDwcArchive();
-		}
-		else{
-			//Output file is a flat occurrence file (not a zip file)
-			$outputFile = $dwcaHandler->getOccurrenceFile();
-		}
-		//ob_start();
-		$contentDesc = '';
-		if($schema == 'dwc') $contentDesc = 'Darwin Core ';
-		else $contentDesc = 'Symbiota ';
-		$contentDesc .= 'Occurrence ';
-		if($zip) $contentDesc .= 'Archive ';
-		$contentDesc .= 'File';
-		header('Content-Description: '.$contentDesc);
-
-		if($zip){
-			header('Content-Type: application/zip');
-		}
-		elseif($format == 'csv'){
-			header('Content-Type: text/csv; charset='.$GLOBALS['CHARSET']);
-		}
-		else{
-			header('Content-Type: text/html; charset='.$GLOBALS['$CHARSET']);
-		}
-
-		header('Content-Disposition: attachment; filename='.basename($outputFile));
-		header('Content-Transfer-Encoding: binary');
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Pragma: public');
-		header('Content-Length: ' . filesize($outputFile));
-		ob_clean();
-		flush();
-		//od_end_clean();
-		readfile($outputFile);
-		unlink($outputFile);
-
+		$rs->free();
+		return $retArr;
 	}
 
-	//General setters and getters
 	public function getCollName($collId){
 		$collName = '';
 		if($collId){

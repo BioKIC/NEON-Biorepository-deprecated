@@ -72,7 +72,7 @@ $RIGHTS_TERMS = array(
 	'CC BY (Attribution)' => 'http://creativecommons.org/licenses/by/4.0/',
 	'CC BY-NC (Attribution-Non-Commercial)' => 'http://creativecommons.org/licenses/by-nc/4.0/'
 );
-
+//$CSS_BASE_PATH = '/css/custom';	//To create a custom styling, uncomment, move all css files from /css/symb to new CSS Base Path, and modify as needed
 $CSS_VERSION_LOCAL = '20170414';		//Changing this variable will force a refresh of main.css styles within users browser cache for all pages
 
 /*

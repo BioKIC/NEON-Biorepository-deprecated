@@ -67,12 +67,11 @@ if($SYMB_UID){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
-	$baseCSS = 'speciesprofile.css';
-	$baseCssPath = $CLIENT_ROOT.'/css/symb/'.$baseCSS;
-	if(isset($CUSTOM_CSS_PATH) && file_exists($SERVER_ROOT.$CUSTOM_CSS_PATH.'/'.$baseCSS)){
-		$baseCssPath = $CLIENT_ROOT.$CUSTOM_CSS_PATH.'/'.$baseCSS;
+	$cssPath = $CLIENT_ROOT.$CSS_BASE_PATH.'/taxa/speciesprofile.css';
+	if(!file_exists($cssPath)){
+		$cssPath = $CLIENT_ROOT.'/css/symb/taxa/speciesprofile.css';
 	}
-	echo '<link href="'.$baseCssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>

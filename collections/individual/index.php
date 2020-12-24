@@ -22,7 +22,7 @@ if(!is_numeric($clid)) $clid = 0;
 if($pk && !preg_match('/^[a-zA-Z0-9\s_]+$/',$pk)) $pk = '';
 if($submit && !preg_match('/^[a-zA-Z0-9\s_]+$/',$submit)) $submit = '';
 
-$indManager = new OccurrenceIndividual();
+$indManager = new OccurrenceIndividual($submit?'write':'readonly');
 if($occid) $indManager->setOccid($occid);
 elseif($guid) $occid = $indManager->setGuid($guid);
 elseif($collid && $pk){
@@ -81,7 +81,7 @@ if($SYMB_UID){
 	elseif((array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollEditor']))){
 		$isEditor = true;
 	}
-	elseif($occArr['observeruid'] == $SYMB_UID){
+	elseif(isset($occArr['observeruid']) && $occArr['observeruid'] == $SYMB_UID){
 		$isEditor = true;
 	}
 	elseif($indManager->isTaxonomicEditor()){
@@ -133,12 +133,6 @@ if($SYMB_UID){
 			$statusStr = $indManager->getErrorMessage();
 		}
 	}
-	elseif($submit == "Link to Dataset"){
-		$dsid = (isset($_POST['dsid'])?$_POST['dsid']:0);
-		if(!$indManager->linkToDataset($dsid,$_POST['dsname'],$_POST['notes'],$SYMB_UID)){
-			$statusStr = $indManager->getErrorMessage();
-		}
-	}
 }
 
 $displayMap = false;
@@ -151,20 +145,18 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Detailed Collection Record Information</title>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
 	<meta name="description" content="<?php echo 'Occurrence author: '.$occArr['recordedby'].','.$occArr['recordnumber']; ?>" />
 	<meta name="keywords" content="<?php echo $occArr['guid']; ?>">
 	<?php
-	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
+	$cssPath = $CLIENT_ROOT.'/css/symb/collections/individual/index.css';
+	if(file_exists($SERVER_ROOT.'/css/custom/collections/individual/index.css')){
+		$cssPath = $CLIENT_ROOT.'/css/custom/collections/individual/index.css';
 	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
 	?>
+	<link href="../..//css/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
@@ -267,7 +259,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	</script>
 	<style>
 		fieldset{ margin:10px; padding:15px; width:90% }
-		fieldset legend{ font-weight:bold; }
+		legend{ font-weight:bold; }
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
 		.occur-ref{ margin: 10px 0px }
 	</style>
@@ -284,7 +276,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		}(document, 'script', 'facebook-jssdk'));
 	</script>
 	<!-- This is inner text! -->
-	<div id="innertext">
+	<div id="popup-innertext">
 		<?php
 		if($statusStr){
 			?>

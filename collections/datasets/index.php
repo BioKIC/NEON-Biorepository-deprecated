@@ -13,7 +13,7 @@ if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 $datasetManager = new OccurrenceDataset();
 
 $statusStr = '';
-if($action == 'Create New Dataset'){
+if($action == 'createNewDataset'){
 	if(!$datasetManager->createDataset($_POST['name'],$_POST['notes'],$SYMB_UID)){
 		$statusStr = implode(',',$datasetManager->getErrorArr());
 	}
@@ -120,7 +120,7 @@ elseif($action == 'addAllToDataset'){
 						<input name="notes" type="text" style="width:90%;" />
 					</div>
 					<div>
-						<input name="submitaction" type="submit" value="Create New Dataset" />
+						<button name="submitaction" type="submit" value="createNewDataset">Create New Dataset</button>
 					</div>
 				</form>
 			</fieldset>

@@ -13,6 +13,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 	private $voucherManager;
 	private $occurSearchProjectExists = 0;
 	protected $searchSupportManager = null;
+	protected $errorMessage;
 
 	public function __construct($type='readonly'){
 		parent::__construct($type);
@@ -589,6 +590,17 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return trim($retStr,' &');
 	}
 
+	public function addOccurrencesToDataset($datasetID){
+		if(!is_numeric($datasetID)) return false;
+		$this->setSqlWhere();
+		$sql = 'INSERT IGNORE INTO omoccurdatasetlink(occid,datasetid) SELECT DISTINCT o.occid, '.$datasetID.' as dsID FROM omoccurrences o '.$this->getTableJoins($this->sqlWhere).$this->sqlWhere;
+		if(!$this->conn->query($sql)){
+			$this->errorMessage = 'ERROR adding records to dataset(#'.$datasetID.'): '.$this->conn->error;
+			return false;
+		}
+		return true;
+	}
+
 	private function getDatasetTitle($dsIdStr){
 		$retStr = '';
 		$sql = 'SELECT name FROM omoccurdatasets WHERE datasetid IN('.$dsIdStr.')';
@@ -935,6 +947,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	public function getTaxaArr(){
 		return $this->taxaArr;
+	}
+
+	public function getErrorMessage(){
+		return $this->errorMessage;
 	}
 }
 ?>

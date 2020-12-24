@@ -84,13 +84,13 @@ class OccurrenceDataset {
 	}
 
 	public function createDataset($name,$notes,$uid){
-		$sql = 'INSERT INTO omoccurdatasets (name,notes,uid) VALUES("'.$this->cleanInStr($name).'","'.$this->cleanInStr($notes).'",'.$uid.') ';
-		if(!$this->conn->query($sql)){
-			$this->errorArr[] = 'ERROR creating new dataset: '.$this->conn->error;
-			return false;
+		$sql = 'INSERT INTO omoccurdatasets (name,notes,uid) VALUES("'.$this->cleanInStr($name).'",'.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').','.$uid.') ';
+		if($this->conn->query($sql)){
+			$this->datasetId = $this->conn->insert_id;
 		}
 		else{
-			$this->datasetId = $this->conn->insert_id;
+			$this->errorArr[] = 'ERROR creating new dataset: '.$this->conn->error;
+			return false;
 		}
 		return true;
 	}
@@ -266,13 +266,17 @@ class OccurrenceDataset {
 	}
 
 	public function addSelectedOccurrences($datasetId, $occArr){
-		$status = true;
-		if($datasetId && $occArr){
+		$status = false;
+		if(is_numeric($datasetId)){
+			if(is_numeric($occArr)) $occArr = array($occArr);
 			foreach($occArr as $v){
-				$sql = 'INSERT INTO omoccurdatasetlink(occid,datasetid) VALUES("'.$v.'",'.$datasetId.') ';
-				if(!$this->conn->query($sql)){
-					$this->errorArr[] = 'ERROR adding selected occurrences: '.$this->conn->error;
-					return false;
+				if(is_numeric($v)){
+					$sql = 'INSERT IGNORE INTO omoccurdatasetlink(occid,datasetid) VALUES("'.$v.'",'.$datasetId.') ';
+					if($this->conn->query($sql)) $status = true;
+					else{
+						$this->errorArr[] = 'ERROR adding occurrence ('.$v.'): '.$this->conn->error;
+						$status = false;
+					}
 				}
 			}
 		}
@@ -319,6 +323,10 @@ class OccurrenceDataset {
 
 	public function getErrorArr(){
 		return $this->errorArr;
+	}
+
+	public function getErrorMessage(){
+		return implode('; ',$this->errorArr);
 	}
 
 	public function getDatasetId(){

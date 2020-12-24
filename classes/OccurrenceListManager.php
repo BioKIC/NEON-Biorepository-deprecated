@@ -141,7 +141,7 @@ class OccurrenceListManager extends OccurrenceManager{
 		$retArr = array();
 		$symbUid = $GLOBALS['SYMB_UID'];
 		if($symbUid){
-			$sql = 'SELECT datasetid, name FROM omoccurdatasets WHERE uid = '.$symbUid.' OR datasetid IN(SELECT tablepk FROM userroles WHERE uid = '.$symbUid.' AND role IN("DatasetAdmin","DatasetEditor"))';
+			$sql = 'SELECT DISTINCT datasetid, name FROM omoccurdatasets WHERE uid = '.$symbUid.' OR datasetid IN(SELECT tablepk FROM userroles WHERE uid = '.$symbUid.' AND role IN("DatasetAdmin","DatasetEditor"))';
 			//echo "<div>Count sql: ".$sql."</div>";
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){

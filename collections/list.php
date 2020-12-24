@@ -66,6 +66,30 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 				}
 			});
 		});
+
+		function validateOccurListForm(f){
+			if(f.targetdatasetid.value == ""){
+				alert("Please select a dataset to append occurrences, or select Create New Dataset");
+				return false;
+			}
+			return true;
+		}
+
+		function hasSelectedOccid(f){
+			var isSelected = false;
+			for(var h=0;h<f.length;h++){
+				if(f.elements[h].name == "occid[]" && f.elements[h].checked){
+					isSelected = true;
+					break;
+				}
+			}
+			if(!isSelected){
+				alert("Please select at least one occurrence to be added to the dataset");
+				return false;
+			}
+			return true;
+		}
+
 	</script>
 	<script src="../js/symb/collections.list.js?ver=9" type="text/javascript"></script>
 	<style type="text/css">
@@ -117,13 +141,17 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 		<div id="speclist">
 			<div id="queryrecords">
 				<div style="float:right;">
-					<!--
-					<div style="float:left">
-						<button class="icon-button" onclick="$('.datasetDiv').toggle();" title="Dataset Management">
-							<img src="../images/dataset.png" style="width:15px;" />
-						</button>
-					</div>
-					-->
+					<?php
+					if($SYMB_UID){
+						?>
+						<div style="float:left">
+							<button class="icon-button" onclick="$('.datasetDiv').toggle();" title="Dataset Management">
+								<img src="../images/dataset.png" style="width:15px;" />
+							</button>
+						</div>
+						<?php
+					}
+					?>
 					<form action="listtabledisplay.php" method="post" style="float:left">
 						<button class="icon-button" title="<?php echo (isset($LANG['TABLE_DISPLAY'])?$LANG['TABLE_DISPLAY']:'Table Display'); ?>">
 							<img src="../images/table.png" style="width:15px; height:15px" />
@@ -189,7 +217,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 				//Add search return
 				if($occurArr){
 					?>
-					<form name="occurListForm" method="post" action="datasets/index.php" onsubmit="return validateOccurListForm(this)" target="_blank">
+					<form name="occurListForm" method="post" action="datasets/datasetHandler.php" onsubmit="return validateOccurListForm(this)" target="_blank">
 						<?php include('datasetinclude.php'); ?>
 						<table id="omlisttable">
 							<?php

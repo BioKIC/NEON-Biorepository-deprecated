@@ -13,8 +13,8 @@ class OccurrenceIndividual extends Manager{
 	private $displayFormat = 'html';
 	private $relationshipArr;
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct($type='readonly') {
+		parent::__construct($type);
 	}
 
 	public function __destruct(){
@@ -661,35 +661,6 @@ class OccurrenceIndividual extends Manager{
 			}
 		}
 		return $retArr;
-	}
-
-	public function linkToDataset($dsid,$dsName,$notes,$SYMB_UID){
-		$status = true;
-		if(!$this->occid) return false;
-		if($dsid && !is_numeric($dsid)) return false;
-		if(!$dsid && !$dsName) return false;
-		$con = MySQLiConnectionFactory::getCon("write");
-		if(!$dsid && $dsName){
-			//Create new dataset
-			if(strlen($dsName) > 100) $dsName = substr($dsName,0,100);
-			$sql1 = 'INSERT INTO omoccurdatasets(name,uid,collid) VALUES("'.$this->cleanInStr($dsName).'",'.$SYMB_UID.','.$this->collid.')';
-			if($con->query($sql1)){
-				$dsid = $con->insert_id;
-			}
-			else{
-				$this->errorMessage = 'ERROR creating new dataset, err msg: '.$con->error;
-				$status = false;
-			}
-		}
-		if($dsid){
-			$sql2 = 'INSERT INTO omoccurdatasetlink(datasetid,occid,notes) VALUES('.$dsid.','.$this->occid.',"'.$this->cleanInStr($notes).'")';
-			if(!$con->query($sql2)){
-				$this->errorMessage = 'ERROR linking to dataset, err msg: '.$con->error;
-				$status = false;
-			}
-		}
-		$con->close();
-		return $status;
 	}
 
 	public function getChecklists($clidExcludeArr){

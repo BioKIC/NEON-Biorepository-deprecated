@@ -42,11 +42,6 @@ elseif(isset($mdArr['roles'])){
 
 $statusStr = '';
 if($isEditor){
-	if($action == 'Export Selected Occurrences'){
-		if($datasetManager->exportDataset($datasetId, $_POST['occid'], $schema, $format, $cset)){
-			$datasetId = 0;
-		}
-	}
 	if($isEditor < 3){
 		if($action == 'Remove Selected Occurrences'){
 			if($datasetManager->removeSelectedOccurrences($datasetId,$_POST['occid'])){
@@ -61,6 +56,7 @@ if($isEditor){
 		if($action == 'Save Edits'){
 			if($datasetManager->editDataset($_POST['datasetid'],$_POST['name'],$_POST['notes'])){
 				$mdArr = $datasetManager->getDatasetMetadata($datasetId);
+				$statusStr = 'Success! Dataset edits saved. ';
 			}
 			else{
 				$statusStr = implode(',',$datasetManager->getErrorArr());
@@ -90,8 +86,8 @@ if($isEditor){
 				$statusStr = implode(',',$datasetManager->getErrorArr());
 			}
 		}
-		elseif(array_key_exists('adduser',$_POST)){
-			if($datasetManager->addUser($datasetId,$_POST['adduser'],$_POST['role'])){
+		elseif($action == 'addUser'){
+			if($datasetManager->addUser($datasetId,$_POST['uid'],$_POST['role'])){
 				$statusStr = 'User added successfully';
 			}
 			else{
@@ -156,7 +152,10 @@ if($isEditor){
 				$( "#userinput" ).autocomplete({
 					source: "rpc/getuserlist.php",
 					minLength: 3,
-					autoFocus: true
+					autoFocus: true,
+					select: function( event, ui ) {
+						$('#uid-add').val(ui.item.id);
+					}
 				});
 
 			});
@@ -222,6 +221,14 @@ if($isEditor){
 					targetDownloadPopup(f);
 				}
 			  	return true;
+			}
+
+			function validateUserAddForm(f){
+				if(f.uid.value == ""){
+					alert("Select a user from the list");
+					return false;
+				}
+				return true;
 			}
 
 			function openIndPopup(occid){
@@ -331,25 +338,30 @@ if($isEditor){
 								}
 								?>
 							</table>
-							<div style="margin: 15px 50px;">
+							<div style="margin: 15px;">
 								<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
 								<?php
-								if($isEditor < 3){
+								if($occArr && $isEditor < 3){
 									?>
-									<div style="margin:5px"><button type="submit" name="submitaction" value="Remove Selected Occurrences">Remove Selected Occurrences</button></div>
+									<button type="submit" name="submitaction" value="Remove Selected Occurrences">Remove Selected Occurrences</button>
 									<?php
 								}
 								?>
 							</div>
-							<div style="margin: 15px 50px;">
-								<button type="submit" name="submitaction" value="exportSelected" onclick="isDownloadAction=true">Export Selected Occurrences</button>
+						</form>
+						<?php
+						if($occArr){
+							?>
+							<div style="margin: 15px;">
+								<form name="exportAllForm" action="../download/index.php" method="post" onsubmit="targetDownloadPopup(this)">
+									<input name="searchvar" type="hidden" value="datasetid=<?php echo $datasetId; ?>" />
+									<input name="dltype" type="hidden" value="specimen" />
+									<button type="submit" name="submitaction" value="exportAll">Export Dataset</button>
+								</form>
 							</div>
-						</form>
-						<form name="exportAllForm" action="../download/index.php" method="post" onsubmit="targetDownloadPopup(this)">
-							<input name="searchvar" type="hidden" value="dataset=<?php echo $datasetId; ?>" />
-							<input name="dltype" type="hidden" value="specimen" />
-							<button type="submit" name="submitaction" value="exportAll">Export Complete Dataset</button>
-						</form>
+							<?php
+						}
+						?>
 					</div>
 					<?php
 					if($isEditor == 1){
@@ -360,13 +372,14 @@ if($isEditor){
 								<form name="editform" action="datasetmanager.php" method="post" onsubmit="return validateEditForm(this)">
 									<div>
 										<b>Name</b><br />
-										<input name="name" type="text" value="<?php echo $mdArr['name']; ?>" style="width:250px" />
+										<input name="name" type="text" value="<?php echo $mdArr['name']; ?>" style="width:400px" />
 									</div>
 									<div>
 										<b>Notes</b><br />
 										<input name="notes" type="text" value="<?php echo $mdArr['notes']; ?>" style="width:90%" />
 									</div>
 									<div style="margin:15px;">
+										<input name="tabindex" type="hidden" value="1" />
 										<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
 										<input name="submitaction" type="submit" value="Save Edits" />
 									</div>
@@ -390,7 +403,7 @@ if($isEditor){
 								$roleArr = array('DatasetAdmin' => 'Full Access Users','DatasetEditor' => 'Read/Write Users','DatasetReader' => 'Read Only Users');
 								foreach($roleArr as $roleStr => $labelStr){
 									?>
-									<div style="margin:0px 15px;"><b><u><?php echo $labelStr; ?></u></b></div>
+									<div style="margin:0px 15px;font-weight:bold;text-decoration: underline;"><?php echo $labelStr; ?></div>
 									<div style="margin:15px;">
 										<?php
 										if(array_key_exists($roleStr,$userArr)){
@@ -427,9 +440,12 @@ if($isEditor){
 							<div style="margin:15px;">
 								<fieldset>
 									<legend><b>Add User</b></legend>
-									<form name="addform" action="datasetmanager.php" method="post" onsubmit="return validateAddForm(this)">
-										Login:
-										<input id="userinput" name="adduser" type="text" style="width:250px;" /><br />
+									<form name="addform" action="datasetmanager.php" method="post" onsubmit="return validateUserAddForm(this)">
+										<div title="Type login or last name and then select from list">
+											Login/Last Name:
+											<input id="userinput" type="text" style="width:400px;" />
+											<input id="uid-add" name="uid" type="hidden" value="" />
+										</div>
 										Role:
 										<select name="role">
 											<option value="DatasetAdmin">Full Access</option>
@@ -439,7 +455,7 @@ if($isEditor){
 										<div style="margin:10px;">
 											<input name="tabindex" type="hidden" value="2" />
 											<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
-											<input name="submitaction" type="submit" value="Add User" />
+											<button type="submit" name="submitaction" value="addUser">Add User</button>
 										</div>
 									</form>
 								</fieldset>

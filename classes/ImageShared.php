@@ -24,6 +24,7 @@ class ImageShared{
 	private $lgPixWidth = 3168;
 	private $webFileSizeLimit = 300000;
 	private $jpgCompression= 70;
+	private $testOrientation = false;
 
 	private $mapLargeImg = true;
 	private $createWebDerivative = true;
@@ -51,9 +52,7 @@ class ImageShared{
 	private $imgTnUrl;
 
 	private $activeImgId = 0;
-
 	private $errArr = array();
-
 	private $context = null;
 
 	// No implementation in Symbiota
@@ -177,7 +176,7 @@ class ImageShared{
 				if(move_uploaded_file($_FILES[$imgFile]['tmp_name'], $this->targetPath.$fileName.$this->imgExt)){
 					$this->sourcePath = $this->targetPath.$fileName.$this->imgExt;
 					$this->imgName = $fileName;
-					//$this->testOrientation();
+					if($this->testOrientation) $this->evaluateOrientation();
 					return true;
 				}
 				else{
@@ -237,7 +236,7 @@ class ImageShared{
 					$this->imgTnUrl = $tnFileName;
 				}
 			}
-			//$this->testOrientation();
+			if($this->testOrientation) $this->evaluateOrientation();
 			return true;
 		}
 		$this->errArr[] = 'FATAL ERROR: Unable to copy image to target ('.$this->targetPath.$fileName.$this->imgExt.')';
@@ -261,7 +260,7 @@ class ImageShared{
 		if($this->uriExists($url)){
 			$this->sourcePath = $url;
 			$this->imgName = $this->cleanFileName($url);
-			//$this->testOrientation();
+			if($this->testOrientation) $this->evaluateOrientation();
 			$status = true;
 		}
 		else{
@@ -874,6 +873,11 @@ class ImageShared{
 		return $this->webFileSizeLimit;
 	}
 
+	public function setTestOrientation($bool){
+		if($bool) $this->testOrientation = true;
+		else $this->testOrientation = false;
+	}
+
 	public function setMapLargeImg($t){
 		$this->mapLargeImg = $t;
 	}
@@ -1001,61 +1005,49 @@ class ImageShared{
 	}
 
 	//Misc functions
-	private function testOrientation(){
+	private function evaluateOrientation(){
 		if($this->sourcePath){
-			$exif = exif_read_data($this->sourcePath);
-			$ort = '';
-			if(isset($exif['Orientation'])) $ort = $exif['Orientation'];
-			elseif(isset($exif['IFD0']['Orientation'])) $ort = $exif['IFD0']['Orientation'];
-			elseif(isset($exif['COMPUTED']['Orientation'])) $ort = $exif['COMPUTED']['Orientation'];
+			if($exif = @exif_read_data($this->sourcePath)){
+				$ort = '';
+				if(isset($exif['Orientation'])) $ort = $exif['Orientation'];
+				elseif(isset($exif['IFD0']['Orientation'])) $ort = $exif['IFD0']['Orientation'];
+				elseif(isset($exif['COMPUTED']['Orientation'])) $ort = $exif['COMPUTED']['Orientation'];
 
-			if($ort && $ort > 1){
-				if(!$this->sourceGdImg){
-					if($this->imgExt == '.gif'){
-				   		$this->sourceGdImg = imagecreatefromgif($this->sourcePath);
+				if($ort && $ort > 1){
+					if(!$this->sourceGdImg){
+						if($this->imgExt == '.gif') $this->sourceGdImg = imagecreatefromgif($this->sourcePath);
+						elseif($this->imgExt == '.png') $this->sourceGdImg = imagecreatefrompng($this->sourcePath);
+						else $this->sourceGdImg = imagecreatefromjpeg($this->sourcePath);
 					}
-					elseif($this->imgExt == '.png'){
-				   		$this->sourceGdImg = imagecreatefrompng($this->sourcePath);
+					if($this->sourceGdImg){
+						switch($ort){
+							case 2: // horizontal flip
+								//$image->flipImage($public,1);
+							break;
+							case 3: // 180 rotate left
+								$this->sourceGdImg = imagerotate($this->sourceGdImg,180,0);
+							break;
+							case 4: // vertical flip
+								//$image->flipImage($public,2);
+							break;
+							case 5: // vertical flip + 90 rotate right
+								//$image->flipImage($public, 2);
+								//$image->rotateImage($public, 270);
+							break;
+							case 6: // 90 rotate right (clockwise)
+								$this->sourceGdImg = imagerotate($this->sourceGdImg,270,0);
+							break;
+							case 7: // horizontal flip + 90 rotate right
+								//$image->flipImage($public,1);
+								//$image->rotateImage($public, 270);
+							break;
+							case 8:	// 90 rotate left (counter-clockwise)
+								$this->sourceGdImg = imagerotate($this->sourceGdImg,90,0);
+							break;
+						}
+						$this->sourceWidth = imagesx($this->sourceGdImg);
+						$this->sourceHeight = imagesy($this->sourceGdImg);
 					}
-					else{
-						//JPG assumed
-				   		$this->sourceGdImg = imagecreatefromjpeg($this->sourcePath);
-					}
-				}
-				if($this->sourceGdImg){
-					switch($ort){
-						case 2: // horizontal flip
-							//$image->flipImage($public,1);
-						break;
-
-						case 3: // 180 rotate left
-							$this->sourceGdImg = imagerotate($this->sourceGdImg,180,0);
-						break;
-
-						case 4: // vertical flip
-							//$image->flipImage($public,2);
-						break;
-
-						case 5: // vertical flip + 90 rotate right
-							//$image->flipImage($public, 2);
-							//$image->rotateImage($public, -90);
-						break;
-
-						case 6: // 90 rotate right
-							$this->sourceGdImg = imagerotate($this->sourceGdImg,-90,0);
-						break;
-
-						case 7: // horizontal flip + 90 rotate right
-							//$image->flipImage($public,1);
-							//$image->rotateImage($public, -90);
-						break;
-
-						case 8:	// 90 rotate left
-							$this->sourceGdImg = imagerotate($this->sourceGdImg,90,0);
-						break;
-					}
-					$this->sourceWidth = imagesx($this->sourceGdImg);
-					$this->sourceHeight = imagesy($this->sourceGdImg);
 				}
 			}
 		}

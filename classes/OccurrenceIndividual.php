@@ -217,18 +217,18 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setAdditionalIdentifiers(){
-		$idStr = '';
-		$sql = 'SELECT idomoccuridentifiers, occid, identifiervalue, identifiername '.
-			'FROM omoccuridentifiers '.
-			'WHERE occid = '.$this->occid;
+		$retArr = array();
+		$sql = 'SELECT idomoccuridentifiers, occid, identifiervalue, identifiername FROM omoccuridentifiers WHERE occid = '.$this->occid;
 		$rs = $this->conn->query($sql);
 		if($rs){
 			while($r = $rs->fetch_object()){
-				$idStr .= '; '.($r->identifiername?$r->identifiername.': ':'').$r->identifiervalue;
+				$identifierTag = $r->identifiername;
+				if(!$identifierTag) $identifierTag = 0;
+				$retArr[$identifierTag][] = $r->identifiervalue;
 			}
 			$rs->free();
 		}
-		if($idStr) $this->occArr['othercatalognumbers'] = trim($idStr,'; ');
+		if($retArr) $this->occArr['othercatalognumbers'] = json_encode($retArr);
 	}
 
 	private function setPaleo(){

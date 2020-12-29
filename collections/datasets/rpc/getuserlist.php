@@ -2,7 +2,7 @@
 include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDataset.php');
 
-$term = ($_POST['term']);
+$term = ($_REQUEST['term']);
 
 $datasetManager = new OccurrenceDataset();
 $retArr = $datasetManager->getUserList($term);

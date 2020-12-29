@@ -417,19 +417,28 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								<?php
 							}
 							if($occArr['othercatalognumbers']){
-								?>
-								<div title="Other Catalog Numbers">
-									<b>Secondary Catalog #:</b>
-									<?php echo $occArr['othercatalognumbers']; ?>
-								</div>
-								<?php
+								if(substr($occArr['othercatalognumbers'],0,1)=='{'){
+									$otherCatArr = json_decode($occArr['othercatalognumbers'],true);
+									foreach($otherCatArr as $catTag => $catValueArr){
+										if(!$catTag) $catTag = 'Secondary Catalog #';
+										echo '<div><b>'.$catTag.':</b> '.implode('; ', $catValueArr).'</div>';
+									}
+								}
+								else{
+									?>
+									<div>
+										<b>Secondary Catalog #:</b>
+										<?php echo $occArr['othercatalognumbers']; ?>
+									</div>
+									<?php
+								}
 							}
 							?>
 						</div>
 						<div>
 							<?php
 							if($occArr['sciname']){
-								echo '<b>Taxon:</b>';
+								echo '<b>Taxon:</b> ';
 								if($securityCode < 2){
 									echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
 									if($occArr['localitysecurity'] == 2 || $occArr['localitysecurity'] == 3){

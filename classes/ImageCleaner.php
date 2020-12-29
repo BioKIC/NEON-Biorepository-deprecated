@@ -11,6 +11,7 @@ class ImageCleaner extends Manager{
 	private $imgDelRecOverride = false;
 	private $imgManager = null;
 	private $buildMediumDerivative = true;
+	private $testOrientation = false;
 
 	function __construct() {
 		parent::__construct(null,'write');
@@ -52,6 +53,7 @@ class ImageCleaner extends Manager{
 
 	public function buildThumbnailImages(){
 		$this->imgManager = new ImageShared();
+		$this->imgManager->setTestOrientation($this->testOrientation);
 
 		//Get image recordset to be processed
 		$sql = 'SELECT DISTINCT i.imgid, i.url, i.originalurl, i.thumbnailurl, i.format ';
@@ -356,6 +358,7 @@ class ImageCleaner extends Manager{
 
 	public function refreshThumbnails($postArr){
 		$this->imgManager = new ImageShared();
+		$this->imgManager->setTestOrientation($this->testOrientation);
 		$sql = 'SELECT o.occid, o.catalognumber, i.imgid, i.url, i.thumbnailurl, i.originalurl, i.format '.$this->getRemoteImageSql($postArr);
 		//echo $sql.'<br/>';
 		$rs = $this->conn->query($sql);
@@ -674,6 +677,11 @@ class ImageCleaner extends Manager{
 	public function setBuildMediumDerivative($bool){
 		if($bool) $this->buildMediumDerivative = true;
 		else $this->buildMediumDerivative = false;
+	}
+
+	public function setTestOrientation($bool){
+		if($bool) $this->testOrientation = true;
+		else $this->testOrientation = false;
 	}
 }
 ?>

@@ -15,7 +15,7 @@ $LANG['RESET_FAILED'] = 'Reset Failed! Contact administrator';
 $LANG['COOKIES'] = 'Your browser cookies are disabled. To be able to login and access your profile, they must be enabled for this domain.';
 $LANG['ENTER_LOGIN_NO_PWD'] = 'Enter your login name in the Login field and leave the password blank';
 $LANG['ENTER_LOGIN'] = 'Please enter your login and password.';
-
+$LANG['PORTAL_LOGIN'] = 'Portal Login';
 $LANG['LOGIN_NAME'] = 'Login';
 $LANG['PASSWORD'] = 'Password';
 $LANG['REMEMBER'] = 'Remember me on this computer';

@@ -64,7 +64,7 @@ $searchVar = $collManager->getQueryTermStr();
 			<div style="float:right;">
 				<!--
 				<div style="float:left">
-					<button class="icon-button" onclick="$('.datasetDiv').toggle();" title="Dataset Management">
+					<button class="icon-button" onclick="$('.dataset-div').toggle();" title="Dataset Management">
 						<img src="../images/dataset.png" style="width:15px;" />
 					</button>
 				</div>
@@ -204,7 +204,7 @@ $searchVar = $collManager->getQueryTermStr();
 							?>
 							<tr <?php echo ($recCnt%2?'class="alt"':''); ?>>
 								<td>
-									<div class="datasetDiv" style="float:left;display:none"><input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" /></div>
+									<div class="dataset-div" style="float:left;display:none"><input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" /></div>
 									<?php
 									echo '<a href="#" onclick="return openIndPU('.$occid.",".($targetClid?$targetClid:"0").');">'.$occid.'</a> ';
 									if($isEditor || ($SYMB_UID && $SYMB_UID == $occArr['obsuid'])){

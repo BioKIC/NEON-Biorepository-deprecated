@@ -175,6 +175,7 @@ include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div style="width:300px;margin-right:auto;margin-left:auto;">
 		<fieldset style="margin:20px;width:300px;">
+			<legend><?php echo (isset($LANG['PORTAL_LOGIN'])?$LANG['PORTAL_LOGIN']:'Portal Login'); ?></legend>
 			<form id="loginform" name="loginform" action="index.php" onsubmit="return checkCreds();" method="post">
 				<div style="margin: 10px;font-weight:bold;">
 					<?php echo (isset($LANG['LOGIN_NAME'])?$LANG['LOGIN_NAME']:'Login'); ?>:&nbsp;&nbsp;&nbsp;<input id="login" name="login" value="<?php echo $login; ?>" style="border-style:inset;" />

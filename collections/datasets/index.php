@@ -104,8 +104,8 @@ elseif($action == 'addAllToDataset'){
 		$dataSetArr = $datasetManager->getDatasetArr();
 		?>
 		<div>
-		<div style="float:right;margin:10px;" title="Create New Dataset" onclick="toggle('adddiv')">
-	 		<img src="../../images/add.png" style="width:14px;" />
+		<div style="float:right;margin:10px;" title="Create New Dataset" >
+	 		<a href="#" onclick="toggle('adddiv');return false;"><img src="../../images/add.png" style="width:14px;" /></a>
 		</div>
 		<div id=adddiv style="display:<?php echo ($dataSetArr?'none':'block') ?>;">
 			<fieldset>
@@ -119,7 +119,7 @@ elseif($action == 'addAllToDataset'){
 						<b>Notes</b><br />
 						<input name="notes" type="text" style="width:90%;" />
 					</div>
-					<div>
+					<div style="margin:15px">
 						<button name="submitaction" type="submit" value="createNewDataset">Create New Dataset</button>
 					</div>
 				</form>
@@ -154,8 +154,11 @@ elseif($action == 'addAllToDataset'){
 						<?php
 					}
 				}
-				else echo '<div style="font-weight:bold;">There are no datasets owned by you</div>';
+				else{
+					echo '<div style="font-weight:bold;">There are no datasets owned by you</div>';
+				}
 				?>
+				<div style="font-weight:bold;margin:15px 0px"><a href="#" onclick="toggle('adddiv');">Create a New Dataset</a></div>
 			</fieldset>
 			<fieldset>
 				<legend>Shared with You</legend>

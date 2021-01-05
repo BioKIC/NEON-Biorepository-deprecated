@@ -132,6 +132,9 @@ $clArray = $vManager->getChecklistData();
 			}
 		</script>
 		<script type="text/javascript" src="../js/symb/shared.js?ver=140107"></script>
+		<style type="text/css">
+			body{ background-color: #FFFFFF; }
+		</style>
 	</head>
 	<body onload="<?php  if(!$status) echo $followUpAction; ?>" >
 		<!-- This is inner text! -->

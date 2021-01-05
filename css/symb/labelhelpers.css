@@ -24,7 +24,6 @@
   .controls {
     display: none;
   }
-  
   .body {
     width: auto;
     margin-left: auto;
@@ -184,6 +183,18 @@
   font-family: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
+.font-type-sans {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.font-type-serif {
+  font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+.font-type-mono {
+  font-family: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
 .text-center {
   text-align: center;
 }
@@ -193,6 +204,18 @@
 }
 
 .text-justify {
+  text-align: justify;
+}
+
+.text-align-center {
+  text-align: center;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+.text-align-justify {
   text-align: justify;
 }
 

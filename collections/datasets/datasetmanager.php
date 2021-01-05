@@ -298,63 +298,60 @@ if($isEditor){
 					</ul>
 					<div id="occurtab">
 						<?php
-						$occArr = $datasetManager->getOccurrences($datasetId);
-						?>
-						<form name="occurform" action="datasetmanager.php" method="post" onsubmit="return validateOccurForm(this)">
-							<div style="float:right;margin-right:10px">
-								<b>Count: <?php echo count($occArr); ?> records</b>
-							</div>
-							<table class="styledtable" style="font-family:Arial;font-size:12px;">
-								<tr>
-									<th><input name="" value="" type="checkbox" onclick="selectAll(this);" title="Select/Deselect all Specimens" /></th>
-									<th>catalog #</th>
-									<th>Collector</th>
-									<th>Scientific Name</th>
-									<th>Locality</th>
-								</tr>
-								<?php
-								$trCnt = 0;
-								foreach($occArr as $occid => $recArr){
-									$trCnt++;
-									?>
-									<tr <?php echo ($trCnt%2?'class="alt"':''); ?>>
-										<td>
-											<input type="checkbox" name="occid[]" value="<?php echo $occid; ?>" />
-										</td>
-										<td>
-											<?php echo $recArr['catnum']; ?>
-											<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
-												<img src="../../images/info.png" style="width:15px;" />
-											</a>
-										</td>
-										<td>
-											<?php echo $recArr['coll']; ?>
-										</td>
-										<td>
-											<?php echo $recArr['sciname']; ?>
-										</td>
-										<td>
-											<?php echo $recArr['loc']; ?>
-										</td>
+						if($occArr = $datasetManager->getOccurrences($datasetId)){
+							?>
+							<form name="occurform" action="datasetmanager.php" method="post" onsubmit="return validateOccurForm(this)">
+								<div style="float:right;margin-right:10px">
+									<b>Count: <?php echo count($occArr); ?> records</b>
+								</div>
+								<table class="styledtable" style="font-family:Arial;font-size:12px;">
+									<tr>
+										<th><input name="" value="" type="checkbox" onclick="selectAll(this);" title="Select/Deselect all Specimens" /></th>
+										<th>catalog #</th>
+										<th>Collector</th>
+										<th>Scientific Name</th>
+										<th>Locality</th>
 									</tr>
 									<?php
-								}
-								?>
-							</table>
-							<div style="margin: 15px;">
-								<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
-								<?php
-								if($occArr && $isEditor < 3){
+									$trCnt = 0;
+									foreach($occArr as $occid => $recArr){
+										$trCnt++;
+										?>
+										<tr <?php echo ($trCnt%2?'class="alt"':''); ?>>
+											<td>
+												<input type="checkbox" name="occid[]" value="<?php echo $occid; ?>" />
+											</td>
+											<td>
+												<?php echo $recArr['catnum']; ?>
+												<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
+													<img src="../../images/info.png" style="width:15px;" />
+												</a>
+											</td>
+											<td>
+												<?php echo $recArr['coll']; ?>
+											</td>
+											<td>
+												<?php echo $recArr['sciname']; ?>
+											</td>
+											<td>
+												<?php echo $recArr['loc']; ?>
+											</td>
+										</tr>
+										<?php
+									}
 									?>
-									<button type="submit" name="submitaction" value="Remove Selected Occurrences">Remove Selected Occurrences</button>
+								</table>
+								<div style="margin: 15px;">
+									<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
 									<?php
-								}
-								?>
-							</div>
-						</form>
-						<?php
-						if($occArr){
-							?>
+									if($occArr && $isEditor < 3){
+										?>
+										<button type="submit" name="submitaction" value="Remove Selected Occurrences">Remove Selected Occurrences</button>
+										<?php
+									}
+									?>
+								</div>
+							</form>
 							<div style="margin: 15px;">
 								<form name="exportAllForm" action="../download/index.php" method="post" onsubmit="targetDownloadPopup(this)">
 									<input name="searchvar" type="hidden" value="datasetid=<?php echo $datasetId; ?>" />
@@ -362,6 +359,12 @@ if($isEditor){
 									<button type="submit" name="submitaction" value="exportAll">Export Dataset</button>
 								</form>
 							</div>
+							<?php
+						}
+						else{
+							?>
+							<div style="font-weight:bold; margin:15px">There are not yet any occurrences linked to this dataset</div>
+							<div style="margin:15px">You can link occurrences via the <a href="../index.php">occurrence search page</a> or via any of the the occurrence profile pages</div>
 							<?php
 						}
 						?>

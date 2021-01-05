@@ -9,7 +9,7 @@ $specHandler->setUid($SYMB_UID);
 $genArr = array();
 $cArr = array();
 $oArr = array();
-$collArr = $specHandler->getCollectionArr($SYMB_UID);
+$collArr = $specHandler->getCollectionArr();
 foreach($collArr as $id => $collectionArr){
 	if($collectionArr['colltype'] == 'General Observations') $genArr[$id] = $collectionArr;
 	elseif($collectionArr['colltype'] == 'Preserved Specimens') $cArr[$id] = $collectionArr;
@@ -19,6 +19,7 @@ foreach($collArr as $id => $collectionArr){
 <div style="margin:10px;">
 <?php
 if($SYMB_UID){
+	if(!$collArr) echo '<div style="margin:40px 15px;font-weight:bold">You do not yet have management permissions for any occurrence projects</div>';
 	foreach($genArr as $collId => $secArr){
 		$cName = $secArr['collectionname'].' ('.$secArr['institutioncode'].($secArr['collectioncode']?'-'.$secArr['collectioncode']:'').')';
 		?>
@@ -141,7 +142,7 @@ if($SYMB_UID){
 	<fieldset>
 		<legend>Miscellaneous Tools</legend>
 		<ul>
-			<li><a href="../collections/datasets/index.php">Occurrence Dataset Management</a></li>
+			<li><a href="../collections/datasets/index.php">Dataset Management</a></li>
 			<?php
 			if((count($cArr)+count($oArr)) > 1){
 				?>

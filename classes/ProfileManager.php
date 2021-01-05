@@ -991,19 +991,16 @@ class ProfileManager{
 		}
 	}
 
-	public function getCollectionArr($symbUid = 0){
+	public function getCollectionArr(){
 		global $USER_RIGHTS;
-		$cArr = array();
-		if($symbUid){
-			if(array_key_exists('CollAdmin',$USER_RIGHTS)) $cArr = $USER_RIGHTS['CollAdmin'];
-			if(array_key_exists('CollEditor',$USER_RIGHTS)) $cArr = array_merge($cArr,$USER_RIGHTS['CollEditor']);
-		}
-
 		$retArr = Array();
-		$sql = 'SELECT collid, institutioncode, collectioncode, collectionname, colltype FROM omcollections ';
-		if($cArr) $sql .= 'WHERE collid IN('.implode(',',$cArr).') ';
-		$sql .= 'ORDER BY collectionname';
-		//echo $sql;
+
+		$cArr = array();
+		if(array_key_exists('CollAdmin',$USER_RIGHTS)) $cArr = $USER_RIGHTS['CollAdmin'];
+		if(array_key_exists('CollEditor',$USER_RIGHTS)) $cArr = array_merge($cArr,$USER_RIGHTS['CollEditor']);
+		if(!$cArr) return $retArr;
+
+		$sql = 'SELECT collid, institutioncode, collectioncode, collectionname, colltype FROM omcollections WHERE collid IN('.implode(',',$cArr).') ORDER BY collectionname';
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
 				$retArr[$r->collid]['collectionname'] = $r->collectionname;

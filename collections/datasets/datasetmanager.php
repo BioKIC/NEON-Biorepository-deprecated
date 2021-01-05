@@ -250,6 +250,9 @@ if($isEditor){
 				f.target = 'downloadpopup';
 			}
 		</script>
+		<style>
+			.section-title{ margin:0px 15px; font-weight:bold; text-decoration:underline; }
+		</style>
 	</head>
 	<body>
 	<?php
@@ -278,7 +281,7 @@ if($isEditor){
 		}
 		if($datasetId){
 			echo '<div style="margin:10px 0px 5px 20px;font-weight:bold;font-size:130%;">'.$mdArr['name'].'</div>';
-			echo '<div style="margin-left:20px" title="'.$roleLabel.'">Role: '.$role.'</div>';
+			if($role) echo '<div style="margin-left:20px" title="'.$roleLabel.'">Role: '.$role.'</div>';
 			if($isEditor){
 				?>
 				<div id="tabs" style="margin:10px;">
@@ -403,7 +406,7 @@ if($isEditor){
 								$roleArr = array('DatasetAdmin' => 'Full Access Users','DatasetEditor' => 'Read/Write Users','DatasetReader' => 'Read Only Users');
 								foreach($roleArr as $roleStr => $labelStr){
 									?>
-									<div style="margin:0px 15px;font-weight:bold;text-decoration: underline;"><?php echo $labelStr; ?></div>
+									<div class="section-title"><?php echo $labelStr; ?></div>
 									<div style="margin:15px;">
 										<?php
 										if(array_key_exists($roleStr,$userArr)){
@@ -467,13 +470,9 @@ if($isEditor){
 				</div>
 				<?php
 			}
-			else{
-				echo '<div><b>You are not authorized to view this dataset</b></div>';
-			}
+			else echo '<div style="margin:30px">You are not authorized to view this dataset</div>';
 		}
-		else{
-			echo '<div><b>ERROR: dataset id not identified</b></div>';
-		}
+		else echo '<div><b>ERROR: dataset id not identified</b></div>';
 		?>
 	</div>
 	<?php

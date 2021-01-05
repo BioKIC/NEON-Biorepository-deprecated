@@ -381,6 +381,22 @@ ALTER TABLE `omoccurassociations`
   ADD CONSTRAINT `FK_occurassoc_uidcreated`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_occurassoc_uidmodified`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
+ALTER TABLE `omoccurdatasets` 
+  ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
+  ADD COLUMN `isPublic` INT NULL AFTER `category`;
+
+CREATE TABLE `referencedatasetlink` (
+  `refid` INT NOT NULL,
+  `datasetid` INT UNSIGNED NOT NULL,
+  `createdUid` INT UNSIGNED NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`refid`, `datasetid`),
+  INDEX `FK_refdataset_datasetid_idx` (`datasetid` ASC),
+  INDEX `FK_refdataset_uid_idx` (`createdUid` ASC),
+  CONSTRAINT `FK_refdataset_refid`  FOREIGN KEY (`refid`)  REFERENCES `referenceobject` (`refid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_refdataset_datasetid`  FOREIGN KEY (`datasetid`)  REFERENCES `omoccurdatasets` (`datasetid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_refdataset_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+
 
 CREATE TABLE `igsnverification` (
   `igsn` VARCHAR(15) NOT NULL,

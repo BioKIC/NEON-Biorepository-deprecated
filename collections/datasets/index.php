@@ -107,7 +107,9 @@ elseif($action == 'addAllToDataset'){
 		<div style="float:right;margin:10px;" title="Create New Dataset" >
 	 		<a href="#" onclick="toggle('adddiv');return false;"><img src="../../images/add.png" style="width:14px;" /></a>
 		</div>
-		<div id=adddiv style="display:<?php echo ($dataSetArr?'none':'block') ?>;">
+		<h2>Occurrence Dataset Management</h2>
+		<div>These tools will allow you to define and manage datasets profiles. Once a profile is created, you can link occurrence records via the occurrence search and display pages.</div>
+		<div id=adddiv style="display:none">
 			<fieldset>
 				<legend><b>Create New Dataset</b></legend>
 				<form name="adminform" action="index.php" method="post" onsubmit="return validateEditForm(this)">
@@ -158,7 +160,6 @@ elseif($action == 'addAllToDataset'){
 					echo '<div style="font-weight:bold;">There are no datasets owned by you</div>';
 				}
 				?>
-				<div style="font-weight:bold;margin:15px 0px"><a href="#" onclick="toggle('adddiv');">Create a New Dataset</a></div>
 			</fieldset>
 			<fieldset>
 				<legend>Shared with You</legend>
@@ -191,7 +192,14 @@ elseif($action == 'addAllToDataset'){
 			</fieldset>
 			<?php
 		}
-		else echo '<div style="margin:15px;font-weight:bold;">There are no datasets linked to your login</div>';
+		else{
+			?>
+			<div style="margin:20px">
+				<div style="font-weight:bold">There are no datasets associated to your login</div>
+				<div style="margin-top:15px"><a href="#" onclick="toggle('adddiv');">Create a New Dataset</a></div>
+			</div>
+			<?php
+		}
 		?>
 		</div>
 	</div>

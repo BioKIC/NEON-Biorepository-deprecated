@@ -142,7 +142,7 @@ class TaxonomyHarvester extends Manager{
 				$targetKey = 0;
 				$submitArr = array();
 				$rankArr = array();
-				foreach($resultArr['results'] as $k => $tArr){
+				foreach($resultArr['result'] as $k => $tArr){
 					//Evaluate and rank each result to determine which is the best suited target
 					$rankArr[$k] = 0;
 					if($adjustedName != $tArr['name']){
@@ -182,7 +182,7 @@ class TaxonomyHarvester extends Manager{
 							elseif($percent > 80) $rankArr[$k] += 1;
 						}
 					}
-					$submitArr[$k] = $resultArr['results'][$k];
+					$submitArr[$k] = $resultArr['result'][$k];
 				}
 				if($rankArr){
 					asort($rankArr);

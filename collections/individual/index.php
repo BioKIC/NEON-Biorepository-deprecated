@@ -856,72 +856,76 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							</div>
 							<?php
 						}
-						?>
-						<div style="clear:both;padding:10px;">
-							<?php
-							if(!$securityCode && array_key_exists('imgs',$occArr)){
-								$iArr = $occArr['imgs'];
-								?>
-								<fieldset>
-									<legend>Specimen Images</legend>
-									<?php
-									foreach($iArr as $imgId => $imgArr){
-										$thumbUrl = $imgArr['tnurl'];
-										if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['url'];
-										if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['lgurl'];
-										?>
-										<div class="imgDiv">
-											<a href='<?php echo $imgArr['url']; ?>' target="_blank">
-												<img border="1" src="<?php echo $thumbUrl; ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
-											</a>
-											<?php
-											if($imgArr['photographer']) echo '<div>Author: '.$imgArr['photographer'].'</div>';
-											if($imgArr['url'] && substr($thumbUrl,0,7)!='process' && $imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
-											if($imgArr['lgurl']) echo '<div><a href="'.$imgArr['lgurl'].'" target="_blank">Open Large Image</a></div>';
-											if($imgArr['sourceurl']) echo '<div><a href="'.$imgArr['sourceurl'].'" target="_blank">Open Source Image</a></div>';
-											?>
-										</div>
-										<?php
-									}
-									?>
-								</fieldset>
-								<?php
-							}
+						if(!$securityCode && array_key_exists('imgs',$occArr)){
+							$iArr = $occArr['imgs'];
 							?>
-						</div>
-						<?php
+							<fieldset>
+								<legend>Specimen Images</legend>
+								<?php
+								foreach($iArr as $imgId => $imgArr){
+									$thumbUrl = $imgArr['tnurl'];
+									if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['url'];
+									if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['lgurl'];
+									?>
+									<div class="imgDiv">
+										<a href='<?php echo $imgArr['url']; ?>' target="_blank">
+											<img border="1" src="<?php echo $thumbUrl; ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
+										</a>
+										<?php
+										if($imgArr['photographer']) echo '<div>Author: '.$imgArr['photographer'].'</div>';
+										if($imgArr['url'] && substr($thumbUrl,0,7)!='process' && $imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">Open Medium Image</a></div>';
+										if($imgArr['lgurl']) echo '<div><a href="'.$imgArr['lgurl'].'" target="_blank">Open Large Image</a></div>';
+										if($imgArr['sourceurl']) echo '<div><a href="'.$imgArr['sourceurl'].'" target="_blank">Open Source Image</a></div>';
+										?>
+									</div>
+									<?php
+								}
+								?>
+							</fieldset>
+							<?php
+						}
 						if($collMetadata['individualurl']){
 							$sourceTitle = 'Link to Source';
-							$iUrl = $collMetadata['individualurl'];
+							$iUrl = trim($collMetadata['individualurl']);
 							if(substr($iUrl, 0, 4) != 'http'){
 								if($pos = strpos($iUrl, ':')){
 									$sourceTitle = substr($iUrl, 0, $pos);
 									$iUrl = trim(substr($iUrl, $pos+1));
 								}
 							}
-							$displayID = '';
+							$displayStr = '';
 							$indUrl = '';
 							if(strpos($iUrl,'--DBPK--') !== false && $occArr['dbpk']){
-								$displayID = $occArr['dbpk'];
+								$displayStr = $occArr['dbpk'];
 								$indUrl = str_replace('--DBPK--',$occArr['dbpk'],$iUrl);
 							}
 							elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $occArr['catalognumber']){
-								$displayID = $occArr['catalognumber'];
+								$displayStr = $occArr['catalognumber'];
 								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$iUrl);
 							}
 							elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
-								$ocn = explode(':', $occArr['othercatalognumbers']);
-								$otherCatNum = trim(array_pop($ocn));
-								if($p = strpos($otherCatNum,';')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
-								elseif($p = strpos($otherCatNum,',')) $otherCatNum = trim(substr($otherCatNum, 0, $p));
-								$displayID = $otherCatNum;
-								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$otherCatNum,$iUrl);
+								if(substr($occArr['othercatalognumbers'],0,1) == '{'){
+									if($ocnArr = json_decode($occArr['othercatalognumbers'],true)){
+										$ocnArr2 = array_shift($ocnArr);
+										if(isset($ocnArr2[0])){
+											$displayStr = $ocnArr2[0];
+											$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnArr2[0],$iUrl);
+										}
+									}
+								}
+								else{
+									$ocn = str_replace($occArr['othercatalognumbers'], ',', ';');
+									$ocnValue = trim(array_pop(explode(';',$ocn)));
+									if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
+									$displayStr = $ocnValue;
+									$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
+								}
 							}
 							elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $occArr['occurrenceid']){
-								$displayID = $occArr['occurrenceid'];
+								$displayStr = $occArr['occurrenceid'];
 								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$iUrl);
 							}
-							if($indUrl) echo '<div style="margin-top:10px;clear:both;"><b>'.$sourceTitle.':</b> <a href="'.$indUrl.'" target="_blank">'.$displayID.'</a></div>';
+							if($displayStr) echo '<div style="margin-top:10px;clear:both;"><b>'.$sourceTitle.':</b> <a href="'.$indUrl.'" target="_blank">'.$displayStr.'</a></div>';
 						}
 						//Rights
 						$rightsStr = $collMetadata['rights'];

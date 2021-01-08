@@ -43,9 +43,10 @@ class ImageRotator{
 					if($entry != "." && $entry != ".."){
 						if(is_file($targetPath.'/'.$entry)){
 							$this->msgOut('Evaluating: '.$targetPath.'/'.$entry);
-							if(pathinfo($targetPath.'/'.$entry,PATHINFO_EXTENSION ) == 'jpg'){
+							if(strtolower(pathinfo($targetPath.'/'.$entry,PATHINFO_EXTENSION ) == 'jpg')){
 								$imgInfoArr = getimagesize($targetPath.'/'.$entry);
-								$ratio = $imgInfoArr[0]/$imgInfoArr[1];
+								$ratio = $imgInfoArr[0]/$imgInfoArr[1];		//Test: wider than tall
+								$ratio = $imgInfoArr[1]/$imgInfoArr[0];		//Test: taller than wide
 								if($ratio > 1){
 									$this->msgOut('Rotating...',1);
 									$this->rotateImage($targetPath.'/'.$entry);

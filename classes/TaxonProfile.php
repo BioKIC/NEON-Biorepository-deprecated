@@ -169,7 +169,7 @@ class TaxonProfile extends Manager {
 					$imgUrl = $imgThumbnail;
 				}
 			}
-			echo '<div class="tptnimg"><a href="'.$imgAnchor.'">';
+			echo '<div class="tptnimg"><a href="#" onclick="openPopup(\''.$imgAnchor.'\');return false;">';
 			$titleStr = $imgObj['caption'];
 			if($imgObj['sciname'] != $this->taxonName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
 			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->taxonName.' image" />';

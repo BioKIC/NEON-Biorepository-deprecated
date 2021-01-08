@@ -78,8 +78,8 @@ if($SYMB_UID){
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
-	<script src="../js/symb/taxa.index.js?ver=1810902" type="text/javascript"></script>
-	<script src="../js/symb/taxa.editor.js?ver=20140619" type="text/javascript"></script>
+	<script src="../js/symb/taxa.index.js?ver=202101" type="text/javascript"></script>
+	<script src="../js/symb/taxa.editor.js?ver=202101" type="text/javascript"></script>
 </head>
 <body>
 <?php

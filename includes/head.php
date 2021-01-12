@@ -18,7 +18,7 @@ if($activateJQuery){
 }
 ?>
 <!-- FONT –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700" rel="stylesheet" type="text/css">
+<!-- <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700" rel="stylesheet" type="text/css">  -->
 <!-- UNIVERSAL CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/normalize.css">
 <link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/skeleton.css">

@@ -2,13 +2,11 @@
  * 
 *************/
 
-
-/* html {
+html {
   font-size: 1.2em;
   font-weight: 400;
   line-height: 1.5em;
-  font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
-} */
+}
 
 body {
   color: black;
@@ -88,8 +86,6 @@ li.header-title {
   color: white;
   text-transform: uppercase;
 }
-
-#header a:hover {}
 
 
 /* SYMBIOTA NAVIGATION */
@@ -209,15 +205,9 @@ li.header-title {
 
 /******* LAYOUT ********/
 
-#middleleft {}
-
-#middleleftnomenu {}
-
 #middlecenter {
   padding: 0px;
 }
-
-#middleright {}
 
 
 /*Central div in the middle center table div */
@@ -229,11 +219,6 @@ div.navpath {
   max-width: 1150px;
   width: 90%;
 }
-
-
-/* #innertext {
-  font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important;
-} */
 
 .disclaimer span {
   font-weight: bold;
@@ -316,36 +301,19 @@ div.navpath {
 }
 
 
-/* Image thumbnails   */
-
-div.tndiv {}
-
-div.tnimg {}
-
-div.tnimg a {}
-
-div.tnimg img {}
-
-
-/*Misc general items*/
-
-table {}
-
-
 /* Forcing styles over jquery-ui (search forms) */
 
-
-/* .ui-widget input,
+.ui-widget input,
 .ui-widget select,
 .ui-widget textarea,
 .ui-widget button {
-  font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important;
-} */
+  font-family: 'Inter', sans-serif !important;
+}
 
 button,
 button.ui-button.ui-widget.ui-corner-all,
 input[type='submit' i] {
-  /* font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important; */
+  font-family: 'Inter', sans-serif !important;
   border: 1px solid #ffffff;
   border-radius: 0 !important;
   letter-spacing: 0.0625em;
@@ -382,7 +350,7 @@ button>a:hover {
 
 table,
 .ui-widget {
-  /* font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important; */
+  font-family: 'Inter', sans-serif !important;
   font-size: 1em;
 }
 
@@ -407,19 +375,6 @@ hr:first-of-type {
 #tabs {
   height: auto;
 }
-
-
-/***/
-
-.categorytitle {}
-
-.categorytitle a {}
-
-.collectiontitle {}
-
-.collectiontitle a {}
-
-.collectiontitle a:hover {}
 
 
 /* Quick Search Plugin */

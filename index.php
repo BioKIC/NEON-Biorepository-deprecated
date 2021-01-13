@@ -76,7 +76,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				</div>
 				<div class="six columns centered">
 					<h4 class="centered">> 700 taxa</h4>
-					<img src="images/layout/TaxaByGroup-2020-01.png">
+					<img src="images/layout/TaxaByGroup-2020-01.png" width="100%">
 					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa.</span></p>
 				</div>
 

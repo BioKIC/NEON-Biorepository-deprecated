@@ -189,7 +189,7 @@ nav {
 @media (min-width: 426px) and (max-width: 1024px) {
   #header #branding .branding-link {
     display: block;
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo.svg);
+    background-image: url(../neon/images/neon-white-logo.svg);
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -230,7 +230,7 @@ nav {
   }
   #header #branding .branding-link {
     display: block;
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo.svg);
+    background-image: url(../neon/images/neon-white-logo.svg);
     /*background-image: url(/portal/images/layout/nsf-neon-logo.png);*/
     background-size: cover;
     background-position: center center;
@@ -276,7 +276,7 @@ nav {
     background: linear-gradient(to bottom, #006bcd 0%, #014089 100%);
   }
   .front #header #branding .branding-link {
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo-mobile.svg);
+    background-image: url(..neon/images/logo-mobile.svg);
   }
 }
 
@@ -321,7 +321,9 @@ nav {
     height: 50px;
   }
   ul#biorepo-header h1 {
-    font-size: 3rem;
+    font-size: 2.3rem;
+    margin: 0 auto;
+    padding: 10px;
   }
 }
 

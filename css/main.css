@@ -2,6 +2,22 @@
  * 
 *************/
 
+
+/*
+1. GENERAL
+2. LAYOUT
+3. SPECIFIC SECTIONS
+4. FORMS, BUTTONS
+5. TABLES
+6. ICONS
+7. TABS
+8. QUICK SEARCH PLUGIN
+9. FOOTER
+*/
+
+
+/******* 1. GENERAL ********/
+
 html {
   font-size: 1.2em;
   font-weight: 400;
@@ -12,6 +28,110 @@ body {
   color: black;
   margin-top: 0px;
 }
+
+
+/******* 2. LAYOUT ********/
+
+
+/******* LAYOUT ********/
+
+#middlecenter {
+  padding: 0px;
+}
+
+
+/*Central div in the middle center table div */
+
+div.navpath {
+  margin-left: auto;
+  margin-right: auto;
+  min-width: 1000px;
+  max-width: 1150px;
+  width: 90%;
+}
+
+.disclaimer span {
+  font-weight: bold;
+}
+
+
+/* Manifest Viewer conteiner */
+
+#samplePanel {
+  font-size: 12px !important;
+}
+
+
+/* Large screens */
+
+@media (min-width: 1024px) {
+  #innertext {
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 1000px;
+    max-width: 1150px;
+    width: 90%;
+  }
+  #home-left {
+    max-width: 70%;
+    float: left;
+  }
+  #home-right {
+    max-width: 30%;
+    float: right;
+  }
+  #cloptiondiv {
+    max-width: 20% !important;
+  }
+  #img-container {
+    width: 80%;
+  }
+  .hide-on-large {
+    display: none;
+  }
+}
+
+
+/* Medium screens */
+
+@media (min-width: 426px) and (max-width: 1023px) {
+  #innertext {
+    max-width: 96%;
+  }
+  #home-left {
+    max-width: 60%;
+    float: left;
+    padding-left: 1rem;
+  }
+  #home-right {
+    max-width: 40%;
+    float: right;
+  }
+  #cloptiondiv {
+    max-width: 15% !important;
+  }
+  #taxon-container {
+    max-width: 75%;
+  }
+  .hide-on-large {
+    display: none;
+  }
+}
+
+
+/* Smaller screens */
+
+@media (max-width: 425px) {
+  #innertext {
+    max-width: 95%;
+  }
+  .hide-on-small {
+    display: none;
+  }
+}
+
+
+/******* 3. SPECIFIC SECTIONS ********/
 
 .home-page section {
   margin: 3rem 0 1.5rem 0;
@@ -25,8 +145,6 @@ body {
   margin-right: auto;
   width: 100%;
 }
-
-#maintable td {}
 
 
 /* SYMBIOTA MAIN HEADER */
@@ -203,102 +321,7 @@ li.header-title {
 }
 
 
-/******* LAYOUT ********/
-
-#middlecenter {
-  padding: 0px;
-}
-
-
-/*Central div in the middle center table div */
-
-div.navpath {
-  margin-left: auto;
-  margin-right: auto;
-  min-width: 1000px;
-  max-width: 1150px;
-  width: 90%;
-}
-
-.disclaimer span {
-  font-weight: bold;
-}
-
-
-/* Manifest Viewer conteiner */
-
-#samplePanel {
-  font-size: 12px !important;
-}
-
-
-/* Large screens */
-
-@media (min-width: 1024px) {
-  #innertext {
-    margin-left: auto;
-    margin-right: auto;
-    min-width: 1000px;
-    max-width: 1150px;
-    width: 90%;
-  }
-  #home-left {
-    max-width: 70%;
-    float: left;
-  }
-  #home-right {
-    max-width: 30%;
-    float: right;
-  }
-  #cloptiondiv {
-    max-width: 20% !important;
-  }
-  #img-container {
-    width: 80%;
-  }
-  .hide-on-large {
-    display: none;
-  }
-}
-
-
-/* Medium screens */
-
-@media (min-width: 426px) and (max-width: 1023px) {
-  #innertext {
-    max-width: 96%;
-  }
-  #home-left {
-    max-width: 60%;
-    float: left;
-    padding-left: 1rem;
-  }
-  #home-right {
-    max-width: 40%;
-    float: right;
-  }
-  #cloptiondiv {
-    max-width: 15% !important;
-  }
-  #taxon-container {
-    max-width: 75%;
-  }
-  .hide-on-large {
-    display: none;
-  }
-}
-
-
-/* Smaller screens */
-
-@media (max-width: 425px) {
-  #innertext {
-    max-width: 95%;
-  }
-  .hide-on-small {
-    display: none;
-  }
-}
+/******* 4. FORMS, BUTTONS ********/
 
 
 /* Forcing styles over jquery-ui (search forms) */
@@ -346,7 +369,7 @@ button>a:hover {
 }
 
 
-/***/
+/******* 5. TABLES ********/
 
 table,
 .ui-widget {
@@ -359,7 +382,7 @@ hr:first-of-type {
 }
 
 
-/* Icons */
+/******* 6. ICONS ********/
 
 .svg-icon {
   filter: invert(1);
@@ -370,24 +393,20 @@ hr:first-of-type {
 }
 
 
-/* Tabs */
+/******* 7. TABS ********/
 
 #tabs {
   height: auto;
 }
 
 
-/* Quick Search Plugin */
+/******* 8. QUICK SEARCH PLUGIN ********/
 
 #quicksearchdiv {
   width: auto !important;
   padding: 0.75rem !important;
   margin: 1rem auto 4rem auto !important;
 }
-
-#quicksearchtext {}
-
-#quicksearchtaxon {}
 
 #quicksearchbutton {
   margin-left: 1rem !important;
@@ -396,12 +415,7 @@ hr:first-of-type {
 }
 
 
-/* Slideshow Plugin */
-
-#slideshowcontainer {}
-
-
-/* Footer */
+/******* 9. FOOTER ********/
 
 #footer {
   padding: 3rem !important;

@@ -200,6 +200,10 @@ $imgManager->setTestOrientation($evaluateOrientation);
 								<input name="evaluate_ts" type="radio" value="1" checked /> Only process images where the source file is more recent than thumbnails<br/>
 								<input name="evaluate_ts" type="radio" value="0" /> Force rebuild all images
 							</div>
+							<div class="fieldRowDiv">
+								<input name="buildmed" type="checkbox" value="1" <?php echo ($buildMediumDerivatives?'checked':''); ?> />
+								<span class="fieldLabel"> include medium-sized image derivatives in addition to thumbnails</span>
+							</div>
 							<div style="margin-bottom:10px;">
 								<input name="evalorientation" type="checkbox" value="1" <?php echo ($evaluateOrientation?'checked':''); ?> /> rotate images based on orientation tag
 							</div>

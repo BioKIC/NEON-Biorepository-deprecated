@@ -32,8 +32,9 @@ body {
 
 /******* 2. LAYOUT ********/
 
-
-/******* LAYOUT ********/
+#innertext img {
+  max-width: 100%;
+}
 
 #middlecenter {
   padding: 0px;
@@ -97,6 +98,7 @@ div.navpath {
 @media (min-width: 426px) and (max-width: 1023px) {
   #innertext {
     max-width: 96%;
+    margin: 0 auto;
   }
   #home-left {
     max-width: 60%;
@@ -198,6 +200,7 @@ li.header-title {
   text-transform: uppercase;
   font-size: 1.5rem;
   color: white;
+  font-weight: bold;
 }
 
 #header a {
@@ -346,6 +349,20 @@ input[type='submit' i] {
   text-transform: uppercase;
   padding: 8px 20px;
   /* padding: 0.5rem 1.25rem; */
+}
+
+input[type='text'],
+textarea,
+select {
+  border: 1px solid #d0d0d0 !important;
+  border-radius: 0;
+  color: #333333;
+}
+
+input[type='text']:focus,
+textarea:focus,
+select:focus {
+  border-radius: 0 !important;
 }
 
 button.ui-button.ui-widget.ui-corner-all:hover {

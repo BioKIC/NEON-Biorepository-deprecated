@@ -55,9 +55,10 @@ input {
   font-family: 'Inter', sans-serif;
 }
 
-* html {
+
+/* * html {
   font-size: 100%;
-}
+} */
 
 footer,
 header,
@@ -67,6 +68,41 @@ nav {
 
 
 /******* 3. TYPOGRAPHY ********/
+
+h1 {
+  font-size: 2.4rem;
+  line-height: 1.1;
+  margin: 0;
+  font-weight: 400;
+}
+
+h2 {
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: normal;
+}
+
+h3 {
+  font-size: 1.2rem;
+  line-height: 1;
+  font-weight: normal;
+}
+
+p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 1em 0;
+  color: #565a5c;
+}
+
+a {
+  color: #0073cf;
+  cursor: pointer;
+}
+
+p a {
+  text-decoration: underline;
+}
 
 
 /******* 4. HEADER ********/
@@ -323,7 +359,7 @@ nav {
   ul#biorepo-header h1 {
     font-size: 2.3rem;
     margin: 0 auto;
-    padding: 10px;
+    /* padding: 10px; */
   }
 }
 

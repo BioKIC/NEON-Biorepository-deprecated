@@ -13,6 +13,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 	private $voucherManager;
 	private $occurSearchProjectExists = 0;
 	protected $searchSupportManager = null;
+	protected $errorMessage;
 
 	public function __construct($type='readonly'){
 		parent::__construct($type);
@@ -238,7 +239,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 					$tempInnerArr = array();
 					$collValueArr = explode(" ",trim($collectorArr[0]));
 					foreach($collValueArr as $collV){
-						if(strlen($collV) == 2 || strlen($collV) == 3 || strtolower($collV) == 'best'){
+						if(strlen($collV) == 2 || strlen($collV) == 3 || in_array(strtolower($collV),array('best','little'))){
 							//Need to avoid FULLTEXT stopwords interfering with return
 							$tempInnerArr[] = '(o.recordedBy LIKE "%'.$this->cleanInStr($collV).'%")';
 						}
@@ -251,7 +252,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			elseif(count($collectorArr) > 1){
 				foreach($collectorArr AS $collStr){
-					if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
+					if(strlen($collStr) < 4 || in_array(strtolower($collStr),array('best','little'))){
 						//Need to avoid FULLTEXT stopwords interfering with return
 						$tempArr[] = '(o.recordedBy LIKE "%'.$this->cleanInStr($collStr).'%")';
 					}
@@ -589,6 +590,17 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return trim($retStr,' &');
 	}
 
+	public function addOccurrencesToDataset($datasetID){
+		if(!is_numeric($datasetID)) return false;
+		$this->setSqlWhere();
+		$sql = 'INSERT IGNORE INTO omoccurdatasetlink(occid,datasetid) SELECT DISTINCT o.occid, '.$datasetID.' as dsID FROM omoccurrences o '.$this->getTableJoins($this->sqlWhere).$this->sqlWhere;
+		if(!$this->conn->query($sql)){
+			$this->errorMessage = 'ERROR adding records to dataset(#'.$datasetID.'): '.$this->conn->error;
+			return false;
+		}
+		return true;
+	}
+
 	private function getDatasetTitle($dsIdStr){
 		$retStr = '';
 		$sql = 'SELECT name FROM omoccurdatasets WHERE datasetid IN('.$dsIdStr.')';
@@ -644,7 +656,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($dbStr) $this->searchTermArr['db'] = $dbStr;
 		}
 		if(array_key_exists('datasetid',$_REQUEST) && $_REQUEST['datasetid']){
-			if(is_numeric($_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
+			if(preg_match('/^[\d,]+$/',$_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
 			elseif(is_array($_REQUEST['datasetid'])){
 				$dsStr = implode(',',$_REQUEST['datasetid']);
 				if(preg_match('/^[\d,]+$/',$dsStr)) $this->searchTermArr['datasetid'] = $dsStr;
@@ -935,6 +947,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	public function getTaxaArr(){
 		return $this->taxaArr;
+	}
+
+	public function getErrorMessage(){
+		return $this->errorMessage;
 	}
 }
 ?>

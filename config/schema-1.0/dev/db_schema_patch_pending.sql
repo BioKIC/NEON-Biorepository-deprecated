@@ -53,11 +53,73 @@ ALTER TABLE `kmcs`
   ADD CONSTRAINT `FK_kmcs_glossid`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
 
+CREATE TABLE `ctcontrolvocab` (
+  `cvID` INT(11) NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(45) DEFAULT NULL,
+  `definition` VARCHAR(250) DEFAULT NULL,
+  `authors` VARCHAR(150) DEFAULT NULL,
+  `tableName` VARCHAR(45) DEFAULT NULL,
+  `fieldName` VARCHAR(45) DEFAULT NULL,
+  `resourceUrl` VARCHAR(150) DEFAULT NULL,
+  `ontologyClass` VARCHAR(150) DEFAULT NULL,
+  `ontologyUrl` VARCHAR(150) DEFAULT NULL,
+  `limitToList` INT(2) DEFAULT 0,
+  `dynamicProperties` TEXT DEFAULT NULL,
+  `notes` VARCHAR(45) DEFAULT NULL,
+  `createdUid` INT(10) unsigned DEFAULT NULL,
+  `modifiedUid` INT(10) unsigned DEFAULT NULL,
+  `modifiedTimestamp` DATETIME DEFAULT NULL,
+  `initialtimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`cvID`),
+  KEY `FK_ctControlVocab_createUid_idx` (`createdUid`),
+  KEY `FK_ctControlVocab_modUid_idx` (`modifiedUid`),
+  CONSTRAINT `FK_ctControlVocab_createUid` FOREIGN KEY (`createdUid`) REFERENCES `users` (`uid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `FK_ctControlVocab_modUid` FOREIGN KEY (`modifiedUid`) REFERENCES `users` (`uid`) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE `ctcontrolvocabterm` (
+  `cvTermID` INT NOT NULL AUTO_INCREMENT,
+  `cvID` INT NOT NULL,
+  `parentCvTermID` INT NULL,
+  `term` VARCHAR(45) NOT NULL,
+  `inverseRelationship` VARCHAR(45) NULL,
+  `collective` VARCHAR(45) NULL,
+  `definition` VARCHAR(250) DEFAULT NULL,
+  `resourceUrl` VARCHAR(150) DEFAULT NULL,
+  `ontologyClass` VARCHAR(150) DEFAULT NULL,
+  `ontologyUrl` VARCHAR(150) DEFAULT NULL,
+  `notes` VARCHAR(250) NULL,
+  `createdUid` INT UNSIGNED NULL,
+  `modifiedUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` DATETIME NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`cvTermID`),
+  INDEX `FK_ctcontrolVocabTerm_cvID_idx` (`cvID` ASC),
+  INDEX `FK_ctControlVocabTerm_createUid_idx` (`createdUid` ASC),
+  INDEX `FK_ctControlVocabTerm_modUid_idx` (`modifiedUid` ASC),
+  INDEX `IX_controlVocabTerm_term` (`term` ASC),
+  UNIQUE INDEX `UQ_controlVocabTerm` (`cvID` ASC, `term` ASC),
+  CONSTRAINT `FK_ctControlVocabTerm_cvID`
+    FOREIGN KEY (`cvID`) REFERENCES `ctcontrolvocab` (`cvID`)  ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT `FK_ctControlVocabTerm_createUid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  CONSTRAINT `FK_ctControlVocabTerm_modUid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  CONSTRAINT `FK_ctControlVocabTerm_cvTermID`  FOREIGN KEY (`parentCvTermID`)  REFERENCES `ctcontrolvocabterm` (`cvTermID`)  ON DELETE SET NULL  ON UPDATE CASCADE
+);
+
+INSERT INTO `ctcontrolvocab` VALUES (1,'Occurrence Relationship Terms',NULL,NULL,'omoccurassociations','relationship',NULL,NULL,NULL,1,NULL,NULL,301,NULL,NULL,'2020-12-02 21:35:38'),(2,'Occurrence Relationship subTypes',NULL,NULL,'omoccurassociations','subType',NULL,NULL,NULL,0,NULL,NULL,301,NULL,NULL,'2020-12-02 22:56:13');
+INSERT INTO `ctcontrolvocabterm` VALUES (1,1,NULL,'subsampleOf','originatingSampleOf',NULL,'a sample or occurrence that was subsequently derived from an originating sample',NULL,'has part: http://purl.obolibrary.org/obo/BFO_0000050',NULL,NULL,301,NULL,NULL,'2020-12-02 21:36:51'),(2,1,NULL,'partOf','partOf',NULL,NULL,NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 21:38:32'),(3,1,NULL,'siblingOf','siblingOf',NULL,NULL,NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 21:38:32'),(4,1,NULL,'originatingSampleOf','subsampleOf',NULL,'a sample or occurrence that is the originator of a subsequently modified or partial sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,'originatingSourceOf ??  It isn\'t necessarily a sample.  Could be an observation or occurrence or individual etc',301,NULL,NULL,'2020-12-02 23:27:02'),(5,1,NULL,'sharesOriginatingSample','sharesOriginatingSample',NULL,'two samples or occurrences that were subsequently derived from the same originating sample',NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(6,2,NULL,'tissue',NULL,NULL,'a tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(7,2,NULL,'blood',NULL,NULL,'a blood-tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(8,2,NULL,'fecal',NULL,NULL,'a fecal sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(9,2,NULL,'hair',NULL,NULL,'a hair sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(10,2,NULL,'genetic',NULL,NULL,'a genetic extraction sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(11,1,NULL,'derivedFromSameIndividual','derivedFromSameIndividual',NULL,'a sample or occurrence that is derived from the same biological individual as another occurrence or sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:48:45'),(12,1,NULL,'analyticalStandardOf','hasAnalyticalStandard',NULL,'a sample or occurrence that serves as an analytical standard or control for another occurrence or sample',NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 23:48:45'),(13,1,NULL,'hasAnalyticalStandard','analyticalStandardof',NULL,'a sample or occurrence that has an available analytical standard or control',NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 23:48:45'),(14,1,NULL,'hasHost','hostOf',NULL,'X \'has host\' y if and only if: x is an organism, y is an organism, and x can live on the surface of or within the body of y',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002454',NULL,301,NULL,NULL,'2020-12-02 23:58:18'),(15,1,NULL,'hostOf','hasHost',NULL,'X is \'Host of\' y if and only if: x is an organism, y is an organism, and y can live on the surface of or within the body of x',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002453',NULL,301,NULL,NULL,'2020-12-02 23:58:18'),(16,1,NULL,'ecologicallyOccursWith','ecologicallyOccursWith',NULL,'An interaction relationship describing an occurrence occurring with another organism in the same time and space or same environment',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0008506',NULL,301,NULL,NULL,'2020-12-02 23:58:18');
+
+
 ALTER TABLE `glossary` 
   ADD COLUMN `langid` INT UNSIGNED NULL AFTER `language`;
 
 ALTER TABLE `glossaryimages` 
   ADD COLUMN `sortSequence` INT NULL AFTER `structures`;
+
+
+ALTER TABLE `referenceobject` 
+  CHANGE COLUMN `cheatauthors` `cheatauthors` VARCHAR(400) NULL DEFAULT NULL ,
+  CHANGE COLUMN `cheatcitation` `cheatcitation` VARCHAR(500) NULL DEFAULT NULL ;
 
 
 ALTER TABLE `uploadspectemp` 
@@ -257,7 +319,19 @@ ALTER TABLE `omcollections`
 ALTER TABLE `omcollections` 
   ADD COLUMN `contactJson` LONGTEXT NULL AFTER `email`;
 ALTER TABLE `omcollections` 
-  CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL ;
+  CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL;
+
+ALTER TABLE `omcollections` 
+  ADD COLUMN `resourceJson` LONGTEXT NULL AFTER `homepage`;
+ALTER TABLE `omcollections` 
+  CHANGE COLUMN `resourceJson` `resourceJson` JSON NULL DEFAULT NULL;
+UPDATE omcollections
+  SET resourceJson = CONCAT('[{"title":{"en":"Homepage"},"url":"',homepage,'"}]')
+  WHERE homepage LIKE "http%" AND resourceJson IS NULL;
+UPDATE omcollections
+  SET contactJson = CONCAT('[{"firstName":"","lastName":"',contact,'","email":"',email,'"}]')
+  WHERE contact IS NOT NULL AND contactJson IS NULL;
+
 
 DROP TABLE `omcollectioncontacts`;
 
@@ -287,28 +361,41 @@ ALTER TABLE `omoccurgenetic`
 ALTER TABLE `omoccurgenetic` 
   ADD UNIQUE INDEX `UNIQUE_omoccurgenetic` (`occid` ASC, `resourceurl` ASC);
 
-CREATE TABLE `omassociatedoccurrence` (
-  `assocOccurID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `occid` INT UNSIGNED NOT NULL,
-  `relationship` VARCHAR(45) NOT NULL COMMENT 'subSample; parentSample; siblingSample',
-  `subType` VARCHAR(45) NULL COMMENT 'tissue, skeleton, wiskers, genetic',
-  `occidAssociate` INT UNSIGNED NULL,
-  `resourceurl` VARCHAR(250) NULL,
-  `externalIdentifier` VARCHAR(45) NULL,
-  `dynamicProperties` TEXT NULL,
+
+ALTER TABLE `omoccurassociations` 
+  DROP FOREIGN KEY `FK_occurassoc_occidassoc`,
+  DROP FOREIGN KEY `FK_occurassoc_uidcreated`,
+  DROP FOREIGN KEY `FK_occurassoc_uidmodified`;
+
+ALTER TABLE `omoccurassociations` 
+  CHANGE COLUMN `occidassociate` `occidAssociate` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `resourceurl` `resourceUrl` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `verbatimsciname` `verbatimSciname` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `createduid` `createdUid` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `datelastmodified` `modifiedTimestamp` DATETIME NULL DEFAULT NULL ,
+  CHANGE COLUMN `modifieduid` `modifiedUid` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  ADD COLUMN `subType` VARCHAR(45) NULL AFTER `relationship`;
+
+ALTER TABLE `omoccurassociations` 
+  ADD CONSTRAINT `FK_occurassoc_occidassoc`  FOREIGN KEY (`occidAssociate`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_occurassoc_uidcreated`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_occurassoc_uidmodified`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `omoccurdatasets` 
+  ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
+  ADD COLUMN `isPublic` INT NULL AFTER `category`;
+
+CREATE TABLE `referencedatasetlink` (
+  `refid` INT NOT NULL,
+  `datasetid` INT UNSIGNED NOT NULL,
   `createdUid` INT UNSIGNED NULL,
-  `modifiedUid` INT UNSIGNED NULL,
-  `modifiedTimestamp` TIMESTAMP NULL,
   `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`assocOccurID`),
-  INDEX `FK_assocOccur_assocOccid_idx` (`occidAssociate` ASC),
-  INDEX `FK_assocOccur_occid_idx` (`occid` ASC),
-  INDEX `FK_assocOccur_uid_idx` (`createdUid` ASC),
-  INDEX `FK_assocOccur_uidMod_idx` (`modifiedUid` ASC),
-  CONSTRAINT `FK_assocOccur_assocOccid`  FOREIGN KEY (`occidAssociate`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT `FK_assocOccur_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT `FK_assocOccur_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
-  CONSTRAINT `FK_assocOccur_uidMod`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+  PRIMARY KEY (`refid`, `datasetid`),
+  INDEX `FK_refdataset_datasetid_idx` (`datasetid` ASC),
+  INDEX `FK_refdataset_uid_idx` (`createdUid` ASC),
+  CONSTRAINT `FK_refdataset_refid`  FOREIGN KEY (`refid`)  REFERENCES `referenceobject` (`refid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_refdataset_datasetid`  FOREIGN KEY (`datasetid`)  REFERENCES `omoccurdatasets` (`datasetid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_refdataset_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
 
 
 CREATE TABLE `igsnverification` (

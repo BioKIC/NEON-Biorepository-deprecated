@@ -60,20 +60,17 @@ function verifyQueryForm(f){
 }
 
 function submitQueryForm(qryIndex){
-	if(verifyLeaveForm()){
-		var f = document.queryform;
-		if(qryIndex == 'forward' || qryIndex == 'back'){
-			f.direction.value = qryIndex;
-		}
-		else if(qryIndex === parseInt(qryIndex)){
-			f.occindex.value = qryIndex;
-			f.direction.value = "";
-			f.occidlist.value = "";
-			f.occid.value = "";
-		}
-		if(verifyQueryForm(f)) f.submit();
+	var f = document.queryform;
+	if(qryIndex == 'forward' || qryIndex == 'back'){
+		f.direction.value = qryIndex;
 	}
-	return false;
+	else if(qryIndex === parseInt(qryIndex)){
+		f.occindex.value = qryIndex;
+		f.direction.value = "";
+		f.occidlist.value = "";
+		f.occid.value = "";
+	}
+	if(verifyQueryForm(f)) f.submit();
 }
 
 function submitQueryEditor(f){

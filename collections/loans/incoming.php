@@ -54,15 +54,26 @@ if($isEditor){
 		var tabIndex = <?php echo $tabIndex; ?>;
 
 		function verifyLoanInEditForm(f){
+			var submitStatus = true;
+			$("#editLoanInForm input[type=date]").each(function() {
+				//Need for Safari browser which doesn't support date input types
+				if(this.value != ""){
+					var validFormat = /^\s*\d{4}-\d{2}-\d{2}\s*$/ //Format: yyyy-mm-dd
+					if(!validFormat.test(this.value)){
+						alert("Date (e.g. "+this.name+") values must follow format: YYYY-MM-DD");
+						submitStatus = false;
+					}
+				}
+			});
 			if(f.iidowner.options[f.iidowner.selectedIndex].value == 0){
 				alert("Select an institution");
-				return false;
+				submitStatus = false;
 			}
 			if(f.loanidentifierown.value == ""){
 				alert("Enter the sender's loan number");
-				return false;
+				submitStatus = false;
 			}
-			return true;
+			return submitStatus;
 		}
 
 	</script>
@@ -116,7 +127,7 @@ if($isEditor){
 					<?php
 					$loanArr = $loanManager->getLoanInDetails($loanId);
 					?>
-					<form name="editloanform" action="incoming.php" method="post" onsubmit="return verifyLoanInEditForm(this)">
+					<form id="editLoanInForm" name="editloanform" action="incoming.php" method="post" onsubmit="return verifyLoanInEditForm(this)">
 						<fieldset>
 							<legend>Loan In Details</legend>
 							<div style="padding-top:18px;float:left;">
@@ -145,7 +156,7 @@ if($isEditor){
 									Date Received:
 								</span><br />
 								<span>
-									<input type="date" name="datereceivedborr" value="<?php echo $loanArr['datereceivedborr']; ?>" />
+									<input type="date" name="datereceivedborr" value="<?php echo $loanArr['datereceivedborr']; ?>" onchange="checkDate(this)" />
 								</span>
 							</div>
 							<div style="margin-left:20px;padding-top:4px;float:left;">
@@ -153,7 +164,7 @@ if($isEditor){
 									Date Due:
 								</span><br />
 								<span>
-									<input type="date" name="datedue" value="<?php echo $loanArr['datedue']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> />
+									<input type="date" name="datedue" value="<?php echo $loanArr['datedue']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> onchange="checkDate(this)" />
 								</span>
 							</div>
 							<div style="padding-top:8px;float:left;">
@@ -224,7 +235,7 @@ if($isEditor){
 										Date Returned:
 									</span><br />
 									<span>
-										<input type="date" name="datesentreturn" value="<?php echo $loanArr['datesentreturn']; ?>" />
+										<input type="date" name="datesentreturn" value="<?php echo $loanArr['datesentreturn']; ?>" onchange="checkDate(this)" />
 									</span>
 								</div>
 								<div style="margin-left:40px;float:left;">
@@ -256,7 +267,7 @@ if($isEditor){
 										Date Closed:
 									</span><br />
 									<span>
-										<input type="date" name="dateclosed" value="<?php echo $loanArr['dateclosed']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> />
+										<input type="date" name="dateclosed" value="<?php echo $loanArr['dateclosed']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> onchange="checkDate(this)" />
 									</span>
 								</div>
 							</div>

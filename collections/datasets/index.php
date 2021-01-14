@@ -11,10 +11,9 @@ $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 
 $datasetManager = new OccurrenceDataset();
-$datasetManager->setSymbUid($SYMB_UID);
 
 $statusStr = '';
-if($action == 'Create New Dataset'){
+if($action == 'createNewDataset'){
 	if(!$datasetManager->createDataset($_POST['name'],$_POST['notes'],$SYMB_UID)){
 		$statusStr = implode(',',$datasetManager->getErrorArr());
 	}
@@ -45,7 +44,7 @@ elseif($action == 'addAllToDataset'){
 		<script type="text/javascript" src="../../js/jquery.js"></script>
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
-		<script language="javascript" type="text/javascript">
+		<script type="text/javascript">
 			function validateAddForm(f){
 				if(f.adduser.value == ""){
 					alert("Enter a user (login or last name)");
@@ -74,6 +73,11 @@ elseif($action == 'addAllToDataset'){
 				return true;
 			}
 		</script>
+		<style>
+			fieldset{ padding:15px;margin:15px; }
+			legend{ font-weight: bold; }
+			.dataset-item{ margin-bottom: 10px }
+		</style>
 	</head>
 	<body>
 	<?php
@@ -82,17 +86,8 @@ elseif($action == 'addAllToDataset'){
 	?>
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
-		<?php
-		if(isset($collections_datasets_indexCrumbs)){
-			echo $collections_datasets_indexCrumbs;
-		}
-		else{
-			echo '<a href="../../profile/viewprofile.php?tabindex=1">My Profile</a> &gt;&gt; ';
-		}
-		?>
-		<a href="index.php">
-			<b>Dataset Listing</b>
-		</a>
+		<a href="../../profile/viewprofile.php?tabindex=1">My Profile</a> &gt;&gt;
+		<a href="index.php"><b>Dataset Listing</b></a>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
@@ -109,11 +104,13 @@ elseif($action == 'addAllToDataset'){
 		$dataSetArr = $datasetManager->getDatasetArr();
 		?>
 		<div>
-		<div style="float:right;margin:10px;" title="Create New Dataset" onclick="toggle('adddiv')">
-	 		<img src="../../images/add.png" style="width:14px;" />
+		<div style="float:right;margin:10px;" title="Create New Dataset" >
+	 		<a href="#" onclick="toggle('adddiv');return false;"><img src="../../images/add.png" style="width:14px;" /></a>
 		</div>
-		<div id=adddiv style="display:<?php echo ($dataSetArr?'none':'block') ?>;">
-			<fieldset style="padding:15px;margin:15px;">
+		<h2>Occurrence Dataset Management</h2>
+		<div>These tools will allow you to define and manage datasets profiles. Once a profile is created, you can link occurrence records via the occurrence search and display pages.</div>
+		<div id=adddiv style="display:none">
+			<fieldset>
 				<legend><b>Create New Dataset</b></legend>
 				<form name="adminform" action="index.php" method="post" onsubmit="return validateEditForm(this)">
 					<div>
@@ -124,8 +121,8 @@ elseif($action == 'addAllToDataset'){
 						<b>Notes</b><br />
 						<input name="notes" type="text" style="width:90%;" />
 					</div>
-					<div>
-						<input name="submitaction" type="submit" value="Create New Dataset" />
+					<div style="margin:15px">
+						<button name="submitaction" type="submit" value="createNewDataset">Create New Dataset</button>
 					</div>
 				</form>
 			</fieldset>
@@ -133,7 +130,7 @@ elseif($action == 'addAllToDataset'){
 		<?php
 		if($dataSetArr){
 			?>
-			<fieldset style="padding:15px;margin:15px;">
+			<fieldset>
 				<legend><b>Owned by You</b></legend>
 				<?php
 				if(array_key_exists('owner',$dataSetArr)){
@@ -141,19 +138,20 @@ elseif($action == 'addAllToDataset'){
 					unset($dataSetArr['owner']);
 					foreach($ownerArr as $dsid => $dsArr){
 						?>
-						<div>
-							<?php
-							echo '<b>'.$dsArr['name'].' (#'.$dsid.')</b>';
-							?>
-							<a href="datasetmanager.php?datasetid=<?php echo $dsid; ?>" title="Manage and edit dataset">
-								<img src="../../images/edit.png" style="width:13px;" />
-							</a>&nbsp;&nbsp;
-						</div>
-						<div style="margin-left:15px;">
-							<?php
-							echo ($dsArr["notes"]?$dsArr["notes"].'<br/>':'');
-							echo 'Created: '.$dsArr["ts"];
-							?>
+						<div class="dataset-item">
+							<div>
+								<a href="datasetmanager.php?datasetid=<?php echo $dsid; ?>" title="Manage and edit dataset">
+									<?php
+									echo '<b>'.$dsArr['name'].' (#'.$dsid.')</b>';
+									?>
+								</a>
+							</div>
+							<div style="margin-left:15px;">
+								<?php
+								echo ($dsArr['notes']?'<div>'.$dsArr['notes'].'</div>':'');
+								echo '<div>Created: '.$dsArr["ts"].'</div>';
+								?>
+							</div>
 						</div>
 						<?php
 					}
@@ -163,26 +161,21 @@ elseif($action == 'addAllToDataset'){
 				}
 				?>
 			</fieldset>
-			<fieldset style="padding:15px;margin:15px;">
-				<legend><b>Shared with You</b></legend>
+			<fieldset>
+				<legend>Shared with You</legend>
 				<?php
 				if(array_key_exists('other',$dataSetArr)){
 					$otherArr = $dataSetArr['other'];
 					foreach($otherArr as $dsid => $dsArr){
 						?>
 						<div>
-							<?php
-							$role = 'Dataset reader';
-							if($dsArr['role'] == 'DatasetAdmin'){
-								$role = 'Dataset Administator';
-							}
-							elseif($dsArr['role'] == 'DatasetEditor'){
-								$role = 'Dataset Editor';
-							}
-							echo '<b>'.$dsArr["name"].' (#'.$dsid.')</b> - '.$role;
-							?>
 							<a href="datasetmanager.php?datasetid=<?php echo $dsid; ?>" title="Access Dataset">
-								<img src="../../images/list.png" style="width:13px;" />
+								<?php
+								$role = 'Dataset reader';
+								if($dsArr['role'] == 'DatasetAdmin') $role = 'Dataset Administator';
+								elseif($dsArr['role'] == 'DatasetEditor') $role = 'Dataset Editor';
+								echo '<b>'.$dsArr["name"].' (#'.$dsid.')</b> - '.$role;
+								?>
 							</a>
 						</div>
 						<div style="margin-left:15px;">
@@ -194,15 +187,18 @@ elseif($action == 'addAllToDataset'){
 						<?php
 					}
 				}
-				else{
-					echo '<div style="font-weight:bold;">There are no datasets shared with you</div>';
-				}
+				else echo '<div style="font-weight:bold;">There are no datasets shared with you</div>';
 				?>
 			</fieldset>
 			<?php
 		}
 		else{
-			echo '<div style="margin:15px;font-weight:bold;">There are no datasets linked to your login</div>';
+			?>
+			<div style="margin:20px">
+				<div style="font-weight:bold">There are no datasets associated to your login</div>
+				<div style="margin-top:15px"><a href="#" onclick="toggle('adddiv');">Create a New Dataset</a></div>
+			</div>
+			<?php
 		}
 		?>
 		</div>

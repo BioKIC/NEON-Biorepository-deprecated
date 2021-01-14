@@ -63,27 +63,21 @@ if($SYMB_UID){
 			return false;
 		}
 	</script>
+	<style type="text/css">
+		.field-div { margin:10px 0px; clear:both }
+		.label { font-weight:bold; }
+	</style>
 </head>
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_misc_collprofilesMenu)?$collections_misc_collprofilesMenu:true);
 	include($SERVER_ROOT.'/includes/header.php');
-	echo "<div class='navpath'>";
-	if(isset($collections_misc_collprofilesCrumbs)){
-		if($collections_misc_collprofilesCrumbs){
-			echo "<a href='../../index.php'>Home</a> &gt;&gt; ";
-			echo $collections_misc_collprofilesCrumbs.' &gt;&gt; ';
-			echo "<b>".($collid?$collData[$collid]["collectionname"]:"Collection Profiles")." Details</b>";
-		}
-	}
-	else{
-		echo '<a href="../../index.php">Home</a> &gt;&gt; ';
-		echo '<a href="../index.php">'.$LANG['COLLECTION_SEARCH'].'</a> &gt;&gt; ';
-		echo "<b>".($collid?$collData[$collid]["collectionname"]:"Collection Profiles")." Details</b>";
-	}
-	echo "</div>";
 	?>
-
+	<div class="navpath">
+		<a href="../../index.php">Home</a> &gt;&gt;
+		<a href="../index.php"><?php echo $LANG['COLLECTION_SEARCH']; ?></a> &gt;&gt;
+		<b><?php echo ($collid?$collData[$collid]["collectionname"]:"Collection Profiles"); ?> Details</b>
+	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
@@ -243,11 +237,6 @@ if($SYMB_UID){
 									</a>
 								</li>
 								<li class="metadataItem" style="margin-left:10px;display:none;">
-									<a href="collcontact.php?collid=<?php echo $collid; ?>" >
-										<?php echo $LANG['EDIT_CONTACT']; ?>
-									</a>
-								</li>
-								<li class="metadataItem" style="margin-left:10px;display:none;">
 									<a href="colladdress.php?collid=<?php echo $collid; ?>">
 										<?php echo $LANG['EDIT_ADDRESS']; ?>
 									</a>
@@ -398,7 +387,7 @@ if($SYMB_UID){
 			?>
 			<div style='margin:10px;'>
 				<?php
-				echo $collManager->getMetadataHtml($collData, $LANG);
+				echo $collManager->getMetadataHtml($LANG,$LANG_TAG);
 				$datasetKey = $collManager->getDatasetKey();
 				if($collData['publishtogbif'] && $datasetKey){
 					$datasetKey = $collManager->getDatasetKey();
@@ -544,7 +533,8 @@ if($SYMB_UID){
 							</h3>
 							<div style='margin:10px;'>
 								<?php
-								echo $collManager->getMetadataHtml($collArr, $LANG);
+								$collManager->setCollid($cid);
+								echo $collManager->getMetadataHtml($LANG,$LANG_TAG);
 								?>
 							</div>
 							<div style='margin:5px 0px 15px 10px;'>

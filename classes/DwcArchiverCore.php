@@ -163,7 +163,8 @@ class DwcArchiverCore extends Manager{
 					$this->collArr[$r->collid]['description'] = $r->fulldescription;
 					$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
 					$this->collArr[$r->collid]['url'] = $r->url;
-					$this->setContacts($r->collid, $r->contact, $r->email);
+					$this->collArr[$r->collid]['contact'][0]['individualName'] = $r->contact;
+					$this->collArr[$r->collid]['contact'][0]['electronicMailAddress'] = $r->email;
 					$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
 					$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
 					$this->collArr[$r->collid]['lat'] = $r->latitudedecimal;
@@ -193,23 +194,33 @@ class DwcArchiverCore extends Manager{
 					}
 				}
 				$rs->free();
+				$this->setJsonResources();
 			}
 		}
 	}
 
-	private function setContacts($collid, $contact, $email){
-		$contactObj = json_decode($contact,true);
-		if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
-			$contactArr = $contactObj['contact'];
-			foreach($contactArr as $cnt => $cArr){
-				$this->collArr[$collid]['contact'][$cnt]['individualName'] = $cArr['individualName'];
-				if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $this->collArr[$collid]['contact'][$cnt]['positionName'] = $cArr['positionName'];
-				if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) $this->collArr[$collid]['contact'][$cnt]['electronicMailAddress'] = $cArr['electronicMailAddress'];
+	private function setJsonResources(){
+		//Temporary function needed until pending patch is pushed to production
+		$sql = 'SELECT collid, resourceJson, contactJson FROM omcollections WHERE collid IN('.implode(',',array_keys($this->collArr)).')';
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_object()){
+				if($r->resourceJson){
+					if($resourceArr = json_decode($r->resourceJson,true)){
+						$this->collArr[$r->collid]['url'] = $resourceArr[0]['url'];
+					}
+				}
+				if($r->contactJson){
+					if($contactArr = json_decode($r->contactJson,true)){
+						foreach($contactArr as $key => $cArr){
+							$this->collArr[$r->collid]['contact'][$key]['individualName'] = $cArr['firstName'].' '.$cArr['lastName'];
+							if(isset($cArr['role']) && $cArr['role']) $this->collArr[$r->collid]['contact'][$key]['positionName'] = $cArr['role'];
+							if(isset($cArr['email']) && $cArr['email']) $this->collArr[$r->collid]['contact'][$key]['electronicMailAddress'] = $cArr['email'];
+							if(isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/'.$cArr['orcid'];
+						}
+					}
+				}
 			}
-		}
-		else{
-			$this->collArr[$collid]['contact'][0]['individualName'] = $contact;
-			$this->collArr[$collid]['contact'][0]['electronicMailAddress'] = $email;
+			$rs->free();
 		}
 	}
 
@@ -229,13 +240,9 @@ class DwcArchiverCore extends Manager{
 		if($field){
 			if($this->overrideConditionLimit || in_array(strtolower($field),$this->condAllowArr)){
 				if(!$cond) $cond = 'EQUALS';
-				if($value || ($cond == 'NULL' || $cond == 'NOTNULL')){
-					if(is_array($value)){
-						$this->conditionArr[$field][$cond] = $this->cleanInArray($value);
-					}
-					else{
-						$this->conditionArr[$field][$cond][] = $this->cleanInStr($value);
-					}
+				if($value != '' || ($cond == 'NULL' || $cond == 'NOTNULL')){
+					if(is_array($value)) $this->conditionArr[$field][$cond] = $this->cleanInArray($value);
+					else $this->conditionArr[$field][$cond][] = $this->cleanInStr($value);
 				}
 			}
 		}
@@ -275,6 +282,10 @@ class DwcArchiverCore extends Manager{
 					$taxaArr['taxa'] = implode(';',$condArr['EQUALS']);
 					$taxaManager->setTaxonRequestVariable($taxaArr);
 					$sqlFrag .= $taxaManager->getTaxonWhereFrag();
+				}
+				elseif($field == 'cultivationStatus'){
+					if(current(current($condArr)) === '0') $sqlFrag .= 'AND (o.cultivationStatus = 0 OR o.cultivationStatus IS NULL) ';
+					else $sqlFrag .= 'AND (o.cultivationStatus = 1) ';
 				}
 				else{
 					if($field == 'datelastmodified') $field = 'IFNULL(o.modified,o.datelastmodified)';
@@ -345,6 +356,9 @@ class DwcArchiverCore extends Manager{
 			if(stripos($this->conditionSql,'v.clid')){
 				//Search criteria came from custom search page
 				$sql .= 'LEFT JOIN fmvouchers v ON o.occid = v.occid ';
+			}
+			if(stripos($this->conditionSql,'d.datasetid')){
+				$sql .= 'INNER JOIN omoccurdatasetlink d ON o.occid = d.occid ';
 			}
 			if(stripos($this->conditionSql,'p.point')){
 				//Search criteria came from map search page
@@ -1043,10 +1057,11 @@ class DwcArchiverCore extends Manager{
 			$emlArr['title'] = $this->collArr[$collId]['collname'];
 			$emlArr['description'] = $this->collArr[$collId]['description'];
 
-			$emlArr['contact']['individualName'] = $this->collArr[$collId]['contact'][0]['individualName'];
+			if(isset($this->collArr[$collId]['contact'][0]['individualName'])) $emlArr['contact']['individualName'] = $this->collArr[$collId]['contact'][0]['individualName'];
 			$emlArr['contact']['organizationName'] = $this->collArr[$collId]['collname'];
 			$emlArr['contact']['phone'] = $this->collArr[$collId]['phone'];
-			$emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
+			if(isset($this->collArr[$collId]['contact'][0]['electronicMailAddress'])) $emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
+			if(isset($this->collArr[$collId]['contact'][0]['userId'])) $emlArr['contact']['userId'] = $this->collArr[$collId]['contact'][0]['userId'];
 			$emlArr['contact']['onlineUrl'] = $this->collArr[$collId]['url'];
 
 			$emlArr['contact']['addr']['deliveryPoint'] = $this->collArr[$collId]['address1'].($this->collArr[$collId]['address2']?', '.$this->collArr[$collId]['address2']:'');
@@ -1138,8 +1153,8 @@ class DwcArchiverCore extends Manager{
 						$emlArr['associatedParty'][] = $cArr;
 					}
 					//Also set info within collMetadata element
-					$keepContectArr = array('userId','individualName','givenname','surname','electronicMailAddress','positionName');
-					$emlArr['collMetadata'][$id]['contact'][$cnt] = array_intersect_key($cArr, array_flip($keepContectArr));
+					$keepContactArr = array('userId','individualName','givenname','surname','electronicMailAddress','positionName','onlineUrl');
+					$emlArr['collMetadata'][$id]['contact'][$cnt] = array_intersect_key($cArr, array_flip($keepContactArr));
 				}
 			}
 		}
@@ -1177,7 +1192,7 @@ class DwcArchiverCore extends Manager{
 		$rootElem->setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance');
 		$rootElem->setAttribute('xsi:schemaLocation','eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.0.1/eml.xsd');
 		$rootElem->setAttribute('packageId',UuidFactory::getUuidV4());
-		$rootElem->setAttribute('system','http://symbiota.org');
+		$rootElem->setAttribute('system','https://symbiota.org');
 		$rootElem->setAttribute('scope','system');
 		$rootElem->setAttribute('xml:lang','eng');
 
@@ -1266,7 +1281,7 @@ class DwcArchiverCore extends Manager{
 				$conElem->appendChild($newDoc->createTextNode($contactValue));
 				$contactElem->appendChild($conElem);
 			}
-			if(isset($contactArr['addr'])){
+			if($addrArr){
 				$addressElem = $newDoc->createElement('address');
 				foreach($addrArr as $aKey => $aVal){
 					$childAddrElem = $newDoc->createElement($aKey);
@@ -1616,21 +1631,16 @@ class DwcArchiverCore extends Manager{
 				if(!$r['occurrenceID']){
 					//Set occurrence GUID based on GUID target, but only if occurrenceID field isn't already populated
 					$guidTarget = $this->collArr[$r['collid']]['guidtarget'];
-					if($guidTarget == 'catalogNumber'){
-						$r['occurrenceID'] = $r['catalogNumber'];
-					}
-					elseif($guidTarget == 'symbiotaUUID'){
-						$r['occurrenceID'] = $r['recordId'];
-					}
+					if($guidTarget == 'catalogNumber') $r['occurrenceID'] = $r['catalogNumber'];
+					elseif($guidTarget == 'symbiotaUUID') $r['occurrenceID'] = $r['recordId'];
 				}
 				if($this->limitToGuids && (!$r['occurrenceID'] || !$r['basisOfRecord'])){
 					// Skip record because there is no occurrenceID guid
 					continue;
 				}
 				$hasRecords = true;
-				if($ocnStr = $dwcOccurManager->getAdditionalCatalogNumbers($r['occid'])) $r['otherCatalogNumbers'] =  $ocnStr;
 				//Protect sensitive records
-				if($this->redactLocalities && $r["localitySecurity"] == 1 && !in_array($r['collid'],$this->rareReaderArr)){
+				if($this->redactLocalities && $r['localitySecurity'] == 1 && !in_array($r['collid'],$this->rareReaderArr)){
 					$protectedFields = array();
 					foreach($this->securityArr as $v){
 						if(array_key_exists($v,$r) && $r[$v]){
@@ -1638,9 +1648,7 @@ class DwcArchiverCore extends Manager{
 							$protectedFields[] = $v;
 						}
 					}
-					if($protectedFields){
-						$r['informationWithheld'] = trim($r['informationWithheld'].'; field values redacted: '.implode(', ',$protectedFields),' ;');
-					}
+					if($protectedFields) $r['informationWithheld'] = trim($r['informationWithheld'].'; field values redacted: '.implode(', ',$protectedFields),' ;');
 				}
 
 				if($urlPathPrefix) $r['t_references'] = $urlPathPrefix.'collections/individual/index.php?occid='.$r['occid'];
@@ -1686,14 +1694,12 @@ class DwcArchiverCore extends Manager{
 							$r['occurrenceRemarks'] = $invalidText;
 						}
 					}
-					else{
-						$r['typeStatus'] = 'Other material';
-					}
+					else $r['typeStatus'] = 'Other material';
 				}
-				elseif($this->schemaType == 'backup'){
-					unset($r['collid']);
-				}
+				elseif($this->schemaType == 'backup') unset($r['collid']);
 
+				if($ocnStr = $dwcOccurManager->getAdditionalCatalogNumberStr($r['occid'])) $r['otherCatalogNumbers'] = $ocnStr;
+				if($assocStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocStr;
 				//$dwcOccurManager->appendUpperTaxonomy($r);
 				$dwcOccurManager->appendUpperTaxonomy2($r);
 				if($rankStr = $dwcOccurManager->getTaxonRank($r['rankid'])) $r['t_taxonRank'] = $rankStr;

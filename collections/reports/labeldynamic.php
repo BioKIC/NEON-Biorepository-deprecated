@@ -3,11 +3,11 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceLabel.php');
 
 $collid = $_POST['collid'];
-$hPrefix = $_POST['lhprefix'];
-$hMid = $_POST['lhmid'];
-$hSuffix = $_POST['lhsuffix'];
+$hPrefix = $_POST['hprefix'];
+$hMid = $_POST['hmid'];
+$hSuffix = $_POST['hsuffix'];
 $lFooter = $_POST['lfooter'];
-$columnCount = $_POST['columncount'];
+$columnCount = $_POST['labeltype'];
 $labelIndexGlobal = (isset($_POST['labelformatindex-g'])?$_POST['labelformatindex-g']:'');
 $labelIndexColl = (isset($_POST['labelformatindex-c'])?$_POST['labelformatindex-c']:'');
 $labelIndexUser = (isset($_POST['labelformatindex-u'])?$_POST['labelformatindex-u']:'');
@@ -52,9 +52,9 @@ else{
 }
 
 $targetLabelFormatArr = false;
-if(is_numeric($labelIndexGlobal)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('global',$labelIndexGlobal);
-elseif(is_numeric($labelIndexColl)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('coll',$labelIndexGlobal);
-elseif(is_numeric($labelIndexUser)) $targetLabelFormatArr = $labelManager->getLabelFormatArr('user',$labelIndexGlobal);
+if(is_numeric($labelIndexGlobal)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('global',$labelIndexGlobal);
+elseif(is_numeric($labelIndexColl)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('coll',$labelIndexColl);
+elseif(is_numeric($labelIndexUser)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('user',$labelIndexUser);
 
 $isEditor = 0;
 if($SYMB_UID){
@@ -70,7 +70,8 @@ if($SYMB_UID){
 			<?php
 			if(isset($targetLabelFormatArr['defaultStyles'])) echo 'body{ '.$targetLabelFormatArr['defaultStyles']." } \n";
 			?>
-			.labelDiv { float:left; page-break-before:auto; page-break-inside:avoid; }
+			.row { display: flex; flex-wrap: wrap; margin-left: auto; margin-right: auto;}
+			.label { page-break-before: auto; page-break-inside: avoid; }
 			<?php
 			if($columnCount == 'packet'){
 				?>
@@ -78,16 +79,14 @@ if($SYMB_UID){
 				.foldMarks1 span { margin-left:77px; margin-right:80px; }
 				.foldMarks2 { clear:both;padding-top:355px;padding-bottom:10px; }
 				.foldMarks2 span { margin-left:77px; margin-right:80px; }
-				.labelDiv {
-					clear:both;
-					margin-top: 10px;
+				.label {
 					margin-left: auto;
 					margin-right: auto;
 					width: 500px;
 					page-break-before:auto;
 					page-break-inside:avoid;
 				}
-				.labelDiv {
+				.label {
 					width:500px;
 					margin:50px;
 					padding:10px 50px;
@@ -98,136 +97,162 @@ if($SYMB_UID){
 			}
 			elseif($columnCount != 1){
 				?>
-				.labelDiv { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
+				.label { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
 				<?php
 			}
 			?>
-			.cnBarcodeDiv { clear:both; padding-top:15px; }
+			/* Move to custom? Move to packets? */
+			/* .cnBarcodeDiv { clear:both; padding-top:15px; }
 			.catalogNumber { clear:both; text-align:center; }
 			.otherCatalogNumbers { clear:both; text-align:center; }
-			.symbBarcode { padding-top:10px; }
+      .symbBarcode { padding-top:10px; } */
+      @media print {
+        .controls {
+          display: none;
+        }
+      }
 		</style>
 		<?php
 		if(isset($targetLabelFormatArr['defaultCss']) && $targetLabelFormatArr['defaultCss']){
-			$cssPath = $CLIENT_ROOT.$targetLabelFormatArr['defaultCss'];
-			if(file_exists($cssPath)) echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet">';
+			$cssPath = $targetLabelFormatArr['defaultCss'];
+			if(substr($cssPath,0,1) == '/' && !file_exists($cssPath)){
+				if(file_exists($SERVER_ROOT.$targetLabelFormatArr['defaultCss'])) $cssPath = $CLIENT_ROOT.$targetLabelFormatArr['defaultCss'];
+			}
+			echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet" />'."\n";
+		}
+		if(isset($targetLabelFormatArr['customCss']) && $targetLabelFormatArr['customCss']){
+			$cssPath = $targetLabelFormatArr['customCss'];
+			if(substr($cssPath,0,1) == '/' && !file_exists($cssPath)){
+				if(file_exists($SERVER_ROOT.$targetLabelFormatArr['customCss'])) $cssPath = $CLIENT_ROOT.$targetLabelFormatArr['customCss'];
+			}
+			echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet" />'."\n";
 		}
 		?>
 	</head>
 	<body style="background-color:#ffffff;">
-		<div class="bodyDiv">
-			<?php
-			if($targetLabelFormatArr && $isEditor){
-				$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
-				$labelCnt = 0;
-				$rowCnt = 0;
-				foreach($labelArr as $occid => $occArr){
-					if($barcodeOnly){
-						if($occArr['catalognumber']){
+		<?php
+		echo '<div class="body'.(isset($targetLabelFormatArr['pageSize'])?' '.$targetLabelFormatArr['pageSize']:'').'">'  ;
+		if($targetLabelFormatArr && $isEditor){
+			$labelArr = $labelManager->getLabelArray($_POST['occid'], $includeSpeciesAuthor);
+			$labelCnt = 0;
+			$rowCnt = 0;
+			foreach($labelArr as $occid => $occArr){
+				if($barcodeOnly){
+					if($occArr['catalognumber']){
+						?>
+						<div class="barcodeonly">
+							<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
+						</div>
+						<?php
+						$labelCnt++;
+					}
+				}
+				else{
+					//Build label header string
+					$midStr = '';
+					if($hMid == 1) $midStr = $occArr['country'];
+					elseif($hMid == 2) $midStr = $occArr['stateprovince'];
+					elseif($hMid == 3) $midStr = $occArr['county'];
+					elseif($hMid == 4) $midStr = $occArr['family'];
+					$headerStr = '';
+					if($hPrefix || $midStr || $hSuffix){
+						$headerStrArr = array();
+						$headerStrArr[] = trim($hPrefix);
+						$headerStrArr[] = trim($midStr);
+						$headerStrArr[] = trim($hSuffix);
+						$headerStr = implode(" ",$headerStrArr);
+					}
+
+					$dupCnt = $_POST['q-'.$occid];
+					for($i = 0;$i < $dupCnt;$i++){
+						$labelCnt++;
+						if($columnCount == 'packet'){
+							echo '<div class="foldMarks1"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
+							echo '<div class="foldMarks2"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
+						}
+						elseif($labelCnt%$columnCount == 1){
+							if($labelCnt > 1) echo '</div>';
+							echo '<div class="row">';
+							$rowCnt++;
+						}
+						echo '<div class="label'.(isset($targetLabelFormatArr['labelDiv']['className'])?' '.$targetLabelFormatArr['labelDiv']['className']:'').'">';
+						$attrStr = 'class="label-header';
+						if(isset($targetLabelFormatArr['labelHeader']['className'])) $attrStr .= ' '.$targetLabelFormatArr['labelHeader']['className'];
+						$attrStr .= '"';
+						if(isset($targetLabelFormatArr['labelHeader']['style']) && $targetLabelFormatArr['labelHeader']['style']) $attrStr .= ' style="'.$targetLabelFormatArr['labelHeader']['style'].'"';
+						echo '<div '.trim($attrStr).'>'.$headerStr.'</div>';
+						//Output field data
+						echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
+						if($useBarcode && $occArr['catalognumber']){
 							?>
-							<div class="barcodeonly">
+							<div class="cn-barcode">
 								<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
 							</div>
 							<?php
-							$labelCnt++;
-						}
-					}
-					else{
-						//Build label header string
-						$midStr = '';
-						if($hMid == 1) $midStr = $occArr['country'];
-						elseif($hMid == 2) $midStr = $occArr['stateprovince'];
-						elseif($hMid == 3) $midStr = $occArr['county'];
-						elseif($hMid == 4) $midStr = $occArr['family'];
-						$headerStr = '';
-						if($hPrefix || $midStr || $hSuffix){
-							$headerStrArr = array();
-							$headerStrArr[] = trim($hPrefix);
-							$headerStrArr[] = trim($midStr);
-							$headerStrArr[] = trim($hSuffix);
-							$headerStr = implode(" ",$headerStrArr);
-						}
-
-						$dupCnt = $_POST['q-'.$occid];
-						for($i = 0;$i < $dupCnt;$i++){
-							$labelCnt++;
-							if($columnCount == 'packet'){
-								echo '<div class="foldMarks1"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
-								echo '<div class="foldMarks2"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
-							}
-							elseif($labelCnt%$columnCount == 1){
-								if($labelCnt > 1) echo '</div>';
-								echo '<div class="pageDiv">';
-								$rowCnt++;
-							}
-							?>
-							<div class="labelDiv">
-								<?php
-								echo '<div class="labelHeader" '.(isset($targetLabelFormatArr['labelHeader']['style'])?'style="'.$targetLabelFormatArr['labelHeader']['style'].'"':'').'>'.$headerStr.'</div>';
-								//Output field data
-								echo $labelManager->getLabelBlock($targetLabelFormatArr['labelBlocks'],$occArr);
-								if($useBarcode && $occArr['catalognumber']){
-									?>
-									<div class="cnBarcodeDiv">
-										<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occArr['catalognumber']; ?>" />
-									</div>
-									<?php
-									if($occArr['othercatalognumbers']){
-										?>
-										<div class="otherCatalogNumbers">
-											<?php echo $occArr['othercatalognumbers']; ?>
-										</div>
-										<?php
-									}
-								}
-								elseif($showcatalognumbers){
-									if($occArr['catalognumber']){
-										?>
-										<div class="catalogNumber">
-											<?php echo $occArr['catalognumber']; ?>
-										</div>
-										<?php
-									}
-									if($occArr['othercatalognumbers']){
-										?>
-										<div class="otherCatalogNumbers">
-											<?php echo $occArr['othercatalognumbers']; ?>
-										</div>
-										<?php
-									}
-								}
-								if($lFooter) echo '<div class="labelFooter" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
-								if($useSymbBarcode){
-									?>
-									<hr style="border:dashed;" />
-									<div class="symbBarcode">
-										<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occid; ?>" />
-									</div>
-									<?php
-									if($occArr['catalognumber']){
-										?>
-										<div class="catalogNumber">
-											<?php echo $occArr['catalognumber']; ?>
-										</div>
-										<?php
-									}
-								}
+							if($occArr['othercatalognumbers']){
 								?>
+								<div class="other-catalog-numbers">
+									<?php echo $occArr['othercatalognumbers']; ?>
+								</div>
+								<?php
+							}
+						}
+						elseif($showcatalognumbers){
+							if($occArr['catalognumber']){
+								?>
+								<div class="catalog-number">
+									<?php echo $occArr['catalognumber']; ?>
+								</div>
+								<?php
+							}
+							if($occArr['othercatalognumbers']){
+								?>
+								<div class="other-catalog-numbers">
+									<?php echo $occArr['othercatalognumbers']; ?>
+								</div>
+								<?php
+							}
+						}
+						if($lFooter) echo '<div class="label-footer" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
+						if($useSymbBarcode){
+							?>
+							<hr style="border:dashed;" />
+							<div class="symb-barcode">
+								<img src="getBarcode.php?bcheight=40&bctext=<?php echo $occid; ?>" />
 							</div>
 							<?php
+							if($occArr['catalognumber']){
+								?>
+								<div class="catalog-number">
+									<?php echo $occArr['catalognumber']; ?>
+								</div>
+								<?php
+							}
 						}
+						echo '</div>';
 					}
 				}
-				echo '</div>';		//Closing pageDiv
-				if(!$labelCnt) echo '<div style="font-weight:bold;text-size: 120%">No records were retrieved. Perhaps the quantity values were all set to 0?</div>';
 			}
-			else{
-				echo '<div style="font-weight:bold;text-size: 120%">';
-				if($targetLabelFormatArr) echo 'ERROR: Unable to parse JSON that defines the label format profile ';
-				else 'ERROR: Permissions issue';
-				echo '</div>';
-			}
-			?>
-		</div>
+			echo '</div>'; //Closing row
+			if(!$labelCnt) echo '<div style="font-weight:bold;text-size: 120%">No records were retrieved. Perhaps the quantity values were all set to 0?</div>';
+		}
+		else{
+			echo '<div style="font-weight:bold;text-size: 120%">';
+			if($targetLabelFormatArr) echo 'ERROR: Unable to parse JSON that defines the label format profile ';
+			else 'ERROR: Permissions issue';
+			echo '</div>';
+		}
+		echo '</div>';
+		?>
 	</body>
+  <?php
+  if(isset($targetLabelFormatArr['customJS']) && $targetLabelFormatArr['customJS']){
+    $jsPath = $targetLabelFormatArr['customJS'];
+    if(substr($jsPath,0,1) == '/' && !file_exists($jsPath)){
+      if(file_exists($SERVER_ROOT.$targetLabelFormatArr['customJS'])) $jsPath = $CLIENT_ROOT.$targetLabelFormatArr['customJS'];
+    }
+    echo '<script src="'.$jsPath.'"></script>'."\n";
+  }
+  ?>
+  <script src="../../js/symb/collections.labeldynamic.js"></script>
 </html>

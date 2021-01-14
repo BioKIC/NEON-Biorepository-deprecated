@@ -18,7 +18,6 @@ $isGenObs = 0;
 
 if($SYMB_UID){
 	//Set variables
-	$occManager->setSymbUid($SYMB_UID);
 	$occManager->setCollId($collid);
 	$collMap = $occManager->getCollMap();
 

@@ -34,7 +34,8 @@ if(!$tid && $taxon){
 		}
 	}
 }
-$tid = $tEditor->setTid($tid);
+$tEditor->setTid($tid);
+$tid = $tEditor->getTid();
 
 $statusStr = "";
 $isEditor = false;
@@ -185,7 +186,11 @@ if($isEditor && $action){
 	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class="navpath">
-		<b>Taxon Profile Editor</b>
+		<a href="../../index.php">Home</a> &gt;&gt;
+		<?php
+		if($tid) echo '<a href="../index.php?tid='.$tid.'">Taxon Profile Public Display</a> &gt;&gt; ';
+		echo '<b>Taxon Profile Editor</b>';
+		?>
 	</div>
 	<div id="innertext">
 		<?php

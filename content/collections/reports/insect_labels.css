@@ -1,7 +1,7 @@
-.labelDiv {
+.label {
 		clear:both;
 		margin: 0px;
-		padding: 0px;
+		padding: 0px 10px;
 		width: 125px;
 		page-break-before:auto;
 		page-break-inside:avoid;

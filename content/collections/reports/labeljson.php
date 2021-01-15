@@ -110,8 +110,8 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 				]}}
 			]}}
 		]
-	}
-  {
+	},
+  	{
 		"title":"Generic Insect Labels - locality, det, catalog",
 		"displaySpeciesAuthor":0,
 		"displayBarcode":0,

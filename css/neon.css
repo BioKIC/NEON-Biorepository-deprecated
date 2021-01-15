@@ -76,6 +76,11 @@ h1 {
   font-weight: 400;
 }
 
+#innertext h1 {
+  font-size: 1.8rem;
+  padding: 0.8rem 0;
+}
+
 h2 {
   font-size: 1.5rem;
   line-height: 1;
@@ -353,11 +358,11 @@ p a {
     top: 30px;
   }*/
   #branding .branding-link {
-    width: 150px;
-    height: 50px;
+    width: 115px;
+    height: 40px;
   }
   ul#biorepo-header h1 {
-    font-size: 2.3rem;
+    font-size: 1.8rem;
     margin: 0 auto;
     /* padding: 10px; */
   }

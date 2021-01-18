@@ -8,14 +8,14 @@
 				<!-- Main Site Logo -->
 				<li id="branding" style="vertical-align: top;">
 					<!-- NSF/Neon logo -->
-					<a href="/" title="Home" rel="home" class="branding-link active"><img src="<?php echo $CLIENT_ROOT; ?>/neon/images/neon-white-logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
+					<a href="https://www.neonscience.org/" title="Home" rel="home" class="branding-link active"><img src="<?php echo $CLIENT_ROOT; ?>/neon/images/neon-white-logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
 				</li>
-				<li class="header-title"><h1>Biorepository Data Portal</h1></li>
+				<li class="header-title"><h1><a href="<?php echo $CLIENT_ROOT; ?>/">Biorepository Data Portal</a></h1></li>
 			</ul>
 			<!-- Symbiota Navigation -->
 			<ul id="hor_dropdown">
 				<li>
-					<a href="<?php echo $CLIENT_ROOT; ?>/index.php" class="biorepo-home-icon"></a>
+					<a href="<?php echo $CLIENT_ROOT; ?>/index.php" class="biorepo-home-icon"><span class="visually-hidden">Home</span></a>
 				</li>
 				<li>
 					<a href="#" ><?php echo (isset($LANG['H_SEARCH'])?$LANG['H_SEARCH']:'Search'); ?></a>

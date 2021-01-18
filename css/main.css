@@ -30,6 +30,13 @@ body {
 }
 
 
+/* Utilities */
+
+.visually-hidden {
+  display: none;
+}
+
+
 /******* 2. LAYOUT ********/
 
 #innertext img {
@@ -189,6 +196,10 @@ li.header-title {
   position: relative;
 }
 
+.header-title a:hover {
+  text-decoration: none;
+}
+
 #biorepo-header>li {
   display: inline-block;
   padding: 0 0.5rem;
@@ -316,13 +327,13 @@ li.header-title {
 
 .biorepo-home-icon {
   padding: 0 !important;
-  display: inline-block;
-  background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/svg/home-white.svg);
-  background-size: cover;
+  /* display: inline-block; */
+  background-image: url(../neon/images/home-white.png);
+  background-size: contain;
   background-repeat: no-repeat;
   background-position: center center;
-  height: 16px;
-  width: 16px;
+  height: 14px;
+  width: 14px;
 }
 
 

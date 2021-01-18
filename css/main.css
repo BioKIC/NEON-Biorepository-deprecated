@@ -216,7 +216,7 @@ li.header-title {
 
 @media (min-width: 1024px) {
   #top_navbar {
-    margin-top: 2.5rem;
+    margin-top: 10px;
   }
 }
 

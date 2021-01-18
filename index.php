@@ -26,7 +26,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <body class="home-page">
 	<?php include($SERVER_ROOT.'/includes/header.php'); ?>
 	<!-- This is inner text! -->
-	<div id="innertext" class="container" style="margin-top: 6em">
+	<div id="innertext" class="container" style="margin-top: 2rem">
 		<h1 class="centered">Discover and access sample-based data</h1>
 
 		<section>

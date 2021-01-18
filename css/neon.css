@@ -217,11 +217,6 @@ p a {
 #header {
   /*position: fixed;*/
   text-align: center !important;
-  position: relative;
-  z-index: 2900;
-  top: 37px;
-  left: 0;
-  right: 0;
 }
 
 

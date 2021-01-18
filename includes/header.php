@@ -2,23 +2,6 @@
  include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 ?>
 <div id="main-header">
-
-		<!-- NEON Main Top Bar -->
-		<div class="region-utility">
-			<div id="block-menu-global-menu" class="block block-menu">
-
-				<h2 class="block-title block-title">Global Menu</h2>
-
-				<div class="block-content block-content">
-					<ul class="nav">
-						<li class="last leaf nav-item depth--1"><a href="https://www.neonscience.org/" class="nav-link" title="NEON Science Main Portal">Neon Science</a></li>
-						<li class="last leaf nav-item depth--1"><a href="https://data.neonscience.org/home" title="NEON Data Portal" class="nav-link">Data Portal</a></li>
-						<li class="first leaf nav-item depth--1"><a href="https://biorepo.neonscience.org/portal/" title="NEON Biorepository at Arizona State University" class="nav-link active">Biorepository</a></li>
-					</ul>
-				</div>
-			</div>
-		</div>
-
 		<!-- Symbiota Main Header -->
 		<header id="header">
 			<ul id="biorepo-header">

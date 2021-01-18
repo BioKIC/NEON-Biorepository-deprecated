@@ -277,7 +277,6 @@ li.header-title {
   top: -9999px;
   background-color: #1b67b3;
   z-index: 1000;
-  cursor: pointer;
 }
 
 #hor_dropdown ul li {

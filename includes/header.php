@@ -25,7 +25,7 @@
 				<!-- Main Site Logo -->
 				<li id="branding" style="vertical-align: top;">
 					<!-- NSF/Neon logo -->
-					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
+          <a href="/" title="Home" rel="home" class="branding-link active"><img src="<?php echo $CLIENT_ROOT; ?>/neon/images/neon-white-logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
 				</li>
 				<li class="header-title"><h1>Biorepository Data Portal</h1></li>
 			</ul>

@@ -52,6 +52,8 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 		<script src="../../js/jquery.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 		<script type="text/javascript">
+			var activeProfileCode = "";
+
 			function toggleEditDiv(classTag){
 				$('#display-'+classTag).toggle();
 				$('#edit-'+classTag).toggle();
@@ -60,6 +62,11 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 			function makeJsonEditable(classTag){
 				alert("You should now be able to edit the JSON label definition. Feel free to modify, but note that editing the raw JSON requires knowledge of the JSON format. A simple error may cause label generation to completely fail. Within the next couple weeks, there should be a editor interface made available that will assist. Until then, you may need to ask your portal manager for assistance if you run into problems. Thank you for your patience.");
 				$('#json-'+classTag).prop('readonly', false);
+				activeProfileCode = classTag;
+			}
+
+			function setJson(json){
+				$('#json-'+activeProfileCode).val(json);
 			}
 		</script>
 		<style>

@@ -106,8 +106,8 @@ CREATE TABLE `ctcontrolvocabterm` (
   CONSTRAINT `FK_ctControlVocabTerm_cvTermID`  FOREIGN KEY (`parentCvTermID`)  REFERENCES `ctcontrolvocabterm` (`cvTermID`)  ON DELETE SET NULL  ON UPDATE CASCADE
 );
 
-INSERT INTO `ctcontrolvocab` VALUES (1,'Occurrence Relationship Terms',NULL,NULL,'omoccurassociations','relationship',NULL,NULL,NULL,1,NULL,NULL,301,NULL,NULL,'2020-12-02 21:35:38'),(2,'Occurrence Relationship subTypes',NULL,NULL,'omoccurassociations','subType',NULL,NULL,NULL,0,NULL,NULL,301,NULL,NULL,'2020-12-02 22:56:13');
-INSERT INTO `ctcontrolvocabterm` VALUES (1,1,NULL,'subsampleOf','originatingSampleOf',NULL,'a sample or occurrence that was subsequently derived from an originating sample',NULL,'has part: http://purl.obolibrary.org/obo/BFO_0000050',NULL,NULL,301,NULL,NULL,'2020-12-02 21:36:51'),(2,1,NULL,'partOf','partOf',NULL,NULL,NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 21:38:32'),(3,1,NULL,'siblingOf','siblingOf',NULL,NULL,NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 21:38:32'),(4,1,NULL,'originatingSampleOf','subsampleOf',NULL,'a sample or occurrence that is the originator of a subsequently modified or partial sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,'originatingSourceOf ??  It isn\'t necessarily a sample.  Could be an observation or occurrence or individual etc',301,NULL,NULL,'2020-12-02 23:27:02'),(5,1,NULL,'sharesOriginatingSample','sharesOriginatingSample',NULL,'two samples or occurrences that were subsequently derived from the same originating sample',NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(6,2,NULL,'tissue',NULL,NULL,'a tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(7,2,NULL,'blood',NULL,NULL,'a blood-tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(8,2,NULL,'fecal',NULL,NULL,'a fecal sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(9,2,NULL,'hair',NULL,NULL,'a hair sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(10,2,NULL,'genetic',NULL,NULL,'a genetic extraction sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:44:23'),(11,1,NULL,'derivedFromSameIndividual','derivedFromSameIndividual',NULL,'a sample or occurrence that is derived from the same biological individual as another occurrence or sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,301,NULL,NULL,'2020-12-02 23:48:45'),(12,1,NULL,'analyticalStandardOf','hasAnalyticalStandard',NULL,'a sample or occurrence that serves as an analytical standard or control for another occurrence or sample',NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 23:48:45'),(13,1,NULL,'hasAnalyticalStandard','analyticalStandardof',NULL,'a sample or occurrence that has an available analytical standard or control',NULL,NULL,NULL,NULL,301,NULL,NULL,'2020-12-02 23:48:45'),(14,1,NULL,'hasHost','hostOf',NULL,'X \'has host\' y if and only if: x is an organism, y is an organism, and x can live on the surface of or within the body of y',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002454',NULL,301,NULL,NULL,'2020-12-02 23:58:18'),(15,1,NULL,'hostOf','hasHost',NULL,'X is \'Host of\' y if and only if: x is an organism, y is an organism, and y can live on the surface of or within the body of x',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002453',NULL,301,NULL,NULL,'2020-12-02 23:58:18'),(16,1,NULL,'ecologicallyOccursWith','ecologicallyOccursWith',NULL,'An interaction relationship describing an occurrence occurring with another organism in the same time and space or same environment',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0008506',NULL,301,NULL,NULL,'2020-12-02 23:58:18');
+INSERT INTO `ctcontrolvocab` VALUES (1,'Occurrence Relationship Terms',NULL,NULL,'omoccurassociations','relationship',NULL,NULL,NULL,1,NULL,NULL,null,NULL,NULL,'2020-12-02 21:35:38'),(2,'Occurrence Relationship subTypes',NULL,NULL,'omoccurassociations','subType',NULL,NULL,NULL,0,NULL,NULL,null,NULL,NULL,'2020-12-02 22:56:13');
+INSERT INTO `ctcontrolvocabterm` VALUES (1,1,NULL,'subsampleOf','originatingSampleOf',NULL,'a sample or occurrence that was subsequently derived from an originating sample',NULL,'has part: http://purl.obolibrary.org/obo/BFO_0000050',NULL,NULL,null,NULL,NULL,'2020-12-02 21:36:51'),(2,1,NULL,'partOf','partOf',NULL,NULL,NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 21:38:32'),(3,1,NULL,'siblingOf','siblingOf',NULL,NULL,NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 21:38:32'),(4,1,NULL,'originatingSampleOf','subsampleOf',NULL,'a sample or occurrence that is the originator of a subsequently modified or partial sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,'originatingSourceOf ??  It isn\'t necessarily a sample.  Could be an observation or occurrence or individual etc',null,NULL,NULL,'2020-12-02 23:27:02'),(5,1,NULL,'sharesOriginatingSample','sharesOriginatingSample',NULL,'two samples or occurrences that were subsequently derived from the same originating sample',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(6,2,NULL,'tissue',NULL,NULL,'a tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(7,2,NULL,'blood',NULL,NULL,'a blood-tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(8,2,NULL,'fecal',NULL,NULL,'a fecal sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(9,2,NULL,'hair',NULL,NULL,'a hair sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(10,2,NULL,'genetic',NULL,NULL,'a genetic extraction sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(11,1,NULL,'derivedFromSameIndividual','derivedFromSameIndividual',NULL,'a sample or occurrence that is derived from the same biological individual as another occurrence or sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(12,1,NULL,'analyticalStandardOf','hasAnalyticalStandard',NULL,'a sample or occurrence that serves as an analytical standard or control for another occurrence or sample',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(13,1,NULL,'hasAnalyticalStandard','analyticalStandardof',NULL,'a sample or occurrence that has an available analytical standard or control',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(14,1,NULL,'hasHost','hostOf',NULL,'X \'has host\' y if and only if: x is an organism, y is an organism, and x can live on the surface of or within the body of y',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002454',NULL,null,NULL,NULL,'2020-12-02 23:58:18'),(15,1,NULL,'hostOf','hasHost',NULL,'X is \'Host of\' y if and only if: x is an organism, y is an organism, and y can live on the surface of or within the body of x',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002453',NULL,null,NULL,NULL,'2020-12-02 23:58:18'),(16,1,NULL,'ecologicallyOccursWith','ecologicallyOccursWith',NULL,'An interaction relationship describing an occurrence occurring with another organism in the same time and space or same environment',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0008506',NULL,null,NULL,NULL,'2020-12-02 23:58:18');
 
 
 ALTER TABLE `glossary` 
@@ -131,6 +131,17 @@ ALTER TABLE `uploadspectemp`
 ALTER TABLE `uploadspectemp` 
   ADD INDEX `Index_uploadspec_othercatalognumbers` (`otherCatalogNumbers` ASC);
 
+ALTER TABLE `uploadspecparameters` 
+  ADD COLUMN `endpointPublic` INT NULL AFTER `cleanupsp`,
+  ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `dlmisvalid`,
+  ADD INDEX `FK_uploadspecparameters_uid_idx` (`createdUid` ASC);
+
+ALTER TABLE `uploadspecparameters` 
+  ADD CONSTRAINT `FK_uploadspecparameters_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE SET NULL;
+
+ALTER TABLE `uploadspecparameters` 
+  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
+
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(150) NULL DEFAULT NULL;
 
@@ -145,6 +156,14 @@ ALTER TABLE `uploadimagetemp`
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
 
+ALTER TABLE `uploadtaxa` 
+  CHANGE COLUMN `UnitInd3` `UnitInd3` VARCHAR(45) NULL DEFAULT NULL ;
+
+ALTER TABLE `uploadtaxa` 
+  DROP INDEX `UNIQUE_sciname` ,
+  ADD UNIQUE INDEX `UNIQUE_sciname` (`SciName` ASC, `RankId` ASC, `Author` ASC, `AcceptedStr` ASC);
+  
+
 ALTER TABLE `images` 
   CHANGE COLUMN `url` `url` VARCHAR(255) NULL DEFAULT NULL;
 
@@ -155,17 +174,6 @@ ALTER TABLE `images`
   ADD COLUMN `sortOccurrence` INT NULL DEFAULT 5 AFTER `sortsequence`;
 
   
-ALTER TABLE `uploadspecparameters` 
-  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
-
-ALTER TABLE `uploadtaxa` 
-  CHANGE COLUMN `UnitInd3` `UnitInd3` VARCHAR(45) NULL DEFAULT NULL ;
-
-ALTER TABLE `uploadtaxa` 
-  DROP INDEX `UNIQUE_sciname` ,
-  ADD UNIQUE INDEX `UNIQUE_sciname` (`SciName` ASC, `RankId` ASC, `Author` ASC, `AcceptedStr` ASC);
-
-
 ALTER TABLE `taxa` 
   ADD COLUMN `locked` INT NULL AFTER `Hybrid`,
   CHANGE COLUMN `UnitInd3` `UnitInd3` VARCHAR(15) NULL DEFAULT NULL ;
@@ -321,16 +329,18 @@ ALTER TABLE `omcollections`
 ALTER TABLE `omcollections` 
   CHANGE COLUMN `contactJson` `contactJson` JSON NULL DEFAULT NULL;
 
+UPDATE omcollections
+  SET contactJson = CONCAT('[{"firstName":"","lastName":"',contact,'","email":"',email,'"}]')
+  WHERE contact IS NOT NULL AND contactJson IS NULL;
+
 ALTER TABLE `omcollections` 
   ADD COLUMN `resourceJson` LONGTEXT NULL AFTER `homepage`;
 ALTER TABLE `omcollections` 
   CHANGE COLUMN `resourceJson` `resourceJson` JSON NULL DEFAULT NULL;
+
 UPDATE omcollections
   SET resourceJson = CONCAT('[{"title":{"en":"Homepage"},"url":"',homepage,'"}]')
   WHERE homepage LIKE "http%" AND resourceJson IS NULL;
-UPDATE omcollections
-  SET contactJson = CONCAT('[{"firstName":"","lastName":"',contact,'","email":"',email,'"}]')
-  WHERE contact IS NOT NULL AND contactJson IS NULL;
 
 
 DROP TABLE `omcollectioncontacts`;

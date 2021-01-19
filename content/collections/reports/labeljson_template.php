@@ -9,6 +9,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"defaultStyles":"font-size:10pt",
 		"defaultCss":"../../css/symb/labelhelpers.css",
 		"customCss":"",
+		"customJs":"",
 		"pageSize":"letter",
 		"labelHeader":{
 			"prefix":"Flora of ",
@@ -67,6 +68,7 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 		"defaultStyles":"font-size:10pt",
 		"defaultCss":"../../css/symb/labelhelpers.css",
 		"customCss":"",
+		"customJs":"",
 		"pageSize":"letter",
 		"labelHeader":{
 			"prefix":"",

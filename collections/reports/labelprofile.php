@@ -68,6 +68,13 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 			function setJson(json){
 				$('#json-'+activeProfileCode).val(json);
 			}
+
+			function openJsonEditorPopup(classTag){
+				activeProfileCode = classTag;
+				editorWindow = window.open(url,'labeljsongui.php','scrollbars=1,toolbar=0,resizable=1,width=1000,height=700,left=20,top=20');
+				if(editorWindow.opener == null) editorWindow.opener = self;
+				editorWindow.dummy.value = $("#json-"+classTag).val();
+			}
 		</script>
 		<style>
 			fieldset{ width:700px; padding:15px; }

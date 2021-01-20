@@ -416,7 +416,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		}
 		if(array_key_exists("hascoords",$this->searchTermArr)){
 			$sqlWhere .= "AND (o.decimalLatitude IS NOT NULL) ";
-			$this->displaySearchArr[] = 'has geocoorindates';
+			$this->displaySearchArr[] = 'has geocoordinates';
 		}
 		if($sqlWhere){
 			if(!array_key_exists("includecult",$this->searchTermArr)){

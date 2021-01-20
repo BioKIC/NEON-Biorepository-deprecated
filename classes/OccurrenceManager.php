@@ -828,6 +828,14 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				unset($this->searchTermArr["hasgenetic"]);
 			}
 		}
+		if(array_key_exists("hascoords",$_REQUEST)){
+			if($_REQUEST["hascoords"]){
+				$this->searchTermArr["hascoords"] = true;
+			}
+			else{
+				unset($this->searchTermArr["hascoords"]);
+			}
+		}
 		if(array_key_exists("includecult",$_REQUEST)){
 			if($_REQUEST["includecult"]){
 				$this->searchTermArr["includecult"] = true;

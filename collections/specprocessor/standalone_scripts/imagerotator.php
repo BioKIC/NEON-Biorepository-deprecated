@@ -1,4 +1,4 @@
-cd <?php
+<?php
 $targetPath = '';
 $recursive = true;
 $degree = 90;

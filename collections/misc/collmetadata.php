@@ -35,8 +35,8 @@ if($isEditor){
 			$newCollid = $collManager->submitCollAdd($_POST);
 			if(is_numeric($newCollid)){
 				$statusStr = 'New collection added successfully!<br/>Add contacts, resource links, or institution address below.<br/>Click <a href="../admin/specuploadmanagement.php?collid='.$newCollid.'&action=addprofile">here</a> to upload specimen records for this new collection.';
+				$collid = $newCollid;
 				$tabIndex = 1;
-				//header('Location: collmetadata.php?tabindex=1&collid='.$newCollid);
 			}
 			else{
 				$statusStr = $collid;
@@ -240,9 +240,11 @@ $collManager->cleanOutArr($collData);
 	<div id="innertext">
 		<?php
 		if($statusStr){
+			$msgColor = 'red';
+			if(stripos($msgColor,'success')) $msgColor = 'green';
 			?>
 			<hr />
-			<div style="margin:20px;font-weight:bold;color:red;">
+			<div style="margin:20px;color:<?php echo $msgColor; ?>;">
 				<?php echo $statusStr; ?>
 			</div>
 			<hr />

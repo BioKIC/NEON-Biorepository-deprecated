@@ -2,8 +2,6 @@
 include_once($SERVER_ROOT.'/classes/Manager.php');
 class MediaResolutionTools extends Manager {
 
-	private $reportFH;
-
 	//Archiver variables
 	private $imgidArr;
 	private $archiveImages = false;
@@ -25,16 +23,14 @@ class MediaResolutionTools extends Manager {
 	private $imgSubPath;
 
 	function __construct() {
-		parent::__construct('write');
+		parent::__construct(null,'write');
 		set_time_limit(600);
 		$this->verboseMode = 3;
-		$this->setLogFH('../../../temp/logs/imgMigration_error_'.date('Ym').'.log');
-		$this->reportFH = fopen('../../../temp/logs/imgMigration_'.date('Ym').'.log', 'a');
+		$this->setLogFH('../../../temp/logs/imgMigration_'.date('Ym').'.log');
 	}
 
 	function __destruct(){
 		parent::__destruct();
-		fclose($this->reportFH);
 	}
 
 	//Archiver functions
@@ -42,24 +38,24 @@ class MediaResolutionTools extends Manager {
 		//Set stage
 		if(!$imgidStart) $imgidStart = 0;
 		if(!$this->imgidArr){
-			echo '<li>ABORTED: Image ids (imgid) not supplied</li>';
+			$this->logOrEcho('ABORTED: Image ids (imgid) not supplied');
 			return false;
 		}
 		$this->archiveDir = $GLOBALS['IMAGE_ROOT_PATH'].'/archive_'.date('Y-m-d');
 		if(!file_exists($this->archiveDir)){
 			if(!mkdir($this->archiveDir)) {
-				echo '<li>ABORTED: unalbe to create archive directory ('.$this->archiveDir.')</li>';
+				$this->logOrEcho('ABORTED: unalbe to create archive directory ('.$this->archiveDir.')');
 				return false;
 			}
 		}
 		$createHeader = true;
 		if(file_exists($this->archiveDir.'/mediaArchiveReport.csv')) $createHeader = false;
-		$this->reportFH = fopen($this->archiveDir.'/mediaArchiveReport.csv', 'a');
-		if(!$this->reportFH){
-			echo '<li>ABORTED: unalbe to create archive file ('.$this->archiveDir.')</li>';
+		$csvReportFH = fopen($this->archiveDir.'/mediaArchiveReport.csv', 'a');
+		if(!$csvReportFH){
+			$this->logOrEcho('ABORTED: unalbe to create archive file ('.$this->archiveDir.')');
 			return false;
 		}
-		if($createHeader) fputcsv($this->reportFH, array('imgid','status','path','url'));
+		if($createHeader) fputcsv($csvReportFH, array('imgid','insertSQL'));
 		//Remove images
 		$imgidFinal = $imgidStart;
 		$cnt = 0;
@@ -103,15 +99,11 @@ class MediaResolutionTools extends Manager {
 			unset($insertArr['initialtimestamp']);
 			$insertStr = '';
 			foreach($insertArr as $v){
-				if($v){
-					$insertStr .= ',"'.$v.'"';
-				}
-				else{
-					$insertStr .= ',NULL';
-				}
+				if($v) $insertStr .= ', "'.$v.'"';
+				else $insertStr .= ', NULL';
 			}
 			$insSql = 'INSERT INTO images('.implode(',', array_keys($insertArr)).') VALUES('.substr($insertStr,1).');';
-			fputcsv($this->reportFH,array($imgId,'record deleted',$insSql));
+			fputcsv($csvReportFH,array($imgId,'record deleted',$insSql));
 			//Adjust database record
 			$sqlImg = '';
 			if($derivArr){
@@ -125,12 +117,12 @@ class MediaResolutionTools extends Manager {
 			}
 			if($sqlImg){
 				if(!$this->conn->query($sqlImg)){
-					echo '<li>ERROR: '.$this->conn->error.'</li>';
-					echo '<li style="margin-left:15px;">sqlImg: '.$sqlImg.'</li>';
+					$this->logOrEcho('ERROR: '.$this->conn->error,1);
+					$this->logOrEcho('sqlImg: '.$sqlImg,2);
 				}
 			}
 			if($cnt && $cnt%100 == 0){
-				echo '<li>'.$cnt.' images checked</li>';
+				$this->logOrEcho($cnt.' images checked');
 				ob_flush();
 				flush();
 			}
@@ -139,8 +131,8 @@ class MediaResolutionTools extends Manager {
 		}
 		echo '</ul>';
 		$rs->free();
-		fclose($this->reportFH);
-		echo '<div>Done! '.$cnt.' images handled</div>';
+		fclose($csvReportFH);
+		$this->logOrEcho('Done! '.$cnt.' images handled');
 		return $imgidFinal;
 	}
 
@@ -161,8 +153,7 @@ class MediaResolutionTools extends Manager {
 				}
 			}
 			else{
-				fputcsv($this->reportFH,array($imgid,'unwritable',$imgFilePath,$path));
-				echo '<li>ERROR: image unwritable (imgid: <a href="'.$GLOBALS['CLIENT_ROOT'].'/imagelib/imgdetails.php?imgid='.$imgid.'" target="_blank">'.$imgid.'</a>, path: '.$imgFilePath.')</li>';
+				$this->logOrEcho('ERROR: image unwritable (imgid: <a href="'.$GLOBALS['CLIENT_ROOT'].'/imagelib/imgdetails.php?imgid='.$imgid.'" target="_blank">'.$imgid.'</a>, path: '.$path.')');
 			}
 		}
 		return $status;
@@ -173,6 +164,7 @@ class MediaResolutionTools extends Manager {
 		if(is_numeric($limit) && is_numeric($this->collid) && $this->imgRootUrl && $this->imgRootPath){
 			if($this->transferThumbnail && $this->transferWeb && $this->transferLarge){
 				if($this->matchTermTn || $this->matchTermWeb || $this->matchTermLarge){
+					echo '<ul>';
 					$this->setTargetPaths();
 					$dirCnt = 0;
 					do{
@@ -198,21 +190,21 @@ class MediaResolutionTools extends Manager {
 								$filePath = $pathFrag.strrpos($r->thumbnailurl+1, '/');
 								if(copy($r->thumbnailurl,$this->imgRootPath.$filePath)){
 									$imgArr[$r->imgid]['tn'] = $filePath;
-									fwrite($this->reportFH,$r->thumbnailurl."\n");
+									$this->logOrEcho('Copied: '.$r->thumbnailurl);
 								}
 							}
 							if($this->transferWeb){
 								$filePath = $pathFrag.strrpos($r->url+1, '/');
 								if(copy($r->url,$this->imgRootPath.$filePath)){
 									$imgArr[$r->imgid]['web'] = $filePath;
-									fwrite($this->reportFH,$r->url."\n");
+									$this->logOrEcho('Copied: '.$r->url);
 								}
 							}
 							if($this->transferLarge){
 								$filePath = $pathFrag.strrpos($r->originalurl+1, '/');
 								if(copy($r->originalurl,$this->imgRootPath.$filePath)){
 									$imgArr[$r->imgid]['lg'] = $filePath;
-									fwrite($this->reportFH,$r->originalurl."\n");
+									$this->logOrEcho('Copied: '.$r->originalurl);
 								}
 							}
 							$limit--;
@@ -224,6 +216,7 @@ class MediaResolutionTools extends Manager {
 						$this->logOrEcho($cnt.' image records remapped');
 						unset($imgArr);
 					}while($cnt && $limit);
+					echo '</ul>';
 				}
 			}
 		}

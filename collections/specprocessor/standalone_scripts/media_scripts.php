@@ -61,8 +61,8 @@ if($IS_ADMIN) $isEditor = true;
 	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
-	<script src="../../js/jquery.js" type="text/javascript"></script>
-	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
+	<script src="../../../js/jquery.js" type="text/javascript"></script>
+	<script src="../../../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	</script>
 	<style type="text/css">
@@ -78,213 +78,213 @@ if($IS_ADMIN) $isEditor = true;
 	<?php
 	if($isEditor){
 		?>
-		<div id="actionDiv">
-			<?php
-			$imgidEnd = 0;
-			if($submit){
-				if($submit == 'transferImages'){
-					?>
-					<fieldset>
-						<legend>Action Panel</legend>
-						<ol>
-						<?php
-						$toolManager->setTransferThumbnail($transferThumbnail);
-						$toolManager->setTransferWeb($transferWeb);
-						$toolManager->setTransferLarge($transferLarge);
-						$toolManager->setMatchTermThumbnail($matchTermThumbnail);
-						$toolManager->setMatchTermWeb($matchTermWeb);
-						$toolManager->setMatchTermLarge($matchTermLarge);
-						$toolManager->setImgRootUrl($imgRootUrl);
-						$toolManager->setImgRootPath($imgRootPath);
-						$toolManager->setImgSubPath($imgSubPath);
-						$toolManager->migrateDerivatives($limit);
+		<div id="innertext">
+			<div id="actionDiv">
+				<?php
+				$imgidEnd = 0;
+				if($submit){
+					if($submit == 'transferImages'){
 						?>
-						</ol>
-					</fieldset>
-					<?php
+						<fieldset>
+							<legend>Action Panel</legend>
+							<ol>
+							<?php
+							$toolManager->setTransferThumbnail($transferThumbnail);
+							$toolManager->setTransferWeb($transferWeb);
+							$toolManager->setTransferLarge($transferLarge);
+							$toolManager->setMatchTermThumbnail($matchTermThumbnail);
+							$toolManager->setMatchTermWeb($matchTermWeb);
+							$toolManager->setMatchTermLarge($matchTermLarge);
+							$toolManager->setImgRootUrl($imgRootUrl);
+							$toolManager->setImgRootPath($imgRootPath);
+							$toolManager->setImgSubPath($imgSubPath);
+							$toolManager->migrateDerivatives($limit);
+							?>
+							</ol>
+						</fieldset>
+						<?php
+					}
+					elseif($submit == 'Process Images'){
+						if($archiveImages) $toolManager->setArchiveImages($archiveImages);
+						$toolManager->setDeleteThumbnail($delThumb);
+						$toolManager->setDeleteWebImage($delWeb);
+						$toolManager->setDeleteOriginal($delLarge);
+						$toolManager->setImgidArr($imgidStr);
+						$imgidEnd = $toolManager->archiveImageFiles($imgidStart, $limit);
+					}
+					else{
+						$delThumb = 1;
+						$delWeb = 1;
+						$delLarge = 1;
+					}
 				}
-				elseif($submit == 'Process Images'){
-					if($archiveImages) $toolManager->setArchiveImages($archiveImages);
-					$toolManager->setDeleteThumbnail($delThumb);
-					$toolManager->setDeleteWebImage($delWeb);
-					$toolManager->setDeleteOriginal($delLarge);
-					$toolManager->setImgidArr($imgidStr);
-					$imgidEnd = $toolManager->archiveImageFiles($imgidStart, $limit);
-				}
-				else{
-					$delThumb = 1;
-					$delWeb = 1;
-					$delLarge = 1;
-				}
-			}
-			?>
+				?>
+			</div>
+			<fieldset>
+				<legend>Image Archival/Removal Tools</legend>
+				<div>This tool can be used to stash (i.e. archive) or delete images that are currently stored locally (server must have write access to images)</div>
+				<form action="media_scripts.php" method="post">
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<span class="fieldLabel">Collection ID (collid):</span>
+							<select name="collid">
+								<option value="">Select a Collection</option>
+								<option value="">-----------------------------</option>
+								<option value="0">Field Images</option>
+								<?php
+								$collArr = $toolManager->getCollectionMeta();
+								foreach($collArr as $id => $collName){
+									echo '<option value="'.$id.'" '.($collid==$id?'SELECTED':'').'>'.$collName.'</option>';
+								}
+								?>
+							</select>
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<b>Starting Image ID:</b> <input type="text" name="imgidstart" value="<?php echo $imgidEnd; ?>" /><br />
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<b>Batch limit: </b><input type="text" name="limit" value="<?php echo $limit; ?>" /><br />
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<fieldset>
+								<legend>Action</legend>
+								<input type="radio" name="archiveimg" value="0" <?php echo ($archiveImages?'':'CHECKED'); ?> /> Delete Images<br />
+								<input type="radio" name="archiveimg" value="1" <?php echo ($archiveImages?'CHECKED':''); ?> /> Archive Images<br />
+							</fieldset>
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<fieldset>
+								<legend>Image Targets</legend>
+								<input type="checkbox" name="delthumb" value="1" <?php echo ($delThumb?'CHECKED':''); ?> /> Delete Thumbnail Derivative<br />
+								<input type="checkbox" name="delweb" value="1" <?php echo ($delWeb?'CHECKED':''); ?> /> Delete Web Derivative<br />
+								<input type="checkbox" name="dellarge" value="1" <?php echo ($delLarge?'CHECKED':''); ?> /> Delete Large Derivative<br />
+							</fieldset>
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<b>imgids (enter multiple values delimited by commas)</b><br/>
+							<textarea name="imgidstr" rows="8" cols="100"></textarea>
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<button name="submitbutton" type="submit" value="Process Images">Process Images</button>
+						</div>
+					</div>
+				</form>
+			</fieldset>
+			<fieldset>
+				<legend>Image Migration Tools</legend>
+				<div>This tool can be used to migrate images located on a remote server to the local server that is currently hosting the portal</div>
+				<form action="media_scripts.php" method="post">
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<span class="fieldLabel">Collection ID (collid):</span>
+							<select name="collid">
+								<option value="">Select a Collection</option>
+								<option value="">-----------------------------</option>
+								<option value="0">Field Images</option>
+								<?php
+								$collArr = $toolManager->getCollectionMeta();
+								foreach($collArr as $id => $collName){
+									echo '<option value="'.$id.'" '.($collid==$id?'SELECTED':'').'>'.$collName.'</option>';
+								}
+								?>
+							</select>
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<fieldset>
+							<legend>Transfer Target</legend>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<input name="transferThumbnail" type="checkbox" value="1" <?php echo ($transferThumbnail?'CHECKED':''); ?> />
+									<span class="fieldLabel">Transfer Thumbnail</span>
+								</div>
+							</div>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<input name="transferWed" type="checkbox" value="1" <?php echo ($transferWeb?'CHECKED':''); ?> />
+									<span class="fieldLabel">Transfer Web View (medium)</span>
+								</div>
+							</div>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<input name="transferLarge" type="checkbox" value="1" <?php echo ($transferLarge?'CHECKED':''); ?> />
+									<span class="fieldLabel">Transfer Large Image</span>
+								</div>
+							</div>
+						</fieldset>
+					</div>
+					<div class="fieldRowDiv">
+						<fieldset>
+							<legend>Transfer Source Query Term</legend>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<span class="fieldLabel">Thumbnail Matching Term (thumbnailUrl):</span>
+									<input name="matchTermThumbnail" type="text" value="<?php echo $matchTermThumbnail; ?>" />
+								</div>
+							</div>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<span class="fieldLabel">Web Image (medium) Matching Term (url):</span>
+									<input name="matchTermWeb" type="text" value="<?php echo $matchTermWeb; ?>" />
+								</div>
+							</div>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<span class="fieldLabel">Large Image Matching Term (originalurl):</span>
+									<input name="matchTermLarge" type="text" value="<?php echo $matchTermLarge; ?>" />
+								</div>
+							</div>
+						</fieldset>
+					</div>
+					<div class="fieldRowDiv">
+						<fieldset>
+							<legend>Path Variables</legend>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<span class="fieldLabel">Image Root URL (imgRootUrl):</span>
+									<input name="imgRootUrl" type="text" value="<?php echo ($imgRootUrl?$imgRootUrl:$IMAGE_ROOT_URL); ?>" style="width:400px" />
+								</div>
+							</div>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<span class="fieldLabel">Image Root Path (imgRootPath):</span>
+									<input name="imgRootPath" type="text" value="<?php echo ($imgRootPath?$imgRootPath:$IMAGE_ROOT_PATH); ?>" style="width:400px" />
+								</div>
+							</div>
+							<div class="fieldRowDiv">
+								<div class="fieldDiv">
+									<span class="fieldLabel">Target Sub-Path:</span>
+									<input name="imgSubPath" type="text" value="<?php echo $imgSubPath; ?>" style="width:400px" />
+								</div>
+							</div>
+						</fieldset>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<span class="fieldLabel">Batch limit:</span>
+							<input type="text" name="limit" value="<?php echo $limit; ?>" />
+						</div>
+					</div>
+					<div class="fieldRowDiv">
+						<button name="submitbutton" type="submit" value="transferImages">Transfer Images</button>
+					</div>
+				</form>
+			</fieldset>
 		</div>
-		<fieldset>
-			<legend>Image Archival/Removal Tools</legend>
-			<div>This tool can be used to stash (i.e. archive) or delete images that are currently stored locally (server must have write access to images)</div>
-			<form action="media_scripts.php" method="post">
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<span class="fieldLabel">Collection ID (collid):</span>
-						<select name="collid">
-							<option value="">Select a Collection</option>
-							<option value="">-----------------------------</option>
-							<option value="0">Field Images</option>
-							<?php
-							$collArr = $toolManager->getCollectionMeta();
-							foreach($collArr as $id => $collName){
-								echo '<option value="'.$id.'" '.($collid==$id?'SELECTED':'').'>'.$collName.'</option>';
-							}
-							?>
-						</select>
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<b>Starting Image ID:</b> <input type="text" name="imgidstart" value="<?php echo $imgidEnd; ?>" /><br />
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<b>Batch limit: </b><input type="text" name="limit" value="<?php echo $limit; ?>" /><br />
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<fieldset>
-							<legend>Action</legend>
-							<input type="radio" name="archiveimg" value="0" <?php echo ($archiveImages?'':'CHECKED'); ?> /> Delete Images<br />
-							<input type="radio" name="archiveimg" value="1" <?php echo ($archiveImages?'CHECKED':''); ?> /> Archive Images<br />
-						</fieldset>
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<fieldset>
-							<legend>Image Targets</legend>
-							<input type="checkbox" name="delthumb" value="1" <?php echo ($delThumb?'CHECKED':''); ?> /> Delete Thumbnail Derivative<br />
-							<input type="checkbox" name="delweb" value="1" <?php echo ($delWeb?'CHECKED':''); ?> /> Delete Web Derivative<br />
-							<input type="checkbox" name="dellarge" value="1" <?php echo ($delLarge?'CHECKED':''); ?> /> Delete Large Derivative<br />
-						</fieldset>
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<b>imgids (enter multiple values delimited by commas)</b><br/>
-						<textarea name="imgidstr" rows="8" cols="100"></textarea>
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<button name="submitbutton" type="submit" value="Process Images">Process Images</button>
-					</div>
-				</div>
-			</form>
-		</fieldset>
-		<fieldset>
-			<legend>Image Migration Tools</legend>
-			<div>This tool can be used to migrate images located on a remote server to the local server that is currently hosting the portal</div>
-			<form action="media_scripts.php" method="post">
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<span class="fieldLabel">Collection ID (collid):</span>
-						<select name="collid">
-							<option value="">Select a Collection</option>
-							<option value="">-----------------------------</option>
-							<option value="0">Field Images</option>
-							<?php
-							$collArr = $toolManager->getCollectionMeta();
-							foreach($collArr as $id => $collName){
-								echo '<option value="'.$id.'" '.($collid==$id?'SELECTED':'').'>'.$collName.'</option>';
-							}
-							?>
-						</select>
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<fieldset>
-						<legend>Transfer Target</legend>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<input name="transferThumbnail" type="checkbox" value="1" <?php echo ($transferThumbnail?'CHECKED':''); ?> />
-								<span class="fieldLabel">Transfer Thumbnail</span>
-							</div>
-						</div>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<input name="transferWed" type="checkbox" value="1" <?php echo ($transferWeb?'CHECKED':''); ?> />
-								<span class="fieldLabel">Transfer Web View (medium)</span>
-							</div>
-						</div>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<input name="transferLarge" type="checkbox" value="1" <?php echo ($transferLarge?'CHECKED':''); ?> />
-								<span class="fieldLabel">Transfer Large Image</span>
-							</div>
-						</div>
-					</fieldset>
-				</div>
-				<div class="fieldRowDiv">
-					<fieldset>
-						<legend>Transfer Source Query Term</legend>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<span class="fieldLabel">Thumbnail Matching Term (thumbnailUrl):</span>
-								<input name="matchTermThumbnail" type="text" value="<?php echo $matchTermThumbnail; ?>" />
-							</div>
-						</div>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<span class="fieldLabel">Web Image (medium) Matching Term (url):</span>
-								<input name="matchTermWeb" type="text" value="<?php echo $matchTermWeb; ?>" />
-							</div>
-						</div>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<span class="fieldLabel">Large Image Matching Term (originalurl):</span>
-								<input name="matchTermLarge" type="text" value="<?php echo $matchTermLarge; ?>" />
-							</div>
-						</div>
-					</fieldset>
-				</div>
-				<div class="fieldRowDiv">
-					<fieldset>
-						<legend>Path Variables</legend>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<span class="fieldLabel">Image Root URL (imgRootUrl):</span>
-								<input name="imgRootUrl" type="text" value="<?php echo ($imgRootUrl?$imgRootUrl:$IMAGE_ROOT_URL); ?>" style="width:400px" />
-							</div>
-						</div>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<span class="fieldLabel">Image Root Path (imgRootPath):</span>
-								<input name="imgRootPath" type="text" value="<?php echo ($imgRootPath?$imgRootPath:$IMAGE_ROOT_PATH); ?>" style="width:400px" />
-							</div>
-						</div>
-						<div class="fieldRowDiv">
-							<div class="fieldDiv">
-								<span class="fieldLabel">Target Sub-Path:</span>
-								<input name="imgSubPath" type="text" value="<?php echo $imgSubPath; ?>" style="width:400px" />
-							</div>
-						</div>
-					</fieldset>
-				</div>
-				<div class="fieldRowDiv">
-					<div class="fieldDiv">
-						<span class="fieldLabel">Batch limit:</span>
-						<input type="text" name="limit" value="<?php echo $limit; ?>" />
-					</div>
-				</div>
-				<div class="fieldRowDiv">
-					<button name="submitbutton" type="submit" value="transferImages">Transfer Images</button>
-				</div>
-			</form>
-		</fieldset>
 		<?php
 	}
-	else{
-		echo '<div>Permissions issue; are you logged in?</div>';
-	}
+	else echo '<div>Permissions issue; are you logged in?</div>';
 	?>
 </body>

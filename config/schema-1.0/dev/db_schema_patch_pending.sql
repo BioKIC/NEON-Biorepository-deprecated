@@ -385,6 +385,8 @@ ALTER TABLE `omoccurgenetic`
 ALTER TABLE `omoccurgenetic` 
   ADD UNIQUE INDEX `UNIQUE_omoccurgenetic` (`occid` ASC, `resourceurl` ASC);
 
+ALTER TABLE `omoccuridentifiers` 
+  ADD COLUMN `sortBy` INT NULL AFTER `notes`;
 
 ALTER TABLE `omoccurassociations` 
   DROP FOREIGN KEY `FK_occurassoc_occidassoc`,

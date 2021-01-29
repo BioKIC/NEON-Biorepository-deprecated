@@ -70,9 +70,7 @@ function initImgRes(){
 	if(imgObj){
 		if(imgLgArr[activeImgIndex]){
 			var imgRes = getCookie("symbimgres");
-			if(imgRes == 'lg'){
-				changeImgRes('lg');
-			}
+			if(imgRes == 'lg') changeImgRes('lg');
 		}
 		else{
 			imgObj.src = imgArr[activeImgIndex];
@@ -113,52 +111,21 @@ function changeImgRes(resType){
     		document.getElementById("imgresmed").checked = true;
     	}
 	}
-	if(oldSrc.indexOf("rotate=") > -1){
-		oldSrc = oldSrc.substring(0,oldSrc.indexOf('&format='));
-		oldSrc = oldSrc.substring(oldSrc.indexOf('rotate=')+7);
-		var currentSrc = imgObj.src;
-		currentSrc = currentSrc.substring(0,currentSrc.indexOf('&format='));
-		imgObj.src = currentSrc + '&rotate=' + oldSrc + '&format=jpeg';
-	}
 }
 
-function rotateiPlantImage(rotationAngle){
+function rotateImage(rotationAngle){
 	var imgObj = document.getElementById("activeimg-"+activeImgIndex);
-	var imgSrc = imgObj.src;
-	if(imgSrc.indexOf("bisque.cyverse") > -1){
-		var angle = 0;
-		imgSrc = imgSrc.substring(0,imgSrc.indexOf('&format='));
-		if(imgSrc.indexOf("rotate=") > -1){
-			var last3 = imgSrc.substr(-3);
-			if(last3 == "=90"){
-				angle = 90;
-			}
-			else if(last3 == "-90"){
-				angle = -90;
-			}
-			else if(last3 == "180"){
-				angle = 180;
-			}
-			imgSrc = imgSrc.substring(0,imgSrc.indexOf('&rotate='));
-		}
-		angle = angle + rotationAngle;
-		if(angle == -180){
-			angle = 180;
-		}
-		else if(angle == 270){
-			angle = -90;
-		}
-		if(angle == 0){
-			imgObj.src = imgSrc + "&format=jpeg";
-		}
-		else{
-			imgObj.src = imgSrc + "&rotate="+angle+"&format=jpeg";
-		}
-		
-		var img = document.getElementById("activeimg-"+activeImgIndex);
-		$(img).imagetool("option","src",imgObj.src);
-		$(img).imagetool("reset");
+	var imgAngle = 0;
+	if(imgObj.style.transform){
+		var transformValue = imgObj.style.transform;
+		imgAngle = parseInt(transformValue.substring(7));
 	}
+	imgAngle = imgAngle + rotationAngle;
+	if(imgAngle < 0) imgAngle = 360 + imgAngle;
+	else if(imgAngle == 360) imgAngle = 0;
+	imgObj.style.transform = "rotate("+imgAngle+"deg)";
+	$(imgObj).imagetool("option","rotationAngle",imgAngle);
+	$(imgObj).imagetool("reset");
 }
 
 function ocrImage(ocrButton,imgidVar,imgCnt){

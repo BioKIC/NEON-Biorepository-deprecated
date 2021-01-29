@@ -1,4 +1,4 @@
-//Code: http://code.google.com/p/jquery-imagetool/
+//Code: https://code.google.com/p/jquery-imagetool/
 //Sample page: http://homepage.mac.com/bendik/imagetool/demo/index.html
 (function($) {
     $.widget("ui.imagetool", {
@@ -29,6 +29,7 @@
             ,edgeSensitivity: 15
             ,imageWidth: 200 /* The width of the work image */
             ,imageHeight: 200 /* The height of the work image */
+            ,rotationAngle: 0
             ,imageMaxWidth: 2500
             ,x: 0
             ,y: 0
@@ -99,8 +100,8 @@
                 
                 var i = new Image();
                 i.onload = function() {
-                    o.imageWidth = i.width;
-                    o.imageHeight = i.height;
+            		o.imageWidth = i.width;
+            		o.imageHeight = i.height;
                     self._configure();
                 }
                 i.src = o.src;
@@ -394,7 +395,6 @@
                 this._trigger("change", null, o);
         }
 
-
         ,_handlePan: function(e) {
                 e.preventDefault();
                 var self = this;
@@ -409,9 +409,6 @@
                 var targetX = o._absx - deltaX;
                 var targetY = o._absy - deltaY;
 
-                var minX = -o._width + o.viewportWidth;
-                var minY = -o._height + o.viewportHeight;
-
                 o._absx = targetX;
                 o._absy = targetY;
                 self._move();  
@@ -419,38 +416,44 @@
                 
         } // end pan
 
-
-
         ,_move: function() {
                 var o = this.options;
                 var image = this.element;
 
-                var minX = -o._width + o.viewportWidth;
-                var minY = -o._height + o.viewportHeight;
-                if(o._absx >= 0) {
+                var wDim = o._width;
+                if(o.rotationAngle == 90 || o.rotationAngle == 270) var wDim = o._height;
+                var minX = -wDim + o.viewportWidth;
+                var leftBoarder = 0;
+                var rightBoarder = minX;
+                if(o.rotationAngle == 90 || o.rotationAngle == 270){
+	                leftBoarder = (o._height - o._width)/2;
+	                rightBoarder = minX+leftBoarder;
+                }	
+                if(o._absx >= leftBoarder) {
                 	//Keeps image from going too far to rigth
-                	if(o._width > o.viewportWidth){
-                		o._absx = 0;
-                	}
-                	else{
-                		o._absx = minX/2;
-                	}
+                	if(wDim > o.viewportWidth) o._absx = leftBoarder;
+                	else o._absx = (-o._width + o.viewportWidth)/2;
                 }
-                else if(o._absx < minX) {
+                else if(o._absx < rightBoarder) {
                 	//Keeps image from being moved too far to left
-                    o._absx = minX;
+                    o._absx = rightBoarder;
                 }
-
-                if(o._absy >= 0) {
-                	if(o._height > o.viewportHeight){
-                		o._absy = 0;
-                	}
-                	else{
-                		o._absy = minY/2;
-                	}
+                
+                var hDim = o._height;
+                if(o.rotationAngle == 90 || o.rotationAngle == 270) var hDim = o._width;
+                var minY = -hDim + o.viewportHeight;
+                var topBoarder = 0;
+                var bottomBoarder = minY;
+                if(o.rotationAngle == 90 || o.rotationAngle == 270){
+                	topBoarder = (o._width-o._height)/2;
+                	bottomBoarder = minY+topBoarder;
+                }	
+                if(o._absy >= topBoarder) {
+                	if(hDim > o.viewportHeight) o._absy = topBoarder;
+                	else o._absy = (-o._height + o.viewportHeight)/2;
                 }    
-                else if(o._absy < minY) {
-                    o._absy = minY;
+                else if(o._absy < bottomBoarder) {
+                    o._absy = bottomBoarder;
                 }
                 
                 o.x = (-o._absx/o._width);
@@ -462,7 +465,6 @@
                 });
                 this._trigger("change", null, o);
         }
-
 
         /**
          * Zooms the image by setting its width/height

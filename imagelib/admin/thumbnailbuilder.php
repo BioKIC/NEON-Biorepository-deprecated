@@ -9,11 +9,13 @@ $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:'';
 $tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:0;
 $buildMediumDerivatives = array_key_exists('buildmed',$_POST)?$_POST['buildmed']:0;
+$evaluateOrientation = array_key_exists('evalorientation',$_POST)?$_POST['evalorientation']:0;
 
 //Sanitation
 if(!is_numeric($collid)) $collid = '';
 if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($buildMediumDerivatives)) $buildMediumDerivatives = 0;
+if(!is_numeric($evaluateOrientation)) $evaluateOrientation = 0;
 $action = filter_var($action,FILTER_SANITIZE_STRING);
 
 $isEditor = false;
@@ -28,6 +30,7 @@ $imgManager = new ImageCleaner();
 $imgManager->setCollid($collid);
 $imgManager->setTid($tid);
 $imgManager->setBuildMediumDerivative($buildMediumDerivatives);
+$imgManager->setTestOrientation($evaluateOrientation);
 ?>
 <html>
 <head>
@@ -54,9 +57,9 @@ $imgManager->setBuildMediumDerivative($buildMediumDerivatives);
 		fieldset{ padding: 10px }
 		fieldset legend{ font-weight: bold }
 		.fieldRowDiv{ clear:both; margin: 2px 0px; }
+		.fieldRowDiv button{ margin-top: 10px; }
 		.fieldDiv{ float:left; margin: 2px 10px 2px 0px; }
 		.fieldLabel{ }
-		.fieldDiv button{ margin-top: 10px; }
 	</style>
 </head>
 <body>
@@ -153,6 +156,12 @@ $imgManager->setBuildMediumDerivative($buildMediumDerivatives);
 									</div>
 								</div>
 								<div class="fieldRowDiv">
+									<div class="fieldDiv">
+										<input name="evalorientation" type="checkbox" value="1" <?php echo ($evaluateOrientation?'checked':''); ?> />
+										<span class="fieldLabel"> rotate image derivatives based on orientation tag</span>
+									</div>
+								</div>
+								<div class="fieldRowDiv">
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>">
 									<input name="tid" type="hidden" value="<?php echo $tid; ?>">
 									<button name="action" type="submit" value="buildThumbnails">Build Thumbnails</button>
@@ -190,6 +199,13 @@ $imgManager->setBuildMediumDerivative($buildMediumDerivatives);
 							<div style="margin-bottom:10px;">
 								<input name="evaluate_ts" type="radio" value="1" checked /> Only process images where the source file is more recent than thumbnails<br/>
 								<input name="evaluate_ts" type="radio" value="0" /> Force rebuild all images
+							</div>
+							<div class="fieldRowDiv">
+								<input name="buildmed" type="checkbox" value="1" <?php echo ($buildMediumDerivatives?'checked':''); ?> />
+								<span class="fieldLabel"> include medium-sized image derivatives in addition to thumbnails</span>
+							</div>
+							<div style="margin-bottom:10px;">
+								<input name="evalorientation" type="checkbox" value="1" <?php echo ($evaluateOrientation?'checked':''); ?> /> rotate images based on orientation tag
 							</div>
 							<div style="margin:20px;clear:both">
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />

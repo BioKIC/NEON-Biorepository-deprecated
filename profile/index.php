@@ -101,17 +101,17 @@ else{
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['LOGIN_NAME'])?$LANG['LOGIN_NAME']:'Login'); ?></title>
-    <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		if(!navigator.cookieEnabled){
@@ -148,6 +148,10 @@ else{
 		}
 	</script>
 	<script src="../js/symb/shared.js" type="text/javascript"></script>
+	<style type="text/css">
+		fieldset { padding:20px; background-color:#f2f2f2; border:2px outset #E8EEFA; }
+		legend { font-weight: bold; }
+	</style>
 </head>
 <body>
 <?php
@@ -170,7 +174,8 @@ include($SERVER_ROOT.'/includes/header.php');
 	}
 	?>
 	<div style="width:300px;margin-right:auto;margin-left:auto;">
-		<fieldset style='padding:25px;margin:20px;width:300px;background-color:#FFFFCC;border:2px outset #E8EEFA;'>
+		<fieldset style="margin:20px;width:300px;">
+			<legend><?php echo (isset($LANG['PORTAL_LOGIN'])?$LANG['PORTAL_LOGIN']:'Portal Login'); ?></legend>
 			<form id="loginform" name="loginform" action="index.php" onsubmit="return checkCreds();" method="post">
 				<div style="margin: 10px;font-weight:bold;">
 					<?php echo (isset($LANG['LOGIN_NAME'])?$LANG['LOGIN_NAME']:'Login'); ?>:&nbsp;&nbsp;&nbsp;<input id="login" name="login" value="<?php echo $login; ?>" style="border-style:inset;" />
@@ -207,7 +212,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			<div>
 				<div><a href="#" onclick="toggle('emaildiv');"><?php echo (isset($LANG['RETRIEVE'])?$LANG['RETRIEVE']:'Retrieve Login'); ?></a></div>
 				<div id="emaildiv" style="display:none;margin:10px 0px 10px 40px;">
-					<fieldset style="padding:10px;">
+					<fieldset>
 						<form id="retrieveloginform" name="retrieveloginform" action="index.php" method="post">
 							<div><?php echo (isset($LANG['YOUR_EMAIL'])?$LANG['YOUR_EMAIL']:'Your Email'); ?>: <input type="text" name="emailaddr" /></div>
 							<div><button name="action" type="submit" value="Retrieve Login"><?php echo (isset($LANG['RETRIEVE'])?$LANG['RETRIEVE']:'Retrieve Login'); ?></button></div>

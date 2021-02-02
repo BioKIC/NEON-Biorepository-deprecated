@@ -5,26 +5,28 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = $_GET["occid"];
 $tid = $_GET["tid"];
-$collId = $_GET["collid"];
 $clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
 
 //Sanitize input variables
 if(!is_numeric($occid)) $occid = 0;
 if(!is_numeric($tid)) $tid = 0;
-if(!is_numeric($collId)) $collId = 0;
 if(!is_numeric($clid)) $clid = 0;
 
 $indManager = new OccurrenceIndividual();
 $indManager->setOccid($occid);
 
 ?>
+<style>
+	.section-title{  }
+</style>
 <div id='innertext' style='width:95%;min-height:400px;clear:both;background-color:white;'>
-	<fieldset style="padding:20px;margin:15px;">
-		<legend><b>Species Checklist Relationships</b></legend>
+	<fieldset>
+		<legend>Species Checklist Relationships</legend>
+		<div style="float:right"><a href="#" onclick="toggle('voucher-block');return false"><img src="../../images/add.png" /></a></div>
 		<?php
 		$vClArr = $indManager->getVoucherChecklists();
 		if($vClArr){
-			echo '<div style="font-weight:bold"><u>Specimen voucher of the following checklists</u></div>';
+			echo '<div class="section-title">Specimen voucher of the following checklists</div>';
 			echo '<ul style="margin:15px 0px 25px 0px;">';
 			foreach($vClArr as $id => $clName){
 				echo '<li>';
@@ -37,7 +39,7 @@ $indManager->setOccid($occid);
 			echo '</ul>';
 		}
 		else{
-			echo '<h3>Specimen has not been designated as a voucher for a species checklist</h3>';
+			echo '<div style="margin:15px 0px">This occurrence has not been designated as a voucher for a species checklist</div>';
 		}
 		if($IS_ADMIN || array_key_exists("ClAdmin",$USER_RIGHTS)){
 			?>
@@ -45,12 +47,12 @@ $indManager->setOccid($occid);
 				<?php
 				if($clArr = $indManager->getChecklists(array_keys($vClArr))){
 					?>
-					<fieldset style='margin-top:20px;padding:15px;'>
-						<legend><b>New Voucher Assignment</b></legend>
+					<fieldset id="voucher-block" style="display:none">
+						<legend>New Voucher Assignment</legend>
 						<?php
 						if($tid){
 							?>
-							<div style='margin:10px;'>
+							<div style="margin:10px;">
 								<form action="../../checklists/clsppeditor.php" method="post" onsubmit="return verifyVoucherForm(this);">
 									<div>
 										Add as voucher to checklist:
@@ -100,53 +102,44 @@ $indManager->setOccid($occid);
 		?>
 	</fieldset>
 	<?php
-	if($SYMB_UID){
-		?>
-		<fieldset style="padding:20px;margin:15px;">
-			<legend><b>Dataset Linkages</b></legend>
-			<?php
-			$displayStr = '';
-			$datasets = $indManager->getDatasetArr($SYMB_UID);
-			foreach($datasets as $dsid => $dsArr){
-				if(array_key_exists('linked',$dsArr)){
-					$displayStr .= '<li>';
-					$displayStr .= '<a href="../datasets/datasetmanager.php?datasetid='.$dsid.'" target="_blank">'.$dsArr['name'].'</a>';
-					if($dsArr['linked']) $displayStr .= ' ('.$dsArr['linked'].')';
-					$displayStr .= '</li>';
-				}
+	$datasetArr = $indManager->getDatasetArr();
+	if($datasetArr){
+		echo '<fieldset>';
+		echo '<legend>Dataset Linkages</legend>';
+		if($SYMB_UID) echo '<div style="float:right"><a href="#" onclick="toggle(\'dataset-block\');return false"><img src="../../images/add.png" /></a></div>';
+		$dsDisplayStr = '';
+		foreach($datasetArr as $dsid => $dsArr){
+			if(isset($dsArr['linked']) && $dsArr['linked']){
+				$dsDisplayStr .= '<li>';
+				$dsDisplayStr .= '<a href="../datasets/datasetmanager.php?datasetid='.$dsid.'" target="_blank">'.$dsArr['name'].'</a>';
+				if(isset($dsArr['role']) && $dsArr['role']) $dsDisplayStr .= ' (role: '.$dsArr['role'].')';
+				if(isset($dsArr['notes']) && $dsArr['notes']) $dsDisplayStr .= ' - '.$dsArr['notes'];
+				$dsDisplayStr .= '</li>';
 			}
-			if($displayStr){
-				echo '<div style="font-weight:bold"><u>Member of the following datasets</u></div>';
-				echo '<ul>'.$displayStr.'</ul>';
-			}
-			else{
-				echo '<h3>Occurrence is not linked to a dataset</h3>';
-			}
+		}
+		if($dsDisplayStr){
+			echo '<div class="section-title">Member of the following datasets</div>';
+			echo '<ul>'.$dsDisplayStr.'</ul>';
+		}
+		else echo '<div style="margin:15px 0px">Occurrence is not linked to any datasets</div>';
+		if($SYMB_UID){
 			?>
-			<fieldset style='padding:15px;margin-top:30px;'>
-				<legend><b>Create New Dataset Relationship</b></legend>
-				<form action="index.php" method="post" onsubmit="return verifyDatasetForm(this);">
+			<fieldset id="dataset-block" style="display:none">
+				<legend>Create New Dataset Relationship</legend>
+				<form action="../datasets/datasetHandler.php" method="post" onsubmit="return verifyDatasetForm(this);">
 					<div style="margin:3px">
-						<?php
-						if($datasets){
-							?>
-							<select name="dsid">
-								<option value="">Select an Existing Dataset</option>
-								<option value="">----------------------------------</option>
-								<?php
-								foreach($datasets as $dsid => $dsArr){
-									if(!array_key_exists('linked',$dsArr)){
-										echo '<option value="'.$dsid.'">'.$dsArr['name'].'</option>';
-									}
-								}
-								?>
-							</select>
-							<b>Or Enter</b>
+						<select name="targetdatasetid">
+							<option value="">Select an Existing Dataset</option>
+							<option value="">----------------------------------</option>
 							<?php
-						}
-						?>
-						<b>New Dataset Name:</b>
-						<input name="dsname" type="text" value="" maxlength="100" style="width:200px;" />
+							foreach($datasetArr as $dsid => $dsArr){
+								if(!array_key_exists('linked',$dsArr)){
+									echo '<option value="'.$dsid.'">'.$dsArr['name'].'</option>';
+								}
+							}
+							?>
+							<option value="--newDataset">Create New Dataset</option>
+						</select>
 					</div>
 					<div style="margin:5px">
 						<b>Notes:</b><br/>
@@ -154,15 +147,14 @@ $indManager->setOccid($occid);
 					</div>
 					<div style="margin:15px">
 						<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-						<input name="collid" type="hidden" value="<?php echo $collId; ?>" />
-						<input name="clid" type="hidden" value="<?php echo $clid; ?>" />
-						<input name="formsubmit" type="submit" value="Link to Dataset" />
+						<input name="sourcepage" type="hidden" value="individual" />
+						<button name="action" type="submit" value="addSelectedToDataset" >Link to Dataset</button>
 					</div>
 				</form>
 			</fieldset>
-		</fieldset>
-		<?php
+			<?php
+		}
+		echo '</fieldset>';
 	}
 	?>
-
 </div>

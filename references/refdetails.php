@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ReferenceManager.php');
+header("Content-Type: text/html; charset=".$CHARSET);
 
 $refId = array_key_exists('refid',$_REQUEST)?$_REQUEST['refid']:0;
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
@@ -66,11 +67,9 @@ else{
 	header("Location: index.php");
 }
 
-header("Content-Type: text/html; charset=".$CHARSET);
 ?>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-   "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">

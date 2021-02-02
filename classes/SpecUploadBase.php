@@ -39,7 +39,8 @@ class SpecUploadBase extends SpecUpload{
 	function __construct() {
 		parent::__construct();
 		set_time_limit(7200);
-		ini_set("max_input_time",240);
+		ini_set('max_input_time',600);
+		ini_set('default_socket_timeout', 6000);
 		if(isset($GLOBALS['CHARSET']) && $GLOBALS['CHARSET']){
 			$this->targetCharset = strtoupper($GLOBALS['CHARSET']);
 			if($this->targetCharset == 'UTF8') $this->targetCharset == 'UTF-8';
@@ -1303,19 +1304,17 @@ class SpecUploadBase extends SpecUpload{
 			if($r->cnt){
 				$this->outputMsg('<li>Transferring host associations...</li>');
 				//Update existing host association records
-				$sql = 'UPDATE uploadspectemp AS s LEFT JOIN omoccurassociations AS a ON s.occid = a.occid '.
+				$sql = 'UPDATE uploadspectemp s LEFT JOIN omoccurassociations a ON s.occid = a.occid '.
 					'SET a.verbatimsciname = s.`host` '.
 					'WHERE a.occid IS NOT NULL AND s.`host` IS NOT NULL AND a.relationship = "host" ';
-				//echo $sql.'<br/>';
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:20px;">WARNING updating host associations within omoccurassociations: '.$this->conn->error.'</li> ');
 				}
 
 				//Load images
 				$sql = 'INSERT INTO omoccurassociations(occid,relationship,verbatimsciname) '.
-					'SELECT s.occid, "host", s.`host` '.
-					'FROM uploadspectemp AS s LEFT JOIN omoccurassociations AS a ON s.occid = a.occid '.
-					'WHERE ISNULL(a.occid) AND s.`host` IS NOT NULL ';
+					'SELECT s.occid, "host", s.`host` FROM uploadspectemp s LEFT JOIN omoccurassociations a ON s.occid = a.occid '.
+					'WHERE (a.occid IS NULL) AND (s.`host` IS NOT NULL) ';
 				if($this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:10px;">Host associations updated</li> ');
 				}

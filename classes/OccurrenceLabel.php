@@ -91,7 +91,7 @@ class OccurrenceLabel{
 			}
 			if($postArr['recordedby']){
 				$recordedBy = $this->cleanInStr($postArr['recordedby']);
-				if(strlen($recordedBy) < 4 || strtolower($recordedBy) == 'best'){
+				if(strlen($recordedBy) < 4 || in_array(strtolower($recordedBy),array('best','little'))){
 					//Need to avoid FULLTEXT stopwords interfering with return
 					$sqlWhere .= 'AND (o.recordedby LIKE "%'.$recordedBy.'%") ';
 				}
@@ -283,38 +283,42 @@ class OccurrenceLabel{
 				$cnt = 0;
 				$fieldDivStr = '';
 				foreach($bArr['fieldBlock'] as $fieldArr){
-					$fieldName = $fieldArr['field'];
+					$fieldName = strtolower($fieldArr['field']);
 					$fieldValue = trim($occArr[$fieldName]);
 					if($fieldValue){
 						if($delimiter && $cnt) $fieldDivStr .= $delimiter;
-						$fieldDivStr .= '<span class="'.$fieldName.'" '.(isset($fieldArr['style'])?'style="'.$fieldArr['style'].'"':'').'>';
+						$fieldDivStr .= '<span class="'.$fieldName.(isset($fieldArr['className'])?' '.$fieldArr['className']:'').'" '.(isset($fieldArr['style'])?'style="'.$fieldArr['style'].'"':'').'>';
 						if(isset($fieldArr['prefix']) && $fieldArr['prefix']){
-							$fieldDivStr .= '<span class="'.$fieldName.'Prefix" '.(isset($fieldArr['prefixStyle'])?'style="'.$fieldArr['prefixStyle'].'"':'').'>'.$fieldArr['prefix'].'</span>';
+							$fieldDivStr .= '<span class="'.$fieldName.'Prefix"'.(isset($fieldArr['prefixStyle'])?' style="'.$fieldArr['prefixStyle'].'"':'').'>'.$fieldArr['prefix'].'</span>';
 						}
 						$fieldDivStr .= $fieldValue;
 						if(isset($fieldArr['suffix']) && $fieldArr['suffix']){
-							$fieldDivStr .= '<span class="'.$fieldName.'Suffix" '.(isset($fieldArr['suffixStyle'])?'style="'.$fieldArr['suffixStyle'].'"':'').'>'.$fieldArr['suffix'].'</span>';
+							$fieldDivStr .= '<span class="'.$fieldName.'Suffix"'.(isset($fieldArr['suffixStyle'])?' style="'.$fieldArr['suffixStyle'].'"':'').'>'.$fieldArr['suffix'].'</span>';
 						}
 						$fieldDivStr .= '</span>';
 						$cnt++;
 					}
 				}
-				if($fieldDivStr) $outStr .= '<div class="fieldBlockDiv" '.(isset($bArr['style'])?'style="'.$bArr['style'].'"':'').'>'.$fieldDivStr.'</div>';
+				if($fieldDivStr) $outStr .= '<div class="field-block'.(isset($bArr['className'])?' '.$bArr['className']:'').'"'.(isset($bArr['style'])?' style="'.$bArr['style'].'"':'').'>'.$fieldDivStr.'</div>';
 			}
 		}
 		return $outStr;
 	}
 
 	private function getDivBlock($divArr,$occArr){
-		if(array_key_exists('blocks', $divArr)){
-			if($blockStr = $this->getLabelBlock($divArr['blocks'],$occArr)){
-				return '<div '.(isset($divArr['className'])?'class="'.$divArr['className'].'"':'').' '.(isset($divArr['style'])?'style="'.$divArr['style'].'"':'').'>'.$blockStr.'</div>'."\n";
-			}
+		$contentStr = '';
+		if(array_key_exists('blocks', $divArr)) $contentStr = $this->getLabelBlock($divArr['blocks'],$occArr);
+		elseif(array_key_exists('content', $divArr)) $contentStr = $divArr['content'];
+		if($contentStr){
+			$attrStr = '';
+			if(isset($divArr['className'])) $attrStr .= 'class="'.$divArr['className'].'"';
+			if(isset($divArr['style']) && $divArr['style']) $attrStr .= 'style="'.$divArr['style'].'"';
+			return '<div '.trim($attrStr).'>'.$contentStr.'</div>'."\n";
 		}
 		return '';
 	}
 
-	public function getLabelFormatArr($labelCat, $labelIndex){
+	public function getLabelFormatByID($labelCat, $labelIndex){
 		if(is_numeric($labelIndex)){
 			if($labelCat == 'global'){
 				if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
@@ -368,55 +372,224 @@ class OccurrenceLabel{
 		return false;
 	}
 
-	public function getLabelFormatAnnotatedArr(){
-		$labelFormatArr = array();
+	public function getLabelFormatArr($annotated = false){
+		$retArr = array();
 		//Add global portal defined label formats
-		if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
-			include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
-			if(isset($LABEL_FORMAT_JSON)){
-				if($globalFormatArr = json_decode($LABEL_FORMAT_JSON,true)){
-					if(isset($globalFormatArr['labelFormats'])){
-						foreach($globalFormatArr['labelFormats'] as $k => $labelObj){
+		if($GLOBALS['IS_ADMIN']){
+			if(!file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
+				@copy($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson_template.php',$GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
+			}
+			if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
+				include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
+				if(isset($LABEL_FORMAT_JSON)){
+					if($globalFormatArr = json_decode($LABEL_FORMAT_JSON,true)){
+						if($annotated){
+							if(isset($globalFormatArr['labelFormats'])){
+								foreach($globalFormatArr['labelFormats'] as $k => $labelObj){
+									unset($labelObj['labelFormats']);
+									$retArr['g'][$k] = $labelObj;
+								}
+							}
+						}
+						else $retArr['g'] = $globalFormatArr['labelFormats'];
+					}
+				}
+			}
+			else $retArr['g'] = array('labelFormats'=>array());
+		}
+		//Add collection defined label formats
+		if($this->collid && $this->collArr['dynprops']){
+			if($collFormatArr = json_decode($this->collArr['dynprops'],true)){
+				if($annotated){
+					if(isset($collFormatArr['labelFormats'])){
+						foreach($collFormatArr['labelFormats'] as $k => $labelObj){
 							unset($labelObj['labelBlocks']);
-							$labelFormatArr['g'][$k] = $labelObj;
+							$retArr['c'][$k] = $labelObj;
 						}
 					}
 				}
-			}
-		}
-		//Add collection defined label formats
-		if($this->collArr['dynprops']){
-			if($collFormatArr = json_decode($this->collArr['dynprops'],true)){
-				if(isset($collFormatArr['labelFormats'])){
-					foreach($collFormatArr['labelFormats'] as $k => $labelObj){
-						unset($labelObj['labelBlocks']);
-						$labelFormatArr['c'][$k] = $labelObj;
-					}
-				}
+				else $retArr['c'] = $collFormatArr['labelFormats'];
 			}
 		}
 		//Add label formats associated with user profile
-		/*
-		$dynPropStr = '';
-		$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
-		$rs = $this->conn->query($sql);
-		if($r = $rs->fetch_object()){
-			$dynPropStr = $r->dynamicProperties;
-		}
-		$rs->free();
-		if($dynPropStr){
-			if($dymPropArr = json_decode($dynPropStr,true)){
-				if(isset($dymPropArr['labelFormats'])){
-					foreach($dymPropArr['labelFormats'] as $k => $labelObj){
-						unset($labelObj['labelBlocks']);
-						$labelFormatArr['u'][$k] = $labelObj;
-					}
+		if($GLOBALS['SYMB_UID']){
+			$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
+			$rs = $this->conn->query($sql);
+			if($rs){
+				$dynPropStr = '';
+				if($r = $rs->fetch_object()){
+					$dynPropStr = $r->dynamicProperties;
+				}
+				$rs->free();
+				$dynPropArr = json_decode($dynPropStr,true);
+				if($annotated){
+					if(isset($dynPropArr['labelFormats'])){
+						foreach($dynPropArr['labelFormats'] as $k => $labelObj){
+							unset($labelObj['labelBlocks']);
+							$retArr['u'][$k] = $labelObj;
+						}
 
+					}
+				}
+				else $retArr['u'] = $dynPropArr['labelFormats'];
+			}
+		}
+		return $retArr;
+	}
+
+	public function saveLabelJson($postArr){
+		$status = true;
+		$group = $postArr['group'];
+		$labelIndex = '';
+		if(isset($postArr['index'])) $labelIndex = $postArr['index'];
+		if(is_numeric($labelIndex) || $labelIndex == ''){
+			if($group == 'g'){
+				$globalFormatArr = array();
+				if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
+					include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
+					if(isset($LABEL_FORMAT_JSON)) $globalFormatArr = json_decode($LABEL_FORMAT_JSON,true);
+				}
+				$this->setLabelFormatAttributes($globalFormatArr,$labelIndex,$postArr);
+				$status = $this->saveGlobalJson($globalFormatArr);
+			}
+			elseif($group == 'c'){
+				if($this->collid){
+					$collFormatArr = array();
+					if($this->collArr['dynprops']) $collFormatArr = json_decode($this->collArr['dynprops'],true);
+					$this->setLabelFormatAttributes($collFormatArr,$labelIndex,$postArr);
+					$status = $this->updateCollectionJson($collFormatArr);
+				}
+				else{
+					$this->errorArr[] = 'ERROR saving label format to omcollections table: collid not set';
+					$status = false;
+				}
+			}
+			elseif($group == 'u'){
+				$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
+				$rs = $this->conn->query($sql);
+				if($rs){
+					$dynPropArr = array();
+					if($r = $rs->fetch_object()){
+						if($r->dynamicProperties) $dynPropArr = json_decode($r->dynamicProperties,true);
+					}
+					$rs->free();
+					$this->setLabelFormatAttributes($dynPropArr,$labelIndex,$postArr);
+					$status = $this->updateUserJson($dynPropArr);
 				}
 			}
 		}
-		*/
-		return $labelFormatArr;
+		return $status;
+	}
+
+	private function setLabelFormatAttributes(&$labelFormatArr,$labelIndex,$postArr){
+		$labelArr = array();
+		$labelArr['title'] = $postArr['title'];
+		$labelArr['labelHeader']['prefix'] = $postArr['hPrefix'];
+		if(isset($postArr['hMidText']) && is_numeric($postArr['hMidText'])) $labelArr['labelHeader']['midText'] = $postArr['hMidText'];
+		else $labelArr['labelHeader']['midText'] = "0";
+		$labelArr['labelHeader']['suffix'] = $postArr['hSuffix'];
+		$labelArr['labelHeader']['className'] = $postArr['hClassName'];
+		$labelArr['labelHeader']['style'] = $postArr['hStyle'];
+		$labelArr['labelFooter']['textValue'] = $postArr['fTextValue'];
+		$labelArr['labelFooter']['className'] = $postArr['fClassName'];
+		$labelArr['labelFooter']['style'] = $postArr['fStyle'];
+		$labelArr['defaultStyles'] = $postArr['defaultStyles'];
+		$labelArr['defaultCss'] = $postArr['defaultCss'];
+		$labelArr['customCss'] = $postArr['customCss'];
+		$labelArr['customJS'] = $postArr['customJS'];
+		$labelArr['labelType'] = $postArr['labelType'];
+		$labelArr['pageSize'] = $postArr['pageSize'];
+		if(isset($postArr['displaySpeciesAuthor']) && $postArr['displaySpeciesAuthor']) $labelArr['displaySpeciesAuthor'] = 1;
+		else $labelArr['displaySpeciesAuthor'] = 0;
+		if(isset($postArr['displayBarcode']) && $postArr['displayBarcode']) $labelArr['displayBarcode'] = 1;
+		else $labelArr['displayBarcode'] = 0;
+		$labelArr['labelBlocks'] = json_decode($postArr['json'],true);
+		if(is_numeric($labelIndex)) $labelFormatArr['labelFormats'][$labelIndex] = $labelArr;
+		else $labelFormatArr['labelFormats'][] = $labelArr;
+	}
+
+	public function deleteLabelFormat($group, $labelIndex){
+		$status = true;
+		if(is_numeric($labelIndex)){
+			if($group == 'g'){
+				$globalFormatArr = array();
+				if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
+					include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
+					if(isset($LABEL_FORMAT_JSON)){
+						$globalFormatArr = json_decode($LABEL_FORMAT_JSON,true);
+						unset($globalFormatArr['labelFormats'][$labelIndex]);
+						$globalFormatArr['labelFormats'] = array_values($globalFormatArr['labelFormats']);
+						$status = $this->saveGlobalJson($globalFormatArr);
+					}
+				}
+			}
+			elseif($group == 'c'){
+				if($this->collid){
+					$collFormatArr = array();
+					if($this->collArr['dynprops']) $collFormatArr = json_decode($this->collArr['dynprops'],true);
+					unset($collFormatArr['labelFormats'][$labelIndex]);
+					$collFormatArr['labelFormats'] = array_values($collFormatArr['labelFormats']);
+					$status = $this->updateCollectionJson($collFormatArr);
+				}
+				else{
+					$this->errorArr[] = 'ERROR saving label format to omcollections table: collid not set';
+					$status = false;
+				}
+			}
+			elseif($group == 'u'){
+				$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
+				$rs = $this->conn->query($sql);
+				if($rs){
+					$dynPropArr = array();
+					if($r = $rs->fetch_object()){
+						if($r->dynamicProperties) $dynPropArr = json_decode($r->dynamicProperties,true);
+					}
+					$rs->free();
+					unset($dynPropArr['labelFormats'][$labelIndex]);
+					$dynPropArr['labelFormats'] = array_values($dynPropArr['labelFormats']);
+					$status = $this->updateUserJson($dynPropArr);
+				}
+			}
+		}
+		return $status;
+	}
+
+	private function saveGlobalJson($formatArr){
+		$status = false;
+		$jsonStr = "<?php\n ".'$LABEL_FORMAT_JSON = \''.json_encode($formatArr,JSON_PRETTY_PRINT | JSON_HEX_APOS)."'; \n?>";
+		if($fh = fopen($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php','w')){
+			if(!fwrite($fh,$jsonStr)){
+				$this->errorArr[] = 'ERROR saving label format to global file ';
+				$status = false;
+			}
+			fclose($fh);
+		}
+		else{
+			$this->errorArr[] = 'ERROR saving label format: unable opening/creating labeljson.php for writing';
+			$status = false;
+		}
+		return $status;
+	}
+
+	private function updateCollectionJson($formatArr){
+		$status = true;
+		$sql = 'UPDATE omcollections SET dynamicProperties = "'.$this->conn->real_escape_string(json_encode($formatArr)).'" WHERE collid = '.$this->collid;
+		if($this->conn->query($sql)) $this->setCollMetadata();
+		else{
+			$this->errorArr[] = 'ERROR saving label format to omcollections table: '.$this->conn->error;
+			$status = false;
+		}
+		return $status;
+	}
+
+	private function updateUserJson($formatArr){
+		$status = true;
+		$sql = 'UPDATE users SET dynamicProperties = "'.$this->conn->real_escape_string(json_encode($formatArr)).'" WHERE uid = '.$GLOBALS['SYMB_UID'];
+		if(!$this->conn->query($sql)){
+			$this->errorArr[] = 'ERROR saving label format to users table: '.$this->conn->error;
+			$status = false;
+		}
+		return $status;
 	}
 
 	//Annotation functions

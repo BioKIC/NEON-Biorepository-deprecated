@@ -9,33 +9,22 @@ $specHandler->setUid($SYMB_UID);
 $genArr = array();
 $cArr = array();
 $oArr = array();
-$collArr = $specHandler->getCollectionArr($SYMB_UID);
+$collArr = $specHandler->getCollectionArr();
 foreach($collArr as $id => $collectionArr){
 	if($collectionArr['colltype'] == 'General Observations') $genArr[$id] = $collectionArr;
 	elseif($collectionArr['colltype'] == 'Preserved Specimens') $cArr[$id] = $collectionArr;
 	elseif($collectionArr['colltype'] == 'Observations') $oArr[$id] = $collectionArr;
 }
-
-$statusStr = '';
 ?>
 <div style="margin:10px;">
 <?php
 if($SYMB_UID){
-	//Collection is defined and User is logged-in and have permissions
-	if($statusStr){
-		?>
-		<hr/>
-		<div style="margin:15px;color:red;">
-			<?php echo $statusStr; ?>
-		</div>
-		<hr/>
-		<?php
-	}
+	if(!$collArr) echo '<div style="margin:40px 15px;font-weight:bold">You do not yet have management permissions for any occurrence projects</div>';
 	foreach($genArr as $collId => $secArr){
 		$cName = $secArr['collectionname'].' ('.$secArr['institutioncode'].($secArr['collectioncode']?'-'.$secArr['collectioncode']:'').')';
 		?>
-		<fieldset style="margin:15px;padding:15px;">
-			<legend style="font-weight:bold;"><b><?php echo $cName; ?></b></legend>
+		<fieldset>
+			<legend><?php echo $cName; ?></legend>
 			<div style="margin-left:10px">
 				Total Record Count: <?php echo $specHandler->getPersonalOccurrenceCount($collId); ?>
 			</div>
@@ -102,8 +91,8 @@ if($SYMB_UID){
 	}
 	if($cArr){
 		?>
-		<fieldset style="margin:15px;padding:15px;">
-			<legend style="font-weight:bold;"><b>Collection Management</b></legend>
+		<fieldset>
+			<legend>Collection Management</legend>
 			<ul>
 				<?php
 				foreach($cArr as $collId => $secArr){
@@ -117,8 +106,8 @@ if($SYMB_UID){
 	}
 	if($oArr){
 		?>
-		<fieldset style="margin:15px;padding:15px;">
-			<legend style="font-weight:bold;"><b>Observation Project Management</b></legend>
+		<fieldset>
+			<legend>Observation Project Management</legend>
 			<ul>
 				<?php
 				foreach($oArr as $collId => $secArr){
@@ -135,8 +124,8 @@ if($SYMB_UID){
 		$genAdminArr = array_intersect_key($genArr,array_flip($USER_RIGHTS['CollAdmin']));
 		if($genAdminArr){
 			?>
-			<fieldset style="margin:15px;padding:15px;">
-				<legend style="font-weight:bold;"><b>General Observation Administration</b></legend>
+			<fieldset>
+				<legend>General Observation Administration</legend>
 				<ul>
 					<?php
 					foreach($genAdminArr as $id => $secArr){
@@ -149,21 +138,26 @@ if($SYMB_UID){
 			<?php
 		}
 	}
-	if((count($cArr)+count($oArr)) > 1){
-		?>
-		<fieldset style="margin:15px;padding:15px;">
-			<legend style="font-weight:bold;"><b>Cross Collection Batch Editing Tools</b></legend>
-			<ul>
-			<li><a href="../collections/georef/batchgeoreftool.php">Georeferencing Tool</a></li>
+	?>
+	<fieldset>
+		<legend>Miscellaneous Tools</legend>
+		<ul>
+			<li><a href="../collections/datasets/index.php">Dataset Management</a></li>
 			<?php
-			if(isset($USER_RIGHTS['CollAdmin']) && count(array_diff($USER_RIGHTS['CollAdmin'],array_keys($genAdminArr))) > 1){
-				echo '<li><a href="../collections/cleaning/taxonomycleaner.php">Taxonomy Cleaning Tool</a></li>';
+			if((count($cArr)+count($oArr)) > 1){
+				?>
+				<li><a href="../collections/georef/batchgeoreftool.php">Cross Collection Georeferencing Tool</a></li>
+				<?php
+				if(isset($USER_RIGHTS['CollAdmin']) && count(array_diff($USER_RIGHTS['CollAdmin'],array_keys($genAdminArr))) > 1){
+					?>
+					<li><a href="../collections/cleaning/taxonomycleaner.php">Cross Collection Taxonomy Cleaning Tool</a></li>
+					<?php
+				}
 			}
 			?>
-			</ul>
-		</fieldset>
-		<?php
-	}
+		</ul>
+	</fieldset>
+	<?php
 }
 ?>
 </div>

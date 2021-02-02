@@ -66,9 +66,40 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 				}
 			});
 		});
+
+		function validateOccurListForm(f){
+			if(f.targetdatasetid.value == ""){
+				alert("<?php echo (isset($LANG['SELECT_DATASET'])?$LANG['SELECT_DATASET']:'Please select a dataset to append occurrences, or select Create New Dataset'); ?>");
+				return false;
+			}
+			return true;
+		}
+
+		function hasSelectedOccid(f){
+			var isSelected = false;
+			for(var h=0;h<f.length;h++){
+				if(f.elements[h].name == "occid[]" && f.elements[h].checked){
+					isSelected = true;
+					break;
+				}
+			}
+			if(!isSelected){
+				alert("<?php echo (isset($LANG['SELECT_OCCURRENCE'])?$LANG['SELECT_OCCURRENCE']:'Please select at least one occurrence to be added to the dataset'); ?>");
+				return false;
+			}
+			return true;
+		}
+
+		function displayDatasetTools(){
+			$('.dataset-div').toggle();
+			document.getElementById("dataset-tools").scrollIntoView({behavior: 'smooth'});
+		}
 	</script>
 	<script src="../js/symb/collections.list.js?ver=9" type="text/javascript"></script>
 	<style type="text/css">
+		fieldset{ padding:15px; }
+		legend{ font-weight:bold; }
+		.checkbox-elem{ margin:5px; padding:5px; border:1px dashed orange; }
 		.ui-tabs .ui-tabs-nav li { width:32%; }
 		.ui-tabs .ui-tabs-nav li a { margin-left:10px;}
 	</style>
@@ -117,13 +148,17 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 		<div id="speclist">
 			<div id="queryrecords">
 				<div style="float:right;">
-					<!--
-					<div style="float:left">
-						<button class="icon-button" onclick="$('.datasetDiv').toggle();" title="Dataset Management">
-							<img src="../images/dataset.png" style="width:15px;" />
-						</button>
-					</div>
-					-->
+					<?php
+					if($SYMB_UID){
+						?>
+						<div style="float:left">
+							<button class="icon-button" onclick="displayDatasetTools()" title="Dataset Management">
+								<img src="../images/dataset.png" style="width:15px;" />
+							</button>
+						</div>
+						<?php
+					}
+					?>
 					<form action="listtabledisplay.php" method="post" style="float:left">
 						<button class="icon-button" title="<?php echo (isset($LANG['TABLE_DISPLAY'])?$LANG['TABLE_DISPLAY']:'Table Display'); ?>">
 							<img src="../images/table.png" style="width:15px; height:15px" />
@@ -145,7 +180,21 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 				</div>
 				<div style="margin:5px;">
 					<?php
-					echo '<div><b>'.$LANG['DATASET'].':</b> '.$collManager->getCollectionSearchStr().'</div>';
+					$collSearchStr = $collManager->getCollectionSearchStr();
+					if(strlen($collSearchStr) > 100){
+						$collSearchArr = explode('; ',$collSearchStr);
+						$collSearchStr = '';
+						$cnt = 0;
+						while($collElem = array_shift($collSearchArr)){
+							$collSearchStr .= $collElem.'; ';
+							if($cnt==10 && $collSearchArr){
+								$collSearchStr = trim($collSearchStr,'; ').'<span class="moreinst">... (<a href="#" onclick="$(\'.moreinst\').toggle();return false;">'.(isset($LANG['SHOW_ALL'])?$LANG['SHOW_ALL']:'show all').'</a>)</span><span class="moreinst" style="display:none">; ';
+							}
+							$cnt++;
+						}
+						if($cnt>11) $collSearchStr .= '</span>';
+					}
+					echo '<div><b>'.$LANG['DATASET'].':</b> '.$collSearchStr.'</div>';
 					if($taxaSearchStr = $collManager->getTaxaSearchStr()){
 						echo '<div><b>'.$LANG['TAXA'].':</b> '.$taxaSearchStr.'</div>';
 					}
@@ -189,7 +238,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 				//Add search return
 				if($occurArr){
 					?>
-					<form name="occurListForm" method="post" action="datasets/index.php" onsubmit="return validateOccurListForm(this)" target="_blank">
+					<form name="occurListForm" method="post" action="datasets/datasetHandler.php" onsubmit="return validateOccurListForm(this)" target="_blank">
 						<?php include('datasetinclude.php'); ?>
 						<table id="omlisttable">
 							<?php
@@ -218,7 +267,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 								if($fieldArr["collcode"]) $instCode .= ":".$fieldArr["collcode"];
 								echo $instCode;
 								echo '</div>';
-								echo '<div class="datasetDiv" style="width:20px;margin:5px;padding:5px;border:1px dashed orange;display:none;"><input name="occid[]" type="checkbox" value="'.$occid.'" /></div>';
+								echo '<div style="margin-top:10px"><span class="dataset-div checkbox-elem" style="display:none;"><input name="occid[]" type="checkbox" value="'.$occid.'" /></span></div>';
 								echo '</td><td>';
 								if($isEditor || ($SYMB_UID && $SYMB_UID == $fieldArr['obsuid'])){
 									echo '<div style="float:right;" title="'.$LANG['OCCUR_EDIT_TITLE'].'">';
@@ -344,7 +393,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 					</a>
 				</div>
 				<div id="fieldBox" style="display:none;">
-					<fieldset style="padding:15px;">
+					<fieldset>
 						<?php
 						$occFieldArr = Array('occurrenceid', 'identifiedby', 'dateidentified', 'identificationreferences',
 							'identificationremarks', 'taxonremarks', 'recordedby', 'recordnumber','associatedcollectors', 'eventdate', 'year', 'month', 'day',

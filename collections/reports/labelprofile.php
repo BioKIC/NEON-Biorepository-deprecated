@@ -69,6 +69,9 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 				$('#json-'+activeProfileCode).val(json);
       }
 
+      /** 
+       * Adds current profile JSON to visual interface
+       */
 			function openJsonEditorPopup(classTag){
 				activeProfileCode = classTag;
 				let editorWindow = window.open('labeljsongui.php','scrollbars=1,toolbar=0,resizable=1,width=1000,height=700,left=20,top=20');
@@ -334,7 +337,7 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 							</div>
 						</fieldset>
 						<div class="field-block">
-							<div class="label">JSON: <span title="Edit JSON label definition"><a href="#" onclick="makeJsonEditable('<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>');return false"><img  class="edit-icon" src="../../images/edit.png" /></a></span><span title="Edit JSON label definition (Visual Interface)"><a href="#" onclick="openJsonEditorPopup('<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>');return false"><img  class="edit-icon" src="../../images/edit.png" /></a></span>
+							<div class="label">JSON: <span title="Edit JSON label definition"><a href="#" onclick="makeJsonEditable('<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>');return false"><img  class="edit-icon" src="../../images/edit.png" /></a></span><span title="Edit JSON label definition (Visual Interface)"><a href="#" onclick="openJsonEditorPopup('<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>');return false"><img  class="edit-icon" src="../../images/edit.png" />(visual interface)</a></span>
 							</div>
 							<div class="field-block">
 								<textarea id="json-<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>" name="json" readonly><?php echo (isset($formatArr['labelBlocks'])?json_encode($formatArr['labelBlocks'],JSON_PRETTY_PRINT):''); ?></textarea>

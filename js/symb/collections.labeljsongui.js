@@ -921,8 +921,7 @@ function loadJson() {
     translateJson(sourceJson);
     refreshLineState();
   } else {
-    preview.innerText =
-      'Your label format is not translatable at this time. Please adjust your JSON definition and try again, or create a new format from scratch using this visual builder.';
+    preview.innerText = '';
   }
 }
 

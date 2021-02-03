@@ -121,7 +121,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 						return false;
 					}
 				}
-				else if(action == "labelsword.php" && f.packetradio.checked == true){
+				else if(action == "labelsword.php" && f.labeltype.valye == "packet"){
 					alert("Packet labels are not yet available as a Word document");
 					return false;
 				}

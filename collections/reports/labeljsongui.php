@@ -57,12 +57,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
           <h4>Label preview</h4>
           <h5>content automatically displayed below</h5>
           <div id="preview-label"></div>
-          <button class="btn" onclick="printJson()">Display JSON</button>
-          <button class="btn" onclick="loadJson()">Load JSON</button>
-          <button class="btn" id='copyBtn' onclick="copyJson()" style="display: none;">Copy JSON to clipboard</button>
-          <button class="btn" onclick="saveJson()">Save</button>
-          <button class="btn" onclick="cancelWindow()">Cancel</button>
-          <textarea id="dummy" style="display: block; height: 300px; width: 100%;" data-format-id=""></textarea>
+          <!-- <button class="btn" onclick="printJson()">Display JSON</button>
+          <button class="btn" onclick="loadJson()">Load JSON</button> -->
+          <!-- <button class="btn" id='copyBtn' onclick="copyJson()" style="display: none;">Copy JSON to clipboard</button> -->
+          <button class="btn" onclick="saveJson()">Save format & Close</button>
+          <button class="btn" onclick="cancelWindow()">Cancel & Close</button>
+          <textarea id="dummy" style="display: none; height: 300px; width: 100%;" data-format-id=""></textarea>
         </div>
       </div>
       <div>

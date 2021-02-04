@@ -479,7 +479,6 @@ const inputs = document.querySelectorAll('input');
 function translateJson(source) {
   // Source has to be "simple", as in: following structure output by generateJson()
   let srcLines = source[0].divBlock.blocks;
-  console.log(srcLines);
   srcLines
     ? ''
     : (preview.innerText =
@@ -488,7 +487,6 @@ function translateJson(source) {
   // Create additional blocks in label builder
   for (i = 0; i < lineCount - 1; i++) {
     addLine();
-    console.log('created ' + i + ' line');
   }
   let lbBlocks = labelMid.querySelectorAll('.field-block');
   // Add field(s) inside line[i]
@@ -498,13 +496,11 @@ function translateJson(source) {
     srcLine.delimiter !== undefined
       ? (lbBlock.dataset.delimiter = srcLine.delimiter)
       : '';
-    console.log(srcLine.delimiter);
     srcLine.className !== undefined
       ? (lbBlock.className = lbBlock.className + ' ' + srcLine.className)
       : '';
     // Array of fields based on fieldProps filtered by current fields in json format
     let fieldsArr = srcLine.fieldBlock;
-    console.info(fieldsArr);
     if (fieldsArr !== undefined) {
       let propsArr = [];
       fieldsArr.forEach(({ field, className }) => {
@@ -738,9 +734,9 @@ function refreshPreview() {
     let fieldBlockStyles = Array.from(block.classList).filter(isPrintStyle);
     fieldBlockStyles ? (itemsArr.className = fieldBlockStyles) : '';
     let fieldBlockDelim = block.dataset.delimiter;
-    fieldBlockDelim
-      ? (itemsArr.delimiter = fieldBlockDelim)
-      : (itemsArr.delimiter = ' ');
+    fieldBlockDelim == undefined
+      ? (itemsArr.delimiter = ' ')
+      : (itemsArr.delimiter = fieldBlockDelim);
   });
   // Clears preview div before appending elements
   preview.innerHTML = '';

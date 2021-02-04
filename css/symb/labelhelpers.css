@@ -956,6 +956,18 @@
   top: calc(50% - 2px);
 }
 
+.bar-top::before {
+  border-bottom: 1px solid black;
+  margin-top: 0.24em;
+  content: ' ';
+  display: block;
+  height: 2px;
+  background: black;
+  width: 100%;
+  left: 0;
+  top: calc(50% - 2px);
+}
+
 
 /* Visibility */
 

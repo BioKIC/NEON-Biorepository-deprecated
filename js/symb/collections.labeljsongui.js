@@ -311,8 +311,15 @@ const formatsArr = [
     group: 'field-block',
     func: 'bar',
     icon: '',
-    name: 'Add Bar',
+    name: 'Bar Below',
     title: 'Add bar below line',
+  },
+  {
+    group: 'field-block',
+    func: 'bar-top',
+    icon: '',
+    name: 'Bar Above',
+    title: 'Add bar above line',
   },
 ];
 
@@ -1149,9 +1156,6 @@ function handleDragEnd(e) {
 function saveJson() {
   let formatId = dummy.dataset.formatId;
   let formatTextArea = window.opener.document.querySelector(formatId);
-  // window.opener.console.log(formatTextArea.value);
-  // window.opener.document.getElementById(formatId).value = 'IT WORKS';
-
   let list = refreshPreview();
   let isEmpty = list[0].length == 0;
   let message = '';

@@ -349,8 +349,8 @@ const dropdownsArr = [
     group: 'field',
     options: [
       { value: '', text: 'Position in Line' },
-      { value: 'float-left', text: 'Original (Left)' },
-      // { value: 'float-left', text: 'Left' },
+      { value: 'float-none', text: 'None' },
+      { value: 'float-left', text: 'Left' },
       { value: 'float-right', text: 'Right' },
     ],
   },

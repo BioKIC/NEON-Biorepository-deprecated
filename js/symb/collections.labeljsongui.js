@@ -919,6 +919,9 @@ function loadJson() {
     // console.log(sourceJson);
   } catch (error) {
     console.log(error);
+    window.alert(
+      'There is an issue with your JSON format. If your label format is very customized, that could interfere with its correct display.'
+    );
   }
   if (sourceJson) {
     translateJson(sourceJson);

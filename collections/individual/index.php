@@ -260,6 +260,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<style>
 		fieldset{ margin:10px; padding:15px; width:90% }
 		legend{ font-weight:bold; }
+		.label{ font-weight:bold; }
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
 		.occur-ref{ margin: 10px 0px }
 	</style>
@@ -354,233 +355,231 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						</div>
 					</div>
 					<div style="clear:both;margin-left:60px;">
-						<div>
-							<?php
-							if(array_key_exists('loan',$occArr)){
-								?>
-								<div style="float:right;color:red;font-weight:bold;" title="<?php echo 'Loan #'.$occArr['loan']['identifier']; ?>">
-									On Loan to
-									<?php echo $occArr['loan']['code']; ?>
-								</div>
-								<?php
-							}
-							if(array_key_exists('relation',$occArr)){
-								?>
-								<fieldset style="float:right; width:45%">
-									<legend>Related Occurrences</legend>
-									<?php
-									$displayLimit = 5;
-									$cnt = 0;
-									foreach($occArr['relation'] as $id => $assocArr){
-										if($cnt == $displayLimit){
-											echo '<div class="relation-hidden"><a href="#" onclick="$(\'.relation-hidden\').toggle();return false;">show all records</a></div>';
-											echo '<div class="relation-hidden" style="display:none">';
-										}
-										echo '<div>';
-										echo $assocArr['relationship'];
-										if($assocArr['subtype']) echo ' ('.$assocArr['subtype'].')';
-										echo ': ';
-										$relID = $assocArr['identifier'];
-										$relUrl = $assocArr['resourceurl'];
-										if(!$relUrl && $assocArr['occidassoc']) $relUrl = $GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$assocArr['occidassoc'];
-										if($relUrl) $relID = '<a href="'.$relUrl.'">'.$relID.'</a>';
-										if($relID) echo $relID;
-										elseif($assocArr['sciname']) echo $assocArr['sciname'];
-										echo '</div>';
-										$cnt++;
-									}
-									if(count($occArr['relation']) > $displayLimit) echo '</div>';
-									?>
-								</fieldset>
-								<?php
-							}
-							if($occArr['catalognumber']){
-								?>
-								<div>
-									<b>Catalog #:</b>
-									<?php echo $occArr['catalognumber']; ?>
-								</div>
-								<?php
-							}
-							if($occArr['occurrenceid']){
-								?>
-								<div>
-									<b>Occurrence ID (GUID):</b>
-									<?php
-									$resolvableGuid = false;
-									if(substr($occArr['occurrenceid'],0,4) == 'http') $resolvableGuid = true;
-									if($resolvableGuid) echo '<a href="'.$occArr['occurrenceid'].'" target="_blank">';
-									echo $occArr['occurrenceid'];
-									if($resolvableGuid) echo '</a>';
-									?>
-								</div>
-								<?php
-							}
-							if($occArr['othercatalognumbers']){
-								if(substr($occArr['othercatalognumbers'],0,1)=='{'){
-									$otherCatArr = json_decode($occArr['othercatalognumbers'],true);
-									foreach($otherCatArr as $catTag => $catValueArr){
-										if(!$catTag) $catTag = 'Secondary Catalog #';
-										echo '<div><b>'.$catTag.':</b> '.implode('; ', $catValueArr).'</div>';
-									}
-								}
-								else{
-									?>
-									<div>
-										<b>Secondary Catalog #:</b>
-										<?php echo $occArr['othercatalognumbers']; ?>
-									</div>
-									<?php
-								}
-							}
-							?>
-						</div>
-						<div>
-							<?php
-							if($occArr['sciname']){
-								echo '<b>Taxon:</b> ';
-								if($securityCode < 2){
-									echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
-									if($occArr['localitysecurity'] == 2 || $occArr['localitysecurity'] == 3){
-										echo '<span style="margin-left:10px;color:orange">[taxonomic protection applied for non-authorized users]</span>';
-									}
-								}
-								else echo 'identification protected';
-								if($occArr['tidinterpreted']){
-									//echo ' <a href="../../taxa/index.php?taxon='.$occArr['tidinterpreted'].'" title="Open Species Profile Page"><img src="" /></a>';
-								}
-								?>
-								<br/>
-								<?php
-								if($occArr['identificationqualifier']) echo '<b>Identification Qualifier:</b> '.$occArr['identificationqualifier'].'<br/>';
-							}
-							if($occArr['family']) echo '<b>Family:</b> '.$occArr['family'];
-							?>
-						</div>
-						<div>
-							<?php
-							if($occArr['identifiedby']){
-								?>
-								<div>
-									<b>Determiner:</b> <?php echo $occArr['identifiedby']; ?>
-									<?php if($occArr['dateidentified']) echo ' ('.$occArr['dateidentified'].')'; ?>
-								</div>
-								<?php
-							}
-							if($occArr['taxonremarks']){
-								?>
-								<div style="margin-left:10px;">
-									<b>Taxon Remarks:</b>
-									<?php echo $occArr['taxonremarks']; ?>
-								</div>
-								<?php
-							}
-							if($occArr['identificationremarks']){
-								?>
-								<div style="margin-left:10px;">
-									<b>ID Remarks:</b>
-									<?php echo $occArr['identificationremarks']; ?>
-								</div>
-								<?php
-							}
-							if($occArr['identificationreferences']){ ?>
-								<div style="margin-left:10px;">
-									<b>ID References:</b>
-									<?php echo $occArr['identificationreferences']; ?>
-								</div>
-								<?php
-							}
-							if(array_key_exists('dets',$occArr)){
-								?>
-								<div class="detdiv" style="margin-left:10px;cursor:pointer;" onclick="toggle('detdiv');">
-									<img src="../../images/plus_sm.png" style="border:0px;" />
-									Show Determination History
-								</div>
-								<div class="detdiv" style="display:none;">
-									<div style="margin-left:10px;cursor:pointer;" onclick="toggle('detdiv');">
-										<img src="../../images/minus_sm.png" style="border:0px;" />
-										Hide Determination History
-									</div>
-									<fieldset>
-										<legend>Determination History</legend>
-										<?php
-										$firstIsOut = false;
-										$dArr = $occArr['dets'];
-										foreach($dArr as $detId => $detArr){
-										 	if($firstIsOut) echo '<hr />';
-											 	$firstIsOut = true;
-										 	?>
-											 <div style="margin:10px;">
-											 	<?php
-											 	if($detArr['qualifier']) echo $detArr['qualifier'];
-											 	if($securityCode < 2) echo ' <b><i>'.$detArr['sciname'].'</i></b> '.$detArr['author'];
-											 	else echo '<b>species identification protected</b>';
-											 	?>
-											 	<div style="">
-											 		<b>Determiner: </b>
-											 		<?php echo $detArr['identifiedby']; ?>
-											 	</div>
-											 	<div style="">
-											 		<b>Date: </b>
-											 		<?php echo $detArr['date']; ?>
-											 	</div>
-											 	<?php
-											 	if($detArr['ref']){ ?>
-												 	<div style="">
-												 		<b>ID References: </b>
-												 		<?php echo $detArr['ref']; ?>
-												 	</div>
-											 		<?php
-											 	}
-											 	if($detArr['notes']){
-											 		?>
-												 	<div style="">
-												 		<b>ID Remarks: </b>
-												 		<?php echo $detArr['notes']; ?>
-												 	</div>
-											 		<?php
-											 	}
-											 	?>
-											 </div>
-											<?php
-										}
-										?>
-									</fieldset>
-								</div>
-								<?php
-							}
-							if($occArr['typestatus']){ ?>
-								<div>
-									<b>Type Status:</b>
-									<?php echo $occArr['typestatus']; ?>
-								</div>
-								<?php
-							}
-							?>
-						</div>
 						<?php
-						if($occArr['recordedby']){
+						if(array_key_exists('loan',$occArr)){
+							?>
+							<div style="float:right;color:red;font-weight:bold;" title="<?php echo 'Loan #'.$occArr['loan']['identifier']; ?>">
+								On Loan to
+								<?php echo $occArr['loan']['code']; ?>
+							</div>
+							<?php
+						}
+						if(array_key_exists('relation',$occArr)){
+							?>
+							<fieldset style="float:right; width:45%">
+								<legend>Related Occurrences</legend>
+								<?php
+								$displayLimit = 5;
+								$cnt = 0;
+								foreach($occArr['relation'] as $id => $assocArr){
+									if($cnt == $displayLimit){
+										echo '<div class="relation-hidden"><a href="#" onclick="$(\'.relation-hidden\').toggle();return false;">show all records</a></div>';
+										echo '<div class="relation-hidden" style="display:none">';
+									}
+									echo '<div>';
+									echo $assocArr['relationship'];
+									if($assocArr['subtype']) echo ' ('.$assocArr['subtype'].')';
+									echo ': ';
+									$relID = $assocArr['identifier'];
+									$relUrl = $assocArr['resourceurl'];
+									if(!$relUrl && $assocArr['occidassoc']) $relUrl = $GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$assocArr['occidassoc'];
+									if($relUrl) $relID = '<a href="'.$relUrl.'">'.$relID.'</a>';
+									if($relID) echo $relID;
+									elseif($assocArr['sciname']) echo $assocArr['sciname'];
+									echo '</div>';
+									$cnt++;
+								}
+								if(count($occArr['relation']) > $displayLimit) echo '</div>';
+								?>
+							</fieldset>
+							<?php
+						}
+						if($occArr['catalognumber']){
 							?>
 							<div>
-								<b>Collector:</b>
+								<b>Catalog #:</b>
+								<?php echo $occArr['catalognumber']; ?>
+							</div>
+							<?php
+						}
+						if($occArr['occurrenceid']){
+							?>
+							<div>
+								<b>Occurrence ID (GUID):</b>
 								<?php
-								echo $occArr['recordedby'].'&nbsp;&nbsp;&nbsp;';
-								if(!$securityCode || $securityCode == 2) echo $occArr['recordnumber'].'&nbsp;&nbsp;&nbsp;';
+								$resolvableGuid = false;
+								if(substr($occArr['occurrenceid'],0,4) == 'http') $resolvableGuid = true;
+								if($resolvableGuid) echo '<a href="'.$occArr['occurrenceid'].'" target="_blank">';
+								echo $occArr['occurrenceid'];
+								if($resolvableGuid) echo '</a>';
 								?>
 							</div>
 							<?php
 						}
+						if($occArr['othercatalognumbers']){
+							if(substr($occArr['othercatalognumbers'],0,1)=='{'){
+								$otherCatArr = json_decode($occArr['othercatalognumbers'],true);
+								foreach($otherCatArr as $catTag => $catValueArr){
+									if(!$catTag) $catTag = 'Secondary Catalog #';
+									echo '<div><b>'.$catTag.':</b> '.implode('; ', $catValueArr).'</div>';
+								}
+							}
+							else{
+								?>
+								<div>
+									<b>Secondary Catalog #:</b>
+									<?php echo $occArr['othercatalognumbers']; ?>
+								</div>
+								<?php
+							}
+						}
+						if($occArr['sciname']){
+							echo '<b>Taxon:</b> ';
+							if($securityCode < 2){
+								echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
+								if($occArr['localitysecurity'] == 2 || $occArr['localitysecurity'] == 3){
+									echo '<span style="margin-left:10px;color:orange">[taxonomic protection applied for non-authorized users]</span>';
+								}
+							}
+							else echo 'identification protected';
+							if($occArr['tidinterpreted']){
+								//echo ' <a href="../../taxa/index.php?taxon='.$occArr['tidinterpreted'].'" title="Open Species Profile Page"><img src="" /></a>';
+							}
+							?>
+							<br/>
+							<?php
+							if($occArr['identificationqualifier']) echo '<b>Identification Qualifier:</b> '.$occArr['identificationqualifier'].'<br/>';
+						}
+						if($occArr['family']) echo '<b>Family:</b> '.$occArr['family'];
+						if($occArr['identifiedby']){
+							?>
+							<div>
+								<b>Determiner:</b> <?php echo $indManager->activateOrcidID($occArr['identifiedby']); ?>
+								<?php if($occArr['dateidentified']) echo ' ('.$occArr['dateidentified'].')'; ?>
+							</div>
+							<?php
+						}
+						if($occArr['taxonremarks']){
+							?>
+							<div style="margin-left:10px;">
+								<b>Taxon Remarks:</b>
+								<?php echo $occArr['taxonremarks']; ?>
+							</div>
+							<?php
+						}
+						if($occArr['identificationremarks']){
+							?>
+							<div style="margin-left:10px;">
+								<b>ID Remarks:</b>
+								<?php echo $occArr['identificationremarks']; ?>
+							</div>
+							<?php
+						}
+						if($occArr['identificationreferences']){ ?>
+							<div style="margin-left:10px;">
+								<b>ID References:</b>
+								<?php echo $occArr['identificationreferences']; ?>
+							</div>
+							<?php
+						}
+						if(array_key_exists('dets',$occArr)){
+							?>
+							<div class="detdiv" style="margin-left:10px;cursor:pointer;" onclick="toggle('detdiv');">
+								<img src="../../images/plus_sm.png" style="border:0px;" />
+								Show Determination History
+							</div>
+							<div class="detdiv" style="display:none;">
+								<div style="margin-left:10px;cursor:pointer;" onclick="toggle('detdiv');">
+									<img src="../../images/minus_sm.png" style="border:0px;" />
+									Hide Determination History
+								</div>
+								<fieldset>
+									<legend>Determination History</legend>
+									<?php
+									$firstIsOut = false;
+									$dArr = $occArr['dets'];
+									foreach($dArr as $detId => $detArr){
+									 	if($firstIsOut) echo '<hr />';
+										 	$firstIsOut = true;
+									 	?>
+										 <div style="margin:10px;">
+										 	<?php
+										 	if($detArr['qualifier']) echo $detArr['qualifier'];
+										 	if($securityCode < 2) echo ' <b><i>'.$detArr['sciname'].'</i></b> '.$detArr['author'];
+										 	else echo '<b>species identification protected</b>';
+										 	?>
+										 	<div style="">
+										 		<b>Determiner: </b>
+										 		<?php echo $detArr['identifiedby']; ?>
+										 	</div>
+										 	<div style="">
+										 		<b>Date: </b>
+										 		<?php echo $detArr['date']; ?>
+										 	</div>
+										 	<?php
+										 	if($detArr['ref']){ ?>
+											 	<div style="">
+											 		<b>ID References: </b>
+											 		<?php echo $detArr['ref']; ?>
+											 	</div>
+										 		<?php
+										 	}
+										 	if($detArr['notes']){
+										 		?>
+											 	<div style="">
+											 		<b>ID Remarks: </b>
+											 		<?php echo $detArr['notes']; ?>
+											 	</div>
+										 		<?php
+										 	}
+										 	?>
+										 </div>
+										<?php
+									}
+									?>
+								</fieldset>
+							</div>
+							<?php
+						}
+						if($occArr['typestatus']){ ?>
+							<div>
+								<b>Type Status:</b>
+								<?php echo $occArr['typestatus']; ?>
+							</div>
+							<?php
+						}
+						if($occArr['recordedby']){
+							$recByLabel = 'Observer';
+							if($collMetadata['colltype'] == 'Preserved Specimens') $recByLabel = 'Collector';
+							?>
+							<div>
+								<span class="label"><?php echo $recByLabel; ?>: </span>
+								<?php
+								$recByStr = $indManager->activateOrcidID($occArr['recordedby']);
+								echo $recByStr;
+								?>
+							</div>
+							<?php
+							if($occArr['recordnumber'] && (!$securityCode || $securityCode == 2)){
+								?>
+								<div style="margin-left:10px;">
+									<span class="label">Number: </span>
+									<?php echo $occArr['recordnumber']; ?>
+								</div>
+								<?php
+							}
+						}
 						if(!$securityCode || $securityCode == 2){
 							if($occArr['eventdate']){
-								echo '<div><b>Date: </b>';
-								echo $occArr['eventdate'];
+								echo '<div>';
+								echo '<span class="label">Date:</span> '.$occArr['eventdate'];
 								if($occArr['eventdateend'] && $occArr['eventdateend'] != $occArr['eventdate']){
 									echo ' - '.$occArr['eventdateend'];
 								}
 								echo '</div>';
 							}
 							if($occArr['verbatimeventdate']){
-								echo '<div><b>Verbatim Date:</b> '.$occArr['verbatimeventdate'].'</div>';
+								echo '<div><span class="label">Verbatim Date:</span> '.$occArr['verbatimeventdate'].'</div>';
 							}
 						}
 						?>
@@ -708,7 +707,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							if($occArr['habitat']){
 								?>
-								<div style="">
+								<div>
 									<b>Habitat:</b>
 									<?php echo $occArr['habitat']; ?>
 								</div>
@@ -809,7 +808,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if(isset($occArr['paleoid'])){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Paleontology Terms: </b>
 								<?php
 								$paleoStr1 = '';
@@ -846,7 +845,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						if(isset($occArr['exs'])){
 							?>
-							<div style="clear:both;">
+							<div>
 								<b>Exsiccati series:</b>
 								<?php
 								echo '<a href="../exsiccati/index.php?omenid='.$occArr['exs']['omenid'].'">';
@@ -856,10 +855,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							</div>
 							<?php
 						}
+						?>
+					</div>
+					<div style="clear:both;margin-left:60px;">
+						<?php
 						if(!$securityCode && array_key_exists('imgs',$occArr)){
 							$iArr = $occArr['imgs'];
 							?>
-							<fieldset>
+							<fieldset style="clear:both;margin:10px 0px">
 								<legend>Specimen Images</legend>
 								<?php
 								foreach($iArr as $imgId => $imgArr){
@@ -915,7 +918,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								}
 								else{
 									$ocn = str_replace($occArr['othercatalognumbers'], ',', ';');
-									$ocnValue = trim(array_pop(explode(';',$ocn)));
+									$ocnArr = explode(';',$ocn);
+									$ocnValue = trim(array_pop($ocnArr));
 									if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
 									$displayStr = $ocnValue;
 									$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
@@ -1023,8 +1027,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 						}
 						?>
 					</div>
-					<?php
-					?>
 				</div>
 				<?php
 				if($displayMap){

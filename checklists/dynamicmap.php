@@ -7,6 +7,11 @@ $tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:0;
 $taxa = array_key_exists('taxa',$_REQUEST)?$_REQUEST['taxa']:'';
 $interface = array_key_exists('interface',$_REQUEST)&&$_REQUEST['interface']?$_REQUEST['interface']:'checklist';
 
+//Sanitation
+if(!is_numeric($tid)) $tid = 0;
+$taxa = filter_var($taxa,FILTER_SANITIZE_STRING);
+if($interface && $interface != 'key') $interface = 'checklist';
+
 //$dynClManager = new DynamicChecklistManager();
 
 $latCen = 41.0;

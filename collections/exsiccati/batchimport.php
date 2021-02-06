@@ -147,8 +147,8 @@ if($isEditor && $formSubmit){
 								<option value="">------------------------------------</option>
 								<?php
 								//Get only titles with linked specimens
-								foreach($exsArr as $exid => $exTitle){
-									echo '<option value="'.$exid.'">'.$exTitle.'</option>';
+								foreach($exsArr as $exid => $exArr){
+									echo '<option value="'.$exid.'">'.$exArr['title'].'</option>';
 								}
 								?>
 							</select>
@@ -250,7 +250,7 @@ if($isEditor && $formSubmit){
 					<legend><b>Batch Import Module</b></legend>
 					<?php
 					$exsTitleArr = $exsManager->getTitleArr();
-					echo '<h2>'.$exsTitleArr[$ometid].'</h2>';
+					echo '<h2>'.$exsTitleArr[$ometid]['title'].'</h2>';
 					if($sourceCollArr = $exsManager->getCollArr($ometid)){
 						?>
 						<div style="margin:10px">

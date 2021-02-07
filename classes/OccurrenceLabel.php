@@ -283,7 +283,7 @@ class OccurrenceLabel{
 				$cnt = 0;
 				$fieldDivStr = '';
 				foreach($bArr['fieldBlock'] as $fieldArr){
-					$fieldName = $fieldArr['field'];
+					$fieldName = strtolower($fieldArr['field']);
 					$fieldValue = trim($occArr[$fieldName]);
 					if($fieldValue){
 						if($delimiter && $cnt) $fieldDivStr .= $delimiter;

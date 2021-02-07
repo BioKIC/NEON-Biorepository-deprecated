@@ -17,11 +17,11 @@ elseif(class_exists('Image_Barcode')) $bcObj = new Image_Barcode;
 $labelManager = new OccurrenceLabel();
 
 $collid = $_POST["collid"];
-$hPrefix = $_POST['lhprefix'];
-$hMid = $_POST['lhmid'];
-$hSuffix = $_POST['lhsuffix'];
+$hPrefix = $_POST['hprefix'];
+$hMid = $_POST['hmid'];
+$hSuffix = $_POST['hsuffix'];
 $lFooter = $_POST['lfooter'];
-$columnCount = $_POST['columncount'];
+$columnCount = $_POST['labeltype'];
 $includeSpeciesAuthor = ((array_key_exists('speciesauthors',$_POST) && $_POST['speciesauthors'])?1:0);
 $showcatalognumbers = ((array_key_exists('catalognumbers',$_POST) && $_POST['catalognumbers'])?1:0);
 $useBarcode = array_key_exists('bc',$_POST)?$_POST['bc']:0;

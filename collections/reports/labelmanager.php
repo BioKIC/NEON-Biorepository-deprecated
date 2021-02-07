@@ -121,7 +121,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 						return false;
 					}
 				}
-				else if(action == "labelsword.php" && f.packetradio.checked == true){
+				else if(action == "labelsword.php" && f.labeltype.valye == "packet"){
 					alert("Packet labels are not yet available as a Word document");
 					return false;
 				}
@@ -356,7 +356,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 								<fieldset style="margin-top:15px;">
 									<legend>Label Printing</legend>
 										<div class="fieldDiv">
-											<div class="fieldLabel">Label Profiles <span title="Open label profile manager"><a href="labeljsoneditor.php?collid=<?php echo $collid; ?>"><img src="../../images/edit.png" /></a></span>:</div>
+											<div class="fieldLabel">Label Profiles <span title="Open label profile manager"><a href="labelprofile.php?collid=<?php echo $collid; ?>"><img src="../../images/edit.png" style="width:13px" /></a></span>:</div>
 											<div class="fieldElement">
 												<?php
 												foreach($labelFormatArr as $cat => $catArr){

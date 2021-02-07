@@ -17,10 +17,7 @@ class ExsiccatiManager {
 		$retArr = array();
 		if($ometid){
 			//Display full list
-			$sql = 'SELECT et.ometid, et.title, et.abbreviation, et.editor, et.exsrange, et.startdate, et.enddate, '.
-				'et.source, et.notes, et.lasteditedby '.
-				'FROM omexsiccatititles et '.
-				'WHERE ometid = '.$ometid;
+			$sql = 'SELECT ometid, title, abbreviation, editor, exsrange, startdate, enddate, source, notes, lasteditedby FROM omexsiccatititles WHERE ometid = '.$ometid;
 			//echo $sql;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
@@ -36,6 +33,15 @@ class ExsiccatiManager {
 				}
 				$rs->free();
 			}
+			//Once db patch with new sourceIdentifier field is released, we can merge following code into above statement
+			$sql = 'SELECT sourceIdentifier FROM omexsiccatititles WHERE ometid = '.$ometid;
+			//echo $sql;
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$retArr['sourceIdentifier'] = $this->cleanOutStr($r->sourceIdentifier);
+				}
+				$rs->free();
+			}
 		}
 		return $retArr;
 	}
@@ -47,13 +53,13 @@ class ExsiccatiManager {
 		if($specimenOnly){
 			if($imagesOnly){
 				$sql .= 'FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid '.
-						'INNER JOIN omexsiccatiocclink ol ON en.omenid = ol.omenid '.
-						'INNER JOIN images i ON ol.occid = i.occid ';
+					'INNER JOIN omexsiccatiocclink ol ON en.omenid = ol.omenid '.
+					'INNER JOIN images i ON ol.occid = i.occid ';
 			}
 			else{
 				//Display only exsiccati that have linked specimens
 				$sql .= 'FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid '.
-						'INNER JOIN omexsiccatiocclink ol ON en.omenid = ol.omenid ';
+					'INNER JOIN omexsiccatiocclink ol ON en.omenid = ol.omenid ';
 			}
 			if($collId){
 				$sql .= 'INNER JOIN omoccurrences o ON ol.occid = o.occid ';
@@ -81,8 +87,8 @@ class ExsiccatiManager {
 					$titleStr = (strlen($r->title)>100?substr($r->title,0,100).'...':$r->title);
 					if($r->editor) $titleStr .= ', '.(strlen($r->editor)>50?substr($r->editor,0,50).'...':$r->editor);
 				}
-				if($r->exsrange) $titleStr .= ' ['.$r->exsrange.']';
-				$retArr[$r->ometid] = $this->cleanOutStr($titleStr);
+				$retArr[$r->ometid]['exsrange'] = $this->cleanOutStr($r->exsrange);
+				$retArr[$r->ometid]['title'] = $this->cleanOutStr($titleStr);
 			}
 			$rs->free();
 		}
@@ -134,6 +140,14 @@ class ExsiccatiManager {
 					$retArr['exsrange'] = $this->cleanOutStr($r->exsrange);
 					$retArr['exsnumber'] = $this->cleanOutStr($r->exsnumber);
 					$retArr['notes'] = $this->cleanOutStr($r->notes);
+				}
+				$rs->free();
+			}
+			//Once db patch with new sourceIdentifier field is released, we can merge following code into above statement
+			$sql = 'SELECT et.sourceIdentifier FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid WHERE en.omenid = '.$omenid;
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$retArr['sourceIdentifier'] = $this->cleanOutStr($r->sourceIdentifier);
 				}
 				$rs->free();
 			}
@@ -647,6 +661,23 @@ class ExsiccatiManager {
 		}
 		$rs->free();
 		return $fieldArr;
+	}
+
+	//AJAX function used in exsiccati suggest asscoaited with editor
+	public function getExsiccatiSuggest($term){
+		$retArr = Array();
+		$queryString = $this->cleanInStr($term);
+		$sql = 'SELECT DISTINCT ometid, title, abbreviation, exsrange FROM omexsiccatititles '.
+			'WHERE title LIKE "%'.$queryString.'%" OR abbreviation LIKE "%'.$queryString.'%" ORDER BY title';
+		$rs = $this->conn->query($sql);
+		$cnt = 0;
+		while ($r = $rs->fetch_object()) {
+			//$retArr[] = '"id": '.$r->ometid.',"value":"'.str_replace('"',"''",$r->title.($r->abbreviation?' ['.$r->abbreviation.']':'')).'"';
+			$retArr[$cnt]['id'] = $r->ometid;
+			$retArr[$cnt]['value'] = $r->title.($r->exsrange?' ['.$r->exsrange.']':'').($r->abbreviation?'; '.$r->abbreviation:'');
+			$cnt++;
+		}
+		return $retArr;
 	}
 
 	//Misc

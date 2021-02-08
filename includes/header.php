@@ -91,7 +91,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
                                         </li>
                                 </ul>
                         </div>
-			<div style="clear:both;">
+			<div style="clear:both;height:1px;">
 				</div>
                 </td>
         </tr>

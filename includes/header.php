@@ -78,17 +78,21 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
                                         <li>
                                                 <a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank"><?php echo (isset($LANG['H_MAP'])?$LANG['H_MAP']:'Map Search'); ?></a>
                                         </li>
+					<!--
                                         <li>
                                                 <a href="<?php echo $CLIENT_ROOT; ?>/imagelib/index.php" ><?php echo (isset($LANG['H_IMAGE_BROWSER'])?$LANG['H_IMAGE_BROWSER']:'Image Browser'); ?></a>
                                         </li>
+					-->
                                         <li>
-												<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/search.php" ><?php echo (isset($LANG['H_IMAGE_SEARCH'])?$LANG['H_IMAGE_SEARCH']:'Search Images'); ?></a>
+						<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/search.php" ><?php echo (isset($LANG['H_IMAGE_SEARCH'])?$LANG['H_IMAGE_SEARCH']:'Search Images'); ?></a>
                                         </li>
                                         <li>
 
                                         </li>
                                 </ul>
                         </div>
+			<div style="clear:both;">
+				</div>
                 </td>
         </tr>
 	<tr>

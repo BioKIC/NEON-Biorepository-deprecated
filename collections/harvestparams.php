@@ -91,7 +91,7 @@ $searchVar = $collManager->getQueryTermStr();
 							}
 							?>
 						</select>
-						<input id="taxa" type="text" size="60" name="taxa" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
+						<input id="taxa" type="text" size="55" name="taxa" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
 					</div>
 				</div>
 				<div style='float:right;margin:0px 10px;'>
@@ -208,7 +208,7 @@ $searchVar = $collManager->getQueryTermStr();
 			<div class="categoryDiv"><?php echo $LANG['COLLECTOR_HEADER']; ?></div>
 			<div>
 				<?php echo $LANG['COLLECTOR_LASTNAME']; ?>:
-				<input type="text" id="collector" size="32" name="collector" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
+				<input type="text" id="collector" size="28" name="collector" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
 			</div>
 			<div>
 				<?php echo $LANG['COLLECTOR_NUMBER']; ?>:

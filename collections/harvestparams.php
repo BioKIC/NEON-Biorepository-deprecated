@@ -91,7 +91,7 @@ $searchVar = $collManager->getQueryTermStr();
 							}
 							?>
 						</select>
-						<input id="taxa" type="text" size="55" name="taxa" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
+						<input id="taxa" type="text" size="50" name="taxa" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
 					</div>
 				</div>
 				<div style='float:right;margin:0px 10px;'>

@@ -91,7 +91,7 @@ $searchVar = $collManager->getQueryTermStr();
 							}
 							?>
 						</select>
-						<input id="taxa" type="text" size="50" name="taxa" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
+						<input id="taxa" type="text" size="46" name="taxa" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
 					</div>
 				</div>
 				<div style='float:right;margin:0px 10px;'>
@@ -208,7 +208,7 @@ $searchVar = $collManager->getQueryTermStr();
 			<div class="categoryDiv"><?php echo $LANG['COLLECTOR_HEADER']; ?></div>
 			<div>
 				<?php echo $LANG['COLLECTOR_LASTNAME']; ?>:
-				<input type="text" id="collector" size="28" name="collector" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
+				<input type="text" id="collector" size="32" name="collector" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
 			</div>
 			<div>
 				<?php echo $LANG['COLLECTOR_NUMBER']; ?>:
@@ -229,7 +229,7 @@ $searchVar = $collManager->getQueryTermStr();
 			</div>
 			<div>
 				<?php echo $LANG['CATALOG_NUMBER']; ?>:
-				<input type="text" id="catnum" size="26" name="catnum" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
+				<input type="text" id="catnum" size="32" name="catnum" value="" title="<?php echo $LANG['SEPARATE_MULTIPLE']; ?>" />
 				<input name="includeothercatnum" type="checkbox" value="1" checked /> <?php echo $LANG['INCLUDE_OTHER_CATNUM']?>
 			</div>
 			<div>

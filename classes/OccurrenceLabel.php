@@ -263,7 +263,7 @@ class OccurrenceLabel{
 				'eventDate'=>'DATE_FORMAT(o.eventdate,"%e %M %Y") AS eventdate', 'year'=>'o.year', 'month'=>'o.month', 'day'=>'o.day', 'monthName'=>'DATE_FORMAT(o.eventdate,"%M") AS monthname',
 				'verbatimEventDate'=>'o.verbatimeventdate', 'habitat'=>'o.habitat', 'substrate'=>'o.substrate', 'occurrenceRemarks'=>'o.occurrenceremarks', 'associatedTaxa'=>'o.associatedtaxa',
 				'dynamicProperties'=>'o.dynamicproperties','verbatimAttributes'=>'o.verbatimattributes', 'behavior'=>'behavior', 'reproductiveCondition'=>'o.reproductivecondition', 'cultivationStatus'=>'o.cultivationstatus',
-					'establishmentMeans'=>'o.establishmentmeans','lifeStage'=>'lifestage','sex'=>'sex','individualCount'=>'individualcount','samplingProtocol'=>'samplingprotocol','preparations'=>'preparations',
+				'establishmentMeans'=>'o.establishmentmeans','lifeStage'=>'lifestage','sex'=>'sex','individualCount'=>'individualcount','samplingProtocol'=>'samplingprotocol','preparations'=>'preparations',
 				'country'=>'o.country', 'stateProvince'=>'o.stateprovince', 'county'=>'o.county', 'municipality'=>'o.municipality', 'locality'=>'o.locality', 'decimalLatitude'=>'o.decimallatitude',
 				'decimalLongitude'=>'o.decimallongitude', 'geodeticDatum'=>'o.geodeticdatum', 'coordinateUncertaintyInMeters'=>'o.coordinateuncertaintyinmeters', 'verbatimCoordinates'=>'o.verbatimcoordinates',
 				'minimumelevationinmeters'=>'o.minimumelevationinmeters', 'maximumelevationinmeters'=>'o.maximumelevationinmeters',

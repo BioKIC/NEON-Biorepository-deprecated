@@ -76,8 +76,10 @@ if($isEditor && $formSubmit){
 		$statusStr = $exsManager->transferOccurrence($omenId,$_POST['occid'],trim($_POST['targetometid'],'k'),$_POST['targetexsnumber']);
 	}
 }
-if($formSubmit == 'dlexsiccati'){
-	$exsManager->exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId);
+if($formSubmit == 'dlexs' || $formSubmit == 'dlexs_titleOnly'){
+	$titleOnly = false;
+	if($formSubmit == 'dlexs_titleOnly') $titleOnly = true;
+	$exsManager->exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId, $titleOnly);
 	exit;
 }
 ?>
@@ -329,8 +331,9 @@ if($formSubmit == 'dlexsiccati'){
 							<input type="radio" name="sortby" value="1" <?php echo ($sortBy == 1?"CHECKED":""); ?> onchange="this.form.submit()">Abbreviation
 						</div>
 						<div style="margin-top:5px">
-							<div style="float:right;" title="Download Exsiccati Records">
-								<button name="formsubmit" type="submit" value="dlexsiccati"><img src="../../images/dl.png" style="width:15px" /></button>
+							<div style="float:right;">
+								<span title="Exsiccati download: titles only"><button name="formsubmit" type="submit" value="dlexs_titleOnly"><img src="../../images/dl.png" style="width:15px" /></button></span>
+								<span title="Exsiccati download: with numbers and occurrences"><button name="formsubmit" type="submit" value="dlexs"><img src="../../images/dl.png" style="width:15px" /></button></span>
 							</div>
 							<div>
 								<button name="formsubmit" type="submit" value="rebuildList">Rebuild List</button>

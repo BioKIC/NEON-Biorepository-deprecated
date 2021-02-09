@@ -429,7 +429,6 @@ class GlossaryUpload{
 	}
 
 	private function getUploadGlossaryFieldArr(){
-		//Get metadata
 		$targetArr = array();
 		$sql = "SHOW COLUMNS FROM uploadglossary";
 		$rs = $this->conn->query($sql);

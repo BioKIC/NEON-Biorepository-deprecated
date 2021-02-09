@@ -152,15 +152,12 @@ class ShipmentManager{
 	public function uploadManifestFile(){
 		$status = false;
 		//Load file onto server
-		$uploadPath = $this->getContentPath().'manifests/';
+		$uploadPath = $this->getContentPath();
 		if(array_key_exists("uploadfile",$_FILES)){
-			$this->uploadFileName = $_FILES['uploadfile']['name'];
-			$fullPath = $uploadPath.$_FILES['uploadfile']['name'];
+			$this->initiateUploadFileName($_FILES['uploadfile']['name'],$uploadPath);
 			if(!move_uploaded_file($_FILES['uploadfile']['tmp_name'], $uploadPath.$this->uploadFileName)){
 				$this->errorStr = 'ERROR uploading file (code '.$_FILES['uploadfile']['error'].'): ';
-				if(!is_writable($uploadPath)){
-					$this->errorStr .= 'Target path ('.$uploadPath.') is not writable ';
-				}
+				if(!is_writable($uploadPath)) $this->errorStr .= 'Target path ('.$uploadPath.') is not writable ';
 				return false;
 			}
 			//If a zip file, unpackage and assume that last or only file is the occurrrence file
@@ -181,7 +178,7 @@ class ShipmentManager{
 						}
 					}
 					if($fileName){
-						$this->uploadFileName = $fileName;
+						$this->initiateUploadFileName($fileName,$uploadPath);
 						$zip->extractTo($uploadPath,$this->uploadFileName);
 					}
 					else{
@@ -199,14 +196,68 @@ class ShipmentManager{
 		return $status;
 	}
 
+	private function initiateUploadFileName($fileName,$uploadPath){
+		$fName = str_replace(array(' ','(',')',';','%','$',","),'_',$fileName);
+		$fName = substr($fName,0,strrpos($fName,'.'));
+		if(strlen($fName) > 35) $fName = substr($fName,35);
+		$ext = substr($fileName,strrpos($fileName,'.')+1);
+		$cnt = 1;
+		$fileName = $fName.'.'.$ext;
+		while(file_exists($uploadPath.$fileName)){
+			$fileName = $fName.'_'.$cnt.'.'.$ext;
+			$cnt++;
+		}
+		$this->uploadFileName = $fileName;
+	}
+
 	public function analyzeUpload(){
-		//Just read first line of file to report what fields will be loaded, ignored, and required fulfilled
+		$status = false;
+		//Read first line of file to obtain source field names
 		if($this->uploadFileName){
-			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
+			$fullPath = $this->getContentPath().$this->uploadFileName;
 			$fh = fopen($fullPath,'rb') or die("Can't open file");
 			$this->sourceArr = $this->getHeaderArr($fh);
+			$status = true;
+			//Continue iterating through file to obtain all shipmentIDs, and then insure shipment doesn't already exist
+			$shipmentIdIndex = false;
+			foreach($this->sourceArr as $k => $colName){
+				if(strtolower(str_replace(array(' ','_'),'',$colName)) == 'shipmentid') $shipmentIdIndex = $k;
+			}
+			if($shipmentIdIndex){
+				$shipmentIDArr = array();
+				while($recordArr = fgetcsv($fh)){
+					$shipmentIDArr[$recordArr[$shipmentIdIndex]] = '';
+				}
+				if($shipmentIDArr){
+					//Check to make sure shipments IDs were not previously entered
+					$dupeShipmentExists = false;
+					$sql = 'SELECT shipmentPK, shipmentID FROM NeonShipment WHERE shipmentid IN("'.implode('","',array_keys($shipmentIDArr)).'")';
+					$rs = $this->conn->query($sql);
+					while($r = $rs->fetch_object()){
+						$shipmentIDArr[$r->shipmentID] = $r->shipmentPK;
+						$dupeShipmentExists = true;
+					}
+					$rs->free();
+					if($dupeShipmentExists){
+						$status = false;
+						$this->errorStr = '<div>ERROR: shipment already in system</div>';
+						foreach($shipmentIDArr as $id => $pk){
+							if($pk) $this->errorStr .= '<div style="margin-left:10px"><a href="manifestviewer.php?shipmentPK='.$pk.'" target="_blank">'.$id.'</a></div>';
+						}
+					}
+				}
+				else{
+					$this->errorStr = 'ERROR: failed to return shipmentID ';
+					$status = false;
+				}
+			}
+			else{
+				$this->errrorStr = 'ERROR: Unable to locate shipmentID column (required). Please make sure the column exists and is named appropriately';
+				$status = false;
+			}
 			fclose($fh);
 		}
+		return $status;
 	}
 
 	public function uploadData(){
@@ -215,7 +266,7 @@ class ShipmentManager{
 		$shipmentArr = array();
 		if($this->uploadFileName){
 			echo '<li>Initiating import from: '.$this->uploadFileName.'</li>';
-			$fullPath = $this->getContentPath().'manifests/'.$this->uploadFileName;
+			$fullPath = $this->getContentPath().$this->uploadFileName;
 			$fh = fopen($fullPath,'rb') or die("Can't open file");
 			$headerArr = $this->getHeaderArr($fh);
 			$recCnt = 0;
@@ -231,7 +282,7 @@ class ShipmentManager{
 			flush();
 			$errCnt = 0;
 			while($recordArr = fgetcsv($fh)){
-				$recMap = Array('filename' => $this->uploadFileName);
+				$recMap = Array();
 				$dynPropArr = array();
 				$symTargetArr = array();
 				foreach($indexMap as $targetField => $indexValueArr){
@@ -258,18 +309,20 @@ class ShipmentManager{
 				if(!array_key_exists($recMap['shipmentid'],$shipmentArr)) $shipmentArr[$recMap['shipmentid']] = $this->loadShipmentRecord($recMap);
 				$this->shipmentPK = $shipmentArr[$recMap['shipmentid']];
 				if($this->shipmentPK){
-					if(!$this->addSample($recMap,true)) $errCnt++;
-					$recCnt++;
-					if($recCnt%1000 == 0){
-						echo '<li>'.$recCnt.' record loaded</li>';
-						ob_flush();
-						flush();
+					if($this->addSample($recMap,true)){
+						$recCnt++;
+						if($recCnt%1000 == 0){
+							echo '<li>'.$recCnt.' record loaded</li>';
+							ob_flush();
+							flush();
+						}
 					}
+					else $errCnt++;
 				}
 				unset($recMap);
 			}
 			fclose($fh);
-			echo '<li>Complete: '.$recCnt.' records loaded</li>';
+			echo '<li>Complete: '.$recCnt.' records loaded '.($errCnt?'('.$errCnt.' errors)':'').'</li>';
 		}
 		else{
 			$this->outputMsg('<li>File Upload FAILED: unable to locate file</li>');
@@ -296,7 +349,7 @@ class ShipmentManager{
 			(isset($recArr['shipmentmethod'])?'"'.$this->cleanInStr($recArr['shipmentmethod']).'"':'NULL').','.
 			($trackingId?'"'.$trackingId.'"':'NULL').','.
 			(isset($recArr['shipmentnotes'])?'"'.$this->cleanInStr($recArr['shipmentnotes']).'"':'NULL').','.
-			(isset($recArr['filename'])?'"'.$this->cleanInStr($recArr['filename']).'"':'NULL').','.
+			($this->uploadFileName?'"'.$this->cleanInStr($this->uploadFileName).'"':'NULL').','.
 			$GLOBALS['SYMB_UID'].')';
 		//echo '<div>'.$sql.'</div>';
 		if($this->conn->query($sql)){
@@ -305,12 +358,18 @@ class ShipmentManager{
 		}
 		else{
 			if($this->conn->errno == 1062){
-				$sql = 'SELECT shipmentpk FROM NeonShipment WHERE shipmentID = "'.$this->cleanInStr($recArr['shipmentid']).'"';
+				$existingFileName = '';
+				$sql = 'SELECT shipmentpk, filename FROM NeonShipment WHERE shipmentID = "'.$this->cleanInStr($recArr['shipmentid']).'"';
 				$rs = $this->conn->query($sql);
-				while($r = $rs->fetch_object()){
+				if($r = $rs->fetch_object()){
 					$shipmentPK = $r->shipmentpk;
+					$existingFileName = $r->filename;
 				}
 				$rs->free();
+				if(!in_array($this->uploadFileName,explode('|',$existingFileName))){
+					//Append new filename to existing
+					$this->conn->query('UPDATE NeonShipment SET filename = "'.trim($this->cleanInStr($existingFileName.'|'.$this->uploadFileName),' |').'" WHERE shipmentpk = '.$shipmentPK);
+				}
 				echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
 			}
 			else{
@@ -568,54 +627,75 @@ class ShipmentManager{
 				}
 			}
 			if($insertRecord){
-				$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, alternativeSampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, '.
-					'dynamicproperties, symbiotatarget, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
-					'VALUES('.$this->shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.
-					(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
-					(isset($recArr['samplecode']) && $recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').','.
-					(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
-					(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
-					(isset($recArr['namedlocation']) && $recArr['namedlocation']?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
-					(isset($recArr['collectdate']) && $recArr['collectdate']?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
-					(isset($recArr['dynamicproperties']) && $recArr['dynamicproperties']?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
-					(isset($recArr['symbiotatarget']) && $recArr['symbiotatarget']?'"'.$this->cleanInStr($recArr['symbiotatarget']).'"':'NULL').','.
-					(isset($recArr['taxonid']) && $recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
-					(isset($recArr['individualcount']) && $recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
-					(isset($recArr['filtervolume']) && $recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
-					(isset($recArr['domainremarks']) && $recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
-					(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
-				if($this->conn->query($sql)){
-					$status = true;
-					if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
-						$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = 1, acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
-						if(!$this->conn->query($sqlUpdate)){
-							$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
-							$status = false;
+				$duplicateArr = $this->duplicateSampleExists($recArr['sampleid'],$recArr['sampleclass']);
+				if(!$duplicateArr){
+					$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, alternativeSampleID, sampleCode, sampleClass, quarantineStatus, namedLocation, collectDate, '.
+						'dynamicproperties, symbiotatarget, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
+						'VALUES('.$this->shipmentPK.',"'.$this->cleanInStr($recArr['sampleid']).'",'.
+						(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
+						(isset($recArr['samplecode']) && $recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').','.
+						(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
+						(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
+						(isset($recArr['namedlocation']) && $recArr['namedlocation']?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
+						(isset($recArr['collectdate']) && $recArr['collectdate']?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
+						(isset($recArr['dynamicproperties']) && $recArr['dynamicproperties']?'"'.$this->cleanInStr($recArr['dynamicproperties']).'"':'NULL').','.
+						(isset($recArr['symbiotatarget']) && $recArr['symbiotatarget']?'"'.$this->cleanInStr($recArr['symbiotatarget']).'"':'NULL').','.
+						(isset($recArr['taxonid']) && $recArr['taxonid']?'"'.$this->cleanInStr($recArr['taxonid']).'"':'NULL').','.
+						(isset($recArr['individualcount']) && $recArr['individualcount']?'"'.$this->cleanInStr($recArr['individualcount']).'"':'NULL').','.
+						(isset($recArr['filtervolume']) && $recArr['filtervolume']?'"'.$this->cleanInStr($recArr['filtervolume']).'"':'NULL').','.
+						(isset($recArr['domainremarks']) && $recArr['domainremarks']?'"'.$this->cleanInStr($recArr['domainremarks']).'"':'NULL').','.
+						(isset($recArr['samplenotes']) && $recArr['samplenotes']?'"'.$this->cleanInStr($recArr['samplenotes']).'"':'NULL').')';
+					if($this->conn->query($sql)){
+						$status = true;
+						if(isset($recArr['checkinsample']) && $recArr['checkinsample']){
+							$sqlUpdate = 'UPDATE NeonSample SET checkinUid = '.$GLOBALS['SYMB_UID'].', checkinTimestamp = now(), sampleReceived = 1, acceptedForAnalysis = 1, sampleCondition = "ok" WHERE (samplePK = '.$this->conn->insert_id.') ';
+							if(!$this->conn->query($sqlUpdate)){
+								$this->errorStr = 'ERROR checking-in NEON sample(2): '.$this->conn->error;
+								$status = false;
+							}
 						}
+					}
+					else{
+						if($this->conn->errno == 1062){
+							$this->errorStr = 'barcode: <a href="manifestviewer.php?quicksearch='.$recArr['samplecode'].'" target="_blank">'.$recArr['samplecode'].'</a>';
+							if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
+						}
+						else{
+							$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
+							if($verbose){
+								echo '<li style="margin-left:15px">'.$this->errorStr.'</li>';
+								//echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
+							}
+						}
+						$status = false;
 					}
 				}
 				else{
-					if($this->conn->errno == 1062){
-						if(strpos($this->conn->error,'sampleCode')){
-							$this->errorStr = 'barcode: <a href="manifestviewer.php?quicksearch='.$recArr['samplecode'].'" target="_blank">'.$recArr['samplecode'].'</a>';
-						}
-						else{
-							$this->errorStr = 'sampleID: <a href="manifestviewer.php?quicksearch='.$recArr['sampleid'].'" target="_blank" >'.$recArr['sampleid'].'</a>';
-						}
-						if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
+					$errStr = '';
+					foreach($duplicateArr as $dupSamplePK => $idArr){
+						$idStr = $idArr['sampleID'];
+						if(isset($idArr['sampleCode'])) $idStr .= ' ('.$idArr['sampleCode'].')';
+						$errStr .= '<a href="manifestviewer.php?shipmentPK='.$dupSamplePK.'&sampleFilter=displaySamples&quicksearch='.$idArr['sampleID'].'#samplePanel" target="_blank">'.$idStr.'</a>, ';
 					}
-					else{
-						$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;
-						if($verbose){
-							echo '<li style="margin-left:15px">'.$this->errorStr.'</li>';
-							//echo '<li style="margin-left:25px">SQL: '.$sql.'</li>';
-						}
-					}
-					$status = false;
+					$this->errorStr = trim($errStr,', ');
+					if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
+
 				}
 			}
 		}
 		return $status;
+	}
+
+	private function duplicateSampleExists($sampleID, $sampleClass){
+		$retArr = array();
+		$sql = 'SELECT shipmentPK, sampleID, sampleCode FROM NeonSample WHERE sampleID = "'.$this->cleanInStr($sampleID).'" AND sampleClass = "'.$this->cleanInStr($sampleClass).'" AND sampleReceived IS NULL';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->shipmentPK]['sampleID'] = $r->sampleID;
+			if($r->sampleCode) $retArr[$r->shipmentPK]['sampleCode'] = $r->sampleCode;
+		}
+		$rs->free();
+		return $retArr;
 	}
 
 	public function deleteSample($samplePK){
@@ -802,7 +882,7 @@ class ShipmentManager{
 			'IF(s.acceptedForAnalysis = 0,s.sampleCondition,"") AS sampleCondition, CONCAT_WS("; ",s.checkinRemarks,CONCAT("deprecatedSampleID: ",s.alternativeSampleID)) AS remarks '.
 			'FROM NeonShipment n INNER JOIN NeonSample s ON n.shipmentPK = s.shipmentPK '.
 			'LEFT JOIN users u ON s.checkinUid = u.uid '.
-			'WHERE (s.shipmentPK = '.$this->shipmentPK.')';
+			'WHERE (s.shipmentPK = '.$this->shipmentPK.') AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) ';
 		$this->exportData($fileName, $sql);
 		$this->setReceiptStatus(1,true);
 	}
@@ -947,10 +1027,11 @@ class ShipmentManager{
 		return trim($retStr,' ;');
 	}
 
-	private function getContentPath(){
+	public function getContentPath($pathType='root'){
 		$contentPath = $GLOBALS['SERVER_ROOT'];
+		if($pathType == 'url') $contentPath = $GLOBALS['CLIENT_ROOT'];
 		if(substr($contentPath,-1) != '/') $contentPath .= '/';
-		$contentPath .= 'neon/content/';
+		$contentPath .= 'neon/content/manifests/';
 		return $contentPath;
 	}
 
@@ -970,7 +1051,7 @@ class ShipmentManager{
 	public function getConditionArr(){
 		//Removed from array on 2019-10-29 by request of NEON: 'ok'=>'OK - No Known Compromise',
 		$condArr = array('ok'=>'OK - No Known Compromise', 'cold chain broken'=>'Cold Chain Broken', 'damaged'=>'Damaged - Analysis Affected',
-			'sample incomplete'=>'Sample Incomplete','handling error'=>'Handling Error', 'other'=>'Other - Described in Remarks');
+			'sample incomplete'=>'Sample Incomplete','handling error'=>'Handling Error', 'other'=>'Other - Described in Remarks','opal sample'=>'OPAL Sample');
 		return $condArr;
 	}
 

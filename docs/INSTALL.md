@@ -1,0 +1,121 @@
+# Installing Symbiota-light
+
+## REQUIREMENTS
+
+* Apache HTTP Server (2.x or better) - other PHP enabled web servers should work, yet we have only tested the installation through Apache HTTP Server
+* PHP (5.x or better) configured to your web server
+  * mysqli extension must be enabled (improved mysql library)
+  * GD2 extension must be enabled (GD image library)
+  * Enableing the PHP "mbstring" module is recommended
+  * If planning to upload specimen data as flat DwC text files, upload_max_filesize (= 2M as default) variable should be increased to match expected files sizes
+  * zip extension should be enabled if you plan on uploading compressed data files
+  * Optional: Pear package Image_Barcode2 (https://pear.php.net/package/Image_Barcode2) – enable barcode generation on specimen labels
+  * Optional: Install Pear Mail for SMTP mail support: https://pear.php.net/package/Mail/redirected 
+    * (pear channel-update pear.php.net; pear install -a Mail)
+* MariaDB or MySQL (5.1 or better)
+* GIT Client - not required though can be useful for updates from source code 
+
+
+## INSTRUCTIONS
+
+Also see the [Symbiota documentation](https://symbiota.org/docs/symbiota-introduction/installation/) 
+
+1. Download Symbiota code from GitHub repository
+   * (https://github.com/BioKIC/Symbiota-light)  
+   * Command line checkout: git clone https://github.com/BioKIC/Symbiota-light.git
+2. Install Symbiota database schema
+   1. Create new database (e.g. CREATE SCHEMA symbdb CHARACTER SET utf8 COLLATE utf8_general_ci) 
+   2. Create read-only and read/write users for Symbiota database 
+      * CREATE USER 'symbreader'@'localhost' IDENTIFIED BY 'password1';
+      * CREATE USER 'symbwriter'@'localhost' IDENTIFIED BY 'password2';
+      * GRANT SELECT,EXECUTE ON `symbdb`.* TO `symbreader`@localhost;
+      * GRANT SELECT,UPDATE,INSERT,DELETE,EXECUTE ON `symbdb`.* TO `symbwriter`@localhost;
+   3. Load databse schema from scripts. Schema definition files are located in <SymbiotaBaseFolder>/config/schema-1.0/utf8/. By default, the database is assumed to be configured to a UTF8 character set.  
+      * Run db_schema-1.0.sql to install the core table structure. 
+      * From MySQL commandline: SOURCE /BaseFolderPath/config/schema-1.0/utf8/db_schema-1.0.sql 
+   4. Run database patch scripts to bring database up to current structure. Make sure to run the scripts in the correct order e.g. db_schema_patch-1.1.sql, db_schema_patch-1.2.sql, etc.
+      * From MySQL commandline: SOURCE /BaseFolderPath/config/schema-1.0/utf-8/db_schema_patch-1.1.sql
+3. Configure the Symbiota Portal - modify following configuration files
+   1. Symbiota configuration 
+      * rename /config/symbini_template.php to /config/symbini.php. 
+      * Modify variables within to match your project environment. See Symbiota configuration help page for more information on this subject.
+   2. Database connection 
+      * Rename /config/dbconnection_template.php to /config/dbconnection.php. 
+      * Modify with readonly and read/write logins, passwords, and schema names.
+   3. Homepage 
+      * Rename /index_template.php to index.php. This is your home page to which will need introductory text, graphics, etc.
+   4. Layout - Within the /includes directory, rename header_template.php to header.php, and 
+      footer_template.php to footer.php. The header.php and footer.php files are used by all  
+      pages to establish uniform layout. left_menu.php is needed if a left menu is preferred. 
+      * header.php: Within file, change /images/layout/defaultheader.jpg 
+        to /images/layout/header.jpg. Add your header to /images/layout/
+        folder. Establishing the header using an image is easy, yet more 
+        complex header configurations are possible.
+      * footer.php: modify as you did with header.php file.
+   5. Files for style control - Within the /includes directory, rename head_template.php to head.php 
+      The head.php file is included within the <head> tag of each page.
+      Thus, you can modify this file to globally change design of portal.
+      For instance, you can create a copy of base.css renamed as main.css, link it within the head.php after the base.css, 
+      and then override the css definitions called within base.css 
+   6. Misc: rename usagepolicy_template.php to usagepolicy.php, and modify as needed
+4. File permissions - the web server needs write access to the following files and folders
+  * All folders in /temp/ (e.g. sudo chmod -R 777 temp/) 
+  * /webservices/dwc/rss.xml
+  * /content/collicon/
+  * /content/dwca/
+  * /content/logs/
+
+
+1. Data - The general layers of data within Symbiota are: user, 
+   taxonomic, occurrence (specimen), images, checklist, identification 
+   key, and taxon profile (common names, text descriptions, etc). 
+   While user interfaces have been developed for web management of 
+   some of the data layers, others are still in development and data 
+   needs to be loaded by hand. Below are detailed instructions on 
+   loading the different layers of data needed.
+   1. User and permissions - Default administrative user has been 
+      installed with following login: username = admin; password: admin.
+      Make sure to change password or better yet, create a new admin user, 
+      assign admin rights, and then delete default admin user. Permission 
+      controlls are found within Data Managment Panel within sitemap. 
+   2. Taxonomic Thesaurus - Taxon names are stored within the 'taxa' table. 
+      Taxonomic hierarchy and placement definitions are controled in the 
+      'taxstatus' table. A recursive data relationship within the 'taxstatus' 
+      table defines the taxonomic hierarchy. While multiple taxonomic thesauri 
+      can be defined, one of the thesauri needs to function as the central 
+      taxonomy. Names must be added in order from upper taxonomic levels to 
+      lower (e.g. kingdom, class, order, variety). Accepted names must be 
+      loaded before non-accepted names.  
+      1. Names can be added one-by-one using taxonomic management tools (see sitemap.php)
+      2. Name can be imported from taxnomic authorities (e.g. Catalog of Life, WoRMS, TROPICOS, etc)
+          based on occurrence data loaded into the system using cleaning tools 
+          found in Data Cleaning Tools => Analyze taxonomic names... This is recommended.  
+      3. Batch Loader - Multiple names can be loaded from a flat, 
+         tab-delimited text file. See instructions on the Batch Taxon 
+         Loader for detailed instructions. See instructions on the 
+         batch loader for loading multiple names from a flat file.  
+      4. Look in /config/schema/data/ folder to find taxonomic 
+         thesaurus data that may serve as a base for your taxonomic 
+         thesaurus.
+   3. Occurrence (Specimen) Data: SuperAdmin can create new collection instances via
+   Data Management pane within sitemap. Within the collection's data managment menu, one can  
+   provide admin and read access to new users, add/edit occurrences, batch load data, etc.
+   4. Images - to be completed
+   5. Floristic data - to be completed
+   6. Identification key data - to be completed
+   7. Taxon Profile support data (common names, text descriptions, etc) - to be completed
+
+
+UPDATES
+=======
+1. Code updates - If you installed through the GitHub using the clone command,  
+   code changes and bugs fixes can be integrated into your local checkout 
+   using the Git Desktop client of running the "git pull" command
+2. Database schema updates - Some php code updates will require database  
+   schema modifications. Schema changes can be applied by running new 
+   schema patches added since the last update (MySQL command line: 
+   source db_schema_patch_1.1.sql). Current Symbiota version numbers are 
+   listed at the bottom of sitemap.php page. Make sure to run the scripts 
+   in the correct order (e.g. db_schema_patch_1.1.sql, then 
+   db_schema_patch_1.2.sql, etc) 
+   

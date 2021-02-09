@@ -1,6 +1,6 @@
 CREATE TABLE `NeonShipment` (
   `shipmentPK` INT NOT NULL AUTO_INCREMENT,
-  `shipmentID` VARCHAR(25) NOT NULL,
+  `shipmentID` VARCHAR(75) NOT NULL,
   `domainID` VARCHAR(10) NULL,
   `dateShipped` DATE NOT NULL,
   `shippedFrom` VARCHAR(150) NULL,
@@ -14,7 +14,7 @@ CREATE TABLE `NeonShipment` (
   `receivedBy` VARCHAR(45) NULL,
   `receiptstatus` VARCHAR(45) NULL,
   `notes` VARCHAR(250) NULL,
-  `fileName` VARCHAR(150) NULL,
+  `fileName` TEXT NULL,
   `importUid` INT UNSIGNED NOT NULL,
   `checkinUid` INT UNSIGNED NULL,
   `checkinTimestamp` DATETIME NULL,

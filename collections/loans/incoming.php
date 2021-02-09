@@ -54,15 +54,26 @@ if($isEditor){
 		var tabIndex = <?php echo $tabIndex; ?>;
 
 		function verifyLoanInEditForm(f){
+			var submitStatus = true;
+			$("#editLoanInForm input[type=date]").each(function() {
+				//Need for Safari browser which doesn't support date input types
+				if(this.value != ""){
+					var validFormat = /^\s*\d{4}-\d{2}-\d{2}\s*$/ //Format: yyyy-mm-dd
+					if(!validFormat.test(this.value)){
+						alert("Date (e.g. "+this.name+") values must follow format: YYYY-MM-DD");
+						submitStatus = false;
+					}
+				}
+			});
 			if(f.iidowner.options[f.iidowner.selectedIndex].value == 0){
 				alert("Select an institution");
-				return false;
+				submitStatus = false;
 			}
 			if(f.loanidentifierown.value == ""){
 				alert("Enter the sender's loan number");
-				return false;
+				submitStatus = false;
 			}
-			return true;
+			return submitStatus;
 		}
 
 	</script>
@@ -116,7 +127,7 @@ if($isEditor){
 					<?php
 					$loanArr = $loanManager->getLoanInDetails($loanId);
 					?>
-					<form name="editloanform" action="incoming.php" method="post" onsubmit="return verifyLoanInEditForm(this)">
+					<form id="editLoanInForm" name="editloanform" action="incoming.php" method="post" onsubmit="return verifyLoanInEditForm(this)">
 						<fieldset>
 							<legend>Loan In Details</legend>
 							<div style="padding-top:18px;float:left;">
@@ -145,7 +156,7 @@ if($isEditor){
 									Date Received:
 								</span><br />
 								<span>
-									<input type="date" name="datereceivedborr" value="<?php echo $loanArr['datereceivedborr']; ?>" />
+									<input type="date" name="datereceivedborr" value="<?php echo $loanArr['datereceivedborr']; ?>" onchange="checkDate(this)" />
 								</span>
 							</div>
 							<div style="margin-left:20px;padding-top:4px;float:left;">
@@ -153,7 +164,7 @@ if($isEditor){
 									Date Due:
 								</span><br />
 								<span>
-									<input type="date" name="datedue" value="<?php echo $loanArr['datedue']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> />
+									<input type="date" name="datedue" value="<?php echo $loanArr['datedue']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> onchange="checkDate(this)" />
 								</span>
 							</div>
 							<div style="padding-top:8px;float:left;">
@@ -162,7 +173,7 @@ if($isEditor){
 										Sent From:
 									</span><br />
 									<span>
-										<select name="iidowner" style="width:400px;" >
+										<select name="iidowner">
 											<?php
 											$instArr = $loanManager->getInstitutionArr();
 											foreach($instArr as $k => $v){
@@ -172,7 +183,9 @@ if($isEditor){
 										</select>
 									</span>
 								</div>
-								<div style="margin-left:100px;float:left;">
+							</div>
+							<div style="padding-top:8px;float:left;">
+								<div style="float:left;margin-right:40px;">
 									<span>
 										Sender's Loan Number:
 									</span><br />
@@ -180,9 +193,7 @@ if($isEditor){
 										<input type="text" autocomplete="off" name="loanidentifierown" maxlength="255" style="width:160px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $loanArr['loanidentifierown']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> />
 									</span>
 								</div>
-							</div>
-							<div style="padding-top:8px;float:left;">
-								<div style="float:left;">
+								<div style="float:left;margin-right:40px;">
 									<span>
 										Requested for:
 									</span><br />
@@ -190,9 +201,10 @@ if($isEditor){
 										<input type="text" autocomplete="off" name="forwhom" maxlength="32" style="width:180px;" value="<?php echo $loanArr['forwhom']; ?>" onchange=" " />
 									</span>
 								</div>
-								<div style="padding-top:15px;margin-left:40px;float:left;">
+								<div style="float:left;">
 									<span>
-										<b>Specimen Total:</b> <input type="text" autocomplete="off" name="numspecimens" maxlength="32" style="width:80px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo ($loanArr['collidown']?count($specList):$loanArr['numspecimens']); ?>" onchange=" " <?php echo ($loanArr['collidown']?'disabled':''); ?> />
+										<b>Specimen Total:</b><br />
+										<input type="text" autocomplete="off" name="numspecimens" maxlength="32" style="width:150px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo ($loanArr['collidown']?count($specList):$loanArr['numspecimens']); ?>" onchange=" " <?php echo ($loanArr['collidown']?'disabled':''); ?> />
 									</span>
 								</div>
 							</div>
@@ -223,7 +235,7 @@ if($isEditor){
 										Date Returned:
 									</span><br />
 									<span>
-										<input type="date" name="datesentreturn" value="<?php echo $loanArr['datesentreturn']; ?>" />
+										<input type="date" name="datesentreturn" value="<?php echo $loanArr['datesentreturn']; ?>" onchange="checkDate(this)" />
 									</span>
 								</div>
 								<div style="margin-left:40px;float:left;">
@@ -255,7 +267,7 @@ if($isEditor){
 										Date Closed:
 									</span><br />
 									<span>
-										<input type="date" name="dateclosed" value="<?php echo $loanArr['dateclosed']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> />
+										<input type="date" name="dateclosed" value="<?php echo $loanArr['dateclosed']; ?>" <?php echo ($loanArr['collidown']?'disabled':''); ?> onchange="checkDate(this)" />
 									</span>
 								</div>
 							</div>
@@ -276,6 +288,7 @@ if($isEditor){
 						</fieldset>
 					</form>
 					<?php
+					$specimenTotal = count($specList);
 					$loanType = 'in';
 					$identifier = $loanId;
 					include('reportsinclude.php');
@@ -297,9 +310,14 @@ if($isEditor){
 								?>
 								<tr>
 									<td>
-										<a href="#" onclick="openIndPopup(<?php echo $occid; ?>);">
-											<?php echo $specArr['catalognumber']; ?>
-										</a>
+										<div style="float:right">
+											<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;"><img src="../../images/list.png" style="width:13px" title="Open Specimen Details page" /></a><br/>
+											<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;"><img src="../../images/edit.png" style="width:13px" title="Open Occurrence Editor" /></a>
+										</div>
+										<?php
+										if($specArr['catalognumber']) echo '<div>'.$specArr['catalognumber'].'</div>';
+										if($specArr['othercatalognumbers']) echo '<div>'.$specArr['othercatalognumbers'].'</a></div>';
+										?>
 									</td>
 									<td>
 										<?php
@@ -307,8 +325,8 @@ if($isEditor){
 										if(strlen($loc) > 500) $loc = substr($loc,400);
 										echo '<i>'.$specArr['sciname'].'</i>; ';
 										echo  $specArr['collector'].'; '.$loc;
+										if($specArr['notes']) echo '<div class="notesDiv"><b>Notes:</b> '.$specArr['notes'],'</div>';
 										?>
-
 									</td>
 									<td><?php echo $specArr['returndate']; ?></td>
 								</tr>

@@ -72,17 +72,17 @@ if($imgArr){
 	}
 	?>
 	<title><?php echo $DEFAULT_TITLE." Image Details: #".$imgId; ?></title>
-  <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-  ?>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../js/symb/shared.js" type="text/javascript"></script>
@@ -129,15 +129,18 @@ if($imgArr){
 	<?php
 	$displayLeftMenu = (isset($taxa_imgdetailsMenu)?$taxa_imgdetailsMenu:false);
 	include($SERVER_ROOT.'/includes/header.php');
-	if(isset($taxa_imgdetailsCrumbs)){
-		echo "<div class='navpath'>";
-		echo $taxa_imgdetailsCrumbs;
-		echo " <b>Image #$imgId</b>";
-		echo "</div>";
-	}
 	?>
-	<!-- This is inner text! -->
+	<div class="navpath">
+		<a href="../index.php">Home</a> &gt;&gt;
+		<a href="index.php">Image Browser</a> &gt;&gt;
+		<a href="search.php">Image Search</a> &gt;&gt;
+		<?php
+		if(isset($imgArr['tid']) && $imgArr['tid']) echo '<a href="../taxa/index.php?tid='.$imgArr['tid'].'">Image Search</a> &gt;&gt;';
+		echo '<b>Image Profile: image <a href="imgdetails.php?imgid='.$imgId.'">#'.$imgId.'</a></b>';
+		?>
+	</div>
 	<div id="innertext">
+		<!-- This is inner text! -->
 		<?php
 		if($imgArr){
 			?>
@@ -349,41 +352,37 @@ if($imgArr){
 						<b>Scientific Name:</b> <?php echo '<a href="../taxa/index.php?taxon='.$imgArr["tid"].'"><i>'.$imgArr["sciname"].'</i> '.$imgArr["author"].'</a>'; ?>
 					</div>
 					<?php
-						if($imgArr["caption"]) echo "<div><b>Caption:</b> ".$imgArr["caption"]."</div>";
-						if($imgArr["photographerdisplay"]){
-							echo "<div><b>Photographer:</b> ";
-							if(!$imgArr["photographer"]){
-								$phLink = 'search.php?imagetype=all&phuid='.$imgArr["photographeruid"].'&submitaction=search';
-								echo '<a href="'.$phLink.'">';
-							}
-							echo $imgArr["photographerdisplay"];
-							if(!$imgArr["photographer"]) echo '</a>';
-							echo "</div>";
+					if($imgArr['caption']) echo '<div><b>Caption:</b> '.$imgArr['caption'].'</div>';
+					if($imgArr['photographerdisplay']){
+						echo '<div><b>Photographer:</b> ';
+						if(!$imgArr['photographer']){
+							$phLink = 'search.php?imagetype=all&phuid='.$imgArr['photographeruid'].'&submitaction=search';
+							echo '<a href="'.$phLink.'">';
 						}
-						if($imgArr["owner"]) echo "<div><b>Manager:</b> ".$imgArr["owner"]."</div>";
-						if($imgArr["sourceurl"]) echo '<div><b>Image Source:</b> <a href="'.$imgArr["sourceurl"].'" target="_blank">'.$imgArr["sourceurl"].'</a></div>';
-						if($imgArr["locality"]) echo "<div><b>Locality:</b> ".$imgArr["locality"]."</div>";
-						if($imgArr["notes"]) echo "<div><b>Notes:</b> ".$imgArr["notes"]."</div>";
-						if($imgArr["rights"]){
-							echo '<div><b>Rights:</b> '.$imgArr["rights"].'</div>';
-						}
-						if($imgArr["copyright"]){
-							echo "<div>";
-							echo '<b>Copyright:</b> ';
-							if(stripos($imgArr["copyright"],"http") === 0){
-								echo '<a href="'.$imgArr["copyright"].'">'.$imgArr["copyright"].'</a>';
-							}
-							else{
-								echo $imgArr["copyright"];
-							}
-							echo "</div>";
-						}
-						else{
-							echo '<div><a href="../includes/usagepolicy.php#images">Copyright Details</a></div>';
-						}
-						if($imgArr["occid"]) echo '<div><a href="../collections/individual/index.php?occid='.$imgArr['occid'].'">Display Specimen Details</a></div>';
-						echo '<div><a href="'.$imgUrl.'">Open Medium Sized Image</a></div>';
-						if($origUrl) echo '<div><a href="'.$origUrl.'">Open Large Image</a></div>';
+						echo $imgArr['photographerdisplay'];
+						if(!$imgArr['photographer']) echo '</a>';
+						echo '</div>';
+					}
+					if($imgArr['owner']) echo '<div><b>Manager:</b> '.$imgArr['owner'].'</div>';
+					if($imgArr['sourceurl']) echo '<div><b>Image Source:</b> <a href="'.$imgArr['sourceurl'].'" target="_blank">'.$imgArr['sourceurl'].'</a></div>';
+					if($imgArr['locality']) echo '<div><b>Locality:</b> '.$imgArr['locality'].'</div>';
+					if($imgArr['notes']) echo '<div><b>Notes:</b> '.$imgArr['notes'].'</div>';
+					if($imgArr['rights']){
+						echo '<div><b>Rights:</b> '.$imgArr['rights'].'</div>';
+					}
+					if($imgArr['copyright']){
+						echo '<div>';
+						echo '<b>Copyright:</b> ';
+						if(stripos($imgArr['copyright'],'http') === 0) echo '<a href="'.$imgArr['copyright'].'">'.$imgArr['copyright'].'</a>';
+						else echo $imgArr['copyright'];
+						echo '</div>';
+					}
+					else{
+						echo '<div><a href="../includes/usagepolicy.php#images">Copyright Details</a></div>';
+					}
+					if($imgArr['occid']) echo '<div><a href="../collections/individual/index.php?occid='.$imgArr['occid'].'">Display Specimen Details</a></div>';
+					if($imgUrl) echo '<div><a href="'.$imgUrl.'">Open Medium Sized Image</a></div>';
+					if($origUrl) echo '<div><a href="'.$origUrl.'">Open Large Image</a></div>';
 					?>
 					<div style="margin-top:20px;">
 						Do you see an error or have a comment about this image? <br/>If so, send email to:

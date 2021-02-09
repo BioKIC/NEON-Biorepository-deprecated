@@ -149,7 +149,7 @@ if($action == 'populateGUIDs'){
 				return false;
 			}
 			<?php
-			if(isset($sesarProfile['sesar']['generationMethod']) && $sesarProfile['sesar']['generationMethod'] == 'inhouse'){
+			if($generationMethod == 'inhouse'){
 				?>
 				else if(f.igsnSeed.value == ""){
 					alert("In-house IGSN Generation selected but IGSN seed not generated (contact administrator)");

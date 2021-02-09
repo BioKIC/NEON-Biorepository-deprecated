@@ -13,6 +13,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 	private $voucherManager;
 	private $occurSearchProjectExists = 0;
 	protected $searchSupportManager = null;
+	protected $errorMessage;
 
 	public function __construct($type='readonly'){
 		parent::__construct($type);
@@ -238,7 +239,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 					$tempInnerArr = array();
 					$collValueArr = explode(" ",trim($collectorArr[0]));
 					foreach($collValueArr as $collV){
-						if(strlen($collV) == 2 || strlen($collV) == 3 || strtolower($collV) == 'best'){
+						if(strlen($collV) == 2 || strlen($collV) == 3 || in_array(strtolower($collV),array('best','little'))){
 							//Need to avoid FULLTEXT stopwords interfering with return
 							$tempInnerArr[] = '(o.recordedBy LIKE "%'.$this->cleanInStr($collV).'%")';
 						}
@@ -251,7 +252,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			elseif(count($collectorArr) > 1){
 				foreach($collectorArr AS $collStr){
-					if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
+					if(strlen($collStr) < 4 || in_array(strtolower($collStr),array('best','little'))){
 						//Need to avoid FULLTEXT stopwords interfering with return
 						$tempArr[] = '(o.recordedBy LIKE "%'.$this->cleanInStr($collStr).'%")';
 					}
@@ -343,6 +344,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$catArr = explode(',',str_replace(';',',',$catStr));
 			$betweenFrag = array();
 			$inFrag = array();
+			$identFrag = array();
 			foreach($catArr as $v){
 				if($p = strpos($v,' - ')){
 					$term1 = trim(substr($v,0,$p));
@@ -351,6 +353,8 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 						$betweenFrag[] = '(o.catalogNumber BETWEEN '.$term1.' AND '.$term2.')';
 						if($includeOtherCatNum){
 							$betweenFrag[] = '(o.othercatalognumbers BETWEEN '.$term1.' AND '.$term2.')';
+							//$betweenFrag[] = '(oi.identifiervalue BETWEEN '.$term1.' AND '.$term2.')';
+							$identFrag[] = '(identifiervalue BETWEEN '.$term1.' AND '.$term2.')';
 						}
 					}
 					else{
@@ -359,6 +363,8 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 						$betweenFrag[] = '('.$catTerm.')';
 						if($includeOtherCatNum){
 							$betweenFrag[] = '(o.othercatalognumbers BETWEEN "'.$term1.'" AND "'.$term2.'")';
+							//$betweenFrag[] = '(oi.identifiervalue BETWEEN "'.$term1.'" AND "'.$term2.'")';
+							$identFrag[] = '(identifiervalue BETWEEN "'.$term1.'" AND "'.$term2.'")';
 						}
 					}
 				}
@@ -378,14 +384,20 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$catWhere .= 'OR (o.catalogNumber IN("'.implode('","',$inFrag).'")) ';
 				if($includeOtherCatNum){
 					$catWhere .= 'OR (o.othercatalognumbers IN("'.implode('","',$inFrag).'")) ';
+					$catWhere .= 'OR (o.occurrenceID IN("'.implode('","',$inFrag).'")) ';
+					//$catWhere .= 'OR (oi.identifiervalue IN("'.implode('","',$inFrag).'")) ';
+					$identFrag[] = '(identifiervalue IN("'.implode('","',$inFrag).'"))';
 					if(strlen($inFrag[0]) == 36){
 						$guidOccid = $this->queryRecordID($inFrag);
 						if($guidOccid){
 							$catWhere .= 'OR (o.occid IN('.implode(',',$guidOccid).')) ';
-							$catWhere .= 'OR (o.occurrenceID IN("'.implode('","',$inFrag).'")) ';
 						}
 					}
 				}
+			}
+			if($identFrag){
+				$occidList = $this->getAdditionIdentifiers($identFrag);
+				if($occidList) $catWhere .= 'OR (o.occid IN('.implode(',',$occidList).')) ';
 			}
 			$sqlWhere .= 'AND ('.substr($catWhere,3).') ';
 			$this->displaySearchArr[] = $this->searchTermArr['catnum'];
@@ -419,6 +431,21 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			//$this->sqlWhere = 'WHERE o.occid IS NULL ';
 		}
 		//echo $this->sqlWhere; exit;
+	}
+
+	private function getAdditionIdentifiers($identFrag){
+		$retArr = array();
+		if($identFrag){
+			$sql = 'SELECT occid FROM omoccuridentifiers WHERE '.implode(' OR ',$identFrag);
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retArr[] = $r->occid;
+				}
+				$rs->free();
+			}
+		}
+		return $retArr;
 	}
 
 	private function queryRecordID($idArr){
@@ -463,6 +490,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		}
 		if(array_key_exists('polycoords',$this->searchTermArr) || strpos($sqlWhere,'p.point')){
 			$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
+		}
+		if(array_key_exists('includeothercatnum',$this->searchTermArr)){
+			//$sqlJoin .= 'LEFT JOIN omoccuridentifiers oi ON o.occid = oi.occid ';
 		}
 		return $sqlJoin;
 	}
@@ -560,6 +590,17 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return trim($retStr,' &');
 	}
 
+	public function addOccurrencesToDataset($datasetID){
+		if(!is_numeric($datasetID)) return false;
+		$this->setSqlWhere();
+		$sql = 'INSERT IGNORE INTO omoccurdatasetlink(occid,datasetid) SELECT DISTINCT o.occid, '.$datasetID.' as dsID FROM omoccurrences o '.$this->getTableJoins($this->sqlWhere).$this->sqlWhere;
+		if(!$this->conn->query($sql)){
+			$this->errorMessage = 'ERROR adding records to dataset(#'.$datasetID.'): '.$this->conn->error;
+			return false;
+		}
+		return true;
+	}
+
 	private function getDatasetTitle($dsIdStr){
 		$retStr = '';
 		$sql = 'SELECT name FROM omoccurdatasets WHERE datasetid IN('.$dsIdStr.')';
@@ -615,7 +656,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($dbStr) $this->searchTermArr['db'] = $dbStr;
 		}
 		if(array_key_exists('datasetid',$_REQUEST) && $_REQUEST['datasetid']){
-			if(is_numeric($_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
+			if(preg_match('/^[\d,]+$/',$_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
 			elseif(is_array($_REQUEST['datasetid'])){
 				$dsStr = implode(',',$_REQUEST['datasetid']);
 				if(preg_match('/^[\d,]+$/',$dsStr)) $this->searchTermArr['datasetid'] = $dsStr;
@@ -906,6 +947,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 
 	public function getTaxaArr(){
 		return $this->taxaArr;
+	}
+
+	public function getErrorMessage(){
+		return $this->errorMessage;
 	}
 }
 ?>

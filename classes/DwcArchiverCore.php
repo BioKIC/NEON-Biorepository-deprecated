@@ -20,8 +20,6 @@ class DwcArchiverCore extends Manager{
  	private $conditionArr = array();
 	private $condAllowArr;
 	private $overrideConditionLimit = false;
-	private $upperTaxonomy = array();
-	private $taxonRankArr = array();
 
 	private $targetPath;
 	protected $serverDomain;
@@ -86,10 +84,10 @@ class DwcArchiverCore extends Manager{
 	public function getOccurrenceCnt(){
 		$retStr = 0;
 		$this->applyConditions();
-		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
-		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
+		//$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'],false);
 		$sql .= $this->getTableJoins().$this->conditionSql;
@@ -157,56 +155,73 @@ class DwcArchiverCore extends Manager{
 				'FROM omcollections c LEFT JOIN institutions i ON c.iid = i.iid '.
 				'WHERE '.$sqlWhere;
 			//echo 'SQL: '.$sql.'<br/>';
-			$rs = $this->conn->query($sql);
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$this->collArr[$r->collid]['instcode'] = $r->institutioncode;
+					$this->collArr[$r->collid]['collcode'] = $r->collectioncode;
+					$this->collArr[$r->collid]['collname'] = $r->collectionname;
+					$this->collArr[$r->collid]['description'] = $r->fulldescription;
+					$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
+					$this->collArr[$r->collid]['url'] = $r->url;
+					$this->collArr[$r->collid]['contact'][0]['individualName']['surName'] = $r->contact;
+					$this->collArr[$r->collid]['contact'][0]['electronicMailAddress'] = $r->email;
+					$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
+					$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
+					$this->collArr[$r->collid]['lat'] = $r->latitudedecimal;
+					$this->collArr[$r->collid]['lng'] = $r->longitudedecimal;
+					$this->collArr[$r->collid]['icon'] = $r->icon;
+					$this->collArr[$r->collid]['colltype'] = $r->colltype;
+					$this->collArr[$r->collid]['managementtype'] = $r->managementtype;
+					$this->collArr[$r->collid]['rights'] = $r->rights;
+					$this->collArr[$r->collid]['rightsholder'] = $r->rightsholder;
+					$this->collArr[$r->collid]['usageterm'] = $r->usageterm;
+					$this->collArr[$r->collid]['address1'] = $r->address1;
+					$this->collArr[$r->collid]['address2'] = $r->address2;
+					$this->collArr[$r->collid]['city'] = $r->city;
+					$this->collArr[$r->collid]['state'] = $r->stateprovince;
+					$this->collArr[$r->collid]['postalcode'] = $r->postalcode;
+					$this->collArr[$r->collid]['country'] = $r->country;
+					$this->collArr[$r->collid]['phone'] = $r->phone;
+					if($r->dynamicproperties){
+						if($propArr = json_decode($r->dynamicproperties,true)){
+							if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
+								if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->hasPaleo = true;
+							}
+							if(isset($propArr['publicationProps']['titleOverride']) && $propArr['publicationProps']['titleOverride']){
+								$this->collArr[$r->collid]['collname'] = $propArr['publicationProps']['titleOverride'];
+							}
+						}
+					}
+				}
+				$rs->free();
+				$this->setJsonResources();
+			}
+		}
+	}
+
+	private function setJsonResources(){
+		//Temporary function needed until pending patch is pushed to production
+		$sql = 'SELECT collid, resourceJson, contactJson FROM omcollections WHERE collid IN('.implode(',',array_keys($this->collArr)).')';
+		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
-				$this->collArr[$r->collid]['instcode'] = $r->institutioncode;
-				$this->collArr[$r->collid]['collcode'] = $r->collectioncode;
-				$this->collArr[$r->collid]['collname'] = $r->collectionname;
-				$this->collArr[$r->collid]['description'] = $r->fulldescription;
-				$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
-				$this->collArr[$r->collid]['url'] = $r->url;
-				$this->setContacts($r->collid, $r->contact, $r->email);
-				$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
-				$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
-				$this->collArr[$r->collid]['lat'] = $r->latitudedecimal;
-				$this->collArr[$r->collid]['lng'] = $r->longitudedecimal;
-				$this->collArr[$r->collid]['icon'] = $r->icon;
-				$this->collArr[$r->collid]['colltype'] = $r->colltype;
-				$this->collArr[$r->collid]['managementtype'] = $r->managementtype;
-				$this->collArr[$r->collid]['rights'] = $r->rights;
-				$this->collArr[$r->collid]['rightsholder'] = $r->rightsholder;
-				$this->collArr[$r->collid]['usageterm'] = $r->usageterm;
-				$this->collArr[$r->collid]['address1'] = $r->address1;
-				$this->collArr[$r->collid]['address2'] = $r->address2;
-				$this->collArr[$r->collid]['city'] = $r->city;
-				$this->collArr[$r->collid]['state'] = $r->stateprovince;
-				$this->collArr[$r->collid]['postalcode'] = $r->postalcode;
-				$this->collArr[$r->collid]['country'] = $r->country;
-				$this->collArr[$r->collid]['phone'] = $r->phone;
-				if($r->dynamicproperties){
-					$propArr = json_decode($r->dynamicproperties,true);
-					if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
-						if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->hasPaleo = true;
+				if($r->resourceJson){
+					if($resourceArr = json_decode($r->resourceJson,true)){
+						$this->collArr[$r->collid]['url'] = $resourceArr[0]['url'];
+					}
+				}
+				if($r->contactJson){
+					if($contactArr = json_decode($r->contactJson,true)){
+						foreach($contactArr as $key => $cArr){
+							$this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
+							$this->collArr[$r->collid]['contact'][$key]['individualName']['givenName'] = $cArr['firstName'];
+							if(isset($cArr['role']) && $cArr['role']) $this->collArr[$r->collid]['contact'][$key]['positionName'] = $cArr['role'];
+							if(isset($cArr['email']) && $cArr['email']) $this->collArr[$r->collid]['contact'][$key]['electronicMailAddress'] = $cArr['email'];
+							if(isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/'.$cArr['orcid'];
+						}
 					}
 				}
 			}
 			$rs->free();
-		}
-	}
-
-	private function setContacts($collid, $contact, $email){
-		$contactObj = json_decode($contact,true);
-		if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
-			$contactArr = $contactObj['contact'];
-			foreach($contactArr as $cnt => $cArr){
-				$this->collArr[$collid]['contact'][$cnt]['individualName'] = $cArr['individualName'];
-				if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $this->collArr[$collid]['contact'][$cnt]['positionName'] = $cArr['positionName'];
-				if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) $this->collArr[$collid]['contact'][$cnt]['electronicMailAddress'] = $cArr['electronicMailAddress'];
-			}
-		}
-		else{
-			$this->collArr[$collid]['contact'][0]['individualName'] = $contact;
-			$this->collArr[$collid]['contact'][0]['electronicMailAddress'] = $email;
 		}
 	}
 
@@ -226,13 +241,9 @@ class DwcArchiverCore extends Manager{
 		if($field){
 			if($this->overrideConditionLimit || in_array(strtolower($field),$this->condAllowArr)){
 				if(!$cond) $cond = 'EQUALS';
-				if($value || ($cond == 'NULL' || $cond == 'NOTNULL')){
-					if(is_array($value)){
-						$this->conditionArr[$field][$cond] = $this->cleanInArray($value);
-					}
-					else{
-						$this->conditionArr[$field][$cond][] = $this->cleanInStr($value);
-					}
+				if($value != '' || ($cond == 'NULL' || $cond == 'NOTNULL')){
+					if(is_array($value)) $this->conditionArr[$field][$cond] = $this->cleanInArray($value);
+					else $this->conditionArr[$field][$cond][] = $this->cleanInStr($value);
 				}
 			}
 		}
@@ -273,38 +284,44 @@ class DwcArchiverCore extends Manager{
 					$taxaManager->setTaxonRequestVariable($taxaArr);
 					$sqlFrag .= $taxaManager->getTaxonWhereFrag();
 				}
+				elseif($field == 'cultivationStatus'){
+					if(current(current($condArr)) === '0') $sqlFrag .= 'AND (o.cultivationStatus = 0 OR o.cultivationStatus IS NULL) ';
+					else $sqlFrag .= 'AND (o.cultivationStatus = 1) ';
+				}
 				else{
+					if($field == 'datelastmodified') $field = 'IFNULL(o.modified,o.datelastmodified)';
+					else $field = 'o.'.$field;
 					$sqlFrag2 = '';
 					foreach($condArr as $cond => $valueArr){
 						if($cond == 'NULL'){
-							$sqlFrag2 .= 'AND (o.'.$field.' IS NULL) ';
+							$sqlFrag2 .= 'AND ('.$field.' IS NULL) ';
 						}
 						elseif($cond == 'NOTNULL'){
-							$sqlFrag2 .= 'AND (o.'.$field.' IS NOT NULL) ';
+							$sqlFrag2 .= 'AND ('.$field.' IS NOT NULL) ';
 						}
 						elseif($cond == 'EQUALS'){
-							$sqlFrag2 .= 'AND (o.'.$field.' IN("'.implode('","',$valueArr).'")) ';
+							$sqlFrag2 .= 'AND ('.$field.' IN("'.implode('","',$valueArr).'")) ';
 						}
 						elseif($cond == 'NOTEQUALS'){
-							$sqlFrag2 .= 'AND (o.'.$field.' NOT IN("'.implode('","',$valueArr).'")) ';
+							$sqlFrag2 .= 'AND ('.$field.' NOT IN("'.implode('","',$valueArr).'")) ';
 						}
 						else{
 							$sqlFrag3 = '';
 							foreach($valueArr as $value){
 								if($cond == 'STARTS'){
-									$sqlFrag3 .= 'OR (o.'.$field.' LIKE "'.$value.'%") ';
+									$sqlFrag3 .= 'OR ('.$field.' LIKE "'.$value.'%") ';
 								}
 								elseif($cond == 'LIKE'){
-									$sqlFrag3 .= 'OR (o.'.$field.' LIKE "%'.$value.'%") ';
+									$sqlFrag3 .= 'OR ('.$field.' LIKE "%'.$value.'%") ';
 								}
 								elseif($cond == 'NOTLIKE'){
-									$sqlFrag3 .= 'OR (o.'.$field.' NOT LIKE "%'.$value.'%") ';
+									$sqlFrag3 .= 'OR ('.$field.' NOT LIKE "%'.$value.'%") ';
 								}
 								elseif($cond == 'LESSTHAN'){
-									$sqlFrag3 .= 'OR (o.'.$field.' < "'.$value.'") ';
+									$sqlFrag3 .= 'OR ('.$field.' < "'.$value.'") ';
 								}
 								elseif($cond == 'GREATERTHAN'){
-									$sqlFrag3 .= 'OR (o.'.$field.' > "'.$value.'") ';
+									$sqlFrag3 .= 'OR ('.$field.' > "'.$value.'") ';
 								}
 							}
 							$sqlFrag2 .= 'AND ('.substr($sqlFrag3,3).') ';
@@ -340,6 +357,9 @@ class DwcArchiverCore extends Manager{
 			if(stripos($this->conditionSql,'v.clid')){
 				//Search criteria came from custom search page
 				$sql .= 'LEFT JOIN fmvouchers v ON o.occid = v.occid ';
+			}
+			if(stripos($this->conditionSql,'d.datasetid')){
+				$sql .= 'INNER JOIN omoccurdatasetlink d ON o.occid = d.occid ';
 			}
 			if(stripos($this->conditionSql,'p.point')){
 				//Search criteria came from map search page
@@ -629,13 +649,11 @@ class DwcArchiverCore extends Manager{
 
     public function getDwcArray() {
 		$retArr = Array();
-		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
 		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
-		if(!$this->occurrenceFieldArr){
-			$this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
-		}
+		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		$this->applyConditions();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
 		$sql .= $this->getTableJoins().$this->conditionSql;
@@ -663,8 +681,9 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
-		$this->setUpperTaxonomy();
-		$this->setTaxonRank();
+		$dwcOccurManager->setUpperTaxonomy();
+		$dwcOccurManager->setTaxonRank();
+		if(!$this->dataConn) $this->dataConn = MySQLiConnectionFactory::getCon('readonly');
 		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$typeArr = null;
 			if($this->schemaType == 'pensoft'){
@@ -748,8 +767,8 @@ class DwcArchiverCore extends Manager{
 					}
 				}
 
-				$this->appendUpperTaxonomy($r);
-				if(array_key_exists($r['rankid'], $this->taxonRankArr)) $r['t_taxonRank'] = $this->taxonRankArr[$r['rankid']];
+				$dwcOccurManager->appendUpperTaxonomy($r);
+				if($rankStr = $dwcOccurManager->getTaxonRank($r['rankid'])) $r['t_taxonRank'] = $rankStr;
 				unset($r['rankid']);
 
 				if($urlPathPrefix) $r['t_references'] = $urlPathPrefix.'collections/individual/index.php?occid='.$r['occid'];
@@ -764,9 +783,10 @@ class DwcArchiverCore extends Manager{
 			//$retArr[0]['associatedMedia'] = $this->getAssociatedMedia();
 		}
 		else{
-			$this->logOrEcho("ERROR creating occurrence file: ".$this->conn->error."\n");
+			$this->logOrEcho("ERROR creating occurrence file: ".$this->dataConn->error."\n");
 			$this->logOrEcho("\tSQL: ".$sql."\n");
 		}
+		$this->dataConn->close();
 		return $retArr;
     }
 
@@ -864,9 +884,8 @@ class DwcArchiverCore extends Manager{
 			}
 		}
 		else{
-			$errStr = '<span style="color:red;">FAILED to create archive file due to failure to return occurrence records. '.
-				'Note that OccurrenceID GUID assignments are required for Darwin Core Archive publishing. Contact portal manager for more details.</span>';
-			$this->logOrEcho($errStr);
+			$this->errorMessage = 'FAILED to create archive file due to failure to return occurrence records; check and adjust search variables';
+			$this->logOrEcho($this->errorMessage);
 			$collid = key($this->collArr);
 			if($collid) $this->deleteArchive($collid);
 			unset($this->collArr[$collid]);
@@ -1039,32 +1058,31 @@ class DwcArchiverCore extends Manager{
 			$emlArr['title'] = $this->collArr[$collId]['collname'];
 			$emlArr['description'] = $this->collArr[$collId]['description'];
 
-			$emlArr['contact']['individualName'] = $this->collArr[$collId]['contact'][0]['individualName'];
-			$emlArr['contact']['organizationName'] = $this->collArr[$collId]['collname'];
-			$emlArr['contact']['phone'] = $this->collArr[$collId]['phone'];
-			$emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
-			$emlArr['contact']['onlineUrl'] = $this->collArr[$collId]['url'];
-
-			$emlArr['contact']['addr']['deliveryPoint'] = $this->collArr[$collId]['address1'].($this->collArr[$collId]['address2']?', '.$this->collArr[$collId]['address2']:'');
-			$emlArr['contact']['addr']['city'] = $this->collArr[$collId]['city'];
-			$emlArr['contact']['addr']['administrativeArea'] = $this->collArr[$collId]['state'];
-			$emlArr['contact']['addr']['postalCode'] = $this->collArr[$collId]['postalcode'];
-			$emlArr['contact']['addr']['country'] = $this->collArr[$collId]['country'];
-
-
-			$emlArr['intellectualRights'] = $this->collArr[$collId]['rights'];
+			if(isset($this->collArr[$collId]['contact'][0]['givenName'])) $emlArr['contact']['givenName'] = $this->collArr[$collId]['contact'][0]['givenName'];
+			if(isset($this->collArr[$collId]['contact'][0]['surName'])) $emlArr['contact']['surName'] = $this->collArr[$collId]['contact'][0]['surName'];
+			if(isset($this->collArr[$collId]['collname'])) $emlArr['contact']['organizationName'] = $this->collArr[$collId]['collname'];
+			if(isset($this->collArr[$collId]['phone'])) $emlArr['contact']['phone'] = $this->collArr[$collId]['phone'];
+			if(isset($this->collArr[$collId]['contact'][0]['electronicMailAddress'])) $emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
+			if(isset($this->collArr[$collId]['contact'][0]['userId'])) $emlArr['contact']['userId'] = $this->collArr[$collId]['contact'][0]['userId'];
+			if($this->collArr[$collId]['url']) $emlArr['contact']['onlineUrl'] = $this->collArr[$collId]['url'];
+			$addrStr = $this->collArr[$collId]['address1'];
+			if($this->collArr[$collId]['address2']) $addrStr .= ', '.$this->collArr[$collId]['address2'];
+			if($addrStr) $emlArr['contact']['addr']['deliveryPoint'] = $addrStr;
+			if($this->collArr[$collId]['city']) $emlArr['contact']['addr']['city'] = $this->collArr[$collId]['city'];
+			if($this->collArr[$collId]['state']) $emlArr['contact']['addr']['administrativeArea'] = $this->collArr[$collId]['state'];
+			if($this->collArr[$collId]['postalcode']) $emlArr['contact']['addr']['postalCode'] = $this->collArr[$collId]['postalcode'];
+			if($this->collArr[$collId]['country']) $emlArr['contact']['addr']['country'] = $this->collArr[$collId]['country'];
+			if($this->collArr[$collId]['rights']) $emlArr['intellectualRights'] = $this->collArr[$collId]['rights'];
 		}
 		else{
 			//Dataset contains multiple collection data
 			$emlArr['title'] = $GLOBALS['DEFAULT_TITLE'].' general data extract';
 			if(isset($GLOBALS['SYMB_UID']) && $GLOBALS['SYMB_UID']){
-				$sql = 'SELECT uid, lastname, firstname, title, institution, department, address, city, state, zip, country, phone, email, ispublic '.
-					'FROM users WHERE (uid = '.$GLOBALS['SYMB_UID'].')';
+				$sql = 'SELECT uid, lastname, firstname, title, institution, department, address, city, state, zip, country, phone, email, ispublic FROM users WHERE (uid = '.$GLOBALS['SYMB_UID'].')';
 				$rs = $this->conn->query($sql);
 				if($r = $rs->fetch_object()){
-					$emlArr['associatedParty'][0]['individualName'] = trim($r->lastname.', '.$r->firstname,' ,');
-					$emlArr['associatedParty'][0]['surname'] = $r->lastname;
-					if($r->firstname) $emlArr['associatedParty'][0]['givenname'] = $r->firstname;
+					$emlArr['associatedParty'][0]['individualName']['surName'] = $r->lastname;
+					if($r->firstname) $emlArr['associatedParty'][0]['individualName']['givenName'] = $r->firstname;
 					if($r->email) $emlArr['associatedParty'][0]['electronicMailAddress'] = $r->email;
 					$emlArr['associatedParty'][0]['role'] = 'datasetOriginator';
 					if($r->ispublic){
@@ -1134,8 +1152,8 @@ class DwcArchiverCore extends Manager{
 						$emlArr['associatedParty'][] = $cArr;
 					}
 					//Also set info within collMetadata element
-					$keepContectArr = array('userId','individualName','givenname','surname','electronicMailAddress','positionName');
-					$emlArr['collMetadata'][$id]['contact'][$cnt] = array_intersect_key($cArr, array_flip($keepContectArr));
+					$keepContactArr = array('userId','individualName','electronicMailAddress','positionName','onlineUrl');
+					$emlArr['collMetadata'][$id]['contact'][$cnt] = array_intersect_key($cArr, array_flip($keepContactArr));
 				}
 			}
 		}
@@ -1173,7 +1191,7 @@ class DwcArchiverCore extends Manager{
 		$rootElem->setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance');
 		$rootElem->setAttribute('xsi:schemaLocation','eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.0.1/eml.xsd');
 		$rootElem->setAttribute('packageId',UuidFactory::getUuidV4());
-		$rootElem->setAttribute('system','http://symbiota.org');
+		$rootElem->setAttribute('system','https://symbiota.org');
 		$rootElem->setAttribute('scope','system');
 		$rootElem->setAttribute('xml:lang','eng');
 
@@ -1251,61 +1269,13 @@ class DwcArchiverCore extends Manager{
 
 		if(array_key_exists('contact',$emlArr)){
 			$contactArr = $emlArr['contact'];
-			$contactElem = $newDoc->createElement('contact');
-			$addrArr = array();
-			if(isset($contactArr['addr'])){
-				$addrArr = $contactArr['addr'];
-				unset($contactArr['addr']);
-			}
-			foreach($contactArr as $contactKey => $contactValue){
-				$conElem = $newDoc->createElement($contactKey);
-				$conElem->appendChild($newDoc->createTextNode($contactValue));
-				$contactElem->appendChild($conElem);
-			}
-			if(isset($contactArr['addr'])){
-				$addressElem = $newDoc->createElement('address');
-				foreach($addrArr as $aKey => $aVal){
-					$childAddrElem = $newDoc->createElement($aKey);
-					$childAddrElem->appendChild($newDoc->createTextNode($aVal));
-					$addressElem->appendChild($childAddrElem);
-				}
-				$contactElem->appendChild($addressElem);
-			}
-			$datasetElem->appendChild($contactElem);
+			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
+			$datasetElem->appendChild($contactNode);
 		}
-
 		if(array_key_exists('associatedParty',$emlArr)){
 			$associatedPartyArr = $emlArr['associatedParty'];
 			foreach($associatedPartyArr as $assocArr){
-				$assocElem = $newDoc->createElement('associatedParty');
-				$addrArr = array();
-				if(isset($assocArr['address'])){
-					$addrArr = $assocArr['address'];
-					unset($assocArr['address']);
-				}
-				foreach($assocArr as $aKey => $aArr){
-					$childAssocElem = $newDoc->createElement($aKey);
-					$childAssocElem->appendChild($newDoc->createTextNode($aArr));
-					$assocElem->appendChild($childAssocElem);
-				}
-				if($addrArr){
-					$addrElem = $newDoc->createElement('address');
-					foreach($addrArr as $addrKey => $addrValue){
-						if(is_array($addrValue)){
-							foreach($addrValue as $secValue){
-								$childAddrElem = $newDoc->createElement($addrKey);
-								$childAddrElem->appendChild($newDoc->createTextNode($secValue));
-								$addrElem->appendChild($childAddrElem);
-							}
-						}
-						else{
-							$childAddrElem = $newDoc->createElement($addrKey);
-							$childAddrElem->appendChild($newDoc->createTextNode($addrValue));
-							$addrElem->appendChild($childAddrElem);
-						}
-					}
-					$assocElem->appendChild($addrElem);
-				}
+				$assocElem = $this->getNode($newDoc, 'associatedParty', $assocArr);
 				$datasetElem->appendChild($assocElem);
 			}
 		}
@@ -1365,12 +1335,7 @@ class DwcArchiverCore extends Manager{
 				foreach($collArr as $collKey => $collValue){
 					if($collKey == 'contact'){
 						foreach($collValue as $apArr){
-							$assocElem = $newDoc->createElement('associatedParty');
-							foreach($apArr as $apKey => $apValue){
-								$apElem = $newDoc->createElement($apKey);
-								$apElem->appendChild($newDoc->createTextNode($apValue));
-								$assocElem->appendChild($apElem);
-							}
+							$assocElem = $this->getNode($newDoc, 'associatedParty', $apArr);
 							$collElem->appendChild($assocElem);
 						}
 					}
@@ -1416,6 +1381,23 @@ class DwcArchiverCore extends Manager{
 		$rootElem->appendChild($addMetaElem);
 
 		return $newDoc;
+	}
+
+	private function getNode($newDoc, $elmentTag, $nodeArr){
+		$newNode = $newDoc->createElement($elmentTag);
+		foreach($nodeArr as $nodeKey => $nodeValue){
+			if(is_array($nodeValue)){
+				$childNode = $this->getNode($newDoc, $nodeKey, $nodeValue);
+				$newNode->appendChild($childNode);
+			}
+			elseif($nodeKey == 'nodeValue') $newNode->appendChild($newDoc->createTextNode($nodeValue));
+			else{
+				$childElem = $newDoc->createElement($nodeKey);
+				$childElem->appendChild($newDoc->createTextNode($nodeValue));
+				$newNode->appendChild($childElem);
+			}
+		}
+		return $newNode;
 	}
 
 	public function getFullRss(){
@@ -1539,13 +1521,11 @@ class DwcArchiverCore extends Manager{
 		}
 		$hasRecords = false;
 
-		$dwcOccurManager = new DwcArchiverOccurrence();
+		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
 		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
-		if(!$this->occurrenceFieldArr){
-			$this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
-		}
+		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		//Output records
 		$this->applyConditions();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
@@ -1597,8 +1577,8 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
-		//$this->setUpperTaxonomy();
-		$this->setTaxonRank();
+		//$dwcOccurManager->setUpperTaxonomy();
+		$dwcOccurManager->setTaxonRank();
 
 		//echo $sql; exit;
 		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
@@ -1614,12 +1594,8 @@ class DwcArchiverCore extends Manager{
 				if(!$r['occurrenceID']){
 					//Set occurrence GUID based on GUID target, but only if occurrenceID field isn't already populated
 					$guidTarget = $this->collArr[$r['collid']]['guidtarget'];
-					if($guidTarget == 'catalogNumber'){
-						$r['occurrenceID'] = $r['catalogNumber'];
-					}
-					elseif($guidTarget == 'symbiotaUUID'){
-						$r['occurrenceID'] = $r['recordId'];
-					}
+					if($guidTarget == 'catalogNumber') $r['occurrenceID'] = $r['catalogNumber'];
+					elseif($guidTarget == 'symbiotaUUID') $r['occurrenceID'] = $r['recordId'];
 				}
 				if($this->limitToGuids && (!$r['occurrenceID'] || !$r['basisOfRecord'])){
 					// Skip record because there is no occurrenceID guid
@@ -1627,7 +1603,7 @@ class DwcArchiverCore extends Manager{
 				}
 				$hasRecords = true;
 				//Protect sensitive records
-				if($this->redactLocalities && $r["localitySecurity"] == 1 && !in_array($r['collid'],$this->rareReaderArr)){
+				if($this->redactLocalities && $r['localitySecurity'] == 1 && !in_array($r['collid'],$this->rareReaderArr)){
 					$protectedFields = array();
 					foreach($this->securityArr as $v){
 						if(array_key_exists($v,$r) && $r[$v]){
@@ -1635,9 +1611,7 @@ class DwcArchiverCore extends Manager{
 							$protectedFields[] = $v;
 						}
 					}
-					if($protectedFields){
-						$r['informationWithheld'] = trim($r['informationWithheld'].'; field values redacted: '.implode(', ',$protectedFields),' ;');
-					}
+					if($protectedFields) $r['informationWithheld'] = trim($r['informationWithheld'].'; field values redacted: '.implode(', ',$protectedFields),' ;');
 				}
 
 				if($urlPathPrefix) $r['t_references'] = $urlPathPrefix.'collections/individual/index.php?occid='.$r['occid'];
@@ -1683,17 +1657,15 @@ class DwcArchiverCore extends Manager{
 							$r['occurrenceRemarks'] = $invalidText;
 						}
 					}
-					else{
-						$r['typeStatus'] = 'Other material';
-					}
+					else $r['typeStatus'] = 'Other material';
 				}
-				elseif($this->schemaType == 'backup'){
-					unset($r['collid']);
-				}
+				elseif($this->schemaType == 'backup') unset($r['collid']);
 
-				//$this->appendUpperTaxonomy($r);
-				$this->appendUpperTaxonomy2($r);
-				if(array_key_exists($r['rankid'], $this->taxonRankArr)) $r['t_taxonRank'] = $this->taxonRankArr[$r['rankid']];
+				if($ocnStr = $dwcOccurManager->getAdditionalCatalogNumberStr($r['occid'])) $r['otherCatalogNumbers'] = $ocnStr;
+				if($assocStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocStr;
+				//$dwcOccurManager->appendUpperTaxonomy($r);
+				$dwcOccurManager->appendUpperTaxonomy2($r);
+				if($rankStr = $dwcOccurManager->getTaxonRank($r['rankid'])) $r['t_taxonRank'] = $rankStr;
 				unset($r['rankid']);
 
 				$this->encodeArr($r);
@@ -1710,15 +1682,17 @@ class DwcArchiverCore extends Manager{
 			$rs->free();
 		}
 		else{
-			$this->logOrEcho("ERROR creating occurrence file: ".$this->conn->error."\n");
-			$this->logOrEcho("\tSQL: ".$sql."\n");
+			$this->errorMessage = 'ERROR creating occurrence file: '.$this->conn->error;
+			$this->logOrEcho($this->errorMessage);
+			//$this->logOrEcho("\tSQL: ".$sql."\n");
 		}
 
 		fclose($fh);
 		if(!$hasRecords){
 			$filePath = false;
 			//$this->writeOutRecord($fh,array('No records returned. Modify query variables to be more inclusive.'));
-			$this->logOrEcho("No records returned. Modify query variables to be more inclusive. \n");
+			$this->errorMessage = 'No records returned. Modify query variables to be more inclusive.';
+			$this->logOrEcho($this->errorMessage);
 		}
 		$this->logOrEcho("Done!! (".date('h:i:s A').")\n");
 		return $filePath;
@@ -1765,7 +1739,7 @@ class DwcArchiverCore extends Manager{
 			$rs->free();
 		}
 		else{
-			$this->logOrEcho("ERROR creating identification file: ".$this->conn->error."\n");
+			$this->logOrEcho("ERROR creating identification file: ".$this->dataConn->error."\n");
 			$this->logOrEcho("\tSQL: ".$sql."\n");
 		}
 
@@ -1869,7 +1843,7 @@ class DwcArchiverCore extends Manager{
 			$rs->free();
 		}
 		else{
-			$this->logOrEcho("ERROR creating image file: ".$this->conn->error."\n");
+			$this->logOrEcho("ERROR creating image file: ".$this->dataConn->error."\n");
 			$this->logOrEcho("\tSQL: ".$sql."\n");
 		}
 
@@ -1904,7 +1878,7 @@ class DwcArchiverCore extends Manager{
 			$rs->free();
 		}
 		else{
-			$this->logOrEcho("ERROR creating attribute (MeasurementOrFact file: ".$this->conn->error."\n");
+			$this->logOrEcho("ERROR creating attribute (MeasurementOrFact file: ".$this->dataConn->error."\n");
 			$this->logOrEcho("\tSQL: ".$sql."\n");
 		}
 
@@ -1960,132 +1934,6 @@ class DwcArchiverCore extends Manager{
 	}
 
 	// misc support functions
-	private function setUpperTaxonomy(){
-		if(!$this->upperTaxonomy){
-			$sqlOrder = 'SELECT t.sciname AS family, t2.sciname AS taxonorder '.
-				'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
-				'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
-				'WHERE t.rankid = 140 AND t2.rankid = 100';
-			$rsOrder = $this->conn->query($sqlOrder);
-			while($rowOrder = $rsOrder->fetch_object()){
-				$this->upperTaxonomy[strtolower($rowOrder->family)]['o'] = $rowOrder->taxonorder;
-			}
-			$rsOrder->free();
-
-			$sqlClass = 'SELECT t.sciname AS family, t2.sciname AS taxonclass '.
-				'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
-				'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
-				'WHERE t.rankid = 140 AND t2.rankid = 60';
-			$rsClass = $this->conn->query($sqlClass);
-			while($rowClass = $rsClass->fetch_object()){
-				$this->upperTaxonomy[strtolower($rowClass->family)]['c'] = $rowClass->taxonclass;
-			}
-			$rsClass->free();
-
-			$sqlPhylum = 'SELECT t.sciname AS family, t2.sciname AS taxonphylum '.
-				'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
-				'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
-				'WHERE t.rankid = 140 AND t2.rankid = 30';
-			$rsPhylum = $this->conn->query($sqlPhylum);
-			while($rowPhylum = $rsPhylum->fetch_object()){
-				$this->upperTaxonomy[strtolower($rowPhylum->family)]['p'] = $rowPhylum->taxonphylum;
-			}
-			$rsPhylum->free();
-
-			$sqlKing = 'SELECT t.sciname AS family, t2.sciname AS kingdom '.
-				'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
-				'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
-				'WHERE t.rankid = 140 AND t2.rankid = 10';
-			$rsKing = $this->conn->query($sqlKing);
-			while($rowKing = $rsKing->fetch_object()){
-				$this->upperTaxonomy[strtolower($rowKing->family)]['k'] = $rowKing->kingdom;
-			}
-			$rsKing->free();
-		}
-	}
-
-	private function setTaxonRank(){
-		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$this->taxonRankArr[$r->rankid] = $r->rankname;
-		}
-		$rs->free();
-	}
-
-	private function appendUpperTaxonomy(&$targetArr){
-		if($targetArr['family'] && $this->upperTaxonomy){
-			$higherStr = '';
-			$famStr = strtolower($targetArr['family']);
-			if(isset($this->upperTaxonomy[$famStr]['k'])){
-				$targetArr['t_kingdom'] = $this->upperTaxonomy[$famStr]['k'];
-				$higherStr = $targetArr['t_kingdom'];
-			}
-			if(isset($this->upperTaxonomy[$famStr]['p'])){
-				$targetArr['t_phylum'] = $this->upperTaxonomy[$famStr]['p'];
-				$higherStr .= '|'.$targetArr['t_phylum'];
-			}
-			if(isset($this->upperTaxonomy[$famStr]['c'])){
-				$targetArr['t_class'] = $this->upperTaxonomy[$famStr]['c'];
-				$higherStr .= '|'.trim($targetArr['t_class'],'|');
-			}
-			if(isset($this->upperTaxonomy[$famStr]['o'])){
-				$targetArr['t_order'] = $this->upperTaxonomy[$famStr]['o'];
-				$higherStr .= '|'.trim($targetArr['t_class'],'|');
-			}
-			$targetArr['t_higherClassification'] = trim($higherStr,'| ');
-		}
-	}
-
-	private function appendUpperTaxonomy2(&$r){
-		$target = $r['taxonID'];
-		if(!$target) $target = ucfirst($r['family']);
-		if($target){
-			if(array_key_exists($target, $this->upperTaxonomy)){
-				if(isset($this->upperTaxonomy[$target]['k'])) $r['t_kingdom'] = $this->upperTaxonomy[$target]['k'];
-				if(isset($this->upperTaxonomy[$target]['p'])) $r['t_phylum'] = $this->upperTaxonomy[$target]['p'];
-				if(isset($this->upperTaxonomy[$target]['c'])) $r['t_class'] = $this->upperTaxonomy[$target]['c'];
-				if(isset($this->upperTaxonomy[$target]['o'])) $r['t_order'] = $this->upperTaxonomy[$target]['o'];
-				if(isset($this->upperTaxonomy[$target]['f']) && !$r['family']) $r['family'] = $this->upperTaxonomy[$target]['f'];
-				if(isset($this->upperTaxonomy[$target]['s'])) $r['t_subgenus'] = $this->upperTaxonomy[$target]['s'];
-				if(isset($this->upperTaxonomy[$target]['u'])) $r['t_higherClassification'] = $this->upperTaxonomy[$target]['u'];
-			}
-			else{
-				$higherStr = '';
-				$sql = 'SELECT t.tid, t.sciname, t.rankid '.
-					'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
-					'WHERE e.taxauthid = 1 AND e.tid = '.$r['taxonID'].' ORDER BY t.rankid';
-				if(!is_numeric($target)){
-					$sql = 'SELECT t.tid, t.sciname, t.rankid '.
-						'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
-						'INNER JOIN taxa t2 ON e.tid = t2.tid '.
-						'WHERE e.taxauthid = 1 AND t2.sciname = "'.$this->cleanInStr($target).'" ORDER BY t.rankid';
-				}
-				$rs = $this->conn->query($sql);
-				while($row = $rs->fetch_object()){
-					if($row->rankid == 10) $r['t_kingdom'] = $row->sciname;
-					elseif($row->rankid == 30) $r['t_phylum'] = $row->sciname;
-					elseif($row->rankid == 60) $r['t_class'] = $row->sciname;
-					elseif($row->rankid == 100) $r['t_order'] = $row->sciname;
-					elseif($row->rankid == 140 && !$r['family']) $r['family'] = $row->sciname;
-					elseif($row->rankid == 190) $r['t_subgenus'] = $row->sciname;
-					$higherStr .= '|'.$row->sciname;
-				}
-				$rs->free();
-				if($higherStr) $r['t_higherClassification'] = trim($higherStr,'| ');
-				if(count($this->upperTaxonomy)<1000 || !is_numeric($target)){
-					if($r['t_kingdom']) $this->upperTaxonomy[$target]['k'] = $r['t_kingdom'];
-					if($r['t_phylum']) $this->upperTaxonomy[$target]['p'] = $r['t_phylum'];
-					if($r['t_class']) $this->upperTaxonomy[$target]['c'] = $r['t_class'];
-					if($r['t_order']) $this->upperTaxonomy[$target]['o'] = $r['t_order'];
-					if($r['family']) $this->upperTaxonomy[$target]['f'] = $r['family'];
-					if($r['t_subgenus']) $this->upperTaxonomy[$target]['s'] = $r['t_subgenus'];
-					if($r['t_higherClassification']) $this->upperTaxonomy[$target]['u'] = $r['t_higherClassification'];
-				}
-			}
-		}
-	}
-
 	//getters, setters, and misc functions
 	public function setOverrideConditionLimit($bool){
 		if($bool) $this->overrideConditionLimit = true;

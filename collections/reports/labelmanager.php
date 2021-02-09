@@ -7,11 +7,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/reports/labelmanager.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
-$collid = $_REQUEST["collid"];
+$collid = $_REQUEST['collid'];
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 
-$datasetManager = new OccurrenceLabel();
-$datasetManager->setCollid($collid);
+//Sanitation
+if(!is_numeric($collid)) $collid = 0;
+
+$labelManager = new OccurrenceLabel();
+$labelManager->setCollid($collid);
 
 $isEditor = 0;
 $occArr = array();
@@ -23,26 +26,31 @@ elseif(array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collid,$USER_RIG
 }
 if($isEditor){
 	if($action == "Filter Specimen Records"){
-		$occArr = $datasetManager->queryOccurrences($_POST);
+		$occArr = $labelManager->queryOccurrences($_POST);
 	}
 }
+$labelFormatArr = $labelManager->getLabelFormatArr(true);
 ?>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE; ?> Specimen Label Manager</title>
-    <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+		<?php
+		$activateJQuery = false;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+		}
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<script type="text/javascript">
+			<?php
+			if($labelFormatArr) echo "var labelFormatObj = ".json_encode($labelFormatArr).";";
+			?>
+
 			function selectAll(cb){
 				boxesChecked = true;
 				if(!cb.checked){
@@ -101,12 +109,23 @@ if($isEditor){
 				return false;
 			}
 
-			function changeFormExport(action,target){
-				var f = document.selectform;
-				if(action == "labelsword.php" && document.getElementById('packetradio').checked == true){
+			function changeFormExport(buttonElem, action, target){
+				var f = buttonElem.form;
+				if(action == "labeldynamic.php" && buttonElem.value == "Print in Browser"){
+					labelFormatSelected = false;
+					if(f["labelformatindex-g"] && f["labelformatindex-g"].value != "") labelFormatSelected = true;
+					if(f["labelformatindex-c"] && f["labelformatindex-c"].value != "") labelFormatSelected = true;
+					if(f["labelformatindex-u"] && f["labelformatindex-u"].value != "") labelFormatSelected = true;
+					if(!labelFormatSelected){
+						alert("Please select a Label Format Profile");
+						return false;
+					}
+				}
+				else if(action == "labelsword.php" && f.labeltype.valye == "packet"){
 					alert("Packet labels are not yet available as a Word document");
 					return false;
 				}
+				if(f.bconly && f.bconly.checked && action == "labeldynamic.php") action = "barcodes.php";
 				f.action = action;
 				f.target = target;
 				return true;
@@ -126,8 +145,38 @@ if($isEditor){
 					f.bconly.checked = false;
 				}
 			}
+
+			function labelFormatChanged(selObj,catStr){
+				if(selObj && labelFormatObj){
+					var labelIndex = selObj.value;
+					var f = document.selectform;
+
+					f.hprefix.value = labelFormatObj[catStr][labelIndex].labelHeader.prefix;
+					var midIndex = labelFormatObj[catStr][labelIndex].labelHeader.midText;
+					document.getElementById("hmid"+midIndex).checked = true;
+					f.hsuffix.value = labelFormatObj[catStr][labelIndex].labelHeader.suffix;
+					f.lfooter.value = labelFormatObj[catStr][labelIndex].labelFooter.textValue;
+					if(labelFormatObj[catStr][labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
+					else f.speciesauthors.checked = false;
+					if(f.bc){
+						if(labelFormatObj[catStr][labelIndex].displayBarcode == 1) f.bc.checked = true;
+						else f.bc.checked = false;
+					}
+					f.labeltype.value = labelFormatObj[catStr][labelIndex].labelType;
+					if(catStr != 'g' && f["labelformatindex-g"]) f["labelformatindex-g"].value = "";
+					if(catStr != 'c' && f["labelformatindex-c"]) f["labelformatindex-c"].value = "";
+					if(catStr != 'u' && f["labelformatindex-u"]) f["labelformatindex-u"].value = "";
+				}
+			}
 		</script>
-		<script src="../../js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
+		<style>
+			fieldset{ margin:10px; padding:15px; }
+			fieldset legend{ font-weight:bold; }
+			.fieldDiv{ clear:both; padding:5px 0px; margin:5px 0px }
+			.fieldLabel{ font-weight: bold; display:block }
+			.checkboxLabel{ font-weight: bold; }
+			.fieldElement{  }
+		</style>
 	</head>
 	<body>
 	<?php
@@ -137,7 +186,7 @@ if($isEditor){
 	<div class='navpath'>
 		<a href='../../index.php'>Home</a> &gt;&gt;
 		<?php
-		if(stripos(strtolower($datasetManager->getMetaDataTerm('colltype')), "observation") !== false){
+		if(stripos(strtolower($labelManager->getMetaDataTerm('colltype')), "observation") !== false){
 			echo '<a href="../../profile/viewprofile.php?tabindex=1">Personal Management Menu</a> &gt;&gt; ';
 		}
 		else{
@@ -159,8 +208,8 @@ if($isEditor){
 				</div>
 				<?php
 			}
-			$isGeneralObservation = (($datasetManager->getMetaDataTerm('colltype') == 'General Observations')?true:false);
-			echo '<h2>'.$datasetManager->getCollName().'</h2>';
+			$isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General Observations')?true:false);
+			echo '<h2>'.$labelManager->getCollName().'</h2>';
 			?>
 			<div>
 				<form name="datasetqueryform" action="labelmanager.php" method="post" onsubmit="return validateQueryForm(this)">
@@ -210,7 +259,7 @@ if($isEditor){
 								<?php
 								$lProj = '';
 								if(array_key_exists('labelproject',$_REQUEST)) $lProj = $_REQUEST['labelproject'];
-								$lProjArr = $datasetManager->getLabelProjects();
+								$lProjArr = $labelManager->getLabelProjects();
 								foreach($lProjArr as $projStr){
 									echo '<option '.($lProj==$projStr?'SELECTED':'').'>'.$projStr.'</option>'."\n";
 								}
@@ -225,7 +274,7 @@ if($isEditor){
 								/*
 								$datasetProj = '';
 								if(array_key_exists('datasetproject',$_REQUEST)) $datasetProj = $_REQUEST['datasetproject'];
-								$dProjArr = $datasetManager->getDatasetProjects();
+								$dProjArr = $labelManager->getDatasetProjects();
 								foreach($dProjArr as $dsid => $dsProjStr){
 									echo '<option id="'.$dsid.'" '.($datasetProj==$dsProjStr?'SELECTED':'').'>'.$dsProjStr.'</option>'."\n";
 								}
@@ -256,7 +305,7 @@ if($isEditor){
 					if($action == "Filter Specimen Records"){
 						if($occArr){
 							?>
-							<form name="selectform" id="selectform" action="labels.php" method="post" onsubmit="return validateSelectForm(this);">
+							<form name="selectform" id="selectform" action="labeldynamic.php" method="post" onsubmit="return validateSelectForm(this);">
 								<table class="styledtable" style="font-family:Arial;font-size:12px;">
 									<tr>
 										<th title="Select/Deselect all Specimens"><input type="checkbox" onclick="selectAll(this);" /></th>
@@ -305,72 +354,133 @@ if($isEditor){
 									?>
 								</table>
 								<fieldset style="margin-top:15px;">
-									<legend><b>Label Printing</b></legend>
-									<div style="margin:4px;">
-										<b>Heading Prefix:</b>
-										<input type="text" name="lhprefix" value="" style="width:450px" /> (e.g. Plants of, Insects of, Vertebrates of)
-										<div style="margin:3px 0px 3px 0px;">
-											<b>Heading Mid-Section:</b>
-											<input type="radio" name="lhmid" value="1" />Country
-											<input type="radio" name="lhmid" value="2" checked />State
-											<input type="radio" name="lhmid" value="3" />County
-											<input type="radio" name="lhmid" value="4" />Family
-											<input type="radio" name="lhmid" value="0" />Blank
+									<legend>Label Printing</legend>
+										<div class="fieldDiv">
+											<div class="fieldLabel">Label Profiles <span title="Open label profile manager"><a href="labelprofile.php?collid=<?php echo $collid; ?>"><img src="../../images/edit.png" style="width:13px" /></a></span>:</div>
+											<div class="fieldElement">
+												<?php
+												foreach($labelFormatArr as $cat => $catArr){
+													$catStr = 'Portal defined profiles';
+													if($cat == 'c') $catStr = 'Collection defined profiles';
+													if($cat == 'u') $catStr = 'User defined profiles';
+													?>
+													<div>
+														<select name="labelformatindex<?php echo '-'.$cat; ?>" onchange="labelFormatChanged(this,'<?php echo $cat; ?>')">
+															<option value=""><?php echo $catStr; ?></option>
+															<option value="">=========================================</option>
+															<?php
+															foreach($catArr as $k => $labelArr){
+																echo '<option value="'.$k.'">'.$labelArr['title'].'</option>';
+															}
+															?>
+														</select>
+													</div>
+													<?php
+												}
+												if(!$labelFormatArr) echo '<b>label profiles have not yet been set within portal</b>';
+												?>
+											</div>
 										</div>
-										<b>Heading Suffix:</b>
-										<input type="text" name="lhsuffix" value="" style="width:450px" /><br/>
+									<div class="fieldDiv">
+										<div class="fieldLabel">Heading Prefix:</div>
+										<div class="fieldElement">
+											<input type="text" name="hprefix" value="" style="width:450px" /> (e.g. Plants of, Insects of, Vertebrates of)
+										</div>
 									</div>
-									<div style="margin:4px;">
-										<b>Label Footer:</b>
-										<input type="text" name="lfooter" value="" style="width:450px" />
+									<div class="fieldDiv">
+										<div class="checkboxLabel">Heading Mid-Section:</div>
+										<div class="fieldElement">
+											<input type="radio" id="hmid1" name="hmid" value="1" />Country
+											<input type="radio" id="hmid2" name="hmid" value="2" />State
+											<input type="radio" id="hmid3" name="hmid" value="3" />County
+											<input type="radio" id="hmid4" name="hmid" value="4" />Family
+											<input type="radio" id="hmid0" name="hmid" value="0" checked/>Blank
+										</div>
 									</div>
-									<div style="margin:4px;">
+									<div class="fieldDiv">
+										<span class="fieldLabel">Heading Suffix:</span>
+										<span class="fieldElement">
+											<input type="text" name="hsuffix" value="" style="width:450px" />
+										</span>
+									</div>
+									<div class="fieldDiv">
+										<span class="fieldLabel">Label Footer:</span>
+										<span class="fieldElement">
+											<input type="text" name="lfooter" value="" style="width:450px" />
+										</span>
+									</div>
+									<div class="fieldDiv">
 										<input type="checkbox" name="speciesauthors" value="1" onclick="checkBarcodeCheck(this.form);" />
-										<b>Print species authors for infraspecific taxa</b>
+										<span class="checkboxLabel">Print species authors for infraspecific taxa</span>
 									</div>
-									<div style="margin:4px;">
+									<div class="fieldDiv">
 										<input type="checkbox" name="catalognumbers" value="1" onclick="checkBarcodeCheck(this.form);" />
-										<b>Print Catalog Numbers</b>
+										<span class="checkboxLabel">Print Catalog Numbers</span>
 									</div>
 									<?php
 									if(class_exists('Image_Barcode2') || class_exists('Image_Barcode')){
 										?>
-										<div style="margin:4px;">
+										<div class="fieldDiv">
 											<input type="checkbox" name="bc" value="1" onclick="checkBarcodeCheck(this.form);" />
-											<b>Include barcode of Catalog Number</b>
+											<span class="checkboxLabel">Include barcode of Catalog Number</span>
 										</div>
-										<div style="margin:4px;">
+										<!--
+										<div class="fieldDiv">
 											<input type="checkbox" name="symbbc" value="1" onclick="checkBarcodeCheck(this.form);" />
-											<b>Include barcode of Symbiota Identifier</b>
+											<span class="checkboxLabel">Include barcode of Symbiota Identifier</span>
 										</div>
-										<div style="margin:4px;">
+										 -->
+										<div class="fieldDiv">
 											<input type="checkbox" name="bconly" value="1" onclick="checkPrintOnlyCheck(this.form);" />
-											<b>Print only Barcode</b>
+											<span class="checkboxLabel">Print only Barcode</span>
 										</div>
 										<?php
 									}
 									?>
-									<fieldset style="float:left;margin:10px;width:150px;">
-										<legend><b>Label Format</b></legend>
-										<input type="radio" name="labelformat" value="1" /> 1 row per page<br/>
-										<input type="radio" name="labelformat" value="2" checked /> 2 row per page<br/>
-										<input type="radio" name="labelformat" value="3" /> 3 row per page<br/>
-										<input id="packetradio" type="radio" name="labelformat" value="packet" /> packet labels<br/>
-									</fieldset>
+									<div class="fieldDiv">
+										<span class="fieldLabel">Label Type:</span>
+										<span class="fieldElement">
+											<select name="labeltype">
+												<option value="1">1 columns per page</option>
+												<option value="2" selected>2 columns per page</option>
+												<option value="3">3 columns per page</option>
+												<option value="4">4 columns per page</option>
+												<option value="5">5 columns per page</option>
+												<option value="6">6 columns per page</option>
+												<option value="7">7 columns per page</option>
+												<option value="packet">Packet labels</option>
+											</select>
+										</span>
+									</div>
 									<div style="float:left;margin: 15px 50px;">
 										<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-										<input type="submit" name="submitaction" onclick="changeFormExport('labels.php','_blank');" value="Print in Browser" />
-										<br/><br/>
-										<input type="submit" name="submitaction" onclick="changeFormExport('labels.php','_self');" value="Export to CSV" />
+										<div style="margin:10px">
+											<input type="submit" name="submitaction" onclick="return changeFormExport(this,'labeldynamic.php','_blank');" value="Print in Browser" <?php echo ($labelFormatArr?'':'DISABLED title="Browser based label printing has not been activated within the portal. Contact Portal Manager to activate this feature."'); ?> />
+										</div>
+										<div style="margin:10px">
+											<input type="submit" name="submitaction" onclick="return changeFormExport(this,'labeldynamic.php','_self');" value="Export to CSV" />
+										</div>
 										<?php
 										if($reportsWritable){
 											?>
-											<br/><br/>
-											<input type="submit" name="submitaction" onclick="return changeFormExport('labelsword.php','_self');" value="Export to DOCX" />
+											<div style="margin:10px">
+												<input type="submit" name="submitaction" onclick="return changeFormExport(this,'labelsword.php','_self');" value="Export to DOCX" />
+											</div>
 											<?php
 										}
 										?>
 									</div>
+										<?php
+										if($reportsWritable){
+											?>
+											<div style="clear:both;padding:10px 0px">
+												<b>Note:</b> Currently, Word (DOCX) output only generates the old static label format.<br/>Output of variable Label Formats (pulldown options) as a Word document is not yet supported.<br/>
+												A possible work around is to print labels as PDF and then convert to a Word doc using Adobe tools.<br/>
+												Another alternatively, is to output the data as CSV and then setup a Mail Merge Word document.
+											</div>
+											<?php
+										}
+										?>
 								</fieldset>
 							</form>
 							<?php

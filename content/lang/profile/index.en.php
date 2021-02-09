@@ -8,11 +8,14 @@ Language: English
 $LANG['INVALID_LOGIN'] = 'Invalid login name';
 $LANG['INVALID_EMAIL'] = 'Invalid email';
 $LANG['INCORRECT'] = 'Your username or password was incorrect. Please try again.<br/> If you are unable to remember your login credentials,<br/> use the controls below to retrieve your login or reset your password.';
-$LANG['LOGIN_EMAILED'] = 'Your login name will be emailed to you.';
+$LANG['EMAIL_ERROR'] = 'Error sending email, contact administrator';
+$LANG['LOGIN_EMAILED'] = 'Your login name will be emailed to';
+$LANG['PWD_EMAILED'] = 'Your new password was just emailed to';
+$LANG['RESET_FAILED'] = 'Reset Failed! Contact administrator';
 $LANG['COOKIES'] = 'Your browser cookies are disabled. To be able to login and access your profile, they must be enabled for this domain.';
 $LANG['ENTER_LOGIN_NO_PWD'] = 'Enter your login name in the Login field and leave the password blank';
 $LANG['ENTER_LOGIN'] = 'Please enter your login and password.';
-
+$LANG['PORTAL_LOGIN'] = 'Portal Login';
 $LANG['LOGIN_NAME'] = 'Login';
 $LANG['PASSWORD'] = 'Password';
 $LANG['REMEMBER'] = 'Remember me on this computer';

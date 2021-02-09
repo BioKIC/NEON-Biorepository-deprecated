@@ -37,9 +37,11 @@ if($isEditor){
 	<title><?php echo $DEFAULT_TITLE; ?> Manifest Loader</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
 	<?php
-	$activateJQuery = false;
+	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
+	<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		function verifyUploadForm(f){
 			var status = true;
@@ -103,78 +105,99 @@ if($isEditor){
 			<?php
 			if($action == 'Map Input File' || $action == 'Verify Mapping'){
 				if(!$ulFileName) $loaderManager->uploadManifestFile();
-				$loaderManager->analyzeUpload();
-				?>
-				<form name="mappingform" action="manifestloader.php" method="post" onsubmit="return verifyMappingForm(this)">
-					<fieldset style="width:90%;">
-						<legend style="font-weight:bold;font-size:120%;">Manifest Upload Form</legend>
-						<div style="margin:10px;">
-						</div>
-						<table class="styledtable" style="width:350px;">
-							<tr>
-								<th>
-									Source Field
-								</th>
-								<th>
-									Target Field
-								</th>
-							</tr>
-							<?php
-							$sourceArr = $loaderManager->getSourceArr();
-							$targetArr = $loaderManager->getTargetArr();
-							$symbTargetArr = $loaderManager->getSymbTargetArr();
-							$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation','deprecatedsampleid'=>'alternativesampleid',
-								'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties','containerid'=>'dynamicproperties',
-								'plateid'=>'dynamicproperties','platebarcode'=>'dynamicproperties', 'wellcoordinates'=>'dynamicproperties', 'samplesecondarybag'=>'dynamicproperties');
-							foreach($sourceArr as $sourceField){
-								?>
-								<tr>
-									<td style='padding:2px;'>
-										<?php echo $sourceField; ?>
-										<input type="hidden" name="sf[]" value="<?php echo $sourceField; ?>" />
-									</td>
-									<td>
-										<?php
-										$translatedSourceField = strtolower($sourceField);
-										if(array_key_exists($translatedSourceField, $translationMap)) $translatedSourceField = $translationMap[$translatedSourceField];
-										$bgColor = 'yellow';
-										if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)) $bgColor = 'white';
-										elseif($loaderManager->in_iarray($translatedSourceField, $targetArr)) $bgColor = 'white';
-										elseif($loaderManager->in_iarray($translatedSourceField,$symbTargetArr)) $bgColor = 'white';
+				$analyzeStatus = $loaderManager->analyzeUpload();
+				$errCode = 1;
+				if(!$analyzeStatus){
+					$errStr = $loaderManager->getErrorStr();
+					if(strpos($errStr,'shipment already in system')){
+						echo $errStr;
+						?>
+						<div>Are you sure you want to append the data to existing shipment?</div>
+						<div style="margin-left:15px">If so, <a href="#" onclick="$('#mappingFormDiv').show();return false">click here to continue</a></div>
+						<div style="margin-left:15px">If not, modify the shipmentIDs for each record and <a href="manifestloader.php">reload the manifest</a></div>
+						<?php
+						$errCode = 2;
+					}
+					else{
+						echo '<div style="font-weight:bold">ERROR analyzing import file: '.$errStr.'</div>';
+						$errCode = 0;
+					}
+				}
+				if($errCode){
+					?>
+					<div id="mappingFormDiv" style="<?php if($errCode==2) echo 'display:none'; ?>">
+						<form name="mappingform" action="manifestloader.php" method="post" onsubmit="return verifyMappingForm(this)">
+							<fieldset style="width:90%;">
+								<legend style="font-weight:bold;font-size:120%;">Manifest Upload Form</legend>
+								<div style="margin:10px;">
+								</div>
+								<table class="styledtable" style="width:350px;">
+									<tr>
+										<th>
+											Source Field
+										</th>
+										<th>
+											Target Field
+										</th>
+									</tr>
+									<?php
+									$sourceArr = $loaderManager->getSourceArr();
+									$targetArr = $loaderManager->getTargetArr();
+									$symbTargetArr = $loaderManager->getSymbTargetArr();
+									$translationMap = array('shipdate'=>'dateshipped','sentto'=>'senttoid','remarks'=>'shipmentnotes','siteid'=>'namedlocation','deprecatedsampleid'=>'alternativesampleid',
+										'containerid'=>'dynamicproperties','containerlocation'=>'dynamicproperties','sampletype'=>'dynamicproperties','containerid'=>'dynamicproperties',
+										'plateid'=>'dynamicproperties','platebarcode'=>'dynamicproperties', 'wellcoordinates'=>'dynamicproperties', 'samplesecondarybag'=>'dynamicproperties');
+									foreach($sourceArr as $sourceField){
 										?>
-										<select name="tf[]" style="background:<?php echo $bgColor; ?>">
-											<option value="">Field Unmapped</option>
-											<option value="">-------------------------</option>
-											<?php
-											$matchTerm = '';
-											if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)) $matchTerm = strtolower($fieldMap[$translatedSourceField]);
-											else $matchTerm = $translatedSourceField;
-											foreach($targetArr as $targetField){
-												echo '<option '.($matchTerm==strtolower($targetField)?'SELECTED':'').'>'.$targetField.'</option>';
-											}
-											echo '<option value="">-------------------------</option>';
-											foreach($symbTargetArr as $symbTerm){
-												echo '<option '.($translatedSourceField==strtolower($symbTerm)?'SELECTED':'').'>symb:'.$symbTerm.'</option>';
-											}
-											?>
-										</select>
-									</td>
-								</tr>
-								<?php
-							}
-							?>
-						</table>
-						<div style="margin:10px;">
-							<input type="checkbox" name="reloadSamples" value="1" /> Reload sample record if it already exists
-						</div>
-						<div style="margin:10px;">
-							<input type="submit" name="action" value="Verify Mapping" />
-							<input type="submit" name="action" value="Process Manifest" />
-							<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getUploadFileName(); ?>" />
-						</div>
-					</fieldset>
-				</form>
-				<?php
+										<tr>
+											<td style='padding:2px;'>
+												<?php echo $sourceField; ?>
+												<input type="hidden" name="sf[]" value="<?php echo $sourceField; ?>" />
+											</td>
+											<td>
+												<?php
+												$translatedSourceField = strtolower($sourceField);
+												if(array_key_exists($translatedSourceField, $translationMap)) $translatedSourceField = $translationMap[$translatedSourceField];
+												$bgColor = 'yellow';
+												if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)) $bgColor = 'white';
+												elseif($loaderManager->in_iarray($translatedSourceField, $targetArr)) $bgColor = 'white';
+												elseif($loaderManager->in_iarray($translatedSourceField,$symbTargetArr)) $bgColor = 'white';
+												?>
+												<select name="tf[]" style="background:<?php echo $bgColor; ?>">
+													<option value="">Field Unmapped</option>
+													<option value="">-------------------------</option>
+													<?php
+													$matchTerm = '';
+													if($loaderManager->array_key_iexists($translatedSourceField,$fieldMap)) $matchTerm = strtolower($fieldMap[$translatedSourceField]);
+													else $matchTerm = $translatedSourceField;
+													foreach($targetArr as $targetField){
+														echo '<option '.($matchTerm==strtolower($targetField)?'SELECTED':'').'>'.$targetField.'</option>';
+													}
+													echo '<option value="">-------------------------</option>';
+													foreach($symbTargetArr as $symbTerm){
+														echo '<option '.($translatedSourceField==strtolower($symbTerm)?'SELECTED':'').'>symb:'.$symbTerm.'</option>';
+													}
+													?>
+												</select>
+											</td>
+										</tr>
+										<?php
+									}
+									?>
+								</table>
+								<div style="margin:10px;">
+									<input type="checkbox" name="reloadSamples" value="1" /> Reload sample record if it already exists
+								</div>
+								<div style="margin:10px;">
+									<input type="submit" name="action" value="Verify Mapping" />
+									<input type="submit" name="action" value="Process Manifest" />
+									<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getUploadFileName(); ?>" />
+								</div>
+							</fieldset>
+						</form>
+					</div>
+					<?php
+				}
 			}
 			elseif($action == 'Process Manifest'){
 				echo '<ul>';
@@ -188,7 +211,10 @@ if($isEditor){
 					<legend><b>Manifests Associated with Shipment</b></legend>
 					<?php
 					foreach($shipmentPKArr as $shipmentID => $shipmentPK){
-						echo '<div style="margin-left:10px"><a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">#'.$shipmentID.'</a></div>';
+						echo '<div style="margin-left:10px">';
+						if($shipmentPK) echo '<a href="manifestviewer.php?shipmentPK='.$shipmentPK.'">#'.$shipmentID.'</a>';
+						else echo 'Manifest #'.$shipmentID.' failed to load';
+						echo '</div>';
 					}
 					?>
 				</fieldset>

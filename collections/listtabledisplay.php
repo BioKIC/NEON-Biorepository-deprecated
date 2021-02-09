@@ -64,7 +64,7 @@ $searchVar = $collManager->getQueryTermStr();
 			<div style="float:right;">
 				<!--
 				<div style="float:left">
-					<button class="icon-button" onclick="$('.datasetDiv').toggle();" title="Dataset Management">
+					<button class="icon-button" onclick="$('.dataset-div').toggle();" title="Dataset Management">
 						<img src="../images/dataset.png" style="width:15px;" />
 					</button>
 				</div>
@@ -183,6 +183,8 @@ $searchVar = $collManager->getQueryTermStr();
 							<th>State/Province</th>
 							<th>County</th>
 							<th>Locality</th>
+							<th>Decimal Lat.</th>
+							<th>Decimal Long.</th>
 							<th>Habitat</th>
 							<th>Substrate</th>
 							<th>Elevation</th>
@@ -202,7 +204,7 @@ $searchVar = $collManager->getQueryTermStr();
 							?>
 							<tr <?php echo ($recCnt%2?'class="alt"':''); ?>>
 								<td>
-									<div class="datasetDiv" style="float:left;display:none"><input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" /></div>
+									<div class="dataset-div" style="float:left;display:none"><input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" /></div>
 									<?php
 									echo '<a href="#" onclick="return openIndPU('.$occid.",".($targetClid?$targetClid:"0").');">'.$occid.'</a> ';
 									if($isEditor || ($SYMB_UID && $SYMB_UID == $occArr['obsuid'])){
@@ -227,11 +229,12 @@ $searchVar = $collManager->getQueryTermStr();
 								<td><?php echo $occArr['county']; ?></td>
 								<td>
 								<?php
-								$locStr = $occArr['locality'];
-								$locStr = preg_replace('/<div.*?>.*?<\/div>/', '', $locStr);
+								$locStr = preg_replace('/<div.*?>.*?<\/div>/', '', $occArr['locality']);
 								if(strlen($locStr)>80) $locStr = substr($locStr,0,80).'...';
 								echo $locStr;
 								?></td>
+								<td><?php if($occArr['declat']) echo $occArr['declat']; ?></td>
+								<td><?php if($occArr['declong']) echo $occArr['declong']; ?></td>
 								<td><?php if(isset($occArr['habitat'])) echo ((strlen($occArr['habitat'])>80)?substr($occArr['habitat'],0,80).'...':$occArr['habitat']); ?></td>
 								<td><?php if(isset($occArr['substrate'])) echo ((strlen($occArr['substrate'])>80)?substr($occArr['substrate'],0,80).'...':$occArr['substrate']); ?></td>
 								<td><?php echo (array_key_exists("elev",$occArr)?$occArr['elev']:""); ?></td>

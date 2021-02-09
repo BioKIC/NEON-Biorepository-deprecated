@@ -5,11 +5,13 @@ include_once('ImageShared.php');
 class ImageCleaner extends Manager{
 
 	private $collid;
-	private $collCodeArr = array();
+	private $collMetaArr = array();
 	private $tidArr = array();
 	private $imgRecycleBin;
 	private $imgDelRecOverride = false;
 	private $imgManager = null;
+	private $buildMediumDerivative = true;
+	private $testOrientation = false;
 
 	function __construct() {
 		parent::__construct(null,'write');
@@ -24,16 +26,11 @@ class ImageCleaner extends Manager{
 	//Thumbnail building tools
 	public function getReportArr(){
 		$retArr = array();
-
 		$sql = 'SELECT c.collid, CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname, count(DISTINCT i.imgid) AS cnt '.
 			'FROM images i LEFT JOIN omoccurrences o ON i.occid = o.occid '.
 			'LEFT JOIN omcollections c ON o.collid = c.collid ';
-		if($this->tidArr){
-			$sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
-		}
-		$sql .= $this->getSqlWhere().
-			'GROUP BY c.collid ORDER BY c.collectionname';
-		//echo $sql;
+		if($this->tidArr) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
+		$sql .= $this->getSqlWhere().'GROUP BY c.collid ORDER BY c.collectionname';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$id = $r->collid;
@@ -56,18 +53,13 @@ class ImageCleaner extends Manager{
 
 	public function buildThumbnailImages(){
 		$this->imgManager = new ImageShared();
+		$this->imgManager->setTestOrientation($this->testOrientation);
 
 		//Get image recordset to be processed
 		$sql = 'SELECT DISTINCT i.imgid, i.url, i.originalurl, i.thumbnailurl, i.format ';
-		if($this->collid){
-			$sql .= ', o.catalognumber FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid ';
-		}
-		else{
-			$sql .= 'FROM images i ';
-		}
-		if($this->tidArr){
-			$sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
-		}
+		if($this->collid) $sql .= ', o.catalognumber FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid ';
+		else $sql .= 'FROM images i ';
+		if($this->tidArr) $sql .= 'INNER JOIN taxaenumtree e ON i.tid = e.tid ';
 		$sql .= $this->getSqlWhere().'ORDER BY RAND()';
 		//echo $sql; exit;
 		$result = $this->conn->query($sql);
@@ -85,10 +77,6 @@ class ImageCleaner extends Manager{
 			if($testR = $textRS->fetch_object()){
 				if(!$testR->thumbnailurl || (substr($testR->thumbnailurl,0,10) == 'processing' && $testR->thumbnailurl != 'processing '.date('Y-m-d'))){
 					$tagSql = 'UPDATE images SET thumbnailurl = "processing '.date('Y-m-d').'" WHERE (imgid = '.$imgId.')';
-					$this->conn->query($tagSql);
-				}
-				elseif($testR->url == 'empty' || (substr($testR->url,0,10) == 'processing' && $testR->url != 'processing '.date('Y-m-d'))){
-					$tagSql = 'UPDATE images SET url = "processing '.date('Y-m-d').'" WHERE (imgid = '.$imgId.')';
 					$this->conn->query($tagSql);
 				}
 				else{
@@ -116,11 +104,12 @@ class ImageCleaner extends Manager{
 	}
 
 	private function setCollectionCode(){
-		if($this->collid){
-			$sql = 'SELECT collid, CONCAT_WS("_",institutioncode, collectioncode) AS code FROM omcollections WHERE collid = '.$this->collid;
+		if($this->collid && !$this->collMetaArr){
+			$sql = 'SELECT collid, CONCAT_WS("_",institutioncode, collectioncode) AS code, collectionname FROM omcollections WHERE collid = '.$this->collid;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$this->collCodeArr[$r->collid] = $r->code;
+				$this->collMetaArr[$r->collid]['code'] = $r->code;
+				$this->collMetaArr[$r->collid]['name'] = $r->collectionname;
 			}
 			$rs->free();
 		}
@@ -141,8 +130,8 @@ class ImageCleaner extends Manager{
 		//Build target path
 		$targetPath = '';
 		if($this->collid){
-			if(!array_key_exists($this->collid, $this->collCodeArr)) $this->setCollectionCode();
-			$targetPath = $this->collCodeArr[$this->collid].'/';
+			if(!array_key_exists($this->collid, $this->collMetaArr)) $this->setCollectionCode();
+			$targetPath = $this->collMetaArr[$this->collid]['code'].'/';
 			if($catNum){
 				$catNum = str_replace(array('/','\\',' '), '', $catNum);
 				if(preg_match('/^(\D{0,8}\d{4,})/', $catNum, $m)){
@@ -150,23 +139,17 @@ class ImageCleaner extends Manager{
 					if(is_numeric($catPath) && strlen($catPath)<5) $catPath = str_pad($catPath, 5, "0", STR_PAD_LEFT);
 					$targetPath .= $catPath.'/';
 				}
-				else{
-					$targetPath .= '00000/';
-				}
+				else $targetPath .= '00000/';
 			}
-			else{
-				$targetPath .= date('Ym').'/';
-			}
+			else $targetPath .= date('Ym').'/';
 		}
-		else{
-			$targetPath = 'misc/'.date('Ym').'/';
-		}
+		else $targetPath = 'misc/'.date('Ym').'/';
 		$this->imgManager->setTargetPath($targetPath);
 
 		$imgUrl = '';
 		$webIsEmpty = false;
-		//If a TROPICOS image, harvest web image from their website
 		if(strpos($recUrlOrig, 'tropicos.org/ImageDownload.aspx')){
+			//Is a TROPICOS image, thus try to harvest web image from their website
 			if(preg_match('/imageid=(\d+)$/', $recUrlOrig, $m)){
 				$newImgPath = $this->imgManager->getTargetPath().'mo_'.$m[1].'.jpg';
 				if(copy($recUrlOrig, $newImgPath)){
@@ -185,8 +168,8 @@ class ImageCleaner extends Manager{
 			}
 		}
 		if($this->imgManager->parseUrl($imgUrl)){
-			$webFullUrl = '';
-			$lgFullUrl = '';
+			$webFullUrl = $recUrlWeb;
+			$lgFullUrl = $recUrlOrig;
 			//Create thumbnail
 			$imgTnUrl = '';
 			if(!$recUrlTn){
@@ -214,26 +197,24 @@ class ImageCleaner extends Manager{
 						$webIsEmpty = true;
 					}
 				}
-				if($webIsEmpty){
-					if($sourceWidth && $sourceWidth < $this->imgManager->getWebPixWidth()){
-						if(copy($this->imgManager->getSourcePath(),$this->imgManager->getTargetPath().$this->imgManager->getImgName().'_web'.$this->imgManager->getImgExt())){
-							$webFullUrl = $this->imgManager->getUrlBase().$this->imgManager->getImgName().'_web'.$this->imgManager->getImgExt();
+				if($recUrlOrig){
+					if($this->buildMediumDerivative && $webIsEmpty){
+						if($sourceWidth && $sourceWidth < $this->imgManager->getWebPixWidth()){
+							if(copy($this->imgManager->getSourcePath(),$this->imgManager->getTargetPath().$this->imgManager->getImgName().'_web'.$this->imgManager->getImgExt())){
+								$webFullUrl = $this->imgManager->getUrlBase().$this->imgManager->getImgName().'_web'.$this->imgManager->getImgExt();
+							}
 						}
-					}
-					if(!$webFullUrl){
-						if($this->imgManager->createNewImage('_web',$this->imgManager->getWebPixWidth())){
-							$webFullUrl = $this->imgManager->getUrlBase().$this->imgManager->getImgName().'_web.jpg';
+						if(!$webFullUrl){
+							if($this->imgManager->createNewImage('_web',$this->imgManager->getWebPixWidth())){
+								$webFullUrl = $this->imgManager->getUrlBase().$this->imgManager->getImgName().'_web.jpg';
+							}
 						}
 					}
 				}
+				if(!$webFullUrl && !$recUrlOrig) $webFullUrl = $recUrlWeb;
 
-				$sql = 'UPDATE images ti SET ti.thumbnailurl = "'.$imgTnUrl.'" ';
-				if($webFullUrl){
-					$sql .= ',url = "'.$webFullUrl.'" ';
-				}
-				if($lgFullUrl){
-					$sql .= ',originalurl = "'.$lgFullUrl.'" ';
-				}
+				$sql = 'UPDATE images ti SET ti.thumbnailurl = "'.$imgTnUrl.'" ,url = '.($webFullUrl?'"'.$webFullUrl.'"':'NULL').' ';
+				if($lgFullUrl) $sql .= ',originalurl = "'.$lgFullUrl.'" ';
 				if($setFormat){
 					if($this->imgManager->getFormat()){
 						$sql .= ',format = "'.$this->imgManager->getFormat().'" ';
@@ -277,17 +258,13 @@ class ImageCleaner extends Manager{
 
 	private function getTropicosWebUrl($url){
 		$imgUrl = '';
-		echo $url.'<br/>';
 		if(preg_match('/imageid=(\d+)$/', $url, $m)){
 			$imageID = $m[1];
-			echo $imageID.'<br/>';
 			//http://mbgserv18.mobot.org/adore-djatoka/resolver?url_ver=Z39.88-2004&rft_id=http://mbgserv18:8057/TropicosImages2/100309000/100309162.jp2&svc_id=info:lanl-repo/svc/getRegion&svc_val_fmt=info:ofi/fmt:kev:mtx:jpeg2000&svc.format=image/jpeg&svc.scale=0.2';
 			$newImgUrl = 'http://mbgserv18.mobot.org/adore-djatoka/resolver?url_ver=Z39.88-2004&rft_id=http://mbgserv18:8057/TropicosImages2/'.substr($imageID, 0, 6).'000/'.$imageID.'.jp2&svc_id=info:lanl-repo/svc/getRegion&svc_val_fmt=info:ofi/fmt:kev:mtx:jpeg2000&svc.format=image/jpeg&svc.scale=0.2';
-			echo $newImgUrl.'<br/>';
 
 			if(copy($newImgUrl,$this->imgManager->getTargetPath().$this->imgManager->getImgName().'_web'.$this->imgManager->getImgExt())){
 				$imgUrl = $this->imgManager->getTargetPath().$this->imgManager->getImgName().'_web'.$this->imgManager->getImgExt();
-				echo $imgUrl;
 			}
 			exit;
 		}
@@ -379,6 +356,7 @@ class ImageCleaner extends Manager{
 
 	public function refreshThumbnails($postArr){
 		$this->imgManager = new ImageShared();
+		$this->imgManager->setTestOrientation($this->testOrientation);
 		$sql = 'SELECT o.occid, o.catalognumber, i.imgid, i.url, i.thumbnailurl, i.originalurl, i.format '.$this->getRemoteImageSql($postArr);
 		//echo $sql.'<br/>';
 		$rs = $this->conn->query($sql);
@@ -401,9 +379,7 @@ class ImageCleaner extends Manager{
 				}
 			}
 			if($this->unlinkImageFile($urlTn, $tsSource)) $urlTn = '';
-			if($urlOrig){
-				if($this->unlinkImageFile($url, $tsSource)) $url = '';
-			}
+			if($urlOrig) if($this->unlinkImageFile($url, $tsSource)) $url = '';
 			$setFormat = ($r->format?false:true);
 			$this->buildImageDerivatives($r->imgid, $r->catalognumber, $url, $urlTn, $urlOrig, $setFormat);
 		}
@@ -430,26 +406,16 @@ class ImageCleaner extends Manager{
 			if($p = strpos($path,'?')) $path = substr($path,0,$p);
 			if(!file_exists($path)) return true;
 			if(is_writable($path)){
-				$unlinkFile = false;
 				if($origTs){
 					$ts = filemtime($path);
 					if(!$ts || $ts < $origTs){
-						$unlinkFile = true;
+						if(unlink($path)) $status = true;
 					}
-					else{
-						$this->logOrEcho('Image derivatives are newer than source file: image rebuild skipped',1);
-					}
+					else $this->logOrEcho('Image derivatives are newer than source file: image rebuild skipped',1);
 				}
-				else{
-					$unlinkFile = true;
-				}
-				if($unlinkFile){
-					if(unlink($path)) $status = true;
-				}
+				elseif(unlink($path)) $status = true;
 			}
-			else{
-				$this->logOrEcho('ERROR rebuilding image, image file not writable: '.$path,1);
-			}
+			else $this->logOrEcho('ERROR rebuilding image, image file not writable: '.$path,1);
 		}
 		return $status;
 	}
@@ -659,7 +625,7 @@ class ImageCleaner extends Manager{
 	}
 
 	public function setTid($id){
-		if(is_numeric($id)){
+		if(is_numeric($id) && $id){
 			$this->tidArr[] = $id;
 			$sql = 'SELECT DISTINCT ts.tid '.
 				'FROM taxstatus ts INNER JOIN taxstatus ts2 ON ts.tidaccepted = ts2.tidaccepted '.
@@ -683,6 +649,25 @@ class ImageCleaner extends Manager{
 			$rs->free();
 		}
 		return $sciname;
+	}
+
+	public function getCollectionName(){
+		$retStr = '';
+		if($this->collid){
+			if(!$this->collMetaArr) $this->setCollectionCode();
+			$retStr = $this->collMetaArr[$this->collid]['name'];
+		}
+		return $retStr;
+	}
+
+	public function setBuildMediumDerivative($bool){
+		if($bool) $this->buildMediumDerivative = true;
+		else $this->buildMediumDerivative = false;
+	}
+
+	public function setTestOrientation($bool){
+		if($bool) $this->testOrientation = true;
+		else $this->testOrientation = false;
 	}
 }
 ?>

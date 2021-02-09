@@ -4,20 +4,26 @@ include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/DynamicChecklistManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$lat = $_POST["lat"];
-$lng = $_POST["lng"];
-$radius = $_POST["radius"];
-$radiusunits = $_POST["radiusunits"];
+$lat = $_POST['lat'];
+$lng = $_POST['lng'];
+$radius = $_POST['radius'];
+$radiusUnits = $_POST['radiusunits'];
 $dynamicRadius = (isset($DYN_CHECKLIST_RADIUS)?$DYN_CHECKLIST_RADIUS:10);
-$tid = $_POST["tid"];
-$interface = $_POST["interface"];
+$tid = $_POST['tid'];
+$interface = $_POST['interface'];
+
+//sanitation
+if(!is_numeric($lat)) $lat = 0;
+if(!is_numeric($lng)) $lng = 0;
+if(!is_numeric($radius)) $radius = 0;
+if($radiusUnits != 'mi') $radiusUnits == 'km';
+if(!is_numeric($dynamicRadius)) $dynamicRadius = 10;
+if(!is_numeric($tid)) $tid = 0;
 
 $dynClManager = new DynamicChecklistManager();
 
-
-
 if(is_numeric($radius)){
-	$dynClid = $dynClManager->createChecklist($lat, $lng, $radius, $radiusunits, $tid);
+	$dynClid = $dynClManager->createChecklist($lat, $lng, $radius, $radiusUnits, $tid);
 }
 else{
 	$dynClid = $dynClManager->createDynamicChecklist($lat, $lng, $dynamicRadius, $tid);

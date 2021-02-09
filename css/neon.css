@@ -3458,7 +3458,7 @@ a:hover {
   /*position: fixed;*/
   text-align: center !important;
   position: relative;
-  /* z-index: 2900; */
+  z-index: 2900;
   top: 37px;
   left: 0;
   right: 0;
@@ -3470,7 +3470,7 @@ a:hover {
 @media (min-width: 426px) and (max-width: 1024px) {
   #header #branding .branding-link {
     display: block;
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo.svg);
+    background-image: url(../neon/images/neon-white-logo.svg);
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -3511,7 +3511,7 @@ a:hover {
   }
   #header #branding .branding-link {
     display: block;
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo.svg);
+    background-image: url(../neon/images/neon-white-logo.svg);
     /*background-image: url(/portal/images/layout/nsf-neon-logo.png);*/
     background-size: cover;
     background-position: center center;
@@ -3540,10 +3540,9 @@ a:hover {
   }
 }
 
-
-/* #header {
+#header {
   z-index: 2900;
-} */
+}
 
 
 /* Medium and Small screens */
@@ -3558,7 +3557,7 @@ a:hover {
     background: linear-gradient(to bottom, #006bcd 0%, #014089 100%);
   }
   .front #header #branding .branding-link {
-    background-image: url(https://www.neonscience.org/sites/all/themes/neon/img/logo-mobile.svg);
+    background-image: url(../neon/images/neon-white-logo.svg);
   }
 }
 

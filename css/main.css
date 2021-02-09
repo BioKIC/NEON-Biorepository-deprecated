@@ -32,28 +32,19 @@ body {
 
 /* SYMBIOTA MAIN HEADER */
 
-ul#biorepo-header {
+#biorepo-header {
   position: relative;
   list-style: none;
   text-align: center;
   max-width: 100%;
-  padding: 3rem 0 2rem 0;
+  padding: 1rem 0;
   margin: 0 auto;
 }
 
-@media (max-width: 425px) {
-  ul#biorepo-header {
-    position: relative;
-    list-style: none;
-    text-align: center;
-    max-width: 100%;
-    padding: 1rem 0;
-    margin: 0 auto;
-  }
-}
 
-ul#biorepo-header::before {
-  content: '';
+}
+#biorepo-header::before {
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -65,62 +56,49 @@ ul#biorepo-header::before {
   background-position: center center;
   filter: opacity(40%);
 }
-
 li.header-title {
   position: relative;
 }
-
-ul#biorepo-header>li {
+#biorepo-header>li {
   display: inline-block;
   padding: 0 0.5rem;
   vertical-align: center;
   filter: opacity(100%);
 }
-
-ul#biorepo-header h1 {
+#biorepo-header h1 {
   text-transform: uppercase;
   font-size: 1.5rem;
   color: white;
 }
-
 #header a {
   color: white;
   text-transform: uppercase;
 }
-
 #header a:hover {}
-
 
 /* SYMBIOTA NAVIGATION */
 
-
 /* Admin bar */
-
 @media (min-width: 1024px) {
   #top_navbar {
     margin-top: 2.5rem;
   }
 }
-
 #top_navbar {
   clear: both;
   margin-left: auto;
   margin-right: 1rem;
   padding-right: 1rem;
 }
-
 #right_navbarlinks {
   clear: both;
   font-size: 11px;
   float: right;
   color: #000000;
-  margin-top: 9px;
 }
 
-
 /* Main menu bar */
-
-ul#hor_dropdown {
+#hor_dropdown {
   display: inline-block;
   list-style: none;
   position: relative;
@@ -128,32 +106,27 @@ ul#hor_dropdown {
   max-width: 100%;
   margin: 0 auto;
 }
-
-ul#hor_dropdown li {
+#hor_dropdown li {
   position: relative;
   display: inherit;
   padding: 0;
   margin: 0;
 }
-
-ul#hor_dropdown a {
+#hor_dropdown a {
   display: block;
   text-decoration: none;
   padding: 1rem;
   font-weight: 600;
   font-size: 17px;
 }
-
-ul#hor_dropdown a:hover {
+#hor_dropdown a:hover {
   background-color: #1b67b3;
-  color: #ffffff;
+  color: #FFFFFF;
   text-decoration: none;
 }
 
-
 /* Submenu */
-
-ul#hor_dropdown ul {
+#hor_dropdown ul {
   list-style: none;
   position: absolute;
   left: -9999px;
@@ -161,26 +134,22 @@ ul#hor_dropdown ul {
   background-color: #1b67b3;
   z-index: 1000;
 }
-
-ul#hor_dropdown ul li {
+#hor_dropdown ul li {
   float: none;
 }
-
-ul#hor_dropdown ul a {
+#hor_dropdown ul a {
   white-space: nowrap;
   text-decoration: none;
-  color: #ffffff;
+  color: #FFFFFF;
 }
-
-ul#hor_dropdown li:hover ul {
+#hor_dropdown li:hover ul {
   left: 0;
   top: 3.5rem;
   text-decoration: none;
   padding: 5px 0px;
   z-index: 1000;
 }
-
-ul#hor_dropdown li:hover ul a {
+#hor_dropdown li:hover ul a {
   padding: 5px;
   text-decoration: none;
   text-indent: 8px;
@@ -189,12 +158,10 @@ ul#hor_dropdown li:hover ul a {
   background-color: #1b67b3;
   z-index: 1000;
 }
-
-ul#hor_dropdown li:hover ul li a:hover {
+#hor_dropdown li:hover ul li a:hover {
   background: #1b67b3;
   text-decoration: underline;
 }
-
 .biorepo-home-icon {
   padding: 0 !important;
   display: inline-block;
@@ -206,22 +173,15 @@ ul#hor_dropdown li:hover ul li a:hover {
   width: 16px;
 }
 
-
 /******* LAYOUT ********/
-
 #middleleft {}
-
 #middleleftnomenu {}
-
 #middlecenter {
   padding: 0px;
 }
-
 #middleright {}
 
-
 /*Central div in the middle center table div */
-
 div.navpath {
   margin-left: auto;
   margin-right: auto;
@@ -229,25 +189,19 @@ div.navpath {
   max-width: 1150px;
   width: 90%;
 }
-
 #innertext {
   font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important;
 }
-
 .disclaimer span {
   font-weight: bold;
 }
 
-
 /* Manifest Viewer conteiner */
-
 #samplePanel {
   font-size: 12px !important;
 }
 
-
 /* Large screens */
-
 @media (min-width: 1024px) {
   #innertext {
     margin-left: auto;
@@ -256,95 +210,93 @@ div.navpath {
     max-width: 1150px;
     width: 90%;
   }
+  
   #home-left {
     max-width: 70%;
     float: left;
   }
+  
   #home-right {
     max-width: 30%;
     float: right;
   }
+  
   #cloptiondiv {
     max-width: 20% !important;
   }
+  
   #img-container {
     width: 80%;
   }
+  
   .hide-on-large {
     display: none;
   }
 }
 
-
 /* Medium screens */
-
 @media (min-width: 426px) and (max-width: 1023px) {
   #innertext {
     max-width: 96%;
   }
+  
   #home-left {
     max-width: 60%;
     float: left;
     padding-left: 1rem;
   }
+  
   #home-right {
     max-width: 40%;
     float: right;
   }
+  
   #cloptiondiv {
     max-width: 15% !important;
   }
+  
   #taxon-container {
     max-width: 75%;
   }
+  
   .hide-on-large {
     display: none;
   }
 }
 
-
 /* Smaller screens */
-
 @media (max-width: 425px) {
   #innertext {
     max-width: 95%;
   }
+  
   .hide-on-small {
     display: none;
   }
 }
 
-
 /* Image thumbnails   */
-
 div.tndiv {}
-
 div.tnimg {}
-
 div.tnimg a {}
-
 div.tnimg img {}
 
-
 /*Misc general items*/
-
 table {}
 
-
 /* Forcing styles over jquery-ui (search forms) */
-
 .ui-widget input,
 .ui-widget select,
 .ui-widget textarea,
 .ui-widget button {
   font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important;
 }
-
 button,
 button.ui-button.ui-widget.ui-corner-all,
 input[type='submit' i] {
   font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important;
   /* border-radius: 0 !important; */
+  
   letter-spacing: 0.0625em;
   color: white;
   background-color: #005dab !important;
@@ -353,113 +305,84 @@ input[type='submit' i] {
   padding: 8px 20px;
   /* padding: 0.5rem 1.25rem; */
 }
-
 button.ui-button.ui-widget.ui-corner-all:hover {
   background-color: #003d79;
   text-decoration: none;
 }
-
 button.ui-button:active {
   background: #000000;
 }
 
-
 /* Links inside buttons */
-
 button>a {
   color: #ffffff !important;
 }
-
 button>a:hover {
   text-decoration: none !important;
 }
 
-
 /***/
-
 table,
 .ui-widget {
   font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important;
   font-size: 1em;
 }
-
 hr:first-of-type {
   margin-top: 1em;
 }
 
-
 /* Icons */
-
 .svg-icon {
   filter: invert(1);
 }
-
 #omlisttable img {
   border: none !important;
 }
 
-
 /* Tabs */
-
 #tabs {
   height: auto;
 }
 
-
 /***/
-
 .categorytitle {}
-
 .categorytitle a {}
-
 .collectiontitle {}
-
 .collectiontitle a {}
-
 .collectiontitle a:hover {}
 
-
 /* Quick Search Plugin */
-
 #quicksearchdiv {
   width: auto !important;
   padding: 0.75rem !important;
   margin: 1rem auto 4rem auto !important;
 }
-
 #quicksearchtext {}
-
 #quicksearchtaxon {}
-
 #quicksearchbutton {
   margin-left: 1rem !important;
   margin-bottom: 1rem !important;
   padding-bottom: 10px !important;
 }
 
-
 /* Slideshow Plugin */
-
 #slideshowcontainer {}
 
-
 /* Footer */
-
 #footer {
   padding: 3rem !important;
   border-top: 2px solid #e7e7e7 !important;
 }
-
 footer {
   display: inline-flex !important;
   vertical-align: top;
 }
-
 @media (min-width: 1024px) {
   #footer .footer-bottom .footer-bottom-left {
     width: 50%;
     padding-top: 1.2em;
   }
+  
   #footer .footer-bottom .footer-bottom-left {
     display: flex !important;
     flex-direction: row;
@@ -468,12 +391,12 @@ footer {
     max-width: 100%;
     float: left;
   }
+  
   #footer .footer-bottom .footer-bottom-right {
     width: auto;
     float: right;
   }
 }
-
 footer .nsf-link {
   width: 200px;
 }

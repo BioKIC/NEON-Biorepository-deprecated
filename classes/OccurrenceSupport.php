@@ -133,7 +133,7 @@ class OccurrenceSupport {
 			$sqlWhere .= 'AND (o.othercatalognumbers = "'.$otherCatalogNumbers.'") ';
 		}
 		if($recordedBy){
-			if(strlen($recordedBy) < 4 || strtolower($recordedBy) == 'best'){
+			if(strlen($recordedBy) < 4 || in_array(strtolower($recordedBy),array('best','little'))){
 				//Need to avoid FULLTEXT stopwords interfering with return
 				$sqlWhere .= 'AND (o.recordedby LIKE "%'.$recordedBy.'%") ';
 			}

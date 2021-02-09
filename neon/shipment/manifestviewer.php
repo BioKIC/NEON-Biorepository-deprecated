@@ -20,19 +20,6 @@ $isEditor = false;
 if($IS_ADMIN){
 	$isEditor = true;
 }
-
-$status = "";
-if($isEditor){
-	if($action == 'checkinShipment'){
-		$shipManager->checkinShipment($_POST);
-	}
-	elseif($action == 'batchCheckin'){
-		$shipManager->batchCheckinSamples($_POST);
-	}
-	elseif($action == 'receiptsubmitted'){
-		$shipManager->setReceiptStatus($_POST['submitted']);
-	}
-}
 ?>
 <html>
 <head>
@@ -320,18 +307,35 @@ include($SERVER_ROOT.'/includes/header.php');
 <div id="innertext">
 	<?php
 	if($isEditor){
-		if($action == 'batchHarvestOccid'){
-			?>
-			<fieldset style="padding:15px">
-				<legend>Action Panel</legend>
-				<ul>
-				<?php
+		if($action){
+			$errStr = '';
+			if($action == 'checkinShipment'){
+				if(!$shipManager->checkinShipment($_POST)) $errStr = $shipManager->getErrorStr();
+			}
+			elseif($action == 'batchCheckin'){
+				if(!$shipManager->batchCheckinSamples($_POST)) $errStr = $shipManager->getErrorStr();
+			}
+			elseif($action == 'receiptsubmitted'){
+				if(!$shipManager->setReceiptStatus($_POST['submitted'])) $errStr = $shipManager->getErrorStr();
+			}
+			elseif($action == 'batchHarvestOccid'){
+				echo '<fieldset style="padding:15px"><legend>Action Panel</legend><ul>';
 				$occurManager = new OccurrenceHarvester();
 				$occurManager->batchHarvestOccid($_POST);
+				echo '</ul></fieldset>';
+			}
+			if($errStr){
 				?>
-				</ul>
-			</fieldset>
-			<?php
+				<fieldset style="padding:15px">
+					<legend>Action Panel</legend>
+					<ul>
+					<?php
+					echo $errStr;
+					?>
+					</ul>
+				</fieldset>
+				<?php
+			}
 		}
 		$shipArr = $shipManager->getShipmentArr();
 		if($shipArr){
@@ -360,7 +364,15 @@ include($SERVER_ROOT.'/includes/header.php');
 					if($shipArr['ts']) echo '<div class="displayFieldDiv"><b>Import Date:</b> '.$shipArr['ts'].'</div>';
 					if($shipArr['modifiedUser']) echo '<div class="displayFieldDiv"><b>Modified By User:</b> '.$shipArr['modifiedUser'].' ('.$shipArr['modifiedTimestamp'].')</div>';
 					if($shipArr['shipmentNotes']) echo '<div class="displayFieldDiv"><b>General Notes:</b> '.$shipArr['shipmentNotes'].'</div>';
-					if($shipArr['fileName']) echo '<div class="displayFieldDiv"><b>Import file:</b> <a href="'.$CLIENT_ROOT.'/neon/content/manifests/'.$shipArr['fileName'].'">'.$shipArr['fileName'].'</a></div>';
+					if($shipArr['fileName']){
+						echo '<div class="displayFieldDiv"><b>Import file:</b> ';
+						$filePath = $shipManager->getContentPath('url');
+						$fileNameArr = explode('|',$shipArr['fileName']);
+						foreach($fileNameArr as $fileName){
+							echo '<div style="margin-left:15px"><a href="'.$filePath.$fileName.'">'.$fileName.'</a></div>';
+						}
+						echo '</div>';
+					}
 					?>
 				</div>
 				<div style="float:left;">

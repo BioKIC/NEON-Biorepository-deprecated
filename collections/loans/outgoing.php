@@ -78,6 +78,10 @@ if($isEditor){
 			}
 			$tabIndex = 1;
 		}
+		elseif($formSubmit == 'saveSpecimenNotes'){
+			if($loanManager->editSpecimenNotes($loanId,$_POST['occid'],$_POST['notes'])) $statusStr = true;
+			echo $statusStr = $loanManager->getErrorMessage();
+		}
 	}
 }
 $specimenTotal = $loanManager->getSpecimenTotal($loanId);
@@ -101,6 +105,21 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
+
+		function verifyLoanOutEditForm(){
+			var submitStatus = true;
+			$("#editLoanOutForm input[type=date]").each(function() {
+				//Need for Safari browser which doesn't support date input types
+				if(this.value != ""){
+					var validFormat = /^\s*\d{4}-\d{2}-\d{2}\s*$/ //Format: yyyy-mm-dd
+					if(!validFormat.test(this.value)){
+						alert("Date (e.g. "+this.name+") values must follow format: YYYY-MM-DD");
+						submitStatus = false;
+					}
+				}
+			});
+			return submitStatus;
+		}
 
 		function addSpecimen(f,splist){
 			if(!f.catalognumber.value){
@@ -334,7 +353,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 					<?php
 					$loanArr = $loanManager->getLoanOutDetails($loanId);
 					?>
-					<form name="editloanform" action="outgoing.php" method="post">
+					<form id="editLoanOutForm" name="editLoanOutForm" action="outgoing.php" method="post" onsubmit="return verifyLoanOutEditForm(this)">
 						<fieldset>
 							<legend>Loan Out Details</legend>
 							<div style="padding-top:18px;float:left;">
@@ -347,7 +366,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 									Entered By:
 								</span><br />
 								<span>
-									<input type="text" autocomplete="off" name="createdbyown" maxlength="32" style="width:100px;" value="<?php echo $loanArr['createdbyown']; ?>" onchange=" " disabled />
+									<input type="text" autocomplete="off" name="createdbyown" maxlength="32" style="width:100px;" value="<?php echo $loanArr['createdbyown']; ?>" disabled />
 								</span>
 							</div>
 							<div style="margin-left:20px;padding-top:4px;float:left;">
@@ -355,7 +374,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 									Processed By:
 								</span><br />
 								<span>
-									<input type="text" autocomplete="off" name="processedbyown" maxlength="32" style="width:100px;" value="<?php echo $loanArr['processedbyown']; ?>" onchange=" " />
+									<input type="text" autocomplete="off" name="processedbyown" maxlength="32" style="width:100px;" value="<?php echo $loanArr['processedbyown']; ?>" />
 								</span>
 							</div>
 							<div style="margin-left:20px;padding-top:4px;float:left;">
@@ -379,7 +398,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 									Sent To:
 								</span><br />
 								<span>
-									<select name="iidborrower" style="width:400px;">
+									<select name="iidborrower">
 										<?php
 										$instArr = $loanManager->getInstitutionArr();
 										foreach($instArr as $k => $v){
@@ -392,7 +411,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 								if($IS_ADMIN){
 									?>
 									<span>
-										<a href="../admin/institutioneditor.php?iid=<?php echo $loanArr['iidborrower']; ?>" target="_blank" title="Edit institution details (option available only to Super Admin)">
+										<a href="../misc/institutioneditor.php?iid=<?php echo $loanArr['iidborrower']; ?>" target="_blank" title="Edit institution details (option available only to Super Admin)">
 											<img src="../../images/edit.png" style="width:15px;" />
 										</a>
 									</span>
@@ -409,9 +428,10 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 										<input type="text" autocomplete="off" name="forwhom" maxlength="32" style="width:180px;" value="<?php echo $loanArr['forwhom']; ?>" onchange=" " />
 									</span>
 								</div>
-								<div style="padding-top:15px;margin-left:20px;float:left;">
+								<div style="margin-left:20px;float:left;">
 									<span>
-										<b>Specimen Total:</b> <input type="text" name="totalspecimens" maxlength="32" style="width:80px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $specimenTotal; ?>" onchange=" " disabled />
+										<b>Specimen Total:</b><br />
+										<input type="text" name="totalspecimens" maxlength="32" style="width:150px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="<?php echo $specimenTotal; ?>" onchange=" " disabled />
 									</span>
 								</div>
 								<div style="margin-left:20px;float:left;">

@@ -14,6 +14,12 @@ if($collId) $loanManager->setCollId($collId);
 $invoiceArr = $loanManager->getInvoiceInfo($loanId,$loanType);
 $addressArr = $loanManager->getFromAddress($collId);
 $specList = $loanManager->getSpecList($loanId);
+$targetCode = $invoiceArr['institutioncode'];
+$sourceCode = $addressArr['institutioncode'];
+if($loanType == 'in'){
+	$targetCode = $addressArr['institutioncode'];
+	$sourceCode = $invoiceArr['institutioncode'];
+}
 
 if($outputMode == 'doc'){
 	$phpWord = new \PhpOffice\PhpWord\PhpWord();
@@ -35,10 +41,10 @@ if($outputMode == 'doc'){
 	$section = $phpWord->addSection(array('pageSizeW'=>12240,'pageSizeH'=>15840,'marginLeft'=>1080,'marginRight'=>1080,'marginTop'=>1080,'marginBottom'=>1080,'headerHeight'=>0,'footerHeight'=>0));
 
 	$textrun = $section->addTextRun('header');
-	$textrun->addText(htmlspecialchars('List of specimens loaned to: '.$invoiceArr['institutioncode']),'headerFont');
+	$textrun->addText(htmlspecialchars('List of specimens loaned to: '.$targetCode),'headerFont');
 	$section->addTextBreak(1);
 	$textrun = $section->addTextRun('info');
-	$textrun->addText(htmlspecialchars($addressArr['institutioncode'].' Loan ID: '.$invoiceArr['loanidentifierown']),'infoFont');
+	$textrun->addText(htmlspecialchars($sourceCode.' Loan ID: '.$invoiceArr['loanidentifierown']),'infoFont');
 	$textrun->addTextBreak(1);
 	$textrun->addText(htmlspecialchars('Date sent: '.$invoiceArr['datesent']),'infoFont');
 	$textrun->addTextBreak(1);
@@ -72,7 +78,7 @@ else{
 	?>
 	<html>
 		<head>
-			<title><?php echo $invoiceArr['loanidentifierown']; ?> Specimen List</title>
+			<title><?php echo $sourceCode.' '.$invoiceArr['loanidentifierown']; ?> Specimen List</title>
 			<?php
 			$activateJQuery = false;
 			if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -96,11 +102,11 @@ else{
 		<body style="background-color:#ffffff;">
 			<div>
 				<div class="header">
-					List of specimens loaned to: <?php echo $invoiceArr['institutioncode']; ?>
+					List of specimens loaned to: <?php echo $targetCode; ?>
 				</div>
 				<br />
 				<div class="loaninfo">
-					<?php echo $addressArr['institutioncode']; ?> Loan ID: <?php echo $invoiceArr['loanidentifierown']; ?><br />
+					<?php echo $sourceCode; ?> Loan ID: <?php echo $invoiceArr['loanidentifierown']; ?><br />
 					Date sent: <?php echo $invoiceArr['datesent']; ?><br />
 					Total specimens: <?php echo $loanManager->getSpecimenTotal($loanId);?>
 				</div>
@@ -108,7 +114,7 @@ else{
 				<table class="colheader">
 					<tr>
 						<td style="width:150px;">
-							<?php echo $addressArr['institutioncode']; ?><br />
+							<?php echo $sourceCode; ?><br />
 							Catalog &#35;
 						</td>
 						<td style="width:300px;">

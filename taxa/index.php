@@ -2,16 +2,16 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/taxa/index.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
-Header("Content-Type: text/html; charset=".$CHARSET);
+Header('Content-Type: text/html; charset='.$CHARSET);
 
-$taxonValue = array_key_exists("taxon",$_REQUEST)?$_REQUEST["taxon"]:"";
-$tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:"";
-$taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
-$clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
-$pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:'';
-$lang = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:$DEFAULT_LANG;
-$taxaLimit = array_key_exists("taxalimit",$_REQUEST)?$_REQUEST["taxalimit"]:50;
-$page = array_key_exists("page",$_REQUEST)?$_REQUEST["page"]:0;
+$taxonValue = array_key_exists('taxon',$_REQUEST)?$_REQUEST['taxon']:'';
+$tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:'';
+$taxAuthId = array_key_exists('taxauthid',$_REQUEST)?$_REQUEST['taxauthid']:1;
+$clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
+$pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:'';
+$lang = array_key_exists('lang',$_REQUEST)?$_REQUEST['lang']:$DEFAULT_LANG;
+$taxaLimit = array_key_exists('taxalimit',$_REQUEST)?$_REQUEST['taxalimit']:50;
+$page = array_key_exists('page',$_REQUEST)?$_REQUEST['page']:0;
 
 //Sanitation
 $taxonValue = strip_tags($taxonValue);
@@ -20,7 +20,7 @@ $taxonValue = htmlspecialchars($taxonValue, ENT_QUOTES, 'UTF-8');
 if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
 if(!is_numeric($clid)) $clid = 0;
-if(!is_numeric($pid)) $pid = 1;
+if(!is_numeric($pid)) $pid = '';
 if(!is_numeric($taxaLimit)) $taxaLimit = 50;
 if(!is_numeric($page)) $page = 0;
 
@@ -48,7 +48,7 @@ if($links){
 
 $isEditor = false;
 if($SYMB_UID){
-	if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)){
+	if($IS_ADMIN || array_key_exists('TaxonProfile',$USER_RIGHTS)){
 		$isEditor = true;
 	}
 }
@@ -67,20 +67,19 @@ if($SYMB_UID){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
-	$baseCSS = 'speciesprofile.css';
-	$baseCssPath = $CLIENT_ROOT.'/css/symb/'.$baseCSS;
-	if(isset($CUSTOM_CSS_PATH) && file_exists($SERVER_ROOT.$CUSTOM_CSS_PATH.'/'.$baseCSS)){
-		$baseCssPath = $CLIENT_ROOT.$CUSTOM_CSS_PATH.'/'.$baseCSS;
+	$cssPath = $CLIENT_ROOT.$CSS_BASE_PATH.'/taxa/speciesprofile.css';
+	if(!file_exists($cssPath)){
+		$cssPath = $CLIENT_ROOT.'/css/symb/taxa/speciesprofile.css';
 	}
-	echo '<link href="'.$baseCssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
 	</script>
-	<script src="../js/symb/taxa.index.js?ver=1810902" type="text/javascript"></script>
-	<script src="../js/symb/taxa.editor.js?ver=20140619" type="text/javascript"></script>
+	<script src="../js/symb/taxa.index.js?ver=202101" type="text/javascript"></script>
+	<script src="../js/symb/taxa.editor.js?ver=202101" type="text/javascript"></script>
 </head>
 <body>
 <?php
@@ -141,18 +140,16 @@ include($SERVER_ROOT.'/includes/header.php');
 								$primerArr = $vernArr[$DEFAULT_LANG];
 								unset($vernArr[$DEFAULT_LANG]);
 							}
-							else{
-								$primerArr = array_shift($vernArr);
-							}
+							else $primerArr = array_shift($vernArr);
 							$vernStr = array_shift($primerArr);
 							if($primerArr || $vernArr){
 								$vernStr.= ', <span class="verns"><a href="#" onclick="toggle(\'verns\')" title="Click here to show more common names">more...</a></span>';
 								$vernStr.= '<span class="verns" onclick="toggle(\'verns\');" style="display:none;">';
 								$vernStr.= implode(', ',$primerArr);
 								foreach($vernArr as $langName => $vArr){
-									$vernStr.= ', ('.$langName.': '.implode(', ',$vArr).')';
+									$vernStr.= '('.$langName.': '.implode(', ',$vArr).'), ';
 								}
-								$vernStr.= '</span>';
+								$vernStr = trim($vernStr,', ').'</span>';
 							}
 							?>
 							<div id="vernacularDiv">
@@ -317,14 +314,18 @@ include($SERVER_ROOT.'/includes/header.php');
 										$legendStr .= '</a>';
 									}
 									elseif($pid){
-										$titleStr = (isset($LANG['WITHIN_INVENTORY'])?$LANG['WITHIN_INVENTORY']:'Species within inventory project').': '.$taxonManager->getProjName($pid);
+										$projName = $taxonManager->getProjName($pid);
+										if($projName) $titleStr = (isset($LANG['WITHIN_INVENTORY'])?$LANG['WITHIN_INVENTORY']:'Species within inventory project').': '.$projName;
+										else $titleStr = (isset($LANG['SHOW_ALL_TAXA'])?$LANG['SHOW_ALL_TAXA']:'Show all taxa');
 										$legendStr .= ' <a href="index.php?tid='.$tid.'&clid=0&pid='.$pid.'&taxauthid='.$taxAuthId.'" title="'.$titleStr.'">';
 										$legendStr .= '<img style="border:0px;width:10px;" src="../images/toparent.png"/>';
 										$legendStr .= '</a>';
 									}
 								}
 								elseif($pid){
-									$legendStr .= (isset($LANG['WITHIN_INVENTORY'])?$LANG['WITHIN_INVENTORY']:'Species within inventory project').': <b>'.$taxonManager->getProjName($pid).'</b>';
+									$projName = $taxonManager->getProjName($pid);
+									if($projName) $legendStr .= (isset($LANG['WITHIN_INVENTORY'])?$LANG['WITHIN_INVENTORY']:'Species within inventory project').': <b>'.$projName.'</b>';
+									else $legendStr = (isset($LANG['SHOW_ALL_TAXA'])?$LANG['SHOW_ALL_TAXA']:'Show all taxa');
 									$titleStr = (isset($LANG['SHOW_ALL_TAXA'])?$LANG['SHOW_ALL_TAXA']:'Show all taxa');
 									$legendStr .= ' <a href="index.php?tid='.$tid.'&clid=0&pid=0&taxauthid='.$taxAuthId.'" title="'.$titleStr.'">';
 									$legendStr .= '<img style="border:0px;width:10px;" src="../images/toparent.png"/>';

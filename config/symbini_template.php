@@ -3,6 +3,7 @@ $DEFAULT_LANG = 'en';			//Default language
 $DEFAULT_PROJ_ID = 1;
 $DEFAULTCATID = 0;
 $DEFAULT_TITLE = '';
+$EXTENDED_LANG = 'en';		//Add all languages you want to support separated by commas (e.g. en,es); currently supported languages: en,es
 $TID_FOCUS = '';
 $ADMIN_EMAIL = '';
 $CHARSET = '';					//ISO-8859-1 or UTF-8
@@ -64,12 +65,14 @@ $OCCUR_SECURITY_OPTION = 1;			//Occurrence security options supported: value 1-7
 
 $IGSN_ACTIVATION = 0;
 
+//$SMTP_ARR = array('host'=>'','port'=>587,'username'=>'','password'=>'','timeout'=>60);  //Host is requiered, others are optional and can be removed
+
 $RIGHTS_TERMS = array(
 	'CC0 1.0 (Public-domain)' => 'http://creativecommons.org/publicdomain/zero/1.0/',
 	'CC BY (Attribution)' => 'http://creativecommons.org/licenses/by/4.0/',
 	'CC BY-NC (Attribution-Non-Commercial)' => 'http://creativecommons.org/licenses/by-nc/4.0/'
 );
-
+//$CSS_BASE_PATH = '/css/custom';	//To create a custom styling, uncomment, move all css files from /css/symb to new CSS Base Path, and modify as needed
 $CSS_VERSION_LOCAL = '20170414';		//Changing this variable will force a refresh of main.css styles within users browser cache for all pages
 
 /*

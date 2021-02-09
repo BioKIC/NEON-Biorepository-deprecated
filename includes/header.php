@@ -25,7 +25,7 @@
 				<!-- Main Site Logo -->
 				<li id="branding" style="vertical-align: top;">
 					<!-- NSF/Neon logo -->
-					<a href="/" title="Home" rel="home" class="branding-link active"><img src="https://www.neonscience.org/sites/all/themes/neon/img/logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
+          <a href="/" title="Home" rel="home" class="branding-link active"><img src="<?php echo $CLIENT_ROOT; ?>/neon/images/neon-white-logo.svg" alt="NSF NEON | Open Data to Understand our Ecosystems"></a>
 				</li>
 				<li class="header-title"><h1>Biorepository Data Portal</h1></li>
 			</ul>
@@ -138,13 +138,13 @@
 						<a href="#" >Management Tools</a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/neon/index.php">Quick Search</a>
-							</li>
-							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php">Manifest Submission</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/index.php">Management Menu</a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestsearch.php">Manifest Search</a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/manifestloader.php">Submit New Manifest</a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/neon/shipment/samplecheckin.php">Sample Check-In</a>

@@ -175,7 +175,7 @@ else{
 					'identificationQualifier'=>'Identification Qualifier','identificationReferences'=>'Identification References',
 					'identificationRemarks'=>'Identification Remarks','identifiedBy'=>'Identified By','individualCount'=>'Individual Count',
 					'informationWithheld'=>'Information Withheld','institutionCode'=>'Institution Code (override)','labelProject'=>'Label Project',
-					'lifeStage'=>'Life Stage','locationid'=>'Location ID','locality'=>'Locality',
+					'language'=>'Language','lifeStage'=>'Life Stage','locationid'=>'Location ID','locality'=>'Locality',
 					'localitySecurity'=>'Locality Security','localitySecurityReason'=>'Locality Security Reason','locationRemarks'=>'Location Remarks',
 					'username'=>'Modified By','municipality'=>'Municipality','occurrenceRemarks'=>'Notes (Occurrence Remarks)','ocrFragment'=>'OCR Fragment',
 					'otherCatalogNumbers'=>'Other Catalog Numbers','ownerInstitutionCode'=>'Owner Code','preparations'=>'Preparations',

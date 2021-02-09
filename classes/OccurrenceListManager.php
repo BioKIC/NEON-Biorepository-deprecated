@@ -77,10 +77,9 @@ class OccurrenceListManager extends OccurrenceManager{
 				$retArr[$row->occid]["obsuid"] = $row->observeruid;
 				$retArr[$row->occid]['localitysecurity'] = $row->localitysecurity;
 				if($securityClearance || $row->localitysecurity == 2){
-					$locStr = str_replace('.,',',',$row->locality);
-					if($row->decimallatitude && $row->decimallongitude) $locStr .= ', '.$row->decimallatitude.' '.$row->decimallongitude;
-					$locStr = $this->cleanOutStr(trim($locStr,' ,;'));
-					$retArr[$row->occid]["locality"] = $locStr;
+					$retArr[$row->occid]["locality"] = str_replace('.,',',',$this->cleanOutStr(trim($row->locality,' ,;')));
+					$retArr[$row->occid]["declat"] = $row->decimallatitude;
+					$retArr[$row->occid]["declong"] = $row->decimallongitude;
 					$retArr[$row->occid]["collnum"] = $this->cleanOutStr($row->recordnumber);
 					$retArr[$row->occid]["date"] = $row->eventdate;
 					$retArr[$row->occid]["habitat"] = $this->cleanOutStr($row->habitat);
@@ -142,7 +141,7 @@ class OccurrenceListManager extends OccurrenceManager{
 		$retArr = array();
 		$symbUid = $GLOBALS['SYMB_UID'];
 		if($symbUid){
-			$sql = 'SELECT datasetid, name FROM omoccurdatasets WHERE uid = '.$symbUid.' OR datasetid IN(SELECT tablepk FROM userroles WHERE uid = '.$symbUid.' AND role IN("DatasetAdmin","DatasetEditor"))';
+			$sql = 'SELECT DISTINCT datasetid, name FROM omoccurdatasets WHERE uid = '.$symbUid.' OR datasetid IN(SELECT tablepk FROM userroles WHERE uid = '.$symbUid.' AND role IN("DatasetAdmin","DatasetEditor"))';
 			//echo "<div>Count sql: ".$sql."</div>";
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){

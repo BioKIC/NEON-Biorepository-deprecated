@@ -142,7 +142,7 @@ class TaxonomyHarvester extends Manager{
 				$targetKey = 0;
 				$submitArr = array();
 				$rankArr = array();
-				foreach($resultArr['results'] as $k => $tArr){
+				foreach($resultArr['result'] as $k => $tArr){
 					//Evaluate and rank each result to determine which is the best suited target
 					$rankArr[$k] = 0;
 					if($adjustedName != $tArr['name']){
@@ -155,7 +155,7 @@ class TaxonomyHarvester extends Manager{
 						unset($rankArr[$k]);
 						$colPrefix = 'http://www.catalogueoflife.org/col/browse/tree/id/';
 						if(strpos($adjustedName,' ')) $colPrefix = 'http://www.catalogueoflife.org/col/details/species/id/';
-						$msg = '<a href="'.$colPrefix.$resultArr['results'][$k]['id'].'" target="_blank">';
+						$msg = '<a href="'.$colPrefix.$resultArr['result'][$k]['id'].'" target="_blank">';
 						$msg .= $sciName.'</a> skipped due to not matching targeted kingdom: '.$this->kingdomName.' (!= '.$taxonKingdom.')';
 						$this->logOrEcho($msg,2);
 						continue;
@@ -182,7 +182,7 @@ class TaxonomyHarvester extends Manager{
 							elseif($percent > 80) $rankArr[$k] += 1;
 						}
 					}
-					$submitArr[$k] = $resultArr['results'][$k];
+					$submitArr[$k] = $resultArr['result'][$k];
 				}
 				if($rankArr){
 					asort($rankArr);
@@ -216,8 +216,8 @@ class TaxonomyHarvester extends Manager{
 			$retArr = $this->getContentString($url);
 			$content = $retArr['str'];
 			$resultArr = json_decode($content,true);
-			if(isset($resultArr['results'][0])){
-				$baseArr = $resultArr['results'][0];
+			if(isset($resultArr['result'][0])){
+				$baseArr = $resultArr['result'][0];
 				$tid = $this->addColTaxonByResult($baseArr);
 			}
 			else{

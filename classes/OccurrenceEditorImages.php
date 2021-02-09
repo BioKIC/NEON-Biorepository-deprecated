@@ -24,9 +24,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
      */
 	public function addImageOccurrence($postArr){
 		$status = true;
-		//Load occurrence record
 		if($this->addOccurrence($postArr)){
-			//Load images
 			if($this->addImage($postArr)){
 				if($this->activeImgId){
 					//Load OCR
@@ -283,12 +281,15 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		if($sourceImgUri){
 			//Source image is a URI supplied by user
 			$imgManager->parseUrl($sourceImgUri);
-			if(isset($postArr['weburl']) && $postArr['weburl']) $imgManager->setImgWebUrl($postArr['weburl']);
-			if(isset($postArr['tnurl']) && $postArr['tnurl']) $imgManager->setImgTnUrl($postArr['tnurl']);
+			$imgWeb = '';
+			$imgThumb = '';
+			if(isset($postArr['weburl']) && $postArr['weburl']) $imgWeb = $postArr['weburl'];
+			if(isset($postArr['tnurl']) && $postArr['tnurl']) $imgThumb = $postArr['tnurl'];
+			if($imgThumb && !$imgWeb) $imgManager->setCreateWebDerivative(false);
+			if($imgWeb) $imgManager->setImgWebUrl($imgWeb);
+			if($imgThumb) $imgManager->setImgTnUrl($imgThumb);
 			if(array_key_exists('copytoserver',$postArr) && $postArr['copytoserver']){
-				if(!$imgManager->copyImageFromUrl()){
-					$status = false;
-				}
+				if(!$imgManager->copyImageFromUrl()) $status = false;
 			}
 		}
 		else{
@@ -334,8 +335,8 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
     /**
      * Obtain an array of the keys used for tagging images by content type.
      *
-     * @param lang language for the description, only en currently supported.
-     * @return an array of keys for image type tagging along with their descriptions.
+     * param: lang language for the description, only en currently supported.
+     * return: an array of keys for image type tagging along with their descriptions.
      */
     public function getImageTagValues($lang='en') {
        $returnArr = Array();
@@ -360,9 +361,9 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
     /**
      * Obtain an array of the keys used for tagging images by content type.
      *
-     * @param imgid the images.imgid for which to return presence/absence values for each key
-     * @param lang language for the description, only en currently supported.
-     * @return an ImagTagUse object containing the keys for image type tagging along with their
+     * param: imgid the images.imgid for which to return presence/absence values for each key
+     * param: lang language for the description, only en currently supported.
+     * return: an ImagTagUse object containing the keys for image type tagging along with their
      * presence/absence for the provided image and descriptions.
      */
     public function getImageTagUsage($imgid,$lang='en') {

@@ -63,27 +63,21 @@ if($SYMB_UID){
 			return false;
 		}
 	</script>
+	<style type="text/css">
+		.field-div { margin:10px 0px; clear:both }
+		.label { font-weight:bold; }
+	</style>
 </head>
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_misc_collprofilesMenu)?$collections_misc_collprofilesMenu:true);
 	include($SERVER_ROOT.'/includes/header.php');
-	echo "<div class='navpath'>";
-	if(isset($collections_misc_collprofilesCrumbs)){
-		if($collections_misc_collprofilesCrumbs){
-			echo "<a href='../../index.php'>Home</a> &gt;&gt; ";
-			echo $collections_misc_collprofilesCrumbs.' &gt;&gt; ';
-			echo "<b>".($collid?$collData[$collid]["collectionname"]:"Collection Profiles")." Details</b>";
-		}
-	}
-	else{
-		echo '<a href="../../index.php">Home</a> &gt;&gt; ';
-		echo '<a href="../index.php">'.$LANG['COLLECTION_SEARCH'].'</a> &gt;&gt; ';
-		echo "<b>".($collid?$collData[$collid]["collectionname"]:"Collection Profiles")." Details</b>";
-	}
-	echo "</div>";
 	?>
-
+	<div class="navpath">
+		<a href="../../index.php">Home</a> &gt;&gt;
+		<a href="../index.php"><?php echo $LANG['COLLECTION_SEARCH']; ?></a> &gt;&gt;
+		<b><?php echo ($collid?$collData[$collid]["collectionname"]:"Collection Profiles"); ?> Details</b>
+	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
@@ -227,10 +221,32 @@ if($SYMB_UID){
 									<?php if($commCnt = $collManager->unreviewedCommentsExist()) echo '- <span style="color:orange">'.$commCnt.' '.(isset($LANG['UNREVIEWED_COMMENTS'])?$LANG['UNREVIEWED_COMMENTS']:'unreviewed comments').'</span>'; ?>
 								</li>
 								<li>
-									<a href="collmetadata.php?collid=<?php echo $collid; ?>" >
+									<a href="collmetadata.php?collid=<?php echo $collid; ?>">
 										<?php echo $LANG['EDIT_META']; ?>
 									</a>
 								</li>
+								<!--
+								<li>
+									<a href="" onclick="$('li.metadataItem').show(); return false;"  >
+										<?php echo $LANG['OPEN_META']; ?>
+									</a>
+								</li>
+								<li class="metadataItem" style="margin-left:10px;display:none;">
+									<a href="collmetadata.php?collid=<?php echo $collid; ?>">
+										<?php echo $LANG['EDIT_META']; ?>
+									</a>
+								</li>
+								<li class="metadataItem" style="margin-left:10px;display:none;">
+									<a href="colladdress.php?collid=<?php echo $collid; ?>">
+										<?php echo $LANG['EDIT_ADDRESS']; ?>
+									</a>
+								</li>
+								<li class="metadataItem" style="margin-left:10px;display:none;">
+									<a href="collproperties.php?collid=<?php echo $collid; ?>">
+										<?php echo $LANG['EDIT_COLL_PROPS']; ?>
+									</a>
+								</li>
+								 -->
 								<li>
 									<a href="collpermissions.php?collid=<?php echo $collid; ?>" >
 										<?php echo $LANG['MANAGE_PERMISSIONS']; ?>
@@ -371,7 +387,7 @@ if($SYMB_UID){
 			?>
 			<div style='margin:10px;'>
 				<?php
-				echo $collManager->getMetadataHtml($collData, $LANG);
+				echo $collManager->getMetadataHtml($LANG,$LANG_TAG);
 				$datasetKey = $collManager->getDatasetKey();
 				if($collData['publishtogbif'] && $datasetKey){
 					$datasetKey = $collManager->getDatasetKey();
@@ -403,7 +419,7 @@ if($SYMB_UID){
 						<div style="float:left;margin-left:10px;">
 							<?php
 							echo "<div>".$addrArr["institutionname"];
-							if($editCode > 1) echo ' <a href="../admin/institutioneditor.php?emode=1&targetcollid='.$collid.'&iid='.$addrArr['iid'].'" title="'.(isset($LANG['EDIT_INST'])?$LANG['EDIT_INST']:'Edit institution information').'"><img src="../../images/edit.png" style="width:13px;" /></a>';
+							if($editCode > 1) echo ' <a href="institutioneditor.php?emode=1&targetcollid='.$collid.'&iid='.$addrArr['iid'].'" title="'.(isset($LANG['EDIT_INST'])?$LANG['EDIT_INST']:'Edit institution information').'"><img src="../../images/edit.png" style="width:13px;" /></a>';
 							echo '</div>';
 							if($addrArr["institutionname2"]) echo "<div>".$addrArr["institutionname2"]."</div>";
 							if($addrArr["address1"]) echo "<div>".$addrArr["address1"]."</div>";
@@ -517,7 +533,8 @@ if($SYMB_UID){
 							</h3>
 							<div style='margin:10px;'>
 								<?php
-								echo $collManager->getMetadataHtml($collArr, $LANG);
+								$collManager->setCollid($cid);
+								echo $collManager->getMetadataHtml($LANG,$LANG_TAG);
 								?>
 							</div>
 							<div style='margin:5px 0px 15px 10px;'>

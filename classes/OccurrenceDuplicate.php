@@ -251,7 +251,7 @@ class OccurrenceDuplicate {
 		$lastName = $this->parseLastName($collName);
 		if($lastName && $collNum){
 			$sql = 'SELECT o.occid FROM omoccurrences o ';
-			if(strlen($lastName) < 4 || strtolower($lastName) == 'best'){
+			if(strlen($lastName) < 4 || in_array(strtolower($lastName),array('best','little'))){
 				//Need to avoid FULLTEXT stopwords interfering with return
 				$sql .= 'WHERE (o.recordedby LIKE "%'.$lastName.'%") ';
 			}
@@ -303,7 +303,7 @@ class OccurrenceDuplicate {
 		$lastName = $this->parseLastName($collName);
 		if($lastName){
 			$sql = 'SELECT o.occid FROM omoccurrences o ';
-			if(strlen($lastName) < 4 || strtolower($lastName) == 'best'){
+			if(strlen($lastName) < 4 || in_array(strtolower($lastName),array('best','little'))){
 				//Need to avoid FULLTEXT stopwords interfering with return
 				$sql .= 'WHERE (o.recordedby LIKE "%'.$lastName.'%") ';
 			}
@@ -421,7 +421,7 @@ class OccurrenceDuplicate {
 		$queryTerms = array();
 		$recordedBy = $this->cleanInStr($recordedBy);
 		if($recordedBy){
-			if(strlen($recordedBy) < 4 || strtolower($recordedBy) == 'best'){
+			if(strlen($recordedBy) < 4 || in_array(strtolower($recordedBy),array('best','little'))){
 				//Need to avoid FULLTEXT stopwords interfering with return
 				$queryTerms[] = '(o.recordedby LIKE "%'.$recordedBy.'%")';
 			}
@@ -465,7 +465,7 @@ class OccurrenceDuplicate {
 		$sqlFrag = '';
 		if($recordedBy && $collDate && $localFrag){
 			$collStr = $this->cleanInStr($recordedBy);
-			if(strlen($collStr) < 4 || strtolower($collStr) == 'best'){
+			if(strlen($collStr) < 4 || in_array(strtolower($collStr),array('best','little'))){
 				//Need to avoid FULLTEXT stopwords interfering with return
 				$sqlFrag = 'WHERE (o.recordedby LIKE "%'.$collStr.'%") ';
 			}

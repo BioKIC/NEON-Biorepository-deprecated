@@ -209,38 +209,43 @@ class ExsiccatiManager {
 	}
 
 	public function exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId){
-		$fieldArr = array('et.ometid' => 'titleID', 'et.title' => 'exsiccatiTitle', 'et.abbreviation' => 'abbreviation', 'et.editor' => 'editors', 'et.exsrange' => 'range',
-			'et.startdate' => 'startDate', 'et.enddate' => 'endDate', 'et.source' => 'source', 'et.notes' => 'titleNotes', 'en.exsnumber' => 'exsiccatiNumber');
+		$fieldArr = array('titleID'=>'et.ometid', 'exsiccatiTitle'=>'et.title', 'abbreviation'=>'et.abbreviation', 'editors'=>'et.editor', 'range'=>'et.exsrange',
+			'startDate'=>'et.startdate', 'endDate'=>'et.enddate', 'source'=>'et.source', 'titleNotes'=>'et.notes AS titleNotes', 'exsiccatiNumber'=>'en.exsnumber');
 		$fileName = 'exsiccatiOutput_'.time().'.csv';
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		header ('Content-Type: text/csv');
 		header ('Content-Disposition: attachment; filename="'.$fileName.'"');
 		$sqlInsert = '';
 		if($collId || $specimenOnly){
-			$sqlInsert .= 'INNER JOIN omexsiccatiocclink ol ON en.omenid = ol.omenid '.
-				'INNER JOIN omoccurrences o ON ol.occid = o.occid ';
+			$sqlInsert .= 'INNER JOIN omexsiccatiocclink ol ON en.omenid = ol.omenid INNER JOIN omoccurrences o ON ol.occid = o.occid ';
 			if($imagesOnly) $sqlInsert .= 'INNER JOIN images i ON o.occid = i.occid ';
 			if($collId) $sqlInsert .= 'WHERE o.collid = '.$collId.' ';
-			$fieldArr['o.occid'] = 'occid';
-			$fieldArr['o.catalognumber'] = 'catalogNumber';
-			$fieldArr['o.othercatalognumbers'] = 'otherCatalogNumbers';
-			$fieldArr['o.dbpk'] = 'sourceIdentifier_dbpk';
-			$fieldArr['o.recordedby'] = 'collector';
-			$fieldArr['o.recordnumber'] = 'collectorNumber';
-			$fieldArr['ol.notes'] = 'occurrenceNotes';
+			$fieldArr['occid'] = 'o.occid';
+			$fieldArr['catalogNumber'] = 'o.catalognumber';
+			$fieldArr['otherCatalogNumbers'] = 'o.othercatalognumbers';
+			$fieldArr['sourceIdentifier_dbpk'] = 'o.dbpk';
+			$fieldArr['collector'] = 'o.recordedby';
+			$fieldArr['collectorNumber'] = 'o.recordnumber';
+			$fieldArr['occurrenceNotes'] = 'ol.notes AS occurrenceNotes';
+			$refUrl = "http://";
+			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $refUrl = "https://";
+			$refUrl .= $_SERVER["SERVER_NAME"];
+			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $refUrl .= ':'.$_SERVER["SERVER_PORT"];
+			$refUrl .= $GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid=';
+			$fieldArr['referenceUrl'] = 'CONCAT("'.$refUrl.'",o.occid) as referenceUrl';
 		}
 		if($searchTerm){
 			$sqlInsert .= ($sqlInsert?'AND ':'WHERE ').'et.title LIKE "%'.$searchTerm.'%" OR et.abbreviation LIKE "%'.$searchTerm.'%" OR et.editor LIKE "%'.$searchTerm.'%" ';
 		}
-		$sql = 'SELECT '.implode(',',array_keys($fieldArr)).' '.
-			'FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid '.
-			$sqlInsert.'ORDER BY et.title, et.startdate';
-		//echo $sql; exit;
+		$sql = 'SELECT '.implode(',',$fieldArr).' FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid '.$sqlInsert.'ORDER BY et.title, et.startdate';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$out = fopen('php://output', 'w');
-			fputcsv($out, $fieldArr);
+			fputcsv($out, array_keys($fieldArr));
 			while($r = $rs->fetch_assoc()){
+				foreach($r as $k => $v){
+					$r[$k] = utf8_decode($v);
+				}
 				fputcsv($out, $r);
 			}
 			fclose($out);
@@ -577,8 +582,7 @@ class ExsiccatiManager {
 			foreach($occidArr as $occid){
 				if(is_numeric($occid)){
 					$catNum = $this->cleanInStr($postArr['cat-'.$occid]);
-					$sql1 = $targetCollid.', "'.$catNum.'", "'.date('Y-m-d H:i:s').'" AS dateEntered '.
-						'FROM omoccurrences WHERE occid = '.$occid;
+					$sql1 = $sqlBase.$targetCollid.', "'.$catNum.'", "'.date('Y-m-d H:i:s').'" AS dateEntered FROM omoccurrences WHERE occid = '.$occid;
 					if($con->query($sql1)){
 						$transferCnt++;
 						//Add new record to exsiccati index
@@ -653,7 +657,7 @@ class ExsiccatiManager {
 			'initialtimestamp');
 		$sql = "SHOW COLUMNS FROM uploadspectemp";
 		$rs = $this->conn->query($sql);
-		while($row = $rs->fetch_object()){
+		while($r = $rs->fetch_object()){
 			$field = strtolower($r->Field);
 			if(!in_array($field, $skipFields)){
 				$fieldArr[] = $field;

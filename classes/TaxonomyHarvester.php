@@ -126,7 +126,7 @@ class TaxonomyHarvester extends Manager{
 	 *  				)
 	 *        	   )
 	 */
-	private function addColTaxon($taxonArr){
+	private function addColTaxon($taxonArr, $baseClassification=null){
 		$tid = 0;
 		$sciName = $taxonArr['sciname'];
 		if($sciName){
@@ -149,6 +149,7 @@ class TaxonomyHarvester extends Manager{
 						continue;
 					}
 					$taxonKingdom = $this->getColParent($tArr, 'Kingdom');
+					if(!$taxonKingdom && isset($baseClassification[10])) $taxonKingdom = $baseClassification[10];
 					if($this->kingdomName && $this->kingdomName != $taxonKingdom){
 						//Skip if kingdom doesn't match target kingdom
 						unset($rankArr[$k]);
@@ -199,89 +200,6 @@ class TaxonomyHarvester extends Manager{
 			}
 			else{
 				$this->logOrEcho($sciName.' not found in CoL',2);
-			}
-		}
-		else{
-			$this->logOrEcho('ERROR harvesting COL name: null input name',1);
-		}
-		return $tid;
-	}
-
-	private function addColTaxon_v2($taxonArr){
-		$tid = 0;
-		$sciName = $taxonArr['sciname'];
-		if($sciName){
-			$adjustedName = $sciName;
-			if(isset($taxonArr['rankid']) && $taxonArr['rankid'] > 220) $adjustedName = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].' '.$taxonArr['unitname3']);
-			$url = 'https://api.catalogueoflife.org/nameusage/search?content=SCIENTIFIC_NAME&q='.str_replace(' ','%20',$adjustedName).'&type=EXACT&offset=0&limit=10';
-			$retArr = $this->getContentString($url);
-			$content = $retArr['str'];
-			$resultArr = json_decode($content,true);
-			$numResults = $resultArr['total'];
-			if($numResults){
-				$targetKey = 0;
-				$submitArr = array();
-				$rankArr = array();
-				foreach($resultArr['result'] as $k => $rArr){
-					if(!isset($rArr['usage']['name'])) continue;
-					$tArr = $rArr['usage']['name'];
-					//Evaluate and rank each result to determine which is the best suited target
-					$rankArr[$k] = 0;
-					if($adjustedName != $tArr['scientificName']){
-						unset($rankArr[$k]);
-						continue;
-					}
-					$taxonKingdom = $this->getColParent($rArr, 'Kingdom');
-					if($this->kingdomName && $this->kingdomName != $taxonKingdom){
-						//Skip if kingdom doesn't match target kingdom
-						unset($rankArr[$k]);
-						$colPrefix = 'http://www.catalogueoflife.org/col/browse/tree/id/';
-						if(strpos($adjustedName,' ')) $colPrefix = 'http://www.catalogueoflife.org/col/details/species/id/';
-						$msg = '<a href="'.$colPrefix.$resultArr['result'][$k]['id'].'" target="_blank">';
-						$msg .= $sciName.'</a> skipped due to not matching targeted kingdom: '.$this->kingdomName.' (!= '.$taxonKingdom.')';
-						$this->logOrEcho($msg,2);
-						continue;
-					}
-					if(isset($taxonArr['unitind3']) && isset($tArr['infraspecificEpithet']) && $taxonArr['unitind3'] != $tArr['infraspecificEpithet']){
-						//Skip because it's not the correct infraspecific name match
-						unset($rankArr[$k]);
-						continue;
-					}
-					if($this->defaultFamily && $this->defaultFamily == $this->getColParent($rArr, 'Family')) $rankArr[$k] += 2;
-					if($rArr['usage']['status'] == 'accepted')  $rankArr[$k] += 2;
-					if(isset($tArr['authorship']) && $tArr['authorship']){
-						if(stripos($tArr['authorship'],'nom. illeg.') !== false){
-							//Skip if name is an illegal homonym
-							unset($rankArr[$k]);
-							continue;
-						}
-						//Gets 2 points if author is the same, 1 point if 80% similar
-						if($this->defaultAuthor){
-							$author1 = str_replace(array(' ','.'), '', $this->defaultAuthor);
-							$author2 = str_replace(array(' ','.'), '', $tArr['authorship']);
-							similar_text($author1, $author2, $percent);
-							if($author1 == $author2) $rankArr[$k] += 2;
-							elseif($percent > 80) $rankArr[$k] += 1;
-						}
-					}
-					$submitArr[$k] = $resultArr['result'][$k];
-				}
-				if($rankArr){
-					asort($rankArr);
-					end($rankArr);
-					$targetKey = key($rankArr);
-					if(isset($rankArr[0]) && $rankArr[$targetKey] == $rankArr[0]) $targetKey = 0;
-				}
-				$this->logOrEcho($sciName.' found within Catalog of Life',2);
-				if(array_key_exists($targetKey, $submitArr) && $submitArr[$targetKey]){
-					$tid = $this->addColTaxonByResult_v2($submitArr[$targetKey]);
-				}
-				else{
-					$this->logOrEcho('Targeted taxon return does not exist',2);
-				}
-			}
-			else{
-				$this->logOrEcho('Taxon not found',2);
 			}
 		}
 		else{
@@ -357,7 +275,7 @@ class TaxonomyHarvester extends Manager{
 				}
 				else{
 					$parentArr = $this->getParentArr($taxonArr);
-					$directParentTid = $this->addColTaxon(array('sciname'=>$parentArr['sciname']));
+					$directParentTid = $this->addColTaxon(array('sciname'=>$parentArr['sciname']), $classificationArr);
 					if(!$directParentTid){
 						//Bad return from COL, thus lets just add as accepted for now
 						$parentArr['family'] = $this->getColParent($baseArr,'Family');

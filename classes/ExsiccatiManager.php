@@ -210,7 +210,7 @@ class ExsiccatiManager {
 
 	public function exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId){
 		$fieldArr = array('titleID'=>'et.ometid', 'exsiccatiTitle'=>'et.title', 'abbreviation'=>'et.abbreviation', 'editors'=>'et.editor', 'range'=>'et.exsrange',
-			'startDate'=>'et.startdate', 'endDate'=>'et.enddate', 'source'=>'et.source', 'titleNotes'=>'et.notes AS titleNotes', 'exsiccatiNumber'=>'en.exsnumber');
+			'startDate'=>'et.startdate', 'endDate'=>'et.enddate', 'source'=>'et.source', 'sourceIdentifier'=>'et.sourceIdentifier', 'titleNotes'=>'et.notes AS titleNotes', 'exsiccatiNumber'=>'en.exsnumber');
 		$fileName = 'exsiccatiOutput_'.time().'.csv';
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		header ('Content-Type: text/csv');
@@ -223,7 +223,7 @@ class ExsiccatiManager {
 			$fieldArr['occid'] = 'o.occid';
 			$fieldArr['catalogNumber'] = 'o.catalognumber';
 			$fieldArr['otherCatalogNumbers'] = 'o.othercatalognumbers';
-			$fieldArr['sourceIdentifier_dbpk'] = 'o.dbpk';
+			$fieldArr['occurrenceSourceId_dbpk'] = 'o.dbpk';
 			$fieldArr['collector'] = 'o.recordedby';
 			$fieldArr['collectorNumber'] = 'o.recordnumber';
 			$fieldArr['occurrenceNotes'] = 'ol.notes AS occurrenceNotes';
@@ -237,7 +237,7 @@ class ExsiccatiManager {
 		if($searchTerm){
 			$sqlInsert .= ($sqlInsert?'AND ':'WHERE ').'et.title LIKE "%'.$searchTerm.'%" OR et.abbreviation LIKE "%'.$searchTerm.'%" OR et.editor LIKE "%'.$searchTerm.'%" ';
 		}
-		$sql = 'SELECT '.implode(',',$fieldArr).' FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid '.$sqlInsert.'ORDER BY et.title, et.startdate';
+		$sql = 'SELECT '.implode(',',$fieldArr).' FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid '.$sqlInsert.'ORDER BY et.title, en.exsnumber+0';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$out = fopen('php://output', 'w');

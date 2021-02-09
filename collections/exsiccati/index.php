@@ -13,6 +13,16 @@ $imagesOnly = array_key_exists('imagesonly',$_REQUEST)?$_REQUEST['imagesonly']:0
 $sortBy = array_key_exists('sortby',$_REQUEST)?$_REQUEST['sortby']:0;
 $formSubmit = array_key_exists('formsubmit',$_REQUEST)?$_REQUEST['formsubmit']:'';
 
+//Sanitation
+if(!is_numeric($ometId)) $ometId = 0;
+if(!is_numeric($omenId)) $omenId = 0;
+if(!is_numeric($occidToAdd)) $occidToAdd = 0;
+$searchTerm = filter_var($searchTerm,FILTER_SANITIZE_STRING);
+if(!is_numeric($specimenOnly)) $specimenOnly = 0;
+if(!is_numeric($collId)) $collId = 0;
+if(!is_numeric($imagesOnly)) $imagesOnly = 0;
+if(!is_numeric($sortBy)) $sortBy = 0;
+
 if(!$specimenOnly && !array_key_exists('searchterm', $_POST)){
 	//Make specimen only the default action
 	$specimenOnly = 1;
@@ -318,14 +328,13 @@ if($formSubmit == 'dlexsiccati'){
 							<input type="radio" name="sortby" value="0" <?php echo ($sortBy == 0?"CHECKED":""); ?> onchange="this.form.submit()">Title
 							<input type="radio" name="sortby" value="1" <?php echo ($sortBy == 1?"CHECKED":""); ?> onchange="this.form.submit()">Abbreviation
 						</div>
-						<div style="float:right;" title="Download Exsiccati Records">
-							<?php
-							$dlUrl = 'index.php?formsubmit=dlexsiccati&searchterm='.$searchTerm.'&specimenonly='.$specimenOnly.'&imagesonly='.$imagesOnly.'&collid='.$collId;
-							?>
-							<a href="<?php echo $dlUrl; ?>" target="_blank"><img src="../../images/dl.png" style="width:15px" /></a>
-						</div>
-						<div style="margin:5px 0px 0px 5px;">
-							<input name="formsubmit" type="submit" value="Rebuild List" />
+						<div style="margin-top:5px">
+							<div style="float:right;" title="Download Exsiccati Records">
+								<button name="formsubmit" type="submit" value="dlexsiccati"><img src="../../images/dl.png" style="width:15px" /></button>
+							</div>
+							<div>
+								<button name="formsubmit" type="submit" value="rebuildList">Rebuild List</button>
+							</div>
 						</div>
 					</fieldset>
 				</form>

@@ -208,36 +208,41 @@ class ExsiccatiManager {
 		return $retArr;
 	}
 
-	public function exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId){
-		$fieldArr = array('titleID'=>'et.ometid', 'exsiccatiTitle'=>'et.title', 'abbreviation'=>'et.abbreviation', 'editors'=>'et.editor', 'range'=>'et.exsrange',
-			'startDate'=>'et.startdate', 'endDate'=>'et.enddate', 'source'=>'et.source', 'sourceIdentifier'=>'et.sourceIdentifier', 'titleNotes'=>'et.notes AS titleNotes', 'exsiccatiNumber'=>'en.exsnumber');
+	public function exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId, $titleOnly){
 		$fileName = 'exsiccatiOutput_'.time().'.csv';
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		header ('Content-Type: text/csv');
 		header ('Content-Disposition: attachment; filename="'.$fileName.'"');
 		$sqlInsert = '';
-		if($collId || $specimenOnly){
-			$sqlInsert .= 'INNER JOIN omexsiccatiocclink ol ON en.omenid = ol.omenid INNER JOIN omoccurrences o ON ol.occid = o.occid ';
-			if($imagesOnly) $sqlInsert .= 'INNER JOIN images i ON o.occid = i.occid ';
-			if($collId) $sqlInsert .= 'WHERE o.collid = '.$collId.' ';
-			$fieldArr['occid'] = 'o.occid';
-			$fieldArr['catalogNumber'] = 'o.catalognumber';
-			$fieldArr['otherCatalogNumbers'] = 'o.othercatalognumbers';
-			$fieldArr['occurrenceSourceId_dbpk'] = 'o.dbpk';
-			$fieldArr['collector'] = 'o.recordedby';
-			$fieldArr['collectorNumber'] = 'o.recordnumber';
-			$fieldArr['occurrenceNotes'] = 'ol.notes AS occurrenceNotes';
-			$refUrl = "http://";
-			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $refUrl = "https://";
-			$refUrl .= $_SERVER["SERVER_NAME"];
-			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $refUrl .= ':'.$_SERVER["SERVER_PORT"];
-			$refUrl .= $GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid=';
-			$fieldArr['referenceUrl'] = 'CONCAT("'.$refUrl.'",o.occid) as referenceUrl';
+		$fieldArr = array('titleID'=>'et.ometid', 'exsiccatiTitle'=>'et.title', 'abbreviation'=>'et.abbreviation', 'editors'=>'et.editor', 'range'=>'et.exsrange',
+				'startDate'=>'et.startdate', 'endDate'=>'et.enddate', 'source'=>'et.source', 'sourceIdentifier'=>'et.sourceIdentifier', 'titleNotes'=>'et.notes AS titleNotes');
+		if(!$titleOnly){
+			$sqlInsert = 'INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid ';
+			$fieldArr['exsiccatiNumber'] = 'en.exsnumber';
+			if($collId || $specimenOnly){
+				$sqlInsert .= 'INNER JOIN omexsiccatiocclink ol ON en.omenid = ol.omenid INNER JOIN omoccurrences o ON ol.occid = o.occid ';
+				if($imagesOnly) $sqlInsert .= 'INNER JOIN images i ON o.occid = i.occid ';
+				if($collId) $sqlInsert .= 'WHERE o.collid = '.$collId.' ';
+				$fieldArr['occid'] = 'o.occid';
+				$fieldArr['catalogNumber'] = 'o.catalognumber';
+				$fieldArr['otherCatalogNumbers'] = 'o.othercatalognumbers';
+				$fieldArr['occurrenceSourceId_dbpk'] = 'o.dbpk';
+				$fieldArr['collector'] = 'o.recordedby';
+				$fieldArr['collectorNumber'] = 'o.recordnumber';
+				$fieldArr['occurrenceNotes'] = 'ol.notes AS occurrenceNotes';
+				$refUrl = "http://";
+				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $refUrl = "https://";
+				$refUrl .= $_SERVER["SERVER_NAME"];
+				if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $refUrl .= ':'.$_SERVER["SERVER_PORT"];
+				$refUrl .= $GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid=';
+				$fieldArr['referenceUrl'] = 'CONCAT("'.$refUrl.'",o.occid) as referenceUrl';
+			}
 		}
 		if($searchTerm){
 			$sqlInsert .= ($sqlInsert?'AND ':'WHERE ').'et.title LIKE "%'.$searchTerm.'%" OR et.abbreviation LIKE "%'.$searchTerm.'%" OR et.editor LIKE "%'.$searchTerm.'%" ';
 		}
-		$sql = 'SELECT '.implode(',',$fieldArr).' FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid '.$sqlInsert.'ORDER BY et.title, en.exsnumber+0';
+		$sql = 'SELECT '.implode(',',$fieldArr).' FROM omexsiccatititles et '.$sqlInsert.'ORDER BY et.title';
+		if(!$titleOnly) $sql .= ', en.exsnumber+0';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$out = fopen('php://output', 'w');

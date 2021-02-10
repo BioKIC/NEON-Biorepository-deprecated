@@ -125,6 +125,13 @@ ALTER TABLE `referenceobject`
 
 
 ALTER TABLE `uploadspectemp` 
+  ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
+  ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
+  ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
+  ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`,
+  ADD COLUMN `parentLocationID` VARCHAR(150) NULL AFTER `locationID`,
+  ADD COLUMN `samplingProtocol` VARCHAR(150) NULL AFTER `parentLocationID`,
+  ADD COLUMN `georeferencedDate` DATETIME NULL AFTER `georeferencedBy`,
   ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;
 
 ALTER TABLE `uploadspectemp` 
@@ -449,9 +456,14 @@ CREATE TABLE `omoccurloanuser` (
   CONSTRAINT `FK_occurloan_modifiedByUid`  FOREIGN KEY (`modifiedByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
 
 
-ALTER TABLE `omoccurrences`
+ALTER TABLE `omoccurrences` 
+  CHANGE COLUMN `eventID` `eventID` VARCHAR(150) NULL DEFAULT NULL,
+  CHANGE COLUMN `locationID` `locationID` VARCHAR(150) NULL DEFAULT NULL,
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,
   CHANGE COLUMN `georeferenceRemarks` `georeferenceRemarks` VARCHAR(500) NULL DEFAULT NULL,
+  ADD COLUMN `georeferencedDate` DATETIME NULL AFTER `georeferencedBy`,
+  ADD COLUMN `parentLocationID` VARCHAR(150) NULL AFTER `locationID`,
+  ADD COLUMN `samplingProtocol` VARCHAR(150) NULL AFTER `parentLocationID`,
   DROP INDEX `idx_occrecordedby`;
   
 ALTER TABLE `omoccurrences` 
@@ -478,7 +490,7 @@ ALTER TABLE `omoccurrences`
   ADD UNIQUE INDEX `Index_gui` (`occurrenceID` ASC);  
 
 ALTER TABLE `omoccurrences` 
-ADD INDEX `Index_latlng` (`decimalLatitude` ASC, `decimalLongitude` ASC);
+  ADD INDEX `Index_latlng` (`decimalLatitude` ASC, `decimalLongitude` ASC);
 
 DELETE FROM omoccurrencesfulltext 
 WHERE locality IS NULL AND recordedby IS NULL;

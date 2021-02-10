@@ -209,7 +209,7 @@ class ExsiccatiManager {
 	}
 
 	public function exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId, $titleOnly){
-		$fileName = 'exsiccatiOutput_'.time().'.txt';
+		$fileName = 'exsiccatiOutput_'.time().'.csv';
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		header ('Content-Type: text/csv');
 		header ('Content-Disposition: attachment; filename="'.$fileName.'"');
@@ -246,7 +246,6 @@ class ExsiccatiManager {
 		if($sqlWhere) $sql .= 'WHERE '.substr($sqlWhere,3);
 		$sql .= 'ORDER BY et.title';
 		if(!$titleOnly) $sql .= ', en.exsnumber+0';
-		echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$out = fopen('php://output', 'w');

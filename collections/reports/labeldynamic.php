@@ -157,17 +157,19 @@ if($SYMB_UID){
 					$headerStr = '';
 					if($hPrefix || $midStr || $hSuffix){
 						$headerStrArr = array();
-						$headerStrArr[] = trim($hPrefix);
+						// $headerStrArr[] = trim($hPrefix);
+            $headerStrArr[] = $hPrefix;
 						$headerStrArr[] = trim($midStr);
-						$headerStrArr[] = trim($hSuffix);
-						$headerStr = implode(" ",$headerStrArr);
+						// $headerStrArr[] = trim($hSuffix);
+            $headerStrArr[] = $hSuffix;
+						$headerStr = implode("",$headerStrArr);
 					}
 
 					$dupCnt = $_POST['q-'.$occid];
 					for($i = 0;$i < $dupCnt;$i++){
 						$labelCnt++;
 						if($columnCount == 'packet'){
-							echo '<div class="foldMarks1"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
+							echo '<div class="page"><div class="foldMarks1"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
 							echo '<div class="foldMarks2"><span style="float:left;">+</span><span style="float:right;">+</span></div>';
 						}
 						elseif($labelCnt%$columnCount == 1){
@@ -229,6 +231,9 @@ if($SYMB_UID){
 								<?php
 							}
 						}
+            if($columnCount == 'packet'){
+              echo '</div>';
+            }
 						echo '</div>';
 					}
 				}

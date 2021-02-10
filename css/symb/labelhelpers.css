@@ -171,18 +171,6 @@
 
 /* Fonts */
 
-.font-sans {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-}
-
-.font-serif {
-  font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
-}
-
-.font-mono {
-  font-family: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-}
-
 .font-type-sans {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
@@ -195,16 +183,44 @@
   font-family: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
-.text-center {
-  text-align: center;
+.font-family-arial {
+  font-family: 'Arial', sans-serif;
 }
 
-.text-right {
-  text-align: right;
+.font-family-verdana {
+  font-family: 'Verdana', sans-serif;
 }
 
-.text-justify {
-  text-align: justify;
+.font-family-helvetica {
+  font-family: 'Helvetica', sans-serif;
+}
+
+.font-family-tahoma {
+  font-family: 'Tahoma', sans-serif;
+}
+
+.font-family-trebuchet {
+  font-family: 'Trebuchet', sans-serif;
+}
+
+.font-family-times {
+  font-family: 'Times New Roman', serif;
+}
+
+.font-family-georgia {
+  font-family: 'Georgia', serif;
+}
+
+.font-family-garamond {
+  font-family: 'Garamond', serif;
+}
+
+.font-family-courier {
+  font-family: 'Courier New', monospace;
+}
+
+.font-family-brush {
+  font-family: 'Brush Script MT', cursive;
 }
 
 .text-align-center {
@@ -213,6 +229,10 @@
 
 .text-align-right {
   text-align: right;
+}
+
+.text-align-left {
+  text-align: left;
 }
 
 .text-align-justify {
@@ -925,6 +945,18 @@
 /* Decorative elements */
 
 .bar::after {
+  border-bottom: 1px solid black;
+  margin-top: 0.24em;
+  content: ' ';
+  display: block;
+  height: 2px;
+  background: black;
+  width: 100%;
+  left: 0;
+  top: calc(50% - 2px);
+}
+
+.bar-top::before {
   border-bottom: 1px solid black;
   margin-top: 0.24em;
   content: ' ';

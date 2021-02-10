@@ -155,7 +155,7 @@ if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,
 				$processingStatus = (isset($_GET['processingstatus'])?$_GET['processingstatus']:0);
 				$excludeBatch = (isset($_GET['excludebatch'])?$_GET['excludebatch']:'');
 				?>
-				<fieldset style="padding:15px;width:400px">
+				<fieldset style="padding:15px;width:600px">
 					<legend><b>Filter</b></legend>
 					<form name="userStatsFilterForm" method="get" action="index.php">
 						<div style="margin:2px">

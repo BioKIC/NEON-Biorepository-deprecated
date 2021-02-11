@@ -909,10 +909,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
 								if(substr($occArr['othercatalognumbers'],0,1) == '{'){
 									if($ocnArr = json_decode($occArr['othercatalognumbers'],true)){
-										$ocnArr2 = array_shift($ocnArr);
-										if(isset($ocnArr2[0])){
-											$displayStr = $ocnArr2[0];
-											$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnArr2[0],$iUrl);
+										foreach($ocnArr as $idKey => $idArr){
+											if(!$displayStr || ($idKey && $idKey == 'NEON sampleID')){
+												$displayStr = $idArr[0];
+												$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
+											}
 										}
 									}
 								}

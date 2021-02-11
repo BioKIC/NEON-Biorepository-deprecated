@@ -187,7 +187,7 @@ ALTER TABLE `taxa`
   ADD COLUMN `reviewStatus` INT NULL AFTER `PhyloSortSequence`,
   ADD COLUMN `isLegitimate` INT NULL AFTER `reviewStatus`,
   ADD COLUMN `nomenclaturalStatus` VARCHAR(45) NULL AFTER `isLegitimate`,
-  ADD COLUMN `nomenclaturalCode` VARCHAR(45) NULL AFTER `nomenclaturalStatus`;
+  ADD COLUMN `nomenclaturalCode` VARCHAR(45) NULL AFTER `nomenclaturalStatus`,
   CHANGE COLUMN `UnitInd3` `unitInd3` VARCHAR(45) NULL DEFAULT NULL,
   CHANGE COLUMN `Status` `statusNotes` VARCHAR(50) NULL DEFAULT NULL ;
 
@@ -413,6 +413,11 @@ ALTER TABLE `omoccurassociations`
   ADD CONSTRAINT `FK_occurassoc_occidassoc`  FOREIGN KEY (`occidAssociate`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_occurassoc_uidcreated`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_occurassoc_uidmodified`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `omoccurassociations` 
+  ADD UNIQUE INDEX `UQ_omoccurassoc_occid` (`occid` ASC, `occidAssociate` ASC, `relationship` ASC),
+  ADD UNIQUE INDEX `UQ_omoccurassoc_external` (`occid` ASC, `relationship` ASC, `resourceUrl` ASC),
+  ADD UNIQUE INDEX `UQ_omoccurassoc_sciname` (`occid` ASC, `verbatimSciname` ASC);
 
 ALTER TABLE `omoccurdatasets` 
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,

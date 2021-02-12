@@ -1,0 +1,122 @@
+<?php 
+
+  include_once($SERVER_ROOT.'/classes/Manager.php');
+
+ /**
+ * Controler class for /neon/classes/CollectionMetadata.php
+ * 
+ */
+
+ class CollectionMetadata extends Manager {
+   
+  public function __construct() {
+    parent::__construct(null,'readonly');
+    $this->verboseMode = 2;
+    set_time_limit(2000);
+  }
+
+  public function __destruct() {
+    parent::__destruct();
+  }
+
+  // Main functions
+
+  // Gets group of collections metadata based on category
+  public function getCollMeta(){
+    // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
+    $dataArr = array();
+
+    $sql = 'SELECT col.collid,  cat.category, col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM symbneon202102.omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk';
+
+    $result = $this->conn->query($sql);
+
+      while ($row = $result->fetch_assoc()){
+        // $dataArr[] = array(
+        //   $dataArr['collid'], 
+        //   $dataArr['category'], 
+        //   $dataArr['collectioncode'], 
+        //   $dataArr['collectionname'], 
+        //   $dataArr['neontheme'], 
+        //   $dataArr['highertaxon'], 
+        //   $dataArr['lowertaxon'], 
+        //   $dataArr['sampletype'], 
+        //   $dataArr['available'], 
+        // );
+        $dataArr[] = $row;
+      }
+      $result->free(); 
+    return $dataArr;
+  }
+
+    // Gets collections metadata filtered by category
+  public function getCollMetaByCat($cat){
+    // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
+    $dataArr = array();
+
+    $sql = 'SELECT col.collid,  cat.category, col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM symbneon202102.omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE cat.category = "'.$cat.'";';
+
+    $result = $this->conn->query($sql);
+
+      //while ($row = $result->fetch_assoc()){
+        // $dataArr[] = array(
+        //   $dataArr['collid'], 
+        //   $dataArr['category'], 
+        //   $dataArr['collectioncode'], 
+        //   $dataArr['collectionname'], 
+        //   $dataArr['neontheme'], 
+        //   $dataArr['highertaxon'], 
+        //   $dataArr['lowertaxon'], 
+        //   $dataArr['sampletype'], 
+        //   $dataArr['available'], 
+        // );
+        // $dataArr[] = $row;
+        //   $dataArr['collid'], 
+        //   $dataArr['category'], 
+        //   $dataArr['collectioncode'], 
+        //   $dataArr['collectionname'], 
+        //   $dataArr['neontheme'], 
+        //   $dataArr['highertaxon'], 
+        //   $dataArr['lowertaxon'], 
+        //   $dataArr['sampletype'], 
+        //   $dataArr['available'],
+      //}
+      while($row = $result->fetch_array()){
+        $dataArr[] = $row;
+      }
+      $result->free(); 
+    return $dataArr;
+  }
+    // Gets filtered biorepo collections metadata groups
+  public function getBiorepoGroups($filterName){
+    // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
+    $dataArr = array();
+
+    $sql = 'SELECT col.collid,  cat.category, col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM symbneon202102.omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE l.ccpk NOT IN (6,8,9) GROUP BY '.$filterName.';';
+
+    $result = $this->conn->query($sql);
+
+      while($row = $result->fetch_array()){
+        $dataArr[] = $row;
+      }
+      $result->free(); 
+    return $dataArr;
+  }
+
+  // Gets filtered biorepo collections 
+  public function getBiorepoColls($filterName, $filterVal){
+    // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
+    $dataArr = array();
+
+    $sql = 'SELECT col.collid,  cat.category, col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM symbneon202102.omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE l.ccpk NOT IN (6,8,9) AND '.$filterName.'= "'.$filterVal.'";';
+
+    $result = $this->conn->query($sql);
+
+      while($row = $result->fetch_array()){
+        $dataArr[] = $row;
+      }
+      $result->free(); 
+    return $dataArr;
+  }
+};
+
+;?>

@@ -190,6 +190,7 @@ if($collid){
 							<div id="processingstatusdiv" style="display:none;float:left;margin:7px 3px 3px 0px">
 								<b>Processing Status:</b><br/>
 								<select id="fprocessingstatus" name="processingstatus" style="margin-top:4px">
+									<option value=""></option>
 									<option>unprocessed</option>
 									<option>stage 1</option>
 									<option>stage 2</option>
@@ -204,6 +205,7 @@ if($collid){
 							<div id="languagediv" style="display:none;float:left;margin:7px 3px 3px 0px;">
 								<b>Language:</b><br/>
 								<select id="flanguage" name="language" style="margin-top:4px">
+									<option value=""></option>
 									<?php
 									$langArr = $skeletalManager->getLanguageArr();
 									foreach($langArr as $code => $langStr){

@@ -57,4 +57,5 @@ $LANG['TYPE'] = 'Limitar a ejemplares tipo';
 $LANG['HAS_IMAGE'] = 'Limitar a ejemplares con im&aacute;genes';
 $LANG['HAS_GENETIC'] = 'Limitar a ejemplares con datos gen&eacute;ticos';
 $LANG['INCLUDE_CULTIVATED'] = 'Incluye ejemplares cultivadas/cautivas';
+$LANG['TRAIT_HEADER'] = 'Criterios de Rasgos';
 ?>

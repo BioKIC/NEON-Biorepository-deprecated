@@ -2,10 +2,12 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/collections/harvestparams.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceAttributes.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collManager = new OccurrenceManager();
 $searchVar = $collManager->getQueryTermStr();
+$attribSearch = new OccurrenceAttributes();
 ?>
 <html>
 <head>
@@ -24,6 +26,7 @@ $searchVar = $collManager->getQueryTermStr();
 	<script src="../js/jquery-3.2.1.min.js?ver=3" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js?ver=3" type="text/javascript"></script>
 	<script src="../js/symb/collections.harvestparams.js?ver=180721" type="text/javascript"></script>
+	<script src="../js/symb/collections.traitsearch.js?ver=8" type="text/javascript"></script> <!-- Cotains serach-by-trait modifications -->
 	<script type="text/javascript">
 		$(document).ready(function() {
 			<?php
@@ -220,10 +223,15 @@ $searchVar = $collManager->getQueryTermStr();
 				<input type="text" id="eventdate2" size="32" name="eventdate2" style="width:100px;" value="" title="<?php echo $LANG['TITLE_TEXT_4']; ?>" />
 			</div>
 			<hr/>
-			<div style="float:right;">
-				<div><button type="submit" style="width:100%"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
-				<div><button type="button" style="width:100%" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
-			</div>
+
+			<?php if(!isset($SEARCH_BY_TRAITS) || $SEARCH_BY_TRAITS == 0) { ?>
+				<div style="float:right;">
+					<div><button type="submit" style="width:100%"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
+					<div><button type="button" style="width:100%" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
+					<div><button type="reset" style="width:100%" onclick="resetHarvestParamsForm()"><?php echo isset($LANG['BUTTON_RESET'])?$LANG['BUTTON_RESET']:'Reset Form'; ?></button></div>
+				</div>
+			<?php } ?>
+
 			<div>
 				<div style="font-weight:bold; font-size: 18px"><?php echo $LANG['SPECIMEN_HEADER']; ?></div>
 			</div>
@@ -244,6 +252,45 @@ $searchVar = $collManager->getQueryTermStr();
 			<div>
 				<input type='checkbox' name='includecult' value='1' /> <?php echo isset($LANG['INCLUDE_CULTIVATED'])?$LANG['INCLUDE_CULTIVATED']:'Include cultivated/captive occurrences'; ?>
 			</div>
+			<?php
+				if(isset($SEARCH_BY_TRAITS) && $SEARCH_BY_TRAITS != 0) {
+					$traitArr = $attribSearch->getTraitArr();
+					if($traitArr){
+			?>
+						<hr/>
+						<div style="float:right;">
+							<div><button type="submit" style="width:100%"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
+							<div><button type="button" style="width:100%" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
+							<div><button type="reset" style="width:100%" onclick="resetHarvestParamsForm()"><?php echo isset($LANG['BUTTON_RESET'])?$LANG['BUTTON_RESET']:'Reset Form'; ?></button></div>
+						</div>
+						<div>
+							<div>
+								<p style="font-weight:bold; font-size: 18px"><?php echo $LANG['TRAIT_HEADER']; ?></p>
+								<p>Selecting multiple traits will return all records with at least one of those traits.</p>
+							</div>
+						</div>
+			<?php
+						foreach($traitArr as $traitID => $traitData){
+							if(!isset($traitData['dependentTrait'])) {
+			?>
+								<fieldset style="margin-top:20px">
+									<legend><b>Trait: <?php echo $traitData['name']; ?></b></legend>
+									<div style="float:right">
+										<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
+											<img class="triangleright" src="../images/triangleright.png" style="" />
+											<img class="triangledown" src="../images/triangledown.png" style="display:none" />
+										</div>
+									</div>
+									<div class="traitDiv" style="margin-left:5px;float:left">
+										<?php $attribSearch->echoFormTraits($traitID); ?>
+									</div>
+								</fieldset>
+			<?php
+							}
+						}
+					}
+				}
+			?>
 			<div>
 				<input type="hidden" name="reset" value="1" />
 				<input type="hidden" name="db" value="<?php echo $collManager->getSearchTerm('db'); ?>" />

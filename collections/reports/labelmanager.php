@@ -356,7 +356,11 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 								<fieldset style="margin-top:15px;">
 									<legend>Label Printing</legend>
 										<div class="fieldDiv">
-											<div class="fieldLabel">Label Profiles <span title="Open label profile manager"><a href="labelprofile.php?collid=<?php echo $collid; ?>"><img src="../../images/edit.png" style="width:13px" /></a></span>:</div>
+											<div class="fieldLabel">Label Profiles:
+												<?php
+												if($IS_ADMIN) echo '<span title="Open label profile manager"><a href="labelprofile.php?collid='.$collid.'"><img src="../../images/edit.png" style="width:13px" /></a></span>';
+												?>
+											</div>
 											<div class="fieldElement">
 												<?php
 												foreach($labelFormatArr as $cat => $catArr){

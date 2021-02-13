@@ -105,12 +105,10 @@ if($SYMB_UID){
 			/* .cnBarcodeDiv { clear:both; padding-top:15px; }
 			.catalogNumber { clear:both; text-align:center; }
 			.otherCatalogNumbers { clear:both; text-align:center; }
-      .symbBarcode { padding-top:10px; } */
-      @media print {
-        .controls {
-          display: none;
-        }
-      }
+			.symbBarcode { padding-top:10px; } */
+			.label-header { clear:both; text-align: center }
+			.label-footer { clear:both; text-align: center; font-weight: bold; font-size: 12pt; }
+			@media print { .controls { display: none; } }
 		</style>
 		<?php
 		if(isset($targetLabelFormatArr['defaultCss']) && $targetLabelFormatArr['defaultCss']){

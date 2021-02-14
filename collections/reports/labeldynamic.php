@@ -67,9 +67,6 @@ if($SYMB_UID){
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Labels</title>
 		<style type="text/css">
-			<?php
-			if(isset($targetLabelFormatArr['defaultStyles'])) echo 'body{ '.$targetLabelFormatArr['defaultStyles']." } \n";
-			?>
 			.row { display: flex; flex-wrap: wrap; margin-left: auto; margin-right: auto;}
 			.label { page-break-before: auto; page-break-inside: avoid; }
 			<?php
@@ -97,7 +94,7 @@ if($SYMB_UID){
 			}
 			elseif($columnCount != 1){
 				?>
-				.label { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
+				.label { width:<?php echo (floor(100/$columnCount)-5);?>%;padding:15px; }
 				<?php
 			}
 			?>
@@ -109,6 +106,9 @@ if($SYMB_UID){
 			.label-header { clear:both; text-align: center }
 			.label-footer { clear:both; text-align: center; font-weight: bold; font-size: 12pt; }
 			@media print { .controls { display: none; } }
+			<?php
+			if(isset($targetLabelFormatArr['defaultStyles'])) echo $targetLabelFormatArr['defaultStyles'];
+			?>
 		</style>
 		<?php
 		if(isset($targetLabelFormatArr['defaultCss']) && $targetLabelFormatArr['defaultCss']){

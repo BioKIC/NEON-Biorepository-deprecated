@@ -133,6 +133,7 @@ class TaxonomyHarvester extends Manager{
 			$adjustedName = $sciName;
 			if(isset($taxonArr['rankid']) && $taxonArr['rankid'] > 220) $adjustedName = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].' '.$taxonArr['unitname3']);
 			$url = 'https://webservice.catalogueoflife.org/col/webservice?response=full&format=json&name='.str_replace(' ','%20',$adjustedName);
+			//echo $url.'<br/>';
 			$retArr = $this->getContentString($url);
 			$content = $retArr['str'];
 			$resultArr = json_decode($content,true);
@@ -192,7 +193,7 @@ class TaxonomyHarvester extends Manager{
 				}
 				$this->logOrEcho($sciName.' found within Catalog of Life',2);
 				if(array_key_exists($targetKey, $submitArr) && $submitArr[$targetKey]){
-					$tid = $this->addColTaxonByResult($submitArr[$targetKey]);
+					$tid = $this->addColTaxonByResult($submitArr[$targetKey],$baseClassification);
 				}
 				else{
 					$this->logOrEcho('Targeted taxon return does not exist',2);
@@ -212,6 +213,7 @@ class TaxonomyHarvester extends Manager{
 		$tid = 0;
 		if($id){
 			$url = 'https://webservice.catalogueoflife.org/col/webservice?response=full&format=json&id='.$id;
+			//echo $url.'<br/>';
 			$retArr = $this->getContentString($url);
 			$content = $retArr['str'];
 			$resultArr = json_decode($content,true);
@@ -232,14 +234,27 @@ class TaxonomyHarvester extends Manager{
 	private function addColTaxonByResult($baseArr, $baseClassification=null){
 		$taxonArr = array();
 		if($baseArr){
+			$taxonArr = $this->getColNode($baseArr);
 			//Build a ranked classification array
 			$classificationArr = array();
-			if(isset($baseArr['classification'])){
-				foreach($baseArr['classification'] as $classArr){
+			$activeClassArr = array();
+			if(isset($baseArr['classification'])) $activeClassArr = $baseArr['classification'];
+			elseif(isset($baseArr['accepted_name']['classification'])) $activeClassArr = $baseArr['accepted_name']['classification'];
+			if($activeClassArr){
+				foreach($activeClassArr as $classArr){
 					$taxonNode = $this->getColNode($classArr);
-					$rankID = 0;
-					if(isset($taxonNode['rankid'])) $rankID = $taxonNode['rankid'];
-					$classificationArr[$rankID] = $taxonNode;
+					if($taxonNode['rankid'] < $taxonArr['rankid']){
+						if($taxonNode['rankid'] >= 180 && $taxonNode['unitname1'] != $taxonArr['unitname1']){
+							$taxonNode['unitname1'] = $taxonArr['unitname1'];
+							if($taxonNode['rankid'] == 220) $taxonNode['unitname2'] = $taxonArr['unitname2'];
+							$taxonNode['sciname'] = trim($taxonNode['unitname1'].(isset($taxonNode['unitname2'])?' '.$taxonNode['unitname2']:''));
+							unset($taxonNode['author']);
+							unset($taxonNode['id']);
+						}
+						$rankID = 0;
+						if(isset($taxonNode['rankid'])) $rankID = $taxonNode['rankid'];
+						$classificationArr[$rankID] = $taxonNode;
+					}
 				}
 				krsort($classificationArr);
 			}
@@ -249,7 +264,6 @@ class TaxonomyHarvester extends Manager{
 			if($baseArr['name_status'] == 'synonym' && isset($baseArr['accepted_name'])){
 				$tidAccepted = $this->addColTaxonById($baseArr['accepted_name']['id'],$classificationArr);
 			}
-			$taxonArr = $this->getColNode($baseArr);
 			//Get parent
 			if($taxonArr['rankid'] == 10){
 				$taxonArr['parent']['tid'] = 'self';
@@ -314,7 +328,7 @@ class TaxonomyHarvester extends Manager{
 		if(isset($nodeArr['source_database'])) $taxonArr['source'] = $nodeArr['source_database'];
 		if(isset($nodeArr['source_database_url'])) $taxonArr['sourceURL'] = $nodeArr['source_database_url'];
 		$taxonArr['rankid'] = $this->getRankId($taxonArr);
-		if(!isset($taxonArr['unitname1']) && $taxonArr['rankid'] < 220) $taxonArr['unitname1'] = $taxonArr['sciname'];
+		if(!isset($taxonArr['unitname1'])) $taxonArr = array_merge(TaxonomyUtilities::parseScientificName($taxonArr['sciname'],$this->conn,$taxonArr['rankid'],$this->kingdomName),$taxonArr);
 		//$this->buildTaxonArr($taxonArr);
 		return $taxonArr;
 	}
@@ -796,7 +810,7 @@ class TaxonomyHarvester extends Manager{
 							$accStr = 'synonym of taxon #'.$tidAccepted;
 						}
 					}
-					$this->logOrEcho('Taxon <b>'.$taxonDisplay.'</b> added to thesaurus as '.$accStr,1);
+					$this->logOrEcho('Taxon <b>'.$taxonDisplay.'</b> added to thesaurus as '.$accStr,2);
 				}
 			}
 		}

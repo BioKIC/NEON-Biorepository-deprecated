@@ -30,7 +30,7 @@ $data = new CollectionMetadata();
 			<b>Collections Metadata Example</b>
 		</div>
 		<div id="innertext">
-      <h2>Additional NEON Collections (NEON)</h2>
+      <h2>Additional NEON Collections</h2>
       <?php if($collsArr = $data->getCollMetaByCat('Additional NEON Collections')){
         foreach($collsArr as $result) {
           // echo $result['category'].' ';
@@ -62,8 +62,8 @@ $data = new CollectionMetadata();
               foreach($collsArr as $row) {
                 echo '<li>';
                 echo $row['collid'].' ';
-                echo $result['collectionname'].' ';
-                echo $result['available'].' ';
+                echo $row['collectionname'].' ';
+                echo $row['available'].' ';
                 echo '</li>';          
               }
             }
@@ -83,8 +83,8 @@ $data = new CollectionMetadata();
               foreach($collsArr as $row) {
                 echo '<li>';
                 echo $row['collid'].' ';
-                echo $result['collectionname'].' ';
-                echo $result['available'].' ';
+                echo $row['collectionname'].' ';
+                echo $row['available'].' ';
                 echo '</li>';          
               }
             }
@@ -104,8 +104,8 @@ $data = new CollectionMetadata();
               foreach($collsArr as $row) {
                 echo '<li>';
                 echo $row['collid'].' ';
-                echo $result['collectionname'].' ';
-                echo $result['available'].' ';
+                echo $row['collectionname'].' ';
+                echo $row['available'].' ';
                 echo '</li>';          
               }
             }

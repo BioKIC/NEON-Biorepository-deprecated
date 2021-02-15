@@ -181,7 +181,7 @@ $data = new CollectionMetadata();
                   <div id="sample-type" class="box">
                     <h2>Select Collections by Sample Type</h2>
                     <?php if($groupsArr = $data->getBiorepoGroups('sampletype')){
-                      echo '<ul id="collections-list2"><li><input type="checkbox" name="db" class="all-selector all-neon-colls" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
+                      echo '<ul id="collections-list3"><li><input type="checkbox" name="db" class="all-selector all-neon-colls" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
                       foreach($groupsArr as $result) {                  
                         if($result['sampletype']){
                           echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["sampletype"]}</span><ul class='collapsed'>";

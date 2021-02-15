@@ -140,7 +140,10 @@ function defaultChips() {
   addChip(allNeon);
 }
 
-// Adds default chips
+/**
+ * Adds default chips
+ * @param {HTMLObjectElement} element Input for which chips are going to be created by default
+ */
 function addChip(element) {
   // Chip definitions
   let inputChip = document.createElement('span'),
@@ -149,18 +152,24 @@ function addChip(element) {
   chipBtn.setAttribute('type', 'button');
   chipBtn.setAttribute('class', 'chip-remove-btn');
   chipBtn.onclick = function () {
-    // console.log('reset this value: ', e.target);
-    inputChip.remove();
     element.type === 'checkbox'
       ? (element.checked = false)
       : (element.value = element.defaultValue);
+    removeChip(inputChip);
   };
   inputChip.textContent = element.dataset.chip;
   inputChip.appendChild(chipBtn);
   criteriaPanel.appendChild(inputChip);
 }
 
-// On event change (for chips that have text inputs)
+/**
+ * Removes chip
+ * @param {HTMLObjectElement} chip Chip element
+ */
+function removeChip(chip) {
+  chip.remove();
+}
+
 /**
  * Updateds chips based on selected options
  * @param {Event} e
@@ -175,8 +184,10 @@ function updateChip(e) {
     chipBtn.setAttribute('type', 'button');
     chipBtn.classList.add('chip-remove-btn');
     chipBtn.onclick = function () {
-      inputChip.remove();
-      e.target.value = e.target.defaultValue;
+      e.target.type === 'checkbox'
+        ? (e.target.checked = false)
+        : (e.target.value = e.target.defaultValue);
+      removeChip(inputChip);
     };
     inputChip.textContent = e.target.dataset.chip;
     inputChip.appendChild(chipBtn);

@@ -197,7 +197,7 @@ else{
 										<option value="">Select Field Name</option>
 										<option value="">----------------------</option>
 										<?php
-										ksort($headerMapBase);
+										asort($headerMapBase);
 										foreach($headerMapBase as $k => $v){
 											//Scientific name fields are excluded because batch updates will not update tidinterpreted index and authors
 											//Scientific name updates should happen within

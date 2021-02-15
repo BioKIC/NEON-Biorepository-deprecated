@@ -120,10 +120,14 @@ const taxaInput = document.getElementById('taxa-search');
 taxaInput.addEventListener('change', updateChip);
 const catNumInput = document.getElementById('taxa-search');
 taxaInput.addEventListener('change', updateChip);
-
 const allNeon = document.getElementById('all-neon-colls-quick');
-const allNeonExt = document.getElementById('all-neon-colls-quick');
-const allSites = document.getElementById('allSites');
+allNeon.addEventListener('change', updateChip);
+const allNeonExt = document.getElementById('all-neon-ext');
+allNeonExt.addEventListener('change', updateChip);
+const allExt = document.getElementById('all-ext');
+allExt.addEventListener('change', updateChip);
+const allSites = document.getElementById('all-sites');
+allSites.addEventListener('change', updateChip);
 
 // const locInput = document.getElementById('')
 
@@ -157,21 +161,30 @@ function addChip(element) {
 }
 
 // On event change (for chips that have text inputs)
+/**
+ * Updateds chips based on selected options
+ * @param {Event} e
+ */
 function updateChip(e) {
-  // Chip definitions
-  let inputChip = document.createElement('span'),
-    chipBtn = document.createElement('button');
-  inputChip.setAttribute('class', 'chip');
-  chipBtn.setAttribute('type', 'button');
-  chipBtn.setAttribute('class', 'chip-remove-btn');
-  chipBtn.onclick = function () {
-    // console.log('reset this value: ', e.target);
-    inputChip.remove();
-    e.target.value = e.target.defaultValue;
-  };
-  inputChip.textContent = e.target.dataset.chip;
-  inputChip.appendChild(chipBtn);
-  criteriaPanel.appendChild(inputChip);
+  let isChecked = e.target.checked;
+  if (isChecked) {
+    let inputChip = document.createElement('span'),
+      chipBtn = document.createElement('button');
+    inputChip.classList.add('chip');
+    inputChip.id = 'chip-' + e.target.id;
+    chipBtn.setAttribute('type', 'button');
+    chipBtn.classList.add('chip-remove-btn');
+    chipBtn.onclick = function () {
+      inputChip.remove();
+      e.target.value = e.target.defaultValue;
+    };
+    inputChip.textContent = e.target.dataset.chip;
+    inputChip.appendChild(chipBtn);
+    criteriaPanel.appendChild(inputChip);
+  } else {
+    let currChip = document.getElementById('chip-' + e.target.id);
+    currChip.remove();
+  }
 }
 /////////
 

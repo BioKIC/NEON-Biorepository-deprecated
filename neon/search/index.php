@@ -1,7 +1,10 @@
 <?php
 include_once('../../config/symbini.php');
 include_once('../../content/lang/index.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/neon/classes/CollectionMetadata.php');
 header("Content-Type: text/html; charset=".$CHARSET);
+
+$data = new CollectionMetadata();
 ?>
 <html>
   <head>
@@ -79,33 +82,37 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <!-- Accordion content -->
             <div class="content">
               <div id="search-form-colls">
-                <!-- <ul id="collections-list"></ul> -->
                 <!-- Open NEON Collections modal -->
-                <div><input id="all-neon-colls-quick" data-chip="All NEON Collections" class="all-selector" type="checkbox" checked=""><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Collections</span></div>
+                <div><input id="all-neon-colls-quick" data-chip="All NEON Collections" class="all-selector" type="checkbox" checked=""><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Biorepository Collections</span></div>
                 <!-- External Collections -->
                 <div>
                   <ul id="neonext-collections-list">
-                    <li><input id="allNeonExtCollections" data-chip="All NEON External Collections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All NEON External Collections</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="db" value="44" class="child"><span>Essig Museum of Entomology</span></li>
-                        <li><input type="checkbox" name="db" value="74" class="child"><span>Museum of Southwestern Biology - Mammal specimens</span></li>
-                      </ul>
+                    <li><input id="allNeonExtCollections" data-chip="All Additional NEON Collections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All Additional NEON Collections</span>
+                    <?php if($collsArr = $data->getCollMetaByCat('Additional NEON Collections')){
+                    echo '<ul class="collapsed">';
+                      foreach($collsArr as $result) {
+                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
+                      }
+                      echo '</ul>';
+                    } ;?>
                     </li>
                   </ul>
                   <ul id="ext-collections-list">
-                    <li><input id="allExternalCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All non-NEON External Collections</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="db" value="43" class="child"><span>Consortium of Small Vertebrate Collections</span></li>
-                        <li><input type="checkbox" name="db" value="37" class="child"><span>SCAN Portal Network Arthropod Specimens</span></li>
-                        <li><input type="checkbox" name="db" value="2" class="child"><span>SEINet Portal Network Botanical Specimens</span></li>
-                      </ul>
+                    <li><input id="allExternalCollections" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All Other Collections from NEON sites</span>
+                    <?php if($collsArr = $data->getCollMetaByCat('Other Collections from NEON sites')){
+                    echo '<ul class="collapsed">';
+                      foreach($collsArr as $result) {
+                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
+                      }
+                      echo '</ul>';
+                    } ;?>
                     </li>
                   </ul>
                 </div>
 
               </div>
             </div>
-            <!-- NEON COllections Modal -->
+            <!-- NEON Biorepository Collections Modal -->
             <div class="modal" id="biorepo-collections-list">
               <div class="modal-content">
                 <button id="neon-modal-close" class="btn">Accept and close</button>
@@ -116,241 +123,88 @@ header("Content-Type: text/html; charset=".$CHARSET);
                     <label class="tab"><input type="radio" name="collChoice" value="neon-theme"> NEON Theme</label>
                     <label class="tab"><input type="radio" name="collChoice" value="sample-type"> Sample Type</label>
                   </div>
-
+                  <!-- By Taxonomic Group -->
                   <div id="taxonomic-cat" class="box" style="display: block;">
                     <h2>Select Collections by Taxonomic Group</h2>
-                    <ul id="collections-list1">
-                      <li><input type="checkbox" class="all-selector all-neon-colls" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Collections</span>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Aquatic Invertebrates</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" value="22" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Chironomids) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=22"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="61" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (DNA Extracts) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=61"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="53" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Microscope Slides) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=53"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="52" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Oligochaetes) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=52"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="48" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Taxonomy Reference Collection) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=48"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="57" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Taxonomy Subsample) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=57"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" name="db" value="21" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=21" target="_blank">Benthic Macroinvertebrate Collection (Unsorted Bulk Sample)</a></span></li>
-                              <li><input type="checkbox" name="db" value="62" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=62" target="_blank">Zooplankton Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="45" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=45" target="_blank">Zooplankton Collection (Remaining Bulk Taxonomy Sample)</a></span></li>
-                              <li><input type="checkbox" name="db" value="55" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=55" target="_blank">Zooplankton Collection (Taxonomy Reference Collection)</a></span></li>
-                              <li><input type="checkbox" name="db" value="60" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=60" target="_blank">Zooplankton Collection (Unsorted Bulk Sample)</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Aquatic plants, bryophytes, lichens, and macroalgae</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="50" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=50" target="_blank">Aquatic Macroalgae Collection (Chemical Preservation [Clip Harvests])</a></span></li>
-                              <li><input type="checkbox" name="db" value="73" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=73" target="_blank">Aquatic Macroalgae Collection (Chemical Preservation [Point Counts])</a></span></li>
-                              <li><input type="checkbox" name="db" value="9" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=9" target="_blank">Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Clip Harvests])</a></span></li>
-                              <li><input type="checkbox" name="db" value="7" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=7" target="_blank">Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Point Counts])</a></span></li>
-                              <li><input type="checkbox" name="db" value="8" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=8" target="_blank">Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Standard Sampling])</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Environmental</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="41" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=41" target="_blank">Particulate Mass Filter Collection</a></span></li>
-                              <li><input type="checkbox" name="db" value="30" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=30" target="_blank">Soil Collection</a></span></li>
-                              <li><input type="checkbox" name="db" value="76" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=76" target="_blank">Terrestrial Plant Collection (Belowground Biomass [Megapit])</a></span></li>
-                              <li><input type="checkbox" name="db" value="10" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=10" target="_blank">Terrestrial Plant Collection (Belowground Biomass [Standard Sampling])</a></span></li>
-                              <li><input type="checkbox" name="db" value="42" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=42" target="_blank">Wet Deposition Collection</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Microbes</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="67" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=67" target="_blank">Benthic Microbe Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="5" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=5" target="_blank">Benthic Microbe Collection (Sterivex Filters)</a></span></li>
-                              <li><input type="checkbox" name="db" value="31" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=31" target="_blank">Soil Microbe Collection (Bulk Subsamples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="69" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=69" target="_blank">Soil Microbe Collection (DNA Extracts )</a></span></li>
-                              <li><input type="checkbox" name="db" value="68" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=68" target="_blank">Surface Water Microbe Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="6" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=6" target="_blank">Surface Water Microbe Collection (Sterivex Filters)</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Periphyton, seston, and phytoplankton</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="47" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=47" target="_blank">Aquatic Microalgae Collection (Chemical Preservation)</a></span></li>
-                              <li><input type="checkbox" name="db" value="46" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=46" target="_blank">Aquatic Microalgae Collection (Freeze-dried)</a></span></li>
-                              <li><input type="checkbox" name="db" value="49" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=49" target="_blank">Aquatic Microalgae Collection (Microscope Slides)</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Terrestrial Invertebrates</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="11" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=11" target="_blank">Carabid Collection (Archive Pooling)</a></span></li>
-                              <li><input type="checkbox" name="db" value="63" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=63" target="_blank">Carabid Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="39" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=39" target="_blank">Carabid Collection (Pinned Vouchers)</a></span></li>
-                              <li><input type="checkbox" name="db" value="14" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=14" target="_blank">Carabid Collection (Trap Sorting)</a></span></li>
-                              <li><input type="checkbox" name="db" value="13" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=13" target="_blank">Invertebrate Bycatch Collection (Archive Pooling)</a></span></li>
-                              <li><input type="checkbox" name="db" value="16" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=16" target="_blank">Invertebrate Bycatch Collection (Trap Sorting)</a></span></li>
-                              <li><input type="checkbox" name="db" value="56" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=56" target="_blank">Mosquito Collection (Bulk Identified)</a></span></li>
-                              <li><input type="checkbox" name="db" value="58" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=58" target="_blank">Mosquito Collection (Bulk Unidentified)</a></span></li>
-                              <li><input type="checkbox" name="db" value="65" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=65" target="_blank">Mosquito Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="59" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=59" target="_blank">Mosquito Collection (Pathogen Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="29" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=29" target="_blank">Mosquito Collection (Pinned Vouchers)</a></span></li>
-                              <li><input type="checkbox" name="db" value="4" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=4" target="_blank">NEON Biorepository Invertebrate Collections at Arizona State University</a></span></li>
-                              <li><input type="checkbox" name="db" value="75" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=75" target="_blank">Tick Collection (Pathogen Extracts)</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Terrestrial Plants</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="18" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=18" target="_blank">Terrestrial Plant Collection (Canopy Foliage)</a></span></li>
-                              <li><input type="checkbox" name="db" value="54" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=54" target="_blank">Terrestrial Plant Collection (Herbarium Vouchers)</a></span></li>
-                              <li><input type="checkbox" name="db" value="40" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=40" target="_blank">Terrestrial Plant Collection (Leaf Tissue)</a></span></li>
-                              <li><input type="checkbox" name="db" value="23" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=23" target="_blank">Terrestrial Plant Collection (Litterfall)</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Vertebrates</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="66" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=66" target="_blank">Fish Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="20" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=20" target="_blank">Fish Collection (Vouchers)</a></span></li>
-                              <li><input type="checkbox" name="db" value="12" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=12" target="_blank">Herptile Voucher Collection (Ground Beetle Sampling Bycatch Archive Pooling)</a></span></li>
-                              <li><input type="checkbox" name="db" value="15" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=15" target="_blank">Herptile Voucher Collection (Ground Beetle Sampling Bycatch Trap Sorting)</a></span></li>
-                              <li><input type="checkbox" name="db" value="70" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=70" target="_blank">Herptile Voucher Collection (Small Mammal Sampling Bycatch)</a></span></li>
-                              <li><input type="checkbox" name="db" value="24" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=24" target="_blank">Mammal Collection (Blood Samples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="71" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=71" target="_blank">Mammal Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="25" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=25" target="_blank">Mammal Collection (Ear Tissue)</a></span></li>
-                              <li><input type="checkbox" name="db" value="26" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=26" target="_blank">Mammal Collection (Fecal Samples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="27" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=27" target="_blank">Mammal Collection (Hair Samples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="64" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=64" target="_blank">Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Archive Pooling])</a></span></li>
-                              <li><input type="checkbox" name="db" value="17" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=17" target="_blank">Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Trap Sorting])</a></span></li>
-                              <li><input type="checkbox" name="db" value="19" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=19" target="_blank">Mammal Collection (Vouchers [Standard Sampling at Diversity Plots])</a></span></li>
-                              <li><input type="checkbox" name="db" value="28" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=28" target="_blank">Mammal Collection (Vouchers [Standard Sampling at Pathogen Plots])</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-
+                    <?php if($groupsArr = $data->getBiorepoGroups('highertaxon')){
+                      echo '<ul id="collections-list1"><li><input type="checkbox" name="db" class="all-selector all-neon-colls" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
+                      foreach($groupsArr as $result) {                  
+                        if($result['highertaxon']){
+                          echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["highertaxon"]}</span><ul class='collapsed'>";
+                          $collsArr = $data->getBiorepoColls('highertaxon', $result['highertaxon']);
+                          if($collsArr){
+                            foreach($collsArr as $row) {
+                              echo "<li>";
+                              // IF AVAILABLE
+                              if ($row['available'] == 'TRUE'){
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a>";
+                              } elseif ($row["available"] == 'FALSE'){
+                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
+                              }
+                              echo "</li>";   
+                            }
+                          }
+                          echo '</ul></li></ul>';
+                        }
+                      }
+                      echo '</li></ul>';
+                    }
+                    ;?>
                   </div>
                   <div id="neon-theme" class="box">
                     <h2>Select Collections by NEON Theme</h2>
-                    <ul id="collections-list2">
-                      <li><input name="db" type="checkbox" class="all-selector all-neon-colls" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Collections</span>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Atmosphere</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="41" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=41" target="_blank">Particulate Mass Filter Collection</a></span></li>
-                              <li><input type="checkbox" name="db" value="42" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=42" target="_blank">Wet Deposition Collection</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Biogeochemistry</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="67" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=67" target="_blank">Benthic Microbe Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="5" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=5" target="_blank">Benthic Microbe Collection (Sterivex Filters)</a></span></li>
-                              <li><input type="checkbox" name="db" value="30" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=30" target="_blank">Soil Collection</a></span></li>
-                              <li><input type="checkbox" name="db" value="31" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=31" target="_blank">Soil Microbe Collection (Bulk Subsamples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="69" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=69" target="_blank">Soil Microbe Collection (DNA Extracts )</a></span></li>
-                              <li><input type="checkbox" name="db" value="68" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=68" target="_blank">Surface Water Microbe Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="6" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=6" target="_blank">Surface Water Microbe Collection (Sterivex Filters)</a></span></li>
-                              <li><input type="checkbox" name="db" value="18" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=18" target="_blank">Terrestrial Plant Collection (Canopy Foliage)</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Land Cover &amp; Processes</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="41" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=41" target="_blank">Particulate Mass Filter Collection</a></span></li>
-                              <li><input type="checkbox" name="db" value="30" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=30" target="_blank">Soil Collection</a></span></li>
-                              <li><input type="checkbox" name="db" value="18" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=18" target="_blank">Terrestrial Plant Collection (Canopy Foliage)</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul>
-                          <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>Organisms, Populations, and Communities</span>
-                            <ul class="collapsed">
-                              <li><input type="checkbox" name="db" value="50" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=50" target="_blank">Aquatic Macroalgae Collection (Chemical Preservation [Clip Harvests])</a></span></li>
-                              <li><input type="checkbox" name="db" value="73" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=73" target="_blank">Aquatic Macroalgae Collection (Chemical Preservation [Point Counts])</a></span></li>
-                              <li><input type="checkbox" name="db" value="47" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=47" target="_blank">Aquatic Microalgae Collection (Chemical Preservation)</a></span></li>
-                              <li><input type="checkbox" name="db" value="46" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=46" target="_blank">Aquatic Microalgae Collection (Freeze-dried)</a></span></li>
-                              <li><input type="checkbox" name="db" value="49" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=49" target="_blank">Aquatic Microalgae Collection (Microscope Slides)</a></span></li>
-                              <li><input type="checkbox" name="db" value="9" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=9" target="_blank">Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Clip Harvests])</a></span></li>
-                              <li><input type="checkbox" name="db" value="7" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=7" target="_blank">Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Point Counts])</a></span></li>
-                              <li><input type="checkbox" name="db" value="8" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=8" target="_blank">Aquatic Plant, Bryophyte, and Lichen Collection (Herbarium Vouchers [Standard Sampling])</a></span></li>
-                              <li><input type="checkbox" value="22" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Chironomids) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=22"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="61" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (DNA Extracts) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=61"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="53" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Microscope Slides) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=53"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="52" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Oligochaetes) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=52"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="48" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Taxonomy Reference Collection) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=48"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" value="57" class="child" disabled=""><span style="color: gray">Benthic Macroinvertebrate Collection (Taxonomy Subsample) - Samples Unavailable</span> <a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=57"
-                                  target="_blank">More Info</a></li>
-                              <li><input type="checkbox" name="db" value="21" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=21" target="_blank">Benthic Macroinvertebrate Collection (Unsorted Bulk Sample)</a></span></li>
-                              <li><input type="checkbox" name="db" value="67" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=67" target="_blank">Benthic Microbe Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="5" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=5" target="_blank">Benthic Microbe Collection (Sterivex Filters)</a></span></li>
-                              <li><input type="checkbox" name="db" value="11" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=11" target="_blank">Carabid Collection (Archive Pooling)</a></span></li>
-                              <li><input type="checkbox" name="db" value="63" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=63" target="_blank">Carabid Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="39" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=39" target="_blank">Carabid Collection (Pinned Vouchers)</a></span></li>
-                              <li><input type="checkbox" name="db" value="14" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=14" target="_blank">Carabid Collection (Trap Sorting)</a></span></li>
-                              <li><input type="checkbox" name="db" value="66" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=66" target="_blank">Fish Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="20" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=20" target="_blank">Fish Collection (Vouchers)</a></span></li>
-                              <li><input type="checkbox" name="db" value="12" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=12" target="_blank">Herptile Voucher Collection (Ground Beetle Sampling Bycatch Archive Pooling)</a></span></li>
-                              <li><input type="checkbox" name="db" value="15" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=15" target="_blank">Herptile Voucher Collection (Ground Beetle Sampling Bycatch Trap Sorting)</a></span></li>
-                              <li><input type="checkbox" name="db" value="70" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=70" target="_blank">Herptile Voucher Collection (Small Mammal Sampling Bycatch)</a></span></li>
-                              <li><input type="checkbox" name="db" value="13" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=13" target="_blank">Invertebrate Bycatch Collection (Archive Pooling)</a></span></li>
-                              <li><input type="checkbox" name="db" value="16" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=16" target="_blank">Invertebrate Bycatch Collection (Trap Sorting)</a></span></li>
-                              <li><input type="checkbox" name="db" value="24" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=24" target="_blank">Mammal Collection (Blood Samples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="71" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=71" target="_blank">Mammal Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="25" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=25" target="_blank">Mammal Collection (Ear Tissue)</a></span></li>
-                              <li><input type="checkbox" name="db" value="26" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=26" target="_blank">Mammal Collection (Fecal Samples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="27" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=27" target="_blank">Mammal Collection (Hair Samples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="64" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=64" target="_blank">Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Archive Pooling])</a></span></li>
-                              <li><input type="checkbox" name="db" value="17" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=17" target="_blank">Mammal Collection (Vouchers [Ground Beetle Sampling Bycatch Trap Sorting])</a></span></li>
-                              <li><input type="checkbox" name="db" value="19" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=19" target="_blank">Mammal Collection (Vouchers [Standard Sampling at Diversity Plots])</a></span></li>
-                              <li><input type="checkbox" name="db" value="28" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=28" target="_blank">Mammal Collection (Vouchers [Standard Sampling at Pathogen Plots])</a></span></li>
-                              <li><input type="checkbox" name="db" value="56" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=56" target="_blank">Mosquito Collection (Bulk Identified)</a></span></li>
-                              <li><input type="checkbox" name="db" value="58" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=58" target="_blank">Mosquito Collection (Bulk Unidentified)</a></span></li>
-                              <li><input type="checkbox" name="db" value="65" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=65" target="_blank">Mosquito Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="59" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=59" target="_blank">Mosquito Collection (Pathogen Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="29" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=29" target="_blank">Mosquito Collection (Pinned Vouchers)</a></span></li>
-                              <li><input type="checkbox" name="db" value="4" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=4" target="_blank">NEON Biorepository Invertebrate Collections at Arizona State University</a></span></li>
-                              <li><input type="checkbox" name="db" value="31" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=31" target="_blank">Soil Microbe Collection (Bulk Subsamples)</a></span></li>
-                              <li><input type="checkbox" name="db" value="69" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=69" target="_blank">Soil Microbe Collection (DNA Extracts )</a></span></li>
-                              <li><input type="checkbox" name="db" value="68" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=68" target="_blank">Surface Water Microbe Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="6" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=6" target="_blank">Surface Water Microbe Collection (Sterivex Filters)</a></span></li>
-                              <li><input type="checkbox" name="db" value="76" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=76" target="_blank">Terrestrial Plant Collection (Belowground Biomass [Megapit])</a></span></li>
-                              <li><input type="checkbox" name="db" value="10" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=10" target="_blank">Terrestrial Plant Collection (Belowground Biomass [Standard Sampling])</a></span></li>
-                              <li><input type="checkbox" name="db" value="54" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=54" target="_blank">Terrestrial Plant Collection (Herbarium Vouchers)</a></span></li>
-                              <li><input type="checkbox" name="db" value="40" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=40" target="_blank">Terrestrial Plant Collection (Leaf Tissue)</a></span></li>
-                              <li><input type="checkbox" name="db" value="23" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=23" target="_blank">Terrestrial Plant Collection (Litterfall)</a></span></li>
-                              <li><input type="checkbox" name="db" value="75" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=75" target="_blank">Tick Collection (Pathogen Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="62" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=62" target="_blank">Zooplankton Collection (DNA Extracts)</a></span></li>
-                              <li><input type="checkbox" name="db" value="45" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=45" target="_blank">Zooplankton Collection (Remaining Bulk Taxonomy Sample)</a></span></li>
-                              <li><input type="checkbox" name="db" value="55" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=55" target="_blank">Zooplankton Collection (Taxonomy Reference Collection)</a></span></li>
-                              <li><input type="checkbox" name="db" value="60" class="child" checked=""><span><a href="https://biorepo.neonscience.org/portal/collections/misc/collprofiles.php?collid=60" target="_blank">Zooplankton Collection (Unsorted Bulk Sample)</a></span></li>
-                            </ul>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-
+                    <?php if($groupsArr = $data->getBiorepoGroups('neontheme')){
+                      echo '<ul id="collections-list2"><li><input type="checkbox" name="db" class="all-selector all-neon-colls" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
+                      foreach($groupsArr as $result) {                  
+                        if($result['neontheme']){
+                          echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["neontheme"]}</span><ul class='collapsed'>";
+                          $collsArr = $data->getBiorepoColls('neontheme', $result['neontheme']);
+                          if($collsArr){
+                            foreach($collsArr as $row) {
+                              echo "<li>";
+                              // IF AVAILABLE
+                              if ($row['available'] == 'TRUE'){
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a>";
+                              } elseif ($row["available"] == 'FALSE'){
+                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
+                              }
+                              echo "</li>";   
+                            }
+                          }
+                          echo '</ul></li></ul>';
+                        }
+                      }
+                      echo '</li></ul>';
+                    }
+                    ;?>                    
                   </div>
                   <div id="sample-type" class="box">
                     <h2>Select Collections by Sample Type</h2>
-                    <ul id="collections-list3">
+                    <?php if($groupsArr = $data->getBiorepoGroups('sampletype')){
+                      echo '<ul id="collections-list2"><li><input type="checkbox" name="db" class="all-selector all-neon-colls" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
+                      foreach($groupsArr as $result) {                  
+                        if($result['sampletype']){
+                          echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["sampletype"]}</span><ul class='collapsed'>";
+                          $collsArr = $data->getBiorepoColls('sampletype', $result['sampletype']);
+                          if($collsArr){
+                            foreach($collsArr as $row) {
+                              echo "<li>";
+                              // IF AVAILABLE
+                              if ($row['available'] == 'TRUE'){
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a>";
+                              } elseif ($row["available"] == 'FALSE'){
+                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
+                              }
+                              echo "</li>";   
+                            }
+                          }
+                          echo '</ul></li></ul>';
+                        }
+                      }
+                      echo '</li></ul>';
+                    }
+                    ;?>
+                    <!-- <ul id="collections-list3">
                       <li><input name="db" type="checkbox" class="all-selector all-neon-colls" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Collections</span>
                         <ul>
                           <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>DNA Sample</span>
@@ -462,7 +316,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
                           </li>
                         </ul>
                       </li>
-                    </ul>
+                    </ul> -->
 
                   </div>
                 </div>

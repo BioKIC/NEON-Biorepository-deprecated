@@ -1,22 +1,5 @@
 /**
- * Summary of Features
- *
- * - Global Variables
- * - Function that toggles collection filter options in modal
- * - Function toggleSelectorAll()
- * - Function autoToggleSelector(e)
- * - Function openModal(elementid)
- * - Function closeModal(elementid)
- * - Event listeners and variables associated with chips
- * - Function updateChip(e)
- * - Function getParam(paramName)
- * - Function getSearchUrl()
- * - Function valColls()
- * - Event Listeners and binders
- */
-
-/**
- * Global Variables
+ * GLOBAL VARIABLES
  */
 const criteriaPanel = document.getElementById('criteria-panel');
 const testURL = document.getElementById('test-url');
@@ -25,72 +8,20 @@ let paramsArr = [];
 //////////////////////////////////////////////////////////////////////////
 
 /**
- * Toggles selection for Collection picking options
+ * METHODS
+ */
+/**
+ * Toggles tab selection for collection picking options in modal
  * Uses jQuery
  */
 $('input[type="radio"]').click(function () {
   var inputValue = $(this).attr('value');
   var targetBox = $('#' + inputValue);
-  console.log(inputValue);
   $('.box').not(targetBox).hide();
   $(targetBox).show();
-  // Styles radio "tab"
   $(this).parent().addClass('tab-active');
   $(this).parent().siblings().removeClass('tab-active');
 });
-
-/**
- * Toggles state of checkboxes in nested lists when clicking an "all-selector" element
- * Uses jQuery
- */
-function toggleSelectorAll() {
-  $(this)
-    .siblings()
-    .find('input[type=checkbox]:enabled')
-    .prop('checked', this.checked)
-    .attr('checked', this.checked);
-}
-
-/**
- * Triggers toggling of checked/unchecked boxes in nested lists
- * Default is all boxes are checked in HTML.
- * @param {String} e.data.element Selector for element containing * list, should be passed when binding function to element
- */
-function autoToggleSelector(e) {
-  console.log('here');
-  // Gets the higher level element for lists
-  let element = e.data.element;
-
-  // Figure out where in tree I am before applying checking/unchecking
-  // Compare lengths of array with checked vs unchecked elements
-  // First checks nearest elements to clicked checkbox
-  let allSubChecked =
-    $(this).closest('ul').find('.child').filter(':enabled').filter(':checked')
-      .length == $(this).closest('ul').find('.child').filter(':enabled').length;
-
-  $(this)
-    .closest('ul')
-    .siblings('.all-selector')
-    .change()
-    .prop('checked', allSubChecked);
-
-  // Then checks most outer "all-selector"
-  let allHigherChecked =
-    $(element).siblings().find('.child').filter(':checked').length ==
-    $(element).siblings().find('.child').length;
-  $(element).prop('checked', allHigherChecked);
-
-  let parentAll = $(this).closest('ul').siblings('.all-selector');
-
-  parentAll.hasClass('child')
-    ? (parentAll = parentAll.closest('ul').siblings('.all-selector'))
-    : '';
-
-  let isParentAllChecked = parentAll.prop('checked');
-  isParentAllChecked
-    ? addChip(document.getElementById(parentAll.attr('id')))
-    : removeChip(document.getElementById('chip-' + parentAll.attr('id')));
-}
 
 /**
  * Opens modal with id selector
@@ -109,7 +40,10 @@ function closeModal(elementid) {
   $(elementid).css('display', 'none');
 }
 
-// Map Selector
+/**
+ * Opens map helper
+ * @param {String} mapMode Option from select in form
+ */
 function openCoordAid(mapMode) {
   mapWindow = open(
     '../../collections/tools/mapcoordaid.php?mapmode=' + mapMode,
@@ -124,27 +58,10 @@ function openCoordAid(mapMode) {
  * Chips
  */
 
-//////// Binds Update chip on event change
-const taxaInput = document.getElementById('taxa-search');
-taxaInput.addEventListener('change', updateChip);
-const catNumInput = document.getElementById('taxa-search');
-taxaInput.addEventListener('change', updateChip);
-const allNeon = document.getElementById('all-neon-colls-quick');
-allNeon.addEventListener('change', updateChip);
-const allNeonExt = document.getElementById('all-neon-ext');
-allNeonExt.addEventListener('change', updateChip);
-const allExt = document.getElementById('all-ext');
-allExt.addEventListener('change', updateChip);
-const allSites = document.getElementById('all-sites');
-allSites.addEventListener('change', updateChip);
-
-// const locInput = document.getElementById('')
-
-// on default (on document load): All Neon Collections, All Domains & Sites
-document.addEventListener('DOMContentLoaded', defaultChips);
-
+/**
+ * Adds default chips on page load
+ */
 function defaultChips() {
-  console.log('Added default chips');
   addChip(allSites);
   addChip(allNeon);
 }
@@ -154,18 +71,17 @@ function defaultChips() {
  * @param {HTMLObjectElement} element Input for which chips are going to be created by default
  */
 function addChip(element) {
-  // Chip definitions
   let inputChip = document.createElement('span'),
     chipBtn = document.createElement('button');
   inputChip.classList.add('chip');
-  console.log(element);
   inputChip.id = 'chip-' + element.id;
   chipBtn.setAttribute('type', 'button');
-  chipBtn.setAttribute('class', 'chip-remove-btn');
+  chipBtn.classList.add('chip-remove-btn');
   chipBtn.onclick = function () {
     element.type === 'checkbox'
       ? (element.checked = false)
       : (element.value = element.defaultValue);
+    element.dataset.formId ? updateSelectorAll(element) : '';
     removeChip(inputChip);
   };
   inputChip.textContent = element.dataset.chip;
@@ -199,6 +115,7 @@ function updateChip(e) {
         ? (e.target.checked = false)
         : (e.target.value = e.target.defaultValue);
       removeChip(inputChip);
+      e.target.dataset.formId ? updateSelectorAll(e.target) : '';
     };
     inputChip.textContent = e.target.dataset.chip;
     inputChip.appendChild(chipBtn);
@@ -206,6 +123,79 @@ function updateChip(e) {
   } else {
     let currChip = document.getElementById('chip-' + e.target.id);
     currChip !== null ? currChip.remove() : '';
+  }
+}
+/////////
+
+/**
+ * Toggles state of checkboxes in nested lists when clicking an "all-selector" element
+ * Uses jQuery
+ */
+function toggleAllSelector() {
+  $(this)
+    .siblings()
+    .find('input[type=checkbox]:enabled')
+    .prop('checked', this.checked)
+    .attr('checked', this.checked);
+}
+
+/**
+ * Triggers toggling of checked/unchecked boxes in nested lists
+ * Default is all boxes are checked in HTML.
+ * @param {String} e.data.element Selector for element containing * list, should be passed when binding function to element
+ */
+function autoToggleSelector(e) {
+  // Gets the higher level element for lists
+  let element = e.data.element;
+  console.log(element);
+  // Figure out where in tree I am before applying checking/unchecking
+  // Compare lengths of array with checked vs unchecked elements
+  // First checks nearest elements to clicked checkbox
+  let allSubChecked =
+    $(this).closest('ul').find('.child').filter(':enabled').filter(':checked')
+      .length == $(this).closest('ul').find('.child').filter(':enabled').length;
+
+  $(this)
+    .closest('ul')
+    .siblings('.all-selector')
+    .change()
+    .prop('checked', allSubChecked);
+
+  // Then checks most outer "all-selector"
+  let allHigherChecked =
+    $(element).siblings().find('.child').filter(':checked').length ==
+    $(element).siblings().find('.child').length;
+  $(element).prop('checked', allHigherChecked);
+
+  let parentAll = $(this).closest('ul').siblings('.all-selector');
+
+  parentAll.hasClass('child')
+    ? (parentAll = parentAll.closest('ul').siblings('.all-selector'))
+    : '';
+
+  let isParentAllChecked = parentAll.prop('checked');
+  isParentAllChecked
+    ? addChip(document.getElementById(parentAll.attr('id')))
+    : removeChip(document.getElementById('chip-' + parentAll.attr('id')));
+}
+
+/**
+ * Unchecks children of 'all-selector' checkboxes
+ * Uses 'data-form-id' property in .php
+ * @param {Object} element HTML Node Object
+ */
+function updateSelectorAll(element) {
+  console.log(element);
+  let isAllSel = element.classList.contains('all-selector');
+  if (isAllSel) {
+    // Find all children
+    let selChildren = document.querySelectorAll(
+      '#' + element.dataset.formId + ' input[type=checkbox]:checked'
+    );
+    // Uncheck all children
+    selChildren.forEach((item) => {
+      item.checked = false;
+    });
   }
 }
 /////////
@@ -377,8 +367,6 @@ function getSearchUrl() {
   testURL.href = baseURL.href;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 /**
  * Form validation functions
  */
@@ -400,10 +388,10 @@ function valColls() {
 //////////////////////////////////////////////////////////////////////////
 
 /**
- * Event Listeners and binders
+ * EVENT LISTENERS/INITIALIZERS
  */
 
-// Binds function to test button
+// Test button gets params
 // $("#teste-btn").click(getSearchParams);
 $('#teste-btn').click(function (event) {
   event.preventDefault();
@@ -411,23 +399,33 @@ $('#teste-btn').click(function (event) {
   getSearchUrl();
 });
 
-// Nested checkboxes functions
-$('.all-selector').click(toggleSelectorAll);
+// Listen for open modal click
+$('#neon-modal-open').click(function (event) {
+  event.preventDefault();
+  openModal('#biorepo-collections-list');
+});
+
+// When checking "all neon collections" box, toggle checkboxes in modal
+$('#all-neon-colls-quick').click(function () {
+  let isChecked = $(this).prop('checked');
+  $('.all-neon-colls').prop('checked', isChecked);
+  $('.all-neon-colls').siblings().find('.child').prop('checked', isChecked);
+  valColls();
+});
+
+// When checking any 'all-selector', toggle children checkboxes
+$('.all-selector').click(toggleAllSelector);
+
+// When unchecking children checkboxes, uncheck 'all-selector'
+$('.child').bind(
+  'click',
+  { element: $('.child').siblings().find('.all-selector') },
+  autoToggleSelector
+);
 $('#all-sites')
   .siblings()
   .find('.child')
   .bind('click', { element: '#all-sites' }, autoToggleSelector);
-$('#all-neon-colls')
-  .siblings()
-  .find('.child')
-  .bind('click', { element: '#all-neon-colls' }, autoToggleSelector);
-$('#neonext-collections-list')
-  .find('.child')
-  .bind('click', { element: '#neonext-collections-list' }, autoToggleSelector);
-$('#ext-collections-list')
-  .find('.child')
-  .bind('click', { element: '#ext-collections-list' }, autoToggleSelector);
-// Nested checkboxes in modal
 $('#collections-list1')
   .find('.child')
   .bind('click', { element: '#collections-list1' }, autoToggleSelector);
@@ -437,6 +435,40 @@ $('#collections-list2')
 $('#collections-list3')
   .find('.child')
   .bind('click', { element: '#collections-list3' }, autoToggleSelector);
+
+// Listen for close modal click
+$('#neon-modal-close').click(function (event) {
+  event.preventDefault();
+  closeModal('#biorepo-collections-list');
+  let criterionSelected = $('input[type=radio]:checked');
+  // If ".all-neon-colls" is checked, pass that to form
+  let allSelected = '#' + criterionSelected.val() + ' .all-neon-colls';
+  let isChecked = $(allSelected).prop('checked');
+  // console.log(allSelected);
+  // console.log($(allSelected).prop('checked'));
+  $('#all-neon-colls-quick').prop('checked', isChecked);
+  return criterionSelected;
+});
+
+//////// Binds Update chip on event change
+document.querySelector('#params-form').addEventListener('change', updateChip);
+// const taxaInput = document.getElementById('taxa-search');
+// taxaInput.addEventListener('change', updateChip);
+// const catNumInput = document.getElementById('taxa-search');
+// taxaInput.addEventListener('change', updateChip);
+const allNeon = document.getElementById('all-neon-colls-quick');
+// allNeon.addEventListener('change', updateChip);
+// const allNeonExt = document.getElementById('all-neon-ext');
+// allNeonExt.addEventListener('change', updateChip);
+// const allExt = document.getElementById('all-ext');
+// allExt.addEventListener('change', updateChip);
+const allSites = document.getElementById('all-sites');
+// allSites.addEventListener('change', updateChip);
+
+// const locInput = document.getElementById('')
+
+// on default (on document load): All Neon Collections, All Domains & Sites
+document.addEventListener('DOMContentLoaded', defaultChips);
 
 // Binds expansion function to plus and minus icons in selectors
 $('.expansion-icon').click(function () {
@@ -448,45 +480,6 @@ $('.expansion-icon').click(function () {
   } else {
     $(this).html('add_box').siblings('ul').addClass('collapsed');
   }
-});
-
-// Listen for open modal click
-$('#neon-modal-open').click(function (event) {
-  event.preventDefault();
-  openModal('#biorepo-collections-list');
-});
-
-// When checking "all neon collections" box, toggle the property of the modal
-$('#all-neon-colls-quick').click(function () {
-  let isChecked = $(this).prop('checked');
-  $('.all-neon-colls').prop('checked', isChecked);
-  $('.all-neon-colls').siblings().find('.child').prop('checked', isChecked);
-  valColls();
-});
-
-// Listen for close modal click
-$('#neon-modal-close').click(function (event) {
-  event.preventDefault();
-  closeModal('#biorepo-collections-list');
-  // Checks if the "all" selector is checked and toggle main one accordingly
-  // Adjust for selected tab
-  // let isChecked = $(".all-neon-colls").prop("checked");
-  // $("#all-neon-colls-quick").prop("checked", isChecked);
-  // When clicking in "accept and close button, pass "all-selector" state to quick "all" selector and store info on which criterion should be harvested for params for collections list
-  // return criterionSelected = $('input[type=radio]:checked').val();
-  // console.log(criterionSelected);
-
-  // When closing modal and accepting selection,
-  // Check current selected radio
-  let criterionSelected = $('input[type=radio]:checked');
-
-  // If ".all-neon-colls" is checked, pass that to form
-  let allSelected = '#' + criterionSelected.val() + ' .all-neon-colls';
-  let isChecked = $(allSelected).prop('checked');
-  console.log(allSelected);
-  console.log($(allSelected).prop('checked'));
-  $('#all-neon-colls-quick').prop('checked', isChecked);
-  return criterionSelected;
 });
 
 //////////////////////////////////////////////////////////////////////////

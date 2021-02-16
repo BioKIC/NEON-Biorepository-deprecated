@@ -83,11 +83,11 @@ $data = new CollectionMetadata();
             <div class="content">
               <div id="search-form-colls">
                 <!-- Open NEON Collections modal -->
-                <div><input id="all-neon-colls-quick" data-chip="All NEON Collections" class="all-selector" type="checkbox" checked=""><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Biorepository Collections</span></div>
+                <div><input id="all-neon-colls-quick" data-chip="All NEON Collections" class="all-selector" type="checkbox" checked="" data-form-id="biorepo-collections-list"><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Biorepository Collections</span></div>
                 <!-- External Collections -->
                 <div>
                   <ul id="neonext-collections-list">
-                    <li><input id="all-neon-ext" data-chip="All Add NEON Colls" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All Additional NEON Collections</span>
+                    <li><input id="all-neon-ext" data-chip="All Add NEON Colls" type="checkbox" class="all-selector" data-form-id='neonext-collections-list'><span class="material-icons expansion-icon">add_box</span><span>All Additional NEON Collections</span>
                     <?php if($collsArr = $data->getCollMetaByCat('Additional NEON Collections')){
                     echo '<ul class="collapsed">';
                       foreach($collsArr as $result) {
@@ -98,7 +98,7 @@ $data = new CollectionMetadata();
                     </li>
                   </ul>
                   <ul id="ext-collections-list">
-                    <li><input id="all-ext" data-chip="All Ext Colls" type="checkbox" class="all-selector"><span class="material-icons expansion-icon">add_box</span><span>All Other Collections from NEON sites</span>
+                    <li><input id="all-ext" data-chip="All Ext Colls" type="checkbox" class="all-selector" data-form-id='ext-collections-list'><span class="material-icons expansion-icon">add_box</span><span>All Other Collections from NEON sites</span>
                     <?php if($collsArr = $data->getCollMetaByCat('Other Collections from NEON sites')){
                     echo '<ul class="collapsed">';
                       foreach($collsArr as $result) {
@@ -254,7 +254,7 @@ $data = new CollectionMetadata();
               <div id="search-form-locality">
               <!-- <ul id="site-list"></ul> -->
               <ul id="site-list">
-                <li><input id="all-sites" name="datasetid" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked=""><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
+                <li><input id="all-sites" name="datasetid" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked="" data-form-id='search-form-locality'><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
                   <ul>
                     <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D01 - Northeast</span>
                       <ul class="collapsed">

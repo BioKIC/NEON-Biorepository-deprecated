@@ -86,7 +86,7 @@ function addChip(element) {
   };
   inputChip.textContent = element.dataset.chip;
   inputChip.appendChild(chipBtn);
-  criteriaPanel.appendChild(inputChip);
+  document.getElementById('chips').appendChild(inputChip);
 }
 
 /**
@@ -101,29 +101,66 @@ function removeChip(chip) {
  * Updateds chips based on selected options
  * @param {Event} e
  */
+//// BROKEN FOR TEXT INPUTS?
+// Não está fazendo sentido nenhum.
 function updateChip(e) {
-  let isChecked = e.target.checked;
-  if (isChecked) {
-    let inputChip = document.createElement('span'),
-      chipBtn = document.createElement('button');
-    inputChip.classList.add('chip');
-    inputChip.id = 'chip-' + e.target.id;
-    chipBtn.setAttribute('type', 'button');
-    chipBtn.classList.add('chip-remove-btn');
-    chipBtn.onclick = function () {
-      e.target.type === 'checkbox'
-        ? (e.target.checked = false)
-        : (e.target.value = e.target.defaultValue);
-      removeChip(inputChip);
-      e.target.dataset.formId ? updateSelectorAll(e.target) : '';
-    };
-    inputChip.textContent = e.target.dataset.chip;
-    inputChip.appendChild(chipBtn);
-    criteriaPanel.appendChild(inputChip);
-  } else {
-    let currChip = document.getElementById('chip-' + e.target.id);
-    currChip !== null ? currChip.remove() : '';
-  }
+  // REMOVER TODOS OS CHIPS EXISTENTES
+  document.getElementById('chips').innerHTML = '';
+  // CAMINHAR PELA PÁGINA PROCURANDO OS CRITERIOS SELECIONADOS
+  let inputs = document.querySelectorAll('input');
+  inputs.forEach((item) => {
+    // console.log(item.type);
+    if (item.type == 'text' && item.value != '') {
+      // create chip for text value
+      // console.log(item.value);
+      addChip(item);
+    } else if (item.type == 'checkbox' && item.checked && item.dataset.formId) {
+      console.log(item.name);
+      // create chip for checkboxes
+      addChip(item);
+    }
+  });
+
+  // CRIAR OS CHIPS DE ACORDO COM OS CRITERIOS SELECIONADOS
+  // USAR addChip?
+  // Chip definitions
+  // let inputChip = document.createElement('span'),
+  //   chipBtn = document.createElement('button');
+  // inputChip.classList.add('chip');
+  // inputChip.id = 'chip-' + e.target.id;
+  // chipBtn.setAttribute('type', 'button');
+  // chipBtn.classList.add('chip-remove-btn');
+  // chipBtn.onclick = function () {
+  //   // console.log('reset this value: ', e.target);
+  //   inputChip.remove();
+  //   e.target.value = e.target.defaultValue;
+  // };
+  // inputChip.textContent = e.target.dataset.chip;
+  // inputChip.appendChild(chipBtn);
+  // criteriaPanel.appendChild(inputChip);
+  // OLD:
+  // let isChecked = e.target.checked;
+  // if (isChecked) {
+  //   let inputChip = document.createElement('span'),
+  //     chipBtn = document.createElement('button');
+  //   inputChip.classList.add('chip');
+  //   inputChip.id = 'chip-' + e.target.id;
+  //   chipBtn.setAttribute('type', 'button');
+  //   chipBtn.classList.add('chip-remove-btn');
+  //   chipBtn.onclick = function () {
+  //     e.target.type === 'checkbox'
+  //       ? (e.target.checked = false)
+  //       : (e.target.value = e.target.defaultValue);
+  //     removeChip(inputChip);
+  //     e.target.dataset.formId ? updateSelectorAll(e.target) : '';
+  //   };
+  //   inputChip.textContent = e.target.dataset.chip;
+  //   inputChip.appendChild(chipBtn);
+  //   criteriaPanel.appendChild(inputChip);
+  // } else {
+  //   let currChip = document.getElementById('chip-' + e.target.id);
+  //   currChip !== null ? currChip.remove() : '';
+  // }
 }
 /////////
 

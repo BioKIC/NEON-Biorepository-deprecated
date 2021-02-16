@@ -462,19 +462,19 @@ $data = new CollectionMetadata();
                 <div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                  <input type="text" name="state">
+                  <input type="text" name="state" id="state">
                   <span data-label="State"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                  <input type="text" name="county">
+                  <input type="text" name="county" id="county">
                   <span data-label="County"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                  <input type="text" name="local">
+                  <input type="text" name="local" id="local">
                   <span data-label="Locality"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
@@ -482,13 +482,13 @@ $data = new CollectionMetadata();
                 <div class="grid grid--half">
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                        <input type="text" name="elevlow">
+                        <input type="text" name="elevlow" id="elevlow">
                         <span data-label="Minimum Elevation"></span></label>
                     <span class="assistive-text">Only numbers.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                        <input type="text" name="elevhigh" >
+                        <input type="text" name="elevhigh"  id="elevhigh">
                         <span data-label="Maximum Elevation"></span></label>
                     <span class="assistive-text">Only numbers.</span>
                   </div>
@@ -630,6 +630,7 @@ $data = new CollectionMetadata();
           <button id="teste-btn">Get all params</button>
           <p><a href="#" id="test-url" target="_blank" style="max-width: 50px">Search URL</a></p>
           <button type="reset">Reset Form</button>
+          <div id="chips"></div>
         </div>
       </form>
 

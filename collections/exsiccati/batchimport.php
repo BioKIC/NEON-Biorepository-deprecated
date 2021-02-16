@@ -37,7 +37,7 @@ if($isEditor && $formSubmit){
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> Exsiccati Batch Transfer</title>
+	<title><?php echo $DEFAULT_TITLE; ?> Exsiccatae Batch Transfer</title>
   <?php
     $activateJQuery = false;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -71,7 +71,7 @@ if($isEditor && $formSubmit){
 
 		function verifyFirstForm(f){
 			if(f.ometid.value == ""){
-				alert("Exsiccati title must be selected");
+				alert("Exsiccata title must be selected");
 				return false;
 			}
 			return true;
@@ -124,7 +124,7 @@ if($isEditor && $formSubmit){
 	?>
 	<div class='navpath'>
 		<a href="../../index.php">Home</a> &gt;&gt;
-		<a href="index.php">Exsiccati Index</a> &gt;&gt;
+		<a href="index.php">Exsiccatae Index</a> &gt;&gt;
 		<a href="batchimport.php">Batch Import Module</a>
 	</div>
 	<!-- This is inner text! -->
@@ -143,7 +143,7 @@ if($isEditor && $formSubmit){
 						<legend><b>Batch Import Module</b></legend>
 						<div style="margin:30px">
 							<select name="ometid" style="width:500px;" onchange="this.form.submit()">
-								<option value="">Choose Exsiccati Series</option>
+								<option value="">Choose Exsiccata Series</option>
 								<option value="">------------------------------------</option>
 								<?php
 								//Get only titles with linked specimens
@@ -159,10 +159,10 @@ if($isEditor && $formSubmit){
 				<?php
 			}
 			else{
-				echo '<div style="margin:20px;font-size:120%;"><b>The system does not yet have occurrence linked to exsiccati that can be transferred</b></div>';
+				echo '<div style="margin:20px;font-size:120%;"><b>The system does not yet have occurrences linked to exsiccatae that can be transferred</b></div>';
 			}
 		}
-		elseif($formSubmit == 'Show Exsiccati Table'){
+		elseif($formSubmit == 'Show Exsiccatae Table'){
 			$occurArr = $exsManager->getExsOccArr($ometid, 'ometid');
 			if($occurArr){
 				$exsMetadata = $exsManager->getTitleObj($ometid);
@@ -175,7 +175,7 @@ if($isEditor && $formSubmit){
 						for import into a local database application.
 					</div>
 					<table class="styledtable" style="font-family:Arial;font-size:12px;">
-						<tr><th><input name="selectAllCB" type="checkbox" onchange="selectAll(this)" /></th><th>Catalog Number</th><th>Exsiccati #</th><th>Details</th></tr>
+						<tr><th><input name="selectAllCB" type="checkbox" onchange="selectAll(this)" /></th><th>Catalog Number</th><th>Exsiccata #</th><th>Details</th></tr>
 						<?php
 						foreach($occurArr as $omenid => $occArr){
 							//Sort by preferred source collections and ranking
@@ -197,7 +197,7 @@ if($isEditor && $formSubmit){
 								$cnt++;
 							}
 							foreach($occArr as $occid => $oArr){
-								//List maximun of three occurrences for each exsiccati number
+								//List maximun of three occurrences for each exsiccata number
 								if($cnt < 3 || $oArr['collid'] == $collid){
 									echo $exsManager->getExsTableRow($occid,$oArr,$omenid,$collid);
 									$cnt++;
@@ -292,7 +292,7 @@ if($isEditor && $formSubmit){
 					<div style="margin:20px">
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="ometid" type="hidden" value="<?php echo $ometid; ?>" />
-						<input name="formsubmit" type="submit" value="Show Exsiccati Table" />
+						<input name="formsubmit" type="submit" value="Show Exsiccatae Table" />
 					</div>
 				</fieldset>
 			</form>

@@ -40,7 +40,7 @@ $('input[type="radio"]').click(function () {
 });
 
 /**
- * Toggles state of checkboxes in nested lists when there is an "all-selector"
+ * Toggles state of checkboxes in nested lists when clicking an "all-selector" element
  * Uses jQuery
  */
 function toggleSelectorAll() {
@@ -52,24 +52,22 @@ function toggleSelectorAll() {
 }
 
 /**
- * Automatically toggles checked/unchecked boxes in nested lists
- * i. e., when there is an "all-selector", unchecking internal
- * checkboxes toggles the "all-selector" to be unchecked as well.
+ * Triggers toggling of checked/unchecked boxes in nested lists
  * Default is all boxes are checked in HTML.
- * @param {String} e.data.element Selector for element containing list,
- * should be passed when binding function to element
+ * @param {String} e.data.element Selector for element containing * list, should be passed when binding function to element
  */
 function autoToggleSelector(e) {
+  console.log('here');
   // Gets the higher level element for lists
   let element = e.data.element;
 
   // Figure out where in tree I am before applying checking/unchecking
   // Compare lengths of array with checked vs unchecked elements
-
   // First checks nearest elements to clicked checkbox
   let allSubChecked =
     $(this).closest('ul').find('.child').filter(':enabled').filter(':checked')
       .length == $(this).closest('ul').find('.child').filter(':enabled').length;
+
   $(this)
     .closest('ul')
     .siblings('.all-selector')
@@ -81,6 +79,17 @@ function autoToggleSelector(e) {
     $(element).siblings().find('.child').filter(':checked').length ==
     $(element).siblings().find('.child').length;
   $(element).prop('checked', allHigherChecked);
+
+  let parentAll = $(this).closest('ul').siblings('.all-selector');
+
+  parentAll.hasClass('child')
+    ? (parentAll = parentAll.closest('ul').siblings('.all-selector'))
+    : '';
+
+  let isParentAllChecked = parentAll.prop('checked');
+  isParentAllChecked
+    ? addChip(document.getElementById(parentAll.attr('id')))
+    : removeChip(document.getElementById('chip-' + parentAll.attr('id')));
 }
 
 /**
@@ -89,7 +98,7 @@ function autoToggleSelector(e) {
  */
 function openModal(elementid) {
   $(elementid).css('display', 'block');
-  $(body).css('overflow: hidden');
+  $(document.body).css('overflow: hidden');
 }
 
 /**
@@ -148,7 +157,9 @@ function addChip(element) {
   // Chip definitions
   let inputChip = document.createElement('span'),
     chipBtn = document.createElement('button');
-  inputChip.setAttribute('class', 'chip');
+  inputChip.classList.add('chip');
+  console.log(element);
+  inputChip.id = 'chip-' + element.id;
   chipBtn.setAttribute('type', 'button');
   chipBtn.setAttribute('class', 'chip-remove-btn');
   chipBtn.onclick = function () {
@@ -167,7 +178,7 @@ function addChip(element) {
  * @param {HTMLObjectElement} chip Chip element
  */
 function removeChip(chip) {
-  chip.remove();
+  chip != null ? chip.remove() : '';
 }
 
 /**
@@ -194,7 +205,7 @@ function updateChip(e) {
     criteriaPanel.appendChild(inputChip);
   } else {
     let currChip = document.getElementById('chip-' + e.target.id);
-    currChip.remove();
+    currChip !== null ? currChip.remove() : '';
   }
 }
 /////////
@@ -402,10 +413,10 @@ $('#teste-btn').click(function (event) {
 
 // Nested checkboxes functions
 $('.all-selector').click(toggleSelectorAll);
-$('#allSites')
+$('#all-sites')
   .siblings()
   .find('.child')
-  .bind('click', { element: '#allSites' }, autoToggleSelector);
+  .bind('click', { element: '#all-sites' }, autoToggleSelector);
 $('#all-neon-colls')
   .siblings()
   .find('.child')

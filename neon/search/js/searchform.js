@@ -59,14 +59,6 @@ function openCoordAid(mapMode) {
  */
 
 /**
- * Adds default chips on page load
- */
-function defaultChips() {
-  addChip(allSites);
-  addChip(allNeon);
-}
-
-/**
  * Adds default chips
  * @param {HTMLObjectElement} element Input for which chips are going to be created by default
  */
@@ -108,14 +100,18 @@ function updateChip(e) {
   document.getElementById('chips').innerHTML = '';
   // CAMINHAR PELA PÁGINA PROCURANDO OS CRITERIOS SELECIONADOS
   let inputs = document.querySelectorAll('input');
+  // console.log(inputs.length);
   inputs.forEach((item) => {
     // console.log(item.type);
     if (item.type == 'text' && item.value != '') {
       // create chip for text value
       // console.log(item.value);
       addChip(item);
-    } else if (item.type == 'checkbox' && item.checked && item.dataset.formId) {
-      console.log(item.name);
+    } else if (
+      item.type == 'checkbox' &&
+      item.checked &&
+      item.hasAttribute('data-chip')
+    ) {
       // create chip for checkboxes
       addChip(item);
     }
@@ -505,7 +501,7 @@ const allSites = document.getElementById('all-sites');
 // const locInput = document.getElementById('')
 
 // on default (on document load): All Neon Collections, All Domains & Sites
-document.addEventListener('DOMContentLoaded', defaultChips);
+document.addEventListener('DOMContentLoaded', updateChip);
 
 // Binds expansion function to plus and minus icons in selectors
 $('.expansion-icon').click(function () {

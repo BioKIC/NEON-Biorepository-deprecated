@@ -44,7 +44,7 @@ $data = new CollectionMetadata();
           <!-- Taxonomy -->
           <section>
             <!-- Accordion selector -->
-            <input type="checkbox" id="taxonomy" class="accordion-selector" checked=true />
+            <input type="checkbox" id="taxonomy" class="accordion-selector" data-chip="Include Synonyms" checked=true />
 
             <!-- Accordion header -->
             <label for="taxonomy" class="accordion-header">Taxonomy</label>
@@ -220,7 +220,7 @@ $data = new CollectionMetadata();
               <div id="search-form-sample">
                 <div>
                   <div>
-                    <input type="checkbox" name="includeothercatnum" value="1" checked>
+                    <input type="checkbox" name="includeothercatnum" id="includeothercatnum" value="1" data-chip="Include other IDs" checked>
                     <label for="includeothercatnum">Include other catalogue numbers and GUIds</label>
                   </div>
                   <div class="input-text-container">

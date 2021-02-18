@@ -25,7 +25,7 @@
   public function getNeonDomains(){
     $dataArr = array();
 
-    $sql = 'SELECT domainnumber, domainname, datasetid FROM omoccurdatasets AS d JOIN neon_field_sites AS s ON d.name = s.siteID GROUP BY domainnumber ORDER BY domainnumber;';
+    $sql = 'SELECT d.name AS domainnumber, s.domainname, d.datasetid FROM omoccurdatasets AS d JOIN neon_field_sites AS s ON d.name = s.domainnumber GROUP BY domainnumber ORDER BY domainnumber;';
 
     $result = $this->conn->query($sql);
 

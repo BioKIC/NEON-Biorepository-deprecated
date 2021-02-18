@@ -114,7 +114,7 @@ function updateChip(e) {
       item.hasAttribute('data-chip')
     ) {
       // create chip for checkboxes
-      // console.log(item);
+      console.log(item);
       addChip(item);
     }
   });
@@ -225,7 +225,6 @@ function autoToggleSelector(e) {
         let numOpCheckedAll = parentAllNode.querySelectorAll(
           'input.child:checked'
         ).length;
-        console.log(numOptionsAll, ' ', numOpCheckedAll);
         numOptionsAll == numOpCheckedAll
           ? (parentAllOpt.checked = true)
           : (parentAllOpt.checked = false);
@@ -296,9 +295,8 @@ function getParam(paramName) {
       // let i = 0;
       let itemsArr = [];
       for (var i = 0; i < element.length; ++i) {
-        element[i].checked
-          ? itemsArr.push(element[i].value)
-          : console.log('not checked');
+        element[i].checked ? itemsArr.push(element[i].value) : '';
+        // : 'console.log('not checked')';
       }
       // paramsArr.push({
       //   [paramName]: itemsArr
@@ -346,13 +344,13 @@ function getSearchUrl() {
     'http://github.localhost:8080/NEON-Biorepository/collections/list.php'
   );
 
-  console.log(baseURL);
+  // console.log(baseURL);
   // Clears array temporarily to avoid redundancy
   paramsArr = [];
 
   const paramNames = [
     'db',
-    // 'datasetid',
+    'datasetid',
     'catnum',
     'includeothercatnum',
     'hasimages',
@@ -508,19 +506,38 @@ collsModal.addEventListener('change', autoToggleSelector, false);
 //   .find('.child')
 //   .bind('click', { element: '#collections-list3' }, autoToggleSelector);
 
-// Listen for close modal click
-$('#neon-modal-close').click(function (event) {
-  event.preventDefault();
-  closeModal('#biorepo-collections-list');
-  let criterionSelected = $('input[type=radio]:checked');
-  // If ".all-neon-colls" is checked, pass that to form
-  let allSelected = '#' + criterionSelected.val() + ' .all-neon-colls';
-  let isChecked = $(allSelected).prop('checked');
-  // console.log(allSelected);
-  // console.log($(allSelected).prop('checked'));
-  $('#all-neon-colls-quick').prop('checked', isChecked);
-  return criterionSelected;
-});
+// Listen for close modal click and passes value of selected colls to main form
+document
+  .getElementById('neon-modal-close')
+  .addEventListener('click', function (event) {
+    event.preventDefault();
+    closeModal('#biorepo-collections-list');
+    let criterionSelected = collsModal.querySelector(
+      '.tab.tab-active input[type=radio]:checked'
+    ).value;
+    let tabSelected = document.getElementById(criterionSelected);
+    let isAllSelected = tabSelected.getElementsByClassName('all-neon-colls')[0]
+      .checked;
+    allNeon.checked = isAllSelected;
+    isAllSelected
+      ? addChip(allNeon)
+      : removeChip(document.getElementById('chip-' + allNeon.id));
+    console.log(isAllSelected);
+  });
+
+// $('#neon-modal-close').click(function (event) {
+//   event.preventDefault();
+//   closeModal('#biorepo-collections-list');
+//   let criterionSelected = $('input[type=radio]:checked');
+//   // If ".all-neon-colls" is checked, pass that to form
+//   let allSelected = '#' + criterionSelected.val() + ' .all-neon-colls';
+//   let isChecked = $(allSelected).prop('checked');
+//   // console.log(allSelected);
+//   // console.log($(allSelected).prop('checked'));
+//   $('#all-neon-colls-quick').prop('checked', isChecked);
+//   console.log(criterionSelected.);
+//   return criterionSelected;
+// });
 
 //////// Binds Update chip on event change
 document.querySelector('#params-form').addEventListener('change', updateChip);

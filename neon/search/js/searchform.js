@@ -207,8 +207,11 @@ function getParam(paramName) {
     // Deals with checkboxes
     if (element[0].getAttribute('type') === 'checkbox') {
       let itemsArr = [];
+
       for (let i = 0; i < element.length; ++i) {
-        element[i].checked ? itemsArr.push(element[i].value) : '';
+        element[i].checked && element[i].classList.contains('all-selector')
+          ? itemsArr.push(element[i].value)
+          : console.log('child, skipped');
       }
       // paramsArr.push({
       //   [paramName]: itemsArr

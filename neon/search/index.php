@@ -85,7 +85,7 @@ $siteData = new DatasetsMetadata();
             <div class="content">
               <div id="search-form-colls">
                 <!-- Open NEON Collections modal -->
-                <div><input id="all-neon-colls-quick" data-chip="All NEON Biorepo Collections" class="all-selector" type="checkbox" checked="" data-form-id="biorepo-collections-list"><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Biorepository Collections</span></div>
+                <div><input id="all-neon-colls-quick" data-chip="All NEON Biorepo Collections" class="all-selector" type="checkbox" value="get list from function" checked="" data-form-id="biorepo-collections-list"><span id="neon-modal-open" class="material-icons expansion-icon">add_box</span><span>All NEON Biorepository Collections</span></div>
                 <!-- External Collections -->
                 <div>
                   <ul id="neonext-collections-list">

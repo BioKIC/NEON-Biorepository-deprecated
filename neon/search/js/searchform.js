@@ -94,26 +94,17 @@ function removeChip(chip) {
  * Updateds chips based on selected options
  * @param {Event} e
  */
-//// BROKEN FOR TEXT INPUTS?
-// Não está fazendo sentido nenhum.
 function updateChip(e) {
-  // REMOVER TODOS OS CHIPS EXISTENTES
   document.getElementById('chips').innerHTML = '';
-  // CAMINHAR PELA PÁGINA PROCURANDO OS CRITERIOS SELECIONADOS
   let inputs = document.querySelectorAll('input');
-  // console.log(inputs.length);
   inputs.forEach((item) => {
-    // console.log(item.type);
     if (item.type == 'text' && item.value != '') {
-      // create chip for text value
-      // console.log(item.value);
       addChip(item);
     } else if (
       item.type == 'checkbox' &&
       item.checked &&
       item.hasAttribute('data-chip')
     ) {
-      // create chip for checkboxes
       addChip(item);
     }
   });
@@ -139,17 +130,10 @@ function toggleAllSelector() {
  * list, should be passed when binding function to element
  */
 function autoToggleSelector(e) {
-  // WHEN CLICKING CHILD ELEMENT, UPDATE STATUS OF PARENTS ALL
   if (e.type == 'click' || e.type == 'change') {
     let isChild = e.target.classList.contains('child');
-    // console.log('is child: ', isChild);
-    // if isChild , grab nearest parent
     if (isChild) {
-      // console.log(e.target);
-      // console.log(e.target.parentNode.closest('.all-selector'));
-      // console.log(e.target.closest('ul').parentNode);
       let nearParentNode = e.target.closest('ul').parentNode;
-      // console.log(nearParentNode);
       let nearParentOpt = e.target
         .closest('ul')
         .parentNode.querySelector('.all-selector');
@@ -159,22 +143,11 @@ function autoToggleSelector(e) {
       let numOpChecked = nearParentNode.querySelectorAll(
         'ul > li input.child:not(.all-selector):checked'
       ).length;
-      // console.log(numOptions, ' ', numOpChecked);
-      // console.log(
-      //   nearParentNode.querySelectorAll(
-      //     'ul > li input.child:not(.all-selector):enabled'
-      //   )
-      // );
       numOptions == numOpChecked
         ? (nearParentOpt.checked = true)
         : (nearParentOpt.checked = false);
 
-      // CHECK
-      // IF PARENT ALSO HAS A CHILD CLASS
-      // console.log(nearParentOpt.classList.contains('child'));
-      // console.log(nearParentNode.closest('ul').parentNode);
       if (nearParentOpt.classList.contains('child')) {
-        // console.log('parent is also a child');
         let parentAllNode = nearParentNode.closest('ul').parentNode;
         let parentAllOpt = parentAllNode.querySelector('.all-selector');
         let numOptionsAll = parentAllNode.querySelectorAll(
@@ -187,7 +160,6 @@ function autoToggleSelector(e) {
           ? (parentAllOpt.checked = true)
           : (parentAllOpt.checked = false);
       }
-      // TOGGLE CHECK OF PARENT
     }
   }
 }
@@ -198,15 +170,11 @@ function autoToggleSelector(e) {
  * @param {Object} element HTML Node Object
  */
 function uncheckAll(element) {
-  // console.log(element);
-  // console.log('here');
   let isAllSel = element.classList.contains('all-selector');
   if (isAllSel) {
-    // Find all children
     let selChildren = document.querySelectorAll(
       '#' + element.dataset.formId + ' input[type=checkbox]:checked'
     );
-    // Uncheck all children
     selChildren.forEach((item) => {
       item.checked = false;
     });
@@ -223,9 +191,7 @@ function uncheckAll(element) {
 function getParam(paramName) {
   //Default country
   paramsArr['country'] = 'USA';
-  // If parameter is 'db', go only through currently selected radio option in modal plus external collections in form
-  // console.log(criterionSelected);
-  // console.log(paramName);
+  // Exception for collections lists in modal
   let element = '';
   if (paramName === 'db') {
     let query = '#' + criterionSelected + ' input[name="db"]';
@@ -233,28 +199,16 @@ function getParam(paramName) {
     let selectedInForm = Array.from(
       document.querySelectorAll('#search-form-colls input[name="db"]')
     );
-    // console.log('Selected in Form: ', selectedInForm);
-    // console.log('Selected in Modal: ', selectedInModal);
-    // console.log(typeof selectedInModal);
     element = selectedInForm.concat(selectedInModal);
-    // console.log(typeof element);
   } else element = document.getElementsByName(paramName);
 
-  // Deals with dropdown options
-  // const answer = element[0].tagName === "SELECT" ? "it's a dropdown" : "it's not a dropdown";
-  // console.log(answer);
-  // console.log(element[0].tagName);
-
   // Deals with inputs
-  // console.log(element.length);
   if (element[0].tagName === 'INPUT') {
     // Deals with checkboxes
     if (element[0].getAttribute('type') === 'checkbox') {
-      // let i = 0;
       let itemsArr = [];
       for (let i = 0; i < element.length; ++i) {
         element[i].checked ? itemsArr.push(element[i].value) : '';
-        // : 'console.log('not checked')';
       }
       // paramsArr.push({
       //   [paramName]: itemsArr
@@ -270,7 +224,9 @@ function getParam(paramName) {
         paramsArr[paramName] = elementValue;
       }
     }
-  } else if (element[0].tagName === 'SELECT') {
+  }
+  // Deals with dropdown options
+  else if (element[0].tagName === 'SELECT') {
     let elementValue = element[0].options[element[0].selectedIndex].value;
     // paramsArr.push({
     //   [paramName]: elementValue

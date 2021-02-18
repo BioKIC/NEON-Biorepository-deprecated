@@ -2,9 +2,11 @@
 include_once('../../config/symbini.php');
 include_once('../../content/lang/index.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/neon/classes/CollectionMetadata.php');
+include_once($SERVER_ROOT.'/neon/classes/DatasetsMetadata.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$data = new CollectionMetadata();
+$collData = new CollectionMetadata();
+$siteData = new DatasetsMetadata();
 ?>
 <html>
   <head>
@@ -88,7 +90,7 @@ $data = new CollectionMetadata();
                 <div>
                   <ul id="neonext-collections-list">
                     <li><input id="all-neon-ext" data-chip="All Add NEON Colls" type="checkbox" class="all-selector" data-form-id='neonext-collections-list'><span class="material-icons expansion-icon">add_box</span><span>All Additional NEON Collections</span>
-                    <?php if($collsArr = $data->getCollMetaByCat('Additional NEON Collections')){
+                    <?php if($collsArr = $collData->getCollMetaByCat('Additional NEON Collections')){
                     echo '<ul class="collapsed">';
                       foreach($collsArr as $result) {
                         echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
@@ -99,7 +101,7 @@ $data = new CollectionMetadata();
                   </ul>
                   <ul id="ext-collections-list">
                     <li><input id="all-ext" data-chip="All Ext Colls" type="checkbox" class="all-selector" data-form-id='ext-collections-list'><span class="material-icons expansion-icon">add_box</span><span>All Other Collections from NEON sites</span>
-                    <?php if($collsArr = $data->getCollMetaByCat('Other Collections from NEON sites')){
+                    <?php if($collsArr = $collData->getCollMetaByCat('Other Collections from NEON sites')){
                     echo '<ul class="collapsed">';
                       foreach($collsArr as $result) {
                         echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
@@ -126,12 +128,12 @@ $data = new CollectionMetadata();
                   <!-- By Taxonomic Group -->
                   <div id="taxonomic-cat" class="box" style="display: block;">
                     <h2>Select Collections by Taxonomic Group</h2>
-                    <?php if($groupsArr = $data->getBiorepoGroups('highertaxon')){
+                    <?php if($groupsArr = $collData->getBiorepoGroups('highertaxon')){
                       echo '<ul id="collections-list1"><li><input type="checkbox" name="db" class="all-selector" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
                       foreach($groupsArr as $result) {                  
                         if($result['highertaxon']){
                           echo "<ul><li><input type='checkbox' class='all-selector child'  checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["highertaxon"]}</span><ul class='collapsed'>";
-                          $collsArr = $data->getBiorepoColls('highertaxon', $result['highertaxon']);
+                          $collsArr = $collData->getBiorepoColls('highertaxon', $result['highertaxon']);
                           if($collsArr){
                             foreach($collsArr as $row) {
                               echo "<li>";
@@ -153,12 +155,12 @@ $data = new CollectionMetadata();
                   </div>
                   <div id="neon-theme" class="box">
                     <h2>Select Collections by NEON Theme</h2>
-                    <?php if($groupsArr = $data->getBiorepoGroups('neontheme')){
+                    <?php if($groupsArr = $collData->getBiorepoGroups('neontheme')){
                       echo '<ul id="collections-list2"><li><input type="checkbox" name="db" class="all-selector" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
                       foreach($groupsArr as $result) {                  
                         if($result['neontheme']){
                           echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["neontheme"]}</span><ul class='collapsed'>";
-                          $collsArr = $data->getBiorepoColls('neontheme', $result['neontheme']);
+                          $collsArr = $collData->getBiorepoColls('neontheme', $result['neontheme']);
                           if($collsArr){
                             foreach($collsArr as $row) {
                               echo "<li>";
@@ -180,12 +182,12 @@ $data = new CollectionMetadata();
                   </div>
                   <div id="sample-type" class="box">
                     <h2>Select Collections by Sample Type</h2>
-                    <?php if($groupsArr = $data->getBiorepoGroups('sampletype')){
+                    <?php if($groupsArr = $collData->getBiorepoGroups('sampletype')){
                       echo '<ul id="collections-list3"><li><input type="checkbox" name="db" class="all-selector" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
                       foreach($groupsArr as $result) {                  
                         if($result['sampletype']){
                           echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["sampletype"]}</span><ul class='collapsed'>";
-                          $collsArr = $data->getBiorepoColls('sampletype', $result['sampletype']);
+                          $collsArr = $collData->getBiorepoColls('sampletype', $result['sampletype']);
                           if($collsArr){
                             foreach($collsArr as $row) {
                               echo "<li>";
@@ -252,8 +254,18 @@ $data = new CollectionMetadata();
             <!-- Accordion content -->
             <div class="content">
               <div id="search-form-locality">
-              <!-- <ul id="site-list"></ul> -->
-              <ul id="site-list">
+              <ul id="site-list"><input id="all-sites" name="datasetid" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked="" data-form-id='search-form-locality'><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
+                  <?php if($domainsArr = $siteData->getNeonDomains()){
+                  echo '<ul>';
+                    foreach($domainsArr as $result) {
+                      echo "<li><input type='checkbox' class='all-selector child' checked=''><span class='material-icons expansion-icon'>add_box</span><span>{$result["domainnumber"]} - {$result["domainname"]}</span>";
+                      // ECHO SITES PER DOMAINS
+                      echo "</li>";
+                    }
+                    echo '</ul>';
+                  } ;?>
+              </ul>
+              <!-- <ul id="site-list">
                 <li><input id="all-sites" name="datasetid" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked="" data-form-id='search-form-locality'><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
                   <ul>
                     <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D01 - Northeast</span>
@@ -457,7 +469,7 @@ $data = new CollectionMetadata();
                     </li>
                   </ul>
                 </li>
-              </ul>
+              </ul> -->
               <div>
                 <div>
                   <div class="input-text-container">

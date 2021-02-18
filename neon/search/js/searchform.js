@@ -114,51 +114,9 @@ function updateChip(e) {
       item.hasAttribute('data-chip')
     ) {
       // create chip for checkboxes
-      console.log(item);
       addChip(item);
     }
   });
-
-  // CRIAR OS CHIPS DE ACORDO COM OS CRITERIOS SELECIONADOS
-  // USAR addChip?
-  // Chip definitions
-  // let inputChip = document.createElement('span'),
-  //   chipBtn = document.createElement('button');
-  // inputChip.classList.add('chip');
-  // inputChip.id = 'chip-' + e.target.id;
-  // chipBtn.setAttribute('type', 'button');
-  // chipBtn.classList.add('chip-remove-btn');
-  // chipBtn.onclick = function () {
-  //   // console.log('reset this value: ', e.target);
-  //   inputChip.remove();
-  //   e.target.value = e.target.defaultValue;
-  // };
-  // inputChip.textContent = e.target.dataset.chip;
-  // inputChip.appendChild(chipBtn);
-  // criteriaPanel.appendChild(inputChip);
-  // OLD:
-  // let isChecked = e.target.checked;
-  // if (isChecked) {
-  //   let inputChip = document.createElement('span'),
-  //     chipBtn = document.createElement('button');
-  //   inputChip.classList.add('chip');
-  //   inputChip.id = 'chip-' + e.target.id;
-  //   chipBtn.setAttribute('type', 'button');
-  //   chipBtn.classList.add('chip-remove-btn');
-  //   chipBtn.onclick = function () {
-  //     e.target.type === 'checkbox'
-  //       ? (e.target.checked = false)
-  //       : (e.target.value = e.target.defaultValue);
-  //     removeChip(inputChip);
-  //     e.target.dataset.formId ? updateSelectorAll(e.target) : '';
-  //   };
-  //   inputChip.textContent = e.target.dataset.chip;
-  //   inputChip.appendChild(chipBtn);
-  //   criteriaPanel.appendChild(inputChip);
-  // } else {
-  //   let currChip = document.getElementById('chip-' + e.target.id);
-  //   currChip !== null ? currChip.remove() : '';
-  // }
 }
 /////////
 
@@ -294,7 +252,7 @@ function getParam(paramName) {
     if (element[0].getAttribute('type') === 'checkbox') {
       // let i = 0;
       let itemsArr = [];
-      for (var i = 0; i < element.length; ++i) {
+      for (let i = 0; i < element.length; ++i) {
         element[i].checked ? itemsArr.push(element[i].value) : '';
         // : 'console.log('not checked')';
       }
@@ -524,20 +482,6 @@ document
       : removeChip(document.getElementById('chip-' + allNeon.id));
     console.log(isAllSelected);
   });
-
-// $('#neon-modal-close').click(function (event) {
-//   event.preventDefault();
-//   closeModal('#biorepo-collections-list');
-//   let criterionSelected = $('input[type=radio]:checked');
-//   // If ".all-neon-colls" is checked, pass that to form
-//   let allSelected = '#' + criterionSelected.val() + ' .all-neon-colls';
-//   let isChecked = $(allSelected).prop('checked');
-//   // console.log(allSelected);
-//   // console.log($(allSelected).prop('checked'));
-//   $('#all-neon-colls-quick').prop('checked', isChecked);
-//   console.log(criterionSelected.);
-//   return criterionSelected;
-// });
 
 //////// Binds Update chip on event change
 document.querySelector('#params-form').addEventListener('change', updateChip);

@@ -44,7 +44,7 @@ $data = new CollectionMetadata();
           <!-- Taxonomy -->
           <section>
             <!-- Accordion selector -->
-            <input type="checkbox" id="taxonomy" class="accordion-selector" data-chip="Include Synonyms" checked=true />
+            <input type="checkbox" id="taxonomy" class="accordion-selector" checked=true />
 
             <!-- Accordion header -->
             <label for="taxonomy" class="accordion-header">Taxonomy</label>
@@ -70,7 +70,7 @@ $data = new CollectionMetadata();
                   </select>
                 <span class="assistive-text">Taxon type.</span>
               </div>
-              <div><input type="checkbox" name="usethes" value="1" checked>Include Synonyms</div>
+              <div><input type="checkbox" name="usethes" id="usethes" data-chip="Include Synonyms" value="1" checked>Include Synonyms</div>
             </div>
           </section>
           <!-- Colections -->
@@ -127,10 +127,10 @@ $data = new CollectionMetadata();
                   <div id="taxonomic-cat" class="box" style="display: block;">
                     <h2>Select Collections by Taxonomic Group</h2>
                     <?php if($groupsArr = $data->getBiorepoGroups('highertaxon')){
-                      echo '<ul id="collections-list1"><li><input type="checkbox" name="db" class="all-selector all-neon-colls" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
+                      echo '<ul id="collections-list1"><li><input type="checkbox" name="db" class="all-selector" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
                       foreach($groupsArr as $result) {                  
                         if($result['highertaxon']){
-                          echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["highertaxon"]}</span><ul class='collapsed'>";
+                          echo "<ul><li><input type='checkbox' class='all-selector child'  checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["highertaxon"]}</span><ul class='collapsed'>";
                           $collsArr = $data->getBiorepoColls('highertaxon', $result['highertaxon']);
                           if($collsArr){
                             foreach($collsArr as $row) {
@@ -154,7 +154,7 @@ $data = new CollectionMetadata();
                   <div id="neon-theme" class="box">
                     <h2>Select Collections by NEON Theme</h2>
                     <?php if($groupsArr = $data->getBiorepoGroups('neontheme')){
-                      echo '<ul id="collections-list2"><li><input type="checkbox" name="db" class="all-selector all-neon-colls" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
+                      echo '<ul id="collections-list2"><li><input type="checkbox" name="db" class="all-selector" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
                       foreach($groupsArr as $result) {                  
                         if($result['neontheme']){
                           echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["neontheme"]}</span><ul class='collapsed'>";
@@ -181,7 +181,7 @@ $data = new CollectionMetadata();
                   <div id="sample-type" class="box">
                     <h2>Select Collections by Sample Type</h2>
                     <?php if($groupsArr = $data->getBiorepoGroups('sampletype')){
-                      echo '<ul id="collections-list3"><li><input type="checkbox" name="db" class="all-selector all-neon-colls" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
+                      echo '<ul id="collections-list3"><li><input type="checkbox" name="db" class="all-selector" checked><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Biorepository Collections</span>';
                       foreach($groupsArr as $result) {                  
                         if($result['sampletype']){
                           echo "<ul><li><input type='checkbox' class='all-selector child' checked><span class='material-icons expansion-icon'>add_box</span><span>{$result["sampletype"]}</span><ul class='collapsed'>";

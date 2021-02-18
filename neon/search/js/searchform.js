@@ -66,6 +66,7 @@ function addChip(element) {
   let inputChip = document.createElement('span'),
     chipBtn = document.createElement('button');
   inputChip.classList.add('chip');
+  // console.log(element);
   inputChip.id = 'chip-' + element.id;
   chipBtn.setAttribute('type', 'button');
   chipBtn.classList.add('chip-remove-btn');
@@ -73,7 +74,7 @@ function addChip(element) {
     element.type === 'checkbox'
       ? (element.checked = false)
       : (element.value = element.defaultValue);
-    element.dataset.formId ? updateSelectorAll(element) : '';
+    element.dataset.formId ? uncheckAll(element) : '';
     removeChip(inputChip);
   };
   inputChip.textContent = element.dataset.chip;
@@ -113,6 +114,7 @@ function updateChip(e) {
       item.hasAttribute('data-chip')
     ) {
       // create chip for checkboxes
+      // console.log(item);
       addChip(item);
     }
   });
@@ -175,50 +177,72 @@ function toggleAllSelector() {
 /**
  * Triggers toggling of checked/unchecked boxes in nested lists
  * Default is all boxes are checked in HTML.
- * @param {String} e.data.element Selector for element containing * list, should be passed when binding function to element
+ * @param {String} e.data.element Selector for element containing
+ * list, should be passed when binding function to element
  */
 function autoToggleSelector(e) {
-  // Gets the higher level element for lists
-  let element = e.data.element;
-  console.log(element);
-  // Figure out where in tree I am before applying checking/unchecking
-  // Compare lengths of array with checked vs unchecked elements
-  // First checks nearest elements to clicked checkbox
-  let allSubChecked =
-    $(this).closest('ul').find('.child').filter(':enabled').filter(':checked')
-      .length == $(this).closest('ul').find('.child').filter(':enabled').length;
+  // WHEN CLICKING CHILD ELEMENT, UPDATE STATUS OF PARENTS ALL
+  if (e.type == 'click' || e.type == 'change') {
+    let isChild = e.target.classList.contains('child');
+    // console.log('is child: ', isChild);
+    // if isChild , grab nearest parent
+    if (isChild) {
+      // console.log(e.target);
+      // console.log(e.target.parentNode.closest('.all-selector'));
+      // console.log(e.target.closest('ul').parentNode);
+      let nearParentNode = e.target.closest('ul').parentNode;
+      // console.log(nearParentNode);
+      let nearParentOpt = e.target
+        .closest('ul')
+        .parentNode.querySelector('.all-selector');
+      let numOptions = nearParentNode.querySelectorAll(
+        'ul > li input.child:not(.all-selector):enabled'
+      ).length;
+      let numOpChecked = nearParentNode.querySelectorAll(
+        'ul > li input.child:not(.all-selector):checked'
+      ).length;
+      // console.log(numOptions, ' ', numOpChecked);
+      // console.log(
+      //   nearParentNode.querySelectorAll(
+      //     'ul > li input.child:not(.all-selector):enabled'
+      //   )
+      // );
+      numOptions == numOpChecked
+        ? (nearParentOpt.checked = true)
+        : (nearParentOpt.checked = false);
 
-  $(this)
-    .closest('ul')
-    .siblings('.all-selector')
-    .change()
-    .prop('checked', allSubChecked);
-
-  // Then checks most outer "all-selector"
-  let allHigherChecked =
-    $(element).siblings().find('.child').filter(':checked').length ==
-    $(element).siblings().find('.child').length;
-  $(element).prop('checked', allHigherChecked);
-
-  let parentAll = $(this).closest('ul').siblings('.all-selector');
-
-  parentAll.hasClass('child')
-    ? (parentAll = parentAll.closest('ul').siblings('.all-selector'))
-    : '';
-
-  let isParentAllChecked = parentAll.prop('checked');
-  isParentAllChecked
-    ? addChip(document.getElementById(parentAll.attr('id')))
-    : removeChip(document.getElementById('chip-' + parentAll.attr('id')));
+      // CHECK
+      // IF PARENT ALSO HAS A CHILD CLASS
+      // console.log(nearParentOpt.classList.contains('child'));
+      // console.log(nearParentNode.closest('ul').parentNode);
+      if (nearParentOpt.classList.contains('child')) {
+        // console.log('parent is also a child');
+        let parentAllNode = nearParentNode.closest('ul').parentNode;
+        let parentAllOpt = parentAllNode.querySelector('.all-selector');
+        let numOptionsAll = parentAllNode.querySelectorAll(
+          'input.child:enabled'
+        ).length;
+        let numOpCheckedAll = parentAllNode.querySelectorAll(
+          'input.child:checked'
+        ).length;
+        console.log(numOptionsAll, ' ', numOpCheckedAll);
+        numOptionsAll == numOpCheckedAll
+          ? (parentAllOpt.checked = true)
+          : (parentAllOpt.checked = false);
+      }
+      // TOGGLE CHECK OF PARENT
+    }
+  }
 }
 
 /**
- * Unchecks children of 'all-selector' checkboxes
+ * Unchecks children of 'all-selector' checkboxes when chip is removed
  * Uses 'data-form-id' property in .php
  * @param {Object} element HTML Node Object
  */
-function updateSelectorAll(element) {
-  console.log(element);
+function uncheckAll(element) {
+  // console.log(element);
+  // console.log('here');
   let isAllSel = element.classList.contains('all-selector');
   if (isAllSel) {
     // Find all children
@@ -449,25 +473,40 @@ $('#all-neon-colls-quick').click(function () {
 // When checking any 'all-selector', toggle children checkboxes
 $('.all-selector').click(toggleAllSelector);
 
+const allNeon = document.getElementById('all-neon-colls-quick');
+const allSites = document.getElementById('all-sites');
+
+const formColls = document.getElementById('search-form-colls');
+formColls.addEventListener('click', autoToggleSelector, false);
+formColls.addEventListener('change', autoToggleSelector, false);
+
+const formSites = document.getElementById('site-list');
+formSites.addEventListener('click', autoToggleSelector, false);
+formSites.addEventListener('change', autoToggleSelector, false);
+
+const collsModal = document.getElementById('testing-modal');
+collsModal.addEventListener('click', autoToggleSelector, false);
+collsModal.addEventListener('change', autoToggleSelector, false);
+
 // When unchecking children checkboxes, uncheck 'all-selector'
-$('.child').bind(
-  'click',
-  { element: $('.child').siblings().find('.all-selector') },
-  autoToggleSelector
-);
-$('#all-sites')
-  .siblings()
-  .find('.child')
-  .bind('click', { element: '#all-sites' }, autoToggleSelector);
-$('#collections-list1')
-  .find('.child')
-  .bind('click', { element: '#collections-list1' }, autoToggleSelector);
-$('#collections-list2')
-  .find('.child')
-  .bind('click', { element: '#collections-list2' }, autoToggleSelector);
-$('#collections-list3')
-  .find('.child')
-  .bind('click', { element: '#collections-list3' }, autoToggleSelector);
+// $('.child').bind(
+//   'click',
+//   { element: $('.child').siblings().find('.all-selector') },
+//   autoToggleSelector
+// );
+// $('#all-sites')
+//   .siblings()
+//   .find('.child')
+//   .bind('click', { element: '#all-sites' }, autoToggleSelector);
+// $('#collections-list1')
+//   .find('.child')
+//   .bind('click', { element: '#collections-list1' }, autoToggleSelector);
+// $('#collections-list2')
+//   .find('.child')
+//   .bind('click', { element: '#collections-list2' }, autoToggleSelector);
+// $('#collections-list3')
+//   .find('.child')
+//   .bind('click', { element: '#collections-list3' }, autoToggleSelector);
 
 // Listen for close modal click
 $('#neon-modal-close').click(function (event) {
@@ -487,15 +526,13 @@ $('#neon-modal-close').click(function (event) {
 document.querySelector('#params-form').addEventListener('change', updateChip);
 // const taxaInput = document.getElementById('taxa-search');
 // taxaInput.addEventListener('change', updateChip);
-// const catNumInput = document.getElementById('taxa-search');
 // taxaInput.addEventListener('change', updateChip);
-const allNeon = document.getElementById('all-neon-colls-quick');
+// const catNumInput = document.getElementById('taxa-search');
 // allNeon.addEventListener('change', updateChip);
 // const allNeonExt = document.getElementById('all-neon-ext');
 // allNeonExt.addEventListener('change', updateChip);
 // const allExt = document.getElementById('all-ext');
 // allExt.addEventListener('change', updateChip);
-const allSites = document.getElementById('all-sites');
 // allSites.addEventListener('change', updateChip);
 
 // const locInput = document.getElementById('')

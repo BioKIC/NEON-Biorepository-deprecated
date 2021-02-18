@@ -258,218 +258,22 @@ $siteData = new DatasetsMetadata();
                   <?php if($domainsArr = $siteData->getNeonDomains()){
                   echo '<ul>';
                     foreach($domainsArr as $result) {
-                      echo "<li><input type='checkbox' class='all-selector child' checked=''><span class='material-icons expansion-icon'>add_box</span><span>{$result["domainnumber"]} - {$result["domainname"]}</span>";
+                      echo "<li><input type='checkbox' class='all-selector child' name='datasetid' value={$result["datasetid"]} checked=''><span class='material-icons expansion-icon'>add_box</span><span>{$result["domainnumber"]} - {$result["domainname"]}</span>";
+                      echo "<ul class='collapsed'>";
                       // ECHO SITES PER DOMAINS
+                      $sitesArr = $siteData->getNeonSitesByDom($result["domainnumber"]);
+                      if($sitesArr){
+                        foreach($sitesArr as $site) {
+                          echo "<li><input type='checkbox' name='datasetid' value={$site["datasetid"]} class='child' checked=''><span>({$site["siteid"]}) {$site["sitename"]}</span></li>";
+                          // echo $site["siteid"];
+                        }
+                      };
+                      echo "</ul>";
                       echo "</li>";
                     }
                     echo '</ul>';
                   } ;?>
               </ul>
-              <!-- <ul id="site-list">
-                <li><input id="all-sites" name="datasetid" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked="" data-form-id='search-form-locality'><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D01 - Northeast</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BART" class="child" checked=""><span>(BART) Bartlett Experimental Forest</span></li>
-                        <li><input type="checkbox" name="datasetid" value="HARV" class="child" checked=""><span>(HARV) Harvard Forest</span></li>
-                        <li><input type="checkbox" name="datasetid" value="HOPB" class="child" checked=""><span>(HOPB) Lower Hop Brook</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D02 - Mid-Atlantic</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BLAN" class="child" checked=""><span>(BLAN) Blandy Experimental Farm</span></li>
-                        <li><input type="checkbox" name="datasetid" value="LEWI" class="child" checked=""><span>(LEWI) Lewis Run</span></li>
-                        <li><input type="checkbox" name="datasetid" value="POSE" class="child" checked=""><span>(POSE) Posey Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="SCBI" class="child" checked=""><span>(SCBI) Smithsonian Conservation Biology Institute</span></li>
-                        <li><input type="checkbox" name="datasetid" value="SERC" class="child" checked=""><span>(SERC) Smithsonian Environmental Research Center</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D03 - Southeast</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BARC" class="child" checked=""><span>(BARC) Ordway-Swisher Biological Station - Barco Lake</span></li>
-                        <li><input type="checkbox" name="datasetid" value="DSNY" class="child" checked="" checked=""><span>(DSNY) Disney Wilderness Preserve</span></li>
-                        <li><input type="checkbox" name="datasetid" value="FLNT" class="child" checked="" checked=""><span>(FLNT) Flint River</span></li>
-                        <li><input type="checkbox" name="datasetid" value="JERC" class="child" checked="" checked=""><span>(JERC) Jones Ecological Research Center</span></li>
-                        <li><input type="checkbox" name="datasetid" value="OSBS" class="child" checked="" checked=""><span>(OSBS) Ordway-Swisher Biological Station</span></li>
-                        <li><input type="checkbox" name="datasetid" value="SUGG" class="child" checked="" checked=""><span>(SUGG) Ordway-Swisher Biological Station - Suggs Lake</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D04 - Atlantic Neotropical</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="CUPE" class="child" checked=""><span>(CUPE) Rio Cupeyes</span></li>
-                        <li><input type="checkbox" name="datasetid" value="GUAN" class="child" checked=""><span>(GUAN) Guanica Forest</span></li>
-                        <li><input type="checkbox" name="datasetid" value="GUIL" class="child" checked=""><span>(GUIL) Rio Guilarte</span></li>
-                        <li><input type="checkbox" name="datasetid" value="LAJA" class="child" checked=""><span>(LAJA) Lajas Experimental Station</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D05 - Great Lakes</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="CRAM" class="child" checked=""><span>(CRAM) Crampton Lake</span></li>
-                        <li><input type="checkbox" name="datasetid" value="LIRO" class="child" checked=""><span>(LIRO) Little Rock Lake</span></li>
-                        <li><input type="checkbox" name="datasetid" value="STEI" class="child" checked=""><span>(STEI) Steigerwaldt Land Services</span></li>
-                        <li><input type="checkbox" name="datasetid" value="TREE" class="child" checked=""><span>(TREE) Treehaven</span></li>
-                        <li><input type="checkbox" name="datasetid" value="UNDE" class="child" checked=""><span>(UNDE) UNDERC</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D06 - Prairie Peninsula</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="KING" class="child" checked=""><span>(KING) Kings Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="KONA" class="child" checked=""><span>(KONA) Konza Prairie Biological Station - Relocatable</span></li>
-                        <li><input type="checkbox" name="datasetid" value="KONZ" class="child" checked=""><span>(KONZ) Konza Prairie Biological Station</span></li>
-                        <li><input type="checkbox" name="datasetid" value="MCDI" class="child" checked=""><span>(MCDI) McDiffett Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="UKFS" class="child" checked=""><span>(UKFS) The University of Kansas Field Station</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D07 - Appalachians &amp; Cumberland Plateau</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="GRSM" class="child" checked=""><span>(GRSM) Great Smoky Mountains National Park, Twin Creeks</span></li>
-                        <li><input type="checkbox" name="datasetid" value="LECO" class="child" checked=""><span>(LECO) LeConte Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="MLBS" class="child" checked=""><span>(MLBS) Mountain Lake Biological Station</span></li>
-                        <li><input type="checkbox" name="datasetid" value="ORNL" class="child" checked=""><span>(ORNL) Oak Ridge</span></li>
-                        <li><input type="checkbox" name="datasetid" value="WALK" class="child" checked=""><span>(WALK) Walker Branch</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D08 - Ozarks Complex</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BLWA" class="child" checked=""><span>(BLWA) Black Warrior River near Dead Lake</span></li>
-                        <li><input type="checkbox" name="datasetid" value="DELA" class="child" checked=""><span>(DELA) Dead Lake</span></li>
-                        <li><input type="checkbox" name="datasetid" value="LENO" class="child" checked=""><span>(LENO) Lenoir Landing</span></li>
-                        <li><input type="checkbox" name="datasetid" value="MAYF" class="child" checked=""><span>(MAYF) Mayfield Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="TALL" class="child" checked=""><span>(TALL) Talladega National Forest</span></li>
-                        <li><input type="checkbox" name="datasetid" value="TOMB" class="child" checked=""><span>(TOMB) Lower Tombigbee River at Choctaw Refuge</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D09 - Northern Plains</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="DCFS" class="child" checked=""><span>(DCFS) Dakota Coteau Field School</span></li>
-                        <li><input type="checkbox" name="datasetid" value="NOGP" class="child" checked=""><span>(NOGP) Northern Great Plains Research Laboratory</span></li>
-                        <li><input type="checkbox" name="datasetid" value="PRLA" class="child" checked=""><span>(PRLA) Prairie Lake at Dakota Coteau Field School</span></li>
-                        <li><input type="checkbox" name="datasetid" value="PRPO" class="child" checked=""><span>(PRPO) Prairie Pothole </span></li>
-                        <li><input type="checkbox" name="datasetid" value="WOOD" class="child" checked=""><span>(WOOD) Woodworth</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D10 - Central Plains</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="ARIK" class="child" checked=""><span>(ARIK) Arikaree River</span></li>
-                        <li><input type="checkbox" name="datasetid" value="CPER" class="child" checked=""><span>(CPER) Central Plains Experimental Range</span></li>
-                        <li><input type="checkbox" name="datasetid" value="RMNP" class="child" checked=""><span>(RMNP) Rocky Mountain National Park, CASTNET</span></li>
-                        <li><input type="checkbox" name="datasetid" value="STER" class="child" checked=""><span>(STER) North Sterling, CO</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D11 - Southern Plains</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BLUE" class="child" checked=""><span>(BLUE) Blue River</span></li>
-                        <li><input type="checkbox" name="datasetid" value="CLBJ" class="child" checked=""><span>(CLBJ) LBJ National Grassland </span></li>
-                        <li><input type="checkbox" name="datasetid" value="OAES" class="child" checked=""><span>(OAES) Klemme Range Research Station</span></li>
-                        <li><input type="checkbox" name="datasetid" value="PRIN" class="child" checked=""><span>(PRIN) Pringle Creek</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D12 - Northern Rockies</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BLDE" class="child" checked=""><span>(BLDE) Blacktail Deer Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="YELL" class="child" checked=""><span>(YELL) Yellowstone Northern Range (Frog Rock)</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D13 - Southern Rockies &amp; Colorado Plateau</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="COMO" class="child" checked=""><span>(COMO) Como Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="MOAB" class="child" checked=""><span>(MOAB) Moab</span></li>
-                        <li><input type="checkbox" name="datasetid" value="NIWO" class="child" checked=""><span>(NIWO) Niwot Ridge Mountain Research Station</span></li>
-                        <li><input type="checkbox" name="datasetid" value="WLOU" class="child" checked=""><span>(WLOU) West St Louis Creek</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D14 - Desert Southwest</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="JORN" class="child" checked=""><span>(JORN) Jornada LTER</span></li>
-                        <li><input type="checkbox" name="datasetid" value="SRER" class="child" checked=""><span>(SRER) Santa Rita Experimental Range</span></li>
-                        <li><input type="checkbox" name="datasetid" value="SYCA" class="child" checked=""><span>(SYCA) Sycamore Creek</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D15 - Great Basin</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="ONAQ" class="child" checked=""><span>(ONAQ) Onaqui</span></li>
-                        <li><input type="checkbox" name="datasetid" value="REDB" class="child" checked=""><span>(REDB) Red Butte Creek</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D16 - Pacific Northwest</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="ABBY" class="child" checked=""><span>(ABBY) Abby Road</span></li>
-                        <li><input type="checkbox" name="datasetid" value="MART" class="child" checked=""><span>(MART) Martha Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="MCRA" class="child" checked=""><span>(MCRA) McRae Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="WREF" class="child" checked=""><span>(WREF) Wind River Experimental Forest</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D17 - Pacific Southwest</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BIGC" class="child" checked=""><span>(BIGC) Upper Big Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="SJER" class="child" checked=""><span>(SJER) San Joaquin Experimental Range</span></li>
-                        <li><input type="checkbox" name="datasetid" value="SOAP" class="child" checked=""><span>(SOAP) Soaproot Saddle</span></li>
-                        <li><input type="checkbox" name="datasetid" value="TEAK" class="child" checked=""><span>(TEAK) Lower Teakettle</span></li>
-                        <li><input type="checkbox" name="datasetid" value="TECR" class="child" checked=""><span>(TECR) Teakettle 2 Creek</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D18 - Tundra</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BARR" class="child" checked=""><span>(BARR) Barrow Environmental Observatory</span></li>
-                        <li><input type="checkbox" name="datasetid" value="OKSR" class="child" checked=""><span>(OKSR) Oksrukuyik Creek</span></li>
-                        <li><input type="checkbox" name="datasetid" value="TOOK" class="child" checked=""><span>(TOOK) Toolik Lake</span></li>
-                        <li><input type="checkbox" name="datasetid" value="TOOL" class="child" checked=""><span>(TOOL) Toolik</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D19 - Taiga</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="BONA" class="child" checked=""><span>(BONA) Caribou-Poker Creeks Research Watershed</span></li>
-                        <li><input type="checkbox" name="datasetid" value="CARI" class="child" checked=""><span>(CARI) Caribou Creek, Caribou-Poker Creeks Research Watershed</span></li>
-                        <li><input type="checkbox" name="datasetid" value="DEJU" class="child" checked=""><span>(DEJU) Delta Junction</span></li>
-                        <li><input type="checkbox" name="datasetid" value="HEAL" class="child" checked=""><span>(HEAL) Healy</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <ul>
-                    <li><input type="checkbox" class="all-selector child" checked=""><span class="material-icons expansion-icon">add_box</span><span>D20 - Pacific Tropical</span>
-                      <ul class="collapsed">
-                        <li><input type="checkbox" name="datasetid" value="PUUM" class="child" checked=""><span>(PUUM) Pu'u Maka'ala Natural Area Reserve</span></li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-              </ul> -->
               <div>
                 <div>
                   <div class="input-text-container">

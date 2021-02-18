@@ -40,7 +40,7 @@
   public function getNeonSitesByDom($domainnumber){
     $dataArr = array();
 
-    $sql = 'SELECT siteid, sitename, domainnumber, datasetid FROM omoccurdatasets AS d JOIN neon_field_sites AS s ON d.name = s.siteID WHERE domainnumber = '. $domainnumber . ' ORDER BY siteid;';
+    $sql = 'SELECT siteid, sitename, domainnumber, datasetid FROM omoccurdatasets AS d JOIN neon_field_sites AS s ON d.name = s.siteid WHERE domainnumber = "'.$domainnumber.'" ORDER BY siteid;';
 
     $result = $this->conn->query($sql);
 

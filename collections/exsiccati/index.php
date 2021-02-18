@@ -96,10 +96,8 @@ if($formSubmit == 'dlexs' || $formSubmit == 'dlexs_titleOnly'){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script type="text/javascript" src="../../js/symb/shared.js?ver=130926"></script>
 	<script type="text/javascript">
 		function toggleExsEditDiv(){

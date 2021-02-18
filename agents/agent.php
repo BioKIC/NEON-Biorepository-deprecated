@@ -14,42 +14,42 @@ $findobjects = preg_replace('[^0-9]','',array_key_exists("findobjects",$_REQUEST
 
 $agent = new Agent();
 $agentview = new AgentView();
-if (strlen($agentid) > 0 ) { 
+if (strlen($agentid) > 0 ) {
   $agent->load($agentid);
   $agentview->setModel($agent);
-} elseif (strlen($uuid)>0) { 
-  if (UuidFactory::is_valid($uuid)) { 
+} elseif (strlen($uuid)>0) {
+  if (UuidFactory::is_valid($uuid)) {
      $agent->loadByGUID($uuid);
      $agentview->setModel($agent);
-  } 
+  }
 }
 
 $done = FALSE;
-if ($force=='turtle') { 
-       deliverTurtle(); 
+if ($force=='turtle') {
+       deliverTurtle();
        $done = TRUE;
 }
-if ($force=='rdfxml') { 
-       deliverRdfXml(); 
+if ($force=='rdfxml') {
+       deliverRdfXml();
        $done = TRUE;
 }
 reset($accept);
 while (!$done && list($key, $mediarange) = each($accept)) {
     if ($mediarange=='text/turtle') {
-       deliverTurtle(); 
+       deliverTurtle();
        $done = TRUE;
-    } 
+    }
     if ($mediarange=='application/rdf+xml') {
-       deliverRdfXml(); 
+       deliverRdfXml();
        $done = TRUE;
-    } 
+    }
 }
-if (!$done) { 
+if (!$done) {
   Header("Content-Type: text/html; charset=".$CHARSET);
   $spDisplay = " Agent: ". $agent->getMinimalName();
   pageheader($agent);
   $am = new AgentManager();
-  if ($am->isAgentEditor()) { 
+  if ($am->isAgentEditor()) {
      echo "<div id='commandDiv'><span class='link' id='editLink'>Edit</span>&nbsp;<span class='link' id='viewLink'>View</span>&nbsp;<span class='link' id='createLink'>New</span></div>";
      echo "
      <script type='text/javascript'>
@@ -69,7 +69,7 @@ if (!$done) {
                   console.dir( xhr );
                }
             });
-            return false; 
+            return false;
         });
         $('#viewLink').click(function () {
             $.ajax({
@@ -87,7 +87,7 @@ if (!$done) {
                   console.dir( xhr );
                }
             });
-            return false; 
+            return false;
         });
         $('#createLink').click(function () {
             $.ajax({
@@ -105,15 +105,15 @@ if (!$done) {
                   console.dir( xhr );
                }
             });
-            return false; 
+            return false;
         });
      </script>
      ";
-  } 
+  }
   echo "<div id='agentDetailDiv".$agent->getagentid()."'>";
   echo $agentview->getDetailsView();
   echo "</div>";
-  if ($findobjects==1) { 
+  if ($findobjects==1) {
     echo $am->getPrettyListOfCollectionObjectsForCollector($agent->getagentid());
   }
   footer();
@@ -128,13 +128,13 @@ function deliverTurtle() {
    echo $agentview->getAsTurtle();
 }
 
-function deliverRdfXml() { 
+function deliverRdfXml() {
    global $agent, $agentview, $charset;
    Header("Content-Type: application/rdf+xml; charset=".$CHARSET);
    echo $agentview->getAsRdfXml();
 }
 
-function pageheader($agent) { 
+function pageheader($agent) {
    global $SERVER_ROOT, $DEFAULT_TITLE, $spDisplay, $CLIENT_ROOT, $agent_indexCrumbs, $charset;
 echo '<!DOCTYPE HTML>
 <html>
@@ -146,11 +146,9 @@ echo '<!DOCTYPE HTML>
 	<link href="../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" type="text/css" rel="stylesheet" />
 	<link href="../css/jquery-ui_accordian.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="../js/jquery.js"></script>
-	<script type="text/javascript" src="../js/jquery-ui.js"></script>
-	<script type="text/javascript">';
-    // include_once($SERVER_ROOT.'/includes/googleanalytics.php'); 
-echo '</script>
-	<script type="text/javascript">
+	<script type="text/javascript" src="../js/jquery-ui.js"></script>';
+    // include_once($SERVER_ROOT.'/includes/googleanalytics.php');
+echo '<script type="text/javascript">
 		var currentLevel = ' . ($descrDisplayLevel?$descrDisplayLevel:"1"). ';
 		var levelArr = new Array('. ($descr?"'".implode("','",array_keys($descr))."'":"") . ');
 	</script>
@@ -163,14 +161,14 @@ echo '</script>
       array_push($agent_indexCrumbs,"<a href='$CLIENT_ROOT/index.php'>Home</a>");
       array_push($agent_indexCrumbs,"<a href='$CLIENT_ROOT/agents/index.php'>Agents</a>");
    }
-   if (isset($agent)) { 
+   if (isset($agent)) {
       $name = $agent->getMinimalName();
       $queryname = $agent->getMinimalName(false);
-   } 
+   }
    if (strlen($name)>0) {
       array_push($agent_indexCrumbs,"<a href='$CLIENT_ROOT/agents/index.php?name=$queryname'>Search</a>");
       array_push($agent_indexCrumbs,$name);
-   } 
+   }
    echo "<div class='navpath'>";
    $last = array_pop($agent_indexCrumbs);
    echo implode($agent_indexCrumbs, " &gt;&gt;");
@@ -179,10 +177,10 @@ echo '</script>
    echo "</div>";
 
 }
-  
 
 
-function footer() { 
+
+function footer() {
    global $SERVER_ROOT,$CLIENT_ROOT;
   include($SERVER_ROOT.'/includes/footer.php');
   echo "</body>\n</html>";

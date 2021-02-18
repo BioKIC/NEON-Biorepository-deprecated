@@ -441,12 +441,10 @@ else{
 			}
 		}
 	}
-    ?>
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
+	?>
 	<script src="../../js/jquery.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js?ver=140310" type="text/javascript"></script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script type="text/javascript">
 		var collId = "<?php echo (isset($collMap['collid'])?$collMap['collid']:$occManager->getCollId()); ?>";
 		var csMode = "<?php echo $crowdSourceMode; ?>";

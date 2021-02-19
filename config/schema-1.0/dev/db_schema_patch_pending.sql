@@ -421,7 +421,8 @@ ALTER TABLE `omoccurassociations`
 
 ALTER TABLE `omoccurdatasets` 
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
-  ADD COLUMN `isPublic` INT NULL AFTER `category`;
+  ADD COLUMN `isPublic` INT NULL AFTER `category`,
+  ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
 
 CREATE TABLE `referencedatasetlink` (
   `refid` INT NOT NULL,
@@ -472,6 +473,8 @@ ALTER TABLE `omoccurrences`
   DROP INDEX `idx_occrecordedby`;
   
 ALTER TABLE `omoccurrences` 
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `basisOfRecord`,
+  ADD COLUMN `materialSampleID` VARCHAR(150) NULL AFTER `organismID`,
   ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
   ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
   ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
@@ -480,7 +483,6 @@ ALTER TABLE `omoccurrences`
 
 ALTER TABLE `omoccurrences` 
   CHANGE COLUMN `waterBody` `waterBody` VARCHAR(75) NULL DEFAULT NULL AFTER `continent`;
-  
   
 ALTER TABLE `omoccurrences` 
   ADD INDEX `Index_locationID` (`locationID` ASC),

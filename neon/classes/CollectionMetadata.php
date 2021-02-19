@@ -21,30 +21,38 @@
 
   // Main functions
 
-  // Gets group of collections metadata based on category
-  public function getCollMeta(){
-    // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
+  // Gets biorepo collids from available collections
+  public function getBiorepoCollsIds(){
     $dataArr = array();
 
-    $sql = 'SELECT col.collid,  cat.category, col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM symbneon202102.omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk';
+    $sql = 'SELECT DISTINCT col.collid FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE l.ccpk NOT IN (6,8,9) AND available = "TRUE"';
+  
+    $result = $this->conn->query($sql);
+
+    while ($row = $result->fetch_assoc()){
+      $dataArr[] = $row['collid'];
+    }
+    $result->free(); 
+    
+    $dataStr = implode(",", $dataArr);
+    return $dataStr;
+   
+  }
+
+  // Gets group of collections metadata based on category
+  public function getCollMeta(){
+
+    $dataArr = array();
+
+    $sql = 'SELECT col.collid,  cat.category, col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk';
 
     $result = $this->conn->query($sql);
 
-      while ($row = $result->fetch_assoc()){
-        // $dataArr[] = array(
-        //   $dataArr['collid'], 
-        //   $dataArr['category'], 
-        //   $dataArr['collectioncode'], 
-        //   $dataArr['collectionname'], 
-        //   $dataArr['neontheme'], 
-        //   $dataArr['highertaxon'], 
-        //   $dataArr['lowertaxon'], 
-        //   $dataArr['sampletype'], 
-        //   $dataArr['available'], 
-        // );
-        $dataArr[] = $row;
-      }
-      $result->free(); 
+    while ($row = $result->fetch_assoc()){
+      $dataArr[] = $row;
+    }
+    $result->free(); 
+
     return $dataArr;
   }
 
@@ -56,30 +64,6 @@
     $sql = 'SELECT col.collid, col.collectionname FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE cat.category = "'.$cat.'" ORDER BY col.collectionname;';
 
     $result = $this->conn->query($sql);
-
-      //while ($row = $result->fetch_assoc()){
-        // $dataArr[] = array(
-        //   $dataArr['collid'], 
-        //   $dataArr['category'], 
-        //   $dataArr['collectioncode'], 
-        //   $dataArr['collectionname'], 
-        //   $dataArr['neontheme'], 
-        //   $dataArr['highertaxon'], 
-        //   $dataArr['lowertaxon'], 
-        //   $dataArr['sampletype'], 
-        //   $dataArr['available'], 
-        // );
-        // $dataArr[] = $row;
-        //   $dataArr['collid'], 
-        //   $dataArr['category'], 
-        //   $dataArr['collectioncode'], 
-        //   $dataArr['collectionname'], 
-        //   $dataArr['neontheme'], 
-        //   $dataArr['highertaxon'], 
-        //   $dataArr['lowertaxon'], 
-        //   $dataArr['sampletype'], 
-        //   $dataArr['available'],
-      //}
       while($row = $result->fetch_array()){
         $dataArr[] = $row;
       }
@@ -91,7 +75,7 @@
     // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
     $dataArr = array();
 
-    $sql = 'SELECT col.collid,  cat.category, col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM symbneon202102.omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE l.ccpk NOT IN (6,8,9) GROUP BY '.$filterName.' ORDER BY '.$filterName.';';
+    $sql = 'SELECT col.collid,  col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid WHERE l.ccpk NOT IN (6,8,9) GROUP BY '.$filterName.' ORDER BY '.$filterName.';';
 
     $result = $this->conn->query($sql);
 
@@ -107,7 +91,7 @@
     // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
     $dataArr = array();
 
-    $sql = 'SELECT col.collid,  cat.category, col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM symbneon202102.omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE l.ccpk NOT IN (6,8,9) AND '.$filterName.'= "'.$filterVal.'" ORDER BY col.collectionname;';
+    $sql = 'SELECT DISTINCT col.collid,  col.collectioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid WHERE l.ccpk NOT IN (6,8,9) AND '.$filterName.'= "'.$filterVal.'" ORDER BY col.collectionname;';
 
     $result = $this->conn->query($sql);
 

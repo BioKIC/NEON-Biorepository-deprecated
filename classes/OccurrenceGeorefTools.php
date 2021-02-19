@@ -4,6 +4,7 @@ include_once($SERVER_ROOT.'/config/dbconnection.php');
 class OccurrenceGeorefTools {
 
 	private $conn;
+	private $collid;
 	private $collStr;
 	private $qryVars = array();
 	private $errorStr;
@@ -287,11 +288,31 @@ class OccurrenceGeorefTools {
 		return $occArr;
 	}
 
-	//Setters and getters
-	public function setCollId($cid){
-		if(preg_match('/^[\d,]+$/',$cid)){
-			$this->collStr = $cid;
+	//Potential harvesting functions
+	public function getCoordFromDupes(){
+		if($this->collid){
+			$sql = 'SELECT DISTINCT d3.duplicateid, c.institutionCode, c.collectionCode, o3.occid, o3.catalogNumber, o3.otherCatalogNumbers, o3.occurrenceID, '.
+					'o3.family, o3.sciname, o3.recordedBy, o3.recordNumber, o3.country, o3.stateProvince, o3.locality, '.
+					'o3.decimalLatitude, o3.decimalLongitude, o3.geodeticDatum, o3.coordinateUncertaintyInMeters, o3.footprintWKT, o3.verbatimCoordinates, o3.georeferencedBy, '.
+					'o3.georeferenceProtocol, o3.georeferenceSources, o3.georeferenceVerificationStatus, o3.georeferenceRemarks, '.
+					'o3.minimumElevationInMeters, o3.maximumElevationInMeters, o3.verbatimElevation '.
+					'FROM omoccurduplicatelink d INNER JOIN omoccurrences o ON d.occid = o.occid '.
+					'INNER JOIN omoccurduplicatelink d2 ON d.duplicateid = d2.duplicateid '.
+					'INNER JOIN omoccurrences o2 ON d2.occid = o2.occid '.
+					'INNER JOIN omoccurduplicatelink d3 ON d.duplicateid = d3.duplicateid '.
+					'INNER JOIN  omoccurrences o3 ON d3.occid = o3.occid '.
+					'INNER JOIN omcollections c ON o3.collid = c.collid '.
+					'WHERE o.collid = '.$this->collid.' AND o.decimallatitude IS NULL AND o2.collid != '.$this->collid.' AND o2.decimallatitude IS NOT NULL '.
+					'AND ((o3.collid != '.$this->collid.' AND o3.decimallatitude IS NOT NULL) OR o3.collid = '.$this->collid.') '.
+					'ORDER BY d3.duplicateid ';
+
 		}
+	}
+
+	//Setters and getters
+	public function setCollId($collidStr){
+		if(preg_match('/^[\d,]+$/',$collidStr)) $this->collStr = $collidStr;
+		if(is_numeric($collidStr)) $this->collid = $collidStr;
 	}
 
 	public function getCollMap(){

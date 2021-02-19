@@ -18,8 +18,13 @@ if($IS_ADMIN) $isEditor = true;
 	$activateJQuery = false;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
+	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	</script>
+	<style type="text/css">
+		.nps-report { margin-left:15px; display:none; }
+	</style>
 </head>
 <body>
 <?php
@@ -47,7 +52,18 @@ if($isEditor){
 				<li><a href="shipment/manifestsearch.php">Manifest Listing and Advanced Search</a></li>
 				<li><a href="igsnmanager.php">NEON IGSN Contorl Panel</a></li>
 				<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>
-        <li><a href="shipment/harvesterreports.php">Occurrence Harvester Reports</a></li>
+				<!--
+				<li><a href="#" onclick="$('.nps-report').show();return false">NPS Year End Reports</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2019">BLDE - 2019</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2019">GRSM - 2019</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=99&year=2019">LECO - 2019</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=131&year=2019">YELL - 2019</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2020">BLDE - 2020</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2020">GRSM - 2020</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=99&year=2020">LECO - 2020</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=131&year=2020">YELL - 2020</a></li>
+				 -->
+				<li><a href="shipment/harvesterreports.php">Occurrence Harvester Error Report</a></li>
 			</ul>
 		</fieldset>
 	</div>

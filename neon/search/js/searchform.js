@@ -183,6 +183,18 @@ function uncheckAll(element) {
 /////////
 
 /**
+ * Gets list of all biorepository collids
+ * @param {*} paramName
+ */
+function getBiorepoCollid() {
+  let collids = document.querySelectorAll('#taxonomic-cat input[name=db]');
+  collidsArr = [];
+  collids.forEach((collid) => collidsArr.push(collid.value));
+  console.log(collidsArr);
+  return collidsArr.join(',');
+}
+
+/**
  * Searches specified fields and capture values
  * @param {String} paramName Name of parameter to be looked for in form
  * Passes objects to `paramsArr`
@@ -191,61 +203,98 @@ function uncheckAll(element) {
 function getParam(paramName) {
   //Default country
   paramsArr['country'] = 'USA';
+  paramsArr['datasetid'] = handleDataset(
+    Array.from(document.getElementsByName('datasetid'))
+  );
   // Exception for collections lists in modal
   let element = '';
   if (paramName === 'db') {
-    let query = '#' + criterionSelected + ' input[name="db"]';
+    let query = '#' + criterionSelected + ' input[name="db"]:checked';
     let selectedInModal = Array.from(document.querySelectorAll(query));
     let selectedInForm = Array.from(
-      document.querySelectorAll('#search-form-colls input[name="db"]')
+      document.querySelectorAll('#search-form-colls input[name="db"]:checked')
     );
     element = selectedInForm.concat(selectedInModal);
   } else element = document.getElementsByName(paramName);
 
-  // Deals with inputs
-  if (element[0].tagName === 'INPUT') {
-    // Deals with checkboxes
-    if (element[0].getAttribute('type') === 'checkbox') {
-      let itemsArr = [];
-
-      for (let i = 0; i < element.length; ++i) {
-        element[i].checked && element[i].classList.contains('all-selector')
-          ? itemsArr.push(element[i].value)
-          : console.log('child, skipped');
-      }
-      // paramsArr.push({
-      //   [paramName]: itemsArr
-      // });
-      paramsArr[paramName] = itemsArr;
-    } else {
-      // Deals with text
-      let elementValue = element[0].value;
-      if (elementValue) {
-        // paramsArr.push({
-        //   [paramName]: elementValue
-        // });
-        paramsArr[paramName] = elementValue;
-      }
-    }
+  // Deals with checkboxes
+  if (element[0].getAttribute('type') === 'checkbox') {
+    element = document.querySelectorAll(
+      `input[type=checkbox][name=${paramName}]:checked`
+    );
+    // return paramsArr['datasetid'];
   }
+
+  // Deals with text
+  else if (element[0].getAttribute('type') === 'text') {
+    let elementValue = element[0].value;
+    elementValue ? (paramsArr[paramName] = elementValue) : '';
+  }
+
+  // if (element[0].tagName === 'INPUT') {
+  //   // Deals with checkboxes
+  //   if (element[0].getAttribute('type') === 'checkbox') {
+  //     let itemsArr = [];
+  //     for (let i = 0; i < element.length; ++i) {
+  //       if (paramName === 'datasetid' && element[i].checked) {
+  //         // For Sites & Domains, keeps only top level if selected
+  //         element[i].classList.contains('all-selector')
+  //           ? itemsArr.push(element[i].value) // and keep going
+  //           : '';
+  //       } else {
+  //         itemsArr.push(element[i].value);
+  //       }
+  //     }
+  //     paramsArr[paramName] = itemsArr;
+  //   } else {
+  //     // Deals with text
+  //     let elementValue = element[0].value;
+  //     if (elementValue) {
+  //       paramsArr[paramName] = elementValue;
+  //     }
+  //   }
+  // }
+
   // Deals with dropdown options
-  else if (element[0].tagName === 'SELECT') {
+  if (element[0].tagName === 'SELECT') {
     let elementValue = element[0].options[element[0].selectedIndex].value;
-    // paramsArr.push({
-    //   [paramName]: elementValue
-    // });
     paramsArr[paramName] = elementValue;
     // Deals with textarea
   } else if (element[0].tagName === 'TEXTAREA') {
     let elementValue = element[0].value;
     if (elementValue) {
-      // paramsArr.push({
-      //   [paramName]: elementValue
-      // });
       paramsArr[paramName] = elementValue;
     }
   }
   return paramsArr;
+}
+
+function handleDataset(elArr) {
+  // console.log(elArr);
+  datasetArr = [];
+  elArr.forEach((el) => {
+    // IS DATASETID?
+    if (el.name === 'datasetid' && el.checked) {
+      let isSite = el.dataset.domain != undefined;
+      if (isSite) {
+        let isDomainSel = document.getElementById(el.dataset.domain).checked;
+        isDomainSel ? '' : datasetArr.push(el.value);
+      } else {
+        datasetArr.push(el.value);
+      }
+    }
+  });
+  console.log(datasetArr);
+  return datasetArr;
+
+  // IF IS DATASETID, IS ELEMENT
+
+  //     for (let i = 0; i < element.length; ++i) {
+  //       if (paramName === 'datasetid' && element[i].checked) {
+  //         // For Sites & Domains, keeps only top level if selected
+  //         element[i].classList.contains('all-selector')
+  //           ? itemsArr.push(element[i].value) // and keep going
+  //           : '';
 }
 
 /**
@@ -266,41 +315,42 @@ function getSearchUrl() {
   paramsArr = [];
 
   const paramNames = [
-    'db',
+    // 'db',
     'datasetid',
-    'catnum',
-    'includeothercatnum',
-    'hasimages',
-    'hasgenetic',
-    // 'collector',
-    'state',
-    'county',
-    'local',
-    'elevlow',
-    'elevhigh',
-    'upperlat',
-    'upperlat_NS',
-    'bottomlat',
-    'bottomlat_NS',
-    'leftlong',
-    'leftlong_EW',
-    'rightlong',
-    'rightlong_EW',
-    'footprintwkt',
-    'pointlat',
-    'pointlat_NS',
-    'pointlong',
-    'pointlong_EW',
-    'radius',
-    'radiusunits',
-    'eventdate1',
-    'eventdate2',
-    'taxa',
-    'usethes',
-    'taxontype',
+    // 'catnum',
+    // 'includeothercatnum',
+    // 'hasimages',
+    // 'hasgenetic',
+    // // 'collector',
+    // 'state',
+    // 'county',
+    // 'local',
+    // 'elevlow',
+    // 'elevhigh',
+    // 'upperlat',
+    // 'upperlat_NS',
+    // 'bottomlat',
+    // 'bottomlat_NS',
+    // 'leftlong',
+    // 'leftlong_EW',
+    // 'rightlong',
+    // 'rightlong_EW',
+    // 'footprintwkt',
+    // 'pointlat',
+    // 'pointlat_NS',
+    // 'pointlong',
+    // 'pointlong_EW',
+    // 'radius',
+    // 'radiusunits',
+    // 'eventdate1',
+    // 'eventdate2',
+    // 'taxa',
+    // 'usethes',
+    // 'taxontype',
   ];
   // Grabs params from form for each param name
   paramNames.forEach((param, i) => {
+    console.log(paramNames[i]);
     return getParam(paramNames[i]);
   });
 
@@ -319,11 +369,11 @@ function getSearchUrl() {
   //   console.log(`${key}: ${value}`);
   // }
 
-  for (const [key, value] of Object.entries(paramsArr)) {
-    // If value is null or empty, don't pass to url
-    value.length === 0 ? delete paramsArr[key] : false;
-    // paramsArr[key].length === 0 ? delete paramsArr.key : false;
-  }
+  // for (const [key, value] of Object.entries(paramsArr)) {
+  //   // If value is null or empty, don't pass to url
+  //   value.length === 0 ? delete paramsArr[key] : false;
+  //   // paramsArr[key].length === 0 ? delete paramsArr.key : false;
+  // }
 
   // Appends each key value for each param in search url
   let queryString = Object.keys(paramsArr).map((key) => {

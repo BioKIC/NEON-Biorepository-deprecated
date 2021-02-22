@@ -18,10 +18,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<?php
 	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 </head>
 <body class="home-page">
 	<?php include($SERVER_ROOT.'/includes/header.php'); ?>

@@ -254,7 +254,7 @@ $siteData = new DatasetsMetadata();
             <!-- Accordion content -->
             <div class="content">
               <div id="search-form-locality">
-              <ul id="site-list"><input id="all-sites" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked="" data-form-id='search-form-locality'><span class="material-icons expansion-icon">indeterminate_check_box</span><span>All NEON Domains and Sites</span>
+              <ul id="site-list"><input id="all-sites" data-chip="All Domains & Sites" type="checkbox" class="all-selector" checked="" data-form-id='search-form-locality'><span class="material-icons expansion-icon">indeterminate_check_box</span><span><a href="https://www.neonscience.org/field-sites/explore-field-sites" target="_blank" rel="noopener noreferrer">All NEON Domains and Sites</a></span>
                   <?php if($domainsArr = $siteData->getNeonDomains()){
                   echo '<ul>';
                     foreach($domainsArr as $domain) {
@@ -264,7 +264,7 @@ $siteData = new DatasetsMetadata();
                       $sitesArr = $siteData->getNeonSitesByDom($domain["domainnumber"]);
                       if($sitesArr){
                         foreach($sitesArr as $site) {
-                          echo "<li><input type='checkbox' name='datasetid' value={$site["datasetid"]} class='child' data-domain={$domain["domainnumber"]} checked=''><span>({$site["siteid"]}) {$site["sitename"]}</span></li>";
+                          echo "<li><input type='checkbox' name='datasetid' value={$site["datasetid"]} class='child' data-domain={$domain["domainnumber"]} checked=''><span><a href='https://www.neonscience.org/field-sites/{$site["siteid"]}' target='_blank' rel='noopener noreferrer'>({$site["siteid"]}) {$site["sitename"]}</a></span></li>";
                           // echo $site["siteid"];
                         }
                       };

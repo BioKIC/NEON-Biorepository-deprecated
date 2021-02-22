@@ -329,6 +329,7 @@ $siteData = new DatasetsMetadata();
                     <label for="upperlat" class="input-text--outlined">
                     <input type="text" id="upperlat" name="upperlat">
                     <select id="upperlat_NS" name="upperlat_NS">
+                      <option value="">Select</option>
                       <option id="ulN" value="N">N</option>
                       <option id="ulS" value="S">S</option>
                     </select>
@@ -339,6 +340,7 @@ $siteData = new DatasetsMetadata();
                     <label for="bottomlat" class="input-text--outlined">
                     <input type="text" id="bottomlat" name="bottomlat">
                     <select id="bottomlat_NS" name="bottomlat_NS">
+                      <option value="">Select</option>
                       <option id="blN" value="N">N</option>
                       <option id="blS" value="S">S</option>
                     </select>
@@ -349,6 +351,7 @@ $siteData = new DatasetsMetadata();
                     <label for="leftlong" class="input-text--outlined">
                     <input type="text" id="leftlong" name="leftlong">
                     <select id="leftlong_EW" name="leftlong_EW">
+                      <option value="">Select</option>
                       <option id="llW" value="W">W</option>
                       <option id="llE" value="E">E</option>
                     </select>
@@ -359,6 +362,7 @@ $siteData = new DatasetsMetadata();
                     <label for="rightlong" class="input-text--outlined">
                     <input type="text" id="rightlong" name="rightlong">
                     <select id="rightlong_EW" name="rightlong_EW">
+                      <option value="">Select</option>
                       <option id="rlW" value="W">W</option>
                       <option id="rlE" value="E">E</option>
                     </select>
@@ -383,6 +387,7 @@ $siteData = new DatasetsMetadata();
                     <label for="pointlat" class="input-text--outlined">
                     <input type="text" id="pointlat" name="pointlat">
                     <select id="pointlat_NS" name="pointlat_NS">
+                    <option value="">Select</option>
                       <option id="N" value="N">N</option>
                       <option id="S" value="S">S</option>
                     </select>
@@ -393,6 +398,7 @@ $siteData = new DatasetsMetadata();
                     <label for="pointlong" class="input-text--outlined">
                     <input type="text" id="pointlong" name="pointlong">
                     <select id="pointlong_EW" name="pointlong_EW">
+                    <option value="">Select</option>
                       <option id="W" value="W">W</option>
                       <option id="E" value="E">E</option>
                     </select>
@@ -403,6 +409,7 @@ $siteData = new DatasetsMetadata();
                     <label for="radius" class="input-text--outlined">
                     <input type="text" id="radius" name="radius">
                     <select id="radiusunits" name="radiusunits">
+                    <option value="">Select Unit</option>
                       <option value="km">Kilometers</option>
                       <option value="mi">Miles</option>
                     </select>

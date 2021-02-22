@@ -202,100 +202,208 @@ function getBiorepoCollid() {
  */
 function getParam(paramName) {
   //Default country
-  paramsArr['country'] = 'USA';
-  paramsArr['datasetid'] = handleDataset(
-    Array.from(document.getElementsByName('datasetid'))
-  );
-  // Exception for collections lists in modal
-  let element = '';
+  // paramsArr['country'] = 'USA';
+  const elements = document.getElementsByName(paramName);
+  // console.log(paramName, ': ', elements.length);
+  const firstEl = elements[0];
+  const firstTag = firstEl.tagName;
+  // console.log(firstEl.type);
+  let elementValues = '';
+
+  // for db and datasetid
   if (paramName === 'db') {
+    let criterionSelected = collsModal.querySelector(
+      '.tab.tab-active input[type=radio]:checked'
+    ).value;
     let query = '#' + criterionSelected + ' input[name="db"]:checked';
     let selectedInModal = Array.from(document.querySelectorAll(query));
     let selectedInForm = Array.from(
       document.querySelectorAll('#search-form-colls input[name="db"]:checked')
     );
-    element = selectedInForm.concat(selectedInModal);
-  } else element = document.getElementsByName(paramName);
-
-  // Deals with checkboxes
-  if (element[0].getAttribute('type') === 'checkbox') {
-    element = document.querySelectorAll(
-      `input[type=checkbox][name=${paramName}]:checked`
-    );
-    // return paramsArr['datasetid'];
+    let dbArr = [];
+    let tempArr = selectedInForm.concat(selectedInModal);
+    tempArr.forEach((item) => {
+      dbArr.push(item.value);
+    });
+    elementValues = dbArr;
   }
-
-  // Deals with text
-  else if (element[0].getAttribute('type') === 'text') {
-    let elementValue = element[0].value;
-    elementValue ? (paramsArr[paramName] = elementValue) : '';
+  if (paramName === 'datasetid') {
+    // console.log(elements);
+    // console.log(elArr);
+    datasetArr = [];
+    elements.forEach((el) => {
+      if (el.checked) {
+        let isSite = el.dataset.domain != undefined;
+        if (isSite) {
+          let isDomainSel = document.getElementById(el.dataset.domain).checked;
+          isDomainSel ? '' : datasetArr.push(el.value);
+        } else {
+          datasetArr.push(el.value);
+        }
+      }
+    });
+    elementValues = datasetArr;
+  } else {
+    switch (firstTag) {
+      case 'INPUT':
+        (firstEl.type === 'checkbox' && firstEl.checked) ||
+        (firstEl.type === 'text' && firstEl != '')
+          ? (elementValues = firstEl.value)
+          : '';
+        break;
+      case 'SELECT':
+        elementValues = firstEl.options[firstEl.selectedIndex].value;
+        break;
+      case 'TEXTAREA':
+        elementValues = firstEl.value;
+        break;
+      default:
+        console.log(firstTag);
+    }
   }
+  elementValues != '' ? (paramsArr[paramName] = elementValues) : '';
+  console.log(paramsArr);
+  return paramsArr;
+  // paramsArr['db'] = handleDb();
+  // paramsArr['datasetid'] = handleDataset(
+  //   Array.from(document.getElementsByName('datasetid'))
+  // );
+  // Exception for collections lists in modal
+  // let element = '';
+  // if (paramName === 'db') {
+  //   // let criterionSelected = collsModal.querySelector(
+  //   //   '.tab.tab-active input[type=radio]:checked'
+  //   // ).value;
+  //   // console.log(criterionSelected);
+  //   // let query = '#' + criterionSelected + ' input[name="db"]:checked';
+  //   // console.log(query);
+  //   // let selectedInModal = Array.from(document.querySelectorAll(query));
+  //   // let selectedInForm = Array.from(
+  //   //   document.querySelectorAll('#search-form-colls input[name="db"]:checked')
+  //   // );
+  //   // element = selectedInForm.concat(selectedInModal);
+  //   // console.log(element);
+  //   // HANDLE PASSING VALUES INTO PARAM
+  // } else element = document.getElementsByName(paramName);
 
-  // if (element[0].tagName === 'INPUT') {
-  //   // Deals with checkboxes
-  //   if (element[0].getAttribute('type') === 'checkbox') {
-  //     let itemsArr = [];
-  //     for (let i = 0; i < element.length; ++i) {
-  //       if (paramName === 'datasetid' && element[i].checked) {
-  //         // For Sites & Domains, keeps only top level if selected
-  //         element[i].classList.contains('all-selector')
-  //           ? itemsArr.push(element[i].value) // and keep going
-  //           : '';
-  //       } else {
-  //         itemsArr.push(element[i].value);
-  //       }
-  //     }
-  //     paramsArr[paramName] = itemsArr;
-  //   } else {
-  //     // Deals with text
-  //     let elementValue = element[0].value;
-  //     if (elementValue) {
-  //       paramsArr[paramName] = elementValue;
-  //     }
-  //   }
+  // // Deals with checkboxes
+  // if (element[0].getAttribute('type') === 'checkbox') {
+  //   element = document.querySelectorAll(
+  //     `input[type=checkbox][name=${paramName}]:checked`
+  //   );
+  //   // return paramsArr['datasetid'];
   // }
 
-  // Deals with dropdown options
-  if (element[0].tagName === 'SELECT') {
-    let elementValue = element[0].options[element[0].selectedIndex].value;
-    paramsArr[paramName] = elementValue;
-    // Deals with textarea
-  } else if (element[0].tagName === 'TEXTAREA') {
-    let elementValue = element[0].value;
-    if (elementValue) {
-      paramsArr[paramName] = elementValue;
-    }
-  }
-  return paramsArr;
+  // // Deals with text
+  // else if (element[0].getAttribute('type') === 'text') {
+  //   let elementValue = element[0].value;
+  //   elementValue ? (paramsArr[paramName] = elementValue) : '';
+  // }
+
+  // // if (element[0].tagName === 'INPUT') {
+  // //   // Deals with checkboxes
+  // //   if (element[0].getAttribute('type') === 'checkbox') {
+  // //     let itemsArr = [];
+  // //     for (let i = 0; i < element.length; ++i) {
+  // //       if (paramName === 'datasetid' && element[i].checked) {
+  // //         // For Sites & Domains, keeps only top level if selected
+  // //         element[i].classList.contains('all-selector')
+  // //           ? itemsArr.push(element[i].value) // and keep going
+  // //           : '';
+  // //       } else {
+  // //         itemsArr.push(element[i].value);
+  // //       }
+  // //     }
+  // //     paramsArr[paramName] = itemsArr;
+  // //   } else {
+  // //     // Deals with text
+  // //     let elementValue = element[0].value;
+  // //     if (elementValue) {
+  // //       paramsArr[paramName] = elementValue;
+  // //     }
+  // //   }
+  // // }
+
+  // // Deals with dropdown options
+  // if (element[0].tagName === 'SELECT') {
+  //   let elementValue = element[0].options[element[0].selectedIndex].value;
+  //   paramsArr[paramName] = elementValue;
+  //   // Deals with textarea
+  // } else if (element[0].tagName === 'TEXTAREA') {
+  //   let elementValue = element[0].value;
+  //   if (elementValue) {
+  //     paramsArr[paramName] = elementValue;
+  //   }
+  // }
+  // return paramsArr;
 }
 
-function handleDataset(elArr) {
-  // console.log(elArr);
-  datasetArr = [];
-  elArr.forEach((el) => {
-    // IS DATASETID?
-    if (el.name === 'datasetid' && el.checked) {
-      let isSite = el.dataset.domain != undefined;
-      if (isSite) {
-        let isDomainSel = document.getElementById(el.dataset.domain).checked;
-        isDomainSel ? '' : datasetArr.push(el.value);
-      } else {
-        datasetArr.push(el.value);
-      }
-    }
-  });
-  console.log(datasetArr);
-  return datasetArr;
-
-  // IF IS DATASETID, IS ELEMENT
-
-  //     for (let i = 0; i < element.length; ++i) {
-  //       if (paramName === 'datasetid' && element[i].checked) {
-  //         // For Sites & Domains, keeps only top level if selected
-  //         element[i].classList.contains('all-selector')
-  //           ? itemsArr.push(element[i].value) // and keep going
-  //           : '';
+function handleDb(elArr) {
+  let criterionSelected = collsModal.querySelector(
+    '.tab.tab-active input[type=radio]:checked'
+  ).value;
+  // console.log(criterionSelected);
+  let query = '#' + criterionSelected + ' input[name="db"]:checked';
+  console.log(query);
+  let selectedInModal = Array.from(document.querySelectorAll(query));
+  let selectedInForm = Array.from(
+    document.querySelectorAll('#search-form-colls input[name="db"]:checked')
+  );
+  elements = selectedInForm.concat(selectedInModal);
+  // console.log(element);
+  // For each selected db in active tab, select identical in other tabs
+  // Keep unique array of db values
+  console.log(elements.length);
+  return elements;
 }
+
+// /**
+//  * Returns array with selected `datasetid` values
+//  * To be passed in search url
+//  * @param {HTMLNodeList} elArr
+//  */
+// function handleInputs(elArr) {
+//   // IS DB?
+//   if (elArr[0].name === 'db') {
+//     let criterionSelected = collsModal.querySelector(
+//       '.tab.tab-active input[type=radio]:checked'
+//     ).value;
+//     // console.log(criterionSelected);
+//     let query = '#' + criterionSelected + ' input[name="db"]:checked';
+//     // console.log(query);
+//     let selectedInModal = Array.from(document.querySelectorAll(query));
+//     let selectedInForm = Array.from(
+//       document.querySelectorAll('#search-form-colls input[name="db"]:checked')
+//     );
+//     elArr = selectedInForm.concat(selectedInModal);
+//   } else {
+//   }
+//   // console.log(elArr);
+//   dataArr = [];
+//   elArr.forEach((el) => {
+//     // IS DATASETID?
+//     if (el.name === 'datasetid' && el.checked) {
+//       let isSite = el.dataset.domain != undefined;
+//       if (isSite) {
+//         let isDomainSel = document.getElementById(el.dataset.domain).checked;
+//         isDomainSel ? '' : datasetArr.push(el.value);
+//       } else {
+//         dataArr.push(el.value);
+//       }
+//     }
+//   });
+//   // console.log(datasetArr);
+//   return dataArr;
+
+// IF IS DATASETID, IS ELEMENT
+
+//     for (let i = 0; i < element.length; ++i) {
+//       if (paramName === 'datasetid' && element[i].checked) {
+//         // For Sites & Domains, keeps only top level if selected
+//         element[i].classList.contains('all-selector')
+//           ? itemsArr.push(element[i].value) // and keep going
+//           : '';
+// }
 
 /**
  * Creates search URL with parameters
@@ -321,7 +429,6 @@ function getSearchUrl() {
     // 'includeothercatnum',
     // 'hasimages',
     // 'hasgenetic',
-    // // 'collector',
     // 'state',
     // 'county',
     // 'local',
@@ -350,20 +457,20 @@ function getSearchUrl() {
   ];
   // Grabs params from form for each param name
   paramNames.forEach((param, i) => {
-    console.log(paramNames[i]);
+    // console.log(paramNames[i]);
     return getParam(paramNames[i]);
   });
 
   // Deals with absent taxa
-  if (!('taxa' in paramsArr)) {
-    delete paramsArr.usethes;
-    delete paramsArr.taxontype;
-  }
+  // if (!('taxa' in paramsArr)) {
+  //   delete paramsArr.usethes;
+  //   delete paramsArr.taxontype;
+  // }
 
   // Deals with absent catalog number
-  if (!('catnum' in paramsArr)) {
-    delete paramsArr.includeothercatnum;
-  }
+  // if (!('catnum' in paramsArr)) {
+  //   delete paramsArr.includeothercatnum;
+  // }
 
   // for (const [key, value] of Object.entries(paramsArr)) {
   //   console.log(`${key}: ${value}`);
@@ -489,7 +596,7 @@ document
     isAllSelected
       ? addChip(allNeon)
       : removeChip(document.getElementById('chip-' + allNeon.id));
-    console.log(isAllSelected);
+    // console.log(isAllSelected);
   });
 
 //////// Binds Update chip on event change

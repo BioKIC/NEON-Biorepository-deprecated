@@ -66,7 +66,6 @@ function addChip(element) {
   let inputChip = document.createElement('span'),
     chipBtn = document.createElement('button');
   inputChip.classList.add('chip');
-  // console.log(element);
   inputChip.id = 'chip-' + element.id;
   chipBtn.setAttribute('type', 'button');
   chipBtn.classList.add('chip-remove-btn');
@@ -181,17 +180,21 @@ function uncheckAll(element) {
   }
 }
 /////////
-
 /**
- * Gets list of all biorepository collids
- * @param {*} paramName
+ * Finds all collections selected
+ * Uses active tab in modal
  */
-function getBiorepoCollid() {
-  let collids = document.querySelectorAll('#taxonomic-cat input[name=db]');
-  collidsArr = [];
-  collids.forEach((collid) => collidsArr.push(collid.value));
-  console.log(collidsArr);
-  return collidsArr.join(',');
+function getCollsSelected() {
+  let criterionSelected = collsModal.querySelector(
+    '.tab.tab-active input[type=radio]:checked'
+  ).value;
+  let query = '#' + criterionSelected + ' input[name="db"]:checked';
+  let selectedInModal = Array.from(document.querySelectorAll(query));
+  let selectedInForm = Array.from(
+    document.querySelectorAll('#search-form-colls input[name="db"]:checked')
+  );
+  let collsArr = selectedInForm.concat(selectedInModal);
+  return collsArr;
 }
 
 /**
@@ -204,32 +207,21 @@ function getParam(paramName) {
   //Default country
   // paramsArr['country'] = 'USA';
   const elements = document.getElementsByName(paramName);
-  // console.log(paramName, ': ', elements.length);
   const firstEl = elements[0];
   const firstTag = firstEl.tagName;
-  // console.log(firstEl.type);
   let elementValues = '';
 
   // for db and datasetid
   if (paramName === 'db') {
-    let criterionSelected = collsModal.querySelector(
-      '.tab.tab-active input[type=radio]:checked'
-    ).value;
-    let query = '#' + criterionSelected + ' input[name="db"]:checked';
-    let selectedInModal = Array.from(document.querySelectorAll(query));
-    let selectedInForm = Array.from(
-      document.querySelectorAll('#search-form-colls input[name="db"]:checked')
-    );
     let dbArr = [];
-    let tempArr = selectedInForm.concat(selectedInModal);
+    let tempArr = getCollsSelected();
+    console.log(tempArr);
     tempArr.forEach((item) => {
       dbArr.push(item.value);
     });
+    console.log(dbArr);
     elementValues = dbArr;
-  }
-  if (paramName === 'datasetid') {
-    // console.log(elements);
-    // console.log(elArr);
+  } else if (paramName === 'datasetid') {
     datasetArr = [];
     elements.forEach((el) => {
       if (el.checked) {
@@ -257,153 +249,12 @@ function getParam(paramName) {
       case 'TEXTAREA':
         elementValues = firstEl.value;
         break;
-      default:
-        console.log(firstTag);
     }
   }
   elementValues != '' ? (paramsArr[paramName] = elementValues) : '';
   console.log(paramsArr);
   return paramsArr;
-  // paramsArr['db'] = handleDb();
-  // paramsArr['datasetid'] = handleDataset(
-  //   Array.from(document.getElementsByName('datasetid'))
-  // );
-  // Exception for collections lists in modal
-  // let element = '';
-  // if (paramName === 'db') {
-  //   // let criterionSelected = collsModal.querySelector(
-  //   //   '.tab.tab-active input[type=radio]:checked'
-  //   // ).value;
-  //   // console.log(criterionSelected);
-  //   // let query = '#' + criterionSelected + ' input[name="db"]:checked';
-  //   // console.log(query);
-  //   // let selectedInModal = Array.from(document.querySelectorAll(query));
-  //   // let selectedInForm = Array.from(
-  //   //   document.querySelectorAll('#search-form-colls input[name="db"]:checked')
-  //   // );
-  //   // element = selectedInForm.concat(selectedInModal);
-  //   // console.log(element);
-  //   // HANDLE PASSING VALUES INTO PARAM
-  // } else element = document.getElementsByName(paramName);
-
-  // // Deals with checkboxes
-  // if (element[0].getAttribute('type') === 'checkbox') {
-  //   element = document.querySelectorAll(
-  //     `input[type=checkbox][name=${paramName}]:checked`
-  //   );
-  //   // return paramsArr['datasetid'];
-  // }
-
-  // // Deals with text
-  // else if (element[0].getAttribute('type') === 'text') {
-  //   let elementValue = element[0].value;
-  //   elementValue ? (paramsArr[paramName] = elementValue) : '';
-  // }
-
-  // // if (element[0].tagName === 'INPUT') {
-  // //   // Deals with checkboxes
-  // //   if (element[0].getAttribute('type') === 'checkbox') {
-  // //     let itemsArr = [];
-  // //     for (let i = 0; i < element.length; ++i) {
-  // //       if (paramName === 'datasetid' && element[i].checked) {
-  // //         // For Sites & Domains, keeps only top level if selected
-  // //         element[i].classList.contains('all-selector')
-  // //           ? itemsArr.push(element[i].value) // and keep going
-  // //           : '';
-  // //       } else {
-  // //         itemsArr.push(element[i].value);
-  // //       }
-  // //     }
-  // //     paramsArr[paramName] = itemsArr;
-  // //   } else {
-  // //     // Deals with text
-  // //     let elementValue = element[0].value;
-  // //     if (elementValue) {
-  // //       paramsArr[paramName] = elementValue;
-  // //     }
-  // //   }
-  // // }
-
-  // // Deals with dropdown options
-  // if (element[0].tagName === 'SELECT') {
-  //   let elementValue = element[0].options[element[0].selectedIndex].value;
-  //   paramsArr[paramName] = elementValue;
-  //   // Deals with textarea
-  // } else if (element[0].tagName === 'TEXTAREA') {
-  //   let elementValue = element[0].value;
-  //   if (elementValue) {
-  //     paramsArr[paramName] = elementValue;
-  //   }
-  // }
-  // return paramsArr;
 }
-
-function handleDb(elArr) {
-  let criterionSelected = collsModal.querySelector(
-    '.tab.tab-active input[type=radio]:checked'
-  ).value;
-  // console.log(criterionSelected);
-  let query = '#' + criterionSelected + ' input[name="db"]:checked';
-  console.log(query);
-  let selectedInModal = Array.from(document.querySelectorAll(query));
-  let selectedInForm = Array.from(
-    document.querySelectorAll('#search-form-colls input[name="db"]:checked')
-  );
-  elements = selectedInForm.concat(selectedInModal);
-  // console.log(element);
-  // For each selected db in active tab, select identical in other tabs
-  // Keep unique array of db values
-  console.log(elements.length);
-  return elements;
-}
-
-// /**
-//  * Returns array with selected `datasetid` values
-//  * To be passed in search url
-//  * @param {HTMLNodeList} elArr
-//  */
-// function handleInputs(elArr) {
-//   // IS DB?
-//   if (elArr[0].name === 'db') {
-//     let criterionSelected = collsModal.querySelector(
-//       '.tab.tab-active input[type=radio]:checked'
-//     ).value;
-//     // console.log(criterionSelected);
-//     let query = '#' + criterionSelected + ' input[name="db"]:checked';
-//     // console.log(query);
-//     let selectedInModal = Array.from(document.querySelectorAll(query));
-//     let selectedInForm = Array.from(
-//       document.querySelectorAll('#search-form-colls input[name="db"]:checked')
-//     );
-//     elArr = selectedInForm.concat(selectedInModal);
-//   } else {
-//   }
-//   // console.log(elArr);
-//   dataArr = [];
-//   elArr.forEach((el) => {
-//     // IS DATASETID?
-//     if (el.name === 'datasetid' && el.checked) {
-//       let isSite = el.dataset.domain != undefined;
-//       if (isSite) {
-//         let isDomainSel = document.getElementById(el.dataset.domain).checked;
-//         isDomainSel ? '' : datasetArr.push(el.value);
-//       } else {
-//         dataArr.push(el.value);
-//       }
-//     }
-//   });
-//   // console.log(datasetArr);
-//   return dataArr;
-
-// IF IS DATASETID, IS ELEMENT
-
-//     for (let i = 0; i < element.length; ++i) {
-//       if (paramName === 'datasetid' && element[i].checked) {
-//         // For Sites & Domains, keeps only top level if selected
-//         element[i].classList.contains('all-selector')
-//           ? itemsArr.push(element[i].value) // and keep going
-//           : '';
-// }
 
 /**
  * Creates search URL with parameters
@@ -423,64 +274,42 @@ function getSearchUrl() {
   paramsArr = [];
 
   const paramNames = [
-    // 'db',
+    'db',
     'datasetid',
-    // 'catnum',
-    // 'includeothercatnum',
-    // 'hasimages',
-    // 'hasgenetic',
-    // 'state',
-    // 'county',
-    // 'local',
-    // 'elevlow',
-    // 'elevhigh',
-    // 'upperlat',
-    // 'upperlat_NS',
-    // 'bottomlat',
-    // 'bottomlat_NS',
-    // 'leftlong',
-    // 'leftlong_EW',
-    // 'rightlong',
-    // 'rightlong_EW',
-    // 'footprintwkt',
-    // 'pointlat',
-    // 'pointlat_NS',
-    // 'pointlong',
-    // 'pointlong_EW',
-    // 'radius',
-    // 'radiusunits',
-    // 'eventdate1',
-    // 'eventdate2',
-    // 'taxa',
-    // 'usethes',
-    // 'taxontype',
+    'catnum',
+    'includeothercatnum',
+    'hasimages',
+    'hasgenetic',
+    'state',
+    'county',
+    'local',
+    'elevlow',
+    'elevhigh',
+    'upperlat',
+    'upperlat_NS',
+    'bottomlat',
+    'bottomlat_NS',
+    'leftlong',
+    'leftlong_EW',
+    'rightlong',
+    'rightlong_EW',
+    'footprintwkt',
+    'pointlat',
+    'pointlat_NS',
+    'pointlong',
+    'pointlong_EW',
+    'radius',
+    'radiusunits',
+    'eventdate1',
+    'eventdate2',
+    'taxa',
+    'usethes',
+    'taxontype',
   ];
   // Grabs params from form for each param name
   paramNames.forEach((param, i) => {
-    // console.log(paramNames[i]);
     return getParam(paramNames[i]);
   });
-
-  // Deals with absent taxa
-  // if (!('taxa' in paramsArr)) {
-  //   delete paramsArr.usethes;
-  //   delete paramsArr.taxontype;
-  // }
-
-  // Deals with absent catalog number
-  // if (!('catnum' in paramsArr)) {
-  //   delete paramsArr.includeothercatnum;
-  // }
-
-  // for (const [key, value] of Object.entries(paramsArr)) {
-  //   console.log(`${key}: ${value}`);
-  // }
-
-  // for (const [key, value] of Object.entries(paramsArr)) {
-  //   // If value is null or empty, don't pass to url
-  //   value.length === 0 ? delete paramsArr[key] : false;
-  //   // paramsArr[key].length === 0 ? delete paramsArr.key : false;
-  // }
 
   // Appends each key value for each param in search url
   let queryString = Object.keys(paramsArr).map((key) => {
@@ -508,6 +337,8 @@ function valColls() {
   let allSelectedForm = document.querySelectorAll(
     '#search-form-colls input[type="checkbox"]:checked'
   ).length;
+  // let anyCollSelected =
+
   if (!allSelectedForm) {
     window.alert('Please select at least one collection');
     return false;
@@ -560,26 +391,6 @@ const collsModal = document.getElementById('testing-modal');
 collsModal.addEventListener('click', autoToggleSelector, false);
 collsModal.addEventListener('change', autoToggleSelector, false);
 
-// When unchecking children checkboxes, uncheck 'all-selector'
-// $('.child').bind(
-//   'click',
-//   { element: $('.child').siblings().find('.all-selector') },
-//   autoToggleSelector
-// );
-// $('#all-sites')
-//   .siblings()
-//   .find('.child')
-//   .bind('click', { element: '#all-sites' }, autoToggleSelector);
-// $('#collections-list1')
-//   .find('.child')
-//   .bind('click', { element: '#collections-list1' }, autoToggleSelector);
-// $('#collections-list2')
-//   .find('.child')
-//   .bind('click', { element: '#collections-list2' }, autoToggleSelector);
-// $('#collections-list3')
-//   .find('.child')
-//   .bind('click', { element: '#collections-list3' }, autoToggleSelector);
-
 // Listen for close modal click and passes value of selected colls to main form
 document
   .getElementById('neon-modal-close')
@@ -601,17 +412,6 @@ document
 
 //////// Binds Update chip on event change
 document.querySelector('#params-form').addEventListener('change', updateChip);
-// const taxaInput = document.getElementById('taxa-search');
-// taxaInput.addEventListener('change', updateChip);
-// taxaInput.addEventListener('change', updateChip);
-// const catNumInput = document.getElementById('taxa-search');
-// allNeon.addEventListener('change', updateChip);
-// const allNeonExt = document.getElementById('all-neon-ext');
-// allNeonExt.addEventListener('change', updateChip);
-// const allExt = document.getElementById('all-ext');
-// allExt.addEventListener('change', updateChip);
-// allSites.addEventListener('change', updateChip);
-
 // const locInput = document.getElementById('')
 
 // on default (on document load): All Neon Collections, All Domains & Sites

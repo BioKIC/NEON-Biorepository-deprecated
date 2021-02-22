@@ -9,14 +9,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<?php
 	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<link href="css/quicksearch.css" type="text/css" rel="Stylesheet" />
 	<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script src="js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<style>
 		#slideshowcontainer{
 			border: 2px solid black;

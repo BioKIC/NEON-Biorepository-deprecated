@@ -54,17 +54,18 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 	<link href="../../css/jquery.mobile-1.4.0.min.css" type="text/css" rel="stylesheet" />
 	<link href="../../css/jquery.symbiota.css" type="text/css" rel="stylesheet" />
 	<link href="../../css/jquery-ui_accordian.css" type="text/css" rel="stylesheet" />
-  <?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
+	?>
 	<style type="text/css">
 		.panel-content a{ outline-color: transparent; font-size: 12px; font-weight: normal; }
 		.categorytitle{ font-size:	12px; }
@@ -75,10 +76,6 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 		.collectiontitle a:hover{ font-weight: bold; color: grey; }
 		.ui-front { z-index: 9999999 !important; }
 	</style>
-
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script src="../../js/jquery-1.10.2.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.10.4.js" type="text/javascript"></script>
 	<script src="../../js/jquery.mobile-1.4.0.min.js" type="text/javascript"></script>

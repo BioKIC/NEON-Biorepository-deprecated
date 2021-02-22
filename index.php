@@ -26,7 +26,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 <body class="home-page">
 	<?php include($SERVER_ROOT.'/includes/header.php'); ?>
 	<!-- This is inner text! -->
-	<div id="innertext" class="container" style="margin-top: 6em">
+	<div id="innertext" class="container" style="margin-top: 2rem">
 		<h1 class="centered">Discover and access sample-based data</h1>
 
 		<section>
@@ -76,7 +76,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				</div>
 				<div class="six columns centered">
 					<h4 class="centered">> 700 taxa</h4>
-					<img src="images/layout/TaxaByGroup-2020-01.png">
+					<img src="images/layout/TaxaByGroup-2020-01.png" width="100%">
 					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa.</span></p>
 				</div>
 

@@ -55,9 +55,11 @@ $siteData = new DatasetsMetadata();
             <div id="search-form-taxonomy" class="content">
               <div id="taxa-text" class="input-text-container">
                 <label for="taxa" class="input-text--outlined">
-                  <input type="text" name="taxa" id="taxa-search" data-chip="Taxa" list="match-list">
+                  <!-- <input type="text" name="taxa" id="taxa-search" data-chip="Taxa" list="match-list"> -->
+                  <input type="text" name="taxa" id="taxa" data-chip="Taxa">
                   <!-- <div id="match-list" class="suggestion-box hide" ></div> -->
-                  <div id="match-list-container"></div>
+                  <!-- <div id="match-list-container"></div> -->
+                  <!-- <input id="taxa" type="text" size="60" name="taxa" value="" /> -->
                   <span data-label="Taxon"></span></label>
                 <span class="assistive-text">Separate multiple with commas.</span>
               </div>
@@ -463,5 +465,7 @@ $siteData = new DatasetsMetadata();
     ?>
   </body>
   <script src="js/searchform.js"></script>
+  <script src="<?php echo $CLIENT_ROOT.'/js/jquery-ui-1.12.1/jquery-ui.min.js'; ?>" type="text/javascript"></script>
+  <script src="<?php echo $CLIENT_ROOT.'/js/symb/api.taxonomy.taxasuggest.js'; ?>" type="text/javascript"></script>
   <script src="js/taxasearch.js"></script>
 </html>

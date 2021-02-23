@@ -1,5 +1,10 @@
 /* Search Form Layout ********************/
 
+$gap: 10px
+
+body 
+  font-size: 14px
+
 input[type='checkbox']
   width: 16px
   height: 16px
@@ -9,6 +14,7 @@ input[type='checkbox']
 .material-icons
   width: 16px
   height: 16px
+  margin: 0 0.25em
   font-size: 16px !important
   cursor: pointer
 
@@ -37,23 +43,23 @@ input[type='checkbox']
 #params-form
   display: grid
   grid-template-columns: 3fr 1fr
-  grid-gap: 20px
+  grid-gap: $gap
 
 #criteria-panel
   display: block;
-  background-color: $neon-light-gray // Move these to a seaparate panel module
+  background-color: $neon-lightest-gray // Move these to a seaparate panel module
   padding: 0.5rem 1rem // Move these to a seaparate panel module
 
 #search-form-taxonomy
   display: grid
   grid-template-columns: 2fr 1fr
-  grid-gap: 20px
+  grid-gap: $gap
   align-items: self-start
 
 #search-form-colls
   display: grid
-  grid-template-columns: 1fr 1fr
-  grid-gap: 20px
+  grid-template-columns: 1fr 2fr
+  grid-gap: $gap
 
   ul
     list-style-type: none
@@ -62,7 +68,7 @@ input[type='checkbox']
 #search-form-locality
   display: grid
   grid-template-columns: 1fr 1fr
-  grid-gap: 20px
+  grid-gap: $gap
     
   ul
     list-style-type: none
@@ -71,14 +77,14 @@ input[type='checkbox']
 #search-form-latlong
   display: grid
   grid-template-columns: 1fr 1fr 1fr
-  grid-gap: 20px
+  grid-gap: $gap
 
 #search-form-coll-event
   display: grid
   grid-template-columns: 1fr 1fr
-  grid-gap: 20px
+  grid-gap: $gap
 
 #search-form-sample
   display: grid
   grid-template-columns: 1fr 1fr
-  grid-gap: 20px
+  grid-gap: $gap

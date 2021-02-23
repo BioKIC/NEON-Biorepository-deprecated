@@ -74,8 +74,8 @@ $siteData = new DatasetsMetadata();
                   </select>
                 <span class="assistive-text">Taxon type.</span>
               </div>
-              <div><input type="checkbox" name="usethes" id="usethes" data-chip="Include Synonyms" value="1" checked>Include Synonyms</div>
-            </div>
+              <div><input type="checkbox" name="usethes" id="usethes" data-chip="Include Synonyms" value="1" checked><span class="ml-1">Include Synonyms</span></div>
+            </div> 
           </section>
           <!-- Colections -->
           <section>
@@ -95,7 +95,7 @@ $siteData = new DatasetsMetadata();
                     <?php if($collsArr = $collData->getCollMetaByCat('Additional NEON Collections')){
                     echo '<ul class="collapsed">';
                       foreach($collsArr as $result) {
-                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
+                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
                       }
                       echo '</ul>';
                     } ;?>
@@ -106,7 +106,7 @@ $siteData = new DatasetsMetadata();
                     <?php if($collsArr = $collData->getCollMetaByCat('Other Collections from NEON sites')){
                     echo '<ul class="collapsed">';
                       foreach($collsArr as $result) {
-                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
+                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
                       }
                       echo '</ul>';
                     } ;?>
@@ -119,7 +119,7 @@ $siteData = new DatasetsMetadata();
             <!-- NEON Biorepository Collections Modal -->
             <div class="modal" id="biorepo-collections-list">
               <div class="modal-content">
-                <button id="neon-modal-close" class="btn">Accept and close</button>
+                <button id="neon-modal-close" class="btn" style="width:auto !important">Accept and close</button>
                 <div id="testing-modal">
                   <div>
                     <h3>Pick a criterion to filter collections</h3>
@@ -141,9 +141,9 @@ $siteData = new DatasetsMetadata();
                               echo "<li>";
                               // IF AVAILABLE
                               if ($row['available'] == 'TRUE'){
-                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a>";
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child ml-1' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a>";
                               } elseif ($row["available"] == 'FALSE'){
-                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
+                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span class='ml-1' style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
                               }
                               echo "</li>";   
                             }
@@ -168,9 +168,9 @@ $siteData = new DatasetsMetadata();
                               echo "<li>";
                               // IF AVAILABLE
                               if ($row['available'] == 'TRUE'){
-                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a>";
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a></span>";
                               } elseif ($row["available"] == 'FALSE'){
-                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
+                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span class='ml-1' style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
                               }
                               echo "</li>";   
                             }
@@ -266,7 +266,7 @@ $siteData = new DatasetsMetadata();
                       $sitesArr = $siteData->getNeonSitesByDom($domain["domainnumber"]);
                       if($sitesArr){
                         foreach($sitesArr as $site) {
-                          echo "<li><input type='checkbox' name='datasetid' value={$site["datasetid"]} class='child' data-domain={$domain["domainnumber"]} checked=''><span><a href='https://www.neonscience.org/field-sites/{$site["siteid"]}' target='_blank' rel='noopener noreferrer'>({$site["siteid"]}) {$site["sitename"]}</a></span></li>";
+                          echo "<li><input type='checkbox' name='datasetid' value={$site["datasetid"]} class='child' data-domain={$domain["domainnumber"]} checked=''><span class='ml-1'><a href='https://www.neonscience.org/field-sites/{$site["siteid"]}' target='_blank' rel='noopener noreferrer'>({$site["siteid"]}) {$site["sitename"]}</a></span></li>";
                           // echo $site["siteid"];
                         }
                       };
@@ -330,7 +330,7 @@ $siteData = new DatasetsMetadata();
                   <div class="input-text-container">
                     <label for="upperlat" class="input-text--outlined">
                     <input type="text" id="upperlat" name="upperlat">
-                    <select id="upperlat_NS" name="upperlat_NS">
+                    <select class="mt-1" id="upperlat_NS" name="upperlat_NS">
                       <option value="">Select</option>
                       <option id="ulN" value="N">N</option>
                       <option id="ulS" value="S">S</option>
@@ -341,7 +341,7 @@ $siteData = new DatasetsMetadata();
                   <div class="input-text-container">
                     <label for="bottomlat" class="input-text--outlined">
                     <input type="text" id="bottomlat" name="bottomlat">
-                    <select id="bottomlat_NS" name="bottomlat_NS">
+                    <select class="mt-1" id="bottomlat_NS" name="bottomlat_NS">
                       <option value="">Select</option>
                       <option id="blN" value="N">N</option>
                       <option id="blS" value="S">S</option>
@@ -352,7 +352,7 @@ $siteData = new DatasetsMetadata();
                   <div class="input-text-container">
                     <label for="leftlong" class="input-text--outlined">
                     <input type="text" id="leftlong" name="leftlong">
-                    <select id="leftlong_EW" name="leftlong_EW">
+                    <select class="mt-1" id="leftlong_EW" name="leftlong_EW">
                       <option value="">Select</option>
                       <option id="llW" value="W">W</option>
                       <option id="llE" value="E">E</option>
@@ -363,7 +363,7 @@ $siteData = new DatasetsMetadata();
                   <div class="input-text-container">
                     <label for="rightlong" class="input-text--outlined">
                     <input type="text" id="rightlong" name="rightlong">
-                    <select id="rightlong_EW" name="rightlong_EW">
+                    <select class="mt-1" id="rightlong_EW" name="rightlong_EW">
                       <option value="">Select</option>
                       <option id="rlW" value="W">W</option>
                       <option id="rlE" value="E">E</option>
@@ -388,7 +388,7 @@ $siteData = new DatasetsMetadata();
                   <div class="input-text-container">
                     <label for="pointlat" class="input-text--outlined">
                     <input type="text" id="pointlat" name="pointlat">
-                    <select id="pointlat_NS" name="pointlat_NS">
+                    <select class="mt-1" id="pointlat_NS" name="pointlat_NS">
                     <option value="">Select</option>
                       <option id="N" value="N">N</option>
                       <option id="S" value="S">S</option>
@@ -399,7 +399,7 @@ $siteData = new DatasetsMetadata();
                   <div class="input-text-container">
                     <label for="pointlong" class="input-text--outlined">
                     <input type="text" id="pointlong" name="pointlong">
-                    <select id="pointlong_EW" name="pointlong_EW">
+                    <select class="mt-1" id="pointlong_EW" name="pointlong_EW">
                     <option value="">Select</option>
                       <option id="W" value="W">W</option>
                       <option id="E" value="E">E</option>
@@ -410,7 +410,7 @@ $siteData = new DatasetsMetadata();
                   <div class="input-text-container">
                     <label for="radius" class="input-text--outlined">
                     <input type="text" id="radius" name="radius">
-                    <select id="radiusunits" name="radiusunits">
+                    <select class="mt-1" id="radiusunits" name="radiusunits">
                     <option value="">Select Unit</option>
                       <option value="km">Kilometers</option>
                       <option value="mi">Miles</option>
@@ -449,12 +449,12 @@ $siteData = new DatasetsMetadata();
         </div>
         <!-- Criteria panel -->
         <div id="criteria-panel" style="position: sticky; top: 0; height: 100vh">
-          <h2>Criteria</h2>
           <!-- <button>Clear</button>
           <button>Search</button> -->
           <button id="teste-btn">Get all params</button>
           <p><a href="#" id="test-url" target="_blank" style="max-width: 50px">Search URL</a></p>
           <button type="reset">Reset Form</button>
+          <h2>Criteria</h2>
           <div id="chips"></div>
         </div>
       </form>

@@ -36,6 +36,18 @@ body {
   display: none;
 }
 
+.ml-1 {
+  margin-left: 0.5em;
+}
+
+.mr-1 {
+  margin-right: 0.5em;
+}
+
+.mt-1 {
+  margin-top: 0.5em;
+}
+
 
 /******* 2. LAYOUT ********/
 
@@ -178,8 +190,6 @@ div.navpath {
   }
 }
 
-
-}
 #biorepo-header::before {
   content: '';
   position: absolute;
@@ -193,43 +203,53 @@ div.navpath {
   background-position: center center;
   filter: opacity(40%);
 }
+
 li.header-title {
   position: relative;
 }
+
 .header-title a:hover {
   text-decoration: none;
 }
+
 #biorepo-header>li {
   display: inline-block;
   padding: 0 0.5rem;
   vertical-align: center;
   filter: opacity(100%);
 }
+
 #biorepo-header h1 {
   text-transform: uppercase;
   font-size: 1.5rem;
   color: white;
   font-weight: bold;
 }
+
 #header a {
   color: white;
   text-transform: uppercase;
 }
 
+
 /* SYMBIOTA NAVIGATION */
 
+
 /* Admin bar */
+
 @media (min-width: 1024px) {
   #top_navbar {
     margin-top: 10px;
   }
 }
+
 #top_navbar {
   clear: both;
   margin-left: auto;
   margin-right: 1rem;
   padding-right: 1rem;
 }
+
 #right_navbarlinks {
   clear: both;
   font-size: 11px;
@@ -237,7 +257,9 @@ li.header-title {
   color: #000000;
 }
 
+
 /* Main menu bar */
+
 #hor_dropdown {
   display: inline-block;
   list-style: none;
@@ -246,12 +268,14 @@ li.header-title {
   max-width: 100%;
   margin: 0 auto;
 }
+
 #hor_dropdown li {
   position: relative;
   display: inherit;
   padding: 0;
   margin: 0;
 }
+
 #hor_dropdown a {
   display: block;
   text-decoration: none;
@@ -259,13 +283,16 @@ li.header-title {
   font-weight: 600;
   font-size: 14px;
 }
+
 #hor_dropdown a:hover {
   background-color: #1b67b3;
   color: #ffffff;
   text-decoration: none;
 }
 
+
 /* Submenu */
+
 #hor_dropdown ul {
   list-style: none;
   position: absolute;
@@ -274,24 +301,27 @@ li.header-title {
   background-color: #1b67b3;
   z-index: 1000;
 }
+
 #hor_dropdown ul li {
   float: none;
 }
+
 #hor_dropdown ul a {
   white-space: nowrap;
   text-decoration: none;
   color: #ffffff;
 }
+
 #hor_dropdown li:hover ul {
   left: 0;
   /* top: 3.5rem;
    */
-  
   top: 42px;
   text-decoration: none;
   padding: 5px 0px;
   z-index: 1000;
 }
+
 #hor_dropdown li:hover ul a {
   padding: 5px;
   text-decoration: none;
@@ -301,14 +331,15 @@ li.header-title {
   background-color: #1b67b3;
   z-index: 1000;
 }
+
 #hor_dropdown li:hover ul li a:hover {
   background: #1b67b3;
   text-decoration: underline;
 }
+
 .biorepo-home-icon {
   padding: 0 !important;
   /* display: inline-block; */
-  
   background-image: url(../neon/images/home-white.png);
   background-size: contain;
   background-repeat: no-repeat;
@@ -317,29 +348,53 @@ li.header-title {
   width: 14px;
 }
 
+
 /******* 4. FORMS, BUTTONS ********/
 
+
 /* Forcing styles over jquery-ui (search forms) */
+
 .ui-widget input,
 .ui-widget select,
 .ui-widget textarea,
 .ui-widget button {
   font-family: 'Inter', sans-serif !important;
 }
+
 button,
 button.ui-button.ui-widget.ui-corner-all,
 input[type='submit' i] {
   font-family: 'Inter', sans-serif !important;
-  border: 1px solid #ffffff;
-  border-radius: 0 !important;
-  letter-spacing: 0.0625em;
-  color: white;
-  background-color: #005dab !important;
+  font-size: 0.7rem;
   font-weight: 600;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  padding: 8px 20px;
-  /* padding: 0.5rem 1.25rem; */
+  color: white;
+  border-style: none;
+  border-color: #0073cf;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-width: 0px;
+  border-right-width: 0px;
+  background-color: #005dab !important;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  white-space: nowrap;
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  transition-property: background-color, box-shadow, border;
+  transition-duration: 250ms, 250ms, 250ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0ms, 0ms, 0ms;
 }
+
+button:hover {
+  background-color: #0092e2 !important;
+  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+}
+
 input[type='text'],
 textarea,
 select {
@@ -347,77 +402,97 @@ select {
   border-radius: 0;
   color: #333333;
 }
+
 input[type='text']:focus,
 textarea:focus,
 select:focus {
   border-radius: 0 !important;
 }
+
 button.ui-button.ui-widget.ui-corner-all:hover {
   background-color: #003d79;
   text-decoration: none;
 }
+
 button.ui-button:active {
   background: #000000;
 }
 
+
 /* Links inside buttons */
+
 button>a {
   color: #ffffff !important;
 }
+
 button>a:hover {
   text-decoration: none !important;
 }
 
+
 /******* 5. TABLES ********/
+
 table,
 .ui-widget {
   font-family: 'Inter', sans-serif !important;
   font-size: 1em;
 }
+
 hr:first-of-type {
   margin-top: 1em;
 }
 
+
 /******* 6. ICONS ********/
+
 .svg-icon {
   filter: invert(1);
 }
+
 #omlisttable img {
   border: none !important;
 }
 
+
 /******* 7. TABS ********/
+
 #tabs {
   height: auto;
 }
 
+
 /******* 8. QUICK SEARCH PLUGIN ********/
+
 #quicksearchdiv {
   width: auto !important;
   padding: 0.75rem !important;
   margin: 1rem auto 4rem auto !important;
 }
+
 #quicksearchbutton {
   margin-left: 1rem !important;
   margin-bottom: 1rem !important;
   padding-bottom: 10px !important;
 }
 
+
 /******* 9. FOOTER ********/
+
 #footer {
   padding: 3rem !important;
   border-top: 2px solid #e7e7e7 !important;
 }
+
 footer {
   display: inline-flex !important;
   vertical-align: top;
 }
+
 @media (min-width: 1024px) {
   #footer .footer-bottom .footer-bottom-left {
     width: 50%;
     padding-top: 1.2em;
   }
-  
   #footer .footer-bottom .footer-bottom-left {
     display: flex !important;
     flex-direction: row;
@@ -426,12 +501,12 @@ footer {
     max-width: 100%;
     float: left;
   }
-  
   #footer .footer-bottom .footer-bottom-right {
     width: auto;
     float: right;
   }
 }
+
 footer .nsf-link {
   width: 200px;
 }

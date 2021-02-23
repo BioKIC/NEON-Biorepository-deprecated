@@ -1,9 +1,9 @@
 /* Accordions ********************************************************************************/
 /* Dependencies: Material Design Icons */
-$accordion-label-color: #ffffff
-$accordion-label-bg-color: $text-color
+$accordion-label-color: #0073cf
+$accordion-label-bg-color: #ffffff
 $accordion-content-color: $text-color
-$accordion-content-border-color: $neon-light-gray
+$accordion-content-border-color: #d7d9d9
 $accordion-content-bg-color: #ffffff
 
 // Testing better styles based off of: https://supfort.com/pure-css-accordion-without-javascript
@@ -13,14 +13,18 @@ $accordion-content-bg-color: #ffffff
       display: none
   label
     &.accordion-header
-      font-size: 24px
+      font-size: 16px
+      text-transform: uppercase
+      font-weight: 600
+      text-align: center
       display: block    
       padding: 8px 22px
       margin: 0 0 1px 0
       cursor: pointer
       background-color: $accordion-label-bg-color
-      // border-radius: 3px
-      color: #FFF
+      border-radius: 2px
+      border: 1px solid $accordion-label-color
+      color: $accordion-label-color
       transition: ease .5s
       position: relative
       &:hover
@@ -38,7 +42,7 @@ $accordion-content-bg-color: #ffffff
     padding: 10px 25px
     border: 1px solid $accordion-content-border-color
     margin: -1px 0 10px 0
-    // border-radius: 3px
+    border-radius: 2px
   
   .accordion-selector + label + .content
     display: none

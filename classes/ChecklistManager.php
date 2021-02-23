@@ -214,7 +214,8 @@ class ChecklistManager {
 				$taxonTokens = $newArr;
 			}
 			if(!$retLimit || ($this->taxaCount >= (($pageNumber-1)*$retLimit) && $this->taxaCount <= ($pageNumber)*$retLimit)){
-				if($row->rankid == 180) $sciName .= " sp.";
+				if($row->morphospecies) $sciName .= ' '.$row->morphospecies;
+				elseif($row->rankid == 180) $sciName .= " sp.";
 				if($row->rankid > 220 && $this->clMetadata['type'] != 'rarespp' && !array_key_exists($row->parenttid, $this->taxaList)){
 					$this->taxaList[$row->parenttid]['taxongroup'] = '<i>'.$taxonGroup.'</i>';
 					$this->taxaList[$row->parenttid]['family'] = $family;
@@ -229,13 +230,12 @@ class ChecklistManager {
 					if($row->source) $clStr .= ", <u>source</u>: ".$row->source;
 					if($clStr) $this->taxaList[$tid]["notes"] = substr($clStr,2);
 				}
-				//$morphoStr = $row->morphospecies;
-				//if(!$morphoStr) $morphoStr = 0;
-				//$this->taxaList[$tid][$morphoStr]['sciname'] = $sciName;
 				$this->taxaList[$tid]['sciname'] = $sciName;
 				$this->taxaList[$tid]['family'] = $family;
 				$this->taxaList[$tid]['taxongroup'] = '<i>'.$taxonGroup.'</i>';
-				if(isset($this->taxaList[$tid]['clid'])) $this->taxaList[$tid]['clid'] = $this->taxaList[$tid]['clid'].','.$row->clid;
+				if(isset($this->taxaList[$tid]['clid'])){
+					if($this->taxaList[$tid]['clid'] != $row->clid) $this->taxaList[$tid]['clid'] = $this->taxaList[$tid]['clid'].','.$row->clid;
+				}
 				else $this->taxaList[$tid]['clid'] = $row->clid;
 				if($this->showAuthors) $this->taxaList[$tid]['author'] = $this->cleanOutStr($row->author);
 			}
@@ -492,7 +492,7 @@ class ChecklistManager {
 		$this->showAuthors = 1;
 		if($taxaArr = $this->getTaxaList(1,0)){
 			$fh = fopen('php://output', 'w');
-			$headerArr = array('Family','ScientificName','ScientificNameAuthorship','morphoSpecies');
+			$headerArr = array('Family','ScientificName','ScientificNameAuthorship');
 			if($this->showCommon) $headerArr[] = 'CommonName';
 			$headerArr[] = 'Notes';
 			$headerArr[] = 'TaxonId';
@@ -501,7 +501,6 @@ class ChecklistManager {
 				$outArr = array($tArr['family']);
 				$outArr[] = html_entity_decode($tArr['sciname'],ENT_QUOTES|ENT_XML1);
 				$outArr[] = html_entity_decode($tArr['author'],ENT_QUOTES|ENT_XML1);
-				$outArr[] = html_entity_decode($tArr['morphospecies'],ENT_QUOTES|ENT_XML1);
 				if($this->showCommon) $outArr[] = (array_key_exists('vern',$tArr)?html_entity_decode($tArr['vern'],ENT_QUOTES|ENT_XML1):'');
 				$outArr[] = (array_key_exists('notes',$tArr)?strip_tags(html_entity_decode($tArr['notes'],ENT_QUOTES|ENT_XML1)):'');
 				$outArr[] = $tid;

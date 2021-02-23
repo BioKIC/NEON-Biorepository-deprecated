@@ -23,8 +23,6 @@ $siteData = new DatasetsMetadata();
       }
     ?>
     <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
-    <!-- <script src="js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script> -->
-    <!-- <script src="js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script> -->
     <script type="text/javascript">
       <?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
     </script>
@@ -61,7 +59,7 @@ $siteData = new DatasetsMetadata();
                   <!-- <div id="match-list-container"></div> -->
                   <!-- <input id="taxa" type="text" size="60" name="taxa" value="" /> -->
                   <span data-label="Taxon"></span></label>
-                <span class="assistive-text">Separate multiple with commas.</span>
+                <span class="assistive-text">Type at least 4 characters for quick suggestions. Separate multiple with commas.</span>
               </div>
               <div class="select-container">
                 <!-- <label for="taxon-type">Taxon Type</label> -->
@@ -225,11 +223,11 @@ $siteData = new DatasetsMetadata();
                 <div>
                   <div>
                     <input type="checkbox" name="includeothercatnum" id="includeothercatnum" value="1" data-chip="Include other IDs" checked>
-                    <label for="includeothercatnum">Include other catalogue numbers and GUIds</label>
+                    <label for="includeothercatnum">Include other catalog numbers and GUIds</label>
                   </div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                    <input type="text" name="catnum">
+                    <input type="text" name="catnum" data-chip="Catalog Number">
                     <span data-label="Catalog Number"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
@@ -280,19 +278,19 @@ $siteData = new DatasetsMetadata();
                 <div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                  <input type="text" name="state" id="state">
+                  <input type="text" name="state" id="state" data-chip="State">
                   <span data-label="State"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                  <input type="text" name="county" id="county">
+                  <input type="text" name="county" id="county" data-chip="County">
                   <span data-label="County"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                  <input type="text" name="local" id="local">
+                  <input type="text" name="local" id="local" data-chip="Locality">
                   <span data-label="Locality"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
@@ -300,13 +298,13 @@ $siteData = new DatasetsMetadata();
                 <div class="grid grid--half">
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                        <input type="text" name="elevlow" id="elevlow">
+                        <input type="text" name="elevlow" id="elevlow" data-chip="Min Elevation">
                         <span data-label="Minimum Elevation"></span></label>
                     <span class="assistive-text">Only numbers.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="" class="input-text--outlined">
-                        <input type="text" name="elevhigh"  id="elevhigh">
+                        <input type="text" name="elevhigh"  id="elevhigh" data-chip="Max Elevation">
                         <span data-label="Maximum Elevation"></span></label>
                     <span class="assistive-text">Only numbers.</span>
                   </div>
@@ -329,7 +327,7 @@ $siteData = new DatasetsMetadata();
                   <button onclick="openCoordAid('rectangle');return false;">Select in map</button>
                   <div class="input-text-container">
                     <label for="upperlat" class="input-text--outlined">
-                    <input type="text" id="upperlat" name="upperlat">
+                    <input type="text" id="upperlat" name="upperlat" data-chip="Upper Lat">
                     <select class="mt-1" id="upperlat_NS" name="upperlat_NS">
                       <option value="">Select</option>
                       <option id="ulN" value="N">N</option>
@@ -340,7 +338,7 @@ $siteData = new DatasetsMetadata();
                   </div>
                   <div class="input-text-container">
                     <label for="bottomlat" class="input-text--outlined">
-                    <input type="text" id="bottomlat" name="bottomlat">
+                    <input type="text" id="bottomlat" name="bottomlat" data-chip="Bottom Lat">
                     <select class="mt-1" id="bottomlat_NS" name="bottomlat_NS">
                       <option value="">Select</option>
                       <option id="blN" value="N">N</option>
@@ -351,7 +349,7 @@ $siteData = new DatasetsMetadata();
                   </div>
                   <div class="input-text-container">
                     <label for="leftlong" class="input-text--outlined">
-                    <input type="text" id="leftlong" name="leftlong">
+                    <input type="text" id="leftlong" name="leftlong" data-chip="Left Long">
                     <select class="mt-1" id="leftlong_EW" name="leftlong_EW">
                       <option value="">Select</option>
                       <option id="llW" value="W">W</option>
@@ -362,7 +360,7 @@ $siteData = new DatasetsMetadata();
                   </div>
                   <div class="input-text-container">
                     <label for="rightlong" class="input-text--outlined">
-                    <input type="text" id="rightlong" name="rightlong">
+                    <input type="text" id="rightlong" name="rightlong" data-chip="Right Long">
                     <select class="mt-1" id="rightlong_EW" name="rightlong_EW">
                       <option value="">Select</option>
                       <option id="rlW" value="W">W</option>
@@ -387,7 +385,7 @@ $siteData = new DatasetsMetadata();
                   <button onclick="openCoordAid('circle');return false;">Select in map</button>
                   <div class="input-text-container">
                     <label for="pointlat" class="input-text--outlined">
-                    <input type="text" id="pointlat" name="pointlat">
+                    <input type="text" id="pointlat" name="pointlat" data-chip="Point Lat">
                     <select class="mt-1" id="pointlat_NS" name="pointlat_NS">
                     <option value="">Select</option>
                       <option id="N" value="N">N</option>
@@ -398,7 +396,7 @@ $siteData = new DatasetsMetadata();
                   </div>
                   <div class="input-text-container">
                     <label for="pointlong" class="input-text--outlined">
-                    <input type="text" id="pointlong" name="pointlong">
+                    <input type="text" id="pointlong" name="pointlong" data-chip="Point Long">
                     <select class="mt-1" id="pointlong_EW" name="pointlong_EW">
                     <option value="">Select</option>
                       <option id="W" value="W">W</option>
@@ -409,7 +407,7 @@ $siteData = new DatasetsMetadata();
                   </div>
                   <div class="input-text-container">
                     <label for="radius" class="input-text--outlined">
-                    <input type="text" id="radius" name="radius">
+                    <input type="text" id="radius" name="radius" data-chip="Radius">
                     <select class="mt-1" id="radiusunits" name="radiusunits">
                     <option value="">Select Unit</option>
                       <option value="km">Kilometers</option>
@@ -433,13 +431,13 @@ $siteData = new DatasetsMetadata();
               <div id="search-form-coll-event">
                 <div class="input-text-container">
                   <label for="eventdate1" class="input-text--outlined">
-                  <input type="text" name="eventdate1" >
+                  <input type="text" name="eventdate1" data-chip="Event Date Start">
                   <span data-label="Collection Start Date"></span></label>
                   <span class="assistive-text">Single date or start date of range.</span>
                 </div>
                 <div class="input-text-container">
                   <label for="eventdate2" class="input-text--outlined">
-                    <input type="text" name="eventdate2" >
+                    <input type="text" name="eventdate2" data-chip="Event Date End">
                     <span data-label="Collection End Date"></span></label>
                   <span class="assistive-text">Single date or start date of range.</span>
                 </div>

@@ -119,7 +119,7 @@ $siteData = new DatasetsMetadata();
             <div class="modal" id="biorepo-collections-list">
               <div class="modal-content">
                 <button id="neon-modal-close" class="btn" style="width:auto !important">Accept and close</button>
-                <div id="testing-modal">
+                <div id="colls-modal">
                   <div>
                     <h3>Pick a criterion to filter collections</h3>
                     <label class="tab tab-active"><input type="radio" name="collChoice" value="taxonomic-cat" checked="true"> Taxonomic Group</label>

@@ -2,7 +2,7 @@
  * GLOBAL VARIABLES
  */
 const criteriaPanel = document.getElementById('criteria-panel');
-const testURL = document.getElementById('test-url');
+const testUrl = document.getElementById('test-url');
 let criterionSelected = 'taxonomic-cat';
 let paramsArr = [];
 //////////////////////////////////////////////////////////////////////////
@@ -10,6 +10,7 @@ let paramsArr = [];
 /**
  * METHODS
  */
+
 /**
  * Toggles tab selection for collection picking options in modal
  * Uses jQuery
@@ -265,9 +266,9 @@ function getSearchUrl() {
   //   'https://biorepo.neonscience.org/portal/collections/list.php'
   //  http://biokic4.rc.asu.edu/biorepo/collections/list.php
   // );
-  const baseURL = new URL(
-    'http://github.localhost:8080/NEON-Biorepository/collections/list.php'
-  );
+  const harvestUrl = location.href.slice(0, location.href.indexOf('/neon'));
+  console.log(harvestUrl);
+  const baseUrl = new URL(harvestUrl + '/collections/list.php');
 
   // console.log(baseURL);
   // Clears array temporarily to avoid redundancy
@@ -316,13 +317,17 @@ function getSearchUrl() {
     //   return encodeURIComponent(key) + '=' + encodeURIComponent(paramsArr[key])
     // }).join('&');
     // console.log(baseURL + queryString);
-    baseURL.searchParams.append(key, paramsArr[key]);
+    baseUrl.searchParams.append(key, paramsArr[key]);
   });
-  console.log(paramsArr);
-  console.log(baseURL.href);
-  // Appends URL to `testURL` link
-  testURL.innerHTML = baseURL.href;
-  testURL.href = baseURL.href;
+  // console.log(paramsArr);
+  // console.log(baseUrl.href);
+  // Appends URL to `testUrl` link
+  // testUrl.innerHTML = baseUrl.href;
+  testUrl.innerText = 'Click here';
+  testUrl.href = baseUrl.href;
+  // testUrl.href = queryString;
+  // return baseUrl.href;
+  return baseUrl.href;
 }
 
 /**
@@ -353,11 +358,26 @@ function valColls() {
 
 // Test button gets params
 // $("#teste-btn").click(getSearchParams);
-$('#teste-btn').click(function (event) {
-  event.preventDefault();
+// $('#teste-btn').click(function (event) {
+//   console.log('here');
+//   event.preventDefault();
+//   valColls();
+//   getSearchUrl();
+// });
+
+document
+  .getElementById('search-btn')
+  .addEventListener('click', function (event) {
+    event.preventDefault();
+    simpleSearch();
+  });
+
+function simpleSearch() {
   valColls();
-  getSearchUrl();
-});
+  let searchUrl = getSearchUrl();
+  console.log(searchUrl);
+  window.location = searchUrl;
+}
 
 // Listen for open modal click
 $('#neon-modal-open').click(function (event) {
@@ -391,6 +411,8 @@ const collsModal = document.getElementById('testing-modal');
 collsModal.addEventListener('click', autoToggleSelector, false);
 collsModal.addEventListener('change', autoToggleSelector, false);
 
+const form = document.getElementById('params-form');
+
 // Listen for close modal click and passes value of selected colls to main form
 document
   .getElementById('neon-modal-close')
@@ -411,7 +433,7 @@ document
   });
 
 //////// Binds Update chip on event change
-document.querySelector('#params-form').addEventListener('change', updateChip);
+form.addEventListener('change', updateChip);
 // const locInput = document.getElementById('')
 
 // on default (on document load): All Neon Collections, All Domains & Sites

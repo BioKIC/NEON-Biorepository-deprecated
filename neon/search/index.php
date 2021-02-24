@@ -38,6 +38,7 @@ $siteData = new DatasetsMetadata();
     <div id="innertext">
 
       <h1>Sample Search</h1>
+      <!-- <form id="params-form" onsubmit="simpleSearch()"> -->
       <form id="params-form">
         <!-- Criteria forms -->
         <div class="accordions">
@@ -449,9 +450,9 @@ $siteData = new DatasetsMetadata();
         <div id="criteria-panel" style="position: sticky; top: 0; height: 100vh">
           <!-- <button>Clear</button>
           <button>Search</button> -->
-          <button id="teste-btn">Get all params</button>
-          <p><a href="#" id="test-url" target="_blank" style="max-width: 50px">Search URL</a></p>
-          <button type="reset">Reset Form</button>
+          <!-- <button id="teste-btn">Get all params</button>
+          <p><a href="#" id="test-url" target="_blank" style="max-width: 50px">Search URL</a></p> -->
+          <button id="search-btn">Search</button>
           <h2>Criteria</h2>
           <div id="chips"></div>
         </div>
@@ -465,5 +466,5 @@ $siteData = new DatasetsMetadata();
   <script src="js/searchform.js"></script>
   <script src="<?php echo $CLIENT_ROOT.'/js/jquery-ui-1.12.1/jquery-ui.min.js'; ?>" type="text/javascript"></script>
   <script src="<?php echo $CLIENT_ROOT.'/js/symb/api.taxonomy.taxasuggest.js'; ?>" type="text/javascript"></script>
-  <script src="js/taxasearch.js"></script>
+  <!-- <script src="js/taxasearch.js"></script> -->
 </html>

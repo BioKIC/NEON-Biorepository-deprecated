@@ -24,6 +24,7 @@ if($IS_ADMIN) $isEditor = true;
 	</script>
 	<style type="text/css">
 		.nps-report { margin-left:15px; display:none; }
+		.workingSpan { display:none; margin-left:5px; }
 	</style>
 </head>
 <body>
@@ -52,17 +53,15 @@ if($isEditor){
 				<li><a href="shipment/manifestsearch.php">Manifest Listing and Advanced Search</a></li>
 				<li><a href="igsnmanager.php">NEON IGSN Contorl Panel</a></li>
 				<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>
-				<!--
 				<li><a href="#" onclick="$('.nps-report').show();return false">NPS Year End Reports</a></li>
-				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2019">BLDE - 2019</a></li>
-				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2019">GRSM - 2019</a></li>
-				<li class="nps-report"><a href="npsReportHandler.php?dsid=99&year=2019">LECO - 2019</a></li>
-				<li class="nps-report"><a href="npsReportHandler.php?dsid=131&year=2019">YELL - 2019</a></li>
-				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2020">BLDE - 2020</a></li>
-				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2020">GRSM - 2020</a></li>
-				<li class="nps-report"><a href="npsReportHandler.php?dsid=99&year=2020">LECO - 2020</a></li>
-				<li class="nps-report"><a href="npsReportHandler.php?dsid=131&year=2020">YELL - 2020</a></li>
-				 -->
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2020" onclick="$('#BLDE20-working').show();">BLDE - 2020</a><span id="BLDE20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2020" onclick="$('#GRSM20-working').show();">GRSM - 2020</a><span id="GRSM20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=99&year=2020" onclick="$('#LECO20-working').show();">LECO - 2020</a><span id="LECO20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=131&year=2020" onclick="$('#YELL20-working').show();">YELL - 2020</a><span id="YELL20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2019" onclick="$('#BLDE19-working').show();">BLDE - 2019</a><span id="BLDE19-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2019" onclick="$('#GRSM19-working').show();">GRSM - 2019</a><span id="GRSM19-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=99&year=2019" onclick="$('#LECO19-working').show();">LECO - 2019</a><span id="LECO19-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=131&year=2019" onclick="$('#YELL19-working').show();">YELL - 2019</a><span id="YELL19-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
 				<li><a href="shipment/harvesterreports.php">Occurrence Harvester Error Report</a></li>
 			</ul>
 		</fieldset>

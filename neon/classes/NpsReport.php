@@ -6,27 +6,39 @@ class NpsReport{
 	private $conn;
 	private $siteArr;
 	private $occurArr;
+	private $itisTsnArr = array();
 	private $datasetID;
 	private $targetYear;
+	private $debugMode = false;
 	private $errorStr;
 
  	public function __construct(){
+ 		set_time_limit(500);
 		$this->conn = MySQLiConnectionFactory::getCon("write");
-		$this->siteArr = array('GRSM'=>'40','LECO'=>'99','BLDE'=>'110','YELL'=>'131');
+		$this->siteArr = array('40'=>'GRSM','99'=>'LECO','110'=>'BLDE','131'=>'YELL');
+		$this->debugMode = false;
+		if($this->debugMode) echo '<ul>';
  	}
 
  	public function __destruct(){
 		if($this->conn) $this->conn->close();
-	}
+		if($this->debugMode) echo '</ul>';
+ 	}
 
 	public function generateNpsReport(){
 		if($this->datasetID){
-			$this->setOccurArr();
-			$this->exportData();
+			if($this->setOccurArr()){
+				$this->exportData();
+			}
+			else{
+				header("Content-Type: text/html; charset=".$GLOBALS['CHARSET']);
+				echo '<h2>Dataset does not exist for that year</h2>';
+			}
 		}
 	}
 
 	private function setOccurArr(){
+		$status = false;
 		$sql = 'SELECT o.occid, o.family, o.tidInterpreted, o.sciname, o.scientificNameAuthorship, t.unitname1, CONCAT_WS(" ",t.unitname2,t.unitind3,t.unitname3) as species, t.rankid, '.
 			'o.individualCount, o.verbatimAttributes, o.habitat, o.recordedBy, o.recordNumber, o.eventDate, CONCAT_WS("; ", o.occurrenceID, o.otherCatalogNumbers) as otherCatalogNumbers, '.
 			'o.identifiedBy, o.dateIdentified, o.locality, o.stateProvince, o.county, o.geodeticDatum, o.decimalLatitude, o.decimalLongitude, o.verbatimCoordinates, '.
@@ -35,10 +47,14 @@ class NpsReport{
 			'LEFT JOIN taxa t ON o.tidinterpreted = t.tid '.
 			'WHERE (d.datasetid = '.$this->datasetID.') ';
 		if($this->targetYear) $sql .= 'AND (o.dateEntered BETWEEN "'.($this->targetYear).'-01-01" AND "'.$this->targetYear.'-12-31")';
-		//echo $sql;
+		if($this->debugMode) echo '<li>'.$sql.'</li>';
 		$rs = $this->conn->query($sql);
+		if($this->debugMode) echo '<li>Starting to output '.$rs->num_rows.' records</li>';
 		$tidArr = array();
+		$cnt = 0;
 		while($r = $rs->fetch_object()){
+			$cnt++;
+			if($this->debugMode) echo '<li>#'.$cnt.': Processing record: '.$r->occid.' ('.date('h:i:s').')</li>';
 			$this->occurArr[$r->occid]['nspCatNum'] = '';
 			$this->occurArr[$r->occid]['npsAccNumb'] = '';
 			$this->occurArr[$r->occid]['class1'] = 'BIOLOGY';
@@ -50,8 +66,8 @@ class NpsReport{
 			$this->occurArr[$r->occid]['genus'] = ($r->rankid > 179?$r->unitname1:'');
 			$this->occurArr[$r->occid]['species'] = $r->species;
 			$this->occurArr[$r->occid]['author'] = $r->scientificNameAuthorship;
-			$this->occurArr[$r->occid]['common'] = '';
-			$this->occurArr[$r->occid]['tsn'] = $this->getItisTSN($r->sciname);
+			$this->occurArr[$r->occid]['common'] = (!$r->tidInterpreted?$r->sciname:'');
+			$this->occurArr[$r->occid]['tsn'] = $this->getItisTSN($r->sciname,$r->tidInterpreted);
 			$this->occurArr[$r->occid]['count'] = $r->individualCount;
 			$this->occurArr[$r->occid]['quantity'] = '0.0';
 			$this->occurArr[$r->occid]['unit'] = 'EA';
@@ -103,10 +119,21 @@ class NpsReport{
 			$this->occurArr[$r->occid]['depth'] = '';
 			$this->occurArr[$r->occid]['Depos'] = '';
 			$this->occurArr[$r->occid]['habComm'] = '';
-			$this->occurArr[$r->occid]['habitat'] = $r->habitat;
-			$this->occurArr[$r->occid]['slope'] = '';
-			$this->occurArr[$r->occid]['aspect'] = '';
-			$this->occurArr[$r->occid]['soilType'] = '';
+			$habitatArr = explode(';',$r->habitat);
+			$habitatStr = '';
+			$slopeStr = '';
+			$aspectStr = '';
+			$soilStr = '';
+			foreach($habitatArr as $habStr){
+				if(stripos($habStr,'slope gradient') !== false) $slopeStr = trim($habStr);
+				elseif(stripos($habStr,'slope aspect') !== false) $aspectStr = trim($habStr);
+				else $habitatStr .= $habStr.'; ';
+			}
+
+			$this->occurArr[$r->occid]['habitat'] = trim($habitatStr,'; ');
+			$this->occurArr[$r->occid]['slope'] = $slopeStr;
+			$this->occurArr[$r->occid]['aspect'] = $aspectStr;
+			$this->occurArr[$r->occid]['soilType'] = $soilStr;
 			$this->occurArr[$r->occid]['forPerSub'] = '';
 			$this->occurArr[$r->occid]['assocSp'] = $r->associatedTaxa;
 			$this->occurArr[$r->occid]['typeSpec'] = '';
@@ -122,10 +149,15 @@ class NpsReport{
 			$this->occurArr[$r->occid]['statusDate'] = $r->dateEntered;
 			$this->occurArr[$r->occid]['catFolder'] = '';
 			if($r->tidInterpreted) $tidArr[$r->tidInterpreted][] = $r->occid;
+			if($this->debugMode){
+				ob_flush();
+				flush();
+			}
 		}
 		$rs->free();
 		$this->setTaxonomy($tidArr);
 		$this->setVernacular($tidArr);
+		return $status;
 	}
 
 	private function parseCoord($decCoord){
@@ -140,23 +172,55 @@ class NpsReport{
 		return $retArr;
 	}
 
-	private function getItisTSN($sciname){
-		$tsn = '';
-		$url = 'https://www.itis.gov/ITISWebService/services/ITISService/searchByScientificName?srchKey='.str_replace(' ','%20',$sciname);
-		$retArr = $this->getContentString($url);
-		$xmlContent = $retArr['str'];
-		$doc = new DOMDocument();
-		$doc->loadXML($xmlContent);
-		$nodes = $doc->getElementsByTagName('ax21:tsn');
-		if($nodes->length) $tsn = $nodes->item(0);
+	private function getItisTSN($sciname, $tid){
+		if(isset($this->itisTsnArr[$sciname])) return $this->itisTsnArr[$sciname];
+		$tsn = $this->getTsnFromDatabase($tid);
+		if(!$tsn){
+			//Grab TSN via ITIS web services
+			$url = 'https://www.itis.gov/ITISWebService/services/ITISService/searchByScientificName?srchKey='.str_replace(' ','%20',$sciname);
+			if($this->debugMode) echo '<li style="margin-left:15px">'.$url.'</li>';
+			$retArr = $this->getContentString($url);
+			$xmlContent = $retArr['str'];
+			$doc = new DOMDocument();
+			if(@$doc->loadXML($xmlContent)){
+				$nodes = $doc->getElementsByTagName('tsn');
+				if($nodes->length) $tsn = $nodes->item(0)->nodeValue;
+				if($tsn) $this->loadTsnIntoDatabase($tid, $tsn);
+			}
+		}
+		$this->itisTsnArr[$sciname] = $tsn;
 		return $tsn;
+	}
+
+	private function getTsnFromDatabase($tid){
+		$tsn = '';
+		if($tid){
+			$sql = 'SELECT sourceIdentifier FROM taxaresourcelinks WHERE sourceName = "ITIS" AND tid = '.$tid;
+			if($this->debugMode) echo '<li style="margin-left:15px">'.$sql.'</li>';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$tsn = $r->sourceIdentifier;
+			}
+			$rs->free();
+		}
+		return $tsn;
+	}
+
+	private function loadTsnIntoDatabase($tid, $tsn){
+		if($tid && $tsn){
+			$sql = 'INSERT INTO taxaresourcelinks(tid,sourceName,sourceIdentifier) VALUES('.$tid.',"ITIS","'.$tsn.'")';
+			if($this->debugMode) echo '<li style="margin-left:15px">'.$sql.'</li>';
+			if(!$this->conn->query($sql)){
+				if($this->debugMode) echo '<li style="margin-left:30px">ERROR adding ITIS TSN to database: '.$this->conn->error.'</li>';
+			}
+		}
 	}
 
 	private function getContentString($url){
 		$retArr = array();
 		if($url){
 			if($fh = fopen($url, 'r')){
-				stream_set_timeout($fh, 10);
+				stream_set_timeout($fh, 5);
 				$contentStr = '';
 				while($line = fread($fh, 1024)){
 					$contentStr .= trim($line);
@@ -176,9 +240,7 @@ class NpsReport{
 	private function setTaxonomy(&$tidArr){
 		if($tidArr){
 			$taxaArr = array();
-			$sql = 'SELECT e.tid, t.sciname, t.rankid '.
-				'FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid '.
-				'WHERE e.tid IN('.implode(',',array_keys($tidArr)).')';
+			$sql = 'SELECT e.tid, t.sciname, t.rankid FROM taxaenumtree e INNER JOIN taxa t ON e.parentTid = t.tid WHERE e.tid IN('.implode(',',array_keys($tidArr)).')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$taxaArr[$r->tid][$r->rankid] = $r->sciname;
@@ -187,10 +249,10 @@ class NpsReport{
 			//Add taxonomic hierarchy to occurrence array
 			foreach($tidArr as $tid => $occidArr){
 				foreach($occidArr as $occid){
-					if(isset($taxaArr[$tid][10])) $this->$taxaArr[$occid]['kingdom'] = $taxaArr[$tid][10];
-					if(isset($taxaArr[$tid][30])) $this->$taxaArr[$occid]['phylum'] = $taxaArr[$tid][30];
-					if(isset($taxaArr[$tid][60])) $this->$taxaArr[$occid]['class'] = $taxaArr[$tid][60];
-					if(isset($taxaArr[$tid][100])) $this->$taxaArr[$occid]['order'] = $taxaArr[$tid][100];
+					if(isset($taxaArr[$tid][10])) $this->occurArr[$occid]['kingdom'] = $taxaArr[$tid][10];
+					if(isset($taxaArr[$tid][30])) $this->occurArr[$occid]['phylum'] = $taxaArr[$tid][30];
+					if(isset($taxaArr[$tid][60])) $this->occurArr[$occid]['class'] = $taxaArr[$tid][60];
+					if(isset($taxaArr[$tid][100])) $this->occurArr[$occid]['order'] = $taxaArr[$tid][100];
 				}
 			}
 		}
@@ -208,7 +270,7 @@ class NpsReport{
 			//Add taxonomic hierarchy to occurrence array
 			foreach($tidArr as $tid => $occidArr){
 				foreach($occidArr as $occid){
-					if(isset($vernArr[$tid])) $this->$taxaArr[$occid]['common'] = implode('; ',$vernArr[$tid]);
+					if(isset($vernArr[$tid])) $this->occurArr[$occid]['common'] = implode('; ',$vernArr[$tid]);
 				}
 			}
 		}
@@ -216,7 +278,7 @@ class NpsReport{
 
 	private function exportData(){
 		if($this->occurArr){
-			$fileName = 'NPS_Report_'.$this->siteID.'_'.date('Y-m-d').'.csv';
+			$fileName = 'NPS_Report_'.$this->siteArr[$this->datasetID].'_'.date('Y-m-d').'.csv';
 			$fieldArr = array('Catalog #', 'Accession #', 'Class 1', 'Kingdom', 'Phylum/Division', 'Class', 'Order', 'Family', 'Sci. Name:Genus', 'Sci. Name:Species',
 				'Sci. Name:Species Authority', 'Common Name', 'TSN', 'Item Count', 'Quantity', 'Storage Unit', 'Description', 'Dimens/Weight', 'Collector','Collection #','Collection Date',
 				'Maint. Cycle',	'Condition', 'Condition Desc', 'Study #', 'Other Numbers', 'Eminent Figure','Eminent Org', 'Cataloger', 'Catalog Date', 'Identified By', 'Ident Date',
@@ -242,6 +304,11 @@ class NpsReport{
 
 	public function setTargetYear($y){
 		if(is_numeric($y)) $this->targetYear = $y;
+	}
+
+	public function setDebugMode(){
+		if($bool) $this->debugMode = true;
+		else $this->debugMode = false;
 	}
 
 	public function getErrorStr(){

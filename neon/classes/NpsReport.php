@@ -26,15 +26,16 @@ class NpsReport{
  	}
 
 	public function generateNpsReport(){
+		$status = false;
 		if($this->datasetID){
-			if($this->setOccurArr()){
-				$this->exportData();
-			}
+			$status = $this->setOccurArr();
+			if($status) $this->exportData();
 			else{
 				header("Content-Type: text/html; charset=".$GLOBALS['CHARSET']);
 				echo '<h2>Dataset does not exist for that year</h2>';
 			}
 		}
+		return $status;
 	}
 
 	private function setOccurArr(){
@@ -53,8 +54,8 @@ class NpsReport{
 		$tidArr = array();
 		$cnt = 0;
 		while($r = $rs->fetch_object()){
-			$cnt++;
-			if($this->debugMode) echo '<li>#'.$cnt.': Processing record: '.$r->occid.' ('.date('h:i:s').')</li>';
+			$status = true;
+			if($this->debugMode) echo '<li>#'.++$cnt.': Processing record: '.$r->occid.' ('.date('h:i:s').')</li>';
 			$this->occurArr[$r->occid]['nspCatNum'] = '';
 			$this->occurArr[$r->occid]['npsAccNumb'] = '';
 			$this->occurArr[$r->occid]['class1'] = 'BIOLOGY';

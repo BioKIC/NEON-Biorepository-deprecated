@@ -28,7 +28,7 @@ $siteData = new DatasetsMetadata();
     </script>
     <!-- Search-specific styles -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="../css/app.css">
+    <link rel="stylesheet" href="../css/app.css?v=02">
   </head>
   <body>
     <?php

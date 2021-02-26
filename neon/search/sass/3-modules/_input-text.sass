@@ -38,7 +38,7 @@
         
     input
       &:focus,
-      &:valid
+      &:valid, &:invalid
          ~ span
                 &::before
                     font-size: $font-size-small
@@ -65,7 +65,7 @@
             background-color: var(--bg-hover1)
         
         &:focus,
-        &:valid
+        &:valid, &:invalid
             ~ span
                 &::before
                     transform: translateY(-12px)
@@ -96,13 +96,10 @@
               border-color: transparent
         
           &:focus,
-          &:valid
+          &:valid, &:invalid
               ~ span
                   &::before
                       transform: translateY(-22px)
                       background-color: white
                       padding: 2px 4px
-             
-      
-      
 

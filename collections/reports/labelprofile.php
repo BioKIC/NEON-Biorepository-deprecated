@@ -69,7 +69,7 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 				$('#json-'+activeProfileCode).val(json);
       }
 
-      /** 
+      /**
        * Adds current profile JSON to visual interface
        */
 			function openJsonEditorPopup(classTag){
@@ -82,18 +82,18 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
         editorWindow.onload = function(){
           let dummy = editorWindow.document.getElementById("dummy");
           dummy.value = currJson;
-          dummy.dataset.formatId = formatId; 
+          dummy.dataset.formatId = formatId;
           editorWindow.loadJson();
          }
 			}
 		</script>
 		<style>
-			fieldset{ width:700px; padding:15px; }
+			fieldset{ width:800px; padding:15px; }
 			fieldset legend{ font-weight:bold; }
 			textarea{ width: 800px; height: 150px }
-			input[type=text]{ width:400px }
+			input[type=text]{ width:500px }
 			hr{ margin:15px 0px; }
-			.fieldset-block{ width:550px }
+			.fieldset-block{ width:700px }
 			.field-block{ margin:3px 0px }
 			.label{ font-weight: bold; }
 			.label-inline{ font-weight: bold; }
@@ -280,9 +280,9 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 							</div>
 						</fieldset>
 						<div class="field-block">
-							<div class="label">Default Styles:</div>
+							<div class="label">Custom Styles:</div>
 							<div class="field-block">
-								<input name="defaultStyles" type="text" value="<?php echo (isset($formatArr['defaultStyles'])?$formatArr['defaultStyles']:''); ?>" />
+								<input name="customStyles" type="text" value="<?php echo (isset($formatArr['customStyles'])?$formatArr['customStyles']:''); ?>" />
 							</div>
 						</div>
 						<div class="field-block">

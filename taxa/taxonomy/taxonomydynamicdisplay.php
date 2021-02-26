@@ -63,7 +63,7 @@ reset($treePath);
 		$(document).ready(function() {
 			$("#taxontarget").autocomplete({
 				source: function( request, response ) {
-					$.getJSON( "../../webservices/autofillsciname.php", { term: request.term, limit: 10, hideauth: true, taid: document.tdform.taxauthid.value }, response );
+					$.getJSON( "rpc/gettaxasuggest.php", { term: request.term, taid: document.tdform.taxauthid.value }, response );
 				}
 			},{ minLength: 3 }
 			);

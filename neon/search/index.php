@@ -40,6 +40,7 @@ $siteData = new DatasetsMetadata();
     <div id="innertext">
 
       <h1>Sample Search</h1>
+      <div id="error-msgs" class="visually-hidden">Error messages here?</div>
       <!-- <form id="params-form" onsubmit="simpleSearch()"> -->
       <form id="params-form">
         <!-- Criteria forms -->
@@ -300,14 +301,14 @@ $siteData = new DatasetsMetadata();
                 </div>
                 <div class="grid grid--half">
                   <div class="input-text-container">
-                    <label for="" class="input-text--outlined">
-                        <input type="text" name="elevlow" id="elevlow" data-chip="Min Elevation">
+                    <label for="elevlow" class="input-text--outlined">
+                        <input type="number" name="elevlow" id="elevlow" data-chip="Min Elevation">
                         <span data-label="Minimum Elevation"></span></label>
                     <span class="assistive-text">Only numbers.</span>
                   </div>
                   <div class="input-text-container">
-                    <label for="" class="input-text--outlined">
-                        <input type="text" name="elevhigh"  id="elevhigh" data-chip="Max Elevation">
+                    <label for="elevhigh" class="input-text--outlined">
+                        <input type="number" name="elevhigh"  id="elevhigh" data-chip="Max Elevation">
                         <span data-label="Maximum Elevation"></span></label>
                     <span class="assistive-text">Only numbers.</span>
                   </div>
@@ -325,88 +326,88 @@ $siteData = new DatasetsMetadata();
             <!-- Accordion content -->
             <div class="content">
               <div id="search-form-latlong">
-                <div>
+                <div id="bounding-box-form">
                   <h3>Bounding Box</h3>
                   <button onclick="openCoordAid('rectangle');return false;">Select in map</button>
                   <div class="input-text-container">
                     <label for="upperlat" class="input-text--outlined">
-                    <input type="text" id="upperlat" name="upperlat" data-chip="Upper Lat">
+                    <input type="number" min="-90" max="90" id="upperlat" name="upperlat" data-chip="Upper Lat">
                     <select class="mt-1" id="upperlat_NS" name="upperlat_NS">
-                      <option value="">Select</option>
+                      <option value="">Select N/S</option>
                       <option id="ulN" value="N">N</option>
                       <option id="ulS" value="S">S</option>
                     </select>
                     <span data-label="Northern Latitude"></span></label>
-                    <span class="assistive-text">Assistive text.</span>
+                    <span class="assistive-text">Values between -90 and 90.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="bottomlat" class="input-text--outlined">
-                    <input type="text" id="bottomlat" name="bottomlat" data-chip="Bottom Lat">
+                    <input type="number" min="-90" max="90" id="bottomlat" name="bottomlat" data-chip="Bottom Lat">
                     <select class="mt-1" id="bottomlat_NS" name="bottomlat_NS">
-                      <option value="">Select</option>
+                      <option value="">Select N/S</option>
                       <option id="blN" value="N">N</option>
                       <option id="blS" value="S">S</option>
                     </select>
                     <span data-label="Southern Latitude"></span></label>
-                    <span class="assistive-text">Assistive text.</span>
+                    <span class="assistive-text">Values between -90 and 90.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="leftlong" class="input-text--outlined">
-                    <input type="text" id="leftlong" name="leftlong" data-chip="Left Long">
+                    <input type="number" min="-180" max="180" id="leftlong" name="leftlong" data-chip="Left Long">
                     <select class="mt-1" id="leftlong_EW" name="leftlong_EW">
-                      <option value="">Select</option>
+                      <option value="">Select W/E</option>
                       <option id="llW" value="W">W</option>
                       <option id="llE" value="E">E</option>
                     </select>
                     <span data-label="Western Longitude"></span></label>
-                    <span class="assistive-text">Assistive text.</span>
+                    <span class="assistive-text">Values between -180 and 180.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="rightlong" class="input-text--outlined">
-                    <input type="text" id="rightlong" name="rightlong" data-chip="Right Long">
+                    <input type="number" min="-180" max="180" id="rightlong" name="rightlong" data-chip="Right Long">
                     <select class="mt-1" id="rightlong_EW" name="rightlong_EW">
-                      <option value="">Select</option>
+                      <option value="">Select W/E</option>
                       <option id="rlW" value="W">W</option>
                       <option id="rlE" value="E">E</option>
                     </select>
                     <span data-label="Eastern Longitude"></span></label>
-                    <span class="assistive-text">Assistive text.</span>
+                    <span class="assistive-text">Values between -180 and 180.</span>
                   </div>
                 </div>
-                <div>
+                <div id ="polygon-form">
                   <h3>Polygon (WKT footprint)</h3>
                   <button onclick="openCoordAid('polygon');return false;">Select in map</button>
                   <div class="text-area-container">
                     <label for="footprintwkt" class="text-area--outlined">
                     <textarea id="footprintwkt" name="footprintwkt" wrap="off" cols="30%" rows="5"></textarea>
                     <span data-label="Polygon"></span></label>
-                    <span class="assistive-text">Assistive text.</span>
+                    <span class="assistive-text">Select in map with button or paste values.</span>
                   </div>
                 </div>
-                <div>
+                <div id="point-radius-form">
                   <h3>Point-Radius</h3>
                   <button onclick="openCoordAid('circle');return false;">Select in map</button>
                   <div class="input-text-container">
                     <label for="pointlat" class="input-text--outlined">
-                    <input type="text" id="pointlat" name="pointlat" data-chip="Point Lat">
+                    <input type="number" min="-90" max="90" id="pointlat" name="pointlat" data-chip="Point Lat">
                     <select class="mt-1" id="pointlat_NS" name="pointlat_NS">
-                    <option value="">Select</option>
+                    <option value="">Select N/S</option>
                       <option id="N" value="N">N</option>
                       <option id="S" value="S">S</option>
                     </select>
                     <span data-label="Latitude"></span></label>
-                    <span class="assistive-text">Assistive text.</span>
+                    <span class="assistive-text">Values between -90 and 90.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="pointlong" class="input-text--outlined">
-                    <input type="text" id="pointlong" name="pointlong" data-chip="Point Long">
+                    <input type="number" min="-180" max="180" id="pointlong" name="pointlong" data-chip="Point Long">
                     <select class="mt-1" id="pointlong_EW" name="pointlong_EW">
-                    <option value="">Select</option>
+                    <option value="">Select W/E</option>
                       <option id="W" value="W">W</option>
                       <option id="E" value="E">E</option>
                     </select>
                     <span data-label="Longitude"></span></label>
-                    <span class="assistive-text">Assistive text.</span>
+                    <span class="assistive-text">Values between -180 and 180.</span>
                   </div>
                   <div class="input-text-container">
                     <label for="radius" class="input-text--outlined">

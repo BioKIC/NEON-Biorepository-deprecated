@@ -149,7 +149,8 @@ ALTER TABLE `uploadspecparameters`
   ADD CONSTRAINT `FK_uploadspecparameters_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE SET NULL;
 
 ALTER TABLE `uploadspecparameters` 
-  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
+  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL,
+  CHANGE COLUMN `QueryStr` `QueryStr` TEXT NULL DEFAULT NULL;
 
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(150) NULL DEFAULT NULL;

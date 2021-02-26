@@ -341,7 +341,7 @@ function getSearchUrl() {
 
 function validateForm() {
   errors = [];
-
+  // DB
   let anyCollsSelected = document.querySelectorAll(
     '#search-form-colls input[type="checkbox"]:checked'
   ).length;
@@ -351,40 +351,46 @@ function validateForm() {
       errorMsg: 'Please select at least one collection.',
     });
   }
-
-  let boundingBox = document.querySelectorAll(
-    '#bounding-box-form input[type=text]'
+  // HTML5 built-in validation
+  let invalidInputs = document.querySelectorAll('input:invalid');
+  if (invalidInputs.length > 0) {
+    invalidInputs.forEach((inp) => {
+      errors.push({
+        elId: inp.id,
+        errorMsg: 'Please check values in field ' + inp.dataset.chip,
+      });
+    });
+  }
+  // Bounding Box
+  let bBoxNums = document.querySelectorAll(
+    '#bounding-box-form input[type=number]'
   );
-  console.log(boundingBox);
-  let boundingBoxArr = [];
-  boundingBox.forEach((el) => {
+  console.log(bBoxNums);
+  let bBoxNumArr = [];
+  bBoxNums.forEach((el) => {
     console.log(el.value);
-    el.value != '' ? boundingBoxArr.push(el.value) : false;
+    el.value != '' ? bBoxNumArr.push(el.value) : false;
   });
-  console.log(boundingBox.length, boundingBoxArr.length);
-  if (boundingBoxArr.length > 0 && boundingBoxArr.length < boundingBox.length) {
+  console.log(bBoxNumArr);
+  let bBoxCardinals = document.querySelectorAll('#bounding-box-form select');
+  selectedCardinals = [];
+  bBoxCardinals.forEach((hItem) => {
+    hItem.value != '' ? selectedCardinals.push(hItem.id) : false;
+  });
+  console.log(selectedCardinals);
+
+  if (bBoxNumArr.length > 0 && bBoxNumArr.length < bBoxNums.length) {
     errors.push({
       elId: 'bounding-box-form',
       errorMsg:
-        'Error: Please make sure either all Lat/Long bounding box values contain a value, or all are empty.',
+        'Please make sure either all Lat/Long bounding box values contain a value, or all are empty.',
     });
-  } else {
-    // Check if hemispheres are selected
-    let hemispheres = document.querySelectorAll('#bounding-box-form select');
-    hArr = [];
-    hemispheres.forEach((hItem) => {
-      hItem.options[hItem.selectedIndex].value == ''
-        ? hArr.push(hItem.options[hItem.selectedIndex])
-        : false;
+  } else if (bBoxNumArr.length > 0 && selectedCardinals.length == 0) {
+    errors.push({
+      elId: 'bounding-box-form',
+      errorMsg: 'Please select hemisphere values.',
     });
-    hArr.length > 0
-      ? errors.push({
-          elId: 'bounding-box-form',
-          errorMsg: 'Please select hemisphere values.',
-        })
-      : false;
   }
-
   console.dir(errors);
 
   if (errors.length > 0) {
@@ -399,7 +405,7 @@ function validateForm() {
 function handleValErrors(errors) {
   const errorDiv = document.getElementById('error-msgs');
   errorDiv.innerHTML = '';
-  console.log(errors);
+  // console.log(errors);
   errors.map((err) => {
     let element = document.getElementById(err.elId);
     element.classList.add('invalid');
@@ -411,83 +417,26 @@ function handleValErrors(errors) {
 }
 
 function checkHarvestParamsForm(frm) {
-  if (
-    frm.upperlat.value != '' ||
-    frm.bottomlat.value != '' ||
-    frm.leftlong.value != '' ||
-    frm.rightlong.value != ''
-  ) {
-    // if Lat/Long field is filled in, they all should have a value!
-    if (
-      frm.upperlat.value == '' ||
-      frm.bottomlat.value == '' ||
-      frm.leftlong.value == '' ||
-      frm.rightlong.value == ''
-    ) {
-      alert(
-        'Error: Please make all Lat/Long bounding box values contain a value or all are empty'
-      );
-      return false;
-    }
-
-    // Check to make sure lat/longs are valid.
-    if (
-      Math.abs(frm.upperlat.value) > 90 ||
-      Math.abs(frm.bottomlat.value) > 90 ||
-      Math.abs(frm.pointlat.value) > 90
-    ) {
-      alert('Latitude values can not be greater than 90 or less than -90.');
-      return false;
-    }
-    if (
-      Math.abs(frm.leftlong.value) > 180 ||
-      Math.abs(frm.rightlong.value) > 180 ||
-      Math.abs(frm.pointlong.value) > 180
-    ) {
-      alert('Longitude values can not be greater than 180 or less than -180.');
-      return false;
-    }
-    var uLat = frm.upperlat.value;
-    if (frm.upperlat_NS.value == 'S') uLat = uLat * -1;
-    var bLat = frm.bottomlat.value;
-    if (frm.bottomlat_NS.value == 'S') bLat = bLat * -1;
-    if (uLat < bLat) {
-      alert(
-        'Your northern latitude value is less then your southern latitude value. Please correct this.'
-      );
-      return false;
-    }
-    var lLng = frm.leftlong.value;
-    if (frm.leftlong_EW.value == 'W') lLng = lLng * -1;
-    var rLng = frm.rightlong.value;
-    if (frm.rightlong_EW.value == 'W') rLng = rLng * -1;
-    if (lLng > rLng) {
-      alert(
-        'Your western longitude value is greater then your eastern longitude value. Please correct this. Note that western hemisphere longitudes in the decimal format are negitive.'
-      );
-      return false;
-    }
+  var uLat = frm.upperlat.value;
+  if (frm.upperlat_NS.value == 'S') uLat = uLat * -1;
+  var bLat = frm.bottomlat.value;
+  if (frm.bottomlat_NS.value == 'S') bLat = bLat * -1;
+  if (uLat < bLat) {
+    alert(
+      'Your northern latitude value is less then your southern latitude value. Please correct this.'
+    );
+    return false;
   }
-
-  //Same with point radius fields
-  if (
-    frm.pointlat.value != '' ||
-    frm.pointlong.value != '' ||
-    frm.radius.value != ''
-  ) {
-    if (
-      frm.pointlat.value == '' ||
-      frm.pointlong.value == '' ||
-      frm.radius.value == ''
-    ) {
-      alert(
-        'Error: Please make all Lat/Long point-radius values contain a value or all are empty'
-      );
-      return false;
-    }
+  var lLng = frm.leftlong.value;
+  if (frm.leftlong_EW.value == 'W') lLng = lLng * -1;
+  var rLng = frm.rightlong.value;
+  if (frm.rightlong_EW.value == 'W') rLng = rLng * -1;
+  if (lLng > rLng) {
+    alert(
+      'Your western longitude value is greater then your eastern longitude value. Please correct this. Note that western hemisphere longitudes in the decimal format are negitive.'
+    );
+    return false;
   }
-
-  return true;
 }
 
 /**

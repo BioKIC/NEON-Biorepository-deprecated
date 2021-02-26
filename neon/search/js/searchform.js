@@ -9,6 +9,40 @@ const form = document.getElementById('params-form');
 const formColls = document.getElementById('search-form-colls');
 const formSites = document.getElementById('site-list');
 const collsModal = document.getElementById('colls-modal');
+const paramNames = [
+  'db',
+  'datasetid',
+  'catnum',
+  'includeothercatnum',
+  'hasimages',
+  'hasgenetic',
+  'state',
+  'county',
+  'local',
+  'elevlow',
+  'elevhigh',
+  'upperlat',
+  'upperlat_NS',
+  'bottomlat',
+  'bottomlat_NS',
+  'leftlong',
+  'leftlong_EW',
+  'rightlong',
+  'rightlong_EW',
+  'footprintwkt',
+  'pointlat',
+  'pointlat_NS',
+  'pointlong',
+  'pointlong_EW',
+  'radius',
+  'radiusunits',
+  'eventdate1',
+  'eventdate2',
+  'taxa',
+  'usethes',
+  'taxontype',
+];
+
 let criterionSelected = 'taxonomic-cat';
 let paramsArr = [];
 //////////////////////////////////////////////////////////////////////////
@@ -276,39 +310,6 @@ function getSearchUrl() {
   // Clears array temporarily to avoid redundancy
   paramsArr = [];
 
-  const paramNames = [
-    'db',
-    'datasetid',
-    'catnum',
-    'includeothercatnum',
-    'hasimages',
-    'hasgenetic',
-    'state',
-    'county',
-    'local',
-    'elevlow',
-    'elevhigh',
-    'upperlat',
-    'upperlat_NS',
-    'bottomlat',
-    'bottomlat_NS',
-    'leftlong',
-    'leftlong_EW',
-    'rightlong',
-    'rightlong_EW',
-    'footprintwkt',
-    'pointlat',
-    'pointlat_NS',
-    'pointlong',
-    'pointlong_EW',
-    'radius',
-    'radiusunits',
-    'eventdate1',
-    'eventdate2',
-    'taxa',
-    'usethes',
-    'taxontype',
-  ];
   // Grabs params from form for each param name
   paramNames.forEach((param, i) => {
     return getParam(paramNames[i]);
@@ -325,8 +326,8 @@ function getSearchUrl() {
   // console.log(baseUrl.href);
   // Appends URL to `testUrl` link
   // testUrl.innerHTML = baseUrl.href;
-  testUrl.innerText = 'Click here';
-  testUrl.href = baseUrl.href;
+  // testUrl.innerText = 'Click here';
+  // testUrl.href = baseUrl.href;
   // testUrl.href = queryString;
   // return baseUrl.href;
   return baseUrl.href;
@@ -339,41 +340,77 @@ function getSearchUrl() {
 // Enforces selection of at least 1 `db` parameter
 
 function validateForm() {
+  errors = [];
+
   let anyCollsSelected = document.querySelectorAll(
     '#search-form-colls input[type="checkbox"]:checked'
   ).length;
-  // let anyCollSelected =
-
   if (anyCollsSelected === 0) {
-    window.alert('Please select at least one collection');
+    errors.push({
+      elId: 'search-form-colls',
+      errorMsg: 'Please select at least one collection.',
+    });
+  }
+
+  let boundingBox = document.querySelectorAll(
+    '#bounding-box-form input[type=text]'
+  );
+  console.log(boundingBox);
+  let boundingBoxArr = [];
+  boundingBox.forEach((el) => {
+    console.log(el.value);
+    el.value != '' ? boundingBoxArr.push(el.value) : false;
+  });
+  console.log(boundingBox.length, boundingBoxArr.length);
+  if (boundingBoxArr.length > 0 && boundingBoxArr.length < boundingBox.length) {
+    errors.push({
+      elId: 'bounding-box-form',
+      errorMsg:
+        'Error: Please make sure either all Lat/Long bounding box values contain a value, or all are empty.',
+    });
+  } else {
+    // Check if hemispheres are selected
+    let hemispheres = document.querySelectorAll('#bounding-box-form select');
+    hArr = [];
+    hemispheres.forEach((hItem) => {
+      hItem.options[hItem.selectedIndex].value == ''
+        ? hArr.push(hItem.options[hItem.selectedIndex])
+        : false;
+    });
+    hArr.length > 0
+      ? errors.push({
+          elId: 'bounding-box-form',
+          errorMsg: 'Please select hemisphere values.',
+        })
+      : false;
+  }
+
+  console.dir(errors);
+
+  if (errors.length > 0) {
+    window.alert('Please check the error messages and try searching again');
+    handleValErrors(errors);
     return false;
+  } else {
+    console.log('The search would happen after here');
   }
 }
 
-function checkHarvestParamsForm(frm) {
-  //make sure they have filled out at least one field.
-  if (
-    frm.taxa.value.trim() == '' &&
-    frm.country.value.trim() == '' &&
-    frm.state.value.trim() == '' &&
-    frm.county.value.trim() == '' &&
-    frm.local.value.trim() == '' &&
-    frm.elevlow.value.trim() == '' &&
-    frm.upperlat.value.trim() == '' &&
-    frm.footprintwkt.value.trim() == '' &&
-    frm.pointlat.value.trim() == '' &&
-    frm.collector.value.trim() == '' &&
-    frm.collnum.value.trim() == '' &&
-    frm.eventdate1.value.trim() == '' &&
-    frm.catnum.value.trim() == '' &&
-    frm.typestatus.checked == false &&
-    frm.hasimages.checked == false &&
-    frm.hasgenetic.checked == false
-  ) {
-    alert('Please fill in at least one search parameter!');
-    return false;
-  }
+function handleValErrors(errors) {
+  const errorDiv = document.getElementById('error-msgs');
+  errorDiv.innerHTML = '';
+  console.log(errors);
+  errors.map((err) => {
+    let element = document.getElementById(err.elId);
+    element.classList.add('invalid');
+    errorDiv.classList.remove('visually-hidden');
+    let errorP = document.createElement('p');
+    errorP.innerText = err.errorMsg;
+    errorDiv.appendChild(errorP);
+  });
+}
 
+function checkHarvestParamsForm(frm) {
   if (
     frm.upperlat.value != '' ||
     frm.bottomlat.value != '' ||
@@ -457,11 +494,12 @@ function checkHarvestParamsForm(frm) {
  * Calls methods to validate form and build URL that will redirect search
  */
 function simpleSearch() {
-  let isValid = validateForm();
-  if (isValid) {
-    let searchUrl = getSearchUrl();
-    window.location = searchUrl;
-  }
+  validateForm();
+  // let isValid = validateForm();
+  // if (isValid) {
+  //   let searchUrl = getSearchUrl();
+  //   window.location = searchUrl;
+  // }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -49,6 +49,7 @@ if($glossId){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
@@ -56,9 +57,6 @@ if($glossId){
 </head>
 
 <body style="overflow-x:hidden;overflow-y:auto;width:800px;min-width:800px">
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<!-- This is inner text! -->
 	<div style="width:100%;margin-left:auto;margin-right:auto">
 		<div id="tabs" style="padding:10px">

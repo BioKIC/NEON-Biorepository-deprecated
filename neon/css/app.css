@@ -104,6 +104,10 @@ input[type='checkbox'] {
   vertical-align: baseline !important;
 }
 
+#all-neon-colls-quick {
+  margin-top: 1em;
+}
+
 select {
   width: 100%;
 }

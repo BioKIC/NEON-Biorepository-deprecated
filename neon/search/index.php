@@ -412,14 +412,14 @@ $siteData = new DatasetsMetadata();
                   </div>
                   <div class="input-text-container">
                     <label for="radius" class="input-text--outlined">
-                    <input type="text" id="radius" name="radius" data-chip="Radius">
+                    <input type="number" id="radius" name="radius" data-chip="Radius">
                     <select class="mt-1" id="radiusunits" name="radiusunits">
                     <option value="">Select Unit</option>
                       <option value="km">Kilometers</option>
                       <option value="mi">Miles</option>
                     </select>
                     <span data-label="Radius"></span></label>
-                    <span class="assistive-text">Assistive text.</span>
+                    <span class="assistive-text">Any positive values.</span>
                   </div>
                 </div>
               </div>

@@ -21,33 +21,34 @@
           transition: 200ms ease-in-out
 
       &::after
-        // position: absolute
-        // top: 0
+        position: absolute
+        top: 0
         transition: 200ms ease-in-out
       
       // Text Area label
       &::before
           content: attr(data-label)
           left: 16px
-          // top: 0
+          top: 0
           bottom: 0
           margin: auto
           pointer-events: none
           height: 12px
           font-size: var(--fz)
-          color: gray
+          // color: gray
           line-height: 1
-          display: inline
+          // display: inline
+            transform: translateY(-22px)
+            background-color: white
+            padding: 2px 4px
       
-    textarea
-      &:focus
-        ~ span
-              &::before
-                  top: (-$text-area-height) + 33px
-                  font-size: $font-size-small
-                  color: $accent-color
-  
   textarea
+    &:focus
+    ~ span
+          &::before
+              top: (-$text-area-height) + 40px
+              font-size: $font-size-small
+              color: $accent-color
     box-sizing: border-box
     resize: none
     border: 0

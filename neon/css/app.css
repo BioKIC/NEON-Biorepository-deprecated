@@ -640,6 +640,8 @@ span.accent-color-darker {
 }
 
 .text-area-container label span::after {
+  position: absolute;
+  top: 0;
   -webkit-transition: 200ms ease-in-out;
   transition: 200ms ease-in-out;
 }
@@ -647,20 +649,13 @@ span.accent-color-darker {
 .text-area-container label span::before {
   content: attr(data-label);
   left: 16px;
+  top: 0;
   bottom: 0;
   margin: auto;
   pointer-events: none;
   height: 12px;
   font-size: var(--fz);
-  color: gray;
   line-height: 1;
-  display: inline;
-}
-
-.text-area-container label textarea:focus ~ span::before {
-  top: -67px;
-  font-size: 0.8em;
-  color: #005DAB;
 }
 
 .text-area-container textarea {
@@ -671,6 +666,12 @@ span.accent-color-darker {
   height: 100px;
   padding: var(--padding);
   font-size: 1em;
+}
+
+.text-area-container textarea ~ span::before {
+  top: -60px;
+  font-size: 0.8em;
+  color: #005DAB;
 }
 
 .text-area-container textarea:focus, .text-area-container textarea:active {

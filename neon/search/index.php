@@ -114,8 +114,8 @@ $siteData = new DatasetsMetadata();
                     </li>
                   </ul>
                 </div>
-
               </div>
+              <p>Visit the <a href="<?php echo $CLIENT_ROOT.'/collections/misc/collprofiles.php' ;?>" target="_blank" rel="noopener noreferrer">Collections Information Page</a> for a full list of collections hosted by this portal.</p>
             </div>
             <!-- NEON Biorepository Collections Modal -->
             <div class="modal" id="biorepo-collections-list">

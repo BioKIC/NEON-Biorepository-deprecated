@@ -342,10 +342,8 @@ function getSearchUrl() {
 function validateForm() {
   errors = [];
   // DB
-  let anyCollsSelected = document.querySelectorAll(
-    '#search-form-colls input[type="checkbox"]:checked'
-  ).length;
-  if (anyCollsSelected === 0) {
+  let anyCollsSelected = getCollsSelected();
+  if (anyCollsSelected.length === 0) {
     errors.push({
       elId: 'search-form-colls',
       errorMsg: 'Please select at least one collection.',
@@ -422,15 +420,7 @@ function validateForm() {
       }
     }
   }
-
-  console.dir(errors);
-
-  if (errors.length > 0) {
-    handleValErrors(errors);
-    return false;
-  } else {
-    console.log('The search would happen after here');
-  }
+  return errors;
 }
 
 function handleValErrors(errors) {
@@ -451,12 +441,14 @@ function handleValErrors(errors) {
  * Calls methods to validate form and build URL that will redirect search
  */
 function simpleSearch() {
-  validateForm();
-  // let isValid = validateForm();
-  // if (isValid) {
-  //   let searchUrl = getSearchUrl();
-  //   window.location = searchUrl;
-  // }
+  let errors = validateForm();
+  let isValid = errors.length == 0;
+  if (isValid) {
+    let searchUrl = getSearchUrl();
+    window.location = searchUrl;
+  } else {
+    handleValErrors(errors);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -495,7 +487,6 @@ $('#all-neon-colls-quick').click(function () {
   let isChecked = $(this).prop('checked');
   $('.all-neon-colls').prop('checked', isChecked);
   $('.all-neon-colls').siblings().find('.child').prop('checked', isChecked);
-  // validateForm();
 });
 
 // When checking any 'all-selector', toggle children checkboxes

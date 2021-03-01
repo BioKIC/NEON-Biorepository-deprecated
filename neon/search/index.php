@@ -12,7 +12,7 @@ $siteData = new DatasetsMetadata();
 ?>
 <html>
   <head>
-    <title><?php echo $DEFAULT_TITLE; ?>New Sample Search</title>
+    <title><?php echo $DEFAULT_TITLE; ?> New Sample Search</title>
     <?php
       $activateJQuery = true;
       if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -25,9 +25,7 @@ $siteData = new DatasetsMetadata();
       }
     ?>
     <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-      <?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-    </script>
+    <?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
     <!-- Search-specific styles -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="../css/app.css?v=02">

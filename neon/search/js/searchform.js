@@ -365,20 +365,15 @@ function validateForm() {
   let bBoxNums = document.querySelectorAll(
     '#bounding-box-form input[type=number]'
   );
-  console.log(bBoxNums);
   let bBoxNumArr = [];
   bBoxNums.forEach((el) => {
-    console.log(el.value);
     el.value != '' ? bBoxNumArr.push(el.value) : false;
   });
-  console.log(bBoxNumArr);
   let bBoxCardinals = document.querySelectorAll('#bounding-box-form select');
   selectedCardinals = [];
   bBoxCardinals.forEach((hItem) => {
     hItem.value != '' ? selectedCardinals.push(hItem.id) : false;
   });
-  console.log(selectedCardinals);
-
   if (bBoxNumArr.length > 0 && bBoxNumArr.length < bBoxNums.length) {
     errors.push({
       elId: 'bounding-box-form',
@@ -390,7 +385,44 @@ function validateForm() {
       elId: 'bounding-box-form',
       errorMsg: 'Please select hemisphere values.',
     });
+  } else if (bBoxNumArr.length > 0 && selectedCardinals.length > 0) {
+    let uLat = document.getElementById('upperlat').value;
+    let uLatNs = document.getElementById('upperlat_NS').value;
+    let bLat = document.getElementById('bottomlat').value;
+    let bLatNs = document.getElementById('bottomlat_NS').value;
+
+    if (uLatNs == 'S' && bLatNs == 'S') {
+      uLat = uLat * -1;
+      bLat = bLat * -1;
+      console.log(uLat, bLat);
+      console.log(uLat < bLat);
+      if (uLat < bLat) {
+        errors.push({
+          elId: 'bounding-box-form',
+          errorMsg:
+            'Your northern latitude value is less than your southern latitude value.',
+        });
+      }
+    }
+
+    let lLng = document.getElementById('leftlong').value;
+    let lLngEw = document.getElementById('leftlong_EW').value;
+    let rLng = document.getElementById('rightlong').value;
+    let rLngEw = document.getElementById('rightlong_EW').value;
+
+    if (lLngEw == 'W' && rLngEw == 'W') {
+      lLng = lLng * -1;
+      rLng = rLng * -1;
+      if (lLng > rLng) {
+        errors.push({
+          elId: 'bounding-box-form',
+          errorMsg:
+            'Your western longitude value is greater than your eastern longitude value. Note that western hemisphere longitudes in the decimal format are negative.',
+        });
+      }
+    }
   }
+
   console.dir(errors);
 
   if (errors.length > 0) {
@@ -417,16 +449,6 @@ function handleValErrors(errors) {
 }
 
 function checkHarvestParamsForm(frm) {
-  var uLat = frm.upperlat.value;
-  if (frm.upperlat_NS.value == 'S') uLat = uLat * -1;
-  var bLat = frm.bottomlat.value;
-  if (frm.bottomlat_NS.value == 'S') bLat = bLat * -1;
-  if (uLat < bLat) {
-    alert(
-      'Your northern latitude value is less then your southern latitude value. Please correct this.'
-    );
-    return false;
-  }
   var lLng = frm.leftlong.value;
   if (frm.leftlong_EW.value == 'W') lLng = lLng * -1;
   var rLng = frm.rightlong.value;

@@ -4,7 +4,7 @@
    @mixin ============================= */
 /* BASE STYLES ******************************************/
 /* Typography */
-html {
+body {
   font-size: 1em;
   font-size: 16px;
 }
@@ -15,6 +15,10 @@ fieldset {
 
 input {
   padding: 0;
+}
+
+h3 {
+  font-size: 1.1rem !important;
 }
 
 @font-face {

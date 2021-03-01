@@ -155,14 +155,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		$cssPath = $CLIENT_ROOT.'/css/symb/collections/individual/index.css';
 	}
 	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<link href="../..//css/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
 		var map;
@@ -909,10 +907,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
 								if(substr($occArr['othercatalognumbers'],0,1) == '{'){
 									if($ocnArr = json_decode($occArr['othercatalognumbers'],true)){
-										$ocnArr2 = array_shift($ocnArr);
-										if(isset($ocnArr2[0])){
-											$displayStr = $ocnArr2[0];
-											$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnArr2[0],$iUrl);
+										foreach($ocnArr as $idKey => $idArr){
+											if(!$displayStr || ($idKey && $idKey == 'NEON sampleID')){
+												$displayStr = $idArr[0];
+												$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
+											}
 										}
 									}
 								}

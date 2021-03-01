@@ -538,11 +538,14 @@ class OccurrenceLoans extends Manager{
 
 	private function getOccid($catNum, $otherCatNum = false){
 		$occArr = array();
-		$sql = 'SELECT occid FROM omoccurrences WHERE ';
-		if($otherCatNum) $sql .= '(othercatalognumbers = "'.$this->cleanInStr($catNum).'") ';
-		else $sql .= '(catalognumber = "'.$this->cleanInStr($catNum).'") ';
-		if($this->collid) $sql .= 'AND (collid = '.$this->collid.')';
-		//echo $sql;
+		$sql = 'SELECT o.occid FROM omoccurrences o ';
+		if($otherCatNum){
+			$catNum = $this->cleanInStr($catNum);
+			$sql .= 'LEFT JOIN omoccuridentifiers i ON o.occid = i.occid WHERE ((o.othercatalognumbers = "'.$catNum.'") OR (i.identifierValue = "'.$catNum.'")) ';
+		}
+		else $sql .= 'WHERE (o.catalognumber = "'.$this->cleanInStr($catNum).'") ';
+		if($this->collid) $sql .= 'AND (o.collid = '.$this->collid.')';
+		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()) {
 			$occArr[] = $r->occid;

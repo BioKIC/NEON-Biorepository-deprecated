@@ -10,7 +10,6 @@
  *  Version: Dec 2020
  */
 
-let body = document.querySelector('body');
 let page = document.querySelector('.body');
 
 let controls = document.createElement('div');
@@ -36,11 +35,11 @@ printBtn.onclick = function () {
 
 controls.appendChild(editBtn);
 controls.appendChild(printBtn);
-body.prepend(controls);
+document.body.prepend(controls);
 
 function toggleEdits() {
   let isEditable = page.contentEditable === 'true';
-  let btn = body.querySelector('#edit');
+  let btn = document.body.querySelector('#edit');
   if (isEditable) {
     console.log(isEditable);
     page.contentEditable = 'false';

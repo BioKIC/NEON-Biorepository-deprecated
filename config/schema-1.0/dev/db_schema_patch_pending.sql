@@ -125,6 +125,13 @@ ALTER TABLE `referenceobject`
 
 
 ALTER TABLE `uploadspectemp` 
+  ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
+  ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
+  ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
+  ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`,
+  ADD COLUMN `parentLocationID` VARCHAR(150) NULL AFTER `locationID`,
+  ADD COLUMN `samplingProtocol` VARCHAR(150) NULL AFTER `parentLocationID`,
+  ADD COLUMN `georeferencedDate` DATETIME NULL AFTER `georeferencedBy`,
   ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;
 
 ALTER TABLE `uploadspectemp` 
@@ -180,7 +187,7 @@ ALTER TABLE `taxa`
   ADD COLUMN `reviewStatus` INT NULL AFTER `PhyloSortSequence`,
   ADD COLUMN `isLegitimate` INT NULL AFTER `reviewStatus`,
   ADD COLUMN `nomenclaturalStatus` VARCHAR(45) NULL AFTER `isLegitimate`,
-  ADD COLUMN `nomenclaturalCode` VARCHAR(45) NULL AFTER `nomenclaturalStatus`;
+  ADD COLUMN `nomenclaturalCode` VARCHAR(45) NULL AFTER `nomenclaturalStatus`,
   CHANGE COLUMN `UnitInd3` `unitInd3` VARCHAR(45) NULL DEFAULT NULL,
   CHANGE COLUMN `Status` `statusNotes` VARCHAR(50) NULL DEFAULT NULL ;
 
@@ -407,9 +414,15 @@ ALTER TABLE `omoccurassociations`
   ADD CONSTRAINT `FK_occurassoc_uidcreated`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_occurassoc_uidmodified`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
+ALTER TABLE `omoccurassociations` 
+  ADD UNIQUE INDEX `UQ_omoccurassoc_occid` (`occid` ASC, `occidAssociate` ASC, `relationship` ASC),
+  ADD UNIQUE INDEX `UQ_omoccurassoc_external` (`occid` ASC, `relationship` ASC, `resourceUrl` ASC),
+  ADD UNIQUE INDEX `UQ_omoccurassoc_sciname` (`occid` ASC, `verbatimSciname` ASC);
+
 ALTER TABLE `omoccurdatasets` 
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
-  ADD COLUMN `isPublic` INT NULL AFTER `category`;
+  ADD COLUMN `isPublic` INT NULL AFTER `category`,
+  ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
 
 CREATE TABLE `referencedatasetlink` (
   `refid` INT NOT NULL,
@@ -449,12 +462,19 @@ CREATE TABLE `omoccurloanuser` (
   CONSTRAINT `FK_occurloan_modifiedByUid`  FOREIGN KEY (`modifiedByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
 
 
-ALTER TABLE `omoccurrences`
+ALTER TABLE `omoccurrences` 
+  CHANGE COLUMN `eventID` `eventID` VARCHAR(150) NULL DEFAULT NULL,
+  CHANGE COLUMN `locationID` `locationID` VARCHAR(150) NULL DEFAULT NULL,
   CHANGE COLUMN `labelProject` `labelProject` varchar(250) DEFAULT NULL,
   CHANGE COLUMN `georeferenceRemarks` `georeferenceRemarks` VARCHAR(500) NULL DEFAULT NULL,
+  ADD COLUMN `georeferencedDate` DATETIME NULL AFTER `georeferencedBy`,
+  ADD COLUMN `parentLocationID` VARCHAR(150) NULL AFTER `locationID`,
+  ADD COLUMN `samplingProtocol` VARCHAR(150) NULL AFTER `parentLocationID`,
   DROP INDEX `idx_occrecordedby`;
   
 ALTER TABLE `omoccurrences` 
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `basisOfRecord`,
+  ADD COLUMN `materialSampleID` VARCHAR(150) NULL AFTER `organismID`,
   ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
   ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
   ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
@@ -463,7 +483,6 @@ ALTER TABLE `omoccurrences`
 
 ALTER TABLE `omoccurrences` 
   CHANGE COLUMN `waterBody` `waterBody` VARCHAR(75) NULL DEFAULT NULL AFTER `continent`;
-  
   
 ALTER TABLE `omoccurrences` 
   ADD INDEX `Index_locationID` (`locationID` ASC),
@@ -478,7 +497,7 @@ ALTER TABLE `omoccurrences`
   ADD UNIQUE INDEX `Index_gui` (`occurrenceID` ASC);  
 
 ALTER TABLE `omoccurrences` 
-ADD INDEX `Index_latlng` (`decimalLatitude` ASC, `decimalLongitude` ASC);
+  ADD INDEX `Index_latlng` (`decimalLatitude` ASC, `decimalLongitude` ASC);
 
 DELETE FROM omoccurrencesfulltext 
 WHERE locality IS NULL AND recordedby IS NULL;

@@ -18,8 +18,14 @@ if($IS_ADMIN) $isEditor = true;
 	$activateJQuery = false;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
+	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	</script>
+	<style type="text/css">
+		.nps-report { margin-left:15px; display:none; }
+		.workingSpan { display:none; margin-left:5px; }
+	</style>
 </head>
 <body>
 <?php
@@ -47,7 +53,16 @@ if($isEditor){
 				<li><a href="shipment/manifestsearch.php">Manifest Listing and Advanced Search</a></li>
 				<li><a href="igsnmanager.php">NEON IGSN Contorl Panel</a></li>
 				<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>
-        <li><a href="shipment/harvesterreports.php">Occurrence Harvester Reports</a></li>
+				<li><a href="#" onclick="$('.nps-report').show();return false">NPS Year End Reports</a></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2020" onclick="$('#BLDE20-working').show();">BLDE - 2020</a><span id="BLDE20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2020" onclick="$('#GRSM20-working').show();">GRSM - 2020</a><span id="GRSM20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=99&year=2020" onclick="$('#LECO20-working').show();">LECO - 2020</a><span id="LECO20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=131&year=2020" onclick="$('#YELL20-working').show();">YELL - 2020</a><span id="YELL20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2019" onclick="$('#BLDE19-working').show();">BLDE - 2019</a><span id="BLDE19-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2019" onclick="$('#GRSM19-working').show();">GRSM - 2019</a><span id="GRSM19-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=99&year=2019" onclick="$('#LECO19-working').show();">LECO - 2019</a><span id="LECO19-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li class="nps-report"><a href="npsReportHandler.php?dsid=131&year=2019" onclick="$('#YELL19-working').show();">YELL - 2019</a><span id="YELL19-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
+				<li><a href="shipment/harvesterreports.php">Occurrence Harvester Error Report</a></li>
 			</ul>
 		</fieldset>
 	</div>

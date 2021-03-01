@@ -13,6 +13,16 @@ $imagesOnly = array_key_exists('imagesonly',$_REQUEST)?$_REQUEST['imagesonly']:0
 $sortBy = array_key_exists('sortby',$_REQUEST)?$_REQUEST['sortby']:0;
 $formSubmit = array_key_exists('formsubmit',$_REQUEST)?$_REQUEST['formsubmit']:'';
 
+//Sanitation
+if(!is_numeric($ometId)) $ometId = 0;
+if(!is_numeric($omenId)) $omenId = 0;
+if(!is_numeric($occidToAdd)) $occidToAdd = 0;
+$searchTerm = filter_var($searchTerm,FILTER_SANITIZE_STRING);
+if(!is_numeric($specimenOnly)) $specimenOnly = 0;
+if(!is_numeric($collId)) $collId = 0;
+if(!is_numeric($imagesOnly)) $imagesOnly = 0;
+if(!is_numeric($sortBy)) $sortBy = 0;
+
 if(!$specimenOnly && !array_key_exists('searchterm', $_POST)){
 	//Make specimen only the default action
 	$specimenOnly = 1;
@@ -26,17 +36,17 @@ if($IS_ADMIN || array_key_exists('CollAdmin',$USER_RIGHTS)){
 
 $exsManager = new ExsiccatiManager();
 if($isEditor && $formSubmit){
-	if($formSubmit == 'Add Exsiccati Title'){
+	if($formSubmit == 'Add Exsiccata Title'){
 		$exsManager->addTitle($_POST,$PARAMS_ARR['un']);
 	}
 	elseif($formSubmit == 'Save'){
 		$exsManager->editTitle($_POST,$PARAMS_ARR['un']);
 	}
-	elseif($formSubmit == 'Delete Exsiccati'){
+	elseif($formSubmit == 'Delete Exsiccata'){
 		$statusStr = $exsManager->deleteTitle($ometId);
 		if(!$statusStr) $ometId = 0;
 	}
-	elseif($formSubmit == 'Merge Exsiccati'){
+	elseif($formSubmit == 'Merge Exsiccata'){
 		$statusStr = $exsManager->mergeTitles($ometId,$_POST['targetometid']);
 		if(!$statusStr) $ometId = $_POST['targetometid'];
 	}
@@ -66,14 +76,16 @@ if($isEditor && $formSubmit){
 		$statusStr = $exsManager->transferOccurrence($omenId,$_POST['occid'],trim($_POST['targetometid'],'k'),$_POST['targetexsnumber']);
 	}
 }
-if($formSubmit == 'dlexsiccati'){
-	$exsManager->exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId);
+if($formSubmit == 'dlexs' || $formSubmit == 'dlexs_titleOnly'){
+	$titleOnly = false;
+	if($formSubmit == 'dlexs_titleOnly') $titleOnly = true;
+	$exsManager->exportExsiccatiAsCsv($searchTerm, $specimenOnly, $imagesOnly, $collId, $titleOnly);
 	exit;
 }
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> Exsiccati</title>
+	<title><?php echo $DEFAULT_TITLE; ?> Exsiccatae</title>
 	<?php
 	$activateJQuery = false;
 	if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -84,10 +96,8 @@ if($formSubmit == 'dlexsiccati'){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script type="text/javascript" src="../../js/symb/shared.js?ver=130926"></script>
 	<script type="text/javascript">
 		function toggleExsEditDiv(){
@@ -128,11 +138,11 @@ if($formSubmit == 'dlexsiccati'){
 
 		function verifyExsMergeForm(f){
 			if(t.targetometid == ""){
-				alert("You need to select a target exsiccati to merge into");
+				alert("You need to select a target exsiccata to merge into");
 				return false;
 			}
 			else{
-				return confirm("Are you sure you want to merge this exsiccati into the target below?");
+				return confirm("Are you sure you want to merge this exsiccata into the target below?");
 			}
 		}
 
@@ -154,11 +164,11 @@ if($formSubmit == 'dlexsiccati'){
 
 		function verifyNumTransferForm(f){
 			if(t.targetometid == ""){
-				alert("You need to select a target exsiccati to merge into");
+				alert("You need to select a target exsiccata to merge into");
 				return false;
 			}
 			else{
-				return confirm("Are you sure you want to transfer this exsiccati into the target exsiccati?");
+				return confirm("Are you sure you want to transfer this exsiccata into the target exsiccata?");
 			}
 		}
 
@@ -192,11 +202,11 @@ if($formSubmit == 'dlexsiccati'){
 
 		function verifyOccTransferForm(f){
 			if(f.targetometid.value == ""){
-				alert("Please select an exsiccati title");
+				alert("Please select an exsiccata title");
 				return false;
 			}
 			if(f.targetexsnumber.value == ""){
-				alert("Please enter an exsiccati number");
+				alert("Please enter an exsiccata number");
 				return false;
 			}
 			return true;
@@ -227,7 +237,7 @@ if($formSubmit == 'dlexsiccati'){
 
 		<?php
 		if($omenId){
-			//Exsiccati number section can have a large number of ometid select look ups; using javascript makes page more efficient
+			//Exsiccata number section can have a large number of ometid select look ups; using javascript makes page more efficient
 			$titleArr = $exsManager->getTitleArr();
 			$selectValues = '';
 			//Added "k" prefix to key so that Chrom would maintain the correct sort order
@@ -265,10 +275,10 @@ if($formSubmit == 'dlexsiccati'){
 		<a href="../../index.php">Home</a> &gt;&gt;
 		<?php
 		if($ometId || $omenId){
-			echo '<a href="index.php"><b>Return to main Exsiccati Index</b></a>';
+			echo '<a href="index.php"><b>Return to main Exsiccatae Index</b></a>';
 		}
 		else{
-			echo '<a href="index.php"><b>Exsiccati Index</b></a>';
+			echo '<a href="index.php"><b>Exsiccatae Index</b></a>';
 		}
 		?>
 	</div>
@@ -318,29 +328,29 @@ if($formSubmit == 'dlexsiccati'){
 							<input type="radio" name="sortby" value="0" <?php echo ($sortBy == 0?"CHECKED":""); ?> onchange="this.form.submit()">Title
 							<input type="radio" name="sortby" value="1" <?php echo ($sortBy == 1?"CHECKED":""); ?> onchange="this.form.submit()">Abbreviation
 						</div>
-						<div style="float:right;" title="Download Exsiccati Records">
-							<?php
-							$dlUrl = 'index.php?formsubmit=dlexsiccati&searchterm='.$searchTerm.'&specimenonly='.$specimenOnly.'&imagesonly='.$imagesOnly.'&collid='.$collId;
-							?>
-							<a href="<?php echo $dlUrl; ?>" target="_blank"><img src="../../images/dl.png" style="width:15px" /></a>
-						</div>
-						<div style="margin:5px 0px 0px 5px;">
-							<input name="formsubmit" type="submit" value="Rebuild List" />
+						<div style="margin-top:5px">
+							<div style="float:right;">
+								<span title="Exsiccata download: titles only"><button name="formsubmit" type="submit" value="dlexs_titleOnly"><img src="../../images/dl.png" style="width:15px" /></button></span>
+								<span title="Exsiccata download: with numbers and occurrences"><button name="formsubmit" type="submit" value="dlexs"><img src="../../images/dl.png" style="width:15px" /></button></span>
+							</div>
+							<div>
+								<button name="formsubmit" type="submit" value="rebuildList">Rebuild List</button>
+							</div>
 						</div>
 					</fieldset>
 				</form>
 			</div>
-			<div style="font-weight:bold;font-size:120%;">Exsiccati Titles</div>
+			<div style="font-weight:bold;font-size:120%;">Exsiccatae Titles</div>
 			<?php
 			if($isEditor){
 				?>
-				<div style="cursor:pointer;float:right;" onclick="toggle('exsadddiv');" title="Edit Exsiccati Number">
+				<div style="cursor:pointer;float:right;" onclick="toggle('exsadddiv');" title="Edit Exsiccata Number">
 					<img style="border:0px;" src="../../images/add.png" />
 				</div>
 				<div id="exsadddiv" style="display:none;">
 					<form name="exsaddform" action="index.php" method="post" onsubmit="return verfifyExsAddForm(this)">
 						<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
-							<legend><b>Add New Exsiccati</b></legend>
+							<legend><b>Add New Exsiccata</b></legend>
 							<div style="margin:2px;">
 								Title:<br/><input name="title" type="text" value="" style="width:90%;" />
 							</div>
@@ -365,7 +375,7 @@ if($formSubmit == 'dlexsiccati'){
 								Notes:<br/><input name="notes" type="text" value="" style="width:480px;" />
 							</div>
 							<div style="margin:10px;">
-								<input name="formsubmit" type="submit" value="Add Exsiccati Title" />
+								<input name="formsubmit" type="submit" value="Add Exsiccata Title" />
 							</div>
 						</fieldset>
 					</form>
@@ -391,7 +401,7 @@ if($formSubmit == 'dlexsiccati'){
 					}
 				}
 				else{
-					echo '<div style="margin:20px;font-size:120%;">There are no exsiccati matching your request</div>';
+					echo '<div style="margin:20px;font-size:120%;">There are no exsiccatae matching your request</div>';
 				}
 				?>
 			</ul>
@@ -405,10 +415,10 @@ if($formSubmit == 'dlexsiccati'){
 				if($isEditor){
 					?>
 					<div style="float:right;">
-						<span style="cursor:pointer;" onclick="toggleExsEditDiv('exseditdiv');" title="Edit Exsiccati">
+						<span style="cursor:pointer;" onclick="toggleExsEditDiv('exseditdiv');" title="Edit Exsiccata">
 							<img style="border:0px;" src="../../images/edit.png" />
 						</span>
-						<span style="cursor:pointer;" onclick="toggleNumAddDiv('numadddiv');" title="Add Exsiccati Number">
+						<span style="cursor:pointer;" onclick="toggleNumAddDiv('numadddiv');" title="Add Exsiccata Number">
 							<img style="border:0px;" src="../../images/add.png" />
 						</span>
 					</div>
@@ -454,22 +464,22 @@ if($formSubmit == 'dlexsiccati'){
 						</div>
 					</fieldset>
 				</form>
-				<form name="exdeleteform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to delete this exsiccati?');">
+				<form name="exdeleteform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to delete this exsiccata?');">
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
-						<legend><b>Delete Exsiccati</b></legend>
+						<legend><b>Delete Exsiccata</b></legend>
 						<div style="margin:10px;">
 							<input name="ometid" type="hidden" value="<?php echo $ometId; ?>" />
-							<input name="formsubmit" type="submit" value="Delete Exsiccati" />
+							<input name="formsubmit" type="submit" value="Delete Exsiccata" />
 						</div>
 					</fieldset>
 				</form>
 				<form name="exmergeform" action="index.php" method="post" onsubmit="return verifyExsMergeForm(this);">
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
-						<legend><b>Merge Exsiccati</b></legend>
+						<legend><b>Merge Exsiccatae</b></legend>
 						<div style="margin:10px;">
-							Target Exsiccati<br/>
+							Target Exsiccata<br/>
 							<select name="targetometid" style="width:650px;">
-								<option value="">Select the Target Exsiccati</option>
+								<option value="">Select the Target Exsiccata</option>
 								<option value="">-------------------------------</option>
 								<?php
 								$titleArr = $exsManager->getTitleArr();
@@ -482,7 +492,7 @@ if($formSubmit == 'dlexsiccati'){
 						</div>
 						<div style="margin:10px;">
 							<input name="ometid" type="hidden" value="<?php echo $ometId; ?>" />
-							<input name="formsubmit" type="submit" value="Merge Exsiccati" />
+							<input name="formsubmit" type="submit" value="Merge Exsiccatae" />
 						</div>
 					</fieldset>
 				</form>
@@ -491,9 +501,9 @@ if($formSubmit == 'dlexsiccati'){
 			<div id="numadddiv" style="display:none;">
 				<form name="numaddform" action="index.php" method="post" onsubmit="return verifyNumAddForm(this);">
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
-						<legend><b>Add Exsiccati Number</b></legend>
+						<legend><b>Add Exsiccata Number</b></legend>
 						<div style="margin:2px;">
-							Exsiccati Number: <input name="exsnumber" type="text" />
+							Exsiccata Number: <input name="exsnumber" type="text" />
 						</div>
 						<div style="margin:2px;">
 							Notes: <input name="notes" type="text" style="width:90%" />
@@ -526,7 +536,7 @@ if($formSubmit == 'dlexsiccati'){
 					}
 					else{
 						echo '<div style="font-weight:bold;font-size:110%;">';
-						echo 'There are no exsiccati numbers in database ';
+						echo 'There are no exsiccata numbers in database ';
 						echo '</div>';
 					}
 					?>
@@ -539,10 +549,10 @@ if($formSubmit == 'dlexsiccati'){
 			if($isEditor){
 				?>
 				<div style="float:right;">
-					<span style="cursor:pointer;" onclick="toggleNumEditDiv('numeditdiv');" title="Edit Exsiccati Number">
+					<span style="cursor:pointer;" onclick="toggleNumEditDiv('numeditdiv');" title="Edit Exsiccata Number">
 						<img style="border:0px;" src="../../images/edit.png"/>
 					</span>
-					<span style="cursor:pointer;" onclick="toggleOccAddDiv('occadddiv');" title="Add Occurrence to Exsiccati Number">
+					<span style="cursor:pointer;" onclick="toggleOccAddDiv('occadddiv');" title="Add Occurrence to Exsiccata Number">
 						<img style="border:0px;" src="../../images/add.png" />
 					</span>
 				</div>
@@ -568,7 +578,7 @@ if($formSubmit == 'dlexsiccati'){
 			<div id="numeditdiv" style="display:none;">
 				<form name="numeditform" action="index.php" method="post" onsubmit="return verifyNumEditForm(this)">
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
-						<legend><b>Edit Exsiccati Number</b></legend>
+						<legend><b>Edit Exsiccata Number</b></legend>
 						<div style="margin:2px;">
 							Number: <input name="exsnumber" type="text" value="<?php echo $mdArr['exsnumber']; ?>" style="width:500px;" />
 						</div>
@@ -581,9 +591,9 @@ if($formSubmit == 'dlexsiccati'){
 						</div>
 					</fieldset>
 				</form>
-				<form name="numdelform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to delete this exsiccati number?')">
+				<form name="numdelform" action="index.php" method="post" onsubmit="return confirm('Are you sure you want to delete this exsiccata number?')">
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
-						<legend><b>Delete Exsiccati Number</b></legend>
+						<legend><b>Delete exsiccata Number</b></legend>
 						<div style="margin:10px;">
 							<input name="omenid" type="hidden" value="<?php echo $omenId; ?>" />
 							<input name="ometid" type="hidden" value="<?php echo $mdArr['ometid']; ?>" />
@@ -593,11 +603,11 @@ if($formSubmit == 'dlexsiccati'){
 				</form>
 				<form name="numtransferform" action="index.php" method="post" onsubmit="return verifyNumTransferForm(this);">
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
-						<legend><b>Transfer Exsiccati Number</b></legend>
+						<legend><b>Transfer Exsiccata Number</b></legend>
 						<div style="margin:10px;">
-							Target Exsiccati<br/>
+							Target Exsiccata<br/>
 							<select name="targetometid" style="width:650px;" onfocus="buildExsSelect(this)">
-								<option value="">Select the Target Exsiccati</option>
+								<option value="">Select the Target Exsiccata</option>
 								<option value="">-------------------------------</option>
 							</select>
 						</div>
@@ -612,7 +622,7 @@ if($formSubmit == 'dlexsiccati'){
 			<div id="occadddiv" style="display:<?php echo ($occidToAdd?'block':'none') ?>;">
 				<form name="occaddform" action="index.php" method="post" onsubmit="return verifyOccAddForm(this)">
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
-						<legend><b>Add Occurrence Record to Exsiccati Number</b></legend>
+						<legend><b>Add Occurrence Record to Exsiccata Number</b></legend>
 						<div style="margin:2px;">
 							Collection:  <br/>
 							<select name="occaddcollid">
@@ -771,14 +781,14 @@ if($formSubmit == 'dlexsiccati'){
 											<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
 												<legend><b>Transfer Specimen Link</b></legend>
 												<div style="margin:10px;">
-													Target Exsiccati Title<br/>
+													Target Exsiccata Title<br/>
 													<select name="targetometid" style="width:650px;" onfocus="buildExsSelect(this)">
-														<option value="">Select the Target Exsiccati</option>
+														<option value="">Select the Target Exsiccata</option>
 														<option value="">-------------------------------</option>
 													</select>
 												</div>
 												<div style="margin:10px;">
-													Target Exsiccati Number<br/>
+													Target Exsiccata Number<br/>
 													<input name="targetexsnumber" type="text" value="" />
 												</div>
 												<div style="margin:10px;">
@@ -801,7 +811,7 @@ if($formSubmit == 'dlexsiccati'){
 					<?php
 				}
 				else{
-					echo '<li>There are no specimens linked to this exsiccati number</li>';
+					echo '<li>There are no specimens linked to this exsiccata number</li>';
 				}
 				?>
 			</div>

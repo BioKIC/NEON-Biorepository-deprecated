@@ -52,7 +52,7 @@ select
   grid-gap: $gap
 
 #criteria-panel
-  display: block;
+  display: block
   background-color: $neon-lightest-gray // Move these to a seaparate panel module
   padding: 0.5rem 1rem // Move these to a seaparate panel module
 
@@ -94,3 +94,31 @@ select
   display: grid
   grid-template-columns: 1fr 1fr
   grid-gap: $gap
+
+// Errors from Form Validation
+.errors 
+  position: fixed
+  left: 0
+  right: 0
+  bottom: 0
+  z-index: 1
+  padding: 15px
+  pointer-events: none
+  
+  .error 
+   padding: 15px
+   border-radius: 8px
+   background-color: rgba(230, 20, 20, 0.8)
+   color: #FFF
+   font-size: 14px
+   transform: translateY(300px)
+   pointer-events: all
+   margin-bottom: 10px
+   
+   animation: slide-in 1s ease-out forwards
+  
+  
+  @keyframes slide-in 
+   to 
+    transform: translateY(0px)
+  

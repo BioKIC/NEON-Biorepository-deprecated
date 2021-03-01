@@ -426,7 +426,6 @@ function validateForm() {
   console.dir(errors);
 
   if (errors.length > 0) {
-    window.alert('Please check the error messages and try searching again');
     handleValErrors(errors);
     return false;
   } else {
@@ -437,28 +436,15 @@ function validateForm() {
 function handleValErrors(errors) {
   const errorDiv = document.getElementById('error-msgs');
   errorDiv.innerHTML = '';
-  // console.log(errors);
   errors.map((err) => {
     let element = document.getElementById(err.elId);
     element.classList.add('invalid');
     errorDiv.classList.remove('visually-hidden');
     let errorP = document.createElement('p');
+    errorP.classList.add('error');
     errorP.innerText = err.errorMsg;
     errorDiv.appendChild(errorP);
   });
-}
-
-function checkHarvestParamsForm(frm) {
-  var lLng = frm.leftlong.value;
-  if (frm.leftlong_EW.value == 'W') lLng = lLng * -1;
-  var rLng = frm.rightlong.value;
-  if (frm.rightlong_EW.value == 'W') rLng = rLng * -1;
-  if (lLng > rLng) {
-    alert(
-      'Your western longitude value is greater then your eastern longitude value. Please correct this. Note that western hemisphere longitudes in the decimal format are negitive.'
-    );
-    return false;
-  }
 }
 
 /**

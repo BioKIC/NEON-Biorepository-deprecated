@@ -40,7 +40,8 @@ $siteData = new DatasetsMetadata();
     <div id="innertext">
 
       <h1>Sample Search</h1>
-      <div id="error-msgs" class="visually-hidden">Error messages here?</div>
+      <!-- <div id="error-msgs" class="visually-hidden"></div> -->
+      <div id="error-msgs" class="errors"></div>
       <!-- <form id="params-form" onsubmit="simpleSearch()"> -->
       <form id="params-form">
         <!-- Criteria forms -->

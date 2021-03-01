@@ -216,6 +216,44 @@ select {
   grid-gap: 10px;
 }
 
+.errors {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 15px;
+  pointer-events: none;
+}
+
+.errors .error {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: rgba(230, 20, 20, 0.8);
+  color: #FFF;
+  font-size: 14px;
+  -webkit-transform: translateY(300px);
+          transform: translateY(300px);
+  pointer-events: all;
+  margin-bottom: 10px;
+  -webkit-animation: slide-in 1s ease-out forwards;
+          animation: slide-in 1s ease-out forwards;
+}
+
+@-webkit-keyframes slide-in {
+  to {
+    -webkit-transform: translateY(0px);
+            transform: translateY(0px);
+  }
+}
+
+@keyframes slide-in {
+  to {
+    -webkit-transform: translateY(0px);
+            transform: translateY(0px);
+  }
+}
+
 /* ==============================
    LAYOUT STYLES
    @mixin ============================= */

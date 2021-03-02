@@ -22,22 +22,8 @@ const paramNames = [
   'elevlow',
   'elevhigh',
   'llbound',
-  // 'upperlat',
-  // 'upperlat_NS',
-  // 'bottomlat',
-  // 'bottomlat_NS',
-  // 'leftlong',
-  // 'leftlong_EW',
-  // 'rightlong',
-  // 'rightlong_EW',
   'footprintwkt',
   'llpoint',
-  // 'pointlat',
-  // 'pointlat_NS',
-  // 'pointlong',
-  // 'pointlong_EW',
-  'radius',
-  'radiusunits',
   'eventdate1',
   'eventdate2',
   'taxa',
@@ -52,6 +38,12 @@ const lLng = document.getElementById('leftlong');
 const lLngEw = document.getElementById('leftlong_EW');
 const rLng = document.getElementById('rightlong');
 const rLngEw = document.getElementById('rightlong_EW');
+const pLat = document.getElementById('pointlat');
+const pLatNs = document.getElementById('pointlat_NS');
+const pLng = document.getElementById('pointlong');
+const pLngEw = document.getElementById('pointlong_EW');
+const pRadius = document.getElementById('radius');
+const pRadiusUn = document.getElementById('radiusunits');
 
 let criterionSelected = 'taxonomic-cat';
 let paramsArr = [];
@@ -299,11 +291,29 @@ function getParam(paramName) {
       let bLatVal = bLatNs.value == 'S' ? bLat.value * -1 : bLat.value * 1;
       let lLngVal = lLngEw.value == 'W' ? lLng.value * -1 : lLng.value * 1;
       let rLngVal = rLngEw.value == 'W' ? rLng.value * -1 : rLng.value * 1;
-      let llboundArr = `${uLatVal};${bLatVal};${lLngVal};${rLngVal}`;
-      elementValues = llboundArr;
+      elementValues = `${uLatVal};${bLatVal};${lLngVal};${rLngVal}`;
     }
   } else if (paramName === 'llpoint') {
-    console.log('llpoint is for Point Lat');
+    if (
+      pLat.value != '' &&
+      pLng.value != '' &&
+      pRadius.value != '' &&
+      pRadiusUn.value != ''
+    ) {
+      let pLatVal =
+        pLatNs.value == 'S'
+          ? Math.round(pLat.value * -1 * 100000) / 100000
+          : Math.round(pLat.value * 100000) / 100000;
+      let pLngVal =
+        pLngEw.value == 'W'
+          ? Math.round(pLng.value * -1 * 100000) / 100000
+          : Math.round(pLng.value * 100000) / 100000;
+      let pRadiusVal = pRadius.value + ';' + pRadiusUn.value;
+      // pRadiusUn.value == 'km'
+      //   ? pRadius.value * 0.6214 + pRadiusUn.value
+      //   : pRadius.value + pRadiusUn.value;
+      elementValues = `${pLatVal};${pLngVal};${pRadiusVal}`;
+    }
   } else if (elements[0] != undefined) {
     switch (firstEl.tagName) {
       case 'INPUT':

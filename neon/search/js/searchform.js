@@ -21,19 +21,21 @@ const paramNames = [
   'local',
   'elevlow',
   'elevhigh',
-  'upperlat',
-  'upperlat_NS',
-  'bottomlat',
-  'bottomlat_NS',
-  'leftlong',
-  'leftlong_EW',
-  'rightlong',
-  'rightlong_EW',
+  'llbound',
+  // 'upperlat',
+  // 'upperlat_NS',
+  // 'bottomlat',
+  // 'bottomlat_NS',
+  // 'leftlong',
+  // 'leftlong_EW',
+  // 'rightlong',
+  // 'rightlong_EW',
   'footprintwkt',
-  'pointlat',
-  'pointlat_NS',
-  'pointlong',
-  'pointlong_EW',
+  'llpoint',
+  // 'pointlat',
+  // 'pointlat_NS',
+  // 'pointlong',
+  // 'pointlong_EW',
   'radius',
   'radiusunits',
   'eventdate1',
@@ -42,6 +44,14 @@ const paramNames = [
   'usethes',
   'taxontype',
 ];
+const uLat = document.getElementById('upperlat');
+const uLatNs = document.getElementById('upperlat_NS');
+const bLat = document.getElementById('bottomlat');
+const bLatNs = document.getElementById('bottomlat_NS');
+const lLng = document.getElementById('leftlong');
+const lLngEw = document.getElementById('leftlong_EW');
+const rLng = document.getElementById('rightlong');
+const rLngEw = document.getElementById('rightlong_EW');
 
 let criterionSelected = 'taxonomic-cat';
 let paramsArr = [];
@@ -250,7 +260,7 @@ function getParam(paramName) {
   // paramsArr['country'] = 'USA';
   const elements = document.getElementsByName(paramName);
   const firstEl = elements[0];
-  const firstTag = firstEl.tagName;
+
   let elementValues = '';
 
   // for db and datasetid
@@ -264,7 +274,7 @@ function getParam(paramName) {
     console.log(dbArr);
     elementValues = dbArr;
   } else if (paramName === 'datasetid') {
-    datasetArr = [];
+    let datasetArr = [];
     elements.forEach((el) => {
       if (el.checked) {
         let isSite = el.dataset.domain != undefined;
@@ -277,8 +287,17 @@ function getParam(paramName) {
       }
     });
     elementValues = datasetArr;
-  } else {
-    switch (firstTag) {
+  } else if (paramName === 'llbound') {
+    let uLatVal = uLatNs.value == 'S' ? uLat.value * -1 : uLat.value * 1;
+    let bLatVal = bLatNs.value == 'S' ? bLat.value * -1 : bLat.value * 1;
+    let lLngVal = lLngEw.value == 'W' ? lLng.value * -1 : lLng.value * 1;
+    let rLngVal = rLngEw.value == 'W' ? rLng.value * -1 : rLng.value * 1;
+    let llboundArr = `${uLatVal};${bLatVal};${lLngVal};${rLngVal}`;
+    elementValues = llboundArr;
+  } else if (paramName === 'llpoint') {
+    console.log('llpoint is for Point Lat');
+  } else if (elements[0] != undefined) {
+    switch (firstEl.tagName) {
       case 'INPUT':
         (firstEl.type === 'checkbox' && firstEl.checked) ||
         (firstEl.type === 'text' && firstEl != '')
@@ -384,17 +403,17 @@ function validateForm() {
       errorMsg: 'Please select hemisphere values.',
     });
   } else if (bBoxNumArr.length > 0 && selectedCardinals.length > 0) {
-    let uLat = document.getElementById('upperlat').value;
-    let uLatNs = document.getElementById('upperlat_NS').value;
-    let bLat = document.getElementById('bottomlat').value;
-    let bLatNs = document.getElementById('bottomlat_NS').value;
+    let uLatVal = uLat.value;
+    let uLatNsVal = uLatNs.value;
+    let bLatVal = bLat.value;
+    let bLatNsVal = bLatNs.value;
 
-    if (uLatNs == 'S' && bLatNs == 'S') {
-      uLat = uLat * -1;
-      bLat = bLat * -1;
-      console.log(uLat, bLat);
-      console.log(uLat < bLat);
-      if (uLat < bLat) {
+    if (uLatNsVal == 'S' && bLatNsVal == 'S') {
+      uLatVal = uLatVal * -1;
+      bLatVal = bLatVal * -1;
+      console.log(uLatVal, bLatVal);
+      console.log(uLatVal < bLatVal);
+      if (uLatVal < bLatVal) {
         errors.push({
           elId: 'bounding-box-form',
           errorMsg:
@@ -403,10 +422,10 @@ function validateForm() {
       }
     }
 
-    let lLng = document.getElementById('leftlong').value;
-    let lLngEw = document.getElementById('leftlong_EW').value;
-    let rLng = document.getElementById('rightlong').value;
-    let rLngEw = document.getElementById('rightlong_EW').value;
+    let lLngVal = lLng.value;
+    let lLngEwVal = lLngEw.value;
+    let rLngVal = rLng.value;
+    let rLngEwVal = rLngEw.value;
 
     if (lLngEw == 'W' && rLngEw == 'W') {
       lLng = lLng * -1;
@@ -445,7 +464,9 @@ function simpleSearch() {
   let isValid = errors.length == 0;
   if (isValid) {
     let searchUrl = getSearchUrl();
-    window.location = searchUrl;
+    // window.location = searchUrl;
+    console.log('search would be performed');
+    console.log(searchUrl);
   } else {
     handleValErrors(errors);
   }

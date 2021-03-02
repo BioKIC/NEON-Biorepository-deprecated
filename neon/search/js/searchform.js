@@ -2,7 +2,6 @@
  * GLOBAL VARIABLES
  */
 const criteriaPanel = document.getElementById('criteria-panel');
-// const testUrl = document.getElementById('test-url');
 const allNeon = document.getElementById('all-neon-colls-quick');
 const allSites = document.getElementById('all-sites');
 const form = document.getElementById('params-form');
@@ -309,9 +308,6 @@ function getParam(paramName) {
           ? Math.round(pLng.value * -1 * 100000) / 100000
           : Math.round(pLng.value * 100000) / 100000;
       let pRadiusVal = pRadius.value + ';' + pRadiusUn.value;
-      // pRadiusUn.value == 'km'
-      //   ? pRadius.value * 0.6214 + pRadiusUn.value
-      //   : pRadius.value + pRadiusUn.value;
       elementValues = `${pLatVal};${pLngVal};${pRadiusVal}`;
     }
   } else if (elements[0] != undefined) {
@@ -359,22 +355,12 @@ function getSearchUrl() {
     // console.log(baseURL + queryString);
     baseUrl.searchParams.append(key, paramsArr[key]);
   });
-  // console.log(paramsArr);
-  // console.log(baseUrl.href);
-  // Appends URL to `testUrl` link
-  // testUrl.innerHTML = baseUrl.href;
-  // testUrl.innerText = 'Click here';
-  // testUrl.href = baseUrl.href;
-  // testUrl.href = queryString;
-  // return baseUrl.href;
   return baseUrl.href;
 }
 
 /**
  * Form validation functions
  */
-
-// Enforces selection of at least 1 `db` parameter
 
 function validateForm() {
   errors = [];
@@ -496,15 +482,6 @@ function simpleSearch() {
  * EVENT LISTENERS/INITIALIZERS
  */
 
-// Test button gets params
-// $("#teste-btn").click(getSearchParams);
-// $('#teste-btn').click(function (event) {
-//   console.log('here');
-//   event.preventDefault();
-//   valColls();
-//   getSearchUrl();
-// });
-
 // Search button
 document
   .getElementById('search-btn')
@@ -575,5 +552,3 @@ $('.expansion-icon').click(function () {
     $(this).html('add_box').siblings('ul').addClass('collapsed');
   }
 });
-
-//////////////////////////////////////////////////////////////////////////

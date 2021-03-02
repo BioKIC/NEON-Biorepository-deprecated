@@ -258,11 +258,9 @@ function getParam(paramName) {
   if (paramName === 'db') {
     let dbArr = [];
     let tempArr = getCollsSelected();
-    console.log(tempArr);
     tempArr.forEach((item) => {
       dbArr.push(item.value);
     });
-    console.log(dbArr);
     elementValues = dbArr;
   } else if (paramName === 'datasetid') {
     let datasetArr = [];
@@ -327,7 +325,6 @@ function getParam(paramName) {
     }
   }
   elementValues != '' ? (paramsArr[paramName] = elementValues) : '';
-  console.log(paramsArr);
   return paramsArr;
 }
 
@@ -337,7 +334,6 @@ function getParam(paramName) {
  */
 function getSearchUrl() {
   const harvestUrl = location.href.slice(0, location.href.indexOf('/neon'));
-  console.log(harvestUrl);
   const baseUrl = new URL(harvestUrl + '/collections/list.php');
 
   // Clears array temporarily to avoid redundancy
@@ -415,8 +411,6 @@ function validateForm() {
     if (uLatNsVal == 'S' && bLatNsVal == 'S') {
       uLatVal = uLatVal * -1;
       bLatVal = bLatVal * -1;
-      console.log(uLatVal, bLatVal);
-      console.log(uLatVal < bLatVal);
       if (uLatVal < bLatVal) {
         errors.push({
           elId: 'bounding-box-form',
@@ -468,9 +462,7 @@ function simpleSearch() {
   let isValid = errors.length == 0;
   if (isValid) {
     let searchUrl = getSearchUrl();
-    // window.location = searchUrl;
-    console.log('search would be performed');
-    console.log(searchUrl);
+    window.location = searchUrl;
   } else {
     handleValErrors(errors);
   }

@@ -288,12 +288,20 @@ function getParam(paramName) {
     });
     elementValues = datasetArr;
   } else if (paramName === 'llbound') {
-    let uLatVal = uLatNs.value == 'S' ? uLat.value * -1 : uLat.value * 1;
-    let bLatVal = bLatNs.value == 'S' ? bLat.value * -1 : bLat.value * 1;
-    let lLngVal = lLngEw.value == 'W' ? lLng.value * -1 : lLng.value * 1;
-    let rLngVal = rLngEw.value == 'W' ? rLng.value * -1 : rLng.value * 1;
-    let llboundArr = `${uLatVal};${bLatVal};${lLngVal};${rLngVal}`;
-    elementValues = llboundArr;
+    // Only if inputs aren't empty
+    if (
+      uLat.value != '' &&
+      bLat.value != '' &&
+      lLng.value != '' &&
+      rLng.value != ''
+    ) {
+      let uLatVal = uLatNs.value == 'S' ? uLat.value * -1 : uLat.value * 1;
+      let bLatVal = bLatNs.value == 'S' ? bLat.value * -1 : bLat.value * 1;
+      let lLngVal = lLngEw.value == 'W' ? lLng.value * -1 : lLng.value * 1;
+      let rLngVal = rLngEw.value == 'W' ? rLng.value * -1 : rLng.value * 1;
+      let llboundArr = `${uLatVal};${bLatVal};${lLngVal};${rLngVal}`;
+      elementValues = llboundArr;
+    }
   } else if (paramName === 'llpoint') {
     console.log('llpoint is for Point Lat');
   } else if (elements[0] != undefined) {

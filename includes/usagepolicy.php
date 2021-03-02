@@ -30,7 +30,7 @@
 				<div style="margin:10px;">
 					<?php
 					echo $DEFAULT_TITLE.'. '.date('Y').'. ';
-					echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php. ';
+					echo 'https://'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php. ';
 					echo 'Accessed on '.date('F d').'. ';
 					?>
 				</div>
@@ -41,12 +41,12 @@
 				<div style="margin:10px;">
 					Biodiversity occurrence data published by: &lt;List of Collections&gt;
 					(Accessed through <?php echo $DEFAULT_TITLE; ?> Data Portal,
-					<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php'; ?>, YYYY-MM-DD)<br/><br/>
+					<?php echo 'https://'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php'; ?>, YYYY-MM-DD)<br/><br/>
 					<b>For example:</b><br/>
 					Biodiversity occurrence data published by:
 					Field Museum of Natural History, Museum of Vertebrate Zoology, and New York Botanical Garden
 					(Accessed through <?php echo $DEFAULT_TITLE; ?> Data Portal,
-					<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php, '.date('Y-m-d').')'; ?>
+					<?php echo 'https://'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php, '.date('Y-m-d').')'; ?>
 				</div>
 			</div>
 			<div>
@@ -100,6 +100,15 @@
 				permission of the landowner and, in the case of rare and endangered plants,
 				additional permits may be required. It is best to coordinate such efforts with a
 				regional institution that manages a publically accessible collection.
+			</div>
+						
+			<h2>Statement on Offensive Content in Specimen Collections</h2>
+			<div style="margin:15px;">
+				The CCH acknowledges that, as historical specimens, herbarium specimen labels may
+				contain offensive languge. In the interests of historical integrity, we are not removing
+				these words from occurrence records when they reflect locality information. We aim to include
+				a flag on such records alongside these data that describes the currently accepted description
+				or locality along with a reference to this Statement.
 			</div>
 		</div>
 		<?php

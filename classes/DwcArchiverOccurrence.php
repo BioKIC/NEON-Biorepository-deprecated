@@ -409,6 +409,21 @@ class DwcArchiverOccurrence{
 		return trim($retStr,' |');
 	}
 
+	public function getAssocTaxa($occid){
+		$retStr = '';
+		if($occid){
+			$sql = 'SELECT assocID, relationship, subType, verbatimSciname FROM omoccurassociations WHERE occid = '.$occid.' AND verbatimSciname IS NOT NULL ';
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retStr .= '|'.$r->relationship.($r->subType?' ('.$r->subType.')':'').': '.$r->verbatimSciname;
+				}
+				$rs->free();
+			}
+		}
+		return trim($retStr,' |');
+	}
+
 	private function getInverseRelationship($relationship){
 		if(!$this->relationshipArr) $this->setRelationshipArr();
 		if(array_key_exists($relationship, $this->relationshipArr)) return $this->relationshipArr[$relationship];

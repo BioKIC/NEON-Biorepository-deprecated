@@ -151,6 +151,10 @@ function updateChip(e) {
     }
   });
 }
+
+function getDomSitesChips() {
+  document.get;
+}
 /////////
 
 /**
@@ -425,10 +429,10 @@ function validateForm() {
     let rLngVal = rLng.value;
     let rLngEwVal = rLngEw.value;
 
-    if (lLngEw == 'W' && rLngEw == 'W') {
-      lLng = lLng * -1;
-      rLng = rLng * -1;
-      if (lLng > rLng) {
+    if (lLngEwVal == 'W' && rLngEwVal == 'W') {
+      lLngVal = lLngVal * -1;
+      rLngVal = rLngVal * -1;
+      if (lLngVal > rLngVal) {
         errors.push({
           elId: 'bounding-box-form',
           errorMsg:

@@ -120,6 +120,7 @@ function addChip(element) {
     removeChip(inputChip);
   };
   inputChip.textContent = element.dataset.chip;
+  // if element is domain or site, pass other content
   inputChip.appendChild(chipBtn);
   document.getElementById('chips').appendChild(inputChip);
 }
@@ -147,13 +148,28 @@ function updateChip(e) {
       item.checked &&
       item.hasAttribute('data-chip')
     ) {
+      // handle what to pass to addChip function here
       addChip(item);
     }
   });
 }
 
-function getDomSitesChips() {
-  document.get;
+function getDomainsSitesChips() {
+  let boxes = document.getElementsByName('datasetid');
+  let dArr = [];
+  let sArr = [];
+  boxes.forEach((box) => {
+    if (box.checked) {
+      let isSite = box.dataset.domain != undefined;
+      if (isSite) {
+        let isDomainSel = document.getElementById(box.dataset.domain).checked;
+        isDomainSel ? '' : sArr.push(box.value);
+      } else {
+        dArr.push(box.value);
+      }
+    }
+  });
+  console.log(dArr, sArr);
 }
 /////////
 

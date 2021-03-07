@@ -261,7 +261,7 @@ $siteData = new DatasetsMetadata();
                   <?php if($domainsArr = $siteData->getNeonDomains()){
                   echo '<ul>';
                     foreach($domainsArr as $domain) {
-                      echo "<li><input type='checkbox' id='{$domain["domainnumber"]}' class='all-selector child' name='datasetid' value='{$domain["datasetid"]}' checked=''><span class='material-icons expansion-icon'>add_box</span><span>{$domain["domainnumber"]} - {$domain["domainname"]}</span>";
+                      echo "<li><input type='checkbox' id='{$domain["domainnumber"]}' class='all-selector child' name='datasetid' value='{$domain["datasetid"]}' checked='' data-chip='Domain(s): {$domain["domainnumber"]}'><span class='material-icons expansion-icon'>add_box</span><span>{$domain["domainnumber"]} - {$domain["domainname"]}</span>";
                       echo "<ul class='collapsed'>";
                       // ECHO SITES PER DOMAINS
                       $sitesArr = $siteData->getNeonSitesByDom($domain["domainnumber"]);

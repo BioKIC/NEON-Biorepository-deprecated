@@ -8,6 +8,7 @@ class OccurrenceHarvester{
 	private $conn;
 	private $stateArr = array();
 	private $sampleClassArr = array();
+	private $domainSiteArr = array();
 	private $replaceFieldValues = false;
 	private $neonApiKey;
 	private $errorStr;
@@ -68,6 +69,7 @@ class OccurrenceHarvester{
 		}
 		if($sqlWhere){
 			$this->setStateArr();
+			$this->setDomainSiteArr();
 			if($this->setSampleClassArr()){
 				$collArr = array();
 				$occidArr = array();
@@ -339,6 +341,11 @@ class OccurrenceHarvester{
 				}
 				//Build proper location code
 				if($this->setNeonLocationData($dwcArr, $sampleArr['namedLocation'])){
+					if(isset($dwcArr['locality']) && isset($dwcArr['domainID'])){
+						$locStr = $this->domainSiteArr[$dwcArr['domainID']].' ('.$dwcArr['domainID'].'), ';
+						if(isset($dwcArr['siteID'])) $locStr .= $this->domainSiteArr[$dwcArr['siteID']].' ('.$dwcArr['siteID'].'), ';
+						$dwcArr['locality'] = trim($locStr.$dwcArr['locality']);
+					}
 					if(isset($dwcArr['plotDim'])){
 						$dwcArr['locality'] .= $dwcArr['plotDim'];
 						unset($dwcArr['plotDim']);
@@ -350,6 +357,7 @@ class OccurrenceHarvester{
 					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 					//return false;
 				}
+				if(isset($dwcArr['locality']) && $dwcArr['locality']) $dwcArr['locality'] = trim($dwcArr['locality'],' ,;.');
 
 				if($sampleArr['taxonID']){
 					$dwcArr['sciname'] = $sampleArr['taxonID'];
@@ -442,9 +450,11 @@ class OccurrenceHarvester{
 			$parStr = preg_replace('/ at site [A-Z]+/', '', $parStr);
 			$parStr = trim($parStr,' ,;');
 			if($parStr){
-				$localityStr = '';
-				if(isset($dwcArr['locality'])) $localityStr = $dwcArr['locality'];
-				$dwcArr['locality'] = $parStr.', '.$localityStr;
+				if($resultArr['locationType'] != 'SITE' && $resultArr['locationType'] != 'DOMAIN'){
+					$localityStr = '';
+					if(isset($dwcArr['locality'])) $localityStr = $dwcArr['locality'];
+					$dwcArr['locality'] = $parStr.', '.$localityStr;
+				}
 			}
 		}
 
@@ -765,6 +775,16 @@ class OccurrenceHarvester{
 			$status = true;
 		}
 		return $status;
+	}
+
+	private function setDomainSiteArr(){
+		$sql = 'SELECT domainNumber, domainName, siteID, siteName FROM neon_field_sites';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->domainSiteArr[$r->domainNumber] = $r->domainName;
+			$this->domainSiteArr[$r->siteID] = $r->siteName;
+		}
+		$rs->free();
 	}
 
 	private function setSampleErrorMessage($samplePK, $msg){

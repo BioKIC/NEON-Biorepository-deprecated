@@ -67,7 +67,7 @@ class NpsReport{
 			$this->occurArr[$r->occid]['genus'] = ($r->rankid > 179?$r->unitname1:'');
 			$this->occurArr[$r->occid]['species'] = $r->species;
 			$this->occurArr[$r->occid]['author'] = $r->scientificNameAuthorship;
-			$this->occurArr[$r->occid]['common'] = (!$r->tidInterpreted?$r->sciname:'');
+			$this->occurArr[$r->occid]['common'] = (!$r->tidInterpreted || !$r->rankid?$r->sciname:'');
 			$this->occurArr[$r->occid]['tsn'] = $this->getItisTSN($r->sciname,$r->tidInterpreted);
 			$this->occurArr[$r->occid]['count'] = $r->individualCount;
 			$this->occurArr[$r->occid]['quantity'] = '0.0';
@@ -128,6 +128,7 @@ class NpsReport{
 			foreach($habitatArr as $habStr){
 				if(stripos($habStr,'slope gradient') !== false) $slopeStr = trim($habStr);
 				elseif(stripos($habStr,'slope aspect') !== false) $aspectStr = trim($habStr);
+				elseif(stripos($habStr,'soil type order') !== false) $soilStr = trim($habStr);
 				else $habitatStr .= $habStr.'; ';
 			}
 
@@ -176,7 +177,7 @@ class NpsReport{
 	private function getItisTSN($sciname, $tid){
 		if(isset($this->itisTsnArr[$sciname])) return $this->itisTsnArr[$sciname];
 		$tsn = $this->getTsnFromDatabase($tid);
-		if(!$tsn){
+		if(!$tsn && strtolower($sciname) != 'epilithon'){
 			//Grab TSN via ITIS web services
 			$url = 'https://www.itis.gov/ITISWebService/services/ITISService/searchByScientificName?srchKey='.str_replace(' ','%20',$sciname);
 			if($this->debugMode) echo '<li style="margin-left:15px">'.$url.'</li>';

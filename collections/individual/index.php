@@ -865,8 +865,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								<?php
 								foreach($iArr as $imgId => $imgArr){
 									$thumbUrl = $imgArr['tnurl'];
-									if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['url'];
-									if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['lgurl'];
+									if(!$thumbUrl || substr($thumbUrl,0,7)=='process'){
+										if($image = exif_thumbnail($imgArr['lgurl'])){
+											$thumbUrl = 'data:image/jpeg;base64,'.base64_encode($image);
+										}
+										elseif($imgArr['url'] && substr($imgArr['url'],0,7)!='process') $thumbUrl = $imgArr['url'];
+										else $thumbUrl = $imgArr['lgurl'];
+									}
 									?>
 									<div class="imgDiv">
 										<a href='<?php echo $imgArr['url']; ?>' target="_blank">

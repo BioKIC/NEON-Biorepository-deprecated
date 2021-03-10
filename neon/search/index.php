@@ -261,13 +261,13 @@ $siteData = new DatasetsMetadata();
                   <?php if($domainsArr = $siteData->getNeonDomains()){
                   echo '<ul>';
                     foreach($domainsArr as $domain) {
-                      echo "<li><input type='checkbox' id='{$domain["domainnumber"]}' class='all-selector child' name='datasetid' value='{$domain["datasetid"]}' checked='' data-chip='Domain(s): {$domain["domainnumber"]}'><span class='material-icons expansion-icon'>add_box</span><span>{$domain["domainnumber"]} - {$domain["domainname"]}</span>";
+                      echo "<li><input type='checkbox' id='{$domain["domainnumber"]}' class='all-selector child' name='datasetid' value='{$domain["datasetid"]}' checked=''><span class='material-icons expansion-icon'>add_box</span><span>{$domain["domainnumber"]} - {$domain["domainname"]}</span>";
                       echo "<ul class='collapsed'>";
                       // ECHO SITES PER DOMAINS
                       $sitesArr = $siteData->getNeonSitesByDom($domain["domainnumber"]);
                       if($sitesArr){
                         foreach($sitesArr as $site) {
-                          echo "<li><input type='checkbox' name='datasetid' value={$site["datasetid"]} class='child' data-domain={$domain["domainnumber"]} checked=''><span class='ml-1'><a href='https://www.neonscience.org/field-sites/{$site["siteid"]}' target='_blank' rel='noopener noreferrer'>({$site["siteid"]}) {$site["sitename"]}</a></span></li>";
+                          echo "<li><input type='checkbox' id='${site["siteid"]}' name='datasetid' value={$site["datasetid"]} class='child' data-domain={$domain["domainnumber"]} checked=''><span class='ml-1'><a href='https://www.neonscience.org/field-sites/{$site["siteid"]}' target='_blank' rel='noopener noreferrer'>({$site["siteid"]}) {$site["sitename"]}</a></span></li>";
                           // echo $site["siteid"];
                         }
                       };

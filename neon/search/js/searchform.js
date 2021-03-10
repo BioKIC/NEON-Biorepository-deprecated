@@ -106,23 +106,30 @@ function openCoordAid(mapMode) {
  * @param {HTMLObjectElement} element Input for which chips are going to be created by default
  */
 function addChip(element) {
-  let inputChip = document.createElement('span'),
-    chipBtn = document.createElement('button');
+  let inputChip = document.createElement('span');
   inputChip.classList.add('chip');
-  inputChip.id = 'chip-' + element.id;
+  let chipBtn = document.createElement('button');
   chipBtn.setAttribute('type', 'button');
   chipBtn.classList.add('chip-remove-btn');
-  chipBtn.onclick = function () {
-    element.type === 'checkbox'
-      ? (element.checked = false)
-      : (element.value = element.defaultValue);
-    element.dataset.formId ? uncheckAll(element) : '';
-    removeChip(inputChip);
-  };
-  inputChip.textContent = element.dataset.chip;
   // if element is domain or site, pass other content
-  inputChip.appendChild(chipBtn);
-  document.getElementById('chips').appendChild(inputChip);
+  if (element.name == 'some-datasetid' && element.text != '') {
+    inputChip.id = 'chip-some-datasetids';
+    inputChip.textContent = element.text;
+    inputChip.appendChild(chipBtn);
+    document.getElementById('chips').appendChild(inputChip);
+  } else {
+    inputChip.id = 'chip-' + element.id;
+    inputChip.textContent = element.dataset.chip;
+    chipBtn.onclick = function () {
+      element.type === 'checkbox'
+        ? (element.checked = false)
+        : (element.value = element.defaultValue);
+      element.dataset.formId ? uncheckAll(element) : '';
+      removeChip(inputChip);
+    };
+    inputChip.appendChild(chipBtn);
+    document.getElementById('chips').appendChild(inputChip);
+  }
 }
 
 /**
@@ -139,6 +146,8 @@ function removeChip(chip) {
  */
 function updateChip(e) {
   document.getElementById('chips').innerHTML = '';
+  let isAllDomSiteSelected = document.getElementById('all-sites').checked;
+  isAllDomSiteSelected ? '' : addChip(getDomainsSitesChips());
   let inputs = document.querySelectorAll('input');
   inputs.forEach((item) => {
     if (item.type == 'text' && item.value != '') {
@@ -148,12 +157,12 @@ function updateChip(e) {
       item.checked &&
       item.hasAttribute('data-chip')
     ) {
-      // handle what to pass to addChip function here
       addChip(item);
     }
   });
 }
 
+/// DOCUMENT
 function getDomainsSitesChips() {
   let boxes = document.getElementsByName('datasetid');
   let dArr = [];
@@ -163,13 +172,22 @@ function getDomainsSitesChips() {
       let isSite = box.dataset.domain != undefined;
       if (isSite) {
         let isDomainSel = document.getElementById(box.dataset.domain).checked;
-        isDomainSel ? '' : sArr.push(box.value);
+        isDomainSel ? '' : sArr.push(box.id);
       } else {
-        dArr.push(box.value);
+        dArr.push(box.id);
       }
     }
   });
-  console.log(dArr, sArr);
+  let dStr = '';
+  let sStr = '';
+  dArr.length > 0 ? (dStr = `Domain(s): ${dArr.join(', ')} `) : '';
+  sArr.length > 0 ? (sStr = `Sites: ${sArr.join(', ')}`) : '';
+  let chipEl = {
+    text: dStr + sStr,
+    name: 'some-datasetid',
+  };
+  return chipEl;
+  // console.log(dArr, sArr);
 }
 /////////
 
@@ -524,7 +542,12 @@ formColls.addEventListener('click', autoToggleSelector, false);
 formColls.addEventListener('change', autoToggleSelector, false);
 
 formSites.addEventListener('click', autoToggleSelector, false);
-formSites.addEventListener('change', autoToggleSelector, false);
+// formSites.addEventListener('change', autoToggleSelector, false);
+formSites.addEventListener('change', function () {
+  autoToggleSelector;
+  let dsChips = getDomainsSitesChips();
+  addChip(dsChips);
+});
 
 collsModal.addEventListener('click', autoToggleSelector, false);
 collsModal.addEventListener('change', autoToggleSelector, false);

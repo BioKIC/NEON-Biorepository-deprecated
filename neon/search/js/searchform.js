@@ -112,13 +112,18 @@ function addChip(element) {
   chipBtn.setAttribute('type', 'button');
   chipBtn.classList.add('chip-remove-btn');
   // if element is domain or site, pass other content
-  if (element.name == 'some-datasetid' && element.text != '') {
-    inputChip.id = 'chip-some-datasetids';
-    inputChip.textContent = element.text;
-    inputChip.appendChild(chipBtn);
-    document.getElementById('chips').appendChild(inputChip);
+  if (element.name == 'some-datasetid') {
+    if (element.text != '') {
+      inputChip.id = 'chip-some-datasetids';
+      inputChip.textContent = element.text;
+      inputChip.appendChild(chipBtn);
+      document.getElementById('chips').appendChild(inputChip);
+    } else {
+      return false;
+    }
   } else {
     inputChip.id = 'chip-' + element.id;
+    console.log(element);
     inputChip.textContent = element.dataset.chip;
     chipBtn.onclick = function () {
       element.type === 'checkbox'

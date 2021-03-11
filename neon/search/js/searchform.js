@@ -116,14 +116,15 @@ function addChip(element) {
     if (element.text != '') {
       inputChip.id = 'chip-some-datasetids';
       inputChip.textContent = element.text;
-      inputChip.appendChild(chipBtn);
-      document.getElementById('chips').appendChild(inputChip);
+      chipBtn.onclick = function () {
+        uncheckAll(document.getElementById('all-sites'));
+        removeChip(inputChip);
+      };
     } else {
       return false;
     }
   } else {
     inputChip.id = 'chip-' + element.id;
-    console.log(element);
     inputChip.textContent = element.dataset.chip;
     chipBtn.onclick = function () {
       element.type === 'checkbox'
@@ -132,9 +133,9 @@ function addChip(element) {
       element.dataset.formId ? uncheckAll(element) : '';
       removeChip(inputChip);
     };
-    inputChip.appendChild(chipBtn);
-    document.getElementById('chips').appendChild(inputChip);
   }
+  inputChip.appendChild(chipBtn);
+  document.getElementById('chips').appendChild(inputChip);
 }
 
 /**
@@ -167,7 +168,10 @@ function updateChip(e) {
   });
 }
 
-/// DOCUMENT
+/**
+ * Gets selected domains and sites to generate chips
+ * @returns Chip element Object
+ */
 function getDomainsSitesChips() {
   let boxes = document.getElementsByName('datasetid');
   let dArr = [];
@@ -192,7 +196,6 @@ function getDomainsSitesChips() {
     name: 'some-datasetid',
   };
   return chipEl;
-  // console.log(dArr, sArr);
 }
 /////////
 
@@ -548,11 +551,11 @@ formColls.addEventListener('change', autoToggleSelector, false);
 
 formSites.addEventListener('click', autoToggleSelector, false);
 // formSites.addEventListener('change', autoToggleSelector, false);
-formSites.addEventListener('change', function () {
-  autoToggleSelector;
-  let dsChips = getDomainsSitesChips();
-  addChip(dsChips);
-});
+// formSites.addEventListener('change', function () {
+//   autoToggleSelector;
+//   let dsChips = getDomainsSitesChips();
+//   addChip(dsChips);
+// });
 
 collsModal.addEventListener('click', autoToggleSelector, false);
 collsModal.addEventListener('change', autoToggleSelector, false);
@@ -561,6 +564,7 @@ collsModal.addEventListener('change', autoToggleSelector, false);
 document
   .getElementById('neon-modal-close')
   .addEventListener('click', function (event) {
+    removeChip(document.getElementById('chip-' + allNeon.id));
     event.preventDefault();
     closeModal('#biorepo-collections-list');
     let criterionSelected = collsModal.querySelector(

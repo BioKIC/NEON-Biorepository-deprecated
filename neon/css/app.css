@@ -308,7 +308,7 @@ span.accent-color-darker {
   background: #e0e0e0;
   padding: 0 12px;
   margin: 5px 0;
-  border-radius: 32px;
+  border-radius: 10px;
   font-size: 13px;
 }
 
@@ -317,16 +317,16 @@ span.accent-color-darker {
 }
 
 .chip, .chip-icon {
-  height: 32px;
-  line-height: 32px;
+  height: auto;
+  line-height: auto;
 }
 
 .chip-icon {
   display: block;
   float: left;
   background: #005DAB;
-  width: 32px;
-  line-height: 32px !important;
+  width: auto;
+  line-height: auto !important;
   border-radius: 50%;
   text-align: center;
   color: white;

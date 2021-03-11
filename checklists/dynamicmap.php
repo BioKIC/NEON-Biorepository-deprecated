@@ -6,6 +6,9 @@ header('Content-Type: text/html; charset='.$CHARSET);
 $tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:0;
 $taxa = array_key_exists('taxa',$_REQUEST)?$_REQUEST['taxa']:'';
 $interface = array_key_exists('interface',$_REQUEST)&&$_REQUEST['interface']?$_REQUEST['interface']:'checklist';
+$latCen = array_key_exists('lat',$_REQUEST)?$_REQUEST['lat']:'';
+$longCen = array_key_exists('long',$_REQUEST)?$_REQUEST['long']:'';
+$zoomInt = array_key_exists('zoom',$_REQUEST)?$_REQUEST['zoom']:'';
 
 //Sanitation
 if(!is_numeric($tid)) $tid = 0;
@@ -13,25 +16,22 @@ $taxa = filter_var($taxa,FILTER_SANITIZE_STRING);
 if($interface && $interface != 'key') $interface = 'checklist';
 
 //$dynClManager = new DynamicChecklistManager();
-
-$latCen = 41.0;
-$longCen = -95.0;
-$coorArr = explode(";",$MAPPING_BOUNDARIES);
-if($coorArr && count($coorArr) == 4){
-	$latCen = ($coorArr[0] + $coorArr[2])/2;
-	$longCen = ($coorArr[1] + $coorArr[3])/2;
+if(!$latCen || !$longCen){
+	$latCen = 41.0;
+	$longCen = -95.0;
+	$coorArr = explode(";",$MAPPING_BOUNDARIES);
+	if($coorArr && count($coorArr) == 4){
+		$latCen = ($coorArr[0] + $coorArr[2])/2;
+		$longCen = ($coorArr[1] + $coorArr[3])/2;
+	}
 }
-$coordRange = 50;
-if($coorArr && count($coorArr) == 4) $coordRange = ($coorArr[0] - $coorArr[2]);
-$zoomInt = 5;
-if($coordRange < 20){
-	$zoomInt = 6;
-}
-elseif($coordRange > 35 && $coordRange < 40){
-	$zoomInt = 4;
-}
-elseif($coordRange > 40){
-	$zoomInt = 3;
+if(!$zoomInt){
+	$zoomInt = 5;
+	$coordRange = 50;
+	if($coorArr && count($coorArr) == 4) $coordRange = ($coorArr[0] - $coorArr[2]);
+	if($coordRange < 20) $zoomInt = 6;
+	elseif($coordRange > 35 && $coordRange < 40) $zoomInt = 4;
+	elseif($coordRange > 40) $zoomInt = 3;
 }
 ?>
 <html>

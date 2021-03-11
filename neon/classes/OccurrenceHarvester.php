@@ -10,6 +10,7 @@ class OccurrenceHarvester{
 	private $sampleClassArr = array();
 	private $domainSiteArr = array();
 	private $replaceFieldValues = false;
+	private $targetFieldArr = array();
 	private $neonApiKey;
 	private $errorStr;
 
@@ -43,6 +44,7 @@ class OccurrenceHarvester{
 
 	public function batchHarvestOccid($postArr){
 		set_time_limit(3600);
+		//Set variables
 		if(isset($postArr['replaceFieldValues']) && $postArr['replaceFieldValues']) $this->setReplaceFieldValues(true);
 		$sqlWhere = '';
 		if(isset($postArr['scbox'])){
@@ -67,6 +69,13 @@ class OccurrenceHarvester{
 			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
 			else $sqlWhere .= 'LIMIT 1000 ';
 		}
+		if(isset($postArr['targetFields']) && $postArr['targetFields']){
+			$targetArr = $postArr['targetFields'];
+			foreach($targetArr as $field){
+				$this->setTargetFieldArr($field);
+			}
+		}
+		//Start harvest
 		if($sqlWhere){
 			$this->setStateArr();
 			$this->setDomainSiteArr();
@@ -541,7 +550,7 @@ class OccurrenceHarvester{
 			if($occid){
 				$skipFieldArr = array('occid','collid');
 				if($this->replaceFieldValues){
-					//Only replace values that have not yet been expllicitly modified
+					//Only replace values that have not yet been explicitly modified
 					$sqlEdit = 'SELECT DISTINCT fieldname FROM omoccuredits WHERE occid = '.$occid;
 					$rsEdit = $this->conn->query($sqlEdit);
 					while($rEdit = $rsEdit->fetch_object()){
@@ -550,26 +559,26 @@ class OccurrenceHarvester{
 					$rsEdit->free();
 				}
 				foreach($dwcArr as $fieldName => $fieldValue){
-					if(!in_array(strtolower($fieldName),$skipFieldArr)){
-						if($this->replaceFieldValues){
-							if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
-								$sql .= ', '.$fieldName.' = '.$this->cleanInStr($fieldValue).' ';
-							}
-							else{
-								$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
-							}
+					if(in_array(strtolower($fieldName),$skipFieldArr)) continue;
+					if($this->targetFieldArr && !in_array(strtolower($fieldName),$this->targetFieldArr)) continue;
+					if($this->replaceFieldValues){
+						if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+							$sql .= ', '.$fieldName.' = '.$this->cleanInStr($fieldValue).' ';
 						}
 						else{
-							if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
-								$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.','.$this->cleanInStr($fieldValue).') ';
-							}
-							else{
-								$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
-							}
+							$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
+						}
+					}
+					else{
+						if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+							$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.','.$this->cleanInStr($fieldValue).') ';
+						}
+						else{
+							$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
 						}
 					}
 				}
-				$sql = 'UPDATE omoccurrences SET '.substr($sql, 1).' WHERE (occid = '.$occid.')';
+				if($sql) $sql = 'UPDATE omoccurrences SET '.substr($sql, 1).' WHERE (occid = '.$occid.')';
 			}
 			else{
 				$sql1 = ''; $sql2 = '';
@@ -588,19 +597,21 @@ class OccurrenceHarvester{
 				}
 				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').',dateentered) VALUES('.trim($sql2,',').',NOW())';
 			}
-			if($this->conn->query($sql)){
-				if(!$occid){
-					$occid = $this->conn->insert_id;
-					if($occid){
-						$this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
-						$this->datasetIndexing($domainID,$occid);
-						$this->datasetIndexing($siteID,$occid);
+			if($sql){
+				if($this->conn->query($sql)){
+					if(!$occid){
+						$occid = $this->conn->insert_id;
+						if($occid){
+							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
+							$this->datasetIndexing($domainID,$occid);
+							$this->datasetIndexing($siteID,$occid);
+						}
 					}
 				}
-			}
-			else{
-				$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
-				return false;
+				else{
+					$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
+					return false;
+				}
 			}
 		}
 		return $occid;
@@ -798,6 +809,46 @@ class OccurrenceHarvester{
 	//Setters and getters
 	public function setReplaceFieldValues($bool){
 		if($bool) $this->replaceFieldValues = true;
+	}
+
+	private function setTargetFieldArr($fieldName){
+		if($fieldName){
+			if($fieldName == 'sciname'){
+				$this->targetFieldArr[] = 'sciname';
+				$this->targetFieldArr[] = 'scientificnameauthorship';
+				$this->targetFieldArr[] = 'family';
+				$this->targetFieldArr[] = 'taxonremarks';
+			}
+			elseif($fieldName == 'recordedBy'){
+				$this->targetFieldArr[] = 'recordedby';
+				$this->targetFieldArr[] = 'recordnumber';
+				$this->targetFieldArr[] = 'eventdate';
+			}
+			elseif($fieldName == 'country'){
+				$this->targetFieldArr[] = 'country';
+				$this->targetFieldArr[] = 'stateprovince';
+				$this->targetFieldArr[] = 'county';
+			}
+			elseif($fieldName == 'decimalLatitude'){
+				$this->targetFieldArr[] = 'decimallatitude';
+				$this->targetFieldArr[] = 'decimallongitude';
+				$this->targetFieldArr[] = 'coordinateuncertaintyinmeters';
+				$this->targetFieldArr[] = 'verbatimcoordinates';
+				$this->targetFieldArr[] = 'geodeticdatum';
+				$this->targetFieldArr[] = 'georeferencesources';
+				$this->targetFieldArr[] = 'minimumelevationinmeters';
+				$this->targetFieldArr[] = 'maximumelevationinmeters';
+			}
+			elseif($fieldName == 'habitat'){
+				$this->targetFieldArr[] = 'habitat';
+				$this->targetFieldArr[] = 'verbatimattributes';
+				$this->targetFieldArr[] = 'occurrenceremarks';
+				$this->targetFieldArr[] = 'individualcount';
+			}
+			else{
+				$this->targetFieldArr[] = $fieldName;
+			}
+		}
 	}
 
 	public function getErrorStr(){

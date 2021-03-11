@@ -52,10 +52,15 @@ if($isEditor){
 			if (newWindow.opener == null) newWindow.opener = self;
 			return false;
 		}
+
+		function nullOccurrenceOnlyChanged(cb){
+			if(cb.checked == true) $("#extendedVariables").hide();
+			else $("#extendedVariables").show();
+		}
 	</script>
 	<style type="text/css">
 		fieldset{ padding:15px }
-		.fieldGroupDiv{ clear:both; margin:10px; }
+		.fieldGroupDiv{ clear:both; padding:5px 0px; }
 		.fieldDiv{ float:left; }
 	</style>
 </head>
@@ -114,43 +119,57 @@ include($SERVER_ROOT.'/includes/header.php');
 			<form action="occurrenceharvester.php" method="post">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<input name="nullOccurrencesOnly" type="checkbox" value="1" checked /> Target New Samples only (NULL occurrences)
+						<input name="nullOccurrencesOnly" type="checkbox" value="1" onchange="nullOccurrenceOnlyChanged(this)" checked /> Target New Samples only (NULL occurrences)
 					</div>
 				</div>
-				<div class="fieldGroupDiv">
-					<div class="fieldDiv">
-						Error Group:
-						<select name="errorStr" >
-							<option value="nullError">NULL Error Message</option>
-							<option value="">---------------------</option>
-							<?php
-							foreach($reportArr as $msg => $repCntArr){
-								echo '<option>'.$msg.'</option>';
-							}
-							?>
-						</select>
+				<div id="extendedVariables" style="display:none">
+					<div class="fieldGroupDiv">
+						<div class="fieldDiv">
+							Error Group:
+							<select name="errorStr" >
+								<option value="nullError">NULL Error Message</option>
+								<option value="">---------------------</option>
+								<?php
+								foreach($reportArr as $msg => $repCntArr){
+									echo '<option>'.$msg.'</option>';
+								}
+								?>
+							</select>
+						</div>
 					</div>
-				</div>
-				<div class="fieldGroupDiv">
-					<div class="fieldDiv">
-						WHERE
-						<select name="nullfilter" onchange="occurSearchTermChanged(this)">
-							<option value="">Target Field...</option>
-							<option value="">---------------------</option>
-							<option value="sciname">Scientific Name</option>
-							<option value="recordedBy">Collector</option>
-							<option value="eventDate">Event Date</option>
-							<option value="country">Country</option>
-							<option value="stateProvince">State/Province</option>
-							<option value="county">County</option>
-							<option value="decimalLatitude">Lat/Long</option>
-						</select>
-						IS NULL
+					<div class="fieldGroupDiv">
+						<div class="fieldDiv">
+							WHERE
+							<select name="nullfilter" onchange="occurSearchTermChanged(this)">
+								<option value="">---------------------</option>
+								<option value="sciname">Scientific Name</option>
+								<option value="recordedBy">Collector</option>
+								<option value="eventDate">Event Date</option>
+								<option value="country">Country</option>
+								<option value="stateProvince">State/Province</option>
+								<option value="county">County</option>
+								<option value="decimalLatitude">Lat/Long</option>
+							</select>
+							IS NULL
+						</div>
 					</div>
-				</div>
-				<div class="fieldGroupDiv">
-					<div class="fieldDiv" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
-						<input name="replaceFieldValues" type="checkbox" value="1"  onchange="occurSearchTermChanged(this)" /> Replace existing field values if they have not been explicitly modified (previously harvested occurrences only)
+					<div class="fieldGroupDiv">
+						<div class="fieldDiv">
+							Only update selected fields:
+							<select name="targetFields[]" onchange="occurSearchTermChanged(this)" multiple>
+								<option value="sciname">Scientific Name</option>
+								<option value="recordedBy">Collector data</option>
+								<option value="country">Upper geography (e.g. country, state, county)</option>
+								<option value="locality">Locality</option>
+								<option value="decimalLatitude">Coordinates</option>
+								<option value="habitat">Habitat, description, notes, etc</option>
+							</select> (multiple selections are allowed)
+						</div>
+					</div>
+					<div class="fieldGroupDiv">
+						<div class="fieldDiv" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
+							<input name="replaceFieldValues" type="checkbox" value="1"  onchange="occurSearchTermChanged(this)" /> Replace existing field values (excluding fields that have been explicitly modified within portal)
+						</div>
 					</div>
 				</div>
 				<div class="fieldGroupDiv">

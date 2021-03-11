@@ -96,7 +96,7 @@ $siteData = new DatasetsMetadata();
                     <?php if($collsArr = $collData->getCollMetaByCat('Additional NEON Collections')){
                     echo '<ul class="collapsed">';
                       foreach($collsArr as $result) {
-                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
+                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]} ({$result["collectioncode"]})</span></a></li>";
                       }
                       echo '</ul>';
                     } ;?>
@@ -107,7 +107,7 @@ $siteData = new DatasetsMetadata();
                     <?php if($collsArr = $collData->getCollMetaByCat('Other Collections from NEON sites')){
                     echo '<ul class="collapsed">';
                       foreach($collsArr as $result) {
-                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]}</span></a></li>";
+                        echo "<li><input type='checkbox' name='db' value='{$result["collid"]}' class='child'><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$result["collid"]}' target='_blank' rel='noopener noreferrer'>{$result["collectionname"]} ({$result["institutioncode"]})</span></a></li>";
                       }
                       echo '</ul>';
                     } ;?>
@@ -142,9 +142,9 @@ $siteData = new DatasetsMetadata();
                               echo "<li>";
                               // IF AVAILABLE
                               if ($row['available'] == 'TRUE'){
-                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child ml-1' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a>";
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child ml-1' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]} ({$row["collectioncode"]})</a>";
                               } elseif ($row["available"] == 'FALSE'){
-                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span class='ml-1' style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' disabled=''><span class='ml-1' style='color: gray'>{$row["collectionname"]} ({$row["collectioncode"]}) - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>More Info</a>";
                               }
                               echo "</li>";   
                             }
@@ -169,9 +169,9 @@ $siteData = new DatasetsMetadata();
                               echo "<li>";
                               // IF AVAILABLE
                               if ($row['available'] == 'TRUE'){
-                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a></span>";
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><span class='ml-1'><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]} ({$row["collectioncode"]})</a></span>";
                               } elseif ($row["available"] == 'FALSE'){
-                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span class='ml-1' style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' disabled=''><span class='ml-1' style='color: gray'>{$row["collectionname"]} ({$row["collectioncode"]}) - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>More Info</a>";
                               }
                               echo "</li>";   
                             }
@@ -196,9 +196,9 @@ $siteData = new DatasetsMetadata();
                               echo "<li>";
                               // IF AVAILABLE
                               if ($row['available'] == 'TRUE'){
-                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]}</a>";
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' checked><a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>{$row["collectionname"]} ({$row["collectioncode"]})</a>";
                               } elseif ($row["available"] == 'FALSE'){
-                                echo "<input type='checkbox' name='db' value='{$row['collid']}' class='child' disabled=''><span style='color: gray'>{$row['collectionname']} - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row['collid']}' target='_blank'>More Info</a>";
+                                echo "<input type='checkbox' name='db' value='{$row["collid"]}' class='child' disabled=''><span style='color: gray'>{$row["collectionname"]}  ({$row["collectioncode"]}) - Samples Unavailable</span> <a href='../../collections/misc/collprofiles.php?collid={$row["collid"]}' target='_blank'>More Info</a>";
                               }
                               echo "</li>";   
                             }

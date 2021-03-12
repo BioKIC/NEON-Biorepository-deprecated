@@ -196,7 +196,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				if($missingCnt){
 					echo '<div id="missingGuidList" style="margin-left:40px;display:none">';
 					foreach($sesarArr['missing'] as $igsn => $missingArr){
-						echo '<li><a href="https://sesardev.geosamples.org/sample/igsn/'.$igsn.'" target="_blank" title="Open IGSN in SESAR Systems">'.$igsn.'</a> ';
+						echo '<li><a href="https://app.geosamples.org/sample/igsn/'.$igsn.'" target="_blank" title="Open IGSN in SESAR Systems">'.$igsn.'</a> ';
 						if(isset($missingArr['occid'])){
 							echo '=> <a href="../editor/occurrenceeditor.php?occid='.$missingArr['occid'].'" target="_blank" title="Open occurrence in editor">'.$missingArr['catNum'].'</a> ';
 							echo '<a href="#" onclick="syncIGSN('.$missingArr['occid'].',\''.$missingArr['catNum'].'\',\''.$igsn.'\');return false" title="Add IGSN to target occurrence"><img src="../../images/link.png" style="width:13px"/></a>';

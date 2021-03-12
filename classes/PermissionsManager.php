@@ -34,10 +34,10 @@ class PermissionsManager{
 	public function getUser($uid){
 		$returnArr = Array();
 		if(is_numeric($uid)){
-			$sql = "SELECT u.uid, u.firstname, u.lastname, u.title, u.institution, u.city, u.state, ".
-				"u.zip, u.country, u.email, u.url, u.notes, ul.username, IFNULL(ul.lastlogindate,ul.initialTimestamp) AS lastlogindate ".
-				"FROM users u LEFT JOIN userlogin ul ON u.uid = ul.uid ".
-				"WHERE (u.uid = ".$uid.')';
+			$sql = 'SELECT u.uid, u.firstname, u.lastname, u.title, u.institution, u.city, u.state, u.zip, u.country, '.
+				'u.email, u.url, u.guid, u.notes, ul.username, IFNULL(ul.lastlogindate,ul.initialTimestamp) AS lastlogindate '.
+				'FROM users u LEFT JOIN userlogin ul ON u.uid = ul.uid '.
+				'WHERE (u.uid = '.$uid.')';
 			//echo "<div>$sql</div>";
 			$result = $this->conn->query($sql);
 			if($row = $result->fetch_object()){
@@ -51,9 +51,10 @@ class PermissionsManager{
 				$returnArr["zip"] = $row->zip;
 				$returnArr["country"] = $row->country;
 				$returnArr["email"] = $row->email;
-				$returnArr["url"] = $row->url;
-				$returnArr["notes"] = $row->notes;
-				$returnArr["username"] = $row->username;
+				$returnArr['url'] = $row->url;
+				$returnArr['guid'] = $row->guid;
+				$returnArr['notes'] = $row->notes;
+				$returnArr['username'] = $row->username;
 				$returnArr['lastlogindate'] = $row->lastlogindate;
 			}
 			$result->free();
@@ -141,9 +142,7 @@ class PermissionsManager{
 
 			//If there are checklist, fetch names
 			if(array_key_exists("ClAdmin",$perArr)){
-				$sql = "SELECT cl.clid, cl.name FROM fmchecklists cl ".
-					"WHERE (cl.clid IN(".implode(",",array_keys($perArr["ClAdmin"]))."))".
-					"ORDER BY cl.name";
+				$sql = 'SELECT clid, name FROM fmchecklists WHERE clid IN('.implode(',',array_keys($perArr['ClAdmin'])).') ORDER BY name';
 				$result = $this->conn->query($sql);
 				while($row = $result->fetch_object()){
 					$perArr["ClAdmin"][$row->clid]['name'] = $row->name;
@@ -267,12 +266,8 @@ class PermissionsManager{
 	public function getCollectionMetadata($collType = ''){
 		$retArr = Array();
 		$sql = 'SELECT collid, collectionname, institutioncode, collectioncode, colltype FROM omcollections ';
-		if(is_numeric($collType)){
-			$sql .= 'WHERE (collid = '.$collType.') ';
-		}
-		else{
-			$sql .= 'WHERE (colltype = "'.$this->cleanInStr($collType).'") ';
-		}
+		if(is_numeric($collType)) $sql .= 'WHERE (collid = '.$collType.') ';
+		else $sql .= 'WHERE (colltype = "'.$this->cleanInStr($collType).'") ';
 		$sql .= 'ORDER BY collectionname';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
@@ -318,12 +313,11 @@ class PermissionsManager{
 
 	public function getUsers($searchTerm=''){
 		$retArr = Array();
-		$sql = 'SELECT u.uid, CONCAT_WS(", ",u.lastname,u.firstname) AS uname, l.username '.
-			'FROM users u LEFT JOIN userlogin l ON u.uid = l.uid ';
+		$sql = 'SELECT u.uid, CONCAT_WS(", ",u.lastname,u.firstname) AS uname, l.username FROM users u LEFT JOIN userlogin l ON u.uid = l.uid ';
 		if($searchTerm){
 			$searchTerm = $this->cleanInStr($searchTerm);
 			$sql .= 'WHERE (u.lastname LIKE "'.$searchTerm.'%") ';
-			if(strlen($searchTerm) > 1) $sql .= "OR (l.username LIKE '".$searchTerm."%') ";
+			if(strlen($searchTerm) > 1) $sql .= 'OR (l.username LIKE "'.$searchTerm.'%") ';
 		}
 		$sql .= 'ORDER BY u.lastname, u.firstname';
 		//echo "<div>".$sql."</div>";

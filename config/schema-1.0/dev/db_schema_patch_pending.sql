@@ -447,6 +447,8 @@ CREATE TABLE `igsnverification` (
   INDEX `INDEX_igsn` (`igsn` ASC),
   CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
 
+ALTER TABLE `igsnverification` 
+ ADD COLUMN `catalogNumber` VARCHAR(45) NULL AFTER `occid`;
 
 CREATE TABLE `omoccurloanuser` (
   `loanid` INT UNSIGNED NOT NULL,

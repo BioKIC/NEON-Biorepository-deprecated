@@ -220,13 +220,19 @@ function getCollsChips(listId, chipText) {
   // If 'all' is not selected, picks which are selected
   collsArr = [];
   let chipEl = {};
-  console.log(collSelected);
+
   if (collOptions.length > collSelected.length) {
     // Generates chip element object
     collSelected.forEach((coll) => {
-      collsArr.push(coll.dataset.ccode);
+      // check if we're inside biorepo coll form
+      let isColl = coll.dataset.cat != undefined;
+      if (isColl) {
+        let isCatSel = document.getElementById(coll.dataset.cat).checked;
+        isCatSel ? '' : collsArr.push(coll.dataset.ccode);
+      } else {
+        collsArr.push(coll.dataset.ccode);
+      }
     });
-    console.log(collsArr);
   }
   chipEl.text = `${chipText}: ${collsArr.join(', ')}`;
   chipEl.name = listId;
@@ -625,12 +631,6 @@ formColls.addEventListener('click', autoToggleSelector, false);
 formColls.addEventListener('change', autoToggleSelector, false);
 
 formSites.addEventListener('click', autoToggleSelector, false);
-// formSites.addEventListener('change', autoToggleSelector, false);
-// formSites.addEventListener('change', function () {
-//   autoToggleSelector;
-//   let dsChips = getDomainsSitesChips();
-//   addChip(dsChips);
-// });
 
 collsModal.addEventListener('click', autoToggleSelector, false);
 collsModal.addEventListener('change', autoToggleSelector, false);
@@ -658,20 +658,6 @@ document
         addChip(getCollsChips(criterionSelected, 'Some Biorepo Colls'));
       }
     }
-    // isAllSelected
-    // ? addChip(allNeon)
-    // : removeChip(document.getElementById('chip-' + allNeon.id));
-    // add chips for biorepo collections
-    // let biorepoCols = getCollsSelected();
-    // let biorepoAll = document.getElementById('all-neon-colls-quick');
-    // let criterionSelected = collsModal.querySelector(
-    //   '.tab.tab-active input[type=radio]:checked'
-    // ).value;
-    // // console.log(biorepoCols.length, biorepoAll.checked, criterionSelected);
-    // if (biorepoCols.length > 0 && biorepoAll.checked == false) {
-    //   console.log('should add partial biorpo colls');
-    //   addChip(getCollsChips(criterionSelected, 'Some Biorepo Colls'));
-    // }
   });
 
 //////// Binds Update chip on event change

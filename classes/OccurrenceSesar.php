@@ -228,7 +228,7 @@ class OccurrenceSesar extends Manager {
 				}
 			}
 			else{
-				$this->logOrEcho('FATAL ERROR parsing response XML: '.htmlentities($responseXML));
+				$this->logOrEcho('FATAL ERROR parsing response XML (validateUser): '.htmlentities($responseXML));
 				$userCodeArr = false;
 			}
 		}
@@ -329,8 +329,13 @@ class OccurrenceSesar extends Manager {
 			}
 		}
 		else{
-			$this->logOrEcho('FATAL ERROR parsing response XML: '.htmlentities($responseXML));
-			$status = false;
+			$this->logOrEcho('FATAL ERROR parsing response XML (processRegistrationResponse): '.$responseXML);
+			//Try to manually parse out occid and igsn
+			if(preg_match('/\[\s(\d+)\s\]\] was saved successfully with IGSN \[(NEON[A-Z0-9]{5})\]/',$responseXML,$m)){
+				$dbStatus = $this->updateOccurrenceID($m[2], $m[1]);
+				$this->logOrEcho('Successfully parsed occid ('.$m[1].') and IGSN ('.$m[2].') from response and appended to database',1);
+			}
+			else $status = false;
 		}
 		return $status;
 	}

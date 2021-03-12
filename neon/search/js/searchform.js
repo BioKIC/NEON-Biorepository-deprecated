@@ -120,10 +120,23 @@ function addChip(element) {
         uncheckAll(document.getElementById('all-sites'));
         removeChip(inputChip);
       };
-    } else {
-      return false;
     }
+  } else if (
+    (element.name == 'neonext-collections-list') |
+    (element.name == 'ext-collections-list') |
+    (element.name == 'taxonomic-cat') |
+    (element.name == 'neon-theme') |
+    (element.name == 'sample-type')
+  ) {
+    console.log('here');
+    inputChip.id = `chip-some-${element.name}-collids`;
+    inputChip.textContent = element.text;
+    chipBtn.onclick = function () {
+      uncheckAll(document.getElementById(element.name));
+      removeChip(inputChip);
+    };
   } else {
+    // console.log(element);
     inputChip.id = 'chip-' + element.id;
     inputChip.textContent = element.dataset.chip;
     chipBtn.onclick = function () {
@@ -152,8 +165,36 @@ function removeChip(chip) {
  */
 function updateChip(e) {
   document.getElementById('chips').innerHTML = '';
-  let isAllDomSiteSelected = document.getElementById('all-sites').checked;
-  isAllDomSiteSelected ? '' : addChip(getDomainsSitesChips());
+  // if any domains (except for "all") is selected, then add chip
+  let dSList = document.querySelectorAll('#site-list input[type=checkbox]');
+  let dSChecked = document.querySelectorAll(
+    '#site-list input[type=checkbox]:checked'
+  );
+  if (dSChecked.length > 0 && dSChecked.length < dSList.length) {
+    console.log('chips should be added for sites');
+    addChip(getDomainsSitesChips());
+  }
+  // if any additional NEON colls are selected (except for "all"), then add chip
+  let addCols = document.querySelectorAll(
+    '#neonext-collections-list input[type=checkbox]'
+  );
+  let addColsChecked = document.querySelectorAll(
+    '#neonext-collections-list input[type=checkbox]:checked'
+  );
+  if (addColsChecked.length > 0 && addColsChecked.length < addCols.length) {
+    addChip(getCollsChips('neonext-collections-list', 'Some Add NEON Colls'));
+  }
+  // if any external NEON colls are selected (expect for "all"), then add chip
+  let extCols = document.querySelectorAll(
+    '#ext-collections-list input[type=checkbox]'
+  );
+  let extColsChecked = document.querySelectorAll(
+    '#ext-collections-list input[type=checkbox]:checked'
+  );
+  if (extColsChecked.length > 0 && extColsChecked.length < extCols.length) {
+    addChip(getCollsChips('ext-collections-list', 'Some Ext NEON Colls'));
+  }
+
   let inputs = document.querySelectorAll('input');
   inputs.forEach((item) => {
     if (item.type == 'text' && item.value != '') {
@@ -166,6 +207,31 @@ function updateChip(e) {
       addChip(item);
     }
   });
+}
+
+function getCollsChips(listId, chipText) {
+  // Goes through list of collection options
+  let collOptions = document.querySelectorAll(
+    `#${listId} input[type=checkbox]`
+  );
+  let collSelected = document.querySelectorAll(
+    `#${listId} input[type=checkbox]:checked`
+  );
+  // If 'all' is not selected, picks which are selected
+  collsArr = [];
+  let chipEl = {};
+  console.log(collSelected);
+  if (collOptions.length > collSelected.length) {
+    // Generates chip element object
+    collSelected.forEach((coll) => {
+      collsArr.push(coll.dataset.ccode);
+    });
+    console.log(collsArr);
+  }
+  chipEl.text = `${chipText}: ${collsArr.join(', ')}`;
+  chipEl.name = listId;
+  console.log(chipEl);
+  return chipEl;
 }
 
 /**
@@ -253,7 +319,8 @@ function autoToggleSelector(e) {
 }
 
 /**
- * Unchecks children of 'all-selector' checkboxes when chip is removed
+ * Unchecks children of 'all-selector' checkboxes or all checkboxes in list
+ * when criterion chip is removed
  * Uses 'data-form-id' property in .php
  * @param {Object} element HTML Node Object
  */
@@ -261,9 +328,17 @@ function uncheckAll(element) {
   let isAllSel = element.classList.contains('all-selector');
   if (isAllSel) {
     let selChildren = document.querySelectorAll(
-      '#' + element.dataset.formId + ' input[type=checkbox]:checked'
+      `#${element.dataset.formId} input[type=checkbox]:checked`
     );
     selChildren.forEach((item) => {
+      item.checked = false;
+    });
+  } else {
+    let items = document.querySelectorAll(
+      `#${element.id} input[type=checkbox]:checked`
+    );
+    console.log(items);
+    items.forEach((item) => {
       item.checked = false;
     });
   }
@@ -574,9 +649,29 @@ document
     let isAllSelected = tabSelected.getElementsByClassName('all-neon-colls')[0]
       .checked;
     allNeon.checked = isAllSelected;
-    isAllSelected
-      ? addChip(allNeon)
-      : removeChip(document.getElementById('chip-' + allNeon.id));
+    let isAnySelected = getCollsSelected().length > 0;
+    if (isAllSelected) {
+      addChip(allNeon);
+    } else {
+      // if any selected (but not all)
+      if (isAnySelected) {
+        addChip(getCollsChips(criterionSelected, 'Some Biorepo Colls'));
+      }
+    }
+    // isAllSelected
+    // ? addChip(allNeon)
+    // : removeChip(document.getElementById('chip-' + allNeon.id));
+    // add chips for biorepo collections
+    // let biorepoCols = getCollsSelected();
+    // let biorepoAll = document.getElementById('all-neon-colls-quick');
+    // let criterionSelected = collsModal.querySelector(
+    //   '.tab.tab-active input[type=radio]:checked'
+    // ).value;
+    // // console.log(biorepoCols.length, biorepoAll.checked, criterionSelected);
+    // if (biorepoCols.length > 0 && biorepoAll.checked == false) {
+    //   console.log('should add partial biorpo colls');
+    //   addChip(getCollsChips(criterionSelected, 'Some Biorepo Colls'));
+    // }
   });
 
 //////// Binds Update chip on event change

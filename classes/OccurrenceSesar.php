@@ -56,7 +56,7 @@ class OccurrenceSesar extends Manager {
 	}
 
 	private function setDynamicPropertiesArr(){
-		if($this->dynPropArr === false){
+		if($this->dynPropArr === false && $this->collid){
 			$this->dynPropArr = array();
 			$sql = 'SELECT dynamicProperties FROM omcollections WHERE collid = '.$this->collid;
 			$rs = $this->conn->query($sql);
@@ -619,6 +619,10 @@ class OccurrenceSesar extends Manager {
 					$catNum = $m[1];
 					$occid = $m[2];
 					$sesarResultArr['missing'][$lostIGSN] = array('catNum'=>$catNum,'occid'=>$occid);
+					$sql1 = 'UPDATE igsnverification SET occid = '.$occid.' WHERE igsn = "'.$lostIGSN.'"';
+					$this->conn->query($sql1);
+					$sql2 = 'UPDATE igsnverification SET catalogNumber = "'.$catNum.'" WHERE igsn = "'.$lostIGSN.'"';
+					$this->conn->query($sql2);
 				}
 			}
 			$cnt++;
@@ -644,7 +648,7 @@ class OccurrenceSesar extends Manager {
 		$ok = true;
 		$retArr = array('status'=>0);
 		if(is_numeric($occid) && preg_match('/^[A-Z0-9]+$/', $igsn)){
-			$sql = 'SELECT catalogNumber, occurrenceID FROM omoccurrences WHERE occid = '.$occid;
+			$sql = 'SELECT catalogNumber, otherCatalogNumbers, occurrenceID FROM omoccurrences WHERE occid = '.$occid;
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				if($r->occurrenceID){
@@ -652,9 +656,11 @@ class OccurrenceSesar extends Manager {
 					$retArr['guid'] = $r->occurrenceID;
 					$ok = false;
 				}
-				elseif($r->catalogNumber != $catalogNumber){
+				elseif($r->catalogNumber != $catalogNumber && $r->otherCatalogNumbers != $catalogNumber){
 					$retArr['errCode'] = 2;
-					$retArr['catNum'] = $r->catalogNumber;
+					$catNum = $r->catalogNumber;
+					if($r->otherCatalogNumbers) $catNum .= ', '.$r->otherCatalogNumbers;
+					$retArr['catNum'] = trim($catNum,', ');
 					$ok = false;
 				}
 			}

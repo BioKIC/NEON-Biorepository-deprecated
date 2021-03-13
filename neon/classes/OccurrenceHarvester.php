@@ -254,20 +254,29 @@ class OccurrenceHarvester{
 				if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
 				elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
 			}
-			if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false && $fateLocation){
-				$preferredLocation = $fateLocation;
-				break;
-			}
-			elseif($fateDate && $fateDate < $earliestDate){
-				$preferredLocation = $fateLocation;
+			if($fateLocation){
+				if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false){
+					$preferredLocation = $fateLocation;
+					break;
+				}
+				elseif($fateDate && $fateDate < $earliestDate){
+					$earliestDate = $fateDate;
+					$preferredLocation = $fateLocation;
+				}
 			}
 		}
-		if($preferredLocation) $viewArr['namedLocation'] = $preferredLocation;
 
 		//Get parent identifier
 		if(isset($viewArr['parentSampleIdentifiers'][0]['sampleUuid'])){
 			$viewArr['parentID'] = $viewArr['parentSampleIdentifiers'][0]['sampleUuid'];
+			if(!$preferredLocation){
+				//Try to get namedLocation from parent
+				$parUrl = 'https://data.neonscience.org/api/v0/samples/view?sampleUuid='.$viewArr['parentID'];
+				$parViewArr = $this->getSampleApiData($parUrl);
+				if(isset($parViewArr['namedLocation']) && $parViewArr['namedLocation']) $preferredLocation = $parViewArr['namedLocation'];
+			}
 		}
+		if($preferredLocation) $viewArr['namedLocation'] = $preferredLocation;
 
 		return $viewArr;
 		/*
@@ -473,11 +482,13 @@ class OccurrenceHarvester{
 		if(!isset($dwcArr['decimalLongitude']) && isset($resultArr['locationDecimalLongitude']) && $resultArr['locationDecimalLongitude']){
 			$dwcArr['decimalLongitude'] = $resultArr['locationDecimalLongitude'];
 		}
-		if(!isset($dwcArr['minimumElevationInMeters']) && isset($resultArr['locationElevation']) && $resultArr['locationElevation']){
-			$dwcArr['minimumElevationInMeters'] = round($resultArr['locationElevation']);
-		}
 		if(!isset($dwcArr['verbatimCoordinates']) && isset($resultArr['locationUtmEasting']) && $resultArr['locationUtmEasting']){
 			$dwcArr['verbatimCoordinates'] = trim($resultArr['locationUtmZone'].$resultArr['locationUtmHemisphere'].' '.$resultArr['locationUtmEasting'].'E '.$resultArr['locationUtmNorthing'].'N');
+		}
+		$elevMin = '';
+		$elevMax = '';
+		if(isset($resultArr['locationElevation']) && $resultArr['locationElevation']){
+			$elevMin = round($resultArr['locationElevation']);
 		}
 
 		$locPropArr = $resultArr['locationProperties'];
@@ -489,6 +500,11 @@ class OccurrenceHarvester{
 				}
 				elseif(!isset($dwcArr['coordinateUncertaintyInMeters']) && $propArr['locationPropertyName'] == 'Value for Coordinate uncertainty'){
 					$dwcArr['coordinateUncertaintyInMeters'] = $propArr['locationPropertyValue'];
+				}
+					$elevMin = round($propArr['locationPropertyValue']);
+				}
+				elseif($propArr['locationPropertyName'] == 'Value for Maximum elevation'){
+					$elevMax = round($propArr['locationPropertyValue']);
 				}
 				elseif(!isset($dwcArr['country']) && $propArr['locationPropertyName'] == 'Value for Country'){
 					$countryValue = $propArr['locationPropertyValue'];
@@ -525,6 +541,9 @@ class OccurrenceHarvester{
 			}
 			if($habitatArr) $dwcArr['habitat'] = implode('; ',$habitatArr);
 		}
+		if($elevMin && !isset($dwcArr['minimumElevationInMeters'])) $dwcArr['minimumElevationInMeters'] = $elevMin;
+		if($elevMax && $elevMax != $elevMin && !isset($dwcArr['maximumElevationInMeters'])) $dwcArr['maximumElevationInMeters'] = $elevMax;
+
 		if(isset($resultArr['locationParent']) && $resultArr['locationParent']){
 			if($resultArr['locationParent'] != 'REALM'){
 				$this->setNeonLocationData($dwcArr, $resultArr['locationParent']);
@@ -545,7 +564,7 @@ class OccurrenceHarvester{
 			$siteID = (isset($dwcArr['siteID'])?$dwcArr['siteID']:0);
 			unset($dwcArr['domainID']);
 			unset($dwcArr['siteID']);
-			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters');
+			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters','maximumElevationInMeters');
 			$sql = '';
 			if($occid){
 				$skipFieldArr = array('occid','collid');

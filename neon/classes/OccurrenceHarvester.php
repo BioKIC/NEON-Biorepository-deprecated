@@ -501,6 +501,7 @@ class OccurrenceHarvester{
 				elseif(!isset($dwcArr['coordinateUncertaintyInMeters']) && $propArr['locationPropertyName'] == 'Value for Coordinate uncertainty'){
 					$dwcArr['coordinateUncertaintyInMeters'] = $propArr['locationPropertyValue'];
 				}
+				elseif($propArr['locationPropertyName'] == 'Value for Minimum elevation'){
 					$elevMin = round($propArr['locationPropertyValue']);
 				}
 				elseif($propArr['locationPropertyName'] == 'Value for Maximum elevation'){

@@ -363,6 +363,7 @@ class OccurrenceHarvester{
 						$dwcArr['locality'] .= $dwcArr['plotDim'];
 						unset($dwcArr['plotDim']);
 					}
+					$dwcArr['locationID'] = $sampleArr['namedLocation'];
 				}
 				else{
 					$dwcArr['locality'] = $sampleArr['namedLocation'];

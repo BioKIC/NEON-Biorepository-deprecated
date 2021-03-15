@@ -88,7 +88,7 @@ class OccurrenceHarvester{
 					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
 					'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) '.$sqlWhere;
-				//echo $sql.'<br/>'; exit;
+				//echo $sql.'<br/>';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					$this->errorStr = '';
@@ -187,7 +187,6 @@ class OccurrenceHarvester{
 			if($sampleArr['sampleID'] && $sampleArr['sampleClass']){
 				//If sampleId and sampleClass are not correct, nothing will be returned
 				$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->neonApiKey.'&sampleTag='.urlencode($sampleArr['sampleID']).'&sampleClass='.urlencode($sampleArr['sampleClass']);
-				//echo $url;
 				$viewArr = $this->getSampleApiData($url);
 				if($viewArr){
 					if($viewArr['barcode']) $sampleArr['sampleCode'] = $viewArr['barcode'];
@@ -210,15 +209,13 @@ class OccurrenceHarvester{
 			$sampleArr['sampleUuid'] = $viewArr['sampleUuid'];
 			$this->conn->query('UPDATE NeonSample SET sampleUuid = "'.$viewArr['sampleUuid'].'" WHERE (sampleUuid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
 		}
-		//Override namedLocation that is in the manifest
+		//If available via API, override namedLocation that has been supplied with the manifest
 		if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
 			$sampleArr['namedLocation'] = $viewArr['namedLocation'];
 		}
-
 		if(isset($viewArr['parentID']) && $viewArr['parentID']){
 			$sampleArr['parentID'] = $viewArr['parentID'];
 		}
-
 		/*
 		if($viewArr['collectDate'] != $sampleArr['collectDate']){
 			$this->errorStr = 'collectDate failed to validate ('.$dateStr.' != '.$sampleArr['collectDate'].')';
@@ -226,11 +223,11 @@ class OccurrenceHarvester{
 			//return false;
 		}
 		*/
-
 		return true;
 	}
 
 	private function getSampleApiData($url){
+		//echo 'url: '.$url.'<br/>';
 		$sampleViewArr = $this->getNeonApiArr($url);
 		if(!isset($sampleViewArr['sampleViews'])){
 			//$this->errorStr = 'no sampleViews exist';
@@ -247,6 +244,10 @@ class OccurrenceHarvester{
 		$preferredLocation = '';
 		foreach($eventArr as $k => $eArr){
 			if(substr($eArr['ingestTableName'],0,4) == 'scs_') continue;
+			if(strpos($eArr['ingestTableName'],'shipment')) continue;
+			if(strpos($eArr['ingestTableName'],'identification')) continue;
+			if(strpos($eArr['ingestTableName'],'sorting')) continue;
+			if(strpos($eArr['ingestTableName'],'archivepooling')) continue;
 			$fateLocation = '';
 			$fateDate = '';
 			$fieldArr = $eArr['smsFieldEntries'];
@@ -345,14 +346,8 @@ class OccurrenceHarvester{
 					if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
 					else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
 				}
-
-				//Special case for Mosquito samples
-				if($sampleArr['sampleClass'] == 'mos_identification_in.individualIDList' || $sampleArr['sampleClass'] == 'mos_archivepooling_in.archiveVialIDList'){
-					if(isset($sampleArr['parentID'])){
-						$this->adjustMosquitoData($sampleArr, $dwcArr);
-					}
-				}
-				elseif(!isset($dwcArr['eventDate'])){
+				//Get date from sampleID
+				if(!isset($dwcArr['eventDate'])){
 					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
@@ -419,37 +414,6 @@ class OccurrenceHarvester{
 		}
 		$rs->free();
 		return $status;
-	}
-
-	private function adjustMosquitoData(&$sampleArr, &$dwcArr){
-		$parentID = $sampleArr['parentID'];
-		$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->neonApiKey.'&sampleUuid=';
-		do{
-			$urlActive = $url.$parentID;
-			$parentID = '';
-			$viewArr = $this->getSampleApiData($urlActive);
-			if(isset($viewArr['sampleClass'])){
-				if($viewArr['sampleClass'] == 'mos_sorting_in.subsampleID'){
-					if(isset($viewArr['parentID'])) $parentID = $viewArr['parentID'];
-				}
-				elseif($viewArr['sampleClass'] == 'mos_trapping_in.sampleID'){
-					//Set trapping location
-					if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
-						$sampleArr['namedLocation'] = $viewArr['namedLocation'];
-					}
-					if(isset($viewArr['sampleTag']) && $viewArr['sampleTag']){
-						//Append sampleTag of collected mosquito into other catalog numbers
-						$dwcArr['otherCatalogNumbers'] = trim($dwcArr['otherCatalogNumbers'].'; '.$viewArr['sampleTag'],'; ');
-						if(!isset($dwcArr['eventDate']) || $dwcArr['eventDate']){
-							//Set missing eventDate by extracting it from parent sampleID
-							if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$viewArr['sampleTag'],$m)){
-								$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
-							}
-						}
-					}
-				}
-			}
-		}while($parentID);
 	}
 
 	private function setNeonLocationData(&$dwcArr, $locationName){

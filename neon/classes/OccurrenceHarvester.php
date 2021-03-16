@@ -226,7 +226,7 @@ class OccurrenceHarvester{
 		return true;
 	}
 
-	private function getSampleApiData($url){
+	private function getSampleApiData($url, $earliestDate = '2050-01-01'){
 		//echo 'url: '.$url.'<br/>';
 		$sampleViewArr = $this->getNeonApiArr($url);
 		if(!isset($sampleViewArr['sampleViews'])){
@@ -240,7 +240,6 @@ class OccurrenceHarvester{
 		$viewArr = current($sampleViewArr['sampleViews']);
 		//parse Sample Event details
 		$eventArr = $viewArr['sampleEvents'];
-		$earliestDate = '2050-01-01';
 		$preferredLocation = '';
 		foreach($eventArr as $k => $eArr){
 			if(substr($eArr['ingestTableName'],0,4) == 'scs_') continue;
@@ -248,6 +247,9 @@ class OccurrenceHarvester{
 			if(strpos($eArr['ingestTableName'],'identification')) continue;
 			if(strpos($eArr['ingestTableName'],'sorting')) continue;
 			if(strpos($eArr['ingestTableName'],'archivepooling')) continue;
+			if(strpos($eArr['ingestTableName'],'archivedata')) continue;
+			if(strpos($eArr['ingestTableName'],'barcoding')) continue;
+
 			$fateLocation = '';
 			$fateDate = '';
 			$fieldArr = $eArr['smsFieldEntries'];
@@ -273,7 +275,7 @@ class OccurrenceHarvester{
 			if(!$preferredLocation){
 				//Try to get namedLocation from parent
 				$parUrl = 'https://data.neonscience.org/api/v0/samples/view?sampleUuid='.$viewArr['parentID'];
-				$parViewArr = $this->getSampleApiData($parUrl);
+				$parViewArr = $this->getSampleApiData($parUrl,$earliestDate);
 				if(isset($parViewArr['namedLocation']) && $parViewArr['namedLocation']) $preferredLocation = $parViewArr['namedLocation'];
 			}
 		}

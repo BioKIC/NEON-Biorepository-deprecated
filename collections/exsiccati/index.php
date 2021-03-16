@@ -1,6 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/ExsiccatiManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceExsiccatae.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $ometId = array_key_exists('ometid',$_REQUEST)?$_REQUEST['ometid']:0;
@@ -34,7 +34,7 @@ if($IS_ADMIN || array_key_exists('CollAdmin',$USER_RIGHTS)){
 	$isEditor = 1;
 }
 
-$exsManager = new ExsiccatiManager();
+$exsManager = new OccurrenceExsiccatae();
 if($isEditor && $formSubmit){
 	if($formSubmit == 'Add Exsiccata Title'){
 		$exsManager->addTitle($_POST,$PARAMS_ARR['un']);
@@ -264,6 +264,7 @@ if($formSubmit == 'dlexs' || $formSubmit == 'dlexs_titleOnly'){
 	<style type="text/css">
 		#option-div { margin: 5px; width: 300px; text-align: left; float: right; min-height: 325px; }
 		#option-div fieldset { background-color:#f2f2f2; }
+		.field-div { margin: 2px 0px; }
 	</style>
 </head>
 <body>
@@ -351,27 +352,30 @@ if($formSubmit == 'dlexs' || $formSubmit == 'dlexs_titleOnly'){
 					<form name="exsaddform" action="index.php" method="post" onsubmit="return verfifyExsAddForm(this)">
 						<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
 							<legend><b>Add New Exsiccata</b></legend>
-							<div style="margin:2px;">
+							<div class="field-div">
 								Title:<br/><input name="title" type="text" value="" style="width:90%;" />
 							</div>
-							<div style="margin:2px;">
+							<div class="field-div">
 								Abbr:<br/><input name="abbreviation" type="text" value="" style="width:480px;" />
 							</div>
-							<div style="margin:2px;">
+							<div class="field-div">
 								Editor:<br/><input name="editor" type="text" value="" style="width:300px;" />
 							</div>
-							<div style="margin:2px;">
+							<div class="field-div">
 								Number Range:<br/><input name="exsrange" type="text" value="" />
 							</div>
-							<div style="margin:2px;">
+							<div class="field-div">
 								Date range:<br/>
 								<input name="startdate" type="text" value="" /> -
 								<input name="enddate" type="text" value="" />
 							</div>
-							<div style="margin:2px;">
+							<div class="field-div">
 								Source:<br/><input name="source" type="text" value="" style="width:480px;" />
 							</div>
-							<div style="margin:2px;">
+							<div class="field-div">
+								Source Identifier (e.g. <b>Ind</b>Exs URL):<br/><input name="sourceidentifier" type="text" value="" style="width:480px;" />
+							</div>
+							<div class="field-div">
 								Notes:<br/><input name="notes" type="text" value="" style="width:480px;" />
 							</div>
 							<div style="margin:10px;">
@@ -425,8 +429,8 @@ if($formSubmit == 'dlexs' || $formSubmit == 'dlexs_titleOnly'){
 					<?php
 				}
 				echo $exsArr['title'].', '.$exsArr['editor'].($exsArr['exsrange']?' ['.$exsArr['exsrange'].']':'');
-				if(isset($exsArr['sourceIdentifier'])){
-					if(preg_match('/^http.+IndExs.+={1}(\d+)$/', $exsArr['sourceIdentifier'], $m)) echo ' (<a href="'.$exsArr['sourceIdentifier'].'" target="_blank">IndExs #'.$m[1].'</a>)';
+				if(isset($exsArr['sourceidentifier'])){
+					if(preg_match('/^http.+IndExs.+={1}(\d+)$/', $exsArr['sourceidentifier'], $m)) echo ' (<a href="'.$exsArr['sourceidentifier'].'" target="_blank">IndExs #'.$m[1].'</a>)';
 				}
 				if($exsArr['notes']) echo '<div>'.$exsArr['notes'].'</div>';
 				?>
@@ -435,27 +439,30 @@ if($formSubmit == 'dlexs' || $formSubmit == 'dlexs_titleOnly'){
 				<form name="exseditform" action="index.php" method="post" onsubmit="return verifyExsEditForm(this);">
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
 						<legend><b>Edit Title</b></legend>
-						<div style="margin:2px;">
+						<div class="field-div">
 							Title:<br/><input name="title" type="text" value="<?php echo $exsArr['title']; ?>" style="width:90%;" />
 						</div>
-						<div style="margin:2px;">
+						<div class="field-div">
 							Abbr:<br/><input name="abbreviation" type="text" value="<?php echo $exsArr['abbreviation']; ?>" style="width:500px;" />
 						</div>
-						<div style="margin:2px;">
+						<div class="field-div">
 							Editor:<br/><input name="editor" type="text" value="<?php echo $exsArr['editor']; ?>" style="width:300px;" />
 						</div>
-						<div style="margin:2px;">
+						<div class="field-div">
 							Number range:<br/><input name="exsrange" type="text" value="<?php echo $exsArr['exsrange']; ?>" />
 						</div>
-						<div style="margin:2px;">
+						<div class="field-div">
 							Date range:<br/>
 							<input name="startdate" type="text" value="<?php echo $exsArr['startdate']; ?>" /> -
 							<input name="enddate" type="text" value="<?php echo $exsArr['enddate']; ?>" />
 						</div>
-						<div style="margin:2px;">
+						<div class="field-div">
 							Source:<br/><input name="source" type="text" value="<?php echo $exsArr['source']; ?>" style="width:480px;" />
 						</div>
-						<div style="margin:2px;">
+						<div class="field-div">
+							Source Identifier (e.g. <b>Ind</b>Exs URL):<br/><input name="sourceidentifier" type="text" value="<?php echo $exsArr['sourceidentifier']; ?>" style="width:480px;" />
+						</div>
+						<div class="field-div">
 							Notes:<br/><input name="notes" type="text" value="<?php echo $exsArr['notes']; ?>" style="width:500px;" />
 						</div>
 						<div style="margin:10px;">
@@ -570,8 +577,8 @@ if($formSubmit == 'dlexs' || $formSubmit == 'dlexs_titleOnly'){
 				echo $mdArr['editor'];
 				if($mdArr['exsrange']) echo ' ['.$mdArr['exsrange'].']';
 				if($mdArr['notes']) echo '</br>'.$mdArr['notes'];
-				if(isset($mdArr['sourceIdentifier'])){
-					if(preg_match('/^http.+IndExs.+={1}(\d+)$/', $mdArr['sourceIdentifier'], $m)) echo '<br/><a href="'.$mdArr['sourceIdentifier'].'" target="_blank">IndExs #'.$m[1].'</a>';
+				if(isset($mdArr['sourceidentifier'])){
+					if(preg_match('/^http.+IndExs.+={1}(\d+)$/', $mdArr['sourceidentifier'], $m)) echo '<br/><a href="'.$mdArr['sourceidentifier'].'" target="_blank">IndExs #'.$m[1].'</a>';
 				}
 				?>
 			</div>

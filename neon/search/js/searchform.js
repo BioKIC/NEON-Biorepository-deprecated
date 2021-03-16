@@ -609,6 +609,13 @@ document
     simpleSearch();
   });
 
+document
+  .getElementById('reset-btn')
+  .addEventListener('click', function (event) {
+    document.getElementById('params-form').reset();
+    // updateChip();
+  });
+
 // Listen for open modal click
 document
   .getElementById('neon-modal-open')

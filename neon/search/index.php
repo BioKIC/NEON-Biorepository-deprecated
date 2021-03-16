@@ -458,6 +458,7 @@ $siteData = new DatasetsMetadata();
           <!-- <button id="teste-btn">Get all params</button>
           <p><a href="#" id="test-url" target="_blank" style="max-width: 50px">Search URL</a></p> -->
           <button id="search-btn">Search</button>
+          <button id="reset-btn">Reset</button>
           <h2>Criteria</h2>
           <div id="chips"></div>
         </div>

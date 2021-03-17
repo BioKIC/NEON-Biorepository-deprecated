@@ -25,7 +25,7 @@
   public function getBiorepoCollsIds(){
     $dataArr = array();
 
-    $sql = 'SELECT DISTINCT col.collid FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE l.ccpk NOT IN (6,8,9) AND available = "TRUE"';
+    $sql = 'SELECT DISTINCT col.collid FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid LEFT JOIN omcollcategories AS cat ON l.ccpk = cat.ccpk WHERE l.ccpk NOT IN (6,8) AND available = "TRUE"';
   
     $result = $this->conn->query($sql);
 
@@ -75,7 +75,7 @@
     // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
     $dataArr = array();
 
-    $sql = 'SELECT col.collid,  col.collectioncode, col.institutioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid WHERE l.ccpk NOT IN (6,8,9) GROUP BY '.$filterName.' ORDER BY '.$filterName.';';
+    $sql = 'SELECT col.collid,  col.collectioncode, col.institutioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid WHERE l.ccpk NOT IN (6,8) GROUP BY '.$filterName.' ORDER BY '.$filterName.';';
 
     $result = $this->conn->query($sql);
 
@@ -91,7 +91,7 @@
     // $sql = 'SELECT * FROM collmetadata WHERE collid = '.$collid.'';
     $dataArr = array();
 
-    $sql = 'SELECT DISTINCT col.collid,  col.collectioncode, col.institutioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid WHERE l.ccpk NOT IN (6,8,9) AND '.$filterName.'= "'.$filterVal.'" ORDER BY col.collectionname;';
+    $sql = 'SELECT DISTINCT col.collid,  col.collectioncode, col.institutioncode, col.collectionname, neontheme, highertaxon, lowertaxon, sampletype, available FROM omcollections AS col LEFT JOIN omcollcatlink AS l ON col.CollID = l.collid WHERE l.ccpk NOT IN (6,8) AND '.$filterName.'= "'.$filterVal.'" ORDER BY col.collectionname;';
 
     $result = $this->conn->query($sql);
 

@@ -76,7 +76,7 @@ class OccurrenceGeorefTools {
 				}
 			}
 			$sql .= 'ORDER BY '.$orderBy.'locality,verbatimcoordinates ';
-			//echo $sql; exit;
+			//echo $sql;
 			$totalCnt = 0;
 			$locCnt = 1;
 			$countryStr='';$stateStr='';$countyStr='';$municipalityStr='';$localityStr='';$verbCoordStr = '';$decLatStr='';$decLngStr='';
@@ -292,19 +292,19 @@ class OccurrenceGeorefTools {
 	public function getCoordFromDupes(){
 		if($this->collid){
 			$sql = 'SELECT DISTINCT d3.duplicateid, c.institutionCode, c.collectionCode, o3.occid, o3.catalogNumber, o3.otherCatalogNumbers, o3.occurrenceID, '.
-					'o3.family, o3.sciname, o3.recordedBy, o3.recordNumber, o3.country, o3.stateProvince, o3.locality, '.
-					'o3.decimalLatitude, o3.decimalLongitude, o3.geodeticDatum, o3.coordinateUncertaintyInMeters, o3.footprintWKT, o3.verbatimCoordinates, o3.georeferencedBy, '.
-					'o3.georeferenceProtocol, o3.georeferenceSources, o3.georeferenceVerificationStatus, o3.georeferenceRemarks, '.
-					'o3.minimumElevationInMeters, o3.maximumElevationInMeters, o3.verbatimElevation '.
-					'FROM omoccurduplicatelink d INNER JOIN omoccurrences o ON d.occid = o.occid '.
-					'INNER JOIN omoccurduplicatelink d2 ON d.duplicateid = d2.duplicateid '.
-					'INNER JOIN omoccurrences o2 ON d2.occid = o2.occid '.
-					'INNER JOIN omoccurduplicatelink d3 ON d.duplicateid = d3.duplicateid '.
-					'INNER JOIN  omoccurrences o3 ON d3.occid = o3.occid '.
-					'INNER JOIN omcollections c ON o3.collid = c.collid '.
-					'WHERE o.collid = '.$this->collid.' AND o.decimallatitude IS NULL AND o2.collid != '.$this->collid.' AND o2.decimallatitude IS NOT NULL '.
-					'AND ((o3.collid != '.$this->collid.' AND o3.decimallatitude IS NOT NULL) OR o3.collid = '.$this->collid.') '.
-					'ORDER BY d3.duplicateid ';
+				'o3.family, o3.sciname, o3.recordedBy, o3.recordNumber, o3.country, o3.stateProvince, o3.locality, '.
+				'o3.decimalLatitude, o3.decimalLongitude, o3.geodeticDatum, o3.coordinateUncertaintyInMeters, o3.footprintWKT, o3.verbatimCoordinates, o3.georeferencedBy, '.
+				'o3.georeferenceProtocol, o3.georeferenceSources, o3.georeferenceVerificationStatus, o3.georeferenceRemarks, '.
+				'o3.minimumElevationInMeters, o3.maximumElevationInMeters, o3.verbatimElevation '.
+				'FROM omoccurduplicatelink d INNER JOIN omoccurrences o ON d.occid = o.occid '.
+				'INNER JOIN omoccurduplicatelink d2 ON d.duplicateid = d2.duplicateid '.
+				'INNER JOIN omoccurrences o2 ON d2.occid = o2.occid '.
+				'INNER JOIN omoccurduplicatelink d3 ON d.duplicateid = d3.duplicateid '.
+				'INNER JOIN  omoccurrences o3 ON d3.occid = o3.occid '.
+				'INNER JOIN omcollections c ON o3.collid = c.collid '.
+				'WHERE o.collid = '.$this->collid.' AND o.decimallatitude IS NULL AND o2.collid != '.$this->collid.' AND o2.decimallatitude IS NOT NULL '.
+				'AND ((o3.collid != '.$this->collid.' AND o3.decimallatitude IS NOT NULL) OR o3.collid = '.$this->collid.') '.
+				'ORDER BY d3.duplicateid ';
 
 		}
 	}
@@ -348,7 +348,7 @@ class OccurrenceGeorefTools {
 	//Get data functions
 	public function getCountryArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT country FROM omoccurrences WHERE collid IN('.$this->collStr.')';
+		$sql = 'SELECT DISTINCT country FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$cStr = trim($r->country);
@@ -359,12 +359,9 @@ class OccurrenceGeorefTools {
 		return $retArr;
 	}
 
-	public function getStateArr($countryStr = ''){
+	public function getStateArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT stateprovince FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
-		/*if($countryStr){
-			$sql .= 'AND country = "'.$countryStr.'" ';
-		}*/
+		$sql = 'SELECT DISTINCT stateprovince FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.') ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$sStr = trim($r->stateprovince);
@@ -375,15 +372,9 @@ class OccurrenceGeorefTools {
 		return $retArr;
 	}
 
-	public function getCountyArr($countryStr = '',$stateStr = ''){
+	public function getCountyArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT county FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
-		/*if($countryStr){
-			$sql .= 'AND country = "'.$countryStr.'" ';
-		}*/
-		if($stateStr){
-			$sql .= 'AND stateprovince = "'.$stateStr.'" ';
-		}
+		$sql = 'SELECT DISTINCT county FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.') ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -395,15 +386,9 @@ class OccurrenceGeorefTools {
 		return $retArr;
 	}
 
-	public function getMunicipalityArr($countryStr = '',$stateStr = ''){
+	public function getMunicipalityArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT municipality FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
-		/*if($countryStr){
-			$sql .= 'AND country = "'.$countryStr.'" ';
-		}*/
-		if($stateStr){
-			$sql .= 'AND stateprovince = "'.$stateStr.'" ';
-		}
+		$sql = 'SELECT DISTINCT municipality FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.') ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -417,7 +402,7 @@ class OccurrenceGeorefTools {
 
 	public function getProcessingStatus(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT processingstatus FROM omoccurrences WHERE collid IN('.$this->collStr.')';
+		$sql = 'SELECT DISTINCT processingstatus FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			if($r->processingstatus) $retArr[] = $r->processingstatus;

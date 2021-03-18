@@ -62,7 +62,8 @@ $DISPLAY_COMMON_NAMES = 1;			//Display common names in species profile page and 
 $ACTIVATE_EXSICCATI = 0;			//Activates exsiccati fields within data entry pages; adding link to exsiccati search tools to portal menu is recommended
 $ACTIVATE_GEOLOCATE_TOOLKIT = 0;	//Activates GeoLocate Toolkit located within the Processing Toolkit menu items
 $OCCUR_SECURITY_OPTION = 1;			//Occurrence security options supported: value 1-7; 1 = Locality security, 2 = Taxon security, 4 = Full security, 3 = L & T, 5 = L & F, 6 = T & F, 7 = all
-$SEARCH_BY_TRAITS = 0;			//Activates search fields for searching by traits if trait data have been encoded: 0 = trait search off, 1 = trait search on
+$SEARCH_BY_TRAITS = '0';			//Activates search fields for searching by traits (if trait data have been encoded): 0 = trait search off; any number of non-zeros separated by commas (e.g., '1,6') = trait search on for the traits with these id numbers in table tmtraits.
+
 
 $IGSN_ACTIVATION = 0;
 

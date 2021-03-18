@@ -2,12 +2,12 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/collections/harvestparams.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceManager.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceAttributes.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceAttributeSearch.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collManager = new OccurrenceManager();
 $searchVar = $collManager->getQueryTermStr();
-$attribSearch = new OccurrenceAttributes();
+$attribSearch = new OccurrenceAttributeSearch();
 ?>
 <html>
 <head>
@@ -252,12 +252,12 @@ $attribSearch = new OccurrenceAttributes();
 			<div>
 				<input type='checkbox' name='includecult' value='1' /> <?php echo isset($LANG['INCLUDE_CULTIVATED'])?$LANG['INCLUDE_CULTIVATED']:'Include cultivated/captive occurrences'; ?>
 			</div>
+			<hr/>
 			<?php
 				if(isset($SEARCH_BY_TRAITS) && $SEARCH_BY_TRAITS != 0) {
-					$traitArr = $attribSearch->getTraitArr();
+					$traitArr = $attribSearch->getTraitSearchArr($SEARCH_BY_TRAITS);
 					if($traitArr){
 			?>
-						<hr/>
 						<div style="float:right;">
 							<div><button type="submit" style="width:100%"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
 							<div><button type="button" style="width:100%" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
@@ -267,6 +267,7 @@ $attribSearch = new OccurrenceAttributes();
 							<div>
 								<p style="font-weight:bold; font-size: 18px"><?php echo $LANG['TRAIT_HEADER']; ?></p>
 								<p>Selecting multiple traits will return all records with at least one of those traits.</p>
+								<input type="hidden" id="SearchByTraits" value="true">
 							</div>
 						</div>
 			<?php
@@ -285,6 +286,7 @@ $attribSearch = new OccurrenceAttributes();
 										<?php $attribSearch->echoFormTraits($traitID); ?>
 									</div>
 								</fieldset>
+								<hr/>
 			<?php
 							}
 						}

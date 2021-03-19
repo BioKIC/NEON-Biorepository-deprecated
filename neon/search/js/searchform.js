@@ -165,6 +165,7 @@ function removeChip(chip) {
  */
 function updateChip(e) {
   document.getElementById('chips').innerHTML = '';
+  // first go through collections and sites
   // if any domains (except for "all") is selected, then add chip
   let dSList = document.querySelectorAll('#site-list input[type=checkbox]');
   let dSChecked = document.querySelectorAll(
@@ -182,6 +183,7 @@ function updateChip(e) {
     '#neonext-collections-list input[type=checkbox]:checked'
   );
   if (addColsChecked.length > 0 && addColsChecked.length < addCols.length) {
+    console.log('chips should be added for collections');
     addChip(getCollsChips('neonext-collections-list', 'Some Add NEON Colls'));
   }
   // if any external NEON colls are selected (expect for "all"), then add chip
@@ -195,17 +197,20 @@ function updateChip(e) {
     addChip(getCollsChips('ext-collections-list', 'Some Ext NEON Colls'));
   }
 
-  let inputs = document.querySelectorAll('input');
-  inputs.forEach((item) => {
-    if (item.type == 'text' && item.value != '') {
-      addChip(item);
-    } else if (
-      item.type == 'checkbox' &&
-      item.checked &&
-      item.hasAttribute('data-chip')
-    ) {
-      addChip(item);
+  // then go through remaining inputs (exclude db and datasetid)
+  // go through entire form and find selected items
+  formInputs.forEach((item) => {
+    if ((item.name != 'db') | (item.name != 'datasetid')) {
+      if (
+        (item.type == 'checkbox' && item.checked) |
+        (item.type == 'text' && item.value != '') |
+        (item.type == 'number' && item.value != '')
+      ) {
+        // now add chips depending on type of item
+        item.hasAttribute('data-chip') ? addChip(item) : '';
+      }
     }
+    // print inputs checked or filled in
   });
 }
 
@@ -668,8 +673,11 @@ document
   });
 
 //////// Binds Update chip on event change
-form.addEventListener('change', updateChip);
-
+// form.addEventListener('change', updateChip);
+const formInputs = document.querySelectorAll('.content input');
+formInputs.forEach((formInput) => {
+  formInput.addEventListener('change', updateChip);
+});
 // on default (on document load): All Neon Collections, All Domains & Sites
 document.addEventListener('DOMContentLoaded', updateChip);
 

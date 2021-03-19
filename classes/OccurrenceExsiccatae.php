@@ -1,7 +1,7 @@
 <?php
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 
-class ExsiccatiManager {
+class OccurrenceExsiccatae {
 
 	private $conn;
 
@@ -38,7 +38,7 @@ class ExsiccatiManager {
 			//echo $sql;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
-					$retArr['sourceIdentifier'] = $this->cleanOutStr($r->sourceIdentifier);
+					$retArr['sourceidentifier'] = $this->cleanOutStr($r->sourceIdentifier);
 				}
 				$rs->free();
 			}
@@ -147,7 +147,7 @@ class ExsiccatiManager {
 			$sql = 'SELECT et.sourceIdentifier FROM omexsiccatititles et INNER JOIN omexsiccatinumbers en ON et.ometid = en.ometid WHERE en.omenid = '.$omenid;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
-					$retArr['sourceIdentifier'] = $this->cleanOutStr($r->sourceIdentifier);
+					$retArr['sourceidentifier'] = $this->cleanOutStr($r->sourceIdentifier);
 				}
 				$rs->free();
 			}
@@ -267,13 +267,14 @@ class ExsiccatiManager {
 	//Exsiccati edit functions
 	public function addTitle($pArr,$editedBy){
 		$con = MySQLiConnectionFactory::getCon("write");
-		$sql = 'INSERT INTO omexsiccatititles(title, abbreviation, editor, exsrange, startdate, enddate, source, notes,lasteditedby) '.
+		$sql = 'INSERT INTO omexsiccatititles(title, abbreviation, editor, exsrange, startdate, enddate, source, sourceIdentifier, notes,lasteditedby) '.
 			'VALUES("'.$this->cleanInStr($pArr['title']).'","'.$this->cleanInStr($pArr['abbreviation']).'","'.
 			$this->cleanInStr($pArr['editor']).'",'.
 			($pArr['exsrange']?'"'.$this->cleanInStr($pArr['exsrange']).'"':'NULL').','.
 			($pArr['startdate']?'"'.$this->cleanInStr($pArr['startdate']).'"':'NULL').','.
 			($pArr['enddate']?'"'.$this->cleanInStr($pArr['enddate']).'"':'NULL').','.
 			($pArr['source']?'"'.$this->cleanInStr($pArr['source']).'"':'NULL').','.
+			($pArr['sourceidentifier']?'"'.$this->cleanInStr($pArr['sourceidentifier']).'"':'NULL').','.
 			($pArr['notes']?'"'.$this->cleanInStr($pArr['notes']).'"':'NULL').',"'.
 			$editedBy.'")';
 		//echo $sql;
@@ -290,6 +291,7 @@ class ExsiccatiManager {
 			', startdate = '.($pArr['startdate']?'"'.$this->cleanInStr($pArr['startdate']).'"':'NULL').
 			', enddate = '.($pArr['enddate']?'"'.$this->cleanInStr($pArr['enddate']).'"':'NULL').
 			', source = '.($pArr['source']?'"'.$this->cleanInStr($pArr['source']).'"':'NULL').
+			', sourceIdentifier = '.($pArr['sourceidentifier']?'"'.$this->cleanInStr($pArr['sourceidentifier']).'"':'NULL').
 			', notes = '.($pArr['notes']?'"'.$this->cleanInStr($pArr['notes']).'"':'NULL').' '.
 			', lasteditedby = "'.$editedBy.'" '.
 			'WHERE (ometid = '.$pArr['ometid'].')';
@@ -695,8 +697,7 @@ class ExsiccatiManager {
 	//Misc
 	public function getCollArr($ometid = 0){
 		$retArr = array();
-		$sql ='SELECT DISTINCT c.collid, c.collectionname, c.institutioncode, c.collectioncode '.
-			'FROM omcollections c ';
+		$sql ='SELECT DISTINCT c.collid, c.collectionname, c.institutioncode, c.collectioncode FROM omcollections c ';
 		if($ometid){
 			if($ometid == 'all'){
 				$sql .= 'INNER JOIN omoccurrences o ON c.collid = o.collid '.

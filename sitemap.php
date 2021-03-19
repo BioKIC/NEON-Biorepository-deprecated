@@ -98,17 +98,20 @@ $smManager = new SiteMapManager();
 			if($clList && isset($USER_RIGHTS['ClAdmin'])){
 				$clAdmin = array_intersect_key($clList,array_flip($USER_RIGHTS['ClAdmin']));
 			}
-			$projList = $smManager->getProjectList();
-			if($projList){
-				echo '<div style="margin-top:10px;"><h2>'.$LANG['BIOINV'].'</h2></div><ul>';
-				foreach($projList as $pid => $pArr){
-					echo "<li><a href='projects/index.php?pid=".$pid."'>".$pArr["name"]."</a></li>\n";
-					echo "<ul><li>Manager: ".$pArr["managers"]."</li></ul>\n";
-				}
-				echo '</ul>';
-			}
 			?>
-
+			<div style="margin-top:10px;"><h2><?php echo (isset($LANG['BIOTIC_INVENTORIES'])?$LANG['BIOTIC_INVENTORIES']:'Biotic Inventory Projects'); ?></h2></div>
+			<ul>
+				<?php
+				$projList = $smManager->getProjectList();
+				if($projList){
+					foreach($projList as $pid => $pArr){
+						echo "<li><a href='projects/index.php?pid=".$pid."'>".$pArr["name"]."</a></li>\n";
+						echo "<ul><li>Manager: ".$pArr["managers"]."</li></ul>\n";
+					}
+				}
+				?>
+				<li><a href="checklists/index.php"><?php echo (isset($LANG['ALL_CHECKLISTS'])?$LANG['ALL_CHECKLISTS']:'All Public Checklists'); ?></a></li>
+			</ul>
 			<div style="margin-top:10px;"><h2><?php echo $LANG['DYNAMIC'];?></h2></div>
 			<ul>
 				<li>

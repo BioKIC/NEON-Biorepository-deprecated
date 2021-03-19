@@ -1,6 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceGeorefTools.php');
+header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../collections/georef/batchgeoreftool.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
@@ -17,29 +18,45 @@ $qVStatus = array_key_exists('qvstatus',$_POST)?$_POST['qvstatus']:'';
 $qSciname = array_key_exists('qsciname',$_POST)?$_POST['qsciname']:'';
 $qProcessingStatus = array_key_exists('qprocessingstatus',$_POST)?$_POST['qprocessingstatus']:'';
 
-$latDeg = array_key_exists('latdeg',$_POST)?$_POST['latdeg']:'';
-$latMin = array_key_exists('latmin',$_POST)?$_POST['latmin']:'';
-$latSec = array_key_exists('latsec',$_POST)?$_POST['latsec']:'';
-$decimalLatitude = array_key_exists('decimallatitude',$_POST)?$_POST['decimallatitude']:'';
-$latNS = array_key_exists('latns',$_POST)?$_POST['latns']:'';
+//$latDeg = array_key_exists('latdeg',$_POST)?$_POST['latdeg']:'';
+//$latMin = array_key_exists('latmin',$_POST)?$_POST['latmin']:'';
+//$latSec = array_key_exists('latsec',$_POST)?$_POST['latsec']:'';
+//$decimalLatitude = array_key_exists('decimallatitude',$_POST)?$_POST['decimallatitude']:'';
+//$latNS = array_key_exists('latns',$_POST)?$_POST['latns']:'';
 
-$lngDeg = array_key_exists('lngdeg',$_POST)?$_POST['lngdeg']:'';
-$lngMin = array_key_exists('lngmin',$_POST)?$_POST['lngmin']:'';
-$lngSec = array_key_exists('lngsec',$_POST)?$_POST['lngsec']:'';
-$decimalLongitude = array_key_exists('decimallongitude',$_POST)?$_POST['decimallongitude']:'';
-$lngEW = array_key_exists('lngew',$_POST)?$_POST['lngew']:'';
+//$lngDeg = array_key_exists('lngdeg',$_POST)?$_POST['lngdeg']:'';
+//$lngMin = array_key_exists('lngmin',$_POST)?$_POST['lngmin']:'';
+//$lngSec = array_key_exists('lngsec',$_POST)?$_POST['lngsec']:'';
+//$decimalLongitude = array_key_exists('decimallongitude',$_POST)?$_POST['decimallongitude']:'';
+//$lngEW = array_key_exists('lngew',$_POST)?$_POST['lngew']:'';
 
-$coordinateUncertaintyInMeters = array_key_exists('coordinateuncertaintyinmeters',$_POST)?$_POST['coordinateuncertaintyinmeters']:'';
-$geodeticDatum = array_key_exists('geodeticdatum',$_POST)?$_POST['geodeticdatum']:'';
+//$coordinateUncertaintyInMeters = array_key_exists('coordinateuncertaintyinmeters',$_POST)?$_POST['coordinateuncertaintyinmeters']:'';
+//$geodeticDatum = array_key_exists('geodeticdatum',$_POST)?$_POST['geodeticdatum']:'';
 $georeferenceSources = array_key_exists('georeferencesources',$_POST)?$_POST['georeferencesources']:'';
 $georeferenceProtocol = array_key_exists('georeferenceprotocol',$_POST)?$_POST['georeferenceprotocol']:'';
-$georeferenceRemarks = array_key_exists('georeferenceremarks',$_POST)?$_POST['georeferenceremarks']:'';
-$footprintWKT = array_key_exists('footprintwkt',$_POST)?$_POST['footprintwkt']:'';
+//$georeferenceRemarks = array_key_exists('georeferenceremarks',$_POST)?$_POST['georeferenceremarks']:'';
+//$footprintWKT = array_key_exists('footprintwkt',$_POST)?$_POST['footprintwkt']:'';
 $georeferenceVerificationStatus = array_key_exists('georeferenceverificationstatus',$_POST)?$_POST['georeferenceverificationstatus']:'';
-$minimumElevationInMeters = array_key_exists('minimumelevationinmeters',$_POST)?$_POST['minimumelevationinmeters']:'';
-$maximumElevationInMeters = array_key_exists('maximumelevationinmeters',$_POST)?$_POST['maximumelevationinmeters']:'';
-$minimumElevationInFeet = array_key_exists('minimumelevationinfeet',$_POST)?$_POST['minimumelevationinfeet']:'';
-$maximumElevationInFeet = array_key_exists('maximumelevationinfeet',$_POST)?$_POST['maximumelevationinfeet']:'';
+//$minimumElevationInMeters = array_key_exists('minimumelevationinmeters',$_POST)?$_POST['minimumelevationinmeters']:'';
+//$maximumElevationInMeters = array_key_exists('maximumelevationinmeters',$_POST)?$_POST['maximumelevationinmeters']:'';
+//$minimumElevationInFeet = array_key_exists('minimumelevationinfeet',$_POST)?$_POST['minimumelevationinfeet']:'';
+//$maximumElevationInFeet = array_key_exists('maximumelevationinfeet',$_POST)?$_POST['maximumelevationinfeet']:'';
+
+//Sanitation
+$collid = filter_var($collid, FILTER_SANITIZE_STRING);
+$submitAction = filter_var($submitAction, FILTER_SANITIZE_STRING);
+$qCountry = filter_var($qCountry, FILTER_SANITIZE_STRING);
+$qState = filter_var($qState, FILTER_SANITIZE_STRING);
+$qCounty = filter_var($qCounty, FILTER_SANITIZE_STRING);
+$qMunicipality = filter_var($qMunicipality, FILTER_SANITIZE_STRING);
+$qLocality = filter_var($qLocality, FILTER_SANITIZE_STRING);
+$qDisplayAll = filter_var($qDisplayAll, FILTER_SANITIZE_STRING);
+$qVStatus = filter_var($qVStatus, FILTER_SANITIZE_STRING);
+$qSciname = filter_var($qSciname, FILTER_SANITIZE_STRING);
+$qProcessingStatus = filter_var($qProcessingStatus, FILTER_SANITIZE_STRING);
+$georeferenceSources = filter_var($georeferenceSources, FILTER_SANITIZE_STRING);
+$georeferenceProtocol = filter_var($georeferenceProtocol, FILTER_SANITIZE_STRING);
+$georeferenceVerificationStatus = filter_var($georeferenceVerificationStatus, FILTER_SANITIZE_STRING);
 
 if(!$georeferenceSources) $georeferenceSources = 'georef batch tool '.date('Y-m-d');
 if(!$georeferenceVerificationStatus) $georeferenceVerificationStatus = 'reviewed - high confidence';
@@ -57,12 +74,8 @@ $geoManager->setCollId($IS_ADMIN?$collid:implode(',',$activeCollArr));
 $collMap = $geoManager->getCollMap();
 
 $isEditor = false;
-if($IS_ADMIN){
-	$isEditor = true;
-}
-elseif($activeCollArr){
-	$isEditor = true;
-}
+if($IS_ADMIN) $isEditor = true;
+elseif($activeCollArr) $isEditor = true;
 
 $statusStr = '';
 $localArr = array();
@@ -81,23 +94,21 @@ if($isEditor && $submitAction){
 	}
 	$localArr = $geoManager->getLocalityArr();
 }
-
-header("Content-Type: text/html; charset=".$CHARSET);
 ?>
 <html>
 	<head>
-		<title>Georeferencing Tools</title>
-    <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+		<title><?php echo $DEFAULT_TITLE; ?> Georeferencing Tools</title>
+		<?php
+		$activateJQuery = true;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+			include_once($SERVER_ROOT.'/includes/head.php');
+		}
+		else{
+			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+		}
+		?>
 		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js"></script>
 		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js"></script>
 		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.georef.batchgeoreftool.js?ver=201912"></script>
@@ -201,8 +212,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 												<option value=''>All Countries</option>
 												<option value=''>--------------------</option>
 												<?php
-												$cArr = $geoManager->getCountryArr();
-												foreach($cArr as $c){
+												$countryStr = array_key_exists('countrystr',$_POST)?strip_tags($_POST['countrystr']):'';
+												$countryArr = array();
+												if($countryStr) $countryArr = explode('|',$countryStr);
+												else $countryArr = $geoManager->getCountryArr();
+												foreach($countryArr as $c){
 													echo '<option '.($qCountry==$c?'SELECTED':'').'>'.$c.'</option>';
 												}
 												?>
@@ -213,8 +227,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 												<option value=''>All States</option>
 												<option value=''>--------------------</option>
 												<?php
-												$sArr = $geoManager->getStateArr($qCountry);
-												foreach($sArr as $s){
+												$stateStr = array_key_exists('statestr',$_POST)?strip_tags($_POST['statestr']):'';
+												$stateArr = array();
+												if($stateStr) $stateArr = explode('|',$stateStr);
+												else $stateArr = $geoManager->getStateArr();
+												foreach($stateArr as $s){
 													echo '<option '.($qState==$s?'SELECTED':'').'>'.$s.'</option>';
 												}
 												?>
@@ -225,8 +242,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 												<option value=''>All Counties</option>
 												<option value=''>--------------------</option>
 												<?php
-												$coArr = $geoManager->getCountyArr($qCountry,$qState);
-												foreach($coArr as $c){
+												$countyStr = array_key_exists('countystr',$_POST)?strip_tags($_POST['countystr']):'';
+												$countyArr = array();
+												if($countyStr) $countyArr = explode('|',$countyStr);
+												else $countyArr = $geoManager->getCountyArr();
+												foreach($countyArr as $c){
 													echo '<option '.($qCounty==$c?'SELECTED':'').'>'.$c.'</option>';
 												}
 												?>
@@ -239,8 +259,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 												<option value=''>All Municipalities</option>
 												<option value=''>--------------------</option>
 												<?php
-												$muArr = $geoManager->getMunicipalityArr($qCountry,$qState);
-												foreach($muArr as $m){
+												$municipalityStr = array_key_exists('municipalitystr',$_POST)?strip_tags($_POST['municipalitystr']):'';
+												$municipalityArr = array();
+												if($municipalityStr) $municipalityArr = explode('|',$municipalityStr);
+												else $municipalityArr = $geoManager->getMunicipalityArr();
+												foreach($municipalityArr as $m){
 													echo '<option '.($qMunicipality==$m?'SELECTED':'').'>'.$m.'</option>';
 												}
 												?>
@@ -251,8 +274,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 												<option value="">All Processing Status</option>
 												<option value="">-----------------------</option>
 												<?php
-												$processingStatus = $geoManager->getProcessingStatus();
-												foreach($processingStatus as $pStatus){
+												$processingStr = array_key_exists('processingstr',$_POST)?strip_tags($_POST['processingstr']):'';
+												$processingArr = array();
+												if($processingStr) $processingArr = explode('|',$processingStr);
+												else $processingArr = $geoManager->getProcessingStatus();
+												foreach($processingArr as $pStatus){
 													echo '<option '.($qProcessingStatus==$pStatus?'SELECTED':'').'>'.$pStatus.'</option>';
 												}
 												?>
@@ -318,12 +344,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							<div style="font-weight:bold;">
 								<?php
 								$localCnt = '---';
-								if(isset($localArr)){
-									$localCnt = count($localArr);
-								}
-								if($localCnt == 1000){
-									$localCnt = '1000 or more';
-								}
+								if(isset($localArr)) $localCnt = count($localArr);
+								if($localCnt == 1000) $localCnt = '1000 or more';
 								echo 'Return Count: '.$localCnt;
 								?>
 							</div>
@@ -555,11 +577,24 @@ header("Content-Type: text/html; charset=".$CHARSET);
 										</td>
 									</tr>
 								</table>
-								<div style="margin-top:15px">Note: Existing data within following georeference fields will be replaced with incoming data.
+								<div style="margin-top:15px">Note: Existing georeference field data will be replaced by incoming data.
 								However, elevation data will only be added when the target fields are null.
-								No incoming data will replace existing elevational data.
-								Georeference fields that will be replaced: decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, geodeticdatum,
+								Georeference fields that will be replaced include: decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, geodeticdatum,
 								footprintwkt, georeferencedby, georeferenceRemarks, georeferenceSources, georeferenceProtocol, georeferenceVerificationStatus </div>
+							</div>
+							<div>
+								<?php
+								if(!$countryStr && $countryArr) $countryStr = implode('|',$countryArr);
+								if(!$stateStr && $stateArr) $stateStr = implode('|',$stateArr);
+								if(!$countyStr && $countyArr) $countyStr = implode('|',$countyArr);
+								if(!$municipalityStr && $municipalityArr) $municipalityStr = implode('|',$municipalityArr);
+								if(!$processingStr && $processingArr) $processingStr = implode('|',$processingArr);
+								?>
+								<input name="countrystr" type="hidden" value="<?php echo htmlentities($countryStr); ?>" />
+								<input name="statestr" type="hidden" value="<?php echo htmlentities($stateStr); ?>" />
+								<input name="countystr" type="hidden" value="<?php echo htmlentities($countyStr); ?>" />
+								<input name="municipalitystr" type="hidden" value="<?php echo htmlentities($municipalityStr); ?>" />
+								<input name="processingstr" type="hidden" value="<?php echo htmlentities($processingStr); ?>" />
 							</div>
 						</form>
 					</div>

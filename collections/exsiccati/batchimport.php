@@ -1,6 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/ExsiccatiManager.php');
+include_once($SERVER_ROOT.'/classes/OccurrenceExsiccatae.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/exsiccati/batchimport.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
@@ -23,7 +23,7 @@ elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collid,$USER_RIG
 	$isEditor = 1;
 }
 
-$exsManager = new ExsiccatiManager();
+$exsManager = new OccurrenceExsiccatae();
 if($isEditor && $formSubmit){
 	if($formSubmit == 'Import Selected Records'){
 		$statusStr = $exsManager->batchImport($collid,$_POST);

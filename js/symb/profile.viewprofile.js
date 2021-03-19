@@ -28,22 +28,6 @@ function verifyAddTaxonomyForm(f){
 	return true;
 }
 
-function verifyEditProfileForm(f){
-    if(f.firstname.value.replace(/\s/g, "") == "" ){
-        window.alert("First Name field must have a value ");
-        return false;
-    };
-    if(f.lastname.value.replace(/\s/g, "") == "" ){
-        window.alert("Last Name field must have a value ");
-        return false;
-    };
-    if(f.email.value.replace(/\s/g, "") == "" ){
-        window.alert("Email field must have a value ");
-        return false;
-    };
-    return true;
-}
-
 function verifyPwdForm(f){
     var pwd1 = f.newpwd.value;
     var pwd2 = f.newpwd2.value;

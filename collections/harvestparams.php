@@ -240,6 +240,9 @@ $searchVar = $collManager->getQueryTermStr();
 				<input type='checkbox' name='hasgenetic' value='1' /> <?php echo isset($LANG['HAS_GENETIC'])?$LANG['HAS_GENETIC']:'Limit to Specimens with Genetic Data Only'; ?>
 			</div>
 			<div>
+				<input type='checkbox' name='hascoords' value='1' /> <?php echo isset($LANG['HAS_COORDS'])?$LANG['HAS_COORDS']:'Limit to Specimens with Geocoordinates Only'; ?>
+			</div>
+			<div>
 				<input type='checkbox' name='includecult' value='1' /> <?php echo isset($LANG['INCLUDE_CULTIVATED'])?$LANG['INCLUDE_CULTIVATED']:'Include cultivated/captive occurrences'; ?>
 			</div>
 			<div>

@@ -423,21 +423,27 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$this->displaySearchArr[] = 'includes cultivated/captive occurrences';
 			}
 		}
-		$anyTraitsHere = 0;
-		$traitSql = '';
+		$anyTraitsHere = false;
+		$stateids = array();
 		foreach($this->searchTermArr as $stkey => $stval){
-			if("traitid-" == substr($stkey, 0, 8)){
-				if($stval){
-					if($anyTraitsHere == 1) { $traitSql .= ' OR '; }
-					$traitSql .= 'stateid = ' . $stval;
-					//$this->displaySearchArr[] = ''; // need to pull the trait name and state to fill this in
-					$anyTraitsHere = 1;
-				}
+			if("traitid-" == substr($stkey, 0, 8) && is_numeric($stval)) {
+				$stateids[] = $stval;
+				$anyTraitsHere = true;
 			}
 		}
-		if($anyTraitsHere == 1) {
-			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM tmattributes WHERE ' . $traitSql . '))';
+		if($anyTraitsHere == true) {
+			$traitSql = implode(',', $stateids);
+			$traitNameSql = 'SELECT CONCAT_WS(": ", t.traitname, s.statename) AS traitName FROM tmtraits t JOIN tmstates s ON s.traitid = t.traitid WHERE s.stateid IN(' . $traitSql . ')';
+			$rs = $this->conn->query($traitNameSql);
+			if($rs){
+				while($r = $rs->fetch_object()) {
+					$this->displaySearchArr[] = $r->traitName;
+				}
+				$rs->free();
+			}
+			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM tmattributes WHERE stateid IN(' . $traitSql . ')))';
 		}
+
 		if($sqlWhere){
 			$this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
 		}

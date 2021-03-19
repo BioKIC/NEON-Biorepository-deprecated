@@ -283,7 +283,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 										</div>
 									</div>
 									<div class="traitDiv" style="margin-left:5px;float:left">
-										<?php $attribSearch->echoFormTraits($traitID); ?>
+										<?php $attribSearch->echoTraitSearchForm($traitID); ?>
 									</div>
 								</fieldset>
 								<hr/>

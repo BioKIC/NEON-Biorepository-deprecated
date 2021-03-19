@@ -82,7 +82,7 @@ class OccurrenceAttributeSearch extends OccurrenceAttributes {
 					$innerStr .= ': <input name="traitid-'.$traitID.'[]" id="traitstateid-'.$sid.'" class="'.$classStr.'" type="text" value="'.$sid.'-'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
 					if($depTraitIdArr){
 						foreach($depTraitIdArr as $depTraitId){
-							$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+							$innerStr .= $this->getTraitSearchHTML($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
 						}
 					}
 				}
@@ -97,7 +97,7 @@ class OccurrenceAttributeSearch extends OccurrenceAttributes {
 					}
 					if($depTraitIdArr){
 						foreach($depTraitIdArr as $depTraitId){
-							$innerStr .= $this->getTraitUnitString($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+							$innerStr .= $this->getTraitSearchHTML($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
 						}
 					}
 					if($controlType != 'select') $innerStr .= '</div>';

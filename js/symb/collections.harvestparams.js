@@ -139,7 +139,13 @@ function setHarvestParamsForm(){
 		if(typeof urlVar.hasgenetic !== 'undefined'){frm.hasgenetic.checked = true;}
 		if(typeof urlVar.includecult !== 'undefined'){frm.includecult.checked = true;}
 		if(urlVar.db){frm.db.value = urlVar.db;}
-
+		for(var i in urlVar) {
+			if(`${i}`.indexOf('traitid-') == 0) {
+				var traitInput = document.getElementById("traitstateid-" + urlVar[i]);
+				if(traitInput.type == 'checkbox' || traitInput.type == 'radio') { traitInput.checked = true; };
+				// if(traitInput.type == 'select') { traitInput.value = urlVar[i]; }; // Must improve this to deal with multiple possible selections
+			}
+		}
 	}
 }
 

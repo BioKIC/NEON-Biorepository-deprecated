@@ -42,6 +42,22 @@ $georeferenceVerificationStatus = array_key_exists('georeferenceverificationstat
 //$minimumElevationInFeet = array_key_exists('minimumelevationinfeet',$_POST)?$_POST['minimumelevationinfeet']:'';
 //$maximumElevationInFeet = array_key_exists('maximumelevationinfeet',$_POST)?$_POST['maximumelevationinfeet']:'';
 
+//Sanitation
+$collid = filter_var($collid, FILTER_SANITIZE_STRING);
+$submitAction = filter_var($submitAction, FILTER_SANITIZE_STRING);
+$qCountry = filter_var($qCountry, FILTER_SANITIZE_STRING);
+$qState = filter_var($qState, FILTER_SANITIZE_STRING);
+$qCounty = filter_var($qCounty, FILTER_SANITIZE_STRING);
+$qMunicipality = filter_var($qMunicipality, FILTER_SANITIZE_STRING);
+$qLocality = filter_var($qLocality, FILTER_SANITIZE_STRING);
+$qDisplayAll = filter_var($qDisplayAll, FILTER_SANITIZE_STRING);
+$qVStatus = filter_var($qVStatus, FILTER_SANITIZE_STRING);
+$qSciname = filter_var($qSciname, FILTER_SANITIZE_STRING);
+$qProcessingStatus = filter_var($qProcessingStatus, FILTER_SANITIZE_STRING);
+$georeferenceSources = filter_var($georeferenceSources, FILTER_SANITIZE_STRING);
+$georeferenceProtocol = filter_var($georeferenceProtocol, FILTER_SANITIZE_STRING);
+$georeferenceVerificationStatus = filter_var($georeferenceVerificationStatus, FILTER_SANITIZE_STRING);
+
 if(!$georeferenceSources) $georeferenceSources = 'georef batch tool '.date('Y-m-d');
 if(!$georeferenceVerificationStatus) $georeferenceVerificationStatus = 'reviewed - high confidence';
 
@@ -196,7 +212,7 @@ if($isEditor && $submitAction){
 												<option value=''>All Countries</option>
 												<option value=''>--------------------</option>
 												<?php
-												$countryStr = array_key_exists('countrystr',$_POST)?$_POST['countrystr']:'';
+												$countryStr = array_key_exists('countrystr',$_POST)?strip_tags($_POST['countrystr']):'';
 												$countryArr = array();
 												if($countryStr) $countryArr = explode('|',$countryStr);
 												else $countryArr = $geoManager->getCountryArr();
@@ -211,7 +227,7 @@ if($isEditor && $submitAction){
 												<option value=''>All States</option>
 												<option value=''>--------------------</option>
 												<?php
-												$stateStr = array_key_exists('statestr',$_POST)?$_POST['statestr']:'';
+												$stateStr = array_key_exists('statestr',$_POST)?strip_tags($_POST['statestr']):'';
 												$stateArr = array();
 												if($stateStr) $stateArr = explode('|',$stateStr);
 												else $stateArr = $geoManager->getStateArr();
@@ -226,7 +242,7 @@ if($isEditor && $submitAction){
 												<option value=''>All Counties</option>
 												<option value=''>--------------------</option>
 												<?php
-												$countyStr = array_key_exists('countystr',$_POST)?$_POST['countystr']:'';
+												$countyStr = array_key_exists('countystr',$_POST)?strip_tags($_POST['countystr']):'';
 												$countyArr = array();
 												if($countyStr) $countyArr = explode('|',$countyStr);
 												else $countyArr = $geoManager->getCountyArr();
@@ -243,7 +259,7 @@ if($isEditor && $submitAction){
 												<option value=''>All Municipalities</option>
 												<option value=''>--------------------</option>
 												<?php
-												$municipalityStr = array_key_exists('municipalitystr',$_POST)?$_POST['municipalitystr']:'';
+												$municipalityStr = array_key_exists('municipalitystr',$_POST)?strip_tags($_POST['municipalitystr']):'';
 												$municipalityArr = array();
 												if($municipalityStr) $municipalityArr = explode('|',$municipalityStr);
 												else $municipalityArr = $geoManager->getMunicipalityArr();
@@ -258,8 +274,11 @@ if($isEditor && $submitAction){
 												<option value="">All Processing Status</option>
 												<option value="">-----------------------</option>
 												<?php
-												$processingStatus = $geoManager->getProcessingStatus();
-												foreach($processingStatus as $pStatus){
+												$processingStr = array_key_exists('processingstr',$_POST)?strip_tags($_POST['processingstr']):'';
+												$processingArr = array();
+												if($processingStr) $processingArr = explode('|',$processingStr);
+												else $processingArr = $geoManager->getProcessingStatus();
+												foreach($processingArr as $pStatus){
 													echo '<option '.($qProcessingStatus==$pStatus?'SELECTED':'').'>'.$pStatus.'</option>';
 												}
 												?>
@@ -568,12 +587,14 @@ if($isEditor && $submitAction){
 								if(!$countryStr && $countryArr) $countryStr = implode('|',$countryArr);
 								if(!$stateStr && $stateArr) $stateStr = implode('|',$stateArr);
 								if(!$countyStr && $countyArr) $countyStr = implode('|',$countyArr);
-								if(!$municipalityStr && $municipalityStr) $municipalityStr = implode('|',$municipalityStr);
+								if(!$municipalityStr && $municipalityArr) $municipalityStr = implode('|',$municipalityArr);
+								if(!$processingStr && $processingArr) $processingStr = implode('|',$processingArr);
 								?>
 								<input name="countrystr" type="hidden" value="<?php echo htmlentities($countryStr); ?>" />
 								<input name="statestr" type="hidden" value="<?php echo htmlentities($stateStr); ?>" />
 								<input name="countystr" type="hidden" value="<?php echo htmlentities($countyStr); ?>" />
 								<input name="municipalitystr" type="hidden" value="<?php echo htmlentities($municipalityStr); ?>" />
+								<input name="processingstr" type="hidden" value="<?php echo htmlentities($processingStr); ?>" />
 							</div>
 						</form>
 					</div>

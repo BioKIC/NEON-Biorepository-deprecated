@@ -36,6 +36,7 @@ if(isset($PROCESSINGSTATUS) && $PROCESSINGSTATUS){
 else{
 	$processingStatusArr = array('unprocessed','unprocessed/NLP','stage 1','stage 2','stage 3','pending review-nfn','pending review','expert required','reviewed','closed');
 }
+if(!isset($_REQUEST['q_catalognumber'])) $displayQuery = true;
 ?>
 <div id="querydiv" style="clear:both;width:850px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
 	<form name="queryform" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="post" onsubmit="return verifyQueryForm(this)">

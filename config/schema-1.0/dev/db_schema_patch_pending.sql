@@ -9,6 +9,9 @@ ALTER TABLE `lkupstateprovince`
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `fulldescription` `fulldescription` VARCHAR(5000) NULL DEFAULT NULL ;
 
+ALTER TABLE `fmchecklists` 
+  ADD COLUMN `cidKeyLimits` VARCHAR(250) NULL AFTER `Access`;
+
 ALTER TABLE `fmchklstprojlink` 
    ADD COLUMN `sortSequence` INT NULL AFTER `mapChecklist`;
 

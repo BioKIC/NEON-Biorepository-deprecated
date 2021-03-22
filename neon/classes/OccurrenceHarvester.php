@@ -387,7 +387,13 @@ class OccurrenceHarvester{
 					$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
 				}
 				else{
-					if(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,57))){
+					if($dwcArr['collid'] == 56){
+						if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+							$dwcArr['sciname'] = $m[1];
+							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+						}
+					}
+					elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
 						if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
 							$dwcArr['sciname'] = $m[1];
 							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';

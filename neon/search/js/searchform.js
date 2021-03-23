@@ -44,7 +44,7 @@ const pLngEw = document.getElementById('pointlong_EW');
 const pRadius = document.getElementById('radius');
 const pRadiusUn = document.getElementById('radiusunits');
 
-let criterionSelected = 'taxonomic-cat';
+let criterionSelected = getCriterionSelected();
 let paramsArr = [];
 //////////////////////////////////////////////////////////////////////////
 
@@ -175,6 +175,14 @@ function updateChip(e) {
     console.log('chips should be added for sites');
     addChip(getDomainsSitesChips());
   }
+  // if any biorepo colls are selected (except for "all"), then add chip
+  let biorepoAllChecked = document.getElementById('all-neon-colls-quick')
+    .checked;
+  let biorepoChecked = getCollsSelected();
+  if (!biorepoAllChecked && biorepoChecked.length > 0) {
+    console.log('chips should be added for biorepo collections');
+    addChip(getCollsChips(getCriterionSelected(), 'Some Biorepo Colls'));
+  }
   // if any additional NEON colls are selected (except for "all"), then add chip
   let addCols = document.querySelectorAll(
     '#neonext-collections-list input[type=checkbox]'
@@ -183,7 +191,6 @@ function updateChip(e) {
     '#neonext-collections-list input[type=checkbox]:checked'
   );
   if (addColsChecked.length > 0 && addColsChecked.length < addCols.length) {
-    console.log('chips should be added for collections');
     addChip(getCollsChips('neonext-collections-list', 'Some Add NEON Colls'));
   }
   // if any external NEON colls are selected (expect for "all"), then add chip
@@ -196,7 +203,6 @@ function updateChip(e) {
   if (extColsChecked.length > 0 && extColsChecked.length < extCols.length) {
     addChip(getCollsChips('ext-collections-list', 'Some Ext NEON Colls'));
   }
-
   // then go through remaining inputs (exclude db and datasetid)
   // go through entire form and find selected items
   formInputs.forEach((item) => {
@@ -232,6 +238,7 @@ function getCollsChips(listId, chipText) {
       // check if we're inside biorepo coll form
       let isColl = coll.dataset.cat != undefined;
       if (isColl) {
+        console.log(coll.dataset.cat);
         let isCatSel = document.getElementById(coll.dataset.cat).checked;
         isCatSel ? '' : collsArr.push(coll.dataset.ccode);
       } else {
@@ -355,15 +362,20 @@ function uncheckAll(element) {
   }
 }
 /////////
+function getCriterionSelected() {
+  return collsModal.querySelector('.tab.tab-active input[type=radio]:checked')
+    .value;
+}
+
 /**
  * Finds all collections selected
  * Uses active tab in modal
  */
 function getCollsSelected() {
-  let criterionSelected = collsModal.querySelector(
-    '.tab.tab-active input[type=radio]:checked'
-  ).value;
-  let query = '#' + criterionSelected + ' input[name="db"]:checked';
+  // let criterionSelected = collsModal.querySelector(
+  //   '.tab.tab-active input[type=radio]:checked'
+  // ).value;
+  let query = '#' + getCriterionSelected() + ' input[name="db"]:checked';
   let selectedInModal = Array.from(document.querySelectorAll(query));
   let selectedInForm = Array.from(
     document.querySelectorAll('#search-form-colls input[name="db"]:checked')
@@ -654,22 +666,24 @@ document
     removeChip(document.getElementById('chip-' + allNeon.id));
     event.preventDefault();
     closeModal('#biorepo-collections-list');
-    let criterionSelected = collsModal.querySelector(
-      '.tab.tab-active input[type=radio]:checked'
-    ).value;
-    let tabSelected = document.getElementById(criterionSelected);
+    // let criterionSelected = collsModal.querySelector(
+    //   '.tab.tab-active input[type=radio]:checked'
+    // ).value;
+    let tabSelected = document.getElementById(getCriterionSelected());
     let isAllSelected = tabSelected.getElementsByClassName('all-neon-colls')[0]
       .checked;
     allNeon.checked = isAllSelected;
-    let isAnySelected = getCollsSelected().length > 0;
-    if (isAllSelected) {
-      addChip(allNeon);
-    } else {
-      // if any selected (but not all)
-      if (isAnySelected) {
-        addChip(getCollsChips(criterionSelected, 'Some Biorepo Colls'));
-      }
-    }
+    // let isAnySelected = getCollsSelected().length > 0;
+    // if (isAllSelected) {
+    //   addChip(allNeon);
+    // } else {
+    //   // if any selected (but not all)
+    //   if (isAnySelected) {
+    //     // addChip(getCollsChips(criterionSelected, 'Some Biorepo Colls'));
+    //     updateChip();
+    //   }
+    // }
+    updateChip();
   });
 
 //////// Binds Update chip on event change

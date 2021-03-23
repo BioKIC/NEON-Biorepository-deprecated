@@ -283,19 +283,19 @@ $siteData = new DatasetsMetadata();
               <div>
                 <div>
                   <div class="input-text-container">
-                    <label for="" class="input-text--outlined">
+                    <label for="state" class="input-text--outlined">
                   <input type="text" name="state" id="state" data-chip="State">
                   <span data-label="State"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
                   <div class="input-text-container">
-                    <label for="" class="input-text--outlined">
+                    <label for="county" class="input-text--outlined">
                   <input type="text" name="county" id="county" data-chip="County">
                   <span data-label="County"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>
                   </div>
                   <div class="input-text-container">
-                    <label for="" class="input-text--outlined">
+                    <label for="local" class="input-text--outlined">
                   <input type="text" name="local" id="local" data-chip="Locality">
                   <span data-label="Locality"></span></label>
                     <span class="assistive-text">Separate multiple with commas.</span>

@@ -570,7 +570,6 @@ span.accent-color-darker {
 }
 
 .input-text-container .input-text--outlined > input {
-  border: 1px solid var(--bbc);
   border-radius: 0;
 }
 

@@ -396,6 +396,7 @@ button:hover {
 }
 
 input[type='text'],
+input[type='number'],
 textarea,
 select {
   border: 1px solid #d0d0d0 !important;

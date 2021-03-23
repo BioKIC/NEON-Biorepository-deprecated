@@ -382,10 +382,10 @@ if($ometid) unset($selectLookupArr[$ometid]);
 								Source:<br/><input name="source" type="text" value="" style="width:480px;" />
 							</div>
 							<div class="field-div">
-								Source Identifier (e.g. <b>Ind</b>Exs URL):<br/><input name="sourceidentifier" type="text" value="" style="width:480px;" />
+								Source Identifier (e.g. <b>Ind</b>Exs URL):<br/><input name="sourceidentifier" type="text" value="" style="width:90%;" />
 							</div>
 							<div class="field-div">
-								Notes:<br/><input name="notes" type="text" value="" style="width:480px;" />
+								Notes:<br/><input name="notes" type="text" value="" style="width:90%" />
 							</div>
 							<div style="margin:10px;">
 								<input name="formsubmit" type="submit" value="Add Exsiccata Title" />
@@ -469,10 +469,10 @@ if($ometid) unset($selectLookupArr[$ometid]);
 							Source:<br/><input name="source" type="text" value="<?php echo $exsArr['source']; ?>" style="width:480px;" />
 						</div>
 						<div class="field-div">
-							Source Identifier (e.g. <b>Ind</b>Exs URL):<br/><input name="sourceidentifier" type="text" value="<?php echo $exsArr['sourceidentifier']; ?>" style="width:480px;" />
+							Source Identifier (e.g. <b>Ind</b>Exs URL):<br/><input name="sourceidentifier" type="text" value="<?php echo $exsArr['sourceidentifier']; ?>" style="width:90%" />
 						</div>
 						<div class="field-div">
-							Notes:<br/><input name="notes" type="text" value="<?php echo $exsArr['notes']; ?>" style="width:500px;" />
+							Notes:<br/><input name="notes" type="text" value="<?php echo $exsArr['notes']; ?>" style="width:90%" />
 						</div>
 						<div style="margin:10px;">
 							<input name="ometid" type="hidden" value="<?php echo $ometid; ?>" />
@@ -493,9 +493,8 @@ if($ometid) unset($selectLookupArr[$ometid]);
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
 						<legend><b>Merge Exsiccatae</b></legend>
 						<div style="margin:10px;">
-							Title target:<br/>
+							Target Exsiccata:<br/>
 							<select name="targetometid" style="max-width:90%;">
-								<option value="">Select the Target Exsiccata</option>
 								<option value="">-------------------------------</option>
 								<?php
 								foreach($selectLookupArr as $titleId => $titleStr){
@@ -595,10 +594,10 @@ if($ometid) unset($selectLookupArr[$ometid]);
 					<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
 						<legend><b>Edit Exsiccata Number</b></legend>
 						<div style="margin:2px;">
-							Number: <input name="exsnumber" type="text" value="<?php echo $mdArr['exsnumber']; ?>" style="width:500px;" />
+							Number: <input name="exsnumber" type="text" value="<?php echo $mdArr['exsnumber']; ?>" />
 						</div>
 						<div style="margin:2px;">
-							Notes: <input name="notes" type="text" value="<?php echo $mdArr['notes']; ?>" style="width:500px;" />
+							Notes: <input name="notes" type="text" value="<?php echo $mdArr['notes']; ?>" style="width:90%;" />
 						</div>
 						<div style="margin:10px;">
 							<input name="omenid" type="hidden" value="<?php echo $omenid; ?>" />
@@ -622,7 +621,6 @@ if($ometid) unset($selectLookupArr[$ometid]);
 						<div style="margin:10px;">
 							Target Exsiccata<br/>
 							<select name="targetometid" style="max-width:90%;" onfocus="buildExsSelect(this)">
-								<option value="">Select the Target Exsiccata</option>
 								<option value="">-------------------------------</option>
 							</select>
 						</div>
@@ -796,7 +794,7 @@ if($ometid) unset($selectLookupArr[$ometid]);
 											<fieldset style="margin:10px;padding:15px;background-color:#B0C4DE;">
 												<legend><b>Transfer Specimen Link</b></legend>
 												<div style="margin:10px;">
-													Target Exsiccata Title<br/>
+													Target Exsiccata<br/>
 													<select name="targetometid" style="max-width:90%;" onfocus="buildExsSelect(this)">
 														<option value="">Select the Target Exsiccata</option>
 														<option value="">-------------------------------</option>

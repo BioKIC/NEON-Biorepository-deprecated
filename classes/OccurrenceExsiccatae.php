@@ -657,8 +657,8 @@ class OccurrenceExsiccatae {
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
 				$titleStr = $r->titleStr;
-				if($r->exsrange) $titleStr .= ' ['.$titleStr.']';
-				$retArr[$r->ometid] = $this->cleanOutStr($titleStr);
+				if($r->exsrange) $titleStr .= ' ['.$r->exsrange.']';
+				$retArr[$r->ometid] = $this->cleanOutStr($titleStr).' (#'.$r->ometid.')';
 			}
 			$rs->free();
 		}

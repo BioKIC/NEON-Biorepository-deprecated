@@ -23,7 +23,7 @@ elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collid,$USER_RIG
 	$isEditor = 1;
 }
 
-$exsManager = new OccurrenceExsiccatae();
+$exsManager = new OccurrenceExsiccatae($formSubmit?'write':'readonly');
 if($isEditor && $formSubmit){
 	if($formSubmit == 'Import Selected Records'){
 		$statusStr = $exsManager->batchImport($collid,$_POST);
@@ -136,7 +136,7 @@ if($isEditor && $formSubmit){
 			echo '<hr/>';
 		}
 		if(!$ometid){
-			if($exsArr = $exsManager->getTitleArr('', 1)){
+			if($exsArr = $exsManager->getSelectLookupArr()){
 				?>
 				<form name="firstform" action="batchimport.php" method="post" onsubmit="return verifyFirstForm(this)">
 					<fieldset>
@@ -146,9 +146,8 @@ if($isEditor && $formSubmit){
 								<option value="">Choose Exsiccata Series</option>
 								<option value="">------------------------------------</option>
 								<?php
-								//Get only titles with linked specimens
-								foreach($exsArr as $exid => $exArr){
-									echo '<option value="'.$exid.'">'.$exArr['title'].'</option>';
+								foreach($exsArr as $exid => $titleStr){
+									echo '<option value="'.$exid.'">'.$titleStr.'</option>';
 								}
 								?>
 							</select>
@@ -249,8 +248,8 @@ if($isEditor && $formSubmit){
 				<fieldset>
 					<legend><b>Batch Import Module</b></legend>
 					<?php
-					$exsTitleArr = $exsManager->getTitleArr();
-					echo '<h2>'.$exsTitleArr[$ometid]['title'].'</h2>';
+					$exsMeta = $exsManager->getTitleObj($ometid);
+					echo '<h2>'.$exsMeta['title'].'</h2>';
 					if($sourceCollArr = $exsManager->getCollArr($ometid)){
 						?>
 						<div style="margin:10px">

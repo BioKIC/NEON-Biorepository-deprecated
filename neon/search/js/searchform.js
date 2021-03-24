@@ -178,7 +178,11 @@ function updateChip(e) {
   // if any biorepo colls are selected (except for "all"), then add chip
   let biorepoAllChecked = document.getElementById('all-neon-colls-quick')
     .checked;
-  let biorepoChecked = getCollsSelected();
+  let biorepoChecked = Array.from(
+    document.querySelectorAll(
+      `#${getCriterionSelected()} input[name="db"]:checked`
+    )
+  );
   if (!biorepoAllChecked && biorepoChecked.length > 0) {
     addChip(getCollsChips(getCriterionSelected(), 'Some Biorepo Colls'));
   }
@@ -374,9 +378,6 @@ function getCriterionSelected() {
  * Uses active tab in modal
  */
 function getCollsSelected() {
-  // let criterionSelected = collsModal.querySelector(
-  //   '.tab.tab-active input[type=radio]:checked'
-  // ).value;
   let query = '#' + getCriterionSelected() + ' input[name="db"]:checked';
   let selectedInModal = Array.from(document.querySelectorAll(query));
   let selectedInForm = Array.from(

@@ -138,7 +138,10 @@ function addChip(element) {
   } else {
     // console.log(element);
     inputChip.id = 'chip-' + element.id;
-    inputChip.textContent = element.dataset.chip;
+    let isTextOrNum = (element.type == 'text') | (element.type == 'number');
+    isTextOrNum
+      ? (inputChip.textContent = `${element.dataset.chip}: ${element.value}`)
+      : (inputChip.textContent = element.dataset.chip);
     chipBtn.onclick = function () {
       element.type === 'checkbox'
         ? (element.checked = false)
@@ -502,7 +505,7 @@ function getSearchUrl() {
  * Form validation functions
  */
 
-function validateForm() {
+async function validateForm() {
   errors = [];
   // DB
   let anyCollsSelected = getCollsSelected();
@@ -581,10 +584,21 @@ function validateForm() {
       }
     }
   }
+
+  let noResults = await resultsPreview();
+  noResults
+    ? errors.push({
+        elId: 'params-form',
+        errorMsg:
+          'No results found for selected criteria. Please modify your parameters and try again.',
+      })
+    : '';
+
   return errors;
 }
 
 function handleValErrors(errors) {
+  console.log(errors);
   const errorDiv = document.getElementById('error-msgs');
   errorDiv.innerHTML = '';
   errors.map((err) => {
@@ -593,16 +607,37 @@ function handleValErrors(errors) {
     errorDiv.classList.remove('visually-hidden');
     let errorP = document.createElement('p');
     errorP.classList.add('error');
-    errorP.innerText = err.errorMsg;
+    errorP.innerText = err.errorMsg + ' Click to dismiss.';
+    errorP.onclick = function () {
+      // removeChip(inputChip);
+      errorP.remove();
+      element.classList.remove('invalid');
+    };
     errorDiv.appendChild(errorP);
   });
+}
+
+function resultsPreview() {
+  const noResults =
+    'Your query did not return any results. Please modify your query parameters';
+  let url = getSearchUrl();
+  return fetch(url)
+    .then((res) => res.text())
+    .then((res) => {
+      // console.log(res);
+      console.log(`Results empty: ${res.includes(noResults)}`);
+      res.includes(noResults);
+    });
 }
 
 /**
  * Calls methods to validate form and build URL that will redirect search
  */
 function simpleSearch() {
-  let errors = validateForm();
+  let errors = [];
+  console.log(errors);
+  errors = validateForm();
+  console.log(errors);
   let isValid = errors.length == 0;
   if (isValid) {
     let searchUrl = getSearchUrl();

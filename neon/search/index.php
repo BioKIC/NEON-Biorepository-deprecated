@@ -240,11 +240,11 @@ $siteData = new DatasetsMetadata();
                 </div>
                 <div>
                   <div>
-                    <input type="checkbox" name="hasimages" value=1>
+                    <input type="checkbox" name="hasimages" value=1 data-chip="Only with images">
                     <label for="hasimages">Limit to specimens with images</label>
                   </div>
                   <div>
-                    <input type="checkbox" name="hasgenetic" value=1>
+                    <input type="checkbox" name="hasgenetic" value=1 data-chip="Only with genetic">
                     <label for="hasgenetic">Limit to specimens with genetic data</label>
                   </div>
                 </div>

@@ -520,7 +520,7 @@ function validateForm() {
     invalidInputs.forEach((inp) => {
       errors.push({
         elId: inp.id,
-        errorMsg: 'Please check values in field ' + inp.dataset.chip,
+        errorMsg: `Please check values in field ${inp.dataset.chip}.`,
       });
     });
   }

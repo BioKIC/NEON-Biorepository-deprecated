@@ -128,7 +128,6 @@ function addChip(element) {
     (element.name == 'neon-theme') |
     (element.name == 'sample-type')
   ) {
-    console.log('here');
     inputChip.id = `chip-some-${element.name}-collids`;
     inputChip.textContent = element.text;
     chipBtn.onclick = function () {
@@ -136,7 +135,6 @@ function addChip(element) {
       removeChip(inputChip);
     };
   } else {
-    // console.log(element);
     inputChip.id = 'chip-' + element.id;
     let isTextOrNum = (element.type == 'text') | (element.type == 'number');
     isTextOrNum
@@ -175,7 +173,6 @@ function updateChip(e) {
     '#site-list input[type=checkbox]:checked'
   );
   if (dSChecked.length > 0 && dSChecked.length < dSList.length) {
-    console.log('chips should be added for sites');
     addChip(getDomainsSitesChips());
   }
   // if any biorepo colls are selected (except for "all"), then add chip
@@ -183,7 +180,6 @@ function updateChip(e) {
     .checked;
   let biorepoChecked = getCollsSelected();
   if (!biorepoAllChecked && biorepoChecked.length > 0) {
-    console.log('chips should be added for biorepo collections');
     addChip(getCollsChips(getCriterionSelected(), 'Some Biorepo Colls'));
   }
   // if any additional NEON colls are selected (except for "all"), then add chip
@@ -247,7 +243,6 @@ function getCollsChips(listId, chipText) {
       // check if we're inside biorepo coll form
       let isColl = coll.dataset.cat != undefined;
       if (isColl) {
-        console.log(coll.dataset.cat);
         let isCatSel = document.getElementById(coll.dataset.cat).checked;
         isCatSel ? '' : collsArr.push(coll.dataset.ccode);
       } else {
@@ -257,7 +252,6 @@ function getCollsChips(listId, chipText) {
   }
   chipEl.text = `${chipText}: ${collsArr.join(', ')}`;
   chipEl.name = listId;
-  console.log(chipEl);
   return chipEl;
 }
 
@@ -364,7 +358,6 @@ function uncheckAll(element) {
     let items = document.querySelectorAll(
       `#${element.id} input[type=checkbox]:checked`
     );
-    console.log(items);
     items.forEach((item) => {
       item.checked = false;
     });
@@ -599,7 +592,6 @@ function validateForm() {
  * @param {Array} errors Array with error objects with form element it refers to (elId), for highlighting, and errorMsg
  */
 function handleValErrors(errors) {
-  console.log(errors);
   const errorDiv = document.getElementById('error-msgs');
   errorDiv.innerHTML = '';
   errors.map((err) => {
@@ -622,7 +614,6 @@ function handleValErrors(errors) {
  */
 function simpleSearch() {
   let errors = [];
-  console.log(errors);
   errors = validateForm();
   let isValid = errors.length == 0;
   if (isValid) {

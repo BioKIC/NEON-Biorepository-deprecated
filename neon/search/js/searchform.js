@@ -585,14 +585,14 @@ async function validateForm() {
     }
   }
 
-  let noResults = await resultsPreview();
-  noResults
-    ? errors.push({
-        elId: 'params-form',
-        errorMsg:
-          'No results found for selected criteria. Please modify your parameters and try again.',
-      })
-    : '';
+  // let noResults = await resultsPreview();
+  // noResults
+  //   ? errors.push({
+  //       elId: 'params-form',
+  //       errorMsg:
+  //         'No results found for selected criteria. Please modify your parameters and try again.',
+  //     })
+  //   : '';
 
   return errors;
 }
@@ -617,18 +617,18 @@ function handleValErrors(errors) {
   });
 }
 
-function resultsPreview() {
-  const noResults =
-    'Your query did not return any results. Please modify your query parameters';
-  let url = getSearchUrl();
-  return fetch(url)
-    .then((res) => res.text())
-    .then((res) => {
-      // console.log(res);
-      console.log(`Results empty: ${res.includes(noResults)}`);
-      res.includes(noResults);
-    });
-}
+// function resultsPreview() {
+//   const noResults =
+//     'Your query did not return any results. Please modify your query parameters';
+//   let url = getSearchUrl();
+//   return fetch(url)
+//     .then((res) => res.text())
+//     .then((res) => {
+//       // console.log(res);
+//       console.log(`Results empty: ${res.includes(noResults)}`);
+//       res.includes(noResults);
+//     });
+// }
 
 /**
  * Calls methods to validate form and build URL that will redirect search
@@ -637,7 +637,6 @@ function simpleSearch() {
   let errors = [];
   console.log(errors);
   errors = validateForm();
-  console.log(errors);
   let isValid = errors.length == 0;
   if (isValid) {
     let searchUrl = getSearchUrl();

@@ -223,6 +223,12 @@ function updateChip(e) {
   });
 }
 
+/**
+ * Gets collections chips
+ * @param {String} listId id of coll list element
+ * @param {String} chipText explanatory text to be addded to chip
+ * @returns {Object} chipEl chip element with text and name props
+ */
 function getCollsChips(listId, chipText) {
   // Goes through list of collection options
   let collOptions = document.querySelectorAll(
@@ -257,7 +263,7 @@ function getCollsChips(listId, chipText) {
 
 /**
  * Gets selected domains and sites to generate chips
- * @returns Chip element Object
+ * @returns {Object} chipEl chip element with text and name props
  */
 function getDomainsSitesChips() {
   let boxes = document.getElementsByName('datasetid');
@@ -503,9 +509,9 @@ function getSearchUrl() {
 
 /**
  * Form validation functions
+ * @returns {Array} errors Array of errors objects with form element it refers to (elId), for highlighting, and errorMsg
  */
-
-async function validateForm() {
+function validateForm() {
   errors = [];
   // DB
   let anyCollsSelected = getCollsSelected();
@@ -585,18 +591,13 @@ async function validateForm() {
     }
   }
 
-  // let noResults = await resultsPreview();
-  // noResults
-  //   ? errors.push({
-  //       elId: 'params-form',
-  //       errorMsg:
-  //         'No results found for selected criteria. Please modify your parameters and try again.',
-  //     })
-  //   : '';
-
   return errors;
 }
 
+/**
+ * Gets validation errors, outputs alerts with error messages and highlights form element with error
+ * @param {Array} errors Array with error objects with form element it refers to (elId), for highlighting, and errorMsg
+ */
 function handleValErrors(errors) {
   console.log(errors);
   const errorDiv = document.getElementById('error-msgs');
@@ -609,26 +610,12 @@ function handleValErrors(errors) {
     errorP.classList.add('error');
     errorP.innerText = err.errorMsg + ' Click to dismiss.';
     errorP.onclick = function () {
-      // removeChip(inputChip);
       errorP.remove();
       element.classList.remove('invalid');
     };
     errorDiv.appendChild(errorP);
   });
 }
-
-// function resultsPreview() {
-//   const noResults =
-//     'Your query did not return any results. Please modify your query parameters';
-//   let url = getSearchUrl();
-//   return fetch(url)
-//     .then((res) => res.text())
-//     .then((res) => {
-//       // console.log(res);
-//       console.log(`Results empty: ${res.includes(noResults)}`);
-//       res.includes(noResults);
-//     });
-// }
 
 /**
  * Calls methods to validate form and build URL that will redirect search
@@ -659,14 +646,13 @@ document
     event.preventDefault();
     simpleSearch();
   });
-
+// Reset button
 document
   .getElementById('reset-btn')
   .addEventListener('click', function (event) {
     document.getElementById('params-form').reset();
-    // updateChip();
+    updateChip();
   });
-
 // Listen for open modal click
 document
   .getElementById('neon-modal-open')
@@ -674,25 +660,19 @@ document
     event.preventDefault();
     openModal('#biorepo-collections-list');
   });
-
 // When checking "all neon collections" box, toggle checkboxes in modal
 $('#all-neon-colls-quick').click(function () {
   let isChecked = $(this).prop('checked');
   $('.all-neon-colls').prop('checked', isChecked);
   $('.all-neon-colls').siblings().find('.child').prop('checked', isChecked);
 });
-
 // When checking any 'all-selector', toggle children checkboxes
 $('.all-selector').click(toggleAllSelector);
-
 formColls.addEventListener('click', autoToggleSelector, false);
 formColls.addEventListener('change', autoToggleSelector, false);
-
 formSites.addEventListener('click', autoToggleSelector, false);
-
 collsModal.addEventListener('click', autoToggleSelector, false);
 collsModal.addEventListener('change', autoToggleSelector, false);
-
 // Listen for close modal click and passes value of selected colls to main form
 document
   .getElementById('neon-modal-close')
@@ -700,35 +680,19 @@ document
     removeChip(document.getElementById('chip-' + allNeon.id));
     event.preventDefault();
     closeModal('#biorepo-collections-list');
-    // let criterionSelected = collsModal.querySelector(
-    //   '.tab.tab-active input[type=radio]:checked'
-    // ).value;
     let tabSelected = document.getElementById(getCriterionSelected());
     let isAllSelected = tabSelected.getElementsByClassName('all-neon-colls')[0]
       .checked;
     allNeon.checked = isAllSelected;
-    // let isAnySelected = getCollsSelected().length > 0;
-    // if (isAllSelected) {
-    //   addChip(allNeon);
-    // } else {
-    //   // if any selected (but not all)
-    //   if (isAnySelected) {
-    //     // addChip(getCollsChips(criterionSelected, 'Some Biorepo Colls'));
-    //     updateChip();
-    //   }
-    // }
     updateChip();
   });
-
 //////// Binds Update chip on event change
-// form.addEventListener('change', updateChip);
 const formInputs = document.querySelectorAll('.content input');
 formInputs.forEach((formInput) => {
   formInput.addEventListener('change', updateChip);
 });
-// on default (on document load): All Neon Collections, All Domains & Sites
+// on default (on document load): All Neon Collections, All Domains & Sites, Include other IDs, All Domains & Sites
 document.addEventListener('DOMContentLoaded', updateChip);
-
 // Binds expansion function to plus and minus icons in selectors, uses jQuery
 $('.expansion-icon').click(function () {
   if ($(this).siblings('ul').hasClass('collapsed')) {

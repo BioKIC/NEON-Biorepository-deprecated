@@ -70,6 +70,12 @@ if($chars){
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script type="text/javascript" src="../js/symb/ident.key.js"></script>
+	<style>
+		#keycharcolumn { vertical-align: top; width: 30%; }
+		#keymidcolumn { width: 20px; }
+		#keytaxacolumn { vertical-align: top; width: 65%; }
+		.dynamlang { margin-top: 0.5em; font-weight: bold; }
+	</style>
 </head>
 <body>
 	<?php

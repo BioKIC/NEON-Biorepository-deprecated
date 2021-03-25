@@ -2,38 +2,43 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/KeyDataManager.php');
 include_once($SERVER_ROOT.'/content/lang/ident/key.'.$LANG_TAG.'.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+header('Content-Type: text/html; charset='.$CHARSET);
 
 $isEditor = false;
-if($IS_ADMIN || array_key_exists("KeyEditor",$USER_RIGHTS)){
+if($IS_ADMIN || array_key_exists('KeyEditor',$USER_RIGHTS)){
 	$isEditor = true;
 }
 
 $attrsValues = Array();
 
-$clValue = array_key_exists("cl",$_REQUEST)?$_REQUEST["cl"]:"";
+$clValue = array_key_exists('cl',$_REQUEST)?$_REQUEST['cl']:'';
 if(!$clValue && array_key_exists('clid',$_REQUEST)) $clValue = $_REQUEST['clid'];
-$dynClid = array_key_exists("dynclid",$_REQUEST)?$_REQUEST["dynclid"]:0;
-$taxonValue = array_key_exists("taxon",$_REQUEST)?$_REQUEST["taxon"]:"";
-$action = array_key_exists("submitbutton",$_REQUEST)?$_REQUEST["submitbutton"]:"";
-$rv = array_key_exists("rv",$_REQUEST)?$_REQUEST["rv"]:"";
+$dynClid = array_key_exists('dynclid',$_REQUEST)?$_REQUEST['dynclid']:0;
+$taxonValue = array_key_exists('taxon',$_REQUEST)?$_REQUEST['taxon']:'';
+$rv = array_key_exists('rv',$_REQUEST)?$_REQUEST['rv']:'';
 $pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:'';
-$langValue = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:"";
-$displayMode = array_key_exists("displaymode",$_REQUEST)?$_REQUEST["displaymode"]:"";
-if(!$action && array_key_exists("attr",$_REQUEST) && is_array($_REQUEST["attr"])){
-	$attrsValues = $_REQUEST["attr"];	//Array of: cid + "-" + cs (ie: 2-3)
+$langValue = array_key_exists('lang',$_REQUEST)?$_REQUEST['lang']:'';
+$displayMode = array_key_exists('displaymode',$_REQUEST)?$_REQUEST['displaymode']:0;
+$displayCommon = array_key_exists('displaycommon',$_REQUEST)?$_REQUEST['displaycommon']:0;
+$action = array_key_exists('submitbutton',$_REQUEST)?$_REQUEST['submitbutton']:'';
+if(!$action && array_key_exists('attr',$_REQUEST) && is_array($_REQUEST['attr'])){
+	$attrsValues = $_REQUEST['attr'];	//Array of: cid + '-' + cs (ie: 2-3)
 }
 
 //Sanitation
 if(!is_numeric($dynClid)) $dynClid = 0;
-if(!is_numeric($pid)) $pid = 0;
+$taxonValue = filter_var($taxonValue,FILTER_SANITIZE_STRING);
 if(!is_numeric($rv)) $rv = '';
+if(!is_numeric($pid)) $pid = 0;
 $langValue = 'English';
+if(!is_numeric($displayMode)) $displayMode = 0;
+if(!is_numeric($displayCommon)) $displayCommon = 0;
 
 $dataManager = new KeyDataManager();
 
 //if(!$langValue) $langValue = $defaultLang;
-if($displayMode) $dataManager->setCommonDisplay(true);;
+if($displayMode) $dataManager->setDisplayMode(true);
+if($displayCommon) $dataManager->setDisplayCommon(1);
 $dataManager->setLanguage($langValue);
 if($pid) $dataManager->setProject($pid);
 if($dynClid) $dataManager->setDynClid($dynClid);
@@ -42,18 +47,16 @@ if($taxonValue) $dataManager->setTaxonFilter($taxonValue);
 if($attrsValues) $dataManager->setAttrs($attrsValues);
 if($rv) $dataManager->setRelevanceValue($rv);
 
-$data = $dataManager->getData();
-$chars = $data["chars"];  				//$chars = Array(HTML Strings)
-$taxa = $data["taxa"];					//$taxa  = Array(family => array(TID => DisplayName))
+$taxa = $dataManager->getTaxaList();
+$chars = $dataManager->getCharList();
 
 //Harevest and remove language list from $chars
 $languages = Array();
 if($chars){
-	$languages = $chars["Languages"];
-	unset($chars["Languages"]);
+	$languages = $chars['Languages'];
+	unset($chars['Languages']);
 }
 ?>
-
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE.$LANG['WEBKEY'].preg_replace('/\<[^\>]+\>/','',$dataManager->getClName()); ?></title>
@@ -123,7 +126,7 @@ echo '</div>';
 	<h2>
 		<?php
 		if($FLORA_MOD_IS_ACTIVE) echo '<a href="../checklists/checklist.php?clid='.$clid.'&dynclid='.$dynClid.'&pid='.$pid.'">';
-		echo $dataManager->getClName()." ";
+		echo $dataManager->getClName().' ';
 		if($FLORA_MOD_IS_ACTIVE) echo '</a>';
 		?>
 	</h2>
@@ -135,12 +138,11 @@ echo '</div>';
 					<div><?php echo (isset($LANG['TAXON_SEARCH'])?$LANG['TAXON_SEARCH']:'Family/Genus Filter');?>:</div>
 					<select name="taxon" onchange="this.form.submit();">
 						<?php
-						echo "<option value='All Species'>".$LANG['SELECTTAX']."</option>\n";
-						$selectList = Array();
+						echo '<option value="All Species">'.$LANG['SELECTTAX'].'</option>';
 						$selectList = $dataManager->getTaxaFilterList();
 						foreach($selectList as $value){
-							$selectStr = ($value==$taxonValue?"SELECTED":"");
-							echo "<option $selectStr>$value</option>\n";
+							$selectStr = ($value==$taxonValue?'SELECTED':'');
+							echo '<option '.$selectStr.'>'.$value.'</option>';
 						}
 						?>
 					</select>
@@ -150,21 +152,24 @@ echo '</div>';
 				//echo "<div style=''>Relevance value: <input name='rv' type='text' size='3' title='Only characters with > ".($rv*100)."% relevance to the active spp. list will be displayed.' value='".$dataManager->getRelevanceValue()."'></div>";
 				//List char Data with selected states checked
 				if(count($languages) > 1){
-					echo "<div id='langlist' style='margin:0.5em;'>Languages: <select name='lang' onchange='setLang(this);'>\n";
+					echo '<div id="langlist" style="margin:0.5em;">Languages: <select name="lang" onchange="setLang(this);">';
 					foreach($languages as $l){
-						echo "<option value='".$l."' ".($defaultLang == $l?"SELECTED":"").">$l</option>\n";
+						echo '<option value="'.$l.'" '.($defaultLang == $l?'SELECTED':'').'>'.$l.'</option>';
 					}
-					echo "</select></div>\n";
+					echo '</select></div>';
 				}
 				?>
 				<div style="margin:5px">
-					<?php echo $LANG['DISPLAY'].': '; ?>
+					<?php echo (isset($LANG['DISPLAY'])?$LANG['DISPLAY']:'Display Mode').': '; ?>
 					<select name="displaymode" onchange="this.form.submit();">
 						<?php
-						echo '<option value="0">'.$LANG['SCINAME'].'</option>';
-						echo '<option value="1"'.($displayMode?' SELECTED':'').'>'.$LANG['COMMON'].'</option>';
+						echo '<option value="0">'.(isset($LANG['DISPLAY_SCINAME'])?$LANG['DISPLAY_SCINAME']:'List of Scientific Name').'</option>';
+						echo '<option value="1" '.($displayMode?'SELECTED':'').'>'.(isset($LANG['DISPLAY_IMAGES'])?$LANG['DISPLAY_IMAGES']:'Image Thumbnails').'</option>';
 						?>
 					</select>
+				</div>
+				<div style="margin:5px">
+					<input name="displaycommon" type="checkbox" value="1" /> <?php echo (isset($LANG['DISPLAY_COMMON'])?$LANG['DISPLAY_COMMON']:'Display Common Names'); ?>
 				</div>
 				<?php
 				if($chars){

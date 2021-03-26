@@ -760,7 +760,7 @@ function verifyFullFormEdits(f){
 function prePopulateCatalogNumbers(){
 	$("#cloneCatalogNumber-Fieldset").show();
 	var catCnt = document.getElementById("clonecount").value;
-	if(!isNumeric(catCnt)) return false;
+	if(catCnt == "" || !isNumeric(catCnt)) return false;
 	var cloneDiv = document.getElementById("cloneCatalogNumberDiv");
 	cloneDiv.innerHTML = "";
 	for(var i=0;i < catCnt;i++){
@@ -779,7 +779,8 @@ function prePopulateCatalogNumbers(){
 			newImg.setAttribute("src", "../../images/downarrow.png");
 			newImg.setAttribute("style", "width:12px");
 			var newAnchor = document.createElement("a");
-			newAnchor.setAttribute("onclick", "autoIncrementCat()");
+			newAnchor.setAttribute("href", "#");
+			newAnchor.setAttribute("onclick", "autoIncrementCat();return false");
 			newAnchor.appendChild(newImg);
 			newDiv.appendChild(newAnchor);
 		}
@@ -790,18 +791,25 @@ function prePopulateCatalogNumbers(){
 
 function autoIncrementCat(){
 	let catSeed = document.getElementById("clonecat-0").value;
-	let prefix = '';
-	for(let i = 0; i < catSeed.length; i++) {
-		if(isNumberic(str.charAt(i))) break;
-		else prefix = prefix + str.charAt(i);
+	if(catSeed != ""){
+		let prefix = '';
+		for(let h = 0; h < catSeed.length; h++) {
+			if(isNumeric(catSeed.charAt(h))) break;
+			else prefix = prefix + catSeed.charAt(h);
+		}
+		let suffix = ''; 
+		for(let i = catSeed.length; i > 0; i--) {
+			if(isNumeric(catSeed.charAt(i-1))) break;
+			else suffix =  catSeed.charAt(i-1)+suffix;
+		}
+		let seed = catSeed.substring(prefix.length,(catSeed.length-suffix.length));
+		$("clonecat-").each(){
+			
+		}
+		alert("prefix: "+prefix);
+		alert("suffix: "+suffix);
+		alert("seed: "+seed);
 	}
-	let suffix = ''; 
-	for(let i = catSeed.length; i > 0; i--) {
-		if(isNumberic(str.charAt(i))) break;
-		else suffix = suffix + str.charAt(i);
-	}
-	alert("prefix: "+prefix);
-	alert("suffix: "+suffix);
 }
 
 function verifyDecimalLatitude(f){

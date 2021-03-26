@@ -427,6 +427,27 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$this->displaySearchArr[] = 'includes cultivated/captive occurrences';
 			}
 		}
+		$anyTraitsHere = false;
+		$stateids = array();
+		foreach($this->searchTermArr as $stkey => $stval){
+			if("traitid-" == substr($stkey, 0, 8) && is_numeric($stval)) {
+				$stateids[] = $stval;
+				$anyTraitsHere = true;
+			}
+		}
+		if($anyTraitsHere == true) {
+			$traitSql = implode(',', $stateids);
+			$traitNameSql = 'SELECT CONCAT_WS(": ", t.traitname, s.statename) AS traitName FROM tmtraits t JOIN tmstates s ON s.traitid = t.traitid WHERE s.stateid IN(' . $traitSql . ')';
+			$rs = $this->conn->query($traitNameSql);
+			if($rs){
+				while($r = $rs->fetch_object()) {
+					$this->displaySearchArr[] = $r->traitName;
+				}
+				$rs->free();
+			}
+			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM tmattributes WHERE stateid IN(' . $traitSql . ')))';
+		}
+
 		if($sqlWhere){
 			$this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
 		}
@@ -842,6 +863,16 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			else{
 				unset($this->searchTermArr["includecult"]);
+			}
+		}
+		// Traits search: loop over all "traitid-" fields
+		foreach ($_REQUEST as $reqkey => $reqval){
+			if("traitid-" == substr($reqkey, 0, 8)){
+				if($reqval){
+					$this->searchTermArr[$reqkey] = $reqval[0];
+				} else {
+					unset($this->searchTermArr[$reqkey]);
+				}
 			}
 		}
 		$llPattern = '-?\d+\.{0,1}\d*';

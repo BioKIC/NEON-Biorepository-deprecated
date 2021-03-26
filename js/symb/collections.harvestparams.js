@@ -1,6 +1,6 @@
 function displayTableView(f){
 	f.action = "listtabledisplay.php";
-	f.submit();	
+	f.submit();
 }
 
 function cleanNumericInput(formElem){
@@ -17,8 +17,33 @@ function checkHarvestParamsForm(frm){
 		(frm.local.value.trim() == '') && (frm.elevlow.value.trim() == '') && (frm.upperlat.value.trim() == '') && (frm.footprintwkt.value.trim() == '') && (frm.pointlat.value.trim() == '') &&
 		(frm.collector.value.trim() == '') && (frm.collnum.value.trim() == '') && (frm.eventdate1.value.trim() == '') && (frm.catnum.value.trim() == '') &&
 		(frm.typestatus.checked == false) && (frm.hasimages.checked == false) && (frm.hasgenetic.checked == false) && (frm.hascoords.checked == false)){
-		alert("Please fill in at least one search parameter!");
-		return false;
+			//Check trait search fields if present
+			if (typeof frm.SearchByTraits !== "undefined" && frm.SearchByTraits.value == "true") {
+				var traitinputs = frm.elements;
+				var traitselected = false;
+			 	for(var i = 0; i < traitinputs.length; i++) {
+					if(traitinputs[i].name.indexOf('traitid-') == 0) {
+						if(traitinputs[i].type == 'checkbox' || traitinputs[i].type == 'radio') {
+							if(traitinputs[i].checked == true) {
+								traitselected = traitinputs[i].checked;
+								break;
+							}
+						} else {
+							if(traitinputs[i].value.trim() !== '') {
+								traitselected = true;
+								break;
+							}
+						}
+					}
+				}
+				if(!traitselected) {
+					alert("Please fill in at least one search parameter!");
+					return false;
+				}
+			} else {
+				alert("Please fill in at least one search parameter!");
+				return false;
+			}
 	}
 
 	if(frm.upperlat.value != '' || frm.bottomlat.value != '' || frm.leftlong.value != '' || frm.rightlong.value != ''){
@@ -70,7 +95,7 @@ function setHarvestParamsForm(){
 	if(sessionStorage.querystr){
 		var urlVar = parseUrlVariables(sessionStorage.querystr);
 		var frm = document.harvestparams;
-		
+
 		if(typeof urlVar.usethes !== 'undefined' && (urlVar.usethes == "" || urlVar.usethes == "0")){frm.usethes.checked = false;}
 		if(urlVar.taxontype){frm.taxontype.value = urlVar.taxontype;}
 		if(urlVar.taxa){frm.taxa.value = urlVar.taxa;}
@@ -115,6 +140,13 @@ function setHarvestParamsForm(){
 		if(typeof urlVar.hascoords !== 'undefined'){frm.hascoords.checked = true;}
 		if(typeof urlVar.includecult !== 'undefined'){frm.includecult.checked = true;}
 		if(urlVar.db){frm.db.value = urlVar.db;}
+		for(var i in urlVar) {
+			if(`${i}`.indexOf('traitid-') == 0) {
+				var traitInput = document.getElementById("traitstateid-" + urlVar[i]);
+				if(traitInput.type == 'checkbox' || traitInput.type == 'radio') { traitInput.checked = true; };
+				// if(traitInput.type == 'select') { traitInput.value = urlVar[i]; }; // Must improve this to deal with multiple possible selections
+			}
+		}
 	}
 }
 
@@ -122,7 +154,7 @@ function parseUrlVariables(varStr) {
 	var result = {};
 	varStr.split("&").forEach(function(part) {
 		if(!part) return;
-		part = part.split("+").join(" "); 
+		part = part.split("+").join(" ");
 		var eq = part.indexOf("=");
 		var key = eq>-1 ? part.substr(0,eq) : part;
 		var val = eq>-1 ? decodeURIComponent(part.substr(eq+1)) : "";

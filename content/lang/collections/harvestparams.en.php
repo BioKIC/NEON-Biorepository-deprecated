@@ -58,4 +58,5 @@ $LANG['HAS_IMAGE'] = 'Limit to Specimens with Images';
 $LANG['HAS_GENETIC'] = 'Limit to Specimens with Genetic Data';
 $LANG['HAS_COORDS'] = 'Limit to Specimens with Geocoordinates';
 $LANG['INCLUDE_CULTIVATED'] = 'Include cultivated/captive occurrences';
+$LANG['TRAIT_HEADER'] = 'Trait Criteria';
 ?>

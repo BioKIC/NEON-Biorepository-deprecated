@@ -252,39 +252,6 @@ div.button:hover {
     width: 80%;
 }
 
-
-/*Dynamic Key module*/
-
-#keytable {}
-
-#keycharcolumn {
-    vertical-align: top;
-    width: 30%;
-}
-
-#keymidcolumn {
-    width: 20px;
-}
-
-#keytaxacolumn {
-    vertical-align: top;
-    width: 65%;
-}
-
-.charHeading {}
-
-.characterStateName {}
-
-.dynam {}
-
-.dynamlang {
-    margin-top: 0.5em;
-    font-weight: bold;
-}
-
-.dynamopt {}
-
-
 /* General Image thumbnails   */
 
 div.tndiv {

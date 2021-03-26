@@ -7,11 +7,10 @@
  * Requires modern browsers (HTML5)
  *
  *  Author: Laura Rocha Prado (lauraprado@asu.edu)
- *  Version: Dec 2020
+ *  Version: Fev 2021
  */
 
-let body = document.querySelector('body');
-let page = document.querySelector('.body');
+let labelPage = document.querySelector('.body');
 
 let controls = document.createElement('div');
 controls.classList.add('controls');
@@ -36,20 +35,19 @@ printBtn.onclick = function () {
 
 controls.appendChild(editBtn);
 controls.appendChild(printBtn);
-body.prepend(controls);
+document.body.prepend(controls);
 
 function toggleEdits() {
-  let isEditable = page.contentEditable === 'true';
-  let btn = body.querySelector('#edit');
+  let isEditable = labelPage.contentEditable === 'true';
   if (isEditable) {
     console.log(isEditable);
-    page.contentEditable = 'false';
+    labelPage.contentEditable = 'false';
     document.querySelector('#edit').innerText = 'Edit Labels Text';
-    page.style.border = 'none';
+    labelPage.style.border = 'none';
   } else {
     console.log(isEditable);
-    page.contentEditable = 'true';
+    labelPage.contentEditable = 'true';
     document.querySelector('#edit').innerText = 'Save';
-    page.style.border = '2px solid #03fc88';
+    labelPage.style.border = '2px solid #03fc88';
   }
 }

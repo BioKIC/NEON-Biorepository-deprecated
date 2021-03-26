@@ -291,12 +291,11 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 			if(array_key_exists('copytoserver',$postArr) && $postArr['copytoserver']){
 				if(!$imgManager->copyImageFromUrl()) $status = false;
 			}
+			else $imgManager->setImgLgUrl($sourceImgUri);
 		}
 		else{
 			//Image is a file upload
-			if(!$imgManager->uploadImage()){
-				$status = false;
-			}
+			if(!$imgManager->uploadImage()) $status = false;
 		}
 		$imgManager->setOccid($this->occid);
 		if(isset($this->occurrenceMap[$this->occid]['tidinterpreted'])) $imgManager->setTid($this->occurrenceMap[$this->occid]['tidinterpreted']);

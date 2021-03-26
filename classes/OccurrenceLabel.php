@@ -376,7 +376,7 @@ class OccurrenceLabel{
 	public function getLabelFormatArr($annotated = false){
 		$retArr = array();
 		//Add global portal defined label formats
-		if($GLOBALS['IS_ADMIN']){
+		if($GLOBALS['IS_ADMIN'] || $annotated){
 			if(!file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
 				@copy($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson_template.php',$GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
 			}
@@ -494,7 +494,7 @@ class OccurrenceLabel{
 		$labelArr['labelFooter']['textValue'] = $postArr['fTextValue'];
 		$labelArr['labelFooter']['className'] = $postArr['fClassName'];
 		$labelArr['labelFooter']['style'] = $postArr['fStyle'];
-		$labelArr['defaultStyles'] = $postArr['defaultStyles'];
+		$labelArr['customStyles'] = $postArr['customStyles'];
 		$labelArr['defaultCss'] = $postArr['defaultCss'];
 		$labelArr['customCss'] = $postArr['customCss'];
 		$labelArr['customJS'] = $postArr['customJS'];

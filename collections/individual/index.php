@@ -155,14 +155,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		$cssPath = $CLIENT_ROOT.'/css/symb/collections/individual/index.css';
 	}
 	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<link href="../..//css/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
 		var map;
@@ -867,8 +865,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
 								<?php
 								foreach($iArr as $imgId => $imgArr){
 									$thumbUrl = $imgArr['tnurl'];
-									if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['url'];
-									if(!$thumbUrl || substr($thumbUrl,0,7)=='process') $thumbUrl = $imgArr['lgurl'];
+									if(!$thumbUrl || substr($thumbUrl,0,7)=='process'){
+										if($image = exif_thumbnail($imgArr['lgurl'])){
+											$thumbUrl = 'data:image/jpeg;base64,'.base64_encode($image);
+										}
+										elseif($imgArr['url'] && substr($imgArr['url'],0,7)!='process') $thumbUrl = $imgArr['url'];
+										else $thumbUrl = $imgArr['lgurl'];
+									}
 									?>
 									<div class="imgDiv">
 										<a href='<?php echo $imgArr['url']; ?>' target="_blank">

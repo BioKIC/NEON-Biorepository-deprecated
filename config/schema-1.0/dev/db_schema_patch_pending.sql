@@ -9,6 +9,9 @@ ALTER TABLE `lkupstateprovince`
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `fulldescription` `fulldescription` VARCHAR(5000) NULL DEFAULT NULL ;
 
+ALTER TABLE `fmchecklists` 
+  ADD COLUMN `cidKeyLimits` VARCHAR(250) NULL AFTER `Access`;
+
 ALTER TABLE `fmchklstprojlink` 
    ADD COLUMN `sortSequence` INT NULL AFTER `mapChecklist`;
 
@@ -149,7 +152,8 @@ ALTER TABLE `uploadspecparameters`
   ADD CONSTRAINT `FK_uploadspecparameters_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE SET NULL;
 
 ALTER TABLE `uploadspecparameters` 
-  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
+  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL,
+  CHANGE COLUMN `QueryStr` `QueryStr` TEXT NULL DEFAULT NULL;
 
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(150) NULL DEFAULT NULL;
@@ -421,7 +425,8 @@ ALTER TABLE `omoccurassociations`
 
 ALTER TABLE `omoccurdatasets` 
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
-  ADD COLUMN `isPublic` INT NULL AFTER `category`;
+  ADD COLUMN `isPublic` INT NULL AFTER `category`,
+  ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
 
 CREATE TABLE `referencedatasetlink` (
   `refid` INT NOT NULL,
@@ -445,6 +450,8 @@ CREATE TABLE `igsnverification` (
   INDEX `INDEX_igsn` (`igsn` ASC),
   CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
 
+ALTER TABLE `igsnverification` 
+ ADD COLUMN `catalogNumber` VARCHAR(45) NULL AFTER `occid`;
 
 CREATE TABLE `omoccurloanuser` (
   `loanid` INT UNSIGNED NOT NULL,
@@ -472,6 +479,8 @@ ALTER TABLE `omoccurrences`
   DROP INDEX `idx_occrecordedby`;
   
 ALTER TABLE `omoccurrences` 
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `basisOfRecord`,
+  ADD COLUMN `materialSampleID` VARCHAR(150) NULL AFTER `organismID`,
   ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
   ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
   ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
@@ -480,7 +489,6 @@ ALTER TABLE `omoccurrences`
 
 ALTER TABLE `omoccurrences` 
   CHANGE COLUMN `waterBody` `waterBody` VARCHAR(75) NULL DEFAULT NULL AFTER `continent`;
-  
   
 ALTER TABLE `omoccurrences` 
   ADD INDEX `Index_locationID` (`locationID` ASC),

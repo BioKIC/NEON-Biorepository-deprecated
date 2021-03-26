@@ -36,6 +36,7 @@ if(isset($PROCESSINGSTATUS) && $PROCESSINGSTATUS){
 else{
 	$processingStatusArr = array('unprocessed','unprocessed/NLP','stage 1','stage 2','stage 3','pending review-nfn','pending review','expert required','reviewed','closed');
 }
+if(!isset($_REQUEST['q_catalognumber'])) $displayQuery = true;
 ?>
 <div id="querydiv" style="clear:both;width:850px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
 	<form name="queryform" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="post" onsubmit="return verifyQueryForm(this)">
@@ -174,7 +175,7 @@ else{
 					'georeferenceVerificationStatus'=>'Georeference Verification Status','georeferencedBy'=>'Georeferenced By','habitat'=>'Habitat',
 					'identificationQualifier'=>'Identification Qualifier','identificationReferences'=>'Identification References',
 					'identificationRemarks'=>'Identification Remarks','identifiedBy'=>'Identified By','individualCount'=>'Individual Count',
-					'informationWithheld'=>'Information Withheld','institutionCode'=>'Institution Code (override)','labelProject'=>'Label Project',
+					'informationWithheld'=>'Information Withheld','institutionCode'=>'Institution Code (override)','labelProject'=>'Project',
 					'language'=>'Language','lifeStage'=>'Life Stage','locationid'=>'Location ID','locality'=>'Locality',
 					'localitySecurity'=>'Locality Security','localitySecurityReason'=>'Locality Security Reason','locationRemarks'=>'Location Remarks',
 					'username'=>'Modified By','municipality'=>'Municipality','occurrenceRemarks'=>'Notes (Occurrence Remarks)','ocrFragment'=>'OCR Fragment',

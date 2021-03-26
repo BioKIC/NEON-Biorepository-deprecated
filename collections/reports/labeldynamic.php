@@ -67,10 +67,7 @@ if($SYMB_UID){
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Labels</title>
 		<style type="text/css">
-			<?php
-			if(isset($targetLabelFormatArr['defaultStyles'])) echo 'body{ '.$targetLabelFormatArr['defaultStyles']." } \n";
-			?>
-			.row { display: flex; flex-wrap: wrap; margin-left: auto; margin-right: auto;}
+			.row { display: flex; flex-wrap: nowrap; margin-left: auto; margin-right: auto;}
 			.label { page-break-before: auto; page-break-inside: avoid; }
 			<?php
 			if($columnCount == 'packet'){
@@ -97,7 +94,7 @@ if($SYMB_UID){
 			}
 			elseif($columnCount != 1){
 				?>
-				.label { width:<?php echo (floor(100/$columnCount)-3);?>%;padding:10px; }
+				.label { width:<?php echo (floor(90/$columnCount)-floor($columnCount/4));?>%;padding:10pt; }
 				<?php
 			}
 			?>
@@ -105,12 +102,10 @@ if($SYMB_UID){
 			/* .cnBarcodeDiv { clear:both; padding-top:15px; }
 			.catalogNumber { clear:both; text-align:center; }
 			.otherCatalogNumbers { clear:both; text-align:center; }
-      .symbBarcode { padding-top:10px; } */
-      @media print {
-        .controls {
-          display: none;
-        }
-      }
+			.symbBarcode { padding-top:10px; } */
+			.label-header { clear:both; text-align: center }
+			.label-footer { clear:both; text-align: center; font-weight: bold; font-size: 12pt; }
+			@media print { .controls { display: none; } }
 		</style>
 		<?php
 		if(isset($targetLabelFormatArr['defaultCss']) && $targetLabelFormatArr['defaultCss']){
@@ -128,6 +123,11 @@ if($SYMB_UID){
 			echo '<link href="'.$cssPath.'" type="text/css" rel="stylesheet" />'."\n";
 		}
 		?>
+		<style>
+			<?php
+			if(isset($targetLabelFormatArr['customStyles'])) echo $targetLabelFormatArr['customStyles'];
+			?>
+		</style>
 	</head>
 	<body style="background-color:#ffffff;">
 		<?php

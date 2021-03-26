@@ -428,7 +428,7 @@ else{
     }
     else{
 		?>
-		<link href="../../css/occureditor.css?ver=181127" type="text/css" rel="stylesheet" id="editorCssLink" />
+		<link href="../../css/occureditor.css?ver=2103" type="text/css" rel="stylesheet" id="editorCssLink" />
 		<?php
 		if(isset($CSSARR)){
 			foreach($CSSARR as $cssVal){
@@ -441,12 +441,10 @@ else{
 			}
 		}
 	}
-    ?>
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
+	?>
 	<script src="../../js/jquery.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js?ver=140310" type="text/javascript"></script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script type="text/javascript">
 		var collId = "<?php echo (isset($collMap['collid'])?$collMap['collid']:$occManager->getCollId()); ?>";
 		var csMode = "<?php echo $crowdSourceMode; ?>";
@@ -1292,7 +1290,7 @@ else{
 												<div id="dispositionDiv">
 													<?php echo (defined('DISPOSITIONLABEL')?DISPOSITIONLABEL:'Disposition'); ?>
 													<a href="#" onclick="return dwcDoc('disposition')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
-													<input type="text" name="disposition" tabindex="104" maxlength="32" value="<?php echo array_key_exists('disposition',$occArr)?$occArr['disposition']:''; ?>" onchange="fieldChanged('disposition');" />
+													<input type="text" name="disposition" tabindex="104" value="<?php echo array_key_exists('disposition',$occArr)?$occArr['disposition']:''; ?>" onchange="fieldChanged('disposition');" />
 												</div>
 												<div id="occurrenceIdDiv" title="If different than institution code">
 													<?php echo (defined('OCCURRENCEIDLABEL')?OCCURRENCEIDLABEL:'Occurrence ID'); ?>

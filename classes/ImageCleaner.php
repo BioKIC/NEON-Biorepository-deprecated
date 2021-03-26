@@ -105,11 +105,12 @@ class ImageCleaner extends Manager{
 
 	private function setCollectionCode(){
 		if($this->collid && !$this->collMetaArr){
-			$sql = 'SELECT collid, CONCAT_WS("_",institutioncode, collectioncode) AS code, collectionname FROM omcollections WHERE collid = '.$this->collid;
+			$sql = 'SELECT collid, CONCAT_WS("_",institutioncode, collectioncode) AS code, collectionname, managementType FROM omcollections WHERE collid = '.$this->collid;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->collMetaArr[$r->collid]['code'] = $r->code;
 				$this->collMetaArr[$r->collid]['name'] = $r->collectionname;
+				$this->collMetaArr[$r->collid]['managementType'] = $r->managementType;
 			}
 			$rs->free();
 		}
@@ -278,9 +279,8 @@ class ImageCleaner extends Manager{
 			$imageID = $m[1];
 			$imgDisplayUrl = 'http://www.tropicos.org/Image/'.$imageID;
 			$ip = $_SERVER['HTTP_HOST'];
-
-			$header[0]  = "Accept: text/xml,application/xml,application/xhtml+xml,";
-			$header[0] .= "text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
+			$header = array();
+			$header[]  = "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
 			$header[] = "Cache-Control: max-age=0";
 			$header[] = "Connection: keep-alive";
 			$header[] = "Keep-Alive: 300";
@@ -520,7 +520,7 @@ class ImageCleaner extends Manager{
 		$this->setRecycleBin();
 		if(!$filePath) exit('Image identifier file path IS NULL');
 		if(!file_exists($filePath)) exit('Image identifier file Not Found');
-		if(($imgidHandler = fopen($imgidFile, 'r')) !== FALSE){
+		if(($imgidHandler = fopen($filePath, 'r')) !== FALSE){
 			while(($data = fgets($imgidHandler)) !== FALSE){
 				$this->recycleImage($data[0]);
 			}
@@ -656,6 +656,15 @@ class ImageCleaner extends Manager{
 		if($this->collid){
 			if(!$this->collMetaArr) $this->setCollectionCode();
 			$retStr = $this->collMetaArr[$this->collid]['name'];
+		}
+		return $retStr;
+	}
+
+	public function getManagementType(){
+		$retStr = '';
+		if($this->collid){
+			if(!$this->collMetaArr) $this->setCollectionCode();
+			$retStr = $this->collMetaArr[$this->collid]['managementType'];
 		}
 		return $retStr;
 	}

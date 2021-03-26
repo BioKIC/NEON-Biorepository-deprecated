@@ -1,7 +1,6 @@
 var pauseSubmit = false;
 var imgAssocCleared = false;
 var voucherAssocCleared = false;
-var abortFormVerification = false;
 
 $(document).ready(function() {
 	
@@ -678,7 +677,6 @@ function parseVerbatimCoordinates(f,verbose){
 //Form verification code
 function verifyFullForm(f){
 	f.submitaction.focus();
-	if(abortFormVerification) return true;
 
 	if(searchDupesCatalogNumber(f,false)) return false;
 	var validformat1 = /^\d{4}-[0]{1}[0-9]{1}-\d{1,2}$/; //Format: yyyy-mm-dd
@@ -759,10 +757,51 @@ function verifyFullFormEdits(f){
 	return true;
 }
 
-function verifyGotoNew(f){
-	abortFormVerification = true;
-	f.gotomode.value = 1;
-	f.submit();
+function prePopulateCatalogNumbers(){
+	$("#cloneCatalogNumber-Fieldset").show();
+	var catCnt = document.getElementById("clonecount").value;
+	if(!isNumeric(catCnt)) return false;
+	var cloneDiv = document.getElementById("cloneCatalogNumberDiv");
+	cloneDiv.innerHTML = "";
+	for(var i=0;i < catCnt;i++){
+		var newInput = document.createElement("input");
+		newInput.setAttribute("id", "clonecat-"+i);
+		newInput.setAttribute("name", "clonecatnum[]");
+		newInput.setAttribute("type", "text");
+		newInput.setAttribute("value", "");
+		var newDiv = document.createElement("div");
+		var newText = document.createTextNode("Catalog Number "+(i+1)+": ");
+		newDiv.appendChild(newText);
+		newDiv.setAttribute("class", "fieldGroupDiv");
+		newDiv.appendChild(newInput);
+		if(i == 0){
+			var newImg = document.createElement("img");
+			newImg.setAttribute("src", "../../images/downarrow.png");
+			newImg.setAttribute("style", "width:12px");
+			var newAnchor = document.createElement("a");
+			newAnchor.setAttribute("onclick", "autoIncrementCat()");
+			newAnchor.appendChild(newImg);
+			newDiv.appendChild(newAnchor);
+		}
+		cloneDiv.appendChild(newDiv);
+	}
+	return false;
+}
+
+function autoIncrementCat(){
+	let catSeed = document.getElementById("clonecat-0").value;
+	let prefix = '';
+	for(let i = 0; i < catSeed.length; i++) {
+		if(isNumberic(str.charAt(i))) break;
+		else prefix = prefix + str.charAt(i);
+	}
+	let suffix = ''; 
+	for(let i = catSeed.length; i > 0; i--) {
+		if(isNumberic(str.charAt(i))) break;
+		else suffix = suffix + str.charAt(i);
+	}
+	alert("prefix: "+prefix);
+	alert("suffix: "+suffix);
 }
 
 function verifyDecimalLatitude(f){

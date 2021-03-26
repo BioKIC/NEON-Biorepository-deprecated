@@ -2182,6 +2182,17 @@ class OccurrenceEditorManager {
 		return $retArr;
 	}
 
+	public function getAssociationControlVocab(){
+		$retArr = array();
+		$sql = 'SELECT cvTermID, term FROM ctcontrolvocabterm ORDER BY term';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->cvTermID] = $r->term;
+		}
+		$rs->free();
+		return $retArr;
+	}
+
 	public function isCrowdsourceEditor(){
 		$isEditor = false;
 		$sql = 'SELECT reviewstatus, uidprocessor FROM omcrowdsourcequeue WHERE occid = '.$this->occid;

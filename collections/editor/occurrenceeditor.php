@@ -10,7 +10,7 @@ $goToMode = array_key_exists('gotomode',$_REQUEST)?$_REQUEST['gotomode']:0;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:false;
 $crowdSourceMode = array_key_exists('csmode',$_REQUEST)?$_REQUEST['csmode']:0;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
-if(!$action && array_key_exists('carryloc',$_REQUEST)) $goToMode = 2;
+if(!$action && array_key_exists('carryover',$_REQUEST)) $goToMode = 2;
 
 //Sanitation
 if(!is_numeric($occId)) $occId = '';
@@ -478,7 +478,7 @@ else{
 	</script>
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.main.js?ver=2" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.main.js?ver=3" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
@@ -1458,10 +1458,38 @@ else{
 													?>
 													<div style="float:right;">
 														<fieldset class="optionBox">
-															<legend>Additional Options</legend>
-															<input type="button" value="Go to New Occurrence Record" onclick="verifyGotoNew(this.form);" /><br/>
-															<input type="hidden" name="gotomode" value="" />
-															<input type="checkbox" name="carryloc" value="1" /> Carry over locality values
+															<legend>Clone Record</legend>
+															<div class="fieldGroupDiv">
+																Relationship Type:
+																<select name="assocrelation">
+																	<option value="0">No relation to current record</option>
+																	<option value="0">---------------------------------</option>
+																	<?php
+																	$vocabArr = $occManager->getAssociationControlVocab();
+																	foreach($vocabArr as $id => $termVal){
+																		echo '<option value="'.$id.'">'.$termVal.'</option>';
+																	}
+																	?>
+																</select>
+															</div>
+															<div class="fieldGroupDiv">
+																<div style="float:left">Carry over:</div>
+																<div style="float:left">
+																	<input name="carryover" type="radio" value="0" />No fields<br/>
+																	<input name="carryover" type="radio" value="1" />Locality fields<br/>
+																	<input name="carryover" type="radio" value="2" />Locality and taxonomic fields
+																</div>
+															</div>
+															<div class="fieldGroupDiv">
+																Number of records: <input id="clonecount" name="clonecount" type="text" value="1" style="width:40px" />
+															</div>
+															<div class="fieldGroupDiv"><a href="#" onclick="return prePopulateCatalogNumbers();">Pre-populate Catalog Number(s)</a></div>
+															<fieldset id="cloneCatalogNumber-Fieldset" style="display:none">
+																<div id="cloneCatalogNumberDiv" class="fieldGroupDiv"></div>
+															</fieldset>
+															<div style="margin:10px">
+																<button type="submit" name="cloneRecord">Create Record(s)</button>
+															</div>
 														</fieldset>
 													</div>
 													<?php

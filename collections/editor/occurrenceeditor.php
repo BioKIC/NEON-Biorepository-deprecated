@@ -3,6 +3,8 @@ include_once('../../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 header('Access-Control-Allow-Origin: http://www.catalogueoflife.org/col/webservice');
 
+print_r($_POST);
+
 $occId = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
 $collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $tabTarget = array_key_exists('tabtarget',$_REQUEST)?$_REQUEST['tabtarget']:0;
@@ -139,7 +141,7 @@ if($SYMB_UID){
 			$isEditor = $occManager->isTaxonomicEditor();
 		}
 	}
-	if($action == "Save Edits"){
+	if($action == 'saveOccurEdits'){
 		$statusStr = $occManager->editOccurrence($_POST,$isEditor);
 	}
 	if($isEditor && $isEditor != 3){
@@ -321,7 +323,7 @@ if($SYMB_UID){
 				$occIndex = false;
 			}
 		}
-		elseif($action == 'Save Edits'){
+		elseif($action == 'saveOccurEdits'){
 			//Get query count and then reset; don't use new count for this display
 			$qryCnt = $occManager->getQueryRecordCount();
 			$occManager->getQueryRecordCount(1);
@@ -1488,7 +1490,7 @@ else{
 																<div id="cloneCatalogNumberDiv" class="fieldGroupDiv"></div>
 															</fieldset>
 															<div style="margin:10px">
-																<button type="submit" name="cloneRecord">Create Record(s)</button>
+																<button type="submit" name="cloneRecord" value="cloneRecord">Create Record(s)</button>
 															</div>
 														</fieldset>
 													</div>
@@ -1496,7 +1498,7 @@ else{
 												}
 												?>
 												<div id="editButtonDiv">
-													<input type="submit" name="submitaction" value="Save Edits" style="width:150px;" onclick="return verifyFullFormEdits(this.form)" disabled />
+													<button type="submit" name="submitaction" value="saveOccurEdits" style="width:150px;" onclick="return verifyFullFormEdits(this.form)" disabled>Save Edits</button>
 													<input type="hidden" name="occindex" value="<?php echo is_numeric($occIndex)?$occIndex:''; ?>" />
 													<input type="hidden" name="editedfields" value="" />
 												</div>
@@ -1505,17 +1507,16 @@ else{
 											else{
 												?>
 												<div id="addButtonDiv">
-													<input type="hidden" name="recordenteredby" value="<?php echo $PARAMS_ARR['un']; ?>" />
-													<input type="button" name="submitaddbutton" value="Add Record" onclick="this.disabled=true;this.form.submit();" style="width:150px;font-weight:bold;margin:10px;" />
-													<input type="hidden" name="submitaction" value="Add Record" />
-													<input type="hidden" name="qrycnt" value="<?php echo $qryCnt?$qryCnt:''; ?>" />
+													<input name="recordenteredby" type="hidden" value="<?php echo $PARAMS_ARR['un']; ?>" />
+													<button name="submitaction" type="submit" value="addOccurRecord" style="width:150px;font-weight:bold;margin:10px;">Add record</button>
+													<input name="qrycnt" type="hidden" value="<?php echo $qryCnt?$qryCnt:''; ?>" />
 													<div style="margin-left:15px;font-weight:bold;">
 														Follow-up Action:
 													</div>
 													<div style="margin-left:20px;">
-														<input type="radio" name="gotomode" value="1" <?php echo ($goToMode==1?'CHECKED':''); ?> /> Go to New Record<br/>
-														<input type="radio" name="gotomode" value="2" <?php echo ($goToMode==2?'CHECKED':''); ?> /> Go to New Record and Carryover Locality Information<br/>
-														<input type="radio" name="gotomode" value="0" <?php echo (!$goToMode?'CHECKED':''); ?> /> Remain on Editing Page (add images, determinations, etc)
+														<input name="gotomode" type="radio" value="1" <?php echo ($goToMode==1?'CHECKED':''); ?> /> Go to New Record<br/>
+														<input name="gotomode" type="radio" value="2" <?php echo ($goToMode==2?'CHECKED':''); ?> /> Go to New Record and Carryover Locality Information<br/>
+														<input name="gotomode" type="radio" value="0" <?php echo (!$goToMode?'CHECKED':''); ?> /> Remain on Editing Page (add images, determinations, etc)
 													</div>
 												</div>
 												<?php

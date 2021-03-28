@@ -16,7 +16,9 @@ $(document).ready(function() {
 		var ffversion=new Number(RegExp.$1);
 		if(ffversion < 7 ) alert("You are using an older version of Firefox. For best results, we recommend that you update your browser.");
 	}
-
+	
+	$("form#fullform :input").on('input', function() { $("button").prop("disabled",false) });
+	
 	$("#occedittabs").tabs({
 		select: function(event, ui) {
 			if(verifyLeaveForm()){
@@ -348,7 +350,6 @@ function fieldChanged(fieldName){
 	}
 	catch(ex){
 	}
-	document.fullform.submitaction.disabled = false;
 }
 
 function recordNumberChanged(){
@@ -768,7 +769,6 @@ function prePopulateCatalogNumbers(){
 		newInput.setAttribute("id", "clonecat-"+i);
 		newInput.setAttribute("name", "clonecatnum[]");
 		newInput.setAttribute("type", "text");
-		newInput.setAttribute("value", "");
 		var newDiv = document.createElement("div");
 		var newText = document.createTextNode("Catalog Number "+(i+1)+": ");
 		newDiv.appendChild(newText);
@@ -803,12 +803,18 @@ function autoIncrementCat(){
 			else suffix =  catSeed.charAt(i-1)+suffix;
 		}
 		let seed = catSeed.substring(prefix.length,(catSeed.length-suffix.length));
-		$("clonecat-").each(){
-			
-		}
-		alert("prefix: "+prefix);
-		alert("suffix: "+suffix);
-		alert("seed: "+seed);
+		$("input[id^='clonecat']").each(function(){
+			let cnt = parseInt($(this).attr("id").substr(9));
+			if(cnt > 0){
+				let newNum = parseInt(seed)+cnt;
+				newNum = newNum.toString();
+				if(seed.substr(0,1) == "0"){
+					let numLength = seed.length;
+					while(newNum.length < numLength) newNum = "0" + newNum;
+				}
+				$(this).val(prefix+newNum+suffix);				
+			}
+		});
 	}
 }
 

@@ -3,8 +3,6 @@ include_once('../../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 header('Access-Control-Allow-Origin: http://www.catalogueoflife.org/col/webservice');
 
-print_r($_POST);
-
 $occId = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
 $collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $tabTarget = array_key_exists('tabtarget',$_REQUEST)?$_REQUEST['tabtarget']:0;
@@ -106,12 +104,12 @@ if($SYMB_UID){
 
 	//0 = not editor, 1 = admin, 2 = editor, 3 = taxon editor, 4 = crowdsource editor or collection allows public edits
 	//If not editor, edits will be submitted to omoccuredits table but not applied to omoccurrences
-	if($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"]))){
+	if($IS_ADMIN || ($collId && array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollAdmin']))){
 		$isEditor = 1;
 	}
 	else{
 		if($isGenObs){
-			if(!$occId && array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollEditor"])){
+			if(!$occId && array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollEditor'])){
 				//Approved General Observation editors can add records
 				$isEditor = 2;
 			}
@@ -124,7 +122,7 @@ if($SYMB_UID){
 				$isEditor = 2;
 			}
 		}
-		elseif(array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollEditor"])){
+		elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollEditor'])){
 			//Is an assigned editor for this collection
 			$isEditor = 2;
 		}
@@ -136,13 +134,24 @@ if($SYMB_UID){
 			//Collection is set as allowing public edits
 			$isEditor = 4;
 		}
-		elseif(array_key_exists("CollTaxon",$USER_RIGHTS) && $occId){
+		elseif(array_key_exists('CollTaxon',$USER_RIGHTS) && $occId){
 			//Check to see if this user is authorized to edit this occurrence given their taxonomic editing authority
 			$isEditor = $occManager->isTaxonomicEditor();
 		}
 	}
 	if($action == 'saveOccurEdits'){
 		$statusStr = $occManager->editOccurrence($_POST,$isEditor);
+	}
+	elseif($action == 'cloneRecord'){
+		$cloneArr = $occManager->cloneOccurrence($_POST);
+		if($cloneArr){
+			$statusStr = '<div>Success! The following '.count($cloneArr).' cloned record(s) have been created:</div>';
+			$statusStr .= '<div style="margin:5px 10px">';
+			foreach($cloneArr as $cloneOccid){
+				$statusStr .= '<div><a href="occurrenceeditor.php?occid='.$cloneOccid.'" target="_blank">#'.$cloneOccid.'</a></div>';
+			}
+			$statusStr .= '</div>';
+		}
 	}
 	if($isEditor && $isEditor != 3){
 		if($action == 'Save OCR'){
@@ -161,16 +170,16 @@ if($SYMB_UID){
 	}
 	if($isEditor){
 		//Available to full editors and taxon editors
-		if($action == "Submit Determination"){
+		if($action == 'Submit Determination'){
 			//Adding a new determination
 			$statusStr = $occManager->addDetermination($_POST,$isEditor);
 			$tabTarget = 1;
 		}
-		elseif($action == "Submit Determination Edits"){
+		elseif($action == 'Submit Determination Edits'){
 			$statusStr = $occManager->editDetermination($_POST);
 			$tabTarget = 1;
 		}
-		elseif($action == "Delete Determination"){
+		elseif($action == 'Delete Determination'){
 			$statusStr = $occManager->deleteDetermination($_POST['detid']);
 			$tabTarget = 1;
 		}
@@ -181,27 +190,17 @@ if($SYMB_UID){
 					$occManager->setQueryVariables();
 					$qryCnt = $occManager->getQueryRecordCount();
 					$qryCnt++;
-					if($goToMode){
-						//Go to new record
-						$occIndex = $qryCnt;
-					}
-					else{
-						//Stay on record and get $occId
-						$occId = $occManager->getOccId();
-					}
+					if($goToMode) $occIndex = $qryCnt;			//Go to new record
+					else $occId = $occManager->getOccId();		//Stay on record and get $occId
 				}
-				else{
-					$statusStr = $occManager->getErrorStr();
-				}
+				else $statusStr = $occManager->getErrorStr();
 			}
 			elseif($action == 'Delete Occurrence'){
 				if($occManager->deleteOccurrence($occId)){
 					$occId = 0;
 					$occManager->setOccId(0);
 				}
-				else{
-					$statusStr = $occManager->getErrorStr();
-				}
+				else $statusStr = $occManager->getErrorStr();
 			}
 			elseif($action == 'Transfer Record'){
 				$transferCollid = $_POST['transfercollid'];
@@ -218,11 +217,11 @@ if($SYMB_UID){
 					}
 				}
 			}
-			elseif($action == "Submit Image Edits"){
+			elseif($action == 'Submit Image Edits'){
 				$statusStr = $occManager->editImage($_POST);
 				$tabTarget = 2;
 			}
-			elseif($action == "Submit New Image"){
+			elseif($action == 'Submit New Image'){
 				if($occManager->addImage($_POST)){
 					$statusStr = 'Image added successfully';
 					$tabTarget = 2;
@@ -231,7 +230,7 @@ if($SYMB_UID){
 					$statusStr .= $occManager->getErrorStr();
 				}
 			}
-			elseif($action == "Delete Image"){
+			elseif($action == 'Delete Image'){
 				$removeImg = (array_key_exists("removeimg",$_POST)?$_POST["removeimg"]:0);
 				if($occManager->deleteImage($_POST["imgid"], $removeImg)){
 					$statusStr = 'Image deleted successfully';
@@ -1440,22 +1439,31 @@ else{
 											<input type="hidden" name="observeruid" value="<?php echo $SYMB_UID; ?>" />
 											<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 											<input type="hidden" name="linkdupe" value="" />
-											Status Auto-Set:
-											<select name="autoprocessingstatus" onchange="autoProcessingStatusChanged(this)">
-												<option value=''>Not Activated</option>
-												<option value=''>-------------------</option>
-												<?php
-												foreach($processingStatusArr as $v){
-													$keyOut = strtolower($v);
-													//Don't display all options if editor is crowd sourced
-													if($isEditor < 4 || ($keyOut != 'reviewed' && $keyOut != 'closed')){
-														echo '<option value="'.$keyOut.'" '.($crowdSourceMode && $keyOut == "pending review"?'SELECTED':'').'>'.ucwords($v).'</option>';
+											<div style="clear:both">
+												Status Auto-Set:
+												<select name="autoprocessingstatus" onchange="autoProcessingStatusChanged(this)">
+													<option value=''>Not Activated</option>
+													<option value=''>-------------------</option>
+													<?php
+													foreach($processingStatusArr as $v){
+														$keyOut = strtolower($v);
+														//Don't display all options if editor is crowd sourced
+														if($isEditor < 4 || ($keyOut != 'reviewed' && $keyOut != 'closed')){
+															echo '<option value="'.$keyOut.'" '.($crowdSourceMode && $keyOut == "pending review"?'SELECTED':'').'>'.ucwords($v).'</option>';
+														}
 													}
-												}
-												?>
-											</select>
+													?>
+												</select>
+											</div>
 											<?php
 											if($occId){
+												?>
+												<div id="editButtonDiv" style="float:left">
+													<button type="submit" name="submitaction" value="saveOccurEdits" style="width:150px;" onclick="return verifyFullFormEdits(this.form)" disabled>Save Edits</button>
+													<input type="hidden" name="occindex" value="<?php echo is_numeric($occIndex)?$occIndex:''; ?>" />
+													<input type="hidden" name="editedfields" value="" />
+												</div>
+												<?php
 												if($isEditor == 1 || $isEditor == 2){
 													?>
 													<div style="float:right;">
@@ -1477,9 +1485,8 @@ else{
 															<div class="fieldGroupDiv">
 																<div style="float:left">Carry over:</div>
 																<div style="float:left">
-																	<input name="carryover" type="radio" value="0" />No fields<br/>
-																	<input name="carryover" type="radio" value="1" />Locality fields<br/>
-																	<input name="carryover" type="radio" value="2" />Locality and taxonomic fields
+																	<input name="carryover" type="radio" value="0" checked />All fields<br/>
+																	<input name="carryover" type="radio" value="1" />Only collection event fields<br/>
 																</div>
 															</div>
 															<div class="fieldGroupDiv">
@@ -1490,19 +1497,12 @@ else{
 																<div id="cloneCatalogNumberDiv" class="fieldGroupDiv"></div>
 															</fieldset>
 															<div style="margin:10px">
-																<button type="submit" name="cloneRecord" value="cloneRecord">Create Record(s)</button>
+																<button name="submitaction" type="submit" value="cloneRecord">Create Record(s)</button>
 															</div>
 														</fieldset>
 													</div>
 													<?php
 												}
-												?>
-												<div id="editButtonDiv">
-													<button type="submit" name="submitaction" value="saveOccurEdits" style="width:150px;" onclick="return verifyFullFormEdits(this.form)" disabled>Save Edits</button>
-													<input type="hidden" name="occindex" value="<?php echo is_numeric($occIndex)?$occIndex:''; ?>" />
-													<input type="hidden" name="editedfields" value="" />
-												</div>
-												<?php
 											}
 											else{
 												?>

@@ -242,7 +242,7 @@ $(document).ready(function() {
 
 	$("#catalognumber").keydown(function(evt){
 		var evt  = (evt) ? evt : ((event) ? event : null);
-		if ((evt.keyCode == 13)) { return false; }
+		if(evt.keyCode == 13) return false;
 	});
 	
 	if(document.getElementById('hostDiv')){

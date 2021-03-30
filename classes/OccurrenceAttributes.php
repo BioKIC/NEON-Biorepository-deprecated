@@ -4,7 +4,7 @@ include_once($SERVER_ROOT.'/classes/Manager.php');
 class OccurrenceAttributes extends Manager {
 
 	private $collidStr = 0;
-	private $traitArr = array();
+	protected $traitArr = array();
 	private $stateCodedArr = array();
 	private $reviewSqlBase;
 	private $occid = 0;
@@ -297,7 +297,7 @@ class OccurrenceAttributes extends Manager {
 		return $this->traitArr;
 	}
 
-	private function setDependentTraits($traitid){
+	protected function setDependentTraits($traitid){
 		$sql = 'SELECT DISTINCT s.traitid AS parenttraitid, d.parentstateid, d.traitid AS depTraitID '.
 			'FROM tmstates s INNER JOIN tmtraitdependencies d ON s.stateid = d.parentstateid '.
 			'WHERE (s.traitid = '.$traitid.')';
@@ -311,7 +311,7 @@ class OccurrenceAttributes extends Manager {
 		$rs->free();
 	}
 
-	private function setTraitStates(){
+	protected function setTraitStates(){
 		$sql = 'SELECT traitid, stateid, statename, description, notes, refurl FROM tmstates ';
 		if($this->traitArr) $sql .= 'WHERE traitid IN('.implode(',',array_keys($this->traitArr)).') ';
 		$sql .= 'ORDER BY traitid, sortseq, statecode ';

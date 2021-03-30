@@ -30,7 +30,7 @@ if($isEditor){
 		elseif($formSubmit == 'Save Outgoing'){
 			$statusStr = $loanManager->editLoanOut($_POST);
 		}
-		elseif($formSubmit == 'Perform Action'){
+		elseif($formSubmit == 'performSpecimenAction'){
 			if(!$loanManager->editSpecimen($_REQUEST)){
 				$statusStr = $loanManager->getErrorMessage();
 			}
@@ -81,6 +81,10 @@ if($isEditor){
 			if($loanManager->editSpecimenNotes($loanId,$_POST['occid'],$_POST['notes'])) $statusStr = true;
 			echo $statusStr = $loanManager->getErrorMessage();
 		}
+		elseif($formSubmit == "exportSpecimenList"){
+			$loanManager->exportSpecimenList($loanId);
+			exit;
+		}
 	}
 }
 $specimenTotal = $loanManager->getSpecimenTotal($loanId);
@@ -104,6 +108,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
+		var skipFormVerification = false;
 
 		function verifyLoanOutEditForm(){
 			var submitStatus = true;
@@ -202,6 +207,8 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 		}
 
 		function verifySpecEditForm(f){
+			if(skipFormVerification) return true;
+			skipFormVerification = false;
 			//Make sure at least on specimen checkbox is checked
 			var cbChecked = false;
 			var dbElements = document.getElementsByName("occid[]");

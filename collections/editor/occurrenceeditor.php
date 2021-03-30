@@ -763,7 +763,7 @@ else{
 													?>
 													<fieldset style="float:right;margin:3px;padding:5px;border:1px solid red;">
 														<legend style="color:red;">Out On Loan</legend>
-														<b>To:</b> <a href="../loans/index.php?loantype=out&collid=<?php echo $occManager->getCollId().'&loanid='.$occArr['loan']['id']; ?>">
+														<b>To:</b> <a href="../loans/outgoing.php?tabindex=1&collid=<?php echo $occManager->getCollId().'&loanid='.$occArr['loan']['id']; ?>">
 															<?php echo $occArr['loan']['code']; ?></a><br/>
 														<b>Due date:</b> <?php echo (isset($occArr['loan']['date'])?$occArr['loan']['date']:'Not Defined'); ?>
 													</fieldset>

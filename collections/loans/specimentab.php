@@ -174,11 +174,14 @@ $specList = $loanManager->getSpecList($loanId);
 								<input name="applytask" type="radio" value="check" title="Check-in Specimens" CHECKED />Check-in Specimens<br/>
 								<input name="applytask" type="radio" value="delete" title="Delete Specimens" />Delete Specimens from Loan
 							</div>
-							<span style="margin-left:25px;float:left;">
-								<input name="formsubmit" type="submit" value="Perform Action" />
+							<span style="margin-left:25px;">
+								<button name="formsubmit" type="submit" value="performSpecimenAction">Perform Action</button>
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 								<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 								<input name="tabindex" type="hidden" value="1" />
+							</span>
+							<span style="margin-left:25px;">
+								<button name="formsubmit" type="submit" value="exportSpecimenList" onclick="skipFormVerification = true">Export Specimen List</button>
 							</span>
 						</div>
 						<div style="margin:10px;float:right;">

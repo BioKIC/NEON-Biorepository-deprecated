@@ -407,15 +407,14 @@ if($ometid) unset($selectLookupArr[$ometid]);
 							echo '<a href="index.php?ometid='.$k.'&specimenonly='.$specimenOnly.'&imagesonly='.$imagesOnly.'&collid='.$collId.'&sortBy='.$sortBy.'">';
 							echo $tArr['title'];
 							echo '</a>';
+							if($tArr['editor']) echo ', '.$tArr['editor'];
 							if($tArr['exsrange']) echo ' ['.$tArr['exsrange'].']';
 							?>
 						</li>
 						<?php
 					}
 				}
-				else{
-					echo '<div style="margin:20px;font-size:120%;">There are no exsiccatae matching your request</div>';
-				}
+				else echo '<div style="margin:20px;font-size:120%;">There are no exsiccatae matching your request</div>';
 				?>
 			</ul>
 			<?php
@@ -423,7 +422,7 @@ if($ometid) unset($selectLookupArr[$ometid]);
 		elseif($ometid){
 			$exsArr = $exsManager->getTitleObj($ometid);
 			?>
-			<div style="font-weight:bold;font-size:120%;">
+			<div>
 				<?php
 				if($isEditor){
 					?>
@@ -437,11 +436,14 @@ if($ometid) unset($selectLookupArr[$ometid]);
 					</div>
 					<?php
 				}
-				echo $exsArr['title'].', '.$exsArr['editor'].($exsArr['exsrange']?' ['.$exsArr['exsrange'].']':'');
+				echo '<div style="font-weight:bold;font-size:120%;">'.$exsArr['title'].'</div>';
 				if(isset($exsArr['sourceidentifier'])){
 					if(preg_match('/^http.+IndExs.+={1}(\d+)$/', $exsArr['sourceidentifier'], $m)) echo ' (<a href="'.$exsArr['sourceidentifier'].'" target="_blank">IndExs #'.$m[1].'</a>)';
 				}
-				if($exsArr['notes']) echo '<div>'.$exsArr['notes'].'</div>';
+				if($exsArr['abbreviation']) echo '<div>Abbreviation: '.$exsArr['abbreviation'].'</div>';
+				if($exsArr['editor']) echo '<div>Editor(s): '.$exsArr['editor'].'</div>';
+				if($exsArr['exsrange']) echo '<div>Range: '.$exsArr['exsrange'].'</div>';
+				if($exsArr['notes']) echo '<div>Notes: '.$exsArr['notes'].'</div>';
 				?>
 			</div>
 			<div id="exseditdiv" style="display:none;">

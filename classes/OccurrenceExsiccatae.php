@@ -77,16 +77,10 @@ class OccurrenceExsiccatae {
 		//echo $sql;
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
-				if($sortBy == 1) {
-					if($r->abbreviation) $titleStr = (strlen($r->abbreviation)>100?substr($r->abbreviation,0,100).'...':$r->abbreviation);
-					else {
-						$titleStr = (strlen($r->title)>100?substr($r->title,0,100).'...':$r->title);
-						$titleStr .= ', '.(strlen($r->editor)>50?substr($r->editor,0,50).'...':$r->editor);
-					}
-				} else {
-					$titleStr = (strlen($r->title)>100?substr($r->title,0,100).'...':$r->title);
-					if($r->editor) $titleStr .= ', '.(strlen($r->editor)>50?substr($r->editor,0,50).'...':$r->editor);
-				}
+				$titleStr = $r->title;
+				if($sortBy == 1 && $r->abbreviation) $titleStr = $r->abbreviation;
+				if(strlen($titleStr)>100) $titleStr = substr($titleStr,0,100).'...';
+				$retArr[$r->ometid]['editor'] = $this->cleanOutStr($r->editor);
 				$retArr[$r->ometid]['exsrange'] = $this->cleanOutStr($r->exsrange);
 				$retArr[$r->ometid]['title'] = $this->cleanOutStr($titleStr);
 			}

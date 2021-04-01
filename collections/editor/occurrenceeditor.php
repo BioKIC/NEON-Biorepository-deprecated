@@ -1471,8 +1471,8 @@ else{
 																	<input name="carryover" type="radio" value="0" />All fields<br/>
 																</div>
 															</div>
-															<div class="fieldGroupDiv">
-																Relationship type:
+															<div class="fieldGroupDiv" title="Relationship to this occurrence">
+																Relationship:
 																<select name="assocrelation">
 																	<option value="0">No relation to current record</option>
 																	<option value="0">---------------------------------</option>

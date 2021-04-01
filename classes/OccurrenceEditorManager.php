@@ -1288,6 +1288,7 @@ class OccurrenceEditorManager {
 	public function cloneOccurrence($postArr){
 		$retArr = array();
 		if(isset($postArr['clonecount']) && $postArr['clonecount']){
+			$postArr['recordenteredby'] = $GLOBALS['USERNAME'];
 			$sourceOccid = $this->occid;
 			$clearAllArr = array('catalognumber','othercatalognumbers','occurrenceid','individualcount','duplicatequantity','processingstatus','recordenteredby','dateentered');
 			$postArr = array_diff_key($postArr,array_flip($clearAllArr));

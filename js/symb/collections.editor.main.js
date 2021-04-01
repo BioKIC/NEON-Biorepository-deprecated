@@ -17,7 +17,12 @@ $(document).ready(function() {
 		if(ffversion < 7 ) alert("You are using an older version of Firefox. For best results, we recommend that you update your browser.");
 	}
 	
-	$("form#fullform :input").on('input', function() { $("button").prop("disabled",false) });
+	$("form#fullform :input").on('input', function() {
+		var skipFields = ["carryover","assocrelation","targetcollid","clonecount"];
+		if(jQuery.inArray( $(this).attr('name'), skipFields ) == -1){
+			$("button").prop("disabled",false);
+		}
+	});
 	
 	$("#occedittabs").tabs({
 		select: function(event, ui) {

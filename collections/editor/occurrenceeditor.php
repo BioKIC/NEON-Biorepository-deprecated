@@ -145,7 +145,7 @@ if($SYMB_UID){
 	elseif($action == 'cloneRecord'){
 		$cloneArr = $occManager->cloneOccurrence($_POST);
 		if($cloneArr){
-			$statusStr = '<div>Success! The following '.count($cloneArr).' cloned record(s) have been created:</div>';
+			$statusStr = 'Success! The following '.count($cloneArr).' cloned record(s) have been created:';
 			$statusStr .= '<div style="margin:5px 10px">';
 			foreach($cloneArr as $cloneOccid){
 				$statusStr .= '<div><a href="occurrenceeditor.php?occid='.$cloneOccid.'" target="_blank">#'.$cloneOccid.'</a></div>';
@@ -301,7 +301,7 @@ if($SYMB_UID){
 	if($goToMode){
 		//Adding new record, override query form and prime for current user's dataentry for the day
 		$occId = 0;
-		$occManager->setQueryVariables(array('eb'=>$PARAMS_ARR['un'],'dm'=>date('Y-m-d')));
+		$occManager->setQueryVariables(array('eb'=>$PARAMS_ARR['un'],'de'=>date('Y-m-d')));
 		if(!$qryCnt){
 			$qryCnt = $occManager->getQueryRecordCount();
 			$occIndex = $qryCnt;
@@ -487,7 +487,7 @@ else{
 	<style type="text/css">
 		fieldset{ padding:15px }
 		fieldset > legend{ font-weight:bold; }
-		.fieldGroupDiv{ clear:both; margin-bottom:2px; overflow: auto; }
+		.fieldGroupDiv{ clear:both; margin-bottom:2px; }
 		.fieldDiv{ float:left; margin-right: 20px; }
 	</style>
 </head>

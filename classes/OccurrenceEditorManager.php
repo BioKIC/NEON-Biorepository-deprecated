@@ -1047,15 +1047,15 @@ class OccurrenceEditorManager {
 				'footprintwkt' => 's', 'georeferencedBy' => 's', 'georeferenceProtocol' => 's', 'georeferenceSources' => 's', 'georeferenceVerificationStatus' => 's',
 				'georeferenceRemarks' => 's', 'minimumElevationInMeters' => 'n', 'maximumElevationInMeters' => 'n','verbatimElevation' => 's',
 				'minimumDepthInMeters' => 'n', 'maximumDepthInMeters' => 'n', 'verbatimDepth' => 's','disposition' => 's', 'language' => 's', 'duplicateQuantity' => 'n',
-				'labelProject' => 's','processingstatus' => 's', 'recordEnteredBy' => 's', 'observeruid' => 'n', 'dateentered' => 'd', 'genericcolumn2' => 's');
+				'labelProject' => 's','processingStatus' => 's', 'recordEnteredBy' => 's', 'observeruid' => 'n', 'dateentered' => 'd', 'genericcolumn2' => 's');
 			$sql = 'INSERT INTO omoccurrences(collid, '.implode(array_keys($fieldArr),',').') VALUES ('.$postArr['collid'];
 			$fieldArr = array_change_key_case($fieldArr);
 			//if(array_key_exists('cultivationstatus',$postArr) && $postArr['cultivationstatus']) $postArr['cultivationstatus'] = $postArr['cultivationstatus'];
 			//if(array_key_exists('localitysecurity',$postArr) && $postArr['localitysecurity']) $postArr['localitysecurity'] = $postArr['localitysecurity'];
 			if(!isset($postArr['dateentered']) || !$postArr['dateentered']) $postArr['dateentered'] = date('Y-m-d H:i:s');
 			if(!isset($postArr['basisofrecord']) || !$postArr['basisofrecord']) $postArr['basisofrecord'] = (strpos($this->collMap['colltype'],'Observations') !== false?'HumanObservation':'PreservedSpecimen');
-			if(isset($postArr['institutionCode']) && $postArr['institutionCode'] == $this->collMap['institutioncode']) $postArr['institutionCode'] = '';
-			if(isset($postArr['collectionCode']) && $postArr['collectionCode'] == $this->collMap['collectioncode']) $postArr['collectionCode'] = '';
+			if(isset($postArr['institutioncode']) && $postArr['institutioncode'] == $this->collMap['institutioncode']) $postArr['institutionCode'] = '';
+			if(isset($postArr['collectioncode']) && $postArr['collectioncode'] == $this->collMap['collectioncode']) $postArr['collectionCode'] = '';
 
 			foreach($fieldArr as $fieldStr => $fieldType){
 				$fieldValue = '';
@@ -1290,7 +1290,7 @@ class OccurrenceEditorManager {
 		if(isset($postArr['clonecount']) && $postArr['clonecount']){
 			$postArr['recordenteredby'] = $GLOBALS['USERNAME'];
 			$sourceOccid = $this->occid;
-			$clearAllArr = array('catalognumber','othercatalognumbers','occurrenceid','individualcount','duplicatequantity','processingstatus','recordenteredby','dateentered');
+			$clearAllArr = array('catalognumber','othercatalognumbers','occurrenceid','individualcount','duplicatequantity','processingstatus','dateentered');
 			$postArr = array_diff_key($postArr,array_flip($clearAllArr));
 			if($postArr['targetcollid'] && $postArr['targetcollid'] != $this->collId){
 				$clearCollArr = array('basisofrecord','ownerinstitutioncode','institutioncode','collectioncode');

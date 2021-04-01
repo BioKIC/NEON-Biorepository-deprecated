@@ -585,7 +585,7 @@ else{
 				</div>
 				<?php
 			}
-			if($qryCnt == 0) echo '<div style="clear:both;padding:20px;font-size:150%;font-weight:bold;">Search returned 0 records</div>'."\n";
+			if($qryCnt == 0 && !$occId) echo '<div style="clear:both;padding:20px;font-size:150%;font-weight:bold;">Search returned 0 records</div>'."\n";
 			if($occArr || $goToMode == 1 || $goToMode == 2){		//$action == 'gotonew'
 				if($occId && $isLocked){
 					?>
@@ -1260,13 +1260,8 @@ else{
 															<?php
 														}
 													}
-													else{
+													else '<input type="text" name="reproductivecondition" tabindex="99" maxlength="255" value="'.(array_key_exists('reproductivecondition',$occArr)?$occArr['reproductivecondition']:'').'" onchange="fieldChanged(\'reproductivecondition\');" />';
 													?>
-														<input type="text" name="reproductivecondition" tabindex="99" maxlength="255" value="<?php echo array_key_exists('reproductivecondition',$occArr)?$occArr['reproductivecondition']:''; ?>" onchange="fieldChanged('reproductivecondition');" />
-													<?php
-													}
-													?>
-
 												</div>
 												<div id="establishmentMeansDiv">
 													<?php echo (defined('ESTABLISHMENTMEANSLABEL')?ESTABLISHMENTMEANSLABEL:'Establishment Means'); ?>
@@ -1439,60 +1434,80 @@ else{
 											<input type="hidden" name="observeruid" value="<?php echo $SYMB_UID; ?>" />
 											<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 											<input type="hidden" name="linkdupe" value="" />
-											<div style="clear:both">
-												Status Auto-Set:
-												<select name="autoprocessingstatus" onchange="autoProcessingStatusChanged(this)">
-													<option value=''>Not Activated</option>
-													<option value=''>-------------------</option>
-													<?php
-													foreach($processingStatusArr as $v){
-														$keyOut = strtolower($v);
-														//Don't display all options if editor is crowd sourced
-														if($isEditor < 4 || ($keyOut != 'reviewed' && $keyOut != 'closed')){
-															echo '<option value="'.$keyOut.'" '.($crowdSourceMode && $keyOut == "pending review"?'SELECTED':'').'>'.ucwords($v).'</option>';
-														}
-													}
-													?>
-												</select>
-											</div>
 											<?php
 											if($occId){
 												?>
-												<div id="editButtonDiv" style="float:left">
-													<button type="submit" name="submitaction" value="saveOccurEdits" style="width:150px;" onclick="return verifyFullFormEdits(this.form)" disabled>Save Edits</button>
-													<input type="hidden" name="occindex" value="<?php echo is_numeric($occIndex)?$occIndex:''; ?>" />
-													<input type="hidden" name="editedfields" value="" />
+												<div style="float:left">
+													Status Auto-Set:
+													<select name="autoprocessingstatus" onchange="autoProcessingStatusChanged(this)">
+														<option value=''>Not Activated</option>
+														<option value=''>-------------------</option>
+														<?php
+														foreach($processingStatusArr as $v){
+															$keyOut = strtolower($v);
+															//Don't display all options if editor is crowd sourced
+															if($isEditor < 4 || ($keyOut != 'reviewed' && $keyOut != 'closed')){
+																echo '<option value="'.$keyOut.'" '.($crowdSourceMode && $keyOut == "pending review"?'SELECTED':'').'>'.ucwords($v).'</option>';
+															}
+														}
+														?>
+													</select>
+													<div id="editButtonDiv">
+														<button type="submit" name="submitaction" value="saveOccurEdits" style="width:150px;" onclick="return verifyFullFormEdits(this.form)" disabled>Save Edits</button>
+														<input type="hidden" name="occindex" value="<?php echo is_numeric($occIndex)?$occIndex:''; ?>" />
+														<input type="hidden" name="editedfields" value="" />
+													</div>
 												</div>
 												<?php
 												if($isEditor == 1 || $isEditor == 2){
 													?>
 													<div style="float:right;">
 														<fieldset class="optionBox">
-															<legend>Clone Record</legend>
+															<legend>Record Cloning</legend>
 															<div class="fieldGroupDiv">
-																Relationship Type:
+																<div style="float:left">Carry over:</div>
+																<div style="float:left">
+																	<input name="carryover" type="radio" value="1" checked />Collection event fields<br/>
+																	<input name="carryover" type="radio" value="0" />All fields<br/>
+																</div>
+															</div>
+															<div class="fieldGroupDiv">
+																Relationship type:
 																<select name="assocrelation">
 																	<option value="0">No relation to current record</option>
 																	<option value="0">---------------------------------</option>
 																	<?php
 																	$vocabArr = $occManager->getAssociationControlVocab();
 																	foreach($vocabArr as $id => $termVal){
-																		echo '<option value="'.$id.'">'.$termVal.'</option>';
+																		echo '<option value="'.$termVal.'">'.$termVal.'</option>';
 																	}
 																	?>
 																</select>
 															</div>
-															<div class="fieldGroupDiv">
-																<div style="float:left">Carry over:</div>
-																<div style="float:left">
-																	<input name="carryover" type="radio" value="0" checked />All fields<br/>
-																	<input name="carryover" type="radio" value="1" />Only collection event fields<br/>
+															<?php
+															$targetArr = $occManager->getCollectionList(true);
+															unset($targetArr[$collId]);
+															if(count($targetArr) > 1){
+																?>
+																<div class="fieldGroupDiv">
+																	Target collection:
+																	<select name="targetcollid" style="max-width: 250px">
+																		<option value="0">Current Collection</option>
+																		<option value="0">---------------------------------</option>
+																		<?php
+																		foreach($targetArr as $id => $collVal){
+																			echo '<option value="'.$id.'">'.$collVal.'</option>';
+																		}
+																		?>
+																	</select>
 																</div>
-															</div>
+																<?php
+															}
+															?>
 															<div class="fieldGroupDiv">
 																Number of records: <input id="clonecount" name="clonecount" type="text" value="1" style="width:40px" />
 															</div>
-															<div class="fieldGroupDiv"><a href="#" onclick="return prePopulateCatalogNumbers();">Pre-populate Catalog Number(s)</a></div>
+															<div class="fieldGroupDiv"><a href="#" onclick="return prePopulateCatalogNumbers();">Pre-populate catalog number(s)</a></div>
 															<fieldset id="cloneCatalogNumber-Fieldset" style="display:none">
 																<div id="cloneCatalogNumberDiv" class="fieldGroupDiv"></div>
 															</fieldset>

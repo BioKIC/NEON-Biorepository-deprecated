@@ -1032,7 +1032,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function addOccurrence($postArr){
-		$status = "SUCCESS: new occurrence record submitted successfully ";
+		$status = 'SUCCESS: new occurrence record submitted successfully ';
 		if($postArr){
 			$fieldArr = array('basisOfRecord' => 's', 'catalogNumber' => 's', 'otherCatalogNumbers' => 's', 'occurrenceid' => 's',
 				'ownerInstitutionCode' => 's', 'institutionCode' => 's', 'collectionCode' => 's',
@@ -1289,14 +1289,17 @@ class OccurrenceEditorManager {
 		$retArr = array();
 		if(isset($postArr['clonecount']) && $postArr['clonecount']){
 			$sourceOccid = $this->occid;
-			unset($postArr['catalognumber']);
-			unset($postArr['otherCatalogNumbers']);
-			unset($postArr['occurrenceid']);
+			$clearAllArr = array('catalognumber','othercatalognumbers','occurrenceid','individualcount','duplicatequantity','processingstatus','recordenteredby','dateentered');
+			$postArr = array_diff_key($postArr,array_flip($clearAllArr));
+			if($postArr['targetcollid'] && $postArr['targetcollid'] != $this->collId){
+				$clearCollArr = array('basisofrecord','ownerinstitutioncode','institutioncode','collectioncode');
+				$postArr = array_diff_key($postArr,array_flip($clearCollArr));
+				$postArr['collid'] = $postArr['targetcollid'];
+			}
 			if(isset($postArr['carryover']) && $postArr['carryover'] == 1){
-				$locArr = array('basisOfRecord','ownerInstitutionCode','institutionCode','collectionCode','family','sciname','tidinterpreted','scientificNameAuthorship',
-					'identifiedBy','dateIdentified','identificationReferences','identificationremarks','taxonRemarks','identificationQualifier','fieldnumber','occurrenceRemarks',
-					'verbatimattributes','dynamicProperties','lifestage','sex','individualcount','duplicateQuantity');
-				$postArr = array_diff($postArr,$locArr);
+				$clearEventArr = array('family','sciname','tidinterpreted','scientificnameauthorship','identifiedby','dateidentified','identificationreferences','identificationremarks',
+					'taxonremarks','identificationqualifier','recordnumber','occurrenceremarks','verbatimattributes','dynamicproperties','lifestage','sex');
+				$postArr = array_diff_key($postArr,array_flip($clearEventArr));
 			}
 			$cloneCatNum = array();
 			if(isset($postArr['clonecatnum'])) $cloneCatNum = $postArr['clonecatnum'];
@@ -1306,7 +1309,8 @@ class OccurrenceEditorManager {
 				if($sourceOccid != $this->occid && !in_array($this->occid,$retArr)){
 					$retArr[$this->occid] = $this->occid;
 					if(isset($postArr['assocrelation']) && $postArr['assocrelation']){
-						$sql = 'INSERT INTO omoccurassociations(occid, occidAssociate, relationship) values('.$sourceOccid.','.$this->occid.',"'.$postArr['assocrelation'].'") ';
+						$sql = 'INSERT INTO omoccurassociations(occid, occidAssociate, relationship,createdUid) '.
+							'values('.$this->occid.','.$sourceOccid.',"'.$postArr['assocrelation'].'",'.$GLOBALS['SYMB_UID'].') ';
 						if(!$this->conn->query($sql)){
 							$this->errorArr[] = 'ERROR adding relationship for cloned specimens: '.$this->conn->error;
 						}
@@ -2207,7 +2211,9 @@ class OccurrenceEditorManager {
 
 	public function getAssociationControlVocab(){
 		$retArr = array();
-		$sql = 'SELECT cvTermID, term FROM ctcontrolvocabterm ORDER BY term';
+		$sql = 'SELECT t.cvTermID, t.term '.
+			'FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v ON t.cvID = v.cvID '.
+			'WHERE v.tablename = "omoccurassociations" AND v.fieldName = "relationship" ORDER BY term';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->cvTermID] = $r->term;

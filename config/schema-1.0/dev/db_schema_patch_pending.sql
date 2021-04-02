@@ -413,6 +413,11 @@ ALTER TABLE `omoccurassociations`
   CHANGE COLUMN `modifieduid` `modifiedUid` INT(10) UNSIGNED NULL DEFAULT NULL ,
   ADD COLUMN `subType` VARCHAR(45) NULL AFTER `relationship`;
 
+ALTER TABLE `tmtraits` 
+  ADD COLUMN `projectGroup` VARCHAR(45) NULL AFTER `notes`,
+  ADD COLUMN `isPublic` INT NULL DEFAULT 1 AFTER `projectGroup`,
+  ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
+
 ALTER TABLE `omoccurassociations` 
   ADD CONSTRAINT `FK_occurassoc_occidassoc`  FOREIGN KEY (`occidAssociate`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_occurassoc_uidcreated`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
@@ -422,6 +427,7 @@ ALTER TABLE `omoccurassociations`
   ADD UNIQUE INDEX `UQ_omoccurassoc_occid` (`occid` ASC, `occidAssociate` ASC, `relationship` ASC),
   ADD UNIQUE INDEX `UQ_omoccurassoc_external` (`occid` ASC, `relationship` ASC, `resourceUrl` ASC),
   ADD UNIQUE INDEX `UQ_omoccurassoc_sciname` (`occid` ASC, `verbatimSciname` ASC);
+
 
 ALTER TABLE `omoccurdatasets` 
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,

@@ -103,39 +103,6 @@ function setOrderBy(formObject){
 	*/
 }
 
-function resetQueryForm(f){
-	f.occid.value = "";
-	f.occidlist.value = "";
-	f.direction.value = "";
-	f.occindex.value = "0";
-	f.q_catalognumber.value = "";
-	f.q_othercatalognumbers.value = "";
-	f.q_recordedby.value = "";
-	f.q_recordnumber.value = "";
-	f.q_eventdate.value = "";
-	f.q_recordenteredby.value = "";
-	f.q_dateentered.value = "";
-	f.q_datelastmodified.value = "";
-	f.q_processingstatus.value = "";
-	if(document.getElementById("q_exsiccatiid")){
-		f.q_exsiccatiid.value = "";
-	}
-	f.q_customfield1.options[0].selected = true;
-	f.q_customtype1.options[0].selected = true;
-	f.q_customvalue1.value = "";
-	f.q_customfield2.options[0].selected = true;
-	f.q_customtype2.options[0].selected = true;
-	f.q_customvalue2.value = "";
-	f.q_customfield3.options[0].selected = true;
-	f.q_customtype3.options[0].selected = true;
-	f.q_customvalue3.value = "";
-	f.q_imgonly.checked = false;
-	f.q_withoutimg.checked = false;
-	f.orderby.value = "";
-	f.orderbydir.value = "ASC";
-}
-
-
 function customSelectChanged(targetSelect){
 	var sourceObj = document.queryform.q_customfield1;
 	var targetObj = document.queryform.q_customtype1;

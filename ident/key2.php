@@ -47,7 +47,7 @@ if($taxonValue) $dataManager->setTaxonFilter($taxonValue);
 if($attrsValues) $dataManager->setAttrs($attrsValues);
 if($rv) $dataManager->setRelevanceValue($rv);
 
-$taxa = $dataManager->getTaxaList();
+$taxa = $dataManager->getTaxaArr();
 $chars = $dataManager->getCharList();
 
 //Harevest and remove language list from $chars
@@ -74,6 +74,7 @@ if($chars){
 	?>
 	<script type="text/javascript" src="../js/symb/ident.key.js"></script>
 	<style type="text/css">
+		#title-div { font-weight: bold; font-size: 120% }
 		fieldset { display: inline-block; float: right; padding: 5px 10px; min-width: 25% }
 		legend { font-weight:bold }
 		.editimg { width: 13px }
@@ -114,22 +115,6 @@ echo '<b>Key: '.$dataManager->getClName().'</b>';
 echo '</div>';
 ?>
 <div id="innertext">
-	<?php
-	if($isEditor){
-		?>
-		<div style="float:right;margin:15px;" title="Edit Character Matrix">
-			<a href="tools/matrixeditor.php?clid=<?php echo $clid; ?>"><img class="editimg" src="../images/edit.png" /><span style="font-size:70%;">CM</span></a>
-		</div>
-		<?php
-	}
-	?>
-	<h2>
-		<?php
-		if($FLORA_MOD_IS_ACTIVE) echo '<a href="../checklists/checklist.php?clid='.$clid.'&dynclid='.$dynClid.'&pid='.$pid.'">';
-		echo $dataManager->getClName().' ';
-		if($FLORA_MOD_IS_ACTIVE) echo '</a>';
-		?>
-	</h2>
 	<fieldset>
 		<legend>Filter/Display Options</legend>
 		<div id="key-chars">
@@ -189,6 +174,22 @@ echo '</div>';
 			</form>
 		</div>
 	</fieldset>
+	<?php
+	if($isEditor){
+		?>
+		<div style="float:right;margin:15px;" title="Edit Character Matrix">
+			<a href="tools/matrixeditor.php?clid=<?php echo $clid; ?>"><img class="editimg" src="../images/edit.png" /><span style="font-size:70%;">CM</span></a>
+		</div>
+		<?php
+	}
+	?>
+	<div id="title-div">
+		<?php
+		if($FLORA_MOD_IS_ACTIVE) echo '<a href="../checklists/checklist.php?clid='.$clid.'&dynclid='.$dynClid.'&pid='.$pid.'">';
+		echo $dataManager->getClName().' ';
+		if($FLORA_MOD_IS_ACTIVE) echo '</a>';
+		?>
+	</div>
 	<div id="key-taxa">
 		<?php
 		//List taxa by family/sci name

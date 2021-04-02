@@ -3,6 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 include_once($SERVER_ROOT.'/classes/RdfUtility.php');
+header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = array_key_exists("occid",$_REQUEST)?trim($_REQUEST["occid"]):0;
 $collid = array_key_exists("collid",$_REQUEST)?trim($_REQUEST["collid"]):0;
@@ -139,8 +140,7 @@ $displayMap = false;
 if(!$securityCode && $occArr && is_numeric($occArr['decimallatitude']) && is_numeric($occArr['decimallongitude'])) $displayMap = true;
 $dupClusterArr = $indManager->getDuplicateArr();
 $commentArr = $indManager->getCommentArr($isEditor);
-
-header("Content-Type: text/html; charset=".$CHARSET);
+$traitArr = $indManager->getTraitArr();
 ?>
 <html>
 <head>
@@ -187,24 +187,16 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		function toggle(target){
 			var objDiv = document.getElementById(target);
 			if(objDiv){
-				if(objDiv.style.display=="none"){
-					objDiv.style.display = "block";
-				}
-				else{
-					objDiv.style.display = "none";
-				}
+				if(objDiv.style.display=="none") objDiv.style.display = "block";
+				else objDiv.style.display = "none";
 			}
 			else{
 				var divObjs = document.getElementsByTagName("div");
 			  	for (i = 0; i < divObjs.length; i++) {
 			  		var obj = divObjs[i];
 			  		if(obj.getAttribute("class") == target || obj.getAttribute("className") == target){
-							if(obj.style.display=="none"){
-								obj.style.display="inline";
-							}
-					 	else {
-					 		obj.style.display="none";
-					 	}
+						if(obj.style.display=="none") obj.style.display="inline";
+					 	else obj.style.display="none";
 					}
 				}
 			}
@@ -220,9 +212,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		}
 
 		function verifyCommentForm(f){
-			if(f.commentstr.value.replace(/^\s+|\s+$/g,"")){
-				return true;
-			}
+			if(f.commentstr.value.replace(/^\s+|\s+$/g,"")) return true;
 			alert("Please enter a comment");
 			return false;
 		}
@@ -261,6 +251,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		.label{ font-weight:bold; }
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
 		.occur-ref{ margin: 10px 0px }
+		.traitDiv{ margin:20px; }
 	</style>
 </head>
 <body>
@@ -273,6 +264,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
 			fjs.parentNode.insertBefore(js, fjs);
 		}(document, 'script', 'facebook-jssdk'));
+
+		window.twttr=(function(d,s,id){
+			var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};
+			if(d.getElementById(id))return;js=d.createElement(s);
+			js.id=id;js.src="https://platform.twitter.com/widgets.js";
+			fjs.parentNode.insertBefore(js,fjs);t._e=[];
+			t.ready=function(f){t._e.push(f);};
+			return t;
+		}(document,"script","twitter-wjs"));
 	</script>
 	<!-- This is inner text! -->
 	<div id="popup-innertext">
@@ -292,42 +292,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				<ul>
 					<li><a href="#occurtab"><span>Details</span></a></li>
 					<?php
-					if($displayMap){
-						?>
-						<li><a href="#maptab"><span>Map</span></a></li>
-						<?php
-					}
-					if($genticArr) echo '<li><a href="#genetictab"><span>Genetic Data</span></a></li>';
-					if($dupClusterArr){
-						?>
-						<li><a href="#dupestab"><span>Duplicates</span></a></li>
-						<?php
-					}
+					if($displayMap) echo '<li><a href="#maptab"><span>Map</span></a></li>';
+					if($genticArr) echo '<li><a href="#genetictab"><span>Genetic</span></a></li>';
+					if($dupClusterArr) echo '<li><a href="#dupestab"><span>Duplicates</span></a></li>';
 					?>
 					<li><a href="#commenttab"><span><?php echo ($commentArr?count($commentArr).' ':''); ?>Comments</span></a></li>
 					<li><a href="linkedresources.php?occid=<?php echo $occid.'&tid='.$occArr['tidinterpreted'].'&clid='.$clid.'&collid='.$collid; ?>"><span>Linked Resources</span></a></li>
 					<?php
-					if($isEditor){
-						?>
-						<li><a href="#edittab"><span>Edit History</span></a></li>
-						<?php
-					}
+					if($traitArr) echo '<li><a href="#traittab"><span>Traits</span></a></li>';
+					if($isEditor) echo '<li><a href="#edittab"><span>Edit History</span></a></li>';
 					?>
 				</ul>
 				<div id="occurtab">
 					<div style="float:right;">
 						<div style="float:right;">
 							<a class="twitter-share-button" href="https://twitter.com/share" data-url="<?php echo $_SERVER['HTTP_HOST'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occid.'&clid='.$clid; ?>">Tweet</a>
-							<script>
-								window.twttr=(function(d,s,id){
-									var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};
-									if(d.getElementById(id))return;js=d.createElement(s);
-									js.id=id;js.src="https://platform.twitter.com/widgets.js";
-									fjs.parentNode.insertBefore(js,fjs);t._e=[];
-									t.ready=function(f){t._e.push(f);};
-									return t;
-								}(document,"script","twitter-wjs"));
-							</script>
 						</div>
 						<div style="float:right;margin-right:10px;">
 							<div class="fb-share-button" data-href="" data-layout="button_count"></div>
@@ -1122,6 +1101,22 @@ header("Content-Type: text/html; charset=".$CHARSET);
 							}
 							?>
 						</div>
+					</div>
+					<?php
+				}
+				if($traitArr){
+					?>
+					<div id="traittab">
+						<?php
+						foreach($traitArr as $traitID => $tArr){
+							if(!$tArr['depStateID']){
+								echo '<div class="traitDiv">';
+								$indManager->echoTraitUnit($traitArr[$traitID]);
+								$indManager->echoTraitDiv($traitArr,$traitID);
+								echo '</div>';
+							}
+						}
+						?>
 					</div>
 					<?php
 				}

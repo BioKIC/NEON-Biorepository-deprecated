@@ -6,6 +6,7 @@ class DwcArchiverOccurrence{
 	private $schemaType;
 	private $extended = false;
 	private $includePaleo = false;
+	private $harvestExsiccatae = false;
 	private $relationshipArr;
 	private $upperTaxonomy = array();
 	private $taxonRankArr = array();
@@ -355,6 +356,32 @@ class DwcArchiverOccurrence{
 			}
 			$rs->free();
 		}
+		return $retStr;
+	}
+
+	public function setHarvestExsiccatae(){
+		$sql = 'SELECT occid FROM omexsiccatiocclink LIMIT 1';
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows) $this->harvestExsiccatae = true;
+		$rs->free();
+	}
+
+	public function getExsiccateStr($occid){
+		$retStr = '';
+		$sql = 'SELECT t.title, t.abbreviation, t.editor, t.exsrange, n.exsnumber, l.notes '.
+			'FROM omexsiccatiocclink l INNER JOIN omexsiccatinumbers n ON l.omenid = n.omenid '.
+			'INNER JOIN omexsiccatititles t ON n.ometid = t.ometid '.
+			'WHERE l.occid = '.$occid;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retStr = $r->title;
+			if($r->abbreviation) $retStr .= ' ['.$r->abbreviation.']';
+			if($r->exsrange) $retStr .= ', '.$r->exsrange;
+			if($r->editor) $retStr .= ', '.$r->editor;
+			$retStr .= ', exs #: '.$r->exsnumber;
+			if($r->notes) $retStr .= ' ('.$r->notes.')';
+		}
+		$rs->free();
 		return $retStr;
 	}
 

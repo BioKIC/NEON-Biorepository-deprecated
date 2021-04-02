@@ -179,23 +179,51 @@ class KeyDataManager extends Manager {
 		return $returnArray;
 	}
 
-	//return an array: family => array(TID => DisplayName)
-	public function getTaxaList(){
+	public function getTaxaArr(){
 		$this->setTaxaListSQL();
-		$retArray = array();
+		$retArr = array();
 		$rs = $this->conn->query($this->sql);
 		$this->taxaCount = 0;
-		while ($row = $rs->fetch_object()){
+		$taxaArr = array();
+		while($r = $rs->fetch_object()){
 			$this->taxaCount++;
-		   	$retArray[$row->Family][$row->tid] = $row->DisplayName;
+			$retArr[$r->family][$r->tid] = $r->sciname;
+		   	$taxaArr[$r->tid] = $r->family;
 		}
 		$rs->free();
 		if($this->displayCommon){
-			//Set common names
-			$sqlTaxa = 'SELECT innert.tid, innert.Family, IFNULL(v.VernacularName, innert.DisplayName) AS DisplayName, innert.ParentTID '.
-				'FROM ('.$this->sql.') innert LEFT JOIN (SELECT tid, VernacularName FROM taxavernaculars WHERE langid = 1 AND SortSequence = 1) v ON innert.tid = v.tid ';
+			$sql = 'SELECT tid, vernacularName FROM taxavernaculars WHERE langid = 1 AND SortSequence = 1 AND tid IN('.implode(',',array_keys($taxaArr)).')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$taxaArr[$r->tid]][$r->tid]['vern'] = $r->vernacularName;
+			}
+			$rs->free();
 		}
-		return $retArray;
+		return $retArr;
+	}
+
+	public function getTaxaList(){
+		//Delete after current modifications are approved
+		$this->setTaxaListSQL();
+		$retArr = array();
+		$rs = $this->conn->query($this->sql);
+		$this->taxaCount = 0;
+		$taxaArr = array();
+		while($r = $rs->fetch_object()){
+			$this->taxaCount++;
+			$retArr[$r->family][$r->tid] = $r->sciname;
+			$taxaArr[$r->tid] = $r->family;
+		}
+		$rs->free();
+		if($this->displayMode){
+			$sql = 'SELECT tid, vernacularName FROM taxavernaculars WHERE langid = 1 AND SortSequence = 1 AND tid IN('.implode(',',array_keys($taxaArr)).')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$taxaArr[$r->tid]][$r->tid] = $r->vernacularName;
+			}
+			$rs->free();
+		}
+		return $retArr;
 	}
 
 	public function setTaxaListSQL(){
@@ -246,7 +274,7 @@ class KeyDataManager extends Manager {
 					$sqlWhere.=' AND (D'.$count.'.CID='.$cid.') AND ('.$stateStr.')';
 				}
 			}
-			$this->sql = 'SELECT DISTINCT t.tid, ts.Family, t.SciName AS DisplayName, ts.ParentTID '.$sqlFromBase.$sqlWhere;
+			$this->sql = 'SELECT DISTINCT t.tid, ts.family, t.sciname '.$sqlFromBase.$sqlWhere;
 			//echo $this->sql;
 		}
 	}

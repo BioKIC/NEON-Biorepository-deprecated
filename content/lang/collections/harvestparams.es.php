@@ -56,5 +56,8 @@ $LANG['INCLUDE_OTHER_CATNUM'] = 'Includa todos n&uacute;meros de cat&eacute;logo
 $LANG['TYPE'] = 'Limitar a ejemplares tipo';
 $LANG['HAS_IMAGE'] = 'Limitar a ejemplares con im&aacute;genes';
 $LANG['HAS_GENETIC'] = 'Limitar a ejemplares con datos gen&eacute;ticos';
+$LANG['HAS_COORDS'] = 'Limitar a ejemplares con coordenadas geogr&aacute;ficas';
 $LANG['INCLUDE_CULTIVATED'] = 'Incluye ejemplares cultivadas/cautivas';
+$LANG['TRAIT_HEADER'] = 'Criterios de Rasgos';
+$LANG['TRAIT_DESCRIPTION'] = 'La selección de varios rasgos devolverá todos los registros con al menos uno de esos rasgos';
 ?>

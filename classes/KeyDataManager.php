@@ -18,7 +18,8 @@ class KeyDataManager extends Manager {
 	private $charArr = Array();
 	private $taxaCount;
 	private $lang;
-	private $commonDisplay = false;
+	private $displayMode;
+	private $displayCommon = false;
 	private $pid;
 	private $dynClid;
 
@@ -35,16 +36,12 @@ class KeyDataManager extends Manager {
 	//$returns an Array of ("chars" => $charArray, "taxa" => $taxaArray)
 	//In coming attrs are in the form of: (cid => array of cs)
 	public function getData(){
-		$charArray = array();
-		$taxaArray = array();
+		$retArr = array();
 		if(($this->clid && $this->taxonFilter) || $this->dynClid){
-		    $this->setTaxaListSQL();
-			$taxaArray = $this->getTaxaList();
-			$charArray = $this->getCharList();
+			$retArr['taxa'] = $this->getTaxaList();
+			$retArr['chars'] = $this->getCharList();
 		}
-		$returnArray["chars"] = $charArray;
-		$returnArray["taxa"] = $taxaArray;
-		return $returnArray;
+		return $retArr;
 	}
 
 	//returns map: HeadingId => Array(
@@ -182,36 +179,51 @@ class KeyDataManager extends Manager {
 		return $returnArray;
 	}
 
-	//return an array: family => array(TID => DisplayName)
+	public function getTaxaArr(){
+		$this->setTaxaListSQL();
+		$retArr = array();
+		$rs = $this->conn->query($this->sql);
+		$this->taxaCount = 0;
+		$taxaArr = array();
+		while($r = $rs->fetch_object()){
+			$this->taxaCount++;
+			$retArr[$r->family][$r->tid] = $r->sciname;
+		   	$taxaArr[$r->tid] = $r->family;
+		}
+		$rs->free();
+		if($this->displayCommon){
+			$sql = 'SELECT tid, vernacularName FROM taxavernaculars WHERE langid = 1 AND SortSequence = 1 AND tid IN('.implode(',',array_keys($taxaArr)).')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$taxaArr[$r->tid]][$r->tid]['vern'] = $r->vernacularName;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
 	public function getTaxaList(){
-		$taxaList[] = null;
-	    unset($taxaList);
-	    $sqlTaxa = "";
-		if($this->commonDisplay){
-			$sqlTaxa = "SELECT innert.tid, innert.Family, IFNULL(v.VernacularName, innert.DisplayName) AS DisplayName, innert.ParentTID ".
-				"FROM (".$this->sql.") innert LEFT JOIN (SELECT tid, VernacularName FROM taxavernaculars WHERE langid = 1 AND SortSequence = 1) v ON innert.tid = v.tid ";
+		//Delete after current modifications are approved
+		$this->setTaxaListSQL();
+		$retArr = array();
+		$rs = $this->conn->query($this->sql);
+		$this->taxaCount = 0;
+		$taxaArr = array();
+		while($r = $rs->fetch_object()){
+			$this->taxaCount++;
+			$retArr[$r->family][$r->tid] = $r->sciname;
+			$taxaArr[$r->tid] = $r->family;
 		}
-		else{
-			$sqlTaxa = $this->sql;
+		$rs->free();
+		if($this->displayMode){
+			$sql = 'SELECT tid, vernacularName FROM taxavernaculars WHERE langid = 1 AND SortSequence = 1 AND tid IN('.implode(',',array_keys($taxaArr)).')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$taxaArr[$r->tid]][$r->tid] = $r->vernacularName;
+			}
+			$rs->free();
 		}
-		//echo $sqlTaxa.'<br/>';
-		$result = $this->conn->query($sqlTaxa);
-		$returnArray = array();
-		$sppArr = array();
-		$count = 0;
-	    while ($row = $result->fetch_object()){
-			$count++;
-	   	$family = $row->Family;
-			$tid = $row->tid;
-	   	$displayName = $row->DisplayName;
-	   	unset($sppArr);
-	   	if(array_key_exists($family, $returnArray)) $sppArr = $returnArray[$family];
-	   	$sppArr[$tid] = $displayName;
-	   	$returnArray[$family] = $sppArr;
-	    }
-	    $this->taxaCount = $count;
-		$result->close();
-		return $returnArray;
+		return $retArr;
 	}
 
 	public function setTaxaListSQL(){
@@ -262,7 +274,7 @@ class KeyDataManager extends Manager {
 					$sqlWhere.=' AND (D'.$count.'.CID='.$cid.') AND ('.$stateStr.')';
 				}
 			}
-			$this->sql = 'SELECT DISTINCT t.tid, ts.Family, t.SciName AS DisplayName, ts.ParentTID '.$sqlFromBase.$sqlWhere;
+			$this->sql = 'SELECT DISTINCT t.tid, ts.family, t.sciname '.$sqlFromBase.$sqlWhere;
 			//echo $this->sql;
 		}
 	}
@@ -293,29 +305,28 @@ class KeyDataManager extends Manager {
 			if($this->childClidArr){
 				$clidStr .= ','.implode(',',array_keys($this->childClidArr));
 			}
-			$sql .= 'FROM (taxstatus ts INNER JOIN taxa nt ON ts.tid = nt.tid) INNER JOIN fmchklsttaxalink cltl ON nt.TID = cltl.TID WHERE (cltl.CLID IN('.$clidStr.')) ';
+			$sql .= 'FROM (taxstatus ts INNER JOIN taxa nt ON ts.tid = nt.tid) INNER JOIN fmchklsttaxalink cltl ON nt.TID = cltl.TID WHERE (ts.taxauthid = 1) AND (cltl.CLID IN('.$clidStr.')) ';
 		}
 		else if($this->dynClid){
-			$sql .= 'FROM (taxstatus ts INNER JOIN taxa nt ON ts.tid = nt.tid) INNER JOIN fmdyncltaxalink dcltl ON nt.TID = dcltl.TID WHERE (dcltl.dynclid = '.$this->dynClid.') ';
+			$sql .= 'FROM (taxstatus ts INNER JOIN taxa nt ON ts.tid = nt.tid) INNER JOIN fmdyncltaxalink dcltl ON nt.TID = dcltl.TID WHERE (ts.taxauthid = 1) AND (dcltl.dynclid = '.$this->dynClid.') ';
 		}
 		else{
-			$sql .= "FROM (((taxstatus ts INNER JOIN taxa nt ON ts.tid = nt.tid) ".
-				"INNER JOIN fmchklsttaxalink cltl ON nt.TID = cltl.TID) ".
-				"INNER JOIN fmchecklists cl ON cltl.CLID = cl.CLID) ".
-				"INNER JOIN fmchklstprojlink clpl ON cl.CLID = clpl.clid ".
-				"WHERE (clpl.pid = ".$this->pid.") ";
+			$sql .= 'FROM (((taxstatus ts INNER JOIN taxa nt ON ts.tid = nt.tid) '.
+				'INNER JOIN fmchklsttaxalink cltl ON nt.TID = cltl.TID) '.
+				'INNER JOIN fmchecklists cl ON cltl.CLID = cl.CLID) '.
+				'INNER JOIN fmchklstprojlink clpl ON cl.CLID = clpl.clid '.
+				'WHERE (ts.taxauthid = 1) ';
+			if($this->pid) $sql .= 'AND (clpl.pid = '.$this->pid.') ';
 		}
-		$sql .= 'AND (ts.taxauthid = 1)';
-		//echo $sql.'<br/>'; exit;
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
+		$rs = $this->conn->query($sql);
+		while($row = $rs->fetch_object()){
 			$genus = $row->UnitName1;
 			$family = $row->Family;
 			if($genus) $returnArr[] = $genus;
 			if($family) $returnArr[] = $family;
 		}
 
-		$result->free();
+		$rs->free();
 		$returnArr = array_unique($returnArr);
 		natcasesort($returnArr);
 		array_unshift($returnArr,"--------------------------");
@@ -390,8 +401,14 @@ class KeyDataManager extends Manager {
 		$this->lang = $l;
 	}
 
-	public function setCommonDisplay($bool){
-		if($bool) $this->commonDisplay = true;
+	public function setDisplayMode($bool){
+		if($bool) $this->displayMode = 1;
+		else $this->displayMode = 0;
+	}
+
+	public function setDisplayCommon($bool){
+		if($bool) $this->displayCommon = true;
+		else $this->displayCommon = false;
 	}
 
 	public function setTaxonFilter($t){

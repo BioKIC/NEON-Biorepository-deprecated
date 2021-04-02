@@ -72,12 +72,10 @@ if($SYMB_UID){
 		$cssPath = $CLIENT_ROOT.'/css/symb/taxa/speciesprofile.css';
 	}
 	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script src="../js/symb/taxa.index.js?ver=202101" type="text/javascript"></script>
 	<script src="../js/symb/taxa.editor.js?ver=202101" type="text/javascript"></script>
 </head>
@@ -376,6 +374,9 @@ include($SERVER_ROOT.'/includes/header.php');
 												if(array_key_exists("imageDomain",$GLOBALS) && substr($subArr["thumbnailurl"],0,1)=="/"){
 													$imgUrl = $GLOBALS["imageDomain"].$subArr["thumbnailurl"];
 												}
+											}
+											elseif($image = exif_thumbnail($imgUrl)){
+												$imgUrl = 'data:image/jpeg;base64,'.base64_encode($image);
 											}
 											echo '<img src="'.$imgUrl.'" title="'.$subArr['caption'].'" alt="Image of '.$sciNameKey.'" style="z-index:-1" />';
 											echo '</a>';

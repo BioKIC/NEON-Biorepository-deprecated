@@ -287,6 +287,7 @@ class SpecUploadBase extends SpecUpload{
 			'field:associatedspecies'=>'associatedtaxa','associatedspecies'=>'associatedtaxa','assoctaxa'=>'associatedtaxa','specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks',
 			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','specimendescription'=>'verbatimattributes',
 			'phenology'=>'reproductivecondition','field:habitat'=>'habitat','habitatdescription'=>'habitat','sitedeschabitat'=>'habitat',
+			'ometid'=>'exsiccatiidentifier','exsiccataeidentifier'=>'exsiccatiidentifier','exsnumber'=>'exsiccatinumber','exsiccataenumber'=>'exsiccatinumber',
 			'group'=>'paleo-lithogroup','lithostratigraphicterms'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
 		);
 
@@ -986,28 +987,24 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	private function transferExsiccati(){
-		$rs = $this->conn->query('SHOW COLUMNS FROM uploadspectemp WHERE field = "exsiccatiIdentifier"');
-		if($rs->num_rows){
-			$this->outputMsg('<li>Loading Exsiccati numbers...</li>');
-			//Add any new exsiccati numbers
-			$sqlNum = 'INSERT INTO omexsiccatinumbers(ometid, exsnumber) '.
-				'SELECT DISTINCT u.exsiccatiIdentifier, u.exsiccatinumber '.
-				'FROM uploadspectemp u LEFT JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
-				'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NOT NULL) '.
-				'AND (u.exsiccatiIdentifier IS NOT NULL) AND (u.exsiccatinumber IS NOT NULL) AND (e.exsnumber IS NULL)';
-			if(!$this->conn->query($sqlNum)){
-				$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>');
-			}
-			//Load exsiccati
-			$sqlLink = 'INSERT IGNORE INTO omexsiccatiocclink(omenid,occid) '.
-				'SELECT e.omenid, u.occid '.
-				'FROM uploadspectemp u INNER JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
-				'WHERE (u.collid IN('.$this->collId.')) AND (e.omenid IS NOT NULL) AND (u.occid IS NOT NULL)';
-			if(!$this->conn->query($sqlLink)){
-				$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>',1);
-			}
+		$this->outputMsg('<li>Loading Exsiccati numbers...</li>');
+		//Add any new exsiccati numbers
+		$sqlNum = 'INSERT INTO omexsiccatinumbers(ometid, exsnumber) '.
+			'SELECT DISTINCT u.exsiccatiIdentifier, u.exsiccatinumber '.
+			'FROM uploadspectemp u LEFT JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
+			'WHERE (u.collid IN('.$this->collId.')) AND (u.occid IS NOT NULL) '.
+			'AND (u.exsiccatiIdentifier IS NOT NULL) AND (u.exsiccatinumber IS NOT NULL) AND (e.exsnumber IS NULL)';
+		if(!$this->conn->query($sqlNum)){
+			$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>');
 		}
-		$rs->free();
+		//Load exsiccati
+		$sqlLink = 'INSERT IGNORE INTO omexsiccatiocclink(omenid,occid) '.
+			'SELECT e.omenid, u.occid '.
+			'FROM uploadspectemp u INNER JOIN omexsiccatinumbers e ON u.exsiccatiIdentifier = e.ometid AND u.exsiccatinumber = e.exsnumber '.
+			'WHERE (u.collid IN('.$this->collId.')) AND (e.omenid IS NOT NULL) AND (u.occid IS NOT NULL)';
+		if(!$this->conn->query($sqlLink)){
+			$this->outputMsg('<li>ERROR adding new exsiccati numbers: '.$this->conn->error.'</li>',1);
+		}
 	}
 
 	private function transferGeneticLinks(){

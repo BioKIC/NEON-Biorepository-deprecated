@@ -31,6 +31,9 @@ $imgManager->setCollid($collid);
 $imgManager->setTid($tid);
 $imgManager->setBuildMediumDerivative($buildMediumDerivatives);
 $imgManager->setTestOrientation($evaluateOrientation);
+
+//Set default actions
+if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') $buildMediumDerivatives = true;
 ?>
 <html>
 <head>

@@ -242,6 +242,12 @@ if($action == "Create Login"){
 						</td>
 					</tr>
 					<tr>
+						<td><span style="font-weight:bold;">ORCID or other GUID:</span></td>
+						<td>
+							<span class="profile"><input name="guid"  size="40" value="<?php echo (isset($_POST['guid'])?htmlspecialchars($_POST['guid']):''); ?>" /></span>
+						</td>
+					</tr>
+					<tr>
 						<td>&nbsp;</td>
 						<td><span style="color:red;">* required fields</span></td>
 					</tr>

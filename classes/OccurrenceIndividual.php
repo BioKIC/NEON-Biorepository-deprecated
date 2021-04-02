@@ -363,6 +363,71 @@ class OccurrenceIndividual extends Manager{
 		return $retArr;
 	}
 
+	//Occurrence trait and attribute functions
+	public function getTraitArr(){
+		$retArr = array();
+		if($this->occid){
+			$sql = 'SELECT t.traitid, t.traitName, t.traitType, t.description AS t_desc, t.refUrl AS t_url, s.stateid, s.stateName, s.description AS s_desc, s.refUrl AS s_url, d.parentstateid '.
+				'FROM tmattributes a INNER JOIN tmstates s ON a.stateid = s.stateid '.
+				'INNER JOIN tmtraits t ON s.traitid = t.traitid '.
+				'LEFT JOIN tmtraitdependencies d ON t.traitid = d.traitid '.
+				'WHERE t.isPublic = 1 AND a.occid = '.$this->occid.' ORDER BY t.traitName, s.sortSeq';
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retArr[$r->traitid]['name'] = $r->traitName;
+					$retArr[$r->traitid]['desc'] = $r->t_desc;
+					$retArr[$r->traitid]['url'] = $r->t_url;
+					$retArr[$r->traitid]['type'] = $r->traitType;
+					$retArr[$r->traitid]['depStateID'] = $r->parentstateid;
+					$retArr[$r->traitid]['state'][$r->stateid]['name'] = $r->stateName;
+					$retArr[$r->traitid]['state'][$r->stateid]['desc'] = $r->s_desc;
+					$retArr[$r->traitid]['state'][$r->stateid]['url'] = $r->s_url;
+				}
+				$rs->free();
+			}
+			if($retArr){
+				//Set dependent traits
+				$sql = 'SELECT DISTINCT s.traitid AS parentTraitID, d.parentStateID, d.traitid AS depTraitID '.
+					'FROM tmstates s INNER JOIN tmtraitdependencies d ON s.stateid = d.parentstateid '.
+					'WHERE s.traitid IN('.implode(',',array_keys($retArr)).')';
+				//echo $sql.'<br/>';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$retArr[$r->parentTraitID]['state'][$r->parentStateID]['depTraitID'][] = $r->depTraitID;
+				}
+				$rs->free();
+			}
+		}
+		return $retArr;
+	}
+
+	public function echoTraitDiv($traitArr, $targetID, $ident = 15){
+		$tArr = $traitArr[$targetID];
+		foreach($tArr['state'] as $stateID => $sArr){
+			$label = '';
+			if($tArr['type'] == 'TF') $label = $traitArr[$targetID]['name'];
+			$this->echoTraitUnit($sArr, $label, $ident);
+			if(array_key_exists('depTraitID',$sArr)){
+				foreach($sArr['depTraitID'] as $depTraitID){
+					$this->echoTraitDiv($traitArr, $depTraitID, $ident+15);
+				}
+			}
+		}
+	}
+
+	public function echoTraitUnit($outArr, $label = '', $indent=0){
+		echo '<div style="margin-left:'.$indent.'px">';
+		if($outArr['url']) echo '<a href="'.$outArr['url'].'" target="_blank">';
+		echo '<span class="traitName">';
+		if($label) echo $label.' ';
+		echo $outArr['name'];
+		echo '</span>';
+		if($outArr['url']) echo '</a>';
+		if($outArr['desc']) echo ': '.$outArr['desc'];
+		echo '</div>';
+	}
+
 	//Occurrence comment functions
 	public function getCommentArr($isEditor){
 		$retArr = array();

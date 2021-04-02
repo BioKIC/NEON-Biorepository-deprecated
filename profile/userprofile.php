@@ -1,4 +1,4 @@
-<?php 
+<?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
@@ -23,12 +23,21 @@ if($userId != $SYMB_UID) $isSelf = false;
 		<div style="margin:20px;">
 			<?php
 			echo '<div>'.$person->getFirstName().' '.$person->getLastName().'</div>';
+			if($person->getEmail()) echo '<div>'.$person->getEmail().'</div>';
+			if($person->getGUID()){
+				$guid = $person->getGUID();
+				if(preg_match('/^\d{4}-\d{4}-\d{4}-\d{4}$/',$guid)) $guid = 'https://orcid.org/'.$guid;
+				echo '<div>';
+				if(substr($guid,0,4) == 'http') echo '<a href="'.$guid.'" target="_blank">';
+				echo $guid;
+				if(substr($guid,0,4) == 'http') echo '</a>';
+				echo '</div>';
+			}
 			if($person->getTitle()) echo '<div>'.$person->getTitle().'</div>';
 			if($person->getInstitution()) echo '<div>'.$person->getInstitution().'</div>';
 			$cityStateStr = trim($person->getCity().', '.$person->getState().' '.$person->getZip(),' ,');
 			if($cityStateStr) echo '<div>'.$cityStateStr.'</div>';
 			if($person->getCountry()) echo '<div>'.$person->getCountry().'</div>';
-			if($person->getEmail()) echo '<div>'.$person->getEmail().'</div>';
 			if($person->getUrl()) echo '<div><a href="'.$person->getUrl().'">'.$person->getUrl().'</a></div>';
 			if($person->getBiography()) echo '<div style="margin:10px;">'.$person->getBiography().'</div>';
 			echo '<div>Login name: '.($person->getUserName()?$person->getUserName():'not registered').'</div>';
@@ -40,10 +49,10 @@ if($userId != $SYMB_UID) $isSelf = false;
 				<div><a href="#" onclick="toggleEditingTools('logineditdiv');return false;">Change Login</a></div>
                 <div><a href="#" onclick="toggleEditingTools('managetokensdiv');return false;">Manage Access</a></div>
 			</div>
-		</div>	
+		</div>
 	</div>
 	<div id="profileeditdiv" style="display:none;margin:15px;">
-		<form name="editprofileform" action="viewprofile.php" method="post" onsubmit="return verifyEditProfileForm(this);">
+		<form name="editprofileform" action="viewprofile.php" method="post">
 			<fieldset>
 				<legend><b>Edit User Profile</b></legend>
 				<table cellspacing='1' style="width:100%;">
@@ -51,7 +60,7 @@ if($userId != $SYMB_UID) $isSelf = false;
 				        <td><b>First Name:</b></td>
 				        <td>
 							<div>
-								<input id="firstname" name="firstname" size="40" value="<?php echo $person->getFirstName();?>">
+								<input id="firstname" name="firstname" size="40" value="<?php echo $person->getFirstName();?>" required />
 							</div>
 			            </td>
 				    </tr>
@@ -59,7 +68,23 @@ if($userId != $SYMB_UID) $isSelf = false;
 				        <td><b>Last Name:</b></td>
 				        <td>
 							<div>
-								<input id="lastname" name="lastname" size="40" value="<?php echo $person->getLastName();?>">
+								<input id="lastname" name="lastname" size="40" value="<?php echo $person->getLastName();?>" required />
+							</div>
+			            </td>
+				    </tr>
+				    <tr>
+				        <td><b>Email Address:</b></td>
+				        <td>
+							<div>
+					            <input id="email" name="email" type="email" size="40" value="<?php echo $person->getEmail();?>" required />
+							</div>
+			            </td>
+				    </tr>
+				    <tr>
+				        <td><b>ORCID or other GUID:</b></td>
+				        <td>
+							<div>
+					            <input name="guid" type="text" size="40" value="<?php echo $person->getGUID();?>" required />
 							</div>
 			            </td>
 				    </tr>
@@ -112,20 +137,12 @@ if($userId != $SYMB_UID) $isSelf = false;
 						</td>
 				    </tr>
 				    <tr>
-				        <td><b>Email Address:</b></td>
-				        <td>
-							<div>
-					            <input id="email" name="email" size="40" value="<?php echo $person->getEmail();?>">
-							</div>
-			            </td>
-				    </tr>
-				    <tr>
 				        <td><b>Url:</b></td>
 				        <td>
 							<div>
 								<input name="url"  size="40" value="<?php echo $person->getUrl();?>">
 							</div>
-	
+
 						</td>
 				    </tr>
 				    <tr>
@@ -139,8 +156,8 @@ if($userId != $SYMB_UID) $isSelf = false;
 				    <tr>
 				        <td colspan="2">
 							<div>
-								<input type="checkbox" name="ispublic" value="1" <?php if($person->getIsPublic()) echo "CHECKED"; ?> /> 
-								Make user information displayable to public  
+								<input type="checkbox" name="ispublic" value="1" <?php if($person->getIsPublic()) echo "CHECKED"; ?> />
+								Make user information displayable to public
 			        		</div>
 						</td>
 				    </tr>
@@ -168,33 +185,33 @@ if($userId != $SYMB_UID) $isSelf = false;
 			<fieldset style='padding:15px;width:500px;'>
 		    	<legend><b>Change Password</b></legend>
 		    	<table>
-					<?php 
-					if($isSelf){ 
+					<?php
+					if($isSelf){
 						?>
 			    		<tr>
 			    			<td>
 				            	<b>Current Password:</b>
 				            </td>
-				            <td> 
+				            <td>
 				            	<input id="oldpwd" name="oldpwd" type="password"/>
 			    			</td>
 			    		</tr>
-						<?php 
+						<?php
 					}
 					?>
 		    		<tr>
 		    			<td>
-			            	<b>New Password:</b> 
+			            	<b>New Password:</b>
 			            </td>
-			            <td> 
+			            <td>
 			            	<input id="newpwd" name="newpwd" type="password"/>
 		    			</td>
 		    		</tr>
 		    		<tr>
 		    			<td>
-							<b>New Password Again:</b> 
+							<b>New Password Again:</b>
 			            </td>
-			            <td> 
+			            <td>
 							<input id="newpwd2" name="newpwd2" type="password"/>
 			    		</td>
 			    	</tr>
@@ -213,8 +230,8 @@ if($userId != $SYMB_UID) $isSelf = false;
 	    	<legend><b>Change Login Name</b></legend>
 			<form name="modifyloginform" action="viewprofile.php" method="post" onsubmit="return verifyModifyLoginForm(this);">
 				<div><b>New Login Name:</b> <input name="newlogin" type="text" /></div>
-				<?php 
-				if($isSelf){ 
+				<?php
+				if($isSelf){
 					?>
 					<div><b>Current Password:</b> <input name="newloginpwd" id="newloginpwd" type="password" /></div>
 					<?php
@@ -244,7 +261,7 @@ if($userId != $SYMB_UID) $isSelf = false;
     </div>
 	<div>
 		<div>
-			<b><u>Taxonomic Relationships</u></b> 
+			<b><u>Taxonomic Relationships</u></b>
 			<a href="#" onclick="toggle('addtaxonrelationdiv')" title="Add a new taxonomic relationship">
 				<img style='border:0px;width:15px;' src='../images/add.png'/>
 			</a>
@@ -253,9 +270,9 @@ if($userId != $SYMB_UID) $isSelf = false;
 			<fieldset style="padding:20px;margin:15px;">
 				<legend><b>New Taxonomic Region of Interest</b></legend>
 				<div style="margin-bottom:10px;">
-					Use this form to define a new taxon-based region of interest. 
-					Contact portal administrators for assignment of new 
-					taxon specific Occurrence Identification and Taxonomic Thesaurus editing status.  
+					Use this form to define a new taxon-based region of interest.
+					Contact portal administrators for assignment of new
+					taxon specific Occurrence Identification and Taxonomic Thesaurus editing status.
 				</div>
 				<form name="addtaxonomyform" action="viewprofile.php" method="post" onsubmit="return verifyAddTaxonomyForm(this)">
 					<div style="margin:3px;">
@@ -268,17 +285,17 @@ if($userId != $SYMB_UID) $isSelf = false;
 							<option value="RegionOfInterest">Region Of Interest</option>
 							<!-- <option value="OccurrenceEditor">Occurrence Editor</option> -->
 						</select>
-					
+
 					</div>
 					<div style="margin:3px;">
 						<b>Geographic Scope Limits</b><br/>
 						<input name="geographicscope" type="text" value="" style="width:90%;"/>
-					
+
 					</div>
 					<div style="margin:3px;">
 						<b>Notes</b><br/>
 						<input name="notes" type="text" value="" style="width:90%;" />
-					
+
 					</div>
 					<div style="margin:20px 10px;">
 						<input name="action" type="submit" value="Add Taxonomic Relationship" />
@@ -286,7 +303,7 @@ if($userId != $SYMB_UID) $isSelf = false;
 				</form>
 			</fieldset>
 		</div>
-		<?php 
+		<?php
 		$userTaxonomy = $person->getUserTaxonomy();
 		if($userTaxonomy){
 			ksort($userTaxonomy);

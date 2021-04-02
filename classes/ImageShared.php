@@ -401,14 +401,13 @@ class ImageShared{
 		if(!$this->imgWebUrl && $this->createWebDerivative){
 			if($this->sourceWidth < ($this->webPixWidth*1.2) && $this->sourceFileSize < $this->webFileSizeLimit){
 				//Source image width and file size is small enough to serve as web image
-				if(strtolower(substr($this->sourcePath,0,7)) == 'http://' || strtolower(substr($this->sourcePath,0,8)) == 'https://'){
+				if(strtolower(substr($this->sourcePath,0,4)) == 'http'){
 					if(copy($this->sourcePath, $this->targetPath.$this->imgName.$this->imgExt, $this->context)){
 						$this->imgWebUrl = $this->imgName.$this->imgExt;
 					}
 				}
-				else{
-					$this->imgWebUrl = $this->imgName.$this->imgExt;
-				}
+				elseif($this->imgLgUrl) $this->imgWebUrl = $this->imgLgUrl;
+				else $this->imgWebUrl = basename($this->sourcePath);
 			}
 			else{
 				//Image width or file size is too large
@@ -908,6 +907,10 @@ class ImageShared{
 
 	public function setSourceUrl($v){
 		$this->sourceUrl = $this->cleanInStr($v);
+	}
+
+	public function setImgLgUrl($v){
+		$this->imgLgUrl = $this->cleanInStr($v);
 	}
 
 	public function setImgWebUrl($v){

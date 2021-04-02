@@ -30,7 +30,7 @@ if($isEditor){
 		elseif($formSubmit == 'Save Outgoing'){
 			$statusStr = $loanManager->editLoanOut($_POST);
 		}
-		elseif($formSubmit == 'Perform Action'){
+		elseif($formSubmit == 'performSpecimenAction'){
 			if(!$loanManager->editSpecimen($_REQUEST)){
 				$statusStr = $loanManager->getErrorMessage();
 			}
@@ -49,29 +49,28 @@ if($isEditor){
 			$statusStr = '<ul>';
 			$statusStr .= '<li><b>'.$cnt.'</b> specimens linked successfully</li>';
 			if($warnArr = $loanManager->getWarningArr()){
-				$statusStr .= '<li>Errors and Warnings</li>';
 				if(isset($warnArr['missing'])){
-					$statusStr .= '<li style="margin-left:10px"><b>Unable to locate following catalog numbers</b></li>';
+					$statusStr .= '<li style="color:red;"><b>Unable to locate following catalog numbers</b></li>';
 					foreach($warnArr['missing'] as $errStr){
-						$statusStr .= '<li style="margin-left:20px">'.$errStr.'</li>';
+						$statusStr .= '<li style="margin-left:10px;color:black;">'.$errStr.'</li>';
 					}
 				}
 				if(isset($warnArr['multiple'])){
-					$statusStr .= '<li style="margin-left:10px"><b>Catalog numbers with multiple matches</b></li>';
+					$statusStr .= '<li style="color:orange;"><b>Catalog numbers with multiple matches</b></li>';
 					foreach($warnArr['multiple'] as $errStr){
-						$statusStr .= '<li style="margin-left:20px">'.$errStr.'</li>';
+						$statusStr .= '<li style="margin-left:10px;color:black;">'.$errStr.'</li>';
 					}
 				}
 				if(isset($warnArr['dupe'])){
-					$statusStr .= '<li style="margin-left:10px"><b>Specimens already linked to loan</b></li>';
+					$statusStr .= '<li style="color:orange"><b>Specimens already linked to loan</b></li>';
 					foreach($warnArr['dupe'] as $errStr){
-						$statusStr .= '<li style="margin-left:20px">'.$errStr.'</li>';
+						$statusStr .= '<li style="margin-left:10px;color:black;">'.$errStr.'</li>';
 					}
 				}
 				if(isset($warnArr['error'])){
-					$statusStr .= '<li style="margin-left:10px"><b>Misc errors</b></li>';
+					$statusStr .= '<li style="color:red;"><b>Misc errors</b></li>';
 					foreach($warnArr['error'] as $errStr){
-						$statusStr .= '<li style="margin-left:20px">'.$errStr.'</li>';
+						$statusStr .= '<li style="margin-left:10px;color:black;">'.$errStr.'</li>';
 					}
 				}
 				$statusStr .= '</ul>';
@@ -81,6 +80,10 @@ if($isEditor){
 		elseif($formSubmit == 'saveSpecimenNotes'){
 			if($loanManager->editSpecimenNotes($loanId,$_POST['occid'],$_POST['notes'])) $statusStr = true;
 			echo $statusStr = $loanManager->getErrorMessage();
+		}
+		elseif($formSubmit == "exportSpecimenList"){
+			$loanManager->exportSpecimenList($loanId);
+			exit;
 		}
 	}
 }
@@ -105,6 +108,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
+		var skipFormVerification = false;
 
 		function verifyLoanOutEditForm(){
 			var submitStatus = true;
@@ -203,6 +207,8 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 		}
 
 		function verifySpecEditForm(f){
+			if(skipFormVerification) return true;
+			skipFormVerification = false;
 			//Make sure at least on specimen checkbox is checked
 			var cbChecked = false;
 			var dbElements = document.getElementsByName("occid[]");

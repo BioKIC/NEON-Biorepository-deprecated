@@ -488,6 +488,31 @@ class OccurrenceLoans extends Manager{
 		return $retStr;
 	}
 
+	public function exportSpecimenList($loanid){
+		$fileName = 'loanSpecList_'.date('Ymd').'.csv';
+		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header ('Content-Type: text/csv');
+		header ('Content-Disposition: attachment; filename="'.$fileName.'"');
+		$sql = 'SELECT o.catalogNumber, o.otherCatalogNumbers, o.occurrenceID, o.family, o.sciname, o.recordedBy, o.recordNumber, o.eventDate, '.
+			'o.country, o.stateProvince, o.county, o.locality, o.decimalLatitude, o.decimalLongitude, o.minimumElevationInMeters, o.dateEntered, o.dateLastModified '.
+			'FROM omoccurrences o INNER JOIN omoccurloanslink l ON o.occid = l.occid '.
+			'WHERE loanid = '.$loanid;
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows){
+			$headerArr = array();
+			$fields = mysqli_fetch_fields($rs);
+			foreach($fields as $val) $headerArr[] = $val->name;
+			$out = fopen('php://output', 'w');
+			fputcsv($out, $headerArr);
+			while($r = $rs->fetch_assoc()){
+				fputcsv($out, $r);
+			}
+			$rs->free();
+			fclose($out);
+		}
+		else echo "Specimen recordset is empty.\n";
+	}
+
 	public function linkSpecimen($loanid, $catNum){
 		//This method is used by the ajax script insertLoanSpecimen.php
 		if(is_numeric($loanid)){
@@ -538,11 +563,14 @@ class OccurrenceLoans extends Manager{
 
 	private function getOccid($catNum, $otherCatNum = false){
 		$occArr = array();
-		$sql = 'SELECT occid FROM omoccurrences WHERE ';
-		if($otherCatNum) $sql .= '(othercatalognumbers = "'.$this->cleanInStr($catNum).'") ';
-		else $sql .= '(catalognumber = "'.$this->cleanInStr($catNum).'") ';
-		if($this->collid) $sql .= 'AND (collid = '.$this->collid.')';
-		//echo $sql;
+		$sql = 'SELECT o.occid FROM omoccurrences o ';
+		if($otherCatNum){
+			$catNum = $this->cleanInStr($catNum);
+			$sql .= 'LEFT JOIN omoccuridentifiers i ON o.occid = i.occid WHERE ((o.othercatalognumbers = "'.$catNum.'") OR (i.identifierValue = "'.$catNum.'")) ';
+		}
+		else $sql .= 'WHERE (o.catalognumber = "'.$this->cleanInStr($catNum).'") ';
+		if($this->collid) $sql .= 'AND (o.collid = '.$this->collid.')';
+		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()) {
 			$occArr[] = $r->occid;

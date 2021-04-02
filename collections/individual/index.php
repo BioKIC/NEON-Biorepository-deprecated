@@ -252,6 +252,7 @@ $traitArr = $indManager->getTraitArr();
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
 		.occur-ref{ margin: 10px 0px }
 		.traitDiv{ margin:20px; }
+		.traitName{ font-weight:bold; }
 	</style>
 </head>
 <body>

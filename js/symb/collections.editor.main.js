@@ -1,7 +1,6 @@
 var pauseSubmit = false;
 var imgAssocCleared = false;
 var voucherAssocCleared = false;
-var abortFormVerification = false;
 
 $(document).ready(function() {
 	
@@ -17,7 +16,14 @@ $(document).ready(function() {
 		var ffversion=new Number(RegExp.$1);
 		if(ffversion < 7 ) alert("You are using an older version of Firefox. For best results, we recommend that you update your browser.");
 	}
-
+	
+	$("form#fullform :input").on('input', function() {
+		var skipFields = ["carryover","assocrelation","targetcollid","clonecount"];
+		if(jQuery.inArray( $(this).attr('name'), skipFields ) == -1){
+			$("button").prop("disabled",false);
+		}
+	});
+	
 	$("#occedittabs").tabs({
 		select: function(event, ui) {
 			if(verifyLeaveForm()){
@@ -241,7 +247,7 @@ $(document).ready(function() {
 
 	$("#catalognumber").keydown(function(evt){
 		var evt  = (evt) ? evt : ((event) ? event : null);
-		if ((evt.keyCode == 13)) { return false; }
+		if(evt.keyCode == 13) return false;
 	});
 	
 	if(document.getElementById('hostDiv')){
@@ -349,7 +355,6 @@ function fieldChanged(fieldName){
 	}
 	catch(ex){
 	}
-	document.fullform.submitaction.disabled = false;
 }
 
 function recordNumberChanged(){
@@ -678,7 +683,6 @@ function parseVerbatimCoordinates(f,verbose){
 //Form verification code
 function verifyFullForm(f){
 	f.submitaction.focus();
-	if(abortFormVerification) return true;
 
 	if(searchDupesCatalogNumber(f,false)) return false;
 	var validformat1 = /^\d{4}-[0]{1}[0-9]{1}-\d{1,2}$/; //Format: yyyy-mm-dd
@@ -759,10 +763,64 @@ function verifyFullFormEdits(f){
 	return true;
 }
 
-function verifyGotoNew(f){
-	abortFormVerification = true;
-	f.gotomode.value = 1;
-	f.submit();
+function prePopulateCatalogNumbers(){
+	$("#cloneCatalogNumber-Fieldset").show();
+	var catCnt = document.getElementById("clonecount").value;
+	if(catCnt == "" || !isNumeric(catCnt)) return false;
+	var cloneDiv = document.getElementById("cloneCatalogNumberDiv");
+	cloneDiv.innerHTML = "";
+	for(var i=0;i < catCnt;i++){
+		var newInput = document.createElement("input");
+		newInput.setAttribute("id", "clonecat-"+i);
+		newInput.setAttribute("name", "clonecatnum[]");
+		newInput.setAttribute("type", "text");
+		var newDiv = document.createElement("div");
+		var newText = document.createTextNode("Catalog Number "+(i+1)+": ");
+		newDiv.appendChild(newText);
+		newDiv.setAttribute("class", "fieldGroupDiv");
+		newDiv.appendChild(newInput);
+		if(i == 0){
+			var newImg = document.createElement("img");
+			newImg.setAttribute("src", "../../images/downarrow.png");
+			newImg.setAttribute("style", "width:12px");
+			var newAnchor = document.createElement("a");
+			newAnchor.setAttribute("href", "#");
+			newAnchor.setAttribute("onclick", "autoIncrementCat();return false");
+			newAnchor.appendChild(newImg);
+			newDiv.appendChild(newAnchor);
+		}
+		cloneDiv.appendChild(newDiv);
+	}
+	return false;
+}
+
+function autoIncrementCat(){
+	let catSeed = document.getElementById("clonecat-0").value;
+	if(catSeed != ""){
+		let prefix = '';
+		for(let h = 0; h < catSeed.length; h++) {
+			if(isNumeric(catSeed.charAt(h))) break;
+			else prefix = prefix + catSeed.charAt(h);
+		}
+		let suffix = ''; 
+		for(let i = catSeed.length; i > 0; i--) {
+			if(isNumeric(catSeed.charAt(i-1))) break;
+			else suffix =  catSeed.charAt(i-1)+suffix;
+		}
+		let seed = catSeed.substring(prefix.length,(catSeed.length-suffix.length));
+		$("input[id^='clonecat']").each(function(){
+			let cnt = parseInt($(this).attr("id").substr(9));
+			if(cnt > 0){
+				let newNum = parseInt(seed)+cnt;
+				newNum = newNum.toString();
+				if(seed.substr(0,1) == "0"){
+					let numLength = seed.length;
+					while(newNum.length < numLength) newNum = "0" + newNum;
+				}
+				$(this).val(prefix+newNum+suffix);				
+			}
+		});
+	}
 }
 
 function verifyDecimalLatitude(f){

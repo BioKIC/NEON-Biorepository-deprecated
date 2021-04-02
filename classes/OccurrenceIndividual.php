@@ -367,7 +367,7 @@ class OccurrenceIndividual extends Manager{
 	public function getTraitArr(){
 		$retArr = array();
 		if($this->occid){
-			$sql = 'SELECT t.traitid, t.traitName, t.description AS t_desc, t.refUrl AS t_url, s.stateid, s.stateName, s.description AS s_desc, s.refUrl AS s_url, d.parentstateid '.
+			$sql = 'SELECT t.traitid, t.traitName, t.traitType, t.description AS t_desc, t.refUrl AS t_url, s.stateid, s.stateName, s.description AS s_desc, s.refUrl AS s_url, d.parentstateid '.
 				'FROM tmattributes a INNER JOIN tmstates s ON a.stateid = s.stateid '.
 				'INNER JOIN tmtraits t ON s.traitid = t.traitid '.
 				'LEFT JOIN tmtraitdependencies d ON t.traitid = d.traitid '.
@@ -378,6 +378,7 @@ class OccurrenceIndividual extends Manager{
 					$retArr[$r->traitid]['name'] = $r->traitName;
 					$retArr[$r->traitid]['desc'] = $r->t_desc;
 					$retArr[$r->traitid]['url'] = $r->t_url;
+					$retArr[$r->traitid]['type'] = $r->traitType;
 					$retArr[$r->traitid]['depStateID'] = $r->parentstateid;
 					$retArr[$r->traitid]['state'][$r->stateid]['name'] = $r->stateName;
 					$retArr[$r->traitid]['state'][$r->stateid]['desc'] = $r->s_desc;
@@ -404,7 +405,9 @@ class OccurrenceIndividual extends Manager{
 	public function echoTraitDiv($traitArr, $targetID, $ident = 15){
 		$tArr = $traitArr[$targetID];
 		foreach($tArr['state'] as $stateID => $sArr){
-			$this->echoTraitUnit($sArr,$ident);
+			$label = '';
+			if($tArr['type'] == 'TF') $label = $traitArr[$targetID]['name'];
+			$this->echoTraitUnit($sArr, $label, $ident);
 			if(array_key_exists('depTraitID',$sArr)){
 				foreach($sArr['depTraitID'] as $depTraitID){
 					$this->echoTraitDiv($traitArr, $depTraitID, $ident+15);
@@ -413,10 +416,13 @@ class OccurrenceIndividual extends Manager{
 		}
 	}
 
-	public function echoTraitUnit($outArr, $indent=0){
+	public function echoTraitUnit($outArr, $label = '', $indent=0){
 		echo '<div style="margin-left:'.$indent.'px">';
 		if($outArr['url']) echo '<a href="'.$outArr['url'].'" target="_blank">';
-		echo '<b>'.$outArr['name'].'</b> ';
+		echo '<span class="traitName">';
+		if($label) echo $label.' ';
+		echo $outArr['name'];
+		echo '</span>';
 		if($outArr['url']) echo '</a>';
 		if($outArr['desc']) echo ': '.$outArr['desc'];
 		echo '</div>';

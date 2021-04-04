@@ -420,6 +420,42 @@ const dropdownsArr = [
       { value: 'mb-12', text: '12' },
     ],
   },
+  {
+    id: 'ml',
+    name: 'spacing-left',
+    group: 'field-block',
+    options: [
+      { value: '', text: 'Line Spacing Left' },
+      { value: 'ml-0', text: '0' },
+      { value: 'ml-1', text: '1' },
+      { value: 'ml-2', text: '2' },
+      { value: 'ml-3', text: '3' },
+      { value: 'ml-4', text: '4' },
+      { value: 'ml-5', text: '5' },
+      { value: 'ml-6', text: '6' },
+      { value: 'ml-8', text: '8' },
+      { value: 'ml-10', text: '10' },
+      { value: 'ml-12', text: '12' },
+    ],
+  },
+  // {
+  //   id: 'mr',
+  //   name: 'spacing-right',
+  //   group: 'field-block',
+  //   options: [
+  //     { value: '', text: 'Line Spacing Right' },
+  //     { value: 'mr-0', text: '0' },
+  //     { value: 'mr-1', text: '1' },
+  //     { value: 'mr-2', text: '2' },
+  //     { value: 'mr-3', text: '3' },
+  //     { value: 'mr-4', text: '4' },
+  //     { value: 'mr-5', text: '5' },
+  //     { value: 'mr-6', text: '6' },
+  //     { value: 'mr-8', text: '8' },
+  //     { value: 'mr-10', text: '10' },
+  //     { value: 'mr-12', text: '12' },
+  //   ],
+  // },
 ];
 const dummy = document.getElementById('dummy');
 const fieldDiv = document.getElementById('fields');

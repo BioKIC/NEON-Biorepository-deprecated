@@ -403,14 +403,16 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function echoTraitDiv($traitArr, $targetID, $ident = 15){
-		$tArr = $traitArr[$targetID];
-		foreach($tArr['state'] as $stateID => $sArr){
-			$label = '';
-			if($tArr['type'] == 'TF') $label = $traitArr[$targetID]['name'];
-			$this->echoTraitUnit($sArr, $label, $ident);
-			if(array_key_exists('depTraitID',$sArr)){
-				foreach($sArr['depTraitID'] as $depTraitID){
-					$this->echoTraitDiv($traitArr, $depTraitID, $ident+15);
+		if(array_key_exists($targetID,$traitArr)){
+			$tArr = $traitArr[$targetID];
+			foreach($tArr['state'] as $stateID => $sArr){
+				$label = '';
+				if($tArr['type'] == 'TF') $label = $traitArr[$targetID]['name'];
+				$this->echoTraitUnit($sArr, $label, $ident);
+				if(array_key_exists('depTraitID',$sArr)){
+					foreach($sArr['depTraitID'] as $depTraitID){
+						$this->echoTraitDiv($traitArr, $depTraitID, $ident+15);
+					}
 				}
 			}
 		}

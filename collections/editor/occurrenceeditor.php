@@ -1246,21 +1246,19 @@ else{
 													<?php echo (defined('REPRODUCTIVECONDITIONLABEL')?REPRODUCTIVECONDITIONLABEL:'Phenology'); ?>
 													<a href="#" onclick="return dwcDoc('reproductiveCondition')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 													<?php
-													if(isset($reproductiveConditionTerms)){
-														if($reproductiveConditionTerms){
-															?>
-															<select name="reproductivecondition" onchange="fieldChanged('reproductivecondition');" tabindex="99" >
-																<option value="">-----------------</option>
-																<?php
-																foreach($reproductiveConditionTerms as $term){
-																	echo '<option value="'.$term.'" '.(isset($occArr['reproductivecondition']) && $term==$occArr['reproductivecondition']?'SELECTED':'').'>'.$term.'</option>';
-																}
-																?>
-															</select>
+													if(isset($reproductiveConditionTerms) && $reproductiveConditionTerms){
+														?>
+														<select name="reproductivecondition" onchange="fieldChanged('reproductivecondition');" tabindex="99" >
+															<option value="">-----------------</option>
 															<?php
-														}
+															foreach($reproductiveConditionTerms as $term){
+																echo '<option value="'.$term.'" '.(isset($occArr['reproductivecondition']) && $term==$occArr['reproductivecondition']?'SELECTED':'').'>'.$term.'</option>';
+															}
+															?>
+														</select>
+														<?php
 													}
-													else '<input type="text" name="reproductivecondition" tabindex="99" maxlength="255" value="'.(array_key_exists('reproductivecondition',$occArr)?$occArr['reproductivecondition']:'').'" onchange="fieldChanged(\'reproductivecondition\');" />';
+													else echo '<input type="text" name="reproductivecondition" tabindex="99" maxlength="255" value="'.(array_key_exists('reproductivecondition',$occArr)?$occArr['reproductivecondition']:'').'" onchange="fieldChanged(\'reproductivecondition\');" />';
 													?>
 												</div>
 												<div id="establishmentMeansDiv">

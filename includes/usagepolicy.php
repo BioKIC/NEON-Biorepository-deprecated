@@ -46,8 +46,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php'; ?>, YYYY-MM-DD)<br/><br/>
 					<b>For example:</b><br/>
 					Biodiversity occurrence data published by:
-					Field Museum of Natural History, Museum of Vertebrate Zoology, and New York Botanical Garden
-					(Accessed through <?php echo $DEFAULT_TITLE; ?> Data Portal,
+					NEON (National Ecological Observatory Network) and NEON Biorepository, Arizona State University Biodiversity Knowledge Integration Center (Accessed through <?php echo $DEFAULT_TITLE; ?> Data Portal,
 					<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php, '.date('Y-m-d').')'; ?>
 				</div>
 			</div>
@@ -59,21 +58,21 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		    <div style="margin:10px;">
 				<ul>
 					<li>
-						While <?php echo $DEFAULT_TITLE; ?> will make every effort possible to control and document the quality
+						While the <?php echo $DEFAULT_TITLE; ?> will make every effort possible to control and document the quality 
 						of the data it publishes, the data are made available "as is". Any report of errors in the data should be
 						directed to the appropriate curators and/or collections managers.
 					</li>
 					<li>
-						<?php echo $DEFAULT_TITLE; ?> cannot assume responsibility for damages resulting from mis-use or
+						The <?php echo $DEFAULT_TITLE; ?> cannot assume responsibility for damages resulting from mis-use or
 						mis-interpretation of datasets or from errors or omissions that may exist in the data.
 					</li>
 					<li>
 						It is considered a matter of professional ethics to cite and acknowledge the work of other scientists that
-						has resulted in data used in subsequent research. We encourages users to
+						has resulted in data used in subsequent research. We encourage users to
 						contact the original investigator responsible for the data that they are accessing.
 					</li>
 					<li>
-						<?php echo $DEFAULT_TITLE; ?> asks that users not redistribute data obtained from this site without permission for data owners.
+						The <?php echo $DEFAULT_TITLE; ?> asks that users not redistribute data obtained from this site without permission for data owners.
 						However, links or references to this site may be freely posted.
 					</li>
 				</ul>
@@ -99,7 +98,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				By making these specimens available on the web as images, their availability and
 				value improves without an increase in inadvertent damage caused by use. Note that
 				if you are considering making specimens, remember collecting normally requires
-				permission of the landowner and, in the case of rare and endangered plants,
+				permission of the landowner and, in the case of rare and endangered organisms,
 				additional permits may be required. It is best to coordinate such efforts with a
 				regional institution that manages a publically accessible collection.
 			</div>

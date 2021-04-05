@@ -2216,10 +2216,12 @@ class OccurrenceEditorManager {
 			'FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v ON t.cvID = v.cvID '.
 			'WHERE v.tablename = "omoccurassociations" AND v.fieldName = "relationship" ORDER BY term';
 		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->cvTermID] = $r->term;
+		if($rs){
+			while($r = $rs->fetch_object()){
+				$retArr[$r->cvTermID] = $r->term;
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retArr;
 	}
 

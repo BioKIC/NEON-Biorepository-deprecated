@@ -49,6 +49,47 @@ body {
 }
 
 
+/* Alerts */
+
+.alerts {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 15px;
+  pointer-events: none;
+}
+
+.alerts .alert {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: rgb(125 206 55);
+  color: #fff;
+  font-size: 14px;
+  -webkit-transform: translateY(300px);
+  transform: translateY(300px);
+  pointer-events: all;
+  margin-bottom: 10px;
+  -webkit-animation: slide-in 1s ease-out forwards;
+  animation: slide-in 1s ease-out forwards;
+}
+
+@-webkit-keyframes slide-in {
+  to {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+  }
+}
+
+@keyframes slide-in {
+  to {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+  }
+}
+
+
 /******* 2. LAYOUT ********/
 
 #innertext img {

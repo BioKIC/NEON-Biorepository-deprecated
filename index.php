@@ -28,7 +28,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<h1 class="centered">Discover and access sample-based data</h1>
 
 		<section>
-			<div class="row">
+      <div class="row">
+        <div id="alert-msgs" class="alerts visually-hidden"></div>
 				<img src="images/layout/Home-Map-2.jpg" alt="Map with samples collected within NEON sites" class="hide-on-small" style="width:100%;">
 				<img src="images/layout/map-mobile.jpg" alt="Map with samples collected within NEON sites" class="hide-on-large">
 				<p class="hide-on-small"><span style="font-size: 70%; line-height: 1">Samples available in the portal (Aug 2019), collected in Alaska (top left), Continental US (center), and Puerto Rico (bottom right). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
@@ -126,4 +127,5 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	</div>
 	<?php include($SERVER_ROOT.'/includes/footer.php'); ?>
 </body>
+<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/neon/js/home.alerts.js?ver=1"></script>
 </html>

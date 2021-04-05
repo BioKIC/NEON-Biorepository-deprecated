@@ -9,6 +9,9 @@ ALTER TABLE `lkupstateprovince`
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `fulldescription` `fulldescription` VARCHAR(5000) NULL DEFAULT NULL ;
 
+ALTER TABLE `fmchecklists` 
+  ADD COLUMN `cidKeyLimits` VARCHAR(250) NULL AFTER `Access`;
+
 ALTER TABLE `fmchklstprojlink` 
    ADD COLUMN `sortSequence` INT NULL AFTER `mapChecklist`;
 
@@ -149,7 +152,8 @@ ALTER TABLE `uploadspecparameters`
   ADD CONSTRAINT `FK_uploadspecparameters_uid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE SET NULL;
 
 ALTER TABLE `uploadspecparameters` 
-  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL ;
+  CHANGE COLUMN `Path` `Path` VARCHAR(500) NULL DEFAULT NULL,
+  CHANGE COLUMN `QueryStr` `QueryStr` TEXT NULL DEFAULT NULL;
 
 ALTER TABLE `uploadimagetemp` 
   CHANGE COLUMN `specimengui` `sourceIdentifier` VARCHAR(150) NULL DEFAULT NULL;
@@ -409,6 +413,11 @@ ALTER TABLE `omoccurassociations`
   CHANGE COLUMN `modifieduid` `modifiedUid` INT(10) UNSIGNED NULL DEFAULT NULL ,
   ADD COLUMN `subType` VARCHAR(45) NULL AFTER `relationship`;
 
+ALTER TABLE `tmtraits` 
+  ADD COLUMN `projectGroup` VARCHAR(45) NULL AFTER `notes`,
+  ADD COLUMN `isPublic` INT NULL DEFAULT 1 AFTER `projectGroup`,
+  ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
+
 ALTER TABLE `omoccurassociations` 
   ADD CONSTRAINT `FK_occurassoc_occidassoc`  FOREIGN KEY (`occidAssociate`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_occurassoc_uidcreated`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
@@ -418,6 +427,7 @@ ALTER TABLE `omoccurassociations`
   ADD UNIQUE INDEX `UQ_omoccurassoc_occid` (`occid` ASC, `occidAssociate` ASC, `relationship` ASC),
   ADD UNIQUE INDEX `UQ_omoccurassoc_external` (`occid` ASC, `relationship` ASC, `resourceUrl` ASC),
   ADD UNIQUE INDEX `UQ_omoccurassoc_sciname` (`occid` ASC, `verbatimSciname` ASC);
+
 
 ALTER TABLE `omoccurdatasets` 
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
@@ -446,6 +456,8 @@ CREATE TABLE `igsnverification` (
   INDEX `INDEX_igsn` (`igsn` ASC),
   CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
 
+ALTER TABLE `igsnverification` 
+ ADD COLUMN `catalogNumber` VARCHAR(45) NULL AFTER `occid`;
 
 CREATE TABLE `omoccurloanuser` (
   `loanid` INT UNSIGNED NOT NULL,

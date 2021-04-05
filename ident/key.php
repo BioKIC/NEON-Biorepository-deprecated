@@ -33,7 +33,7 @@ $langValue = 'English';
 $dataManager = new KeyDataManager();
 
 //if(!$langValue) $langValue = $defaultLang;
-if($displayMode) $dataManager->setCommonDisplay(true);;
+if($displayMode) $dataManager->setDisplayMode(true);
 $dataManager->setLanguage($langValue);
 if($pid) $dataManager->setProject($pid);
 if($dynClid) $dataManager->setDynClid($dynClid);
@@ -70,6 +70,12 @@ if($chars){
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script type="text/javascript" src="../js/symb/ident.key.js"></script>
+	<style>
+		#keycharcolumn { vertical-align: top; width: 30%; }
+		#keymidcolumn { width: 20px; }
+		#keytaxacolumn { vertical-align: top; width: 65%; }
+		.dynamlang { margin-top: 0.5em; font-weight: bold; }
+	</style>
 </head>
 <body>
 	<?php
@@ -165,6 +171,7 @@ if($chars){
 						echo "</select></div>\n";
 					}
 					echo "<div style='margin:5px'>".$LANG['DISPLAY'].": <select name='displaymode' onchange='javascript: document.forms[0].submit();'><option value='0'>".$LANG['SCINAME']."</option><option value='1'".($displayMode?" SELECTED":"").">".$LANG['COMMON']."</option></select></div>";
+					//echo "<div style='margin:5px'>".$LANG['DISPLAY'].": <select name='displaymode' onchange='javascript: document.forms[0].submit();'><option value='0'>".$LANG['SCINAME']."</option><option value='1'".($displayMode?" SELECTED":"").">".$LANG['COMMON']."</option></select></div>";
 					if($chars){
 						//echo "<div id='showall' class='dynamControl' style='display:none'><a href='#' onclick='javascript: toggleAll();'>Show All Characters</a></div>\n";
 						//echo "<div class='dynamControl' style='display:block'><a href='#' onclick='javascript: toggleAll();'>Hide Advanced Characters</a></div>\n";

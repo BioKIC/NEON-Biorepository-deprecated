@@ -414,6 +414,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$sqlWhere .= "AND (o.occid IN(SELECT occid FROM omoccurgenetic)) ";
 			$this->displaySearchArr[] = 'has genetic data';
 		}
+		if(array_key_exists("hascoords",$this->searchTermArr)){
+			$sqlWhere .= "AND (o.decimalLatitude IS NOT NULL) ";
+			$this->displaySearchArr[] = 'has geocoordinates';
+		}
 		if($sqlWhere){
 			if(!array_key_exists("includecult",$this->searchTermArr)){
 				$sqlWhere .= "AND (o.cultivationStatus IS NULL OR o.cultivationStatus = 0) ";
@@ -423,6 +427,27 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$this->displaySearchArr[] = 'includes cultivated/captive occurrences';
 			}
 		}
+		$anyTraitsHere = false;
+		$stateids = array();
+		foreach($this->searchTermArr as $stkey => $stval){
+			if("traitid-" == substr($stkey, 0, 8) && is_numeric($stval)) {
+				$stateids[] = $stval;
+				$anyTraitsHere = true;
+			}
+		}
+		if($anyTraitsHere == true) {
+			$traitSql = implode(',', $stateids);
+			$traitNameSql = 'SELECT CONCAT_WS(": ", t.traitname, s.statename) AS traitName FROM tmtraits t JOIN tmstates s ON s.traitid = t.traitid WHERE s.stateid IN(' . $traitSql . ')';
+			$rs = $this->conn->query($traitNameSql);
+			if($rs){
+				while($r = $rs->fetch_object()) {
+					$this->displaySearchArr[] = $r->traitName;
+				}
+				$rs->free();
+			}
+			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM tmattributes WHERE stateid IN(' . $traitSql . ')))';
+		}
+
 		if($sqlWhere){
 			$this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
 		}
@@ -824,12 +849,30 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				unset($this->searchTermArr["hasgenetic"]);
 			}
 		}
+		if(array_key_exists("hascoords",$_REQUEST)){
+			if($_REQUEST["hascoords"]){
+				$this->searchTermArr["hascoords"] = true;
+			}
+			else{
+				unset($this->searchTermArr["hascoords"]);
+			}
+		}
 		if(array_key_exists("includecult",$_REQUEST)){
 			if($_REQUEST["includecult"]){
 				$this->searchTermArr["includecult"] = true;
 			}
 			else{
 				unset($this->searchTermArr["includecult"]);
+			}
+		}
+		// Traits search: loop over all "traitid-" fields
+		foreach ($_REQUEST as $reqkey => $reqval){
+			if("traitid-" == substr($reqkey, 0, 8)){
+				if($reqval){
+					$this->searchTermArr[$reqkey] = $reqval[0];
+				} else {
+					unset($this->searchTermArr[$reqkey]);
+				}
 			}
 		}
 		$llPattern = '-?\d+\.{0,1}\d*';

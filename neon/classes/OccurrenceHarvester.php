@@ -8,7 +8,9 @@ class OccurrenceHarvester{
 	private $conn;
 	private $stateArr = array();
 	private $sampleClassArr = array();
+	private $domainSiteArr = array();
 	private $replaceFieldValues = false;
+	private $targetFieldArr = array();
 	private $neonApiKey;
 	private $errorStr;
 
@@ -42,6 +44,7 @@ class OccurrenceHarvester{
 
 	public function batchHarvestOccid($postArr){
 		set_time_limit(3600);
+		//Set variables
 		if(isset($postArr['replaceFieldValues']) && $postArr['replaceFieldValues']) $this->setReplaceFieldValues(true);
 		$sqlWhere = '';
 		if(isset($postArr['scbox'])){
@@ -66,8 +69,16 @@ class OccurrenceHarvester{
 			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
 			else $sqlWhere .= 'LIMIT 1000 ';
 		}
+		if(isset($postArr['targetFields']) && $postArr['targetFields']){
+			$targetArr = $postArr['targetFields'];
+			foreach($targetArr as $field){
+				$this->setTargetFieldArr($field);
+			}
+		}
+		//Start harvest
 		if($sqlWhere){
 			$this->setStateArr();
+			$this->setDomainSiteArr();
 			if($this->setSampleClassArr()){
 				$collArr = array();
 				$occidArr = array();
@@ -77,7 +88,7 @@ class OccurrenceHarvester{
 					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
 					'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) '.$sqlWhere;
-				//echo $sql.'<br/>'; exit;
+				//echo $sql.'<br/>';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					$this->errorStr = '';
@@ -176,7 +187,6 @@ class OccurrenceHarvester{
 			if($sampleArr['sampleID'] && $sampleArr['sampleClass']){
 				//If sampleId and sampleClass are not correct, nothing will be returned
 				$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->neonApiKey.'&sampleTag='.urlencode($sampleArr['sampleID']).'&sampleClass='.urlencode($sampleArr['sampleClass']);
-				//echo $url;
 				$viewArr = $this->getSampleApiData($url);
 				if($viewArr){
 					if($viewArr['barcode']) $sampleArr['sampleCode'] = $viewArr['barcode'];
@@ -199,15 +209,13 @@ class OccurrenceHarvester{
 			$sampleArr['sampleUuid'] = $viewArr['sampleUuid'];
 			$this->conn->query('UPDATE NeonSample SET sampleUuid = "'.$viewArr['sampleUuid'].'" WHERE (sampleUuid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
 		}
-		//Override namedLocation that is in the manifest
+		//If available via API, override namedLocation that has been supplied with the manifest
 		if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
 			$sampleArr['namedLocation'] = $viewArr['namedLocation'];
 		}
-
 		if(isset($viewArr['parentID']) && $viewArr['parentID']){
 			$sampleArr['parentID'] = $viewArr['parentID'];
 		}
-
 		/*
 		if($viewArr['collectDate'] != $sampleArr['collectDate']){
 			$this->errorStr = 'collectDate failed to validate ('.$dateStr.' != '.$sampleArr['collectDate'].')';
@@ -215,11 +223,11 @@ class OccurrenceHarvester{
 			//return false;
 		}
 		*/
-
 		return true;
 	}
 
-	private function getSampleApiData($url){
+	private function getSampleApiData($url, $earliestDate = '2050-01-01'){
+		//echo 'url: '.$url.'<br/>';
 		$sampleViewArr = $this->getNeonApiArr($url);
 		if(!isset($sampleViewArr['sampleViews'])){
 			//$this->errorStr = 'no sampleViews exist';
@@ -232,10 +240,23 @@ class OccurrenceHarvester{
 		$viewArr = current($sampleViewArr['sampleViews']);
 		//parse Sample Event details
 		$eventArr = $viewArr['sampleEvents'];
-		$earliestDate = '2050-01-01';
 		$preferredLocation = '';
 		foreach($eventArr as $k => $eArr){
 			if(substr($eArr['ingestTableName'],0,4) == 'scs_') continue;
+			if(strpos($eArr['ingestTableName'],'shipment')) continue;
+			if(strpos($eArr['ingestTableName'],'identification')) continue;
+			if(strpos($eArr['ingestTableName'],'sorting')) continue;
+			if(strpos($eArr['ingestTableName'],'archivepooling')) continue;
+			if(strpos($eArr['ingestTableName'],'archivedata')) continue;
+			if(strpos($eArr['ingestTableName'],'barcoding')) continue;
+			if(strpos($eArr['ingestTableName'],'metabarcodeTaxonomy')) continue;
+			if(strpos($eArr['ingestTableName'],'pcrAmplification')) continue;
+			if(strpos($eArr['ingestTableName'],'markerGeneSequencing')) continue;
+			if(strpos($eArr['ingestTableName'],'dnaStandardTaxon')) continue;
+			if(strpos($eArr['ingestTableName'],'dnaExtraction')) continue;
+			if(strpos($eArr['ingestTableName'],'persample')) continue;
+			if(strpos($eArr['ingestTableName'],'pertaxon')) continue;
+			if(strpos($eArr['ingestTableName'],'pervial')) continue;
 			$fateLocation = '';
 			$fateDate = '';
 			$fieldArr = $eArr['smsFieldEntries'];
@@ -243,20 +264,29 @@ class OccurrenceHarvester{
 				if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
 				elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
 			}
-			if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false && $fateLocation){
-				$preferredLocation = $fateLocation;
-				break;
-			}
-			elseif($fateDate && $fateDate < $earliestDate){
-				$preferredLocation = $fateLocation;
+			if($fateLocation){
+				if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false){
+					$preferredLocation = $fateLocation;
+					break;
+				}
+				elseif($fateDate && $fateDate < $earliestDate){
+					$earliestDate = $fateDate;
+					$preferredLocation = $fateLocation;
+				}
 			}
 		}
-		if($preferredLocation) $viewArr['namedLocation'] = $preferredLocation;
 
 		//Get parent identifier
 		if(isset($viewArr['parentSampleIdentifiers'][0]['sampleUuid'])){
 			$viewArr['parentID'] = $viewArr['parentSampleIdentifiers'][0]['sampleUuid'];
+			if(!$preferredLocation){
+				//Try to get namedLocation from parent
+				$parUrl = 'https://data.neonscience.org/api/v0/samples/view?sampleUuid='.$viewArr['parentID'];
+				$parViewArr = $this->getSampleApiData($parUrl,$earliestDate);
+				if(isset($parViewArr['namedLocation']) && $parViewArr['namedLocation']) $preferredLocation = $parViewArr['namedLocation'];
+			}
 		}
+		if($preferredLocation) $viewArr['namedLocation'] = $preferredLocation;
 
 		return $viewArr;
 		/*
@@ -325,24 +355,24 @@ class OccurrenceHarvester{
 					if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
 					else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
 				}
-
-				//Special case for Mosquito samples
-				if($sampleArr['sampleClass'] == 'mos_identification_in.individualIDList' || $sampleArr['sampleClass'] == 'mos_archivepooling_in.archiveVialIDList'){
-					if(isset($sampleArr['parentID'])){
-						$this->adjustMosquitoData($sampleArr, $dwcArr);
-					}
-				}
-				elseif(!isset($dwcArr['eventDate'])){
+				//Get date from sampleID
+				if(!isset($dwcArr['eventDate'])){
 					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
 				}
 				//Build proper location code
 				if($this->setNeonLocationData($dwcArr, $sampleArr['namedLocation'])){
+					if(isset($dwcArr['locality']) && isset($dwcArr['domainID'])){
+						$locStr = $this->domainSiteArr[$dwcArr['domainID']].' ('.$dwcArr['domainID'].'), ';
+						if(isset($dwcArr['siteID'])) $locStr .= $this->domainSiteArr[$dwcArr['siteID']].' ('.$dwcArr['siteID'].'), ';
+						$dwcArr['locality'] = trim($locStr.$dwcArr['locality']);
+					}
 					if(isset($dwcArr['plotDim'])){
 						$dwcArr['locality'] .= $dwcArr['plotDim'];
 						unset($dwcArr['plotDim']);
 					}
+					$dwcArr['locationID'] = $sampleArr['namedLocation'];
 				}
 				else{
 					$dwcArr['locality'] = $sampleArr['namedLocation'];
@@ -350,13 +380,20 @@ class OccurrenceHarvester{
 					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 					//return false;
 				}
+				if(isset($dwcArr['locality']) && $dwcArr['locality']) $dwcArr['locality'] = trim($dwcArr['locality'],' ,;.');
 
 				if($sampleArr['taxonID']){
 					$dwcArr['sciname'] = $sampleArr['taxonID'];
 					$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
 				}
 				else{
-					if(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,57))){
+					if($dwcArr['collid'] == 56){
+						if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+							$dwcArr['sciname'] = $m[1];
+							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+						}
+					}
+					elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
 						if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
 							$dwcArr['sciname'] = $m[1];
 							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
@@ -395,37 +432,6 @@ class OccurrenceHarvester{
 		return $status;
 	}
 
-	private function adjustMosquitoData(&$sampleArr, &$dwcArr){
-		$parentID = $sampleArr['parentID'];
-		$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->neonApiKey.'&sampleUuid=';
-		do{
-			$urlActive = $url.$parentID;
-			$parentID = '';
-			$viewArr = $this->getSampleApiData($urlActive);
-			if(isset($viewArr['sampleClass'])){
-				if($viewArr['sampleClass'] == 'mos_sorting_in.subsampleID'){
-					if(isset($viewArr['parentID'])) $parentID = $viewArr['parentID'];
-				}
-				elseif($viewArr['sampleClass'] == 'mos_trapping_in.sampleID'){
-					//Set trapping location
-					if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
-						$sampleArr['namedLocation'] = $viewArr['namedLocation'];
-					}
-					if(isset($viewArr['sampleTag']) && $viewArr['sampleTag']){
-						//Append sampleTag of collected mosquito into other catalog numbers
-						$dwcArr['otherCatalogNumbers'] = trim($dwcArr['otherCatalogNumbers'].'; '.$viewArr['sampleTag'],'; ');
-						if(!isset($dwcArr['eventDate']) || $dwcArr['eventDate']){
-							//Set missing eventDate by extracting it from parent sampleID
-							if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$viewArr['sampleTag'],$m)){
-								$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
-							}
-						}
-					}
-				}
-			}
-		}while($parentID);
-	}
-
 	private function setNeonLocationData(&$dwcArr, $locationName){
 		//https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
 		//echo 'loc name1: '.$locationName.'<br/>';
@@ -442,9 +448,11 @@ class OccurrenceHarvester{
 			$parStr = preg_replace('/ at site [A-Z]+/', '', $parStr);
 			$parStr = trim($parStr,' ,;');
 			if($parStr){
-				$localityStr = '';
-				if(isset($dwcArr['locality'])) $localityStr = $dwcArr['locality'];
-				$dwcArr['locality'] = $parStr.', '.$localityStr;
+				if($resultArr['locationType'] != 'SITE' && $resultArr['locationType'] != 'DOMAIN'){
+					$localityStr = '';
+					if(isset($dwcArr['locality'])) $localityStr = $dwcArr['locality'];
+					$dwcArr['locality'] = $parStr.', '.$localityStr;
+				}
 			}
 		}
 
@@ -454,11 +462,13 @@ class OccurrenceHarvester{
 		if(!isset($dwcArr['decimalLongitude']) && isset($resultArr['locationDecimalLongitude']) && $resultArr['locationDecimalLongitude']){
 			$dwcArr['decimalLongitude'] = $resultArr['locationDecimalLongitude'];
 		}
-		if(!isset($dwcArr['minimumElevationInMeters']) && isset($resultArr['locationElevation']) && $resultArr['locationElevation']){
-			$dwcArr['minimumElevationInMeters'] = round($resultArr['locationElevation']);
-		}
 		if(!isset($dwcArr['verbatimCoordinates']) && isset($resultArr['locationUtmEasting']) && $resultArr['locationUtmEasting']){
 			$dwcArr['verbatimCoordinates'] = trim($resultArr['locationUtmZone'].$resultArr['locationUtmHemisphere'].' '.$resultArr['locationUtmEasting'].'E '.$resultArr['locationUtmNorthing'].'N');
+		}
+		$elevMin = '';
+		$elevMax = '';
+		if(isset($resultArr['locationElevation']) && $resultArr['locationElevation']){
+			$elevMin = round($resultArr['locationElevation']);
 		}
 
 		$locPropArr = $resultArr['locationProperties'];
@@ -470,6 +480,12 @@ class OccurrenceHarvester{
 				}
 				elseif(!isset($dwcArr['coordinateUncertaintyInMeters']) && $propArr['locationPropertyName'] == 'Value for Coordinate uncertainty'){
 					$dwcArr['coordinateUncertaintyInMeters'] = $propArr['locationPropertyValue'];
+				}
+				elseif($propArr['locationPropertyName'] == 'Value for Minimum elevation'){
+					$elevMin = round($propArr['locationPropertyValue']);
+				}
+				elseif($propArr['locationPropertyName'] == 'Value for Maximum elevation'){
+					$elevMax = round($propArr['locationPropertyValue']);
 				}
 				elseif(!isset($dwcArr['country']) && $propArr['locationPropertyName'] == 'Value for Country'){
 					$countryValue = $propArr['locationPropertyValue'];
@@ -506,6 +522,9 @@ class OccurrenceHarvester{
 			}
 			if($habitatArr) $dwcArr['habitat'] = implode('; ',$habitatArr);
 		}
+		if($elevMin && !isset($dwcArr['minimumElevationInMeters'])) $dwcArr['minimumElevationInMeters'] = $elevMin;
+		if($elevMax && $elevMax != $elevMin && !isset($dwcArr['maximumElevationInMeters'])) $dwcArr['maximumElevationInMeters'] = $elevMax;
+
 		if(isset($resultArr['locationParent']) && $resultArr['locationParent']){
 			if($resultArr['locationParent'] != 'REALM'){
 				$this->setNeonLocationData($dwcArr, $resultArr['locationParent']);
@@ -526,12 +545,12 @@ class OccurrenceHarvester{
 			$siteID = (isset($dwcArr['siteID'])?$dwcArr['siteID']:0);
 			unset($dwcArr['domainID']);
 			unset($dwcArr['siteID']);
-			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters');
+			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters','maximumElevationInMeters');
 			$sql = '';
 			if($occid){
 				$skipFieldArr = array('occid','collid');
 				if($this->replaceFieldValues){
-					//Only replace values that have not yet been expllicitly modified
+					//Only replace values that have not yet been explicitly modified
 					$sqlEdit = 'SELECT DISTINCT fieldname FROM omoccuredits WHERE occid = '.$occid;
 					$rsEdit = $this->conn->query($sqlEdit);
 					while($rEdit = $rsEdit->fetch_object()){
@@ -540,26 +559,26 @@ class OccurrenceHarvester{
 					$rsEdit->free();
 				}
 				foreach($dwcArr as $fieldName => $fieldValue){
-					if(!in_array(strtolower($fieldName),$skipFieldArr)){
-						if($this->replaceFieldValues){
-							if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
-								$sql .= ', '.$fieldName.' = '.$this->cleanInStr($fieldValue).' ';
-							}
-							else{
-								$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
-							}
+					if(in_array(strtolower($fieldName),$skipFieldArr)) continue;
+					if($this->targetFieldArr && !in_array(strtolower($fieldName),$this->targetFieldArr)) continue;
+					if($this->replaceFieldValues){
+						if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+							$sql .= ', '.$fieldName.' = '.$this->cleanInStr($fieldValue).' ';
 						}
 						else{
-							if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
-								$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.','.$this->cleanInStr($fieldValue).') ';
-							}
-							else{
-								$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
-							}
+							$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
+						}
+					}
+					else{
+						if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
+							$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.','.$this->cleanInStr($fieldValue).') ';
+						}
+						else{
+							$sql .= ', '.$fieldName.' = IFNULL('.$fieldName.',"'.$this->cleanInStr($fieldValue).'") ';
 						}
 					}
 				}
-				$sql = 'UPDATE omoccurrences SET '.substr($sql, 1).' WHERE (occid = '.$occid.')';
+				if($sql) $sql = 'UPDATE omoccurrences SET '.substr($sql, 1).' WHERE (occid = '.$occid.')';
 			}
 			else{
 				$sql1 = ''; $sql2 = '';
@@ -578,19 +597,21 @@ class OccurrenceHarvester{
 				}
 				$sql = 'INSERT INTO omoccurrences('.trim($sql1,',').',dateentered) VALUES('.trim($sql2,',').',NOW())';
 			}
-			if($this->conn->query($sql)){
-				if(!$occid){
-					$occid = $this->conn->insert_id;
-					if($occid){
-						$this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
-						$this->datasetIndexing($domainID,$occid);
-						$this->datasetIndexing($siteID,$occid);
+			if($sql){
+				if($this->conn->query($sql)){
+					if(!$occid){
+						$occid = $this->conn->insert_id;
+						if($occid){
+							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
+							$this->datasetIndexing($domainID,$occid);
+							$this->datasetIndexing($siteID,$occid);
+						}
 					}
 				}
-			}
-			else{
-				$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
-				return false;
+				else{
+					$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
+					return false;
+				}
 			}
 		}
 		return $occid;
@@ -767,6 +788,16 @@ class OccurrenceHarvester{
 		return $status;
 	}
 
+	private function setDomainSiteArr(){
+		$sql = 'SELECT domainNumber, domainName, siteID, siteName FROM neon_field_sites';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->domainSiteArr[$r->domainNumber] = $r->domainName;
+			$this->domainSiteArr[$r->siteID] = $r->siteName;
+		}
+		$rs->free();
+	}
+
 	private function setSampleErrorMessage($samplePK, $msg){
 		$sql = 'UPDATE NeonSample SET errorMessage = '.($msg?'"'.$msg.'"':'NULL').' WHERE (samplePK = '.$samplePK.')';
 		$this->conn->query($sql);
@@ -778,6 +809,46 @@ class OccurrenceHarvester{
 	//Setters and getters
 	public function setReplaceFieldValues($bool){
 		if($bool) $this->replaceFieldValues = true;
+	}
+
+	private function setTargetFieldArr($fieldName){
+		if($fieldName){
+			if($fieldName == 'sciname'){
+				$this->targetFieldArr[] = 'sciname';
+				$this->targetFieldArr[] = 'scientificnameauthorship';
+				$this->targetFieldArr[] = 'family';
+				$this->targetFieldArr[] = 'taxonremarks';
+			}
+			elseif($fieldName == 'recordedBy'){
+				$this->targetFieldArr[] = 'recordedby';
+				$this->targetFieldArr[] = 'recordnumber';
+				$this->targetFieldArr[] = 'eventdate';
+			}
+			elseif($fieldName == 'country'){
+				$this->targetFieldArr[] = 'country';
+				$this->targetFieldArr[] = 'stateprovince';
+				$this->targetFieldArr[] = 'county';
+			}
+			elseif($fieldName == 'decimalLatitude'){
+				$this->targetFieldArr[] = 'decimallatitude';
+				$this->targetFieldArr[] = 'decimallongitude';
+				$this->targetFieldArr[] = 'coordinateuncertaintyinmeters';
+				$this->targetFieldArr[] = 'verbatimcoordinates';
+				$this->targetFieldArr[] = 'geodeticdatum';
+				$this->targetFieldArr[] = 'georeferencesources';
+				$this->targetFieldArr[] = 'minimumelevationinmeters';
+				$this->targetFieldArr[] = 'maximumelevationinmeters';
+			}
+			elseif($fieldName == 'habitat'){
+				$this->targetFieldArr[] = 'habitat';
+				$this->targetFieldArr[] = 'verbatimattributes';
+				$this->targetFieldArr[] = 'occurrenceremarks';
+				$this->targetFieldArr[] = 'individualcount';
+			}
+			else{
+				$this->targetFieldArr[] = $fieldName;
+			}
+		}
 	}
 
 	public function getErrorStr(){

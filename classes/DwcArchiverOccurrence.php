@@ -6,6 +6,7 @@ class DwcArchiverOccurrence{
 	private $schemaType;
 	private $extended = false;
 	private $includePaleo = false;
+	private $harvestExsiccatae = false;
 	private $relationshipArr;
 	private $upperTaxonomy = array();
 	private $taxonRankArr = array();
@@ -358,6 +359,32 @@ class DwcArchiverOccurrence{
 		return $retStr;
 	}
 
+	public function setHarvestExsiccatae(){
+		$sql = 'SELECT occid FROM omexsiccatiocclink LIMIT 1';
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows) $this->harvestExsiccatae = true;
+		$rs->free();
+	}
+
+	public function getExsiccateStr($occid){
+		$retStr = '';
+		$sql = 'SELECT t.title, t.abbreviation, t.editor, t.exsrange, n.exsnumber, l.notes '.
+			'FROM omexsiccatiocclink l INNER JOIN omexsiccatinumbers n ON l.omenid = n.omenid '.
+			'INNER JOIN omexsiccatititles t ON n.ometid = t.ometid '.
+			'WHERE l.occid = '.$occid;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retStr = $r->title;
+			if($r->abbreviation) $retStr .= ' ['.$r->abbreviation.']';
+			if($r->exsrange) $retStr .= ', '.$r->exsrange;
+			if($r->editor) $retStr .= ', '.$r->editor;
+			$retStr .= ', exs #: '.$r->exsnumber;
+			if($r->notes) $retStr .= ' ('.$r->notes.')';
+		}
+		$rs->free();
+		return $retStr;
+	}
+
 	public function getAssociationStr($occid){
 		$retStr = '';
 		if($occid){
@@ -404,6 +431,21 @@ class DwcArchiverOccurrence{
 					if($assocateArr['subtype']) $retStr .= ' ('.$assocateArr['subtype'].')';
 					$retStr .= ': '.$assocateArr['resourceurl'];
 				}
+			}
+		}
+		return trim($retStr,' |');
+	}
+
+	public function getAssocTaxa($occid){
+		$retStr = '';
+		if($occid){
+			$sql = 'SELECT assocID, relationship, subType, verbatimSciname FROM omoccurassociations WHERE occid = '.$occid.' AND verbatimSciname IS NOT NULL ';
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retStr .= '|'.$r->relationship.($r->subType?' ('.$r->subType.')':'').': '.$r->verbatimSciname;
+				}
+				$rs->free();
 			}
 		}
 		return trim($retStr,' |');

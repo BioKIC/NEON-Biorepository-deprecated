@@ -375,6 +375,9 @@ include($SERVER_ROOT.'/includes/header.php');
 													$imgUrl = $GLOBALS["imageDomain"].$subArr["thumbnailurl"];
 												}
 											}
+											elseif($image = exif_thumbnail($imgUrl)){
+												$imgUrl = 'data:image/jpeg;base64,'.base64_encode($image);
+											}
 											echo '<img src="'.$imgUrl.'" title="'.$subArr['caption'].'" alt="Image of '.$sciNameKey.'" style="z-index:-1" />';
 											echo '</a>';
 											echo '<div style="text-align:right;position:relative;top:-26px;left:5px;" title="'.(isset($LANG['PHOTOGRAPHER'])?$LANG['PHOTOGRAPHER']:'Photographer').': '.$subArr['photographer'].'">';

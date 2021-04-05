@@ -36,6 +36,7 @@ if(isset($PROCESSINGSTATUS) && $PROCESSINGSTATUS){
 else{
 	$processingStatusArr = array('unprocessed','unprocessed/NLP','stage 1','stage 2','stage 3','pending review-nfn','pending review','expert required','reviewed','closed');
 }
+//if(!isset($_REQUEST['q_catalognumber'])) $displayQuery = true;
 ?>
 <div id="querydiv" style="clear:both;width:850px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
 	<form name="queryform" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="post" onsubmit="return verifyQueryForm(this)">
@@ -92,6 +93,7 @@ else{
 					<div class="fieldDiv" style="<?php echo ($isGenObs?'display:none':''); ?>">
 						Entered by:
 						<input type="text" name="q_recordenteredby" value="<?php echo $qRecordEnteredBy; ?>" style="width:70px;" onchange="setOrderBy(this)" />
+						<button type="button" onclick="enteredByCurrentUser()" style="font-size:70%" title="Limit to recent records entered by current user">CU</button>
 					</div>
 					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
 						Date entered:
@@ -137,9 +139,8 @@ else{
 						<div class="fieldGroupDiv" title="Enter Exsiccati Title">
 							<div class="fieldDiv">
 								Exsiccati Title:
-								<select name="q_exsiccatiid" style="width:650px">
+								<select name="q_exsiccatiid" style="max-width:650px">
 									<option value=""></option>
-									<option value="">-------------------------</option>
 									<?php
 									foreach($exsList as $exsID => $exsTitle){
 										echo '<option value="'.$exsID.'" '.($qExsiccatiId==$exsID?'SELECTED':'').'>'.$exsTitle.'</option>';
@@ -174,7 +175,7 @@ else{
 					'georeferenceVerificationStatus'=>'Georeference Verification Status','georeferencedBy'=>'Georeferenced By','habitat'=>'Habitat',
 					'identificationQualifier'=>'Identification Qualifier','identificationReferences'=>'Identification References',
 					'identificationRemarks'=>'Identification Remarks','identifiedBy'=>'Identified By','individualCount'=>'Individual Count',
-					'informationWithheld'=>'Information Withheld','institutionCode'=>'Institution Code (override)','labelProject'=>'Label Project',
+					'informationWithheld'=>'Information Withheld','institutionCode'=>'Institution Code (override)','labelProject'=>'Project',
 					'language'=>'Language','lifeStage'=>'Life Stage','locationid'=>'Location ID','locality'=>'Locality',
 					'localitySecurity'=>'Locality Security','localitySecurityReason'=>'Locality Security Reason','locationRemarks'=>'Location Remarks',
 					'username'=>'Modified By','municipality'=>'Municipality','occurrenceRemarks'=>'Notes (Occurrence Remarks)','ocrFragment'=>'OCR Fragment',
@@ -342,3 +343,44 @@ else{
 		</fieldset>
 	</form>
 </div>
+<script>
+	function enteredByCurrentUser(){
+		var f = document.queryform;
+		resetQueryForm(f);
+		f.q_recordenteredby.value = "<?php echo $GLOBALS['USERNAME']?>";
+		var today = new Date();
+		var dd = String(today.getDate()).padStart(2, '0');
+		var mm = String(today.getMonth() + 1).padStart(2, '0');
+		f.q_dateentered.value = today.getFullYear()+'-'+mm+'-'+dd;
+	}
+
+	function resetQueryForm(f){
+		f.occid.value = "";
+		f.occidlist.value = "";
+		f.direction.value = "";
+		f.occindex.value = "0";
+		f.q_catalognumber.value = "";
+		f.q_othercatalognumbers.value = "";
+		f.q_recordedby.value = "";
+		f.q_recordnumber.value = "";
+		f.q_eventdate.value = "";
+		f.q_recordenteredby.value = "";
+		f.q_dateentered.value = "";
+		f.q_datelastmodified.value = "";
+		f.q_processingstatus.value = "";
+		if(f.q_exsiccatiid) f.q_exsiccatiid.value = "";
+		f.q_customfield1.options[0].selected = true;
+		f.q_customtype1.options[0].selected = true;
+		f.q_customvalue1.value = "";
+		f.q_customfield2.options[0].selected = true;
+		f.q_customtype2.options[0].selected = true;
+		f.q_customvalue2.value = "";
+		f.q_customfield3.options[0].selected = true;
+		f.q_customtype3.options[0].selected = true;
+		f.q_customvalue3.value = "";
+		f.q_imgonly.checked = false;
+		f.q_withoutimg.checked = false;
+		f.orderby.value = "";
+		f.orderbydir.value = "ASC";
+	}
+</script>

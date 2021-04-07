@@ -198,10 +198,16 @@ echo '</div>';
 							?>
 						</select>
 					</div>
-					<div style="margin:5px">
-						<input name="displaycommon" type="checkbox" value="1" onchange="this.form.submit();" <?php if($displayCommon) echo 'checked'; ?> />
-						<?php echo (isset($LANG['DISPLAY_COMMON'])?$LANG['DISPLAY_COMMON']:'Display Common Names'); ?>
-					</div>
+					<?php
+					if(!isset($DISPLAY_COMMON_NAMES) || $DISPLAY_COMMON_NAMES){
+						?>
+						<div style="margin:5px">
+							<input name="displaycommon" type="checkbox" value="1" onchange="this.form.submit();" <?php if($displayCommon) echo 'checked'; ?> />
+							<?php echo (isset($LANG['DISPLAY_COMMON'])?$LANG['DISPLAY_COMMON']:'Display Common Names'); ?>
+						</div>
+						<?php
+					}
+					?>
 					<div style="margin:5px">
 						<input name="displayimages" type="checkbox" value="1" onchange="this.form.submit();" <?php if($displayImages) echo 'checked'; ?> />
 						<?php echo (isset($LANG['DISPLAY_IMAGES'])?$LANG['DISPLAY_IMAGES']:'Display images').': '; ?>

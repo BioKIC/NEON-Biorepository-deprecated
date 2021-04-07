@@ -10,8 +10,15 @@
  * 'alertMsg' can be a string or HTML code
  *
  */
+const main = document.getElementById('innertext');
+let div = document.createElement('div');
+div.id = 'alert-msgs';
+div.classList.add('alerts');
+main.appendChild(div);
+
 function handleAlerts(alerts) {
-  const alertDiv = document.getElementById('alert-msgs');
+  let alertDiv = document.getElementById('alert-msgs');
+  console.log(alertDiv);
   alertDiv.innerHTML = '';
   alerts.map((alert) => {
     alertDiv.classList.remove('visually-hidden');

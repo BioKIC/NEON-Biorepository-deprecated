@@ -3,13 +3,13 @@
  * Version: Apr 2021
  */
 
-// alerts = [
-//   {
-//     alertMsg:
-//       'Try our <a href="./neon/search/index.php">New Occurrence Search Form!</a>',
-//   },
-// ];
-
+/**
+ * Adds styled alert messages in page
+ * @param {Array} alerts Array with objects
+ * Object contains at minimum a property 'alertMsg'
+ * 'alertMsg' can be a string or HTML code
+ *
+ */
 function handleAlerts(alerts) {
   const alertDiv = document.getElementById('alert-msgs');
   alertDiv.innerHTML = '';
@@ -24,5 +24,3 @@ function handleAlerts(alerts) {
     alertDiv.appendChild(alertP);
   });
 }
-
-// handleAlerts(alerts);

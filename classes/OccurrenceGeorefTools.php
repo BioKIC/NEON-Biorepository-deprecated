@@ -82,16 +82,17 @@ class OccurrenceGeorefTools {
 			$countryStr='';$stateStr='';$countyStr='';$municipalityStr='';$localityStr='';$verbCoordStr = '';$decLatStr='';$decLngStr='';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county)
-					|| $municipalityStr != trim($r->municipality) || $localityStr != trim($r->locality," .,;")
-					|| $verbCoordStr != trim($r->verbatimcoordinates) || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
-					$localityStr = trim($r->locality,' .,;');
-					$verbCoordStr = trim($r->verbatimcoordinates,' .,;');
-					if($localityStr && $verbCoordStr){
+				$localityStrNew = trim($r->locality,' .,;');
+				$verbCoordStrNew = trim($r->verbatimcoordinates,' .,;');
+				if($localityStrNew || $verbCoordStrNew){
+					if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county) || $municipalityStr != trim($r->municipality)
+						|| $localityStr != $localityStrNew || $verbCoordStr != $verbCoordStrNew || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
 						$countryStr = trim($r->country);
 						$stateStr = trim($r->stateprovince);
 						$countyStr = trim($r->county);
 						$municipalityStr = trim($r->municipality);
+						$localityStr = $localityStrNew;
+						$verbCoordStr = $verbCoordStrNew;
 						$decLatStr = $r->decimallatitude;
 						$decLngStr = $r->decimallongitude;
 						$totalCnt++;
@@ -107,12 +108,12 @@ class OccurrenceGeorefTools {
 						$retArr[$totalCnt]['cnt'] = 1;
 						$locCnt = 1;
 					}
-				}
-				else{
-					$locCnt++;
-					$newOccidStr = $retArr[$totalCnt]['occid'].','.$r->occid;
-					$retArr[$totalCnt]['occid'] = $newOccidStr;
-					$retArr[$totalCnt]['cnt'] = $locCnt;
+					else{
+						$locCnt++;
+						$newOccidStr = $retArr[$totalCnt]['occid'].','.$r->occid;
+						$retArr[$totalCnt]['occid'] = $newOccidStr;
+						$retArr[$totalCnt]['cnt'] = $locCnt;
+					}
 				}
 				if($totalCnt > 999) break;
 			}

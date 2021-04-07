@@ -78,7 +78,6 @@ if($IS_ADMIN) $isEditor = true;
 elseif($activeCollArr) $isEditor = true;
 
 $statusStr = '';
-$localArr = array();
 if($isEditor && $submitAction){
 	if($qCountry) $geoManager->setQueryVariables('qcountry',$qCountry);
 	if($qState) $geoManager->setQueryVariables('qstate',$qState);
@@ -89,10 +88,7 @@ if($isEditor && $submitAction){
 	if($qVStatus) $geoManager->setQueryVariables('qvstatus',$qVStatus);
 	if($qLocality) $geoManager->setQueryVariables('qlocality',$qLocality);
 	if($qProcessingStatus) $geoManager->setQueryVariables('qprocessingstatus',$qProcessingStatus);
-	if($submitAction == 'Update Coordinates'){
-		$statusStr = $geoManager->updateCoordinates($_POST);
-	}
-	$localArr = $geoManager->getLocalityArr();
+	if($submitAction == 'Update Coordinates') $statusStr = $geoManager->updateCoordinates($_POST);
 }
 ?>
 <html>
@@ -340,6 +336,7 @@ if($isEditor && $submitAction){
 							</div>
 							<div style="font-weight:bold;">
 								<?php
+								$localArr = $geoManager->getLocalityArr();
 								$localCnt = '---';
 								if(isset($localArr)) $localCnt = count($localArr);
 								if($localCnt == 1000) $localCnt = '1000 or more';

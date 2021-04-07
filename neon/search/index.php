@@ -36,11 +36,8 @@ $siteData = new DatasetsMetadata();
     ?>
     <!-- This is inner text! -->
     <div id="innertext">
-
       <h1>Sample Search</h1>
-      <!-- <div id="error-msgs" class="visually-hidden"></div> -->
       <div id="error-msgs" class="errors"></div>
-      <!-- <form id="params-form" onsubmit="simpleSearch()"> -->
       <form id="params-form">
         <!-- Criteria forms -->
         <div class="accordions">
@@ -56,16 +53,11 @@ $siteData = new DatasetsMetadata();
             <div id="search-form-taxonomy" class="content">
               <div id="taxa-text" class="input-text-container">
                 <label for="taxa" class="input-text--outlined">
-                  <!-- <input type="text" name="taxa" id="taxa-search" data-chip="Taxa" list="match-list"> -->
                   <input type="text" name="taxa" id="taxa" data-chip="Taxa">
-                  <!-- <div id="match-list" class="suggestion-box hide" ></div> -->
-                  <!-- <div id="match-list-container"></div> -->
-                  <!-- <input id="taxa" type="text" size="60" name="taxa" value="" /> -->
                   <span data-label="Taxon"></span></label>
                 <span class="assistive-text">Type at least 4 characters for quick suggestions. Separate multiple with commas.</span>
               </div>
               <div class="select-container">
-                <!-- <label for="taxon-type">Taxon Type</label> -->
                 <select name="taxontype">
                     <option value="1">Any name</option>
                     <option value="2">Scientific name</option>
@@ -271,7 +263,6 @@ $siteData = new DatasetsMetadata();
                       if($sitesArr){
                         foreach($sitesArr as $site) {
                           echo "<li><input type='checkbox' id='${site["siteid"]}' name='datasetid' value={$site["datasetid"]} class='child' data-domain={$domain["domainnumber"]} checked=''><span class='ml-1'><a href='https://www.neonscience.org/field-sites/{$site["siteid"]}' target='_blank' rel='noopener noreferrer'>({$site["siteid"]}) {$site["sitename"]}</a></span></li>";
-                          // echo $site["siteid"];
                         }
                       };
                       echo "</ul>";

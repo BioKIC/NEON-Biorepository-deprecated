@@ -12,7 +12,7 @@ $siteData = new DatasetsMetadata();
 ?>
 <html>
   <head>
-    <title><?php echo $DEFAULT_TITLE; ?> New Sample Search</title>
+    <title><?php echo $DEFAULT_TITLE; ?> Sample Search</title>
     <?php
       $activateJQuery = true;
       if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -123,7 +123,7 @@ $siteData = new DatasetsMetadata();
                 <button id="neon-modal-close" class="btn" style="width:auto !important">Accept and close</button>
                 <div id="colls-modal">
                   <div>
-                    <h3>Pick a criterion to filter collections</h3>
+                    <h3>Activate a single criterion to filter collections</h3>
                     <label class="tab tab-active"><input type="radio" name="collChoice" value="taxonomic-cat" checked="true"> Taxonomic Group</label>
                     <label class="tab"><input type="radio" name="collChoice" value="neon-theme"> NEON Theme</label>
                     <label class="tab"><input type="radio" name="collChoice" value="sample-type"> Sample Type</label>
@@ -453,10 +453,6 @@ $siteData = new DatasetsMetadata();
         </div>
         <!-- Criteria panel -->
         <div id="criteria-panel" style="position: sticky; top: 0; height: 100vh">
-          <!-- <button>Clear</button>
-          <button>Search</button> -->
-          <!-- <button id="teste-btn">Get all params</button>
-          <p><a href="#" id="test-url" target="_blank" style="max-width: 50px">Search URL</a></p> -->
           <button id="search-btn">Search</button>
           <button id="reset-btn">Reset</button>
           <h2>Criteria</h2>
@@ -469,8 +465,12 @@ $siteData = new DatasetsMetadata();
     include($SERVER_ROOT.'/includes/footer.php');
     ?>
   </body>
-  <script src="js/searchform.js"></script>
+  <script src="js/searchform.js" type="text/javascript"></script>
+  <script src="<?php echo $CLIENT_ROOT.'/neon/js/alerts.js'; ?>" type="text/javascript"></script>
   <script src="<?php echo $CLIENT_ROOT.'/js/jquery-ui-1.12.1/jquery-ui.min.js'; ?>" type="text/javascript"></script>
   <script src="<?php echo $CLIENT_ROOT.'/js/symb/api.taxonomy.taxasuggest.js'; ?>" type="text/javascript"></script>
-  <!-- <script src="js/taxasearch.js"></script> -->
+  <script>
+   let alerts = [{'alertMsg': 'Looking for the previous search form? You can still use it here: <a href="../../collections/index.php" alt="Traditional Sample Search Form">previous Sample Search Page</a>.'}];
+    handleAlerts(alerts);
+  </script>
 </html>

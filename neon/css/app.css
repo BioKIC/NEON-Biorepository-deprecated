@@ -729,10 +729,6 @@ span.accent-color-darker {
   float: right;
 }
 
-.modal input[type="radio"] {
-  display: none;
-}
-
 .hide {
   display: none;
 }

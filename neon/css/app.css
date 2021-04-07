@@ -236,7 +236,7 @@ select {
 
 .errors .error {
   padding: 15px;
-  border-radius: 8px;
+  border-radius: 4px;
   background-color: rgba(230, 20, 20, 0.8);
   color: #FFF;
   font-size: 14px;

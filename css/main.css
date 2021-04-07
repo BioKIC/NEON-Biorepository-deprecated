@@ -4,6 +4,7 @@
 
 
 /*
+0. NEON COLORS
 1. GENERAL
 2. LAYOUT
 3. SPECIFIC SECTIONS
@@ -16,6 +17,39 @@
 */
 
 
+/******* 0. NEON COLORS ********/
+
+:root {
+  --navy: #002c77;
+  --blue: #0073cf;
+  --skyblue: #8fcae7;
+  --skybluelight: #c2deea;
+  --brownblack: #352723;
+  --browndark: #4b372e;
+  --brown: #82542f;
+  --greendark: #558807;
+  --green: #acc37e;
+  --greenlight: #c4daa1;
+  --gold: #f0ab00;
+  --goldlight: #ffcb4f;
+  --red: #cc0000;
+  --black: #000000;
+  --white: #ffffff;
+  --graydarkest: #565a5c;
+  --graydarker: #7c7f80;
+  --gray: #a2a4a3;
+  --graylight: #d7d9d9;
+  --graylightest: #e4e6e7;
+  --graywhite: #f5f6f7;
+  --alertgreen: #eef3e6;
+  --alertgreenborder: #558807;
+  --alertyellow: #fff5dc;
+  --alertyellowborder: #f0ab00;
+  --alertred: #f5cccc;
+  --alertredborder: #cc0000;
+}
+
+
 /******* 1. GENERAL ********/
 
 html {
@@ -25,7 +59,7 @@ html {
 }
 
 body {
-  color: black;
+  color: var(--black, black);
   margin-top: 0px;
 }
 
@@ -63,9 +97,10 @@ body {
 
 .alerts .alert {
   padding: 15px;
-  border-radius: 8px;
-  background-color: #558807;
-  color: #fff;
+  border-radius: 4px;
+  border: solid 1px var(--alertgreenborder);
+  background-color: var(--alertgreen);
+  color: var(--black, black);
   font-size: 14px;
   -webkit-transform: translateY(300px);
   transform: translateY(300px);

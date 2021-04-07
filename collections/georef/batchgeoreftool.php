@@ -42,8 +42,10 @@ $georeferenceVerificationStatus = array_key_exists('georeferenceverificationstat
 //$minimumElevationInFeet = array_key_exists('minimumelevationinfeet',$_POST)?$_POST['minimumelevationinfeet']:'';
 //$maximumElevationInFeet = array_key_exists('maximumelevationinfeet',$_POST)?$_POST['maximumelevationinfeet']:'';
 
+if(is_array($collid)) $collid = implode(',',$collid);
+
 //Sanitation
-$collid = filter_var($collid, FILTER_SANITIZE_STRING);
+if(!preg_match('/^[,\d]+$/',$collid)) $collid = 0;
 $submitAction = filter_var($submitAction, FILTER_SANITIZE_STRING);
 $qCountry = filter_var($qCountry, FILTER_SANITIZE_STRING);
 $qState = filter_var($qState, FILTER_SANITIZE_STRING);
@@ -60,8 +62,6 @@ $georeferenceVerificationStatus = filter_var($georeferenceVerificationStatus, FI
 
 if(!$georeferenceSources) $georeferenceSources = 'georef batch tool '.date('Y-m-d');
 if(!$georeferenceVerificationStatus) $georeferenceVerificationStatus = 'reviewed - high confidence';
-
-if(is_array($collid)) $collid = implode(',',$collid);
 
 $geoManager = new OccurrenceGeorefTools();
 $activeCollArr = explode(',', $collid);
@@ -123,12 +123,8 @@ if($isEditor && $submitAction){
 				<div style="float:left;">
 					<div style="font-weight: bold; font-size:140%;float:left">
 						<?php
-						if(is_numeric($collid)){
-							echo $collMap[$collid]['collectionname'].' ('.$collMap[$collid]['code'].')';
-						}
-						else{
-							echo 'Multiple Collection Cleaning Tool (<a href="#" onclick="$(\'#collDiv\').show()" style="color:blue;text-decoration:underline">'.count($activeCollArr).' collections</a>)';
-						}
+						if(is_numeric($collid)) echo $collMap[$collid]['collectionname'].' ('.$collMap[$collid]['code'].')';
+						else echo 'Multiple Collection Cleaning Tool (<a href="#" onclick="$(\'#collDiv\').show()" style="color:blue;text-decoration:underline">'.count($activeCollArr).' collections</a>)';
 						?>
 					</div>
 					<?php

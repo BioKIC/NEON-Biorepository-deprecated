@@ -326,7 +326,7 @@ class OccurrenceGeorefTools {
 				'WHERE ((colltype IN("Preserved Specimens","Observations")) ';
 			if($rightArr) $sql .= 'AND (collid IN('.implode(',', $rightArr).')) ';
 			$sql .= ') ';
-			if($IS_ADMIN) $sql .= 'OR (collid IN('.$this->collStr.')) ';
+			if($IS_ADMIN && $this->collStr) $sql .= 'OR (collid IN('.$this->collStr.')) ';
 			$sql .= 'ORDER BY collectionname, collectioncode ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){

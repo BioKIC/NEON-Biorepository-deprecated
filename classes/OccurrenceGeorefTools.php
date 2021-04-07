@@ -85,26 +85,28 @@ class OccurrenceGeorefTools {
 				if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county)
 					|| $municipalityStr != trim($r->municipality) || $localityStr != trim($r->locality," .,;")
 					|| $verbCoordStr != trim($r->verbatimcoordinates) || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
-					$countryStr = trim($r->country);
-					$stateStr = trim($r->stateprovince);
-					$countyStr = trim($r->county);
-					$municipalityStr = trim($r->municipality);
-					$localityStr = trim($r->locality," .,;");
-					$verbCoordStr = trim($r->verbatimcoordinates);
-					$decLatStr = $r->decimallatitude;
-					$decLngStr = $r->decimallongitude;
-					$totalCnt++;
-					$retArr[$totalCnt]['occid'] = $r->occid;
-					$retArr[$totalCnt]['country'] = $countryStr;
-					$retArr[$totalCnt]['stateprovince'] = $stateStr;
-					$retArr[$totalCnt]['county'] = $countyStr;
-					$retArr[$totalCnt]['municipality'] = $municipalityStr;
-					$retArr[$totalCnt]['locality'] = $localityStr;
-					$retArr[$totalCnt]['verbatimcoordinates'] = $verbCoordStr;
-					$retArr[$totalCnt]['decimallatitude'] = $decLatStr;
-					$retArr[$totalCnt]['decimallongitude'] = $decLngStr;
-					$retArr[$totalCnt]['cnt'] = 1;
-					$locCnt = 1;
+					$localityStr = trim($r->locality,' .,;');
+					$verbCoordStr = trim($r->verbatimcoordinates,' .,;');
+					if($localityStr && $verbCoordStr){
+						$countryStr = trim($r->country);
+						$stateStr = trim($r->stateprovince);
+						$countyStr = trim($r->county);
+						$municipalityStr = trim($r->municipality);
+						$decLatStr = $r->decimallatitude;
+						$decLngStr = $r->decimallongitude;
+						$totalCnt++;
+						$retArr[$totalCnt]['occid'] = $r->occid;
+						$retArr[$totalCnt]['country'] = $countryStr;
+						$retArr[$totalCnt]['stateprovince'] = $stateStr;
+						$retArr[$totalCnt]['county'] = $countyStr;
+						$retArr[$totalCnt]['municipality'] = $municipalityStr;
+						$retArr[$totalCnt]['locality'] = $localityStr;
+						$retArr[$totalCnt]['verbatimcoordinates'] = $verbCoordStr;
+						$retArr[$totalCnt]['decimallatitude'] = $decLatStr;
+						$retArr[$totalCnt]['decimallongitude'] = $decLngStr;
+						$retArr[$totalCnt]['cnt'] = 1;
+						$locCnt = 1;
+					}
 				}
 				else{
 					$locCnt++;

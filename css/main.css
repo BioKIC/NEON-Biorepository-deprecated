@@ -64,7 +64,7 @@ body {
 .alerts .alert {
   padding: 15px;
   border-radius: 8px;
-  background-color: rgb(125 206 55);
+  background-color: #558807;
   color: #fff;
   font-size: 14px;
   -webkit-transform: translateY(300px);
@@ -73,6 +73,10 @@ body {
   margin-bottom: 10px;
   -webkit-animation: slide-in 1s ease-out forwards;
   animation: slide-in 1s ease-out forwards;
+}
+
+.alerts .alert>a {
+  color: #002c77;
 }
 
 @-webkit-keyframes slide-in {

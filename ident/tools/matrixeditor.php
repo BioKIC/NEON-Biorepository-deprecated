@@ -35,16 +35,16 @@ if($isEditor){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Character Mass Updater</title>
-  <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
+	<?php
+	$activateJQuery = false;
+		if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 	<script>
 		var addAttrArr = [];
@@ -103,12 +103,8 @@ if($isEditor){
 				}
 				submitForm = true;
 			}
-			if(submitForm){
-				sform.submit();
-			}
-			else{
-				alert("It doesn't appear that any edits have been made");
-			}
+			if(submitForm) sform.submit();
+			else alert("It doesn't appear that any edits have been made");
 		}
 	</script>
 	<style type="text/css">
@@ -129,22 +125,18 @@ include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class='navpath'>
 	<a href="../../index.php">Home</a> &gt;&gt;
-	<a href="../../checklists/checklist.php?clid=<?php echo $clid; ?>">
-		<b>Open Checklist</b>
-	</a> &gt;&gt;
-	<a href="../key.php?clid=<?php echo $clid; ?>&taxon=All+Species">
-		<b>Open Key</b>
-	</a>
+	<a href="../../checklists/checklist.php?clid=<?php echo $clid; ?>">Open Checklist</a> &gt;&gt;
+	<a href="../key.php?clid=<?php echo $clid; ?>&taxon=All+Species">Open Key</a> &gt;&gt;
 	<?php
 	if($cidValue){
 		?>
-		&gt;&gt;
 		<a href='matrixeditor.php?clid=<?php echo $clid.'&tf='.$taxonFilter.'&lang='.$langValue; ?>'>
-			<b>Return to Character List</b>
-		</a>
+			Return to Character List
+		</a> &gt;&gt;
 		<?php
 	}
 	?>
+	<b>Matrix Editor</b>
 </div>
 <!-- This is inner text! -->
 <div id="innertext">

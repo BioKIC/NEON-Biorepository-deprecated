@@ -27,8 +27,13 @@ ALTER TABLE `kmcharacters`
   CHANGE COLUMN `sortsequence` `sortsequence` INT(10) UNSIGNED NULL DEFAULT NULL AFTER `notes`,
   ADD COLUMN `glossid` INT UNSIGNED NULL AFTER `description`,
   ADD INDEX `FK_kmchar_glossary_idx` (`glossid` ASC);
+
 ALTER TABLE `kmcharacters` 
   ADD CONSTRAINT `FK_kmchar_glossary`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `kmcharacters`
+  ADD COLUMN `activationCode` INT NULL AFTER `notes`;
+
 
 ALTER TABLE `kmcharacterlang` 
   CHANGE COLUMN `language` `language` VARCHAR(45) NULL ;

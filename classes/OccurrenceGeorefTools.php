@@ -82,35 +82,38 @@ class OccurrenceGeorefTools {
 			$countryStr='';$stateStr='';$countyStr='';$municipalityStr='';$localityStr='';$verbCoordStr = '';$decLatStr='';$decLngStr='';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county)
-					|| $municipalityStr != trim($r->municipality) || $localityStr != trim($r->locality," .,;")
-					|| $verbCoordStr != trim($r->verbatimcoordinates) || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
-					$countryStr = trim($r->country);
-					$stateStr = trim($r->stateprovince);
-					$countyStr = trim($r->county);
-					$municipalityStr = trim($r->municipality);
-					$localityStr = trim($r->locality," .,;");
-					$verbCoordStr = trim($r->verbatimcoordinates);
-					$decLatStr = $r->decimallatitude;
-					$decLngStr = $r->decimallongitude;
-					$totalCnt++;
-					$retArr[$totalCnt]['occid'] = $r->occid;
-					$retArr[$totalCnt]['country'] = $countryStr;
-					$retArr[$totalCnt]['stateprovince'] = $stateStr;
-					$retArr[$totalCnt]['county'] = $countyStr;
-					$retArr[$totalCnt]['municipality'] = $municipalityStr;
-					$retArr[$totalCnt]['locality'] = $localityStr;
-					$retArr[$totalCnt]['verbatimcoordinates'] = $verbCoordStr;
-					$retArr[$totalCnt]['decimallatitude'] = $decLatStr;
-					$retArr[$totalCnt]['decimallongitude'] = $decLngStr;
-					$retArr[$totalCnt]['cnt'] = 1;
-					$locCnt = 1;
-				}
-				else{
-					$locCnt++;
-					$newOccidStr = $retArr[$totalCnt]['occid'].','.$r->occid;
-					$retArr[$totalCnt]['occid'] = $newOccidStr;
-					$retArr[$totalCnt]['cnt'] = $locCnt;
+				$localityStrNew = trim($r->locality,' .,;');
+				$verbCoordStrNew = trim($r->verbatimcoordinates,' .,;');
+				if($localityStrNew || $verbCoordStrNew){
+					if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county) || $municipalityStr != trim($r->municipality)
+						|| $localityStr != $localityStrNew || $verbCoordStr != $verbCoordStrNew || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
+						$countryStr = trim($r->country);
+						$stateStr = trim($r->stateprovince);
+						$countyStr = trim($r->county);
+						$municipalityStr = trim($r->municipality);
+						$localityStr = $localityStrNew;
+						$verbCoordStr = $verbCoordStrNew;
+						$decLatStr = $r->decimallatitude;
+						$decLngStr = $r->decimallongitude;
+						$totalCnt++;
+						$retArr[$totalCnt]['occid'] = $r->occid;
+						$retArr[$totalCnt]['country'] = $countryStr;
+						$retArr[$totalCnt]['stateprovince'] = $stateStr;
+						$retArr[$totalCnt]['county'] = $countyStr;
+						$retArr[$totalCnt]['municipality'] = $municipalityStr;
+						$retArr[$totalCnt]['locality'] = $localityStr;
+						$retArr[$totalCnt]['verbatimcoordinates'] = $verbCoordStr;
+						$retArr[$totalCnt]['decimallatitude'] = $decLatStr;
+						$retArr[$totalCnt]['decimallongitude'] = $decLngStr;
+						$retArr[$totalCnt]['cnt'] = 1;
+						$locCnt = 1;
+					}
+					else{
+						$locCnt++;
+						$newOccidStr = $retArr[$totalCnt]['occid'].','.$r->occid;
+						$retArr[$totalCnt]['occid'] = $newOccidStr;
+						$retArr[$totalCnt]['cnt'] = $locCnt;
+					}
 				}
 				if($totalCnt > 999) break;
 			}
@@ -326,7 +329,7 @@ class OccurrenceGeorefTools {
 				'WHERE ((colltype IN("Preserved Specimens","Observations")) ';
 			if($rightArr) $sql .= 'AND (collid IN('.implode(',', $rightArr).')) ';
 			$sql .= ') ';
-			if($IS_ADMIN) $sql .= 'OR (collid IN('.$this->collStr.')) ';
+			if($IS_ADMIN && $this->collStr) $sql .= 'OR (collid IN('.$this->collStr.')) ';
 			$sql .= 'ORDER BY collectionname, collectioncode ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){

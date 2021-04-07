@@ -19,7 +19,7 @@ $action = array_key_exists("submitbutton",$_REQUEST)?$_REQUEST["submitbutton"]:"
 $rv = array_key_exists("rv",$_REQUEST)?$_REQUEST["rv"]:"";
 $pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:'';
 $langValue = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:"";
-$displayMode = array_key_exists("displaymode",$_REQUEST)?$_REQUEST["displaymode"]:"";
+$displayCommon = array_key_exists('displaycommon',$_REQUEST)?$_REQUEST['displaycommon']:0;
 if(!$action && array_key_exists("attr",$_REQUEST) && is_array($_REQUEST["attr"])){
 	$attrsValues = $_REQUEST["attr"];	//Array of: cid + "-" + cs (ie: 2-3)
 }
@@ -29,11 +29,12 @@ if(!is_numeric($dynClid)) $dynClid = 0;
 if(!is_numeric($pid)) $pid = 0;
 if(!is_numeric($rv)) $rv = '';
 $langValue = 'English';
+if(!is_numeric($displayCommon)) $displayCommon = 0;
 
 $dataManager = new KeyDataManager();
 
 //if(!$langValue) $langValue = $defaultLang;
-if($displayMode) $dataManager->setDisplayMode(true);
+if($displayCommon) $dataManager->setDisplayCommon(true);
 $dataManager->setLanguage($langValue);
 if($pid) $dataManager->setProject($pid);
 if($dynClid) $dataManager->setDynClid($dynClid);
@@ -170,8 +171,9 @@ if($chars){
 						}
 						echo "</select></div>\n";
 					}
-					echo "<div style='margin:5px'>".$LANG['DISPLAY'].": <select name='displaymode' onchange='javascript: document.forms[0].submit();'><option value='0'>".$LANG['SCINAME']."</option><option value='1'".($displayMode?" SELECTED":"").">".$LANG['COMMON']."</option></select></div>";
-					//echo "<div style='margin:5px'>".$LANG['DISPLAY'].": <select name='displaymode' onchange='javascript: document.forms[0].submit();'><option value='0'>".$LANG['SCINAME']."</option><option value='1'".($displayMode?" SELECTED":"").">".$LANG['COMMON']."</option></select></div>";
+					echo '<div style="margin:5px">'.$LANG['DISPLAY'].': ';
+					echo '<select name="displaycommon" onchange="this.form.submit();"><option value="0">'.$LANG['SCINAME'].'</option><option value="1"'.($displayCommon?' SELECTED':'').'>'.$LANG['COMMON'].'</option></select>';
+					echo '</div>';
 					if($chars){
 						//echo "<div id='showall' class='dynamControl' style='display:none'><a href='#' onclick='javascript: toggleAll();'>Show All Characters</a></div>\n";
 						//echo "<div class='dynamControl' style='display:block'><a href='#' onclick='javascript: toggleAll();'>Hide Advanced Characters</a></div>\n";

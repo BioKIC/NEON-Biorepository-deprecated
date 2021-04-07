@@ -612,9 +612,9 @@ class ChecklistManager {
 	}
 
 	//Checklist index page fucntions
-	public function getChecklists(){
+	public function getChecklists($limitToKey=false){
 		$retArr = Array();
-		$sql = 'SELECT p.pid, p.projname, p.ispublic, c.clid, c.name, c.access '.
+		$sql = 'SELECT p.pid, p.projname, p.ispublic, c.clid, c.name, c.access, c.defaultSettings '.
 			'FROM fmchecklists c LEFT JOIN fmchklstprojlink cpl ON c.clid = cpl.clid '.
 			'LEFT JOIN fmprojects p ON cpl.pid = p.pid '.
 			'WHERE ((c.access LIKE "public%") ';
@@ -627,6 +627,9 @@ class ChecklistManager {
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
+			if($limitToKey){
+				if($row->defaultSettings && strpos($row->defaultSettings,'"activatekey":0')) continue;
+			}
 			if($row->pid){
 				$pid = $row->pid;
 				$projName = $row->projname.(!$row->ispublic?' (Private)':'');
@@ -790,6 +793,10 @@ class ChecklistManager {
 	}
 
 	public function setProj($pid){
+		$this->setPid($pid);
+	}
+
+	public function setPid($pid){
 		if(is_numeric($pid)){
 			$sql = 'SELECT pid, projname FROM fmprojects WHERE (pid = '.$pid.')';
 			if($rs = $this->conn->query($sql)){

@@ -87,7 +87,9 @@ $attribSearch = new OccurrenceAttributeSearch();
 							<?php
 							$taxonType = 1;
 							if(isset($DEFAULT_TAXON_SEARCH) && $DEFAULT_TAXON_SEARCH) $taxonType = $DEFAULT_TAXON_SEARCH;
-							for($h=1;$h<6;$h++){
+							$taxonTypeRange = 6;
+							if(isset($DISPLAY_COMMON_NAMES) && !$DISPLAY_COMMON_NAMES) $taxonTypeRange = 5;
+							for($h=1;$h<$taxonTypeRange;$h++){
 								echo '<option value="'.$h.'" '.($taxonType==$h?'SELECTED':'').'>'.$LANG['SELECT_1-'.$h].'</option>';
 							}
 							?>

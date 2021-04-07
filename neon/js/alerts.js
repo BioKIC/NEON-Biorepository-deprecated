@@ -1,14 +1,14 @@
 /***
- * Sets alert messages in home page
+ * Sets alert messages in chosen page
  * Version: Apr 2021
  */
 
-alerts = [
-  {
-    alertMsg:
-      'Try our <a href="./neon/search/index.php">New Occurrence Search Form!</a>',
-  },
-];
+// alerts = [
+//   {
+//     alertMsg:
+//       'Try our <a href="./neon/search/index.php">New Occurrence Search Form!</a>',
+//   },
+// ];
 
 function handleAlerts(alerts) {
   const alertDiv = document.getElementById('alert-msgs');
@@ -25,4 +25,4 @@ function handleAlerts(alerts) {
   });
 }
 
-handleAlerts(alerts);
+// handleAlerts(alerts);

@@ -127,5 +127,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	</div>
 	<?php include($SERVER_ROOT.'/includes/footer.php'); ?>
 </body>
-<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/neon/js/home.alerts.js?ver=1"></script>
+<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/neon/js/alerts.js?ver=1"></script>
+<script type="text/javascript">
+  let alerts = [{'alertMsg':'Try our <a href="./neon/search/index.php">New Occurrence Search Form!</a>'}];
+  handleAlerts(alerts);
+</script>
 </html>

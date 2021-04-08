@@ -614,6 +614,8 @@ function handleValErrors(errors) {
  * Calls methods to validate form and build URL that will redirect search
  */
 function simpleSearch() {
+  let alerts = document.getElementById('alert-msgs');
+  alerts != null ? (alerts.innerHTML = '') : '';
   let errors = [];
   errors = validateForm();
   let isValid = errors.length == 0;

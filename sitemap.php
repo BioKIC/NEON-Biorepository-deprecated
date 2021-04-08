@@ -173,11 +173,8 @@ $smManager = new SiteMapManager();
 						</ul>
 						<?php
 					}
-
 					if($KEY_MOD_IS_ACTIVE || array_key_exists("KeyAdmin",$USER_RIGHTS)){
-						?>
-						<h3><?php echo $LANG['IDKEYS'];?></h3>
-						<?php
+						echo '<h3>'.$LANG['IDKEYS'].'</h3>';
 						if(!$KEY_MOD_IS_ACTIVE && array_key_exists("KeyAdmin",$USER_RIGHTS)){
 							?>
 							<div style="color:red;margin-left:10px;">
@@ -250,7 +247,7 @@ $smManager = new SiteMapManager();
 						?>
 					</ul>
 
-					<h3><?php echo $LANG['BIOINV'];?></h3>
+					<h3><?php echo $LANG['BIOTIC_INVENTORIES'];?></h3>
 					<ul>
 						<?php
 						if($IS_ADMIN){

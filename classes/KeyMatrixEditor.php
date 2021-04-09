@@ -39,7 +39,7 @@ class KeyMatrixEditor extends KeyManager{
 				'AND (c.cid NOT In(SELECT DISTINCT CID FROM kmchartaxalink WHERE (TID In ('.$strFrag.') AND relation = "exclude"))) ';
 		}
 		$sql .= 'ORDER BY c.hid, c.SortSequence, c.CharName';
-		echo $sql;
+		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->headingname][$r->CID] = $r->CharName;

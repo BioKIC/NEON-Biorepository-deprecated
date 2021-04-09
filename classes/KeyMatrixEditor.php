@@ -23,7 +23,7 @@ class KeyMatrixEditor extends KeyManager{
 		$retArr = Array();
 		$sql = 'SELECT DISTINCT ch.headingname, c.CID, c.CharName '.
 			'FROM kmcharacters c INNER JOIN kmchartaxalink ctl ON c.CID = ctl.CID '.
-			'INNER JOIN kmcharheading ch ON c.hid = ch.hid '.
+			'LEFT JOIN kmcharheading ch ON c.hid = ch.hid '.
 			'LEFT JOIN kmchardependance cd ON c.CID = cd.CID '.
 			'WHERE (ch.language IS NULL OR ch.language = "'.$this->language.'") AND (c.chartype IN("UM","OM")) ';
 		$strFrag = '';

@@ -25,7 +25,7 @@ class KeyMatrixEditor extends KeyManager{
 			'FROM kmcharacters c INNER JOIN kmchartaxalink ctl ON c.CID = ctl.CID '.
 			'INNER JOIN kmcharheading ch ON c.hid = ch.hid '.
 			'LEFT JOIN kmchardependance cd ON c.CID = cd.CID '.
-			'WHERE ch.language = "'.$this->language.'" AND (c.chartype="UM" OR c.chartype="OM") ';
+			'WHERE (ch.language IS NULL OR ch.language = "'.$this->language.'") AND (c.chartype IN("UM","OM")) ';
 		$strFrag = '';
 		if($tidFilter && is_numeric($tidFilter)){
 			$strFrag = implode(',',$this->getParentArr($tidFilter)).','.$tidFilter;

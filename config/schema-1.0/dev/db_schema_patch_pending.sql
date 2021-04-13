@@ -479,6 +479,21 @@ CREATE TABLE `omoccurloanuser` (
   CONSTRAINT `FK_occurloan_modifiedByUid`  FOREIGN KEY (`modifiedByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
 
 
+CREATE TABLE `specprocstatus` (
+  `spsID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `occid` INT UNSIGNED NOT NULL,
+  `processName` VARCHAR(45) NOT NULL,
+  `result` VARCHAR(45) NULL,
+  `processVariables` VARCHAR(150) NOT NULL,
+  `processorUid` INT UNSIGNED NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`spsID`),
+  INDEX `specprocstatus_occid_idx` (`occid` ASC),
+  INDEX `specprocstatus_uid_idx` (`processorUid` ASC),
+  CONSTRAINT `specprocstatus_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `specprocstatus_uid` FOREIGN KEY (`processorUid`) REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+
+
 ALTER TABLE `omoccurrences` 
   CHANGE COLUMN `eventID` `eventID` VARCHAR(150) NULL DEFAULT NULL,
   CHANGE COLUMN `locationID` `locationID` VARCHAR(150) NULL DEFAULT NULL,

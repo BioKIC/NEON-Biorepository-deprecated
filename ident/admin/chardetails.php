@@ -233,6 +233,9 @@ if(!$cid) header('Location: index.php');
 			if (newWindow.opener == null) newWindow.opener = self;
 		}
 	</script>
+	<style type="text/css">
+		fieldset{ margin:15px;padding:15px; }
+	</style>
 </head>
 <body>
 	<?php
@@ -268,7 +271,7 @@ if(!$cid) header('Location: index.php');
 				</ul>
 				<div id="chardetaildiv">
 					<form name="chareditform" action="chardetails.php" method="post" onsubmit="return validateCharEditForm(this)">
-						<fieldset style="margin:15px;padding:15px;">
+						<fieldset>
 							<legend><b>Character Details</b></legend>
 							<div style="padding-top:4px;">
 								<b>Character Name</b><br />
@@ -297,9 +300,9 @@ if(!$cid) header('Location: index.php');
 									</select>
 								</div>
 								<div style="float:left;margin-left:15px;">
-									<b>Heading</b><br />
-									<select name="hid" style="width:125px;">
-										<option value="">Select Heading</option>
+									<b>Grouping</b><br />
+									<select name="hid">
+										<option value="">Not Assigned</option>
 										<option value="">---------------------</option>
 										<?php
 										$headingArr = $keyManager->getHeadingArr();
@@ -314,19 +317,22 @@ if(!$cid) header('Location: index.php');
 							</div>
 							<div style="padding-top:8px;clear:both;">
 								<b>Help URL</b><br />
-								<input type="text" name="helpurl" maxlength="500" style="width:500px;" value="<?php echo $charArr['helpurl']; ?>" />
+								<input type="text" name="helpurl" maxlength="500" style="width:80%;" value="<?php echo $charArr['helpurl']; ?>" />
+								<?php
+								if($charArr['helpurl'] && substr($charArr['helpurl'],0,4) == 'http') echo '<a href="'.$charArr['helpurl'].'" target="_blank"><img src="../../images/link2.png" style="width:15px" /></a>';
+								?>
 							</div>
 							<div style="padding-top:8px;">
 								<b>Description</b><br />
-								<input type="text" name="description" maxlength="255" style="width:500px;" value="<?php echo $charArr['description']; ?>" />
+								<input type="text" name="description" maxlength="255" style="width:80%;" value="<?php echo $charArr['description']; ?>" />
 							</div>
 							<div style="padding-top:8px;">
 								<b>Notes</b><br />
-								<input type="text" name="notes" maxlength="255" style="width:500px;" value="<?php echo $charArr['notes']; ?>" />
+								<input type="text" name="notes" maxlength="255" style="width:80%;" value="<?php echo $charArr['notes']; ?>" />
 							</div>
 							<div style="padding-top:8px;">
 								<b>Sort Sequence</b><br />
-								<input type="text" name="sortsequence" style="" value="<?php echo $charArr['sortsequence']; ?>" />
+								<input type="text" name="sortsequence" style="width:80px;" value="<?php echo $charArr['sortsequence']; ?>" />
 							</div>
 							<div style="width:100%;padding-top:6px;">
 								<div style="float:left;">
@@ -349,7 +355,7 @@ if(!$cid) header('Location: index.php');
 					</div>
 					<div id="newstatediv" style="display:<?php echo ($charStateArr?'none':'block');?>;">
 						<form name="stateaddform" action="chardetails.php" method="post" onsubmit="return validateStateAddForm(this)">
-							<fieldset style="margin:15px;padding:20px;">
+							<fieldset>
 								<legend><b>Add Character State</b></legend>
 								<div style="padding-top:4px;">
 									<b>Character State Name</b><br />
@@ -357,15 +363,15 @@ if(!$cid) header('Location: index.php');
 								</div>
 								<div style="padding-top:4px;">
 									<b>Description</b><br />
-									<input type="text" name="description" maxlength="255" style="width:500px;" />
+									<input type="text" name="description" maxlength="255" style="width:80%;" />
 								</div>
 								<div style="padding-top:4px;">
 									<b>Notes</b><br />
-									<input type="text" name="notes" style="width:500px;" />
+									<input type="text" name="notes" style="width:80%;" />
 								</div>
 								<div style="padding-top:4px;">
 									<b>Sort Sequence</b><br />
-									<input type="text" name="sortsequence" />
+									<input type="text" name="sortsequence" style="width:80px" />
 								</div>
 								<div style="width:100%;padding-top:6px;">
 									<input name="cid" type="hidden" value="<?php echo $cid; ?>" />
@@ -394,7 +400,7 @@ if(!$cid) header('Location: index.php');
 										</a>
 									</div>
 									<form name="stateeditform-<?php echo $cs; ?>" action="chardetails.php" method="post" onsubmit="return validateStateEditForm(this)">
-										<fieldset style="margin:15px;padding:15px;">
+										<fieldset>
 											<legend><b>Character State Details</b></legend>
 											<div>
 												<b>Character State Name</b><br />
@@ -402,11 +408,11 @@ if(!$cid) header('Location: index.php');
 											</div>
 											<div style="padding-top:2px;">
 												<b>Description</b><br />
-												<input type="text" name="description" maxlength="255" style="width:500px;" value="<?php echo $stateArr['description']; ?>"/>
+												<input type="text" name="description" maxlength="255" style="width:80%;" value="<?php echo $stateArr['description']; ?>"/>
 											</div>
 											<div style="padding-top:2px;">
 												<b>Notes</b><br />
-												<input type="text" name="notes" style="width:500px;" value="<?php echo $stateArr['notes']; ?>" />
+												<input type="text" name="notes" style="width:80%;" value="<?php echo $stateArr['notes']; ?>" />
 											</div>
 											<div style="padding-top:2px;">
 												<div style="float:right;">
@@ -415,7 +421,7 @@ if(!$cid) header('Location: index.php');
 												</div>
 												<div>
 													<b>Sort Sequence</b><br />
-													<input type="text" name="sortsequence" value="<?php echo $stateArr['sortsequence']; ?>" />
+													<input type="text" name="sortsequence" value="<?php echo $stateArr['sortsequence']; ?>" style="width:80px" />
 												</div>
 											</div>
 											<div style="width:100%;margin:20px 0px 10px 20px;">
@@ -425,7 +431,7 @@ if(!$cid) header('Location: index.php');
 											</div>
 										</fieldset>
 									</form>
-									<fieldset style="margin:15px;padding:15px;">
+									<fieldset>
 										<legend><b>Illustration</b></legend>
 										<?php
 										if(isset($stateArr['csimgid'])){
@@ -470,7 +476,7 @@ if(!$cid) header('Location: index.php');
 										?>
 									</fieldset>
 									<form name="statedelform-<?php echo $cs; ?>" action="chardetails.php" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this character state?')">
-										<fieldset style="margin:15px;padding:15px;">
+										<fieldset>
 											<legend><b>Delete Character State</b></legend>
 											Record first needs to be evaluated before it can be deleted from the system.
 											The evaluation ensures that the deletion will not interfer with
@@ -533,11 +539,11 @@ if(!$cid) header('Location: index.php');
 				</div>
 				<div id="chardeldiv">
 					<form name="delcharform" action="chardetails.php" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this character?')">
-						<fieldset style="width:350px;margin:20px;padding:20px;">
+						<fieldset style="width:700px;">
 							<legend><b>Delete Character</b></legend>
 							<?php
 							if($charStateArr){
-								echo '<div style="font-weight:bold;margin-bottom:15px;">';
+								echo '<div style="margin-bottom:15px;">';
 								echo 'Character cannot be deleted until all character states are removed';
 								echo '</div>';
 							}

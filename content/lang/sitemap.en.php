@@ -61,7 +61,6 @@ $LANG['FORANOVERVIEW'] = 'for an overview of how images are managed within a Sym
 						feature. ';
 $LANG['BASICFIELD'] = 'Basic Field Image Submission';
 $LANG['IMGOBSER'] = 'Image Observation Submission Module';
-$LANG['SELECTCHECK'] = 'Select a Checklist';
 $LANG['ADDNEWPROJ'] = 'Add a New Project';
 $LANG['LISTOFCURR'] = 'List of Current Projects';
 $LANG['CLICKEDIT'] = '(click to edit)';

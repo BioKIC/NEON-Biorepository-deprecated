@@ -8,36 +8,19 @@ class SpecProcDuplicates extends Manager {
 	private $activeFieldArr = array();
 	private $occFieldArr;
 	private $geoFieldArr;
-	private $evaluationType;
 	private $collMetaArr = array();
 
 	function __construct() {
 		parent::__construct();
-		$this->occurFieldArr = array('family','sciname','taxonRemarks','identifiedBy','dateIdentified','identificationReferences','identificationRemarks','identificationQualifier','typeStatus',
-			'recordedBy','recordNumber','associatedCollectors','eventDate','verbatimEventDate','habitat','substrate','fieldNotes','fieldnumber','occurrenceRemarks','informationWithheld',
-			'associatedOccurrences','dataGeneralizations','associatedTaxa','dynamicProperties','verbatimAttributes','behavior','reproductiveCondition','cultivationStatus',
-			'establishmentMeans','lifeStage','sex','individualCount','samplingProtocol','samplingEffort','preparations',
+		//$this->scinameFieldArr = array('family','sciname','taxonRemarks','identifiedBy','dateIdentified','identificationReferences','identificationRemarks','identificationQualifier');
+		$this->occurFieldArr = array('typeStatus','recordedBy','recordNumber','associatedCollectors','eventDate','verbatimEventDate','habitat','substrate','fieldNotes','fieldnumber',
+			'occurrenceRemarks','informationWithheld','associatedOccurrences','dataGeneralizations','associatedTaxa','dynamicProperties','verbatimAttributes','behavior',
+			'reproductiveCondition','cultivationStatus','establishmentMeans','lifeStage','sex','individualCount','samplingProtocol','samplingEffort','preparations',
 			'locationID','country','stateProvince','county','municipality','waterBody','locality','localitySecurity','localitySecurityReason','locationRemarks',
 			'minimumElevationInMeters','maximumElevationInMeters','verbatimElevation','minimumDepthInMeters','maximumDepthInMeters','verbatimDepth',
-			'disposition','storageLocation','language');
-		$this->geoFieldArr = array('decimalLatitude','decimalLongitude','geodeticDatum','coordinateUncertaintyInMeters','footprintWKT','georeferencedBy','georeferenceProtocol',
-			'georeferenceSources','georeferenceVerificationStatus','georeferenceRemarks','verbatimCoordinates');
-		/*
-		 $sql = 'SELECT DISTINCT d3.duplicateid, c.institutionCode, c.collectionCode, o3.occid, o3.catalogNumber, o3.otherCatalogNumbers, o3.occurrenceID, '.
-		 'o3.family, o3.sciname, o3.recordedBy, o3.recordNumber, o3.country, o3.stateProvince, o3.locality, '.
-		 'o3.decimalLatitude, o3.decimalLongitude, o3.geodeticDatum, o3.coordinateUncertaintyInMeters, o3.footprintWKT, o3.verbatimCoordinates, o3.georeferencedBy, '.
-		 'o3.georeferenceProtocol, o3.georeferenceSources, o3.georeferenceVerificationStatus, o3.georeferenceRemarks, '.
-		 'o3.minimumElevationInMeters, o3.maximumElevationInMeters, o3.verbatimElevation '.
-		 'FROM omoccurduplicatelink d INNER JOIN omoccurrences o ON d.occid = o.occid '.
-		 'INNER JOIN omoccurduplicatelink d2 ON d.duplicateid = d2.duplicateid '.
-		 'INNER JOIN omoccurrences o2 ON d2.occid = o2.occid '.
-		 'INNER JOIN omoccurduplicatelink d3 ON d.duplicateid = d3.duplicateid '.
-		 'INNER JOIN  omoccurrences o3 ON d3.occid = o3.occid '.
-		 'INNER JOIN omcollections c ON o3.collid = c.collid '.
-		 'WHERE o.collid = '.$this->collid.' AND o.decimallatitude IS NULL AND o2.collid != '.$this->collid.' AND o2.decimallatitude IS NOT NULL '.
-		 'AND ((o3.collid != '.$this->collid.' AND o3.decimallatitude IS NOT NULL) OR o3.collid = '.$this->collid.') '.
-		 'ORDER BY d3.duplicateid ';
-		 */
+			'disposition','storageLocation','language','verbatimCoordinates');
+		$this->geoFieldArr = array('decimalLatitude','decimalLongitude','verbatimCoordinates','geodeticDatum','coordinateUncertaintyInMeters','footprintWKT','georeferencedBy','georeferenceProtocol',
+			'georeferenceSources','georeferenceVerificationStatus','georeferenceRemarks');
 	}
 
 	function __destruct(){
@@ -45,14 +28,14 @@ class SpecProcDuplicates extends Manager {
 	}
 
 	//Duplicate matching tools
-	public function buildDuplicateArr($evaluationDate, $processingStatus = 'unprocessed',$limit = 100){
+	public function buildDuplicateArr($evaluationType, $evaluationDate, $processingStatus = 'unprocessed', $limit = 100){
 		$retArr = array();
-		if($this->evaluationType != 'dupe' || $this->evaluationType != 'exsiccate') return false;
+		if($evaluationType != 'dupe' && $evaluationType != 'exsiccate') return false;
 		if($this->collid){
-			$this->fieldArr = array_merge($this->occurFieldArr,$this->geoFieldArr);
-			$sql = 'SELECT o.occid, o.collid, IFNULL(o.catalogNumber,o.othercatalogNumbers) as catalogNumber, '.implode(',',$this->fieldArr).' ';
+			$this->fieldArr = array_unique(array_merge($this->occurFieldArr,$this->geoFieldArr));
+			$sql = 'SELECT o.occid, o.collid, IFNULL(o.catalogNumber,o.othercatalogNumbers) as catalogNumber, o.'.implode(',o.',$this->fieldArr).' ';
 			$orderBy = '';
-			if($this->evaluationType == 'exsiccate'){
+			if($evaluationType == 'exsiccate'){
 				//Match dupes based on Exsiccati
 				$sql .= ' ';
 				$orderBy = ' ';
@@ -67,116 +50,185 @@ class SpecProcDuplicates extends Manager {
 			if($evaluationDate){
 				$sql .= 'AND o.occid NOT IN(SELECT occid FROM specprocstatus WHERE initialTimestamp > "'.$evaluationDate.'") ';
 			}
+			$sql .= 'AND d.duplicateid IN(776,4376) ';
 			if($orderBy) $sql .= $orderBy;
+			//echo $sql;
 			$rs = $this->conn->query($sql);
 			$occid = 0;
+			$cnt = 0;
 			while($r = $rs->fetch_assoc()){
 				//Load subject occurrence record into array
-				$activeArr = array();
+				$recArr = array();
 				$occid = $r['occid'];
-				$activeArr[0]['occid']['v'] = $r['occid'];
-				$activeArr[0]['collid']['v'] = $r['collid'];
-				$activeArr[0]['catalogNumber']['v'] = $r['catalogNumber'];
+				$recArr[0]['occid']['v'] = $r['occid'];
+				$recArr[0]['collid']['v'] = $r['collid'];
+				$recArr[0]['catalogNumber']['v'] = $r['catalogNumber'];
 				foreach($this->fieldArr as $fieldName){
-					$activeArr[0][$fieldName]['v'] = $r[$fieldName];
+					$recArr[0][$fieldName]['v'] = $r[$fieldName];
 				}
-				if($this->evaluationType == 'exsiccate'){
+				if($evaluationType == 'exsiccate'){
 					//Exsiccate table
 
 				}
 				else{
 					//Duplicate table
-					$this->appendDuplicates($activeArr,$r['dupeid'],$occid);
-					if($evaluatedArr = $this->evaluateDuplicateArr($activeArr)){
-						$retArr[$occid] = $evaluatedArr;
+					if($this->appendDuplicates($recArr,$r['dupeid'],$occid)){
+						if($this->evaluateDuplicateArr($recArr)){
+							$retArr[$occid] = $recArr;
+							$cnt++;
+						}
 					}
 				}
-				$this->setAsEvaluated($occid);
+				$this->setAsEvaluated($occid,'duplicateMatch');
+				if($cnt >= $limit) break;
 			}
 			$rs->free();
 		}
 		return $retArr;
 	}
 
-	private function appendDuplicates(&$activeArr,$dupeid,$subjectID){
-		$status = true;
+	private function appendDuplicates(&$recArr,$dupeid,$occid){
+		$status = false;
 		$sql = 'SELECT o.occid, o.collid, IFNULL(o.catalogNumber,o.othercatalogNumbers) as catalogNumber, '.implode(',',$this->fieldArr).' '.
 			'FROM omoccurrences o INNER JOIN omoccurduplicatelink d ON o.occid = d.occid '.
-			'WHERE d.duplicateid = '.$dupeid.' AND d.occid != '.key($subjectID);
+			'WHERE d.duplicateid = '.$dupeid.' AND d.occid != '.$occid;
 		$rs = $this->conn->query($sql);
 		$cnt = 1;
 		while($r = $rs->fetch_assoc()){
-			$activeArr[$cnt]['occid']['v'] = $r['occid'];
-			$activeArr[$cnt]['collid']['v'] = $r['collid'];
-			$activeArr[$cnt]['catalogNumber']['v'] = $r['catalogNumber'];
+			$status = true;
+			$recArr[$cnt]['occid']['v'] = $r['occid'];
+			$recArr[$cnt]['collid']['v'] = $r['collid'];
+			$recArr[$cnt]['catalogNumber']['v'] = $r['catalogNumber'];
 			foreach($this->fieldArr as $fieldName){
-				$activeArr[$cnt][$fieldName]['v'] = $r[$fieldName];
+				$recArr[$cnt][$fieldName]['v'] = $r[$fieldName];
 			}
-			$this->collMetaArr[$r->collid] = 0;
+			$this->collMetaArr[$r['collid']] = 0;
 			$cnt++;
 		}
 		$rs->free();
 		return $status;
 	}
 
-	private function evaluateArr(&$activeArr){
+	private function evaluateDuplicateArr(&$recArr){
 		$status = false;
-		$statusCode = 'd';
-		$subjectArr = $activeArr[0];
-		foreach($this->fieldArr as $fieldName){
+		$subjectArr = $recArr[0];
+		//Process general occurrence fields without any coordination between fields
+		foreach($this->occurFieldArr as $fieldName){
 			$currentVal = $subjectArr[$fieldName]['v'];
 			if(!$currentVal){
+				//echo 'evaluating '.$fieldName.': '.$currentVal.'<br/>';
 				$rateArr = array();
 				$topRank = 0;
-				$bestStr = '';
 				$bestKey = '';
-				for($i = 1; $i < count($activeArr); $i++){
-					$fieldStr = trim($activeArr[$i][$fieldName]);
+				for($i = 1; $i < count($recArr); $i++){
+					//Iterate through each duplicate record
+					$fieldStr = trim($recArr[$i][$fieldName]['v']);
 					if($fieldStr){
-						if(!$bestStr){
-							//Seed evaluation values
-							$bestStr = $fieldStr;
-							$topRank = 1;
-						}
 						$testStr = $this->normalizeFieldValue($fieldStr);
-						$rateArr[$testStr]['i'][] = $i;
+						//echo 'test: '.$fieldStr.'<br/>';
+						//echo 'normalized: '.$testStr.'<br/>';
 						if(array_key_exists($testStr,$rateArr)){
 							$rank = $rateArr[$testStr]['r'];
 							$rank++;
 							if($rank > $topRank){
 								$topRank = $rank;
-								$bestStr = $fieldStr;
 								$bestKey = $testStr;
 							}
 							$rateArr[$testStr]['r'] = $rank;
 						}
 						else{
 							$rateArr[$testStr]['r'] = 1;
+							if(!$bestKey){
+								//Seed evaluation values
+								$topRank = 1;
+								$bestKey = $testStr;
+							}
 						}
+						$rateArr[$testStr]['i'][] = $i;
 					}
 				}
-				if($bestStr){
-					$activeArr[0][$fieldName]['p'] = $bestStr;
+				//print_r($rateArr); echo '<br/>';
+				//echo 'best: '.$bestKey.' -> '.$bestStr.'<br/>';
+				if($bestKey){
+					//Tag field as being adjusted
 					$this->activeFieldArr[$fieldName] = 1;
-				}
-				$selectArr = $rateArr[$bestKey]['i'];
-				foreach($selectArr as $i){
-					$activeArr[$i][$fieldName]['c'] = 's';
+					$selectArr = $rateArr[$bestKey]['i'];
+					foreach($selectArr as $i){
+						//Set preferred string within object record
+						if(!isset($recArr[0][$fieldName]['p'])) $recArr[0][$fieldName]['p'] = $recArr[$i][$fieldName]['v'];
+						//Tag matching duplicate fields as being used
+						$recArr[$i][$fieldName]['c'] = 's';
+					}
+					$status = true;
 				}
 			}
 		}
-		if($statusCode == 'd') $status = false;
+		//Process georeference fields with field coordinated against each other
+		$curLatValue = $subjectArr['decimalLatitude']['v'];
+		$curLngValue = $subjectArr['decimalLongitude']['v'];
+		$curVerbatimCoordValue = $subjectArr['verbatimCoordinates']['v'];
+		if(!$curLatValue && !$curLngValue && !$curVerbatimCoordValue){
+			$rateArr = array();
+			$topRank = 0;
+			$bestTestKey = '';
+			for($i = 1; $i < count($recArr); $i++){
+				//Iterate through each duplicate record and evaluate
+				$latValue = trim($recArr[$i]['decimalLatitude']['v']);
+				$lngValue = trim($recArr[$i]['decimalLongitude']['v']);
+				//$verbatimCoordValue = trim($recArr[$i]['verbatimCoordinates']['v']);
+				if($latValue && $lngValue){
+					$testKey = $latValue.' '.$lngValue;
+					if(array_key_exists($testKey,$rateArr)){
+						$rank = $rateArr[$testKey]['r'];
+						$rank++;
+						if($rank > $topRank){
+							$topRank = $rank;
+							$bestTestKey = $testKey;
+						}
+						$rateArr[$testKey]['r'] = $rank;
+					}
+					else{
+						$rateArr[$testKey]['r'] = 1;
+						if(!$topRank){
+							$topRank = 1;
+							$bestTestKey = $testKey;
+						}
+					}
+					$rateArr[$testKey]['i'][] = $i;
+				}
+			}
+			$bestIndex = $rateArr[$bestTestKey]['i'][0];
+			if(count($rateArr[$bestTestKey]['i']) > 1){
+				//More than one record is best match, evaluate which is best match
+
+			}
+			foreach($this->geoFieldArr as $fieldName){
+				//Tag field as being adjusted
+				$this->activeFieldArr[$fieldName] = 1;
+				//Set preferred string within object record
+				$recArr[0][$fieldName]['p'] = $recArr[$bestIndex][$fieldName]['v'];
+				//Tag matching duplicate fields as being used
+				$recArr[$bestIndex][$fieldName]['c'] = 's';
+			}
+			$status = true;
+		}
 		return $status;
 	}
 
 	private function normalizeFieldValue($str){
 		$str = preg_replace("/[^A-Za-z0-9]/", '', $str);
+		return $str;
 	}
 
 	private function setAsEvaluated($occid,$processName){
-		$sql = 'INSERT INTO specprocstatus(occid,processName) VALUES('.$occid.',"'.$processName.'")';
-		if(!$this->conn->query($sql)){
-			$this->errorMessage = 'ERROR registering occurrence as evaluated: '.$this->conn->error;
+		try{
+			$sql = 'INSERT INTO specprocstatus(occid,processName) VALUES('.$occid.',"'.$processName.'")';
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'ERROR registering occurrence as evaluated: '.$this->conn->error;
+			}
+		}
+		catch(Exception $e){
+
 		}
 	}
 
@@ -187,8 +239,7 @@ class SpecProcDuplicates extends Manager {
 			$sql = 'SELECT collid, CONCAT_WS(":",institutionCode, collectionCode) AS collcode, collectionName FROM omcollections WHERE collid IN('.$collStr.')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$this->collMetaArr[$r->collid]['collcode'] = $r->collcode;
-				$this->collMetaArr[$r->collid]['name'] = $r->collectionName;
+				$this->collMetaArr[$r->collid] = array('collcode' => $r->collcode, 'name' => $r->collectionName);
 			}
 			$rs->free();
 		}

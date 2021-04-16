@@ -603,10 +603,10 @@ class OccurrenceHarvester{
 						$occid = $this->conn->insert_id;
 						if($occid){
 							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
-							$this->datasetIndexing($domainID,$occid);
-							$this->datasetIndexing($siteID,$occid);
 						}
 					}
+					$this->datasetIndexing($domainID,$occid);
+					$this->datasetIndexing($siteID,$occid);
 				}
 				else{
 					$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
@@ -618,10 +618,10 @@ class OccurrenceHarvester{
 	}
 
 	private function datasetIndexing($datasetName, $occid){
-		if($datasetName){
+		if($datasetName && $occid){
 			$sql = 'INSERT INTO omoccurdatasetlink(datasetid, occid) SELECT datasetid, '.$occid.' FROM omoccurdatasets WHERE name = "'.$datasetName.'"';
 			if(!$this->conn->query($sql)){
-				$this->errorStr = 'ERROR assigning occurrence to '.$datasetName.' dataset';
+				if($this->conn->errno != 1062) $this->errorStr = 'ERROR assigning occurrence to '.$datasetName.' dataset: '.$this->conn->errno.' - '.$this->conn->error;
 			}
 		}
 	}

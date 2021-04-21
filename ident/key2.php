@@ -132,8 +132,8 @@ if($chars){
 		if($displayImages){
 			?>
 			.taxon-div{ display: inline-block; flex-flow: row wrap; }
-			.img-div{ display: inline-block; position: relative; margin: 3px; width: 160px; height: 160px; border: 1px solid gray; }
-			.img-div img{ position: absolute; max-height: 160px; max-width: 160px; top: -9999px; bottom: -9999px; left: -9999px; right: -9999px; margin: auto; }
+			.img-div{ display: inline-block; position: relative; margin: 3px; width: 160px; height: 160px; border: 1px solid gray; overflow: hidden; }
+			.img-div img{ position: absolute; max-height: 165px; max-width: 165px; top: -9999px; bottom: -9999px; left: -9999px; right: -9999px; margin: auto; }
 			.img-div div{ text-align: center; margin-top: 25%; }
 			.sciname-div{ text-align: center }
 			<?php

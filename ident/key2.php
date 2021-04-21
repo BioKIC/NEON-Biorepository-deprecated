@@ -87,6 +87,26 @@ if($chars){
 			}
 		}
 
+		function resetForm(f) {
+			var inputs = f.getElementsByTagName('input');
+			for (var i = 0; i<inputs.length; i++) {
+				switch (inputs[i].type) {
+					case 'text':
+						inputs[i].value = '';
+						break;
+					case 'radio':
+					case 'checkbox':
+						inputs[i].checked = false;
+				}
+			}
+
+			var selects = f.getElementsByTagName('select');
+			for (var i = 0; i<selects.length; i++)
+				selects[i].selectedIndex = 0;
+			f.submit();
+			return false;
+		}
+
 		function openEditorPopup(tid){
 			var url = 'tools/editor.php?tid='+tid;
 			window.open(url,'keyeditor','toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=1100,height=600,left=20,top=20');
@@ -112,8 +132,8 @@ if($chars){
 		if($displayImages){
 			?>
 			.taxon-div{ display: inline-block; flex-flow: row wrap; }
-			.img-div{ display: inline-block; height: 180px; overflow: hidden; }
-			.img-div img{ display: block; margin-left: auto; margin-right: auto }
+			.img-div{ display: inline-block; position: relative; margin: 3px; width: 160px; height: 160px; border: 1px solid gray; }
+			.img-div img{ position: absolute; max-height: 160px; max-width: 160px; top: -9999px; bottom: -9999px; left: -9999px; right: -9999px; margin: auto; }
 			.img-div div{ text-align: center; margin-top: 25%; }
 			.sciname-div{ text-align: center }
 			<?php
@@ -126,8 +146,6 @@ if($chars){
 			<?php
 		}
 		?>
-		.img-div{ width: 200px }
-		.img-div img{ width: 180px }
 	</style>
 </head>
 <body>
@@ -165,6 +183,7 @@ echo '</div>';
 			<div id="key-chars">
 				<form name="keyform" id="keyform" action="key2.php" method="post">
 					<div>
+						<div style="float:right"><button type="button" onclick="resetForm(this.form)">Reset</button></div>
 						<div><?php echo (isset($LANG['TAXON_SEARCH'])?$LANG['TAXON_SEARCH']:'Family/Genus Filter');?>:</div>
 						<select name="taxon" onchange="this.form.submit();">
 							<?php

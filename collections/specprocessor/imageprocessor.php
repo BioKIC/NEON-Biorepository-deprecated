@@ -276,6 +276,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 									</table>
 								</div>
 								<div style="margin:15px;">
+									<input name="createnew" type="checkbox" value ="1" /> Link image to new blank record if catalog number does not exist
+								</div>
+								<div style="margin:15px;">
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 									<input name="tabindex" type="hidden" value="1" />
 									<input name="filename" type="hidden" value="<?php echo $fileName; ?>" />

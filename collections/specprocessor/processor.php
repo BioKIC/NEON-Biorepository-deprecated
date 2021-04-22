@@ -131,6 +131,7 @@ $statusStr = "";
 					echo '<ul>';
 					$imageProcessor->setLogMode(3);
 					$imageProcessor->setCollid($collid);
+					if(isset($_POST['createnew']) && $_POST['createnew']) $imageProcessor->setCreateNewRecord(true);
 					$imageProcessor->loadFileData($_POST);
 					echo '</ul>';
 				}

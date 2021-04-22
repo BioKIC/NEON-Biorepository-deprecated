@@ -12,6 +12,7 @@ class ImageProcessor {
 	private $collArr;
 	private $matchCatalogNumber = true;
 	private $matchOtherCatalogNumbers = false;
+	private $createNewRecord = false;
 
 	private $logMode = 0;		//0 = silent, 1 = html, 2 = log file, 3 = both html & log
 	private $logFH;
@@ -408,15 +409,20 @@ class ImageProcessor {
 							}
 						}
 						else{
-							//Create new occurrence record to link image
-							$sqlIns = 'INSERT INTO omoccurrences(collid,'.($catalogNumber?'catalogNumber':'otherCatalogNumbers').',processingstatus,dateentered) '.
-								'VALUES('.$this->collid.',"'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'","unprocessed",now())';
-							if($this->conn->query($sqlIns)){
-								$occArr[$this->conn->insert_id] = 0;
-								$this->logOrEcho('Unable to find record with matching '.($catalogNumber?'catalogNumber':'otherCatalogNumbers').'; new occurrence record created',1);
+							if($this->createNewRecord){
+								//Create new occurrence record to link image
+								$sqlIns = 'INSERT INTO omoccurrences(collid,'.($catalogNumber?'catalogNumber':'otherCatalogNumbers').',processingstatus,dateentered) '.
+									'VALUES('.$this->collid.',"'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'","unprocessed",now())';
+								if($this->conn->query($sqlIns)){
+									$occArr[$this->conn->insert_id] = 0;
+									$this->logOrEcho('Unable to find record with matching '.($catalogNumber?'catalogNumber':'otherCatalogNumbers').'; new occurrence record created',1);
+								}
+								else{
+									$this->logOrEcho('ERROR creating new occurrence record: '.$this->conn->error,1);
+								}
 							}
 							else{
-								$this->logOrEcho('ERROR creating new occurrence record: '.$this->conn->error,1);
+								$this->logOrEcho('SKIPPED: Unable to find record with matching '.($catalogNumber?'catalogNumber':'otherCatalogNumbers').', image not mapped',1);
 							}
 						}
 						foreach($occArr as $occid => $tid){
@@ -704,6 +710,11 @@ class ImageProcessor {
 	public function setMatchOtherCatalogNumbers($b){
 		if($b) $this->matchOtherCatalogNumbers = true;
 		else $this->matchOtherCatalogNumbers = false;
+	}
+
+	public function setCreateNewRecord($b){
+		if($b) $this->createNewRecord = true;
+		else $this->createNewRecord = false;
 	}
 
 	public function setLogMode($c){

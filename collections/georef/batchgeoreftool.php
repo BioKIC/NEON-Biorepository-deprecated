@@ -334,13 +334,13 @@ if($isEditor && $submitAction){
 								}
 								?>
 							</div>
-							<div style="font-weight:bold;">
+							<div>
 								<?php
 								$localArr = $geoManager->getLocalityArr();
 								$localCnt = '---';
 								if(isset($localArr)) $localCnt = count($localArr);
-								if($localCnt == 1000) $localCnt = '1000 or more';
-								echo 'Return Count: '.$localCnt;
+								if($localCnt == 1000) $localCnt = '1000 limit reached (not all available localities shown)';
+								echo '<b>Return Count:</b> '.$localCnt;
 								?>
 							</div>
 							<div style="clear:both;border:2px solid;width:100%;height:200px;resize: both;overflow: auto">

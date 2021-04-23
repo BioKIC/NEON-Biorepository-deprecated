@@ -54,6 +54,15 @@ if($glossId){
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript" src="../js/symb/glossary.index.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#tabs').tabs({
+				beforeLoad: function( event, ui ) {
+					$(ui.panel).html("<p>Loading...</p>");
+				}
+			});
+		});
+	</script>
 </head>
 
 <body style="overflow-x:hidden;overflow-y:auto;width:800px;min-width:800px">
@@ -181,7 +190,7 @@ if($glossId){
 							foreach($taxaArr as $tid => $sciname){
 								echo $delimter.$sciname;
 								if(array_key_exists($tid, $sourceArr)) echo ' [<a href="#" onclick="toggle(\''.$tid.'-sourcesdiv\');return false;"><span style="font-size:90%">show sources</span></a>]';
-								$delimter = ',';
+								$delimter = ', ';
 							}
 							?>
 						</div>

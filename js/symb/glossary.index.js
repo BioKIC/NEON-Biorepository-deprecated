@@ -3,14 +3,6 @@ $(document).ready(function() {
 		alert("Your browser cookies are disabled. To be able to login and access your profile, they must be enabled for this domain.");
 	}
 	
-	$('#tabs').tabs({
-		beforeLoad: function( event, ui ) {
-			$(ui.panel).html("<p>Loading...</p>");
-		}
-	});
-
-	resetLanguageSelect(document.searchform);
-
 	$( "#taxagroup" )
 		// don't navigate away from the field on tab when selecting an item
 		.bind( "keydown", function( event ) {
@@ -55,19 +47,6 @@ $(document).ready(function() {
 			}
 		},{});
 });
-
-function resetLanguageSelect(f){
-	if($("#searchlanguage").is('select')){ 
-		var tid = f.searchtaxa.value;
-		if(tid == '') tid = 0;
-		var oldLang = $("#searchlanguage").val();
-		$("#searchlanguage").empty();
-		$.each(langArr[tid], function(key,value) {
-			$("#searchlanguage").append($("<option></option>").attr("value", value).text(value));
-		});
-		$("#searchlanguage").val(oldLang);
-	}
-}
 
 function addNewLang(f){
 	var newLangStr = f.newlang.value;

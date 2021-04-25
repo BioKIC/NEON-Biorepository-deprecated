@@ -51,7 +51,7 @@ if($attrsValues) $dataManager->setAttrs($attrsValues);
 if($rv) $dataManager->setRelevanceValue($rv);
 
 $taxa = $dataManager->getTaxaArr();
-$chars = $dataManager->getCharList();
+$chars = $dataManager->getCharArr();
 
 //Harevest and remove language list from $chars
 $languages = Array();
@@ -64,7 +64,7 @@ if($chars){
 <head>
 	<title><?php echo $DEFAULT_TITLE.$LANG['WEBKEY'].preg_replace('/\<[^\>]+\>/','',$dataManager->getClName()); ?></title>
 	<?php
-	$activateJQuery = false;
+	$activateJQuery = true;
 	if(file_exists($SERVER_ROOT.'/includes/head.php')){
 		include_once($SERVER_ROOT.'/includes/head.php');
 	}
@@ -75,8 +75,14 @@ if($chars){
 	}
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+	<script type="text/javascript" src="../js/jquery.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript" src="../js/symb/ident.key.js"></script>
 	<script type="text/javascript">
+		$( function() {
+			$( "#key-chars" ).resizable();
+		} );
+
 		function setLang(list){
 			var langName = list.options[list.selectedIndex].value;
 			var objs = document.getElementsByTagName("span");
@@ -114,11 +120,13 @@ if($chars){
 	</script>
 	<style type="text/css">
 		#title-div { font-weight: bold; font-size: 120% }
-		fieldset { display: inline-block; float: right; padding: 5px 10px; min-width: 25% }
+		#char-div {  }
+		#key-chars { display: inline-block; float: right; max-width: 35%; overflow: hidden; }
+		fieldset { padding: 5px 10px; }
 		legend { font-weight:bold }
 		.editimg { width: 13px }
 		#key-div {  }
-		#key-chars { }
+		.char-heading { font-weight: bold; margin-top:1em; font-size:125%; }
 		#key-taxa { vertical-align: top; }
 		.charHeading {}
 		.characterStateName {}
@@ -178,9 +186,9 @@ echo '</div>';
 	<?php
 	if($clid || $dynClid){
 		?>
-		<fieldset>
-			<legend>Filter/Display Options</legend>
-			<div id="key-chars">
+		<div id="char-div">
+			<fieldset id="key-chars">
+				<legend>Filter/Display Options</legend>
 				<form name="keyform" id="keyform" action="key2.php" method="post">
 					<div>
 						<div style="float:right"><button type="button" onclick="resetForm(this.form)">Reset</button></div>
@@ -233,8 +241,8 @@ echo '</div>';
 					</div>
 					<?php
 					if($chars){
-						//echo "<div id='showall' class='dynamControl' style='display:none'><a href='#' onclick='javascript: toggleAll();'>Show All Characters</a></div>\n";
-						//echo "<div class='dynamControl' style='display:block'><a href='#' onclick='javascript: toggleAll();'>Hide Advanced Characters</a></div>\n";
+						//echo "<div id='showall' class='dynamControl' style='display:none'><a href='#' onclick='toggleAll();'>Show All Characters</a></div>\n";
+						//echo "<div class='dynamControl' style='display:block'><a href='#' onclick='toggleAll();'>Hide Advanced Characters</a></div>\n";
 						foreach($chars as $key => $htmlStrings){
 							echo $htmlStrings."\n";
 						}
@@ -247,8 +255,8 @@ echo '</div>';
 						<input type="hidden" id="rv" name="rv" value="<?php echo $dataManager->getRelevanceValue(); ?>" />
 					</div>
 				</form>
-			</div>
-		</fieldset>
+			</fieldset>
+		</div>
 		<?php
 		if($isEditor){
 			?>

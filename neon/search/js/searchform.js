@@ -8,7 +8,8 @@ const form = document.getElementById('params-form');
 const formColls = document.getElementById('search-form-colls');
 const formSites = document.getElementById('site-list');
 const collsModal = document.getElementById('colls-modal');
-const paramNames = [
+// list of parameters to be passed to url, modified by getSearchUrl method
+let paramNames = [
   'db',
   'datasetid',
   'catnum',
@@ -485,6 +486,19 @@ function getSearchUrl() {
 
   // Clears array temporarily to avoid redundancy
   paramsArr = [];
+
+  // Only adds 'datasetid' to list of params if there is at least one selected
+  // and if 'all' is not checked
+  if (allSites.checked) {
+    paramNames = paramNames.filter((value, index, arr) => {
+      return value != 'datasetid';
+    });
+  } else {
+    document.querySelectorAll('#site-list input[type=checkbox]:checked')
+      .length > 1
+      ? paramNames.push('datasetid')
+      : false;
+  }
 
   // Grabs params from form for each param name
   paramNames.forEach((param, i) => {

@@ -287,10 +287,12 @@ if($IS_ADMIN){
 		}
 	</script>
 	<style type="text/css">
-		.fieldGroupDiv{ clear:both; margin-top:2px; height: 25px; }
-		.fieldDiv{ float:left; margin-left: 10px}
-		.displayFieldDiv{ margin-bottom: 3px }
-		fieldset legend{ font-weight:bold; }
+		#innertext{ max-width: 1300px; }
+		.fieldGroupDiv { clear:both; margin-top:2px; height: 25px; }
+		.fieldDiv { float:left; margin-left: 10px}
+		.displayFieldDiv { margin-bottom: 3px }
+		fieldset legend { font-weight: bold; }
+		.sample-row td { white-space: nowrap }
 	</style>
 </head>
 <body>
@@ -545,7 +547,7 @@ include($SERVER_ROOT.'/includes/header.php');
 														$propStr .= $category.': '.$propValue.'; ';
 													}
 												}
-												echo '<tr>';
+												echo '<tr class="sample-row">';
 												echo '<td><input id="scbox-'.$samplePK.'" class="'.trim($classStr).'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
 												$sampleID = $sampleArr['sampleID'];
 												if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
@@ -658,7 +660,7 @@ include($SERVER_ROOT.'/includes/header.php');
 										if($shipArr['checkinTimestamp']){
 											?>
 											<div style="margin:15px;float:left">
-												<div style="margin:5px;">
+												<div style="margin:5px;width:200px">
 													<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
 												</div>
 												<?php
@@ -782,7 +784,7 @@ include($SERVER_ROOT.'/includes/header.php');
 												?>
 											</fieldset>
 										</div>
-										<div style="float:left;margin-left:30px;">
+										<div style="float:left;margin-left:30px;margin-top:10px;">
 											<form name="exportSampleListForm" action="exporthandler.php" method="post" style="">
 												<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 												<input name="exportTask" type="hidden" value="sampleList" />
@@ -794,7 +796,7 @@ include($SERVER_ROOT.'/includes/header.php');
 										$collectionArr = $shipManager->getCollectionArr();
 										if($collectionArr){
 											?>
-											<div style="float:left;margin:15px 30px;">
+											<div style="float:left;margin:0px 30px;">
 												<fieldset style="width:400px;padding:15px;">
 													<legend>Append Data to Occurrence Records via File Upload</legend>
 													<?php

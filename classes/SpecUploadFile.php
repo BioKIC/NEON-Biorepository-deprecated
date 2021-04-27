@@ -227,15 +227,24 @@ class SpecUploadFile extends SpecUploadBase{
 		else{
 			$headerArr = explode($this->delimiter,$headerData);
 		}
+		$hasEmptyHeader = false;
+		$cnt = 1;
+		$skippedFields = '';
 		$retArr = array();
 		foreach($headerArr as $field){
 			$fieldStr = strtolower($this->encodeString(trim($field)));
 			if($fieldStr){
-				$retArr[] = $fieldStr;
+				if($hasEmptyHeader) $skippedFields .= $fieldStr.', ';
+				else{
+					$retArr[] = $fieldStr;
+					$cnt++;
+				}
 			}
-			else{
-				break;
-			}
+			else $hasEmptyHeader = true;
+		}
+		if($hasEmptyHeader && $skippedFields){
+			$this->outputMsg('<span style="color:orange">WARNING: There is an empty header field (column #'.$cnt.')!</span><br/>');
+			$this->outputMsg('<b>Following columns will be skipped:</b> '.trim($skippedFields,', '));
 		}
 		return $retArr;
 	}

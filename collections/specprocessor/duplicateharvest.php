@@ -11,7 +11,7 @@ $processingStatus = array_key_exists('processingstatus',$_POST)?$_POST['processi
 $limit = array_key_exists('limit',$_POST)?$_POST['limit']:100;
 $action = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
-if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/dupematching.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
+if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/specprocessor/duplicateharvest.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 //Sanitation
 if(!is_numeric($collid)) $collid = 0;
@@ -56,9 +56,7 @@ $collMetaArr = $dupeManager->getCollMetaArr();
 		table th{ border: 2px solid black; background-color: #dbe5f1; }
 		table td{ border: 2px solid black; }
 		.source-row{ background-color: #efefef; }
-		table tr .dupe-row{ background-color: lightgray; }
-		table td .edit-cell{ border-color: green; }
-		table td .source-cell{ border-color: yellow; }
+		.source-cell{ background-color: lightyellow }
 
 	</style>
 </head>
@@ -116,7 +114,7 @@ $collMetaArr = $dupeManager->getCollMetaArr();
 					<div style="">
 						<span class="fieldLabel">Record limit: </span>
 						<span style="margin-left: 5px">
-							<input name="targetFields" type="text" value="100" style="width:100px" />
+							<input name="limit" type="text" value="<?php echo $limit; ?>" style="width:100px" />
 						</span>
 					</div>
 				</form>
@@ -152,7 +150,7 @@ $collMetaArr = $dupeManager->getCollMetaArr();
 										$currentValue = $dupeArr[0][$fieldName]['v'];
 										$suggestedValue = '';
 										if(isset($dupeArr[0][$fieldName]['p'])) $suggestedValue = $dupeArr[0][$fieldName]['p'];
-										echo '<td class="'.($currentValue != $suggestedValue?'edit-cell':'').'" title="Current value: '.htmlentities($currentValue).'">';
+										echo '<td title="Current value: '.htmlentities($currentValue).'">';
 										if(!$currentValue && $suggestedValue) echo '<input name="'.$occid.'-'.$fieldName.'" value="'.htmlentities($suggestedValue).'" />';
 										else echo $currentValue;
 										echo '</td>';
@@ -160,14 +158,14 @@ $collMetaArr = $dupeManager->getCollMetaArr();
 									echo '</tr>';
 									//Output duplicate records
 									for($i=1; $i < count($dupeArr); $i++){
-										echo '<tr class="dupe-row">';
+										echo '<tr>';
 										echo '<td></td>';
 										echo '<td><a href="../individual/index.php?occid='.$occid.'" target="_blank">'.$dupeArr[$i]['occid']['v'].'</a></td>';
 										echo '<td>'.$collMetaArr[$dupeArr[$i]['collid']['v']]['collcode'].'</td>';
 										echo '<td>'.$dupeArr[$i]['catalogNumber']['v'].'</td>';
 										foreach($activeFieldArr as $fieldName => $code){
 											$classCode = '';
-											if(isset($dupeArr[$i][$fieldName]['s'])) $classCode = 'source-cell';
+											if(isset($dupeArr[$i][$fieldName]['c']) && $dupeArr[$i][$fieldName]['v']) $classCode = 'source-cell';
 											echo '<td class="'.$classCode.'">';
 											echo htmlentities($dupeArr[$i][$fieldName]['v']);
 											echo '</td>';

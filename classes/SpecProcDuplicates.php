@@ -11,9 +11,9 @@ class SpecProcDuplicates extends Manager {
 	private $collMetaArr = array();
 
 	function __construct() {
-		parent::__construct();
+		parent::__construct(null,'write');
 		//$this->scinameFieldArr = array('family','sciname','taxonRemarks','identifiedBy','dateIdentified','identificationReferences','identificationRemarks','identificationQualifier');
-		$this->occurFieldArr = array('typeStatus','recordedBy','recordNumber','associatedCollectors','eventDate','verbatimEventDate','habitat','substrate','fieldNotes','fieldnumber',
+		$this->occurFieldArr = array('recordedBy','recordNumber','associatedCollectors','eventDate','verbatimEventDate','habitat','substrate','fieldNotes','fieldnumber',
 			'occurrenceRemarks','informationWithheld','associatedOccurrences','dataGeneralizations','associatedTaxa','dynamicProperties','verbatimAttributes','behavior',
 			'reproductiveCondition','cultivationStatus','establishmentMeans','lifeStage','sex','individualCount','samplingProtocol','samplingEffort','preparations',
 			'locationID','country','stateProvince','county','municipality','waterBody','locality','localitySecurity','localitySecurityReason','locationRemarks',
@@ -50,7 +50,7 @@ class SpecProcDuplicates extends Manager {
 			if($evaluationDate){
 				$sql .= 'AND o.occid NOT IN(SELECT occid FROM specprocstatus WHERE initialTimestamp > "'.$evaluationDate.'") ';
 			}
-			$sql .= 'AND d.duplicateid IN(776,4376) ';
+			//$sql .= 'AND o.occid = 4113806 ';
 			if($orderBy) $sql .= $orderBy;
 			//echo $sql;
 			$rs = $this->conn->query($sql);
@@ -64,7 +64,8 @@ class SpecProcDuplicates extends Manager {
 				$recArr[0]['collid']['v'] = $r['collid'];
 				$recArr[0]['catalogNumber']['v'] = $r['catalogNumber'];
 				foreach($this->fieldArr as $fieldName){
-					$recArr[0][$fieldName]['v'] = $r[$fieldName];
+					if($r[$fieldName]) $recArr[0][$fieldName]['v'] = '---';
+					else $recArr[0][$fieldName]['v'] = '';
 				}
 				if($evaluationType == 'exsiccate'){
 					//Exsiccate table
@@ -80,7 +81,7 @@ class SpecProcDuplicates extends Manager {
 					}
 				}
 				$this->setAsEvaluated($occid,'duplicateMatch');
-				if($cnt >= $limit) break;
+				if($cnt > $limit) break;
 			}
 			$rs->free();
 		}
@@ -100,7 +101,11 @@ class SpecProcDuplicates extends Manager {
 			$recArr[$cnt]['collid']['v'] = $r['collid'];
 			$recArr[$cnt]['catalogNumber']['v'] = $r['catalogNumber'];
 			foreach($this->fieldArr as $fieldName){
-				$recArr[$cnt][$fieldName]['v'] = $r[$fieldName];
+				if($r[$fieldName] !== ''){
+					if($recArr[0][$fieldName]['v'] == '---') $recArr[$cnt][$fieldName]['v'] = '---';
+					else $recArr[$cnt][$fieldName]['v'] = $r[$fieldName];
+				}
+				else $recArr[$cnt][$fieldName]['v'] = '';
 			}
 			$this->collMetaArr[$r['collid']] = 0;
 			$cnt++;
@@ -116,7 +121,6 @@ class SpecProcDuplicates extends Manager {
 		foreach($this->occurFieldArr as $fieldName){
 			$currentVal = $subjectArr[$fieldName]['v'];
 			if(!$currentVal){
-				//echo 'evaluating '.$fieldName.': '.$currentVal.'<br/>';
 				$rateArr = array();
 				$topRank = 0;
 				$bestKey = '';
@@ -125,8 +129,6 @@ class SpecProcDuplicates extends Manager {
 					$fieldStr = trim($recArr[$i][$fieldName]['v']);
 					if($fieldStr){
 						$testStr = $this->normalizeFieldValue($fieldStr);
-						//echo 'test: '.$fieldStr.'<br/>';
-						//echo 'normalized: '.$testStr.'<br/>';
 						if(array_key_exists($testStr,$rateArr)){
 							$rank = $rateArr[$testStr]['r'];
 							$rank++;
@@ -147,8 +149,6 @@ class SpecProcDuplicates extends Manager {
 						$rateArr[$testStr]['i'][] = $i;
 					}
 				}
-				//print_r($rateArr); echo '<br/>';
-				//echo 'best: '.$bestKey.' -> '.$bestStr.'<br/>';
 				if($bestKey){
 					//Tag field as being adjusted
 					$this->activeFieldArr[$fieldName] = 1;
@@ -169,8 +169,7 @@ class SpecProcDuplicates extends Manager {
 		$curVerbatimCoordValue = $subjectArr['verbatimCoordinates']['v'];
 		if(!$curLatValue && !$curLngValue && !$curVerbatimCoordValue){
 			$rateArr = array();
-			$topRank = 0;
-			$bestTestKey = '';
+			$bestTestKeyArr = array();
 			for($i = 1; $i < count($recArr); $i++){
 				//Iterate through each duplicate record and evaluate
 				$latValue = trim($recArr[$i]['decimalLatitude']['v']);
@@ -181,36 +180,59 @@ class SpecProcDuplicates extends Manager {
 					if(array_key_exists($testKey,$rateArr)){
 						$rank = $rateArr[$testKey]['r'];
 						$rank++;
-						if($rank > $topRank){
-							$topRank = $rank;
-							$bestTestKey = $testKey;
-						}
+						$bestTestKeyArr[$testKey] = $rank;
 						$rateArr[$testKey]['r'] = $rank;
 					}
 					else{
 						$rateArr[$testKey]['r'] = 1;
-						if(!$topRank){
-							$topRank = 1;
-							$bestTestKey = $testKey;
-						}
+						$bestTestKeyArr[$testKey] = 1;
 					}
 					$rateArr[$testKey]['i'][] = $i;
 				}
 			}
-			$bestIndex = $rateArr[$bestTestKey]['i'][0];
-			if(count($rateArr[$bestTestKey]['i']) > 1){
-				//More than one record is best match, evaluate which is best match
-
+			arsort($bestTestKeyArr);
+			$bestScore = current($bestTestKeyArr);
+			foreach($bestTestKeyArr as $key => $score){
+				if($score < $bestScore){
+					unset($bestTestKeyArr[$key]);
+				}
 			}
-			foreach($this->geoFieldArr as $fieldName){
-				//Tag field as being adjusted
-				$this->activeFieldArr[$fieldName] = 1;
-				//Set preferred string within object record
-				$recArr[0][$fieldName]['p'] = $recArr[$bestIndex][$fieldName]['v'];
-				//Tag matching duplicate fields as being used
-				$recArr[$bestIndex][$fieldName]['c'] = 's';
+			$bestTestKey = key($bestTestKeyArr);
+			if($rateArr){
+				$bestIndex = current($rateArr[$bestTestKey]['i']);
+				if(count($bestTestKeyArr) > 1){
+					//More than one record is best match, evaluate which is best match
+					$topScore = 0;
+					foreach($bestTestKeyArr as $k => $s){
+						foreach($rateArr[$k]['i'] as $index){
+							$score = 0;
+							if(strlen($recArr[$index]['decimalLatitude']['v']) > 5 && strlen($recArr[$index]['decimalLatitude']['v']) < 10) $score += 2;
+							if(strlen($recArr[$index]['decimalLongitude']['v']) > 7 && strlen($recArr[$index]['decimalLongitude']['v']) < 12) $score += 2;
+							if(isset($recArr[$index]['verbatimCoordinates']['v']) && $recArr[$index]['verbatimCoordinates']['v']) $score += 4;
+							if(isset($recArr[$index]['coordinateUncertaintyInMeters']['v']) && $recArr[$index]['coordinateUncertaintyInMeters']['v'])  $score += 5;
+							if(isset($recArr[$index]['geodeticDatum']['v']) && $recArr[$index]['geodeticDatum']['v'])  $score++;
+							if(isset($recArr[$index]['georeferencedBy']['v']) && $recArr[$index]['georeferencedBy']['v'])  $score++;
+							if(isset($recArr[$index]['georeferenceProtocol']['v']) && $recArr[$index]['georeferenceProtocol']['v'])  $score++;
+							if(isset($recArr[$index]['georeferenceSources']['v']) && $recArr[$index]['georeferenceSources']['v'])  $score++;
+							if(isset($recArr[$index]['georeferenceVerificationStatus']['v']) && $recArr[$index]['georeferenceVerificationStatus']['v'])  $score++;
+							if($score > $topScore){
+								$topScore = $score;
+								$bestIndex = $index;
+								$bestTestKey = $k;
+							}
+						}
+					}
+				}
+				foreach($this->geoFieldArr as $fieldName){
+					//Tag field as being adjusted
+					$this->activeFieldArr[$fieldName] = 1;
+					//Set preferred string within object record
+					$recArr[0][$fieldName]['p'] = $recArr[$bestIndex][$fieldName]['v'];
+					//Tag matching duplicate fields as being used
+					$recArr[$bestIndex][$fieldName]['c'] = 's';
+				}
+				$status = true;
 			}
-			$status = true;
 		}
 		return $status;
 	}
@@ -221,14 +243,10 @@ class SpecProcDuplicates extends Manager {
 	}
 
 	private function setAsEvaluated($occid,$processName){
-		try{
-			$sql = 'INSERT INTO specprocstatus(occid,processName) VALUES('.$occid.',"'.$processName.'")';
-			if(!$this->conn->query($sql)){
-				$this->errorMessage = 'ERROR registering occurrence as evaluated: '.$this->conn->error;
-			}
-		}
-		catch(Exception $e){
-
+		$sql = 'INSERT INTO specprocstatus(occid,processName,processorUid) VALUES('.$occid.',"'.$processName.'",'.$GLOBALS['SYMB_UID'].')';
+		if(!$this->conn->query($sql)){
+			$this->errorMessage = 'ERROR registering occurrence as evaluated: '.$this->conn->error;
+			echo $this->errorMessage;
 		}
 	}
 

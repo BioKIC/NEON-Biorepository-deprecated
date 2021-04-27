@@ -871,7 +871,7 @@ $traitArr = $indManager->getTraitArr();
 							<?php
 						}
 						if($collMetadata['individualurl']){
-							$sourceTitle = 'Link to Source';
+							$sourceTitle = 'Source Record';
 							$iUrl = trim($collMetadata['individualurl']);
 							if(substr($iUrl, 0, 4) != 'http'){
 								if($pos = strpos($iUrl, ':')){
@@ -882,8 +882,8 @@ $traitArr = $indManager->getTraitArr();
 							$displayStr = '';
 							$indUrl = '';
 							if(strpos($iUrl,'--DBPK--') !== false && $occArr['dbpk']){
-								$displayStr = $occArr['dbpk'];
 								$indUrl = str_replace('--DBPK--',$occArr['dbpk'],$iUrl);
+								$displayStr = $indUrl;
 							}
 							elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $occArr['catalognumber']){
 								$displayStr = $occArr['catalognumber'];

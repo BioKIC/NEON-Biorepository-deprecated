@@ -89,7 +89,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 				</div>
 				<div class="four columns">
 					<h4 class="centered">Specimens</h4>
-					<p>Please consult the <a href="https://www.neonscience.org/data/archival-samples-specimens/neon-biorepository-asu">Archival Sample Request information page</a> to initiate inquiries about sample accessibility and loans.</p>
+					<p>Please consult the <a href="https://www.neonscience.org/samples/find-samples">Archival Sample Request information page</a> to initiate inquiries about sample accessibility and loans.</p>
 				</div>
 				<div class="four columns">
 					<h4 class="centered">Contact</h4>

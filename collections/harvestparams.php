@@ -249,7 +249,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 				</div>
 			</div>
 			<?php
-			if(isset($SEARCH_BY_TRAITS) && $SEARCH_BY_TRAITS != 0) {
+			if(isset($SEARCH_BY_TRAITS) && $SEARCH_BY_TRAITS) {
 				$traitArr = $attribSearch->getTraitSearchArr($SEARCH_BY_TRAITS);
 				if($traitArr){
 					?>
@@ -268,8 +268,8 @@ $attribSearch = new OccurrenceAttributeSearch();
 									<legend><b>Trait: <?php echo $traitData['name']; ?></b></legend>
 									<div style="float:right">
 										<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
-											<img class="triangleright" src="../images/triangleright.png" style="" />
-											<img class="triangledown" src="../images/triangledown.png" style="display:none" />
+											<img class="triangleright" src="../images/triangleright.png" style="display:none" />
+											<img class="triangledown" src="../images/triangledown.png" style="" />
 										</div>
 									</div>
 									<div class="traitDiv" style="margin-left:5px;float:left">

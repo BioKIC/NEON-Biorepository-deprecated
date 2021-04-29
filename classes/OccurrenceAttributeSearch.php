@@ -3,10 +3,10 @@ include_once($SERVER_ROOT.'/classes/OccurrenceAttributes.php');
 
 class OccurrenceAttributeSearch extends OccurrenceAttributes {
 
-  //use $setAttributes = false in call to ->getTraitArr, if reverting to using OccurrenceAttributes class
+	//use $setAttributes = false in call to ->getTraitArr, if reverting to using OccurrenceAttributes class
 
-  //private $traitSearchArr = array();
-  public function __construct(){
+	//private $traitSearchArr = array();
+	public function __construct(){
 		parent::__construct('readonly');
 	}
 
@@ -49,11 +49,11 @@ class OccurrenceAttributeSearch extends OccurrenceAttributes {
     return $this->traitArr;
   }
 
-  public function echoTraitSearchForm($traitID){
-		echo $this->getTraitSearchHTML($traitID,true);
+	public function echoTraitSearchForm($traitID){
+		echo $this->getTraitSearchHTML($traitID);
 	}
 
-	private function getTraitSearchHTML($traitID,$display,$classStr=''){
+	private function getTraitSearchHTML($traitID,$classStr=''){
 		$controlType = '';
 		if($this->traitArr[$traitID]['props']){
 			$propArr = json_decode($this->traitArr[$traitID]['props'],true);
@@ -68,36 +68,30 @@ class OccurrenceAttributeSearch extends OccurrenceAttributes {
 			else $innerStr .= '<div style="float:left;">';
 			$attrStateArr = $this->traitArr[$traitID]['states'];
 			foreach($attrStateArr as $sid => $sArr){
-				$isCoded = false;
-				if(array_key_exists('coded',$sArr)){
-					if(is_numeric($sArr['coded'])) $isCoded = $sArr['coded'];
-					else $isCoded = true;
-					$this->stateCodedArr[$sid] = $sid;
-				}
 				$depTraitIdArr = array();
 				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitIdArr = $sArr['dependTraitID'];
 				if($this->traitArr[$traitID]['type']=='NU'){
 					$innerStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
 					$innerStr .= $sArr['name'].
-					$innerStr .= ': <input name="traitid-'.$traitID.'[]" id="traitstateid-'.$sid.'" class="'.$classStr.'" type="text" value="'.$sid.'-'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
+					$innerStr .= ': <input name="attr[]" id="traitstateid-'.$sid.'" class="'.$classStr.'" type="text" value="'.$sid.'" onchange="traitChanged(this)" style="width:50px" /> ';
 					if($depTraitIdArr){
 						foreach($depTraitIdArr as $depTraitId){
-							$innerStr .= $this->getTraitSearchHTML($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+							$innerStr .= $this->getTraitSearchHTML($depTraitId,trim($classStr.' child-'.$sid));
 						}
 					}
 				}
 				else{
 					if($controlType == 'checkbox' || $controlType == 'radio'){
 						$innerStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
-						$innerStr .= '<input name="traitid-'.$traitID.'[]" id="traitstateid-'.$sid.'" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> ';
+						$innerStr .= '<input name="attr[]" id="traitstateid-'.$sid.'" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" onchange="traitChanged(this)" /> ';
 						$innerStr .= $sArr['name'];
 					}
 					elseif($controlType == 'select'){
-						$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';
+						$innerStr .= '<option value="'.$sid.'">'.$sArr['name'].'</option>';
 					}
 					if($depTraitIdArr){
 						foreach($depTraitIdArr as $depTraitId){
-							$innerStr .= $this->getTraitSearchHTML($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
+							$innerStr .= $this->getTraitSearchHTML($depTraitId,trim($classStr.' child-'.$sid));
 						}
 					}
 					if($controlType != 'select') $innerStr .= '</div>';
@@ -106,15 +100,14 @@ class OccurrenceAttributeSearch extends OccurrenceAttributes {
 			$innerStr .= '</div>';
 		}
 		$innerStr .= '</div>';
-		//Display if trait has been coded or is the first/base trait (e.g. $indend == 0)
 		$divClass = '';
 		if($classStr){
 			$classArr = explode(' ',$classStr);
 			$divClass = array_pop($classArr);
 		}
-		$outStr = '<div class="'.$divClass.'" style="margin-left:'.($classStr?'10':'').'px; display:'.($display?'block':'none').';">';
+		$outStr = '<div class="'.$divClass.'" style="margin-left:'.($classStr?'10':'').'px;">';
 		if($controlType == 'select'){
-			$outStr .= '<select name="stateid">';
+			$outStr .= '<select name="attr">';
 			$outStr .= '<option value="">Select State</option>';
 			$outStr .= '<option value="">------------------------------</option>';
 			$outStr .= $innerStr;
@@ -126,5 +119,4 @@ class OccurrenceAttributeSearch extends OccurrenceAttributes {
 		$outStr .= '</div>';
 		return $outStr;
 	}
-
 }

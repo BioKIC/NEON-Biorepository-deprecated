@@ -45,14 +45,7 @@ class KeyDataManager extends Manager {
 		return $retArr;
 	}
 
-	//returns map: HeadingId => Array(
-	//									["HeadingNames"] => Array([language] => HeadingName)
-	//									[CID] => Array(
-	//									["CharNames"] => Array([language] => CharName)
-	//									[cs] => Array(language => CharStateName, "ROOT" => base-div string)
-	//								)
-	//							)
-	public function getCharList(){
+	private function getCharList(){
 		$returnArray = Array();
 		//Rate char list: Get list of char that are coded for a percentage of taxa list that is greater than
 		if($this->sql){
@@ -180,6 +173,129 @@ class KeyDataManager extends Manager {
 			}
 		}
 		return $returnArray;
+	}
+
+	public function getCharArr(){
+		$retArr = Array();
+		if($this->sql){
+			$charList = Array();
+			$countMin = $this->taxaCount * $this->relevanceValue;
+			$loopCnt = 0;
+			while(!$charList && $loopCnt < 10){
+				$sqlRev = 'SELECT tc.CID, Count(tc.TID) AS c '.
+					'FROM (SELECT DISTINCT tList.TID, d.CID FROM ('.$this->sql.') AS tList INNER JOIN kmdescr d ON tList.TID = d.TID WHERE (d.CS <> "-")) AS tc '.
+					'GROUP BY tc.CID HAVING ((Count(tc.TID)) > '.$countMin.')';
+				$rs = $this->conn->query($sqlRev);
+				//echo $sqlRev.'<br/>';
+				while($row = $rs->fetch_object()){
+					$charList[] = $row->CID;
+				}
+				$countMin = $countMin*0.9;
+				$loopCnt++;
+			}
+			$charList = array_merge($charList,array_keys($this->charArr));
+
+			if($charList){
+				$sqlChar = 'SELECT DISTINCT cs.CID, cs.CS, cs.CharStateName, cs.Description AS csdescr, chars.CharName,
+					chars.description AS chardescr, chars.hid, chead.headingname, chars.helpurl, Count(cs.CS) AS Ct, chars.DifficultyRank
+					FROM ('.$this->sql.') AS tList INNER JOIN kmdescr d ON tList.TID = d.TID
+					INNER JOIN kmcs cs ON (d.CS = cs.CS) AND (d.CID = cs.CID)
+					INNER JOIN kmcharacters chars ON chars.cid = cs.CID
+					LEFT JOIN kmcharheading chead ON chars.hid = chead.hid
+					GROUP BY chead.language, cs.CID, cs.CS, cs.CharStateName, chars.CharName, chead.headingname, chars.helpurl, chars.DifficultyRank, chars.chartype
+					HAVING (chead.language = "English" OR chead.language IS NULL) AND (cs.CID In ('.implode(",",$charList).')) AND (cs.CS <> "-")
+					AND (chars.chartype="UM" Or chars.chartype = "OM") AND (chars.DifficultyRank < 3)
+					ORDER BY chead.hid,	chars.SortSequence, cs.SortSequence ';
+				//echo $sqlChar.'<br/>';
+				$rs = $this->conn->query($sqlChar);
+
+				//Process recordset
+				$langList = Array('English');
+				$headingArray = Array();
+				if(!$rs) return null;
+				while($r = $rs->fetch_object()){
+					$ct = $r->Ct;			//count of how many times the CS was used in this species list
+					$charCID = $r->CID;
+					if($ct < $this->taxaCount || array_key_exists($charCID,$this->charArr)){
+						//add to return if stateUseCount is less than taxaCount (ie: state is useless if all taxa code true) or is an attribute selected by user
+						$language = 'English';
+						$headingID = $r->hid;
+						$charName = $r->CharName;
+						$charDescr = $r->chardescr;
+						if($charDescr) $charName = '<span class="charHeading" title="'.$charDescr.'">'.$charName.'</span>';
+						$url = $r->helpurl;
+						if($url) $charName .= ' <a href="'.$url.'" target="_blank"><img src="../images/info.png" width="12" border="0" /></a>';
+						$cs = $r->CS;
+						$charStateName = $r->CharStateName;
+						$csDescr = $r->csdescr;
+						if($csDescr) $charStateName = '<span class="characterStateName" title="'.$csDescr.'">'.$charStateName.'</span>';
+						$diffRank = false;
+						if($r->DifficultyRank && $r->DifficultyRank > 1 && !array_key_exists($charCID,$this->charArr)) $diffRank = true;
+
+						//Set HeadingName within the $charArray, if not yet set
+						$headingArray[$headingID]['HeadingNames'][$language] = $r->headingname;
+
+						//Set CharName within the $stateArray, if not yet set
+						if(!array_key_exists($headingID, $headingArray) || !array_key_exists($charCID, $headingArray[$headingID]) || !array_key_exists("CharNames", $headingArray[$headingID][$charCID]) || !array_key_exists($language, $headingArray[$headingID][$charCID]["CharNames"])){
+							$charStr = '<div class="dynam" style="display:'.($diffRank?'none':'').';">';
+							$charStr .= '<span class="dynamlang" lang="'.$language.'" style="display:'.($language==$this->lang?'':'none').'">'.$charName.'</span>';
+							$charStr .= '</div>';
+							$headingArray[$headingID][$charCID]['CharNames'][$language] = $charStr;
+						}
+
+						$checked = '';
+						if($this->charArr && array_key_exists($charCID,$this->charArr) && in_array($cs,$this->charArr[$charCID])) $checked = "checked";
+						if(!array_key_exists($headingID,$headingArray) || !array_key_exists($charCID,$headingArray[$headingID]) || !array_key_exists($cs,$headingArray[$headingID][$charCID]) || !$headingArray[$headingID][$charCID][$cs]["ROOT"]){
+							$charState = '<input type="checkbox" name="attr[]" id="cb'.$charCID.'-'.$cs.'" value="'.$charCID.'-'.$cs.'" '.$checked.' onclick="this.form.submit();" />';
+							$headingArray[$headingID][$charCID][$cs]['ROOT'] = $charState;
+						}
+						$headingArray[$headingID][$charCID][$cs][$language] = $charStateName;
+					}
+				}
+				$rs->free();
+				//Ensures correct sorting and puts html output into returnStrings Array
+				$retArr['Languages'] = $langList;			//Put a list of languages in returnArray
+				foreach($headingArray as $HID => $cArray){
+					$displayHeading = true;
+					$headNameArray = $cArray['HeadingNames'];
+					unset($cArray['HeadingNames']);
+					$endStr ="";
+					foreach($cArray as $cid => $csArray){
+						if(count($csArray) > 2 || array_key_exists($cid,$this->charArr)){
+							if($displayHeading){
+								$retArr[] = '<div class="char-heading">';
+								foreach($headNameArray as $langValue => $headValue){
+									$retArr[] .= '<span lang="'.$langValue.'" style="display:'.($langValue==$this->lang?'':'none').'">'.$headValue.'</span>';
+								}
+								$retArr[] = '</div>';
+								$retArr[] = '<div class="heading" id="heading'.$HID.'" >';
+								$endStr = '</div>';
+							}
+							$displayHeading = false;
+							// ksort($csArray);
+							$chars = $csArray['CharNames'];
+							unset($csArray['CharNames']);
+							$retArr[] = '<div id="char'.$charCID.'">';
+							foreach($chars as $names){
+								$retArr[] = $names;
+							}
+							foreach($csArray as $csKey => $stateNames){
+								$retArr[] = '<div class="cs-div">';
+								if(array_key_exists('ROOT',$stateNames)) $retArr[] = $stateNames['ROOT'];
+								unset($stateNames['ROOT']);
+								foreach($stateNames as $csLang => $csValue){
+									$retArr[] = '<span lang="'.$csLang.'" style="display:'.($csLang==$this->lang?'':'none').'">'.$csValue.'</span>';
+								}
+								$retArr[] = '</div>'."\n";
+							}
+							$retArr[] = '</div>';
+						}
+					}
+					if($endStr) $retArr[] = $endStr;
+				}
+			}
+		}
+		return $retArr;
 	}
 
 	public function getTaxaArr(){

@@ -89,6 +89,13 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 	<script src="../../js/symb/infobox.js" type="text/javascript"></script>
 	<script src="../../js/symb/api.taxonomy.taxasuggest.js?ver=3" type="text/javascript"></script>
 	<script type="text/javascript">
+
+		$(document).ready(function() {
+			<?php
+			if($searchVar) echo 'sessionStorage.querystr = "'.$searchVar.'";';
+			?>
+		});
+
 		//$( "#defaultpanel" ).panel( "open" );
 		var map;
 		var infoWins = [];

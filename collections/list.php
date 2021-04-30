@@ -172,7 +172,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 						<input name="dltype" type="hidden" value="specimen" />
 					</form>
 					<div style="float:left">
-						<button class="icon-button" onclick="copyUrl()" title="Copy URL to Clipboard">
+						<button class="icon-button" onclick="copyUrl()" title="<?php echo (isset($LANG['COPY_TO_CLIPBOARD'])?$LANG['COPY_TO_CLIPBOARD']:'Copy URL to Clipboard'); ?>">
 							<img src="../images/dl2.png" srcset="../images/link.svg" class="svg-icon" style="width:15px; height:15px" />
 						</button>
 					</div>

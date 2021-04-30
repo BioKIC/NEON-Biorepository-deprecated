@@ -27,7 +27,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 	<script src="../js/jquery-3.2.1.min.js?ver=3" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js?ver=3" type="text/javascript"></script>
 	<script src="../js/symb/collections.harvestparams.js?ver=180721" type="text/javascript"></script>
-	<script src="../js/symb/collections.traitsearch.js?ver=8" type="text/javascript"></script> <!-- Cotains serach-by-trait modifications -->
+	<script src="../js/symb/collections.traitsearch.js?ver=8" type="text/javascript"></script> <!-- Contains serach-by-trait modifications -->
 	<script type="text/javascript">
 		$(document).ready(function() {
 			<?php

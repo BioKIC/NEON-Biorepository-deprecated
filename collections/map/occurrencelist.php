@@ -24,7 +24,7 @@ if(!$recLimit || $recCnt < $recLimit){
 	<div style="height:25px;margin-top:-5px;">
 		<div>
 			<div style="float:left;">
-				<form name="downloadForm" action="../download/index.php" method="post" target="_blank" style="float:left">
+				<form name="downloadForm" action="../download/index.php" method="post" onsubmit="targetPopup(this)" style="float:left">
 					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
 						<img src="../../images/dl2.png" srcset="../../images/download.svg" class="svg-icon" style="width:15px" />
 					</button>

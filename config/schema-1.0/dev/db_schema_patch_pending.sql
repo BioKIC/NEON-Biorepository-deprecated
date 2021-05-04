@@ -133,12 +133,15 @@ ALTER TABLE `referenceobject`
 
 
 ALTER TABLE `uploadspectemp` 
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `datasetID`,
+  ADD COLUMN `materialSampleID` VARCHAR(150) NULL AFTER `organismID`,
+  ADD COLUMN `locationID` VARCHAR(150) NULL AFTER `preparations`,
   ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
+  ADD COLUMN `waterBody` VARCHAR(150) NULL AFTER `continent`,
   ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
   ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
   ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`,
   ADD COLUMN `parentLocationID` VARCHAR(150) NULL AFTER `locationID`,
-  ADD COLUMN `samplingProtocol` VARCHAR(150) NULL AFTER `parentLocationID`,
   ADD COLUMN `georeferencedDate` DATETIME NULL AFTER `georeferencedBy`,
   ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;
 
@@ -191,10 +194,14 @@ ALTER TABLE `images`
 ALTER TABLE `images` 
   ADD COLUMN `sortOccurrence` INT NULL DEFAULT 5 AFTER `sortsequence`;
 
-  
+ALTER TABLE `images` 
+  ADD COLUMN `defaultDisplay` INT NULL AFTER `dynamicProperties`;
+
+
 ALTER TABLE `taxa` 
   ADD COLUMN `reviewStatus` INT NULL AFTER `PhyloSortSequence`,
-  ADD COLUMN `isLegitimate` INT NULL AFTER `reviewStatus`,
+  ADD COLUMN `displayStatus` INT NULL AFTER `reviewStatus`,
+  ADD COLUMN `isLegitimate` INT NULL AFTER `displayStatus`,
   ADD COLUMN `nomenclaturalStatus` VARCHAR(45) NULL AFTER `isLegitimate`,
   ADD COLUMN `nomenclaturalCode` VARCHAR(45) NULL AFTER `nomenclaturalStatus`,
   CHANGE COLUMN `UnitInd3` `unitInd3` VARCHAR(45) NULL DEFAULT NULL,
@@ -439,6 +446,14 @@ ALTER TABLE `omoccurdatasets`
   ADD COLUMN `isPublic` INT NULL AFTER `category`,
   ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
 
+ALTER TABLE `omoccurdatasets` 
+  ADD COLUMN `parentDatasetID` INT UNSIGNED NULL AFTER `isPublic`,
+  ADD INDEX `FK_omoccurdatasets_parent_idx` (`parentDatasetID` ASC);
+
+ALTER TABLE `omoccurdatasets` 
+  ADD CONSTRAINT `FK_omoccurdatasets_parent` FOREIGN KEY (`parentDatasetID`) REFERENCES `omoccurdatasets` (`datasetid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+
 CREATE TABLE `referencedatasetlink` (
   `refid` INT NOT NULL,
   `datasetid` INT UNSIGNED NOT NULL,
@@ -505,8 +520,7 @@ ALTER TABLE `omoccurrences`
   DROP INDEX `idx_occrecordedby`;
   
 ALTER TABLE `omoccurrences` 
-  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `basisOfRecord`,
-  ADD COLUMN `materialSampleID` VARCHAR(150) NULL AFTER `organismID`,
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `datasetID`,
   ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
   ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
   ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,

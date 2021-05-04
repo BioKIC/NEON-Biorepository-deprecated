@@ -427,30 +427,25 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$this->displaySearchArr[] = 'includes cultivated/captive occurrences';
 			}
 		}
-		$anyTraitsHere = false;
-		$stateids = array();
-		foreach($this->searchTermArr as $stkey => $stval){
-			if("traitid-" == substr($stkey, 0, 8) && is_numeric($stval)) {
-				$stateids[] = $stval;
-				$anyTraitsHere = true;
-			}
-		}
-		if($anyTraitsHere == true) {
-			$traitSql = implode(',', $stateids);
-			$traitNameSql = 'SELECT CONCAT_WS(": ", t.traitname, s.statename) AS traitName FROM tmtraits t JOIN tmstates s ON s.traitid = t.traitid WHERE s.stateid IN(' . $traitSql . ')';
+		if(array_key_exists('attr',$this->searchTermArr)){
+			$traitNameSql = 'SELECT t.traitName, s.stateName FROM tmtraits t JOIN tmstates s ON s.traitid = t.traitid WHERE s.stateid IN(' . $this->searchTermArr['attr'] . ')';
 			$rs = $this->conn->query($traitNameSql);
 			if($rs){
+				$traitArr = array();
 				while($r = $rs->fetch_object()) {
-					$this->displaySearchArr[] = $r->traitName;
+					$traitArr[$r->traitName][] = $r->stateName;
 				}
 				$rs->free();
+				$displayStr = '';
+				foreach($traitArr as $traitName => $stateName){
+					$displayStr .= $traitName.': '.implode(', ',$stateName).'; ';
+				}
+				$this->displaySearchArr[] = trim($displayStr,'; ');
 			}
-			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM tmattributes WHERE stateid IN(' . $traitSql . ')))';
+			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM tmattributes WHERE stateid IN(' . $this->searchTermArr['attr'] . '))) ';
 		}
 
-		if($sqlWhere){
-			$this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
-		}
+		if($sqlWhere) $this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
 		else{
 			//Make the sql valid, but return nothing
 			//$this->sqlWhere = 'WHERE o.occid IS NULL ';
@@ -865,15 +860,11 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				unset($this->searchTermArr["includecult"]);
 			}
 		}
-		// Traits search: loop over all "traitid-" fields
-		foreach ($_REQUEST as $reqkey => $reqval){
-			if("traitid-" == substr($reqkey, 0, 8)){
-				if($reqval){
-					$this->searchTermArr[$reqkey] = $reqval[0];
-				} else {
-					unset($this->searchTermArr[$reqkey]);
-				}
-			}
+		if(array_key_exists('attr',$_REQUEST)){
+			//Occurrence trait attributed passed as stateIDs
+			$stateIdStr = $_REQUEST['attr'];
+			if(is_array($_REQUEST['attr'])) $stateIdStr = implode(',',array_unique($_REQUEST['attr']));
+			if(preg_match('/^[0-9,]+$/', $stateIdStr)) $this->searchTermArr['attr'] = $stateIdStr;
 		}
 		$llPattern = '-?\d+\.{0,1}\d*';
 		if(array_key_exists("upperlat",$_REQUEST)){

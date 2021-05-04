@@ -55,25 +55,12 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 	<link href="../../css/jquery.symbiota.css" type="text/css" rel="stylesheet" />
 	<link href="../../css/jquery-ui_accordian.css" type="text/css" rel="stylesheet" />
 	<?php
-	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+	<link href="<?php echo $CLIENT_ROOT; ?>/css/symb/collection.css" type="text/css" rel="stylesheet" />
 	<style type="text/css">
 		.panel-content a{ outline-color: transparent; font-size: 12px; font-weight: normal; }
-		.categorytitle{ font-size:	12px; }
-		.categorytitle a{ font-weight: bold; font-size: 12px; font-size: 110%; color: black; }
-		.categorytitle a:visited{ font-weight: bold; font-size: 12px; font-size: 110%; color: black; }
-		.collectiontitle{ font-size: 12px; }
-		.collectiontitle a{ font-size: 75%; }
-		.collectiontitle a:hover{ font-weight: bold; color: grey; }
 		.ui-front { z-index: 9999999 !important; }
 	</style>
 	<script src="../../js/jquery-1.10.2.min.js" type="text/javascript"></script>
@@ -81,14 +68,22 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 	<script src="../../js/jquery.mobile-1.4.0.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery.popupoverlay.js" type="text/javascript"></script>
 	<script src="//maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'&key='.$GOOGLE_MAP_KEY:''); ?>" ></script>
-	<script src="../../js/jscolor/jscolor.js?ver=4" type="text/javascript"></script>
-	<script src="../../js/symb/collections.map.index.js?ver=1804" type="text/javascript"></script>
-	<script src="../../js/symb/markerclusterer.js?20170403" type="text/javascript"></script>
+	<script src="../../js/jscolor/jscolor.js?ver=1" type="text/javascript"></script>
+	<script src="../../js/symb/collections.map.index.js?ver=1" type="text/javascript"></script>
+	<script src="../../js/symb/collections.list.js?ver=1" type="text/javascript"></script>
+	<script src="../../js/symb/markerclusterer.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/oms.min.js" type="text/javascript"></script>
 	<script src="../../js/symb/keydragzoom.js" type="text/javascript"></script>
 	<script src="../../js/symb/infobox.js" type="text/javascript"></script>
 	<script src="../../js/symb/api.taxonomy.taxasuggest.js?ver=3" type="text/javascript"></script>
 	<script type="text/javascript">
+
+		$(document).ready(function() {
+			<?php
+			if($searchVar) echo 'sessionStorage.querystr = "'.$searchVar.'";';
+			?>
+		});
+
 		//$( "#defaultpanel" ).panel( "open" );
 		var map;
 		var infoWins = [];
@@ -701,13 +696,10 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 			keyHTML += '<div style="display:table-row;">';
 			keyHTML += '<div style="display:table-cell;vertical-align:middle;padding-bottom:5px;" ><input data-role="none" id="taxaColor'+key+'" class="color" style="cursor:pointer;border:1px black solid;height:12px;width:12px;margin-bottom:-2px;font-size:0px;" value="e69e67" onchange="changeTaxaColor(this.value,'+keyLabel+');" /></div>';
 			keyHTML += '<div style="display:table-cell;vertical-align:middle;padding-left:8px;"> = </div>';
-			if(!tidinterpreted){
-				keyHTML += "<div style='display:table-cell;vertical-align:middle;padding-left:8px;'><i>"+sciname+"</i></div>";
-			}
-			else{
-				keyHTML += '<div style="display:table-cell;vertical-align:middle;padding-left:8px;"><i><a href="#" onclick="openPopup(\'../../taxa/index.php?taxon='+sciname+'\');return false;">'+sciname+'</a></i></div>';
-			}
-			keyHTML += '</div></div>';
+			keyHTML += '<div style="display:table-cell;vertical-align:middle;padding-left:8px;">';
+			if(tidinterpreted) keyHTML += '<i><a href="#" onclick="openPopup(\'../../taxa/index.php?tid='+tidinterpreted+'&display=1\');return false;">'+sciname+'</a></i>';
+			else keyHTML += "<i>"+sciname+"</i>";
+			keyHTML += '</div></div></div>';
 			taxaKeyArr[key] = keyHTML;
 		}
 

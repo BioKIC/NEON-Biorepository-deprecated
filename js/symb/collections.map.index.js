@@ -674,7 +674,7 @@ function openPopup(urlStr){
 	var wWidth = 1000;
 	try{
 		if(opener.document.body.offsetWidth) wWidth = opener.document.body.offsetWidth*0.95;
-		if(wWidth > 1200) wWidth = 1200;
+		if(wWidth > 1400) wWidth = 1400;
 	}
 	catch(err){
 	}
@@ -700,16 +700,4 @@ function setClustering(){
 function refreshClustering(){
 	var searchForm = document.getElementById("mapsearchform");
 	searchForm.submit();
-}
-
-function copyUrl(){
-	var $temp = $("<input>");
-	$("body").append($temp);
-	var activeLink = window.location.href;
-	if(activeLink.substring(activeLink.length - 3) == "php"){
-		activeLink = activeLink + "?" + sessionStorage.querystr;
-	}
-	$temp.val(activeLink).select();
-	document.execCommand("copy");
-	$temp.remove();
 }

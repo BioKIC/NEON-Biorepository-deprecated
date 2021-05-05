@@ -1,7 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-header('Access-Control-Allow-Origin: http://www.catalogueoflife.org/col/webservice');
 
 $occId = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
 $collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
@@ -479,6 +478,7 @@ else{
 	</script>
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
+	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.main.js?ver=3" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>

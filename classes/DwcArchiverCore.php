@@ -64,7 +64,7 @@ class DwcArchiverCore extends Manager{
 		$this->charSetOut = $this->charSetSource;
 
 		$this->condAllowArr = array('catalognumber','othercatalognumbers','occurrenceid','family','sciname','country','stateprovince','county','municipality',
-			'recordedby','recordnumber','eventdate','decimallatitude','decimallongitude','minimumelevationinmeters','maximumelevationinmeters',
+			'recordedby','recordnumber','eventdate','decimallatitude','decimallongitude','minimumelevationinmeters','maximumelevationinmeters','cultivationstatus',
 			'datelastmodified','dateentered','processingstatus','dbpk');
 
 		$this->securityArr = array('eventDate','month','day','startDayOfYear','endDayOfYear','verbatimEventDate',
@@ -284,7 +284,7 @@ class DwcArchiverCore extends Manager{
 					$taxaManager->setTaxonRequestVariable($taxaArr);
 					$sqlFrag .= $taxaManager->getTaxonWhereFrag();
 				}
-				elseif($field == 'cultivationStatus'){
+				elseif($field == 'cultivationstatus'){
 					if(current(current($condArr)) === '0') $sqlFrag .= 'AND (o.cultivationStatus = 0 OR o.cultivationStatus IS NULL) ';
 					else $sqlFrag .= 'AND (o.cultivationStatus = 1) ';
 				}

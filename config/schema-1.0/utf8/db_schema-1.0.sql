@@ -3637,7 +3637,7 @@ CREATE TABLE `uploadspectemp` (
   `day` int(10) DEFAULT NULL,
   `startDayOfYear` int(10) DEFAULT NULL,
   `endDayOfYear` int(10) DEFAULT NULL,
-  `LatestDateCollected` date DEFAULT NULL,
+  `latestDateCollected` date DEFAULT NULL,
   `verbatimEventDate` varchar(255) DEFAULT NULL,
   `habitat` text COMMENT 'Habitat, substrait, etc',
   `substrate` varchar(500) DEFAULT NULL,

@@ -348,7 +348,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 				<?php
 			}
 			?>
-			<div>
+			<div style="clear:both">
 				<hr/>
 			</div>
 			<div id="checklist-container">

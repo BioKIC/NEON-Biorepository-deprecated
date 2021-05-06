@@ -1,4 +1,4 @@
-<?php 
+<?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/KeyCharAdmin.php');
 header("Content-Type: text/html; charset=".$CHARSET);
@@ -13,19 +13,19 @@ $tLinks = $keyManager->getTaxonRelevance();
 ?>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
-  <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-  ?>
-  <script type="text/javascript" src="../../js/jquery.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
+	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -80,22 +80,22 @@ $tLinks = $keyManager->getTaxonRelevance();
 <body>
 	<div id="tlinkdiv" style="margin:15px;">
 		<div style="margin:10px;">
-			<b>Taxonomic relevance of character</b> - 
-			Tag taxonomic nodes where character is most relevant. 
-			Taxonomic branches can also be excluded (e.g. relevant to order A by exclude families X, Y, and Z). 
+			<b>Taxonomic relevance of character</b> -
+			Tag taxonomic nodes where character is most relevant.
+			Taxonomic branches can also be excluded (e.g. relevant to order A by exclude families X, Y, and Z).
 		</div>
 		<div style="margin:20px;">
-			<?php 
+			<?php
 			if($tLinks){
 				if(isset($tLinks['include'])){
 					?>
 					<fieldset style="padding:20px;">
 						<legend><b>Relevant Taxa</b></legend>
-						<?php 
+						<?php
 						foreach($tLinks['include'] as $tid => $tArr){
 							?>
 							<div style="margin:3px;clear:both;">
-								<?php 
+								<?php
 								echo '<div style="float:left;"><b>'.$tArr['sciname'].'</b>'.($tArr['notes']?' - '.$tArr['notes']:'').'</div> ';
 								?>
 								<form name="delTaxonForm" action="chardetails.php" method="post" style="float:left;margin-left:5px;" onsubmit="return comfirm('Are you sure you want to delete this relationship?')">
@@ -105,21 +105,21 @@ $tLinks = $keyManager->getTaxonRelevance();
 									<input type="image" src="../../images/del.png" style="width:15px;" />
 								</form>
 							</div>
-							<?php 
+							<?php
 						}
 						?>
 					</fieldset>
-					<?php 
+					<?php
 				}
 				if(isset($tLinks['exclude'])){
 					?>
 					<fieldset style="padding:20px;">
 						<legend><b>Excluding Taxa</b></legend>
-						<?php 
+						<?php
 						foreach($tLinks['exclude'] as $tid => $tArr){
 							?>
 							<div style="margin:3px;">
-								<?php 
+								<?php
 								echo '<div style="float:left;"><b>'.$tArr['sciname'].'</b>'.($tArr['notes']?' - '.$tArr['notes']:'').'</div> ';
 								?>
 								<form name="delTaxonForm" action="chardetails.php" method="post" style="float:left;margin-left:5px;" onsubmit="return comfirm('Are you sure you want to delete this relationship?')">
@@ -129,20 +129,20 @@ $tLinks = $keyManager->getTaxonRelevance();
 									<input type="image" src="../../images/del.png" style="width:15px;" />
 								</form>
 							</div>
-							<?php 
+							<?php
 						}
 						?>
 					</fieldset>
-					<?php 
+					<?php
 				}
 			}
 			else{
 				?>
 				<div style="font-weight:bold">
-					This character has not yet been linked to the taxonomic tree. 
+					This character has not yet been linked to the taxonomic tree.
 					This character will not be available until at least one relevant link is established.
 				</div>
-				<?php 
+				<?php
 			}
 			?>
 		</div>
@@ -152,12 +152,12 @@ $tLinks = $keyManager->getTaxonRelevance();
 					<legend><b>Add Taxonomic Relevance Definition</b></legend>
 					<div style="height:15px;">
 						<div style="margin:3px;">
-							<b>Taxon Name:</b> 
+							<b>Taxon Name:</b>
 							<input type="text" id="relevanceinput" name="relsciname" style="width:300px" />
 							<input type="hidden" id="relevancetidinput" name="tid" />
 						</div>
 						<div style="float:left;margin:3px;">
-							<b>Relevance to taxon:</b> 
+							<b>Relevance to taxon:</b>
 							<select name="relation">
 								<option value="include">Relevant</option>
 								<option value="exclude">Exclude</option>
@@ -165,8 +165,8 @@ $tLinks = $keyManager->getTaxonRelevance();
 						</div>
 					</div>
 					<div style="margin:3px;clear:both;">
-						<b>Editor notes:</b> 
-						<input name="notes" type="text" value="" style="width:350px;" />
+						<b>Editor notes:</b>
+						<input name="notes" type="text" value="" style="width:80%;" />
 					</div>
 					<div style="margin:15px;">
 						<input name="cid" type="hidden" value="<?php echo $cid; ?>" />

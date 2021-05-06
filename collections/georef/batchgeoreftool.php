@@ -42,8 +42,10 @@ $georeferenceVerificationStatus = array_key_exists('georeferenceverificationstat
 //$minimumElevationInFeet = array_key_exists('minimumelevationinfeet',$_POST)?$_POST['minimumelevationinfeet']:'';
 //$maximumElevationInFeet = array_key_exists('maximumelevationinfeet',$_POST)?$_POST['maximumelevationinfeet']:'';
 
+if(is_array($collid)) $collid = implode(',',$collid);
+
 //Sanitation
-$collid = filter_var($collid, FILTER_SANITIZE_STRING);
+if(!preg_match('/^[,\d]+$/',$collid)) $collid = 0;
 $submitAction = filter_var($submitAction, FILTER_SANITIZE_STRING);
 $qCountry = filter_var($qCountry, FILTER_SANITIZE_STRING);
 $qState = filter_var($qState, FILTER_SANITIZE_STRING);
@@ -61,8 +63,6 @@ $georeferenceVerificationStatus = filter_var($georeferenceVerificationStatus, FI
 if(!$georeferenceSources) $georeferenceSources = 'georef batch tool '.date('Y-m-d');
 if(!$georeferenceVerificationStatus) $georeferenceVerificationStatus = 'reviewed - high confidence';
 
-if(is_array($collid)) $collid = implode(',',$collid);
-
 $geoManager = new OccurrenceGeorefTools();
 $activeCollArr = explode(',', $collid);
 foreach($activeCollArr as $k => $id){
@@ -78,7 +78,6 @@ if($IS_ADMIN) $isEditor = true;
 elseif($activeCollArr) $isEditor = true;
 
 $statusStr = '';
-$localArr = array();
 if($isEditor && $submitAction){
 	if($qCountry) $geoManager->setQueryVariables('qcountry',$qCountry);
 	if($qState) $geoManager->setQueryVariables('qstate',$qState);
@@ -89,10 +88,7 @@ if($isEditor && $submitAction){
 	if($qVStatus) $geoManager->setQueryVariables('qvstatus',$qVStatus);
 	if($qLocality) $geoManager->setQueryVariables('qlocality',$qLocality);
 	if($qProcessingStatus) $geoManager->setQueryVariables('qprocessingstatus',$qProcessingStatus);
-	if($submitAction == 'Update Coordinates'){
-		$statusStr = $geoManager->updateCoordinates($_POST);
-	}
-	$localArr = $geoManager->getLocalityArr();
+	if($submitAction == 'Update Coordinates') $statusStr = $geoManager->updateCoordinates($_POST);
 }
 ?>
 <html>
@@ -109,9 +105,10 @@ if($isEditor && $submitAction){
 			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 		}
 		?>
-		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js"></script>
-		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js"></script>
-		<script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.georef.batchgeoreftool.js?ver=201912"></script>
+		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js" type="text/javascript"></script>
+		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js" type="text/javascript"></script>
+		<script src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
+		<script src="<?php echo $CLIENT_ROOT; ?>/js/symb/collections.georef.batchgeoreftool.js?ver=201912" type="text/javascript"></script>
 	</head>
 	<body>
 		<!-- This is inner text! -->
@@ -122,12 +119,8 @@ if($isEditor && $submitAction){
 				<div style="float:left;">
 					<div style="font-weight: bold; font-size:140%;float:left">
 						<?php
-						if(is_numeric($collid)){
-							echo $collMap[$collid]['collectionname'].' ('.$collMap[$collid]['code'].')';
-						}
-						else{
-							echo 'Multiple Collection Cleaning Tool (<a href="#" onclick="$(\'#collDiv\').show()" style="color:blue;text-decoration:underline">'.count($activeCollArr).' collections</a>)';
-						}
+						if(is_numeric($collid)) echo $collMap[$collid]['collectionname'].' ('.$collMap[$collid]['code'].')';
+						else echo 'Multiple Collection Cleaning Tool (<a href="#" onclick="$(\'#collDiv\').show()" style="color:blue;text-decoration:underline">'.count($activeCollArr).' collections</a>)';
 						?>
 					</div>
 					<?php
@@ -341,12 +334,13 @@ if($isEditor && $submitAction){
 								}
 								?>
 							</div>
-							<div style="font-weight:bold;">
+							<div>
 								<?php
+								$localArr = $geoManager->getLocalityArr();
 								$localCnt = '---';
 								if(isset($localArr)) $localCnt = count($localArr);
-								if($localCnt == 1000) $localCnt = '1000 or more';
-								echo 'Return Count: '.$localCnt;
+								if($localCnt == 1000) $localCnt = '1000 limit reached (not all available localities shown)';
+								echo '<b>Return Count:</b> '.$localCnt;
 								?>
 							</div>
 							<div style="clear:both;border:2px solid;width:100%;height:200px;resize: both;overflow: auto">

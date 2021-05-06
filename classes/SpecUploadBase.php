@@ -832,26 +832,13 @@ class SpecUploadBase extends SpecUpload{
 			$intervalArr[] = $r->occid;
 		}
 		$rs->free();
-		$fieldArr = array('basisOfRecord', 'catalogNumber','otherCatalogNumbers','occurrenceid',
-			'ownerInstitutionCode','institutionID','collectionID','institutionCode','collectionCode',
-			'family','scientificName','sciname','tidinterpreted','genus','specificEpithet','datasetID','taxonRank','infraspecificEpithet',
-			'scientificNameAuthorship','identifiedBy','dateIdentified','identificationReferences','identificationRemarks',
-			'taxonRemarks','identificationQualifier','typeStatus','recordedBy','recordNumber','associatedCollectors',
-			'eventDate','Year','Month','Day','startDayOfYear','endDayOfYear','verbatimEventDate',
-			'habitat','substrate','fieldnumber','occurrenceRemarks','informationWithheld','associatedOccurrences',
-			'associatedTaxa','dynamicProperties','verbatimAttributes','reproductiveCondition','cultivationStatus','establishmentMeans',
-			'lifestage','sex','individualcount','samplingprotocol','preparations',
-			'country','stateProvince','county','municipality','locality','localitySecurity','localitySecurityReason',
-			'decimalLatitude','decimalLongitude','geodeticDatum','coordinateUncertaintyInMeters','footprintWKT','coordinatePrecision',
-			'locationRemarks','verbatimCoordinates','verbatimCoordinateSystem','georeferencedBy','georeferenceProtocol','georeferenceSources',
-			'georeferenceVerificationStatus','georeferenceRemarks','minimumElevationInMeters','maximumElevationInMeters','verbatimElevation',
-			'minimumDepthInMeters','maximumDepthInMeters','verbatimDepth',
-			'previousIdentifications','disposition','modified','language','recordEnteredBy','labelProject','duplicateQuantity','processingStatus');
+
+		$fieldArr = $this->getTransferFieldArr();
 
 		//Update matching records
 		$sqlFragArr = array();
 		foreach($fieldArr as $v){
-			if($v == 'processingStatus' && $this->processingStatus){
+			if($v == 'processingstatus' && $this->processingStatus){
 				$sqlFragArr[$v] = 'o.processingStatus = u.processingStatus';
 			}
 			elseif($this->uploadType == $this->SKELETAL || $this->uploadType == $this->NFNUPLOAD){
@@ -984,6 +971,34 @@ class SpecUploadBase extends SpecUpload{
 			}
 		}
 		$rs->free();
+	}
+
+	private function getTransferFieldArr(){
+		//Get uploadspectemp supported fields
+		$uploadArr = array();
+		$sql1 = 'SHOW COLUMNS FROM uploadspectemp';
+		$rs1 = $this->conn->query($sql1);
+		while($r1 = $rs1->fetch_object()){
+			$uploadArr[strtolower($r1->Field)] = 0;
+		}
+		$rs1->free();
+		//Get omoccurrences supported fields
+		$specArr = array();
+		$sql2 = 'SHOW COLUMNS FROM omoccurrences';
+		$rs2 = $this->conn->query($sql2);
+		while($r2 = $rs2->fetch_object()){
+			$specArr[strtolower($r2->Field)] = 0;
+		}
+		$rs2->free();
+		//Get union of both tables
+		$fieldArr = array_intersect_assoc($uploadArr,$specArr);
+		unset($fieldArr['occid']);
+		unset($fieldArr['collid']);
+		unset($fieldArr['dbpk']);
+		unset($fieldArr['observeruid']);
+		unset($fieldArr['dateentered']);
+		unset($fieldArr['initialtimestamp']);
+		return array_keys($fieldArr);
 	}
 
 	private function transferExsiccati(){

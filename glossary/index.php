@@ -73,10 +73,23 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 			?>
 		};
 
+		resetLanguageSelect(document.searchform);
+
+		function resetLanguageSelect(f){
+			if($("#searchlanguage").is('select')){
+				var tid = f.searchtaxa.value;
+				if(tid == '') tid = 0;
+				var oldLang = $("#searchlanguage").val();
+				$("#searchlanguage").empty();
+				$.each(langArr[tid], function(key,value) {
+					$("#searchlanguage").append($("<option></option>").attr("value", value).text(value));
+				});
+				$("#searchlanguage").val(oldLang);
+			}
+		}
+
 		function verifySearchForm(f){
-			var language = f.searchlanguage.value;
-			var taxon = f.searchtaxa.value;
-			if(!language || !taxon){
+			if(!f.searchlanguage.value){
 				alert("Please select a language and taxonomic group to see term list.");
 				return false;
 			}
@@ -275,6 +288,7 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 							<div style="float:left;">
 								<b>Taxonomic Group:</b>
 								<select id="searchtaxa" name="searchtaxa" style="margin-top:2px;width:300px;" onchange="resetLanguageSelect(this.form)">
+									<option value="">Show terms for all groups</option>
 									<?php
 									foreach($taxaArr as $k => $v){
 										echo '<option value="'.$k.'" '.($k==$tid?'SELECTED':'').'>'.$v.'</option>';
@@ -338,10 +352,8 @@ $taxonName = ($tid?$taxaArr[$tid]:'');
 				}
 				$termList = $glosManager->getTermSearch($searchTerm,$language,$tid,$deepSearch);
 				if($termList){
-					$title = 'Terms '.($taxonName?'for '.$taxonName:'').($language?' in '.$language:'');
-					if($searchTerm){
-						$title .= ' and with a keyword of '.$searchTerm;
-					}
+					$title = ($taxonName?$taxonName.' terms ':'Terms ').($language?' in '.$language:'');
+					if($searchTerm) $title .= ' and with a keyword of '.$searchTerm;
 					?>
 					<div>
 						<?php

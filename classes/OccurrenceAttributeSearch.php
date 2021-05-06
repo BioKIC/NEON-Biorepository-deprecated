@@ -3,10 +3,10 @@ include_once($SERVER_ROOT.'/classes/OccurrenceAttributes.php');
 
 class OccurrenceAttributeSearch extends OccurrenceAttributes {
 
-  //use $setAttributes = false in call to ->getTraitArr, if reverting to using OccurrenceAttributes class
+	//use $setAttributes = false in call to ->getTraitArr, if reverting to using OccurrenceAttributes class
 
-  //private $traitSearchArr = array();
-  public function __construct(){
+	//private $traitSearchArr = array();
+	public function __construct(){
 		parent::__construct('readonly');
 	}
 
@@ -49,82 +49,46 @@ class OccurrenceAttributeSearch extends OccurrenceAttributes {
     return $this->traitArr;
   }
 
-  public function echoTraitSearchForm($traitID){
-		echo $this->getTraitSearchHTML($traitID,true);
+	public function echoTraitSearchForm($traitID){
+		echo $this->getTraitSearchHTML($traitID);
 	}
 
-	private function getTraitSearchHTML($traitID,$display,$classStr=''){
-		$controlType = '';
-		if($this->traitArr[$traitID]['props']){
-			$propArr = json_decode($this->traitArr[$traitID]['props'],true);
-			if(isset($propArr[0]['controlType'])) $controlType = $propArr[0]['controlType'];
-		}
-		$innerStr = '<div style="clear:both">';
-		if(isset($this->traitArr[$traitID]['states'])){
-			if($this->traitArr[$traitID]['type']=='TF'){
-				$innerStr .= '<div style="float:left;margin-left: 15px">'.$this->traitArr[$traitID]['name'].':</div>';
-				$innerStr .= '<div style="clear:both;margin-left: 25px">';
-			}
-			else $innerStr .= '<div style="float:left;">';
-			$attrStateArr = $this->traitArr[$traitID]['states'];
-			foreach($attrStateArr as $sid => $sArr){
-				$isCoded = false;
-				if(array_key_exists('coded',$sArr)){
-					if(is_numeric($sArr['coded'])) $isCoded = $sArr['coded'];
-					else $isCoded = true;
-					$this->stateCodedArr[$sid] = $sid;
-				}
-				$depTraitIdArr = array();
-				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitIdArr = $sArr['dependTraitID'];
-				if($this->traitArr[$traitID]['type']=='NU'){
-					$innerStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
-					$innerStr .= $sArr['name'].
-					$innerStr .= ': <input name="traitid-'.$traitID.'[]" id="traitstateid-'.$sid.'" class="'.$classStr.'" type="text" value="'.$sid.'-'.($isCoded!==false?$isCoded:'').'" onchange="traitChanged(this)" style="width:50px" /> ';
-					if($depTraitIdArr){
-						foreach($depTraitIdArr as $depTraitId){
-							$innerStr .= $this->getTraitSearchHTML($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
-						}
-					}
-				}
-				else{
-					if($controlType == 'checkbox' || $controlType == 'radio'){
-						$innerStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
-						$innerStr .= '<input name="traitid-'.$traitID.'[]" id="traitstateid-'.$sid.'" class="'.$classStr.'" type="'.$controlType.'" value="'.$sid.'" '.($isCoded?'checked':'').' onchange="traitChanged(this)" /> ';
-						$innerStr .= $sArr['name'];
-					}
-					elseif($controlType == 'select'){
-						$innerStr .= '<option value="'.$sid.'" '.($isCoded?'selected':'').'>'.$sArr['name'].'</option>';
-					}
-					if($depTraitIdArr){
-						foreach($depTraitIdArr as $depTraitId){
-							$innerStr .= $this->getTraitSearchHTML($depTraitId,$isCoded,trim($classStr.' child-'.$sid));
-						}
-					}
-					if($controlType != 'select') $innerStr .= '</div>';
-				}
-			}
-			$innerStr .= '</div>';
-		}
-		$innerStr .= '</div>';
-		//Display if trait has been coded or is the first/base trait (e.g. $indend == 0)
+	private function getTraitSearchHTML($traitID,$classStr=''){
 		$divClass = '';
 		if($classStr){
 			$classArr = explode(' ',$classStr);
 			$divClass = array_pop($classArr);
 		}
-		$outStr = '<div class="'.$divClass.'" style="margin-left:'.($classStr?'10':'').'px; display:'.($display?'block':'none').';">';
-		if($controlType == 'select'){
-			$outStr .= '<select name="stateid">';
-			$outStr .= '<option value="">Select State</option>';
-			$outStr .= '<option value="">------------------------------</option>';
-			$outStr .= $innerStr;
-			$outStr .= '</select>';
+		$retStr = '<div class="'.$divClass.'" style="margin-left:'.($classStr?'10':'').'px;"><div style="clear:both">';
+		if(isset($this->traitArr[$traitID]['states'])){
+			if($this->traitArr[$traitID]['type']=='TF'){
+				$retStr .= '<div style="float:left;margin-left: 15px">'.$this->traitArr[$traitID]['name'].':</div>';
+				$retStr .= '<div style="clear:both;margin-left: 25px">';
+			}
+			else $retStr .= '<div style="float:left;">';
+			$attrStateArr = $this->traitArr[$traitID]['states'];
+			foreach($attrStateArr as $sid => $sArr){
+				$depTraitIdArr = array();
+				if(isset($sArr['dependTraitID']) && $sArr['dependTraitID']) $depTraitIdArr = $sArr['dependTraitID'];
+				if($this->traitArr[$traitID]['type']=='NU'){
+					//Numeric traits are still in development, thus skip as a search term, for now
+					continue;
+				}
+				else{
+					$retStr .= '<div title="'.$sArr['description'].'" style="clear:both">';
+					$retStr .= '<input name="attr[]" id="traitstateid-'.$sid.'" class="'.$classStr.'" type="checkbox" value="'.$sid.'" onchange="traitChanged(this)" /> ';
+					$retStr .= $sArr['name'];
+					if($depTraitIdArr){
+						foreach($depTraitIdArr as $depTraitId){
+							$retStr .= $this->getTraitSearchHTML($depTraitId,trim($classStr.' child-'.$sid));
+						}
+					}
+					$retStr .= '</div>';
+				}
+			}
+			$retStr .= '</div>';
 		}
-		else{
-			$outStr .= $innerStr;
-		}
-		$outStr .= '</div>';
-		return $outStr;
+		$retStr .= '</div></div>';
+		return $retStr;
 	}
-
 }

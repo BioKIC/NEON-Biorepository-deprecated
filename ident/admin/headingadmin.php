@@ -35,28 +35,30 @@ $headingArr = $charManager->getHeadingArr();
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 	<title>Heading Administration</title>
-  <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 	<script type="text/javascript" src="../../js/symb/shared.js"></script>
 	<script type="text/javascript">
 		function validateHeadingForm(f){
 			if(f.headingname.value == ""){
-				alert("Heading must have a title");
+				alert("Please enter a grouping title");
 				return false;
 			}
 			return true;
 		}
 	</script>
 	<style type="text/css">
+		fieldset{ margin:15px; padding:15px; }
+		legend{ font-weight: bold; }
 		input{ autocomplete: off; }
 	</style>
 </head>
@@ -78,21 +80,21 @@ $headingArr = $charManager->getHeadingArr();
 			<div id="addheadingdiv">
 				<form name="newheadingform" action="headingadmin.php" method="post" onsubmit="return validateHeadingForm(this)">
 					<fieldset>
-						<legend><b>New Heading</b></legend>
+						<legend>New Group</legend>
 						<div>
-							Heading Name<br />
+							Group Title<br />
 							<input type="text" name="headingname" maxlength="255" style="width:400px;" />
 						</div>
 						<div style="padding-top:6px;">
-							<b>Notes</b><br />
+							Notes<br />
 							<input name="notes" type="text" style="width:500px;" />
 						</div>
 						<div style="padding-top:6px;">
-							<b>Sort Sequence</b><br />
-							<input type="text" name="sortsequence" />
+							Sort Sequence<br />
+							<input type="text" name="sortsequence" style="width:80px" />
 						</div>
 						<div style="width:100%;padding-top:6px;">
-							<button name="action" type="submit" value="Create">Create Heading</button>
+							<button name="action" type="submit" value="Create">Create Group</button>
 						</div>
 					</fieldset>
 				</form>
@@ -102,27 +104,27 @@ $headingArr = $charManager->getHeadingArr();
 				if($headingArr){
 					?>
 					<fieldset>
-						<legend><b>Existing Headings</b></legend>
+						<legend>Existing Groups</legend>
 						<ul>
 							<?php
 							foreach($headingArr as $headingId => $headArr){
 								echo '<li><a href="#" onclick="toggle(\'headingedit-'.$headingId.'\');">'.$headArr['name'].' <img src="../../images/edit.png" style="width:13px" /></a></li>';
 								?>
 								<div id="headingedit-<?php echo $headingId; ?>" style="display:none;margin:20px;">
-									<fieldset style="padding:15px;">
-										<legend><b>Heading Editor</b></legend>
+									<fieldset>
+										<legend>Editor</legend>
 										<form name="headingeditform" action="headingadmin.php" method="post" onsubmit="return validateHeadingForm(this)">
 											<div style="margin:2px;">
-												<b>Heading Name</b><br/>
+												Group Title<br/>
 												<input name="headingname" type="text" value="<?php echo $headArr['name']; ?>" style="width:400px;" />
 											</div>
 											<div style="margin:2px;">
-												<b>Notes</b><br/>
+												Notes<br/>
 												<input name="notes" type="text" value="<?php echo $headArr['notes']; ?>" style="width:500px;" />
 											</div>
 											<div style="margin:2px;">
-												<b>Sort Sequence</b><br/>
-												<input name="sortsequence" type="text" value="<?php echo $headArr['sortsequence']; ?>" />
+												Sort Sequence<br/>
+												<input name="sortsequence" type="text" value="<?php echo $headArr['sortsequence']; ?>" style="width:80px" />
 											</div>
 											<div>
 												<input name="hid" type="hidden" value="<?php echo $headingId; ?>" />
@@ -130,11 +132,11 @@ $headingArr = $charManager->getHeadingArr();
 											</div>
 										</form>
 									</fieldset>
-									<fieldset style="padding:15px;">
-										<legend><b>Delete Heading</b></legend>
+									<fieldset>
+										<legend>Delete Group</legend>
 										<form name="headingdeleteform" action="headingadmin.php" method="post">
 											<input name="hid" type="hidden" value="<?php echo $headingId; ?>" />
-											<button name="action" type="submit" value="Delete">Delete Heading</button>
+											<button name="action" type="submit" value="Delete">Delete</button>
 										</form>
 									</fieldset>
 								</div>
@@ -146,14 +148,14 @@ $headingArr = $charManager->getHeadingArr();
 					<?php
 				}
 				else{
-					echo '<div style="font-weight:bold;font-size:120%;">There are no existing character headings</div>';
+					echo '<div style="font-weight:bold;font-size:120%;">There are no existing character groupings</div>';
 				}
 				?>
 			</div>
 			<?php
 		}
 		else{
-			echo '<h2>You are not authorized to add characters</h2>';
+			echo '<h2>You are not authorized to access page</h2>';
 		}
 		?>
 	</div>

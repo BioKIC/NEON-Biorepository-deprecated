@@ -27,7 +27,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 	<script src="../js/jquery-3.2.1.min.js?ver=3" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js?ver=3" type="text/javascript"></script>
 	<script src="../js/symb/collections.harvestparams.js?ver=180721" type="text/javascript"></script>
-	<script src="../js/symb/collections.traitsearch.js?ver=8" type="text/javascript"></script> <!-- Cotains serach-by-trait modifications -->
+	<script src="../js/symb/collections.traitsearch.js?ver=8" type="text/javascript"></script> <!-- Contains serach-by-trait modifications -->
 	<script type="text/javascript">
 		$(document).ready(function() {
 			<?php
@@ -87,7 +87,9 @@ $attribSearch = new OccurrenceAttributeSearch();
 							<?php
 							$taxonType = 1;
 							if(isset($DEFAULT_TAXON_SEARCH) && $DEFAULT_TAXON_SEARCH) $taxonType = $DEFAULT_TAXON_SEARCH;
-							for($h=1;$h<6;$h++){
+							$taxonTypeRange = 6;
+							if(isset($DISPLAY_COMMON_NAMES) && !$DISPLAY_COMMON_NAMES) $taxonTypeRange = 5;
+							for($h=1;$h<$taxonTypeRange;$h++){
 								echo '<option value="'.$h.'" '.($taxonType==$h?'SELECTED':'').'>'.$LANG['SELECT_1-'.$h].'</option>';
 							}
 							?>
@@ -247,7 +249,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 				</div>
 			</div>
 			<?php
-			if(isset($SEARCH_BY_TRAITS) && $SEARCH_BY_TRAITS != 0) {
+			if(isset($SEARCH_BY_TRAITS) && $SEARCH_BY_TRAITS) {
 				$traitArr = $attribSearch->getTraitSearchArr($SEARCH_BY_TRAITS);
 				if($traitArr){
 					?>
@@ -266,8 +268,8 @@ $attribSearch = new OccurrenceAttributeSearch();
 									<legend><b>Trait: <?php echo $traitData['name']; ?></b></legend>
 									<div style="float:right">
 										<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
-											<img class="triangleright" src="../images/triangleright.png" style="" />
-											<img class="triangledown" src="../images/triangledown.png" style="display:none" />
+											<img class="triangleright" src="../images/triangleright.png" style="display:none" />
+											<img class="triangledown" src="../images/triangledown.png" style="" />
 										</div>
 									</div>
 									<div class="traitDiv" style="margin-left:5px;float:left">

@@ -82,35 +82,38 @@ class OccurrenceGeorefTools {
 			$countryStr='';$stateStr='';$countyStr='';$municipalityStr='';$localityStr='';$verbCoordStr = '';$decLatStr='';$decLngStr='';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county)
-					|| $municipalityStr != trim($r->municipality) || $localityStr != trim($r->locality," .,;")
-					|| $verbCoordStr != trim($r->verbatimcoordinates) || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
-					$countryStr = trim($r->country);
-					$stateStr = trim($r->stateprovince);
-					$countyStr = trim($r->county);
-					$municipalityStr = trim($r->municipality);
-					$localityStr = trim($r->locality," .,;");
-					$verbCoordStr = trim($r->verbatimcoordinates);
-					$decLatStr = $r->decimallatitude;
-					$decLngStr = $r->decimallongitude;
-					$totalCnt++;
-					$retArr[$totalCnt]['occid'] = $r->occid;
-					$retArr[$totalCnt]['country'] = $countryStr;
-					$retArr[$totalCnt]['stateprovince'] = $stateStr;
-					$retArr[$totalCnt]['county'] = $countyStr;
-					$retArr[$totalCnt]['municipality'] = $municipalityStr;
-					$retArr[$totalCnt]['locality'] = $localityStr;
-					$retArr[$totalCnt]['verbatimcoordinates'] = $verbCoordStr;
-					$retArr[$totalCnt]['decimallatitude'] = $decLatStr;
-					$retArr[$totalCnt]['decimallongitude'] = $decLngStr;
-					$retArr[$totalCnt]['cnt'] = 1;
-					$locCnt = 1;
-				}
-				else{
-					$locCnt++;
-					$newOccidStr = $retArr[$totalCnt]['occid'].','.$r->occid;
-					$retArr[$totalCnt]['occid'] = $newOccidStr;
-					$retArr[$totalCnt]['cnt'] = $locCnt;
+				$localityStrNew = trim($r->locality,' .,;');
+				$verbCoordStrNew = trim($r->verbatimcoordinates,' .,;');
+				if($localityStrNew || $verbCoordStrNew){
+					if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county) || $municipalityStr != trim($r->municipality)
+						|| $localityStr != $localityStrNew || $verbCoordStr != $verbCoordStrNew || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
+						$countryStr = trim($r->country);
+						$stateStr = trim($r->stateprovince);
+						$countyStr = trim($r->county);
+						$municipalityStr = trim($r->municipality);
+						$localityStr = $localityStrNew;
+						$verbCoordStr = $verbCoordStrNew;
+						$decLatStr = $r->decimallatitude;
+						$decLngStr = $r->decimallongitude;
+						$totalCnt++;
+						$retArr[$totalCnt]['occid'] = $r->occid;
+						$retArr[$totalCnt]['country'] = $countryStr;
+						$retArr[$totalCnt]['stateprovince'] = $stateStr;
+						$retArr[$totalCnt]['county'] = $countyStr;
+						$retArr[$totalCnt]['municipality'] = $municipalityStr;
+						$retArr[$totalCnt]['locality'] = $localityStr;
+						$retArr[$totalCnt]['verbatimcoordinates'] = $verbCoordStr;
+						$retArr[$totalCnt]['decimallatitude'] = $decLatStr;
+						$retArr[$totalCnt]['decimallongitude'] = $decLngStr;
+						$retArr[$totalCnt]['cnt'] = 1;
+						$locCnt = 1;
+					}
+					else{
+						$locCnt++;
+						$newOccidStr = $retArr[$totalCnt]['occid'].','.$r->occid;
+						$retArr[$totalCnt]['occid'] = $newOccidStr;
+						$retArr[$totalCnt]['cnt'] = $locCnt;
+					}
 				}
 				if($totalCnt > 999) break;
 			}
@@ -288,27 +291,6 @@ class OccurrenceGeorefTools {
 		return $occArr;
 	}
 
-	//Potential harvesting functions
-	public function getCoordFromDupes(){
-		if($this->collid){
-			$sql = 'SELECT DISTINCT d3.duplicateid, c.institutionCode, c.collectionCode, o3.occid, o3.catalogNumber, o3.otherCatalogNumbers, o3.occurrenceID, '.
-				'o3.family, o3.sciname, o3.recordedBy, o3.recordNumber, o3.country, o3.stateProvince, o3.locality, '.
-				'o3.decimalLatitude, o3.decimalLongitude, o3.geodeticDatum, o3.coordinateUncertaintyInMeters, o3.footprintWKT, o3.verbatimCoordinates, o3.georeferencedBy, '.
-				'o3.georeferenceProtocol, o3.georeferenceSources, o3.georeferenceVerificationStatus, o3.georeferenceRemarks, '.
-				'o3.minimumElevationInMeters, o3.maximumElevationInMeters, o3.verbatimElevation '.
-				'FROM omoccurduplicatelink d INNER JOIN omoccurrences o ON d.occid = o.occid '.
-				'INNER JOIN omoccurduplicatelink d2 ON d.duplicateid = d2.duplicateid '.
-				'INNER JOIN omoccurrences o2 ON d2.occid = o2.occid '.
-				'INNER JOIN omoccurduplicatelink d3 ON d.duplicateid = d3.duplicateid '.
-				'INNER JOIN  omoccurrences o3 ON d3.occid = o3.occid '.
-				'INNER JOIN omcollections c ON o3.collid = c.collid '.
-				'WHERE o.collid = '.$this->collid.' AND o.decimallatitude IS NULL AND o2.collid != '.$this->collid.' AND o2.decimallatitude IS NOT NULL '.
-				'AND ((o3.collid != '.$this->collid.' AND o3.decimallatitude IS NOT NULL) OR o3.collid = '.$this->collid.') '.
-				'ORDER BY d3.duplicateid ';
-
-		}
-	}
-
 	//Setters and getters
 	public function setCollId($collidStr){
 		if(preg_match('/^[\d,]+$/',$collidStr)) $this->collStr = $collidStr;
@@ -326,7 +308,7 @@ class OccurrenceGeorefTools {
 				'WHERE ((colltype IN("Preserved Specimens","Observations")) ';
 			if($rightArr) $sql .= 'AND (collid IN('.implode(',', $rightArr).')) ';
 			$sql .= ') ';
-			if($IS_ADMIN) $sql .= 'OR (collid IN('.$this->collStr.')) ';
+			if($IS_ADMIN && $this->collStr) $sql .= 'OR (collid IN('.$this->collStr.')) ';
 			$sql .= 'ORDER BY collectionname, collectioncode ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){

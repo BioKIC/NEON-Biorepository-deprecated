@@ -6,7 +6,8 @@
  *   collid (default: 0 [all collections]): PK for targeted collection. More than one codes can be supplied by separating them commas (e.g. collid=2,3,77)
  *   cond: search variable conditions to limit return based on the indexed Darwin Core fields
  *       Format: cond=<field1>-<optional operator>:<value1>;<field2>-<optional operator>:<value2>
- *       Fields allowed: catalognumber, othercatalognumbers, occurrenceid, family, sciname, country, stateprovince, county, municipality, recordedby, recordnumber, eventdate, decimallatitude, decimallongitude, minimumelevationinmeters, maximumelevationinmeters, processingstatus, datelastmodified, dateentered
+ *       Fields allowed: catalogNumber, otherCatalogNumbers, occurrenceID, family, sciname, country, stateProvince, county, municipality, recordedBy, recordNumber, eventDate,
+ *       	decimalLatitude, decimalLongitude, minimumElevationInMeters, maximumElevationInMeters, cultivationStatus, processingStatus, dateLastModified, dateEntered, dbpk
  *       Optional operators: EQUALS, NULL, NOTNULL, START, LIKE, LESSTHAN, GREATERTHAN
  *       Note the dash separating the field and operator; operator is not case specific
  *       Multiple conditions can be supplied separated by semicolons

@@ -27,8 +27,13 @@ ALTER TABLE `kmcharacters`
   CHANGE COLUMN `sortsequence` `sortsequence` INT(10) UNSIGNED NULL DEFAULT NULL AFTER `notes`,
   ADD COLUMN `glossid` INT UNSIGNED NULL AFTER `description`,
   ADD INDEX `FK_kmchar_glossary_idx` (`glossid` ASC);
+
 ALTER TABLE `kmcharacters` 
   ADD CONSTRAINT `FK_kmchar_glossary`  FOREIGN KEY (`glossid`)  REFERENCES `glossary` (`glossid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `kmcharacters`
+  ADD COLUMN `activationCode` INT NULL AFTER `notes`;
+
 
 ALTER TABLE `kmcharacterlang` 
   CHANGE COLUMN `language` `language` VARCHAR(45) NULL ;
@@ -128,12 +133,15 @@ ALTER TABLE `referenceobject`
 
 
 ALTER TABLE `uploadspectemp` 
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `datasetID`,
+  ADD COLUMN `materialSampleID` VARCHAR(150) NULL AFTER `organismID`,
+  ADD COLUMN `locationID` VARCHAR(150) NULL AFTER `preparations`,
   ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
+  ADD COLUMN `waterBody` VARCHAR(150) NULL AFTER `continent`,
   ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
   ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,
   ADD COLUMN `countryCode` VARCHAR(5) NULL AFTER `island`,
   ADD COLUMN `parentLocationID` VARCHAR(150) NULL AFTER `locationID`,
-  ADD COLUMN `samplingProtocol` VARCHAR(150) NULL AFTER `parentLocationID`,
   ADD COLUMN `georeferencedDate` DATETIME NULL AFTER `georeferencedBy`,
   ADD COLUMN `paleoJSON` TEXT NULL AFTER `exsiccatiNotes`;
 
@@ -186,10 +194,14 @@ ALTER TABLE `images`
 ALTER TABLE `images` 
   ADD COLUMN `sortOccurrence` INT NULL DEFAULT 5 AFTER `sortsequence`;
 
-  
+ALTER TABLE `images` 
+  ADD COLUMN `defaultDisplay` INT NULL AFTER `dynamicProperties`;
+
+
 ALTER TABLE `taxa` 
   ADD COLUMN `reviewStatus` INT NULL AFTER `PhyloSortSequence`,
-  ADD COLUMN `isLegitimate` INT NULL AFTER `reviewStatus`,
+  ADD COLUMN `displayStatus` INT NULL AFTER `reviewStatus`,
+  ADD COLUMN `isLegitimate` INT NULL AFTER `displayStatus`,
   ADD COLUMN `nomenclaturalStatus` VARCHAR(45) NULL AFTER `isLegitimate`,
   ADD COLUMN `nomenclaturalCode` VARCHAR(45) NULL AFTER `nomenclaturalStatus`,
   CHANGE COLUMN `UnitInd3` `unitInd3` VARCHAR(45) NULL DEFAULT NULL,
@@ -434,6 +446,14 @@ ALTER TABLE `omoccurdatasets`
   ADD COLUMN `isPublic` INT NULL AFTER `category`,
   ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
 
+ALTER TABLE `omoccurdatasets` 
+  ADD COLUMN `parentDatasetID` INT UNSIGNED NULL AFTER `isPublic`,
+  ADD INDEX `FK_omoccurdatasets_parent_idx` (`parentDatasetID` ASC);
+
+ALTER TABLE `omoccurdatasets` 
+  ADD CONSTRAINT `FK_omoccurdatasets_parent` FOREIGN KEY (`parentDatasetID`) REFERENCES `omoccurdatasets` (`datasetid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+
 CREATE TABLE `referencedatasetlink` (
   `refid` INT NOT NULL,
   `datasetid` INT UNSIGNED NOT NULL,
@@ -474,6 +494,21 @@ CREATE TABLE `omoccurloanuser` (
   CONSTRAINT `FK_occurloan_modifiedByUid`  FOREIGN KEY (`modifiedByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
 
 
+CREATE TABLE `specprocstatus` (
+  `spsID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `occid` INT UNSIGNED NOT NULL,
+  `processName` VARCHAR(45) NOT NULL,
+  `result` VARCHAR(45) NULL,
+  `processVariables` VARCHAR(150) NOT NULL,
+  `processorUid` INT UNSIGNED NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`spsID`),
+  INDEX `specprocstatus_occid_idx` (`occid` ASC),
+  INDEX `specprocstatus_uid_idx` (`processorUid` ASC),
+  CONSTRAINT `specprocstatus_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `specprocstatus_uid` FOREIGN KEY (`processorUid`) REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE);
+
+
 ALTER TABLE `omoccurrences` 
   CHANGE COLUMN `eventID` `eventID` VARCHAR(150) NULL DEFAULT NULL,
   CHANGE COLUMN `locationID` `locationID` VARCHAR(150) NULL DEFAULT NULL,
@@ -485,8 +520,7 @@ ALTER TABLE `omoccurrences`
   DROP INDEX `idx_occrecordedby`;
   
 ALTER TABLE `omoccurrences` 
-  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `basisOfRecord`,
-  ADD COLUMN `materialSampleID` VARCHAR(150) NULL AFTER `organismID`,
+  ADD COLUMN `organismID` VARCHAR(150) NULL AFTER `datasetID`,
   ADD COLUMN `continent` VARCHAR(45) NULL AFTER `locationID`,
   ADD COLUMN `islandGroup` VARCHAR(75) NULL AFTER `waterBody`,
   ADD COLUMN `island` VARCHAR(75) NULL AFTER `islandGroup`,

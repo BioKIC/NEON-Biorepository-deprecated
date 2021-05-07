@@ -77,8 +77,8 @@ if($isEditor){
 			}
 			$tabIndex = 1;
 		}
-		elseif($formSubmit == 'saveSpecimenNotes'){
-			if($loanManager->editSpecimenNotes($loanId,$_POST['occid'],$_POST['notes'])) $statusStr = true;
+		elseif($formSubmit == 'saveSpecimenDetails'){
+			if($loanManager->editSpecimenDetails($loanId,$_POST['occid'],$_POST['returndate'],$_POST['notes'])) $statusStr = true;
 			echo $statusStr = $loanManager->getErrorMessage();
 		}
 		elseif($formSubmit == "exportSpecimenList"){
@@ -251,14 +251,6 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 			if(document.getElementById('dateidentified').value == ""){
 				alert("Determination Date field must have a value (enter 's.d.' if not defined)");
 				return false;
-			}
-			//If sciname was changed and submit was clicked immediately afterward, wait 5 seconds so that name can be verified
-			if(pauseSubmit){
-				var date = new Date();
-				var curDate = null;
-				do{
-					curDate = new Date();
-				}while(curDate - date < 5000 && pauseSubmit);
 			}
 			return true;
 		}

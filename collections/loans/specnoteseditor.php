@@ -34,7 +34,7 @@ $loanManager->setCollId($collid);
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 	<script type="text/javascript">
-		function submitNotesForm(){
+		function submitNotesForm(f){
 			self.close();
 		}
 	</script>
@@ -56,7 +56,7 @@ $loanManager->setCollId($collid);
 				<form name="noteEditor" action="outgoing.php" method="post" target="parentWin" onsubmit="submitNotesForm()">
 					<div>
 						<b>Date returned:</b>
-						<input name="returndate" type="text" value="<?php echo $noteArr['returnDate']; ?>" />
+						<input name="returndate" type="datetime-local" value="<?php echo $noteArr['returnDate']; ?>" />
 					</div>
 					<div>
 						<b>Specimen notes:</b>

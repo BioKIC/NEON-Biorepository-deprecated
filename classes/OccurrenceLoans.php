@@ -613,7 +613,7 @@ class OccurrenceLoans extends Manager{
 	public function getSpecimenDetails($loanId, $occid){
 		$retArr = array();
 		if(is_numeric($loanId) && is_numeric($occid)){
-			$sql = 'SELECT returndate, notes FROM omoccurloanslink WHERE loanid = '.$loanId.' AND occid = '.$occid;
+			$sql = 'SELECT DATE_FORMAT(returndate, "%Y-%m-%dT%H:%i") AS returndate, notes FROM omoccurloanslink WHERE loanid = '.$loanId.' AND occid = '.$occid;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$retArr['returnDate'] = $r->returndate;

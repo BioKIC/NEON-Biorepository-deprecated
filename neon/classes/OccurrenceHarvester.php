@@ -249,12 +249,13 @@ class OccurrenceHarvester{
 			if(strpos($eArr['ingestTableName'],'archivepooling')) continue;
 			if(strpos($eArr['ingestTableName'],'archivedata')) continue;
 			if(strpos($eArr['ingestTableName'],'barcoding')) continue;
-			if(strpos($eArr['ingestTableName'],'metabarcodeTaxonomy')) continue;
-			if(strpos($eArr['ingestTableName'],'pcrAmplification')) continue;
-			if(strpos($eArr['ingestTableName'],'markerGeneSequencing')) continue;
-			if(strpos($eArr['ingestTableName'],'metagenomeSequencing')) continue;
 			if(strpos($eArr['ingestTableName'],'dnaStandardTaxon')) continue;
 			if(strpos($eArr['ingestTableName'],'dnaExtraction')) continue;
+			if(strpos($eArr['ingestTableName'],'markerGeneSequencing')) continue;
+			if(strpos($eArr['ingestTableName'],'metagenomeSequencing')) continue;
+			if(strpos($eArr['ingestTableName'],'metabarcodeTaxonomy')) continue;
+			if(strpos($eArr['ingestTableName'],'pcrAmplification')) continue;
+			if(strpos($eArr['ingestTableName'],'perbiogeosample')) continue;
 			if(strpos($eArr['ingestTableName'],'persample')) continue;
 			if(strpos($eArr['ingestTableName'],'pertaxon')) continue;
 			if(strpos($eArr['ingestTableName'],'pervial')) continue;

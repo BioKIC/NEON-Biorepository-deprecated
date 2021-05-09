@@ -15,9 +15,7 @@ $isEditor = false;
 if($IS_ADMIN || array_key_exists('GlossaryEditor',$USER_RIGHTS)) $isEditor = true;
 
 $loaderManager = new GlossaryUpload();
-$glosManager = new GlossaryManager();
 
-$status = "";
 $fieldMap = array();
 if($isEditor){
 	if($ulFileName){
@@ -48,50 +46,24 @@ if($isEditor){
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Glossary Term Loader</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
-  <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
+	<?php
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
-	<script src="../js/jquery.manifest.js" type="text/javascript"></script>
-	<script src="../js/jquery.marcopolo.js" type="text/javascript"></script>
-	<script type="text/javascript" src="../js/symb/glossary.index.js"></script>
 	<script type="text/javascript">
-		var taxArr = new Array();
-
 		$(document).ready(function() {
-			$('#batchtaxagroup').manifest({
-				marcoPolo: {
-					url: 'rpc/taxalist.php',
-					data: {
-						t: 'batch'
-					},
-					formatItem: function (data) {
-						return data.name;
-					}
+			$("#batchtaxagroup").autocomplete({
+				source: function( request, response ) {
+					$.getJSON( "rpc/taxalist.php", { term: request.term, t: "batch" }, response );
 				},
-				required: true
-			});
-
-			$('#batchtaxagroup').on('marcopoloselect', function (event, data, $item, initial) {
-				taxArr.push({name:data.name,id:data.id});
-			});
-
-			$('#batchtaxagroup').on('manifestremove',function (event, data, $item){
-				for (i = 0; i < taxArr.length; i++) {
-					if(taxArr[i].name == data){
-						taxArr.splice(i,1);
-					}
+				minLength: 3,
+				autoFocus: true,
+				select: function( event, ui ) {
+					if(ui.item) document.getElementById('batchtid').value = ui.item.id;
 				}
 			});
+
 		});
 
 		function verifyUploadForm(f){
@@ -104,14 +76,6 @@ if($isEditor){
 			if(taxavals.length < 1){
 				alert("Please enter at least one taxonomic group.");
 				return false;
-			}
-			if(taxArr.length > 0){
-				var tids = [];
-				for(i = 0; i < taxArr.length; i++){
-					tids.push(taxArr[i].id);
-				}
-				var tidstr = tids.join();
-				document.getElementById('batchtid').value = tidstr;
 			}
 			return true;
 		}
@@ -148,6 +112,9 @@ if($isEditor){
 	<div id="innertext">
 		<h1>Glossary Term Batch Loader</h1>
 		<div style="margin:30px;">
+			<div style="margin-bottom:30px;">
+				This page allows a Taxonomic Administrator to batch upload glossary data files.
+			</div>
 			<div style="margin-bottom:30px;">
 				This page allows a Taxonomic Administrator to batch upload glossary data files.
 			</div>
@@ -275,10 +242,10 @@ if($isEditor){
 							<legend style="font-weight:bold;font-size:120%;">Term Upload Form</legend>
 							<div style="margin:10px;">
 								Flat structured, CSV (comma delimited) text files can be uploaded here.
-								Please specify the taxonomic groups for which the terms are related.
+								Please specify the taxonomic group for which the terms are related.
 								For each language in the CSV file, name the column with the terms as the language the terms are in,
 								and then name all columns related to that term as the language underscore and then the column name
-								(ex. English, English_definition, Spanish, Spanish_Definition, etc.). Columns can be added for the definition,
+								(ex. English, English_definition, Spanish, Spanish_definition, etc.). Columns can be added for the definition,
 								author, translator, source, notes, and an online resource url.
 								Synonyms can be added by naming the column the language underscore synonym (ex. English_synonym).
 								A source can be added for all of the terms by filling in the Enter Sources box below.
@@ -289,7 +256,7 @@ if($isEditor){
 							<input type='hidden' name='MAX_FILE_SIZE' value='100000000' />
 							<div>
 								<div class="overrideopt">
-									<b>Enter Taxonomic Groups:</b>
+									<b>Enter Taxonomic Group:</b>
 									<div style="margin:10px;">
 										<input type="text" name="batchtaxagroup" id="batchtaxagroup" style="width:550px;" value="" onchange="" autocomplete="off" />
 										<input name="batchtid" id="batchtid" type="hidden" value="" />
@@ -332,8 +299,6 @@ else{
 	</div>
 	<?php
 }
-
-
 include($SERVER_ROOT.'/includes/footer.php');
 ?>
 </body>

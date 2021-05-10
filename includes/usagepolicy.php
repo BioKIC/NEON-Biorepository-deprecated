@@ -105,7 +105,7 @@
 			<h2>Statement on Offensive Content in Specimen Collections</h2>
 			<div style="margin:15px;">
 				The CCH acknowledges that, as historical specimens, herbarium specimen labels may
-				contain offensive languge. In the interests of historical integrity, we are not removing
+				contain offensive language. In the interests of historical integrity, we are not removing
 				these words from occurrence records when they reflect locality information. We aim to include
 				a flag on such records alongside these data that describes the currently accepted description
 				or locality along with a reference to this Statement.

@@ -20,7 +20,7 @@ section.has-dark-background h6 {
 :root {
   --background-color: #f5f6f7;
   --main-font: 'Inter', sans-serif;
-  --main-font-size: 42px;
+  --main-font-size: 24px;
   --main-color: #565a5c;
   --block-margin: 20px;
   --heading-margin: 0 0 20px 0;
@@ -50,7 +50,7 @@ section.has-dark-background h6 {
 
 .reveal {
   font-family: var(--main-font);
-  font-size: 42px;
+  font-size: var(--main-font-size);
   font-weight: normal;
   color: var(--main-color);
 }
@@ -94,7 +94,7 @@ section.has-dark-background h6 {
 }
 
 .reveal h1 {
-  font-size: 2em;
+  font-size: 2.2em;
 }
 
 .reveal h2 {

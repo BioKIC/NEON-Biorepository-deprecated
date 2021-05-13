@@ -357,7 +357,7 @@ if(!$IS_ADMIN){
 								</a>
 							</div>
 							<div style="margin-left:30px;float:left;">
-								<input id="linkdupe-<?php echo $occId; ?>" type="checkbox" <?php echo ($dupeType == 'exact'?'checked':''); ?> /> Link as Dupes
+								<input id="linkdupe-<?php echo $occId; ?>" type="checkbox" <?php echo ($dupeType == 'exact'?'checked':''); ?> /> Link as Duplicate
 							</div>
 							<?php
 							if($collId == $occObj['collid']){

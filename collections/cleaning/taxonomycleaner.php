@@ -35,6 +35,7 @@ elseif($activeCollArr){
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Occurrence Taxon Cleaner</title>
 		<?php
+		$activateJQuery = true;
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
 		<script src="../../js/jquery-3.2.1.min.js?ver=3" type="text/javascript"></script>

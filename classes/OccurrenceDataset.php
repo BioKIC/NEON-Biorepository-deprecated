@@ -21,7 +21,7 @@ class OccurrenceDataset {
 		$retArr = array();
 		if($GLOBALS['SYMB_UID'] && $dsid){
 			//Get and return individual dataset
-			$sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp FROM omoccurdatasets WHERE (datasetid = '.$dsid.') ';
+			$sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE (datasetid = '.$dsid.') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr['name'] = $r->name;
@@ -29,6 +29,7 @@ class OccurrenceDataset {
 				$retArr['uid'] = $r->uid;
 				$retArr['sort'] = $r->sortsequence;
 				$retArr['ts'] = $r->initialtimestamp;
+        $retArr['ispublic'] = $r->ispublic;
 			}
 			$rs->free();
 			//Get roles for current user
@@ -45,18 +46,19 @@ class OccurrenceDataset {
 	public function getDatasetArr(){
 		$retArr = array();
 		if($GLOBALS['SYMB_UID']){
-			$sql = 'SELECT datasetid, name, notes, sortsequence, initialtimestamp FROM omoccurdatasets WHERE (uid = '.$GLOBALS['SYMB_UID'].') ORDER BY sortsequence,name';
+			$sql = 'SELECT datasetid, name, notes, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE (uid = '.$GLOBALS['SYMB_UID'].') ORDER BY sortsequence,name';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr['owner'][$r->datasetid]['name'] = $r->name;
 				$retArr['owner'][$r->datasetid]['notes'] = $r->notes;
 				$retArr['owner'][$r->datasetid]['sort'] = $r->sortsequence;
 				$retArr['owner'][$r->datasetid]['ts'] = $r->initialtimestamp;
+				$retArr['owner'][$r->datasetid]['ispublic'] = $r->ispublic;
 			}
 			$rs->free();
 
 			//Get shared datasets
-			$sql1 = 'SELECT d.datasetid, d.name, d.notes, d.sortsequence, d.initialtimestamp, r.role '.
+			$sql1 = 'SELECT d.datasetid, d.name, d.notes, d.sortsequence, d.ispublic, d.initialtimestamp, r.role '.
 				'FROM omoccurdatasets d INNER JOIN userroles r ON d.datasetid = r.tablepk '.
 				'WHERE (r.uid = '.$GLOBALS['SYMB_UID'].') AND (r.role IN("DatasetAdmin","DatasetEditor","DatasetReader")) '.
 				'ORDER BY sortsequence,name';
@@ -68,14 +70,17 @@ class OccurrenceDataset {
 				$retArr['other'][$r1->datasetid]['notes'] = $r1->notes;
 				$retArr['other'][$r1->datasetid]['sort'] = $r1->sortsequence;
 				$retArr['other'][$r1->datasetid]['ts'] = $r1->initialtimestamp;
+				$retArr['other'][$r1->datasetid]['ispublic'] = $r1->ispublic;
 			}
 			$rs1->free();
 		}
 		return $retArr;
 	}
 
-	public function editDataset($dsid,$name,$notes){
-		$sql = 'UPDATE omoccurdatasets SET name = "'.$this->cleanInStr($name).'", notes = "'.$this->cleanInStr($notes).'" WHERE datasetid = '.$dsid;
+	public function editDataset($dsid,$name,$notes,$ispublic){
+    // 'publicedits = '.(array_key_exists('publicedits',$postArr)&&is_numeric($postArr['publicedits'])?1:0).','.
+    // print_r(isset($ispublic)&&is_numeric($ispublic)?1:0);
+		$sql = 'UPDATE omoccurdatasets SET name = "'.$this->cleanInStr($name).'", notes = "'.$this->cleanInStr($notes).'", ispublic = '.$this->cleanInStr($ispublic).' WHERE datasetid = '.$dsid;
 		if(!$this->conn->query($sql)){
 			$this->errorArr[] = 'ERROR saving dataset edits: '.$this->conn->error;
 			return false;

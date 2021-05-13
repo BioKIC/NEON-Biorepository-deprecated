@@ -54,7 +54,8 @@ if($isEditor){
 	}
 	if($isEditor == 1){
 		if($action == 'Save Edits'){
-			if($datasetManager->editDataset($_POST['datasetid'],$_POST['name'],$_POST['notes'])){
+      $isPublic = (isset($_POST['ispublic'])&&is_numeric($_POST['ispublic'])?1:0);
+			if($datasetManager->editDataset($_POST['datasetid'],$_POST['name'],$_POST['notes'],$isPublic)){
 				$mdArr = $datasetManager->getDatasetMetadata($datasetId);
 				$statusStr = 'Success! Dataset edits saved. ';
 			}
@@ -373,6 +374,7 @@ if($isEditor){
 					if($isEditor == 1){
 						?>
 						<div id="admintab">
+            <?php print_r($_REQUEST) ;?>
 							<fieldset style="padding:15px;margin:15px;">
 								<legend><b>Editor</b></legend>
 								<form name="editform" action="datasetmanager.php" method="post" onsubmit="return validateEditForm(this)">
@@ -380,6 +382,10 @@ if($isEditor){
 										<b>Name</b><br />
 										<input name="name" type="text" value="<?php echo $mdArr['name']; ?>" style="width:400px" />
 									</div>
+                  <div>
+                  <b>Public View</b><br />
+                  <input type="checkbox" name="ispublic" id="ispublic"value="1" <?php echo ($mdArr['ispublic']?'CHECKED':''); ?> />
+                  </div>
 									<div>
 										<b>Notes</b><br />
 										<input name="notes" type="text" value="<?php echo $mdArr['notes']; ?>" style="width:90%" />

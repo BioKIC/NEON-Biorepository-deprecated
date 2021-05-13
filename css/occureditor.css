@@ -55,7 +55,7 @@ body{
 #dupeMsgDiv{
 	position: absolute;
 	top: 78px;
-	left: 617px;
+	left: 615px;
 	display:none;
 	background-color: lightgrey;
 	z-index: 10; 
@@ -64,7 +64,7 @@ body{
 }
 
 #dupeMsgDiv div{
-	width:150px;
+	width:170px;
 	border:2px outset blue;
 	background-color: white;
 	padding:3px;

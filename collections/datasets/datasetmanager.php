@@ -374,7 +374,6 @@ if($isEditor){
 					if($isEditor == 1){
 						?>
 						<div id="admintab">
-            <?php print_r($_REQUEST) ;?>
 							<fieldset style="padding:15px;margin:15px;">
 								<legend><b>Editor</b></legend>
 								<form name="editform" action="datasetmanager.php" method="post" onsubmit="return validateEditForm(this)">

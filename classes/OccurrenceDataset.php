@@ -17,6 +17,17 @@ class OccurrenceDataset {
 		if(!($this->conn === null)) $this->conn->close();
 	}
 
+  public function getPublicDatasets(){
+    $retArr = array();
+    $sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1';
+    $rs = $this->conn->query($sql);
+    while($r = $rs->fetch_assoc()){
+      $retArr[] = $r;
+    }
+    $rs->free();
+    return $retArr;
+  }
+
 	public function getDatasetMetadata($dsid){
 		$retArr = array();
 		if($GLOBALS['SYMB_UID'] && $dsid){
@@ -78,8 +89,6 @@ class OccurrenceDataset {
 	}
 
 	public function editDataset($dsid,$name,$notes,$ispublic){
-    // 'publicedits = '.(array_key_exists('publicedits',$postArr)&&is_numeric($postArr['publicedits'])?1:0).','.
-    // print_r(isset($ispublic)&&is_numeric($ispublic)?1:0);
 		$sql = 'UPDATE omoccurdatasets SET name = "'.$this->cleanInStr($name).'", notes = "'.$this->cleanInStr($notes).'", ispublic = '.$this->cleanInStr($ispublic).' WHERE datasetid = '.$dsid;
 		if(!$this->conn->query($sql)){
 			$this->errorArr[] = 'ERROR saving dataset edits: '.$this->conn->error;

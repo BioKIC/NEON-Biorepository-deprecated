@@ -19,7 +19,7 @@ class OccurrenceDataset {
 
   public function getPublicDatasets(){
     $retArr = array();
-    $sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1';
+    $sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY name';
     $rs = $this->conn->query($sql);
     while($r = $rs->fetch_assoc()){
       $retArr[] = $r;

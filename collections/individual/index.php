@@ -1075,7 +1075,7 @@ $traitArr = $indManager->getTraitArr();
 										else echo 'species identification protected';
 										echo '</div>';
 										if($dupArr['identifiedby']) echo '<div><span class="label">Identified by:</span> '.$dupArr['identifiedby'].'<span stlye="margin-left:30px;">'.$dupArr['dateidentified'].'</span></div>';
-										echo '<div><a href="#" onclick="openIndividual('.$dupOccid.')">Show Full Details</a></div>';
+										echo '<div><a href="#" onclick="openIndividual('.$dupOccid.');return false;">Show Full Details</a></div>';
 										echo '</div>';
 										if(!$securityCode){
 											if($dupArr['url']){

@@ -323,12 +323,16 @@ if($SYMB_UID){
 									 -->
 									<?php
 								}
+								if(!isset($ACTIVATE_DUPLICATES) || $ACTIVATE_DUPLICATES){
+									?>
+									<li>
+										<a href="../datasets/duplicatemanager.php?collid=<?php echo $collid; ?>">
+											<?php echo $LANG['DUP_CLUSTER']; ?>
+										</a>
+									</li>
+									<?php
+								}
 								?>
-								<li>
-									<a href="../datasets/duplicatemanager.php?collid=<?php echo $collid; ?>">
-										<?php echo $LANG['DUP_CLUSTER']; ?>
-									</a>
-								</li>
 								<li>
 									<?php echo $LANG['MAINTENANCE_TASKS']; ?>
 								</li>

@@ -150,11 +150,9 @@ $traitArr = $indManager->getTraitArr();
 	<meta name="description" content="<?php echo 'Occurrence author: '.$occArr['recordedby'].','.$occArr['recordnumber']; ?>" />
 	<meta name="keywords" content="<?php echo $occArr['guid']; ?>">
 	<?php
-	$cssPath = $CLIENT_ROOT.$CSS_BASE_PATH.'/collections/individual/index.css';
-	if(!file_exists($cssPath)){
-		$cssPath = $CLIENT_ROOT.'/css/symb/collections/individual/index.css';
-	}
-	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	$cssPath = '/css/symb/custom/collindividualindex.css';
+	if(!file_exists($SERVER_ROOT.$cssPath)) $cssPath = '/css/symb/collindividualindex.css';
+	echo '<link href="'.$CLIENT_ROOT.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
@@ -248,6 +246,7 @@ $traitArr = $indManager->getTraitArr();
 	<style>
 		fieldset{ margin:10px; padding:15px; width:90% }
 		legend{ font-weight:bold; }
+		.title{ font-weight:bold; font-size:120%; }
 		.label{ font-weight:bold; }
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
 		.occur-ref{ margin: 10px 0px }
@@ -826,7 +825,7 @@ $traitArr = $indManager->getTraitArr();
 							<div>
 								<b>Exsiccati series:</b>
 								<?php
-								echo '<a href="../exsiccati/index.php?omenid='.$occArr['exs']['omenid'].'">';
+								echo '<a href="../exsiccati/index.php?omenid='.$occArr['exs']['omenid'].'" target="_blank">';
 								echo $occArr['exs']['title'].'&nbsp;#'.$occArr['exs']['exsnumber'];
 								echo '</a>';
 								?>
@@ -1045,60 +1044,51 @@ $traitArr = $indManager->getTraitArr();
 				if($dupClusterArr){
 					?>
 					<div id="dupestab">
-						<div style="margin:20px;">
-							<div style="font-weight:bold;font-size:120%;margin-bottom:10px;"><u>Current Record</u></div>
+						<div style="margin:15px;">
+							<div class="title" style="margin-bottom:10px;"><u>Current Record</u></div>
 							<?php
-							echo '<div style="font-weight:bold;font-size:120%;">'.$collMetadata['collectionname'].' ('.$collMetadata['institutioncode'].($collMetadata['collectioncode']?':'.$collMetadata['collectioncode']:'').')</div>';
+							echo '<div class="title">'.$collMetadata['collectionname'].' ('.$collMetadata['institutioncode'].($collMetadata['collectioncode']?':'.$collMetadata['collectioncode']:'').')</div>';
 							echo '<div style="margin:5px 15px">';
 							if($occArr['recordedby']) echo '<div>'.$occArr['recordedby'].' '.$occArr['recordnumber'].'<span style="margin-left:40px;">'.$occArr['eventdate'].'</span></div>';
-							if($occArr['catalognumber']) echo '<div><b>Catalog Number:</b> '.$occArr['catalognumber'].'</div>';
-							if($occArr['occurrenceid']) echo '<div><b>GUID:</b> '.$occArr['occurrenceid'].'</div>';
-							echo '<div><b>Latest Identification:</b> ';
+							if($occArr['catalognumber']) echo '<div><span class="label">Catalog Number:</span> '.$occArr['catalognumber'].'</div>';
+							if($occArr['occurrenceid']) echo '<div><span class="label">GUID:</span> '.$occArr['occurrenceid'].'</div>';
+							echo '<div><span class="label">Latest Identification:</span> ';
 							if($securityCode < 2) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
-							else echo '<b>species identification protected</b>';
+							else echo 'species identification protected';
 							echo '</div>';
-							if($occArr['identifiedby']) echo '<div><b>Identified by:</b> '.$occArr['identifiedby'].'<span stlye="margin-left:30px;">'.$occArr['dateidentified'].'</span></div>';
+							if($occArr['identifiedby']) echo '<div><span class="label">Identified by:</span> '.$occArr['identifiedby'].'<span stlye="margin-left:30px;">'.$occArr['dateidentified'].'</span></div>';
 							echo '</div>';
-							echo '<div style="margin:20px 0px;clear:both"><hr/><hr/></div>';
 							//Grab other records
-							foreach($dupClusterArr as $dupid => $dArr){
-								$innerDupArr = $dArr['o'];
-								foreach($innerDupArr as $dupOccid => $dupArr){
+							foreach($dupClusterArr as $dupeType => $dupeArr){
+								echo '<fieldset style="padding:10px">';
+								echo '<legend>'.($dupeType=='dupe'?'Specimen Duplicates':'Associated Exsiccatae').'</legend>';
+								foreach($dupeArr as $dupOccid => $dupArr){
 									if($dupOccid != $occid){
 										echo '<div style="clear:both;margin:15px;">';
-										echo '<div style="font-weight:bold;font-size:120%;">'.$dupArr['collname'].' ('.$dupArr['instcode'].($dupArr['collcode']?':'.$dupArr['collcode']:'').')</div>';
 										echo '<div style="float:left;margin:5px 15px">';
+										echo '<div class="title">'.$dupArr['collname'].' ('.$dupArr['instcode'].($dupArr['collcode']?':'.$dupArr['collcode']:'').')</div>';
 										if($dupArr['recordedby']) echo '<div>'.$dupArr['recordedby'].' '.$dupArr['recordnumber'].'<span style="margin-left:40px;">'.$dupArr['eventdate'].'</span></div>';
-										if($dupArr['catnum']) echo '<div><b>Catalog Number:</b> '.$dupArr['catnum'].'</div>';
-										if($dupArr['occurrenceid']) echo '<div><b>GUID:</b> '.$dupArr['occurrenceid'].'</div>';
-										echo '<div><b>Latest Identification:</b> ';
+										if($dupArr['catalognumber']) echo '<div><span class="label">Catalog Number:</span> '.$dupArr['catalognumber'].'</div>';
+										if($dupArr['occurrenceid']) echo '<div><span class="label">GUID:</span> '.$dupArr['occurrenceid'].'</div>';
+										echo '<div><span class="label">Latest Identification:</span> ';
 										if($securityCode < 2) echo '<i>'.$dupArr['sciname'].'</i> '.$dupArr['author'];
-										else echo '<b>species identification protected</b>';
+										else echo 'species identification protected';
 										echo '</div>';
-										if($dupArr['identifiedby']) echo '<div><b>Identified by:</b> '.$dupArr['identifiedby'].'<span stlye="margin-left:30px;">'.$dupArr['dateidentified'].'</span></div>';
-										if($dupArr['notes']) echo '<div>'.$dupArr['notes'].'</div>';
+										if($dupArr['identifiedby']) echo '<div><span class="label">Identified by:</span> '.$dupArr['identifiedby'].'<span stlye="margin-left:30px;">'.$dupArr['dateidentified'].'</span></div>';
 										echo '<div><a href="#" onclick="openIndividual('.$dupOccid.')">Show Full Details</a></div>';
 										echo '</div>';
 										if(!$securityCode){
 											if($dupArr['url']){
 												$url = $dupArr['url'];
-												$tnUrl = $dupArr['tnurl'];
-												if(!$tnUrl) $tnUrl = $url;
-												if($IMAGE_DOMAIN){
-													if(substr($url,0,1) == '/') $url = $IMAGE_DOMAIN.$url;
-													if(substr($tnUrl,0,1) == '/') $tnUrl = $IMAGE_DOMAIN.$tnUrl;
-												}
-												echo '<div style="float:left;margin:10px;">';
-												echo '<a href="'.$url.'">';
-												echo '<img src="'.$tnUrl.'" style="width:100px;border:1px solid grey" />';
-												echo '</a>';
-												echo '</div>';
+												if($IMAGE_DOMAIN) if(substr($url,0,1) == '/') $url = $IMAGE_DOMAIN.$url;
+												echo '<div style="float:right;margin:10px;"><img src="'.$url.'" style="width:70px;border:1px solid grey" /></div>';
 											}
 										}
 										echo '<div style="margin:10px 0px;clear:both"><hr/></div>';
 										echo '</div>';
 									}
 								}
+								echo '</fieldset>';
 							}
 							?>
 						</div>
@@ -1167,7 +1157,7 @@ $traitArr = $indManager->getTraitArr();
 						}
 					}
 					else{
-						echo '<div style="font-weight:bold;font-size:120%;margin:20px;">No comments have been submitted</div>';
+						echo '<div class="title" style="margin:20px;">No comments have been submitted</div>';
 					}
 					?>
 					<fieldset>

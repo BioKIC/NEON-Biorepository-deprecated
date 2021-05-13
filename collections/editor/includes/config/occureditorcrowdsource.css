@@ -101,7 +101,7 @@ body{
 	top: 67px;
 	left: 350px;
 	display:none;
-	width:200px;
+	width:220px;
 	background-color:#FFFFFF;
 	z-index: 10; 
 	padding:25px;
@@ -109,7 +109,7 @@ body{
 }
 
 #dupeMsgDiv div{
-	width:150px;
+	width:170px;
 	border:2px outset blue;
 	padding:3px;
 }

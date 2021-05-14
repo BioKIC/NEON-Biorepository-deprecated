@@ -28,6 +28,24 @@ class OccurrenceDataset {
     return $retArr;
   }
 
+	public function getPublicDatasetMetadata($dsid){
+		$retArr = array();
+		if($dsid){
+			//Get and return individual dataset
+			$sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp FROM omoccurdatasets WHERE (datasetid = '.$dsid.') AND ispublic=1';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr['name'] = $r->name;
+				$retArr['notes'] = $r->notes;
+				$retArr['uid'] = $r->uid;
+				$retArr['sort'] = $r->sortsequence;
+				$retArr['ts'] = $r->initialtimestamp;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
 	public function getDatasetMetadata($dsid){
 		$retArr = array();
 		if($GLOBALS['SYMB_UID'] && $dsid){

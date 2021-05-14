@@ -3,14 +3,17 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDataset.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$datasetManager = new OccurrenceDataset();
+$datasetid = array_key_exists('datasetid',$_REQUEST)?$_REQUEST['datasetid']:0;
 
-$dArr = $datasetManager->getPublicDatasets();
+if(!is_numeric($datasetid)) $datasetid = 0;
+
+$datasetManager = new OccurrenceDataset();
+$dArr = $datasetManager->getPublicDatasetMetadata($datasetid);
 
 ?>
 <html>
 	<head>
-		<title>Public Datasets List</title>
+		<title>Dataset: <?php echo $dArr['name'] ;?></title>
     <?php
       $activateJQuery = false;
       if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -30,20 +33,16 @@ $dArr = $datasetManager->getPublicDatasets();
 		?>
 		<div class="navpath">
 			<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
-			<b>Public Datasets List</b>
+			<b>Dataset: <?php echo $dArr['name'] ;?></b>
 		</div>
 		<!-- This is inner text! -->
 		<div id="innertext">
-    <h1>Public Datasets List</h1>
+    <h1>Dataset: <?php echo $dArr['name'] ;?></h1>
     <ul>
-      <?php 
-        // print_r($dArr);
-        if($dArr){
-          foreach($dArr as $row) {
-            echo '<li><a href="public.php?datasetid='.$row['datasetid'].'">'.$row['name'].'</a></li>';
-          }
-        }
-       ;?>
+      <!-- Metadata -->
+      <p><?php echo $dArr['notes'] ;?></p>
+
+      <!-- Occurrences -->
     </ul>
 		</div>
 		<?php

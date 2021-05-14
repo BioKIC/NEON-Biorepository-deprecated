@@ -3,13 +3,15 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDataset.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
+// Datasets
 $datasetid = array_key_exists('datasetid',$_REQUEST)?$_REQUEST['datasetid']:0;
 
 if(!is_numeric($datasetid)) $datasetid = 0;
 
 $datasetManager = new OccurrenceDataset();
 $dArr = $datasetManager->getPublicDatasetMetadata($datasetid);
-
+$searchUrl = '../../collections/list.php?datasetid='.$datasetid;
+$ocArr = $datasetManager->getOccurrences($datasetid);
 ?>
 <html>
 	<head>
@@ -41,8 +43,12 @@ $dArr = $datasetManager->getPublicDatasetMetadata($datasetid);
     <ul>
       <!-- Metadata -->
       <p><?php echo $dArr['notes'] ;?></p>
+      <!-- Occurrences Summary -->
+      <p>This dataset includes <?php echo count($ocArr); ?> records.</p>
+      
+      <p><a href="<?php echo $searchUrl ;?>">View and download list of samples in this Dataset</a></p>
+      <!-- REUSE http://github.localhost:8080/Symbiota-light-BioKIC/collections/list.php?datasetid=151 ?-->
 
-      <!-- Occurrences -->
     </ul>
 		</div>
 		<?php

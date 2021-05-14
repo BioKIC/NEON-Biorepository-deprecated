@@ -356,10 +356,14 @@ if(!$IS_ADMIN){
 									Transfer to Empty Fields Only
 								</a>
 							</div>
-							<div style="margin-left:30px;float:left;">
-								<input id="linkdupe-<?php echo $occId; ?>" type="checkbox" <?php echo ($dupeType == 'exact'?'checked':''); ?> /> Link as Dupes
-							</div>
 							<?php
+							if(!isset($ACTIVATE_DUPLICATES) || $ACTIVATE_DUPLICATES){
+								?>
+								<div style="margin-left:30px;float:left;">
+									<input id="linkdupe-<?php echo $occId; ?>" type="checkbox" <?php echo ($dupeType == 'exact'?'checked':''); ?> /> Link as Duplicate
+								</div>
+								<?php
+							}
 							if($collId == $occObj['collid']){
 								?>
 								<div style="margin-left:30px;float:left;">

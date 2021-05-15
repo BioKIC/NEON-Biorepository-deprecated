@@ -3,6 +3,46 @@ INSERT IGNORE INTO schemaversion (versionnumber) values ("1.2");
 ALTER TABLE `adminlanguages` 
   ADD COLUMN `ISO 639-3` VARCHAR(3) NULL AFTER `iso639_2`;
 
+CREATE TABLE `geographicthesaurus` (
+  `geoThesID` INT NOT NULL AUTO_INCREMENT,
+  `geoterm` VARCHAR(100) NULL,
+  `abbreviation` VARCHAR(45) NULL,
+  `iso2` VARCHAR(45) NULL,
+  `iso3` VARCHAR(45) NULL,
+  `numcode` INT NULL,
+  `category` VARCHAR(45) NULL,
+  `termstatus` INT NULL,
+  `acceptedID` INT NULL,
+  `parentID` INT NULL,
+  `notes` VARCHAR(250) NULL,
+  `dynamicProps` TEXT NULL,
+  `footprintWKT` TEXT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`geoThesID`),
+  INDEX `IX_geothes_termname` (`geoterm` ASC),
+  INDEX `IX_geothes_abbreviation` (`abbreviation` ASC),
+  INDEX `IX_geothes_iso2` (`iso2` ASC),
+  INDEX `IX_geothes_iso3` (`iso3` ASC));
+
+ALTER TABLE `geographicthesaurus` 
+  ADD INDEX `FK_geothes_acceptedID_idx` (`acceptedID` ASC),
+  ADD INDEX `FK_geothes_parentID_idx` (`parentID` ASC);
+
+ALTER TABLE `geographicthesaurus` 
+  ADD CONSTRAINT `FK_geothes_acceptedID`  FOREIGN KEY (`acceptedID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_geothes_parentID`  FOREIGN KEY (`parentID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+
+CREATE TABLE `geographicpolygon` (
+  `geoThesID` INT NOT NULL,
+  `footprintPolygon` POLYGON NOT NULL,
+  `footprintWKT` LONGTEXT NULL,
+  `geoJSON` LONGTEXT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`geoThesID`),
+  SPATIAL INDEX `IX_geopoly_polygon` (`footprintPolygon` ASC))
+ENGINE = MyISAM;
+
+
 ALTER TABLE `lkupstateprovince` 
   CHANGE COLUMN `abbrev` `abbrev` VARCHAR(3) NULL DEFAULT NULL ;
 

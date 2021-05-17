@@ -96,7 +96,7 @@ class OccurrenceHarvester{
 						$shipmentPK = $r->shipmentPK;
 						echo '<li><b>Processing shipment #'.$shipmentPK.'</b></li>';
 					}
-					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?($this->replaceFieldValues?'Rebuilding':'Appending'):'Harvesting').' '.$r->sampleID.'... ';
+					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?($this->replaceFieldValues?'Rebuilding':'Appending'):'Harvesting').' '.($r->sampleID?$r->sampleID:$r->sampleCode).'... ';
 					$sampleArr = array();
 					$sampleArr['samplePK'] = $r->samplePK;
 					$sampleArr['sampleID'] = strtoupper($r->sampleID);

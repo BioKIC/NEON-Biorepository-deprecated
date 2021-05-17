@@ -103,7 +103,7 @@ if($isEditor){
 		<h1>Manifest Loader</h1>
 		<div style="margin:30px;">
 			<?php
-			if($action == 'Map Input File' || $action == 'Verify Mapping'){
+			if($action == 'Map Input File'){
 				if(!$ulFileName) $loaderManager->uploadManifestFile();
 				$analyzeStatus = $loaderManager->analyzeUpload();
 				$errCode = 1;
@@ -189,7 +189,6 @@ if($isEditor){
 									<input type="checkbox" name="reloadSamples" value="1" /> Reload sample record if it already exists
 								</div>
 								<div style="margin:10px;">
-									<input type="submit" name="action" value="Verify Mapping" />
 									<input type="submit" name="action" value="Process Manifest" />
 									<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getUploadFileName(); ?>" />
 								</div>

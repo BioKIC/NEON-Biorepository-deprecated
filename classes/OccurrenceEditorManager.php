@@ -657,8 +657,6 @@ class OccurrenceEditorManager {
 		}
 		if($sqlFrag){
 			$sql = 'SELECT DISTINCT o.occid, o.collid, o.'.implode(',o.',$this->occFieldArr).' FROM omoccurrences o '.$sqlFrag;
-			//$sql = 'SELECT o.occid, o.collid, o.'.implode(',o.',$this->occFieldArr).' FROM omoccurrences o '.$sqlFrag;
-			//echo "<div>".$sql."</div>";
 			$previousOccid = 0;
 			$rs = $this->conn->query($sql);
 			$rsCnt = 0;
@@ -672,7 +670,7 @@ class OccurrenceEditorManager {
 					elseif($this->occid == $row['occid']){
 						//Is target specimen
 						$retArr[$row['occid']] = array_change_key_case($row);
-						if($this->collMap['colltype'] == 'General Observations' && $row->observeruid == $GLOBALS['SYMB_UID']) $this->isPersonalManagement = true;
+						if($this->collMap['colltype'] == 'General Observations' && $row['observeruid'] == $GLOBALS['SYMB_UID']) $this->isPersonalManagement = true;
 					}
 					elseif(is_numeric($localIndex) && $localIndex == $rsCnt){
 						$retArr[$row['occid']] = array_change_key_case($row);

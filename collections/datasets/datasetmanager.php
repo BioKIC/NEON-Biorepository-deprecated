@@ -125,6 +125,14 @@ if($isEditor){
 		<script type="text/javascript" src="../../js/jquery.js"></script>
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
+    <script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
+    <script>
+     // Adds WYSIWYG editor to notes field
+      tinymce.init({
+        selector: '#notes',
+        plugins: 'link'
+      });
+    </script>
 		<script type="text/javascript">
 			var isDownloadAction = false;
 			$(document).ready(function() {
@@ -387,7 +395,7 @@ if($isEditor){
                   </div>
 									<div>
 										<b>Notes</b><br />
-										<input name="notes" type="text" value="<?php echo $mdArr['notes']; ?>" style="width:90%" />
+                    <textarea name="notes" id="notes" cols="30" rows="10"><?php echo $mdArr['notes']; ?></textarea>
 									</div>
 									<div style="margin:15px;">
 										<input name="tabindex" type="hidden" value="1" />

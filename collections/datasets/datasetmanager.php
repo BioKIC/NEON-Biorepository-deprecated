@@ -54,7 +54,8 @@ if($isEditor){
 	}
 	if($isEditor == 1){
 		if($action == 'Save Edits'){
-			if($datasetManager->editDataset($_POST['datasetid'],$_POST['name'],$_POST['notes'])){
+      $isPublic = (isset($_POST['ispublic'])&&is_numeric($_POST['ispublic'])?1:0);
+			if($datasetManager->editDataset($_POST['datasetid'],$_POST['name'],$_POST['notes'],$isPublic)){
 				$mdArr = $datasetManager->getDatasetMetadata($datasetId);
 				$statusStr = 'Success! Dataset edits saved. ';
 			}
@@ -124,6 +125,14 @@ if($isEditor){
 		<script type="text/javascript" src="../../js/jquery.js"></script>
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
+    <script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
+    <script>
+     // Adds WYSIWYG editor to notes field
+      tinymce.init({
+        selector: '#notes',
+        plugins: 'link'
+      });
+    </script>
 		<script type="text/javascript">
 			var isDownloadAction = false;
 			$(document).ready(function() {
@@ -380,9 +389,13 @@ if($isEditor){
 										<b>Name</b><br />
 										<input name="name" type="text" value="<?php echo $mdArr['name']; ?>" style="width:400px" />
 									</div>
+                  <div>
+                  <b>Public View</b><br />
+                  <input type="checkbox" name="ispublic" id="ispublic"value="1" <?php echo ($mdArr['ispublic']?'CHECKED':''); ?> />
+                  </div>
 									<div>
 										<b>Notes</b><br />
-										<input name="notes" type="text" value="<?php echo $mdArr['notes']; ?>" style="width:90%" />
+                    <textarea name="notes" id="notes" cols="30" rows="10"><?php echo $mdArr['notes']; ?></textarea>
 									</div>
 									<div style="margin:15px;">
 										<input name="tabindex" type="hidden" value="1" />

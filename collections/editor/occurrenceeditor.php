@@ -1,7 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-header('Access-Control-Allow-Origin: http://www.catalogueoflife.org/col/webservice');
 
 $occId = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
 $collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
@@ -479,6 +478,7 @@ else{
 	</script>
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
+	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.main.js?ver=3" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
@@ -733,7 +733,7 @@ else{
 												if(!defined('DUPESEARCH') || DUPESEARCH){
 													?>
 													<div id="dupesDiv">
-														<input type="button" value="Dupes?" tabindex="12" onclick="searchDupes(this.form);" /><br/>
+														<input type="button" value="Duplicates" tabindex="12" onclick="searchDupes(this.form);" /><br/>
 														<input type="checkbox" name="autodupe" value="1" onchange="autoDupeChanged(this)" />
 														Auto search
 													</div>
@@ -772,9 +772,9 @@ else{
 												}
 												?>
 												<div id="dupeMsgDiv">
-													<div id="dupesearch">Searching for Dupes...</div>
-													<div id="dupenone" style="display:none;color:red;">No Dupes Found</div>
-													<div id="dupedisplay" style="display:none;color:green;">Displaying Dupes</div>
+													<div id="dupesearch">Searching for Duplicates...</div>
+													<div id="dupenone" style="display:none;color:red;">No Duplicates Found</div>
+													<div id="dupedisplay" style="display:none;color:green;">Displaying Duplicates</div>
 												</div>
 											</div>
 											<div id="dateextradiv">

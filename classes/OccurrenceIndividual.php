@@ -1,6 +1,5 @@
 <?php
 include_once('Manager.php');
-include_once('OccurrenceDuplicate.php');
 include_once('OccurrenceAccessStats.php');
 
 class OccurrenceIndividual extends Manager{
@@ -357,9 +356,35 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function getDuplicateArr(){
-		$dupManager = new OccurrenceDuplicate();
-		$retArr = $dupManager->getClusterArr($this->occid);
-		unset($retArr[$this->occid]);
+		$retArr = array();
+		$sqlBase = 'SELECT o.occid, c.institutioncode AS instcode, c.collectioncode AS collcode, c.collectionname AS collname, o.catalognumber, o.occurrenceid, o.sciname, '.
+			'o.scientificnameauthorship AS author, o.identifiedby, o.dateidentified, o.recordedby, o.recordnumber, o.eventdate, IFNULL(i.thumbnailurl, i.url) AS url ';
+		//Get exsiccati duplicates
+		if(isset($this->occArr['exs'])){
+			$sql = $sqlBase.'FROM omexsiccatiocclink l INNER JOIN omexsiccatiocclink l2 ON l.omenid = l2.omenid '.
+				'INNER JOIN omoccurrences o ON l2.occid = o.occid '.
+				'INNER JOIN omcollections c ON o.collid = c.collid '.
+				'LEFT JOIN images i ON o.occid = i.occid '.
+				'WHERE l.occid = '.$this->occid;
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_assoc()){
+					$retArr['exs'][$r['occid']] = array_change_key_case($r);
+				}
+				$rs->free();
+			}
+		}
+		//Get specimen duplicates
+		$sql = $sqlBase.'FROM omoccurduplicatelink d INNER JOIN omoccurduplicatelink d2 ON d.duplicateid = d2.duplicateid '.
+			'INNER JOIN omoccurrences o ON d2.occid = o.occid '.
+			'INNER JOIN omcollections c ON o.collid = c.collid '.
+			'LEFT JOIN images i ON o.occid = i.occid '.
+			'WHERE (d.occid = '.$this->occid.') AND (d.occid != d2.occid) ';
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_assoc()){
+				if(!isset($retArr['exs'][$r['occid']])) $retArr['dupe'][$r['occid']] = array_change_key_case($r);
+			}
+			$rs->free();
+		}
 		return $retArr;
 	}
 

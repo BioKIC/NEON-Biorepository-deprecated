@@ -1364,7 +1364,6 @@ class GlossaryManager{
 				'WHERE (t.SciName LIKE "'.$queryString.'%" OR v.VernacularName LIKE "'.$queryString.'%") AND t.RankId < 185 AND ts.taxauthid = 1 '.
 				'ORDER BY t.SciName, v.sortsequence LIMIT 20 ';
 			$rs = $this->conn->query($sql);
-			$taxa = array();
 			if($type == 'single'){
 				while ($row = $rs->fetch_object()) {
 					$sciName = $row->SciName;

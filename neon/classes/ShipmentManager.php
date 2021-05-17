@@ -610,7 +610,12 @@ class ShipmentManager{
 		$status = false;
 		$recArr = array_change_key_case($recArr);
 		if($this->shipmentPK){
-			if(isset($recArr['sampleid']) && $recArr['sampleid']){
+			$sampleID = '';
+			if(isset($recArr['sampleid']) && $recArr['sampleid']) $sampleID = $recArr['sampleid'];
+			$sampleCode = '';
+			if(isset($recArr['samplecode']) && $recArr['samplecode']) $sampleCode = $recArr['samplecode'];
+			if(!$sampleID && $sampleCode) $sampleID = $this->getSampleID($sampleCode);
+			if($sampleID){
 				$insertRecord = true;
 				if($this->reloadSampleRecs){
 					if($recArr['sampleid'] && $recArr['sampleclass']){
@@ -689,7 +694,6 @@ class ShipmentManager{
 				$this->errorStr = '<span style="color:red">ERROR:</span> record skipped due to NULL sampleID (required)';
 				if($recArr['samplecode']) $this->errorStr .= ' - sampleCode '.$recArr['samplecode'];
 				if($verbose) echo '<li>'.$this->errorStr.'</li>';
-
 			}
 		}
 		return $status;
@@ -706,6 +710,57 @@ class ShipmentManager{
 			if($r->sampleCode) $retArr[$r->shipmentPK]['sampleCode'] = $r->sampleCode;
 		}
 		$rs->free();
+		return $retArr;
+	}
+
+	private function getSampleID($sampleCode){
+		$retStr = '';
+		$neonApiKey = '';
+		if(isset($GLOBALS['NEON_API_KEY'])) $neonApiKey = $GLOBALS['NEON_API_KEY'];
+		$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$neonApiKey.'&barcode='.$sampleCode;
+		$sampleArr = $this->getNeonApiArr($url);
+		if($sampleArr && isset($sampleArr['sampleTag']) && $sampleArr['sampleTag']) $retStr = $sampleArr['sampleTag'];
+		return $retStr;
+	}
+
+	private function getNeonApiArr($url){
+		$retArr = array();
+		//echo 'url: '.$url.'<br/>';
+		if($url){
+			$json = @file_get_contents($url);
+			//echo 'json1: '.$json; exit;
+			/*
+			 //curl -X GET --header 'Accept: application/json' 'https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam'
+			 $curl = curl_init($url);
+			 curl_setopt($curl, CURLOPT_PUT, 1);
+			 curl_setopt($curl, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json', 'Accept: application/json') );
+			 curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+			 curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+			 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+			 $json = curl_exec($curl);
+			 */
+			if($json){
+				$resultArr = json_decode($json,true);
+				if(isset($resultArr['data'])){
+					$retArr = $resultArr['data'];
+				}
+				elseif(isset($resultArr['error'])){
+					$this->errorStr = 'ERROR thrown accessing NEON API: url ='.$url;
+					if(isset($resultArr['error']['status'])) '; '.$this->errorStr .= $resultArr['error']['status'];
+					if(isset($resultArr['error']['detail'])) '; '.$this->errorStr .= $resultArr['error']['detail'];
+					$retArr = false;
+				}
+				else{
+					$this->errorStr = 'ERROR retrieving NEON data: '.$url;
+					$retArr = false;
+				}
+			}
+			else{
+				//$this->errorStr = 'ERROR: unable to access NEON API: '.$url;
+				$retArr = false;
+			}
+			//curl_close($curl);
+		}
 		return $retArr;
 	}
 

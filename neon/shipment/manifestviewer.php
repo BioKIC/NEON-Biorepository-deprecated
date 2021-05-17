@@ -287,7 +287,7 @@ if($IS_ADMIN){
 		}
 	</script>
 	<style type="text/css">
-		#innertext{ max-width: 1300px; }
+		#innertext{ max-width: 1400px; }
 		.fieldGroupDiv { clear:both; margin-top:2px; height: 25px; }
 		.fieldDiv { float:left; margin-left: 10px}
 		.displayFieldDiv { margin-bottom: 3px }
@@ -663,6 +663,13 @@ include($SERVER_ROOT.'/includes/header.php');
 												<div style="margin:5px;width:200px">
 													<a href="#" onclick="addSample(<?php echo $shipmentPK; ?>);return false;"><button name="addSampleButton" type="button">Add New Sample</button></a>
 												</div>
+												<fieldset style="margin:5px;float:left">
+													<legend>Occurrence Harvesting</legend>
+													<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest</button>
+													<div style="margin:10px" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
+														<input name="replaceFieldValues" type="checkbox" value="1" /> Replace Existing Field Values
+													</div>
+												</fieldset>
 												<?php
 												if($tagArr){
 													?>
@@ -730,13 +737,6 @@ include($SERVER_ROOT.'/includes/header.php');
 													<?php
 												}
 												?>
-												<fieldset style="margin:5px;float:left">
-													<legend>Occurrence Harvesting</legend>
-													<button name="action" type="submit" value="batchHarvestOccid">Batch Harvest</button>
-													<div style="margin:10px" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
-														<input name="replaceFieldValues" type="checkbox" value="1" /> Replace Existing Field Values
-													</div>
-												</fieldset>
 											</div>
 											<?php
 										}

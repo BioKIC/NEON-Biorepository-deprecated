@@ -221,7 +221,7 @@ $smManager = new SiteMapManager();
 					<h3><?php echo $LANG['IMAGES'];?></h3>
 					<div style="margin:10px;">
 						<?php echo $LANG['SEESYMBDOC'];?>
-						<a href="http://symbiota.org/docs/image-submission-2/"><?php echo $LANG['IMGSUB'];?></a>
+						<a href="https://symbiota.org/docs/image-submission-2/"><?php echo $LANG['IMGSUB'];?></a>
 						<?php echo $LANG['FORANOVERVIEW'];?>
 					</div>
 					<ul>
@@ -376,7 +376,7 @@ $smManager = new SiteMapManager();
 					<h3><?php echo $LANG['OBSERV'];?></h3>
 					<div style="margin:10px;">
 						<?php echo $LANG['PARA2'];?>
-						<a href="http://symbiota.org/docs/specimen-data-management/" target="_blank"><?php echo $LANG['SYMBDOCU'];?></a> <?php echo $LANG['FORMOREINFO'];?>.
+						<a href="https://symbiota.org/docs/specimen-data-management/" target="_blank"><?php echo $LANG['SYMBDOCU'];?></a> <?php echo $LANG['FORMOREINFO'];?>.
 					</div>
 					<div style="margin:10px;">
 						<?php

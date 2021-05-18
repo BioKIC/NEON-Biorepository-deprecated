@@ -461,6 +461,7 @@ class TaxonomyHarvester extends Manager{
 		return $parentID;
 	}
 
+	//TROPICOS functions
 	private function addTropicosTaxon($taxonArr){
 		$newTid = 0;
 		$sciName = $taxonArr['sciname'];
@@ -609,6 +610,27 @@ class TaxonomyHarvester extends Manager{
 		return $taxonArr;
 	}
 
+	//Index Fungorum functions
+	//http://www.indexfungorum.org/ixfwebservice/fungus.asmx/NameSearch?SearchText=Acarospora%20socialis&AnywhereInText=false&MaxNumber=10
+	private function addIndexFungorumTaxon($taxonArr){
+		$tid = 0;
+		$sciName = $taxonArr['sciname'];
+		if($sciName){
+			$adjustedName = $sciName;
+			if(isset($taxonArr['rankid']) && $taxonArr['rankid'] > 220) $adjustedName = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].' '.$taxonArr['unitname3']);
+			$url = 'https://webservice.catalogueoflife.org/col/webservice?response=full&format=json&name='.str_replace(' ','%20',$adjustedName);
+			//echo $url.'<br/>';
+			$retArr = $this->getContentString($url);
+			$content = $retArr['str'];
+			$resultArr = json_decode($content,true);
+			$numResults = $resultArr['number_of_results_returned'];
+			if($numResults){
+
+			}
+		}
+	}
+
+	//EOL functions
 	private function addEolTaxon($taxonArr){
 		//Returns content for accepted name
 		$tid = 0;
@@ -682,6 +704,7 @@ class TaxonomyHarvester extends Manager{
 		return $this->loadNewTaxon($taxonArr);
 	}
 
+	//Shared functions
 	private function getContentString($url){
 		$retArr = array();
 		if($url){

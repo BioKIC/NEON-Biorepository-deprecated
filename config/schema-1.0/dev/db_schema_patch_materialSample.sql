@@ -25,6 +25,7 @@ CREATE TABLE `ommaterialsample` (
   `estimatedSize` VARCHAR(45) NULL,
   `poolDnaExtracts` VARCHAR(45) NULL,
   `sampleDesignation` VARCHAR(45) NULL,
+  `dynamicProperties` TEXT NULL,
   `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`msID`),
   INDEX `FK_ommaterialsample_occid_idx` (`occid` ASC),

@@ -25,12 +25,12 @@
  *
  * Examples:
  *
- *   http://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?collid=17
- *   http://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?collid=17&cond=stateProvince:New%20Mexico
- *   http://mycoportal.org/portal/webservices/dwc/dwcapubhandler.php?collid=15&cond=dateentered-greaterthan=2015-08-01
- *   http://lichenportal.org/portal/webservices/dwc/dwcapubhandler.php?collid=22&cond=processingstatus-equals:reviewed;dateentered-greaterthan:2015-04-01
- *   http://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?cond=sciname:Berberis%20repens
- *   http://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?cond=sciname:Berberis%20repens&usethes=1
+ *   https://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?collid=17
+ *   https://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?collid=17&cond=stateProvince:New%20Mexico
+ *   https://mycoportal.org/portal/webservices/dwc/dwcapubhandler.php?collid=15&cond=dateentered-greaterthan=2015-08-01
+ *   https://lichenportal.org/portal/webservices/dwc/dwcapubhandler.php?collid=22&cond=processingstatus-equals:reviewed;dateentered-greaterthan:2015-04-01
+ *   https://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?cond=sciname:Berberis%20repens
+ *   https://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?cond=sciname:Berberis%20repens&usethes=1
  *
  */
 

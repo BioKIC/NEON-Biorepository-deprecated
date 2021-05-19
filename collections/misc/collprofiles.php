@@ -323,12 +323,16 @@ if($SYMB_UID){
 									 -->
 									<?php
 								}
+								if(!isset($ACTIVATE_DUPLICATES) || $ACTIVATE_DUPLICATES){
+									?>
+									<li>
+										<a href="../datasets/duplicatemanager.php?collid=<?php echo $collid; ?>">
+											<?php echo $LANG['DUP_CLUSTER']; ?>
+										</a>
+									</li>
+									<?php
+								}
 								?>
-								<li>
-									<a href="../datasets/duplicatemanager.php?collid=<?php echo $collid; ?>">
-										<?php echo $LANG['DUP_CLUSTER']; ?>
-									</a>
-								</li>
 								<li>
 									<?php echo $LANG['MAINTENANCE_TASKS']; ?>
 								</li>
@@ -465,8 +469,11 @@ if($SYMB_UID){
 									echo '</li>';
 								}
 							}
-							if($extrastatsArr['gencnt']) echo '<li>'.number_format($extrastatsArr['gencnt']).' '.(isset($LANG['GENBANK_REF'])?$LANG['GENBANK_REF']:'GenBank references').'</li>';
-							if($extrastatsArr['boldcnt']) echo '<li>'.number_format($extrastatsArr['boldcnt']).' '.(isset($LANG['BOLD_REF'])?$LANG['BOLD_REF']:'BOLD references').'</li>';
+							$genRefStr = '';
+							if($extrastatsArr['gencnt']) $genRefStr = number_format($extrastatsArr['gencnt']).' '.(isset($LANG['GENBANK_REF'])?$LANG['GENBANK_REF']:'GenBank').', ';
+							if($extrastatsArr['boldcnt']) $genRefStr .= number_format($extrastatsArr['boldcnt']).' '.(isset($LANG['BOLD_REF'])?$LANG['BOLD_REF']:'BOLD').', ';
+							if($extrastatsArr['geneticcnt']) $genRefStr .= number_format($extrastatsArr['geneticcnt']).' '.(isset($LANG['OTHER_GENETIC_REF'])?$LANG['OTHER_GENETIC_REF']:'other');
+							if($genRefStr) echo '<li>'.trim($genRefStr,' ,').' '.(isset($LANG['GENETIC_REF'])?$LANG['GENETIC_REF']:'genetic references').'</li>';
 							if($extrastatsArr['refcnt']) echo '<li>'.number_format($extrastatsArr['refcnt']).' '.(isset($LANG['PUB_REFS'])?$LANG['PUB_REFS']:'publication references').'</li>';
 							if($extrastatsArr['SpecimensCountID']){
 								$spidPerc = (100*($extrastatsArr['SpecimensCountID']/$statsArr['recordcnt']));

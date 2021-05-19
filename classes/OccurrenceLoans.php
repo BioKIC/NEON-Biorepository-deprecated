@@ -592,11 +592,10 @@ class OccurrenceLoans extends Manager{
 		$status = false;
 		if(!array_key_exists('occid',$reqArr)) return;
 		$occidArr = $reqArr['occid'];
-		$applyTask = $reqArr['applytask'];
 		$loanid = $reqArr['loanid'];
 		if(is_numeric($loanid)){
 			if($occidArr){
-				if($applyTask == 'delete'){
+				if($reqArr['applytask'] == 'delete'){
 					$sql = 'DELETE FROM omoccurloanslink WHERE loanid = '.$loanid.' AND (occid IN('.implode(',',$occidArr).')) ';
 					if($this->conn->query($sql)) $status = true;
 					else $this->errorMessage = 'ERROR removing specimen from loan: '.$this->conn->error;
@@ -611,24 +610,27 @@ class OccurrenceLoans extends Manager{
 		return $status;
 	}
 
-	public function getSpecimenNotes($loanId, $occid){
-		$noteStr = '';
+	public function getSpecimenDetails($loanId, $occid){
+		$retArr = array();
 		if(is_numeric($loanId) && is_numeric($occid)){
-			$sql = 'SELECT notes FROM omoccurloanslink WHERE loanid = '.$loanId.' AND occid = '.$occid;
+			$sql = 'SELECT DATE_FORMAT(returndate, "%Y-%m-%dT%H:%i") AS returndate, notes FROM omoccurloanslink WHERE loanid = '.$loanId.' AND occid = '.$occid;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
-					$noteStr = $r->notes;
+					$retArr['returnDate'] = $r->returndate;
+					$retArr['notes'] = $r->notes;
 				}
 				$rs->free();
 			}
 		}
-		return $noteStr;
+		return $retArr;
 	}
 
-	public function editSpecimenNotes($loanId, $occid, $noteStr){
+	public function editSpecimenDetails($loanId, $occid, $returnDate, $noteStr){
 		$status = false;
 		if(is_numeric($loanId) && is_numeric($occid)){
-			$sql = 'UPDATE omoccurloanslink SET notes = '.($noteStr?'"'.$this->cleanInStr($noteStr).'"':'NULL').' WHERE (loanid = '.$loanId.') AND (occid = '.$occid.')';
+			$sql = 'UPDATE omoccurloanslink '.
+				'SET returnDate = '.($returnDate?'"'.$this->cleanInStr($returnDate).'"':'NULL').', notes = '.($noteStr?'"'.$this->cleanInStr($noteStr).'"':'NULL').' '.
+				'WHERE (loanid = '.$loanId.') AND (occid = '.$occid.')';
 			if($this->conn->query($sql)) $status = true;
 			else $this->errorMessage = 'ERROR updating specimen notes: '.$this->conn->error;
 		}

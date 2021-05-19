@@ -7,7 +7,7 @@ something far greater than a single entity is capable of doing on their own.
 
 More information about this project can be accessed through:
 
-(http://symbiota.org)
+(https://symbiota.org)
 
 
 ## ACKNOWLEDGEMENTS

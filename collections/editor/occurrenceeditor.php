@@ -733,7 +733,7 @@ else{
 												if(!defined('DUPESEARCH') || DUPESEARCH){
 													?>
 													<div id="dupesDiv">
-														<input type="button" value="Dupes?" tabindex="12" onclick="searchDupes(this.form);" /><br/>
+														<input type="button" value="Duplicates" tabindex="12" onclick="searchDupes(this.form);" /><br/>
 														<input type="checkbox" name="autodupe" value="1" onchange="autoDupeChanged(this)" />
 														Auto search
 													</div>
@@ -772,9 +772,9 @@ else{
 												}
 												?>
 												<div id="dupeMsgDiv">
-													<div id="dupesearch">Searching for Dupes...</div>
-													<div id="dupenone" style="display:none;color:red;">No Dupes Found</div>
-													<div id="dupedisplay" style="display:none;color:green;">Displaying Dupes</div>
+													<div id="dupesearch">Searching for Duplicates...</div>
+													<div id="dupenone" style="display:none;color:red;">No Duplicates Found</div>
+													<div id="dupedisplay" style="display:none;color:green;">Displaying Duplicates</div>
 												</div>
 											</div>
 											<div id="dateextradiv">

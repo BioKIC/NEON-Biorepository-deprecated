@@ -69,19 +69,27 @@ $clArr = $obsManager->getChecklists();
 	</script>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<script src="../../js/symb/collections.coordinateValidation.js" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.observations.js?ver=1903" type="text/javascript"></script>
+	<script src="../../js/symb/collections.coordinateValidation.js?ver=1" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.observations.js?ver=1" type="text/javascript"></script>
+	<style>
+		#dmsdiv{ display: none; clear: both; padding: 15px; width: 300px; background-color: #f2f2f2; border: 2px outset #E8EEFA; }
+		#dmsButton { margin: 0px 3px; font-weight: bold; background-color: #f2f2f2; }
+	</style>
 </head>
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_editor_observationsubmitMenu)?$collections_editor_observationsubmitMenu:false);
 	include($SERVER_ROOT.'/includes/header.php');
+	echo '<div class="navpath">';
+	echo '<a href="../index.php">Home</a> &gt;&gt; ';
 	if(isset($collections_editor_observationsubmitCrumbs)){
-		echo "<div class='navpath'>";
 		echo $collections_editor_observationsubmitCrumbs;
-		echo "<b>Observation Submission</b>";
-		echo "</div>";
 	}
+	else{
+		echo '<a href="../../profile/viewprofile.php?tabindex=1">Personal Management</a> &gt;&gt; ';
+	}
+	echo '<b>Observation Submission</b>';
+	echo '</div>';
 	?>
 	<div id="innertext">
 		<h1><?php echo $collMap['collectionname']; ?></h1>
@@ -265,10 +273,12 @@ $clArr = $obsManager->getChecklists();
 							<div style="float:left;">
 								<b>Longitude</b><br/>
 								<input type="text" id="decimallongitude" name="decimallongitude" maxlength="13" style="width:88px;" value="" onchange="verifyLngValue(this.form)" title="Decimal Format (eg -112.5436)" required />
-								<a style="margin:15px 0px 0px 3px;" onclick="openMappingAid('obsform','decimallatitude','decimallongitude');return false;">
+							</div>
+							<div style="float:left;margin-top:15px; margin-left:3px;" >
+								<a onclick="openMappingAid('obsform','decimallatitude','decimallongitude');return false;">
 									<img src="../../images/world.png" style="width:15px;" title="Coordinate Map Aid" />
 								</a>
-								<button type="button" style="margin:0px 3px;font-weight:bold;color:maroon;background-color:#FFFFD7" onclick="toggle('dmsdiv');">DMS</button>
+								<button id="dmsButton" type="button" onclick="toggle('dmsdiv');">DMS</button>
 							</div>
 							<div style="float:left;">
 								<b>Uncertainty(m)</b><br/>
@@ -291,7 +301,7 @@ $clArr = $obsManager->getChecklists();
 								<input type="text" name="georeferenceremarks" maxlength="255" style="width:250px;" value="" />
 							</div>
 						</div>
-						<div id="dmsdiv" style="display:none;float:left;padding:15px;background-color:lightyellow;border:1px solid yellow;width:270px;">
+						<div id="dmsdiv">
 							<div>
 								Latitude:
 								<input id="latdeg" style="width:35px;" title="Latitude Degree" />&deg;

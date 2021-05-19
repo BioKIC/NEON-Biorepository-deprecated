@@ -585,7 +585,13 @@ else{
 				</div>
 				<?php
 			}
-			if($qryCnt == 0 && !$occId) echo '<div style="clear:both;padding:20px;font-size:150%;font-weight:bold;">Search returned 0 records</div>'."\n";
+			if($qryCnt == 0 && !$occId && array_key_exists('q_catalognumber',$_POST)){
+				?>
+				<div style="clear:both;padding:20px;font-weight:bold;font-size:120%;">
+					No records found matching the query
+				</div>
+				<?php
+			}
 			if($occArr || $goToMode == 1 || $goToMode == 2){		//$action == 'gotonew'
 				if($occId && $isLocked){
 					?>

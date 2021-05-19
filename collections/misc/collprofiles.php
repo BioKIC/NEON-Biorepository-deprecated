@@ -3,6 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/collections/misc/collprofiles.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceCollectionProfile.php');
 header("Content-Type: text/html; charset=".$CHARSET);
+unset($_SESSION['editorquery']);
 
 $collid = ((array_key_exists("collid",$_REQUEST) && is_numeric($_REQUEST["collid"]))?$_REQUEST["collid"]:0);
 $action = array_key_exists("action",$_REQUEST)?htmlspecialchars($_REQUEST["action"]):"";
@@ -149,7 +150,7 @@ if($SYMB_UID){
 							}
 							?>
 							<li>
-								<a href="../editor/occurrenceeditor.php?collid=<?php echo $collid; ?>">
+								<a href="../editor/occurrencetabledisplay.php?displayquery=1&collid=<?php echo $collid; ?>">
 									<?php echo $LANG['EDIT_EXISTING']; ?>
 								</a>
 							</li>

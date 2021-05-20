@@ -1366,10 +1366,10 @@ class OccurrenceEditorManager {
 		}
 
 		//Remap determinations
-		$sql = 'UPDATE omoccurdeterminations SET occid = '.$targetOccid.' WHERE occid = '.$sourceOccid;
+		$sql = 'UPDATE IGNORE omoccurdeterminations SET occid = '.$targetOccid.' WHERE occid = '.$sourceOccid;
 		if(!$this->conn->query($sql)){
-			$this->errorArr[] .= '; ERROR remapping determinations: '.$this->conn->error;
-			$status = false;
+			//$this->errorArr[] .= '; ERROR remapping determinations: '.$this->conn->error;
+			//$status = false;
 		}
 
 		//Remap images

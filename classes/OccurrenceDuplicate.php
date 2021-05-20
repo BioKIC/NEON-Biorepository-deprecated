@@ -540,7 +540,7 @@ class OccurrenceDuplicate {
 		$editorManager = new OccurrenceEditorManager($this->conn);
 		if($editorManager->mergeRecords($targetOccid,$sourceOccid)){
 			if(!$editorManager->deleteOccurrence($sourceOccid)){
-				$this->errorStr = $editorManager->getErrorStr();
+				$this->errorStr = trim($editorManager->getErrorStr(),' ;');
 			}
 		}
 		else{

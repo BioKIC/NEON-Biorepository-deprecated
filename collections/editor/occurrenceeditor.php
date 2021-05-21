@@ -141,17 +141,6 @@ if($SYMB_UID){
 	if($action == 'saveOccurEdits'){
 		$statusStr = $occManager->editOccurrence($_POST,$isEditor);
 	}
-	elseif($action == 'cloneRecord'){
-		$cloneArr = $occManager->cloneOccurrence($_POST);
-		if($cloneArr){
-			$statusStr = 'Success! The following '.count($cloneArr).' cloned record(s) have been created:';
-			$statusStr .= '<div style="margin:5px 10px">';
-			foreach($cloneArr as $cloneOccid){
-				$statusStr .= '<div><a href="occurrenceeditor.php?occid='.$cloneOccid.'" target="_blank">#'.$cloneOccid.'</a></div>';
-			}
-			$statusStr .= '</div>';
-		}
-	}
 	if($isEditor && $isEditor != 3){
 		if($action == 'Save OCR'){
 			$statusStr = $occManager->insertTextFragment($_POST['imgid'],$_POST['rawtext'],$_POST['rawnotes'],$_POST['rawsource']);
@@ -214,6 +203,29 @@ if($SYMB_UID){
 					else{
 						$statusStr = $occManager->getErrorStr();
 					}
+				}
+			}
+			elseif($action == 'cloneRecord'){
+				$cloneArr = $occManager->cloneOccurrence($_POST);
+				if($cloneArr){
+					$statusStr = 'Success!!! The following new clone record(s) have been created: ';
+					$statusStr .= '<div style="margin:5px 10px;color:black">';
+					$statusStr .= '<div><a href="occurrenceeditor.php?occid='.$occId.'" target="_blank">#'.$occId.'</a> - clone source</div>';
+					$occId = current($cloneArr);
+					$occManager->setOccId($occId);
+					foreach($cloneArr as $cloneOccid){
+						if($cloneOccid==$occId) $statusStr .= '<div>#'.$cloneOccid.' - this record</div>';
+						else $statusStr .= '<div><a href="occurrenceeditor.php?occid='.$cloneOccid.'" target="_blank">#'.$cloneOccid.'</a></div>';
+					}
+					$statusStr .= '</div>';
+					if(isset($_POST['targetcollid']) && $_POST['targetcollid'] && $_POST['targetcollid'] != $collId){
+						$collId = $_POST['targetcollid'];
+						$occManager->setCollId($collId);
+						$collMap = $occManager->getCollMap();
+					}
+					$occManager->setQueryVariables(array('eb'=>$PARAMS_ARR['un'],'de'=>date('Y-m-d')));
+					$qryCnt = $occManager->getQueryRecordCount();
+					$occIndex = $qryCnt - count($cloneArr);
 				}
 			}
 			elseif($action == 'Submit Image Edits'){
@@ -479,7 +491,7 @@ else{
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
 	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.main.js?ver=3" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.main.js?ver=5" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
@@ -1469,14 +1481,14 @@ else{
 														<fieldset class="optionBox">
 															<legend>Record Cloning</legend>
 															<div class="fieldGroupDiv">
-																<div style="float:left">Carry over:</div>
-																<div style="float:left">
-																	<input name="carryover" type="radio" value="1" checked />Collection event fields<br/>
-																	<input name="carryover" type="radio" value="0" />All fields<br/>
-																</div>
+																<label>Carry over:</label>
+																<span>
+																	<input name="carryover" type="radio" value="1" checked />Collection event fields
+																	<input name="carryover" type="radio" value="0" />All fields
+																</span>
 															</div>
 															<div class="fieldGroupDiv" title="Relationship to this occurrence">
-																Relationship:
+																<label>Relationship:</label>
 																<select name="assocrelation">
 																	<option value="0">No relation to current record</option>
 																	<option value="0">---------------------------------</option>
@@ -1494,7 +1506,7 @@ else{
 															if(count($targetArr) > 1){
 																?>
 																<div class="fieldGroupDiv">
-																	Target collection:
+																	<label>Target collection:</label>
 																	<select name="targetcollid" style="max-width: 250px">
 																		<option value="0">Current Collection</option>
 																		<option value="0">---------------------------------</option>
@@ -1509,7 +1521,7 @@ else{
 															}
 															?>
 															<div class="fieldGroupDiv">
-																Number of records: <input id="clonecount" name="clonecount" type="text" value="1" style="width:40px" />
+																<label>Number of records:</label> <input id="clonecount" name="clonecount" type="text" value="1" style="width:40px" />
 															</div>
 															<div class="fieldGroupDiv"><a href="#" onclick="return prePopulateCatalogNumbers();">Pre-populate catalog number(s)</a></div>
 															<fieldset id="cloneCatalogNumber-Fieldset" style="display:none">

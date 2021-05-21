@@ -799,13 +799,15 @@ function autoIncrementCat(){
 	if(catSeed != ""){
 		let prefix = '';
 		for(let h = 0; h < catSeed.length; h++) {
-			if(isNumeric(catSeed.charAt(h))) break;
-			else prefix = prefix + catSeed.charAt(h);
+			let c = catSeed.charAt(h);
+			if(c >= '0' && c <= '9') break;
+			else prefix = prefix + c;
 		}
 		let suffix = ''; 
 		for(let i = catSeed.length; i > 0; i--) {
-			if(isNumeric(catSeed.charAt(i-1))) break;
-			else suffix =  catSeed.charAt(i-1)+suffix;
+			let c = catSeed.charAt(i-1);
+			if(c >= '0' && c <= '9') break;
+			else suffix =  c+suffix;
 		}
 		let seed = catSeed.substring(prefix.length,(catSeed.length-suffix.length));
 		$("input[id^='clonecat']").each(function(){

@@ -2,6 +2,7 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
+unset($_SESSION['editorquery']);
 
 $specHandler = new ProfileManager();
 $specHandler->setUid($SYMB_UID);

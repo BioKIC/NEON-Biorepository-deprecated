@@ -1288,10 +1288,10 @@ class OccurrenceEditorManager {
 		if(isset($postArr['clonecount']) && $postArr['clonecount']){
 			$postArr['recordenteredby'] = $GLOBALS['USERNAME'];
 			$sourceOccid = $this->occid;
-			$clearAllArr = array('catalognumber','othercatalognumbers','occurrenceid','individualcount','duplicatequantity','processingstatus','dateentered');
+			$clearAllArr = array('ownerinstitutioncode','institutioncode','collectioncode','catalognumber','othercatalognumbers','occurrenceid','individualcount','duplicatequantity','processingstatus','dateentered');
 			$postArr = array_diff_key($postArr,array_flip($clearAllArr));
-			if($postArr['targetcollid'] && $postArr['targetcollid'] != $this->collId){
-				$clearCollArr = array('basisofrecord','ownerinstitutioncode','institutioncode','collectioncode');
+			if(isset($postArr['targetcollid']) && $postArr['targetcollid'] && $postArr['targetcollid'] != $this->collId){
+				$clearCollArr = array('basisofrecord');
 				$postArr = array_diff_key($postArr,array_flip($clearCollArr));
 				$postArr['collid'] = $postArr['targetcollid'];
 			}
@@ -2290,11 +2290,11 @@ class OccurrenceEditorManager {
 	public function setCollId($id){
 		if(is_numeric($id)){
 			if($id != $this->collId){
+				$this->collId = $id;
 				unset($this->collMap);
 				$this->collMap = array();
 				$this->setCollMap();
 			}
-			$this->collId = $id;
 		}
 	}
 

@@ -365,7 +365,7 @@ class OccurrenceIndividual extends Manager{
 				'INNER JOIN omoccurrences o ON l2.occid = o.occid '.
 				'INNER JOIN omcollections c ON o.collid = c.collid '.
 				'LEFT JOIN images i ON o.occid = i.occid '.
-				'WHERE l.occid = '.$this->occid;
+				'WHERE (o.occid != l.occid) AND (l.occid = '.$this->occid.')';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_assoc()){
 					$retArr['exs'][$r['occid']] = array_change_key_case($r);

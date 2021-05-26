@@ -1262,7 +1262,7 @@ class DwcArchiverCore extends Manager{
 		if(array_key_exists('description',$emlArr) && $emlArr['description']){
 			$abstractElem = $newDoc->createElement('abstract');
 			$paraElem = $newDoc->createElement('para');
-			$paraElem->appendChild($newDoc->createTextNode($emlArr['description']));
+			$paraElem->appendChild($newDoc->createTextNode(strip_tags($emlArr['description'])));
 			$abstractElem->appendChild($paraElem);
 			$datasetElem->appendChild($abstractElem);
 		}

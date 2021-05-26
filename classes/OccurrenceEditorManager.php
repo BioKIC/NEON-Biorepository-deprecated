@@ -1820,7 +1820,7 @@ class OccurrenceEditorManager {
 				'identifier = "'.$this->cleanInStr($genArr['identifier']).'", '.
 				'resourcename = "'.$this->cleanInStr($genArr['resourcename']).'", '.
 				'locus = '.($genArr['locus']?'"'.$this->cleanInStr($genArr['locus']).'"':'NULL').', '.
-				'resourceurl = '.($genArr['resourceurl']?'"'.$genArr['resourceurl'].'"':'').', '.
+				'resourceurl = '.($genArr['resourceurl']?'"'.$genArr['resourceurl'].'"':'NULL').', '.
 				'notes = '.($genArr['notes']?'"'.$this->cleanInStr($genArr['notes']).'"':'NULL').' '.
 				'WHERE idoccurgenetic = '.$genArr['genid'];
 			if(!$this->conn->query($sql)){

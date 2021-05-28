@@ -235,6 +235,7 @@ class OccurrenceHarvester{
 			$fateLocation = '';
 			$fateDate = '';
 			$fieldArr = $eArr['smsFieldEntries'];
+			$identBy = '';
 			foreach($fieldArr as $k => $fArr){
 				if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
 				elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
@@ -245,6 +246,11 @@ class OccurrenceHarvester{
 				elseif($fArr['smsKey'] == 'collect_start_date' && $fArr['smsValue']) $sampleArr['collect_start_date'] = $this->formatDate($fArr['smsValue']);
 				elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $sampleArr['collect_end_date'] = $this->formatDate($fArr['smsValue']);
 				elseif($fArr['smsKey'] == 'specimen_count' && $fArr['smsValue']) $sampleArr['specimen_count'] = $fArr['smsValue'];
+				elseif($fArr['smsKey'] == 'identified_by' && $fArr['smsValue']) $identBy = $fArr['smsValue'];
+			}
+			if($identBy){
+				$sampleArr['identified_by'] = $identBy;
+				if($fateDate) $sampleArr['dateIdentified'] = $fateDate;
 			}
 			if($fateDate && $fateLocation){
 				$score = $fateDate;
@@ -287,6 +293,11 @@ class OccurrenceHarvester{
 					}
 				}
 				if(isset($sampleArr['collect_end_date']) && $sampleArr['collect_end_date']) $dwcArr['latestDateCollected'] = $sampleArr['collect_end_date'];
+				if(isset($sampleArr['identified_by']) && $sampleArr['identified_by']){
+					$dwcArr['identifiedBy'] = $sampleArr['identified_by'];
+					if(isset($sampleArr['dateIdentified'])) $dwcArr['dateIdentified'] = $sampleArr['dateIdentified'];
+				}
+
 				//Build proper location code
 				$locationStr = '';
 				if(isset($sampleArr['fate_location']) && $sampleArr['fate_location']) $locationStr = $sampleArr['fate_location'];

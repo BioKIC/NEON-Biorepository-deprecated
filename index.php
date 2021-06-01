@@ -88,8 +88,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <div>
             <b>Using CCH2 data:</b>
             </div>
-			<div style="margin-top:15px;padding: 0px 10px>
-				>Please refer to our <a href="http://cch2.org/portal/includes/usagepolicy.php">Data Use Policy</a>. The Consortium of California Herbaria asks that users not redistribute data obtained from this site.
+			<div style="margin-top:15px;padding: 0px 10px">
+				Please refer to our <a href="http://cch2.org/portal/includes/usagepolicy.php">Data Use Policy</a>. The Consortium of California Herbaria asks that users not redistribute data obtained from this site.
 				However, links or references to this site may be freely posted. If you have any questions about this policy,
 				please contact Jason Alexander (<a href="mailto:jason_alexander@berkeley.edu">jason_alexander@berkeley.edu</a>) or Katie Pearson (<a href="mailto:kdpearso@calpoly.edu">kdpearso@calpoly.edu</a>).
             </div>

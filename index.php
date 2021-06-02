@@ -20,15 +20,20 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+  <script type="text/javascript" src="<?php echo $CLIENT_ROOT.'/neon/js/d3.min.js'; ?>"></script>
 </head>
 <body class="home-page">
+  <style>
+    .bar:hover {
+      opacity: 0.5;
+    }
+  </style>
 	<?php include($SERVER_ROOT.'/includes/header.php'); ?>
 	<!-- This is inner text! -->
 	<div id="innertext" class="container" style="margin-top: 2rem">
 		<h1 class="centered">Discover and access sample-based data</h1>
-
 		<section>
-      <div class="row">    
+      <div class="row">
 				<img src="images/layout/Home-Map-2.jpg" alt="Map with samples collected within NEON sites" class="hide-on-small" style="width:100%;">
 				<img src="images/layout/map-mobile.jpg" alt="Map with samples collected within NEON sites" class="hide-on-large">
 				<p class="hide-on-small"><span style="font-size: 70%; line-height: 1">Samples available in the portal (Aug 2019), collected in Alaska (top left), Continental US (center), and Puerto Rico (bottom right). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
@@ -71,6 +76,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<h4 class="centered">> 103,000 samples</h4>
 					<img src="images/layout/SamplesByColl-2020-01.png" usemap="#image-map" width="100%">
 					<p><span style="font-size: 70%">Distribution of samples by collection type.</span></p>
+          <div id="graph"></div>
 				</div>
 				<div class="six columns centered">
 					<h4 class="centered">> 700 taxa</h4>
@@ -131,4 +137,52 @@ header("Content-Type: text/html; charset=".$CHARSET);
   let alerts = [{'alertMsg':'Try our <a href="./neon/search/index.php">New Occurrence Search Form!</a>'}];
   handleAlerts(alerts);
 </script>
+  <script>
+  const colls = [
+    {name: "Microbes", samples: "5000", db: "5,31,69,6"},
+    {name: "Invertebrates", samples: "4500", db: "i"},
+    {name: "Vertebrates", samples: "3000", db: "v"},
+    {name: "Plants", samples: "500", db: "p"},
+    {name: "Environmental", samples: "300", db: "e"},
+    {name: "Algae", samples: "100", db: "a"}
+  ]
+  const cMin = d3.min(colls, (d) => d.samples);
+  const cMax = d3.max(colls, (d) => d.samples);
+  const cWidth = 300;
+  const cHeight = 160;
+  const cPadding = 0;
+  const cYScale = d3.scaleLinear()
+    .domain([0, cMax])
+    .range([0, cHeight]);
+  const cSvg = d3
+    .select('#graph')
+    .append('svg')
+    .attr('viewBox', `0 0 ${cWidth} ${cHeight}`);
+  cSvg.selectAll('rect')
+    .data(colls)
+    .enter()
+    .append('a')
+    .attr('xlink:href', (d) => `collections/list.php?db=${d.db}&includeothercatnum=1&usethes=1&taxontype=1`) // Adds url to text
+    .attr('xlink:title', (d) => `Click to see ${d.samples} samples`) // Adds url to text
+    .append('rect')
+    .attr('title', (d, i) => d.samples)
+    // .on('click', (d) => console.log(d))
+    .attr('x', 0)
+    .attr('y', (d, i) => 5 + i * 25)
+    .attr('width', (d, i) => cYScale(d.samples))
+    .attr('height', 20)
+    .attr('fill', 'pink')
+    .attr('class', 'bar');
+  cSvg
+    .selectAll('text')
+    .data(colls)
+    .enter()
+    .append('text')
+    .attr('x', (d, i) => 5 + cYScale(d.samples)) // all on right side
+    .attr('y', (d, i) => 25 + i * 25) // adds gap on top
+    .append('a') // Adds link element
+    .attr('xlink:href', (d) => `collections/list.php?db=${d.db}&includeothercatnum=1&usethes=1&taxontype=1`) // Adds url to text
+    .text((d, i) => d.name);
+
+  </script>
 </html>

@@ -27,6 +27,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
     .bar:hover {
       opacity: 0.5;
     }
+
+    .bar-label {
+      font-size: 0.5em;
+    }
   </style>
 	<?php include($SERVER_ROOT.'/includes/header.php'); ?>
 	<!-- This is inner text! -->
@@ -82,6 +86,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					<h4 class="centered">> 700 taxa</h4>
 					<img src="images/layout/TaxaByGroup-2020-01.png" width="100%">
 					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa.</span></p>
+          <div id="graph2"></div>
 				</div>
 
 			</div>
@@ -138,51 +143,69 @@ header("Content-Type: text/html; charset=".$CHARSET);
   handleAlerts(alerts);
 </script>
   <script>
+  function barChart(dataObj, div) {
+    let cMin = d3.min(dataObj, (d) => d.samples);
+    let cMax = d3.max(dataObj, (d) => d.samples);
+    let cWidth = 300;
+    let cHeight = 160;
+    let cPadding = 0;
+    let cYScale = d3.scaleLinear()
+      .domain([0, cMax])
+      .range([0, cHeight]);
+    let cSvg = d3
+      .select(div)
+      .append('svg')
+      .attr('viewBox', `0 0 ${cWidth} ${cHeight}`);
+    cSvg.selectAll('rect')
+      .data(dataObj)
+      .enter()
+      .append('a')
+      .attr('xlink:href', (d) => `collections/list.php?db=${d.db}&includeothercatnum=1&usethes=1&taxontype=1`) // Adds url to text
+      .attr('xlink:title', (d) => `Click to see ${d.samples} samples`) // Adds url to text
+      .append('rect')
+      .attr('title', (d, i) => d.samples)
+      // .on('click', (d) => console.log(d))
+      .attr('x', 0)
+      .attr('y', (d, i) => 5 + i * 25)
+      .attr('width', (d, i) => cYScale(d.samples))
+      .attr('height', 20)
+      // .attr('fill', 'pink')
+      .attr('fill', (d, i) => d.color)
+      .attr('class', 'bar');
+    cSvg
+      .selectAll('text')
+      .data(dataObj)
+      .enter()
+      .append('text')
+      .attr('x', (d, i) => 5 + cYScale(d.samples)) // all on right side
+      .attr('y', (d, i) => 25 + i * 25) // adds gap on top
+      .append('a') // Adds link element
+      .attr('xlink:href', (d) => `collections/list.php?db=${d.db}&includeothercatnum=1&usethes=1&taxontype=1`) // Adds url to text
+      .text((d, i) => d.name)
+      .attr('class', 'bar-label');
+  }
+
   const colls = [
-    {name: "Microbes", samples: "5000", db: "5,31,69,6"},
-    {name: "Invertebrates", samples: "4500", db: "i"},
-    {name: "Vertebrates", samples: "3000", db: "v"},
-    {name: "Plants", samples: "500", db: "p"},
-    {name: "Environmental", samples: "300", db: "e"},
-    {name: "Algae", samples: "100", db: "a"}
-  ]
-  const cMin = d3.min(colls, (d) => d.samples);
-  const cMax = d3.max(colls, (d) => d.samples);
-  const cWidth = 300;
-  const cHeight = 160;
-  const cPadding = 0;
-  const cYScale = d3.scaleLinear()
-    .domain([0, cMax])
-    .range([0, cHeight]);
-  const cSvg = d3
-    .select('#graph')
-    .append('svg')
-    .attr('viewBox', `0 0 ${cWidth} ${cHeight}`);
-  cSvg.selectAll('rect')
-    .data(colls)
-    .enter()
-    .append('a')
-    .attr('xlink:href', (d) => `collections/list.php?db=${d.db}&includeothercatnum=1&usethes=1&taxontype=1`) // Adds url to text
-    .attr('xlink:title', (d) => `Click to see ${d.samples} samples`) // Adds url to text
-    .append('rect')
-    .attr('title', (d, i) => d.samples)
-    // .on('click', (d) => console.log(d))
-    .attr('x', 0)
-    .attr('y', (d, i) => 5 + i * 25)
-    .attr('width', (d, i) => cYScale(d.samples))
-    .attr('height', 20)
-    .attr('fill', 'pink')
-    .attr('class', 'bar');
-  cSvg
-    .selectAll('text')
-    .data(colls)
-    .enter()
-    .append('text')
-    .attr('x', (d, i) => 5 + cYScale(d.samples)) // all on right side
-    .attr('y', (d, i) => 25 + i * 25) // adds gap on top
-    .append('a') // Adds link element
-    .attr('xlink:href', (d) => `collections/list.php?db=${d.db}&includeothercatnum=1&usethes=1&taxontype=1`) // Adds url to text
-    .text((d, i) => d.name);
+    {name: "Microbes", samples: "5000", db: "5,31,69,6", color: "#F65C5C"},
+    {name: "Invertebrates", samples: "4500", db: "i", color: "#1E9BF5"},
+    {name: "Vertebrates", samples: "3000", db: "v", color: "#DF4AED"},
+    {name: "Plants", samples: "500", db: "p", color: "#18BC6A"},
+    {name: "Environmental", samples: "300", db: "e", color: "#e3e302"},
+    {name: "Algae", samples: "100", db: "a", color: "#18BC6A"}
+  ];
+
+  const taxa = [
+    {name: "Ground Beetles", samples: "5000", db: "5,31,69,6", color: "#F65C5C"},
+    {name: "Plants", samples: "4500", db: "i", color: "#1E9BF5"},
+    {name: "Other Invertebrates", samples: "3000", db: "v", color: "#DF4AED"},
+    {name: "Mammals", samples: "500", db: "p", color: "#18BC6A"},
+    {name: "Fishes", samples: "300", db: "e", color: "#e3e302"},
+    {name: "Algae", samples: "100", db: "a", color: "#18BC6A"}
+  ];
+
+  barChart(colls, '#graph');
+  barChart(taxa, '#graph2');
+
 
   </script>
 </html>

@@ -293,10 +293,6 @@ class OccurrenceHarvester{
 					}
 				}
 				if(isset($sampleArr['collect_end_date']) && $sampleArr['collect_end_date']) $dwcArr['latestDateCollected'] = $sampleArr['collect_end_date'];
-				if(isset($sampleArr['identified_by']) && $sampleArr['identified_by']){
-					$dwcArr['identifiedBy'] = $sampleArr['identified_by'];
-					if(isset($sampleArr['dateIdentified'])) $dwcArr['dateIdentified'] = $sampleArr['dateIdentified'];
-				}
 
 				//Build proper location code
 				$locationStr = '';
@@ -324,32 +320,40 @@ class OccurrenceHarvester{
 					if(isset($dwcArr['locality']) && $dwcArr['locality']) $dwcArr['locality'] = trim($dwcArr['locality'],' ,;.');
 				}
 
-				if(isset($sampleArr['taxon']) && $sampleArr['taxon']){
-					$dwcArr['sciname'] = $sampleArr['taxon'];
-					$dwcArr['taxonRemarks'] = 'Identification source: harvested from NEON API';
-					if(isset($sampleArr['taxon_published']) && $sampleArr['taxon_published']){
-						if($sampleArr['taxon_published'] != $sampleArr['taxon']){
-							$dwcArr['localitySecurity'] = 2;
-							$dwcArr['localitySecurityReason'] = '[Security Setting Locked]';
+				//Taxonomic fields
+				$skipTaxonomy = array(5,6,10,13,16,18,21,23,31,41,42,45,58,60,61,62,67,68,69,76);
+				if(!in_array($dwcArr['collid'],$skipTaxonomy)){
+					if(isset($sampleArr['taxon']) && $sampleArr['taxon']){
+						$dwcArr['sciname'] = $sampleArr['taxon'];
+						$dwcArr['taxonRemarks'] = 'Identification source: harvested from NEON API';
+						if(isset($sampleArr['taxon_published']) && $sampleArr['taxon_published']){
+							if($sampleArr['taxon_published'] != $sampleArr['taxon']){
+								$dwcArr['localitySecurity'] = 2;
+								$dwcArr['localitySecurityReason'] = '[Security Setting Locked]';
+							}
 						}
 					}
-				}
-				elseif($sampleArr['taxonID']){
-					$dwcArr['sciname'] = $sampleArr['taxonID'];
-					$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
-				}
-				else{
-					if($dwcArr['collid'] == 56){
-						if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
-							$dwcArr['sciname'] = $m[1];
-							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+					elseif($sampleArr['taxonID']){
+						$dwcArr['sciname'] = $sampleArr['taxonID'];
+						$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
+					}
+					else{
+						if($dwcArr['collid'] == 56){
+							if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+								$dwcArr['sciname'] = $m[1];
+								$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+							}
+						}
+						elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
+							if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+								$dwcArr['sciname'] = $m[1];
+								$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+							}
 						}
 					}
-					elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
-						if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
-							$dwcArr['sciname'] = $m[1];
-							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
-						}
+					if(isset($sampleArr['identified_by']) && $sampleArr['identified_by']){
+						$dwcArr['identifiedBy'] = $sampleArr['identified_by'];
+						if(isset($sampleArr['dateIdentified'])) $dwcArr['dateIdentified'] = $sampleArr['dateIdentified'];
 					}
 				}
 				//Add DwC fields that were imported as part of the manifest file

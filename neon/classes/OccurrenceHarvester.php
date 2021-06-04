@@ -242,11 +242,14 @@ class OccurrenceHarvester{
 				elseif($fArr['smsKey'] == 'event_id' && $fArr['smsValue']) $sampleArr['event_id'] = $fArr['smsValue'];
 				elseif($fArr['smsKey'] == 'taxon' && $fArr['smsValue']) $sampleArr['taxon'] = $fArr['smsValue'];
 				elseif($fArr['smsKey'] == 'taxon_published' && $fArr['smsValue']) $sampleArr['taxon_published'] = $fArr['smsValue'];
+				elseif($fArr['smsKey'] == 'identified_by' && $fArr['smsValue']) $identBy = $fArr['smsValue'];
 				elseif($fArr['smsKey'] == 'collected_by' && $fArr['smsValue']) $sampleArr['collected_by'] = $fArr['smsValue'];
 				elseif($fArr['smsKey'] == 'collect_start_date' && $fArr['smsValue']) $sampleArr['collect_start_date'] = $this->formatDate($fArr['smsValue']);
 				elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $sampleArr['collect_end_date'] = $this->formatDate($fArr['smsValue']);
 				elseif($fArr['smsKey'] == 'specimen_count' && $fArr['smsValue']) $sampleArr['specimen_count'] = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'identified_by' && $fArr['smsValue']) $identBy = $fArr['smsValue'];
+				elseif($fArr['smsKey'] == 'temperature' && $fArr['smsValue']) $sampleArr['temperature'] = $fArr['smsValue'];
+				elseif($fArr['smsKey'] == 'verbatim_depth' && $fArr['smsValue']) $sampleArr['verbatim_depth'] = $fArr['smsValue'];
+				elseif($fArr['smsKey'] == 'remarks' && $fArr['smsValue']) $sampleArr['remarks'] = $fArr['smsValue'];
 			}
 			if($identBy){
 				$sampleArr['identified_by'] = $identBy;
@@ -276,7 +279,12 @@ class OccurrenceHarvester{
 				if(isset($sampleArr['event_id']) && $sampleArr['event_id']) $dwcArr['eventID'] = $sampleArr['event_id'];
 				if(isset($sampleArr['specimen_count']) && $sampleArr['specimen_count']) $dwcArr['individualCount'] = $sampleArr['specimen_count'];
 				elseif($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
-				if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
+				if($sampleArr['remarks']) $dwcArr['occurrenceRemarks'] = $sampleArr['remarks'];
+				$dynProp = array();
+				if($sampleArr['filterVolume']) $dynProp[] = 'filterVolume:'.$sampleArr['filterVolume'];
+				if($sampleArr['temperature']) $dynProp[] = 'temperature:'.$sampleArr['temperature'];
+				if($sampleArr['verbatim_depth']) $dynProp[] = 'verbatim_depth:'.$sampleArr['verbatim_depth'];
+				if($dynProp) $dwcArr['dynamicProperties'] = implode('; ',$dynProp);
 
 				//Set occurrence description using sampleClass
 				if($sampleArr['sampleClass']){
@@ -292,8 +300,10 @@ class OccurrenceHarvester{
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
 				}
-				if(isset($sampleArr['collect_end_date']) && $sampleArr['collect_end_date']) $dwcArr['latestDateCollected'] = $sampleArr['collect_end_date'];
-
+				if(isset($sampleArr['collect_end_date']) && $sampleArr['collect_end_date']){
+					if(!isset($dwcArr['eventDate']) || !$dwcArr['eventDate']) $dwcArr['eventDate'] = $sampleArr['collect_end_date'];
+					elseif($dwcArr['eventDate'] != $sampleArr['collect_end_date']) $dwcArr['latestDateCollected'] = $sampleArr['collect_end_date'];
+				}
 				//Build proper location code
 				$locationStr = '';
 				if(isset($sampleArr['fate_location']) && $sampleArr['fate_location']) $locationStr = $sampleArr['fate_location'];

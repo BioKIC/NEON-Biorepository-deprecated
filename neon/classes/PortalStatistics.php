@@ -40,7 +40,7 @@
   public function getNeonSamplesByTax(){
     $dataArr = array();
 
-    $sql = 'SELECT name, samples, db, lastUpdated FROM neonstatsocc WHERE lastUpdated = (SELECT MAX(lastUpdated) FROM neonstatstax);';
+    $sql = 'SELECT name, samples, db, lastUpdated FROM NeonStatsOcc WHERE lastUpdated = (SELECT MAX(lastUpdated) FROM NeonStatsOcc);';
 
     $result = $this->conn->query($sql);
 
@@ -70,7 +70,7 @@
   public function getNeonTaxa(){
     $dataArr = array();
 
-    $sql = 'SELECT name, taxa, db, lastUpdated FROM neonstatstax WHERE lastUpdated = (SELECT MAX(lastUpdated) FROM neonstatstax);';
+    $sql = 'SELECT name, taxa, db, lastUpdated FROM NeonStatsTax WHERE lastUpdated = (SELECT MAX(lastUpdated) FROM NeonStatsTax);';
 
     $result = $this->conn->query($sql);
 

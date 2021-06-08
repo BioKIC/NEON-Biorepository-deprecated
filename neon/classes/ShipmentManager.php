@@ -955,7 +955,6 @@ class ShipmentManager{
 			$sql .= 'LEFT JOIN omoccurrences o ON m.occid = o.occid ';
 		}
 		$sql .= $this->getFilteredWhereSql();
-		//echo $sql;
 		$this->exportData($fileName, $sql);
 	}
 
@@ -986,7 +985,6 @@ class ShipmentManager{
 			'INNER JOIN omoccurrences o ON m.occid = o.occid '.
 			'LEFT JOIN users u ON m.checkinUid = u.uid ';
 		$sql .= $this->getFilteredWhereSql();
-		//echo $sql; exit;
 		$this->exportData($fileName, $sql);
 	}
 
@@ -995,19 +993,15 @@ class ShipmentManager{
 		header ('Content-Type: text/csv');
 		header ('Content-Disposition: attachment; filename="'.$fileName.'"');
 		$outstream = fopen("php://output", "w");
-		if($rs = $this->conn->query($sql)){
-			if($rs->num_rows){
-				$outHeader = true;
-				while($r = $rs->fetch_assoc()){
-					if($outHeader){
-						fputcsv($outstream,array_keys($r));
-						$outHeader = false;
-					}
-					fputcsv($outstream,$r);
+		$dataConn = MySQLiConnectionFactory::getCon('readonly');
+		if($rs = $dataConn->query($sql,MYSQLI_USE_RESULT)){
+			$outHeader = true;
+			while($r = $rs->fetch_assoc()){
+				if($outHeader){
+					fputcsv($outstream,array_keys($r));
+					$outHeader = false;
 				}
-			}
-			else{
-				echo "Recordset is empty.\n";
+				fputcsv($outstream,$r);
 			}
 			$rs->free();
 		}
@@ -1015,6 +1009,7 @@ class ShipmentManager{
 			echo 'ERROR generating recordset';
 		}
 		fclose($outstream);
+		$dataConn->close();
 		exit;
 	}
 

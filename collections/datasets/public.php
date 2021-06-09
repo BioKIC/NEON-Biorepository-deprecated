@@ -11,6 +11,8 @@ if(!is_numeric($datasetid)) $datasetid = 0;
 $datasetManager = new OccurrenceDataset();
 $dArr = $datasetManager->getPublicDatasetMetadata($datasetid);
 $searchUrl = '../../collections/list.php?datasetid='.$datasetid;
+$tableUrl = '../../collections/listtabledisplay.php?datasetid='.$datasetid;
+$taxaUrl = '../../collections/list.php?datasetid='.$datasetid.'&tabindex=0';
 $ocArr = $datasetManager->getOccurrences($datasetid);
 ?>
 <html>
@@ -42,12 +44,14 @@ $ocArr = $datasetManager->getOccurrences($datasetid);
     <h1>Dataset: <?php echo $dArr['name'] ;?></h1>
     <ul>
       <!-- Metadata -->
-      <p><?php echo $dArr['notes'] ;?></p>
+      <div><?php echo $dArr['description'] ;?></div>
       <!-- Occurrences Summary -->
       <p>This dataset includes <?php echo count($ocArr); ?> records.</p>
       
-      <p><a href="<?php echo $searchUrl ;?>">View and download list of samples in this Dataset</a></p>
-      <!-- REUSE http://github.localhost:8080/Symbiota-light-BioKIC/collections/list.php?datasetid=151 ?-->
+      <p><a class="btn" href="<?php echo $searchUrl ;?>">View and download samples in this Dataset (List view)</a></p>
+      <p><a class="btn" href="<?php echo $tableUrl ;?>">View samples in this Dataset (Table view)</a></p>
+      <p><a class="btn" href="<?php echo $taxaUrl ;?>">View list of taxa in this Dataset</a></p>
+      <!-- <p><a href="#">Download this Dataset</a></p> -->
 
     </ul>
 		</div>

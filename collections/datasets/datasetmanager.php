@@ -135,6 +135,7 @@ if($isEditor){
         toolbar: [
           'undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image',
         ],
+        branding: false
       });
     </script>
 		<script type="text/javascript">

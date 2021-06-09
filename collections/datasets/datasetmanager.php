@@ -130,10 +130,10 @@ if($isEditor){
      // Adds WYSIWYG editor to notes field
       tinymce.init({
         selector: '#description',
-        plugins: 'link lists',
+        plugins: 'link lists image',
         menubar: '',
         toolbar: [
-          'undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote',
+          'undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image',
         ],
       });
     </script>

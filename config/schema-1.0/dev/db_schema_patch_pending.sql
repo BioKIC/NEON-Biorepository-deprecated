@@ -640,7 +640,8 @@ ALTER TABLE `omoccurassociations`
   ADD UNIQUE INDEX `UQ_omoccurassoc_sciname` (`occid` ASC, `verbatimSciname` ASC);
 
 
-ALTER TABLE `omoccurdatasets` 
+ALTER TABLE `omoccurdatasets`
+  ADD COLUMN `description` TEXT NULL AFTER `name`,
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
   ADD COLUMN `isPublic` INT NULL AFTER `category`,
   ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;

@@ -166,7 +166,7 @@ class OccurrenceCleaner extends Manager{
 						$mergeArr[] = $source;
 					}
 					else{
-						$this->logOrEcho($editorManager->getErrorStr(),1);
+						$this->logOrEcho(trim($editorManager->getErrorStr(),' ;'),1);
 						$status = false;
 					}
 				}

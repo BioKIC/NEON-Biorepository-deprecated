@@ -129,8 +129,9 @@ if($isEditor){
     <script>
      // Adds WYSIWYG editor to notes field
       tinymce.init({
-        selector: '#notes',
-        plugins: 'link'
+        selector: '#description',
+        plugins: 'link',
+        menubar: 'edit insert format'
       });
     </script>
 		<script type="text/javascript">

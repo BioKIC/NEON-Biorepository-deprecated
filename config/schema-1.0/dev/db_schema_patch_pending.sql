@@ -449,6 +449,7 @@ ALTER TABLE `omoccurdatasets`
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
   ADD COLUMN `isPublic` INT NULL AFTER `category`,
   ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;
+  ADD COLUMN `description` TEXT NULL AFTER `name`;
 
 ALTER TABLE `omoccurdatasets` 
   ADD COLUMN `parentDatasetID` INT UNSIGNED NULL AFTER `isPublic`,

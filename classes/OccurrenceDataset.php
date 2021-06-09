@@ -267,7 +267,7 @@ class OccurrenceDataset {
 		if($datasetId){
 			$sql = 'SELECT o.occid, o.catalognumber, o.occurrenceid ,o.othercatalognumbers, '.
 				'o.sciname, o.family, o.recordedby, o.recordnumber, o.eventdate, '.
-				'o.country, o.stateprovince, o.county, o.locality, o.decimallatitude, o.decimallongitude, dl.notes, dl.description '.
+				'o.country, o.stateprovince, o.county, o.locality, o.decimallatitude, o.decimallongitude, dl.notes '.
 				'FROM omoccurrences o INNER JOIN omoccurdatasetlink dl ON o.occid = dl.occid '.
 				'WHERE dl.datasetid = '.$datasetId;
 			$rs = $this->conn->query($sql);

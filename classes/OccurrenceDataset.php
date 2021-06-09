@@ -19,7 +19,7 @@ class OccurrenceDataset {
 
   public function getPublicDatasets(){
     $retArr = array();
-    $sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY name';
+    $sql = 'SELECT datasetid, name, notes, description, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY name';
     $rs = $this->conn->query($sql);
     while($r = $rs->fetch_assoc()){
       $retArr[] = $r;
@@ -32,11 +32,12 @@ class OccurrenceDataset {
 		$retArr = array();
 		if($dsid){
 			//Get and return individual dataset
-			$sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp FROM omoccurdatasets WHERE (datasetid = '.$dsid.') AND ispublic=1';
+			$sql = 'SELECT datasetid, name, notes, description, uid, sortsequence, initialtimestamp FROM omoccurdatasets WHERE (datasetid = '.$dsid.') AND ispublic=1';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr['name'] = $r->name;
 				$retArr['notes'] = $r->notes;
+				$retArr['description'] = $r->description;
 				$retArr['uid'] = $r->uid;
 				$retArr['sort'] = $r->sortsequence;
 				$retArr['ts'] = $r->initialtimestamp;
@@ -50,11 +51,12 @@ class OccurrenceDataset {
 		$retArr = array();
 		if($GLOBALS['SYMB_UID'] && $dsid){
 			//Get and return individual dataset
-			$sql = 'SELECT datasetid, name, notes, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE (datasetid = '.$dsid.') ';
+			$sql = 'SELECT datasetid, name, notes, description, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE (datasetid = '.$dsid.') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr['name'] = $r->name;
 				$retArr['notes'] = $r->notes;
+				$retArr['description'] = $r->description;
 				$retArr['uid'] = $r->uid;
 				$retArr['sort'] = $r->sortsequence;
 				$retArr['ts'] = $r->initialtimestamp;
@@ -75,11 +77,12 @@ class OccurrenceDataset {
 	public function getDatasetArr(){
 		$retArr = array();
 		if($GLOBALS['SYMB_UID']){
-			$sql = 'SELECT datasetid, name, notes, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE (uid = '.$GLOBALS['SYMB_UID'].') ORDER BY sortsequence,name';
+			$sql = 'SELECT datasetid, name, notes, description, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE (uid = '.$GLOBALS['SYMB_UID'].') ORDER BY sortsequence,name';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr['owner'][$r->datasetid]['name'] = $r->name;
 				$retArr['owner'][$r->datasetid]['notes'] = $r->notes;
+				$retArr['owner'][$r->datasetid]['description'] = $r->description;
 				$retArr['owner'][$r->datasetid]['sort'] = $r->sortsequence;
 				$retArr['owner'][$r->datasetid]['ts'] = $r->initialtimestamp;
 				$retArr['owner'][$r->datasetid]['ispublic'] = $r->ispublic;
@@ -87,7 +90,7 @@ class OccurrenceDataset {
 			$rs->free();
 
 			//Get shared datasets
-			$sql1 = 'SELECT d.datasetid, d.name, d.notes, d.sortsequence, d.ispublic, d.initialtimestamp, r.role '.
+			$sql1 = 'SELECT d.datasetid, d.name, d.notes, d.description, d.sortsequence, d.ispublic, d.initialtimestamp, r.role '.
 				'FROM omoccurdatasets d INNER JOIN userroles r ON d.datasetid = r.tablepk '.
 				'WHERE (r.uid = '.$GLOBALS['SYMB_UID'].') AND (r.role IN("DatasetAdmin","DatasetEditor","DatasetReader")) '.
 				'ORDER BY sortsequence,name';
@@ -97,6 +100,7 @@ class OccurrenceDataset {
 				$retArr['other'][$r1->datasetid]['name'] = $r1->name;
 				$retArr['other'][$r1->datasetid]['role'] = $r1->role;
 				$retArr['other'][$r1->datasetid]['notes'] = $r1->notes;
+				$retArr['other'][$r1->datasetid]['description'] = $r1->description;
 				$retArr['other'][$r1->datasetid]['sort'] = $r1->sortsequence;
 				$retArr['other'][$r1->datasetid]['ts'] = $r1->initialtimestamp;
 				$retArr['other'][$r1->datasetid]['ispublic'] = $r1->ispublic;
@@ -106,8 +110,8 @@ class OccurrenceDataset {
 		return $retArr;
 	}
 
-	public function editDataset($dsid,$name,$notes,$ispublic){
-		$sql = 'UPDATE omoccurdatasets SET name = "'.$this->cleanInStr($name).'", notes = "'.$this->cleanInStr($notes).'", ispublic = '.$this->cleanInStr($ispublic).' WHERE datasetid = '.$dsid;
+	public function editDataset($dsid,$name,$notes,$description,$ispublic){
+		$sql = 'UPDATE omoccurdatasets SET name = "'.$this->cleanInStr($name).'", notes = "'.$this->cleanInStr($notes).'", description = "'.$this->cleanInStr($description).'", ispublic = '.$this->cleanInStr($ispublic).' WHERE datasetid = '.$dsid;
 		if(!$this->conn->query($sql)){
 			$this->errorArr[] = 'ERROR saving dataset edits: '.$this->conn->error;
 			return false;
@@ -115,8 +119,8 @@ class OccurrenceDataset {
 		return true;
 	}
 
-	public function createDataset($name,$notes,$uid){
-		$sql = 'INSERT INTO omoccurdatasets (name,notes,uid) VALUES("'.$this->cleanInStr($name).'",'.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').','.$uid.') ';
+	public function createDataset($name,$notes,$description,$uid){
+		$sql = 'INSERT INTO omoccurdatasets (name,notes,description,uid) VALUES("'.$this->cleanInStr($name).'",'.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').','.($description?'"'.$this->cleanInStr($description).'"':'NULL').','.$uid.') ';
 		if($this->conn->query($sql)){
 			$this->datasetId = $this->conn->insert_id;
 		}
@@ -156,7 +160,7 @@ class OccurrenceDataset {
 
 	public function cloneDatasets($targetArr,$uid){
 		$status = true;
-		$sql = 'SELECT datasetid, name, notes, sortsequence FROM omoccurdatasets WHERE datasetid IN('.implode(',',$targetArr).')';
+		$sql = 'SELECT datasetid, name, notes, description, sortsequence FROM omoccurdatasets WHERE datasetid IN('.implode(',',$targetArr).')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			//Create new name and ensure it doesn't already exist for owner
@@ -176,12 +180,12 @@ class OccurrenceDataset {
 			}while($nameExists);
 			$newName = $newNameTemp;
 			//Add to database
-			$sql2 = 'INSERT INTO omoccurdatasets(name, notes, sortsequence, uid) VALUES("'.$newName.'","'.$r->notes.'",'.($r->sortsequence?$r->sortsequence:'""').','.$uid.')';
+			$sql2 = 'INSERT INTO omoccurdatasets(name, notes, description, sortsequence, uid) VALUES("'.$newName.'","'.$r->notes.'","'.$r->description.'",'.($r->sortsequence?$r->sortsequence:'""').','.$uid.')';
 			if($this->conn->query($sql2)){
 				$this->datasetId = $this->conn->insert_id;
 				//Duplicate all records wtihin new dataset
-				$sql3 = 'INSERT INTO omoccurdatasetlink(occid, datasetid, notes) '.
-					'SELECT occid, '.$this->datasetId.', notes FROM omoccurdatasetlink WHERE datasetid = '.$r->datasetid;
+				$sql3 = 'INSERT INTO omoccurdatasetlink(occid, datasetid, notes, description) '.
+					'SELECT occid, '.$this->datasetId.', notes, description FROM omoccurdatasetlink WHERE datasetid = '.$r->datasetid;
 				if(!$this->conn->query($sql3)){
 					$this->errorArr[] = 'ERROR: Unable to clone dataset links into new datasets: '.$this->conn->error;
 					$status = false;
@@ -263,7 +267,7 @@ class OccurrenceDataset {
 		if($datasetId){
 			$sql = 'SELECT o.occid, o.catalognumber, o.occurrenceid ,o.othercatalognumbers, '.
 				'o.sciname, o.family, o.recordedby, o.recordnumber, o.eventdate, '.
-				'o.country, o.stateprovince, o.county, o.locality, o.decimallatitude, o.decimallongitude, dl.notes '.
+				'o.country, o.stateprovince, o.county, o.locality, o.decimallatitude, o.decimallongitude, dl.notes, dl.description '.
 				'FROM omoccurrences o INNER JOIN omoccurdatasetlink dl ON o.occid = dl.occid '.
 				'WHERE dl.datasetid = '.$datasetId;
 			$rs = $this->conn->query($sql);

@@ -13,6 +13,7 @@ $dArr = $datasetManager->getPublicDatasetMetadata($datasetid);
 $searchUrl = '../../collections/list.php?datasetid='.$datasetid;
 $tableUrl = '../../collections/listtabledisplay.php?datasetid='.$datasetid;
 $taxaUrl = '../../collections/list.php?datasetid='.$datasetid.'&tabindex=0';
+// $downloadUrl = '../../collections/download/index.php?datasetid='.$datasetid;
 $ocArr = $datasetManager->getOccurrences($datasetid);
 ?>
 <html>
@@ -52,7 +53,6 @@ $ocArr = $datasetManager->getOccurrences($datasetid);
       <p><a class="btn" href="<?php echo $tableUrl ;?>">View samples in this Dataset (Table view)</a></p>
       <p><a class="btn" href="<?php echo $taxaUrl ;?>">View list of taxa in this Dataset</a></p>
       <!-- <p><a href="#">Download this Dataset</a></p> -->
-
     </ul>
 		</div>
 		<?php

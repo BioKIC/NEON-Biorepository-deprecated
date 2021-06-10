@@ -294,7 +294,7 @@ $traitArr = $indManager->getTraitArr();
 					<li><a href="#occurtab"><span><?php echo (isset($LANG['DETAILS'])?$LANG['DETAILS']:'Details'); ?></span></a></li>
 					<?php
 					if($displayMap) echo '<li><a href="#maptab"><span>'.(isset($LANG['MAP'])?$LANG['MAP']:'Map').'</span></a></li>';
-					if($genticArr) echo '<li><a href="#genetictab"><span>Genetic</span></a></li>';
+					if($genticArr) echo '<li><a href="#genetictab"><span>'.(isset($LANG['GENETIC'])?$LANG['GENETIC']:'Genetic').'</span></a></li>';
 					if($dupClusterArr) echo '<li><a href="#dupestab"><span>Duplicates</span></a></li>';
 					?>
 					<li><a href="#commenttab"><span><?php echo ($commentArr?count($commentArr).' ':''); ?>Comments</span></a></li>

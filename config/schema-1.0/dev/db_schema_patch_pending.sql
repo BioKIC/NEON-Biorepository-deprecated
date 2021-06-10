@@ -3,6 +3,46 @@ INSERT IGNORE INTO schemaversion (versionnumber) values ("1.2");
 ALTER TABLE `adminlanguages` 
   ADD COLUMN `ISO 639-3` VARCHAR(3) NULL AFTER `iso639_2`;
 
+CREATE TABLE `geographicthesaurus` (
+  `geoThesID` INT NOT NULL AUTO_INCREMENT,
+  `geoterm` VARCHAR(100) NULL,
+  `abbreviation` VARCHAR(45) NULL,
+  `iso2` VARCHAR(45) NULL,
+  `iso3` VARCHAR(45) NULL,
+  `numcode` INT NULL,
+  `category` VARCHAR(45) NULL,
+  `termstatus` INT NULL,
+  `acceptedID` INT NULL,
+  `parentID` INT NULL,
+  `notes` VARCHAR(250) NULL,
+  `dynamicProps` TEXT NULL,
+  `footprintWKT` TEXT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`geoThesID`),
+  INDEX `IX_geothes_termname` (`geoterm` ASC),
+  INDEX `IX_geothes_abbreviation` (`abbreviation` ASC),
+  INDEX `IX_geothes_iso2` (`iso2` ASC),
+  INDEX `IX_geothes_iso3` (`iso3` ASC));
+
+ALTER TABLE `geographicthesaurus` 
+  ADD INDEX `FK_geothes_acceptedID_idx` (`acceptedID` ASC),
+  ADD INDEX `FK_geothes_parentID_idx` (`parentID` ASC);
+
+ALTER TABLE `geographicthesaurus` 
+  ADD CONSTRAINT `FK_geothes_acceptedID`  FOREIGN KEY (`acceptedID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_geothes_parentID`  FOREIGN KEY (`parentID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+
+CREATE TABLE `geographicpolygon` (
+  `geoThesID` INT NOT NULL,
+  `footprintPolygon` POLYGON NOT NULL,
+  `footprintWKT` LONGTEXT NULL,
+  `geoJSON` LONGTEXT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`geoThesID`),
+  SPATIAL INDEX `IX_geopoly_polygon` (`footprintPolygon` ASC))
+ENGINE = MyISAM;
+
+
 ALTER TABLE `lkupstateprovince` 
   CHANGE COLUMN `abbrev` `abbrev` VARCHAR(3) NULL DEFAULT NULL ;
 
@@ -113,6 +153,10 @@ CREATE TABLE `ctcontrolvocabterm` (
   CONSTRAINT `FK_ctControlVocabTerm_modUid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
   CONSTRAINT `FK_ctControlVocabTerm_cvTermID`  FOREIGN KEY (`parentCvTermID`)  REFERENCES `ctcontrolvocabterm` (`cvTermID`)  ON DELETE SET NULL  ON UPDATE CASCADE
 );
+
+ALTER TABLE `ctcontrolvocabterm` 
+  ADD COLUMN `termDisplay` VARCHAR(75) NULL AFTER `term`,
+  ADD COLUMN `activeStatus` INT NULL DEFAULT 1 AFTER `ontologyUrl`;
 
 INSERT INTO `ctcontrolvocab` VALUES (1,'Occurrence Relationship Terms',NULL,NULL,'omoccurassociations','relationship',NULL,NULL,NULL,1,NULL,NULL,null,NULL,NULL,'2020-12-02 21:35:38'),(2,'Occurrence Relationship subTypes',NULL,NULL,'omoccurassociations','subType',NULL,NULL,NULL,0,NULL,NULL,null,NULL,NULL,'2020-12-02 22:56:13');
 INSERT INTO `ctcontrolvocabterm` VALUES (1,1,NULL,'subsampleOf','originatingSampleOf',NULL,'a sample or occurrence that was subsequently derived from an originating sample',NULL,'has part: http://purl.obolibrary.org/obo/BFO_0000050',NULL,NULL,null,NULL,NULL,'2020-12-02 21:36:51'),(2,1,NULL,'partOf','partOf',NULL,NULL,NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 21:38:32'),(3,1,NULL,'siblingOf','siblingOf',NULL,NULL,NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 21:38:32'),(4,1,NULL,'originatingSampleOf','subsampleOf',NULL,'a sample or occurrence that is the originator of a subsequently modified or partial sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,'originatingSourceOf ??  It isn\'t necessarily a sample.  Could be an observation or occurrence or individual etc',null,NULL,NULL,'2020-12-02 23:27:02'),(5,1,NULL,'sharesOriginatingSample','sharesOriginatingSample',NULL,'two samples or occurrences that were subsequently derived from the same originating sample',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(6,2,NULL,'tissue',NULL,NULL,'a tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(7,2,NULL,'blood',NULL,NULL,'a blood-tissue sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(8,2,NULL,'fecal',NULL,NULL,'a fecal sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(9,2,NULL,'hair',NULL,NULL,'a hair sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(10,2,NULL,'genetic',NULL,NULL,'a genetic extraction sample or occurrence that was subsequently derived from an originating sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:44:23'),(11,1,NULL,'derivedFromSameIndividual','derivedFromSameIndividual',NULL,'a sample or occurrence that is derived from the same biological individual as another occurrence or sample',NULL,'partOf: http://purl.obolibrary.org/obo/BFO_0000051',NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(12,1,NULL,'analyticalStandardOf','hasAnalyticalStandard',NULL,'a sample or occurrence that serves as an analytical standard or control for another occurrence or sample',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(13,1,NULL,'hasAnalyticalStandard','analyticalStandardof',NULL,'a sample or occurrence that has an available analytical standard or control',NULL,NULL,NULL,NULL,null,NULL,NULL,'2020-12-02 23:48:45'),(14,1,NULL,'hasHost','hostOf',NULL,'X \'has host\' y if and only if: x is an organism, y is an organism, and x can live on the surface of or within the body of y',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002454',NULL,null,NULL,NULL,'2020-12-02 23:58:18'),(15,1,NULL,'hostOf','hasHost',NULL,'X is \'Host of\' y if and only if: x is an organism, y is an organism, and y can live on the surface of or within the body of x',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0002453',NULL,null,NULL,NULL,'2020-12-02 23:58:18'),(16,1,NULL,'ecologicallyOccursWith','ecologicallyOccursWith',NULL,'An interaction relationship describing an occurrence occurring with another organism in the same time and space or same environment',NULL,'ecologically related to: http://purl.obolibrary.org/obo/RO_0008506','http://purl.obolibrary.org/obo/RO_0008506',NULL,null,NULL,NULL,'2020-12-02 23:58:18');
@@ -379,11 +423,166 @@ UPDATE omcollections
   SET resourceJson = CONCAT('[{"title":{"en":"Homepage"},"url":"',homepage,'"}]')
   WHERE homepage LIKE "http%" AND resourceJson IS NULL;
 
-
 DROP TABLE `omcollectioncontacts`;
 
 ALTER TABLE `omcollcategories` 
   ADD COLUMN `sortsequence` INT NULL AFTER `notes`;
+
+ALTER TABLE `omoccurdeterminations` 
+  DROP FOREIGN KEY `FK_omoccurdets_tid`;
+  
+ALTER TABLE `omoccurdeterminations` 
+  CHANGE COLUMN `scientificNameAuthorship` `scientificNameAuthorship` VARCHAR(100) NULL DEFAULT NULL AFTER `sciname`,
+  CHANGE COLUMN `tidinterpreted` `tidInterpreted` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `iscurrent` `isCurrent` INT(2) NULL DEFAULT 0 ,
+  CHANGE COLUMN `printqueue` `printQueue` INT(2) NULL DEFAULT 0 ,
+  CHANGE COLUMN `sortsequence` `sortSequence` INT(10) UNSIGNED NULL DEFAULT 10 ,
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ,
+  ADD COLUMN `family` VARCHAR(150) NULL AFTER `dateIdentifiedInterpreted`,
+  ADD COLUMN `taxonRemarks` VARCHAR(45) NULL AFTER `identificationRemarks`;
+
+ALTER TABLE `omoccurdeterminations` 
+  ADD CONSTRAINT `FK_omoccurdets_tid`  FOREIGN KEY (`tidInterpreted`)  REFERENCES `taxa` (`TID`);
+
+ALTER TABLE `omoccurdeterminations` 
+  DROP INDEX `Index_unique` ,
+  ADD UNIQUE INDEX `UQ_omoccurdets_unique` (`occid` ASC, `dateIdentified` ASC, `identifiedBy` ASC, `sciname` ASC),
+  DROP INDEX `Index_dateIdentInterpreted` ,
+  ADD INDEX `IX_omoccurdets_dateIdInterpreted` (`dateIdentifiedInterpreted` ASC),
+  ADD INDEX `IX_omoccurdets_sciname` (`sciname` ASC),
+  ADD INDEX `IX_omoccurdets_family` (`family` ASC),
+  ADD INDEX `IX_omoccurdets_isCurrent` (`isCurrent` ASC);
+
+
+ALTER TABLE `agents` 
+  DROP FOREIGN KEY `FK_preferred_recby`;
+
+ALTER TABLE `agents` 
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() AFTER `modifiedUid`,
+  CHANGE COLUMN `agentid` `agentID` BIGINT(20) NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `familyname` `familyName` VARCHAR(45) NOT NULL ,
+  CHANGE COLUMN `firstname` `firstName` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `middlename` `middleName` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `startyearactive` `startYearActive` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `endyearactive` `endYearActive` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `preferredrecbyid` `preferredRecByID` BIGINT(20) NULL DEFAULT NULL ,
+  CHANGE COLUMN `namestring` `nameString` TEXT NULL DEFAULT NULL ,
+  CHANGE COLUMN `yearofbirth` `yearOfBirth` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `yearofbirthmodifier` `yearOfBirthModifier` VARCHAR(12) NULL DEFAULT '' ,
+  CHANGE COLUMN `yearofdeath` `yearOfDeath` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `yearofdeathmodifier` `yearOfDeathModifier` VARCHAR(12) NULL DEFAULT '' ,
+  CHANGE COLUMN `uuid` `recordID` CHAR(43) NULL DEFAULT NULL AFTER `living`,
+  CHANGE COLUMN `datelastmodified` `dateLastModified` DATETIME NULL DEFAULT NULL ,
+  CHANGE COLUMN `lastmodifiedbyuid` `modifiedUid` INT(11) UNSIGNED NULL DEFAULT NULL ;
+
+ALTER TABLE `agents` 
+  ADD CONSTRAINT `FK_preferred_recby`  FOREIGN KEY (`preferredRecByID`)  REFERENCES `agents` (`agentID`)  ON DELETE NO ACTION  ON UPDATE CASCADE;
+
+ALTER TABLE `agents` 
+  DROP FOREIGN KEY `FK_preferred_recby`;
+
+ALTER TABLE `agents` 
+  ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `modifiedUid`,
+  DROP INDEX `FK_preferred_recby` ,
+  ADD INDEX `FK_agents_preferred_recby` (`preferredRecByID` ASC),
+  ADD INDEX `FK_agents_modUid_idx` (`modifiedUid` ASC),
+  ADD INDEX `FK_agents_createdUid_idx` (`createdUid` ASC);
+
+ALTER TABLE `agents` 
+  ADD CONSTRAINT `FK_agents_preferred_recby`  FOREIGN KEY (`preferredRecByID`)  REFERENCES `agents` (`agentID`)  ON DELETE NO ACTION  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_agents_modUid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_agents_createdUid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+  
+ALTER TABLE `agentlinks` 
+  CHANGE COLUMN `lastmodifiedbyuid` `modifiedUid` INT(11) UNSIGNED NULL DEFAULT NULL AFTER `createdUid`,
+  CHANGE COLUMN `timestampcreated` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() AFTER `dateLastModified`,
+  CHANGE COLUMN `agentlinksid` `agentLinksID` BIGINT(20) NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `agentid` `agentID` BIGINT NOT NULL ,
+  CHANGE COLUMN `createdbyuid` `createdUid` INT(11) UNSIGNED NOT NULL ,
+  CHANGE COLUMN `datelastmodified` `dateLastModified` DATETIME NULL DEFAULT NULL ;
+
+ALTER TABLE `agentlinks` 
+  ADD INDEX `FK_agentlinks_agentID_idx` (`agentID` ASC);
+
+ALTER TABLE `agentlinks` 
+  ADD CONSTRAINT `FK_agentlinks_agentID`  FOREIGN KEY (`agentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+
+ALTER TABLE `agentlinks`
+  CHANGE COLUMN `createdUid` `createdUid` INT(11) UNSIGNED NULL ,
+  ADD INDEX `FK_agentlinks_modUid_idx` (`modifiedUid` ASC),
+  ADD INDEX `FK_agentlinks_createdUid_idx` (`createdUid` ASC);
+  
+ALTER TABLE `agentlinks` 
+  ADD CONSTRAINT `FK_agentlinks_modUid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_agentlinks_createdUid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `agentnames` 
+  CHANGE COLUMN `lastmodifiedbyuid` `modifiedUid` INT(11) NULL DEFAULT NULL AFTER `createdUid`,
+  CHANGE COLUMN `timestampcreated` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() AFTER `dateLastModified`,
+  CHANGE COLUMN `agentnamesid` `agentNamesID` BIGINT(20) NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `agentid` `agentID` INT(11) NOT NULL ,
+  CHANGE COLUMN `createdbyuid` `createdUid` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `datelastmodified` `dateLastModified` DATETIME NULL DEFAULT NULL ;
+
+ALTER TABLE `agentteams` 
+  DROP FOREIGN KEY `agentteams_ibfk_1`,
+  DROP FOREIGN KEY `agentteams_ibfk_2`;
+
+ALTER TABLE `agentteams` 
+  CHANGE COLUMN `agentteamid` `agentTeamID` BIGINT(20) NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `teamagentid` `teamAgentID` BIGINT(20) NOT NULL ,
+  CHANGE COLUMN `memberagentid` `memberAgentID` BIGINT(20) NOT NULL ;
+  
+ALTER TABLE `agentteams` 
+  ADD CONSTRAINT `agentteams_ibfk_1`  FOREIGN KEY (`teamAgentID`)  REFERENCES `agents` (`agentID`)  ON DELETE NO ACTION  ON UPDATE CASCADE,
+  ADD CONSTRAINT `agentteams_ibfk_2`  FOREIGN KEY (`memberAgentID`)  REFERENCES `agents` (`agentID`)  ON DELETE NO ACTION  ON UPDATE CASCADE;
+
+ALTER TABLE `agentsfulltext` 
+  CHANGE COLUMN `agentsfulltextid` `agentsFulltextID` BIGINT(20) NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `agentid` `agentID` INT(11) NOT NULL ,
+  CHANGE COLUMN `taxonomicgroups` `taxonomicGroups` TEXT NULL DEFAULT NULL ,
+  CHANGE COLUMN `collectionsat` `collectionsAt` TEXT NULL DEFAULT NULL ;
+
+ALTER TABLE `agentrelations` 
+  DROP FOREIGN KEY `agentrelations_ibfk_1`,
+  DROP FOREIGN KEY `agentrelations_ibfk_2`,
+  DROP FOREIGN KEY `agentrelations_ibfk_3`;
+  
+ALTER TABLE `agentrelations` 
+  CHANGE COLUMN `timestampcreated` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() AFTER `modifiedUid`,
+  CHANGE COLUMN `agentrelationsid` `agentRelationsID` BIGINT(20) NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `fromagentid` `fromAgentID` BIGINT(20) NOT NULL ,
+  CHANGE COLUMN `toagentid` `toAgentID` BIGINT(20) NOT NULL ,
+  CHANGE COLUMN `createdbyuid` `createdUid` INT(11) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `datelastmodified` `dateLastModified` DATETIME NULL DEFAULT NULL ,
+  CHANGE COLUMN `lastmodifiedbyuid` `modifiedUid` INT(11) UNSIGNED NULL DEFAULT NULL ;
+
+ALTER TABLE `agentrelations` 
+  ADD CONSTRAINT `FK_agentrelations_ibfk_1`  FOREIGN KEY (`fromAgentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_agentrelations_ibfk_2`  FOREIGN KEY (`toAgentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_agentrelations_ibfk_3`  FOREIGN KEY (`relationship`)  REFERENCES `ctrelationshiptypes` (`relationship`)  ON DELETE NO ACTION  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_agentrelations_createUid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_agentrelations_modUid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+  
+ALTER TABLE `agentrelations` 
+  ADD INDEX `FK_agentrelations_modUid_idx` (`modifiedUid` ASC),
+  ADD INDEX `FK_agentrelations_createUid_idx` (`createdUid` ASC);
+
+ALTER TABLE `agentnumberpattern` 
+  DROP FOREIGN KEY `agentnumberpattern_ibfk_1`;
+  
+ALTER TABLE `agentnumberpattern` 
+  CHANGE COLUMN `agentnumberpatternid` `agentNumberPatternID` BIGINT(20) NOT NULL ,
+  CHANGE COLUMN `agentid` `agentID` BIGINT(20) NOT NULL ,
+  CHANGE COLUMN `numbertype` `numberType` VARCHAR(50) NULL DEFAULT 'Collector number' ,
+  CHANGE COLUMN `numberpattern` `numberPattern` VARCHAR(255) NULL DEFAULT NULL ,
+  CHANGE COLUMN `numberpatterndescription` `numberPatternDescription` VARCHAR(900) NULL DEFAULT NULL ,
+  CHANGE COLUMN `startyear` `startYear` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `endyear` `endYear` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `integerincrement` `integerIncrement` INT(11) NULL DEFAULT NULL ;
+  
+ALTER TABLE `agentnumberpattern` 
+  ADD CONSTRAINT `agentnumberpattern_ibfk_1`  FOREIGN KEY (`agentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
 ALTER TABLE `users` 
   ADD COLUMN `dynamicProperties` TEXT NULL AFTER `usergroups`;
@@ -441,7 +640,8 @@ ALTER TABLE `omoccurassociations`
   ADD UNIQUE INDEX `UQ_omoccurassoc_sciname` (`occid` ASC, `verbatimSciname` ASC);
 
 
-ALTER TABLE `omoccurdatasets` 
+ALTER TABLE `omoccurdatasets`
+  ADD COLUMN `description` TEXT NULL AFTER `name`,
   ADD COLUMN `category` VARCHAR(45) NULL AFTER `name`,
   ADD COLUMN `isPublic` INT NULL AFTER `category`,
   ADD COLUMN `includeInSearch` INT NULL AFTER `isPublic`;

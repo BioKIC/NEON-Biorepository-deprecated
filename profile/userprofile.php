@@ -84,7 +84,7 @@ if($userId != $SYMB_UID) $isSelf = false;
 				        <td><b>ORCID or other GUID:</b></td>
 				        <td>
 							<div>
-					            <input name="guid" type="text" size="40" value="<?php echo $person->getGUID();?>" required />
+					            <input name="guid" type="text" size="40" value="<?php echo $person->getGUID();?>" />
 							</div>
 			            </td>
 				    </tr>

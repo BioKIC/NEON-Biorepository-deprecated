@@ -59,7 +59,6 @@ class GlossaryUpload{
 		$this->conn->query("TRUNCATE TABLE uploadglossary");
 		$this->conn->query("OPTIMIZE TABLE uploadglossary");
 		$fh = fopen($this->uploadTargetPath.$this->uploadFileName,'r') or die("Can't open file");
-		$headerArr = fgetcsv($fh);
 		$newTermColumn = false;
 		foreach($languageArr as $lang){
 			foreach($fieldMap as $csvField => $field){
@@ -200,7 +199,6 @@ class GlossaryUpload{
 	}
 
 	public function analysisUpload(){
-		$retArr = array();
 		//Get total number
 		$sql1 = 'SELECT count(*) as cnt FROM uploadglossary';
 		$rs1 = $this->conn->query($sql1);

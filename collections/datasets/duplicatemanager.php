@@ -138,28 +138,42 @@ if($isEditor && $formSubmit){
 				?>
 				<fieldset style="padding:20px;">
 					<legend><b>Duplicate Linkages</b></legend>
-						<div>
-						It is common within some collection domains to collect specimens in duplicate.
+					<div>
+						It is common within some collection domains (e.g. herbarium collections) to collect specimens in duplicate.
 						Links below list duplicate cluster and aid collection managers in batch linking
 						their specimen records to duplicate specimens housed at other institutions.
-						The main method of batch clustering duplicates is by matching
-						the collector, collector number, and collection date.
 					</div>
-					<div style="margin:25px;font-weight:bold;font-size:120%;">
+					<div style="margin:25px;">
 						<a href="duplicatemanager.php?collid=<?php echo $collId; ?>&action=listdupes">
-							List linked duplicate clusters
+							Specimen duplicate clusters
 						</a>
 					</div>
-					<div style="margin:25px;font-weight:bold;font-size:120%;">
+					<div style="margin:25px;">
 						<a href="duplicatemanager.php?collid=<?php echo $collId; ?>&dupedepth=2&action=listdupeconflicts">
-							List linked duplicate clusters with conflicted identifications
+							Specimen duplicate clusters with conflicted identifications
 						</a>
 					</div>
-					<div style="margin:25px;font-weight:bold;font-size:120%;">
+					<div style="margin:25px;">
 						<a href="duplicatemanager.php?collid=<?php echo $collId; ?>&action=batchlinkdupes">
-							Start batch linking duplicates
-						</a>
+							Batch link specimen duplicates
+						</a> - tool for batch clustering specimen duplicates based on matching last name of collector, collector number, and collection date
 					</div>
+					<?php
+					if(isset($ACTIVATE_EXSICCATI) && $ACTIVATE_EXSICCATI){
+						?>
+						<div style="margin:25px;">
+							<a href="../exsiccati/index.php?collid=<?php echo $collId; ?>">
+								Exsiccatae duplicates
+							</a> - list of exsiccatae titles that are associated with this collection (including data filtering and download capabilities)
+						</div>
+						<div style="margin:25px;">
+							<a href="../exsiccati/index.php?collid=<?php echo $collId; ?>&formsubmit=dlexs">
+								Exsiccatae download
+							</a> - CSV download of exsiccati titles, numbers, specimen information, and links to full specimen details
+						</div>
+						<?php
+					}
+					?>
 				</fieldset>
 				<?php
 			}

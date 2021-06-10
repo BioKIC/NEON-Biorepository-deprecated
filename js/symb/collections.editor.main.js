@@ -143,6 +143,7 @@ $(document).ready(function() {
 						fieldChanged(k);
 					}
 				});
+				ui.item.value = ui.item.locality; 
 			}
 		});
 		if($( "input[name=localautodeactivated]" ).is(':checked')){

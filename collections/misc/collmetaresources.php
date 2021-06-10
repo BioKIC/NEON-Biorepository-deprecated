@@ -34,6 +34,7 @@ if($collid && $isEditor){
 		.contact-div{ margin:10px 0px; }
 		.contact-div a{ margin: 0px 10px; }
 		.contact-div img{ width:13px; }
+		#editContact-span{ display:none; }
 		hr{ margin:10px 0px; }
 	</style>
 	<div id="contacts_resources">
@@ -124,7 +125,12 @@ if($collid && $isEditor){
 						<?php
 						echo '</div>';
 						if(isset($valueArr['role'])) echo '<div style="margin-left:15px"><span class="label">Role: </span>'.$valueArr['role'].'</div>';
-						if(isset($valueArr['email'])) echo '<div style="margin-left:15px"><span class="label">Email: </span>'.$valueArr['email'].'</div>';
+						if(isset($valueArr['email'])){
+							echo '<div style="margin-left:15px">';
+							echo '<span class="label">Email: </span>'.$valueArr['email'];
+							if(isset($valueArr['centralContact'])) echo ' (central contact)';
+							echo '</div>';
+						}
 						if(isset($valueArr['phone'])) echo '<div style="margin-left:15px"><span class="label">Phone: </span>'.$valueArr['phone'].'</div>';
 						if(isset($valueArr['orcid'])){
 							echo '<div style="margin-left:15px">';
@@ -160,6 +166,10 @@ if($collid && $isEditor){
 						<span class="field-elem"><input name="email" type="text" /></span>
 					</div>
 					<div class="field-block">
+						<span class="field-elem"><input name="centralContact" type="checkbox" value="1" /></span>
+						<span class="field-label">is central contact</span>
+					</div>
+					<div class="field-block">
 						<span class="field-label">Phone:</span>
 						<span class="field-elem"><input name="phone" type="text" /></span>
 					</div>
@@ -170,7 +180,8 @@ if($collid && $isEditor){
 					<div class="field-block">
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="contactIndex" type="hidden" value="" />
-						<span class="form-button"><button name="action" type="submit" value="saveContact">Save Contact</button></span>
+						<span class="form-button"><button name="action" type="submit" value="saveContact"><span id="addContact-span">Add Contact</span><span id="editContact-span">Edit Contact</span></button></span>
+						<span class="form-button"><button name="reset" type="reset" onclick="resetContactForm()">Reset Form</button></span>
 					</div>
 				</form>
 			</fieldset>
@@ -320,10 +331,19 @@ if($collid && $isEditor){
 			else f.role.value = "";
 			if(contactJSON[contactIndex].email != undefined) f.email.value = contactJSON[contactIndex].email;
 			else f.email.value = "";
+			if(contactJSON[contactIndex].centralContact != undefined) f.centralContact.checked = true;
+			else f.centralContact.checked = false;
 			if(contactJSON[contactIndex].phone != undefined) f.phone.value = contactJSON[contactIndex].phone;
 			else f.phone.value = "";
 			if(contactJSON[contactIndex].orcid != undefined) f.orcid.value = contactJSON[contactIndex].orcid;
 			else f.orcid.value = "";
+			$("#editContact-span").show();
+			$("#addContact-span").hide();
+		}
+
+		function resetContactForm(){
+			$("#editContact-span").hide();
+			$("#addContact-span").show();
 		}
 
 		function verifyContactForm(f){

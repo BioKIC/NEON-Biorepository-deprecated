@@ -6,7 +6,8 @@ class DwcArchiverOccurrence{
 	private $schemaType;
 	private $extended = false;
 	private $includePaleo = false;
-	private $harvestExsiccatae = false;
+	private $includeExsiccatae = false;
+	private $includeAssocSeq = false;
 	private $relationshipArr;
 	private $upperTaxonomy = array();
 	private $taxonRankArr = array();
@@ -124,6 +125,8 @@ class DwcArchiverOccurrence{
 		$this->occurDefArr['fields']['dynamicProperties'] = 'o.dynamicProperties';
 		$this->occurDefArr['terms']['associatedOccurrences'] = 'http://rs.tdwg.org/dwc/terms/associatedOccurrences';
 		$this->occurDefArr['fields']['associatedOccurrences'] = '';
+		$this->occurDefArr['terms']['associatedSequences'] = 'http://rs.tdwg.org/dwc/terms/associatedSequences';
+		$this->occurDefArr['fields']['associatedSequences'] = '';
 		$this->occurDefArr['terms']['associatedTaxa'] = 'http://rs.tdwg.org/dwc/terms/associatedTaxa';
 		$this->occurDefArr['fields']['associatedTaxa'] = 'o.associatedTaxa';
 		$this->occurDefArr['terms']['reproductiveCondition'] = 'http://rs.tdwg.org/dwc/terms/reproductiveCondition';
@@ -348,7 +351,7 @@ class DwcArchiverOccurrence{
 	//Special functions for appending additional data
 	public function getAdditionalCatalogNumberStr($occid){
 		$retStr = '';
-		if($occid){
+		if(is_numeric($occid)){
 			$sql = 'SELECT GROUP_CONCAT(CONCAT_WS(": ",identifierName, identifierValue) SEPARATOR "; ") as idStr FROM omoccuridentifiers WHERE occid = '.$occid;
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
@@ -359,35 +362,37 @@ class DwcArchiverOccurrence{
 		return $retStr;
 	}
 
-	public function setHarvestExsiccatae(){
+	public function setIncludeExsiccatae(){
 		$sql = 'SELECT occid FROM omexsiccatiocclink LIMIT 1';
 		$rs = $this->conn->query($sql);
-		if($rs->num_rows) $this->harvestExsiccatae = true;
+		if($rs->num_rows) $this->includeExsiccatae = true;
 		$rs->free();
 	}
 
 	public function getExsiccateStr($occid){
 		$retStr = '';
-		$sql = 'SELECT t.title, t.abbreviation, t.editor, t.exsrange, n.exsnumber, l.notes '.
-			'FROM omexsiccatiocclink l INNER JOIN omexsiccatinumbers n ON l.omenid = n.omenid '.
-			'INNER JOIN omexsiccatititles t ON n.ometid = t.ometid '.
-			'WHERE l.occid = '.$occid;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retStr = $r->title;
-			if($r->abbreviation) $retStr .= ' ['.$r->abbreviation.']';
-			if($r->exsrange) $retStr .= ', '.$r->exsrange;
-			if($r->editor) $retStr .= ', '.$r->editor;
-			$retStr .= ', exs #: '.$r->exsnumber;
-			if($r->notes) $retStr .= ' ('.$r->notes.')';
+		if($this->includeExsiccatae && is_numeric($occid)){
+			$sql = 'SELECT t.title, t.abbreviation, t.editor, t.exsrange, n.exsnumber, l.notes '.
+				'FROM omexsiccatiocclink l INNER JOIN omexsiccatinumbers n ON l.omenid = n.omenid '.
+				'INNER JOIN omexsiccatititles t ON n.ometid = t.ometid '.
+				'WHERE l.occid = '.$occid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retStr = $r->title;
+				if($r->abbreviation) $retStr .= ' ['.$r->abbreviation.']';
+				if($r->exsrange) $retStr .= ', '.$r->exsrange;
+				if($r->editor) $retStr .= ', '.$r->editor;
+				$retStr .= ', exs #: '.$r->exsnumber;
+				if($r->notes) $retStr .= ' ('.$r->notes.')';
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retStr;
 	}
 
 	public function getAssociationStr($occid){
 		$retStr = '';
-		if($occid){
+		if(is_numeric($occid)){
 			$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, identifier FROM omoccurassociations WHERE (occid = '.$occid.' OR occidAssociate = '.$occid.') AND verbatimSciname IS NULL ';
 			$rs = $this->conn->query($sql);
 			if($rs){
@@ -436,9 +441,35 @@ class DwcArchiverOccurrence{
 		return trim($retStr,' |');
 	}
 
+	public function setIncludeAssociatedSequences(){
+		$sql = 'SELECT occid FROM omoccurgenetic LIMIT 1';
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows) $this->includeAssocSeq = true;
+		$rs->free();
+	}
+
+	public function getAssociatedSequencesStr($occid){
+		$retStr = '';
+		if(is_numeric($occid)){
+			$sql = 'SELECT identifier, resourceName, title, locus, resourceUrl FROM omoccurgenetic WHERE occid = '.$occid;
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retStr .= '|'.$r->resourceName.', ';
+					if($r->title) $retStr .= $r->title.', ';
+					if($r->identifier) $retStr .= $r->identifier.', ';
+					if($r->locus) $retStr .= $r->locus.', ';
+					$retStr .= $r->resourceUrl;
+				}
+				$rs->free();
+			}
+		}
+		return trim($retStr,' |,');
+	}
+
 	public function getAssocTaxa($occid){
 		$retStr = '';
-		if($occid){
+		if(is_numeric($occid)){
 			$sql = 'SELECT assocID, relationship, subType, verbatimSciname FROM omoccurassociations WHERE occid = '.$occid.' AND verbatimSciname IS NOT NULL ';
 			$rs = $this->conn->query($sql);
 			if($rs){

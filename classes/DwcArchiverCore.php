@@ -1262,7 +1262,7 @@ class DwcArchiverCore extends Manager{
 		if(array_key_exists('description',$emlArr) && $emlArr['description']){
 			$abstractElem = $newDoc->createElement('abstract');
 			$paraElem = $newDoc->createElement('para');
-			$paraElem->appendChild($newDoc->createTextNode($emlArr['description']));
+			$paraElem->appendChild($newDoc->createTextNode(strip_tags($emlArr['description'])));
 			$abstractElem->appendChild($paraElem);
 			$datasetElem->appendChild($abstractElem);
 		}
@@ -1524,7 +1524,8 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
-		$dwcOccurManager->setHarvestExsiccatae();
+		$dwcOccurManager->setIncludeExsiccatae();
+		$dwcOccurManager->setIncludeAssociatedSequences();
 		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		//Output records
@@ -1668,6 +1669,7 @@ class DwcArchiverCore extends Manager{
 					$r['occurrenceRemarks'] = $exsStr;
 				}
 				if($assocOccurStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocOccurStr;
+				if($assocSeqStr = $dwcOccurManager->getAssociatedSequencesStr($r['occid'])) $r['t_associatedSequences'] = $assocSeqStr;
 				if($assocTaxa = $dwcOccurManager->getAssocTaxa($r['occid'])) $r['associatedTaxa'] = $assocTaxa;
 				//$dwcOccurManager->appendUpperTaxonomy($r);
 				$dwcOccurManager->appendUpperTaxonomy2($r);

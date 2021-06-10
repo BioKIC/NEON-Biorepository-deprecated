@@ -39,6 +39,10 @@ elseif(isset($mdArr['roles'])){
 		$role = 'read access only';
 	}
 }
+elseif($IS_ADMIN){
+	$isEditor = 1;
+	$role = 'SuperAdmin';
+}
 
 $statusStr = '';
 if($isEditor){

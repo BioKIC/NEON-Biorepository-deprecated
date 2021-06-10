@@ -3,6 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 include_once($SERVER_ROOT.'/classes/RdfUtility.php');
+include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = array_key_exists("occid",$_REQUEST)?trim($_REQUEST["occid"]):0;
@@ -290,9 +291,9 @@ $traitArr = $indManager->getTraitArr();
 			?>
 			<div id="tabs" style="margin:10px;clear:both;">
 				<ul>
-					<li><a href="#occurtab"><span>Details</span></a></li>
+					<li><a href="#occurtab"><span><?php echo (isset($LANG['DETAILS'])?$LANG['DETAILS']:'Details'); ?></span></a></li>
 					<?php
-					if($displayMap) echo '<li><a href="#maptab"><span>Map</span></a></li>';
+					if($displayMap) echo '<li><a href="#maptab"><span>'.(isset($LANG['MAP'])?$LANG['MAP']:'Map').'</span></a></li>';
 					if($genticArr) echo '<li><a href="#genetictab"><span>Genetic</span></a></li>';
 					if($dupClusterArr) echo '<li><a href="#dupestab"><span>Duplicates</span></a></li>';
 					?>

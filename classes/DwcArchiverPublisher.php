@@ -268,6 +268,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			while($r = $rs->fetch_object()){
 				$domainName = parse_url($r->portalDomain, PHP_URL_HOST);
 				if(substr($domainName,0,4) == 'www.') $domainName = substr($domainName,4);
+				$domainName = parse_url($r->portalDomain, PHP_URL_SCHEME).'://'.$domainName;
 				if(isset($retArr[$domainName])){
 					$retArr[$domainName]['cnt'] += $r->cnt;
 					if(strpos($retArr[$domainName]['url'],'/www.') && !strpos($r->portalDomain,'/www.')) $retArr[$domainName]['url'] = $r->portalDomain;

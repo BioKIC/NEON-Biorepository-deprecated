@@ -37,5 +37,5 @@ $LANG['RESET_SYMBOLOGY'] = 'Reset Symbology';
 $LANG['AUTO_COLOR'] = 'Auto Color';
 $LANG['TAXA_COUNT'] = 'Taxa Count';
 
-$LANG['MORE_INFO'] = 'm&aacute;s info...';
+$LANG['MORE_INFO'] = 'más info...';
 ?>

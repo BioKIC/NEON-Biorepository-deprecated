@@ -3,6 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 include_once($SERVER_ROOT.'/classes/RdfUtility.php');
+include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = array_key_exists("occid",$_REQUEST)?trim($_REQUEST["occid"]):0;
@@ -290,10 +291,10 @@ $traitArr = $indManager->getTraitArr();
 			?>
 			<div id="tabs" style="margin:10px;clear:both;">
 				<ul>
-					<li><a href="#occurtab"><span>Details</span></a></li>
+					<li><a href="#occurtab"><span><?php echo (isset($LANG['DETAILS'])?$LANG['DETAILS']:'Details'); ?></span></a></li>
 					<?php
-					if($displayMap) echo '<li><a href="#maptab"><span>Map</span></a></li>';
-					if($genticArr) echo '<li><a href="#genetictab"><span>Genetic</span></a></li>';
+					if($displayMap) echo '<li><a href="#maptab"><span>'.(isset($LANG['MAP'])?$LANG['MAP']:'Map').'</span></a></li>';
+					if($genticArr) echo '<li><a href="#genetictab"><span>'.(isset($LANG['GENETIC'])?$LANG['GENETIC']:'Genetic').'</span></a></li>';
 					if($dupClusterArr) echo '<li><a href="#dupestab"><span>Duplicates</span></a></li>';
 					?>
 					<li><a href="#commenttab"><span><?php echo ($commentArr?count($commentArr).' ':''); ?>Comments</span></a></li>
@@ -942,30 +943,12 @@ $traitArr = $indManager->getTraitArr();
 						<div style="margin-top:10px;clear:both;">
 							<?php
 							if($collMetadata['contact']){
-								echo 'For additional information on this specimen, please contact: ';
-								$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
-								$emailBody = 'Specimen being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
-								$emailRef = 'subject='.$emailSubject.'&cc='.$ADMIN_EMAIL.'&body='.$emailBody;
-								//Test to see if contact is a JSON object or a simple string
-								$contactObj = json_decode($collMetadata['contact'],true);
-								if(is_array($contactObj) && array_key_exists('contact', $contactObj)){
-									$contactArr = $contactObj['contact'];
-									$contactStr = '';
-									foreach($contactArr as $cArr){
-										if(array_key_exists('electronicMailAddress', $cArr) && $cArr['electronicMailAddress']) {
-											$contactStr .= ', '.$cArr['individualName'];
-											if(array_key_exists('positionName', $cArr) && $cArr['positionName']) $contactStr .= ', '.$cArr['positionName'];
-											$contactStr .= ' (<a href="mailto:'.$cArr['electronicMailAddress'].'?'.$emailRef.'">'.$cArr['electronicMailAddress'].'</a>)';
-										}
-									}
-									echo trim($contactStr,', ');
-								}
-								else{
-									?>
-									<a href="mailto:<?php echo $collMetadata['email'].'?'.$emailRef; ?>">
-										<?php echo $collMetadata['contact'].' ('.$collMetadata['email'].')'; ?>
-									</a>
-									<?php
+								echo 'For additional information on this specimen, please contact: '.$collMetadata['contact'];
+								if($collMetadata['email']){
+									$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
+									$emailBody = 'Specimen being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
+									$emailRef = 'subject='.$emailSubject.'&cc='.$ADMIN_EMAIL.'&body='.$emailBody;
+									echo ' (<a href="mailto:'.$collMetadata['email'].'?'.$emailRef.'">'.$collMetadata['email'].'</a>)';
 								}
 							}
 							?>

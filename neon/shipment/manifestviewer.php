@@ -549,9 +549,9 @@ include($SERVER_ROOT.'/includes/header.php');
 												}
 												echo '<tr class="sample-row">';
 												echo '<td><input id="scbox-'.$samplePK.'" class="'.trim($classStr).'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
-												$sampleID = $sampleArr['sampleID'];
-												if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
 												echo '<td>';
+												$sampleID = (isset($sampleArr['sampleID'])?$sampleArr['sampleID']:'');
+												if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
 												echo $sampleID;
 												echo ' <a href="#" onclick="return openSampleEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:12px" /></a>';
 												echo '</td>';

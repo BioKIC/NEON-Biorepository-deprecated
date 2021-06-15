@@ -210,11 +210,14 @@ class ProfileManager{
 
 			if($uid){
 				$subject = 'RE: Password reset';
+				$serverPath = 'http://';
+				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverPath = 'https://';
+				$serverPath .= $_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'];
 				$body = 'Your '.$GLOBALS["DEFAULT_TITLE"].' password has been reset to: '.$newPassword.'<br/><br/> '.
 					'After logging in, you can change your password by clicking on the My Profile link within the site menu and then selecting the Edit Profile tab. '.
 					'If you have problems, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'].'<br/><br/>'.
-					'Data portal: <a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a><br/>'.
-					'Direct link to your user profile: <a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/profile/viewprofile.php?tabindex=2">http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/profile/viewprofile.php</a>';
+					'Data portal: <a href="'.$serverPath.'">'.$serverPath.'</a><br/>'.
+					'Direct link to your user profile: <a href="'.$serverPath.'/profile/viewprofile.php?tabindex=2">'.$serverPath.'/profile/viewprofile.php</a>';
 
 				$status = $this->sendEmail($email, $subject, $body);
 				if($status){
@@ -370,9 +373,11 @@ class ProfileManager{
 		$rs->free();
 		if($loginStr){
 			$subject = $GLOBALS['DEFAULT_TITLE'].' Login Name';
-			$bodyStr = 'Your '.$GLOBALS['DEFAULT_TITLE'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.
-				$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a>) login name is: '.$loginStr.'<br/><br/>'.
-				'If you continue to have login issues, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'];
+			$serverPath = 'http://';
+			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverPath = 'https://';
+			$serverPath .= $_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'];
+			$bodyStr = 'Your '.$GLOBALS['DEFAULT_TITLE'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">'.$serverPath.
+				'</a>) login name is: '.$loginStr.'<br/><br/>If you continue to have login issues, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'];
 			$status = $this->sendEmail($emailAddr,$subject,$bodyStr);
 		}
 		else{

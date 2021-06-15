@@ -542,7 +542,9 @@ class OccurrenceIndividual extends Manager{
 
 			//Email to portal admin
 			$emailAddr = $GLOBALS['ADMIN_EMAIL'];
-			$comUrl = 'http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$this->occid.'#commenttab';
+			$comUrl = 'http://';
+			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $comUrl = 'https://';
+			$comUrl .= $_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$this->occid.'#commenttab';
 			$subject = $GLOBALS['DEFAULT_TITLE'].' inappropriate comment reported<br/>';
 			$bodyStr = 'The following comment has been recorted as inappropriate:<br/> <a href="'.$comUrl.'">'.$comUrl.'</a>';
 			$headerStr = "MIME-Version: 1.0 \r\nContent-type: text/html \r\nTo: ".$emailAddr." \r\nFrom: Admin <".$emailAddr."> \r\n";

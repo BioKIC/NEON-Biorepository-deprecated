@@ -75,14 +75,19 @@ $specList = $loanManager->getSpecList($loanId);
 					<th style="width:25px;text-align:center;"><input type="checkbox" onclick="selectAll(this);" title="Select/Deselect All" /></th>
 					<th style="width:100px;text-align:center;">Catalog Number</th>
 					<th style="width:375px;text-align:center;">Details</th>
-					<th style="width:75px;text-align:center;">Date Returned</th>
+					<th style="width:90px;text-align:center;">Date Returned</th>
 				</tr>
 				<?php
 				foreach($specList as $occid => $specArr){
+					$classStr = '';
+					//if($specArr['catalognumber']) $classStr = $specArr['catalognumber'];
+					//if(str_replace(array(',',';'),' ',$specArr['othercatalognumbers'])) $classStr .= ' '.$specArr['othercatalognumbers'];
 					?>
 					<tr>
 						<td>
-							<input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" />
+							<span class="<?php echo $classStr; ?>">
+								<input name="occid[]" type="checkbox" value="<?php echo $occid; ?>" />
+							</span>
 						</td>
 						<td>
 							<div style="float:right">
@@ -97,98 +102,100 @@ $specList = $loanManager->getSpecList($loanId);
 						</td>
 						<td>
 							<?php
-							$editorLink = 'specnoteseditor.php?loanid='.$loanId.'&occid='.$occid.'&collid='.$collid;
-							echo '<div style="float:right"><a href="#" onclick="openPopup(\''.$editorLink.'\');return false"><img src="../../images/edit.png" style="width:13px" title="Edit notes" /></a></div>';
-							echo '<i>'.$specArr['sciname'].'</i>; ';
+							if($specArr['sciname']) echo '<i>'.$specArr['sciname'].'</i>; ';
 							$loc = $specArr['locality'];
 							if(strlen($loc) > 500) $loc = substr($loc,400);
-							echo $specArr['collector'].'; '.$loc;
+							if($specArr['collector']) echo $specArr['collector'].'; ';
+							echo $loc;
 							if($specArr['notes']) echo '<div class="notesDiv"><b>Notes:</b> '.$specArr['notes'],'</div>';
 							?>
 						</td>
-						<td><?php echo $specArr['returndate']; ?></td>
+						<td><?php
+						$editorLink = 'specnoteseditor.php?loanid='.$loanId.'&occid='.$occid.'&collid='.$collid;
+						echo '<div style="float:right"><a href="#" onclick="openPopup(\''.$editorLink.'\');return false"><img src="../../images/edit.png" style="width:13px" title="Edit notes" /></a></div>';
+						echo $specArr['returndate'];
+						?></td>
 					</tr>
 					<?php
 				}
 			?>
 			</table>
-			<table style="width:100%;">
-				<tr>
-					<td colspan="10" valign="bottom">
-						<div id="newdetdiv" style="display:none;">
-							<fieldset>
-								<legend><b>Add a New Determinations</b></legend>
-								<div style='margin:3px;'>
-									<b>Identification Qualifier:</b>
-									<input type="text" name="identificationqualifier" title="e.g. cf, aff, etc" />
-								</div>
-								<div style='margin:3px;'>
-									<b>Scientific Name:</b>
-									<input type="text" id="dafsciname" name="sciname" style="background-color:lightyellow;width:350px;" onfocus="initLoanDetAutocomplete(this.form)" />
-									<input type="hidden" id="daftidtoadd" name="tidtoadd" value="" />
-									<input type="hidden" name="family" value="" />
-								</div>
-								<div style='margin:3px;'>
-									<b>Author:</b>
-									<input type="text" name="scientificnameauthorship" style="width:200px;" />
-								</div>
-								<div style='margin:3px;'>
-									<b>Confidence of Determination:</b>
-									<select name="confidenceranking">
-										<option value="8">High</option>
-										<option value="5" selected>Medium</option>
-										<option value="2">Low</option>
-									</select>
-								</div>
-								<div style='margin:3px;'>
-									<b>Determiner:</b>
-									<input type="text" name="identifiedby" id="identifiedby" style="background-color:lightyellow;width:200px;" />
-								</div>
-								<div style='margin:3px;'>
-									<b>Date:</b>
-									<input type="text" name="dateidentified" id="dateidentified" style="background-color:lightyellow;" onchange="detDateChanged(this.form);" />
-								</div>
-								<div style='margin:3px;'>
-									<b>Reference:</b>
-									<input type="text" name="identificationreferences" style="width:350px;" />
-								</div>
-								<div style='margin:3px;'>
-									<b>Notes:</b>
-									<input type="text" name="identificationremarks" style="width:350px;" />
-								</div>
-								<div style='margin:3px;'>
-									<input type="checkbox" name="makecurrent" value="1" /> Make this the current determination
-								</div>
-								<div style='margin:3px;'>
-									<input type="checkbox" name="printqueue" value="1" /> Add to Annotation Print Queue
-								</div>
-								<div style='margin:15px;'>
-									<div style="float:left;">
-										<input type="submit" name="formsubmit" onclick="verifyLoanDet();" value="Add New Determinations" />
-									</div>
-								</div>
-							</fieldset>
+			<div id="newdetdiv" style="display:none;clear:both">
+				<fieldset>
+					<legend><b>Add a New Determinations</b></legend>
+					<div style='margin:3px;'>
+						<b>Identification Qualifier:</b>
+						<input type="text" name="identificationqualifier" title="e.g. cf, aff, etc" />
+					</div>
+					<div style='margin:3px;'>
+						<b>Scientific Name:</b>
+						<input type="text" id="dafsciname" name="sciname" style="background-color:lightyellow;width:350px;" onfocus="initLoanDetAutocomplete(this.form)" />
+						<input type="hidden" id="daftidtoadd" name="tidtoadd" value="" />
+						<input type="hidden" name="family" value="" />
+					</div>
+					<div style='margin:3px;'>
+						<b>Author:</b>
+						<input type="text" name="scientificnameauthorship" style="width:200px;" />
+					</div>
+					<div style='margin:3px;'>
+						<b>Confidence of Determination:</b>
+						<select name="confidenceranking">
+							<option value="8">High</option>
+							<option value="5" selected>Medium</option>
+							<option value="2">Low</option>
+						</select>
+					</div>
+					<div style='margin:3px;'>
+						<b>Determiner:</b>
+						<input type="text" name="identifiedby" id="identifiedby" style="background-color:lightyellow;width:200px;" />
+					</div>
+					<div style='margin:3px;'>
+						<b>Date:</b>
+						<input type="text" name="dateidentified" id="dateidentified" style="background-color:lightyellow;" onchange="detDateChanged(this.form);" />
+					</div>
+					<div style='margin:3px;'>
+						<b>Reference:</b>
+						<input type="text" name="identificationreferences" style="width:350px;" />
+					</div>
+					<div style='margin:3px;'>
+						<b>Notes:</b>
+						<input type="text" name="identificationremarks" style="width:350px;" />
+					</div>
+					<div style='margin:3px;'>
+						<input type="checkbox" name="makecurrent" value="1" /> Make this the current determination
+					</div>
+					<div style='margin:3px;'>
+						<input type="checkbox" name="printqueue" value="1" /> Add to Annotation Print Queue
+					</div>
+					<div style='margin:15px;'>
+						<div style="float:left;">
+							<input type="submit" name="formsubmit" onclick="verifyLoanDet();" value="Add New Determinations" />
 						</div>
-						<div style="margin:10px;float:left;">
-							<div style="float:left;">
-								<input name="applytask" type="radio" value="check" title="Check-in Specimens" CHECKED />Check-in Specimens<br/>
-								<input name="applytask" type="radio" value="delete" title="Delete Specimens" />Delete Specimens from Loan
-							</div>
-							<span style="margin-left:25px;float:left;">
-								<input name="formsubmit" type="submit" value="Perform Action" />
-								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-								<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
-								<input name="tabindex" type="hidden" value="1" />
-							</span>
-						</div>
-						<div style="margin:10px;float:right;">
-							<div id="detAddToggleDiv" onclick="toggle('newdetdiv');">
-								<a href="#" onclick="return false;">Add New Determinations</a>
-							</div>
-						</div>
-					</td>
-				</tr>
-			</table>
+					</div>
+				</fieldset>
+			</div>
+			<div style="clear:both">
+				<div style="margin:10px;">
+					<fieldset style="float:left;width:200px">
+						<legend>Actions</legend>
+						<input name="applytask" type="radio" value="check" title="Check-in Specimens" CHECKED />Check-in Specimens<br/>
+						<input name="applytask" type="radio" value="delete" title="Delete Specimens" />Delete Specimens from Loan
+
+						<button name="formsubmit" type="submit" value="performSpecimenAction">Perform Action</button>
+						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+						<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
+						<input name="tabindex" type="hidden" value="1" />
+					</fieldset>
+					<span style="margin-left:25px;">
+						<button name="formsubmit" type="submit" value="exportSpecimenList" onclick="skipFormVerification = true">Export Specimen List</button>
+					</span>
+				</div>
+				<div style="margin:10px;float:right;">
+					<div id="detAddToggleDiv" onclick="toggle('newdetdiv');">
+						<a href="#" onclick="return false;">Add New Determinations</a>
+					</div>
+				</div>
+			</div>
 		</form>
 	</div>
 	<div id="nospecdiv" style="margin:20px;font-size:120%;<?php echo ($specList?'display:none;':''); ?>">There are no specimens registered for this loan.</div>

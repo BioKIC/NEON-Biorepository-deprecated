@@ -154,16 +154,17 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 
 							</div>
 							<div style="margin-top:10px;">
-								<div>Must be a CSV text file with the first row containing the following columns. Note that Excel spreadsheets can be saved as a CSV file.</div>
+								<div>Input file must be a CSV text file containing the following columns.
+								Column order does not matter, though the first row should contain columns names in accordance with the names in bold listed below.
+								Note that Excel spreadsheets (xlsx) can be saved as a CSV file via the "Save as..." option.</div>
 								<ul>
-									<li>sciname (required)</li>
-									<li>family (optional)</li>
-									<li>habitat (optional)</li>
-									<li>abundance (optional)</li>
-									<li>notes (optional)</li>
-									<li>internalnotes (optional) - displayed only to editors</li>
-									<li>source (optional)</li>
-
+									<li><b>sciname</b> (required)</li>
+									<li><b>family</b> (optional)</li>
+									<li><b>habitat</b> (optional)</li>
+									<li><b>abundance</b> (optional)</li>
+									<li><b>notes</b> (optional)</li>
+									<li><b>internalnotes</b> (optional) - displayed only to editors</li>
+									<li><b>source</b> (optional)</li>
 								</ul>
 							</div>
 							<div style="margin:25px;">

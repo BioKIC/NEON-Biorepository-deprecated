@@ -43,7 +43,7 @@ $headerMapBase = array('institutioncode'=>'Institution Code (override)','collect
 	'verbatimattributes' => 'Description','lifestage' => 'Life Stage', 'sex' => 'Sex', 'individualcount' => 'Individual Count',
 	'samplingprotocol' => 'Sampling Protocol', 'preparations' => 'Preparations', 'reproductivecondition' => 'Reproductive Condition',
 	'typestatus' => 'Type Status','cultivationstatus' => 'Cultivation Status','establishmentmeans' => 'Establishment Means',
-	'disposition' => 'Disposition','duplicatequantity' => 'Duplicate Qty','datelastmodified' => 'Date Last Modified',
+	'disposition' => 'Disposition','duplicatequantity' => 'Duplicate Qty','datelastmodified' => 'Date Last Modified', 'labelproject' => 'Project',
 	'processingstatus' => 'Processing Status','recordenteredby' => 'Entered By','dbpk' => 'dbpk','basisofrecord' => 'Basis Of Record','language' => 'Language');
 $headMap = array();
 
@@ -136,7 +136,7 @@ else{
 		fieldset > legend{ font-weight:bold }
 		.fieldGroupDiv{ clear:both; margin-bottom:2px; overflow: auto}
 		.fieldDiv{ float:left; margin-right: 20px}
-		#innertext{ background-color: white }
+		#innertext{ background-color: white; margin: 0px 10px; }
 	</style>
 </head>
 <body style="margin-left: 0px; margin-right: 0px;background-color:white;">
@@ -197,7 +197,7 @@ else{
 										<option value="">Select Field Name</option>
 										<option value="">----------------------</option>
 										<?php
-										ksort($headerMapBase);
+										asort($headerMapBase);
 										foreach($headerMapBase as $k => $v){
 											//Scientific name fields are excluded because batch updates will not update tidinterpreted index and authors
 											//Scientific name updates should happen within

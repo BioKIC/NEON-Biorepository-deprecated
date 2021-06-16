@@ -52,17 +52,17 @@ if(isset($sesarProfile['generationMethod'])) $generationMethod = $sesarProfile['
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title>IGSN GUID Management</title>
-  <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-  ?>
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript">
 		function validateCredentials(f){
@@ -196,7 +196,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				if($missingCnt){
 					echo '<div id="missingGuidList" style="margin-left:40px;display:none">';
 					foreach($sesarArr['missing'] as $igsn => $missingArr){
-						echo '<li><a href="https://sesardev.geosamples.org/sample/igsn/'.$igsn.'" target="_blank" title="Open IGSN in SESAR Systems">'.$igsn.'</a> ';
+						echo '<li><a href="https://app.geosamples.org/sample/igsn/'.$igsn.'" target="_blank" title="Open IGSN in SESAR Systems">'.$igsn.'</a> ';
 						if(isset($missingArr['occid'])){
 							echo '=> <a href="../editor/occurrenceeditor.php?occid='.$missingArr['occid'].'" target="_blank" title="Open occurrence in editor">'.$missingArr['catNum'].'</a> ';
 							echo '<a href="#" onclick="syncIGSN('.$missingArr['occid'].',\''.$missingArr['catNum'].'\',\''.$igsn.'\');return false" title="Add IGSN to target occurrence"><img src="../../images/link.png" style="width:13px"/></a>';

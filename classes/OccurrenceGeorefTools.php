@@ -4,6 +4,7 @@ include_once($SERVER_ROOT.'/config/dbconnection.php');
 class OccurrenceGeorefTools {
 
 	private $conn;
+	private $collid;
 	private $collStr;
 	private $qryVars = array();
 	private $errorStr;
@@ -75,41 +76,44 @@ class OccurrenceGeorefTools {
 				}
 			}
 			$sql .= 'ORDER BY '.$orderBy.'locality,verbatimcoordinates ';
-			//echo $sql; exit;
+			//echo $sql;
 			$totalCnt = 0;
 			$locCnt = 1;
 			$countryStr='';$stateStr='';$countyStr='';$municipalityStr='';$localityStr='';$verbCoordStr = '';$decLatStr='';$decLngStr='';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county)
-					|| $municipalityStr != trim($r->municipality) || $localityStr != trim($r->locality," .,;")
-					|| $verbCoordStr != trim($r->verbatimcoordinates) || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
-					$countryStr = trim($r->country);
-					$stateStr = trim($r->stateprovince);
-					$countyStr = trim($r->county);
-					$municipalityStr = trim($r->municipality);
-					$localityStr = trim($r->locality," .,;");
-					$verbCoordStr = trim($r->verbatimcoordinates);
-					$decLatStr = $r->decimallatitude;
-					$decLngStr = $r->decimallongitude;
-					$totalCnt++;
-					$retArr[$totalCnt]['occid'] = $r->occid;
-					$retArr[$totalCnt]['country'] = $countryStr;
-					$retArr[$totalCnt]['stateprovince'] = $stateStr;
-					$retArr[$totalCnt]['county'] = $countyStr;
-					$retArr[$totalCnt]['municipality'] = $municipalityStr;
-					$retArr[$totalCnt]['locality'] = $localityStr;
-					$retArr[$totalCnt]['verbatimcoordinates'] = $verbCoordStr;
-					$retArr[$totalCnt]['decimallatitude'] = $decLatStr;
-					$retArr[$totalCnt]['decimallongitude'] = $decLngStr;
-					$retArr[$totalCnt]['cnt'] = 1;
-					$locCnt = 1;
-				}
-				else{
-					$locCnt++;
-					$newOccidStr = $retArr[$totalCnt]['occid'].','.$r->occid;
-					$retArr[$totalCnt]['occid'] = $newOccidStr;
-					$retArr[$totalCnt]['cnt'] = $locCnt;
+				$localityStrNew = trim($r->locality,' .,;');
+				$verbCoordStrNew = trim($r->verbatimcoordinates,' .,;');
+				if($localityStrNew || $verbCoordStrNew){
+					if($countryStr != trim($r->country) || $stateStr != trim($r->stateprovince) || $countyStr != trim($r->county) || $municipalityStr != trim($r->municipality)
+						|| $localityStr != $localityStrNew || $verbCoordStr != $verbCoordStrNew || $decLatStr != $r->decimallatitude || $decLngStr != $r->decimallongitude){
+						$countryStr = trim($r->country);
+						$stateStr = trim($r->stateprovince);
+						$countyStr = trim($r->county);
+						$municipalityStr = trim($r->municipality);
+						$localityStr = $localityStrNew;
+						$verbCoordStr = $verbCoordStrNew;
+						$decLatStr = $r->decimallatitude;
+						$decLngStr = $r->decimallongitude;
+						$totalCnt++;
+						$retArr[$totalCnt]['occid'] = $r->occid;
+						$retArr[$totalCnt]['country'] = $countryStr;
+						$retArr[$totalCnt]['stateprovince'] = $stateStr;
+						$retArr[$totalCnt]['county'] = $countyStr;
+						$retArr[$totalCnt]['municipality'] = $municipalityStr;
+						$retArr[$totalCnt]['locality'] = $localityStr;
+						$retArr[$totalCnt]['verbatimcoordinates'] = $verbCoordStr;
+						$retArr[$totalCnt]['decimallatitude'] = $decLatStr;
+						$retArr[$totalCnt]['decimallongitude'] = $decLngStr;
+						$retArr[$totalCnt]['cnt'] = 1;
+						$locCnt = 1;
+					}
+					else{
+						$locCnt++;
+						$newOccidStr = $retArr[$totalCnt]['occid'].','.$r->occid;
+						$retArr[$totalCnt]['occid'] = $newOccidStr;
+						$retArr[$totalCnt]['cnt'] = $locCnt;
+					}
 				}
 				if($totalCnt > 999) break;
 			}
@@ -288,10 +292,9 @@ class OccurrenceGeorefTools {
 	}
 
 	//Setters and getters
-	public function setCollId($cid){
-		if(preg_match('/^[\d,]+$/',$cid)){
-			$this->collStr = $cid;
-		}
+	public function setCollId($collidStr){
+		if(preg_match('/^[\d,]+$/',$collidStr)) $this->collStr = $collidStr;
+		if(is_numeric($collidStr)) $this->collid = $collidStr;
 	}
 
 	public function getCollMap(){
@@ -305,7 +308,7 @@ class OccurrenceGeorefTools {
 				'WHERE ((colltype IN("Preserved Specimens","Observations")) ';
 			if($rightArr) $sql .= 'AND (collid IN('.implode(',', $rightArr).')) ';
 			$sql .= ') ';
-			if($IS_ADMIN) $sql .= 'OR (collid IN('.$this->collStr.')) ';
+			if($IS_ADMIN && $this->collStr) $sql .= 'OR (collid IN('.$this->collStr.')) ';
 			$sql .= 'ORDER BY collectionname, collectioncode ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -327,7 +330,7 @@ class OccurrenceGeorefTools {
 	//Get data functions
 	public function getCountryArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT country FROM omoccurrences WHERE collid IN('.$this->collStr.')';
+		$sql = 'SELECT DISTINCT country FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$cStr = trim($r->country);
@@ -338,12 +341,9 @@ class OccurrenceGeorefTools {
 		return $retArr;
 	}
 
-	public function getStateArr($countryStr = ''){
+	public function getStateArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT stateprovince FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
-		/*if($countryStr){
-			$sql .= 'AND country = "'.$countryStr.'" ';
-		}*/
+		$sql = 'SELECT DISTINCT stateprovince FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.') ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$sStr = trim($r->stateprovince);
@@ -354,15 +354,9 @@ class OccurrenceGeorefTools {
 		return $retArr;
 	}
 
-	public function getCountyArr($countryStr = '',$stateStr = ''){
+	public function getCountyArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT county FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
-		/*if($countryStr){
-			$sql .= 'AND country = "'.$countryStr.'" ';
-		}*/
-		if($stateStr){
-			$sql .= 'AND stateprovince = "'.$stateStr.'" ';
-		}
+		$sql = 'SELECT DISTINCT county FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.') ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -374,15 +368,9 @@ class OccurrenceGeorefTools {
 		return $retArr;
 	}
 
-	public function getMunicipalityArr($countryStr = '',$stateStr = ''){
+	public function getMunicipalityArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT municipality FROM omoccurrences WHERE collid IN('.$this->collStr.') ';
-		/*if($countryStr){
-			$sql .= 'AND country = "'.$countryStr.'" ';
-		}*/
-		if($stateStr){
-			$sql .= 'AND stateprovince = "'.$stateStr.'" ';
-		}
+		$sql = 'SELECT DISTINCT municipality FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.') ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -396,7 +384,7 @@ class OccurrenceGeorefTools {
 
 	public function getProcessingStatus(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT processingstatus FROM omoccurrences WHERE collid IN('.$this->collStr.')';
+		$sql = 'SELECT DISTINCT processingstatus FROM omoccurrences WHERE decimalLatitude IS NULL AND collid IN('.$this->collStr.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			if($r->processingstatus) $retArr[] = $r->processingstatus;

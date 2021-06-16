@@ -2,7 +2,10 @@ $(document).ready(function() {
 	if(!navigator.cookieEnabled){
 		alert("Your browser cookies are disabled. To be able to login and access your profile, they must be enabled for this domain.");
 	}
-	$('#tabs').tabs({ active: tabIndex });
+	$('#tabs').tabs({ active: tabIndex }).css({
+		'min-height': '500px',
+		'overflow': 'auto'
+	});
 });
 
 function openIndPopup(occid){

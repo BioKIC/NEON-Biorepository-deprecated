@@ -1,6 +1,5 @@
 <?php
 include_once('Manager.php');
-include_once('OccurrenceDuplicate.php');
 include_once('OccurrenceAccessStats.php');
 
 class OccurrenceIndividual extends Manager{
@@ -23,11 +22,26 @@ class OccurrenceIndividual extends Manager{
 
 	private function loadMetadata(){
 		if($this->collid){
-			$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype, homepage, individualurl, contact, email, icon, publicedits, rights, rightsholder, accessrights, guidtarget '.
-				'FROM omcollections WHERE collid = '.$this->collid;
-			$rs = $this->conn->query($sql);
-			if($rs){
-				$this->metadataArr = $rs->fetch_assoc();
+			//$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype, homepage, individualurl, contact, email, icon, publicedits, rights, rightsholder, accessrights, guidtarget FROM omcollections WHERE collid = '.$this->collid;
+			$sql = 'SELECT * FROM omcollections WHERE collid = '.$this->collid;
+			if($rs = $this->conn->query($sql)){
+				$this->metadataArr = array_change_key_case($rs->fetch_assoc());
+				if(isset($this->metadataArr['contactjson']) && $this->metadataArr['contactjson']){
+					//Test to see if contact is a JSON object or a simple string
+					if($contactArr = json_decode($this->metadataArr['contactjson'],true)){
+						$contactStr = '';
+						foreach($contactArr as $cArr){
+							if(!$contactStr || isset($cArr['centralContact'])){
+								if(isset($cArr['firstName']) && $cArr['firstName']) $contactStr = $cArr['firstName'].' ';
+								$contactStr .= $cArr['lastName'];
+								if(isset($cArr['role']) && $cArr['role']) $contactStr .= ', '.$cArr['role'];
+								$this->metadataArr['contact'] = $contactStr;
+								if(isset($cArr['email']) && $cArr['email']) $this->metadataArr['email'] = $cArr['email'];
+								if(isset($cArr['centralContact'])) break;
+							}
+						}
+					}
+				}
 				$rs->free();
 			}
 			else{
@@ -357,10 +371,103 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function getDuplicateArr(){
-		$dupManager = new OccurrenceDuplicate();
-		$retArr = $dupManager->getClusterArr($this->occid);
-		unset($retArr[$this->occid]);
+		$retArr = array();
+		$sqlBase = 'SELECT o.occid, c.institutioncode AS instcode, c.collectioncode AS collcode, c.collectionname AS collname, o.catalognumber, o.occurrenceid, o.sciname, '.
+			'o.scientificnameauthorship AS author, o.identifiedby, o.dateidentified, o.recordedby, o.recordnumber, o.eventdate, IFNULL(i.thumbnailurl, i.url) AS url ';
+		//Get exsiccati duplicates
+		if(isset($this->occArr['exs'])){
+			$sql = $sqlBase.'FROM omexsiccatiocclink l INNER JOIN omexsiccatiocclink l2 ON l.omenid = l2.omenid '.
+				'INNER JOIN omoccurrences o ON l2.occid = o.occid '.
+				'INNER JOIN omcollections c ON o.collid = c.collid '.
+				'LEFT JOIN images i ON o.occid = i.occid '.
+				'WHERE (o.occid != l.occid) AND (l.occid = '.$this->occid.')';
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_assoc()){
+					$retArr['exs'][$r['occid']] = array_change_key_case($r);
+				}
+				$rs->free();
+			}
+		}
+		//Get specimen duplicates
+		$sql = $sqlBase.'FROM omoccurduplicatelink d INNER JOIN omoccurduplicatelink d2 ON d.duplicateid = d2.duplicateid '.
+			'INNER JOIN omoccurrences o ON d2.occid = o.occid '.
+			'INNER JOIN omcollections c ON o.collid = c.collid '.
+			'LEFT JOIN images i ON o.occid = i.occid '.
+			'WHERE (d.occid = '.$this->occid.') AND (d.occid != d2.occid) ';
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_assoc()){
+				if(!isset($retArr['exs'][$r['occid']])) $retArr['dupe'][$r['occid']] = array_change_key_case($r);
+			}
+			$rs->free();
+		}
 		return $retArr;
+	}
+
+	//Occurrence trait and attribute functions
+	public function getTraitArr(){
+		$retArr = array();
+		if($this->occid){
+			$sql = 'SELECT t.traitid, t.traitName, t.traitType, t.description AS t_desc, t.refUrl AS t_url, s.stateid, s.stateName, s.description AS s_desc, s.refUrl AS s_url, d.parentstateid '.
+				'FROM tmattributes a INNER JOIN tmstates s ON a.stateid = s.stateid '.
+				'INNER JOIN tmtraits t ON s.traitid = t.traitid '.
+				'LEFT JOIN tmtraitdependencies d ON t.traitid = d.traitid '.
+				'WHERE t.isPublic = 1 AND a.occid = '.$this->occid.' ORDER BY t.traitName, s.sortSeq';
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retArr[$r->traitid]['name'] = $r->traitName;
+					$retArr[$r->traitid]['desc'] = $r->t_desc;
+					$retArr[$r->traitid]['url'] = $r->t_url;
+					$retArr[$r->traitid]['type'] = $r->traitType;
+					$retArr[$r->traitid]['depStateID'] = $r->parentstateid;
+					$retArr[$r->traitid]['state'][$r->stateid]['name'] = $r->stateName;
+					$retArr[$r->traitid]['state'][$r->stateid]['desc'] = $r->s_desc;
+					$retArr[$r->traitid]['state'][$r->stateid]['url'] = $r->s_url;
+				}
+				$rs->free();
+			}
+			if($retArr){
+				//Set dependent traits
+				$sql = 'SELECT DISTINCT s.traitid AS parentTraitID, d.parentStateID, d.traitid AS depTraitID '.
+					'FROM tmstates s INNER JOIN tmtraitdependencies d ON s.stateid = d.parentstateid '.
+					'WHERE s.traitid IN('.implode(',',array_keys($retArr)).')';
+				//echo $sql.'<br/>';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$retArr[$r->parentTraitID]['state'][$r->parentStateID]['depTraitID'][] = $r->depTraitID;
+				}
+				$rs->free();
+			}
+		}
+		return $retArr;
+	}
+
+	public function echoTraitDiv($traitArr, $targetID, $ident = 15){
+		if(array_key_exists($targetID,$traitArr)){
+			$tArr = $traitArr[$targetID];
+			foreach($tArr['state'] as $stateID => $sArr){
+				$label = '';
+				if($tArr['type'] == 'TF') $label = $traitArr[$targetID]['name'];
+				$this->echoTraitUnit($sArr, $label, $ident);
+				if(array_key_exists('depTraitID',$sArr)){
+					foreach($sArr['depTraitID'] as $depTraitID){
+						$this->echoTraitDiv($traitArr, $depTraitID, $ident+15);
+					}
+				}
+			}
+		}
+	}
+
+	public function echoTraitUnit($outArr, $label = '', $indent=0){
+		echo '<div style="margin-left:'.$indent.'px">';
+		if($outArr['url']) echo '<a href="'.$outArr['url'].'" target="_blank">';
+		echo '<span class="traitName">';
+		if($label) echo $label.' ';
+		echo $outArr['name'];
+		echo '</span>';
+		if($outArr['url']) echo '</a>';
+		if($outArr['desc']) echo ': '.$outArr['desc'];
+		echo '</div>';
 	}
 
 	//Occurrence comment functions
@@ -435,7 +542,9 @@ class OccurrenceIndividual extends Manager{
 
 			//Email to portal admin
 			$emailAddr = $GLOBALS['ADMIN_EMAIL'];
-			$comUrl = 'http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$this->occid.'#commenttab';
+			$comUrl = 'http://';
+			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $comUrl = 'https://';
+			$comUrl .= $_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$this->occid.'#commenttab';
 			$subject = $GLOBALS['DEFAULT_TITLE'].' inappropriate comment reported<br/>';
 			$bodyStr = 'The following comment has been recorted as inappropriate:<br/> <a href="'.$comUrl.'">'.$comUrl.'</a>';
 			$headerStr = "MIME-Version: 1.0 \r\nContent-type: text/html \r\nTo: ".$emailAddr." \r\nFrom: Admin <".$emailAddr."> \r\n";

@@ -24,24 +24,24 @@ if(!$recLimit || $recCnt < $recLimit){
 	<div style="height:25px;margin-top:-5px;">
 		<div>
 			<div style="float:left;">
-				<form name="downloadForm" action="../download/index.php" method="post" target="_blank" style="float:left">
+				<form name="downloadForm" action="../download/index.php" method="post" onsubmit="targetPopup(this)" style="float:left">
 					<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer" title="<?php echo $LANG['DOWNLOAD_SPECIMEN_DATA']; ?>">
 						<img src="../../images/dl2.png" srcset="../../images/download.svg" class="svg-icon" style="width:15px" />
 					</button>
-					<input name="reclimit" id="reclimit" type="hidden" value="<?php echo $recLimit; ?>" />
+					<input name="reclimit" type="hidden" value="<?php echo $recLimit; ?>" />
 					<input name="sourcepage" type="hidden" value="map" />
 					<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 					<input name="dltype" type="hidden" value="specimen" />
 				</form>
 				<form name="fullquerykmlform" action="kmlhandler.php" method="post" target="_blank" style="float:left;">
-					<input name="reclimit" id="reclimit" type="hidden" value="<?php echo $recLimit; ?>" />
+					<input name="reclimit" type="hidden" value="<?php echo $recLimit; ?>" />
 					<input name="sourcepage" type="hidden" value="map" />
 					<input name="searchvar" type="hidden" value="<?php echo $searchVar; ?>" />
 					<button name="submitaction" type="submit" class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer" title="Download KML file">
 						<img src="../../images/dl2.png" srcset="../../images/download.svg" class="svg-icon" style="width:15px; padding-right: 5px; vertical-align:top" />KML
 					</button>
 				</form>
-				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer;" onclick="copyUrl()" title="Copy URL to Clipboard">
+				<button class="ui-button ui-widget ui-corner-all" style="margin:5px;padding:5px;cursor: pointer;" onclick="copyUrl()" title="<?php echo (isset($LANG['COPY_TO_CLIPBOARD'])?$LANG['COPY_TO_CLIPBOARD']:'Copy URL to Clipboard'); ?>">
 					<img src="../../images/dl2.png" srcset="../../images/link.svg" class="svg-icon" style="width:15px" /></button>
 			</div>
 		</div>

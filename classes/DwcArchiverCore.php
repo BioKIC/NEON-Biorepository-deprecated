@@ -64,7 +64,7 @@ class DwcArchiverCore extends Manager{
 		$this->charSetOut = $this->charSetSource;
 
 		$this->condAllowArr = array('catalognumber','othercatalognumbers','occurrenceid','family','sciname','country','stateprovince','county','municipality',
-			'recordedby','recordnumber','eventdate','decimallatitude','decimallongitude','minimumelevationinmeters','maximumelevationinmeters',
+			'recordedby','recordnumber','eventdate','decimallatitude','decimallongitude','minimumelevationinmeters','maximumelevationinmeters','cultivationstatus',
 			'datelastmodified','dateentered','processingstatus','dbpk');
 
 		$this->securityArr = array('eventDate','month','day','startDayOfYear','endDayOfYear','verbatimEventDate',
@@ -284,7 +284,7 @@ class DwcArchiverCore extends Manager{
 					$taxaManager->setTaxonRequestVariable($taxaArr);
 					$sqlFrag .= $taxaManager->getTaxonWhereFrag();
 				}
-				elseif($field == 'cultivationStatus'){
+				elseif($field == 'cultivationstatus'){
 					if(current(current($condArr)) === '0') $sqlFrag .= 'AND (o.cultivationStatus = 0 OR o.cultivationStatus IS NULL) ';
 					else $sqlFrag .= 'AND (o.cultivationStatus = 1) ';
 				}
@@ -1262,7 +1262,7 @@ class DwcArchiverCore extends Manager{
 		if(array_key_exists('description',$emlArr) && $emlArr['description']){
 			$abstractElem = $newDoc->createElement('abstract');
 			$paraElem = $newDoc->createElement('para');
-			$paraElem->appendChild($newDoc->createTextNode($emlArr['description']));
+			$paraElem->appendChild($newDoc->createTextNode(strip_tags($emlArr['description'])));
 			$abstractElem->appendChild($paraElem);
 			$datasetElem->appendChild($abstractElem);
 		}
@@ -1524,6 +1524,8 @@ class DwcArchiverCore extends Manager{
 		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
 		$dwcOccurManager->setExtended($this->extended);
+		$dwcOccurManager->setIncludeExsiccatae();
+		$dwcOccurManager->setIncludeAssociatedSequences();
 		$dwcOccurManager->setIncludePaleo($this->hasPaleo);
 		if(!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr($this->schemaType, $this->extended);
 		//Output records
@@ -1662,7 +1664,13 @@ class DwcArchiverCore extends Manager{
 				elseif($this->schemaType == 'backup') unset($r['collid']);
 
 				if($ocnStr = $dwcOccurManager->getAdditionalCatalogNumberStr($r['occid'])) $r['otherCatalogNumbers'] = $ocnStr;
-				if($assocStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocStr;
+				if($exsStr = $dwcOccurManager->getExsiccateStr($r['occid'])){
+					if(isset($r['occurrenceRemarks']) && $r['occurrenceRemarks']) $exsStr = $r['occurrenceRemarks'].'; '.$exsStr;
+					$r['occurrenceRemarks'] = $exsStr;
+				}
+				if($assocOccurStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocOccurStr;
+				if($assocSeqStr = $dwcOccurManager->getAssociatedSequencesStr($r['occid'])) $r['t_associatedSequences'] = $assocSeqStr;
+				if($assocTaxa = $dwcOccurManager->getAssocTaxa($r['occid'])) $r['associatedTaxa'] = $assocTaxa;
 				//$dwcOccurManager->appendUpperTaxonomy($r);
 				$dwcOccurManager->appendUpperTaxonomy2($r);
 				if($rankStr = $dwcOccurManager->getTaxonRank($r['rankid'])) $r['t_taxonRank'] = $rankStr;

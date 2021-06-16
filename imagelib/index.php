@@ -22,10 +22,8 @@ $imgManager->setSearchTerm($taxon);
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script src="../js/symb/imagelib.search.js?ver=201902" type="text/javascript"></script>
 </head>
 <body>

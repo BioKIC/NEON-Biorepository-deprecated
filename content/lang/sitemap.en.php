@@ -26,7 +26,8 @@ $LANG['ADDITIONAL_RESOURCES'] = 'Additional Resources';
 $LANG['GLOSSARY'] = 'Glossary';
 $LANG['PROTECTED_SPECIES'] = 'Protected Species';
 $LANG['LISTOFTAXA'] = 'list of taxa where locality and/or taxonomic information is protected due to rare/threatened/endangered status';
-$LANG['BIOINV'] = 'Biotic Inventory Projects';
+$LANG['BIOTIC_INVENTORIES'] = 'Biotic Inventory Projects';
+$LANG['ALL_CHECKLISTS'] = 'All Public Checklists';
 $LANG['DYNAMIC'] = 'Dynamic Species Lists';
 $LANG['CHECKLIST'] = 'Checklist';
 $LANG['BUILDCHECK'] = 'dynamically build a checklist using georeferenced specimen records';
@@ -60,7 +61,6 @@ $LANG['FORANOVERVIEW'] = 'for an overview of how images are managed within a Sym
 						feature. ';
 $LANG['BASICFIELD'] = 'Basic Field Image Submission';
 $LANG['IMGOBSER'] = 'Image Observation Submission Module';
-$LANG['SELECTCHECK'] = 'Select a Checklist';
 $LANG['ADDNEWPROJ'] = 'Add a New Project';
 $LANG['LISTOFCURR'] = 'List of Current Projects';
 $LANG['CLICKEDIT'] = '(click to edit)';

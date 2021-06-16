@@ -48,15 +48,9 @@ class OccurrenceLabel{
 			}
 			$dateTarget = $this->cleanInStr($postArr['datetarget']);
 			if($date1){
-				$dateField = 'o.dateentered';
-				if($date2){
-					$sqlWhere .= 'AND (DATE('.$dateTarget.') BETWEEN "'.$date1.'" AND "'.$date2.'") ';
-				}
-				else{
-					$sqlWhere .= 'AND (DATE('.$dateTarget.') = "'.$date1.'") ';
-				}
-
-				$sqlOrderBy .= ','.$dateTarget;
+				if($date2) $sqlWhere .= 'AND (DATE(o.'.$dateTarget.') BETWEEN "'.$date1.'" AND "'.$date2.'") ';
+				else $sqlWhere .= 'AND (DATE(o.'.$dateTarget.') = "'.$date1.'") ';
+				$sqlOrderBy .= ',o.'.$dateTarget;
 			}
 			if($postArr['recordnumber']){
 				$rnArr = explode(',',$this->cleanInStr($postArr['recordnumber']));
@@ -109,7 +103,6 @@ class OccurrenceLabel{
 						$term1 = trim(substr($v,0,$p));
 						$term2 = trim(substr($v,$p+3));
 						if(is_numeric($term1) && is_numeric($term2)){
-							$searchIsNum = true;
 							$iBetweenFrag[] = '(o.catalogNumber BETWEEN '.$term1.' AND '.$term2.')';
 						}
 						else{
@@ -191,7 +184,6 @@ class OccurrenceLabel{
 				}
 				$rs1->free();
 			}
-
 			//Get occurrence records
 			$this->setLabelFieldArr();
 			$sql2 = 'SELECT '.implode(',',$this->labelFieldArr).' FROM omoccurrences o LEFT JOIN taxa t ON o.tidinterpreted = t.tid '.$sqlWhere;
@@ -203,6 +195,33 @@ class OccurrenceLabel{
 					$retArr[$row2['occid']] = $row2;
 				}
 				$rs2->free();
+			}
+			//Append identifiers indexed within omoccurridentifier
+			if($retArr){
+				$sql = 'SELECT occid, identifiername, identifiervalue FROM omoccuridentifiers WHERE occid IN('.implode(',',array_keys($retArr)).')';
+				if($rs = $this->conn->query($sql)){
+					$otherCatArr = array();
+					$cnt = 0;
+					while($r = $rs->fetch_object()){
+						$otherCatArr[$r->occid][$cnt]['v'] = $r->identifiervalue;
+						$otherCatArr[$r->occid][$cnt]['n'] = $r->identifiername;
+						$cnt++;
+					}
+					$rs->free();
+					foreach($otherCatArr as $occid => $ocnArr){
+						$verbIdStr = $retArr[$occid]['othercatalognumbers'];
+						$ocnStr = '';
+						foreach($ocnArr as $idArr){
+							$ocnStr .= '; '.($idArr['n']?$idArr['n'].': ':'').$idArr['v'];
+							$verbIdStr = str_ireplace($idArr['n'],'',$verbIdStr);
+							$verbIdStr = str_ireplace($idArr['v'],'',$verbIdStr);
+						}
+						$ocnStr = trim($ocnStr,';,: ');
+						$verbIdStr = trim($verbIdStr,';,: ');
+						if($verbIdStr) $ocnStr = $ocnStr.'; '.$verbIdStr;
+						$retArr[$occid]['othercatalognumbers'] = $ocnStr;
+					}
+				}
 			}
 		}
 		return $retArr;
@@ -376,7 +395,7 @@ class OccurrenceLabel{
 	public function getLabelFormatArr($annotated = false){
 		$retArr = array();
 		//Add global portal defined label formats
-		if($GLOBALS['IS_ADMIN']){
+		if($GLOBALS['IS_ADMIN'] || $annotated){
 			if(!file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
 				@copy($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson_template.php',$GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
 			}
@@ -494,7 +513,7 @@ class OccurrenceLabel{
 		$labelArr['labelFooter']['textValue'] = $postArr['fTextValue'];
 		$labelArr['labelFooter']['className'] = $postArr['fClassName'];
 		$labelArr['labelFooter']['style'] = $postArr['fStyle'];
-		$labelArr['defaultStyles'] = $postArr['defaultStyles'];
+		$labelArr['customStyles'] = $postArr['customStyles'];
 		$labelArr['defaultCss'] = $postArr['defaultCss'];
 		$labelArr['customCss'] = $postArr['customCss'];
 		$labelArr['customJS'] = $postArr['customJS'];

@@ -48,7 +48,7 @@ class OccurrenceDuplicate {
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$retArr[$r->duplicateid]['o'][$r->occid] = array('instcode' => $r->institutioncode, 'collcode' => $r->collectioncode,
-							'collname' => $r->collectionname, 'catnum' => $r->catalognumber, 'occurrenceid' => $r->occurrenceid, 'sciname' => $r->sciname, 'author' => $r->scientificnameauthorship,
+					'collname' => $r->collectionname, 'catnum' => $r->catalognumber, 'occurrenceid' => $r->occurrenceid, 'sciname' => $r->sciname, 'author' => $r->scientificnameauthorship,
 					'identifiedby' => $r->identifiedby, 'dateidentified' => $r->dateidentified, 'recordedby' => $r->recordedby,
 					'recordnumber' => $r->recordnumber, 'eventdate' => $r->eventdate, 'notes' => $r->notes, 'tnurl' => $r->thumbnailurl,
 					'url' => $r->url);
@@ -486,12 +486,11 @@ class OccurrenceDuplicate {
 	private function getDupeLocality($sqlFrag, $target = ''){
 		$retArr = array();
 		if($sqlFrag){
-			$locArr = Array('associatedcollectors','verbatimeventdate','country','stateprovince','county','municipality','locality','locationid',
-				'decimallatitude','decimallongitude','verbatimcoordinates','coordinateuncertaintyinmeters','geodeticdatum','minimumelevationinmeters',
-				'maximumelevationinmeters','verbatimelevation','verbatimcoordinates','georeferencedby','georeferenceprotocol','georeferencesources',
-				'georeferenceverificationstatus','georeferenceremarks','habitat','substrate','associatedtaxa');
+			$locArr = Array('country','stateprovince','county','municipality','locality','locationid','locationRemarks','decimallatitude','decimallongitude','verbatimcoordinates',
+				'coordinateuncertaintyinmeters','geodeticdatum','minimumelevationinmeters','maximumelevationinmeters','verbatimelevation','minimumDepthInMeters',
+				'maximumDepthInMeters','verbatimDepth','georeferencedby','georeferenceprotocol','georeferencesources','georeferenceverificationstatus','georeferenceremarks',
+				'habitat','substrate','associatedtaxa');
 			$sql = 'SELECT DISTINCT o.'.implode(',o.',$locArr).' FROM omoccurrences o '.$sqlFrag;
-			//echo $sql;
 			$rs = $this->conn->query($sql);
 			$cnt = 0;
 			while($r = $rs->fetch_assoc()){
@@ -540,7 +539,7 @@ class OccurrenceDuplicate {
 		$editorManager = new OccurrenceEditorManager($this->conn);
 		if($editorManager->mergeRecords($targetOccid,$sourceOccid)){
 			if(!$editorManager->deleteOccurrence($sourceOccid)){
-				$this->errorStr = $editorManager->getErrorStr();
+				$this->errorStr = trim($editorManager->getErrorStr(),' ;');
 			}
 		}
 		else{

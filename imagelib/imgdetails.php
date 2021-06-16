@@ -36,6 +36,9 @@ if($isEditor){
 	$imgArr = $imgManager->getImageMetadata($imgId);
 }
 
+$serverPath = 'http://';
+if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverPath = 'https://';
+$serverPath .= $_SERVER['SERVER_NAME'];
 if($imgArr){
 	$imgUrl = $imgArr["url"];
 	$origUrl = $imgArr["originalurl"];
@@ -50,7 +53,7 @@ if($imgArr){
 		}
 	}
 	if(substr($metaUrl,0,1)=="/"){
-		$metaUrl = 'http://'.$_SERVER['SERVER_NAME'].$metaUrl;
+		$metaUrl = $serverPath.$metaUrl;
 	}
 }
 
@@ -67,7 +70,7 @@ if($imgArr){
 		<meta name="twitter:card" content="photo" data-dynamic="true" />
 		<meta name="twitter:title" content="<?php echo $imgArr["sciname"]; ?>" />
 		<meta name="twitter:image" content="<?php echo $metaUrl; ?>" />
-		<meta name="twitter:url" content="<?php echo 'http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId; ?>" />
+		<meta name="twitter:url" content="<?php echo $serverPath.$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId; ?>" />
 		<?php
 	}
 	?>
@@ -82,14 +85,12 @@ if($imgArr){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../js/symb/shared.js" type="text/javascript"></script>
 	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=3" type="text/javascript"></script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 </head>
 <body>
 	<div id="fb-root"></div>
@@ -388,7 +389,7 @@ if($imgArr){
 						Do you see an error or have a comment about this image? <br/>If so, send email to:
 						<?php
 						$emailSubject = $DEFAULT_TITLE.' Image #'.$imgId;
-						$emailBody = 'Image being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId;
+						$emailBody = 'Image being referenced: '.$serverPath.$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId;
 						$emailRef = 'subject='.$emailSubject.'&cc='.$adminEmail.'&body='.$emailBody;
 						?>
 						<a href="mailto:<?php echo $adminEmail.'?'.$emailRef; ?>">

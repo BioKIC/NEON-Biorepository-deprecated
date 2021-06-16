@@ -4,33 +4,36 @@ include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
 include_once($SERVER_ROOT.'/content/lang/ident/index.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$proj = array_key_exists("proj",$_REQUEST)?$_REQUEST["proj"]:"";
-if(!$proj && isset($DEFAULT_PROJ_ID)) $proj = $DEFAULT_PROJ_ID;
+$proj = array_key_exists('proj',$_REQUEST)?$_REQUEST['proj']:'';
+$pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:'';
+if(!$pid && is_numeric($proj)) $pid = $proj;
+
+//Sanitation
+if($pid && !is_numeric($pid)) $pid = '';
+
+if($pid === '' && isset($DEFAULT_PROJ_ID)) $pid = $DEFAULT_PROJ_ID;
 
 $clManager = new ChecklistManager();
-$clManager->setProj($proj);
-$pid = $clManager->getPid();
+$clManager->setPid($pid);
 ?>
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['IDKEY'];?></title>
-  <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 </head>
-
 <body>
 	<?php
-
-	$displayLeftMenu = (isset($ident_indexMenu)?$ident_indexMenu:"true");
+	$displayLeftMenu = (isset($ident_indexMenu)?$ident_indexMenu:'true');
 	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($ident_indexCrumbs)){
 		echo "<div class='navpath'>";
@@ -38,25 +41,20 @@ $pid = $clManager->getPid();
 		echo "<b>".$LANG['IDKEYLIST']."</b>";
 		echo "</div>";
 	}
-
 	?>
-
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<h2><?php echo $LANG['IDKEYS']; ?></h2>
 	    <div style='margin:20px;'>
 	        <?php
-	        $clList = $clManager->getChecklists();
-			if($clList){
-				$projName = $clList['name'];
-				$clArr = $clList['clid'];
+	        $projArr = $clManager->getChecklists(true);
+			foreach($projArr as $pidKey => $pArr){
+				$clArr = $pArr['clid'];
 				echo '<div style="margin:3px 0px 0px 15px;">';
-				echo '<h3>'.$projName;
-				echo ' <a href="../checklists/clgmap.php?pid='.$pid.'&target=keys"><img src="../images/world.png" style="width:10px;border:0" /></a>';
-				echo '</h3>';
-				echo "<div><ul>";
+				echo '<h3>'.$pArr['name'].' <a href="../checklists/clgmap.php?pid='.$pidKey.'&target=keys"><img src="../images/world.png" style="width:10px;border:0" /></a></h3>';
+				echo '<div><ul>';
 				foreach($clArr as $clid => $clName){
-					echo "<li><a href='key.php?clid=$clid&pid=$pid&taxon=All+Species'>".$clName."</a></li>";
+					echo '<li><a href="key.php?clid='.$clid.'&pid='.$pidKey.'&taxon=All+Species">'.$clName.'</a></li>';
 				}
 				echo "</ul></div>";
 				echo "</div>";
@@ -65,7 +63,7 @@ $pid = $clManager->getPid();
 		</div>
 	</div>
 	<?php
-		include($SERVER_ROOT.'/includes/footer.php');
+	include($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

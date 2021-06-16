@@ -96,7 +96,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			$this->displaySearchArr[] = 'Checklist ID: '.$this->searchTermArr['clid'];
 		}
-		elseif(array_key_exists("db",$this->searchTermArr) && $this->searchTermArr['db']){
+		elseif(array_key_exists('db',$this->searchTermArr) && $this->searchTermArr['db']){
 			$sqlWhere .= OccurrenceSearchSupport::getDbWhereFrag($this->cleanInStr($this->searchTermArr['db']));
 		}
 		if(array_key_exists('datasetid',$this->searchTermArr)){
@@ -414,6 +414,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$sqlWhere .= "AND (o.occid IN(SELECT occid FROM omoccurgenetic)) ";
 			$this->displaySearchArr[] = 'has genetic data';
 		}
+		if(array_key_exists("hascoords",$this->searchTermArr)){
+			$sqlWhere .= "AND (o.decimalLatitude IS NOT NULL) ";
+			$this->displaySearchArr[] = 'has geocoordinates';
+		}
 		if($sqlWhere){
 			if(!array_key_exists("includecult",$this->searchTermArr)){
 				$sqlWhere .= "AND (o.cultivationStatus IS NULL OR o.cultivationStatus = 0) ";
@@ -423,9 +427,25 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				$this->displaySearchArr[] = 'includes cultivated/captive occurrences';
 			}
 		}
-		if($sqlWhere){
-			$this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
+		if(array_key_exists('attr',$this->searchTermArr)){
+			$traitNameSql = 'SELECT t.traitName, s.stateName FROM tmtraits t JOIN tmstates s ON s.traitid = t.traitid WHERE s.stateid IN(' . $this->searchTermArr['attr'] . ')';
+			$rs = $this->conn->query($traitNameSql);
+			if($rs){
+				$traitArr = array();
+				while($r = $rs->fetch_object()) {
+					$traitArr[$r->traitName][] = $r->stateName;
+				}
+				$rs->free();
+				$displayStr = '';
+				foreach($traitArr as $traitName => $stateName){
+					$displayStr .= $traitName.': '.implode(', ',$stateName).'; ';
+				}
+				$this->displaySearchArr[] = trim($displayStr,'; ');
+			}
+			$sqlWhere .= 'AND (o.occid IN(SELECT occid FROM tmattributes WHERE stateid IN(' . $this->searchTermArr['attr'] . '))) ';
 		}
+
+		if($sqlWhere) $this->sqlWhere = 'WHERE '.substr($sqlWhere,4);
 		else{
 			//Make the sql valid, but return nothing
 			//$this->sqlWhere = 'WHERE o.occid IS NULL ';
@@ -656,11 +676,11 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($dbStr) $this->searchTermArr['db'] = $dbStr;
 		}
 		if(array_key_exists('datasetid',$_REQUEST) && $_REQUEST['datasetid']){
-			if(preg_match('/^[\d,]+$/',$_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
-			elseif(is_array($_REQUEST['datasetid'])){
+			if(is_array($_REQUEST['datasetid'])){
 				$dsStr = implode(',',$_REQUEST['datasetid']);
 				if(preg_match('/^[\d,]+$/',$dsStr)) $this->searchTermArr['datasetid'] = $dsStr;
 			}
+			elseif(preg_match('/^[\d,]+$/',$_REQUEST['datasetid'])) $this->searchTermArr['datasetid'] = $_REQUEST['datasetid'];
 		}
 		if(array_key_exists('taxa',$_REQUEST) && $_REQUEST['taxa']){
 			$this->setTaxonRequestVariable();
@@ -824,6 +844,14 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				unset($this->searchTermArr["hasgenetic"]);
 			}
 		}
+		if(array_key_exists("hascoords",$_REQUEST)){
+			if($_REQUEST["hascoords"]){
+				$this->searchTermArr["hascoords"] = true;
+			}
+			else{
+				unset($this->searchTermArr["hascoords"]);
+			}
+		}
 		if(array_key_exists("includecult",$_REQUEST)){
 			if($_REQUEST["includecult"]){
 				$this->searchTermArr["includecult"] = true;
@@ -831,6 +859,12 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			else{
 				unset($this->searchTermArr["includecult"]);
 			}
+		}
+		if(array_key_exists('attr',$_REQUEST)){
+			//Occurrence trait attributed passed as stateIDs
+			$stateIdStr = $_REQUEST['attr'];
+			if(is_array($_REQUEST['attr'])) $stateIdStr = implode(',',array_unique($_REQUEST['attr']));
+			if(preg_match('/^[0-9,]+$/', $stateIdStr)) $this->searchTermArr['attr'] = $stateIdStr;
 		}
 		$llPattern = '-?\d+\.{0,1}\d*';
 		if(array_key_exists("upperlat",$_REQUEST)){

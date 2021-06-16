@@ -87,11 +87,10 @@ class ProfileManager{
 	}
 
 	public function getPerson(){
-		$sqlStr = "SELECT u.uid, u.firstname, u.lastname, u.title, u.institution, u.department, ".
-			"u.address, u.city, u.state, u.zip, u.country, u.phone, u.email, ".
-			"u.url, u.biography, u.ispublic, u.notes, ul.username, ul.lastlogindate ".
-			"FROM users u LEFT JOIN userlogin ul ON u.uid = ul.uid ".
-			"WHERE (u.uid = ".$this->uid.")";
+		$sqlStr = 'SELECT u.uid, u.firstname, u.lastname, u.title, u.institution, u.department, u.address, u.city, u.state, u.zip, u.country, u.phone, u.email, '.
+			'u.url, u.guid, u.biography, u.ispublic, u.notes, ul.username, ul.lastlogindate '.
+			'FROM users u LEFT JOIN userlogin ul ON u.uid = ul.uid '.
+			'WHERE (u.uid = '.$this->uid.')';
 		$person = new Person();
 		//echo $sqlStr;
 		$badUserNameArr = array();
@@ -113,6 +112,7 @@ class ProfileManager{
 			$person->setPhone($row->phone);
 			$person->setEmail($row->email);
 			$person->setUrl($row->url);
+			$person->setGUID($row->guid);
 			$person->setBiography($row->biography);
 			$person->setIsPublic($row->ispublic);
 			$this->setUserTaxonomy($person);
@@ -143,25 +143,24 @@ class ProfileManager{
 		$success = false;
 		if($person){
 			$this->resetConnection();
-			$fields = 'UPDATE users SET ';
-			$where = 'WHERE (uid = '.$person->getUid().')';
-			$values = 'firstname = "'.$this->cleanInStr($person->getFirstName()).'"';
-			$values .= ', lastname= "'.$this->cleanInStr($person->getLastName()).'"';
-			$values .= ', title= "'.$this->cleanInStr($person->getTitle()).'"';
-			$values .= ', institution="'.$this->cleanInStr($person->getInstitution()).'"';
-			$values .= ', department= "'.$this->cleanInStr($person->getDepartment()).'"';
-			$values .= ', address= "'.$this->cleanInStr($person->getAddress()).'"';
-			$values .= ', city="'.$this->cleanInStr($person->getCity()).'"';
-			$values .= ', state="'.$this->cleanInStr($person->getState()).'"';
-			$values .= ', zip="'.$this->cleanInStr($person->getZip()).'"';
-			$values .= ', country= "'.$this->cleanInStr($person->getCountry()).'"';
-			$values .= ', phone="'.$this->cleanInStr($person->getPhone()).'"';
-			$values .= ', email="'.$this->cleanInStr($person->getEmail()).'"';
-			$values .= ', url="'.$this->cleanInStr($person->getUrl()).'"';
-			$values .= ', biography="'.$this->cleanInStr($person->getBiography()).'"';
-			$values .= ', ispublic='.$this->cleanInStr($person->getIsPublic()).' ';
-			$sql = $fields." ".$values." ".$where;
-			//echo $sql;
+			$sql = 'UPDATE users SET '.
+				'firstname = '.($person->getFirstName()?'"'.$this->cleanInStr($person->getFirstName()).'"':'NULL').','.
+				'lastname = '.($person->getLastName()?'"'.$this->cleanInStr($person->getLastName()).'"':'NULLL').','.
+				'title = '.($person->getTitle()?'"'.$this->cleanInStr($person->getTitle()).'"':'NULL').','.
+				'institution = '.($person->getInstitution()?'"'.$this->cleanInStr($person->getInstitution()).'"':'NULL').','.
+				'department = '.($person->getDepartment()?'"'.$this->cleanInStr($person->getDepartment()).'"':'NULL').','.
+				'address = '.($person->getAddress()?'"'.$this->cleanInStr($person->getAddress()).'"':'NULL').','.
+				'city = '.($person->getCity()?'"'.$this->cleanInStr($person->getCity()).'"':'NULL').','.
+				'state = '.($person->getState()?'"'.$this->cleanInStr($person->getState()).'"':'NULL').','.
+				'zip = '.($person->getZip()?'"'.$this->cleanInStr($person->getZip()).'"':'NULL').','.
+				'country = '.($person->getCountry()?'"'.$this->cleanInStr($person->getCountry()).'"':'NULL').','.
+				'phone = '.($person->getPhone()?'"'.$this->cleanInStr($person->getPhone()).'"':'NULL').','.
+				'email = '.($person->getEmail()?'"'.$this->cleanInStr($person->getEmail()).'"':'NULL').','.
+				'url = '.($person->getUrl()?'"'.$this->cleanInStr($person->getUrl()).'"':'NULL').','.
+				'guid = '.($person->getGUID()?'"'.$this->cleanInStr($person->getGUID()).'"':'NULL').','.
+				'biography = '.($person->getBiography()?'"'.$this->cleanInStr($person->getBiography()).'"':'NULL').','.
+				'ispublic = '.($person->getIsPublic()?$this->cleanInStr($person->getIsPublic()):0).' '.
+				'WHERE (uid = '.$person->getUid().')';
 			$success = $this->conn->query($sql);
 		}
 		return $success;
@@ -211,11 +210,14 @@ class ProfileManager{
 
 			if($uid){
 				$subject = 'RE: Password reset';
+				$serverPath = 'http://';
+				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverPath = 'https://';
+				$serverPath .= $_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'];
 				$body = 'Your '.$GLOBALS["DEFAULT_TITLE"].' password has been reset to: '.$newPassword.'<br/><br/> '.
 					'After logging in, you can change your password by clicking on the My Profile link within the site menu and then selecting the Edit Profile tab. '.
 					'If you have problems, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'].'<br/><br/>'.
-					'Data portal: <a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a><br/>'.
-					'Direct link to your user profile: <a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/profile/viewprofile.php?tabindex=2">http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/profile/viewprofile.php</a>';
+					'Data portal: <a href="'.$serverPath.'">'.$serverPath.'</a><br/>'.
+					'Direct link to your user profile: <a href="'.$serverPath.'/profile/viewprofile.php?tabindex=2">'.$serverPath.'/profile/viewprofile.php</a>';
 
 				$status = $this->sendEmail($email, $subject, $body);
 				if($status){
@@ -269,6 +271,7 @@ class ProfileManager{
 		$person->setCountry($postArr['country']);
 		$person->setEmail($postArr['emailaddr']);
 		$person->setUrl($postArr['url']);
+		$person->setGUID($postArr['guid']);
 		$person->setBiography($postArr['biography']);
 		$person->setIsPublic(isset($postArr['ispublic'])?1:0);
 
@@ -319,6 +322,10 @@ class ProfileManager{
 			$fields .= ', url';
 			$values .= ', "'.$person->getUrl().'"';
 		}
+		if($person->getGUID()){
+			$fields .= ', guid';
+			$values .= ', "'.$person->getGUID().'"';
+		}
 		if($person->getBiography()){
 			$fields .= ', biography';
 			$values .= ', "'.$this->cleanInStr($person->getBiography()).'"';
@@ -329,7 +336,6 @@ class ProfileManager{
 		}
 
 		$sql = $fields.') '.$values.')';
-		//echo "SQL: ".$sql;
 		$this->resetConnection();
 		if($this->conn->query($sql)){
 			$person->setUid($this->conn->insert_id);
@@ -367,9 +373,11 @@ class ProfileManager{
 		$rs->free();
 		if($loginStr){
 			$subject = $GLOBALS['DEFAULT_TITLE'].' Login Name';
-			$bodyStr = 'Your '.$GLOBALS['DEFAULT_TITLE'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.
-				$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a>) login name is: '.$loginStr.'<br/><br/>'.
-				'If you continue to have login issues, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'];
+			$serverPath = 'http://';
+			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverPath = 'https://';
+			$serverPath .= $_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'];
+			$bodyStr = 'Your '.$GLOBALS['DEFAULT_TITLE'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">'.$serverPath.
+				'</a>) login name is: '.$loginStr.'<br/><br/>If you continue to have login issues, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'];
 			$status = $this->sendEmail($emailAddr,$subject,$bodyStr);
 		}
 		else{
@@ -713,9 +721,7 @@ class ProfileManager{
 			'previousIdentifications,disposition,modified,language,processingstatus,recordEnteredBy,duplicateQuantity,dateLastModified ';
 		fputcsv($specFH, explode(',',$headerStr));
 		//Query and output values
-		$sql = 'SELECT '.$headerStr.
-			' FROM omoccurrences '.
-			'WHERE collid = '.$collId.' AND observeruid = '.$this->uid;
+		$sql = 'SELECT '.$headerStr.' FROM omoccurrences WHERE collid = '.$collId.' AND observeruid = '.$this->uid;
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_row()){
 				if($characterSet && $characterSet != $cSet){

@@ -49,16 +49,23 @@ if($glossId){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript" src="../js/symb/glossary.index.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#tabs').tabs({
+				beforeLoad: function( event, ui ) {
+					$(ui.panel).html("<p>Loading...</p>");
+				}
+			});
+		});
+	</script>
 </head>
 
 <body style="overflow-x:hidden;overflow-y:auto;width:800px;min-width:800px">
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<!-- This is inner text! -->
 	<div style="width:100%;margin-left:auto;margin-right:auto">
 		<div id="tabs" style="padding:10px">
@@ -183,7 +190,7 @@ if($glossId){
 							foreach($taxaArr as $tid => $sciname){
 								echo $delimter.$sciname;
 								if(array_key_exists($tid, $sourceArr)) echo ' [<a href="#" onclick="toggle(\''.$tid.'-sourcesdiv\');return false;"><span style="font-size:90%">show sources</span></a>]';
-								$delimter = ',';
+								$delimter = ', ';
 							}
 							?>
 						</div>

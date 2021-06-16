@@ -6,7 +6,8 @@
  *   collid (default: 0 [all collections]): PK for targeted collection. More than one codes can be supplied by separating them commas (e.g. collid=2,3,77)
  *   cond: search variable conditions to limit return based on the indexed Darwin Core fields
  *       Format: cond=<field1>-<optional operator>:<value1>;<field2>-<optional operator>:<value2>
- *       Fields allowed: catalognumber, othercatalognumbers, occurrenceid, family, sciname, country, stateprovince, county, municipality, recordedby, recordnumber, eventdate, decimallatitude, decimallongitude, minimumelevationinmeters, maximumelevationinmeters, processingstatus, datelastmodified, dateentered
+ *       Fields allowed: catalogNumber, otherCatalogNumbers, occurrenceID, family, sciname, country, stateProvince, county, municipality, recordedBy, recordNumber, eventDate,
+ *       	decimalLatitude, decimalLongitude, minimumElevationInMeters, maximumElevationInMeters, cultivationStatus, processingStatus, dateLastModified, dateEntered, dbpk
  *       Optional operators: EQUALS, NULL, NOTNULL, START, LIKE, LESSTHAN, GREATERTHAN
  *       Note the dash separating the field and operator; operator is not case specific
  *       Multiple conditions can be supplied separated by semicolons
@@ -24,12 +25,12 @@
  *
  * Examples:
  *
- *   http://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?collid=17
- *   http://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?collid=17&cond=stateProvince:New%20Mexico
- *   http://mycoportal.org/portal/webservices/dwc/dwcapubhandler.php?collid=15&cond=dateentered-greaterthan=2015-08-01
- *   http://lichenportal.org/portal/webservices/dwc/dwcapubhandler.php?collid=22&cond=processingstatus-equals:reviewed;dateentered-greaterthan:2015-04-01
- *   http://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?cond=sciname:Berberis%20repens
- *   http://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?cond=sciname:Berberis%20repens&usethes=1
+ *   https://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?collid=17
+ *   https://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?collid=17&cond=stateProvince:New%20Mexico
+ *   https://mycoportal.org/portal/webservices/dwc/dwcapubhandler.php?collid=15&cond=dateentered-greaterthan=2015-08-01
+ *   https://lichenportal.org/portal/webservices/dwc/dwcapubhandler.php?collid=22&cond=processingstatus-equals:reviewed;dateentered-greaterthan:2015-04-01
+ *   https://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?cond=sciname:Berberis%20repens
+ *   https://swbiodiversity.org/seinet/webservices/dwc/dwcapubhandler.php?cond=sciname:Berberis%20repens&usethes=1
  *
  */
 

@@ -81,12 +81,10 @@ if(!$researchList && !$editMode){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
+	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
-	<script type="text/javascript">
-		<?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
-	</script>
 	<script type="text/javascript">
 		var tabIndex = <?php echo $tabIndex; ?>;
 
@@ -339,7 +337,7 @@ if(!$researchList && !$editMode){
 						if($pid){
 							?>
 							<fieldset class="form-color">
-								<legend><?php (isset($LANG['DELPROJECT'])?$LANG['DELPROJECT']:'Delete Project') ?></legend>
+								<legend><?php echo (isset($LANG['DELPROJECT'])?$LANG['DELPROJECT']:'Delete Project') ?></legend>
 								<form action="index.php" method="post" onsubmit="return confirm('<?php (isset($LANG['CONFIRMDEL'])?$LANG['CONFIRMDEL']:'Are you sure you want to delete this inventory Project') ?>?')">
 									<input type="hidden" name="pid" value="<?php echo $pid;?>">
 									<input type="hidden" name="projsubmit" value="subdelete" />

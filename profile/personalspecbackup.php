@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
+include_once($SERVER_ROOT.'/content/lang/profile/personalspecbackup.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collId = $_REQUEST["collid"];
@@ -22,7 +23,7 @@ if($IS_ADMIN
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title>Personal Specimen Backup</title>
+	<title><?php echo (isset($LANG['PERS_SPEC_BACKUP'])?$LANG['PERS_SPEC_BACKUP']:'Personal Specimen Backup'); ?></title>
     <?php
       $activateJQuery = false;
       if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -44,8 +45,8 @@ if($IS_ADMIN
 			echo '<ul>';
 			$dlFile = $dlManager->dlSpecBackup($collId,$cSet,$zipFile);
 			if($dlFile){
-				echo '<li style="font-weight:bold;">Backup Complete!</li>';
-				echo '<li style="font-weight:bold;">Click on file to download: <a href="'.$dlFile.'">'.$dlFile.'</a></li>';
+				echo '<li style="font-weight:bold;">'.(isset($LANG['BACK_COMPLETE'])?$LANG['BACK_COMPLETE']:'Backup Complete').'!</li>';
+				echo '<li style="font-weight:bold;">'.(isset($LANG['CLICK'])?$LANG['CLICK']:'Click on file to download').': <a href="'.$dlFile.'">'.$dlFile.'</a></li>';
 				echo '</ul>';
 			}
 			echo '</ul>';
@@ -54,24 +55,24 @@ if($IS_ADMIN
 			?>
 			<form name="buform" action="personalspecbackup.php" method="post">
 				<fieldset style="padding:15px;">
-					<legend>Download Module</legend>
+					<legend><?php echo (isset($LANG['DOWNLOAD_MOD'])?$LANG['DOWNLOAD_MOD']:'Download Module'); ?></legend>
 					<div style="float:left;">
-						Data Set:
+						<?php echo (isset($LANG['DATA_SET'])?$LANG['DATA_SET']:'Data Set'); ?>:
 					</div>
 					<div style="float:left;">
 						<?php
 						$cSet = str_replace('-','',strtolower($CHARSET));
 						?>
-						<input type="radio" name="cset" value="latin1" <?php echo ($cSet=='iso88591'?'checked':''); ?> /> ISO-8859-1 (western)<br/>
-						<input type="radio" name="cset" value="utf8" <?php echo ($cSet=='utf8'?'checked':''); ?> /> UTF-8 (unicode)
+						<input type="radio" name="cset" value="latin1" <?php echo ($cSet=='iso88591'?'checked':''); ?> /> <?php echo (isset($LANG['ISO'])?$LANG['ISO']:'ISO-8859-1 (western)'); ?><br/>
+						<input type="radio" name="cset" value="utf8" <?php echo ($cSet=='utf8'?'checked':''); ?> /> <?php echo (isset($LANG['UTF'])?$LANG['UTF']:'UTF-8 (unicode)'); ?> 
 					</div>
 					<div style="clear:both;">
 						<input name="zipfile" type="checkbox" value="1" CHECKED />
-						Compress data into a zip file
+						<?php echo (isset($LANG['COMPRESS'])?$LANG['COMPRESS']:'Compress data into a zip file'); ?>
 					</div>
 					<div style="clear:both;">
 						<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
-						<input type="submit" name="formsubmit" value="Perform Backup" />
+						<button type="submit" name="formsubmit"><?php echo (isset($LANG['BACKUP'])?$LANG['BACKUP']:'Perform Backup'); ?></button>
 					</div>
 				</fieldset>
 			</form>

@@ -1490,7 +1490,7 @@ else{
 															<div class="fieldGroupDiv" title="Relationship to this occurrence">
 																<label>Relationship:</label>
 																<select name="assocrelation">
-																	<option value="0">No relation to current record</option>
+																	<option value="0">Undefined</option>
 																	<option value="0">---------------------------------</option>
 																	<?php
 																	$vocabArr = $occManager->getAssociationControlVocab();

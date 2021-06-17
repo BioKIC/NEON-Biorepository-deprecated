@@ -17,7 +17,7 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 		$retArr = array();
 		$relOccidArr = array();
 		$uidArr = array();
-		$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, identifier, verbatimSciname, tid, dynamicProperties, '.
+		$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, identifier, verbatimSciname, tid, locationOnHost, notes, dynamicProperties, '.
 			'IFNULL(modifiedUid,createdUid) as uid, IFNULL(modifiedTimestamp, initialTimestamp) as ts '.
 			'FROM omoccurassociations '.
 			'WHERE (occid = '.$this->occid.') OR (occidAssociate = '.$this->occid.')';
@@ -37,6 +37,8 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 				$retArr[$r->assocID]['identifier'] = $r->identifier;
 				$retArr[$r->assocID]['sciname'] = $r->verbatimSciname;
 				$retArr[$r->assocID]['tid'] = $r->tid;
+				$retArr[$r->assocID]['locationOnHost'] = $r->locationOnHost;
+				$retArr[$r->assocID]['notes'] = $r->notes;
 				$retArr[$r->assocID]['dynamicProperties'] = $r->dynamicProperties;
 				$retArr[$r->assocID]['ts'] = $r->ts;
 				if(!$retArr[$r->assocID]['identifier'] && $retArr[$r->assocID]['resourceUrl']) $retArr[$r->assocID]['identifier'] = 'identifier undefined';
@@ -93,7 +95,7 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 
 	public function addAssociation($postArr){
 		$status = true;
-		$sql = 'INSERT INTO omoccurassociations(occid, occidAssociate, relationship, subType, identifier, basisOfRecord, resourceUrl, verbatimSciname, createdUid) '.
+		$sql = 'INSERT INTO omoccurassociations(occid, occidAssociate, relationship, subType, identifier, basisOfRecord, resourceUrl, verbatimSciname, locationOnHost, notes, createdUid) '.
 			'VALUES('.$postArr['occid'].','.(isset($postArr['occidAssoc']) && $postArr['occidAssoc']?$this->cleanInStr($postArr['occidAssoc']):'NULL').','.
 			($postArr['relationship']?'"'.$this->cleanInStr($postArr['relationship']).'"':'NULL').','.
 			($postArr['subtype']?'"'.$this->cleanInStr($postArr['subtype']).'"':'NULL').','.
@@ -101,6 +103,8 @@ class OccurrenceEditorResource extends OccurrenceEditorManager {
 			($postArr['basisofrecord']?'"'.$this->cleanInStr($postArr['basisofrecord']).'"':'NULL').','.
 			($postArr['resourceurl']?'"'.$this->cleanInStr($postArr['resourceurl']).'"':'NULL').','.
 			($postArr['verbatimsciname']?'"'.$this->cleanInStr($postArr['verbatimsciname']).'"':'NULL').','.
+			($postArr['locationonhost']?'"'.$this->cleanInStr($postArr['locationonhost']).'"':'NULL').','.
+			($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').','.
 			$GLOBALS['SYMB_UID'].')';
 		if(!$this->conn->query($sql)){
 			$this->errorArr = 'ERROR saving occurrence association: '.$this->conn->error;

@@ -58,7 +58,7 @@ $projArr = $csManager->getProjectDetails();
 					<div>
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="omcsid" type="hidden" value="<?php echo $omcsid; ?>" />
-						<input name="tabindex" type="hidden" value="2" />
+						<input name="tabindex" type="hidden" value="1" />
 						<input name="submitaction" type="submit" value="Edit Crowdsource Project" />
 					</div>
 				</form>
@@ -83,7 +83,7 @@ $projArr = $csManager->getProjectDetails();
 							echo '<a href="../editor/occurrencetabledisplay.php?csmode=1&occindex=0&displayquery=1&reset=1&collid='.$collid.'" target="_blank">';
 							echo $unprocessedCnt;
 							echo '</a> ';
-							echo '<a href="index.php?submitaction=delqueue&tabindex=2&collid='.$collid.'&omcsid='.$omcsid.'">';
+							echo '<a href="index.php?submitaction=delqueue&tabindex=1&collid='.$collid.'&omcsid='.$omcsid.'">';
 							echo '<img src="../../images/drop.png" style="width:12px;" title="Delete all unprocessed records from queue" />';
 							echo '</a>';
 						}
@@ -184,7 +184,7 @@ $projArr = $csManager->getProjectDetails();
 										<div>
 											<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 											<input name="omcsid" type="hidden" value="<?php echo $omcsid; ?>" />
-											<input name="tabindex" type="hidden" value="2" />
+											<input name="tabindex" type="hidden" value="1" />
 											<input name="submitaction" type="submit" value="Add to Queue" />
 										</div>
 									</fieldset>

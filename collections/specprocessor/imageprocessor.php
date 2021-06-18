@@ -86,17 +86,6 @@ if($spprid) $specManager->setProjVariables($spprid);
 
 					}
 				}
-				else if(uploadType == 'idigbio'){
-					$("div.profileDiv").hide();
-					$("#titleDiv").show();
-					f.title.value = "iDigBio CSV upload";
-					$("#specKeyPatternDiv").show();
-					$("#patternReplaceDiv").show();
-					$("#replaceStrDiv").show();
-					if(f.sourcepath.value == "-- Use Default Path --") f.sourcepath.value = "";
-					$("#profileEditSubmit").val("Save Profile");
-					$("#submitDiv").show();
-				}
 				else if(uploadType == 'iplant'){
 					$("div.profileDiv").hide();
 					$("#titleDiv").show();
@@ -120,16 +109,6 @@ if($spprid) $specManager->setProjVariables($spprid);
 					alert("Image Mapping/Import type must be selected");
 					return false;
 				}
-				if(f.projecttype.value != 'file'){
-					if(f.speckeypattern.value == ""){
-						alert("Pattern matching term must have a value");
-						return false;
-					}
-					if(f.speckeypattern.value.indexOf("(") < 0 || f.speckeypattern.value.indexOf(")") < 0){
-						alert("Catalog portion of pattern matching term must be enclosed in parenthesis");
-						return false;
-					}
-				}
 				if(f.projecttype.value == 'file'){
 					var fileName = f.uploadfile.value;
 					var fileExt = fileName.split('.').pop().toLowerCase();
@@ -140,6 +119,18 @@ if($spprid) $specManager->setProjVariables($spprid);
 					else if(fileExt != "csv" && fileExt != "zip"){
 						alert("Input file must be a CSV spreadsheet (comma or tab delimited), or ZIP file containing a CSV file");
 						return false;
+					}
+				}
+				else{
+					if(f.speckeypattern.value == ""){
+						alert("Pattern matching term must have a value");
+						return false;
+					}
+					if(f.speckeypattern.value.substr(f.speckeypattern.value.length-3).toLowerCase() != "csv"){
+						if(f.speckeypattern.value.indexOf("(") < 0 || f.speckeypattern.value.indexOf(")") < 0){
+							alert("Catalog portion of pattern matching term must be enclosed in parenthesis");
+							return false;
+						}
 					}
 				}
 				if(f.projecttype.value == 'local'){
@@ -171,13 +162,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 			}
 
 			function validateProcForm(f){
-				if(f.projtype.value == 'idigbio'){
-					if(!document.getElementById("idigbiofile").files[0]){
-						alert("Select the output file from the iDigBio Image Appliance that will be uploaded into the system");
-						return false;
-					}
-				}
-				else if(f.projtype.value == 'iplant'){
+				if(f.projtype.value == 'iplant'){
 					var regexObj = /^\d{4}-\d{2}-\d{2}$/;
 					var startDate = f.startdate.value;
 					if(startDate != "" && !regexObj.test(startDate)){
@@ -227,6 +212,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 				return true;
 			}
 		</script>
+		<style>
+			label { width:220px; float:left; margin-right:3px }
+		</style>
 	</head>
 	<body>
 		<!-- This is inner text! -->
@@ -280,7 +268,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 								</div>
 								<div style="margin:15px;">
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-									<input name="tabindex" type="hidden" value="1" />
+									<input name="tabindex" type="hidden" value="0" />
 									<input name="filename" type="hidden" value="<?php echo $fileName; ?>" />
 									<button name="submitaction" type="submit" value="mapImageFile">Map Images</button>
 								</div>
@@ -305,7 +293,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 										<div style="margin:15px;">
 											<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-											<input name="tabindex" type="hidden" value="1" />
+											<input name="tabindex" type="hidden" value="0" />
 										</div>
 									</fieldset>
 								</form>
@@ -322,7 +310,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 									<?php
 									if($spprid){
 										?>
-										<div style="position:absolute;top:10px;right:10px;" onclick="toggle('editdiv');toggle('imgprocessdiv')" title="Close Editor">
+										<div style="float:right;" onclick="toggle('editdiv');toggle('imgprocessdiv')" title="Close Editor">
 											<img src="../../images/edit.png" style="border:0px" />
 										</div>
 										<input name="projecttype" type="hidden" value="<?php echo $projectType; ?>" />
@@ -331,15 +319,12 @@ if($spprid) $specManager->setProjVariables($spprid);
 									else{
 										?>
 										<div>
-											<div style="width:180px;float:left;">
-												<b>Processing Type:</b>
-											</div>
+											<label>Processing Type:</label>
 											<div style="float:left;">
 												<select name="projecttype" id="projecttype" onchange="uploadTypeChanged(this.form)" <?php echo ($spprid?'DISABLED':'');?>>
 													<option value="">----------------------</option>
 													<option value="local">Map Images from a Local or Remote Server</option>
 													<option value="file">Image URL Mapping File</option>
-													<option value="idigbio">iDigBio Media Ingestion Report</option>
 													<option value="iplant">iPlant Image Harvest</option>
 												</select>
 											</div>
@@ -347,18 +332,14 @@ if($spprid) $specManager->setProjVariables($spprid);
 										<?php
 									}
 									?>
-									<div id="titleDiv" style="display:<?php echo ($spprid?'block':'none'); ?>;clear:both">
-										<div style="width:180px;float:left;">
-											<b>Title:</b>
-										</div>
+									<div id="titleDiv" style="display:<?php echo ($spprid?'block':'none'); ?>;clear:left;">
+										<label>Title:</label>
 										<div style="float:left;">
 											<input name="title" type="text" style="width:300px;" value="<?php echo $specManager->getTitle(); ?>" />
 										</div>
 									</div>
 									<div id="specKeyPatternDiv" class="profileDiv" style="display:<?php echo ($projectType?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Pattern match term:</b>
-										</div>
+										<label>Pattern match term:</label>
 										<div style="float:left;">
 											<input name="speckeypattern" type="text" style="width:300px;" value="<?php echo $specManager->getSpecKeyPattern(); ?>" />
 											<a id="speckeypatterninfo" href="#" onclick="return false" title="More Information">
@@ -373,9 +354,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="patternReplaceDiv" class="profileDiv" style="display:<?php echo ($projectType?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Replacement term:</b>
-										</div>
+										<label>Replacement term:</label>
 										<div style="float:left;">
 											<input name="patternreplace" type="text" style="width:300px;" value="<?php echo ($specManager->getPatternReplace()?$specManager->getPatternReplace():'-- Optional --'); ?>" />
 											<a id="patternreplaceinfo" href="#" onclick="return false" title="More Information">
@@ -389,9 +368,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="replaceStrDiv" class="profileDiv" style="display:<?php echo ($projectType?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Replacement string:</b>
-										</div>
+										<label>Replacement string:</label>
 										<div style="float:left;">
 											<input name="replacestr" type="text" style="width:300px;" value="<?php echo ($specManager->getReplaceStr()?$specManager->getReplaceStr():'-- Optional --'); ?>" />
 											<a id="replacestrinfo" href="#" onclick="return false" title="More Information">
@@ -403,11 +380,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="sourcePathDiv" class="profileDiv" style="display:<?php echo ($projectType=='local'||$projectType=='iplant'?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Image source path:</b>
-										</div>
+										<label>Image source path:</label>
 										<div style="float:left;">
-											<input name="sourcepath" type="text" style="width:400px;" value="<?php echo $specManager->getSourcePath(); ?>" />
+											<input name="sourcepath" type="text" style="width:600px;" value="<?php echo $specManager->getSourcePath(); ?>" />
 											<a id="sourcepathinfo" href="#" onclick="return false" title="More Information">
 												<img src="../../images/info.png" style="width:15px;" />
 											</a>
@@ -434,11 +409,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="targetPathDiv" class="profileDiv" style="display:<?php echo ($projectType=='local'?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Image target path:</b>
-										</div>
+										<label>Image target path:</label>
 										<div style="float:left;">
-											<input name="targetpath" type="text" style="width:400px;" value="<?php echo ($specManager->getTargetPath()?$specManager->getTargetPath():$IMAGE_ROOT_PATH); ?>" />
+											<input name="targetpath" type="text" style="width:600px;" value="<?php echo ($specManager->getTargetPath()?$specManager->getTargetPath():$IMAGE_ROOT_PATH); ?>" />
 											<a id="targetpathinfo" href="#" onclick="return false" title="More Information">
 												<img src="../../images/info.png" style="width:15px;" />
 											</a>
@@ -450,11 +423,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="urlBaseDiv" class="profileDiv" style="display:<?php echo ($projectType=='local'?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Image URL base:</b>
-										</div>
+										<label>Image URL base:</label>
 										<div style="float:left;">
-											<input name="imgurl" type="text" style="width:400px;" value="<?php echo ($specManager->getImgUrlBase()?$specManager->getImgUrlBase():$IMAGE_ROOT_URL); ?>" />
+											<input name="imgurl" type="text" style="width:600px;" value="<?php echo ($specManager->getImgUrlBase()?$specManager->getImgUrlBase():$IMAGE_ROOT_URL); ?>" />
 											<a id="imgurlinfo" href="#" onclick="return false" title="More Information">
 												<img src="../../images/info.png" style="width:15px;" />
 											</a>
@@ -467,11 +438,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="centralWidthDiv" class="profileDiv" style="display:<?php echo ($projectType=='local'?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Central pixel width:</b>
-										</div>
+										<label>Central pixel width:</label>
 										<div style="float:left;">
-											<input name="webpixwidth" type="text" style="width:50px;" value="<?php echo ($specManager->getWebPixWidth()?$specManager->getWebPixWidth():$IMG_WEB_WIDTH); ?>" />
+											<input name="webpixwidth" type="text" style="width:75px;" value="<?php echo ($specManager->getWebPixWidth()?$specManager->getWebPixWidth():$IMG_WEB_WIDTH); ?>" />
 											<a id="webpixwidthinfo" href="#" onclick="return false" title="More Information">
 												<img src="../../images/info.png" style="width:15px;" />
 											</a>
@@ -482,11 +451,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="thumbWidthDiv" class="profileDiv" style="display:<?php echo ($projectType=='local'?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Thumbnail pixel width:</b>
-										</div>
+										<label>Thumbnail pixel width:</label>
 										<div style="float:left;">
-											<input name="tnpixwidth" type="text" style="width:50px;" value="<?php echo ($specManager->getTnPixWidth()?$specManager->getTnPixWidth():$IMG_TN_WIDTH); ?>" />
+											<input name="tnpixwidth" type="text" style="width:75px;" value="<?php echo ($specManager->getTnPixWidth()?$specManager->getTnPixWidth():$IMG_TN_WIDTH); ?>" />
 											<a id="tnpixwidthinfo" href="#" onclick="return false" title="More Information">
 												<img src="../../images/info.png" style="width:15px;" />
 											</a>
@@ -496,11 +463,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="largeWidthDiv" class="profileDiv" style="display:<?php echo ($projectType=='local'?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>Large pixel width:</b>
-										</div>
+										<label>Large pixel width:</label>
 										<div style="float:left;">
-											<input name="lgpixwidth" type="text" style="width:50px;" value="<?php echo ($specManager->getLgPixWidth()?$specManager->getLgPixWidth():$IMG_LG_WIDTH); ?>" />
+											<input name="lgpixwidth" type="text" style="width:75px;" value="<?php echo ($specManager->getLgPixWidth()?$specManager->getLgPixWidth():$IMG_LG_WIDTH); ?>" />
 											<a id="lgpixwidthinfo" href="#" onclick="return false" title="More Information">
 												<img src="../../images/info.png" style="width:15px;" />
 											</a>
@@ -514,11 +479,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="jpgQualityDiv" class="profileDiv" style="display:<?php echo ($projectType=='local'?'block':'none'); ?>">
-										<div style="width:180px;float:left;">
-											<b>JPG quality:</b>
-										</div>
+										<label>JPG quality:</label>
 										<div style="float:left;">
-											<input name="jpgcompression" type="text" style="width:50px;" value="<?php echo $specManager->getJpgQuality(); ?>" />
+											<input name="jpgcompression" type="text" style="width:75px;" value="<?php echo $specManager->getJpgQuality(); ?>" />
 											<a id="jpgcompressioninfo" href="#" onclick="return false" title="More Information">
 												<img src="../../images/info.png" style="width:15px;" />
 											</a>
@@ -563,7 +526,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 									<div id="submitDiv" class="profileDiv" style="clear:both;padding:15px;display:<?php echo ($projectType?'block':'none'); ?>">
 										<input name="spprid" type="hidden" value="<?php echo $spprid; ?>" />
 										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-										<input name="tabindex" type="hidden" value="1" />
+										<input name="tabindex" type="hidden" value="0" />
 										<input id="profileEditSubmit" name="submitaction" type="submit" value="Save Profile" />
 									</div>
 								</fieldset>
@@ -577,7 +540,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 										<div>
 											<input name="sppriddel" type="hidden" value="<?php echo $spprid; ?>" />
 											<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-											<input name="tabindex" type="hidden" value="1" />
+											<input name="tabindex" type="hidden" value="0" />
 											<input name="submitaction" type="submit" value="Delete Profile" />
 										</div>
 									</fieldset>
@@ -593,37 +556,24 @@ if($spprid) $specManager->setProjVariables($spprid);
 								<form name="imgprocessform" action="processor.php" method="post" enctype="multipart/form-data" onsubmit="return validateProcForm(this);">
 									<fieldset style="padding:15px;">
 										<legend><b><?php echo $specManager->getTitle(); ?></b></legend>
-										<div style="position:absolute;top:10px;right:35px;" title="Show all saved profiles or add a new one...">
-											<a href="index.php?tabindex=1&collid=<?php echo $collid; ?>"><img src="../../images/add.png" style="border:0px" /></a>
+										<div style="float:right" title="Show all saved profiles or add a new one...">
+											<a href="index.php?tabindex=0&collid=<?php echo $collid; ?>"><img src="../../images/add.png" style="border:0px" /></a>
 										</div>
-										<div style="position:absolute;top:10px;right:10px;" title="Open Editor">
+										<div style="float:right" title="Open Editor">
 											<a href="#" onclick="toggle('editdiv');toggle('imgprocessdiv');return false;"><img src="../../images/edit.png" style="border:0px;width:15px;" /></a>
 										</div>
 										<?php
-										if($projectType == 'idigbio'){
-											?>
-											<div style="font-weight:bold;">Select iDigBio Image Appliance output file</div>
-											<div style="" title="Upload output file created by iDigBio Image Upload Appliance here.">
-												<input type='hidden' name='MAX_FILE_SIZE' value='20000000' />
-												<input name='idigbiofile' id='idigbiofile' type='file' size='70' value="Choose image alliance output file" />
-											</div>
-											<?php
-										}
-										elseif($projectType == 'iplant'){
+										if($projectType == 'iplant'){
 											$lastRunDate = ($specManager->getLastRunDate()?$specManager->getLastRunDate():'no run date');
 											?>
 											<div style="margin-top:10px">
-												<div style="width:200px;float:left;">
-													<b>Last Run Date:</b>
-												</div>
+												<label>Last Run Date:</label>
 												<div style="float:left;">
 													<?php echo $lastRunDate; ?>
 												</div>
 											</div>
 											<div style="margin-top:10px;clear:both;">
-												<div style="width:200px;float:left;">
-													<b>Processing start date:</b>
-												</div>
+												<label>Processing start date:</label>
 												<div style="float:left;">
 													<input name="startdate" type="text" value="<?php echo ($lastRunDate=='no run date'?'':$lastRunDate); ?>" />
 												</div>
@@ -631,37 +581,29 @@ if($spprid) $specManager->setProjVariables($spprid);
 											<?php
 										}
 										?>
-										<div style="margin-top:10px;clear:both;">
-											<div style="width:200px;float:left;">
-												<b>Pattern match term:</b>
-											</div>
+										<div style="margin-top:10px;clear:left;">
+											<label>Pattern match term:</label>
 											<div style="float:left;">
 												<?php echo $specManager->getSpecKeyPattern(); ?>
 												<input type='hidden' name='speckeypattern' value='<?php echo $specManager->getSpecKeyPattern();?>' />
 											</div>
 										</div>
 										<div style="clear:both;">
-											<div style="width:200px;float:left;">
-												<b>Match term on:</b>
-											</div>
+											<label>Match term on:</label>
 											<div style="float:left;">
 												<input name="matchcatalognumber" type="checkbox" value="1" checked /> Catalog Number
 												<input name="matchothercatalognumbers" type="checkbox" value="1" style="margin-left:30px;" /> Other Catalog Numbers
 											</div>
 										</div>
 										<div style="margin-top:10px;clear:both;">
-											<div style="width:200px;float:left;">
-												<b>Replacement term:</b>
-											</div>
+											<label>Replacement term:</label>
 											<div style="float:left;">
 												<?php echo $specManager->getPatternReplace(); ?>
 												<input type='hidden' name='patternreplace' value='<?php echo $specManager->getPatternReplace();?>' />
 											</div>
 										</div>
 										<div style="margin-top:10px;clear:both;">
-											<div style="width:200px;float:left;">
-												<b>Replacement string:</b>
-											</div>
+											<label>Replacement string:</label>
 											<div style="float:left;">
 												<?php
 												echo str_replace(' ', '&lt;space&gt;', $specManager->getReplaceStr());
@@ -673,9 +615,7 @@ if($spprid) $specManager->setProjVariables($spprid);
 										if($projectType != 'idigbio'){
 											?>
 											<div style="clear:both;">
-												<div style="width:200px;float:left;">
-													<b>Source path:</b>
-												</div>
+												<label>Source path:</label>
 												<div style="float:left;">
 													<?php
 													echo '<input name="sourcepath" type="hidden" value="'.$specManager->getSourcePathDefault().'" />';
@@ -688,49 +628,37 @@ if($spprid) $specManager->setProjVariables($spprid);
 										if($projectType != 'idigbio' && $projectType != 'iplant'){
 											?>
 											<div style="clear:both;">
-												<div style="width:200px;float:left;">
-													<b>Target folder:</b>
-												</div>
+												<label>Target folder:</label>
 												<div style="float:left;">
 													<?php echo ($specManager->getTargetPath()?$specManager->getTargetPath():$IMAGE_ROOT_PATH); ?>
 												</div>
 											</div>
 											<div style="clear:both;">
-												<div style="width:200px;float:left;">
-													<b>URL prefix:</b>
-												</div>
+												<label>URL prefix:</label>
 												<div style="float:left;">
 													<?php echo ($specManager->getImgUrlBase()?$specManager->getImgUrlBase():$IMAGE_ROOT_URL); ?>
 												</div>
 											</div>
 											<div style="clear:both;">
-												<div style="width:200px;float:left;">
-													<b>Web image width:</b>
-												</div>
+												<label>Web image width:</label>
 												<div style="float:left;">
 													<?php echo ($specManager->getWebPixWidth()?$specManager->getWebPixWidth():$IMG_WEB_WIDTH); ?>
 												</div>
 											</div>
 											<div style="clear:both;">
-												<div style="width:200px;float:left;">
-													<b>Thumbnail width:</b>
-												</div>
+												<label>Thumbnail width:</label>
 												<div style="float:left;">
 													<?php echo ($specManager->getTnPixWidth()?$specManager->getTnPixWidth():$IMG_TN_WIDTH); ?>
 												</div>
 											</div>
 											<div style="clear:both;">
-												<div style="width:200px;float:left;">
-													<b>Large image width:</b>
-												</div>
+												<label>Large image width:</label>
 												<div style="float:left;">
 													<?php echo ($specManager->getLgPixWidth()?$specManager->getLgPixWidth():$IMG_LG_WIDTH); ?>
 												</div>
 											</div>
 											<div style="clear:both;">
-												<div style="width:200px;float:left;">
-													<b>JPG quality (1-100): </b>
-												</div>
+												<label>JPG quality (1-100): </label>
 												<div style="float:left;">
 													<?php echo ($specManager->getJpgQuality()?$specManager->getJpgQuality():80); ?>
 												</div>
@@ -810,25 +738,8 @@ if($spprid) $specManager->setProjVariables($spprid);
 											<input name="spprid" type="hidden" value="<?php echo $spprid; ?>" />
 											<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 											<input name="projtype" type="hidden" value="<?php echo $projectType; ?>" />
-											<input name="tabindex" type="hidden" value="1" />
+											<input name="tabindex" type="hidden" value="0" />
 											<input name="submitaction" type="submit" value="Process <?php echo ($projectType=='idigbio'?'Output File':'Images') ?>" />
-										</div>
-										<div style="margin:20px;">
-											<fieldset style="padding:15px;">
-												<legend><b>Log Files</b></legend>
-												<?php
-												$logArr = $specManager->getLogListing();
-												$logPath = '../../content/logs/'.($projectType == 'local'?'imgProccessing':$projectType).'/';
-												if($logArr){
-													foreach($logArr as $logFile){
-														echo '<div><a href="'.$logPath.$logFile.'" target="_blank">'.$logFile.'</a></div>';
-													}
-												}
-												else{
-													echo '<div>No logs exist for this collection</div>';
-												}
-												?>
-											</fieldset>
 										</div>
 									</fieldset>
 								</form>
@@ -840,6 +751,26 @@ if($spprid) $specManager->setProjVariables($spprid);
 				else{
 					echo '<div>ERROR: collection identifier not defined. Contact administrator</div>';
 				}
+				?>
+				<div style="margin:20px;">
+					<fieldset style="padding:15px;">
+						<legend><b>Log Files</b></legend>
+						<?php
+						$logArr = $specManager->getLogListing();
+						$logPath = '../../content/logs/'.($projectType == 'local'?'imgProccessing':$projectType).'/';
+						if($logArr){
+							foreach($logArr as $logFile){
+								echo '<div><a href="'.$logPath.$logFile.'" target="_blank">'.$logFile.'</a></div>';
+							}
+						}
+						else{
+							echo '<div>No logs exist for this collection</div>';
+						}
+						?>
+					</fieldset>
+				</div>
+
+				<?php
 			}
 			?>
 		</div>

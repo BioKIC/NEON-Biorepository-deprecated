@@ -28,6 +28,7 @@ include_once('../config/symbini.php');
 include_once('fp/FPNetworkFactory.php');
 include_once('fp/FPConfig.php');
 include_once('fp/common/AnnotationGenerator.php');
+include_once($SERVER_ROOT.'/content/lang/profile/taxoninterests.'.$LANG_TAG.'.php');
 
 // check that the client helper has been installed
 $file = 'fp/FPNetworkFactory.php';
@@ -43,8 +44,8 @@ foreach ($includePaths as $p) {
 }
 
 if (!$fileExists) {
-    echo "FilteredPush Support has been enabled in this Symbiota installation, but FilteredPush helper code is not installed.<BR>";
-    echo "<strong>$file not found.</strong>";
+    echo (isset($LANG['NEED_HELPER'])?$LANG['NEED_HELPER']:'FilteredPush Support has been enabled in this Symbiota installation, but FilteredPush helper code is not installed').'<br>';
+    echo '<strong>$file '.(isset($LANG['NOT_FOUND'])?$LANG['NEED_HELPER']:'not found').'.</strong>';
 } else {
 
         $endpoint = FPNetworkFactory::getSparqlEndpoint();
@@ -65,32 +66,32 @@ if (!$fileExists) {
 
         foreach ($annotations as $annotation) {
             echo "<h1>" . $_GET['scientificName'] . " - (" . $annotation->scientificNameAuthorship . ")</h1>";
-            echo "<p><a href=\"response.php?uri=" . $annotation->uri . "\" onclick=\"window.open(this.href, 'popupwindow', 'width=500,height=400'); return false;\">Respond</a><br />";
+            echo "<p><a href=\"response.php?uri=" . $annotation->uri . '\' onclick=\'window.open(this.href, 'popupwindow', 'width=500,height=400'); return false;\'>'.(isset($LANG['RESPOND'])?$LANG['RESPOND']:'Respond').'</a><br />';
             echo "<a href=\"".CLIENTHELPER_ENDPOINT."/clientHelper/getAnnotation/?uri=" . $annotation->uri . "\" target=\"_blank\">View</a><br /></p>";
             ?>
             <table>
                 <tr>
-                    <td><b>Created By:</b></td>
+                    <td><b><?php echo (isset($LANG['CREATED_BY'])?$LANG['CREATED_BY']:'Created By'); ?>:</b></td>
                     <td style="padding-right:35px;"><? echo $annotation->createdBy ?></td>
-                    <td><b>Created On:</b></td>
+                    <td><b><?php echo (isset($LANG['CREATED_ON'])?$LANG['CREATED_BY']:'Created On'); ?>:</b></td>
                     <td><? echo $annotation->date ?></td>
                 </tr>
                 <tr>
-                    <td><b>Collection Code:</b></td>
+                    <td><b><?php echo (isset($LANG['COLL_CODE'])?$LANG['COLL_CODE']:'Collection Code'); ?>:</b></td>
                     <td style="padding-right:35px;"><? echo $_GET['collectioncode'] ?></td>
-                    <td><b>Catalog Number:</b></td>
+                    <td><b><?php echo (isset($LANG['CAT_NUM'])?$LANG['CAT_NUM']:'Catalog Number'); ?>:</b></td>
                     <td><? echo $_GET['catalognumber'] ?></td>
                 </tr>
                 <tr>
-                    <td><b>Institution Code:</b></td>
+                    <td><b><?php echo (isset($LANG['INST_CODE'])?$LANG['INST_CODE']:'Institution Code'); ?>:</b></td>
                     <td style="padding-right:35px;"><? echo $_GET['institutioncode'] ?></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td><b>Date Identified:</b></td>
+                    <td><b><?php echo (isset($LANG['DATE_IDED'])?$LANG['DATE_IDED']:'Date Identified'); ?>:</b></td>
                     <td style="padding-right:35px;"><? echo $annotation->dateIdentified ?></td>
-                    <td><b>Identified By:</b></td>
+                    <td><b><?php echo (isset($LANG['IDED_BY'])?$LANG['IDED_BY']:'Identified By'); ?>:</b></td>
                     <td><? echo $annotation->identifiedBy ?></td>
                 </tr>
             </table>
@@ -103,15 +104,15 @@ if (!$fileExists) {
                         <li>
                             <table>
                                 <tr>
-                                    <td><b>Created By:</b></td>
+                                    <td><b><?php echo (isset($LANG['CREATED_BY'])?$LANG['CREATED_BY']:'Created By'); ?>:</b></td>
                                     <td style="padding-right:35px;"><? echo $response->createdBy ?></td>
-                                    <td><b>Created On:</b></td>
+                                    <td><b><?php echo (isset($LANG['CREATED_ON'])?$LANG['CREATED_BY']:'Created On'); ?></b></td>
                                     <td><? echo $response->date ?></td>
                                 </tr>
                                 <tr>
-                                    <td><b>Opinion:</b></td>
+                                    <td><b><?php echo (isset($LANG['OPINION'])?$LANG['OPINION']:'Opinion'); ?>:</b></td>
                                     <td style="padding-right:35px;"><? echo $response->opinionText ?></td>
-                                    <td><b>Polarity:</b></td>
+                                    <td><b><?php echo (isset($LANG['POLARITY'])?$LANG['POLARITY']:'Polarity'); ?>:</b></td>
                                     <td><? echo $response->polarity ?></td>
                                 </tr>
                             </table>

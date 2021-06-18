@@ -2,6 +2,7 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/PermissionsManager.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
+include_once($SERVER_ROOT.'/content/lang/profile/usermanagement.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $loginAs = array_key_exists("loginas",$_REQUEST)?trim($_REQUEST["loginas"]):"";
@@ -37,7 +38,7 @@ if($IS_ADMIN){
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> User Management</title>
+	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['USER_MNGMT'])?$LANG['USER_MNGMT']:'User Management'); ?></title>
 	<?php
 	$activateJQuery = false;
 	if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -61,8 +62,7 @@ if($IS_ADMIN){
 		echo "<div class='navpath'>";
 		echo "<a href='../index.php'>Home</a> &gt; ";
 		echo $profile_usermanagementCrumbs;
-		echo " <b>User Management</b>";
-		echo "</div>";
+		echo ' <b>'.(isset($LANG['USER_MNGMT'])?$LANG['USER_MNGMT']:'User Management').'</b></div>';
 	}
 	?>
 	<!-- This is inner text! -->
@@ -70,13 +70,13 @@ if($IS_ADMIN){
 		<div style="float:right;">
 			<div style="margin:10px 0px 15px 0px;">
 				<fieldset style="background-color:#FFFFCC;padding:0px 10px 10px 10px;">
-					<legend style="font-weight:bold;">Search</legend>
-					Last Name or Login Name:
+					<legend style="font-weight:bold;"><?php echo (isset($LANG['SEARCH'])?$LANG['SEARCH']:'Search'); ?></legend>
+					<?php echo (isset($LANG['LAST_OR_LOGIN'])?$LANG['LAST_OR_LOGIN']:'Last Name or Login Name'); ?>:
 					<form name='searchform1' action='usermanagement.php' method='post'>
-						<input type='text' name='searchterm' title='Enter Last Name'><br/>
-						<input name='submit' type='submit' value='Search'>
+						<button type='text' name='searchterm'><?php echo (isset($LANG['ENTER_LAST'])?$LANG['ENTER_LAST']:'Enter Last Name'); ?></button><br/>
+						<button name='submit' type='submit'><?php echo (isset($LANG['SEARCH'])?$LANG['SEARCH']:'Search'); ?></button>
 					</form>
-					Quick Search:
+					<?php echo (isset($LANG['QUICK_SEARCH'])?$LANG['QUICK_SEARCH']:'Quick Search'); ?>:
 					<div style='margin:2px 0px 0px 10px;'>
 						<div><a href='usermanagement.php?searchterm=A'>A</a>|<a href='usermanagement.php?searchterm=B'>B</a>|<a href='usermanagement.php?searchterm=C'>C</a>|<a href='usermanagement.php?searchterm=D'>D</a>|<a href='usermanagement.php?searchterm=E'>E</a>|<a href='usermanagement.php?searchterm=F'>F</a>|<a href='usermanagement.php?searchterm=G'>G</a>|<a href='usermanagement.php?searchterm=H'>H</a></div>
 						<div><a href='usermanagement.php?searchterm=I'>I</a>|<a href='usermanagement.php?searchterm=J'>J</a>|<a href='usermanagement.php?searchterm=K'>K</a>|<a href='usermanagement.php?searchterm=L'>L</a>|<a href='usermanagement.php?searchterm=M'>M</a>|<a href='usermanagement.php?searchterm=N'>N</a>|<a href='usermanagement.php?searchterm=O'>O</a>|<a href='usermanagement.php?searchterm=P'>P</a>|<a href='usermanagement.php?searchterm=Q'>Q</a></div>
@@ -98,35 +98,35 @@ if($IS_ADMIN){
 				</h1>
 				<div style="margin-left:10px;">
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">Title: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['TITLE'])?$LANG['TITLE']:'Title'); ?>: </div>
 						<div style="float:left;"><?php echo $user["title"];?></div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">Institution: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['INSTITUTION'])?$LANG['INSTITUTION']:'Institution'); ?>: </div>
 						<div style="float:left;"><?php echo $user["institution"];?></div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">City: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"<?php echo (isset($LANG['CITY'])?$LANG['CITY']:'City'); ?>: </div>
 						<div style="float:left;"><?php echo $user["city"];?></div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">State: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['STATE'])?$LANG['STATE']:'State'); ?>: </div>
 						<div style="float:left;"><?php echo $user["state"];?></div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">Zip: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['ZIP'])?$LANG['ZIP']:'Zip'); ?>: </div>
 						<div style="float:left;"><?php echo $user["zip"];?></div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">Country: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['COUNTRY'])?$LANG['COUNTRY']:'Country'); ?>: </div>
 						<div style="float:left;"><?php echo $user["country"];?></div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">Email: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['EMAIL'])?$LANG['EMAIL']:'Email'); ?>: </div>
 						<div style="float:left;"><?php echo $user["email"];?></div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">URL: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['URL'])?$LANG['URL']:'URL'); ?>: </div>
 						<div style="float:left;">
 							<a href='<?php echo $user["url"];?>'>
 								<?php echo $user["url"];?>
@@ -134,21 +134,21 @@ if($IS_ADMIN){
 						</div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;">Login: </div>
-						<div style="float:left;margin-bottom:30px;"><?php echo ($user["username"]?$user["username"].' (last login: '.$user['lastlogindate'].')':'login not registered for this user'); ?></div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['USERNAME'])?$LANG['USERNAME']:'Username'); ?>: </div>
+						<div style="float:left;margin-bottom:30px;"><?php echo ($user["username"]?$user["username"].' (last login: '.$user['lastlogindate'].')':(isset($LANG['NOT_REGISTERED'])?$LANG['NOT_REGISTERED']:'login not registered for this user')); ?></div>
 					</div>
 				</div>
 				<?php
 				if($user["username"]){
 					?>
 					<div style="clear:both;margin:0px 0px 20px 30px;">
-						<a href="usermanagement.php?loginas=<?php echo $user["username"]; ?>">Login</a> as this user
+						<a href="usermanagement.php?loginas=<?php echo $user["username"]; ?>"><?php echo (isset($LANG['LOG_IN'])?$LANG['LOG_IN']:'Log in'); ?></a> <?php echo $DEFAULT_TITLE.' '.(isset($LANG['AS_USER'])?$LANG['AS_USER']:'as this user'); ?>
 					</div>
 					<?php
 				}
 				?>
 				<fieldset style="clear:both;margin:10px;padding:15px;">
-					<legend style="font-weight:bold;font-size:120%;">Current Permissions</legend>
+					<legend style="font-weight:bold;font-size:120%;"><?php echo (isset($LANG['PERMISSIONS'])?$LANG['PERMISSIONS']:'Current Permissions'); ?></legend>
 					<?php
 					$userPermissions = $userManager->getUserPermissions($userId);
 					if($userPermissions){
@@ -161,11 +161,11 @@ if($IS_ADMIN){
 								<li>
 									<b><?php
 									echo '<span title="'.$userPermissions['SuperAdmin']['aby'].'">';
-									echo str_replace('SuperAdmin','Super Administrator',$userPermissions['SuperAdmin']['role']);
+									echo str_replace('SuperAdmin',(isset($LANG['SUPERADMIN'])?$LANG['SUPERADMIN']:'Super Administrator'),$userPermissions['SuperAdmin']['role']);
 									echo '</span>';
 									?></b>
 									<a href="usermanagement.php?delrole=SuperAdmin&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
 								<?php
@@ -175,11 +175,11 @@ if($IS_ADMIN){
 								<li>
 									<b><?php
 									echo '<span title="'.$userPermissions['Taxonomy']['aby'].'">';
-									echo str_replace('Taxonomy','Taxonomy Editor',$userPermissions['Taxonomy']['role']);
+									echo str_replace('Taxonomy',(isset($LANG['TAX_EDITOR'])?$LANG['TAX_EDITOR']:'Taxonomy Editor'),$userPermissions['Taxonomy']['role']);
 									echo '</span>';
 									?></b>
 									<a href="usermanagement.php?delrole=Taxonomy&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
 								<?php
@@ -189,11 +189,11 @@ if($IS_ADMIN){
 								<li>
 									<b><?php
 									echo '<span title="'.$userPermissions['TaxonProfile']['aby'].'">';
-									echo str_replace('TaxonProfile','Taxon Profile Editor',$userPermissions['TaxonProfile']['role']);
+									echo str_replace('TaxonProfile',(isset($LANG['TAX_PROF_EDITOR'])?$LANG['TAX_PROF_EDITOR']:'Taxon Profile Editor'),$userPermissions['TaxonProfile']['role']);
 									echo '</span>';
 									?></b>
 									<a href="usermanagement.php?delrole=TaxonProfile&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
 								<?php
@@ -203,11 +203,11 @@ if($IS_ADMIN){
 								<li>
 									<b><?php
 									echo '<span title="'.$userPermissions['GlossaryEditor']['aby'].'">';
-									echo str_replace('GlossaryEditor','Glossary Editor',$userPermissions['GlossaryEditor']['role']);
+									echo str_replace('GlossaryEditor',(isset($LANG['GLOSSARY_EDITOR'])?$LANG['GLOSSARY_EDITOR']:'Glossary Editor'),$userPermissions['GlossaryEditor']['role']);
 									echo '</span>';
 									?></b>
 									<a href="usermanagement.php?delrole=GlossaryEditor&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
 								<?php
@@ -217,11 +217,11 @@ if($IS_ADMIN){
 								<li>
 									<b><?php
 									echo '<span title="'.$userPermissions['KeyAdmin']['aby'].'">';
-									echo str_replace('KeyAdmin','Identification Keys Administrator',$userPermissions['KeyAdmin']['role']);
+									echo str_replace('KeyAdmin',(isset($LANG['ID_KEY_ADMIN'])?$LANG['ID_KEY_ADMIN']:'Identification Keys Administrator'),$userPermissions['KeyAdmin']['role']);
 									echo '</span>';
 									?></b>
 									<a href="usermanagement.php?delrole=KeyAdmin&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
 								<?php
@@ -231,11 +231,11 @@ if($IS_ADMIN){
 								<li>
 									<b><?php
 									echo '<span title="'.$userPermissions['KeyEditor']['aby'].'">';
-									echo str_replace('KeyEditor','Identification Keys Editor',$userPermissions['KeyEditor']['role']);
+									echo str_replace('KeyEditor',(isset($LANG['ID_KEY_EDITOR'])?$LANG['ID_KEY_EDITOR']:'Identification Keys Editor'),$userPermissions['KeyEditor']['role']);
 									echo '</span>';
 									?></b>
 									<a href="usermanagement.php?delrole=KeyEditor&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
 								<?php
@@ -245,11 +245,11 @@ if($IS_ADMIN){
 								<li>
 									<b><?php
 									echo '<span title="'.$userPermissions['RareSppAdmin']['aby'].'">';
-									echo str_replace('RareSppAdmin','Rare Species List Administrator',$userPermissions['RareSppAdmin']['role']);
+									echo str_replace('RareSppAdmin',(isset($LANG['RARE_SP_ADMIN'])?$LANG['RARE_SP_ADMIN']:'Rare Species List Administrator'),$userPermissions['RareSppAdmin']['role']);
 									echo '</span>';
 									?></b>
 									<a href="usermanagement.php?delrole=RareSppAdmin&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
 								<?php
@@ -259,24 +259,24 @@ if($IS_ADMIN){
 								<li>
 									<b><?php
 									echo '<span title="'.$userPermissions['RareSppReadAll']['aby'].'">';
-									echo str_replace('RareSppReadAll','View and Map Specimens of Rare Species from all Collections',$userPermissions['RareSppReadAll']['role']);
+									echo str_replace('RareSppReadAll',(isset($LANG['RARE_SP_VIEWER'])?$LANG['RARE_SP_VIEWER']:'View and Map Specimens of Rare Species from all Collections'),$userPermissions['RareSppReadAll']['role']);
 									echo '</span> ';
 									?></b>
 									<a href="usermanagement.php?delrole=RareSppReadAll&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
 								<?php
 							}
 							//Collections Admin
 							if(array_key_exists("CollAdmin",$userPermissions)){
-								echo "<li><b>Administrator for following collections</b></li>";
+								echo '<li><b>'.(isset($LANG['ADMIN_FOR'])?$LANG['ADMIN_FOR']:'Administrator for following collections').'</b></li>';
 								$collList = $userPermissions["CollAdmin"];
 								echo "<ul>";
 								foreach($collList as $k => $v){
 									echo '<li><span title="'.$v['aby'].'"><a href="../collections/misc/collprofiles.php?collid='.$k.'" target="_blank">'.$v['name'].'</a></span> ';
 									echo "<a href='usermanagement.php?delrole=CollAdmin&tablepk=$k&userid=$userId'>";
-									echo "<img src='../images/del.png' style='border:0px;width:15px;' title='Delete permission' />";
+									echo "<img src='../images/del.png' style='border:0px;width:15px;' title=".(isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission').'/>';
 									echo "</a></li>";
 								}
 								echo "</ul>";
@@ -289,7 +289,7 @@ if($IS_ADMIN){
 								foreach($collList as $k => $v){
 									echo '<li><span title="'.$v['aby'].'"><a href="../collections/misc/collprofiles.php?collid='.$k.'" target="_blank">'.$v['name'].'</a></span> ';
 									echo "<a href='usermanagement.php?delrole=CollEditor&tablepk=$k&userid=$userId'>";
-									echo "<img src='../images/del.png' style='border:0px;width:15px;' title='Delete permission' />";
+									echo "<img src='../images/del.png' style='border:0px;width:15px;' title=".(isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission').'/>';
 									echo "</a></li>";
 								}
 								echo "</ul>";
@@ -297,7 +297,7 @@ if($IS_ADMIN){
 							if(array_key_exists("RareSppReader",$userPermissions)){
 								?>
 								<li>
-									<b>Sensitive Species Reader for following Collections</b>
+									<b><?php echo (isset($LANG['RARE_SP_FOR'])?$LANG['RARE_SP_FOR']:'Sensitive Species Reader for following Collections'); ?></b>
 									<ul>
 									<?php
 									$rsrArr = $userPermissions["RareSppReader"];
@@ -306,7 +306,7 @@ if($IS_ADMIN){
 										<li>
 											<?php echo '<span title="'.$v['aby'].'">'.$v['name'].'</span>'; ?>
 											<a href="usermanagement.php?delrole=RareSppReader&tablepk=<?php echo $collId?>&userid=<?php echo $userId; ?>">
-												<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+												<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 											</a>
 										</li>
 										<?php
@@ -318,25 +318,25 @@ if($IS_ADMIN){
 							}
 							//Personal Specimen Mangement
 							if(array_key_exists('PersonalObsAdmin',$userPermissions)){
-								echo "<li><b>Personal Observation Administrator</b></li>";
+								echo '<li><b>'.(isset($LANG['PERS_OBS_ADMIN'])?$LANG['PERS_OBS_ADMIN']:'Personal Observation Administrator').'</b></li>';
 								$collList = $userPermissions['PersonalObsAdmin'];
 								echo "<ul>";
 								foreach($collList as $k => $v){
 									echo '<li><span title="'.$v['aby'].'"><a href="../collections/misc/collprofiles.php?collid='.$k.'" target="_blank">'.$v['name'].'</a></span> ';
 									echo "<a href='usermanagement.php?delrole=CollAdmin&tablepk=$k&userid=$userId'>";
-									echo "<img src='../images/del.png' style='border:0px;width:15px;' title='Delete permission' />";
+									echo "<img src='../images/del.png' style='border:0px;width:15px;' title=".(isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission').'/>';
 									echo "</a></li>";
 								}
 								echo "</ul>";
 							}
 							if(array_key_exists('PersonalObsEditor',$userPermissions)){
-								echo "<li><b>Personal Observation Editor</b></li>";
+								echo '<li><b>'.(isset($LANG['PERS_OBS_EDITOR'])?$LANG['PERS_OBS_EDITOR']:'Personal Observation Editor').'</b></li>';
 								$collList = $userPermissions["PersonalObsEditor"];
 								echo "<ul>";
 								foreach($collList as $k => $v){
 									echo '<li><span title="'.$v['aby'].'"><a href="../collections/misc/collprofiles.php?collid='.$k.'" target="_blank">'.$v['name'].'</a></span> ';
 									echo "<a href='usermanagement.php?delrole=CollEditor&tablepk=$k&userid=$userId'>";
-									echo "<img src='../images/del.png' style='border:0px;width:15px;' title='Delete permission' />";
+									echo "<img src='../images/del.png' style='border:0px;width:15px;' title=".(isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission').'/>';
 									echo "</a></li>";
 								}
 								echo "</ul>";
@@ -344,7 +344,7 @@ if($IS_ADMIN){
 							if(array_key_exists("PersonalObsReader",$userPermissions)){
 								?>
 								<li>
-									<b>Personal Observation Sensitive Species Reader</b>
+									<b><?php echo (isset($LANG['PERS_OBS_RARE_SP_READER'])?$LANG['PERS_OBS_RARE_SP_READER']:'Personal Observation Sensitive Species Reader'); ?></b>
 									<ul>
 									<?php
 									$rsrArr = $userPermissions["PersonalObsReader"];
@@ -353,7 +353,7 @@ if($IS_ADMIN){
 										<li>
 											<?php echo '<span title="'.$v['aby'].'">'.$v['name'].'</span>'; ?>
 											<a href="usermanagement.php?delrole=RareSppReader&tablepk=<?php echo $collId?>&userid=<?php echo $userId; ?>">
-												<img src="../images/del.png" style="border:0px;width:15px;" title="Delete permission" />
+												<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 											</a>
 										</li>
 										<?php
@@ -367,7 +367,7 @@ if($IS_ADMIN){
 							if(array_key_exists("ProjAdmin",$userPermissions)){
 								?>
 								<li>
-									<b>Administrator for following inventory projects</b>
+									<b><?php echo (isset($LANG['INVENTORY_ADMIN'])?$LANG['INVENTORY_ADMIN']:'Administrator for following inventory projects'); ?></b>
 									<ul>
 										<?php
 										$projList = $userPermissions["ProjAdmin"];
@@ -375,7 +375,7 @@ if($IS_ADMIN){
 										foreach($projList as $k => $v){
 											echo '<li><a href="../projects/index.php?pid='.$k.'" target="_blank"><span title="'.$v['aby'].'">'.$v['name'].'</span></a>';
 											echo "<a href='usermanagement.php?delrole=ProjAdmin&tablepk=$k&userid=$userId'>";
-											echo "<img src='../images/del.png' style='border:0px;width:15px;' title='Delete permission' />";
+											echo "<img src='../images/del.png' style='border:0px;width:15px;' title=".(isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission').'/>';
 											echo "</a></li>";
 										}
 										?>
@@ -387,7 +387,7 @@ if($IS_ADMIN){
 							if(array_key_exists("ClAdmin",$userPermissions)){
 								?>
 								<li>
-									<b>Administrator for following checklists</b>
+									<b><?php echo (isset($LANG['CHECKLIST_ADMIN'])?$LANG['CHECKLIST_ADMIN']:'Administrator for following checklists'); ?></b>
 									<ul>
 										<?php
 										$clList = $userPermissions["ClAdmin"];
@@ -400,7 +400,7 @@ if($IS_ADMIN){
 											echo '<span title="'.$v['aby'].'">'.$name.'</span>';
 											echo '</a>';
 											echo "<a href='usermanagement.php?delrole=ClAdmin&tablepk=$k&userid=$userId'>";
-											echo "<img src='../images/del.png' style='border:0px;width:15px;' title='Delete permission' />";
+											echo "<img src='../images/del.png' style='border:0px;width:15px;' title=".(isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission').'/>';
 											echo "</a></li>";
 										}
 										?>
@@ -414,41 +414,41 @@ if($IS_ADMIN){
 						<?php
 					}
 					else{
-						echo "<h3 style='margin:20px;'>No permissions have to been assigned to this user</h3>";
+						echo '<h3 style='margin:20px;'>'.(isset($LANG['NO_PERMISSIONS'])?$LANG['NO_PERMISSIONS']:'No permissions have to been assigned to this user').'</h3>';
 					}
 					?>
 				</fieldset>
 				<form name="addpermissions" action="usermanagement.php" method="post">
 					<fieldset style="margin:10px;-color:#FFFFCC;padding:15px;">
-						<legend style="font-weight:bold;font-size:120%;">Assign New Permissions</legend>
+						<legend style="font-weight:bold;font-size:120%;"><?php echo (isset($LANG['ASSIGN_NEW'])?$LANG['ASSIGN_NEW']:'Assign New Permissions'); ?></legend>
 						<div style="margin:5px;">
 							<div style="float:right;margin:10px">
-								<input type="submit" name="apsubmit" value="Add Permission" />
+								<button type="submit" name="apsubmit"><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
 								<input type="hidden" name="userid" value="<?php echo $userId;?>" />
 							</div>
 							<?php
 							if(!array_key_exists("SuperAdmin",$userPermissions)){
-								echo '<div><input type="checkbox" name="p[]" value="SuperAdmin" /> Super Administrator</div>';
+								echo '<div><input type="checkbox" name="p[]" value="SuperAdmin" /> '.(isset($LANG['SUPERADMIN'])?$LANG['SUPERADMIN']:'Super Administrator').'</div>';
 							}
 							if(!array_key_exists("Taxonomy",$userPermissions)){
-								echo "<div><input type='checkbox' name='p[]' value='Taxonomy' /> Taxonomy Editor</div>";
+								echo '<div><input type="checkbox" name="p[]" value="Taxonomy" /> '.(isset($LANG['TAX_EDITOR'])?$LANG['TAX_EDITOR']:'Taxonomy Editor').'</div>';
 							}
 							if(!array_key_exists("TaxonProfile",$userPermissions)){
-								echo "<div><input type='checkbox' name='p[]' value='TaxonProfile' /> Taxon Profile Editor</div>";
+								echo "<div><input type='checkbox' name='p[]' value='TaxonProfile' /> ".(isset($LANG['TAX_PROF_EDITOR'])?$LANG['TAX_PROF_EDITOR']:'Taxon Profile Editor')."</div>";
 							}
 							if(!array_key_exists('GlossaryEditor',$userPermissions)){
-								echo "<div><input type='checkbox' name='p[]' value='GlossaryEditor' /> Glossary Editor</div>";
+								echo "<div><input type='checkbox' name='p[]' value='GlossaryEditor' /> ".(isset($LANG['GLOSSARY_EDITOR'])?$LANG['GLOSSARY_EDITOR']:'Glossary Editor')."</div>";
 							}
 							if(!array_key_exists("KeyAdmin",$userPermissions)){
-								echo "<div><input type='checkbox' name='p[]' value='KeyAdmin' /> Identification Key Administrator</div>";
+								echo "<div><input type='checkbox' name='p[]' value='KeyAdmin' /> ".(isset($LANG['ID_KEY_ADMIN'])?$LANG['ID_KEY_ADMIN']:'Identification Keys Administrator')."</div>";
 							}
 							if(!array_key_exists("KeyEditor",$userPermissions)){
-								echo "<div><input type='checkbox' name='p[]' value='KeyEditor' /> Identification Key Editor</div>";
+								echo "<div><input type='checkbox' name='p[]' value='KeyEditor' /> ".(isset($LANG['ID_KEY_EDITOR'])?$LANG['ID_KEY_EDITOR']:'Identification Keys Editor')."</div>";
 							}
 							?>
 						</div>
 						<hr/>
-						<h2 style="text-decoration:underline">Occurrence Protection</h2>
+						<h2 style="text-decoration:underline"><?php echo (isset($LANG['OCCURRENCE_PROTECT'])?$LANG['OCCURRENCE_PROTECT']:'Occurrence Protection'); ?></h2>
 						<div>
 							<?php
 							$showRareSppOption = true;
@@ -459,7 +459,7 @@ if($IS_ADMIN){
 								?>
 								<div style="margin-left:5px;">
 									<input type='checkbox' name='p[]' value='RareSppAdmin' />
-									Rare Species Administrator (add/remove species from list)
+									<?php echo (isset($LANG['RARE_SP_ADMIN_2'])?$LANG['RARE_SP_ADMIN_2']:'Rare Species Administrator (add/remove species from list)'); ?>
 								</div>
 								<?php
 							}
@@ -470,7 +470,7 @@ if($IS_ADMIN){
 								?>
 								<div style="margin-left:5px;">
 									<input type='checkbox' name='p[]' value='RareSppReadAll' />
-									Can read Rare Species data for all collections
+									<?php echo (isset($LANG['CAN_READ'])?$LANG['CAN_READ']:'Can read Rare Species data for all collections'); ?>
 								</div>
 								<?php
 							}
@@ -493,12 +493,12 @@ if($IS_ADMIN){
 							<div style="float:right;margin:10px;">
 								<input type='submit' name='apsubmit' value='Add Permission' />
 							</div>
-							<h2 style="text-decoration:underline">Specimen Collections</h2>
+							<h2 style="text-decoration:underline"><?php echo (isset($LANG['SPEC_COLS'])?$LANG['SPEC_COLS']:'Specimen Collections'); ?></h2>
 							<table>
 								<tr>
-									<th>Admin</th>
-									<th>Editor</th>
-									<?php if($showRareSppOption) echo '<th>Rare</th>'; ?>
+									<th><?php echo (isset($LANG['ADMIN'])?$LANG['ADMIN']:'Admin'); ?></th>
+									<th><?php echo (isset($LANG['EDITOR'])?$LANG['EDITOR']:'Editor'); ?></th>
+									<?php if($showRareSppOption) echo '<th>'.(isset($LANG['RARE'])?$LANG['RARE']:'Rare').'</th>'; ?>
 									<th>&nbsp;</th>
 								</tr>
 								<?php
@@ -506,16 +506,16 @@ if($IS_ADMIN){
 									?>
 									<tr>
 										<td align="center">
-											<input type='checkbox' name='p[]' value='CollAdmin-<?php echo $collid;?>' title='Collection Administrator' />
+											<input type='checkbox' name='p[]' value='CollAdmin-<?php echo $collid;?>' title=<?php echo (isset($LANG['COL_ADMIN'])?$LANG['COL_ADMIN']:'Collection Administrator'); ?> />
 										</td>
 										<td align="center">
-											<input type='checkbox' name='p[]' value='CollEditor-<?php echo $collid;?>' title='Able to add and edit specimen data' <?php if(isset($userPermissions["CollEditor"][$collid])) echo "DISABLED";?> />
+											<input type='checkbox' name='p[]' value='CollEditor-<?php echo $collid;?>' title=<?php echo (isset($LANG['ABLE_TO_ADD'])?$LANG['ABLE_TO_ADD']:'Able to add and edit specimen data'); ?> <?php if(isset($userPermissions["CollEditor"][$collid])) echo (isset($LANG['DISABLED'])?$LANG['DISABLED']:'DISABLED');?> />
 										</td>
 										<?php
 										if($showRareSppOption){
 											?>
 											<td align="center">
-												<input type='checkbox' name='p[]' value='RareSppReader-<?php echo $collid;?>' title='Able to read specimen details for rare species' <?php if(isset($userPermissions["RareSppReader"][$collid])) echo "DISABLED";?> />
+												<input type='checkbox' name='p[]' value='RareSppReader-<?php echo $collid;?>' title=<?php echo (isset($LANG['ABLE_TO_READ'])?$LANG['ABLE_TO_READ']:'Able to read specimen details for rare species'); ?> <?php if(isset($userPermissions["RareSppReader"][$collid])) echo (isset($LANG['DISABLED'])?$LANG['DISABLED']:'DISABLED');?> />
 											</td>
 											<?php
 										}
@@ -541,12 +541,12 @@ if($IS_ADMIN){
 							<div style="float:right;margin:10px;">
 								<input type='submit' name='apsubmit' value='Add Permission' />
 							</div>
-							<h2 style="text-decoration:underline">Observation Projects</h2>
+							<h2 style="text-decoration:underline"><?php echo (isset($LANG['OBS_PROJECTS'])?$LANG['OBS_PROJECTS']:'Observation Projects'); ?></h2>
 							<table>
 								<tr>
-									<th>Admin</th>
-									<th>Editor</th>
-									<?php if($showRareSppOption) echo '<th>Rare</th>'; ?>
+									<th><?php echo (isset($LANG['ADMIN'])?$LANG['ADMIN']:'Admin'); ?></th>
+									<th><?php echo (isset($LANG['EDITOR'])?$LANG['EDITOR']:'Editor'); ?></th>
+									<?php if($showRareSppOption) echo '<th>'.(isset($LANG['RARE'])?$LANG['RARE']:'Rare').'</th>'; ?>
 									<th>&nbsp;</th>
 								</tr>
 								<?php
@@ -554,16 +554,16 @@ if($IS_ADMIN){
 									?>
 									<tr>
 										<td align="center">
-											<input type='checkbox' name='p[]' value='CollAdmin-<?php echo $obsid;?>' title='Collection Administrator' <?php if(isset($userPermissions["CollAdmin"][$obsid])) echo "DISABLED";?> />
+											<input type='checkbox' name='p[]' value='CollAdmin-<?php echo $obsid;?>' title=<?php echo (isset($LANG['COL_ADMIN'])?$LANG['COL_ADMIN']:'Collection Administrator'); ?> <?php if(isset($userPermissions["CollAdmin"][$obsid])) echo "DISABLED";?> />
 										</td>
 										<td align="center">
-											<input type='checkbox' name='p[]' value='CollEditor-<?php echo $obsid;?>' title='Able to add and edit specimen data' <?php if(isset($userPermissions["CollEditor"][$obsid])) echo "DISABLED";?> />
+											<input type='checkbox' name='p[]' value='CollEditor-<?php echo $obsid;?>' title=<?php echo (isset($LANG['ABLE_TO_ADD'])?$LANG['ABLE_TO_ADD']:'Able to add and edit specimen data'); ?> <?php if(isset($userPermissions["CollEditor"][$obsid])) echo "DISABLED";?> />
 										</td>
 										<?php
 										if($showRareSppOption){
 											?>
 											<td align="center">
-												<input type='checkbox' name='p[]' value='RareSppReader-<?php echo $obsid;?>' title='Able to read specimen details for rare species' <?php if(isset($userPermissions["RareSppReader"][$obsid])) echo "DISABLED";?> />
+												<input type='checkbox' name='p[]' value='RareSppReader-<?php echo $obsid;?>' title=<?php echo (isset($LANG['ABLE_TO_READ'])?$LANG['ABLE_TO_READ']:'Able to read specimen details for rare species'); ?> <?php if(isset($userPermissions["RareSppReader"][$obsid])) echo "DISABLED";?> />
 											</td>
 											<?php
 										}
@@ -587,13 +587,13 @@ if($IS_ADMIN){
 						if($personalObsArr){
 							?>
 							<div style="float:right;margin:10px;">
-								<input type='submit' name='apsubmit' value='Add Permission' />
+								<button type='submit' name='apsubmit'><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
 							</div>
-							<h2 style="text-decoration:underline">Personal Specimen Management</h2>
+							<h2 style="text-decoration:underline"><?php echo (isset($LANG['PERS_SP_MGMNT'])?$LANG['PERS_SP_MGMNT']:'Personal Specimen Management'); ?></h2>
 							<table style="margin-bottom:20px">
 								<tr>
-									<th>Admin</th>
-									<th>Editor</th>
+									<th><?php echo (isset($LANG['ADMIN'])?$LANG['ADMIN']:'Admin'); ?></th>
+									<th><?php echo (isset($LANG['EDITOR'])?$LANG['EDITOR']:'Editor'); ?></th>
 									<th>&nbsp;</th>
 								</tr>
 								<?php
@@ -601,10 +601,10 @@ if($IS_ADMIN){
 									?>
 									<tr>
 										<td align="center">
-											<input type='checkbox' name='p[]' value='CollAdmin-<?php echo $genObsID;?>' title='Collection Administrator' />
+											<input type='checkbox' name='p[]' value='CollAdmin-<?php echo $genObsID;?>' title=<?php echo (isset($LANG['COL_ADMIN'])?$LANG['COL_ADMIN']:'Collection Administrator'); ?> />
 										</td>
 										<td align="center">
-											<input type='checkbox' name='p[]' value='CollEditor-<?php echo $genObsID;?>' title='Able to add and edit specimen data' <?php if(isset($userPermissions['PersonalObsEditor'][$genObsID])) echo "DISABLED";?> />
+											<input type='checkbox' name='p[]' value='CollEditor-<?php echo $genObsID;?>' title=<?php echo (isset($LANG['ABLE_TO_ADD'])?$LANG['ABLE_TO_ADD']:'Able to add and edit specimen data'); ?> <?php if(isset($userPermissions['PersonalObsEditor'][$genObsID])) echo "DISABLED";?> />
 										</td>
 										<td>
 											<?php
@@ -631,9 +631,9 @@ if($IS_ADMIN){
 							?>
 							<div><hr/></div>
 							<div style="float:right;margin:10px;">
-								<input type='submit' name='apsubmit' value='Add Permission' />
+								<button type='submit' name='apsubmit'><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
 							</div>
-							<h2 style="text-decoration:underline">Inventory Project Management</h2>
+							<h2 style="text-decoration:underline"><?php echo (isset($LANG['INV_MGMNT'])?$LANG['INV_MGMNT']:'Inventory Project Management'); ?></h2>
 							<?php
 							foreach($projectArr as $k=>$v){
 								?>
@@ -656,9 +656,9 @@ if($IS_ADMIN){
 							?>
 							<div><hr/></div>
 							<div style="float:right;margin:10px;">
-								<input type='submit' name='apsubmit' value='Add Permission' />
+								<button type='submit' name='apsubmit'><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
 							</div>
-							<h2 style="text-decoration:underline">Checklist Management</h2>
+							<h2 style="text-decoration:underline"><?php echo (isset($LANG['CHECKLIST_MGMNT'])?$LANG['CHECKLIST_MGMNT']:'Checklist Management'); ?></h2>
 							<?php
 							foreach($checklistArr as $k=>$v){
 								?>
@@ -685,7 +685,7 @@ if($IS_ADMIN){
 			}
 		}
 		else{
-			echo "<h3>You must login and have administrator permissions to manage users</h3>";
+			echo '<h3>'.isset($LANG['MUST_LOGIN'])?$LANG['MUST_LOGIN']:'You must log in and have administrator permissions to manage users').'</h3>';
 		}
 		?>
 	</div>

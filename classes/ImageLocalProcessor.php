@@ -184,12 +184,15 @@ class ImageLocalProcessor {
 		}
 
 		//Lets start processing folder
-		if($this->logMode == 1){
-			echo '<ul>';
-		}
-		$projProcessed = array();
+		if($this->logMode == 1) echo '<ul>';
 		foreach($this->collArr as $collid => $cArr){
 			$this->activeCollid = $collid;
+			if(substr($this->collArr[$this->activeCollid]['pmterm'],-4) == '.csv'){
+				if(!file_exists($this->sourcePathBase.'/'.$this->collArr[$this->activeCollid]['pmterm'])){
+					$this->logOrEcho('ERROR accessing image mapping file: '.$this->sourcePathBase.'/'.$this->collArr[$this->activeCollid]['pmterm']);
+					continue;
+				}
+			}
 			$collStr = '';
 			if(isset($cArr['instcode'])) $collStr = str_replace(' ','',$cArr['instcode'].($cArr['collcode']?'_'.$cArr['collcode']:''));
 			if(!$collStr) $collStr = str_replace('/', '_', $cArr['sourcePathFrag']);
@@ -218,9 +221,7 @@ class ImageLocalProcessor {
 				$sourcePathFrag = $cArr['sourcePathFrag'];
 				$this->targetPathFrag = $cArr['sourcePathFrag'];
 			}
-			else{
-				$this->targetPathFrag .= $collStr;
-			}
+			else $this->targetPathFrag .= $collStr;
 			if(substr($this->targetPathFrag,-1) != "/" && substr($this->targetPathFrag,-1) != "\\"){
 				$this->targetPathFrag .= '/';
 			}
@@ -253,33 +254,24 @@ class ImageLocalProcessor {
 			}
 
 			$this->logOrEcho('Starting image processing: '.$sourcePathFrag);
-			if(substr($this->sourcePathBase,0,4) == 'http'){
+			if(substr($this->collArr[$this->activeCollid]['pmterm'],-4) == '.csv'){
+				$this->processImageMap($sourcePathFrag);
+			}
+			elseif(substr($this->sourcePathBase,0,4) == 'http'){
 				//http protocol, thus test for a valid page
 				$this->processHtml($sourcePathFrag);
 			}
-			else{
-				if(!$this->processFolder($sourcePathFrag)){
-					if($this->errorMessage == 'abort'){
-						$this->errorMessage = '';
-						continue;
-					}
-				}
-			}
+			else $this->processFolder($sourcePathFrag);
 			if(!$this->dbMetadata){
 				if($this->mdOutputFH) fclose($this->mdOutputFH);
 				if(array_key_exists('email', $cArr) && $cArr['email']) $this->sendMetadata($cArr['email'],$mdFileName);
 			}
 			$this->logOrEcho('Done uploading '.$sourcePathFrag.' ('.date('Y-m-d h:i:s A').')');
 		}
-		if($this->collProcessedArr){
-			//Update Statistics
-			$this->updateCollectionStats();
-		}
+		$this->updateCollectionStats();
 
-		$this->logOrEcho("Image upload process finished! (".date('Y-m-d h:i:s A').") \n");
-		if($this->logMode == 1){
-			echo '</ul>';
-		}
+		$this->logOrEcho('Image upload process finished! ('.date('Y-m-d h:i:s A').") \n");
+		if($this->logMode == 1) echo '</ul>';
 	}
 
 	private function processFolder($pathFrag = ''){
@@ -295,7 +287,6 @@ class ImageLocalProcessor {
 								$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
 								$fileExt = strtolower(substr($fileName,strrpos($fileName,'.')));
 								if($fileExt == '.jpg' || $fileExt == '.jpeg'){
-									//Clean file name
 									$cleanName = str_replace(array(' '), '_', $fileName);
 									$cleanName = str_replace(array('(',')'), '', $cleanName);
 									if($fileName != $cleanName){
@@ -303,12 +294,15 @@ class ImageLocalProcessor {
 											$fileName = $cleanName;
 										}
 									}
-									if($this->processImageFile($fileName,$pathFrag)){
+									$catalogNumber = $this->getPrimaryKey($fileName);
+									if(!$catalogNumber){
+										$this->logOrEcho('File skipped ('.$fileName.'), unable to extract specimen identifier',1);
+										continue;
+									}
+									if($this->processImageFile($fileName,$catalogNumber,$pathFrag)){
 										if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
 									}
-									else{
-										if($this->errorMessage == 'abort') return false;
-									}
+									else if($this->errorMessage == 'abort') return false;
 								}
 								elseif($fileExt == '.tif' || $fileExt == '.tiff'){
 									$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
@@ -316,7 +310,7 @@ class ImageLocalProcessor {
 									//but for now do nothing
 								}
 								elseif(($fileExt == ".csv" || $fileExt == ".txt" || $fileExt == ".tab" || $fileExt == ".dat")){
-									if($this->skeletalFileProcessing){
+									if($this->skeletalFileProcessing && $fileName != $this->collArr[$this->activeCollid]['pmterm']){
 										//Is skeletal file exists. Append data to database records
 										$this->processSkeletalFile($this->sourcePathBase.$pathFrag.$fileName);
 										if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
@@ -381,11 +375,13 @@ class ImageLocalProcessor {
 						if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
 							$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
 							if($fileExt == 'jpg' || $fileExt == 'jpeg'){
-								if($this->processImageFile($fileName,$pathFrag)){
-									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
+								$catalogNumber = $this->getPrimaryKey($fileName);
+								if(!$catalogNumber){
+									$this->logOrEcho('File skipped ('.$fileName.'), unable to extract specimen identifier',1);
+									continue;
 								}
-								else{
-									if($this->errorMessage == 'abort') return false;
+								if($this->processImageFile($fileName,$catalogNumber,$pathFrag)){
+									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
 								}
 							}
 							elseif($fileExt == 'tif' || $fileExt == 'tiff'){
@@ -394,7 +390,7 @@ class ImageLocalProcessor {
 								//but for now do nothing
 							}
 							elseif(($fileExt == "csv" || $fileExt == "txt" || $fileExt == "tab" || $fileExt == "dat")){
-								if($this->skeletalFileProcessing){
+								if($this->skeletalFileProcessing && $fileName != $this->collArr[$this->activeCollid]['pmterm']){
 									//Is skeletal file. Process and append data to database records
 									$this->processSkeletalFile($this->sourcePathBase.$pathFrag.$fileName);
 									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
@@ -421,6 +417,42 @@ class ImageLocalProcessor {
 			$this->logOrEcho("Source directory skipped (code ".$codeArr[0].") : ".$this->sourcePathBase.$pathFrag,1);
 			//exit("ABORT: Source path does not exist: ".$this->sourcePathBase.$pathFrag);
 		}
+	}
+
+	private function processImageMap($pathFrag = ''){
+		set_time_limit(3600);
+		//Read image map and loop through image names
+		$fh = fopen($this->sourcePathBase.$pathFrag.$this->collArr[$this->activeCollid]['pmterm'],'r');
+		while($recArr = fgetcsv($fh)){
+			if(strtolower($recArr[0]) == 'catalognumber') continue;
+			$catalogNumber = $recArr[0];
+			$fileName = $recArr[1];
+			if(!$fileName) continue;
+			$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
+			if(!file_exists($this->sourcePathBase.'/'.$fileName)){
+				$this->logOrEcho('ERROR: unable to locate file within base folder: '.$this->sourcePathBase.'/'.$fileName,1);
+				continue;
+			}
+			if(!$catalogNumber){
+				$this->logOrEcho('ERROR: catalogNumber is NULL for file: '.$fileName,1);
+				continue;
+			}
+			$fileExt = strtolower(substr($fileName,strrpos($fileName,'.')));
+			if($fileExt == '.jpg' || $fileExt == '.jpeg'){
+				$cleanName = str_replace(array(' '), '_', $fileName);
+				$cleanName = str_replace(array('(',')'), '', $cleanName);
+				if($fileName != $cleanName){
+					if(rename($this->sourcePathBase.$pathFrag.$fileName, $this->sourcePathBase.$pathFrag.$cleanName)){
+						$fileName = $cleanName;
+					}
+				}
+				if($this->processImageFile($fileName, $catalogNumber, $pathFrag)){
+					if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
+				}
+			}
+			else $this->logOrEcho("ERROR: File skipped, image is not a JPG: ".$fileName,1);
+		}
+		fclose($fh);
 	}
 
 	/**
@@ -527,286 +559,281 @@ class ImageLocalProcessor {
 		}
 	}
 
-	private function processImageFile($fileName,$sourcePathFrag = ''){
+	private function processImageFile($fileName, $catalogNumber, $sourcePathFrag = ''){
 		//$this->logOrEcho("Processing image (".date('Y-m-d h:i:s A')."): ".$fileName);
 		//ob_flush();
 		flush();
 		//Grab Primary Key from filename
-		if($specPk = $this->getPrimaryKey($fileName)){
-			$occId = 0;
-			if($this->dbMetadata){
-				$occId = $this->getOccId($specPk);
+		$occId = 0;
+		if($this->dbMetadata){
+			$occId = $this->getOccId($catalogNumber);
+			if(!$occId) return false;
+		}
+		$targetFileName = $fileName;
+		$fileName = rawurlencode($fileName);
+		$fileNameExt = '.jpg';
+		$fileNameBase = $fileName;
+		if($p = strrpos($fileName,'.')){
+			$fileNameExt = substr($fileName,$p);
+			$fileNameBase = substr($fileName,0,$p);
+			if($this->webSourceSuffix){
+				$fileNameBase = substr($fileNameBase,0,-1*strlen($this->webSourceSuffix));
 			}
-			$targetFileName = $fileName;
-			$fileName = rawurlencode($fileName);
-			$fileNameExt = '.jpg';
-			$fileNameBase = $fileName;
-			if($p = strrpos($fileName,'.')){
-				$fileNameExt = substr($fileName,$p);
-				$fileNameBase = substr($fileName,0,$p);
-				if($this->webSourceSuffix){
-					$fileNameBase = substr($fileNameBase,0,-1*strlen($this->webSourceSuffix));
+		}
+		if($occId || !$this->dbMetadata){
+			$sourcePath = $this->sourcePathBase.$sourcePathFrag;
+			//Setup target path and file name in prep for loading image
+			$targetFolder = '';
+			if(strlen($catalogNumber) > 3){
+				$folderName = $catalogNumber;
+				if(preg_match('/^(\D*\d+)\D+/',$folderName,$m)){
+					$folderName = $m[1];
+				}
+				$targetFolder = substr($folderName,0,strlen($folderName)-3);
+				$targetFolder = str_replace(array('.','\\','/','#',' '),'',$targetFolder).'/';
+				if($targetFolder && strlen($targetFolder) < 6 && is_numeric(substr($targetFolder,0,1))){
+					$targetFolder = str_repeat('0',6-strlen($targetFolder)).$targetFolder;
 				}
 			}
-			if($occId || !$this->dbMetadata){
-				$sourcePath = $this->sourcePathBase.$sourcePathFrag;
-				//Setup target path and file name in prep for loading image
-				$targetFolder = '';
-				if(strlen($specPk) > 3){
-					$folderName = $specPk;
-					if(preg_match('/^(\D*\d+)\D+/',$folderName,$m)){
-						$folderName = $m[1];
+			if(!$targetFolder) $targetFolder = date('Ym').'/';
+			$targetFrag = $this->targetPathFrag.$targetFolder;
+			$targetPath = $this->targetPathBase.$targetFrag;
+			if(!file_exists($targetPath)){
+				if(!mkdir($targetPath)){
+					$this->logOrEcho("ERROR: unable to create new folder (".$targetPath.") ");
+				}
+			}
+			if($this->webImg == 1 || $this->webImg == 2){
+				//Check to see if image already exists at target, if so, delete or rename target
+				if(file_exists($targetPath.$targetFileName)){
+					if($this->imgExists == 2){
+						//Replace image (ie remove old images)
+						unlink($targetPath.$targetFileName);
+						if(file_exists($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."tn.jpg")){
+							unlink($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."tn.jpg");
+						}
+						if(file_exists($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."_tn.jpg")){
+							unlink($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."_tn.jpg");
+						}
+						if(file_exists($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."lg.jpg")){
+							unlink($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."lg.jpg");
+						}
+						if(file_exists($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."_lg.jpg")){
+							unlink($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."_lg.jpg");
+						}
 					}
-					$targetFolder = substr($folderName,0,strlen($folderName)-3);
-					$targetFolder = str_replace(array('.','\\','/','#',' '),'',$targetFolder).'/';
-					if($targetFolder && strlen($targetFolder) < 6 && is_numeric(substr($targetFolder,0,1))){
-						$targetFolder = str_repeat('0',6-strlen($targetFolder)).$targetFolder;
+					elseif($this->imgExists == 1){
+						//Rename image before saving
+						$cnt = 1;
+						$tempFileName = $targetFileName;
+						while(file_exists($targetPath.$targetFileName)){
+							$targetFileName = str_ireplace(".jpg","_".$cnt.".jpg",$tempFileName);
+							$cnt++;
+						}
+					}
+					else{
+						// skip import of image ($this->imgExists === 0)
+						$this->logOrEcho("NOTICE: image import skipped because image file already exists ",1);
+						return false;
 					}
 				}
-				if(!$targetFolder) $targetFolder = date('Ym').'/';
-				$targetFrag = $this->targetPathFrag.$targetFolder;
-				$targetPath = $this->targetPathBase.$targetFrag;
-				if(!file_exists($targetPath)){
-					if(!mkdir($targetPath)){
-						$this->logOrEcho("ERROR: unable to create new folder (".$targetPath.") ");
-					}
-				}
-				if($this->webImg == 1 || $this->webImg == 2){
-					//Check to see if image already exists at target, if so, delete or rename target
-					if(file_exists($targetPath.$targetFileName)){
-						if($this->imgExists == 2){
-							//Replace image (ie remove old images)
-							unlink($targetPath.$targetFileName);
-							if(file_exists($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."tn.jpg")){
-								unlink($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."tn.jpg");
-							}
-							if(file_exists($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."_tn.jpg")){
-								unlink($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."_tn.jpg");
-							}
-							if(file_exists($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."lg.jpg")){
-								unlink($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."lg.jpg");
-							}
-							if(file_exists($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."_lg.jpg")){
-								unlink($targetPath.substr($targetFileName,0,strlen($targetFileName)-4)."_lg.jpg");
-							}
-						}
-						elseif($this->imgExists == 1){
-							//Rename image before saving
-							$cnt = 1;
-							$tempFileName = $targetFileName;
-							while(file_exists($targetPath.$targetFileName)){
-								$targetFileName = str_ireplace(".jpg","_".$cnt.".jpg",$tempFileName);
-								$cnt++;
-							}
-						}
-						else{
-							// skip import of image ($this->imgExists === 0)
-							$this->logOrEcho("NOTICE: image import skipped because image file already exists ",1);
-							return false;
+			}
+			elseif($this->webImg == 3){
+				if(!$this->imgExists){
+					//Check to see if database record already exists, and if so skip import
+					$recExists = 0;
+					$sql = 'SELECT url '.
+						'FROM images WHERE (occid = '.$occId.') ';
+					$rs = $this->conn->query($sql);
+					while($r = $rs->fetch_object()){
+						if(stripos($r->url,$fileName) || stripos($r->url,str_replace('%20', '_', $fileName)) || stripos($r->url,str_replace('%20', ' ', $fileName))){
+							$recExists = 1;
 						}
 					}
-				}
-				elseif($this->webImg == 3){
-					if(!$this->imgExists){
-						//Check to see if database record already exists, and if so skip import
-						$recExists = 0;
-						$sql = 'SELECT url '.
-							'FROM images WHERE (occid = '.$occId.') ';
-						$rs = $this->conn->query($sql);
-						while($r = $rs->fetch_object()){
-							if(stripos($r->url,$fileName) || stripos($r->url,str_replace('%20', '_', $fileName)) || stripos($r->url,str_replace('%20', ' ', $fileName))){
-								$recExists = 1;
-							}
-						}
-						$rs->free();
-						if($recExists){
-							$this->logOrEcho("NOTICE: image import skipped because specimen record already exists ",1);
-							return false;
-						}
+					$rs->free();
+					if($recExists){
+						$this->logOrEcho("NOTICE: image import skipped because specimen record already exists ",1);
+						return false;
 					}
 				}
-				//Start the processing procedure
-				list($width, $height) = ImageShared::getImgDim($sourcePath.$fileName);
-				if($width && $height){
-					//Get File size
-					$fileSize = 0;
-					if(substr($sourcePath,0,7)=='http://' || substr($sourcePath,0,8)=='https://') {
-						$x = array_change_key_case(get_headers($sourcePath.$fileName,1),CASE_LOWER);
-						if ( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) {
-							$fileSize = $x['content-length'][1];
-						}
- 						else {
- 							$fileSize = $x['content-length'];
- 						}
+			}
+			//Start the processing procedure
+			list($width, $height) = ImageShared::getImgDim($sourcePath.$fileName);
+			if($width && $height){
+				//Get File size
+				$fileSize = 0;
+				if(substr($sourcePath,0,7)=='http://' || substr($sourcePath,0,8)=='https://') {
+					$x = array_change_key_case(get_headers($sourcePath.$fileName,1),CASE_LOWER);
+					if ( strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0 ) {
+						$fileSize = $x['content-length'][1];
 					}
 					else {
-						$fileSize = @filesize($sourcePath.$fileName);
+						$fileSize = $x['content-length'];
 					}
+				}
+				else {
+					$fileSize = @filesize($sourcePath.$fileName);
+				}
 
-					//$this->logOrEcho("Loading image (".date('Y-m-d h:i:s A').")",1);
-					//ob_flush();
-					//flush();
+				//$this->logOrEcho("Loading image (".date('Y-m-d h:i:s A').")",1);
+				//ob_flush();
+				//flush();
 
-					//Create web image
-					$webUrlFrag = '';
-					if($this->webImg){
-						if($this->webImg == 1){
-							// 1 = evaluate source and import
-							if($fileSize < $this->webFileSizeLimit && $width < ($this->webPixWidth*2)){
-								if(copy($sourcePath.$fileName,$targetPath.$targetFileName)){
-									$webUrlFrag = $this->imgUrlBase.$targetFrag.$targetFileName;
-									$this->logOrEcho("Source image imported as web image (".date('Y-m-d h:i:s A').") ",1);
-								}
-							}
-							else{
-								if($this->createNewImage($sourcePath.$fileName,$targetPath.$targetFileName,$this->webPixWidth,round($this->webPixWidth*$height/$width),$width,$height)){
-									$webUrlFrag = $this->imgUrlBase.$targetFrag.$targetFileName;
-									$this->logOrEcho("Web image created from source image (".date('Y-m-d h:i:s A').") ",1);
-								}
-							}
-						}
-						elseif($this->webImg == 2){
-							// 2 = import source and use as is
-							$webFileName = $fileNameBase.$this->webSourceSuffix.$fileNameExt;
-							if(copy($sourcePath.$webFileName,$targetPath.$targetFileName)){
+				//Create web image
+				$webUrlFrag = '';
+				if($this->webImg){
+					if($this->webImg == 1){
+						// 1 = evaluate source and import
+						if($fileSize < $this->webFileSizeLimit && $width < ($this->webPixWidth*2)){
+							if(copy($sourcePath.$fileName,$targetPath.$targetFileName)){
 								$webUrlFrag = $this->imgUrlBase.$targetFrag.$targetFileName;
 								$this->logOrEcho("Source image imported as web image (".date('Y-m-d h:i:s A').") ",1);
 							}
 						}
-						elseif($this->webImg == 3){
-							// 3 = map to source as the web image
-							$webImgCreated = true;
-							$webFileName = $fileNameBase.$this->webSourceSuffix.$fileNameExt;
-							$webUrlFrag = $sourcePath.$webFileName;
-							$this->logOrEcho("Source used as web image (".date('Y-m-d h:i:s A').") ",1);
+						else{
+							if($this->createNewImage($sourcePath.$fileName,$targetPath.$targetFileName,$this->webPixWidth,round($this->webPixWidth*$height/$width),$width,$height)){
+								$webUrlFrag = $this->imgUrlBase.$targetFrag.$targetFileName;
+								$this->logOrEcho("Web image created from source image (".date('Y-m-d h:i:s A').") ",1);
+							}
 						}
 					}
-					if(!$webUrlFrag){
-						$this->logOrEcho("Failed to create web image ",1);
+					elseif($this->webImg == 2){
+						// 2 = import source and use as is
+						$webFileName = $fileNameBase.$this->webSourceSuffix.$fileNameExt;
+						if(copy($sourcePath.$webFileName,$targetPath.$targetFileName)){
+							$webUrlFrag = $this->imgUrlBase.$targetFrag.$targetFileName;
+							$this->logOrEcho("Source image imported as web image (".date('Y-m-d h:i:s A').") ",1);
+						}
 					}
-					//Create Large Image
-					$lgUrlFrag = "";
-					if($this->lgImg){
-						//Large version of image should not be excluded
-						$lgTargetFileName = substr($targetFileName,0,-4)."_lg.jpg";
-						if($this->lgImg == 1){
-							// 1 = import source
-							if($width > ($this->webPixWidth*1.3)){
-								//Source image is big enough to serve as large version
-								if($width > $this->lgPixWidth || ($fileSize && $fileSize > $this->lgFileSizeLimit)){
-									//Image is too width or file size is too big, thus let's resize and import
-									if($this->createNewImage($sourcePath.$fileName,$targetPath.$lgTargetFileName,$this->lgPixWidth,round($this->lgPixWidth*$height/$width),$width,$height)){
-										$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
-										$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
-									}
+					elseif($this->webImg == 3){
+						// 3 = map to source as the web image
+						$webImgCreated = true;
+						$webFileName = $fileNameBase.$this->webSourceSuffix.$fileNameExt;
+						$webUrlFrag = $sourcePath.$webFileName;
+						$this->logOrEcho("Source used as web image (".date('Y-m-d h:i:s A').") ",1);
+					}
+				}
+				if(!$webUrlFrag){
+					$this->logOrEcho("Failed to create web image ",1);
+				}
+				//Create Large Image
+				$lgUrlFrag = "";
+				if($this->lgImg){
+					//Large version of image should not be excluded
+					$lgTargetFileName = substr($targetFileName,0,-4)."_lg.jpg";
+					if($this->lgImg == 1){
+						// 1 = import source
+						if($width > ($this->webPixWidth*1.3)){
+							//Source image is big enough to serve as large version
+							if($width > $this->lgPixWidth || ($fileSize && $fileSize > $this->lgFileSizeLimit)){
+								//Image is too width or file size is too big, thus let's resize and import
+								if($this->createNewImage($sourcePath.$fileName,$targetPath.$lgTargetFileName,$this->lgPixWidth,round($this->lgPixWidth*$height/$width),$width,$height)){
+									$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
+									$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
+								}
+							}
+							else{
+								//Source can serve as large version, thus just import as is
+								if(copy($sourcePath.$fileName,$targetPath.$lgTargetFileName)){
+									$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
+									$this->logOrEcho("Imported source as large derivative (".date('Y-m-d h:i:s A').") ",1);
 								}
 								else{
-									//Source can serve as large version, thus just import as is
-									if(copy($sourcePath.$fileName,$targetPath.$lgTargetFileName)){
-										$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
-										$this->logOrEcho("Imported source as large derivative (".date('Y-m-d h:i:s A').") ",1);
-									}
-									else{
-										$this->logOrEcho("WARNING: unable to import large derivative (".$sourcePath.$lgSourceFileName.") ",1);
-									}
+									$this->logOrEcho("WARNING: unable to import large derivative (".$sourcePath.$lgSourceFileName.") ",1);
 								}
-							}
-						}
-						elseif($this->lgImg == 2){
-							// 2 = map to source
-							$lgUrlFrag = $sourcePath.$fileName;
-							$this->logOrEcho("Used source as large derivative (".date('Y-m-d h:i:s A').") ",1);
-						}
-						elseif($this->lgImg == 3){
-							// 3 = import large version (_lg.jpg or $this->lgSourceSuffix.'.jpg'), if it exists
-							$lgSourceFileName = $fileNameBase.$this->lgSourceSuffix.$fileNameExt;
-							if($this->uriExists($sourcePath.$lgSourceFileName)){
-								if(copy($sourcePath.$lgSourceFileName,$targetPath.$lgTargetFileName)){
-									if(substr($sourcePath,0,4) != 'http') unlink($sourcePath.$lgSourceFileName);
-									$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
-									$this->logOrEcho("Imported large derivative of source for large version(".date('Y-m-d h:i:s A').") ",1);
-								}
-							}
-							else{
-								$this->logOrEcho("WARNING: unable to import large derivative (".$sourcePath.$lgSourceFileName.") ",1);
-							}
-						}
-						elseif($this->lgImg == 4){
-							// 4 = map to large version (_lg.jpg or $this->lgSourceSuffix.'.jpg'), if it exist
-							$lgSourceFileName = $fileNameBase.$this->lgSourceSuffix.$fileNameExt;
-							if($this->uriExists($sourcePath.$lgSourceFileName)){
-								$lgUrlFrag = $sourcePath.$lgSourceFileName;
-								$this->logOrEcho("Large version mapped to large derivative of source (".date('Y-m-d h:i:s A').") ",1);
-							}
-							else{
-								$this->logOrEcho("WARNING: unable to map to large derivative (".$sourcePath.$lgSourceFileName.") ",1);
 							}
 						}
 					}
-					//Create Thumbnail Image
-					// 1 = create from source, 2 = import source, 3 = map to source, 0 = exclude
-					$tnUrlFrag = "";
-					if($this->tnImg){
-						// Don't exclude thumbnails (0 != exclude)
-						$tnTargetFileName = substr($targetFileName,0,-4)."_tn.jpg";
-						if($this->tnImg == 1){
-							// 1 = create from source, 0 = exclude
-							if($this->createNewImage($sourcePath.$fileName,$targetPath.$tnTargetFileName,$this->tnPixWidth,round($this->tnPixWidth*$height/$width),$width,$height)){
-								$tnUrlFrag = $this->imgUrlBase.$targetFrag.$tnTargetFileName;
-								$this->logOrEcho("Created thumbnail from source (".date('Y-m-d h:i:s A').") ",1);
+					elseif($this->lgImg == 2){
+						// 2 = map to source
+						$lgUrlFrag = $sourcePath.$fileName;
+						$this->logOrEcho("Used source as large derivative (".date('Y-m-d h:i:s A').") ",1);
+					}
+					elseif($this->lgImg == 3){
+						// 3 = import large version (_lg.jpg or $this->lgSourceSuffix.'.jpg'), if it exists
+						$lgSourceFileName = $fileNameBase.$this->lgSourceSuffix.$fileNameExt;
+						if($this->uriExists($sourcePath.$lgSourceFileName)){
+							if(copy($sourcePath.$lgSourceFileName,$targetPath.$lgTargetFileName)){
+								if(substr($sourcePath,0,4) != 'http') unlink($sourcePath.$lgSourceFileName);
+								$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
+								$this->logOrEcho("Imported large derivative of source for large version(".date('Y-m-d h:i:s A').") ",1);
 							}
 						}
-						elseif($this->tnImg == 2){
-							// 2 = import source (source name with _tn.jpg (or $this->tnSourceSuffix.'.jpg') suffix)
-							$tnFileName = $fileNameBase.$this->tnSourceSuffix.$fileNameExt;
-							if($this->uriExists($sourcePath.$tnFileName)){
-								rename($sourcePath.$tnFileName,$targetPath.$tnTargetFileName);
-							}
+						else{
+							$this->logOrEcho("WARNING: unable to import large derivative (".$sourcePath.$lgSourceFileName.") ",1);
+						}
+					}
+					elseif($this->lgImg == 4){
+						// 4 = map to large version (_lg.jpg or $this->lgSourceSuffix.'.jpg'), if it exist
+						$lgSourceFileName = $fileNameBase.$this->lgSourceSuffix.$fileNameExt;
+						if($this->uriExists($sourcePath.$lgSourceFileName)){
+							$lgUrlFrag = $sourcePath.$lgSourceFileName;
+							$this->logOrEcho("Large version mapped to large derivative of source (".date('Y-m-d h:i:s A').") ",1);
+						}
+						else{
+							$this->logOrEcho("WARNING: unable to map to large derivative (".$sourcePath.$lgSourceFileName.") ",1);
+						}
+					}
+				}
+				//Create Thumbnail Image
+				// 1 = create from source, 2 = import source, 3 = map to source, 0 = exclude
+				$tnUrlFrag = "";
+				if($this->tnImg){
+					// Don't exclude thumbnails (0 != exclude)
+					$tnTargetFileName = substr($targetFileName,0,-4)."_tn.jpg";
+					if($this->tnImg == 1){
+						// 1 = create from source, 0 = exclude
+						if($this->createNewImage($sourcePath.$fileName,$targetPath.$tnTargetFileName,$this->tnPixWidth,round($this->tnPixWidth*$height/$width),$width,$height)){
 							$tnUrlFrag = $this->imgUrlBase.$targetFrag.$tnTargetFileName;
-							$this->logOrEcho("Imported source as thumbnail (".date('Y-m-d h:i:s A').") ",1);
-						}
-						elseif($this->tnImg == 3){
-							// 3 = map to source (source name with _tn.jpg (or $this->tnSourceSuffix.'.jpg') suffix)
-							$tnFileName = $fileNameBase.$this->tnSourceSuffix.$fileNameExt;
-							if($this->uriExists($sourcePath.$tnFileName)){
-								$tnUrlFrag = $sourcePath.$tnFileName;
-								$this->logOrEcho("Thumbnail is map of source thumbnail (".date('Y-m-d h:i:s A').") ",1);
-							}
+							$this->logOrEcho("Created thumbnail from source (".date('Y-m-d h:i:s A').") ",1);
 						}
 					}
+					elseif($this->tnImg == 2){
+						// 2 = import source (source name with _tn.jpg (or $this->tnSourceSuffix.'.jpg') suffix)
+						$tnFileName = $fileNameBase.$this->tnSourceSuffix.$fileNameExt;
+						if($this->uriExists($sourcePath.$tnFileName)){
+							rename($sourcePath.$tnFileName,$targetPath.$tnTargetFileName);
+						}
+						$tnUrlFrag = $this->imgUrlBase.$targetFrag.$tnTargetFileName;
+						$this->logOrEcho("Imported source as thumbnail (".date('Y-m-d h:i:s A').") ",1);
+					}
+					elseif($this->tnImg == 3){
+						// 3 = map to source (source name with _tn.jpg (or $this->tnSourceSuffix.'.jpg') suffix)
+						$tnFileName = $fileNameBase.$this->tnSourceSuffix.$fileNameExt;
+						if($this->uriExists($sourcePath.$tnFileName)){
+							$tnUrlFrag = $sourcePath.$tnFileName;
+							$this->logOrEcho("Thumbnail is map of source thumbnail (".date('Y-m-d h:i:s A').") ",1);
+						}
+					}
+				}
 
-					//Start clean up
-					if($this->sourceGdImg){
-						imagedestroy($this->sourceGdImg);
-						$this->sourceGdImg = null;
-					}
-					if($this->sourceImagickImg){
-						$this->sourceImagickImg->clear();
-						$this->sourceImagickImg = null;
-					}
-					//Database urls and metadata for images
-					$this->recordImageMetadata(($this->dbMetadata?$occId:$specPk),$webUrlFrag,$tnUrlFrag,$lgUrlFrag);
-					//Final cleaning stage
-					if(file_exists($sourcePath.$fileName)){
-						if($this->keepOrig){
-							if(file_exists($this->targetPathBase.$this->targetPathFrag.$this->origPathFrag)){
-								rename($sourcePath.$fileName,$this->targetPathBase.$this->targetPathFrag.$this->origPathFrag.$fileName.".orig");
-							}
-						} else {
-							unlink($sourcePath.$fileName);
+				//Start clean up
+				if($this->sourceGdImg){
+					imagedestroy($this->sourceGdImg);
+					$this->sourceGdImg = null;
+				}
+				if($this->sourceImagickImg){
+					$this->sourceImagickImg->clear();
+					$this->sourceImagickImg = null;
+				}
+				//Database urls and metadata for images
+				$this->recordImageMetadata(($this->dbMetadata?$occId:$catalogNumber),$webUrlFrag,$tnUrlFrag,$lgUrlFrag);
+				//Final cleaning stage
+				if(file_exists($sourcePath.$fileName)){
+					if($this->keepOrig){
+						if(file_exists($this->targetPathBase.$this->targetPathFrag.$this->origPathFrag)){
+							rename($sourcePath.$fileName,$this->targetPathBase.$this->targetPathFrag.$this->origPathFrag.$fileName.".orig");
 						}
+					} else {
+						unlink($sourcePath.$fileName);
 					}
-					$this->logOrEcho("Image processed successfully (".date('Y-m-d h:i:s A').")!",1);
 				}
-				else{
-					$this->logOrEcho("File skipped (".$sourcePath.$fileName."), unable to obtain dimensions of original image",1);
-					return false;
-				}
+				$this->logOrEcho('Image processed successfully ('.date('Y-m-d h:i:s A').')!',1);
 			}
-		}
-		else{
-			$this->logOrEcho("File skipped (".$sourcePathFrag.$fileName."), unable to extract specimen identifier",1);
-			return false;
+			else{
+				$this->logOrEcho('File skipped ('.$sourcePath.$fileName.'), unable to obtain dimensions of original image',1);
+				return false;
+			}
 		}
 		//ob_flush();
 		flush();
@@ -896,20 +923,20 @@ class ImageLocalProcessor {
 		if(isset($this->collArr[$this->activeCollid]['pmterm'])){
 			$pmTerm = $this->collArr[$this->activeCollid]['pmterm'];
 			if(substr($pmTerm,0,1) != '/' || stripos(substr($pmTerm,-3),'/') === false){
-				$this->logOrEcho("PROCESS ABORTED: Regular Expression term illegal due to missing forward slashes delimiting the term: ".$pmTerm,1);
-				$this->errorMessage = 'abort';
-				return false;
+				$this->errorMessage = 'Regular Expression term illegal due to missing forward slashes delimiting the term: '.$pmTerm;
+				$this->logOrEcho('PROCESS ABORTED: '.$this->errorMessage,1);
+				exit('ABORT: '.$this->errorMessage);
 			}
 			if(!strpos($pmTerm,'(') || !strpos($pmTerm,')')){
-				$this->logOrEcho("PROCESS ABORTED: Regular Expression term illegal due to missing capture term: ".$pmTerm,1);
-				$this->errorMessage = 'abort';
-				return false;
+				$this->errorMessage = 'Regular Expression term illegal due to missing capture term: '.$pmTerm;
+				$this->logOrEcho('PROCESS ABORTED: '.$this->errorMessage,1);
+				exit('ABORT: '.$this->errorMessage);
 			}
 			if(preg_match($pmTerm,$str,$matchArr)){
 				if(array_key_exists(1,$matchArr) && $matchArr[1]){
 					$specPk = $matchArr[1];
 				}
-				if (isset($this->collArr[$this->activeCollid]['prpatt'])) {
+				if(isset($this->collArr[$this->activeCollid]['prpatt'])) {
 					$specPk = preg_replace($this->collArr[$this->activeCollid]['prpatt'],$this->collArr[$this->activeCollid]['prrepl'],$specPk);
 				}
 				if(isset($matchArr[2])){
@@ -920,12 +947,12 @@ class ImageLocalProcessor {
 		return $specPk;
 	}
 
-	private function getOccId($specPk){
+	private function getOccId($catalogNumber){
 		$occId = 0;
 		//Check to see if record with pk already exists
 		if($this->matchCatalogNumber){
 			$sql = 'SELECT occid FROM omoccurrences '.
-				'WHERE (catalognumber IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) '.
+				'WHERE (catalognumber IN("'.$catalogNumber.'"'.(substr($catalogNumber,0,1)=='0'?',"'.ltrim($catalogNumber,'0 ').'"':'').')) '.
 				'AND (collid = '.$this->activeCollid.')';
 			$rs = $this->conn->query($sql);
 			if($row = $rs->fetch_object()){
@@ -937,7 +964,7 @@ class ImageLocalProcessor {
 			$sql = 'SELECT DISTINCT o.occid '.
 				'FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid '.
 				'WHERE (o.collid = '.$this->activeCollid.') '.
-				'AND ((o.othercatalognumbers IN("'.$specPk.'"'.(substr($specPk,0,1)=='0'?',"'.ltrim($specPk,'0 ').'"':'').')) OR (i.identifierValue = "'.$specPk.'")) ';
+				'AND ((o.othercatalognumbers IN("'.$catalogNumber.'"'.(substr($catalogNumber,0,1)=='0'?',"'.ltrim($catalogNumber,'0 ').'"':'').')) OR (i.identifierValue = "'.$catalogNumber.'")) ';
 			$rs = $this->conn->query($sql);
 			if($row = $rs->fetch_object()){
 				$occId = $row->occid;
@@ -947,18 +974,14 @@ class ImageLocalProcessor {
 		if(!$occId && $this->createNewRec){
 			//Records does not exist, create a new one to which image will be linked
 			$sql2 = 'INSERT INTO omoccurrences(collid,'.($this->matchCatalogNumber?'catalognumber':'othercatalognumbers').',processingstatus,dateentered) '.
-				'VALUES('.$this->activeCollid.',"'.$specPk.'","unprocessed","'.date('Y-m-d H:i:s').'")';
+				'VALUES('.$this->activeCollid.',"'.$catalogNumber.'","unprocessed","'.date('Y-m-d H:i:s').'")';
 			if($this->conn->query($sql2)){
 				$occId = $this->conn->insert_id;
 				$this->logOrEcho("Specimen record does not exist; new empty specimen record created and assigned an 'unprocessed' status (occid = ".$occId.") ",1);
 			}
-			else{
-				$this->logOrEcho("ERROR creating new occurrence record: ".$this->conn->error,1);
-			}
+			else $this->logOrEcho("ERROR creating new occurrence record: ".$this->conn->error,1);
 		}
-		if(!$occId){
-			$this->logOrEcho("ERROR: File skipped, unable to locate specimen record ".$specPk." (".date('Y-m-d h:i:s A').") ",1);
-		}
+		if(!$occId) $this->logOrEcho("ERROR: File skipped, unable to locate specimen record ".$catalogNumber." (".date('Y-m-d h:i:s A').") ",1);
 		return $occId;
 	}
 
@@ -1485,8 +1508,8 @@ class ImageLocalProcessor {
 	}
 
 	private function updateCollectionStats(){
-		if($this->dbMetadata){
-		//Do some more cleaning of the data after it haas been indexed in the omoccurrences table
+		if($this->dbMetadata && $this->collProcessedArr){
+			//Do some more cleaning of the data after it haas been indexed in the omoccurrences table
 			$occurMain = new OccurrenceMaintenance($this->conn);
 
 			$this->logOrEcho('Cleaning house...');
@@ -1518,8 +1541,8 @@ class ImageLocalProcessor {
 			$uuidManager->setSilent(1);
 			$uuidManager->populateGuids();
 			$uuidManager->__destruct();
+			$this->logOrEcho('Stats update completed');
 		}
-		$this->logOrEcho("Stats update completed");
 	}
 
 	private function sendMetadata($email,$mdFileName){
@@ -1569,9 +1592,7 @@ class ImageLocalProcessor {
 				$this->collArr = $cArr;
 				//Set additional collection info
 				if($this->dbMetadata){
-					//Get Metadata
-					$sql = 'SELECT collid, institutioncode, collectioncode, collectionname, managementtype FROM omcollections '.
-						'WHERE (collid IN('.implode(',',array_keys($cArr)).'))';
+					$sql = 'SELECT collid, institutioncode, collectioncode, collectionname, managementtype FROM omcollections WHERE (collid IN('.implode(',',array_keys($cArr)).'))';
 					if($rs = $this->conn->query($sql)){
 						if($rs->num_rows){
 							while($r = $rs->fetch_object()){

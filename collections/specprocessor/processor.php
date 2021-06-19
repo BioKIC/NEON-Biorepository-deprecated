@@ -110,7 +110,7 @@ $statusStr = "";
 						$imageProcessor->setSkeletalFileProcessing($_POST['skeletalFileProcessing']);
 
 						//Run process
-						$imageProcessor->batchLoadImages();
+						$imageProcessor->batchLoadSpecimenImages();
 						echo '</div>'."\n";
 					}
 				}

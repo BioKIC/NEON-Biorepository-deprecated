@@ -295,10 +295,11 @@ class ImageLocalProcessor {
 									$targetPathFrag = $this->getTargetPathFrag($catalogNumber);
 									$sourcePath = $this->sourcePathBase.$pathFrag;
 									$occid = $this->getOccid($catalogNumber);
-									if($occid === false) return false;
+									if($occid === false) continue;
 									$targetFileName = $this->prepTarget($this->targetPathBase.$targetPathFrag, $fileName, $occid);
 									if(!$targetFileName) continue;
 									if($imgArr = $this->processImageFile($fileName, $targetFileName, $this->targetPathBase.$targetPathFrag, $sourcePath)){
+										$imgArr['occid'] = $occid;
 										if(isset($imgArr['url']) && substr($imgArr['url'],0,4) != 'http') $imgArr['url'] = $this->imgUrlBase.$targetPathFrag.$imgArr['url'];
 										if(isset($imgArr['originalUrl']) && substr($imgArr['originalUrl'],0,4) != 'http') $imgArr['originalUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['originalUrl'];
 										if(isset($imgArr['thumbnailUrl']) && substr($imgArr['thumbnailUrl'],0,4) != 'http') $imgArr['thumbnailUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['thumbnailUrl'];
@@ -389,9 +390,11 @@ class ImageLocalProcessor {
 								$targetPathFrag = $this->getTargetPathFrag($catalogNumber);
 								$sourcePath = $this->sourcePathBase.$pathFrag;
 								$occid = $this->getOccid($catalogNumber);
-								if($occid === false) return false;
+								if($occid === false) continue;
 								$targetFileName = $this->prepTarget($this->targetPathBase.$targetPathFrag, $fileName, $occid);
+								if(!$targetFileName) continue;
 								if($imgArr = $this->processImageFile($fileName, $targetFileName, $this->targetPathBase.$targetPathFrag, $sourcePath)){
+									$imgArr['occid'] = $occid;
 									if(isset($imgArr['url']) && substr($imgArr['url'],0,4) != 'http') $imgArr['url'] = $this->imgUrlBase.$targetPathFrag.$imgArr['url'];
 									if(isset($imgArr['originalUrl']) && substr($imgArr['originalUrl'],0,4) != 'http') $imgArr['originalUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['originalUrl'];
 									if(isset($imgArr['thumbnailUrl']) && substr($imgArr['thumbnailUrl'],0,4) != 'http') $imgArr['thumbnailUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['thumbnailUrl'];
@@ -471,9 +474,11 @@ class ImageLocalProcessor {
 				$targetPathFrag = $this->getTargetPathFrag($catalogNumber);
 				$sourcePath = $this->sourcePathBase.$pathFrag;
 				$occid = $this->getOccid($catalogNumber);
-				if($occid === false) return false;
+				if($occid === false) continue;
 				$targetFileName = $this->prepTarget($this->targetPathBase.$targetPathFrag, $fileName, $occid);
+				if(!$targetFileName) continue;
 				if($imgArr = $this->processImageFile($fileName, $targetFileName, $this->targetPathBase.$targetPathFrag, $sourcePath)){
+					$imgArr['occid'] = $occid;
 					if(isset($imgArr['url']) && substr($imgArr['url'],0,4) != 'http') $imgArr['url'] = $this->imgUrlBase.$targetPathFrag.$imgArr['url'];
 					if(isset($imgArr['originalUrl']) && substr($imgArr['originalUrl'],0,4) != 'http') $imgArr['originalUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['originalUrl'];
 					if(isset($imgArr['thumbnailUrl']) && substr($imgArr['thumbnailUrl'],0,4) != 'http') $imgArr['thumbnailUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['thumbnailUrl'];
@@ -888,7 +893,7 @@ class ImageLocalProcessor {
 					'VALUES('.$this->activeCollid.',"'.$catalogNumber.'","unprocessed","'.date('Y-m-d H:i:s').'")';
 				if($this->conn->query($sql2)){
 					$occid = $this->conn->insert_id;
-					$this->logOrEcho("Specimen record does not exist; new empty specimen record created and assigned an 'unprocessed' status (occid = ".$occid.") ",1);
+					$this->logOrEcho('Specimen record does not exist; new empty specimen record created and assigned an "unprocessed" status (occid = <a href="../individual/index.php?occid='.$occid.'" target="_blank">'.$occid.'</a>) ',1);
 				}
 				else $this->logOrEcho("ERROR creating new occurrence record: ".$this->conn->error,1);
 			}
@@ -912,9 +917,11 @@ class ImageLocalProcessor {
 		$status = true;
 		$this->logOrEcho("Preparing to load record into database",1);
 		if(isset($imgArr['url']) && $imgArr['url']){
-			if(isset($imgArr['occid']) && $imgArr['occid']){
+			$occid = 0;
+			if(isset($imgArr['occid'])) $occid = $imgArr['occid'];
+			if($occid){
 				//Check to see if image url already exists for that occid
-				$sql = 'SELECT imgid, url, thumbnailurl, originalurl FROM images WHERE (occid = '.$imgArr['occid'].') ';
+				$sql = 'SELECT imgid, url, thumbnailurl, originalurl FROM images WHERE (occid = '.$occid.') ';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					if(strcasecmp($r->url,$imgArr['url']) == 0){
@@ -956,7 +963,6 @@ class ImageLocalProcessor {
 				}
 				$rs->free();
 			}
-
 			if(!isset($imgArr['format'])) $imgArr['format'] = 'image/jpeg';
 			if(isset($this->collArr[$this->activeCollid]['collname'])){
 				if(!isset($imgArr['owner'])) $imgArr['owner'] = $this->collArr[$this->activeCollid]['collname'];
@@ -971,7 +977,9 @@ class ImageLocalProcessor {
 			$sql = 'INSERT INTO images('.trim($sql1,', ').') VALUES ('.trim($sql2,', ').')';
 			if($sql){
 				if($this->conn->query($sql)){
-					$this->logOrEcho("SUCCESS: Image record loaded into database",1);
+					$msg = 'SUCCESS: Image record loaded into database ';
+					if($occid) $msg .= 'and linked to occurrence record <a href="../individual/index.php?occid='.$occid.'" target="_blank">'.$occid.'</a>';
+					$this->logOrEcho($msg,1);
 				}
 				else{
 					$status = false;
@@ -2030,7 +2038,7 @@ class ImageLocalProcessor {
 		if($this->logMode > 1){
 			if($this->logFH){
 				if($indent) $str = "\t".$str;
-				fwrite($this->logFH,$str."\n");
+				fwrite($this->logFH,strip_tags($str)."\n");
 			}
 		}
 		if($this->logMode == 1 || $this->logMode == 3){

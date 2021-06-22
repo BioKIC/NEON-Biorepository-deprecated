@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
+include_once($SERVER_ROOT.'/content/lang/checklists/checklistmap.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $clid = $_REQUEST['clid'];
@@ -16,7 +17,7 @@ $coordArr = $clManager->getVoucherCoordinates();
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> - Checklist Coordinate Map</title>
+	<title><?php echo $DEFAULT_TITLE.' - '.(isset($LANG['COORD_MAP'])?$LANG['COORD_MAP']:'Checklist Coordinate Map'); ?></title>
 	<?php
     $activateJQuery = false;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -129,10 +130,10 @@ $coordArr = $clManager->getVoucherCoordinates();
 	if(!$coordArr){
 		?>
 		<div style='font-size:120%;font-weight:bold;'>
-			Your query apparently does not contain any records with coordinates that can be mapped.
+			<?php echo (isset($LANG['NO_COORDS'])?$LANG['NO_COORDS']:'Your query apparently does not contain any records with coordinates that can be mapped'); ?>.
 		</div>
 		<div style="margin:15px;">
-			It may be that the vouchers have rare/threatened status that require the locality coordinates be hidden.
+			<?php echo (isset($LANG['MAYBE_RARE'])?$LANG['MAYBE_RARE']:'It may be that the vouchers have rare/threatened status that require the locality coordinates be hidden'); ?>.
 		</div>
 		<?php
 	}

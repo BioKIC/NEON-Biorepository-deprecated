@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistAdmin.php');
-include_once($SERVER_ROOT.'/content/lang/checklists/checklistadmin.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/checklists/checklistadminmeta.'.$LANG_TAG.'.php');
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
@@ -29,48 +29,48 @@ if(isset($clArray['defaultsettings']) && $clArray['defaultsettings']){
 
 	function validateChecklistForm(f){
 		if(f.name.value == ""){
-			alert("Checklist name field must have a value");
+			alert("<?php echo (isset($LANG['NEED_NAME'])?$LANG['NEED_NAME']:'Checklist name field must have a value'); ?>");
 			return false;
 		}
 		if(f.latcentroid.value != ""){
 			if(f.longcentroid.value == ""){
-				alert("If latitude has a value, longitude must also have a value");
+				alert("<?php echo (isset($LANG['NEED_LONG'])?$LANG['NEED_LONG']:'If latitude has a value, longitude must also have a value'); ?>");
 				return false;
 			}
 			if(!isNumeric(f.latcentroid.value)){
-				alert("Latitude must be strictly numeric (decimal format: e.g. 34.2343)");
+				alert("<?php echo (isset($LANG['LAT_NUMERIC'])?$LANG['LAT_NUMERIC']:'Latitude must be strictly numeric (decimal format: e.g. 34.2343)'); ?>");
 				return false;
 			}
 			if(Math.abs(f.latcentroid.value) > 90){
-				alert("Latitude values can not be greater than 90 or less than -90.");
+				alert("<?php echo (isset($LANG['NO_NINETY'])?$LANG['NO_NINETY']:'Latitude values can not be greater than 90 or less than -90'); ?>");
 				return false;
 			}
 		}
 		if(f.longcentroid.value != ""){
 			if(f.latcentroid.value == ""){
-				alert("If longitude has a value, latitude must also have a value");
+				alert("<?php echo (isset($LANG['NEED_LAT'])?$LANG['NEED_LAT']:'If longitude has a value, latitude must also have a value'); ?>");
 				return false;
 			}
 			if(!isNumeric(f.longcentroid.value)){
-				alert("Longitude must be strictly numeric (decimal format: e.g. -112.2343)");
+				alert("<?php echo (isset($LANG['LONG_NUMERIC'])?$LANG['LONG_NUMERIC']:'Longitude must be strictly numeric (decimal format: e.g. -112.2343)'); ?>");
 				return false;
 			}
 			if(Math.abs(f.longcentroid.value) > 180){
-				alert("Longitude values can not be greater than 180 or less than -180.");
+				alert("<?php echo (isset($LANG['NO_ONE_EIGHTY'])?$LANG['NO_ONE_EIGHTY']:'Longitude values can not be greater than 180 or less than -180'); ?>");
 				return false;
 			}
 		}
 		if(!isNumeric(f.pointradiusmeters.value)){
-			alert("Point radius must be a numeric value only");
+			alert("<?php echo (isset($LANG['NUMERIC_RADIUS'])?$LANG['NUMERIC_RADIUS']:'Point radius must be a numeric value only'); ?>");
 			return false;
 		}
 		if(f.type){
 			if(f.type.value == "rarespp" && f.locality.value == ""){
-				alert("Rare species checklists must have a state value entered into the locality field");
+				alert("<?php echo (isset($LANG['NEED_STATE'])?$LANG['NEED_STATE']:'Rare species checklists must have a state value entered into the locality field'); ?>");
 				return false;
 			}
 			else if(f.type.value == "excludespp" && f.excludeparent.value == ""){
-				alert("You need to select a parent checklist to create an Exclude Species Checklist");
+				alert("<?php echo (isset($LANG['NEED_PARENT'])?$LANG['NEED_PARENT']:'You need to select a parent checklist to create an Exclude Species Checklist'); ?>");
 				return false;
 			}
 		}
@@ -117,7 +117,7 @@ if(isset($clArray['defaultsettings']) && $clArray['defaultsettings']){
 if(!$clid){
 	?>
 	<div style="float:right;">
-		<a href="#" onclick="toggle('checklistDiv')" title="Create a New Checklist"><img src="../images/add.png" /></a>
+		<a href="#" onclick="toggle('checklistDiv')" title="<?php echo (isset($LANG['CREATE_CHECKLIST'])?$LANG['CREATE_CHECKLIST']:'Create a New Checklist'); ?>"><img src="../images/add.png" /></a>
 	</div>
 	<?php
 }
@@ -127,20 +127,20 @@ if(!$clid){
 		<fieldset style="margin:15px;padding:10px;">
 			<legend><b><?php echo ($clid?$LANG['EDITCHECKDET']:$LANG['CREATECHECKDET']); ?></b></legend>
 			<div>
-				<b><?php echo $LANG['CHECKNAME'];?></b><br/>
+				<b><?php echo (isset($LANG['CHECKNAME'])?$LANG['CHECKNAME']:'Checklist Name';?></b><br/>
 				<input type="text" name="name" style="width:95%" value="<?php echo $clManager->getClName();?>" />
 			</div>
 			<div id="authorDiv">
-				<b><?php echo $LANG['AUTHORS'];?></b><br/>
+				<b><?php echo (isset($LANG['AUTHORS'])?$LANG['AUTHORS']:'Authors');?></b><br/>
 				<input type="text" name="authors" style="width:95%" value="<?php echo ($clArray?$clArray["authors"]:''); ?>" />
 			</div>
 			<div>
-				<b><?php echo $LANG['CHECKTYPE'];?></b><br/>
+				<b><?php echo (isset($LANG['CHECKTYPE'])?$LANG['CHECKTYPE']:'Checklist Type';?></b><br/>
 				<?php
 				$userClArr = $clManager->getUserChecklistArr();
 				?>
 				<select name="type" onchange="checklistTypeChanged(this.form)">
-					<option value="static"><?php echo $LANG['GENCHECK'];?></option>
+					<option value="static"><?php echo (isset($LANG['GENCHECK'])?$LANG['GENCHECK']:'General Checklist');?></option>
 					<?php
 					if($userClArr){
 						?>
@@ -149,7 +149,7 @@ if(!$clid){
 					}
 					if(isset($GLOBALS['USER_RIGHTS']['RareSppAdmin']) || $IS_ADMIN){
 						?>
-						<option value="rarespp" <?php echo ($clArray && $clArray["type"]=='rarespp'?'SELECTED':'') ?>><?php echo $LANG['RARETHREAT'];?></option>
+						<option value="rarespp" <?php echo ($clArray && $clArray["type"]=='rarespp'?'SELECTED':'') ?>><?php echo (isset($LANG['RARETHREAT'])?$LANG['RARETHREAT']:'Rare, threatened, protected species list';?></option>
 						<?php
 					}
 					?>
@@ -158,7 +158,7 @@ if(!$clid){
 				if($userClArr){
 					?>
 					<select name="excludeparent" style="<?php echo ($clid && isset($clArray['excludeparent'])?'':'display:none'); ?>">
-						<option value="">Select a parent checklist</option>
+						<option value=""><?php echo (isset($LANG['SELECT_PARENT'])?$LANG['SELECT_PARENT']:'Select a parent checklist'); ?></option>
 						<option value="">-------------------------------</option>
 						<?php
 						foreach($userClArr as $userClid => $userClValue){
@@ -171,25 +171,25 @@ if(!$clid){
 				?>
 			</div>
 			<div id="locDiv">
-				<b><?php echo $LANG['LOC'];?></b><br/>
+				<b><?php echo (isset($LANG['LOC'])?$LANG['LOC']:'Locality');?></b><br/>
 				<input type="text" name="locality" style="width:95%" value="<?php echo ($clArray?$clArray["locality"]:''); ?>" />
 			</div>
 			<div>
-				<b><?php echo $LANG['CITATION'];?></b><br/>
+				<b><?php echo (isset($LANG['CITATION'])?$LANG['CITATION']:'Citation');?></b><br/>
 				<input type="text" name="publication" style="width:95%" value="<?php echo ($clArray?$clArray["publication"]:''); ?>" />
 			</div>
 			<div>
-				<b><?php echo $LANG['ABSTRACT'];?></b><br/>
+				<b><?php echo (isset($LANG['ABSTRACT'])?$LANG['ABSTRACT']:'Abstract');?></b><br/>
 				<textarea name="abstract" style="width:95%" rows="3"><?php echo ($clArray?$clArray["abstract"]:''); ?></textarea>
 			</div>
 			<div>
-				<b><?php echo $LANG['NOTES'];?></b><br/>
+				<b><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes');?></b><br/>
 				<input type="text" name="notes" style="width:95%" value="<?php echo ($clArray?$clArray["notes"]:''); ?>" />
 			</div>
 			<div id="inclusiveClDiv">
-				<b>More Inclusive Reference Checklist:</b><br/>
+				<b><?php echo (isset($LANG['REFERENCE_CHECK'])?$LANG['REFERENCE_CHECK']:'More Inclusive Reference Checklist'); ?>:</b><br/>
 				<select name="parentclid">
-					<option value="">None Selected</option>
+					<option value=""><?php echo (isset($LANG['NONE'])?$LANG['NONE']:'None Selected'); ?></option>
 					<option value="">----------------------------------</option>
 					<?php
 					$refClArr = $clManager->getReferenceChecklists();
@@ -201,31 +201,31 @@ if(!$clid){
 			</div>
 			<div id="geoDiv" style="width:100%;">
 				<div style="float:left;">
-					<b><?php echo $LANG['LATCENT'];?></b><br/>
+					<b><?php echo (isset($LANG['LATCENT'])?$LANG['LATCENT']:'Latitude');?></b><br/>
 					<input id="latdec" type="text" name="latcentroid" style="width:110px;" value="<?php echo ($clArray?$clArray["latcentroid"]:''); ?>" />
 				</div>
 				<div style="float:left;margin-left:15px;">
-					<b><?php echo $LANG['LONGCENT'];?></b><br/>
+					<b><?php echo (isset($LANG['LONGCENT'])?$LANG['LONGCENT']:'Longitude');?></b><br/>
 					<input id="lngdec" type="text" name="longcentroid" style="width:110px;" value="<?php echo ($clArray?$clArray["longcentroid"]:''); ?>" />
 				</div>
 				<div style="float:left;margin:25px 3px;">
 					<a href="#" onclick="openMappingAid();return false;"><img src="../images/world.png" style="width:12px;" /></a>
 				</div>
 				<div style="float:left;margin-left:15px;">
-					<b><?php echo $LANG['POINTRAD'];?></b><br/>
+					<b><?php echo (isset($LANG['REFERENCE_CHECK'])?$LANG['POINTRAD']:'Point Radius (meters)');?></b><br/>
 					<input type="text" name="pointradiusmeters" style="width:110px;" value="<?php echo ($clArray?$clArray["pointradiusmeters"]:''); ?>" />
 				</div>
 				<div style="float:left;margin:8px 0px 0px 25px;">
 					<fieldset style="width:275px;padding:10px">
-						<legend><b><?php echo $LANG['POLYFOOT'];?></b></legend>
+						<legend><b><?php echo (isset($LANG['POLYFOOT'])?$LANG['POLYFOOT']:'Polygon Footprint');?></b></legend>
 						<div style="float:right;margin:10px;">
 							<a href="#" onclick="openMappingPolyAid();return false;" title="Create/Edit Polygon"><img src="../images/world.png" style="width:14px;" /></a>
 						</div>
 						<div id="polyDefDiv" style="display:<?php echo ($clArray && $clArray["hasfootprintwkt"]?'block':'none'); ?>;">
-							<?php echo isset($LANG['POLYGON_DEFINED'])?$LANG['POLYGON_DEFINED']:'Polygon footprint defined<br/>Click globe to view/edit'; ?>
+							<?php echo (isset($LANG['POLYGON_DEFINED'])?$LANG['POLYGON_DEFINED']:'Polygon footprint defined<br/>Click globe to view/edit'); ?>
 						</div>
 						<div id="polyNotDefDiv" style="display:<?php echo ($clArray && $clArray["hasfootprintwkt"]?'none':'block'); ?>;">
-							<?php echo isset($LANG['POLYGON_NOT_DEFINED'])?$LANG['POLYGON_NOT_DEFINED']:'Polygon footprint not defined<br/>Click globe to create polygon';?>
+							<?php echo (isset($LANG['POLYGON_NOT_DEFINED'])?$LANG['POLYGON_NOT_DEFINED']:'Polygon footprint not defined<br/>Click globe to create polygon');?>
 						</div>
 						<input type="hidden" id="footprintwkt" name="footprintwkt" value="" />
 					</fieldset>
@@ -233,10 +233,10 @@ if(!$clid){
 			</div>
 			<div style="clear:both;margin-top:5px;">
 				<fieldset style="width:300px;">
-					<legend><b><?php echo $LANG['DEFAULTDISPLAY'];?></b></legend>
+					<legend><b><?php echo (isset($LANG['DEFAULTDISPLAY'])?$LANG['DEFAULTDISPLAY']:'Default Display Settings');?></b></legend>
 					<div>
 						<?php
-						echo "<input id='dsynonyms' name='dsynonyms' type='checkbox' value='1' ".(isset($defaultArr["dsynonyms"])&&$defaultArr["dsynonyms"]?"checked":"")." /> ".$LANG['DISPLAY_SYNONYMS'];
+						echo "<input id='dsynonyms' name='dsynonyms' type='checkbox' value='1' ".(isset($defaultArr["dsynonyms"])&&$defaultArr["dsynonyms"]?"checked":"")." /> ".(isset($LANG['DISPLAY_SYNONYMS'])?$LANG['DISPLAY_SYNONYMS']:'Display Synonyms');
 						?>
 					</div>
 					<div>
@@ -279,7 +279,7 @@ if(!$clid){
 						}
 						?>
 						<input name='activatekey' type='checkbox' value='1' <?php echo ($activateKey?"checked":""); ?> />
-						<?php echo $LANG['ACTIVATEKEY'];?>
+						<?php echo (isset($LANG['ACTIVATEKEY'])?$LANG['ACTIVATEKEY']:'Activate Identification Key');?>
 					</div>
 				</fieldset>
 			</div>
@@ -290,21 +290,21 @@ if(!$clid){
 			<div id="accessDiv" style="clear:both;margin-top:15px;">
 				<b><?php echo (isset($LANG['ACCESS'])?$LANG['ACCESS']:'Access'); ?>:</b>
 				<select name="access">
-					<option value="private"><?php echo $LANG['PRIVATE'];?></option>
-					<option value="public" <?php echo ($clArray && $clArray["access"]=="public"?"selected":""); ?>><?php echo $LANG['PUBLIC'];?></option>
+					<option value="private"><?php echo (isset($LANG['PRIVATE'])?$LANG['PRIVATE']:'Private');?></option>
+					<option value="public" <?php echo ($clArray && $clArray["access"]=="public"?"selected":""); ?>><?php echo (isset($LANG['PUBLIC'])?$LANG['PUBLIC']:'Public');?></option>
 				</select>
 			</div>
 			<div style="clear:both;float:left;margin-top:15px;">
 				<?php
 				if($clid){
 					?>
-					<input type='submit' name='submit' value='<?php echo $LANG['EDITCHECKLIST'];?>' />
+					<input type='submit' name='submit' value='<?php echo (isset($LANG['EDITCHECKLIST'])?$LANG['EDITCHECKLIST']:'Edit Checklist');?>' />
 					<input type="hidden" name="submitaction" value="SubmitEdit" />
 					<?php
 				}
 				else{
 					?>
-					<input type='submit' name='submit' value='<?php echo $LANG['ADDCHECKLIST'];?>' />
+					<input type='submit' name='submit' value='<?php echo (isset($LANG['ADDCHECKLIST'])?$LANG['ADDCHECKLIST']:'Add Checklist');?>' />
 					<input type="hidden" name="submitaction" value="SubmitAdd" />
 					<?php
 				}
@@ -322,7 +322,7 @@ if(!$clid){
 	<?php
 	if(array_key_exists("userid",$_REQUEST)){
 		$userId = $_REQUEST["userid"];
-		echo '<div style="font-weight:bold;font:bold 14pt;">Checklists assigned to your account</div>';
+		echo '<div style="font-weight:bold;font:bold 14pt;">.'(isset($LANG['ASSIGNED_CHECKLISTS'])?$LANG['ASSIGNED_CHECKLISTS']:'Checklists assigned to your account').'</div>';
 		$listArr = $clManager->getManagementLists($userId);
 		if(array_key_exists('cl',$listArr)){
 			$clArr = $listArr['cl'];
@@ -336,7 +336,7 @@ if(!$clid){
 						<?php echo $vName; ?>
 					</a>
 					<a href="../checklists/checklistadmin.php?clid=<?php echo $kClid; ?>&emode=1">
-						<img src="../images/edit.png" style="width:15px;border:0px;" title="Edit Checklist" />
+						<img src="../images/edit.png" style="width:15px;border:0px;" title="<?php echo (isset($LANG['EDITCHECKLIST'])?$LANG['EDITCHECKLIST']:'Edit Checklist');?>" />
 					</a>
 				</li>
 				<?php
@@ -348,15 +348,15 @@ if(!$clid){
 		else{
 			?>
 			<div style="margin:10px;">
-				<div>You have no personal checklists</div>
+				<div><?php echo (isset($LANG['NO_CHECKLISTS'])?$LANG['NO_CHECKLISTS']:'You have no personal checklists');?></div>
 				<div style="margin-top:5px">
-					<a href="#" onclick="toggle('checklistDiv')">Click here to create a new checklist</a>
+					<a href="#" onclick="toggle('checklistDiv')"><?php echo (isset($LANG['CLICK_TO_CREATE'])?$LANG['CLICK_TO_CREATE']:'Click here to create a new checklist');?></a>
 				</div>
 			</div>
 			<?php
 		}
 
-		echo '<div style="font-weight:bold;font:bold 14pt;margin-top:25px;">Inventory Project Administration</div>'."\n";
+		echo '<div style="font-weight:bold;font:bold 14pt;margin-top:25px;">'.<?php echo (isset($LANG['PROJ_ADMIN'])?$LANG['PROJ_ADMIN']:'Inventory Project Administration');?>.'</div>'."\n";
 		if(array_key_exists('proj',$listArr)){
 			$projArr = $listArr['proj'];
 			?>
@@ -369,7 +369,7 @@ if(!$clid){
 						<?php echo $projName; ?>
 					</a>
 					<a href="../projects/index.php?pid=<?php echo $pid; ?>&emode=1">
-						<img src="../images/edit.png" style="width:15px;border:0px;" title="Edit Project" />
+						<img src="../images/edit.png" style="width:15px;border:0px;" title="<?php echo (isset($LANG['EDIT_PROJECT'])?$LANG['EDIT_PROJECT']:'Edit Project');?>" />
 					</a>
 				</li>
 				<?php
@@ -379,7 +379,7 @@ if(!$clid){
 			<?php
 		}
 		else{
-			echo '<div style="margin:10px;">There are no Projects for which you have administrative permissions</div>';
+			echo '<div style="margin:10px;">'.<?php echo (isset($LANG['NO_PROJECTS'])?$LANG['NO_PROJECTS']:'There are no Projects for which you have administrative permissions');?>.'</div>';
 		}
 	}
 	?>

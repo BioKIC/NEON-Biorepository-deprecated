@@ -15,21 +15,21 @@ $clManager->setClid($clid);
 		<a href="#" onclick="toggle('addchilddiv')"><img src="../images/add.png" /></a>
 	</div>
 	<div style="margin:15px;font-weight:bold;font-size:120%;">
-		<u>Children Checklists</u>
+		<u><?php echo isset($LANG['CHILD_CHECKLIST'])?$LANG['CHILD_CHECKLIST']:'Children Checklists'); ?></u>
 	</div>
 	<div style="margin:25px;clear:both;">
-		Checklists will inherit scientific names, vouchers, notes, etc from all children checklists.
+		<?php echo isset($LANG['CHILD_DESCRIBE'])?$LANG['CHILD_DESCRIBE']:'Checklists will inherit scientific names, vouchers, notes, etc from all children checklists. 
 		Adding a new taxon or voucher to a child checklist will automatically add it to all parent checklists.
-		The parent child relationship can transcend multiple levels (e.g. country &lt;- state &lt;- county).
-		Note that only direct child can be removed.
+		The parent child relationship can transcend multiple levels (e.g. country &lt;- state &lt;- county). 
+		Note that only direct child can be removed.'); ?>
 	</div>
 	<div id="addchilddiv" style="margin:15px;display:none;">
 		<fieldset style="padding:15px;">
-			<legend><b>Link New Checklist</b></legend>
+			<legend><b><?php echo isset($LANG['LINK_NEW'])?$LANG['LINK_NEW']:'Link New Checklist'); ?></b></legend>
 			<form name="addchildform" target="checklistadmin.php" method="post" onsubmit="validateAddChildForm(this)">
 				<div style="margin:10px;">
 					<select name="clidadd">
-						<option value="">Select Child Checklist</option>
+						<option value=""><?php echo isset($LANG['SELECT_CHILD'])?$LANG['SELECT_CHILD']:'Select Child Checklist'); ?></option>
 						<option value="">-------------------------------</option>
 						<?php
 						$clArr = $clManager->getUserChecklistArr();
@@ -40,7 +40,7 @@ $clManager->setClid($clid);
 					</select>
 				</div>
 				<div style="margin:10px;">
-					<input name="submitaction" type="submit" value="Add Child Checklist" />
+					<input name="submitaction" type="submit" value="<?php echo isset($LANG['ADD_CHILD'])?$LANG['ADD_CHILD']:'Add Child Checklist'); ?>" />
 					<input name="clid" type="hidden" value="<?php echo $clid; ?>" />
 					<input name="pid" type="hidden" value="<?php echo $pid; ?>" />
 					<input name="tabindex" type="hidden" value="2" />
@@ -58,7 +58,7 @@ $clManager->setClid($clid);
 						<a href="checklist.php?clid=<?php echo $k; ?>"><?php echo $cArr['name']; ?></a>
 						<?php
 						if($cArr['pclid'] == $clid){
-							echo '<a href="checklistadmin.php?submitaction=delchild&tabindex=2&cliddel='.$k.'&clid='.$clid.'&pid='.$pid.'" onclick="return confirm(\'Are you sure you want to remove'.$cArr['name'].' as a child checklist?\')"><img src="../images/del.png" style="width:14px;" /></a>';
+							echo '<a href="checklistadmin.php?submitaction=delchild&tabindex=2&cliddel='.$k.'&clid='.$clid.'&pid='.$pid.'" onclick="return confirm'.(isset($LANG['SURE'])?$LANG['SURE']:'Are you sure you want to remove').$cArr['name'].' '.isset($LANG['AS_CHILD'])?$LANG['AS_CHILD']:'as a child checklist').'?\')"><img src="../images/del.png" style="width:14px;" /></a>';
 						}
 						?>
 					</li>
@@ -66,13 +66,13 @@ $clManager->setClid($clid);
 				}
 			}
 			else{
-				echo '<div style="font-size:110%;">There are no Children Checklists</div>';
+				echo '<div style="font-size:110%;">.'isset($LANG['NO_CHILDREN'])?$LANG['NO_CHILDREN']:'There are no Children Checklists').'</div>';
 			}
 			?>
 		</ul>
 	</div>
 	<div style="margin:30px 15px;font-weight:bold;font-size:120%;">
-		<u>Parent Checklists</u>
+		<u><?php echo isset($LANG['PARENTS'])?$LANG['PARENTS']:'Parent Checklists'); ?></u>
 	</div>
 	<div style="margin:15px;">
 		<ul>
@@ -87,7 +87,7 @@ $clManager->setClid($clid);
 				}
 			}
 			else{
-				echo '<div style="font-size:110%;">There are no Parent Checklists</div>';
+				echo '<div style="font-size:110%;">'.isset($LANG['NO_PARENTS'])?$LANG['NO_PARENTS']:'There are no Parent Checklists').'</div>';
 			}
 			?>
 		</ul>

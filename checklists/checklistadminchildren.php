@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistAdmin.php');
+include_once($SERVER_ROOT.'/content/lang/checklists/checklistadminchildren.'.$LANG_TAG.'.php');
 
 $clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
 $pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:"";

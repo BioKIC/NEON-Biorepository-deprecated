@@ -47,32 +47,30 @@ $isEditor = false;
 
 //  If other than HTML was requested, return just that content.
 if(isset($_SERVER['HTTP_ACCEPT'])){
-	$done=FALSE;
 	$accept = RdfUtility::parseHTTPAcceptHeader($_SERVER['HTTP_ACCEPT']);
-	while (!$done && list($key, $mediarange) = each($accept)) {
-		if ($mediarange=='text/turtle' || $format == 'turtle') {
-		   Header("Content-Type: text/turtle; charset=".$CHARSET);
-		   $dwcManager = new DwcArchiverCore();
-		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-		   echo $dwcManager->getAsTurtle();
-		   $done = TRUE;
+	foreach($accept as $key => $mediarange){
+		if($mediarange=='text/turtle' || $format == 'turtle') {
+			Header("Content-Type: text/turtle; charset=".$CHARSET);
+			$dwcManager = new DwcArchiverCore();
+			$dwcManager->setCustomWhereSql(" o.occid = $occid ");
+			echo $dwcManager->getAsTurtle();
+			die;
 		}
-		if ($mediarange=='application/rdf+xml' || $format == 'rdf') {
-		   Header("Content-Type: application/rdf+xml; charset=".$CHARSET);
-		   $dwcManager = new DwcArchiverCore();
-		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-		   echo $dwcManager->getAsRdfXml();
-		   $done = TRUE;
+		elseif($mediarange=='application/rdf+xml' || $format == 'rdf') {
+			Header("Content-Type: application/rdf+xml; charset=".$CHARSET);
+			$dwcManager = new DwcArchiverCore();
+			$dwcManager->setCustomWhereSql(" o.occid = $occid ");
+			echo $dwcManager->getAsRdfXml();
+			die;
 		}
-		if ($mediarange=='application/json' || $format == 'json') {
-		   Header("Content-Type: application/json; charset=".$CHARSET);
-		   $dwcManager = new DwcArchiverCore();
-		   $dwcManager->setCustomWhereSql(" o.occid = $occid ");
-		   echo $dwcManager->getAsJson();
-		   $done = TRUE;
+		elseif($mediarange=='application/json' || $format == 'json') {
+			Header("Content-Type: application/json; charset=".$CHARSET);
+			$dwcManager = new DwcArchiverCore();
+			$dwcManager->setCustomWhereSql(" o.occid = $occid ");
+			echo $dwcManager->getAsJson();
+			die;
 		}
 	}
-	if($done) die;
 }
 
 if($SYMB_UID){
@@ -416,7 +414,7 @@ $traitArr = $indManager->getTraitArr();
 							}
 						}
 						if($occArr['sciname']){
-							echo '<b>Taxon:</b> ';
+							echo '<b>'.(isset($LANG['TAXON'])?$LANG['TAXON']:'Taxon').':</b> ';
 							if($securityCode < 2){
 								echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
 								if($occArr['localitysecurity'] == 2 || $occArr['localitysecurity'] == 3){
@@ -432,7 +430,7 @@ $traitArr = $indManager->getTraitArr();
 							<?php
 							if($occArr['identificationqualifier']) echo '<b>'.(isset($LANG['IDQUALIFIER'])?$LANG['IDQUALIFIER']:'Identification Qualifier').':</b> '.$occArr['identificationqualifier'].'<br/>';
 						}
-						if($occArr['family']) echo '<b>Family:</b> '.$occArr['family'];
+						if($occArr['family']) echo '<b>'.(isset($LANG['FAMILY'])?$LANG['FAMILY']:'Family').':</b> '.$occArr['family'];
 						if($occArr['identifiedby']){
 							?>
 							<div>
@@ -1220,7 +1218,7 @@ $traitArr = $indManager->getTraitArr();
 							echo '<div style="margin:10px;">';
 							echo '<a href="../../profile/index.php?refurl=../collections/individual/index.php?tabindex=2&occid='.$occid.'">';
 							echo (isset($LANG['LOGIN'])?$LANG['LOGIN']:'Log In');
-							echo '</a>';
+							echo '</a> ';
 							echo (isset($LANG['TOLEAVECOMMENT'])?$LANG['TOLEAVECOMMENT']:'to leave a comment.');
 							echo '</div>';
 						}

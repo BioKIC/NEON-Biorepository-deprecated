@@ -1,13 +1,14 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/UserTaxonomy.php');
+@include_once($SERVER_ROOT.'/content/lang/profile/usertaxonomymanager.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$action = array_key_exists("action",$_POST)?$_POST["action"]:""; 
+$action = array_key_exists("action",$_POST)?$_POST["action"]:"";
 
 $utManager = new UserTaxonomy();
 
-$isEditor = 0;		 
+$isEditor = 0;
 if($SYMB_UID){
 	if( $IS_ADMIN ){
 		$isEditor = 1;
@@ -37,18 +38,18 @@ $editorArr = $utManager->getTaxonomyEditors();
 ?>
 <html>
 <head>
-	<title>Taxonomic Interest User permissions</title>
-    <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+	<title><?php echo (isset($LANG['TAX_PERMISSIONS'])?$LANG['TAX_PERMISSIONS']:'Taxonomic Interest User permissions'); ?></title>
+	<?php
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script language=javascript>
@@ -62,15 +63,15 @@ $editorArr = $utManager->getTaxonomyEditors();
 
 		function verifyUserAddForm(f){
 			if(f.uid.value == ""){
-				alert("Select a User");
+				alert(<?php echo (isset($LANG['SELECT_USER'])?$LANG['SELECT_USER']:'Select a User'); ?>);
 				return false;
 			}
 			if(f.editorstatus.value == ""){
-				alert("Select the Scope of Relationship");
+				alert(<?php echo (isset($LANG['SELECT_SCOPE'])?$LANG['SELECT_SCOPE']:'Select the Scope of Relationship'); ?>);
 				return false;
 			}
 			if(f.taxoninput.value == ""){
-				alert("Select the Taxonomic Name");
+				alert(<?php echo (isset($LANG['SELECT_TAXON'])?$LANG['SELECT_TAXON']:'Select the Taxonomic Name'); ?>);
 				return false;
 			}
 			return true;
@@ -87,17 +88,17 @@ $editorArr = $utManager->getTaxonomyEditors();
 			echo "<div class='navpath'>";
 			echo "<a href='../index.php'>Home</a> &gt;&gt; ";
 			echo $profile_usertaxonomymanagerCrumbs;
-			echo " <b>Taxonomic Interest User permissions</b>";
-			echo "</div>";
+			echo ' <b>'.(isset($LANG['TAX_PERMISSIONS'])?$LANG['TAX_PERMISSIONS']:'Taxonomic Interest User permissions').'</b>';
+			echo '</div>';
 		}
 	}
 	else{
 		?>
 		<div class='navpath'>
-			<a href='../index.php'>Home</a> &gt;&gt; 
-			<b>Taxonomic Interest User permissions</b>
+			<a href='../index.php'>Home</a> &gt;&gt;
+			<b><?php echo (isset($LANG['TAX_PERMISSIONS'])?$LANG['TAX_PERMISSIONS']:'Taxonomic Interest User permissions'); ?></b>
 		</div>
-		<?php 
+		<?php
 	}
 
 	if($statusStr){
@@ -107,13 +108,13 @@ $editorArr = $utManager->getTaxonomyEditors();
 			<?php echo $statusStr; ?>
 		</div>
 		<hr/>
-		<?php 
+		<?php
 	}
 	if($isEditor){
 		?>
 		<!-- This is inner text! -->
 		<div id="innertext">
-			<h2>Taxonomic Interest User Permissions</h2>
+			<h2><?php echo (isset($LANG['TAX_PERMISSIONS'])?$LANG['TAX_PERMISSIONS']:'Taxonomic Interest User permissions'); ?></h2>
 			<div style="float:right;" title="Add a new taxonomic relationship">
 				<a href="#" onclick="toggle('addUserDiv')">
 					<img style='border:0px;width:15px;' src='../images/add.png'/>
@@ -121,13 +122,13 @@ $editorArr = $utManager->getTaxonomyEditors();
 			</div>
 			<div id="addUserDiv" style="display:none;">
 				<fieldset style="padding:20px;">
-					<legend><b>New Taxonomic Relationship</b></legend>
+					<legend><b><?php echo (isset($LANG['NEW_TAX_REL'])?$LANG['NEW_TAX_REL']:'New Taxonomic Relationship'); ?></b></legend>
 					<form name="adduserform" action="usertaxonomymanager.php" method="post" onsubmit="return verifyUserAddForm(this)">
 						<div style="margin:3px;">
-							<b>User</b><br/>
+							<b><?php echo (isset($LANG['USER'])?$LANG['USER']:'User'); ?></b><br/>
 							<select name="uid">
 								<option value="">-------------------------------</option>
-								<?php 
+								<?php
 								$userArr = $utManager->getUserArr();
 								foreach($userArr as $uid => $displayName){
 									echo '<option value="'.$uid.'">'.$displayName.'</option>';
@@ -136,76 +137,68 @@ $editorArr = $utManager->getTaxonomyEditors();
 							</select>
 						</div>
 						<div style="margin:3px;">
-							<b>Taxon</b><br/>
+							<b><?php echo (isset($LANG['TAXON'])?$LANG['TAXON']:'Taxon'); ?></b><br/>
 							<input id="taxoninput" name="taxon" type="text" value="" style="width:90%;" />
 						</div>
 						<div style="margin:3px;">
-							<b>Scope of Relationship</b><br/>
+							<b><?php echo (isset($LANG['SCOPE_REL'])?$LANG['SCOPE_REL']:'Scope of Relationship'); ?></b><br/>
 							<select name="editorstatus">
 								<option value="">----------------------------</option>
-								<option value="OccurrenceEditor">Occurrence Identification Editor</option>
-								<option value="RegionOfInterest">Region Of Interest</option>
-								<option value="TaxonomicThesaurusEditor">Taxonomic Thesaurus Editor</option>
+								<option value="OccurrenceEditor"><?php echo (isset($LANG['OCC_ID_EDITOR'])?$LANG['OCC_ID_EDITOR']:'Occurrence Identification Editor'); ?></option>
+								<option value="RegionOfInterest"><?php echo (isset($LANG['REGION'])?$LANG['REGION']:'Region Of Interest'); ?></option>
+								<option value="TaxonomicThesaurusEditor"><?php echo (isset($LANG['TAX_THES_EDITOR'])?$LANG['TAX_THES_EDITOR']:'Taxonomic Thesaurus Editor'); ?></option>
 							</select>
-						
+
 						</div>
 						<div style="margin:3px;">
-							<b>Geographic Scope Limits</b><br/>
-							<input name="geographicscope" type="text" value="" style="width:90%;"/>
-						
+							<b><?php echo (isset($LANG['SCOPE_LIMITS'])?$LANG['SCOPE_LIMITS']:'Geographic Scope Limits'); ?></b><br/>
+							<input name="geographicscope" type="text" value="" style="width:90%;" />
+
 						</div>
 						<div style="margin:3px;">
-							<b>Notes</b><br/>
+							<b><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?></b><br/>
 							<input name="notes" type="text" value="" style="width:90%;" />
-						
+
 						</div>
 						<div style="margin:3px;">
-							<input name="action" type="submit" value="Add Taxonomic Relationship" />
+							<button name="action" type="submit" value="Add Taxonomic Relationship"><?php echo (isset($LANG['ADD_TAX_REL'])?$LANG['ADD_TAX_REL']:'Add Taxonomic Relationship'); ?></button>
 						</div>
 					</form>
 				</fieldset>
 			</div>
 			<div>
-				<?php 
+				<?php
 				foreach($editorArr as $editorStatus => $userArr){
 					$cat = 'Undefined';
-					if($editorStatus == 'RegionOfInterest') $cat = 'Region Of Interest';
-					elseif($editorStatus == 'OccurrenceEditor') $cat = 'Occurrence Identification Editor';
-					elseif($editorStatus == 'TaxonomicThesaurusEditor') $cat = 'Taxonomic Thesaurus Editor';
-					?>
-					<div><b><u><?php echo $cat; ?></u></b></div>
-					<ul style="margin:10px;">
-					<?php 
+					if($editorStatus == 'RegionOfInterest') $cat = (isset($LANG['REGION'])?$LANG['REGION']:'Region Of Interest');
+					elseif($editorStatus == 'OccurrenceEditor') $cat = (isset($LANG['OCC_EDIT'])?$LANG['OCC_EDIT']:'Occurrence Editor');
+					elseif($editorStatus == 'TaxonomicThesaurusEditor') $cat = (isset($LANG['TAX_THES'])?$LANG['TAX_THES']:'Taxonomic Thesaurus Editor');
+					echo '<div><b><u>'.$cat.'</u></b></div>';
+					echo '<ul style="margin:10px;">';
 					foreach($userArr as $uid => $uArr){
 						$username = $uArr['username'];
 						unset($uArr['username']);
-						?>
-						<li>
-							<?php
-							echo '<b>'.$username.'</b>';
-							?>
-							<a href="usertaxonomymanager.php?delutid=all&deluid=<?php echo $uid.'&es='.$editorStatus; ?>" onclick="return confirm('Are you sure you want to remove all taxonomy links for this user?');" title="Delete all taxonomic relationships for this user">
-								<img src="../images/drop.png" style="width:12px;" />
-							</a>
-							<?php
-							foreach($uArr as $utid => $utArr){
-								echo '<li style="margin-left:15px;">'.$utArr['sciname'];
-								if($utArr['geoscope']) echo ' ('.$utArr['geoscope'].')';
-								if($utArr['notes']) echo ': '.$utArr['notes'];
-								?>
-								<a href="usertaxonomymanager.php?delutid=<?php echo $utid; ?>" onclick="return confirm('Are you sure you want to remove this taxonomy links for this user?');" title="Delete this user taxonomic relationship">
-									<img src="../images/drop.png" style="width:12px;" />
-								</a>
-								<?php
-								echo '</li>';
-							}
-							?>
-						</li>
-						<?php  
+						echo '<li>';
+						echo '<b>'.$username.'</b>';
+						$confirmStr = (isset($LANG['REMOVE_LINKS'])?$LANG['REMOVE_LINKS']:'Are you sure you want to remove all taxonomy links for this user?');
+						$titleStr = (isset($LANG['DELETE_LINKS'])?$LANG['DELETE_LINKS']:'Delete all taxonomic relationships for this user');
+						echo '<a href="usertaxonomymanager.php?delutid=all&deluid='.$uid.'&es='.$editorStatus.'" onclick="return confirm(\''.$confirmStr.'\'" title="'.$titleStr.'">';
+						echo '<img src="../images/drop.png" style="width:12px;" />';
+						echo '</a>';
+						foreach($uArr as $utid => $utArr){
+							echo '<li style="margin-left:15px;">'.$utArr['sciname'];
+							if($utArr['geoscope']) echo ' ('.$utArr['geoscope'].')';
+							if($utArr['notes']) echo ': '.$utArr['notes'];
+							$confirmStr2 = (isset($LANG['REMOVE_ONE_LINK'])?$LANG['REMOVE_ONE_LINK']:'Are you sure you want to remove this taxonomy link for this user?');
+							$titleStr2 = (isset($LANG['DELETE_A_LINK'])?$LANG['DELETE_A_LINK']:'Delete this user taxonomic relationship');
+							echo '<a href="usertaxonomymanager.php?delutid='.$utid.'" onclick="return confirm(\''.$confirmStr2.'\'" title="'.$titleStr2.'">';
+							echo '<img src="../images/drop.png" style="width:12px;" />';
+							echo '</a>';
+							echo '</li>';
+						}
+						echo '</li>';
 					}
-					?>
-					</ul>
-					<?php 
+					echo '</ul>';
 				}
 				?>
 			</div>
@@ -213,7 +206,7 @@ $editorArr = $utManager->getTaxonomyEditors();
 		<?php
 	}
 	else{
-		echo '<div style="color:red;">You are not authorized to access this page</div>';
+		echo '<div style="color:red;">'.(isset($LANG['NOT_AUTH'])?$LANG['NOT_AUTH']:'You are not authorized to access this page').'</div>';
 	}
 	include($SERVER_ROOT.'/includes/footer.php');
 	?>

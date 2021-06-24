@@ -23,9 +23,10 @@ $indManager->setOccid($occid);
 <div id='innertext' style='width:95%;min-height:400px;clear:both;background-color:white;'>
 	<fieldset>
 		<legend><?php echo (isset($LANG['SPCHECKREL'])?$LANG['SPCHECKREL']:'Species Checklist Relationships'); ?></legend>
-		<div style="float:right"><a href="#" onclick="toggle('voucher-block');return false"><img src="../../images/add.png" /></a></div>
 		<?php
 		$vClArr = $indManager->getVoucherChecklists();
+		$clArr = $indManager->getChecklists(array_keys($vClArr));
+		if($IS_ADMIN || $clArr) echo '<div style="float:right"><a href="#" onclick="toggle(\'voucher-block\');return false"><img src="../../images/add.png" /></a></div>';
 		if($vClArr){
 			echo '<div class="section-title">'.(isset($LANG['VOUCHEROFFOLLOWING'])?$LANG['VOUCHEROFFOLLOWING']:'Specimen voucher of the following checklists').'</div>';
 			echo '<ul style="margin:15px 0px 25px 0px;">';
@@ -44,61 +45,55 @@ $indManager->setOccid($occid);
 		else{
 			echo '<div style="margin:15px 0px">'.(isset($LANG['NOTAVOUCHER'])?$LANG['NOTAVOUCHER']:'This occurrence has not been designated as a voucher for a species checklist').'</div>';
 		}
-		if($IS_ADMIN || array_key_exists("ClAdmin",$USER_RIGHTS)){
+		if($IS_ADMIN || $clArr){
 			?>
 			<div style='margin-top:15px;'>
-				<?php
-				if($clArr = $indManager->getChecklists(array_keys($vClArr))){
-					?>
-					<fieldset id="voucher-block" style="display:none">
-						<legend><?php echo (isset($LANG['NEWVOUCHER'])?$LANG['NEWVOUCHER']:'New Voucher Assignment'); ?></legend>
-						<?php
-						if($tid){
-							?>
-							<div style="margin:10px;">
-								<form action="../../checklists/clsppeditor.php" method="post" onsubmit="return verifyVoucherForm(this);">
-									<div>
-										<?php echo (isset($LANG['ADDVOUCHERCHECK'])?$LANG['ADDVOUCHERCHECK']:'Add as voucher to checklist'); ?>:
-										<input name='voccid' type='hidden' value='<?php echo $occid; ?>'>
-										<input name='tid' type='hidden' value='<?php echo $tid; ?>'>
-										<select id='clid' name='clid'>
-							  				<option value='0'><?php echo (isset($LANG['SELECTCHECKLIST'])?$LANG['SELECTCHECKLIST']:'Select a Checklist'); ?></option>
-							  				<option value='0'>--------------------------</option>
-							  				<?php
-								  			foreach($clArr as $clKey => $clValue){
-								  				echo "<option value='".$clKey."' ".($clid==$clKey?"SELECTED":"").">$clValue</option>\n";
-											}
-											?>
-										</select>
-									</div>
-									<div style='margin:5px 0px 0px 10px;'>
-										<?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:
-										<input name="vnotes" type="text" size="50" title="<?php echo (isset($LANG['VIEWABLEPUBLIC'])?$LANG['VIEWABLEPUBLIC']:'Viewable to public'); ?>" />
-									</div>
-									<div style='margin:5px 0px 0px 10px;'>
-										<?php echo (isset($LANG['EDITORNOTES'])?$LANG['EDITORNOTES']:'Editor Notes'); ?>:
-										<input name="veditnotes" type="text" size="50" title="<?php echo (isset($LANG['VIEWABLEEDITORS'])?$LANG['VIEWABLEEDITORS']:'Viewable only to checklist editors'); ?>">
-									</div>
-									<div>
-										<button type='submit' name='action' value="Add Voucher"><?php echo (isset($LANG['ADDVOUCHER'])?$LANG['ADDVOUCHER']:'Add Voucher'); ?></button>
-									</div>
-								</form>
-							</div>
-							<?php
-						}
-						else{
-							?>
-							<div style='margin:20px;'>
-								<?php echo (isset($LANG['UNABLETOADD'])?$LANG['UNABLETOADD']:'Unable to use this specimen record as a voucher
-								because scientific name counld not be verified in the taxonomic thesaurus (misspelled?)'); ?>
-							</div>
-							<?php
-						}
-						?>
-					</fieldset>
+				<fieldset id="voucher-block" style="display:none">
+					<legend><?php echo (isset($LANG['NEWVOUCHER'])?$LANG['NEWVOUCHER']:'New Voucher Assignment'); ?></legend>
 					<?php
-				}
-				?>
+					if($tid){
+						?>
+						<div style="margin:10px;">
+							<form action="../../checklists/clsppeditor.php" method="post" onsubmit="return verifyVoucherForm(this);">
+								<div>
+									<?php echo (isset($LANG['ADDVOUCHERCHECK'])?$LANG['ADDVOUCHERCHECK']:'Add as voucher to checklist'); ?>:
+									<input name='voccid' type='hidden' value='<?php echo $occid; ?>'>
+									<input name='tid' type='hidden' value='<?php echo $tid; ?>'>
+									<select id='clid' name='clid'>
+						  				<option value='0'><?php echo (isset($LANG['SELECTCHECKLIST'])?$LANG['SELECTCHECKLIST']:'Select a Checklist'); ?></option>
+						  				<option value='0'>--------------------------</option>
+						  				<?php
+							  			foreach($clArr as $clKey => $clValue){
+							  				echo "<option value='".$clKey."' ".($clid==$clKey?"SELECTED":"").">$clValue</option>\n";
+										}
+										?>
+									</select>
+								</div>
+								<div style='margin:5px 0px 0px 10px;'>
+									<?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:
+									<input name="vnotes" type="text" size="50" title="<?php echo (isset($LANG['VIEWABLEPUBLIC'])?$LANG['VIEWABLEPUBLIC']:'Viewable to public'); ?>" />
+								</div>
+								<div style='margin:5px 0px 0px 10px;'>
+									<?php echo (isset($LANG['EDITORNOTES'])?$LANG['EDITORNOTES']:'Editor Notes'); ?>:
+									<input name="veditnotes" type="text" size="50" title="<?php echo (isset($LANG['VIEWABLEEDITORS'])?$LANG['VIEWABLEEDITORS']:'Viewable only to checklist editors'); ?>">
+								</div>
+								<div>
+									<button type='submit' name='action' value="Add Voucher"><?php echo (isset($LANG['ADDVOUCHER'])?$LANG['ADDVOUCHER']:'Add Voucher'); ?></button>
+								</div>
+							</form>
+						</div>
+						<?php
+					}
+					else{
+						?>
+						<div style='margin:20px;'>
+							<?php echo (isset($LANG['UNABLETOADD'])?$LANG['UNABLETOADD']:'Unable to use this specimen record as a voucher
+							because scientific name counld not be verified in the taxonomic thesaurus (misspelled?)'); ?>
+						</div>
+						<?php
+					}
+					?>
+				</fieldset>
 			</div>
 			<?php
 		}

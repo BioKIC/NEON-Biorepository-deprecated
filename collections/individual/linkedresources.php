@@ -124,7 +124,7 @@ $indManager->setOccid($occid);
 			echo '<div class="section-title">'.(isset($LANG['MEMBEROF'])?$LANG['MEMBEROF']:'Member of the following datasets').'</div>';
 			echo '<ul>'.$dsDisplayStr.'</ul>';
 		}
-		else echo '<div style="margin:15px 0px">.'(isset($LANG['OCCURRENCENOTLINKED'])?$LANG['OCCURRENCENOTLINKED']:'Occurrence is not linked to any datasets').'</div>';
+		else echo '<div style="margin:15px 0px">'.(isset($LANG['OCCURRENCENOTLINKED'])?$LANG['OCCURRENCENOTLINKED']:'Occurrence is not linked to any datasets').'</div>';
 		if($SYMB_UID){
 			?>
 			<fieldset id="dataset-block" style="display:none">

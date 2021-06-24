@@ -416,7 +416,7 @@ $traitArr = $indManager->getTraitArr();
 							}
 						}
 						if($occArr['sciname']){
-							echo '<b>Taxon:</b> ';
+							echo '<b>'.(isset($LANG['TAXON'])?$LANG['TAXON']:'Taxon').':</b> ';
 							if($securityCode < 2){
 								echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
 								if($occArr['localitysecurity'] == 2 || $occArr['localitysecurity'] == 3){
@@ -432,7 +432,7 @@ $traitArr = $indManager->getTraitArr();
 							<?php
 							if($occArr['identificationqualifier']) echo '<b>'.(isset($LANG['IDQUALIFIER'])?$LANG['IDQUALIFIER']:'Identification Qualifier').':</b> '.$occArr['identificationqualifier'].'<br/>';
 						}
-						if($occArr['family']) echo '<b>Family:</b> '.$occArr['family'];
+						if($occArr['family']) echo '<b>'.(isset($LANG['FAMILY'])?$LANG['FAMILY']:'Family').':</b> '.$occArr['family'];
 						if($occArr['identifiedby']){
 							?>
 							<div>

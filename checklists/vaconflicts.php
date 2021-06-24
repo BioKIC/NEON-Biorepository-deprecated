@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistVoucherReport.php');
-include_once($SERVER_ROOT.'/content/lang/checklists/vaconflicts.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/checklists/vaconflicts.'.$LANG_TAG.'.php');
 
 $action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:"";
 $clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
@@ -45,8 +45,8 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 <div id="innertext" style="background-color:white;">
 	<h2><?php echo (isset($LANG['POSS_CONFLICTS'])?$LANG['POSS_CONFLICTS']:'Possible Voucher Conflicts'); ?></h2>
 	<div style="margin-bottom:10px;">
-		<?php echo (isset($LANG['POSS_CONFLICTS'])?$LANG['POSS_CONFLICTS']:'List of specimen vouchers where the current identifications conflict with the checklist. 
-		Voucher conflicts are typically due to recent annotations of specimens located within collection. 
+		<?php echo (isset($LANG['POSS_CONFLICTS'])?$LANG['POSS_CONFLICTS']:'List of specimen vouchers where the current identifications conflict with the checklist.
+		Voucher conflicts are typically due to recent annotations of specimens located within collection.
 		Click on Checklist ID to open the editing pane for that record.');
 		?>
 	</div>
@@ -97,14 +97,16 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 				?>
 			</table>
 			<div>
-				<input name="removetaxa" type="checkbox" value="1" checked /> <?php echo (isset($LANG['REMOVE_TAXA'])?$LANG['REMOVE_TAXA']:'Remove taxa from checklist if all vouchers are removed'); ?>
+				<input name="removetaxa" type="checkbox" value="1" checked />
+				<?php echo (isset($LANG['REMOVE_TAXA'])?$LANG['REMOVE_TAXA']:'Remove taxa from checklist if all vouchers are removed'); ?>
 			</div>
 			<div style="margin: 10px 0px">
 				<input name="clid" type="hidden" value="<?php echo $clid; ?>" />
 				<input name="pid" type="hidden" value="<?php echo $pid; ?>" />
 				<input name="tabindex" type="hidden" value="2" />
 				<input name="submitaction" type="hidden" value="resolveconflicts" />
-				<b><?php echo (isset($LANG['BATCH_ACTION'])?$LANG['BATCH_ACTION']:'Batch Action'); ?>:</b> <input name="submitbutton" type="button" value="<?php echo (isset($LANG['LINK_VOUCHERS'])?$LANG['LINK_VOUCHERS']:'Link Vouchers to Corrected Identification'); ?>" onclick="return validateBatchConflictForm(this.form)" /><br/>
+				<b><?php echo (isset($LANG['BATCH_ACTION'])?$LANG['BATCH_ACTION']:'Batch Action'); ?>:</b>
+				<button name="submitbutton" type="button" value="Link Vouchers to Corrected Identification" onclick="return validateBatchConflictForm(this.form)"><?php echo (isset($LANG['LINK_VOUCHERS'])?$LANG['LINK_VOUCHERS']:'Link Vouchers to Corrected Identification'); ?></button><br/>
 				<div>* <?php echo (isset($LANG['CORRECTED_WILL_ADD'])?$LANG['CORRECTED_WILL_ADD']:'Corrected taxon will be added to checklist if not yet present'); ?></div>
 			</div>
 		</form>

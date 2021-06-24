@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistAdmin.php');
-include_once($SERVER_ROOT.'/content/lang/checklists/checklistadminmeta.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/checklists/checklistadminmeta.'.$LANG_TAG.'.php');
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
@@ -127,7 +127,7 @@ if(!$clid){
 		<fieldset style="margin:15px;padding:10px;">
 			<legend><b><?php echo ($clid?$LANG['EDITCHECKDET']:$LANG['CREATECHECKDET']); ?></b></legend>
 			<div>
-				<b><?php echo (isset($LANG['CHECKNAME'])?$LANG['CHECKNAME']:'Checklist Name';?></b><br/>
+				<b><?php echo (isset($LANG['CHECKNAME'])?$LANG['CHECKNAME']:'Checklist Name'); ?></b><br/>
 				<input type="text" name="name" style="width:95%" value="<?php echo $clManager->getClName();?>" />
 			</div>
 			<div id="authorDiv">
@@ -135,7 +135,7 @@ if(!$clid){
 				<input type="text" name="authors" style="width:95%" value="<?php echo ($clArray?$clArray["authors"]:''); ?>" />
 			</div>
 			<div>
-				<b><?php echo (isset($LANG['CHECKTYPE'])?$LANG['CHECKTYPE']:'Checklist Type';?></b><br/>
+				<b><?php echo (isset($LANG['CHECKTYPE'])?$LANG['CHECKTYPE']:'Checklist Type');?></b><br/>
 				<?php
 				$userClArr = $clManager->getUserChecklistArr();
 				?>
@@ -148,9 +148,7 @@ if(!$clid){
 						<?php
 					}
 					if(isset($GLOBALS['USER_RIGHTS']['RareSppAdmin']) || $IS_ADMIN){
-						?>
-						<option value="rarespp" <?php echo ($clArray && $clArray["type"]=='rarespp'?'SELECTED':'') ?>><?php echo (isset($LANG['RARETHREAT'])?$LANG['RARETHREAT']:'Rare, threatened, protected species list';?></option>
-						<?php
+						echo '<option value="rarespp"'.($clArray && $clArray["type"]=='rarespp'?'SELECTED':'').'>'.(isset($LANG['RARETHREAT'])?$LANG['RARETHREAT']:'Rare, threatened, protected species list').'</option>';
 					}
 					?>
 				</select>
@@ -322,7 +320,7 @@ if(!$clid){
 	<?php
 	if(array_key_exists("userid",$_REQUEST)){
 		$userId = $_REQUEST["userid"];
-		echo '<div style="font-weight:bold;font:bold 14pt;">.'(isset($LANG['ASSIGNED_CHECKLISTS'])?$LANG['ASSIGNED_CHECKLISTS']:'Checklists assigned to your account').'</div>';
+		echo '<div style="font-weight:bold;font:bold 14pt;">'.(isset($LANG['ASSIGNED_CHECKLISTS'])?$LANG['ASSIGNED_CHECKLISTS']:'Checklists assigned to your account').'</div>';
 		$listArr = $clManager->getManagementLists($userId);
 		if(array_key_exists('cl',$listArr)){
 			$clArr = $listArr['cl'];
@@ -356,7 +354,7 @@ if(!$clid){
 			<?php
 		}
 
-		echo '<div style="font-weight:bold;font:bold 14pt;margin-top:25px;">'.<?php echo (isset($LANG['PROJ_ADMIN'])?$LANG['PROJ_ADMIN']:'Inventory Project Administration');?>.'</div>'."\n";
+		echo '<div style="font-weight:bold;font:bold 14pt;margin-top:25px;">'.(isset($LANG['PROJ_ADMIN'])?$LANG['PROJ_ADMIN']:'Inventory Project Administration').'</div>';
 		if(array_key_exists('proj',$listArr)){
 			$projArr = $listArr['proj'];
 			?>
@@ -379,7 +377,7 @@ if(!$clid){
 			<?php
 		}
 		else{
-			echo '<div style="margin:10px;">'.<?php echo (isset($LANG['NO_PROJECTS'])?$LANG['NO_PROJECTS']:'There are no Projects for which you have administrative permissions');?>.'</div>';
+			echo '<div style="margin:10px;">'.(isset($LANG['NO_PROJECTS'])?$LANG['NO_PROJECTS']:'There are no Projects for which you have administrative permissions').'</div>';
 		}
 	}
 	?>

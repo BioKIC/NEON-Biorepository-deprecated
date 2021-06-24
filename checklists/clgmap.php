@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
-include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $pid = $_REQUEST['pid'];

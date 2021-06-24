@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
-include_once($SERVER_ROOT.'/content/lang/profile/occurrencemenu.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/profile/occurrencemenu.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 unset($_SESSION['editorquery']);
 
@@ -28,9 +28,8 @@ if($SYMB_UID){
 		<fieldset>
 			<legend><?php echo $cName; ?></legend>
 			<div style="margin-left:10px">
-				<?php 
-				$specHandler->getPersonalOccurrenceCount($collId);
-				echo (isset($LANG['TOTAL_RECORDS'])?$LANG['TOTAL_RECORDS']:'Total Record Count').':'.$specHandler; 
+				<?php
+				echo (isset($LANG['TOTAL_RECORDS'])?$LANG['TOTAL_RECORDS']:'Total Record Count').': '.$specHandler->getPersonalOccurrenceCount($collId);
 				?>
 			</div>
 			<ul>
@@ -74,7 +73,7 @@ if($SYMB_UID){
 				 -->
 				<li>
 					<a href="#" onclick="newWindow = window.open('personalspecbackup.php?collid=<?php echo $collId; ?>','bucollid','scrollbars=1,toolbar=0,resizable=1,width=400,height=200,left=20,top=20');">
-						<?php echo (isset($LANG['DOWNLOAD_BACKUP'])?$LANG['DOWNLOAD_BACKUP']:'Download backup file (CSV extract)'); ?> 
+						<?php echo (isset($LANG['DOWNLOAD_BACKUP'])?$LANG['DOWNLOAD_BACKUP']:'Download backup file (CSV extract)'); ?>
 					</a>
 				</li>
 				<li>

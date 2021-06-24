@@ -1,7 +1,7 @@
 <?php
 /*
  ------------------
- Language: English
+ Language: Español (Spanish)
  ------------------
  */
 $LANG['DETAILS'] = 'Detalles';
@@ -140,5 +140,4 @@ $LANG['RECORDDELETED'] = 'Registro eliminado';
 $LANG['VALUE'] = 'Valor';
 $LANG['DETERMINATIONNO'] = '# de Determinaci&oacute;n';
 $LANG['IMAGENO'] = '# de Imagen';
-
 ?>

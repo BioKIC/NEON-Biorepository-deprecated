@@ -2,7 +2,7 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/PermissionsManager.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
-include_once($SERVER_ROOT.'/content/lang/profile/usermanagement.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/profile/usermanagement.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $loginAs = array_key_exists("loginas",$_REQUEST)?trim($_REQUEST["loginas"]):"";
@@ -59,8 +59,8 @@ if($IS_ADMIN){
 	$displayLeftMenu = (isset($profile_usermanagementMenu)?$profile_usermanagementMenu:"true");
 	include($SERVER_ROOT.'/includes/header.php');
 	if(isset($profile_usermanagementCrumbs)){
-		echo "<div class='navpath'>";
-		echo "<a href='../index.php'>Home</a> &gt; ";
+		echo '<div class="navpath">';
+		echo '<a href="../index.php">Home</a> &gt; ';
 		echo $profile_usermanagementCrumbs;
 		echo ' <b>'.(isset($LANG['USER_MNGMT'])?$LANG['USER_MNGMT']:'User Management').'</b></div>';
 	}
@@ -73,8 +73,8 @@ if($IS_ADMIN){
 					<legend style="font-weight:bold;"><?php echo (isset($LANG['SEARCH'])?$LANG['SEARCH']:'Search'); ?></legend>
 					<?php echo (isset($LANG['LAST_OR_LOGIN'])?$LANG['LAST_OR_LOGIN']:'Last Name or Login Name'); ?>:
 					<form name='searchform1' action='usermanagement.php' method='post'>
-						<button type='text' name='searchterm'><?php echo (isset($LANG['ENTER_LAST'])?$LANG['ENTER_LAST']:'Enter Last Name'); ?></button><br/>
-						<button name='submit' type='submit'><?php echo (isset($LANG['SEARCH'])?$LANG['SEARCH']:'Search'); ?></button>
+						<input type="text" name="searchterm" title="<?php echo (isset($LANG['ENTER_LAST'])?$LANG['ENTER_LAST']:'Enter Last Name'); ?>" /><br/>
+						<button name="submit" type="submit" value="Search"><?php echo (isset($LANG['SEARCH'])?$LANG['SEARCH']:'Search'); ?></button>
 					</form>
 					<?php echo (isset($LANG['QUICK_SEARCH'])?$LANG['QUICK_SEARCH']:'Quick Search'); ?>:
 					<div style='margin:2px 0px 0px 10px;'>
@@ -106,7 +106,7 @@ if($IS_ADMIN){
 						<div style="float:left;"><?php echo $user["institution"];?></div>
 					</div>
 					<div style="clear:left;">
-						<div style="float:left;font-weight:bold;margin-right:8px;"<?php echo (isset($LANG['CITY'])?$LANG['CITY']:'City'); ?>: </div>
+						<div style="float:left;font-weight:bold;margin-right:8px;"><?php echo (isset($LANG['CITY'])?$LANG['CITY']:'City'); ?>: </div>
 						<div style="float:left;"><?php echo $user["city"];?></div>
 					</div>
 					<div style="clear:left;">
@@ -414,7 +414,7 @@ if($IS_ADMIN){
 						<?php
 					}
 					else{
-						echo '<h3 style='margin:20px;'>'.(isset($LANG['NO_PERMISSIONS'])?$LANG['NO_PERMISSIONS']:'No permissions have to been assigned to this user').'</h3>';
+						echo '<h3 style="margin:20px;">'.(isset($LANG['NO_PERMISSIONS'])?$LANG['NO_PERMISSIONS']:'No permissions have to been assigned to this user').'</h3>';
 					}
 					?>
 				</fieldset>
@@ -423,7 +423,7 @@ if($IS_ADMIN){
 						<legend style="font-weight:bold;font-size:120%;"><?php echo (isset($LANG['ASSIGN_NEW'])?$LANG['ASSIGN_NEW']:'Assign New Permissions'); ?></legend>
 						<div style="margin:5px;">
 							<div style="float:right;margin:10px">
-								<button type="submit" name="apsubmit"><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
+								<button type="submit" name="apsubmit" value="Add Permission"><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
 								<input type="hidden" name="userid" value="<?php echo $userId;?>" />
 							</div>
 							<?php
@@ -587,7 +587,7 @@ if($IS_ADMIN){
 						if($personalObsArr){
 							?>
 							<div style="float:right;margin:10px;">
-								<button type='submit' name='apsubmit'><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
+								<button type="submit" name="apsubmit" value="Add Permission"><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
 							</div>
 							<h2 style="text-decoration:underline"><?php echo (isset($LANG['PERS_SP_MGMNT'])?$LANG['PERS_SP_MGMNT']:'Personal Specimen Management'); ?></h2>
 							<table style="margin-bottom:20px">
@@ -644,19 +644,19 @@ if($IS_ADMIN){
 									?>
 								</div>
 								<?php
+								}
 							}
-						}
-						//Get checklists
-						$cidArr = Array();
-						if(array_key_exists("ClAdmin",$userPermissions)){
-							$cidArr = array_keys($userPermissions["ClAdmin"]);
-						}
-						$checklistArr = $userManager->getChecklistArr($cidArr);
-						if($checklistArr){
+							//Get checklists
+							$cidArr = Array();
+							if(array_key_exists("ClAdmin",$userPermissions)){
+								$cidArr = array_keys($userPermissions["ClAdmin"]);
+							}
+							$checklistArr = $userManager->getChecklistArr($cidArr);
+							if($checklistArr){
 							?>
 							<div><hr/></div>
 							<div style="float:right;margin:10px;">
-								<button type='submit' name='apsubmit'><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
+								<button type="submit" name="apsubmit" value="Add Permission"><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
 							</div>
 							<h2 style="text-decoration:underline"><?php echo (isset($LANG['CHECKLIST_MGMNT'])?$LANG['CHECKLIST_MGMNT']:'Checklist Management'); ?></h2>
 							<?php
@@ -678,14 +678,14 @@ if($IS_ADMIN){
 			}
 			else{
 				$users = $userManager->getUsers($searchTerm);
-				echo "<h1>Users</h1>";
+				echo '<h1>Users</h1>';
 				foreach($users as $id => $name){
-					echo "<div><a href='usermanagement.php?userid=$id'>$name</a></div>";
+					echo '<div><a href="usermanagement.php?userid='.$id.'">'.$name.'</a></div>';
 				}
 			}
 		}
 		else{
-			echo '<h3>'.isset($LANG['MUST_LOGIN'])?$LANG['MUST_LOGIN']:'You must log in and have administrator permissions to manage users').'</h3>';
+			echo '<h3>'.(isset($LANG['MUST_LOGIN'])?$LANG['MUST_LOGIN']:'You must log in and have administrator permissions to manage users').'</h3>';
 		}
 		?>
 	</div>

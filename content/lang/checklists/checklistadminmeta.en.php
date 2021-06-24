@@ -10,7 +10,7 @@ include_once($SERVER_ROOT.'/content/lang/checklists/checklistadmin.'.$LANG_TAG.'
 $LANG['NEED_NAME'] = 'Checklist name field must have a value';
 $LANG['NEED_LONG'] = 'If latitude has a value, longitude must also have a value';
 $LANG['LAT_NUMERIC'] = 'Latitude must be strictly numeric (decimal format: e.g. 34.2343)';
-LANG['NO_NINETY'] = 'Latitude values can not be greater than 90 or less than -90';
+$LANG['NO_NINETY'] = 'Latitude values can not be greater than 90 or less than -90';
 $LANG['NEED_LAT'] = 'If longitude has a value, latitude must also have a value';
 $LANG['LONG_NUMERIC'] = 'Longitude must be strictly numeric (decimal format: e.g. -112.2343)';
 $LANG['NO_ONE_EIGHTY'] = 'Longitude values can not be greater than 180 or less than -180';

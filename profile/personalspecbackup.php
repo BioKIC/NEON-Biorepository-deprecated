@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
-include_once($SERVER_ROOT.'/content/lang/profile/personalspecbackup.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/profile/personalspecbackup.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collId = $_REQUEST["collid"];
@@ -64,7 +64,7 @@ if($IS_ADMIN
 						$cSet = str_replace('-','',strtolower($CHARSET));
 						?>
 						<input type="radio" name="cset" value="latin1" <?php echo ($cSet=='iso88591'?'checked':''); ?> /> <?php echo (isset($LANG['ISO'])?$LANG['ISO']:'ISO-8859-1 (western)'); ?><br/>
-						<input type="radio" name="cset" value="utf8" <?php echo ($cSet=='utf8'?'checked':''); ?> /> <?php echo (isset($LANG['UTF'])?$LANG['UTF']:'UTF-8 (unicode)'); ?> 
+						<input type="radio" name="cset" value="utf8" <?php echo ($cSet=='utf8'?'checked':''); ?> /> <?php echo (isset($LANG['UTF'])?$LANG['UTF']:'UTF-8 (unicode)'); ?>
 					</div>
 					<div style="clear:both;">
 						<input name="zipfile" type="checkbox" value="1" CHECKED />
@@ -72,7 +72,7 @@ if($IS_ADMIN
 					</div>
 					<div style="clear:both;">
 						<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
-						<button type="submit" name="formsubmit"><?php echo (isset($LANG['BACKUP'])?$LANG['BACKUP']:'Perform Backup'); ?></button>
+						<button type="submit" name="formsubmit" value="Perform Backup"><?php echo (isset($LANG['BACKUP'])?$LANG['BACKUP']:'Perform Backup'); ?></button>
 					</div>
 				</fieldset>
 			</form>

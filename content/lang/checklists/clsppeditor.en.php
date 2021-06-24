@@ -21,7 +21,6 @@ $LANG['SUBMIT_EDITS'] = 'Submit Checklist Edits';
 $LANG['RENAME_TRANSFER'] = 'Rename Taxon / Transfer Vouchers';
 $LANG['TARGET_TAXON'] = 'Target Taxon';
 $LANG['VOUCHERS_TRANSFER'] = 'Note that vouchers &amp; notes will transfer to new taxon';
-$LANG['RENAME_TAXON'] = 'Rename Taxon';
 $LANG['RENAME'] = 'Rename and Transfer';
 $LANG['ARE_YOU_SURE'] = 'Are you sure you want to delete this taxon from checklist?';
 $LANG['DELETE'] = 'Delete';
@@ -29,6 +28,7 @@ $LANG['DELETE_TAXON'] = 'Delete Taxon From Checklist';
 $LANG['VOUCHER_INFO'] = 'Voucher Information';
 $LANG['NO_VOUCHERS'] = 'No vouchers for this species has been assigned to checklist';
 $LANG['SURE_DELETE'] = 'Are you sure you want to delete this voucher record?';
+$LANG['EDIT_VOUCHER'] = 'Edit Voucher';
 $LANG['SUBMIT_V_EDITS'] = 'Submit Voucher Edits';
 $LANG['NO_DATA'] = 'Failed to return data or you might not have proper editing rights';
 

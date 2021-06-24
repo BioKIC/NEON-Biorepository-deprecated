@@ -35,7 +35,7 @@ $LANG['PWORD_AGAIN'] = 'New Password Again';
 $LANG['CHANGE_USERNAME'] = 'Change Username';
 $LANG['NEW_USERNAME'] = 'New Username';
 $LANG['MANAGE_TOKENS'] = 'Manage Access Tokens';
-$LANG['YOU_HAVE']:'You currently have';
+$LANG['YOU_HAVE'] = 'You currently have';
 $LANG['EXPLAIN_TOKENS'] = 'access tokens linked to your account. Tokens are created when you select "Remember Me" when logging in, or access the portal from an external app. If the number of access tokens you have seems high, please click on the button below to clear the tokens linked to your account.';
 $LANG['CLEAR_TOKENS'] = 'Clear Tokens';
 $LANG['TAXON_RELS'] = 'Taxonomic Relationships';

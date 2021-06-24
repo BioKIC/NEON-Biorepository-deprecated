@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
-include_once($SERVER_ROOT.'/content/lang/profile/newprofile.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/profile/newprofile.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 header('Cache-Control: no-cache, no-cache="set-cookie", no-store, must-revalidate');
 header('Pragma: no-cache'); // HTTP 1.0.
@@ -48,7 +48,7 @@ if($action == "Create Login"){
 		}
 		else{
 			$okToCreateLogin = false;
-			$displayStr = '<h2>'.isset($LANG['PLEASE_CHECK'])?$LANG['PLEASE_CHECK']:'Please check the the captcha form').'</h2>';
+			$displayStr = '<h2>'.(isset($LANG['PLEASE_CHECK'])?$LANG['PLEASE_CHECK']:'Please check the the captcha form').'</h2>';
 		}
 	}
 
@@ -71,17 +71,17 @@ if($action == "Create Login"){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE.' - '.(isset($LANG['NEW_USER'])?$LANG['NEW_USER']:'New User Profile'); ?></title>
-    <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+	<?php
+	$activateJQuery = false;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
+	?>
 	<script type="text/javascript">
 		function validateform(f){
 			<?php
@@ -155,9 +155,8 @@ if($action == "Create Login"){
 	}
 	?>
 	<div id="innertext">
-	<h1><?php echo (isset($LANG['CREATE_NEW'])?$LANG['CREATE_NEW']:'Create New Profile'); ?></h1>
-
 	<?php
+	echo '<h1>'.(isset($LANG['CREATE_NEW'])?$LANG['CREATE_NEW']:'Create New Profile').'</h1>';
 	if($displayStr){
 		echo '<div style="margin:10px;font-size:110%;font-weight:bold;color:red;">';
 		if($displayStr == 'login_exists'){
@@ -174,7 +173,7 @@ if($action == "Create Login"){
 				<div style="margin:15px">
 					<form name="retrieveLoginForm" method="post" action="index.php">
 						<input name="emailaddr" type="hidden" value="<?php echo $emailAddr; ?>" />
-						<button name="action" type="submit"><?php echo (isset($LANG['RETRIEVE_LOGIN'])?$LANG['RETRIEVE_LOGIN']:'Retrieve Login'); ?></button>
+						<button name="action" type="submit" value="Retrieve Login"><?php echo (isset($LANG['RETRIEVE_LOGIN'])?$LANG['RETRIEVE_LOGIN']:'Retrieve Login'); ?></button>
 					</form>
 				</div>
 			</div>
@@ -322,7 +321,7 @@ if($action == "Create Login"){
 								?>
 							</div>
 							<div style="float:right;margin:20px;">
-								<button type="submit" name="submit" id="submit"><?php echo (isset($LANG['CREATE_LOGIN'])?$LANG['CREATE_LOGIN']:'Create Login'); ?></button>
+								<button type="submit" name="submit" id="submit" value="Create Login"><?php echo (isset($LANG['CREATE_LOGIN'])?$LANG['CREATE_LOGIN']:'Create Login'); ?></button>
 							</div>
 						</td>
 					</tr>

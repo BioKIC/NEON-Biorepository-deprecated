@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistVoucherManager.php');
-include_once($SERVER_ROOT.'/content/lang/checklists/clsppeditor.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/checklists/clsppeditor.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:"";
@@ -140,9 +140,7 @@ $clArray = $vManager->getChecklistData();
 	<body onload="<?php  if(!$status) echo $followUpAction; ?>" >
 		<!-- This is inner text! -->
 		<div id='popup-innertext'>
-			<h1>
-				<?php echo "<i>".$vManager->getTaxonName()."</i> of ".$vManager->getClName();?>
-			</h1>
+			<h1><?php echo "<i>".$vManager->getTaxonName()."</i> of ".$vManager->getClName(); ?></h1>
 			<?php
 			if($status){
 				?>
@@ -220,7 +218,7 @@ $clArray = $vManager->getChecklistData();
 									<input name='taxon' type='hidden' value="<?php echo $vManager->getTaxonName();?>" />
 									<input name='clid' type='hidden' value="<?php echo $vManager->getClid();?>" />
 									<input name='clname' type='hidden' value="<?php echo $vManager->getClName();?>" />
-									<input type='submit' name='action' value='<?php echo (isset($LANG['SUBMIT_EDITS'])?$LANG['SUBMIT_EDITS']:'Submit Checklist Edits'); ?>' />
+									<button type="submit" name="action" value="Submit Checklist Edits"><?php echo (isset($LANG['SUBMIT_EDITS'])?$LANG['SUBMIT_EDITS']:'Submit Checklist Edits'); ?></button>
 								</div>
 							</fieldset>
 						</form>
@@ -245,8 +243,8 @@ $clArray = $vManager->getChecklistData();
 									<input name='clid' type='hidden' value="<?php echo $vManager->getClid(); ?>" />
 									<input name='cltype' type='hidden' value="<?php echo $clArray['cltype']; ?>" />
 									<input name='locality' type='hidden' value="<?php echo $clArray['locality']; ?>" />
-									<input name="action" type="hidden" value="<?php echo (isset($LANG['RENAME_TAXON'])?$LANG['RENAME_TAXON']:'Rename Taxon'); ?>" />
-									<input type="submit" name="renamesubmit" value="<?php echo (isset($LANG['RENAME'])?$LANG['RENAME']:'Rename and Transfer'); ?>" />
+									<input name="action" type="hidden" value="Rename Taxon" />
+									<button type="submit" name="renamesubmit" value="Rename and Transfer"><?php echo (isset($LANG['RENAME'])?$LANG['RENAME']:'Rename and Transfer'); ?></button>
 								</div>
 							</fieldset>
 						</form>
@@ -258,7 +256,7 @@ $clArray = $vManager->getChecklistData();
 								<input type='hidden' name='clid' value="<?php echo $vManager->getClid(); ?>" />
 								<input type='hidden' name='cltype' value="<?php echo $clArray['cltype']; ?>" />
 								<input type='hidden' name='locality' value="<?php echo $clArray['locality']; ?>" />
-								<input type="submit" name="action" value="<?php echo (isset($LANG['DELETE_TAXON'])?$LANG['DELETE_TAXON']:'Delete Taxon From Checklist'); ?>" />
+								<button type="submit" name="action" value="Delete Taxon From Checklist"><?php echo (isset($LANG['DELETE_TAXON'])?$LANG['DELETE_TAXON']:'Delete Taxon From Checklist'); ?></button>
 							</fieldset>
 						</form>
 					</div>
@@ -275,57 +273,56 @@ $clArray = $vManager->getChecklistData();
 							<?php
 							$vArray = $vManager->getVoucherData();
 							if(!$vArray){
-								echo "<div>".<?php echo (isset($LANG['NO_VOUCHERS'])?$LANG['NO_VOUCHERS']:'No vouchers for this species has been assigned to checklist'); ?>." </div>";
+								echo '<div>'.(isset($LANG['NO_VOUCHERS'])?$LANG['NO_VOUCHERS']:'No vouchers for this species has been assigned to checklist').' </div>';
 							}
 							?>
 							<ul>
-							<?php
-							foreach($vArray as $occid => $iArray){
-							?>
-								<li>
-
-									<a href="#" onclick="openPopup('../collections/individual/index.php?occid=<?php echo $occid; ?>','indpane')"><?php echo $occid; ?></a>:
-									<?php
-									if($iArray['catalognumber']) echo $iArray['catalognumber'].', ';
-									echo '<b>'.$iArray['collector'].'</b>, ';
-									if($iArray['eventdate']) echo $iArray['eventdate'].', ';
-									if($iArray['sciname']) echo $iArray['sciname'];
-									echo ($iArray['notes']?', '.$iArray['notes']:'').($iArray['editornotes']?', '.$iArray['editornotes']:'');
-									?>
-									<a href="#" onclick="toggle('vouch-<?php echo $occid;?>')"><img src="../images/edit.png" /></a>
-									<form action="clsppeditor.php" method='post' name='delform' style="display:inline;" onsubmit="return window.confirm('<?php echo (isset($LANG['SURE_DELETE'])?$LANG['SURE_DELETE']:'Are you sure you want to delete this voucher record?'); ?>');">
-										<input type='hidden' name='tid' value="<?php echo $vManager->getTid();?>" />
-										<input type='hidden' name='clid' value="<?php echo $vManager->getClid();?>" />
-										<input type='hidden' name='oiddel' id='oiddel' value="<?php echo $occid;?>" />
-										<input type='hidden' name='tabindex' value="1" />
-										<input type="image" name="action" src="../images/del.png" style="width:15px;" value="Delete Voucher" title="<?php echo (isset($LANG['DELETE_TAXON'])?$LANG['DELETE_TAXON']:'Delete Voucher'); ?>" />
-									</form>
-									<div id="vouch-<?php echo $occid;?>" style='margin:10px;clear:both;display:none;'>
-										<form action="clsppeditor.php" method='post' name='editvoucher'>
-											<fieldset style='margin:5px 0px 5px 5px;'>
-												<legend><b>Edit Voucher</b></legend>
-												<input type='hidden' name='tid' value="<?php echo $vManager->getTid();?>" />
-												<input type='hidden' name='clid' value="<?php echo $vManager->getClid();?>" />
-												<input type='hidden' name='occid' value="<?php echo $occid;?>" />
-												<input type='hidden' name='tabindex' value="1" />
-												<div style='margin-top:0.5em;'>
-													<b>Notes:</b>
-													<input name='notes' type='text' value="<?php echo $iArray["notes"];?>" size='60' maxlength='250' />
-												</div>
-												<div style='margin-top:0.5em;'>
-													<b>Editor Notes (editor display only):</b>
-													<input name='editornotes' type='text' value="<?php echo $iArray["editornotes"];?>" size='30' maxlength='50' />
-												</div>
-												<div style='margin-top:0.5em;'>
-													<input type='submit' name='action' value="<?php echo (isset($LANG['SUBMIT_V_EDITS'])?$LANG['SUBMIT_V_EDITS']:'Submit Voucher Edits'); ?>" />
-												</div>
-											</fieldset>
-										</form>
-									</div>
-								</li>
 								<?php
-							}
-							?>
+								foreach($vArray as $occid => $iArray){
+									?>
+									<li>
+										<a href="#" onclick="openPopup('../collections/individual/index.php?occid=<?php echo $occid; ?>','indpane')"><?php echo $occid; ?></a>:
+										<?php
+										if($iArray['catalognumber']) echo $iArray['catalognumber'].', ';
+										echo '<b>'.$iArray['collector'].'</b>, ';
+										if($iArray['eventdate']) echo $iArray['eventdate'].', ';
+										if($iArray['sciname']) echo $iArray['sciname'];
+										echo ($iArray['notes']?', '.$iArray['notes']:'').($iArray['editornotes']?', '.$iArray['editornotes']:'');
+										?>
+										<a href="#" onclick="toggle('vouch-<?php echo $occid;?>')"><img src="../images/edit.png" /></a>
+										<form action="clsppeditor.php" method='post' name='delform' style="display:inline;" onsubmit="return confirm('<?php echo (isset($LANG['SURE_DELETE'])?$LANG['SURE_DELETE']:'Are you sure you want to delete this voucher record?'); ?>');">
+											<input type='hidden' name='tid' value="<?php echo $vManager->getTid();?>" />
+											<input type='hidden' name='clid' value="<?php echo $vManager->getClid();?>" />
+											<input type='hidden' name='oiddel' id='oiddel' value="<?php echo $occid;?>" />
+											<input type='hidden' name='tabindex' value="1" />
+											<input type="image" name="action" src="../images/del.png" style="width:15px;" value="Delete Voucher" title="<?php echo (isset($LANG['DELETE_TAXON'])?$LANG['DELETE_TAXON']:'Delete Voucher'); ?>" />
+										</form>
+										<div id="vouch-<?php echo $occid;?>" style='margin:10px;clear:both;display:none;'>
+											<form action="clsppeditor.php" method='post' name='editvoucher'>
+												<fieldset style='margin:5px 0px 5px 5px;'>
+													<legend><b><?php echo (isset($LANG['EDIT_VOUCHER'])?$LANG['EDIT_VOUCHER']:'Edit Voucher'); ?></b></legend>
+													<input type='hidden' name='tid' value="<?php echo $vManager->getTid();?>" />
+													<input type='hidden' name='clid' value="<?php echo $vManager->getClid();?>" />
+													<input type='hidden' name='occid' value="<?php echo $occid;?>" />
+													<input type='hidden' name='tabindex' value="1" />
+													<div style='margin-top:0.5em;'>
+														<b>Notes:</b>
+														<input name='notes' type='text' value="<?php echo $iArray["notes"];?>" size='60' maxlength='250' />
+													</div>
+													<div style='margin-top:0.5em;'>
+														<b>Editor Notes (editor display only):</b>
+														<input name='editornotes' type='text' value="<?php echo $iArray["editornotes"];?>" size='30' maxlength='50' />
+													</div>
+													<div style='margin-top:0.5em;'>
+														<button type='submit' name='action' value="<?php echo (isset($LANG['SUBMIT_V_EDITS'])?$LANG['SUBMIT_V_EDITS']:'Submit Voucher Edits'); ?>">Submit Voucher Edits</button>
+													</div>
+												</fieldset>
+											</form>
+										</div>
+									</li>
+									<?php
+								}
+								?>
 							</ul>
 							<?php
 						}
@@ -340,7 +337,7 @@ $clArray = $vManager->getChecklistData();
 				<?php
 			}
 			else{
-				echo '<div>'.<?php echo (isset($LANG['NO_DATA'])?$LANG['NO_DATA']:'Failed to return data or you might not have proper editing rights'); ?>.'</div>';
+				echo '<div>'.(isset($LANG['NO_DATA'])?$LANG['NO_DATA']:'Failed to return data or you might not have proper editing rights').'</div>';
 			}
 			?>
 		</div>

@@ -2,7 +2,7 @@
 include_once('../config/symbini.php');
 include_once('fp/FPNetworkFactory.php');
 include_once('fp/common/AnnotationGenerator.php');
-include_once($SERVER_ROOT.'/content/lang/profile/response.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/profile/response.'.$LANG_TAG.'.php');
 
 // check that the client helper has been installed
 $file = 'fp/FPNetworkFactory.php';
@@ -17,10 +17,11 @@ foreach ($includePaths as $p) {
     }
 }
 
-if (!$fileExists) {
+if(!$fileExists) {
     echo (isset($LANG['FP_PROBLEM'])?$LANG['FP_PROBLEM']:'FilteredPush Support has been enabled in this Symbiota installation, but FilteredPush helper code is not installed').'<br>';
     echo '<strong>$file '.(isset($LANG['NOT_FOUND'])?$LANG['NOT_FOUND']:'not found').'.</strong>';
-} else {
+}
+else {
     if (isset($_GET['uri'])) {
         ?>
         <form action="response.php" method="post">
@@ -33,7 +34,7 @@ if (!$fileExists) {
             <?php echo (isset($LANG['EVIDENCE'])?$LANG['EVIDENCE']:'Evidence'); ?>: <br/>
             <textarea name="evidence" rows="10" cols="35"></textarea><br/>
             <input type="hidden" name="annotationURI" value="<? echo $_GET['uri'] ?>"/>
-            <button type="submit"><?php echo (isset($LANG['RESPOND'])?$LANG['RESPOND']:'Respond'); ?></button>
+            <button type="submit" value="Respond"><?php echo (isset($LANG['RESPOND'])?$LANG['RESPOND']:'Respond'); ?></button>
         </form>
     <?php
     } else if ($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -55,5 +56,4 @@ if (!$fileExists) {
         echo "</script>";
     }
 }
-
 ?>

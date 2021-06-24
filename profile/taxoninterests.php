@@ -28,7 +28,7 @@ include_once('../config/symbini.php');
 include_once('fp/FPNetworkFactory.php');
 include_once('fp/FPConfig.php');
 include_once('fp/common/AnnotationGenerator.php');
-include_once($SERVER_ROOT.'/content/lang/profile/taxoninterests.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/profile/taxoninterests.'.$LANG_TAG.'.php');
 
 // check that the client helper has been installed
 $file = 'fp/FPNetworkFactory.php';
@@ -66,7 +66,7 @@ if (!$fileExists) {
 
         foreach ($annotations as $annotation) {
             echo "<h1>" . $_GET['scientificName'] . " - (" . $annotation->scientificNameAuthorship . ")</h1>";
-            echo "<p><a href=\"response.php?uri=" . $annotation->uri . '\' onclick=\'window.open(this.href, 'popupwindow', 'width=500,height=400'); return false;\'>'.(isset($LANG['RESPOND'])?$LANG['RESPOND']:'Respond').'</a><br />';
+            echo '<p><a href="response.php?uri='.$annotation->uri.'" onclick="window.open(this.href, \'popupwindow\', \'width=500,height=400\'); return false;">'.(isset($LANG['RESPOND'])?$LANG['RESPOND']:'Respond').'</a><br />';
             echo "<a href=\"".CLIENTHELPER_ENDPOINT."/clientHelper/getAnnotation/?uri=" . $annotation->uri . "\" target=\"_blank\">View</a><br /></p>";
             ?>
             <table>
@@ -122,7 +122,5 @@ if (!$fileExists) {
                 }
             }
         }
-
 }
-
 ?>

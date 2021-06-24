@@ -1,7 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 //include_once($SERVER_ROOT.'/classes/DynamicChecklistManager.php');
-include_once($SERVER_ROOT.'/content/lang/checklists/dynamicmap.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/checklists/dynamicmap.'.$LANG_TAG.'.php');
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:0;
@@ -39,15 +39,15 @@ if(!$zoomInt){
 <head>
 	<title><?php echo $DEFAULT_TITLE.' - '.(isset($LANG['CHECKLIST_GENERATOR'])?$LANG['CHECKLIST_GENERATOR']:'Dynamic Checklist Generator'); ?></title>
 	<?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
+	$activateJQuery = true;
+	if(file_exists($SERVER_ROOT.'/includes/head.php')){
+		include_once($SERVER_ROOT.'/includes/head.php');
+	}
+	else{
+		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	}
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
@@ -151,8 +151,8 @@ if(!$zoomInt){
 				</span>
 				<span id="moreinfo" style="display:none;">
 					<?php echo (isset($LANG['RADIUS_DESCRIPTION'])?$LANG['RADIUS_DESCRIPTION']:'If a radius is defined, species lists are generated using specimen data collected within the defined area.
-					If a radius is not supplied, the area is sampled in concentric rings until the sample size is determined to 
-					best represent the local species diversity. In other words, poorly collected areas will have a larger radius sampled. 
+					If a radius is not supplied, the area is sampled in concentric rings until the sample size is determined to
+					best represent the local species diversity. In other words, poorly collected areas will have a larger radius sampled.
 					Setting the taxon filter will limit the return to species found within that taxonomic group.');
 					?>
 				</span>
@@ -164,10 +164,10 @@ if(!$zoomInt){
 				<form name="mapForm" action="dynamicchecklist.php" method="post" onsubmit="return checkForm();">
 					<div style="float:left;width:300px;">
 						<div>
-							<input type="submit" name="buildchecklistbutton" value="<?php echo (isset($LANG['BUILD_CHECKLIST'])?$LANG['BUILD_CHECKLIST']:'Build Checklist'); ?>" disabled />
 							<input type="hidden" name="interface" value="<?php echo $interface; ?>" />
 							<input type="hidden" id="latbox" name="lat" value="" />
 							<input type="hidden" id="lngbox" name="lng" value="" />
+							<button type="submit" name="buildchecklistbutton" value="Build Checklist" disabled ><?php echo (isset($LANG['BUILD_CHECKLIST'])?$LANG['BUILD_CHECKLIST']:'Build Checklist'); ?></button>
 						</div>
 						<div>
 							<b><?php echo (isset($LANG['POINT'])?$LANG['POINT']:'Point (Lat, Long)'); ?>:</b>
@@ -176,7 +176,8 @@ if(!$zoomInt){
 					</div>
 					<div style="float:left;">
 						<div style="margin-right:35px;">
-							<b><?php echo (isset($LANG['TAXON_FILTER'])?$LANG['TAXON_FILTER']:'Taxon Filter'); ?>:</b> <input id="taxa" name="taxa" type="text" value="<?php echo $taxa; ?>" />
+							<b><?php echo (isset($LANG['TAXON_FILTER'])?$LANG['TAXON_FILTER']:'Taxon Filter'); ?>:</b>
+							<input id="taxa" name="taxa" type="text" value="<?php echo $taxa; ?>" />
 							<input id="tid" name="tid" type="hidden" value="<?php echo $tid; ?>" />
 						</div>
 						<div>

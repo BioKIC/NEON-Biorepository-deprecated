@@ -1,7 +1,6 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/DynamicChecklistManager.php');
-include_once($SERVER_ROOT.'/content/lang/checklists/dynamicchecklist.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $lat = $_POST['lat'];
@@ -37,6 +36,6 @@ if($dynClid){
 		header("Location: ".$CLIENT_ROOT."/checklists/checklist.php?dynclid=".$dynClid);
 	}
 }
-else echo (isset($LANG['ERROR'])?$LANG['ERROR']:'ERROR generating checklist');
+else echo 'ERROR generating checklist';
 $dynClManager->removeOldChecklists();
 ?>

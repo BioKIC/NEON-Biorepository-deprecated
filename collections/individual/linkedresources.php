@@ -1,7 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
-include_once($SERVER_ROOT.'/content/lang/collections/individual/linkedresources.'.$LANG_TAG.'.php');
+@include_once($SERVER_ROOT.'/content/lang/collections/individual/linkedresources.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = $_GET["occid"];
@@ -33,8 +33,8 @@ $indManager->setOccid($occid);
 				echo '<li>';
 				echo '<a href="../../checklists/checklist.php?showvouchers=1&clid='.$id.'" target="_blank">'.$clName.'</a>&nbsp;&nbsp;';
 				if(isset($USER_RIGHTS['ClAdmin']) && in_array($id,$USER_RIGHTS['ClAdmin'])){
-					$delStr = isset($LANG['DELVOUCHER'])?$LANG['DELVOUCHER']:'Delete voucher link');
-					$confirmStr = isset($LANG['CONFIRMVOUCHER'])?$LANG['CONFIRMVOUCHER']:'Are you sure you want to remove this voucher link?');					
+					$delStr = (isset($LANG['DELVOUCHER'])?$LANG['DELVOUCHER']:'Delete voucher link');
+					$confirmStr = (isset($LANG['CONFIRMVOUCHER'])?$LANG['CONFIRMVOUCHER']:'Are you sure you want to remove this voucher link?');
 					echo '<a href="index.php?delvouch='.$id.'&occid='.$occid.'" title='.$delStr.' onclick="return confirm(\"'.$confirmStr.'\")"><img src="../../images/drop.png" style="width:12px;" /></a>';
 				}
 				echo '</li>';
@@ -73,14 +73,14 @@ $indManager->setOccid($occid);
 									</div>
 									<div style='margin:5px 0px 0px 10px;'>
 										<?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:
-										<button type="submit" name='vnotes' type='text' size='50' ><?php echo (isset($LANG['VIEWABLEPUBLIC'])?$LANG['VIEWABLEPUBLIC']:'Viewable to public'); ?></button>
+										<input name="vnotes" type="text" size="50" title="<?php echo (isset($LANG['VIEWABLEPUBLIC'])?$LANG['VIEWABLEPUBLIC']:'Viewable to public'); ?>" />
 									</div>
 									<div style='margin:5px 0px 0px 10px;'>
 										<?php echo (isset($LANG['EDITORNOTES'])?$LANG['EDITORNOTES']:'Editor Notes'); ?>:
-										<button type="submit" name='veditnotes' type='text' size='50'><?php echo (isset($LANG['VIEWABLEEDITORS'])?$LANG['VIEWABLEEDITORS']:'Viewable only to checklist editors'); ?></button>
+										<input name="veditnotes" type="text" size="50" title="<?php echo (isset($LANG['VIEWABLEEDITORS'])?$LANG['VIEWABLEEDITORS']:'Viewable only to checklist editors'); ?>">
 									</div>
 									<div>
-										<button type='submit' name='action'><?php echo (isset($LANG['ADDVOUCHER'])?$LANG['ADDVOUCHER']:'Add Voucher'); ?></button>
+										<button type='submit' name='action' value="Add Voucher"><?php echo (isset($LANG['ADDVOUCHER'])?$LANG['ADDVOUCHER']:'Add Voucher'); ?></button>
 									</div>
 								</form>
 							</div>
@@ -89,7 +89,7 @@ $indManager->setOccid($occid);
 						else{
 							?>
 							<div style='margin:20px;'>
-								<?php echo (isset($LANG['UNABLETOADD'])?$LANG['UNABLETOADD']:'Unable to use this specimen record as a voucher 
+								<?php echo (isset($LANG['UNABLETOADD'])?$LANG['UNABLETOADD']:'Unable to use this specimen record as a voucher
 								because scientific name counld not be verified in the taxonomic thesaurus (misspelled?)'); ?>
 							</div>
 							<?php
@@ -108,7 +108,7 @@ $indManager->setOccid($occid);
 	$datasetArr = $indManager->getDatasetArr();
 	if($datasetArr){
 		echo '<fieldset>';
-		echo '<legend>'.<?php echo (isset($LANG['DATASETLINKAGES'])?$LANG['DATASETLINKAGES']:'Dataset Linkages'); ?>.'</legend>';
+		echo '<legend>'.(isset($LANG['DATASETLINKAGES'])?$LANG['DATASETLINKAGES']:'Dataset Linkages').'</legend>';
 		if($SYMB_UID) echo '<div style="float:right"><a href="#" onclick="toggle(\'dataset-block\');return false"><img src="../../images/add.png" /></a></div>';
 		$dsDisplayStr = '';
 		foreach($datasetArr as $dsid => $dsArr){
@@ -121,10 +121,10 @@ $indManager->setOccid($occid);
 			}
 		}
 		if($dsDisplayStr){
-			echo '<div class="section-title">'.<?php echo (isset($LANG['MEMBEROF'])?$LANG['MEMBEROF']:'Member of the following datasets'); ?>.'</div>';
+			echo '<div class="section-title">'.(isset($LANG['MEMBEROF'])?$LANG['MEMBEROF']:'Member of the following datasets').'</div>';
 			echo '<ul>'.$dsDisplayStr.'</ul>';
 		}
-		else echo '<div style="margin:15px 0px">.'<?php echo (isset($LANG['OCCURRENCENOTLINKED'])?$LANG['OCCURRENCENOTLINKED']:'Occurrence is not linked to any datasets'); ?>.'</div>';
+		else echo '<div style="margin:15px 0px">.'(isset($LANG['OCCURRENCENOTLINKED'])?$LANG['OCCURRENCENOTLINKED']:'Occurrence is not linked to any datasets').'</div>';
 		if($SYMB_UID){
 			?>
 			<fieldset id="dataset-block" style="display:none">

@@ -117,6 +117,8 @@ class DwcArchiverOccurrence{
 		$this->occurDefArr['fields']['verbatimAttributes'] = 'o.verbatimAttributes';
 		$this->occurDefArr['terms']['fieldNumber'] = 'http://rs.tdwg.org/dwc/terms/fieldNumber';
 		$this->occurDefArr['fields']['fieldNumber'] = 'o.fieldNumber';
+		$this->occurDefArr['terms']['eventID'] = 'http://rs.tdwg.org/dwc/terms/eventID';
+		$this->occurDefArr['fields']['eventID'] = 'o.eventID';
 		$this->occurDefArr['terms']['informationWithheld'] = 'http://rs.tdwg.org/dwc/terms/informationWithheld';
 		$this->occurDefArr['fields']['informationWithheld'] = 'o.informationWithheld';
 		$this->occurDefArr['terms']['dataGeneralizations'] = 'http://rs.tdwg.org/dwc/terms/dataGeneralizations';

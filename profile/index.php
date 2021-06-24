@@ -149,7 +149,7 @@ else{
 	</script>
 	<script src="../js/symb/shared.js" type="text/javascript"></script>
 	<style type="text/css">
-		fieldset { padding:20px; background-color:#f2f2f2; border:2px outset #E8EEFA; }
+		fieldset { padding:20px; background-color:#F9F9F9; border:2px outset #808080; }
 		legend { font-weight: bold; }
 	</style>
 </head>
@@ -174,13 +174,13 @@ include($SERVER_ROOT.'/includes/header.php');
 	}
 	?>
 	<div style="width:300px;margin-right:auto;margin-left:auto;">
-		<fieldset style="margin:20px;width:300px;">
+		<fieldset style="margin:20px;width:350px;">
 			<legend><?php echo (isset($LANG['PORTAL_LOGIN'])?$LANG['PORTAL_LOGIN']:'Portal Login'); ?></legend>
 			<form id="loginform" name="loginform" action="index.php" onsubmit="return checkCreds();" method="post">
-				<div style="margin: 10px;font-weight:bold;">
-					<?php echo (isset($LANG['LOGIN_NAME'])?$LANG['LOGIN_NAME']:'Login'); ?>:&nbsp;&nbsp;&nbsp;<input id="login" name="login" value="<?php echo $login; ?>" style="border-style:inset;" />
+				<div style="margin: 10px;">
+					<?php echo (isset($LANG['LOGIN_NAME'])?$LANG['LOGIN_NAME']:'Login'); ?>: <input id="login" name="login" value="<?php echo $login; ?>" style="border-style:inset;" />
 				</div>
-				<div style="margin:10px;font-weight:bold;">
+				<div style="margin:10px;">
 					<?php echo (isset($LANG['PASSWORD'])?$LANG['PASSWORD']:"Password"); ?>:
 					<input type="password" id="password" name="password"  style="border-style:inset;" autocomplete="off" />
 				</div>
@@ -188,10 +188,10 @@ include($SERVER_ROOT.'/includes/header.php');
 					<input type="checkbox" value='1' name="remember" checked >
 					<?php echo (isset($LANG['REMEMBER'])?$LANG['REMEMBER']:'Remember me on this computer'); ?>
 				</div>
-				<div style="margin-right:10px;float:right;">
+				<div style="margin:15px;">
 					<input type="hidden" name="refurl" value="<?php echo $refUrl; ?>" />
 					<input type="hidden" id="resetpwd" name="resetpwd" value="">
-					<button name="action" type="submit" value="login"><?php echo (isset($LANG['LOGIN_NAME'])?$LANG['LOGIN_NAME']:'Login'); ?></button>
+					<button name="action" type="submit" value="login"><?php echo (isset($LANG['SIGNIN'])?$LANG['SIGNIN']:'Sign In'); ?></button>
 				</div>
 			</form>
 		</fieldset>

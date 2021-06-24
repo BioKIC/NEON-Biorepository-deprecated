@@ -182,7 +182,7 @@ if($isEditor){
 				?>
 				<form name="mapform" action="batchloader.php" method="post" onsubmit="return verifyMapForm(this)">
 					<fieldset style="width:90%;">
-						<legend style="font-weight:bold;font-size:120%;">Taxa Upload Form</legend>
+						<legend style="font-weight:bold;font-size:120%;">Taxa Upload</legend>
 						<div style="margin:10px;">
 						</div>
 						<table class="styledtable" style="width:450px">
@@ -358,7 +358,7 @@ if($isEditor){
 				<div>
 					<form name="uploadform" action="batchloader.php" method="post" enctype="multipart/form-data" onsubmit="return verifyUploadForm(this)">
 						<fieldset style="width:90%;">
-							<legend style="font-weight:bold;font-size:120%;">Taxa Upload Form</legend>
+							<legend style="font-weight:bold;font-size:120%;">Taxa Upload</legend>
 							<div style="margin:10px;">
 								Flat structured, CSV (comma delimited) text files can be uploaded here.
 								Scientific name is the only required field below genus rank.
@@ -397,18 +397,13 @@ if($isEditor){
 									<b>Target Kingdom:</b>
 									<?php
 									$kingdomArr = $loaderManager->getKingdomArr();
-									if(count($kingdomArr) == 1){
-										echo '<input name="kingdomname" type="hidden" value="'.array_shift($kingdomArr).'" />';
+									echo '<select name="kingdomname">';
+									echo '<option value="">Select Kingdom</option>';
+									echo '<option value="">----------------------</option>';
+									foreach($kingdomArr as $k => $kingdomName){
+										echo '<option>'.$kingdomName.'</option>';
 									}
-									else{
-										echo '<select name="kingdomname">';
-										echo '<option value="">Select Kingdom</option>';
-										echo '<option value="">----------------------</option>';
-										foreach($kingdomArr as $k => $kingdomName){
-											echo '<option>'.$kingdomName.'</option>';
-										}
-										echo '</select>';
-									}
+									echo '</select>';
 									?>
 								</div>
 								<div style="margin:10px;">
@@ -484,17 +479,11 @@ if($isEditor){
 							<div style="margin:10px;">
 								<b>Kingdom Target:</b>
 								<?php
-								$kingdomArr = $loaderManager->getKingdomArr();
-								if(count($kingdomArr) == 1){
-									echo '<input name="kingdomname" type="hidden" value="'.array_shift($kingdomArr).'" />';
+								echo '<select name="kingdomname">';
+								foreach($kingdomArr as $k => $kingdomName){
+									echo '<option>'.$kingdomName.'</option>';
 								}
-								else{
-									echo '<select name="kingdomname">';
-									foreach($kingdomArr as $k => $kingdomName){
-										echo '<option>'.$kingdomName.'</option>';
-									}
-									echo '</select>';
-								}
+								echo '</select>';
 								?>
 							</div>
 							<div style="margin:10px;">

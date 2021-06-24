@@ -564,7 +564,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				echo '<div style="font-weight:bold;font-size:140%;margin:50px 0px 15px 0px;">Additional Data Sources within the Portal Network</div>';
 				echo '<ul>';
 				foreach($addDwca as $domanName => $domainArr){
-					echo '<li><a href="'.$domainArr['url'].'/collections/datasets/datapublisher.php'.'" target="_blank">http://'.$domanName.'</a> - '.$domainArr['cnt'].' Archives</li>';
+					echo '<li><a href="'.$domainArr['url'].'/collections/datasets/datapublisher.php'.'" target="_blank">'.$domanName.'</a> - '.$domainArr['cnt'].' Archives</li>';
 				}
 				echo '</ul>';
 			}

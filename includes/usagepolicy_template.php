@@ -1,23 +1,14 @@
 <?php
-//error_reporting(E_ALL);
- include_once('../config/symbini.php');
- header("Content-Type: text/html; charset=".$CHARSET);
-
+include_once('../config/symbini.php');
+header("Content-Type: text/html; charset=".$CHARSET);
 ?>
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> Data Usage Guidelines</title>
-    <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-  ?>
+		<?php
+		$activateJQuery = false;
+		include_once($SERVER_ROOT.'/includes/head.php');
+		?>
 	</head>
 	<body>
 		<?php
@@ -116,6 +107,13 @@
 				permission of the landowner and, in the case of rare and endangered plants,
 				additional permits may be required. It is best to coordinate such efforts with a
 				regional institution that manages a publically accessible collection.
+			</div>
+
+		    <div style="margin:15px;">
+				<b>Disclaimer:</b> This data portal may contain specimens and historical records that are culturally sensitive.
+				The collections include specimens dating back over 200 years collected from all around the world.
+				Some records may also include offensive language. These records do not reflect the portal community's current viewpoint
+				but rather the social attitudes and circumstances of the time period when specimens were collected or cataloged.
 			</div>
 		</div>
 		<?php

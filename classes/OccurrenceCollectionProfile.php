@@ -408,17 +408,23 @@ class OccurrenceCollectionProfile extends Manager {
 	//Collection contact functions
 	public function saveContact($postArr){
 		$modArr = array();
+		$contactArr = $this->getContactArr();
 		if($postArr['firstName']) $modArr['firstName'] = $postArr['firstName'];
 		if($postArr['lastName']) $modArr['lastName'] = $postArr['lastName'];
 		if($postArr['role']) $modArr['role'] = $postArr['role'];
 		if($postArr['email']) $modArr['email'] = $postArr['email'];
+		if(isset($postArr['centralContact']) && $postArr['centralContact']){
+			$modArr['centralContact'] = $postArr['centralContact'];
+			foreach($contactArr as $cIndex => $cArr){
+				if(isset($cArr['centralContact'])) unset($contactArr[$cIndex]['centralContact']);
+			}
+		}
 		if($postArr['phone']) $modArr['phone'] = $postArr['phone'];
 		if($postArr['orcid']){
 			if(preg_match('/(\d{4}-\d{4}-\d{4}-\d{4})/', $postArr['orcid'], $m)){
 				$modArr['orcid'] = $m[1];
 			}
 		}
-		$contactArr = $this->getContactArr();
 		$contactIndex = $postArr['contactIndex'];
 		if(is_numeric($contactIndex)) $contactArr[$contactIndex] = $modArr;
 		else $contactArr[] = $modArr;

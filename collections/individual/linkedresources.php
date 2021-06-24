@@ -145,7 +145,7 @@ $indManager->setOccid($occid);
 						</select>
 					</div>
 					<div style="margin:5px">
-						<b><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:</b><br/>
+						<b><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:<br/>
 						<input name="notes" type="text" value="" maxlength="250" style="width:90%;" />
 					</div>
 					<div style="margin:15px">

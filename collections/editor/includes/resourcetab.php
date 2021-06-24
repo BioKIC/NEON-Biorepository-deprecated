@@ -267,6 +267,16 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 							<option value="ReferenceCitation">Reference Citation</option>
 						</select>
 					</div>
+					<div class="fieldDiv">
+						<span class="fieldLabel">Location on host: </span>
+						<input name="locationonhost" type="text" value="" style="" />
+					</div>
+				</div>
+				<div class="fieldRowDiv" style="margin:10px">
+					<div class="fieldDiv" style="width:100%">
+						<span class="fieldLabel">Notes: </span>
+						<input name="notes" type="text" value="" style="width:100%" />
+					</div>
 				</div>
 				<div class="fieldRowDiv" style="margin:10px">
 					<div class="fieldDiv">
@@ -282,7 +292,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 			<?php
 			if($assocArr){
 				foreach($assocArr as $assocID => $assocUnit){
-					echo '<div>';
+					echo '<div style="margin-bottom: 10px">';
 					echo '<span title="Defined by: '.(isset($assocUnit['definedBy'])?$assocUnit['definedBy']:'unknown').' ('.$assocUnit['ts'].')'.'">'.$assocUnit['relationship'];
 					if($assocUnit['subType']) echo ' ('.$assocUnit['subType'].')';
 					echo ': ';
@@ -303,6 +313,8 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						<input type="image" src="../../images/del.png" style="width:13px" />
 					</form>
 					<?php
+					if($assocUnit['locationOnHost']) echo '<div style="margin-left:15px">Location on host: '.$assocUnit['locationOnHost'].'</div>';
+					if($assocUnit['notes']) echo '<div style="margin-left:15px">Notes: '.$assocUnit['notes'].'</div>';
 					echo '</div>';
 				}
 			}

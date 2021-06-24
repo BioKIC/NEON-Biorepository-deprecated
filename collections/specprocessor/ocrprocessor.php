@@ -97,7 +97,7 @@ $procManager->setProjVariables('OCR Harvest');
 					?>
 				</select>
 				<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-				<input name="tabindex" type="hidden" value="3" />
+				<input name="tabindex" type="hidden" value="2" />
 				<input name="submitaction" type="submit" value="Reset Statistics" />
 			</form>
 		</div>
@@ -131,7 +131,7 @@ $procManager->setProjVariables('OCR Harvest');
 				</div>
 				<div style="padding:15px;">
 					<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-					<input name="tabindex" type="hidden" value="3" />
+					<input name="tabindex" type="hidden" value="2" />
 					<input name="submitaction" type="submit" value="Run Batch OCR" />
 				</div>
 				<div style="margin:15px">
@@ -237,7 +237,7 @@ $procManager->setProjVariables('OCR Harvest');
 							<input name="newprofile" type="hidden" value="<?php echo ($procManager->getSpecKeyPattern()?'0':'1'); ?>" />
 							<input name="spprid" type="hidden" value="<?php echo $spprid; ?>" />
 							<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-							<input name="tabindex" type="hidden" value="3" />
+							<input name="tabindex" type="hidden" value="2" />
 							<div style="margin:25px">
 								<input name="submitaction" type="submit" value="Load OCR Files" />
 							</div>

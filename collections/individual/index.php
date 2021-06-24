@@ -548,6 +548,16 @@ $traitArr = $indManager->getTraitArr();
 							</div>
 							<?php
 						}
+						if($occArr['eventid']){
+							?>
+							<div>
+								<span class="label"><?php echo (isset($LANG['EVENTID'])?$LANG['EVENTID']:'Event ID'); ?>: </span>
+								<?php
+								echo $occArr['eventid'];
+								?>
+							</div>
+							<?php
+						}
 						if($occArr['recordedby']){
 							$recByLabel = (isset($LANG['OBSERVER'])?$LANG['OBSERVER']:'Observer');
 							if($collMetadata['colltype'] == 'Preserved Specimens') $recByLabel = (isset($LANG['COLLECTOR'])?$LANG['COLLECTOR']:'Collector');

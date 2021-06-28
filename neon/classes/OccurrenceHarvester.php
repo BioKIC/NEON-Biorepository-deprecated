@@ -278,12 +278,12 @@ class OccurrenceHarvester{
 				$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
 				if(isset($sampleArr['event_id']) && $sampleArr['event_id']) $dwcArr['eventID'] = $sampleArr['event_id'];
 				if(isset($sampleArr['specimen_count']) && $sampleArr['specimen_count']) $dwcArr['individualCount'] = $sampleArr['specimen_count'];
-				elseif($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
-				if($sampleArr['remarks']) $dwcArr['occurrenceRemarks'] = $sampleArr['remarks'];
+				elseif(isset($sampleArr['individualCount']) && $sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
+				if(isset($sampleArr['remarks']) && $sampleArr['remarks']) $dwcArr['occurrenceRemarks'] = $sampleArr['remarks'];
 				$dynProp = array();
-				if($sampleArr['filterVolume']) $dynProp[] = 'filterVolume:'.$sampleArr['filterVolume'];
-				if($sampleArr['temperature']) $dynProp[] = 'temperature:'.$sampleArr['temperature'];
-				if($sampleArr['verbatim_depth']) $dynProp[] = 'verbatim_depth:'.$sampleArr['verbatim_depth'];
+				if(isset($sampleArr['filterVolume']) && $sampleArr['filterVolume']) $dynProp[] = 'filterVolume:'.$sampleArr['filterVolume'];
+				if(isset($sampleArr['temperature']) && $sampleArr['temperature']) $dynProp[] = 'temperature:'.$sampleArr['temperature'];
+				if(isset($sampleArr['verbatim_depth']) && $sampleArr['verbatim_depth']) $dynProp[] = 'verbatim_depth:'.$sampleArr['verbatim_depth'];
 				if($dynProp) $dwcArr['dynamicProperties'] = implode('; ',$dynProp);
 
 				//Set occurrence description using sampleClass

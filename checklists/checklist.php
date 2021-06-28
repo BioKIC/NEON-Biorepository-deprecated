@@ -113,16 +113,10 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['RESCHECK'];?>: <?php echo $clManager->getClName(); ?></title>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/checklist.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">
@@ -132,19 +126,8 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 		} );
 
 	</script>
-	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=202004"></script>
+	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=2106"></script>
 	<style type="text/css">
-		#sddm{margin:0;padding:0;z-index:30;}
-		#sddm:hover {background-color:#EAEBD8;}
-		#sddm img{padding:3px;}
-		#sddm:hover img{background-color:#EAEBD8;}
-		#sddm li{margin:0px;padding: 0;list-style: none;float: left;font: bold 11px arial}
-		#sddm li a{display: block;margin: 0 1px 0 0;padding: 4px 10px;width: 60px;background: #5970B2;color: #FFF;text-align: center;text-decoration: none}
-		#sddm li a:hover{background: #49A3FF}
-		#sddm div{position: absolute;visibility:hidden;margin:0;padding:0;background:#EAEBD8;border:1px solid #5970B2}
-		#sddm div a	{position: relative;display:block;margin:0;padding:5px 10px;width:auto;white-space:nowrap;text-align:left;text-decoration:none;background:#EAEBD8;color:#2875DE;font-weight:bold;}
-		#sddm div a:hover{background:#49A3FF;color:#FFF}
-
 		<?php
 		if($printMode){
 			?>
@@ -155,6 +138,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 			<?php
 		}
 		?>
+		#editsppon { display: none; color:green; font-size: 70%; font-weight:bold; padding-bottom: 5px; position: relative; top: -4px; }
 	</style>
 </head>
 <body>
@@ -202,9 +186,9 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							<img style="border:0px;height:15px;" src="../images/editvoucher.png" srcset="../images/editV.svg" style="height:15px" />
 						</a>
 					</span>
-					<span style="" onclick="toggle('editspp');return false;">
+					<span style="" onclick="toggleSppEditControls();return false;">
 						<a href="#" title="<?php echo (isset($LANG['EDIT_LIST'])?$LANG['EDIT_LIST']:'Edit Species List'); ?>">
-							<img style="border:0px;height:15px;" src="../images/editspp.png" srcset="../images/editspp.svg" style="height:15px" />
+							<img style="border:0px;height:15px;" src="../images/editspp.png" srcset="../images/editspp.svg" style="height:15px" /><span id="editsppon">-ON</span>
 						</a>
 					</span>
 				</div>
@@ -229,7 +213,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 			if($taxaArray){
 				?>
 				<div class="printoff" style="padding:5px;">
-					<ul id="sddm">
+					<ul id="game-dropdown">
 						<li>
 							<span onmouseover="mopen('m1')" onmouseout="mclosetime()">
 								<img src="../images/games/games.png" style="height:17px;" />
@@ -585,7 +569,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 						<?php
 						echo '<b>';
 						echo $LANG['TOTAL_TAXA'];
-						echo '<span class="printoff"> (<a href="http://symbiota.org/docs/symbiota-species-checklist-data-fields/" target="_blank" >';
+						echo '<span class="printoff"> (<a href="https://symbiota.org/docs/symbiota-species-checklist-data-fields/" target="_blank" >';
 						echo '<span style="font-style:italic;color:green" title="'.(isset($LANG['DETAILS_EXPLANATION'])?$LANG['DETAILS_EXPLANATION']:'').'" >'.(isset($LANG['DETAILS'])?$LANG['DETAILS']:'details').'</span>';
 						echo '</a>)</span>';
 						echo '</b>: ';

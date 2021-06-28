@@ -112,6 +112,12 @@ $smManager = new SiteMapManager();
 				?>
 				<li><a href="checklists/index.php"><?php echo (isset($LANG['ALL_CHECKLISTS'])?$LANG['ALL_CHECKLISTS']:'All Public Checklists'); ?></a></li>
 			</ul>
+
+      <h2><?php echo (isset($LANG['DATASETS'])?$LANG['DATASETS']:'Datasets') ;?></h2>
+      <ul>
+      <li><a href="collections/datasets/publiclist.php">All Publicly Viewable Datasets</a></li>
+      </ul>
+
 			<div style="margin-top:10px;"><h2><?php echo $LANG['DYNAMIC'];?></h2></div>
 			<ul>
 				<li>
@@ -221,7 +227,7 @@ $smManager = new SiteMapManager();
 					<h3><?php echo $LANG['IMAGES'];?></h3>
 					<div style="margin:10px;">
 						<?php echo $LANG['SEESYMBDOC'];?>
-						<a href="http://symbiota.org/docs/image-submission-2/"><?php echo $LANG['IMGSUB'];?></a>
+						<a href="https://symbiota.org/docs/image-submission-2/"><?php echo $LANG['IMGSUB'];?></a>
 						<?php echo $LANG['FORANOVERVIEW'];?>
 					</div>
 					<ul>
@@ -269,6 +275,11 @@ $smManager = new SiteMapManager();
 						}
 						?>
 					</ul>
+
+          <h3><?php echo (isset($LANG['DATASETS'])?$LANG['DATASETS']:'Datasets') ;?></h3>
+          <ul>
+            <li><a href="collections/datasets/index.php">Dataset Management Page</a> - datasets you are authorized to edit</li>
+          </ul>
 
 					<h3><?php echo $LANG['TAXONPROF'];?></h3>
 					<?php
@@ -376,7 +387,7 @@ $smManager = new SiteMapManager();
 					<h3><?php echo $LANG['OBSERV'];?></h3>
 					<div style="margin:10px;">
 						<?php echo $LANG['PARA2'];?>
-						<a href="http://symbiota.org/docs/specimen-data-management/" target="_blank"><?php echo $LANG['SYMBDOCU'];?></a> <?php echo $LANG['FORMOREINFO'];?>.
+						<a href="https://symbiota.org/docs/specimen-data-management/" target="_blank"><?php echo $LANG['SYMBDOCU'];?></a> <?php echo $LANG['FORMOREINFO'];?>.
 					</div>
 					<div style="margin:10px;">
 						<?php

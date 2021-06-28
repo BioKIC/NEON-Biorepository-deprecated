@@ -22,11 +22,26 @@ class OccurrenceIndividual extends Manager{
 
 	private function loadMetadata(){
 		if($this->collid){
-			$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype, homepage, individualurl, contact, email, icon, publicedits, rights, rightsholder, accessrights, guidtarget '.
-				'FROM omcollections WHERE collid = '.$this->collid;
-			$rs = $this->conn->query($sql);
-			if($rs){
-				$this->metadataArr = $rs->fetch_assoc();
+			//$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype, homepage, individualurl, contact, email, icon, publicedits, rights, rightsholder, accessrights, guidtarget FROM omcollections WHERE collid = '.$this->collid;
+			$sql = 'SELECT * FROM omcollections WHERE collid = '.$this->collid;
+			if($rs = $this->conn->query($sql)){
+				$this->metadataArr = array_change_key_case($rs->fetch_assoc());
+				if(isset($this->metadataArr['contactjson']) && $this->metadataArr['contactjson']){
+					//Test to see if contact is a JSON object or a simple string
+					if($contactArr = json_decode($this->metadataArr['contactjson'],true)){
+						$contactStr = '';
+						foreach($contactArr as $cArr){
+							if(!$contactStr || isset($cArr['centralContact'])){
+								if(isset($cArr['firstName']) && $cArr['firstName']) $contactStr = $cArr['firstName'].' ';
+								$contactStr .= $cArr['lastName'];
+								if(isset($cArr['role']) && $cArr['role']) $contactStr .= ', '.$cArr['role'];
+								$this->metadataArr['contact'] = $contactStr;
+								if(isset($cArr['email']) && $cArr['email']) $this->metadataArr['email'] = $cArr['email'];
+								if(isset($cArr['centralContact'])) break;
+							}
+						}
+					}
+				}
 				$rs->free();
 			}
 			else{
@@ -365,7 +380,7 @@ class OccurrenceIndividual extends Manager{
 				'INNER JOIN omoccurrences o ON l2.occid = o.occid '.
 				'INNER JOIN omcollections c ON o.collid = c.collid '.
 				'LEFT JOIN images i ON o.occid = i.occid '.
-				'WHERE l.occid = '.$this->occid;
+				'WHERE (o.occid != l.occid) AND (l.occid = '.$this->occid.')';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_assoc()){
 					$retArr['exs'][$r['occid']] = array_change_key_case($r);

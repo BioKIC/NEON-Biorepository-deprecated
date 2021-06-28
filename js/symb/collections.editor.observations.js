@@ -34,24 +34,16 @@ $(document).ready(function() {
 function toggle(target){
 	var ele = document.getElementById(target);
 	if(ele){
-		if(ele.style.display=="none"){
-			ele.style.display="block";
-  		}
-	 	else {
-	 		ele.style.display="none";
-	 	}
+		if(ele.style.display == "block") ele.style.display="none";
+	 	else ele.style.display="block";
 	}
 	else{
 		var divObjs = document.getElementsByTagName("div");
 	  	for (i = 0; i < divObjs.length; i++) {
 	  		var divObj = divObjs[i];
 	  		if(divObj.getAttribute("class") == target || divObj.getAttribute("className") == target){
-				if(divObj.style.display=="none"){
-					divObj.style.display="block";
-				}
-			 	else {
-			 		divObj.style.display="none";
-			 	}
+				if(divObj.style.display=="none") divObj.style.display="block";
+			 	else divObj.style.display="none";
 			}
 		}
 	}

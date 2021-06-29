@@ -17,7 +17,6 @@ $LANG['REGION'] = 'Region Of Interest';
 $LANG['TAX_THES_EDITOR'] = 'Taxonomic Thesaurus Editor';
 $LANG['SCOPE_LIMITS'] = 'Geographic Scope Limits';
 $LANG['ADD_TAX_REL'] = 'Add Taxonomic Relationship';
-$LANG['REGION'] = 'Region of Interest';
 $LANG['ADD_TAX'] = 'Add Taxonomic Relationship';
 $LANG['OCC_EDIT'] = 'Occurrence Editor';
 $LANG['TAX_THES'] = 'Taxonomic Thesaurus Editor';

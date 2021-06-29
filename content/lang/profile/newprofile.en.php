@@ -29,7 +29,6 @@ $LANG['USERNAME_EXISTS_2'] = 'is already being used';
 $LANG['USERNAME_EXISTS_3'] = 'Please choose a different login name or visit the';
 $LANG['USERNAME_EXISTS_4'] = 'if you believe this might be you';
 $LANG['ALREADY_REGISTERED'] = 'A different login is already registered to this email address';
-$LANG['ALREADY_REGISTERED'] = 'A different login is already registered to this email address';
 $LANG['USE_BUTTON'] = 'Use button below to have login emailed to';
 $LANG['RETRIEVE_LOGIN'] = 'Retrieve Login';
 $LANG['EMAIL_INVALID'] = 'Email address not valid';

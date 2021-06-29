@@ -400,7 +400,7 @@ if($isEditor){
 									</div>
                   <div>
                   <p>
-                  <input type="checkbox" name="ispublic" id="ispublic"value="1" <?php echo ($mdArr['ispublic']?'CHECKED':''); ?> />
+                  <input type="checkbox" name="ispublic" id="ispublic" value="1" <?php echo ($mdArr['ispublic']?'CHECKED':''); ?> />
                   <b>Publicly Visible</b>
                   </p>
                   </div>

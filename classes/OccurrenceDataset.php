@@ -119,8 +119,8 @@ class OccurrenceDataset {
 		return true;
 	}
 
-	public function createDataset($name,$notes,$description,$uid){
-		$sql = 'INSERT INTO omoccurdatasets (name,notes,description,uid) VALUES("'.$this->cleanInStr($name).'",'.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').','.($description?'"'.$this->cleanInStr($description).'"':'NULL').','.$uid.') ';
+	public function createDataset($name,$notes,$description,$ispublic,$uid){
+		$sql = 'INSERT INTO omoccurdatasets (name,notes,description,ispublic,uid) VALUES("'.$this->cleanInStr($name).'",'.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').','.($description?'"'.$this->cleanInStr($description).'"':'NULL').','.($ispublic?'"'.$this->cleanInStr($ispublic).'"':'"0"').','.$uid.') ';
 		if($this->conn->query($sql)){
 			$this->datasetId = $this->conn->insert_id;
 		}

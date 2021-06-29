@@ -6,23 +6,20 @@ include_once($SERVER_ROOT.'/config/symbini.php');
 class OccurrenceHarvester{
 
 	private $conn;
-	private $fateLocationArr;
 	private $stateArr = array();
 	private $sampleClassArr = array();
 	private $domainSiteArr = array();
 	private $replaceFieldValues = false;
 	private $targetFieldArr = array();
-	private $neonApiBaseUrl;
 	private $neonApiKey;
 	private $errorStr;
 
-	public function __construct(){
+ 	public function __construct(){
 		$this->conn = MySQLiConnectionFactory::getCon("write");
-		$this->neonApiBaseUrl = 'https://data.neonscience.org/api/v0';
 		if(isset($GLOBALS['NEON_API_KEY'])) $this->neonApiKey = $GLOBALS['NEON_API_KEY'];
-	}
+ 	}
 
-	public function __destruct(){
+ 	public function __destruct(){
 		if($this->conn) $this->conn->close();
 	}
 
@@ -99,7 +96,7 @@ class OccurrenceHarvester{
 						$shipmentPK = $r->shipmentPK;
 						echo '<li><b>Processing shipment #'.$shipmentPK.'</b></li>';
 					}
-					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?($this->replaceFieldValues?'Rebuilding':'Appending'):'Harvesting').' '.($r->sampleID?$r->sampleID:$r->sampleCode).'... ';
+					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?($this->replaceFieldValues?'Rebuilding':'Appending'):'Harvesting').' '.$r->sampleID.'... ';
 					$sampleArr = array();
 					$sampleArr['samplePK'] = $r->samplePK;
 					$sampleArr['sampleID'] = strtoupper($r->sampleID);
@@ -113,8 +110,8 @@ class OccurrenceHarvester{
 					$sampleArr['namedLocation'] = $r->namedLocation;
 					$sampleArr['collectDate'] = $r->collectDate;
 					$sampleArr['symbiotaTarget'] = $r->symbiotaTarget;
-					if($this->initiateHarvest($sampleArr)){
-						if($dwcArr = $this->getDarwinCoreArr($sampleArr)){
+					if($this->validateSampleArr($sampleArr)){
+						if($dwcArr = $this->harvestNeonOccurrence($sampleArr)){
 							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
 								if(!in_array($dwcArr['collid'],$collArr)) $collArr[] = $dwcArr['collid'];
 								$occidArr[] = $occid;
@@ -162,210 +159,250 @@ class OccurrenceHarvester{
 		return false;
 	}
 
-	private function initiateHarvest(&$sampleArr){
+	private function validateSampleArr(&$sampleArr){
+		$viewArr = array();
 		$this->setSampleErrorMessage($sampleArr['samplePK'], '');
-		$url = '';
+		//Verify central identifiers
 		if($sampleArr['sampleCode']){
-			$url = $this->neonApiBaseUrl.'/samples/view?barcode='.$sampleArr['sampleCode'].'&apiToken='.$this->neonApiKey;
+			$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->neonApiKey.'&barcode='.$sampleArr['sampleCode'];
+			$viewArr = $this->getSampleApiData($url);
+			if($viewArr){
+				if($viewArr['sampleTag'] != $sampleArr['sampleID']){
+					//$this->errorStr = 'sampleID not matching: '.$viewArr['sampleTag'];
+					//$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+					//return false;
+				}
+				elseif($viewArr['sampleClass'] != $sampleArr['sampleClass']){
+					$this->errorStr = 'sampleClass not matching: '.$viewArr['sampleClass'];
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+					return false;
+				}
+			}
+			else{
+				//if(!$this->errorStr) $this->errorStr = 'NEON API failed searching by barcode';
+				//$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+			}
 		}
-		elseif($sampleArr['sampleID'] && $sampleArr['sampleClass']){
-			$url = $this->neonApiBaseUrl.'/samples/view?sampleTag='.urlencode($sampleArr['sampleID']).'&sampleClass='.urlencode($sampleArr['sampleClass']).'&apiToken='.$this->neonApiKey;
-		}
-		else{
-			$this->errorStr = 'Sample identifiers incomplete';
-			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-			return false;
+		if(!$viewArr){
+			if($sampleArr['sampleID'] && $sampleArr['sampleClass']){
+				//If sampleId and sampleClass are not correct, nothing will be returned
+				$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$this->neonApiKey.'&sampleTag='.urlencode($sampleArr['sampleID']).'&sampleClass='.urlencode($sampleArr['sampleClass']);
+				$viewArr = $this->getSampleApiData($url);
+				if($viewArr){
+					if($viewArr['barcode']) $sampleArr['sampleCode'] = $viewArr['barcode'];
+				}
+				else{
+					$this->errorStr = 'NEON API failed searching by sampleID and sampleClass';
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+					return false;
+				}
+			}
+			else{
+				$this->errorStr = 'Sample identifiers incomplete';
+				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+				return false;
+			}
 		}
 
-		$sampleViewArr = $this->getNeonApiArr($url);
-		if(!isset($sampleViewArr['sampleViews'])){
-			$this->errorStr = 'NEON API failed to return sample data: '.$url;
-			return false;
-		}
-		if(count($sampleViewArr['sampleViews']) > 1){
-			$this->errorStr = 'NEON API returned multiple sampleViews: '.$url;
-			return false;
-		}
-		$viewArr = current($sampleViewArr['sampleViews']);
-		if(!$sampleArr['sampleUuid'] && isset($viewArr['sampleUuid']) && $viewArr['sampleUuid']){
+		//Update sampleUuid
+		if(!$sampleArr['sampleUuid']){
 			$sampleArr['sampleUuid'] = $viewArr['sampleUuid'];
 			$this->conn->query('UPDATE NeonSample SET sampleUuid = "'.$viewArr['sampleUuid'].'" WHERE (sampleUuid IS NULL) AND (samplePK = '.$sampleArr['samplePK'].')');
 		}
-
-		unset($this->fateLocationArr);
-		$this->fateLocationArr = array();
-		$this->processViewArr($sampleArr, $sampleViewArr);
-		if($this->fateLocationArr){
-			ksort($this->fateLocationArr);
-			$locArr = current($this->fateLocationArr);
-			$sampleArr['fate_location'] = $locArr['loc'];
-			if(!isset($sampleArr['collect_start_date'])) $sampleArr['collect_start_date'] = $locArr['date'];
+		//If available via API, override namedLocation that has been supplied with the manifest
+		if(isset($viewArr['namedLocation']) && $viewArr['namedLocation']){
+			$sampleArr['namedLocation'] = $viewArr['namedLocation'];
 		}
+		if(isset($viewArr['parentID']) && $viewArr['parentID']){
+			$sampleArr['parentID'] = $viewArr['parentID'];
+		}
+		/*
+		if($viewArr['collectDate'] != $sampleArr['collectDate']){
+			$this->errorStr = 'collectDate failed to validate ('.$dateStr.' != '.$sampleArr['collectDate'].')';
+			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+			//return false;
+		}
+		*/
 		return true;
 	}
 
-	private function processViewArr(&$sampleArr, $viewArr){
-		if(!isset($viewArr['sampleViews'])){
-			$this->errorStr = 'sampleViews object failed to be returned';
+	private function getSampleApiData($url, $earliestDate = '2050-01-01'){
+		//echo 'url: '.$url.'<br/>';
+		$sampleViewArr = $this->getNeonApiArr($url);
+		if(!isset($sampleViewArr['sampleViews'])){
+			//$this->errorStr = 'no sampleViews exist';
 			return false;
 		}
-		$viewArr = current($viewArr['sampleViews']);
+		if(count($sampleViewArr['sampleViews']) > 1){
+			$this->errorStr = 'multiple sampleViews exists';
+			return false;
+		}
+		$viewArr = current($sampleViewArr['sampleViews']);
 		//parse Sample Event details
 		$eventArr = $viewArr['sampleEvents'];
+		$preferredLocation = '';
 		foreach($eventArr as $k => $eArr){
-			$tableName = $eArr['ingestTableName'];
-			if(substr($tableName,0,4) == 'scs_') continue;
-			if(strpos($tableName,'shipment')) continue;
-			if(strpos($tableName,'identification')) continue;
-			if(strpos($tableName,'sorting')) continue;
-			if(strpos($tableName,'archivepooling')) continue;
-			if(strpos($tableName,'archivedata')) continue;
-			if(strpos($tableName,'barcoding')) continue;
-			if(strpos($tableName,'dnaStandardTaxon')) continue;
-			if(strpos($tableName,'dnaExtraction')) continue;
-			if(strpos($tableName,'markerGeneSequencing')) continue;
-			if(strpos($tableName,'metagenomeSequencing')) continue;
-			if(strpos($tableName,'metabarcodeTaxonomy')) continue;
-			if(strpos($tableName,'pcrAmplification')) continue;
-			if(strpos($tableName,'perarchivesample')) continue;
-			if(strpos($tableName,'perbiogeosample')) continue;
-			if(strpos($tableName,'persample')) continue;
-			if(strpos($tableName,'pertaxon')) continue;
-			if(strpos($tableName,'pervial')) continue;
+			if(substr($eArr['ingestTableName'],0,4) == 'scs_') continue;
+			if(strpos($eArr['ingestTableName'],'shipment')) continue;
+			if(strpos($eArr['ingestTableName'],'identification')) continue;
+			if(strpos($eArr['ingestTableName'],'sorting')) continue;
+			if(strpos($eArr['ingestTableName'],'archivepooling')) continue;
+			if(strpos($eArr['ingestTableName'],'archivedata')) continue;
+			if(strpos($eArr['ingestTableName'],'barcoding')) continue;
+			if(strpos($eArr['ingestTableName'],'dnaStandardTaxon')) continue;
+			if(strpos($eArr['ingestTableName'],'dnaExtraction')) continue;
+			if(strpos($eArr['ingestTableName'],'markerGeneSequencing')) continue;
+			if(strpos($eArr['ingestTableName'],'metagenomeSequencing')) continue;
+			if(strpos($eArr['ingestTableName'],'metabarcodeTaxonomy')) continue;
+			if(strpos($eArr['ingestTableName'],'pcrAmplification')) continue;
+			if(strpos($eArr['ingestTableName'],'perbiogeosample')) continue;
+			if(strpos($eArr['ingestTableName'],'persample')) continue;
+			if(strpos($eArr['ingestTableName'],'pertaxon')) continue;
+			if(strpos($eArr['ingestTableName'],'pervial')) continue;
 			$fateLocation = '';
 			$fateDate = '';
 			$fieldArr = $eArr['smsFieldEntries'];
-			$identBy = '';
 			foreach($fieldArr as $k => $fArr){
 				if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
 				elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
-				elseif($fArr['smsKey'] == 'event_id' && $fArr['smsValue']) $sampleArr['event_id'] = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'taxon' && $fArr['smsValue']) $sampleArr['taxon'] = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'taxon_published' && $fArr['smsValue']) $sampleArr['taxon_published'] = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'identified_by' && $fArr['smsValue']) $identBy = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'collected_by' && $fArr['smsValue']) $sampleArr['collected_by'] = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'collect_start_date' && $fArr['smsValue']) $sampleArr['collect_start_date'] = $this->formatDate($fArr['smsValue']);
-				elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $sampleArr['collect_end_date'] = $this->formatDate($fArr['smsValue']);
-				elseif($fArr['smsKey'] == 'specimen_count' && $fArr['smsValue']) $sampleArr['specimen_count'] = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'temperature' && $fArr['smsValue']) $sampleArr['temperature'] = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'verbatim_depth' && $fArr['smsValue']) $sampleArr['verbatim_depth'] = $fArr['smsValue'];
-				elseif($fArr['smsKey'] == 'remarks' && $fArr['smsValue']) $sampleArr['remarks'] = $fArr['smsValue'];
 			}
-			if($identBy){
-				$sampleArr['identified_by'] = $identBy;
-				if($fateDate) $sampleArr['dateIdentified'] = $fateDate;
-			}
-			if($fateDate && $fateLocation){
-				$score = $fateDate;
-				if(strpos($tableName,'fielddata')) $score = 1;
-				$this->fateLocationArr[$score]['loc'] = $fateLocation;
-				$this->fateLocationArr[$score]['date'] = $fateDate;
+			if($fateLocation){
+				if(strpos($viewArr['sampleClass'],$eArr['ingestTableName']) !== false){
+					$preferredLocation = $fateLocation;
+					break;
+				}
+				elseif($fateDate && $fateDate < $earliestDate){
+					$earliestDate = $fateDate;
+					$preferredLocation = $fateLocation;
+				}
 			}
 		}
+
+		//Get parent identifier
 		if(isset($viewArr['parentSampleIdentifiers'][0]['sampleUuid'])){
-			//Get parent data
-			$url = $this->neonApiBaseUrl.'/samples/view?sampleUuid='.$viewArr['parentSampleIdentifiers'][0]['sampleUuid'].'&apiToken='.$this->neonApiKey;
-			$parentViewArr = $this->getNeonApiArr($url);
-			$parViewArr = $this->processViewArr($sampleArr, $parentViewArr);
+			$viewArr['parentID'] = $viewArr['parentSampleIdentifiers'][0]['sampleUuid'];
+			if(!$preferredLocation){
+				//Try to get namedLocation from parent
+				$parUrl = 'https://data.neonscience.org/api/v0/samples/view?sampleUuid='.$viewArr['parentID'];
+				$parViewArr = $this->getSampleApiData($parUrl,$earliestDate);
+				if(isset($parViewArr['namedLocation']) && $parViewArr['namedLocation']) $preferredLocation = $parViewArr['namedLocation'];
+			}
 		}
+		if($preferredLocation) $viewArr['namedLocation'] = $preferredLocation;
+
+		return $viewArr;
+		/*
+		Array (
+			[sampleViews] => Array (
+				[0] => Array (
+					[sampleEvents] => Array (
+						[0] => Array (
+							[ingestTableName] => scs_shipmentCreation_in
+							[smsFieldEntries] => Array (
+								[0] => Array ( [smsKey] => fate [smsValue] => active )
+								[1] => Array ( [smsKey] => fate_date [smsValue] => 2018-12-11 12:00:00.0 )
+								[2] => Array ( [smsKey] => fate_location [smsValue] => D01 )
+								[3] => Array ( [smsKey] => sample_tag [smsValue] => vt05/1/XT7PfMHKcefKjMiJPVCF+wvWbszL7d3ZUHtU= )
+								[4] => Array ( [smsKey] => sample_type [smsValue] => carabid )
+							)
+						)
+						[1] => Array (
+							[ingestTableName] => scs_shipmentVerification_in
+							[smsFieldEntries] => Array (
+								[0] => Array ( [smsKey] => fate [smsValue] => active )
+								[1] => Array ( [smsKey] => fate_date [smsValue] => 2018-12-14 12:00:00.0 )
+								[2] => Array ( [smsKey] => fate_location [smsValue] => Arizona State University )
+								[3] => Array ( [smsKey] => sample_tag [smsValue] => vt05/1/XT7PfMHKcefKjMiJPVCF+wvWbszL7d3ZUHtU= )
+							)
+						)
+						[2] => Array (
+							[ingestTableName] => bet_archivepooling_in
+							[smsFieldEntries] => Array (
+								[0] => Array ( [smsKey] => fate [smsValue] => active )
+								[1] => Array ( [smsKey] => fate_date [smsValue] => 2018-02-14 12:00:00.0 )
+								[2] => Array ( [smsKey] => fate_location [smsValue] => HARV_022.basePlot.bet )
+								[3] => Array ( [smsKey] => sample_tag [smsValue] => vt05/1/XT7PfMHKcefKjMiJPVCF+wvWbszL7d3ZUHtU= )
+								[4] => Array ( [smsKey] => sample_type [smsValue] => bet_archivepooling_in.subsampleID.bet )
+							)
+						)
+					)
+					[parentSampleIdentifiers] => Array (
+						[0] => Array ( [sampleUuid] => 3e8d89d4-c8e3-4487-9732-ab9a697a00ba [sampleTag] => vt05/1/XT7NtAkDFor3rOa7g6uqo/nlzgZH7Y+Klbho= [sampleClass] => bet_sorting_in.subsampleID.bet [barcode] => [archiveGuid] => )
+						[1] => Array ( [sampleUuid] => 2f211059-2663-4a77-9e5d-a854c76bc398 [sampleTag] => vt05/1/XT7OMLrgj+IivO9fmP8nQDgQfZX00jLJCB0Q= [sampleClass] => bet_sorting_in.subsampleID.bet [barcode] => [archiveGuid] => )
+					)
+					[childSampleIdentifiers] =>
+					[sampleClass] => bet_archivepooling_in.subsampleID.bet
+					[sampleTag] => vt05/1/XT7PfMHKcefKjMiJPVCF+wvWbszL7d3ZUHtU=
+					[barcode] =>
+					[archiveGuid] =>
+					[sampleUuid] => 8a4f452e-49a7-4838-a9fc-215f5c91e080
+				)
+			)
+		)
+		*/
 	}
 
-	private function getDarwinCoreArr($sampleArr){
+	private function harvestNeonOccurrence($sampleArr){
 		$dwcArr = array();
 		if($sampleArr['samplePK']){
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
 				//Get data that was provided within manifest
 				$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
-				if(isset($sampleArr['event_id']) && $sampleArr['event_id']) $dwcArr['eventID'] = $sampleArr['event_id'];
-				if(isset($sampleArr['specimen_count']) && $sampleArr['specimen_count']) $dwcArr['individualCount'] = $sampleArr['specimen_count'];
-				elseif(isset($sampleArr['individualCount']) && $sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
-				if(isset($sampleArr['remarks']) && $sampleArr['remarks']) $dwcArr['occurrenceRemarks'] = $sampleArr['remarks'];
-				$dynProp = array();
-				if(isset($sampleArr['filterVolume']) && $sampleArr['filterVolume']) $dynProp[] = 'filterVolume:'.$sampleArr['filterVolume'];
-				if(isset($sampleArr['temperature']) && $sampleArr['temperature']) $dynProp[] = 'temperature:'.$sampleArr['temperature'];
-				if(isset($sampleArr['verbatim_depth']) && $sampleArr['verbatim_depth']) $dynProp[] = 'verbatim_depth:'.$sampleArr['verbatim_depth'];
-				if($dynProp) $dwcArr['dynamicProperties'] = implode('; ',$dynProp);
+				if($sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
+				if($sampleArr['individualCount']) $dwcArr['individualCount'] = $sampleArr['individualCount'];
+				if($sampleArr['filterVolume']) $dwcArr['occurrenceRemarks'] = 'filterVolume:'.$sampleArr['filterVolume'];
 
 				//Set occurrence description using sampleClass
 				if($sampleArr['sampleClass']){
 					if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
 					else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
 				}
-				if(isset($sampleArr['collected_by']) && $sampleArr['collected_by']) $dwcArr['recordedBy'] = $sampleArr['collected_by'];
-				if(isset($sampleArr['collect_start_date']) && $sampleArr['collect_start_date']) $dwcArr['eventDate'] = $sampleArr['collect_start_date'];
-				elseif($sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
-				elseif($sampleArr['sampleID']){
+				//Get date from sampleID
+				if(!isset($dwcArr['eventDate'])){
 					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
-						//Get date from sampleID
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
 				}
-				if(isset($sampleArr['collect_end_date']) && $sampleArr['collect_end_date']){
-					if(!isset($dwcArr['eventDate']) || !$dwcArr['eventDate']) $dwcArr['eventDate'] = $sampleArr['collect_end_date'];
-					elseif($dwcArr['eventDate'] != $sampleArr['collect_end_date']) $dwcArr['latestDateCollected'] = $sampleArr['collect_end_date'];
-				}
 				//Build proper location code
-				$locationStr = '';
-				if(isset($sampleArr['fate_location']) && $sampleArr['fate_location']) $locationStr = $sampleArr['fate_location'];
-				elseif($sampleArr['namedLocation']) $locationStr = $sampleArr['namedLocation'];
-				if($locationStr){
-					if($this->setNeonLocationData($dwcArr, $locationStr)){
-						if(isset($dwcArr['locality']) && isset($dwcArr['domainID'])){
-							$locStr = $this->domainSiteArr[$dwcArr['domainID']].' ('.$dwcArr['domainID'].'), ';
-							if(isset($dwcArr['siteID'])) $locStr .= $this->domainSiteArr[$dwcArr['siteID']].' ('.$dwcArr['siteID'].'), ';
-							$dwcArr['locality'] = trim($locStr.$dwcArr['locality']);
-						}
-						if(isset($dwcArr['plotDim'])){
-							$dwcArr['locality'] .= $dwcArr['plotDim'];
-							unset($dwcArr['plotDim']);
-						}
-						$dwcArr['locationID'] = $sampleArr['namedLocation'];
+				if($this->setNeonLocationData($dwcArr, $sampleArr['namedLocation'])){
+					if(isset($dwcArr['locality']) && isset($dwcArr['domainID'])){
+						$locStr = $this->domainSiteArr[$dwcArr['domainID']].' ('.$dwcArr['domainID'].'), ';
+						if(isset($dwcArr['siteID'])) $locStr .= $this->domainSiteArr[$dwcArr['siteID']].' ('.$dwcArr['siteID'].'), ';
+						$dwcArr['locality'] = trim($locStr.$dwcArr['locality']);
 					}
-					else{
-						$dwcArr['locality'] = $sampleArr['namedLocation'];
-						$this->errorStr = 'locality data failed to populate';
-						$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-						//return false;
+					if(isset($dwcArr['plotDim'])){
+						$dwcArr['locality'] .= $dwcArr['plotDim'];
+						unset($dwcArr['plotDim']);
 					}
-					if(isset($dwcArr['locality']) && $dwcArr['locality']) $dwcArr['locality'] = trim($dwcArr['locality'],' ,;.');
+					$dwcArr['locationID'] = $sampleArr['namedLocation'];
 				}
+				else{
+					$dwcArr['locality'] = $sampleArr['namedLocation'];
+					$this->errorStr = 'locality data failed to populate';
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+					//return false;
+				}
+				if(isset($dwcArr['locality']) && $dwcArr['locality']) $dwcArr['locality'] = trim($dwcArr['locality'],' ,;.');
 
-				//Taxonomic fields
-				$skipTaxonomy = array(5,6,10,13,16,18,21,23,31,41,42,45,58,60,61,62,67,68,69,76);
-				if(!in_array($dwcArr['collid'],$skipTaxonomy)){
-					if(isset($sampleArr['taxon']) && $sampleArr['taxon']){
-						$dwcArr['sciname'] = $sampleArr['taxon'];
-						$dwcArr['taxonRemarks'] = 'Identification source: harvested from NEON API';
-						if(isset($sampleArr['taxon_published']) && $sampleArr['taxon_published']){
-							if($sampleArr['taxon_published'] != $sampleArr['taxon']){
-								$dwcArr['localitySecurity'] = 2;
-								$dwcArr['localitySecurityReason'] = '[Security Setting Locked]';
-							}
+				if($sampleArr['taxonID']){
+					$dwcArr['sciname'] = $sampleArr['taxonID'];
+					$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
+				}
+				else{
+					if($dwcArr['collid'] == 56){
+						if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+							$dwcArr['sciname'] = $m[1];
+							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
 						}
 					}
-					elseif($sampleArr['taxonID']){
-						$dwcArr['sciname'] = $sampleArr['taxonID'];
-						$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
-					}
-					else{
-						if($dwcArr['collid'] == 56){
-							if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
-								$dwcArr['sciname'] = $m[1];
-								$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
-							}
+					elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
+						if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+							$dwcArr['sciname'] = $m[1];
+							$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
 						}
-						elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
-							if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
-								$dwcArr['sciname'] = $m[1];
-								$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
-							}
-						}
-					}
-					if(isset($sampleArr['identified_by']) && $sampleArr['identified_by']){
-						$dwcArr['identifiedBy'] = $sampleArr['identified_by'];
-						if(isset($sampleArr['dateIdentified'])) $dwcArr['dateIdentified'] = $sampleArr['dateIdentified'];
 					}
 				}
+				$this->setNeonCollector($dwcArr);
 				//Add DwC fields that were imported as part of the manifest file
 				if($sampleArr['symbiotaTarget']){
 					if($symbArr = json_decode($sampleArr['symbiotaTarget'],true)){
@@ -400,8 +437,9 @@ class OccurrenceHarvester{
 	private function setNeonLocationData(&$dwcArr, $locationName){
 		//https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
 		//echo 'loc name1: '.$locationName.'<br/>';
-		$url = $this->neonApiBaseUrl.'/locations/'.urlencode($locationName).'?apiToken='.$this->neonApiKey;
+		$url = 'https://data.neonscience.org/api/v0/locations/'.urlencode($locationName).'?apiToken='.$this->neonApiKey;
 		$resultArr = $this->getNeonApiArr($url);
+		//echo 'url: '.$url.'<br/>'; print_r($resultArr); echo '<br/><br/>';
 		if(!$resultArr) return false;
 		if(isset($resultArr['locationType']) && $resultArr['locationType']){
 			if($resultArr['locationType'] == 'SITE') $dwcArr['siteID'] = $resultArr['locationName'];
@@ -494,7 +532,13 @@ class OccurrenceHarvester{
 				$this->setNeonLocationData($dwcArr, $resultArr['locationParent']);
 			}
 		}
+
 		return true;
+	}
+
+	private function setNeonCollector(&$dwcArr){
+		//Not yet sure how to obtain this data
+
 	}
 
 	private function loadOccurrenceRecord($dwcArr, $samplePK, $occid){
@@ -736,7 +780,7 @@ class OccurrenceHarvester{
 
 	private function setSampleClassArr(){
 		$status = false;
-		$result = $this->getNeonApiArr($this->neonApiBaseUrl.'/samples/supportedClasses?apiToken='.$this->neonApiKey);
+		$result = $this->getNeonApiArr('https://data.neonscience.org/api/v0/samples/supportedClasses?apiToken='.$this->neonApiKey);
 		if(isset($result['entries'])){
 			foreach($result['entries'] as $k => $classArr){
 				$this->sampleClassArr[$classArr['key']] = $classArr['value'];

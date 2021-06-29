@@ -351,14 +351,4 @@ section.has-dark-background h6 {
   .backgrounds {
     background-color: #fff;
   }
-
-  .reveal p {
-    margin: 10px 0;
-    font-size: 80%;
-  }
-
-  img {
-    width: 90%;
-    height: 90%;
-  }
 }

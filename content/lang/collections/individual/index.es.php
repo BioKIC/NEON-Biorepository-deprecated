@@ -108,7 +108,6 @@ $LANG['IDENTIFIEDBY'] = 'Identificado por';
 $LANG['DUPES'] = 'Duplicados del Esp&eacute;cimen';
 $LANG['EXSICCATAE'] = 'Exsiccatae Asociadas';
 $LANG['SHOWFULLDETAILS'] = 'Mostrar Detalles Completos';
-$LANG['COMMENTS'] = 'Comentarios';
 $LANG['COMMENTNOTPUBLIC'] = 'Comentario no es p&uacute;blico por reporte de abuso pendiente (visible &uacute;nicamente para administradores)';
 $LANG['REPORT'] = 'Reportar como inapropiado o abusivo';
 $LANG['MAKECOMPUB'] = 'Hacer comentario p&uacute;blico';

@@ -108,7 +108,6 @@ $LANG['IDENTIFIEDBY'] = 'Identified by';
 $LANG['DUPES'] = 'Specimen Duplicates';
 $LANG['EXSICCATAE'] = 'Associated Exsiccatae';
 $LANG['SHOWFULLDETAILS'] = 'Show Full Details';
-$LANG['COMMENTS'] = 'Comments';
 $LANG['COMMENTNOTPUBLIC'] = 'Comment not public due to pending abuse report (viewable to administrators only)';
 $LANG['REPORT'] = 'Report as inappropriate or abusive';
 $LANG['MAKECOMPUB'] = 'Make comment public';

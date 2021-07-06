@@ -55,5 +55,5 @@ $imageProcessor->initProcessor($logTitle);
 $imageProcessor->setCollArr($collArr);
 
 //Run process
-$imageProcessor->batchLoadSpecimenImages();
+$imageProcessor->batchLoadImages();
 ?>

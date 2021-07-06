@@ -46,28 +46,31 @@
 					</ul>
 				</li>
 				<li>
-					<a href="#" alt="Checklists">Checklists</a>
+					<a href="#" alt="Checklists">Datasets</a>
 					<ul>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=6">Research Sites - Invertebrates</a>
+							<a href="<?php echo $CLIENT_ROOT; ?>/collections/datasets/publiclist.php">Published Research</a>
 						</li>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">Research Sites - Plants</a>
+							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=6">Checklist: Research Sites - Invertebrates</a>
 						</li>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=7">Research Sites - Vertebrates</a>
+							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">Checklist: Research Sites - Plants</a>
+						</li>
+						<li>
+							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=7">Checklist: Research Sites - Vertebrates</a>
 						</li>
 						<?php
 						if($IS_ADMIN){
 							?>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3">In Progress - Invertebrates (private)</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3">Checklist: In Progress - Invertebrates (private)</a>
 							</li>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2">In Progress - Plants (private)</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2">Checklist: In Progress - Plants (private)</a>
 							</li>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=5">In Progress - Vertebrates (private)</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=5">Checklist: In Progress - Vertebrates (private)</a>
 							</li>
 							<?php
 						}

@@ -7,7 +7,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 $reports = new OccHarvesterReports();
 $reportsArr = $reports->getHarvestReport();
-$headerArr = ['sampleClass', 'errorMessage', 'count', 'shipment(s)'];
+$headerArr = ['collid', 'sampleClass', 'errorMessage', 'count', 'shipment(s)'];
 $total = $reports->getTotalSamples();
 
 $isEditor = false;

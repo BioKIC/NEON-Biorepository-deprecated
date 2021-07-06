@@ -4,6 +4,7 @@ include_once($SERVER_ROOT.'/classes/SpecUploadDirect.php');
 include_once($SERVER_ROOT.'/classes/SpecUploadDigir.php');
 include_once($SERVER_ROOT.'/classes/SpecUploadFile.php');
 include_once($SERVER_ROOT.'/classes/SpecUploadDwca.php');
+include_once($SERVER_ROOT.'/content/lang/collections/admin/specupload.'.$LANG_TAG.'.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
@@ -167,7 +168,7 @@ if($isEditor && $collid){
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title><?php echo $DEFAULT_TITLE; ?> Specimen Uploader</title>
+	<title><?php echo $DEFAULT_TITLE.(isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></title>
   <?php
     $activateJQuery = true;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -193,7 +194,7 @@ if($isEditor && $collid){
 					fileName = f.ulfnoverride.value;
 				}
 				if(fileName == ""){
-					alert("File path is empty. Please select the file that is to be loaded.");
+					alert("<?php echo (isset($LANG['PATH_EMPTY'])?$LANG['PATH_EMPTY']:'File path is empty. Please select the file that is to be loaded.'); ?>");
 					return false;
 				}
 				else{
@@ -204,7 +205,7 @@ if($isEditor && $collid){
 					else if(ext == 'tab' || ext == 'tab') return true;
 					else if(fileName.substring(0,4) == 'http') return true;
 					else{
-						alert("File must be comma separated (.csv), tab delimited (.txt or .tab), ZIP file (.zip), or a URL to an IPT Resource");
+						alert("<?php echo (isset($LANG['MUST_CSV'])?$LANG['MUST_CSV']:'File must be comma separated (.csv), tab delimited (.txt or .tab), ZIP file (.zip), or a URL to an IPT Resource'); ?>");
 						return false;
 					}
 				}
@@ -227,8 +228,8 @@ if($isEditor && $collid){
 			?>
 			var file = inputObj.files[0];
 			if(file.size > maxUpload){
-				var msg = "Import file "+file.name+" ("+Math.round(file.size/100000)/10+"MB) is larger than is allowed (current limit: "+(maxUpload/1000000)+"MB).";
-				if(file.name.slice(-3) != "zip") msg = msg + " Note that import file size can be reduced by compressing within a zip file. ";
+				var msg = "<?php echo (isset($LANG['IMPORT_FILE'])?$LANG['IMPORT_FILE']:'Import file '); ?>"+file.name+" ("+Math.round(file.size/100000)/10+"<?php echo (isset($LANG['IS_BIGGER'])?$LANG['IS_BIGGER']:'MB) is larger than is allowed (current limit: '); ?>"+(maxUpload/1000000)+"MB).";
+				if(file.name.slice(-3) != "zip") msg = msg + "<?php echo (isset($LANG['MAYBE_ZIP'])?$LANG['MAYBE_ZIP']:' Note that import file size can be reduced by compressing within a zip file. '); ?>";
 				alert(msg);
 		    }
 		}
@@ -246,7 +247,7 @@ if($isEditor && $collid){
 				var obj = f.elements[i];
 				if(obj.name == "sf[]"){
 					if(sfArr.indexOf(obj.value) > -1){
-						alert("ERROR: Source field names must be unique (duplicate field: "+obj.value+")");
+						alert("<?php echo (isset($LANG['ERR_UNIQUE_D'])?$LANG['ERR_UNIQUE_D']:'ERROR: Source field names must be unique (duplicate field: '); ?>"+obj.value+")");
 						return false;
 					}
 					sfArr[sfArr.length] = obj.value;
@@ -268,7 +269,7 @@ if($isEditor && $collid){
 				else if(obj.name == "ID-sf[]"){
 					if(f.importident.value == "1"){
 						if(idSfArr.indexOf(obj.value) > -1){
-							alert("ERROR: Source field names must be unique (Identification: "+obj.value+")");
+							alert("<?php echo (isset($LANG['ERR_UNIQUE_ID'])?$LANG['ERR_UNIQUE_ID']:'ERROR: Source field names must be unique (Identification: '); ?>"+obj.value+")");
 							return false;
 						}
 						idSfArr[idSfArr.length] = obj.value;
@@ -277,7 +278,7 @@ if($isEditor && $collid){
 				else if(obj.name == "IM-sf[]"){
 					if(f.importimage.value == "1"){
 						if(imSfArr.indexOf(obj.value) > -1){
-							alert("ERROR: Source field names must be unique (Image: "+obj.value+")");
+							alert("<?php echo (isset($LANG['ERR_UNIQUE_IM'])?$LANG['ERR_UNIQUE_IM']:'ERROR: Source field names must be unique (Image: '); ?>"+obj.value+")");
 							return false;
 						}
 						imSfArr[imSfArr.length] = obj.value;
@@ -286,7 +287,7 @@ if($isEditor && $collid){
 				else if(obj.value != "" && obj.value != "unmapped"){
 					if(obj.name == "tf[]"){
 						if(tfArr.indexOf(obj.value) > -1){
-							alert("ERROR: Can't map to the same target field more than once ("+obj.value+")");
+							alert("<?php echo (isset($LANG['SAME_TARGET_D'])?$LANG['SAME_TARGET_D']:'ERROR: Can\'t map to the same target field more than once ( '); ?>"+obj.value+")");
 							return false;
 						}
 						tfArr[tfArr.length] = obj.value;
@@ -294,7 +295,7 @@ if($isEditor && $collid){
 					else if(obj.name == "ID-tf[]"){
 						if(f.importident.value == "1"){
 							if(idTfArr.indexOf(obj.value) > -1){
-								alert("ERROR: Can't map to the same target field more than once (Identification: "+obj.value+")");
+								alert("<?php echo (isset($LANG['SAME_TARGET_ID'])?$LANG['SAME_TARGET_ID']:'ERROR: Can\'t map to the same target field more than once (Identification: '); ?>"+obj.value+")");
 								return false;
 							}
 							idTfArr[idTfArr.length] = obj.value;
@@ -303,7 +304,7 @@ if($isEditor && $collid){
 					else if(obj.name == "IM-tf[]"){
 						if(f.importimage.value == "1"){
 							if(imTfArr.indexOf(obj.value) > -1){
-								alert("ERROR: Can't map to the same target field more than once (Images: "+obj.value+")");
+								alert("<?php echo (isset($LANG['SAME_TARGET_IM'])?$LANG['SAME_TARGET_IM']:'ERROR: Can\'t map to the same target field more than once (Images: '); ?>"+obj.value+")");
 								return false;
 							}
 							imTfArr[imTfArr.length] = obj.value;
@@ -323,26 +324,26 @@ if($isEditor && $collid){
 			if(f.uploadtype.value == 7){
 				if(catalogNumberIndex == 0){
 					//Skeletal records require catalog number to be mapped
-					alert("ERROR: catalogNumber or otherCatalogNumbers is required for Skeletal File Uploads");
+					alert("<?php echo (isset($LANG['NEED_CAT'])?$LANG['NEED_CAT']:'ERROR: catalogNumber or otherCatalogNumbers is required for Skeletal File Uploads'); ?>");
 					return false;
 				}
 				else if(f.matchcatnum.checked == false && f.matchothercatnum.checked == false){
-					alert("ERROR: select which identifier will be used for record matching (required for Skeletal File imports)");
+					alert("<?php echo (isset($LANG['SEL_MATCH'])?$LANG['SEL_MATCH']:'ERROR: select which identifier will be used for record matching (required for Skeletal File imports)'); ?>");
 					return false;
 				}
 				else{
 					if((catalogNumberIndex == 1 && f.matchcatnum.checked == false) || (catalogNumberIndex == 2 && f.matchothercatnum.checked == false)){
-						alert("ERROR: identifier record matching does not match import fields (required for Skeletal File imports)");
+						alert("<?php echo (isset($LANG['ID_NOT_MATCH'])?$LANG['ID_NOT_MATCH']:'ERROR: identifier record matching does not match import fields (required for Skeletal File imports)'); ?>");
 						return false;
 					}
 				}
 			}
 			if(f.observeruid && f.observeruid.value == ""){
-				alert("Since this is a group managed observation project, you need to select a target user to which the occurrence will be linked");
+				alert("<?php echo (isset($LANG['SEL_TAR_USER'])?$LANG['SEL_TAR_USER']:'Since this is a group managed observation project, you need to select a target user to which the occurrence will be linked'); ?>");
 				return false;
 			}
 			if(possibleMappingErr){
-				return confirm("Does the first row of the input file contain the column names? It appears that you may be mapping directly to the first row of active data rather than a header row. If so, the first row of data will be lost and some columns might be skipped. Select OK to proceed, or cancel to abort");
+				return confirm("<?php echo (isset($LANG['FIRST_ROW'])?$LANG['FIRST_ROW']:'Does the first row of the input file contain the column names? It appears that you may be mapping directly to the first row of active data rather than a header row. If so, the first row of data will be lost and some columns might be skipped. Select OK to proceed, or cancel to abort'); ?>");
 			}
 			return true;
 		}
@@ -350,7 +351,7 @@ if($isEditor && $collid){
 		function verifySaveMapping(f){
 			if(f.uspid.value == "" && f.profiletitle.value == ""){
 				$("#newProfileNameDiv").show();
-				alert("Enter a profile name and click the Save Map button to create a new Upload Profile");
+				alert("<?php echo (isset($LANG['ENTER_PROF'])?$LANG['ENTER_PROF']:'Enter a profile name and click the Save Map button to create a new Upload Profile'); ?>");
 				return false;
 			}
 			return true;
@@ -376,9 +377,9 @@ if($isEditor && $collid){
 		if($collections_admin_specuploadCrumbs){
 			?>
 			<div class="navpath">
-				<a href="../../index.php">Home</a> &gt;&gt;
+				<a href="../../index.php"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
 				<?php echo $collections_admin_specuploadCrumbs; ?>
-				<b>Specimen Loader</b>
+				<b><?php echo (isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></b>
 			</div>
 			<?php
 		}
@@ -386,44 +387,44 @@ if($isEditor && $collid){
 	else{
 		?>
 		<div class="navpath">
-			<a href="../../index.php">Home</a> &gt;&gt;
-			<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Panel</a> &gt;&gt;
-			<a href="specuploadmanagement.php?collid=<?php echo $collid; ?>">List of Upload Profiles</a> &gt;&gt;
-			<b>Specimen Loader</b>
+			<a href="../../index.php"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
+			<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1"><?php echo (isset($LANG['COL_MGMNT'])?$LANG['COL_MGMNT']:'Collection Management Panel'); ?></a> &gt;&gt;
+			<a href="specuploadmanagement.php?collid=<?php echo $collid; ?>"><?php echo (isset($LANG['LIST_UPLOAD'])?$LANG['LIST_UPLOAD']:'List of Upload Profiles'); ?></a> &gt;&gt;
+			<b><?php echo (isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></b>
 		</div>
 		<?php
 	}
 ?>
 <!-- This is inner text! -->
 <div id="innertext">
-	<h1>Data Upload Module</h1>
+	<h1><?php echo (isset($LANG['UP_MODULE'])?$LANG['UP_MODULE']:'Data Upload Module'); ?></h1>
 	<?php
 	if($statusStr){
 		echo "<hr />";
 		echo "<div>$statusStr</div>";
 		echo "<hr />";
 	}
-	$recReplaceMsg = '<span style="color:orange"><b>Caution:</b></span> Matching records will be replaced with incoming records';
+	$recReplaceMsg = '<span style="color:orange"><b>'.(isset($LANG['CAUTION'])?$LANG['CAUTION']:'Caution').':</b></span> '.(isset($LANG['REC_REPLACE'])?$LANG['REC_REPLACE']:'Matching records will be replaced with incoming records');
 	if($isEditor && $collid){
 		//Grab collection name and last upload date and display for all
 		echo '<div style="font-weight:bold;font-size:130%;">'.$duManager->getCollInfo('name').'</div>';
-		echo '<div style="margin:0px 0px 15px 15px;"><b>Last Upload Date:</b> '.($duManager->getCollInfo('uploaddate')?$duManager->getCollInfo('uploaddate'):'not recorded').'</div>';
+		echo '<div style="margin:0px 0px 15px 15px;"><b>Last Upload Date:</b> '.($duManager->getCollInfo('uploaddate')?$duManager->getCollInfo('uploaddate'):(isset($LANG['NOT_REC'])?$LANG['NOT_REC']:'not recorded')).'</div>';
 		if(($action == "Start Upload") || (!$action && ($uploadType == $STOREDPROCEDURE || $uploadType == $SCRIPTUPLOAD))){
 			//Upload records
-			echo "<div style='font-weight:bold;font-size:120%'>Upload Status:</div>";
+			echo "<div style='font-weight:bold;font-size:120%'>".(isset($LANG['UP_STATUS'])?$LANG['UP_STATUS']:'Upload Status').":</div>";
 			echo "<ul style='margin:10px;font-weight:bold;'>";
 			$duManager->uploadData($finalTransfer);
 			echo "</ul>";
 			if(!$finalTransfer){
 				?>
 				<fieldset style="margin:15px;">
-					<legend style="<?php if($uploadType == $SKELETAL) echo 'background-color:lightgreen'; ?>"><b>Pending Data Transfer Report</b></legend>
+					<legend style="<?php if($uploadType == $SKELETAL) echo 'background-color:lightgreen'; ?>"><b><?php echo (isset($LANG['PENDING_REPORT'])?$LANG['PENDING_REPORT']:'Pending Data Transfer Report'); ?></b></legend>
 					<div style="margin:5px;">
 						<?php
 						$reportArr = $duManager->getTransferReport();
 						echo '<div>Occurrences pending transfer: '.$reportArr['occur'];
 						if($reportArr['occur']){
-							echo ' <a href="uploadreviewer.php?collid='.$collid.'" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
+							echo ' <a href="uploadreviewer.php?collid='.$collid.'" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
 							echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
 						}
 						echo '</div>';

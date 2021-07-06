@@ -2,7 +2,6 @@
  * 
 *************/
 
-
 /*
 0. NEON COLORS
 1. GENERAL
@@ -15,7 +14,6 @@
 8. QUICK SEARCH PLUGIN
 9. FOOTER
 */
-
 
 /******* 0. NEON COLORS ********/
 
@@ -49,7 +47,6 @@
   --alertredborder: #cc0000;
 }
 
-
 /******* 1. GENERAL ********/
 
 html {
@@ -62,7 +59,6 @@ body {
   color: var(--black, black);
   margin-top: 0px;
 }
-
 
 /* Utilities */
 
@@ -81,7 +77,6 @@ body {
 .mt-1 {
   margin-top: 0.5em;
 }
-
 
 /* Alerts */
 
@@ -110,7 +105,7 @@ body {
   animation: slide-in 1s ease-out forwards;
 }
 
-.alerts .alert>a {
+.alerts .alert > a {
   color: #002c77;
 }
 
@@ -128,7 +123,6 @@ body {
   }
 }
 
-
 /******* 2. LAYOUT ********/
 
 #innertext img {
@@ -138,7 +132,6 @@ body {
 #middlecenter {
   padding: 0px;
 }
-
 
 /*Central div in the middle center table div */
 
@@ -154,13 +147,11 @@ div.navpath {
   font-weight: bold;
 }
 
-
 /* Manifest Viewer conteiner */
 
 #samplePanel {
   font-size: 12px !important;
 }
-
 
 /* Large screens */
 
@@ -191,7 +182,6 @@ div.navpath {
   }
 }
 
-
 /* Medium screens */
 
 @media (min-width: 426px) and (max-width: 1023px) {
@@ -219,7 +209,6 @@ div.navpath {
   }
 }
 
-
 /* Smaller screens */
 
 @media (max-width: 425px) {
@@ -231,13 +220,11 @@ div.navpath {
   }
 }
 
-
 /******* 3. SPECIFIC SECTIONS ********/
 
 .home-page section {
   margin: 3rem 0 1.5rem 0;
 }
-
 
 /*Main table framework*/
 
@@ -246,7 +233,6 @@ div.navpath {
   margin-right: auto;
   width: 100%;
 }
-
 
 /* SYMBIOTA MAIN HEADER */
 
@@ -292,7 +278,7 @@ li.header-title {
   text-decoration: none;
 }
 
-#biorepo-header>li {
+#biorepo-header > li {
   display: inline-block;
   padding: 0 0.5rem;
   vertical-align: center;
@@ -311,9 +297,7 @@ li.header-title {
   text-transform: uppercase;
 }
 
-
 /* SYMBIOTA NAVIGATION */
-
 
 /* Admin bar */
 
@@ -336,7 +320,6 @@ li.header-title {
   float: right;
   color: #000000;
 }
-
 
 /* Main menu bar */
 
@@ -369,7 +352,6 @@ li.header-title {
   color: #ffffff;
   text-decoration: none;
 }
-
 
 /* Submenu */
 
@@ -428,9 +410,7 @@ li.header-title {
   width: 14px;
 }
 
-
 /******* 4. FORMS, BUTTONS ********/
-
 
 /* Forcing styles over jquery-ui (search forms) */
 
@@ -459,20 +439,25 @@ input[type='submit' i] {
   background-color: #005dab !important;
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%),
+    0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
   padding: 8px 16px;
   margin-bottom: 12px;
   white-space: nowrap;
-  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+    box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+    border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
   transition-property: background-color, box-shadow, border;
   transition-duration: 250ms, 250ms, 250ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 1);
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1),
+    cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 1);
   transition-delay: 0ms, 0ms, 0ms;
 }
 
 button:hover {
   background-color: #0092e2 !important;
-  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
+    0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
 }
 
 input[type='text'],
@@ -499,17 +484,23 @@ button.ui-button:active {
   background: #000000;
 }
 
+/* Inverts color for svgs inside TinyMCE format buttons */
+.tox-editor-container svg {
+  filter: invert(1);
+}
+span.tox-tbtn__select-label {
+  filter: invert(1);
+}
 
 /* Links inside buttons */
 
-button>a {
+button > a {
   color: #ffffff !important;
 }
 
-button>a:hover {
+button > a:hover {
   text-decoration: none !important;
 }
-
 
 /******* 5. TABLES ********/
 
@@ -523,7 +514,6 @@ hr:first-of-type {
   margin-top: 1em;
 }
 
-
 /******* 6. ICONS ********/
 
 .svg-icon {
@@ -534,13 +524,11 @@ hr:first-of-type {
   border: none !important;
 }
 
-
 /******* 7. TABS ********/
 
 #tabs {
   height: auto;
 }
-
 
 /******* 8. QUICK SEARCH PLUGIN ********/
 
@@ -555,7 +543,6 @@ hr:first-of-type {
   margin-bottom: 1rem !important;
   padding-bottom: 10px !important;
 }
-
 
 /******* 9. FOOTER ********/
 

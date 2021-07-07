@@ -18,8 +18,6 @@
 
 ## INSTRUCTIONS
 
-Also see the [Symbiota documentation](https://symbiota.org/docs/symbiota-introduction/installation/) 
-
 1. Download Symbiota code from GitHub repository
    * (https://github.com/BioKIC/Symbiota-light)  
    * Command line checkout: git clone https://github.com/BioKIC/Symbiota-light.git
@@ -59,25 +57,21 @@ Also see the [Symbiota documentation](https://symbiota.org/docs/symbiota-introdu
       and then override the css definitions called within base.css 
    6. Misc: rename usagepolicy_template.php to usagepolicy.php, and modify as needed
 4. File permissions - the web server needs write access to the following files and folders
-  * All folders in /temp/ (e.g. sudo chmod -R 777 temp/) 
-  * /webservices/dwc/rss.xml
-  * /content/collicon/
-  * /content/dwca/
-  * /content/logs/
+   * All folders in /temp/ (e.g. sudo chmod -R 777 temp/) 
+   * /webservices/dwc/rss.xml
+   * /content/collicon/
+   * /content/dwca/
+   * /content/logs/
 
 
-1. Data - The general layers of data within Symbiota are: user, 
-   taxonomic, occurrence (specimen), images, checklist, identification 
-   key, and taxon profile (common names, text descriptions, etc). 
-   While user interfaces have been developed for web management of 
-   some of the data layers, others are still in development and data 
-   needs to be loaded by hand. Below are detailed instructions on 
-   loading the different layers of data needed.
-   1. User and permissions - Default administrative user has been 
-      installed with following login: username = admin; password: admin.
-      Make sure to change password or better yet, create a new admin user, 
-      assign admin rights, and then delete default admin user. Permission 
-      controlls are found within Data Managment Panel within sitemap. 
+## DATA
+
+1. Data - The general layers of data within Symbiota are: user, taxonomic, occurrence (specimen), images, 
+   checklist, identification, key, and taxon profile (common names, text descriptions, etc). 
+   While user interfaces have been developed for web management for most of these data layers, some table tables still need to be managed via the backend (e.g. loaded by hand). 
+   1. User and permissions - Default administrative user has been installed with following login: username = admin; password: admin.
+      It is highly recommend that you change the password, or better yet, create a new admin user, assign admin rights, and then delete default admin user. 
+      Management control panel for permissions is available within Data Managment Panel on the sitemap page. 
    2. Taxonomic Thesaurus - Taxon names are stored within the 'taxa' table. 
       Taxonomic hierarchy and placement definitions are controled in the 
       'taxstatus' table. A recursive data relationship within the 'taxstatus' 

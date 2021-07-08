@@ -18,8 +18,19 @@ class OccurrenceDataset {
 	}
 
   public function getPublicDatasets(){
+    // Tests if field `category` exists in table
+    $sqlFields = 'SHOW COLUMNS FROM omoccurdatasets LIKE "category"';
+    $fields = $this->conn->query($sqlFields);
+    $catExists = $fields->num_rows?TRUE:FALSE;
+    $fields->free();
     $retArr = array();
-    $sql = 'SELECT datasetid, name, notes, description, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY name';
+    $sql = '';
+    if ($catExists) {
+      $sql = 'SELECT datasetid, category, name, notes, description, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY category,name';
+
+    } else {
+      $sql = 'SELECT datasetid, name, notes, description, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY name';
+    }
     $rs = $this->conn->query($sql);
     while($r = $rs->fetch_assoc()){
       $retArr[] = $r;

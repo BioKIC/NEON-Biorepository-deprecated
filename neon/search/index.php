@@ -457,7 +457,7 @@ $siteData = new DatasetsMetadata();
     ?>
   </body>
   <script src="js/searchform.js" type="text/javascript"></script>
-  <script src="<?php echo $CLIENT_ROOT.'/neon/js/alerts.js'; ?>" type="text/javascript"></script>
+  <script src="<?php echo $CLIENT_ROOT.'/neon/js/alerts.js?v=202107'; ?>" type="text/javascript"></script>
   <script src="<?php echo $CLIENT_ROOT.'/js/jquery-ui-1.12.1/jquery-ui.min.js'; ?>" type="text/javascript"></script>
   <script src="<?php echo $CLIENT_ROOT.'/js/symb/api.taxonomy.taxasuggest.js'; ?>" type="text/javascript"></script>
   <script>

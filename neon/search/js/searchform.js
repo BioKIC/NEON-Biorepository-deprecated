@@ -177,8 +177,9 @@ function updateChip(e) {
     addChip(getDomainsSitesChips());
   }
   // if any biorepo colls are selected (except for "all"), then add chip
-  let biorepoAllChecked = document.getElementById('all-neon-colls-quick')
-    .checked;
+  let biorepoAllChecked = document.getElementById(
+    'all-neon-colls-quick'
+  ).checked;
   let biorepoChecked = Array.from(
     document.querySelectorAll(
       `#${getCriterionSelected()} input[name="db"]:checked`
@@ -641,6 +642,20 @@ function simpleSearch() {
   }
 }
 
+/**
+ * Hides selected collections checkboxes (for whatever reason)
+ * @param {integer} collid
+ */
+function hideColCheckbox(collid) {
+  let colsToHide = document.querySelectorAll(
+    `input[type='checkbox'][value='${collid}']`
+  );
+  colsToHide.forEach((col) => {
+    let li = col.closest('li');
+    li.style.display = 'none';
+  });
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 /**
@@ -689,8 +704,8 @@ document
     event.preventDefault();
     closeModal('#biorepo-collections-list');
     let tabSelected = document.getElementById(getCriterionSelected());
-    let isAllSelected = tabSelected.getElementsByClassName('all-neon-colls')[0]
-      .checked;
+    let isAllSelected =
+      tabSelected.getElementsByClassName('all-neon-colls')[0].checked;
     allNeon.checked = isAllSelected;
     updateChip();
   });
@@ -712,3 +727,5 @@ $('.expansion-icon').click(function () {
     $(this).html('add_box').siblings('ul').addClass('collapsed');
   }
 });
+// Hides MOSC-BU checkboxes
+hideColCheckbox(58);

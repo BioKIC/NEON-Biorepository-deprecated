@@ -462,6 +462,6 @@ $siteData = new DatasetsMetadata();
   <script src="<?php echo $CLIENT_ROOT.'/js/symb/api.taxonomy.taxasuggest.js'; ?>" type="text/javascript"></script>
   <script>
    let alerts = [{'alertMsg': 'Looking for the previous search form? You can still use it here: <a href="../../collections/index.php" alt="Traditional Sample Search Form">previous Sample Search Page</a>.'}];
-    handleAlerts(alerts);
+    handleAlerts(alerts, 3000);
   </script>
 </html>

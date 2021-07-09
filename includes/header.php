@@ -49,7 +49,7 @@
 					<a href="#" alt="Checklists">Datasets</a>
 					<ul>
 						<li>
-							<a href="<?php echo $CLIENT_ROOT; ?>/collections/datasets/publiclist.php">Published Research</a>
+							<a href="<?php echo $CLIENT_ROOT; ?>/collections/datasets/publiclist.php">Research Datasets and Special Collections</a>
 						</li>
 						<li>
 							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=6">Checklist: Research Sites - Invertebrates</a>

@@ -520,6 +520,10 @@ hr:first-of-type {
   filter: invert(1);
 }
 
+#speclist button.icon-button img {
+  filter: invert(1);
+}
+
 #omlisttable img {
   border: none !important;
 }

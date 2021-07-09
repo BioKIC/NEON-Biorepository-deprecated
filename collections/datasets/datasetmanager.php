@@ -131,7 +131,7 @@ if($isEditor){
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
     <script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
     <script>
-     // Adds WYSIWYG editor to notes field
+     // Adds WYSIWYG editor to description field
       tinymce.init({
         selector: '#description',
         plugins: 'link lists image',

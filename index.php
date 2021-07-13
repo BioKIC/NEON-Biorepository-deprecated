@@ -3,9 +3,16 @@
 //ini_set('display_errors', '1');
 include_once('config/symbini.php');
 include_once('content/lang/index.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/neon/classes/PortalStatistics.php');
 header('Cache-Control: no-cache');
 header('Pragma: no-cache');
 header("Content-Type: text/html; charset=".$CHARSET);
+
+$stats = new PortalStatistics();
+$totalSamples = $stats->getTotalNeonSamples();
+$totalTaxa = $stats->getTotalNeonTaxa();
+$sampleArr = $stats->getNeonSamplesByTax();
+$taxaArr = $stats->getNeonTaxa();
 ?>
 <html>
 <head>
@@ -20,15 +27,30 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+  <script type="text/javascript" src="<?php echo $CLIENT_ROOT.'/neon/js/d3.min.js'; ?>"></script>
 </head>
 <body class="home-page">
+  <style>
+    .bar:hover {
+      opacity: 0.5;
+    }
+
+    .bar-label {
+      font-size: 7px !important;
+      color: #0073cf !important;
+    }
+
+    .bar-label a {
+      color: #0073cf !important;
+      text-decoration: underline;
+    }
+  </style>
 	<?php include($SERVER_ROOT.'/includes/header.php'); ?>
 	<!-- This is inner text! -->
 	<div id="innertext" class="container" style="margin-top: 2rem">
 		<h1 class="centered">Discover and access sample-based data</h1>
-
 		<section>
-      <div class="row">    
+      <div class="row">
 				<img src="images/layout/Home-Map-2.jpg" alt="Map with samples collected within NEON sites" class="hide-on-small" style="width:100%;">
 				<img src="images/layout/map-mobile.jpg" alt="Map with samples collected within NEON sites" class="hide-on-large">
 				<p class="hide-on-small"><span style="font-size: 70%; line-height: 1">Samples available in the portal (Aug 2019), collected in Alaska (top left), Continental US (center), and Puerto Rico (bottom right). Colors indicate different collection types. Circle sizes indicate quantity of samples per collection in a given locality.</span></p>
@@ -68,14 +90,14 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<section>
 			<div class="row" style="vertical-align: bottom">
 				<div class="six columns centered">
-					<h4 class="centered">> 103,000 samples</h4>
-					<img src="images/layout/SamplesByColl-2020-01.png" usemap="#image-map" width="100%">
-					<p><span style="font-size: 70%">Distribution of samples by collection type.</span></p>
+					<h4 class="centered">> <?php echo number_format($totalSamples) ;?> samples</h4>
+					<p><span style="font-size: 70%">Distribution of samples by collection type:</span></p>
+          <div id="graph"></div>
 				</div>
 				<div class="six columns centered">
-					<h4 class="centered">> 700 taxa</h4>
-					<img src="images/layout/TaxaByGroup-2020-01.png" width="100%">
-					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa.</span></p>
+					<h4 class="centered">> <?php echo number_format($totalTaxa) ;?> taxa</h4>
+					<p><span style="font-size: 70%">Distribution of samples by top 5 determined taxa:</span></p>
+          <div id="graph2"></div>
 				</div>
 
 			</div>
@@ -131,4 +153,77 @@ header("Content-Type: text/html; charset=".$CHARSET);
   let alerts = [{'alertMsg':'Try our <a href="./neon/search/index.php">New Occurrence Search Form!</a>'}];
   handleAlerts(alerts);
 </script>
+  <script>
+    const collsdb = <?php echo json_encode($sampleArr); ?>;
+    const collstx = <?php echo json_encode($taxaArr); ?>;
+    console.dir(collstx);
+    function barChart(dataObj, div, tabIndex, selector) {
+      console.log(selector);
+      let min = d3.min(dataObj, (d) => parseInt(d[`${selector}`]));
+      let max = d3.max(dataObj, (d) => parseInt(d[`${selector}`]));
+      console.log(max);
+      let w = 300;
+      let h = 200;
+      let pd = 0;
+      let cYScale = d3.scaleLinear()
+        .domain([0, max])
+        .range([0, h - h/5]);
+      let cSvg = d3
+        .select(div)
+        .append('svg')
+        .attr('viewBox', `0 0 ${w} ${h}`);
+      cSvg.selectAll('rect')
+        .data(dataObj)
+        .enter()
+        .append('a')
+        .attr('xlink:href', (d) => `collections/list.php?db=${d.db}&includeothercatnum=1&usethes=1&taxontype=1&tabindex=${tabIndex}`) // Adds url to text
+        .attr('xlink:title', (d) => `Click to see ${d[`${selector}`]} ${selector}`) // Adds url to text
+        .append('rect')
+        .attr('title', (d, i) => parseInt(d[`${selector}`]))
+        // .on('click', (d) => console.log(d))
+        .attr('x', 0)
+        .attr('y', (d, i) => 5 + i * 20)
+        // .attr('x', (d) => h - d)
+        // .attr('y', (d, i) => i * (w / dataObj.length))
+        .attr('width', (d, i) => cYScale(parseInt(d[`${selector}`])))
+        .attr('height', 15)
+        .attr('fill', '#565a5c')
+        // .attr('fill', (d, i) => d.color)
+        .attr('class', 'bar');
+      cSvg
+        .selectAll('text')
+        .data(dataObj)
+        .enter()
+        .append('text')
+        .attr('class', 'bar-label')
+        .attr('x', (d, i) => 5 + cYScale(parseInt(d[`${selector}`]))) // all on right side
+        .attr('y', (d, i) => 20 + i * 20) // adds gap on top
+        .append('a') // Adds link element
+        .attr('xlink:href', (d) => `collections/list.php?db=${d.db}&includeothercatnum=1&usethes=1&taxontype=1&tabindex=${tabIndex}`) // Adds url to text
+        .attr('xlink:title', (d) => `Click to see ${d[`${selector}`]} ${selector}`)
+        .text((d, i) => d.name);
+    }
+
+    const colls = [
+      {name: "Microbes", samples: "5000", db: "5,31,69,6", color: "#F65C5C"},
+      {name: "Invertebrates", samples: "4500", db: "i", color: "#1E9BF5"},
+      {name: "Vertebrates", samples: "3000", db: "v", color: "#DF4AED"},
+      {name: "Plants", samples: "500", db: "p", color: "#18BC6A"},
+      {name: "Environmental", samples: "300", db: "e", color: "#e3e302"},
+      {name: "Algae", samples: "100", db: "a", color: "#18BC6A"}
+    ];
+
+    const taxa = [
+      {name: "Ground Beetles", samples: "5000", db: "5,31,69,6", color: "#F65C5C"},
+      {name: "Plants", samples: "4500", db: "i", color: "#1E9BF5"},
+      {name: "Other Invertebrates", samples: "3000", db: "v", color: "#DF4AED"},
+      {name: "Mammals", samples: "500", db: "p", color: "#18BC6A"},
+      {name: "Fishes", samples: "300", db: "e", color: "#e3e302"},
+      {name: "Algae", samples: "100", db: "a", color: "#18BC6A"}
+    ];
+
+    // barChart(colls, '#graph');
+    barChart(collsdb, '#graph', 1, 'samples');
+    barChart(collstx, '#graph2', 0, 'taxa');
+  </script>
 </html>

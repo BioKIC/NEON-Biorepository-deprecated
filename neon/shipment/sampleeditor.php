@@ -25,12 +25,8 @@ if($isEditor){
 	}
 	elseif($action == 'savenew'){
 		$shipManager->setShipmentPK($shipmentPK);
-		if($shipManager->addSample($_POST)){
-			$status = 'close';
-		}
-		else{
-			$errStr = $shipManager->getErrorStr();
-		}
+		if($shipManager->addSample($_POST)) $status = 'close';
+		else $errStr = $shipManager->getErrorStr();
 	}
 	elseif($action == 'deleteSample'){
 		if($shipManager->deleteSample($samplePK)) $status = 'close';
@@ -67,6 +63,10 @@ if($isEditor){
 		});
 
 		function validateSampleForm(f){
+			if(f.sampleID.value.trim() == "" && f.sampleCode.value.trim() == ""){
+				alert("Sample ID OR Sample Code must have a value ");
+				return false;
+			}
 			if(f.individualCount.value.trim() != "" && !isNumeric(f.individualCount.value)){
 				alert("Individual Count field must be a numeric value");
 				return false;
@@ -156,29 +156,36 @@ if($isEditor){
 <div id="popup-innertext">
 	<?php
 	if($isEditor){
-		if($errStr){
-			echo '<div style="color:red;margin:15px;">'.$errStr.'</div>';
-		}
+		if($errStr) echo '<div style="color:red;margin:15px;">'.$errStr.'</div>';
 		$sampleArr = array();
 		if($samplePK) $sampleArr = $shipManager->getSampleArr($samplePK);
 		?>
 		<fieldset style="width:800px;">
-			<legend><b><?php echo ($samplePK?$sampleArr['sampleID'].' (#'.$samplePK.')':'New Record'); ?></b></legend>
+			<legend><b><?php echo ($samplePK?(isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:$sampleArr['sampleID']).' (#'.$samplePK.')':'New Record'); ?></b></legend>
 			<form id="editForm" method="post" action="sampleeditor.php" onsubmit="return validateSampleForm(this)">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:225px" required />
+						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:400px" />
 					</div>
+				</div>
+				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>Sample Code:</b> <input name="sampleCode" type="text" value="<?php echo isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:''; ?>" style="width:250px" />
 					</div>
+				</div>
+				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>Alt. Sample ID(s):</b> <input name="alternativeSampleID" type="text" value="<?php echo isset($sampleArr['alternativeSampleID'])?$sampleArr['alternativeSampleID']:''; ?>" style="width:400px" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo isset($sampleArr['sampleClass'])?$sampleArr['sampleClass']:''; ?>" onchange="checkCollectionTransfer(this.form)" style="width:300px" required />
+						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo isset($sampleArr['sampleClass'])?$sampleArr['sampleClass']:''; ?>" onchange="checkCollectionTransfer(this.form)" style="width:600px" required />
+					</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						<b>Named Location:</b> <input name="namedLocation" type="text" value="<?php echo isset($sampleArr['namedLocation'])?$sampleArr['namedLocation']:''; ?>" style="" />
 					</div>
 					<div class="fieldDiv">
 						<b>Quarantine Status:</b>
@@ -200,11 +207,10 @@ if($isEditor){
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Named Location:</b> <input name="namedLocation" type="text" value="<?php echo isset($sampleArr['namedLocation'])?$sampleArr['namedLocation']:''; ?>" style="" />
-					</div>
-					<div class="fieldDiv">
 						<b>Collect Date:</b> <input name="collectDate" type="date" value="<?php echo isset($sampleArr['collectDate'])?$sampleArr['collectDate']:''; ?>" style="" />
 					</div>
+				</div>
+				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>Taxon ID:</b> <input name="taxonID" type="text" value="<?php echo isset($sampleArr['taxonID'])?$sampleArr['taxonID']:''; ?>" style="width:100px" />
 					</div>
@@ -232,14 +238,14 @@ if($isEditor){
 					if($samplePK){
 						?>
 						<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
-						<div><button id="submitButton" type="submit" name="action" value="save" style="opacity: 50%" disabled>Save Changes</button></div>
+						<div><button id="submitButton" type="submit" name="action" value="save" style="opacity: 50%">Save Changes</button></div>
 						<?php
 					}
 					else{
 						?>
 						<input name="checkinSample" type="checkbox" value="1" checked /> check-in sample<br/>
 						<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
-						<div><button id="submitButton" type="submit" name="action" value="savenew" style="opacity: 50%" disabled>Save Record</button></div>
+						<div><button id="submitButton" type="submit" name="action" value="savenew" style="opacity: 50%">Save Record</button></div>
 						<?php
 					}
 					?>
@@ -250,7 +256,7 @@ if($isEditor){
 		if($samplePK){
 			?>
 			<fieldset style="width:800px;">
-				<legend><b>Delete <?php echo $sampleArr['sampleID'].' (#'.$samplePK.')'; ?></b></legend>
+				<legend><b>Delete <?php echo (isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:$sampleArr['sampleID']).' (#'.$samplePK.')'; ?></b></legend>
 				<form method="post" action="sampleeditor.php" onsubmit="return confirm('Are you sure you want to permanently delete this sample?')">
 					<div style="clear:both;margin:15px">
 						<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />

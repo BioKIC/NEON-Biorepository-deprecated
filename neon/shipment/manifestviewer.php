@@ -548,14 +548,20 @@ include($SERVER_ROOT.'/includes/header.php');
 													}
 												}
 												echo '<tr class="sample-row">';
-												echo '<td><input id="scbox-'.$samplePK.'" class="'.trim($classStr).'" name="scbox[]" type="checkbox" value="'.$samplePK.'" /></td>';
-												$sampleID = $sampleArr['sampleID'];
-												if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
 												echo '<td>';
-												echo $sampleID;
+												echo '<input id="scbox-'.$samplePK.'" class="'.trim($classStr).'" name="scbox[]" type="checkbox" value="'.$samplePK.'" />';
 												echo ' <a href="#" onclick="return openSampleEditor('.$samplePK.')"><img src="../../images/edit.png" style="width:12px" /></a>';
 												echo '</td>';
-												if(array_key_exists('sampleCode',$sampleArr)) echo '<td>'.$sampleArr['sampleCode'].'</td>';
+												$sampleID = (array_key_exists('sampleID',$sampleArr)?$sampleArr['sampleID']:'');
+												if(array_key_exists('sampleID', $headerOutArr)){
+													if($quickSearchTerm == $sampleID) $sampleID = '<b>'.$sampleID.'</b>';
+													echo '<td>'.$sampleID.'</td>';
+												}
+												$sampleCode = (array_key_exists('sampleCode',$sampleArr)?$sampleArr['sampleCode']:'');
+												if(array_key_exists('sampleCode', $headerOutArr)){
+													if($quickSearchTerm == $sampleCode) $sampleCode = '<b>'.$sampleCode.'</b>';
+													echo '<td>'.$sampleCode.'</td>';
+												}
 												echo '<td>'.$sampleArr['sampleClass'].'</td>';
 												if(array_key_exists('taxonID',$sampleArr)) echo '<td>'.$sampleArr['taxonID'].'</td>';
 												if(array_key_exists('namedLocation', $sampleArr)){

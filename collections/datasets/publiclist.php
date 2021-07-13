@@ -39,7 +39,26 @@ $dArr = $datasetManager->getPublicDatasets();
       <?php 
         // print_r($dArr);
         if($dArr){
+          $catArr = array();
+          // Creates categories array
           foreach($dArr as $row) {
+            if (array_key_exists('category', $row)) {
+              ($row['category']) ? array_push($catArr, $row['category']) : array_push($catArr, NULL);
+            } else {
+              echo '<li><a href="public.php?datasetid='.$row['datasetid'].'">'.$row['name'].'</a></li>';
+            }
+            }
+          if (count($catArr) > 1) {
+            $catArr = array_unique($catArr);
+            foreach($catArr as $cat) {
+              echo ($cat) ? '<h3>'.$cat.'</h3>' : '';
+              foreach($dArr as $row){
+                if ($cat === $row['category']) {
+                  echo '<li><a href="public.php?datasetid='.$row['datasetid'].'">'.$row['name'].'</a></li>';
+                }
+              }
+            }
+          } else {
             echo '<li><a href="public.php?datasetid='.$row['datasetid'].'">'.$row['name'].'</a></li>';
           }
         }

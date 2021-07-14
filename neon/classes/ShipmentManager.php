@@ -370,7 +370,7 @@ class ShipmentManager{
 					//Append new filename to existing
 					$this->conn->query('UPDATE NeonShipment SET filename = "'.trim($this->cleanInStr($existingFileName.'|'.$this->uploadFileName),' |').'" WHERE shipmentpk = '.$shipmentPK);
 				}
-				echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
+				echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.'" target="_blank">'.$recArr['shipmentid'].'</a></li>';
 			}
 			else{
 				echo '<li style="margin-left:15px"><span style="color:red">ERROR</span> loading shipment record (errNo: '.$this->conn->errno.'): '.$this->conn->error.'</li>';
@@ -616,9 +616,12 @@ class ShipmentManager{
 			if($sampleID || $sampleCode){
 				$insertRecord = true;
 				if($this->reloadSampleRecs){
-					if($recArr['sampleid'] && $recArr['sampleclass']){
-						$sql = 'SELECT samplepk FROM NeonSample '.
-							'WHERE shipmentpk = '.$this->shipmentPK.' AND ((sampleid = "'.$recArr['sampleid'].'" AND sampleclass = "'.$recArr['sampleclass'].'") OR samplecode = "'.$recArr['samplecode'].'")';
+					if($sampleCode || ($sampleID && $recArr['sampleclass'])){
+						$sql = 'SELECT samplepk FROM NeonSample WHERE shipmentpk = '.$this->shipmentPK.' AND (';
+						if($sampleID) $sql .= '(sampleid = "'.$sampleID.'" AND sampleclass = "'.$recArr['sampleclass'].'")';
+						if($sampleID && $sampleCode) $sql .= ' OR ';
+						if($sampleCode) $sql .= 'samplecode = "'.$sampleCode.'"';
+						$sql .= ')';
 						$rs = $this->conn->query($sql);
 						if($r = $rs->fetch_object()){
 							$recArr['samplepk'] = $r->samplepk;
@@ -632,13 +635,13 @@ class ShipmentManager{
 					}
 				}
 				if($insertRecord){
-					$duplicateArr = $this->duplicateSampleExists($recArr['sampleid'], $recArr['sampleclass'], $recArr['samplecode']);
+					$duplicateArr = $this->duplicateSampleExists($sampleID, $recArr['sampleclass'], $sampleCode);
 					if(!$duplicateArr){
 						$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, alternativeSampleID, sampleClass, quarantineStatus, namedLocation, collectDate, '.
 							'dynamicproperties, symbiotatarget, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
 							'VALUES('.$this->shipmentPK.','.
-							(isset($recArr['sampleid']) && $recArr['sampleid']?'"'.$this->cleanInStr($recArr['sampleid']).'"':'NULL').','.
-							(isset($recArr['samplecode']) && $recArr['samplecode']?'"'.$this->cleanInStr($recArr['samplecode']).'"':'NULL').','.
+							($sampleID?'"'.$this->cleanInStr($sampleID).'"':'NULL').','.
+							($sampleCode?'"'.$this->cleanInStr($sampleCode).'"':'NULL').','.
 							(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
 							(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
 							(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
@@ -663,9 +666,10 @@ class ShipmentManager{
 						}
 						else{
 							if($this->conn->errno == 1062){
-								$id = $recArr['samplecode'].', '.
-								$this->errorStr = 'barcode: <a href="manifestviewer.php?quicksearch='.($recArr['samplecode']?$recArr['samplecode']:$recArr['sampleid']).'" target="_blank">'.$recArr['samplecode'].'</a>';
-								if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
+								$id = $sampleCode;
+								if(!$id) $id = $sampleID;
+								$this->errorStr = '<span style="color:red">FAILURE:</span> record already in system with duplicate: <a href="manifestviewer.php?quicksearch='.$id.'" target="_blank">'.$id.'</a>';
+								if($verbose) echo '<li>'.$this->errorStr.'</li>';
 							}
 							else{
 								$this->errorStr = '<span style="color:red">ERROR</span> adding sample: '.$this->conn->error;

@@ -160,7 +160,7 @@ if($isEditor){
 		$sampleArr = array();
 		if($samplePK) $sampleArr = $shipManager->getSampleArr($samplePK);
 		?>
-		<fieldset style="width:800px;">
+		<fieldset style="width:800px; margin-left:auto;margin-right:auto;">
 			<legend><b><?php echo ($samplePK?(isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:$sampleArr['sampleID']).' (#'.$samplePK.')':'New Record'); ?></b></legend>
 			<form id="editForm" method="post" action="sampleeditor.php" onsubmit="return validateSampleForm(this)">
 				<div class="fieldGroupDiv">
@@ -254,15 +254,27 @@ if($isEditor){
 		</fieldset>
 		<?php
 		if($samplePK){
+			$occid = (isset($sampleArr['occid']) && $sampleArr['occid']?$sampleArr['occid']:'');
 			?>
-			<fieldset style="width:800px;">
+			<fieldset style="width:800px;margin-left:auto;margin-right:auto;">
 				<legend><b>Delete <?php echo (isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:$sampleArr['sampleID']).' (#'.$samplePK.')'; ?></b></legend>
-				<form method="post" action="sampleeditor.php" onsubmit="return confirm('Are you sure you want to permanently delete this sample?')">
-					<div style="clear:both;margin:15px">
-						<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
-						<button type="submit" name="action" value="deleteSample">Delete Sample</button>
-					</div>
-				</form>
+				<?php
+				if($occid){
+					echo '<div style="color:red;margin:20px 0px">';
+					echo 'Sample can\'t be deleted until linked occurrence (<a href="../../collections/editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">#'.$occid.'</a>) is deleted or unlinked';
+					echo '</div>';
+				}
+				else{
+					?>
+					<form method="post" action="sampleeditor.php" onsubmit="return confirm('Are you sure you want to permanently delete this sample?')">
+						<div style="clear:both;margin:15px">
+							<input name="samplePK" type="hidden" value="<?php echo $samplePK; ?>" />
+							<button type="submit" name="action" value="deleteSample" <?php echo ($occid?'disabled':''); ?>>Delete Sample</button>
+						</div>
+					</form>
+					<?php
+				}
+				?>
 			</fieldset>
 			<?php
 		}

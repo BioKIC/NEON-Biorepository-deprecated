@@ -73,7 +73,7 @@ if($isEditor){
 	if($isEditor && $shipmentPK){
 		$shipArr = $shipManager->getShipmentArr();
 		?>
-		<fieldset style="width:800px;">
+		<fieldset style="width:800px;margin-left:auto;margin-right:auto;">
 			<legend><b><?php echo $shipArr['shipmentID'].' (#'.$shipmentPK.')'; ?></b></legend>
 			<form method="post" action="shipmenteditor.php">
 				<div class="fieldGroupDiv">
@@ -111,7 +111,7 @@ if($isEditor){
 				</div>
 			</form>
 		</fieldset>
-		<fieldset style="width:800px;">
+		<fieldset style="width:800px;margin-left:auto;margin-right:auto;">
 			<?php
 			$shipmentIsDeletable = $shipManager->shipmentISDeletable();
 			?>

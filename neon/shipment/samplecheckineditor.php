@@ -97,9 +97,11 @@ if($isEditor){
 	<?php
 	if($isEditor && $samplePK){
 		$sampleArr = $shipManager->getSampleArr($samplePK);
+		$id = (isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:'');
+		if(!$id && isset($sampleArr['sampleID'])) $id = $sampleArr['sampleID'];
 		?>
-		<fieldset style="width:800px;">
-			<legend><b><?php echo $sampleArr['sampleID'].' (#'.$samplePK.')'; ?></b></legend>
+		<fieldset style="width:800px;margin-left:auto;margin-right:auto;">
+			<legend><b><?php echo $id.' (#'.$samplePK.')'; ?></b></legend>
 			<form name="checkinForm" method="post" action="samplecheckineditor.php" onsubmit="return verifySampleEditForm(this)">
 				<div class="fieldGroupDiv">
 					<b>Sample Received:</b>

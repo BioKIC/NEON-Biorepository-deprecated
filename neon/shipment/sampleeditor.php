@@ -261,7 +261,8 @@ if($isEditor){
 				<?php
 				if($occid){
 					echo '<div style="color:red;margin:20px 0px">';
-					echo 'Sample can\'t be deleted until linked occurrence (<a href="../../collections/editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">#'.$occid.'</a>) is deleted or unlinked';
+					echo 'Sample can\'t be deleted until linked occurrence (<a href="../../collections/editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">#'.$occid.'</a>) is deleted or unlinked. ';
+					echo 'If an IGSN has been assigned, do NOT delete the occurrence record. Instead, contact an data administrator to evaluate the situtation.';
 					echo '</div>';
 				}
 				else{

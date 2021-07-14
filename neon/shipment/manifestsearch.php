@@ -126,13 +126,13 @@ include($SERVER_ROOT.'/includes/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Domain ID:</b> <input name="domainID" type="text" value="<?php echo (isset($searchArgumentArr['domainID'])?$searchArgumentArr['domainID']:''); ?>" />
+						<b>Domain ID:</b> <input name="domainID" type="text" value="<?php echo (isset($searchArgumentArr['domainID'])?$searchArgumentArr['domainID']:''); ?>" style="width:150px;" />
 					</div>
 					<div class="fieldDiv">
-						<b>Site ID:</b> <input name="namedLocation" type="text" value="<?php echo (isset($searchArgumentArr['namedLocation'])?$searchArgumentArr['namedLocation']:''); ?>" />
+						<b>Site ID:</b> <input name="namedLocation" type="text" value="<?php echo (isset($searchArgumentArr['namedLocation'])?$searchArgumentArr['namedLocation']:''); ?>" style="width:150px;" />
 					</div>
 					<div class="fieldDiv">
-						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo (isset($searchArgumentArr['sampleClass'])?$searchArgumentArr['sampleClass']:''); ?>" style="width:225px;" />
+						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo (isset($searchArgumentArr['sampleClass'])?$searchArgumentArr['sampleClass']:''); ?>" style="width:450px;" />
 					</div>
 					<div class="fieldDiv">
 						<b>Taxon ID:</b> <input name="taxonID" type="text" value="<?php echo (isset($searchArgumentArr['taxonID'])?$searchArgumentArr['taxonID']:''); ?>" />

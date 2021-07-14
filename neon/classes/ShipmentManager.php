@@ -867,6 +867,14 @@ class ShipmentManager{
 				$sqlWhere .= 'AND (s.dateShipped < "'.$_REQUEST['dateShippedEnd'].'") ';
 				$this->searchArr['dateShippedEnd'] = $_REQUEST['dateShippedEnd'];
 			}
+			if(isset($_REQUEST['dateCheckinStart']) && $_REQUEST['dateCheckinStart']){
+				$sqlWhere .= 'AND (m.checkinTimestamp > "'.$_REQUEST['dateCheckinStart'].'") ';
+				$this->searchArr['dateCheckinStart'] = $_REQUEST['dateCheckinStart'];
+			}
+			if(isset($_REQUEST['dateCheckinEnd']) && $_REQUEST['dateCheckinEnd']){
+				$sqlWhere .= 'AND (m.checkinTimestamp < "'.$_REQUEST['dateCheckinEnd'].'") ';
+				$this->searchArr['dateCheckinEnd'] = $_REQUEST['dateCheckinEnd'];
+			}
 			/*
 			 if(isset($_REQUEST['senderID']) && $_REQUEST['senderID']){
 				 $sqlWhere .= 'AND (s.senderID = "'.$_REQUEST['senderID'].'") ';

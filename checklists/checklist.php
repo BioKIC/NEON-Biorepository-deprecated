@@ -22,7 +22,6 @@ $showAlphaTaxa = array_key_exists("showalphataxa",$_REQUEST)?$_REQUEST["showalph
 $searchCommon = array_key_exists("searchcommon",$_REQUEST)?$_REQUEST["searchcommon"]:0;
 $searchSynonyms = array_key_exists("searchsynonyms",$_REQUEST)?$_REQUEST["searchsynonyms"]:0;
 $defaultOverride = array_key_exists("defaultoverride",$_REQUEST)?$_REQUEST["defaultoverride"]:0;
-$editMode = array_key_exists("emode",$_REQUEST)?$_REQUEST["emode"]:0;
 $printMode = array_key_exists("printmode",$_REQUEST)?$_REQUEST["printmode"]:0;
 
 //Sanitation
@@ -41,7 +40,6 @@ if(!is_numeric($showAlphaTaxa)) $showAlphaTaxa = 0;
 if(!is_numeric($searchCommon)) $searchCommon = 0;
 if(!is_numeric($searchSynonyms)) $searchSynonyms = 0;
 if(!is_numeric($defaultOverride)) $defaultOverride = 0;
-if(!is_numeric($editMode)) $editMode = 0;
 if(!is_numeric($printMode)) $printMode = 0;
 
 $statusStr='';
@@ -120,13 +118,16 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">
-		<?php if($clid) echo 'var clid = '.$clid.';'; ?>
+		<?php
+		if($clid) echo 'var clid = '.$clid.';'."\n";
+		echo 'var taxaCount = '.count($taxaArray).';'."\n";
+		?>
 		$( function() {
 			$( document ).tooltip();
 		} );
 
 	</script>
-	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=2106"></script>
+	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=2107"></script>
 	<style type="text/css">
 		<?php
 		if($printMode){
@@ -432,7 +433,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					<?php
 					if($clid && $isEditor){
 						?>
-						<div class="editspp" style="display:<?php echo ($editMode?'block':'none'); ?>;width:250px;">
+						<div class="editspp" style="width:250px;display:none;">
 							<form id='addspeciesform' action='checklist.php' method='post' name='addspeciesform' onsubmit="return validateAddSpecies(this);">
 								<fieldset style='margin:5px 0px 5px 5px;background-color:#FFFFCC;'>
 									<legend><b><?php echo $LANG['NEWSPECIES'];?></b></legend>
@@ -481,7 +482,6 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 										<input type='hidden' name='thesfilter' value='<?php echo $clManager->getThesFilter(); ?>' />
 										<input type='hidden' name='taxonfilter' value='<?php echo $taxonFilter; ?>' />
 										<input type='hidden' name='searchcommon' value='<?php echo $searchCommon; ?>' />
-										<input type="hidden" name="emode" value="1" />
 										<input type="hidden" name="formsubmit" value="AddSpecies" />
 										<button name="submitbtn" type="submit"><?php echo (isset($LANG['ADD_SPECIES'])?$LANG['ADD_SPECIES']:'Add Species to List'); ?></button>
 										<hr />
@@ -632,7 +632,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									echo '<b>'.$sppArr['sciname'].'</b>';
 									echo '</a>';
 									?>
-									<div class="editspp printoff" style="float:left;<?php echo ($editMode?'':'display:none'); ?>;">
+									<div class="editspp printoff" style="float:left;display:none;">
 										<?php
 										if(isset($sppArr['clid'])){
 											$clidArr = explode(',',$sppArr['clid']);
@@ -709,7 +709,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									$clidArr = explode(',',$sppArr['clid']);
 									foreach($clidArr as $id){
 										?>
-										<span class="editspp" style="<?php echo ($editMode?'':'display:none'); ?>;">
+										<span class="editspp" style="display:none;">
 											<a href="#" onclick="return openPopup('clsppeditor.php?tid=<?php echo $tid."&clid=".$id; ?>','editorwindow');">
 												<img src="../images/edit.png" style="width:13px;" title="<?php echo (isset($LANG['EDIT_DETAILS'])?$LANG['EDIT_DETAILS']:'edit details'); ?> (clid = <?php echo $id; ?>)" />
 											</a>

@@ -22,6 +22,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE.' '.$LANG['PAGE_TITLE']; ?></title>
 		<?php
+		$activateJQuery = true;
 		include_once($SERVER_ROOT.'/includes/head.php');
 		include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 		?>

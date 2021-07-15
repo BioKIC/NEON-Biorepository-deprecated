@@ -23,9 +23,10 @@ $(document).ready(function() {
 		autoFocus: true
 	});
 	if(document.cookie.indexOf("editspp") > -1){
-		toggle("editspp");
+		$(".editspp").show();
 		document.getElementById("editsppon").style.display = "inline";
 	}
+	if(taxaCount == 0) $(".editspp").show();
 });
 
 function toggleVoucherDiv(tid){
@@ -37,14 +38,15 @@ function toggleVoucherDiv(tid){
 }
 
 function toggleSppEditControls(){
-	toggle("editspp");
 	if(document.cookie.indexOf("editspp") > -1){
 		document.cookie = "editspp=;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 		document.getElementById("editsppon").style.display = "none";
+		$(".editspp").hide();
 	}
 	else{
 		document.cookie = "editspp=1";
 		document.getElementById("editsppon").style.display = "inline";
+		$(".editspp").show();
 	}
 }
 

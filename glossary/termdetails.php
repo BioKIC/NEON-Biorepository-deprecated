@@ -357,7 +357,7 @@ if($glossId){
 										<b><?php echo (isset($LANG['THIS_T'])?$LANG['THIS_T']:'This term'); ?></b>
 										<select name="relationship">
 											<option value="synonym"><?php echo (isset($LANG['IS_SYN'])?$LANG['IS_SYN']:'is Synonym of').'...'; ?></option>
-											<option value="subClassOf"><?php echo (isset($LANG['IS_SUB'])?$LANG['IS_SUB']:'is Subclass of').'...('(isset($LANG['CHILD_OF'])?$LANG['CHILD_OF']:'Child of').'...)'; ?></option>
+											<option value="subClassOf"><?php echo (isset($LANG['IS_SUB'])?$LANG['IS_SUB']:'is Subclass of').'...('.(isset($LANG['CHILD_OF'])?$LANG['CHILD_OF']:'Child of').'...)'; ?></option>
 											<option value="superClassOf"><?php echo (isset($LANG['IS_SUP'])?$LANG['IS_SUP']:'is Superclass of').'...('(isset($LANG['PARENT_OF'])?$LANG['PARENT_OF']:'Parent of').'...)'; ?></option>
 											<option value="hasPart"><?php echo (isset($LANG['HAS_PART'])?$LANG['HAS_PART']:'has Part'); ?>...</option>
 											<option value="partOf"><?php echo (isset($LANG['PART_OF'])?$LANG['PART_OF']:'is Part of'); ?>...</option>

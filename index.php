@@ -68,9 +68,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<div style="padding: 0px 10px;font-size:120%">
 			<h1 style=>Welcome to the CCH2 data portal</h1>
 			<p>
-				<i>Some specimen images are currently unavailable due to server mainentance. If you have an urgent need for certain images, please contact our project manager (<a href="mailto:kdpearso@calpoly.edu">kdpearso@calpoly.edu</a>).</i>
-			</p>
-			<p>
 				<b>CCH2</b> serves data from specimens housed in member herbaria of the <b>Consortium of California Herbaria (CCH)</b>. This portal has a worldwide scope and a broad taxonomic basis including vascular plants, bryophytes, algae, fungi, and lichens.
 			</p>
 			<p>

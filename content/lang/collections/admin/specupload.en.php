@@ -57,17 +57,17 @@ $LANG['IPT_URL'] = 'IPT Resource URL';
 $LANG['RES_URL'] = 'Resource Path or URL';
 $LANG['WORKAROUND'] = 'This option is for pointing to a data file that was manually 
 						uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed 
-						by server upload limitations (e.g. PHP configuration limits');
+						by server upload limitations (e.g. PHP configuration limits';
 $LANG['DISPLAY_OPS'] = 'Display Additional Options';
 $LANG['AUTOMAP'] = 'Automap Fields';
 $LANG['ANALYZE_FILE'] = 'Analyze File';
-$LANG['UNPROC'] = 'Unprocessed');
-$LANG['STAGE_1'] = 'Stage 1');
-$LANG['STAGE_2'] = 'Stage 2');
-$LANG['STAGE_3'] = 'Stage 3');
-$LANG['PEND_REV'] = 'Pending Review');
-$LANG['EXP_REQ'] = 'Expert Required');
-$LANG['PEND_NFN'] = 'Pending Review-NfN');
+$LANG['UNPROC'] = 'Unprocessed';
+$LANG['STAGE_1'] = 'Stage 1';
+$LANG['STAGE_2'] = 'Stage 2';
+$LANG['STAGE_3'] = 'Stage 3';
+$LANG['PEND_REV'] = 'Pending Review';
+$LANG['EXP_REQ'] = 'Expert Required';
+$LANG['PEND_NFN'] = 'Pending Review-NfN';
 $LANG['SOURCE_ID'] = 'Source Unique Identifier / Primary Key';
 $LANG['REQ'] = 'required';
 $LANG['IMPORT_OCCS'] = 'Import Occurrence Records';

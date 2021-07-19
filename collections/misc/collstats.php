@@ -226,19 +226,12 @@ if($action != "Update Statistics"){
 			<meta name="keywords" content="Natural history collections statistics" />
 			<title><?php echo $DEFAULT_TITLE; ?> Collection Statistics</title>
 			<?php
-			$activateJQuery = true;
-			if(file_exists($SERVER_ROOT.'/includes/head.php')){
-				include_once($SERVER_ROOT.'/includes/head.php');
-		    }
-			else{
-				echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-				echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-				echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-			}
+			include_once($SERVER_ROOT.'/includes/head.php');
 			?>
-            <script type="text/javascript" src="../../js/jquery.js"></script>
-			<script type="text/javascript" src="../../js/jquery-ui.js"></script>
-			<script type="text/javascript" src="../../js/symb/collections.index.js"></script>
+			<link href="<?php echo $CSS_BASE_PATH; ?>/collection.css" type="text/css" rel="stylesheet" />
+            <script src="../../js/jquery.js" type="text/javascript"></script>
+			<script src="../../js/jquery-ui.js" type="text/javascript"></script>
+			<script src="../../js/symb/collections.index.js" type="text/javascript"></script>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					if(!navigator.cookieEnabled){

@@ -26,7 +26,6 @@ $LANG['LONGW'] = 'Long West';
 $LANG['ONLYCOORD'] = 'Only include occurrences with coordinates';
 $LANG['POLYGON_SEARCH'] = 'Search based on polygon defining checklist research boundaries';
 $LANG['EXCLUDE'] = 'Exclude cultivated/captive occurrences';
-$LANG['TAXON'] = 'Taxon';
 $LANG['SAVESEARCH'] = 'Save Search Terms';
 $LANG['REMOVESEARCH'] = 'Remove Search Statement';
 $LANG['NEWVOUCH'] = 'New Vouchers';

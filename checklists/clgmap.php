@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
+@include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $pid = $_REQUEST['pid'];
@@ -11,7 +12,7 @@ $clManager->setProj($pid);
 ?>
 <html>
 	<head>
-		<title><?php echo $DEFAULT_TITLE; ?> - Species Checklists</title>
+		<title><?php echo $DEFAULT_TITLE.' - '.(isset($LANG['H_INVENTORIES'])?$LANG['H_INVENTORIES']:'Species Checklists'); ?></title>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
 		<script type="text/javascript">

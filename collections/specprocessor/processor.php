@@ -110,20 +110,9 @@ $statusStr = "";
 						$imageProcessor->setSkeletalFileProcessing($_POST['skeletalFileProcessing']);
 
 						//Run process
-						$imageProcessor->batchLoadImages();
+						$imageProcessor->batchLoadSpecimenImages();
 						echo '</div>'."\n";
 					}
-				}
-				elseif($action == 'Process Output File'){
-					//Process iDigBio Image ingestion appliance ouput file
-					$imageProcessor = new ImageProcessor($specManager->getConn());
-					echo '<ul>';
-					$imageProcessor->setLogMode(3);
-					$imageProcessor->setSpprid($spprid);
-					$imageProcessor->setCollid($collid);
-					$imageProcessor->processiDigBioOutput($specManager->getSpecKeyPattern(),$_POST);
-					echo '</ul>';
-
 				}
 				elseif($action == 'mapImageFile'){
 					//Process csv file with remote image urls

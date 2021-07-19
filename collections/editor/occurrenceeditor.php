@@ -491,7 +491,7 @@ else{
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
 	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.main.js?ver=6" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.main.js?ver=7" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
@@ -1490,7 +1490,7 @@ else{
 															<div class="fieldGroupDiv" title="Relationship to this occurrence">
 																<label>Relationship:</label>
 																<select name="assocrelation">
-																	<option value="0">No relation to current record</option>
+																	<option value="0">Undefined</option>
 																	<option value="0">---------------------------------</option>
 																	<?php
 																	$vocabArr = $occManager->getAssociationControlVocab();

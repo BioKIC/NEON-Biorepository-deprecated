@@ -22,7 +22,11 @@ $(document).ready(function() {
 		minLength: 4,
 		autoFocus: true
 	});
-
+	if(document.cookie.indexOf("editspp") > -1){
+		$(".editspp").show();
+		document.getElementById("editsppon").style.display = "inline";
+	}
+	if(taxaCount == 0) $(".editspp").show();
 });
 
 function toggleVoucherDiv(tid){
@@ -31,6 +35,19 @@ function toggleVoucherDiv(tid){
 	toggle("lessvouch-"+tid);
 	//anchorObj.style.display = "none";
 	return false;
+}
+
+function toggleSppEditControls(){
+	if(document.cookie.indexOf("editspp") > -1){
+		document.cookie = "editspp=;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+		document.getElementById("editsppon").style.display = "none";
+		$(".editspp").hide();
+	}
+	else{
+		document.cookie = "editspp=1";
+		document.getElementById("editsppon").style.display = "inline";
+		$(".editspp").show();
+	}
 }
 
 function toggle(target){

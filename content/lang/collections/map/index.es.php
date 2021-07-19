@@ -1,41 +1,42 @@
 <?php
 /*
 ------------------
-Language: Espa�ol (Spanish)
+Language: Español (Spanish)
 ------------------
 */
-include_once($SERVER_ROOT.'/content/lang/collections/harvestparams.es.php');
 
-$LANG['SEARCH_CRITERIA'] = 'Search Criteria and Options';
-$LANG['CRITERIA'] = 'Criteria';
-$LANG['COLLECTIONS'] = 'Collections';
-$LANG['MAP_OPTIONS'] = 'Map Options';
-$LANG['RESET'] = 'Reset';
-$LANG['SEARCH'] = 'Search';
+include_once($SERVER_ROOT.'/content/lang/collections/harvestparams.en.php');
+
+$LANG['SEARCH_CRITERIA'] = 'Criterios y opciones de búsqueda';
+$LANG['CRITERIA'] = 'Criterios';
+$LANG['COLLECTIONS'] = 'Colecciones';
+$LANG['MAP_OPTIONS'] = 'Opciones del Mapa';
+$LANG['RESET'] = 'Reiniciar';
+$LANG['SEARCH'] = 'Buscar';
 $LANG['TAXA'] = 'Taxa';
-$LANG['SHAPE_TOOLS'] = 'Use the shape tools on the map to select occurrences within a given shape';
-$LANG['WITHIN_POLYGON'] = 'Within the selected polygon';
-$LANG['WITHIN_CIRCLE'] = 'Within the selected circle';
-$LANG['WITHIN_RECTANGLE'] = 'Within the selected rectangle';
-$LANG['DELETE_SHAPE'] = 'Delete Selected Shape';
-$LANG['LIMIT_TO_TYPE'] = 'Limit to Type Specimens Only';
-$LANG['LIMIT_IMAGES'] = 'Limit to Specimens with Images Only';
-$LANG['LIMIT_GENETIC'] = 'Limit to Specimens with Genetic Data Only';
-$LANG['CLUSTERING'] = 'Clustering';
-$LANG['GRID_SIZE'] = 'Grid Size';
-$LANG['CLUSTER_SIZE'] = 'Min. Cluster Size';
-$LANG['TURN_OFF_CLUSTERING'] = 'Turn Off Clustering';
-$LANG['REFRESH_MAP'] = 'Refresh Map';
+$LANG['SHAPE_TOOLS'] = 'Use las herramientas de formas sobre el mapa para seleccionar los registros dentro de dicha forma';
+$LANG['WITHIN_POLYGON'] = 'Dentro del polígono seleccionado';
+$LANG['WITHIN_CIRCLE'] = 'Dentro del círculo seleccionado';
+$LANG['WITHIN_RECTANGLE'] = 'Dentro del rectángulo seleccionado';
+$LANG['DELETE_SHAPE'] = 'Borrar Forma Seleccionada';
+$LANG['LIMIT_TO_TYPE'] = 'Limitar Únicamente a Especímenes Tipo';
+$LANG['LIMIT_IMAGES'] = 'Limitar Únicamente a Especímenes con Imágenes';
+$LANG['LIMIT_GENETIC'] = 'Limitar Únicamente a Especímenes con Datos Genéticos';
+$LANG['CLUSTERING'] = 'Agrupar';
+$LANG['GRID_SIZE'] = 'Tamaño de Rejilla';
+$LANG['CLUSTER_SIZE'] = 'Cantidad Mínima de Agrupamiento';
+$LANG['TURN_OFF_CLUSTERING'] = 'Desactivar Agrupamiento';
+$LANG['REFRESH_MAP'] = 'Refrescar Mapa';
 
-$LANG['RECORDS_TAXA'] = 'Records and Taxa';
-$LANG['RECORDS'] = 'Records';
-$LANG['COLLECTIONS'] = 'Collections';
-$LANG['TAXA_LIST'] = 'Taxa List';
-$LANG['COLLECTION'] = 'Collection';
-$LANG['OBSERVATION'] = 'Observation';
-$LANG['RESET_SYMBOLOGY'] = 'Reset Symbology';
-$LANG['AUTO_COLOR'] = 'Auto Color';
-$LANG['TAXA_COUNT'] = 'Taxa Count';
+$LANG['RECORDS_TAXA'] = 'Registros y Taxa';
+$LANG['RECORDS'] = 'Registros';
+$LANG['COLLECTIONS'] = 'Colecciones';
+$LANG['TAXA_LIST'] = 'Listado Taxonómico';
+$LANG['COLLECTION'] = 'Colección';
+$LANG['OBSERVATION'] = 'Observación';
+$LANG['RESET_SYMBOLOGY'] = 'Reiniciar Simbología';
+$LANG['AUTO_COLOR'] = 'Color Automático';
+$LANG['TAXA_COUNT'] = 'Conteo de Taxa';
 
-$LANG['MORE_INFO'] = 'm&aacute;s info...';
+$LANG['MORE_INFO'] = 'Más información...';
 ?>

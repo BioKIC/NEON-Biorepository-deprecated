@@ -110,7 +110,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 							<option value="1" <?php echo ($displayMode==1?'selected':''); ?>>Georeference Export</option>
 						</select>
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-						<input name="tabindex" type="hidden" value="5" />
+						<input name="tabindex" type="hidden" value="4" />
 					</form>
 				</fieldset>
 			</div>

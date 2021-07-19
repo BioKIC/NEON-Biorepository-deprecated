@@ -499,7 +499,7 @@ class OccurrenceDuplicate {
 				}
 				$loc = $r['locality'];
 				if($target == 'locationID') $loc = $r['locationid'];
-				if($r['decimallatitude']) $loc .= '; '.$r['decimallatitude'].' '.$r['decimallongitude'];
+				if($r['decimallatitude']) $loc .= ' || '.$r['decimallatitude'].' '.$r['decimallongitude'];
 				$retArr[$cnt]['value'] = $loc;
 				$cnt++;
 			}

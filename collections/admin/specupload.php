@@ -425,17 +425,17 @@ if($isEditor && $collid){
 						echo '<div>Occurrences pending transfer: '.$reportArr['occur'];
 						if($reportArr['occur']){
 							echo ' <a href="uploadreviewer.php?collid='.$collid.'" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
-							echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+							echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 						}
 						echo '</div>';
 						echo '<div style="margin-left:15px;">';
 						echo '<div>Records to be updated: ';
 						echo $reportArr['update'];
 						if($reportArr['update']){
-							echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=occid:ISNOTNULL" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-							echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=occid:ISNOTNULL" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+							echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=occid:ISNOTNULL" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+							echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=occid:ISNOTNULL" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 							if($uploadType != $SKELETAL && $uploadType != $NFNUPLOAD)
-								echo '&nbsp;&nbsp;&nbsp;<span style="color:orange"><b>Caution:</b></span> incoming records will replace existing records';
+								echo '&nbsp;&nbsp;&nbsp;<span style="color:orange"><b>'.(isset($LANG['CAUTION_REPLACE'])?$LANG['CAUTION_REPLACE']:'Caution:</b></span> incoming records will replace existing records');
 						}
 						echo '</div>';
 						if($uploadType != $NFNUPLOAD || $reportArr['new']){
@@ -443,9 +443,9 @@ if($isEditor && $collid){
 							else echo '<div>New records: ';
 							echo $reportArr['new'];
 							if($reportArr['new']){
-								echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=occid:ISNULL" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-								echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=occid:ISNULL" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
-								if($uploadType == $NFNUPLOAD) echo '<span style="margin-left:15px;color:orange">&gt;&gt; Records failed to link to records within this collection and will not be imported</span>';
+								echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=occid:ISNULL" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+								echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=occid:ISNULL" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
+								if($uploadType == $NFNUPLOAD) echo '<span style="margin-left:15px;color:orange">&gt;&gt; '.(isset($LANG['FAILED_LINK'])?$LANG['FAILED_LINK']:'Records failed to link to records within this collection and will not be imported').'</span>';
 							}
 							echo '</div>';
 						}
@@ -453,52 +453,52 @@ if($isEditor && $collid){
 							echo '<div>Records matching on catalog number that will be appended : ';
 							echo $reportArr['matchappend'];
 							if($reportArr['matchappend']){
-								echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=matchappend" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-								echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=matchappend" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+								echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=matchappend" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+								echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=matchappend" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 							}
 							echo '</div>';
-							echo '<div style="margin-left:15px;"><span style="color:orange;">WARNING:</span> This will result in records with duplicate catalog numbers</div>';
+							echo '<div style="margin-left:15px;"><span style="color:orange;">'.(isset($LANG['WARNING_DUPES'])?$LANG['WARNING_DUPES']:'WARNING:</span> This will result in records with duplicate catalog numbers').'</div>';
 						}
 						if($uploadType != $NFNUPLOAD && $uploadType != $SKELETAL){
 							if(isset($reportArr['sync']) && $reportArr['sync']){
-								echo '<div>Records that will be syncronized with central database: ';
+								echo '<div>'.(isset($LANG['RECS_SYNC'])?$LANG['RECS_SYNC']:'Records that will be syncronized with central database').': ';
 								echo $reportArr['sync'];
 								if($reportArr['sync']){
-									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=sync" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=sync" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=sync" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=sync" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 								}
 								echo '</div>';
-								echo '<div style="margin-left:15px;">These are typically records that have been originally processed within the portal, exported and integrated into a local management database, and then reimported and synchronized with the portal records by matching on catalog number.</div>';
-								echo '<div style="margin-left:15px;"><span style="color:orange;">WARNING:</span> Incoming records will replace portal records by matching on catalog numbers. Make sure incoming records are the most up to date!</div>';
+								echo '<div style="margin-left:15px;">'.(isset($LANG['EXPL_SYNC'])?$LANG['EXPL_SYNC']:'These are typically records that have been originally processed within the portal, exported and integrated into a local management database, and then reimported and synchronized with the portal records by matching on catalog number').'.</div>';
+								echo '<div style="margin-left:15px;"><span style="color:orange;">'.(isset($LANG['WARNING_REPLACE'])?$LANG['WARNING_REPLACE']:'WARNING:</span> Incoming records will replace portal records by matching on catalog numbers. Make sure incoming records are the most up to date!').'</div>';
 							}
 							if(isset($reportArr['exist']) && $reportArr['exist']){
 								echo '<div>Previous loaded records not matching incoming records: ';
 								echo $reportArr['exist'];
 								if($reportArr['exist']){
-									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=exist" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=exist" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=exist" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=exist" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 								}
 								echo '</div>';
 								echo '<div style="margin-left:15px;">';
-								echo 'Note: If you are doing a partial upload, this is expected. ';
-								echo 'If you are doing a full data refresh, these may be records that were deleted within your local database but not within the portal.';
+								echo (isset($LANG['EXPECTED'])?$LANG['EXPECTED']:'Note: If you are doing a partial upload, this is expected').'. ';
+								echo (isset($LANG['FULL_REFRESH'])?$LANG['FULL_REFRESH']:'If you are doing a full data refresh, these may be records that were deleted within your local database but not within the portal.');
 								echo '</div>';
 							}
 							if(isset($reportArr['nulldbpk']) && $reportArr['nulldbpk']){
-								echo '<div style="color:red;">Records that will be removed due to NULL Primary Identifier: ';
+								echo '<div style="color:red;">'.(isset($LANG['NULL_RM'])?$LANG['NULL_RM']:'Records that will be removed due to NULL Primary Identifier').': ';
 								echo $reportArr['nulldbpk'];
 								if($reportArr['nulldbpk']){
-									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=dbpk:ISNULL" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=dbpk:ISNULL" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=dbpk:ISNULL" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=dbpk:ISNULL" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 								}
 								echo '</div>';
 							}
 							if(isset($reportArr['dupdbpk']) && $reportArr['dupdbpk']){
-								echo '<div style="color:red;">Records that will be removed due to DUPLICATE Primary Identifier: ';
+								echo '<div style="color:red;">'.(isset($LANG['DUP_RM'])?$LANG['DUP_RM']:'Records that will be removed due to DUPLICATE Primary Identifier').': ';
 								echo $reportArr['dupdbpk'];
 								if($reportArr['dupdbpk']){
-									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=dupdbpk" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=dupdbpk" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=dupdbpk" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=dupdbpk" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 								}
 								echo '</div>';
 							}
@@ -506,15 +506,15 @@ if($isEditor && $collid){
 						echo '</div>';
 						//Extensions
 						if(isset($reportArr['ident'])){
-							echo '<div>Identification histories pending transfer: '.$reportArr['ident'].'</div>';
+							echo '<div>'.(isset($LANG['ID_TRANSFER'])?$LANG['ID_TRANSFER']:'Identification histories pending transfer').': '.$reportArr['ident'].'</div>';
 						}
 						if(isset($reportArr['image'])){
-							echo '<div>Records with images: '.$reportArr['image'].'</div>';
+							echo '<div>'.(isset($LANG['W_IMAGES'])?$LANG['W_IMAGES']:'Records with images').': '.$reportArr['image'].'</div>';
 						}
 
 						?>
 					</div>
-					<form name="finaltransferform" action="specupload.php" method="post" style="margin-top:10px;" onsubmit="return confirm('Are you sure you want to transfer records from temporary table to central specimen table?');">
+					<form name="finaltransferform" action="specupload.php" method="post" style="margin-top:10px;" onsubmit="return confirm('<?php echo (isset($LANG['FINAL_TRANSFER'])?$LANG['FINAL_TRANSFER']:'Are you sure you want to transfer records from temporary table to central specimen table?'); ?>');">
 						<input type="hidden" name="collid" value="<?php echo $collid;?>" />
 						<input type="hidden" name="uploadtype" value="<?php echo $uploadType; ?>" />
 						<input type="hidden" name="observeruid" value="<?php echo $observerUid; ?>" />
@@ -541,11 +541,11 @@ if($isEditor && $collid){
 					<fieldset style="width:95%;">
 						<legend><b><?php echo $duManager->getTitle;?></b></legend>
 						<div>
-							Record Start:
+							<?php echo (isset($LANG['REC_START'])?$LANG['REC_START']:'Record Start'); ?>:
 							<input type="text" name="recstart" size="5" value="<?php echo $duManager->getSearchStart(); ?>" />
 						</div>
 						<div>
-							Record Limit:
+							<?php echo (isset($LANG['REC_LIM'])?$LANG['REC_LIM']:'Record Limit'); ?>:
 							<input type="text" name="reclimit" size="5" value="<?php echo $duManager->getSearchLimit(); ?>" />
 						</div>
 						<?php
@@ -553,15 +553,15 @@ if($isEditor && $collid){
 							?>
 							<div style="margin:10px 0px;">
 								<input name="matchcatnum" type="checkbox" value="1" checked />
-								Match on Catalog Number
+								<?php echo (isset($LANG['MATCH_CAT'])?$LANG['MATCH_CAT']:'Match on Catalog Number'); ?>
 							</div>
 							<div style="margin:10px 0px;">
 								<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
-								Match on Other Catalog Numbers
+								<?php echo (isset($LANG['MATCH_O_CAT'])?$LANG['MATCH_O_CAT']:'Match on Other Catalog Numbers'); ?>
 							</div>
 							<ul style="margin:10px 0px;">
 								<li><?php echo $recReplaceMsg; ?></li>
-								<li>If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers</li>
+								<li><?php echo (isset($LANG['BOTH_CATS'])?$LANG['BOTH_CATS']:'If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers'); ?></li>
 							</ul>
 							<?php
 						}
@@ -594,13 +594,13 @@ if($isEditor && $collid){
 						?>
 						<form name="fileuploadform" action="specupload.php" method="post" enctype="multipart/form-data" onsubmit="return verifyFileUploadForm(this)">
 							<fieldset style="width:95%;">
-								<legend style="font-weight:bold;font-size:120%;<?php if($uploadType == $SKELETAL) echo 'background-color:lightgreen'; ?>"><?php echo $uploadTitle;?>: Identify Data Source</legend>
+								<legend style="font-weight:bold;font-size:120%;<?php if($uploadType == $SKELETAL) echo 'background-color:lightgreen'; ?>"><?php echo $uploadTitle.': '.(isset($LANG['ID_SOURCE'])?$LANG['ID_SOURCE']:'Identify Data Source'); ?></legend>
 								<div>
 									<div style="margin:10px">
 										<?php
-										$pathLabel = 'IPT Resource URL';
+										$pathLabel = (isset($LANG['IPT_URL'])?$LANG['IPT_URL']:'IPT Resource URL');
 										if($uploadType != $IPTUPLOAD){
-											$pathLabel = 'Resource Path or URL';
+											$pathLabel = (isset($LANG['RES_URL'])?$LANG['RES_URL']:'Resource Path or URL');
 											?>
 											<div>
 												<input name="uploadfile" type="file" size="50" onchange="verifyImageSize(this)" />
@@ -613,9 +613,9 @@ if($isEditor && $collid){
 											<input name="ulfnoverride" type="text" size="70" /><br/>
 											<?php
 											if($uploadType != $IPTUPLOAD){
-												echo '* This option is for pointing to a data file that was manually uploaded to a server. '.
-													'This option offers a workaround for importing files that are larger than what is allowed by '.
-													'server upload limitations (e.g. PHP configuration limits).';
+												echo '* '.(isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:'This option is for pointing to a data file that was manually 
+												uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed 
+												by server upload limitations (e.g. PHP configuration limits');
 											}
 											?>
 										</div>
@@ -623,7 +623,7 @@ if($isEditor && $collid){
 										if($uploadType != $IPTUPLOAD){
 											?>
 											<div class="ulfnoptions">
-												<a href="#" onclick="toggle('ulfnoptions');return false;">Display Additional Options</a>
+												<a href="#" onclick="toggle('ulfnoptions');return false;"><?php echo (isset($LANG['DISPLAY_OPS'])?$LANG['DISPLAY_OPS']:'Display Additional Options'); ?></a>
 											</div>
 											<?php
 										}
@@ -632,11 +632,11 @@ if($isEditor && $collid){
 									<div style="margin:10px;">
 										<?php
 										if(!$uspid && $uploadType != $NFNUPLOAD)
-											echo '<input name="automap" type="checkbox" value="1" CHECKED /> <b>Automap fields</b><br/>';
+											echo '<input name="automap" type="checkbox" value="1" CHECKED /> <b>'.(isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap fields').'</b><br/>';
 										?>
 									</div>
 									<div style="margin:10px;">
-										<input name="action" type="submit" value="Analyze File" />
+										<button name="action" type="submit" value="Analyze File"><?php echo (isset($LANG['ANALYZE_FILE'])?$LANG['ANALYZE_FILE']:'Analyze File'); ?></button>
 										<input name="uspid" type="hidden" value="<?php echo $uspid; ?>" />
 										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 										<input name="uploadtype" type="hidden" value="<?php echo $uploadType; ?>" />
@@ -649,8 +649,8 @@ if($isEditor && $collid){
 						<?php
 					}
 				}
-				$processingList = array("unprocessed"=>"Unprocessed","stage 1"=>"Stage 1","stage 2"=>"Stage 2","stage 3"=>"Stage 3",
-					"pending review"=>"Pending Review","expert required"=>"Expert Required","pending review-nfn"=>"Pending Review-NfN",
+				$processingList = array("unprocessed"=>"<?php echo (isset($LANG['UNPROC'])?$LANG['UNPROC']:'Unprocessed'); ?>","stage 1"=>"<?php echo (isset($LANG['STAGE_1'])?$LANG['STAGE_1']:'Stage 1'); ?>","stage 2"=>"<?php echo (isset($LANG['STAGE_2'])?$LANG['STAGE_2']:'Stage 2'); ?>","stage 3"=>"<?php echo (isset($LANG['STAGE_3'])?$LANG['STAGE_3']:'Stage 3'); ?>",
+					"pending review"=>"<?php echo (isset($LANG['PEND_REV'])?$LANG['PEND_REV']:'Pending Review'); ?>","expert required"=>"<?php echo (isset($LANG['EXP_REQ'])?$LANG['EXP_REQ']:'Expert Required'); ?>","pending review-nfn"=>"<?php echo (isset($LANG['PEND_NFN'])?$LANG['PEND_NFN']:'Pending Review-NfN'); ?>",
 					"reviewed"=>"Reviewed","closed"=>"Closed");
 				if($ulPath && ($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD)){
 					//Data has been uploaded and it's a DWCA upload type
@@ -662,7 +662,7 @@ if($isEditor && $collid){
 								<fieldset style="width:95%;">
 									<legend style="font-weight:bold;font-size:120%;"><?php echo $uploadTitle.': Field Mapping';?></legend>
 									<div style="margin:10px;">
-										<b>Source Unique Identifier / Primary Key (<span style="color:red">required</span>): </b>
+										<b><?php echo (isset($LANG['SOURCE_ID'])?$LANG['SOURCE_ID']:'Source Unique Identifier / Primary Key'); ?> (<span style="color:red"><?php echo (isset($LANG['REQ'])?$LANG['REQ']:'required'); ?></span>): </b>
 										<?php
 										$dbpk = $duManager->getDbpk();
 										$dbpkTitle = 'Core ID';
@@ -673,17 +673,17 @@ if($isEditor && $collid){
 										<div style="margin:10px;">
 											<div>
 												<input name="importspec" value="1" type="checkbox" checked />
-												Import Occurrence Records (<a href="#" onclick="toggle('dwcaOccurDiv');return false;">view details</a>)
+												<?php echo (isset($LANG['IMPORT_OCCS'])?$LANG['IMPORT_OCCS']:'Import Occurrence Records'); ?> (<a href="#" onclick="toggle('dwcaOccurDiv');return false;"><?php echo (isset($LANG['VIEW_DETS'])?$LANG['VIEW_DETS']:'view details'); ?></a>)
 											</div>
 											<div id="dwcaOccurDiv" style="display:none;margin:20px;">
 												<div style="margin-bottom:5px">
 													<?php $duManager->echoFieldMapTable(true,'occur'); ?>
 													<div>
-														* Unverified mappings are displayed in yellow
+														<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
 													</div>
 												</div>
 												<fieldset>
-													<legend><b>Custom Occurrence Record Import Filters</b></legend>
+													<legend><b><?php echo (isset($LANG['CUSTOM_FILT'])?$LANG['CUSTOM_FILT']:'Custom Occurrence Record Import Filters'); ?></b></legend>
 													<?php
 													$qArr = json_decode($duManager->getQueryStr(),true);
 													$queryArr = array();
@@ -717,9 +717,9 @@ if($isEditor && $collid){
 
 														?>
 														<div>
-															Field:
+															<?php echo (isset($LANG['FIELD'])?$LANG['FIELD']:'Field'); ?>:
 															<select name="filter<?php echo $x; ?>" style="margin-right:10px">
-																<option value="">Select Field Name</option>
+																<option value=""><?php echo (isset($LANG['SEL_FIELD'])?$LANG['SEL_FIELD']:'Select Field Name'); ?></option>
 																<?php
 																$setFilter = (isset($queryArr['filter'.$x])?$queryArr['filter'.$x]:'');
 																foreach($sourceFields as $f){
@@ -727,49 +727,49 @@ if($isEditor && $collid){
 																}
 																?>
 															</select>
-															Condition:
+															<?php echo (isset($LANG['COND'])?$LANG['COND']:'Condition'); ?>:
 															<select name="condition<?php echo $x; ?>" style="margin-right:10px">
-																<option value="EQUALS" <?php if($savedCondition == 'EQUALS') echo 'SELECTED'; ?>>EQUALS</option>
-																<option value="STARTS" <?php if($savedCondition == 'STARTS') echo 'SELECTED'; ?>>STARTS WITH</option>
-																<option value="LIKE" <?php if($savedCondition == 'LIKE') echo 'SELECTED'; ?>>CONTAINS</option>
-																<option value="LESSTHAN" <?php if($savedCondition == 'LESSTHAN') echo 'SELECTED'; ?>>LESS THAN</option>
-																<option value="GREATERTHAN" <?php if($savedCondition == 'GREATERTHAN') echo 'SELECTED'; ?>>GREATER THAN</option>
-																<option value="ISNULL" <?php if($savedCondition == 'ISNULL') echo 'SELECTED'; ?>>IS NULL</option>
-																<option value="NOTNULL" <?php if($savedCondition == 'NOTNULL') echo 'SELECTED'; ?>>IS NOT NULL</option>
+																<option value="EQUALS" <?php if($savedCondition == 'EQUALS') echo 'SELECTED'; ?>><?php echo (isset($LANG['EQUALS'])?$LANG['EQUALS']:'EQUALS'); ?></option>
+																<option value="STARTS" <?php if($savedCondition == 'STARTS') echo 'SELECTED'; ?>><?php echo (isset($LANG['STARTS_WITH'])?$LANG['STARTS_WITH']:'STARTS WITH'); ?></option>
+																<option value="LIKE" <?php if($savedCondition == 'LIKE') echo 'SELECTED'; ?>><?php echo (isset($LANG['CONTAINS'])?$LANG['CONTAINS']:'CONTAINS'); ?></option>
+																<option value="LESSTHAN" <?php if($savedCondition == 'LESSTHAN') echo 'SELECTED'; ?>><?php echo (isset($LANG['LESS_THAN'])?$LANG['LESS_THAN']:'LESS THAN'); ?></option>
+																<option value="GREATERTHAN" <?php if($savedCondition == 'GREATERTHAN') echo 'SELECTED'; ?>><?php echo (isset($LANG['GREATER_THAN'])?$LANG['GREATER_THAN']:'GREATER THAN'); ?></option>
+																<option value="ISNULL" <?php if($savedCondition == 'ISNULL') echo 'SELECTED'; ?>><?php echo (isset($LANG['IS_NULL'])?$LANG['IS_NULL']:'IS NULL'); ?></option>
+																<option value="NOTNULL" <?php if($savedCondition == 'NOTNULL') echo 'SELECTED'; ?>><?php echo (isset($LANG['NOT_NULL'])?$LANG['NOT_NULL']:'IS NOT NULL'); ?></option>
 															</select>
-															Value:
+															<?php echo (isset($LANG['VALUE'])?$LANG['VALUE']:'Value'); ?>:
 															<input name="value<?php echo $x; ?>" type="text" value="<?php echo $savedValue; ?>" />
 														</div>
 														<?php
 													}
 													?>
-													<div style="margin:5px">* Adding multiple terms separated by semi-colon will filter as an OR condition</div>
+													<div style="margin:5px"><?php echo '* '.(isset($LANG['MULT_TERMS'])?$LANG['MULT_TERMS']:'Adding multiple terms separated by semi-colon will filter as an OR condition'); ?></div>
 												</fieldset>
 											</div>
 											<div>
 												<input name="importident" value="1" type="checkbox" <?php echo (isset($metaArr['ident'])?'checked':'disabled') ?> />
-												Import Identification History
-												<?php
+												<?php 
+												echo (isset($LANG['IMPORT_ID'])?$LANG['IMPORT_ID']:'Import Identification History');
 												if(isset($metaArr['ident'])){
-													echo '(<a href="#" onclick="toggle(\'dwcaIdentDiv\');return false;">view details</a>)';
+													echo '(<a href="#" onclick="toggle(\'dwcaIdentDiv\');return false;">'.(isset($LANG['VIEW_DETS'])?$LANG['VIEW_DETS']:'view details').'</a>)';
 													?>
 													<div id="dwcaIdentDiv" style="display:none;margin:20px;">
 														<?php $duManager->echoFieldMapTable(true,'ident'); ?>
 														<div>
-															* Unverified mappings are displayed in yellow
+															<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
 														</div>
 													</div>
 													<?php
 												}
 												else{
-													echo '(not present in DwC-Archive)';
+													echo '('.(isset($LANG['NOT_IN_DWC'])?$LANG['NOT_IN_DWC']:'not present in DwC-Archive').')';
 												}
 												?>
 
 											</div>
 											<div>
 												<input name="importimage" value="1" type="checkbox" <?php echo (isset($metaArr['image'])?'checked':'disabled') ?> />
-												Import Images
+												<?php echo (isset($LANG['IMP_IMG'])?$LANG['IMP_IMG']:'Import Images'); ?>
 												<?php
 												if(isset($metaArr['image'])){
 													echo '(<a href="#" onclick="toggle(\'dwcaImgDiv\');return false;">view details</a>)';
@@ -777,21 +777,21 @@ if($isEditor && $collid){
 													<div id="dwcaImgDiv" style="display:none;margin:20px;">
 														<?php $duManager->echoFieldMapTable(true,'image'); ?>
 														<div>
-															* Unverified mappings are displayed in yellow
+															<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
 														</div>
 													</div>
 													<?php
 												}
 												else{
-													echo '(not present in DwC-Archive)';
+													echo '('.(isset($LANG['NOT_IN_DWC'])?$LANG['NOT_IN_DWC']:'not present in DwC-Archive').')';
 												}
 												?>
 											</div>
 											<div style="margin:10px 0px;">
 												<?php
-												if($uspid) echo '<input type="submit" name="action" value="Reset Field Mapping" />';
+												if($uspid) echo '<button type="submit" name="action" value="Reset Field Mapping"><'.(isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping').'</button>';
 												echo '<input type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" style="margin-left:5px" />';
-												if(!$uspid) echo ' <span id="newProfileNameDiv" style="margin-left:15px;color:orange;display:none">New profile title: <input type="text" name="profiletitle" style="width:300px" /></span>';
+												if(!$uspid) echo ' <span id="newProfileNameDiv" style="margin-left:15px;color:orange;display:none">'.(isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title').': <input type="text" name="profiletitle" style="width:300px" /></span>';
 												?>
 
 											</div>
@@ -799,9 +799,9 @@ if($isEditor && $collid){
 												<?php
 												if($isLiveData){
 													if($duManager->getCollInfo('colltype') == 'General Observations'){
-														echo 'Target User: ';
+														echo (isset($LANG['TARGET_USER'])?$LANG['TARGET_USER']:'Target User').': ';
 														echo '<select name="observeruid">';
-														echo '<option value="">Select Target User</option>';
+														echo '<option value="">'.(isset($LANG['SEL_TAR_USER'])?$LANG['SEL_TAR_USER']:'Select Target User').'</option>';
 														echo '<option value="">----------------------------</option>';
 														$obsUidArr = $duManager->getObserverUidArr();
 														foreach($obsUidArr as $uid => $userName){
@@ -812,27 +812,27 @@ if($isEditor && $collid){
 													?>
 													<div>
 														<input name="matchcatnum" type="checkbox" value="1" checked />
-														Match on Catalog Number
+														<?php echo (isset($LANG['MATCH_CAT'])?$LANG['MATCH_CAT']:'Match on Catalog Number'); ?>
 													</div>
 													<div>
 														<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
-														Match on Other Catalog Numbers
+														<?php echo (isset($LANG['MATCH_O_CAT'])?$LANG['MATCH_O_CAT']:'Match on Other Catalog Numbers'); ?>
 													</div>
 													<ul style="margin-top:2px">
 														<li><?php echo $recReplaceMsg; ?></li>
-														<li>If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers</li>
+														<li><?php echo (isset($LANG['BOTH_CATS'])?$LANG['BOTH_CATS']:'If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers'); ?></li>
 													</ul>
 													<?php
 												}
 												?>
 												<div style="margin:10px 0px;">
 													<input name="verifyimages" type="checkbox" value="1" />
-													Verify image links
+													<?php echo (isset($LANG['VER_LINKS'])?$LANG['VER_LINKS']:'Verify image links'); ?>
 												</div>
 												<div style="margin:10px 0px;">
-													Processing Status:
+													<?php echo (isset($LANG['PROC_STATUS'])?$LANG['PROC_STATUS']:'Processing Status'); ?>:
 													<select name="processingstatus">
-														<option value="">Leave as is / No Explicit Setting</option>
+														<option value=""><?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'Leave as is / No Explicit Setting'); ?></option>
 														<option value="">--------------------------</option>
 														<?php
 														foreach($processingList as $ps){
@@ -861,7 +861,7 @@ if($isEditor && $collid){
 							echo '<div style="font-weight:bold;">'.$duManager->getErrorStr().'</div>';
 						}
 						else{
-							echo '<div style="font-weight:bold;">Unknown error analyzing upload</div>';
+							echo '<div style="font-weight:bold;">'.(isset($LANG['UNK_ERR'])?$LANG['UNK_ERR']:'Unknown error analyzing upload').'</div>';
 						}
 					}
 				}
@@ -870,14 +870,14 @@ if($isEditor && $collid){
 					?>
 					<form name="filemappingform" action="specupload.php" method="post" onsubmit="return verifyMappingForm(this)">
 						<fieldset style="width:95%;padding:15px">
-							<legend style="font-weight:bold;font-size:120%;">Notes from Nature File Import</legend>
+							<legend style="font-weight:bold;font-size:120%;"><?php echo (isset($LANG['NFN_IMPORT'])?$LANG['NFN_IMPORT']:'Notes from Nature File Import'); ?></legend>
 							<?php
 							if($duManager->echoFieldMapTable(true, 'spec')){
 								?>
 								<div style="margin:10px 0px;">
-									Processing Status:
+									<?php echo (isset($LANG['PROC_STATUS'])?$LANG['PROC_STATUS']:'Processing Status'); ?>:
 									<select name="processingstatus">
-										<option value="">Leave as is / No Explicit Setting</option>
+										<option value=""><?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'Leave as is / No Explicit Setting'); ?></option>
 										<option value="">--------------------------</option>
 										<?php
 										foreach($processingList as $ps){
@@ -887,7 +887,7 @@ if($isEditor && $collid){
 									</select>
 								</div>
 								<div style="margin:20px;">
-									<input type="submit" name="action" value="Start Upload" />
+									<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
 								</div>
 								<?php
 							}
@@ -913,13 +913,13 @@ if($isEditor && $collid){
 								//Primary key field is required and must be mapped
 								?>
 								<div style="margin:20px;">
-									<b>Source Unique Identifier / Primary Key (<span style="color:red">required</span>): </b>
+									<b><?php echo (isset($LANG['SOURCE_ID'])?$LANG['SOURCE_ID']:'Source Unique Identifier / Primary Key'); ?> (<span style="color:red"><?php echo (isset($LANG['REQ'])?$LANG['REQ']:'required'); ?></span>): </b>
 									<?php
 									$dbpk = $duManager->getDbpk();
 									$dbpkOptions = $duManager->getDbpkOptions();
 									?>
 									<select name="dbpk" onchange="pkChanged(this);">
-										<option value="">Select Source Primary Key</option>
+										<option value=""><?php echo (isset($LANG['SEL_KEY'])?$LANG['SEL_KEY']:'Select Source Primary Key'); ?></option>
 										<option value="">----------------------------------</option>
 										<?php
 										foreach($dbpkOptions as $f){
@@ -938,27 +938,27 @@ if($isEditor && $collid){
 							<div id="mdiv" style="display:<?php echo $displayStr; ?>">
 								<?php $duManager->echoFieldMapTable($autoMap,'spec'); ?>
 								<div>
-									* Unverified mappings are displayed in yellow<br/>
-									* Record will be skipped when all of the following fields are empty: catalogNumber, otherCatalogNumbers, occurrenceID, recordedBy (collector), eventDate, scientificName, dbpk<br/>
-									* To learn more about mapping to Symbiota fields (and Darwin Core):
+									<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?><br/>
+									<?php echo '* '.(isset($LANG['SKIPPED'])?$LANG['SKIPPED']:'Record will be skipped when all of the following fields are empty: catalogNumber, otherCatalogNumbers, occurrenceID, recordedBy (collector), eventDate, scientificName, dbpk'); ?><br/>
+									<?php echo '* '.(isset($LANG['LEARN_MORE'])?$LANG['LEARN_MORE']:'To learn more about mapping to Symbiota fields (and Darwin Core)'); ?>:
 									<div style="margin-left:15px;">
 										<a href="http://symbiota.org/docs/wp-content/uploads/SymbiotaOccurrenceFields.pdf" target="_blank">SymbiotaOccurrenceFields.pdf</a><br/>
-										<a href="http://symbiota.org/docs/symbiota-introduction/loading-specimen-data/" target="_blank">Loading Data into Symbiota</a>
+										<a href="http://symbiota.org/docs/symbiota-introduction/loading-specimen-data/" target="_blank"><?php echo (isset($LANG['LOADING_DATA'])?$LANG['LOADING_DATA']:'Loading Data into Symbiota'); ?></a>
 									</div>
 								</div>
 								<div style="margin:10px;">
 									<?php
 									if($uspid){
 										?>
-										<input type="submit" name="action" value="Reset Field Mapping" />
+										<button type="submit" name="action" value="Reset Field Mapping" ><?php echo (isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping'); ?></button>
 										<?php
 									}
 									?>
-									<input type="submit" name="action" value="Automap Fields" />
-									<input type="submit" name="action" value="Verify Mapping" />
-									<input type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" />
+									<input type="submit" name="action" value="Automap Fields" ><?php echo (isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap Fields'); ?></button>
+									<input type="submit" name="action" value="Verify Mapping" ><?php echo (isset($LANG['VER_MAPPING'])?$LANG['VER_MAPPING']:'Verify Mapping'); ?></button>
+									<input type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" ><?php echo (isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping'); ?></button>
 									<span id="newProfileNameDiv" style="margin-left:15px;color:red;display:none">
-										New profile title: <input type="text" name="profiletitle" style="width:300px" />
+										<?php echo (isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title'); ?>: <input type="text" name="profiletitle" style="width:300px" />
 									</span>
 								</div>
 								<hr />
@@ -966,9 +966,9 @@ if($isEditor && $collid){
 									<?php
 									if($isLiveData || $uploadType == $SKELETAL){
 										if($duManager->getCollInfo('colltype') == 'General Observations'){
-											echo 'Target User: ';
+											echo (isset($LANG['TARGET_USER'])?$LANG['TARGET_USER']:'Target User').': ';
 											echo '<select name="observeruid">';
-											echo '<option value="">Select Target User</option>';
+											echo '<option value="">'.(isset($LANG['SEL_TAR_USER'])?$LANG['SEL_TAR_USER']:'Select Target User').'</option>';
 											echo '<option value="">----------------------------</option>';
 											$obsUidArr = $duManager->getObserverUidArr();
 											foreach($obsUidArr as $uid => $userName){
@@ -979,11 +979,11 @@ if($isEditor && $collid){
 										?>
 										<div>
 											<input name="matchcatnum" type="checkbox" value="1" checked />
-											Match on Catalog Number
+											<?php echo (isset($LANG['MATCH_CAT'])?$LANG['MATCH_CAT']:'Match on Catalog Number'); ?>
 										</div>
 										<div>
 											<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
-											Match on Other Catalog Numbers
+											<?php echo (isset($LANG['MATCH_O_CAT'])?$LANG['MATCH_O_CAT']:'Match on Other Catalog Numbers'); ?>
 										</div>
 										<ul style="margin-top:2px">
 											<?php
@@ -994,19 +994,19 @@ if($isEditor && $collid){
 												echo '<li>'.$recReplaceMsg.'</li>';
 											}
 											?>
-											<li>If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers</li>
+											<li><?php echo (isset($LANG['BOTH_CATS'])?$LANG['BOTH_CATS']:'If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers'); ?></li>
 										</ul>
 										<?php
 									}
 									?>
 									<div style="margin:10px 0px;">
 										<input name="verifyimages" type="checkbox" value="1" />
-										Verify image links from associatedMedia field
+										<?php echo (isset($LANG['VER_LINKS_MEDIA'])?$LANG['VER_LINKS_MEDIA']:'Verify image links from associatedMedia field'); ?>
 									</div>
 									<div style="margin:10px 0px;">
-										Processing Status:
+										<?php echo (isset($LANG['PROC_STATUS'])?$LANG['PROC_STATUS']:'Processing Status'); ?>:
 										<select name="processingstatus">
-											<option value="">Leave as is / No Explicit Setting</option>
+											<option value=""><?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'Leave as is / No Explicit Setting'); ?></option>
 											<option value="">--------------------------</option>
 											<?php
 											foreach($processingList as $ps){
@@ -1023,6 +1023,7 @@ if($isEditor && $collid){
 								if($uploadType == $SKELETAL){
 									?>
 									<div style="margin:15px;background-color:lightgreen;">
+										<?php echo (isset($LANG['SKEL_EXPLAIN'])?$LANG['SKEL_EXPLAIN']:'
 										Skeletal Files consist of stub data that is easy to capture in bulk during the imaging process.
 										This data is used to seed new records to which images are linked.
 										Skeletal fields typically collected include filed by or current scientific name, country, state/province, and sometimes county, though any supported field can be included.
@@ -1034,6 +1035,7 @@ if($isEditor && $collid){
 											On the other hand, a skeletal upload will augment the existing record only with new field data.
 											Fields are only added if data does not already exist within the target field.</li>
 											<li>If a record DOES NOT already exist, a new record will be created in both cases, but only the skeletal record will be tagged as unprocessed</li>
+										'); ?>
 										</ul>
 									</div>
 									<?php
@@ -1053,17 +1055,19 @@ if($isEditor && $collid){
 	}
 	else{
 		if(!$isEditor || !$collid){
-			echo '<div style="font-weight:bold;font-size:120%;">ERROR: you are not authorized to upload to this collection</div>';
+			echo '<div style="font-weight:bold;font-size:120%;">'.(isset($LANG['NOT_AUTH'])?$LANG['NOT_AUTH']:'ERROR: you are not authorized to upload to this collection').'</div>';
 		}
 		else{
 			?>
 			<div style="font-weight:bold;font-size:120%;">
+			<?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'
 				ERROR: Either you have tried to reach this page without going through the collection management menu
 				or you have tried to upload a file that is too large.
 				You may want to breaking the upload file into smaller files or compressing the file into a zip archive (.zip extension).
 				You may want to contact portal administrator to request assistance in uploading the file (hint to admin: increasing PHP upload limits may help,
-				current upload_max_filesize = <?php echo ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size"); ?>)
-				Use the back arrows to get back to the file upload page.
+				current upload_max_filesize = ').ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size");
+				echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.'); 
+			?>
 			</div>
 			<?php
 		}

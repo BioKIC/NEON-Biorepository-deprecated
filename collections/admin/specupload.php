@@ -422,7 +422,7 @@ if($isEditor && $collid){
 					<div style="margin:5px;">
 						<?php
 						$reportArr = $duManager->getTransferReport();
-						echo '<div>Occurrences pending transfer: '.$reportArr['occur'];
+						echo '<div>'.(isset($LANG['OCCS_TRANSFERING'])?$LANG['OCCS_TRANSFERING']:'Occurrences pending transfer').': '.$reportArr['occur'];
 						if($reportArr['occur']){
 							echo ' <a href="uploadreviewer.php?collid='.$collid.'" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
 							echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
@@ -522,7 +522,7 @@ if($isEditor && $collid){
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 						<div style="margin:5px;">
-							<input type="submit" name="action" value="Transfer Records to Central Specimen Table" />
+							<button type="submit" name="action" value="Transfer Records to Central Specimen Table"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 						</div>
 					</form>
 				</fieldset>

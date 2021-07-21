@@ -142,7 +142,7 @@ $indManager->setOccid($occid);
 						</select>
 					</div>
 					<div style="margin:5px">
-						<b>Notes:</b><br/>
+						Notes:<br/>
 						<input name="notes" type="text" value="" maxlength="250" style="width:90%;" />
 					</div>
 					<div style="margin:15px">

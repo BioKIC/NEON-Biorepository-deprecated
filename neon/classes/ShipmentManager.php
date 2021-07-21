@@ -644,6 +644,7 @@ class ShipmentManager{
 							($sampleCode?'"'.$this->cleanInStr($sampleCode).'"':'NULL').','.
 							(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
 							(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
+							(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
 							(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
 							(isset($recArr['namedlocation']) && $recArr['namedlocation']?'"'.$this->cleanInStr($recArr['namedlocation']).'"':'NULL').','.
 							(isset($recArr['collectdate']) && $recArr['collectdate']?'"'.$this->cleanInStr($this->formatDate($recArr['collectdate'])).'"':'NULL').','.
@@ -684,13 +685,12 @@ class ShipmentManager{
 					else{
 						$errStr = '';
 						foreach($duplicateArr as $dupSamplePK => $idArr){
-							$idStr = $idArr['sampleID'];
-							if(isset($idArr['sampleCode'])) $idStr .= ' ('.$idArr['sampleCode'].')';
-							$link = 'manifestviewer.php?shipmentPK='.$dupSamplePK.'&sampleFilter=displaySamples&quicksearch='.($idArr['sampleCode']?$idArr['sampleCode']:$idArr['sampleID']).'#samplePanel';
-							$errStr .= '<a href="'.$link.'" target="_blank">'.$idStr.'</a>, ';
+							$link = 'manifestviewer.php?shipmentPK='.$dupSamplePK.'&sampleFilter=displaySamples&quicksearch=';
+							if(isset($idArr['sampleID'])) $errStr .= '<a href="'.$link.$idArr['sampleID'].'#samplePanel" target="_blank">'.$idArr['sampleID'].'</a>, ';
+							if(isset($idArr['sampleCode'])) $errStr .= '<a href="'.$link.$idArr['sampleCode'].'#samplePanel" target="_blank">'.$idArr['sampleCode'].'</a>, ';
 						}
 						$this->errorStr = trim($errStr,', ');
-						if($verbose) echo '<li><span style="color:red">FAILURE:</span> record already in system with duplicate '.$this->errorStr.'</li>';
+						if($verbose) echo '<li><span style="color:red">ERROR,</span> record already in system with duplicate identifiers: '.$this->errorStr.'</li>';
 					}
 				}
 			}
@@ -704,12 +704,13 @@ class ShipmentManager{
 
 	private function duplicateSampleExists($sampleID, $sampleClass, $sampleCode){
 		$retArr = array();
-		$sql = 'SELECT shipmentPK, sampleID, sampleCode FROM NeonSample WHERE ((sampleID = "'.$this->cleanInStr($sampleID).'" AND sampleClass = "'.$this->cleanInStr($sampleClass).'") ';
-		if($sampleCode) $sql .= 'OR sampleCode = "'.$this->cleanInStr($sampleCode).'"';
-		$sql .= ') AND sampleReceived IS NULL';
+		$sqlCond = '';
+		if($sampleID && $sampleClass) $sqlCond .= '(sampleID = "'.$this->cleanInStr($sampleID).'" AND sampleClass = "'.$this->cleanInStr($sampleClass).'") ';
+		if($sampleCode) $sqlCond .= ($sqlCond?'OR':'').' (sampleCode = "'.$this->cleanInStr($sampleCode).'")';
+		$sql = 'SELECT shipmentPK, sampleID, sampleCode FROM NeonSample WHERE (sampleReceived IS NULL) AND ('.$sqlCond.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[$r->shipmentPK]['sampleID'] = $r->sampleID;
+			if($r->sampleID) $retArr[$r->shipmentPK]['sampleID'] = $r->sampleID;
 			if($r->sampleCode) $retArr[$r->shipmentPK]['sampleCode'] = $r->sampleCode;
 		}
 		$rs->free();
@@ -718,20 +719,8 @@ class ShipmentManager{
 
 	private function getNeonApiArr($url){
 		$retArr = array();
-		//echo 'url: '.$url.'<br/>';
 		if($url){
 			$json = @file_get_contents($url);
-			//echo 'json1: '.$json; exit;
-			/*
-			 //curl -X GET --header 'Accept: application/json' 'https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam'
-			 $curl = curl_init($url);
-			 curl_setopt($curl, CURLOPT_PUT, 1);
-			 curl_setopt($curl, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json', 'Accept: application/json') );
-			 curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-			 curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
-			 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-			 $json = curl_exec($curl);
-			 */
 			if($json){
 				$resultArr = json_decode($json,true);
 				if(isset($resultArr['data'])){
@@ -752,7 +741,6 @@ class ShipmentManager{
 				//$this->errorStr = 'ERROR: unable to access NEON API: '.$url;
 				$retArr = false;
 			}
-			//curl_close($curl);
 		}
 		return $retArr;
 	}
@@ -761,7 +749,6 @@ class ShipmentManager{
 		$status = false;
 		if(is_numeric($samplePK)){
 			$sql = 'DELETE FROM NeonSample WHERE samplePK = '.$samplePK;
-			//echo $sql;
 			if($this->conn->query($sql)){
 				$status = true;
 			}
@@ -967,7 +954,6 @@ class ShipmentManager{
 			$sql .= 'LEFT JOIN omoccurrences o ON m.occid = o.occid ';
 		}
 		$sql .= $this->getFilteredWhereSql();
-		//echo $sql;
 		$this->exportData($fileName, $sql);
 	}
 
@@ -998,7 +984,6 @@ class ShipmentManager{
 			'INNER JOIN omoccurrences o ON m.occid = o.occid '.
 			'LEFT JOIN users u ON m.checkinUid = u.uid ';
 		$sql .= $this->getFilteredWhereSql();
-		//echo $sql; exit;
 		$this->exportData($fileName, $sql);
 	}
 
@@ -1007,19 +992,15 @@ class ShipmentManager{
 		header ('Content-Type: text/csv');
 		header ('Content-Disposition: attachment; filename="'.$fileName.'"');
 		$outstream = fopen("php://output", "w");
-		if($rs = $this->conn->query($sql)){
-			if($rs->num_rows){
-				$outHeader = true;
-				while($r = $rs->fetch_assoc()){
-					if($outHeader){
-						fputcsv($outstream,array_keys($r));
-						$outHeader = false;
-					}
-					fputcsv($outstream,$r);
+		$dataConn = MySQLiConnectionFactory::getCon('readonly');
+		if($rs = $dataConn->query($sql,MYSQLI_USE_RESULT)){
+			$outHeader = true;
+			while($r = $rs->fetch_assoc()){
+				if($outHeader){
+					fputcsv($outstream,array_keys($r));
+					$outHeader = false;
 				}
-			}
-			else{
-				echo "Recordset is empty.\n";
+				fputcsv($outstream,$r);
 			}
 			$rs->free();
 		}
@@ -1027,6 +1008,7 @@ class ShipmentManager{
 			echo 'ERROR generating recordset';
 		}
 		fclose($outstream);
+		$dataConn->close();
 		exit;
 	}
 

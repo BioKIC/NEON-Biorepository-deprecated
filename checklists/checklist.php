@@ -22,7 +22,6 @@ $showAlphaTaxa = array_key_exists("showalphataxa",$_REQUEST)?$_REQUEST["showalph
 $searchCommon = array_key_exists("searchcommon",$_REQUEST)?$_REQUEST["searchcommon"]:0;
 $searchSynonyms = array_key_exists("searchsynonyms",$_REQUEST)?$_REQUEST["searchsynonyms"]:0;
 $defaultOverride = array_key_exists("defaultoverride",$_REQUEST)?$_REQUEST["defaultoverride"]:0;
-$editMode = array_key_exists("emode",$_REQUEST)?$_REQUEST["emode"]:0;
 $printMode = array_key_exists("printmode",$_REQUEST)?$_REQUEST["printmode"]:0;
 
 //Sanitation
@@ -41,7 +40,6 @@ if(!is_numeric($showAlphaTaxa)) $showAlphaTaxa = 0;
 if(!is_numeric($searchCommon)) $searchCommon = 0;
 if(!is_numeric($searchSynonyms)) $searchSynonyms = 0;
 if(!is_numeric($defaultOverride)) $defaultOverride = 0;
-if(!is_numeric($editMode)) $editMode = 0;
 if(!is_numeric($printMode)) $printMode = 0;
 
 $statusStr='';
@@ -113,38 +111,24 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['RESCHECK'];?>: <?php echo $clManager->getClName(); ?></title>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/checklist.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
 	<script type="text/javascript">
-		<?php if($clid) echo 'var clid = '.$clid.';'; ?>
+		<?php
+		if($clid) echo 'var clid = '.$clid.';'."\n";
+		echo 'var taxaCount = '.count($taxaArray).';'."\n";
+		?>
 		$( function() {
 			$( document ).tooltip();
 		} );
 
 	</script>
-	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=202004"></script>
+	<script type="text/javascript" src="../js/symb/checklists.checklist.js?ver=2107"></script>
 	<style type="text/css">
-		#sddm{margin:0;padding:0;z-index:30;}
-		#sddm:hover {background-color:#EAEBD8;}
-		#sddm img{padding:3px;}
-		#sddm:hover img{background-color:#EAEBD8;}
-		#sddm li{margin:0px;padding: 0;list-style: none;float: left;font: bold 11px arial}
-		#sddm li a{display: block;margin: 0 1px 0 0;padding: 4px 10px;width: 60px;background: #5970B2;color: #FFF;text-align: center;text-decoration: none}
-		#sddm li a:hover{background: #49A3FF}
-		#sddm div{position: absolute;visibility:hidden;margin:0;padding:0;background:#EAEBD8;border:1px solid #5970B2}
-		#sddm div a	{position: relative;display:block;margin:0;padding:5px 10px;width:auto;white-space:nowrap;text-align:left;text-decoration:none;background:#EAEBD8;color:#2875DE;font-weight:bold;}
-		#sddm div a:hover{background:#49A3FF;color:#FFF}
-
 		<?php
 		if($printMode){
 			?>
@@ -155,6 +139,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 			<?php
 		}
 		?>
+		#editsppon { display: none; color:green; font-size: 70%; font-weight:bold; padding-bottom: 5px; position: relative; top: -4px; }
 	</style>
 </head>
 <body>
@@ -202,9 +187,9 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							<img style="border:0px;height:15px;" src="../images/editvoucher.png" srcset="../images/editV.svg" style="height:15px" />
 						</a>
 					</span>
-					<span style="" onclick="toggle('editspp');return false;">
+					<span style="" onclick="toggleSppEditControls();return false;">
 						<a href="#" title="<?php echo (isset($LANG['EDIT_LIST'])?$LANG['EDIT_LIST']:'Edit Species List'); ?>">
-							<img style="border:0px;height:15px;" src="../images/editspp.png" srcset="../images/editspp.svg" style="height:15px" />
+							<img style="border:0px;height:15px;" src="../images/editspp.png" srcset="../images/editspp.svg" style="height:15px" /><span id="editsppon">-ON</span>
 						</a>
 					</span>
 				</div>
@@ -229,7 +214,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 			if($taxaArray){
 				?>
 				<div class="printoff" style="padding:5px;">
-					<ul id="sddm">
+					<ul id="game-dropdown">
 						<li>
 							<span onmouseover="mopen('m1')" onmouseout="mclosetime()">
 								<img src="../images/games/games.png" style="height:17px;" />
@@ -448,7 +433,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					<?php
 					if($clid && $isEditor){
 						?>
-						<div class="editspp" style="display:<?php echo ($editMode?'block':'none'); ?>;width:250px;">
+						<div class="editspp" style="width:250px;display:none;">
 							<form id='addspeciesform' action='checklist.php' method='post' name='addspeciesform' onsubmit="return validateAddSpecies(this);">
 								<fieldset style='margin:5px 0px 5px 5px;background-color:#FFFFCC;'>
 									<legend><b><?php echo $LANG['NEWSPECIES'];?></b></legend>
@@ -497,7 +482,6 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 										<input type='hidden' name='thesfilter' value='<?php echo $clManager->getThesFilter(); ?>' />
 										<input type='hidden' name='taxonfilter' value='<?php echo $taxonFilter; ?>' />
 										<input type='hidden' name='searchcommon' value='<?php echo $searchCommon; ?>' />
-										<input type="hidden" name="emode" value="1" />
 										<input type="hidden" name="formsubmit" value="AddSpecies" />
 										<button name="submitbtn" type="submit"><?php echo (isset($LANG['ADD_SPECIES'])?$LANG['ADD_SPECIES']:'Add Species to List'); ?></button>
 										<hr />
@@ -585,7 +569,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 						<?php
 						echo '<b>';
 						echo $LANG['TOTAL_TAXA'];
-						echo '<span class="printoff"> (<a href="http://symbiota.org/docs/symbiota-species-checklist-data-fields/" target="_blank" >';
+						echo '<span class="printoff"> (<a href="https://symbiota.org/docs/symbiota-species-checklist-data-fields/" target="_blank" >';
 						echo '<span style="font-style:italic;color:green" title="'.(isset($LANG['DETAILS_EXPLANATION'])?$LANG['DETAILS_EXPLANATION']:'').'" >'.(isset($LANG['DETAILS'])?$LANG['DETAILS']:'details').'</span>';
 						echo '</a>)</span>';
 						echo '</b>: ';
@@ -648,7 +632,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									echo '<b>'.$sppArr['sciname'].'</b>';
 									echo '</a>';
 									?>
-									<div class="editspp printoff" style="float:left;<?php echo ($editMode?'':'display:none'); ?>;">
+									<div class="editspp printoff" style="float:left;display:none;">
 										<?php
 										if(isset($sppArr['clid'])){
 											$clidArr = explode(',',$sppArr['clid']);
@@ -725,7 +709,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									$clidArr = explode(',',$sppArr['clid']);
 									foreach($clidArr as $id){
 										?>
-										<span class="editspp" style="<?php echo ($editMode?'':'display:none'); ?>;">
+										<span class="editspp" style="display:none;">
 											<a href="#" onclick="return openPopup('clsppeditor.php?tid=<?php echo $tid."&clid=".$id; ?>','editorwindow');">
 												<img src="../images/edit.png" style="width:13px;" title="<?php echo (isset($LANG['EDIT_DETAILS'])?$LANG['EDIT_DETAILS']:'edit details'); ?> (clid = <?php echo $id; ?>)" />
 											</a>

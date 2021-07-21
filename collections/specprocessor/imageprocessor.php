@@ -757,15 +757,13 @@ if($spprid) $specManager->setProjVariables($spprid);
 						<legend><b>Log Files</b></legend>
 						<?php
 						$logArr = $specManager->getLogListing();
-						$logPath = '../../content/logs/'.($projectType == 'local'?'imgProccessing':$projectType).'/';
+						$logPath = '../../content/logs/imgProccessing/';
 						if($logArr){
 							foreach($logArr as $logFile){
 								echo '<div><a href="'.$logPath.$logFile.'" target="_blank">'.$logFile.'</a></div>';
 							}
 						}
-						else{
-							echo '<div>No logs exist for this collection</div>';
-						}
+						else echo '<div>No logs exist for this collection</div>';
 						?>
 					</fieldset>
 				</div>

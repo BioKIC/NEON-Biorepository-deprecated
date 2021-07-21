@@ -57,7 +57,7 @@ $LANG['IPT_URL'] = 'IPT Resource URL';
 $LANG['RES_URL'] = 'Resource Path or URL';
 $LANG['WORKAROUND'] = 'This option is for pointing to a data file that was manually 
 						uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed 
-						by server upload limitations (e.g. PHP configuration limits';
+						by server upload limitations (e.g. PHP configuration limits)';
 $LANG['DISPLAY_OPS'] = 'Display Additional Options';
 $LANG['AUTOMAP'] = 'Automap Fields';
 $LANG['ANALYZE_FILE'] = 'Analyze File';

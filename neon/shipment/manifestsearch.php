@@ -52,6 +52,8 @@ if($isEditor){
 			f.trackingNumber.value = "";
 			f.dateShippedStart.value = "";
 			f.dateShippedEnd.value = "";
+			f.dateCheckinStart.value = "";
+			f.dateCheckinEnd.value = "";
 			f.checkinUid.value = "";
 			f.importedUid.value = "";
 			f.sampleCondition.value = "";
@@ -73,6 +75,7 @@ if($isEditor){
 		}
 	</script>
 	<style type="text/css">
+		#innertext{ max-width: 1500px; }
 		fieldset{ padding:15px }
 		.fieldGroupDiv{ clear:both; margin-top:2px; height: 25px; }
 		.fieldDiv{ float:left; margin-left: 25px}
@@ -123,13 +126,13 @@ include($SERVER_ROOT.'/includes/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Domain ID:</b> <input name="domainID" type="text" value="<?php echo (isset($searchArgumentArr['domainID'])?$searchArgumentArr['domainID']:''); ?>" />
+						<b>Domain ID:</b> <input name="domainID" type="text" value="<?php echo (isset($searchArgumentArr['domainID'])?$searchArgumentArr['domainID']:''); ?>" style="width:150px;" />
 					</div>
 					<div class="fieldDiv">
-						<b>Site ID:</b> <input name="namedLocation" type="text" value="<?php echo (isset($searchArgumentArr['namedLocation'])?$searchArgumentArr['namedLocation']:''); ?>" />
+						<b>Site ID:</b> <input name="namedLocation" type="text" value="<?php echo (isset($searchArgumentArr['namedLocation'])?$searchArgumentArr['namedLocation']:''); ?>" style="width:150px;" />
 					</div>
 					<div class="fieldDiv">
-						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo (isset($searchArgumentArr['sampleClass'])?$searchArgumentArr['sampleClass']:''); ?>" style="width:225px;" />
+						<b>Sample Class:</b> <input name="sampleClass" type="text" value="<?php echo (isset($searchArgumentArr['sampleClass'])?$searchArgumentArr['sampleClass']:''); ?>" style="width:450px;" />
 					</div>
 					<div class="fieldDiv">
 						<b>Taxon ID:</b> <input name="taxonID" type="text" value="<?php echo (isset($searchArgumentArr['taxonID'])?$searchArgumentArr['taxonID']:''); ?>" />
@@ -139,9 +142,17 @@ include($SERVER_ROOT.'/includes/header.php');
 					<div class="fieldDiv">
 						<b>Tracking Number:</b> <input name="trackingNumber" type="text" value="<?php echo (isset($searchArgumentArr['trackingNumber'])?$searchArgumentArr['trackingNumber']:''); ?>" />
 					</div>
+				</div>
+				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						<b>Date Shipped:</b> <input name="dateShippedStart" type="date" value="<?php echo (isset($searchArgumentArr['dateShippedStart'])?$searchArgumentArr['dateShippedStart']:''); ?>" /> -
 						<input name="dateShippedEnd" type="date" value="<?php echo (isset($searchArgumentArr['dateShippedEnd'])?$searchArgumentArr['dateShippedEnd']:''); ?>" />
+					</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						<b>Sample Check-in Date:</b> <input name="dateCheckinStart" type="date" value="<?php echo (isset($searchArgumentArr['dateCheckinStart'])?$searchArgumentArr['dateCheckinStart']:''); ?>" /> -
+						<input name="dateCheckinEnd" type="date" value="<?php echo (isset($searchArgumentArr['dateCheckinEnd'])?$searchArgumentArr['dateCheckinEnd']:''); ?>" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
@@ -249,7 +260,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				<?php
 				if($shipmentDetails){
 					foreach($shipmentDetails as $shipPK => $shipArr){
-						echo '<li><a href="manifestviewer.php?shipmentPK='.$shipPK.'">'.$shipArr['id'].'</a> ('.$shipArr['ts'].')</li>';
+						echo '<li><a href="manifestviewer.php?shipmentPK='.$shipPK.'" target="_blank">'.$shipArr['id'].'</a> ('.$shipArr['ts'].')</li>';
 					}
 				}
 				else{

@@ -116,7 +116,7 @@ class ShipmentManager{
 					$sql .= 'AND (s.errorMessage IS NOT NULL) ';
 				}
 			}
-			$sql .= 'ORDER BY s.sampleID ';
+			$sql .= 'ORDER BY s.sampleID,s.sampleCode ';
 		}
 		$rs = $this->conn->query($sql);
 		//Pass through recordset to see which fields have at least one value
@@ -370,7 +370,7 @@ class ShipmentManager{
 					//Append new filename to existing
 					$this->conn->query('UPDATE NeonShipment SET filename = "'.trim($this->cleanInStr($existingFileName.'|'.$this->uploadFileName),' |').'" WHERE shipmentpk = '.$shipmentPK);
 				}
-				echo '<li>Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.' target="_blank">'.$recArr['shipmentid'].'</a></li>';
+				echo '<li><span style="color:orange">NOTICE:</span> Samples mapped to existing shipment: <a href="manifestviewer.php?shipmentPK='.$shipmentPK.'" target="_blank">'.$recArr['shipmentid'].'</a></li>';
 			}
 			else{
 				echo '<li style="margin-left:15px"><span style="color:red">ERROR</span> loading shipment record (errNo: '.$this->conn->errno.'): '.$this->conn->error.'</li>';
@@ -577,10 +577,9 @@ class ShipmentManager{
 	public function editSample($postArr){
 		$status = false;
 		$postArr = array_change_key_case($postArr);
-		$sampleID = $this->cleanInStr($postArr['sampleid']);
-		if(is_numeric($postArr['samplepk']) && $sampleID){
+		if(is_numeric($postArr['samplepk'])){
 			$sql = 'UPDATE NeonSample '.
-				'SET sampleID = "'.$sampleID.'", '.
+				'SET sampleID = '.(isset($postArr['sampleid']) && $postArr['sampleid']?'"'.$this->cleanInStr($postArr['sampleid']).'"':'NULL').', '.
 				'alternativeSampleID = '.(isset($postArr['alternativesampleid']) && $postArr['alternativesampleid']?'"'.$this->cleanInStr($postArr['alternativesampleid']).'"':'NULL').', '.
 				'sampleCode = '.(isset($postArr['samplecode']) && $postArr['samplecode']?'"'.$this->cleanInStr($postArr['samplecode']).'"':'NULL').', '.
 				'sampleClass = '.(isset($postArr['sampleclass']) && $postArr['sampleclass']?'"'.$this->cleanInStr($postArr['sampleclass']).'"':'NULL').', '.
@@ -614,13 +613,15 @@ class ShipmentManager{
 			if(isset($recArr['sampleid']) && $recArr['sampleid']) $sampleID = $recArr['sampleid'];
 			$sampleCode = '';
 			if(isset($recArr['samplecode']) && $recArr['samplecode']) $sampleCode = $recArr['samplecode'];
-			//if(!$sampleID && $sampleCode) $sampleID = $this->getSampleID($sampleCode);
 			if($sampleID || $sampleCode){
 				$insertRecord = true;
 				if($this->reloadSampleRecs){
-					if($sampleID && $recArr['sampleclass']){
-						$sql = 'SELECT samplepk FROM NeonSample WHERE shipmentpk = '.$this->shipmentPK.' '.
-							'AND (sampleCode = "'.$sampleCode.'" OR (sampleid = "'.$sampleID.'" AND sampleclass = "'.$recArr['sampleclass'].'"))';
+					if($sampleCode || ($sampleID && $recArr['sampleclass'])){
+						$sql = 'SELECT samplepk FROM NeonSample WHERE shipmentpk = '.$this->shipmentPK.' AND (';
+						if($sampleID) $sql .= '(sampleid = "'.$sampleID.'" AND sampleclass = "'.$recArr['sampleclass'].'")';
+						if($sampleID && $sampleCode) $sql .= ' OR ';
+						if($sampleCode) $sql .= 'samplecode = "'.$sampleCode.'"';
+						$sql .= ')';
 						$rs = $this->conn->query($sql);
 						if($r = $rs->fetch_object()){
 							$recArr['samplepk'] = $r->samplepk;
@@ -636,10 +637,12 @@ class ShipmentManager{
 				if($insertRecord){
 					$duplicateArr = $this->duplicateSampleExists($sampleID, $recArr['sampleclass'], $sampleCode);
 					if(!$duplicateArr){
-						$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, sampleClass, alternativeSampleID, quarantineStatus, namedLocation, collectDate, '.
+						$sql = 'INSERT INTO NeonSample(shipmentPK, sampleID, sampleCode, alternativeSampleID, sampleClass, quarantineStatus, namedLocation, collectDate, '.
 							'dynamicproperties, symbiotatarget, taxonID, individualCount, filterVolume, domainRemarks, notes) '.
-							'VALUES('.$this->shipmentPK.','.($sampleID?'"'.$this->cleanInStr($sampleID).'"':'NULL').','.
+							'VALUES('.$this->shipmentPK.','.
+							($sampleID?'"'.$this->cleanInStr($sampleID).'"':'NULL').','.
 							($sampleCode?'"'.$this->cleanInStr($sampleCode).'"':'NULL').','.
+							(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
 							(isset($recArr['sampleclass']) && $recArr['sampleclass']?'"'.$this->cleanInStr($recArr['sampleclass']).'"':'NULL').','.
 							(isset($recArr['alternativesampleid']) && $recArr['alternativesampleid']?'"'.$this->cleanInStr($recArr['alternativesampleid']).'"':'NULL').','.
 							(isset($recArr['quarantinestatus']) && $recArr['quarantinestatus']?'"'.$this->cleanInStr($recArr['quarantinestatus']).'"':'NULL').','.
@@ -664,10 +667,9 @@ class ShipmentManager{
 						}
 						else{
 							if($this->conn->errno == 1062){
-								$errStr = '<span style="color:red">ERROR</span> adding sample, record with identical sampleID/sampleClass combination OR sampleCode already in system: ';
-								if($sampleID) $errStr .= '<a href="manifestviewer.php?quicksearch='.$sampleID.'" target="_blank">'.$sampleID.'</a>, ';
-								if($sampleCode) $errStr .= '<a href="manifestviewer.php?quicksearch='.$sampleCode.'" target="_blank">'.$sampleCode.'</a>';
-								$this->errorStr = trim($errStr,' ,');
+								$id = $sampleCode;
+								if(!$id) $id = $sampleID;
+								$this->errorStr = '<span style="color:red">FAILURE:</span> record already in system with duplicate: <a href="manifestviewer.php?quicksearch='.$id.'" target="_blank">'.$id.'</a>';
 								if($verbose) echo '<li>'.$this->errorStr.'</li>';
 							}
 							else{
@@ -693,8 +695,7 @@ class ShipmentManager{
 				}
 			}
 			else{
-				$this->errorStr = '<span style="color:red">ERROR:</span> record skipped due to NULL sampleID (required)';
-				if($sampleCode) $this->errorStr .= ' - sampleCode '.$sampleCode;
+				$this->errorStr = '<span style="color:red">ERROR:</span> record skipped due to sampleID and sampleCode being NULL (one is required)';
 				if($verbose) echo '<li>'.$this->errorStr.'</li>';
 			}
 		}
@@ -714,16 +715,6 @@ class ShipmentManager{
 		}
 		$rs->free();
 		return $retArr;
-	}
-
-	private function getSampleID($sampleCode){
-		$retStr = '';
-		$neonApiKey = '';
-		if(isset($GLOBALS['NEON_API_KEY'])) $neonApiKey = $GLOBALS['NEON_API_KEY'];
-		$url = 'https://data.neonscience.org/api/v0/samples/view?apiToken='.$neonApiKey.'&barcode='.$sampleCode;
-		$sampleArr = $this->getNeonApiArr($url);
-		if($sampleArr && isset($sampleArr['sampleTag']) && $sampleArr['sampleTag']) $retStr = $sampleArr['sampleTag'];
-		return $retStr;
 	}
 
 	private function getNeonApiArr($url){
@@ -862,6 +853,14 @@ class ShipmentManager{
 			if(isset($_REQUEST['dateShippedEnd']) && $_REQUEST['dateShippedEnd']){
 				$sqlWhere .= 'AND (s.dateShipped < "'.$_REQUEST['dateShippedEnd'].'") ';
 				$this->searchArr['dateShippedEnd'] = $_REQUEST['dateShippedEnd'];
+			}
+			if(isset($_REQUEST['dateCheckinStart']) && $_REQUEST['dateCheckinStart']){
+				$sqlWhere .= 'AND (m.checkinTimestamp > "'.$_REQUEST['dateCheckinStart'].'") ';
+				$this->searchArr['dateCheckinStart'] = $_REQUEST['dateCheckinStart'];
+			}
+			if(isset($_REQUEST['dateCheckinEnd']) && $_REQUEST['dateCheckinEnd']){
+				$sqlWhere .= 'AND (m.checkinTimestamp < "'.$_REQUEST['dateCheckinEnd'].'") ';
+				$this->searchArr['dateCheckinEnd'] = $_REQUEST['dateCheckinEnd'];
 			}
 			/*
 			 if(isset($_REQUEST['senderID']) && $_REQUEST['senderID']){

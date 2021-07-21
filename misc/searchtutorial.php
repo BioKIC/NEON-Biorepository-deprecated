@@ -60,10 +60,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
       <p>Use the Sample Search feature of the NEON Biorepository data portal to search for, download, and map available NEON samples based on collection, taxon, location, and more.</p>     
       <h2>Understand the new search interface</h2>
       <iframe src="../neon/tutorials/searchinterface.html" height="70%" width="100%" frameborder="0"></iframe>
-      <p><a href="<?php echo $CLIENT_ROOT; ?>/neon/tutorials/NEON-Biorepository-Tutorial_Understanding-Search-Interface_v202105.pdf">Click to download this tutorial (PDF)</a>.</p>
       <h2>Use the results</h2>
       <iframe src="../neon/tutorials/searchresults.html" height="70%" width="100%" frameborder="0"></iframe>
-      <p><a href="<?php echo $CLIENT_ROOT; ?>/neon/tutorials/NEON-Biorepository-Tutorial_Using-Search-Results_v202105.pdf">Click to download this tutorial (PDF)</a>.</p>
+      <!-- Export new version of this? -->
+      <!-- <p>Download the tutorial: <a href="<?php echo $CLIENT_ROOT; ?>/misc/20200427_portalTutorial.pdf">here</a>):</p>  -->
     </div>
 		<?php
 			include($SERVER_ROOT.'/includes/footer.php');

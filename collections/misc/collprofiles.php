@@ -471,19 +471,19 @@ if($SYMB_UID){
 								}
 							}
 							$genRefStr = '';
-							if($extrastatsArr['gencnt']) $genRefStr = number_format($extrastatsArr['gencnt']).' '.(isset($LANG['GENBANK_REF'])?$LANG['GENBANK_REF']:'GenBank').', ';
-							if($extrastatsArr['boldcnt']) $genRefStr .= number_format($extrastatsArr['boldcnt']).' '.(isset($LANG['BOLD_REF'])?$LANG['BOLD_REF']:'BOLD').', ';
-							if($extrastatsArr['geneticcnt']) $genRefStr .= number_format($extrastatsArr['geneticcnt']).' '.(isset($LANG['OTHER_GENETIC_REF'])?$LANG['OTHER_GENETIC_REF']:'other');
+							if(isset($extrastatsArr['gencnt']) && $extrastatsArr['gencnt']) $genRefStr = number_format($extrastatsArr['gencnt']).' '.(isset($LANG['GENBANK_REF'])?$LANG['GENBANK_REF']:'GenBank').', ';
+							if(isset($extrastatsArr['boldcnt']) && $extrastatsArr['boldcnt']) $genRefStr .= number_format($extrastatsArr['boldcnt']).' '.(isset($LANG['BOLD_REF'])?$LANG['BOLD_REF']:'BOLD').', ';
+							if(isset($extrastatsArr['geneticcnt']) && $extrastatsArr['geneticcnt']) $genRefStr .= number_format($extrastatsArr['geneticcnt']).' '.(isset($LANG['OTHER_GENETIC_REF'])?$LANG['OTHER_GENETIC_REF']:'other');
 							if($genRefStr) echo '<li>'.trim($genRefStr,' ,').' '.(isset($LANG['GENETIC_REF'])?$LANG['GENETIC_REF']:'genetic references').'</li>';
-							if($extrastatsArr['refcnt']) echo '<li>'.number_format($extrastatsArr['refcnt']).' '.(isset($LANG['PUB_REFS'])?$LANG['PUB_REFS']:'publication references').'</li>';
-							if($extrastatsArr['SpecimensCountID']){
+							if(isset($extrastatsArr['refcnt']) && $extrastatsArr['refcnt']) echo '<li>'.number_format($extrastatsArr['refcnt']).' '.(isset($LANG['PUB_REFS'])?$LANG['PUB_REFS']:'publication references').'</li>';
+							if(isset($extrastatsArr['SpecimensCountID']) && $extrastatsArr['SpecimensCountID']){
 								$spidPerc = (100*($extrastatsArr['SpecimensCountID']/$statsArr['recordcnt']));
 								echo '<li>'.number_format($extrastatsArr['SpecimensCountID']).($spidPerc?" (".($spidPerc>1?round($spidPerc):round($spidPerc,2))."%)":'').' '.(isset($LANG['IDED_TO_SPECIES'])?$LANG['IDED_TO_SPECIES']:'identified to species').'</li>';
 							}
 						}
-						if($statsArr['familycnt']) echo '<li>'.number_format($statsArr['familycnt']).' '.$LANG['FAMILIES'].'</li>';
-						if($statsArr['genuscnt']) echo '<li>'.number_format($statsArr['genuscnt']).' '.$LANG['GENERA'].'</li>';
-						if($statsArr['speciescnt']) echo '<li>'.number_format($statsArr['speciescnt']).' '.$LANG['SPECIES'].'</li>';
+						if(isset($statsArr['familycnt']) && $statsArr['familycnt']) echo '<li>'.number_format($statsArr['familycnt']).' '.$LANG['FAMILIES'].'</li>';
+						if(isset($statsArr['genuscnt']) && $statsArr['genuscnt']) echo '<li>'.number_format($statsArr['genuscnt']).' '.$LANG['GENERA'].'</li>';
+						if(isset($statsArr['speciescnt']) && $statsArr['speciescnt']) echo '<li>'.number_format($statsArr['speciescnt']).' '.$LANG['SPECIES'].'</li>';
 						if($extrastatsArr&&$extrastatsArr['TotalTaxaCount']) echo '<li>'.number_format($extrastatsArr['TotalTaxaCount']).' '.(isset($LANG['TOTAL_TAXA'])?$LANG['TOTAL_TAXA']:'total taxa (including subsp. and var.)').'</li>';
 						//if($extrastatsArr&&$extrastatsArr['TypeCount']) echo '<li>'.number_format($extrastatsArr['TypeCount']).' '.(isset($LANG['TYPE_SPECIMENS'])?$LANG['TYPE_SPECIMENS']:'type specimens').'</li>';
 						?>

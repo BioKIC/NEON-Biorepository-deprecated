@@ -77,7 +77,7 @@ if($SYMB_UID){
 	<div class="navpath">
 		<a href="../../index.php"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
 		<a href="../index.php"><?php echo (isset($LANG['COLLECTION_SEARCH'])?$LANG['COLLECTION_SEARCH']:'Collection Search Page'); ?></a> &gt;&gt;
-		<b><?php echo ($collid?$collData[$collid]["collectionname"]:"Collection Profiles"); ?> Details</b>
+		<b><?php echo ($collid?$collData[$collid]["collectionname"]:"Collection Profiles"); ?> <?php echo (isset($LANG['DETAILS'])?$LANG['DETAILS']:'Details'); ?></b>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">

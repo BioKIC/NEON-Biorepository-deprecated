@@ -1,6 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/InstitutionManager.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/colladdress.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/misc/colladdress.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
@@ -40,7 +41,7 @@ $collManager->cleanOutArr($collData);
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE." ".($collid?$collData["collectionname"]:"") ; ?> Mailing Address</title>
+	<title><?php echo $DEFAULT_TITLE." ".($collid?$collData["collectionname"]:"").' '.(isset($LANG['MAILING_ADD'])?$LANG['MAILING_ADD']:'Mailing Address'); ?></title>
 	<?php
 	$activateJQuery = true;
 	if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -81,28 +82,28 @@ $collManager->cleanOutArr($collData);
 
 		function verifyCollEditForm(f){
 			if(f.institutioncode.value == ''){
-				alert("Institution Code must have a value");
+				alert("<?php echo (isset($LANG['NEED_INST_CODE'])?$LANG['NEED_INST_CODE']:'Institution Code must have a value'); ?>");
 				return false;
 			}
 			else if(f.collectionname.value == ''){
-				alert("Collection Name must have a value");
+				alert("<?php echo (isset($LANG['NEED_COLL_VALUE'])?$LANG['NEED_COLL_VALUE']:'Collection Name must have a value'); ?>");
 				return false;
 			}
 			else if(f.managementtype.value == "Snapshot" && f.guidtarget.value == "symbiotaUUID"){
-				alert("The Symbiota Generated GUID option cannot be selected for a collection that is managed locally outside of the data portal (e.g. Snapshot management type). In this case, the GUID must be generated within the source collection database and delivered to the data portal as part of the upload process.");
+				alert("<?php echo (isset($LANG['CANNOT_GUID'])?$LANG['CANNOT_GUID']:'The Symbiota Generated GUID option cannot be selected for a collection that is managed locally outside of the data portal (e.g. Snapshot management type). In this case, the GUID must be generated within the source collection database and delivered to the data portal as part of the upload process.'); ?>");
 				return false;
 			}
 			else if(!isNumeric(f.latitudedecimal.value) || !isNumeric(f.longitudedecimal.value)){
-				alert("Latitdue and longitude values must be in the decimal format (numeric only)");
+				alert("<?php echo (isset($LANG['NEED_DECIMAL'])?$LANG['NEED_DECIMAL']:'Latitude and longitude values must be in the decimal format (numeric only)'); ?>");
 				return false;
 			}
 			else if(f.rights.value == ""){
-				alert("Rights field (e.g. Creative Commons license) must have a selection");
+				alert("<?php echo (isset($LANG['NEED_RIGHTS'])?$LANG['NEED_RIGHTS']:'Rights field (e.g. Creative Commons license) must have a selection'); ?>");
 				return false;
 			}
 			try{
 				if(!isNumeric(f.sortseq.value)){
-					alert("Sort sequence must be numeric only");
+					alert("<?php echo (isset($LANG['SORT_NUMERIC'])?$LANG['SORT_NUMERIC']:'Sort sequence must be numeric only'); ?>");
 					return false;
 				}
 			}
@@ -112,10 +113,10 @@ $collManager->cleanOutArr($collData);
 
 		function mtypeguidChanged(f){
 			if(f.managementtype.value == "Snapshot" && f.guidtarget.value == "symbiotaUUID"){
-				alert("The Symbiota Generated GUID option cannot be selected for a collection that is managed locally outside of the data portal (e.g. Snapshot management type). In this case, the GUID must be generated within the source collection database and delivered to the data portal as part of the upload process.");
+				alert("<?php echo (isset($LANG['CANNOT_GUID'])?$LANG['CANNOT_GUID']:'The Symbiota Generated GUID option cannot be selected for a collection that is managed locally outside of the data portal (e.g. Snapshot management type). In this case, the GUID must be generated within the source collection database and delivered to the data portal as part of the upload process.'); ?>");
 			}
 			else if(f.managementtype.value == "Aggregate" && f.guidtarget.value != "" && f.guidtarget.value != "occurrenceId"){
-				alert("An Aggregate dataset (e.g. specimens coming from multiple collections) can only have occurrenceID selected for the GUID source");
+				alert("<?php echo (isset($LANG['AGG_GUID'])?$LANG['AGG_GUID']:'An Aggregate dataset (e.g. specimens coming from multiple collections) can only have occurrenceID selected for the GUID source'); ?>");
 				f.guidtarget.value = 'occurrenceId';
 			}
 			if(!f.guidtarget.value){
@@ -126,7 +127,7 @@ $collManager->cleanOutArr($collData);
 		function checkGUIDSource(f){
 			if(f.publishToGbif.checked == true){
 				if(!f.guidtarget.value){
-					alert("You must select a GUID source in order to publish to data aggregators.");
+					alert("<?php echo (isset($LANG['NEED_GUID'])?$LANG['NEED_GUID']:'You must select a GUID source in order to publish to data aggregators.'); ?>");
 					f.publishToGbif.checked = false;
 				}
 			}
@@ -134,7 +135,7 @@ $collManager->cleanOutArr($collData);
 
 		function verifyAddAddressForm(f){
 			if(f.iid.value == ""){
-				alert("Select an institution to be linked");
+				alert("<?php echo (isset($LANG['SEL_INST'])?$LANG['SEL_INST']:'Select an institution to be linked'); ?>");
 				return false;
 			}
 			return true;
@@ -173,7 +174,7 @@ $collManager->cleanOutArr($collData);
 				iconExt = iconExt.toLowerCase();
 				if((iconExt != '.jpg') && (iconExt != 'jpeg') && (iconExt != '.png') && (iconExt != '.gif')){
 					document.getElementById("iconfile").value = '';
-					alert("The file you have uploaded is not a supported image file. Please upload a jpg, png, or gif file.");
+					alert("<?php echo (isset($LANG['NOT_SUPP'])?$LANG['NOT_SUPP']:'The file you have uploaded is not a supported image file. Please upload a jpg, png, or gif file.'); ?>");
 				}
 				else{
 					var fr = new FileReader;
@@ -183,7 +184,7 @@ $collManager->cleanOutArr($collData);
 							if((img.width>350) || (img.height>350)){
 								document.getElementById("iconfile").value = '';
 								img = '';
-								alert("The image file must be less than 350 pixels in both width and height.");
+								alert("<?php echo (isset($LANG['MUST_SMALL'])?$LANG['MUST_SMALL']:'The image file must be less than 350 pixels in both width and height.'); ?>");
 							}
 						};
 						img.src = fr.result;
@@ -196,7 +197,7 @@ $collManager->cleanOutArr($collData);
 		function verifyIconURL(f){
 			var iconImageFile = document.getElementById("iconurl").value;
 			if(iconImageFile && (iconImageFile.substr(iconImageFile.length-4) != '.jpg') && (iconImageFile.substr(iconImageFile.length-4) != '.png') && (iconImageFile.substr(iconImageFile.length-4) != '.gif')){
-				alert("The url you have entered is not for a supported image file. Please enter a url for a jpg, png, or gif file.");
+				alert("<?php echo (isset($LANG['NOT_SUPP_URL'])?$LANG['NOT_SUPP_URL']:'The url you have entered is not for a supported image file. Please enter a url for a jpg, png, or gif file.'); ?>");
 			}
 		}
 
@@ -227,10 +228,10 @@ $collManager->cleanOutArr($collData);
 	echo '<div class="navpath">';
 	echo '<a href="../../index.php">Home</a> &gt;&gt; ';
 	if($collid){
-		echo '<a href="collprofiles.php?collid='.$collid.'&emode=1">Collection Management</a> &gt;&gt; ';
-		echo '<b>'.$collData['collectionname'].' Mailing Address </b>';
+		echo '<a href="collprofiles.php?collid='.$collid.'&emode=1">'.(isset($LANG['COL_MGMNT'])?$LANG['COL_MGMNT']:'Collection Management').'</a> &gt;&gt; ';
+		echo '<b>'.$collData['collectionname'].' '.(isset($LANG['MAILING_ADD'])?$LANG['MAILING_ADD']:'Mailing Address').' </b>';
 	}
-	else echo '<b>Mailing Addresses</b>';
+	else echo '<b>'.(isset($LANG['MAILING_ADDS'])?$LANG['MAILING_ADDS']:'Mailing Addresses').'</b>';
 	echo '</div>';
 	?>
 	<!-- This is inner text! -->
@@ -250,7 +251,7 @@ $collManager->cleanOutArr($collData);
 			?>
 			<div>
 				<fieldset>
-					<legend>Mailing Address</legend>
+					<legend><?php echo (isset($LANG['MAILING_ADD'])?$LANG['MAILING_ADD']:'Mailing Address'); ?></legend>
 					<?php
 					if($instArr = $addressManager->getAddress()){
 						?>
@@ -259,10 +260,10 @@ $collManager->cleanOutArr($collData);
 							echo '<div>';
 							echo $instArr['institutionname'].($instArr['institutioncode']?' ('.$instArr['institutioncode'].')':'');
 							?>
-							<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid.'&iid='.$instArr['iid']; ?>" title="Edit institution address">
+							<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid.'&iid='.$instArr['iid']; ?>" title="<?php echo (isset($LANG['EDIT_ADD'])?$LANG['EDIT_ADD']:'Edit Institution Address'); ?>">
 								<img src="../../images/edit.png" style="width:14px;" />
 							</a>
-							<a href="collmetadata.php?collid=<?php echo $collid.'&removeiid='.$instArr['iid']; ?>" title="Unlink institution address">
+							<a href="collmetadata.php?collid=<?php echo $collid.'&removeiid='.$instArr['iid']; ?>" title="<?php echo (isset($LANG['UNLINK_ADD'])?$LANG['UNLINK_ADD']:'Unlink institution address'); ?>">
 								<img src="../../images/drop.png" style="width:14px;" />
 							</a>
 							<?php
@@ -283,11 +284,11 @@ $collManager->cleanOutArr($collData);
 					else{
 						//Link new institution
 						?>
-						<div style="margin:40px;"><b>No addesses linked</b></div>
+						<div style="margin:40px;"><b><?php echo (isset($LANG['NO_ADDS'])?$LANG['NO_ADDS']:'No addesses linked'); ?></b></div>
 						<div style="margin:20px;">
 							<form name="addaddressform" action="collmetadata.php" method="post" onsubmit="return verifyAddAddressForm(this)">
 								<select name="iid" style="width:425px;">
-									<option value="">Select Institution Address</option>
+									<option value=""><?php echo (isset($LANG['SEL_ADD'])?$LANG['SEL_ADD']:'Select Institution Address'); ?></option>
 									<option value="">------------------------------------</option>
 									<?php
 									$addrArr = $addressManager->getInstitutionArr();
@@ -301,7 +302,7 @@ $collManager->cleanOutArr($collData);
 							</form>
 							<div style="margin:15px;">
 								<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid; ?>" title="Add a new address not on the list">
-									<b>Add an institution not on list</b>
+									<b><?php echo (isset($LANG['ADD_INST'])?$LANG['ADD_INST']:'Add an institution not on list'); ?></b>
 								</a>
 							</div>
 						</div>

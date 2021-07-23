@@ -169,17 +169,10 @@ if($isEditor && $collid){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.(isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></title>
-  <?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
@@ -231,7 +224,7 @@ if($isEditor && $collid){
 				var msg = "<?php echo (isset($LANG['IMPORT_FILE'])?$LANG['IMPORT_FILE']:'Import file '); ?>"+file.name+" ("+Math.round(file.size/100000)/10+"<?php echo (isset($LANG['IS_BIGGER'])?$LANG['IS_BIGGER']:'MB) is larger than is allowed (current limit: '); ?>"+(maxUpload/1000000)+"MB).";
 				if(file.name.slice(-3) != "zip") msg = msg + "<?php echo (isset($LANG['MAYBE_ZIP'])?$LANG['MAYBE_ZIP']:' Note that import file size can be reduced by compressing within a zip file. '); ?>";
 				alert(msg);
-		    }
+			}
 		}
 
 		function verifyMappingForm(f){
@@ -649,9 +642,8 @@ if($isEditor && $collid){
 						<?php
 					}
 				}
-				$processingList = array("unprocessed"=>"<?php echo (isset($LANG['UNPROC'])?$LANG['UNPROC']:'Unprocessed'); ?>","stage 1"=>"<?php echo (isset($LANG['STAGE_1'])?$LANG['STAGE_1']:'Stage 1'); ?>","stage 2"=>"<?php echo (isset($LANG['STAGE_2'])?$LANG['STAGE_2']:'Stage 2'); ?>","stage 3"=>"<?php echo (isset($LANG['STAGE_3'])?$LANG['STAGE_3']:'Stage 3'); ?>",
-					"pending review"=>"<?php echo (isset($LANG['PEND_REV'])?$LANG['PEND_REV']:'Pending Review'); ?>","expert required"=>"<?php echo (isset($LANG['EXP_REQ'])?$LANG['EXP_REQ']:'Expert Required'); ?>","pending review-nfn"=>"<?php echo (isset($LANG['PEND_NFN'])?$LANG['PEND_NFN']:'Pending Review-NfN'); ?>",
-					"reviewed"=>"Reviewed","closed"=>"Closed");
+				$processingList = array('unprocessed' => 'Unprocessed', 'stage 1' => 'Stage 1', 'stage 2' => 'Stage 2', 'stage 3' => 'STAGE_3', 'pending review' => 'Pending Review', 
+					'expert required' => 'Expert Required', 'pending review-nfn' => 'Pending Review-NfN', 'reviewed' => 'Reviewed', 'closed' => 'Closed');
 				if($ulPath && ($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD)){
 					//Data has been uploaded and it's a DWCA upload type
 					if($duManager->analyzeUpload()){
@@ -721,7 +713,6 @@ if($isEditor && $collid){
 															<select name="filter<?php echo $x; ?>" style="margin-right:10px">
 																<option value=""><?php echo (isset($LANG['SEL_FIELD'])?$LANG['SEL_FIELD']:'Select Field Name'); ?></option>
 																<?php
-																$setFilter = (isset($queryArr['filter'.$x])?$queryArr['filter'.$x]:'');
 																foreach($sourceFields as $f){
 																	echo '<option '.($savedField == strtolower($f)?'SELECTED':'').'>'.$f.'</option>';
 																}
@@ -954,11 +945,12 @@ if($isEditor && $collid){
 										<?php
 									}
 									?>
-									<input type="submit" name="action" value="Automap Fields" ><?php echo (isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap Fields'); ?></button>
-									<input type="submit" name="action" value="Verify Mapping" ><?php echo (isset($LANG['VER_MAPPING'])?$LANG['VER_MAPPING']:'Verify Mapping'); ?></button>
-									<input type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" ><?php echo (isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping'); ?></button>
+									<button type="submit" name="action" value="Automap Fields" ><?php echo (isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap Fields'); ?></button>
+									<button type="submit" name="action" value="Verify Mapping" ><?php echo (isset($LANG['VER_MAPPING'])?$LANG['VER_MAPPING']:'Verify Mapping'); ?></button>
+									<button type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" ><?php echo (isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping'); ?></button>
 									<span id="newProfileNameDiv" style="margin-left:15px;color:red;display:none">
-										<?php echo (isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title'); ?>: <input type="text" name="profiletitle" style="width:300px" />
+										<?php echo (isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title'); ?>: 
+										<input type="text" name="profiletitle" style="width:300px" />
 									</span>
 								</div>
 								<hr />
@@ -1021,24 +1013,16 @@ if($isEditor && $collid){
 								</div>
 								<?php
 								if($uploadType == $SKELETAL){
-									?>
-									<div style="margin:15px;background-color:lightgreen;">
-										<?php echo (isset($LANG['SKEL_EXPLAIN'])?$LANG['SKEL_EXPLAIN']:'
-										Skeletal Files consist of stub data that is easy to capture in bulk during the imaging process.
-										This data is used to seed new records to which images are linked.
-										Skeletal fields typically collected include filed by or current scientific name, country, state/province, and sometimes county, though any supported field can be included.
-										Skeletal file uploads are similar to regular uploads though differ in several ways.
-										<ul>
-											<li>General file uploads typically consist of full records, while skeletal uploads will almost always be an annotated record with data for only a few selected fields</li>
-											<li>The catalog number field is required for skeletal file uploads since this field is used to find matches on images or existing records</li>
-											<li>In cases where a record already exists, a general file upload will completely replace the existing record with the data in the new record.
-											On the other hand, a skeletal upload will augment the existing record only with new field data.
-											Fields are only added if data does not already exist within the target field.</li>
-											<li>If a record DOES NOT already exist, a new record will be created in both cases, but only the skeletal record will be tagged as unprocessed</li>
-										'); ?>
-										</ul>
-									</div>
-									<?php
+									echo '<div style="margin:15px;background-color:lightgreen;">';
+									echo (isset($LANG['SKEL_EXPLAIN'])?$LANG['SKEL_EXPLAIN']:'');
+									echo '<ul>';
+									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P1'])?$LANG['SKEL_EXPLAIN_P1']:'').'</li>';
+									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+									echo '</ul>';
+									echo '</div>';
 								}
 								?>
 							</div>
@@ -1058,18 +1042,11 @@ if($isEditor && $collid){
 			echo '<div style="font-weight:bold;font-size:120%;">'.(isset($LANG['NOT_AUTH'])?$LANG['NOT_AUTH']:'ERROR: you are not authorized to upload to this collection').'</div>';
 		}
 		else{
-			?>
-			<div style="font-weight:bold;font-size:120%;">
-			<?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'
-				ERROR: Either you have tried to reach this page without going through the collection management menu
-				or you have tried to upload a file that is too large.
-				You may want to breaking the upload file into smaller files or compressing the file into a zip archive (.zip extension).
-				You may want to contact portal administrator to request assistance in uploading the file (hint to admin: increasing PHP upload limits may help,
-				current upload_max_filesize = ').ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size");
-				echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.'); 
-			?>
-			</div>
-			<?php
+			echo '<div style="font-weight:bold;font-size:120%;">';
+			echo (isset($LANG['PAGE_ERROR'])?$LANG['PAGE_ERROR']:'').' = ';
+			echo ini_get("upload_max_filesize").'; post_max_size = '.ini_get('post_max_size');
+			echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.'); 
+			echo '</div>';
 		}
 	}
 	?>

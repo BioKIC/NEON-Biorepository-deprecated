@@ -62,8 +62,8 @@ if($isEditor){
 		if(!$collManager->removeAddress($_GET['removeiid'])) $statusStr = $collManager->getErrorMessage();
 	}
 }
-$collData = current($collManager->getCollectionMetadata());
-$collManager->cleanOutArr($collData);
+$collData = @current($collManager->getCollectionMetadata());
+if($collData) $collManager->cleanOutArr($collData);
 ?>
 <html>
 <head>
@@ -251,7 +251,7 @@ $collManager->cleanOutArr($collData);
 			<?php
 		}
 		?>
-        <div id="tabs" style="margin:0px;">
+		<div id="tabs" style="margin:0px;">
 			<?php
 			if($isEditor){
 				if($collid) echo '<h1>'.$collData['collectionname'].(array_key_exists('institutioncode',$collData)?' ('.$collData['institutioncode'].')':'').'</h1>';

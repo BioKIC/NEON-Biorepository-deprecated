@@ -1,6 +1,7 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/GlossaryManager.php');
+include_once($SERVER_ROOT.'/content/lang/glossary/individual.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $glossId = array_key_exists('glossid',$_REQUEST)?$_REQUEST['glossid']:0;
@@ -38,7 +39,7 @@ if($glossId){
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> Glossary Term Information</title>
+	<title><?php echo $DEFAULT_TITLE.(isset($LANG['GLOSS_TERM_INFO'])?$LANG['GLOSS_TERM_INFO']:'Glossary Term Information'); ?></title>
 	<?php
 	$activateJQuery = true;
 	if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -58,7 +59,7 @@ if($glossId){
 		$(document).ready(function() {
 			$('#tabs').tabs({
 				beforeLoad: function( event, ui ) {
-					$(ui.panel).html("<p>Loading...</p>");
+					$(ui.panel).html("<?php echo '<p>'.(isset($LANG['LOADING'])?$LANG['LOADING']:'Loading').'...</p>' ?>");
 				}
 			});
 		});
@@ -90,14 +91,14 @@ if($glossId){
 					<div style="clear:both;">
 						<div style='' >
 							<div style='margin-top:8px;width:95%' >
-								<b>Definition:</b>
+								<b><?php echo (isset($LANG['DEFINITION'])?$LANG['DEFINITION']:'Definition'); ?>:</b>
 								<?php echo $termArr['definition']; ?>
 							</div>
 							<?php
 							if($termArr['author']){
 								?>
 								<div style='margin-top:8px;' >
-									<b>Author:</b>
+									<b><?php echo (isset($LANG['AUTHOR'])?$LANG['AUTHOR']:'Author'); ?>:</b>
 									<?php echo $termArr['author']; ?>
 								</div>
 								<?php
@@ -105,13 +106,13 @@ if($glossId){
 							if($termArr['translator']){
 								?>
 								<div style='margin-top:8px;' >
-									<b>Translator:</b>
+									<b><?php echo (isset($LANG['TRANSLATOR'])?$LANG['TRANSLATOR']:'Translator'); ?>:</b>
 									<?php echo $termArr['translator']; ?>
 								</div>
 								<?php
 							}
 							if($synonymArr){
-								echo '<div style="margin-top:8px;" ><b>Synonyms:</b> ';
+								echo '<div style="margin-top:8px;" ><b>'.(isset($LANG['SYNS'])?$LANG['SYNS']:'Synonyms').':</b> ';
 								$i = 0;
 								foreach($synonymArr as $synGlossId => $synArr){
 									if($i) echo ', ';
@@ -122,7 +123,7 @@ if($glossId){
 							}
 							$translationArr = $glosManager->getTranslations();
 							if($translationArr){
-								echo '<div style="margin-top:8px;" ><b>Translations:</b> ';
+								echo '<div style="margin-top:8px;" ><b>'.(isset($LANG['TRANSS'])?$LANG['TRANSS']:'Translations').':</b> ';
 								$i = 0;
 								foreach($translationArr as $transGlossId => $transArr){
 									if($i) echo ', ';
@@ -133,7 +134,7 @@ if($glossId){
 							}
 							$otherRelationshipsArr = $glosManager->getOtherRelatedTerms();
 							if($otherRelationshipsArr){
-								echo '<div style="margin-top:8px;" ><b>Other Related Terms:</b> ';
+								echo '<div style="margin-top:8px;" ><b>'.(isset($LANG['OTHER_REL'])?$LANG['OTHER_REL']:'Other Related Terms').':</b> ';
 								$delimter = '';
 								foreach($otherRelationshipsArr as $relType => $relTypeArr){
 									$relStr = '';
@@ -151,7 +152,7 @@ if($glossId){
 							if($termArr['notes']){
 								?>
 								<div style='margin-top:8px;' >
-									<b>Notes:</b>
+									<b><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:</b>
 									<?php echo $termArr['notes']; ?>
 								</div>
 								<?php
@@ -166,7 +167,7 @@ if($glossId){
 								}
 								?>
 								<div style='margin-top:8px;' >
-									<b>Resource URL:</b>
+									<b><?php echo (isset($LANG['RES_URL'])?$LANG['RES_URL']:'Resource URL'); ?>:</b>
 									<?php echo $resource; ?>
 								</div>
 								<?php
@@ -174,7 +175,7 @@ if($glossId){
 							if($termArr['source']){
 								?>
 								<div style='margin-top:8px;' >
-									<b>Source:</b>
+									<b><?php echo (isset($LANG['SOURCE'])?$LANG['SOURCE']:'Source'); ?>:</b>
 									<?php echo $termArr['source']; ?>
 								</div>
 								<?php
@@ -182,7 +183,7 @@ if($glossId){
 							?>
 						</div>
 						<div style="clear:both;margin:15px 0px;">
-							<b>Relevant Taxa:</b>
+							<b><?php echo (isset($LANG['RELEV_TAXA'])?$LANG['RELEV_TAXA']:'Relevant Taxa'); ?>:</b>
 							<?php
 							$sourceArr = $glosManager->getTaxonSources();
 							$taxaArr = $glosManager->getTermTaxaArr();
@@ -238,14 +239,14 @@ if($glossId){
 									if($imgArr['createdBy']){
 										?>
 										<div style='overflow:hidden;width:250px;margin-top:2px;font-size:12px;' >
-											Image courtesy of: <?php echo wordwrap($imgArr['createdBy'], 370, "<br />\n"); ?>
+											<?php echo (isset($LANG['IMG_FROM'])?$LANG['IMG_FROM']:'Image courtesy of'); ?>: <?php echo wordwrap($imgArr['createdBy'], 370, "<br />\n"); ?>
 										</div>
 										<?php
 									}
 									if($imgArr['structures']){
 										?>
 										<div style='overflow:hidden;width:250px;margin-top:8px;' >
-											<b>Structures:</b>
+											<b><?php echo (isset($LANG['STRUCTURES'])?$LANG['STRUCTURES']:'Structures'); ?>:</b>
 											<?php echo wordwrap($imgArr["structures"], 370, "<br />\n"); ?>
 										</div>
 										<?php
@@ -253,7 +254,7 @@ if($glossId){
 									if($imgArr['notes']){
 										?>
 										<div style='overflow:hidden;width:250px;margin-top:8px;' >
-											<b>Notes:</b>
+											<b><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:</b>
 											<?php echo wordwrap($imgArr["notes"], 370, "<br />\n"); ?>
 										</div>
 										<?php
@@ -271,33 +272,33 @@ if($glossId){
 					?>
 					<div id="<?php echo $tid; ?>-sourcesdiv" style="display:none;margin-top:20px">
 						<fieldset style="margin:10px; padding:10px;background-color:white;">
-							<legend><b>Contributors for <?php echo $arr['sciname']; ?></b></legend>
+							<legend><b><?php echo (isset($LANG['CONTR_FOR'])?$LANG['CONTR_FOR']:'Contributors for').' '.$arr['sciname']; ?></b></legend>
 							<?php
 							if($arr['contributorTerm']){
 								?>
 								<div style="">
-									<b>Term and Definition contributed by:</b> <?php echo $arr['contributorTerm']; ?>
+									<?php echo '<b>'.(isset($LANG['TERM_DEF_BY'])?$LANG['TERM_DEF_BY']:'Term and Definition contributed by').':</b>'.$arr['contributorTerm']; ?>
 								</div>
 								<?php
 							}
 							if($arr['contributorImage'] && $termImgArr){
 								?>
 								<div style="margin-top:8px;">
-									<b>Image contributed by:</b> <?php echo $arr['contributorImage']; ?>
+									<?php echo '<b>'.(isset($LANG['IMG_BY'])?$LANG['IMG_BY']:'Image contributed by').':</b>'.$arr['contributorImage']; ?>
 								</div>
 								<?php
 							}
 							if($arr['translator'] && $translationArr){
 								?>
 								<div style="margin-top:8px;">
-									<b>Translation by:</b> <?php echo $arr['translator']; ?>
+									<?php echo '<b>'.(isset($LANG['TRANS_BY'])?$LANG['TRANS_BY']:'Translation by').':</b>'.$arr['translator']; ?>
 								</div>
 								<?php
 							}
 							if($arr['additionalSources'] && ($translationArr || $termImgArr)){
 								?>
 								<div style="margin-top:8px;">
-									<b>Translation and/or image were also sourced from the following references:</b> <?php echo $arr['additionalSources']; ?>
+									<?php echo '<b>'.(isset($LANG['ALSO_FROM'])?$LANG['ALSO_FROM']:'Translation and/or image were also sourced from the following references').':</b> '.$arr['additionalSources']; ?>
 								</div>
 								<?php
 							}

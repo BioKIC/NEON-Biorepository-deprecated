@@ -25,5 +25,3 @@ $LANG['MISC_TOOLS'] = 'Outils Divers';
 $LANG['DATASET_MANAGEMENT'] = 'Gestion des Jeux de Données';
 $LANG['CROSS_COL_GEOREF'] = 'Outil de Géoréférencement de Collections Multiples';
 $LANG['CROSS_COL_TAXON'] = 'Outil de Nettoyage de Taxonomie de Collections Multiples';
-
-?>

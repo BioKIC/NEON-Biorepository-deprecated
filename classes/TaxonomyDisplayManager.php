@@ -668,19 +668,22 @@ class TaxonomyDisplayManager extends Manager{
 	private function primeTaxaEnumTree(){
 		//Temporary code: check to make sure taxaenumtree is populated
 		//This code can be removed somewhere down the line
-		$sql = 'SELECT tid FROM taxaenumtree LIMIT 1';
+		$indexCnt = 0;
+	    $sql = 'SELECT tid FROM taxaenumtree LIMIT 1';
 		$rs = $this->conn->query($sql);
-		if(!$rs->num_rows){
+		$indexCnt = $rs->num_rows;
+		$rs->free();
+		if(!$indexCnt){
 			echo '<div style="color:red;margin:30px;">';
-			echo 'NOTICE: Building new taxonomic hierarchy table (taxaenumtree).<br/>';
-			echo 'This may take a few minutes, but only needs to be done once.<br/>';
-			echo 'Do not terminate this process early.';
+			echo 'NOTICE: Building new taxonomic hierarchy table (taxaenumtree).<br/>This may take a few minutes, but only needs to be done once.<br/>Do not terminate this process early.';
 			echo '</div>';
 			ob_flush();
 			flush();
 			TaxonomyUtilities::buildHierarchyEnumTree($this->conn,$this->taxAuthId);
+			echo '<div style="color:green;margin:30px;">Done! Taxonomic hierarchy index has been created</div>';
+			ob_flush();
+			flush();
 		}
-		$rs->free();
 	}
 
 	private function cmp($a, $b){

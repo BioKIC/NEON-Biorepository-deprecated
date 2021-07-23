@@ -240,9 +240,7 @@ class TaxonomyUtilities {
 				$status = 'ERROR deleting taxaenumtree prior to re-populating: '.$conn->error;
 			}
 		}
-		else{
-			$status = 'ERROR deleting taxaenumtree prior to re-populating: NULL connection object';
-		}
+		else $status = 'ERROR deleting taxaenumtree prior to re-populating: NULL connection object';
 		return $status;
 	}
 
@@ -283,9 +281,7 @@ class TaxonomyUtilities {
 				}while($cnt < 30);
 			}
 		}
-		else{
-			$status = 'ERROR deleting taxaenumtree prior to re-populating: NULL connection object';
-		}
+		else $status = 'ERROR re-populating taxaenumtree: NULL connection object';
 		return $status;
 	}
 

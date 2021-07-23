@@ -17,7 +17,7 @@ $clManager->setClid($clid);
 if($action == 'SubmitAdd'){
 	//Anyone with a login can create a checklist
 	$newClid = $clManager->createChecklist($_POST);
-	header('Location: checklist.php?clid='.$newClid.'&emode=1');
+	header('Location: checklist.php?clid='.$newClid);
 }
 
 $statusStr = '';

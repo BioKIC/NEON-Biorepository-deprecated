@@ -43,11 +43,9 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 	}
 </script>
 <div id="innertext" style="background-color:white;">
-	<h2><?php echo (isset($LANG['POSS_CONFLICTS'])?$LANG['POSS_CONFLICTS']:'Possible Voucher Conflicts'); ?></h2>
 	<div style="margin-bottom:10px;">
-		<?php echo (isset($LANG['POSS_CONFLICTS'])?$LANG['POSS_CONFLICTS']:'List of specimen vouchers where the current identifications conflict with the checklist.
-		Voucher conflicts are typically due to recent annotations of specimens located within collection.
-		Click on Checklist ID to open the editing pane for that record.');
+		<?php
+		echo (isset($LANG['EXPLAIN_PARAGRAPH'])?$LANG['EXPLAIN_PARAGRAPH']:'');
 		?>
 	</div>
 	<?php
@@ -72,9 +70,7 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 						</td>
 						<td>
 							<a href="#" onclick="return openPopup('clsppeditor.php?tid=<?php echo $vArr['tid']."&clid=".$vArr['clid']; ?>','editorwindow');">
-								<?php
-								echo $vArr['listid'];
-								?>
+								<?php echo $vArr['listid']; ?>
 							</a>
 							<?php
 							if($vArr['clid'] != $clid) echo '<br/>'.(isset($LANG['FROM_CHILD'])?$LANG['FROM_CHILD']:'(from child checklists)');
@@ -112,8 +108,6 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 		</form>
 		<?php
 	}
-	else{
-		echo '<h3>'.(isset($LANG['NO_CONFLICTS'])?$LANG['NO_CONFLICTS']:'No conflicts exist').'</h3>';
-	}
+	else echo '<h3>'.(isset($LANG['NO_CONFLICTS'])?$LANG['NO_CONFLICTS']:'No conflicts exist').'</h3>';
 	?>
 </div>

@@ -98,7 +98,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 					</div>
 				</div>
 				<div style='float:right;margin:0px 10px;'>
-					<div><button type="submit" style="width:100%"><?php echo isset($LANG['BUTTON_NEXT_LIST']?$LANG['BUTTON_NEXT_LIST']:'List Display'); ?></button></div>
+					<div><button type="submit" style="width:100%"><?php echo isset($LANG['BUTTON_NEXT_LIST'])?$LANG['BUTTON_NEXT_LIST']:'List Display'; ?></button></div>
 					<div><button type="button" style="width:100%" onclick="displayTableView(this.form)"><?php echo isset($LANG['BUTTON_NEXT_TABLE'])?$LANG['BUTTON_NEXT_TABLE']:'Table Display'; ?></button></div>
 					<div><button type="reset" style="width:100%" onclick="resetHarvestParamsForm()"><?php echo isset($LANG['BUTTON_RESET'])?$LANG['BUTTON_RESET']:'Reset Form'; ?></button></div>
 				</div>

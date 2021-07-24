@@ -29,7 +29,7 @@ $LANG['TERM_SUCCESS'] = 'Terms upload appears to have been successful';
 $LANG['GO_TO'] = 'Go to';
 $LANG['G_SEARCH'] = 'Glossary Search';
 $LANG['TO_SEARCH'] = 'page to search for a loaded name.';
-$LANG['UPLOAD_EXPLAIN']:'Flat structured, CSV (comma delimited) text files can be uploaded here.
+$LANG['UPLOAD_EXPLAIN'] = 'Flat structured, CSV (comma delimited) text files can be uploaded here.
 						Please specify the taxonomic group to which the terms will be related.
 						If your file contains terms in multiple languages, label each column of terms as the language the terms are in (e.g., English),
 						and then name all columns related to that term as the language, underscore, and then the column name
@@ -44,5 +44,4 @@ $LANG['ENTER_TAXON'] = 'Enter Taxonomic Group';
 $LANG['ENTER_SOURCE'] = 'Enter Sources';
 $LANG['UPLOAD'] = 'Upload File';
 $LANG['NO_PERM'] = 'You do not have permissions to batch upload glossary data';
-
 ?>

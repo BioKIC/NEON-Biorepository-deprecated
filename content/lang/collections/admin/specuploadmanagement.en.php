@@ -49,9 +49,8 @@ $LANG['PWORD'] = 'Password';
 $LANG['SCHEMA'] = 'Schema Name';
 $LANG['QUERY'] = 'Query/Command String';
 $LANG['PATH_EXPLAIN'] = 'Path can be URL or local path leading to a DwC-Archive zip file or a directory path to a pre-extracted DwC-Archive data package.
-					If using local path on Windows OS, use foward slashes in place of backslashes.'
+					If using local path on Windows OS, use foward slashes in place of backslashes.';
 $LANG['DEL_PROFILE'] = 'Delete this Profile';
 $LANG['DEL_PR'] = 'Delete Profile';
 $LANG['ERROR_AUTH'] = 'ERROR: you are not authorized to upload to this collection';
-
 ?>

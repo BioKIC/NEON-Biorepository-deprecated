@@ -356,7 +356,7 @@ class TaxonomyHarvester extends Manager{
 	private function addWormsTaxon($taxonArr){
 		$tid = 0;
 		$sciName = $taxonArr['sciname'];
-		$url = 'http://www.marinespecies.org/rest/AphiaIDByName/'.rawurlencode($sciName).'?marine_only=false';
+		$url = 'https://marinespecies.org/rest/AphiaIDByName/'.rawurlencode($sciName).'?marine_only=false';
 		$retArr = $this->getContentString($url);
 		$id = $retArr['str'];
 		if(is_numeric($id)){
@@ -376,7 +376,7 @@ class TaxonomyHarvester extends Manager{
 		}
 		$taxonArr= Array();
 		$acceptedTid = 0;
-		$url = 'http://www.marinespecies.org/rest/AphiaRecordByAphiaID/'.$id;
+		$url = 'https://marinespecies.org/rest/AphiaRecordByAphiaID/'.$id;
 		if($resultStr = $this->getWormsReturnStr($this->getContentString($url),$url)){
 			$taxonArr= $this->getWormsNode(json_decode($resultStr,true));
 			if($taxonArr['acceptance'] == 'unaccepted' && isset($taxonArr['validID'])){
@@ -388,7 +388,7 @@ class TaxonomyHarvester extends Manager{
 				$taxonArr['parent']['tid'] = 'self';
 			}
 			else{
-				$url = 'http://www.marinespecies.org/rest/AphiaClassificationByAphiaID/'.$id;
+				$url = 'https://marinespecies.org/rest/AphiaClassificationByAphiaID/'.$id;
 				if($parentStr = $this->getWormsReturnStr($this->getContentString($url),$url)){
 					$parentArr = json_decode($parentStr,true);
 					if($parentID = $this->getWormParentID($parentArr, $id)){
@@ -403,7 +403,7 @@ class TaxonomyHarvester extends Manager{
 		}
 		//Get reference source
 		if(!isset($taxonArr['source']) || !$taxonArr['source']){
-			$url = 'http://www.marinespecies.org/rest/AphiaSourcesByAphiaID/'.$id;
+			$url = 'https://marinespecies.org/rest/AphiaSourcesByAphiaID/'.$id;
 			if($sourceStr = $this->getWormsReturnStr($this->getContentString($url),$url)){
 				$sourceArr = json_decode($sourceStr,true);
 				foreach($sourceArr as $innerArr){
@@ -420,14 +420,16 @@ class TaxonomyHarvester extends Manager{
 
 	private function getWormsReturnStr($retArr,$url){
 		$resultStr = '';
-		if($retArr['code'] == 200){
-			$resultStr = $retArr['str'];
-		}
-		elseif($retArr['code'] == 204){
-			$this->logOrEcho('Identifier not found within WoRMS: '.$url,2);
-		}
-		else{
-			$this->logOrEcho('ERROR returning WoRMS object (code: '.$retArr['code'].'): '.$url,1);
+		if($retArr){
+    		if($retArr['code'] == 200){
+    			$resultStr = $retArr['str'];
+    		}
+    		elseif($retArr['code'] == 204){
+    			$this->logOrEcho('Identifier not found within WoRMS: '.$url,2);
+    		}
+    		else{
+    			$this->logOrEcho('ERROR returning WoRMS object (code: '.$retArr['code'].'): '.$url,1);
+    		}
 		}
 		return $resultStr;
 	}

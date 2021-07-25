@@ -734,6 +734,7 @@ class TaxonomyHarvester extends Manager{
 		if((!isset($taxonArr['sciname']) || !$taxonArr['sciname']) && isset($taxonArr['scientificName']) && $taxonArr['scientificName']){
 			$this->buildTaxonArr($taxonArr);
 		}
+		if(!$this->validateTaxonArr($taxonArr)) return false;
 		//Check to see sciname is in taxon table, but perhaps not linked to current thesaurus
 		$sql = 'SELECT tid FROM taxa WHERE (sciname = "'.$taxonArr['sciname'].'") ';
 		if($this->kingdomName) $sql .= 'AND (kingdomname = "'.$this->kingdomName.'" OR kingdomname IS NULL) ';
@@ -755,7 +756,6 @@ class TaxonomyHarvester extends Manager{
 			$rs->free();
 		}
 		if($loadTaxon){
-			if(!$this->validateTaxonArr($taxonArr)) return false;
 			if(!$newTid){
 				//Name doesn't exist in taxa table, and thus needs to be added
 				$sqlInsert = 'INSERT INTO taxa(sciname, unitind1, unitname1, unitind2, unitname2, unitind3, unitname3, author, rankid, source) '.
@@ -885,7 +885,7 @@ class TaxonomyHarvester extends Manager{
 		}
 		//Check to make sure required fields are present
 		if(!isset($taxonArr['sciname']) || !$taxonArr['sciname']){
-			$this->logOrEcho('ERROR loading '.$taxonArr['sciname'].': Input scientific name not defined',1);
+			$this->logOrEcho('ERROR loading: Input scientific name not defined',1);
 			return false;
 		}
 		if(!isset($taxonArr['parent']) || !$taxonArr['parent']){
@@ -1191,6 +1191,7 @@ class TaxonomyHarvester extends Manager{
 		}
 		if(!in_array(40,$this->rankIdArr)){
 			if(!isset($this->rankIdArr['subphylum'])) $this->rankIdArr['subphylum'] = 40;
+			if(!isset($this->rankIdArr['infraphylum'])) $this->rankIdArr['infraphylum'] = 45;
 			if(!isset($this->rankIdArr['subdivision'])) $this->rankIdArr['subdivision'] = 40;
 		}
 		if(strtolower($this->kingdomName) == 'animalia'){

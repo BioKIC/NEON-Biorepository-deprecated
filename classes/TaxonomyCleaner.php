@@ -494,7 +494,7 @@ class TaxonomyCleaner extends Manager{
 					}
 				}
 				elseif($this->verificationMode == 1){				//Default to taxonomy of external source
-				    if($internalTaxonObj['tid'] == $tidCurrentAccepted){	//Is accepted within system
+					if($internalTaxonObj['tid'] == $tidCurrentAccepted){	//Is accepted within system
 						if($nameStatus == 'accepted'){				//Accepted externally, thus in both locations accepted
 							//Go through synonyms and check each
 							$synArr = $externalTaxonObj['synonyms'];
@@ -521,11 +521,11 @@ class TaxonomyCleaner extends Manager{
 					else{											//Is not accepted within system
 						if($nameStatus == 'accepted'){				//Accepted externally
 							//Remap to external name
-						    $this->evaluateTaxonomy($internalTaxonObj,0);
+							$this->evaluateTaxonomy($internalTaxonObj,0);
 						}
 						elseif($nameStatus == 'synonym'){			//Not Accepted in both
 							//Get accepted name; compare with system's accepted name; if different, remap
-						    $sql = 'SELECT sciname FROM taxa WHERE (tid = '.$internalTaxonObj['tidaccepted'].')';
+							$sql = 'SELECT sciname FROM taxa WHERE (tid = '.$internalTaxonObj['tidaccepted'].')';
 							$rs = $this->conn->query($sql);
 							$systemAccName = '';
 							if($r = $rs->fetch_object()){
@@ -548,7 +548,7 @@ class TaxonomyCleaner extends Manager{
 		else{
 			//Name not found
 			if($this->testValidity){
-			    $sql = 'UPDATE taxa SET validitystatus = 0, validitysource = "Species 2000" WHERE (tid = '.$internalTaxonObj['tid'].')';
+				$sql = 'UPDATE taxa SET validitystatus = 0, validitysource = "Species 2000" WHERE (tid = '.$internalTaxonObj['tid'].')';
 				$this->conn->query($sql);
 			}
 		}

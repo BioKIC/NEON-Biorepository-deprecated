@@ -109,12 +109,12 @@ class TaxonomyHarvester extends Manager{
 	 *   Example: array('id' => '34554'
 	 *   				'sciname' => 'Pinus arizonica',
 	 *   				'scientificName' => 'Pinus arizonica (Engelm.) Shaw',
-	 *        			'unitind1' => '', 'unitname1' => 'Pinus', 'unitind2' => '', 'unitname2' => 'arizonica', 'unitind3'=>'', 'unitname3'=>'',
-	 *        			'author' => '(Engelm.) Shaw',
-	 *        			'rankid' => '220',
-	 *        			'taxonRank' => 'Species',
-	 *        			'source' => '',
-	 *        			'sourceURL' => '',
+	 *					'unitind1' => '', 'unitname1' => 'Pinus', 'unitind2' => '', 'unitname2' => 'arizonica', 'unitind3'=>'', 'unitname3'=>'',
+	 *					'author' => '(Engelm.) Shaw',
+	 *					'rankid' => '220',
+	 *					'taxonRank' => 'Species',
+	 *					'source' => '',
+	 *					'sourceURL' => '',
 	 *  				'verns' => array(array('vernacularName'=>'Arizona Ponderosa Pine','language'=>'en'), array(etc...)),
 	 *  				'syns' => array(array('sciname'=>'Pinus ponderosa var. arizonica','acceptanceReason'=>'synonym'...), array(etc...)),
 	 *  				'parent' => array(
@@ -125,7 +125,7 @@ class TaxonomyHarvester extends Manager{
 	 *  					'sourceURL' => 'http://eol.org/pages/1905/hierarchy_entries/43463/overview',
 	 *  					'parentID' => array( etc...)
 	 *  				)
-	 *        	   )
+	 *			   )
 	 */
 	private function addColTaxon($taxonArr, $baseClassification=null){
 		$tid = 0;
@@ -423,15 +423,15 @@ class TaxonomyHarvester extends Manager{
 	private function getWormsReturnStr($retArr,$url){
 		$resultStr = '';
 		if($retArr){
-    		if($retArr['code'] == 200){
-    			$resultStr = $retArr['str'];
-    		}
-    		elseif($retArr['code'] == 204){
-    			$this->logOrEcho('Identifier not found within WoRMS: '.$url,2);
-    		}
-    		else{
-    			$this->logOrEcho('ERROR returning WoRMS object (code: '.$retArr['code'].'): '.$url,1);
-    		}
+			if($retArr['code'] == 200){
+				$resultStr = $retArr['str'];
+			}
+			elseif($retArr['code'] == 204){
+				$this->logOrEcho('Identifier not found within WoRMS: '.$url,2);
+			}
+			else{
+				$this->logOrEcho('ERROR returning WoRMS object (code: '.$retArr['code'].'): '.$url,1);
+			}
 		}
 		return $resultStr;
 	}
@@ -897,8 +897,8 @@ class TaxonomyHarvester extends Manager{
 			return false;
 		}
 		if(!isset($taxonArr['rankid']) || !$taxonArr['rankid']){
-		    //Provide warning, but don't fail validation
-		    $this->logOrEcho('Warning: rankid not defined for '.$taxonArr['sciname'],1);
+			//Provide warning, but don't fail validation
+			$this->logOrEcho('Warning: rankid not defined for '.$taxonArr['sciname'],1);
 		}
 		return true;
 	}
@@ -1015,7 +1015,7 @@ class TaxonomyHarvester extends Manager{
 					$sql .= 'ORDER BY sciname LIMIT 15';
 					$rs = $this->conn->query($sql);
 					while($row = $rs->fetch_object()){
-					    $percent = 0;
+						$percent = 0;
 						similar_text($taxonStr,$row->sciname,$percent);
 						if($percent > 70) $retArr[$row->tid] = $row->sciname;
 					}
@@ -1164,58 +1164,66 @@ class TaxonomyHarvester extends Manager{
 	}
 
 	public function setKingdomName($name){
-	    if(preg_match('/^[a-zA-Z]+$/', $name)){
-	        $this->kingdomName = $name;
-	        $this->setRankIdArr();
-	    }
+		if(preg_match('/^[a-zA-Z]+$/', $name)){
+			$this->kingdomName = $name;
+			$this->setRankIdArr();
+		}
 	}
 
 	private function setRankIdArr(){
-	    $sql = 'SELECT rankid, rankname FROM taxonunits WHERE kingdomname = "'.$this->kingdomName.'"';
-	    $rs = $this->conn->query($sql);
-	    while($r = $rs->fetch_object()){
-	        $this->rankIdArr[strtolower($r->rankname)] = $r->rankid;
-	    }
-	    $rs->free();
-        //Add default values
-	    $defaultRankArr = array('organism' => 1, 'kingdom' => 10, 'subkingdom' => 20, 'infrakingdom' => 25, 'superclass' => 50, 'class' => 60, 'subclass' => 70,
-	        'infraclass' => 80, 'subterclass' => 85, 'superorder' => 90, 'order' => 100, 'suborder' => 110, 'infraorder' => 120, 'superfamily' => 130, 'family' => 140,
-	        'subfamily' => 150, 'tribe' => 160, 'subtribe' => 170, 'genus' => 180, 'subgenus' => 190, 'section' => 200, 'subsection' => 210, 'species' => 220, 'subspecies' => 230,
-	        'variety' => 240, 'subvariety' => 250, 'form' => 260, 'subform' => 270, 'cultivated' => 300);
-	    foreach($defaultRankArr as $rName => $rid){
-	        if(!isset($this->rankIdArr[$rName]) && !in_array($rid,$this->rankIdArr)) $this->rankIdArr[$rName] = $rid;
-	    }
-	    if(!in_array(30,$this->rankIdArr)){
-    	    if(!isset($this->rankIdArr['phylum'])) $this->rankIdArr['phylum'] = 30;
-    	    if(!isset($this->rankIdArr['division'])) $this->rankIdArr['division'] = 30;
-	    }
-	    if(!in_array(40,$this->rankIdArr)){
-	        if(!isset($this->rankIdArr['subphylum'])) $this->rankIdArr['subphylum'] = 40;
-	        if(!isset($this->rankIdArr['subdivision'])) $this->rankIdArr['subdivision'] = 40;
-	    }
-	    if(isset($this->rankIdArr['organism'])) $this->rankIdArr['biota'] = $this->rankIdArr['organism'];
-	    if(isset($this->rankIdArr['superclass'])) $this->rankIdArr['supercl.'] = $this->rankIdArr['superclass'];
-	    if(isset($this->rankIdArr['class'])) $this->rankIdArr['cl.'] = $this->rankIdArr['class'];
-	    if(isset($this->rankIdArr['subclass'])) $this->rankIdArr['subcl.'] = $this->rankIdArr['subclass'];
-	    if(isset($this->rankIdArr['superorder'])) $this->rankIdArr['superord.'] = $this->rankIdArr['superorder'];
-	    if(isset($this->rankIdArr['order'])) $this->rankIdArr['ord.'] = $this->rankIdArr['order'];
-	    if(isset($this->rankIdArr['suborder'])) $this->rankIdArr['subord.'] = $this->rankIdArr['suborder'];
-	    if(isset($this->rankIdArr['family'])) $this->rankIdArr['fam.'] = $this->rankIdArr['family'];
-	    if(isset($this->rankIdArr['genus'])) $this->rankIdArr['gen.'] = $this->rankIdArr['genus'];
-	    if(isset($this->rankIdArr['species'])) $this->rankIdArr['sp.'] = $this->rankIdArr['species'];
-	    if(isset($this->rankIdArr['subspecies'])){
-	        $this->rankIdArr['ssp.'] = $this->rankIdArr['subspecies'];
-	        $this->rankIdArr['subsp.'] = $this->rankIdArr['subspecies'];
-	    }
-	    if(isset($this->rankIdArr['variety'])){
-	        $this->rankIdArr['v.'] = $this->rankIdArr['variety'];
-	        $this->rankIdArr['var.'] = $this->rankIdArr['variety'];
-	        $this->rankIdArr['morph'] = $this->rankIdArr['variety'];
-	    }
-	    if(isset($this->rankIdArr['form'])){
-	        $this->rankIdArr['f.'] = $this->rankIdArr['form'];
-	        $this->rankIdArr['fo.'] = $this->rankIdArr['form'];
-	    }
+		$sql = 'SELECT rankid, rankname FROM taxonunits WHERE kingdomname = "'.$this->kingdomName.'"';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->rankIdArr[strtolower($r->rankname)] = $r->rankid;
+		}
+		$rs->free();
+		//Add default values
+		$defaultRankArr = array('organism' => 1, 'kingdom' => 10, 'subkingdom' => 20, 'infrakingdom' => 25, 'superclass' => 50, 'class' => 60, 'subclass' => 70,
+			'infraclass' => 80, 'subterclass' => 85, 'superorder' => 90, 'order' => 100, 'suborder' => 110, 'infraorder' => 120, 'superfamily' => 130, 'family' => 140,
+			'subfamily' => 150, 'tribe' => 160, 'subtribe' => 170, 'genus' => 180, 'subgenus' => 190, 'species' => 220, 'subspecies' => 230,
+			'variety' => 240, 'subvariety' => 250, 'form' => 260, 'subform' => 270, 'cultivated' => 300);
+		foreach($defaultRankArr as $rName => $rid){
+			if(!isset($this->rankIdArr[$rName]) && !in_array($rid,$this->rankIdArr)) $this->rankIdArr[$rName] = $rid;
+		}
+		if(!in_array(30,$this->rankIdArr)){
+			if(!isset($this->rankIdArr['phylum'])) $this->rankIdArr['phylum'] = 30;
+			if(!isset($this->rankIdArr['division'])) $this->rankIdArr['division'] = 30;
+		}
+		if(!in_array(40,$this->rankIdArr)){
+			if(!isset($this->rankIdArr['subphylum'])) $this->rankIdArr['subphylum'] = 40;
+			if(!isset($this->rankIdArr['subdivision'])) $this->rankIdArr['subdivision'] = 40;
+		}
+		if(strtolower($this->kingdomName) == 'animalia'){
+			if(!isset($this->rankIdArr['section']) && !in_array(200,$this->rankIdArr)) $this->rankIdArr['section'] = 125;
+			if(!isset($this->rankIdArr['subsection']) && !in_array(200,$this->rankIdArr)) $this->rankIdArr['subsection'] = 127;
+		}
+		else{
+			if(!isset($this->rankIdArr['section']) && !in_array(200,$this->rankIdArr)) $this->rankIdArr['section'] = 200;
+			if(!isset($this->rankIdArr['subsection']) && !in_array(200,$this->rankIdArr)) $this->rankIdArr['subsection'] = 210;
+		}
+		if(isset($this->rankIdArr['organism'])) $this->rankIdArr['biota'] = $this->rankIdArr['organism'];
+		if(isset($this->rankIdArr['superclass'])) $this->rankIdArr['supercl.'] = $this->rankIdArr['superclass'];
+		if(isset($this->rankIdArr['class'])) $this->rankIdArr['cl.'] = $this->rankIdArr['class'];
+		if(isset($this->rankIdArr['subclass'])) $this->rankIdArr['subcl.'] = $this->rankIdArr['subclass'];
+		if(isset($this->rankIdArr['superorder'])) $this->rankIdArr['superord.'] = $this->rankIdArr['superorder'];
+		if(isset($this->rankIdArr['order'])) $this->rankIdArr['ord.'] = $this->rankIdArr['order'];
+		if(isset($this->rankIdArr['suborder'])) $this->rankIdArr['subord.'] = $this->rankIdArr['suborder'];
+		if(isset($this->rankIdArr['family'])) $this->rankIdArr['fam.'] = $this->rankIdArr['family'];
+		if(isset($this->rankIdArr['genus'])) $this->rankIdArr['gen.'] = $this->rankIdArr['genus'];
+		if(isset($this->rankIdArr['species'])) $this->rankIdArr['sp.'] = $this->rankIdArr['species'];
+		if(isset($this->rankIdArr['subspecies'])){
+			$this->rankIdArr['ssp.'] = $this->rankIdArr['subspecies'];
+			$this->rankIdArr['subsp.'] = $this->rankIdArr['subspecies'];
+		}
+		if(isset($this->rankIdArr['variety'])){
+			$this->rankIdArr['v.'] = $this->rankIdArr['variety'];
+			$this->rankIdArr['var.'] = $this->rankIdArr['variety'];
+			$this->rankIdArr['morph'] = $this->rankIdArr['variety'];
+		}
+		if(isset($this->rankIdArr['form'])){
+			$this->rankIdArr['f.'] = $this->rankIdArr['form'];
+			$this->rankIdArr['fo.'] = $this->rankIdArr['form'];
+		}
 	}
 	
 	public function setTaxonomicResources($resourceArr){

@@ -109,25 +109,21 @@ $LANG['LOADING_DATA'] = 'Loading Data into Symbiota';
 $LANG['VER_MAPPING'] = 'Verify Mapping';
 $LANG['SAVE_MAP'] = 'Save Mapping';
 $LANG['VER_LINKS_MEDIA'] = 'Verify image links from associatedMedia field';
-$LANG['SKEL_EXPLAIN'] = '
-						Skeletal Files consist of stub data that is easy to capture in bulk during the imaging process.
+$LANG['SKEL_EXPLAIN'] = 'Skeletal Files consist of stub data that is easy to capture in bulk during the imaging process.
 						This data is used to seed new records to which images are linked.
 						Skeletal fields typically collected include filed by or current scientific name, country, state/province, and sometimes county, though any supported field can be included.
-						Skeletal file uploads are similar to regular uploads though differ in several ways.
-						<ul>
-							<li>General file uploads typically consist of full records, while skeletal uploads will almost always be an annotated record with data for only a few selected fields</li>
-							<li>The catalog number field is required for skeletal file uploads since this field is used to find matches on images or existing records</li>
-							<li>In cases where a record already exists, a general file upload will completely replace the existing record with the data in the new record.
-							On the other hand, a skeletal upload will augment the existing record only with new field data.
-							Fields are only added if data does not already exist within the target field.</li>
-							<li>If a record DOES NOT already exist, a new record will be created in both cases, but only the skeletal record will be tagged as unprocessed</li>';
+						Skeletal file uploads are similar to regular uploads though differ in several ways.';
+$LANG['SKEL_EXPLAIN_P1'] = 'General file uploads typically consist of full records, while skeletal uploads will almost always be an annotated record with data for only a few selected fields';
+$LANG['SKEL_EXPLAIN_P2'] = 'The catalog number field is required for skeletal file uploads since this field is used to find matches on images or existing records';
+$LANG['SKEL_EXPLAIN_P3'] = 'In cases where a record already exists, a general file upload will completely replace the existing record with the data in the new record.
+							On the other hand, a skeletal upload will augment the existing record only with new field data. Fields are only added if data does not already exist within the target field.';
+$LANG['SKEL_EXPLAIN_P4'] = 'If a record DOES NOT already exist, a new record will be created in both cases, but only the skeletal record will be tagged as unprocessed';
 $LANG['NOT_AUTH'] = 'ERROR: you are not authorized to upload to this collection';
-$LANG['NO_SETTING'] = '
-				ERROR: Either you have tried to reach this page without going through the collection management menu
+$LANG['PAGE_ERROR'] = 'ERROR: Either you have tried to reach this page without going through the collection management menu
 				or you have tried to upload a file that is too large.
 				You may want to breaking the upload file into smaller files or compressing the file into a zip archive (.zip extension).
 				You may want to contact portal administrator to request assistance in uploading the file (hint to admin: increasing PHP upload limits may help,
-				current upload_max_filesize = ';
+				current upload_max_filesize';
 $LANG['USE_BACK'] = 'Use the back arrows to get back to the file upload page.';
 
 ?>

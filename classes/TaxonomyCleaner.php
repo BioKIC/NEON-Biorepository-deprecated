@@ -393,7 +393,7 @@ class TaxonomyCleaner extends Manager{
 
 	//Taxonomic thesaurus verifications
 	public function getVerificationCounts(){
-		$retArr;
+		$retArr = array();
 		/*
 		$sql = 'SELECT IFNULL(t.verificationStatus,0) as verificationStatus, COUNT(t.tid) AS cnt '.
 			'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
@@ -465,7 +465,7 @@ class TaxonomyCleaner extends Manager{
 		$this->logOrEcho("Finishing remaining taxa verification");
 	}
 
-	private function verifyTaxonObj($externalTaxonObj,$internalTaxonObj, $tidCurrentAccepted){
+	private function verifyTaxonObj($externalTaxonObj, $internalTaxonObj, $tidCurrentAccepted){
 		//Set validitystatus of name
 		if($externalTaxonObj){
 			$source = $externalTaxonObj['source_database'];
@@ -494,7 +494,7 @@ class TaxonomyCleaner extends Manager{
 					}
 				}
 				elseif($this->verificationMode == 1){				//Default to taxonomy of external source
-					if($taxonArr['tid'] == $tidCurrentAccepted){	//Is accepted within system
+					if($internalTaxonObj['tid'] == $tidCurrentAccepted){	//Is accepted within system
 						if($nameStatus == 'accepted'){				//Accepted externally, thus in both locations accepted
 							//Go through synonyms and check each
 							$synArr = $externalTaxonObj['synonyms'];
@@ -508,9 +508,9 @@ class TaxonomyCleaner extends Manager{
 							$accTid = $this->evaluateTaxonomy($accObj,0);
 							//Change to not accepted and link to accepted
 							$sql = 'UPDATE taxstatus SET tidaccetped = '.$accTid.' WHERE (taxauthid = '.$this->taxAuthId.') AND (tid = '.
-								$taxonArr['tid'].') AND (tidaccepted = '.$tidCurrentAccepted.')';
+								$internalTaxonObj['tid'].') AND (tidaccepted = '.$tidCurrentAccepted.')';
 							$this->conn->query($sql);
-							$this->updateDependentData($taxonArr['tid'],$accTid);
+							$this->updateDependentData($internalTaxonObj['tid'],$accTid);
 							//Go through synonyms and evaluate
 							$synArr = $externalTaxonObj['synonyms'];
 							foreach($synArr as $synObj){
@@ -521,11 +521,11 @@ class TaxonomyCleaner extends Manager{
 					else{											//Is not accepted within system
 						if($nameStatus == 'accepted'){				//Accepted externally
 							//Remap to external name
-							$this->evaluateTaxonomy($taxonArr,0);
+							$this->evaluateTaxonomy($internalTaxonObj,0);
 						}
 						elseif($nameStatus == 'synonym'){			//Not Accepted in both
 							//Get accepted name; compare with system's accepted name; if different, remap
-							$sql = 'SELECT sciname FROM taxa WHERE (tid = '.$taxonArr['tidaccepted'].')';
+							$sql = 'SELECT sciname FROM taxa WHERE (tid = '.$internalTaxonObj['tidaccepted'].')';
 							$rs = $this->conn->query($sql);
 							$systemAccName = '';
 							if($r = $rs->fetch_object()){
@@ -537,7 +537,7 @@ class TaxonomyCleaner extends Manager{
 								//Remap to external name
 								$tidToBeAcc = $this->evaluateTaxonomy($accObj,0);
 								$sql = 'UPDATE taxstatus SET tidaccetped = '.$tidToBeAcc.' WHERE (taxauthid = '.$this->taxAuthId.') AND (tid = '.
-									$taxonArr['tid'].') AND (tidaccepted = '.$taxonArr['tidaccepted'].')';
+										$internalTaxonObj['tid'].') AND (tidaccepted = '.$internalTaxonObj['tidaccepted'].')';
 								$this->conn->query($sql);
 							}
 						}
@@ -548,7 +548,7 @@ class TaxonomyCleaner extends Manager{
 		else{
 			//Name not found
 			if($this->testValidity){
-				$sql = 'UPDATE taxa SET validitystatus = 0, validitysource = "Species 2000" WHERE (tid = '.$taxonArr['tid'].')';
+				$sql = 'UPDATE taxa SET validitystatus = 0, validitysource = "Species 2000" WHERE (tid = '.$internalTaxonObj['tid'].')';
 				$this->conn->query($sql);
 			}
 		}
@@ -556,15 +556,9 @@ class TaxonomyCleaner extends Manager{
 
 	private function evaluateTaxonomy($testObj, $anchorTid){
 		$retTid = 0;
-		$sql = 'SELECT t.tid, ts.tidaccepted, t.sciname, t.author '.
-			'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-			'WHERE (ts.taxauthid = '.$this->taxAuthId.')';
-		if(array_key_exists('name',$testObj)){
-			$sql .= ' AND (t.sciname = "'.$testObj['name'].'")';
-		}
-		else{
-			$sql .= ' AND (t.tid = "'.$testObj['tid'].'")';
-		}
+		$sql = 'SELECT t.tid, ts.tidaccepted, t.sciname, t.author FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (ts.taxauthid = '.$this->taxAuthId.')';
+		if(array_key_exists('name',$testObj)) $sql .= ' AND (t.sciname = "'.$testObj['name'].'")';
+		else $sql .= ' AND (t.tid = "'.$testObj['tid'].'")';
 		$rs = $this->conn->query($sql);
 		if($rs){
 			if($this->testValidity){
@@ -599,7 +593,7 @@ class TaxonomyCleaner extends Manager{
 			//Test taxon does not exists, thus lets load it
 			//Prepare taxon for loading
 			$parsedArr = TaxonomyUtilities::parseScientificName($testObj['name'],$this->conn,0,$this->targetKingdomName);
-			if(!array_key_exists('rank',$newTaxon)){
+			if(!array_key_exists('rank',$parsedArr)){
 				//Grab taxon object from EOL or Species2000
 
 				//Parent is also needed

@@ -278,11 +278,7 @@ $collManager->cleanOutArr($collData);
 										<img src="../../images/info.png" style="width:15px;" />
 									</a>
 									<span id="instcodeinfodialog">
-										<?php
-										echo (isset($LANG['NAME_ONE'])?$LANG['NAME_ONE']:'The name (or acronym) in use by the institution having custody 
-										of the occurrence records. This field is required. For more details, see').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#institutionCode" 
-										target="_blank">'.(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
-										?>
+										Test
 									</span>
 								</span>
 							</div>

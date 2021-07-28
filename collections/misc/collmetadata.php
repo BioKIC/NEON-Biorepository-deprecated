@@ -426,7 +426,7 @@ $collManager->cleanOutArr($collData);
 									<span id="rightsinfodialog">
 										<?php echo (isset($LANG['LEGAL_DOC'])?$LANG['LEGAL_DOC']:'A legal document giving official permission to do something with the resource.
 										This field can be limited to a set of values by modifying the portal\'s central configuration file.
-										For more details, see').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:license" target="_blank">'(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
+										For more details, see').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:license" target="_blank">'.(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
 										?>
 									</span>
 								</span>

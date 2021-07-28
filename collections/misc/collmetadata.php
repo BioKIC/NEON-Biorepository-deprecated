@@ -454,7 +454,7 @@ $collManager->cleanOutArr($collData);
 									</a>
 									<span id="accessrightsinfodialog">
 										<?php echo (isset($LANG['ACCESS_DEF'])?$LANG['ACCESS_DEF']:'Information or a URL link to page with details explaining 
-										how one can use the data. See').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:accessRights" target="_blank">'(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
+										how one can use the data. See').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:accessRights" target="_blank">'.(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
 										?>
 									</span>
 								</span>

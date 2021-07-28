@@ -38,7 +38,7 @@ $LANG['NO_CATEGORY'] = 'No Category';
 $LANG['ALLOW_PUBLIC_EDITS'] = 'Allow Public Edits';
 $LANG['MORE_PUB_EDITS'] = 'More information about Public Edits';
 $LANG['LICENSE'] = 'License';
-$LANG['MORE_INFO_RIGHTS']:'More information about Rights'
+$LANG['MORE_INFO_RIGHTS'] = 'More information about Rights'
 $LANG['ORPHANED'] = 'orphaned term';
 $LANG['LEGAL_DOC'] = 'A legal document giving official permission to do something with the resource.
 					This field can be limited to a set of values by modifying the portal\'s central configuration file.

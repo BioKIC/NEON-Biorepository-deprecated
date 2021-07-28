@@ -64,7 +64,7 @@ $LANG['COL_TYPE_DEF'] = 'Preserved Specimens signify a collection type that cont
 						is typically used by field researchers to manage their collection data and print labels
 						prior to depositing the physical material within a collection. Even though personal collections
 						are represented by a physical sample, they are classified as &quot;observations&quot; until the
-						physical material is publicly available within a collection.');
+						physical material is publicly available within a collection.';
 $LANG['MANAGEMENT'] = 'Management';
 $LANG['SNAPSHOT'] = 'Snapshot';
 $LANG['LIVE_DATA'] = 'Live Data';

@@ -735,7 +735,7 @@ $collManager->cleanOutArr($collData);
 										?>
 									</select>
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-									<input name="action" type="submit" value="Link Address" />
+									<button name="action" type="submit" value="Link Address"><?php echo (isset($LANG['LINK_ADDRESS'])?$LANG['LINK_ADDRESS']:'Link Address'); ?></button>
 								</form>
 								<div style="margin:15px;">
 									<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid; ?>" title="<?php echo (isset($LANG['ADD_ADDRESS'])?$LANG['ADD_ADDRESS']:'Add a new address not on the list'); ?>">

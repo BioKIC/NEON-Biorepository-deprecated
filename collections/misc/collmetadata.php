@@ -274,7 +274,7 @@ $collManager->cleanOutArr($collData);
 								<span class="field-label"><?php echo (isset($LANG['INST_CODE'])?$LANG['INST_CODE']:'Institution Code'); ?>:</span>
 								<span class="field-elem">
 									<input type="text" name="institutioncode" value="<?php echo ($collid?$collData['institutioncode']:'');?>" />
-									<a id="instcodeinfo" href="#" onclick="return false" title="<?php echo (isset($LANG['MORE_INST_CODE'])?$LANG['MORE_INST_CODE']:'More information about Institution Code'); ?>">
+									<a id="instcodeinfo" href="#" onclick="return false" title="More information about Institution Code">
 										<img src="../../images/info.png" style="width:15px;" />
 									</a>
 									<span id="instcodeinfodialog">

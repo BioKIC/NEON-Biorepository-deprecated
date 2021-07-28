@@ -108,7 +108,7 @@ $collManager->cleanOutArr($collData);
 					},
 					active: <?php echo $tabIndex; ?>,
 					beforeLoad: function( event, ui ) {
-						$(ui.panel).html("<p>"<?php echo (isset($LANG['LOADING'])?$LANG['LOADING']:'Loading'); ?>"..."."</p>");
+						$(ui.panel).html("<?php echo (isset($LANG['LOADING'])?$LANG['LOADING']:'<p>Loading...</p>'); ?>");
 					}
 				});
 				<?php

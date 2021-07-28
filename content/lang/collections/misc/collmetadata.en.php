@@ -13,7 +13,7 @@ $LANG['CLICK'] = 'Click';
 $LANG['HERE'] = 'here';
 $LANG['TO_UPLOAD'] = 'to upload specimen records for this new collection';
 $LANG['COL_PROFS'] = 'Collection Profiles';
-$LANG['LOADING'] = 'Loading';
+$LANG['LOADING'] = '<p>Loading...</p>';
 $LANG['META_EDIT'] = 'Metadata Editor';
 $LANG['CREATE_COLL'] = 'Create New Collection Profile';
 $LANG['COL_META_EDIT'] = 'Collection Metadata Editor';
@@ -94,7 +94,7 @@ $LANG['DYNAMIC_LINK_REC'] = 'Dynamic link to source database individual record p
 $LANG['MORE_INFO_SOURCE'] = 'More information about Source Records URL';
 $LANG['ADVANCE_SETTING'] = 'Advance setting: Adding a 
 						URL template here will insert a link to the source record within the specimen details page.
-						A optional URL title can be include with a colon delimiting the title and URL.
+						An optional URL title can be include with a colon delimiting the title and URL.
 						For example, &quot;SEINet source record';
 $LANG['ADVANCE_SETTING_2'] = 'will display the ID with the url pointing to the original 
 						record managed within SEINet. Or';

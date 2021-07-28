@@ -103,7 +103,7 @@ $LANG['ADVANCE_SETTING_3'] = 'can be used for an	iNaturalist import if you mappe
 $LANG['ICON_URL'] = 'Icon URL';
 $LANG['WHAT_ICON'] = 'What is an Icon?';
 $LANG['UPLOAD_ICON'] = 'Upload an icon image file or enter the URL of an image icon that represents the collection. If entering the URL of an image already located
-						on a server, click on &quot;Enter URL&quot;. The URL path can be absolute or relative. The use of icons are optional.'
+						on a server, click on &quot;Enter URL&quot;. The URL path can be absolute or relative. The use of icons are optional.';
 $LANG['ENTER_URL'] = 'Enter URL';
 $LANG['UPLOAD_LOCAL'] = 'Upload Local Image';
 $LANG['SORT_SEQUENCE'] = 'Sort Sequence';

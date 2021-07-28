@@ -94,8 +94,8 @@ $LANG['ADVANCE_SETTING'] = "Réglage avancé: L'ajout d'un modèle d'URL ici ins
 						Un titre d'URL facultatif peut être inclus avec un deux-points délimitant le titre et l'URL.
 						Par exemple, &quot;Enregistrement source SEINet";
 $LANG['ADVANCE_SETTING_2'] = "affichera l'ID avec l'url pointant vers l'original 
-						enregistrement géré au sein de SEINet. Ou';
-$LANG['ADVANCE_SETTING_3'] = 'peut être utilisé pour une importation iNaturalist si vous avez mappé leur champ ID en tant que qu'identifiant source
+						enregistrement géré au sein de SEINet. Ou";
+$LANG['ADVANCE_SETTING_3'] = "peut être utilisé pour une importation iNaturalist si vous avez mappé leur champ ID en tant que qu'identifiant source
 						(par exemple, dbpk) lors de l'importation. Modèles de modèles --CATALOGNUMBER-- (Numéro de Catalogue, 
 						--OTHERCATALOGNUMBERS-- (Autres Numéros de Catalogue), et --OCCURRENCEID-- sont des options supplémentaires.";
 $LANG['ICON_URL'] = 'URL de Icône';

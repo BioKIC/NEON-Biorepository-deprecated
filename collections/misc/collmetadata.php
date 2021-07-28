@@ -526,7 +526,7 @@ $collManager->cleanOutArr($collData);
 										<?php echo (isset($LANG['OCCID_DEF_1'])?$LANG['OCCID_DEF_1']:'Occurrence Id is generally used for 
 										Snapshot datasets when a Global Unique Identifier (GUID) field
 										is supplied by the source database (e.g. Specify database) and the GUID is mapped to the').
-										' <a href="http://rs.tdwg.org/dwc/terms/index.htm#occurrenceID" target="_blank">'.(isset($LANG['OCCURRENCEID'])?$LANG['OCCURRENCEID']:'occurrenceId').'</a> '
+										' <a href="http://rs.tdwg.org/dwc/terms/index.htm#occurrenceID" target="_blank">'.(isset($LANG['OCCURRENCEID'])?$LANG['OCCURRENCEID']:'occurrenceId').'</a>'.
 										(isset($LANG['OCCID_DEF_2'])?$LANG['OCCID_DEF_2']:'field. The use of the Occurrence Id as the GUID is not recommended for live datasets.
 										Catalog Number can be used when the value within the catalog number field is globally unique.
 										The Symbiota Generated GUID (UUID) option will trigger the Symbiota data portal to automatically

@@ -440,7 +440,7 @@ $collManager->cleanOutArr($collData);
 									</a>
 									<span id="rightsholderinfodialog">
 										<?php echo (isset($LANG['HOLDER_DEF'])?$LANG['HOLDER_DEF']:'The organization or person managing or owning the rights of the resource.
-										For more details, see').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:rightsHolder" target="_blank">'(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
+										For more details, see').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:rightsHolder" target="_blank">'.(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
 										?>
 									</span>
 								</span>

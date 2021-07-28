@@ -35,8 +35,12 @@ $LANG['LAT'] = 'Latitude';
 $LANG['LONG'] = 'Longitude';
 $LANG['CATEGORY'] = 'Catégorie';
 $LANG['NO_CATEGORY'] = 'Aucune Catégorie';
-$LANG['ALLOW_PUBLIC_EDITS'] = 'Autoriser Mdifications Publiques';
+$LANG['ALLOW_PUBLIC_EDITS'] = 'Autoriser Modifications Publiques';
 $LANG['MORE_PUB_EDITS'] = "Plus d'informations sur Modifications Publiques";
+$LANG['EXPLAIN_PUBLIC'] = "La vérification des modifications publiques permettra à tout utilisateur connecté au système de modifier les enregistrements de spécimens 
+					et de résoudre les erreurs trouvées dans la collection.
+					Cependant, si l'utilisateur n'a pas d'autorisation explicite pour la collection donnée, 
+					les modifications ne seront pas appliquées tant qu'elles n'auront pas été examinées et approuvées par l'administrateur de la collection.";
 $LANG['LICENSE'] = 'Licence';
 $LANG['MORE_INFO_RIGHTS'] = "Plus d'informations sur Droits";
 $LANG['ORPHANED'] = 'terme orphelin';

@@ -37,6 +37,10 @@ $LANG['CATEGORY'] = 'Category';
 $LANG['NO_CATEGORY'] = 'No Category';
 $LANG['ALLOW_PUBLIC_EDITS'] = 'Allow Public Edits';
 $LANG['MORE_PUB_EDITS'] = 'More information about Public Edits';
+$LANG['EXPLAIN_PUBLIC'] = 'Checking public edits will allow any user logged into the system to modify specimen records
+					and resolve errors found within the collection. However, if the user does not have explicit
+					authorization for the given collection, edits will not be applied until they are
+					reviewed and approved by collection administrator.';
 $LANG['LICENSE'] = 'License';
 $LANG['MORE_INFO_RIGHTS'] = 'More information about Rights';
 $LANG['ORPHANED'] = 'orphaned term';

@@ -36,7 +36,7 @@ if($isEditor){
 			$newCollid = $collManager->submitCollAdd($_POST);
 			if(is_numeric($newCollid)){
 				$statusStr = (isset($LANG['ADD_SUCCESS'])?$LANG['ADD_SUCCESS']:'New collection added successfully').'!<br/>'.(isset($LANG['ADD_STUFF'])?$LANG['ADD_STUFF']:'Add contacts, resource links, or institution address below').
-				'. <br/>'.(isset($LANG['CLICK'])?$LANG['CLICK']:'Click').'<a href="../admin/specuploadmanagement.php?collid='.$newCollid.'&action=addprofile">'.(isset($LANG['HERE'])?$LANG['HERE']:'here').'</a> '.(isset($LANG['TO_UPLOAD'])?$LANG['TO_UPLOAD']:'to upload specimen records for this new collection').'.';
+				'. <br/>'.(isset($LANG['CLICK'])?$LANG['CLICK']:'Click').' <a href="../admin/specuploadmanagement.php?collid='.$newCollid.'&action=addprofile">'.(isset($LANG['HERE'])?$LANG['HERE']:'here').'</a> '.(isset($LANG['TO_UPLOAD'])?$LANG['TO_UPLOAD']:'to upload specimen records for this new collection').'.';
 				$collid = $newCollid;
 				$tabIndex = 1;
 			}

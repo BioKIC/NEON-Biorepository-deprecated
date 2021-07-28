@@ -98,7 +98,7 @@ $LANG['ADVANCE_SETTING'] = 'Advance setting: Adding a
 						For example, &quot;SEINet source record';
 $LANG['ADVANCE_SETTING_2'] = 'will display the ID with the url pointing to the original 
 						record managed within SEINet. Or';
-$LANG['ADVANCE_SETTING_3']:'can be used for an	iNaturalist import if you mapped their ID field as the source 
+$LANG['ADVANCE_SETTING_3'] = 'can be used for an	iNaturalist import if you mapped their ID field as the source 
 						Identifier (e.g. dbpk) during import. Template patterns --CATALOGNUMBER--, --OTHERCATALOGNUMBERS--, and --OCCURRENCEID-- are additional options.';
 $LANG['ICON_URL'] = 'Icon URL';
 $LANG['WHAT_ICON'] = 'What is an Icon?';

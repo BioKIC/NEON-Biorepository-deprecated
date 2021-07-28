@@ -638,7 +638,7 @@ $collManager->cleanOutArr($collData);
 									</a>
 									<span id="collectionidinfodialog">
 										<?php echo (isset($LANG['EXPLAIN_COLLID'])?$LANG['EXPLAIN_COLLID']:'Global Unique Identifier for this collection (see').
-										' <a href="https://dwc.tdwg.org/terms/#dwc:collectionID" target="_blank">'(isset($LANG['DWC_COLLID'])?$LANG['DWC_COLLID']:'dwc:collectionID').
+										' <a href="https://dwc.tdwg.org/terms/#dwc:collectionID" target="_blank">'.(isset($LANG['DWC_COLLID'])?$LANG['DWC_COLLID']:'dwc:collectionID').
 										'</a>): '.(isset($LANG['EXPLAIN_COLLID_2'])?$LANG['EXPLAIN_COLLID_2']:'If your collection already has a previously assigned GUID, that identifier should be represented here.
 										For physical specimens, the recommended best practice is to use an identifier from a collections registry such as the
 										Global Registry of Biodiversity Repositories').' (<a href="http://grbio.org" target="_blank">http://grbio.org</a>).';

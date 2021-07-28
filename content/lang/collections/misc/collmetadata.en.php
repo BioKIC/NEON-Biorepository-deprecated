@@ -86,7 +86,7 @@ $LANG['OCCID_DEF_2'] = 'field. The use of the Occurrence Id as the GUID is not r
 						Catalog Number can be used when the value within the catalog number field is globally unique.
 						The Symbiota Generated GUID (UUID) option will trigger the Symbiota data portal to automatically
 						generate UUID GUIDs for each record. This option is recommended for many for Live Datasets
-						but not allowed for Snapshot collections that are managed in local management system.'
+						but not allowed for Snapshot collections that are managed in local management system.';
 $LANG['PUBLISH_TO_AGGS'] = 'Publish to Aggregators';
 $LANG['ACTIVATE_GBIF'] = 'Activates GBIF publishing tools available within Darwin Core Archive Publishing menu option';
 $LANG['SOURCE_REC_URL'] = 'Source Record URL';

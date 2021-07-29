@@ -83,10 +83,10 @@ if($collid && $isEditor){
 					<?php
 					foreach($langArr as $langCode){
 						$langStr = $langCode;
-						if($langCode == 'en') $langStr = 'English';
-						elseif($langCode == 'es') $langStr = 'Spanish';
-						elseif($langCode == 'fr') $langStr = 'French';
-						elseif($langCode == 'pr') $langStr = 'Portuguese';
+						if($langCode == 'en') $langStr = (isset($LANG['ENGLISH'])?$LANG['ENGLISH']:'English');
+						elseif($langCode == 'es') $langStr = (isset($LANG['SPANISH'])?$LANG['SPANISH']:'Spanish');
+						elseif($langCode == 'fr') $langStr = (isset($LANG['FRENCH'])?$LANG['FRENCH']:'French');
+						elseif($langCode == 'pr') $langStr = (isset($LANG['PORTUGUESE'])?$LANG['PORTUGUESE']:'Portuguese');
 						?>
 						<div class="field-block" style="">
 							<span class="field-label"><?php echo (isset($LANG['CAPTION_OVERRIDE'])?$LANG['CAPTION_OVERRIDE']:'Caption override').' ('.$langStr.'):'; ?></span>

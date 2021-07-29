@@ -82,7 +82,7 @@ if($collid && $isEditor){
 					</div>
 					<?php
 					foreach($langArr as $langCode){
-						$langStr = $langCode;
+						$langCode = $langStr;
 						if($langCode == 'en') $langStr = (isset($LANG['ENGLISH'])?$LANG['ENGLISH']:'English');
 						elseif($langCode == 'es') $langStr = (isset($LANG['SPANISH'])?$LANG['SPANISH']:'Spanish');
 						elseif($langCode == 'fr') $langStr = (isset($LANG['FRENCH'])?$LANG['FRENCH']:'French');

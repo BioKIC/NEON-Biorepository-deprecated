@@ -82,7 +82,7 @@ $_SESSION['statsOrderArr'] = $orderArr;
 				</div>
 				<div style='float:left;margin-left:25px;margin-top:10px;width:16px;height:16px;padding:2px;' title="<?php echo (isset($LANG['SAVE_CSV'])?$LANG['SAVE_CSV']:'Save CSV'); ?>">
 					<form name="orderstatscsv" id="orderstatscsv" action="collstatscsv.php" method="post" onsubmit="">
-						<button type="hidden" name="action" value='Download Order Dist'><?php echo (isset($LANG['DOWNLOAD_ORDER'])?$LANG['DOWNLOAD_ORDER']:'Download Order Dist'); ?></button>
+						<input type="hidden" name="action" value='<?php echo (isset($LANG['DOWNLOAD_ORDER'])?$LANG['DOWNLOAD_ORDER']:'Download Order Dist'); ?>'/>
 						<input type="image" name="action" src="../../images/dl.png" onclick="" />
 					</form>
 				</div>

@@ -38,6 +38,11 @@ INSERT IGNORE INTO agentoccurrencelink(agentID, occid, isPrimary)
   FROM agents a INNER JOIN omcollectors c ON a.guid = c.guid
   INNER JOIN omoccurrences o ON c.recordedbyid = o.recordedbyid;
 
+
+ALTER TABLE `omoccurassociations` 
+  CHANGE COLUMN `condition` `conditionOfAssociate` VARCHAR(250) NULL DEFAULT NULL ;
+
+
 ALTER TABLE `omoccurrences` 
   DROP FOREIGN KEY `FK_omoccurrences_recbyid`;
 

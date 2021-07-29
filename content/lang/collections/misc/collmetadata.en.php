@@ -124,12 +124,5 @@ $LANG['SECURITY_KEY'] = 'Security Key';
 $LANG['RECORDID'] = 'recordID';
 $LANG['SAVE_EDITS'] = 'Save Edits';
 $LANG['CREATE_COLL_2'] = 'Create New Collection';
-$LANG['EDIT_ADDRESS'] = 'Edit institution address';
-$LANG['UNLINK_ADDRESS'] = 'Unlink institution address';
-$LANG['NO_ADDRESS'] = 'No addresses linked';
-$LANG['SEL_ADDRESS'] = 'Select Institution Address';
-$LANG['LINK_ADDRESS'] = 'Link Address';
-$LANG['ADD_ADDRESS'] = 'Add a new address not on the list';
-$LANG['ADD_INST'] = 'Add an institution not on list';
 
 ?>

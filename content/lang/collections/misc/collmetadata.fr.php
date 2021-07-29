@@ -122,12 +122,5 @@ $LANG['SECURITY_KEY'] = 'Clef de Sécurité';
 $LANG['RECORDID'] = 'IDenregistrement';
 $LANG['SAVE_EDITS'] = 'Énregistrer Modifications';
 $LANG['CREATE_COLL_2'] = 'Créer Nouvelle Collection';
-$LANG['EDIT_ADDRESS'] = 'Modifier Adresse de tablissement';
-$LANG['UNLINK_ADDRESS'] = 'Dissocier Adresse de Établissement';
-$LANG['NO_ADDRESS'] = 'Aucune adresse liée';
-$LANG['SEL_ADDRESS'] = 'Sélectionnez Adresse de Établissement';
-$LANG['LINK_ADDRESS'] = 'Lier Adresse';
-$LANG['ADD_ADDRESS'] = 'Ajouter une nouvelle adresse ne figurant pas dans la liste';
-$LANG['ADD_INST'] = 'Ajouter une institution qui ne figure pas sur la liste';
 
 ?>

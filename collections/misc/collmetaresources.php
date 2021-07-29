@@ -1,6 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceCollectionProfile.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/collmetaresources.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
@@ -39,7 +40,7 @@ if($collid && $isEditor){
 	</style>
 	<div id="contacts_resources">
 		<fieldset>
-			<legend>Link Resource Listing</legend>
+			<legend><?php echo (isset($LANG['LINK_RESOURCE'])?$LANG['LINK_RESOURCE']:'Link Resource Listing'); ?></legend>
 			<div id="link-listing">
 				<?php
 				if($resourceArr = json_decode($collMetaArr['resourcejson'],true)){
@@ -50,16 +51,16 @@ if($collid && $isEditor){
 						echo '<a href="#" onclick="deleteLink('.$key.');return false"><img src="../../images/del.png" /></a>';
 						foreach($valueArr['title'] as $langCode => $titleValue){
 							$langStr = $langCode;
-							if($langCode == 'en') $langStr = 'English';
-							else if($langCode == 'es') $langStr = 'Spanish';
-							else if($langCode == 'fr') $langStr = 'French';
-							else if($langCode == 'pr') $langStr = 'Portuguese';
-							echo '<div class="title-div"><span class="label">Title ('.$langStr.'):</span> '.$titleValue.'</div>';
+							if($langCode == 'en') $langStr = (isset($LANG['ENGLISH'])?$LANG['ENGLISH']:'English');
+							else if($langCode == 'es') $langStr = (isset($LANG['SPANISH'])?$LANG['SPANISH']:'Spanish');
+							else if($langCode == 'fr') $langStr = (isset($LANG['FRENCH'])?$LANG['FRENCH']:'French');
+							else if($langCode == 'pr') $langStr = (isset($LANG['PORTUGUESE'])?$LANG['PORTUGUESE']:'Portuguese');
+							echo '<div class="title-div"><span class="label">'.(isset($LANG['TITLE'])?$LANG['TITLE']:'Title').' ('.$langStr.'):</span> '.$titleValue.'</div>';
 						}
 						echo '</div>';
 					}
 				}
-				else echo 'No links have yet been defined';
+				else echo (isset($LANG['NO_LINKS'])?$LANG['NO_LINKS']:'No links have yet been defined');
 				?>
 			</div>
 			<div class="field-block">
@@ -73,7 +74,7 @@ if($collid && $isEditor){
 			</div>
 			<hr/>
 			<fieldset style="width:90%;">
-				<legend>Add/Edit External Link Resource</legend>
+				<legend><?php echo (isset($LANG['ADD_EDIT_LINK'])?$LANG['ADD_EDIT_LINK']:'Add/Edit External Link Resource'); ?></legend>
 				<form name="linkForm" onsubmit="return false;">
 					<div class="field-block" style="">
 						<span class="field-label">URL:</span>
@@ -88,7 +89,7 @@ if($collid && $isEditor){
 						elseif($langCode == 'pr') $langStr = 'Portuguese';
 						?>
 						<div class="field-block" style="">
-							<span class="field-label">Caption override (<?php echo $langStr; ?>):</span>
+							<span class="field-label"><?php echo (isset($LANG['CAPTION_OVERRIDE'])?$LANG['CAPTION_OVERRIDE']:'Caption override').' ('.$langStr.'):'; ?></span>
 							<span class="field-elem">
 								<input name="title-<?php echo $langCode; ?>" type="text" value="Homepage" />
 							</span>
@@ -97,17 +98,17 @@ if($collid && $isEditor){
 					}
 					?>
 					<div class="field-block" id="add-link-div">
-						<span class="form-button"><button type="button" value="addLink" onclick="addLink(this.form);">Add Link</button></span>
+						<span class="form-button"><button type="button" value="addLink" onclick="addLink(this.form);"><?php echo (isset($LANG['ADD_LINK'])?$LANG['ADD_LINK']:'Add Link'); ?></button></span>
 					</div>
 					<div class="field-block" id="edit-link-div" style="display: none">
-						<span class="form-button"><button type="button" value="editLink" onclick="applyEdits(this.form);">Apply Edits</button></span>
+						<span class="form-button"><button type="button" value="editLink" onclick="applyEdits(this.form);"><?php echo (isset($LANG['APPLY_EDITS'])?$LANG['APPLY_EDITS']:'Apply Edits'); ?></button></span>
 						<input name="linkIndex" type="hidden" />
 					</div>
 				</form>
 			</fieldset>
 		</fieldset>
 		<fieldset>
-			<legend>Contacts</legend>
+			<legend><?php echo (isset($LANG['CONTACTS'])?$LANG['CONTACTS']:'Contacts'); ?></legend>
 			<div id="contact-listing">
 				<?php
 				if($contactArr = json_decode($collMetaArr['contactjson'],true)){
@@ -124,14 +125,14 @@ if($collid && $isEditor){
 						</form>
 						<?php
 						echo '</div>';
-						if(isset($valueArr['role'])) echo '<div style="margin-left:15px"><span class="label">Role: </span>'.$valueArr['role'].'</div>';
+						if(isset($valueArr['role'])) echo '<div style="margin-left:15px"><span class="label">'.(isset($LANG['ROLE'])?$LANG['ROLE']:'Role').': </span>'.$valueArr['role'].'</div>';
 						if(isset($valueArr['email'])){
 							echo '<div style="margin-left:15px">';
-							echo '<span class="label">Email: </span>'.$valueArr['email'];
-							if(isset($valueArr['centralContact'])) echo ' (central contact)';
+							echo '<span class="label">'.(isset($LANG['EMAIL'])?$LANG['EMAIL']:'Email').': </span>'.$valueArr['email'];
+							if(isset($valueArr['centralContact'])) echo ' ('.(isset($LANG['C_CONTACT'])?$LANG['C_CONTACT']:'central contact').')';
 							echo '</div>';
 						}
-						if(isset($valueArr['phone'])) echo '<div style="margin-left:15px"><span class="label">Phone: </span>'.$valueArr['phone'].'</div>';
+						if(isset($valueArr['phone'])) echo '<div style="margin-left:15px"><span class="label">'.(isset($LANG['PHONE'])?$LANG['PHONE']:'phone').': </span>'.$valueArr['phone'].'</div>';
 						if(isset($valueArr['orcid'])){
 							echo '<div style="margin-left:15px">';
 							echo '<span class="label">ORCID #: </span><a href="https://orcid.org/'.$valueArr['orcid'].'" target="_blank">'.$valueArr['orcid'].'</a>';
@@ -141,53 +142,54 @@ if($collid && $isEditor){
 					}
 				}
 				else{
-					echo 'No contacts have yet been defined';
+					echo (isset($LANG['NO_CONTACTS'])?$LANG['NO_CONTACTS']:'No contacts have yet been defined');
 				}
 				?>
 			</div>
 			<hr/>
 			<fieldset style="width:90%;">
-				<legend>Add/Edit Contact</legend>
+				<legend><?php echo (isset($LANG['ADD_EDIT_CONTACT'])?$LANG['ADD_EDIT_CONTACT']:'Add/Edit Contact'); ?></legend>
 				<form name="contactEditForm" action="collmetadata.php" method="post" onsubmit="return verifyContactForm(this);">
 					<div class="field-block">
-						<span class="field-label">First name:</span>
+						<span class="field-label"><?php echo (isset($LANG['FIRST_NAME'])?$LANG['FIRST_NAME']:'First name'); ?>:</span>
 						<span class="field-elem"><input name="firstName" type="text" required /></span>
 					</div>
 					<div class="field-block">
-						<span class="field-label">Last name:</span>
+						<span class="field-label"><?php echo (isset($LANG['LAST_NAME'])?$LANG['LAST_NAME']:'Last name'); ?>:</span>
 						<span class="field-elem"><input name="lastName" type="text" required /></span>
 					</div>
 					<div class="field-block">
-						<span class="field-label">Role:</span>
+						<span class="field-label"><?php echo (isset($LANG['ROLE'])?$LANG['ROLE']:'Role'); ?>:</span>
 						<span class="field-elem"><input name="role" type="text" /></span>
 					</div>
 					<div class="field-block">
-						<span class="field-label">Email:</span>
+						<span class="field-label"><?php echo (isset($LANG['EMAIL'])?$LANG['EMAIL']:'Email'); ?>:</span>
 						<span class="field-elem"><input name="email" type="text" /></span>
 					</div>
 					<div class="field-block">
 						<span class="field-elem"><input name="centralContact" type="checkbox" value="1" /></span>
-						<span class="field-label">is central contact</span>
+						<span class="field-label"><?php echo (isset($LANG['IS_C_CONTACT'])?$LANG['IS_C_CONTACT']:'is central contact'); ?></span>
 					</div>
 					<div class="field-block">
-						<span class="field-label">Phone:</span>
+						<span class="field-label"><?php echo (isset($LANG['PHONE'])?$LANG['PHONE']:'Phone'); ?>:</span>
 						<span class="field-elem"><input name="phone" type="text" /></span>
 					</div>
 					<div class="field-block">
-						<span class="field-label">ORCID #:</span>
+						<span class="field-label"><?php echo (isset($LANG['ORCID'])?$LANG['ORCID']:'ORCID #'); ?>:</span>
 						<span class="field-elem"><input name="orcid" type="text" /></span>
 					</div>
 					<div class="field-block">
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="contactIndex" type="hidden" value="" />
-						<span class="form-button"><button name="action" type="submit" value="saveContact"><span id="addContact-span">Add Contact</span><span id="editContact-span">Edit Contact</span></button></span>
-						<span class="form-button"><button name="reset" type="reset" onclick="resetContactForm()">Reset Form</button></span>
+						<span class="form-button"><button name="action" type="submit" value="saveContact"><span id="addContact-span"><?php echo (isset($LANG['ADD_CONTACT'])?$LANG['ADD_CONTACT']:'Add Contact'); ?></span>
+						<span id="editContact-span"><?php echo (isset($LANG['EDIT_CONTACT'])?$LANG['EDIT_CONTACT']:'Edit Contact'); ?></span></button></span>
+						<span class="form-button"><button name="reset" type="reset" onclick="resetContactForm()"><?php echo (isset($LANG['RESET_FORM'])?$LANG['RESET_FORM']:'Reset Form'); ?></button></span>
 					</div>
 				</form>
 			</fieldset>
 		</fieldset>
 		<fieldset>
-			<legend>Mailing Address</legend>
+			<legend><?php echo (isset($LANG['MAILING_ADD'])?$LANG['MAILING_ADD']:'Mailing Address'); ?></legend>
 			<?php
 			if($instArr = $collManager->getAddress()){
 				?>
@@ -196,10 +198,10 @@ if($collid && $isEditor){
 					echo '<div>';
 					echo $instArr['institutionname'].($instArr['institutioncode']?' ('.$instArr['institutioncode'].')':'');
 					?>
-					<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid.'&iid='.$instArr['iid']; ?>" title="Edit institution address">
+					<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid.'&iid='.$instArr['iid']; ?>" title="<?php echo (isset($LANG['EDIT_ADDRESS'])?$LANG['EDIT_ADDRESS']:'Edit institution address'); ?>">
 						<img src="../../images/edit.png" style="width:14px;" />
 					</a>
-					<a href="collmetadata.php?tabindex=1&collid=<?php echo $collid.'&removeiid='.$instArr['iid']; ?>" title="Unlink institution address">
+					<a href="collmetadata.php?tabindex=1&collid=<?php echo $collid.'&removeiid='.$instArr['iid']; ?>" title="<?php echo (isset($LANG['UNLINK_ADDRESS'])?$LANG['UNLINK_ADDRESS']:'Unlink institution address'); ?>">
 						<img src="../../images/drop.png" style="width:14px;" />
 					</a>
 					<?php
@@ -220,11 +222,11 @@ if($collid && $isEditor){
 			else{
 				//Link new institution
 				?>
-				<div style="margin:40px;"><b>No addesses linked</b></div>
+				<div style="margin:40px;"><b><?php echo (isset($LANG['NO_ADDRESS'])?$LANG['NO_ADDRESS']:'No addesses linked'); ?></b></div>
 				<div style="margin:20px;">
 					<form name="addaddressform" action="collmetadata.php" method="post" onsubmit="return verifyAddAddressForm(this)">
 						<select name="iid" style="width:425px;">
-							<option value="">Select Institution Address</option>
+							<option value=""><?php echo (isset($LANG['SEL_ADDRESS'])?$LANG['SEL_ADDRESS']:'Select Institution Address'); ?></option>
 							<option value="">------------------------------------</option>
 							<?php
 							$addrArr = $collManager->getInstitutionArr();
@@ -234,11 +236,11 @@ if($collid && $isEditor){
 							?>
 						</select>
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-						<input name="action" type="submit" value="Link Address" />
+						<input name="action" type="submit" value="<?php echo (isset($LANG['LINK_ADDRESS'])?$LANG['LINK_ADDRESS']:'Link Address'); ?>" />
 					</form>
 					<div style="margin:15px;">
-						<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid; ?>" title="Add a new address not on the list">
-							<b>Add an institution not on list</b>
+						<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid; ?>" title="<?php echo (isset($LANG['ADD_ADDRESS'])?$LANG['ADD_ADDRESS']:'Add a new address not on the list'); ?>">
+							<b><?php echo (isset($LANG['ADD_INST'])?$LANG['ADD_INST']:'Add an institution not on list'); ?></b>
 						</a>
 					</div>
 				</div>
@@ -296,7 +298,7 @@ if($collid && $isEditor){
 				}
 				clearForm();
 			}
-			else alert("Link ULR and title is required");
+			else alert("<?php echo (isset($LANG['LINK_URL_REQ'])?$LANG['LINK_URL_REQ']:'Link URL and title is required'); ?>");
 			return jsonObj;
 		}
 
@@ -348,11 +350,11 @@ if($collid && $isEditor){
 
 		function verifyContactForm(f){
 			if(f.firstName.value == ""){
-				alert("First name is a required field");
+				alert("<?php echo (isset($LANG['FIRST_NAME_REQ'])?$LANG['FIRST_NAME_REQ']:'First name is a required field'); ?>");
 				return false;
 			}
 			if(f.lastName.value == ""){
-				alert("First name is a required field");
+				alert("<?php echo (isset($LANG['LAST_NAME_REQ'])?$LANG['LAST_NAME_REQ']:'Last name is a required field'); ?>");
 				return false;
 			}
 			return true;

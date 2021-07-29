@@ -765,6 +765,16 @@ $traitArr = $indManager->getTraitArr();
 							</div>
 							<?php
 						}
+						if($occArr['dynamicproperties']){
+							?>
+							<div>
+								<?php
+								echo '<b>'.(isset($LANG['DYNAMICPROPERTIES'])?$LANG['DYNAMICPROPERTIES']:'Dynamic Properties').': </b>';
+								echo $occArr['dynamicproperties'];
+								?>
+							</div>
+							<?php
+						}
 						if($occArr['reproductivecondition']){
 							?>
 							<div>

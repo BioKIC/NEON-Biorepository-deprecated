@@ -55,6 +55,7 @@ $LANG['HABITAT'] = 'H&aacute;bitat';
 $LANG['SUBSTRATE'] = 'Sustrato';
 $LANG['ASSOCTAXA'] = 'Taxa Asociados';
 $LANG['DESCRIPTION'] = 'Descripci&oacute;n';
+$LANG['DYNAMICPROPERTIES'] = 'Propiedades dinámicas';
 $LANG['REPROCONDITION'] = 'Condici&oacute;n Reproductiva';
 $LANG['LIFESTAGE'] = 'Etapa de Vida';
 $LANG['SEX'] = 'Sexo';

@@ -108,9 +108,6 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setOccurData(){
-		$sql = 'SELECT o.*, MAKEDATE(YEAR(o.eventDate),o.enddayofyear) AS eventdateend, g.guid FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
-		/*
-		 * Can use explicit SQL once database patch is applied to all releases
 		$sql = 'SELECT o.occid, o.collid, o.institutioncode, o.collectioncode, '.
 			'o.occurrenceid, o.catalognumber, o.occurrenceremarks, o.tidinterpreted, o.family, o.sciname, '.
 			'o.scientificnameauthorship, o.identificationqualifier, o.identificationremarks, o.identificationreferences, o.taxonremarks, '.
@@ -119,10 +116,9 @@ class OccurrenceIndividual extends Manager{
 			'o.decimallatitude, o.decimallongitude, o.geodeticdatum, o.coordinateuncertaintyinmeters, o.verbatimcoordinates, o.georeferenceremarks, '.
 			'o.minimumelevationinmeters, o.maximumelevationinmeters, o.verbatimelevation, o.minimumdepthinmeters, o.maximumdepthinmeters, o.verbatimdepth, '.
 			'o.verbatimattributes, o.locationremarks, o.lifestage, o.sex, o.individualcount, o.samplingprotocol, o.preparations, '.
-			'o.typestatus, o.dbpk, o.habitat, o.substrate, o.associatedtaxa, o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, '.
+			'o.typestatus, o.dbpk, o.habitat, o.substrate, o.associatedtaxa, o.dynamicProperties, o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, '.
 			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.modified, o.observeruid, g.guid, o.recordenteredby, o.dateentered, o.datelastmodified '.
 			'FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
-		*/
 		if($this->occid) $sql .= 'WHERE (o.occid = '.$this->occid.')';
 		elseif($this->collid && $this->dbpk) $sql .= 'WHERE (o.collid = '.$this->collid.') AND (o.dbpk = "'.$this->dbpk.'")';
 		else trigger_error('Specimen identifier is null or invalid; '.$this->conn->error,E_USER_ERROR);

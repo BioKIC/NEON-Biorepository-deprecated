@@ -2,8 +2,27 @@
 CREATE TABLE `ommaterialsample` (
   `msID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `occid` INT UNSIGNED NOT NULL,
-  `materialSampleType` VARCHAR(45) NOT NULL,
+  `sampleType` VARCHAR(45) NOT NULL,
+  barcode/catalogNumber
   `guid` VARCHAR(150) NULL,
+   
+   Condition, 
+   Disposition
+   Remarks
+   preservationType 
+   preparationType (preparationProcess, preparationMaterials, preparedBy, preparationDate)
+   individualCount
+   storageLocation
+
+  `sampleSize` VARCHAR(45) NULL,
+  `dynamicProperties` TEXT NULL,
+  recordID
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`msID`),
+  INDEX `FK_ommaterialsample_occid_idx` (`occid` ASC),
+  CONSTRAINT `FK_ommaterialsample_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
+
+dynamicAttributes
   `concentration` DOUBLE NULL COMMENT 'Concentration of DNA (weight ng/volume µl)',
   `concentrationUnit` VARCHAR(45) NULL COMMENT 'Examples: ng/µl',
   `concentrationMethod` VARCHAR(45) NULL COMMENT 'Examples: Nanodrop, Qubit',
@@ -18,19 +37,25 @@ CREATE TABLE `ommaterialsample` (
   `quality` VARCHAR(45) NULL,
   `qualityRemarks` VARCHAR(45) NULL,
   `qualityCheckDate` VARCHAR(45) NULL,
-  `sampleSize` VARCHAR(45) NULL,
   `sieving` VARCHAR(45) NULL,
   `dnaHybridization` VARCHAR(45) NULL,
   `dnaMeltingPoint` VARCHAR(45) NULL,
   `estimatedSize` VARCHAR(45) NULL,
   `poolDnaExtracts` VARCHAR(45) NULL,
   `sampleDesignation` VARCHAR(45) NULL,
-  `dynamicProperties` TEXT NULL,
-  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`msID`),
-  INDEX `FK_ommaterialsample_occid_idx` (`occid` ASC),
-  CONSTRAINT `FK_ommaterialsample_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE)
-COMMENT = 'https://tools.gbif.org/dwca-validator/extension.do?id=http://data.ggbn.org/schemas/ggbn/terms/MaterialSample';
+
+
+
+INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
+  VALUES("Material Sample Type","ommaterialsample","materialSampleType",1);
+
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "tissue", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "culture strain", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "specimen", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "DNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "RNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Protein", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+
 
 CREATE TABLE `ommatsampamplification` (
   `msAmpID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -100,13 +125,4 @@ CREATE TABLE `ommatsampcloning` (
   CONSTRAINT `FK_ommatsampcloning_msID`  FOREIGN KEY (`msID`)  REFERENCES `ommaterialsample` (`msID`)  ON DELETE CASCADE  ON UPDATE CASCADE)
 COMMENT = 'https://tools.gbif.org/dwca-validator/extension.do?id=http://data.ggbn.org/schemas/ggbn/terms/Cloning';
 
-INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
-  VALUES("Material Sample Type","ommaterialsample","materialSampleType",1);
-
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "tissue", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "culture strain", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "specimen", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "DNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "RNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Protein", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
 

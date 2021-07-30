@@ -1,5 +1,6 @@
 <?php
 $gtsTermArr = $occManager->getPaleoGtsTerms();
+//include_once($SERVER_ROOT.'/collections/editor/includes/config/paleoVars.php');
 ?>
 <script>
 	var gtsArr = { <?php $d=''; foreach($gtsTermArr as $term => $rankid){ echo $d.'"'.$term.'":'.$rankid; $d=','; } ?> };

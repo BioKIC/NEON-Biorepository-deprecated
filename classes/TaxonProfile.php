@@ -184,7 +184,7 @@ class TaxonProfile extends Manager {
 			echo '</a></div>';
 			echo '<div class="photographer">';
 			if($imgObj['photographer']){
-				echo $imgObj['photographer'].'&nbsp;&nbsp;';
+				echo $imgObj['photographer'];
 			}
 			echo '</div>';
 			echo '</div>';

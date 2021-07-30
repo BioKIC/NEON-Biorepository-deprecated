@@ -158,12 +158,13 @@ if($action == "Create Login"){
 	<?php
 	echo '<h1>'.(isset($LANG['CREATE_NEW'])?$LANG['CREATE_NEW']:'Create New Profile').'</h1>';
 	if($displayStr){
-		echo '<div style="margin:10px;font-size:110%;font-weight:bold;color:red;">';
+		echo '<div style="margin:10px;color:red;">';
 		if($displayStr == 'login_exists'){
-			$loginStr == (isset($LANG['LOGIN_PAGE'])?$LANG['LOGIN_PAGE']:'login page');
-			echo (isset($LANG['USERNAME_EXISTS_1'])?$LANG['USERNAME_EXISTS_1']:'This username').'('.$login.') '.(isset($LANG['USERNAME_EXISTS_2'])?$LANG['USERNAME_EXISTS_2']:'is already being used').'<br>.'.
-				(isset($LANG['USERNAME_EXISTS_3'])?$LANG['USERNAME_EXISTS_3']:'Please choose a different login name or visit the').' <a href="index.php?login='.$login.'">'.$loginStr.'</a> '.
-				(isset($LANG['USERNAME_EXISTS_4'])?$LANG['USERNAME_EXISTS_4']:'if you believe this might be you');
+			echo (isset($LANG['USERNAME_EXISTS_1'])?$LANG['USERNAME_EXISTS_1']:'This username');
+			echo '('.$login.') '.(isset($LANG['USERNAME_EXISTS_2'])?$LANG['USERNAME_EXISTS_2']:'is already being used').'.<br>';
+			echo (isset($LANG['USERNAME_EXISTS_3'])?$LANG['USERNAME_EXISTS_3']:'Please choose a different login name or visit the');
+			echo ' <a href="index.php?login='.$login.'">'.(isset($LANG['LOGIN_PAGE'])?$LANG['LOGIN_PAGE']:'login page').'</a> ';
+			echo (isset($LANG['USERNAME_EXISTS_4'])?$LANG['USERNAME_EXISTS_4']:'if you believe this might be you').'.';
 		}
 		elseif($displayStr == 'email_registered'){
 			?>

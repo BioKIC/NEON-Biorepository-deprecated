@@ -18,6 +18,15 @@
 }
 
 
+/* US-letter size */
+
+.letter {
+  width: 8.5in;
+  height: 11in;
+  margin-top: 0;
+}
+
+
 /* Page & Label sizes */
 
 @media print {

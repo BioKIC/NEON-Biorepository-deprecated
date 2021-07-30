@@ -164,6 +164,7 @@ $(document).ready(function() {
 		},
 		minLength: 3,
 		select: function( event, ui ) {
+			event.preventDefault();
 			$.each(ui.item, function(k, v) {
 				var elem = $( "input[name="+k+"]" );
 				if(!elem.length) elem = $( "textarea[name="+k+"]" );
@@ -173,6 +174,9 @@ $(document).ready(function() {
 					fieldChanged(k);
 				}
 			});
+			let baseValue = ui.item.value;
+			baseValue = baseValue.substring(0,baseValue.indexOf(" || "));
+			this.value = baseValue;
 		}
 	});
 

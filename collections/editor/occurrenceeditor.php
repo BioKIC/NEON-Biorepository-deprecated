@@ -440,7 +440,7 @@ else{
     }
     else{
 		?>
-		<link href="../../css/occureditor.css?ver=2103" type="text/css" rel="stylesheet" id="editorCssLink" />
+		<link href="../../css/occureditor.css?ver=2" type="text/css" rel="stylesheet" id="editorCssLink" />
 		<?php
 		if(isset($CSSARR)){
 			foreach($CSSARR as $cssVal){
@@ -489,9 +489,9 @@ else{
 
 	</script>
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
-	<script src="../../js/symb/wktpolygontools.js?ver=180208" type="text/javascript"></script>
+	<script src="../../js/symb/wktpolygontools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.main.js?ver=6" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.main.js?ver=7" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
@@ -1229,7 +1229,7 @@ else{
 													<img class="editimg" src="../../images/editplus.png" />
 												</span>
 											</div>
-											<div id="dynamicPropertiesDiv">
+											<div id="dynamicPropertiesDiv" style="display:<?php echo array_key_exists('dynamicproperties',$occArr)&&$occArr['dynamicproperties']?'':'none'; ?>">
 												<?php echo (defined('DYNAMICPROPERTIESLABEL')?DYNAMICPROPERTIESLABEL:'Dynamic Properties'); ?>
 												<a href="#" onclick="return dwcDoc('dynamicProperties')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
 												<input type="text" name="dynamicproperties" tabindex="89" value="<?php echo array_key_exists('dynamicproperties',$occArr)?$occArr['dynamicproperties']:''; ?>" onchange="fieldChanged('dynamicproperties');" />

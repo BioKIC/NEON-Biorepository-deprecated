@@ -568,7 +568,7 @@ $imgloc = "../images/games/namegame/";
 		echo $games_namegameCrumbs;
 	}
 	else{
-		echo '<a href="../checklists/checklist.php?clid='.$clid.'">';
+		echo '<a href="../checklists/checklist.php?clid='.$clid.'&dynclid='.$dynClid.'">';
 		echo $clName;
 		echo '</a> &gt;&gt; ';
 	}

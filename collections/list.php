@@ -18,6 +18,7 @@ if(!is_numeric($pageNumber)) $pageNumber = 1;
 
 $collManager = new OccurrenceListManager();
 $searchVar = $collManager->getQueryTermStr();
+if($targetTid && array_key_exists('mode', $_REQUEST)) $searchVar .= '&mode=voucher&targettid='.$targetTid;
 $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 ?>
 <html>
@@ -26,16 +27,10 @@ $occurArr = $collManager->getSpecimenMap($pageNumber,$cntPerPage);
 	<title><?php echo $DEFAULT_TITLE.' '.$LANG['PAGE_TITLE']; ?></title>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/collection.css" type="text/css" rel="stylesheet" />
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">

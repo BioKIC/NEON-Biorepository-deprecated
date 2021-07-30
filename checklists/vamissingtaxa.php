@@ -3,7 +3,6 @@ include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistVoucherReport.php');
 include_once($SERVER_ROOT.'/content/lang/checklists/vamissingtaxa.'.$LANG_TAG.'.php');
 
-$action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:"";
 $clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
 $pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:"";
 $displayMode = (array_key_exists('displaymode',$_REQUEST)?$_REQUEST['displaymode']:0);
@@ -50,7 +49,7 @@ if($isEditor){
 				<select name="displaymode" onchange="this.form.submit()">
 					<?php
 					echo '<option value="0">'.(isset($LANG['SPEC_LIST'])?$LANG['SPEC_LIST']:'Species List').'</option>';
-					echo '<option value="1"'.($displayMode==1?'SELECTED':'').'>'.(isset($LANG['BATCH_LINK'])?$LANG['BATCH_LINK']:'Batch Linking').''</option>';'
+					echo '<option value="1"'.($displayMode==1?'SELECTED':'').'>'.(isset($LANG['BATCH_LINK'])?$LANG['BATCH_LINK']:'Batch Linking').'</option>';
                     echo '<option value="2"'.($displayMode==2?'SELECTED':'').'>'.(isset($LANG['PROBLEMS'])?$LANG['PROBLEMS']:'Problem Taxa').'</option>';
 					?>
 				</select>
@@ -66,7 +65,7 @@ if($isEditor){
 				if($displayMode==1){
 					?>
 					<div style="clear:both;margin:10px;">
-						<?php echo (isset($LANG['NOT_FOUND'])?$LANG['NOT_FOUND']:'Listed below are specimens identified to a species not found in the checklist. 
+						<?php echo (isset($LANG['NOT_FOUND'])?$LANG['NOT_FOUND']:'Listed below are specimens identified to a species not found in the checklist.
                         Use the form to add the names and link the vouchers as a batch action.'); ?>
 					</div>
 					<form name="batchmissingform" method="post" action="voucheradmin.php" onsubmit="return validateBatchMissingForm(this.form);">
@@ -127,10 +126,10 @@ if($isEditor){
 				elseif($displayMode==2){
 					?>
 					<div style="clear:both;margin:10px;">
-					<?php echo (isset($LANG['MISSING_TAXA_EXPL'])?$LANG['MISSING_TAXA_EXPL']:'Listed below are species name obtained from specimens 
-                        matching the above search term but are not found within the taxonomic thesaurus (possibly misspelled?). To add as a voucher, 
-						type the correct name from the checklist, and then click the Link Voucher button. 
-						The correct name must already be added to the checklist before voucher can be linked.'); 
+					<?php echo (isset($LANG['MISSING_TAXA_EXPL'])?$LANG['MISSING_TAXA_EXPL']:'Listed below are species name obtained from specimens
+                        matching the above search term but are not found within the taxonomic thesaurus (possibly misspelled?). To add as a voucher,
+						type the correct name from the checklist, and then click the Link Voucher button.
+						The correct name must already be added to the checklist before voucher can be linked.');
 					?>
 					</div>
 					<table class="styledtable" style="font-family:Arial;font-size:12px;">
@@ -174,8 +173,8 @@ if($isEditor){
 					?>
 					<div style="margin:20px;clear:both;">
 						<div style="clear:both;margin:10px;">
-							<?php echo (isset($LANG['NOT_IN_CHECKLIST'])?$LANG['NOT_IN_CHECKLIST']:'Listed below are taxon names not found in the checklist 
-                            but are represented by one or more specimens that have a locality matching the above search term.'); 
+							<?php echo (isset($LANG['NOT_IN_CHECKLIST'])?$LANG['NOT_IN_CHECKLIST']:'Listed below are taxon names not found in the checklist
+                            but are represented by one or more specimens that have a locality matching the above search term.');
 					        ?>
 						</div>
 						<?php

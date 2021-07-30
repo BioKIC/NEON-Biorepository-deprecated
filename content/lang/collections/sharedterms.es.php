@@ -1,12 +1,12 @@
-<?php 
+<?php
 /*
 ------------------
-Language: Espa�ol (Spanish)
+Language: Español (Spanish)
 ------------------
 */
- 
+
 $LANG = array();
- 
+
 $LANG['NAV_HOME'] = 'Inicio';
 $LANG['NAV_COLLECTIONS'] = 'Colecciones';
 $LANG['NAV_SEARCH'] = 'Criterios de Búsqueda';

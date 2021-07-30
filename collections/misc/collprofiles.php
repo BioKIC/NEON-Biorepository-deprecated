@@ -35,7 +35,7 @@ if($SYMB_UID){
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE." ".($collid?$collData[$collid]["collectionname"]:"").' '.(isset($LANG['COL_PROF'])?$LANG['COL_PROF']:'Collection Profiles'); ?></title>
+	<title><?php echo $DEFAULT_TITLE." ".($collid?$collData[$collid]["collectionname"]:""); ?></title>
 	<meta name="keywords" content="Natural history collections,<?php echo ($collid?$collData[$collid]["collectionname"]:""); ?>" />
 	<?php
 	$activateJQuery = true;
@@ -77,7 +77,7 @@ if($SYMB_UID){
 	<div class="navpath">
 		<a href="../../index.php"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
 		<a href="../index.php"><?php echo (isset($LANG['COLLECTION_SEARCH'])?$LANG['COLLECTION_SEARCH']:'Collection Search Page'); ?></a> &gt;&gt;
-		<b><?php echo ($collid?$collData[$collid]["collectionname"]:"Collection Profiles"); ?> <?php echo (isset($LANG['DETAILS'])?$LANG['DETAILS']:'Details'); ?></b>
+		<b><?php echo (isset($LANG['COLL_PROFILE'])?$LANG['COLL_PROFILE']:'Collection Profile'); ?></b>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">

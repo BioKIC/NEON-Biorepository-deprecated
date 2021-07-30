@@ -171,7 +171,11 @@ include($SERVER_ROOT.'/includes/header.php');
 								<b><?php echo (isset($LANG['RES_URL'])?$LANG['RES_URL']:'Resource Path or URL'); ?>:</b>
 								<input name="ulfnoverride" type="text" size="70" /><br/>
 								<div>
-									<?php echo (isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:''); ?>
+									<?php
+									$workaroundStr = 'This option is for pointing to a data file that was manually uploaded to a server. This option offers a workaround for importing
+										files that are larger than what is allowed by server upload limitations (e.g. PHP configuration limits)';
+									echo (isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:$workaroundStr);
+									?>
 								</div>
 							</div>
 						</div>
@@ -315,7 +319,10 @@ include($SERVER_ROOT.'/includes/header.php');
 			?>
 			<div style="font-weight:bold;font-size:120%;">
 				<?php
-				echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'').ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size");
+				$errStr = 'ERROR: Either you have tried to reach this page without going through the collection management menuor you have tried to upload a file that is too large.
+				You may want to breaking the upload file into smaller files or compressing the file into a zip archive (.zip extension). You may want to contact portal administrator
+				to request assistance in uploading the file (hint to admin: increasing PHP upload limits may help, current upload_max_filesize = ';
+				echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:$errStr).ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size");
 				echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.');
 				?>
 			</div>

@@ -68,7 +68,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
         <div id="tabs" style="margin:0px;">
 			<ul>
 				<?php
-				if($specArr && $obsArr) echo '<li><a href="#specobsdiv">'.(isset($LANG['TAB_1'])?$LANG['TAB_1']:'Specimens \& Observations').'</a></li>';
+				if($specArr && $obsArr) echo '<li><a href="#specobsdiv">'.(isset($LANG['TAB_1'])?$LANG['TAB_1']:'Specimens & Observations').'</a></li>';
 				if($specArr) echo '<li><a href="#specimendiv">'.(isset($LANG['TAB_2'])?$LANG['TAB_2']:'Specimens').'</a></li>';
 				if($obsArr) echo '<li><a href="#observationdiv">'.(isset($LANG['TAB_3'])?$LANG['TAB_3']:'Observations').'</a></li>';
 				if($otherCatArr) echo '<li><a href="#otherdiv">'.(isset($LANG['TAB_4'])?$LANG['TAB_4']:'Federal Units').'</a></li>';

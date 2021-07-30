@@ -7,7 +7,6 @@ Language: Français (French)
 
 include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
 
-$LANG['COL_PROF'] = 'Profils de Collecte';
 $LANG['RSS_FEED'] = 'Flux RSS';
 $LANG['CONTACT'] = 'Contacts';
 $LANG['HOMEPAGE'] = 'Page d\'accueil';

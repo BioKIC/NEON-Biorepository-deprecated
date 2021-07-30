@@ -216,7 +216,7 @@ if($collMetadata['colltype'] == 'General Observations') $isGenObs = 1;
 					}
 					else{
 						echo '<div style="font-weight:bold;">';
-						echo 'There are no Sensitive Species Reader permissions';
+						echo (isset($LANG['NO_RARE_READERS'])?$LANG['NO_RARE_READERS']:'There are no Sensitive Species Reader permissions');
 						echo '</div>';
 					}
 					?>

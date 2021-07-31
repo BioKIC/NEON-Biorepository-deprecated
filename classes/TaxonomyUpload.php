@@ -1,6 +1,7 @@
 <?php
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyUtilities.php');
+include_once($SERVER_ROOT.'/classes/TaxonomyHarvester.php');
 
 class TaxonomyUpload{
 
@@ -874,7 +875,7 @@ class TaxonomyUpload{
 		$rs->free();
 	}
 
-	//Misc get data functions
+	//Misc get data retrival functions
 	private function setTaxonUnitArr(){
 		if($this->kingdomName){
 			$sql = 'SELECT rankid, rankname FROM taxonunits WHERE (kingdomname = "'.$this->kingdomName.'") ';
@@ -1000,6 +1001,13 @@ class TaxonomyUpload{
 			}
 			$rs->free();
 		}
+	}
+
+	public function getTaxonomicResourceList(){
+		$taArr = array('worms'=>'World Register of Marine Species');
+		//$taArr = array('col'=>'Catalog of Life','worms'=>'World Register of Marine Species','tropicos'=>'TROPICOS','eol'=>'Encyclopedia of Life','IndexFungorum'=>'Index Fungorum');
+		if(!isset($GLOBALS['TAXONOMIC_AUTHORITIES'])) return array('worms'=>'World Register of Marine Species');
+		return array_intersect_key($taArr,array_change_key_case($GLOBALS['TAXONOMIC_AUTHORITIES']));
 	}
 
 	//Setters and getters

@@ -577,8 +577,22 @@ if($isEditor){
 										echo '<option value="">Select target Kingdom</option>';
 										echo '<option value="">-----------------------</option>';
 									}
-									foreach($kingdomArr as $k => $kingdomName){
-										echo '<option value="'.$k.':'.$kingdomName.'">'.$kingdomName.'</option>';
+									foreach($kingdomArr as $k => $kName){
+										$kKey = $k.':'.$kName;
+										echo '<option value="'.$kKey.'" '.($kingdomName==$kKey?'selected':'').'>'.$kName.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div style="margin:10px;">
+								<label>Lowest Rank Limit</label>
+								<select name="ranklimit">
+									<option value="">All Taxon Ranks</option>
+									<option>---------------------</option>
+									<?php
+									$rankArr = $loaderManager->getTaxonRankArr();
+									foreach($rankArr as $rankid => $rankName){
+										echo '<option value="'.$rankid.'">'.$rankName.'</option>';
 									}
 									?>
 								</select>

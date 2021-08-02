@@ -264,10 +264,10 @@ else{
 				if(ele){
 					if(ele.style.display=="none"){
 						ele.style.display="";
-			  		}
-				 	else{
-				 		ele.style.display="none";
-				 	}
+					}
+					else{
+						ele.style.display="none";
+					}
 				}
 			}
 		</script>

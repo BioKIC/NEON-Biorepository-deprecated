@@ -2,7 +2,6 @@
 include_once('../../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-
 $formName = array_key_exists("formname",$_REQUEST)?$_REQUEST["formname"]:"";
 $latName = array_key_exists("latname",$_REQUEST)?$_REQUEST["latname"]:"";
 $longName = array_key_exists("longname",$_REQUEST)?$_REQUEST["longname"]:"";
@@ -34,9 +33,9 @@ else{
 		<title><?php echo $DEFAULT_TITLE; ?> - Coordinate Aid</title>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
-	    <script type="text/javascript">
-		    var map;
-		    var currentMarker;
+		<script type="text/javascript">
+			var map;
+			var currentMarker;
 
 			function initialize(){
 				var latCenter = <?php echo $lat; ?>;
@@ -49,13 +48,13 @@ else{
 					document.getElementById("latbox").value = latValue;
 					document.getElementById("lngbox").value = lngValue;
 				}
-		    	var dmLatLng = new google.maps.LatLng(latCenter,lngCenter);
-		    	var dmOptions = {
+				var dmLatLng = new google.maps.LatLng(latCenter,lngCenter);
+				var dmOptions = {
 					zoom: <?php echo $zoom; ?>,
 					center: dmLatLng,
 					mapTypeId: google.maps.MapTypeId.TERRAIN
 				};
-		    	map = new google.maps.Map(document.getElementById("map_canvas"), dmOptions);
+				map = new google.maps.Map(document.getElementById("map_canvas"), dmOptions);
 				if(latValue && lngValue){
 					var mLatLng = new google.maps.LatLng(latValue,lngValue);
 					var marker = new google.maps.Marker({
@@ -66,31 +65,31 @@ else{
 				}
 
 				google.maps.event.addListener(map, 'click', function(event) {
-		            mapZoom = map.getZoom();
-		            startLocation = event.latLng;
-		            setTimeout("placeMarker()", 500);
-		        });
-	        }
+					mapZoom = map.getZoom();
+					startLocation = event.latLng;
+					setTimeout("placeMarker()", 500);
+				});
+			}
 
-	        function placeMarker() {
-	    		if(currentMarker) currentMarker.setMap();
-	            if(mapZoom == map.getZoom()){
-	                var marker = new google.maps.Marker({
-	                    position: startLocation,
-	                    map: map
-	                });
-	    			currentMarker = marker;
+			function placeMarker() {
+			if(currentMarker) currentMarker.setMap();
+				if(mapZoom == map.getZoom()){
+					var marker = new google.maps.Marker({
+						position: startLocation,
+						map: map
+					});
+					currentMarker = marker;
 
-	    	        var latValue = startLocation.lat();
-	    	        var lonValue = startLocation.lng();
-					latValue = latValue.toFixed(5);;
+					var latValue = startLocation.lat();
+					var lonValue = startLocation.lng();
+					latValue = latValue.toFixed(5);
 					lonValue = lonValue.toFixed(5);
 					document.getElementById("latbox").value = latValue;
 					document.getElementById("lngbox").value = lonValue;
-	    		}
-	        }
+				}
+			}
 
-	        function updateParentForm() {
+			function updateParentForm() {
 				try{
 					var latObj = opener.document.<?php echo $formName.'.'.$latName; ?>;
 					var lngObj = opener.document.<?php echo $formName.'.'.$longName; ?>;
@@ -101,10 +100,10 @@ else{
 				catch(myErr){
 					//alert("Unable to transfer data. Please let an administrator know.");
 				}
-	            self.close();
-	            return false;
-	        }
-	    </script>
+				self.close();
+				return false;
+			}
+		</script>
 
 	</head>
 	<body style="background-color:#ffffff;" onload="initialize()">

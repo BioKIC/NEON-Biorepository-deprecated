@@ -55,64 +55,63 @@ if(!$zoomInt){
 	<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
 
 	<script type="text/javascript">
-	    var map;
-	    var currentMarker;
-	  	var zoomLevel = 5;
-	  	var submitCoord = false;
+		var map;
+		var currentMarker;
+		var zoomLevel = 5;
+		var submitCoord = false;
 
-        $(document).ready(function() {
-        	$( "#taxa" ).autocomplete({
-        		source: function( request, response ) {
-        			$.getJSON( "rpc/uppertaxasuggest.php", { term: request.term }, response );
-        		},
-        		minLength: 2,
-        		autoFocus: true,
-        		select: function( event, ui ) {
-        			if(ui.item){
-        				$( "#tid" ).val(ui.item.id);
-        			}
-				}
-        	});
+		$(document).ready(function() {
+			$( "#taxa" ).autocomplete({
+				source: function( request, response ) {
+					$.getJSON( "rpc/uppertaxasuggest.php", { term: request.term }, response );
+				},
+				minLength: 2,
+				autoFocus: true,
+				select: function( event, ui ) {
+					if(ui.item){
+						$( "#tid" ).val(ui.item.id);
+					}
+						}
+			});
+		});
 
-        });
-
-	    function initialize(){
-	    	var dmLatLng = new google.maps.LatLng(<?php echo $latCen.",".$longCen; ?>);
-	    	var dmOptions = {
+		function initialize(){
+			var dmLatLng = new google.maps.LatLng(<?php echo $latCen.",".$longCen; ?>);
+			var dmOptions = {
 				zoom: <?php echo $zoomInt; ?>,
 				center: dmLatLng,
 				mapTypeId: google.maps.MapTypeId.TERRAIN
 			};
 
-	    	map = new google.maps.Map(document.getElementById("map_canvas"), dmOptions);
+			map = new google.maps.Map(document.getElementById("map_canvas"), dmOptions);
 
 			google.maps.event.addListener(map, 'click', function(event) {
-	            mapZoom = map.getZoom();
-	            startLocation = event.latLng;
-	            setTimeout("placeMarker()", 500);
-	        });
-	    }
+				mapZoom = map.getZoom();
+				startLocation = event.latLng;
+				setTimeout("placeMarker()", 500);
+			});
+		}
 
-	    function placeMarker() {
+		function placeMarker() {
 			if(currentMarker) currentMarker.setMap();
-	        if(mapZoom == map.getZoom()){
-	            var marker = new google.maps.Marker({
-	                position: startLocation,
-	                map: map
-	            });
+			if(mapZoom == map.getZoom()){
+				var marker = new google.maps.Marker({
+					position: startLocation,
+					map: map
+				});
 				currentMarker = marker;
 
-		        var latValue = startLocation.lat();
-		        var lonValue = startLocation.lng();
-		        latValue = latValue.toFixed(5);;
-		        lonValue = lonValue.toFixed(5);
+				var latValue = startLocation.lat();
+				var lonValue = startLocation.lng();
+				latValue = latValue.toFixed(5);;
+				lonValue = lonValue.toFixed(5);
 				document.getElementById("latbox").value = latValue;
-                document.getElementById("lngbox").value = lonValue;
-                document.getElementById("latlngspan").innerHTML = latValue + ", " + lonValue;
-                document.mapForm.buildchecklistbutton.disabled = false;
-                submitCoord = true;
+				document.getElementById("lngbox").value = lonValue;
+				document.getElementById("latlngspan").innerHTML = latValue + ", " + lonValue;
+				document.mapForm.buildchecklistbutton.disabled = false;
+				submitCoord = true;
 			}
-	    }
+		}
 
 		function checkForm(){
 			if(submitCoord) return true;
@@ -194,7 +193,7 @@ if(!$zoomInt){
 			<div id='map_canvas' style='width:95%; height:650px; clear:both;'></div>
 		</div>
 	<?php
- 	include_once($SERVER_ROOT.'/includes/footer.php');
+	include_once($SERVER_ROOT.'/includes/footer.php');
 	?>
 </body>
 </html>

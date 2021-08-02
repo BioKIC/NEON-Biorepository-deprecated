@@ -797,7 +797,7 @@ if($action != "Update Statistics"){
 										</form>
 									</fieldset>
 									<div style="">
-										<fieldset style="width:400px;margin:20px 0px 10px 20px;background-color:#FFFFCC;">
+										<fieldset style="width:350px;margin:20px 0px 10px 20px;background-color:#FFFFCC;">
 											<form name="famstatscsv" id="famstatscsv" action="collstatscsv.php" method="post" onsubmit="">
 												<div class='legend'><b><?php echo (isset($LANG['EXTRA_STATS'])?$LANG['EXTRA_STATS']:'Extra Statistics'); ?></b></div>
 												<div style="margin-top:8px;">
@@ -845,7 +845,7 @@ if($action != "Update Statistics"){
 										if(!$cPartentTaxon && !$cCountry){
                                             if ($SYMB_UID && ($IS_ADMIN || array_key_exists("CollAdmin", $USER_RIGHTS))) {
                                                 ?>
-                                                <fieldset id="yearstatsbox" style="width:275px;">
+                                                <fieldset id="yearstatsbox" style="width:350px;">
                                                     <legend><b><?php echo (isset($LANG['YEAR_STATS'])?$LANG['YEAR_STATS']:'Year Stats'); ?></b></legend>
                                                     <form name="yearstats" style="margin-bottom:0px" action="collyearstats.php" method="post" target="_blank">
                                                         <input type="hidden" name="collid" id="collid" value='<?php echo $collId; ?>'/>

@@ -797,7 +797,7 @@ if($action != "Update Statistics"){
 										</form>
 									</fieldset>
 									<div style="">
-										<fieldset style="width:275px;margin:20px 0px 10px 20px;background-color:#FFFFCC;">
+										<fieldset style="width:400px;margin:20px 0px 10px 20px;background-color:#FFFFCC;">
 											<form name="famstatscsv" id="famstatscsv" action="collstatscsv.php" method="post" onsubmit="">
 												<div class='legend'><b><?php echo (isset($LANG['EXTRA_STATS'])?$LANG['EXTRA_STATS']:'Extra Statistics'); ?></b></div>
 												<div style="margin-top:8px;">

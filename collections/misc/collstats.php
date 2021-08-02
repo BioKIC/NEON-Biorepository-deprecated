@@ -789,7 +789,7 @@ if($action != "Update Statistics"){
 													<input type="hidden" name="collids" id="collids" value='<?php echo $collId; ?>' />
                                                     <input type="hidden" name="taxon" value='<?php echo $cPartentTaxon; ?>' />
                                                     <input type="hidden" name="country" value='<?php echo $cCountry; ?>' />
-													<button type="hidden" name="action" id="action" value='Download Stats per Coll' ><?php echo (isset($LANG['DOWNLOAD_STATS'])?$LANG['DOWNLOAD_STATS']:'Download Stats per Coll'); ?></button>
+													<input type="hidden" name="action" id="action" value='<?php echo (isset($LANG['DOWNLOAD_STATS'])?$LANG['DOWNLOAD_STATS']:'Download Stats per Coll'); ?>' />
 													<input type="image" name="action" src="../../images/dl.png" onclick="" />
 													<!--input type="submit" name="action" value="Download Stats per Coll" src="../../images/dl.png" / -->
 												</div>
@@ -834,7 +834,7 @@ if($action != "Update Statistics"){
                                                     <form name="orderstats" style="margin-bottom:0px" action="collorderstats.php" method="post" target="_blank">
                                                         <input type="hidden" name="collid" id="collid" value='<?php echo $collId; ?>'/>
                                                         <input type="hidden" name="totalcnt" id="totalcnt" value='<?php echo $results['SpecimenCount']; ?>'/>
-                                                        <button type="submit" name="action" value="Load Order Distribution"><?php echo (isset($LANG['LOAD_ORDER'])?$LANG['LOAD_ORDER']:'Load Order Distribution'); ?></button>
+                                                        <input type="submit" name="action" value="<?php echo (isset($LANG['LOAD_ORDER'])?$LANG['LOAD_ORDER']:'Load Order Distribution'); ?>"/>
                                                     </form>
                                                 </div>
                                                 <?php

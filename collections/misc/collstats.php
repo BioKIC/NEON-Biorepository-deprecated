@@ -785,7 +785,7 @@ if($action != "Update Statistics"){
 												<div id="hidestatspercoll" style="float:left;display:none;" >
 													<a href="#" onclick="return toggleStatsPerColl()"><?php echo (isset($LANG['HIDE_STATS'])?$LANG['HIDE_STATS']:'Hide Statistics per Collection'); ?></a>
 												</div>
-												<div style='float:left;margin-left:6px;width:16px;height:16px;padding:2px;' title="Save CSV">
+												<div style='float:left;margin-left:6px;width:16px;height:16px;padding:2px;' title="<?php echo (isset($LANG['SAVE_CSV'])?$LANG['SAVE_CSV']:'Save CSV'); ?>">
 													<input type="hidden" name="collids" id="collids" value='<?php echo $collId; ?>' />
                                                     <input type="hidden" name="taxon" value='<?php echo $cPartentTaxon; ?>' />
                                                     <input type="hidden" name="country" value='<?php echo $cCountry; ?>' />
@@ -808,7 +808,7 @@ if($action != "Update Statistics"){
 														<a href="#" onclick="return toggleFamilyDist()"><?php echo (isset($LANG['HIDE_FAMILY'])?$LANG['HIDE_FAMILY']:'Hide Family Distribution'); ?></a>
 													</div>
 													<div style='float:left;margin-left:6px;width:16px;height:16px;padding:2px;' title="<?php echo (isset($LANG['SAVE_CSV'])?$LANG['SAVE_CSV']:'Save CSV'); ?>">
-														<button type="hidden" name="action" value='Download Family Dist'/>
+														<input type="hidden" name="action" value='Download Family Dist'/>
 														<input type="image" name="action" src="../../images/dl.png" onclick="" />
 													</div>
 												</div>
@@ -821,7 +821,7 @@ if($action != "Update Statistics"){
 													<div id="hidegeodist" style="float:left;display:none;" >
 														<a href="#" onclick="return toggleGeoDist();"><?php echo (isset($LANG['HIDE_GEO'])?$LANG['HIDE_GEO']:'Hide Geographic Distribution'); ?></a>
 													</div>
-													<div style='float:left;margin-left:6px;width:16px;height:16px;padding:2px;' title="Save CSV">
+													<div style='float:left;margin-left:6px;width:16px;height:16px;padding:2px;' title="<?php echo (isset($LANG['SAVE_CSV'])?$LANG['SAVE_CSV']:'Save CSV'); ?>">
 														<input type="hidden" name="action" value='Download Geo Dist' />
 														<input type="image" name="action" src="../../images/dl.png" onclick="" />
 													</div>

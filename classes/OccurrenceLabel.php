@@ -441,17 +441,18 @@ class OccurrenceLabel{
 					$dynPropStr = $r->dynamicProperties;
 				}
 				$rs->free();
-				$dynPropArr = json_decode($dynPropStr,true);
-				if($annotated){
-					if(isset($dynPropArr['labelFormats'])){
-						foreach($dynPropArr['labelFormats'] as $k => $labelObj){
-							unset($labelObj['labelBlocks']);
-							$retArr['u'][$k] = $labelObj;
-						}
+				if($dynPropArr = json_decode($dynPropStr,true)){
+					if($annotated){
+						if(isset($dynPropArr['labelFormats'])){
+							foreach($dynPropArr['labelFormats'] as $k => $labelObj){
+								unset($labelObj['labelBlocks']);
+								$retArr['u'][$k] = $labelObj;
+							}
 
+						}
 					}
+					else $retArr['u'] = $dynPropArr['labelFormats'];
 				}
-				else $retArr['u'] = $dynPropArr['labelFormats'];
 			}
 		}
 		return $retArr;

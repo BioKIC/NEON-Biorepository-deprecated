@@ -260,7 +260,7 @@ if($collMetadata['colltype'] == 'General Observations') $isGenObs = 1;
 					</div>
 					<div style="margin:15px;">
 						<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
-						<input name="action" type="submit" value="<?php echo (isset($LANG['ADD_PERMS'])?$LANG['ADD_PERMS']:'Add Permissions for User'); ?>" />
+						<button name="action" type="submit" value="Add Permissions for User"><?php echo (isset($LANG['ADD_PERMS'])?$LANG['ADD_PERMS']:'Add Permissions for User'); ?></button>
 					</div>
 				</form>
 			</fieldset>
@@ -336,7 +336,7 @@ if($collMetadata['colltype'] == 'General Observations') $isGenObs = 1;
 								</div>
 								<div style="margin:15px;">
 									<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
-									<input name="action" type="submit" value="<?php echo (isset($LANG['SPONSOR_USER'])?$LANG['SPONSOR_USER']:'Sponsor User'); ?>" />
+									<button name="action" type="submit" value="Sponsor User"><?php echo (isset($LANG['SPONSOR_USER'])?$LANG['SPONSOR_USER']:'Sponsor User'); ?></button>
 								</div>
 							</form>
 						</fieldset>
@@ -362,9 +362,9 @@ if($collMetadata['colltype'] == 'General Observations') $isGenObs = 1;
 						<fieldset style="margin:15px;padding:15px;">
 							<legend><b><?php echo (isset($LANG['ADD_ID_EDIT'])?$LANG['ADD_ID_EDIT']:'Add Identification Editor'); ?></b></legend>
 							<div style="margin:0px 20px 10px 10px;">
-							<?php echo (isset($LANG['LIST_ID_EDITS'])?$LANG['LIST_ID_EDITS']:'The user list below contains only Identification Editors 
+							<?php echo (isset($LANG['LIST_ID_EDITS'])?$LANG['LIST_ID_EDITS']:'The user list below contains only Identification Editors
 							that been approved by a portal manager. Contact your portal manager to request the addition of a new user.'); ?>
-								
+
 							</div>
 							<div style="margin:10px;">
 								<form name="addidenteditor" action="collpermissions.php" method="post" onsubmit="return verifyAddIdentEditor(this)">
@@ -388,7 +388,7 @@ if($collMetadata['colltype'] == 'General Observations') $isGenObs = 1;
 									</div>
 									<div style="margin:15px 0px">
 										<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
-										<input name="action" type="submit" value="<?php echo (isset($LANG['ADD_ID_EDIT'])?$LANG['ADD_ID_EDIT']:'Add Identification Editor'); ?>" />
+										<button name="action" type="submit" value="Add Identification Editor"><?php echo (isset($LANG['ADD_ID_EDIT'])?$LANG['ADD_ID_EDIT']:'Add Identification Editor'); ?></button>
 									</div>
 								</form>
 							</div>

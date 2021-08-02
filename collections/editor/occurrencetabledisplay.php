@@ -150,7 +150,7 @@ else{
 		if(($isEditor || $crowdSourceMode)){
 			?>
 			<div style="text-align:right;width:790px;margin:-30px 15px 5px 0px;">
-				<a href="#" title="Search / Filter" onclick="toggleSearch();return false;"><img src="../../images/find.png" style="width:14px;" /></a>
+				<button title="Search / Filter" onclick="toggleSearch();return false;">Search/Filter</button>
 				<?php
 				if($isEditor == 1 || $isGenObs){
 					?>

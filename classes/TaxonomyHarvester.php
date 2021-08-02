@@ -474,8 +474,9 @@ class TaxonomyHarvester extends Manager{
 	public function addWormsNode($postArr){
 		//Adds a complete taxon node from worms
 		//Check if sciname already exists within thesaurus, if not add it
-		$status = false;
+		$status = true;
 		$nodeSciname = $postArr['sciname'];
+		$harvestRankLimit = $postArr['ranklimit'];
 		if($nodeSciname){
 			$tid = $this->getTid(array('sciname' => $nodeSciname));
 			if($targetApi = (isset($postArr['targetapi'])?$postArr['targetapi']:'')){
@@ -495,7 +496,7 @@ class TaxonomyHarvester extends Manager{
 							$resultJson = json_decode($resultStr2);
 							if($resultJson->status == 'accepted'){
 								$this->logOrEcho('Starting to harvest children...',1);
-								$status = $this->addWormsChildern($id, $tid);
+								$status = $this->addWormsChildern($id, $tid, $harvestRankLimit);
 							}
 							else{
 								$this->logOrEcho('ERROR: node taxon must be an accepted taxon (status: '.$resultJson->status.')',1);
@@ -520,8 +521,8 @@ class TaxonomyHarvester extends Manager{
 		return $status;
 	}
 
-	private function addWormsChildern($wormsID, $parentTid){
-		$status = false;
+	private function addWormsChildern($wormsID, $parentTid, $harvestRankLimit){
+		$status = true;
 		$url = 'https://marinespecies.org/rest/AphiaChildrenByAphiaID/'.$wormsID;
 		if($resultStr = $this->getWormsReturnStr($this->getContentString($url),$url)){
 			$resultArr = json_decode($resultStr,true);
@@ -539,7 +540,7 @@ class TaxonomyHarvester extends Manager{
 						$taxonArr['parent']['tid'] = $parentTid;
 						$tid = $this->loadNewTaxon($taxonArr);
 					}
-					$this->addWormsChildern($taxonArr['id'], $tid);
+					if(!$harvestRankLimit || $harvestRankLimit > $taxonArr['rankid']) $this->addWormsChildern($taxonArr['id'], $tid, $harvestRankLimit);
 				}
 				else{
 					$this->logOrEcho('NOTICE: '.$nodeArr['scientificname'].' ('.$nodeArr['status'].') skipped due to not being accepted',2);
@@ -1358,6 +1359,7 @@ class TaxonomyHarvester extends Manager{
 		$this->taxonomicResources = array_intersect_key(array_change_key_case($GLOBALS['TAXONOMIC_AUTHORITIES']),array_flip($resourceArr));
 	}
 
+	//Setters and getters
 	public function getTaxonomicResources(){
 		return $this->taxonomicResources;
 	}

@@ -875,7 +875,7 @@ class TaxonomyUpload{
 		$rs->free();
 	}
 
-	//Misc get data retrival functions
+	//Misc data retrival functions
 	private function setTaxonUnitArr(){
 		if($this->kingdomName){
 			$sql = 'SELECT rankid, rankname FROM taxonunits WHERE (kingdomname = "'.$this->kingdomName.'") ';
@@ -932,6 +932,17 @@ class TaxonomyUpload{
 		$rs->free();
 
 		return $targetArr;
+	}
+
+	public function getTaxonRankArr(){
+		$retArr = array();
+		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->rankid] = $r->rankname;
+		}
+		ksort($retArr);
+		return $retArr;
 	}
 
 	public function getSourceArr(){

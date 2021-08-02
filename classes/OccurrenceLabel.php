@@ -418,18 +418,19 @@ class OccurrenceLabel{
 			else $retArr['g'] = array('labelFormats'=>array());
 		}
 		//Add collection defined label formats
-		if($this->collid && $this->collArr['dynprops']){
-			if($collFormatArr = json_decode($this->collArr['dynprops'],true)){
-				if($annotated){
-					if(isset($collFormatArr['labelFormats'])){
-						foreach($collFormatArr['labelFormats'] as $k => $labelObj){
-							unset($labelObj['labelBlocks']);
-							$retArr['c'][$k] = $labelObj;
-						}
+		if($this->collid){
+			$collFormatArr = json_decode($this->collArr['dynprops'],true);
+			if($annotated){
+				if(isset($collFormatArr['labelFormats'])){
+					echo 'anno';
+					foreach($collFormatArr['labelFormats'] as $k => $labelObj){
+						unset($labelObj['labelBlocks']);
+						$retArr['c'][$k] = $labelObj;
 					}
 				}
-				else $retArr['c'] = $collFormatArr['labelFormats'];
 			}
+			elseif(isset($collFormatArr['labelFormats'])) $retArr['c'] = $collFormatArr['labelFormats'];
+			else $retArr['c'] = array();
 		}
 		//Add label formats associated with user profile
 		if($GLOBALS['SYMB_UID']){
@@ -441,18 +442,18 @@ class OccurrenceLabel{
 					$dynPropStr = $r->dynamicProperties;
 				}
 				$rs->free();
-				if($dynPropArr = json_decode($dynPropStr,true)){
-					if($annotated){
-						if(isset($dynPropArr['labelFormats'])){
-							foreach($dynPropArr['labelFormats'] as $k => $labelObj){
-								unset($labelObj['labelBlocks']);
-								$retArr['u'][$k] = $labelObj;
-							}
-
+				$dynPropArr = json_decode($dynPropStr,true);
+				if($annotated){
+					if(isset($dynPropArr['labelFormats'])){
+						foreach($dynPropArr['labelFormats'] as $k => $labelObj){
+							unset($labelObj['labelBlocks']);
+							$retArr['u'][$k] = $labelObj;
 						}
+
 					}
-					else $retArr['u'] = $dynPropArr['labelFormats'];
 				}
+				elseif(isset($dynPropArr['labelFormats'])) $retArr['u'] = $dynPropArr['labelFormats'];
+				else $retArr['u'] = array();
 			}
 		}
 		return $retArr;

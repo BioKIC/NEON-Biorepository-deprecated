@@ -4,7 +4,6 @@ include_once($SERVER_ROOT.'/classes/SpecUploadDwca.php');
 include_once($SERVER_ROOT.'/content/lang/collections/admin/restorebackup.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/content/lang/collections/admin/specupload.'.$LANG_TAG.'.php');
 
-
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/reloadbackup.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
@@ -89,18 +88,11 @@ $duManager->loadFieldMap(true);
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['RESTORE'])?$LANG['RESTORE']:'Restore Backup'); ?></title>
-  <?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
-  <script src="../../js/jquery.js" type="text/javascript"></script>
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
+	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
 	<script>
@@ -179,10 +171,11 @@ include($SERVER_ROOT.'/includes/header.php');
 								<b><?php echo (isset($LANG['RES_URL'])?$LANG['RES_URL']:'Resource Path or URL'); ?>:</b>
 								<input name="ulfnoverride" type="text" size="70" /><br/>
 								<div>
-								<?php echo (isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:'This option is for pointing to a data file that was manually 
-										uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed 
-										by server upload limitations (e.g. PHP configuration limits)';
-								?>
+									<?php
+									$workaroundStr = 'This option is for pointing to a data file that was manually uploaded to a server. This option offers a workaround for importing
+										files that are larger than what is allowed by server upload limitations (e.g. PHP configuration limits)';
+									echo (isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:$workaroundStr);
+									?>
 								</div>
 							</div>
 						</div>
@@ -325,14 +318,13 @@ include($SERVER_ROOT.'/includes/header.php');
 		else{
 			?>
 			<div style="font-weight:bold;font-size:120%;">
-			<?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'
-				ERROR: Either you have tried to reach this page without going through the collection management menu
-				or you have tried to upload a file that is too large.
-				You may want to breaking the upload file into smaller files or compressing the file into a zip archive (.zip extension).
-				You may want to contact portal administrator to request assistance in uploading the file (hint to admin: increasing PHP upload limits may help,
-				current upload_max_filesize = ').ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size");
-				echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.'); 
-			?>
+				<?php
+				$errStr = 'ERROR: Either you have tried to reach this page without going through the collection management menuor you have tried to upload a file that is too large.
+				You may want to breaking the upload file into smaller files or compressing the file into a zip archive (.zip extension). You may want to contact portal administrator
+				to request assistance in uploading the file (hint to admin: increasing PHP upload limits may help, current upload_max_filesize = ';
+				echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:$errStr).ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size");
+				echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.');
+				?>
 			</div>
 			<?php
 		}

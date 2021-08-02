@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Español (Spanish)
+Language: EspaÃ±ol (Spanish)
 ------------------
 */
 include_once('sharedterms.es.php');

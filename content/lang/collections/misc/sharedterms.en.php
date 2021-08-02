@@ -6,7 +6,7 @@ Language: English
 */
 
 $LANG['HOME'] = 'Home';
-$LANG['DETAILS'] = 'Details';
+$LANG['COLL_PROFILE'] = 'Collection Profile';
 $LANG['QUICK_SEARCH'] = 'Quick Search';
 $LANG['CAT_NUM'] = 'Catalog Number';
 $LANG['COL_MGMNT'] = 'Collection Management';

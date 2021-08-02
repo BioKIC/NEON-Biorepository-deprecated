@@ -6,7 +6,7 @@ Language: Français (French)
 */
 
 $LANG['HOME'] = 'Accueil';
-$LANG['DETAILS'] = 'Détails';
+$LANG['COLL_PROFILE'] = 'Profil de collection';
 $LANG['QUICK_SEARCH'] = 'Recherche Rapide';
 $LANG['CAT_NUM'] = 'Numéro de Catalogue';
 $LANG['COL_MGMNT'] = 'Gestion des Collections';

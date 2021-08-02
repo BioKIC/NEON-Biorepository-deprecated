@@ -7,7 +7,6 @@ Language: English
 
 include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
 
-$LANG['COL_PROF'] = 'Collection Profiles';
 $LANG['RSS_FEED'] = 'RSS Feed';
 $LANG['CONTACT'] = 'Contacts';
 $LANG['HOMEPAGE'] = 'Homepage';

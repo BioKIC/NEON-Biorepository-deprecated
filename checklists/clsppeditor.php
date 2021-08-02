@@ -164,8 +164,8 @@ $clArray = $vManager->getChecklistData();
 					<div id="gendiv">
 						<form name='editcl' action="clsppeditor.php" method='post' >
 							<fieldset style='margin:5px;padding:15px'>
-				    			<legend><b><?php echo (isset($LANG['EDIT_CHECKLIST'])?$LANG['EDIT_CHECKLIST']:'Edit Checklist Information'); ?></b></legend>
-				    			<div style="clear:both;margin:3px;">
+				   			<legend><b><?php echo (isset($LANG['EDIT_CHECKLIST'])?$LANG['EDIT_CHECKLIST']:'Edit Checklist Information'); ?></b></legend>
+				   			<div style="clear:both;margin:3px;">
 									<div style='width:100px;font-weight:bold;float:left;'>
 										<?php echo (isset($LANG['HABITAT'])?$LANG['HABITAT']:'Habitat'); ?>:
 									</div>
@@ -251,7 +251,7 @@ $clArray = $vManager->getChecklistData();
 						<hr />
 						<form action="clsppeditor.php" method="post" name="deletetaxon" onsubmit="return window.confirm('<?php echo (isset($LANG['ARE_YOU_SURE'])?$LANG['ARE_YOU_SURE']:'Are you sure you want to delete this taxon from checklist?'); ?>');">
 							<fieldset style='margin:5px;padding:15px;'>
-						    	<legend><b><?php echo (isset($LANG['DELETE'])?$LANG['DELETE']:'Delete'); ?></b></legend>
+						   	<legend><b><?php echo (isset($LANG['DELETE'])?$LANG['DELETE']:'Delete'); ?></b></legend>
 								<input type='hidden' name='tid' value="<?php echo $vManager->getTid(); ?>" />
 								<input type='hidden' name='clid' value="<?php echo $vManager->getClid(); ?>" />
 								<input type='hidden' name='cltype' value="<?php echo $clArray['cltype']; ?>" />
@@ -333,7 +333,7 @@ $clArray = $vManager->getChecklistData();
 
 					</div>
 					-->
- 				</div>
+				</div>
 				<?php
 			}
 			else{

@@ -807,8 +807,8 @@ if($action != "Update Statistics"){
 													<div id="hidefamdist" style="float:left;display:none;" >
 														<a href="#" onclick="return toggleFamilyDist()"><?php echo (isset($LANG['HIDE_FAMILY'])?$LANG['HIDE_FAMILY']:'Hide Family Distribution'); ?></a>
 													</div>
-													<div style='float:left;margin-left:6px;width:16px;height:16px;padding:2px;' title="Save CSV">
-														<button type="hidden" name="action" value='Download Family Dist'><?php echo (isset($LANG['DOWNLOAD_FAMILY'])?$LANG['DOWNLOAD_FAMILY']:'Download Family Dist'); ?></button>
+													<div style='float:left;margin-left:6px;width:16px;height:16px;padding:2px;' title="<?php echo (isset($LANG['SAVE_CSV'])?$LANG['SAVE_CSV']:'Save CSV'); ?>">
+														<button type="hidden" name="action" value='Download Family Dist'/>
 														<input type="image" name="action" src="../../images/dl.png" onclick="" />
 													</div>
 												</div>
@@ -834,7 +834,7 @@ if($action != "Update Statistics"){
                                                     <form name="orderstats" style="margin-bottom:0px" action="collorderstats.php" method="post" target="_blank">
                                                         <input type="hidden" name="collid" id="collid" value='<?php echo $collId; ?>'/>
                                                         <input type="hidden" name="totalcnt" id="totalcnt" value='<?php echo $results['SpecimenCount']; ?>'/>
-                                                        <input type="submit" name="action" value="<?php echo (isset($LANG['LOAD_ORDER'])?$LANG['LOAD_ORDER']:'Load Order Distribution'); ?>"/>
+                                                        <input type="submit" name="action" value="Load Order Distribution"/>
                                                     </form>
                                                 </div>
                                                 <?php

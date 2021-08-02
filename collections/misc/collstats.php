@@ -834,7 +834,7 @@ if($action != "Update Statistics"){
                                                     <form name="orderstats" style="margin-bottom:0px" action="collorderstats.php" method="post" target="_blank">
                                                         <input type="hidden" name="collid" id="collid" value='<?php echo $collId; ?>'/>
                                                         <input type="hidden" name="totalcnt" id="totalcnt" value='<?php echo $results['SpecimenCount']; ?>'/>
-                                                        <input type="submit" name="action" value="Load Order Distribution"/>
+                                                        <input type="submit" name="action" value="<?php echo (isset($LANG['LOAD_ORDER'])?$LANG['LOAD_ORDER']:'Load Order Distribution'); ?>"/>
                                                     </form>
                                                 </div>
                                                 <?php

@@ -20,10 +20,10 @@ $outputType = array_key_exists('outputtype',$_POST)?$_POST['outputtype']:'html';
 $action = array_key_exists('submitaction',$_POST)?$_POST['submitaction']:'';
 
 //Sanitation
-$hPrefix = strip_tags($hPrefix, array('<br><b><u><i>'));
-$hMid = strip_tags($hMid, array('<br><b><u><i>'));
-$hSuffix = strip_tags($hSuffix, array('<br><b><u><i>'));
-$lFooter = strip_tags($lFooter, array('<br><b><u><i>'));
+$hPrefix = strip_tags($hPrefix, '<br><b><u><i>');
+$hMid = strip_tags($hMid, '<br><b><u><i>');
+$hSuffix = strip_tags($hSuffix, '<br><b><u><i>');
+$lFooter = strip_tags($lFooter, '<br><b><u><i>');
 if(!is_numeric($labelIndexGlobal)) $labelIndexGlobal = '';
 if(!is_numeric($labelIndexColl)) $labelIndexColl = '';
 if(!is_numeric($labelIndexUser)) $labelIndexUser = '';

@@ -151,7 +151,7 @@ else{
 		if(($isEditor || $crowdSourceMode)){
 			?>
 			<div style="text-align:right;width:790px;margin:-30px 15px 5px 0px;">
-				<button title="Search / Filter" onclick="toggleSearch();return false;"><?php echo (isset($LANG['SEARCH_FORM'])?$LANG['SEARCH_FORM']:'Search Form'); ?></button>
+				<button title="<?php echo (isset($LANG['SEARCH_FILTER'])?$LANG['SEARCH_FILTER']:'Search / Filter'); ?>" onclick="toggleSearch();return false;"><?php echo (isset($LANG['SEARCH_FILTER'])?$LANG['SEARCH_FILTER']:'Search / Filter'); ?></button>
 				<?php
 				if($isEditor == 1 || $isGenObs){
 					?>

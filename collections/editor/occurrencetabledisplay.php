@@ -98,7 +98,7 @@ if($SYMB_UID){
 	$recArr = $occManager->getOccurMap($recStart, $recLimit);
 	$navStr = '<div class="navpath" style="float:right;">';
 	if($recStart >= $recLimit){
-		$navStr .= '<a href="#" onclick="return submitQueryForm('.($recStart-$recLimit).');" title="'<?php echo (isset($LANG['PREVIOUS'])?$LANG['PREVIOUS']:'Previous').' '.$recLimit.' '.(isset($LANG['RECORDS'])?$LANG['RECORDS']:'records'); ?>'">&lt;&lt;</a>';
+		$navStr .= '<a href="#" onclick="return submitQueryForm('.($recStart-$recLimit).');" title="<?php echo (isset($LANG['PREVIOUS'])?$LANG['PREVIOUS']:'Previous').' '.$recLimit.' '.(isset($LANG['RECORDS'])?$LANG['RECORDS']:'records'); ?>">&lt;&lt;</a>';
 	}
 	$navStr .= ' | ';
 	$navStr .= ($recStart+1).'-'.($qryCnt<$recLimit+$recStart?$qryCnt:$recLimit+$recStart).' of '.$qryCnt.' records';

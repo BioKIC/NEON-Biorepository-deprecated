@@ -822,7 +822,7 @@ class TaxonomyHarvester extends Manager{
 		}
 		if(!$this->validateTaxonArr($taxonArr)) return false;
 		//Check to see sciname is in taxon table, but perhaps not linked to current thesaurus
-		$sql = 'SELECT tid FROM taxa WHERE (sciname = "'.$taxonArr['sciname'].'") ';
+		$sql = 'SELECT tid FROM taxa WHERE (sciname = "'.$this->cleanInStr($taxonArr['sciname']).'") ';
 		if($this->kingdomName) $sql .= 'AND (kingdomname = "'.$this->kingdomName.'" OR kingdomname IS NULL) ';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){

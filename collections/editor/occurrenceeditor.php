@@ -514,7 +514,7 @@ else{
 				echo $collMap['collectionname'].' ('.$collMap['institutioncode'].($collMap['collectioncode']?':'.$collMap['collectioncode']:'').')';
 				if($isEditor && $isEditor != 3){
 					?>
-					<div id="querySymbolDiv">
+					<div id="querySymbolDiv" style="margin:5px 5px 5px 5px;">
 						<button title="<?php echo (isset($LANG['SEARCH_FILTER'])?$LANG['SEARCH_FILTER']:'Search / Filter'); ?>" onclick="toggleQueryForm();"><?php echo (isset($LANG['SEARCH_FILTER'])?$LANG['SEARCH_FILTER']:'Search / Filter'); ?></button>
 					</div>
 					<?php

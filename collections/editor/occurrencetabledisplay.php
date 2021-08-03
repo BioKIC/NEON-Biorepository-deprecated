@@ -345,7 +345,7 @@ else{
 		}
 		else{
 			if(!$isEditor){
-				echo '<h2>'.<?php echo (isset($LANG['NOT_AUTH'])?$LANG['NOT_AUTH']:'You are not authorized to access this page').'</h2>';
+				echo '<h2>'.(isset($LANG['NOT_AUTH'])?$LANG['NOT_AUTH']:'You are not authorized to access this page').'</h2>';
 			}
 		}
 		?>

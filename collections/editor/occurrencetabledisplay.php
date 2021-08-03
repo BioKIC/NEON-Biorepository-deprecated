@@ -1,6 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
+include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrencetabledisplay.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
@@ -97,7 +98,7 @@ if($SYMB_UID){
 	$recArr = $occManager->getOccurMap($recStart, $recLimit);
 	$navStr = '<div class="navpath" style="float:right;">';
 	if($recStart >= $recLimit){
-		$navStr .= '<a href="#" onclick="return submitQueryForm('.($recStart-$recLimit).');" title="Previous '.$recLimit.' records">&lt;&lt;</a>';
+		$navStr .= '<a href="#" onclick="return submitQueryForm('.($recStart-$recLimit).');" title="'<?php echo (isset($LANG['PREVIOUS'])?$LANG['PREVIOUS']:'Previous').' '.$recLimit.' '.(isset($LANG['RECORDS'])?$LANG['RECORDS']:'records'); ?>'">&lt;&lt;</a>';
 	}
 	$navStr .= ' | ';
 	$navStr .= ($recStart+1).'-'.($qryCnt<$recLimit+$recStart?$qryCnt:$recLimit+$recStart).' of '.$qryCnt.' records';

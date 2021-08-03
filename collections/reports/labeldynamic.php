@@ -8,9 +8,7 @@ $hMid = $_POST['hmid'];
 $hSuffix = $_POST['hsuffix'];
 $lFooter = $_POST['lfooter'];
 $columnCount = $_POST['labeltype'];
-$labelIndexGlobal = (isset($_POST['labelformatindex-g'])?$_POST['labelformatindex-g']:'');
-$labelIndexColl = (isset($_POST['labelformatindex-c'])?$_POST['labelformatindex-c']:'');
-$labelIndexUser = (isset($_POST['labelformatindex-u'])?$_POST['labelformatindex-u']:'');
+$labelformatindex = (isset($_POST['labelformatindex'])?$_POST['labelformatindex']:'');
 $showcatalognumbers = ((array_key_exists('catalognumbers',$_POST) && $_POST['catalognumbers'])?1:0);
 $useBarcode = array_key_exists('bc',$_POST)?$_POST['bc']:0;
 $useSymbBarcode = array_key_exists('symbbc',$_POST)?$_POST['symbbc']:0;
@@ -24,9 +22,13 @@ $hPrefix = strip_tags($hPrefix, '<br><b><u><i>');
 $hMid = strip_tags($hMid, '<br><b><u><i>');
 $hSuffix = strip_tags($hSuffix, '<br><b><u><i>');
 $lFooter = strip_tags($lFooter, '<br><b><u><i>');
-if(!is_numeric($labelIndexGlobal)) $labelIndexGlobal = '';
-if(!is_numeric($labelIndexColl)) $labelIndexColl = '';
-if(!is_numeric($labelIndexUser)) $labelIndexUser = '';
+$labelCat = substr($labelformatindex,0,1);
+if($labelCat == 'g') $labelCat = 'global';
+elseif($labelCat == 'c') $labelCat = 'coll';
+elseif($labelCat == 'u') $labelCat = 'user';
+else $labelCat = '';
+$labelIndex = substr($labelformatindex,2);
+if(!is_numeric($labelIndex)) $labelIndex = '';
 if(!is_numeric($columnCount) && $columnCount != 'packet') $columnCount = 2;
 if(!is_numeric($showcatalognumbers)) $showcatalognumbers = 0;
 if(!is_numeric($useBarcode)) $useBarcode = 0;
@@ -51,10 +53,7 @@ else{
 	header("Content-Type: text/html; charset=".$CHARSET);
 }
 
-$targetLabelFormatArr = false;
-if(is_numeric($labelIndexGlobal)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('global',$labelIndexGlobal);
-elseif(is_numeric($labelIndexColl)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('coll',$labelIndexColl);
-elseif(is_numeric($labelIndexUser)) $targetLabelFormatArr = $labelManager->getLabelFormatByID('user',$labelIndexUser);
+$targetLabelFormatArr = $labelManager->getLabelFormatByID($labelCat,$labelIndex);
 
 $isEditor = 0;
 if($SYMB_UID){

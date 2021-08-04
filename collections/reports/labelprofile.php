@@ -31,6 +31,14 @@ if($isEditor && $action){
 				$statusStr = implode('; ', $labelManager->getErrorArr());
 			}
 		}
+		elseif($action == 'cloneProfile'){
+			if(isset($_POST['cloneTarget']) && $_POST['cloneTarget']){
+				if(!$labelManager->cloneLabelJson($_POST)){
+					$statusStr = implode('; ', $labelManager->getErrorArr());
+				}
+			}
+			else $statusStr = 'ERROR: you must select a clone target!';
+		}
 		elseif($action == 'deleteProfile'){
 			if(!$labelManager->deleteLabelFormat($_POST['group'],$_POST['index'])){
 				$statusStr = implode('; ', $labelManager->getErrorArr());
@@ -67,24 +75,32 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 
 			function setJson(json){
 				$('#json-'+activeProfileCode).val(json);
-      }
+			}
 
-      /**
-       * Adds current profile JSON to visual interface
-       */
+			function verifyClone(f){
+				if(f.cloneTarget.value == ""){
+					alert("Select a clone target!");
+					return false;
+				}
+				return true;
+			}
+
+			/**
+			* Adds current profile JSON to visual interface
+			*/
 			function openJsonEditorPopup(classTag){
 				activeProfileCode = classTag;
 				let editorWindow = window.open('labeljsongui.php','scrollbars=1,toolbar=0,resizable=1,width=1000,height=700,left=20,top=20');
-        (editorWindow.opener == null) ? editorWindow.opener = self : '';
-        let formatId = "#json-"+classTag;
-        let currJson = $("#json-"+classTag).val();
-        editorWindow.focus();
-        editorWindow.onload = function(){
-          let dummy = editorWindow.document.getElementById("dummy");
-          dummy.value = currJson;
-          dummy.dataset.formatId = formatId;
-          editorWindow.loadJson();
-         }
+				(editorWindow.opener == null) ? editorWindow.opener = self : '';
+				let formatId = "#json-"+classTag;
+				let currJson = $("#json-"+classTag).val();
+				editorWindow.focus();
+				editorWindow.onload = function(){
+					let dummy = editorWindow.document.getElementById("dummy");
+					dummy.value = currJson;
+					dummy.dataset.formatId = formatId;
+					editorWindow.loadJson();
+				}
 			}
 		</script>
 		<style>
@@ -352,6 +368,16 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 							if(is_numeric($index)){
 								?>
 								<span style="margin-left:15px"><button name="submitaction" type="submit" value="deleteProfile">Delete Profile</button></span>
+								<span style="margin-left:15px"><button name="submitaction" type="submit" value="cloneProfile" onclick="return verifyClone(this.form)">Clone Profile</button></span> to
+								<select name="cloneTarget">
+									<option value="">Select Target</option>
+									<option value="">----------------</option>
+									<?php
+									if($isEditor == 3) echo '<option value="g">Portal Global Profile</option>';
+									if($isEditor > 1) echo '<option value="c">Collection Profile</option>';
+									?>
+									<option value="u">User Profile</option>
+								</select>
 								<?php
 							}
 							?>

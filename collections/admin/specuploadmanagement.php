@@ -270,7 +270,7 @@ $duManager->readUploadParameters();
 									$uploadType = $duManager->getUploadType();
 									echo '<option value="'.$DWCAUPLOAD.'" '.($uploadType==$DWCAUPLOAD?'SELECTED':'').'>'.(isset($LANG['DWC_MANUAL'])?$LANG['DWC_MANUAL']:'Darwin Core Archive Manual Upload').'</option>';
 									echo '<option value="'.$IPTUPLOAD.'" '.($uploadType==$IPTUPLOAD?'SELECTED':'').'>'.(isset($LANG['IPT_DWC'])?$LANG['IPT_DWC']:'IPT Resource / Darwin Core Archive Provider').'</option>';
-									echo '<option value="'.$FILEUPLOAD.'" '.($uploadType==$FILEUPLOAD?'SELECTED':'').'>.'(isset($LANG['FILE'])?$LANG['FILE']:'File Upload').'</option>';
+									echo '<option value="'.$FILEUPLOAD.'" '.($uploadType==$FILEUPLOAD?'SELECTED':'').'>'.(isset($LANG['FILE'])?$LANG['FILE']:'File Upload').'</option>';
 									echo '<option value="'.$SKELETAL.'" '.($uploadType==$SKELETAL?'SELECTED':'').'>'.(isset($LANG['SKELETAL_FILE'])?$LANG['SKELETAL_FILE']:'Skeletal File Upload').'</option>';
 									echo '<option value="'.$NFNUPLOAD.'" '.($uploadType==$NFNUPLOAD?'SELECTED':'').'>'.(isset($LANG['NFN_UPLOAD'])?$LANG['NFN_UPLOAD']:'NfN File Upload').'</option>';
 									echo '<option value="">......................................</option>';

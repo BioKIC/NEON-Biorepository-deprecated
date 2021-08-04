@@ -1,3 +1,9 @@
+/**
+ * Checks whether taxon or specimen has a NEON voucher in checklist.
+ * Applies different color to links for non-NEON taxa/vouchers.
+ * Author: Laura Rocha Prado
+ * Version: August 2021
+ */
 const taxCont = document.querySelectorAll('.taxon-container');
 
 var hasNeon = (el) => el.innerText.includes('[NEON]');

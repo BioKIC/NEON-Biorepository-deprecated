@@ -560,7 +560,7 @@ if($isEditor && $collid){
 						}
 						?>
 						<div style="margin:10px;">
-							<input type="submit" name="action" value="Start Upload" />
+							<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
 							<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 							<input type="hidden" name="collid" value="<?php echo $collid;?>" />
 							<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
@@ -606,8 +606,8 @@ if($isEditor && $collid){
 											<input name="ulfnoverride" type="text" size="70" /><br/>
 											<?php
 											if($uploadType != $IPTUPLOAD){
-												echo '* '.(isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:'This option is for pointing to a data file that was manually 
-												uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed 
+												echo '* '.(isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:'This option is for pointing to a data file that was manually
+												uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed
 												by server upload limitations (e.g. PHP configuration limits');
 											}
 											?>
@@ -642,7 +642,7 @@ if($isEditor && $collid){
 						<?php
 					}
 				}
-				$processingList = array('unprocessed' => 'Unprocessed', 'stage 1' => 'Stage 1', 'stage 2' => 'Stage 2', 'stage 3' => 'STAGE_3', 'pending review' => 'Pending Review', 
+				$processingList = array('unprocessed' => 'Unprocessed', 'stage 1' => 'Stage 1', 'stage 2' => 'Stage 2', 'stage 3' => 'STAGE_3', 'pending review' => 'Pending Review',
 					'expert required' => 'Expert Required', 'pending review-nfn' => 'Pending Review-NfN', 'reviewed' => 'Reviewed', 'closed' => 'Closed');
 				if($ulPath && ($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD)){
 					//Data has been uploaded and it's a DWCA upload type
@@ -739,7 +739,7 @@ if($isEditor && $collid){
 											</div>
 											<div>
 												<input name="importident" value="1" type="checkbox" <?php echo (isset($metaArr['ident'])?'checked':'disabled') ?> />
-												<?php 
+												<?php
 												echo (isset($LANG['IMPORT_ID'])?$LANG['IMPORT_ID']:'Import Identification History');
 												if(isset($metaArr['ident'])){
 													echo '(<a href="#" onclick="toggle(\'dwcaIdentDiv\');return false;">'.(isset($LANG['VIEW_DETS'])?$LANG['VIEW_DETS']:'view details').'</a>)';
@@ -780,8 +780,8 @@ if($isEditor && $collid){
 											</div>
 											<div style="margin:10px 0px;">
 												<?php
-												if($uspid) echo '<button type="submit" name="action" value="Reset Field Mapping"><'.(isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping').'</button>';
-												echo '<input type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" style="margin-left:5px" />';
+												if($uspid) echo '<button type="submit" name="action" value="Reset Field Mapping">'.(isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping').'</button>';
+												echo '<button type="submit" name="action" onclick="return verifySaveMapping(this.form)" style="margin-left:5px" >'.(isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping').'</button>';
 												if(!$uspid) echo ' <span id="newProfileNameDiv" style="margin-left:15px;color:orange;display:none">'.(isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title').': <input type="text" name="profiletitle" style="width:300px" /></span>';
 												?>
 
@@ -833,7 +833,7 @@ if($isEditor && $collid){
 													</select>
 												</div>
 												<div style="margin:10px;">
-													<input type="submit" name="action" value="Start Upload" />
+													<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
 													<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 													<input type="hidden" name="collid" value="<?php echo $collid;?>" />
 													<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
@@ -949,7 +949,7 @@ if($isEditor && $collid){
 									<button type="submit" name="action" value="Verify Mapping" ><?php echo (isset($LANG['VER_MAPPING'])?$LANG['VER_MAPPING']:'Verify Mapping'); ?></button>
 									<button type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" ><?php echo (isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping'); ?></button>
 									<span id="newProfileNameDiv" style="margin-left:15px;color:red;display:none">
-										<?php echo (isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title'); ?>: 
+										<?php echo (isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title'); ?>:
 										<input type="text" name="profiletitle" style="width:300px" />
 									</span>
 								</div>
@@ -1008,7 +1008,7 @@ if($isEditor && $collid){
 										</select>
 									</div>
 									<div style="margin:20px;">
-										<input type="submit" name="action" value="Start Upload" />
+										<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
 									</div>
 								</div>
 								<?php
@@ -1045,7 +1045,7 @@ if($isEditor && $collid){
 			echo '<div style="font-weight:bold;font-size:120%;">';
 			echo (isset($LANG['PAGE_ERROR'])?$LANG['PAGE_ERROR']:'').' = ';
 			echo ini_get("upload_max_filesize").'; post_max_size = '.ini_get('post_max_size');
-			echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.'); 
+			echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.');
 			echo '</div>';
 		}
 	}

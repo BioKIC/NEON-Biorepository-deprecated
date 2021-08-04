@@ -418,18 +418,18 @@ class OccurrenceLabel{
 			else $retArr['g'] = array('labelFormats'=>array());
 		}
 		//Add collection defined label formats
-		if($this->collid && $this->collArr['dynprops']){
-			if($collFormatArr = json_decode($this->collArr['dynprops'],true)){
-				if($annotated){
-					if(isset($collFormatArr['labelFormats'])){
-						foreach($collFormatArr['labelFormats'] as $k => $labelObj){
-							unset($labelObj['labelBlocks']);
-							$retArr['c'][$k] = $labelObj;
-						}
+		if($this->collid){
+			$collFormatArr = json_decode($this->collArr['dynprops'],true);
+			if($annotated){
+				if(isset($collFormatArr['labelFormats'])){
+					foreach($collFormatArr['labelFormats'] as $k => $labelObj){
+						unset($labelObj['labelBlocks']);
+						$retArr['c'][$k] = $labelObj;
 					}
 				}
-				else $retArr['c'] = $collFormatArr['labelFormats'];
 			}
+			elseif(isset($collFormatArr['labelFormats'])) $retArr['c'] = $collFormatArr['labelFormats'];
+			else $retArr['c'] = array();
 		}
 		//Add label formats associated with user profile
 		if($GLOBALS['SYMB_UID']){
@@ -451,7 +451,8 @@ class OccurrenceLabel{
 
 					}
 				}
-				else $retArr['u'] = $dynPropArr['labelFormats'];
+				elseif(isset($dynPropArr['labelFormats'])) $retArr['u'] = $dynPropArr['labelFormats'];
+				else $retArr['u'] = array();
 			}
 		}
 		return $retArr;
@@ -526,6 +527,67 @@ class OccurrenceLabel{
 		$labelArr['labelBlocks'] = json_decode($postArr['json'],true);
 		if(is_numeric($labelIndex)) $labelFormatArr['labelFormats'][$labelIndex] = $labelArr;
 		else $labelFormatArr['labelFormats'][] = $labelArr;
+	}
+
+	public function cloneLabelJson($postArr){
+		$status = true;
+		$cloneTarget = $postArr['cloneTarget'];
+		$group = $postArr['group'];
+		$labelIndex = '';
+		if(isset($postArr['index'])) $labelIndex = $postArr['index'];
+		if(is_numeric($labelIndex) && $cloneTarget){
+			//Grab source
+			$globalFormatArr = array();
+			$collFormatArr = array();
+			$dynPropArr = array();
+			$sourceLabelArr = array();
+			if($group == 'g' || $cloneTarget == 'g'){
+				if(file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
+					include($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
+					if(isset($LABEL_FORMAT_JSON)) $globalFormatArr = json_decode($LABEL_FORMAT_JSON,true);
+					if($group == 'g') $sourceLabelArr = $globalFormatArr['labelFormats'][$labelIndex];
+				}
+			}
+			if($group == 'c' || $cloneTarget == 'c'){
+				if($this->collid){
+					if($this->collArr['dynprops']) $collFormatArr = json_decode($this->collArr['dynprops'],true);
+					if($group == 'c') $sourceLabelArr = $collFormatArr['labelFormats'][$labelIndex];
+				}
+				else{
+					$this->errorArr[] = 'ERROR cloning label format to omcollections table: collid not set';
+					$status = false;
+				}
+			}
+			if($group == 'u' || $cloneTarget == 'u'){
+				$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
+				$rs = $this->conn->query($sql);
+				if($rs){
+					if($r = $rs->fetch_object()){
+						if($r->dynamicProperties) $dynPropArr = json_decode($r->dynamicProperties,true);
+						if($group == 'u') $sourceLabelArr = $dynPropArr['labelFormats'][$labelIndex];
+					}
+					$rs->free();
+				}
+			}
+			$sourceLabelArr['title'] = $sourceLabelArr['title'].' - CLONE';
+			//Save to target group
+			if($cloneTarget == 'g'){
+				$globalFormatArr['labelFormats'][] = $sourceLabelArr;
+				$status = $this->saveGlobalJson($globalFormatArr);
+
+			}
+			elseif($cloneTarget == 'c'){
+				$collFormatArr['labelFormats'][] = $sourceLabelArr;
+				$status = $this->updateCollectionJson($collFormatArr);
+
+			}
+			elseif($cloneTarget == 'u'){
+				$dynPropArr['labelFormats'][] = $sourceLabelArr;
+				$status = $this->updateUserJson($dynPropArr);
+
+			}
+		}
+		return $status;
 	}
 
 	public function deleteLabelFormat($group, $labelIndex){

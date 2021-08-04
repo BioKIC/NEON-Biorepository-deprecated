@@ -13,7 +13,7 @@ class ChecklistAdmin{
 	}
 
 	function __destruct(){
- 		if(!($this->conn === false)) $this->conn->close();
+		if(!($this->conn === false)) $this->conn->close();
 	}
 
 	public function getMetaData($pid = null){
@@ -22,7 +22,7 @@ class ChecklistAdmin{
 			$sql = 'SELECT clid, name, locality, publication, abstract, authors, parentclid, notes, latcentroid, longcentroid, pointradiusmeters, '.
 				'access, defaultsettings, dynamicsql, datelastmodified, uid, type, footprintwkt, sortsequence, initialtimestamp '.
 				'FROM fmchecklists WHERE (clid = '.$this->clid.')';
-	 		$result = $this->conn->query($sql);
+			$result = $this->conn->query($sql);
 			if($row = $result->fetch_object()){
 				$this->clName = $this->cleanOutStr($row->name);
 				$retArr["locality"] = $this->cleanOutStr($row->locality);
@@ -69,58 +69,60 @@ class ChecklistAdmin{
 	}
 
 	public function createChecklist($postArr){
-		$defaultViewArr = Array();
-		$defaultViewArr["ddetails"] = array_key_exists("ddetails",$postArr)?1:0;
-		$defaultViewArr["dsynonyms"] = array_key_exists("dsynonyms",$postArr)?1:0;
-		$defaultViewArr["dcommon"] = array_key_exists("dcommon",$postArr)?1:0;
-		$defaultViewArr["dimages"] = array_key_exists("dimages",$postArr)?1:0;
-		$defaultViewArr["dvouchers"] = array_key_exists("dvouchers",$postArr)?1:0;
-		$defaultViewArr["dauthors"] = array_key_exists("dauthors",$postArr)?1:0;
-		$defaultViewArr["dalpha"] = array_key_exists("dalpha",$postArr)?1:0;
-		$defaultViewArr["activatekey"] = array_key_exists("activatekey",$postArr)?1:0;
-		if($defaultViewArr) $postArr["defaultsettings"] = json_encode($defaultViewArr);
+		$newClid = 0;
+		if($GLOBALS['SYMB_UID'] && isset($postArr['name'])){
+			$defaultViewArr = Array();
+			$defaultViewArr["ddetails"] = array_key_exists("ddetails",$postArr)?1:0;
+			$defaultViewArr["dsynonyms"] = array_key_exists("dsynonyms",$postArr)?1:0;
+			$defaultViewArr["dcommon"] = array_key_exists("dcommon",$postArr)?1:0;
+			$defaultViewArr["dimages"] = array_key_exists("dimages",$postArr)?1:0;
+			$defaultViewArr["dvouchers"] = array_key_exists("dvouchers",$postArr)?1:0;
+			$defaultViewArr["dauthors"] = array_key_exists("dauthors",$postArr)?1:0;
+			$defaultViewArr["dalpha"] = array_key_exists("dalpha",$postArr)?1:0;
+			$defaultViewArr["activatekey"] = array_key_exists("activatekey",$postArr)?1:0;
+			if($defaultViewArr) $postArr["defaultsettings"] = json_encode($defaultViewArr);
 
-		$fieldArr = array('name'=>'s','authors'=>'s','type'=>'s','locality'=>'s','publication'=>'s','abstract'=>'s','notes'=>'s','latcentroid'=>'n',
-			'longcentroid'=>'n','pointradiusmeters'=>'n','footprintwkt'=>'s','parentclid'=>'n','sortsequence'=>'n','access'=>'s','uid'=>'n','defaultsettings'=>'s');
+			$fieldArr = array('name'=>'s','authors'=>'s','type'=>'s','locality'=>'s','publication'=>'s','abstract'=>'s','notes'=>'s','latcentroid'=>'n',
+				'longcentroid'=>'n','pointradiusmeters'=>'n','footprintwkt'=>'s','parentclid'=>'n','sortsequence'=>'n','access'=>'s','uid'=>'n','defaultsettings'=>'s');
 
-		$sqlInsert = "";
-		$sqlValues = "";
-		foreach($fieldArr as $fieldName => $fieldType){
-			$sqlInsert .= ','.$fieldName;
-			$v = $this->cleanInStr($postArr[$fieldName]);
-			if($fieldName != 'abstract') $v = strip_tags($v, '<i><u><b><a>');
-			if($v){
-				if($fieldType == 's'){
-					$sqlValues .= ',"'.$v.'"';
-				}
-				else{
-					if(is_numeric($v)){
-						$sqlValues .= ','.$v;
+			$sqlInsert = '';
+			$sqlValues = '';
+			foreach($fieldArr as $fieldName => $fieldType){
+				$sqlInsert .= ','.$fieldName;
+				$v = $this->cleanInStr($postArr[$fieldName]);
+				if($fieldName != 'abstract') $v = strip_tags($v, '<i><u><b><a>');
+				if($v){
+					if($fieldType == 's'){
+						$sqlValues .= ',"'.$v.'"';
 					}
 					else{
-						$sqlValues .= ',NULL';
+						if(is_numeric($v)){
+							$sqlValues .= ','.$v;
+						}
+						else{
+							$sqlValues .= ',NULL';
+						}
 					}
 				}
+				else{
+					$sqlValues .= ',NULL';
+				}
 			}
-			else{
-				$sqlValues .= ',NULL';
-			}
-		}
-		$sql = "INSERT INTO fmchecklists (".substr($sqlInsert,1).") VALUES (".substr($sqlValues,1).")";
-		$newClid = 0;
-		if($this->conn->query($sql)){
-			$newClid = $this->conn->insert_id;
-			//Set permissions to allow creater to be an editor
-			$this->conn->query('INSERT INTO userroles (uid, role, tablename, tablepk,uidassignedby) VALUES('.$GLOBALS["SYMB_UID"].',"ClAdmin","fmchecklists",'.$newClid.','.$GLOBALS["SYMB_UID"].') ');
-			//$this->conn->query("INSERT INTO userpermissions (uid, pname) VALUES(".$GLOBALS["symbUid"].",'ClAdmin-".$newClid."') ");
-			$newPManager = new ProfileManager();
-			$newPManager->setUserName($GLOBALS['USERNAME']);
-			$newPManager->authenticate();
-			if($postArr['type'] == 'excludespp' && $postArr['excludeparent']){
-				//If is an exclusion checklists, link to parent checklist
-				$sql2 = 'INSERT INTO fmchklstchildren(clid, clidchild, modifiedUid) VALUES('.$postArr['excludeparent'].','.$newClid.','.$GLOBALS["SYMB_UID"].') ';
-				if(!$this->conn->query($sql2)){
-					echo 'ERROR linking exclusion checklist to parent: '.$this->conn->error;
+			$sql = 'INSERT INTO fmchecklists ('.substr($sqlInsert,1).') VALUES ('.substr($sqlValues,1).')';
+			if($this->conn->query($sql)){
+				$newClid = $this->conn->insert_id;
+				//Set permissions to allow creater to be an editor
+				$this->conn->query('INSERT INTO userroles (uid, role, tablename, tablepk,uidassignedby) VALUES('.$GLOBALS['SYMB_UID'].',"ClAdmin","fmchecklists",'.$newClid.','.$GLOBALS['SYMB_UID'].') ');
+				//$this->conn->query("INSERT INTO userpermissions (uid, pname) VALUES(".$GLOBALS["symbUid"].",'ClAdmin-".$newClid."') ");
+				$newPManager = new ProfileManager();
+				$newPManager->setUserName($GLOBALS['USERNAME']);
+				$newPManager->authenticate();
+				if($postArr['type'] == 'excludespp' && $postArr['excludeparent']){
+					//If is an exclusion checklists, link to parent checklist
+					$sql2 = 'INSERT INTO fmchklstchildren(clid, clidchild, modifiedUid) VALUES('.$postArr['excludeparent'].','.$newClid.','.$GLOBALS['SYMB_UID'].') ';
+					if(!$this->conn->query($sql2)){
+						echo 'ERROR linking exclusion checklist to parent: '.$this->conn->error;
+					}
 				}
 			}
 		}
@@ -129,63 +131,63 @@ class ChecklistAdmin{
 
 	public function editMetaData($postArr){
 		$statusStr = '';
-		$setSql = "";
-		$defaultViewArr = Array();
-		$defaultViewArr["ddetails"] = array_key_exists("ddetails",$postArr)?1:0;
-		$defaultViewArr["dsynonyms"] = array_key_exists("dsynonyms",$postArr)?1:0;
-		$defaultViewArr["dcommon"] = array_key_exists("dcommon",$postArr)?1:0;
-		$defaultViewArr["dimages"] = array_key_exists("dimages",$postArr)?1:0;
-		$defaultViewArr["dvouchers"] = array_key_exists("dvouchers",$postArr)?1:0;
-		$defaultViewArr["dauthors"] = array_key_exists("dauthors",$postArr)?1:0;
-		$defaultViewArr["dalpha"] = array_key_exists("dalpha",$postArr)?1:0;
-		$defaultViewArr["activatekey"] = array_key_exists("activatekey",$postArr)?1:0;
-		if($defaultViewArr) $postArr["defaultsettings"] = json_encode($defaultViewArr);
+		if($GLOBALS['SYMB_UID'] && isset($postArr['name'])){
+			$setSql = "";
+			$defaultViewArr = Array();
+			$defaultViewArr["ddetails"] = array_key_exists("ddetails",$postArr)?1:0;
+			$defaultViewArr["dsynonyms"] = array_key_exists("dsynonyms",$postArr)?1:0;
+			$defaultViewArr["dcommon"] = array_key_exists("dcommon",$postArr)?1:0;
+			$defaultViewArr["dimages"] = array_key_exists("dimages",$postArr)?1:0;
+			$defaultViewArr["dvouchers"] = array_key_exists("dvouchers",$postArr)?1:0;
+			$defaultViewArr["dauthors"] = array_key_exists("dauthors",$postArr)?1:0;
+			$defaultViewArr["dalpha"] = array_key_exists("dalpha",$postArr)?1:0;
+			$defaultViewArr["activatekey"] = array_key_exists("activatekey",$postArr)?1:0;
+			if($defaultViewArr) $postArr["defaultsettings"] = json_encode($defaultViewArr);
 
-		$fieldArr = array('name'=>'s','authors'=>'s','type'=>'s','locality'=>'s','publication'=>'s','abstract'=>'s','notes'=>'s','latcentroid'=>'n',
-			'longcentroid'=>'n','pointradiusmeters'=>'n','parentclid'=>'n','sortsequence'=>'n','access'=>'s','defaultsettings'=>'s');
-		foreach($fieldArr as $fieldName => $fieldType){
-			$v = $this->cleanInStr($postArr[$fieldName]);
-			if($fieldName != 'abstract') $v = strip_tags($v, '<i><u><b><a>');
-
-			if($v){
-				if($fieldType == 's'){
-					$setSql .= ', '.$fieldName.' = "'.$v.'"';
-				}
-				elseif($fieldType == 'n' && is_numeric($v)){
-					$setSql .= ', '.$fieldName.' = "'.$v.'"';
-				}
-				else{
-					$setSql .= ', '.$fieldName.' = NULL';
-				}
-			}
-			else{
-				if($fieldName != 'name' && $fieldName != 'type' && $fieldName != 'access') $setSql .= ', '.$fieldName.' = NULL';
-			}
-		}
-		$sql = 'UPDATE fmchecklists SET '.substr($setSql,2).' WHERE (clid = '.$this->clid.')';
-		//echo $sql; exit;
-		if($this->conn->query($sql)){
-			if($postArr['type'] == 'rarespp'){
-				if($postArr['locality']){
-					$sql = 'UPDATE omoccurrences o INNER JOIN taxstatus ts1 ON o.tidinterpreted = ts1.tid '.
-						'INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
-						'INNER JOIN fmchklsttaxalink cl ON ts2.tid = cl.tid '.
-						'SET o.localitysecurity = 1 '.
-						'WHERE (cl.clid = '.$this->clid.') AND (o.stateprovince = "'.$postArr['locality'].'") AND (o.localitySecurityReason IS NULL) '.
-						'AND (o.localitysecurity IS NULL OR o.localitysecurity = 0) AND (ts1.taxauthid = 1) AND (ts2.taxauthid = 1) ';
-					if(!$this->conn->query($sql)){
-						$statusStr = 'Error updating rare state species: '.$this->conn->error;
+			$fieldArr = array('name'=>'s','authors'=>'s','type'=>'s','locality'=>'s','publication'=>'s','abstract'=>'s','notes'=>'s','latcentroid'=>'n',
+				'longcentroid'=>'n','pointradiusmeters'=>'n','parentclid'=>'n','sortsequence'=>'n','access'=>'s','defaultsettings'=>'s');
+			foreach($fieldArr as $fieldName => $fieldType){
+				$v = $this->cleanInStr($postArr[$fieldName]);
+				if($fieldName != 'abstract') $v = strip_tags($v, '<i><u><b><a>');
+				if($v){
+					if($fieldType == 's'){
+						$setSql .= ', '.$fieldName.' = "'.$v.'"';
+					}
+					elseif($fieldType == 'n' && is_numeric($v)){
+						$setSql .= ', '.$fieldName.' = "'.$v.'"';
+					}
+					else{
+						$setSql .= ', '.$fieldName.' = NULL';
 					}
 				}
-			}elseif($postArr['type'] == 'excludespp' && is_numeric($postArr['excludeparent'])){
-				$sql = 'UPDATE fmchklstchildren SET clid = '.$postArr['excludeparent'].' WHERE clidchild = '.$this->clid;
-				if(!$this->conn->query($sql)){
-					$statusStr = 'Error updating parent checklist for exclusion species list: '.$this->conn->error;
+				else{
+					if($fieldName != 'name' && $fieldName != 'type' && $fieldName != 'access') $setSql .= ', '.$fieldName.' = NULL';
 				}
 			}
-		}
-		else{
-			$statusStr = 'Error: unable to update checklist metadata. SQL: '.$this->conn->error;
+			$sql = 'UPDATE fmchecklists SET '.substr($setSql,2).' WHERE (clid = '.$this->clid.')';
+			//echo $sql; exit;
+			if($this->conn->query($sql)){
+				if($postArr['type'] == 'rarespp'){
+					if($postArr['locality']){
+						$sql = 'UPDATE omoccurrences o INNER JOIN taxstatus ts1 ON o.tidinterpreted = ts1.tid '.
+							'INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
+							'INNER JOIN fmchklsttaxalink cl ON ts2.tid = cl.tid '.
+							'SET o.localitysecurity = 1 '.
+							'WHERE (cl.clid = '.$this->clid.') AND (o.stateprovince = "'.$postArr['locality'].'") AND (o.localitySecurityReason IS NULL) '.
+							'AND (o.localitysecurity IS NULL OR o.localitysecurity = 0) AND (ts1.taxauthid = 1) AND (ts2.taxauthid = 1) ';
+						if(!$this->conn->query($sql)){
+							$statusStr = 'Error updating rare state species: '.$this->conn->error;
+						}
+					}
+				}
+				elseif($postArr['type'] == 'excludespp' && is_numeric($postArr['excludeparent'])){
+					$sql = 'UPDATE fmchklstchildren SET clid = '.$postArr['excludeparent'].' WHERE clidchild = '.$this->clid;
+					if(!$this->conn->query($sql)){
+						$statusStr = 'Error updating parent checklist for exclusion species list: '.$this->conn->error;
+					}
+				}
+			}
+			else $statusStr = 'Error: unable to update checklist metadata. SQL: '.$this->conn->error;
 		}
 		return $statusStr;
 	}

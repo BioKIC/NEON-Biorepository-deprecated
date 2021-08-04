@@ -14,6 +14,8 @@
 			</div>
 			<div style="text-align:center;margin-bottom:15px;font-family:'Mate', serif">For more information about CCH2 or the California Phenology Network, email Jenn Yost <a href="mailto:jyost@calpoly.edu">jyost@calpoly.edu</a>.
 			</div>
+			<div style="text-align:center;margin-bottom:15px;font-family:'Mate', serif">If you have technical questions or feedback about our site, email <a href="mailto:symbiota@asu.edu">symbiota@asu.edu</a>
+			</div>
 		</td>
 	</tr>
 </table>

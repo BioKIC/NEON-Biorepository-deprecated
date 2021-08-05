@@ -59,5 +59,5 @@ $LANG['HAS_GENETIC'] = 'Limiter aux Spécimens avec des Données Génétiques';
 $LANG['HAS_COORDS'] = 'Limiter aux Spécimens avec Géocoordonnées';
 $LANG['INCLUDE_CULTIVATED'] = 'Inclure Occurrences Cultivées/Captives';
 $LANG['TRAIT_HEADER'] = 'Critères de Trait';
-$LANG['TRAIT_DESCRIPTION'] = 'La sélection de plusieurs traits renverra tous les enregistrements avec au moins un de ces traits';
+$LANG['TRAIT_DESCRIPTION'] = 'La sélection de plusieurs traits renverra tous les enregistrements avec <b>au moins un</b> de ces traits';
 ?>

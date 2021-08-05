@@ -100,15 +100,19 @@ include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<fieldset>
 			<legend>IGSN Synchronization</legend>
-			<div style="margin-bottom:10px;">Displays record counts synchronized with the central NEON System. If IGSNs have been recently be uploaded to NEON, run the synchronization tools to adjust counts</div>
+			<div style="margin-bottom:10px;">
+				Displays record counts synchronized with the central NEON System.
+				After uploading IGSNs into NEON system, run the synchronization tools to adjust the report.
+				Will soon add the ability to download a CSV report of unsynchronized ISGNs along with sampleCode, sampleID, and sampleClass that can be used to upload into central NEON system.
+			</div>
 			<div style="">
 				<ul>
 					<?php
 					$reportArr = $igsnManager->getIgsnSynchronizationReport();
 					if($reportArr){
 						if(isset($reportArr['x'])) echo '<div><label>Unchecked: </label>'.$reportArr['x'].'</div>';
-						if(isset($reportArr[0])) echo '<div><label>Previously checked: </label>'.$reportArr[0].'</div>';
-						if(isset($reportArr[1])) echo '<div><label>Linked: </label>'.$reportArr[1].'</div>';
+						if(isset($reportArr[0])) echo '<div><label>Unsynchronized: </label>'.$reportArr[0].'</div>';
+						if(isset($reportArr[1])) echo '<div><label>Synchronized: </label>'.$reportArr[1].'</div>';
 					}
 					?>
 				</ul>

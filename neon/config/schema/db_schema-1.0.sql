@@ -78,3 +78,5 @@ ALTER TABLE `NeonSample`
 ALTER TABLE `NeonSample` 
    ADD UNIQUE INDEX `UNIQUE_sampleCode` (`sampleCode` ASC);
 
+ALTER TABLE `NeonSample` 
+  ADD COLUMN `igsnPushedToNEON` INT NULL AFTER `notes`;

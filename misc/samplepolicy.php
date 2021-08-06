@@ -26,7 +26,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
         <ul>
           <li><p><a href="mailto:biorepo@asu.edu">Contact us</a> well in advance of any grant proposal deadlines in order to optimally integrate sample uses into project narratives, data management plans, and budgets.</p></li>
           <li><p>The NEON Biorepository data portal is capable of hosting or linking to many forms of sample-associated data. Researchers using samples are strongly encouraged to become portal managers in order to disseminate their data to the public.</p></li>
-          <li><p>The NEON Biorepository Advisory Committee, consisting of Biorepository and NEON staff as well as the external Biorepository Technical Working Group, may be consulted prior to approval of any sample use request.</p></li>
+          <li><p>The <a href="https://www.neonscience.org/about/advisory-groups/twgs/biorepository-twg" target="_blank" rel="noopener noreferrer">Biorepository Technical Working Group</a> may be consulted prior to approval of any sample use request.</p></li>
           <li><p>Sample uses can be non-invasive, invasive, consumptive, or destructive. Uses that reduce the future research potential of a sample will likely require stronger justification and a plan to disseminate all sample-associated data.</p></li>
           <li><p>Researchers are responsible for proper handling of all samples, adhering to all aspects of the sample use agreement, and following all NEON and National Science Foundation data reporting and citation policies.</p></li>
         </ul>

@@ -394,8 +394,8 @@ class OccurrenceLabel{
 
 	public function getLabelFormatArr($annotated = false){
 		$retArr = array();
-		//Add global portal defined label formats
-		if($GLOBALS['IS_ADMIN'] || $annotated){
+		if($GLOBALS['SYMB_UID']){
+			//Add global portal defined label formats
 			if(!file_exists($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php')){
 				@copy($GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson_template.php',$GLOBALS['SERVER_ROOT'].'/content/collections/reports/labeljson.php');
 			}
@@ -416,23 +416,21 @@ class OccurrenceLabel{
 				}
 			}
 			else $retArr['g'] = array('labelFormats'=>array());
-		}
-		//Add collection defined label formats
-		if($this->collid){
-			$collFormatArr = json_decode($this->collArr['dynprops'],true);
-			if($annotated){
-				if(isset($collFormatArr['labelFormats'])){
-					foreach($collFormatArr['labelFormats'] as $k => $labelObj){
-						unset($labelObj['labelBlocks']);
-						$retArr['c'][$k] = $labelObj;
+			//Add collection defined label formats
+			if($this->collid){
+				$collFormatArr = json_decode($this->collArr['dynprops'],true);
+				if($annotated){
+					if(isset($collFormatArr['labelFormats'])){
+						foreach($collFormatArr['labelFormats'] as $k => $labelObj){
+							unset($labelObj['labelBlocks']);
+							$retArr['c'][$k] = $labelObj;
+						}
 					}
 				}
+				elseif(isset($collFormatArr['labelFormats'])) $retArr['c'] = $collFormatArr['labelFormats'];
+				else $retArr['c'] = array();
 			}
-			elseif(isset($collFormatArr['labelFormats'])) $retArr['c'] = $collFormatArr['labelFormats'];
-			else $retArr['c'] = array();
-		}
-		//Add label formats associated with user profile
-		if($GLOBALS['SYMB_UID']){
+			//Add label formats associated with user profile
 			$sql = 'SELECT dynamicProperties FROM users WHERE uid = '.$GLOBALS['SYMB_UID'];
 			$rs = $this->conn->query($sql);
 			if($rs){

@@ -18,9 +18,16 @@ $isEditor = 0;
 if($SYMB_UID) $isEditor = 1;
 if($collid && array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])) $isEditor = 2;
 if($IS_ADMIN) $isEditor = 3;
-
 $statusStr = '';
 if($isEditor && $action){
+	if($action == 'cloneProfile'){
+		if(isset($_POST['cloneTarget']) && $_POST['cloneTarget']){
+			if(!$labelManager->cloneLabelJson($_POST)){
+				$statusStr = implode('; ', $labelManager->getErrorArr());
+			}
+		}
+		else $statusStr = 'ERROR: you must select a clone target!';
+	}
 	$applyEdits = true;
 	$group = (isset($_POST['group'])?$_POST['group']:'');
 	if($group == 'g' && $isEditor < 3) $applyEdits = false;
@@ -30,14 +37,6 @@ if($isEditor && $action){
 			if(!$labelManager->saveLabelJson($_POST)){
 				$statusStr = implode('; ', $labelManager->getErrorArr());
 			}
-		}
-		elseif($action == 'cloneProfile'){
-			if(isset($_POST['cloneTarget']) && $_POST['cloneTarget']){
-				if(!$labelManager->cloneLabelJson($_POST)){
-					$statusStr = implode('; ', $labelManager->getErrorArr());
-				}
-			}
-			else $statusStr = 'ERROR: you must select a clone target!';
 		}
 		elseif($action == 'deleteProfile'){
 			if(!$labelManager->deleteLabelFormat($_POST['group'],$_POST['index'])){
@@ -152,8 +151,6 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 		echo '<h2>Specimen Label Profiles</h2>';
 		$labelFormatArr = $labelManager->getLabelFormatArr();
 		foreach($labelFormatArr as $group => $groupArr){
-			if($group == 'g' && $isEditor < 3) continue;
-			if($group == 'c' && $isEditor < 2) continue;
 			$fieldsetTitle = '';
 			if($group == 'g') $fieldsetTitle = 'Portal Profiles ';
 			elseif($group == 'c') $fieldsetTitle = $labelManager->getCollName().' Label Profiles ';
@@ -162,8 +159,9 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 			?>
 			<fieldset>
 				<legend><?php echo $fieldsetTitle; ?></legend>
-				<div style="float:right;" title="Create a new label profile"><img class="edit-icon" src="../../images/add.png" onclick="$('#edit-<?php echo $group; ?>').toggle()" /></div>
 				<?php
+				if($isEditor == 3 || $group == 'u' || ($group == 'c' && $isEditor > 1))
+					echo '<div style="float:right;" title="Create a new label profile"><img class="edit-icon" src="../../images/add.png" onclick="$(\'#edit-'.$group.'\').toggle()" /></div>';
 				$index = '';
 				$formatArr = array();
 				do{
@@ -177,15 +175,18 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 							<div class="field-block">
 								<span class="label">Title:</span>
 								<span class="field-value"><?php echo htmlspecialchars($formatArr['title']); ?></span>
-								<span title="Edit label profile"> <a href="#" onclick="toggleEditDiv('<?php echo $group.'-'.$index; ?>');return false;"><img class="edit-icon" src="../../images/edit.png" /></a></span>
+								<?php
+								if($isEditor == 3 || $group == 'u' || ($group == 'c' && $isEditor > 1))
+									echo '<span title="Edit label profile"> <a href="#" onclick="toggleEditDiv(\''.$group.'-'.$index.'\');return false;"><img class="edit-icon" src="../../images/edit.png" /></a></span>';
+								?>
 							</div>
 							<?php
 							if(isset($formatArr['labelHeader']['midText'])) $midText = $formatArr['labelHeader']['midText'];
 							$headerStr = $formatArr['labelHeader']['prefix'].' ';
-							if($midText==1) $headerStr .= '&gt;Country&lt;';
-							elseif($midText==2) $headerStr .= '&gt;State&lt;';
-							elseif($midText==3) $headerStr .= '&gt;County&lt;';
-							elseif($midText==4) $headerStr .= '&gt;Family&lt;';
+							if($midText==1) $headerStr .= '[COUNTRY];';
+							elseif($midText==2) $headerStr .= '[STATE]';
+							elseif($midText==3) $headerStr .= '[COUNTY]';
+							elseif($midText==4) $headerStr .= '[FAMILY]';
 							$headerStr .= ' '.$formatArr['labelHeader']['suffix'];
 							if(trim($headerStr)){
 								?>
@@ -225,149 +226,161 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 						</div>
 						<?php
 					}
-					echo '<div id="edit-'.$group.(is_numeric($index)?'-'.$index:'').'" style="display:none">';
 					?>
 					<form name="labelprofileeditor-<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>" action="labelprofile.php" method="post" onsubmit="return validateJsonForm(this)">
-						<div class="field-block">
-							<span class="label">Title:</span>
-							<span class="field-elem"><input name="title" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['title']):''); ?>" required /> </span>
-							<?php
-							if($formatArr) echo '<span title="Edit label profile"> <img class="edit-icon" src="../../images/edit.png" onclick="toggleEditDiv(\''.$group.'-'.$index.'\')" /></span>';
-							?>
-						</div>
-						<fieldset class="fieldset-block">
-							<legend>Label Header</legend>
+						<div id="edit-<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>" style="display:none">
 							<div class="field-block">
-								<span class="label">Prefix:</span>
-								<span class="field-elem">
-									<input name="hPrefix" type="text" value="<?php echo (isset($formatArr['labelHeader']['prefix'])?htmlspecialchars($formatArr['labelHeader']['prefix']):''); ?>" />
-								</span>
+								<span class="label">Title:</span>
+								<span class="field-elem"><input name="title" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['title']):''); ?>" required /> </span>
+								<?php
+								if($formatArr) echo '<span title="Edit label profile"> <img class="edit-icon" src="../../images/edit.png" onclick="toggleEditDiv(\''.$group.'-'.$index.'\')" /></span>';
+								?>
 							</div>
+							<fieldset class="fieldset-block">
+								<legend>Label Header</legend>
+								<div class="field-block">
+									<span class="label">Prefix:</span>
+									<span class="field-elem">
+										<input name="hPrefix" type="text" value="<?php echo (isset($formatArr['labelHeader']['prefix'])?htmlspecialchars($formatArr['labelHeader']['prefix']):''); ?>" />
+									</span>
+								</div>
+								<div class="field-block">
+									<div class="field-elem">
+										<span class="field-inline">
+											<input name="hMidText" type="radio" value="1" <?php echo ($midText==1?'checked':''); ?> />
+											<span class="label-inline">Country</span>
+										</span>
+										<span class="field-inline">
+											<input name="hMidText" type="radio" value="2" <?php echo ($midText==2?'checked':''); ?> />
+											<span class="label-inline">State</span>
+										</span>
+										<span class="field-inline">
+											<input name="hMidText" type="radio" value="3" <?php echo ($midText==3?'checked':''); ?> />
+											<span class="label-inline">County</span>
+										</span>
+										<span class="field-inline">
+											<input name="hMidText" type="radio" value="4" <?php echo ($midText==4?'checked':''); ?> />
+											<span class="label-inline">Family</span>
+										</span>
+										<span class="field-inline">
+											<input name="hMidText" type="radio" value="0" <?php echo (!$midText?'checked':''); ?> />
+											<span class="label-inline">Blank</span>
+										</span>
+									</div>
+								</div>
+								<div class="field-block">
+									<span class="label">Suffix:</span>
+									<span class="field-elem"><input name="hSuffix" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['labelHeader']['suffix']):''); ?>" /></span>
+								</div>
+								<div class="field-block">
+									<span class="label">Class names:</span>
+									<span class="field-elem"><input name="hClassName" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['labelHeader']['className']):''); ?>" /></span>
+								</div>
+								<div class="field-block">
+									<span class="label">Style:</span>
+									<span class="field-elem"><input name="hStyle" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['labelHeader']['style']):''); ?>" /></span>';
+								</div>
+							</fieldset>
+							<fieldset  class="fieldset-block">
+								<legend>Label Footer</legend>
+								<div class="field-block">
+									<span class="label-inline">Footer text:</span>
+									<input name="fTextValue" type="text" value="<?php echo (isset($formatArr['labelFooter']['textValue'])?htmlspecialchars($formatArr['labelFooter']['textValue']):''); ?>" />
+								</div>
+								<div class="field-block">
+									<span class="label-inline">Class names:</span>
+									<input name="fClassName" type="text" value="<?php echo (isset($formatArr['labelFooter']['className'])?$formatArr['labelFooter']['className']:''); ?>" />
+								</div>
+								<div class="field-block">
+									<span class="label-inline">Style:</span>
+									<input name="fStyle" type="text" value="<?php echo (isset($formatArr['labelFooter']['style'])?$formatArr['labelFooter']['style']:''); ?>" />
+								</div>
+							</fieldset>
 							<div class="field-block">
-								<div class="field-elem">
-									<span class="field-inline">
-										<input name="hMidText" type="radio" value="1" <?php echo ($midText==1?'checked':''); ?> />
-										<span class="label-inline">Country</span>
-									</span>
-									<span class="field-inline">
-										<input name="hMidText" type="radio" value="2" <?php echo ($midText==2?'checked':''); ?> />
-										<span class="label-inline">State</span>
-									</span>
-									<span class="field-inline">
-										<input name="hMidText" type="radio" value="3" <?php echo ($midText==3?'checked':''); ?> />
-										<span class="label-inline">County</span>
-									</span>
-									<span class="field-inline">
-										<input name="hMidText" type="radio" value="4" <?php echo ($midText==4?'checked':''); ?> />
-										<span class="label-inline">Family</span>
-									</span>
-									<span class="field-inline">
-										<input name="hMidText" type="radio" value="0" <?php echo (!$midText?'checked':''); ?> />
-										<span class="label-inline">Blank</span>
-									</span>
+								<div class="label">Custom Styles:</div>
+								<div class="field-block">
+									<input name="customStyles" type="text" value="<?php echo (isset($formatArr['customStyles'])?$formatArr['customStyles']:''); ?>" />
 								</div>
 							</div>
 							<div class="field-block">
-								<span class="label">Suffix:</span>
-								<span class="field-elem"><input name="hSuffix" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['labelHeader']['suffix']):''); ?>" /></span>
+								<div class="label">Default CSS:</div>
+								<div class="field-block">
+									<input name="defaultCss" type="text" value="<?php echo (isset($formatArr['defaultCss'])?$formatArr['defaultCss']:'../../css/symb/labelhelpers.css'); ?>" />
+								</div>
 							</div>
 							<div class="field-block">
-								<span class="label">Class names:</span>
-								<span class="field-elem"><input name="hClassName" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['labelHeader']['className']):''); ?>" /></span>
+								<div class="label">Custom CSS:</div>
+								<div class="field-block">
+									<input name="customCss" type="text" value="<?php echo (isset($formatArr['customCss'])?$formatArr['customCss']:''); ?>" />
+								</div>
 							</div>
 							<div class="field-block">
-								<span class="label">Style:</span>
-								<span class="field-elem"><input name="hStyle" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['labelHeader']['style']):''); ?>" /></span>';
+								<div class="label">Custom JS:</div>
+								<div class="field-block">
+									<input name="customJS" type="text" value="<?php echo (isset($formatArr['customJS'])?$formatArr['customJS']:''); ?>" />
+								</div>
 							</div>
-						</fieldset>
-						<fieldset  class="fieldset-block">
-							<legend>Label Footer</legend>
+							<fieldset class="fieldset-block">
+								<legend>Options</legend>
+								<div class="field-block">
+									<span class="label-inline">Label type:</span>
+									<select name="labelType">
+										<option value="1" <?php echo ($labelType==1?'selected':''); ?>>1 columns per page</option>
+										<option value="2" <?php echo ($labelType==2?'selected':''); ?>>2 columns per page</option>
+										<option value="3" <?php echo ($labelType==3?'selected':''); ?>>3 columns per page</option>
+										<option value="4" <?php echo ($labelType==4?'selected':''); ?>>4 columns per page</option>
+										<option value="5" <?php echo ($labelType==5?'selected':''); ?>>5 columns per page</option>
+										<option value="6" <?php echo ($labelType==6?'selected':''); ?>>6 columns per page</option>
+										<option value="7" <?php echo ($labelType==7?'selected':''); ?>>7 columns per page</option>
+										<option value="packet" <?php echo ($labelType=='packet'?'selected':''); ?>>Packet labels</option>
+									</select>
+								</div>
+								<div class="field-block">
+									<span class="label-inline">Page size:</span>
+									<select name="pageSize">
+										<option value="letter">Letter</option>
+										<option value="a4" <?php echo ($pageSize=='a4'?'SELECTED':''); ?>>A4</option>
+										<option value="legal" <?php echo ($pageSize=='legal'?'SELECTED':''); ?>>Legal</option>
+										<option value="tabloid" <?php echo ($pageSize=='tabloid'?'SELECTED':''); ?>>Ledger/Tabloid</option>
+									</select>
+								</div>
+								<div class="field-block">
+									<input name="displaySpeciesAuthor" type="checkbox" value="1" <?php echo (isset($formatArr['displaySpeciesAuthor'])&&$formatArr['displaySpeciesAuthor']?'checked':''); ?> />
+									<span class="label-inline">Display species for infraspecific taxa</span>
+								</div>
+								<div class="field-block">
+									<input name="displayBarcode" type="checkbox" value=1" <?php echo (isset($formatArr['displayBarcode'])&&$formatArr['displayBarcode']?'checked':''); ?> />
+									<span class="label-inline">Display barcode</span>
+								</div>
+							</fieldset>
 							<div class="field-block">
-								<span class="label-inline">Footer text:</span>
-								<input name="fTextValue" type="text" value="<?php echo (isset($formatArr['labelFooter']['textValue'])?htmlspecialchars($formatArr['labelFooter']['textValue']):''); ?>" />
+								<div class="label">JSON: <span title="Edit JSON label definition"><a href="#" onclick="makeJsonEditable('<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>');return false"><img  class="edit-icon" src="../../images/edit.png" /></a></span><span title="Edit JSON label definition (Visual Interface)"><a href="#" onclick="openJsonEditorPopup('<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>');return false"><img  class="edit-icon" src="../../images/edit.png" />(visual interface)</a></span>
+								</div>
+								<div class="field-block">
+									<textarea id="json-<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>" name="json" readonly><?php echo (isset($formatArr['labelBlocks'])?json_encode($formatArr['labelBlocks'],JSON_PRETTY_PRINT):''); ?></textarea>
+								</div>
 							</div>
-							<div class="field-block">
-								<span class="label-inline">Class names:</span>
-								<input name="fClassName" type="text" value="<?php echo (isset($formatArr['labelFooter']['className'])?$formatArr['labelFooter']['className']:''); ?>" />
-							</div>
-							<div class="field-block">
-								<span class="label-inline">Style:</span>
-								<input name="fStyle" type="text" value="<?php echo (isset($formatArr['labelFooter']['style'])?$formatArr['labelFooter']['style']:''); ?>" />
-							</div>
-						</fieldset>
-						<div class="field-block">
-							<div class="label">Custom Styles:</div>
-							<div class="field-block">
-								<input name="customStyles" type="text" value="<?php echo (isset($formatArr['customStyles'])?$formatArr['customStyles']:''); ?>" />
-							</div>
-						</div>
-						<div class="field-block">
-							<div class="label">Default CSS:</div>
-							<div class="field-block">
-								<input name="defaultCss" type="text" value="<?php echo (isset($formatArr['defaultCss'])?$formatArr['defaultCss']:'../../css/symb/labelhelpers.css'); ?>" />
-							</div>
-						</div>
-						<div class="field-block">
-							<div class="label">Custom CSS:</div>
-							<div class="field-block">
-								<input name="customCss" type="text" value="<?php echo (isset($formatArr['customCss'])?$formatArr['customCss']:''); ?>" />
-							</div>
-						</div>
-						<div class="field-block">
-							<div class="label">Custom JS:</div>
-							<div class="field-block">
-								<input name="customJS" type="text" value="<?php echo (isset($formatArr['customJS'])?$formatArr['customJS']:''); ?>" />
-							</div>
-						</div>
-						<fieldset class="fieldset-block">
-							<legend>Options</legend>
-							<div class="field-block">
-								<span class="label-inline">Label type:</span>
-								<select name="labelType">
-									<option value="1" <?php echo ($labelType==1?'selected':''); ?>>1 columns per page</option>
-									<option value="2" <?php echo ($labelType==2?'selected':''); ?>>2 columns per page</option>
-									<option value="3" <?php echo ($labelType==3?'selected':''); ?>>3 columns per page</option>
-									<option value="4" <?php echo ($labelType==4?'selected':''); ?>>4 columns per page</option>
-									<option value="5" <?php echo ($labelType==5?'selected':''); ?>>5 columns per page</option>
-									<option value="6" <?php echo ($labelType==6?'selected':''); ?>>6 columns per page</option>
-									<option value="7" <?php echo ($labelType==7?'selected':''); ?>>7 columns per page</option>
-									<option value="packet" <?php echo ($labelType=='packet'?'selected':''); ?>>Packet labels</option>
-								</select>
-							</div>
-							<div class="field-block">
-								<span class="label-inline">Page size:</span>
-								<select name="pageSize">
-									<option value="letter">Letter</option>
-									<option value="a4" <?php echo ($pageSize=='a4'?'SELECTED':''); ?>>A4</option>
-									<option value="legal" <?php echo ($pageSize=='legal'?'SELECTED':''); ?>>Legal</option>
-									<option value="tabloid" <?php echo ($pageSize=='tabloid'?'SELECTED':''); ?>>Ledger/Tabloid</option>
-								</select>
-							</div>
-							<div class="field-block">
-								<input name="displaySpeciesAuthor" type="checkbox" value="1" <?php echo (isset($formatArr['displaySpeciesAuthor'])&&$formatArr['displaySpeciesAuthor']?'checked':''); ?> />
-								<span class="label-inline">Display species for infraspecific taxa</span>
-							</div>
-							<div class="field-block">
-								<input name="displayBarcode" type="checkbox" value=1" <?php echo (isset($formatArr['displayBarcode'])&&$formatArr['displayBarcode']?'checked':''); ?> />
-								<span class="label-inline">Display barcode</span>
-							</div>
-						</fieldset>
-						<div class="field-block">
-							<div class="label">JSON: <span title="Edit JSON label definition"><a href="#" onclick="makeJsonEditable('<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>');return false"><img  class="edit-icon" src="../../images/edit.png" /></a></span><span title="Edit JSON label definition (Visual Interface)"><a href="#" onclick="openJsonEditorPopup('<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>');return false"><img  class="edit-icon" src="../../images/edit.png" />(visual interface)</a></span>
-							</div>
-							<div class="field-block">
-								<textarea id="json-<?php echo $group.(is_numeric($index)?'-'.$index:''); ?>" name="json" readonly><?php echo (isset($formatArr['labelBlocks'])?json_encode($formatArr['labelBlocks'],JSON_PRETTY_PRINT):''); ?></textarea>
-							</div>
-						</div>
-						<div style="margin-left:20px;">
-							<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-							<input type="hidden" name="group" value="<?php echo $group; ?>" />
-							<input type="hidden" name="index" value="<?php echo $index; ?>" />
-							<span><button name="submitaction" type="submit" value="saveProfile"><?php echo (is_numeric($index)?'Save Label Profile':'Create New Label Profile'); ?></button></span>
-							<?php
-							if(is_numeric($index)){
+							<div style="margin-left:20px;">
+								<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
+								<input type="hidden" name="group" value="<?php echo $group; ?>" />
+								<input type="hidden" name="index" value="<?php echo $index; ?>" />
+								<?php
+								if($isEditor == 3 || $group == 'u' || ($group == 'c' && $isEditor > 1))
+									echo '<span><button name="submitaction" type="submit" value="saveProfile">'.(is_numeric($index)?'Save Label Profile':'Create New Label Profile').'</button></span>';
+								if(is_numeric($index)){
+									if($isEditor == 3 || $group == 'u' || ($group == 'c' && $isEditor > 1))
+										echo '<span style="margin-left:15px"><button name="submitaction" type="submit" value="deleteProfile" onclick="return confirm(\'Are you sure you want to delete this profile?\')">Delete Profile</button></span>';
+									?>
+									<?php
+								}
 								?>
-								<span style="margin-left:15px"><button name="submitaction" type="submit" value="deleteProfile">Delete Profile</button></span>
+							</div>
+							<?php if(!is_numeric($index)) echo '<hr/>'; ?>
+						</div>
+						<?php
+						if(is_numeric($index)){
+							?>
+							<div style="margin:5px;">
 								<span style="margin-left:15px"><button name="submitaction" type="submit" value="cloneProfile" onclick="return verifyClone(this.form)">Clone Profile</button></span> to
 								<select name="cloneTarget">
 									<option value="">Select Target</option>
@@ -378,14 +391,12 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 									?>
 									<option value="u">User Profile</option>
 								</select>
-								<?php
-							}
-							?>
-						</div>
+							</div>
+							<?php
+						}
+						?>
 					</form>
 					<?php
-					if(!$formatArr) echo '<hr/>';
-					echo '</div>';
 					if($groupArr){
 						$index = key($groupArr);
 						if(is_numeric($index)){
@@ -394,7 +405,11 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 						}
 					}
 				} while(is_numeric($index));
-				if(!$formatArr) echo '<div>No label profile yet defined. Click green plus sign to right to create a new profile</div>';
+				if(!$formatArr){
+					echo '<div>No label profile yet defined. ';
+					if($isEditor == 3 || $group == 'u' || ($group == 'c' && $isEditor > 1)) echo 'Click green plus sign to right to create a new profile';
+					echo '</div>';
+				}
 				?>
 			</fieldset>
 			<?php

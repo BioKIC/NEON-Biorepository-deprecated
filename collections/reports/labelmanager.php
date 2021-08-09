@@ -353,7 +353,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 										<div class="fieldDiv">
 											<div class="fieldLabel">Label Profiles:
 												<?php
-												if($IS_ADMIN) echo '<span title="Open label profile manager"><a href="labelprofile.php?collid='.$collid.'"><img src="../../images/edit.png" style="width:13px" /></a></span>';
+												echo '<span title="Open label profile manager"><a href="labelprofile.php?collid='.$collid.'"><img src="../../images/edit.png" style="width:13px" /></a></span>';
 												?>
 											</div>
 											<div class="fieldElement">

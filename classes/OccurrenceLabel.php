@@ -169,7 +169,6 @@ class OccurrenceLabel{
 			$occidStr = implode(',',$occidArr);
 			if(!preg_match('/^[,\d]+$/', $occidStr)) return null;
 			$sqlWhere = 'WHERE (o.occid IN('.$occidStr.')) ';
-			if($this->collArr['colltype'] == 'General Observations') $sqlWhere .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
 			//Get species authors for infraspecific taxa
 			$sql1 = 'SELECT o.occid, t2.author '.
 				'FROM taxa t INNER JOIN omoccurrences o ON t.tid = o.tidinterpreted '.
@@ -737,9 +736,7 @@ class OccurrenceLabel{
 				'CONCAT_WS(", ",d.identifiedBy,d.dateIdentified,d.identificationRemarks,d.identificationReferences) AS determination '.
 				'FROM omoccurrences o INNER JOIN omoccurdeterminations d ON o.occid = d.occid '.
 				'WHERE (o.collid = '.$this->collid.') AND (d.printqueue = 1) ';
-			if($this->collArr['colltype'] == 'General Observations'){
-				$sql .= ' AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
-			}
+			if($this->collArr['colltype'] == 'General Observations') $sql .= ' AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
 			$sql .= 'LIMIT 400 ';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
@@ -760,7 +757,7 @@ class OccurrenceLabel{
 		$retArr = array();
 		if($this->collid){
 			$sql = 'SELECT DISTINCT labelproject FROM omoccurrences WHERE labelproject IS NOT NULL AND collid = '.$this->collid.' ';
-			if($this->collArr['colltype'] == 'General Observations') $sql .= 'AND (observeruid = '.$GLOBALS['SYMB_UID'].') ';
+			if($this->collArr['colltype'] == 'General Observations' && !array_key_exists('extendedsearch', $GLOBALS['_POST'])) $sql .= 'AND (observeruid = '.$GLOBALS['SYMB_UID'].') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[] = $r->labelproject;
@@ -779,7 +776,7 @@ class OccurrenceLabel{
 				'INNER JOIN omoccurdatasetlink dl ON ds.datasetid = dl.datasetid '.
 				'INNER JOIN omoccurrences o ON dl.occid = o.occid '.
 				'WHERE (r.tablename = "omoccurdatasets") AND (o.collid = '.$this->collid.') ';
-			if($this->collArr['colltype'] == 'General Observations') $sql .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
+			if($this->collArr['colltype'] == 'General Observations' && !array_key_exists('extendedsearch', $GLOBALS['_POST'])) $sql .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->datasetid] = $r->name;

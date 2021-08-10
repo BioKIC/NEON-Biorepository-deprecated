@@ -15,6 +15,9 @@ $LANG['TAB_CHECKLIST'] = 'Listado de Especies';
 $LANG['TAB_OCCURRENCES'] = 'Registros de Ocurrencia';
 $LANG['TAB_MAP'] = 'Mapas';
 
+$LANG['SELECT_DESELECT'] = 'Selecciona/Deselecciona';
+$LANG['ALL_COLLECTIONS'] = 'todas colecciones';
+
 $LANG['BUTTON_NEXT'] = 'Proxima >';
 $LANG['BUTTON_RESET'] = 'Restablecer';
 ?>

@@ -806,13 +806,13 @@ else{
 													<input type="text" name="day" tabindex="22" value="<?php echo array_key_exists('day',$occArr)?$occArr['day']:''; ?>" onchange="inputIsNumeric(this, 'Day');fieldChanged('day');" title="<?php echo (isset($LANG['NUM_DAY'])?$LANG['NUM_DAY']:'Numeric Day'); ?>" />
 												</div>
 												<div id="dayOfYearDiv">
-													<?php echo (defined('DAYOFYEARLABEL')?DAYOFYEARLABEL:'Day of Year'); ?>:
+													<?php echo (defined('DAYOFYEARLABEL')?DAYOFYEARLABEL:$LANG['DOY']); ?>:
 													<a href="#" onclick="return dwcDoc('startDayOfYear')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
 													<input type="text" name="startdayofyear" tabindex="24" value="<?php echo array_key_exists('startdayofyear',$occArr)?$occArr['startdayofyear']:''; ?>" onchange="inputIsNumeric(this, 'Start Day of Year');fieldChanged('startdayofyear');" title="<?php echo (isset($LANG['START_DOY'])?$LANG['START_DOY']:'Start Day of Year'); ?>" /> -
-													<input type="text" name="enddayofyear" tabindex="26" value="<?php echo array_key_exists('enddayofyear',$occArr)?$occArr['enddayofyear']:''; ?>" onchange="inputIsNumeric(this, 'End Day of Year');fieldChanged('enddayofyear');" title="<?php echo (isset($LANG['END_DOY'])?$LANG['END_DOY']:'End Day of Year'); ?>" />
+													<input type="text" name="enddayofyear" tabindex="26" value="<?php echo array_key_exists('enddayofyear',$occArr)?$occArr['enddayofyear']:''; ?>" onchange="inputIsNumeric(this, 'End Day of Year');fieldChanged('enddayofyear');" title="<?php echo $LANG['END_DOY']; ?>" />
 												</div>
                                                 <div id="endDateDiv">
-                                                    <?php echo (defined('ENDDATELABEL')?ENDDATELABEL:<(isset($LANG['CALCULATE_END_DOY'])?$LANG['CALCULATE_END_DOY']:'Calculate End Day of Year')); ?>:
+                                                    <?php echo (defined('ENDDATELABEL')?ENDDATELABEL:$LANG['CALCULATE_END_DOY']); ?>:
                                                     <input type="text" id="endDate" value="" onchange="endDateChanged();" />
                                                 </div>
 											</div>

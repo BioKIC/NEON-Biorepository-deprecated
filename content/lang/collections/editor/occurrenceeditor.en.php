@@ -5,7 +5,6 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
 
 $LANG['CLONES_CREATED'] = 'Success! The following new clone record(s) have been created';
@@ -171,7 +170,7 @@ $LANG['CURRENT_COLL'] = 'Current Collection';
 $LANG['NUMBER_RECORDS'] = 'Number of records';
 $LANG['PRE_POPULATE'] = 'Pre-populate catalog number(s)';
 $LANG['CREATE_RECORD'] = 'Create Record(s)';
-$LANG['ADD_RECORD'] = 'Add record';
+$LANG['ADD_RECORD'] = 'Add Record';
 $LANG['FOLLOW_UP'] = 'Follow-up Action';
 $LANG['GO_TO_NEW'] = 'Go to New Record';
 $LANG['GO_NEW_CARRYOVER'] = 'Go to New Record and Carryover Locality Information';

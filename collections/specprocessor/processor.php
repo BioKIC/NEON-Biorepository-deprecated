@@ -20,6 +20,8 @@ $procStatus = array_key_exists('procstatus',$_REQUEST)?$_REQUEST['procstatus']:'
 
 $specManager = new SpecProcessorManager();
 $specManager->setCollId($collid);
+// Use ImageMagick, if so configured in symbini.php
+$specManager->setUseImageMagick($USE_IMAGE_MAGICK ? $USE_IMAGE_MAGICK : 0);
 
 $isEditor = false;
 if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
@@ -110,20 +112,9 @@ $statusStr = "";
 						$imageProcessor->setSkeletalFileProcessing($_POST['skeletalFileProcessing']);
 
 						//Run process
-						$imageProcessor->batchLoadImages();
+						$imageProcessor->batchLoadSpecimenImages();
 						echo '</div>'."\n";
 					}
-				}
-				elseif($action == 'Process Output File'){
-					//Process iDigBio Image ingestion appliance ouput file
-					$imageProcessor = new ImageProcessor($specManager->getConn());
-					echo '<ul>';
-					$imageProcessor->setLogMode(3);
-					$imageProcessor->setSpprid($spprid);
-					$imageProcessor->setCollid($collid);
-					$imageProcessor->processiDigBioOutput($specManager->getSpecKeyPattern(),$_POST);
-					echo '</ul>';
-
 				}
 				elseif($action == 'mapImageFile'){
 					//Process csv file with remote image urls

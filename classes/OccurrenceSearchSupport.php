@@ -85,7 +85,7 @@ class OccurrenceSearchSupport {
 	}
 
 	public function outputFullCollArr($collGrpArr, $targetCatID = '', $displayIcons = true, $displaySearchButtons = true){
-		global $CLIENT_ROOT, $DEFAULTCATID, $LANG;
+		global $CLIENT_ROOT, $LANG;
 		$catSelArr = array();
 		$collSelArr = array();
 		if(isset($_POST['cat'])) $catSelArr = $_POST['cat'];
@@ -93,7 +93,7 @@ class OccurrenceSearchSupport {
 		$targetCatArr = array();
 		$targetCatID = (string)$targetCatID;
 		if($targetCatID != '') $targetCatArr = explode(',', $targetCatID);
-		elseif($DEFAULTCATID != '') $targetCatArr = explode(',', $DEFAULTCATID);
+		elseif($GLOBALS['DEFAULTCATID'] != '') $targetCatArr = explode(',', $GLOBALS['DEFAULTCATID']);
 		$buttonStr = '<button type="submit" value="search">'.(isset($LANG['BUTTON_NEXT'])?$LANG['BUTTON_NEXT']:'Next &gt;').'</button>';
 		$collCnt = 0;
 		$borderStyle = ($displayIcons?'margin:10px;padding:10px 20px;border:inset':'margin-left:10px;');

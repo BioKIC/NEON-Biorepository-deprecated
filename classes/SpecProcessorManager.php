@@ -578,9 +578,8 @@ class SpecProcessorManager {
 	public function getLogListing(){
 		$retArr = array();
 		if($this->collid){
-			$logPathFrag = ($this->projectType == 'local'?'imgProccessing':$this->projectType).'/';
-			if(file_exists($this->logPath.$logPathFrag)){
-				if($fh = opendir($this->logPath.$logPathFrag)){
+			if(file_exists($this->logPath.'imgProccessing')){
+				if($fh = opendir($this->logPath.'imgProccessing')){
 					while($fileName = readdir($fh)){
 						if(strpos($fileName,$this->collid.'_') === 0){
 							$retArr[] = $fileName;

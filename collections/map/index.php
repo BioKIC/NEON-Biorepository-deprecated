@@ -1133,7 +1133,7 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 										<div id="specobsdiv">
 											<div style="margin:0px 0px 10px 5px;">
 												<input id="dballcb" data-role="none" name="db[]" class="specobs" value='all' type="checkbox" onclick="selectAll(this);" <?php echo (((array_key_exists("db",$_REQUEST)&&in_array("all",$dbArr))||!$dbArr)?'checked':'') ?> />
-												<?php echo (isset($LANG['SELECT_ALL'])?$LANG['SELECT_ALL']:'Select/Deselect All'); ?>
+										 		<?php echo $LANG['SELECT_DESELECT'].' <a href="misc/collprofiles.php">'.$LANG['ALL_COLLECTIONS'].'</a>'; ?>
 											</div>
 											<?php
 											if($specArr){

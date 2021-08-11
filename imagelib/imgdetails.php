@@ -36,6 +36,9 @@ if($isEditor){
 	$imgArr = $imgManager->getImageMetadata($imgId);
 }
 
+$serverPath = 'http://';
+if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverPath = 'https://';
+$serverPath .= $_SERVER['SERVER_NAME'];
 if($imgArr){
 	$imgUrl = $imgArr["url"];
 	$origUrl = $imgArr["originalurl"];
@@ -50,7 +53,7 @@ if($imgArr){
 		}
 	}
 	if(substr($metaUrl,0,1)=="/"){
-		$metaUrl = 'http://'.$_SERVER['SERVER_NAME'].$metaUrl;
+		$metaUrl = $serverPath.$metaUrl;
 	}
 }
 
@@ -67,7 +70,7 @@ if($imgArr){
 		<meta name="twitter:card" content="photo" data-dynamic="true" />
 		<meta name="twitter:title" content="<?php echo $imgArr["sciname"]; ?>" />
 		<meta name="twitter:image" content="<?php echo $metaUrl; ?>" />
-		<meta name="twitter:url" content="<?php echo 'http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId; ?>" />
+		<meta name="twitter:url" content="<?php echo $serverPath.$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId; ?>" />
 		<?php
 	}
 	?>
@@ -386,7 +389,7 @@ if($imgArr){
 						Do you see an error or have a comment about this image? <br/>If so, send email to:
 						<?php
 						$emailSubject = $DEFAULT_TITLE.' Image #'.$imgId;
-						$emailBody = 'Image being referenced: http://'.$_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId;
+						$emailBody = 'Image being referenced: '.$serverPath.$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId;
 						$emailRef = 'subject='.$emailSubject.'&cc='.$adminEmail.'&body='.$emailBody;
 						?>
 						<a href="mailto:<?php echo $adminEmail.'?'.$emailRef; ?>">

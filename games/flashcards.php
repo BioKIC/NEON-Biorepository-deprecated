@@ -149,7 +149,7 @@ $sciArr = array();
 		echo $checklists_flashcardsCrumbs;
 	}
 	else{
-		echo '<a href="../checklists/checklist.php?clid='.$clid.'">';
+		echo '<a href="../checklists/checklist.php?clid='.$clid.'&dynclid='.$dynClid.'">';
 		echo $fcManager->getClName();
 		echo '</a> &gt;&gt; ';
 	}

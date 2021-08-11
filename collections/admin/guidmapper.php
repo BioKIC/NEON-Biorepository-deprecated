@@ -1,6 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
+include_once($SERVER_ROOT.'/content/lang/collections/admin/guidmapper.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
 
@@ -19,7 +20,7 @@ $uuidManager = new UuidFactory();
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title>UUID GUID Mapper</title>
+	<title><?php echo (isset($LANG['UID_MAP'])?$LANG['UID_MAP']:'GUID (UUID) Mapper'); ?></title>
   <?php
     $activateJQuery = false;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -80,7 +81,7 @@ include($SERVER_ROOT.'/includes/header.php');
 	<?php 
 	if($isEditor){
 		?>
-		<h3>GUID Maintenance Control Panel</h3>
+		<h3><?php echo (isset($LANG['GUID_CP'])?$LANG['GUID_CP']:'GUID Maintenance Control Panel'); ?></h3>
 		<div style="margin:10px;">
 			 
 		</div>
@@ -102,18 +103,18 @@ include($SERVER_ROOT.'/includes/header.php');
 		$imgCnt = $uuidManager->getImageCount($collId);
 		?>
 		<?php if($collId) echo '<h3>'.$uuidManager->getCollectionName($collId).'</h3>'; ?>
-		<div style="font-weight:bold;">Records without GUIDs (UUIDs)</div>
+		<div style="font-weight:bold;"><?php echo (isset($LANG['REC_WO_GUIDS'])?$LANG['REC_WO_GUIDS']:'Records without GUIDs (UUIDs)'); ?></div>
 		<div style="margin:10px;">
-			<div><b>Occurrences: </b><?php echo $occCnt; ?></div>
-			<div><b>Determinations: </b><?php echo $detCnt; ?></div>
-			<div><b>Images: </b><?php echo $imgCnt; ?></div>
+			<div><?php echo '<b>'.(isset($LANG['OCCS'])?$LANG['OCCS']:'Occurrences').': </b>'.$occCnt; ?></div>
+			<div><?php echo '<b>'.(isset($LANG['DETS'])?$LANG['DETS']:'Determinations').': </b>'.$detCnt; ?></div>
+			<div><?php echo '<b>'.(isset($LANG['IMGS'])?$LANG['IMGS']:'Images').': </b>'.$imgCnt; ?></div>
 		</div>
 		<?php 
 		if($collId){
 			?>
 			<form name="guidform" action="guidmapper.php" method="post" onsubmit="return verifyGuidForm(this)">
 				<fieldset style="padding:15px;">
-					<legend><b>GUID (UUID) Mapper</b></legend>
+					<legend><b><?php echo (isset($LANG['UID_MAP'])?$LANG['UID_MAP']:'GUID (UUID) Mapper'); ?></b></legend>
 					<div style="clear:both;">
 						<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
 						<input type="submit" name="formsubmit" value="Populate Collection GUIDs" />
@@ -127,7 +128,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			<div id="guidadmindiv">
 				<form name="dwcaguidform" action="guidmapper.php" method="post" onsubmit="return verifyGuidAdminForm(this)">
 					<fieldset style="padding:15px;">
-						<legend><b>GUID (UUID) Mapper</b></legend>
+						<legend><b><?php echo (isset($LANG['UID_MAP'])?$LANG['UID_MAP']:'GUID (UUID) Mapper'); ?></b></legend>
 						<div style="clear:both;margin:10px;">
 							<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
 							<input type="submit" name="formsubmit" value="Populate GUIDs" />
@@ -139,7 +140,7 @@ include($SERVER_ROOT.'/includes/header.php');
 		}
 	}
 	else{
-		echo '<h2>You are not authorized to access this page</h2>';
+		echo '<h2>'.(isset($LANG['NOT_AUTH'])?$LANG['NOT_AUTH']:'You are not authorized to access this page').'</h2>';
 	}
 	?>
 </div>

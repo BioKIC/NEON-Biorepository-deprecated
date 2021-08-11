@@ -37,10 +37,7 @@ abstract class IOFactory
     /**
      * Create Writer\IWriter.
      *
-     * @param Spreadsheet $spreadsheet
      * @param string $writerType Example: Xlsx
-     *
-     * @throws Writer\Exception
      *
      * @return Writer\IWriter
      */
@@ -61,8 +58,6 @@ abstract class IOFactory
      *
      * @param string $readerType Example: Xlsx
      *
-     * @throws Reader\Exception
-     *
      * @return Reader\IReader
      */
     public static function createReader($readerType)
@@ -82,8 +77,6 @@ abstract class IOFactory
      *
      * @param string $pFilename The name of the spreadsheet file
      *
-     * @throws Reader\Exception
-     *
      * @return Spreadsheet
      */
     public static function load($pFilename)
@@ -97,8 +90,6 @@ abstract class IOFactory
      * Identify file type using automatic Reader\IReader resolution.
      *
      * @param string $pFilename The name of the spreadsheet file to identify
-     *
-     * @throws Reader\Exception
      *
      * @return string
      */
@@ -117,8 +108,6 @@ abstract class IOFactory
      *
      * @param string $filename The name of the spreadsheet file
      *
-     * @throws Reader\Exception
-     *
      * @return Reader\IReader
      */
     public static function createReaderForFile($filename)
@@ -131,7 +120,7 @@ abstract class IOFactory
             $reader = self::createReader($guessedReader);
 
             // Let's see if we are lucky
-            if (isset($reader) && $reader->canRead($filename)) {
+            if ($reader->canRead($filename)) {
                 return $reader;
             }
         }
@@ -202,7 +191,7 @@ abstract class IOFactory
      * @param string $writerType
      * @param string $writerClass
      */
-    public static function registerWriter($writerType, $writerClass)
+    public static function registerWriter($writerType, $writerClass): void
     {
         if (!is_a($writerClass, Writer\IWriter::class, true)) {
             throw new Writer\Exception('Registered writers must implement ' . Writer\IWriter::class);
@@ -217,7 +206,7 @@ abstract class IOFactory
      * @param string $readerType
      * @param string $readerClass
      */
-    public static function registerReader($readerType, $readerClass)
+    public static function registerReader($readerType, $readerClass): void
     {
         if (!is_a($readerClass, Reader\IReader::class, true)) {
             throw new Reader\Exception('Registered readers must implement ' . Reader\IReader::class);

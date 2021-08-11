@@ -104,17 +104,13 @@ class ProfileManager{
 			$person->setTitle($row->title);
 			$person->setInstitution($row->institution);
 			$person->setDepartment($row->department);
-			$person->setAddress($row->address);
 			$person->setCity($row->city);
 			$person->setState($row->state);
 			$person->setZip($row->zip);
 			$person->setCountry($row->country);
 			$person->setPhone($row->phone);
 			$person->setEmail($row->email);
-			$person->setUrl($row->url);
 			$person->setGUID($row->guid);
-			$person->setBiography($row->biography);
-			$person->setIsPublic($row->ispublic);
 			$this->setUserTaxonomy($person);
 			while($row = $result->fetch_object()){
 				//Old code allowed folks to maintain more than one login names. This code will make sure the most recently active one is used
@@ -149,17 +145,13 @@ class ProfileManager{
 				'title = '.($person->getTitle()?'"'.$this->cleanInStr($person->getTitle()).'"':'NULL').','.
 				'institution = '.($person->getInstitution()?'"'.$this->cleanInStr($person->getInstitution()).'"':'NULL').','.
 				'department = '.($person->getDepartment()?'"'.$this->cleanInStr($person->getDepartment()).'"':'NULL').','.
-				'address = '.($person->getAddress()?'"'.$this->cleanInStr($person->getAddress()).'"':'NULL').','.
 				'city = '.($person->getCity()?'"'.$this->cleanInStr($person->getCity()).'"':'NULL').','.
 				'state = '.($person->getState()?'"'.$this->cleanInStr($person->getState()).'"':'NULL').','.
 				'zip = '.($person->getZip()?'"'.$this->cleanInStr($person->getZip()).'"':'NULL').','.
 				'country = '.($person->getCountry()?'"'.$this->cleanInStr($person->getCountry()).'"':'NULL').','.
 				'phone = '.($person->getPhone()?'"'.$this->cleanInStr($person->getPhone()).'"':'NULL').','.
 				'email = '.($person->getEmail()?'"'.$this->cleanInStr($person->getEmail()).'"':'NULL').','.
-				'url = '.($person->getUrl()?'"'.$this->cleanInStr($person->getUrl()).'"':'NULL').','.
-				'guid = '.($person->getGUID()?'"'.$this->cleanInStr($person->getGUID()).'"':'NULL').','.
-				'biography = '.($person->getBiography()?'"'.$this->cleanInStr($person->getBiography()).'"':'NULL').','.
-				'ispublic = '.($person->getIsPublic()?$this->cleanInStr($person->getIsPublic()):0).' '.
+				'guid = '.($person->getGUID()?'"'.$this->cleanInStr($person->getGUID()).'"':'NULL').' '.
 				'WHERE (uid = '.$person->getUid().')';
 			$success = $this->conn->query($sql);
 		}
@@ -210,11 +202,14 @@ class ProfileManager{
 
 			if($uid){
 				$subject = 'RE: Password reset';
+				$serverPath = 'http://';
+				if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverPath = 'https://';
+				$serverPath .= $_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'];
 				$body = 'Your '.$GLOBALS["DEFAULT_TITLE"].' password has been reset to: '.$newPassword.'<br/><br/> '.
 					'After logging in, you can change your password by clicking on the My Profile link within the site menu and then selecting the Edit Profile tab. '.
 					'If you have problems, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'].'<br/><br/>'.
-					'Data portal: <a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a><br/>'.
-					'Direct link to your user profile: <a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/profile/viewprofile.php?tabindex=2">http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'/profile/viewprofile.php</a>';
+					'Data portal: <a href="'.$serverPath.'">'.$serverPath.'</a><br/>'.
+					'Direct link to your user profile: <a href="'.$serverPath.'/profile/viewprofile.php?tabindex=2">'.$serverPath.'/profile/viewprofile.php</a>';
 
 				$status = $this->sendEmail($email, $subject, $body);
 				if($status){
@@ -267,10 +262,7 @@ class ProfileManager{
 		$person->setZip($postArr['zip']);
 		$person->setCountry($postArr['country']);
 		$person->setEmail($postArr['emailaddr']);
-		$person->setUrl($postArr['url']);
 		$person->setGUID($postArr['guid']);
-		$person->setBiography($postArr['biography']);
-		$person->setIsPublic(isset($postArr['ispublic'])?1:0);
 
 		//Add to users table
 		$fields = 'INSERT INTO users (';
@@ -290,10 +282,6 @@ class ProfileManager{
 		if($person->getDepartment()){
 			$fields .= ', department';
 			$values .= ', "'.$this->cleanInStr($person->getDepartment()).'"';
-		}
-		if($person->getAddress()){
-			$fields .= ', address';
-			$values .= ', "'.$this->cleanInStr($person->getAddress()).'"';
 		}
 		if($person->getCity()){
 			$fields .= ', city';
@@ -315,21 +303,9 @@ class ProfileManager{
 			$fields .= ', email';
 			$values .= ', "'.$this->cleanInStr($person->getEmail()).'"';
 		}
-		if($person->getUrl()){
-			$fields .= ', url';
-			$values .= ', "'.$person->getUrl().'"';
-		}
 		if($person->getGUID()){
 			$fields .= ', guid';
 			$values .= ', "'.$person->getGUID().'"';
-		}
-		if($person->getBiography()){
-			$fields .= ', biography';
-			$values .= ', "'.$this->cleanInStr($person->getBiography()).'"';
-		}
-		if($person->getIsPublic()){
-			$fields .= ', ispublic';
-			$values .= ', '.$person->getIsPublic();
 		}
 
 		$sql = $fields.') '.$values.')';
@@ -370,9 +346,11 @@ class ProfileManager{
 		$rs->free();
 		if($loginStr){
 			$subject = $GLOBALS['DEFAULT_TITLE'].' Login Name';
-			$bodyStr = 'Your '.$GLOBALS['DEFAULT_TITLE'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">http://'.
-				$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'</a>) login name is: '.$loginStr.'<br/><br/>'.
-				'If you continue to have login issues, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'];
+			$serverPath = 'http://';
+			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverPath = 'https://';
+			$serverPath .= $_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'];
+			$bodyStr = 'Your '.$GLOBALS['DEFAULT_TITLE'].' (<a href="http://'.$_SERVER['SERVER_NAME'].$GLOBALS['CLIENT_ROOT'].'">'.$serverPath.
+				'</a>) login name is: '.$loginStr.'<br/><br/>If you continue to have login issues, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'];
 			$status = $this->sendEmail($emailAddr,$subject,$bodyStr);
 		}
 		else{

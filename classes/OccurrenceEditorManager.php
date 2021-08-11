@@ -506,6 +506,14 @@ class OccurrenceEditorManager {
 						$sqlWhere .= 'AND ('.$cf.' LIKE "%'.$cv.'%") ';
 					}
 				}
+				elseif($ct=='NOT LIKE' && $cv){
+					if(strpos($cv,'%') !== false){
+						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "'.$cv.'") ';
+					}
+					else{
+						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "%'.$cv.'%") ';
+					}
+				}
 				elseif($ct=='STARTS' && $cv){
 					if(strpos($cv,'%') !== false){
 						$sqlWhere .= 'AND ('.$cf.' LIKE "'.$cv.'") ';
@@ -1046,7 +1054,7 @@ class OccurrenceEditorManager {
 				'georeferenceRemarks' => 's', 'minimumElevationInMeters' => 'n', 'maximumElevationInMeters' => 'n','verbatimElevation' => 's',
 				'minimumDepthInMeters' => 'n', 'maximumDepthInMeters' => 'n', 'verbatimDepth' => 's','disposition' => 's', 'language' => 's', 'duplicateQuantity' => 'n',
 				'labelProject' => 's','processingStatus' => 's', 'recordEnteredBy' => 's', 'observeruid' => 'n', 'dateentered' => 'd', 'genericcolumn2' => 's');
-			$sql = 'INSERT INTO omoccurrences(collid, '.implode(array_keys($fieldArr),',').') VALUES ('.$postArr['collid'];
+			$sql = 'INSERT INTO omoccurrences(collid, '.implode(',',array_keys($fieldArr)).') VALUES ('.$postArr['collid'];
 			$fieldArr = array_change_key_case($fieldArr);
 			//if(array_key_exists('cultivationstatus',$postArr) && $postArr['cultivationstatus']) $postArr['cultivationstatus'] = $postArr['cultivationstatus'];
 			//if(array_key_exists('localitysecurity',$postArr) && $postArr['localitysecurity']) $postArr['localitysecurity'] = $postArr['localitysecurity'];

@@ -2,6 +2,8 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/taxa/index.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
+include_once($SERVER_ROOT.'/neon/classes/CollectionMetadata.php');
+include_once($SERVER_ROOT.'/neon/classes/OccurrenceQuickSearch.php');
 Header('Content-Type: text/html; charset='.$CHARSET);
 
 $taxonValue = array_key_exists('taxon',$_REQUEST)?$_REQUEST['taxon']:'';
@@ -45,6 +47,14 @@ if($links){
 		}
 	}
 }
+
+$neonColls = new CollectionMetadata();
+$neonCollIds = $neonColls->getBiorepoCollsIds();
+$occs = new OccurrenceQuickSearch();
+$inNeon = $occs->getOccTaxonInDbCnt($tid, array($neonCollIds));
+$scinameStr = $taxonManager->getTaxonName();
+$occSrcUrl = $CLIENT_ROOT.'/collections/list.php?db='.$neonCollIds.'&includeothercatnum=1&taxa='.$scinameStr.'&usethes=1&taxontype=1';
+// http://github.localhost:8080/NEON-Biorepository/collections/list.php?db=61%2C21%2C62%2C45%2C60%2C50%2C73%2C8%2C9%2C7%2C41%2C30%2C76%2C10%2C42%2C5%2C31%2C69%2C6%2C47%2C46%2C49%2C84%2C81%2C11%2C63%2C39%2C14%2C13%2C16%2C85%2C56%2C65%2C29%2C4%2C18%2C54%2C40%2C23%2C66%2C20%2C12%2C15%2C70%2C24%2C71%2C25%2C26%2C27%2C17%2C19%2C28&includeothercatnum=1&taxa=Abacidus&usethes=1&taxontype=1
 
 $isEditor = false;
 if($SYMB_UID){
@@ -111,6 +121,8 @@ include($SERVER_ROOT.'/includes/header.php');
 							<?php
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
 							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
+              $isInNeon = ($inNeon > 0 ? ' <div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : $inNeon);
+              echo $isInNeon;
 							if($taxonManager->isForwarded()){
 						 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';
 						 	}
@@ -268,6 +280,10 @@ include($SERVER_ROOT.'/includes/header.php');
 							}
 							echo '<div id="taxon">'.$displayName.'</div>';
 							?>
+              <?php 
+                $isInNeon = ($inNeon > 0 ? ' <div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : $inNeon);
+                echo $isInNeon;              
+              ;?>
 						</div>
 					</td>
 				</tr>
@@ -434,6 +450,10 @@ include($SERVER_ROOT.'/includes/header.php');
 				}
 				?>
 				<div id="scinameDiv"><span id="taxon"><?php echo $taxonManager->getTaxonName(); ?></span></div>
+        <?php 
+          $isInNeon = ($inNeon > 0 ? ' <div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : $inNeon);
+          echo $isInNeon;
+        ;?>
 				<div>
 					<div id="leftPanel">
 						<fieldset style="clear:both">

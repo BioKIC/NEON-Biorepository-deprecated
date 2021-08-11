@@ -121,7 +121,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							<?php
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
 							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
-              $isInNeon = ($inNeon > 0 ? ' <div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : '');
+              $isInNeon = ($inNeon > 0 ? '<div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : '');
               echo $isInNeon;
 							if($taxonManager->isForwarded()){
 						 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';
@@ -281,7 +281,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							echo '<div id="taxon">'.$displayName.'</div>';
 							?>
               <?php 
-                $isInNeon = ($inNeon > 0 ? ' <div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : '');
+                $isInNeon = ($inNeon > 0 ? '<div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : '');
                 echo $isInNeon;              
               ;?>
 						</div>
@@ -451,7 +451,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				?>
 				<div id="scinameDiv"><span id="taxon"><?php echo $taxonManager->getTaxonName(); ?></span></div>
         <?php 
-          $isInNeon = ($inNeon > 0 ? ' <div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : '');
+          $isInNeon = ($inNeon > 0 ? '<div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : '');
           echo $isInNeon;
         ;?>
 				<div>

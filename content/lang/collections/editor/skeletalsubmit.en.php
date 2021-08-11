@@ -6,6 +6,8 @@ Language: English
 */
 
 include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
+
 
 $LANG['OCC_SKEL_SUBMIT'] = 'Occurrence Skeletal Record Submission';
 $LANG['HOME'] = 'Home';

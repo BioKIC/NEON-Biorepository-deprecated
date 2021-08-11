@@ -121,7 +121,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							<?php
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
 							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
-              $isInNeon = ($inNeon > 0 ? ' <div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : $inNeon);
+              $isInNeon = ($inNeon > 0 ? ' <div><a class="btn" href="'.$occSrcUrl.'">See '.$inNeon.' specimens in NEON collections</a></div>' : '');
               echo $isInNeon;
 							if($taxonManager->isForwarded()){
 						 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';

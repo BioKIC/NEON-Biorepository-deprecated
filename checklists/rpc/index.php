@@ -2,12 +2,12 @@
 //error_reporting(E_ALL);
 include_once('../../config/symbini.php');
 header("Content-Type: text/html; charset=".$CHARSET);
- 
+
 ?>
 <html>
 	<head>
 		<title>Page</title>
-  	<?php
+	<?php
     $activateJQuery = true;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
       include_once($SERVER_ROOT.'/includes/head.php');

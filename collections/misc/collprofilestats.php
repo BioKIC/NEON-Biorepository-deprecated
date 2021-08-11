@@ -14,17 +14,13 @@ if($statDisplay == 'geography'){
 			<legend>
 				<b>
 					<?php
-					echo ($LANG['GEO_DIST']?$LANG['GEO_DIST']:'Geographic Distribution');
-					if($stateDist){
-						echo ' - '.$stateDist;
-					}
-					elseif($countryDist){
-						echo ' - '.$countryDist;
-					}
+					echo (isset($LANG['GEO_DIST'])?$LANG['GEO_DIST']:'Geographic Distribution');
+					if($stateDist) echo ' - '.$stateDist;
+					elseif($countryDist) echo ' - '.$countryDist;
 					?>
 				</b>
 			</legend>
-			<div style="margin:15px;"><?php echo $LANG['CLICK_ON_SPEC_REC'];?></div>
+			<div style="margin:15px;"><?php echo (isset($LANG['CLICK_ON_SPEC_REC'])?$LANG['CLICK_ON_SPEC_REC']:'Click on the specimen record counts within the parenthesis to return the records for that term'); ?></div>
 			<ul>
 				<?php
 				foreach($distArr as $term => $cnt){
@@ -49,9 +45,9 @@ elseif($statDisplay == 'taxonomy'){
 	$taxArr = $collManager->getTaxonomyStats($famDist);
 	?>
 	<fieldset id="taxonomystats" style="margin:20px;width:90%;">
-		<legend><b><?php echo $LANG['TAXON_DIST']; ?></b></legend>
+		<legend><b><?php echo (isset($LANG['TAXON_DIST'])?$LANG['TAXON_DIST']:'Taxon Distribution'); ?></b></legend>
 		<div style="margin:15px;float:left;">
-			<?php echo $LANG['CLICK_ON_SPEC_FAM']; ?>
+			<?php echo (isset($LANG['TAXON_DIST'])?$LANG['TAXON_DIST']:'Click on the specimen record counts within the parenthesis to return the records for that family'); ?>
 		</div>
 		<div style="clear:both;">
 			<ul>

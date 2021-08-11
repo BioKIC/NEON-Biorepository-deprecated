@@ -349,7 +349,6 @@ class PermissionsManager{
 		$sql = 'SELECT cl.clid, cl.name FROM fmchecklists cl ';
 		if($clKeys) $sql .= 'WHERE (cl.access != "private") AND (cl.clid NOT IN('.implode(',',$clKeys).')) ';
 		$sql .= 'ORDER BY cl.name';
-		//echo $sql;
 		$result = $this->conn->query($sql);
 		while($row = $result->fetch_object()){
 			$returnArr[$row->clid] = $row->name;

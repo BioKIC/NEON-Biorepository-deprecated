@@ -1,6 +1,7 @@
 <?php
 require_once('../../config/symbini.php');
 require_once($SERVER_ROOT.'/classes/OccurrenceAssociations.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/assocmanagement.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 //Use following ONLY if login is required
@@ -31,7 +32,7 @@ if($SYMB_UID){
 ?>
 <html>
 	<head>
-		<title>Occurrence Association Batch Build</title>
+		<title><?php echo (isset($LANG['OCC_BATCH'])?$LANG['OCC_BATCH']:'Occurrence Association Batch Build'); ?></title>
 		<?php
 		$activateJQuery = true;
 		if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -56,11 +57,11 @@ if($SYMB_UID){
 		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class="navpath">
-			<a href="../../index.php">Home</a> &gt;&gt;
+			<a href="../../index.php"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
 			<?php
 			if($collid) echo '<a href="collprofiles.php?collid='.$collid.'&emode=1">Collection Management</a> &gt;&gt; ';
 			?>
-			<b>Occurrence Association Manager</b>
+			<b><?php echo (isset($LANG['OCC_AS_MAN'])?$LANG['OCC_AS_MAN']:'Occurrence Association Manager'); ?></b>
 		</div>
 		<!-- This is inner text! -->
 		<div id="innertext">
@@ -71,7 +72,7 @@ if($SYMB_UID){
 				}
 				?>
 				<fieldset style="margin:20px;padding:15px">
-					<legend><b>Associated Taxa Parsing</b></legend>
+					<legend><b><?php echo (isset($LANG['TAXA_PARSING'])?$LANG['TAXA_PARSING']:'Associated Taxa Parsing'); ?></b></legend>
 					<form name="" action="assocmanagement.php" method="post">
 						<div>
 							<?php
@@ -84,9 +85,9 @@ if($SYMB_UID){
 								echo 'All Collections';
 							}
 							echo '</div>';
-							echo '<div style="margin:3px"><b>Number of parsed specimens:</b> '.$statArr['parsed'].'</div>';
-							echo '<div style="margin:3px"><b>Number of unparsed specimens:</b> '.$statArr['unparsed'].'</div>';
-							echo '<div style="margin:3px"><b>Number of non-indexed parsing terms:</b> '.$statArr['failed'].' (from '.$statArr['failedOccur'].' specimen records)'.'</div>';
+							echo '<div style="margin:3px"><b>'.(isset($LANG['NUM_PARSED'])?$LANG['NUM_PARSED']:'Number of parsed specimens').':</b> '.$statArr['parsed'].'</div>';
+							echo '<div style="margin:3px"><b>'.(isset($LANG['NUM_UNPARSED'])?$LANG['NUM_UNPARSED']:'Number of unparsed specimens').':</b> '.$statArr['unparsed'].'</div>';
+							echo '<div style="margin:3px"><b>'.(isset($LANG['NON_INDEXED'])?$LANG['NON_INDEXED']:'Number of non-indexed parsing terms').':</b> '.$statArr['failed'].' (from '.$statArr['failedOccur'].' '.(isset($LANG['SPEC_RECS'])?$LANG['SPEC_RECS']:'specimen records').')'.'</div>';
 							?>
 						</div>
 						<div style="margin:20px;">
@@ -98,7 +99,7 @@ if($SYMB_UID){
 				<?php
 			}
 			else{
-				echo '<div style="font-weight:bold;font-size:130%;">ERROR: permissions failure</div>';
+				echo '<div style="font-weight:bold;font-size:130%;">'.(isset($LANG['PERM_PROB'])?$LANG['PERM_PROB']:'ERROR: permissions failure').'</div>';
 			}
 			?>
 		</div>

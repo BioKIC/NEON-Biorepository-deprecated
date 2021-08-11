@@ -272,7 +272,8 @@ elseif($activeCollArr){
 												<?php
 												$kingdomArr = $cleanManager->getKingdomArr();
 												foreach($kingdomArr as $kTid => $kSciname){
-													echo '<option value="'.$kTid.':'.$kSciname.'" '.($targetKingdom==$kTid?'SELECTED':'').'>'.$kSciname.'</option>';
+													$kingdomValue = $kTid.':'.$kSciname;
+													echo '<option value="'.$kingdomValue.'" '.($targetKingdom==$kingdomValue?'selected':'').'>'.$kSciname.'</option>';
 												}
 												?>
 											</select>

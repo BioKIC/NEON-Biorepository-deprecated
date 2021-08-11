@@ -158,12 +158,13 @@ if($action == "Create Login"){
 	<?php
 	echo '<h1>'.(isset($LANG['CREATE_NEW'])?$LANG['CREATE_NEW']:'Create New Profile').'</h1>';
 	if($displayStr){
-		echo '<div style="margin:10px;font-size:110%;font-weight:bold;color:red;">';
+		echo '<div style="margin:10px;color:red;">';
 		if($displayStr == 'login_exists'){
-			$loginStr == (isset($LANG['LOGIN_PAGE'])?$LANG['LOGIN_PAGE']:'login page');
-			echo (isset($LANG['USERNAME_EXISTS_1'])?$LANG['USERNAME_EXISTS_1']:'This username').'('.$login.') '.(isset($LANG['USERNAME_EXISTS_2'])?$LANG['USERNAME_EXISTS_2']:'is already being used').'<br>.'.
-				(isset($LANG['USERNAME_EXISTS_3'])?$LANG['USERNAME_EXISTS_3']:'Please choose a different login name or visit the').' <a href="index.php?login='.$login.'">'.$loginStr.'</a> '.
-				(isset($LANG['USERNAME_EXISTS_4'])?$LANG['USERNAME_EXISTS_4']:'if you believe this might be you');
+			echo (isset($LANG['USERNAME_EXISTS_1'])?$LANG['USERNAME_EXISTS_1']:'This username');
+			echo '('.$login.') '.(isset($LANG['USERNAME_EXISTS_2'])?$LANG['USERNAME_EXISTS_2']:'is already being used').'.<br>';
+			echo (isset($LANG['USERNAME_EXISTS_3'])?$LANG['USERNAME_EXISTS_3']:'Please choose a different login name or visit the');
+			echo ' <a href="index.php?login='.$login.'">'.(isset($LANG['LOGIN_PAGE'])?$LANG['LOGIN_PAGE']:'login page').'</a> ';
+			echo (isset($LANG['USERNAME_EXISTS_4'])?$LANG['USERNAME_EXISTS_4']:'if you believe this might be you').'.';
 		}
 		elseif($displayStr == 'email_registered'){
 			?>
@@ -290,27 +291,6 @@ if($action == "Create Login"){
 						<td><span style="font-weight:bold;"><?php echo (isset($LANG['COUNTRY'])?$LANG['COUNTRY']:'Country'); ?>:</span></td>
 						<td>
 							<span class="profile"><input id="country" name="country"  size="40" value="<?php echo (isset($_POST['country'])?htmlspecialchars($_POST['country']):''); ?>"></span>
-						</td>
-					</tr>
-					<tr>
-						<td><b><?php echo (isset($LANG['URL'])?$LANG['URL']:'URL'); ?>:</b></td>
-						<td>
-							<span class="profile"><input name="url"  size="40" value="<?php echo (isset($_POST['url'])?htmlspecialchars($_POST['url']):''); ?>"></span>
-						</td>
-					</tr>
-					<tr>
-						<td><b><?php echo (isset($LANG['BIOGRAPHY'])?$LANG['BIOGRAPHY']:'Biography'); ?>:</b></td>
-						<td>
-							<span class="profile">
-								<textarea name="biography" rows="4" cols="40"><?php echo (isset($_POST['biography'])?htmlspecialchars($_POST['biography']):''); ?></textarea>
-							</span>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="2">
-							<span class="profile">
-								<input type="checkbox" name="ispublic" value="1" <?php if(isset($_POST['ispublic'])) echo "CHECKED"; ?> /> <?php echo (isset($LANG['PUBLIC_PROF'])?$LANG['PUBLIC_PROF']:'Public can view email and bio within website (e.g. photographer listing)'); ?>
-							</span>
 						</td>
 					</tr>
 					<tr>

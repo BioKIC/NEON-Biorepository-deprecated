@@ -1,15 +1,22 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyUpload.php');
+include_once($SERVER_ROOT.'/classes/TaxonomyHarvester.php');
+
 header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl='.$CLIENT_ROOT.'/taxa/taxonomy/batchloader.php');
 ini_set('max_execution_time', 3600);
 
 $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:'';
-$ulFileName = array_key_exists("ulfilename",$_REQUEST)?$_REQUEST["ulfilename"]:'';
-$ulOverride = array_key_exists("uloverride",$_REQUEST)?$_REQUEST["uloverride"]:'';
 $taxAuthId = (array_key_exists('taxauthid',$_REQUEST)?$_REQUEST['taxauthid']:1);
 $kingdomName = (array_key_exists('kingdomname',$_REQUEST)?$_REQUEST['kingdomname']:'');
+$sciname = (array_key_exists('sciname',$_POST)?$_POST['sciname']:'');
+$targetApiArr = (array_key_exists('targetapi',$_REQUEST)?$_REQUEST['targetapi']:'');
+
+//Sanitation
+if(!is_numeric($taxAuthId)) $taxAuthId = 1;
+$kingdomName = filter_var ( $kingdomName, FILTER_SANITIZE_STRING);
+$sciname = filter_var ( $sciname, FILTER_SANITIZE_STRING);
 
 $isEditor = false;
 if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
@@ -23,6 +30,8 @@ $loaderManager->setKingdomName($kingdomName);
 $status = "";
 $fieldMap = Array();
 if($isEditor){
+	$ulFileName = array_key_exists('ulfilename',$_REQUEST)?$_REQUEST['ulfilename']:'';
+	$ulOverride = array_key_exists('uloverride',$_REQUEST)?$_REQUEST['uloverride']:'';
 	if($ulFileName){
 		$loaderManager->setFileName($ulFileName);
 	}
@@ -49,17 +58,13 @@ if($isEditor){
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Taxa Loader</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
-  <?php
-    $activateJQuery = false;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
+	<script src="../../js/jquery-3.2.1.min.js?ver=3" type="text/javascript"></script>
+	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js?ver=3" type="text/javascript"></script>
+	<script src="../../js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		function toggle(target){
 			var tDiv = document.getElementById(target);
@@ -143,7 +148,31 @@ if($isEditor){
 		function checkTransferForm(f){
 			return true;
 		}
+
+		function validateNodeLoaderForm(f){
+			if(f.sciname.value == ""){
+				alert("Please enter a valid taxonomic node");
+				return false;
+			}
+			if(f.taxauthid.value == ""){
+				alert("Please select the target taxonomic thesaurus");
+				return false;
+			}
+			if(f.kingdomname.value == ""){
+				alert("Please select the target kingdom");
+				return false;
+			}
+			if($('input[type=radio]:checked').size() == 0){
+				alert("Please select a taxonomic authority that will be used to harvest");
+				return false;
+			}
+			return true;
+		}
 	</script>
+	<style type="text/css">
+		fieldset { width:90%; }
+		legend { font-weight:bold; font-size:120%; }
+	</style>
 </head>
 <body>
 <?php
@@ -181,8 +210,8 @@ if($isEditor){
 			if($action == 'Map Input File' || $action == 'Verify Mapping'){
 				?>
 				<form name="mapform" action="batchloader.php" method="post" onsubmit="return verifyMapForm(this)">
-					<fieldset style="width:90%;">
-						<legend style="font-weight:bold;font-size:120%;">Taxa Upload</legend>
+					<fieldset>
+						<legend>Taxa Upload</legend>
 						<div style="margin:10px;">
 						</div>
 						<table class="styledtable" style="width:450px">
@@ -281,7 +310,7 @@ if($isEditor){
 				?>
 				<form name="transferform" action="batchloader.php" method="post" onsubmit="return checkTransferForm(this)">
 					<fieldset style="width:450px;">
-						<legend style="font-weight:bold;font-size:120%;">Transfer Taxa To Central Table</legend>
+						<legend>Transfer Taxa To Central Table</legend>
 						<div style="margin:10px;">
 							Review upload statistics below before activating. Use the download option to review and/or adjust for reload if necessary.
 						</div>
@@ -323,7 +352,7 @@ if($isEditor){
 						</div>
 						<!--
 						<div style="margin:10px;">
-							Target Thesaurus:
+							<label>Target Thesaurus:</label>
 							<select name="taxauthid">
 								<?php
 								$taxonAuthArr = $loaderManager->getTaxAuthorityArr();
@@ -346,19 +375,33 @@ if($isEditor){
 				</form>
 				<?php
 			}
-			elseif($action == "Activate Taxa"){
+			elseif($action == 'Activate Taxa'){
 				echo '<ul>';
 				$loaderManager->transferUpload($taxAuthId);
 				echo "<li>Taxa upload appears to have been successful.</li>";
 				echo "<li>Go to <a href='taxonomydisplay.php'>Taxonomic Tree Search</a> page to query for a loaded name.</li>";
 				echo '</ul>';
 			}
+			elseif($action == 'loadApiNode'){
+				$harvester = new TaxonomyHarvester();
+				$harvester->setVerboseMode(2);
+				$harvester->setTaxAuthId($taxAuthId);
+				$kingArr = explode(':',$kingdomName);
+				if(isset($kingArr[1])) $harvester->setKingdomName($kingArr[1]);
+				if(isset($kingArr[0])) $harvester->setKingdomTid($kingArr[0]);
+				echo '<ul>';
+				if($harvester->addWormsNode($_POST)){
+					echo '<li>'.$harvester->getTransactionCount().' taxa within the target node have been loaded successfully</li>';
+					echo '<li>Go to <a href="taxonomydisplay.php">Taxonomic Tree Search</a> page to query for a loaded name.</li>';
+				}
+				echo '</ul>';
+			}
 			else{
 				?>
 				<div>
 					<form name="uploadform" action="batchloader.php" method="post" enctype="multipart/form-data" onsubmit="return verifyUploadForm(this)">
-						<fieldset style="width:90%;">
-							<legend style="font-weight:bold;font-size:120%;">Taxa Upload</legend>
+						<fieldset>
+							<legend>Taxa Upload</legend>
 							<div style="margin:10px;">
 								Flat structured, CSV (comma delimited) text files can be uploaded here.
 								Scientific name is the only required field below genus rank.
@@ -376,14 +419,14 @@ if($isEditor){
 									</div>
 								</div>
 								<div class="overrideopt" style="display:none;">
-									<b>Full File Path:</b>
+									<label>Full File Path:</label>
 									<div style="margin:10px;">
 										<input name="uloverride" type="text" size="50" /><br/>
 										* This option is for manual upload of a data file. Enter full path to data file located on working server.
 									</div>
 								</div>
 								<div style="margin:10px;">
-									<b>Target Thesaurus:</b>
+									<label>Target Thesaurus:</label>
 									<select name="taxauthid">
 										<?php
 										$taxonAuthArr = $loaderManager->getTaxAuthorityArr();
@@ -394,7 +437,7 @@ if($isEditor){
 									</select>
 								</div>
 								<div style="margin:10px;">
-									<b>Target Kingdom:</b>
+									<label>Target Kingdom:</label>
 									<?php
 									$kingdomArr = $loaderManager->getKingdomArr();
 									echo '<select name="kingdomname">';
@@ -419,8 +462,8 @@ if($isEditor){
 				<!--
 				<div>
 					<form name="itisuploadform" action="batchloader.php" method="post" enctype="multipart/form-data" onsubmit="return verifyItisUploadForm(this)">
-						<fieldset style="width:90%;">
-							<legend style="font-weight:bold;font-size:120%;">ITIS Upload File</legend>
+						<fieldset>
+							<legend>ITIS Upload File</legend>
 							<div style="margin:10px;">
 								ITIS data extract from the <a href="http://www.itis.gov/access.html" target="_blank">ITIS Download Page</a> can be uploaded
 								using this function. Note that the file needs to be in their single file pipe-delimited format
@@ -459,14 +502,14 @@ if($isEditor){
 				-->
 				<div>
 					<form name="analyzeform" action="batchloader.php" method="post">
-						<fieldset style="width:90%;">
-							<legend style="font-weight:bold;font-size:120%;">Clean and Analyze</legend>
+						<fieldset>
+							<legend>Clean and Analyze</legend>
 							<div style="margin:10px;">
 								If taxa information was loaded into the UploadTaxa table using other means,
 								one can use this form to clean and analyze taxa names in preparation to loading into the taxonomic tables (taxa, taxstatus).
 							</div>
 							<div style="margin:10px;">
-								Target Thesaurus:
+								<label>Target Thesaurus:</label>
 								<select name="taxauthid">
 									<?php
 									$taxonAuthArr = $loaderManager->getTaxAuthorityArr();
@@ -477,7 +520,7 @@ if($isEditor){
 								</select>
 							</div>
 							<div style="margin:10px;">
-								<b>Kingdom Target:</b>
+								<label>Kingdom Target:</label>
 								<?php
 								echo '<select name="kingdomname">';
 								foreach($kingdomArr as $k => $kingdomName){
@@ -491,6 +534,74 @@ if($isEditor){
 							</div>
 						</fieldset>
 					</form>
+				</div>
+				<div>
+					<fieldset>
+						<legend>API Node Loader</legend>
+						<form name="apinodeloaderform" action="batchloader.php" method="post" onsubmit="return validateNodeLoaderForm(this)">
+							<div style="margin:10px;">
+								This form will batch load a taxonomic node from a selected Taxonomic Authority via their API resources.
+								This function currently only works for WoRMS
+							</div>
+							<div style="margin:10px;">
+								<fieldset style="padding:15px;margin:10px 0px">
+									<legend><b>Taxonomic Resource</b></legend>
+									<?php
+									$taxApiList = $loaderManager->getTaxonomicResourceList();
+									foreach($taxApiList as $taKey => $taValue){
+										echo '<input name="targetapi" type="radio" value="'.$taKey.'" '.($targetApiArr && in_array($taKey,$targetApiArr)?'checked':'').' /> '.$taValue.'<br/>';
+									}
+									?>
+								</fieldset>
+							</div>
+							<div style="margin:10px;">
+								<label>Target node:</label>
+								<input id="taxa" name="sciname" type="text" value="" />
+							</div>
+							<div style="margin:10px;">
+								<label>Taxonomic Thesaurus:</label>
+								<select name="taxauthid">
+									<?php
+									$taxonAuthArr = $loaderManager->getTaxAuthorityArr();
+									foreach($taxonAuthArr as $k => $v){
+										echo '<option value="'.$k.'" '.($k==$taxAuthId?'SELECTED':'').'>'.$v.'</option>'."\n";
+									}
+									?>
+								</select>
+							</div>
+							<div style="margin:10px;">
+								<label>Kingdom:</label>
+								<select name="kingdomname">
+									<?php
+									if($kingdomArr > 1){
+										echo '<option value="">Select target Kingdom</option>';
+										echo '<option value="">-----------------------</option>';
+									}
+									foreach($kingdomArr as $k => $kName){
+										$kKey = $k.':'.$kName;
+										echo '<option value="'.$kKey.'" '.($kingdomName==$kKey?'selected':'').'>'.$kName.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div style="margin:10px;">
+								<label>Lowest Rank Limit</label>
+								<select name="ranklimit">
+									<option value="">All Taxon Ranks</option>
+									<option>---------------------</option>
+									<?php
+									$rankArr = $loaderManager->getTaxonRankArr();
+									foreach($rankArr as $rankid => $rankName){
+										echo '<option value="'.$rankid.'">'.$rankName.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div style="margin:10px;">
+								<button type="submit" name="action" value="loadApiNode">Load node</button>
+							</div>
+						</form>
+					</fieldset>
 				</div>
 				<?php
 			}

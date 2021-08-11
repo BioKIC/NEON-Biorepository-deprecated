@@ -11,7 +11,7 @@ class OccurrenceEditorMaterialSample extends Manager{
 	}
 
 	function __destruct(){
-		parent::__destruct();
+ 		parent::__destruct();
 	}
 
 	public function getMaterialSampleArr(){
@@ -39,30 +39,30 @@ class OccurrenceEditorMaterialSample extends Manager{
 				($postArr['ms_individualCount']?'"'.$postArr['ms_individualCount'].'"':'NULL').','.(is_numeric($postArr['ms_sampleSize'])?$postArr['ms_sampleSize']:'NULL').','.
 				($postArr['ms_storageLocation']?'"'.$postArr['ms_storageLocation'].'"':'NULL').','.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').')';
 				if($this->conn->query($sql)){
-					return true;
-				}
-				else{
-					$this->errorMessage = 'ERROR inserting new material sample record into database: '.$this->conn->error;
-					return false;
-				}
+				return true;
+			}
+			else{
+				$this->errorMessage = 'ERROR inserting new material sample record into database: '.$this->conn->error;
+				return false;
+			}
 		}
 	}
 
 	public function editMaterialSample($postArr){
 		if($this->matSampleID){
 			$sql = 'UPDATE ommaterialsample SET sampleType = "'.$this->cleanInStr($postArr['ms_sampleType']).
-			'",catalogNumber = '.($postArr['ms_catalogNumber']?'"'.$postArr['ms_catalogNumber'].'"':'NULL').
-			',guid = '.($postArr['ms_guid']?'"'.$postArr['ms_guid'].'"':'NULL').
-			',condition = '.($postArr['ms_condition']?'"'.$postArr['ms_condition'].'"':'NULL').
-			',disposition = '.($postArr['ms_disposition']?'"'.$postArr['ms_disposition'].'"':'NULL').
-			',preservationType = '.($postArr['ms_preservationType']?'"'.$postArr['ms_preservationType'].'"':'NULL').
-			',preparationDetails = '.($postArr['ms_preparationDetails']?'"'.$postArr['ms_preparationDetails'].'"':'NULL').
-			',preparationDate = '.($postArr['ms_preparationDate']?'"'.$postArr['ms_preparationDate'].'"':'NULL').
-			',preparedByUid = '.($postArr['ms_preparedByUid']?'"'.$postArr['ms_preparedByUid'].'"':'NULL').
-			',individualCount = '.($postArr['ms_individualCount']?'"'.$postArr['ms_individualCount'].'"':'NULL').
-			',sampleSize = '.($postArr['ms_sampleSize']?'"'.$postArr['ms_sampleSize'].'"':'NULL').
-			',storageLocation = '.($postArr['ms_storageLocation']?'"'.$postArr['ms_storageLocation'].'"':'NULL').
-			',remarks = '.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').' WHERE occid = '.$postArr['occid'];
+				'",catalogNumber = '.($postArr['ms_catalogNumber']?'"'.$postArr['ms_catalogNumber'].'"':'NULL').
+				',guid = '.($postArr['ms_guid']?'"'.$postArr['ms_guid'].'"':'NULL').
+				',condition = '.($postArr['ms_condition']?'"'.$postArr['ms_condition'].'"':'NULL').
+				',disposition = '.($postArr['ms_disposition']?'"'.$postArr['ms_disposition'].'"':'NULL').
+				',preservationType = '.($postArr['ms_preservationType']?'"'.$postArr['ms_preservationType'].'"':'NULL').
+				',preparationDetails = '.($postArr['ms_preparationDetails']?'"'.$postArr['ms_preparationDetails'].'"':'NULL').
+				',preparationDate = '.($postArr['ms_preparationDate']?'"'.$postArr['ms_preparationDate'].'"':'NULL').
+				',preparedByUid = '.($postArr['ms_preparedByUid']?'"'.$postArr['ms_preparedByUid'].'"':'NULL').
+				',individualCount = '.($postArr['ms_individualCount']?'"'.$postArr['ms_individualCount'].'"':'NULL').
+				',sampleSize = '.($postArr['ms_sampleSize']?'"'.$postArr['ms_sampleSize'].'"':'NULL').
+				',storageLocation = '.($postArr['ms_storageLocation']?'"'.$postArr['ms_storageLocation'].'"':'NULL').
+				',remarks = '.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').' WHERE occid = '.$postArr['occid'];
 			if($this->conn->query($sql)){
 				return true;
 			}

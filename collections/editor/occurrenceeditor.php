@@ -771,7 +771,7 @@ else{
 												</div>
 												<div id="verbatimEventDateDiv">
 													<div class="flabel">
-														<?php echo (defined('VERBATIMEVENTDATELABEL')?VERBATIMEVENTDATELABEL:'Verbatim Date')); ?>
+														<?php echo (defined('VERBATIMEVENTDATELABEL')?VERBATIMEVENTDATELABEL:'Verbatim Date'); ?>
 														<a href="#" onclick="return dwcDoc('verbatimEventDate')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
 													</div>
 													<input type="text" name="verbatimeventdate" tabindex="19" maxlength="255" value="<?php echo array_key_exists('verbatimeventdate',$occArr)?$occArr['verbatimeventdate']:''; ?>" onchange="verbatimEventDateChanged(this)" />
@@ -913,7 +913,7 @@ else{
 											</div>
 											<div  id="idrefdiv">
 												<div id="identificationReferencesDiv">
-													<?php echo (defined('IDENTIFICATIONREFERENCELABEL')?IDENTIFICATIONREFERENCELABEL:'ID References')); ?>:
+													<?php echo (defined('IDENTIFICATIONREFERENCELABEL')?IDENTIFICATIONREFERENCELABEL:'ID References'); ?>:
 													<a href="#" onclick="return dwcDoc('identificationReferences')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
 													<input type="text" name="identificationreferences" tabindex="36" value="<?php echo array_key_exists('identificationreferences',$occArr)?$occArr['identificationreferences']:''; ?>" onchange="fieldChanged('identificationreferences');" />
 												</div>
@@ -1336,8 +1336,8 @@ else{
 														else $borArr[$occArr['basisofrecord']] = 2;
 													}
 													if(!isset($occArr['basisofrecord']) || !$occArr['basisofrecord']){
-														if($collType == 'obs') $borArr['HumanObservation']] = 1;
-														elseif($collType == 'paleo') $borArr['FossilSpecimen']] = 1;
+														if($collType == 'obs') $borArr['HumanObservation'] = 1;
+														elseif($collType == 'paleo') $borArr['FossilSpecimen'] = 1;
 														elseif($collType == 'spec') $borArr['PreservedSpecimen'] = 1;
 													}
 													?>

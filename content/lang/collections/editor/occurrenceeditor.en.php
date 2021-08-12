@@ -5,6 +5,7 @@ Language: English
 ------------------
 */
 
+$LANG['HOME'] = 'Home';
 $LANG['CLONES_CREATED'] = 'Success! The following new clone record(s) have been created';
 $LANG['CLONE_SOURCE'] = 'clone source';
 $LANG['THIS_RECORD'] = 'this record';

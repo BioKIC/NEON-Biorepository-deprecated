@@ -5,10 +5,6 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php');
-include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
-
-
 $LANG['OCC_SKEL_SUBMIT'] = 'Occurrence Skeletal Record Submission';
 $LANG['HOME'] = 'Home';
 $LANG['COL_MNGMT'] = 'Collection Management';
@@ -35,9 +31,18 @@ $LANG['OPTIONS'] = 'Options';
 $LANG['X_CLOSE'] = 'X Close';
 $LANG['FIELD_DISPLAY'] = 'Field Display';
 $LANG['OTHER_CAT_NUMS'] = 'Other Catalog Numbers';
+$LANG['AUTHOR'] = 'Author';
+$LANG['FAMILY'] = 'Family';
+$LANG['LOCALITY_SECURITY'] = 'Locality Security';
+$LANG['COUNTRY'] = 'Country';
+$LANG['STATE_PROVINCE'] = 'State/Province';
 $LANG['COUNTY_PARISH'] = 'County/Parish';
+$LANG['COLLECTOR'] = 'Collector';
 $LANG['COLLECTOR_NO'] = 'Collector Number';
 $LANG['COLLECTION_DATE'] = 'Collection Date';
+$LANG['LABEL_PROJECT'] = 'Label Project';
+$LANG['PROCESSING_STATUS'] = 'Processing Status';
+$LANG['LANGUAGE'] = 'Language';
 $LANG['CATNUM_MATCH'] = 'Catalog Number Match Action';
 $LANG['RESTRICT_IF_EXISTS'] = 'Restrict entry if record exists';
 $LANG['APPEND_VALUES'] = 'Append values to existing records';
@@ -45,15 +50,12 @@ $LANG['SESSION'] = 'Session';
 $LANG['COUNT'] = 'Count';
 $LANG['RATE'] = 'Rate';
 $LANG['PER_HOUR'] = 'per hour';
+$LANG['SCINAME'] = 'Scientific Name';
 $LANG['ADD_NAME_THESAURUS'] = 'Add new name to taxonomic thesaurus';
 $LANG['PROTECT_LOCALITY'] = 'Protect locality details from general public';
-$LANG['UNPROCESSED'] = 'unprocessed';
-$LANG['STAGE_1'] = 'stage 1';
-$LANG['STAGE_2'] = 'stage 2';
-$LANG['STAGE_3'] = 'stage 3';
-$LANG['PENDING_REVIEW_NFN'] = 'pending review-nfn';
-$LANG['REVIEWED'] = 'reviewed';
-$LANG['CLOSED'] = 'closed';
+$LANG['DATE'] = 'Date';
+$LANG['CATALOGNUMBER'] = 'Catalog Number';
+$LANG['ADD_RECORD'] = 'Add Record';
 $LANG['RECORDS'] = 'Records';
 $LANG['NOT_AUTHORIZED'] = 'You are not authorized to acces this page.';
 $LANG['CONTACT_ADMIN'] = 'Contact an administrator to obtain the necessary permissions';

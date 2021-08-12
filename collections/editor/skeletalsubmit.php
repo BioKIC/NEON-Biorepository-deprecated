@@ -181,15 +181,15 @@ if($collid){
 								<b><?php echo $LANG['PROCESSING_STATUS']; ?>:</b><br/>
 								<select id="fprocessingstatus" name="processingstatus" style="margin-top:4px">
 									<option value=""></option>
-									<option><?php echo $LANG['UNPROCESSED']; ?></option>
-									<option><?php echo $LANG['STAGE_1']; ?></option>
-									<option><?php echo $LANG['STAGE_2']; ?></option>
-									<option><?php echo $LANG['STAGE_3']; ?></option>
-									<option><?php echo $LANG['EXPERT_REQUIRED']; ?></option>
-									<option><?php echo $LANG['PENDING_REVIEW_NFN']; ?></option>
-									<option><?php echo $LANG['PENDING_REVIEW']; ?></option>
-									<option><?php echo $LANG['REVIEWED']; ?></option>
-									<option><?php echo $LANG['CLOSED']; ?></option>
+									<option>unprocessed</option>
+									<option>stage 1</option>
+									<option>stage 2</option>
+									<option>stage 3</option>
+									<option>expert required</option>
+									<option>pending review-nfn</option>
+									<option>pending review</option>
+									<option>reviewed</option>
+									<option>closed</option>
 								</select>
 							</div>
 							<div id="languagediv" style="display:none;float:left;margin:7px 3px 3px 0px;">

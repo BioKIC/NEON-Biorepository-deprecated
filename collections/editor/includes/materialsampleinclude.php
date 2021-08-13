@@ -33,19 +33,17 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 ?>
 <script>
 	$(document).ready(function() {
-		$("#batchtaxagroup").autocomplete({
+		$("#ms_preparedBy").autocomplete({
 			source: function( request, response ) {
-				$.getJSON( "rpc/taxalist.php", { term: request.term, t: "batch" }, response );
+				$.getJSON( "rpc/getUsers.php", { term: request.term, collid: $("#collid").val() }, response );
 			},
-			minLength: 3,
+			minLength: 2,
 			autoFocus: true,
 			select: function( event, ui ) {
-				if(ui.item) document.getElementById('batchtid').value = ui.item.id;
+				if(ui.item) $("#ms_preparedByUid").val(ui.item.id);
 			}
 		});
-
 	});
-
 </script>
 <fieldset>
 	<legend>Material Sample</legend>
@@ -164,8 +162,8 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 			</div>
 			<div id="smPreparedByUidDiv">
 				<label><?php echo $MS_PREPARED_BY_LABEL; ?></label>
-				<input type="text" name="ms_preparedBy" value="<?php echo isset($msArr['preparedBy'])?$msArr['preparedBy']:''; ?>" />
-				<input type="hidden" name="ms_preparedByUid" value="<?php echo isset($msArr['preparedByUid'])?$msArr['preparedByUid']:''; ?>" />
+				<input id="ms_preparedBy" name="ms_preparedBy" type="text" value="<?php echo isset($msArr['preparedBy'])?$msArr['preparedBy']:''; ?>" />
+				<input id="ms_preparedByUid" name="ms_preparedByUid" type="text" value="<?php echo isset($msArr['preparedByUid'])?$msArr['preparedByUid']:''; ?>" />
 			</div>
 			<div id="smIndividualCountDiv">
 				<label><?php echo $MS_INDIVIDUAL_COUNT_LABEL; ?></label>
@@ -206,7 +204,7 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 			</div>
 				<input name="occid" type="hidden" value="<?php echo $msArr['occid']; ?>" />
 				<input name="matSampleID" type="hidden" value="<?php echo $msArr['matSampleID']; ?>" />
-				<input name="collid" type="hidden" value="<?php echo $msArr['collid']; ?>" />
+				<input id="collid" name="collid" type="hidden" value="<?php echo $msArr['collid']; ?>" />
 				<button name="formsubmit" type="submit" value="saveMatSample">Save Changes</button>
 			<div>
 		</div>

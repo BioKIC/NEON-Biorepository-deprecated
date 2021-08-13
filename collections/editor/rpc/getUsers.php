@@ -6,8 +6,18 @@ header("Content-Type: application/json; charset=".$CHARSET);
 $term = $_POST['term'];
 $collid = isset($_POST['collid'])?$_POST['collid']:0;
 
-$rpcManager = new RpcUsers();
-$retArr = $rpcManager->getUserArr($term);
+$isEditor = false;
+if($IS_ADMIN) $isEditor = true;
+elseif($collid){
+	if(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollEditor'])) $isEditor = true;
+	elseif(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])) $isEditor = true;
+}
+
+$retArr = array();
+if($isEditor){
+	$rpcManager = new RpcUsers();
+	if($rpcManager->isValidApiCall()) $retArr = $rpcManager->getUserArr($term);
+}
 
 echo json_encode($retArr);
 ?>

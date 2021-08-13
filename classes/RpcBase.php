@@ -12,7 +12,7 @@ class RpcBase extends Manager{
 		parent::__destruct();
 	}
 
-	protected function isCallValid(){
+	protected function isValidApiCall(){
 		//First of all check request is AJAX request or not.
 		if(empty($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') return false;
 

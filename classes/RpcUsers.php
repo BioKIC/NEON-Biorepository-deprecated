@@ -3,8 +3,6 @@ include_once($SERVER_ROOT.'/classes/RpcBase.php');
 
 class RpcUsers extends RpcBase{
 
-	private $collid = 0;
-
 	function __construct(){
 		parent::__construct();
 	}
@@ -13,22 +11,26 @@ class RpcUsers extends RpcBase{
 		parent::__destruct();
 	}
 
-	public
-
-	public function isCallValid(){
-		$status = parent::isCallValid();
-		if(!$status) return false;
-		if($GLOBALS['IS_ADMIN']) return true;
-		$userRights = $GLOBALS['USER_RIGHTS'];
-		if(!$this->collid || !$userRights) return false;
-		if(array_key_exists('CollEditor',$userRights) && in_array($this->collid,$userRights['CollEditor'])) return true;
-		if(array_key_exists('CollAdmin',$userRights) && in_array($this->collid,$userRights['CollAdmin'])) return true;
-		return false;
+	public function getUserArr($term){
+		$retArr = array();
+		$sql = 'SELECT u.uid, CONCAT(CONCAT_WS(", ", u.lastname, u.firstname)," (",l.username,")") as uname
+			FROM users u INNER JOIN userlogin l ON u.uid = l.uid
+			WHERE u.lastname LIKE "%'.$term.'%" OR u.firstname LIKE "%'.$term.'%" OR l.username LIKE "%'.$term.'%"
+			ORDER BY u.lastname, u.firstname, l.username';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->uid]['id'] = $r->uid;
+			$retArr[$r->uid]['label'] = $r->uname;
+		}
+		$rs->free();
+		return $retArr;
 	}
 
-	//Setters and getters
-	public function setCollid($id){
-		if(is_numeric($id)) $this->collid = $id;
+	public function isValidApiCall(){
+		//Verification also happening within haddler checking is user is logged in and a valid admin/editor
+		$status = parent::isValidApiCall();
+		if(!$status) return false;
+		return true;
 	}
 }
 ?>

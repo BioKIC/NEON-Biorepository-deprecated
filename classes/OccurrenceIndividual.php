@@ -26,7 +26,7 @@ class OccurrenceIndividual extends Manager{
 			$sql = 'SELECT * FROM omcollections WHERE collid = '.$this->collid;
 			if($rs = $this->conn->query($sql)){
 				$this->metadataArr = array_change_key_case($rs->fetch_assoc());
-				if(isset($this->metadataArr['contactjson']) && $this->metadataArr['contactjson']){
+				if(isset($this->metadataArr['contactjson'])){
 					//Test to see if contact is a JSON object or a simple string
 					if($contactArr = json_decode($this->metadataArr['contactjson'],true)){
 						$contactStr = '';

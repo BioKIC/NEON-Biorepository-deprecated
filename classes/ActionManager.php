@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/Manager.php');
@@ -8,17 +8,17 @@ include_once($SERVER_ROOT.'/classes/ImageDetailManager.php');
 /**
  * Controler class for ActionRequests, may be subclassed for particular action requests.
  */
-class ActionManager extends Manager { 
+class ActionManager extends Manager {
 
    public function __construct($id=null,$conType='readonly'){
       parent::__construct(null,'write');
    }
 
-   protected function getTableName($table) { 
+   protected function getTableName($table) {
       $result = null;
 
-      if (strtolower($table)=='omoccurrences' || strtolower($table)=='occurence') { $result = 'omoccurrences'; } 
-      if (strtolower($table)=='images' || strtolower($table)=='image') { $result = 'images'; } 
+      if (strtolower($table)=='omoccurrences' || strtolower($table)=='occurence') { $result = 'omoccurrences'; }
+      if (strtolower($table)=='images' || strtolower($table)=='image') { $result = 'images'; }
 
       return $result;
    }
@@ -31,12 +31,12 @@ class ActionManager extends Manager {
     * @param table the name of the table to which the action request applies.
     * @param requesttype the type of request being made.
     * @param remarks any elaboration by the requestor on the request.
-    * @return the actionrequestid for the inserted row, or null if there was an error, if 
+    * @return the actionrequestid for the inserted row, or null if there was an error, if
     *   an error, it can be retrieved with getErrorMessage();
     */
-   public function makeActionRequest($uid,$fk,$table,$requesttype,$remarks) { 
+   public function makeActionRequest($uid,$fk,$table,$requesttype,$remarks) {
       $result = null;
-      
+
       $tablename = $this->getTableName($table);
       if ($tablename==null) {
          $this->errormessage = "Error: $table not recognized as a table name.";
@@ -44,22 +44,22 @@ class ActionManager extends Manager {
          $sql = "insert into actionrequest (uid_requestor,fk,requesttype,requestremarks,tablename,state,priority) values (?,?,?,?,?,'New',3) ";
          $stmt = $this->conn->stmt_init();
          $stmt->prepare($sql);
-         if ($stmt) { 
-            $stmt->bind_param('iisss',$uid,$fk,$requesttype,$remarks,$tablename);       
-            if ($stmt->execute()) { 
+         if ($stmt) {
+            $stmt->bind_param('iisss',$uid,$fk,$requesttype,$remarks,$tablename);
+            if ($stmt->execute()) {
                 $result = $this->conn->insert_id;
-            } else { 
+            } else {
               $this->errormessage = "Error:". $stmt->error;
             }
             $stmt->close;
-         } else { 
+         } else {
             $this->errormessage = "Error: ". trim($stmt->error . " " . $this->conn->error);
          }
       }
       return $result;
-   } 
+   }
 
- 
+
    /**
     * Obtain an array of text strings summarizing action requests that apply to some table or all tables.
     *
@@ -67,47 +67,47 @@ class ActionManager extends Manager {
     * @param table the table name to check for action requests, if null, list requests for all tables.
     *
     * @return an array of text strings, one per action request.
-    */   
-   public function listActionRequests($fk, $table) { 
+    */
+   public function listActionRequests($fk, $table) {
       $result = Array();
       $tablename = $this->getTableName($table);
-      if ($tablename==null) { 
-         if ($fk==null) { 
+      if ($tablename==null) {
+         if ($fk==null) {
             $sql = "select requesttype, requestremarks, a.state, a.resolution, requestdate, u.firstname, u.lastname from actionrequest a left join users u on a.uid_requestor = u.uid order by requestdate desc ";
          } else {
             $sql = "select requesttype, requestremarks, a.state, a.resolution, requestdate, u.firstname, u.lastname from actionrequest a left join users u on a.uid_requestor = u.uid where a.fk = ? order by requestdate desc ";
          }
-      } else { 
-         if ($fk==null) { 
+      } else {
+         if ($fk==null) {
             $sql = "select requesttype, requestremarks, a.state, a.resolution, requestdate, u.firstname, u.lastname from actionrequest a left join users u on a.uid_requestor = u.uid where tablename = ? order by requestdate desc ";
-         } else { 
+         } else {
             $sql = "select requesttype, requestremarks, a.state, a.resolution, requestdate, u.firstname, u.lastname from actionrequest a left join users u on a.uid_requestor = u.uid where a.fk = ? and tablename = ? order by requestdate desc ";
          }
       }
       $stmt = $this->conn->stmt_init();
       $stmt->prepare($sql);
-      if ($stmt->error==null) { 
-         if ($tablename==null) { 
-             if ($fk!=null) { 
+      if ($stmt->error==null) {
+         if ($tablename==null) {
+             if ($fk!=null) {
                 $stmt->bind_param('i',$fk);
              }
-         } else { 
-             if ($fk==null) { 
+         } else {
+             if ($fk==null) {
                 $stmt->bind_param('s',$tablename);
-             } else { 
+             } else {
                 $stmt->bind_param('is',$fk,$tablename);
              }
          }
          $stmt->execute();
          $stmt->bind_result($requesttype,$requestremarks,$state,$resolution,$requestdate,$firstname,$lastname);
-         while ($stmt->fetch()) { 
-            if (strlen($resolution)>0) { 
+         while ($stmt->fetch()) {
+            if (strlen($resolution)>0) {
                $state = "$state ($resolution)";
             }
             $result[] = "$state: $firstname $lastname Requested $requesttype  on $requestdate ";
          }
          $stmt->close();
-      } else { 
+      } else {
          $this->errormessage = "Error:" . trim($stmt->error . " " . $this->conn->error);
       }
       return $result;
@@ -120,21 +120,21 @@ class ActionManager extends Manager {
     * @param table the table name to check for action requests, if null, list requests for all tables.
     *
     * @return an array of ActionRequest objects, one per action request.
-    */   
-   public function listActionRequestsObjArr($fk, $table) { 
+    */
+   public function listActionRequestsObjArr($fk, $table) {
       $result = Array();
       $tablename = $this->getTableName($table);
       $fields = "actionrequestid, fk, tablename, requesttype, uid_requestor, requestdate, requestremarks, priority, uid_fullfillor, a.state, a.resolution, statesetdate, resolutionremarks, concat(ifnull(u.firstname,''), ' ', ifnull(u.lastname,'')) as requestor, concat(ifnull(f.firstname,''), ' ', ifnull(f.lastname,'')) as fullfillor ";
-      if ($tablename==null) { 
-         if ($fk==null) { 
+      if ($tablename==null) {
+         if ($fk==null) {
             $wherebit = "";
          } else {
             $wherebit = "where a.fk = ? ";
          }
-      } else { 
-         if ($fk==null) { 
+      } else {
+         if ($fk==null) {
             $wherebit = "where tablename = ? ";
-         } else { 
+         } else {
             $wherebit = "where a.fk = ? and tablename = ?";
          }
       }
@@ -142,21 +142,21 @@ class ActionManager extends Manager {
       $sql = "select $fields from actionrequest a left join users u on a.uid_requestor = u.uid left join users f on a.uid_fullfillor = f.uid $wherebit $order ";
       $stmt = $this->conn->stmt_init();
       $stmt->prepare($sql);
-      if ($stmt->error==null) { 
-         if ($tablename==null) { 
-             if ($fk!=null) { 
+      if ($stmt->error==null) {
+         if ($tablename==null) {
+             if ($fk!=null) {
                 $stmt->bind_param('i',$fk);
              }
-         } else { 
-             if ($fk==null) { 
+         } else {
+             if ($fk==null) {
                 $stmt->bind_param('s',$tablename);
-             } else { 
+             } else {
                 $stmt->bind_param('is',$fk,$tablename);
              }
          }
          $stmt->execute();
          $stmt->bind_result($actionrequestid, $fk, $tablename, $requesttype, $uid_requestor, $requestdate, $requestremarks, $priority, $uid_fullfillor, $state, $resolution, $statesetdate, $resolutionremarks, $requestor, $fullfillor);
-         while ($stmt->fetch()) { 
+         while ($stmt->fetch()) {
             $req = new ActionRequest();
             $req->actionrequestid = $actionrequestid;
             $req->fk = $fk;
@@ -176,7 +176,7 @@ class ActionManager extends Manager {
             $result[] = $req;
          }
          $stmt->close();
-      } else { 
+      } else {
          $this->errormessage = "Error:" . trim($stmt->error . " " . $this->conn->error);
       }
       return $result;
@@ -184,10 +184,10 @@ class ActionManager extends Manager {
 
    /**
     * Query for action request objects.
-    *  
+    *
     * @return an array of ActionRequest objects, one per action request.
     */
-   public function queryActionRequestsObjArr($requesttype,$priority,$state,$resolution,$collid,$text) { 
+   public function queryActionRequestsObjArr($requesttype,$priority,$state,$resolution,$collid,$text) {
       $result = Array();
       $tablename = $this->getTableName($table);
       $fields = "actionrequestid, fk, tablename, requesttype, uid_requestor, requestdate, requestremarks, priority, uid_fullfillor, a.state, a.resolution, statesetdate, resolutionremarks, concat(ifnull(u.firstname,''), ' ', ifnull(u.lastname,'')) as requestor, concat(ifnull(f.firstname,''), ' ', ifnull(f.lastname,'')) as fullfillor ";
@@ -195,16 +195,16 @@ class ActionManager extends Manager {
       $types = "";
       $params = Array();
       $and = "";
-      if ($requesttype!=null) { 
-         if (!is_array($requesttype)) { 
+      if ($requesttype!=null) {
+         if (!is_array($requesttype)) {
             $rt = Array();
             $rt[] = $requesttype;
-         } else { 
+         } else {
             $rt = $requesttype;
-         } 
+         }
          $wherebit .= "$and (";
          $or = '';
-         foreach ($rt as $rtype) { 
+         foreach ($rt as $rtype) {
             $wherebit .= "$or requesttype = ?  ";
             $types .= 's';
             $params[] = $rtype;
@@ -213,22 +213,22 @@ class ActionManager extends Manager {
          $wherebit .= ")";
          $and = " AND ";
       }
-      if ($priority!=null) { 
+      if ($priority!=null) {
             $wherebit .= "$and priority = ?  ";
             $types .= 'i';
             $params[] = $priority;
             $and = " AND ";
       }
-      if ($state!=null) { 
-         if (!is_array($state)) { 
+      if ($state!=null) {
+         if (!is_array($state)) {
             $st = Array();
             $st[] = $state;
-         } else { 
+         } else {
             $st = $state;
-         } 
+         }
          $wherebit .= "$and (";
          $or = '';
-         foreach ($st as $stype) { 
+         foreach ($st as $stype) {
             $wherebit .= "$or a.state = ?  ";
             $types .= 's';
             $params[] = $stype;
@@ -237,14 +237,14 @@ class ActionManager extends Manager {
          $wherebit .= ")";
          $and = " AND ";
       }
-      if ($resolution!=null) { 
+      if ($resolution!=null) {
             $wherebit .= "$and resolution = ?  ";
             $types .= 's';
             $params[] = $resolution;
             $and = " AND ";
       }
       // TODO: collid
-      if ($text!=null) { 
+      if ($text!=null) {
             $wherebit .= "$and ( requestremarks like ? OR resolutionremarks like ? )  ";
             $types .= 'ss';
             $params[] = "%$text%";
@@ -252,19 +252,19 @@ class ActionManager extends Manager {
             $and = " AND ";
       }
       $order = "order by requestdate desc ";
-      if (strlen($wherebit)>0) { $wherebit = " WHERE $wherebit "; } 
+      if (strlen($wherebit)>0) { $wherebit = " WHERE $wherebit "; }
       $sql = "select $fields from actionrequest a left join users u on a.uid_requestor = u.uid left join users f on a.uid_fullfillor = f.uid $wherebit $order ";
       $stmt = $this->conn->stmt_init();
       $stmt->prepare($sql);
-      if ($stmt->error==null) { 
-         if (strlen($wherebit)>0) { 
-            call_user_func_array('mysqli_stmt_bind_param', 
-                 array_merge (array($stmt, $types), Manager::correctReferences($params))
-            ); 
-         } 
+      if ($stmt->error==null) {
+         if (strlen($wherebit)>0) {
+            call_user_func_array('mysqli_stmt_bind_param',
+                 array_merge (array($stmt, $types), $this->correctReferences($params))
+            );
+         }
          $stmt->execute();
          $stmt->bind_result($actionrequestid, $fk, $tablename, $requesttype, $uid_requestor, $requestdate, $requestremarks, $priority, $uid_fullfillor, $state, $resolution, $statesetdate, $resolutionremarks, $requestor, $fullfillor);
-         while ($stmt->fetch()) { 
+         while ($stmt->fetch()) {
             $req = new ActionRequest();
             $req->actionrequestid = $actionrequestid;
             $req->fk = $fk;
@@ -284,7 +284,7 @@ class ActionManager extends Manager {
             $result[] = $req;
          }
          $stmt->close();
-      } else { 
+      } else {
          $this->errormessage = "Error:" . trim($stmt->error . " " . $this->conn->error);
       }
       return $result;
@@ -296,19 +296,19 @@ class ActionManager extends Manager {
     * @return an ActionRequest object containing the action request, or null if there
     *    was an error.
     */
-   public function getActionRequestsObj($actionrequestid) { 
+   public function getActionRequestsObj($actionrequestid) {
       $result = null;
       $fields = "actionrequestid, fk, tablename, requesttype, uid_requestor, requestdate, requestremarks, priority, uid_fullfillor, a.state, a.resolution, statesetdate, resolutionremarks, concat(ifnull(u.firstname,''), ' ', ifnull(u.lastname,'')) as requestor, concat(ifnull(f.firstname,''), ' ', ifnull(f.lastname,'')) as fullfillor ";
-      if ($tablename==null) { 
-         if ($fk==null) { 
+      if ($tablename==null) {
+         if ($fk==null) {
             $wherebit = "";
          } else {
             $wherebit = "where a.fk = ? ";
          }
-      } else { 
-         if ($fk==null) { 
+      } else {
+         if ($fk==null) {
             $wherebit = "where tablename = ? ";
-         } else { 
+         } else {
             $wherebit = "where a.fk = ? and tablename = ?";
          }
       }
@@ -317,11 +317,11 @@ class ActionManager extends Manager {
       $sql = "select $fields from actionrequest a left join users u on a.uid_requestor = u.uid left join users f on a.uid_fullfillor = f.uid $wherebit $order ";
       $stmt = $this->conn->stmt_init();
       $stmt->prepare($sql);
-      if ($stmt->error==null) { 
+      if ($stmt->error==null) {
          $stmt->bind_param('i',$actionrequestid);
          $stmt->execute();
          $stmt->bind_result($actionrequestid, $fk, $tablename, $requesttype, $uid_requestor, $requestdate, $requestremarks, $priority, $uid_fullfillor, $state, $resolution, $statesetdate, $resolutionremarks, $requestor, $fullfillor);
-         while ($stmt->fetch()) { 
+         while ($stmt->fetch()) {
             $result = new ActionRequest();
             $result->actionrequestid = $actionrequestid;
             $result->fk = $fk;
@@ -341,57 +341,57 @@ class ActionManager extends Manager {
             $this->id = $actionrequestid;
          }
          $stmt->close();
-      } else { 
+      } else {
          $this->errormessage = "Error:" . trim($stmt->error . " " . $this->conn->error);
       }
       return $result;
    }
 
-   public function saveChanges($arrayFromRequest) { 
+   public function saveChanges($arrayFromRequest) {
       $array = $this->cleanInArray($arrayFromRequest);
       $result = FALSE;
       $state = 'New';
       $priority = 3;
-      if (isset($array['actionrequestid'])) { 
+      if (isset($array['actionrequestid'])) {
          $actionrequestid = preg_replace('/[^0-9]/','',$array['actionrequestid']);
-      } 
-      if (isset($array['state'])) { 
+      }
+      if (isset($array['state'])) {
          $state = $array['state'];
-      } 
-      if (isset($array['resolution'])) { 
+      }
+      if (isset($array['resolution'])) {
          $resolution = $array['resolution'];
-      } 
-      if (isset($array['resolutionremarks'])) { 
+      }
+      if (isset($array['resolutionremarks'])) {
          $resolutionremarks = $array['resolutionremarks'];
-      } 
-      if (isset($array['priority'])) { 
+      }
+      if (isset($array['priority'])) {
          $priority = preg_replace('/[^0-9]/','',$array['priority']);
-      } 
-      if ($priority==null) { $priority = 3; }  
+      }
+      if ($priority==null) { $priority = 3; }
       $uid = $SYMB_UID;
-      if (strlen($actionrequestid)>0) { 
+      if (strlen($actionrequestid)>0) {
           $sql = "update actionrequest set state = ?, priority = ?, resolution = ?, statesetdate = now(), uid_fullfillor = ?, resolutionremarks = ? where actionrequestid = ? ";
           $stmt = $this->conn->stmt_init();
           $stmt->prepare($sql);
-          if ($stmt->error==null) { 
+          if ($stmt->error==null) {
              $stmt->bind_param('sisisi',$state,$priority,$resolution,$uid,$resolutionremarks,$actionrequestid);
              $stmt->execute();
-             if ($stmt->error==null) { 
+             if ($stmt->error==null) {
                 $result=TRUE;
-             } else { 
+             } else {
                 $this->errormessage = $stmt->error;
              }
-          } else { 
+          } else {
              $this->errormessage = $stmt->error;
           }
           $stmt->close();
       }
    }
-} 
+}
 
 /** Data structure to hold action requests.
  */
-class ActionRequest { 
+class ActionRequest {
    public $actionrequestid;
    public $fk;
    public $tablename;
@@ -407,45 +407,45 @@ class ActionRequest {
    public $resolutionremarks;
    public $requestor;
    public $fullfillor;
- 
-   public function getHumanReadableTablename() { 
+
+   public function getHumanReadableTablename() {
       $result = "Unknown";
-      if($this->tablename=="omoccurrences") { 
+      if($this->tablename=="omoccurrences") {
          $result = "Occurrence";
       }
-      if($this->tablename=="images") { 
+      if($this->tablename=="images") {
          $result = "Image";
-      } 
+      }
       return $result;
    }
-  
-   /** 
-    * Obtain a hyperlink to the appropriate display page for the table and row referenced 
+
+   /**
+    * Obtain a hyperlink to the appropriate display page for the table and row referenced
     * in this action request.
-    * 
-    * @return a text string containing an a with href to the display page for the row  
-    *   referenced by fk with a brief text description of the row, or an empty string 
+    *
+    * @return a text string containing an a with href to the display page for the row
+    *   referenced by fk with a brief text description of the row, or an empty string
     *   if there is an error condition, including the absence of an implementation for
     *   the table in this function.
     */
-   public function getLinkToRow() { 
+   public function getLinkToRow() {
       $result = "";
-      if($this->tablename=="omoccurrences") { 
+      if($this->tablename=="omoccurrences") {
          $occ = new OmOccurrences();
-         $occ->load($this->fk);         
+         $occ->load($this->fk);
          $result = "<a href='../collections/individual/index.php?occid=$this->fk&clid=0'>".$occ->getinstitutionCode().":".$occ->getcollectionCode()." ".$occ->getcatalogNumber()."</a>";
       }
-      if($this->tablename=="images") { 
+      if($this->tablename=="images") {
          $im = new ImageDetailManager($this->fk);
-         $imArr = $im->getImageMetadata();         
+         $imArr = $im->getImageMetadata();
          if (isset($imArr['sciname'])) {
             $caption .= $imArr['sciname'];
-         } elseif (isset($imArr['caption'])) { 
+         } elseif (isset($imArr['caption'])) {
             $caption .= $imArr['caption'];
-         } elseif (isset($imArr['photographer'])) { 
-            $caption .= $imArr['photographer']; 
-         } else { 
-            $caption = $imArr['imagetype']; 
+         } elseif (isset($imArr['photographer'])) {
+            $caption .= $imArr['photographer'];
+         } else {
+            $caption = $imArr['imagetype'];
          }
          $caption .= " " . $imArr['initialtimestamp'];
          $caption = trim($caption);
@@ -454,6 +454,19 @@ class ActionRequest {
       return $result;
    }
 
+   /** To enable mysqli_stmt->bind_param using call_user_func_array($array)
+    * allow $array to be converted to array of by references
+    * if php version requires it.
+    */
+   public static function correctReferences($array) {
+   	if (strnatcmp(phpversion(),'5.3') >= 0) {
+   		$byrefs = array();
+   		foreach($array as $key => $value)
+   			$byrefs[$key] = &$array[$key];
+   			return $byrefs;
+   	}
+   	return $byrefs;
+   }
 }
-   
+
 ?>

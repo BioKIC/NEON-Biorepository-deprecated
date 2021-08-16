@@ -45,14 +45,20 @@ class TaxonomyUtilities {
 			$okToCloseConn = true;
 			if($conn !== null) $okToCloseConn = false;
 			if(count($sciNameArr)){
-				if(strtolower($sciNameArr[0]) == 'x' || ord($sciNameArr[0]) == 215){
-					//Genus level hybrid
+				if(strtolower($sciNameArr[0]) == 'x' || $sciNameArr[0] == '×' || mb_ord($sciNameArr[0]) == 215){
 					$retArr['unitind1'] = array_shift($sciNameArr);
+				}
+				elseif($sciNameArr[0] == '†' || mb_ord($sciNameArr[0]) == 8224){
+					$retArr['unitind1'] = array_shift($sciNameArr);
+				}
+				elseif(strpos($sciNameArr[0],chr(8224)) === 0 ){
+					$retArr['unitind1'] = '†';
+					$sciNameArr[0] = trim($sciNameArr[0],'†');
 				}
 				//Genus
 				$retArr['unitname1'] = ucfirst(strtolower(array_shift($sciNameArr)));
 				if(count($sciNameArr)){
-					if(strtolower($sciNameArr[0]) == 'x' || ord($sciNameArr[0]) == 215){
+					if(strtolower($sciNameArr[0]) == 'x' || mb_ord($sciNameArr[0]) == 215){
 						//Species level hybrid
 						$retArr['unitind2'] = array_shift($sciNameArr);
 						$retArr['unitname2'] = array_shift($sciNameArr);

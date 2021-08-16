@@ -237,7 +237,7 @@ $navStr .= '</div>';
 									<option value="1,2" <?php echo ($frStatus=='1,2'?'SELECTED':''); ?>><?php echo $LANG['OPEN_PENDING']; ?></option>
 									<option value="1" <?php echo ($frStatus=='1'?'SELECTED':''); ?>><?php echo $LANG['OPEN_ONLY']; ?></option>
 									<option value="2" <?php echo ($frStatus=='2'?'SELECTED':''); ?>><?php echo $LANG['PENDING_ONLY']; ?></option>
-									<option value="3" <?php echo ($frStatus=='3'?'SELECTED':''); ?>><?php echo $LANG['C_CLOSED']; ?></option>
+									<option value="3" <?php echo ($frStatus=='3'?'SELECTED':''); ?>><?php echo $LANG['CLOSED']; ?></option>
 								</select>
 							</div>
 							<div style="margin:3px;">
@@ -298,7 +298,7 @@ $navStr .= '</div>';
 										<option value="0"><?php echo $LANG['LEAVE_AS_IS']; ?></option>
 										<option value="1"><?php echo $LANG['OPEN']; ?></option>
 										<option value="2"><?php echo $LANG['PENDING']; ?></option>
-										<option value="3"><?php echo $LANG['CLOSED']; ?></option>
+										<option value="3"><?php echo $LANG['C_CLOSED']; ?></option>
 									</select>
 								</div>
 								<div style="clear:both;margin:15px 5px;">
@@ -398,7 +398,7 @@ $navStr .= '</div>';
 																echo $LANG['PENDING'];
 															}
 															elseif($rStatus == 3){
-																echo $LANG['CLOSED'];
+																echo $LANG['C_CLOSED'];
 															}
 															else{
 																echo $LANG['UNKNOWN'];

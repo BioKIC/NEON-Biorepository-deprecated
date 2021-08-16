@@ -87,7 +87,7 @@ A bajo hay un listado con todos sus derechos individuales de las listas de espec
 $LANG['EXSICCATII'] = 'Exsiccati';
 $LANG['ESCMOD'] = 'El modulo de Exsiccati es activado para este portal.
 Cualquier usuario puede ver o navegar el &iacute;ndice de exsiccati (listado abajo) The exsiccati index (listed below).
-No es posible aunque Añadir o modificar el titulo del exsiccati o de la serie,
+No es posible aunque añadir o modificar el titulo del exsiccati o de la serie,
 por lo menos el usuario tiene que ser administrador para una colecci&oacute;n especifica para tener estos derechos';
 $LANG['NOTEDITCHECK'] = 'Usted no esta autorizado/a para editar ninguna de las listas de especies.';
 $LANG['PARA1'] = 'Herramientas para manejar datos espec&iacute;ficos para una colecci&oacute;n particular est&aacute;n disponibles por la pagina del perfil de esta colecci&oacute;n.

@@ -506,6 +506,14 @@ class OccurrenceEditorManager {
 						$sqlWhere .= 'AND ('.$cf.' LIKE "%'.$cv.'%") ';
 					}
 				}
+				elseif($ct=='NOT LIKE' && $cv){
+					if(strpos($cv,'%') !== false){
+						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "'.$cv.'") ';
+					}
+					else{
+						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "%'.$cv.'%") ';
+					}
+				}
 				elseif($ct=='STARTS' && $cv){
 					if(strpos($cv,'%') !== false){
 						$sqlWhere .= 'AND ('.$cf.' LIKE "'.$cv.'") ';

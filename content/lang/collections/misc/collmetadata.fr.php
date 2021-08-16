@@ -9,9 +9,6 @@ include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TA
 
 $LANG['ADD_SUCCESS'] = 'Nouvelle collection ajoutée avec succès';
 $LANG['ADD_STUFF'] = 'Ajoutez des contacts, des liens vers des ressources ou l\'adresse de l\'institution ci-dessous';
-$LANG['CLICK'] = 'Cliquez';
-$LANG['HERE'] = 'ici';
-$LANG['TO_UPLOAD'] = 'pour télécharger les enregistrements de spécimens pour cette nouvelle collection';
 $LANG['COL_PROFS'] = 'Profils de Collecte';
 $LANG['LOADING'] = '<p>En train de charger</p>';
 $LANG['META_EDIT'] = 'Éditeur de Métadonnées';
@@ -37,9 +34,9 @@ $LANG['CATEGORY'] = 'Catégorie';
 $LANG['NO_CATEGORY'] = 'Aucune Catégorie';
 $LANG['ALLOW_PUBLIC_EDITS'] = 'Autoriser Modifications Publiques';
 $LANG['MORE_PUB_EDITS'] = "Plus d'informations sur Modifications Publiques";
-$LANG['EXPLAIN_PUBLIC'] = "La vérification des modifications publiques permettra à tout utilisateur connecté au système de modifier les enregistrements de spécimens 
+$LANG['EXPLAIN_PUBLIC'] = "La vérification des modifications publiques permettra à tout utilisateur connecté au système de modifier les enregistrements de spécimens
 					et de résoudre les erreurs trouvées dans la collection.
-					Cependant, si l'utilisateur n'a pas d'autorisation explicite pour la collection donnée, 
+					Cependant, si l'utilisateur n'a pas d'autorisation explicite pour la collection donnée,
 					les modifications ne seront pas appliquées tant qu'elles n'auront pas été examinées et approuvées par l'administrateur de la collection.";
 $LANG['LICENSE'] = 'Licence';
 $LANG['MORE_INFO_RIGHTS'] = "Plus d'informations sur Droits";
@@ -59,10 +56,10 @@ $LANG['PRES_SPECS'] = 'Spécimens Conservés';
 $LANG['OBSERVATIONS'] = 'Observations';
 $LANG['PERS_OBS_MAN'] = 'Gestion des Observations Personnelles';
 $LANG['MORE_COL_TYPE'] = "Plus d'informations sur Type de Collection";
-$LANG['COL_TYPE_DEF'] = "Spécimens conservés désignent un type de collection qui contient des échantillons physiques disponibles 
+$LANG['COL_TYPE_DEF'] = "Spécimens conservés désignent un type de collection qui contient des échantillons physiques disponibles
 						pour inspection par les chercheurs et les experts taxonomiques. Utilisez Observations lorsque l'enregistrement n'est pas basé sur un spécimen physique.
-						Gestion des Observations Personnelles est un ensemble de données où les utilisateurs enregistrés peuvent gérer indépendamment leur propre sous-ensemble d'enregistrements. 
-						Les enregistrements saisis dans cet ensemble de données sont explicitement liés au profil de l'utilisateur et ne peuvent être modifiés que par lui. 
+						Gestion des Observations Personnelles est un ensemble de données où les utilisateurs enregistrés peuvent gérer indépendamment leur propre sous-ensemble d'enregistrements.
+						Les enregistrements saisis dans cet ensemble de données sont explicitement liés au profil de l'utilisateur et ne peuvent être modifiés que par lui.
 						Ce type de collecte est généralement utilisé par les chercheurs de terrain pour gérer leurs données de collecte et imprimer des étiquettes
 						avant de déposer le matériel physique dans une collection. Même si les collections personnelles
 						sont représentés par un échantillon physique, ils sont classés en &quot;observations jusqu'à ce que le
@@ -72,7 +69,7 @@ $LANG['SNAPSHOT'] = 'Instantané';
 $LANG['LIVE_DATA'] = 'Données en Direct';
 $LANG['AGGREGATE'] = 'Agrégat';
 $LANG['MORE_INFO_TYPE'] = "Plus d'informations sur Type de Gestion";
-$LANG['SNAPSHOT_DEF'] = "Utilisez Snapshot lorsqu'une base de données interne distincte est conservée dans la collection et que l'ensemble de données 
+$LANG['SNAPSHOT_DEF'] = "Utilisez Snapshot lorsqu'une base de données interne distincte est conservée dans la collection et que l'ensemble de données
 						du portail Symbiota n'est qu'un instantané mis à jour périodiquement de la base de données centrale.
 						Un Jeu de Données en Direct est lorsque les données sont gérées directement dans le portail et que la base de données centrale est constituée des données du portail.";
 $LANG['GUID_SOURCE'] = 'Source de GUID';
@@ -80,13 +77,13 @@ $LANG['NOT_DEFINED'] = 'Non défini';
 $LANG['MORE_INFO_GUID'] = "Plus d'informations sur Identifiant Unique Global";
 $LANG['OCCURRENCE_ID'] = "ID d'Occurrence";
 $LANG['SYMB_GUID'] = 'GUID (UUID) Généré par Symbiota';
-$LANG['OCCID_DEF_1'] = "ID d'Occurrence est généralement utilisé pour les ensembles de données d'Instantané 
-						lorsqu'un champ d'identificateur unique global (GUID) est fourni par la base de données source 
+$LANG['OCCID_DEF_1'] = "ID d'Occurrence est généralement utilisé pour les ensembles de données d'Instantané
+						lorsqu'un champ d'identificateur unique global (GUID) est fourni par la base de données source
 						(par exemple, spécifier la base de données) et que le GUID est mappé sur le";
 $LANG['OCCURRENCEID'] = 'occurrenceId';
 $LANG['OCCID_DEF_2'] = "champ. L'utilisation de l'ID d'Occurrence comme GUID n'est pas recommandée pour les Jeux de Données en Direct.
 						Le numéro de catalogue peut être utilisé lorsque la valeur dans le champ du numéro de catalogue est globalement unique.
-						L'option GUID (UUID) Généré par Symbiota déclenchera le portail de données Symbiota pour générer automatiquement 
+						L'option GUID (UUID) Généré par Symbiota déclenchera le portail de données Symbiota pour générer automatiquement
 						des UUID GUID pour chaque enregistrement. Cette option est recommandée pour beaucoup pour les Jeux de Données en Direct
 						mais non autorisé pour les collections d'instantanés gérées dans le système de gestion local.";
 $LANG['PUBLISH_TO_AGGS'] = 'Publier sur Agrégateurs';
@@ -97,10 +94,10 @@ $LANG['MORE_INFO_SOURCE'] = "Plus d'informations sur l'URL d'Enregistrement Sour
 $LANG['ADVANCE_SETTING'] = "Réglage avancé: L'ajout d'un modèle d'URL ici insérera un lien vers l'enregistrement source dans la page des détails du spécimen.
 						Un titre d'URL facultatif peut être inclus avec un deux-points délimitant le titre et l'URL.
 						Par exemple, &quot;Enregistrement source SEINet";
-$LANG['ADVANCE_SETTING_2'] = "affichera l'ID avec l'url pointant vers l'original 
+$LANG['ADVANCE_SETTING_2'] = "affichera l'ID avec l'url pointant vers l'original
 						enregistrement géré au sein de SEINet. Ou";
 $LANG['ADVANCE_SETTING_3'] = "peut être utilisé pour une importation iNaturalist si vous avez mappé leur champ ID en tant que qu'identifiant source
-						(par exemple, dbpk) lors de l'importation. Modèles de modèles --CATALOGNUMBER-- (Numéro de Catalogue, 
+						(par exemple, dbpk) lors de l'importation. Modèles de modèles --CATALOGNUMBER-- (Numéro de Catalogue,
 						--OTHERCATALOGNUMBERS-- (Autres Numéros de Catalogue), et --OCCURRENCEID-- sont des options supplémentaires.";
 $LANG['ICON_URL'] = 'URL de Icône';
 $LANG['WHAT_ICON'] = "Qu'est-ce qu'une icône?";

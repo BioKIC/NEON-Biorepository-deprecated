@@ -1605,7 +1605,7 @@ class SpecUploadBase extends SpecUpload{
 				}
 			}
 
-			if(strpos($testUrl,'inaturalist.org')){
+			if(strpos($testUrl,'inaturalist.org') || strpos($testUrl,'inaturalist-open-data')){
 				//Special processing for iNaturalist imports
 				if(strpos($testUrl,'/original.')){
 					$recMap['originalurl'] = $testUrl;

@@ -132,19 +132,5 @@ class Manager  {
 		}
 		return $retStr;
 	}
-
-   /** To enable mysqli_stmt->bind_param using call_user_func_array($array)
-     * allow $array to be converted to array of by references
-     * if php version requires it.
-     */
-   public static function correctReferences($array) {
-    if (strnatcmp(phpversion(),'5.3') >= 0) {
-       $byrefs = array();
-       foreach($array as $key => $value)
-          $byrefs[$key] = &$array[$key];
-       return $byrefs;
-    }
-    return $byrefs;
-   }
 }
 ?>

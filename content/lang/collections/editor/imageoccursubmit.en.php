@@ -35,6 +35,7 @@ $LANG['STATE_PROVINCE'] = 'State/Province';
 $LANG['COUNTY'] = 'County';
 $LANG['OCR_TEXT_ENGINE'] = 'OCR Text using Tesseract OCR engine';
 $LANG['MANUAL_OCR'] = 'Manually add OCR';
+$LANG['OCR_TEXT'] = 'OCR Text';
 $LANG['SOURCE'] = 'Source';
 $LANG['NOT_AUTH'] = 'You are not authorized to submit to an observation.';
 $LANG['CONTACT_ADMIN'] = 'Please contact an administrator to obtain the necessary permissions.';

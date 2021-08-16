@@ -64,6 +64,10 @@ ALTER TABLE `taxa`
 
 UPDATE IGNORE taxa SET author = "" WHERE author IS NULL;
 
+ALTER TABLE `taxa` 
+  DROP INDEX `sciname_unique` ,
+  ADD UNIQUE INDEX `sciname_unique` (`SciName` ASC, `RankId` ASC);
+
 ALTER TABLE `uploadspectemp` 
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`,
   CHANGE COLUMN `LatestDateCollected` `eventDate2` DATE NULL DEFAULT NULL AFTER `eventDate`;

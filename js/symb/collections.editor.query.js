@@ -119,6 +119,12 @@ function customSelectChanged(targetSelect){
 	}
 }
 
+function toggleQueryForm(){
+	toggle("querydiv");
+	var statusDiv = document.getElementById('statusdiv');
+	if(statusDiv) statusDiv.style.display = 'none';
+}
+
 function toggleCustomDiv2(){
 	var f = document.queryform;
 	f.q_customfield2.options[0].selected = true;

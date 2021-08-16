@@ -23,7 +23,7 @@ if(!is_numeric($crowdSourceMode)) $crowdSourceMode = 0;
 $action = filter_var($action,FILTER_SANITIZE_STRING);
 
 //Create Occurrence Manager
-$occManager;
+$occManager = null;
 if(strpos($action,'Determination') || strpos($action,'Verification')){
 	include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
 	$occManager = new OccurrenceEditorDeterminations();
@@ -402,7 +402,7 @@ if($SYMB_UID){
 	//Images and other things needed for OCR
 	$specImgArr = $occManager->getImageMap();
 	if($specImgArr){
-		$imgUrlPrefix = (isset($imageDomain)?$imageDomain:'');
+		$imgUrlPrefix = (isset($IMAGE_DOMAIN)?$IMAGE_DOMAIN:'');
 		$imgCnt = 1;
 		foreach($specImgArr as $imgId => $i2){
 			$iUrl = $i2['url'];
@@ -493,11 +493,11 @@ else{
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.main.js?ver=7" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.main.js?ver=8" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.query.js?ver=2" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.query.js?ver=3" type="text/javascript"></script>
 	<style type="text/css">
 		fieldset{ padding:15px }
 		fieldset > legend{ font-weight:bold; }
@@ -516,7 +516,7 @@ else{
 				if($isEditor && $isEditor != 3){
 					?>
 					<div id="querySymbolDiv" style="margin:5px 5px 5px 5px;">
-						<a href="#" title="<?php echo $LANG['SEARCH_FILTER']; ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:16px;" /></a>
+						<a href="#" title="<?php echo $LANG['SEARCH_FILTER']; ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:18px;" /></a>
 					</div>
 					<?php
 				}
@@ -551,7 +551,7 @@ else{
 				else{
 					?>
 					<div class='navpath'>
-						<a href="../../index.php" onclick="return verifyLeaveForm()"><?php echo (isset($LANG['HOME'])?$LANG['Home']:'Home'); ?></a> &gt;&gt;
+						<a href="../../index.php" onclick="return verifyLeaveForm()"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
 						<?php
 						if($crowdSourceMode){
 							?>
@@ -867,16 +867,16 @@ else{
 													echo ' <a href="#" onclick="return dwcDoc(\'idConfidence\')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a> ';
 													echo '<select name="confidenceranking" onchange="fieldChanged(\'confidenceranking\')">';
 													echo '<option value="">'.(isset($LANG['UNDEFINED'])?$LANG['UNDEFINED']:'Undefined').'</option>';
-													$idRankArr = array(10 => 'Absolute', 
-																9 => 'Very High', 
-																8 => 'High', 
-																7 => 'High - verification requested', 
-																6 => 'Medium - insignificant material', 
-																5 => 'Medium', 
-																4 => 'Medium - verification requested', 
-																3 => 'Low - insignificant material', 
-																2 => 'Low', 
-																1 => 'Low - ID Requested', 
+													$idRankArr = array(10 => 'Absolute',
+																9 => 'Very High',
+																8 => 'High',
+																7 => 'High - verification requested',
+																6 => 'Medium - insignificant material',
+																5 => 'Medium',
+																4 => 'Medium - verification requested',
+																3 => 'Low - insignificant material',
+																2 => 'Low',
+																1 => 'Low - ID Requested',
 																0 => 'ID Requested');
 													foreach($idRankArr as $rankKey => $rankText){
 														echo '<option value="'.$rankKey.'">'.$rankKey.' - '.$rankText.'</option>';

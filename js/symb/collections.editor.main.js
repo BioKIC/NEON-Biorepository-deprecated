@@ -279,12 +279,6 @@ $(document).ready(function() {
 	if(getCookie("autodupe") == 1) editForm.autodupe.checked = true; 
 });
 
-function toggleQueryForm(){
-	toggle("querydiv");
-	var statusDiv = document.getElementById('statusdiv');
-	if(statusDiv) statusDiv.style.display = 'none';
-}
-
 //Field changed and verification functions
 function verifyFullFormSciName(){
 	$.ajax({

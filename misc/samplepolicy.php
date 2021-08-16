@@ -31,6 +31,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
           <li><p>Researchers are responsible for proper handling of all samples, adhering to all aspects of the sample use agreement, and following all NEON and National Science Foundation data reporting and citation policies.</p></li>
         </ul>
       <p>Please read the <a href="NEON-Sample-Use-Policy_20181217.pdf" target=_blank>full policy</a> for more details and <a href="mailto:biorepo@asu.edu">contact us</a> for more information.</p>
+      <p>For more detailed guidelines, please visit <a href="https://www.neonscience.org/data-samples/guidelines-policies" target="_blank" rel="noopener noreferrer">NEON's Data Guidelines and Policies</a> and <a href="https://www.neonscience.org/data-samples/guidelines-policies/usage-policies" target="_blank" rel="noopener noreferrer">NEON's Usage Policies</a>.</p>
 		</div>
 		<?php
 			include($SERVER_ROOT.'/includes/footer.php');

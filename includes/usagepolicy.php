@@ -21,8 +21,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		</div>
 		<!-- This is inner text! -->
 		<div id="innertext">
-			<h1>Guidelines for Acceptable Use of Data</h1><br />
-
+			<h1>Guidelines for Acceptable Use of Data</h1>
+      <p>For detailed guidelines, please visit <a href="https://www.neonscience.org/data-samples/guidelines-policies" target="_blank" rel="noopener noreferrer">NEON's Data Guidelines and Policies</a> and <a href="https://www.neonscience.org/data-samples/guidelines-policies/usage-policies" target="_blank" rel="noopener noreferrer">NEON's Usage Policies</a>.</p>
 			<h2>Recommended Citation Formats</h2>
 			<div style="margin:10px">
 				Use one of the following formats to cite data retrieved from the <?php echo $DEFAULT_TITLE; ?> network:

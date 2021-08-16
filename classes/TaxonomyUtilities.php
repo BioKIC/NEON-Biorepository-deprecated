@@ -48,10 +48,10 @@ class TaxonomyUtilities {
 				if(strtolower($sciNameArr[0]) == 'x' || $sciNameArr[0] == '×' || mb_ord($sciNameArr[0]) == 215){
 					$retArr['unitind1'] = array_shift($sciNameArr);
 				}
-				elseif($sciNameArr[0] == '†' || mb_ord($sciNameArr[0]) == 134){
+				elseif($sciNameArr[0] == '†' || mb_ord($sciNameArr[0]) == 8224){
 					$retArr['unitind1'] = array_shift($sciNameArr);
 				}
-				elseif(strpos($sciNameArr[0],'†') === 0 ){
+				elseif(strpos($sciNameArr[0],chr(8224)) === 0 ){
 					$retArr['unitind1'] = '†';
 					$sciNameArr[0] = trim($sciNameArr[0],'†');
 				}

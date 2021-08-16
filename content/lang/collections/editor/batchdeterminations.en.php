@@ -43,6 +43,7 @@ $LANG['LOW'] = 'Low';
 $LANG['DETERMINER'] = 'Determiner';
 $LANG['DATE'] = 'Date';
 $LANG['REFERENCE'] = 'Reference';
+$LANG['NOTES'] = 'Notes';
 $LANG['MAKE_CURRENT'] = 'Make this the current determination';
 $LANG['ADD_PRINT_QUEUE'] = 'Add to Annotation Print Queue';
 $LANG['ADD_DETERS'] = 'Add New Determinations';

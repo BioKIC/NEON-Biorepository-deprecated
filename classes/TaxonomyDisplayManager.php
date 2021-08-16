@@ -47,36 +47,24 @@ class TaxonomyDisplayManager extends Manager{
 			$sql .= 'AND (ts.tid = '.$this->targetStr.') ';
 		}
 		elseif($this->targetStr){
-			$operator = '=';
 			$term = $this->targetStr;
-			$term2 = '';
-			if(strpos($term, ' ')){
-				if(preg_match('/^\D{1}\s/', $term)){
-					$term = preg_replace('/^\D{1}\s/', '_ ', $this->targetStr);
-					$operator = 'LIKE';
-				}
-				elseif(preg_match('/\s.{1}\s/', $term)){
-					$term = preg_replace('/\s.{1}\s/', ' _ ', $this->targetStr);
-					$term2 = preg_replace('/\s.{1}\s/', ' ', $this->targetStr);
-					$operator = 'LIKE';
-				}
-				else{
-					$term2 = preg_replace('/^([^\s]+\s{1})/', '$1 _ ', $this->targetStr);
-					//$term2 = str_replace(' ', ' _ ', $term);
-				}
+			$termArr = explode(' ',$term);
+			foreach($termArr as $k => $v){
+				if(mb_strlen($v) == 1) unset($termArr[$k]);
 			}
+			$sqlFrag = '';
+			if($unit1 = array_shift($termArr)) $sqlFrag =  't.unitname1 LIKE "'.$unit1.($this->matchOnWholeWords?'':'%').'" ';
+			if($unit2 = array_shift($termArr)) $sqlFrag .=  'AND t.unitname2 LIKE "'.$unit2.($this->matchOnWholeWords?'':'%').'" ';
+
 			if($this->matchOnWholeWords){
-				$sql .= 'AND ((t.sciname '.$operator.' "'.$term.'") OR (t.sciname LIKE "'.$term.' %") ';
-				if($term2) $sql .= 'OR (t.sciname LIKE "'.$term2.'") ';
+				$sql .= 'AND ((t.sciname = "'.$term.'") OR (t.sciname LIKE "'.$term.' %") ';
 			}
 			else{
 				//Rankid >= species level and not will author included
 				$sql .= 'AND ((t.sciname LIKE "'.$term.'%") ';
-				if($term2) $sql .= 'OR (t.sciname LIKE "'.$term2.'%") ';
 			}
-			//Let's include author in search by default
-			$sql .= 'OR (CONCAT(t.sciname," ",t.author) '.$operator.' "'.$term.'") ';
-			if($term2) $sql .= 'OR (CONCAT(t.sciname," ",t.author) LIKE "'.$term2.'") ';
+			$sql .= 'OR (CONCAT(t.sciname," ",t.author) = "'.$term.'") ';
+			if($sqlFrag) $sql .= 'OR ('.$sqlFrag.')';
 			$sql .= ') ';
 		}
 		else{

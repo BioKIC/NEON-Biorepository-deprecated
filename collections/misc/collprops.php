@@ -26,7 +26,7 @@ $collMeta = $collManager->getCollectionMetadata();
 ?>
 <html>
 <head>
-	<title><?php echo $collMeta['collectionname']; ?> Special Properties</title>
+	<title><?php echo $collMeta['collectionname'].(isset($LANG['SPECIAL_PROPS'])?$LANG['SPECIAL_PROPS']:'Special Properties'); ?></title>
 	<?php
 	$activateJQuery = false;
 	if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -62,8 +62,8 @@ $collMeta = $collManager->getCollectionMetadata();
 	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
-		<a href='../../index.php'>Home</a> &gt;&gt;
-		<a href='collprofiles.php?emode=1&collid=<?php echo $collId; ?>'>Special Properties</a> &gt;&gt;
+		<a href='../../index.php'><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
+		<a href='collprofiles.php?emode=1&collid=<?php echo $collId; ?>'><?php echo (isset($LANG['SPECIAL_PROPS'])?$LANG['SPECIAL_PROPS']:'Special Properties'); ?></a> &gt;&gt;
 		<b><?php echo $collMeta['collectionname'].' Contacts'; ?></b>
 	</div>
 	<!-- This is inner text! -->
@@ -73,11 +73,11 @@ $collMeta = $collManager->getCollectionMetadata();
 			$dynamicProps = $collManager->getDynamicPropoerties();
 			?>
 			<fieldset style="margin:15px;padding:15px;">
-				<legend>Publication Properties</legend>
+				<legend><?php echo (isset($LANG['PUB_PROPS'])?$LANG['PUB_PROPS']:'Publication Properties'); ?></legend>
 				<form name="addContactForm" action="collcontact.php" method="post" onsubmit="return verifyAddContactForm(this)">
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
-							<span class="fieldLabel">Title Override: </span>
+							<span class="fieldLabel"><?php echo (isset($LANG['TITLE_OVERRIDE'])?$LANG['TITLE_OVERRIDE']:'Title Override'); ?>: </span>
 							<input name="titleOverride" type="text" value="<?php echo (isset($dynamicProps['publicationProps']['titleOverride'])?:''); ?>" />
 						</div>
 						<div class="fieldDiv">
@@ -92,21 +92,21 @@ $collMeta = $collManager->getCollectionMetadata();
 				</form>
 			</fieldset>
 			<fieldset style="margin:15px;padding:15px;">
-				<legend>Occurrence Editor Properties</legend>
+				<legend><?php echo (isset($LANG['OCC_EDIT_PROPS'])?$LANG['OCC_EDIT_PROPS']:'Occurrence Editor Properties'); ?></legend>
 				<?php
 				$moduleArr = array();
 				if(isset($dynamicProps['editorProps']['modules-panel'])) $moduleArr = $dynamicProps['editorProps']['modules-panel'];
 				?>
 				<div class="fieldRowDiv">
 					<div class="fieldDiv">
-						<span class="fieldLabel">Title Override: </span>
+						<span class="fieldLabel"><?php echo (isset($LANG['TITLE_OVERRIDE'])?$LANG['TITLE_OVERRIDE']:'Title Override'); ?>: </span>
 						<input name="paleomodule" type="checkbox" value="1" <?php echo (isset($moduleArr['paleo']['status']) && $moduleArr['paleo']['status']?'checked':''); ?> />
 					</div>
 				</div>
 			</fieldset>
 			<?php
 		}
-		else echo '<div style="font-weight:bold;font-size:120%;">Unauthorized to edit special collection properties</div>';
+		else echo '<div style="font-weight:bold;font-size:120%;">'.(isset($LANG['NOT_AUTH'])?$LANG['NOT_AUTH']:'Unauthorized to edit special collection properties').'</div>';
 		?>
 	</div>
 	<?php

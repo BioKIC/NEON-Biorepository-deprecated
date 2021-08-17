@@ -880,10 +880,9 @@ class OccurrenceCollectionProfile extends Manager {
 	public function runStatistics($collId){
 		$returnArr = Array();
 		if(preg_match('/^[0-9,]+$/',$collId)){
-			$sql = "SELECT c.collid, c.CollectionName, IFNULL(cs.recordcnt,0) AS recordcnt, IFNULL(cs.georefcnt,0) AS georefcnt, ".
-				"cs.dynamicProperties ".
-				"FROM omcollections AS c INNER JOIN omcollectionstats AS cs ON c.collid = cs.collid ".
-				"WHERE c.collid IN(".$collId.") ";
+			$sql = 'SELECT c.collid, c.CollectionName, IFNULL(s.recordcnt,0) AS recordcnt, IFNULL(s.georefcnt,0) AS georefcnt, s.dynamicProperties '.
+				'FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid '.
+				'WHERE c.collid IN('.$collId.') ';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){

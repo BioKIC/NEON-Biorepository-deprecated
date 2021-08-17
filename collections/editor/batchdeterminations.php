@@ -1,6 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorDeterminations.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/batchdeterminations.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/batchdeterminations.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/batchdeterminations.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/batchdeterminations.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
@@ -44,7 +46,7 @@ if($isEditor){
 <html>
 	<head>
 	    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
-		<title><?php echo $DEFAULT_TITLE; ?> Batch Determinations/Nomenclatural Adjustments</title>
+		<title><?php echo $DEFAULT_TITLE.$LANG['BATCH_DETERS']; ?></title>
     <?php
       $activateJQuery = true;
       if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -107,7 +109,7 @@ if($isEditor){
 						for (var occid in retStr) {
 							var occObj = retStr[occid];
 							if(f.catalognumber.value && checkCatalogNumber(occid, occObj["cn"])){
-								alert("Record already exists within list");
+								alert("<?php echo $LANG['RECORD_EXISTS']; ?>");
 							}
 							else{
 								var trNode = createNewTableRow(occid, occObj);
@@ -118,7 +120,7 @@ if($isEditor){
 						document.getElementById("accrecordlistdviv").style.display = "block";
 					}
 					else{
-						alert("No records returned matching search criteria");
+						alert("<?php echo $LANG['NO_RECORDS']; ?>");
 					}
 				});
 
@@ -170,7 +172,7 @@ if($isEditor){
 			}
 
 			function clearAccForm(f){
-				if(confirm("Clearing the form will reset the process. Are you sure you want to do this?") == true){
+				if(confirm("<?php echo $LANG['CLEAR_FORM_RESETS']; ?>") == true){
 					document.getElementById("accrecordlistdviv").style.display = "none";
 					document.getElementById("catrecordstbody").innerHTML = '';
 					f.catalognumber.value = '';
@@ -189,20 +191,20 @@ if($isEditor){
 					}
 				}
 				if(specNotSelected){
-					alert("Please select at least one specimen!");
+					alert("<?php echo $LANG['SELECT_ONE']; ?>");
 					return false;
 				}
 
 				if(f.sciname.value == ""){
-					alert("Scientific Name field must have a value");
+					alert("<?php echo $LANG['SCINAME_NEEDS_VALUE']; ?>");
 					return false;
 				}
 				if(f.identifiedby.value == ""){
-					alert("Determiner field must have a value (enter 'unknown' if not defined)");
+					alert("<?php echo $LANG['DETERMINER_NEEDS_VALUE']; ?>");
 					return false;
 				}
 				if(f.dateidentified.value == ""){
-					alert("Determination Date field must have a value (enter 's.d.' if not defined)");
+					alert("<?php echo $LANG['DET_DATE_NEEDS_VALUE']; ?>");
 					return false;
 				}
 				return true;
@@ -263,7 +265,7 @@ if($isEditor){
 						f.tidtoadd.value = data.tid;
 					}
 					else{
-						alert("WARNING: Taxon not found. It may be misspelled or needs to be added to taxonomic thesaurus by a taxonomic editor. If taxon name is correct, continue with the annotation submission and the taxonomic thesaurus can be adjusted later.");
+						alert("<?php echo $LANG['WARNING_TAXON_NOT_FOUND']; ?>");
 						f.scientificnameauthorship.value = "";
 						f.family.value = "";
 						f.tidtoadd.value = "";
@@ -295,9 +297,9 @@ if($isEditor){
 	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
-		<a href='../../index.php'>Home</a> &gt;&gt;
-		<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Panel</a> &gt;&gt;
-		<b>Batch Determinations/Nomenclatural Adjustments</b>
+		<a href='../../index.php'><?php echo $LANG['HOME']; ?></a> &gt;&gt;
+		<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1"><?php echo $LANG['COLL_MANAGE']; ?></a> &gt;&gt;
+		<b><?php echo $LANG['BATCH_DETERS']; ?></b>
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
@@ -307,39 +309,37 @@ if($isEditor){
 			?>
 			<div style="margin:0px;">
 				<fieldset style="padding:10px;">
-					<legend><b>Define Specimen Recordset</b></legend>
+					<legend><b><?php echo $LANG['DEFINE_RECORDSET']; ?></b></legend>
 					<div style="margin:15px">
-						Scan catalog numbers/barcodes into the field below or enter a taxon search term to list specimens for batch annotation.
-						Multiple catalog numbers can be entered sequentially or at once separated by commas.
-						Once list is complete, select/deselect target specimens, enter annotation information, and submit.
+						<?php echo $LANG['RECORDSET_EXPLAIN']; ?>
 					</div>
 					<div style="margin:15px;width:700px;">
 						<form name="accqueryform" action="batchdeterminations.php" method="post" onsubmit="return submitAccForm(this);">
 							<div>
-								<b>Catalog Number:</b>
+								<b><?php echo $LANG['CATNUM']; ?>:</b>
 								<input name="catalognumber" type="text" style="border-color:green;width:200px;" />
-								<span style="margin-left:20px"><input name="allcatnum" type="checkbox" checked /> target all catalog numbers</span>
+								<span style="margin-left:20px"><input name="allcatnum" type="checkbox" checked /> <?php echo $LANG['TARGET_ALL']; ?></span>
 							</div>
 							<div>
-								<b>Taxon:</b>
+								<b><?php echo $LANG['TAXON']; ?>:</b>
 								<input type="text" id="nomsciname" name="sciname" style="width:260px;" onfocus="initScinameAutocomplete(this.form)" />
 							</div>
 							<div style="margin-top:5px;">
-								<button name="clearaccform" type="button" style="float:right" onclick='clearAccForm(this.form)'>Clear List</button>
+								<button name="clearaccform" type="button" style="float:right" onclick='clearAccForm(this.form)'><?php echo $LANG['CLEAR_LIST']; ?></button>
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-								<button name="addrecord" type="submit">Add Record(s) to List</button>
+								<button name="addrecord" type="submit"><?php echo $LANG['ADD_RECORDS']; ?></button>
 								<img id="workingcircle" src="../../images/workingcircle.gif" style="display:none;" />
 							</div>
 						</form>
 					</div>
 					<div style="margin:15px">
-						* Specimen list is limited to 200 records per batch.<br/>
+						* <?php echo $LANG['LIST_LIMIT']; ?><br/>
 					</div>
 					<?php
 					if($statusStr){
 						echo '<div style="margin:30px 20px;">';
 						echo '<div style="color:orange;font-weight:bold;">'.$statusStr.'</div>';
-						echo '<div style="margin-top:10px;"><a href="../reports/annotationmanager.php?collid='.$collid.'" target="_blank">Display Annotation Print Queue</a></div>';
+						echo '<div style="margin-top:10px;"><a href="../reports/annotationmanager.php?collid='.$collid.'" target="_blank">'.$LANG['DISPLAY_QUEUE'].'</a></div>';
 						echo '</div>';
 					}
 					?>
@@ -348,82 +348,82 @@ if($isEditor){
 					<form name="accselectform" id="accselectform" action="batchdeterminations.php" method="post" onsubmit="return validateSelectForm(this);">
 						<div style="margin-top: 15px; margin-left: 10px;">
 							<input name="accselectall" value="" type="checkbox" onclick="selectAll(this);" checked />
-							Select/Deselect all Specimens
+							<?php echo $LANG['SELECT_DESELECT']; ?>
 						</div>
 						<table class="styledtable" style="font-family:Arial;font-size:12px;">
 							<thead>
 								<tr>
 									<th style="width:25px;text-align:center;">&nbsp;</th>
-									<th style="width:125px;text-align:center;">Catalog Number</th>
-									<th style="width:300px;text-align:center;">Scientific Name</th>
-									<th style="text-align:center;">Collector/Locality</th>
+									<th style="width:125px;text-align:center;"><?php echo $LANG['CATNUM']; ?></th>
+									<th style="width:300px;text-align:center;"><?php echo $LANG['SCINAME']; ?></th>
+									<th style="text-align:center;"><?php echo $LANG['COLLECTOR_LOCALITY']; ?></th>
 								</tr>
 							</thead>
 							<tbody id="catrecordstbody"></tbody>
 						</table>
 						<div id="newdetdiv" style="">
 							<fieldset style="margin: 15px 15px 0px 15px;padding:15px;">
-								<legend><b>New Determination Details</b></legend>
+								<legend><b><?php echo $LANG['NEW_DET_DETAILS']; ?></b></legend>
 								<div style='margin:3px;position:relative;height:35px'>
 									<div style="float:left;">
-										<b>Annotation Type:</b>
+										<b><?php echo $LANG['ANNOTATION_TYPE']; ?>:</b>
 									</div>
 									<div style="float:left;">
-										<input name="annotype" type="radio" value="id" onchange="annotationTypeChanged(this)" checked /> Identification Adjustment/Verification<br/>
-										<input name="annotype" type="radio" value="na" onchange="annotationTypeChanged(this)" /> Nomenclatural Adjustment
+										<input name="annotype" type="radio" value="id" onchange="annotationTypeChanged(this)" checked /> <?php echo $LANG['ID_ADJUST']; ?><br/>
+										<input name="annotype" type="radio" value="na" onchange="annotationTypeChanged(this)" /> <?php echo $LANG['NOM_ADJUST']; ?>
 									</div>
 								</div>
 								<div style="clear:both;margin:15px 0px"><hr /></div>
 								<div id="idQualifierDiv" style='margin:3px;clear:both'>
-									<b>Identification Qualifier:</b>
+									<b><?php echo $LANG['ID_QUALIFIER']; ?>:</b>
 									<input type="text" name="identificationqualifier" title="e.g. cf, aff, etc" />
 								</div>
 								<div style='margin:3px;'>
-									<b>Scientific Name:</b>
+									<b><?php echo $LANG['SCINAME']; ?>:</b>
 									<input type="text" id="dafsciname" name="sciname" style="background-color:lightyellow;width:350px;" onfocus="initDetAutocomplete(this.form)" />
 									<input type="hidden" id="daftidtoadd" name="tidtoadd" value="" />
 									<input type="hidden" name="family" value="" />
 								</div>
 								<div style='margin:3px;'>
-									<b>Author:</b>
+									<b><?php echo $LANG['AUTHOR']; ?>:</b>
 									<input type="text" name="scientificnameauthorship" style="width:200px;" />
 								</div>
 								<div id="codDiv" style='margin:3px;'>
-									<b>Confidence of Determination:</b>
+									<b><?php echo $LANG['CONFIDENCE']; ?>:</b>
 									<select name="confidenceranking">
-										<option value="8">High</option>
-										<option value="5" selected>Medium</option>
-										<option value="2">Low</option>
+										<option value="8"><?php echo $LANG['HIGH']; ?></option>
+										<option value="5" selected><?php echo $LANG['MEDIUM']; ?></option>
+										<option value="2"><?php echo $LANG['LOW']; ?></option>
 									</select>
 								</div>
 								<div id="identifiedByDiv" style='margin:3px;'>
-									<b>Determiner:</b>
+									<b><?php echo $LANG['DETERMINER']; ?>:</b>
 									<input type="text" name="identifiedby" id="identifiedby" style="background-color:lightyellow;width:200px;" />
 								</div>
 								<div id="dateIdentifiedDiv" style='margin:3px;'>
-									<b>Date:</b>
+									<b><?php echo $LANG['DATE']; ?>:</b>
 									<input type="text" name="dateidentified" id="dateidentified" style="background-color:lightyellow;" onchange="detDateChanged(this.form);" />
 								</div>
 								<div style='margin:3px;'>
-									<b>Reference:</b>
+									<b><?php echo $LANG['REFERENCE']; ?>:</b>
 									<input type="text" name="identificationreferences" style="width:350px;" />
 								</div>
 								<div style='margin:3px;'>
-									<b>Notes:</b>
+									<b><?php echo $LANG['NOTES']; ?>:</b>
 									<input type="text" name="identificationremarks" style="width:350px;" />
 								</div>
 								<div id="makeCurrentDiv" style='margin:3px;'>
-									<input type="checkbox" name="makecurrent" value="1" checked /> Make this the current determination
+									<input type="checkbox" name="makecurrent" value="1" checked /> <?php echo $LANG['MAKE_CURRENT']; ?>
 								</div>
 								<div style='margin:3px;'>
-									<input type="checkbox" name="printqueue" value="1" checked /> Add to Annotation Print Queue
-									<a href="../reports/annotationmanager.php?collid=<?php echo $collid; ?>" target="_blank"><img src="../../images/list.png" style="width:13px" title="Display Annotation Print Queue" /></a>
+									<input type="checkbox" name="printqueue" value="1" checked /> <?php echo $LANG['ADD_PRINT_QUEUE']; ?>
+									<a href="../reports/annotationmanager.php?collid=<?php echo $collid; ?>" target="_blank"><img src="../../images/list.png" style="width:13px" title="<?php echo $LANG['DISPLAY_QUEUE']; ?>" /></a>
 								</div>
 								<div style='margin:15px;'>
 									<div style="float:left;">
 										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 										<input name="tabtarget" type="hidden" value="0" />
-										<input type="submit" name="formsubmit" value="Add New Determinations" />
+										<button type="submit" name="formsubmit" value="Add New Determinations"><?php echo $LANG['ADD_DETERS']; ?></button>
 									</div>
 								</div>
 							</fieldset>
@@ -436,8 +436,7 @@ if($isEditor){
 		else{
 			?>
 			<div style="font-weight:bold;margin:20px;font-weight:150%;">
-				You do not have permissions to set batch determinations for this collection.
-				Please contact the site administrator to obtain the necessary permissions.
+				<?php echo $LANG['NO_PERMISSIONS']; ?>
 			</div>
 			<?php
 		}

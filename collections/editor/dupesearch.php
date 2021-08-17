@@ -1,6 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/dupesearch.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/dupesearch.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/dupesearch.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occidQuery = array_key_exists('occidquery',$_REQUEST)?$_REQUEST['occidquery']:'';
@@ -158,19 +160,19 @@ if(!$IS_ADMIN){
 			if($occArr){
 				echo '<div style="font-weight:bold;font-size:130%;">';
 				if($dupeType == 'exsic'){
-					echo '<span style="color:blue;">Exsiccati Duplicates</span>';
+					echo '<span style="color:blue;">'.$LANG['EXS_DUPE'].'</span>';
 				}
 				elseif($dupeType == 'exact'){
-					echo '<span style="color:green;">Possible EXACT Duplicates</span>';
+					echo '<span style="color:green;">'.$LANG['POSSIBLE_EXACT_DUPES'].'</span>';
 				}
 				elseif($dupeType == 'catnu'){
-					echo '<span>Duplicate Catalog Number</span>';
+					echo '<span>'.$LANG['DUPE_CAT_NUM'].'</span>';
 				}
 				elseif($dupeType == 'ocnum'){
-					echo '<span>Duplicate Alternate Catalog Number</span>';
+					echo '<span>'.$LANG['DUPE_ALT_CAT_NUM'].'</span>';
 				}
 				else{
-					echo '<span style="color:orange;">Possible Matching Duplicate EVENTS</span>';
+					echo '<span style="color:orange;">'.$LANG['POSS_MATCHING_EVENTS'].'</span>';
 				}
 				echo '</div><hr/>';
 				//Experimental devleopment, not yet used
@@ -247,7 +249,7 @@ if(!$IS_ADMIN){
 						</div>
 						<?php if($collId == $occObj['collid'] && ($dupeType == 'exact' || $dupeType == 'exsic')){ ?>
 							<div style="color:red;">
-								NOTICE: Possible exact matches within collection. Record may already exist.
+								<?php echo $LANG['NOTICE_EXACT_MATCH']; ?>
 							</div>
 							<div style="font-weight:bold;">
 								<?php
@@ -267,9 +269,9 @@ if(!$IS_ADMIN){
 								echo '<span style="margin-left:20px;" title="verbatimeventdate">'.$occObj['verbatimEventDate'].'</span>';
 							}
 							else{
-								echo '<span style="margin-left:20px;" title="eventdate">Date field empty</span>';
+								echo '<span style="margin-left:20px;" title="eventdate">'.$LANG['DATE_EMPTY'].'</span>';
 							}
-							if($occObj['associatedCollectors']) echo '<div style="margin-left:10px;" title="associatedCollectors">Assoc. Collectors: '.$occObj['associatedCollectors'].'</div>';
+							if($occObj['associatedCollectors']) echo '<div style="margin-left:10px;" title="associatedCollectors">'.$LANG['ASSOC_COLL'].': '.$occObj['associatedCollectors'].'</div>';
 							?>
 						</div>
 						<div>
@@ -281,7 +283,7 @@ if(!$IS_ADMIN){
 								echo '<span style="margin-left:25px;color:red;" title="typeStatus">'.$occObj['typeStatus'].'</span>';
 							}
 							else{
-								echo '<span title="sciname">Scientific Name empty</span> ';
+								echo '<span title="sciname">'.$LANG['SCINAME_EMPTY'].'</span> ';
 							}
 							?>
 						</div>
@@ -299,7 +301,7 @@ if(!$IS_ADMIN){
 							if($occObj['country']) echo '<span title="country">'.$occObj['country'].'</span>; ';
 							if($occObj['stateProvince']) echo '<span title="stateProvince">'.$occObj['stateProvince'].'</span>; ';
 							if($occObj['county']) echo '<span title="county">'.$occObj['county'].'</span>; ';
-							echo '<span title="locality">'.($occObj['locality']?$occObj['locality']:'Locality data empty').'</span>';
+							echo '<span title="locality">'.($occObj['locality']?$occObj['locality']:$LANG['LOCALITY_EMPTY']).'</span>';
 							?>
 						</div>
 						<?php
@@ -348,19 +350,19 @@ if(!$IS_ADMIN){
 						<div style="margin:10px;">
 							<div style="float:left">
 								<a href="" onclick="transferRecord(<?php echo $occId; ?>,false);">
-									Transfer All Fields
+									<?php echo $LANG['TRANSFER_ALL']; ?>
 								</a>
 							</div>
 							<div style="margin-left:30px;float:left">
 								<a href="" onclick="transferRecord(<?php echo $occId; ?>,true);">
-									Transfer to Empty Fields Only
+									<?php echo $LANG['TRANSFER_EMPTY']; ?>
 								</a>
 							</div>
 							<?php
 							if(!isset($ACTIVATE_DUPLICATES) || $ACTIVATE_DUPLICATES){
 								?>
 								<div style="margin-left:30px;float:left;">
-									<input id="linkdupe-<?php echo $occId; ?>" type="checkbox" <?php echo ($dupeType == 'exact'?'checked':''); ?> /> Link as Duplicate
+									<input id="linkdupe-<?php echo $occId; ?>" type="checkbox" <?php echo ($dupeType == 'exact'?'checked':''); ?> /> <?php echo $LANG['LINK_DUPE']; ?>
 								</div>
 								<?php
 							}
@@ -368,15 +370,15 @@ if(!$IS_ADMIN){
 								?>
 								<div style="margin-left:30px;float:left;">
 									<a href="occurrenceeditor.php?occid=<?php echo $occId; ?>">
-										Go To Record
+										<?php echo $LANG['GO_TO_RECORD']; ?>
 									</a>
 								</div>
 								<?php
 								if($curOccid){
 									?>
 									<div style="margin-left:30px;float:left;">
-										<a href="dupesearch.php?submitaction=mergerecs&curoccid=<?php echo $curOccid.'&occidmerge='.$occId.'&collid='.$collId; ?>" onclick="return confirm('Are you sure you want to merge these two records?')">
-											Merge Records
+										<a href="dupesearch.php?submitaction=mergerecs&curoccid=<?php echo $curOccid.'&occidmerge='.$occId.'&collid='.$collId; ?>" onclick="return confirm('<?php echo $LANG['SURE_MERGE']; ?>')">
+											<?php echo $LANG['MERGE_RECORDS']; ?>
 										</a>
 									</div>
 									<?php
@@ -392,7 +394,7 @@ if(!$IS_ADMIN){
 				<?php
 			}
 			else{
-				echo '<h2>No duplicate records have been located</h2>';
+				echo '<h2>'.$LANG['NO_DUPES'].'</h2>';
 			}
 			?>
 		</div>

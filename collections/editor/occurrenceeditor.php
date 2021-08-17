@@ -50,6 +50,7 @@ $imgArr = array();
 $specImgArr = array();
 $fragArr = array();
 $qryCnt = false;
+$moduleActivation = array();
 $statusStr = '';
 $navStr = '';
 
@@ -72,11 +73,14 @@ if($SYMB_UID){
 		elseif($collMap['colltype']=='Observations'){
 			$collType = 'obs';
 		}
-		elseif(isset($editorPropArr['modules-panel']['paleo']['status']) && $editorPropArr['modules-panel']['paleo']['status']){
-			$collType = 'paleo';
+		if(isset($editorPropArr['modules-panel']['paleo']['status']) && $editorPropArr['modules-panel']['paleo']['status']){
+			$moduleActivation[] = 'paleo';
+		}
+		if(isset($editorPropArr['modules-panel']['matsample']['status']) && $editorPropArr['modules-panel']['matsample']['status']){
+			$moduleActivation[] = 'matSample';
+			if($tabTarget > 2) $tabTarget++;
 		}
 	}
-
 	//Bring in config variables
 	if($isGenObs){
 		if(file_exists('includes/config/occurVarGenObs'.$SYMB_UID.'.php')){
@@ -542,8 +546,10 @@ else{
 						?>
 						<div class="navpath">
 							<a href='../../index.php'><?php echo (isset($LANG['HOME'])?$LANG['Home']:'Home'); ?></a> &gt;&gt;
-							<?php echo $collections_editor_occurrenceeditorCrumbs; ?>
-							<b><?php echo (isset($LANG['EDITOR'])?$LANG['EDITOR']:'Editor'); ?></b>
+							<?php
+							echo $collections_editor_occurrenceeditorCrumbs;
+							echo '<b>'.(isset($LANG['EDITOR'])?$LANG['EDITOR']:'Editor').'</b>';
+							?>
 						</div>
 						<?php
 					}
@@ -655,35 +661,39 @@ else{
 										if($isEditor < 4){
 											?>
 											<li id="detTab">
-												<a href="includes/determinationtab.php?<?php echo $anchorVars.'&'.$detVars; ?>"
-													style=""><?php echo (isset($LANG['DET_HISTORY'])?$LANG['DET_HISTORY']:'Determination History'); ?></a>
+												<a href="includes/determinationtab.php?<?php echo $anchorVars.'&'.$detVars; ?>" style=""><?php echo (isset($LANG['DET_HISTORY'])?$LANG['DET_HISTORY']:'Determination History'); ?></a>
 											</li>
 											<?php
 										}
 										if($isEditor == 1 || $isEditor == 2){
 											?>
 											<li id="imgTab">
-												<a href="includes/imagetab.php?<?php echo $anchorVars; ?>"
-													style=""><?php echo (isset($LANG['IMAGES'])?$LANG['IMAGES']:'Images'); ?></a>
+												<a href="includes/imagetab.php?<?php echo $anchorVars; ?>" style=""><?php echo (isset($LANG['IMAGES'])?$LANG['IMAGES']:'Images'); ?></a>
 											</li>
+											<?php
+											if(in_array('matSample',$moduleActivation)){
+												?>
+												<li id="matSampleTab">
+													<a href="includes/materialsampleinclude.php?<?php echo $anchorVars; ?>">Parts</a>
+												</li>
+												<?php
+											}
+											?>
 											<li id="resourceTab">
-												<a href="includes/resourcetab.php?<?php echo $anchorVars; ?>"
-													style=""><?php echo (isset($LANG['LINKED_RES'])?$LANG['LINKED_RES']:'Linked Resources'); ?></a>
+												<a href="includes/resourcetab.php?<?php echo $anchorVars; ?>" style=""><?php echo (isset($LANG['LINKED_RES'])?$LANG['LINKED_RES']:'Linked Resources'); ?></a>
 											</li>
 											<?php
 											if($occManager->traitCodingActivated()){
 												$traitAnchor = $anchorVars;
 												?>
 												<li id="traitTab">
-													<a href="includes/traittab.php?<?php echo $traitAnchor; ?>"
-														style=""><?php echo (isset($LANG['TRAITS'])?$LANG['TRAITS']:'Traits'); ?></a>
+													<a href="includes/traittab.php?<?php echo $traitAnchor; ?>" style=""><?php echo (isset($LANG['TRAITS'])?$LANG['TRAITS']:'Traits'); ?></a>
 												</li>
 												<?php
 											}
 											?>
 											<li id="adminTab">
-												<a href="includes/admintab.php?<?php echo $anchorVars; ?>"
-													style=""><?php echo (isset($LANG['ADMIN'])?$LANG['ADMIN']:'Admin'); ?></a>
+												<a href="includes/admintab.php?<?php echo $anchorVars; ?>" style=""><?php echo (isset($LANG['ADMIN'])?$LANG['ADMIN']:'Admin'); ?></a>
 											</li>
 											<?php
 										}
@@ -867,17 +877,7 @@ else{
 													echo ' <a href="#" onclick="return dwcDoc(\'idConfidence\')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a> ';
 													echo '<select name="confidenceranking" onchange="fieldChanged(\'confidenceranking\')">';
 													echo '<option value="">'.(isset($LANG['UNDEFINED'])?$LANG['UNDEFINED']:'Undefined').'</option>';
-													$idRankArr = array(10 => 'Absolute',
-																9 => 'Very High',
-																8 => 'High',
-																7 => 'High - verification requested',
-																6 => 'Medium - insignificant material',
-																5 => 'Medium',
-																4 => 'Medium - verification requested',
-																3 => 'Low - insignificant material',
-																2 => 'Low',
-																1 => 'Low - ID Requested',
-																0 => 'ID Requested');
+													$idRankArr = array(10 => 'Absolute', 9 => 'Very High', 8 => 'High', 7 => 'High - verification requested', 6 => 'Medium - insignificant material', 5 => 'Medium', 4 => 'Medium - verification requested',3 => 'Low - insignificant material', 2 => 'Low', 1 => 'Low - ID Requested', 0 => 'ID Requested');
 													foreach($idRankArr as $rankKey => $rankText){
 														echo '<option value="'.$rankKey.'">'.$rankKey.' - '.$rankText.'</option>';
 													}
@@ -1187,7 +1187,7 @@ else{
 											</div>
 										</fieldset>
 										<?php
-										if($collType == 'paleo') include('includes/paleoinclude.php');
+										if(in_array('paleo',$moduleActivation)) include('includes/paleoinclude.php');
 										?>
 										<fieldset>
 											<legend><?php echo $LANG['MISC']; ?></legend>

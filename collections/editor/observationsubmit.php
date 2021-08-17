@@ -2,6 +2,8 @@
 //TODO: add code to automatically select hide locality details when taxon/state match name on list
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ObservationSubmitManager.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/observationsubmit.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/observationsubmit.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/observationsubmit.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/observationsubmit.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
@@ -44,7 +46,7 @@ $clArr = $obsManager->getChecklists();
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title><?php echo $DEFAULT_TITLE; ?> Observation Submission</title>
+	<title><?php echo $DEFAULT_TITLE.' '.$LANG['OBS_SUBMIT']; ?></title>
   <?php
     $activateJQuery = true;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -102,10 +104,10 @@ $clArr = $obsManager->getChecklists();
 				if($occid){
 					?>
 					<div style="color:green;">
-						SUCCESS: Image loaded successfully!
+						<?php echo $LANG['SUCCESS_IMAGE']; ?>
 					</div>
 					<div style="font:weight;font-size:120%;margin-top:10px;">
-						Open <a href="../individual/index.php?occid=<?php echo $occid; ?>" target="_blank">Occurrence Details Viewer</a> to see the new record
+						<?php echo $LANG['OPEN']; ?> <a href="../individual/index.php?occid=<?php echo $occid; ?>" target="_blank"><?php echo $LANG['OCC_DET_VIEW']; ?></a> <?php echo $LANG['TO_SEE_NEW']; ?>
 					</div>
 					<?php
 					if($clid){
@@ -113,7 +115,7 @@ $clArr = $obsManager->getChecklists();
 						if(isset($clArr[$clid])) $checklistName = $clArr[$clid];
 						?>
 						<div style="font:weight;font-size:120%;margin-top:10px;">
-							Go to <a href="../checklists/checklist.php?clid=<?php echo $clid; ?>" target="_blank"><?php echo $checklistName; ?></a> checklist
+							<?php echo $LANG['GO_TO']; ?> <a href="../checklists/checklist.php?clid=<?php echo $clid; ?>" target="_blank"><?php echo $checklistName; ?></a> <?php echo $LANG['CHECKLIST']; ?>
 						</div>
 						<?php
 					}
@@ -121,7 +123,7 @@ $clArr = $obsManager->getChecklists();
 				$errArr = $obsManager->getErrorArr();
 				if($errArr){
 					echo '<div style="color:red;">';
-					echo 'ERROR:<ol>';
+					echo $LANG['ERROR'].':<ol>';
 					foreach($errArr as $e){
 						echo '<li>'.$e.'</li>';
 					}
@@ -129,7 +131,7 @@ $clArr = $obsManager->getChecklists();
 					echo '</div>';
 				}
 				if(!$action){
-					echo 'UNKNOWN ERROR: image file may have been larger than allowed by server. Try uploading a smaller image or have system administrator modify PHP configurations';
+					echo $LANG['UNK_ERROR'];
 				}
 				?>
 			</div>
@@ -138,11 +140,11 @@ $clArr = $obsManager->getChecklists();
 		}
 		if($isEditor){
 			?>
-			<div>* Field names in <b>bold</b> are required</div>
+			<div>* <?php echo $LANG['FIELD_NAMES_REQ']; ?></div>
 			<div style="margin:10px;">
 				<form id='obsform' name='obsform' action='observationsubmit.php' method='post' enctype='multipart/form-data' onsubmit="return verifyObsForm(this)">
 					<fieldset>
-						<legend><b>Images</b></legend>
+						<legend><b><?php echo $LANG['IMAGES']; ?></b></legend>
 				    	<!-- following line sets MAX_FILE_SIZE (must precede the file input field)  -->
 						<input type='hidden' name='MAX_FILE_SIZE' value='<?php echo $maxUpload; ?>' />
 						<div style="margin:15px;float:right">
@@ -154,16 +156,16 @@ $clArr = $obsManager->getChecklists();
 							?>
 							<div class="imgSubmitDiv" id="img<?php echo $x; ?>div" style="<?php if($x > 1) echo 'display:none'; ?>">
 								<div>
-									<b>Image <?php echo $x; ?>:</b>
+									<b><?php echo $LANG['IMAGE'].' '.$x; ?>:</b>
 									<input name='imgfile<?php echo $x; ?>' type='file' onchange="verifyImageSize(this)" <?php if($x == 1) echo 'required'; ?> />
 								</div>
 								<div style="margin:5px;">
 									<div style="float:left;">
-										Caption:
+										<?php echo $LANG['CAPTION']; ?>:
 										<input name="caption<?php echo $x; ?>" type="text" style="width:200px;" />
 									</div>
 									<div style="float:left;margin-left:20px;">
-										Image Remarks:
+										<?php echo $LANG['IMG_REMARKS']; ?>:
 										<input name="notes<?php echo $x; ?>" type="text" style="width:275px;" />
 									</div>
 									<?php
@@ -171,7 +173,7 @@ $clArr = $obsManager->getChecklists();
 										?>
 										<div style="clear:both;float:right;margin:10px 40px;">
 											<a href="#" onclick="toggle('img<?php echo ($x+1); ?>div');return false">
-												Add Another Image
+												<?php echo $LANG['ADD_ANOTHER']; ?>
 											</a>
 										</div>
 										<?php
@@ -185,33 +187,33 @@ $clArr = $obsManager->getChecklists();
 						<!-- <div style="margin-left:10px;clear:both">* Uploading web-ready images recommended. Upload image size can not be greater than <?php echo ($maxUpload/1000000); ?>MB</div>  -->
 					</fieldset>
 					<fieldset>
-						<legend><b>Observation</b></legend>
+						<legend><b><?php echo $LANG['OBSERVATION']; ?></b></legend>
 						<div style="clear:both;" class="p1">
 							<div style="float:left;">
-								<b>Scientific Name:</b><br/>
+								<b><?php echo $LANG['SCINAME']; ?>:</b><br/>
 								<input type="text" id="sciname" name="sciname" maxlength="250" style="width:390px;" required />
 								<input type="hidden" id="tidtoadd" name="tidtoadd" value="" />
 							</div>
 							<div style="float:left;">
-								Author:<br/>
+								<?php echo $LANG['AUTHOR']; ?>:<br/>
 								<input type="text" name="scientificnameauthorship" maxlength="100" tabindex="-1" style="" value="" />
 							</div>
 						</div>
 						<div style="clear:both;margin-left:10px;padding:3px 0px 0px 10px;">
-							<span>Family:</span>
+							<span><?php echo $LANG['FAMILY']; ?>:</span>
 							<input type="text" name="family" size="30" maxlength="50" style="" tabindex="-1" value="" />
 						</div>
 						<div style="clear:both;">
 							<div style="float:left;">
-								<b>Observer:</b><br/>
+								<b><?php echo $LANG['OBSERVER']; ?>:</b><br/>
 								<input type="text" name="recordedby" maxlength="255" style="width:250px;" value="<?php echo $recordedBy; ?>" required />
 							</div>
 							<div style="float:left">
-								Number:<br/>
+								<?php echo $LANG['NUMBER']; ?>:<br/>
 								<input type="text" name="recordnumber" maxlength="45" style="width:80px;" title="Observer Number, if observer uses a numbering system " />
 							</div>
 							<div style="float:left;">
-								<b>Date:</b><br/>
+								<b><?php echo $LANG['DATE']; ?>:</b><br/>
 								<input type="text" id="eventdate" name="eventdate" style="width:120px;" onchange="verifyDate(this);" title="format: yyyy-mm-dd" required />
 								<a style="margin:15px 0px 0px 5px;" onclick="toggle('obsextradiv');return false" title="Display additional fields">
 									<img src="../../images/editplus.png" style="width:15px;" />
@@ -220,106 +222,106 @@ $clArr = $obsManager->getChecklists();
 						</div>
 						<div id="obsextradiv" style="clear:both;padding:3px 0px 0px 10px;margin-bottom:20px;display:none;">
 							<div style="clear:both;margin-top:5px;">
-								Associated Observers:
+								<?php echo $LANG['ASSOC_OBSERVERS']; ?>:
 								<input type="text" name="associatedcollectors" maxlength="255" style="width:350px;" value="" />
 							</div>
 							<div style="float:left;margin:3px 0px 0px 0px;">
-								Identified By:
+								<?php echo $LANG['IDED_BY']; ?>:
 								<input type="text" name="identifiedby" maxlength="255" style="" value="" />
 							</div>
 							<div style="float:left;margin:3px 0px 0px 10px;">
-								Date Identified:
+								<?php echo $LANG['DATE_IDED']; ?>:
 								<input type="text" name="dateidentified" maxlength="45" style="" value="" />
 							</div>
 							<div style="clear:both;padding:3px 0px 0px 0px;" >
-								ID References:
+								<?php echo $LANG['ID_REFS']; ?>:
 								<input type="text" name="identificationreferences" style="width:450px;" title="cf, aff, etc" />
 							</div>
 							<div style="clear:both;padding:3px 0px 0px 0px;" >
-								ID Remarks:
+								<?php echo $LANG['ID_REMARKS']; ?>:
 								<input type="text" name="taxonremarks" style="width:500px;" value="" />
 							</div>
 						</div>
 					</fieldset>
 					<fieldset>
-						<legend><b>Locality</b></legend>
+						<legend><b><?php echo $LANG['LOCALITY']; ?></b></legend>
 						<div style="clear:both;">
 							<div style="float:left;">
-								<b>Country</b><br/>
+								<b><?php echo $LANG['COUNTRY']; ?></b><br/>
 								<input type="text" name="country" style="width:150px;" value="" required />
 							</div>
 							<div style="float:left;">
-								<b>State/Province</b><br/>
+								<b><?php echo $LANG['STATE_PROVINCE']; ?></b><br/>
 								<input type="text" name="stateprovince" style="width:150px;" value="" required />
 							</div>
 							<div style="float:left;">
-								County<br/>
+								<?php echo $LANG['COUNTY_PARISH']; ?><br/>
 								<input type="text" name="county" style="width:150px;" value="" />
 							</div>
 						</div>
 						<div style="clear:both;margin:4px 0px 2px 0px;">
-							<b>Locality:</b><br />
+							<b><?php echo $LANG['LOCALITY']; ?>:</b><br />
 							<input type="text" name="locality" style="width:95%;" value="" required />
 						</div>
 						<div style="clear:both;margin-bottom:5px;">
-							<input type="checkbox" name="localitysecurity" style="" value="1" title="Hide Locality Data from General Public" />
-							Hide Locality Details from General Public (rare, threatened, or sensitive species)
+							<input type="checkbox" name="localitysecurity" style="" value="1" title="<?php echo $LANG['HIDE_LOC_SHORT']; ?>" />
+							<?php echo $LANG['HIDE_LOC_LONG']; ?>
 						</div>
 						<div style="clear:both;">
 							<div style="float:left;">
-								<b>Latitude</b><br/>
+								<b><?php echo $LANG['LATITUDE']; ?></b><br/>
 								<input type="text" id="decimallatitude" name="decimallatitude" maxlength="10" style="width:88px;" value="" onchange="verifyLatValue(this.form)" title="Decimal Format (eg 34.5436)" required />
 							</div>
 							<div style="float:left;">
-								<b>Longitude</b><br/>
+								<b><?php echo $LANG['LONGITUDE']; ?></b><br/>
 								<input type="text" id="decimallongitude" name="decimallongitude" maxlength="13" style="width:88px;" value="" onchange="verifyLngValue(this.form)" title="Decimal Format (eg -112.5436)" required />
 							</div>
 							<div style="float:left;margin-top:15px; margin-left:3px;" >
 								<a onclick="openMappingAid('obsform','decimallatitude','decimallongitude');return false;">
 									<img src="../../images/world.png" style="width:15px;" title="Coordinate Map Aid" />
 								</a>
-								<button id="dmsButton" type="button" onclick="toggle('dmsdiv');">DMS</button>
+								<button id="dmsButton" type="button" onclick="toggle('dmsdiv');"><?php echo $LANG['DMS']; ?></button>
 							</div>
 							<div style="float:left;">
-								<b>Uncertainty(m)</b><br/>
+								<b><?php echo $LANG['UNCERTAINTY_M']; ?></b><br/>
 								<input type="text" id="coordinateuncertaintyinmeters" name="coordinateuncertaintyinmeters" maxlength="10" style="width:110px;" onchange="inputIsNumeric(this, 'Lat/long uncertainty')" title="Uncertainty in Meters" value="<?php echo $uncertaintyInMeters; ?>" required />
 							</div>
 							<div style="float:left;">
-								Datum<br/>
+								<?php echo $LANG['DATUM']; ?><br/>
 								<input type="text" name="geodeticdatum" maxlength="255" style="width:80px;" />
 							</div>
 							<div style="float:left;">
-								Elev. (meters)<br/>
+								<?php echo $LANG['ELEV_M']; ?><br/>
 								<input type="text" name="minimumelevationinmeters" maxlength="6" style="width:95px;" value="" onchange="verifyElevValue(this)" title="Minumum Elevation In Meters" />
 							</div>
 							<div style="float:left;">
-								Elev. (feet)<br/>
+								<?php echo $LANG['ELEV_FT']; ?><br/>
 								<input type="text" name="verbatimelevation" style="width:85px;" value="" onchange="convertElevFt(this.form)" title="Minumum Elevation In Feet" />
 							</div>
 							<div style="float:left;">
-								Georeference Remarks<br/>
+								<?php echo $LANG['GEO_REMARKS']; ?><br/>
 								<input type="text" name="georeferenceremarks" maxlength="255" style="width:250px;" value="" />
 							</div>
 						</div>
 						<div id="dmsdiv">
 							<div>
-								Latitude:
-								<input id="latdeg" style="width:35px;" title="Latitude Degree" />&deg;
-								<input id="latmin" style="width:50px;" title="Latitude Minutes" />'
-								<input id="latsec" style="width:50px;" title="Latitude Seconds" />&quot;
+								<?php echo $LANG['LATITUDE']; ?>:
+								<input id="latdeg" style="width:35px;" title="<?php echo $LANG['LATITUDE_DEG']; ?>" />&deg;
+								<input id="latmin" style="width:50px;" title="<?php echo $LANG['LATITUDE_MIN']; ?>" />'
+								<input id="latsec" style="width:50px;" title="<?php echo $LANG['LATITUDE_SEC']; ?>" />&quot;
 								<select id="latns">
-									<option>N</option>
-									<option>S</option>
+									<option><?php echo $LANG['N']; ?></option>
+									<option><?php echo $LANG['S']; ?></option>
 								</select>
 							</div>
 							<div>
-								Longitude:
-								<input id="lngdeg" style="width:35px;" title="Longitude Degree" />&deg;
-								<input id="lngmin" style="width:50px;" title="Longitude Minutes" />'
-								<input id="lngsec" style="width:50px;" title="Longitude Seconds" />&quot;
+								<?php echo $LANG['LONGITUDE']; ?>:
+								<input id="lngdeg" style="width:35px;" title="<?php echo $LANG['LONGITUDE_DEG']; ?>" />&deg;
+								<input id="lngmin" style="width:50px;" title="<?php echo $LANG['LONGITUDE_MIN']; ?>" />'
+								<input id="lngsec" style="width:50px;" title="<?php echo $LANG['LONGITUDE_SEC']; ?>" />&quot;
 								<select id="lngew">
-									<option>E</option>
-									<option SELECTED>W</option>
+									<option><?php echo $LANG['E']; ?></option>
+									<option SELECTED><?php echo $LANG['W']; ?></option>
 								</select>
 							</div>
 							<div style="margin:5px;">
@@ -328,39 +330,39 @@ $clArr = $obsManager->getChecklists();
 						</div>
 					</fieldset>
 					<fieldset>
-						<legend><b>Misc</b></legend>
+						<legend><b><?php echo $LANG['MISC']; ?></b></legend>
 						<div style="padding:3px;">
-							Habitat:
+							<?php echo $LANG['HABITAT']; ?>:
 							<input type="text" name="habitat" style="width:600px;" value="" />
 						</div>
 						<div style="padding:3px;">
-							Substrate:
+							<?php echo $LANG['SUBSTRATE']; ?>:
 							<input type="text" name="substrate" style="width:600px;" value="" />
 						</div>
 						<div style="padding:3px;">
-							Associated Taxa:
+							<?php echo $LANG['ASSOC_TAXA']; ?>:
 							<input type="text" name="associatedtaxa" style="width:600px;background-color:" value="" />
 						</div>
 						<div style="padding:3px;">
-							Description of Organism:
+							<?php echo $LANG['DESC_ORG']; ?>:
 							<input type="text" name="verbatimattributes" style="width:600px;" value="" />
 						</div>
 						<div style="padding:3px;">
-							General Notes:
+							<?php echo $LANG['GENERAL_NOTES']; ?>:
 							<input type="text" name="occurrenceremarks" style="width:600px;" value="" title="Occurrence Remarks" />
 						</div>
 						<div style="padding:3px;">
 							<span title="e.g. sterile, flw, frt, flw/frt ">
-								Reproductive Condition:
+								<?php echo $LANG['REP_COND']; ?>:
 								<input type="text" name="reproductivecondition" maxlength="255" style="width:140px;" value="" />
 							</span>
 							<span style="margin-left:30px;" title="e.g. planted, seeded, garden excape, etc">
-								Establishment Means:
+								<?php echo $LANG['EST_MEANS']; ?>:
 								<input type="text" name="establishmentmeans" maxlength="32" style="width:140px;" value="" />
 							</span>
 							<span style="margin-left:15px;" title="Click if specimen was cultivated or captive">
 								<input type="checkbox" name="cultivationstatus" style="" value="" />
-								Cultivated/Captive
+								<?php echo $LANG['CULT_CAPT']; ?>
 							</span>
 						</div>
 					</fieldset>
@@ -368,10 +370,10 @@ $clArr = $obsManager->getChecklists();
 					if($clArr){
 						?>
 						<fieldset>
-							<legend><b>Link to Checklist as Voucher</b></legend>
-							Species List:
+							<legend><b><?php echo $LANG['LINK_CHECK']; ?></b></legend>
+							<?php echo $LANG['SP_LIST']; ?>:
 							<select name='clid'>
-								<option value="0">Select Checklist</option>
+								<option value="0"><?php echo $LANG['SEL_CHECKLIST']; ?></option>
 								<option value="0">------------------------------</option>
 								<?php
 								foreach($clArr as $id => $clName){
@@ -385,15 +387,15 @@ $clArr = $obsManager->getChecklists();
 					?>
 					<div style="margin:15px">
 						<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
-						<input type="submit" name="action" value="Submit Observation" />
+						<button type="submit" name="action" value="Submit Observation"><?php echo $LANG['SUBMIT_OBS']; ?></button>
 					</div>
 				</form>
 			</div>
 			<?php
 		}
 		else{
-			echo 'You are authorized to submit to an observation. ';
-			echo '<br/><b>Please contact an administrator to obtain the necessary permissions.</b> ';
+			echo $LANG['NOT_AUTH'].' ';
+			echo '<br/><b>'.$LANG['CONTACT_ADMIN'].'</b> ';
 		}
 		?>
 	</div>

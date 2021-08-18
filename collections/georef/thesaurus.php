@@ -62,19 +62,36 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			
 			//Provide a form to edit the geo unit that is hidden by default until user clicks edit symbol
 		?>
+			<!-- How do I make this div toggle??? -->
 			<div id="editgeounitdiv">
 				<div id="geoUnitNameDiv">
-					<b>GeoUnit Name</b>
-					<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" /><br>
-					<b>GeoUnit Child</b>
+					<b>Change GeoUnit Name</b>
+						<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" />
 					<br>
-					<b>GeoUnit Parent</b>
+					<!-- Add a child term to geo unit-->
+					<b>Add GeoUnit Child</b>
+						<select name="geounitchild" onchange="addChildGeoUnit('processingstatus')>
+							<option value="">------------</option>
+							<?php
+								foreach($geoThesID as $geoThesID => $geoterm){
+								echo '<option value="'.$geoThesID.'">'.$geoterm.'</option>';
+								}
+							?>
+						</select>
+					<br>
+					<b>Change GeoUnit Parent</b>
+						<select name="geounitparent" onchange="updateParentGeoUnit('processingstatus')>
+							<option value="">------------</option>
+							<?php
+								foreach($geoThesID as $geoThesID => $geoterm){
+								echo '<option value="'.$geoThesID.'">'.$geoterm.'</option>';
+								}
+							?>
+						</select>
+					<br>
 				</div>
 			</div>
 		<?php
-			//Provide a form for adding a new child term associated with this geo unit
-
-
 			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="thesaurus.php?parentID='.$geoUnit['parentID'].'">Return to list</a></div>';
 			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="thesaurus.php?geoThesID='.$geoUnit['parentID'].'">Show parent term</a></div>';
 			if(isset($geoUnit['childCnt']) && $geoUnit['childCnt']) echo '<div><a href="thesaurus.php?parentID='.$geoThesID.'">Show children taxa</a></div>';

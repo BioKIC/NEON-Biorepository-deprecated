@@ -62,9 +62,9 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			<div  id="editgeounitdiv">
 				<div id="geoUnitNameDiv">
 					<b>GeoUnit Name</b>
-					<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:390px;" />
+					<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:100px;" /><br>
 					GeoUnit Child
-					
+					<br>
 					GeoUnit Parent
 				</div>
 			</div>

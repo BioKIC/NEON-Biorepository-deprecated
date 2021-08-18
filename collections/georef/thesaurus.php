@@ -51,17 +51,18 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 		if($geoThesID){
 			$geoUnit = $geoManager->getGeograpicUnit($geoThesID);
 			//Display details for geographic unit with edit and addNew symbols displayed to upper right
-			echo '<div style="font-weight:bold;margin-bottom:10px">'.$geoUnit['geoTerm'].'</div>';
+			echo '<div style="font-weight:bold;margin-bottom:10px">'.$geoUnit['geoTerm'];
 			?>
 			<a id="editGeoUnitToggleDiv" onclick="toggle('editgeounitdiv');">
 			<img class="editimg" src="../../images/edit.png" />
 			</a>
+			</div>
 		<?php
 			echo '<div style="margin-bottom:10px">Need to display geoUnit details here</div>';
 			
 			//Provide a form to edit the geo unit that is hidden by default until user clicks edit symbol
 		?>
-			<div  id="editgeounitdiv">
+			<div id="editgeounitdiv">
 				<div id="geoUnitNameDiv">
 					<b>GeoUnit Name</b>
 					<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" /><br>

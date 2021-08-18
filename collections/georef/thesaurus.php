@@ -55,7 +55,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			?>
 			<a id="editGeoUnitToggleDiv" onclick="toggle('editgeounitdiv');">
 			<img class="editimg" src="../../images/edit.png" />
-			</div>
+			</a>
 		<?php
 			echo '<div style="margin-bottom:10px">Need to display geoUnit details here</div>';
 			

@@ -53,10 +53,22 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			//Display details for geographic unit with edit and addNew symbols displayed to upper right
 			echo '<div style="font-weight:bold;margin-bottom:10px">'.$geoUnit['geoTerm'].'</div>';
 			echo '<div style="margin-bottom:10px">Need to display geoUnit details here</div>';
-
+			
 			//Provide a form to edit the geo unit that is hidden by default until user clicks edit symbol
-
-
+		?>
+			<div id="editGeoUnitToggleDiv" onclick="toggle('editgeounitdiv');">
+			<img class="editimg" src="../../images/edit.png" />
+			</div>
+			<div  id="editgeounitdiv">
+				<div id="geoUnitNameDiv">
+					<b>GeoUnit Name</b>
+					<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:390px;" />
+					GeoUnit Child
+					
+					GeoUnit Parent
+				</div>
+			</div>
+		<?php
 			//Provide a form for adding a new child term associated with this geo unit
 
 

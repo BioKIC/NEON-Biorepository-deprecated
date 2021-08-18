@@ -45,6 +45,22 @@ ALTER TABLE `ctcontrolvocab`
 ALTER TABLE `ctcontrolvocab` 
   ADD CONSTRAINT `FK_ctControlVocab_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
+CREATE TABLE `omcollproperties` (
+  `collPropID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `collid` INT UNSIGNED NOT NULL,
+  `propCategory` VARCHAR(45) NOT NULL,
+  `propTitle` VARCHAR(45) NOT NULL,
+  `propJson` LONGTEXT NULL,
+  `notes` VARCHAR(255) NULL,
+  `modifiedUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` DATETIME NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`collPropID`),
+  INDEX `FK_omcollproperties_collid_idx` (`collid` ASC),
+  INDEX `FK_omcollproperties_uid_idx` (`modifiedUid` ASC),
+  CONSTRAINT `FK_omcollproperties_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)   ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE);
+
 ALTER TABLE `omoccurassociations` 
   CHANGE COLUMN `condition` `conditionOfAssociate` VARCHAR(250) NULL DEFAULT NULL ;
 

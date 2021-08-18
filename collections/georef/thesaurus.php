@@ -65,12 +65,12 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			<!-- How do I make this div toggle??? -->
 			<div id="editgeounitdiv">
 				<div id="geoUnitNameDiv">
-					<b>Change GeoUnit Name</b>
+					Change GeoUnit Name
 						<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" />
 					<br>
 					<!-- Add a child term to geo unit-->
-					<b>Add GeoUnit Child</b>
-						<select name="geounitchild" onchange="addChildGeoUnit('processingstatus')>
+					Add GeoUnit Child
+						<select name="geounitchild" onchange="addChildGeoUnit('processingstatus');">
 							<option value="">------------</option>
 							<?php
 								foreach($geoThesID as $geoThesID => $geoterm){
@@ -79,8 +79,8 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							?>
 						</select>
 					<br>
-					<b>Change GeoUnit Parent</b>
-						<select name="geounitparent" onchange="updateParentGeoUnit('processingstatus')>
+					Change GeoUnit Parent
+						<select name="geounitparent" onchange="updateParentGeoUnit('processingstatus');">
 							<option value="">------------</option>
 							<?php
 								foreach($geoThesID as $geoThesID => $geoterm){

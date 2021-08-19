@@ -1,5 +1,18 @@
 <?php
 $MS_TYPE_LABEL = 'Material Sample Type';
+$MS_CATALOG_NUMBER_LABEL = 'Catalog Number / Barcode';
+$MS_GUID_LABEL = 'GUID';
+$MS_CONDITION_LABEL = 'Condition';
+$MS_DISPOSITION_LABEL = 'Disposition';
+$MS_PRESERVATION_TYPE_LABEL = 'Preservation type';
+$MS_PRESERVATION_DETAILS_LABEL = 'Preparation details';
+$MS_PRESERVATION_DATE_LABEL = 'Preparation date';
+$MS_PREPARED_BY_LABEL = 'Prepared by';
+$MS_INDIVIDUAL_COUNT_LABEL = 'Individual count';
+$MS_SAMPLE_SIZE_LABEL = 'Sample size';
+$MS_STORAGE_LOCATION_LABEL = 'Storage location';
+$MS_REMARKS_LABEL = 'Remarks';
+
 $MS_GUID_LABEL = 'Global Unique ID (GUID)';
 $MS_CONCENTRATION_LABEL = 'Concentration';
 $MS_CONCENTRATION_UNIT_LABEL = 'Concentration Unit';

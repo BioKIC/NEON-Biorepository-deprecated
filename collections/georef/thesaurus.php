@@ -64,7 +64,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 		?>
 			<!-- How do I make this div toggle??? -->
 			<div id="updategeounitdiv">
-				<div id="geoUnitNameDiv">
+				<div id="geoUnitNameDiv" style='clear:both;margin-bottom:10px';>
 					GeoUnit Name
 						<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" />
 					<br>

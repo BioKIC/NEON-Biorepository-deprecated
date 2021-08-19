@@ -51,19 +51,22 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			$(".editTerm").toggle();
 			$(".editFormElem").toggle();
 			$("#editButton-div").toggle();
+			$("#edit-legend").toggle();
 			$("#unitDel-div").toggle();
 		}
 	</script>
 	<style type="text/css">
-		fieldset{ margin: 10px; padding: 10px; }
+		fieldset{ margin: 10px; padding: 15px; }
 		legend{ font-weight: bold; }
 		label{ text-decoration: underline; }
-		.field-div{  }
+		#edit-legend{ display: none }
+		.field-div{ margin: 3px 0px }
 		.editIcon{  }
+		.editTerm{ }
 		.editFormElem{ display: none }
 		#editButton-div{ display: none }
 		#unitDel-div{ display: none }
-		.button-div{  }
+		.button-div{ margin: 15px }
 		.link-div{ margin:20px 30px }
 		#status-div{ margin:15px; padding: 15px; color: red; }
 	</style>
@@ -86,7 +89,6 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../../images/add.png" /></a></span>
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../../images/edit.png" /></a></span>
 			</div>
-			<div style="font-weight:bold;margin-bottom:10px"><?php echo $geoUnit['geoTerm']; ?></div>
 			<!-- Provide a form to edit the geo unit that is hidden by default until user clicks edit symbol -->
 			<!-- How do I make this div toggle??? -->
 			<div id="addGeoUnit-div" style="display:none">
@@ -97,13 +99,13 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 
 			</div>
 			<div id="updateGeoUnit-div" style="clear:both;margin-bottom:10px;">
-				<fieldset>
-					<legend>Edit Geographic Unit</legend>
-					<form name="unitEditForm" action="thesaurus.php" method="get">
+				<fieldset id="edit-fieldset">
+					<legend>Geographic Unit<span id="edit-legend"> Editor</span></legend>
+					<form name="unitEditForm" action="thesaurus.php" method="post">
 						<div class="field-div">
 							<label>GeoUnit Name</label>:
 							<span class="editTerm"><?php echo $geoUnit['geoTerm']; ?></span>
-							<span class="editFormElem"><input type="text" name="geoTerm" value="<?php echo $geoUnit['geoTerm'] ?>" maxlength="250" style="width:200px;" /></span>
+							<span class="editFormElem"><input type="text" name="geoTerm" value="<?php echo $geoUnit['geoTerm'] ?>" maxlength="250" style="width:200px;" required /></span>
 						</div>
 						<div class="field-div">
 							<label>ISO2 Code</label>:
@@ -123,26 +125,34 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							<span class="editTerm"><?php echo $geoUnit['notes']; ?></span>
 							<span class="editFormElem"><input type="text" name="notes" value="<?php echo $geoUnit['notes'] ?>" maxlength="250" style="width:200px;" /></span>
 						</div>
-						<?php
-						$geoTermList = $geoManager->getGeoTermArr();
-						?>
-						<div class="field-div">
-							<label>Parent term</label>:
-							<span class="editTerm"><?php echo $geoUnit['parentTerm']; ?></span>
-							<span class="editFormElem">
-								<select name="parentID">
-									<option value="">Select Parent Term</option>
-									<option value="">----------------------</option>
-									<option value="">Is a Root Term (e.g. no parent)</option>
-									<?php
-									foreach($geoTermList as $id => $term){
-										echo '<option value="'.$id.'" '.($id==$geoUnit['parentID']?'selected':'').'>'.$term.'</option>';
-									}
-									?>
-								</select>
-							</span>
-						</div>
 
+						<!-- Need to add form element (select?) for geoLevel, which will control which parents can be added, and which lists (e.g. country, state, county) they appear within -->
+
+						<?php
+						if($geoUnit['geoLevel']){
+							$parentStr = '';
+							if($geoUnit['parentTerm']) $parentStr = '<a href="thesaurus.php?geoThesID='.$geoUnit['parentID'].'">'.$geoUnit['parentTerm'].'</a>';
+							?>
+							<div class="field-div">
+								<label>Parent term</label>:
+								<span class="editTerm"><?php echo $parentStr; ?></span>
+								<span class="editFormElem">
+									<select name="parentID">
+										<option value="">Select Parent Term</option>
+										<option value="">----------------------</option>
+										<option value="">Is a Root Term (e.g. no parent)</option>
+										<?php
+										$parentList = $geoManager->getGeoTermArr($geoUnit['geoLevel']);
+										foreach($parentList as $id => $term){
+											echo '<option value="'.$id.'" '.($id==$geoUnit['parentID']?'selected':'').'>'.$term.'</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
+							<?php
+						}
+						?>
 						<!-- Add select elements for accepted terms, similar to how parents are handled. -->
 
 						<div id="editButton-div" class="button-div">
@@ -153,7 +163,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				</fieldset>
 			</div>
 			<div id="unitDel-div">
-				<form name="unitDeleteForm" action="thesaurus.php" method="get">
+				<form name="unitDeleteForm" action="thesaurus.php" method="post">
 					<fieldset>
 						<legend>Delete Geographic Unit</legend>
 						<div class="button-div">
@@ -162,15 +172,17 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 
 							<!-- We need to decide if we want to allow folks to delete a term and all their children, or only can delete if no children or synonym exists. I'm thinking the later. -->
 
-							<button type="submit" name="submitaction" value="deleteGeoUnits" onclick="return confirm('Are you sure you want to delete this record AND all child records?')">Delete Geographic Unit</button>
+							<button type="submit" name="submitaction" value="deleteGeoUnits" onclick="return confirm('Are you sure you want to delete this record?')" <?php echo ($geoUnit['childCnt']?'disabled':''); ?>>Delete Geographic Unit</button>
 						</div>
+						<?php
+						if($geoUnit['childCnt']) echo '<div>* Record can not be deleted until all child records are deleted</div>';
+						?>
 					</fieldset>
 				</form>
 			</div>
 			<?php
 			echo '<div class="link-div">';
 			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="thesaurus.php?parentID='.$geoUnit['parentID'].'">Return to list</a></div>';
-			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="thesaurus.php?geoThesID='.$geoUnit['parentID'].'">Show parent term</a></div>';
 			if(isset($geoUnit['childCnt']) && $geoUnit['childCnt']) echo '<div><a href="thesaurus.php?parentID='.$geoThesID.'">Show children taxa</a></div>';
 			echo '</div>';
 		}
@@ -182,7 +194,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 					$titleStr = '<b>'.$geoArr[key($geoArr)]['category'].'</b> geographic terms within <b>'.$untiArr['geoTerm'].'</b>';
 				}
 				else{
-					$titleStr = '<b>Country</b> Terms';
+					$titleStr = '<b>Root Terms (terms without parents)</b>';
 				}
 				echo '<div style=";font-size:1.3em;margin: 10px 0px">'.$titleStr.'</div>';
 				echo '<ul>';

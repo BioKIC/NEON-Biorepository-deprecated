@@ -1,8 +1,7 @@
 <?php
 include_once ($SERVER_ROOT . '/classes/Manager.php');
 
-class GeographicThesaurus extends Manager
-{
+class GeographicThesaurus extends Manager{
 
 	function __construct($type = 'write'){
 		parent::__construct();
@@ -47,8 +46,9 @@ class GeographicThesaurus extends Manager
 	public function getGeograpicUnit($geoThesID){
 		$retArr = array();
 		if(is_numeric($geoThesID)){
-			$sql = 'SELECT t.geoThesID, t.geoTerm, t.abbreviation, t.iso2, t.iso3, t.numCode, t.category, t.parentID, t.termStatus, a.geoterm as acceptedTerm
+			$sql = 'SELECT t.geoThesID, t.geoTerm, t.abbreviation, t.iso2, t.iso3, t.numCode, t.category, t.parentID, p.geoTerm as parentTerm, t.notes, t.termStatus, a.geoterm as acceptedTerm
 				FROM geographicthesaurus t LEFT JOIN geographicthesaurus a ON t.acceptedID = a.geoThesID
+				LEFT JOIN geographicthesaurus p ON t.parentID = p.geoThesID
 				WHERE t.geoThesID = '.$geoThesID;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -60,6 +60,8 @@ class GeographicThesaurus extends Manager
 				$retArr['numCode'] = $r->numCode;
 				$retArr['category'] = $r->category;
 				$retArr['parentID'] = $r->parentID;
+				$retArr['parentTerm'] = $r->parentTerm;
+				$retArr['notes'] = $r->notes;
 				$retArr['termStatus'] = $r->termStatus;
 				$retArr['acceptedTerm'] = $r->acceptedTerm;
 			}
@@ -72,16 +74,39 @@ class GeographicThesaurus extends Manager
 		return $retArr;
 	}
 
-	public function updateGeoUnit($postArr){
+	public function editGeoUnit($postArr){
 		//Deal with edits
 		//Possible edits include change the spelling, change the ISO code, change the children, and change the parent. Would these all be separate functions?
-		$statusStr = '';
+		if(is_numeric($postArr['geoThesID'])){
+			if(!$postArr['geoterm']){
+				$this->errorMessage = 'ERROR editing geoUnit: geographic must have a value';
+				return false;
+			}
+			$sql = 'UPDATE geographicthesaurus '.
+				'SET geoterm = '.$this->cleanInStr($postArr['geoterm']).
+				', iso2 = '.($postArr['iso2']?'"'.$postArr['iso2'].'"':'NULL').
+				', iso3 = '.($postArr['iso3']?'"'.$postArr['iso3'].'"':'NULL').
+				', notes = '.($postArr['notes']?'"'.$postArr['notes'].'"':'NULL').
+				' WHERE (geoThesID = '.$postArr['geoThesID'].')';
+			//echo $sql;
+			if($this->conn->query($sql)){
+				$this->errorMessage = 'ERROR: changes not saved'.$this->conn->error;
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public function addChildGeoUnit($postArr){
+		//Add new child
+		//Uses an INSERT INTO sql statement
+
+		/* 	$statusStr = '';
 		if(is_numeric($postArr['geoThesID'])){
 			$sql = 'UPDATE geographicthesaurus '.
 				'SET geoterm = '.($postArr['geoterm']?'"'.$postArr['geoterm'].'"':'NULL').
 				', iso2 = '.($postArr['iso2']?'"'.$postArr['iso2'].'"':'NULL').
 				', iso3 = '.($postArr['iso3']?'"'.$postArr['iso3'].'"':'NULL').
-				', notes = '.($postArr['notes']?'"'.$postArr['notes'].'"':'NULL').
 				' WHERE (geoThesID = '.$postArr['geoThesID'].')';
 			if($this->conn->query($sql)){
 				$statusStr = 'SUCCESS: changes saved';
@@ -90,46 +115,19 @@ class GeographicThesaurus extends Manager
 				$statusStr = 'ERROR: changes not saved'.$this->conn->error;
 			}
 		}
-		return $statusStr;
+		return $statusStr; */
 	}
-	
-	public function addChildGeoUnit($postArr){
-	//Add new child
-/* 	$statusStr = '';
-	if(is_numeric($postArr['geoThesID'])){
-		$sql = 'UPDATE geographicthesaurus '.
-			'SET geoterm = '.($postArr['geoterm']?'"'.$postArr['geoterm'].'"':'NULL').
-			', iso2 = '.($postArr['iso2']?'"'.$postArr['iso2'].'"':'NULL').
-			', iso3 = '.($postArr['iso3']?'"'.$postArr['iso3'].'"':'NULL').
-			' WHERE (geoThesID = '.$postArr['geoThesID'].')';
-		if($this->conn->query($sql)){
-			$statusStr = 'SUCCESS: changes saved';
-		}
-		else{
-			$statusStr = 'ERROR: changes not saved'.$this->conn->error;
-		}
-	}
-	return $statusStr; */
-}
 
-	public function deleteChildGeoUnit($postArr){
-	//Delete child
-/* 	$statusStr = '';
-	if(is_numeric($postArr['geoThesID'])){
-		$sql = 'UPDATE geographicthesaurus '.
-			'SET geoterm = '.($postArr['geoterm']?'"'.$postArr['geoterm'].'"':'NULL').
-			', iso2 = '.($postArr['iso2']?'"'.$postArr['iso2'].'"':'NULL').
-			', iso3 = '.($postArr['iso3']?'"'.$postArr['iso3'].'"':'NULL').
-			' WHERE (geoThesID = '.$postArr['geoThesID'].')';
-		if($this->conn->query($sql)){
-			$statusStr = 'SUCCESS: changes saved';
+	public function deleteGeoUnit($geoThesID){
+		if(is_numeric($geoThesID)){
+			$sql = 'DELETE FROM geographicthesaurus WHERE (geoThesID = '.$geoThesID.')';
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'ERROR deleting geoUnit: '.$this->conn->error;
+				return false;
+			}
 		}
-		else{
-			$statusStr = 'ERROR: changes not saved'.$this->conn->error;
-		}
+		return true;
 	}
-	return $statusStr; */
-}
 
 	private function setChildCnt($geoIdStr){
 		$retArr = array();
@@ -165,6 +163,22 @@ class GeographicThesaurus extends Manager
 		return $retArr;
 	}
 
+	//Misc data retrieval functions
+	public function getGeoTermArr(){
+		$retArr = array();
+		$sql = 'SELECT geoThesID, geoTerm FROM geographicthesaurus ORDER BY geoTerm';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->geoThesID] = $r->geoTerm;
+		}
+		$rs->free();
+		return $retArr;
+	}
+
+	// Setters and getters
+
+
+	//Misc junction
 	public function transferDataFromLkupTables(){
 		/*
 		INSERT INTO geographicthesaurus(geoterm,iso2,iso3,numcode,category,geoLevel,termstatus)
@@ -188,9 +202,6 @@ class GeographicThesaurus extends Manager
 		WHERE t.category = "State" AND t.termstatus = 1 AND (c.countyName NOT LIKE "% County" AND c.countyName NOT LIKE "% Parish");
 		 */
 	}
-
-	// Setters and getters
-
 
 
 }

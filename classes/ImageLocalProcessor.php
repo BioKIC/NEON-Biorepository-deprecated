@@ -453,6 +453,8 @@ class ImageLocalProcessor {
 			if(!file_exists($this->sourcePathBase.'/'.$fileName)){
 				if(file_exists($this->sourcePathBase.'/'.$fileName.'.jpg')) $fileName .= '.jpg';
 				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.JPG')) $fileName .= '.JPG';
+				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.jpeg')) $fileName .= '.jpeg';
+				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.JPEG')) $fileName .= '.JPEG';
 				else{
 					$this->logOrEcho('ERROR: unable to locate file within base folder: '.$this->sourcePathBase.$fileName,1);
 					continue;

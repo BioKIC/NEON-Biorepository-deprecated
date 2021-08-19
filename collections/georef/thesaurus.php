@@ -51,15 +51,74 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 		if($geoThesID){
 			$geoUnit = $geoManager->getGeograpicUnit($geoThesID);
 			//Display details for geographic unit with edit and addNew symbols displayed to upper right
-			echo '<div style="font-weight:bold;margin-bottom:10px">'.$geoUnit['geoTerm'].'</div>';
+			echo '<div style="font-weight:bold;margin-bottom:10px">'.$geoUnit['geoTerm'];
+			?>
+			<a id="updateGeoUnitToggleDiv" onclick="toggle('updategeounitdiv');">
+			<img class="editimg" src="../../images/edit.png" />
+			</a>
+			</div>
+		<?php
 			echo '<div style="margin-bottom:10px">Need to display geoUnit details here</div>';
-
+			
 			//Provide a form to edit the geo unit that is hidden by default until user clicks edit symbol
-
-
-			//Provide a form for adding a new child term associated with this geo unit
-
-
+		?>
+			<!-- How do I make this div toggle??? -->
+			<div id="updategeounitdiv">
+				<div id="geoUnitNameDiv" style='clear:both;margin-bottom:10px';>
+					GeoUnit Name
+						<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" />
+					<br>
+					ISO2 Code
+						<input type="text" id="iso2code" name="iso2code" maxlength="250" style="width:200px;" />
+					<br>
+					ISO3 Code
+						<input type="text" id="iso3code" name="iso3code" maxlength="250" style="width:200px;" />
+					<br>
+					Notes
+						<input type="text" id="notes" name="notes" maxlength="250" style="width:200px;" />
+					<br>
+					<button type="submit" name="submitaction" value="Submit Geo Edits">Save Edits</button>
+				</div>
+				<!-- Add a child term to geo unit-->
+				<div id="editchildrendiv">
+					Add Child
+						<select name="addgeounitchild" onchange="addChildGeoUnit('childgeounit');">
+							<option value="">------------</option>
+							<?php
+								foreach($geoUnit as $geoUnit => $geoTerm){
+								echo '<option value="'.$geoUnit.'">'.$geoTerm.'</option>';
+								}
+							?>
+						</select>
+						<button type="submit" name="submitaction" value="Add Child">Submit</button>
+					<br>
+					Delete Child
+						<select name="deletegeounitchild" onchange="deleteChildGeoUnit('childgeounit');">
+							<option value="">------------</option>
+							<?php
+								foreach($geoThesID as $geoThesID => $geoterm){
+								echo '<option value="'.$geoThesID.'">'.$geoterm.'</option>';
+								}
+							?>
+						</select>
+						<button type="submit" name="submitaction" value="Delete Child">Submit</button>
+					<br>
+				</div>
+				<div id="editparentdiv">
+					Change Parent
+						<select name="geounitparent" onchange="updateParentGeoUnit('parentgeounit');">
+							<option value="">------------</option>
+							<?php
+								foreach($geoThesID as $geoThesID => $geoterm){
+								echo '<option value="'.$geoThesID.'">'.$geoterm.'</option>';
+								}
+							?>
+						</select>
+						<button type="submit" name="submitaction" value="Add Parent">Submit</button>
+					<br>
+				</div>
+			</div>
+		<?php
 			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="thesaurus.php?parentID='.$geoUnit['parentID'].'">Return to list</a></div>';
 			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="thesaurus.php?geoThesID='.$geoUnit['parentID'].'">Show parent term</a></div>';
 			if(isset($geoUnit['childCnt']) && $geoUnit['childCnt']) echo '<div><a href="thesaurus.php?parentID='.$geoThesID.'">Show children taxa</a></div>';

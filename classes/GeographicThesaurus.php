@@ -74,8 +74,62 @@ class GeographicThesaurus extends Manager
 
 	public function updateGeoUnit($postArr){
 		//Deal with edits
-
+		//Possible edits include change the spelling, change the ISO code, change the children, and change the parent. Would these all be separate functions?
+		$statusStr = '';
+		if(is_numeric($postArr['geoThesID'])){
+			$sql = 'UPDATE geographicthesaurus '.
+				'SET geoterm = '.($postArr['geoterm']?'"'.$postArr['geoterm'].'"':'NULL').
+				', iso2 = '.($postArr['iso2']?'"'.$postArr['iso2'].'"':'NULL').
+				', iso3 = '.($postArr['iso3']?'"'.$postArr['iso3'].'"':'NULL').
+				', notes = '.($postArr['notes']?'"'.$postArr['notes'].'"':'NULL').
+				' WHERE (geoThesID = '.$postArr['geoThesID'].')';
+			if($this->conn->query($sql)){
+				$statusStr = 'SUCCESS: changes saved';
+			}
+			else{
+				$statusStr = 'ERROR: changes not saved'.$this->conn->error;
+			}
+		}
+		return $statusStr;
 	}
+	
+	public function addChildGeoUnit($postArr){
+	//Add new child
+/* 	$statusStr = '';
+	if(is_numeric($postArr['geoThesID'])){
+		$sql = 'UPDATE geographicthesaurus '.
+			'SET geoterm = '.($postArr['geoterm']?'"'.$postArr['geoterm'].'"':'NULL').
+			', iso2 = '.($postArr['iso2']?'"'.$postArr['iso2'].'"':'NULL').
+			', iso3 = '.($postArr['iso3']?'"'.$postArr['iso3'].'"':'NULL').
+			' WHERE (geoThesID = '.$postArr['geoThesID'].')';
+		if($this->conn->query($sql)){
+			$statusStr = 'SUCCESS: changes saved';
+		}
+		else{
+			$statusStr = 'ERROR: changes not saved'.$this->conn->error;
+		}
+	}
+	return $statusStr; */
+}
+
+	public function deleteChildGeoUnit($postArr){
+	//Delete child
+/* 	$statusStr = '';
+	if(is_numeric($postArr['geoThesID'])){
+		$sql = 'UPDATE geographicthesaurus '.
+			'SET geoterm = '.($postArr['geoterm']?'"'.$postArr['geoterm'].'"':'NULL').
+			', iso2 = '.($postArr['iso2']?'"'.$postArr['iso2'].'"':'NULL').
+			', iso3 = '.($postArr['iso3']?'"'.$postArr['iso3'].'"':'NULL').
+			' WHERE (geoThesID = '.$postArr['geoThesID'].')';
+		if($this->conn->query($sql)){
+			$statusStr = 'SUCCESS: changes saved';
+		}
+		else{
+			$statusStr = 'ERROR: changes not saved'.$this->conn->error;
+		}
+	}
+	return $statusStr; */
+}
 
 	private function setChildCnt($geoIdStr){
 		$retArr = array();

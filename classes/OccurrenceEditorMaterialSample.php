@@ -21,7 +21,7 @@ class OccurrenceEditorMaterialSample extends Manager{
 			FROM ommaterialsample m LEFT JOIN users u ON m.preparedByUid = u.uid WHERE m.occid = '.$this->occid;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
-			$retArr = array_change_key_case($r);
+			$retArr['matSampleID'] = array_change_key_case($r);
 		}
 		$rs->free();
 		return $retArr;
@@ -62,7 +62,7 @@ class OccurrenceEditorMaterialSample extends Manager{
 				',individualCount = '.($postArr['ms_individualCount']?'"'.$postArr['ms_individualCount'].'"':'NULL').
 				',sampleSize = '.($postArr['ms_sampleSize']?'"'.$postArr['ms_sampleSize'].'"':'NULL').
 				',storageLocation = '.($postArr['ms_storageLocation']?'"'.$postArr['ms_storageLocation'].'"':'NULL').
-				',remarks = '.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').' WHERE occid = '.$postArr['occid'];
+				',remarks = '.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').' WHERE matSampleID = '.$this->matSampleID;
 			if($this->conn->query($sql)){
 				return true;
 			}

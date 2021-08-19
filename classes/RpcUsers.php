@@ -18,9 +18,11 @@ class RpcUsers extends RpcBase{
 			WHERE u.lastname LIKE "%'.$term.'%" OR u.firstname LIKE "%'.$term.'%" OR l.username LIKE "%'.$term.'%"
 			ORDER BY u.lastname, u.firstname, l.username';
 		$rs = $this->conn->query($sql);
+		$cnt = 0;
 		while($r = $rs->fetch_object()){
-			$retArr[$r->uid]['id'] = $r->uid;
-			$retArr[$r->uid]['label'] = $r->uname;
+			$retArr[$cnt]['id'] = $r->uid;
+			$retArr[$cnt]['label'] = $r->uname;
+			$cnt++;
 		}
 		$rs->free();
 		return $retArr;

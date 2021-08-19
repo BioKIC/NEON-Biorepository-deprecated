@@ -90,16 +90,22 @@ class OccurrenceEditorManager {
 	}
 
 	public function getDynamicPropertiesArr(){
-		global $EDITOR_PROPERTIES;
+		$retArr = array();
 		$propArr = array();
-		if(isset($EDITOR_PROPERTIES)) $propArr = $EDITOR_PROPERTIES;
-		$dynPropArr = array();
 		if(array_key_exists('dynamicproperties', $this->collMap)){
-			$dynPropArr = json_decode($this->collMap['dynamicproperties'],true);
-			if(isset($dynPropArr['editorProps'])) $propArr = array_merge($propArr,$dynPropArr['editorProps']);
+			$propArr = json_decode($this->collMap['dynamicproperties'],true);
+			if(isset($propArr['editorProps'])){
+				$retArr = $propArr['editorProps'];
+				if(isset($retArr['modules-panel'])){
+					foreach($retArr['modules-panel'] as $module){
+						if(isset($module['paleo']['status']) && $module['paleo']['status']){
+							$this->paleoActivated = true;
+						}
+					}
+				}
+			}
 		}
-		if(isset($propArr['modules-panel']['paleo']['status']) && $propArr['modules-panel']['paleo']['status']) $this->paleoActivated = true;
-		return $propArr;
+		return $retArr;
 	}
 
 	//Query functions

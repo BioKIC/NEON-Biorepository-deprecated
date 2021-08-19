@@ -20,7 +20,7 @@ class OccurrenceCollectionProperty extends Manager {
 			$sql = 'SELECT p.collPropID, p.propCategory, p.propTitle, p.propJson, p.notes, l.username, IFNULL(p.modifiedTimestamp, p.initialTimestamp) AS ts
 				FROM omcollproperties p LEFT JOIN userlogin l ON p.modifiedUid WHERE (p.collid = '.$this->collid.') ';
 			if($rs = $this->conn->query($sql)){
-				while($r = $rs->fetch_assoc()){
+				while($r = $rs->fetch_object()){
 					$this->dynPropArr[$r->propCategory][$r->collPropID]['title'] = $r->propTitle;
 					$this->dynPropArr[$r->propCategory][$r->collPropID]['json'] = $r->propJson;
 					$this->dynPropArr[$r->propCategory][$r->collPropID]['modified'] = $r->ts;
@@ -34,8 +34,8 @@ class OccurrenceCollectionProperty extends Manager {
 
 	public function addProperty($category, $title, $json, $notes=null){
 		if($this->collid){
-			$sql = 'INSERT INTO omcollproperties(propCategory, propTitle, propJson, notes, modifiedUid)
-				VALUES("'.$this->cleanInStr($category).'","'.$this->cleanInStr($title).'","'.$this->cleanInStr($json).'",'.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
+			$sql = 'INSERT INTO omcollproperties(collid,propCategory, propTitle, propJson, notes, modifiedUid)
+				VALUES('.$this->collid.',"'.$this->cleanInStr($category).'","'.$this->cleanInStr($title).'","'.$this->cleanInStr($json).'",'.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
 			if(!$this->conn->query($sql)){
 				$this->errorMessage = 'ERROR adding Collection Property: '.$this->conn->error;
 				return false;
@@ -54,29 +54,22 @@ class OccurrenceCollectionProperty extends Manager {
 
 	public function transferDynamicProperties(){
 		$status = false;
-		$dynPropArr = array();
-		$sql = 'SELECT dynamicProperties FROM omcollections WHERE (collid = '.$this->collid.') AND (dynamicProperties IS NOT NULL)';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_assoc()){
-			if($r->dynamicProperties){
-				$dynPropArr = json_decode($r->dynamicProperties,true);
-				$status = true;
+		if($this->collMetaArr['dynamicProperties']){
+			$dynPropArr = json_decode($this->collMetaArr['dynamicProperties'],true);
+			if($dynPropArr) $status = true;
+			if(isset($dynPropArr['editorProps']['modules-panel'])){
+				$this->addProperty('editorProperties', 'Module Activation', json_encode($dynPropArr['editorProps']['modules-panel']));
 			}
-		}
-		$rs->free();
-
-		if(isset($dynPropArr['editorProps']['modules-panel'])){
-			$this->addProperty('editorProperties', 'Module Activation', json_decode($dynPropArr['editorProps']['modules-panel']));
-		}
-		if(isset($dynPropArr['sesar'])){
-			$this->addProperty('sesarTools', 'IGSN Profile', json_decode($dynPropArr['sesar']));
-		}
-		if(isset($dynPropArr['publicationProps'])){
-			$this->addProperty('publicationProperties', 'Publication Properties', json_decode($dynPropArr['publicationProps']));
-		}
-		if(isset($dynPropArr['labelFormats'])){
-			foreach($dynPropArr['labelFormats'] as $v){
-				$this->addProperty('labelFormat', $v['title'], json_decode($v));
+			if(isset($dynPropArr['sesar'])){
+				$this->addProperty('sesarTools', 'IGSN Profile', json_encode($dynPropArr['sesar']));
+			}
+			if(isset($dynPropArr['publicationProps'])){
+				$this->addProperty('publicationProperties', 'Publication Properties', json_encode($dynPropArr['publicationProps']));
+			}
+			if(isset($dynPropArr['labelFormats'])){
+				foreach($dynPropArr['labelFormats'] as $v){
+					$this->addProperty('labelFormat', $v['title'], json_encode($v));
+				}
 			}
 		}
 		return $status;

@@ -65,7 +65,6 @@ if($SYMB_UID){
 		$occManager->setCollId($collId);
 	}
 	if($collMap){
-		$editorPropArr = $occManager->getDynamicPropertiesArr();
 		if($collMap['colltype']=='General Observations'){
 			$isGenObs = 1;
 			$collType = 'obs';
@@ -73,12 +72,15 @@ if($SYMB_UID){
 		elseif($collMap['colltype']=='Observations'){
 			$collType = 'obs';
 		}
-		if(isset($editorPropArr['modules-panel']['paleo']['status']) && $editorPropArr['modules-panel']['paleo']['status']){
-			$moduleActivation[] = 'paleo';
-		}
-		if(isset($editorPropArr['modules-panel']['matsample']['status']) && $editorPropArr['modules-panel']['matsample']['status']){
-			$moduleActivation[] = 'matSample';
-			if($tabTarget > 2) $tabTarget++;
+		$propArr = $occManager->getDynamicPropertiesArr();
+		if(isset($propArr['modules-panel'])){
+			foreach($propArr['modules-panel'] as $module){
+				if(isset($module['paleo']['status']) && $module['paleo']['status']) $moduleActivation[] = 'paleo';
+				elseif(isset($module['matSample']['status']) && $module['matSample']['status']){
+					$moduleActivation[] = 'matSample';
+					if($tabTarget > 2) $tabTarget++;
+				}
+			}
 		}
 	}
 	//Bring in config variables
@@ -674,7 +676,7 @@ else{
 											if(in_array('matSample',$moduleActivation)){
 												?>
 												<li id="matSampleTab">
-													<a href="includes/materialsampleinclude.php?<?php echo $anchorVars; ?>">Parts</a>
+													<a href="includes/materialsampleinclude.php?<?php echo $anchorVars; ?>">Material Sample</a>
 												</li>
 												<?php
 											}

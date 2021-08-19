@@ -61,6 +61,13 @@ CREATE TABLE `omcollproperties` (
   CONSTRAINT `FK_omcollproperties_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)   ON DELETE CASCADE   ON UPDATE CASCADE,
   CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE);
 
+ALTER TABLE `geographicthesaurus` 
+  ADD COLUMN `geoLevel` INT NOT NULL AFTER `category`;
+
+ALTER TABLE `geographicthesaurus` 
+  ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `category` ASC, `parentID` ASC);
+
+
 ALTER TABLE `omoccurassociations` 
   CHANGE COLUMN `condition` `conditionOfAssociate` VARCHAR(250) NULL DEFAULT NULL ;
 

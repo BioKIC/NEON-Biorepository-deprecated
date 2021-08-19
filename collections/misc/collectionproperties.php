@@ -18,17 +18,6 @@ if($SYMB_UID){
 	}
 }
 $statusStr = '';
-$conversionCode = $propManager->getSystemConvertionCode();
-if($conversionCode == 0){
-	$statusStr = '<span style="color:orange">WARNING:</span> Collection Properties has not yet been activated (e.g. missing tables or other schema issues)';
-}
-elseif($conversionCode == 2){
-	$statusStr = '<span style="color:orange">WARNING:</span> Old Collection Properties need to be converted to new format! ';
-	$statusStr .= '<form name="convertPropForm" action="collectionproperties.php" method="post" style="display:inline; margin-left:20px"><input name="collid" type="hidden" value="'.$collid.'" />';
-	$statusStr .= '<button name="submitaction" type="submit" value="convertFormat">Convert to new format</button>';
-	$statusStr .= '</form>';
-}
-
 if($isEditor){
 	if($action == 'convertFormat'){
 		if($propManager->transferDynamicProperties()) $statusStr = '<span style="color:green">Success! Old collection profile updated</span>';
@@ -79,6 +68,16 @@ if($isEditor){
 		<?php
 		echo '<div style="font-weight:bold;font-size: 1.3em">'.$collMeta['collName'].' Management Properties</div>';
 		if($isEditor){
+			$conversionCode = $propManager->getSystemConvertionCode();
+			if($conversionCode == 0){
+				$statusStr = '<span style="color:orange">WARNING:</span> Collection Properties has not yet been activated (e.g. missing tables or other schema issues)';
+			}
+			elseif($conversionCode == 2){
+				$statusStr = '<span style="color:orange">WARNING:</span> Old Collection Properties need to be converted to new format! ';
+				$statusStr .= '<form name="convertPropForm" action="collectionproperties.php" method="post" style="display:inline; margin-left:20px"><input name="collid" type="hidden" value="'.$collid.'" />';
+				$statusStr .= '<button name="submitaction" type="submit" value="convertFormat">Convert to new format</button>';
+				$statusStr .= '</form>';
+			}
 			if($statusStr){
 				echo '<fieldset><legend>Action Panel</legend>';
 				echo $statusStr;

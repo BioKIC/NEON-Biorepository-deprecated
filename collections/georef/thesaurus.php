@@ -65,12 +65,32 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			<!-- How do I make this div toggle??? -->
 			<div id="editgeounitdiv">
 				<div id="geoUnitNameDiv">
-					Change GeoUnit Name
+					GeoUnit Name
+						<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" />
+					<br>
+					ISO2 Code
+						<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" />
+					<br>
+					ISO3 Code
+						<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" />
+					<br>
+					Notes
 						<input type="text" id="geounitname" name="geounitname" maxlength="250" style="width:200px;" />
 					<br>
 					<!-- Add a child term to geo unit-->
-					Add GeoUnit Child
-						<select name="geounitchild" onchange="addChildGeoUnit('processingstatus');">
+				</div>
+				<div id="editchildrendiv">
+					Add Child
+						<select name="addgeounitchild" onchange="addChildGeoUnit('childgeounit');">
+							<option value="">------------</option>
+							<?php
+								foreach($geoThesID as $geoThesID => $geoterm){
+								echo '<option value="'.$geoThesID.'">'.$geoterm.'</option>';
+								}
+							?>
+						</select>
+					Delete Child
+						<select name="deletegeounitchild" onchange="deleteChildGeoUnit('childgeounit');">
 							<option value="">------------</option>
 							<?php
 								foreach($geoThesID as $geoThesID => $geoterm){
@@ -79,8 +99,10 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							?>
 						</select>
 					<br>
-					Change GeoUnit Parent
-						<select name="geounitparent" onchange="updateParentGeoUnit('processingstatus');">
+				</div>
+				<div id="editparentdiv">
+					Change Parent
+						<select name="geounitparent" onchange="updateParentGeoUnit('parentgeounit');">
 							<option value="">------------</option>
 							<?php
 								foreach($geoThesID as $geoThesID => $geoterm){

@@ -3,8 +3,8 @@ include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/RpcUsers.php');
 header("Content-Type: application/json; charset=".$CHARSET);
 
-$term = $_POST['term'];
-$collid = isset($_POST['collid'])?$_POST['collid']:0;
+$term = $_REQUEST['term'];
+$collid = isset($_REQUEST['collid'])?$_REQUEST['collid']:0;
 
 $isEditor = false;
 if($IS_ADMIN) $isEditor = true;

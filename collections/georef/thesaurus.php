@@ -85,7 +85,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						<select name="addgeounitchild" onchange="addChildGeoUnit('childgeounit');">
 							<option value="">------------</option>
 							<?php
-								foreach($geoUnit){
+								foreach($geoUnit as $geoUnit => $geoTerm){
 								echo '<option value="'.$geoUnit.'">'.$geoTerm.'</option>';
 								}
 							?>

@@ -4,7 +4,7 @@ CREATE TABLE `ommaterialsample` (
   `sampleType` VARCHAR(45) NOT NULL,
   `catalogNumber` VARCHAR(45) NULL,
   `guid` VARCHAR(150) NULL,
-  `condition` VARCHAR(45) NULL,
+  `sampleCondition` VARCHAR(45) NULL,
   `disposition` VARCHAR(45) NULL,
   `preservationType` VARCHAR(45) NULL,
   `preparationDetails` VARCHAR(250) NULL,

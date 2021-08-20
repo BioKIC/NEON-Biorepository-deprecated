@@ -65,6 +65,12 @@ ALTER TABLE `geographicthesaurus`
   ADD COLUMN `geoLevel` INT NOT NULL AFTER `category`;
 
 ALTER TABLE `geographicthesaurus` 
+  DROP FOREIGN KEY `FK_geothes_parentID`;
+
+ALTER TABLE `geographicthesaurus` 
+ADD CONSTRAINT `FK_geothes_parentID`  FOREIGN KEY (`parentID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
+
+ALTER TABLE `geographicthesaurus` 
   ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `category` ASC, `parentID` ASC);
 
 
@@ -97,4 +103,6 @@ ALTER TABLE `uploadspectemp`
 
 ALTER TABLE `omoccurrences` 
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`;
+
+
 

@@ -1,15 +1,3 @@
-label{ 
-	display: block 
-}
-
-[attribute^="edit-elem"]{ 
-	display: none; 
-}
-
-.edit-elem0 { 
-	display: block; 
-}
-
 #smSampleTypeDiv {
 	float:left;
 	margin: 2px;
@@ -34,12 +22,12 @@ label{
 #smGuidDiv input{
 }
 
-#smConditionDiv {
+#smSampleConditionDiv {
 	float:left;
 	margin: 2px;
 }
 
-#smConditionDiv input{
+#smSampleConditionDiv input{
 }
 
 #smDispositionDiv {

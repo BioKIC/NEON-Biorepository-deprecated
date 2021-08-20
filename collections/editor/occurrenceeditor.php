@@ -78,7 +78,7 @@ if($SYMB_UID){
 				if(isset($module['paleo']['status']) && $module['paleo']['status']) $moduleActivation[] = 'paleo';
 				elseif(isset($module['matSample']['status']) && $module['matSample']['status']){
 					$moduleActivation[] = 'matSample';
-					if($tabTarget > 2) $tabTarget++;
+					if($tabTarget > 3) $tabTarget++;
 				}
 			}
 		}
@@ -146,6 +146,7 @@ if($SYMB_UID){
 			$isEditor = $occManager->isTaxonomicEditor();
 		}
 	}
+	include_once 'editProcessor.php';
 	if($action == 'saveOccurEdits'){
 		$statusStr = $occManager->editOccurrence($_POST,$isEditor);
 	}

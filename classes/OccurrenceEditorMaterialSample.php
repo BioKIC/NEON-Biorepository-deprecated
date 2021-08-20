@@ -16,29 +16,30 @@ class OccurrenceEditorMaterialSample extends Manager{
 
 	public function getMaterialSampleArr(){
 		$retArr = array();
-		$sql = 'SELECT m.matSampleID, m.sampleType, m.catalogNumber, m.guid, m.condition, m.disposition, m.preservationType, m.preparationDetails, m.preparationDate,
+		$sql = 'SELECT m.matSampleID, m.sampleType, m.catalogNumber, m.guid, m.sampleCondition, m.disposition, m.preservationType, m.preparationDetails, m.preparationDate,
 			m.preparedByUid, CONCAT_WS(", ",u.lastname,u.firstname) as preparedBy, m.individualCount, m.sampleSize, m.storageLocation, m.remarks, m.dynamicFields, m.recordID, m.initialTimestamp
 			FROM ommaterialsample m LEFT JOIN users u ON m.preparedByUid = u.uid WHERE m.occid = '.$this->occid;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
-			$retArr['matSampleID'] = array_change_key_case($r);
+			$retArr[$r['matSampleID']] = $r;
 		}
 		$rs->free();
 		return $retArr;
 	}
 
-	public function addMaterialSample($postArr){
+	public function insertMaterialSample($postArr){
 		if($this->occid){
-			$sql = 'INSERT INTO ommaterialsample(occid, sampleType, catalogNumber, guid, condition, disposition, preservationType, preparationDetails, preparationDate,
+			$sql = 'INSERT INTO ommaterialsample(occid, sampleType, catalogNumber, guid, sampleCondition, disposition, preservationType, preparationDetails, preparationDate,
 				preparedByUid, individualCount, sampleSize, storageLocation, remarks)
 				VALUES('.$this->occid.','.($postArr['ms_sampleType']?'"'.$postArr['ms_sampleType'].'"':'NULL').','.($postArr['ms_catalogNumber']?'"'.$postArr['ms_catalogNumber'].'"':'NULL').','.
 				($postArr['ms_guid']?'"'.$postArr['ms_guid'].'"':'NULL').','.
-				(is_numeric($postArr['ms_condition'])?$postArr['ms_condition']:'NULL').','.($postArr['ms_disposition']?'"'.$postArr['ms_disposition'].'"':'NULL').','.
+				(is_numeric($postArr['ms_sampleCondition'])?$postArr['ms_sampleCondition']:'NULL').','.($postArr['ms_disposition']?'"'.$postArr['ms_disposition'].'"':'NULL').','.
 				($postArr['ms_preservationType']?'"'.$postArr['ms_preservationType'].'"':'NULL').','.(is_numeric($postArr['ms_preparationDetails'])?$postArr['ms_preparationDetails']:'NULL').','.
-				(is_numberic($postArr['ms_preparationDate'])?$postArr['ms_preparationDate']:'NULL').','.(is_numeric($postArr['ms_preparedByUid'])?$postArr['ms_preparedByUid']:'NULL').','.
+				(is_numeric($postArr['ms_preparationDate'])?$postArr['ms_preparationDate']:'NULL').','.(is_numeric($postArr['ms_preparedByUid'])?$postArr['ms_preparedByUid']:'NULL').','.
 				($postArr['ms_individualCount']?'"'.$postArr['ms_individualCount'].'"':'NULL').','.(is_numeric($postArr['ms_sampleSize'])?$postArr['ms_sampleSize']:'NULL').','.
 				($postArr['ms_storageLocation']?'"'.$postArr['ms_storageLocation'].'"':'NULL').','.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').')';
-				if($this->conn->query($sql)){
+			echo $sql;
+			if($this->conn->query($sql)){
 				return true;
 			}
 			else{
@@ -48,12 +49,12 @@ class OccurrenceEditorMaterialSample extends Manager{
 		}
 	}
 
-	public function editMaterialSample($postArr){
+	public function updateMaterialSample($postArr){
 		if($this->matSampleID){
 			$sql = 'UPDATE ommaterialsample SET sampleType = "'.$this->cleanInStr($postArr['ms_sampleType']).
 				'",catalogNumber = '.($postArr['ms_catalogNumber']?'"'.$postArr['ms_catalogNumber'].'"':'NULL').
 				',guid = '.($postArr['ms_guid']?'"'.$postArr['ms_guid'].'"':'NULL').
-				',condition = '.($postArr['ms_condition']?'"'.$postArr['ms_condition'].'"':'NULL').
+				',sampleCondition = '.($postArr['ms_sampleCondition']?'"'.$postArr['ms_sampleCondition'].'"':'NULL').
 				',disposition = '.($postArr['ms_disposition']?'"'.$postArr['ms_disposition'].'"':'NULL').
 				',preservationType = '.($postArr['ms_preservationType']?'"'.$postArr['ms_preservationType'].'"':'NULL').
 				',preparationDetails = '.($postArr['ms_preparationDetails']?'"'.$postArr['ms_preparationDetails'].'"':'NULL').

@@ -38,7 +38,6 @@ class OccurrenceEditorMaterialSample extends Manager{
 				(is_numeric($postArr['ms_preparationDate'])?$postArr['ms_preparationDate']:'NULL').','.(is_numeric($postArr['ms_preparedByUid'])?$postArr['ms_preparedByUid']:'NULL').','.
 				($postArr['ms_individualCount']?'"'.$postArr['ms_individualCount'].'"':'NULL').','.(is_numeric($postArr['ms_sampleSize'])?$postArr['ms_sampleSize']:'NULL').','.
 				($postArr['ms_storageLocation']?'"'.$postArr['ms_storageLocation'].'"':'NULL').','.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').')';
-			echo $sql;
 			if($this->conn->query($sql)){
 				return true;
 			}

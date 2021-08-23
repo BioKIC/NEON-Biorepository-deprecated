@@ -157,6 +157,7 @@ $dwcManager = new DwcArchiverCore();
 								<input type="checkbox" name="images" value="1" onchange="extensionSelected(this)" checked /> include Image Records<br/>
 								<?php
 								if($dwcManager->hasAttributes()) echo '<input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> include Occurrence Trait Attributes<br/>';
+								if($dwcManager->hasMaterialSamples()) echo '<input type="checkbox" name="materialsample" value="1" onchange="extensionSelected(this)" checked /> include Material Samples<br/>';
 								?>
 								*Output must be a compressed archive
 							</div>

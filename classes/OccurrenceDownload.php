@@ -637,6 +637,18 @@ class OccurrenceDownload{
 		return $retArr;
 	}
 
+	public function hasMaterialSamples($collid = 0){
+		$bool = false;
+		$sql = 'SELECT occid FROM ommaterialsample LIMIT 1';
+		if($collid && is_numeric($collid)){
+			$sql .= 'SELECT o.occid FROM ommaterialsample m INNER JOIN omoccurrences o ON m.occid = o.occid WHERE (o.collid = '.$collid.') LIMIT 1';
+		}
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows) $bool = true;
+		$rs->free();
+		return $bool;
+	}
+
 	//General setter, getters, and other configurations
 	public function setSchemaType($t){
 		$this->schemaType = $t;

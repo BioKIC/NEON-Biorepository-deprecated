@@ -643,9 +643,10 @@ class OccurrenceDownload{
 		if($collid && is_numeric($collid)){
 			$sql .= 'SELECT o.occid FROM ommaterialsample m INNER JOIN omoccurrences o ON m.occid = o.occid WHERE (o.collid = '.$collid.') LIMIT 1';
 		}
-		$rs = $this->conn->query($sql);
-		if($rs->num_rows) $bool = true;
-		$rs->free();
+		if($rs = $this->conn->query($sql)){
+			if($rs->num_rows) $bool = true;
+			$rs->free();
+		}
 		return $bool;
 	}
 

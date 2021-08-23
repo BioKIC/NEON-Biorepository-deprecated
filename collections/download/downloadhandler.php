@@ -20,7 +20,7 @@ if($schema == 'backup'){
 			$dwcaHandler->setIncludeDets(1);
 			$dwcaHandler->setIncludeImgs(1);
 			$dwcaHandler->setIncludeAttributes(1);
-			$dwcaHandler->setIncludeMaterialSample(1);
+			if($dwcaHandler->hasMaterialSamples()) $dwcaHandler->setIncludeMaterialSample(1);
 			$dwcaHandler->setRedactLocalities(0);
 			$dwcaHandler->setCollArr($collid);
 
@@ -190,6 +190,8 @@ else{
 			$dwcaHandler->setIncludeImgs($includeImages);
 			$includeAttributes = (array_key_exists('attributes',$_POST)?1:0);
 			$dwcaHandler->setIncludeAttributes($includeAttributes);
+			$includeMaterialSample = (array_key_exists('materialsample',$_POST)?1:0);
+			$dwcaHandler->setIncludeMaterialSample($includeMaterialSample);
 
 			$outputFile = $dwcaHandler->createDwcArchive();
 

@@ -281,7 +281,7 @@ class DwcArchiverOccurrence{
 		$this->occurDefArr['fields']['sourcePrimaryKey-dbpk'] = 'o.dbpk';
 		$this->occurDefArr['terms']['collID'] = 'https://symbiota.org/terms/collID';
 		$this->occurDefArr['fields']['collID'] = 'c.collid';
-		$this->occurDefArr['terms']['recordID'] = 'http://portal.idigbio.org/terms/recordId';
+		$this->occurDefArr['terms']['recordID'] = 'http://symbiota.org/terms/recordId';
 		$this->occurDefArr['fields']['recordID'] = 'g.guid AS recordId';
 		$this->occurDefArr['terms']['references'] = 'http://purl.org/dc/terms/references';
 		$this->occurDefArr['fields']['references'] = '';

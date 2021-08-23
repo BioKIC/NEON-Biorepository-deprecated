@@ -807,7 +807,7 @@ class DwcArchiverCore extends Manager{
 	public function createDwcArchive($fileNameSeed = ''){
 		$status = false;
 		if(!$fileNameSeed){
-			if(count($this->collArr) == 1){
+			if($this->collArr && count($this->collArr) == 1){
 				$firstColl = current($this->collArr);
 				if($firstColl){
 					$fileNameSeed = $firstColl['instcode'];
@@ -1622,10 +1622,6 @@ class DwcArchiverCore extends Manager{
 			$materialSampleHandler->setSchemaType($this->schemaType);
 			$this->fieldArrMap['materialSample'] = $materialSampleHandler->getFieldArrTerms();
 		}
-		else{
-			echo 'do not build MS<br/>';
-
-		}
 
 		//echo $sql; exit;
 		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
@@ -2067,9 +2063,10 @@ class DwcArchiverCore extends Manager{
 	public function hasMaterialSamples(){
 		$bool = false;
 		$sql = 'SELECT occid FROM ommaterialsample LIMIT 1';
-		$rs = $this->conn->query($sql);
-		if($rs->num_rows) $bool = true;
-		$rs->free();
+		if($rs = $this->conn->query($sql)){
+			if($rs->num_rows) $bool = true;
+			$rs->free();
+		}
 		return $bool;
 	}
 

@@ -18,6 +18,9 @@ $LANG['TAB_MAP'] = 'Mapas';
 $LANG['SELECT_DESELECT'] = 'Selecciona/Deselecciona';
 $LANG['ALL_COLLECTIONS'] = 'todas colecciones';
 
+$LANG['DOWNLOAD_SPECIMEN_DATA'] = 'Descargar Datos de Ejemplares';
+$LANG['COPY_TO_CLIPBOARD'] = 'Copia URL al Portapapeles';
+
 $LANG['BUTTON_NEXT'] = 'Proxima >';
 $LANG['BUTTON_RESET'] = 'Restablecer';
 ?>

@@ -1,7 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyCleaner.php');
-
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/cleaning/taxonomycleaner.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/cleaning/taxonomycleaner.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/cleaning/taxonomycleaner.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/cleaning/taxonomycleaner.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
@@ -33,7 +34,7 @@ elseif($activeCollArr){
 ?>
 <html>
 	<head>
-		<title><?php echo $DEFAULT_TITLE; ?> Occurrence Taxon Cleaner</title>
+		<title><?php echo $DEFAULT_TITLE.' '.$LANG['OCC_TAX_CLEAN']; ?></title>
 		<?php
 		$activateJQuery = true;
 		include_once($SERVER_ROOT.'/includes/head.php');
@@ -64,7 +65,7 @@ elseif($activeCollArr){
 						},
 						change: function(event,ui) {
 							if(ui.item == null && this.value.trim() != ""){
-								alert("Scientific name not found in Thesaurus.");
+								alert("<?php echo $LANG['SCINAME_NOT_FOUND']; ?>");
 								this.focus();
 								this.form.tid.value = "";
 							}
@@ -87,11 +88,11 @@ elseif($activeCollArr){
 					data: { collid: "<?php echo $collid; ?>", oldsciname: oldName, tid: targetTid, idq: idQualifier }
 				}).done(function( res ) {
 					if(res == "1"){
-						$("#remapSpan-"+msgCode).text(" >>> Taxon remapped successfully!");
+						$("#remapSpan-"+msgCode).text("<?php echo ' >>> '.$LANG['REMAP_SUCCESS']; ?>");
 						$("#remapSpan-"+msgCode).css('color', 'green');
 					}
 					else{
-						$("#remapSpan-"+msgCode).text(" >>> Taxon remapping failed!");
+						$("#remapSpan-"+msgCode).text("<?php echo ' >>> '.$LANG['REMAP_FAIL']; ?>");
 						$("#remapSpan-"+msgCode).css('color', 'orange');
 					}
 				});
@@ -100,7 +101,7 @@ elseif($activeCollArr){
 
 			function batchUpdate(f, oldName, itemCnt){
 				if(f.tid.value == ""){
-					alert("Taxon not found within taxonomic thesaurus");
+					alert("<?php echo $LANG['TAXON_NOT_FOUND']; ?>");
 					return false;
 				}
 				else{
@@ -117,7 +118,7 @@ elseif($activeCollArr){
 					}
 				}
 				if(!formVerified){
-					alert("Please choose at least one collection!");
+					alert("<?php echo $LANG['CHOOSE_ONE']; ?>");
 					return false;
 				}
 				return true;
@@ -133,7 +134,7 @@ elseif($activeCollArr){
 
 			function verifyCleanerForm(f){
 				if(f.targetkingdom.value == ""){
-					alert("Select target kingdom for collection");
+					alert("<?php echo $LANG['SELECT_KINGDOM']; ?>");
 					return false;
 				}
 				return true;
@@ -147,21 +148,21 @@ elseif($activeCollArr){
 		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class='navpath'>
-			<a href="../../index.php">Home</a> &gt;&gt;
+			<a href="../../index.php"><?php echo $LANG['HOME']; ?></a> &gt;&gt;
 			<?php
 			if($collid && is_numeric($collid)){
 				?>
-				<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Menu</a> &gt;&gt;
-				<a href="index.php?collid=<?php echo $collid; ?>&emode=1">Data Cleaning Menu</a> &gt;&gt;
+				<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1"><?php echo $LANG['COL_MAN_MEN']; ?></a> &gt;&gt;
+				<a href="index.php?collid=<?php echo $collid; ?>&emode=1"><?php echo $LANG['DATA_CLEAN_MEN']; ?></a> &gt;&gt;
 				<?php
 			}
 			else{
 				?>
-				<a href="../../profile/viewprofile.php?tabindex=1">Specimen Management</a> &gt;&gt;
+				<a href="../../profile/viewprofile.php?tabindex=1"><?php echo $LANG['SPEC_MAN']; ?></a> &gt;&gt;
 				<?php
 			}
 			?>
-			<b>Taxonomic Name Cleaner</b>
+			<b><?php echo $LANG['TAX_NAME_CLEAN']; ?></b>
 		</div>
 		<!-- inner text block -->
 		<div id="innertext">
@@ -176,7 +177,7 @@ elseif($activeCollArr){
 							echo $collMap[$collid]['collectionname'].' ('.$collMap[$collid]['code'].')';
 						}
 						else{
-							echo 'Multiple Collection Cleaning Tool (<a href="#" onclick="$(\'#collDiv\').show()" style="color:blue;text-decoration:underline">'.count($activeCollArr).' collections</a>)';
+							echo $LANG['MULT_CLEAN_TOOL'].' '.'(<a href="#" onclick="$(\'#collDiv\').show()" style="color:blue;text-decoration:underline">'.count($activeCollArr).' '.$LANG['COLS'].'</a>)';
 						}
 						?>
 					</div>
@@ -186,9 +187,9 @@ elseif($activeCollArr){
 						<div style="float:left;margin-left:5px;"><a href="#" onclick="toggle('mult_coll_fs')"><img src="../../images/add.png" style="width:12px" /></a></div>
 						<div style="clear:both">
 							<fieldset id="mult_coll_fs" style="display:none;padding: 15px;margin:20px;">
-								<legend><b>Multiple Collection Selector</b></legend>
+								<legend><b><?php echo $LANG['MULT_COL_SEL']; ?></b></legend>
 								<form name="selectcollidform" action="taxonomycleaner.php" method="post" onsubmit="return checkSelectCollidForm(this)">
-									<div><input name="selectall" type="checkbox" onclick="selectAllCollections(this);" /> Select / Unselect All</div>
+									<div><input name="selectall" type="checkbox" onclick="selectAllCollections(this);" /> <?php echo $LANG['SEL_UNSEL_ALL']; ?></div>
 									<?php
 									foreach($collMap as $id => $collArr){
 										if(in_array($id, $USER_RIGHTS["CollAdmin"])){
@@ -200,10 +201,10 @@ elseif($activeCollArr){
 									}
 									?>
 									<div style="margin: 15px">
-										<button name="submitaction" type="submit" value="EvaluateCollections">Evaluate Collections</button>
+										<button name="submitaction" type="submit" value="EvaluateCollections"><?php echo $LANG['EVAL_COLS']; ?></button>
 									</div>
 								</form>
-								<div>* Only collections with administrative access are shown</div>
+								<div>* <?php echo $LANG['ONLY_ADMIN_COLS']; ?></div>
 							</fieldset>
 						</div>
 						<?php
@@ -238,24 +239,24 @@ elseif($activeCollArr){
 					</div>
 					<div style="margin:20px;">
 						<fieldset style="padding:20px;">
-							<legend><b>Action Menu</b></legend>
+							<legend><b><?php echo $LANG['ACTION_MENU']; ?></b></legend>
 							<form name="maincleanform" action="taxonomycleaner.php" method="post" onsubmit="return verifyCleanerForm(this)">
 								<div style="margin-bottom:15px;">
-									<b>Specimen records not indexed to central taxonomic thesaurus</b>
+									<b><?php echo $LANG['SPECS_NOT_INDEXED']; ?></b>
 									<div style="margin-left:10px;">
-										<u>Specimens</u>: <?php echo $badSpecimenCount; ?><br/>
-										<u>Scientific names</u>: <?php echo $badTaxaCount; ?>
+										<?php echo '<u>'.$LANG['SPECS'].'</u>: '.$badSpecimenCount.'<br/>'; ?>
+										<?php echo '<u>'.$LANG['SCINAMES'].'</u>: '.$badTaxaCount.'<br/>'; ?>
 									</div>
 								</div>
 								<hr/>
 								<div style="margin:20px 10px">
 									<div style="margin:10px 0px">
-										Following tool will crawl through unindexed names and attempt to resolve name discrepancies
+										<?php echo $LANG['WILL_RESOLVE_UNINDEXED']; ?>
 									</div>
 									<div style="margin:10px;">
 										<div style="margin-bottom:5px;">
 											<fieldset style="padding:15px;margin:10px 0px">
-												<legend><b>Taxonomic Resource</b></legend>
+												<legend><b><?php echo $LANG['TAX_RESOURCE']; ?></b></legend>
 												<?php
 												$taxResourceList = $cleanManager->getTaxonomicResourceList();
 												foreach($taxResourceList as $taKey => $taValue){
@@ -265,9 +266,9 @@ elseif($activeCollArr){
 											</fieldset>
 										</div>
 										<div style="margin-bottom:5px;">
-											Target Kingdom:
+											<?php echo $LANG['TARGET_KINGDOM']; ?>:
 											<select name="targetkingdom">
-												<option value="">Select Target Kingdom</option>
+												<option value=""><?php echo $LANG['SELECT_TARGET_KING']; ?></option>
 												<option value="">--------------------------</option>
 												<?php
 												$kingdomArr = $cleanManager->getKingdomArr();
@@ -279,19 +280,19 @@ elseif($activeCollArr){
 											</select>
 										</div>
 										<div style="margin-bottom:5px;">
-											Names Processed per Run: <input name="limit" type="text" value="<?php echo $limit; ?>" style="width:40px" />
+											<?php echo $LANG['PROC_PER_RUN']; ?>: <input name="limit" type="text" value="<?php echo $limit; ?>" style="width:40px" />
 										</div>
 										<div style="margin-bottom:5px;">
-											Start Index: <input name="startindex" type="text" value="<?php echo $startIndex; ?>" title="Enter a taxon name or letter of the alphabet to indicate where the processing should start" />
+											<?php echo $LANG['START_INDEX']; ?>: <input name="startindex" type="text" value="<?php echo $startIndex; ?>" title="Enter a taxon name or letter of the alphabet to indicate where the processing should start" />
 										</div>
 										<div style="height:50px;">
-											<div style="">Clean and Mapping Function:</div>
-											<div style="float:left;margin-left:15px;"><input name="autoclean" type="radio" value="0" <?php echo (!$autoClean?'checked':''); ?> /> Semi-Manual</div>
-											<div style="float:left;margin-left:10px;"><input name="autoclean" type="radio" value="1" <?php echo ($autoClean==1?'checked':''); ?> /> Fully Automatic</div>
+											<div style=""><?php echo $LANG['CLEAN_MAP_FUNCTION']; ?>:</div>
+											<div style="float:left;margin-left:15px;"><input name="autoclean" type="radio" value="0" <?php echo (!$autoClean?'checked':''); ?> /> <?php echo $LANG['SEMI_MANUA<']; ?></div>
+											<div style="float:left;margin-left:10px;"><input name="autoclean" type="radio" value="1" <?php echo ($autoClean==1?'checked':''); ?> /> <?php echo $LANG['FULLY_AUTO']; ?></div>
 										</div>
 										<div style="clear:both;">
 											<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-											<button name="submitaction" type="submit" value="AnalyzingNames" ><?php echo ($startIndex?'Continue Analyzing Names':'Analyze Taxonomic Names'); ?></button>
+											<button name="submitaction" type="submit" value="AnalyzingNames" ><?php echo ($startIndex?$LANG['CONTINUE_ANALYZING']:$LANG['ANALYZE_NAMES']; ?></button>
 										</div>
 									</div>
 								</div>
@@ -300,11 +301,11 @@ elseif($activeCollArr){
 							<form name="deepindexform" action="taxonomycleaner.php" method="post">
 								<div style="margin:20px 10px">
 									<div style="margin:10px 0px">
-										Following tool will run a set of algorithms that will run names through several filters to improve linkages to taxonomic thesaurus
+										<?php echo $LANG['WILL_IMPROVE_LINKAGES']; ?>
 									</div>
 									<div style="margin:10px">
 										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-										<button name="submitaction" type="submit" value="deepindex">Deep Index Specimen Taxa</button>
+										<button name="submitaction" type="submit" value="deepindex"><?php echo $LANG['DEEP_INDEX']; ?></button>
 									</div>
 								</div>
 							</form>
@@ -313,16 +314,16 @@ elseif($activeCollArr){
 					<?php
 				}
 				else{
-					echo '<div><b>ERROR: you do not have permission to edit this collection</b></div>';
+					echo '<div><b>'.$LANG['NO_PERM'].'</b></div>';
 				}
 			}
 			elseif($collMap){
 				?>
-				<div style="margin:0px 0px 20px 20xp;font-weight:bold;font-size:120%;">Batch Taxonomic Cleaning Tool</div>
+				<div style="margin:0px 0px 20px 20xp;font-weight:bold;font-size:120%;"><?php echo $LANG['BATCH_TAXON_CLEAN']; ?></div>
 				<fieldset style="padding: 15px;margin:20px;">
-					<legend><b>Collection Selector</b></legend>
+					<legend><b><?php echo $LANG['COL_SELECTOR']; ?></b></legend>
 					<form name="selectcollidform" action="taxonomycleaner.php" method="post" onsubmit="return checkSelectCollidForm(this)">
-						<div><input name="selectall" type="checkbox" onclick="selectAllCollections(this);" /> Select / Unselect All</div>
+						<div><input name="selectall" type="checkbox" onclick="selectAllCollections(this);" /> <?php echo $LANG['SEL_UNSEL_ALL']; ?></div>
 						<?php
 						foreach($collMap as $id => $collArr){
 							echo '<div>';
@@ -332,17 +333,17 @@ elseif($activeCollArr){
 						}
 						?>
 						<div style="margin: 15px">
-							<button name="submitaction" type="submit" value="EvaluateCollections">Evaluate Collections</button>
+							<button name="submitaction" type="submit" value="EvaluateCollections"><?php echo $LANG['EVAL_COLS']; ?></button>
 						</div>
 					</form>
-					<div>* Only collections with administrative access are shown</div>
+					<div>* <?php echo $LANG['ONLY_ADMIN_COLS']; ?></div>
 				</fieldset>
 				<?php
 			}
 			else{
 				?>
 				<div style='font-weight:bold;font-size:120%;'>
-					ERROR: Collection identifier is null
+					<?php echo $LANG['ERROR_COLID_NUL']; ?>
 				</div>
 				<?php
 			}

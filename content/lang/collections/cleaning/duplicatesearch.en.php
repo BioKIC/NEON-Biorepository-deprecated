@@ -14,7 +14,7 @@ $LANG['DUP_OCCS'] = 'Duplicate Occurrences';
 $LANG['SUPERADMIN_NOTICE'] = 'NOTICE to SuperAdmin:</span> 
 					You can increase upper limit of the number of records that this form can process by increasing the max_input_vars variable 
 					within your PHP configuration file. Increasing this variable to 4500 will set the upper limit of this form to 1000 duplicate clusters.';
-$LANG['DUP_INSTRUCTIONS'] = 'Use the checkboxes to select the records you would like to merge, and the radio buttons to select which target record to merge into.'
+$LANG['DUP_INSTRUCTIONS'] = 'Use the checkboxes to select the records you would like to merge, and the radio buttons to select which target record to merge into.';
 $LANG['NEXT'] = 'NEXT';
 $LANG['RECORDS'] = 'RECORDS';
 $LANG['TO'] = 'to';

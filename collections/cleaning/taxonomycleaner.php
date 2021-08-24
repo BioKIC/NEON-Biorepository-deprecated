@@ -287,7 +287,7 @@ elseif($activeCollArr){
 										</div>
 										<div style="height:50px;">
 											<div style=""><?php echo $LANG['CLEAN_MAP_FUNCTION']; ?>:</div>
-											<div style="float:left;margin-left:15px;"><input name="autoclean" type="radio" value="0" <?php echo (!$autoClean?'checked':''); ?> /> <?php echo $LANG['SEMI_MANUA<']; ?></div>
+											<div style="float:left;margin-left:15px;"><input name="autoclean" type="radio" value="0" <?php echo (!$autoClean?'checked':''); ?> /> <?php echo $LANG['SEMI_MANUAL']; ?></div>
 											<div style="float:left;margin-left:10px;"><input name="autoclean" type="radio" value="1" <?php echo ($autoClean==1?'checked':''); ?> /> <?php echo $LANG['FULLY_AUTO']; ?></div>
 										</div>
 										<div style="clear:both;">

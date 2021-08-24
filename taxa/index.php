@@ -35,6 +35,10 @@ elseif($taxonValue){
 if($lang) $lang = $taxonManager->setLanguage($lang);
 if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_PROJ_ID;
 
+$occs = $taxonManager->getOccTaxonInDbCnt($tid);
+$scinameStr = $taxonManager->getTaxonName();
+$occSrcUrl = $CLIENT_ROOT.'/collections/list.php?db=all&includeothercatnum=1&taxa='.$scinameStr.'&usethes=1';
+
 $links = $taxonManager->getTaxaLinks();
 if($links){
 	foreach($links as $linkKey => $linkUrl){
@@ -80,6 +84,7 @@ if($SYMB_UID){
 	<script src="../js/symb/taxa.editor.js?ver=202101" type="text/javascript"></script>
 </head>
 <body>
+  <?php echo $occs ?>
 <?php
 $displayLeftMenu = false;
 include($SERVER_ROOT.'/includes/header.php');
@@ -111,6 +116,11 @@ include($SERVER_ROOT.'/includes/header.php');
 							<?php
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
 							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
+              if($occs > 0){
+                echo '<p><a class="btn" href="'.$occSrcUrl.'">Explore '.$occs.' occurrences</a></p>';
+              } elseif($occs == 0){
+                echo '<p>No occurrences found</p>';
+              }
 							if($taxonManager->isForwarded()){
 						 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';
 						 	}
@@ -268,6 +278,13 @@ include($SERVER_ROOT.'/includes/header.php');
 							}
 							echo '<div id="taxon">'.$displayName.'</div>';
 							?>
+              <?php 
+                if($occs > 0){
+                  echo '<p><a class="btn" href="'.$occSrcUrl.'">Explore '.$occs.' occurrences</a></p>';
+                } elseif($occs == 0){
+                  echo '<p>No occurrences found</p>';
+                }              
+              ?>
 						</div>
 					</td>
 				</tr>
@@ -434,6 +451,13 @@ include($SERVER_ROOT.'/includes/header.php');
 				}
 				?>
 				<div id="scinameDiv"><span id="taxon"><?php echo $taxonManager->getTaxonName(); ?></span></div>
+        <?php
+          if($occs > 0){
+            echo '<p><a class="btn" href="'.$occSrcUrl.'">Explore '.$occs.' occurrences</a></p>';
+          } elseif($occs == 0){
+            echo '<p>No occurrences found</p>';
+          }
+        ?>
 				<div>
 					<div id="leftPanel">
 						<fieldset style="clear:both">

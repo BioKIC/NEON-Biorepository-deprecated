@@ -692,6 +692,22 @@ class TaxonProfile extends Manager {
 		return $retArr;
 	}
 
+  //Gets occurrence counts of taxon in portal, to use in taxon profile
+  public function getOccTaxonInDbCnt($tid, $collids = "all")
+  {
+    $sql = 'SELECT COUNT(occid) FROM omoccurrences WHERE tidinterpreted = '.$tid.'';
+    if ($collids != "all") {
+      $collidsStr = implode(",",$collids);
+      $sql .= ' AND collid IN ('.$collidsStr.')';
+    }
+  $result = $this->conn->query($sql);
+  while ($row = $result->fetch_row()){
+    $count = $row;
+  }
+  $result->free();
+  return $count[0];
+  }
+
 	//Setters and getters
 	public function getTid(){
 		return $this->tid;

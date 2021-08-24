@@ -41,32 +41,54 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 		});
 	});
 </script>
-<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css?ver=1" type="text/css" rel="stylesheet" />
-<link href="includes/config/materialsample.css?ver=1" type="text/css" rel="stylesheet" />
+<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet" />
+<link href="includes/config/materialsample.css?ver=2" type="text/css" rel="stylesheet" />
 <style type="text/css">
 	botton { margin: 10px; }
+	.fieldBlock { height: 35px; }
+	.fieldBlock label{ display: block }
+	.edit-control{ float:right; }
+	.display-div{ margin-bottom: 3px; }
+	.display-div label{ display: inline; text-decoration: underline; }
 </style>
 <div style="width:795px;">
-	<div style="clear:both; margin: 20px;">
+	<div class="edit-control">
+		<span><a href="#" onclick="$('#formDiv-0').toggle()"><img src="../../images/add.png" /></a></span>
+	</div>
+	<div style="margin: 20px;">
 		See <a href="https://tools.gbif.org/dwca-validator/extension.do?id=http://data.ggbn.org/schemas/ggbn/terms/MaterialSample" target="_blank">GGBN Material Sample Extension</a> documentation
 	</div>
 	<?php
 	if($isEditor){
+		$msCnt = count($materialSampleArr);
 		$msArr = array();
 		do{
 			$matSampleID = 0;
 			if($msArr) $matSampleID = $msArr['matSampleID'];
+			if($matSampleID){
+				echo '<fieldset><legend>Material Sample</legend>';
+				?>
+				<div class="edit-control">
+					<span><a href="#" onclick="$('#formDiv-<?php echo $matSampleID; ?>').toggle()"><img src="../../images/edit.png" /></a></span>
+				</div>
+				<?php
+			}
+			if($msArr){
+				foreach($msArr as $k => $v){
+					if($v && isset($MS_LABEL_ARR[$k])) echo '<div class="display-div"><label>'.$MS_LABEL_ARR[$k].'</label>: '.$v.'</div>';
+				}
+			}
 			?>
-			<fieldset>
-				<legend>Material Sample</legend>
-				<form name="matSample<?php echo ($msArr?'Edit-'.$matSampleID:'Add') ?>Form" action="occurrenceeditor.php" method="post">
+			<div id="formDiv-<?php echo $matSampleID; ?>" style="display:<?php echo ($msCnt?'none':'block'); ?>">
+				<?php
+				if($matSampleID) echo '<hr/>';
+				else echo '<fieldset><legend>Add New Sample</legend>';
+				?>
+				<form name="matSampleForm-<?php echo $matSampleID; ?>" action="occurrenceeditor.php" method="post" >
 					<div style="clear:both">
 						<div class="fieldBlock" id="smSampleTypeDiv">
-							<label><?php echo $MS_TYPE_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['sampleType'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['sampleType']; ?>: </label>
+							<span class="edit-elem">
 								<?php
 								if(isset($controlTermArr['ommaterialsample']['sampleType'])){
 									$limitToList = $controlTermArr['ommaterialsample']['sampleType']['l'];
@@ -90,38 +112,29 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 							</span>
 						</div>
 						<div class="fieldBlock" id="smCatalogNumberDiv">
-							<label><?php echo $MS_CATALOG_NUMBER_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['catalogNumber'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['catalogNumber']; ?>: </label>
+							<span class="edit-elem">
 								<input type="text" name="ms_catalogNumber" value="<?php echo isset($msArr['catalogNumber'])?$msArr['catalogNumber']:''; ?>" />
 							</span>
 						</div>
 						<div class="fieldBlock" id="smGuidDiv">
-							<label><?php echo $MS_GUID_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['guid'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['guid']; ?>: </label>
+							<span class="edit-elem">
 								<input type="text" name="ms_guid" value="<?php echo isset($msArr['guid'])?$msArr['guid']:''; ?>" />
 							</span>
 						</div>
-						<div class="fieldBlock" id="smConditionDiv">
-							<label><?php echo $MS_CONDITION_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['condition'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+						<div class="fieldBlock" id="smSampleConditionDiv">
+							<label><?php echo $MS_LABEL_ARR['sampleCondition']; ?>: </label>
+							<span class="edit-elem">
 								<?php
-								if(isset($controlTermArr['ommaterialsample']['condition'])){
-									$limitToList = $controlTermArr['ommaterialsample']['condition']['l'];
+								if(isset($controlTermArr['ommaterialsample']['sampleCondition'])){
+									$limitToList = $controlTermArr['ommaterialsample']['sampleCondition']['l'];
 									?>
-									<select name="ms_condition">
+									<select name="ms_sampleCondition">
 										<option value="">-------</option>
 										<?php
-										foreach($controlTermArr['ommaterialsample']['condition']['t'] as $t){
-											echo '<option '.($msArr && $msArr['condition'] == $t?'selected':'').'>'.$t.'</option>';
+										foreach($controlTermArr['ommaterialsample']['sampleCondition']['t'] as $t){
+											echo '<option '.($msArr && $msArr['sampleCondition'] == $t?'selected':'').'>'.$t.'</option>';
 										}
 										?>
 									</select>
@@ -129,18 +142,15 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 								}
 								else{
 									?>
-									<input type="text" name="ms_condition" value="<?php echo isset($msArr['condition'])?$msArr['condition']:''; ?>" />
+									<input type="text" name="ms_sampleCondition" value="<?php echo isset($msArr['sampleCondition'])?$msArr['sampleCondition']:''; ?>" />
 									<?php
 								}
 								?>
 							</span>
 						</div>
 						<div class="fieldBlock" id="smDispositionDiv">
-							<label><?php echo $MS_DISPOSITION_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['disposition'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['disposition']; ?>: </label>
+							<span class="edit-elem">
 								<?php
 								if(isset($controlTermArr['ommaterialsample']['disposition'])){
 									$limitToList = $controlTermArr['ommaterialsample']['disposition']['l'];
@@ -164,11 +174,8 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 							</span>
 						</div>
 						<div class="fieldBlock" id="smPreservationTypeDiv">
-							<label><?php echo $MS_PRESERVATION_TYPE_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['preservationType'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['preservationType']; ?>: </label>
+							<span class="edit-elem">
 								<?php
 								if(isset($controlTermArr['ommaterialsample']['preservationType'])){
 									$limitToList = $controlTermArr['ommaterialsample']['preservationType']['l'];
@@ -192,57 +199,39 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 							</span>
 						</div>
 						<div class="fieldBlock" id="smPreparationDateDiv">
-							<label><?php echo $MS_PRESERVATION_DATE_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['preparationDate'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['preparationDate']; ?>: </label>
+							<span class="edit-elem">
 								<input type="date" name="ms_preparationDate" value="<?php echo isset($msArr['preparationDate'])?$msArr['preparationDate']:''; ?>" />
 							</span>
 						</div>
 						<div class="fieldBlock" id="smPreparedByUidDiv">
-							<label><?php echo $MS_PREPARED_BY_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['preparedBy'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['preparedBy']; ?>: </label>
+							<span class="edit-elem">
 								<input id="ms_preparedBy" name="ms_preparedBy" type="text" value="<?php echo isset($msArr['preparedBy'])?$msArr['preparedBy']:''; ?>" />
 								<input id="ms_preparedByUid" name="ms_preparedByUid" type="hidden" value="<?php echo isset($msArr['preparedByUid'])?$msArr['preparedByUid']:''; ?>" />
 							</span>
 						</div>
 						<div class="fieldBlock" id="smPreparationDetailsDiv">
-							<label><?php echo $MS_PRESERVATION_DETAILS_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['preparationDetails'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['preparationDetails']; ?>: </label>
+							<span class="edit-elem">
 								<input type="text" name="ms_preparationDetails" value="<?php echo isset($msArr['preparationDetails'])?$msArr['preparationDetails']:''; ?>" />
 							</span>
 						</div>
 						<div class="fieldBlock" id="smIndividualCountDiv">
-							<label><?php echo $MS_INDIVIDUAL_COUNT_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['individualCount'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['individualCount']; ?>: </label>
+							<span class="edit-elem">
 								<input type="text" name="ms_individualCount" value="<?php echo isset($msArr['individualCount'])?$msArr['individualCount']:''; ?>" />
 							</span>
 						</div>
 						<div class="fieldBlock" id="smSampleSizeDiv">
-							<label><?php echo $MS_SAMPLE_SIZE_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['sampleSize'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['sampleSize']; ?>: </label>
+							<span class="edit-elem">
 								<input type="text" name="ms_sampleSize" value="<?php echo isset($msArr['sampleSize'])?$msArr['sampleSize']:''; ?>" />
 							</span>
 						</div>
 						<div class="fieldBlock" id="smStorageLocationDiv">
-							<label><?php echo $MS_STORAGE_LOCATION_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['storageLocation'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['storageLocation']; ?>: </label>
+							<span class="edit-elem">
 								<?php
 								if(isset($controlTermArr['ommaterialsample']['storageLocation'])){
 									$limitToList = $controlTermArr['ommaterialsample']['storageLocation']['l'];
@@ -266,29 +255,31 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 							</span>
 						</div>
 						<div class="fieldBlock" id="smRemarksDiv">
-							<label><?php echo $MS_REMARKS_LABEL; ?>: </label>
-							<?php
-							if($matSampleID) echo '<span class="display-elem'.$matSampleID.'">'.$msArr['remarks'].'</span>';
-							?>
-							<span class="edit-elem<?php echo $matSampleID; ?>">
+							<label><?php echo $MS_LABEL_ARR['remarks']; ?>: </label>
+							<span class="edit-elem">
 								<input type="text" name="ms_remarks" value="<?php echo isset($msArr['remarks'])?$msArr['remarks']:''; ?>" />
 							</span>
 						</div>
 						<div style="clear:both;">
-							<input name="occid" type="hidden" value="<?php echo (isset($msArr['occid'])?$msArr['occid']:''); ?>" />
+							<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 							<input name="matSampleID" type="hidden" value="<?php echo $matSampleID; ?>" />
-							<input id="collid" name="collid" type="hidden" value="<?php echo (isset($msArr['collid'])?$msArr['collid']:''); ?>" />
+							<input id="collid" name="collid" type="hidden" value="<?php echo $collid; ?>" />
 							<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
-							<input name="tabindex" type="hidden" value="3" />
+							<input name="tabtarget" type="hidden" value="3" />
 							<?php
-							if($msArr) echo '<button name="submitaction" type="submit" value="saveMatSample">Save Changes</button>';
-							else echo '<button name="submitaction" type="submit" value="saveMatSample">Add Record</button>';
+							if($msArr){
+								echo '<button name="submitaction" type="submit" value="updateMaterialSample">Save Changes</button>';
+								echo '<span style="margin-left: 20px"><button name="submitaction" type="submit" value="deleteMaterialSample">Delete Sample</button></span>';
+							}
+							else echo '<button name="submitaction" type="submit" value="insertMaterialSample">Add Record</button>';
 							?>
 						</div>
 					</div>
 				</form>
-			</fieldset>
+				<?php if(!$matSampleID) echo '</fieldset>'; ?>
+			</div>
 			<?php
+			if($matSampleID) echo '</fieldset>';
 		}while($msArr = array_pop($materialSampleArr));
 	}
 	?>

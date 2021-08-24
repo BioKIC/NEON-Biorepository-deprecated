@@ -3,8 +3,8 @@ include_once ($SERVER_ROOT . '/classes/Manager.php');
 
 class GeographicThesaurus extends Manager{
 
-	function __construct($type = 'write'){
-		parent::__construct();
+	function __construct(){
+		parent::__construct(null, 'write');
 	}
 
 	function __destruct(){
@@ -19,7 +19,7 @@ class GeographicThesaurus extends Manager{
 			if(is_numeric($conditionTerm)) $sql .= 'WHERE (t.parentID = '.$conditionTerm.') ';
 			else $sql .= 'WHERE (t.category = "'.$this->cleanInStr($conditionTerm).'") ';
 		}
-		else $sql .= 'WHERE (t.category = "country") ';
+		else $sql .= 'WHERE (t.parentID IS NULL) ';
 		$sql .= 'ORDER BY t.geoTerm';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -46,7 +46,7 @@ class GeographicThesaurus extends Manager{
 	public function getGeograpicUnit($geoThesID){
 		$retArr = array();
 		if(is_numeric($geoThesID)){
-			$sql = 'SELECT t.geoThesID, t.geoTerm, t.abbreviation, t.iso2, t.iso3, t.numCode, t.category, t.parentID, p.geoTerm as parentTerm, t.notes, t.termStatus, a.geoterm as acceptedTerm
+			$sql = 'SELECT t.geoThesID, t.geoTerm, t.abbreviation, t.iso2, t.iso3, t.numCode, t.category, t.geoLevel, t.parentID, p.geoTerm as parentTerm, t.notes, t.termStatus, a.geoterm as acceptedTerm
 				FROM geographicthesaurus t LEFT JOIN geographicthesaurus a ON t.acceptedID = a.geoThesID
 				LEFT JOIN geographicthesaurus p ON t.parentID = p.geoThesID
 				WHERE t.geoThesID = '.$geoThesID;
@@ -59,6 +59,7 @@ class GeographicThesaurus extends Manager{
 				$retArr['iso3'] = $r->iso3;
 				$retArr['numCode'] = $r->numCode;
 				$retArr['category'] = $r->category;
+				$retArr['geoLevel'] = $r->geoLevel;
 				$retArr['parentID'] = $r->parentID;
 				$retArr['parentTerm'] = $r->parentTerm;
 				$retArr['notes'] = $r->notes;
@@ -68,7 +69,9 @@ class GeographicThesaurus extends Manager{
 			$rs->free();
 			if($retArr){
 				$childArr = $this->setChildCnt($retArr['geoThesID']);
-				if($childArr) $retArr['childCnt'] = current($childArr);
+				$cnt = 0;
+				if($childArr) $cnt = current($childArr);
+				$retArr['childCnt'] = $cnt;
 			}
 		}
 		return $retArr;
@@ -78,19 +81,19 @@ class GeographicThesaurus extends Manager{
 		//Deal with edits
 		//Possible edits include change the spelling, change the ISO code, change the children, and change the parent. Would these all be separate functions?
 		if(is_numeric($postArr['geoThesID'])){
-			if(!$postArr['geoterm']){
-				$this->errorMessage = 'ERROR editing geoUnit: geographic must have a value';
+			if(!$postArr['geoTerm']){
+				$this->errorMessage = 'ERROR editing geoUnit: geographic term must have a value';
 				return false;
 			}
 			$sql = 'UPDATE geographicthesaurus '.
-				'SET geoterm = '.$this->cleanInStr($postArr['geoterm']).
-				', iso2 = '.($postArr['iso2']?'"'.$postArr['iso2'].'"':'NULL').
-				', iso3 = '.($postArr['iso3']?'"'.$postArr['iso3'].'"':'NULL').
-				', notes = '.($postArr['notes']?'"'.$postArr['notes'].'"':'NULL').
+				'SET geoterm = "'.$this->cleanInStr($postArr['geoTerm']).
+				'", iso2 = '.($postArr['iso2']?'"'.$this->cleanInStr($postArr['iso2']).'"':'NULL').
+				', iso3 = '.($postArr['iso3']?'"'.$this->cleanInStr($postArr['iso3']).'"':'NULL').
+				', parentID = '.(is_numeric($postArr['parentID'])?'"'.$this->cleanInStr($postArr['parentID']).'"':'NULL').
+				', notes = '.($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').
 				' WHERE (geoThesID = '.$postArr['geoThesID'].')';
-			//echo $sql;
-			if($this->conn->query($sql)){
-				$this->errorMessage = 'ERROR: changes not saved'.$this->conn->error;
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'ERROR saving edits: '.$this->conn->error;
 				return false;
 			}
 		}
@@ -164,9 +167,11 @@ class GeographicThesaurus extends Manager{
 	}
 
 	//Misc data retrieval functions
-	public function getGeoTermArr(){
+	public function getGeoTermArr($geoLevelMax = 0){
 		$retArr = array();
-		$sql = 'SELECT geoThesID, geoTerm FROM geographicthesaurus ORDER BY geoTerm';
+		$sql = 'SELECT geoThesID, geoTerm FROM geographicthesaurus ';
+		if($geoLevelMax) $sql .= 'WHERE geoLevel < '.$geoLevelMax.' ';
+		$sql .= 'ORDER BY geoTerm';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->geoThesID] = $r->geoTerm;

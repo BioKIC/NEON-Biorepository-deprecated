@@ -472,7 +472,7 @@ if($action && $isEditor){
 					else{
 						if($mode === ''){
 							echo '<div style="margin-bottom:15px;">';
-							echo '<div style="font-weight:bold;">'.$LANG['GEN_CLEANING']'... </div>';
+							echo '<div style="font-weight:bold;">'.$LANG['GEN_CLEANING'].'... </div>';
 							flush();
 							ob_flush();
 							$cleanManager->countryCleanFirstStep();

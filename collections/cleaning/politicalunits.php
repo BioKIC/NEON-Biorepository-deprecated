@@ -505,7 +505,7 @@ if($action && $isEditor){
 						if($nullStateCnt) echo ' => <a href="politicalunits.php?collid='.$collid.'&target=geolocal&mode=nullstate">'.$LANG['LIST_RECORDS'].'...</a>';
 						echo '</div>';
 
-						echo '<div style="margin-bottom:2px"><b>'.$LIST['QUESTION_COUNTIES'].':</b> ';
+						echo '<div style="margin-bottom:2px"><b>'.$LANG['QUESTION_COUNTIES'].':</b> ';
 						$badCountiesCnt = $cleanManager->getBadCountyCount();
 						echo $badCountiesCnt;
 						if($badCountiesCnt) echo ' => <a href="politicalunits.php?collid='.$collid.'&target=geolocal&mode=badcounty">'.$LANG['LIST_COUNTIES'].'...</a>';

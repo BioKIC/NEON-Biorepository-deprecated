@@ -244,7 +244,7 @@ $searchVar = $collManager->getQueryTermStr();
 					</table>
 					<div style="clear:both;height:5px;"></div>
 					<div style="width:790px;"><?php echo $navStr; ?></div>
-					*<?php echo (isset($LANG['CLICK_SYMB'])?$LANG['SYMB_ID']:'Click on the Symbiota identifier in the first column to see Full Record Details'); ?>.';
+					*<?php echo (isset($LANG['CLICK_SYMB'])?$LANG['CLICK_SYMB']:'Click on the Symbiota identifier in the first column to see Full Record Details'); ?>.';
 					<?php
 				}
 				else{

@@ -361,6 +361,9 @@ if($isEditor && $collid){
 			}
 		}
 	</script>
+	<style type="text/css">
+		.unmapped{ background: yellow; }
+	</style>
 </head>
 <body>
 <?php

@@ -462,7 +462,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 											</div>
 											<input type="radio" name="schema" value="dwc" />
 											Darwin Core
-											<a id="schemainfodwc" href="#" onclick="return false" title="<?php echo $LANG['MORE_INFO']; ?>">
+											<a id="schemadwcinfo" href="#" onclick="return false" title="<?php echo $LANG['MORE_INFO']; ?>">
 												<img src="../../images/info.png" style="width:13px;" />
 											</a><br/>
 											<div id="schemadwcinfodialog">

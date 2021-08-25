@@ -23,7 +23,7 @@ class OccurrenceEditorServices {
 		// Enable scientific name entry shortcuts: 2-3 letter codes separated by spaces, e.g. "pse men"
 		// From collections/editor/rpc/getassocspp.php
 
-		// Split the search string by spaces if there are any. 
+		// Split the search string by spaces if there are any.
 		$str1 = ''; $str2 = ''; $str3 = '';
 		$strArr = explode(' ',$term);
 		$strCnt = count($strArr);
@@ -46,7 +46,7 @@ class OccurrenceEditorServices {
 		$sql .= 'ORDER BY sciname';
 
 		// If the search term has an infraspecific separator, use the old version of the SQL, otherwise, no matches will be returned
-		if(array_intersect($strArr, array("var.", "ssp.", "nothossp." "f.", "×", "x", "†"))) $sql = 'SELECT DISTINCT tid, sciname FROM taxa WHERE sciname LIKE "'.$term.'%" ';
+		if(array_intersect($strArr, array("var.", "ssp.", "nothossp.", "f.", "×", "x", "†"))) $sql = 'SELECT DISTINCT tid, sciname FROM taxa WHERE sciname LIKE "'.$term.'%" ';
 
 		$rs = $this->conn->query($sql);
 		while ($r = $rs->fetch_object()){

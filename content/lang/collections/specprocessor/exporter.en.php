@@ -12,6 +12,7 @@ $LANG['CUSTOM_EXP'] = 'Custom Export';
 $LANG['GEO_EXP'] = 'Georeference Export';
 $LANG['EXPORT_EXPLAIN'] = 'This download module is designed to aid collection managers in extracting specimen data
 				for import into local management or research systems.';
+$LANG['MORE'] = 'more info';
 $LANG['EXPORT_EXPLAIN_2'] = "The export module is particularly useful for extracting data that has been added
 					using the digitization tools built into the web portal (crowdsourcing, OCR/NLP, basic data entry, etc).
 					Records imported from a local database are linked to the primary record

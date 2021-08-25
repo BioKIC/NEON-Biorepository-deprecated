@@ -120,7 +120,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 				<?php echo $LANG['EXPORT_EXPLAIN'];
 				if($collMeta['manatype'] == 'Snapshot'){
 					?>
-					<a href="#" onclick="toggle('moreinfodiv');this.style.display = 'none';return false;" style="font-size:90%">more info...</a>
+					<a href="#" onclick="toggle('moreinfodiv');this.style.display = 'none';return false;" style="font-size:90%"><?php echo $LANG['MORE'].'...'; ?></a>
 					<span id="moreinfodiv" style="display:none;">
 						<?php echo $LANG['EXPORT_EXPLAIN_2']; ?>
 					</span>

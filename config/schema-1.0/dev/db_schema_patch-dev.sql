@@ -87,6 +87,54 @@ ALTER TABLE `omoccurrences`
 
 DROP TABLE omcollectors;
 
+CREATE TABLE `portalindex` (
+  `portalIndexID` INT NOT NULL AUTO_INCREMENT,
+  `portalName` VARCHAR(45) NOT NULL,
+  `acronym` VARCHAR(45) NULL,
+  `portalDescription` VARCHAR(250) NULL,
+  `urlRoot` VARCHAR(150) NOT NULL,
+  `securityKey` VARCHAR(45) NULL,
+  `symbVersion` VARCHAR(45) NULL,
+  `guid` VARCHAR(45) NULL,
+  `manager` VARCHAR(45) NULL,
+  `managerEmail` VARCHAR(45) NULL,
+  `primaryLead` VARCHAR(45) NULL,
+  `primaryLeadEmail` VARCHAR(45) NULL,
+  `notes` VARCHAR(250) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`portalIndexID`));
+
+ALTER TABLE `omcollpublications` 
+  DROP FOREIGN KEY `FK_adminpub_collid`;
+
+ALTER TABLE `omcollpublications` 
+  DROP COLUMN `securityguid`,
+  DROP COLUMN `targeturl`,
+  ADD COLUMN `portalIndexID` INT NULL AFTER `collid`,
+  CHANGE COLUMN `collid` `collid` INT(10) UNSIGNED NULL ,
+  CHANGE COLUMN `criteriajson` `criteriaJson` TEXT NULL DEFAULT NULL ,
+  CHANGE COLUMN `includedeterminations` `includeDeterminations` INT(11) NULL DEFAULT 1,
+  CHANGE COLUMN `includeimages` `includeImages` INT(11) NULL DEFAULT 1,
+  CHANGE COLUMN `autoupdate` `autoUpdate` INT(11) NULL DEFAULT 0,
+  CHANGE COLUMN `lastdateupdate` `lastDateUpdate` DATETIME NULL DEFAULT NULL,
+  CHANGE COLUMN `updateinterval` `updateInterval` INT(11) NULL DEFAULT NULL,
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  ADD INDEX `FK_collPub_portalID_idx` (`portalIndexID` ASC);
+
+ALTER TABLE `omcollpublications` 
+  ADD CONSTRAINT `FK_collPub_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_collPub_portalID`  FOREIGN KEY (`portalIndexID`)  REFERENCES `portalindex` (`portalIndexID`)  ON DELETE RESTRICT  ON UPDATE NO ACTION;
+
+ALTER TABLE `omcollpublications` 
+  ADD COLUMN `pubTitle` VARCHAR(45) NULL AFTER `pubid`,
+  ADD COLUMN `description` VARCHAR(250) NULL AFTER `pubTitle`,
+  ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `updateInterval`;
+
+ALTER TABLE `omcollpublications` 
+  RENAME TO `ompublication` ;
+
+ALTER TABLE `omcollpuboccurlink` 
+  RENAME TO  `ompublicationoccurlink` ;
 
 ALTER TABLE `taxa` 
   CHANGE COLUMN `Author` `Author` VARCHAR(100) NOT NULL ;

@@ -21,12 +21,12 @@ class DwcArchiverMaterialSample extends DwcArchiverBaseManager{
 
 	private function setFieldArr(){
 		$columnArr['coreid'] = 'm.occid';
+		$termArr['materialSampleID'] = 'http://rs.tdwg.org/dwc/terms/materialSampleID';
+		$columnArr['materialSampleID'] = 'm.guid';
 		$termArr['sampleType'] = 'http://data.ggbn.org/schemas/ggbn/terms/materialSampleType';
 		$columnArr['sampleType'] = 'm.sampleType';
 		$termArr['catalogNumber'] = 'http://rs.tdwg.org/dwc/terms/catalogNumber';
 		$columnArr['catalogNumber'] = 'm.catalogNumber';
-		$termArr['guid'] = 'http://rs.tdwg.org/dwc/terms/materialSampleID';
-		$columnArr['guid'] = 'm.guid';
 		$termArr['sampleCondition'] = 'https://symbiota.org/terms/sampleCondition';
 		$columnArr['sampleCondition'] = 'm.sampleCondition';
 		$termArr['disposition'] = 'http://rs.tdwg.org/dwc/terms/disposition';

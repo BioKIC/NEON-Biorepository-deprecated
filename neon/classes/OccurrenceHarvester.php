@@ -207,9 +207,10 @@ class OccurrenceHarvester{
 			}
 			$sampleViewArr = $this->getNeonApiArr($url);
 		}
+		//echo 'url: '.$url.'<br/>'; exit;
 
 		if(!isset($sampleViewArr['sampleViews'])){
-			$this->errorStr = 'NEON API failed to return sample data : .$url';
+			$this->errorStr = 'NEON API failed to return sample data : '.$url;
 			return false;
 		}
 		if(count($sampleViewArr['sampleViews']) > 1){
@@ -385,7 +386,9 @@ class OccurrenceHarvester{
 					elseif($fArr['smsKey'] == 'sample_condition' && $fArr['smsValue']) $preparations .= 'sample condition: '.$fArr['smsValue'].', ';
 					elseif($fArr['smsKey'] == 'sample_mass' && $fArr['smsValue']) $preparations .= 'sample mass: '.$fArr['smsValue'].', ';
 					elseif($fArr['smsKey'] == 'sample_volume' && $fArr['smsValue']) $preparations .= 'sample volume: '.$fArr['smsValue'].', ';
-					elseif($fArr['smsKey'] == 'associated_media') $assocMedia['url'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'associated_media'){
+						if(!strpos($fArr['smsValue'],'biorepo.neonscience.org/portal')) $assocMedia['url'] = $fArr['smsValue'];
+					}
 					elseif($fArr['smsKey'] == 'photographed_by') $assocMedia['photographer'] = $fArr['smsValue'];
 				}
 				if($preparations) $sampleArr['preparations'] = trim($preparations,', ');
@@ -422,7 +425,9 @@ class OccurrenceHarvester{
 		if($sampleArr['samplePK']){
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
 				//Get data that was provided within manifest
-				$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
+				//$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
+				if(isset($sampleArr['sampleCode'])) $dwcArr['identifiers']['NEON sampleCode (barcode)'] = $sampleArr['sampleCode'];
+				if(isset($sampleArr['sampleID'])) $dwcArr['identifiers']['NEON sampleID'] = $sampleArr['sampleID'];
 				if(isset($sampleArr['event_id'])) $dwcArr['eventID'] = $sampleArr['event_id'];
 				if(isset($sampleArr['specimen_count'])) $dwcArr['individualCount'] = $sampleArr['specimen_count'];
 				elseif(isset($sampleArr['individualCount'])) $dwcArr['individualCount'] = $sampleArr['individualCount'];
@@ -698,7 +703,7 @@ class OccurrenceHarvester{
 			unset($dwcArr['siteID']);
 			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters','maximumElevationInMeters');
 			$sql = '';
-			$skipFieldArr = array('occid','collid','assocMedia','identifications');
+			$skipFieldArr = array('occid','collid','identifiers','assocmedia','identifications');
 			if($occid){
 				if($this->replaceFieldValues){
 					//Only replace values that have not yet been explicitly modified
@@ -757,6 +762,7 @@ class OccurrenceHarvester{
 							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
 						}
 					}
+					if(isset($dwcArr['identifiers'])) $this->setOccurrenceIdentifiers($dwcArr['identifiers'], $occid);
 					if(isset($dwcArr['assocMedia'])) $this->setAssociatedMedia($dwcArr['assocMedia'], $occid);
 					if(isset($dwcArr['identifications'])) $this->setIdentifications($dwcArr['identifications'], $occid);
 					$this->setDatasetIndexing($domainID,$occid);
@@ -771,7 +777,19 @@ class OccurrenceHarvester{
 		return $occid;
 	}
 
-	private function setAssociatedMedia($assocMedia, $occid, $photographedBy){
+	private function setOccurrenceIdentifiers($idArr, $occid){
+		if($idArr && $occid){
+			$this->conn->query('DELETE FROM omoccuridentifiers WHERE identifiername IN("NEON sampleID","NEON sampleCode (barcode)") AND (occid = '.$occid.')');
+			foreach($idArr as $idName => $idValue){
+				$sql = 'INSERT INTO omoccuridentifiers(occid, identifiername, identifierValue) VALUES('.$occid.',"'.$this->cleanInStr($idName).'","'.$this->cleanInStr($idValue).'")';
+				if(!$this->conn->query($sql)){
+					//$this->errorStr = 'ERROR loading occurrence identifiers: '.$this->conn->error;
+				}
+			}
+		}
+	}
+
+	private function setAssociatedMedia($assocMedia, $occid){
 		if($assocMedia && $occid){
 			foreach($assocMedia as $mediaArr){
 				$loadMedia = true;
@@ -804,7 +822,7 @@ class OccurrenceHarvester{
 						$sqlInsert .= ', '.$k;
 						$sqlValue .= ', "'.$this->cleanInStr($v).'"';
 					}
-					$sql = 'INSERT INTO omoccurdeterminations(occid'.$sqlInsert.') VALUES('.$occid.$sqlValue.')';
+					$sql = 'REPLACE INTO omoccurdeterminations(occid'.$sqlInsert.') VALUES('.$occid.$sqlValue.')';
 					if(!$this->conn->query($sql)){
 						$this->errorStr = 'ERROR adding identification to omoccurdetermination table: '.$this->conn->errno.' - '.$this->conn->error;
 					}

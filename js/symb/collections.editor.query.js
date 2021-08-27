@@ -61,7 +61,9 @@ function verifyQueryForm(f){
         var open = 0;
         var closed = 0;
         if(f.q_customopenparen1.value == '(') open++;
-		if(f.q_customcloseparen1.value == ')'){
+        if(f.q_customopenparen1.value == '((') open += 2;
+        if(f.q_customopenparen1.value == '(((') open += 3;
+		if(f.q_customcloseparen1.value == ')' || f.q_customcloseparen1.value == '))' || f.q_customcloseparen1.value == ')))'){
             closed++;
             if(closed > open){
                 alert("You have selected a closed parenthesis in Custom Field 1 that does not have a corresponding selected open parenthesis.");
@@ -69,56 +71,81 @@ function verifyQueryForm(f){
 			}
 		}
         if(f.q_customopenparen2.value == '(') open++;
-        if(f.q_customcloseparen2.value == ')'){
+        if(f.q_customopenparen2.value == '((') open += 2;
+        if(f.q_customopenparen2.value == '(((') open += 3;
+        if(f.q_customcloseparen2.value == ')' || f.q_customcloseparen2.value == '))' || f.q_customcloseparen2.value == ')))'){
             closed++;
+            if(f.q_customcloseparen2.value == '))') closed++;
             if(closed > open){
                 alert("You have selected a closed parenthesis in Custom Field 2 that does not have a corresponding selected open parenthesis.");
                 return false;
             }
         }
         if(f.q_customopenparen3.value == '(') open++;
-        if(f.q_customcloseparen3.value == ')'){
+        if(f.q_customopenparen3.value == '((') open += 2;
+        if(f.q_customopenparen3.value == '(((') open += 3;
+        if(f.q_customcloseparen3.value == ')' || f.q_customcloseparen3.value == '))' || f.q_customcloseparen3.value == ')))'){
             closed++;
+            if(f.q_customcloseparen3.value == '))') closed++;
+            if(f.q_customcloseparen3.value == ')))') closed += 2;
             if(closed > open){
                 alert("You have selected a closed parenthesis in Custom Field 3 that does not have a corresponding selected open parenthesis.");
                 return false;
             }
         }
         if(f.q_customopenparen4.value == '(') open++;
-        if(f.q_customcloseparen4.value == ')'){
+        if(f.q_customopenparen4.value == '((') open += 2;
+        if(f.q_customopenparen4.value == '(((') open += 3;
+        if(f.q_customcloseparen4.value == ')' || f.q_customcloseparen4.value == '))' || f.q_customcloseparen4.value == ')))'){
             closed++;
+            if(f.q_customcloseparen4.value == '))') closed++;
+            if(f.q_customcloseparen4.value == ')))') closed += 2;
             if(closed > open){
                 alert("You have selected a closed parenthesis in Custom Field 4 that does not have a corresponding selected open parenthesis.");
+                alert(open, closed);
                 return false;
             }
         }
         if(f.q_customopenparen5.value == '(') open++;
-        if(f.q_customcloseparen5.value == ')'){
+        if(f.q_customopenparen5.value == '((') open += 2;
+        if(f.q_customopenparen5.value == '(((') open += 3;
+        if(f.q_customcloseparen5.value == ')' || f.q_customcloseparen5.value == '))' || f.q_customcloseparen5.value == ')))'){
             closed++;
+            if(f.q_customcloseparen5.value == '))') closed++;
+            if(f.q_customcloseparen5.value == ')))') closed += 2;
             if(closed > open){
                 alert("You have selected a closed parenthesis in Custom Field 5 that does not have a corresponding selected open parenthesis.");
                 return false;
             }
         }
         if(f.q_customopenparen6.value == '(') open++;
-        if(f.q_customcloseparen6.value == ')'){
+        if(f.q_customopenparen6.value == '((') open += 2;
+        if(f.q_customopenparen6.value == '(((') open += 3;
+        if(f.q_customcloseparen6.value == ')' || f.q_customcloseparen6.value == '))' || f.q_customcloseparen6.value == ')))'){
             closed++;
+            if(f.q_customcloseparen6.value == '))') closed++;
+            if(f.q_customcloseparen6.value == ')))') closed += 2;
             if(closed > open){
                 alert("You have selected a closed parenthesis in Custom Field 6 that does not have a corresponding selected open parenthesis.");
                 return false;
             }
         }
         if(f.q_customopenparen7.value == '(') open++;
-        if(f.q_customcloseparen7.value == ')'){
+        if(f.q_customopenparen7.value == '((') open += 2;
+        if(f.q_customcloseparen7.value == ')' || f.q_customcloseparen7.value == '))' || f.q_customcloseparen7.value == ')))'){
             closed++;
+            if(f.q_customcloseparen7.value == '))') closed++;
+            if(f.q_customcloseparen7.value == ')))') closed += 2;
             if(closed > open){
                 alert("You have selected a closed parenthesis in Custom Field 7 that does not have a corresponding selected open parenthesis.");
                 return false;
             }
         }
         if(f.q_customopenparen8.value == '(') open++;
-        if(f.q_customcloseparen8.value == ')'){
+        if(f.q_customcloseparen8.value == ')' || f.q_customcloseparen8.value == '))' || f.q_customcloseparen8.value == ')))'){
             closed++;
+            if(f.q_customcloseparen8.value == '))') closed++;
+            if(f.q_customcloseparen8.value == ')))') closed += 2;
             if(closed > open){
                 alert("You have selected a closed parenthesis in Custom Field 8 that does not have a corresponding selected open parenthesis.");
                 return false;

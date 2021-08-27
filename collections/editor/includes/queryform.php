@@ -230,6 +230,8 @@ else{
 				<select name="q_customopenparen1" onchange="customSelectChanged(1)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomOpenParen1=='('?'SELECTED':''); ?> value="(">(</option>
+                    <option <?php echo ($qCustomOpenParen1=='(('?'SELECTED':''); ?> value="((">((</option>
+                    <option <?php echo ($qCustomOpenParen1=='((('?'SELECTED':''); ?> value="(((">(((</option>
                 </select>
 				<select name="q_customfield1" onchange="customSelectChanged(1)">
 					<option value="">Select Field Name</option>
@@ -269,6 +271,8 @@ else{
                 <select name="q_customopenparen2" onchange="customSelectChanged(2)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomOpenParen2=='('?'SELECTED':''); ?> value="(">(</option>
+                  	<option <?php echo ($qCustomOpenParen2=='(('?'SELECTED':''); ?> value="((">((</option>
+                    <option <?php echo ($qCustomOpenParen2=='((('?'SELECTED':''); ?> value="(((">(((</option>
                 </select>
 				<select name="q_customfield2" onchange="customSelectChanged(2)">
 					<option value="">Select Field Name</option>
@@ -294,6 +298,7 @@ else{
 				<select name="q_customcloseparen2" onchange="customSelectChanged(2)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomCloseParen2==')'?'SELECTED':''); ?> value=")">)</option>
+                    <option <?php echo ($qCustomCloseParen2=='))'?'SELECTED':''); ?> value="))">))</option>
                 </select>
 				<a href="#" onclick="toggleCustomDiv3();return false;">
 					<img src="../../images/editplus.png" />
@@ -308,6 +313,8 @@ else{
                 <select name="q_customopenparen3" onchange="customSelectChanged(3)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomOpenParen3=='('?'SELECTED':''); ?> value="(">(</option>
+                    <option <?php echo ($qCustomOpenParen3=='(('?'SELECTED':''); ?> value="((">((</option>
+                    <option <?php echo ($qCustomOpenParen3=='((('?'SELECTED':''); ?> value="(((">(((</option>
                 </select>
 				<select name="q_customfield3" onchange="customSelectChanged(3)">
 					<option value="">Select Field Name</option>
@@ -333,15 +340,13 @@ else{
 				<select name="q_customcloseparen3" onchange="customSelectChanged(3)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomCloseParen3==')'?'SELECTED':''); ?> value=")">)</option>
+                    <option <?php echo ($qCustomCloseParen3=='))'?'SELECTED':''); ?> value="))">))</option>
+                    <option <?php echo ($qCustomCloseParen3==')))'?'SELECTED':''); ?> value=")))">)))</option>
                 </select>
                 <a href="#" onclick="toggleCustomDiv4();return false;">
                     <img src="../../images/editplus.png" />
                 </a>
 			</div>
-
-
-
-
 			<div id="customdiv4" class="fieldGroupDiv" style="display:<?php echo ($qCustomValue4||$qCustomType4=='NULL'||$qCustomType4=='NOTNULL'?'block':'none');?>;">
 				Custom Field 4:
 				<select name="q_customandor4" onchange="customSelectChanged(4)">
@@ -351,6 +356,8 @@ else{
                 <select name="q_customopenparen4" onchange="customSelectChanged(4)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomOpenParen4=='('?'SELECTED':''); ?> value="(">(</option>
+                    <option <?php echo ($qCustomOpenParen4=='(('?'SELECTED':''); ?> value="((">((</option>
+                    <option <?php echo ($qCustomOpenParen4=='((('?'SELECTED':''); ?> value="(((">(((</option>
                 </select>
 				<select name="q_customfield4" onchange="customSelectChanged(4)">
 					<option value="">Select Field Name</option>
@@ -376,6 +383,8 @@ else{
 				<select name="q_customcloseparen4" onchange="customSelectChanged(4)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomCloseParen4==')'?'SELECTED':''); ?> value=")">)</option>
+                    <option <?php echo ($qCustomCloseParen4=='))'?'SELECTED':''); ?> value="))">))</option>
+                    <option <?php echo ($qCustomCloseParen4==')))'?'SELECTED':''); ?> value=")))">)))</option>
                 </select>
                 <a href="#" onclick="toggleCustomDiv5();return false;">
                     <img src="../../images/editplus.png" />
@@ -390,6 +399,8 @@ else{
                 <select name="q_customopenparen5" onchange="customSelectChanged(5)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomOpenParen5=='('?'SELECTED':''); ?> value="(">(</option>
+                    <option <?php echo ($qCustomOpenParen5=='(('?'SELECTED':''); ?> value="((">((</option>
+                    <option <?php echo ($qCustomOpenParen5=='((('?'SELECTED':''); ?> value="(((">(((</option>
                 </select>
 				<select name="q_customfield5" onchange="customSelectChanged(5)">
 					<option value="">Select Field Name</option>
@@ -415,6 +426,8 @@ else{
 				<select name="q_customcloseparen5" onchange="customSelectChanged(5)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomCloseParen5==')'?'SELECTED':''); ?> value=")">)</option>
+                    <option <?php echo ($qCustomCloseParen5=='))'?'SELECTED':''); ?> value="))">))</option>
+                    <option <?php echo ($qCustomCloseParen5==')))'?'SELECTED':''); ?> value=")))">)))</option>
                 </select>
                 <a href="#" onclick="toggleCustomDiv6();return false;">
                     <img src="../../images/editplus.png" />
@@ -429,6 +442,8 @@ else{
                 <select name="q_customopenparen6" onchange="customSelectChanged(6)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomOpenParen6=='('?'SELECTED':''); ?> value="(">(</option>
+                    <option <?php echo ($qCustomOpenParen6=='(('?'SELECTED':''); ?> value="((">((</option>
+                    <option <?php echo ($qCustomOpenParen6=='((('?'SELECTED':''); ?> value="(((">(((</option>
                 </select>
 				<select name="q_customfield6" onchange="customSelectChanged(6)">
 					<option value="">Select Field Name</option>
@@ -454,6 +469,8 @@ else{
 				<select name="q_customcloseparen6" onchange="customSelectChanged(6)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomCloseParen6==')'?'SELECTED':''); ?> value=")">)</option>
+                    <option <?php echo ($qCustomCloseParen6=='))'?'SELECTED':''); ?> value="))">))</option>
+                    <option <?php echo ($qCustomCloseParen6==')))'?'SELECTED':''); ?> value=")))">)))</option>
                 </select>
                 <a href="#" onclick="toggleCustomDiv7();return false;">
                     <img src="../../images/editplus.png" />
@@ -468,6 +485,7 @@ else{
                 <select name="q_customopenparen7" onchange="customSelectChanged(7)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomOpenParen7=='('?'SELECTED':''); ?> value="(">(</option>
+                    <option <?php echo ($qCustomOpenParen7=='(('?'SELECTED':''); ?> value="((">((</option>
                 </select>
 				<select name="q_customfield7" onchange="customSelectChanged(7)">
 					<option value="">Select Field Name</option>
@@ -493,6 +511,8 @@ else{
 				<select name="q_customcloseparen7" onchange="customSelectChanged(7)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomCloseParen7==')'?'SELECTED':''); ?> value=")">)</option>
+                    <option <?php echo ($qCustomCloseParen7=='))'?'SELECTED':''); ?> value="))">))</option>
+                    <option <?php echo ($qCustomCloseParen7==')))'?'SELECTED':''); ?> value=")))">)))</option>
                 </select>
                 <a href="#" onclick="toggleCustomDiv8();return false;">
                     <img src="../../images/editplus.png" />
@@ -532,6 +552,8 @@ else{
 				<select name="q_customcloseparen8" onchange="customSelectChanged(8)">
                     <option value="">--</option>
                     <option <?php echo ($qCustomCloseParen8==')'?'SELECTED':''); ?> value=")">)</option>
+                    <option <?php echo ($qCustomCloseParen8=='))'?'SELECTED':''); ?> value="))">))</option>
+                    <option <?php echo ($qCustomCloseParen8==')))'?'SELECTED':''); ?> value=")))">)))</option>
                 </select>
 			</div>
 			<div class="fieldGroupDiv">

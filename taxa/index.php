@@ -88,7 +88,6 @@ if($SYMB_UID){
 	<script src="../js/symb/taxa.editor.js?ver=202101" type="text/javascript"></script>
 </head>
 <body>
-  <?php echo $occs ?>
 <?php
 $displayLeftMenu = false;
 include($SERVER_ROOT.'/includes/header.php');

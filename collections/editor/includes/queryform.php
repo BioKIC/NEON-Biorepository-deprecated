@@ -92,7 +92,7 @@ else{
 						Number:
 						<input type="text" name="q_recordnumber" value="<?php echo $qRecordNumber; ?>" style="width:120px;" onchange="setOrderBy(this)" />
 					</div>
-					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
+					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01. Dates can also be specified with < or > signs, e.g.: >2021-01-01">
 						Date:
 						<input type="text" name="q_eventdate" value="<?php echo $qEventDate; ?>" style="width:160px" onchange="setOrderBy(this)" />
 					</div>
@@ -133,11 +133,11 @@ else{
 						<input type="text" name="q_recordenteredby" value="<?php echo $qRecordEnteredBy; ?>" style="width:70px;" onchange="setOrderBy(this)" />
 						<button type="button" onclick="enteredByCurrentUser()" style="font-size:70%" title="Limit to recent records entered by current user">CU</button>
 					</div>
-					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
+					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01. Dates can also be specified with < or > signs, e.g.: >2021-01-01">
 						Date entered:
 						<input type="text" name="q_dateentered" value="<?php echo $qDateEntered; ?>" style="width:160px" onchange="setOrderBy(this)" />
 					</div>
-					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
+					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01. Dates can also be specified with < or > signs, e.g.: >2021-01-01">
 						Date modified:
 						<input type="text" name="q_datelastmodified" value="<?php echo $qDateLastModified; ?>" style="width:160px" onchange="setOrderBy(this)" />
 					</div>

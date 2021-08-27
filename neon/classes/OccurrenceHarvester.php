@@ -210,16 +210,18 @@ class OccurrenceHarvester{
 		//echo 'url: '.$url.'<br/>'; exit;
 
 		if(!isset($sampleViewArr['sampleViews'])){
-			$this->errorStr = 'NEON API failed to return sample data : '.$url;
+			$this->errorStr = 'NEON API failed to return sample data ';
+			$this->updateSampleRecord(array($this->errorStr),$sampleArr['samplePK']);
 			return false;
 		}
 		if(count($sampleViewArr['sampleViews']) > 1){
-			$this->errorStr = 'NEON API returned multiple sampleViews: '.$url;
+			$this->errorStr = 'Harvest skipped: NEON API returned multiple sampleViews ';
+			$this->updateSampleRecord(array($this->errorStr),$sampleArr['samplePK']);
 			return false;
 		}
 		$viewArr = current($sampleViewArr['sampleViews']);
-		//Check and populate identifiers
 		$neonSampleUpdate = array();
+		//Check and populate identifiers
 		if(isset($viewArr['sampleUuid']) && $viewArr['sampleUuid']){
 			//Populate or verify/coordinate sampleUuid
 			if(!$sampleArr['sampleUuid'] || $sampleArr['sampleUuid'] != $viewArr['sampleUuid']){
@@ -281,16 +283,7 @@ class OccurrenceHarvester{
 			}
 			*/
 		}
-		if($neonSampleUpdate){
-			$sqlInsert = '';
-			foreach($neonSampleUpdate as $field => $value){
-				$sqlInsert .= $field.' = "'.$this->cleanInStr($value).'", ';
-			}
-			$sql = 'UPDATE NeonSample SET '.trim($sqlInsert,', ').' WHERE (samplePK = '.$sampleArr['samplePK'].')';
-			if(!$this->conn->query($sql)){
-				echo '</li><li style="margin-left:30px">ERROR updating NeonSample record: '.$this->conn->error.'</li>';
-			}
-		}
+		$this->updateSampleRecord($neonSampleUpdate,$sampleArr['samplePK']);
 		//Get fateLocation and process parent samples
 		unset($this->fateLocationArr);
 		$this->fateLocationArr = array();
@@ -302,6 +295,19 @@ class OccurrenceHarvester{
 			if(!isset($sampleArr['collect_start_date'])) $sampleArr['collect_start_date'] = $locArr['date'];
 		}
 		return true;
+	}
+
+	private function updateSampleRecord($neonSampleUpdate,$samplePK){
+		if($neonSampleUpdate){
+			$sqlInsert = '';
+			foreach($neonSampleUpdate as $field => $value){
+				$sqlInsert .= $field.' = "'.$this->cleanInStr($value).'", ';
+			}
+			$sql = 'UPDATE NeonSample SET '.trim($sqlInsert,', ').' WHERE (samplePK = '.$samplePK.')';
+			if(!$this->conn->query($sql)){
+				echo '</li><li style="margin-left:30px">ERROR updating NeonSample record: '.$this->conn->error.'</li>';
+			}
+		}
 	}
 
 	private function igsnExists($igsn){

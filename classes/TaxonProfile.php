@@ -693,9 +693,11 @@ class TaxonProfile extends Manager {
 	}
 
   //Gets occurrence counts of taxon in portal, to use in taxon profile
+  //Searches for taxon and all its children
   public function getOccTaxonInDbCnt($tid, $collids = "all")
   {
     $sql = 'SELECT COUNT(occid) FROM omoccurrences WHERE tidinterpreted = '.$tid.'';
+    $sql = 'SELECT COUNT(o.occid) FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$tid.' OR e.tid = '.$tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid;';
     if ($collids != "all") {
       $collidsStr = implode(",",$collids);
       $sql .= ' AND collid IN ('.$collidsStr.')';

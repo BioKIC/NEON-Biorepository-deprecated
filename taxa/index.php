@@ -32,12 +32,17 @@ elseif($taxonValue){
 	$tid = key($tidArr);
 	//Need to add code that allows user to select target taxon when more than one homonym is returned
 }
+
 if($lang) $lang = $taxonManager->setLanguage($lang);
 if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_PROJ_ID;
 
-$occs = $taxonManager->getOccTaxonInDbCnt($tid);
+// Options to display occurrences counts and link by taxon
+$taxonRank = $taxonManager->getRankId();
+$occs = $taxonManager->getOccTaxonInDbCnt($tid, $taxonRank, 110);
+$limitOccs = 500000;
 $scinameStr = $taxonManager->getTaxonName();
 $occSrcUrl = $CLIENT_ROOT.'/collections/list.php?db=all&includeothercatnum=1&taxa='.$scinameStr.'&usethes=1';
+
 
 $links = $taxonManager->getTaxaLinks();
 if($links){
@@ -116,11 +121,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							<?php
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
 							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
-              if($occs > 0){
-                echo '<p><a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.$occs.' occurrences</a></p>';
-              } elseif($occs == 0){
-                echo '<p>No occurrences found</p>';
-              }
+              echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl, $limitOccs);
 							if($taxonManager->isForwarded()){
 						 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';
 						 	}
@@ -279,11 +280,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							echo '<div id="taxon">'.$displayName.'</div>';
 							?>
               <?php 
-                if($occs > 0){
-                  echo '<p><a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.$occs.' occurrences</a></p>';
-                } elseif($occs == 0){
-                  echo '<p>No occurrences found</p>';
-                }              
+                echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl, $limitOccs);         
               ?>
 						</div>
 					</td>
@@ -452,11 +449,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				?>
 				<div id="scinameDiv"><span id="taxon"><?php echo $taxonManager->getTaxonName(); ?></span></div>
         <?php
-          if($occs > 0){
-            echo '<p><a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.$occs.' occurrences</a></p>';
-          } elseif($occs == 0){
-            echo '<p>No occurrences found</p>';
-          }
+          echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl, $limitOccs);
         ?>
 				<div>
 					<div id="leftPanel">

@@ -692,22 +692,53 @@ class TaxonProfile extends Manager {
 		return $retArr;
 	}
 
-  //Gets occurrence counts of taxon in portal, to use in taxon profile
-  //Searches for taxon and all its children
-  public function getOccTaxonInDbCnt($tid, $collids = "all")
+  /** 
+   * Gets occurrence counts of taxon in portal, to use in taxon profile
+   * Searches for taxon and all its children
+   * Checks taxon rank; counts turned off by default for anything above genus
+   * $tid INTEGER taxon id
+   * $taxonRank INTEGER taxon rank according to taxonunits table
+   * $limitRank INTEGER 
+   */
+  public function getOccTaxonInDbCnt($tid, $taxonRank, $limitRank = "170", $collids = "all")
   {
-    $sql = 'SELECT COUNT(occid) FROM omoccurrences WHERE tidinterpreted = '.$tid.'';
-    $sql = 'SELECT COUNT(o.occid) FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$tid.' OR e.tid = '.$tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid;';
-    if ($collids != "all") {
-      $collidsStr = implode(",",$collids);
-      $sql .= ' AND collid IN ('.$collidsStr.')';
+    $count = -1;
+    if ($taxonRank >= $limitRank) {
+      $sql = 'SELECT COUNT(occid) FROM omoccurrences WHERE tidinterpreted = '.$tid.'';
+      $sql = 'SELECT COUNT(o.occid) FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$tid.' OR e.tid = '.$tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid;';
+      if ($collids != "all") {
+        $collidsStr = implode(",",$collids);
+        $sql .= ' AND collid IN ('.$collidsStr.')';
+      }
+    $result = $this->conn->query($sql);
+    while ($row = $result->fetch_row()){
+      $count = $row;
     }
-  $result = $this->conn->query($sql);
-  while ($row = $result->fetch_row()){
-    $count = $row;
+    $result->free();
+    $count = $count[0];
+    }
+  return $count;
   }
-  $result->free();
-  return $count[0];
+
+  /** 
+   * Returns link for specimen search (by taxon) if number of occurrences
+   * is within declared limit
+   * $tid INTEGER taxon id
+   * $limitOccs INTEGER max number of occurrences in a search
+   */
+  public function getSearchByTaxon($numOccs, $searchUrl, $limitOccs = 200000)
+  {
+    $occMsg = '';
+    if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
+      $occMsg = '<p><a class="btn" href="'.$searchUrl.'" target="_blank">Explore '.$numOccs.' occurrences</a><p>';
+    } elseif ($numOccs > $limitOccs) {
+      $occMsg = '<p>'.$numOccs.' occurrences</p>';
+    } elseif ($numOccs == 0) {
+      $occMsg = '<p>No occurrences found</p>';
+    } elseif ($numOccs == -1) {
+      $occMsg = '';
+    }
+    return $occMsg;
   }
 
 	//Setters and getters

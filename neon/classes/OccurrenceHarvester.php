@@ -206,7 +206,7 @@ class OccurrenceHarvester{
 			}
 			$sampleViewArr = $this->getNeonApiArr($url);
 		}
-		//echo 'url: '.$url.'<br/>'; exit;
+		//echo 'url: '.$url.'<br/>';
 
 		if(!isset($sampleViewArr['sampleViews'])){
 			$this->errorStr = 'NEON API failed to return sample data ';
@@ -323,7 +323,7 @@ class OccurrenceHarvester{
 	private function updateOccurrenceIgsn($igsn, $occid){
 		$status = false;
 		$sql = 'UPDATE omoccurrences SET occurrenceID = "'.$igsn.'" WHERE occurrenceid IS NULL AND occid = '.$occid;
-		if($rs = $this->conn->query($sql)) $status = true;
+		if($this->conn->query($sql)) $status = true;
 		return $status;
 	}
 
@@ -337,11 +337,7 @@ class OccurrenceHarvester{
 		$eventArr = $viewArr['sampleEvents'];
 		if($eventArr){
 			foreach($eventArr as $eArr){
-				$fullHarvest = true;
 				$tableName = $eArr['ingestTableName'];
-				if(substr($tableName,0,4) == 'scs_') $fullHarvest = false;
-				if(strpos($tableName,'archivedata')) $fullHarvest = false;
-				if(strpos($tableName,'perbiogeosample')) $fullHarvest = false;
 				if(strpos($tableName,'shipment')) continue;
 				if(strpos($tableName,'identification')) continue;
 				if(strpos($tableName,'sorting')) continue;
@@ -357,33 +353,35 @@ class OccurrenceHarvester{
 				if(strpos($tableName,'persample')) continue;
 				if(strpos($tableName,'pertaxon')) continue;
 				if(strpos($tableName,'pervial')) continue;
-				$fateLocation = ''; $fateDate = ''; $collLoc = '';
+				if($tableName == 'mpr_perpitprofile_in') continue;
 				$fieldArr = $eArr['smsFieldEntries'];
+				$fateLocation = ''; $fateDate = ''; $collLoc = '';
 				$preparations = ''; $identArr = array(); $assocMedia = array();
+				$tableArr = array();
 				foreach($fieldArr as $fArr){
 					if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'collection_location' && $fArr['smsValue']) $collLoc = $this->formatDate($fArr['smsValue']);
 					elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
-					elseif($fArr['smsKey'] == 'event_id' && $fArr['smsValue']) $sampleArr['event_id'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'taxon' && $fArr['smsValue']) $sampleArr['taxon'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'taxon_published' && $fArr['smsValue']) $sampleArr['taxon_published'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'event_id' && $fArr['smsValue']) $tableArr['event_id'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'taxon' && $fArr['smsValue']) $tableArr['taxon'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'taxon_published' && $fArr['smsValue']) $tableArr['taxon_published'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'identified_by' && $fArr['smsValue']) $identArr['identifiedBy'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'identified_date' && $fArr['smsValue']) $identArr['dateIdentified'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'identification_remarks' && $fArr['smsValue']) $identArr['identificationRemarks'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'identification_references' && $fArr['smsValue']) $identArr['identificationReferences'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'identification_qualifier' && $fArr['smsValue']) $identArr['identificationQualifier'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'collected_by' && $fArr['smsValue']) $sampleArr['collected_by'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'collect_start_date' && $fArr['smsValue']) $sampleArr['collect_start_date'] = $this->formatDate($fArr['smsValue']);
-					elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $sampleArr['collect_end_date'] = $this->formatDate($fArr['smsValue']);
-					elseif($fArr['smsKey'] == 'specimen_count' && $fArr['smsValue']) $sampleArr['specimen_count'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'temperature' && $fArr['smsValue']) $sampleArr['temperature'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'verbatim_depth' && $fArr['smsValue']) $sampleArr['verbatim_depth'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'minimum_depth_in_meters' && $fArr['smsValue']) $sampleArr['minimum_depth_in_meters'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'maximum_depth_in_meters' && $fArr['smsValue']) $sampleArr['maximum_depth_in_meters'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'reproductive_condition' && $fArr['smsValue']) $sampleArr['reproductive_condition'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'sex' && $fArr['smsValue']) $sampleArr['sex'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'life_stage' && $fArr['smsValue']) $sampleArr['life_stage'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'remarks' && $fArr['smsValue']) $sampleArr['remarks'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'collected_by' && $fArr['smsValue']) $tableArr['collected_by'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'collect_start_date' && $fArr['smsValue']) $tableArr['collect_start_date'] = $this->formatDate($fArr['smsValue']);
+					elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $tableArr['collect_end_date'] = $this->formatDate($fArr['smsValue']);
+					elseif($fArr['smsKey'] == 'specimen_count' && $fArr['smsValue']) $tableArr['specimen_count'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'temperature' && $fArr['smsValue']) $tableArr['temperature'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'verbatim_depth' && $fArr['smsValue']) $tableArr['verbatim_depth'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'minimum_depth_in_meters' && $fArr['smsValue']) $tableArr['minimum_depth_in_meters'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'maximum_depth_in_meters' && $fArr['smsValue']) $tableArr['maximum_depth_in_meters'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'reproductive_condition' && $fArr['smsValue']) $tableArr['reproductive_condition'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'sex' && $fArr['smsValue']) $tableArr['sex'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'life_stage' && $fArr['smsValue']) $tableArr['life_stage'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'remarks' && $fArr['smsValue']) $tableArr['remarks'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'preservative_concentration' && $fArr['smsValue']) $preparations .= 'concentration: '.$fArr['smsValue'].', ';
 					elseif($fArr['smsKey'] == 'preservative_volume' && $fArr['smsValue']) $preparations .= 'volume: '.$fArr['smsValue'].', ';
 					elseif($fArr['smsKey'] == 'preservative_type' && $fArr['smsValue']) $preparations .= 'type: '.$fArr['smsValue'].', ';
@@ -396,9 +394,9 @@ class OccurrenceHarvester{
 					}
 					elseif($fArr['smsKey'] == 'photographed_by') $assocMedia['photographer'] = $fArr['smsValue'];
 				}
-				if($preparations) $sampleArr['preparations'] = trim($preparations,', ');
-				if($identArr) $sampleArr['identifications'][] = $identArr;
-				if($assocMedia && isset($assocMedia['url'])) $sampleArr['assocMedia'][] = $assocMedia;
+				if($preparations) $tableArr['preparations'] = trim($preparations,', ');
+				if($identArr) $tableArr['identifications'][] = $identArr;
+				if($assocMedia && isset($assocMedia['url'])) $tableArr['assocMedia'][] = $assocMedia;
 				if($collLoc){
 					$score = $fateDate;
 					if(strpos($tableName,'fielddata')) $score = 2;
@@ -415,6 +413,12 @@ class OccurrenceHarvester{
 					$this->fateLocationArr[$score]['loc'] = $fateLocation;
 					$this->fateLocationArr[$score]['date'] = $fateDate;
 				}
+				if(isset($tableArr['identifications'])){
+					foreach($tableArr['identifications'] as $idKey => $idValue){
+						if(isset($tableArr['taxon'])) $tableArr['identifications'][$idKey]['sciname'] = $tableArr['taxon'];
+					}
+				}
+				$sampleArr = array_merge($tableArr,$sampleArr);
 			}
 		}
 		if(isset($viewArr['parentSampleIdentifiers'][0]['sampleUuid'])){
@@ -820,7 +824,7 @@ class OccurrenceHarvester{
 	private function setIdentifications($identArr, $occid){
 		if($occid){
 			foreach($identArr as $idArr){
-				if(isset($idArr['identifiedBy'])){
+				if(isset($idArr['identifiedBy']) && isset($idArr['sciname'])){
 					$sqlInsert = '';
 					$sqlValue = '';
 					foreach($idArr as $k => $v){

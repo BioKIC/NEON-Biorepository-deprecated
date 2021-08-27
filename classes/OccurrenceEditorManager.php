@@ -131,10 +131,13 @@ class OccurrenceEditorManager {
 			if(array_key_exists('q_ocrfrag',$_REQUEST) && $_REQUEST['q_ocrfrag']) $this->qryArr['ocr'] = trim($_REQUEST['q_ocrfrag']);
 			if(array_key_exists('q_imgonly',$_REQUEST) && $_REQUEST['q_imgonly']) $this->qryArr['io'] = 1;
 			if(array_key_exists('q_withoutimg',$_REQUEST) && $_REQUEST['q_withoutimg']) $this->qryArr['woi'] = 1;
-			for($x=1;$x<4;$x++){
+			for($x=1;$x<9;$x++){
+				if(array_key_exists('q_customandor'.$x,$_REQUEST) && $_REQUEST['q_customandor'.$x]) $this->qryArr['cao'.$x] = $_REQUEST['q_customandor'.$x];
+                if(array_key_exists('q_customopenparen'.$x,$_REQUEST) && $_REQUEST['q_customopenparen'.$x]) $this->qryArr['cop'.$x] = $_REQUEST['q_customopenparen'.$x];
 				if(array_key_exists('q_customfield'.$x,$_REQUEST) && $_REQUEST['q_customfield'.$x]) $this->qryArr['cf'.$x] = $_REQUEST['q_customfield'.$x];
 				if(array_key_exists('q_customtype'.$x,$_REQUEST) && $_REQUEST['q_customtype'.$x]) $this->qryArr['ct'.$x] = $_REQUEST['q_customtype'.$x];
 				if(array_key_exists('q_customvalue'.$x,$_REQUEST) && $_REQUEST['q_customvalue'.$x]) $this->qryArr['cv'.$x] = trim($_REQUEST['q_customvalue'.$x]);
+				if(array_key_exists('q_customcloseparen'.$x,$_REQUEST) && $_REQUEST['q_customcloseparen'.$x]) $this->qryArr['ccp'.$x] = $_REQUEST['q_customcloseparen'.$x];
 			}
 			if(array_key_exists('orderby',$_REQUEST)) $this->qryArr['orderby'] = trim($_REQUEST['orderby']);
 			if(array_key_exists('orderbydir',$_REQUEST)) $this->qryArr['orderbydir'] = trim($_REQUEST['orderbydir']);
@@ -470,10 +473,14 @@ class OccurrenceEditorManager {
 			$sqlWhere .= 'AND (exn.ometid = '.$this->qryArr['exsid'].') ';
 		}
 		//Custom search fields
-		for($x=1;$x<4;$x++){
+		for($x=1;$x<9;$x++){
+			$cao = (array_key_exists('cao'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cao'.$x]):'');
+            $cop = (array_key_exists('cop'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cop'.$x]):'');
 			$cf = (array_key_exists('cf'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cf'.$x]):'');
 			$ct = (array_key_exists('ct'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ct'.$x]):'');
 			$cv = (array_key_exists('cv'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cv'.$x]):'');
+			$ccp = (array_key_exists('ccp'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ccp'.$x]):'');
+            if(!$cao) $cao = 'AND';
 			if($cf){
 				if($cf == 'ocrFragment'){
 					//Used when OCR frag comes from custom field search within basic query form
@@ -487,51 +494,54 @@ class OccurrenceEditorManager {
 					$cf = 'o.'.$cf;
 				}
 				if($ct=='NULL'){
-					$sqlWhere .= 'AND ('.$cf.' IS NULL) ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NULL) '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='NOTNULL'){
-					$sqlWhere .= 'AND ('.$cf.' IS NOT NULL) ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NOT NULL) '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='NOT EQUALS' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= 'AND ('.$cf.' <> '.$cv.') ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' <> '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='GREATER' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= 'AND ('.$cf.' > '.$cv.') ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' > '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='LESS' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= 'AND ('.$cf.' < '.$cv.') ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' < '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='LIKE' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= 'AND ('.$cf.' LIKE "'.$cv.'") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= 'AND ('.$cf.' LIKE "%'.$cv.'%") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($ct=='NOT LIKE' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "'.$cv.'") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "%'.$cv.'%") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($ct=='STARTS' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= 'AND ('.$cf.' LIKE "'.$cv.'") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= 'AND ('.$cf.' LIKE "'.$cv.'%") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($cv){
-					$sqlWhere .= 'AND ('.$cf.' = "'.$cv.'") ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' = "'.$cv.'") '.($ccp?$ccp.' ':'');
 				}
 			}
+			else if($x > 1 && !$cf && $ccp){
+        		$sqlWhere .= ' '.$ccp.' ';
+    		}
 		}
 		if($this->crowdSourceMode){
 			$sqlWhere .= 'AND (q.reviewstatus = 0) ';

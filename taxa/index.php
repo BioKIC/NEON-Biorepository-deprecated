@@ -38,8 +38,7 @@ if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_P
 
 // Options to display occurrences counts and link by taxon
 $taxonRank = $taxonManager->getRankId();
-$occs = $taxonManager->getOccTaxonInDbCnt($tid, $taxonRank, 110);
-$limitOccs = 500000;
+$occs = $taxonManager->getOccTaxonInDbCnt($tid, $taxonRank);
 $scinameStr = $taxonManager->getTaxonName();
 $occSrcUrl = $CLIENT_ROOT.'/collections/list.php?db=all&includeothercatnum=1&taxa='.$scinameStr.'&usethes=1';
 
@@ -121,7 +120,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							<?php
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
 							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
-              echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl, $limitOccs);
+              echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl);
 							if($taxonManager->isForwarded()){
 						 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';
 						 	}
@@ -280,7 +279,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							echo '<div id="taxon">'.$displayName.'</div>';
 							?>
               <?php 
-                echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl, $limitOccs);         
+                echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl);         
               ?>
 						</div>
 					</td>
@@ -449,7 +448,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				?>
 				<div id="scinameDiv"><span id="taxon"><?php echo $taxonManager->getTaxonName(); ?></span></div>
         <?php
-          echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl, $limitOccs);
+          echo $taxonManager->getSearchByTaxon($occs, $occSrcUrl);
         ?>
 				<div>
 					<div id="leftPanel">

@@ -117,7 +117,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
 							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
               if($occs > 0){
-                echo '<p><a class="btn" href="'.$occSrcUrl.'">Explore '.$occs.' occurrences</a></p>';
+                echo '<p><a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.$occs.' occurrences</a></p>';
               } elseif($occs == 0){
                 echo '<p>No occurrences found</p>';
               }
@@ -280,7 +280,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							?>
               <?php 
                 if($occs > 0){
-                  echo '<p><a class="btn" href="'.$occSrcUrl.'">Explore '.$occs.' occurrences</a></p>';
+                  echo '<p><a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.$occs.' occurrences</a></p>';
                 } elseif($occs == 0){
                   echo '<p>No occurrences found</p>';
                 }              
@@ -453,7 +453,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				<div id="scinameDiv"><span id="taxon"><?php echo $taxonManager->getTaxonName(); ?></span></div>
         <?php
           if($occs > 0){
-            echo '<p><a class="btn" href="'.$occSrcUrl.'">Explore '.$occs.' occurrences</a></p>';
+            echo '<p><a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.$occs.' occurrences</a></p>';
           } elseif($occs == 0){
             echo '<p>No occurrences found</p>';
           }

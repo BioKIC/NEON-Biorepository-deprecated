@@ -462,7 +462,7 @@ class OccurrenceHarvester{
 				}
 				if(isset($sampleArr['collect_end_date'])){
 					if(!isset($dwcArr['eventDate']) || !$dwcArr['eventDate']) $dwcArr['eventDate'] = $sampleArr['collect_end_date'];
-					elseif($dwcArr['eventDate'] != $sampleArr['collect_end_date']) $dwcArr['latestDateCollected'] = $sampleArr['collect_end_date'];
+					elseif($dwcArr['eventDate'] != $sampleArr['collect_end_date']) $dwcArr['eventDate2'] = $sampleArr['collect_end_date'];
 				}
 				//Build proper location code
 				$locationStr = '';
@@ -769,7 +769,7 @@ class OccurrenceHarvester{
 					$this->setDatasetIndexing($siteID,$occid);
 				}
 				else{
-					$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error.'; '.$sql;
+					$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error;
 					return false;
 				}
 			}

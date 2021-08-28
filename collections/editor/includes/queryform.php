@@ -636,18 +636,13 @@ else{
 						<option value="DESC" <?php echo ($qOrderByDir=='DESC'?'SELECTED':''); ?>>descending</option>
 					</select>
 				</span>
-				<?php 
-				// Display a button to copy the query link, if the search has been run already. 
-				if(count($qryArr) > 1) : ?>
-				<button onclick="copyQueryLink(event)">Copy Search As Link
-				</button>
-				<?php endif; ?>
+				<input type="button" name="copylink" value="Copy Search As Link" onclick="copyQueryLink(event)">
 			</div>
 		</fieldset>
 	</form>
 </div>
 <script>
-	
+
 	// Function to copy the query link to the clipboard
 	function copyQueryLink(evt){
 		

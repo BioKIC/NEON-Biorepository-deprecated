@@ -754,5 +754,14 @@ else{
 		f.q_withoutimg.checked = false;
 		f.orderby.value = "";
 		f.orderbydir.value = "ASC";
+
+		// Hide all the custom field divs except the first on reset
+		document.getElementById('customdiv2').style.display = "none";
+		document.getElementById('customdiv3').style.display = "none";
+		document.getElementById('customdiv4').style.display = "none";
+		document.getElementById('customdiv5').style.display = "none";
+		document.getElementById('customdiv6').style.display = "none";
+		document.getElementById('customdiv7').style.display = "none";
+		document.getElementById('customdiv8').style.display = "none";
 	}
 </script>

@@ -2,6 +2,9 @@
 if(!$displayQuery && array_key_exists('displayquery',$_REQUEST)) $displayQuery = $_REQUEST['displayquery'];
 
 $qryArr = $occManager->getQueryVariables();
+// Construct a link containing the queryform search parameters
+$queryLink = '?displayquery=1&collid='.$_REQUEST['collid'].'&'.http_build_query($qryArr, '', '&amp;');
+
 $qCatalogNumber = (array_key_exists('cn',$qryArr)?$qryArr['cn']:'');
 $qOtherCatalogNumbers = (array_key_exists('ocn',$qryArr)?$qryArr['ocn']:'');
 $qRecordedBy = (array_key_exists('rb',$qryArr)?$qryArr['rb']:'');
@@ -633,11 +636,43 @@ else{
 						<option value="DESC" <?php echo ($qOrderByDir=='DESC'?'SELECTED':''); ?>>descending</option>
 					</select>
 				</span>
+				<?php 
+				// Display a button to copy the query link, if the search has been run already. 
+				if(count($qryArr) > 1) : ?>
+				<button onclick="copyQueryLink(event)">Copy Search As Link
+				</button>
+				<?php endif; ?>
 			</div>
 		</fieldset>
 	</form>
 </div>
 <script>
+	
+	// Function to copy the query link to the clipboard
+	function copyQueryLink(evt){
+		
+		// Prevent the button from triggering and reloading the page
+		evt.preventDefault();
+
+		// Get the queryform parameters, only the ones that are set
+		var params = $('form[name="queryform"] :input').filter(function () { return $(this).val() != ""; }).serialize();
+
+		// Check if the catalogNumber field is set, and if not, add it to the query
+		var catalogNumber = $('input[name="q_catalognumber"]').val() == "" ? '&q_catalognumber=' : '';
+
+		// Construct the full link to the query form search parameters. Add displayquery to show the query form
+		var link = location.protocol + '//' + location.host + location.pathname + '?' + params + catalogNumber + '&displayquery=1';
+
+		// Copy to clipboard
+		navigator.clipboard.writeText(link).then(() => {
+	      /* clipboard succcessfully set */
+	      //console.log("Clipboard copy successful");
+	    }, () => {
+	      /* clipboard write failed */
+	      //console.log("Clipboard copy failed");
+	    });
+	}
+
 	function enteredByCurrentUser(){
 		var f = document.queryform;
 		resetQueryForm(f);

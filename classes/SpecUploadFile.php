@@ -109,6 +109,7 @@ class SpecUploadFile extends SpecUploadBase{
 	 		$fh = fopen($fullPath,'rb') or die("Can't open file");
 
 			$headerArr = $this->getHeaderArr($fh);
+			foreach($headerArr as $k => $v) $headerArr[$k] = strtolower($v);
 
 			//Grab data
 			$this->transferCount = 0;
@@ -232,7 +233,7 @@ class SpecUploadFile extends SpecUploadBase{
 		$skippedFields = '';
 		$retArr = array();
 		foreach($headerArr as $field){
-			$fieldStr = strtolower($this->encodeString(trim($field)));
+			$fieldStr = $this->encodeString(trim($field));
 			if($fieldStr){
 				if($hasEmptyHeader) $skippedFields .= $fieldStr.', ';
 				else{

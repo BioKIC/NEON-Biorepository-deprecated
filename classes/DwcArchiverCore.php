@@ -862,7 +862,7 @@ class DwcArchiverCore extends Manager{
 			}
 			if($this->includeMaterialSample){
 				$zipArchive->addFile($this->targetPath.$this->ts.'-matSample'.$this->fileExt);
-				$zipArchive->renameName($this->targetPath.$this->ts.'-matSample'.$this->fileExt,'materialsample'.$this->fileExt);
+				$zipArchive->renameName($this->targetPath.$this->ts.'-matSample'.$this->fileExt,'materialSample'.$this->fileExt);
 			}
 			//Meta file
 			$this->writeMetaFile();
@@ -1055,7 +1055,7 @@ class DwcArchiverCore extends Manager{
 			$extElem3->setAttribute('rowType','http://data.ggbn.org/schemas/ggbn/terms/MaterialSample');
 
 			$filesElem3 = $newDoc->createElement('files');
-			$filesElem3->appendChild($newDoc->createElement('location','materialsample'.$this->fileExt));
+			$filesElem3->appendChild($newDoc->createElement('location','materialSample'.$this->fileExt));
 			$extElem3->appendChild($filesElem3);
 
 			$coreIdElem3 = $newDoc->createElement('coreid');

@@ -116,7 +116,7 @@ elseif($action == 'listdupsrecordedby'){
 	<div id="innertext" style="background-color:white;">
 		<?php
 		if($isEditor){
-			if($IS_ADMIN && $limit < 900) echo '<div><span style="color:orange">'.$LANG['SUPERADMIN_NOTICE'].'</div>';
+			if($IS_ADMIN && $limit < 900) echo '<div>'.$LANG['SUPERADMIN_NOTICE'].'</div>';
 			if($action == 'listdupscatalog' || $action == 'listdupsothercatalog' || $action == 'listdupsrecordedby'){
 				//Look for duplicate catalognumbers
 				if($dupArr){

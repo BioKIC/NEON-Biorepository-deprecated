@@ -659,7 +659,7 @@ class ImageLocalProcessor {
 							// Image file size is too big, thus let's resize and import
 
 							// Figure out what factor to reduce filesize by
-							$ratio = $filesize / $this->lgFileSizeLimit;
+							$ratio = $fileSize / $this->lgFileSizeLimit;
 
 							// Scale by a factor of the square root of the filesize ratio
 							// Note, this is a good approximation to reduce the filesize, but will not be exact
@@ -783,7 +783,7 @@ class ImageLocalProcessor {
 		$status = false;
 		if($this->processUsingImageMagick) {
 			// Use ImageMagick to resize images
-			$status = $this->createNewImageImagick($sourcePathBase,$targetPath,$newWidth,$newHeight,$sourceWidth,$sourceHeight);
+			$status = $this->createNewImageImagick($sourcePathBase,$targetPath,$newWidth,$newHeight);
 		}
 		elseif(extension_loaded('gd') && function_exists('gd_info')) {
 			// GD is installed and working
@@ -797,15 +797,21 @@ class ImageLocalProcessor {
 		return $status;
 	}
 
-	private function createNewImageImagick($sourceImg,$targetPath,$newWidth){
+	private function createNewImageImagick($sourceImg,$targetPath,$newWidth,$newHeight){
 		$status = false;
 		$ct;
 		$retval;
+
+		if(!$newWidth || !$newHeight){
+			$this->logOrEcho("ERROR: Unable to create image because new width or height is not set (w:".$newWidth.' h:'.$newHeight.')');
+			return $status;
+		}
+
 		if($newWidth < 300){
-			$ct = system('convert '.$sourceImg.' -thumbnail '.$newWidth.'x'.($newWidth*1.5).' '.$targetPath, $retval);
+			$ct = system('convert '.$sourceImg.' -thumbnail '.$newWidth.'x'.$newHeight.' '.$targetPath, $retval);
 		}
 		else{
-			$ct = system('convert '.$sourceImg.' -resize '.$newWidth.'x'.($newWidth*1.5).($this->jpgQuality?' -quality '.$this->jpgQuality:'').' '.$targetPath, $retval);
+			$ct = system('convert '.$sourceImg.' -resize '.$newWidth.'x'.$newHeight.($this->jpgQuality?' -quality '.$this->jpgQuality:'').' '.$targetPath, $retval);
 		}
 		if(file_exists($targetPath)){
 			$status = true;

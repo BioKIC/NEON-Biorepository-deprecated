@@ -25,6 +25,7 @@ class SpecUpload{
 	protected $uploadType;
 	private $securityKey;
 	protected $paleoSupport = false;
+	protected $materialSampleSupport = false;
 
 	protected $verboseMode = 1;	// 0 = silent, 1 = echo, 2 = log
 	private $logFH;
@@ -122,8 +123,15 @@ class SpecUpload{
 				$this->collMetadataArr["guidtarget"] = $r->guidtarget;
 				if($r->dynamicproperties){
 					$propArr = json_decode($r->dynamicproperties,true);
-					if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
-						if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->paleoSupport = true;
+					if(isset($propArr['editorProps']['modules-panel'])){
+						foreach($propArr['editorProps']['modules-panel'] as $modArr){
+							if(isset($modArr['paleo'])){
+								if($modArr['paleo']['status'] == 1) $this->paleoSupport = true;
+							}
+							elseif(isset($modArr['matSample'])){
+								if($modArr['matSample']['status'] == 1) $this->materialSampleSupport = true;
+							}
+						}
 					}
 				}
 			}

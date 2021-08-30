@@ -101,27 +101,22 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						</div>
 						<div class="field-div">
 							<label>ISO2 Code</label>:
-							<span class="editTerm"><?php echo $geoUnit['iso2']; ?></span>
-							<span class="editFormElem"><input type="text" name="iso2" value="<?php echo $geoUnit['iso2'] ?>" style="width:50px;" /></span>
+							<span class="editFormElem"><input type="text" name="iso2" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>ISO3 Code</label>:
-							<span class="editTerm"><?php echo $geoUnit['iso3']; ?></span>
-							<span class="editFormElem"><input type="text" name="iso3" value="<?php echo $geoUnit['iso3'] ?>"style="width:50px;" /></span>
+							<span class="editFormElem"><input type="text" name="iso3" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>Abbreviation</label>:
-							<span class="editTerm"><?php echo $geoUnit['abbreviation']; ?></span>
-							<span class="editFormElem"><input type="text" name="abbreviation" value="<?php echo $geoUnit['abbreviation'] ?>" style="width:50px;" /></span>
+							<span class="editFormElem"><input type="text" name="abbreviation" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>Numeric Code</label>:
-							<span class="editTerm"><?php echo $geoUnit['numCode']; ?></span>
-							<span class="editFormElem"><input type="text" name="numCode" value="<?php echo $geoUnit['numCode'] ?>" style="width:50px;" /></span>
+							<span class="editFormElem"><input type="text" name="numCode" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>Category</label>:
-							<span class="editTerm"><?php echo $geoUnit['category']; ?></span>
 							<span class="editFormElem">
 								<select name="category">
 									<option value="">Select Category</option>
@@ -138,8 +133,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						</div>
 						<div class="field-div">
 							<label>Notes</label>:
-							<span class="editTerm"><?php echo $geoUnit['notes']; ?></span>
-							<span class="editFormElem"><input type="text" name="notes" value="<?php echo $geoUnit['notes'] ?>" maxlength="250" style="width:200px;" /></span>
+							<span class="editFormElem"><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
 						</div>
 						
 						

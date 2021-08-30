@@ -704,7 +704,6 @@ class TaxonProfile extends Manager {
   {
     $count = -1;
     if ($taxonRank >= $limitRank) {
-      $sql = 'SELECT COUNT(occid) FROM omoccurrences WHERE tidinterpreted = '.$tid.'';
       $sql = 'SELECT COUNT(o.occid) FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$tid.' OR e.tid = '.$tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid;';
       if ($collids != "all") {
         $collidsStr = implode(",",$collids);

@@ -119,11 +119,11 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							<label>Abbreviation</label>:
 							<span class="editTerm"><?php echo $geoUnit['abbreviation']; ?></span>
 							<span class="editFormElem"><input type="text" name="abbreviation" value="<?php echo $geoUnit['abbreviation'] ?>" maxlength="250" style="width:50px;" /></span>
-					</div>
+						</div>
 						<div class="field-div">
 							<label>Numeric Code</label>:
-							<span class="editTerm"><?php echo $geoUnit['numcode']; ?></span>
-							<span class="editFormElem"><input type="text" name="numcode" value="<?php echo $geoUnit['numcode'] ?>" maxlength="250" style="width:50px;" /></span>
+							<span class="editTerm"><?php echo $geoUnit['numCode']; ?></span>
+							<span class="editFormElem"><input type="text" name="numCode" value="<?php echo $geoUnit['numCode'] ?>" maxlength="250" style="width:50px;" /></span>
 						</div>
 						
 						<!--

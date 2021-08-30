@@ -31,7 +31,10 @@ if($isEditor && $submitAction) {
 		$status = $geoManager->deleteGeoUnit($_POST['delGeoThesID']);
 		if(!$status) $statusStr = $geoManager->getErrorMessage();
 	}
-
+		elseif($submitAction == 'addGeoUnit'){
+		$status = $geoManager->addGeoUnit($_POST);
+		if(!$status) $statusStr = $geoManager->getErrorMessage();
+	}
 }
 
 $geoArr = $geoManager->getGeograpicList($parentID);
@@ -91,6 +94,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 
 			</div>
 			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;">
+				<!--This should also be visible when !$geoThesID -->
 				<fieldset id="new-fieldset">
 					<legend>Add Geographic Unit</legend>
 					<form name="unitAddForm" action="editor.php" method="post">
@@ -134,7 +138,9 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							<span class="editFormElem"><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
 						</div>
 						
-						
+						<div id="addButton-div" class="button-div">
+							<button type="submit" name="submitaction" value="addGeoUnit">Add Unit</button>
+						</div>
 						
 						
 				<!-- Add new blank form for adding new record.  -->

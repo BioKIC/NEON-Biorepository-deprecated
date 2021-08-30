@@ -100,6 +100,29 @@ class GeographicThesaurus extends Manager{
 		return true;
 	}
 
+	public function addGeoUnit($postArr){
+		statusStr = '';
+			if(!$postArr['geoTerm']){
+				$this->errorMessage = 'ERROR editing geoUnit: geographic term must have a value';
+				return false;
+			}
+			//Should we check whether the geoterm already exists?
+			$sql = 'INSERT INTO geographicthesaurus '.
+				'SET geoterm = "'.$this->cleanInStr($postArr['geoTerm']).
+				'", iso2 = '.($postArr['iso2']?'"'.$this->cleanInStr($postArr['iso2']).'"':'NULL').
+				', iso3 = '.($postArr['iso3']?'"'.$this->cleanInStr($postArr['iso3']).'"':'NULL').
+				', parentID = '.(is_numeric($postArr['parentID'])?'"'.$this->cleanInStr($postArr['parentID']).'"':'NULL').
+				', abbreviation = '.($postArr['abbreviation']?'"'.$this->cleanInStr($postArr['abbreviation']).'"':'NULL').
+				', numcode = '.(is_numeric($postArr['numCode'])?'"'.$this->cleanInStr($postArr['numCode']).'"':'NULL').
+				', notes = '.($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL');
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'ERROR adding unit: '.$this->conn->error;
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public function addChildGeoUnit($postArr){
 		//Add new child
 		//Uses an INSERT INTO sql statement

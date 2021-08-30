@@ -103,53 +103,45 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						<div class="field-div">
 							<label>GeoUnit Name</label>:
 							<span class="editTerm"><?php echo $geoUnit['geoTerm']; ?></span>
-							<span class="editFormElem"><input type="text" name="geoTerm" value="<?php echo $geoUnit['geoTerm'] ?>" maxlength="250" style="width:200px;" required /></span>
+							<span class="editFormElem"><input type="text" name="geoTerm" value="<?php echo $geoUnit['geoTerm'] ?>" style="width:200px;" required /></span>
 						</div>
 						<div class="field-div">
 							<label>ISO2 Code</label>:
 							<span class="editTerm"><?php echo $geoUnit['iso2']; ?></span>
-							<span class="editFormElem"><input type="text" name="iso2" value="<?php echo $geoUnit['iso2'] ?>" maxlength="250" style="width:50px;" /></span>
+							<span class="editFormElem"><input type="text" name="iso2" value="<?php echo $geoUnit['iso2'] ?>" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>ISO3 Code</label>:
 							<span class="editTerm"><?php echo $geoUnit['iso3']; ?></span>
-							<span class="editFormElem"><input type="text" name="iso3" value="<?php echo $geoUnit['iso3'] ?>" maxlength="250" style="width:50px;" /></span>
+							<span class="editFormElem"><input type="text" name="iso3" value="<?php echo $geoUnit['iso3'] ?>"style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>Abbreviation</label>:
 							<span class="editTerm"><?php echo $geoUnit['abbreviation']; ?></span>
-							<span class="editFormElem"><input type="text" name="abbreviation" value="<?php echo $geoUnit['abbreviation'] ?>" maxlength="250" style="width:50px;" /></span>
+							<span class="editFormElem"><input type="text" name="abbreviation" value="<?php echo $geoUnit['abbreviation'] ?>" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>Numeric Code</label>:
 							<span class="editTerm"><?php echo $geoUnit['numCode']; ?></span>
-							<span class="editFormElem"><input type="text" name="numCode" value="<?php echo $geoUnit['numCode'] ?>" maxlength="250" style="width:50px;" /></span>
+							<span class="editFormElem"><input type="text" name="numCode" value="<?php echo $geoUnit['numCode'] ?>" style="width:50px;" /></span>
 						</div>
-
-						<!--
 						<div class="field-div">
 							<label>Category</label>:
 							<span class="editTerm"><?php echo $geoUnit['category']; ?></span>
-							<span class="editFormElem"><input type="text" name="category" value="<?php echo $geoUnit['category'] ?>" maxlength="250" style="width:150px;" /></span>
+							<span class="editFormElem">
+								<select name="category">
+									<option value="">Select Category</option>
+									<option value="">----------------------</option>
+									<?php
+									$categoryList = $geoManager->getCategoryArr();
+									$catStr = (isset($geoUnit['category'])?$geoUnit['category']:'');
+									foreach($categoryList as $category){
+										echo '<option '.($category==$catStr?'selected':'').'>'.$category.'</option>';
+									}
+									?>
+								</select>
+							</span>
 						</div>
-						-->
-						<div class="field-div">
-								<label>Category</label>:
-								<span class="editTerm"><?php echo $geoUnit['category']; ?></span>
-								<span class="editFormElem">
-									<select name="category">
-										<option value="">Select Category</option>
-										<option value="">----------------------</option>
-										<?php
-										$categoryList = $geoManager->getCategoryArr();
-										foreach($categoryList as $category){
-											echo '<option value="'.$catgoryList.'"</option>';
-										}
-										?>
-									</select>
-								</span>
-							</div>
-
 						<div class="field-div">
 							<label>Notes</label>:
 							<span class="editTerm"><?php echo $geoUnit['notes']; ?></span>
@@ -169,9 +161,10 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 										<option value="">----------------------</option>
 										<option value="">Is a Root Term (e.g. no parent)</option>
 										<?php
+										$parentIDStr = (isset($geoUnit['parentID'])?$geoUnit['parentID']:'');
 										$parentList = $geoManager->getGeoTermArr($geoUnit['geoLevel']);
 										foreach($parentList as $id => $term){
-											echo '<option value="'.$id.'" '.($id==$geoUnit['parentID']?'selected':'').'>'.$term.'</option>';
+											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
 										}
 										?>
 									</select>
@@ -209,7 +202,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			</div>
 			<?php
 			echo '<div class="link-div">';
-			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="editor.php?parentID='.$geoUnit['parentID'].'">Return to list</a></div>';
+			echo '<div><a href="editor.php?'.(isset($geoUnit['parentID'])?'parentID='.$geoUnit['parentID']:'').'">Return to list</a></div>';
 			if(isset($geoUnit['childCnt']) && $geoUnit['childCnt']) echo '<div><a href="editor.php?parentID='.$geoThesID.'">Show children taxa</a></div>';
 			echo '</div>';
 		}

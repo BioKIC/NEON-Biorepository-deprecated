@@ -1,9 +1,9 @@
 <?php
-include_once ('../../config/symbini.php');
+include_once ('../config/symbini.php');
 include_once ($SERVER_ROOT . '/classes/GeographicThesaurus.php');
-header("Content-Type: text/html; charset=" . $CHARSET);
+header("Content-Type: text/html; charset=".$CHARSET);
 
-if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../collections/georef/thesaurus.php?' . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
+if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../geothesaurus/editor.php?' . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $geoThesID = array_key_exists('geoThesID', $_REQUEST) ? $_REQUEST['geoThesID'] : '';
 $parentID = array_key_exists('parentID', $_REQUEST) ? $_REQUEST['parentID'] : '';
@@ -42,7 +42,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 	<title><?php echo $DEFAULT_TITLE; ?> - Geographic Thesaurus Manager</title>
 	<?php
 	$activateJQuery = true;
-	include_once ($SERVER_ROOT . '/includes/head.php');
+	include_once ($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js" type="text/javascript"></script>
 	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js" type="text/javascript"></script>
@@ -86,8 +86,8 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			//Display details for geographic unit with edit and addNew symbols displayed to upper right
 			?>
 			<div style="float:right">
-				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../../images/add.png" /></a></span>
-				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../../images/edit.png" /></a></span>
+				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../images/add.png" /></a></span>
+				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
 			</div>
 			<div id="addGeoUnit-div" style="display:none">
 
@@ -99,7 +99,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			<div id="updateGeoUnit-div" style="clear:both;margin-bottom:10px;">
 				<fieldset id="edit-fieldset">
 					<legend>Geographic Unit<span id="edit-legend"> Editor</span></legend>
-					<form name="unitEditForm" action="thesaurus.php" method="post">
+					<form name="unitEditForm" action="editor.php" method="post">
 						<div class="field-div">
 							<label>GeoUnit Name</label>:
 							<span class="editTerm"><?php echo $geoUnit['geoTerm']; ?></span>
@@ -125,7 +125,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							<span class="editTerm"><?php echo $geoUnit['numCode']; ?></span>
 							<span class="editFormElem"><input type="text" name="numCode" value="<?php echo $geoUnit['numCode'] ?>" maxlength="250" style="width:50px;" /></span>
 						</div>
-						
+
 						<!--
 						<div class="field-div">
 							<label>Category</label>:
@@ -149,7 +149,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 									</select>
 								</span>
 							</div>
-						
+
 						<div class="field-div">
 							<label>Notes</label>:
 							<span class="editTerm"><?php echo $geoUnit['notes']; ?></span>
@@ -158,7 +158,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						<?php
 						if($geoUnit['geoLevel']){
 							$parentStr = '';
-							if($geoUnit['parentTerm']) $parentStr = '<a href="thesaurus.php?geoThesID='.$geoUnit['parentID'].'">'.$geoUnit['parentTerm'].'</a>';
+							if($geoUnit['parentTerm']) $parentStr = '<a href="editor.php?geoThesID='.$geoUnit['parentID'].'">'.$geoUnit['parentTerm'].'</a>';
 							?>
 							<div class="field-div">
 								<label>Parent term</label>:
@@ -190,7 +190,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				</fieldset>
 			</div>
 			<div id="unitDel-div">
-				<form name="unitDeleteForm" action="thesaurus.php" method="post">
+				<form name="unitDeleteForm" action="editor.php" method="post">
 					<fieldset>
 						<legend>Delete Geographic Unit</legend>
 						<div class="button-div">
@@ -209,8 +209,8 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			</div>
 			<?php
 			echo '<div class="link-div">';
-			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="thesaurus.php?parentID='.$geoUnit['parentID'].'">Return to list</a></div>';
-			if(isset($geoUnit['childCnt']) && $geoUnit['childCnt']) echo '<div><a href="thesaurus.php?parentID='.$geoThesID.'">Show children taxa</a></div>';
+			if(isset($geoUnit['parentID']) && $geoUnit['parentID']) echo '<div><a href="editor.php?parentID='.$geoUnit['parentID'].'">Return to list</a></div>';
+			if(isset($geoUnit['childCnt']) && $geoUnit['childCnt']) echo '<div><a href="editor.php?parentID='.$geoThesID.'">Show children taxa</a></div>';
 			echo '</div>';
 		}
 		else{
@@ -227,7 +227,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				echo '<ul>';
 				foreach($geoArr as $geoID => $unitArr){
 					$termDisplay = $unitArr['geoTerm'];
-					if(!$unitArr['acceptedTerm']) $termDisplay = '<a href="thesaurus.php?geoThesID='.$geoID.'">'.$termDisplay.'</a>';
+					if(!$unitArr['acceptedTerm']) $termDisplay = '<a href="editor.php?geoThesID='.$geoID.'">'.$termDisplay.'</a>';
 					if($unitArr['abbreviation']) $termDisplay .= ' ('.$unitArr['abbreviation'].') ';
 					else{
 						$codeStr = '';
@@ -236,16 +236,14 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						if($unitArr['numCode']) $codeStr .= $unitArr['numCode'].', ';
 						if($codeStr) $termDisplay .= ' ('.trim($codeStr,', ').') ';
 					}
-					if($unitArr['acceptedTerm']) $termDisplay .= ' => <a href="thesaurus.php?geoThesID='.$geoID.'">'.$unitArr['acceptedTerm'].'</a>';
-					elseif(isset($unitArr['childCnt']) && $unitArr['childCnt']) $termDisplay .= ' - <a href="thesaurus.php?parentID='.$geoID.'">'.$unitArr['childCnt'].' children</a>';
+					if($unitArr['acceptedTerm']) $termDisplay .= ' => <a href="editor.php?geoThesID='.$geoID.'">'.$unitArr['acceptedTerm'].'</a>';
+					elseif(isset($unitArr['childCnt']) && $unitArr['childCnt']) $termDisplay .= ' - <a href="editor.php?parentID='.$geoID.'">'.$unitArr['childCnt'].' children</a>';
 					echo '<li>'.$termDisplay.'</li>';
 				}
 				echo '</ul>';
 			}
-			else{
-				echo '<div>No records returned</div>';
-			}
-			if($geoThesID || $parentID) echo '<div class="link-div"><a href="thesaurus.php">Show base list</a></div>';
+			else echo '<div>No records returned</div>';
+			if($geoThesID || $parentID) echo '<div class="link-div"><a href="editor.php">Show base list</a></div>';
 		}
 		?>
 	</div>

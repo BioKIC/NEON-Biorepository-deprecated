@@ -1198,8 +1198,8 @@ class OccurrenceEditorManager {
 					//Archive determinations
 					$detObj = json_encode($detArr[$detId]);
 					$sqlArchive = 'UPDATE guidoccurdeterminations '.
-							'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($detObj,'utf8',$CHARSET)).'" '.
-					'WHERE (detid = '.$detId.')';
+						'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($detObj,'utf8',$CHARSET)).'" '.
+						'WHERE (detid = '.$detId.')';
 					$this->conn->query($sqlArchive);
 				}
 				$rs->free();
@@ -1217,8 +1217,8 @@ class OccurrenceEditorManager {
 					//Archive determinations
 					$imgObj = json_encode($imgArr[$imgId]);
 					$sqlArchive = 'UPDATE guidimages '.
-							'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($imgObj,'utf8',$CHARSET)).'" '.
-					'WHERE (imgid = '.$imgId.')';
+						'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($imgObj,'utf8',$CHARSET)).'" '.
+						'WHERE (imgid = '.$imgId.')';
 					$this->conn->query($sqlArchive);
 				}
 				$rs->free();

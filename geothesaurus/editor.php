@@ -90,7 +90,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
 
 			</div>
-			<div id="addGeoUnit-div" style="display:none">
+			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;">
 				<fieldset id="new-fieldset">
 					<legend>Add Geographic Unit</legend>
 					<form name="unitAddForm" action="editor.php" method="post">

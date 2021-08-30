@@ -724,17 +724,18 @@ class TaxonProfile extends Manager {
    * Returns link for specimen search (by taxon) if number of occurrences
    * is within declared limit
    * $tid INTEGER taxon id
+   * $searchUrl STRING customizable in taxon profile page
    * $limitOccs INTEGER max number of occurrences in a search
    */
   public function getSearchByTaxon($numOccs, $searchUrl, $limitOccs = 200000)
   {
     $occMsg = '';
     if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
-      $occMsg = '<p><a class="btn" href="'.$searchUrl.'" target="_blank">Explore '.$numOccs.' occurrences</a><p>';
+      $occMsg = '<a class="btn" href="'.$searchUrl.'" target="_blank">Explore '.$numOccs.' occurrences</a>';
     } elseif ($numOccs > $limitOccs) {
-      $occMsg = '<p>'.$numOccs.' occurrences</p>';
+      $occMsg = ''.$numOccs.' occurrences';
     } elseif ($numOccs == 0) {
-      $occMsg = '<p>No occurrences found</p>';
+      $occMsg = 'No occurrences found';
     } elseif ($numOccs == -1) {
       $occMsg = '';
     }

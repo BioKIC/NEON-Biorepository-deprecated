@@ -179,6 +179,18 @@ class GeographicThesaurus extends Manager{
 		$rs->free();
 		return $retArr;
 	}
+	
+	public function getCategoryArr(){
+		$retArr = array();
+		$sql = 'SELECT DISTINCT category FROM geographicthesaurus ';
+		$sql .= 'ORDER BY category';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr = $r->category;
+		}
+		$rs->free();
+		return $retArr;
+	}
 
 	// Setters and getters
 

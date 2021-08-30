@@ -90,14 +90,14 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
 
 			</div>
-			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px">
+			<div id="addGeoUnit-div" style="display:none">
 				<fieldset id="new-fieldset">
-					<legend>Geographic Unit<span id="edit-legend"> Editor</span></legend>
-					<form name="unitEditForm" action="editor.php" method="post">
+					<legend>Add Geographic Unit</legend>
+					<form name="unitAddForm" action="editor.php" method="post">
 						<div class="field-div">
 							<label>GeoUnit Name</label>:
 							<!-- <span class="editTerm"><?php echo $geoUnit['geoTerm']; ?></span> -->
-							<span class="editFormElem"><input type="text" name="geoTerm" value="<?php echo $geoUnit['geoTerm'] ?>" style="width:200px;" required /></span>
+							<span class="editFormElem"><input type="text" name="geoTerm" style="width:200px;" required /></span>
 						</div>
 						<div class="field-div">
 							<label>ISO2 Code</label>:

@@ -89,8 +89,6 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../../images/add.png" /></a></span>
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../../images/edit.png" /></a></span>
 			</div>
-			<!-- Provide a form to edit the geo unit that is hidden by default until user clicks edit symbol -->
-			<!-- How do I make this div toggle??? -->
 			<div id="addGeoUnit-div" style="display:none">
 
 				<div style="font-weight: bold; margin:20px">Add a new record form to be placed here</div>
@@ -117,17 +115,46 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							<span class="editTerm"><?php echo $geoUnit['iso3']; ?></span>
 							<span class="editFormElem"><input type="text" name="iso3" value="<?php echo $geoUnit['iso3'] ?>" maxlength="250" style="width:50px;" /></span>
 						</div>
-
-						<!-- Add text input elements for abbreviation, numCode, and category -->
-
+						<div class="field-div">
+							<label>Abbreviation</label>:
+							<span class="editTerm"><?php echo $geoUnit['abbreviation']; ?></span>
+							<span class="editFormElem"><input type="text" name="abbreviation" value="<?php echo $geoUnit['abbreviation'] ?>" maxlength="250" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Numeric Code</label>:
+							<span class="editTerm"><?php echo $geoUnit['numCode']; ?></span>
+							<span class="editFormElem"><input type="text" name="numCode" value="<?php echo $geoUnit['numCode'] ?>" maxlength="250" style="width:50px;" /></span>
+						</div>
+						
+						<!--
+						<div class="field-div">
+							<label>Category</label>:
+							<span class="editTerm"><?php echo $geoUnit['category']; ?></span>
+							<span class="editFormElem"><input type="text" name="category" value="<?php echo $geoUnit['category'] ?>" maxlength="250" style="width:150px;" /></span>
+						</div>
+						-->
+						<div class="field-div">
+								<label>Category</label>:
+								<span class="editTerm"><?php echo $geoUnit['category']; ?></span>
+								<span class="editFormElem">
+									<select name="category">
+										<option value="">Select Category</option>
+										<option value="">----------------------</option>
+										<?php
+										$categoryList = $geoManager->getCategoryArr();
+										foreach($categoryList as $category){
+											echo '<option value="'.$catgoryList.'"</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
+						
 						<div class="field-div">
 							<label>Notes</label>:
 							<span class="editTerm"><?php echo $geoUnit['notes']; ?></span>
 							<span class="editFormElem"><input type="text" name="notes" value="<?php echo $geoUnit['notes'] ?>" maxlength="250" style="width:200px;" /></span>
 						</div>
-
-						<!-- Need to add form element (select?) for geoLevel, which will control which parents can be added, and which lists (e.g. country, state, county) they appear within -->
-
 						<?php
 						if($geoUnit['geoLevel']){
 							$parentStr = '';
@@ -190,8 +217,8 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			if($geoArr){
 				$titleStr = '';
 				if($parentID){
-					$untiArr = $geoManager->getGeograpicUnit($parentID);
-					$titleStr = '<b>'.$geoArr[key($geoArr)]['category'].'</b> geographic terms within <b>'.$untiArr['geoTerm'].'</b>';
+					$unitArr = $geoManager->getGeograpicUnit($parentID);
+					$titleStr = '<b>'.$geoArr[key($geoArr)]['category'].'</b> geographic terms within <b>'.$unitArr['geoTerm'].'</b>';
 				}
 				else{
 					$titleStr = '<b>Root Terms (terms without parents)</b>';

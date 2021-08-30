@@ -88,10 +88,63 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			<div style="float:right">
 				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../images/add.png" /></a></span>
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
-			</div>
-			<div id="addGeoUnit-div" style="display:none">
 
-				<div style="font-weight: bold; margin:20px">Add a new record form to be placed here</div>
+			</div>
+			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px">
+				<fieldset id="new-fieldset">
+					<legend>Geographic Unit<span id="edit-legend"> Editor</span></legend>
+					<form name="unitEditForm" action="editor.php" method="post">
+						<div class="field-div">
+							<label>GeoUnit Name</label>:
+							<!-- <span class="editTerm"><?php echo $geoUnit['geoTerm']; ?></span> -->
+							<span class="editFormElem"><input type="text" name="geoTerm" value="<?php echo $geoUnit['geoTerm'] ?>" style="width:200px;" required /></span>
+						</div>
+						<div class="field-div">
+							<label>ISO2 Code</label>:
+							<span class="editTerm"><?php echo $geoUnit['iso2']; ?></span>
+							<span class="editFormElem"><input type="text" name="iso2" value="<?php echo $geoUnit['iso2'] ?>" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>ISO3 Code</label>:
+							<span class="editTerm"><?php echo $geoUnit['iso3']; ?></span>
+							<span class="editFormElem"><input type="text" name="iso3" value="<?php echo $geoUnit['iso3'] ?>"style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Abbreviation</label>:
+							<span class="editTerm"><?php echo $geoUnit['abbreviation']; ?></span>
+							<span class="editFormElem"><input type="text" name="abbreviation" value="<?php echo $geoUnit['abbreviation'] ?>" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Numeric Code</label>:
+							<span class="editTerm"><?php echo $geoUnit['numCode']; ?></span>
+							<span class="editFormElem"><input type="text" name="numCode" value="<?php echo $geoUnit['numCode'] ?>" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Category</label>:
+							<span class="editTerm"><?php echo $geoUnit['category']; ?></span>
+							<span class="editFormElem">
+								<select name="category">
+									<option value="">Select Category</option>
+									<option value="">----------------------</option>
+									<?php
+									$categoryList = $geoManager->getCategoryArr();
+									$catStr = (isset($geoUnit['category'])?$geoUnit['category']:'');
+									foreach($categoryList as $category){
+										echo '<option '.($category==$catStr?'selected':'').'>'.$category.'</option>';
+									}
+									?>
+								</select>
+							</span>
+						</div>
+						<div class="field-div">
+							<label>Notes</label>:
+							<span class="editTerm"><?php echo $geoUnit['notes']; ?></span>
+							<span class="editFormElem"><input type="text" name="notes" value="<?php echo $geoUnit['notes'] ?>" maxlength="250" style="width:200px;" /></span>
+						</div>
+						
+						
+						
+						
 				<!-- Add new blank form for adding new record.  -->
 				<!-- But we can also do this via a 2-cycle loop using the form below (first loop is an empy form for adding new record, second loop produces form for editing active record. I can show you this. -->
 

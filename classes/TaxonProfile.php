@@ -698,14 +698,15 @@ class TaxonProfile extends Manager {
    * Checks taxon rank; counts turned off by default for anything above genus
    * $tid INTEGER taxon id
    * $taxonRank INTEGER taxon rank according to taxonunits table
-   * $limitRank INTEGER 
+   * $limitRank INTEGER
+   * $collids ARRAY of collids to include in search
    */
-  public function getOccTaxonInDbCnt($tid, $taxonRank, $limitRank = "170", $collids = "all")
+  public function getOccTaxonInDbCnt($tid, $taxonRank, $limitRank = 170, $collids = array("all"))
   {
     $count = -1;
     if ($taxonRank >= $limitRank) {
-      $sql = 'SELECT COUNT(o.occid) FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$tid.' OR e.tid = '.$tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid;';
-      if ($collids != "all") {
+      $sql = 'SELECT COUNT(o.occid) FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$tid.' OR e.tid = '.$tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid';
+      if ($collids[0] != "all") {
         $collidsStr = implode(",",$collids);
         $sql .= ' AND collid IN ('.$collidsStr.')';
       }

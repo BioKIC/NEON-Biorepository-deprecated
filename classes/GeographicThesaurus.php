@@ -103,7 +103,7 @@ class GeographicThesaurus extends Manager{
 	public function addGeoUnit($postArr){
 		statusStr = '';
 			if(!$postArr['geoTerm']){
-				$this->errorMessage = 'ERROR editing geoUnit: geographic term must have a value';
+				$this->errorMessage = 'ERROR adding geoUnit: geographic term must have a value';
 				return false;
 			}
 			//Should we check whether the geoterm already exists?

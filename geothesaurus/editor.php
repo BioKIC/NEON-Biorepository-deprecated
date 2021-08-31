@@ -137,15 +137,30 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							<label>Notes</label>:
 							<span class="editFormElem"><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
 						</div>
+													<div class="field-div">
+								<label>Parent term</label>:
+								<span class="editFormElem">
+									<select name="parentID">
+										<option value="">Select Parent Term</option>
+										<option value="">----------------------</option>
+										<option value="">Is a Root Term (e.g. no parent)</option>
+										<?php
+										$parentList = $geoManager->getGeoTermArr($geoUnit['geoLevel']);
+										foreach($parentList as $id => $term){
+											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
 						
 						<div id="addButton-div" class="button-div">
 							<button type="submit" name="submitaction" value="addGeoUnit">Add Unit</button>
 						</div>
-						
-						
 				<!-- Add new blank form for adding new record.  -->
 				<!-- But we can also do this via a 2-cycle loop using the form below (first loop is an empy form for adding new record, second loop produces form for editing active record. I can show you this. -->
-
+					</fieldset>
+				</form>
 			</div>
 			<div id="updateGeoUnit-div" style="clear:both;margin-bottom:10px;">
 				<fieldset id="edit-fieldset">

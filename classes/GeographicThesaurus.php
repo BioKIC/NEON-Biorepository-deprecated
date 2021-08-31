@@ -101,7 +101,7 @@ class GeographicThesaurus extends Manager{
 	}
 
 	public function addGeoUnit($postArr){
-		statusStr = '';
+		$statusStr = '';
 			if(!$postArr['geoTerm']){
 				$this->errorMessage = 'ERROR adding geoUnit: geographic term must have a value';
 				return false;

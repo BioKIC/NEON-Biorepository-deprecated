@@ -106,6 +106,7 @@ class GeographicThesaurus extends Manager{
 				$this->errorMessage = 'ERROR adding geoUnit: geographic term must have a value';
 				return false;
 			}
+			else{
 			//Should we check whether the geoterm already exists?
 			$sql = 'INSERT INTO geographicthesaurus '.
 				'SET geoterm = "'.$this->cleanInStr($postArr['geoTerm']).
@@ -115,11 +116,11 @@ class GeographicThesaurus extends Manager{
 				', abbreviation = '.($postArr['abbreviation']?'"'.$this->cleanInStr($postArr['abbreviation']).'"':'NULL').
 				', numcode = '.(is_numeric($postArr['numCode'])?'"'.$this->cleanInStr($postArr['numCode']).'"':'NULL').
 				', notes = '.($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL');
-			if(!$this->conn->query($sql)){
-				$this->errorMessage = 'ERROR adding unit: '.$this->conn->error;
-				return false;
+				if(!$this->conn->query($sql)){
+					$this->errorMessage = 'ERROR adding unit: '.$this->conn->error;
+					return false;
+				}
 			}
-		}
 		return true;
 	}
 

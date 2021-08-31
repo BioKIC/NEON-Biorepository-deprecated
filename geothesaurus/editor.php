@@ -164,7 +164,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			</div>
 			<div id="updateGeoUnit-div" style="clear:both;margin-bottom:10px;">
 				<fieldset id="edit-fieldset">
-					<legend>Geographic Unit<span id="edit-legend"> Editor</span></legend>
+					<legend>Edit Geographic<span id="edit-legend"> Unit</span></legend>
 					<form name="unitEditForm" action="editor.php" method="post">
 						<div class="field-div">
 							<label>GeoUnit Name</label>:

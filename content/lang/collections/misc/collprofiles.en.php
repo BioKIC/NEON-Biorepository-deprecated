@@ -5,12 +5,16 @@ Language: English
 ------------------
 */
 
+include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
+
 $LANG['RSS_FEED'] = 'RSS Feed';
 $LANG['CONTACT'] = 'Contacts';
 $LANG['HOMEPAGE'] = 'Homepage';
 $LANG['MORE_INFO'] = 'More Information';
 $LANG['COLLECTION_SEARCH'] = 'Collection Search Page';
 $LANG['UPDATE_STATISTICS'] = 'Updating statistics related to this collection...';
+$LANG['TOGGLE_MAN'] = 'Toggle Manager\'s Control Panel';
+$LANG['DAT_EDIT'] = 'Data Editor Control Panel';
 $LANG['SUBMIT_IMAGE_V'] = 'Submit an Image Voucher (observation supported by a photo)';
 $LANG['ADD_NEW_OCCUR'] = 'Add New Occurrence Record';
 $LANG['CREATE_NEW_REC'] = 'Create New Records Using Image';
@@ -27,8 +31,8 @@ $LANG['LOAN_MANAGEMENT'] = 'Loan Management';
 $LANG['ADMIN_CONTROL'] = 'Administration Control Panel';
 $LANG['VIEW_COMMENTS'] = 'View Posted Comments';
 $LANG['UNREVIEWED_COMMENTS'] = 'unreviewed comments';
-$LANG['OPEN_META'] = 'Metadata, Address, and Contact Details';
 $LANG['EDIT_META'] = 'Edit Metadata';
+$LANG['OPEN_META'] = 'Edit Metadata';
 $LANG['EDIT_ADDRESS'] = 'Edit Mailing Address';
 $LANG['EDIT_COLL_PROPS'] = 'Special Properties';
 $LANG['MANAGE_PERMISSIONS'] = 'Manage Permissions';
@@ -42,9 +46,10 @@ $LANG['IMPORT_PROFILES'] = 'Saved Import Profiles';
 $LANG['PROCESSING_TOOLBOX'] = 'Processing Toolbox';
 $LANG['DARWIN_CORE_PUB'] = 'Darwin Core Archive Publishing';
 $LANG['REVIEW_SPEC_EDITS'] = 'Review/Verify Occurrence Edits';
-$LANG['DATA_CLEANING'] = 'Data Cleaning Tools';
+$LANG['ACCESS_REPORT'] = 'View Access Statistics';
 $LANG['DUP_CLUSTER'] = 'Duplicate Clustering';
 $LANG['MAINTENANCE_TASKS'] = 'General Maintenance Tasks';
+$LANG['DATA_CLEANING'] = 'Data Cleaning Tools';
 $LANG['BACKUP_DATA_FILE'] = 'Download Backup Data File';
 $LANG['RESTORE_BACKUP'] = 'Restore Backup File';
 $LANG['GUID_MANAGEMENT'] = 'IGSN GUID Management';
@@ -66,7 +71,6 @@ $LANG['USAGE_RIGHTS'] = 'Usage Rights';
 $LANG['USAGE_POLICY'] = 'Usage policy';
 $LANG['RIGHTS_HOLDER'] = 'Rights Holder';
 $LANG['ACCESS_RIGHTS'] = 'Access Rights';
-
 $LANG['GBIF_DATASET'] = 'GBIF Dataset page';
 $LANG['IDIGBIO_DATASET'] = 'iDigBio Dataset page';
 $LANG['ADDRESS'] = 'Address';

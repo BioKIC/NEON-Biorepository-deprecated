@@ -27,7 +27,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			$retArr[$detId]["scientificnameauthorship"] = $this->cleanOutStr($row->scientificNameAuthorship);
 			$retArr[$detId]["identificationqualifier"] = $this->cleanOutStr($row->identificationQualifier);
 			if($row->iscurrent == 1) $hasCurrent = 1;
-			$retArr[$detId]["iscurrent"] = $row->iscurrent;
+			$retArr[$detId]['iscurrent'] = $row->iscurrent;
 			$retArr[$detId]['printqueue'] = $row->printqueue;
 			$retArr[$detId]["appliedstatus"] = $row->appliedstatus;
 			$retArr[$detId]["identificationreferences"] = $this->cleanOutStr($row->identificationReferences);
@@ -204,11 +204,13 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 		$isCurrent = 0;
 		$occid = 0;
 
-		$sql = 'SELECT * FROM omoccurdeterminations WHERE detid = '.$detId;
+		$sql = 'SELECT occid, identifiedBy, dateIdentified, family, sciname, scientificNameAuthorship, tidInterpreted, identificationQualifier, isCurrent, printQueue,
+			appliedStatus, detType, identificationReferences, identificationRemarks, taxonRemarks, sourceIdentifier, sortSequence
+			FROM omoccurdeterminations WHERE detid = '.$detId;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
 			$detArr = array();
-			$isCurrent = $r['iscurrent'];
+			$isCurrent = $r['isCurrent'];
 			$occid = $r['occid'];
 			foreach($r as $k => $v){
 				if($v) $detArr[$k] = $this->encodeStr($v);
@@ -223,15 +225,12 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 
 		if($isCurrent){
 			$prevDetId = 0;
-			$sql2 = 'SELECT detid FROM omoccurdeterminations WHERE occid = '.$occid.' AND detid <> '.$detId.' '.
-			'ORDER BY detid DESC LIMIT 1 ';
+			$sql2 = 'SELECT detid FROM omoccurdeterminations WHERE occid = '.$occid.' AND detid <> '.$detId.' ORDER BY detid DESC LIMIT 1 ';
 			$rs = $this->conn->query($sql2);
 			if($r = $rs->fetch_object()){
 				$prevDetId = $r->detid;
 			}
-			if($prevDetId){
-				$this->applyDetermination($prevDetId, 1);
-			}
+			if($prevDetId) $this->applyDetermination($prevDetId, 1);
 		}
 
 		$sql = 'DELETE FROM omoccurdeterminations WHERE (detid = '.$detId.')';

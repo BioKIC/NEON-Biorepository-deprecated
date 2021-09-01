@@ -453,6 +453,8 @@ class ImageLocalProcessor {
 			if(!file_exists($this->sourcePathBase.'/'.$fileName)){
 				if(file_exists($this->sourcePathBase.'/'.$fileName.'.jpg')) $fileName .= '.jpg';
 				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.JPG')) $fileName .= '.JPG';
+				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.jpeg')) $fileName .= '.jpeg';
+				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.JPEG')) $fileName .= '.JPEG';
 				else{
 					$this->logOrEcho('ERROR: unable to locate file within base folder: '.$this->sourcePathBase.$fileName,1);
 					continue;
@@ -646,11 +648,28 @@ class ImageLocalProcessor {
 					// 1 = import source
 					if($width > ($this->webPixWidth*1.3)){
 						//Source image is big enough to serve as large version
-						if($width > $this->lgPixWidth || ($fileSize && $fileSize > $this->lgFileSizeLimit)){
-							//Image is too width or file size is too big, thus let's resize and import
+						if($width > $this->lgPixWidth){
+							//Image is too wide, thus let's resize and import
 							if($this->createNewImage($sourcePath.$fileName,$targetPath.$lgTargetFileName,$this->lgPixWidth,round($this->lgPixWidth*$height/$width),$width,$height)){
 								$lgUrl = $lgTargetFileName;
 								$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
+							}
+						}
+						elseif($fileSize && $fileSize > $this->lgFileSizeLimit) {
+							// Image file size is too big, thus let's resize and import
+
+							// Figure out what factor to reduce filesize by
+							$ratio = $fileSize / $this->lgFileSizeLimit;
+
+							// Scale by a factor of the square root of the filesize ratio
+							// Note, this is a good approximation to reduce the filesize, but will not be exact
+							// True reduction will also depend on the JPEG quality of the source & the large file
+							$newWidth = round($width * sqrt($ratio));
+
+							// Resize the image
+							if($this->createNewImage($sourcePath.$fileName,$targetPath.$lgTargetFileName,$newWidth,round($newWidth*$height/$width),$width,$height)){
+								$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
+							$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
 							}
 						}
 						else{
@@ -764,7 +783,7 @@ class ImageLocalProcessor {
 		$status = false;
 		if($this->processUsingImageMagick) {
 			// Use ImageMagick to resize images
-			$status = $this->createNewImageImagick($sourcePathBase,$targetPath,$newWidth,$newHeight,$sourceWidth,$sourceHeight);
+			$status = $this->createNewImageImagick($sourcePathBase,$targetPath,$newWidth,$newHeight);
 		}
 		elseif(extension_loaded('gd') && function_exists('gd_info')) {
 			// GD is installed and working
@@ -778,15 +797,21 @@ class ImageLocalProcessor {
 		return $status;
 	}
 
-	private function createNewImageImagick($sourceImg,$targetPath,$newWidth){
+	private function createNewImageImagick($sourceImg,$targetPath,$newWidth,$newHeight){
 		$status = false;
 		$ct;
 		$retval;
+
+		if(!$newWidth || !$newHeight){
+			$this->logOrEcho("ERROR: Unable to create image because new width or height is not set (w:".$newWidth.' h:'.$newHeight.')');
+			return $status;
+		}
+
 		if($newWidth < 300){
-			$ct = system('convert '.$sourceImg.' -thumbnail '.$newWidth.'x'.($newWidth*1.5).' '.$targetPath, $retval);
+			$ct = system('convert '.$sourceImg.' -thumbnail '.$newWidth.'x'.$newHeight.' '.$targetPath, $retval);
 		}
 		else{
-			$ct = system('convert '.$sourceImg.' -resize '.$newWidth.'x'.($newWidth*1.5).($this->jpgQuality?' -quality '.$this->jpgQuality:'').' '.$targetPath, $retval);
+			$ct = system('convert '.$sourceImg.' -resize '.$newWidth.'x'.$newHeight.($this->jpgQuality?' -quality '.$this->jpgQuality:'').' '.$targetPath, $retval);
 		}
 		if(file_exists($targetPath)){
 			$status = true;

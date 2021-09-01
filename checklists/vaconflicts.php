@@ -45,7 +45,8 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 <div id="innertext" style="background-color:white;">
 	<div style="margin-bottom:10px;">
 		<?php
-		echo (isset($LANG['EXPLAIN_PARAGRAPH'])?$LANG['EXPLAIN_PARAGRAPH']:'');
+		echo (isset($LANG['EXPLAIN_PARAGRAPH'])?$LANG['EXPLAIN_PARAGRAPH']:'List of specimen vouchers where the current identifications conflict with the checklist.
+		Voucher conflicts are typically due to recent annotations of specimens located within a collection. Click on Checklist ID to open the editing pane for that record');
 		?>
 	</div>
 	<?php

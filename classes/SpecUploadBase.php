@@ -86,7 +86,7 @@ class SpecUploadBase extends SpecUpload{
 				case $this->IPTUPLOAD:
 				case $this->DIRECTUPLOAD:
 				case $this->SCRIPTUPLOAD:
-					$sql = 'SELECT usm.sourcefield, usm.symbspecfield FROM uploadspecmap usm WHERE (usm.uspid = '.$this->uspid.')';
+					$sql = 'SELECT sourcefield, symbspecfield FROM uploadspecmap WHERE (uspid = '.$this->uspid.')';
 					$rs = $this->conn->query($sql);
 					while($row = $rs->fetch_object()){
 						$symbFieldPrefix = substr($row->symbspecfield,0,3);
@@ -150,7 +150,9 @@ class SpecUploadBase extends SpecUpload{
 		$this->symbFields[] = 'coordinateuncertaintyunits';
 		$this->symbFields[] = 'authorspecies';
 		$this->symbFields[] = 'authorinfraspecific';
+		sort($this->symbFields);
 		if($this->paleoSupport) $this->symbFields = array_merge($this->symbFields,$this->getPaleoTerms());
+		if($this->materialSampleSupport) $this->symbFields = array_merge($this->symbFields,$this->getMaterialSampleTerms());
 		//Specify fields
 		$this->symbFields[] = 'specify:subspecies';
 		$this->symbFields[] = 'specify:subspecies_author';
@@ -270,7 +272,7 @@ class SpecUploadBase extends SpecUpload{
 	public function echoFieldMapTable($autoMap, $mode){
 		$prefix = '';
 		$fieldMap = $this->fieldMap;
-		$symbFields = $this->symbFields;
+		$symbFieldsRaw = $this->symbFields;
 		$sourceArr = $this->sourceArr;
 		$translationMap = array('accession'=>'catalognumber','accessionid'=>'catalognumber','accessionnumber'=>'catalognumber','guid'=>'occurrenceid',
 			'taxonfamilyname'=>'family','scientificname'=>'sciname','fullname'=>'sciname','speciesauthor'=>'authorspecies','species'=>'specificepithet','commonname'=>'taxonremarks',
@@ -288,8 +290,10 @@ class SpecUploadBase extends SpecUpload{
 			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','specimendescription'=>'verbatimattributes',
 			'phenology'=>'reproductivecondition','field:habitat'=>'habitat','habitatdescription'=>'habitat','sitedeschabitat'=>'habitat',
 			'ometid'=>'exsiccatiidentifier','exsiccataeidentifier'=>'exsiccatiidentifier','exsnumber'=>'exsiccatinumber','exsiccataenumber'=>'exsiccatinumber',
-			'group'=>'paleo-lithogroup','lithostratigraphicterms'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
+			'group'=>'paleo-lithogroup','preparationdetails'=>'materialsample-preparationprocess','materialsampletype'=>'materialsample-sampletype',
+			'lithostratigraphicterms'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
 		);
+		$autoMapExclude = array('institutioncode','collectioncode');
 
 		if($this->paleoSupport){
 			$paleoArr = $this->getPaleoTerms();
@@ -297,10 +301,18 @@ class SpecUploadBase extends SpecUpload{
 				$translationMap[substr($v,6)] = $v;
 			}
 		}
+		if($this->materialSampleSupport){
+			$msArr = $this->getMaterialSampleTerms();
+			foreach($msArr as $term){
+				$term = strtolower($term);
+				$baseTerm = substr($term,15);
+				if($baseTerm != 'individualcount' && $baseTerm != 'disposition' && $baseTerm != 'catalognumber') $translationMap[$baseTerm] = $term;
+			}
+		}
 		if($mode == 'ident'){
 			$prefix = 'ID-';
 			$fieldMap = $this->identFieldMap;
-			$symbFields = $this->identSymbFields;
+			$symbFieldsRaw = $this->identSymbFields;
 			$sourceArr = $this->identSourceArr;
 			$translationMap = array('scientificname'=>'sciname','identificationiscurrent'=>'iscurrent','detby'=>'identifiedby','determinor'=>'identifiedby',
 				'determinationdate'=>'dateidentified','notes'=>'identificationremarks','cf' => 'identificationqualifier');
@@ -308,13 +320,17 @@ class SpecUploadBase extends SpecUpload{
 		elseif($mode == 'image'){
 			$prefix = 'IM-';
 			$fieldMap = $this->imageFieldMap;
-			$symbFields = $this->imageSymbFields;
+			$symbFieldsRaw = $this->imageSymbFields;
 			$sourceArr = $this->imageSourceArr;
 			$translationMap = array('accessuri'=>'originalurl','thumbnailaccessuri'=>'thumbnailurl','goodqualityaccessuri'=>'url',
 				'creator'=>'owner','providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights',
 				'comments'=>'notes','associatedspecimenreference'=>'referenceurl');
 		}
 
+		$symbFields = array();
+		foreach($symbFieldsRaw as $sValue){
+			$symbFields[$sValue] = strtolower($sValue);
+		}
 		//Build a Source => Symbiota field Map
 		$sourceSymbArr = Array();
 		foreach($fieldMap as $symbField => $fArr){
@@ -328,8 +344,6 @@ class SpecUploadBase extends SpecUpload{
 		//Output table rows for source data
 		echo '<table class="styledtable" style="width:600px;font-family:Arial;font-size:12px;">';
 		echo '<tr><th>Source Field</th><th>Target Field</th></tr>'."\n";
-		sort($symbFields);
-		$autoMapArr = Array();
 		foreach($sourceArr as $fieldName){
 			if($fieldName == 'coreid') continue;
 			$diplayFieldName = $fieldName;
@@ -344,9 +358,8 @@ class SpecUploadBase extends SpecUpload{
 				$tranlatedFieldName = str_replace(array('_',' ','.','(',')'),'',$fieldName);
 				if($autoMap){
 					if(array_key_exists($tranlatedFieldName,$translationMap)) $tranlatedFieldName = strtolower($translationMap[$tranlatedFieldName]);
-					if(in_array($tranlatedFieldName,$symbFields)){
+					if(in_array($tranlatedFieldName,$symbFields) && !in_array($fieldName,$autoMapExclude)){
 						$isAutoMapped = true;
-						$autoMapArr[$tranlatedFieldName] = $fieldName;
 					}
 					elseif(in_array('specify:'.$fieldName,$symbFields)){
 						$tranlatedFieldName = strtolower('specify:'.$fieldName);
@@ -354,30 +367,34 @@ class SpecUploadBase extends SpecUpload{
 					}
 				}
 				echo "<tr>\n";
-				echo "<td style='padding:2px;'>";
+				echo '<td style="padding:2px;">';
 				echo $diplayFieldName;
-				echo "<input type='hidden' name='".$prefix."sf[]' value='".$fieldName."' />";
-				echo "</td>\n";
-				echo "<td>\n";
-				echo "<select name='".$prefix."tf[]' style='background:".(!array_key_exists($fieldName,$sourceSymbArr)&&!$isAutoMapped?"yellow":"")."'>";
-				echo "<option value=''>Select Target Field</option>\n";
-				echo "<option value='unmapped'".(isset($sourceSymbArr[$fieldName]) && substr($sourceSymbArr[$fieldName],0,8)=='unmapped'?"SELECTED":"").">Leave Field Unmapped</option>\n";
-				echo "<option value=''>-------------------------</option>\n";
+				echo '<input type="hidden" name="'.$prefix.'sf[]" value="'.$fieldName.'" />';
+				echo '</td>';
+				echo '<td>';
+				$className = '';
+				if(!$isAutoMapped && !array_key_exists($fieldName,$sourceSymbArr)) $className = 'unmapped';
+				echo '<select name="'.$prefix.'tf[]" class="'.$className.'">';
+				echo '<option value="">Select Target Field</option>';
+				echo '<option value="unmapped"'.(isset($sourceSymbArr[$fieldName]) && substr($sourceSymbArr[$fieldName],0,8)=='unmapped'?'SELECTED':'').'>Leave Field Unmapped</option>';
+				echo '<option value="">-------------------------</option>';
 				if(array_key_exists($fieldName,$sourceSymbArr)){
 					//Source Field is mapped to Symbiota Field
-					foreach($symbFields as $sField){
-						echo "<option ".($sourceSymbArr[$fieldName]==$sField?"SELECTED":"").">".$sField."</option>\n";
+					foreach($symbFields as $sFieldDisplay => $sField){
+						echo "<option ".($sourceSymbArr[$fieldName]==$sField?"SELECTED":"").">".$sFieldDisplay."</option>\n";
 					}
 				}
 				elseif($isAutoMapped){
 					//Source Field = Symbiota Field
-					foreach($symbFields as $sField){
-						echo "<option ".($tranlatedFieldName==$sField?"SELECTED":"").">".$sField."</option>\n";
+					foreach($symbFields as $sFieldDisplay => $sField){
+						$selStr = '';
+						if($tranlatedFieldName==$sField && !in_array($sField,$autoMapExclude)) $selStr = 'SELECTED';
+						echo '<option '.$selStr.'>'.$sFieldDisplay.'</option>';
 					}
 				}
 				else{
-					foreach($symbFields as $sField){
-						echo "<option>".$sField."</option>\n";
+					foreach($symbFields as $sFieldDisplay => $sField){
+						echo '<option>'.$sFieldDisplay.'</option>';
 					}
 				}
 				echo "</select></td>\n";
@@ -925,6 +942,7 @@ class SpecUploadBase extends SpecUpload{
 			$this->transferExsiccati();
 			$this->transferGeneticLinks();
 			$this->transferPaleoData();
+			$this->transferMaterialSampleData();
 
 			//Setup and add datasets and link datasets to current user
 
@@ -1060,7 +1078,7 @@ class SpecUploadBase extends SpecUpload{
 	private function transferPaleoData(){
 		if($this->paleoSupport){
 			$this->outputMsg('<li>Linking Paleo data...</li>');
-			$sql = 'SELECT occid, catalogNumber, paleoJSON FROM uploadspectemp WHERE (occid IS NOT NULL) AND (paleoJSON IS NOT NULL) ';
+			$sql = 'SELECT occid, catalogNumber, paleoJSON FROM uploadspectemp WHERE (occid IS NOT NULL) AND (paleoJSON IS NOT NULL) AND (collid = '.$this->collId.')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				try{
@@ -1121,6 +1139,33 @@ class SpecUploadBase extends SpecUpload{
 				}
 				catch(Exception $e){
 					$this->outputMsg('<li>ERROR adding paleo record (occid: '.$r->occid.', catalogNumber: '.$r->catalogNumber.'): '.$e->getMessage().'</li>',1);
+				}
+			}
+			$rs->free();
+		}
+	}
+
+	private function transferMaterialSampleData(){
+		if($this->materialSampleSupport){
+			$this->outputMsg('<li>Linking Material Sample data...</li>');
+			$sql = 'SELECT occid, catalogNumber, materialSampleJSON FROM uploadspectemp WHERE (occid IS NOT NULL) AND (materialSampleJSON IS NOT NULL) AND (collid = '.$this->collId.')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				try{
+					$matSampleArr = json_decode($r->materialSampleJSON,true);
+					$insertSQL = '';
+					$valueSQL = '';
+					foreach($matSampleArr as $k => $v){
+						$insertSQL .= ','.$k;
+						$valueSQL .= ',"'.$this->cleanInStr($v).'"';
+					}
+					$sql = 'REPLACE INTO ommaterialsample(occid'.$insertSQL.') VALUES('.$r->occid.$valueSQL.')';
+					if(!$this->conn->query($sql)){
+						$this->outputMsg('<li>ERROR adding Material Sample resources: '.$this->conn->error.'</li>',1);
+					}
+				}
+				catch(Exception $e){
+					$this->outputMsg('<li>ERROR adding Material Sample record (occid: '.$r->occid.', catalogNumber: '.$r->catalogNumber.'): '.$e->getMessage().'</li>',1);
 				}
 			}
 			$rs->free();
@@ -1458,11 +1503,12 @@ class SpecUploadBase extends SpecUpload{
 			}
 
 			$this->buildPaleoJSON($recMap);
+			$this->buildMaterialSampleJSON($recMap);
 
 			$sqlFragments = $this->getSqlFragments($recMap,$this->fieldMap);
 			if($sqlFragments){
 				$sql = 'INSERT INTO uploadspectemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-				//echo "<div>SQL: ".$sql."</div>";
+				//echo '<div>SQL: '.$sql.'</div>'; exit;
 				if($this->conn->query($sql)){
 					$this->transferCount++;
 					if($this->transferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->transferCount.'</li>');
@@ -1491,6 +1537,20 @@ class SpecUploadBase extends SpecUpload{
 				}
 			}
 			if($paleoArr) $recMap['paleoJSON'] = json_encode($paleoArr);
+		}
+	}
+
+	private function buildMaterialSampleJSON(&$recMap){
+		if($this->materialSampleSupport){
+			$msTermArr = $this->getMaterialSampleTerms();
+			$msArr = array();
+			foreach($msTermArr as $fieldName){
+				if(isset($recMap[$fieldName])){
+					if($recMap[$fieldName] !== '') $msArr[substr($fieldName,15)] = $recMap[$fieldName];
+					unset($recMap[$fieldName]);
+				}
+			}
+			if($msArr) $recMap['materialSampleJSON'] = json_encode($msArr);
 		}
 	}
 
@@ -1605,7 +1665,7 @@ class SpecUploadBase extends SpecUpload{
 				}
 			}
 
-			if(strpos($testUrl,'inaturalist.org')){
+			if(strpos($testUrl,'inaturalist.org') || strpos($testUrl,'inaturalist-open-data')){
 				//Special processing for iNaturalist imports
 				if(strpos($testUrl,'/original.')){
 					$recMap['originalurl'] = $testUrl;
@@ -1879,6 +1939,20 @@ class SpecUploadBase extends SpecUpload{
 			'paleo-earlyinterval','paleo-lateinterval','paleo-absoluteage','paleo-storageage','paleo-stage','paleo-localstage','paleo-biota','paleo-biostratigraphy',
 			'paleo-taxonenvironment','paleo-lithology','paleo-stratremarks','paleo-lithdescription','paleo-element','paleo-slideproperties');
 		return $paleoTermArr;
+	}
+
+	private function getMaterialSampleTerms(){
+		$msTermArr = array('materialSample-materialSampleID','materialSample-sampleType','materialSample-catalogNumber','materialSample-sampleCondition','materialSample-disposition',
+			'materialSample-preservationType','materialSample-preparationProcess','materialSample-preparationDate','materialSample-individualCount',
+			'materialSample-sampleSize','materialSample-storageLocation','materialSample-remarks');
+		//Get dynamic fields
+		$sql = 'SELECT t.term FROM ctcontrolvocab v INNER JOIN ctcontrolvocabterm t ON v.cvID = t.cvID WHERE v.tableName = "ommaterialsampleextended" AND v.fieldName = "fieldName"';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$msTermArr[] = 'materialSample-'.$r->term;
+		}
+		$rs->free();
+		return $msTermArr;
 	}
 
 	public function getObserverUidArr(){

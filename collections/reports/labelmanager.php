@@ -112,11 +112,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 			function changeFormExport(buttonElem, action, target){
 				var f = buttonElem.form;
 				if(action == "labeldynamic.php" && buttonElem.value == "Print in Browser"){
-					labelFormatSelected = false;
-					if(f["labelformatindex-g"] && f["labelformatindex-g"].value != "") labelFormatSelected = true;
-					if(f["labelformatindex-c"] && f["labelformatindex-c"].value != "") labelFormatSelected = true;
-					if(f["labelformatindex-u"] && f["labelformatindex-u"].value != "") labelFormatSelected = true;
-					if(!labelFormatSelected){
+					if(!f["labelformatindex"] || f["labelformatindex"].value == ""){
 						alert("Please select a Label Format Profile");
 						return false;
 					}
@@ -146,26 +142,25 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 				}
 			}
 
-			function labelFormatChanged(selObj,catStr){
+			function labelFormatChanged(selObj){
 				if(selObj && labelFormatObj){
-					var labelIndex = selObj.value;
+					var catStr = selObj.value.substring(0,1);
+					var labelIndex = selObj.value.substring(2);
 					var f = document.selectform;
-
-					f.hprefix.value = labelFormatObj[catStr][labelIndex].labelHeader.prefix;
-					var midIndex = labelFormatObj[catStr][labelIndex].labelHeader.midText;
-					document.getElementById("hmid"+midIndex).checked = true;
-					f.hsuffix.value = labelFormatObj[catStr][labelIndex].labelHeader.suffix;
-					f.lfooter.value = labelFormatObj[catStr][labelIndex].labelFooter.textValue;
-					if(labelFormatObj[catStr][labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
-					else f.speciesauthors.checked = false;
-					if(f.bc){
-						if(labelFormatObj[catStr][labelIndex].displayBarcode == 1) f.bc.checked = true;
-						else f.bc.checked = false;
+					if(catStr != ''){
+						f.hprefix.value = labelFormatObj[catStr][labelIndex].labelHeader.prefix;
+						var midIndex = labelFormatObj[catStr][labelIndex].labelHeader.midText;
+						document.getElementById("hmid"+midIndex).checked = true;
+						f.hsuffix.value = labelFormatObj[catStr][labelIndex].labelHeader.suffix;
+						f.lfooter.value = labelFormatObj[catStr][labelIndex].labelFooter.textValue;
+						if(labelFormatObj[catStr][labelIndex].displaySpeciesAuthor == 1) f.speciesauthors.checked = true;
+						else f.speciesauthors.checked = false;
+						if(f.bc){
+							if(labelFormatObj[catStr][labelIndex].displayBarcode == 1) f.bc.checked = true;
+							else f.bc.checked = false;
+						}
+						f.labeltype.value = labelFormatObj[catStr][labelIndex].labelType;
 					}
-					f.labeltype.value = labelFormatObj[catStr][labelIndex].labelType;
-					if(catStr != 'g' && f["labelformatindex-g"]) f["labelformatindex-g"].value = "";
-					if(catStr != 'c' && f["labelformatindex-c"]) f["labelformatindex-c"].value = "";
-					if(catStr != 'u' && f["labelformatindex-u"]) f["labelformatindex-u"].value = "";
 				}
 			}
 		</script>
@@ -284,8 +279,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 							-->
 							<?php
 							echo '<span style="margin-left:15px;"><input name="extendedsearch" type="checkbox" value="1" '.(array_key_exists('extendedsearch', $_POST)?'checked':'').' /></span> ';
-							if($isGeneralObservation)
-								echo 'Search outside user profile';
+							if($isGeneralObservation) echo 'Search outside user profile';
 							else echo 'Search within all collections';
 							?>
 						</div>
@@ -358,29 +352,24 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 										<div class="fieldDiv">
 											<div class="fieldLabel">Label Profiles:
 												<?php
-												if($IS_ADMIN) echo '<span title="Open label profile manager"><a href="labelprofile.php?collid='.$collid.'"><img src="../../images/edit.png" style="width:13px" /></a></span>';
+												echo '<span title="Open label profile manager"><a href="labelprofile.php?collid='.$collid.'"><img src="../../images/edit.png" style="width:13px" /></a></span>';
 												?>
 											</div>
 											<div class="fieldElement">
-												<?php
-												foreach($labelFormatArr as $cat => $catArr){
-													$catStr = 'Portal defined profiles';
-													if($cat == 'c') $catStr = 'Collection defined profiles';
-													if($cat == 'u') $catStr = 'User defined profiles';
-													?>
-													<div>
-														<select name="labelformatindex<?php echo '-'.$cat; ?>" onchange="labelFormatChanged(this,'<?php echo $cat; ?>')">
-															<option value=""><?php echo $catStr; ?></option>
-															<option value="">=========================================</option>
-															<?php
+												<div>
+													<select name="labelformatindex" onchange="labelFormatChanged(this)">
+														<option value="">Select a Label Format</option>
+														<?php
+														foreach($labelFormatArr as $cat => $catArr){
+															echo '<option value="">---------------------------</option>';
 															foreach($catArr as $k => $labelArr){
-																echo '<option value="'.$k.'">'.$labelArr['title'].'</option>';
+																echo '<option value="'.$cat.'-'.$k.'">'.$labelArr['title'].'</option>';
 															}
-															?>
-														</select>
-													</div>
-													<?php
-												}
+														}
+														?>
+													</select>
+												</div>
+												<?php
 												if(!$labelFormatArr) echo '<b>label profiles have not yet been set within portal</b>';
 												?>
 											</div>

@@ -9,22 +9,27 @@ include_once($SERVER_ROOT.'/config/dbconnection.php');
 
 class Manager  {
 	protected $conn = null;
+	protected $isConnInherited = false;
 	protected $id = null;
-    protected $errorMessage = '';
-    protected $warningArr = array();
+	protected $errorMessage = '';
+	protected $warningArr = array();
 
 	protected $logFH;
 	protected $verboseMode = 0;
 
-    public function __construct($id=null,$conType='readonly'){
- 		$this->conn = MySQLiConnectionFactory::getCon($conType);
+	public function __construct($id=null, $conType='readonly', $connOverride = null){
+		if($connOverride){
+			$this->conn = $connOverride;
+			$this->isConnInherited = true;
+		}
+		else $this->conn = MySQLiConnectionFactory::getCon($conType);
  		if($id != null || is_numeric($id)){
 	 		$this->id = $id;
  		}
 	}
 
  	public function __destruct(){
- 		if(!($this->conn === null)) $this->conn->close();
+ 		if(!($this->conn === null) && !$this->isConnInherited) $this->conn->close();
 		if($this->logFH){
 			fwrite($this->logFH,"\n\n");
 			fclose($this->logFH);
@@ -132,19 +137,5 @@ class Manager  {
 		}
 		return $retStr;
 	}
-
-   /** To enable mysqli_stmt->bind_param using call_user_func_array($array)
-     * allow $array to be converted to array of by references
-     * if php version requires it.
-     */
-   public static function correctReferences($array) {
-    if (strnatcmp(phpversion(),'5.3') >= 0) {
-       $byrefs = array();
-       foreach($array as $key => $value)
-          $byrefs[$key] = &$array[$key];
-       return $byrefs;
-    }
-    return $byrefs;
-   }
 }
 ?>

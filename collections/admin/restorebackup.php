@@ -1,6 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SpecUploadDwca.php');
+include_once($SERVER_ROOT.'/content/lang/collections/admin/restorebackup.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/admin/specupload.'.$LANG_TAG.'.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 3600);
@@ -85,19 +87,12 @@ $duManager->loadFieldMap(true);
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title><?php echo $DEFAULT_TITLE; ?> Restore Backup</title>
-  <?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
-  <script src="../../js/jquery.js" type="text/javascript"></script>
+	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['RESTORE'])?$LANG['RESTORE']:'Restore Backup'); ?></title>
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
+	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
 	<script>
@@ -111,14 +106,14 @@ $duManager->loadFieldMap(true);
 				fileName = f.ulfnoverride.value;
 			}
 			if(fileName == ""){
-				alert("File path is empty. Please select the file that is to be restored.");
+				alert("<?php echo (isset($LANG['PATH_EMPTY'])?$LANG['PATH_EMPTY']:'File path is empty. Please select the file that is to be restored.'); ?>");
 				return false;
 			}
 			else{
 				var ext = fileName.split('.').pop();
 				if(ext == 'zip' || ext == 'ZIP') return true;
 				else{
-					alert("File must be a ZIP file (.zip) downloaded as a Symbiota backup");
+					alert("<?php echo (isset($LANG['MUST_ZIP'])?$LANG['MUST_ZIP']:'File must be a ZIP file (.zip) downloaded as a Symbiota backup.'); ?>");
 					return false;
 				}
 			}
@@ -128,7 +123,7 @@ $duManager->loadFieldMap(true);
 		function verifyFileSize(inputObj){
 			inputObj.form.ulfnoverride.value = ''
 			if (!window.FileReader) {
-				//alert("The file API isn't supported on this browser yet.");
+				//alert("<?php echo (isset($LANG['API_SUP'])?$LANG['API_SUP']:'The file API isn\'t supported on this browser yet.'); ?>");
 				return;
 			}
 			<?php
@@ -139,8 +134,8 @@ $duManager->loadFieldMap(true);
 			?>
 			var file = inputObj.files[0];
 			if(file.size > maxUpload){
-				var msg = "Import file "+file.name+" ("+Math.round(file.size/100000)/10+"MB) is larger than is allowed (current limit: "+(maxUpload/1000000)+"MB).";
-				if(file.name.slice(-3) != "zip") msg = msg + " Note that import file size can be reduced by compressing within a zip file. ";
+				var msg = "<?php echo (isset($LANG['IMPORT_FILE'])?$LANG['IMPORT_FILE']:'Import file '); ?>"+file.name+" ("+Math.round(file.size/100000)/10+"<?php echo (isset($LANG['IS_BIGGER'])?$LANG['IS_BIGGER']:'MB) is larger than is allowed (current limit: '); ?>"+(maxUpload/1000000)+"MB).";
+				if(file.name.slice(-3) != "zip") msg = msg + "<?php echo (isset($LANG['MAYBE_ZIP'])?$LANG['MAYBE_ZIP']:' Note that import file size can be reduced by compressing within a zip file. '); ?>";
 				alert(msg);
 		    }
 		}
@@ -152,14 +147,14 @@ $displayLeftMenu = false;
 include($SERVER_ROOT.'/includes/header.php');
 ?>
 <div class="navpath">
-	<a href="../../index.php">Home</a> &gt;&gt;
-	<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Panel</a> &gt;&gt;
-	<b>Backup Restore Module</b>
+	<a href="../../index.php"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
+	<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1"><?php echo (isset($LANG['COL_MGMNT'])?$LANG['COL_MGMNT']:'Collection Management Panel'); ?></a> &gt;&gt;
+	<b><?php echo (isset($LANG['BACKUP_MOD'])?$LANG['BACKUP_MOD']:'Backup Restore Module'); ?></b>
 </div>
 <!-- This is inner text! -->
 <div id="innertext">
 	<?php
-	$recReplaceMsg = '<span style="color:orange"><b>Caution:</b></span> Matching records will be replaced with incoming records';
+	$recReplaceMsg = '<span style="color:orange"><b>'.(isset($LANG['CAUTION'])?$LANG['CAUTION']:'Caution').':</b></span> '.(isset($LANG['MATCH_REPLACE'])?$LANG['MATCH_REPLACE']:'Matching records will be replaced with incoming records');
 	if($isEditor){
 		if($collid){
 			echo '<div style="font-weight:bold;font-size:130%;margin-bottom:20px">'.$duManager->getCollInfo('name').'</div>';
@@ -167,32 +162,34 @@ include($SERVER_ROOT.'/includes/header.php');
 				?>
 				<form name="fileuploadform" action="restorebackup.php" method="post" enctype="multipart/form-data" onsubmit="return verifyFileUploadForm(this)">
 					<fieldset style="padding:25px;width:95%;">
-						<legend style="font-weight:bold;">Select Backup File to Restore</legend>
+						<legend style="font-weight:bold;"><?php echo (isset($LANG['SEL_BACKUP'])?$LANG['SEL_BACKUP']:'Select Backup File to Restore'); ?></legend>
 						<div>
 							<div>
 								<input name="uploadfile" type="file" size="50" onchange="verifyFileSize(this)" />
 							</div>
 							<div class="ulfnoptions" style="display:none;margin:15px 0px">
-								<b>Resource Path or URL:</b>
+								<b><?php echo (isset($LANG['RES_URL'])?$LANG['RES_URL']:'Resource Path or URL'); ?>:</b>
 								<input name="ulfnoverride" type="text" size="70" /><br/>
 								<div>
-									* This option is for pointing to a data file that was manually uploaded to a server
-									This option offers a workaround for importing files that are larger than what is allowed by
-									server upload limitations (e.g. PHP configuration limits)
+									<?php
+									$workaroundStr = 'This option is for pointing to a data file that was manually uploaded to a server. This option offers a workaround for importing
+										files that are larger than what is allowed by server upload limitations (e.g. PHP configuration limits)';
+									echo (isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:$workaroundStr);
+									?>
 								</div>
 							</div>
 						</div>
 						<div style="margin:10px 0px;">
-							<input name="includeidentificationhistory" type="checkbox" value="1" checked /> Restore Determination History<br/>
-							<input name="includeimages" type="checkbox" value="1" checked /> Restore Images<br/>
+							<input name="includeidentificationhistory" type="checkbox" value="1" checked /> <?php echo (isset($LANG['RESTORE_DETS'])?$LANG['RESTORE_DETS']:'Restore Determination History'); ?><br/>
+							<input name="includeimages" type="checkbox" value="1" checked /> <?php echo (isset($LANG['RESTORE_IMGS'])?$LANG['RESTORE_IMGS']:'Restore Images'); ?><br/>
 						</div>
 						<div style="margin:10px 0px;">
-							<button name="action" type="submit" value="AnalyzeFile">Analyze File</button>
+							<button name="action" type="submit" value="AnalyzeFile"><?php echo (isset($LANG['ANALYZE'])?$LANG['ANALYZE']:'Analyze File'); ?></button>
 							<input name="collid" type="hidden" value="<?php echo $collid;?>" />
 							<input name="MAX_FILE_SIZE" type="hidden" value="100000000" />
 						</div>
 						<div class="ulfnoptions">
-							<a href="#" onclick="toggle('ulfnoptions');return false;">Manual File Upload Option</a>
+							<a href="#" onclick="toggle('ulfnoptions');return false;"><?php echo (isset($LANG['MANUAL'])?$LANG['MANUAL']:'Manual File Upload Option'); ?></a>
 						</div>
 					</fieldset>
 				</form>
@@ -210,16 +207,16 @@ include($SERVER_ROOT.'/includes/header.php');
 								?>
 								<form name="filemappingform" action="restorebackup.php" method="post" onsubmit="return verifyMappingForm(this)">
 									<fieldset style="width:95%;padding:15px">
-										<legend style="font-weight:bold;font-size:120%;">Backup Restore Module</legend>
+										<legend style="font-weight:bold;font-size:120%;"><?php echo (isset($LANG['BACKUP_MOD'])?$LANG['BACKUP_MOD']:'Backup Restore Module'); ?></legend>
 										<div style="margin:15px">
-											<div style="color:orange;font-weight:bold">Warnings exist:</div>
+											<div style="color:orange;font-weight:bold"><?php echo (isset($LANG['WARNINGS'])?$LANG['WARNINGS']:'Warnings exist'); ?>:</div>
 											<div style="margin:10px">
 												<?php
 												foreach($verificationResult as $warningStr){
 													echo '<div>'.$warningStr.'</div>';
 												}
 												?>
-												<div style="margin-top: 10px">If you think the warnings are in error, you may process with the database upload at your own risk</div>
+												<div style="margin-top: 10px"><?php echo (isset($LANG['LIVE_DANGEROUSLY'])?$LANG['LIVE_DANGEROUSLY']:'If you think the warnings are in error, you may process with the database upload at your own risk'); ?></div>
 											</div>
 										</div>
 										<div style="margin:20px;">
@@ -248,30 +245,30 @@ include($SERVER_ROOT.'/includes/header.php');
 					if($duManager->getTransferCount()){
 						?>
 						<fieldset style="margin:15px;">
-							<legend style=""><b>Final transfer</b></legend>
+							<legend style=""><b><?php echo (isset($LANG['FINAL_T'])?$LANG['FINAL_T']:'Final transfer'); ?></b></legend>
 							<div style="margin:5px;">
 								<?php
 								$reportArr = $duManager->getTransferReport();
-								echo '<div>Occurrences pending transfer: '.$reportArr['occur'];
+								echo '<div>'.(isset($LANG['OCCS_TRANSFERING'])?$OCCS_TRANSFERING['FINAL_T']:'Occurrences pending transfer').': '.$reportArr['occur'];
 								if($reportArr['occur']){
-									echo ' <a href="uploadreviewer.php?collid='.$collid.'" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?collid='.$collid.'" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 								}
 								echo '</div>';
 								echo '<div style="margin-left:15px;">';
 								echo '<div>Records to be updated: ';
 								echo $reportArr['update'];
 								if($reportArr['update']){
-									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=occid:ISNOTNULL" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=occid:ISNOTNULL" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=occid:ISNOTNULL" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=occid:ISNOTNULL" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 								}
 								echo '</div>';
 								if($reportArr['new']){
 									echo '<div>New records: ';
 									echo $reportArr['new'];
 									if($reportArr['new']){
-										echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=new" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-										echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=new" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+										echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=new" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+										echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=new" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 									}
 									echo '</div>';
 								}
@@ -279,22 +276,22 @@ include($SERVER_ROOT.'/includes/header.php');
 									echo '<div>Previous loaded records not matching incoming records: ';
 									echo $reportArr['exist'];
 									if($reportArr['exist']){
-										echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=exist" target="_blank" title="Preview 1st 1000 Records"><img src="../../images/list.png" style="width:12px;" /></a>';
-										echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=exist" target="_self" title="Download Records"><img src="../../images/dl.png" style="width:12px;" /></a>';
+										echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=exist" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
+										echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'&searchvar=exist" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
 									}
 									echo '</div>';
 									echo '<div style="margin-left:15px;">';
-									echo 'Note: These are records that were added after the backup was downloaded. You can delete these records one-by-one using preview link above, ';
-									echo 'or contact your portal manager if you would rather delete these records in batch. ';
+									echo (isset($LANG['DEL_OR_PREV'])?$LANG['DEL_OR_PREV']:'Note: These are records that were added after the backup was downloaded. You can delete these records one-by-one using preview link above').', ';
+									echo (isset($LANG['OR_CONTACT'])?$LANG['OR_CONTACT']:'or contact your portal manager if you would rather delete these records in batch').'. ';
 									echo '</div>';
 								}
 								echo '</div>';
 								//Extensions
 								if(isset($reportArr['ident'])){
-									echo '<div>Identification histories pending transfer: '.$reportArr['ident'].'</div>';
+									echo '<div>'.(isset($LANG['ID_TRANSFER'])?$LANG['ID_TRANSFER']:'Identification histories pending transfer').': '.$reportArr['ident'].'</div>';
 								}
 								if(isset($reportArr['image'])){
-									echo '<div>Records with images: '.$reportArr['image'].'</div>';
+									echo '<div>'.(isset($LANG['W_IMAGES'])?$LANG['W_IMAGES']:'Records with images').': '.$reportArr['image'].'</div>';
 								}
 
 								?>
@@ -304,7 +301,7 @@ include($SERVER_ROOT.'/includes/header.php');
 								<input name="includeimages" type="hidden" value="<?php echo $includeImages; ?>" />
 								<input type="hidden" name="collid" value="<?php echo $collid;?>" />
 								<div style="margin:5px;">
-									<button name="action" type="submit" value="TransferRecords">Transfer Records to Central Specimen Table</button>
+									<button name="action" type="submit" value="TransferRecords"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 								</div>
 							</form>
 						</fieldset>
@@ -321,18 +318,19 @@ include($SERVER_ROOT.'/includes/header.php');
 		else{
 			?>
 			<div style="font-weight:bold;font-size:120%;">
-				ERROR: Either you have tried to reach this page without going through the collection management menu
-				or you have tried to upload a file that is too large.
-				You may want to breaking the upload file into smaller files or compressing the file into a zip archive (.zip extension).
-				You may want to contact portal administrator to request assistance in uploading the file (hint to admin: increasing PHP upload limits may help,
-				current upload_max_filesize = <?php echo ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size"); ?>)
-				Use the back arrows to get back to the file upload page.
+				<?php
+				$errStr = 'ERROR: Either you have tried to reach this page without going through the collection management menuor you have tried to upload a file that is too large.
+				You may want to breaking the upload file into smaller files or compressing the file into a zip archive (.zip extension). You may want to contact portal administrator
+				to request assistance in uploading the file (hint to admin: increasing PHP upload limits may help, current upload_max_filesize = ';
+				echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:$errStr).ini_get("upload_max_filesize").'; post_max_size = '.ini_get("post_max_size");
+				echo (isset($LANG['USE_BACK'])?$LANG['USE_BACK']:'Use the back arrows to get back to the file upload page.');
+				?>
 			</div>
 			<?php
 		}
 	}
 	else{
-		echo '<div style="font-weight:bold;font-size:120%;">ERROR: you are not authorized to upload to this collection</div>';
+		echo '<div style="font-weight:bold;font-size:120%;">'.(isset($LANG['NOT_AUTH'])?$LANG['NOT_AUTH']:'ERROR: you are not authorized to upload to this collection').'</div>';
 	}
 	?>
 </div>

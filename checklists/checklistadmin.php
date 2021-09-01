@@ -155,7 +155,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			<ul>
 				<li><a href="#admintab"><span><?php echo $LANG['ADMIN'];?></span></a></li>
 				<li><a href="checklistadminmeta.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><span><?php echo $LANG['DESCRIPTION'];?></span></a></li>
-				<!-- 					<li><a href="#pointtab"><span>Non-vouchered Points</span></a></li> -->
+				<!--					<li><a href="#pointtab"><span>Non-vouchered Points</span></a></li> -->
 				<li><a href="checklistadminchildren.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><span><?php echo $LANG['RELATEDCHECK'];?></span></a></li>
 				<?php
 				if($clManager->hasVoucherProjects()) echo '<li><a href="imgvouchertab.php?clid='.$clid.'">'.(isset($LANG['ADDIMGVOUCHER'])?$LANG['ADDIMGVOUCHER']:'Add Image Voucher').'</a></li>';

@@ -419,11 +419,14 @@ if($IS_ADMIN){
 					?>
 				</fieldset>
 				<form name="addpermissions" action="usermanagement.php" method="post">
+					<?php
+					$addPermButton = '<button type="submit" name="apsubmit" value="Add Permission">'.(isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission').'</button>';
+					?>
 					<fieldset style="margin:10px;-color:#FFFFCC;padding:15px;">
 						<legend style="font-weight:bold;font-size:120%;"><?php echo (isset($LANG['ASSIGN_NEW'])?$LANG['ASSIGN_NEW']:'Assign New Permissions'); ?></legend>
 						<div style="margin:5px;">
 							<div style="float:right;margin:10px">
-								<button type="submit" name="apsubmit" value="Add Permission"><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
+								<?php echo $addPermButton; ?>
 								<input type="hidden" name="userid" value="<?php echo $userId;?>" />
 							</div>
 							<?php
@@ -491,7 +494,7 @@ if($IS_ADMIN){
 						if($collArr){
 							?>
 							<div style="float:right;margin:10px;">
-								<input type='submit' name='apsubmit' value='Add Permission' />
+								<?php echo $addPermButton; ?>
 							</div>
 							<h2 style="text-decoration:underline"><?php echo (isset($LANG['SPEC_COLS'])?$LANG['SPEC_COLS']:'Specimen Collections'); ?></h2>
 							<table>
@@ -539,7 +542,7 @@ if($IS_ADMIN){
 						if($obsArr){
 							?>
 							<div style="float:right;margin:10px;">
-								<input type='submit' name='apsubmit' value='Add Permission' />
+								<?php echo $addPermButton; ?>
 							</div>
 							<h2 style="text-decoration:underline"><?php echo (isset($LANG['OBS_PROJECTS'])?$LANG['OBS_PROJECTS']:'Observation Projects'); ?></h2>
 							<table>
@@ -587,7 +590,7 @@ if($IS_ADMIN){
 						if($personalObsArr){
 							?>
 							<div style="float:right;margin:10px;">
-								<button type="submit" name="apsubmit" value="Add Permission"><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
+								<?php echo $addPermButton; ?>
 							</div>
 							<h2 style="text-decoration:underline"><?php echo (isset($LANG['PERS_SP_MGMNT'])?$LANG['PERS_SP_MGMNT']:'Personal Specimen Management'); ?></h2>
 							<table style="margin-bottom:20px">
@@ -631,7 +634,7 @@ if($IS_ADMIN){
 							?>
 							<div><hr/></div>
 							<div style="float:right;margin:10px;">
-								<button type='submit' name='apsubmit'><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
+								<?php echo $addPermButton; ?>
 							</div>
 							<h2 style="text-decoration:underline"><?php echo (isset($LANG['INV_MGMNT'])?$LANG['INV_MGMNT']:'Inventory Project Management'); ?></h2>
 							<?php
@@ -656,7 +659,7 @@ if($IS_ADMIN){
 							?>
 							<div><hr/></div>
 							<div style="float:right;margin:10px;">
-								<button type="submit" name="apsubmit" value="Add Permission"><?php echo (isset($LANG['ADD_PERMISSION'])?$LANG['ADD_PERMISSION']:'Add Permission'); ?></button>
+								<?php echo $addPermButton; ?>
 							</div>
 							<h2 style="text-decoration:underline"><?php echo (isset($LANG['CHECKLIST_MGMNT'])?$LANG['CHECKLIST_MGMNT']:'Checklist Management'); ?></h2>
 							<?php

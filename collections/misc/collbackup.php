@@ -1,5 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/collbackup.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collid = array_key_exists("collid",$_REQUEST)?$_REQUEST["collid"]:0;
@@ -14,17 +15,10 @@ if($IS_ADMIN || array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>" />
-	<title>Occurrences download</title>
+	<title><?php echo (isset($LANG['OCC_DWNLD'])?$LANG['OCC_DWNLD']:'Occurrences download'); ?></title>
 	<?php
 	$activateJQuery = false;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-    }
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
     <script>
     	function submitBuForm(f){
@@ -42,9 +36,9 @@ if($IS_ADMIN || array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$
 			?>
 			<form name="buform" action="../download/downloadhandler.php" method="post" onsubmit="return submitBuForm(this);">
 				<fieldset style="padding:15px;width:350px">
-					<legend>Download Module</legend>
+					<legend><?php echo (isset($LANG['DWN_MOD'])?$LANG['DWN_MOD']:'Download Module'); ?></legend>
 					<div style="float:left;">
-						Data Set:
+						<?php echo (isset($LANG['DATA_SET'])?$LANG['DATA_SET']:'Data Set'); ?>:
 					</div>
 					<div style="float:left;height:50px">
 						<?php
@@ -60,7 +54,7 @@ if($IS_ADMIN || array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$
 							<input type="submit" name="formsubmit" value="Perform Backup" />
 						</div>
 						<div id="workingdiv" style="float:left;margin-left:15px;display:<?php echo ($action == 'Perform Backup'?'block':'none'); ?>;">
-							<b>Downloading backup file...</b>
+							<b><?php echo (isset($LANG['DOWNLOADING'])?$LANG['DOWNLOADING']:'Downloading backup file'); ?>...</b>
 						</div>
 					</div>
 				</fieldset>

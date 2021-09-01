@@ -1,6 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceCollectionProfile.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/collorderstats.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 ini_set('max_execution_time', 1200); //1200 seconds = 20 minutes
 
@@ -21,7 +22,7 @@ $_SESSION['statsOrderArr'] = $orderArr;
 <html>
 	<head>
 		<meta name="keywords" content="Natural history collections yearly statistics" />
-		<title><?php echo $DEFAULT_TITLE; ?> Order Distribution</title>
+		<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['ORDER_DIST'])?$LANG['ORDER_DIST']:'Order Distribution'); ?></title>
 		<?php
 		$activateJQuery = true;
 		if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -44,14 +45,14 @@ $_SESSION['statsOrderArr'] = $orderArr;
 		?>
 		<div id="innertext">
 			<fieldset id="orderdistbox" style="clear:both;margin-top:15px;width:800px;">
-				<legend><b>Order Distribution</b></legend>
+				<legend><b><?php echo (isset($LANG['ORDER_DIST'])?$LANG['ORDER_DIST']:'Order Distribution'); ?></b></legend>
 				<table class="styledtable" style="font-family:Arial;font-size:12px;width:780px;">
 					<tr>
-						<th style="text-align:center;">Order</th>
-						<th style="text-align:center;">Specimens</th>
-						<th style="text-align:center;">Georeferenced</th>
-						<th style="text-align:center;">Species ID</th>
-						<th style="text-align:center;">Georeferenced<br />and<br />Species ID</th>
+						<th style="text-align:center;"><?php echo (isset($LANG['ORDER'])?$LANG['ORDER']:'Order'); ?></th>
+						<th style="text-align:center;"><?php echo (isset($LANG['SPECIMENS'])?$LANG['SPECIMENS']:'Specimens'); ?></th>
+						<th style="text-align:center;"><?php echo (isset($LANG['GEOREFERENCED'])?$LANG['GEOREFERENCED']:'Georeferenced'); ?></th>
+						<th style="text-align:center;"><?php echo (isset($LANG['SPECIES_ID'])?$LANG['SPECIES_ID']:'Species ID'); ?></th>
+						<th style="text-align:center;"><?php echo (isset($LANG['GEOREFERENCED'])?$LANG['GEOREFERENCED']:'Georeferenced'); ?><br /><?php echo (isset($LANG['AND'])?$LANG['AND']:'and'); ?><br /><?php echo (isset($LANG['SPECIES_ID'])?$LANG['SPECIES_ID']:'Species ID'); ?></th>
 					</tr>
 					<?php
 					$total = 0;
@@ -76,12 +77,12 @@ $_SESSION['statsOrderArr'] = $orderArr;
 					?>
 				</table>
 				<div style="margin-top:10px;float:left;">
-					<b>Total Specimens with Order:</b> <?php echo number_format($total); ?><br />
-					Specimens without Order: <?php echo number_format($totalCnt-$total); ?><br />
+					<b><?php echo (isset($LANG['SPEC_W_ORDER'])?$LANG['SPEC_W_ORDER']:'Total Specimens with Order'); ?>:</b> <?php echo number_format($total); ?><br />
+					<?php echo (isset($LANG['NO_ORDER'])?$LANG['NO_ORDER']:'Specimens without Order').': '.number_format($totalCnt-$total); ?><br />
 				</div>
-				<div style='float:left;margin-left:25px;margin-top:10px;width:16px;height:16px;padding:2px;' title="Save CSV">
+				<div style='float:left;margin-left:25px;margin-top:10px;width:16px;height:16px;padding:2px;' title="<?php echo (isset($LANG['SAVE_CSV'])?$LANG['SAVE_CSV']:'Save CSV'); ?>">
 					<form name="orderstatscsv" id="orderstatscsv" action="collstatscsv.php" method="post" onsubmit="">
-						<input type="hidden" name="action" value='Download Order Dist' />
+						<input type="hidden" name="action" value='<?php echo (isset($LANG['DOWNLOAD_ORDER'])?$LANG['DOWNLOAD_ORDER']:'Download Order Dist'); ?>'/>
 						<input type="image" name="action" src="../../images/dl.png" onclick="" />
 					</form>
 				</div>

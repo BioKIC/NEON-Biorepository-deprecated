@@ -6,13 +6,13 @@ include_once($SERVER_ROOT.'/classes/RdfUtility.php');
 include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$occid = array_key_exists("occid",$_REQUEST)?trim($_REQUEST["occid"]):0;
-$collid = array_key_exists("collid",$_REQUEST)?trim($_REQUEST["collid"]):0;
+$occid = array_key_exists('occid',$_REQUEST)?trim($_REQUEST['occid']):0;
+$collid = array_key_exists('collid',$_REQUEST)?trim($_REQUEST['collid']):0;
 $pk = array_key_exists('pk',$_REQUEST)?trim($_REQUEST['pk']):'';
 $guid = array_key_exists('guid',$_REQUEST)?trim($_REQUEST['guid']):'';
 $submit = array_key_exists('formsubmit',$_REQUEST)?trim($_REQUEST['formsubmit']):'';
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
-$clid = array_key_exists("clid",$_REQUEST)?trim($_REQUEST["clid"]):0;
+$clid = array_key_exists('clid',$_REQUEST)?trim($_REQUEST['clid']):0;
 $format = isset($_GET['format'])?$_GET['format']:'';
 
 //Sanitize input variables
@@ -22,7 +22,6 @@ if($guid) $guid = filter_var($guid,FILTER_SANITIZE_STRING);
 if(!is_numeric($tabIndex)) $tabIndex = 0;
 if(!is_numeric($clid)) $clid = 0;
 if($pk && !preg_match('/^[a-zA-Z0-9\s_]+$/',$pk)) $pk = '';
-if($submit && !preg_match('/^[a-zA-Z0-9\s_]+$/',$submit)) $submit = '';
 
 $indManager = new OccurrenceIndividual($submit?'write':'readonly');
 if($occid) $indManager->setOccid($occid);
@@ -133,6 +132,15 @@ if($SYMB_UID){
 			$statusStr = $indManager->getErrorMessage();
 		}
 	}
+	if($isEditor){
+		if($submit == 'restoreRecord'){
+			if($indManager->restoreRecord($occid)){
+				$occArr = $indManager->getOccData();
+				$collMetadata = $indManager->getMetadata();
+			}
+			else $statusStr = $indManager->getErrorMessage();
+		}
+	}
 }
 
 $displayMap = false;
@@ -146,12 +154,14 @@ $traitArr = $indManager->getTraitArr();
 	<title><?php echo $DEFAULT_TITLE.(isset($LANG['DETAILEDCOLREC'])?$LANG['DETAILEDCOLREC']:'Detailed Collection Record Information'); ?></title>
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
-	<meta name="description" content="<?php echo 'Occurrence author: '.$occArr['recordedby'].','.$occArr['recordnumber']; ?>" />
-	<meta name="keywords" content="<?php echo $occArr['guid']; ?>">
+	<meta name="description" content="<?php echo 'Occurrence author: '.($occArr?$occArr['recordedby'].','.$occArr['recordnumber']:''); ?>" />
+	<meta name="keywords" content="<?php echo ($occArr?$occArr['guid']:''); ?>">
 	<?php
 	$cssPath = '/css/symb/custom/collindividualindex.css';
 	if(!file_exists($SERVER_ROOT.$cssPath)) $cssPath = '/css/symb/collindividualindex.css';
 	echo '<link href="'.$CLIENT_ROOT.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	$activateJQuery = false;
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
@@ -470,7 +480,7 @@ $traitArr = $indManager->getTraitArr();
 							</div>
 							<?php
 						}
-						if(array_key_exists('dets',$occArr)){
+						if(array_key_exists('dets',$occArr) && (count($occArr['dets']) > 1 || $occArr['dets'][key($occArr['dets'])]['iscurrent'] == 0)){
 							?>
 							<div class="detdiv" style="margin-left:10px;cursor:pointer;" onclick="toggle('detdiv');">
 								<img src="../../images/plus_sm.png" style="border:0px;" />
@@ -765,6 +775,16 @@ $traitArr = $indManager->getTraitArr();
 							</div>
 							<?php
 						}
+						if($occArr['dynamicproperties']){
+							?>
+							<div>
+								<?php
+								echo '<b>'.(isset($LANG['DYNAMICPROPERTIES'])?$LANG['DYNAMICPROPERTIES']:'Dynamic Properties').': </b>';
+								echo $occArr['dynamicproperties'];
+								?>
+							</div>
+							<?php
+						}
 						if($occArr['reproductivecondition']){
 							?>
 							<div>
@@ -852,21 +872,21 @@ $traitArr = $indManager->getTraitArr();
 								?>
 								<div style="margin-left:10px">
 									<?php
-									if($occArr['absoluteage']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['ABSOLUTEAGE'])?$LANG['ABSOLUTEAGE']:'Absolute Age').':</b> '.$occArr['absoluteage'].'</div>';
-									if($occArr['storageage']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['STORAGEAGE'])?$LANG['STORAGEAGE']:'Storage Age').':</b> '.$occArr['storageage'].'</div>';
-									if($occArr['localstage']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['LOCALSTAGE'])?$LANG['LOCALSTAGE']:'Local Stage').':</b> '.$occArr['localstage'].'</div>';
-									if($occArr['biota']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['BIOTA'])?$LANG['BIOTA']:'Biota').':</b> '.$occArr['biota'].'</div>';
-									if($occArr['biostratigraphy']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['BIOSTRAT'])?$LANG['BIOSTRAT']:'Biostratigraphy').':</b> '.$occArr['biostratigraphy'].'</div>';
-									if($occArr['lithogroup']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['GROUP'])?$LANG['GROUP']:'Group').':</b> '.$occArr['lithogroup'].'</div>';
-									if($occArr['formation']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['FORMATION'])?$LANG['FORMATION']:'Formation').':</b> '.$occArr['formation'].'</div>';
-									if($occArr['taxonenvironment']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['TAXENVIR'])?$LANG['TAXENVIR']:'Taxon Environment').':</b> '.$occArr['taxonenvironment'].'</div>';
-									if($occArr['member']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['MEMBER'])?$LANG['MEMBER']:'Member').':</b> '.$occArr['member'].'</div>';
-									if($occArr['bed']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['BED'])?$LANG['BED']:'Bed').':</b> '.$occArr['bed'].'</div>';
-									if($occArr['lithology']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['LITHOLOGY'])?$LANG['LITHOLOGY']:'Lithology').':</b> '.$occArr['lithology'].'</div>';
-									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['STRATREMARKS'])?$LANG['STRATREMARKS']:'Remarks').':</b> '.$occArr['stratremarks'].'</div>';
-									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['ELEMENT'])?$LANG['ELEMENT']:'Element').':</b> '.$occArr['element'].'</div>';
-									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['SLIDEPROPS'])?$LANG['SLIDEPROPS']:'Slide Properties').':</b> '.$occArr['slideproperties'].'</div>';
-									if($occArr['geologicalcontextid']) echo '<div style="float:left;margin-right:25px"><b>.'(isset($LANG['CONTEXTID'])?$LANG['CONTEXTID']:'Context ID').':</b> '.$occArr['geologicalcontextid'].'</div>';
+									if($occArr['absoluteage']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['ABSOLUTEAGE'])?$LANG['ABSOLUTEAGE']:'Absolute Age').':</b> '.$occArr['absoluteage'].'</div>';
+									if($occArr['storageage']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['STORAGEAGE'])?$LANG['STORAGEAGE']:'Storage Age').':</b> '.$occArr['storageage'].'</div>';
+									if($occArr['localstage']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['LOCALSTAGE'])?$LANG['LOCALSTAGE']:'Local Stage').':</b> '.$occArr['localstage'].'</div>';
+									if($occArr['biota']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['BIOTA'])?$LANG['BIOTA']:'Biota').':</b> '.$occArr['biota'].'</div>';
+									if($occArr['biostratigraphy']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['BIOSTRAT'])?$LANG['BIOSTRAT']:'Biostratigraphy').':</b> '.$occArr['biostratigraphy'].'</div>';
+									if($occArr['lithogroup']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['GROUP'])?$LANG['GROUP']:'Group').':</b> '.$occArr['lithogroup'].'</div>';
+									if($occArr['formation']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['FORMATION'])?$LANG['FORMATION']:'Formation').':</b> '.$occArr['formation'].'</div>';
+									if($occArr['taxonenvironment']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['TAXENVIR'])?$LANG['TAXENVIR']:'Taxon Environment').':</b> '.$occArr['taxonenvironment'].'</div>';
+									if($occArr['member']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['MEMBER'])?$LANG['MEMBER']:'Member').':</b> '.$occArr['member'].'</div>';
+									if($occArr['bed']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['BED'])?$LANG['BED']:'Bed').':</b> '.$occArr['bed'].'</div>';
+									if($occArr['lithology']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['LITHOLOGY'])?$LANG['LITHOLOGY']:'Lithology').':</b> '.$occArr['lithology'].'</div>';
+									if($occArr['stratremarks']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['STRATREMARKS'])?$LANG['STRATREMARKS']:'Remarks').':</b> '.$occArr['stratremarks'].'</div>';
+									if($occArr['element']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['ELEMENT'])?$LANG['ELEMENT']:'Element').':</b> '.$occArr['element'].'</div>';
+									if($occArr['slideproperties']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['SLIDEPROPS'])?$LANG['SLIDEPROPS']:'Slide Properties').':</b> '.$occArr['slideproperties'].'</div>';
+									if($occArr['geologicalcontextid']) echo '<div style="float:left;margin-right:25px"><b>'.(isset($LANG['CONTEXTID'])?$LANG['CONTEXTID']:'Context ID').':</b> '.$occArr['geologicalcontextid'].'</div>';
 									?>
 								</div>
 							</div>
@@ -1086,7 +1106,7 @@ $traitArr = $indManager->getTraitArr();
 							if($occArr['recordedby']) echo '<div>'.$occArr['recordedby'].' '.$occArr['recordnumber'].'<span style="margin-left:40px;">'.$occArr['eventdate'].'</span></div>';
 							if($occArr['catalognumber']) echo '<div><span class="label">'.(isset($LANG['CATALOGNUMBER'])?$LANG['CATALOGNUMBER']:'Catalog Number').':</span> '.$occArr['catalognumber'].'</div>';
 							if($occArr['occurrenceid']) echo '<div><span class="label">'.(isset($LANG['GUID'])?$LANG['GUID']:'GUID').':</span> '.$occArr['occurrenceid'].'</div>';
-							echo '<div><span class="label">'.(isset($LANG['LATESTID'])?$LANG['LATEST']:'Latest Identification').':</span> ';
+							echo '<div><span class="label">'.(isset($LANG['LATESTID'])?$LANG['LATESTID']:'Latest Identification').':</span> ';
 							if($securityCode < 2) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
 							else echo (isset($LANG['SPECIDPROTECTED'])?$LANG['SPECIDPROTECTED']:'Species identification protected');
 							echo '</div>';
@@ -1132,25 +1152,13 @@ $traitArr = $indManager->getTraitArr();
 					</div>
 					<?php
 				}
-				if($traitArr){
-					?>
-					<div id="traittab">
-						<?php
-						foreach($traitArr as $traitID => $tArr){
-							if(!$tArr['depStateID']){
-								echo '<div class="traitDiv">';
-								$indManager->echoTraitUnit($traitArr[$traitID]);
-								$indManager->echoTraitDiv($traitArr,$traitID);
-								echo '</div>';
-							}
-						}
-						?>
-					</div>
-					<?php
-				}
 				?>
 				<div id="commenttab">
 					<?php
+					$commentTabIndex = 1;
+					if($displayMap) $commentTabIndex++;
+					if($genticArr) $commentTabIndex++;
+					if($dupClusterArr) $commentTabIndex++;
 					if($commentArr){
 						echo '<div><b>'.count($commentArr).' '.(isset($LANG['COMMENTS'])?$LANG['COMMENTS']:'Comments').'</b></div>';
 						echo '<hr style="color:gray;"/>';
@@ -1166,13 +1174,13 @@ $traitArr = $indManager->getTraitArr();
 								echo '<div style="margin:10px;">'.$comArr['comment'].'</div>';
 								if($comArr['reviewstatus']){
 									if($SYMB_UID){
-										echo '<div><a href="index.php?repcomid='.$comId.'&occid='.$occid.'&tabindex='.($displayMap?2:1).'">';
+									    echo '<div><a href="index.php?repcomid='.$comId.'&occid='.$occid.'&tabindex='.$commentTabIndex.'">';
 										echo (isset($LANG['REPORT'])?$LANG['REPORT']:'Report as inappropriate or abusive');
 										echo '</a></div>';
 									}
 								}
 								else{
-									echo '<div><a href="index.php?publiccomid='.$comId.'&occid='.$occid.'&tabindex='.($displayMap?2:1).'">';
+								    echo '<div><a href="index.php?publiccomid='.$comId.'&occid='.$occid.'&tabindex='.$commentTabIndex.'">';
 									echo (isset($LANG['MAKECOMPUB'])?$LANG['MAKECOMPUB']:'Make comment public');
 									echo '</a></div>';
 								}
@@ -1182,7 +1190,7 @@ $traitArr = $indManager->getTraitArr();
 										<form name="delcommentform" action="index.php" method="post" onsubmit="return confirm('<?php echo (isset($LANG['CONFIRMDELETE'])?$LANG['CONFIRMDELETE']:'Are you sure you want to delete comment'); ?>?')">
 											<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 											<input name="comid" type="hidden" value="<?php echo $comId; ?>" />
-											<input name="tabindex" type="hidden" value="<?php echo ($displayMap?2:1); ?>" />
+											<input name="tabindex" type="hidden" value="<?php echo $commentTabIndex; ?>" />
 											<button name="formsubmit" type="submit" value="deleteComment"><?php echo (isset($LANG['DELETECOMMENT'])?$LANG['DELETECOMMENT']:'Delete Comment'); ?></button>
 										</form>
 									</div>
@@ -1205,7 +1213,7 @@ $traitArr = $indManager->getTraitArr();
 								<textarea name="commentstr" rows="8" style="width:98%;"></textarea>
 								<div style="margin:15px;">
 									<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-									<input name="tabindex" type="hidden" value="<?php echo ($displayMap?2:1); ?>" />
+									<input name="tabindex" type="hidden" value="<?php echo $commentTabIndex; ?>" />
 									<button type="submit" name="formsubmit" value="submitComment"><?php echo (isset($LANG['SUBMITCOMMENT'])?$LANG['SUBMITCOMMENT']:'Submit Comment'); ?></button>
 								</div>
 								<div>
@@ -1226,6 +1234,22 @@ $traitArr = $indManager->getTraitArr();
 					</fieldset>
 				</div>
 				<?php
+				if($traitArr){
+				    ?>
+					<div id="traittab">
+						<?php
+						foreach($traitArr as $traitID => $tArr){
+							if(!$tArr['depStateID']){
+								echo '<div class="traitDiv">';
+								$indManager->echoTraitUnit($traitArr[$traitID]);
+								$indManager->echoTraitDiv($traitArr,$traitID);
+								echo '</div>';
+							}
+						}
+						?>
+					</div>
+					<?php
+				}
 				if($isEditor){
 					?>
 					<div id="edittab">
@@ -1356,42 +1380,43 @@ $traitArr = $indManager->getTraitArr();
 					ob_flush();
 					flush();
 					$rawArchArr = $indManager->checkArchive();
-					//print_r($rawArchArr);
 					if($rawArchArr && $rawArchArr['obj']){
 						$archArr = $rawArchArr['obj'];
-						if(isset($archArr['dateDeleted'])) echo '<div><b>'.(isset($LANG['RECORDDELETED'])?$LANG['RECORDDELETED']:'Record deleted').':</b> '.$archArr['dateDeleted'].'</div>';
+						if($isEditor){
+							?>
+							<div style="float:right">
+								<form name="restoreForm" action="index.php" method="post">
+									<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+									<button name="formsubmit" type="submit" value="restoreRecord">Restore Record</button>
+								</form>
+							</div>
+							<?php
+						}
+						if(isset($archArr['dateDeleted'])) echo '<div style="margin-bottom:10px"><b>'.(isset($LANG['RECORDDELETED'])?$LANG['RECORDDELETED']:'Record deleted').':</b> '.$archArr['dateDeleted'].'</div>';
 						if($rawArchArr['notes']) echo '<div style="margin-left:15px"><b>'.(isset($LANG['NOTES'])?$LANG['NOTES']:'Notes').': </b>'.$rawArchArr['notes'].'</div>';
-						$dets = array();
-						$imgs = array();
-						if(isset($archArr['dets'])){
-							$dets = $archArr['dets'];
-							unset($archArr['dets']);
-						}
-						if(isset($archArr['imgs'])){
-							$imgs = $archArr['imgs'];
-							unset($archArr['imgs']);
-						}
-						echo '<table class="styledtable" style="font-family:Arial;font-size:12px;"><tr><th>'.(isset($LANG['FIELD'])?$LANG['FIELD']:'Field').'</th><th>'.(isset($LANG['VALUE'])?$LANG['VALUE']:'Value').'</th></tr>';
+						echo '<table class="styledtable"><tr><th>'.(isset($LANG['FIELD'])?$LANG['FIELD']:'Field').'</th><th>'.(isset($LANG['VALUE'])?$LANG['VALUE']:'Value').'</th></tr>';
 						foreach($archArr as $f => $v){
-							echo '<tr><td style="width:175px;"><b>'.$f.'</b></td><td>';
-							if(is_array($v)) echo implode(', ',$v);
-							else echo $v;
-							echo '</td></tr>';
-						}
-						if($dets){
-							foreach($dets as $id => $dArr){
-								echo '<tr><td><b>'.(isset($LANG['DETERMINATIONNO'])?$LANG['DETERMINATIONNO']:'Determination #').$id.'</b></td><td>';
-								foreach($dArr as $f => $v){
-									echo '<b>'.$f.'</b>: '.$v.'<br/>';
-								}
+							if(!is_array($v)){
+								echo '<tr><td style="width:175px;">'.$f.'</td><td>';
+								if(is_array($v)) echo implode(', ',$v);
+								else echo $v;
 								echo '</td></tr>';
 							}
 						}
-						if($imgs){
-							foreach($imgs as $id => $iArr){
-								echo '<tr><td><b>'.(isset($LANG['IMAGENO'])?$LANG['IMAGENO']:'Image #').$id.'</b></td><td>';
-								foreach($iArr as $f => $v){
-									echo '<b>'.$f.'</b>: '.$v.'<br/>';
+						$extArr = array('dets'=>'identifications','imgs'=>'Images','assoc'=>'Occurrence<br/>Associations','exsiccati'=>'Exsiccati','paleo'=>'Paleontological<br/>Terms','matSample'=>'Material<br/>Sample');
+						foreach($extArr as $extName => $extDisplay){
+							if(isset($archArr[$extName]) && $archArr[$extName]){
+								echo '<tr><td>'.$extDisplay.'</td><td>';
+								foreach($archArr[$extName] as $extKey => $extValue){
+									if(is_array($extValue)){
+										echo '<b>'.(isset($LANG['RECORDID'])?$LANG['RECORDID']:'Record ID').': '.$extKey.'</b><br/>';
+										foreach($extValue as $f => $v){
+											echo $f.': '.$v.'<br/>';
+										}
+										echo '<br/>';
+									}
+									else echo $extKey.': '.$extValue.'<br/>';
 								}
 								echo '</td></tr>';
 							}

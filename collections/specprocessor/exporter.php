@@ -1,6 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDownload.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/specprocessor/exporter.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/specprocessor/exporter.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/specprocessor/exporter.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
@@ -42,7 +44,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 ?>
 <html>
 	<head>
-		<title>Occurrence Export Manager</title>
+		<title><?php echo $LANG['OCC_EXP_MAN']; ?></title>
 		<?php
 		$activateJQuery = true;
 		if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -78,7 +80,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 
 			function validateDownloadForm(f){
 				if(f.newrecs && f.newrecs.checked == true && (f.processingstatus.value == "unprocessed" || f.processingstatus.value == "")){
-					alert("New records cannot have an unprocessed or undefined processing status. Please select a valid processing status.");
+					alert("<?php echo $LANG['NEW_RECORDS_PROC_STATUS']; ?>");
 					return false;
 				}
 				return true;
@@ -101,13 +103,13 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 	<body>
 		<!-- This is inner text! -->
 		<div id="innertext" style="background-color:white;">
-			<div style="float:right;width:165px;margin-right:30px">
+			<div style="float:right;width:165px;margin-right:50px">
 				<fieldset>
-					<legend><b>Export Type</b></legend>
+					<legend><b><?php echo $LANG['EXP_TYPE']; ?></b></legend>
 					<form name="submenuForm" method="post" action="index.php">
 						<select name="displaymode" onchange="this.form.submit()">
-							<option value="0">Custom Export</option>
-							<option value="1" <?php echo ($displayMode==1?'selected':''); ?>>Georeference Export</option>
+							<option value="0"><?php echo $LANG['CUSTOM_EXP']; ?></option>
+							<option value="1" <?php echo ($displayMode==1?'selected':''); ?>><?php echo $LANG['GEO_EXP']; ?></option>
 						</select>
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="tabindex" type="hidden" value="4" />
@@ -115,25 +117,12 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 				</fieldset>
 			</div>
 			<div style="padding:15px 0px;">
-				This download module is designed to aid collection managers in extracting specimen data
-				for import into local management or research systems.
-				<?php
+				<?php echo $LANG['EXPORT_EXPLAIN'];
 				if($collMeta['manatype'] == 'Snapshot'){
 					?>
-					<a href="#" onclick="toggle('moreinfodiv');this.style.display = 'none';return false;" style="font-size:90%">more info...</a>
+					<a href="#" onclick="toggle('moreinfodiv');this.style.display = 'none';return false;" style="font-size:90%"><?php echo $LANG['MORE'].'...'; ?></a>
 					<span id="moreinfodiv" style="display:none;">
-						The export module is particularly useful for extracting data that has been added
-						using the digitization tools built into the web portal (crowdsourcing, OCR/NLP, basic data entry, etc).
-						Records imported from a local database are linked to the primary record
-						through a specimen unique identifier (barcode, primary key, UUID, etc).
-						This identifier is stored in the web portal database and gives collection managers the ability to update local records
-						with information added within the web portal.
-						New records digitized directly into the web portal (e.g. image to record data entry workflow) will have a null unique identifier,
-						which identifies the record as new and not yet synchronized to the central database.
-						When new records are extracted from the portal, imported into the central database,
-						and then the portal's data snapshot is refreshed, the catalog number will be used to automatically synchronized
-						the portal specimen records with those in the central database. Note that synchronization will only work if the primary identifier is
-						enforced as unique (e.g. no duplicates) within the local, central database.
+						<?php echo $LANG['EXPORT_EXPLAIN_2']; ?>
 					</span>
 					<?php
 				}
@@ -148,25 +137,23 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 						?>
 						<form name="exportgeorefform" action="../download/downloadhandler.php" method="post" onsubmit="return validateExportGeorefForm(this);">
 							<fieldset>
-								<legend><b>Export Batch Georeferenced Data</b></legend>
+								<legend><b><?php echo $LANG['EXPORT_BATCH_GEO']; ?></b></legend>
 								<div style="margin:15px;">
-									This module extracts coordinate data only for the records that have been georeferenced using the
-									<a href="../georef/batchgeoreftool.php?collid=<?php echo $collid; ?>" target="_blank">batch georeferencing tools</a>
-									or the GeoLocate Community tools.
-									These downloads are particularly tailored for importing the new coordinates into their local database.
-									If no records have been georeferenced within the portal, the output file will be empty.
+									<?php echo $LANG['EXPORT_BATCH_GEO_EXPLAIN_1'].' '.'
+									<a href="../georef/batchgeoreftool.php?collid=<?php echo $collid; ?>" target="_blank">'.$LANG['BATCH_GEO_TOOLS'].'</a> '.
+									$LANG['EXPORT_BATCH_GEO_EXPLAIN_2']; ?>
 								</div>
 								<table>
 									<tr>
 										<td>
 											<div style="margin:10px;">
-												<b>Processing Status:</b>
+												<b><?php echo $LANG['PROCESSING_STATUS']; ?>:</b>
 											</div>
 										</td>
 										<td>
 											<div style="margin:10px 0px;">
 												<select name="processingstatus">
-													<option value="">All Records</option>
+													<option value=""><?php echo $LANG['ALL_RECORDS']; ?></option>
 													<?php
 													$statusArr = $dlManager->getProcessingStatusList($collid);
 													foreach($statusArr as $v){
@@ -180,32 +167,32 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 									<tr>
 										<td valign="top">
 											<div style="margin:10px;">
-												<b>Compression:</b>
+												<b><?php echo $LANG['COMPRESSION']; ?>:</b>
 											</div>
 										</td>
 										<td>
 											<div style="margin:10px 0px;">
-												<input type="checkbox" name="zip" value="1" checked /> Archive Data Package (ZIP file)<br/>
+												<input type="checkbox" name="zip" value="1" checked /> <?php echo $LANG['ARCHIVE_DATA_PACK']; ?><br/>
 											</div>
 										</td>
 									</tr>
 									<tr>
 										<td valign="top">
 											<div style="margin:10px;">
-												<b>File Format:</b>
+												<b><?php echo $LANG['FILE_FORMAT']; ?>:</b>
 											</div>
 										</td>
 										<td>
 											<div style="margin:10px 0px;">
-												<input type="radio" name="format" value="csv" CHECKED /> Comma Delimited (CSV)<br/>
-												<input type="radio" name="format" value="tab" /> Tab Delimited<br/>
+												<input type="radio" name="format" value="csv" CHECKED /> <?php echo $LANG['CSV']; ?><br/>
+												<input type="radio" name="format" value="tab" /> <?php echo $LANG['TAB_DELIMITED']; ?><br/>
 											</div>
 										</td>
 									</tr>
 									<tr>
 										<td valign="top">
 											<div style="margin:10px;">
-												<b>Character Set:</b>
+												<b><?php echo $LANG['CHAR_SET']; ?>:</b>
 											</div>
 										</td>
 										<td>
@@ -242,25 +229,21 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 					?>
 					<form name="expgeoform" action="../download/downloadhandler.php" method="post" onsubmit="return validateExpGeoForm(this);">
 						<fieldset>
-							<legend><b>Export Specimens Lacking Georeferencing Data</b></legend>
+							<legend><b><?php echo $LANG['EXPORT_LACKING_GEO']; ?></b></legend>
 							<div style="margin:15px;">
-								This module extracts specimens that lack decimal coordinates or have coordinates that needs to be verified.
-								This download will result in a Darwin Core Archive containing a UTF-8 encoded CSV file containing
-								only georeferencing relevant data columns for the occurrences. By default, occurrences
-								will be limited to records containing locality information but no decimal coordinates.
-								This output is particularly useful for creating data extracts that will georeferenced using external tools.
+								<?php echo $LANG['EXPORT_LACKING_GEO_EXPLAIN']; ?>
 							</div>
 							<table>
 								<tr>
 									<td>
 										<div style="margin:10px;">
-											<b>Processing Status:</b>
+											<b><?php echo $LANG['PROCESSING_STATUS']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
 											<select name="processingstatus">
-												<option value="">All Records</option>
+												<option value=""><?php echo $LANG['ALL_RECORDS']; ?></option>
 												<?php
 												$statusArr = $dlManager->getProcessingStatusList($collid);
 												foreach($statusArr as $v){
@@ -274,13 +257,13 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 								<tr>
 									<td>
 										<div style="margin:10px;">
-											<b>Coordinates:</b>
+											<b><?php echo $LANG['COORDINATES']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
-											<input name="customtype2" type="radio" value="NULL" checked /> are empty (is null)<br/>
-											<input name="customtype2" type="radio" value="NOTNULL" /> have values (e.g. need verification)
+											<input name="customtype2" type="radio" value="NULL" checked /> <?php echo $LANG['ARE_EMPTY']; ?><br/>
+											<input name="customtype2" type="radio" value="NOTNULL" /> <?php echo $LANG['HAVE_VALUES']; ?>
 											<input name="customfield2" type="hidden" value="decimallatitude" />
 										</div>
 									</td>
@@ -288,13 +271,13 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 								<tr>
 									<td>
 										<div style="margin:10px;">
-											<b>Additional<br/>Filters:</b>
+											<b><?php echo $LANG['ADDITIONAL_FILTERS']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
 											<select name="customfield1" style="width:200px">
-												<option value="">Select Field Name</option>
+												<option value=""><?php echo $LANG['SELECT_FIELD']; ?></option>
 												<option value="">---------------------------------</option>
 												<?php
 												foreach($advFieldArr as $k => $v){
@@ -325,7 +308,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 											<input name="schema" type="hidden" value="dwc" />
 											<input name="extended" type="hidden" value="1" />
 											<input name="overrideconditionlimit" type="hidden" value="1" />
-											<input name="submitaction" type="submit" value="Download Records" />
+											<button name="submitaction" type="submit" value="Download Records"><?php echo $LANG['DOWNLOAD_RECORDS']; ?></button>
 										</div>
 									</td>
 								</tr>
@@ -338,18 +321,18 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 					?>
 					<form name="downloadform" action="../download/downloadhandler.php" method="post" onsubmit="return validateDownloadForm(this);">
 						<fieldset>
-							<legend><b>Download Specimen Records</b></legend>
+							<legend><b><?php echo $LANG['DOWNLOAD_SPEC_RECORDS']; ?></b></legend>
 							<table>
 								<tr>
 									<td>
 										<div style="margin:10px;">
-											<b>Processing Status:</b>
+											<b><?php echo $LANG['PROCESSING_STATUS']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
 											<select name="processingstatus">
-												<option value="">All Records</option>
+												<option value=""><?php echo $LANG['ALL_RECORDS']; ?></option>
 												<?php
 												$statusArr = $dlManager->getProcessingStatusList($collid);
 												foreach($statusArr as $v){
@@ -366,20 +349,17 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 									<tr>
 										<td>
 											<div style="margin:10px;">
-												<b>New Records Only:</b>
+												<b><?php echo $LANG['NEW_RECORDS_ONLY']; ?>:</b>
 											</div>
 										</td>
 										<td>
 											<div style="margin:10px 0px;">
-												<input type="checkbox" name="newrecs" value="1" /> (e.g. records processed within portal)
-												<a id="newrecsinfo" href="#" onclick="return false" title="More Information">
+												<input type="checkbox" name="newrecs" value="1" /> <?php echo $LANG['EG_IN_PORTAL']; ?>
+												<a id="newrecsinfo" href="#" onclick="return false" title="<?php echo $LANG['MORE_INFO']; ?>">
 													<img src="../../images/info.png" style="width:13px;" />
 												</a>
 												<div id="newrecsinfodialog">
-													Limit to new records entered and processed directly within the
-													portal which have not yet imported into and synchonized with
-													the central database. Avoid importing unprocessed skeletal records since
-													future imports will involve more complex data coordination.
+													<?php echo $LANG['MORE_INFO_TEXT']; ?>
 												</div>
 											</div>
 										</td>
@@ -390,7 +370,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 								<tr>
 									<td>
 										<div style="margin:10px;">
-											<b>Additional<br/>Filters:</b>
+											<b><?php echo $LANG['ADDITIONAL_FILTERS']; ?>:</b>
 										</div>
 									</td>
 									<td>
@@ -399,7 +379,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 											?>
 											<div style="margin:10px 0px;">
 												<select name="customfield<?php echo $i; ?>" style="width:200px">
-													<option value="">Select Field Name</option>
+													<option value=""><?php echo $LANG['SELECT_FIELD']; ?></option>
 													<option value="">---------------------------------</option>
 													<?php
 													foreach($advFieldArr as $k => $v){
@@ -428,7 +408,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 									<tr>
 										<td valign="top">
 											<div style="margin:10px;">
-												<b>Occurrence Trait<br/>Filter:</b>
+												<b><?php echo $LANG['TRAIT_FILTER']; ?>:</b>
 											</div>
 										</td>
 										<td>
@@ -442,7 +422,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 												</select>
 											</div>
 											<div style="margin:10px;">
-												-- OR select a specific Attribute State --
+												-- <?php echo $LANG['OR_SPEC_ATTRIBUTE']; ?> --
 											</div>
 											<div style="margin:10px;">
 												<select name="stateid[]" multiple>
@@ -457,7 +437,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 												</select>
 											</div>
 											<div style="">
-												* Hold down the control (ctrl) or command button to select multiple options
+												* <?php echo $LANG['HOLD_CTRL']; ?>
 											</div>
 										</td>
 									</tr>
@@ -467,28 +447,26 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 								<tr>
 									<td valign="top">
 										<div style="margin:10px;">
-											<b>Structure:</b>
+											<b><?php echo $LANG['STRUCTURE']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
 											<input type="radio" name="schema" value="symbiota" CHECKED />
-											Symbiota Native
-											<a id="schemanativeinfo" href="#" onclick="return false" title="More Information">
+											<?php echo $LANG['SYMB_NATIVE']; ?>
+											<a id="schemanativeinfo" href="#" onclick="return false" title="<?php echo $LANG['MORE_INFO']; ?>">
 												<img src="../../images/info.png" style="width:13px;" />
 											</a><br/>
 											<div id="schemanativeinfodialog">
-												Symbiota native is very similar to Darwin Core except with the addtion of a few fields
-												such as substrate, associated collectors, verbatim description.
+												<?php echo $LANG['SYMB_NATIVE_EXPLAIN']; ?>
 											</div>
 											<input type="radio" name="schema" value="dwc" />
 											Darwin Core
-											<a id="schemainfodwc" href="#" target="" title="More Information">
+											<a id="schemadwcinfo" href="#" onclick="return false" title="<?php echo $LANG['MORE_INFO']; ?>">
 												<img src="../../images/info.png" style="width:13px;" />
 											</a><br/>
 											<div id="schemadwcinfodialog">
-												Darwin Core is a TDWG endorsed exchange standard specifically for biodiversity datasets.
-												For more information, visit the <a href="">Darwin Core Documentation</a> website.
+												<?php echo $LANG['DWC_EXPLAIN']; ?>
 											</div>
 											<!--  <input type="radio" name="schema" value="specify" /> Specify -->
 										</div>
@@ -497,49 +475,49 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 								<tr>
 									<td valign="top">
 										<div style="margin:10px;">
-											<b>Data Extensions:</b>
+											<b><?php echo $LANG['DATA_EXTENSIONS']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
-											<input type="checkbox" name="identifications" value="1" onchange="extensionSelected(this)" checked /> include Determination History<br/>
-											<input type="checkbox" name="images" value="1" onchange="extensionSelected(this)" checked /> include Image Records<br/>
+											<input type="checkbox" name="identifications" value="1" onchange="extensionSelected(this)" checked /> <?php echo $LANG['INCLUDE_DET']; ?><br/>
+											<input type="checkbox" name="images" value="1" onchange="extensionSelected(this)" checked /> <?php echo $LANG['INCLUDE_IMAGES']; ?><br/>
 											<?php
-											if($traitArr) echo '<input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> include Occurrence Trait Attributes (MeasurementOrFact extension)<br/>';
+											if($traitArr) echo '<input type="checkbox" name="attributes" value="1" onchange="extensionSelected(this)" checked /> '.$LANG['INCLUDE_ATTRIBUTES'].'<br/>';
 											?>
-											*Output must be a compressed archive
+											*<?php echo $LANG['OUTPUT_COMPRESSED']; ?>
 										</div>
 									</td>
 								</tr>
 								<tr>
 									<td valign="top">
 										<div style="margin:10px;">
-											<b>Compression:</b>
+											<b><?php echo $LANG['COMPRESSION']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
-											<input type="checkbox" name="zip" value="1" onchange="zipChanged(this)" checked /> Archive Data Package (ZIP file)<br/>
+											<input type="checkbox" name="zip" value="1" onchange="zipChanged(this)" checked /> <?php echo $LANG['ARCHIVE_DATA_PACK']; ?><br/>
 										</div>
 									</td>
 								</tr>
 								<tr>
 									<td valign="top">
 										<div style="margin:10px;">
-											<b>File Format:</b>
+											<b><?php echo $LANG['FILE_FORMAT']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
-											<input type="radio" name="format" value="csv" CHECKED /> Comma Delimited (CSV)<br/>
-											<input type="radio" name="format" value="tab" /> Tab Delimited<br/>
+											<input type="radio" name="format" value="csv" CHECKED /> <?php echo $LANG['CSV']; ?><br/>
+											<input type="radio" name="format" value="tab" /> <?php echo $LANG['TAB_DELIMITED']; ?><br/>
 										</div>
 									</td>
 								</tr>
 								<tr>
 									<td valign="top">
 										<div style="margin:10px;">
-											<b>Character Set:</b>
+											<b><?php echo $LANG['CHAR_SET']; ?>:</b>
 										</div>
 									</td>
 									<td>
@@ -559,7 +537,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 											<input name="targetcollid" type="hidden" value="<?php echo $collid; ?>" />
 											<input name="extended" type="hidden" value="1" />
 											<input name="overrideconditionlimit" type="hidden" value="1" />
-											<input name="submitaction" type="submit" value="Download Records" />
+											<button name="submitaction" type="submit" value="Download Records"><?php echo $LANG['DOWNLOAD_RECORDS']; ?></button>
 										</div>
 									</td>
 								</tr>
@@ -571,7 +549,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 				echo '</div>';
 			}
 			else{
-				echo '<div style="font-weight:bold;">Access denied</div>';
+				echo '<div style="font-weight:bold;">'.$LANG['ACCESS_DENIED'].'</div>';
 			}
 			?>
 		</div>

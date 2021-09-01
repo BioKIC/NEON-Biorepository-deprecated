@@ -45,6 +45,7 @@ $extended = array_key_exists('extended',$_REQUEST)?$_REQUEST['extended']:0;
 $includeDets = array_key_exists("dets",$_REQUEST)?$_REQUEST["dets"]:1;
 $includeImgs = array_key_exists("imgs",$_REQUEST)?$_REQUEST["imgs"]:1;
 $includeAttributes = array_key_exists("attr",$_REQUEST)?$_REQUEST["attr"]:0;
+$includeMaterialSample = array_key_exists("matsample",$_REQUEST)?$_REQUEST["matsample"]:0;
 
 $dwcaHandler = new DwcArchiverCore();
 
@@ -98,6 +99,7 @@ $dwcaHandler->setExtended($extended);
 $dwcaHandler->setIncludeDets($includeDets);
 $dwcaHandler->setIncludeImgs($includeImgs);
 $dwcaHandler->setIncludeAttributes($includeAttributes);
+$dwcaHandler->setIncludeMaterialSample($includeMaterialSample);
 
 $archiveFile = $dwcaHandler->createDwcArchive();
 if($archiveFile){

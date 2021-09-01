@@ -13,7 +13,7 @@ class OccurrenceIndividual extends Manager{
 	private $relationshipArr;
 
 	public function __construct($type='readonly') {
-		parent::__construct($type);
+		parent::__construct(null,$type);
 	}
 
 	public function __destruct(){
@@ -26,7 +26,7 @@ class OccurrenceIndividual extends Manager{
 			$sql = 'SELECT * FROM omcollections WHERE collid = '.$this->collid;
 			if($rs = $this->conn->query($sql)){
 				$this->metadataArr = array_change_key_case($rs->fetch_assoc());
-				if(isset($this->metadataArr['contactjson']) && $this->metadataArr['contactjson']){
+				if(isset($this->metadataArr['contactjson'])){
 					//Test to see if contact is a JSON object or a simple string
 					if($contactArr = json_decode($this->metadataArr['contactjson'],true)){
 						$contactStr = '';
@@ -108,9 +108,6 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setOccurData(){
-		$sql = 'SELECT o.*, MAKEDATE(YEAR(o.eventDate),o.enddayofyear) AS eventdateend, g.guid FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
-		/*
-		 * Can use explicit SQL once database patch is applied to all releases
 		$sql = 'SELECT o.occid, o.collid, o.institutioncode, o.collectioncode, '.
 			'o.occurrenceid, o.catalognumber, o.occurrenceremarks, o.tidinterpreted, o.family, o.sciname, '.
 			'o.scientificnameauthorship, o.identificationqualifier, o.identificationremarks, o.identificationreferences, o.taxonremarks, '.
@@ -119,10 +116,9 @@ class OccurrenceIndividual extends Manager{
 			'o.decimallatitude, o.decimallongitude, o.geodeticdatum, o.coordinateuncertaintyinmeters, o.verbatimcoordinates, o.georeferenceremarks, '.
 			'o.minimumelevationinmeters, o.maximumelevationinmeters, o.verbatimelevation, o.minimumdepthinmeters, o.maximumdepthinmeters, o.verbatimdepth, '.
 			'o.verbatimattributes, o.locationremarks, o.lifestage, o.sex, o.individualcount, o.samplingprotocol, o.preparations, '.
-			'o.typestatus, o.dbpk, o.habitat, o.substrate, o.associatedtaxa, o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, '.
+			'o.typestatus, o.dbpk, o.habitat, o.substrate, o.associatedtaxa, o.dynamicProperties, o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, '.
 			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.modified, o.observeruid, g.guid, o.recordenteredby, o.dateentered, o.datelastmodified '.
 			'FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
-		*/
 		if($this->occid) $sql .= 'WHERE (o.occid = '.$this->occid.')';
 		elseif($this->collid && $this->dbpk) $sql .= 'WHERE (o.collid = '.$this->collid.') AND (o.dbpk = "'.$this->dbpk.'")';
 		else trigger_error('Specimen identifier is null or invalid; '.$this->conn->error,E_USER_ERROR);
@@ -173,10 +169,10 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setDeterminations(){
-		$sql = 'SELECT detid, dateidentified, identifiedby, sciname, scientificnameauthorship, identificationqualifier, identificationreferences, identificationremarks '.
-			'FROM omoccurdeterminations '.
-			'WHERE (occid = '.$this->occid.') AND appliedstatus = 1 '.
-			'ORDER BY sortsequence';
+		$sql = 'SELECT detid, dateidentified, identifiedby, sciname, scientificnameauthorship, identificationqualifier, identificationreferences, identificationremarks, iscurrent
+			FROM omoccurdeterminations
+			WHERE (occid = '.$this->occid.') AND appliedstatus = 1
+			ORDER BY sortsequence';
 		$rs = $this->conn->query($sql);
 		if($rs){
 			while($row = $rs->fetch_object()){
@@ -188,6 +184,7 @@ class OccurrenceIndividual extends Manager{
 				$this->occArr['dets'][$detId]['qualifier'] = $row->identificationqualifier;
 				$this->occArr['dets'][$detId]['ref'] = $row->identificationreferences;
 				$this->occArr['dets'][$detId]['notes'] = $row->identificationremarks;
+				$this->occArr['dets'][$detId]['iscurrent'] = $row->iscurrent;
 			}
 			$rs->free();
 		}
@@ -824,6 +821,182 @@ class OccurrenceIndividual extends Manager{
 			}
 		}
 		return $retArr;
+	}
+
+	public function restoreRecord(){
+		if($this->occid){
+			$jsonStr = '';
+			$sql = 'SELECT archiveobj FROM guidoccurrences WHERE (occid = '.$this->occid.')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$jsonStr = $r->archiveobj;
+			}
+			$rs->free();
+			if(!$jsonStr){
+				$this->errorMessage = 'ERROR restoring record: archive empty';
+				return false;
+			}
+			$recArr = json_decode($jsonStr,true);
+			$occSkipArr = array('dets','imgs','paleo','exsiccati','assoc','matSample');
+			//Restore central record
+			$occurFieldArr = array();
+			$rsOccur = $this->conn->query('SHOW COLUMNS FROM omoccurrences ');
+			while($rOccur = $rsOccur->fetch_object()){
+				$occurFieldArr[] = strtolower($rOccur->Field);
+			}
+			$rsOccur->free();
+			$sql1 = 'INSERT INTO omoccurrences(';
+			$sql2 = 'VALUES(';
+			foreach($recArr as $field => $value){
+				if(in_array(strtolower($field),$occurFieldArr)){
+					$sql1 .= $field.',';
+					$sql2 .= '"'.$this->cleanInStr($value).'",';
+				}
+			}
+			$sql = trim($sql1,' ,').') '.trim($sql2,' ,').')';
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'ERROR restoring occurrence record: '.$this->conn->error.' ('.$sql.')';
+				return false;
+			}
+
+			//Restore determinations
+			if(isset($recArr['dets']) && $recArr['dets']){
+				$detFieldArr = array();
+				$rsDet = $this->conn->query('SHOW COLUMNS FROM omoccurdeterminations ');
+				while($rDet = $rsDet->fetch_object()){
+					$detFieldArr[] = strtolower($rDet->Field);
+				}
+				$rsDet->free();
+				foreach($recArr['dets'] as $pk => $secArr){
+					$sql1 = 'INSERT INTO omoccurdeterminations(';
+					$sql2 = 'VALUES(';
+					foreach($secArr as $f => $v){
+						if(in_array(strtolower($f),$detFieldArr)){
+							$sql1 .= $f.',';
+							$sql2 .= '"'.$this->cleanInStr($v).'",';
+						}
+					}
+					$sql = trim($sql1,' ,').') '.trim($sql2,' ,').')';
+					if(!$this->conn->query($sql)){
+						$this->errorMessage = 'ERROR restoring determination record: '.$this->conn->error.' ('.$sql.')';
+						return false;
+					}
+				}
+			}
+
+			//Restore images
+			if(isset($recArr['imgs']) && $recArr['imgs']){
+				$imgFieldArr = array();
+				$rsImg = $this->conn->query('SHOW COLUMNS FROM images');
+				while($rImg= $rsImg->fetch_object()){
+					$imgFieldArr[] = strtolower($rImg->Field);
+				}
+				$rsImg->free();
+				foreach($recArr['imgs'] as $pk => $secArr){
+					$sql1 = 'INSERT INTO images(';
+					$sql2 = 'VALUES(';
+					foreach($secArr as $f => $v){
+						if(in_array(strtolower($f),$imgFieldArr)){
+							$sql1 .= $f.',';
+							$sql2 .= '"'.$this->cleanInStr($v).'",';
+						}
+					}
+					$sql = trim($sql1,' ,').') '.trim($sql2,' ,').')';
+					if(!$this->conn->query($sql)){
+						$this->errorMessage = 'ERROR restoring image record: '.$this->conn->error.' ('.$sql.')';
+						return false;
+					}
+				}
+			}
+
+			//Restore paleo
+			if(isset($recArr['paleo']) && $recArr['paleo']){
+				$paleoFieldArr = array();
+				$rsPaleo = $this->conn->query('SHOW COLUMNS FROM omoccurpaleo');
+				while($rPaleo= $rsPaleo->fetch_object()){
+					$paleoFieldArr[] = strtolower($rPaleo->Field);
+				}
+				$rsPaleo->free();
+				foreach($recArr['paleo'] as $pk => $secArr){
+					$sql1 = 'INSERT INTO omoccurpaleo(';
+					$sql2 = 'VALUES(';
+					foreach($secArr as $f => $v){
+						if(in_array(strtolower($f),$paleoFieldArr)){
+							$sql1 .= $f.',';
+							$sql2 .= '"'.$this->cleanInStr($v).'",';
+						}
+					}
+					$sql = trim($sql1,' ,').') '.trim($sql2,' ,').')';
+					if(!$this->conn->query($sql)){
+						$this->errorMessage = 'ERROR restoring paleo record: '.$this->conn->error.' ('.$sql.')';
+						return false;
+					}
+				}
+			}
+
+			//Restore exsiccati
+			if(isset($recArr['exsiccati']) && $recArr['exsiccati']){
+				$sql = 'INSERT INTO omexsiccatiocclink(omenid, occid, ranking, notes) VALUES('.$recArr['exsiccati']['ometid'].','.$recArr['exsiccati']['occid'].','.
+					(isset($recArr['exsiccati']['ranking'])?$recArr['exsiccati']['ranking']:'NULL').','
+					(isset($recArr['exsiccati']['notes'])?'"'.$this->cleanInStr($recArr['exsiccati']['notes']).'"':'NULL').')';
+				if(!$this->conn->query($sql)){
+					$this->errorMessage = 'ERROR restoring exsiccati record: '.$this->conn->error.' ('.$sql.')';
+					return false;
+				}
+			}
+
+			//Restore associations
+			if(isset($recArr['assoc']) && $recArr['assoc']){
+				$assocFieldArr = array();
+				$rsAssoc = $this->conn->query('SHOW COLUMNS FROM omoccurassociations');
+				while($rAssoc= $rsAssoc->fetch_object()){
+					$assocFieldArr[] = strtolower($rAssoc->Field);
+				}
+				$rsAssoc->free();
+				foreach($recArr['assoc'] as $pk => $secArr){
+					$sql1 = 'INSERT INTO omoccurassociations(';
+					$sql2 = 'VALUES(';
+					foreach($secArr as $f => $v){
+						if(in_array(strtolower($f),$assocFieldArr)){
+							$sql1 .= $f.',';
+							$sql2 .= '"'.$this->cleanInStr($v).'",';
+						}
+					}
+					$sql = trim($sql1,' ,').') '.trim($sql2,' ,').')';
+					if(!$this->conn->query($sql)){
+						$this->errorMessage = 'ERROR restoring association record: '.$this->conn->error.' ('.$sql.')';
+						return false;
+					}
+				}
+			}
+
+			//Restore material sample
+			if(isset($recArr['matSample']) && $recArr['matSample']){
+				$msFieldArr = array();
+				$rsMs = $this->conn->query('SHOW COLUMNS FROM ommaterialsample');
+				while($rMs= $rsMs->fetch_object()){
+					$msFieldArr[] = strtolower($rMs->Field);
+				}
+				$rsMs->free();
+				foreach($recArr['matSample'] as $pk => $secArr){
+					$sql1 = 'INSERT INTO ommaterialsample(';
+					$sql2 = 'VALUES(';
+					foreach($secArr as $f => $v){
+						if(in_array(strtolower($f),$msFieldArr)){
+							$sql1 .= $f.',';
+							$sql2 .= '"'.$this->cleanInStr($v).'",';
+						}
+					}
+					$sql = trim($sql1,' ,').') '.trim($sql2,' ,').')';
+					if(!$this->conn->query($sql)){
+						$this->errorMessage = 'ERROR restoring material sample record '.$this->conn->error.' ('.$sql.')';
+						return false;
+					}
+				}
+			}
+			$this->setOccurData();
+		}
+		return true;
 	}
 
 	/*

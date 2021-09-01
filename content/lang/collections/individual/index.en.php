@@ -55,6 +55,7 @@ $LANG['HABITAT'] = 'Habitat';
 $LANG['SUBSTRATE'] = 'Substrate';
 $LANG['ASSOCTAXA'] = 'Associated Taxa';
 $LANG['DESCRIPTION'] = 'Description';
+$LANG['DYNAMICPROPERTIES'] = 'Dynamic Properties';
 $LANG['REPROCONDITION'] = 'Reproductive Condition';
 $LANG['LIFESTAGE'] = 'Life Stage';
 $LANG['SEX'] = 'Sex';
@@ -108,7 +109,6 @@ $LANG['IDENTIFIEDBY'] = 'Identified by';
 $LANG['DUPES'] = 'Specimen Duplicates';
 $LANG['EXSICCATAE'] = 'Associated Exsiccatae';
 $LANG['SHOWFULLDETAILS'] = 'Show Full Details';
-$LANG['COMMENTS'] = 'Comments';
 $LANG['COMMENTNOTPUBLIC'] = 'Comment not public due to pending abuse report (viewable to administrators only)';
 $LANG['REPORT'] = 'Report as inappropriate or abusive';
 $LANG['MAKECOMPUB'] = 'Make comment public';
@@ -140,7 +140,5 @@ $LANG['UNABLETOLOCATE'] = 'Unable to locate record';
 $LANG['CHECKING'] = 'Checking archive';
 $LANG['RECORDDELETED'] = 'Record deleted';
 $LANG['VALUE'] = 'Value';
-$LANG['DETERMINATIONNO'] = 'Determination #';
-$LANG['IMAGENO'] = 'Image #';
-
+$LANG['RECORDID'] = 'Record ID';
 ?>

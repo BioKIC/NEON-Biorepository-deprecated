@@ -587,7 +587,7 @@ class SpecProcessorManager {
 								$retArr[$dirName][] = $fileName;
 							}
 						}
-						rsort($retArr[$dirName]);
+						if(isset($retArr[$dirName])) rsort($retArr[$dirName]);
 					}
 				}
 			}

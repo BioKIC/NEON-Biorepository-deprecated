@@ -95,10 +95,10 @@ class ImageProcessor {
 				if(strpos($CyVerseSourcePath, '--COLLECTION_CODE--')) $CyVerseSourcePath = str_replace('--COLLECTION_CODE--', $this->collArr['collcode'], $CyVerseSourcePath);
 			}
 			else{
-				echo '<div style="color:red">iPlant image import path (IPLANT_IMAGE_IMPORT_PATH) not set within symbini configuration file</div>';
+				echo '<div style="color:red">CyVerse image import path (IPLANT_IMAGE_IMPORT_PATH) not set within symbini configuration file</div>';
 				return false;
 			}
-			$this->initProcessor('iplant');
+			$this->initProcessor('cyverse');
 			$collStr = $this->collArr['instcode'].($this->collArr['collcode']?'-'.$this->collArr['collcode']:'');
 			$this->logOrEcho('Starting image processing: '.$collStr.' ('.date('Y-m-d h:i:s A').')');
 
@@ -185,7 +185,7 @@ class ImageProcessor {
 					}
 				}
 				else{
-					$this->logOrEcho("ERROR: failed to obtain response from iPlant (".$url.")",1);
+					$this->logOrEcho("ERROR: failed to obtain response from CyVerse (".$url.")",1);
 					return false;
 				}
 				$this->updateLastRunDate($lastRunDate);

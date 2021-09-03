@@ -788,7 +788,8 @@ class OccurrenceHarvester{
 
 	private function setOccurrenceIdentifiers($idArr, $occid){
 		if($idArr && $occid){
-			$this->conn->query('DELETE FROM omoccuridentifiers WHERE identifiername IN("NEON sampleID","NEON sampleCode (barcode)") AND (occid = '.$occid.')');
+			$delSql = 'DELETE FROM omoccuridentifiers WHERE identifiername IN("NEON sampleID","NEON sampleCode (barcode)") AND (occid = '.$occid.')';
+			$this->conn->query($delSql);
 			foreach($idArr as $idName => $idValue){
 				$sql = 'INSERT INTO omoccuridentifiers(occid, identifiername, identifierValue) VALUES('.$occid.',"'.$this->cleanInStr($idName).'","'.$this->cleanInStr($idValue).'")';
 				if(!$this->conn->query($sql)){

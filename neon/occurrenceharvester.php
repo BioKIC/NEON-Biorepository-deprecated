@@ -119,7 +119,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			<form action="occurrenceharvester.php" method="post">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<input name="nullOccurrencesOnly" type="checkbox" value="1" onchange="nullOccurrenceOnlyChanged(this)" checked /> Target New Samples only (NULL occurrences)
+						<input name="nullOccurrencesOnly" type="checkbox" value="1" onchange="nullOccurrenceOnlyChanged(this)" checked /> Target New Samples only (NULL occid, no error message)
 					</div>
 				</div>
 				<div id="extendedVariables" style="display:none">

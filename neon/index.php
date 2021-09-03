@@ -45,7 +45,7 @@ if($isEditor){
 			<ul>
 				<li>Quick search:
 					<form name="sampleQuickSearchFrom" action="shipment/manifestviewer.php" method="post" style="display: inline" >
-						<input name="quicksearch" type="text" value="" onchange="this.form.submit()" style="width:250px;" />
+						<input name="quicksearch" type="text" value="" onchange="this.form.submit()" style="width:400px;" />
 					</form>
 				</li>
 				<li><a href="shipment/manifestloader.php">Load and Process New Manifests</a></li>

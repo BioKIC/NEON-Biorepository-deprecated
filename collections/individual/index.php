@@ -6,13 +6,13 @@ include_once($SERVER_ROOT.'/classes/RdfUtility.php');
 include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$occid = array_key_exists("occid",$_REQUEST)?trim($_REQUEST["occid"]):0;
-$collid = array_key_exists("collid",$_REQUEST)?trim($_REQUEST["collid"]):0;
+$occid = array_key_exists('occid',$_REQUEST)?trim($_REQUEST['occid']):0;
+$collid = array_key_exists('collid',$_REQUEST)?trim($_REQUEST['collid']):0;
 $pk = array_key_exists('pk',$_REQUEST)?trim($_REQUEST['pk']):'';
 $guid = array_key_exists('guid',$_REQUEST)?trim($_REQUEST['guid']):'';
 $submit = array_key_exists('formsubmit',$_REQUEST)?trim($_REQUEST['formsubmit']):'';
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
-$clid = array_key_exists("clid",$_REQUEST)?trim($_REQUEST["clid"]):0;
+$clid = array_key_exists('clid',$_REQUEST)?trim($_REQUEST['clid']):0;
 $format = isset($_GET['format'])?$_GET['format']:'';
 
 //Sanitize input variables
@@ -22,7 +22,6 @@ if($guid) $guid = filter_var($guid,FILTER_SANITIZE_STRING);
 if(!is_numeric($tabIndex)) $tabIndex = 0;
 if(!is_numeric($clid)) $clid = 0;
 if($pk && !preg_match('/^[a-zA-Z0-9\s_]+$/',$pk)) $pk = '';
-if($submit && !preg_match('/^[a-zA-Z0-9\s_]+$/',$submit)) $submit = '';
 
 $indManager = new OccurrenceIndividual($submit?'write':'readonly');
 if($occid) $indManager->setOccid($occid);
@@ -133,6 +132,15 @@ if($SYMB_UID){
 			$statusStr = $indManager->getErrorMessage();
 		}
 	}
+	if($isEditor){
+		if($submit == 'restoreRecord'){
+			if($indManager->restoreRecord($occid)){
+				$occArr = $indManager->getOccData();
+				$collMetadata = $indManager->getMetadata();
+			}
+			else $statusStr = $indManager->getErrorMessage();
+		}
+	}
 }
 
 $displayMap = false;
@@ -152,6 +160,8 @@ $traitArr = $indManager->getTraitArr();
 	$cssPath = '/css/symb/custom/collindividualindex.css';
 	if(!file_exists($SERVER_ROOT.$cssPath)) $cssPath = '/css/symb/collindividualindex.css';
 	echo '<link href="'.$CLIENT_ROOT.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	$activateJQuery = false;
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
@@ -470,7 +480,7 @@ $traitArr = $indManager->getTraitArr();
 							</div>
 							<?php
 						}
-						if(array_key_exists('dets',$occArr)){
+						if(array_key_exists('dets',$occArr) && (count($occArr['dets']) > 1 || $occArr['dets'][key($occArr['dets'])]['iscurrent'] == 0)){
 							?>
 							<div class="detdiv" style="margin-left:10px;cursor:pointer;" onclick="toggle('detdiv');">
 								<img src="../../images/plus_sm.png" style="border:0px;" />
@@ -1370,42 +1380,43 @@ $traitArr = $indManager->getTraitArr();
 					ob_flush();
 					flush();
 					$rawArchArr = $indManager->checkArchive();
-					//print_r($rawArchArr);
 					if($rawArchArr && $rawArchArr['obj']){
 						$archArr = $rawArchArr['obj'];
-						if(isset($archArr['dateDeleted'])) echo '<div><b>'.(isset($LANG['RECORDDELETED'])?$LANG['RECORDDELETED']:'Record deleted').':</b> '.$archArr['dateDeleted'].'</div>';
+						if($isEditor){
+							?>
+							<div style="float:right">
+								<form name="restoreForm" action="index.php" method="post">
+									<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+									<button name="formsubmit" type="submit" value="restoreRecord">Restore Record</button>
+								</form>
+							</div>
+							<?php
+						}
+						if(isset($archArr['dateDeleted'])) echo '<div style="margin-bottom:10px"><b>'.(isset($LANG['RECORDDELETED'])?$LANG['RECORDDELETED']:'Record deleted').':</b> '.$archArr['dateDeleted'].'</div>';
 						if($rawArchArr['notes']) echo '<div style="margin-left:15px"><b>'.(isset($LANG['NOTES'])?$LANG['NOTES']:'Notes').': </b>'.$rawArchArr['notes'].'</div>';
-						$dets = array();
-						$imgs = array();
-						if(isset($archArr['dets'])){
-							$dets = $archArr['dets'];
-							unset($archArr['dets']);
-						}
-						if(isset($archArr['imgs'])){
-							$imgs = $archArr['imgs'];
-							unset($archArr['imgs']);
-						}
-						echo '<table class="styledtable" style="font-family:Arial;font-size:12px;"><tr><th>'.(isset($LANG['FIELD'])?$LANG['FIELD']:'Field').'</th><th>'.(isset($LANG['VALUE'])?$LANG['VALUE']:'Value').'</th></tr>';
+						echo '<table class="styledtable"><tr><th>'.(isset($LANG['FIELD'])?$LANG['FIELD']:'Field').'</th><th>'.(isset($LANG['VALUE'])?$LANG['VALUE']:'Value').'</th></tr>';
 						foreach($archArr as $f => $v){
-							echo '<tr><td style="width:175px;"><b>'.$f.'</b></td><td>';
-							if(is_array($v)) echo implode(', ',$v);
-							else echo $v;
-							echo '</td></tr>';
-						}
-						if($dets){
-							foreach($dets as $id => $dArr){
-								echo '<tr><td><b>'.(isset($LANG['DETERMINATIONNO'])?$LANG['DETERMINATIONNO']:'Determination #').$id.'</b></td><td>';
-								foreach($dArr as $f => $v){
-									echo '<b>'.$f.'</b>: '.$v.'<br/>';
-								}
+							if(!is_array($v)){
+								echo '<tr><td style="width:175px;">'.$f.'</td><td>';
+								if(is_array($v)) echo implode(', ',$v);
+								else echo $v;
 								echo '</td></tr>';
 							}
 						}
-						if($imgs){
-							foreach($imgs as $id => $iArr){
-								echo '<tr><td><b>'.(isset($LANG['IMAGENO'])?$LANG['IMAGENO']:'Image #').$id.'</b></td><td>';
-								foreach($iArr as $f => $v){
-									echo '<b>'.$f.'</b>: '.$v.'<br/>';
+						$extArr = array('dets'=>'identifications','imgs'=>'Images','assoc'=>'Occurrence<br/>Associations','exsiccati'=>'Exsiccati','paleo'=>'Paleontological<br/>Terms','matSample'=>'Material<br/>Sample');
+						foreach($extArr as $extName => $extDisplay){
+							if(isset($archArr[$extName]) && $archArr[$extName]){
+								echo '<tr><td>'.$extDisplay.'</td><td>';
+								foreach($archArr[$extName] as $extKey => $extValue){
+									if(is_array($extValue)){
+										echo '<b>'.(isset($LANG['RECORDID'])?$LANG['RECORDID']:'Record ID').': '.$extKey.'</b><br/>';
+										foreach($extValue as $f => $v){
+											echo $f.': '.$v.'<br/>';
+										}
+										echo '<br/>';
+									}
+									else echo $extKey.': '.$extValue.'<br/>';
 								}
 								echo '</td></tr>';
 							}

@@ -578,17 +578,20 @@ class SpecProcessorManager {
 	public function getLogListing(){
 		$retArr = array();
 		if($this->collid){
-			if(file_exists($this->logPath.'imgProccessing')){
-				if($fh = opendir($this->logPath.'imgProccessing')){
-					while($fileName = readdir($fh)){
-						if(strpos($fileName,$this->collid.'_') === 0){
-							$retArr[] = $fileName;
+			$dirArr = array('imgProccessing','iplant','cyverse');
+			foreach($dirArr as $dirName){
+				if(file_exists($this->logPath.$dirName)){
+					if($fh = opendir($this->logPath.$dirName)){
+						while($fileName = readdir($fh)){
+							if(strpos($fileName,$this->collid.'_') === 0){
+								$retArr[$dirName][] = $fileName;
+							}
 						}
+						if(isset($retArr[$dirName])) rsort($retArr[$dirName]);
 					}
 				}
 			}
 		}
-		rsort($retArr);
 		return $retArr;
 	}
 

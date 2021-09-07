@@ -73,14 +73,7 @@ if($action == "Create Login"){
 	<title><?php echo $DEFAULT_TITLE.' - '.(isset($LANG['NEW_USER'])?$LANG['NEW_USER']:'New User Profile'); ?></title>
 	<?php
 	$activateJQuery = false;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script type="text/javascript">
 		function validateform(f){
@@ -88,51 +81,51 @@ if($action == "Create Login"){
 			if($useRecaptcha){
 				?>
 				if(grecaptcha.getResponse() == ""){
-					alert(<?php echo (isset($LANG['CHECK_CAPTCHA'])?$LANG['CHECK_CAPTCHA']:'You must first check the reCAPTCHA checkbox (I\'m not a robot)'); ?>);
+					alert("<?php echo (isset($LANG['CHECK_CAPTCHA'])?$LANG['CHECK_CAPTCHA']:"You must first check the reCAPTCHA checkbox (I'm not a robot)"); ?>");
 					return false;
 				}
 				<?php
 			}
 			?>
-			var pwd1 = f.pwd.value;
-			var pwd2 = f.pwd2.value;
+			var pwd1 = f.pwd.value.trim();
+			var pwd2 = f.pwd2.value.trim();
 			if(pwd1 == "" || pwd2 == ""){
-				alert(<?php echo (isset($LANG['BOTH_PASSWORDS'])?$LANG['BOTH_PASSWORDS']:'Both password fields must contain a value'); ?>);
+				alert("<?php echo (isset($LANG['BOTH_PASSWORDS'])?$LANG['BOTH_PASSWORDS']:'Both password fields must contain a value'); ?>");
 				return false;
 			}
 			if(pwd1.charAt(0) == " " || pwd1.slice(-1) == " "){
-				alert(<?php echo (isset($LANG['NO_SPACE'])?$LANG['NO_SPACE']:'Password cannot start or end with a space, but they can include spaces within the password'); ?>);
+				alert("<?php echo (isset($LANG['NO_SPACE'])?$LANG['NO_SPACE']:'Password cannot start or end with a space, but they can include spaces within the password'); ?>");
 				return false;
 			}
 			if(pwd1.length < 7){
-				alert(<?php echo (isset($LANG['GREATER_THAN_SIX'])?$LANG['GREATER_THAN_SIX']:'Password must be greater than 6 characters'); ?>);
+				alert("<?php echo (isset($LANG['GREATER_THAN_SIX'])?$LANG['GREATER_THAN_SIX']:'Password must be greater than 6 characters'); ?>");
 				return false;
 			}
 			if(pwd1 != pwd2){
-				alert(<?php echo (isset($LANG['NO_MATCH'])?$LANG['NO_MATCH']:'Passwords do not match, please enter again'); ?>);
+				alert("<?php echo (isset($LANG['NO_MATCH'])?$LANG['NO_MATCH']:'Passwords do not match, please enter again'); ?>");
 				f.pwd.value = "";
 				f.pwd2.value = "";
 				f.pwd2.focus();
 				return false;
 			}
-			if(f.login.value.replace(/\s/g, "") == ""){
-				window.alert(<?php echo (isset($LANG['NEED_NAME'])?$LANG['NEED_NAME']:'Username must contain a value'); ?>);
+			if(f.login.value.trim() == ""){
+				alert("<?php echo (isset($LANG['NEED_NAME'])?$LANG['NEED_NAME']:'Username must contain a value'); ?>");
 				return false;
 			}
 			if( /[^0-9A-Za-z_!@#$-+.]/.test( f.login.value ) ) {
-		        alert(<?php echo (isset($LANG['NO_SPECIAL_CHARS'])?$LANG['NO_SPECIAL_CHARS']:'Username should only contain 0-9A-Za-z_.!@ (spaces are not allowed)'); ?>);
+		        alert("<?php echo (isset($LANG['NO_SPECIAL_CHARS'])?$LANG['NO_SPECIAL_CHARS']:'Username should only contain 0-9A-Za-z_.!@ (spaces are not allowed)'); ?>");
 		        return false;
 		    }
-			if(f.emailaddr.value.replace(/\s/g, "") == "" ){
-				window.alert(<?php echo (isset($LANG['EMAIL_REQUIRED'])?$LANG['EMAIL_REQUIRED']:'Email address is required'); ?>);
+			if(f.emailaddr.value.trim() == ""){
+				alert("<?php echo (isset($LANG['EMAIL_REQUIRED'])?$LANG['EMAIL_REQUIRED']:'Email address is required'); ?>");
 				return false;
 			}
-			if(f.firstname.value.replace(/\s/g, "") == ""){
-				window.alert(<?php echo (isset($LANG['FIRST_NAME_EMPTY'])?$LANG['FIRST_NAME_EMPTY']:'First Name must contain a value'); ?>);
+			if(f.firstname.value.trim() == ""){
+				alert("<?php echo (isset($LANG['FIRST_NAME_EMPTY'])?$LANG['FIRST_NAME_EMPTY']:'First Name must contain a value'); ?>");
 				return false;
 			}
-			if(f.lastname.value.replace(/\s/g, "") == ""){
-				window.alert(<?php echo (isset($LANG['LAST_NAME_EMPTY'])?$LANG['LAST_NAME_EMPTY']:'Last Name must contain a value'); ?>);
+			if(f.lastname.value.trim() == ""){
+				alert("<?php echo (isset($LANG['LAST_NAME_EMPTY'])?$LANG['LAST_NAME_EMPTY']:'Last Name must contain a value'); ?>");
 				return false;
 			}
 
@@ -199,7 +192,7 @@ if($action == "Create Login"){
 							<b><?php echo (isset($LANG['USERNAME'])?$LANG['USERNAME']:'Username'); ?>:</b>
 						</td>
 						<td>
-							<input name="login" value="<?php echo $login; ?>" size="20" />
+							<input name="login" value="<?php echo $login; ?>" type="text" size="20" required />
 							<span style="color:red;">*</span>
 							<br/>&nbsp;
 						</td>
@@ -209,7 +202,7 @@ if($action == "Create Login"){
 							<b><?php echo (isset($LANG['PASSWORD'])?$LANG['PASSWORD']:'Password'); ?>:</b>
 						</td>
 						<td>
-							<input name="pwd" id="pwd" value="" size="20" type="password" autocomplete="off" />
+							<input name="pwd" id="pwd" value="" size="20" type="password" autocomplete="off" required />
 							<span style="color:red;">*</span>
 						</td>
 					</tr>
@@ -218,36 +211,36 @@ if($action == "Create Login"){
 							<b><?php echo (isset($LANG['PASSWORD_AGAIN'])?$LANG['PASSWORD_AGAIN']:'Password Again'); ?>:</b>
 						</td>
 						<td>
-							<input id="pwd2" name="pwd2" value="" size="20" type="password" autocomplete="off" />
+							<input id="pwd2" name="pwd2" value="" size="20" type="password" autocomplete="off" required />
 							<span style="color:red;">*</span>
-							<br/>&nbsp;
+							<br/>
 						</td>
 					</tr>
 					<tr>
 						<td><span style="font-weight:bold;"><?php echo (isset($LANG['FIRST_NAME'])?$LANG['FIRST_NAME']:'First Name'); ?>:</span></td>
 						<td>
-							<input id="firstname" name="firstname" size="40" value="<?php echo (isset($_POST['firstname'])?htmlspecialchars($_POST['firstname']):''); ?>">
+							<input id="firstname" name="firstname" type="text" size="40" value="<?php echo (isset($_POST['firstname'])?htmlspecialchars($_POST['firstname']):''); ?>" />
 							<span style="color:red;">*</span>
 						</td>
 					</tr>
 					<tr>
 						<td><span style="font-weight:bold;"><?php echo (isset($LANG['LAST_NAME'])?$LANG['LAST_NAME']:'Last Name'); ?>:</span></td>
 						<td>
-							<input id="lastname" name="lastname" size="40" value="<?php echo (isset($_POST['lastname'])?htmlspecialchars($_POST['lastname']):''); ?>">
+							<input id="lastname" name="lastname" type="text" size="40" value="<?php echo (isset($_POST['lastname'])?htmlspecialchars($_POST['lastname']):''); ?>" required />
 							<span style="color:red;">*</span>
 						</td>
 					</tr>
 					<tr>
 						<td><span style="font-weight:bold;"><?php echo (isset($LANG['EMAIL'])?$LANG['EMAIL']:'Email Address'); ?>:</span></td>
 						<td>
-							<span class="profile"><input name="emailaddr"  size="40" value="<?php echo $emailAddr; ?>"></span>
+							<span class="profile"><input name="emailaddr" type="email" size="40" value="<?php echo $emailAddr; ?>" required /></span>
 							<span style="color:red;">*</span>
 						</td>
 					</tr>
 					<tr>
 						<td><span style="font-weight:bold;"><?php echo (isset($LANG['ORCID'])?$LANG['ORCID']:'ORCID or other GUID'); ?>:</span></td>
 						<td>
-							<span class="profile"><input name="guid"  size="40" value="<?php echo (isset($_POST['guid'])?htmlspecialchars($_POST['guid']):''); ?>" /></span>
+							<span class="profile"><input name="guid" type="text" size="40" value="<?php echo (isset($_POST['guid'])?htmlspecialchars($_POST['guid']):''); ?>" /></span>
 						</td>
 					</tr>
 					<tr>
@@ -260,37 +253,37 @@ if($action == "Create Login"){
 					<tr>
 						<td><b><?php echo (isset($LANG['TITLE'])?$LANG['TITLE']:'Title'); ?>:</b></td>
 						<td>
-							<span class="profile"><input name="title"  size="40" value="<?php echo (isset($_POST['title'])?htmlspecialchars($_POST['title']):''); ?>"></span>
+							<span class="profile"><input name="title" type="text" size="40" value="<?php echo (isset($_POST['title'])?htmlspecialchars($_POST['title']):''); ?>"></span>
 						</td>
 					</tr>
 					<tr>
 						<td><b><?php echo (isset($LANG['INSTITUTION'])?$LANG['INSTITUTION']:'Institution'); ?>:</b></td>
 						<td>
-							<span class="profile"><input name="institution"  size="40" value="<?php echo (isset($_POST['institution'])?htmlspecialchars($_POST['institution']):'') ?>"></span>
+							<span class="profile"><input name="institution"  type="text" size="40" value="<?php echo (isset($_POST['institution'])?htmlspecialchars($_POST['institution']):'') ?>"></span>
 						</td>
 					</tr>
 					<tr>
 						<td><span style="font-weight:bold;"><?php echo (isset($LANG['CITY'])?$LANG['CITY']:'City'); ?>:</span></td>
 						<td>
-							<span class="profile"><input id="city" name="city" size="40" value="<?php echo (isset($_POST['city'])?$_POST['city']:''); ?>"></span>
+							<span class="profile"><input id="city" name="city" type="text" size="40" value="<?php echo (isset($_POST['city'])?$_POST['city']:''); ?>"></span>
 						</td>
 					</tr>
 					<tr>
 						<td><span style="font-weight:bold;"><?php echo (isset($LANG['STATE'])?$LANG['STATE']:'State'); ?>:</span></td>
 						<td>
-							<span class="profile"><input id="state" name="state"  size="40" value="<?php echo (isset($_POST['state'])?htmlspecialchars($_POST['state']):''); ?>"></span>
+							<span class="profile"><input id="state" name="state" type="text" size="40" value="<?php echo (isset($_POST['state'])?htmlspecialchars($_POST['state']):''); ?>"></span>
 						</td>
 					</tr>
 					<tr>
 						<td><b><?php echo (isset($LANG['ZIP_CODE'])?$LANG['ZIP_CODE']:'Zip Code'); ?>:</b></td>
 						<td>
-							<span class="profile"><input name="zip"  size="40" value="<?php echo (isset($_POST['zip'])?htmlspecialchars($_POST['zip']):''); ?>"></span>
+							<span class="profile"><input name="zip" type="text" size="40" value="<?php echo (isset($_POST['zip'])?htmlspecialchars($_POST['zip']):''); ?>"></span>
 						</td>
 					</tr>
 					<tr>
 						<td><span style="font-weight:bold;"><?php echo (isset($LANG['COUNTRY'])?$LANG['COUNTRY']:'Country'); ?>:</span></td>
 						<td>
-							<span class="profile"><input id="country" name="country"  size="40" value="<?php echo (isset($_POST['country'])?htmlspecialchars($_POST['country']):''); ?>"></span>
+							<span class="profile"><input id="country" name="country" type="text" size="40" value="<?php echo (isset($_POST['country'])?htmlspecialchars($_POST['country']):''); ?>"></span>
 						</td>
 					</tr>
 					<tr>
@@ -301,7 +294,7 @@ if($action == "Create Login"){
 								?>
 							</div>
 							<div style="float:right;margin:20px;">
-								<button type="submit" name="submit" id="submit" value="Create Login"><?php echo (isset($LANG['CREATE_LOGIN'])?$LANG['CREATE_LOGIN']:'Create Login'); ?></button>
+								<button id="submit" name="submit" type="submit" value="Create Login"><?php echo (isset($LANG['CREATE_LOGIN'])?$LANG['CREATE_LOGIN']:'Create Login'); ?></button>
 							</div>
 						</td>
 					</tr>

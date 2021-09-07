@@ -69,9 +69,7 @@ class SpecUploadBase extends SpecUpload{
 
 	public function getDbpk(){
 		$dbpk = '';
-		if(array_key_exists('dbpk',$this->fieldMap)){
-			$dbpk = $this->fieldMap['dbpk']['field'];
-		}
+		if(array_key_exists('dbpk',$this->fieldMap)) $dbpk = strtolower($this->fieldMap['dbpk']['field']);
 		return $dbpk;
 	}
 

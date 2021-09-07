@@ -724,7 +724,7 @@ if($action != "Update Statistics"){
 						?>
 						<div id="statsdiv">
 							<div style="min-height:300px;">
-								<div style="height:100%;">
+								<div>
 									<h1>Selected Collection Statistics</h1>
 									<div style="font-weight:bold;font-size:105%;margin:10px;">
 										<div id="colllistlabel"><a href="#" onclick="toggle('colllist');toggle('colllistlabel');">Display List of Collections Analyzed</a></div>

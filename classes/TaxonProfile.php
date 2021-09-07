@@ -692,6 +692,56 @@ class TaxonProfile extends Manager {
 		return $retArr;
 	}
 
+  /** 
+   * Gets occurrence counts of taxon in portal, to use in taxon profile
+   * Searches for taxon and all its children
+   * Checks taxon rank; counts turned off by default for anything above genus
+   * $tid INTEGER taxon id
+   * $taxonRank INTEGER taxon rank according to taxonunits table
+   * $limitRank INTEGER
+   * $collids ARRAY of collids to include in search
+   */
+  public function getOccTaxonInDbCnt($tid, $taxonRank, $limitRank = 170, $collids = array("all"))
+  {
+    $count = -1;
+    if ($taxonRank >= $limitRank) {
+      $sql = 'SELECT COUNT(o.occid) FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$tid.' OR e.tid = '.$tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid';
+      if ($collids[0] != "all") {
+        $collidsStr = implode(",",$collids);
+        $sql .= ' AND collid IN ('.$collidsStr.')';
+      }
+    $result = $this->conn->query($sql);
+    while ($row = $result->fetch_row()){
+      $count = $row;
+    }
+    $result->free();
+    $count = $count[0];
+    }
+  return $count;
+  }
+
+  /** 
+   * Returns link for specimen search (by taxon) if number of occurrences
+   * is within declared limit
+   * $tid INTEGER taxon id
+   * $searchUrl STRING customizable in taxon profile page
+   * $limitOccs INTEGER max number of occurrences in a search
+   */
+  public function getSearchByTaxon($numOccs, $searchUrl, $limitOccs = 200000)
+  {
+    $occMsg = '';
+    if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
+      $occMsg = '<a class="btn" href="'.$searchUrl.'" target="_blank">Explore '.$numOccs.' occurrences</a>';
+    } elseif ($numOccs > $limitOccs) {
+      $occMsg = ''.$numOccs.' occurrences';
+    } elseif ($numOccs == 0) {
+      $occMsg = 'No occurrences found';
+    } elseif ($numOccs == -1) {
+      $occMsg = '';
+    }
+    return $occMsg;
+  }
+
 	//Setters and getters
 	public function getTid(){
 		return $this->tid;

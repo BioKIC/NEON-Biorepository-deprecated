@@ -5,25 +5,25 @@ Language: English
 ------------------
 */
 
-$LANG['HOME'] = 'Home';
-$LANG['CLONES_CREATED'] = 'Success! The following new clone record(s) have been created';
-$LANG['CLONE_SOURCE'] = 'clone source';
-$LANG['THIS_RECORD'] = 'this record';
-$LANG['IMAGE_ADD_SUCCESS'] = 'Image added successfully';
-$LANG['IMAGE_DEL_SUCCESS'] = 'Image deleted successfully';
-$LANG['IMAGE_REMAP_SUCCESS'] = 'SUCCESS: Image remapped to record';
-$LANG['IMAGE_REMAP_ERROR'] = 'ERROR linking image to new specimen';
-$LANG['NEW_IMAGE_ERROR'] = 'ERROR linking image to new blank specimen';
-$LANG['DISASS_SUCCESS'] = 'SUCCESS disassociating image';
-$LANG['DISASS_ERORR'] = 'ERROR disassociating image';
-$LANG['FIRST_REC'] = 'First Record';
-$LANG['PREV_REC'] = 'Previous Record';
-$LANG['NEXT_REC'] = 'Next Record';
-$LANG['LAST_REC'] = 'Last Record';
-$LANG['NEW_REC'] = 'New Record';
-$LANG['OCCEDITOR'] = 'Occurrence Editor';
-$LANG['SEARCH_FILTER'] = 'Search/Filter';
-$LANG['EDITOR'] = 'Editor';
+$LANG['HOME'] = 'Accueil';
+$LANG['CLONES_CREATED'] = 'Succès! Les nouveaux enregistrements clones suivants ont été créés';
+$LANG['CLONE_SOURCE'] = 'source du clone';
+$LANG['THIS_RECORD'] = 'cet enregistrement';
+$LANG['IMAGE_ADD_SUCCESS'] = 'Image ajoutée avec succès';
+$LANG['IMAGE_DEL_SUCCESS'] = 'Image supprimée avec succès';
+$LANG['IMAGE_REMAP_SUCCESS'] = 'SUCCÈS : image remappée pour enregistrer';
+$LANG['IMAGE_REMAP_ERROR'] = "ERREUR lors de association de image au nouvel échantillon";
+$LANG['NEW_IMAGE_ERROR'] = 'ERREUR de liaison de image au nouvel échantillon vierge';
+$LANG['DISASS_SUCCESS'] = 'SUCCÈS en dissociant l\'image';
+$LANG['DISASS_ERORR'] = 'ERREUR en dissociant l\'image';
+$LANG['FIRST_REC'] = 'Premier enregistrement';
+$LANG['PREV_REC'] = 'Enregistrement précédent';
+$LANG['NEXT_REC'] = 'Enregistrement suivant';
+$LANG['LAST_REC'] = 'Dernier enregistrement';
+$LANG['NEW_REC'] = 'Nouvel enregistrement';
+$LANG['OCCEDITOR'] = 'Éditeur d\'occurrences';
+$LANG['SEARCH_FILTER'] = 'Rechercher/Filtrer';
+$LANG['EDITOR'] = 'Éditeur';
 $LANG['CENTRAL_CROWD'] = 'Crowd Sourcing Central';
 $LANG['PERS_MANAGEMENT'] = 'Personal Management';
 $LANG['COL_MANAGEMENT'] = 'Collection Management';

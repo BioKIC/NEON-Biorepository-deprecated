@@ -89,6 +89,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			//Display details for geographic unit with edit and addNew symbols displayed to upper right
 			?>
 			<div style="float:right">
+				<!--These toggles don't work correctly yet -->
 				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../images/add.png" /></a></span>
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
 
@@ -157,7 +158,6 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						<div id="addButton-div" class="button-div">
 							<button type="submit" name="submitaction" value="addGeoUnit">Add Unit</button>
 						</div>
-				<!-- Add new blank form for adding new record.  -->
 				<!-- But we can also do this via a 2-cycle loop using the form below (first loop is an empy form for adding new record, second loop produces form for editing active record. I can show you this. -->
 					</fieldset>
 				</form>

@@ -122,7 +122,6 @@ $LANG['CARRY_OVER'] = 'Carry over';
 $LANG['COLL_EVENT_FIELDS'] = 'Collection event fields';
 $LANG['ALL_FIELDS'] = 'All fields';
 $LANG['RELATIONSHIP'] = 'Relationship';
-$LANG['UNDEFINED'] = 'Undefined';
 $LANG['TARGET_COLL'] = 'Target collection';
 $LANG['CURRENT_COLL'] = 'Current Collection';
 $LANG['NUMBER_RECORDS'] = 'Number of records';

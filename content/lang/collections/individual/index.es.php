@@ -140,6 +140,5 @@ $LANG['UNABLETOLOCATE'] = 'Registro no localizado';
 $LANG['CHECKING'] = 'Revisando archivo';
 $LANG['RECORDDELETED'] = 'Registro eliminado';
 $LANG['VALUE'] = 'Valor';
-$LANG['DETERMINATIONNO'] = '# de Determinaci&oacute;n';
-$LANG['IMAGENO'] = '# de Imagen';
+$LANG['RECORDID'] = 'Identificador de registro';
 ?>

@@ -2,6 +2,8 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDownload.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/specprocessor/geolocate.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/specprocessor/geolocate.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/specprocessor/geolocate.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
@@ -44,7 +46,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 ?>
 <html>
 	<head>
-		<title>Occurrence Export Manager</title>
+		<title><?php echo $LANG['OCC_EXP_MAN']; ?></title>
 		<?php
 		$activateJQuery = false;
 		if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -70,22 +72,21 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 					?>
 					<form name="expgeolocateform" action="../download/downloadhandler.php" method="post" onsubmit="">
 						<fieldset>
-							<legend><b>GeoLocate Community Toolkit</b></legend>
+							<legend><b><?php echo $LANG['GEO_COM_TOOL']; ?></b></legend>
 							<div style="margin:15px;">
-								This module extracts specimen records that have text locality details but lack decimal coordinates.
-								These specimens are packaged and delivered directly into the GeoLocate Community Tools.
+								<?php echo $LANG['GEO_COM_TOOL_EXPLAIN']; ?>
 							</div>
 							<table>
 								<tr>
 									<td>
 										<div style="margin:10px;">
-											<b>Processing Status:</b>
+											<b><?php echo $LANG['PROCESSING_STATUS']; ?>:</b>
 										</div>
 									</td>
 									<td>
 										<div style="margin:10px 0px;">
 											<select name="processingstatus" onchange="cogeUpdateCount(this)">
-												<option value="">All Records</option>
+												<option value=""><?php echo $LANG['ALL_RECORDS']; ?></option>
 												<?php
 												$statusArr = $dlManager->getProcessingStatusList($collid);
 												foreach($statusArr as $v){
@@ -99,7 +100,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
  								<tr>
 									<td>
 										<div style="margin:10px;">
-											<b>Additional<br/>Filters:</b>
+											<b><?php echo $LANG['ADDITIONAL_FILTERS']; ?>:</b>
 										</div>
 									</td>
 									<td>
@@ -108,7 +109,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 										?>
 										<div style="margin:10px 0px;">
 											<select name="customfield1" style="width:200px">
-												<option value="">Select Field Name</option>
+												<option value=""><?php echo $LANG['SELECT_FIELD']; ?></option>
 												<option value="">---------------------------------</option>
 												<?php
 												foreach($advFieldArr as $k => $v){
@@ -127,7 +128,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 										</div>
 										<div style="margin:10px 0px;">
 											<select name="customfield2" style="width:200px">
-												<option value="">Select Field Name</option>
+												<option value=""><?php echo $LANG['SELECT_FIELD']; ?></option>
 												<option value="">---------------------------------</option>
 												<?php
 												foreach($advFieldArr as $k => $v){
@@ -149,9 +150,9 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 								<tr>
 									<td colspan="2">
 										<fieldset style="margin:10px;padding:20px;">
-											<legend><b>CoGe Status</b></legend>
+											<legend><b><?php echo $LANG['COGE_STATUS']; ?></b></legend>
 											<div>
-												<b>Match Count:</b>
+												<b><?php echo $LANG['MATCH_COUNT']; ?>:</b>
 												<?php
 												$dwcaHandler = new DwcArchiverCore();
 												$dwcaHandler->setCollArr($collid);
@@ -162,32 +163,31 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 												$dwcaHandler->addCondition('catalognumber','NOTNULL');
 												echo '<span id="countdiv">'.$dwcaHandler->getOccurrenceCnt().'</span> records';
 												?>
-												<span id="recalspan" style="color:orange;display:none;">recalculating... <img src="../../images/workingcircle.gif" style="width:13px;" /></span>
+												<span id="recalspan" style="color:orange;display:none;"><?php echo $LANG['RECALCULATING']; ?>... <img src="../../images/workingcircle.gif" style="width:13px;" /></span>
 											</div>
 											<div>
-												<b>CoGe Authentication:</b>
-												<span id="coge-status" style="width:150px;color:red;">Disconnected</span>
-												<span style="margin-left:40px"><input type="button" name="cogeCheckStatusButton" value="Check Status" onclick="cogeCheckAuthentication()" /></span>
-												<span style="margin-left:40px"><a href="http://coge.geo-locate.org" target="_blank" onclick="startAuthMonitoring()">Login to CoGe</a></span>
+												<b><?php echo $LANG['COGE_AUTH']; ?>:</b>
+												<span id="coge-status" style="width:150px;color:red;"><?php echo $LANG['DISCONNECTED']; ?></span>
+												<span style="margin-left:40px"><button name="cogeCheckStatusButton" value="Check Status" onclick="cogeCheckAuthentication()"><?php echo $LANG['CHECK_STATUS']; ?></button></span>
+												<span style="margin-left:40px"><a href="http://coge.geo-locate.org" target="_blank" onclick="startAuthMonitoring()"><?php echo $LANG['LOGIN_COGE']; ?></a></span>
 											</div>
 										</fieldset>
 										<fieldset id="coge-communities" style="margin:10px;padding:10px;">
-											<legend style="font-weight:bold">Available Communities</legend>
+											<legend style="font-weight:bold"><?php echo $LANG['AVAILABLE_COMMS']; ?></legend>
 											<div style="margin:10px;">
-												To import data into an existing geoLocate community, login to GeoLocate (see above), select the target community,
-												provide a required identifier, an optional descriptive name, and then click the Push Data to GeoLocate button.
+												<?php echo $LANG['TO_IMPORT_DATA']; ?>
 											</div>
 											<div style="margin:10px;">
 												<div id="coge-commlist" style="margin:15px 0px;padding:15px;border:1px solid orange;">
-													<span style="color:orange;">Login to GeoLocate and click check status button to list available communities</span>
+													<span style="color:orange;"><?php echo $LANG['LOGIN_AND_CHECK']; ?></span>
 												</div>
 												<div id="coge-fieldDiv" style="display:none">
 													<div style="margin:5px;clear:both;">
-														<div style="float:left;">Data source identifier (primary name):</div>
+														<div style="float:left;"><?php echo $LANG['DATA_SOURCE_ID']; ?>:</div>
 														<div style="margin-left:250px;"><input name="cogename" type="text" style="width:300px" onchange="verifyDataSourceIdentifier(this.form)" /></div>
 													</div>
 													<div style="margin:5px;clear:both;">
-														<div style="float:left;">Description:</div>
+														<div style="float:left;"><?php echo $LANG['DESCRIPTION']; ?>:</div>
 														<div style="margin-left:250px;"><input name="cogedescr" type="text" style="width:300px" /></div>
 													</div>
 												</div>
@@ -198,34 +198,32 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 											<input name="format" type="hidden" value="csv" />
 											<input name="schema" type="hidden" value="coge" />
 											<div style="margin:5px">
-												<input id="builddwcabutton" name="builddwcabutton" type="button" value="Push Data to GeoLocate CoGe" onclick="cogePublishDwca(this.form)" disabled />
-												<span id="coge-download" style="display:none;color:orange">Creating data package... <img src="../../images/workingcircle.gif" style="width:13px;" /></span>
-												<span id="coge-push2coge" style="display:none;color:orange">Pushing data to CoGe... <img src="../../images/workingcircle.gif" style="width:13px;" /></span>
+												<button id="builddwcabutton" name="builddwcabutton" value="Push Data to GeoLocate CoGe" onclick="cogePublishDwca(this.form)" disabled ><?php echo $LANG['PUSH_DATA']; ?></button>
+												<span id="coge-download" style="display:none;color:orange"><?php echo $LANG['CREATING_PACKAGE']; ?>... <img src="../../images/workingcircle.gif" style="width:13px;" /></span>
+												<span id="coge-push2coge" style="display:none;color:orange"><?php echo $LANG['PUSHING_TO_COGE']; ?>... <img src="../../images/workingcircle.gif" style="width:13px;" /></span>
 												<span id="coge-importcomplete" style="display:none;color:green">
-													Success! GeoLocate action required (see message below)
+													<?php echo $LANG['SUCCESS_GEOLOCATE']; ?>
 												</span>
 											</div>
 											<div style="margin-left:15px">
 												<div id="coge-dwcalink"></div>
 												<div id="coge-guid"></div>
 												<div id="coge-importstatus" style="color:orange;display:none;">
-													Data import complete! Go to GeoLocate website and open dataset within selected community,
-													then click Update Cache button to index and integrate data into community.
-													After processing step completes, remember to finalize the import process by clicking the save button.
+													<?php echo $LANG['DATA_IMPORT_COMPLETE']; ?>
 												</div>
 											</div>
 											<div style="margin:5px">
-												<input name="submitaction" type="submit" value="Download Records Locally" />
+												<button name="submitaction" type="submit" value="Download Records Locally" ><?php echo $LANG['DOWNLOAD_LOCALLY']; ?></button>
 											</div>
 											<div style="margin:5px">
-												<input name="resetbutton" type="button" value="Reset Page" onclick="cogeCheckAuthentication(); return false;" />
+												<button name="resetbutton" type="button" value="Reset Page" onclick="cogeCheckAuthentication(); return false;" ><?php echo $LANG['RESET_PAGE']; ?></button>
 											</div>
 										</div>
 										<div style="margin:20px;">
-											<a href="../editor/editreviewer.php?collid=<?php echo $collid; ?>&display=2">Review and Approve Edits</a>
+											<a href="../editor/editreviewer.php?collid=<?php echo $collid; ?>&display=2"><?php echo $LANG['REVIEW_APPROVE_EDITS']; ?></a>
 										</div>
 										<div style="margin:20px;">
-											<b>* Default query criteria: catalogNumber and locality are NOT NULL, decimalLatitude is NULL, decimalLongitude is NULL</b>
+											<b>* <?php echo $LANG['DEFAULT_QUERY']; ?></b>
 										</div>
 									</td>
 								</tr>
@@ -236,7 +234,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 				}
 			}
 			else{
-				echo '<div style="font-weight:bold;">Access denied</div>';
+				echo '<div style="font-weight:bold;">'.$LANG['ACCESS_DENIED'].'</div>';
 			}
 			?>
 		</div>

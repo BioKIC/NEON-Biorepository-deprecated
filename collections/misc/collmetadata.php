@@ -35,8 +35,8 @@ if($isEditor){
 		if($IS_ADMIN){
 			$newCollid = $collManager->submitCollAdd($_POST);
 			if(is_numeric($newCollid)){
-				$statusStr = (isset($LANG['ADD_SUCCESS'])?$LANG['ADD_SUCCESS']:'New collection added successfully').'!<br/>'.(isset($LANG['ADD_STUFF'])?$LANG['ADD_STUFF']:'Add contacts, resource links, or institution address below').
-				'. <br/>'.(isset($LANG['CLICK'])?$LANG['CLICK']:'Click').' <a href="../admin/specuploadmanagement.php?collid='.$newCollid.'&action=addprofile">'.(isset($LANG['HERE'])?$LANG['HERE']:'here').'</a> '.(isset($LANG['TO_UPLOAD'])?$LANG['TO_UPLOAD']:'to upload specimen records for this new collection').'.';
+				$statusStr = '<span style="color:green">'.(isset($LANG['ADD_SUCCESS'])?$LANG['ADD_SUCCESS']:'New collection added successfully').'!</span><br/>'.
+				(isset($LANG['ADD_STUFF'])?$LANG['ADD_STUFF']:'Add contacts, resource links, or institution address below').'.';
 				$collid = $newCollid;
 				$tabIndex = 1;
 			}
@@ -99,21 +99,16 @@ $collManager->cleanOutArr($collData);
 					$( "#"+this.id+"dialog" ).dialog( "open" );
 				});
 			}
-			<?php
-			if(isset($collData['contactjson'])){
-				?>
-				$('#tabs').tabs({
-					select: function(event, ui) {
-						return true;
-					},
-					active: <?php echo $tabIndex; ?>,
-					beforeLoad: function( event, ui ) {
-						$(ui.panel).html("<?php echo (isset($LANG['LOADING'])?$LANG['LOADING']:'<p>Loading...</p>'); ?>");
-					}
-				});
-				<?php
-			}
-			?>
+
+			$('#tabs').tabs({
+				select: function(event, ui) {
+					return true;
+				},
+				active: <?php echo $tabIndex; ?>,
+				beforeLoad: function( event, ui ) {
+					$(ui.panel).html("<?php echo (isset($LANG['LOADING'])?$LANG['LOADING']:'<p>Loading...</p>'); ?>");
+				}
+			});
 		});
 
 		function verifyCollEditForm(f){
@@ -242,11 +237,9 @@ $collManager->cleanOutArr($collData);
 	<div id="innertext">
 		<?php
 		if($statusStr){
-			$msgColor = 'red';
-			if(stripos($msgColor,'success')) $msgColor = 'green';
 			?>
 			<hr />
-			<div style="margin:20px;color:<?php echo $msgColor; ?>;">
+			<div style="margin:20px;">
 				<?php echo $statusStr; ?>
 			</div>
 			<hr />
@@ -257,15 +250,13 @@ $collManager->cleanOutArr($collData);
 			<?php
 			if($isEditor){
 				if($collid) echo '<h1>'.$collData['collectionname'].(array_key_exists('institutioncode',$collData)?' ('.$collData['institutioncode'].')':'').'</h1>';
-				if(isset($collData['contactjson'])){
-					?>
-					<ul>
-						<li><a href="#colleditor"><?php echo (isset($LANG['COL_META_EDIT'])?$LANG['COL_META_EDIT']:'Collection Metadata Editor'); ?></a></li>
-						<li><a href="collmetaresources.php?collid=<?php echo $collid; ?>"><?php echo (isset($LANG['CONT_RES'])?$LANG['CONT_RES']:'Contacts & Resources'); ?></a></li>
-					</ul>
-					<?php
-				}
 				?>
+				<ul>
+					<li><a href="#colleditor"><?php echo (isset($LANG['COL_META_EDIT'])?$LANG['COL_META_EDIT']:'Collection Metadata Editor'); ?></a></li>
+					<?php
+					if($collid) echo '<li><a href="collmetaresources.php?collid='.$collid.'">'.(isset($LANG['CONT_RES'])?$LANG['CONT_RES']:'Contacts & Resources').'</a></li>';
+					?>
+				</ul>
 				<div id="colleditor">
 					<fieldset>
 						<legend><?php echo ($collid?'Edit':'Add New').' '.(isset($LANG['COL_INFO'])?$LANG['COL_INFO']:'Collection Information'); ?></legend>
@@ -279,8 +270,8 @@ $collManager->cleanOutArr($collData);
 									</a>
 									<span id="instcodeinfodialog">
 										<?php
-										echo (isset($LANG['NAME_ONE'])?$LANG['NAME_ONE']:'The name (or acronym) in use by the institution having custody 
-										of the occurrence records. This field is required. For more details, see').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#institutionCode" 
+										echo (isset($LANG['NAME_ONE'])?$LANG['NAME_ONE']:'The name (or acronym) in use by the institution having custody
+										of the occurrence records. This field is required. For more details, see').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#institutionCode"
 										target="_blank">'.(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
 										?>
 									</span>
@@ -295,7 +286,7 @@ $collManager->cleanOutArr($collData);
 									</a>
 									<span id="collcodeinfodialog">
 										<?php
-										echo (isset($LANG['NAME_ACRO'])?$LANG['NAME_ACRO']:'The name, acronym, or code identifying the collection or data set 
+										echo (isset($LANG['NAME_ACRO'])?$LANG['NAME_ACRO']:'The name, acronym, or code identifying the collection or data set
 										from which the record was derived. This field is optional. For more details, see').' '.
 										'<a href="http://rs.tdwg.org/dwc/terms/index.htm#institutionCode" target="_blank">'.
 										(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
@@ -315,30 +306,6 @@ $collManager->cleanOutArr($collData);
 									<textarea name="fulldescription" style="width:95%;height:90px;"><?php echo ($collid?$collData["fulldescription"]:'');?></textarea>
 								</div>
 							</div>
-							<?php
-							if(!isset($collData['contactjson'])){
-								?>
-								<div id="url-div" class="field-block">
-									<span class="field-label"><?php echo (isset($LANG['HOMEPAGE'])?$LANG['HOMEPAGE']:'Homepage'); ?>:</span>
-									<span class="field-elem">
-										<input type="text" name="homepage" value="<?php echo $collData['homepage']; ?>" style="width:600px;" />
-									</span>
-								</div>
-								<div id="contact-div" class="field-block">
-									<span class="field-label"><?php echo (isset($LANG['CONTACT'])?$LANG['CONTACT']:'Contact'); ?>:</span>
-									<span class="field-elem">
-										<input type="text" name="contact" value="<?php echo ($collid?$collData["contact"]:'');?>" style="width:600px;" />
-									</span>
-								</div>
-								<div id="email-div" class="field-block">
-									<span class="field-label"><?php echo (isset($LANG['EMAIL'])?$LANG['EMAIL']:'Email'); ?>:</span>
-									<span class="field-elem">
-										<input type="text" name="email" value="<?php echo ($collid?$collData["email"]:'');?>" style="width:600px" />
-									</span>
-								</div>
-								<?php
-							}
-							?>
 							<div class="field-block">
 								<span class="field-label"><?php echo (isset($LANG['LAT'])?$LANG['LAT']:'Latitude'); ?>:</span>
 								<span class="field-elem">
@@ -385,7 +352,7 @@ $collManager->cleanOutArr($collData);
 										<?php echo (isset($LANG['EXPLAIN_PUBLIC'])?$LANG['EXPLAIN_PUBLIC']:'Checking public edits will allow any user logged into the system to modify specimen records
 										and resolve errors found within the collection. However, if the user does not have explicit
 										authorization for the given collection, edits will not be applied until they are
-										reviewed and approved by collection administrator.'); 
+										reviewed and approved by collection administrator.');
 										?>
 									</span>
 								</span>
@@ -399,6 +366,7 @@ $collManager->cleanOutArr($collData);
 										<select name="rights">
 											<?php
 											$hasOrphanTerm = true;
+											if(!$collid) $hasOrphanTerm = false;
 											foreach($RIGHTS_TERMS as $k => $v){
 												$selectedTerm = '';
 												if($collid && strtolower($collData["rights"])==strtolower($v)){
@@ -453,7 +421,7 @@ $collManager->cleanOutArr($collData);
 										<img src="../../images/info.png" style="width:15px;" />
 									</a>
 									<span id="accessrightsinfodialog">
-										<?php echo (isset($LANG['ACCESS_DEF'])?$LANG['ACCESS_DEF']:'Information or a URL link to page with details explaining 
+										<?php echo (isset($LANG['ACCESS_DEF'])?$LANG['ACCESS_DEF']:'Information or a URL link to page with details explaining
 										how one can use the data. See').' '.'<a href="http://rs.tdwg.org/dwc/terms/index.htm#dcterms:accessRights" target="_blank">'.(isset($LANG['DWC_DEF'])?$LANG['DWC_DEF']:'Darwin Core definition').'</a>.'
 										?>
 									</span>
@@ -474,7 +442,7 @@ $collManager->cleanOutArr($collData);
 											<img src="../../images/info.png" style="width:15px;" />
 										</a>
 										<span id="colltypeinfodialog">
-											<?php echo (isset($LANG['COL_TYPE_DEF'])?$LANG['COL_TYPE_DEF']:'Preserved Specimens signify a collection type that contains physical samples that are 
+											<?php echo (isset($LANG['COL_TYPE_DEF'])?$LANG['COL_TYPE_DEF']:'Preserved Specimens signify a collection type that contains physical samples that are
 											available for inspection by researchers and taxonomic experts. Use Observations when the record is not based on a physical specimen.
 											Personal Observation Management is a dataset where registered users
 											can independently manage their own subset of records. Records entered into this dataset are explicitly linked to the user&apos;s profile
@@ -501,7 +469,7 @@ $collManager->cleanOutArr($collData);
 										<span id="managementinfodialog">
 											<?php echo (isset($LANG['SNAPSHOT_DEF'])?$LANG['SNAPSHOT_DEF']:'Use Snapshot when there is a separate in-house database maintained in the collection and the dataset
 											within the Symbiota portal is only a periodically updated snapshot of the central database.
-											A Live dataset is when the data is managed directly within the portal and the central database is the portal data.'); 
+											A Live dataset is when the data is managed directly within the portal and the central database is the portal data.');
 											?>
 										</span>
 									</span>
@@ -523,7 +491,7 @@ $collManager->cleanOutArr($collData);
 										<img src="../../images/info.png" style="width:15px;" />
 									</a>
 									<span id="guidinfodialog">
-										<?php echo (isset($LANG['OCCID_DEF_1'])?$LANG['OCCID_DEF_1']:'Occurrence Id is generally used for 
+										<?php echo (isset($LANG['OCCID_DEF_1'])?$LANG['OCCID_DEF_1']:'Occurrence Id is generally used for
 										Snapshot datasets when a Global Unique Identifier (GUID) field
 										is supplied by the source database (e.g. Specify database) and the GUID is mapped to the').
 										' <a href="http://rs.tdwg.org/dwc/terms/index.htm#occurrenceID" target="_blank">'.(isset($LANG['OCCURRENCEID'])?$LANG['OCCURRENCEID']:'occurrenceId').'</a>'.
@@ -531,7 +499,7 @@ $collManager->cleanOutArr($collData);
 										Catalog Number can be used when the value within the catalog number field is globally unique.
 										The Symbiota Generated GUID (UUID) option will trigger the Symbiota data portal to automatically
 										generate UUID GUIDs for each record. This option is recommended for many for Live Datasets
-										but not allowed for Snapshot collections that are managed in local management system.'); 
+										but not allowed for Snapshot collections that are managed in local management system.');
 										?>
 									</span>
 								</span>
@@ -569,13 +537,13 @@ $collManager->cleanOutArr($collData);
 											<img src="../../images/info.png" style="width:15px;" />
 										</a>
 										<span id="sourceurlinfodialog">
-											<?php echo (isset($LANG['ADVANCE_SETTING'])?$LANG['ADVANCE_SETTING']:'Advance setting: Adding a 
+											<?php echo (isset($LANG['ADVANCE_SETTING'])?$LANG['ADVANCE_SETTING']:'Advance setting: Adding a
 											URL template here will insert a link to the source record within the specimen details page.
 											A optional URL title can be include with a colon delimiting the title and URL.
 											For example, &quot;SEINet source record').':http://swbiodiversity.org/seinet/collections/individual/index.php?occid=--DBPK--&quot; '.
-											(isset($LANG['ADVANCE_SETTING_2'])?$LANG['ADVANCE_SETTING_2']:'will display the ID with the url pointing to the original 
+											(isset($LANG['ADVANCE_SETTING_2'])?$LANG['ADVANCE_SETTING_2']:'will display the ID with the url pointing to the original
 											record managed within SEINet. Or').' &quot;http://www.inaturalist.org/observations/--DBPK--&quot; '.(isset($LANG['ADVANCE_SETTING_3'])
-											?$LANG['ADVANCE_SETTING_3']:'can be used for an	iNaturalist import if you mapped their ID field as the source 
+											?$LANG['ADVANCE_SETTING_3']:'can be used for an	iNaturalist import if you mapped their ID field as the source
 											Identifier (e.g. dbpk) during import. Template patterns --CATALOGNUMBER--, --OTHERCATALOGNUMBERS--, and --OCCURRENCEID-- are additional options.');
 											?>
 										</span>
@@ -598,7 +566,7 @@ $collManager->cleanOutArr($collData);
 									<span id="iconinfodialog">
 										<?php echo (isset($LANG['UPLOAD_ICON'])?$LANG['UPLOAD_ICON']:'
 										Upload an icon image file or enter the URL of an image icon that represents the collection. If entering the URL of an image already located
-										on a server, click on &quot;Enter URL&quot;. The URL path can be absolute or relative. The use of icons are optional.'); 
+										on a server, click on &quot;Enter URL&quot;. The URL path can be absolute or relative. The use of icons are optional.');
 										?>
 									</span>
 								</span>
@@ -685,70 +653,6 @@ $collManager->cleanOutArr($collData);
 					</fieldset>
 				</div>
 				<?php
-				if(!isset($collData['contactjson'])){
-					?>
-					<fieldset>
-						<legend><?php echo (isset($LANG['MAILING_ADD'])?$LANG['MAILING_ADD']:'Mailing Address'); ?></legend>
-						<?php
-						if($instArr = $collManager->getAddress()){
-							?>
-							<div style="margin:25px;">
-								<?php
-								echo '<div>';
-								echo $instArr['institutionname'].($instArr['institutioncode']?' ('.$instArr['institutioncode'].')':'');
-								?>
-								<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid.'&iid='.$instArr['iid']; ?>" title="<?php echo (isset($LANG['EDIT_ADDRESS'])?$LANG['EDIT_ADDRESS']:'Edit institution address'); ?>">
-									<img src="../../images/edit.png" style="width:14px;" />
-								</a>
-								<a href="collmetadata.php?collid=<?php echo $collid.'&removeiid='.$instArr['iid']; ?>" title="<?php echo (isset($LANG['UNLINK_ADDRESS'])?$LANG['UNLINK_ADDRESS']:'Unlink institution address'); ?>">
-									<img src="../../images/drop.png" style="width:14px;" />
-								</a>
-								<?php
-								echo '</div>';
-								if($instArr['address1']) echo '<div>'.$instArr['address1'].'</div>';
-								if($instArr['address2']) echo '<div>'.$instArr['address2'].'</div>';
-								if($instArr['city'] || $instArr['stateprovince']) echo '<div>'.$instArr['city'].', '.$instArr['stateprovince'].' '.$instArr['postalcode'].'</div>';
-								if($instArr['country']) echo '<div>'.$instArr['country'].'</div>';
-								if($instArr['phone']) echo '<div>'.$instArr['phone'].'</div>';
-								if($instArr['contact']) echo '<div>'.$instArr['contact'].'</div>';
-								if($instArr['email']) echo '<div>'.$instArr['email'].'</div>';
-								if($instArr['url']) echo '<div><a href="'.$instArr['url'].'">'.$instArr['url'].'</a></div>';
-								if($instArr['notes']) echo '<div>'.$instArr['notes'].'</div>';
-								?>
-							</div>
-							<?php
-						}
-						else{
-							//Link new institution
-							?>
-							<div style="margin:40px;"><b><?php echo (isset($LANG['NO_ADDRESS'])?$LANG['NO_ADDRESS']:'No addresses linked'); ?></b></div>
-							<div style="margin:20px;">
-								<form name="addaddressform" action="collmetadata.php" method="post" onsubmit="return verifyAddAddressForm(this)">
-									<select name="iid" style="width:425px;">
-										<option value=""><?php echo (isset($LANG['SEL_ADDRESS'])?$LANG['SEL_ADDRESS']:'Select Institution Address'); ?></option>
-										<option value="">------------------------------------</option>
-										<?php
-										$addrArr = $collManager->getInstitutionArr();
-										foreach($addrArr as $iid => $name){
-											echo '<option value="'.$iid.'">'.$name.'</option>';
-										}
-										?>
-									</select>
-									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-									<button name="action" type="submit" value="Link Address"><?php echo (isset($LANG['LINK_ADDRESS'])?$LANG['LINK_ADDRESS']:'Link Address'); ?></button>
-								</form>
-								<div style="margin:15px;">
-									<a href="institutioneditor.php?emode=1&targetcollid=<?php echo $collid; ?>" title="<?php echo (isset($LANG['ADD_ADDRESS'])?$LANG['ADD_ADDRESS']:'Add a new address not on the list'); ?>">
-										<b><?php echo (isset($LANG['ADD_INST'])?$LANG['ADD_INST']:'Add an institution not on list'); ?></b>
-									</a>
-								</div>
-							</div>
-							<?php
-						}
-						?>
-					</fieldset>
-					<?php
-				}
 			}
 			?>
 		</div>

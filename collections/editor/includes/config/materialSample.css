@@ -1,0 +1,106 @@
+#smSampleTypeDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smSampleTypeDiv input{
+}
+
+#smCatalogNumberDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smCatalogNumberDiv input{
+}
+
+#smGuidDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smGuidDiv input{
+}
+
+#smSampleConditionDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smSampleConditionDiv input{
+}
+
+#smDispositionDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smDispositionDiv input{
+}
+
+#smPreservationTypeDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smPreservationTypeDiv input{
+}
+
+#smPreparationDateDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smPreparationDateDiv input{
+}
+
+#smPreparedByUidDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smPreparedByUidDiv input{
+}
+
+#smPreparationDetailsDiv {
+	clear:both;
+	margin: 2px;
+}
+
+#smPreparationDetailsDiv input{
+	width: 90%;
+}
+
+#smIndividualCountDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smIndividualCountDiv input{
+}
+
+#smSampleSizeDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smSampleSizeDiv input{
+}
+
+#smStorageLocationDiv {
+	float:left;
+	margin: 2px;
+}
+
+#smStorageLocationDiv input{
+}
+
+
+#smRemarksDiv {
+	clear:both;
+	margin: 2px;
+}
+
+#smRemarksDiv input{
+	width: 90%;
+}

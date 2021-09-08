@@ -100,12 +100,12 @@ $clArray = $vManager->getChecklistData();
 					alert("<?php echo (isset($LANG['NAME_BLANK'])?$LANG['NAME_BLANK']:'Scientific name field is blank'); ?>");
 				}
 				else{
-					checkScinameExistance(f);
+					checkScinameExistence(f);
 				}
 				return false;
 			}
 
-			function checkScinameExistance(f){
+			function checkScinameExistence(f){
 				$.ajax({
 					type: "POST",
 					url: "rpc/gettid.php",

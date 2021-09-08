@@ -37,8 +37,8 @@ class DwcArchiverImage{
 		$fieldArr['subtype'] = '';
 		$termArr['metadataLanguage'] = 'http://rs.tdwg.org/ac/terms/metadataLanguage';	//en
 		$fieldArr['metadataLanguage'] = '';
-		$termArr['imgid'] = 'http://symbiota.org/terms/imgid';	//en
-		$fieldArr['imgid'] = 'i.imgid';
+		$termArr['imgID'] = 'https://symbiota.org/terms/imgid';	//en
+		$fieldArr['imgID'] = 'i.imgid';
 
 		if($schemaType == 'backup') $fieldArr['rights'] = 'i.copyright';
 

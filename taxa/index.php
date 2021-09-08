@@ -36,22 +36,9 @@ elseif($taxonValue){
 if($lang) $lang = $taxonManager->setLanguage($lang);
 if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_PROJ_ID;
 
-// Options to display occurrences counts and link by taxon
-$taxonRank = $taxonManager->getRankId();
-$occs = $taxonManager->getOccTaxonInDbCnt($tid, $taxonRank);
-$scinameStr = $taxonManager->getTaxonName();
-$occSrcUrl = $CLIENT_ROOT.'/collections/list.php?db=all&includeothercatnum=1&taxa='.$scinameStr.'&usethes=1';
-
-
-$links = $taxonManager->getTaxaLinks();
-if($links){
-	foreach($links as $linkKey => $linkUrl){
-		if($linkUrl['title'] == 'REDIRECT'){
-			$locUrl = str_replace('--SCINAME--',rawurlencode($taxonManager->getTaxonName()),$linkUrl['url']);
-			header('Location: '.$locUrl);
-			exit;
-		}
-	}
+if($redirect = $taxonManager->getRedirectLink()){
+	header('Location: '.$redirect);
+	exit;
 }
 
 $isEditor = false;
@@ -86,6 +73,9 @@ if($SYMB_UID){
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../js/symb/taxa.index.js?ver=202101" type="text/javascript"></script>
 	<script src="../js/symb/taxa.editor.js?ver=202101" type="text/javascript"></script>
+	<style type="text/css">
+		.resource-title{ font-weight: bold; }
+	</style>
 </head>
 <body>
 <?php
@@ -119,18 +109,20 @@ include($SERVER_ROOT.'/includes/header.php');
 							<?php
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid='.$clid.'&pid='.$pid.'&taxauthid='.$taxAuthId;
 							echo '&nbsp;<a href="'.$parentLink.'"><img class="navIcon" src="../images/toparent.png" title="Go to Parent" /></a>';
-              echo '<p>'.$taxonManager->getSearchByTaxon($occs, $occSrcUrl).'</p>';
 							if($taxonManager->isForwarded()){
 						 		echo '<span id="redirectedfrom"> ('.(isset($LANG['REDIRECT'])?$LANG['REDIRECT']:'redirected from').': <i>'.$taxonManager->getSubmittedValue('sciname').'</i> '.$taxonManager->getSubmittedValue('author').')</span>';
 						 	}
 						 	?>
 						</div>
 						<?php
-						if($links && $links[0]['sortseq'] == 1){
-							$uStr = str_replace('--SCINAME--',rawurlencode($taxonManager->getTaxonName()),$links[0]['url']);
+						if($linkArr = $taxonManager->getLinkArr()){
 							?>
 							<div id="linkDiv">
-								<?php echo (isset($LANG['GO_TO'])?$LANG['GO_TO']:'Go to'); ?> <a href="<?php echo $uStr; ?>" target="_blank"><?php echo $links[0]['title']; ?></a>...
+								<?php
+								foreach($linkArr as $linkObj){
+									if($linkObj['icon']) echo '<span title="'.$linkObj['title'].'"><a href="'.$linkObj['url'].'" target="_blank"><img src="'.$linkObj['icon'].'" /></a></span>';
+								}
+								?>
 							</div>
 							<?php
 						}
@@ -277,9 +269,6 @@ include($SERVER_ROOT.'/includes/header.php');
 							}
 							echo '<div id="taxon">'.$displayName.'</div>';
 							?>
-              <?php 
-                echo '<p>'.$taxonManager->getSearchByTaxon($occs, $occSrcUrl).'</p>';       
-              ?>
 						</div>
 					</td>
 				</tr>
@@ -446,9 +435,6 @@ include($SERVER_ROOT.'/includes/header.php');
 				}
 				?>
 				<div id="scinameDiv"><span id="taxon"><?php echo $taxonManager->getTaxonName(); ?></span></div>
-        <?php
-          echo '<p>'.$taxonManager->getSearchByTaxon($occs, $occSrcUrl).'</p>';
-        ?>
 				<div>
 					<div id="leftPanel">
 						<fieldset style="clear:both">

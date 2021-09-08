@@ -27,9 +27,10 @@ $LANG['VIEW_ALL_IMAGES'] = 'Ver Todas las Im&aacute;genes';
 $LANG['GO_TO_PARENT'] = 'Ir al Tax&oacute;n Superior';
 $LANG['EDIT_TAXON_DATA'] = 'Editar Datos del Tax&oacute;n';
 $LANG['PHOTOGRAPHER'] = 'Fot&oacute;grafo';
-$LANG['MAP_NOT_AVAILABLE'] = 'Mapa no<br />Disponible';
-$LANG['WEB_LINKS'] = 'Enlaces Web';
+$LANG['MAP_NOT_AVAILABLE'] = 'Mapa no<br/>Disponible';
+$LANG['RESOURCES'] = 'Recursos';
+$LANG['INTERNAL_RESOURCES'] = 'Recursos internos';
+$LANG['EXTERNAL_LINKS'] = 'Recursos externos';
 $LANG['NOT_FOUND'] = 'no encontrado';
 $LANG['DID_YOU_MEAN'] = '&#191;Quiso decir?';
-
 ?>

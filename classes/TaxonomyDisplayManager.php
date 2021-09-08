@@ -5,7 +5,8 @@ include_once($SERVER_ROOT.'/classes/TaxonomyUtilities.php');
 class TaxonomyDisplayManager extends Manager{
 
 	private $taxaArr = Array();
-	private $targetStr = "";
+	private $targetStr = '';
+	private $targetTid = 0;
 	private $targetRankId = 0;
 	private $taxAuthId = 1;
 	private $taxonomyMeta = array();
@@ -43,9 +44,7 @@ class TaxonomyDisplayManager extends Manager{
 		$sql = 'SELECT DISTINCT t.tid, ts.tidaccepted, t.sciname, t.author, t.rankid, ts.parenttid '.
 			'FROM taxa t LEFT JOIN taxstatus ts ON t.tid = ts.tid '.
 			'WHERE (ts.taxauthid = '.$this->taxAuthId.') ';
-		if(is_numeric($this->targetStr)){
-			$sql .= 'AND (ts.tid = '.$this->targetStr.') ';
-		}
+		if($this->targetTid) $sql .= 'AND (ts.tid = '.$this->targetTid.') ';
 		elseif($this->targetStr){
 			$term = $this->targetStr;
 			$termArr = explode(' ',$term);
@@ -57,19 +56,17 @@ class TaxonomyDisplayManager extends Manager{
 			if($unit2 = array_shift($termArr)) $sqlFrag .=  'AND t.unitname2 LIKE "'.$unit2.($this->matchOnWholeWords?'':'%').'" ';
 
 			if($this->matchOnWholeWords){
-				$sql .= 'AND ((t.sciname = "'.$term.'") OR (t.sciname LIKE "'.$term.' %") ';
+				$sql .= 'AND ((t.sciname = "'.$this->cleanInStr($term).'") OR (t.sciname LIKE "'.$this->cleanInStr($term).' %") ';
 			}
 			else{
 				//Rankid >= species level and not will author included
-				$sql .= 'AND ((t.sciname LIKE "'.$term.'%") ';
+				$sql .= 'AND ((t.sciname LIKE "'.$this->cleanInStr($term).'%") ';
 			}
-			$sql .= 'OR (CONCAT(t.sciname," ",t.author) = "'.$term.'") ';
+			$sql .= 'OR (CONCAT(t.sciname," ",t.author) = "'.$this->cleanInStr($term).'") ';
 			if($sqlFrag) $sql .= 'OR ('.$sqlFrag.')';
 			$sql .= ') ';
 		}
-		else{
-			$sql .= 'AND (t.rankid = 10) ';
-		}
+		else $sql .= 'AND (t.rankid = 10) ';
 		$sql .= 'ORDER BY t.rankid DESC ';
 		$tidAcceptedArr = array();
 		$rs = $this->conn->query($sql);
@@ -187,9 +184,9 @@ class TaxonomyDisplayManager extends Manager{
 			//Grab parentTids that are not indexed in $taxaParentIndex. This would be due to a parent mismatch or a missing hierarchy definition
 			$orphanTaxa = array_unique(array_diff($taxaParentIndex,array_keys($taxaParentIndex)));
 			if($orphanTaxa){
-				$sqlOrphan = "SELECT t.tid, t.sciname, t.author, ts.parenttid, t.rankid ".
-					"FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid ".
-					"WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tid = ts.tidaccepted) AND (t.tid IN (".implode(",",$orphanTaxa)."))";
+				$sqlOrphan = 'SELECT t.tid, t.sciname, t.author, ts.parenttid, t.rankid '.
+					'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+					'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tid = ts.tidaccepted) AND (t.tid IN ('.implode(',',$orphanTaxa).'))';
 				//echo $sqlOrphan;
 				$rsOrphan = $this->conn->query($sqlOrphan);
 				while($row4 = $rsOrphan->fetch_object()){
@@ -324,12 +321,10 @@ class TaxonomyDisplayManager extends Manager{
 				'LEFT JOIN taxstatus ts1 ON t.tid = ts1.tidaccepted '.
 				'LEFT JOIN taxa t1 ON ts1.tid = t1.tid '.
 				'WHERE (ts.taxauthid = '.$this->taxAuthId.' OR ts.taxauthid IS NULL) AND (ts1.taxauthid = '.$this->taxAuthId.' OR ts1.taxauthid IS NULL) ';
-			if(is_numeric($this->targetStr)){
-				$sql1 .= 'AND (t.tid IN('.implode(',',$this->targetStr).') OR (ts1.tid = '.$this->targetStr.'))';
-			}
+			if($this->targetTid) $sql1 .= 'AND (t.tid IN('.$this->targetTid.') OR (ts1.tid = '.$this->targetTid.'))';
 			else{
-				$sql1 .= 'AND ((t.sciname = "'.$this->targetStr.'") OR (t1.sciname = "'.$this->targetStr.'") '.
-					'OR (CONCAT(t.sciname," ",t.author) = "'.$this->targetStr.'") OR (CONCAT(t1.sciname," ",t1.author) = "'.$this->targetStr.'")) ';
+				$sql1 .= 'AND ((t.sciname = "'.$this->cleanInStr($this->targetStr).'") OR (t1.sciname = "'.$this->cleanInStr($this->targetStr).'") '.
+					'OR (CONCAT(t.sciname," ",t.author) = "'.$this->cleanInStr($this->targetStr).'") OR (CONCAT(t1.sciname," ",t1.author) = "'.$this->cleanInStr($this->targetStr).'")) ';
 			}
 			//echo "<div>".$sql1."</div>";
 			$rs1 = $this->conn->query($sql1);
@@ -398,7 +393,16 @@ class TaxonomyDisplayManager extends Manager{
 
 	//Setters and getters
 	public function setTargetStr($target){
-		$this->targetStr = $this->cleanInStr(ucfirst($target));
+		if(is_numeric($target)){
+			$this->targetTid = $target;
+			$sql = 'SELECT sciname FROM taxa WHERE tid = '.$target;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->targetStr = $r->sciname;
+			}
+			$rs->free();
+		}
+		else $this->targetStr = ucfirst(trim($target));
 	}
 
 	public function setTaxAuthId($id){
@@ -489,10 +493,6 @@ class TaxonomyDisplayManager extends Manager{
 		$sciNameA = (array_key_exists($a,$this->taxaArr)?$this->taxaArr[$a]["sciname"]:"unknown (".$a.")");
 		$sciNameB = (array_key_exists($b,$this->taxaArr)?$this->taxaArr[$b]["sciname"]:"unknown (".$b.")");
 		return strcmp($sciNameA, $sciNameB);
-	}
-
-	private function cmp2($a,$b){
-		return strnatcmp($a["label"],$b["label"]);
 	}
 }
 ?>

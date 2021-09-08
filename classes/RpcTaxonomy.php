@@ -98,9 +98,9 @@ class RpcTaxonomy extends RpcBase{
 	public function getDynamicChildren($objId, $targetId, $displayAuthor, $isEditor){
 		$retArr = Array();
 		$childArr = Array();
-
 		//Sanitation
-		if(!is_numeric($objId)) $objId = 0;
+		$objId = filter_var($objId,FILTER_SANITIZE_STRING);
+		if(!is_numeric($objId) && $objId != 'root') $objId = 0;
 		if(!is_numeric($targetId)) $targetId = 0;
 		if(!is_numeric($displayAuthor)) $displayAuthor = 0;
 		if(!is_numeric($isEditor)) $isEditor = 0;
@@ -125,14 +125,14 @@ class RpcTaxonomy extends RpcBase{
 			else $retArr['url'] = '../index.php';
 			$retArr['children'] = Array();
 			$lowestRank = '';
-			$sql = 'SELECT MIN(t.RankId) AS RankId FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (ts.taxauthid = '.$this->taxAuthId.') LIMIT 1 ';
-			//echo $sql."<br>";
+			$sql = 'SELECT MIN(t.RankId) AS RankId FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (ts.taxauthid = '.$this->taxAuthID.') LIMIT 1 ';
+			//echo $sql.'<br>';
 			$rs = $this->conn->query($sql);
 			while($row = $rs->fetch_object()){
 				$lowestRank = $row->RankId;
 			}
 			$rs->free();
-			$sql1 = 'SELECT DISTINCT t.tid, t.sciname, t.author, t.rankid FROM taxa t LEFT JOIN taxstatus ts ON t.tid = ts.tid WHERE ts.taxauthid = '.$this->taxAuthId.' AND t.RankId = '.$lowestRank.' ';
+			$sql1 = 'SELECT DISTINCT t.tid, t.sciname, t.author, t.rankid FROM taxa t LEFT JOIN taxstatus ts ON t.tid = ts.tid WHERE ts.taxauthid = '.$this->taxAuthID.' AND t.RankId = '.$lowestRank.' ';
 			//echo "<div>".$sql1."</div>";
 			$rs1 = $this->conn->query($sql1);
 			$i = 0;
@@ -146,14 +146,14 @@ class RpcTaxonomy extends RpcBase{
 				$childArr[$i]['label'] = $label;
 				$childArr[$i]['name'] = $sciName;
 				$childArr[$i]['url'] = $urlPrefix.$row1->tid;
-				$sql3 = 'SELECT tid FROM taxaenumtree WHERE taxauthid = '.$this->taxAuthId.' AND parenttid = '.$row1->tid.' LIMIT 1 ';
+				$sql3 = 'SELECT tid FROM taxaenumtree WHERE taxauthid = '.$this->taxAuthID.' AND parenttid = '.$row1->tid.' LIMIT 1 ';
 				//echo "<div>".$sql3."</div>";
 				$rs3 = $this->conn->query($sql3);
 				if($row3 = $rs3->fetch_object()){
 					$childArr[$i]['children'] = true;
 				}
 				else{
-					$sql4 = 'SELECT DISTINCT tid, tidaccepted FROM taxstatus WHERE (taxauthid = '.$this->taxAuthId.') AND (tidaccepted = '.$row1->tid.') ';
+					$sql4 = 'SELECT DISTINCT tid, tidaccepted FROM taxstatus WHERE (taxauthid = '.$this->taxAuthID.') AND (tidaccepted = '.$row1->tid.') ';
 					//echo "<div>".$sql4."</div>";
 					$rs4 = $this->conn->query($sql4);
 					while($row4 = $rs4->fetch_object()){
@@ -170,41 +170,41 @@ class RpcTaxonomy extends RpcBase{
 		}
 		else{
 			//Get children, but only accepted children
-			$sql2 = 'SELECT DISTINCT t.tid, t.sciname, t.author, t.rankid '.
+			$sql = 'SELECT DISTINCT t.tid, t.sciname, t.author, t.rankid '.
 				'FROM taxa AS t INNER JOIN taxstatus AS ts ON t.tid = ts.tid '.
-				'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tid = ts.tidaccepted) '.
+				'WHERE (ts.taxauthid = '.$this->taxAuthID.') AND (ts.tid = ts.tidaccepted) '.
 				'AND ((ts.parenttid = '.$objId.') OR (t.tid = '.$objId.')) ';
-			//echo $sql2."<br>";
-			$rs2 = $this->conn->query($sql2);
+			//echo $sql.'<br>';
+			$rs = $this->conn->query($sql);
 			$i = 0;
-			while($row2 = $rs2->fetch_object()){
-				$rankName = (isset($taxonUnitArr[$row2->rankid])?$taxonUnitArr[$row2->rankid]:'Unknown');
-				$label = '2-'.$row2->rankid.'-'.$rankName.'-'.$row2->sciname;
-				$sciName = $row2->sciname;
-				if($row2->rankid >= 180) $sciName = '<i>'.$sciName.'</i>';
-				if($row2->tid == $targetId) $sciName = '<b>'.$sciName.'</b>';
-				$sciName = "<span style='font-size:75%;'>".$rankName.":</span> ".$sciName.($displayAuthor?" ".$row2->author:"");
-				if($row2->tid == $objId){
-					$retArr['id'] = $row2->tid;
+			while($r = $rs->fetch_object()){
+				$rankName = (isset($taxonUnitArr[$r->rankid])?$taxonUnitArr[$r->rankid]:'Unknown');
+				$label = '2-'.$r->rankid.'-'.$rankName.'-'.$r->sciname;
+				$sciName = $r->sciname;
+				if($r->rankid >= 180) $sciName = '<i>'.$sciName.'</i>';
+				if($r->tid == $targetId) $sciName = '<b>'.$sciName.'</b>';
+				$sciName = "<span style='font-size:75%;'>".$rankName.":</span> ".$sciName.($displayAuthor?" ".$r->author:"");
+				if($r->tid == $objId){
+					$retArr['id'] = $r->tid;
 					$retArr['label'] = $label;
 					$retArr['name'] = $sciName;
-					$retArr['url'] = $urlPrefix.$row2->tid;
+					$retArr['url'] = $urlPrefix.$r->tid;
 					$retArr['children'] = Array();
 				}
 				else{
-					$childArr[$i]['id'] = $row2->tid;
+					$childArr[$i]['id'] = $r->tid;
 					$childArr[$i]['label'] = $label;
 					$childArr[$i]['name'] = $sciName;
-					$childArr[$i]['url'] = $urlPrefix.$row2->tid;
-					$sql3 = 'SELECT tid FROM taxaenumtree WHERE taxauthid = '.$this->taxAuthId.' AND parenttid = '.$row2->tid.' LIMIT 1 ';
-					//echo "<div>".$sql3."</div>";
+					$childArr[$i]['url'] = $urlPrefix.$r->tid;
+					$sql3 = 'SELECT tid FROM taxaenumtree WHERE taxauthid = '.$this->taxAuthID.' AND parenttid = '.$r->tid.' LIMIT 1 ';
+					//echo 'sql3: '.$sql3.'<br/>';
 					$rs3 = $this->conn->query($sql3);
 					if($row3 = $rs3->fetch_object()){
 						$childArr[$i]['children'] = true;
 					}
 					else{
-						$sql4 = 'SELECT DISTINCT tid, tidaccepted FROM taxstatus WHERE taxauthid = '.$this->taxAuthId.' AND tidaccepted = '.$row2->tid.' ';
-						//echo "<div>".$sql4."</div>";
+						$sql4 = 'SELECT DISTINCT tid, tidaccepted FROM taxstatus WHERE taxauthid = '.$this->taxAuthID.' AND tidaccepted = '.$r->tid.' ';
+						//echo 'sql4: '.$sql4.'<br/>';
 						$rs4 = $this->conn->query($sql4);
 						while($row4 = $rs4->fetch_object()){
 							if($row4->tid != $row4->tidaccepted){
@@ -217,13 +217,13 @@ class RpcTaxonomy extends RpcBase{
 					$i++;
 				}
 			}
-			$rs2->free();
+			$rs->free();
 
 			//Get synonyms for all accepted taxa
 			$sqlSyns = 'SELECT DISTINCT t.tid, t.sciname, t.author, t.rankid '.
 				'FROM taxa AS t INNER JOIN taxstatus AS ts ON t.tid = ts.tid '.
-				'WHERE (ts.tid <> ts.tidaccepted) AND (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tidaccepted = '.$objId.')';
-			//echo $sqlSyns;
+				'WHERE (ts.tid <> ts.tidaccepted) AND (ts.taxauthid = '.$this->taxAuthID.') AND (ts.tidaccepted = '.$objId.')';
+			//echo 'syn: '.$sqlSyns.'<br/>';
 			$rsSyns = $this->conn->query($sqlSyns);
 			while($row = $rsSyns->fetch_object()){
 				$rankName = (isset($taxonUnitArr[$row->rankid])?$taxonUnitArr[$row->rankid]:'Unknown');
@@ -241,7 +241,7 @@ class RpcTaxonomy extends RpcBase{
 			$rsSyns->free();
 		}
 
-		usort($childArr,array($this,"cmp2"));
+		usort($childArr, function ($a,$b){ return strnatcmp($a['label'],$b['label']);} );
 		$retArr['children'] = $childArr;
 		return $retArr;
 	}

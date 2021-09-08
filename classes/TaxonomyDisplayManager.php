@@ -490,9 +490,5 @@ class TaxonomyDisplayManager extends Manager{
 		$sciNameB = (array_key_exists($b,$this->taxaArr)?$this->taxaArr[$b]["sciname"]:"unknown (".$b.")");
 		return strcmp($sciNameA, $sciNameB);
 	}
-
-	private function cmp2($a,$b){
-		return strnatcmp($a["label"],$b["label"]);
-	}
 }
 ?>

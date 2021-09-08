@@ -26,6 +26,7 @@ $LANG['ADVANCED_OPT'] = 'Advanced Options';
 $LANG['VERIF_STATUS'] = 'Verification Status';
 $LANG['FAMILY_GENUS'] = 'Family/Genus';
 $LANG['INCLUDE_PREV_GEOREF'] = 'Including previously georeferenced records';
+$LANG['GENERATE_LIST'] = 'Generate List';
 $LANG['LOCALITY_TERM'] = 'Locality Term';
 $LANG['SEARCH_CLONES'] = 'Search for clones previously georeferenced';
 $LANG['GEOLOCATE_LOCALITY'] = 'GeoLocate locality';

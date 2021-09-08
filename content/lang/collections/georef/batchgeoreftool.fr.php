@@ -26,6 +26,7 @@ $LANG['ADVANCED_OPT'] = 'Options Avancées';
 $LANG['VERIF_STATUS'] = 'Statut de Vérification';
 $LANG['FAMILY_GENUS'] = 'Famille/Genre';
 $LANG['INCLUDE_PREV_GEOREF'] = 'Y compris enregistrements précédemment géoréférencés';
+$LANG['GENERATE_LIST'] = 'Générer Liste';
 $LANG['LOCALITY_TERM'] = 'Terme de localité';
 $LANG['SEARCH_CLONES'] = 'Recherche de clones préalablement géoréférencés';
 $LANG['GEOLOCATE_LOCALITY'] = 'Géolocaliser Localité';

@@ -301,7 +301,7 @@ if($isEditor && $submitAction){
 								<div style="margin-top:5px;clear:both;">
 									<div style="float:right;">
 										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-										<input name="submitaction" type="submit" value="Generate List" />
+										<button name="submitaction" type="submit" value="Generate List" ><?php echo $LANG['GENERATE_LIST']; ?></button>
 										<span id="qworkingspan" style="display:none;">
 											<img src="../../images/workingcircle.gif" />
 										</span>

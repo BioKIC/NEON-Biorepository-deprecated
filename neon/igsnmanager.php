@@ -23,9 +23,12 @@ if($IS_ADMIN){
 	$isEditor = true;
 }
 
-$status = "";
+$statusStr = '';
 if($isEditor){
-
+	if($action == 'exportUnsync'){
+		if($igsnManager->exportUnsynchronizedReport()) exit;
+		else $statusStr = 'Unable to create export. Are you sure there are unsynchronized records?';
+	}
 }
 ?>
 <html>
@@ -63,6 +66,9 @@ include($SERVER_ROOT.'/includes/header.php');
 <div id="innertext">
 	<?php
 	if($isEditor){
+		if($statusStr){
+			echo '<div style="color:red">'.$statusStr.'</div>';
+		}
 		if($action != 'syncIGSNs'){
 			?>
 			<fieldset>
@@ -110,9 +116,9 @@ include($SERVER_ROOT.'/includes/header.php');
 					<?php
 					$reportArr = $igsnManager->getIgsnSynchronizationReport();
 					if($reportArr){
-						if(isset($reportArr['x'])) echo '<div><label>Unchecked: </label>'.$reportArr['x'].'</div>';
-						if(isset($reportArr[0])) echo '<div><label>Unsynchronized: </label>'.$reportArr[0].'</div>';
-						if(isset($reportArr[1])) echo '<div><label>Synchronized: </label>'.$reportArr[1].'</div>';
+						echo '<div><label>Unchecked: </label>'.(isset($reportArr['x'])?$reportArr['x']:'0').'</div>';
+						echo '<div><label>Unsynchronized: </label>'.(isset($reportArr[0])?$reportArr[0]:'0').'</div>';
+						echo '<div><label>Synchronized: </label>'.(isset($reportArr[1])?$reportArr[1]:'0').'</div>';
 					}
 					?>
 				</ul>
@@ -132,9 +138,13 @@ include($SERVER_ROOT.'/includes/header.php');
 							<label>Transaction limit:</label> <input name="limit" type="text" value="<?php echo $limit; ?>" />
 						</div>
 						<div style="clear:both;padding:20px 35px;">
-							<button name="action" type="submit" value="syncIGSNs">Synchronize Records</button>
+							<span><button name="action" type="submit" value="syncIGSNs">Synchronize Records</button></span>
+							<span style="margin-left:20px"><button name="action" type="submit" value="exportUnsync">Export Unsynchronized</button></span>
 						</div>
 					</form>
+					<div style="margin-left:40px">
+						<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank">NEON report submission page</a>
+					</div>
 				</div>
 			</div>
 		</fieldset>

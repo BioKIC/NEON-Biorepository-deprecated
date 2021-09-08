@@ -102,12 +102,53 @@ class IgsnManager{
 		return $finalIgsn;
 	}
 
+	public function exportUnsynchronizedReport(){
+		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		$fieldMap = array('archiveStartDate' => '"" as archiveStartDate', 'sampleID' => 's.sampleID', 'sampleCode' => 's.sampleCode', 'sampleFate' => '"archived" as sampleFate',
+			'sampleClass' => 's.sampleClass', 'archiveMedium' => '"" as archiveMedium', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
+			'externalURLs' => 'CONCAT("https://biorepo.neonscience.org/portal/collections/individual/index.php?occid=", o.occid) as referenceUrl',
+			'collectionCode' => 'CONCAT_WS(":", c.institutionCode, c.collectionCode) as collectionCode');
+		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
+			INNER JOIN omcollections c ON c.collid = o.collid
+			WHERE o.occurrenceID IS NOT NULL AND (s.igsnPushedToNEON = 0)';
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows){
+			$fileName = 'biorepoIGSNReport_'.date('Y-d-m').'.csv';
+			header ('Content-Type: text/csv');
+			header ('Content-Disposition: attachment; filename="'.$fileName.'"');
+			$out = fopen('php://output', 'w');
+			fputcsv($out, array_keys($fieldMap));
+			while($row = $rs->fetch_assoc()){
+				$this->encodeArr($row);
+				fputcsv($out, $row);
+			}
+			$rs->free();
+			fclose($out);
+			return true;
+		}
+		return false;
+	}
+
 	//Setters and getters
 	public function getErrorStr(){
 		return $this->errorStr;
 	}
 
 	//Misc functions
+	private function encodeArr(&$inArr){
+		foreach($inArr as $k => $v){
+			$inArr[$k] = $this->encodeStr($v);
+		}
+	}
+
+	private function encodeStr($inStr){
+		$retStr = $inStr;
+		if($inStr){
+			if(mb_detect_encoding($inStr,'UTF-8,ISO-8859-1') == 'UTF-8') $retStr = utf8_decode($inStr);
+		}
+		return $retStr;
+	}
+
 	private function cleanInStr($str){
 		$newStr = trim($str);
 		$newStr = preg_replace('/\s\s+/', ' ',$newStr);

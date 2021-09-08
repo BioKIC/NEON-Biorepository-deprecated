@@ -1,22 +1,22 @@
 <?php
 /*
 ------------------
-Language: English
+Language: Español (Spanish)
 ------------------
 */
 
-$LANG['CHILD_CHECKLIST'] = 'Children Checklists';
-$LANG['CHILD_DESCRIBE'] = 'Checklists will inherit scientific names, vouchers, notes, etc from all children checklists. 
-		Adding a new taxon or voucher to a child checklist will automatically add it to all parent checklists.
-		The parent child relationship can transcend multiple levels (e.g. country &lt;- state &lt;- county). 
-		Note that only direct child can be removed.';
-$LANG['LINK_NEW'] = 'Link New Checklist';
-$LANG['SELECT_CHILD'] = 'Select Child Checklist';
-$LANG['ADD_CHILD'] = 'Add Child Checklist';
-$LANG['NO_CHILDREN'] = 'There are no Children Checklists';
-$LANG['PARENTS'] = 'Parent Checklists';
-$LANG['NO_PARENTS'] = 'There are no Parent Checklists';
-$LANG['SURE'] = 'Are you sure you want to remove';
-$LANG['AS_CHILD'] = 'as a child checklist';
+$LANG['CHILD_CHECKLIST'] = 'Listados inferiores';
+$LANG['CHILD_DESCRIBE'] = 'Los listados de especies heredarán nombres científicos, vouchers, notas, etc. de todos los listados inferiores. 
+		Añadir un nuevo taxon o voucher a un listado inferior lo añadirá automáticamente  a todos los listados superiores.
+		La relación inferior y superior puede trascender niveles múltiples (p.e. país &lt;- estado &lt;- condado). 
+		Notar que solamente los listados derivados pueden ser removidos.';
+$LANG['LINK_NEW'] = 'Enlazar nuevo Listado';
+$LANG['SELECT_CHILD'] = 'Seleccionar Listado Inferior';
+$LANG['ADD_CHILD'] = 'Añadir Listado Inferior';
+$LANG['NO_CHILDREN'] = 'No hay Listados Inferiores';
+$LANG['PARENTS'] = 'Listados Superiores';
+$LANG['NO_PARENTS'] = 'No hay Listados Superiores';
+$LANG['SURE'] = 'Está seguro que quiere remover el listado';
+$LANG['AS_CHILD'] = 'como un listado inferior';
 
 ?>

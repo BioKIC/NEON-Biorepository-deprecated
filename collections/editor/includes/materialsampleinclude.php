@@ -4,256 +4,283 @@ include_once($SERVER_ROOT.'/classes/OccurrenceEditorMaterialSample.php');
 include_once($SERVER_ROOT.'/collections/editor/includes/config/materialSampleVars.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$occid = $_GET['occid'];
+$occid = $_REQUEST['occid'];
+$occIndex = $_REQUEST['occindex'];
+$collid = isset($_REQUEST['collid'])?$_REQUEST['collid']:'';
 
 $materialSampleManager = new OccurrenceEditorMaterialSample();
-$materialSampleManager->setOccId($occid);
-$msArr = $materialSampleManager->getMaterialSampleArr();
+
+//Sanitation
+if(!is_numeric($occid)) $occid = 0;
+if(!is_numeric($collid)) $collid = 0;
+$materialSampleManager->cleanFormData($_POST);
+
+$materialSampleManager->setOccid($occid);
+
+$isEditor = false;
+if($IS_ADMIN) $isEditor = true;
+elseif($collId && array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])) $isEditor = true;
+elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollEditor'])) $isEditor = true;
+
+$materialSampleArr = $materialSampleManager->getMaterialSampleArr();
 $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 ?>
+<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js" type="text/javascript"></script>
+<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js" type="text/javascript"></script>
 <script>
+	$(document).ready(function() {
+		$("#ms_preparedBy").autocomplete({
+			source: function( request, response ) {
+				$.getJSON( "rpc/getUsers.php", { term: request.term, collid: $("#collid").val() }, response );
+			},
+			minLength: 2,
+			autoFocus: true,
+			select: function( event, ui ) {
+				if(ui.item) $("#ms_preparedByUid").val(ui.item.id);
+			}
+		});
+	});
 </script>
-<fieldset>
-	<legend>Material Sample</legend>
-	<div style="clear:both">
+<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet" />
+<link href="includes/config/materialsample.css?ver=2" type="text/css" rel="stylesheet" />
+<style type="text/css">
+	botton { margin: 10px; }
+	.fieldBlock { height: 35px; }
+	.fieldBlock label{ display: block }
+	.edit-control{ float:right; }
+	.display-div{ margin-bottom: 3px; }
+	.display-div label{ display: inline; text-decoration: underline; }
+</style>
+<div style="width:795px;">
+	<div class="edit-control">
+		<span><a href="#" onclick="$('#formDiv-0').toggle()"><img src="../../images/add.png" /></a></span>
+	</div>
+	<div style="margin: 20px;">
 		See <a href="https://tools.gbif.org/dwca-validator/extension.do?id=http://data.ggbn.org/schemas/ggbn/terms/MaterialSample" target="_blank">GGBN Material Sample Extension</a> documentation
 	</div>
-	<div style="clear:both">
-		<div id="smTypeDiv">
-			<label><?php echo $MS_TYPE_LABEL; ?></label>
-			<?php
-			if(isset($controlTermArr['materialsampletype'])){
+	<?php
+	if($isEditor){
+		$msCnt = count($materialSampleArr);
+		$msArr = array();
+		do{
+			$matSampleID = 0;
+			if($msArr) $matSampleID = $msArr['matSampleID'];
+			if($matSampleID){
+				echo '<fieldset><legend>Material Sample</legend>';
 				?>
-				<select name="ms_materialsampletype">
-					<option value="">-------</option>
-					<?php
-					foreach($controlTermArr['materialsampletype'] as $t){
-						echo '<option value="" '.($msArr && $msArr['materialsampletype'] == $t?'selected':'').'>'.$t.'</option>';
-					}
-					?>
-				</select>
+				<div class="edit-control">
+					<span><a href="#" onclick="$('#formDiv-<?php echo $matSampleID; ?>').toggle()"><img src="../../images/edit.png" /></a></span>
+				</div>
 				<?php
 			}
-			else{
-				?>
-				<input type="text" name="ms_materialsampletype" value="<?php echo isset($msArr['materialsampletype'])?$msArr['materialsampletype']:''; ?>" />
-				<?php
-			}
-			?>
-		</div>
-		<div id="smGuidDiv">
-			<label><?php echo $MS_GUID_LABEL; ?></label>
-			<input type="text" name="ms_guid" value="<?php echo isset($msArr['guid'])?$msArr['guid']:''; ?>" />
-		</div>
-		<div id="smConcentrationDiv">
-			<label><?php echo $MS_CONCENTRATION_LABEL; ?></label>
-			<input type="text" name="ms_concentration" value="<?php echo isset($msArr['concentration'])?$msArr['concentration']:''; ?>" />
-		</div>
-		<div id="smConcentrationUnitDiv">
-			<label><?php echo $MS_CONCENTRATION_UNIT_LABEL; ?></label>
-			<?php
-			if(isset($controlTermArr['concentrationUnit'])){
-				?>
-				<select name="ms_concentrationUnit">
-					<option value="">-------</option>
-					<?php
-					foreach($controlTermArr['concentrationUnit'] as $t){
-						echo '<option value="" '.($msArr && $msArr['concentrationUnit'] == $t?'selected':'').'>'.$t.'</option>';
-					}
-					?>
-				</select>
-				<?php
-			}
-			else{
-				?>
-				<input type="text" class="unit-field" name="ms_concentrationUnit" value="<?php echo isset($msArr['concentrationUnit'])?$msArr['concentrationUnit']:''; ?>" />
-				<?php
+			if($msArr){
+				foreach($msArr as $k => $v){
+					if($v && isset($MS_LABEL_ARR[$k])) echo '<div class="display-div"><label>'.$MS_LABEL_ARR[$k].'</label>: '.$v.'</div>';
+				}
 			}
 			?>
-		</div>
-		<div id="smConcentrationMethodDiv">
-			<label><?php echo $MS_CONCENTRATION_METHOD_LABEL; ?></label>
+			<div id="formDiv-<?php echo $matSampleID; ?>" style="display:<?php echo ($msCnt?'none':'block'); ?>">
+				<?php
+				if($matSampleID) echo '<hr/>';
+				else echo '<fieldset><legend>Add New Sample</legend>';
+				?>
+				<form name="matSampleForm-<?php echo $matSampleID; ?>" action="occurrenceeditor.php" method="post" >
+					<div style="clear:both">
+						<div class="fieldBlock" id="smSampleTypeDiv">
+							<label><?php echo $MS_LABEL_ARR['sampleType']; ?>: </label>
+							<span class="edit-elem">
+								<?php
+								if(isset($controlTermArr['ommaterialsample']['sampleType'])){
+									$limitToList = $controlTermArr['ommaterialsample']['sampleType']['l'];
+									?>
+									<select name="ms_sampleType" required>
+										<option value="">-------</option>
+										<?php
+										foreach($controlTermArr['ommaterialsample']['sampleType']['t'] as $t){
+											echo '<option '.($msArr && $msArr['sampleType'] == $t?'selected':'').'>'.$t.'</option>';
+										}
+										?>
+									</select>
+									<?php
+								}
+								else{
+									?>
+									<input type="text" name="ms_sampleType" value="<?php echo isset($msArr['materialsampletype'])?$msArr['materialsampletype']:''; ?>" required />
+									<?php
+								}
+								?>
+							</span>
+						</div>
+						<div class="fieldBlock" id="smCatalogNumberDiv">
+							<label><?php echo $MS_LABEL_ARR['catalogNumber']; ?>: </label>
+							<span class="edit-elem">
+								<input type="text" name="ms_catalogNumber" value="<?php echo isset($msArr['catalogNumber'])?$msArr['catalogNumber']:''; ?>" />
+							</span>
+						</div>
+						<div class="fieldBlock" id="smGuidDiv">
+							<label><?php echo $MS_LABEL_ARR['guid']; ?>: </label>
+							<span class="edit-elem">
+								<input type="text" name="ms_guid" value="<?php echo isset($msArr['guid'])?$msArr['guid']:''; ?>" />
+							</span>
+						</div>
+						<div class="fieldBlock" id="smSampleConditionDiv">
+							<label><?php echo $MS_LABEL_ARR['sampleCondition']; ?>: </label>
+							<span class="edit-elem">
+								<?php
+								if(isset($controlTermArr['ommaterialsample']['sampleCondition'])){
+									$limitToList = $controlTermArr['ommaterialsample']['sampleCondition']['l'];
+									?>
+									<select name="ms_sampleCondition">
+										<option value="">-------</option>
+										<?php
+										foreach($controlTermArr['ommaterialsample']['sampleCondition']['t'] as $t){
+											echo '<option '.($msArr && $msArr['sampleCondition'] == $t?'selected':'').'>'.$t.'</option>';
+										}
+										?>
+									</select>
+									<?php
+								}
+								else{
+									?>
+									<input type="text" name="ms_sampleCondition" value="<?php echo isset($msArr['sampleCondition'])?$msArr['sampleCondition']:''; ?>" />
+									<?php
+								}
+								?>
+							</span>
+						</div>
+						<div class="fieldBlock" id="smDispositionDiv">
+							<label><?php echo $MS_LABEL_ARR['disposition']; ?>: </label>
+							<span class="edit-elem">
+								<?php
+								if(isset($controlTermArr['ommaterialsample']['disposition'])){
+									$limitToList = $controlTermArr['ommaterialsample']['disposition']['l'];
+									?>
+									<select name="ms_disposition">
+										<option value="">-------</option>
+										<?php
+										foreach($controlTermArr['ommaterialsample']['disposition']['t'] as $t){
+											echo '<option '.($msArr && $msArr['disposition'] == $t?'selected':'').'>'.$t.'</option>';
+										}
+										?>
+									</select>
+									<?php
+								}
+								else{
+									?>
+									<input type="text" name="ms_disposition" value="<?php echo isset($msArr['disposition'])?$msArr['disposition']:''; ?>" />
+									<?php
+								}
+								?>
+							</span>
+						</div>
+						<div class="fieldBlock" id="smPreservationTypeDiv">
+							<label><?php echo $MS_LABEL_ARR['preservationType']; ?>: </label>
+							<span class="edit-elem">
+								<?php
+								if(isset($controlTermArr['ommaterialsample']['preservationType'])){
+									$limitToList = $controlTermArr['ommaterialsample']['preservationType']['l'];
+									?>
+									<select name="ms_preservationType">
+										<option value="">-------</option>
+										<?php
+										foreach($controlTermArr['ommaterialsample']['preservationType']['t'] as $t){
+											echo '<option '.($msArr && $msArr['preservationType'] == $t?'selected':'').'>'.$t.'</option>';
+										}
+										?>
+									</select>
+									<?php
+								}
+								else{
+									?>
+									<input type="text" name="ms_preservationType" value="<?php echo isset($msArr['preservationType'])?$msArr['preservationType']:''; ?>" />
+									<?php
+								}
+								?>
+							</span>
+						</div>
+						<div class="fieldBlock" id="smPreparationDateDiv">
+							<label><?php echo $MS_LABEL_ARR['preparationDate']; ?>: </label>
+							<span class="edit-elem">
+								<input type="date" name="ms_preparationDate" value="<?php echo isset($msArr['preparationDate'])?$msArr['preparationDate']:''; ?>" />
+							</span>
+						</div>
+						<div class="fieldBlock" id="smPreparedByUidDiv">
+							<label><?php echo $MS_LABEL_ARR['preparedBy']; ?>: </label>
+							<span class="edit-elem">
+								<input id="ms_preparedBy" name="ms_preparedBy" type="text" value="<?php echo isset($msArr['preparedBy'])?$msArr['preparedBy']:''; ?>" />
+								<input id="ms_preparedByUid" name="ms_preparedByUid" type="hidden" value="<?php echo isset($msArr['preparedByUid'])?$msArr['preparedByUid']:''; ?>" />
+							</span>
+						</div>
+						<div class="fieldBlock" id="smPreparationDetailsDiv">
+							<label><?php echo $MS_LABEL_ARR['preparationDetails']; ?>: </label>
+							<span class="edit-elem">
+								<input type="text" name="ms_preparationDetails" value="<?php echo isset($msArr['preparationDetails'])?$msArr['preparationDetails']:''; ?>" />
+							</span>
+						</div>
+						<div class="fieldBlock" id="smIndividualCountDiv">
+							<label><?php echo $MS_LABEL_ARR['individualCount']; ?>: </label>
+							<span class="edit-elem">
+								<input type="text" name="ms_individualCount" value="<?php echo isset($msArr['individualCount'])?$msArr['individualCount']:''; ?>" />
+							</span>
+						</div>
+						<div class="fieldBlock" id="smSampleSizeDiv">
+							<label><?php echo $MS_LABEL_ARR['sampleSize']; ?>: </label>
+							<span class="edit-elem">
+								<input type="text" name="ms_sampleSize" value="<?php echo isset($msArr['sampleSize'])?$msArr['sampleSize']:''; ?>" />
+							</span>
+						</div>
+						<div class="fieldBlock" id="smStorageLocationDiv">
+							<label><?php echo $MS_LABEL_ARR['storageLocation']; ?>: </label>
+							<span class="edit-elem">
+								<?php
+								if(isset($controlTermArr['ommaterialsample']['storageLocation'])){
+									$limitToList = $controlTermArr['ommaterialsample']['storageLocation']['l'];
+									?>
+									<select name="ms_storageLocation">
+										<option value="">-------</option>
+										<?php
+										foreach($controlTermArr['ommaterialsample']['storageLocation']['t'] as $t){
+											echo '<option '.($msArr && $msArr['storageLocation'] == $t?'selected':'').'>'.$t.'</option>';
+										}
+										?>
+									</select>
+									<?php
+								}
+								else{
+									?>
+									<input type="text" name="ms_storageLocation" value="<?php echo isset($msArr['storageLocation'])?$msArr['storageLocation']:''; ?>" />
+									<?php
+								}
+								?>
+							</span>
+						</div>
+						<div class="fieldBlock" id="smRemarksDiv">
+							<label><?php echo $MS_LABEL_ARR['remarks']; ?>: </label>
+							<span class="edit-elem">
+								<input type="text" name="ms_remarks" value="<?php echo isset($msArr['remarks'])?$msArr['remarks']:''; ?>" />
+							</span>
+						</div>
+						<div style="clear:both;">
+							<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
+							<input name="matSampleID" type="hidden" value="<?php echo $matSampleID; ?>" />
+							<input id="collid" name="collid" type="hidden" value="<?php echo $collid; ?>" />
+							<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
+							<input name="tabtarget" type="hidden" value="3" />
+							<?php
+							if($msArr){
+								echo '<button name="submitaction" type="submit" value="updateMaterialSample">Save Changes</button>';
+								echo '<span style="margin-left: 20px"><button name="submitaction" type="submit" value="deleteMaterialSample">Delete Sample</button></span>';
+							}
+							else echo '<button name="submitaction" type="submit" value="insertMaterialSample">Add Record</button>';
+							?>
+						</div>
+					</div>
+				</form>
+				<?php if(!$matSampleID) echo '</fieldset>'; ?>
+			</div>
 			<?php
-			if(isset($controlTermArr['concentrationMethod'])){
-				?>
-				<select name="ms_concentrationMethod">
-					<option value="">-------</option>
-					<?php
-					foreach($controlTermArr['concentrationMethod'] as $t){
-						echo '<option value="" '.($msArr && $msArr['concentrationMethod'] == $t?'selected':'').'>'.$t.'</option>';
-					}
-					?>
-				</select>
-				<?php
-			}
-			else{
-				?>
-				<input type="text" class="unit-field" name="ms_concentrationMethod" value="<?php echo isset($msArr['concentrationMethod'])?$msArr['concentrationMethod']:''; ?>" />
-				<?php
-			}
-			?>
-		</div>
-		<div id="smRatioOfAbsorbance260_230Div">
-			<label><?php echo $MS_RATIOOFABSORBANCE260_230_LABEL; ?></label>
-			<input type="text" name="ms_ratioOfAbsorbance260_230" value="<?php echo isset($msArr['ratioOfAbsorbance260_230'])?$msArr['ratioOfAbsorbance260_230']:''; ?>" />
-		</div>
-		<div id="smRatioOfAbsorbance260_280Div">
-			<label><?php echo $MS_RATIOOFABSORBANCE260_280_LABEL; ?></label>
-			<input type="text" name="ms_ratioOfAbsorbance260_280" value="<?php echo isset($msArr['ratioOfAbsorbance260_280'])?$msArr['ratioOfAbsorbance260_280']:''; ?>" />
-		</div>
-		<div id="smVolumeDiv">
-			<label><?php echo $MS_VOLUME_LABEL; ?></label>
-			<input type="text" name="ms_volume" value="<?php echo isset($msArr['volume'])?$msArr['volume']:''; ?>" />
-		</div>
-		<div id="smVolumeUnitDiv">
-			<label><?php echo $MS_VOLUME_UNIT_LABEL; ?></label>
-			<?php
-			if(isset($controlTermArr['volumeUnit'])){
-				?>
-				<select name="ms_volumeUnit">
-					<option value="">-------</option>
-					<?php
-					foreach($controlTermArr['volumeUnit'] as $t){
-						echo '<option value="" '.($msArr && $msArr['volumeUnit'] == $t?'selected':'').'>'.$t.'</option>';
-					}
-					?>
-				</select>
-				<?php
-			}
-			else{
-				?>
-				<input type="text" class="unit-field" name="ms_volumeUnit" value="<?php echo isset($msArr['volumeUnit'])?$msArr['volumeUnit']:''; ?>" />
-				<?php
-			}
-			?>
-		</div>
-		<div id="smWeightDiv">
-			<label><?php echo $MS_WEIGHT_LABEL; ?></label>
-			<input type="text" name="ms_weight" value="<?php echo isset($msArr['weight'])?$msArr['weight']:''; ?>" />
-		</div>
-		<div id="smWeightUnitDiv">
-			<label><?php echo $MS_WEIGHT_UNIT_LABEL; ?></label>
-			<?php
-			if(isset($controlTermArr['weightUnit'])){
-				?>
-				<select name="ms_weightUnit">
-					<option value="">-------</option>
-					<?php
-					foreach($controlTermArr['weightUnit'] as $t){
-						echo '<option value="" '.($msArr && $msArr['weightUnit'] == $t?'selected':'').'>'.$t.'</option>';
-					}
-					?>
-				</select>
-				<?php
-			}
-			else{
-				?>
-				<input type="text" class="unit-field" name="ms_weightUnit" value="<?php echo isset($msArr['weightUnit'])?$msArr['weightUnit']:''; ?>" />
-				<?php
-			}
-			?>
-		</div>
-		<div id="smWeightMethodDiv">
-			<label><?php echo $MS_WEIGHT_METHOD_LABEL; ?></label>
-			<?php
-			if(isset($controlTermArr['weightMethod'])){
-				?>
-				<select name="ms_weightMethod">
-					<option value="">-------</option>
-					<?php
-					foreach($controlTermArr['weightMethod'] as $t){
-						echo '<option value="" '.($msArr && $msArr['weightMethod'] == $t?'selected':'').'>'.$t.'</option>';
-					}
-					?>
-				</select>
-				<?php
-			}
-			else{
-				?>
-				<input type="text" class="unit-field" name="ms_weightMethod" value="<?php echo isset($msArr['weightMethod'])?$msArr['weightMethod']:''; ?>" />
-				<?php
-			}
-			?>
-		</div>
-		<div id="smPurificationMethodDiv">
-			<label><?php echo (defined('MS_PURIFICATION_METHOD_LABEL')?MS_PURIFICATION_METHOD_LABEL:'Purification Method'); ?></label>
-			<?php
-			if(isset($controlTermArr['purificationMethod'])){
-				?>
-				<select name="ms_purificationMethod">
-					<option value="">-------</option>
-					<?php
-					foreach($controlTermArr['purificationMethod'] as $t){
-						echo '<option value="" '.($msArr && $msArr['purificationMethod'] == $t?'selected':'').'>'.$t.'</option>';
-					}
-					?>
-				</select>
-				<?php
-			}
-			else{
-				?>
-				<input type="text" class="unit-field" name="ms_purificationMethod" value="<?php echo isset($msArr['purificationMethod'])?$msArr['purificationMethod']:''; ?>" />
-				<?php
-			}
-			?>
-		</div>
-		<div id="smQualityDiv">
-			<label><?php echo $MS_QUALITY_LABEL; ?></label>
-			<?php
-			if(isset($controlTermArr['quality'])){
-				?>
-				<select name="ms_quality">
-					<option value="">-------</option>
-					<?php
-					foreach($controlTermArr['quality'] as $t){
-						echo '<option value="" '.($msArr && $msArr['quality'] == $t?'selected':'').'>'.$t.'</option>';
-					}
-					?>
-				</select>
-				<?php
-			}
-			else{
-				?>
-				<input type="text" name="ms_quality" value="<?php echo isset($msArr['quality'])?$msArr['quality']:''; ?>" />
-				<?php
-			}
-			?>
-		</div>
-		<div id="smQualityRemarksDiv">
-			<label><?php echo $MS_QUALITY_REMARKS_LABEL; ?></label>
-			<input type="text" class="remarks-field" name="qualityRemarks" value="<?php echo isset($msArr['qualityRemarks'])?$msArr['qualityRemarks']:''; ?>" />
-		</div>
-		<div id="smQualityCheckDateDiv">
-			<label><?php echo $MS_QUALITY_CHECK_DATE_LABEL; ?></label>
-			<input type="date" name="qualityCheckDate" value="<?php echo isset($msArr['qualityCheckDate'])?$msArr['qualityCheckDate']:''; ?>" />
-		</div>
-		<div id="smSampleSizeDiv">
-			<label><?php echo $MS_SAMPLE_SIZE_LABEL; ?></label>
-			<input type="text" name="ms_sampleSize" value="<?php echo isset($msArr['sampleSize'])?$msArr['sampleSize']:''; ?>" />
-		</div>
-		<div id="smSievingDiv">
-			<label><?php echo $MS_SIEVING_LABEL; ?></label>
-			<input type="text" name="ms_sieving" value="<?php echo isset($msArr['sieving'])?$msArr['sieving']:''; ?>" />
-		</div>
-		<div id="smDnaHybridizationDiv">
-			<label><?php echo $MS_DNA_HYBRIDIZATION_LABEL; ?></label>
-			<input type="text" name="ms_dnaHybridization" value="<?php echo isset($msArr['dnaHybridization'])?$msArr['dnaHybridization']:''; ?>" />
-		</div>
-		<div id="smDnaMeltingPointDiv">
-			<label><?php echo $MS_DNA_MELTING_POINT_LABEL; ?></label>
-			<input type="text" name="ms_dnaMeltingPoint" value="<?php echo isset($msArr['dnaMeltingPoint'])?$msArr['dnaMeltingPoint']:''; ?>" />
-		</div>
-		<div id="smEstimatedSizeDiv">
-			<label><?php echo $MS_ESTIMATED_SIZE_LABEL; ?></label>
-			<input type="text" name="ms_estimatedSize" value="<?php echo isset($msArr['estimatedSize'])?$msArr['estimatedSize']:''; ?>" />
-		</div>
-		<div id="smPoolDnaExtractsDiv">
-			<label><?php echo $MS_POOL_DNA_EXTRACTS_LABEL; ?></label>
-			<input type="text" name="ms_poolDnaExtracts" value="<?php echo isset($msArr['poolDnaExtracts'])?$msArr['poolDnaExtracts']:''; ?>" />
-		</div>
-		<div id="smSampleDesignationDiv">
-			<label><?php echo $MS_SAMPLE_DESIGNATION_LABEL; ?></label>
-			<input type="text" name="ms_sampleDesignation" value="<?php echo isset($msArr['sampleDesignation'])?$msArr['sampleDesignation']:''; ?>" />
-		</div>
-	</div>
-</fieldset>
+			if($matSampleID) echo '</fieldset>';
+		}while($msArr = array_pop($materialSampleArr));
+	}
+	?>
+</div>

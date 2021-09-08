@@ -1,12 +1,12 @@
 <?php
 /*
 ------------------
-Language: English
+Language: Español (Spanish)
 ------------------
 */
 
-$LANG['COORD_MAP'] = 'Checklist Coordinate Map';
-$LANG['NO_COORDS'] = 'Your query apparently does not contain any records with coordinates that can be mapped';
-$LANG['MAYBE_RARE'] = 'It may be that the vouchers have rare/threatened status that require the locality coordinates be hidden';
+$LANG['COORD_MAP'] = 'Mapa de Coordenadas del Listado de Especies';
+$LANG['NO_COORDS'] = 'Su búsqueda aparentemente no contiene ningún registro con coordenadas que puedan ser mapeadas';
+$LANG['MAYBE_RARE'] = 'Puede ser que los ejemplares tengan estado de especie rara/amenazada que requiere que las coordenadas de la localidad permenezcan ocultas';
 
 ?>

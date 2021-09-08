@@ -4,6 +4,7 @@ include_once($SERVER_ROOT.'/classes/Manager.php');
 class OccurrenceEditorMaterialSample extends Manager{
 
 	private $occid;
+	private $matSampleID;
 
 	function __construct(){
 		parent::__construct(null,'write');
@@ -15,42 +16,71 @@ class OccurrenceEditorMaterialSample extends Manager{
 
 	public function getMaterialSampleArr(){
 		$retArr = array();
-		$sql = 'SELECT msID, materialSampleType, guid, concentration, concentrationUnit, concentrationMethod, ratioOfAbsorbance260_230, ratioOfAbsorbance260_280, volume, volumeUnit, '.
-			'weight, weightUnit, weightMethod, purificationMethod, quality, qualityRemarks, qualityCheckDate, sampleSize, sieving, dnaHybridization, dnaMeltingPoint, '.
-			'estimatedSize, poolDnaExtracts, sampleDesignation, initialTimestamp '.
-			'FROM ommaterialsample '.
-			'WHERE occid = '.$this->occid;
+		$sql = 'SELECT m.matSampleID, m.sampleType, m.catalogNumber, m.guid, m.sampleCondition, m.disposition, m.preservationType, m.preparationDetails, m.preparationDate,
+			m.preparedByUid, CONCAT_WS(", ",u.lastname,u.firstname) as preparedBy, m.individualCount, m.sampleSize, m.storageLocation, m.remarks, m.dynamicFields, m.recordID, m.initialTimestamp
+			FROM ommaterialsample m LEFT JOIN users u ON m.preparedByUid = u.uid WHERE m.occid = '.$this->occid;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
-			$retArr[$r['msID']] = $r;
+			$retArr[$r['matSampleID']] = $r;
 		}
 		$rs->free();
 		return $retArr;
 	}
 
-	public function addMaterialSampleArr($postArr){
+	public function insertMaterialSample($postArr){
 		if($this->occid){
-			$sql = 'INSERT INTO ommaterialsample(occid, materialSampleType, guid, concentration, concentrationUnit, concentrationMethod, ratioOfAbsorbance260_230, ratioOfAbsorbance260_280,
-				volume, volumeUnit, weight, weightUnit, weightMethod, purificationMethod, quality, qualityRemarks, qualityCheckDate, sampleSize, sieving, dnaHybridization, dnaMeltingPoint,
-				estimatedSize, poolDnaExtracts, sampleDesignation)
-				VALUES('.$this->occid.','.($postArr['materialSampleType']?'"'.$postArr['materialSampleType'].'"':'NULL').','.($postArr['guid']?'"'.$postArr['guid'].'"':'NULL').','.
-				(is_numeric($postArr['concentration'])?$postArr['concentration']:'NULL').','.($postArr['concentrationUnit']?'"'.$postArr['concentrationUnit'].'"':'NULL').','.
-				($postArr['concentrationMethod']?'"'.$postArr['concentrationMethod'].'"':'NULL').','.(is_numeric($postArr['ratioOfAbsorbance260_230'])?$postArr['ratioOfAbsorbance260_230']:'NULL').','.
-				(is_numberic($postArr['ratioOfAbsorbance260_280'])?$postArr['ratioOfAbsorbance260_280']:'NULL').','.(is_numeric($postArr['volume'])?$postArr['volume']:'NULL').','.
-				($postArr['volumeUnit']?'"'.$postArr['volumeUnit'].'"':'NULL').','.(is_numeric($postArr['weight'])?$postArr['weight']:'NULL').','.
-				($postArr['weightUnit']?'"'.$postArr['weightUnit'].'"':'NULL').','.($postArr['purificationMethod']?'"'.$postArr['purificationMethod'].'"':'NULL').','.
-				($postArr['quality']?'"'.$postArr['quality'].'"':'NULL').','.($postArr['qualityRemarks']?'"'.$postArr['qualityRemarks'].'"':'NULL').','.
-				($postArr['qualityCheckDate']?'"'.$postArr['qualityCheckDate'].'"':'NULL').','.($postArr['sampleSize']?'"'.$postArr['sampleSize'].'"':'NULL').',';
-				($postArr['qualityCheckDate']?'"'.$postArr['qualityCheckDate'].'"':'NULL').','.($postArr['sampleSize']?'"'.$postArr['sampleSize'].'"':'NULL').',';
-				($postArr['qualityCheckDate']?'"'.$postArr['qualityCheckDate'].'"':'NULL').','.($postArr['sampleSize']?'"'.$postArr['sampleSize'].'"':'NULL').',';
-				($postArr['qualityCheckDate']?'"'.$postArr['qualityCheckDate'].'"':'NULL').','.($postArr['sampleSize']?'"'.$postArr['sampleSize'].'"':'NULL').',';
-				($postArr['qualityCheckDate']?'"'.$postArr['qualityCheckDate'].'"':'NULL').','.($postArr['sampleSize']?'"'.$postArr['sampleSize'].'"':'NULL').',';
-				($postArr['qualityCheckDate']?'"'.$postArr['qualityCheckDate'].'"':'NULL').','.($postArr['sampleSize']?'"'.$postArr['sampleSize'].'"':'NULL').')';
-				if($this->conn->query($sql)){
+			$sql = 'INSERT INTO ommaterialsample(occid, sampleType, catalogNumber, guid, sampleCondition, disposition, preservationType, preparationDetails, preparationDate,
+				preparedByUid, individualCount, sampleSize, storageLocation, remarks)
+				VALUES('.$this->occid.','.($postArr['ms_sampleType']?'"'.$postArr['ms_sampleType'].'"':'NULL').','.($postArr['ms_catalogNumber']?'"'.$postArr['ms_catalogNumber'].'"':'NULL').','.
+				($postArr['ms_guid']?'"'.$postArr['ms_guid'].'"':'NULL').','.
+				(is_numeric($postArr['ms_sampleCondition'])?$postArr['ms_sampleCondition']:'NULL').','.($postArr['ms_disposition']?'"'.$postArr['ms_disposition'].'"':'NULL').','.
+				($postArr['ms_preservationType']?'"'.$postArr['ms_preservationType'].'"':'NULL').','.(is_numeric($postArr['ms_preparationDetails'])?$postArr['ms_preparationDetails']:'NULL').','.
+				(is_numeric($postArr['ms_preparationDate'])?$postArr['ms_preparationDate']:'NULL').','.(is_numeric($postArr['ms_preparedByUid'])?$postArr['ms_preparedByUid']:'NULL').','.
+				($postArr['ms_individualCount']?'"'.$postArr['ms_individualCount'].'"':'NULL').','.(is_numeric($postArr['ms_sampleSize'])?$postArr['ms_sampleSize']:'NULL').','.
+				($postArr['ms_storageLocation']?'"'.$postArr['ms_storageLocation'].'"':'NULL').','.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').')';
+			if($this->conn->query($sql)){
 				return true;
 			}
 			else{
+				$this->errorMessage = 'ERROR inserting new material sample record into database: '.$this->conn->error;
+				return false;
+			}
+		}
+	}
 
+	public function updateMaterialSample($postArr){
+		if($this->matSampleID){
+			$sql = 'UPDATE ommaterialsample SET sampleType = "'.$this->cleanInStr($postArr['ms_sampleType']).
+				'",catalogNumber = '.($postArr['ms_catalogNumber']?'"'.$postArr['ms_catalogNumber'].'"':'NULL').
+				',guid = '.($postArr['ms_guid']?'"'.$postArr['ms_guid'].'"':'NULL').
+				',sampleCondition = '.($postArr['ms_sampleCondition']?'"'.$postArr['ms_sampleCondition'].'"':'NULL').
+				',disposition = '.($postArr['ms_disposition']?'"'.$postArr['ms_disposition'].'"':'NULL').
+				',preservationType = '.($postArr['ms_preservationType']?'"'.$postArr['ms_preservationType'].'"':'NULL').
+				',preparationDetails = '.($postArr['ms_preparationDetails']?'"'.$postArr['ms_preparationDetails'].'"':'NULL').
+				',preparationDate = '.($postArr['ms_preparationDate']?'"'.$postArr['ms_preparationDate'].'"':'NULL').
+				',preparedByUid = '.($postArr['ms_preparedByUid']?'"'.$postArr['ms_preparedByUid'].'"':'NULL').
+				',individualCount = '.($postArr['ms_individualCount']?'"'.$postArr['ms_individualCount'].'"':'NULL').
+				',sampleSize = '.($postArr['ms_sampleSize']?'"'.$postArr['ms_sampleSize'].'"':'NULL').
+				',storageLocation = '.($postArr['ms_storageLocation']?'"'.$postArr['ms_storageLocation'].'"':'NULL').
+				',remarks = '.($postArr['ms_remarks']?'"'.$postArr['ms_remarks'].'"':'NULL').' WHERE matSampleID = '.$this->matSampleID;
+			if($this->conn->query($sql)){
+				return true;
+			}
+			else{
+				$this->errorMessage = 'ERROR updating material sample record into database: '.$this->conn->error;
+				return false;
+			}
+		}
+	}
+
+	public function deleteMaterialSample(){
+		if($this->matSampleID){
+			$sql = 'DELETE FROM ommaterialsample WHERE matSampleID = '.$this->matSampleID;
+			if($this->conn->query($sql)){
+				return true;
+			}
+			else{
+				$this->errorMessage = 'ERROR updating material sample record into database: '.$this->conn->error;
 				return false;
 			}
 		}
@@ -59,12 +89,21 @@ class OccurrenceEditorMaterialSample extends Manager{
 	//Data lookup functions
 	public function getMSTypeControlValues(){
 		$retArr = array();
-		$sql = 'SELECT v.fieldName, t.cvTermID, t.term FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v ON t.cvID = v.cvID WHERE v.tableName = "ommaterialsample" ORDER BY t.term';
+		$sql = 'SELECT v.tableName, v.fieldName, t.term, v.limitToList FROM ctcontrolvocabterm t INNER JOIN ctcontrolvocab v ON t.cvID = v.cvID
+			WHERE v.tableName IN("ommaterialsample","ommaterialsampleextended") ORDER BY t.term';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[$r->fieldName][] = $r->term;
+			$retArr[$r->tableName][$r->fieldName]['t'][] = $r->term;
+			$retArr[$r->tableName][$r->fieldName]['l'] = $r->limitToList;
 		}
 		return $retArr;
+	}
+
+	//Misc support functions
+	public function cleanFormData(&$postArr){
+		foreach($postArr as $k => $v){
+			if(substr($k,0,3) == 'ms_') $postArr[$k] = filter_var($v,FILTER_SANITIZE_STRING);
+		}
 	}
 
 	//Setters and getters
@@ -76,5 +115,12 @@ class OccurrenceEditorMaterialSample extends Manager{
 		return $this->occid;
 	}
 
+	public function setMatSampleID($id){
+		if(is_numeric($id)) $this->matSampleID = $id;
+	}
+
+	public function getMatSampleID(){
+		return $this->matSampleID;
+	}
 }
 ?>

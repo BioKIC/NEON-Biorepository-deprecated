@@ -32,18 +32,13 @@ elseif($taxonValue){
 	$tid = key($tidArr);
 	//Need to add code that allows user to select target taxon when more than one homonym is returned
 }
+
 if($lang) $lang = $taxonManager->setLanguage($lang);
 if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_PROJ_ID;
 
-$links = $taxonManager->getTaxaLinks();
-if($links){
-	foreach($links as $linkKey => $linkUrl){
-		if($linkUrl['title'] == 'REDIRECT'){
-			$locUrl = str_replace('--SCINAME--',rawurlencode($taxonManager->getTaxonName()),$linkUrl['url']);
-			header('Location: '.$locUrl);
-			exit;
-		}
-	}
+if($redirect = $taxonManager->getRedirectLink()){
+	header('Location: '.$redirect);
+	exit;
 }
 
 $isEditor = false;
@@ -78,6 +73,9 @@ if($SYMB_UID){
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../js/symb/taxa.index.js?ver=202101" type="text/javascript"></script>
 	<script src="../js/symb/taxa.editor.js?ver=202101" type="text/javascript"></script>
+	<style type="text/css">
+		.resource-title{ font-weight: bold; }
+	</style>
 </head>
 <body>
 <?php
@@ -117,11 +115,14 @@ include($SERVER_ROOT.'/includes/header.php');
 						 	?>
 						</div>
 						<?php
-						if($links && $links[0]['sortseq'] == 1){
-							$uStr = str_replace('--SCINAME--',rawurlencode($taxonManager->getTaxonName()),$links[0]['url']);
+						if($linkArr = $taxonManager->getLinkArr()){
 							?>
 							<div id="linkDiv">
-								<?php echo (isset($LANG['GO_TO'])?$LANG['GO_TO']:'Go to'); ?> <a href="<?php echo $uStr; ?>" target="_blank"><?php echo $links[0]['title']; ?></a>...
+								<?php
+								foreach($linkArr as $linkObj){
+									if($linkObj['icon']) echo '<span title="'.$linkObj['title'].'"><a href="'.$linkObj['url'].'" target="_blank"><img src="'.$linkObj['icon'].'" /></a></span>';
+								}
+								?>
 							</div>
 							<?php
 						}

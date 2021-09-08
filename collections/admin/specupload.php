@@ -157,7 +157,7 @@ if($isEditor && $collid){
 				$duManager->setImageFieldMap($fieldImMap);
 			}
 		}
-		if($action == "Save Mapping"){
+		if($action == 'saveMapping'){
 			$statusStr = $duManager->saveFieldMap($_POST);
 			if(!$uspid) $uspid = $duManager->getUspid();
 		}
@@ -361,6 +361,9 @@ if($isEditor && $collid){
 			}
 		}
 	</script>
+	<style type="text/css">
+		.unmapped{ background: yellow; }
+	</style>
 </head>
 <body>
 <?php
@@ -515,14 +518,14 @@ if($isEditor && $collid){
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 						<div style="margin:5px;">
-							<button type="submit" name="action" value="Transfer Records to Central Specimen Table"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
+							<button type="submit" name="action" value="activateOccurrences"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 						</div>
 					</form>
 				</fieldset>
 				<?php
 			}
 		}
-		elseif($action == 'Transfer Records to Central Specimen Table' || $finalTransfer){
+		elseif($action == 'activateOccurrences' || $finalTransfer){
 			echo '<ul>';
 			$duManager->finalTransfer();
 			echo '</ul>';
@@ -781,7 +784,7 @@ if($isEditor && $collid){
 											<div style="margin:10px 0px;">
 												<?php
 												if($uspid) echo '<button type="submit" name="action" value="Reset Field Mapping">'.(isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping').'</button>';
-												echo '<button type="submit" name="action" onclick="return verifySaveMapping(this.form)" style="margin-left:5px" >'.(isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping').'</button>';
+												echo '<button name="action" type="submit" value="saveMapping" onclick="return verifySaveMapping(this.form)" style="margin-left:5px">'.(isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping').'</button>';
 												if(!$uspid) echo ' <span id="newProfileNameDiv" style="margin-left:15px;color:orange;display:none">'.(isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title').': <input type="text" name="profiletitle" style="width:300px" /></span>';
 												?>
 
@@ -914,7 +917,7 @@ if($isEditor && $collid){
 										<option value="">----------------------------------</option>
 										<?php
 										foreach($dbpkOptions as $f){
-											echo '<option '.($dbpk==$f?'SELECTED':'').'>'.$f.'</option>';
+											echo '<option value="'.strtolower($f).'" '.($dbpk==strtolower($f)?'SELECTED':'').'>'.$f.'</option>';
 										}
 										?>
 									</select>
@@ -947,7 +950,7 @@ if($isEditor && $collid){
 									?>
 									<button type="submit" name="action" value="Automap Fields" ><?php echo (isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap Fields'); ?></button>
 									<button type="submit" name="action" value="Verify Mapping" ><?php echo (isset($LANG['VER_MAPPING'])?$LANG['VER_MAPPING']:'Verify Mapping'); ?></button>
-									<button type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" ><?php echo (isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping'); ?></button>
+									<button type="submit" name="action" value="saveMapping" onclick="return verifySaveMapping(this.form)" ><?php echo (isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping'); ?></button>
 									<span id="newProfileNameDiv" style="margin-left:15px;color:red;display:none">
 										<?php echo (isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title'); ?>:
 										<input type="text" name="profiletitle" style="width:300px" />

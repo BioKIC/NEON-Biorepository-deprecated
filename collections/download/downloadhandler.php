@@ -8,11 +8,11 @@ $sourcePage = array_key_exists("sourcepage",$_REQUEST)?$_REQUEST["sourcepage"]:"
 $schema = array_key_exists("schema",$_REQUEST)?$_REQUEST["schema"]:"symbiota";
 $cSet = array_key_exists("cset",$_POST)?$_POST["cset"]:'';
 
-if($schema == "backup"){
-	$collid = $_POST["collid"];
+if($schema == 'backup'){
+	$collid = $_POST['collid'];
 	if($collid && is_numeric($collid)){
 		//check permissions due to sensitive localities not being redacted
-		if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
+		if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']))){
 			$dwcaHandler = new DwcArchiverCore();
 			$dwcaHandler->setSchemaType('backup');
 			$dwcaHandler->setCharSetOut($cSet);
@@ -20,6 +20,7 @@ if($schema == "backup"){
 			$dwcaHandler->setIncludeDets(1);
 			$dwcaHandler->setIncludeImgs(1);
 			$dwcaHandler->setIncludeAttributes(1);
+			if($dwcaHandler->hasMaterialSamples()) $dwcaHandler->setIncludeMaterialSample(1);
 			$dwcaHandler->setRedactLocalities(0);
 			$dwcaHandler->setCollArr($collid);
 
@@ -189,6 +190,8 @@ else{
 			$dwcaHandler->setIncludeImgs($includeImages);
 			$includeAttributes = (array_key_exists('attributes',$_POST)?1:0);
 			$dwcaHandler->setIncludeAttributes($includeAttributes);
+			$includeMaterialSample = (array_key_exists('materialsample',$_POST)?1:0);
+			$dwcaHandler->setIncludeMaterialSample($includeMaterialSample);
 
 			$outputFile = $dwcaHandler->createDwcArchive();
 

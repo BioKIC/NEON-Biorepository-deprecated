@@ -43,7 +43,7 @@ reset($treePath);
 	}
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css" media="screen">
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.14.1/dijit/themes/claro/claro.css" media="screen">
 	<style type="text/css">
 		.dijitLeaf,
 		.dijitIconLeaf,
@@ -56,9 +56,9 @@ reset($treePath);
 			height: 0px;
 		}
 	</style>
-	<script type="text/javascript" src="../../js/jquery.js"></script>
-	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js" data-dojo-config="async: true"></script>
+	<script src="../../js/jquery.js" type="text/javascript" ></script>
+	<script src="../../js/jquery-ui.js" type="text/javascript" ></script>
+	<script src="//ajax.googleapis.com/ajax/libs/dojo/1.14.1/dojo/dojo.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#taxontarget").autocomplete({
@@ -221,7 +221,7 @@ reset($treePath);
 
 				taxonTree.set("path", <?php echo json_encode($treePath); ?>).then(
 					function(path){
-						win.scrollIntoView(taxonTree.selectedNode.id);
+						if(taxonTree.selectedNode) win.scrollIntoView(taxonTree.selectedNode.id);
 					}
 				);
 				taxonTree.startup();

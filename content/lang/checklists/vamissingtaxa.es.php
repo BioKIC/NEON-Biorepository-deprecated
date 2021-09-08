@@ -1,35 +1,35 @@
 <?php
 /*
 ------------------
-Language: English
+Language: Español (Spanish)
 ------------------
 */
 
-$LANG['PROBLEMS'] = 'Problem Taxa';
-$LANG['POSS_MISSING'] = 'Possible Missing Taxa';
-$LANG['REFRESH'] = 'Refresh List';
-$LANG['DOWNLOAD'] = 'Download Specimen Records';
-$LANG['DISP_MODE'] = 'Display Mode';
-$LANG['SPEC_LIST'] = 'Species List';
-$LANG['BATCH_LINK'] = 'Batch Linking';
-$LANG['NOT_FOUND'] = 'Listed below are specimens identified to a species not found in the checklist.
-                        Use the form to add the names and link the vouchers as a batch action.';
-$LANG['SPEC_ID'] = 'Specimen ID';
-$LANG['COLLECTOR'] = 'Collector';
-$LANG['LOCALITY'] = 'Locality';
-$LANG['ADD_CURRENT'] = 'Add name using current taxonomy';
-$LANG['NO_VOUCHERS'] = 'Add names without linking vouchers';
-$LANG['SUBMIT_VOUCHERS'] = 'Submit Vouchers';
-$LANG['SPEC_COUNT'] = 'Specimen Count';
-$LANG['VIEW_NEXT'] = 'View Next';
-$LANG['MISSING_TAXA_EXPL'] = 'Listed below are species name obtained from specimens
-                        matching the above search term but are not found within the taxonomic thesaurus (possibly misspelled?). To add as a voucher,
-						type the correct name from the checklist, and then click the Link Voucher button.
-						The correct name must already be added to the checklist before voucher can be linked.';
-$LANG['LINK_TO'] = 'Link to';
-$LANG['LINK_VOUCHER'] = 'Link Voucher';
-$LANG['NOT_IN_CHECKLIST'] = 'Listed below are taxon names not found in the checklist
-                            but are represented by one or more specimens that have a locality matching the above search term.';
-$LANG['LINK_VOUCHERS'] = 'Link Voucher Specimens';
+$LANG['PROBLEMS'] = 'Taxa Problemáticos';
+$LANG['POSS_MISSING'] = 'Posibles Taxa Faltantes';
+$LANG['REFRESH'] = 'Refrescar Listado';
+$LANG['DOWNLOAD'] = 'Descargar Registros de Especímenes';
+$LANG['DISP_MODE'] = 'Modo Desplegado';
+$LANG['SPEC_LIST'] = 'Listados de Especies';
+$LANG['BATCH_LINK'] = 'Enlazar por Lotes';
+$LANG['NOT_FOUND'] = 'Abajo se encuentran listados los especímenes identificados a especies no encontradas en el listado.
+                        Use el formulario para añadir los nombres y enlazar los vouchers como una acción en lote.';
+$LANG['SPEC_ID'] = 'ID del Especímen';
+$LANG['COLLECTOR'] = 'Colector';
+$LANG['LOCALITY'] = 'Localidad';
+$LANG['ADD_CURRENT'] = 'Añadir nombre usando la taxonomía actual';
+$LANG['NO_VOUCHERS'] = 'Añadir nombres sin enlazar vouchers';
+$LANG['SUBMIT_VOUCHERS'] = 'Enviar Vouchers';
+$LANG['SPEC_COUNT'] = 'Conteo de Especímenes';
+$LANG['VIEW_NEXT'] = 'Ver Siguiente';
+$LANG['MISSING_TAXA_EXPL'] = 'Abajo se encuentran listados los nombres de las especies obtenidos de los especímenes
+                        que encajan con la búsqueda realizada pero que no se encuentran en el tesauro taxonómico (¿posiblemente mal escritos?). Para añadir como un voucher,
+						escriba el nombre correcto en el listado, y luego haga clic en el botón de Enlazar Voucher.
+						El nombre correcto ya debe estar añadido en el listado de especies antes que un voucher pueda ser enlazado.';
+$LANG['LINK_TO'] = 'Enlazar a';
+$LANG['LINK_VOUCHER'] = 'Enlazar Voucher';
+$LANG['NOT_IN_CHECKLIST'] = 'Listados abajo están los nombres de taxa no encontrados en el listado de especies
+                            pero que están representados por uno o más especímenes que tienen una localidad que encaja con la búsqueda realizada.';
+$LANG['LINK_VOUCHERS'] = 'Enlazar Especímenes Voucher';
 
 ?>

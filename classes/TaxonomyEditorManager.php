@@ -1008,17 +1008,16 @@ class TaxonomyEditorManager extends Manager{
 
 	public function getRankArr(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits ';
-		if($this->kingdomName) $sql .= 'WHERE (kingdomname = "'.($this->kingdomName?$this->kingdomName:'Organism').'") ';
-		$sql .= 'ORDER BY rankid ';
-		//echo $sql;
+		$sql = 'SELECT DISTINCT rankid, rankname FROM taxonunits '.
+			'WHERE (kingdomname = "'.($this->kingdomName?$this->kingdomName:'Organism').'") '.
+			'ORDER BY rankid, rankname DESC';
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			$retArr[$row->rankid][] = $row->rankname;
 		}
 		$rs->free();
 		if(!$retArr){
-			$sql2 = 'SELECT DISTINCT rankid, rankname FROM taxonunits ORDER BY rankid ';
+			$sql2 = 'SELECT DISTINCT rankid, rankname FROM taxonunits ORDER BY rankid, rankname DESC ';
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_object()){
 				$retArr[$r2->rankid][] = $r2->rankname;
@@ -1055,24 +1054,6 @@ class TaxonomyEditorManager extends Manager{
 		return $retArr;
 	}
 
-	//Functions retriving autocomplete data
-	public function getAcceptedTaxa($queryTerm){
-		global $CHARSET;
-		$retArr = Array();
-		$sql = 'SELECT t.tid, t.sciname, t.author '.
-			'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-			'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tid = ts.tidaccepted) AND (t.sciname LIKE "'.$this->cleanInStr($queryTerm).'%") '.
-			'ORDER BY t.sciname LIMIT 20';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$sciname = $r->sciname.' '.$r->author;
-			if($CHARSET == 'ISO-8859-1') $sciname = utf8_encode($r->sciname.' '.$r->author);
-			$retArr[] = array('id' => $r->tid,'value' => $sciname);
-		}
-		$rs->free();
-		return $retArr;
-	}
-
 	public function getChildren(){
 		$retArr = array();
 		$sql = 'SELECT t.tid, t.sciname, t.author '.
@@ -1085,21 +1066,6 @@ class TaxonomyEditorManager extends Manager{
 		}
 		$rs->free();
 		asort($retArr);
-		return $retArr;
-	}
-
-	public function getChildAccepted($tid){
-		if(!is_numeric($tid)) return false;
-		$retArr = array();
-		$sql = 'SELECT t.tid, t.sciname '.
-			'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-			'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.parenttid = '.$tid.') AND (ts.tid = ts.tidaccepted) '.
-			'ORDER BY t.sciname LIMIT 20';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->tid] = $r->sciname;
-		}
-		$rs->free();
 		return $retArr;
 	}
 }

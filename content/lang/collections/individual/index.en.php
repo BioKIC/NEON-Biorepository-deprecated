@@ -140,7 +140,5 @@ $LANG['UNABLETOLOCATE'] = 'Unable to locate record';
 $LANG['CHECKING'] = 'Checking archive';
 $LANG['RECORDDELETED'] = 'Record deleted';
 $LANG['VALUE'] = 'Value';
-$LANG['DETERMINATIONNO'] = 'Determination #';
-$LANG['IMAGENO'] = 'Image #';
-
+$LANG['RECORDID'] = 'Record ID';
 ?>

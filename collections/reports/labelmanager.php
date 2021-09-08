@@ -279,8 +279,7 @@ $labelFormatArr = $labelManager->getLabelFormatArr(true);
 							-->
 							<?php
 							echo '<span style="margin-left:15px;"><input name="extendedsearch" type="checkbox" value="1" '.(array_key_exists('extendedsearch', $_POST)?'checked':'').' /></span> ';
-							if($isGeneralObservation)
-								echo 'Search outside user profile';
+							if($isGeneralObservation) echo 'Search outside user profile';
 							else echo 'Search within all collections';
 							?>
 						</div>

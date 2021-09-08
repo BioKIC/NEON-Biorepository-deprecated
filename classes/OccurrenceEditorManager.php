@@ -90,16 +90,22 @@ class OccurrenceEditorManager {
 	}
 
 	public function getDynamicPropertiesArr(){
-		global $EDITOR_PROPERTIES;
+		$retArr = array();
 		$propArr = array();
-		if(isset($EDITOR_PROPERTIES)) $propArr = $EDITOR_PROPERTIES;
-		$dynPropArr = array();
 		if(array_key_exists('dynamicproperties', $this->collMap)){
-			$dynPropArr = json_decode($this->collMap['dynamicproperties'],true);
-			if(isset($dynPropArr['editorProps'])) $propArr = array_merge($propArr,$dynPropArr['editorProps']);
+			$propArr = json_decode($this->collMap['dynamicproperties'],true);
+			if(isset($propArr['editorProps'])){
+				$retArr = $propArr['editorProps'];
+				if(isset($retArr['modules-panel'])){
+					foreach($retArr['modules-panel'] as $module){
+						if(isset($module['paleo']['status']) && $module['paleo']['status']){
+							$this->paleoActivated = true;
+						}
+					}
+				}
+			}
 		}
-		if(isset($propArr['modules-panel']['paleo']['status']) && $propArr['modules-panel']['paleo']['status']) $this->paleoActivated = true;
-		return $propArr;
+		return $retArr;
 	}
 
 	//Query functions
@@ -504,6 +510,14 @@ class OccurrenceEditorManager {
 					}
 					else{
 						$sqlWhere .= 'AND ('.$cf.' LIKE "%'.$cv.'%") ';
+					}
+				}
+				elseif($ct=='NOT LIKE' && $cv){
+					if(strpos($cv,'%') !== false){
+						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "'.$cv.'") ';
+					}
+					else{
+						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "%'.$cv.'%") ';
 					}
 				}
 				elseif($ct=='STARTS' && $cv){
@@ -1184,53 +1198,53 @@ class OccurrenceEditorManager {
 					//Archive determinations
 					$detObj = json_encode($detArr[$detId]);
 					$sqlArchive = 'UPDATE guidoccurdeterminations '.
-							'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($detObj,'utf8',$CHARSET)).'" '.
-					'WHERE (detid = '.$detId.')';
+						'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($detObj,'utf8',$CHARSET)).'" '.
+						'WHERE (detid = '.$detId.')';
 					$this->conn->query($sqlArchive);
 				}
 				$rs->free();
 				$archiveArr['dets'] = $detArr;
 
 				//Archive image history
-				$imgArr = array();
 				$sql = 'SELECT * FROM images WHERE occid = '.$delOccid;
-				$rs = $this->conn->query($sql);
-				while($r = $rs->fetch_assoc()){
-					$imgId = $r['imgid'];
-					foreach($r as $k => $v){
-						if($v) $imgArr[$imgId][$k] = $this->encodeStrTargeted($v,$CHARSET,'utf8');
-					}
-					//Archive determinations
-					$imgObj = json_encode($imgArr[$imgId]);
-					$sqlArchive = 'UPDATE guidimages '.
+				if($rs = $this->conn->query($sql)){
+					$imgArr = array();
+					while($r = $rs->fetch_assoc()){
+						$imgId = $r['imgid'];
+						foreach($r as $k => $v){
+							if($v) $imgArr[$imgId][$k] = $this->encodeStrTargeted($v,$CHARSET,'utf8');
+						}
+						//Archive determinations
+						$imgObj = json_encode($imgArr[$imgId]);
+						$sqlArchive = 'UPDATE guidimages '.
 							'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($imgObj,'utf8',$CHARSET)).'" '.
-					'WHERE (imgid = '.$imgId.')';
-					$this->conn->query($sqlArchive);
-				}
-				$rs->free();
-				$archiveArr['imgs'] = $imgArr;
-				//Delete images
-				if($imgArr){
-					$imgidStr = implode(',',array_keys($imgArr));
-					//Remove any OCR text blocks linked to the image
-					if(!$this->conn->query('DELETE FROM specprocessorrawlabels WHERE (imgid IN('.$imgidStr.'))')){
-						$this->errorArr[] = 'ERROR removing OCR blocks linked to images: '.$this->conn->error;
+							'WHERE (imgid = '.$imgId.')';
+						$this->conn->query($sqlArchive);
 					}
-					//Remove image tags
-					if(!$this->conn->query('DELETE FROM imagetag WHERE (imgid IN('.$imgidStr.'))')){
-						$this->errorArr[] = 'ERROR removing imageTags linked to images: '.$this->conn->error;
-					}
-					//Remove images
-					if(!$this->conn->query('DELETE FROM images WHERE (imgid IN('.$imgidStr.'))')){
-						$this->errorArr[] = 'ERROR removing image links: '.$this->conn->error;
+					$rs->free();
+					//Delete images
+					if($imgArr){
+						$archiveArr['imgs'] = $imgArr;
+						$imgidStr = implode(',',array_keys($imgArr));
+						//Remove any OCR text blocks linked to the image
+						if(!$this->conn->query('DELETE FROM specprocessorrawlabels WHERE (imgid IN('.$imgidStr.'))')){
+							$this->errorArr[] = 'ERROR removing OCR blocks linked to images: '.$this->conn->error;
+						}
+						//Remove image tags
+						if(!$this->conn->query('DELETE FROM imagetag WHERE (imgid IN('.$imgidStr.'))')){
+							$this->errorArr[] = 'ERROR removing imageTags linked to images: '.$this->conn->error;
+						}
+						//Remove images
+						if(!$this->conn->query('DELETE FROM images WHERE (imgid IN('.$imgidStr.'))')){
+							$this->errorArr[] = 'ERROR removing image links: '.$this->conn->error;
+						}
 					}
 				}
 
 				//Archive paleo
 				if($this->paleoActivated){
 					$sql = 'SELECT * FROM omoccurpaleo WHERE occid = '.$delOccid;
-					$rs = $this->conn->query($sql);
-					if($rs){
+					if($rs = $this->conn->query($sql)){
 						$paleoArr = array();
 						if($r = $rs->fetch_assoc()){
 							foreach($r as $k => $v){
@@ -1243,20 +1257,49 @@ class OccurrenceEditorManager {
 				}
 
 				//Archive Exsiccati info
-				$exsArr = array();
 				$sql = 'SELECT t.ometid, t.title, t.abbreviation, t.editor, t.exsrange, t.startdate, t.enddate, t.source, t.notes as titlenotes, '.
 					'n.omenid, n.exsnumber, n.notes AS numnotes, l.notes, l.ranking '.
 					'FROM omexsiccatiocclink l INNER JOIN omexsiccatinumbers n ON l.omenid = n.omenid '.
 					'INNER JOIN omexsiccatititles t ON n.ometid = t.ometid '.
 					'WHERE l.occid = '.$delOccid;
-				$rs = $this->conn->query($sql);
-				if($r = $rs->fetch_assoc()){
-					foreach($r as $k => $v){
-						if($v) $exsArr[$k] = $this->encodeStrTargeted($v,$CHARSET,'utf8');
+				if($rs = $this->conn->query($sql)){
+					$exsArr = array();
+					if($r = $rs->fetch_assoc()){
+						foreach($r as $k => $v){
+							if($v) $exsArr[$k] = $this->encodeStrTargeted($v,$CHARSET,'utf8');
+						}
 					}
+					$rs->free();
+					$archiveArr['exsiccati'] = $exsArr;
 				}
-				$rs->free();
-				$archiveArr['exsiccati'] = $exsArr;
+
+				//Archive associations info
+				$sql = 'SELECT * FROM omoccurassociations WHERE occid = '.$delOccid;
+				if($rs = $this->conn->query($sql)){
+					$assocArr = array();
+					while($r = $rs->fetch_assoc()){
+						$id = $r['associd'];
+						foreach($r as $k => $v){
+							if($v) $assocArr[$id][$k] = $this->encodeStrTargeted($v,$CHARSET,'utf8');
+						}
+					}
+					$rs->free();
+					$archiveArr['assoc'] = $assocArr;
+				}
+
+				//Archive Material Sample info
+				$sql = 'SELECT * FROM ommaterialsample WHERE occid = '.$delOccid;
+				if($rs = $this->conn->query($sql)){
+					$msArr = array();
+					while($r = $rs->fetch_assoc()){
+						foreach($r as $k => $v){
+							$id = $r['matSampleID'];
+							if($v) $msArr[$id][$k] = $this->encodeStrTargeted($v,$CHARSET,'utf8');
+						}
+					}
+					$rs->free();
+					$archiveArr['matSample'] = $msArr;
+				}
 
 				//Archive complete occurrence record
 				$archiveArr['dateDeleted'] = date('r').' by '.$USER_DISPLAY_NAME;

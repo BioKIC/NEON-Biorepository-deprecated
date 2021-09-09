@@ -41,6 +41,7 @@ $LANG['OCC_DATA'] = "Données d'Occurrence";
 $LANG['NEW_OCC_RECORD'] = "Nouveau record d'Occurrence";
 $LANG['DET_HISTORY'] = 'Historique de Détermination';
 $LANG['IMAGES'] = 'Images';
+$LANG['MATERIAL_SAMPLE'] = 'Échantillon de Matériau';
 $LANG['LINKED_RES'] = 'Ressources Liées';
 $LANG['TRAITS'] = 'Traits';
 $LANG['ADMIN'] = 'Admin';

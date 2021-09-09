@@ -356,7 +356,7 @@ class OccurrenceHarvester{
 				if($tableName == 'mpr_perpitprofile_in') continue;
 				$fieldArr = $eArr['smsFieldEntries'];
 				$fateLocation = ''; $fateDate = ''; $collLoc = '';
-				$preparations = ''; $identArr = array(); $assocMedia = array();
+				$preparations = ''; $sampleProp = ''; $identArr = array(); $assocMedia = array();
 				$tableArr = array();
 				foreach($fieldArr as $fArr){
 					if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
@@ -385,10 +385,10 @@ class OccurrenceHarvester{
 					elseif($fArr['smsKey'] == 'preservative_concentration' && $fArr['smsValue']) $preparations .= 'concentration: '.$fArr['smsValue'].', ';
 					elseif($fArr['smsKey'] == 'preservative_volume' && $fArr['smsValue']) $preparations .= 'volume: '.$fArr['smsValue'].', ';
 					elseif($fArr['smsKey'] == 'preservative_type' && $fArr['smsValue']) $preparations .= 'type: '.$fArr['smsValue'].', ';
-					elseif($fArr['smsKey'] == 'sample_type' && $fArr['smsValue']) $preparations .= 'sample type: '.$fArr['smsValue'].', ';
-					elseif($fArr['smsKey'] == 'sample_condition' && $fArr['smsValue']) $preparations .= 'sample condition: '.$fArr['smsValue'].', ';
-					elseif($fArr['smsKey'] == 'sample_mass' && $fArr['smsValue']) $preparations .= 'sample mass: '.$fArr['smsValue'].', ';
-					elseif($fArr['smsKey'] == 'sample_volume' && $fArr['smsValue']) $preparations .= 'sample volume: '.$fArr['smsValue'].', ';
+					elseif($fArr['smsKey'] == 'sample_type' && $fArr['smsValue']) $tableArr['sample_type'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'sample_condition' && $fArr['smsValue']) $tableArr['sample_condition'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'sample_mass' && $fArr['smsValue']) $tableArr['sample_mass'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'sample_volume' && $fArr['smsValue']) $tableArr['sample_volume'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'associated_media'){
 						if(!strpos($fArr['smsValue'],'biorepo.neonscience.org/portal')) $assocMedia['url'] = $fArr['smsValue'];
 					}
@@ -435,8 +435,8 @@ class OccurrenceHarvester{
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
 				//Get data that was provided within manifest
 				//$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
-				if(isset($sampleArr['sampleCode'])) $dwcArr['identifiers']['NEON sampleCode (barcode)'] = $sampleArr['sampleCode'];
-				if(isset($sampleArr['sampleID'])) $dwcArr['identifiers']['NEON sampleID'] = $sampleArr['sampleID'];
+				if(isset($sampleArr['sampleCode']) && $sampleArr['sampleCode']) $dwcArr['identifiers']['NEON sampleCode (barcode)'] = $sampleArr['sampleCode'];
+				if(isset($sampleArr['sampleID']) && $sampleArr['sampleID']) $dwcArr['identifiers']['NEON sampleID'] = $sampleArr['sampleID'];
 				if(isset($sampleArr['event_id'])) $dwcArr['eventID'] = $sampleArr['event_id'];
 				if(isset($sampleArr['specimen_count'])) $dwcArr['individualCount'] = $sampleArr['specimen_count'];
 				elseif(isset($sampleArr['individualCount'])) $dwcArr['individualCount'] = $sampleArr['individualCount'];
@@ -448,11 +448,16 @@ class OccurrenceHarvester{
 				if(isset($sampleArr['assocMedia'])) $dwcArr['assocMedia'] = $sampleArr['assocMedia'];
 
 				$dynProp = array();
-				if(isset($sampleArr['filterVolume'])) $dynProp[] = 'filterVolume:'.$sampleArr['filterVolume'];
-				if(isset($sampleArr['temperature'])) $dynProp[] = 'temperature:'.$sampleArr['temperature'];
-				if(isset($sampleArr['minimum_depth_in_meters'])) $dynProp[] = 'minimum depth:'.$sampleArr['minimum_depth_in_meters'].'m ';
-				if(isset($sampleArr['maximum_depth_in_meters'])) $dynProp[] = 'maximum depth:'.$sampleArr['maximum_depth_in_meters'].'m ';
-				if(isset($sampleArr['verbatim_depth'])) $dynProp[] = 'verbatim depth:'.$sampleArr['verbatim_depth'];
+				if(isset($sampleArr['filterVolume'])) $dynProp[] = 'filterVolume: '.$sampleArr['filterVolume'];
+				if(isset($sampleArr['temperature'])) $dynProp[] = 'temperature: '.$sampleArr['temperature'];
+				if(isset($sampleArr['minimum_depth_in_meters'])) $dynProp[] = 'minimum depth: '.$sampleArr['minimum_depth_in_meters'].'m ';
+				if(isset($sampleArr['maximum_depth_in_meters'])) $dynProp[] = 'maximum depth: '.$sampleArr['maximum_depth_in_meters'].'m ';
+				if(isset($sampleArr['verbatim_depth'])) $dynProp[] = 'verbatim depth: '.$sampleArr['verbatim_depth'];
+				if(isset($sampleArr['sample_type'])) $dynProp[] = 'sample type: '.$sampleArr['sample_type'];
+				if(isset($sampleArr['sample_condition'])) $dynProp[] = 'sample condition: '.$sampleArr['sample_condition'];
+				if(isset($sampleArr['sample_mass'])) $dynProp[] = 'sample mass: '.$sampleArr['sample_mass'];
+				if(isset($sampleArr['sample_volume'])) $dynProp[] = 'sample volume: '.$sampleArr['sample_volume'];
+
 				if($dynProp) $dwcArr['dynamicProperties'] = implode('; ',$dynProp);
 
 				//Set occurrence description using sampleClass
@@ -460,9 +465,9 @@ class OccurrenceHarvester{
 					if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
 					else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
 				}
-				if(isset($sampleArr['collected_by'])) $dwcArr['recordedBy'] = $sampleArr['collected_by'];
-				if(isset($sampleArr['collect_start_date'])) $dwcArr['eventDate'] = $sampleArr['collect_start_date'];
-				elseif($sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
+				if(isset($sampleArr['collected_by']) && $sampleArr['collected_by']) $dwcArr['recordedBy'] = $sampleArr['collected_by'];
+				if(isset($sampleArr['collect_start_date']) && $sampleArr['collect_start_date']) $dwcArr['eventDate'] = $sampleArr['collect_start_date'];
+				elseif(isset($sampleArr['collectDate']) && $sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
 				elseif($sampleArr['sampleID']){
 					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
 						//Get date from sampleID

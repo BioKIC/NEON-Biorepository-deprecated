@@ -98,30 +98,30 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				<!--This should also be visible when !$geoThesID -->
 				<fieldset id="new-fieldset">
 					<legend>Add Geographic Unit</legend>
-					<form name="unitAddForm" action="editor.php" method="post">
+					<form name="unitAddForm" action="editor.php" method="post" style="display:none">
 						<div class="field-div">
 							<label>GeoUnit Name</label>:
-							<span class="editFormElem"><input type="text" name="geoTerm" style="width:200px;" required /></span>
+							<span><input type="text" name="geoTerm" style="width:200px;" required /></span>
 						</div>
 						<div class="field-div">
 							<label>ISO2 Code</label>:
-							<span class="editFormElem"><input type="text" name="iso2" style="width:50px;" /></span>
+							<span><input type="text" name="iso2" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>ISO3 Code</label>:
-							<span class="editFormElem"><input type="text" name="iso3" style="width:50px;" /></span>
+							<span><input type="text" name="iso3" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>Abbreviation</label>:
-							<span class="editFormElem"><input type="text" name="abbreviation" style="width:50px;" /></span>
+							<span><input type="text" name="abbreviation" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>Numeric Code</label>:
-							<span class="editFormElem"><input type="text" name="numCode" style="width:50px;" /></span>
+							<span><input type="text" name="numCode" style="width:50px;" /></span>
 						</div>
 						<div class="field-div">
 							<label>Category</label>:
-							<span class="editFormElem">
+							<span>
 								<select name="category">
 									<option value="">Select Category</option>
 									<option value="">----------------------</option>
@@ -136,11 +136,11 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						</div>
 						<div class="field-div">
 							<label>Notes</label>:
-							<span class="editFormElem"><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
+							<span><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
 						</div>
 													<div class="field-div">
 								<label>Parent term</label>:
-								<span class="editFormElem">
+								<span>
 									<select name="parentID">
 										<option value="">Select Parent Term</option>
 										<option value="">----------------------</option>

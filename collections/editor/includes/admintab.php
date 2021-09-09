@@ -20,39 +20,39 @@ $occManager->setOccId($occid);
 		if($editArr){
 			?>
 			<fieldset style="padding:15px;margin:10px 0px;">
-				<legend><b>History of Internal Edits</b></legend>
+				<legend><b><?php echo $LANG['EDIT_HISTORY_INT']; ?></b></legend>
 				<?php 
 				if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollAdmin'])){
 					?>
-					<div style="float:right;" title="Manage Edit History">
+					<div style="float:right;" title="<?php echo $LANG['MANAGE_HISTORY']; ?>">
 						<a href="../editor/editreviewer.php?collid=<?php echo $collId.'&occid='.$occid; ?>" target="_blank"><img src="../../images/edit.png" style="border:0px;width:14px;" /></a>
 					</div>
 					<?php
 				}
 				foreach($editArr as $ts => $eArr){
-					$reviewStr = 'OPEN';
+					$reviewStr = $LANG['OPEN'];
 					if($eArr['reviewstatus'] == 2){
-						$reviewStr = 'PENDING';
+						$reviewStr = $LANG['PENDING'];
 					}
 					elseif($eArr['reviewstatus'] == 3){
-						$reviewStr = 'CLOSED';
+						$reviewStr = $LANG['CLOSED'];
 					}
 					?>
 					<div>
-						<b>Editor:</b> <?php echo $eArr['editor']; ?>
-						<span style="margin-left:30px;"><b>Date:</b> <?php echo $ts; ?></span>
+						<b><?php echo $LANG['EDITOR']; ?>:</b> <?php echo $eArr['editor']; ?>
+						<span style="margin-left:30px;"><b><?php echo $LANG['DATE']; ?>:</b> <?php echo $ts; ?></span>
 					</div>
 					<div>
-						<span><b>Applied Status:</b> <?php echo ($eArr['appliedstatus']?'applied':'not applied'); ?></span>
-						<span style="margin-left:30px;"><b>Review Status:</b> <?php echo $reviewStr; ?></span>
+						<span><b><?php echo $LANG['APPLIED_STATUS']; ?>:</b> <?php echo ($eArr['appliedstatus']?'applied':'not applied'); ?></span>
+						<span style="margin-left:30px;"><b><?php echo $LANG['REVIEW_STATUS']; ?>:</b> <?php echo $reviewStr; ?></span>
 					</div>
 					<?php
 					$edArr = $eArr['edits'];
 					foreach($edArr as $vArr){
 						echo '<div style="margin:10px 15px;">';
-						echo '<b>Field:</b> '.$vArr['fieldname'].'<br/>';
-						echo '<b>Old Value:</b> '.$vArr['old'].'<br/>';
-						echo '<b>New Value:</b> '.$vArr['new'].'<br/>';
+						echo '<b>'.$LANG['FIELD'].':</b> '.$vArr['fieldname'].'<br/>';
+						echo '<b>'.$LANG['OLD_VALUE'].':</b> '.$vArr['old'].'<br/>';
+						echo '<b>'.$LANG['NEW_VALUE'].':</b> '.$vArr['new'].'<br/>';
 						echo '</div>';
 					}
 					echo '<div style="margin:5px 0px;">&nbsp;</div>';
@@ -64,7 +64,7 @@ $occManager->setOccId($occid);
 		if($externalEdits){
 			?>
 			<fieldset style="margin-top:20px;padding:20px;">
-				<legend><b>History of External Edits</b></legend>
+				<legend><b><?php echo $LANG['EDIT_HISTORY_EXT']; ?></b></legend>
 				<?php 
 				foreach($externalEdits as $orid => $eArr){
 					foreach($eArr as $appliedStatus => $eArr2){
@@ -73,21 +73,21 @@ $occManager->setOccId($occid);
 						elseif($eArr2['reviewstatus'] == 3) $reviewStr = 'CLOSED';
 						?>
 						<div>
-							<b>Editor:</b> <?php echo $eArr2['editor']; ?>
-							<span style="margin-left:30px;"><b>Date:</b> <?php echo $eArr2['ts']; ?></span>
-							<span style="margin-left:30px;"><b>Source:</b> <?php echo $eArr2['source']; ?></span>
+							<b><?php echo $LANG['EDITOR']; ?>:</b> <?php echo $eArr2['editor']; ?>
+							<span style="margin-left:30px;"><b><?php echo $LANG['DATE']; ?>:</b> <?php echo $eArr2['ts']; ?></span>
+							<span style="margin-left:30px;"><b><?php echo $LANG['SOURCE']; ?>:</b> <?php echo $eArr2['source']; ?></span>
 						</div>
 						<div>
-							<span><b>Applied Status:</b> <?php echo ($appliedStatus?'applied':'not applied'); ?></span>
-							<span style="margin-left:30px;"><b>Review Status:</b> <?php echo $reviewStr; ?></span>
+							<span><b><?php echo $LANG['APPLIED_STATUS']; ?>:</b> <?php echo ($appliedStatus?'applied':'not applied'); ?></span>
+							<span style="margin-left:30px;"><b><?php echo $LANG['REVIEW_STATUS']; ?>:</b> <?php echo $reviewStr; ?></span>
 						</div>
 						<?php
 						$edArr = $eArr2['edits'];
 						foreach($edArr as $fieldName => $vArr){
 							echo '<div style="margin:15px;">';
-							echo '<b>Field:</b> '.$fieldName.'<br/>';
-							echo '<b>Old Value:</b> '.$vArr['old'].'<br/>';
-							echo '<b>New Value:</b> '.$vArr['new'].'<br/>';
+							echo '<b>'.$LANG['FIELD'].':</b> '.$fieldName.'<br/>';
+							echo '<b>'.$LANG['OLD_VALUE'].':</b> '.$vArr['old'].'<br/>';
+							echo '<b>'.$LANG['NEW_VALUE'].':</b> '.$vArr['new'].'<br/>';
 							echo '</div>';
 						}
 						echo '<div style="margin:15px 0px;"><hr/></div>';
@@ -99,19 +99,19 @@ $occManager->setOccId($occid);
 		}
 	}
 	else{
-		echo '<div style="margin:10px">No previous edits recorded</div>';
+		echo '<div style="margin:10px">'.$LANG['NO_PREV_EDITS'].'</div>';
 	}
 	$collAdminList = $occManager->getCollectionList();
 	unset($collAdminList[$collId]);
 	if($collAdminList){
 		?>
 		<fieldset style="padding:15px;margin:10px 0px;">
-			<legend><b>Transfer Specimen</b></legend>
+			<legend><b><?php echo $LANG['TRANSFER_SPEC']; ?></b></legend>
 			<form name="transrecform" method="post" target="occurrenceeditor.php">
 				<div>
-					<b>Target Collection</b><br />
+					<b><?php echo $LANG['TARGET_COL']; ?></b><br />
 					<select name="transfercollid">
-						<option value="0">Select Collection</option> 
+						<option value="0"><?php echo $LANG['SEL_COL']; ?></option> 
 						<option value="0">----------------------</option> 
 						<?php 
 						foreach($collAdminList as $kCollid => $vCollName){
@@ -119,12 +119,12 @@ $occManager->setOccId($occid);
 						}
 						?>
 					</select><br />
-					<input name="remainoncoll" type="checkbox" value="1" CHECKED /> Remain on Current Collection
+					<input name="remainoncoll" type="checkbox" value="1" CHECKED /> <?php echo $LANG['REMAIN_CURRENT']; ?>
 				</div>
 				<div style="margin:10px;">
 					<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
 					<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
-					<input name="submitaction" type="submit" value="Transfer Record" />
+					<button name="submitaction" type="submit" value="Transfer Record" ><?php echo $LANG['TRANSFER_RECORD']; ?></button>
 				</div>
 			</form>
 		</fieldset>
@@ -132,44 +132,35 @@ $occManager->setOccId($occid);
 	}
 	?>
 	<fieldset style="padding:15px;margin:10px 0px;">
-		<legend><b>Delete Occurrence Record</b></legend>
-		<form name="deleteform" method="post" action="occurrenceeditor.php" onsubmit="return confirm('Are you sure you want to delete this record?')">
+		<legend><b><?php echo $LANG['DEL_RECORD']; ?></b></legend>
+		<form name="deleteform" method="post" action="occurrenceeditor.php" onsubmit="return confirm('<?php echo $LANG['SURE_DEL']; ?>')">
 			<div style="margin:15px">
-				Record first needs to be evaluated before it can be deleted from the system.
-				The evaluation ensures that the deletion of this record will not interfer with
-				the integrity of other linked data. Note that all determination and
-				comments for this occurrence will be automatically deleted. Links to images, and checklist vouchers
-				will have to be individually addressed before can be deleted.
+				<?php echo $LANG['REC_MUST_EVALUATE']; ?>
 				<div style="margin:15px;display:block;">
-					<input name="verifydelete" type="button" value="Evaluate record for deletion" onclick="verifyDeletion(this.form);" />
+					<button name="verifydelete" type="button" value="Evaluate record for deletion" onclick="verifyDeletion(this.form);" ><?php echo $LANG['EVALUATE_FOR_DEL']; ?></button>
 				</div>
 				<div id="delverimgdiv" style="margin:15px;">
-					<b>Image Links: </b>
-					<span id="delverimgspan" style="color:orange;display:none;">checking image links...</span>
+					<b><?php echo $LANG['IMG_LINKS']; ?>: </b>
+					<span id="delverimgspan" style="color:orange;display:none;"><?php echo $LANG['CHECKING_LINKS']; ?>...</span>
 					<div id="delimgfailspan" style="display:none;style:0px 10px 10px 10px;">
-						<span style="color:red;">Warning:</span>
-						One or more images are linked to this occurrence.
-						Continuing will remove all images linked to this specimen record. 
-						If you prefer to leave the image in the system only linked to the taxon name, 
-						visit the Image Tab to disassociate image from specimen. 
+						<span style="color:red;"><?php echo $LANG['WARNING']; ?>:</span>
+						<?php echo $LANG['IMAGES_ARE_LINKED']; ?>
 					</div>
 					<div id="delimgappdiv" style="display:none;">
-						<span style="color:green;">Approved for deletion.</span>
-						No images are directly associated with this occurrence record.
+						<span style="color:green;"><?php echo $LANG['APPROVED_FOR_DEL']; ?>.</span>
+						<?php echo $LANG['NO_IMGS']; ?>.
 					</div>
 				</div>
 				<div id="delvervoucherdiv" style="margin:15px;">
-					<b>Checklist Voucher Links: </b>
-					<span id="delvervouspan" style="color:orange;display:none;">checking checklist links...</span>
+					<b><?php echo $LANG['CHECKLIST_LINKS']; ?>: </b>
+					<span id="delvervouspan" style="color:orange;display:none;"><?php echo $LANG['CHECKING_LINKS']; ?>...</span>
 					<div id="delvouappdiv" style="display:none;">
-						<span style="color:green;">Approved for deletion.</span>
-						No checklists have been linked to this occurrence record.
+						<span style="color:green;"><?php echo $LANG['APPROVED_FOR_DEL']; ?>.</span>
+						<?php echo $LANG['NO_CHECKLISTS']; ?>.
 					</div>
 					<div id="delvoulistdiv" style="display:none;style:0px 10px 10px 10px;">
-						<span style="color:red;">Warning:</span>
-						This occurrence serves as an occurrence voucher for the following species checklists.
-						Deleting this occurrence will remove these association.
-						You may want to first verify this action with the checklist administrators.
+						<span style="color:red;"><?php echo $LANG['WARNING']; ?>:</span>
+						<?php echo $LANG['CHECKLIST_IS_LINKED']; ?>.
 						<ul id="voucherlist">
 						</ul>
 					</div>
@@ -177,7 +168,7 @@ $occManager->setOccId($occid);
 				<div id="delapprovediv" style="margin:15px;display:none;">
 					<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 					<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
-					<input name="submitaction" type="submit" value="Delete Occurrence" />
+					<button name="submitaction" type="submit" value="Delete Occurrence"><?php echo $LANG['DEL_OCC']; ?></button>
 				</div>
 			</div>
 		</form>

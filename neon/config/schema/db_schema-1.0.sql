@@ -80,3 +80,6 @@ ALTER TABLE `NeonSample`
 
 ALTER TABLE `NeonSample` 
   ADD COLUMN `igsnPushedToNEON` INT NULL AFTER `notes`;
+  
+ALTER TABLE `NeonSample` 
+  ADD COLUMN `archiveMedium` VARCHAR(45) NULL AFTER `igsnPushedToNEON`;

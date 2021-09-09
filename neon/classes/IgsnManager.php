@@ -76,19 +76,34 @@ class IgsnManager{
 			//$url = $apiUrlBase.$r->occurrenceID.'&apiToken='.$neonApiKey;
 			$url = $apiUrlBase.$r->occurrenceID;
 			$igsnPushedToNEON = 0;
+			$archiveMedium = '';
 			if($json = @file_get_contents($url)){
 				$resultArr = json_decode($json,true);
 				if(!isset($resultArr['error']) && isset($resultArr['data']['sampleViews'][0])){
 					$igsnPushedToNEON = 1;
+					if(isset($resultArr['data']['sampleViews'][0]['sampleEvents'])){
+						foreach($resultArr['data']['sampleViews'][0]['sampleEvents'] as $sampleEventArr){
+							if(isset($sampleEventArr['smsFieldEntries'])){
+								foreach($sampleEventArr['smsFieldEntries'] as $fieldEntriesArr){
+									if(isset($fieldEntriesArr['smsKey']) && $fieldEntriesArr['smsKey'] == 'preservative_type'){
+										if($fieldEntriesArr['smsValue']) $archiveMedium = $fieldEntriesArr['smsValue'];
+									}
+								}
+							}
+						}
+					}
 					$syncCnt++;
 				}
 				else $unsyncCnt++;
 			}
 			else $unsyncCnt++;
-			$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$r->occid;
-			if(!$this->conn->multi_query($sql)){
-				echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
+			if($archiveMedium){
+				$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.', archiveMedium = "'.$this->cleanInStr($archiveMedium).'" WHERE occid = '.$r->occid;
+				if(!$this->conn->multi_query($sql)){
+					echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
+				}
 			}
+			else echo '<li>ERROR: sample skipped, unable to harvest archiveMedium</li>';
 			$totalCnt++;
 			if($totalCnt%100 == 0){
 				echo '<li style="margin-left: 15px">'.$totalCnt.' checked</li>';
@@ -105,12 +120,12 @@ class IgsnManager{
 	public function exportUnsynchronizedReport(){
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		$fieldMap = array('archiveStartDate' => '"" as archiveStartDate', 'sampleID' => 's.sampleID', 'sampleCode' => 's.sampleCode', 'sampleFate' => '"archived" as sampleFate',
-			'sampleClass' => 's.sampleClass', 'archiveMedium' => '"" as archiveMedium', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
+			'sampleClass' => 's.sampleClass', 'archiveMedium' => 's.archiveMedium', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
 			'externalURLs' => 'CONCAT("https://biorepo.neonscience.org/portal/collections/individual/index.php?occid=", o.occid) as referenceUrl',
 			'collectionCode' => 'CONCAT_WS(":", c.institutionCode, c.collectionCode) as collectionCode');
 		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
 			INNER JOIN omcollections c ON c.collid = o.collid
-			WHERE o.occurrenceID IS NOT NULL AND (s.igsnPushedToNEON = 0)';
+			WHERE o.occurrenceID IS NOT NULL AND (s.igsnPushedToNEON = 0) AND s.archiveMedium IS NOT NULL';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$fileName = 'biorepoIGSNReport_'.date('Y-d-m').'.csv';

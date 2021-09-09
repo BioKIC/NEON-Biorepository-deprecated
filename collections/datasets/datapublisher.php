@@ -346,7 +346,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				$blockSubmitMsg = 'Archive cannot be published until occurrenceID GUID source is set<br/>';
 			}
 			if($recFlagArr['nullBasisRec']){
-				echo '<div style="margin:10px;font-weight:bold;color:red;">'.$LANG['THERE_ARE'].' '.$recFlagArr['nullBasisRec'].$LANG['MISSING_BASISOFRECORD'].' '.' <a href="../editor/occurrencetabledisplay.php?q_recordedby=&q_recordnumber=&q_catalognumber&collid='.$collid.'&csmode=0&occid=&occindex=0">'.$LANG['EDIT_EXISTING'].'</a> '.$LANG['TO_CORRECT']'.'</div>';
+				echo '<div style="margin:10px;font-weight:bold;color:red;">'.$LANG['THERE_ARE'].' '.$recFlagArr['nullBasisRec'].$LANG['MISSING_BASISOFRECORD'].' '.' <a href="../editor/occurrencetabledisplay.php?q_recordedby=&q_recordnumber=&q_catalognumber&collid='.$collid.'&csmode=0&occid=&occindex=0">'.$LANG['EDIT_EXISTING'].'</a> '.$LANG['TO_CORRECT'].'</div>';
 			}
 			if($publishGBIF && $dwcUri && isset($GBIF_USERNAME) && isset($GBIF_PASSWORD) && isset($GBIF_ORG_KEY) && $GBIF_ORG_KEY){
 				if($collManager->getDatasetKey()){

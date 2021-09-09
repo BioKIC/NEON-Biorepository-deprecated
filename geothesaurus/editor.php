@@ -94,7 +94,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
 
 			</div>
-			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;" style="display:none">
+			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;display:none">
 				<!--This should also be visible when !$geoThesID -->
 				<fieldset id="new-fieldset">
 					<legend>Add Geographic Unit</legend>

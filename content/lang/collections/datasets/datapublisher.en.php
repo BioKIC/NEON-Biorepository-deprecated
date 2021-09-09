@@ -21,7 +21,7 @@ $LANG['DWCA_EXPLAIN_2'] = 'file. DwC-A files are a single compressed ZIP file th
 			document that describes the content. The occurrence data file is required, but identifications (determinations) and image metadata are optional.
 			Fields within the occurrences.csv file are defined by the';
 $LANG['DWC'] = 'Darwin Core';
-$LANG['DWCA_EXPLAIN_2'] = 'exchange standard. We recommend that you also review instructions for';
+$LANG['DWCA_EXPLAIN_3'] = 'exchange standard. We recommend that you also review instructions for';
 $LANG['PUBLISH_IDIGBIO'] = 'Publishing Occurrence Data to iDigBio';
 $LANG['PUBLISH_GBIF'] = 'Publishing Occurrence Data to GBIF';
 $LANG['DWCA_DOWNLOAD_EXPLAIN_1'] = 'The following downloads are occurrence data packages from collections

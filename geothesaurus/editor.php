@@ -94,11 +94,11 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
 
 			</div>
-			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;">
+			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;" style="display:none">
 				<!--This should also be visible when !$geoThesID -->
 				<fieldset id="new-fieldset">
 					<legend>Add Geographic Unit</legend>
-					<form name="unitAddForm" action="editor.php" method="post" style="display:none">
+					<form name="unitAddForm" action="editor.php" method="post">
 						<div class="field-div">
 							<label>GeoUnit Name</label>:
 							<span><input type="text" name="geoTerm" style="width:200px;" required /></span>

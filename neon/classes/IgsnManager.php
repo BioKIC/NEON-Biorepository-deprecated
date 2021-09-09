@@ -103,7 +103,7 @@ class IgsnManager{
 						}
 					}
 					$syncCnt++;
-					if(!$archiveMedium){
+					if(!$igsnPushedToNEON && !$archiveMedium){
 						echo '<li>WARNING: unable to harvest archiveMedium (<a href="../collections/individual/index.php?occid='.$r->occid.'" target="_blank">'.$r->occid.'</a>, ';
 						echo '<a href="'.$url.'" target="_blank">'.$url.'</a>)</li>';
 					}

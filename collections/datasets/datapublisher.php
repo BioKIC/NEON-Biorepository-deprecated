@@ -346,7 +346,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				$blockSubmitMsg = 'Archive cannot be published until occurrenceID GUID source is set<br/>';
 			}
 			if($recFlagArr['nullBasisRec']){
-				echo '<div style="margin:10px;font-weight:bold;color:red;">'.$LANG['THERE_ARE'].' '.$recFlagArr['nullBasisRec'].$LANG['MISSING_BASISOFRECORD'].' '.' <a href="../editor/occurrencetabledisplay.php?q_recordedby=&q_recordnumber=&q_catalognumber&collid='.$collid.'&csmode=0&occid=&occindex=0">'.$LANG['EDIT_EXISTING'].'</a> '.$LANG['TO_CORRECT']'.</div>';
+				echo '<div style="margin:10px;font-weight:bold;color:red;">'.$LANG['THERE_ARE'].' '.$recFlagArr['nullBasisRec'].$LANG['MISSING_BASISOFRECORD'].' '.' <a href="../editor/occurrencetabledisplay.php?q_recordedby=&q_recordnumber=&q_catalognumber&collid='.$collid.'&csmode=0&occid=&occindex=0">'.$LANG['EDIT_EXISTING'].'</a> '.$LANG['TO_CORRECT']'.'</div>';
 			}
 			if($publishGBIF && $dwcUri && isset($GBIF_USERNAME) && isset($GBIF_PASSWORD) && isset($GBIF_ORG_KEY) && $GBIF_ORG_KEY){
 				if($collManager->getDatasetKey()){
@@ -396,9 +396,8 @@ include($SERVER_ROOT.'/includes/header.php');
 									?>
 									<?php echo $LANG['BEFORE_SUBMITTING']; ?>
 									 (<a href="mailto:helpdesk@gbif.org?subject=Publishing%20data%20from%20Symbiota%20portal%20to%20GBIF...&body=<?php echo rawurlencode(str_replace('<br/>', "\n", $bodyStr)); ?>">helpdesk@gbif.org</a>)
-									<?php echo $LANG['WITH_REQUEST_1'].' &quot;<b>'.$GBIF_USERNAME.'</b>&quot; '.$LANG['WITH_REQUEST_2'].
-									' <a href="#" onclick="toggle('emailMsg');return false;" style="color:blue">'.$LANG['HERE'].'</a> '.$LANG['WITH_REQUEST_3'];
-									?>
+									<?php echo $LANG['WITH_REQUEST_1'].' &quot;<b>'.$GBIF_USERNAME.'</b>&quot; '.$LANG['WITH_REQUEST_2']; ?>
+									 <a href="#" onclick="toggle('emailMsg');return false;" style="color:blue"><?php echo $LANG['HERE'].'</a> '.$LANG['WITH_REQUEST_3']; ?>
 									<fieldset id="emailMsg" style="display:none;padding:15px;margin:15px"><legend><?php echo $LANG['EMAIL_DRAFT']; ?></legend><?php echo trim($bodyStr,' <br/>'); ?></fieldset>
 									<br/><br/>
 									<button type="button" onclick="processGbifOrgKey(this.form);"><?php echo $LANG['SUBMIT_DATA']; ?></button>

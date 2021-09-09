@@ -127,8 +127,9 @@ include($SERVER_ROOT.'/includes/header.php');
 						<div style="clear:both;">
 							<div style="float:left; margin-left:35px; margin-right:5px"><label>Target:</label> </div>
 							<div style="float:left;">
-								<input name="recTarget" type="radio" value="0" <?php echo ($recTarget?'':'checked'); ?> /> Unchecked only<br/>
-								<input name="recTarget" type="radio" value="1" <?php echo ($recTarget?'checked':''); ?> /> All unlinked records
+								<input name="recTarget" type="radio" value="0" <?php echo (!$recTarget?'checked':''); ?> /> Unchecked only<br/>
+								<input name="recTarget" type="radio" value="1" <?php echo ($recTarget==1?'checked':''); ?> /> Unsynchronized only<br/>
+								<input name="recTarget" type="radio" value="2" <?php echo ($recTarget==2?'checked':''); ?> /> All unlinked records
 							</div>
 						</div>
 						<div style="clear:both;padding-top:10px;margin-left:35px;">

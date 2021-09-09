@@ -59,12 +59,13 @@ class IgsnManager{
 		echo '<li>Starting to synchronize IGSNs</li>';
 		flush();
 		ob_flush();
-		$apiUrlBase = 'https://data.neonscience.org/api/v0/samples/view?archiveGuid=';
+		$apiUrlBase = 'https://data.neonscience.org/api/v0/samples/view?';
 		//$neonApiKey = (isset($GLOBALS['NEON_API_KEY'])?$GLOBALS['NEON_API_KEY']:'');
-		$sql = 'SELECT o.occid, o.occurrenceID FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid WHERE o.occurrenceID IS NOT NULL AND (s.igsnPushedToNEON IS NULL ';
-		if($uncheckedOnly) $sql .= 'OR s.igsnPushedToNEON = 0';
-		$sql .= ') ';
-		if($startIndex) $sql .= 'AND o.occurrenceID > "'.$this->cleanInStr($startIndex).'" ';
+		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid WHERE (o.occurrenceID IS NOT NULL) ';
+		if(!$uncheckedOnly) $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
+		elseif($uncheckedOnly==1) $sql .= 'AND (s.igsnPushedToNEON = 0) ';
+		elseif($uncheckedOnly==2) $sql .= 'AND (s.igsnPushedToNEON IS NULL OR s.igsnPushedToNEON = 0) ';
+		if($startIndex) $sql .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
 		$sql .= 'ORDER BY o.occurrenceID ';
 		if($limit && is_numeric($limit)) $sql .= 'LIMIT '.$limit;
 		$rs = $this->conn->query($sql);
@@ -74,36 +75,46 @@ class IgsnManager{
 		$finalIgsn = '';
 		while($r = $rs->fetch_object()){
 			//$url = $apiUrlBase.$r->occurrenceID.'&apiToken='.$neonApiKey;
-			$url = $apiUrlBase.$r->occurrenceID;
+			$url = $apiUrlBase;
+			if($r->sampleCode) $url .= 'barcode='.$r->sampleCode;
+			elseif($r->sampleUuid) $url .= 'sampleUuid='.$r->sampleUuid;
+			elseif($r->sampleID && $r=sampleClass) $url .= 'sampleTag='.$r->sampleID.'&sampleClass='.$r->sampleClass;
+			else{
+				echo '<li>ERROR unable to build NEON API url ('.$r->occid.')</li>';
+				continue;
+			}
 			$igsnPushedToNEON = 0;
 			$archiveMedium = '';
 			if($json = @file_get_contents($url)){
 				$resultArr = json_decode($json,true);
-				if(!isset($resultArr['error']) && isset($resultArr['data']['sampleViews'][0])){
-					$igsnPushedToNEON = 1;
-					if(isset($resultArr['data']['sampleViews'][0]['sampleEvents'])){
-						foreach($resultArr['data']['sampleViews'][0]['sampleEvents'] as $sampleEventArr){
-							if(isset($sampleEventArr['smsFieldEntries'])){
-								foreach($sampleEventArr['smsFieldEntries'] as $fieldEntriesArr){
-									if(isset($fieldEntriesArr['smsKey']) && $fieldEntriesArr['smsKey'] == 'preservative_type'){
-										if($fieldEntriesArr['smsValue']) $archiveMedium = $fieldEntriesArr['smsValue'];
+				if(!isset($resultArr['error']) && isset($resultArr['data']['sampleViews'])){
+					foreach($resultArr['data']['sampleViews'] as $sampleViewArr){
+						if(isset($sampleViewArr['archiveGuid']) && $sampleViewArr['archiveGuid'] == $r->occurrenceID) $igsnPushedToNEON = 1;
+						if(isset($sampleViewArr['sampleEvents'])){
+							foreach($sampleViewArr['sampleEvents'] as $sampleEventArr){
+								if(isset($sampleEventArr['smsFieldEntries'])){
+									foreach($sampleEventArr['smsFieldEntries'] as $fieldEntriesArr){
+										if(isset($fieldEntriesArr['smsKey']) && $fieldEntriesArr['smsKey'] == 'preservative_type'){
+											if($fieldEntriesArr['smsValue']) $archiveMedium = $fieldEntriesArr['smsValue'];
+										}
 									}
 								}
 							}
 						}
 					}
 					$syncCnt++;
+					if(!$archiveMedium){
+						echo '<li>WARNING: unable to harvest archiveMedium (<a href="../collections/individual/index.php?occid='.$r->occid.'" target="_blank">'.$r->occid.'</a>, ';
+						echo '<a href="'.$url.'" target="_blank">'.$url.'</a>)</li>';
+					}
 				}
 				else $unsyncCnt++;
 			}
 			else $unsyncCnt++;
-			if($archiveMedium){
-				$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.', archiveMedium = "'.$this->cleanInStr($archiveMedium).'" WHERE occid = '.$r->occid;
-				if(!$this->conn->multi_query($sql)){
-					echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
-				}
+			$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.', archiveMedium = '.($archiveMedium?'"'.$this->cleanInStr($archiveMedium).'"':'NULL').' WHERE occid = '.$r->occid;
+			if(!$this->conn->multi_query($sql)){
+				echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
 			}
-			else echo '<li>ERROR: sample skipped, unable to harvest archiveMedium</li>';
 			$totalCnt++;
 			if($totalCnt%100 == 0){
 				echo '<li style="margin-left: 15px">'.$totalCnt.' checked</li>';

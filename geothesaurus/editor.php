@@ -90,77 +90,8 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			?>
 			<div style="float:right">
 				<!--These toggles don't work correctly yet -->
-				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../images/add.png" /></a></span>
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
 
-			</div>
-			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;display:none">
-				<!--This should also be visible when !$geoThesID -->
-				<fieldset id="new-fieldset">
-					<legend>Add Geographic Unit</legend>
-					<form name="unitAddForm" action="editor.php" method="post">
-						<div class="field-div">
-							<label>GeoUnit Name</label>:
-							<span><input type="text" name="geoTerm" style="width:200px;" required /></span>
-						</div>
-						<div class="field-div">
-							<label>ISO2 Code</label>:
-							<span><input type="text" name="iso2" style="width:50px;" /></span>
-						</div>
-						<div class="field-div">
-							<label>ISO3 Code</label>:
-							<span><input type="text" name="iso3" style="width:50px;" /></span>
-						</div>
-						<div class="field-div">
-							<label>Abbreviation</label>:
-							<span><input type="text" name="abbreviation" style="width:50px;" /></span>
-						</div>
-						<div class="field-div">
-							<label>Numeric Code</label>:
-							<span><input type="text" name="numCode" style="width:50px;" /></span>
-						</div>
-						<div class="field-div">
-							<label>Category</label>:
-							<span>
-								<select name="category">
-									<option value="">Select Category</option>
-									<option value="">----------------------</option>
-									<?php
-									$categoryList = $geoManager->getCategoryArr();
-									foreach($categoryList as $category){
-										echo '<option>'.$category.'</option>';
-									}
-									?>
-								</select>
-							</span>
-						</div>
-						<div class="field-div">
-							<label>Notes</label>:
-							<span><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
-						</div>
-													<div class="field-div">
-								<label>Parent term</label>:
-								<span>
-									<select name="parentID">
-										<option value="">Select Parent Term</option>
-										<option value="">----------------------</option>
-										<option value="">Is a Root Term (e.g. no parent)</option>
-										<?php
-										$parentList = $geoManager->getGeoTermArr();
-										foreach($parentList as $id => $term){
-											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
-										}
-										?>
-									</select>
-								</span>
-							</div>
-						
-						<div id="addButton-div" class="button-div">
-							<button type="submit" name="submitaction" value="addGeoUnit">Add Unit</button>
-						</div>
-				<!-- But we can also do this via a 2-cycle loop using the form below (first loop is an empy form for adding new record, second loop produces form for editing active record. I can show you this. -->
-					</fieldset>
-				</form>
 			</div>
 			<div id="updateGeoUnit-div" style="clear:both;margin-bottom:10px;">
 				<fieldset id="edit-fieldset">
@@ -273,6 +204,79 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			echo '</div>';
 		}
 		else{
+		?>
+			<div style="float:right">
+				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../images/add.png" /></a></span>
+			</div>
+			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;display:none">
+				<!--This should also be visible when !$geoThesID -->
+				<fieldset id="new-fieldset">
+					<legend>Add Geographic Unit</legend>
+					<form name="unitAddForm" action="editor.php" method="post">
+						<div class="field-div">
+							<label>GeoUnit Name</label>:
+							<span><input type="text" name="geoTerm" style="width:200px;" required /></span>
+						</div>
+						<div class="field-div">
+							<label>ISO2 Code</label>:
+							<span><input type="text" name="iso2" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>ISO3 Code</label>:
+							<span><input type="text" name="iso3" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Abbreviation</label>:
+							<span><input type="text" name="abbreviation" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Numeric Code</label>:
+							<span><input type="text" name="numCode" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Category</label>:
+							<span>
+								<select name="category">
+									<option value="">Select Category</option>
+									<option value="">----------------------</option>
+									<?php
+									$categoryList = $geoManager->getCategoryArr();
+									foreach($categoryList as $category){
+										echo '<option>'.$category.'</option>';
+									}
+									?>
+								</select>
+							</span>
+						</div>
+						<div class="field-div">
+							<label>Notes</label>:
+							<span><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
+						</div>
+													<div class="field-div">
+								<label>Parent term</label>:
+								<span>
+									<select name="parentID">
+										<option value="">Select Parent Term</option>
+										<option value="">----------------------</option>
+										<option value="">Is a Root Term (e.g. no parent)</option>
+										<?php
+										$parentList = $geoManager->getGeoTermArr();
+										foreach($parentList as $id => $term){
+											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
+						
+						<div id="addButton-div" class="button-div">
+							<button type="submit" name="submitaction" value="addGeoUnit">Add Unit</button>
+						</div>
+				<!-- But we can also do this via a 2-cycle loop using the form below (first loop is an empy form for adding new record, second loop produces form for editing active record. I can show you this. -->
+					</fieldset>
+				</form>
+			</div>
+			<?php
 			if($geoArr){
 				$titleStr = '';
 				if($parentID){

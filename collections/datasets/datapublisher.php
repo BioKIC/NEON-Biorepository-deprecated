@@ -235,8 +235,8 @@ include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div style="margin:10px;">
 			<?php echo $LANG['DWCA_DOWNLOAD_EXPLAIN_1'].
-			' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a> '.
-			$LANG['DWCA_DOWNLOAD_EXPLAIN_2'].' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a> '.
+			' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a>'.
+			$LANG['DWCA_DOWNLOAD_EXPLAIN_2'].' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a>'.
 			$LANG['DWCA_DOWNLOAD_EXPLAIN_3'];
 			?>
 		</div>

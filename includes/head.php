@@ -17,7 +17,7 @@ $CUSTOM_CSS_PATH = '/css/symb/custom';
 <link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/skeleton.css">
 <link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=1" type="text/css">
 <link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/neon.css?ver=1">
-<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css?ver=1" type="text/css">
+<link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/main.css?ver=2" type="text/css">
 
 <script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/base.js?ver=7"></script>
 <script type="text/javascript">

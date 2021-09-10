@@ -163,6 +163,13 @@ div.navpath {
     max-width: 1150px;
     width: 90%;
   }
+  #popup-innertext{
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 1000px;
+    max-width: 1150px;
+    width: 90%;
+  }
   #home-left {
     max-width: 70%;
     float: left;
@@ -186,6 +193,10 @@ div.navpath {
 
 @media (min-width: 426px) and (max-width: 1023px) {
   #innertext {
+    max-width: 96%;
+    margin: 0 auto;
+  }
+  #popup-innertext{
     max-width: 96%;
     margin: 0 auto;
   }
@@ -213,6 +224,9 @@ div.navpath {
 
 @media (max-width: 425px) {
   #innertext {
+    max-width: 95%;
+  }
+  #popup-innertext{
     max-width: 95%;
   }
   .hide-on-small {

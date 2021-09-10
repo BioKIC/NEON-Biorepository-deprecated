@@ -41,7 +41,7 @@ $LANG['IMAGES_ARE_LINKED'] = "Une ou plusieurs images sont liées à cet événe
 						visitez l'onglet Image pour dissocier l'image du spécimen.";
 $LANG['APPROVED_FOR_DEL'] = 'Approuvé pour suppression';
 $LANG['NO_IMGS'] = "Aucune image n'est directement associée à cet enregistrement d'occurrence";
-$LANG['CHECKLIST_LINKS'] = 'Lister Liens des Échantillons de Liste ';
+$LANG['CHECKLIST_LINKS'] = 'Liens des Échantillons de Liste ';
 $LANG['CHECKING_LINKS'] = 'vérifier liens de la liste';
 $LANG['NO_CHECKLISTS'] = "Aucune liste n'a été liée à cet enregistrement d'événement";
 $LANG['CHECKLIST_IS_LINKED'] = "Cette occurrence sert d'échantillon pour les listes des espèces suivantes.

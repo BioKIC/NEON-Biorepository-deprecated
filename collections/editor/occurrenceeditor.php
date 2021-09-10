@@ -1126,6 +1126,8 @@ else{
 											</div>
 											<?php
 											include_once('includes/geotools.php');
+											if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.'.$LANG_TAG.'.php');
+											else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.en.php');
 											$georefExtraDiv = 'display:';
 											if(array_key_exists("georeferencedby",$occArr) && $occArr["georeferencedby"]){
 												$georefExtraDiv .= "block";

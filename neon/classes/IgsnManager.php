@@ -78,7 +78,7 @@ class IgsnManager{
 			$url = $apiUrlBase;
 			if($r->sampleCode) $url .= 'barcode='.$r->sampleCode;
 			elseif($r->sampleUuid) $url .= 'sampleUuid='.$r->sampleUuid;
-			elseif($r->sampleID && $r=sampleClass) $url .= 'sampleTag='.$r->sampleID.'&sampleClass='.$r->sampleClass;
+			elseif($r->sampleID && $r->sampleClass) $url .= 'sampleTag='.$r->sampleID.'&sampleClass='.$r->sampleClass;
 			else{
 				echo '<li>ERROR unable to build NEON API url ('.$r->occid.')</li>';
 				continue;

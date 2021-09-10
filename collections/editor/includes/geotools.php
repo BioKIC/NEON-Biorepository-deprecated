@@ -1,8 +1,13 @@
+<?php
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.en.php');
+?>
+
 <div id="coordAidDiv">
 	<div id="dmsAidDiv">
 		<div>
 			<?php $LANG['LAT']; ?>:
-			<button id="latdeg" style="width:35px;"><?php $LANG['LAT_DEG']; ?></button> />&deg;
+			<input id="latdeg" style="width:35px;" title="<?php $LANG['LAT_DEG']; ?>" />&deg;
 			<input id="latmin" style="width:50px;" title="<?php $LANG['LAT_MIN']; ?>" />'
 			<input id="latsec" style="width:50px;" title="<?php $LANG['LAT_SEC']; ?>" />&quot;
 			<select id="latns">

@@ -712,7 +712,7 @@ class TaxonProfile extends Manager {
   	$occMsg = '';
     if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
       $occSrcUrl = '../collections/list.php?db=all&includeothercatnum=1&taxa='.$this->taxonName.'&usethes=1';
-      $occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">'.number_format($numOccs).' occurrences</a>';
+      $occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.number_format($numOccs).' occurrences</a>';
     } elseif ($numOccs > $limitOccs) {
       $occMsg = number_format($numOccs).' occurrences';
     } elseif ($numOccs == 0) {

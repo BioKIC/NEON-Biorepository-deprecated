@@ -2,6 +2,8 @@
 include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorImages.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceActionManager.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/imagetab.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/imagetab.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/imagetab.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occId = $_GET['occid'];
@@ -16,17 +18,17 @@ $specImgArr = $occManager->getImageMap();
 $photographerArr = $occManager->getPhotographerArr();
 ?>
 <div id="imagediv" style="width:795px;">
-	<div style="float:right;cursor:pointer;" onclick="toggle('addimgdiv');" title="Add a New Image">
+	<div style="float:right;cursor:pointer;" onclick="toggle('addimgdiv');" title="<?php echo $LANG['ADD_IMG']; ?>">
 		<img style="border:0px;width:12px;" src="../../images/add.png" />
 	</div>
 	<div id="addimgdiv" style="display:<?php echo ($specImgArr?'none':''); ?>;">
 		<form name="imgnewform" action="occurrenceeditor.php" method="post" enctype="multipart/form-data" onsubmit="return verifyImgAddForm(this);">
 			<fieldset style="padding:15px">
-				<legend><b>Add a New Image</b></legend>
+				<legend><b><?php echo $LANG['ADD_IMG']; ?></b></legend>
 				<div style='padding:15px;width:90%;border:1px solid yellow;background-color:FFFF99;'>
 					<div class="targetdiv" style="display:block;">
 						<div style="font-weight:bold;font-size:110%;margin-bottom:5px;">
-							Select an image file located on your computer that you want to upload:
+							<?php echo $LANG['SELECT_IMG']; ?>:
 						</div>
 				    	<!-- following line sets MAX_FILE_SIZE (must precede the file input field)  -->
 						<input type='hidden' name='MAX_FILE_SIZE' value='20000000' />
@@ -34,48 +36,46 @@ $photographerArr = $occManager->getPhotographerArr();
 							<input name='imgfile' type='file' size='70'/>
 						</div>
 						<div style="float:right;text-decoration:underline;font-weight:bold;">
-							<a href="#" onclick="toggle('targetdiv');return false;">Enter URL</a>
+							<a href="#" onclick="toggle('targetdiv');return false;"><?php echo $LANG['ENTER_URL']; ?></a>
 						</div>
 					</div>
 					<div class="targetdiv" style="display:none;">
 						<div style="margin-bottom:10px;">
-							Enter a URL to an image already located on a web server.
-							If there is only on version of the image available, enter into top field and leave other fields empty.
-							If thumbnail and medium versions are not available, local image derivative will be created.
+							<?php echo $LANG['ENTER_URL_EXPLAIN']; ?>
 						</div>
 						<div>
-							<b>Image URL (required):</b><br/>
+							<b><?php echo $LANG['IMG_URL']; ?>:</b><br/>
 							<input type='text' name='imgurl' size='70'/>
 						</div>
 						<div>
-							<b>Medium version (optional<?php echo (isset($IMG_WEB_WIDTH) && $IMG_WEB_WIDTH?', +-'.$IMG_WEB_WIDTH.'px':''); ?>):</b><br/>
+							<b><?php echo $LANG['MED_VERS'].(isset($IMG_WEB_WIDTH) && $IMG_WEB_WIDTH?', +-'.$IMG_WEB_WIDTH.'px':''); ?>):</b><br/>
 							<input type='text' name='weburl' size='70'/>
 						</div>
 						<div>
-							<b>Thumbnail version (optional<?php echo (isset($IMG_TN_WIDTH) && $IMG_TN_WIDTH?', +-'.$IMG_TN_WIDTH.'px':''); ?>):</b><br/>
+							<b><?php echo $LANG['THUMB_VERS'].(isset($IMG_TN_WIDTH) && $IMG_TN_WIDTH?', +-'.$IMG_TN_WIDTH.'px':''); ?>):</b><br/>
 							<input type='text' name='tnurl' size='70'/>
 						</div>
 						<div style="float:right;text-decoration:underline;font-weight:bold;">
 							<a href="#" onclick="toggle('targetdiv');return false;">
-								Upload Local Image
+								<?php echo $LANG['UPLOAD_LOCAL']; ?>
 							</a>
 						</div>
 						<div>
-							<input type="checkbox" name="copytoserver" value="1" /> Copy over images to server (if left unchecked, source URLs will be used)
+							<input type="checkbox" name="copytoserver" value="1" /> <?php echo $LANG['COPY_TO_SERVER']; ?>
 						</div>
 					</div>
 					<div>
-						<input type="checkbox" name="nolgimage" value="1" /> Do not map large version of image (when applicable)
+						<input type="checkbox" name="nolgimage" value="1" /> <?php echo $LANG['DO_NOT_MAP_LARGE']; ?>
 					</div>
 				</div>
 				<div style="clear:both;margin:20px 0px 5px 10px;">
-					<b>Caption:</b>
+					<b><?php echo $LANG['CAPTION']; ?>:</b>
 					<input name="caption" type="text" size="40" value="" />
 				</div>
 				<div style='margin:0px 0px 5px 10px;'>
-					<b>Photographer:</b>
+					<b><?php echo $LANG['PHOTOGRAPHER']; ?>:</b>
 					<select name='photographeruid' name='photographeruid'>
-						<option value="">Select Photographer</option>
+						<option value=""><?php echo $LANG['SEL_PHOTOG']; ?></option>
 						<option value="">---------------------------------------</option>
 						<?php
 						foreach($photographerArr as $id => $uname){
@@ -85,33 +85,33 @@ $photographerArr = $occManager->getPhotographerArr();
 							}
 						?>
 					</select>
-					<a href="#" onclick="toggle('imgaddoverride');return false;" title="Display photographer override field">
+					<a href="#" onclick="toggle('imgaddoverride');return false;" title="<?php echo $LANG['DISPLAY_PHOTOG_OVER']; ?>">
 						<img src="../../images/editplus.png" style="border:0px;width:13px;" />
 					</a>
 				</div>
 				<div id="imgaddoverride" style="margin:0px 0px 5px 10px;display:none;">
-					<b>Photographer (override):</b>
+					<b><?php echo $LANG['PHOTOG_OVER']; ?>:</b>
 					<input name='photographer' type='text' style="width:300px;" maxlength='100'>
-					* Will override above selection
+					* <?php echo $LANG['WILL_OVERRIDE']; ?>
 				</div>
 				<div style="margin:0px 0px 5px 10px;">
-					<b>Notes:</b>
+					<b><?php echo $LANG['NOTES']; ?>:</b>
 					<input name="notes" type="text" size="40" value="" />
 				</div>
 				<div style="margin:0px 0px 5px 10px;">
-					<b>Copyright:</b>
+					<b><?php echo $LANG['COPYRIGHT']; ?>:</b>
 					<input name="copyright" type="text" size="40" value="" />
 				</div>
 				<div style="margin:0px 0px 5px 10px;">
-					<b>Source Webpage:</b>
+					<b><?php echo $LANG['SOURCE_WEBPAGE']; ?>:</b>
 					<input name="sourceurl" type="text" size="40" value="" />
 				</div>
 				<div style="margin:0px 0px 5px 10px;">
-					<b>Sort Sequence:</b>
+					<b><?php echo $LANG['SORT_SEQUENCE']; ?>:</b>
 					<input name="sortsequence" type="text" size="10" value="" />
 				</div>
 				<div style="margin:0px 0px 5px 10px;">
-					<b>Describe this image</b>
+					<b><?php echo $LANG['DESCRIBE_IMAGE']; ?></b>
 				</div>
                     <?php
                        $kArr = $occManager->getImageTagValues();
@@ -126,7 +126,7 @@ $photographerArr = $occManager->getPhotographerArr();
 					<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 					<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 					<input type="hidden" name="tabindex" value="1" />
-					<input type="submit" name="submitaction" value="Submit New Image" />
+					<button type="submit" name="submitaction" value="Submit New Image"><?php echo $LANG['SUBMIT_NEW']; ?></button>
 				</div>
 			</fieldset>
 		</form>
@@ -168,21 +168,21 @@ $photographerArr = $occManager->getPhotographerArr();
 								echo '<img src="'.$imgUrl.'" style="width:250px;" title="'.$imgArr["caption"].'" />';
 							}
 							echo '</a>';
-							if($imgUrl != $origUrl) echo '<div><a href="'.$imgUrl.'" target="_blank">Open Medium Image</a></div>';
-							if($origUrl) echo '<div><a href="'.$origUrl.'" target="_blank">Open Large Image</a></div>';
+							if($imgUrl != $origUrl) echo '<div><a href="'.$imgUrl.'" target="_blank">'.$LANG['OPEN_MED'].'</a></div>';
+							if($origUrl) echo '<div><a href="'.$origUrl.'" target="_blank">'.$LANG['OPEN_LARGE'].'</a></div>';
 							?>
 						</td>
 						<td style="text-align:left;padding:10px;">
-							<div style="float:right;cursor:pointer;" onclick="toggle('img<?php echo $imgId; ?>editdiv');" title="Edit Image MetaData">
+							<div style="float:right;cursor:pointer;" onclick="toggle('img<?php echo $imgId; ?>editdiv');" title="<?php echo $LANG['EDIT_METADATA']; ?>">
 								<img style="border:0px;width:12px;" src="../../images/edit.png" />
 							</div>
 							<div style="margin-top:30px">
 								<div>
-									<b>Caption:</b>
+									<b><?php echo $LANG['CAPTION']; ?>:</b>
 									<?php echo $imgArr["caption"]; ?>
 								</div>
 								<div>
-									<b>Photographer:</b>
+									<b><?php echo $LANG['PHOTOGRAPHER']; ?>:</b>
 									<?php
 									if($imgArr["photographer"]){
 										echo $imgArr["photographer"];
@@ -193,11 +193,11 @@ $photographerArr = $occManager->getPhotographerArr();
 									?>
 								</div>
 								<div>
-									<b>Notes:</b>
+									<b><?php echo $LANG['NOTES']; ?>:</b>
 									<?php echo $imgArr["notes"]; ?>
 								</div>
 								<div>
-									<b>Tags:</b>
+									<b><?php echo $LANG['TAGS']; ?>:</b>
 	                                <?php
 	                                   $comma = "";
 	                                   foreach($imageTagUsageArr as $tags) {
@@ -209,11 +209,11 @@ $photographerArr = $occManager->getPhotographerArr();
 	                                ?>
 								</div>
 								<div>
-									<b>Copyright:</b>
+									<b><?php echo $LANG['COPYRIGHT']; ?>:</b>
 									<?php echo $imgArr["copyright"]; ?>
 								</div>
 								<div>
-									<b>Source Webpage:</b>
+									<b><?php echo $LANG['SOURCE_WEBPAGE']; ?>:</b>
 									<a href="<?php echo $imgArr["sourceurl"]; ?>" target="_blank">
 										<?php
 										$sourceUrlDisplay = $imgArr["sourceurl"];
@@ -223,7 +223,7 @@ $photographerArr = $occManager->getPhotographerArr();
 									</a>
 								</div>
 								<div>
-									<b>Web URL: </b>
+									<b><?php echo $LANG['WEB_URL']; ?>: </b>
 									<a href="<?php echo $imgArr["url"]; ?>"  title="<?php echo $imgArr["url"]; ?>" target="_blank">
 										<?php
 										$urlDisplay = $imgArr["url"];
@@ -233,7 +233,7 @@ $photographerArr = $occManager->getPhotographerArr();
 									</a>
 								</div>
 								<div>
-									<b>Large Image URL: </b>
+									<b><?php echo $LANG['LARGE_IMG_URL']; ?>: </b>
 									<a href="<?php echo $imgArr["origurl"]; ?>" title="<?php echo $imgArr["origurl"]; ?>" target="_blank">
 										<?php
 										$origUrlDisplay = $imgArr["origurl"];
@@ -243,7 +243,7 @@ $photographerArr = $occManager->getPhotographerArr();
 									</a>
 								</div>
 								<div>
-									<b>Thumbnail URL: </b>
+									<b><?php echo $LANG['THUMB_URL']; ?>: </b>
 									<a href="<?php echo $imgArr["tnurl"]; ?>" title="<?php echo $imgArr["tnurl"]; ?>" target="_blank">
 										<?php
 										$tnUrlDisplay = $imgArr["tnurl"];
@@ -253,7 +253,7 @@ $photographerArr = $occManager->getPhotographerArr();
 									</a>
 								</div>
 								<div>
-									<b>Sort Sequence:</b>
+									<b><?php echo $LANG['SORT_SEQUENCE']; ?>:</b>
 									<?php echo $imgArr["sortseq"]; ?>
 								</div>
 							</div>
@@ -264,15 +264,15 @@ $photographerArr = $occManager->getPhotographerArr();
 							<div id="img<?php echo $imgId; ?>editdiv" style="display:none;clear:both;">
 								<form name="img<?php echo $imgId; ?>editform" action="occurrenceeditor.php" method="post" onsubmit="return verifyImgEditForm(this);">
 									<fieldset style="padding:15px">
-										<legend><b>Edit Image Data</b></legend>
+										<legend><b><?php echo $LANG['EDIT_IMG_DATA']; ?></b></legend>
 										<div>
-											<b>Caption:</b><br/>
+											<b><?php echo $LANG['CAPTION']; ?>:</b><br/>
 											<input name="caption" type="text" value="<?php echo $imgArr["caption"]; ?>" style="width:300px;" />
 										</div>
 										<div>
-											<b>Photographer:</b><br/>
+											<b><?php echo $LANG['PHOTOGRAPHER']; ?>:</b><br/>
 											<select name='photographeruid' name='photographeruid'>
-												<option value="">Select Photographer</option>
+												<option value=""><?php echo $LANG['SEL_PHOTOG']; ?></option>
 												<option value="">---------------------------------------</option>
 												<?php
 												foreach($photographerArr as $id => $uname){
@@ -282,66 +282,66 @@ $photographerArr = $occManager->getPhotographerArr();
 												}
 												?>
 											</select>
-											<a href="#" onclick="toggle('imgeditoverride<?php echo $imgId; ?>');return false;" title="Display photographer override field">
+											<a href="#" onclick="toggle('imgeditoverride<?php echo $imgId; ?>');return false;" title="<?php echo $LANG['DISPLAY_PHOTOG_OVER']; ?>">
 												<img src="../../images/editplus.png" style="border:0px;width:13px;" />
 											</a>
 										</div>
 										<div id="imgeditoverride<?php echo $imgId; ?>" style="display:<?php echo ($imgArr["photographer"]?'block':'none'); ?>;">
-											<b>Photographer (override):</b><br/>
+											<b><?php echo $LANG['PHOTOG_OVER']; ?>:</b><br/>
 											<input name='photographer' type='text' value="<?php echo $imgArr["photographer"]; ?>" style="width:300px;" maxlength='100'>
-											* Warning: value will override above selection
+											* <?php echo $LANG['WILL_OVERRIDE']; ?>
 										</div>
 										<div>
-											<b>Notes:</b><br/>
+											<b><?php echo $LANG['NOTES']; ?>:</b><br/>
 											<input name="notes" type="text" value="<?php echo $imgArr["notes"]; ?>" style="width:95%;" />
 										</div>
 										<div>
-											<b>Copyright:</b><br/>
+											<b><?php echo $LANG['COPYRIGHT']; ?>:</b><br/>
 											<input name="copyright" type="text" value="<?php echo $imgArr["copyright"]; ?>" style="width:95%;" />
 										</div>
 										<div>
-											<b>Source Webpage:</b><br/>
+											<b><?php echo $LANG['SOURCE_WEBPAGE']; ?>:</b><br/>
 											<input name="sourceurl" type="text" value="<?php echo $imgArr["sourceurl"]; ?>" style="width:95%;" />
 										</div>
 										<div>
-											<b>Web URL: </b><br/>
+											<b><?php echo $LANG['WEB_URL']; ?>: </b><br/>
 											<input name="url" type="text" value="<?php echo $imgArr["url"]; ?>" style="width:95%;" />
 											<?php if(stripos($imgArr["url"],$imageRootUrl) === 0){ ?>
 												<div style="margin-left:10px;">
 													<input type="checkbox" name="renameweburl" value="1" />
-													Rename web image file on server to match above edit
+													<?php echo $LANG['RENAME_FILE']; ?>
 												</div>
 												<input name='oldurl' type='hidden' value='<?php echo $imgArr["url"];?>' />
 											<?php } ?>
 										</div>
 										<div>
-											<b>Large Image URL: </b><br/>
+											<b><?php echo $LANG['LARGE_IMG_URL']; ?>: </b><br/>
 											<input name="origurl" type="text" value="<?php echo $imgArr["origurl"]; ?>" style="width:95%;" />
 											<?php if(stripos($imgArr["origurl"],$imageRootUrl) === 0){ ?>
 												<div style="margin-left:10px;">
 													<input type="checkbox" name="renameorigurl" value="1" />
-													Rename large image file on server to match above edit
+													<?php echo $LANG['RENAME_LARGE']; ?>
 												</div>
 												<input name='oldorigurl' type='hidden' value='<?php echo $imgArr["origurl"];?>' />
 											<?php } ?>
 										</div>
 										<div>
-											<b>Thumbnail URL: </b><br/>
+											<b><?php echo $LANG['THUMB_URL']; ?>: </b><br/>
 											<input name="tnurl" type="text" value="<?php echo $imgArr["tnurl"]; ?>" style="width:95%;" />
 											<?php if(stripos($imgArr["tnurl"],$imageRootUrl) === 0){ ?>
 												<div style="margin-left:10px;">
 													<input type="checkbox" name="renametnurl" value="1" />
-													Rename thumbnail file on server to match above edit
+													<?php echo $LANG['RENAME_THUMB']; ?>
 												</div>
 												<input name='oldtnurl' type='hidden' value='<?php echo $imgArr["tnurl"];?>' />
 											<?php } ?>
 										</div>
 										<div>
-											<b>Sort Sequence:</b><br/>
+											<b><?php echo $LANG['SORT_SEQUENCE']; ?>:</b><br/>
 											<input name="sortsequence" type="text" value="<?php echo $imgArr["sortseq"]; ?>" style="width:10%;" />
 										</div>
 					                    <div>
-						                   <b>Tags:</b>
+						                   <b><?php echo $LANG['TAGS']; ?>:</b>
 					                    </div>
 	                                        <?php
 	                                           foreach($imageTagUsageArr as $tags) {
@@ -357,34 +357,34 @@ $photographerArr = $occManager->getPhotographerArr();
 											<input type="hidden" name="imgid" value="<?php echo $imgId; ?>" />
 											<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 											<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
-											<input type="submit" name="submitaction" value="Submit Image Edits" />
+											<button type="submit" name="submitaction" value="Submit Image Edits"><?php echo $LANG['SUBMIT_IMG_EDITS']; ?></button>
 										</div>
 									</fieldset>
 								</form>
 								<form name="img<?php echo $imgId; ?>delform" action="occurrenceeditor.php" method="post" onsubmit="return verifyImgDelForm(this);">
 									<fieldset style="padding:15px">
-										<legend><b>Delete Image</b></legend>
+										<legend><b><?php echo $LANG['DEL_IMG']; ?></b></legend>
 										<input type="hidden" name="occid" value="<?php echo $occId; ?>" />
 										<input type="hidden" name="imgid" value="<?php echo $imgId; ?>" />
 										<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 										<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
-										<input name="removeimg" type="checkbox" value="1" /> Remove image from server
+										<input name="removeimg" type="checkbox" value="1" /> <?php echo $LANG['REM_FROM_SERVER']; ?>
 										<div style="margin-left:20px;">
-											(Note: leaving unchecked removes image from database without removing from server)
+											<?php echo $LANG['RM_DB_NOT_SERVER']; ?>
 										</div>
 										<div style="margin:10px 20px;">
-											<input type="submit" name="submitaction" value="Delete Image" />
+											<button type="submit" name="submitaction" value="Delete Image"><?php echo $LANG['DEL_IMG']; ?></button>
 										</div>
 									</fieldset>
 								</form>
 								<form name="img<?php echo $imgId; ?>remapform" action="occurrenceeditor.php" method="post" onsubmit="return verifyImgRemapForm(this);">
 									<fieldset style="padding:15px">
-										<legend><b>Remap to Another Specimen</b></legend>
+										<legend><b><?php echo $LANG['REMAP_TO_ANOTHER']; ?></b></legend>
 										<div>
-											<b>Occurrence Record #:</b>
+											<b><?php echo $LANG['OCC_REC_NUM']; ?>:</b>
 											<input id="imgoccid-<?php echo $imgId; ?>" name="targetoccid" type="text" value="" />
 											<span style="cursor:pointer;color:blue;"  onclick="openOccurrenceSearch('imgoccid-<?php echo $imgId; ?>')">
-												Open Occurrence Linking Aid
+												<?php echo $LANG['OPEN_LINK_AID']; ?>
 											</span>
 										</div>
 										<div style="margin:10px 20px;">
@@ -392,32 +392,32 @@ $photographerArr = $occManager->getPhotographerArr();
 											<input type="hidden" name="imgid" value="<?php echo $imgId; ?>" />
 											<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 											<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
-											<input type="submit" name="submitaction" value="Remap Image" />
+											<button type="submit" name="submitaction" value="Remap Image"><?php echo $LANG['REMAP_IMG']; ?></button>
 										</div>
 									</fieldset>
 								</form>
 								<form action="occurrenceeditor.php" method="post">
 									<fieldset style="padding:15px">
-										<legend><b>Link to a New Blank Occurrence Record within Collection</b></legend>
+										<legend><b><?php echo $LANG['LINK_TO_BLANK']; ?></b></legend>
 										<div style="margin:10px 20px;">
 											<input name="occid" type="hidden" value="<?php echo $occId; ?>" />
 											<input name="imgid" type="hidden" value="<?php echo $imgId; ?>" />
-											<button name="submitaction" type="submit" value="remapImageToNewRecord">Link to New Occurrence</button>
+											<button name="submitaction" type="submit" value="remapImageToNewRecord"><?php echo $LANG['LINK_TO_NEW']; ?></button>
 										</div>
 									</fieldset>
 								</form>
 								<form action="occurrenceeditor.php" method="post">
 									<fieldset style="padding:15px">
-										<legend><b>Disassociate Image from all Specimen Records</b></legend>
+										<legend><b><?php echo $LANG['DISASSOCIATE_IMG_ALL']; ?></b></legend>
 										<div style="margin:10px 20px;">
 											<input name="occid" type="hidden" value="<?php echo $occId; ?>" />
 											<input name="imgid" type="hidden" value="<?php echo $imgId; ?>" />
 											<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
 											<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />
-											<input name="submitaction" type="submit" value="Disassociate Image" />
+											<button name="submitaction" type="submit" value="Disassociate Image"><?php echo $LANG['DISASSOCIATE_IMG']; ?></button>
 										</div>
 										<div>
-											* Image will only be available from Taxon Profile page
+											* <?php echo $LANG['IMG_FROM_TAXON']; ?>
 										</div>
 									</fieldset>
 								</form>
@@ -433,7 +433,7 @@ $photographerArr = $occManager->getPhotographerArr();
 		}
 		else{
 			if (isset($RequestTrackingIsActive) && $RequestTrackingIsActive==1) {
-			     echo "<div style=\"margin-left:15px;\"><button onClick=' requestImage() '>Make an imaging request.</button></div><div id='imagerequestresult'></div>";
+			     echo "<div style=\"margin-left:15px;\"><button onClick=' requestImage() '>".$LANG['MAKE_REQUEST']."</button></div><div id='imagerequestresult'></div>";
                  echo "<div>";
                  foreach ($occActionManager->listOccurrenceActionRequests($occId) as $request) {
                    echo "$request<br/>";

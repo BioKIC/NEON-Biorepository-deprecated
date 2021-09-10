@@ -101,7 +101,7 @@ $specImgArr = $occManager->getImageMap();  // find out if there are images in or
 				if($idRanking['notes']) echo '<div><b>'.$LANG['NOTES'].':</b> '.$idRanking['notes'].'</div>';
 			}
 			else{
-				echo 'not ranked';
+				echo $LANG['NOT_RANKED]''not ranked';
 			}
 			?>
 		</div>

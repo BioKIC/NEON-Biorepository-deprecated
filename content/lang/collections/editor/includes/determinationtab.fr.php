@@ -19,6 +19,7 @@ $LANG['RANK'] = 'Rang';
 $LANG['L_LOW'] = 'meugler';
 $LANG['L_MEDIUM'] = 'moyen';
 $LANG['L_HIGH'] = 'haut';
+$LANG['NOT_RANKED'] = 'non classé'
 $LANG['SET_BY'] = 'Défini par';
 $LANG['DET_HISTORY'] = 'Historique de Détermination';
 $LANG['ADD_NEW_DET'] = 'Ajouter une Nouvelle Détermination';

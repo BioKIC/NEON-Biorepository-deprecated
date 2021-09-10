@@ -26,7 +26,15 @@ if($SYMB_UID){
 	<?php
 	echo '<div class="resource-title">'.(isset($LANG['INTERNAL_RESOURCES'])?$LANG['INTERNAL_RESOURCES']:'Internal Resources').'</div>';
 	echo '<ul>';
-	echo '<li>'.$taxonManager->getSearchByTaxon().'</li>';
+	$occNum = $taxonManager->getOccTaxonInDbCnt();
+	if($occNum > -1){
+		$occMsg = number_format($occNum).' '.(isset($LANG['OCCURRENCES'])?'occurrences':'');
+		if($occNum){
+			$occHref = '../collections/list.php?db=all&includeothercatnum=1&taxa='.$taxonManager->getTaxonName().'&usethes=1';
+			$occMsg = '<a class="btn" href="'.$occHref.'" target="_blank">'.$occMsg.'</a>';
+		}
+		echo '<li>'.$occMsg.'</li>';
+	}
 	echo '<li><a href="taxonomy/taxonomydynamicdisplay.php?target='.$tid.'" target="_blank">Taxonomic Tree</a></li>';
 	echo '</ul>';
 	//TODO: list other internal resources such as Taxon Traits, etc

@@ -2,7 +2,7 @@
 	<div id="dmsAidDiv">
 		<div>
 			<?php $LANG['LAT']; ?>:
-			<input id="latdeg" style="width:35px;" title="<?php $LANG['LAT_DEG']; ?>" />&deg;
+			<button id="latdeg" style="width:35px;"><?php $LANG['LAT_DEG']; ?></button> />&deg;
 			<input id="latmin" style="width:50px;" title="<?php $LANG['LAT_MIN']; ?>" />'
 			<input id="latsec" style="width:50px;" title="<?php $LANG['LAT_SEC']; ?>" />&quot;
 			<select id="latns">

@@ -28,7 +28,7 @@ $LANG['TRANSFER_RECORD'] = 'Transfer Record';
 $LANG['DEL_RECORD'] = 'Delete Occurrence Record;';
 $LANG['SURE_DEL'] = 'Are you sure you want to delete this record?';
 $LANG['REC_MUST_EVALUATE'] = 'Record first needs to be evaluated before it can be deleted from the system.
-				The evaluation ensures that the deletion of this record will not interfer with
+				The evaluation ensures that the deletion of this record will not interfere with
 				the integrity of other linked data. Note that all determination and
 				comments for this occurrence will be automatically deleted. Links to images, and checklist vouchers
 				will have to be individually addressed before can be deleted.';
@@ -46,7 +46,7 @@ $LANG['CHECKLIST_LINKS'] = 'Checklist Voucher Links';
 $LANG['CHECKING_LINKS'] = 'checking checklist links';
 $LANG['NO_CHECKLISTS'] = 'No checklists have been linked to this occurrence record';
 $LANG['CHECKLIST_IS_LINKED'] = 'This occurrence serves as an occurrence voucher for the following species checklists.
-						Deleting this occurrence will remove these association.
+						Deleting this occurrence will remove these associations.
 						You may want to first verify this action with the checklist administrators';
 $LANG['DEL_OCC'] = 'Delete Occurrence';
 

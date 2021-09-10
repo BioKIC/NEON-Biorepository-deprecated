@@ -428,10 +428,10 @@ class TaxonProfile extends Manager {
 					$cap = $LANG['DESCRIPTION'].' #'.$capCnt;
 					$capCnt++;
 				}
-				$retStr .= '<li><a href="#tab'.$id.'" class="selected">'.$cap.'</a></li>';
+				$retStr .= '<li><a href="#tab'.$id.'">'.$cap.'</a></li>';
 			}
 		}
-		$retStr .= '<li><a href="resourcetab.php?tid='.$this->tid.'" class="selected">'.($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources').'</a></li>';
+		$retStr .= '<li><a href="resourcetab.php?tid='.$this->tid.'">'.($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources').'</a></li>';
 		$retStr .= '</ul>';
 		foreach($descArr as $dArr){
 			foreach($dArr as $id => $vArr){

@@ -32,7 +32,7 @@ $LANG['REC_MUST_EVALUATE'] = "L'enregistrement doit d'abord être évalué avant
 				Notez que toutes les déterminations et commentaires pour cette occurrence seront automatiquement supprimés. 
 				Les liens vers les images et les bons de liste de contrôle devront être adressés individuellement avant de pouvoir être supprimés.";
 $LANG['EVALUATE_FOR_DEL'] = "Évaluer l'enregistrement pour suppression";
-$LANG['IMG_LINKS'] = "Liens d'imageS";
+$LANG['IMG_LINKS'] = "Liens d'images";
 $LANG['CHECKING_LINKS'] = "vérifier les liens d'images";
 $LANG['CHECKING_LINKS'] = 'Avertissement';
 $LANG['IMAGES_ARE_LINKED'] = "Une ou plusieurs images sont liées à cet événement. 

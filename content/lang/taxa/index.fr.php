@@ -30,6 +30,7 @@ $LANG['PHOTOGRAPHER'] = 'Photographe';
 $LANG['MAP_NOT_AVAILABLE'] = 'Carte non<be />disponible';
 $LANG['RESOURCES'] = 'Ressources';
 $LANG['INTERNAL_RESOURCES'] = 'Ressources internes';
+$LANG['OCCURRENCES'] = 'occurrences';
 $LANG['EXTERNAL_LINKS'] = 'Ressources externes';
 $LANG['NOT_FOUND'] = 'pas trouvé';
 $LANG['DID_YOU_MEAN'] = 'Vouliez-vous dire?';

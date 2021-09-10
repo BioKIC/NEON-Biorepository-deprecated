@@ -681,7 +681,7 @@ class TaxonProfile extends Manager {
    * $limitRank INTEGER
    * $collids ARRAY of collids to include in search
    */
-  private function getOccTaxonInDbCnt($limitRank = 170, $collids = array("all"))
+	public function getOccTaxonInDbCnt($limitRank = 170, $collids = array("all"))
   {
     $count = -1;
     if ($this->rankId >= $limitRank) {

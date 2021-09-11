@@ -355,8 +355,7 @@ class OccurrenceHarvester{
 				if(strpos($tableName,'pervial')) continue;
 				if($tableName == 'mpr_perpitprofile_in') continue;
 				$fieldArr = $eArr['smsFieldEntries'];
-				$fateLocation = ''; $fateDate = ''; $collLoc = '';
-				$preparations = ''; $sampleProp = ''; $identArr = array(); $assocMedia = array();
+				$fateLocation = ''; $fateDate = ''; $collLoc = ''; $identArr = array(); $assocMedia = array();
 				$tableArr = array();
 				foreach($fieldArr as $fArr){
 					if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
@@ -382,11 +381,11 @@ class OccurrenceHarvester{
 					elseif($fArr['smsKey'] == 'sex' && $fArr['smsValue']) $tableArr['sex'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'life_stage' && $fArr['smsValue']) $tableArr['life_stage'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'remarks' && $fArr['smsValue']) $tableArr['remarks'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'preservative_concentration' && $fArr['smsValue']) $preparations .= 'concentration: '.$fArr['smsValue'].', ';
-					elseif($fArr['smsKey'] == 'preservative_volume' && $fArr['smsValue']) $preparations .= 'volume: '.$fArr['smsValue'].', ';
-					elseif($fArr['smsKey'] == 'preservative_type' && $fArr['smsValue']) $preparations .= 'type: '.$fArr['smsValue'].', ';
+					elseif($fArr['smsKey'] == 'preservative_concentration' && $fArr['smsValue']) $tableArr['preservative_concentration'] = $fArr['smsValue'].', ';
+					elseif($fArr['smsKey'] == 'preservative_volume' && $fArr['smsValue']) $tableArr['preservative_volume'] = $fArr['smsValue'].', ';
+					elseif($fArr['smsKey'] == 'preservative_type' && $fArr['smsValue']) $tableArr['preservative_type'] = $fArr['smsValue'].', ';
 					elseif($fArr['smsKey'] == 'sample_type' && $fArr['smsValue']) $tableArr['sample_type'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'sample_condition' && $fArr['smsValue']) $tableArr['sample_condition'] = $fArr['smsValue'];
+					//elseif($fArr['smsKey'] == 'sample_condition' && $fArr['smsValue']) $tableArr['sample_condition'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'sample_mass' && $fArr['smsValue']) $tableArr['sample_mass'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'sample_volume' && $fArr['smsValue']) $tableArr['sample_volume'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'associated_media'){
@@ -394,7 +393,6 @@ class OccurrenceHarvester{
 					}
 					elseif($fArr['smsKey'] == 'photographed_by') $assocMedia['photographer'] = $fArr['smsValue'];
 				}
-				if($preparations) $tableArr['preparations'] = trim($preparations,', ');
 				if($identArr) $tableArr['identifications'][] = $identArr;
 				if($assocMedia && isset($assocMedia['url'])) $tableArr['assocMedia'][] = $assocMedia;
 				if($collLoc){
@@ -444,21 +442,28 @@ class OccurrenceHarvester{
 				if(isset($sampleArr['sex'])) $dwcArr['sex'] = $sampleArr['sex'];
 				if(isset($sampleArr['life_stage'])) $dwcArr['lifeStage'] = $sampleArr['life_stage'];
 				if(isset($sampleArr['remarks'])) $dwcArr['occurrenceRemarks'] = $sampleArr['remarks'];
-				if(isset($sampleArr['preparations'])) $dwcArr['preparations'] = $sampleArr['preparations'];
 				if(isset($sampleArr['assocMedia'])) $dwcArr['assocMedia'] = $sampleArr['assocMedia'];
-
+				$prepArr = array();
+				if(isset($sampleArr['preservative_type'])) $prepArr[] = 'preservative type: '.$sampleArr['preservative_type'];
+				if(isset($sampleArr['preservative_volume'])) $prepArr[] = 'preservative volume: '.$sampleArr['preservative_volume'];
+				if(isset($sampleArr['preservative_concentration'])) $prepArr[] = 'preservative concentration: '.$sampleArr['preservative_concentration'];
+				if(isset($sampleArr['sample_mass']) && strpos($sampleArr['symbiotaTarget'],'sample mass') === false) $prepArr[] = 'sample mass: '.$sampleArr['sample_mass'];
+				if(isset($sampleArr['sample_volume']) && strpos($sampleArr['symbiotaTarget'],'sample volume') === false) $prepArr[] = 'sample volume: '.$sampleArr['sample_volume'];
+				if($prepArr) $dwcArr['preparations'] = implode(', ',$prepArr);
 				$dynProp = array();
 				if(isset($sampleArr['filterVolume'])) $dynProp[] = 'filterVolume: '.$sampleArr['filterVolume'];
 				if(isset($sampleArr['temperature'])) $dynProp[] = 'temperature: '.$sampleArr['temperature'];
 				if(isset($sampleArr['minimum_depth_in_meters'])) $dynProp[] = 'minimum depth: '.$sampleArr['minimum_depth_in_meters'].'m ';
 				if(isset($sampleArr['maximum_depth_in_meters'])) $dynProp[] = 'maximum depth: '.$sampleArr['maximum_depth_in_meters'].'m ';
 				if(isset($sampleArr['verbatim_depth'])) $dynProp[] = 'verbatim depth: '.$sampleArr['verbatim_depth'];
-				if(isset($sampleArr['sample_type'])) $dynProp[] = 'sample type: '.$sampleArr['sample_type'];
-				if(isset($sampleArr['sample_condition'])) $dynProp[] = 'sample condition: '.$sampleArr['sample_condition'];
-				if(isset($sampleArr['sample_mass'])) $dynProp[] = 'sample mass: '.$sampleArr['sample_mass'];
-				if(isset($sampleArr['sample_volume'])) $dynProp[] = 'sample volume: '.$sampleArr['sample_volume'];
-
-				if($dynProp) $dwcArr['dynamicProperties'] = implode('; ',$dynProp);
+				if(isset($sampleArr['sample_type'])){
+					$sampleType = $sampleArr['sample_type'];
+					if($sampleType == 'M') $sampleType = 'mineral';
+					elseif($sampleType == 'O') $sampleType = 'organic';
+					$dynProp[] = 'sample type: '.$sampleType;
+				}
+				//if(isset($sampleArr['sample_condition'])) $dynProp[] = 'sample condition: '.$sampleArr['sample_condition'];
+				if($dynProp) $dwcArr['dynamicProperties'] = implode(', ',$dynProp);
 
 				//Set occurrence description using sampleClass
 				if($sampleArr['sampleClass']){

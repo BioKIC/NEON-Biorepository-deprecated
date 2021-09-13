@@ -23,6 +23,8 @@ CREATE TABLE `ommaterialsample` (
   CONSTRAINT `FK_ommatsample_occid` FOREIGN KEY (`occid`)   REFERENCES `omoccurrences` (`occid`)   ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_ommatsample_prepUid`   FOREIGN KEY (`preparedByUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE  ON UPDATE CASCADE);
 
+ALTER TABLE `ommaterialsample`
+  ADD UNIQUE INDEX `UQ_ommatsample_recordID` (`recordID`);
 
 INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
   VALUES("Material Sample Type","ommaterialsample","materialSampleType",1);

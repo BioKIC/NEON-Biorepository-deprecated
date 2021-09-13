@@ -363,14 +363,14 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 				echo '<a href="../../checklists/checklist.php?showvouchers=1&clid='.$vClid.'" target="_blank">'.$vClName.'</a> ';
 				if(array_key_exists($vClid, $userChecklists)){
 				?>
-					<a href="occurrenceeditor.php?submitaction=deletevoucher&delclid=<?php echo .$vClid.'&occid='.$occid.'&tabtarget=3'; ?>" title="<?php echo $LANG['DELETE_VOUCHER_LINK']; ?>" onclick="return confirm('<?php echo $LANG['SURE_REMOVE_VOUCHER']; ?>">;
+					<a href="occurrenceeditor.php?submitaction=deletevoucher&delclid=<?php echo $vClid.'&occid='.$occid.'&tabtarget=3'; ?>" title="<?php echo $LANG['DELETE_VOUCHER_LINK']; ?>" onclick="return confirm('<?php echo $LANG['SURE_REMOVE_VOUCHER']; ?>">;
 				<?php
 					echo '<img src="../../images/drop.png" style="width:12px;" />';
 					echo '</a>';
 				}
 				echo '</div>';
 			}
-			echo '<div style="margin:15px 0px">* '.$LANG['IF_X']'</div>';
+			echo '<div style="margin:15px 0px">* '.$LANG['IF_X']'.</div>';
 		}
 		?>
 	</fieldset>
@@ -391,7 +391,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 				foreach($dupClusterArr as $dupid => $dupArr){
 					echo '<div id="dupediv-'.$occid.'">';
 					echo '<div style="padding:15px;"><b>'.$LANG['CLUSTER_TITLE'].':</b> '.$dupArr['title'];
-					echo '<div style="float:right" title="'.$LANG['UNLINK_BUT_MAINTAIN']'">';
+					echo '<div style="float:right" title="'.$LANG['UNLINK_BUT_MAINTAIN'].'">';
 					echo '<button name="unlinkthisdupebutton" onclick="deleteDuplicateLink('.$dupid.','.$occid.')">'.$LANG['REM_FROM_CLUSTER'].'</button>';
 					echo '</div>';
 					$note = trim($dupArr['description'].'; '.$dupArr['notes'],' ;');

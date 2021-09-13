@@ -21,7 +21,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<div id="innertext">
 			<h1><?php echo $LANG['FORBIDDEN']; ?></h1>
 			<div style="font-weight:bold;">
-				<?php $LANG['NO_PERMISSION']; ?>.
+				<?php echo $LANG['NO_PERMISSION']; ?>.
 			</div>
 			<div style="font-weight:bold;margin:10px;">
 				<a href="<?php echo $CLIENT_ROOT; ?>/index.php"><?php echo $LANG['RETURN']; ?></a>

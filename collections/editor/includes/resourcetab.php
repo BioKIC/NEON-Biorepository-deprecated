@@ -270,13 +270,13 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						</select>
 					</div>
 					<div class="fieldDiv">
-						<span class="fieldLabel">Location on host: </span>
+						<span class="fieldLabel"><?php echo $LANG['LOC_ON_HOST']; ?>: </span>
 						<input name="locationonhost" type="text" value="" style="" />
 					</div>
 				</div>
 				<div class="fieldRowDiv" style="margin:10px">
 					<div class="fieldDiv" style="width:100%">
-						<span class="fieldLabel">Notes: </span>
+						<span class="fieldLabel"><?php echo $LANG['NOTES']; ?>: </span>
 						<input name="notes" type="text" value="" style="width:100%" />
 					</div>
 				</div>
@@ -285,7 +285,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 						<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 						<input name="occindex" type="hidden" value="<?php echo $occIndex ?>" />
-						<button name="submitaction" type="submit" value="createAssociation">Create Association</button>
+						<button name="submitaction" type="submit" value="createAssociation"><?php echo $LANG['CREATE_ASSOC']; ?></button>
 					</div>
 				</div>
 			</form>
@@ -320,7 +320,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					echo '</div>';
 				}
 			}
-			else echo '<div>No associations have been established</div>';
+			else echo '<div>'.$LANG['NO_ASSOCS'].'</div>';
 			?>
 		</div>
 	</fieldset>
@@ -329,17 +329,17 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 	$checklistArr = $occManager->getVoucherChecklists();
 	?>
 	<fieldset>
-		<legend>Checklist Voucher Linkages</legend>
+		<legend><?php echo $LANG['CHECKLIST_LINKS']; ?></legend>
 		<?php
 		if($userChecklists){
 			?>
 			<div style="float:right;margin-right:15px;">
-				<a href="#" onclick="toggle('voucheradddiv');return false;" title="Link Specimen to Checklist as Voucher" ><img src="../../images/add.png" /></a>
+				<a href="#" onclick="toggle('voucheradddiv');return false;" title="<?php echo $LANG['LINK_TO_CHECKLIST']; ?>" ><img src="../../images/add.png" /></a>
 			</div>
 			<div id="voucheradddiv" style="display:<?php echo ($checklistArr?'none':'block'); ?>;">
 				<form name="voucherAddForm" method="post" target="occurrenceeditor.php" onsubmit="return validateVoucherAddForm(this)">
 					<select name="clidvoucher">
-						<option value="">Select a Checklist</option>
+						<option value=""><?php echo $LANG['SEL_CHECKLIST']; ?></option>
 						<option value="">---------------------------------------------</option>
 						<?php
 						foreach($userChecklists as $clid => $clName){
@@ -351,7 +351,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />
 					<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 					<input name="tabtarget" type="hidden" value="3" />
-					<input name="submitaction" type="submit" value="Link to Checklist as Voucher" />
+					<input name="submitaction" type="submit" value="<?php echo $LANG['LINK_TO_CHECKLIST_2']; ?>" />
 				</form>
 			</div>
 			<?php
@@ -362,22 +362,24 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 				echo '<div style="margin:3px">';
 				echo '<a href="../../checklists/checklist.php?showvouchers=1&clid='.$vClid.'" target="_blank">'.$vClName.'</a> ';
 				if(array_key_exists($vClid, $userChecklists)){
-					echo '<a href="occurrenceeditor.php?submitaction=deletevoucher&delclid='.$vClid.'&occid='.$occid.'&tabtarget=3" title="Delete voucher link" onclick="return confirm(\"Are you sure you want to remove this voucher link?\")">';
+				?>
+					<a href="occurrenceeditor.php?submitaction=deletevoucher&delclid=<?php echo .$vClid.'&occid='.$occid.'&tabtarget=3'; ?>" title="<?php echo $LANG['DELETE_VOUCHER_LINK']; ?>" onclick="return confirm('<?php echo $LANG['SURE_REMOVE_VOUCHER']; ?>">;
+				<?php
 					echo '<img src="../../images/drop.png" style="width:12px;" />';
 					echo '</a>';
 				}
 				echo '</div>';
 			}
-			echo '<div style="margin:15px 0px">* If a red X is not display to right of checklist name, you do not have editing rights for that checklist and therefore cannot remove the voucher link without contacting checklist owner';
+			echo '<div style="margin:15px 0px">* '.$LANG['IF_X']'</div>';
 		}
 		?>
 	</fieldset>
 </div>
 <div id="duplicatediv">
 	<fieldset>
-		<legend>Specimen Duplicates</legend>
+		<legend><?php echo $LANG['SPEC_DUPES']; ?></legend>
 		<div style="float:right;margin-right:15px;">
-			<button onclick="openDupeWindow();return false;">Search for Records to Link</button>
+			<button onclick="openDupeWindow();return false;"><?php echo $LANG['SEARCH_RECS']; ?></button>
 		</div>
 		<div style="clear:both;">
 			<form id="dupeRefreshForm" name="dupeRefreshForm" method="post" target="occurrenceeditor.php">
@@ -388,9 +390,9 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 			if($dupClusterArr){
 				foreach($dupClusterArr as $dupid => $dupArr){
 					echo '<div id="dupediv-'.$occid.'">';
-					echo '<div style="padding:15px;"><b>Cluster Title:</b> '.$dupArr['title'];
-					echo '<div style="float:right" title="Unlink this occurrences from duplicate cluster but maintain other specimens as a valid duplicate cluster">';
-					echo '<button name="unlinkthisdupebutton" onclick="deleteDuplicateLink('.$dupid.','.$occid.')">Remove this Occurrence from Cluster</button>';
+					echo '<div style="padding:15px;"><b>'.$LANG['CLUSTER_TITLE'].':</b> '.$dupArr['title'];
+					echo '<div style="float:right" title="'.$LANG['UNLINK_BUT_MAINTAIN']'">';
+					echo '<button name="unlinkthisdupebutton" onclick="deleteDuplicateLink('.$dupid.','.$occid.')">'.$LANG['REM_FROM_CLUSTER'].'</button>';
 					echo '</div>';
 					$note = trim($dupArr['description'].'; '.$dupArr['notes'],' ;');
 					if($note) echo ' - '.$notes;
@@ -405,17 +407,17 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 									<?php echo $dArr['collname'].' ('.$dArr['instcode'].($dArr['collcode']?':'.$dArr['collcode']:'').')'; ?>
 								</div>
 								<div style="float:right;">
-									<button name="unlinkdupebut" onclick="deleteDuplicateLink(<?php echo $dupid.','.$dupeOccid; ?>)">Unlink</button>
+									<button name="unlinkdupebut" onclick="deleteDuplicateLink(<?php echo $dupid.','.$dupeOccid; ?>)"><?php echo $LANG['UNLINK']; ?></button>
 								</div>
 								<?php
 								echo '<div style="float:left;margin:5px 15px">';
 								if($dArr['recordedby']) echo '<div>'.$dArr['recordedby'].' '.$dArr['recordnumber'].'<span style="margin-left:40px;">'.$dArr['eventdate'].'</span></div>';
-								if($dArr['catnum']) echo '<div><b>Catalog Number:</b> '.$dArr['catnum'].'</div>';
-								if($dArr['occurrenceid']) echo '<div><b>GUID:</b> '.$dArr['occurrenceid'].'</div>';
-								if($dArr['sciname']) echo '<div><b>Latest Identification:</b> '.$dArr['sciname'].'</div>';
-								if($dArr['identifiedby']) echo '<div><b>Identified by:</b> '.$dArr['identifiedby'].'<span stlye="margin-left:30px;">'.$dArr['dateidentified'].'</span></div>';
+								if($dArr['catnum']) echo '<div><b>'.$LANG['CAT_NUM'].':</b> '.$dArr['catnum'].'</div>';
+								if($dArr['occurrenceid']) echo '<div><b>'.$LANG['GUID'].':</b> '.$dArr['occurrenceid'].'</div>';
+								if($dArr['sciname']) echo '<div><b>'.$LANG['LATEST_ID'].':</b> '.$dArr['sciname'].'</div>';
+								if($dArr['identifiedby']) echo '<div><b>'.$LANG['IDED_BY'].':</b> '.$dArr['identifiedby'].'<span stlye="margin-left:30px;">'.$dArr['dateidentified'].'</span></div>';
 								if($dArr['notes']) echo '<div>'.$dArr['notes'].'</div>';
-								echo '<div><a href="#" onclick="openIndividual('.$dupeOccid.')">Show Full Details</a></div>';
+								echo '<div><a href="#" onclick="openIndividual('.$dupeOccid.')">'.$LANG['SHOW_FULL_DETS'].'</a></div>';
 								echo '</div>';
 								if($dArr['url']){
 									$url = $dArr['url'];
@@ -445,7 +447,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					echo $dupManager->getErrorStr();
 				}
 				else{
-					echo '<div style="font-weight:bold;font-size:120%;margin:15px 0px;">No Linked Duplicate Records</div>';
+					echo '<div style="font-weight:bold;font-size:120%;margin:15px 0px;">'.$LANG['NO_LINKED'].'</div>';
 				}
 			}
 			?>
@@ -454,39 +456,39 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 </div>
 <div id="geneticdiv">
 	<fieldset>
-		<legend>Genetic Resources</legend>
+		<legend><?php echo $LANG['GEN_RES']; ?></legend>
 		<div style="float:right;">
-			<a href="#" onclick="toggle('genadddiv');return false;" title="Add a new genetic resource" ><img src="../../images/add.png" /></a>
+			<a href="#" onclick="toggle('genadddiv');return false;" title="<?php echo $LANG['ADD_NEW_GEN']; ?>" ><img src="../../images/add.png" /></a>
 		</div>
 		<div id="genadddiv" style="display:<?php echo ($genticArr?'none':'block'); ?>;">
 			<fieldset>
-				<legend><b>Add New Resource</b></legend>
+				<legend><b><?php echo $LANG['ADD_NEW_RES']; ?></b></legend>
 				<form name="addgeneticform" method="post" action="occurrenceeditor.php">
 					<div style="margin:2px;">
-						<b>Name:</b><br/>
+						<b><?php echo $LANG['NAME']; ?>:</b><br/>
 						<input name="resourcename" type="text" value="" style="width:50%" />
 					</div>
 					<div style="margin:2px;">
-						<b>Identifier:</b><br/>
+						<b><?php echo $LANG['IDENTIFIER']; ?>:</b><br/>
 						<input name="identifier" type="text" value="" style="width:50%" />
 					</div>
 					<div style="margin:2px;">
-						<b>Locus:</b><br/>
+						<b><?php echo $LANG['LOCUS']; ?>:</b><br/>
 						<input name="locus" type="text" value="" style="width:95%" />
 					</div>
 					<div style="margin:2px;">
-						<b>URL:</b><br/>
+						<b><?php echo $LANG['URL']; ?>:</b><br/>
 						<input name="resourceurl" type="text" value="" style="width:95%" />
 					</div>
 					<div style="margin:2px;">
-						<b>Notes:</b><br/>
+						<b><?php echo $LANG['NOTES']; ?>:</b><br/>
 						<input name="notes" type="text" value="" style="width:95%" />
 					</div>
 					<div style="margin:2px;">
 						<input name="submitaction" type="hidden" value="addgeneticsubmit" />
 						<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />
 						<input name="tabtarget" type="hidden" value="3" />
-						<input name="subbut" type="button" value="Add New Genetic Resource" onclick="submitAddGeneticResource(this.form)" />
+						<button name="subbut" type="button" value="Add New Genetic Resource" onclick="submitAddGeneticResource(this.form)" ><?php echo $LANG['ADD_NEW_GEN_2']; ?></button>
 						<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 					</div>
 				</form>
@@ -501,40 +503,40 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 				</div>
 				<div style="margin:15px;">
 					<div style="font-weight:bold;margin-bottom:5px;"><?php echo $gArr['name']; ?></div>
-					<div style="margin-left:15px;"><b>Identifier:</b> <?php echo $gArr['id']; ?></div>
-					<div style="margin-left:15px;"><b>Locus:</b> <?php echo $gArr['locus']; ?></div>
+					<div style="margin-left:15px;"><b><?php echo $LANG['IDENTIFIER']; ?>:</b> <?php echo $gArr['id']; ?></div>
+					<div style="margin-left:15px;"><b><?php echo $LANG['LOCUS']; ?>:</b> <?php echo $gArr['locus']; ?></div>
 					<div style="margin-left:15px;">
-						<b>URL:</b> <a href="<?php echo $gArr['resourceurl']; ?>" target="_blank"><?php echo $gArr['resourceurl']; ?></a>
+						<b><?php echo $LANG['URL']; ?>:</b> <a href="<?php echo $gArr['resourceurl']; ?>" target="_blank"><?php echo $gArr['resourceurl']; ?></a>
 					</div>
-					<div style="margin-left:15px;"><b>Notes:</b> <?php echo $gArr['notes']; ?></div>
+					<div style="margin-left:15px;"><b><?php echo $LANG['NOTES']; ?>:</b> <?php echo $gArr['notes']; ?></div>
 				</div>
 				<div id="genedit-<?php echo $genId; ?>" style="display:none;margin-left:25px;">
 					<fieldset>
-						<legend>Genetic Resource Editor</legend>
+						<legend><?php echo $LANG['GEN_RES_EDITOR']; ?></legend>
 						<form name="editgeneticform" method="post" action="occurrenceeditor.php">
 							<div style="margin:2px;">
-								<b>Name:</b><br/>
+								<b><?php echo $LANG['NAME']; ?>:</b><br/>
 								<input name="resourcename" type="text" value="<?php echo $gArr['name']; ?>" style="width:50%" />
 							</div>
 							<div style="margin:2px;">
-								<b>Identifier:</b><br/>
+								<b><?php echo $LANG['IDENTIFIER']; ?>:</b><br/>
 								<input name="identifier" type="text" value="<?php echo $gArr['id']; ?>" style="width:50%" />
 							</div>
 							<div style="margin:2px;">
-								<b>Locus:</b><br/>
+								<b><?php echo $LANG['LOCUS']; ?>:</b><br/>
 								<input name="locus" type="text" value="<?php echo $gArr['locus']; ?>" style="width:95%" />
 							</div>
 							<div style="margin:2px;">
-								<b>URL:</b><br/>
+								<b><?php echo $LANG['URL']; ?>:</b><br/>
 								<input name="resourceurl" type="text" value="<?php echo $gArr['resourceurl']; ?>" style="width:95%" />
 							</div>
 							<div style="margin:2px;">
-								<b>Notes:</b><br/>
+								<b><?php echo $LANG['NOTES']; ?>:</b><br/>
 								<input name="notes" type="text" value="<?php echo $gArr['notes']; ?>" style="width:95%" />
 							</div>
 							<div style="margin:2px;">
 								<input name="submitaction" type="hidden" value="editgeneticsubmit" />
-								<input name="subbut" type="button" value="Save Edits" onclick="submitEditGeneticResource(this.form)" />
+								<button name="subbut" type="button" value="Save Edits" onclick="submitEditGeneticResource(this.form)" ><?php echo $LANG['SAVE_EDITS']; ?></button>
 								<input name="genid" type="hidden" value="<?php echo $genId; ?>" />
 								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 								<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />
@@ -543,11 +545,11 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						</form>
 					</fieldset>
 					<fieldset>
-						<legend>Delete Genetic Resource</legend>
+						<legend><?php echo $LANG['DEL_GEN_RES']; ?></legend>
 						<form name="delgeneticform" method="post" action="occurrenceeditor.php">
 							<div style="margin:2px;">
 								<input name="submitaction" type="hidden" value="deletegeneticsubmit" />
-								<input name="subbut" type="button" value="Delete Resource" onclick="submitDeleteGeneticResource(this.form)" />
+								<button name="subbut" type="button" value="Delete Resource" onclick="submitDeleteGeneticResource(this.form)" ><?php echo $LANG['DEL_RES']; ?></button>
 								<input name="genid" type="hidden" value="<?php echo $genId; ?>" />
 								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 								<input name="csmode" type="hidden" value="<?php echo $crowdSourceMode; ?>" />

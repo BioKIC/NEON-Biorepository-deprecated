@@ -2,6 +2,8 @@
 include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorResource.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/resourcetab.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/resourcetab.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/resourcetab.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = $_GET['occid'];
@@ -44,10 +46,10 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 							cnt++;
 						}
 					});
-					if(cnt == 0) $( "#searchResultDiv" ).html("No results returned");
+					if(cnt == 0) $( "#searchResultDiv" ).html("<?php echo $LANG['NO_RESULTS']; ?>");
 				}
 				else{
-					$( "#searchResultDiv" ).html("ERROR: Unable to get results");
+					$( "#searchResultDiv" ).html("<?php echo $LANG['ERROR_UNABLE_RESULTS']; ?>");
 				}
 			});
 		}
@@ -71,11 +73,11 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 
 	function validateAssocForm(f){
 		if(f.relationship.value == ""){
-			alert("Relationship needs to be defined");
+			alert("<?php echo $LANG['DEFINE_REL']; ?>");
 			return false;
 		}
 		else if(f.resourceurl.value == "" && f.identifier.value == "" && f.verbatimsciname.value == "" && (!f.occidAssoc || f.occidAssoc.value == "")){
-			alert("Related occurrence is not defined!");
+			alert("<?php echo $LANG['REL_NOT_DEFINED']; ?>");
 			return false;
 		}
 		return true;
@@ -83,11 +85,11 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 
 	function validateVoucherAddForm(f){
 		if(f.clidvoucher.value == ""){
-			alert("Select a checklist to which you want to link the voucher");
+			alert("<?php echo $LANG['SELECT_CHECKLIST']; ?>");
 			return false;
 		}
 		if(f.tidvoucher.value == ""){
-			alert("Voucher cannot be linked to a checklist until the taxonomic name has been resolved (e.g. name not linked to taxonomic thesaurus");
+			alert("<?php echo $LANG['VOUCHER_CANNOT_LINK']; ?>");
 			return false;
 		}
 		return true;
@@ -100,7 +102,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 	}
 
 	function deleteDuplicateLink(dupid, occid){
-		if(confirm("Are you sure you want to unlink the record as a duplicate?")){
+		if(confirm("<?php echo $LANG['SURE_UNLINK']; ?>")){
 			$.ajax({
 				type: "POST",
 				url: "rpc/dupedelete.php",
@@ -111,7 +113,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 					$("#dupediv-"+occid).hide();
 				}
 				else{
-					alert("ERROR deleting duplicate: "+retStr);
+					alert("<?php echo $LANG['ERROR_DELETING']; ?>: "+retStr);
 				}
 			});
 		}
@@ -124,7 +126,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 
 	function submitEditGeneticResource(f){
 		if(f.resourcename.value == ""){
-			alert("Genetic resource name must not be blank");
+			alert("<?php echo $LANG['GEN_RES_NOT_BLANK']; ?>");
 		}
 		else{
 			f.submit();
@@ -132,14 +134,14 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 	}
 
 	function submitDeleteGeneticResource(f){
-		if(confirm("Are you sure you want to premently remove this resource?")){
+		if(confirm("<?php echo $LANG['PERM_REMOVE_RES']; ?>")){
 			f.submit();
 		}
 	}
 
 	function submitAddGeneticResource(f){
 		if(f.resourcename.value == ""){
-			alert("Genetic resource name must not be blank");
+			alert("<?php echo $LANG['GEN_RES_NOT_BLANK']; ?>");
 		}
 		else{
 			f.submit();
@@ -160,34 +162,34 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 	$assocArr = $occManager->getOccurrenceRelationships();
 	?>
 	<fieldset>
-		<legend>Associated Occurrences</legend>
+		<legend><?php echo $LANG['ASSOC_OCC']; ?></legend>
 		<div style="float:right;margin-right:10px;">
-			<a href="#" onclick="toggle('new-association');return false;" title="Create a New Association" ><img src="../../images/add.png" /></a>
+			<a href="#" onclick="toggle('new-association');return false;" title="<?php echo $LANG['CREATE_NEW_ASSOC']; ?>" ><img src="../../images/add.png" /></a>
 		</div>
 		<fieldset id="new-association" style="display:none">
-			<legend>Create New Association</legend>
+			<legend><?php echo $LANG['CREATE_NEW_ASSOC']; ?></legend>
 			<form name="addOccurAssocForm" action="resourcehandler.php" method="post" onsubmit="return validateAssocForm(this)">
 				<fieldset>
-					<legend>Occurrence within System</legend>
+					<legend><?php echo $LANG['OCC_WI_SYSTEM']; ?></legend>
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
-							<span class="fieldLabel">Identifier: </span>
+							<span class="fieldLabel"><?php echo $LANG['IDENTIFIER']; ?>: </span>
 							<input name="internalidentifier" type="text" value="" style="width:300px" />
 						</div>
 						<div class="fieldDiv">
-							<span class="fieldLabel">Search Target: </span>
+							<span class="fieldLabel"><?php echo $LANG['SEARCH_TARGET']; ?>: </span>
 							<select name="target">
-								<option value="catnum">Catalog Numbers</option>
-								<option value="occid">Occurrence PK (occid)</option>
+								<option value="catnum"><?php echo $LANG['CAT_NUMS']; ?></option>
+								<option value="occid"><?php echo $LANG['OCC_PK']; ?></option>
 								<!-- <option value="occurrenceID">occurrenceID</option>  -->
 							</select>
 						</div>
 					</div>
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
-							<span class="fieldLabel">Search Collections: </span>
+							<span class="fieldLabel"><?php echo $LANG['SEARCH_COLS']; ?>: </span>
 							<select name="collidtarget" style="width:90%">
-								<option value="">All Collections</option>
+								<option value=""><?php echo $LANG['ALL_COLS']; ?></option>
 								<option value="">-------------------------</option>
 								<?php
 								$collList = $occManager->getCollectionList(false);
@@ -198,41 +200,41 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 							</select>
 						</div>
 						<div class="fieldDiv">
-							<button type="button" onclick="assocIdentifierChanged(this.form)">Search</button>
+							<button type="button" onclick="assocIdentifierChanged(this.form)"><?php echo $LANG['SEARCH']; ?></button>
 						</div>
 					</div>
 					<fieldset style="margin:0px">
-						<legend>Occurrence Matches Available to Link</legend>
+						<legend><?php echo $LANG['OCC_MATCHES_AVAIL']; ?></legend>
 						<div class="fieldDiv">
 							<div id="searchResultDiv">--------------------------------------------</div>
 						</div>
 					</fieldset>
 				</fieldset>
 				<fieldset>
-					<legend>External Occurrence</legend>
+					<legend><?php echo $LANG['EXT_OCC']; ?></legend>
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
-							<span class="fieldLabel">External Identifier: </span>
+							<span class="fieldLabel"><?php echo $LANG['EXT_ID']; ?>: </span>
 							<input name="identifier" type="text" value="" />
 						</div>
 						<div class="fieldDiv">
-							<span class="fieldLabel">Resource URL: </span>
+							<span class="fieldLabel"><?php echo $LANG['RES_URL']; ?>: </span>
 							<input name="resourceurl" type="text" value="" style="width:400px" />
 						</div>
 					</div>
 				</fieldset>
 				<fieldset>
-					<legend>Observational Reference</legend>
+					<legend><?php echo $LANG['OBS_REF']; ?></legend>
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
-							<span class="fieldLabel">Verbatim Scientific Name: </span>
+							<span class="fieldLabel"><?php echo $LANG['VERBAT_SCINAME']; ?>: </span>
 							<input name="verbatimsciname" type="text" value="" />
 						</div>
 					</div>
 				</fieldset>
 				<div class="fieldRowDiv" style="margin:10px">
 					<div class="fieldDiv">
-						<span class="fieldLabel">Relationship: </span>
+						<span class="fieldLabel"><?php echo $LANG['REL']; ?>: </span>
 						<select name="relationship" required>
 							<option value="">--------------------</option>
 							<?php
@@ -244,7 +246,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						</select>
 					</div>
 					<div class="fieldDiv">
-						<span class="fieldLabel">Relationship subtype: </span>
+						<span class="fieldLabel"><?php echo $LANG['REL_SUBTYPE']; ?>: </span>
 						<select name="subtype">
 							<option value="">--------------------</option>
 							<?php
@@ -256,15 +258,15 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 						</select>
 					</div>
 					<div class="fieldDiv">
-						<span class="fieldLabel">Basis of Record: </span>
+						<span class="fieldLabel"><?php echo $LANG['BASIS_OF_RECORD']; ?>: </span>
 						<select name="basisofrecord">
 							<option value="">--------------------</option>
-							<option value="HumanObservation">Human Observation</option>
-							<option value="LivingSpecimen">Living Specimen</option>
-							<option value="MachineObservation">Machine Observation</option>
-							<option value="MaterialSample">Material Sample</option>
-							<option value="PreservedSpecimen">Preserved Specimen</option>
-							<option value="ReferenceCitation">Reference Citation</option>
+							<option value="HumanObservation"><?php echo $LANG['HUMAN_OBS']; ?></option>
+							<option value="LivingSpecimen"><?php echo $LANG['LIVING_SPEC']; ?></option>
+							<option value="MachineObservation"><?php echo $LANG['MACHINE_OBS']; ?></option>
+							<option value="MaterialSample"><?php echo $LANG['MAT_SAMPLE']; ?></option>
+							<option value="PreservedSpecimen"><?php echo $LANG['PRES_SAMPLE']; ?></option>
+							<option value="ReferenceCitation"><?php echo $LANG['REF_CITATION']; ?></option>
 						</select>
 					</div>
 					<div class="fieldDiv">

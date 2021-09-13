@@ -6,6 +6,7 @@ Language: English
 */
 
 $LANG['EDIT_REVIEWER'] = 'Revisor de Edición de Especímenes';
+$LANG['FIELDS_EDITED'] = 'campos editados';
 $LANG['DATE_PROBLEM'] = 'Fecha inicial no puede ser posterior a la fecha final';
 $LANG['PLEASE_CHECK_EDIT'] = '¡Por favor revisar al menos una edición del listado de abajo!';
 $LANG['SURE_DELETE_HISTORY'] = '¿Está seguro que quiere remover permanentemente las ediciones seleccionadas de la historia?';

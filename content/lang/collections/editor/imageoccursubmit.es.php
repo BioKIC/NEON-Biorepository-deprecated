@@ -5,6 +5,7 @@ Language: English
 ------------------
 */
 
+$LANG['NO_SET_STATUS'] = 'Sin Estatus Establecido';
 $LANG['NEW_RECORD_CREATED'] = 'Se ha creado un nuevo registro';
 $LANG['IMAGE_SUBMIT'] = 'Envío de Imagen de Ocurrencia';
 $LANG['SELECT_IMAGE'] = 'Por favor seleccionar un archivo de imagen para subir o ingresar una URL remota para vincular';

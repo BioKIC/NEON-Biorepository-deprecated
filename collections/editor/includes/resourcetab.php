@@ -370,7 +370,7 @@ $dupClusterArr = $dupManager->getClusterArr($occid);
 				}
 				echo '</div>';
 			}
-			echo '<div style="margin:15px 0px">* '.$LANG['IF_X']'.</div>';
+			echo '<div style="margin:15px 0px">* '.$LANG['IF_X'].'</div>';
 		}
 		?>
 	</fieldset>

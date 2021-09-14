@@ -36,5 +36,32 @@ $LANG['MUNICIPALITY'] = 'Municipality';
 $LANG['COL_NUMBER'] = 'Collector Number';
 $LANG['COL_DATE'] = 'Collection Date';
 
+$LANG['CUSTOM_FIELD_1'] = 'Custom Field 1';
+$LANG['SELECT_FIELD_NAME'] = 'Select Field Name';
+$LANG['EQUALS'] = 'EQUALS';
+$LANG['NOT_EQUALS'] = 'NOT EQUALS';
+$LANG['STARTS_WITH'] = 'STARTS WITH';
+$LANG['CONTAINS'] = "CONTAINS";
+$LANG['DOESNT_CONTAIN'] = "DOESN'T CONTAIN";
+$LANG['GREATER_THAN'] = 'GREATER THAN';
+$LANG['LESS_THAN'] = 'LESS THAN';
+$LANG['IS_NULL'] = 'IS NULL';
+$LANG['IS_NOT_NULL'] = 'IS NOT NULL';
+$LANG['CUSTOM_FIELD_2'] = 'Custom Field 2';
+$LANG['CUSTOM_FIELD_3'] = 'Custom Field 3';
+$LANG['SHOW_RECS_ALL'] = 'Show records for all users (admin control)';
+$LANG['GO_LABEL_PRINT'] = 'Go to Label Printing Module';
+$LANG['DISPLAY_EDITOR'] = 'Display Editor';
+$LANG['DISPLAY_TABLE'] = 'Display Table';
+$LANG['SORT_BY'] = 'Sort By';
+$LANG['DATE_LAST_MODIFIED'] = 'Date Last Modified';
+$LANG['DATE_ENTERED'] = 'Location ID';
+$LANG['LOCALITY'] = 'Locality';
+$LANG['DEC_LAT'] = 'Decimal Latitude';
+$LANG['DEC_LONG'] = 'Decimal Longitude';
+$LANG['ELEV_MIN'] = 'Elevation Minimum';
+$LANG['ELEV_MAX'] = 'Elevation Maximum';
+$LANG['ASCENDING'] = 'ascending';
+$LANG['DESCENDING'] = 'descending';
 
 ?>

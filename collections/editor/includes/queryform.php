@@ -190,9 +190,9 @@ else{
 			//sort($advFieldArr);
 			?>
 			<div class="fieldGroupDiv">
-				Custom Field 1:
+				<?php echo $LANG['CUSTOM_FIELD_1']; ?>:
 				<select name="q_customfield1" onchange="customSelectChanged(1)">
-					<option value="">Select Field Name</option>
+					<option value=""><?php echo $LANG['SELECT_FIELD_NAME']; ?></option>
 					<option value="">---------------------------------</option>
 					<?php
 					foreach($advFieldArr as $k => $v){
@@ -201,15 +201,15 @@ else{
 					?>
 				</select>
 				<select name="q_customtype1">
-					<option>EQUALS</option>
-					<option <?php echo ($qCustomType1=='NOT EQUALS'?'SELECTED':''); ?> value="NOT EQUALS">NOT EQUALS</option>
-					<option <?php echo ($qCustomType1=='STARTS'?'SELECTED':''); ?> value="STARTS">STARTS WITH</option>
-					<option <?php echo ($qCustomType1=='LIKE'?'SELECTED':''); ?> value="LIKE">CONTAINS</option>
-					<option <?php echo ($qCustomType1=='NOT LIKE'?'SELECTED':''); ?> value="NOT LIKE">DOESN'T CONTAIN</option>
-					<option <?php echo ($qCustomType1=='GREATER'?'SELECTED':''); ?> value="GREATER">GREATER THAN</option>
-					<option <?php echo ($qCustomType1=='LESS'?'SELECTED':''); ?> value="LESS">LESS THAN</option>
-					<option <?php echo ($qCustomType1=='NULL'?'SELECTED':''); ?> value="NULL">IS NULL</option>
-					<option <?php echo ($qCustomType1=='NOTNULL'?'SELECTED':''); ?> value="NOTNULL">IS NOT NULL</option>
+					<option><?php echo $LANG['EQUALS']; ?></option>
+					<option <?php echo ($qCustomType1=='NOT EQUALS'?'SELECTED':''); ?> value="NOT EQUALS"><?php echo $LANG['NOT_EQUALS']; ?></option>
+					<option <?php echo ($qCustomType1=='STARTS'?'SELECTED':''); ?> value="STARTS"><?php echo $LANG['STARTS_WITH']; ?></option>
+					<option <?php echo ($qCustomType1=='LIKE'?'SELECTED':''); ?> value="LIKE"><?php echo $LANG['CONTAINS']; ?></option>
+					<option <?php echo ($qCustomType1=='NOT LIKE'?'SELECTED':''); ?> value="NOT LIKE"><?php echo $LANG['DOESNT_CONTAIN']; ?></option>
+					<option <?php echo ($qCustomType1=='GREATER'?'SELECTED':''); ?> value="GREATER"><?php echo $LANG['GREATER_THAN']; ?></option>
+					<option <?php echo ($qCustomType1=='LESS'?'SELECTED':''); ?> value="LESS"><?php echo $LANG['LESS_THAN']; ?></option>
+					<option <?php echo ($qCustomType1=='NULL'?'SELECTED':''); ?> value="NULL"><?php echo $LANG['IS_NULL']; ?></option>
+					<option <?php echo ($qCustomType1=='NOTNULL'?'SELECTED':''); ?> value="NOTNULL"><?php echo $LANG['IS_NOT_NULL']; ?></option>
 				</select>
 				<input name="q_customvalue1" type="text" value="<?php echo $qCustomValue1; ?>" style="width:200px;" />
 				<a href="#" onclick="toggleCustomDiv2();return false;">
@@ -217,9 +217,9 @@ else{
 				</a>
 			</div>
 			<div id="customdiv2" class="fieldGroupDiv" style="display:<?php echo ($qCustomValue2||$qCustomType2=='NULL'||$qCustomType2=='NOTNULL'?'block':'none');?>;">
-				Custom Field 2:
+				<?php echo $LANG['CUSTOM_FIELD_2']; ?>:
 				<select name="q_customfield2" onchange="customSelectChanged(2)">
-					<option value="">Select Field Name</option>
+					<option value=""><?php echo $LANG['SELECT_FIELD_NAME']; ?></option>
 					<option value="">---------------------------------</option>
 					<?php
 					foreach($advFieldArr as $k => $v){
@@ -228,15 +228,15 @@ else{
 					?>
 				</select>
 				<select name="q_customtype2">
-					<option>EQUALS</option>
-					<option <?php echo ($qCustomType2=='NOT EQUALS'?'SELECTED':''); ?> value="NOT EQUALS">NOT EQUALS</option>
-					<option <?php echo ($qCustomType2=='STARTS'?'SELECTED':''); ?> value="STARTS">STARTS WITH</option>
-					<option <?php echo ($qCustomType2=='LIKE'?'SELECTED':''); ?> value="LIKE">CONTAINS</option>
-					<option <?php echo ($qCustomType2=='NOT LIKE'?'SELECTED':''); ?> value="NOT LIKE">DOESN'T CONTAIN</option>
-					<option <?php echo ($qCustomType2=='GREATER'?'SELECTED':''); ?> value="GREATER">GREATER THAN</option>
-					<option <?php echo ($qCustomType2=='LESS'?'SELECTED':''); ?> value="LESS">LESS THAN</option>
-					<option <?php echo ($qCustomType2=='NULL'?'SELECTED':''); ?> value="NULL">IS NULL</option>
-					<option <?php echo ($qCustomType2=='NOTNULL'?'SELECTED':''); ?> value="NOTNULL">IS NOT NULL</option>
+					<option><?php echo $LANG['EQUALS']; ?></option>
+					<option <?php echo ($qCustomType2=='NOT EQUALS'?'SELECTED':''); ?> value="NOT EQUALS"><?php echo $LANG['NOT_EQUALS']; ?></option>
+					<option <?php echo ($qCustomType2=='STARTS'?'SELECTED':''); ?> value="STARTS"><?php echo $LANG['STARTS_WITH']; ?></option>
+					<option <?php echo ($qCustomType2=='LIKE'?'SELECTED':''); ?> value="LIKE"><?php echo $LANG['CONTAINS']; ?></option>
+					<option <?php echo ($qCustomType2=='NOT LIKE'?'SELECTED':''); ?> value="NOT LIKE"><?php echo $LANG['DOESNT_CONTAIN']; ?></option>
+					<option <?php echo ($qCustomType2=='GREATER'?'SELECTED':''); ?> value="GREATER"><?php echo $LANG['GREATER_THAN']; ?></option>
+					<option <?php echo ($qCustomType2=='LESS'?'SELECTED':''); ?> value="LESS"><?php echo $LANG['LESS_THAN']; ?></option>
+					<option <?php echo ($qCustomType2=='NULL'?'SELECTED':''); ?> value="NULL"><?php echo $LANG['IS_NULL']; ?></option>
+					<option <?php echo ($qCustomType2=='NOTNULL'?'SELECTED':''); ?> value="NOTNULL"><?php echo $LANG['IS_NOT_NULL']; ?></option>
 				</select>
 				<input name="q_customvalue2" type="text" value="<?php echo $qCustomValue2; ?>" style="width:200px;" />
 				<a href="#" onclick="toggleCustomDiv3();return false;">
@@ -244,9 +244,9 @@ else{
 				</a>
 			</div>
 			<div id="customdiv3" class="fieldGroupDiv" style="display:<?php echo ($qCustomValue3||$qCustomType3=='NULL'||$qCustomType3=='NOTNULL'?'block':'none');?>;">
-				Custom Field 3:
+				<?php echo $LANG['CUSTOM_FIELD_3']; ?>:
 				<select name="q_customfield3" onchange="customSelectChanged(3)">
-					<option value="">Select Field Name</option>
+					<option value=""><?php echo $LANG['SELECT_FIELD_NAME']; ?></option>
 					<option value="">---------------------------------</option>
 					<?php
 					foreach($advFieldArr as $k => $v){
@@ -255,15 +255,15 @@ else{
 					?>
 				</select>
 				<select name="q_customtype3">
-					<option>EQUALS</option>
-					<option <?php echo ($qCustomType3=='NOT EQUALS'?'SELECTED':''); ?> value="NOT EQUALS">NOT EQUALS</option>
-					<option <?php echo ($qCustomType3=='STARTS'?'SELECTED':''); ?> value="STARTS">STARTS WITH</option>
-					<option <?php echo ($qCustomType3=='LIKE'?'SELECTED':''); ?> value="LIKE">CONTAINS</option>
-					<option <?php echo ($qCustomType3=='NOT LIKE'?'SELECTED':''); ?> value="NOT LIKE">DOESN'T CONTAIN</option>
-					<option <?php echo ($qCustomType3=='GREATER'?'SELECTED':''); ?> value="GREATER">GREATER THAN</option>
-					<option <?php echo ($qCustomType3=='LESS'?'SELECTED':''); ?> value="LESS">LESS THAN</option>
-					<option <?php echo ($qCustomType3=='NULL'?'SELECTED':''); ?> value="NULL">IS NULL</option>
-					<option <?php echo ($qCustomType3=='NOTNULL'?'SELECTED':''); ?> value="NOTNULL">IS NOT NULL</option>
+					<option><?php echo $LANG['EQUALS']; ?></option>
+					<option <?php echo ($qCustomType3=='NOT EQUALS'?'SELECTED':''); ?> value="NOT EQUALS"><?php echo $LANG['NOT_EQUALS']; ?></option>
+					<option <?php echo ($qCustomType3=='STARTS'?'SELECTED':''); ?> value="STARTS"><?php echo $LANG['STARTS_WITH']; ?></option>
+					<option <?php echo ($qCustomType3=='LIKE'?'SELECTED':''); ?> value="LIKE"><?php echo $LANG['CONTAINS']; ?></option>
+					<option <?php echo ($qCustomType3=='NOT LIKE'?'SELECTED':''); ?> value="NOT LIKE"><?php echo $LANG['DOESNT_CONTAIN']; ?></option>
+					<option <?php echo ($qCustomType3=='GREATER'?'SELECTED':''); ?> value="GREATER"><?php echo $LANG['GREATER_THAN']; ?></option>
+					<option <?php echo ($qCustomType3=='LESS'?'SELECTED':''); ?> value="LESS"><?php echo $LANG['LESS_THAN']; ?></option>
+					<option <?php echo ($qCustomType3=='NULL'?'SELECTED':''); ?> value="NULL"><?php echo $LANG['IS_NULL']; ?></option>
+					<option <?php echo ($qCustomType3=='NOTNULL'?'SELECTED':''); ?> value="NOTNULL"><?php echo $LANG['IS_NOT_NULL']; ?></option>
 				</select>
 				<input name="q_customvalue3" type="text" value="<?php echo $qCustomValue3; ?>" style="width:200px;" />
 			</div>
@@ -272,7 +272,7 @@ else{
 				if($isGenObs && ($IS_ADMIN || ($collId && array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collId,$USER_RIGHTS["CollAdmin"])))){
 					?>
 					<div class="fieldDiv">
-						<input type="checkbox" name="q_returnall" value="1" <?php echo ($qReturnAll?'CHECKED':''); ?> /> Show records for all users (admin control)
+						<input type="checkbox" name="q_returnall" value="1" <?php echo ($qReturnAll?'CHECKED':''); ?> /> <?php echo $LANG['SHOW_RECS_ALL']; ?>
 					</div>
 					<?php
 				}
@@ -292,7 +292,7 @@ else{
 					if($qDateLastModified) $qryStr .= '&datelastmodified='.$qDateLastModified;
 					if($qryStr){
 						?>
-						<div style="float:right;margin-top:10px;" title="Go to Label Printing Module">
+						<div style="float:right;margin-top:10px;" title="<?php echo $LANG['GO_LABEL_PRINT']; ?>">
 							<a href="../reports/labelmanager.php?collid=<?php echo $collId.$qryStr; ?>">
 								<img src="../../images/list.png" style="width:15px;" />
 							</a>
@@ -307,41 +307,41 @@ else{
 				<input type="hidden" name="occindex" value="<?php echo $occManager->getOccIndex(); ?>" />
 				<input type="hidden" name="occidlist" value="<?php echo $occManager->getOccidIndexStr(); ?>" />
 				<input type="hidden" name="direction" value="" />
-				<input type="button" name="submitaction" value="Display Editor" onclick="submitQueryEditor(this.form)" />
-				<input type="button" name="submitaction" value="Display Table" onclick="submitQueryTable(this.form)" />
+				<button name="submitaction" value="Display Editor" onclick="submitQueryEditor(this.form)" ><?php echo $LANG['DISPLAY_EDITOR']; ?></button>
+				<button name="submitaction" value="Display Table" onclick="submitQueryTable(this.form)" ><?php echo $LANG['DISPLAY_TABLE']; ?></button>
 				<span style="margin-left:10px;">
 					<input type="button" name="reset" value="Reset Form" onclick="resetQueryForm(this.form)" />
 				</span>
 				<span style="margin-left:10px;">
-					Sort by:
+					<?php echo $LANG['SORT_BY']; ?>:
 					<select name="orderby">
 						<option value=""></option>
-						<option value="recordedby" <?php echo ($qOrderBy=='recordedby'?'SELECTED':''); ?>>Collector</option>
-						<option value="recordnumber" <?php echo ($qOrderBy=='recordnumber'?'SELECTED':''); ?>>Number</option>
-						<option value="eventdate" <?php echo ($qOrderBy=='eventdate'?'SELECTED':''); ?>>Date</option>
-						<option value="catalognumber" <?php echo ($qOrderBy=='catalognumber'?'SELECTED':''); ?>>Catalog Number</option>
-						<option value="recordenteredby" <?php echo ($qOrderBy=='recordenteredby'?'SELECTED':''); ?>>Entered By</option>
-						<option value="dateentered" <?php echo ($qOrderBy=='dateentered'?'SELECTED':''); ?>>Date Entered</option>
-						<option value="datelastmodified" <?php echo ($qOrderBy=='datelastmodified'?'SELECTED':''); ?>>Date Last modified</option>
-						<option value="processingstatus" <?php echo ($qOrderBy=='processingstatus'?'SELECTED':''); ?>>Processing Status</option>
-						<option value="sciname" <?php echo ($qOrderBy=='sciname'?'SELECTED':''); ?>>Scientific Name</option>
-						<option value="family" <?php echo ($qOrderBy=='family'?'SELECTED':''); ?>>Family</option>
-						<option value="country" <?php echo ($qOrderBy=='country'?'SELECTED':''); ?>>Country</option>
-						<option value="stateprovince" <?php echo ($qOrderBy=='stateprovince'?'SELECTED':''); ?>>State / Province</option>
-						<option value="county" <?php echo ($qOrderBy=='county'?'SELECTED':''); ?>>County</option>
-						<option value="municipality" <?php echo ($qOrderBy=='municipality'?'SELECTED':''); ?>>Municipality</option>
-						<option value="locationid" <?php echo ($qOrderBy=='locationid'?'SELECTED':''); ?>>Location ID</option>
-						<option value="locality" <?php echo ($qOrderBy=='locality'?'SELECTED':''); ?>>Locality</option>
-						<option value="decimallatitude" <?php echo ($qOrderBy=='decimallatitude'?'SELECTED':''); ?>>Decimal Latitude</option>
-						<option value="decimallongitude" <?php echo ($qOrderBy=='decimallongitude'?'SELECTED':''); ?>>Decimal Longitude</option>
-						<option value="minimumelevationinmeters" <?php echo ($qOrderBy=='minimumelevationinmeters'?'SELECTED':''); ?>>Elevation Minimum</option>
-						<option value="maximumelevationinmeters" <?php echo ($qOrderBy=='maximumelevationinmeters'?'SELECTED':''); ?>>Elevation Maximum</option>
+						<option value="recordedby" <?php echo ($qOrderBy=='recordedby'?'SELECTED':''); ?>><?php echo $LANG['COLLECTOR']; ?></option>
+						<option value="recordnumber" <?php echo ($qOrderBy=='recordnumber'?'SELECTED':''); ?>><?php echo $LANG['NUMBER']; ?></option>
+						<option value="eventdate" <?php echo ($qOrderBy=='eventdate'?'SELECTED':''); ?>><?php echo $LANG['DATE']; ?></option>
+						<option value="catalognumber" <?php echo ($qOrderBy=='catalognumber'?'SELECTED':''); ?>><?php echo $LANG['CAT_NUM']; ?></option>
+						<option value="recordenteredby" <?php echo ($qOrderBy=='recordenteredby'?'SELECTED':''); ?>><?php echo $LANG['ENTERED_BY']; ?></option>
+						<option value="dateentered" <?php echo ($qOrderBy=='dateentered'?'SELECTED':''); ?>><?php echo $LANG['DATE_ENTERED']; ?></option>
+						<option value="datelastmodified" <?php echo ($qOrderBy=='datelastmodified'?'SELECTED':''); ?>><?php echo $LANG['DATE_LAST_MODIFIED']; ?></option>
+						<option value="processingstatus" <?php echo ($qOrderBy=='processingstatus'?'SELECTED':''); ?>><?php echo $LANG['PROC_STATUS']; ?></option>
+						<option value="sciname" <?php echo ($qOrderBy=='sciname'?'SELECTED':''); ?>><?php echo $LANG['SCI_NAME']; ?></option>
+						<option value="family" <?php echo ($qOrderBy=='family'?'SELECTED':''); ?>><?php echo $LANG['FAMILY']; ?></option>
+						<option value="country" <?php echo ($qOrderBy=='country'?'SELECTED':''); ?>><?php echo $LANG['COUNTRY']; ?></option>
+						<option value="stateprovince" <?php echo ($qOrderBy=='stateprovince'?'SELECTED':''); ?>><?php echo $LANG['STATE_PROVINCE']; ?></option>
+						<option value="county" <?php echo ($qOrderBy=='county'?'SELECTED':''); ?>><?php echo $LANG['COUNTY']; ?></option>
+						<option value="municipality" <?php echo ($qOrderBy=='municipality'?'SELECTED':''); ?>><?php echo $LANG['MUNICIPALITY']; ?></option>
+						<option value="locationid" <?php echo ($qOrderBy=='locationid'?'SELECTED':''); ?>><?php echo $LANG['LOCATION_ID']; ?></option>
+						<option value="locality" <?php echo ($qOrderBy=='locality'?'SELECTED':''); ?>><?php echo $LANG['LOCALITY']; ?></option>
+						<option value="decimallatitude" <?php echo ($qOrderBy=='decimallatitude'?'SELECTED':''); ?>><?php echo $LANG['DEC_LAT']; ?></option>
+						<option value="decimallongitude" <?php echo ($qOrderBy=='decimallongitude'?'SELECTED':''); ?>><?php echo $LANG['DEC_LONG']; ?></option>
+						<option value="minimumelevationinmeters" <?php echo ($qOrderBy=='minimumelevationinmeters'?'SELECTED':''); ?>><?php echo $LANG['ELEV_MIN']; ?></option>
+						<option value="maximumelevationinmeters" <?php echo ($qOrderBy=='maximumelevationinmeters'?'SELECTED':''); ?>><?php echo $LANG['ELEV_MAX']; ?></option>
 					</select>
 				</span>
 				<span>
 					<select name="orderbydir">
-						<option value="ASC">ascending</option>
-						<option value="DESC" <?php echo ($qOrderByDir=='DESC'?'SELECTED':''); ?>>descending</option>
+						<option value="ASC"><?php echo $LANG['ASCENDING']; ?></option>
+						<option value="DESC" <?php echo ($qOrderByDir=='DESC'?'SELECTED':''); ?>><?php echo $LANG['DESCENDING']; ?></option>
 					</select>
 				</span>
 			</div>

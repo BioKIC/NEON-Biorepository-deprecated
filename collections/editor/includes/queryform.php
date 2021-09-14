@@ -162,10 +162,10 @@ else{
 					'recordedby'=>$LANG['COLLECTOR'],'recordnumber'=>$LANG['COL_NUMBER'],'eventdate'=>$LANG['COL_DATE']);
 			}
 			else{
-				$advFieldArr = array('associatedCollectors'=>'Associated Collectors','associatedOccurrences'=>'Associated Occurrences',
-					'associatedTaxa'=>'Associated Taxa','attributes'=>'Attributes','scientificNameAuthorship'=>'Author',
-					'basisOfRecord'=>'Basis Of Record','behavior'=>'Behavior','catalogNumber'=>'Catalog Number','collectionCode'=>'Collection Code (override)','recordNumber'=>'Collection Number',
-					'recordedBy'=>'Collector/Observer','coordinateUncertaintyInMeters'=>'Coordinate Uncertainty (m)','country'=>'Country',
+				$advFieldArr = array('associatedCollectors'=>$LANG['ASSOC_COLLECTORS'],'associatedOccurrences'=>$LANG['ASSOC_OCCS'],
+					'associatedTaxa'=>$LANG['ASSOC_TAXA'],'attributes'=>$LANG['ATTRIBUTES'],'scientificNameAuthorship'=>$LANG['AUTHOR'],
+					'basisOfRecord'=>$LANG['BASIS_OF_RECORD'],'behavior'=>$LANG['BEHAVIOR'],'catalogNumber'=>$LANG['CAT_NUM'],'collectionCode'=>$LANG['COL_CODE'],'recordNumber'=>$LANG['COL_NUMBER'],
+					'recordedBy'=>$LANG['COL_OBS'],'coordinateUncertaintyInMeters'=>'Coordinate Uncertainty (m)','country'=>'Country',
 					'county'=>'County','cultivationStatus'=>'Cultivation Status','dataGeneralizations'=>'Data Generalizations','eventDate'=>'Date',
 					'dateEntered'=>'Date Entered','dateLastModified'=>'Date Last Modified','dbpk'=>'dbpk','decimalLatitude'=>'Decimal Latitude',
 					'decimalLongitude'=>'Decimal Longitude','maximumDepthInMeters'=>'Depth Maximum (m)','minimumDepthInMeters'=>'Depth Minimum (m)',

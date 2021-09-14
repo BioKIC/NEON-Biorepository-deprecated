@@ -35,6 +35,15 @@ $LANG['COUNTY'] = 'Comté';
 $LANG['MUNICIPALITY'] = 'Municipalité';
 $LANG['COL_NUMBER'] = 'Numéro de Collectionneur';
 $LANG['COL_DATE'] = 'Date de Collecte';
+$LANG['ASSOC_COLLECTORS'] = 'Associated Collectors';
+$LANG['ASSOC_OCCS'] = 'Associated Occurrences';
+$LANG['ASSOC_TAXA'] = 'Associated Taxa';
+$LANG['ATTRIBUTES'] = 'Attributes';
+$LANG['AUTHOR'] = 'Author';
+$LANG['BASIS_OF_RECORD'] = 'Basis Of Record';
+$LANG['BEHAVIOR'] = 'Behavior';
+$LANG['COL_CODE'] = 'Collection Code (override)';
+$LANG['COL_OBS'] = 'Collector/Observer';
 
 $LANG['CUSTOM_FIELD_1'] = 'Champ Personnalisé 1';
 $LANG['SELECT_FIELD_NAME'] = 'Sélectionnez Nom du Champ';

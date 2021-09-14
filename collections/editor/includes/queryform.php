@@ -157,9 +157,9 @@ else{
 			}
 			$advFieldArr = array();
 			if($crowdSourceMode){
-				$advFieldArr = array('family'=>$LANG['FAMILY'],'sciname'=>$LANG['SCI_NAME'],'othercatalognumbers'=>$LANG['OTHER_CAT_NUMS'],
-					'country'=>$LANG['COUNTRY'],'stateProvince'=>$LANG['STATE_PROVINCE'],'county'=>$LANG['COUNTY'],'municipality'=>$LANG['MUNICIPALITY'],
-					'recordedby'=>$LANG['COLLECTOR'],'recordnumber'=>$LANG['COL_NUMBER'],'eventdate'=>$LANG['COL_DATE']);
+				$advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','othercatalognumbers'=>'Other Catalog Numbers',
+					'country'=>'Country','stateProvince'=>'State/Province','county'=>'County','municipality'=>'Municipality',
+					'recordedby'=>'Collector','recordnumber'=>'Collector Number','eventdate'=>'Collection Date');
 			}
 			else{
 				$advFieldArr = array('associatedCollectors'=>'Associated Collectors','associatedOccurrences'=>'Associated Occurrences',

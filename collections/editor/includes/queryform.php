@@ -1,5 +1,7 @@
 <?php
 if(!$displayQuery && array_key_exists('displayquery',$_REQUEST)) $displayQuery = $_REQUEST['displayquery'];
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/queryform.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/queryform.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/queryform.en.php');
 
 $qryArr = $occManager->getQueryVariables();
 $qCatalogNumber = (array_key_exists('cn',$qryArr)?$qryArr['cn']:'');
@@ -41,21 +43,21 @@ else{
 <div id="querydiv" style="clear:both;width:850px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
 	<form name="queryform" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="post" onsubmit="return verifyQueryForm(this)">
 		<fieldset style="padding:5px;">
-			<legend>Record Search Form</legend>
+			<legend><?php echo $LANG['RECORD_SEARCH_FORM']; ?></legend>
 			<?php
 			if(!$crowdSourceMode){
 				?>
 				<div class="fieldGroupDiv">
-					<div class="fieldDiv" title="Full name of collector as entered in database. To search just on last name, place the wildcard character (%) before name (%Gentry).">
-						Collector:
+					<div class="fieldDiv" title="<?php echo $LANG['WILD_EXPLAIN']; ?>">
+						<?php echo $LANG['COLLECTOR']; ?>:
 						<input type="text" name="q_recordedby" value="<?php echo $qRecordedBy; ?>" onchange="setOrderBy(this)" />
 					</div>
-					<div class="fieldDiv" title="Separate multiple terms by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
-						Number:
+					<div class="fieldDiv" title="<?php echo $LANG['SEPARATE_RANGES']; ?>">
+						<?php echo $LANG['NUMBER']; ?>:
 						<input type="text" name="q_recordnumber" value="<?php echo $qRecordNumber; ?>" style="width:120px;" onchange="setOrderBy(this)" />
 					</div>
-					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
-						Date:
+					<div class="fieldDiv" title="<?php echo $LANG['ENTER_RANGES']; ?>">
+						<?php echo $LANG['DATE']; ?>:
 						<input type="text" name="q_eventdate" value="<?php echo $qEventDate; ?>" style="width:160px" onchange="setOrderBy(this)" />
 					</div>
 				</div>
@@ -63,23 +65,23 @@ else{
 			}
 			?>
 			<div class="fieldGroupDiv">
-				<div class="fieldDiv" title="Separate multiples by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
-					Catalog Number:
+				<div class="fieldDiv" title="<?php echo $LANG['SEPARATE_RANGES']; ?>">
+					<?php echo $LANG['CAT_NUM']; ?>:
 					<input type="text" name="q_catalognumber" value="<?php echo $qCatalogNumber; ?>" onchange="setOrderBy(this)" />
 				</div>
 				<?php
 				if($crowdSourceMode){
 					?>
 					<div class="fieldDiv" title="Search for term embedded within OCR block of text">
-						OCR Fragment:
+						<?php echo $LANG['OCR_FRAGMENT']; ?>:
 						<input type="text" name="q_ocrfrag" value="<?php echo $qOcrFrag; ?>" style="width:200px;" />
 					</div>
 					<?php
 				}
 				else{
 					?>
-					<div class="fieldDiv" title="Separate multiples by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750">
-						Other Catalog Numbers:
+					<div class="fieldDiv" title="<?php echo $LANG['SEPARATE_RANGES']; ?>">
+						<?php echo $LANG['OTHER_CAT_NUMS']; ?>:
 						<input type="text" name="q_othercatalognumbers" value="<?php echo $qOtherCatalogNumbers; ?>" />
 					</div>
 					<?php
@@ -91,24 +93,24 @@ else{
 				?>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv" style="<?php echo ($isGenObs?'display:none':''); ?>">
-						Entered by:
+						<?php echo $LANG['ENTERED_BY']; ?>:
 						<input type="text" name="q_recordenteredby" value="<?php echo $qRecordEnteredBy; ?>" style="width:70px;" onchange="setOrderBy(this)" />
-						<button type="button" onclick="enteredByCurrentUser()" style="font-size:70%" title="Limit to recent records entered by current user">CU</button>
+						<button type="button" onclick="enteredByCurrentUser()" style="font-size:70%" title="<?php echo $LANG['LIMIT_TO_CURRENT']; ?>"><?php echo $LANG['CU']; ?></button>
 					</div>
-					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
-						Date entered:
+					<div class="fieldDiv" title="<?php echo $LANG['ENTER_RANGES']; ?>">
+						<?php echo $LANG['DATE_ENTERED']; ?>:
 						<input type="text" name="q_dateentered" value="<?php echo $qDateEntered; ?>" style="width:160px" onchange="setOrderBy(this)" />
 					</div>
-					<div class="fieldDiv" title="Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01">
-						Date modified:
+					<div class="fieldDiv" title="<?php echo $LANG['ENTER_RANGES']; ?>">
+						<?php echo $LANG['DATE_MODIFIED']; ?>:
 						<input type="text" name="q_datelastmodified" value="<?php echo $qDateLastModified; ?>" style="width:160px" onchange="setOrderBy(this)" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						Processing Status:
+						<?php echo $LANG['PROC_STATUS']; ?>:
 						<select name="q_processingstatus" onchange="setOrderBy(this)">
-							<option value=''>All Records</option>
+							<option value=''><?php echo $LANG['ALL_RECORDS']; ?></option>
 							<option>-------------------</option>
 							<?php
 							foreach($processingStatusArr as $v){
@@ -116,7 +118,7 @@ else{
 								$keyOut = strtolower($v);
 								echo '<option value="'.$keyOut.'" '.($qProcessingStatus==$keyOut?'SELECTED':'').'>'.ucwords($v).'</option>';
 							}
-							echo '<option value="isnull" '.($qProcessingStatus=='isnull'?'SELECTED':'').'>No Set Status</option>';
+							echo '<option value="isnull" '.($qProcessingStatus=='isnull'?'SELECTED':'').'>'.$LANG['NO_SET_STATUS'].'</option>';
 							if($qProcessingStatus && $qProcessingStatus != 'isnull' && !in_array($qProcessingStatus,$processingStatusArr)){
 								echo '<option value="'.$qProcessingStatus.'" SELECTED>'.$qProcessingStatus.'</option>';
 							}
@@ -125,20 +127,20 @@ else{
 					</div>
 					<div class="fieldDiv">
 						<input name="q_imgonly" type="checkbox" value="1" <?php echo ($qImgOnly==1?'checked':''); ?> onchange="this.form.q_withoutimg.checked = false;" />
-						with images
+						<?php echo $LANG['WITH_IMAGES']; ?>
 					</div>
 					<div class="fieldDiv">
 						<input name="q_withoutimg" type="checkbox" value="1" <?php echo ($qWithoutImg==1?'checked':''); ?> onchange="this.form.q_imgonly.checked = false;" />
-						without images
+						<?php echo $LANG['WITHOUT_IMAGES']; ?>
 					</div>
 				</div>
 				<?php
 				if($ACTIVATE_EXSICCATI){
 					if($exsList = $occManager->getExsiccatiList()){
 						?>
-						<div class="fieldGroupDiv" title="Enter Exsiccati Title">
+						<div class="fieldGroupDiv" title="<?php echo $LANG['ENTER_EXS_TITLE']; ?>">
 							<div class="fieldDiv">
-								Exsiccati Title:
+								<?php echo $LANG['EXS_TITLE']; ?>:
 								<select name="q_exsiccatiid" style="max-width:650px">
 									<option value=""></option>
 									<?php
@@ -155,9 +157,9 @@ else{
 			}
 			$advFieldArr = array();
 			if($crowdSourceMode){
-				$advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','othercatalognumbers'=>'Other Catalog Numbers',
-					'country'=>'Country','stateProvince'=>'State/Province','county'=>'County','municipality'=>'Municipality',
-					'recordedby'=>'Collector','recordnumber'=>'Collector Number','eventdate'=>'Collection Date');
+				$advFieldArr = array('family'=>$LANG['FAMILY'],'sciname'=>$LANG['SCI_NAME'],'othercatalognumbers'=>$LANG['OTHER_CAT_NUMS'],
+					'country'=>$LANG['COUNTRY'],'stateProvince'=>$LANG['STATE_PROVINCE'],'county'=>$LANG['COUNTY'],'municipality'=>$LANG['MUNICIPALITY'],
+					'recordedby'=>$LANG['COLLECTOR'],'recordnumber'=>$LANG['COL_NUMBER'],'eventdate'=>$LANG['COL_DATE']);
 			}
 			else{
 				$advFieldArr = array('associatedCollectors'=>'Associated Collectors','associatedOccurrences'=>'Associated Occurrences',

@@ -10,8 +10,11 @@ $condition = (array_key_exists('condition',$_REQUEST)?$_REQUEST['condition']:'')
 $alternativeSampleID = (array_key_exists('altSampleID',$_REQUEST)?$_REQUEST['altSampleID']:'');
 $notes = (array_key_exists('notes',$_REQUEST)?$_REQUEST['notes']:'');
 
-$status = '';
-if($IS_ADMIN){
+$isEditor = false;
+if($IS_ADMIN) $isEditor = true;
+elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEditor',$USER_RIGHTS)) $isEditor = true;
+
+if($isEditor){
 	$shipmentManager = new ShipmentManager();
 	if($shipmentPK) $shipmentManager->setShipmentPK($shipmentPK);
 	$json = $shipmentManager->checkinSample($sampleIdentifier,$sampleReceived,$acceptedForAnalysis,$condition,$alternativeSampleID,$notes);

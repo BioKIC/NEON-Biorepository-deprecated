@@ -12,9 +12,7 @@ $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 $occurManager = new OccurrenceHarvester();
 
 $isEditor = false;
-if($IS_ADMIN){
-	$isEditor = true;
-}
+if($IS_ADMIN) $isEditor = true;
 
 $status = "";
 if($isEditor){

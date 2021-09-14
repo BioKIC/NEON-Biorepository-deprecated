@@ -10,9 +10,8 @@ $action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
 $ulFileName = array_key_exists("ulfilename",$_REQUEST)?$_REQUEST["ulfilename"]:"";
 
 $isEditor = false;
-if($IS_ADMIN){
-	$isEditor = true;
-}
+if($IS_ADMIN) $isEditor = true;
+elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEditor',$USER_RIGHTS)) $isEditor = true;
 
 $loaderManager = new ShipmentManager();
 

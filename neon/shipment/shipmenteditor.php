@@ -13,9 +13,8 @@ $shipManager = new ShipmentManager();
 if($shipmentPK) $shipManager->setShipmentPK($shipmentPK);
 
 $isEditor = false;
-if($IS_ADMIN){
-	$isEditor = true;
-}
+if($IS_ADMIN) $isEditor = true;
+elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEditor',$USER_RIGHTS)) $isEditor = true;
 
 $status = "";
 if($isEditor){

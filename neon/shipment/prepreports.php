@@ -10,9 +10,8 @@ $reportsArr = $reports->getMamPrepsCntByPreparator();
 $headerArr = ['Prepared By', 'Mammal study skin preparations', 'Mammal fluid preparations', 'Total prepared'];
 
 $isEditor = false;
-if($IS_ADMIN){
-	$isEditor = true;
-}
+if($IS_ADMIN) $isEditor = true;
+elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEditor',$USER_RIGHTS)) $isEditor = true;
 ?>
 <html>
 	<head>

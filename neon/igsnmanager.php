@@ -19,9 +19,7 @@ if(!is_numeric($limit)) $limit = 1000;
 $igsnManager = new IgsnManager();
 
 $isEditor = false;
-if($IS_ADMIN){
-	$isEditor = true;
-}
+if($IS_ADMIN) $isEditor = true;
 
 $statusStr = '';
 if($isEditor){

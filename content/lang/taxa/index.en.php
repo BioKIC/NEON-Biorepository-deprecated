@@ -27,8 +27,11 @@ $LANG['VIEW_ALL_IMAGES'] = 'View All Images';
 $LANG['GO_TO_PARENT'] = 'Go to Parent Taxon';
 $LANG['EDIT_TAXON_DATA'] = 'Edit Taxon Data';
 $LANG['PHOTOGRAPHER'] = 'Photographer';
-$LANG['MAP_NOT_AVAILABLE'] = 'Map not<br />Available';
-$LANG['WEB_LINKS'] = 'Web Links';
+$LANG['MAP_NOT_AVAILABLE'] = 'Map not<br/>Available';
+$LANG['RESOURCES'] = 'Resources';
+$LANG['INTERNAL_RESOURCES'] = 'Internal Resources';
+$LANG['OCCURRENCES'] = 'occurrences';
+$LANG['EXTERNAL_RESOURCES'] = 'External Resources';
 $LANG['NOT_FOUND'] = 'not found';
 $LANG['DID_YOU_MEAN'] = 'Did you mean?';
 ?>

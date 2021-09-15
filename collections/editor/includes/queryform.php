@@ -187,7 +187,7 @@ else{
 					'substrate'=>$LANG['SUBSTRATE'],'taxonRemarks'=>$LANG['TAXON_REMARKS'],'typeStatus'=>$LANG['TYPE_STATUS'],'verbatimCoordinates'=>$LANG['VERBAT_COORDS'],
 					'verbatimEventDate'=>$LANG['VERBATIM_DATE'],'verbatimDepth'=>$LANG['VERBATIM_DEPTH'],'verbatimElevation'=>$LANG['VERBATIM_ELE']);
 			}
-			sort($advFieldArr);
+			// sort($advFieldArr);
 			?>
 			<div class="fieldGroupDiv">
 				<?php echo $LANG['CUSTOM_FIELD_1']; ?>:

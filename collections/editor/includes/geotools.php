@@ -6,10 +6,10 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 <div id="coordAidDiv">
 	<div id="dmsAidDiv">
 		<div>
-			<?php $LANG['LAT']; ?>:
-			<input id="latdeg" style="width:35px;" title="<?php $LANG['LAT_DEG']; ?>" />&deg;
-			<input id="latmin" style="width:50px;" title="<?php $LANG['LAT_MIN']; ?>" />'
-			<input id="latsec" style="width:50px;" title="<?php $LANG['LAT_SEC']; ?>" />&quot;
+			<?php echo $LANG['LAT']; ?>:
+			<input id="latdeg" style="width:35px;" title="<?php echo $LANG['LAT_DEG']; ?>" />&deg;
+			<input id="latmin" style="width:50px;" title="<?php echo $LANG['LAT_MIN']; ?>" />'
+			<input id="latsec" style="width:50px;" title="<?php echo $LANG['LAT_SEC']; ?>" />&quot;
 			<select id="latns">
 				<option><?php $LANG['N']; ?></option>
 				<option><?php $LANG['S']; ?></option>
@@ -17,47 +17,47 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 		</div>
 		<div>
 			<?php $LANG['LONG']; ?>:
-			<input id="lngdeg" style="width:35px;" title="<?php $LANG['LONG_DEG']; ?>" />&deg;
-			<input id="lngmin" style="width:50px;" title="<?php $LANG['LONG_MIN']; ?>" />'
-			<input id="lngsec" style="width:50px;" title="<?php $LANG['LONG_SEC']; ?>" />&quot;
+			<input id="lngdeg" style="width:35px;" title="<?php echo $LANG['LONG_DEG']; ?>" />&deg;
+			<input id="lngmin" style="width:50px;" title="<?php echo $LANG['LONG_MIN']; ?>" />'
+			<input id="lngsec" style="width:50px;" title="<?php echo $LANG['LONG_SEC']; ?>" />&quot;
 			<select id="lngew">
-				<option><?php $LANG['E']; ?></option>
-				<option SELECTED><?php $LANG['W']; ?></option>
+				<option><?php echo $LANG['E']; ?></option>
+				<option SELECTED><?php echo $LANG['W']; ?></option>
 			</select>
 		</div>
 		<div style="margin:5px;">
-			<button value="Insert Lat/Long Values" onclick="insertLatLng(this.form)" ><?php $LANG['INSERT_VALUES']; ?></button>
+			<button value="Insert Lat/Long Values" onclick="insertLatLng(this.form)" ><?php echo $LANG['INSERT_VALUES']; ?></button>
 		</div>
 	</div>
 	<div id="utmAidDiv">
-		<?php $LANG['ZONE']; ?>: <input id="utmzone" style="width:40px;" /><br/>
-		<?php $LANG['EAST']; ?>: <input id="utmeast" type="text" style="width:100px;" /><br/>
-		<?php $LANG['NORTH']; ?>: <input id="utmnorth" type="text" style="width:100px;" /><br/>
-		<?php $LANG['HEMISPHERE']; ?>: <select id="hemisphere" title="<?php $LANG['USE_HEMI_DESIGN']; ?> ">
-			<option value="N"><?php $LANG['NORTH']; ?></option>
-			<option value="S"><?php $LANG['SOUTH']; ?></option>
+		<?php echo $LANG['ZONE']; ?>: <input id="utmzone" style="width:40px;" /><br/>
+		<?php echo $LANG['EAST']; ?>: <input id="utmeast" type="text" style="width:100px;" /><br/>
+		<?php echo $LANG['NORTH']; ?>: <input id="utmnorth" type="text" style="width:100px;" /><br/>
+		<?php echo $LANG['HEMISPHERE']; ?>: <select id="hemisphere" title="<?php echo $LANG['USE_HEMI_DESIGN']; ?> ">
+			<option value="N"><?php echo $LANG['NORTH']; ?></option>
+			<option value="S"><?php echo $LANG['SOUTH']; ?></option>
 		</select><br/>
 		<div style="margin-top:5px;">
-			<button type="button" value="Insert UTM Values" onclick="insertUtm(this.form)" ><?php $LANG['INSERT_UTMS']; ?></button>
+			<button type="button" value="Insert UTM Values" onclick="insertUtm(this.form)" ><?php echo $LANG['INSERT_UTMS']; ?></button>
 		</div>
 	</div>
 	<div id="trsAidDiv">
-		<?php $LANG['T']; ?><input id="township" style="width:30px;" title="<?php $LANG['TOWNSHIP']; ?>" />
+		<?php echo $LANG['T']; ?><input id="township" style="width:30px;" title="<?php echo $LANG['TOWNSHIP']; ?>" />
 		<select id="townshipNS">
-			<option><?php $LANG['N']; ?></option>
-			<option><?php $LANG['S']; ?></option>
+			<option><?php echo $LANG['N']; ?></option>
+			<option><?php echo $LANG['S']; ?></option>
 		</select>&nbsp;&nbsp;&nbsp;&nbsp;
-		<?php $LANG['R']; ?><input id="range" style="width:30px;" title="<?php $LANG['RANGE']; ?>" />
+		<?php echo $LANG['R']; ?><input id="range" style="width:30px;" title="<?php echo $LANG['RANGE']; ?>" />
 		<select id="rangeEW">
-			<option><?php $LANG['E']; ?></option>
-			<option><?php $LANG['W']; ?></option>
+			<option><?php echo $LANG['E']; ?></option>
+			<option><?php echo $LANG['W']; ?></option>
 		</select><br/>
-		<?php $LANG['SEC']; ?>:
-		<input id="section" style="width:30px;" title="<?php $LANG['SECTION']; ?>" />&nbsp;&nbsp;&nbsp;
-		<?php $LANG['DETAILS']; ?>:
-		<input id="secdetails" style="width:90px;" title="<?php $LANG['SECTION_DETAILS']; ?>" /><br/>
+		<?php echo $LANG['SEC']; ?>:
+		<input id="section" style="width:30px;" title="<?php echo $LANG['SECTION']; ?>" />&nbsp;&nbsp;&nbsp;
+		<?php echo $LANG['DETAILS']; ?>:
+		<input id="secdetails" style="width:90px;" title="<?php echo $LANG['SECTION_DETAILS']; ?>" /><br/>
 		<select id="meridian" title="Meridian">
-			<option value=""><?php $LANG['MERIDIAN_SEL']; ?></option>
+			<option value=""><?php echo $LANG['MERIDIAN_SEL']; ?></option>
 			<option value="">----------------------------------</option>
 			<option value="G-AZ">Arizona, Gila &amp; Salt River</option>
 			<option value="NAAZ">Arizona, Navajo</option>
@@ -89,7 +89,7 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 			<option value="WRWY">Wyoming, Wind River</option>
 		</select>
 		<div style="margin:5px;">
-			<button value="Insert TRS Values" onclick="insertTRS(this.form)"><?php $LANG['INSERT_TRS']; ?></button>
+			<button value="Insert TRS Values" onclick="insertTRS(this.form)"><?php echo $LANG['INSERT_TRS']; ?></button>
 		</div>
 	</div>
 </div>
@@ -110,13 +110,13 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 			if(lngSec == "") lngSec = 0;
 			if(isNumeric(latDeg) && isNumeric(latMin) && isNumeric(latSec) && isNumeric(lngDeg) && isNumeric(lngMin) && isNumeric(lngSec)){
 				if(latDeg < 0 || latDeg > 90){
-					alert("<?php $LANG['LAT_BETWEEN']; ?>");
+					alert("<?php echo $LANG['LAT_BETWEEN']; ?>");
 				}
 				else if(lngDeg < 0 || lngDeg > 180){
-					alert("<?php $LANG['LONG_BETWEEN']; ?>");
+					alert("<?php echo $LANG['LONG_BETWEEN']; ?>");
 				}
 				else if(latMin < 0 || latMin > 60 || lngMin < 0 || lngMin > 60 || latSec < 0 || latSec > 60 || lngSec < 0 || lngSec > 60){
-					alert("<?php $LANG['MIN_BETWEEN']; ?>");
+					alert("<?php echo $LANG['MIN_BETWEEN']; ?>");
 				}
 				else{
 					var vcStr = f.verbatimcoordinates.value;
@@ -143,11 +143,11 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 				}
 			}
 			else{
-				alert("<?php $LANG['NUMERIC_ONLY']; ?>");
+				alert("<?php echo $LANG['NUMERIC_ONLY']; ?>");
 			}
 		}
 		else{
-			alert("<?php $LANG['DMS_MUST_VALUE']; ?>");
+			alert("<?php echo $LANG['DMS_MUST_VALUE']; ?>");
 		}
 	}
 
@@ -187,11 +187,11 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 				fieldChanged("verbatimcoordinates");
 			}
 			else{
-				alert("<?php $LANG['EN_NUMERIC']; ?>");
+				alert("<?php echo $LANG['EN_NUMERIC']; ?>");
 			}
 		}
 		else{
-			alert("<?php $LANG['ZEN_NOT_EMPTY']; ?>");
+			alert("<?php echo $LANG['ZEN_NOT_EMPTY']; ?>");
 		}
 	}
 
@@ -205,23 +205,23 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 		var meridian = document.getElementById("meridian").value.trim();
 
 		if(!township || !range){
-			alert("<?php $LANG['TR_NOT_EMPTY']; ?>");
+			alert("<?php echo $LANG['TR_NOT_EMPTY']; ?>");
 			return false;
 		}
 		else if(!isNumeric(township)){
-			alert("<?php $LANG['NUMERIC_TOWNSHIP']; ?>");
+			alert("<?php echo $LANG['NUMERIC_TOWNSHIP']; ?>");
 			return false;
 		}
 		else if(!isNumeric(range)){
-			alert("<?php $LANG['NUMERIC_RANGE']; ?>");
+			alert("<?php echo $LANG['NUMERIC_RANGE']; ?>");
 			return false;
 		}
 		else if(!isNumeric(section)){
-			alert("<?php $LANG['NUMERIC_SECTION']; ?>");
+			alert("<?php echo $LANG['NUMERIC_SECTION']; ?>");
 			return false;
 		}
 		else if(section > 36){
-			alert("<?php $LANG['SECTION_BETWEEN']; ?>");
+			alert("<?php echo $LANG['SECTION_BETWEEN']; ?>");
 			return false;
 		}
 		else{

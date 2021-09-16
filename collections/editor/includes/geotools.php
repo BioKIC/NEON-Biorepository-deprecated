@@ -11,12 +11,12 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 			<input id="latmin" style="width:50px;" title="<?php echo $LANG['LAT_MIN']; ?>" />'
 			<input id="latsec" style="width:50px;" title="<?php echo $LANG['LAT_SEC']; ?>" />&quot;
 			<select id="latns">
-				<option><?php $LANG['N']; ?></option>
-				<option><?php $LANG['S']; ?></option>
+				<option><?php echo $LANG['N']; ?></option>
+				<option><?php echo $LANG['S']; ?></option>
 			</select>
 		</div>
 		<div>
-			<?php $LANG['LONG']; ?>:
+			<?php echo $LANG['LONG']; ?>:
 			<input id="lngdeg" style="width:35px;" title="<?php echo $LANG['LONG_DEG']; ?>" />&deg;
 			<input id="lngmin" style="width:50px;" title="<?php echo $LANG['LONG_MIN']; ?>" />'
 			<input id="lngsec" style="width:50px;" title="<?php echo $LANG['LONG_SEC']; ?>" />&quot;

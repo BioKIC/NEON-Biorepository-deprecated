@@ -43,9 +43,9 @@ $LANG['DMS_MUST_VALUE'] = 'DMS fields must contain a value';
 $LANG['EN_NUMERIC'] = 'Easting and northing fields must contain numeric values only';
 $LANG['ZEN_NOT_EMPTY'] = 'Zone, Easting, and Northing fields must not be empty';
 $LANG['TR_NOT_EMPTY'] = 'Township and Range fields must have values';
-$LANG['NUMERIC_TOWNSHIP'] = 'Numeric value expected for Township field. If non-standardize format is used, enter directly into the Verbatim Coordinate Field';
-$LANG['NUMERIC_RANGE'] = 'Numeric value expected for Range field. If non-standardize format is used, enter directly into the Verbatim Coordinate Field';
-$LANG['NUMERIC_SECTION'] = 'Numeric value expected for Section field. If non-standardize format is used, enter directly into the Verbatim Coordinate Field';
+$LANG['NUMERIC_TOWNSHIP'] = 'Numeric value expected for Township field. If non-standardized format is used, enter directly into the Verbatim Coordinate Field';
+$LANG['NUMERIC_RANGE'] = 'Numeric value expected for Range field. If non-standardized format is used, enter directly into the Verbatim Coordinate Field';
+$LANG['NUMERIC_SECTION'] = 'Numeric value expected for Section field. If non-standardized format is used, enter directly into the Verbatim Coordinate Field';
 $LANG['SECTION_BETWEEN'] = 'Section field must contain a numeric value between 1-36';
 
 

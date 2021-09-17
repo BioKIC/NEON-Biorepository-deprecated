@@ -711,7 +711,7 @@ class TaxonProfile extends Manager {
       $occSrcUrl = '../collections/list.php?includeothercatnum=1&taxa='.$this->taxonName;
       if($collidStr != 'all'){
       	if($collidStr == 'neon') $collidStr = $this->getNeonCollidArr();
-      	$occSrcUrl .= '&collid='.$collidStr;
+      	$occSrcUrl .= '&db='.$collidStr;
       }
       $occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.number_format($numOccs).' occurrences</a>';
     } elseif ($numOccs > $limitOccs) {

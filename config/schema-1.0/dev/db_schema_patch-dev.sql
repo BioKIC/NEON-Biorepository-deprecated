@@ -71,12 +71,39 @@ ALTER TABLE `geographicthesaurus`
 ADD CONSTRAINT `FK_geothes_parentID`  FOREIGN KEY (`parentID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
 
 ALTER TABLE `geographicthesaurus` 
-  ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `category` ASC, `parentID` ASC);
+  ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `parentID` ASC);
+
+
+CREATE TABLE `omcrowdsourceproject` (
+  `csProjID` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(45) NOT NULL,
+  `description` VARCHAR(250) NULL,
+  `instructions` TEXT NULL,
+  `trainingurl` VARCHAR(250) NULL,
+  `managers` VARCHAR(150) NULL,
+  `criteria` VARCHAR(1500) NULL,
+  `notes` VARCHAR(250) NULL,
+  `modifiedUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` DATETIME NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`csProjID`));
+
+ALTER TABLE `omcrowdsourceproject` 
+  ADD INDEX `FK_croudsourceproj_uid_idx` (`modifiedUid` ASC) ;
+
+ALTER TABLE `omcrowdsourceproject`
+  ADD CONSTRAINT `FK_croudsourceproj_uid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `omcrowdsourcequeue` 
+  ADD COLUMN `csProjID` INT NULL AFTER `omcsid`,
+  ADD INDEX `FK_omcrowdsourcequeue_csProjID_idx` (`csProjID` ASC);
+
+ALTER TABLE `omcrowdsourcequeue` 
+  ADD CONSTRAINT `FK_omcrowdsourcequeue_csProjID`  FOREIGN KEY (`csProjID`)  REFERENCES `omcrowdsourceproject` (`csProjID`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
 
 ALTER TABLE `omoccurassociations` 
   CHANGE COLUMN `condition` `conditionOfAssociate` VARCHAR(250) NULL DEFAULT NULL ;
-
 
 ALTER TABLE `omoccurrences` 
   DROP FOREIGN KEY `FK_omoccurrences_recbyid`;

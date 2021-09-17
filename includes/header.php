@@ -57,13 +57,13 @@
 						<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/search.php" >Image Search</a>
 					</li>
 					<li>
-						<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/index.php" >Browse Images</a>
-					</li>
-					<li>
 						<a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">Data Use Policy</a>
 					</li>
 					<li>
 						<a href="http://ucjeps.berkeley.edu/consortium/about.html" target="_blank">About CCH</a>
+					</li>
+					<li>
+						<a href="https://www.capturingcaliforniasflowers.org/symbiota.html" target="_blank">Help & Resources</a>
 					</li>
 				</ul>
 			</div>

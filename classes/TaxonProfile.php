@@ -705,14 +705,12 @@ class TaxonProfile extends Manager {
    */
   public function getSearchByTaxon($limitRank = 170, $collidStr = 'all', $limitOccs = 2000000)
   {
-  	$numOccs = $this->getOccTaxonInDbCnt();
+  	if($collidStr == 'neon') $collidStr = $this->getNeonCollidArr();
+  	$numOccs = $this->getOccTaxonInDbCnt($limitRank, $collidStr);
   	$occMsg = '';
     if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
       $occSrcUrl = '../collections/list.php?includeothercatnum=1&taxa='.$this->taxonName;
-      if($collidStr != 'all'){
-      	if($collidStr == 'neon') $collidStr = $this->getNeonCollidArr();
-      	$occSrcUrl .= '&db='.$collidStr;
-      }
+      if($collidStr != 'all') $occSrcUrl .= '&db='.$collidStr;
       $occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.number_format($numOccs).' occurrences</a>';
     } elseif ($numOccs > $limitOccs) {
       $occMsg = number_format($numOccs).' occurrences';

@@ -84,34 +84,18 @@ class IgsnManager{
 				continue;
 			}
 			$igsnPushedToNEON = 0;
-			$archiveMedium = '';
 			if($json = @file_get_contents($url)){
 				$resultArr = json_decode($json,true);
 				if(!isset($resultArr['error']) && isset($resultArr['data']['sampleViews'])){
 					foreach($resultArr['data']['sampleViews'] as $sampleViewArr){
 						if(isset($sampleViewArr['archiveGuid']) && $sampleViewArr['archiveGuid'] == $r->occurrenceID) $igsnPushedToNEON = 1;
-						if(isset($sampleViewArr['sampleEvents'])){
-							foreach($sampleViewArr['sampleEvents'] as $sampleEventArr){
-								if(isset($sampleEventArr['smsFieldEntries'])){
-									foreach($sampleEventArr['smsFieldEntries'] as $fieldEntriesArr){
-										if(isset($fieldEntriesArr['smsKey']) && $fieldEntriesArr['smsKey'] == 'preservative_type'){
-											if($fieldEntriesArr['smsValue']) $archiveMedium = $fieldEntriesArr['smsValue'];
-										}
-									}
-								}
-							}
-						}
 					}
 					$syncCnt++;
-					if(!$igsnPushedToNEON && !$archiveMedium){
-						echo '<li>WARNING: unable to harvest archiveMedium (<a href="../collections/individual/index.php?occid='.$r->occid.'" target="_blank">'.$r->occid.'</a>, ';
-						echo '<a href="'.$url.'" target="_blank">'.$url.'</a>)</li>';
-					}
 				}
 				else $unsyncCnt++;
 			}
 			else $unsyncCnt++;
-			$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.', archiveMedium = '.($archiveMedium?'"'.$this->cleanInStr($archiveMedium).'"':'NULL').' WHERE occid = '.$r->occid;
+			$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$r->occid;
 			if(!$this->conn->multi_query($sql)){
 				echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
 			}
@@ -136,7 +120,7 @@ class IgsnManager{
 			'collectionCode' => 'CONCAT_WS(":", c.institutionCode, c.collectionCode) as collectionCode');
 		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
 			INNER JOIN omcollections c ON c.collid = o.collid
-			WHERE o.occurrenceID IS NOT NULL AND (s.igsnPushedToNEON = 0) AND s.archiveMedium IS NOT NULL';
+			WHERE o.occurrenceID IS NOT NULL AND (s.igsnPushedToNEON = 0) ';
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$fileName = 'biorepoIGSNReport_'.date('Y-d-m').'.csv';

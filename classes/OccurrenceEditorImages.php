@@ -2,6 +2,8 @@
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
 include_once($SERVER_ROOT.'/classes/SpecProcessorOcr.php');
 include_once($SERVER_ROOT.'/classes/ImageShared.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorImages'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorImages.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorImages.en.php');
 
 class OccurrenceEditorImages extends OccurrenceEditorManager {
 
@@ -45,7 +47,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 						$sql = 'INSERT INTO specprocessorrawlabels(imgid, rawstr, source) '.
 							'VALUES('.$this->activeImgId.',"'.$this->cleanInStr($rawStr).'","'.$this->cleanInStr($ocrSource).'")';
 						if(!$this->conn->query($sql)){
-							$this->errorStr = 'ERROR loading OCR text block: '.$this->conn->error;
+							$this->errorStr = $LANG['ERROR_LOAD_OCR'].': '.$this->conn->error;
 						}
 					}
 				}
@@ -70,13 +72,13 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	 		$newWebName = str_replace($this->imageRootUrl,$this->imageRootPath,$url);
 	 		if($url != $oldUrl){
 	 			if(file_exists($newWebName)){
- 					$status = 'ERROR: unable to modify image URL because a file already exists with that name; ';
+ 					$status = $LANG['ERROR_UNABLE_MODIFY'].'; ';
 		 			$url = $oldUrl;
 	 			}
 	 			else{
 		 			if(!rename($oldName,$newWebName)){
 		 				$url = $oldUrl;
-			 			$status .= "Web URL rename FAILED (possible write permissions issue); ";
+			 			$status .= $LANG['URL_FAILED'].'; ';
 		 			}
 	 			}
 	 		}
@@ -87,13 +89,13 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	 		$newName = str_replace($this->imageRootUrl,$this->imageRootPath,$tnUrl);
 	 		if($tnUrl != $oldTnUrl){
 	 			if(file_exists($newName)){
- 					$status = 'ERROR: unable to modify image URL because a file already exists with that name; ';
+ 					$status = $LANG['ERROR_FILE_EXISTS'].'; ';
 		 			$tnUrl = $oldTnUrl;
 	 			}
 	 			else{
 		 			if(!rename($oldName,$newName)){
 		 				$tnUrl = $oldTnUrl;
-			 			$status = "Thumbnail URL rename FAILED (possible write permissions issue); ";
+			 			$status = $LANG['THUMBNAIL_FAILED'].'; ';
 		 			}
 	 			}
 	 		}
@@ -104,13 +106,13 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	 		$newName = str_replace($this->imageRootUrl,$this->imageRootPath,$origUrl);
 	 		if($origUrl != $oldOrigUrl){
 	 			if(file_exists($newName)){
- 					$status = 'ERROR: unable to modify image URL because a file already exists with that name; ';
+ 					$status = $LANG['ERROR_FILE_EXISTS'].'; ';
 		 			$tnUrl = $oldTnUrl;
 	 			}
 	 			else{
 		 			if(!rename($oldName,$newName)){
 		 				$origUrl = $oldOrigUrl;
-			 			$status .= "ERROR: Thumbnail URL rename FAILED (possible write permissions issue); ";
+			 			$status .= $LANG['THUMBNAIL_FAILED'].'; ';
 		 			}
 	 			}
 	 		}
@@ -174,14 +176,14 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
                       if ($stmt) {
                          $stmt->bind_param('is',$imgId,$key);
                          if (!$stmt->execute()) {
-                            $status .= " (Warning: Failed to update image tag [$key] for $imgId.  " . $stmt->error ;
+                            $status .= ' ('.$LANG['WARNING_FAILED_TAG']." [$key] ".$LANG['FOR']." $imgId.  " . $stmt->error ;
                          }
                          $stmt->close();
                       }
                    }
             }
         } else {
-			$status .= "ERROR: image not changed, ".$this->conn->error."SQL: ".$sql;
+			$status .= $LANG['ERROR_NOT_CHANGED'].', '.$this->conn->error."SQL: ".$sql;
 		}
 		return $status;
 	}
@@ -208,7 +210,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 				$status = $targetOccid;
 			}
 			else{
-				$this->errorArr[] = 'Unalbe to relink image to a new blank occurrence record: '.$this->conn->error;
+				$this->errorArr[] = $LANG['UNABLE_RELINK_BLANK'].': '.$this->conn->error;
 				return false;
 			}
 		}
@@ -220,14 +222,14 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 				$this->conn->query($imgSql);
 			}
 			else{
-				$this->errorArr[] = 'Unalbe to remap image to another occurrence record. Error msg: '.$this->conn->error;
+				$this->errorArr[] = $LANG['UNABLE_REMAP_ANOTHER'].': '.$this->conn->error;
 				return false;
 			}
 		}
 		else{
 			$sql = 'UPDATE images SET occid = NULL WHERE (imgid = '.$imgId.')';
 			if(!$this->conn->query($sql)){
-				$this->errorArr[] = 'Unalbe to disassociate from occurrence record. Error msg: '.$this->conn->error;
+				$this->errorArr[] = $LANG['UNABLE_DISSOCIATE'].': '.$this->conn->error;
 				return false;
 			}
 		}

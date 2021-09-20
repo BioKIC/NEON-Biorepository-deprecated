@@ -681,15 +681,12 @@ class TaxonProfile extends Manager {
    * $limitRank INTEGER
    * $collids ARRAY of collids to include in search
    */
-	public function getOccTaxonInDbCnt($limitRank = 170, $collids = array("all"))
+	public function getOccTaxonInDbCnt($limitRank = 170, $collidStr = 'all')
   {
     $count = -1;
     if ($this->rankId >= $limitRank) {
-      $sql = 'SELECT COUNT(o.occid) as cnt FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$this->tid.' OR e.tid = '.$this->tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid';
-      if ($collids[0] != "all") {
-        $collidsStr = implode(",",$collids);
-        $sql .= 'AND o.collid IN('.$this->cleanInStr($collidsStr).')';
-      }
+      $sql = 'SELECT COUNT(o.occid) as cnt FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$this->tid.' OR e.tid = '.$this->tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid ';
+      if (preg_match('/^[,\d]+$/',$collidStr)) $sql .= 'AND o.collid IN('.$collidStr.')';
       $result = $this->conn->query($sql);
       while ($row = $result->fetch_object()){
         $count = $row->cnt;
@@ -706,12 +703,14 @@ class TaxonProfile extends Manager {
    * $searchUrl STRING customizable in taxon profile page
    * $limitOccs INTEGER max number of occurrences in a search
    */
-  public function getSearchByTaxon($limitOccs = 2000000)
+  public function getSearchByTaxon($limitRank = 170, $collidStr = 'all', $limitOccs = 2000000)
   {
-  	$numOccs = $this->getOccTaxonInDbCnt();
+  	if($collidStr == 'neon') $collidStr = $this->getNeonCollidArr();
+  	$numOccs = $this->getOccTaxonInDbCnt($limitRank, $collidStr);
   	$occMsg = '';
     if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
-      $occSrcUrl = '../collections/list.php?db=all&includeothercatnum=1&taxa='.$this->taxonName.'&usethes=1';
+      $occSrcUrl = '../collections/list.php?includeothercatnum=1&taxa='.$this->taxonName;
+      if($collidStr != 'all') $occSrcUrl .= '&db='.$collidStr;
       $occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.number_format($numOccs).' occurrences</a>';
     } elseif ($numOccs > $limitOccs) {
       $occMsg = number_format($numOccs).' occurrences';
@@ -722,6 +721,17 @@ class TaxonProfile extends Manager {
     }
     return $occMsg;
   }
+
+	private function getNeonCollidArr(){
+		$retStr = array();
+		$sql = 'SELECT GROUP_CONCAT(collid) as collidStr FROM omcollections WHERE institutionCode = "NEON"';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retStr = $r->collidStr;
+		}
+		$rs->free();
+		return $retStr;
+	}
 
 	//Setters and getters
 	public function getTid(){

@@ -123,14 +123,16 @@ class TaxonProfile extends Manager {
 	public function getVernaculars(){
 		$retArr = array();
 		if($this->tid){
-			$sql = 'SELECT v.vid, v.vernacularname, l.langname '.
+			$tidStr = $this->tid;
+			if($this->synonymArr) $tidStr .= ','.implode(',',array_keys($this->synonymArr));
+			$sql = 'SELECT v.vid, v.vernacularname, l.iso639_1 as iso '.
 				'FROM taxavernaculars v INNER JOIN adminlanguages l ON v.langid = l.langid '.
-				'WHERE (v.TID IN('.$this->tid.($this->synonymArr?','.implode(',',array_keys($this->synonymArr)):'').')) AND (v.SortSequence < 90) '.
+				'WHERE (v.TID IN('.$tidStr.')) AND (v.SortSequence < 90) '.
 				'ORDER BY v.SortSequence,v.VernacularName';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$retArr[$r->langname][$r->vid] = $r->vernacularname;
+				$retArr[$r->iso][$r->vid] = $r->vernacularname;
 			}
 			$rs->free();
 		}
@@ -705,14 +707,12 @@ class TaxonProfile extends Manager {
    */
   public function getSearchByTaxon($limitRank = 170, $collidStr = 'all', $limitOccs = 2000000)
   {
-  	$numOccs = $this->getOccTaxonInDbCnt();
+  	if($collidStr == 'neon') $collidStr = $this->getNeonCollidArr();
+  	$numOccs = $this->getOccTaxonInDbCnt($limitRank, $collidStr);
   	$occMsg = '';
     if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
       $occSrcUrl = '../collections/list.php?includeothercatnum=1&taxa='.$this->taxonName;
-      if($collidStr != 'all'){
-      	if($collidStr == 'neon') $collidStr = $this->getNeonCollidArr();
-      	$occSrcUrl .= '&db='.$collidStr;
-      }
+      if($collidStr != 'all') $occSrcUrl .= '&db='.$collidStr;
       $occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.number_format($numOccs).' occurrences</a>';
     } elseif ($numOccs > $limitOccs) {
       $occMsg = number_format($numOccs).' occurrences';

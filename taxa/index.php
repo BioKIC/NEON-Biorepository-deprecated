@@ -21,6 +21,7 @@ if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
 if(!is_numeric($clid)) $clid = 0;
 if(!is_numeric($pid)) $pid = '';
+$lang = filter_var($lang,FILTER_SANITIZE_STRING);
 if(!is_numeric($taxaLimit)) $taxaLimit = 50;
 if(!is_numeric($page)) $page = 0;
 
@@ -33,7 +34,7 @@ elseif($taxonValue){
 	//Need to add code that allows user to select target taxon when more than one homonym is returned
 }
 
-if($lang) $lang = $taxonManager->setLanguage($lang);
+$taxonManager->setLanguage($lang);
 if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_PROJ_ID;
 
 if($redirect = $taxonManager->getRedirectLink()){
@@ -128,16 +129,18 @@ include($SERVER_ROOT.'/includes/header.php');
 						<?php
 						if($vernArr = $taxonManager->getVernaculars()){
 							$primerArr = array();
-							if(array_key_exists($DEFAULT_LANG, $vernArr)){
-								$primerArr = $vernArr[$DEFAULT_LANG];
-								unset($vernArr[$DEFAULT_LANG]);
+							$targetLang = $lang;
+							if(!array_key_exists($targetLang, $vernArr)) $targetLang = 'en';
+							if(array_key_exists($targetLang, $vernArr)){
+								$primerArr = $vernArr[$targetLang];
+								unset($vernArr[$targetLang]);
 							}
 							else $primerArr = array_shift($vernArr);
 							$vernStr = array_shift($primerArr);
 							if($primerArr || $vernArr){
 								$vernStr.= ', <span class="verns"><a href="#" onclick="toggle(\'verns\')" title="Click here to show more common names">more...</a></span>';
 								$vernStr.= '<span class="verns" onclick="toggle(\'verns\');" style="display:none;">';
-								$vernStr.= implode(', ',$primerArr);
+								$vernStr.= implode(', ',$primerArr).' ';
 								foreach($vernArr as $langName => $vArr){
 									$vernStr.= '('.$langName.': '.implode(', ',$vArr).'), ';
 								}

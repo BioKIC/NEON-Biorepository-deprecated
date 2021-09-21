@@ -300,6 +300,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 									<select name="acceptedID">
 										<option value="">Select Accepted Term</option>
 										<option value="">----------------------</option>
+										<option value="">Is Accepted Term</option>
 										<?php
 										$acceptedList = $geoManager->getParGeoTermArr();
 										foreach($acceptedList as $id => $term){

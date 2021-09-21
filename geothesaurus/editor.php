@@ -7,6 +7,7 @@ if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../geothesaurus/edi
 
 $geoThesID = array_key_exists('geoThesID', $_REQUEST) ? $_REQUEST['geoThesID'] : '';
 $parentID = array_key_exists('parentID', $_REQUEST) ? $_REQUEST['parentID'] : '';
+$acceptedID = array_key_exists('acceptedID', $_REQUEST) ? $_REQUEST['acceptedID'] : '';
 $category = array_key_exists('category', $_POST) ? $_POST['category'] : '';
 $submitAction = array_key_exists('submitaction', $_POST) ? $_POST['submitaction'] : '';
 
@@ -162,6 +163,31 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 										$parentList = $geoManager->getGeoTermArr($geoUnit['geoLevel']);
 										foreach($parentList as $id => $term){
 											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
+						<?php
+						}
+						?>
+						<?php
+						if($geoUnit['geoLevel']){
+							$acceptedStr = '';
+							if($geoUnit['acceptedTerm']) $acceptedStr = '<a href="editor.php?geoThesID='.$geoUnit['acceptedID'].'">'.$geoUnit['acceptedTerm'].'</a>';
+							?>
+							<div class="field-div">
+								<label>Accepted term</label>:
+								<span class="editTerm"><?php echo $acceptedStr; ?></span>
+								<span class="editFormElem">
+									<select name="acceptedID">
+										<option value="">Select Accepted Term</option>
+										<option value="">----------------------</option>
+										<?php
+										$acceptedIDStr = (isset($geoUnit['acceptedID'])?$geoUnit['acceptedID']:'');
+										$acceptedList = $geoManager->getGeoTermArr($geoUnit['geoLevel']);
+										foreach($acceptedList as $id => $term){
+											echo '<option value="'.$id.'" '.($id==$acceptedIDStr?'selected':'').'>'.$term.'</option>';
 										}
 										?>
 									</select>

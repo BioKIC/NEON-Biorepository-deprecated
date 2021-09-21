@@ -13,7 +13,7 @@ class GeographicThesaurus extends Manager{
 
 	public function getGeograpicList($conditionTerm = null){
 		$retArr = array();
-		$sql = 'SELECT t.geoThesID, t.geoTerm, t.abbreviation, t.iso2, t.iso3, t.numCode, t.category, t.termStatus, a.geoterm as acceptedTerm
+		$sql = 'SELECT t.geoThesID, t.geoTerm, t.abbreviation, t.iso2, t.iso3, t.numCode, t.category, t.parentTerm, t.parentID, t.termStatus, a.geoterm as acceptedTerm
 			FROM geographicthesaurus t LEFT JOIN geographicthesaurus a ON t.acceptedID = a.geoThesID ';
 		if($conditionTerm){
 			if(is_numeric($conditionTerm)) $sql .= 'WHERE (t.parentID = '.$conditionTerm.') ';
@@ -29,6 +29,8 @@ class GeographicThesaurus extends Manager{
 			$retArr[$r->geoThesID]['iso3'] = $r->iso3;
 			$retArr[$r->geoThesID]['numCode'] = $r->numCode;
 			$retArr[$r->geoThesID]['category'] = $r->category;
+			$retArr[$r->geoThesID]['parentTerm'] = $r->parentTerm;
+			$retArr[$r->geoThesID]['parentID'] = $r->parentID;
 			$retArr[$r->geoThesID]['termStatus'] = $r->termStatus;
 			$retArr[$r->geoThesID]['acceptedTerm'] = $r->acceptedTerm;
 		}
@@ -193,12 +195,14 @@ class GeographicThesaurus extends Manager{
 	//Misc data retrieval functions
 	public function getGeoTermArr($geoLevelMax = 0){
 		$retArr = array();
-		$sql = 'SELECT geoThesID, geoTerm FROM geographicthesaurus ';
+		$sql = 'SELECT geoThesID, geoTerm, parentTerm FROM geographicthesaurus ';
 		if($geoLevelMax) $sql .= 'WHERE geoLevel < '.$geoLevelMax.' ';
 		$sql .= 'ORDER BY geoTerm';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[$r->geoThesID] = $r->geoTerm;
+			$retArr[$r->geoTerm] = $r->geoTerm;
+			$retArr[$r->parentTerm] = $r->parentTerm;
+
 		}
 		$rs->free();
 		return $retArr;

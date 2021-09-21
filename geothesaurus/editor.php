@@ -278,7 +278,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 							<label>Notes</label>:
 							<span><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
 						</div>
-													<div class="field-div">
+						<div class="field-div">
 								<label>Parent term</label>:
 								<span>
 									<select name="parentID">
@@ -294,7 +294,21 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 									</select>
 								</span>
 							</div>
-						
+							<div class="field-div">
+								<label>Accepted term</label>:
+								<span>
+									<select name="acceptedID">
+										<option value="">Select Accepted Term</option>
+										<option value="">----------------------</option>
+										<?php
+										$acceptedList = $geoManager->getParGeoTermArr();
+										foreach($acceptedList as $id => $term){
+											echo '<option value="'.$id.'" '.($id==$acceptedIDStr?'selected':'').'>'.$term.'</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
 						<div id="addButton-div" class="button-div">
 							<button type="submit" name="submitaction" value="addGeoUnit">Add Unit</button>
 						</div>

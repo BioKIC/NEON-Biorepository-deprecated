@@ -13,7 +13,7 @@ class GeographicThesaurus extends Manager{
 
 	public function getGeograpicList($conditionTerm = null){
 		$retArr = array();
-		$sql = 'SELECT t.geoThesID, t.geoTerm, t.abbreviation, t.iso2, t.iso3, t.numCode, t.category, t.parentTerm, t.parentID, t.termStatus, a.geoterm as acceptedTerm
+		$sql = 'SELECT t.geoThesID, t.geoTerm, t.abbreviation, t.iso2, t.iso3, t.numCode, t.category, t.termStatus, a.geoterm as acceptedTerm
 			FROM geographicthesaurus t LEFT JOIN geographicthesaurus a ON t.acceptedID = a.geoThesID ';
 		if($conditionTerm){
 			if(is_numeric($conditionTerm)) $sql .= 'WHERE (t.parentID = '.$conditionTerm.') ';

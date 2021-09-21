@@ -200,7 +200,7 @@ class GeographicThesaurus extends Manager{
 		$sql .= 'ORDER BY geoTerm';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[$r->geoTerm] = $r->geoTerm;
+			$retArr[$r->geoThesID] = $r->geoTerm;
 			$retArr[$r->parentTerm] = $r->parentTerm;
 
 		}

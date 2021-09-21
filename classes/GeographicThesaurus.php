@@ -204,10 +204,11 @@ class GeographicThesaurus extends Manager{
 		return $retArr;
 	}
 	
-	public function getAccGeoTermArr($geoLevelMax = 0){
+	public function getAccGeoTermArr($geoLevelMax = 0, $parentID()){
 		$retArr = array();
 		$sql = 'SELECT geoThesID, geoTerm FROM geographicthesaurus ';
 		if($geoLevelMax) $sql .= 'WHERE geoLevel = '.$geoLevelMax.' ';
+		$sql .= 'AND parentID = '.$parentID.' ';
 		$sql .= 'ORDER BY geoTerm';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){

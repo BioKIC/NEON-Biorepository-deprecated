@@ -185,7 +185,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 										<option value="">----------------------</option>
 										<?php
 										$acceptedIDStr = (isset($geoUnit['acceptedID'])?$geoUnit['acceptedID']:'');
-										$acceptedList = $geoManager->getAccGeoTermArr($geoUnit['geoLevel']);
+										$acceptedList = $geoManager->getAccGeoTermArr($geoUnit['geoLevel'],$geoUnit['parentID']);
 										foreach($acceptedList as $id => $term){
 											echo '<option value="'.$id.'" '.($id==$acceptedIDStr?'selected':'').'>'.$term.'</option>';
 										}

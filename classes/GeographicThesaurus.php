@@ -29,8 +29,6 @@ class GeographicThesaurus extends Manager{
 			$retArr[$r->geoThesID]['iso3'] = $r->iso3;
 			$retArr[$r->geoThesID]['numCode'] = $r->numCode;
 			$retArr[$r->geoThesID]['category'] = $r->category;
-			$retArr[$r->geoThesID]['parentTerm'] = $r->parentTerm;
-			$retArr[$r->geoThesID]['parentID'] = $r->parentID;
 			$retArr[$r->geoThesID]['termStatus'] = $r->termStatus;
 			$retArr[$r->geoThesID]['acceptedTerm'] = $r->acceptedTerm;
 		}

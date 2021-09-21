@@ -201,7 +201,7 @@ class GeographicThesaurus extends Manager{
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->geoThesID] = $r->geoTerm;
-			$retArr[$r->parentTerm] = $r->parentTerm;
+			//$retArr[$r->parentTerm] = $r->parentTerm;
 
 		}
 		$rs->free();

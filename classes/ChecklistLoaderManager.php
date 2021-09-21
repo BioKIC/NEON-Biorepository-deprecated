@@ -29,14 +29,13 @@ class ChecklistLoaderManager extends Manager {
 		$headerArr = Array();
 		$headerData = fgetcsv($fh);
 		foreach($headerData as $k => $v){
-			$vStr = strtolower($v);
-			$vStr = str_replace(Array(" ",".","_"),"",$vStr);
-			if(in_array($vStr, Array("scientificnamewithauthor","scientificname","taxa","speciesname","taxon"))){
-				$vStr = 'sciname';
-			}
+			if(substr($v,0,3)==chr(hexdec('EF')).chr(hexdec('BB')).chr(hexdec('BF'))) $v = substr($v,3);
+			$vStr = strtolower(trim($v));
+			$vStr = str_replace(Array(' ','.','_'),'',$vStr);
+			if(in_array($vStr, Array('scientificnamewithauthor','scientificname','taxa','speciesname','taxon'))) $vStr = 'sciname';
 			$headerArr[$vStr] = $k;
 		}
-		if(array_key_exists("sciname",$headerArr)){
+		if(array_key_exists('sciname',$headerArr)){
 			$cnt = 0;
 			ob_flush();
 			flush();

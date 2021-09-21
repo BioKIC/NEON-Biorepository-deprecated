@@ -160,7 +160,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 										<option value="">Is a Root Term (e.g. no parent)</option>
 										<?php
 										$parentIDStr = (isset($geoUnit['parentID'])?$geoUnit['parentID']:'');
-										$parentList = $geoManager->getGeoTermArr($geoUnit['geoLevel']);
+										$parentList = $geoManager->getParGeoTermArr($geoUnit['geoLevel']);
 										foreach($parentList as $id => $term){
 											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
 										}
@@ -185,7 +185,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 										<option value="">----------------------</option>
 										<?php
 										$acceptedIDStr = (isset($geoUnit['acceptedID'])?$geoUnit['acceptedID']:'');
-										$acceptedList = $geoManager->getGeoTermArr($geoUnit['geoLevel']);
+										$acceptedList = $geoManager->getAccGeoTermArr($geoUnit['geoLevel']);
 										foreach($acceptedList as $id => $term){
 											echo '<option value="'.$id.'" '.($id==$acceptedIDStr?'selected':'').'>'.$term.'</option>';
 										}
@@ -286,7 +286,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 										<option value="">----------------------</option>
 										<option value="">Is a Root Term (e.g. no parent)</option>
 										<?php
-										$parentList = $geoManager->getGeoTermArr();
+										$parentList = $geoManager->getParGeoTermArr();
 										foreach($parentList as $id => $term){
 											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
 										}

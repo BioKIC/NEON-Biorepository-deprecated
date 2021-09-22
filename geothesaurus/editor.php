@@ -7,6 +7,7 @@ if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../geothesaurus/edi
 
 $geoThesID = array_key_exists('geoThesID', $_REQUEST) ? $_REQUEST['geoThesID'] : '';
 $parentID = array_key_exists('parentID', $_REQUEST) ? $_REQUEST['parentID'] : '';
+$acceptedID = array_key_exists('acceptedID', $_REQUEST) ? $_REQUEST['acceptedID'] : '';
 $category = array_key_exists('category', $_POST) ? $_POST['category'] : '';
 $submitAction = array_key_exists('submitaction', $_POST) ? $_POST['submitaction'] : '';
 
@@ -31,7 +32,10 @@ if($isEditor && $submitAction) {
 		$status = $geoManager->deleteGeoUnit($_POST['delGeoThesID']);
 		if(!$status) $statusStr = $geoManager->getErrorMessage();
 	}
-
+		elseif($submitAction == 'addGeoUnit'){
+		$status = $geoManager->addGeoUnit($_POST);
+		if(!$status) $statusStr = $geoManager->getErrorMessage();
+	}
 }
 
 $geoArr = $geoManager->getGeograpicList($parentID);
@@ -86,19 +90,13 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			//Display details for geographic unit with edit and addNew symbols displayed to upper right
 			?>
 			<div style="float:right">
-				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../images/add.png" /></a></span>
+				<!--These toggles don't work correctly yet -->
 				<span class="editIcon"><a href="#" onclick="toggleEditor()"><img class="editimg" src="../images/edit.png" /></a></span>
-			</div>
-			<div id="addGeoUnit-div" style="display:none">
-
-				<div style="font-weight: bold; margin:20px">Add a new record form to be placed here</div>
-				<!-- Add new blank form for adding new record.  -->
-				<!-- But we can also do this via a 2-cycle loop using the form below (first loop is an empy form for adding new record, second loop produces form for editing active record. I can show you this. -->
 
 			</div>
 			<div id="updateGeoUnit-div" style="clear:both;margin-bottom:10px;">
 				<fieldset id="edit-fieldset">
-					<legend>Geographic Unit<span id="edit-legend"> Editor</span></legend>
+					<legend>Edit Geographic<span id="edit-legend"> Unit</span></legend>
 					<form name="unitEditForm" action="editor.php" method="post">
 						<div class="field-div">
 							<label>GeoUnit Name</label>:
@@ -162,9 +160,34 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 										<option value="">Is a Root Term (e.g. no parent)</option>
 										<?php
 										$parentIDStr = (isset($geoUnit['parentID'])?$geoUnit['parentID']:'');
-										$parentList = $geoManager->getGeoTermArr($geoUnit['geoLevel']);
+										$parentList = $geoManager->getParGeoTermArr($geoUnit['geoLevel']);
 										foreach($parentList as $id => $term){
 											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
+						<?php
+						}
+						?>
+						<?php
+						if($geoUnit['geoLevel']){
+							$acceptedStr = '';
+							if($geoUnit['acceptedTerm']) $acceptedStr = '<a href="editor.php?geoThesID='.$geoUnit['acceptedID'].'">'.$geoUnit['acceptedTerm'].'</a>';
+							?>
+							<div class="field-div">
+								<label>Accepted term</label>:
+								<span class="editTerm"><?php echo $acceptedStr; ?></span>
+								<span class="editFormElem">
+									<select name="acceptedID">
+										<option value="">Select Accepted Term</option>
+										<option value="">----------------------</option>
+										<?php
+										$acceptedIDStr = (isset($geoUnit['acceptedID'])?$geoUnit['acceptedID']:'');
+										$acceptedList = $geoManager->getAccGeoTermArr($geoUnit['geoLevel'],$geoUnit['parentID']);
+										foreach($acceptedList as $id => $term){
+											echo '<option value="'.$id.'" '.($id==$acceptedIDStr?'selected':'').'>'.$term.'</option>';
 										}
 										?>
 									</select>
@@ -207,6 +230,94 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 			echo '</div>';
 		}
 		else{
+		?>
+			<div style="float:right">
+				<span class="editIcon"><a href="#" onclick="$('#addGeoUnit-div').toggle();"><img class="editimg" src="../images/add.png" /></a></span>
+			</div>
+			<div id="addGeoUnit-div" style="clear:both;margin-bottom:10px;display:none">
+				<!--This should also be visible when !$geoThesID -->
+				<fieldset id="new-fieldset">
+					<legend>Add Geographic Unit</legend>
+					<form name="unitAddForm" action="editor.php" method="post">
+						<div class="field-div">
+							<label>GeoUnit Name</label>:
+							<span><input type="text" name="geoTerm" style="width:200px;" required /></span>
+						</div>
+						<div class="field-div">
+							<label>ISO2 Code</label>:
+							<span><input type="text" name="iso2" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>ISO3 Code</label>:
+							<span><input type="text" name="iso3" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Abbreviation</label>:
+							<span><input type="text" name="abbreviation" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Numeric Code</label>:
+							<span><input type="text" name="numCode" style="width:50px;" /></span>
+						</div>
+						<div class="field-div">
+							<label>Category</label>:
+							<span>
+								<select name="category">
+									<option value="">Select Category</option>
+									<option value="">----------------------</option>
+									<?php
+									$categoryList = $geoManager->getCategoryArr();
+									foreach($categoryList as $category){
+										echo '<option>'.$category.'</option>';
+									}
+									?>
+								</select>
+							</span>
+						</div>
+						<div class="field-div">
+							<label>Notes</label>:
+							<span><input type="text" name="notes" maxlength="250" style="width:200px;" /></span>
+						</div>
+						<div class="field-div">
+								<label>Parent term</label>:
+								<span>
+									<select name="parentID">
+										<option value="">Select Parent Term</option>
+										<option value="">----------------------</option>
+										<option value="">Is a Root Term (e.g. no parent)</option>
+										<?php
+										$parentList = $geoManager->getParGeoTermArr();
+										foreach($parentList as $id => $term){
+											echo '<option value="'.$id.'" '.($id==$parentIDStr?'selected':'').'>'.$term.'</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
+							<div class="field-div">
+								<label>Accepted term</label>:
+								<span>
+									<select name="acceptedID">
+										<option value="">Select Accepted Term</option>
+										<option value="">----------------------</option>
+										<option value="">Is Accepted Term</option>
+										<?php
+										$acceptedList = $geoManager->getParGeoTermArr();
+										foreach($acceptedList as $id => $term){
+											echo '<option value="'.$id.'" '.($id==$acceptedIDStr?'selected':'').'>'.$term.'</option>';
+										}
+										?>
+									</select>
+								</span>
+							</div>
+						<div id="addButton-div" class="button-div">
+							<button type="submit" name="submitaction" value="addGeoUnit">Add Unit</button>
+						</div>
+				<!-- But we can also do this via a 2-cycle loop using the form below (first loop is an empy form for adding new record, second loop produces form for editing active record. I can show you this. -->
+					</fieldset>
+				</form>
+			</div>
+			<?php
 			if($geoArr){
 				$titleStr = '';
 				if($parentID){

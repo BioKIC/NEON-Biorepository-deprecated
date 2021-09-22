@@ -1,5 +1,8 @@
 <?php
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorDeterminations.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorDeterminations.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorDeterminations.en.php');
+
 class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 
 	public function __construct(){
@@ -49,9 +52,10 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 	}
 
 	public function addDetermination($detArr,$isEditor){
-		$status = "Determination submitted successfully!";
-		if(!$this->occid) return 'ERROR: occid is null';
-		if(!$isEditor || $isEditor == 4) return 'ERROR: lack permssions to annotate occurrence';
+		global $LANG;
+		$status = $LANG['DET_SUCCESS'];
+		if(!$this->occid) return $LANG['ERROR_OCCID_NULL'];
+		if(!$isEditor || $isEditor == 4) return $LANG['ERROR_LACK_PERM'];
 		$isCurrent = 0;
 		if(!array_key_exists('makecurrent',$detArr)) $detArr['makecurrent'] = 0;
 		if(!array_key_exists('printqueue',$detArr)) $detArr['printqueue'] = 0;
@@ -59,7 +63,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			$isCurrent = 1;
 		}
 		if($isEditor == 3){
-			$status = "Determination has been added successfully, but is pending approval before being activated";
+			$status = $LANG['DET_ADDED_PENDING'];
 		}
 		$sortSeq = 1;
 		if(preg_match('/([1,2]{1}\d{3})/',$detArr['dateidentified'],$matches)){
@@ -69,7 +73,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			//Set all dets for this specimen to not current
 			$sqlSetCur1 = 'UPDATE omoccurdeterminations SET iscurrent = 0 WHERE appliedstatus = 1 AND occid = '.$this->occid;
 			if(!$this->conn->query($sqlSetCur1)){
-				$status = 'ERROR resetting dets to not current: '.$this->conn->error;
+				$status = $LANG['ERROR_DETS_NOT_CURRENT'].': '.$this->conn->error;
 				//$status .= '; '.$sqlSetCur1;
 			}
 		}
@@ -94,7 +98,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			$guid = UuidFactory::getUuidV4();
 			$detId = $this->conn->insert_id;
 			if(!$this->conn->query('INSERT INTO guidoccurdeterminations(guid,detid) VALUES("'.$guid.'",'.$detId.')')){
-				$status .= ' (Warning: Symbiota GUID mapping #1 failed)';
+				$status .= ' ('.$LANG['WARNING_GUID_1_FAILED'].')';
 			}
 			//If is current, move old determination from omoccurrences to omoccurdeterminations and then load new record into omoccurrences
 			if($isCurrent){
@@ -110,7 +114,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 					$guid = UuidFactory::getUuidV4();
 					$detId = $this->conn->insert_id;
 					if(!$this->conn->query('INSERT INTO guidoccurdeterminations(guid,detid) VALUES("'.$guid.'",'.$detId.')')){
-						$status .= ' (Warning: Symbiota GUID mapping #2 failed)';
+						$status .= ' ('.$LANG['WARNING_GUID_2_FAILED'].')';
 					}
 				}
 
@@ -167,18 +171,19 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 				$sql = 'UPDATE images SET tid = '.($tidToAdd?$tidToAdd:'NULL').' WHERE (occid = '.$this->occid.')';
 				//echo $sql;
 				if(!$this->conn->query($sql)){
-					$status = 'ERROR: Annotation added but failed to remap images to new name';
+					$status = $LANG['ERROR_ADDED_FAILED_IMAGES'];
 					$status .= ': '.$this->conn->error;
 				}
 			}
 		}
 		else{
-			$status = 'ERROR - failed to add determination: '.$this->conn->error;
+			$status = LANG['ERROR_FAILED_ADD'].': '.$this->conn->error;
 		}
 		return $status;
 	}
 
 	public function editDetermination($detArr){
+		global $LANG;
 		if(!array_key_exists('printqueue',$detArr)) $detArr['printqueue'] = 0;
 		$status = "Determination editted successfully!";
 		//Update determination table
@@ -194,13 +199,14 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			'printqueue = '.($detArr['printqueue']?$detArr['printqueue']:'NULL').' '.
 			'WHERE (detid = '.$detArr['detid'].')';
 		if(!$this->conn->query($sql)){
-			$status = "ERROR - failed to edit determination: ".$this->conn->error;
+			$status = $LANG['ERROR_FAILED_EDIT'].': '.$this->conn->error;
 		}
 		return $status;
 	}
 
 	public function deleteDetermination($detId){
-		$status = 'Determination deleted successfully!';
+		global $LANG;
+		$status = $LANG['DET_DEL_SUCCESS'];
 		$isCurrent = 0;
 		$occid = 0;
 
@@ -235,14 +241,15 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 
 		$sql = 'DELETE FROM omoccurdeterminations WHERE (detid = '.$detId.')';
 		if(!$this->conn->query($sql)){
-			$status = "ERROR - failed to delete determination: ".$this->conn->error;
+			$status = $LANG['DET_DEL_FAIL'].': '.$this->conn->error;
 		}
 
 		return $status;
 	}
 
 	public function applyDetermination($detId, $makeCurrent){
-		$statusStr = 'Determiantion has been applied';
+		global $LANG;
+		$statusStr = $LANG['DET_APPLIED'];
 		//Get ConfidenceRanking value
 		$iqStr = '';
 		$sqlcr = 'SELECT identificationremarks FROM omoccurdeterminations WHERE detid = '.$detId;
@@ -261,7 +268,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			'SET appliedstatus = 1, iscurrent = '.$makeCurrent.', '.
 			'identificationremarks = '.($iqStr?'"'.$this->cleanInStr($iqStr).'"':'NULL').' WHERE detid = '.$detId;
 		if(!$this->conn->query($sql)){
-			$statusStr = 'ERROR attempting to apply dertermiantion: '.$this->conn->error;
+			$statusStr = $LANG['ERROR_ATTEMPT_DET'].': '.$this->conn->error;
 		}
 		if($makeCurrent){
 			$this->makeDeterminationCurrent($detId);
@@ -270,7 +277,8 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 	}
 
 	public function makeDeterminationCurrent($detId){
-		$status = 'Determination is now current!';
+		global $LANG;
+		$status = $LANG['DET_NOW_CURRENT'];
 		//Make sure determination data within omoccurrences is in omoccurdeterminations. If already there, INSERT will fail and nothing lost
 		$sqlInsert = 'INSERT INTO omoccurdeterminations(occid, identifiedBy, dateIdentified, sciname, scientificNameAuthorship, '.
 			'identificationQualifier, identificationReferences, identificationRemarks, sortsequence) '.
@@ -281,7 +289,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			//Create and insert Symbiota GUID for determination(UUID)
 			$guid = UuidFactory::getUuidV4();
 			if(!$this->conn->query('INSERT INTO guidoccurdeterminations(guid,detid) VALUES("'.$guid.'",'.$this->conn->insert_id.')')){
-				$status .= ' (Warning: Symbiota GUID mapping #1 failed)';
+				$status .= ' ('.$LANG['WARNING_GUID_1_FAILED'].')';
 			}
 		}
 		//echo "<div>".$sqlInsert."</div>";
@@ -328,13 +336,13 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 		//Set all dets for this specimen to not current
 		$sqlSetCur1 = 'UPDATE omoccurdeterminations SET iscurrent = 0 WHERE occid = '.$this->occid;
 		if(!$this->conn->query($sqlSetCur1)){
-			$status = 'ERROR resetting dets to not current: '.$this->conn->error;
+			$status = $LANG['ERROR_DETS_NOT_CURRENT'].': '.$this->conn->error;
 			//$status .= '; '.$sqlSetCur1;
 		}
 		//Set targeted det to current
 		$sqlSetCur2 = 'UPDATE omoccurdeterminations SET iscurrent = 1 WHERE detid = '.$detId;
 		if(!$this->conn->query($sqlSetCur2)){
-			$status = 'ERROR setting target det to current: '.$this->conn->error;
+			$status = $LANG['ERROR_SETTING_CURRENT'].': '.$this->conn->error;
 			//$status .= '; '.$sqlSetCur2;
 		}
 
@@ -344,7 +352,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			$this->conn->query($sql);
 		}
 		else{
-			$status = 'ERROR: Annotation made current but failed to remap image because taxon name not linked to taxonomic thesaurus.';
+			$status = $LANG['ERROR_TAX_THESAURUS'];
 		}
 	}
 

@@ -1,6 +1,8 @@
 <?php
 include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceAttributes.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/traittab.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/traittab.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/traittab.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = $_GET['occid'];
@@ -54,14 +56,14 @@ if($isEditor){
 			}
 		});
 		if(!continueProcessing){
-			alert("No traits have been selected");
+			alert("<?php echo $LANG['NO_TRAITS_SEL']; ?>");
 			return false;
 		}
 		if(action == "deleteTraitCoding"){
-			if(!confirm('Are you sure you want to delete this trait coding?')) return false;
+			if(!confirm("<?php echo $LANG['SURE_DELETE_CODING']; ?>")) return false;
 		}
 		var traitIdStr = f.traitid.value;
-		$("#msgDiv-"+traitIdStr).text('applying action...');
+		$("#msgDiv-"+traitIdStr).text("<?php echo $LANG['APP_ACTION']; ?>...");
 		$("#msgDiv-"+traitIdStr).css('color', 'orange');
 		//alert("collid"+f.collid.value+"&occid="+f.occid.value+"&traitID="+traitIdStr+"&submitAction="+action+"&source="+f.source.value+"&notes="+f.notes.value+"&setStatus="+f.setstatus.value+"&stateData="+JSON.stringify(stateJson));
 		$.ajax({
@@ -71,18 +73,18 @@ if($isEditor){
 		}).done(function( retStatus ) {
 			if(retStatus == 1){
 				$("#msgDiv-"+traitIdStr).css('color', 'green');
-				$("#msgDiv-"+traitIdStr).text('data saved!');
+				$("#msgDiv-"+traitIdStr).text("<?php echo $LANG['DATA_SAVED']; ?>"');
 			}
 			else if(retStatus == 2){
 				$("form[name='"+f.name+"'] input[name^='traitid']").each(function(index,data) {
 					$(this).prop('checked',false);
 				});
 				$("#msgDiv-"+traitIdStr).css('color', 'green');
-				$("#msgDiv-"+traitIdStr).text('data deleted!');
+				$("#msgDiv-"+traitIdStr).text("<?php echo $LANG['DATA_DELETED']; ?>");
 			}
 			else{
 				$("#msgDiv-"+traitIdStr).css('color', 'red');
-				$("#msgDiv-"+traitIdStr).text('ERROR saving data: '+retStatus);
+				$("#msgDiv-"+traitIdStr).text("<?php echo $LANG['ERROR_DELETING'];?> : "+retStatus);
 			}
 		});
 	}
@@ -114,9 +116,9 @@ if($isEditor){
 				}
 				?>
 				<fieldset style="margin-top:20px">
-					<legend><b>Trait: <?php echo $traitData['name']; ?></b></legend>
+					<legend><b><?php echo $LANG['TRAIT'].': '.$traitData['name']; ?></b></legend>
 					<div style="float:right">
-						<div style="margin:0px 3px;float:right" title="Hard refresh of page">
+						<div style="margin:0px 3px;float:right" title="<?php echo $LANG['HARD_REFRESH'];?>">
 							<form name="refreshform" method="post" action="occurrenceeditor.php" >
 								<input name="occid" type="hidden" value="<?php echo $occid; ?>" />
 								<?php
@@ -126,7 +128,7 @@ if($isEditor){
 								<input type="image" src="../../images/refresh.png" style="width:14px;vertical-align: middle;" />
 							</form>
 						</div>
-						<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="Toggle attribute tree open/close">
+						<div class="trianglediv" style="margin:4px 3px;float:right;cursor:pointer" onclick="setAttributeTree(this)" title="<?php echo $LANG['TOGGLE_TREE'];?>">
 							<img class="triangleright" src="../../images/triangleright.png" style="" />
 							<img class="triangledown" src="../../images/triangledown.png" style="display:none" />
 						</div>
@@ -139,11 +141,11 @@ if($isEditor){
 						</div>
 						<div style="clear:both;padding:10px 5px;">
 							<div >
-								Notes:
+								<?php echo $LANG['NOTES'];?>:
 								<input name="notes" type="text" style="width:300px" value="<?php echo $notes; ?>" />
 							</div>
 							<div style="margin:10px 0px">
-								Source:
+								<?php echo $LANG['SOURCE'];?>:
 								<select name="source">
 									<option value=""></option>
 									<?php
@@ -155,11 +157,11 @@ if($isEditor){
 								</select>
 							</div>
 							<div style="margin-left:5;">
-								Status:
+								<?php echo $LANG['STATUS'];?>:
 								<select name="setstatus">
-									<option value="0">Not reviewed</option>
-									<option value="5" <?php echo ($statusCode=='5'?'selected':''); ?>>Expert Needed</option>
-									<option value="10" <?php echo ($statusCode=='10'?'selected':''); ?>>Reviewed</option>
+									<option value="0"><?php echo $LANG['NOT_REVIEWED'];?></option>
+									<option value="5" <?php echo ($statusCode=='5'?'selected':''); ?>><?php echo $LANG['EXPERT_NEEDED'];?></option>
+									<option value="10" <?php echo ($statusCode=='10'?'selected':''); ?>><?php echo $LANG['REVIEWED'];?></option>
 								</select>
 							</div>
 							<div style="margin:20px;float:left">
@@ -168,11 +170,11 @@ if($isEditor){
 								<input name="occindex" type="hidden" value="<?php echo $occIndex; ?>" />
 								<input name="traitid" type="hidden" value="<?php echo $traitID; ?>" />
 								<input name="tabtarget" type="hidden" value="4" />
-								<button type="button" value="editTraitCoding" onclick="submitEditForm(this); return false">Save Edits</button>
+								<button type="button" value="editTraitCoding" onclick="submitEditForm(this); return false"><?php echo $LANG['SAVE_EDITS'];?></button>
 								<span id="msgDiv-<?php echo $traitID; ?>"></span>
 							</div>
 							<div style="margin:20px;float:right;">
-								<button type="button" value="deleteTraitCoding" style="border:1px solid red;"  onclick="submitEditForm(this); return false">Delete Coding</button>
+								<button type="button" value="deleteTraitCoding" style="border:1px solid red;"  onclick="submitEditForm(this); return false"><?php echo $LANG['DEL_CODING'];?></button>
 							</div>
 						</div>
 					</form>

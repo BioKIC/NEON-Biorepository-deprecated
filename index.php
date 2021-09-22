@@ -61,7 +61,7 @@ $taxaArr = $stats->getNeonTaxa();
 		<section>
 			<div class="row centered">
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
-					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
+					<a href="<?php echo $CLIENT_ROOT; ?>/neon/search/index.php" >
 						<div>
 							<img src="images/layout/glyphicon-search.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Sample search</p>

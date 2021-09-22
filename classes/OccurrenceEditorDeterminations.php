@@ -2,6 +2,7 @@
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
 if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorDeterminations.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorDeterminations.'.$LANG_TAG.'.php');
 else include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorDeterminations.en.php');
+
 class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 
 	public function __construct(){
@@ -51,6 +52,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 	}
 
 	public function addDetermination($detArr,$isEditor){
+		global $LANG;
 		$status = $LANG['DET_SUCCESS'];
 		if(!$this->occid) return $LANG['ERROR_OCCID_NULL'];
 		if(!$isEditor || $isEditor == 4) return $LANG['ERROR_LACK_PERM'];
@@ -71,7 +73,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			//Set all dets for this specimen to not current
 			$sqlSetCur1 = 'UPDATE omoccurdeterminations SET iscurrent = 0 WHERE appliedstatus = 1 AND occid = '.$this->occid;
 			if(!$this->conn->query($sqlSetCur1)){
-				$status = $LANG['ERROR_DETS_NOT_CURRENT']': '.$this->conn->error;
+				$status = $LANG['ERROR_DETS_NOT_CURRENT'].': '.$this->conn->error;
 				//$status .= '; '.$sqlSetCur1;
 			}
 		}
@@ -181,6 +183,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 	}
 
 	public function editDetermination($detArr){
+		global $LANG;
 		if(!array_key_exists('printqueue',$detArr)) $detArr['printqueue'] = 0;
 		$status = "Determination editted successfully!";
 		//Update determination table
@@ -202,6 +205,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 	}
 
 	public function deleteDetermination($detId){
+		global $LANG;
 		$status = $LANG['DET_DEL_SUCCESS'];
 		$isCurrent = 0;
 		$occid = 0;
@@ -244,6 +248,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 	}
 
 	public function applyDetermination($detId, $makeCurrent){
+		global $LANG;
 		$statusStr = $LANG['DET_APPLIED'];
 		//Get ConfidenceRanking value
 		$iqStr = '';
@@ -272,6 +277,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 	}
 
 	public function makeDeterminationCurrent($detId){
+		global $LANG;
 		$status = $LANG['DET_NOW_CURRENT'];
 		//Make sure determination data within omoccurrences is in omoccurdeterminations. If already there, INSERT will fail and nothing lost
 		$sqlInsert = 'INSERT INTO omoccurdeterminations(occid, identifiedBy, dateIdentified, sciname, scientificNameAuthorship, '.

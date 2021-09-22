@@ -25,6 +25,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
      * in the database.
      */
 	public function addImageOccurrence($postArr){
+		global $LANG;
 		$status = true;
 		if($this->addOccurrence($postArr)){
 			if($this->addImage($postArr)){
@@ -60,6 +61,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	}
 
 	public function editImage(){
+		global $LANG;
 		$this->setRootpaths();
 		$status = "Image editted successfully!";
 		$imgId = $_REQUEST["imgid"];
@@ -199,6 +201,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	}
 
 	public function remapImage($imgId, $targetOccid = 0){
+		global $LANG;
 		$status = true;
 		if(!is_numeric($imgId)){
 			return false;

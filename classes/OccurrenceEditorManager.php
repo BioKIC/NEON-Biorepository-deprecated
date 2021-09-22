@@ -747,7 +747,7 @@ class OccurrenceEditorManager {
 
 	//Edit functions
 	public function editOccurrence($postArr, $editorStatus){
-		global $USER_RIGHTS;
+		global $USER_RIGHTS, $LANG;
 		$status = '';
 
 		$occid = $postArr['occid'];
@@ -1047,6 +1047,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function addOccurrence($postArr){
+		global $LANG;
 		$status = $LANG['SUCCESS_NEW_OCC_SUBMITTED'];
 		if($postArr){
 			$fieldArr = array('basisOfRecord' => 's', 'catalogNumber' => 's', 'otherCatalogNumbers' => 's', 'occurrenceid' => 's',
@@ -1174,7 +1175,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function deleteOccurrence($delOccid){
-		global $CHARSET, $USER_DISPLAY_NAME;
+		global $CHARSET, $USER_DISPLAY_NAME, $LANG;
 		$status = true;
 		if(is_numeric($delOccid)){
 			//Archive data, first grab occurrence data
@@ -1330,6 +1331,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function cloneOccurrence($postArr){
+		global $LANG;
 		$retArr = array();
 		if(isset($postArr['clonecount']) && $postArr['clonecount']){
 			$postArr['recordenteredby'] = $GLOBALS['USERNAME'];
@@ -1368,6 +1370,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function mergeRecords($targetOccid,$sourceOccid){
+		global $LANG;
 		$status = true;
 		if(!$targetOccid || !$sourceOccid){
 			$this->errorArr[] = $LANG['TARGET_SOURCE_NULL'];
@@ -1529,6 +1532,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function transferOccurrence($targetOccid,$transferCollid){
+		global $LANG;
 		$status = true;
 		if(is_numeric($targetOccid) && is_numeric($transferCollid)){
 			$sql = 'UPDATE omoccurrences SET collid = '.$transferCollid.' WHERE occid = '.$targetOccid;
@@ -1611,6 +1615,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function batchUpdateField($fieldName,$oldValue,$newValue,$buMatch){
+		global $LANG;
 		$statusStr = '';
 		$fn = $this->cleanInStr($fieldName);
 		$ov = $this->conn->real_escape_string($oldValue);
@@ -1737,6 +1742,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function editIdentificationRanking($ranking,$notes=''){
+		global $LANG;
 		$statusStr = '';
 		if(is_numeric($ranking)){
 			//Will be replaced if an identification ranking already exists for occurrence record
@@ -1764,6 +1770,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function linkChecklistVoucher($clid,$tid){
+		global $LANG;
 		$status = '';
 		if(is_numeric($clid) && is_numeric($tid)){
 			//Check to see it the name is in the list, if not, add it
@@ -1800,6 +1807,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function deleteChecklistVoucher($clid){
+		global $LANG;
 		$status = '';
 		if(is_numeric($clid)){
 			$sql = 'DELETE FROM fmvouchers WHERE clid = '.$clid.' AND occid = '.$this->occid;
@@ -1814,9 +1822,7 @@ class OccurrenceEditorManager {
 		// Return list of checklists to which user has editing writes
 		$retArr = Array();
 		if(ISSET($GLOBALS['USER_RIGHTS']['ClAdmin'])){
-			$sql = 'SELECT clid, name, access '.
-				'FROM fmchecklists '.
-				'WHERE (clid IN('.implode(',',$GLOBALS['USER_RIGHTS']['ClAdmin']).')) ';
+			$sql = 'SELECT clid, name, access FROM fmchecklists WHERE (clid IN('.implode(',',$GLOBALS['USER_RIGHTS']['ClAdmin']).')) ';
 			//echo $sql; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -1838,6 +1844,7 @@ class OccurrenceEditorManager {
 
 	//Genetic link functions
 	public function getGeneticArr(){
+		global $LANG;
 		$retArr = array();
 		if($this->occid){
 			$sql = 'SELECT idoccurgenetic, identifier, resourcename, locus, resourceurl, notes FROM omoccurgenetic WHERE occid = '.$this->occid;
@@ -1860,6 +1867,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function editGeneticResource($genArr){
+		global $LANG;
 		$genId = $genArr['genid'];
 		if(is_numeric($genId)){
 			$sql = 'UPDATE omoccurgenetic SET '.
@@ -1878,6 +1886,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function deleteGeneticResource($id){
+		global $LANG;
 		if(is_numeric($id)){
 			$sql = 'DELETE FROM omoccurgenetic WHERE idoccurgenetic = '.$id;
 			if(!$this->conn->query($sql)){
@@ -1889,6 +1898,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function addGeneticResource($genArr){
+		global $LANG;
 		$sql = 'INSERT INTO omoccurgenetic(occid, identifier, resourcename, locus, resourceurl, notes) '.
 			'VALUES('.$this->cleanInStr($genArr['occid']).',"'.$this->cleanInStr($genArr['identifier']).'","'.
 			$this->cleanInStr($genArr['resourcename']).'",'.
@@ -1920,6 +1930,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function insertTextFragment($imgId,$rawFrag,$notes,$source){
+		global $LANG;
 		if($imgId && $rawFrag){
 			$statusStr = '';
 			//$rawFrag = preg_replace('/[^(\x20-\x7F)]*/','', $rawFrag);
@@ -1940,6 +1951,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function saveTextFragment($prlId,$rawFrag,$notes,$source){
+		global $LANG;
 		if(is_numeric($prlId) && $rawFrag){
 			$statusStr = '';
 			//$rawFrag = preg_replace('/[^(\x20-\x7F)]*/','', $rawFrag);
@@ -1957,6 +1969,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function deleteTextFragment($prlId){
+		global $LANG;
 		if(is_numeric($prlId)){
 			$statusStr = '';
 			$sql = 'DELETE FROM specprocessorrawlabels WHERE (prlid = '.$prlId.')';
@@ -1968,6 +1981,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function getImageMap(){
+		global $LANG;
 		$imageMap = Array();
 		if($this->occid){
 			$sql = 'SELECT imgid, url, thumbnailurl, originalurl, caption, photographer, photographeruid, '.
@@ -2004,6 +2018,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function getEditArr(){
+		global $LANG;
 		$retArr = array();
 		$sql = 'SELECT e.ocedid, e.fieldname, e.fieldvalueold, e.fieldvaluenew, e.reviewstatus, e.appliedstatus, '.
 			'CONCAT_WS(", ",u.lastname,u.firstname) as editor, e.initialtimestamp '.

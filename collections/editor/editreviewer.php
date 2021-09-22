@@ -93,7 +93,7 @@ else{
 	$navStr .= '&lt;&lt;';
 }
 $navStr .= ' | ';
-$navStr .= ($pageNum*$limitCnt).'-'.$subCnt.' of '.$recCnt.' fields edited';
+$navStr .= ($pageNum*$limitCnt).'-'.$subCnt.' of '.$recCnt.' '.$LANG['FIELDS_EDITED'];
 $navStr .= ' | ';
 if($subCnt < $recCnt){
 	$navStr .= '<a href="'.$navPageBase.'&pagenum='.($pageNum+1).'&limitcnt='.$limitCnt.'" title="Next '.$limitCnt.' records">&gt;&gt;</a>';

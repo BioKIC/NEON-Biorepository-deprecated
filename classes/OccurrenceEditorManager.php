@@ -6,7 +6,7 @@ include_once($SERVER_ROOT.'/classes/UuidFactory.php');
 class OccurrenceEditorManager {
 
 	protected $conn;
-	protected $collId = 0;
+	protected $collId = false;
 	protected $collMap = array();
 	protected $occid = 0;
 	private $occIndex = 0;
@@ -65,7 +65,7 @@ class OccurrenceEditorManager {
 	private function setCollMap(){
 		if(!$this->collMap){
 			if(!$this->occid && !$this->collId) return false;
-			if(!$this->collId){
+			if($this->collId===false){
 				$sql = 'SELECT collid, observeruid FROM omoccurrences WHERE occid = '.$this->occid;
 				$rs = $this->conn->query($sql);
 				if($r = $rs->fetch_object()){
@@ -83,9 +83,7 @@ class OccurrenceEditorManager {
 				}
 				$rs->free();
 			}
-			else{
-				return false;
-			}
+			else return false;
 		}
 	}
 
@@ -114,9 +112,7 @@ class OccurrenceEditorManager {
 			$this->qryArr = $overrideQry;
 			unset($_SESSION['editorquery']);
 		}
-		elseif(array_key_exists('q_catalognumber',$_REQUEST) || array_key_exists('q_identifier',$_REQUEST)){
-			//Need to keep q_identifier in code until LBCC croudsourcing Drupal site is no longer active
-			if(array_key_exists('q_identifier',$_REQUEST) && $_REQUEST['q_identifier']) $this->qryArr['cn'] = trim($_REQUEST['q_identifier']);
+		elseif(array_key_exists('q_catalognumber',$_REQUEST) || array_key_exists('reset',$_REQUEST)){
 			if(array_key_exists('q_catalognumber',$_REQUEST) && $_REQUEST['q_catalognumber']) $this->qryArr['cn'] = trim($_REQUEST['q_catalognumber']);
 			if(array_key_exists('q_othercatalognumbers',$_REQUEST) && $_REQUEST['q_othercatalognumbers']) $this->qryArr['ocn'] = trim($_REQUEST['q_othercatalognumbers']);
 			if(array_key_exists('q_recordedby',$_REQUEST) && $_REQUEST['q_recordedby']) $this->qryArr['rb'] = trim($_REQUEST['q_recordedby']);
@@ -536,7 +532,7 @@ class OccurrenceEditorManager {
 		if($this->crowdSourceMode){
 			$sqlWhere .= 'AND (q.reviewstatus = 0) ';
 		}
-		if($this->collMap['colltype'] == 'General Observations' && !isset($this->qryArr['returnall'])){
+		if($this->collMap && $this->collMap['colltype'] == 'General Observations' && !isset($this->qryArr['returnall'])){
 			//Ensure that General Observation projects edits are limited to active user
 			$sqlWhere .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
 		}
@@ -584,7 +580,6 @@ class OccurrenceEditorManager {
 			$sql = 'SELECT COUNT(DISTINCT o.occid) AS reccnt FROM omoccurrences o ';
 			$this->addTableJoins($sql);
 			$sql .= $this->sqlWhere;
-			//echo '<div>'.$sql.'</div>';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$recCnt = $r->reccnt;
@@ -676,33 +671,36 @@ class OccurrenceEditorManager {
 			$rsCnt = 0;
 			$indexArr = array();
 			while($row = $rs->fetch_assoc()){
-				if($previousOccid != $row['occid']){
-					if($limit){
-						//Table request, thus load all within query
-						$retArr[$row['occid']] = array_change_key_case($row);
-					}
-					elseif($this->occid == $row['occid']){
-						//Is target specimen
-						$retArr[$row['occid']] = array_change_key_case($row);
-						if($this->collMap['colltype'] == 'General Observations' && $row['observeruid'] == $GLOBALS['SYMB_UID']) $this->isPersonalManagement = true;
-					}
-					elseif(is_numeric($localIndex) && $localIndex == $rsCnt){
+				if($previousOccid == $row['occid']) continue;
+				if($limit){
+					//Table request, thus load all within query
+					$retArr[$row['occid']] = array_change_key_case($row);
+				}
+				elseif($this->occid == $row['occid']){
+					//Is target specimen
+					$retArr[$row['occid']] = array_change_key_case($row);
+					if($this->collMap && $this->collMap['colltype'] == 'General Observations' && $row['observeruid'] == $GLOBALS['SYMB_UID']) $this->isPersonalManagement = true;
+				}
+				elseif(is_numeric($localIndex)){
+					if($localIndex == $rsCnt || (($rsCnt+1) == $rs->num_rows && !$this->occid)){
 						$retArr[$row['occid']] = array_change_key_case($row);
 						$this->occid = $row['occid'];
 					}
-					if($this->direction && !$this->occidIndexArr) $indexArr[] = $row['occid'];
-					$previousOccid = $row['occid'];
-					$rsCnt++;
 				}
+				if($this->direction && !$this->occidIndexArr) $indexArr[] = $row['occid'];
+				$previousOccid = $row['occid'];
+				$rsCnt++;
 			}
 			$rs->free();
 			if($indexArr) $this->occidIndexArr = $indexArr;
 			if($retArr && count($retArr) == 1){
 				if(!$this->occid) $this->occid = key($retArr);
 				if(!$this->collMap) $this->setCollMap();
-				if(!$retArr[$this->occid]['institutioncode']) $retArr[$this->occid]['institutioncode'] = $this->collMap['institutioncode'];
-				if(!$retArr[$this->occid]['collectioncode']) $retArr[$this->occid]['collectioncode'] = $this->collMap['collectioncode'];
-				if(!$retArr[$this->occid]['ownerinstitutioncode']) $retArr[$this->occid]['ownerinstitutioncode'] = $this->collMap['institutioncode'];
+				if($this->collMap){
+					if(!$retArr[$this->occid]['institutioncode']) $retArr[$this->occid]['institutioncode'] = $this->collMap['institutioncode'];
+					if(!$retArr[$this->occid]['collectioncode']) $retArr[$this->occid]['collectioncode'] = $this->collMap['collectioncode'];
+					if(!$retArr[$this->occid]['ownerinstitutioncode']) $retArr[$this->occid]['ownerinstitutioncode'] = $this->collMap['institutioncode'];
+				}
 			}
 			$this->occurrenceMap = $this->cleanOutArr($retArr);
 			if($this->occid){
@@ -875,9 +873,11 @@ class OccurrenceEditorManager {
 					if(array_key_exists('autoprocessingstatus',$postArr) && $postArr['autoprocessingstatus']){
 						$postArr['processingstatus'] = $postArr['autoprocessingstatus'];
 					}
-					if(isset($postArr['institutioncode']) && $postArr['institutioncode'] == $this->collMap['institutioncode']) $postArr['institutioncode'] = '';
-					if(isset($postArr['collectioncode']) && $postArr['collectioncode'] == $this->collMap['collectioncode']) $postArr['collectioncode'] = '';
-					if(isset($postArr['ownerinstitutioncode']) && $postArr['ownerinstitutioncode'] == $this->collMap['institutioncode']) $postArr['ownerinstitutioncode'] = '';
+					if($this->collMap){
+						if(isset($postArr['institutioncode']) && $postArr['institutioncode'] == $this->collMap['institutioncode']) $postArr['institutioncode'] = '';
+						if(isset($postArr['collectioncode']) && $postArr['collectioncode'] == $this->collMap['collectioncode']) $postArr['collectioncode'] = '';
+						if(isset($postArr['ownerinstitutioncode']) && $postArr['ownerinstitutioncode'] == $this->collMap['institutioncode']) $postArr['ownerinstitutioncode'] = '';
+					}
 					foreach($postArr as $oField => $ov){
 						if(in_array($oField,$this->occFieldArr) && $oField != 'observeruid'){
 							$vStr = $this->cleanInStr($ov);
@@ -915,13 +915,14 @@ class OccurrenceEditorManager {
 						if(strtolower($postArr['processingstatus']) != 'unprocessed'){
 							//UPDATE uid within omcrowdsourcequeue, only if not yet processed
 							$isVolunteer = true;
-							if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($this->collId, $USER_RIGHTS['CollAdmin'])){
-								$isVolunteer = false;
+							if($this->collId){
+								if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($this->collId, $USER_RIGHTS['CollAdmin'])){
+									$isVolunteer = false;
+								}
+								elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($this->collId, $USER_RIGHTS['CollEditor'])){
+									$isVolunteer = false;
+								}
 							}
-							elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($this->collId, $USER_RIGHTS['CollEditor'])){
-								$isVolunteer = false;
-							}
-
 							$sql = 'UPDATE omcrowdsourcequeue SET uidprocessor = '.$GLOBALS['SYMB_UID'].', reviewstatus = 5 ';
 							if(!$isVolunteer) $sql .= ', isvolunteer = 0 ';
 							$sql .= 'WHERE (uidprocessor IS NULL) AND (occid = '.$occid.')';
@@ -2268,19 +2269,21 @@ class OccurrenceEditorManager {
 
 	public function isCrowdsourceEditor(){
 		$isEditor = false;
-		$sql = 'SELECT reviewstatus, uidprocessor FROM omcrowdsourcequeue WHERE occid = '.$this->occid;
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			if($r->reviewstatus == 0){
-				//crowdsourcing status is open for editing
-				$isEditor = true;
+		if($this->occid){
+			$sql = 'SELECT reviewstatus, uidprocessor FROM omcrowdsourcequeue WHERE occid = '.$this->occid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				if($r->reviewstatus == 0){
+					//crowdsourcing status is open for editing
+					$isEditor = true;
+				}
+				elseif($r->reviewstatus == 5 && $r->uidprocessor == $GLOBALS['SYMB_UID']){
+					//CS status is pending (=5) and active user was original editor
+					$isEditor = true;
+				}
 			}
-			elseif($r->reviewstatus == 5 && $r->uidprocessor == $GLOBALS['SYMB_UID']){
-				//CS status is pending (=5) and active user was original editor
-				$isEditor = true;
-			}
+			$rs->free();
 		}
-		$rs->free();
 		return $isEditor;
 	}
 
@@ -2330,19 +2333,18 @@ class OccurrenceEditorManager {
 		return implode(',', $this->occidIndexArr);
 	}
 
-	public function setCollId($id){
-		if(is_numeric($id)){
-			if($id != $this->collId){
-				$this->collId = $id;
-				unset($this->collMap);
-				$this->collMap = array();
-				$this->setCollMap();
-			}
+	public function setCollId(&$collid){
+		if(is_numeric($collid)) $this->collId = $collid;
+		if($this->collId !== 0 || $collid != $this->collId){
+			unset($this->collMap);
+			$this->collMap = array();
+			$this->setCollMap();
+			$collid = $this->collId;
 		}
 	}
 
 	public function getCollId(){
-		if(!$this->collId) $this->setCollMap();
+		if($this->collId === false) $this->setCollMap();
 		return $this->collId;
 	}
 

@@ -5,6 +5,7 @@ include_once($SERVER_ROOT.'/classes/TraitPolarPlot.php');
 
 class TraitPlotManager extends Manager {
 	// consider extending TPEditorManager and have plots written to description block statements
+	// $CALENDAR_TRAIT_PLOT
 
 	// PROPERTIES
 	private $tid;

@@ -1,5 +1,5 @@
 <?php
-include_once('../../config/symbini.php');
+include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/Manager.php');
 include_once($SERVER_ROOT.'/classes/TraitPolarPlot.php');
 

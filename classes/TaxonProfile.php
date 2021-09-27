@@ -433,6 +433,7 @@ class TaxonProfile extends Manager {
 				$retStr .= '<li><a href="#tab'.$id.'">'.$cap.'</a></li>';
 			}
 		}
+		$retStr .= '<li><a href="plottab.php?tid='.$this->tid.'">'.($LANG['CALENDAR_TRAIT_PLOT']?$LANG['CALENDAR_TRAIT_PLOT']:'Traits Plots').'</a></li>';
 		$retStr .= '<li><a href="resourcetab.php?tid='.$this->tid.'">'.($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources').'</a></li>';
 		$retStr .= '</ul>';
 		foreach($descArr as $dArr){

@@ -1,4 +1,6 @@
 <?php
+// Add <link rel="stylesheet" type="text/css" href="../../css/symb/taxa/traitplot.css">
+// to calling page.
   include_once('../config/symbini.php');
   include_once($SERVER_ROOT.'/content/lang/taxa/index.'.$LANG_TAG.'.php');
   include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
@@ -25,5 +27,9 @@
 <div id="tab-calendarplot" class="sptab">
 	<?php
   	echo '<div class="resource-title">Trait name and state</div>';
+    echo '<svg width="500" height="500" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . ' role="img"><g>' . PHP_EOL;
+    echo $traitPlotter->monthlyPolarPlot();
+    //echo $traitPlotter->summarizeTraitByYear();
+    echo '</g></svg>';
 	?>
 </div>

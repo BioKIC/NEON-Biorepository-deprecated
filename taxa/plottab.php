@@ -1,6 +1,4 @@
 <?php
-// Add <link rel="stylesheet" type="text/css" href="../../css/symb/taxa/traitplot.css">
-// to calling page.
   include_once('../config/symbini.php');
   include_once($SERVER_ROOT.'/content/lang/taxa/index.'.$LANG_TAG.'.php');
   include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
@@ -10,26 +8,34 @@
 
   $tid = $_REQUEST['tid'];
   $taxAuthId = array_key_exists('taxauthid',$_REQUEST)?$_REQUEST['taxauthid']:1;
-  $traitid = 1; //get this from $GLOBAL array_key_exists("traitid",$_REQUEST)?$_REQUEST["traitid"]:""
+  if(isset($CALENDAR_TRAIT_PLOTS)) {
+    $traitstateids = explode(",", $CALENDAR_TRAIT_PLOTS);
+    $traitstateids = array_map('trim', $traitstateids);
+  } else {
+    $traitstateids = array("0");
+  }
 
   //Sanitation
   if(!is_numeric($tid)) $tid = 0;
-  if(!is_numeric($traitid)) $traitid = 0;
+  if(!is_array($traitstateids)) $traitstateids = array(0);
 
-  $taxonManager = new TaxonProfile();
-  $taxonManager->setTid($tid);
+  //$taxonManager = new TaxonProfile();
+  //$taxonManager->setTid($tid);
 
   $traitPlotter = new TraitPlotManager("polar");
   if($tid) $traitPlotter->setTid($tid);
-  if($traitid) $traitPlotter->setTraitid($traitid);
 ?>
 
 <div id="tab-calendarplot" class="sptab">
 	<?php
-  	echo '<div class="resource-title">Trait name and state</div>';
-    echo '<svg width="500" height="500" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . ' role="img"><g>' . PHP_EOL;
-    echo $traitPlotter->monthlyPolarPlot();
-    //echo $traitPlotter->summarizeTraitByYear();
-    echo '</g></svg>';
+    foreach($traitstateids as $tsid) {
+      if(!is_numeric($tsid)) continue;
+      $traitPlotter->setTraitid($tsid);
+      echo '<div class="resource-title">Trait name and state '.$tsid.'</div>';
+      echo '<svg width="400" height="400" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . ' role="img"><g>' . PHP_EOL;
+      echo $traitPlotter->monthlyPolarPlot();
+      echo '</g></svg>';
+    }
+
 	?>
 </div>

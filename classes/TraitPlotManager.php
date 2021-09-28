@@ -1,19 +1,18 @@
 <?php
 include_once('../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/Manager.php');
+include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
 include_once($SERVER_ROOT.'/classes/TraitPolarPlot.php');
 
-class TraitPlotManager extends Manager {
-	// consider extending TPEditorManager and have plots written to description block statements
-	// $CALENDAR_TRAIT_PLOT
+class TraitPlotManager extends TaxonProfile {
+	// consider extending TPEditorManager to have plots written to description block statements instead
 
 	// PROPERTIES
-	private $tid;
+	// $tid is inherited from TaxonProfile;
 	private $traitid;
 	private $sid;
 	private $traitName;
 	private $stateNames = array();
-	private $taxonArr = array();
+	private $taxonArr = array(); // get this from parent
   private $traitDataArr = array();
 	private $plotInstance;
 	private $TaxAuthId = 1;
@@ -49,17 +48,10 @@ class TraitPlotManager extends Manager {
 		parent::__destruct();
 	}
 
-	public function setTid($tid){
-		if(is_numeric($tid) && $tid > 0){
-			$this->tid = $tid;
-			$this->setTaxon();
-		}
-	}
-
 	public function setSid($sid){
 		if(is_numeric($sid) && $sid > 0){
 			$this->sid = $sid;
-			$this->setTaxon();
+			$this->setTraitStates();
 		}
 	}
 
@@ -71,14 +63,6 @@ class TraitPlotManager extends Manager {
 		}
 	}
 
-	public function getSciname(){  // how does taxonomy roll up affect this?
-    if(isset($this->taxonArr['sciname'])){
-      $retStr = $this->taxonArr['sciname'];
-    } else {
-      $retStr = "No scientific name available";
-    }
-    return $retStr;
-  }
 
 	public function getTraitName(){
 		if(isset($this->traitName)){
@@ -107,7 +91,7 @@ class TraitPlotManager extends Manager {
 	}
 
 	public function monthlyPolarPlot() {
-		if($this->taxonArr['rankid'] > 179) {  // limit to genus and below
+		if($this->rankId > 179) {  // limit to genus and below
 			$this->plotInstance->setAxisNumber(12);
 			$this->plotInstance->setAxisRotation(15);
 			$this->plotInstance->setTickNumber(3);
@@ -123,31 +107,6 @@ class TraitPlotManager extends Manager {
 	}
 
 	### Private methods ###
-	private function setTaxon(){
-		if($this->tid){
-			$sql = 'SELECT tid, sciname, author, rankid FROM taxa WHERE (tid = '.$this->tid.') ';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$this->taxonArr['tid'] = $r->tid;
-				$this->taxonArr['sciname'] = $r->sciname;
-				$this->taxonArr['author'] = $r->author;
-				$this->taxonArr['rankid'] = $r->rankid;
-			}
-			$rs->free();
-			// Roll up child taxa, then select synonyms of the target and children
-			// $sql = 'SELECT DISTINCT t.tid t.sciname, t.author FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (ts.TidAccepted != ts.tid) AND (ts.taxauthid =' .
-			// 	$this->TaxAuthId . ') AND (ts.tidaccepted IN((SELECT DISTINCT t.tid FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (ts.parenttid =' . $this->tid . ') AND (ts.TidAccepted = ts.tid) AND (ts.taxauthid =' . $this->TaxAuthId . '))))';
-			// $rs = $this->conn->query($sql);
-			// $this->taxonArr['synonymTids'] = array();
-			// $this->taxonArr['synonymNames'] = array();
-			// while($r = $rs->fetch_object()){
-			// 	$this->taxonArr['synonymTids'][] = $r->tid;
-			// 	$this->taxonArr['synonymNames'][] = "<i>" . $r->sciname . "</i> " . $r->author;
-			// }
-			//$rs->free();
-		}
-	}
-
 	private function setTraitName(){
 		if($this->traitid){
 			$sql = 'SELECT traitname FROM tmtraits WHERE traitid = ' . $this->traitid;

@@ -50,10 +50,10 @@ class OccurrenceTaxaManager {
 	public function setTaxonRequestVariable($inputArr = null){
 		//Set taxa search terms
 		if(isset($inputArr['taxa']) && $inputArr['taxa']){
-			$taxaStr = $this->cleanInputStr($inputArr["taxa"]);
+			$taxaStr = $this->cleanInputStr($inputArr['taxa']);
 		}
 		else{
-			$taxaStr = str_replace(",",";",$this->cleanInputStr($_REQUEST["taxa"]));
+			$taxaStr = str_replace(',',';',$this->cleanInputStr($_REQUEST['taxa']));
 		}
 		if($taxaStr){
 			$this->taxaArr['search'] = $taxaStr;
@@ -75,7 +75,7 @@ class OccurrenceTaxaManager {
 			}
 			$this->taxaArr['taxontype'] = $defaultTaxaType;
 			//Initerate through taxa and process
-			$this->taxaSearchTerms = explode(";",$taxaStr);
+			$this->taxaSearchTerms = explode(';',$taxaStr);
 			foreach($this->taxaSearchTerms as $k => $term){
 				$searchTerm = $this->cleanInputStr($term);
 				if(!$searchTerm){
@@ -157,12 +157,12 @@ class OccurrenceTaxaManager {
 			//$vernName = strtolower($row->VernacularName);
 			$vernName = $row->VernacularName;
 			if($row->rankid == 140){
-				$this->taxaArr['taxa'][$vernName]["families"][] = $row->sciname;
+				$this->taxaArr['taxa'][$vernName]['families'][] = $row->sciname;
 			}
 			else{
-				$this->taxaArr['taxa'][$vernName]["scinames"][] = $row->sciname;
+				$this->taxaArr['taxa'][$vernName]['scinames'][] = $row->sciname;
 			}
-			$this->taxaArr['taxa'][$vernName]["tid"][$row->tid] = $row->rankid;
+			$this->taxaArr['taxa'][$vernName]['tid'][$row->tid] = $row->rankid;
 		}
 		$rs->free();
 	}
@@ -266,7 +266,7 @@ class OccurrenceTaxaManager {
 						$term = $this->cleanInStr(trim($searchTaxon,'%'));
 						//$term = preg_replace('/\s{1}.{1,2}\s{1}/', ' _ ', $term);
 						$term = preg_replace(array('/\s{1}x\s{1}/','/\s{1}X\s{1}/','/\s{1}\x{00D7}\s{1}/u'), ' _ ', $term);
-						if(array_key_exists("tid",$searchArr)){
+						if(array_key_exists('tid',$searchArr)){
 							$rankid = current($searchArr['tid']);
 							$tidArr = array_keys($searchArr['tid']);
 							//$sqlWhereTaxa .= "OR (o.tidinterpreted IN(".implode(',',$tidArr).")) ";

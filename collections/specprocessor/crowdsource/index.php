@@ -23,8 +23,10 @@ $statusStr = '';
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Crowdsourcing Score Board</title>
-    <link href="../../../css/base.css?ver=<?php echo $CSS_VERSION; ?>" rel="stylesheet" type="text/css" />
-    <link href="../../../css/main.css<?php echo (isset($CSS_VERSION_LOCAL)?'?ver='.$CSS_VERSION_LOCAL:''); ?>" rel="stylesheet" type="text/css" />
+	<?php
+	$activateJQuery = false;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script type="text/javascript">
 
 	</script>
@@ -50,44 +52,46 @@ $statusStr = '';
 	<div id="innertext">
 		<h1>Crowdsourcing Score Board</h1>
 
-		<div style="margin-left:20px;float:left;">
+		<div style="margin:20px;">
 			<h2>Top Scores</h2>
 			<table class="styledtable" style="font-family:Arial;font-size:12px;width:300px;">
-				<tr><th><b>User</b></th><th><b>Score</b></th></tr>
-			<?php
-			$topScoreArr = $csManager->getTopScores($catid);
-			if($topScoreArr){
-				foreach($topScoreArr as $s => $u){
-					echo '<tr><td>'.$u.' </td><td>'.number_format($s).' </td></tr>';
+				<tr><th style="min-width: 150px"><b>User</b></th><th style="text-align:center"><b>Approved Score</b></th><th style="text-align:center"><b>Pending Score</b></th></tr>
+				<?php
+				$topScoreArr = $csManager->getTopScores($catid);
+				if($topScoreArr){
+					foreach($topScoreArr as $userName => $pArr){
+						$approved = 0;
+						if(isset($pArr[10])) $approved = $pArr[10];
+						$pending = $approved;
+						if(isset($pArr[5])) $pending = $pArr[5];
+						echo '<tr><td style="">'.$userName.'</td>';
+						echo '<td style="text-align:center">'.number_format($approved).'</td>';
+						echo '<td style="text-align:center">'.number_format($pending).'</td></tr>';
+					}
 				}
-			}
-			else{
-				echo '<tr><td>Top scores not yet available</td><td>------</td></tr>';
-			}
-			?>
+				else echo '<tr><td>Top scores not yet available</td><td>------</td></tr>';
+				?>
 			</table>
 		</div>
 
-		<div style="margin-right:20px;float:right;">
-			<h2>Your User Status</h2>
+		<div style="margin-top:30px;margin-left:20px;clear:both">
 			<?php
 			$userStats = $csManager->getUserStats($catid);
 			?>
-			<fieldset style="background-color:white;margin-bottom:15px;width:300px;padding:15px;">
-				<legend><b>Current Standing</b></legend>
+			<fieldset style="background-color:white;margin-bottom:15px;width:600px;padding:15px;">
+				<legend><b>Your Current Standing</b></legend>
 				<?php
 				if($SYMB_UID){
-					?>
-					<b>Specimens processed as volunteer:</b> <?php echo number_format($userStats['totalcnt']); ?><br/>
-					<?php
-					if($userStats['nonvolcnt']) echo '&nbsp;&nbsp;&nbsp;(Additional as non-volunteer: '.number_format($userStats['nonvolcnt']).')<br/>';
-					?>
-					<b>Pending points:</b> <?php echo number_format($userStats['ppoints']); ?>
-					<?php if($userStats['ppoints']) echo '(<a href="review.php?rstatus=5&uid='.$SYMB_UID.'">view records</a>)'; ?> <br/>
-					<b>Approved points:</b> <?php echo number_format($userStats['apoints']); ?>
-					<?php if($userStats['apoints']) echo '(<a href="review.php?rstatus=10&uid='.$SYMB_UID.'">view records</a>)'; ?> <br/>
-					<b>Total Possible Score:</b> <?php echo number_format($userStats['ppoints']+$userStats['apoints']); ?><br/>
-					<?php
+					echo '<div style="margin-top:5px">Specimens processed as volunteer: '.number_format($userStats['totalcnt']);
+					if($userStats['nonvolcnt']) echo '<span style="margin-left:25px">(Additional as non-volunteer: '.number_format($userStats['nonvolcnt']).'*)</span>';
+					echo '</div>';
+					echo '<div style="margin-top:5px">Pending points: '.number_format($userStats['ppoints']);
+					if($userStats['ppoints']) echo ' (<a href="review.php?rstatus=5&uid='.$SYMB_UID.'">view records</a>)';
+					echo '</div>';
+					echo '<div style="margin-top:5px">Approved points: '.number_format($userStats['apoints']);
+					if($userStats['apoints']) echo ' (<a href="review.php?rstatus=10&uid='.$SYMB_UID.'">view records</a>)';
+					echo '</div>';
+					echo '<div style="margin-top:5px">Total possible score: '.number_format($userStats['ppoints']+$userStats['apoints']).'</div>';
 					if($userStats['nonvolcnt']) echo '<div style="margin-top:10px">* Only specimens processed as a volunteer are eligible for points</div>';
 				}
 				else{

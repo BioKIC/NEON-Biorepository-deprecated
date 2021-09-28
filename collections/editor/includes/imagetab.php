@@ -107,8 +107,8 @@ $photographerArr = $occManager->getPhotographerArr();
 					<input name="sourceurl" type="text" size="40" value="" />
 				</div>
 				<div style="margin:0px 0px 5px 10px;">
-					<b><?php echo $LANG['SORT_SEQUENCE']; ?>:</b>
-					<input name="sortsequence" type="text" size="10" value="" />
+					<b><?php echo $LANG['SORT']; ?>:</b>
+					<input name="sortoccurrence" type="text" size="10" value="" />
 				</div>
 				<div style="margin:0px 0px 5px 10px;">
 					<b><?php echo $LANG['DESCRIBE_IMAGE']; ?></b>
@@ -253,8 +253,8 @@ $photographerArr = $occManager->getPhotographerArr();
 									</a>
 								</div>
 								<div>
-									<b><?php echo $LANG['SORT_SEQUENCE']; ?>:</b>
-									<?php echo $imgArr["sortseq"]; ?>
+									<b><?php echo $LANG['SORT']; ?>:</b>
+									<?php echo $imgArr["sort"]; ?>
 								</div>
 							</div>
 						</td>
@@ -337,8 +337,8 @@ $photographerArr = $occManager->getPhotographerArr();
 											<?php } ?>
 										</div>
 										<div>
-											<b><?php echo $LANG['SORT_SEQUENCE']; ?>:</b><br/>
-											<input name="sortsequence" type="text" value="<?php echo $imgArr["sortseq"]; ?>" style="width:10%;" />
+											<b><?php echo $LANG['SORT']; ?>:</b><br/>
+											<input name="sortoccurrence" type="text" value="<?php echo $imgArr['sort']; ?>" style="width:10%;" />
 										</div>
 					                    <div>
 						                   <b><?php echo $LANG['TAGS']; ?>:</b>

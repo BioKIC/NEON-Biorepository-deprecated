@@ -1977,9 +1977,9 @@ class OccurrenceEditorManager {
 		$imageMap = Array();
 		if($this->occid){
 			$sql = 'SELECT imgid, url, thumbnailurl, originalurl, caption, photographer, photographeruid, '.
-				'sourceurl, copyright, notes, occid, username, sortsequence, initialtimestamp '.
+				'sourceurl, copyright, notes, occid, username, sortoccurrence, initialtimestamp '.
 				'FROM images '.
-				'WHERE (occid = '.$this->occid.') ORDER BY sortsequence';
+				'WHERE (occid = '.$this->occid.') ORDER BY sortoccurrence';
 			//echo $sql;
 			$result = $this->conn->query($sql);
 			while($row = $result->fetch_object()){
@@ -1995,7 +1995,7 @@ class OccurrenceEditorManager {
 				$imageMap[$imgId]["notes"] = $this->cleanOutStr($row->notes);
 				$imageMap[$imgId]["occid"] = $row->occid;
 				$imageMap[$imgId]["username"] = $this->cleanOutStr($row->username);
-				$imageMap[$imgId]["sortseq"] = $row->sortsequence;
+				$imageMap[$imgId]['sort'] = $row->sortoccurrence;
 				if(strpos($row->originalurl,'api.idigbio.org')){
 					if(strtotime($row->initialtimestamp) > strtotime('-2 days')){
 						//Is a recent iDigBio media server import, check to see if image derivatives have been made

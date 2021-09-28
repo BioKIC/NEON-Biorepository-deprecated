@@ -240,7 +240,7 @@ class OccurrenceIndividual extends Manager{
 		global $imageDomain;
 		$sql = 'SELECT i.imgid, i.url, i.thumbnailurl, i.originalurl, i.sourceurl, i.notes, i.caption, CONCAT_WS(" ",u.firstname,u.lastname) as photographer '.
 			'FROM images i LEFT JOIN users u ON i.photographeruid = u.uid '.
-			'WHERE (i.occid = '.$this->occid.') ORDER BY i.sortsequence';
+			'WHERE (i.occid = '.$this->occid.') ORDER BY i.sortoccurrence,i.sortsequence';
 		$rs = $this->conn->query($sql);
 		if($rs){
 			while($row = $rs->fetch_object()){

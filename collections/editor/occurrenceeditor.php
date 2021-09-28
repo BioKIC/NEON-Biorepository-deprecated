@@ -994,21 +994,12 @@ else{
 													echo (defined('LOCALITYSECURITYLABEL')?LOCALITYSECURITYLABEL:'Security');
 													$securityCode = array_key_exists('localitysecurity',$occArr)&&$occArr['localitysecurity']?$occArr['localitysecurity']:0;
 													$lsrValue = array_key_exists('localitysecurityreason',$occArr)?$occArr['localitysecurityreason']:'';
-													$securityArr = array(1 => (isset($LANG['LOCALITY_SECURITY'])?$LANG['LOCALITY_SECURITY']:'Locality Security'));
-													if(isset($OCCUR_SECURITY_OPTION)){
-														if($OCCUR_SECURITY_OPTION == 2 || $OCCUR_SECURITY_OPTION == 4 || $OCCUR_SECURITY_OPTION == 6) unset($securityArr[1]);
-														if($OCCUR_SECURITY_OPTION == 2 || $OCCUR_SECURITY_OPTION == 3 || $OCCUR_SECURITY_OPTION == 7) $securityArr[2] = (isset($LANG['TAXONOMIC_SECURITY'])?$LANG['TAXONOMIC_SECURITY']:'Taxonomic Security');
-														if($OCCUR_SECURITY_OPTION == 3 || $OCCUR_SECURITY_OPTION == 7) $securityArr[3] = (isset($LANG['LOC_AND_TAX_SECURITY'])?$LANG['LOC_AND_TAX_SECURITY']:'Locality &amp; Taxonomic Security');
-														if($OCCUR_SECURITY_OPTION > 3) $securityArr[3] = (isset($LANG['FULL_SECURITY'])?$LANG['FULL_SECURITY']:'Full Security');
-													}
 													?>:
 													<select name="localitysecurity" onchange="securityChanged(this.form);" title="<?php echo (isset($LANG['SECURITY_SETTINGS'])?$LANG['SECURITY_SETTINGS']:'Security Settings'); ?>">
 														<option value="0"><?php echo (isset($LANG['SEC_NOT_APPLIED'])?$LANG['SEC_NOT_APPLIED']:'Security not applied'); ?></option>
 														<option value="0">--------------------------</option>
 														<?php
-														foreach($securityArr as $sCode => $sValue){
-															echo '<option value="'.$sCode.'" '.($securityCode==$sCode?'SELECTED':'').'>'.$sValue.'</option>';
-														}
+														echo '<option value="1" '.($securityCode?'SELECTED':'').'>'.(isset($LANG['LOCALITY_SECURITY'])?$LANG['LOCALITY_SECURITY']:'Locality Security').'</option>';
 														?>
 													</select>
 													<a href="#" onclick="return dwcDoc('localitySecurity')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>

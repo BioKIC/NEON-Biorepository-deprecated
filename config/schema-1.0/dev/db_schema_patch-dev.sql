@@ -188,5 +188,6 @@ ALTER TABLE `uploadspectemp`
 
 
 ALTER TABLE `omoccurrences` 
-  ADD COLUMN `scinameProtected` VARCHAR(150) NULL AFTER `sciname`,
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`;
+
+  

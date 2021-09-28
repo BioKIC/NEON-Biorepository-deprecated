@@ -9,6 +9,7 @@ class OccurrenceIndividual extends Manager{
 	private $dbpk;
 	private $occArr = array();
 	private $metadataArr = array();
+	private $securedReader = false;
 	private $displayFormat = 'html';
 	private $relationshipArr;
 
@@ -117,19 +118,28 @@ class OccurrenceIndividual extends Manager{
 			'o.minimumelevationinmeters, o.maximumelevationinmeters, o.verbatimelevation, o.minimumdepthinmeters, o.maximumdepthinmeters, o.verbatimdepth, '.
 			'o.verbatimattributes, o.locationremarks, o.lifestage, o.sex, o.individualcount, o.samplingprotocol, o.preparations, '.
 			'o.typestatus, o.dbpk, o.habitat, o.substrate, o.associatedtaxa, o.dynamicProperties, o.reproductivecondition, o.cultivationstatus, o.establishmentmeans, '.
-			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.modified, o.observeruid, g.guid, o.recordenteredby, o.dateentered, o.datelastmodified '.
-			'FROM omoccurrences o LEFT JOIN guidoccurrences g ON o.occid = g.occid ';
+			'o.ownerinstitutioncode, o.othercatalognumbers, o.disposition, o.informationwithheld, o.modified, o.observeruid, o.recordenteredby, o.dateentered, o.datelastmodified '.
+			'FROM omoccurrences o ';
 		if($this->occid) $sql .= 'WHERE (o.occid = '.$this->occid.')';
 		elseif($this->collid && $this->dbpk) $sql .= 'WHERE (o.collid = '.$this->collid.') AND (o.dbpk = "'.$this->dbpk.'")';
 		else trigger_error('Specimen identifier is null or invalid; '.$this->conn->error,E_USER_ERROR);
 
 		if($rs = $this->conn->query($sql)){
 			if($occArr = $rs->fetch_assoc()){
+				$rs->free();
 				$this->occArr = array_change_key_case($occArr);
 				if(!$this->occid) $this->occid = $this->occArr['occid'];
 				if(!$this->collid) $this->collid = $this->occArr['collid'];
 				$this->loadMetadata();
-
+				if($this->occArr['institutioncode']){
+					if(!$this->metadataArr['institutioncode']) $this->metadataArr['institutioncode'] = $this->occArr['institutioncode'];
+					elseif($this->metadataArr['institutioncode'] != $this->occArr['institutioncode']) $this->metadataArr['institutioncode'] .= '-'.$this->occArr['institutioncode'];
+				}
+				if($this->occArr['collectioncode']){
+					if(!$this->metadataArr['collectioncode']) $this->metadataArr['collectioncode'] = $this->occArr['institutioncode'];
+					elseif($this->metadataArr['collectioncode'] != $this->occArr['collectioncode']) $this->metadataArr['collectioncode'] .= '-'.$this->occArr['institutioncode'];
+				}
+				$this->setRecordID();
 				if(!$this->occArr['occurrenceid']){
 					//Set occurrence GUID based on GUID target, but only if occurrenceID field isn't already populated
 					if($this->metadataArr['guidtarget'] == 'catalogNumber'){
@@ -139,21 +149,40 @@ class OccurrenceIndividual extends Manager{
 						$this->occArr['occurrenceid'] = $this->occArr['guid'];
 					}
 				}
-				if($this->occArr['institutioncode']){
-					if(!$this->metadataArr['institutioncode']) $this->metadataArr['institutioncode'] = $this->occArr['institutioncode'];
-					elseif($this->metadataArr['institutioncode'] != $this->occArr['institutioncode']) $this->metadataArr['institutioncode'] .= '-'.$this->occArr['institutioncode'];
+				$protectTaxon = false;
+				/*
+				if(isset($this->occArr['scinameprotected']) && $this->occArr['scinameprotected'] && !$this->securedReader){
+					$protectTaxon = true;
+					$this->occArr['taxonsecure'] = 1;
+					$this->occArr['sciname'] = $this->occArr['scinameprotected'];
+					$this->occArr['family'] = $this->occArr['familyprotected'];
+					$this->occArr['tidinterpreted'] = $this->occArr['tidprotected'];
+					//$this->occArr['informationWithheld'] .= 'identification and images redacted';
 				}
-				if($this->occArr['collectioncode']){
-					if(!$this->metadataArr['collectioncode']) $this->metadataArr['collectioncode'] = $this->occArr['institutioncode'];
-					elseif($this->metadataArr['collectioncode'] != $this->occArr['collectioncode']) $this->metadataArr['collectioncode'] .= '-'.$this->occArr['institutioncode'];
+				*/
+				$protectLocality = false;
+				if($this->occArr['localitysecurity'] == 1 && !$this->securedReader){
+					$protectLocality = true;
+					$this->occArr['localsecure'] = 1;
+					$redactArr = array('recordnumber','eventdate','verbatimeventdate','locality','locationid','decimallatitude','decimallongitude','verbatimcoordinates',
+						'locationremarks', 'georeferenceremarks', 'geodeticdatum', 'coordinateuncertaintyinmeters', 'minimumelevationinmeters', 'maximumelevationinmeters',
+						'verbatimelevation', 'habitat', 'associatedtaxa');
+					$infoWithheld = '';
+					foreach($redactArr as $term){
+						if($this->occArr[$term]){
+							$this->occArr[$term] = '';
+							$infoWithheld .= ', '.$term;
+						}
+					}
+					if($this->occArr['informationwithheld']) $infoWithheld = $this->occArr['informationwithheld'].'; '.$infoWithheld;
+					$this->occArr['informationwithheld'] = trim($infoWithheld,', ');
 				}
-				$rs->free();
-				$this->setDeterminations();
-				$this->setImages();
+				if(!$protectTaxon) $this->setDeterminations();
+				if(!$protectLocality && !$protectLocality) $this->setImages();
 				$this->setAdditionalIdentifiers();
 				$this->setPaleo();
 				$this->setLoan();
-				$this->setExsiccati();
+				if(!$protectLocality) $this->setExsiccati();
 				$this->setOccurrenceRelationships();
 				$this->setReferences();
 			}
@@ -165,6 +194,20 @@ class OccurrenceIndividual extends Manager{
 		}
 		else{
 			trigger_error('Unable to set occurrence array; '.$this->conn->error,E_USER_ERROR);
+		}
+	}
+
+	private function setRecordID(){
+		$sql = 'SELECT guid FROM guidoccurrences WHERE (occid = '.$this->occid.')';
+		$rs = $this->conn->query($sql);
+		if($rs){
+			while($row = $rs->fetch_object()){
+				$this->occArr['guid'] = $row->guid;
+			}
+			$rs->free();
+		}
+		else{
+			trigger_error('Unable to setDeterminations; '.$this->conn->error,E_USER_NOTICE);
 		}
 	}
 
@@ -1088,6 +1131,11 @@ class OccurrenceIndividual extends Manager{
 
 	public function setDbpk($pk){
 		$this->dbpk = $pk;
+	}
+
+	public function setSecuredReader($bool){
+		if($bool) $this->securedReader = true;
+		else $this->securedReader = false;
 	}
 
 	public function setDisplayFormat($f){

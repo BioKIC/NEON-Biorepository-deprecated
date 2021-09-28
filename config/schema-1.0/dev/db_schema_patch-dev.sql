@@ -101,6 +101,10 @@ ALTER TABLE `omcrowdsourcequeue`
 ALTER TABLE `omcrowdsourcequeue` 
   ADD CONSTRAINT `FK_omcrowdsourcequeue_csProjID`  FOREIGN KEY (`csProjID`)  REFERENCES `omcrowdsourceproject` (`csProjID`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
+ALTER TABLE `omcrowdsourcequeue` 
+  ADD COLUMN `dateProcessed` DATETIME NULL AFTER `isvolunteer`,
+  ADD COLUMN `dateReviewed` DATETIME NULL AFTER `dateProcessed`;
+
 
 ALTER TABLE `omoccurassociations` 
   CHANGE COLUMN `condition` `conditionOfAssociate` VARCHAR(250) NULL DEFAULT NULL ;
@@ -176,8 +180,13 @@ ALTER TABLE `uploadspectemp`
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`,
   CHANGE COLUMN `LatestDateCollected` `eventDate2` DATE NULL DEFAULT NULL AFTER `eventDate`;
 
+ALTER TABLE `uploadspectemp` 
+  CHANGE COLUMN `establishmentMeans` `establishmentMeans` VARCHAR(150) NULL DEFAULT NULL,
+  CHANGE COLUMN `disposition` `disposition` varchar(250) NULL DEFAULT NULL,
+  ADD COLUMN `observeruid` INT NULL AFTER `language`,
+  ADD COLUMN `dateEntered` DATETIME NULL AFTER `recordEnteredBy`;
+
+
 ALTER TABLE `omoccurrences` 
+  ADD COLUMN `scinameProtected` VARCHAR(150) NULL AFTER `sciname`,
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`;
-
-
-

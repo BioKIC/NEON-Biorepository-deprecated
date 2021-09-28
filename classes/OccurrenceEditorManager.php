@@ -538,7 +538,7 @@ class OccurrenceEditorManager {
 			//Ensure that General Observation projects edits are limited to active user
 			$sqlWhere .= 'AND (o.observeruid = '.$GLOBALS['SYMB_UID'].') ';
 		}
-		if($this->collId) $sqlWhere .= 'AND (o.collid = '.$this->collId.') ';
+		if($this->collId) $sqlWhere .= 'AND (o.collid ='.$this->collId.') ';
 		if($sqlWhere) $sqlWhere = 'WHERE '.substr($sqlWhere,4);
 
 		//echo $sqlWhere;
@@ -789,6 +789,24 @@ class OccurrenceEditorManager {
 				}
 			}
 			if($editArr || $quickHostEntered){
+				//Get current values to be saved within versioning tables
+				$sql = 'SELECT o.collid, '.($editArr?implode(',',$editArr):'').(in_array('processingstatus',$editArr)?'':',processingstatus').
+					(in_array('recordenteredby',$editArr)?'':',recordenteredby').' FROM omoccurrences o ';
+				if(in_array('ometid',$editArr) || in_array('exsnumber',$editArr)){
+					$sql = 'SELECT o.collid, '.str_replace(array('ometid','exstitle'),array('et.ometid','et.title'),($editArr?implode(',',$editArr):'')).',et.title'.
+						(in_array('processingstatus',$editArr)?'':',processingstatus').(in_array('recordenteredby',$editArr)?'':',recordenteredby').
+						' FROM omoccurrences o LEFT JOIN omexsiccatiocclink el ON o.occid = el.occid '.
+						'LEFT JOIN omexsiccatinumbers en ON el.omenid = en.omenid '.
+						'LEFT JOIN omexsiccatititles et ON en.ometid = et.ometid ';
+				}
+				if($this->paleoActivated && array_intersect($editArr, $this->paleoFieldArr)){
+					$sql .= 'LEFT JOIN omoccurpaleo p ON o.occid = p.occid ';
+				}
+				$sql .= 'WHERE o.occid = '.$occid;
+				$rs = $this->conn->query($sql);
+				$oldValues = $rs->fetch_assoc();
+				$rs->free();
+
 				if($editArr){
 					//Deal with scientific name changes if the AJAX code fails
 					if(in_array('sciname',$editArr) && $postArr['sciname'] && !$postArr['tidinterpreted']){
@@ -804,30 +822,6 @@ class OccurrenceEditorManager {
 						$rs2->free();
 					}
 					//Add edits to omoccuredits
-					//Get old values before they are changed
-					$sql = '';
-					if(in_array('ometid',$editArr) || in_array('exsnumber',$editArr)){
-						//Exsiccati edit has been submitted
-						$sql = 'SELECT '.str_replace(array('ometid','exstitle'),array('et.ometid','et.title'),($editArr?implode(',',$editArr):'')).',et.title'.
-						(in_array('processingstatus',$editArr)?'':',processingstatus').(in_array('recordenteredby',$editArr)?'':',recordenteredby').
-						' FROM omoccurrences o LEFT JOIN omexsiccatiocclink el ON o.occid = el.occid '.
-						'LEFT JOIN omexsiccatinumbers en ON el.omenid = en.omenid '.
-						'LEFT JOIN omexsiccatititles et ON en.ometid = et.ometid ';
-					}
-					else{
-						$sql = 'SELECT '.($editArr?implode(',',$editArr):'').(in_array('processingstatus',$editArr)?'':',processingstatus').
-						(in_array('recordenteredby',$editArr)?'':',recordenteredby').
-						' FROM omoccurrences o ';
-					}
-					if($this->paleoActivated && array_intersect($editArr, $this->paleoFieldArr)){
-						$sql .= 'LEFT JOIN omoccurpaleo p ON o.occid = p.occid ';
-					}
-					$sql .= 'WHERE o.occid = '.$occid;
-					//echo $sql;
-					$rs = $this->conn->query($sql);
-					$oldValues = $rs->fetch_assoc();
-					$rs->free();
-
 					//If processing status was "unprocessed" and recordEnteredBy is null, populate with user login
 					if($oldValues['recordenteredby'] == 'preprocessed' || (!$oldValues['recordenteredby'] && ($oldValues['processingstatus'] == 'unprocessed' || $oldValues['processingstatus'] == 'stage 1'))){
 						$postArr['recordenteredby'] = $GLOBALS['USERNAME'];
@@ -917,13 +911,11 @@ class OccurrenceEditorManager {
 						if(strtolower($postArr['processingstatus']) != 'unprocessed'){
 							//UPDATE uid within omcrowdsourcequeue, only if not yet processed
 							$isVolunteer = true;
-							if($this->collId){
-								if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($this->collId, $USER_RIGHTS['CollAdmin'])){
-									$isVolunteer = false;
-								}
-								elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($this->collId, $USER_RIGHTS['CollEditor'])){
-									$isVolunteer = false;
-								}
+							if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($oldValues['collid'], $USER_RIGHTS['CollAdmin'])){
+								$isVolunteer = false;
+							}
+							elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($oldValues['collid'], $USER_RIGHTS['CollEditor'])){
+								$isVolunteer = false;
 							}
 							$sql = 'UPDATE omcrowdsourcequeue SET uidprocessor = '.$GLOBALS['SYMB_UID'].', reviewstatus = 5 ';
 							if(!$isVolunteer) $sql .= ', isvolunteer = 0 ';

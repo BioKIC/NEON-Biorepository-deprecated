@@ -63,8 +63,7 @@ class OccurrenceCrowdSource {
 	private function createNewProject(){
 		if($this->collid){
 			$con = MySQLiConnectionFactory::getCon("write");
-			$sql = 'INSERT INTO omcrowdsourcecentral(collid,instructions,trainingurl) '.
-				'VALUES('.$this->collid.',NULL,NULL)';
+			$sql = 'INSERT INTO omcrowdsourcecentral(collid,instructions,trainingurl) VALUES('.$this->collid.',NULL,NULL)';
 			//echo $sql;
 			if($con->query($sql)){
 				$this->omcsid = $con->insert_id;
@@ -139,20 +138,18 @@ class OccurrenceCrowdSource {
 	public function getTopScores($catid){
 		$retArr = array();
 		//Get users
-		$sql = 'SELECT u.uid, CONCAT_WS(", ",u.lastname,u.firstname) as user, sum(q.points) AS toppoints '.
+		$sql = 'SELECT u.uid, CONCAT_WS(", ",u.lastname,u.firstname) as user, q.reviewstatus, sum(IFNULL(q.points,3)) AS full_points '.
 			'FROM omcrowdsourcequeue q INNER JOIN users u ON q.uidprocessor = u.uid ';
-		if($catid){
-			$sql .= 'INNER JOIN omcrowdsourcecentral c ON q.omcsid = c.omcsid INNER JOIN omcollcatlink cat ON c.collid = cat.collid ';
-		}
-		$sql .= 'WHERE q.reviewstatus = 10 AND q.points is not null AND q.isvolunteer = 1 ';
+		if($catid) $sql .= 'INNER JOIN omcrowdsourcecentral c ON q.omcsid = c.omcsid INNER JOIN omcollcatlink cat ON c.collid = cat.collid ';
+		$sql .= 'WHERE q.reviewstatus IN(5,10) AND q.isvolunteer = 1 ';
 		if(preg_match('/^[,\d]+$/', $catid)) $sql .= 'AND (cat.ccpk IN('.$catid.')) ';
-		$sql .= 'GROUP BY u.firstname, u.lastname ORDER BY sum(q.points) DESC ';
+		$sql .= 'GROUP BY u.firstname, u.lastname, q.reviewstatus ORDER BY full_points DESC ';
 		$rs = $this->conn->query($sql);
 		$cnt = 0;
 		while($r = $rs->fetch_object()){
-			$topPoints = $r->toppoints;
-			if(!$topPoints) $topPoints = 0;
-			$retArr[$topPoints] = $r->user;
+			$points = $r->full_points;
+			if(!$points) $points = 0;
+			$retArr[$r->user][$r->reviewstatus] = $points;
 			$cnt++;
 			if($cnt > 10) break;
 		}
@@ -239,8 +236,7 @@ class OccurrenceCrowdSource {
 		if($limit){
 			$sqlFrag .= 'LIMIT '.$limit;
 		}
-		$sql = 'INSERT INTO omcrowdsourcequeue(occid, omcsid) '.
-			'SELECT DISTINCT o.occid, '.$omcsid.' AS csid '.$sqlFrag;
+		$sql = 'INSERT INTO omcrowdsourcequeue(occid, omcsid) SELECT DISTINCT o.occid, '.$omcsid.' AS csid '.$sqlFrag;
 		if(!$con->query($sql)){
 			$statusStr = 'ERROR adding to queue: '.$con->error;
 			$statusStr .= '; SQL: '.$sql;

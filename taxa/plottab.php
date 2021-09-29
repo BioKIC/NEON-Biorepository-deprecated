@@ -19,9 +19,6 @@
   if(!is_numeric($tid)) $tid = 0;
   if(!is_array($traitstateids)) $traitstateids = array(0);
 
-  //$taxonManager = new TaxonProfile();
-  //$taxonManager->setTid($tid);
-
   $traitPlotter = new TraitPlotManager("polar");
   if($tid) $traitPlotter->setTid($tid);
 ?>
@@ -30,8 +27,8 @@
 	<?php
     foreach($traitstateids as $tsid) {
       if(!is_numeric($tsid)) continue;
-      $traitPlotter->setTraitid($tsid);
-      echo '<div class="resource-title">Trait name and state '.$tsid.'</div>';
+      $traitPlotter->setTraitStateId($tsid);
+      echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
       echo '<svg width="400" height="400" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . ' role="img"><g>' . PHP_EOL;
       echo $traitPlotter->monthlyPolarPlot();
       echo '</g></svg>';

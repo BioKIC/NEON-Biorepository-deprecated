@@ -6,15 +6,15 @@ class TaxonProfile extends Manager {
 	protected $tid;
 	protected $rankId;
 	private $parentTid;
-	private $taxAuthId = 1;
+	protected $taxAuthId = 1;
 	private $taxonName;
 	private $taxonAuthor;
 	private $taxonFamily;
 	private $acceptance = true;
 	private $forwarded = false;
 
-	private $acceptedArr = array();
-	private $synonymArr = array();
+	protected $acceptedArr = array();
+	protected $synonymArr = array();
 	private $submittedArr = array();
 
 	private $langArr = array();

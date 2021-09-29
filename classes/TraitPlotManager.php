@@ -3,19 +3,19 @@ include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
 include_once($SERVER_ROOT.'/classes/TraitPolarPlot.php');
 
+
 class TraitPlotManager extends TaxonProfile {
 	// consider extending TPEditorManager to have plots written to description block statements instead
 
 	// PROPERTIES
-	// $tid is inherited from TaxonProfile;
-	private $traitid;
-	private $sid;
+	//      $tid is inherited from TaxonProfile;
+	private $traitId;
+	private $stateId;
 	private $traitName;
 	private $stateNames = array();
 	private $taxonArr = array(); // get this from parent
   private $traitDataArr = array();
 	private $plotInstance;
-	private $TaxAuthId = 1;
 
 
 	// METHODS
@@ -48,16 +48,19 @@ class TraitPlotManager extends TaxonProfile {
 		parent::__destruct();
 	}
 
-	public function setSid($sid){
-		if(is_numeric($sid) && $sid > 0){
-			$this->sid = $sid;
+	public function setTraitStateId($tsid){
+		if(is_numeric($tsid) && $tsid > 0){
+			$this->stateId = $tsid;
+			$this->traitId = null;
 			$this->setTraitStates();
+			$this->setTraitName();
 		}
 	}
 
-	public function setTraitid($traitid){
+	public function setTraitId($traitid){
 		if(is_numeric($traitid) && $traitid > 0){
-			$this->traitid = $traitid;
+			$this->traitId = $traitid;
+			$this->stateId = null;
 			$this->setTraitName();
 			$this->setTraitStates();
 		}
@@ -74,10 +77,10 @@ class TraitPlotManager extends TaxonProfile {
 	}
 
 	public function getStateName(){
-		if(isset($this->stateName)){
-			$retStr = $this->stateName;
+		if(isset($this->stateNames)){
+			$retStr = implode(", ", $this->stateNames);
 		} else {
-			$retStr = "Trait information unavailable";
+			$retStr = "Trait state unavailable";
 		}
 		return $retStr;
 	}
@@ -104,28 +107,47 @@ class TraitPlotManager extends TaxonProfile {
 	public function display() {
 		$this->plotInstance->setDataValues($this->summarizeTraitByMonth());
 		return $this->plotInstance->display();
-	}
+	} // this function looks weird because I want this manager
+	  // to run different plot types, but that isn't finished yet.
+
 
 	### Private methods ###
 	private function setTraitName(){
-		if($this->traitid){
-			$sql = 'SELECT traitname FROM tmtraits WHERE traitid = ' . $this->traitid;
+		if($this->traitId){
+			$sql = 'SELECT DISTINCT traitname FROM tmtraits WHERE traitid = ' . $this->traitId;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->traitName = $r->traitname;
 			}
 			$rs->free();
+		} elseif($this->stateId) {
+			$sql = 'SELECT DISTINCT traitname FROM tmtraits WHERE traitid = (SELECT DISTINCT traitid FROM tmstates WHERE stateid = ' . $this->stateId .' LIMIT 1);';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->traitName = $r->traitname;
+			}
+			$rs->free();
+		} else {
+			$this->traitName = 'Trait information unavailable';
 		}
 	}
 
 	private function setTraitStates(){
-		if($this->traitid){
-			$sql = 'SELECT stateid, statename FROM tmstates WHERE traitid = ' . $this->traitid . ' ORDER BY sortseq';
+		if($this->traitId){
+			$sql = 'SELECT stateid, statename FROM tmstates WHERE traitid = ' . $this->traitId . ' ORDER BY sortseq;';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->stateNames[$r->stateid] = $r->statename;
 			}
 			$rs->free();
+		} elseif($this->stateId) {
+			$sql = 'SELECT DISTINCT statename FROM tmstates WHERE stateid = ' . $this->stateId . ';';
+			$rs = $this->conn->query($sql);
+			$r = $rs->fetch_object();
+			$this->stateNames[$this->stateId] = $r->statename;
+			$rs->free();
+		} else {
+			$this->stateNames[1] = "Trait state unavailable";
 		}
 	}
 
@@ -214,12 +236,12 @@ class TraitPlotManager extends TaxonProfile {
 			 months (>12, <1, blank, etc.) are ignored.
 		*/
 		$countArr = array_fill(0, 12, $missing);  // missing value array
-		if($this->tid && $this->traitid){
+		if($this->tid && $this->traitId){
 			$searchtids = array($this->tid);
 			if(isset($this->taxonArr['synonymtids'])){
 				$searchtids = array_merge($searchtids, $this->taxonArr['synonymtids']);
 			}
-			 $sql = 'SELECT o.month, COUNT(*) AS count FROM tmattributes AS a LEFT JOIN omoccurrences AS o ON o.occid = a.occid WHERE o.tidinterpreted IN(' . implode(",", $searchtids) . ') AND a.stateid = 2 GROUP BY o.month';
+			 $sql = 'SELECT o.month, COUNT(*) AS count FROM tmattributes AS a LEFT JOIN omoccurrences AS o ON o.occid = a.occid WHERE o.tidinterpreted IN(' . implode(",", $searchtids) . ') AND a.stateid = '. $this->stateId .' GROUP BY o.month;';
 			 $rs = $this->conn->query($sql);
 			 while($r = $rs->fetch_object()){
 				 if($r->month > 0 && $r->month < 13) {

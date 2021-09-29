@@ -96,6 +96,10 @@ class TaxonomyHarvester extends Manager{
 			$this->logOrEcho('Checking <b>TROPICOS</b>...',1);
 			$newTid= $this->addTropicosTaxon($taxonArr);
 		}
+		elseif($resourceKey== 'fdex'){
+			$this->logOrEcho('Checking <b>fdex</b>...',1);
+			$newTid= $this->addFdexTaxon($taxonArr);
+		}
 		elseif($resourceKey== 'eol'){
 			$this->logOrEcho('Checking <b>EOL</b>...',1);
 			$newTid= $this->addEolTaxon($taxonArr);
@@ -735,23 +739,46 @@ class TaxonomyHarvester extends Manager{
 		return $taxonArr;
 	}
 
-	//Index Fungorum functions
+	//Index Fungorum functions via MyCoPortal FdEx tools
 	//http://www.indexfungorum.org/ixfwebservice/fungus.asmx/NameSearch?SearchText=Acarospora%20socialis&AnywhereInText=false&MaxNumber=10
-	private function addIndexFungorumTaxon($taxonArr){
+	private function addFdexTaxon($taxonArr){
 		$sciName = $taxonArr['sciname'];
 		if($sciName){
 			$adjustedName = $sciName;
 			if(isset($taxonArr['rankid']) && $taxonArr['rankid'] > 220) $adjustedName = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].' '.$taxonArr['unitname3']);
-			$url = 'https://webservice.catalogueoflife.org/col/webservice?response=full&format=json&name='.str_replace(' ','%20',$adjustedName);
+			$url = 'https://mycoportal.org/fdex/services/api/query.php?qText='.str_replace(' ','%20',$adjustedName).'&qField=taxon';
 			//echo $url.'<br/>';
 			$retArr = $this->getContentString($url);
 			$content = $retArr['str'];
-			$resultArr = json_decode($content,true);
-			$numResults = $resultArr['number_of_results_returned'];
-			if($numResults){
-
+			if($content == '0 results'){
+				$this->logOrEcho('Taxon not found',2);
+				return false;
+			}
+			else{
+				$resultArr = json_decode($content,true);
+				$numResults = count($resultArr);
+				$taxonArr = array();
+				if($numResults){
+					/*
+					 * return example "taxon" : "Verrucaria microstictica" , "authors" : "Leight." , "mbNumber" : "307221" , "otherID" : "86A6E1F9-AACE-43AF-A466-9427B38788D4" ,
+					 * "rank" : "sp." , "rankCode" : "20" , "taxonomicStatus" : "Assumed legitimate" , "currentTaxon" : "Polycoccum microsticticum" , "currentMbNumber" : "307214" ,
+					 * "currentOtherID" : "CACE62EC-E136-44D9-B01C-BB36D95E6262" , "currentStatus" : "Stable" , "parentTaxon" : "Verrucaria" , "parentMbNumber" : "5725" ,
+					 * "parentOtherID" : "1CB1CC6A-36B9-11D5-9548-00D0592D548C" , "taxonomicAgreement" : "Asynchronous", "recordSource" : "Index Fungorum"
+					*/
+					foreach($resultArr as $unitArr){
+						$taxonArr['sciname'] = $unitArr['taxon'];
+						$rankArr = $this->getFdexRank($unitArr['rank'],$unitArr['rankCode']);
+					}
+				}
+				$this->loadNewTaxon($taxonArr);
 			}
 		}
+	}
+
+	private function getFdexRank($rankStr, $rankCode){
+		$retArr = array();
+
+		return $retArr;
 	}
 
 	//EOL functions

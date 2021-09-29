@@ -1122,10 +1122,13 @@ class ImageShared{
 		$data = curl_exec($curl);
 		curl_close($curl);
 		$width = 0; $height = 0;
+
 		$im = @imagecreatefromstring($data);
-		$width = @imagesx($im);
-		$height = @imagesy($im);
-		if($im) imagedestroy($im);
+		if($im){
+			$width = @imagesx($im);
+			$height = @imagesy($im);
+			imagedestroy($im);
+		}
 		if(!$width || !$height) return false;
 		return array($width,$height);
 	}

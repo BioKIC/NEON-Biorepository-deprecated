@@ -15,7 +15,7 @@ class TaxonProfile extends Manager {
 
 	protected $acceptedArr = array();
 	protected $synonymArr = array();
-	private $submittedArr = array();
+	protected $submittedArr = array();
 
 	private $langArr = array();
 	private $imageArr;

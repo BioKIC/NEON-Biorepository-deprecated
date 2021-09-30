@@ -61,7 +61,7 @@ $taxaArr = $stats->getNeonTaxa();
 		<section>
 			<div class="row centered">
 				<div class="four columns centered" style="background-color:#0071ce; color: white; margin-top:0.5em; padding: 0.4em 0">
-					<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >
+					<a href="<?php echo $CLIENT_ROOT; ?>/neon/search/index.php" >
 						<div>
 							<img src="images/layout/glyphicon-search.png" alt="ImgPlaceholder" width="50px" height="50px" style="padding-top:0.5em;">
 							<p style="text-decoration: none;font-size:1.2rem;background-color:#0071ce; color: white;">Sample search</p>
@@ -137,7 +137,7 @@ $taxaArr = $stats->getNeonTaxa();
 				</div>
 				<div class="six columns">
 					<h2 class="centered">Learn more</h2>
-					<p>This portal is offered through the <a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">Symbiota</a> software platformand is informationally synchronized with the <a href="https://www.neonscience.org" target="_blank">main NEON Data Portal</a>, which serves the full spectrum of NEON data products.</p>
+					<p>This portal is offered through the <a href="https://bdj.pensoft.net/articles.php?id=1114" target="_blank">Symbiota</a> software platform and is informationally synchronized with the <a href="https://data.neonscience.org/" target="_blank">main NEON Data Portal</a>, which serves the full spectrum of NEON data products.</p>
 					<p>To learn more about the features and capabilities available through Symbiota, visit the <a href="http://symbiota.org/docs/" target="_blank">Symbiota Help Pages</a>.</p>
 					<p>Read more about NEON's history and experimental design in the <a href="https://www.neonscience.org/about" target="_blank">main portal</a>.</p>
 					<p>To explore sample collection and processing methods, visit the <a href="https://www.neonscience.org/data-collection/protocols-standardized-methods">NEON Protocols & Standardized Methods page</a>.</p>

@@ -6,7 +6,7 @@ class TaxonProfile extends Manager {
 	protected $tid;
 	protected $rankId;
 	private $parentTid;
-	protected $taxAuthId = 1;
+	private $taxAuthId = 1;
 	private $taxonName;
 	private $taxonAuthor;
 	private $taxonFamily;
@@ -418,6 +418,7 @@ class TaxonProfile extends Manager {
 
 	public function getDescriptionTabs(){
 		global $LANG;
+		global $CALENDAR_TRAIT_PLOTS;
 		$retStr = '';
 		$descArr = $this->getDescriptions();
 		$retStr .= '<div id="desctabs" class="ui-tabs" style="display:none">';
@@ -433,9 +434,9 @@ class TaxonProfile extends Manager {
 				$retStr .= '<li><a href="#tab'.$id.'">'.$cap.'</a></li>';
 			}
 		}
-		// if global not zero
-		$retStr .= '<li><a href="plottab.php?tid='.$this->tid.'">'.($LANG['CALENDAR_TRAIT_PLOT']?$LANG['CALENDAR_TRAIT_PLOT']:'Traits Plots').'</a></li>';
-		//
+		if((isset($CALENDAR_TRAIT_PLOTS) && $CALENDAR_TRAIT_PLOTS > 0) && $this->rankId > 180) {
+			$retStr .= '<li><a href="plottab.php?tid='.$this->tid.'">'.($LANG['CALENDAR_TRAIT_PLOT']?$LANG['CALENDAR_TRAIT_PLOT']:'Traits Plots').'</a></li>';
+		}
 		$retStr .= '<li><a href="resourcetab.php?tid='.$this->tid.'">'.($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources').'</a></li>';
 		$retStr .= '</ul>';
 		foreach($descArr as $dArr){

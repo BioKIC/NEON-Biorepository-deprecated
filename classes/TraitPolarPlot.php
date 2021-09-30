@@ -127,6 +127,10 @@ class PolarPlot {
     return $this->PlotHeight;
   }
 
+  public function getNumDataValues() {
+    return array_sum($this->DataValues);
+  }
+
   public function display() {
     if(!$this->ShowScale) {
       return $this->axisSVG() . ' ' . $this->tickSVG() . ' ' . $this->axisLabelSVG() . ' ' . $this->splineSVG();

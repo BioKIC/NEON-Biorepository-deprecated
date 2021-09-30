@@ -1,3 +1,6 @@
+.PlotCaption {
+  font-size: x-small;
+}
 .BarPlotGridBackground {
   fill: lightgray;
 }

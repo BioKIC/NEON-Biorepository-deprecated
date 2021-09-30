@@ -83,3 +83,14 @@ ALTER TABLE `NeonSample`
   
 ALTER TABLE `NeonSample` 
   ADD COLUMN `archiveMedium` VARCHAR(45) NULL AFTER `igsnPushedToNEON`;
+
+ALTER TABLE `omoccurrences` 
+  ADD COLUMN `scinameProtected` VARCHAR(150) NULL AFTER `tidinterpreted`,
+  ADD COLUMN `tidProtected` INT UNSIGNED NULL AFTER `scinameProtected`,
+  ADD COLUMN `familyProtected` VARCHAR(150) NULL AFTER `tidProtected`;
+
+ALTER TABLE `omoccurrences` 
+  ADD INDEX `IX_omoccurrence_tidProtected` (`tidProtected` ASC),
+  ADD INDEX `IX_omoccurrences_scinameProected` (`scinameProtected` ASC),
+  ADD INDEX `IX_omoccurrences_familyProected` (`familyProtected` ASC);
+  

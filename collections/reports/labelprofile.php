@@ -278,7 +278,7 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 								</div>
 								<div class="field-block">
 									<span class="label">Style:</span>
-									<span class="field-elem"><input name="hStyle" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['labelHeader']['style']):''); ?>" /></span>';
+									<span class="field-elem"><input name="hStyle" type="text" value="<?php echo ($formatArr?htmlspecialchars($formatArr['labelHeader']['style']):''); ?>" /></span>
 								</div>
 							</fieldset>
 							<fieldset  class="fieldset-block">

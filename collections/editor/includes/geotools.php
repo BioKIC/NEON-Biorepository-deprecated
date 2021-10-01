@@ -1,58 +1,63 @@
+<?php
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotools.en.php');
+?>
+
 <div id="coordAidDiv">
 	<div id="dmsAidDiv">
 		<div>
-			Lat:
-			<input id="latdeg" style="width:35px;" title="Latitude Degree" />&deg;
-			<input id="latmin" style="width:50px;" title="Latitude Minutes" />'
-			<input id="latsec" style="width:50px;" title="Latitude Seconds" />&quot;
+			<?php echo $LANG['LAT']; ?>:
+			<input id="latdeg" style="width:35px;" title="<?php echo $LANG['LAT_DEG']; ?>" />&deg;
+			<input id="latmin" style="width:50px;" title="<?php echo $LANG['LAT_MIN']; ?>" />'
+			<input id="latsec" style="width:50px;" title="<?php echo $LANG['LAT_SEC']; ?>" />&quot;
 			<select id="latns">
-				<option>N</option>
-				<option>S</option>
+				<option><?php echo $LANG['N']; ?></option>
+				<option><?php echo $LANG['S']; ?></option>
 			</select>
 		</div>
 		<div>
-			Long:
-			<input id="lngdeg" style="width:35px;" title="Longitude Degree" />&deg;
-			<input id="lngmin" style="width:50px;" title="Longitude Minutes" />'
-			<input id="lngsec" style="width:50px;" title="Longitude Seconds" />&quot;
+			<?php echo $LANG['LONG']; ?>:
+			<input id="lngdeg" style="width:35px;" title="<?php echo $LANG['LONG_DEG']; ?>" />&deg;
+			<input id="lngmin" style="width:50px;" title="<?php echo $LANG['LONG_MIN']; ?>" />'
+			<input id="lngsec" style="width:50px;" title="<?php echo $LANG['LONG_SEC']; ?>" />&quot;
 			<select id="lngew">
-				<option>E</option>
-				<option SELECTED>W</option>
+				<option><?php echo $LANG['E']; ?></option>
+				<option SELECTED><?php echo $LANG['W']; ?></option>
 			</select>
 		</div>
 		<div style="margin:5px;">
-			<input type="button" value="Insert Lat/Long Values" onclick="insertLatLng(this.form)" />
+			<button type="button" onclick="insertLatLng(this.form)" ><?php echo $LANG['INSERT_VALUES']; ?></button>
 		</div>
 	</div>
 	<div id="utmAidDiv">
-		Zone: <input id="utmzone" style="width:40px;" /><br/>
-		East: <input id="utmeast" type="text" style="width:100px;" /><br/>
-		North: <input id="utmnorth" type="text" style="width:100px;" /><br/>
-		Hemisphere: <select id="hemisphere" title="Use hemisphere designator (e.g. 12N) rather than grid zone ">
-			<option value="N">North</option>
-			<option value="S">South</option>
+		<?php echo $LANG['ZONE']; ?>: <input id="utmzone" style="width:40px;" /><br/>
+		<?php echo $LANG['EAST']; ?>: <input id="utmeast" type="text" style="width:100px;" /><br/>
+		<?php echo $LANG['NORTH']; ?>: <input id="utmnorth" type="text" style="width:100px;" /><br/>
+		<?php echo $LANG['HEMISPHERE']; ?>: <select id="hemisphere" title="<?php echo $LANG['USE_HEMI_DESIGN']; ?> ">
+			<option value="N"><?php echo $LANG['NORTH']; ?></option>
+			<option value="S"><?php echo $LANG['SOUTH']; ?></option>
 		</select><br/>
 		<div style="margin-top:5px;">
-			<input type="button" value="Insert UTM Values" onclick="insertUtm(this.form)" />
+			<button type="button" onclick="insertUtm(this.form)" ><?php echo $LANG['INSERT_UTMS']; ?></button>
 		</div>
 	</div>
 	<div id="trsAidDiv">
-		T<input id="township" style="width:30px;" title="Township" />
+		<?php echo $LANG['T']; ?><input id="township" style="width:30px;" title="<?php echo $LANG['TOWNSHIP']; ?>" />
 		<select id="townshipNS">
-			<option>N</option>
-			<option>S</option>
+			<option><?php echo $LANG['N']; ?></option>
+			<option><?php echo $LANG['S']; ?></option>
 		</select>&nbsp;&nbsp;&nbsp;&nbsp;
-		R<input id="range" style="width:30px;" title="Range" />
+		<?php echo $LANG['R']; ?><input id="range" style="width:30px;" title="<?php echo $LANG['RANGE']; ?>" />
 		<select id="rangeEW">
-			<option>E</option>
-			<option>W</option>
+			<option><?php echo $LANG['E']; ?></option>
+			<option><?php echo $LANG['W']; ?></option>
 		</select><br/>
-		Sec:
-		<input id="section" style="width:30px;" title="Section" />&nbsp;&nbsp;&nbsp;
-		Details:
-		<input id="secdetails" style="width:90px;" title="Section Details" /><br/>
+		<?php echo $LANG['SEC']; ?>:
+		<input id="section" style="width:30px;" title="<?php echo $LANG['SECTION']; ?>" />&nbsp;&nbsp;&nbsp;
+		<?php echo $LANG['DETAILS']; ?>:
+		<input id="secdetails" style="width:90px;" title="<?php echo $LANG['SECTION_DETAILS']; ?>" /><br/>
 		<select id="meridian" title="Meridian">
-			<option value="">Meridian Selection</option>
+			<option value=""><?php echo $LANG['MERIDIAN_SEL']; ?></option>
 			<option value="">----------------------------------</option>
 			<option value="G-AZ">Arizona, Gila &amp; Salt River</option>
 			<option value="NAAZ">Arizona, Navajo</option>
@@ -84,7 +89,7 @@
 			<option value="WRWY">Wyoming, Wind River</option>
 		</select>
 		<div style="margin:5px;">
-			<input type="button" value="Insert TRS Values" onclick="insertTRS(this.form)" />
+			<button  type="button" onclick="insertTRS(this.form)"><?php echo $LANG['INSERT_TRS']; ?></button>
 		</div>
 	</div>
 </div>
@@ -105,13 +110,13 @@
 			if(lngSec == "") lngSec = 0;
 			if(isNumeric(latDeg) && isNumeric(latMin) && isNumeric(latSec) && isNumeric(lngDeg) && isNumeric(lngMin) && isNumeric(lngSec)){
 				if(latDeg < 0 || latDeg > 90){
-					alert("Latitude degree must be between 0 and 90 degrees");
+					alert("<?php echo $LANG['LAT_BETWEEN']; ?>");
 				}
 				else if(lngDeg < 0 || lngDeg > 180){
-					alert("Longitude degree must be between 0 and 180 degrees");
+					alert("<?php echo $LANG['LONG_BETWEEN']; ?>");
 				}
 				else if(latMin < 0 || latMin > 60 || lngMin < 0 || lngMin > 60 || latSec < 0 || latSec > 60 || lngSec < 0 || lngSec > 60){
-					alert("Minute and second values can only be between 0 and 60");
+					alert("<?php echo $LANG['MIN_BETWEEN']; ?>");
 				}
 				else{
 					var vcStr = f.verbatimcoordinates.value;
@@ -138,11 +143,11 @@
 				}
 			}
 			else{
-				alert("Field values must be numeric only");
+				alert("<?php echo $LANG['NUMERIC_ONLY']; ?>");
 			}
 		}
 		else{
-			alert("DMS fields must contain a value");
+			alert("<?php echo $LANG['DMS_MUST_VALUE']; ?>");
 		}
 	}
 
@@ -182,11 +187,11 @@
 				fieldChanged("verbatimcoordinates");
 			}
 			else{
-				alert("Easting and northing fields must contain numeric values only");
+				alert("<?php echo $LANG['EN_NUMERIC']; ?>");
 			}
 		}
 		else{
-			alert("Zone, Easting, and Northing fields must not be empty");
+			alert("<?php echo $LANG['ZEN_NOT_EMPTY']; ?>");
 		}
 	}
 
@@ -200,23 +205,23 @@
 		var meridian = document.getElementById("meridian").value.trim();
 
 		if(!township || !range){
-			alert("Township and Range fields must have values");
+			alert("<?php echo $LANG['TR_NOT_EMPTY']; ?>");
 			return false;
 		}
 		else if(!isNumeric(township)){
-			alert("Numeric value expected for Township field. If non-standardize format is used, enter directly into the Verbatim Coordinate Field");
+			alert("<?php echo $LANG['NUMERIC_TOWNSHIP']; ?>");
 			return false;
 		}
 		else if(!isNumeric(range)){
-			alert("Numeric value expected for Range field. If non-standardize format is used, enter directly into the Verbatim Coordinate Field");
+			alert("<?php echo $LANG['NUMERIC_RANGE']; ?>");
 			return false;
 		}
 		else if(!isNumeric(section)){
-			alert("Numeric value expected for Section field. If non-standardize format is used, enter directly into the Verbatim Coordinate Field");
+			alert("<?php echo $LANG['NUMERIC_SECTION']; ?>");
 			return false;
 		}
 		else if(section > 36){
-			alert("Section field must contain a numeric value between 1-36");
+			alert("<?php echo $LANG['SECTION_BETWEEN']; ?>");
 			return false;
 		}
 		else{

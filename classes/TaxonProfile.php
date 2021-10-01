@@ -18,9 +18,9 @@ class TaxonProfile extends Manager {
 	private $submittedArr = array();
 
 	private $langArr = array();
-	private $taxaLinks = array();
 	private $imageArr;
 	private $sppArray;
+	private $linkArr = false;
 
 	private $displayLocality = 1;
 
@@ -123,14 +123,16 @@ class TaxonProfile extends Manager {
 	public function getVernaculars(){
 		$retArr = array();
 		if($this->tid){
-			$sql = 'SELECT v.vid, v.vernacularname, l.langname '.
+			$tidStr = $this->tid;
+			if($this->synonymArr) $tidStr .= ','.implode(',',array_keys($this->synonymArr));
+			$sql = 'SELECT v.vid, v.vernacularname, l.iso639_1 as iso '.
 				'FROM taxavernaculars v INNER JOIN adminlanguages l ON v.langid = l.langid '.
-				'WHERE (v.TID IN('.$this->tid.($this->synonymArr?','.implode(',',array_keys($this->synonymArr)):'').')) AND (v.SortSequence < 90) '.
+				'WHERE (v.TID IN('.$tidStr.')) AND (v.SortSequence < 90) '.
 				'ORDER BY v.SortSequence,v.VernacularName';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$retArr[$r->langname][$r->vid] = $r->vernacularname;
+				$retArr[$r->iso][$r->vid] = $r->vernacularname;
 			}
 			$rs->free();
 		}
@@ -418,96 +420,76 @@ class TaxonProfile extends Manager {
 		global $LANG;
 		$retStr = '';
 		$descArr = $this->getDescriptions();
-		if($descArr || $this->taxaLinks){
-			$retStr .= '<div id="desctabs" class="ui-tabs" style="display:none">';
-			$retStr .= '<ul class="ui-tabs-nav">';
-			$capCnt = 1;
-			foreach($descArr as $dArr){
-				foreach($dArr as $id => $vArr){
-					$cap = $vArr["caption"];
-					if(!$cap){
-						$cap = $LANG['DESCRIPTION'].' #'.$capCnt;
-						$capCnt++;
-					}
-					$retStr .= '<li><a href="#tab'.$id.'" class="selected">'.$cap.'</a></li>';
+		$retStr .= '<div id="desctabs" class="ui-tabs" style="display:none">';
+		$retStr .= '<ul class="ui-tabs-nav">';
+		$capCnt = 1;
+		foreach($descArr as $dArr){
+			foreach($dArr as $id => $vArr){
+				$cap = $vArr["caption"];
+				if(!$cap){
+					$cap = $LANG['DESCRIPTION'].' #'.$capCnt;
+					$capCnt++;
 				}
+				$retStr .= '<li><a href="#tab'.$id.'">'.$cap.'</a></li>';
 			}
-			if($this->taxaLinks){
-				$retStr .= '<li><a href="#tab-links" class="selected">'.($LANG['WEB_LINKS']?$LANG['WEB_LINKS']:'Web Links').'</a></li>';
-			}
-			$retStr .= '</ul>';
-			foreach($descArr as $dArr){
-				foreach($dArr as $id => $vArr){
-					$retStr .= '<div id="tab'.$id.'" class="sptab">';
-					if($vArr["source"]){
-						$retStr .= '<div id="descsource" style="float:right;">';
-						if($vArr["url"]){
-							$retStr .= '<a href="'.$vArr['url'].'" target="_blank">';
-						}
-						$retStr .= $vArr["source"];
-						if($vArr["url"]){
-							$retStr .= '</a>';
-						}
-						$retStr .= '</div>';
+		}
+		$retStr .= '<li><a href="resourcetab.php?tid='.$this->tid.'">'.($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources').'</a></li>';
+		$retStr .= '</ul>';
+		foreach($descArr as $dArr){
+			foreach($dArr as $id => $vArr){
+				$retStr .= '<div id="tab'.$id.'" class="sptab">';
+				if($vArr['source']){
+					$retStr .= '<div id="descsource" style="float:right;">';
+					if($vArr['url']){
+						$retStr .= '<a href="'.$vArr['url'].'" target="_blank">';
 					}
-					$descArr = $vArr["desc"];
-					$retStr .= '<div style="clear:both;">';
-					foreach($descArr as $tdsId => $stmt){
-						$retStr .= $stmt.' ';
+					$retStr .= $vArr['source'];
+					if($vArr['url']){
+						$retStr .= '</a>';
 					}
 					$retStr .= '</div>';
-					$retStr .= '</div>';
 				}
-			}
-			if($this->taxaLinks){
-				$retStr .= '<div id="tab-links" class="sptab">';
-				$retStr .= '<ul style="margin-top: 50px">';
-				foreach($this->taxaLinks as $l){
-					$urlStr = str_replace('--SCINAME--',rawurlencode($this->taxonName),$l['url']);
-					$retStr .= '<li><a href="'.$urlStr.'" target="_blank">'.$l['title'].'</a></li>';
-					if($l['notes']) $retStr .= ' '.$l['notes'];
+				$descArr = $vArr['desc'];
+				$retStr .= '<div style="clear:both;">';
+				foreach($descArr as $tdsId => $stmt){
+					$retStr .= $stmt.' ';
 				}
-				$retStr .= '</ul>';
+				$retStr .= '</div>';
 				$retStr .= '</div>';
 			}
 			$retStr .= '</div>';
-		}
-		else{
-			$retStr = '<div style="margin:70px 0px 20px 50px">'.$LANG['DESCRIPTION_NOT_AVAILABLE'].'</div>';
 		}
 		return $retStr;
 	}
 
 	//Taxon Link functions
-	public function getTaxaLinks(){
-		if($this->taxaLinks) return $this->taxaLinks;
-		if($this->tid){
-			$parArr = array($this->tid);
-			$rsPar = $this->conn->query('SELECT parenttid FROM taxaenumtree WHERE tid = '.$this->tid.' AND taxauthid = 1');
-			while($rPar = $rsPar->fetch_object()){
-				$parArr[] = $rPar->parenttid;
+	private function setLinkArr(){
+		if($this->linkArr === false && $this->tid){
+			$sql = 'SELECT DISTINCT l.tlid, l.url, l.icon, l.title, l.notes
+				FROM taxalinks l INNER JOIN taxaenumtree e ON l.tid = e.parenttid
+				WHERE (e.tid IN('.$this->tid.')) ORDER BY l.sortsequence, l.title';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->linkArr[$r->tlid]['title'] = $r->title;
+				$this->linkArr[$r->tlid]['url'] = str_replace('--SCINAME--',rawurlencode($this->taxonName),$r->url);
+				$this->linkArr[$r->tlid]['icon'] = $r->icon;
+				$this->linkArr[$r->tlid]['notes'] = $r->notes;
 			}
-			$rsPar->free();
-
-			$sql = 'SELECT DISTINCT tlid, url, icon, title, notes, sortsequence '.
-					'FROM taxalinks '.
-					'WHERE (tid IN('.implode(',',$parArr).')) ';
-			//echo $sql; exit;
-			$result = $this->conn->query($sql);
-			while($r = $result->fetch_object()){
-				$this->taxaLinks[] = array('title' => $r->title, 'url' => $r->url, 'icon' => $r->icon, 'notes' => $r->notes, 'sortseq' => $r->sortsequence);
-			}
-			$result->free();
-			usort($this->taxaLinks, function($a, $b) {
-				if($a['sortseq'] == $b['sortseq']){
-					return (strtolower($a['title']) < strtolower($b['title'])) ? -1 : 1;
-				}
-				else{
-					return $a['sortseq'] - $b['sortseq'];
-				}
-			});
+			$rs->free();
 		}
-		return $this->taxaLinks;
+	}
+
+	public function getRedirectLink(){
+		$this->setLinkArr();
+		foreach($this->linkArr as $linkObj){
+			if($linkObj['title'] == 'REDIRECT') return $linkObj['url'];
+		}
+		return false;
+	}
+
+	public function getLinkArr(){
+		if($this->linkArr === false) $this->setLinkArr();
+		return $this->linkArr;
 	}
 
 	//Set children data for taxon higher than species level
@@ -690,6 +672,70 @@ class TaxonProfile extends Manager {
 		}
 		$stmt->close();
 		return $retArr;
+	}
+
+  /**
+   * Gets occurrence counts of taxon in portal, to use in taxon profile
+   * Searches for taxon and all its children
+   * Checks taxon rank; counts turned off by default for anything above genus
+   * $tid INTEGER taxon id
+   * $taxonRank INTEGER taxon rank according to taxonunits table
+   * $limitRank INTEGER
+   * $collids ARRAY of collids to include in search
+   */
+	public function getOccTaxonInDbCnt($limitRank = 170, $collidStr = 'all')
+  {
+    $count = -1;
+    if ($this->rankId >= $limitRank) {
+      //$sql = 'SELECT COUNT(o.occid) as cnt FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$this->tid.' OR e.tid = '.$this->tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid ';
+      $sql = 'SELECT COUNT(o.occid) as cnt
+		FROM omoccurrences o JOIN (SELECT DISTINCT ts.tid FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid INNER JOIN taxstatus ts ON e.tid = ts.tidaccepted
+		WHERE e.parenttid = '.$this->tid.' OR e.tid = '.$this->tid.') AS taxa ON o.tidinterpreted = taxa.tid ';
+      if (preg_match('/^[,\d]+$/',$collidStr)) $sql .= 'AND o.collid IN('.$collidStr.')';
+      $result = $this->conn->query($sql);
+      while ($row = $result->fetch_object()){
+        $count = $row->cnt;
+      }
+      $result->free();
+    }
+    return $count;
+  }
+
+  /**
+   * Returns link for specimen search (by taxon) if number of occurrences
+   * is within declared limit
+   * $tid INTEGER taxon id
+   * $searchUrl STRING customizable in taxon profile page
+   * $limitOccs INTEGER max number of occurrences in a search
+   */
+  public function getSearchByTaxon($limitRank = 170, $collidStr = 'all', $limitOccs = 2000000)
+  {
+  	if($collidStr == 'neon') $collidStr = $this->getNeonCollidArr();
+  	$numOccs = $this->getOccTaxonInDbCnt($limitRank, $collidStr);
+  	$occMsg = '';
+    if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
+      $occSrcUrl = '../collections/list.php?includeothercatnum=1&taxa='.$this->taxonName;
+      if($collidStr != 'all') $occSrcUrl .= '&db='.$collidStr;
+      $occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.number_format($numOccs).' occurrences</a>';
+    } elseif ($numOccs > $limitOccs) {
+      $occMsg = number_format($numOccs).' occurrences';
+    } elseif ($numOccs == 0) {
+      $occMsg = 'No occurrences found';
+    } elseif ($numOccs == -1) {
+      $occMsg = '';
+    }
+    return $occMsg;
+  }
+
+	private function getNeonCollidArr(){
+		$retStr = array();
+		$sql = 'SELECT GROUP_CONCAT(collid) as collidStr FROM omcollections WHERE institutionCode = "NEON"';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retStr = $r->collidStr;
+		}
+		$rs->free();
+		return $retStr;
 	}
 
 	//Setters and getters

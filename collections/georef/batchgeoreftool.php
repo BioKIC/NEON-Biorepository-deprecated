@@ -1,6 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceGeorefTools.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/georef/batchgeoreftool.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/georef/batchgeoreftool.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/georef/batchgeoreftool.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../collections/georef/batchgeoreftool.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
@@ -93,7 +95,7 @@ if($isEditor && $submitAction){
 ?>
 <html>
 	<head>
-		<title><?php echo $DEFAULT_TITLE; ?> Georeferencing Tools</title>
+		<title><?php echo $DEFAULT_TITLE.' '.$LANG['GEOREF_TOOLS']; ?></title>
 		<?php
 		$activateJQuery = true;
 		if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -131,20 +133,20 @@ if($isEditor && $submitAction){
 					}
 					?>
 					<div class='navpath' style="margin:10px;clear:both;">
-						<a href='../../index.php'>Home</a> &gt;&gt;
+						<a href='../../index.php'><?php echo $LANG['HOME']; ?></a> &gt;&gt;
 						<?php
 						if(is_numeric($collid)){
 							?>
-							<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1">Collection Management Menu</a> &gt;&gt;
+							<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1"><?php echo $LANG['COL_MAN_MENU']; ?></a> &gt;&gt;
 							<?php
 						}
 						else{
 							?>
-							<a href="../../profile/viewprofile.php?tabindex=1">Specimen Management</a> &gt;&gt;
+							<a href="../../profile/viewprofile.php?tabindex=1"><?php echo $LANG['SPEC_MANAGEMENT']; ?></a> &gt;&gt;
 							<?php
 						}
 						?>
-						<b>Batch Georeferencing Tools</b>
+						<b><?php echo $LANG['BATCH_GEO_TOOLS']; ?></b>
 					</div>
 					<?php
 					if($statusStr){
@@ -158,9 +160,9 @@ if($isEditor && $submitAction){
 						?>
 						<div id="mult_coll_div" style="clear:both;display:none;">
 							<fieldset style="padding: 15px;margin:20px;">
-								<legend><b>Multiple Collection Selector</b></legend>
+								<legend><b><?php echo $LANG['MULT_COL_SELECT']; ?></b></legend>
 								<form name="selectcollidform" action="batchgeoreftool.php" method="post" onsubmit="return checkSelectCollidForm(this)">
-									<div><input name="selectall" type="checkbox" onclick="selectAllCollections(this);" /> Select / Unselect All</div>
+									<div><input name="selectall" type="checkbox" onclick="selectAllCollections(this);" /> <?php echo $LANG['SEL_DESEL_ALL']; ?></div>
 									<?php
 									foreach($collMap as $id => $collArr){
 										if(in_array($id, $USER_RIGHTS["CollAdmin"]) || in_array($id, $USER_RIGHTS["CollEditor"])){
@@ -172,10 +174,10 @@ if($isEditor && $submitAction){
 									}
 									?>
 									<div style="margin: 15px">
-										<button name="submitaction" type="submit" value="EvaluateCollections">Evaluate Collections</button>
+										<button name="submitaction" type="submit" value="EvaluateCollections"><?php echo $LANG['EVAL_COLLS']; ?></button>
 									</div>
 								</form>
-								<div>* Only collections with administrative access are shown</div>
+								<div>* <?php echo $LANG['ONLY_ADMIN_COLS']; ?></div>
 							</fieldset>
 						</div>
 						<?php
@@ -197,12 +199,12 @@ if($isEditor && $submitAction){
 					<div style="float:right;">
 						<form name="queryform" method="post" action="batchgeoreftool.php" onsubmit="return verifyQueryForm(this)">
 							<fieldset style="padding:5px;width:600px;background-color:lightyellow;">
-								<legend><b>Query Form</b></legend>
+								<legend><b><?php echo $LANG['QUERY_FORM']; ?></b></legend>
 								<div style="height:20px;">
 									<div style="clear:both;">
 										<div style="float:left;margin-right:10px;">
 											<select name="qcountry" style="width:150px;">
-												<option value=''>All Countries</option>
+												<option value=''><?php echo $LANG['ALL_COUNTRIES']; ?></option>
 												<option value=''>--------------------</option>
 												<?php
 												$countryStr = array_key_exists('countrystr',$_POST)?strip_tags($_POST['countrystr']):'';
@@ -217,7 +219,7 @@ if($isEditor && $submitAction){
 										</div>
 										<div style="float:left;margin-right:10px;">
 											<select name="qstate" style="width:150px;">
-												<option value=''>All States</option>
+												<option value=''><?php echo $LANG['ALL_STATES']; ?></option>
 												<option value=''>--------------------</option>
 												<?php
 												$stateStr = array_key_exists('statestr',$_POST)?strip_tags($_POST['statestr']):'';
@@ -232,7 +234,7 @@ if($isEditor && $submitAction){
 										</div>
 										<div style="float:left;margin-right:10px;">
 											<select name="qcounty" style="width:180px;">
-												<option value=''>All Counties</option>
+												<option value=''><?php echo $LANG['ALL_COUNTIES']; ?></option>
 												<option value=''>--------------------</option>
 												<?php
 												$countyStr = array_key_exists('countystr',$_POST)?strip_tags($_POST['countystr']):'';
@@ -249,7 +251,7 @@ if($isEditor && $submitAction){
 									<div style="clear:both;margin-top:5px;">
 										<div style="float:left;margin-right:10px;">
 											<select name="qmunicipality" style="width:180px;">
-												<option value=''>All Municipalities</option>
+												<option value=''><?php echo $LANG['ALL_MUNS']; ?></option>
 												<option value=''>--------------------</option>
 												<?php
 												$municipalityStr = array_key_exists('municipalitystr',$_POST)?strip_tags($_POST['municipalitystr']):'';
@@ -264,7 +266,7 @@ if($isEditor && $submitAction){
 										</div>
 										<div style="float:left;margin-right:10px;">
 											<select name="qprocessingstatus">
-												<option value="">All Processing Status</option>
+												<option value=""><?php echo $LANG['ALL_PROC_STAT']; ?></option>
 												<option value="">-----------------------</option>
 												<?php
 												$processingStr = array_key_exists('processingstr',$_POST)?strip_tags($_POST['processingstr']):'';
@@ -278,34 +280,34 @@ if($isEditor && $submitAction){
 											</select>
 										</div>
 										<div style="float:left;">
-											<img src="../../images/add.png" onclick="toggle('advfilterdiv')" title="Advanced Options" />
+											<img src="../../images/add.png" onclick="toggle('advfilterdiv')" title="<?php echo $LANG['ADVANCED_OPT']; ?>" />
 										</div>
 									</div>
 								</div>
 								<div id="advfilterdiv" style="clear:both;margin-top:5px;display:<?php echo ($qSciname || $qVStatus || $qDisplayAll?'block':'none'); ?>;">
 									<div style="float:left;margin-right:15px;">
-										<b>Verification status:</b>
+										<b><?php echo $LANG['VERIF_STATUS']; ?>:</b>
 										<input id="qvstatus" name="qvstatus" type="text" value="<?php echo $qVStatus; ?>" style="width:175px;" />
 									</div>
 									<div style="float:left;">
-										<b>Family/Genus:</b>
+										<b><?php echo $LANG['FAMILY_GENUS']; ?>:</b>
 										<input name="qsciname" type="text" value="<?php echo $qSciname; ?>" style="width:150px;" />
 									</div>
 									<div style="clear:both;margin-top:5px;">
 										<input name="qdisplayall" type="checkbox" value="1" <?php echo ($qDisplayAll?'checked':''); ?> />
-										Including previously georeferenced records
+										<?php echo $LANG['INCLUDE_PREV_GEOREF']; ?>
 									</div>
 								</div>
 								<div style="margin-top:5px;clear:both;">
 									<div style="float:right;">
 										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-										<input name="submitaction" type="submit" value="Generate List" />
+										<button name="submitaction" type="submit" value="Generate List" ><?php echo $LANG['GENERATE_LIST']; ?></button>
 										<span id="qworkingspan" style="display:none;">
 											<img src="../../images/workingcircle.gif" />
 										</span>
 									</div>
 									<div style="float:left">
-										<b>Locality Term:</b>
+										<b><?php echo $LANG['LOCALITY_TERM']; ?>:</b>
 										<input name="qlocality" type="text" value="<?php echo $qLocality; ?>" style="width:250px;" />
 									</div>
 								</div>
@@ -316,19 +318,19 @@ if($isEditor && $submitAction){
 						<form name="georefform" method="post" action="batchgeoreftool.php" onsubmit="return verifyGeorefForm(this)">
 							<div style="float:right;">
 								<span>
-									<a href="#" onclick="geoCloneTool();"><img src="../../images/list.png" title="Search for clones previously georeferenced" style="width:15px;" /></a>
+									<a href="#" onclick="geoCloneTool();"><img src="../../images/list.png" title="<?php echo $LANG['SEARCH_CLONES']; ?>" style="width:15px;" /></a>
 								</span>
 								<span style="margin-left:10px;">
-									<a href="#" onclick="geoLocateLocality();"><img src="../../images/geolocate.png" title="GeoLocate locality" style="width:15px;" /></a>
+									<a href="#" onclick="geoLocateLocality();"><img src="../../images/geolocate.png" title="<?php echo $LANG['GEOLOCATE_LOCALITY']; ?>" style="width:15px;" /></a>
 								</span>
 								<span style="margin-left:10px;">
-									<a href="#" onclick="analyseLocalityStr();"><img src="../../images/find.png" title="Analyse Locality string for embedded Lat/Long or UTM" style="width:15px;" /></a>
+									<a href="#" onclick="analyseLocalityStr();"><img src="../../images/find.png" title="<?php echo $LANG['ANALYZE_FOR_COORDS']; ?>" style="width:15px;" /></a>
 								</span>
 								<?php
 								if(!strpos($collid,',')){
 									?>
 									<span style="margin-left:10px;">
-										<a href="#" onclick="openFirstRecSet();"><img src="../../images/edit.png" title="Edit first set of records" style="width:15px;" /></a>
+										<a href="#" onclick="openFirstRecSet();"><img src="../../images/edit.png" title="<?php echo $LANG['EDIT_FIRST_SET']; ?>" style="width:15px;" /></a>
 									</span>
 									<?php
 								}
@@ -339,8 +341,8 @@ if($isEditor && $submitAction){
 								$localArr = $geoManager->getLocalityArr();
 								$localCnt = '---';
 								if(isset($localArr)) $localCnt = count($localArr);
-								if($localCnt == 1000) $localCnt = '1000 limit reached (not all available localities shown)';
-								echo '<b>Return Count:</b> '.$localCnt;
+								if($localCnt == 1000) $localCnt = '1000 '.$LANG['LIMIT_REACHED'];
+								echo '<b>'.$LANG['RETURN_COUNT'].':</b> '.$localCnt;
 								?>
 							</div>
 							<div style="clear:both;border:2px solid;width:100%;height:200px;resize: both;overflow: auto">
@@ -363,26 +365,26 @@ if($isEditor && $submitAction){
 											}
 										}
 										else{
-											echo '<option value="">No localities returned matching search term</option>';
+											echo '<option value="">'.$LANG['NO_LOCALITIES_RETURNED'].'</option>';
 										}
 									}
 									else{
-										echo '<option value="">Use query form above to build locality list</option>';
+										echo '<option value="">'.$LANG['USE_QUERY_FORM]'].'</option>';
 									}
 									?>
 								</select>
 							</div>
 							<div style="float:right;">
 								<fieldset>
-									<legend><b>Statistics</b></legend>
+									<legend><b><?php echo $LANG['STATISTICS']; ?></b></legend>
 									<div style="">
-										Records to be Georeferenced
+										<?php echo $LANG['RECS_TO_GEOREF']; ?>
 									</div>
 									<div style="margin:5px;">
 										<?php
 										$statArr = $geoManager->getCoordStatistics();
-										echo '<div>Total: '.$statArr['total'].'</div>';
-										echo '<div>Percentage: '.$statArr['percent'].'%</div>';
+										echo '<div>'.$LANG['TOTAL'].': '.$statArr['total'].'</div>';
+										echo '<div>'.$LANG['PERCENT'].': '.$statArr['percent'].'%</div>';
 										?>
 									</div>
 								</fieldset>
@@ -391,22 +393,22 @@ if($isEditor && $submitAction){
 								<table>
 									<tr>
 										<td></td>
-										<td><b>Deg.</b></td>
-										<td style="width:55px;"><b>Min.</b></td>
-										<td style="width:55px;"><b>Sec.</b></td>
+										<td><b><?php echo $LANG['DEG']; ?>.</b></td>
+										<td style="width:55px;"><b><?php echo $LANG['MIN']; ?>.</b></td>
+										<td style="width:55px;"><b><?php echo $LANG['SEC']; ?>.</b></td>
 										<td style="width:20px;">&nbsp;</td>
 										<td style="width:15px;">&nbsp;</td>
-										<td><b>Decimal</b></td>
+										<td><b><?php echo $LANG['DECIMAL']; ?></b></td>
 									</tr>
 									<tr>
-										<td style="vertical-align:middle"><b>Latitude:</b> </td>
+										<td style="vertical-align:middle"><b><?php echo $LANG['LATITUDE']; ?>:</b> </td>
 										<td><input name="latdeg" type="text" value="" onchange="updateLatDec(this.form)" style="width:30px;" /></td>
 										<td><input name="latmin" type="text" value="" onchange="updateLatDec(this.form)" style="width:50px;" /></td>
 										<td><input name="latsec" type="text" value="" onchange="updateLatDec(this.form)" style="width:50px;" /></td>
 										<td>
 											<select name="latns" onchange="updateLatDec(this.form)">
-												<option>N</option>
-												<option >S</option>
+												<option><?php echo $LANG['N']; ?></option>
+												<option ><?php echo $LANG['S']; ?></option>
 											</select>
 										</td>
 										<td> = </td>
@@ -418,14 +420,14 @@ if($isEditor && $submitAction){
 										</td>
 									</tr>
 									<tr>
-										<td style="vertical-align:middle"><b>Longitude:</b> </td>
+										<td style="vertical-align:middle"><b><?php echo $LANG['LONGITUDE']; ?>:</b> </td>
 										<td><input name="lngdeg" type="text" value="" onchange="updateLngDec(this.form)" style="width:30px;" /></td>
 										<td><input name="lngmin" type="text" value="" onchange="updateLngDec(this.form)" style="width:50px;" /></td>
 										<td><input name="lngsec" type="text" value="" onchange="updateLngDec(this.form)" style="width:50px;" /></td>
 										<td style="width:20px;">
 											<select name="lngew" onchange="updateLngDec(this.form)">
-												<option>E</option>
-												<option SELECTED>W</option>
+												<option><?php echo $LANG['E']; ?></option>
+												<option SELECTED><?php echo $LANG['W']; ?></option>
 											</select>
 										</td>
 										<td> = </td>
@@ -433,13 +435,13 @@ if($isEditor && $submitAction){
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
-											<b>Error (in meters):</b>
+											<b><?php echo $LANG['ERROR_METERS']; ?>:</b>
 										</td>
 										<td colspan="2" style="vertical-align:middle">
 											<input id="coordinateuncertaintyinmeters" name="coordinateuncertaintyinmeters" type="text" value="" style="width:50px;" onchange="verifyCoordUncertainty(this)" />
 										</td>
 										<td colspan="2" style="vertical-align:middle">
-											<span style="margin-left:20px;font-weight:bold;">Datum:</span>
+											<span style="margin-left:20px;font-weight:bold;"><?php echo $LANG['DATUM']; ?>:</span>
 											<input id="geodeticdatum" name="geodeticdatum" type="text" value="" style="width:75px;" />
 											<span style="cursor:pointer;margin-left:3px;" onclick="toggle('utmdiv');">
 												<img src="../../images/editplus.png" style="border:0px;width:14px;" />
@@ -448,7 +450,7 @@ if($isEditor && $submitAction){
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
-											<b>Footprint WKT:</b>
+											<b><?php echo $LANG['FOOTPRINT_WKT']; ?>:</b>
 										</td>
 										<td colspan="4" style="vertical-align:middle">
 											<input id="footprintwkt" name="footprintwkt" type="text" value="" style="width:500px;" onchange="verifyFootprintWKT(this)" />
@@ -459,25 +461,25 @@ if($isEditor && $submitAction){
 											<div id="utmdiv" style="display:none;padding:15px 10px;background-color:lightyellow;border:1px solid yellow;width:400px;height:75px;margin-bottom:10px;">
 												<div>
 													<div style="margin:3px;float:left;">
-														East: <input name="utmeast" type="text" style="width:100px;" />
+														<?php echo $LANG['EAST']; ?>: <input name="utmeast" type="text" style="width:100px;" />
 													</div>
 													<div style="margin:3px;float:left;">
-														North: <input name="utmnorth" type="text" style="width:100px;" />
+														<?php echo $LANG['NORTH']; ?>: <input name="utmnorth" type="text" style="width:100px;" />
 													</div>
 													<div style="margin:3px;float:left;">
-														Zone: <input name="utmzone" style="width:40px;" />
+														<?php echo $LANG['ZONE']; ?>: <input name="utmzone" style="width:40px;" />
 													</div>
 												</div>
 												<div style="clear:both;margin:3px;">
 													<div style="float:left;">
-														Hemisphere:
+														<?php echo $LANG['HEMISPHERE']; ?>:
 														<select name="hemisphere" title="Use hemisphere designator (e.g. 12N) rather than grid zone ">
-															<option value="Northern">North</option>
-															<option value="Southern">South</option>
+															<option value="Northern"><?php echo $LANG['NORTH']; ?></option>
+															<option value="Southern"><?php echo $LANG['SOUTH']; ?></option>
 														</select>
 													</div>
 													<div style="margin:5px 0px 0px 15px;float:left;">
-														<input type="button" value="Convert UTM values to lat/long " onclick="insertUtm(this.form)" />
+														<button value="Convert UTM values to lat/long " onclick="insertUtm(this.form)" ><?php echo $LANG['CONVERT_UTMS']; ?></button>
 													</div>
 												</div>
 											</div>
@@ -485,7 +487,7 @@ if($isEditor && $submitAction){
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
-											<b>Sources:</b>
+											<b><?php echo $LANG['SOURCES']; ?>:</b>
 										</td>
 										<td colspan="4">
 											<input id="georeferencesources" name="georeferencesources" type="text" value="<?php echo $georeferenceSources; ?>" style="width:500px;" />
@@ -493,7 +495,7 @@ if($isEditor && $submitAction){
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
-											<b>Protocols:</b>
+											<b><?php echo $LANG['PROTOCOLS']; ?>:</b>
 										</td>
 										<td colspan="4">
 											<input id="georeferenceprotocol" name="georeferenceprotocol" type="text" value="<?php echo $georeferenceProtocol; ?>" style="width:500px;" />
@@ -501,7 +503,7 @@ if($isEditor && $submitAction){
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
-											<b>Remarks:</b>
+											<b><?php echo $LANG['REMARKS']; ?>:</b>
 										</td>
 										<td colspan="4">
 											<input name="georeferenceremarks" type="text" value="" style="width:500px;" />
@@ -509,7 +511,7 @@ if($isEditor && $submitAction){
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
-											<b>Verification Status:</b>
+											<b><?php echo $LANG['VERIF_STATUS']; ?>:</b>
 										</td>
 										<td colspan="4">
 											<input id="georeferenceverificationstatus" name="georeferenceverificationstatus" type="text" value="<?php echo $georeferenceVerificationStatus; ?>" style="width:400px;" />
@@ -517,44 +519,44 @@ if($isEditor && $submitAction){
 									</tr>
 									<tr>
 										<td colspan="3" style="vertical-align:middle">
-											<b>Elevation:</b>
+											<b><?php echo $LANG['ELEVATION']; ?>:</b>
 										</td>
 										<td colspan="4">
-											<input name="minimumelevationinmeters" type="text" value="" style="width:50px;" /> to
-											<input name="maximumelevationinmeters" type="text" value="" style="width:50px;" /> meters
+											<input name="minimumelevationinmeters" type="text" value="" style="width:50px;" /> <?php $LANG['TO']; ?>
+											<input name="maximumelevationinmeters" type="text" value="" style="width:50px;" /> <?php $LANG['METERS']; ?>
 											<span style="margin-left:80px;">
-												<input type="text" value="" style="width:50px;" onchange="updateMinElev(this.value)" /> to
-												<input type="text" value="" style="width:50px;" onchange="updateMaxElev(this.value)" /> feet
+												<input type="text" value="" style="width:50px;" onchange="updateMinElev(this.value)" /> <?php $LANG['TO']; ?>
+												<input type="text" value="" style="width:50px;" onchange="updateMaxElev(this.value)" /> <?php $LANG['FEET']; ?>
 											</span>
 										</td>
 									</tr>
 									<tr>
 										<td colspan="3">
-											<b>Processing status: </b>
+											<b><?php echo $LANG['PROCESSING_STATUS']; ?>: </b>
 										</td>
 										<td colspan="4">
 											<select name="processingstatus">
-												<option value="">Leave as is</option>
-												<option value="unprocessed">Unprocessed</option>
-												<option value="unprocessed/NLP">unprocessed/NLP</option>
-												<option value="stage 1">Stage 1</option>
-												<option value="stage 2">Stage 2</option>
-												<option value="stage 3">Stage 3</option>
-												<option value="pending review-nfn">Pending Review-NfN</option>
-												<option value="pending review">Pending Review</option>
-												<option value="expert required">Expert Required</option>
-												<option value="reviewed">Reviewed</option>
-												<option value="closed">Closed</option>
+												<option value=""><?php echo $LANG['LEAVE_AS_IS']; ?></option>
+												<option value="unprocessed"><?php echo $LANG['UNPROCESSED']; ?></option>
+												<option value="unprocessed/NLP"><?php echo $LANG['UNPROCESSED_NLP']; ?></option>
+												<option value="stage 1"><?php echo $LANG['STAGE_1']; ?></option>
+												<option value="stage 2"><?php echo $LANG['STAGE_2']; ?></option>
+												<option value="stage 3"><?php echo $LANG['STAGE_3']; ?></option>
+												<option value="pending review-nfn"><?php echo $LANG['PENDING_NFN']; ?></option>
+												<option value="pending review"><?php echo $LANG['PENDING_REVIEW']; ?></option>
+												<option value="expert required"><?php echo $LANG['EXPERT_REQUIRED']; ?></option>
+												<option value="reviewed"><?php echo $LANG['REVIEWED']; ?></option>
+												<option value="closed"><?php echo $LANG['CLOSED']; ?></option>
 											</select>
 											<span style="margin-left:20px;font-size:80%">
-												Georefer by:
+												<?php echo $LANG['GEOREF_BY']; ?>:
 												<input name="georeferencedby" type="text" value="<?php echo $USERNAME; ?>" style="width:75px" readonly />
 											</span>
 										</td>
 									</tr>
 									<tr>
 										<td colspan="7">
-											<input name="submitaction" type="submit" value="Update Coordinates" />
+											<button name="submitaction" type="submit" value="Update Coordinates" ><?php echo $LANG['UPDATE_COORDS']; ?></button>
 											<span id="workingspan" style="display:none;">
 												<img src="../../images/workingcircle.gif" />
 											</span>
@@ -571,10 +573,7 @@ if($isEditor && $submitAction){
 										</td>
 									</tr>
 								</table>
-								<div style="margin-top:15px">Note: Existing georeference field data will be replaced by incoming data.
-								However, elevation data will only be added when the target fields are null.
-								Georeference fields that will be replaced include: decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, geodeticdatum,
-								footprintwkt, georeferencedby, georeferenceRemarks, georeferenceSources, georeferenceProtocol, georeferenceVerificationStatus </div>
+								<div style="margin-top:15px"><?php echo $LANG['NOTE_EXISTING_GEOREFS']; ?> </div>
 							</div>
 							<div>
 								<?php
@@ -597,18 +596,18 @@ if($isEditor && $submitAction){
 				else{
 					?>
 					<div style='font-weight:bold;font-size:120%;'>
-						ERROR: You do not have permission to edit this collection
+						<?php echo $LANG['ERROR_NO_PERMISSIONS']; ?>
 					</div>
 					<?php
 				}
 			}
 			elseif($collMap){
 				?>
-				<div style="margin:0px 0px 20px 20xp;font-weight:bold;font-size:120%;">Batch Georeferencing Tool</div>
+				<div style="margin:0px 0px 20px 20xp;font-weight:bold;font-size:120%;"><?php echo $LANG['BATCH_GEO_TOOL']; ?></div>
 				<fieldset style="padding: 15px;margin:20px;">
-					<legend><b>Collection Selector</b></legend>
+					<legend><b><?php echo $LANG['COL_SELECTOR']; ?></b></legend>
 					<form name="selectcollidform" action="batchgeoreftool.php" method="post" onsubmit="return checkSelectCollidForm(this)">
-						<div><input name="selectall" type="checkbox" onclick="selectAllCollections(this);" /> Select / Unselect All</div>
+						<div><input name="selectall" type="checkbox" onclick="selectAllCollections(this);" /> <?php echo $LANG['SEL_DESEL_ALL']; ?></div>
 						<?php
 						foreach($collMap as $id => $collArr){
 							echo '<div>';
@@ -618,17 +617,17 @@ if($isEditor && $submitAction){
 						}
 						?>
 						<div style="margin: 15px">
-							<button name="submitaction" type="submit" value="EvaluateCollections">Evaluate Collections</button>
+							<button name="submitaction" type="submit" value="EvaluateCollections"><?php echo $LANG['EVAL_COLLS']; ?></button>
 						</div>
 					</form>
-					<div>* Only collections with administrative access are shown</div>
+					<div>* <?php echo $LANG['ONLY_ADMIN_COLS']; ?></div>
 				</fieldset>
 				<?php
 			}
 			else{
 				?>
 				<div style='font-weight:bold;font-size:120%;'>
-					ERROR: Collection identifier is null
+					<?php echo $LANG['ERROR_COL_ID_NULL']; ?>
 				</div>
 				<?php
 			}

@@ -227,6 +227,7 @@ if($action != "Update Statistics"){
 			<meta name="keywords" content="Natural history collections statistics" />
 			<title><?php echo $DEFAULT_TITLE.(isset($LANG['COL_STATS'])?$LANG['COL_STATS']:'Collection Statistics'); ?></title>
 			<?php
+			$activateJQuery = true;
 			include_once($SERVER_ROOT.'/includes/head.php');
 			?>
 			<link href="<?php echo $CSS_BASE_PATH; ?>/collection.css" type="text/css" rel="stylesheet" />

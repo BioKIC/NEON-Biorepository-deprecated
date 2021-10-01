@@ -6,6 +6,7 @@ Language: English
 */
 
 $LANG['EDIT_REVIEWER'] = 'Specimen Edit Reviewer';
+$LANG['FIELDS_EDITED'] = 'fields edited';
 $LANG['DATE_PROBLEM'] = 'Start date cannot be after end date';
 $LANG['PLEASE_CHECK_EDIT'] = 'Please check at least one edit from list below!';
 $LANG['SURE_DELETE_HISTORY'] = 'Are you sure you want to permanently remove selected edits from history?';

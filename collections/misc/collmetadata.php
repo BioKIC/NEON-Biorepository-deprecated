@@ -84,6 +84,19 @@ $collManager->cleanOutArr($collData);
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/common.js" type="text/javascript"></script>
+  <script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
+  <script>
+  // Adds WYSIWYG editor to description field
+  tinymce.init({
+      selector: 'textarea[name="fulldescription"]',
+      plugins: 'link lists image',
+      menubar: '',
+      toolbar: [
+      'undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image',
+      ],
+      branding: false
+    });
+  </script>
 	<script>
 		$(function() {
 			var dialogArr = new Array("instcode","collcode","pedits","pubagg","rights","rightsholder","accessrights","guid","colltype","management","icon","collectionid","sourceurl","sort");

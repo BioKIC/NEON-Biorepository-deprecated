@@ -207,15 +207,6 @@ div.button:hover {
     margin-bottom: 5px;
 }
 
-.taxon-span {
-    font-weight: bold;
-    font-style: italic
-}
-
-.vern-span {
-    font-weight: bold;
-}
-
 .view-specimen-span {
     margin: 0px 10px
 }

@@ -1636,18 +1636,11 @@ class OccurrenceEditorManager {
 					$nvSqlFrag = 'REPLACE('.$fn.',"'.$ov.'","'.$nv.'")';
 				}
 
-				//Temporary code needed for to test for new schema update
-				$hasEditType = false;
-				$rsTest = $this->conn->query('SHOW COLUMNS FROM omoccuredits WHERE field = "editType"');
-				if($rsTest->num_rows) $hasEditType = true;
-				$rsTest->free();
-
 				$sqlWhere = 'WHERE occid IN('.implode(',',$occidArr).')';
 				//Add edits to the omoccuredit table
-				$sql = 'INSERT INTO omoccuredits(occid,fieldName,fieldValueOld,fieldValueNew,appliedStatus,uid'.($hasEditType?',editType ':'').') '.
+				$sql = 'INSERT INTO omoccuredits(occid,fieldName,fieldValueOld,fieldValueNew,appliedStatus,uid,editType) '.
 					'SELECT occid, "'.$fn.'" AS fieldName, IFNULL('.$fn.',"") AS oldValue, IFNULL('.$nvSqlFrag.',"") AS newValue, '.
-					'1 AS appliedStatus, '.$GLOBALS['SYMB_UID'].' AS uid'.($hasEditType?',1':'').' FROM omoccurrences '.$sqlWhere;
-				//echo $sql.'<br/>';
+					'1 AS appliedStatus, '.$GLOBALS['SYMB_UID'].' AS uid, 1 FROM omoccurrences '.$sqlWhere;
 				if(!$this->conn->query($sql)){
 					$statusStr = $LANG['ERROR_ADDING_UPDATE'].': '.$this->conn->error;
 				}
@@ -1976,37 +1969,45 @@ class OccurrenceEditorManager {
 		global $LANG;
 		$imageMap = Array();
 		if($this->occid){
-			$sql = 'SELECT imgid, url, thumbnailurl, originalurl, caption, photographer, photographeruid, '.
-				'sourceurl, copyright, notes, occid, username, sortoccurrence, initialtimestamp '.
-				'FROM images '.
-				'WHERE (occid = '.$this->occid.') ORDER BY sortoccurrence';
+			$sql = 'SELECT imgid, url, thumbnailurl, originalurl, caption, photographer, photographeruid, sourceurl, copyright, notes, occid, username, sortoccurrence, initialtimestamp '.
+				'FROM images WHERE (occid = '.$this->occid.') ORDER BY sortoccurrence';
 			//echo $sql;
 			$result = $this->conn->query($sql);
 			while($row = $result->fetch_object()){
-				$imgId = $row->imgid;
-				$imageMap[$imgId]["url"] = $row->url;
-				$imageMap[$imgId]["tnurl"] = $row->thumbnailurl;
-				$imageMap[$imgId]["origurl"] = $row->originalurl;
-				$imageMap[$imgId]["caption"] = $this->cleanOutStr($row->caption);
-				$imageMap[$imgId]["photographer"] = $this->cleanOutStr($row->photographer);
-				$imageMap[$imgId]["photographeruid"] = $row->photographeruid;
-				$imageMap[$imgId]["sourceurl"] = $row->sourceurl;
-				$imageMap[$imgId]["copyright"] = $this->cleanOutStr($row->copyright);
-				$imageMap[$imgId]["notes"] = $this->cleanOutStr($row->notes);
-				$imageMap[$imgId]["occid"] = $row->occid;
-				$imageMap[$imgId]["username"] = $this->cleanOutStr($row->username);
-				$imageMap[$imgId]['sort'] = $row->sortoccurrence;
+				$imageMap[$row->imgid]['url'] = $row->url;
+				$imageMap[$row->imgid]['tnurl'] = $row->thumbnailurl;
+				$imageMap[$row->imgid]['origurl'] = $row->originalurl;
+				$imageMap[$row->imgid]['caption'] = $this->cleanOutStr($row->caption);
+				$imageMap[$row->imgid]['photographer'] = $this->cleanOutStr($row->photographer);
+				$imageMap[$row->imgid]['photographeruid'] = $row->photographeruid;
+				$imageMap[$row->imgid]['sourceurl'] = $row->sourceurl;
+				$imageMap[$row->imgid]['copyright'] = $this->cleanOutStr($row->copyright);
+				$imageMap[$row->imgid]['notes'] = $this->cleanOutStr($row->notes);
+				$imageMap[$row->imgid]['occid'] = $row->occid;
+				$imageMap[$row->imgid]['username'] = $this->cleanOutStr($row->username);
+				$imageMap[$row->imgid]['sort'] = $row->sortoccurrence;
 				if(strpos($row->originalurl,'api.idigbio.org')){
 					if(strtotime($row->initialtimestamp) > strtotime('-2 days')){
 						//Is a recent iDigBio media server import, check to see if image derivatives have been made
 						$headerArr = get_headers($row->originalurl,1);
-						if($headerArr['Content-Type'] == 'image/svg+xml') $imageMap[$imgId]['error'] = $LANG['NOTICE_IMAGE_NOT_AVAILABLE'];
+						if($headerArr['Content-Type'] == 'image/svg+xml') $imageMap[$row->imgid]['error'] = $LANG['NOTICE_IMAGE_NOT_AVAILABLE'];
 					}
 				}
 			}
 			$result->free();
 		}
 		return $imageMap;
+	}
+
+	protected function getImageTags($imgIdStr){
+		$retArr = array();
+		$sql = 'SELECT t.imgid, k.tagkey, k.shortlabel, k.description_en FROM imagetag t INNER JOIN imagetagkey k ON t.keyvalue = k.tagkey WHERE t.imgid IN('.$imgIdStr.')';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->imgid][$r->tagkey] = $r->shortlabel;
+		}
+		$rs->free();
+		return $retArr;
 	}
 
 	public function getEditArr(){

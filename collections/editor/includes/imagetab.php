@@ -30,7 +30,7 @@ $photographerArr = $occManager->getPhotographerArr();
 						<div style="font-weight:bold;font-size:110%;margin-bottom:5px;">
 							<?php echo $LANG['SELECT_IMG']; ?>:
 						</div>
-				    	<!-- following line sets MAX_FILE_SIZE (must precede the file input field)  -->
+						<!-- following line sets MAX_FILE_SIZE (must precede the file input field)  -->
 						<input type='hidden' name='MAX_FILE_SIZE' value='20000000' />
 						<div>
 							<input name='imgfile' type='file' size='70'/>
@@ -91,7 +91,7 @@ $photographerArr = $occManager->getPhotographerArr();
 				</div>
 				<div id="imgaddoverride" style="margin:0px 0px 5px 10px;display:none;">
 					<b><?php echo $LANG['PHOTOG_OVER']; ?>:</b>
-					<input name='photographer' type='text' style="width:300px;" maxlength='100'>
+					<input name='photographer' type='text' style="width:300px;" maxlength='100' />
 					* <?php echo $LANG['WILL_OVERRIDE']; ?>
 				</div>
 				<div style="margin:0px 0px 5px 10px;">
@@ -113,14 +113,14 @@ $photographerArr = $occManager->getPhotographerArr();
 				<div style="margin:0px 0px 5px 10px;">
 					<b><?php echo $LANG['DESCRIBE_IMAGE']; ?></b>
 				</div>
-                    <?php
-                       $kArr = $occManager->getImageTagValues();
-                       foreach($kArr as $key => $description) {
-				          echo "<div style='margin-left:10px;'>\n";
-					      echo "   <input name='ch_$key' type='checkbox' value='0' />$description</br>\n";
-                          echo "</div>\n";
-                       }
-                    ?>
+					<?php
+					$imageTagArr = $occManager->getImageTagArr();
+					foreach($imageTagArr as $key => $description) {
+						echo '<div style="margin-left:10px;">';
+						echo '<input name="ch_'.$key.'" type="checkbox" value="1" /> '.$description.'</br>';
+						echo '</div>';
+					}
+					?>
 				<div style="margin:10px 0px 10px 20px;">
 					<input type="hidden" name="occid" value="<?php echo $occId; ?>" />
 					<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
@@ -139,7 +139,6 @@ $photographerArr = $occManager->getPhotographerArr();
 			<table>
 				<?php
 				foreach($specImgArr as $imgId => $imgArr){
-					$imageTagUsageArr = $occManager->getImageTagUsage($imgId);
 					?>
 					<tr>
 						<td style="width:300px;text-align:center;padding:20px;">
@@ -198,25 +197,19 @@ $photographerArr = $occManager->getPhotographerArr();
 								</div>
 								<div>
 									<b><?php echo $LANG['TAGS']; ?>:</b>
-	                                <?php
-	                                   $comma = "";
-	                                   foreach($imageTagUsageArr as $tags) {
-					                       if ($tags->value==1) {
-					                   	      echo "$comma$tags->shortlabel";
-					                   	      $comma = ", ";
-	                                       }
-	                                   }
-	                                ?>
+									<?php
+									if(isset($imgArr['tags'])) echo implode(', ',$imgArr['tags']);
+									?>
 								</div>
 								<div>
 									<b><?php echo $LANG['COPYRIGHT']; ?>:</b>
-									<?php echo $imgArr["copyright"]; ?>
+									<?php echo $imgArr['copyright']; ?>
 								</div>
 								<div>
 									<b><?php echo $LANG['SOURCE_WEBPAGE']; ?>:</b>
-									<a href="<?php echo $imgArr["sourceurl"]; ?>" target="_blank">
+									<a href="<?php echo $imgArr['sourceurl']; ?>" target="_blank">
 										<?php
-										$sourceUrlDisplay = $imgArr["sourceurl"];
+										$sourceUrlDisplay = $imgArr['sourceurl'];
 										if(strlen($sourceUrlDisplay) > 60) $sourceUrlDisplay = '...'.substr($sourceUrlDisplay,-60);
 										echo $sourceUrlDisplay;
 										?>
@@ -340,18 +333,19 @@ $photographerArr = $occManager->getPhotographerArr();
 											<b><?php echo $LANG['SORT']; ?>:</b><br/>
 											<input name="sortoccurrence" type="text" value="<?php echo $imgArr['sort']; ?>" style="width:10%;" />
 										</div>
-					                    <div>
-						                   <b><?php echo $LANG['TAGS']; ?>:</b>
-					                    </div>
-	                                        <?php
-	                                           foreach($imageTagUsageArr as $tags) {
-					                              echo "<div style='margin-left:10px;'>\n";
-					                              if ($tags->value==1) { $checked = 'CHECKED'; } else { $checked=''; }
-						                          echo "   <input name='ch_".$tags->tagkey."' type='checkbox' $checked value='".$tags->value."' />".$tags->description."\n";
-						                          echo "   <input name='hidden_".$tags->tagkey."' type='hidden' value='".$tags->value."' />\n";
-	                                              echo "</div>\n";
-	                                           }
-	                                         ?>
+										<div>
+										   <b><?php echo $LANG['TAGS']; ?>:</b>
+										</div>
+											<?php
+											foreach($imageTagArr as $tagKey => $tagDescr){
+												echo '<div style="margin-left:10px;">';
+												$value = 0;
+												if(isset($imgArr['tags'][$tagKey])) $value = 1;
+												echo '<input name="ch_'.$tagKey.'" type="checkbox" '.($value?'checked':'').' value="1" /> '.$tagDescr;
+												echo '<input name="hidden_'.$tagKey.'" type="hidden" value="'.$value.'" />';
+												echo '</div>';
+											}
+											?>
 										<div style="margin-top:10px;">
 											<input type="hidden" name="occid" value="<?php echo $occId; ?>" />
 											<input type="hidden" name="imgid" value="<?php echo $imgId; ?>" />
@@ -432,13 +426,13 @@ $photographerArr = $occManager->getPhotographerArr();
 			<?php
 		}
 		else{
-			if (isset($RequestTrackingIsActive) && $RequestTrackingIsActive==1) {
-			     echo "<div style=\"margin-left:15px;\"><button onClick=' requestImage() '>".$LANG['MAKE_REQUEST']."</button></div><div id='imagerequestresult'></div>";
-                 echo "<div>";
-                 foreach ($occActionManager->listOccurrenceActionRequests($occId) as $request) {
-                   echo "$request<br/>";
-                 }
-                 echo "</div>";
+			if(isset($REQUEST_TRACKING_IS_ACTIVE) && $REQUEST_TRACKING_IS_ACTIVE==1) {
+				echo '<div style="margin-left:15px;"><button onClick="requestImage()">'.$LANG['MAKE_REQUEST'].'</button></div><div id="imagerequestresult"></div>';
+				echo '<div>';
+				foreach ($occActionManager->listOccurrenceActionRequests($occId) as $request) {
+					echo $request.'<br/>';
+				}
+				echo '</div>';
 			}
 		}
 		?>

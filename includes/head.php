@@ -19,3 +19,8 @@ if($activateJQuery){
 ?>
 <link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=1" type="text/css" rel="stylesheet">
 <link href="<?php echo $CLIENT_ROOT; ?>/css/main.css?ver=1" type="text/css" rel="stylesheet">
+<link rel="apple-touch-icon" sizes="180x180" href="<?php echo $CLIENT_ROOT; ?>/images/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="<?php echo $CLIENT_ROOT; ?>/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="<?php echo $CLIENT_ROOT; ?>/images/favicon-16x16.png">
+<link rel="manifest" href="<?php echo $CLIENT_ROOT; ?>/images/site.webmanifest">
+<link rel="mask-icon" href="<?php echo $CLIENT_ROOT; ?>/images/safari-pinned-tab.svg" color="#5bbad5">

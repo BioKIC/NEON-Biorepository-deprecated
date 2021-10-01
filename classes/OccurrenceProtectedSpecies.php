@@ -2,7 +2,7 @@
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
 
-class OmProtectedSpecies extends OccurrenceMaintenance {
+class OccurrenceProtectedSpecies extends OccurrenceMaintenance {
 
  	private $taxaArr = array();
 
@@ -16,36 +16,26 @@ class OmProtectedSpecies extends OccurrenceMaintenance {
 
 	public function getProtectedSpeciesList(){
  		$returnArr = Array();
- 		//1 = protect locality details; 2 = protect by fussing taxonomy; 3 = protect locality details and taxonomy; 4 = hide occurrence completely
-		$sql = 'SELECT DISTINCT  t.tid, ts.Family, t.SciName, t.Author, t.SecurityStatus FROM taxa t INNER JOIN taxstatus ts ON t.TID = ts.tid ';
+		$sql = 'SELECT DISTINCT t.tid, ts.Family, t.SciName, t.Author, t.SecurityStatus FROM taxa t INNER JOIN taxstatus ts ON t.TID = ts.tid ';
 		if($this->taxaArr) $sql .= 'INNER JOIN taxaenumtree e ON t.tid = e.tid ';
 		$sql .= 'WHERE (ts.taxauthid = 1) AND (t.SecurityStatus > 0) ';
 		if($this->taxaArr) $sql .= 'AND (e.parenttid IN('.implode(',', $this->taxaArr).') OR t.tid IN('.implode(',', $this->taxaArr).')) ';
 		$sql .= 'ORDER BY ts.Family, t.SciName';
 		//echo $sql;
-		$returnArr['stats']['L'] = 0;
-		$returnArr['stats']['T'] = 0;
-		$returnArr['stats']['D'] = 0;
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			$returnArr[$row->Family][$row->tid]['sciname'] = $row->SciName;
 			$returnArr[$row->Family][$row->tid]['author'] = $row->Author;
 			$returnArr[$row->Family][$row->tid]['status'] = $row->SecurityStatus;
-			if($row->SecurityStatus == 1) $returnArr['stats']['L']++;
-			elseif($row->SecurityStatus == 2) $returnArr['stats']['T']++;
-			elseif($row->SecurityStatus == 3) $returnArr['stats']['D']++;
 		}
 		$rs->free();
-		foreach($returnArr['stats'] as $k => $v){
-			if(!$v) unset($returnArr['stats'][$k]);
-		}
 		return $returnArr;
 	}
 
-	public function addSpecies($tid, $securityCode){
+	public function addSpecies($tid){
 		$protectCnt = 0;
-		if(is_numeric($tid) && is_numeric($securityCode)){
-	 		$sql = 'UPDATE taxa t SET t.SecurityStatus = '.$securityCode.' WHERE (t.tid = '.$tid.')';
+		if(is_numeric($tid)){
+	 		$sql = 'UPDATE taxa t SET t.SecurityStatus = 1 WHERE (t.tid = '.$tid.')';
 	 		//echo $sql;
 			$this->conn->query($sql);
 			//Update specimen records

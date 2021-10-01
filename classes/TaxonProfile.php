@@ -123,14 +123,16 @@ class TaxonProfile extends Manager {
 	public function getVernaculars(){
 		$retArr = array();
 		if($this->tid){
-			$sql = 'SELECT v.vid, v.vernacularname, l.langname '.
+			$tidStr = $this->tid;
+			if($this->synonymArr) $tidStr .= ','.implode(',',array_keys($this->synonymArr));
+			$sql = 'SELECT v.vid, v.vernacularname, l.iso639_1 as iso '.
 				'FROM taxavernaculars v INNER JOIN adminlanguages l ON v.langid = l.langid '.
-				'WHERE (v.TID IN('.$this->tid.($this->synonymArr?','.implode(',',array_keys($this->synonymArr)):'').')) AND (v.SortSequence < 90) '.
+				'WHERE (v.TID IN('.$tidStr.')) AND (v.SortSequence < 90) '.
 				'ORDER BY v.SortSequence,v.VernacularName';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
-				$retArr[$r->langname][$r->vid] = $r->vernacularname;
+				$retArr[$r->iso][$r->vid] = $r->vernacularname;
 			}
 			$rs->free();
 		}
@@ -685,7 +687,10 @@ class TaxonProfile extends Manager {
   {
     $count = -1;
     if ($this->rankId >= $limitRank) {
-      $sql = 'SELECT COUNT(o.occid) as cnt FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$this->tid.' OR e.tid = '.$this->tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid ';
+      //$sql = 'SELECT COUNT(o.occid) as cnt FROM omoccurrences o JOIN (SELECT DISTINCT e.tid, t.sciname FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid WHERE parenttid = '.$this->tid.' OR e.tid = '.$this->tid.') AS parentAndChildren ON o.tidinterpreted = parentAndChildren.tid ';
+      $sql = 'SELECT COUNT(o.occid) as cnt
+		FROM omoccurrences o JOIN (SELECT DISTINCT ts.tid FROM taxaenumtree e JOIN taxa t ON e.tid = t.tid INNER JOIN taxstatus ts ON e.tid = ts.tidaccepted
+		WHERE e.parenttid = '.$this->tid.' OR e.tid = '.$this->tid.') AS taxa ON o.tidinterpreted = taxa.tid ';
       if (preg_match('/^[,\d]+$/',$collidStr)) $sql .= 'AND o.collid IN('.$collidStr.')';
       $result = $this->conn->query($sql);
       while ($row = $result->fetch_object()){

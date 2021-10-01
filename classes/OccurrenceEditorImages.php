@@ -20,11 +20,12 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
  		parent::__destruct();
 	}
 
-    /**
-     * Takes parameters from a form submission and modifies an existing image record
-     * in the database.
-     */
+	/**
+	 * Takes parameters from a form submission and modifies an existing image record
+	 * in the database.
+	 */
 	public function addImageOccurrence($postArr){
+		global $LANG;
 		$status = true;
 		if($this->addOccurrence($postArr)){
 			if($this->addImage($postArr)){
@@ -60,6 +61,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	}
 
 	public function editImage(){
+		global $LANG;
 		$this->setRootpaths();
 		$status = "Image editted successfully!";
 		$imgId = $_REQUEST["imgid"];
@@ -117,74 +119,71 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	 			}
 	 		}
 		}
-		$occId = $_REQUEST["occid"];
-		$caption = $this->cleanInStr($_REQUEST["caption"]);
-		$photographer = $this->cleanInStr($_REQUEST["photographer"]);
-		$photographerUid = (array_key_exists('photographeruid',$_REQUEST)?$_REQUEST['photographeruid']:'');
-		$notes = $this->cleanInStr($_REQUEST["notes"]);
-		$copyRight = $this->cleanInStr($_REQUEST["copyright"]);
-		$sortSeq = (is_numeric($_REQUEST["sortsequence"])?$_REQUEST["sortsequence"]:'');
-		$sourceUrl = $this->cleanInStr($_REQUEST["sourceurl"]);
+		$occId = $_REQUEST['occid']?$_REQUEST['occid']:null;
+		$caption = $_REQUEST['caption']?$this->cleanInStr($_REQUEST['caption']):null;
+		$photographer = $_REQUEST['photographer']?$this->cleanInStr($_REQUEST['photographer']):null;
+		$photographerUid = $_REQUEST['photographeruid']?$_REQUEST['photographeruid']:null;
+		$notes = $_REQUEST['notes']?$this->cleanInStr($_REQUEST['notes']):null;
+		$copyRight = $_REQUEST['copyright']?$this->cleanInStr($_REQUEST['copyright']):null;
+		$sort = is_numeric($_REQUEST['sortoccurrence'])?$_REQUEST['sortoccurrence']:5;
+		$sourceUrl = $_REQUEST['sourceurl']?$this->cleanInStr($_REQUEST['sourceurl']):null;
 
 		//If central images are on remote server and new ones stored locally, then we need to use full domain
-	    //e.g. this portal is sister portal to central portal
-    	if($GLOBALS['imageDomain']){
-    		if(substr($url,0,1) == '/'){
-	    		$url = 'http://'.$_SERVER['HTTP_HOST'].$url;
-    		}
-    		if($tnUrl && substr($tnUrl,0,1) == '/'){
-	    		$tnUrl = 'http://'.$_SERVER['HTTP_HOST'].$tnUrl;
-    		}
-    		if($origUrl && substr($origUrl,0,1) == '/'){
-	    		$origUrl = 'http://'.$_SERVER['HTTP_HOST'].$origUrl;
-    		}
-    	}
-
-	    $sql = 'UPDATE images '.
-			'SET url = "'.$url.'", thumbnailurl = '.($tnUrl?'"'.$tnUrl.'"':'NULL').
-			',originalurl = '.($origUrl?'"'.$origUrl.'"':'NULL').',occid = '.$occId.',caption = '.
-			($caption?'"'.$caption.'"':'NULL').
-			',photographer = '.($photographer?'"'.$photographer.'"':"NULL").
-			',photographeruid = '.($photographerUid?$photographerUid:"NULL").
-			',notes = '.($notes?'"'.$notes.'"':'NULL').
-			($sortSeq?',sortsequence = '.$sortSeq:'').
-			',copyright = '.($copyRight?'"'.$copyRight.'"':'NULL').',imagetype = "specimen",sourceurl = '.
-			($sourceUrl?'"'.$sourceUrl.'"':'NULL').
-			' WHERE (imgid = '.$imgId.')';
-		//echo $sql;
-		if($this->conn->query($sql)){
-            // update image tags
-            $kArr = $this->getImageTagValues();
-            foreach($kArr as $key => $description) {
-                   // Note: By using check boxes, we can't tell the difference between
-                   // an unchecked checkbox and the checkboxes not being present on the
-                   // form, we'll get around this by including the original state of the
-                   // tags for each image in a hidden field.
-                   $sql = null;
-                   if (array_key_exists("ch_$key",$_REQUEST)) {
-                      // checkbox is selected for this image
-                      $sql = "INSERT IGNORE into imagetag (imgid,keyvalue) values (?,?) ";
-                   } else {
-                      if (array_key_exists("hidden_$key",$_REQUEST) && $_REQUEST["hidden_$key"]==1) {
-                         // checkbox is not selected and this tag was used for this image
-                         $sql = "DELETE from imagetag where imgid = ? and keyvalue = ? ";
-                      }
-                   }
-                   if ($sql!=null) {
-                      $stmt = $this->conn->stmt_init();
-                      $stmt->prepare($sql);
-                      if ($stmt) {
-                         $stmt->bind_param('is',$imgId,$key);
-                         if (!$stmt->execute()) {
-                            $status .= ' ('.$LANG['WARNING_FAILED_TAG']." [$key] ".$LANG['FOR']." $imgId.  " . $stmt->error ;
-                         }
-                         $stmt->close();
-                      }
-                   }
-            }
-        } else {
-			$status .= $LANG['ERROR_NOT_CHANGED'].', '.$this->conn->error."SQL: ".$sql;
+		//e.g. this portal is sister portal to central portal
+		if($GLOBALS['imageDomain']){
+			if(substr($url,0,1) == '/'){
+				$url = 'http://'.$_SERVER['HTTP_HOST'].$url;
+			}
+			if($tnUrl && substr($tnUrl,0,1) == '/'){
+				$tnUrl = 'http://'.$_SERVER['HTTP_HOST'].$tnUrl;
+			}
+			if($origUrl && substr($origUrl,0,1) == '/'){
+				$origUrl = 'http://'.$_SERVER['HTTP_HOST'].$origUrl;
+			}
 		}
+
+		$imgUpdateStatus = false;
+		$sql = 'UPDATE images SET url=?,thumbnailurl=?,originalurl=?,occid=?,caption=?,photographer=?,photographeruid=?,notes=?,sortoccurrence=?,copyright=?,imagetype=?,sourceurl=? WHERE (imgid= ?)';
+		$stmt = $this->conn->stmt_init();
+		$stmt->prepare($sql);
+		$imageType = 'specimen';
+		$stmt->bind_param('sssissisisssi',$url,$tnUrl,$origUrl,$occId,$caption,$photographer, $photographerUid,$notes,$sort,$copyRight,$imageType,$sourceUrl,$imgId);
+		if($stmt->execute()) $imgUpdateStatus = true;
+		$stmt->close();
+
+		if($imgUpdateStatus){
+			// update image tags
+			$kArr = $this->getImageTagValues();
+			foreach($kArr as $key => $description) {
+				// Note: By using check boxes, we can't tell the difference between
+				// an unchecked checkbox and the checkboxes not being present on the
+				// form, we'll get around this by including the original state of the
+				// tags for each image in a hidden field.
+				$sql = null;
+				if (array_key_exists("ch_$key",$_REQUEST)) {
+					// checkbox is selected for this image
+					$sql = "INSERT IGNORE into imagetag (imgid,keyvalue) values (?,?) ";
+				}
+				else {
+					if (array_key_exists("hidden_$key",$_REQUEST) && $_REQUEST["hidden_$key"]==1) {
+						// checkbox is not selected and this tag was used for this image
+						$sql = "DELETE from imagetag where imgid = ? and keyvalue = ? ";
+					}
+				}
+				if ($sql!=null) {
+					$stmt = $this->conn->stmt_init();
+					$stmt->prepare($sql);
+					if ($stmt) {
+						$stmt->bind_param('is',$imgId,$key);
+						if (!$stmt->execute()) {
+							//$status .= ' ('.$LANG['WARNING_FAILED_TAG']." [$key] ".$LANG['FOR']." $imgId.  " . $stmt->error ;
+						}
+						$stmt->close();
+					}
+				}
+			}
+		}
+		else $status .= $LANG['ERROR_NOT_CHANGED'].', '.$this->conn->error;
 		return $status;
 	}
 
@@ -199,6 +198,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	}
 
 	public function remapImage($imgId, $targetOccid = 0){
+		global $LANG;
 		$status = true;
 		if(!is_numeric($imgId)){
 			return false;
@@ -277,7 +277,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		if(array_key_exists('sourceurl',$postArr)) $imgManager->setSourceUrl($postArr['sourceurl']);
 		if(array_key_exists('copyright',$postArr)) $imgManager->setCopyright($postArr['copyright']);
 		if(array_key_exists("notes",$postArr)) $imgManager->setNotes($postArr['notes']);
-		if(array_key_exists("sortsequence",$postArr)) $imgManager->setSortSeq($postArr['sortsequence']);
+		if(array_key_exists('sort',$postArr)) $imgManager->setSortOccurrence($postArr['sort']);
 
 		$sourceImgUri = $postArr['imgurl'];
 		if($sourceImgUri){
@@ -333,76 +333,76 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		return $this->photographerArr;
 	}
 
-    /**
-     * Obtain an array of the keys used for tagging images by content type.
-     *
-     * param: lang language for the description, only en currently supported.
-     * return: an array of keys for image type tagging along with their descriptions.
-     */
-    public function getImageTagValues($lang='en') {
-       $returnArr = Array();
-       switch ($lang) {
-          case 'en':
-          default:
-           $sql = "select tagkey, description_en from imagetagkey order by sortorder";
-       }
-       $stmt = $this->conn->stmt_init();
-       $stmt->prepare($sql);
-       if ($stmt) {
-          $stmt->bind_result($key,$desc);
-          $stmt->execute();
-          while ($stmt->fetch()) {
-             $returnArr[$key]=$desc;
-          }
-          $stmt->close();
-       }
-       return $returnArr;
-    }
+	/**
+	 * Obtain an array of the keys used for tagging images by content type.
+	 *
+	 * param: lang language for the description, only en currently supported.
+	 * return: an array of keys for image type tagging along with their descriptions.
+	 */
+	public function getImageTagValues($lang='en') {
+	   $returnArr = Array();
+	   switch ($lang) {
+		  case 'en':
+		  default:
+		   $sql = "select tagkey, description_en from imagetagkey order by sortorder";
+	   }
+	   $stmt = $this->conn->stmt_init();
+	   $stmt->prepare($sql);
+	   if ($stmt) {
+		  $stmt->bind_result($key,$desc);
+		  $stmt->execute();
+		  while ($stmt->fetch()) {
+			 $returnArr[$key]=$desc;
+		  }
+		  $stmt->close();
+	   }
+	   return $returnArr;
+	}
 
-    /**
-     * Obtain an array of the keys used for tagging images by content type.
-     *
-     * param: imgid the images.imgid for which to return presence/absence values for each key
-     * param: lang language for the description, only en currently supported.
-     * return: an ImagTagUse object containing the keys for image type tagging along with their
-     * presence/absence for the provided image and descriptions.
-     */
-    public function getImageTagUsage($imgid,$lang='en') {
-       $resultArr = Array();
-       switch ($lang) {
-          case 'en':
-          default:
-            $sql = "select * from ( " .
-                   "  select tagkey, description_en, shortlabel, sortorder, not isnull(imgid) from imagetagkey k " .
-                   "     left join imagetag i on k.tagkey = i.keyvalue " .
-                   "     where (i.imgid is null or i.imgid = ? ) " .
-                   "  union " .
-                   "  select tagkey, description_en, shortlabel, sortorder, 0 from imagetagkey k " .
-                   "     left join imagetag i on k.tagkey = i.keyvalue " .
-                   "     where (i.imgid is not null and i.imgid <> ? ) " .
-                   " ) a order by sortorder ";
-       }
-       $stmt = $this->conn->stmt_init();
-       $stmt->prepare($sql);
-       if ($stmt) {
-          $stmt->bind_param('ii',$imgid,$imgid);
-          $stmt->bind_result($key,$desc,$lab,$sort,$value);
-          $stmt->execute();
-          $i = 0;
-          while ($stmt->fetch()) {
-             $result = new ImageTagUse();
-             $result->tagkey = $key;
-             $result->shortlabel = $lab;
-             $result->description = $desc;
-             $result->sortorder = $sort;
-             $result->value = $value;
-             $resultArr[$i] = $result;
-             $i++;
-          }
-          $stmt->close();
-       }
-       return $resultArr;
-    }
+	/**
+	 * Obtain an array of the keys used for tagging images by content type.
+	 *
+	 * param: imgid the images.imgid for which to return presence/absence values for each key
+	 * param: lang language for the description, only en currently supported.
+	 * return: an ImagTagUse object containing the keys for image type tagging along with their
+	 * presence/absence for the provided image and descriptions.
+	 */
+	public function getImageTagUsage($imgid,$lang='en') {
+	   $resultArr = Array();
+	   switch ($lang) {
+		  case 'en':
+		  default:
+			$sql = "select * from ( " .
+				   "  select tagkey, description_en, shortlabel, sortorder, not isnull(imgid) from imagetagkey k " .
+				   "	 left join imagetag i on k.tagkey = i.keyvalue " .
+				   "	 where (i.imgid is null or i.imgid = ? ) " .
+				   "  union " .
+				   "  select tagkey, description_en, shortlabel, sortorder, 0 from imagetagkey k " .
+				   "	 left join imagetag i on k.tagkey = i.keyvalue " .
+				   "	 where (i.imgid is not null and i.imgid <> ? ) " .
+				   " ) a order by sortorder ";
+	   }
+	   $stmt = $this->conn->stmt_init();
+	   $stmt->prepare($sql);
+	   if ($stmt) {
+		  $stmt->bind_param('ii',$imgid,$imgid);
+		  $stmt->bind_result($key,$desc,$lab,$sort,$value);
+		  $stmt->execute();
+		  $i = 0;
+		  while ($stmt->fetch()) {
+			 $result = new ImageTagUse();
+			 $result->tagkey = $key;
+			 $result->shortlabel = $lab;
+			 $result->description = $desc;
+			 $result->sortorder = $sort;
+			 $result->value = $value;
+			 $resultArr[$i] = $result;
+			 $i++;
+		  }
+		  $stmt->close();
+	   }
+	   return $resultArr;
+	}
 }
 
 class ImageTagUse {

@@ -8,9 +8,9 @@ Language: English
 $LANG['RECORD_SEARCH_FORM'] = 'Record Search Form';
 $LANG['WILD_EXPLAIN'] = 'Full name of collector as entered in database. To search just on last name, place the wildcard character (%) before name (%Gentry).';
 $LANG['COLLECTOR'] = 'Collector';
-$LANG['SEPARATE_RANGES'] = 'Separate multiple terms by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750';
+$LANG['SEPARATE_RANGES'] = "Separate multiple terms by comma and ranges by ' - ' (space before and after dash required), e.g.: 3542,3602,3700 - 3750";
 $LANG['NUMBER'] = 'Number';
-$LANG['ENTER_RANGES'] = 'Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01';
+$LANG['ENTER_RANGES'] = "Enter ranges separated by ' - ' (space before and after dash required), e.g.: 2002-01-01 - 2003-01-01";
 $LANG['DATE'] = 'Date';
 $LANG['CAT_NUM'] = 'Catalog Number';
 $LANG['OCR_FRAGMENT'] = 'OCR Fragment';

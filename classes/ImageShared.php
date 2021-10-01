@@ -31,33 +31,30 @@ class ImageShared{
 	private $createThumbnailDerivative = true;
 
 	//Image metadata
-	private $caption;
-	private $photographer;
-	private $photographerUid;
-	private $format;
-	private $owner;
-	private $locality;
-	private $occid;
-	private $tid;
-	private $sourceIdentifier;
-	private $rights;
-	private $accessRights;
-	private $copyright;
-	private $notes;
-	private $sortSeq;
+	private $caption = null;
+	private $photographer = null;
+	private $photographerUid = null;
+	private $format = null;
+	private $owner = null;
+	private $locality = null;
+	private $occid = null;
+	private $tid = null;
+	private $sourceIdentifier = null;
+	private $rights = null;
+	private $accessRights = null;
+	private $copyright = null;
+	private $notes = null;
+	private $sortSeq = 50;
+	private $sortOccurrence = 5;
 
-	private $sourceUrl;
-	private $imgLgUrl;
-	private $imgWebUrl;
-	private $imgTnUrl;
+	private $sourceUrl = null;
+	private $imgLgUrl = null;
+	private $imgWebUrl = null;
+	private $imgTnUrl = null;
 
 	private $activeImgId = 0;
 	private $errArr = array();
 	private $context = null;
-
-	// No implementation in Symbiota
-	public $documentGuid;  // Guid for transfer document containing image record.
-	public $documentDate;  // Creation date for transfer document containing image record.
 
  	public function __construct(){
  		$this->conn = MySQLiConnectionFactory::getCon("write");
@@ -98,37 +95,6 @@ class ImageShared{
 		}
 	}
 
- 	public function checkSchema() {
-		$result = false;
-
-		/*****  Warning: Do not override this check in order to supress error messages.
-		 *****  If this warning is encountered, this class must be updated, or code that
-		 *****  invokes it may fail in unpredictable ways. */
-
-		// This class is tightly bound to table images.  If no change was made to that
-		// table in a schema update, then the supported schema version may simply be added.
-		// If, however, changes were made to the table, they must be reflected in this class.
-
-		//$supportedVersions[] = '0.9.1.13';
-		$supportedVersions[] = '0.9.1.14';
-		$supportedVersions[] = '0.9.1.15';
-		$supportedVersions[] = '0.9.1.16';
-		$supportedVersions[] = '1.0';
-		$supportedVersions[] = '1.1';
-
-		// Find the most recently applied version number
-		$preparesql = "select versionnumber from schemaversion order by dateapplied desc limit 1;";
-		if ($statement = $this->conn->prepare($preparesql)) {
-			$statement->execute();
-			$statement->bind_result($versionnumber);
-			$statement->fetch();
-			if (in_array($versionnumber,$supportedVersions)) {
-			   $result = true;
-			}
-	   }
-	   return $result;
-	}
-
  	public function reset(){
  		if($this->sourceGdImg) imagedestroy($this->sourceGdImg);
  		$this->sourceGdImg = null;
@@ -159,7 +125,8 @@ class ImageShared{
 		$this->accessRights = '';
 		$this->copyright = '';
 		$this->notes = '';
-		$this->sortSeq = '';
+		$this->sortSeq = 50;
+		$this->sortOccurrence = 5;
 
 		$this->activeImgId = 0;
 
@@ -551,37 +518,31 @@ class ImageShared{
 
 			//Save currently loaded record
 			$sql = 'INSERT INTO images (tid, url, thumbnailurl, originalurl, photographer, photographeruid, format, caption, '.
-				'owner, sourceurl, copyright, locality, occid, notes, username, sortsequence, sourceIdentifier, rights, accessrights) '.
-				'VALUES ('.($this->tid?$this->tid:'NULL').',"'.$this->imgWebUrl.'",'.
-				($this->imgTnUrl?'"'.$this->imgTnUrl.'"':'NULL').','.
-				($this->imgLgUrl?'"'.$this->imgLgUrl.'"':'NULL').','.
-				($this->photographer?'"'.$this->photographer.'"':'NULL').','.
-				($this->photographerUid?$this->photographerUid:'NULL').','.
-				($this->format?'"'.$this->format.'"':'NULL').','.
-				($this->caption?'"'.$this->caption.'"':'NULL').','.
-				($this->owner?'"'.$this->owner.'"':'NULL').','.
-				($this->sourceUrl?'"'.$this->sourceUrl.'"':'NULL').','.
-				($this->copyright?'"'.$this->copyright.'"':'NULL').','.
-				($this->locality?'"'.$this->locality.'"':'NULL').','.
-				($this->occid?$this->occid:'NULL').','.
-				($this->notes?'"'.$this->notes.'"':'NULL').',"'.
-				$this->cleanInStr($GLOBALS['USERNAME']).'",'.
-				($this->sortSeq?$this->sortSeq:'50').','.
-				($this->sourceIdentifier?'"'.$this->sourceIdentifier.'"':'NULL').','.
-				($this->rights?'"'.$this->rights.'"':'NULL').','.
-				($this->accessRights?'"'.$this->accessRights.'"':'NULL').')';
-			//echo $sql.'<br/>';
-			if($this->conn->query($sql)){
+				'owner, sourceurl, copyright, locality, occid, notes, username, sortsequence, sortoccurrence, sourceIdentifier, rights, accessrights) '.
+				'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+			if($stmt = $this->conn->prepare($sql)) {
+				$userName = $this->cleanInStr($GLOBALS['USERNAME']);
+				$stmt->bind_param('issssissssssissiisss', $this->tid, $this->imgWebUrl, $this->imgTnUrl, $this->imgLgUrl, $this->photographer, $this->photographerUid, $this->format,
+					$this->caption, $this->owner, $this->sourceUrl, $this->copyright, $this->locality, $this->occid, $this->notes, $userName, $this->sortSeq, $this->sortOccurrence,
+					$this->sourceIdentifier, $this->rights, $this->accessRights);
+
+				$stmt->execute();
+				if($stmt->affected_rows == 1){
+					$status = true;
+					$this->activeImgId = $stmt->insert_id;
+				}
+				else{
+					$this->errArr[] = 'ERROR adding image: '.$stmt->error;
+					$status = false;
+				}
+				$stmt->close();
+			}
+			if($status){
 				//Create and insert Symbiota GUID for image(UUID)
 				$guid = UuidFactory::getUuidV4();
-				$this->activeImgId = $this->conn->insert_id;
 				if(!$this->conn->query('INSERT INTO guidimages(guid,imgid) VALUES("'.$guid.'",'.$this->activeImgId.')')) {
 					$this->errArr[] = ' Warning: Symbiota GUID mapping failed';
 				}
-			}
-			else{
-				$this->errArr[] = 'ERROR loading data: '.$this->conn->error;
-				$status = false;
 			}
 		}
 		return $status;
@@ -596,195 +557,81 @@ class ImageShared{
 	}
 
 	public function deleteImage($imgIdDel, $removeImg){
-		$imgUrl = ''; $imgThumbnailUrl = ''; $imgOriginalUrl = ''; $occid = 0;
-		$sqlQuery = 'SELECT * FROM images WHERE (imgid = '.$imgIdDel.')';
-		$rs = $this->conn->query($sqlQuery);
-		if($r = $rs->fetch_object()){
-			$imgUrl = $r->url;
-			$imgThumbnailUrl = $r->thumbnailurl;
-			$imgOriginalUrl = $r->originalurl;
-			$this->tid = $r->tid;
-			$occid = $r->occid;
-			//Archive image
-			$imgArr = array();
-			$imgObj = '';
-			foreach($r as $k => $v){
-				if($v) $imgArr[$k] = $v;
-				$imgObj .= '"'.$k.'":"'.$this->cleanInStr($v).'",';
+		if(is_numeric($imgIdDel)){
+			$imgUrl = ''; $imgThumbnailUrl = ''; $imgOriginalUrl = ''; $occid = 0;
+			$sqlQuery = 'SELECT * FROM images WHERE (imgid = '.$imgIdDel.')';
+			$rs = $this->conn->query($sqlQuery);
+			if($r = $rs->fetch_object()){
+				$imgUrl = $r->url;
+				$imgThumbnailUrl = $r->thumbnailurl;
+				$imgOriginalUrl = $r->originalurl;
+				$this->tid = $r->tid;
+				$occid = $r->occid;
+				//Archive image
+				$imgArr = array();
+				$imgObj = '';
+				foreach($r as $k => $v){
+					if($v) $imgArr[$k] = $v;
+					$imgObj .= '"'.$k.'":"'.$this->cleanInStr($v).'",';
+				}
+				$imgObj = json_encode($imgArr);
+				$sqlArchive = 'UPDATE guidimages '.
+				"SET archivestatus = 1, archiveobj = '{".trim($imgObj,',')."}' ".
+				'WHERE (imgid = '.$imgIdDel.')';
+				$this->conn->query($sqlArchive);
 			}
-			$imgObj = json_encode($imgArr);
-			$sqlArchive = 'UPDATE guidimages '.
-			"SET archivestatus = 1, archiveobj = '{".trim($imgObj,',')."}' ".
-			'WHERE (imgid = '.$imgIdDel.')';
-			$this->conn->query($sqlArchive);
-		}
-		$rs->free();
+			$rs->free();
 
-		if($occid){
-			//Remove any OCR text blocks linked to the image
-			$this->conn->query('DELETE FROM specprocessorrawlabels WHERE (imgid = '.$imgIdDel.')');
-		}
-		//Remove image tags
-		$this->conn->query('DELETE FROM imagetag WHERE (imgid = '.$imgIdDel.')');
+			if($occid){
+				//Remove any OCR text blocks linked to the image
+				$this->conn->query('DELETE FROM specprocessorrawlabels WHERE (imgid = '.$imgIdDel.')');
+			}
+			//Remove image tags
+			$this->conn->query('DELETE FROM imagetag WHERE (imgid = '.$imgIdDel.')');
 
-		$sql = "DELETE FROM images WHERE (imgid = ".$imgIdDel.')';
-		//echo $sql;
-		if($this->conn->query($sql)){
-			if($removeImg){
-				//Search url with and without local domain name
-				$domain = $this->getDomainUrl();
-				if(stripos($imgUrl,$domain) === 0) $imgUrl = substr($imgUrl,strlen($domain));
+			$sql = "DELETE FROM images WHERE (imgid = ".$imgIdDel.')';
+			//echo $sql;
+			if($this->conn->query($sql)){
+				if($removeImg){
+					//Search url with and without local domain name
+					$domain = $this->getDomainUrl();
+					if(stripos($imgUrl,$domain) === 0) $imgUrl = substr($imgUrl,strlen($domain));
 
-				//Delete image from server
-				$imgDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgUrl);
-				if(substr($imgDelPath,0,4) != 'http'){
-					if(!unlink($imgDelPath)){
-						$this->errArr[] = 'WARNING: Deleted records from database successfully but FAILED to delete image from server (path: '.$imgDelPath.')';
+					//Delete image from server
+					$imgDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgUrl);
+					if(substr($imgDelPath,0,4) != 'http'){
+						if(!unlink($imgDelPath)){
+							$this->errArr[] = 'WARNING: Deleted records from database successfully but FAILED to delete image from server (path: '.$imgDelPath.')';
+						}
+					}
+
+					//Delete thumbnail image
+					if($imgThumbnailUrl){
+						if(stripos($imgThumbnailUrl,$domain) === 0){
+							$imgThumbnailUrl = substr($imgThumbnailUrl,strlen($domain));
+						}
+						$imgTnDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgThumbnailUrl);
+						if(file_exists($imgTnDelPath) && substr($imgTnDelPath,0,4) != 'http') unlink($imgTnDelPath);
+					}
+
+					//Delete large version of image
+					if($imgOriginalUrl){
+						if(stripos($imgOriginalUrl,$domain) === 0){
+							$imgOriginalUrl = substr($imgOriginalUrl,strlen($domain));
+						}
+						$imgOriginalDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgOriginalUrl);
+						if(file_exists($imgOriginalDelPath) && substr($imgOriginalDelPath,0,4) != 'http') unlink($imgOriginalDelPath);
 					}
 				}
-
-				//Delete thumbnail image
-				if($imgThumbnailUrl){
-					if(stripos($imgThumbnailUrl,$domain) === 0){
-						$imgThumbnailUrl = substr($imgThumbnailUrl,strlen($domain));
-					}
-					$imgTnDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgThumbnailUrl);
-					if(file_exists($imgTnDelPath) && substr($imgTnDelPath,0,4) != 'http') unlink($imgTnDelPath);
-				}
-
-				//Delete large version of image
-				if($imgOriginalUrl){
-					if(stripos($imgOriginalUrl,$domain) === 0){
-						$imgOriginalUrl = substr($imgOriginalUrl,strlen($domain));
-					}
-					$imgOriginalDelPath = str_replace($this->imageRootUrl,$this->imageRootPath,$imgOriginalUrl);
-					if(file_exists($imgOriginalDelPath) && substr($imgOriginalDelPath,0,4) != 'http') unlink($imgOriginalDelPath);
-				}
 			}
-		}
-		else{
-			$this->errArr[] = 'ERROR: Unable to delete image record: '.$this->conn->error;
-			return false;
-			//echo 'SQL: '.$sql;
-		}
-		return true;
-	}
-
-	/**
-	 * Insert a record into the image table.
-	 * author: Paul J. Morris
-	 *
-	 * return: an empty string on success, otherwise a string containing an error message.
-	 */
-	public function databaseImageRecord($imgWebUrl,$imgTnUrl,$imgLgUrl,$tid,$caption,$phototrapher,$photographerUid,$sourceUrl,$copyright,$owner,$locality,$occid,$notes,$sortSequence,$imagetype,$anatomy,$sourceIdentifier,$rights,$accessRights){
-		$status = "";
-		$sql = 'INSERT INTO images (tid, url, thumbnailurl, originalurl, photographer, photographeruid, caption, '.
-			'owner, sourceurl, copyright, locality, occid, notes, username, sortsequence, imagetype, anatomy, '.
-			'sourceIdentifier, rights, accessrights ) '.
-			'VALUES (?,?,?,?,?,?,? ,?,?,?,?,?,?,?,?,?,? ,?,?,?)';
-		if ($statement = $this->conn->prepare($sql)) {
-			//If central images are on remote server and new ones stored locally, then we need to use full domain
-			//e.g. this portal is sister portal to central portal
-			if($GLOBALS['imageDomain']){
-				$urlPrefix = $this->getDomainUrl();
-				if(substr($imgWebUrl,0,1) == '/'){
-					$imgWebUrl = $urlPrefix.$imgWebUrl;
-				}
-				if(substr($imgTnUrl,0,1) == '/'){
-					$imgTnUrl = $urlPrefix.$imgTnUrl;
-				}
-				if(substr($imgLgUrl,0,1) == '/'){
-					$imgLgUrl = $urlPrefix.$imgLgUrl;
-				}
+			else{
+				$this->errArr[] = 'ERROR: Unable to delete image record: '.$this->conn->error;
+				return false;
+				//echo 'SQL: '.$sql;
 			}
-			$statement->bind_param("issssisssssississsss",$tid,$imgWebUrl,$imgTnUrl,$imgLgUrl,$photographer,$photographerUid,$caption,$owner,$sourceUrl,$copyright,$locality,$occid,$notes,$username,$sortSequence,$imagetype,$anatomy, $sourceIdentifier, $rights, $accessRights);
-
-		   $statement->execute();
-		   $rows = $statement->affected_rows;
-		   if ($rows!==1) {
-			   $status = $statement->error;
-		   }
-		   $statement->close();
-		} else {
-			$status = mysqli_error($this->conn);
-			// Likely case for error conditions if schema changes affect field names
-			// or if updates to field list produce incorrect sql.
-			$this->errArr[] = $status;
+			return true;
 		}
-		if($status!=""){
-			$status = "loadImageData: $status<br/>SQL: ".$sql;
-		}
-		return $status;
-	}
-
-	/**
-	 * Update an existing record into the image table.
-	 * author: Paul J. Morris
-	 *
-	 * return: an empty string on success, otherwise a string containing an error message.
-	 */
-	public function updateImageRecord($imgid,$imgWebUrl,$imgTnUrl,$imgLgUrl,$tid,$caption,$phototrapher,$photographerUid,$sourceUrl,$copyright,$owner,$locality,$occid,$notes,$sortSequence,$imagetype,$anatomy, $sourceIdentifier, $rights, $accessRights){
-		$status = "";
-		$sql = 'update images set tid=?, url=?, thumbnailurl=?, originalurl=?, photographer=?, photographeruid=?, caption=?, '.
-			'owner=?, sourceurl=?, copyright=?, locality=?, occid=?, notes=?, username=?, sortsequence=?, imagetype=?, anatomy=?, '.
-			'sourceIdentifier=?, rights=?, accessrights=? '.
-			'where imgid = ? ';
-		if ($statement = $this->conn->prepare($sql)) {
-			//If central images are on remote server and new ones stored locally, then we need to use full domain
-			//e.g. this portal is sister portal to central portal
-			if($GLOBALS['imageDomain']){
-				$urlPrefix = $this->getDomainUrl();
-				if(substr($imgWebUrl,0,1) == '/'){
-					$imgWebUrl = $urlPrefix.$imgWebUrl;
-				}
-				if(substr($imgTnUrl,0,1) == '/'){
-					$imgTnUrl = $urlPrefix.$imgTnUrl;
-				}
-				if(substr($imgLgUrl,0,1) == '/'){
-					$imgLgUrl = $urlPrefix.$imgLgUrl;
-				}
-			}
-
-			$statement->bind_param("issssisssssississsssi",$tid,$imgWebUrl,$imgTnUrl,$imgLgUrl,$photographer,$photographerUid,$caption,$owner,$sourceUrl,$copyright,$locality,$occid,$notes,$username,$sortSequence,$imagetype,$anatomy, $sourceIdentifier, $rights, $accessRights, $imgid);
-
-		   $statement->execute();
-		   $rows = $statement->affected_rows;
-		   if ($rows!==1) {
-			   $status = $statement->error;
-		   }
-		   $statement->close();
-		} else {
-			$status = mysqli_error($this->conn);
-			// Likely case for error conditions if schema changes affect field names
-			// or if updates to field list produce incorrect sql.
-			$this->errArr[] = $status;
-		}
-		if($status!=""){
-			$status = "loadImageData: $status<br/>SQL: ".$sql;
-		}
-		return $status;
-	}
-
-
-	/**
-	 * Given a sourceURI, return the first imgid if at least one images record exists with
-	 * that sourceURI.
-	 * @author Paul J. Morris
-	 * @param sourceUrl the images.sourceurl to query for.
-	 * @returns an empty string if no images records have the provided sourceURL, otherwise,
-	 * the images.imgid for the first encountered images record with that sourceURL.
-	 */
-	public function getImgIDForSourceURL($sourceUrl) {
-		$result = "";
-		$sql = "select imgid from images where sourceurl = ? order by imgid limit 1 ";
-		if ($statement = $this->conn->prepare($sql)) {
-		   $statement->bind_param("s",$sourceUrl);
-		   $statement->execute();
-		   $statement->bind_result($result);
-		   $statement->fetch();
-		   $statement->close();
-		}
-		return $result;
+		return false;
 	}
 
 	public function insertImageTags($reqArr){
@@ -962,9 +809,11 @@ class ImageShared{
 	}
 
 	public function setSortSeq($v){
-		if(is_numeric($v)){
-			$this->sortSeq = $v;
-		}
+		if(is_numeric($v)) $this->sortSeq = $v;
+	}
+
+	public function setSortOccurrence($v){
+		if(is_numeric($v)) $this->sortOccurrence = $v;
 	}
 
 	public function getSourceIdentifier(){
@@ -1273,10 +1122,13 @@ class ImageShared{
 		$data = curl_exec($curl);
 		curl_close($curl);
 		$width = 0; $height = 0;
+
 		$im = @imagecreatefromstring($data);
-		$width = @imagesx($im);
-		$height = @imagesy($im);
-		if($im) imagedestroy($im);
+		if($im){
+			$width = @imagesx($im);
+			$height = @imagesy($im);
+			imagedestroy($im);
+		}
 		if(!$width || !$height) return false;
 		return array($width,$height);
 	}

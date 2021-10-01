@@ -33,7 +33,7 @@ $LANG['ACTION_STATUS'] = 'Action Status';
 $LANG['RETURN_TO_SEARCH'] = 'Return to Search Page';
 $LANG['NONE_FOUND'] = 'No records found matching the query';
 $LANG['REC_LOCKED'] = 'Record Locked!';
-$LANG['LOCK_EXPLAIN'] = 'This record is locked for editing by another user. Once the user is done with the record, 
+$LANG['LOCK_EXPLAIN'] = 'This record is locked for editing by another user. Once the user is done with the record,
 							the lock will be removed. Records are locked for a maximum of 15 minutes.';
 $LANG['READ_ONLY'] = 'Read-only Display';
 $LANG['OCC_DATA'] = 'Occurrence Data';
@@ -134,9 +134,9 @@ $LANG['FOLLOW_UP'] = 'Follow-up Action';
 $LANG['GO_TO_NEW'] = 'Go to New Record';
 $LANG['GO_NEW_CARRYOVER'] = 'Go to New Record and Carryover Locality Information';
 $LANG['REMAIN_ON_PAGE'] = 'Remain on Editing Page (add images, determinations, etc)';
-$LANG['ERROR_ID_NULL'] = 'ERROR:</b> record identifiers are NULL';
-$LANG['ERROR_NO_CROWDSOURCING'] = 'ERROR:</b> Sorry, this occurrence appears to be taken out of the Crowdsourcing queue and is not longer editable. Contact collection administrator if you think this is incorrect';
-$LANG['ERROR_NOT_AUTHORIZED'] = 'ERROR:</b> Sorry, you are not authorized to edit occurrences within this collection. Contact collection administrator if you think this is incorrect';
-$LANG['ERROR_CANT_ADD'] = 'ERROR:</b> you are not authorized to add occurrence records';
-
+$LANG['ERROR_ID_NULL'] = '<b>ERROR:</b> record identifiers are NULL';
+$LANG['ERROR_NO_CROWDSOURCING'] = '<b>ERROR:</b> Sorry, this occurrence appears to be taken out of the Crowdsourcing queue and is not longer editable. Contact collection administrator if you think this is incorrect';
+$LANG['RETURN_TO_CROWDSOURCING'] = 'Return to Crowdsource Central';
+$LANG['ERROR_NOT_AUTHORIZED'] = '<b>ERROR:</b> Sorry, you are not authorized to edit occurrences within this collection. Contact collection administrator if you think this is incorrect';
+$LANG['ERROR_CANT_ADD'] = '<b>ERROR:</b> you are not authorized to add occurrence records';
 ?>

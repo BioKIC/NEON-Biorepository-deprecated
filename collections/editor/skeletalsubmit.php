@@ -35,19 +35,17 @@ if($collid){
 	<title><?php echo $DEFAULT_TITLE.' '.$LANG['OCC_SKEL_SUBMIT']; ?></title>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.skeletal.js?ver=1" type="text/javascript"></script>
-	<script src="../../js/symb/shared.js?ver=150324" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.skeletal.js?ver=2" type="text/javascript"></script>
+	<script src="../../js/symb/shared.js?ver=1" type="text/javascript"></script>
+	<style type="text/css">
+		label{  }
+		fieldset{ padding: 15px; }
+		legend{ font-weight: bold; }
+	</style>
 </head>
 <body>
 	<?php
@@ -69,7 +67,7 @@ if($collid){
 		}
 		if($isEditor){
 			?>
-			<fieldset style="padding:0px 15px 15px 15px;position:relative;">
+			<fieldset>
 				<legend>
 					<b><?php echo $LANG['SKELETAL_DATA']; ?></b>
 					<a id="optionimgspan" href="#" onclick="showOptions()"><img src="../../images/list.png" style="width:12px;" title="<?php echo $LANG['DISPLAY_OPTIONS']; ?>" /></a>
@@ -88,10 +86,10 @@ if($collid){
  				</div>
 				<form id="defaultform" name="defaultform" action="skeletalsubmit.php" method="post" autocomplete="off" onsubmit="return submitDefaultForm(this)">
 					<div id="optiondiv" style="display:none;position:absolute;background-color:white;">
-						<fieldset>
-							<legend><b><?php echo $LANG['OPTIONS']; ?></b></legend>
+						<fieldset style="margin-top: -10px;padding-top:5px">
+							<legend><?php echo $LANG['OPTIONS']; ?></legend>
 							<div style="float:right;"><a href="#" onclick="hideOptions()" style="color:red" ><?php echo $LANG['X_CLOSE']; ?></a></div>
-							<div style="font-weight:bold"><?php echo $LANG['FIELD_DISPLAY']; ?>:</div>
+							<div style="text-decoration: underline"><?php echo $LANG['FIELD_DISPLAY']; ?>:</div>
 							<input type="checkbox" onclick="toggleFieldDiv('othercatalognumbersdiv')" /> <?php echo $LANG['OTHER_CAT_NUMS']; ?><br/>
 							<input type="checkbox" onclick="toggleFieldDiv('authordiv')" CHECKED /> <?php echo $LANG['AUTHOR']; ?><br/>
 							<input type="checkbox" onclick="toggleFieldDiv('familydiv')" CHECKED /> <?php echo $LANG['FAMILY']; ?><br/>
@@ -105,7 +103,8 @@ if($collid){
 							<input type="checkbox" onclick="toggleFieldDiv('labelprojectdiv')" /> <?php echo $LANG['LABEL_PROJECT']; ?><br/>
 							<input type="checkbox" onclick="toggleFieldDiv('processingstatusdiv')" /> <?php echo $LANG['PROCESSING_STATUS']; ?><br/>
 							<input type="checkbox" onclick="toggleFieldDiv('languagediv')" /> <?php echo $LANG['LANGUAGE']; ?><br/>
-							<div style="font-weight:bold"><?php echo $LANG['CATNUM_MATCH']; ?>:</div>
+							<input type="checkbox" onclick="toggleFieldDiv('exsiccatadiv')" /> <?php echo $LANG['EXSICCATA']; ?><br/>
+							<div style="text-decoration: underline"><?php echo $LANG['CATNUM_MATCH']; ?>:</div>
 							<input name="addaction" type="radio" value="1" checked /> <?php echo $LANG['RESTRICT_IF_EXISTS']; ?> <br/>
 							<input name="addaction" type="radio" value="2" /> <?php echo $LANG['APPEND_VALUES']; ?>
 						</fieldset>
@@ -118,7 +117,7 @@ if($collid){
 					<div>
 						<div style="">
 							<div id="scinamediv" style="float:left">
-								<b><?php echo $LANG['SCINAME']; ?>:</b>
+								<label><?php echo $LANG['SCINAME']; ?>:</label>
 								<input id="fsciname" name="sciname" type="text" value="" style="width:300px"/>
 								<input id="ftidinterpreted" name="tidinterpreted" type="hidden" value="" />
 							</div>
@@ -138,7 +137,7 @@ if($collid){
 							?>
 							<div style="clear:both;">
 								<div id="familydiv" style="float:left">
-									<b><?php echo $LANG['FAMILY']; ?>:</b> <input id="ffamily" name="family" type="text" tabindex="0" value="" />
+									<label><?php echo $LANG['FAMILY']; ?>:</label> <input id="ffamily" name="family" type="text" tabindex="0" value="" />
 								</div>
 								<div id="localitysecuritydiv" style="float:left;margin:3px 5px">
 									<input id="flocalitysecurity" name="localitysecurity" type="checkbox" tabindex="0" value="1" />
@@ -147,39 +146,39 @@ if($collid){
 							</div>
 						</div>
 						<div style="clear:both;padding-top:5px">
-							<div id="countrydiv" style="display:none;float:left;margin:3px 3px 3px 0px;">
-								<b><?php echo $LANG['COUNTRY']; ?>:</b><br/>
+							<div id="countrydiv" style="display:none;float:left;margin:3px;">
+								<label><?php echo $LANG['COUNTRY']; ?></label><br/>
 								<input id="fcountry" name="country" type="text" value="" autocomplete="off" />
 							</div>
-							<div id="statediv" style="float:left;margin:3px 3px 3px 0px;">
-								<b><?php echo $LANG['STATE_PROVINCE']; ?>:</b><br/>
+							<div id="statediv" style="float:left;margin:3px;">
+								<label><?php echo $LANG['STATE_PROVINCE']; ?></label><br/>
 								<input id="fstateprovince" name="stateprovince" type="text" value="" autocomplete="off" onchange="localitySecurityCheck(this.form)" />
 							</div>
-							<div id="countydiv" style="float:left;margin:3px 3px 3px 0px;">
-								<b><?php echo $LANG['COUNTY_PARISH']; ?>:</b><br/>
+							<div id="countydiv" style="float:left;margin:3px;">
+								<label><?php echo $LANG['COUNTY_PARISH']; ?></label><br/>
 								<input id="fcounty" name="county" type="text" autocomplete="off" value="" />
 							</div>
 						</div>
 						<div style="clear:both;padding-top:5px">
-							<div id="recordedbydiv" style="display:none;float:left;margin:3px 3px 3px 0px;">
-								<b><?php echo $LANG['COLLECTOR']; ?>:</b><br/>
+							<div id="recordedbydiv" style="display:none;float:left;margin:3px;">
+								<label><?php echo $LANG['COLLECTOR']; ?></label><br/>
 								<input id="frecordedby" name="recordedby" type="text" value="" />
 							</div>
-							<div id="recordnumberdiv" style="display:none;float:left;margin:3px 3px 3px 0px;">
-								<b><?php echo $LANG['COLLECTOR_NO']; ?>:</b><br/>
+							<div id="recordnumberdiv" style="display:none;float:left;margin:3px;">
+								<label><?php echo $LANG['COLLECTOR_NO']; ?></label><br/>
 								<input id="frecordnumber" name="recordnumber" type="text" value="" />
 							</div>
-							<div id="eventdatediv" style="display:none;float:left;margin:3px 3px 3px 0px;">
-								<b><?php echo $LANG['DATE']; ?>:</b><br/>
+							<div id="eventdatediv" style="display:none;float:left;margin:3px;">
+								<label><?php echo $LANG['DATE']; ?></label><br/>
 								<input id="feventdate" name="eventdate" type="text" value="" onchange="eventDateChanged(this)" />
 							</div>
-							<div id="labelprojectdiv" style="display:none;float:left;margin:5px 3px 3px 0px;">
-								<b><?php echo $LANG['LABEL_PROJECT']; ?>:</b><br/>
+							<div id="labelprojectdiv" style="display:none;float:left;margin:3px;">
+								<label><?php echo $LANG['LABEL_PROJECT']; ?></label><br/>
 								<input id="flabelproject" name="labelproject" type="text" value="" />
 							</div>
-							<div id="processingstatusdiv" style="display:none;float:left;margin:7px 3px 3px 0px">
-								<b><?php echo $LANG['PROCESSING_STATUS']; ?>:</b><br/>
-								<select id="fprocessingstatus" name="processingstatus" style="margin-top:4px">
+							<div id="processingstatusdiv" style="display:none;float:left;margin:3px">
+								<label><?php echo $LANG['PROCESSING_STATUS']; ?></label><br/>
+								<select id="fprocessingstatus" name="processingstatus" style="margin-top:4px;width:150px">
 									<option value=""></option>
 									<option>unprocessed</option>
 									<option>stage 1</option>
@@ -192,34 +191,45 @@ if($collid){
 									<option>closed</option>
 								</select>
 							</div>
-							<div id="languagediv" style="display:none;float:left;margin:7px 3px 3px 0px;">
-								<b><?php echo $LANG['LANGUAGE']; ?>:</b><br/>
+							<div id="languagediv" style="display:none;float:left;margin:3px;">
+								<label><?php echo $LANG['LANGUAGE']; ?></label><br/>
 								<select id="flanguage" name="language" style="margin-top:4px">
 									<option value=""></option>
 									<?php
 									$langArr = $skeletalManager->getLanguageArr();
 									foreach($langArr as $code => $langStr){
-										echo '<option value="'.$code.'" '.($code == 'en'?'selected':'').'>'.$langStr.'</option>';
+										echo '<option value="'.$code.'">'.$langStr.'</option>';
 									}
 									?>
 								</select>
 							</div>
+							<div id="exsiccatadiv" style="display:none;clear:both;">
+								<div id="ometidDiv" style="float:left">
+									<label><?php echo (isset($LANG['EXSTITLE'])?$LANG['EXSTITLE']:'Exsiccati Title'); ?></label><br/>
+									<input id="fexstitle" name="exstitle" value="" style="width: 600px" />
+									<input id="fometid" name="ometid" type="hidden" value="" />
+								</div>
+								<div id="exsnumberDiv">
+									<label><?php echo (isset($LANG['EXSNUMBER'])?$LANG['EXSNUMBER']:'Number'); ?></label><br/>
+									<input id="fexsnumber" name="exsnumber" type="text" value="" />
+								</div>
+							</div>
 						</div>
 						<div style="clear:both;padding:15px;">
 							<div style="float:right;margin:16px 30px 0px 0px;">
-								<input name="clearform" type="reset" value="Clear Form" style="margin-right:40px" />
+								<input name="clearform" type="reset" onclick="resetForm()" value="Clear Form" style="margin-right:40px" />
 							</div>
 							<div style="float:left;">
-								<b><?php echo $LANG['CATALOGNUMBER']; ?>:</b><br/>
+								<label><?php echo $LANG['CATALOGNUMBER']; ?></label><br/>
 								<input id="fcatalognumber" name="catalognumber" type="text" style="border-color:green;" />
 							</div>
-							<div id="othercatalognumbersdiv" style="display:none;float:left;margin:3px;">
-								<b><?php echo $LANG['OTHER_CAT_NUMS']; ?>:</b><br/>
+							<div id="othercatalognumbersdiv" style="display:none;float:left;margin-left:3px;">
+								<label><?php echo $LANG['OTHER_CAT_NUMS']; ?></label><br/>
 								<input id="fothercatalognumbers" name="othercatalognumbers" type="text" value="" />
 							</div>
 							<div style="float:left;margin:16px 3px 3px 3px;">
 								<input id="fcollid" name="collid" type="hidden" value="<?php echo $collid; ?>" />
-								<button name="recordsubmit" type="submit" value="Add Record" /><?php echo $LANG['ADD_RECORD']; ?></button>
+								<button name="recordsubmit" type="submit" value="Add Record"><?php echo $LANG['ADD_RECORD']; ?></button>
 							</div>
 						</div>
 					</div>

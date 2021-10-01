@@ -26,7 +26,7 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 			</select>
 		</div>
 		<div style="margin:5px;">
-			<button value="Insert Lat/Long Values" onclick="insertLatLng(this.form)" ><?php echo $LANG['INSERT_VALUES']; ?></button>
+			<button type="button" onclick="insertLatLng(this.form)" ><?php echo $LANG['INSERT_VALUES']; ?></button>
 		</div>
 	</div>
 	<div id="utmAidDiv">
@@ -38,7 +38,7 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 			<option value="S"><?php echo $LANG['SOUTH']; ?></option>
 		</select><br/>
 		<div style="margin-top:5px;">
-			<button type="button" value="Insert UTM Values" onclick="insertUtm(this.form)" ><?php echo $LANG['INSERT_UTMS']; ?></button>
+			<button type="button" onclick="insertUtm(this.form)" ><?php echo $LANG['INSERT_UTMS']; ?></button>
 		</div>
 	</div>
 	<div id="trsAidDiv">
@@ -89,7 +89,7 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/geotoo
 			<option value="WRWY">Wyoming, Wind River</option>
 		</select>
 		<div style="margin:5px;">
-			<button value="Insert TRS Values" onclick="insertTRS(this.form)"><?php echo $LANG['INSERT_TRS']; ?></button>
+			<button  type="button" onclick="insertTRS(this.form)"><?php echo $LANG['INSERT_TRS']; ?></button>
 		</div>
 	</div>
 </div>

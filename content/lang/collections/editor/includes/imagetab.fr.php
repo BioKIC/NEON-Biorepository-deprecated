@@ -8,8 +8,8 @@ Language: Français (French)
 $LANG['ADD_IMG'] = 'Ajouter une Nouvelle Image';
 $LANG['SELECT_IMG'] = 'Sélectionnez un fichier image situé sur votre ordinateur que vous souhaitez télécharger';
 $LANG['ENTER_URL'] = 'Entrer URL';
-$LANG['ENTER_URL_EXPLAIN'] = "Entrez une URL vers une image déjà située sur un serveur Web. 
-							S'il n'y a qu'une seule version de l'image disponible, entrez dans le champ supérieur et laissez les autres champs vides. 
+$LANG['ENTER_URL_EXPLAIN'] = "Entrez une URL vers une image déjà située sur un serveur Web.
+							S'il n'y a qu'une seule version de l'image disponible, entrez dans le champ supérieur et laissez les autres champs vides.
 							Si les versions miniature et moyenne ne sont pas disponibles, une image dérivée locale sera créée.";
 $LANG['IMG_URL'] = "URL de l'Image (obligatoire)";
 $LANG['MED_VERS'] = 'Version moyenne (en option';
@@ -26,7 +26,7 @@ $LANG['WILL_OVERRIDE'] = 'Avertissement: écrasera la sélection ci-dessus';
 $LANG['NOTES'] = 'Remarques';
 $LANG['COPYRIGHT'] = "Droits d'Auteur";
 $LANG['SOURCE_WEBPAGE'] = 'Source de Page Web';
-$LANG['SORT_SEQUENCE'] = 'Séquence de Tri';
+$LANG['SORT'] = 'Séquence de Tri';
 $LANG['DESCRIBE_IMAGE'] = 'Décrivez cette image';
 $LANG['SUBMIT_NEW'] = 'Soumettre Nouvelle Image';
 $LANG['OPEN_MED'] = 'Ouvrir Image Moyenne';

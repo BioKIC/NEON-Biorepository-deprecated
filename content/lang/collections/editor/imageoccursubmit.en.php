@@ -5,6 +5,7 @@ Language: English
 ------------------
 */
 
+$LANG['NO_SET_STATUS'] = 'No Set Status';
 $LANG['NEW_RECORD_CREATED'] = 'New record has been created';
 $LANG['IMAGE_SUBMIT'] = 'Occurrence Image Submission';
 $LANG['SELECT_IMAGE'] = 'Please select an image file to upload or enter a remote URL to link';

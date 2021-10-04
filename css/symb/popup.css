@@ -2,46 +2,16 @@
  * 
  **/
 body{
-	width:700px;
+	width: 100%;
+	min-width:700px;
 	font-family: Verdana, Geneva, sans-serif;
 	font-size: 12px;
 }
 
-/*Central div in the middle center table div */
-#maintable{
-
-	}
-
-#innertext a{
-
-}
-#innertext a:hover{
-
+#popup-innertext {
+	width: 85%;
+	min-width: 400px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
-/* Image thumbnails   */
-div.tndiv{
-
-}
-
-div.tnimg{
-
-}
-
-div.tnimg a{
-
-}
-
-div.tnimg img{
-
-}	
-
-/*Misc general items*/
-h1{
-}
-
-h2{
-}
-
-h3{
-}

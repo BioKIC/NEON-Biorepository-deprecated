@@ -41,6 +41,22 @@ $(document).ready(function() {
 		autoFocus: true
 	});
 
+	$( "#fexstitle" ).autocomplete({
+		source: "rpc/exsiccatisuggest.php",
+		minLength: 2,
+		autoFocus: true,
+		select: function( event, ui ) {
+			if(ui.item) $( "#fometid" ).val(ui.item.id);
+			else $( "#fometid" ).val("");
+		},
+		change: function( event, ui ) {
+			if(!ui.item){
+				$( "#fometid" ).val("");
+				if($( this ).val()) alert("Please select an exsiccate title from the list");
+			} 
+		}
+	});
+
 	//Initiate timer
 	setInterval( function(){
 		$("#seconds").html(pad(++sec%60));
@@ -128,13 +144,21 @@ function submitDefaultForm(f){
 		alert("Catalog number field must have a value!");
 		continueSubmit = false;
 	}
+	if($( "#fexstitle" ).val() && $( "#fometid" ).val() == ""){
+		alert("Exsiccate title not matching item from list");
+		continueSubmit = false;
+	}
+	if($( "#fometid" ).val() && !$( "#fexsnumber" ).val()){
+		alert("Exsiccate title (#"+$( "#fometid" ).val()+") defined without a number. Please enter the exsiccate number");
+		continueSubmit = false;
+	}
 	
 	if(continueSubmit){
 		/*
 		url = 'rpc/occurAddData.php?sciname='+$( "#fsciname" ).val()+'&scientificnameauthorship='+$( "#fscientificnameauthorship" ).val()+'&family='+$( "#ffamily" ).val()+'&localitysecurity='+($( "#flocalitysecurity" ).prop('checked')?"1":"0");
 		url = url + '&country='+$( "#fcountry" ).val()+'&stateprovince='+$( "#fstateprovince" ).val()+'&county='+$( "#fcounty" ).val();
 		url = url + '&processingstatus='+$( "#fprocessingstatus" ).val()+'&recordedby='+$( "#frecordedby" ).val()+'&recordnumber='+$( "#frecordnumber" ).val(); 
-		url = url + '&eventdate='+$( "#feventdate" ).val()+'&language='+$( "#flanguage" ).val()+'&othercatalognumbers='+$( "#fothercatalognumbers" ).val();
+		url = url + '&eventdate='+$( "#feventdate" ).val()+'&language='+$( "#flanguage" ).val()+'&ometid='+$( "#fometid" ).val()+'&exsnumber='+$( "#fexsnumber" ).val()+'&othercatalognumbers='+$( "#fothercatalognumbers" ).val();
 		url = url + '&catalognumber='+$( "#fcatalognumber" ).val()+'&collid='+$( "#fcollid" ).val()+'&addaction='+$( "input[name=addaction]:checked" ).val();
 		alert(url);
 		*/
@@ -158,6 +182,8 @@ function submitDefaultForm(f){
 				eventdate: $( "#feventdate" ).val(), 
 				labelproject: $( "#flabelproject" ).val(), 
 				language: $( "#flanguage" ).val(), 
+				ometid: $( "#fometid" ).val(),
+				exsnumber: $( "#fexsnumber" ).val(),
 				othercatalognumbers: $( "#fothercatalognumbers" ).val(),
 				catalognumber: $( "#fcatalognumber" ).val(),
 				collid: $( "#fcollid" ).val(),
@@ -194,6 +220,10 @@ function submitDefaultForm(f){
 	
 	$( "#fcatalognumber" ).focus();
 	return false;
+}
+
+function resetForm(){
+	$( "#fometid" ).val("");
 }
 
 function createOccurDiv(catalogNumber, occid, action){

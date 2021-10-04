@@ -138,7 +138,7 @@ if($chars){
 		.dynamopt{}
 		.editimg{ margin-left:10px; }
 		.family-div{ font-weight: bold; margin-top: 10px; font-size: 1.3em; }
-		.vern-span{ font-weight: bold; }
+		.vern-span{  }
 		<?php
 		if($displayImages){
 			?>

@@ -100,6 +100,30 @@ class GeographicThesaurus extends Manager{
 		return true;
 	}
 
+	public function addGeoUnit($postArr){
+		$statusStr = '';
+			if(!$postArr['geoTerm']){
+				$this->errorMessage = 'ERROR adding geoUnit: geographic term must have a value';
+				return false;
+			}
+			else{
+			//Should we check whether the geoterm already exists?
+			$sql = 'INSERT INTO geographicthesaurus '.
+				'SET geoterm = "'.$this->cleanInStr($postArr['geoTerm']).
+				'", iso2 = '.($postArr['iso2']?'"'.$this->cleanInStr($postArr['iso2']).'"':'NULL').
+				', iso3 = '.($postArr['iso3']?'"'.$this->cleanInStr($postArr['iso3']).'"':'NULL').
+				', parentID = '.(is_numeric($postArr['parentID'])?'"'.$this->cleanInStr($postArr['parentID']).'"':'NULL').
+				', abbreviation = '.($postArr['abbreviation']?'"'.$this->cleanInStr($postArr['abbreviation']).'"':'NULL').
+				', numcode = '.(is_numeric($postArr['numCode'])?'"'.$this->cleanInStr($postArr['numCode']).'"':'NULL').
+				', notes = '.($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL');
+				if(!$this->conn->query($sql)){
+					$this->errorMessage = 'ERROR adding unit: '.$this->conn->error;
+					return false;
+				}
+			}
+		return true;
+	}
+
 	public function addChildGeoUnit($postArr){
 		//Add new child
 		//Uses an INSERT INTO sql statement
@@ -167,10 +191,24 @@ class GeographicThesaurus extends Manager{
 	}
 
 	//Misc data retrieval functions
-	public function getGeoTermArr($geoLevelMax = 0){
+	public function getParGeoTermArr($geoLevelMax = 0){
 		$retArr = array();
 		$sql = 'SELECT geoThesID, geoTerm FROM geographicthesaurus ';
 		if($geoLevelMax) $sql .= 'WHERE geoLevel < '.$geoLevelMax.' ';
+		$sql .= 'ORDER BY geoTerm';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->geoThesID] = $r->geoTerm;
+		}
+		$rs->free();
+		return $retArr;
+	}
+	
+	public function getAccGeoTermArr($geoLevelMax = 0, $parentID){
+		$retArr = array();
+		$sql = 'SELECT geoThesID, geoTerm FROM geographicthesaurus ';
+		if($geoLevelMax) $sql .= 'WHERE geoLevel = '.$geoLevelMax.' ';
+		$sql .= 'AND parentID = '.$parentID.' ';
 		$sql .= 'ORDER BY geoTerm';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){

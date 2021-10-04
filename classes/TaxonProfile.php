@@ -209,7 +209,7 @@ class TaxonProfile extends Manager {
 			$rs1->free();
 
 			$tidStr = implode(",",$tidArr);
-			$sql = 'SELECT t.sciname, i.imgid, i.url, i.thumbnailurl, i.originalurl, i.caption, i.occid, IFNULL(i.photographer,CONCAT_WS(" ",u.firstname,u.lastname)) AS photographer '.
+			$sql = 'SELECT t.sciname, i.imgid, i.url, i.thumbnailurl, i.originalurl, i.caption, i.occid, i.photographer, CONCAT_WS(" ",u.firstname,u.lastname) AS photographerLinked '.
 				'FROM images i LEFT JOIN users u ON i.photographeruid = u.uid '.
 				'INNER JOIN taxstatus ts ON i.tid = ts.tid '.
 				'INNER JOIN taxa t ON i.tid = t.tid '.
@@ -234,12 +234,13 @@ class TaxonProfile extends Manager {
 				$imgUrl = $row->url;
 				if($imgUrl == 'empty' && $row->originalurl) $imgUrl = $row->originalurl;
 				if($imgUrl == 'empty') continue;
-				$this->imageArr[$row->imgid]["url"] = $imgUrl;
-				$this->imageArr[$row->imgid]["thumbnailurl"] = $row->thumbnailurl;
-				$this->imageArr[$row->imgid]["photographer"] = $row->photographer;
-				$this->imageArr[$row->imgid]["caption"] = $row->caption;
-				$this->imageArr[$row->imgid]["occid"] = $row->occid;
-				$this->imageArr[$row->imgid]["sciname"] = $row->sciname;
+				$this->imageArr[$row->imgid]['url'] = $imgUrl;
+				$this->imageArr[$row->imgid]['thumbnailurl'] = $row->thumbnailurl;
+				if($row->photographerLinked) $this->imageArr[$row->imgid]['photographer'] = $row->photographerLinked;
+				else $this->imageArr[$row->imgid]['photographer'] = $row->photographer;
+				$this->imageArr[$row->imgid]['caption'] = $row->caption;
+				$this->imageArr[$row->imgid]['occid'] = $row->occid;
+				$this->imageArr[$row->imgid]['sciname'] = $row->sciname;
 			}
 			$result->free();
 		}
@@ -553,10 +554,8 @@ class TaxonProfile extends Manager {
 
 			if($tids){
 				//Get Images
-				$sql = 'SELECT t.sciname, t.tid, i.imgid, i.url, i.thumbnailurl, i.caption, '.
-					'IFNULL(i.photographer,CONCAT_WS(" ",u.firstname,u.lastname)) AS photographer '.
-					'FROM images i INNER JOIN '.
-					'(SELECT ts1.tid, SUBSTR(MIN(CONCAT(LPAD(i.sortsequence,6,"0"),i.imgid)),7) AS imgid '.
+				$sql = 'SELECT t.sciname, t.tid, i.imgid, i.url, i.thumbnailurl, i.caption, i.photographer, CONCAT_WS(" ",u.firstname,u.lastname) AS photographerLinked '.
+					'FROM images i INNER JOIN (SELECT ts1.tid, SUBSTR(MIN(CONCAT(LPAD(i.sortsequence,6,"0"),i.imgid)),7) AS imgid '.
 					'FROM taxstatus ts1 INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
 					'INNER JOIN images i ON ts2.tid = i.tid '.
 					'WHERE ts1.taxauthid = 1 AND ts2.taxauthid = 1 AND (ts1.tid IN('.implode(',',$tids).')) AND (i.thumbnailurl IS NOT NULL) AND (i.url != "empty") '.
@@ -564,20 +563,21 @@ class TaxonProfile extends Manager {
 					'INNER JOIN taxa t ON i2.tid = t.tid '.
 					'LEFT JOIN users u ON i.photographeruid = u.uid ';
 				//echo $sql;
-				$result = $this->conn->query($sql);
-				while($row = $result->fetch_object()){
-					$sciName = ucfirst(strtolower($row->sciname));
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$sciName = ucfirst(strtolower($r->sciname));
 					if(!array_key_exists($sciName,$this->sppArray)){
 						$firstPos = strpos($sciName," ",2)+2;
 						$sciName = substr($sciName,0,strpos($sciName," ",$firstPos));
 					}
-					$this->sppArray[$sciName]["imgid"] = $row->imgid;
-					$this->sppArray[$sciName]["url"] = $row->url;
-					$this->sppArray[$sciName]["thumbnailurl"] = $row->thumbnailurl;
-					$this->sppArray[$sciName]["photographer"] = $row->photographer;
-					$this->sppArray[$sciName]["caption"] = $row->caption;
+					$this->sppArray[$sciName]['imgid'] = $r->imgid;
+					$this->sppArray[$sciName]['url'] = $r->url;
+					$this->sppArray[$sciName]['thumbnailurl'] = $r->thumbnailurl;
+					if($r->photographerLinked) $this->sppArray[$sciName]['photographer'] = $r->photographerLinked;
+					else $this->sppArray[$sciName]['photographer'] = $r->photographer;
+					$this->sppArray[$sciName]['caption'] = $r->caption;
 				}
-				$result->free();
+				$rs->free();
 			}
 
 			//Get Maps, if rank is genus level or higher

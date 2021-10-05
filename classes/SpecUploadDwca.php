@@ -147,27 +147,27 @@ class SpecUploadDwca extends SpecUploadBase{
 	public function verifyBackupFile(){
 		//File must contain eml.xml, meta.xml, occurrence.csv, image.csv, and identifications.csv
 		if(!file_exists($this->uploadTargetPath.'occurrences.csv')){
-			$this->errorStr = 'Not a valid backup file: occurrences.csv file is missing';
+			$this->errorStr = 'OccurrencesMissing';
 			return false;
 		}
 		if(!file_exists($this->uploadTargetPath.'images.csv')){
-			$this->errorStr = 'Not a valid backup file; images.csv file is missing';
+			$this->errorStr = 'ImagesMissing';
 			return false;
 		}
 		if(!file_exists($this->uploadTargetPath.'identifications.csv')){
-			$this->errorStr = 'Not a valid backup file; identifications.csv file is missing';
+			$this->errorStr = 'IdentificationsMissing';
 			return false;
 		}
 		if(!file_exists($this->uploadTargetPath.'meta.xml')){
-			$this->errorStr = 'Not a valid backup file; meta.xml file is missing';
+			$this->errorStr = 'MetaMissing';
 			return false;
 		}
 		if(!file_exists($this->uploadTargetPath.'eml.xml')){
-			$this->errorStr = 'Not a valid backup file; eml.xml file is missing';
+			$this->errorStr = 'EmlMissing';
 			return false;
 		}
 		if(!$this->readMetaFile()){
-			$this->errorStr = 'Not a valid backup file; malformed meta.xml file';
+			$this->errorStr = 'MalformedMeta';
 			return false;
 		}
 
@@ -179,22 +179,20 @@ class SpecUploadDwca extends SpecUploadBase{
 
 		$nodeList = $xpath->query('//collection');
 		if(!$nodeList){
-			$warningArr[] = '<b>WARNING:</b> does NOT appear to be a valid backup file; unable to locate collection element within eml.xml';
+			$warningArr[] = 'UnableToLocateCollectionElement';
 		}
 		if(count($nodeList) == 1){
 			$node = $nodeList->item(0);
 			if(!$node->hasAttribute('id') || $node->getAttribute('id') != $this->collId){
-				$warningArr[] = '<b>WARNING:</b> does NOT appear to be a valid backup file; collection ID not matching target collection';
+				$warningArr[] = 'CollectionIdNotMatching';
 			}
 			if($this->collMetadataArr["collguid"]){
 				if(!$node->hasAttribute('identifier') || $node->getAttribute('identifier') != $this->collMetadataArr["collguid"]){
-					$warningArr[] = '<b>WARNING:</b> does NOT appear to be a valid backup file; collection GUID not matching target collection';
+					$warningArr[] = 'CollectionGuidNotMatching';
 				}
 			}
 		}
-		else{
-			$warningArr[] = '<b>WARNING:</b> does NOT appear to be a valid backup file; more than one collection element located within eml.xml';
-		}
+		else $warningArr[] = 'MultipleCollectionElements';
 		if($warningArr) return $warningArr;
 		return true;
 	}
@@ -850,9 +848,7 @@ class SpecUploadDwca extends SpecUploadBase{
 
 	public function cleanBackupReload(){
 		//Delete records where occid is not within target collection
-		$sql = 'SELECT count(u.occid) as cnt '.
-			'FROM uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid '.
-			'WHERE (u.collid = '.$this->collId.') AND (o.collid != '.$this->collId.')';
+		$sql = 'SELECT count(u.occid) as cnt FROM uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid WHERE (u.collid = '.$this->collId.') AND (o.collid != '.$this->collId.')';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$badCnt = $r->cnt;

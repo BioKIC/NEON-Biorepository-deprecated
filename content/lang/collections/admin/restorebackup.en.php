@@ -19,9 +19,9 @@ $LANG['RESTORE_IMGS'] = 'Restore Images';
 $LANG['ANALYZE'] = 'Analyze File';
 $LANG['MANUAL'] = 'Manual File Upload Option';
 $LANG['WARNINGS'] = 'Warnings exist';
-$LANG['LIVE_DANGEROUSLY'] = 'If you think the warnings are in error, you may process with the database upload at your own risk';
+$LANG['LIVE_DANGEROUSLY'] = 'If you think the warnings are in error, contact your portal administrator';
 $LANG['FINAL_T'] = 'Final transfer';
 $LANG['DEL_OR_PREV'] = 'Note: These are records that were added after the backup was downloaded. You can delete these records one-by-one using preview link above';
 $LANG['OR_CONTACT'] = 'or contact your portal manager if you would rather delete these records in batch';
-
+$LANG['FINALIZE_RESTORE'] = 'Finalize Restore';
 ?>

@@ -756,8 +756,7 @@ class SpecUploadBase extends SpecUpload{
 
 		if($this->uploadType != $this->SKELETAL && $this->uploadType != $this->RESTOREBACKUP && ($this->collMetadataArr["managementtype"] == 'Snapshot' || $this->collMetadataArr["managementtype"] == 'Aggregate')){
 			//Look for null dbpk
-			$sql = 'SELECT count(*) AS cnt FROM uploadspectemp '.
-				'WHERE (dbpk IS NULL) AND (collid IN('.$this->collId.'))';
+			$sql = 'SELECT count(*) AS cnt FROM uploadspectemp WHERE (dbpk IS NULL) AND (collid IN('.$this->collId.'))';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$reportArr['nulldbpk'] = $r->cnt;
@@ -765,9 +764,7 @@ class SpecUploadBase extends SpecUpload{
 			$rs->free();
 
 			//Look for duplicate dbpk
-			$sql = 'SELECT dbpk FROM uploadspectemp '.
-				'GROUP BY dbpk, collid, basisofrecord '.
-				'HAVING (Count(*)>1) AND (collid IN('.$this->collId.'))';
+			$sql = 'SELECT dbpk FROM uploadspectemp GROUP BY dbpk, collid, basisofrecord HAVING (Count(*)>1) AND (collid IN('.$this->collId.'))';
 			$rs = $this->conn->query($sql);
 			$reportArr['dupdbpk'] = $rs->num_rows;
 			$rs->free();
@@ -863,7 +860,10 @@ class SpecUploadBase extends SpecUpload{
 				$sqlFragArr[$v] = 'o.'.$v.' = u.'.$v;
 			}
 		}
-		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid SET o.observeruid = '.($this->observerUid?$this->observerUid:'NULL').','.implode(',',$sqlFragArr);
+		$obsUidTarget = 'NULL';
+		if($this->uploadType == $this->RESTOREBACKUP) $obsUidTarget = 'u.observeruid';
+		elseif($this->observerUid) $obsUidTarget = $this->observerUid;
+		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid SET o.observeruid = '.$obsUidTarget.','.implode(',',$sqlFragArr);
 		if($this->collMetadataArr["managementtype"] == 'Snapshot') $sqlBase .= ', o.dateLastModified = CURRENT_TIMESTAMP() ';
 		$sqlBase .= ' WHERE (u.collid IN('.$this->collId.')) ';
 		$cnt = 1;
@@ -871,7 +871,6 @@ class SpecUploadBase extends SpecUpload{
 		foreach($intervalArr as $intValue){
 			if($previousInterval){
 				$sql = $sqlBase.'AND (o.occid BETWEEN '.$previousInterval.' AND '.($intValue-1).') ';
-				//echo '<div>'.$sql.'</div>';
 				if($this->conn->query($sql)) $this->outputMsg('<li style="margin-left:10px">'.$cnt.': '.$transactionInterval.' updated ('.$this->conn->affected_rows.' changed)</li>');
 				else $this->outputMsg('<li style="margin-left:10px">FAILED updating records: '.$this->conn->error.'</li> ');
 				$cnt++;
@@ -893,9 +892,8 @@ class SpecUploadBase extends SpecUpload{
 			$cnt = 1;
 			while($insertTarget > 0){
 				$sql = 'INSERT IGNORE INTO omoccurrences (collid, dbpk, dateentered, observerUid, '.implode(', ',$fieldArr).' ) '.
-					'SELECT u.collid, u.dbpk, "'.date('Y-m-d H:i:s').'", '.($this->observerUid?$this->observerUid:'NULL').', u.'.implode(', u.',$fieldArr).' FROM uploadspectemp u '.
+					'SELECT u.collid, u.dbpk, "'.date('Y-m-d H:i:s').'", '.$obsUidTarget.', u.'.implode(', u.',$fieldArr).' FROM uploadspectemp u '.
 					'WHERE u.occid IS NULL AND u.collid IN('.$this->collId.') LIMIT '.$transactionInterval;
-				//echo '<div>'.$sql.'</div>';
 				$insertCnt = 0;
 				if($this->conn->query($sql)){
 					$insertCnt = $this->conn->affected_rows;
@@ -1010,10 +1008,12 @@ class SpecUploadBase extends SpecUpload{
 		$fieldArr = array_intersect_assoc($uploadArr,$specArr);
 		unset($fieldArr['occid']);
 		unset($fieldArr['collid']);
-		unset($fieldArr['dbpk']);
-		unset($fieldArr['observeruid']);
-		unset($fieldArr['dateentered']);
-		unset($fieldArr['initialtimestamp']);
+		if($this->uploadType != $this->RESTOREBACKUP){
+			unset($fieldArr['dbpk']);
+			unset($fieldArr['observeruid']);
+			unset($fieldArr['dateentered']);
+			unset($fieldArr['initialtimestamp']);
+		}
 		return array_keys($fieldArr);
 	}
 
@@ -1502,11 +1502,9 @@ class SpecUploadBase extends SpecUpload{
 
 			$this->buildPaleoJSON($recMap);
 			$this->buildMaterialSampleJSON($recMap);
-
 			$sqlFragments = $this->getSqlFragments($recMap,$this->fieldMap);
 			if($sqlFragments){
 				$sql = 'INSERT INTO uploadspectemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-				//echo '<div>SQL: '.$sql.'</div>'; exit;
 				if($this->conn->query($sql)){
 					$this->transferCount++;
 					if($this->transferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->transferCount.'</li>');
@@ -1708,7 +1706,7 @@ class SpecUploadBase extends SpecUpload{
 		$sqlFields = '';
 		$sqlValues = '';
 		foreach($recMap as $symbField => $valueStr){
-			if(substr($symbField,0,8) != 'unmapped'){
+			if(substr($symbField,0,8) != 'unmapped' && $symbField != 'collid'){
 				$sqlFields .= ','.$symbField;
 				$valueStr = $this->encodeString($valueStr);
 				$valueStr = $this->cleanInStr($valueStr);

@@ -274,7 +274,7 @@ $duManager->readUploadParameters();
 									echo '<option value="'.$SKELETAL.'" '.($uploadType==$SKELETAL?'SELECTED':'').'>'.(isset($LANG['SKELETAL_FILE'])?$LANG['SKELETAL_FILE']:'Skeletal File Upload').'</option>';
 									echo '<option value="'.$NFNUPLOAD.'" '.($uploadType==$NFNUPLOAD?'SELECTED':'').'>'.(isset($LANG['NFN_UPLOAD'])?$LANG['NFN_UPLOAD']:'NfN File Upload').'</option>';
 									echo '<option value="">......................................</option>';
-									echo '<option value="'.$DIGIRUPLOAD.'" '.($uploadType==$DIGIRUPLOAD?'SELECTED':'').'>'.(isset($LANG['DIGIR'])?$LANG['DIGIR']:'DiGIR Provider').'DiGIR Provider</option>';
+									echo '<option value="'.$DIGIRUPLOAD.'" '.($uploadType==$DIGIRUPLOAD?'SELECTED':'').'>'.(isset($LANG['DIGIR'])?$LANG['DIGIR']:'DiGIR Provider').'</option>';
 									echo '<option value="'.$DIRECTUPLOAD.'" '.($uploadType==$DIRECTUPLOAD?'SELECTED':'').'>'.(isset($LANG['DIRECT_DB'])?$LANG['DIRECT_DB']:'Direct Database Mapping').'</option>';
 									echo '<option value="'.$STOREDPROCEDURE.'" '.($uploadType==$STOREDPROCEDURE?'SELECTED':'').'>'.(isset($LANG['STORED_PROC'])?$LANG['STORED_PROC']:'Stored Procedure').'</option>';
 									echo '<option value="'.$SCRIPTUPLOAD.'" '.($uploadType==$SCRIPTUPLOAD?'SELECTED':'').'>'.(isset($LANG['SCRIPT_UP'])?$LANG['SCRIPT_UP']:'Script Upload').'</option>';

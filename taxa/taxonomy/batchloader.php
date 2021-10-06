@@ -382,19 +382,52 @@ if($isEditor){
 				echo "<li>Go to <a href='taxonomydisplay.php'>Taxonomic Tree Search</a> page to query for a loaded name.</li>";
 				echo '</ul>';
 			}
+			if($action == 'loadColNode'){
+				echo '<div>Catalog of Life node loader is still in development</div>';
+			}
 			elseif($action == 'loadApiNode'){
-				$harvester = new TaxonomyHarvester();
-				$harvester->setVerboseMode(2);
-				$harvester->setTaxAuthId($taxAuthId);
-				$kingArr = explode(':',$kingdomName);
-				if(isset($kingArr[1])) $harvester->setKingdomName($kingArr[1]);
-				if(isset($kingArr[0])) $harvester->setKingdomTid($kingArr[0]);
-				echo '<ul>';
-				if($harvester->addWormsNode($_POST)){
-					echo '<li>'.$harvester->getTransactionCount().' taxa within the target node have been loaded successfully</li>';
-					echo '<li>Go to <a href="taxonomydisplay.php">Taxonomic Tree Search</a> page to query for a loaded name.</li>';
+				if($_POST['targetapi'] == 'col'){
+					$nodeSciname = $_POST['sciname'];
+					$harvester = new TaxonomyHarvester();
+					$targetArr = $harvester->fetchColNode($nodeSciname);
+					if($targetArr){
+						echo '<fieldset>';
+						echo '<legend>Result Targets</legend>';
+						foreach($targetArr as $colID => $colArr){
+							echo '<div>';
+							echo '<div><b>ID:</b> '.$colID.'</div>';
+							echo '<div><b>Name:</b> '.$colArr['label'].'</div>';
+							echo '<div><b>Dataset Key:</b> <a href="https://api.catalogueoflife.org/dataset/'.$colArr['datasetKey'].'" target="_blank">'.$colArr['datasetKey'].'</a></div>';
+							echo '<div><b>Status:</b> '.$colArr['status'].'</div>';
+							if(isset($colArr['accordingTo'])) echo '<div><b>According to:</b> '.$colArr['accordingTo'].'</div>';
+							if(isset($colArr['link'])) echo '<div><b>Link:</b> <a href="'.$colArr['link'].'" target="_blank">'.$colArr['link'].'</div>';
+							if(isset($colArr['scrutinizer'])) echo '<div><b>Scrutinizer:</b> '.$colArr['scrutinizer'].'</div>';
+							$harvestLink = 'batchloader.php?id='.$colID.'&dskey='.$colArr['datasetKey'].'&targetapi=col&taxauthid='.$_POST['taxauthid'].'&kingdomname='.$_POST['kingdomname'].'&ranklimit='.$_POST['ranklimit'].'&action=loadColNode';
+							if($colArr['datasetKey']) echo '<div><a href="'.$harvestLink.'">Harvest children</a></div>';
+							echo '</div>';
+						}
+						echo '</fieldset>';
+					}
+					else{
+						echo 'ABORT: no valid CoL targets returned';
+						return false;
+					}
+					echo '<div><a href="">Return to Main Menu</a></div>';
 				}
-				echo '</ul>';
+				elseif($_POST['targetapi'] == 'worms'){
+					$harvester = new TaxonomyHarvester();
+					$harvester->setVerboseMode(2);
+					$harvester->setTaxAuthId($taxAuthId);
+					$kingArr = explode(':',$kingdomName);
+					if(isset($kingArr[1])) $harvester->setKingdomName($kingArr[1]);
+					if(isset($kingArr[0])) $harvester->setKingdomTid($kingArr[0]);
+					echo '<ul>';
+					if($harvester->addWormsNode($_POST)){
+						echo '<li>'.$harvester->getTransactionCount().' taxa within the target node have been loaded successfully</li>';
+						echo '<li>Go to <a href="taxonomydisplay.php">Taxonomic Tree Search</a> page to query for a loaded name.</li>';
+					}
+					echo '</ul>';
+				}
 			}
 			else{
 				?>
@@ -541,7 +574,7 @@ if($isEditor){
 						<form name="apinodeloaderform" action="batchloader.php" method="post" onsubmit="return validateNodeLoaderForm(this)">
 							<div style="margin:10px;">
 								This form will batch load a taxonomic node from a selected Taxonomic Authority via their API resources.
-								This function currently only works for WoRMS
+								This function currently only works for Catalog of Life and WoRMS
 							</div>
 							<div style="margin:10px;">
 								<fieldset style="padding:15px;margin:10px 0px">

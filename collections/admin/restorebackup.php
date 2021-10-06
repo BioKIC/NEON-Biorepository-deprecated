@@ -213,15 +213,20 @@ include($SERVER_ROOT.'/includes/header.php');
 											<div style="margin:10px">
 												<?php
 												foreach($verificationResult as $warningStr){
-													echo '<div>'.$warningStr.'</div>';
+													if($warningStr == 'UnableToLocateCollectionElement') echo '<div><b>WARNING:</b> does NOT appear to be a valid backup file; unable to locate collection element within eml.xml</div>';
+													elseif($warningStr == 'CollectionIdNotMatching') echo '<div><b>ABORT:</b> does NOT appear to be a valid backup file for this collection; collection ID not matching target collection</div>';
+													elseif($warningStr == 'CollectionGuidNotMatching') echo '<div><b>ABORT:</b> does NOT appear to be a valid backup file for this collection; collection GUID not matching target collection</div>';
+													elseif($warningStr == 'MultipleCollectionElements') echo '<div><b>WARNING:</b> does NOT appear to be a valid backup file; more than one collection element located within eml.xml</div>';
 												}
 												?>
-												<div style="margin-top: 10px"><?php echo (isset($LANG['LIVE_DANGEROUSLY'])?$LANG['LIVE_DANGEROUSLY']:'If you think the warnings are in error, you may process with the database upload at your own risk'); ?></div>
+												<div style="margin-top: 10px"><?php echo (isset($LANG['LIVE_DANGEROUSLY'])?$LANG['LIVE_DANGEROUSLY']:'If you think the warnings are in error, contact your portal administrator'); ?></div>
 											</div>
 										</div>
 										<div style="margin:20px;">
+											<!--
 											<input type="submit" name="action" value="Continue with Restore" />
-										</div>
+											 -->
+ 										</div>
 									</fieldset>
 									<input name="includeidentificationhistory" type="hidden" value="<?php echo $includeIdentificationHistory; ?>" />
 									<input name="includeimages" type="hidden" value="<?php echo $includeImages; ?>" />
@@ -232,7 +237,15 @@ include($SERVER_ROOT.'/includes/header.php');
 							}
 						}
 						else{
-							echo '<div><span style="color:red">FATAL ERROR:</span> '.$duManager->getErrorStr().'</div>';
+							echo '<div><span style="color:red">FATAL ERROR:</span> ';
+							$errCode = $duManager->getErrorStr();
+							if($errCode == 'OccurrencesMissing') echo 'Not a valid backup file: occurrences.csv file is missing';
+							elseif($errCode == 'ImagesMissing') echo 'Not a valid backup file; images.csv file is missing';
+							elseif($errCode == 'IdentificationsMissing') echo 'Not a valid backup file; identifications.csv file is missing';
+							elseif($errCode == 'MetaMissing') echo 'Not a valid backup file; meta.xml file is missing';
+							elseif($errCode == 'EmlMissing') echo 'Not a valid backup file; eml.xml file is missing';
+							elseif($errCode == 'MalformedMeta') echo 'Not a valid backup file; malformed meta.xml file';
+							echo '</div>';
 						}
 					}
 				}
@@ -249,7 +262,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							<div style="margin:5px;">
 								<?php
 								$reportArr = $duManager->getTransferReport();
-								echo '<div>'.(isset($LANG['OCCS_TRANSFERING'])?$OCCS_TRANSFERING['FINAL_T']:'Occurrences pending transfer').': '.$reportArr['occur'];
+								echo '<div>'.(isset($LANG['OCCS_TRANSFERING'])?$LANG['OCCS_TRANSFERING']:'Occurrences pending transfer').': '.$reportArr['occur'];
 								if($reportArr['occur']){
 									echo ' <a href="uploadreviewer.php?collid='.$collid.'" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
 									echo ' <a href="uploadreviewer.php?action=export&collid='.$collid.'" target="_self" title="'.(isset($LANG['DOWNLOAD_RECS'])?$LANG['DOWNLOAD_RECS']:'Download Records').'"><img src="../../images/dl.png" style="width:12px;" /></a>';
@@ -264,7 +277,7 @@ include($SERVER_ROOT.'/includes/header.php');
 								}
 								echo '</div>';
 								if($reportArr['new']){
-									echo '<div>New records: ';
+									echo '<div>Records to be restored: ';
 									echo $reportArr['new'];
 									if($reportArr['new']){
 										echo ' <a href="uploadreviewer.php?collid='.$collid.'&searchvar=new" target="_blank" title="'.(isset($LANG['PREVIEW'])?$LANG['PREVIEW']:'Preview 1st 1000 Records').'"><img src="../../images/list.png" style="width:12px;" /></a>';
@@ -301,7 +314,7 @@ include($SERVER_ROOT.'/includes/header.php');
 								<input name="includeimages" type="hidden" value="<?php echo $includeImages; ?>" />
 								<input type="hidden" name="collid" value="<?php echo $collid;?>" />
 								<div style="margin:5px;">
-									<button name="action" type="submit" value="TransferRecords"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
+									<button name="action" type="submit" value="TransferRecords"><?php echo (isset($LANG['FINALIZE_RESTORE'])?$LANG['FINALIZE_RESTORE']:'Finalize Restore'); ?></button>
 								</div>
 							</form>
 						</fieldset>

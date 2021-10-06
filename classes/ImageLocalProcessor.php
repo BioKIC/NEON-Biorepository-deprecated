@@ -518,7 +518,7 @@ class ImageLocalProcessor {
 	}
 
 	private function prepTarget($targetPath, $fileName, $occid){
-		$targetFileName = $fileName;
+		$targetFileName = str_replace('%20', '_', $fileName);
 		if($this->webImg == 1 || $this->webImg == 2){
 			//Check to see if image already exists at target, if so, delete or rename target
 			if(file_exists($targetPath.$targetFileName)){

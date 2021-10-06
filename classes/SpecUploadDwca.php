@@ -27,13 +27,10 @@ class SpecUploadDwca extends SpecUploadBase{
 
 		if($this->path){
 			if($this->uploadType == $this->IPTUPLOAD){
+				$this->path = preg_replace('/&v=[\d\.]+/', '', $this->path);
 				//If IPT resource URL was provided, adjust ULR to point to the Archive file
-				if(strpos($this->path,'/resource.do')){
-					$this->path = str_replace('/resource.do','/archive.do',$this->path);
-				}
-				elseif(strpos($this->path,'/resource?')){
-					$this->path = str_replace('/resource','/archive.do',$this->path);
-				}
+				if(strpos($this->path,'/resource.do')) $this->path = str_replace('/resource.do','/archive.do',$this->path);
+				elseif(strpos($this->path,'/resource?')) $this->path = str_replace('/resource','/archive.do',$this->path);
 			}
 			if((substr($this->path,0,1) == '/' || preg_match('/^[A-Za-z]{1}:/', $this->path)) && is_dir($this->path)){
 				//Path is a local directory, possible manually extracted local DWCA directory

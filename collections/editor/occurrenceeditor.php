@@ -502,7 +502,7 @@ else{
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.query.js?ver=3" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.query.js?ver=4" type="text/javascript"></script>
 	<style type="text/css">
 		fieldset{ padding:15px }
 		fieldset > legend{ font-weight:bold; }

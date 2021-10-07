@@ -34,4 +34,5 @@ $LANG['OCCURRENCES'] = 'occurrences';
 $LANG['EXTERNAL_RESOURCES'] = 'External Resources';
 $LANG['NOT_FOUND'] = 'not found';
 $LANG['DID_YOU_MEAN'] = 'Did you mean?';
+$LANG['CALENDAR_TRAIT_PLOT'] = 'Traits Plots';
 ?>

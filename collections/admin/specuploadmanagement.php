@@ -15,7 +15,7 @@ if(!is_numeric($collid)) $collid = 0;
 if(!is_numeric($uspid)) $uspid = 0;
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
 
-$DIRECTUPLOAD = 1;$DIGIRUPLOAD = 2; $FILEUPLOAD = 3; $STOREDPROCEDURE = 4; $SCRIPTUPLOAD = 5; $DWCAUPLOAD = 6; $SKELETAL = 7; $IPTUPLOAD = 8; $NFNUPLOAD = 9;
+$DIRECTUPLOAD = 1; $FILEUPLOAD = 3; $STOREDPROCEDURE = 4; $SCRIPTUPLOAD = 5; $DWCAUPLOAD = 6; $SKELETAL = 7; $IPTUPLOAD = 8; $NFNUPLOAD = 9;
 
 $duManager = new SpecUpload();
 
@@ -123,16 +123,6 @@ $duManager->readUploadParameters();
 				document.getElementById("portDiv").style.display='block';
 				document.getElementById("usernameDiv").style.display='block';
 				document.getElementById("passwordDiv").style.display='block';
-				document.getElementById("schemanameDiv").style.display='block';
-				document.getElementById("cleanupspDiv").style.display='block';
-				document.getElementById("querystrDiv").style.display='block';
-			}
-			else if(selValue == 2){ //DiGIR
-				document.getElementById("serverDiv").style.display='block';
-				document.getElementById("portDiv").style.display='block';
-				document.getElementById("codeDiv").style.display='block';
-				document.getElementById("pathDiv").style.display='block';
-				document.getElementById("pkfieldDiv").style.display='block';
 				document.getElementById("schemanameDiv").style.display='block';
 				document.getElementById("cleanupspDiv").style.display='block';
 				document.getElementById("querystrDiv").style.display='block';
@@ -274,7 +264,6 @@ $duManager->readUploadParameters();
 									echo '<option value="'.$SKELETAL.'" '.($uploadType==$SKELETAL?'SELECTED':'').'>'.(isset($LANG['SKELETAL_FILE'])?$LANG['SKELETAL_FILE']:'Skeletal File Upload').'</option>';
 									echo '<option value="'.$NFNUPLOAD.'" '.($uploadType==$NFNUPLOAD?'SELECTED':'').'>'.(isset($LANG['NFN_UPLOAD'])?$LANG['NFN_UPLOAD']:'NfN File Upload').'</option>';
 									echo '<option value="">......................................</option>';
-									echo '<option value="'.$DIGIRUPLOAD.'" '.($uploadType==$DIGIRUPLOAD?'SELECTED':'').'>'.(isset($LANG['DIGIR'])?$LANG['DIGIR']:'DiGIR Provider').'</option>';
 									echo '<option value="'.$DIRECTUPLOAD.'" '.($uploadType==$DIRECTUPLOAD?'SELECTED':'').'>'.(isset($LANG['DIRECT_DB'])?$LANG['DIRECT_DB']:'Direct Database Mapping').'</option>';
 									echo '<option value="'.$STOREDPROCEDURE.'" '.($uploadType==$STOREDPROCEDURE?'SELECTED':'').'>'.(isset($LANG['STORED_PROC'])?$LANG['STORED_PROC']:'Stored Procedure').'</option>';
 									echo '<option value="'.$SCRIPTUPLOAD.'" '.($uploadType==$SCRIPTUPLOAD?'SELECTED':'').'>'.(isset($LANG['SCRIPT_UP'])?$LANG['SCRIPT_UP']:'Script Upload').'</option>';

@@ -74,7 +74,6 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	public function loadFieldMap($autoBuildFieldMap = false){
-		if($this->uploadType == $this->DIGIRUPLOAD) $autoBuildFieldMap = true;
 		//Get Field Map for $fieldMap
 		if($this->uspid && !$this->fieldMap){
 			switch ($this->uploadType) {
@@ -321,7 +320,7 @@ class SpecUploadBase extends SpecUpload{
 			$symbFieldsRaw = $this->imageSymbFields;
 			$sourceArr = $this->imageSourceArr;
 			$translationMap = array('accessuri'=>'originalurl','thumbnailaccessuri'=>'thumbnailurl','goodqualityaccessuri'=>'url',
-				'creator'=>'owner','providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights',
+				'providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights',
 				'comments'=>'notes','associatedspecimenreference'=>'referenceurl');
 		}
 
@@ -1464,11 +1463,6 @@ class SpecUploadBase extends SpecUpload{
 			}
 			if(array_key_exists('collectioncode',$recMap) && $recMap['collectioncode'] == $this->collMetadataArr["collectioncode"]){
 				unset($recMap['collectioncode']);
-			}
-
-			//If a DiGIR load, set dbpk value
-			if($this->pKField && array_key_exists($this->pKField,$recMap) && !array_key_exists('dbpk',$recMap)){
-				$recMap['dbpk'] = $recMap[$this->pKField];
 			}
 
 			//Do some cleaning on the dbpk; remove leading and trailing whitespaces and convert multiple spaces to a single space

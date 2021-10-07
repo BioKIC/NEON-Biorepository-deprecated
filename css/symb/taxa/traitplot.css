@@ -1,0 +1,67 @@
+.PlotCaption {
+  font-size: x-small;
+}
+.BarPlotGridBackground {
+  fill: lightgray;
+}
+.BarPlotGridLine {
+  fill: none;
+  stroke: white;
+  stroke-width: 1 px;
+}
+.BarPlotAxisLine {
+  stroke: grey;
+  stroke-width: 1 px;
+}
+.BarPlotLabelText {
+  fill: black;
+  font-family: sans-serif;
+  font-size: x-small;
+  text-anchor: middle;
+}
+.BarPlotScaleText {
+  fill: black;
+  font-family: sans-serif;
+  font-size: x-small;
+  text-anchor: end;
+}
+.BarPlotFocalBar {
+  width: 9;
+  stroke: none;
+  fill: orange;
+}
+.BarPlotBlurredBar {
+  width: 9;
+  stroke: none;
+  fill: gray;
+}
+.PolarPlotAxisLine {
+  stroke: grey;
+  stroke-width: 1 px;
+}
+.PolarPlotTickLine {
+  stroke: grey;
+  stroke-width: 1 px;
+  stroke-dasharray: 2 2;
+  fill: none;
+}
+.PolarPlotLabelText {
+  font-family: sans-serif;
+  font-size: x-small;
+  text-anchor: middle;
+}
+.PolarPlotScaleText {
+  font-family: sans-serif;
+  font-size: xx-small;
+  text-anchor: middle;
+}
+.PolarPlotFocalCurve {
+  fill: none;
+  stroke-width: 3px;
+  stroke: orange;
+}
+.PolarPlotBlurredCurve {
+  fill: none;
+  stroke-width: 3px;
+  stroke: gray;
+}

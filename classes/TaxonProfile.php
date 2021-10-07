@@ -3,8 +3,8 @@ include_once('Manager.php');
 
 class TaxonProfile extends Manager {
 
-	private $tid;
-	private $rankId;
+	protected $tid;
+	protected $rankId;
 	private $parentTid;
 	private $taxAuthId = 1;
 	private $taxonName;
@@ -13,9 +13,9 @@ class TaxonProfile extends Manager {
 	private $acceptance = true;
 	private $forwarded = false;
 
-	private $acceptedArr = array();
-	private $synonymArr = array();
-	private $submittedArr = array();
+	protected $acceptedArr = array();
+	protected $synonymArr = array();
+	protected $submittedArr = array();
 
 	private $langArr = array();
 	private $imageArr;
@@ -419,6 +419,7 @@ class TaxonProfile extends Manager {
 
 	public function getDescriptionTabs(){
 		global $LANG;
+		global $CALENDAR_TRAIT_PLOTS;
 		$retStr = '';
 		$descArr = $this->getDescriptions();
 		$retStr .= '<div id="desctabs" class="ui-tabs" style="display:none">';
@@ -433,6 +434,9 @@ class TaxonProfile extends Manager {
 				}
 				$retStr .= '<li><a href="#tab'.$id.'">'.$cap.'</a></li>';
 			}
+		}
+		if((isset($CALENDAR_TRAIT_PLOTS) && $CALENDAR_TRAIT_PLOTS > 0) && $this->rankId > 180) {
+			$retStr .= '<li><a href="plottab.php?tid='.$this->tid.'">'.($LANG['CALENDAR_TRAIT_PLOT']?$LANG['CALENDAR_TRAIT_PLOT']:'Traits Plots').'</a></li>';
 		}
 		$retStr .= '<li><a href="resourcetab.php?tid='.$this->tid.'">'.($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources').'</a></li>';
 		$retStr .= '</ul>';

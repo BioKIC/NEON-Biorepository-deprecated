@@ -21,7 +21,7 @@ $procStatus = array_key_exists('procstatus',$_REQUEST)?$_REQUEST['procstatus']:'
 $specManager = new SpecProcessorManager();
 $specManager->setCollId($collid);
 // Use ImageMagick, if so configured in symbini.php
-$specManager->setUseImageMagick($USE_IMAGE_MAGICK ? $USE_IMAGE_MAGICK : 0);
+$specManager->setUseImageMagick(isset($USE_IMAGE_MAGICK) && $USE_IMAGE_MAGICK ? $USE_IMAGE_MAGICK : 0);
 
 $isEditor = false;
 if($IS_ADMIN || (array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){

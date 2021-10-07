@@ -1,3 +1,8 @@
+<?php
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/imgprocessor.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/imgprocessor.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/imgprocessor.en.php');
+?>
+
 <script>
 	$(function() {
 		$( "#zoomInfoDialog" ).dialog({
@@ -49,22 +54,20 @@
 </script>
 <div id="labelProcDiv" style="width:100%;height:1050px;position:relative">
 	<fieldset id="labelProcFieldset" style="height:95%;background-color:white;">
-		<legend><b>Label Processing</b></legend>
+		<legend><b><?php echo $LANG['LABEL_PROCESSING']; ?></b></legend>
 		<div id="labelHeaderDiv" style="margin-top:-10px;height:15px;position:relative">
-			<div style="float:left;margin-top:3px;margin-right:15px"><a id="zoomInfoDiv" href="#">Zoom?</a></div>
+			<div style="float:left;margin-top:3px;margin-right:15px"><a id="zoomInfoDiv" href="#"><?php echo $LANG['ZOOM']; ?></a></div>
 			<div id="zoomInfoDialog">
-				Hold down control button and click on the image to quick zoom into specific location
-				or hold down the shift button and hold a left-click while moving the mouse up or down for a more controlled zoom action.
-				Click and drag bottom right corner of image to resize display panel.
+				<?php echo $LANG['ZOOM_DIRECTIONS']; ?>
 			</div>
 			<div style="float:left;margin-right:15px">
-				<div id="draggableImgDiv" style="float:left" title="Make image panel draggable"><a href="#" onclick="draggableImgPanel()"><img src="../../images/draggable.png" style="width:15px" /></a></div>
-				<div id="floatImgDiv" style="float:left;margin-left:10px" title="Allow image panel to remain within active screen"><a href="#" onclick="floatImgPanel()"><img src="../../images/floatdown.png" style="width:15px" /></a></div>
-				<div id="anchorImgDiv" style="float:left;margin-left:10px;display:none" title="Anchor image panel in original locality"><a href="#" onclick="anchorImgPanel()"><img src="../../images/anchor.png" style="width:15px" /></a></div>
+				<div id="draggableImgDiv" style="float:left" title="<?php echo $LANG['MAKE_DRAGGABLE']; ?>"><a href="#" onclick="draggableImgPanel()"><img src="../../images/draggable.png" style="width:15px" /></a></div>
+				<div id="floatImgDiv" style="float:left;margin-left:10px" title="<?php echo $LANG['ALLOW_REMAIN_ACTIVE']; ?>"><a href="#" onclick="floatImgPanel()"><img src="../../images/floatdown.png" style="width:15px" /></a></div>
+				<div id="anchorImgDiv" style="float:left;margin-left:10px;display:none" title="<?php echo $LANG['ANCHOR_IMG']; ?>"><a href="#" onclick="anchorImgPanel()"><img src="../../images/anchor.png" style="width:15px" /></a></div>
 			</div>
-			<div style="float:left;;padding-right:10px;margin:2px 20px 0px 0px;">Rotate: <a href="#" onclick="rotateImage(-90)">&nbsp;L&nbsp;</a> &lt;&gt; <a href="#" onclick="rotateImage(90)">&nbsp;R&nbsp;</a></div>
-			<div style="float:right;padding:0px 3px;margin:0px 3px;"><input id="imgreslg" name="resradio" type="radio" onchange="changeImgRes('lg')" />High Res.</div>
-			<div style="float:right;padding:0px 3px;margin:0px 3px;"><input id="imgresmed" name="resradio"  type="radio" checked onchange="changeImgRes('med')" />Med Res.</div>
+			<div style="float:left;;padding-right:10px;margin:2px 20px 0px 0px;"><?php echo $LANG['ROTATE']; ?>: <a href="#" onclick="rotateImage(-90)">&nbsp;L&nbsp;</a> &lt;&gt; <a href="#" onclick="rotateImage(90)">&nbsp;R&nbsp;</a></div>
+			<div style="float:right;padding:0px 3px;margin:0px 3px;"><input id="imgreslg" name="resradio" type="radio" onchange="changeImgRes('lg')" /><?php echo $LANG['HIGH_RES']; ?>.</div>
+			<div style="float:right;padding:0px 3px;margin:0px 3px;"><input id="imgresmed" name="resradio"  type="radio" checked onchange="changeImgRes('med')" /><?php echo $LANG['MED_RES']; ?>.</div>
 		</div>
 		<div id="labelprocessingdiv" style="clear:both;">
 			<?php
@@ -84,19 +87,18 @@
 					?>
 					<div style="width:100%;clear:both;">
 						<div style="float:left;">
-							<input type="button" value="OCR Image" onclick="ocrImage(this,<?php echo $imgId.','.$imgCnt; ?>);" />
+							<button value="OCR Image" onclick="ocrImage(this,<?php echo $imgId.','.$imgCnt; ?>);" ><?php echo $LANG['OCR_IMAGE']; ?></button>
 							<img id="workingcircle-<?php echo $imgCnt; ?>" src="../../images/workingcircle.gif" style="display:none;" />
 						</div>
 						<div style="float:left;">
 							<fieldset style="width:200px;background-color:lightyellow;">
-								<legend>Options</legend>
-								<input type="checkbox" id="ocrfull" value="1" /> OCR whole image<br/>
-								<input type="checkbox" id="ocrbest" value="1" /> OCR w/ analysis
+								<legend><?php echo $LANG['OPTIONS']; ?></legend>
+								<input type="checkbox" id="ocrfull" value="1" /> <?php echo $LANG['OCR_WHOLE_IMG']; ?><br/>
+								<input type="checkbox" id="ocrbest" value="1" /> <?php echo $LANG['OCR_ANALYSIS']; ?>
 							</fieldset>
 						</div>
 						<div style="float:right;margin-right:20px;font-weight:bold;">
-							Image <?php echo $imgCnt; ?> of
-							<?php
+							<?php echo $LANG['IMAGE'].' '.$imgCnt.' '.$LANG['OF'].' ';
 							echo count($imgArr);
 							if(count($imgArr)>1){
 								echo '<a href="#" onclick="return nextLabelProcessingImage('.($imgCnt+1).');">=&gt;&gt;</a>';
@@ -117,11 +119,11 @@
 									<textarea name="rawtext" rows="12" cols="48" style="width:97%;background-color:#F8F8F8;"></textarea>
 								</div>
 								<div title="OCR Notes">
-									<b>Notes:</b>
+									<b><?php echo $LANG['NOTES']; ?>:</b>
 									<input name="rawnotes" type="text" value="" style="width:97%;" />
 								</div>
 								<div title="OCR Source">
-									<b>Source:</b>
+									<b><?php echo $LANG['SOURCE']; ?>:</b>
 									<input name="rawsource" type="text" value="" style="width:97%;" />
 								</div>
 								<div style="float:left">
@@ -130,10 +132,10 @@
 									<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
 									<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 									<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
-									<input name="submitaction" type="submit" value="Save OCR" />
+									<button name="submitaction" type="submit" value="Save OCR" ><?php echo $LANG['SAVE_OCR']; ?></button>
 								</div>
 							</form>
-							<div style="font-weight:bold;float:right;">&lt;New&gt; of <?php echo count($fArr); ?></div>
+							<div style="font-weight:bold;float:right;"><?php echo '&lt;'.$LANG['NEW'].'&gt; '.$LANG['OF'].' '.count($fArr); ?></div>
 						</div>
 						<div id="tfeditdiv-<?php echo $imgCnt; ?>" style="clear:both;">
 							<?php
@@ -159,11 +161,11 @@
 												<textarea name="rawtext" rows="12" cols="48" style="width:97%"><?php echo $rArr['raw']; ?></textarea>
 											</div>
 											<div title="OCR Notes">
-												<b>Notes:</b>
+												<b><?php echo $LANG['NOTES']; ?>:</b>
 												<input name="rawnotes" type="text" value="<?php echo $rArr['notes']; ?>" style="width:97%;" />
 											</div>
 											<div title="OCR Source">
-												<b>Source:</b>
+												<b><?php echo $LANG['SOURCE']; ?>:</b>
 												<input name="rawsource" type="text" value="<?php echo $rArr['source']; ?>" style="width:97%;" />
 											</div>
 											<div style="float:left;margin-left:10px;">
@@ -172,7 +174,7 @@
 												<input type="hidden" name="occid" value="<?php echo $occId; ?>" />
 												<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 												<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
-												<input name="submitaction" type="submit" value="Save OCR Edits" />
+												<button name="submitaction" type="submit" value="Save OCR Edits" ><?php echo $LANG['SAVE_OCR_EDITS']; ?></button>
 											</div>
 											<div style="float:left;margin-left:20px;">
 												<input type="hidden" name="iurl" value="<?php echo $iUrl; ?>" />
@@ -206,7 +208,7 @@
 												<input type="hidden" name="occid" value="<?php echo $occId; ?>" /><br/>
 												<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 												<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
-												<input name="submitaction" type="submit" value="Delete OCR" />
+												<button name="submitaction" type="submit" value="Delete OCR" ><?php echo $LANG['DELETE_OCR']; ?></button>
 											</form>
 										</div>
 									</div>

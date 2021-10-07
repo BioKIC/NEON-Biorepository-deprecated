@@ -71,12 +71,43 @@ ALTER TABLE `geographicthesaurus`
 ADD CONSTRAINT `FK_geothes_parentID`  FOREIGN KEY (`parentID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
 
 ALTER TABLE `geographicthesaurus` 
-  ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `category` ASC, `parentID` ASC);
+  ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `parentID` ASC);
+
+
+CREATE TABLE `omcrowdsourceproject` (
+  `csProjID` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(45) NOT NULL,
+  `description` VARCHAR(250) NULL,
+  `instructions` TEXT NULL,
+  `trainingurl` VARCHAR(250) NULL,
+  `managers` VARCHAR(150) NULL,
+  `criteria` VARCHAR(1500) NULL,
+  `notes` VARCHAR(250) NULL,
+  `modifiedUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` DATETIME NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`csProjID`));
+
+ALTER TABLE `omcrowdsourceproject` 
+  ADD INDEX `FK_croudsourceproj_uid_idx` (`modifiedUid` ASC) ;
+
+ALTER TABLE `omcrowdsourceproject`
+  ADD CONSTRAINT `FK_croudsourceproj_uid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `omcrowdsourcequeue` 
+  ADD COLUMN `csProjID` INT NULL AFTER `omcsid`,
+  ADD INDEX `FK_omcrowdsourcequeue_csProjID_idx` (`csProjID` ASC);
+
+ALTER TABLE `omcrowdsourcequeue` 
+  ADD CONSTRAINT `FK_omcrowdsourcequeue_csProjID`  FOREIGN KEY (`csProjID`)  REFERENCES `omcrowdsourceproject` (`csProjID`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
+ALTER TABLE `omcrowdsourcequeue` 
+  ADD COLUMN `dateProcessed` DATETIME NULL AFTER `isvolunteer`,
+  ADD COLUMN `dateReviewed` DATETIME NULL AFTER `dateProcessed`;
 
 
 ALTER TABLE `omoccurassociations` 
   CHANGE COLUMN `condition` `conditionOfAssociate` VARCHAR(250) NULL DEFAULT NULL ;
-
 
 ALTER TABLE `omoccurrences` 
   DROP FOREIGN KEY `FK_omoccurrences_recbyid`;
@@ -149,8 +180,91 @@ ALTER TABLE `uploadspectemp`
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`,
   CHANGE COLUMN `LatestDateCollected` `eventDate2` DATE NULL DEFAULT NULL AFTER `eventDate`;
 
+ALTER TABLE `uploadspectemp` 
+  CHANGE COLUMN `establishmentMeans` `establishmentMeans` VARCHAR(150) NULL DEFAULT NULL,
+  CHANGE COLUMN `disposition` `disposition` varchar(250) NULL DEFAULT NULL,
+  ADD COLUMN `observeruid` INT NULL AFTER `language`,
+  ADD COLUMN `dateEntered` DATETIME NULL AFTER `recordEnteredBy`;
+
+
 ALTER TABLE `omoccurrences` 
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`;
 
+#Material Sample schema developments
+CREATE TABLE `ommaterialsample` (
+  `matSampleID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `occid` INT UNSIGNED NOT NULL,
+  `sampleType` VARCHAR(45) NOT NULL,
+  `catalogNumber` VARCHAR(45) NULL,
+  `guid` VARCHAR(150) NULL,
+  `sampleCondition` VARCHAR(45) NULL,
+  `disposition` VARCHAR(45) NULL,
+  `preservationType` VARCHAR(45) NULL,
+  `preparationDetails` VARCHAR(250) NULL,
+  `preparationDate` DATETIME NULL,
+  `preparedByUid` INT UNSIGNED NULL,
+  `individualCount` VARCHAR(45) NULL,
+  `sampleSize` VARCHAR(45) NULL,
+  `storageLocation` VARCHAR(45) NULL,
+  `remarks` VARCHAR(250) NULL,
+  `dynamicFields` JSON NULL,
+  `recordID` VARCHAR(45) NULL,
+  `initialtimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`matSampleID`),
+  INDEX `FK_ommatsample_occid_idx` (`occid` ASC),
+  INDEX `FK_ommatsample_prepUid_idx` (`preparedByUid` ASC),
+  CONSTRAINT `FK_ommatsample_occid` FOREIGN KEY (`occid`)   REFERENCES `omoccurrences` (`occid`)   ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_ommatsample_prepUid`   FOREIGN KEY (`preparedByUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE  ON UPDATE CASCADE);
 
+ALTER TABLE `ommaterialsample`
+  ADD UNIQUE INDEX `UQ_ommatsample_recordID` (`recordID`);
+
+INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
+  VALUES("Material Sample Type","ommaterialsample","materialSampleType",1);
+
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "tissue", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "culture strain", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "specimen", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "DNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "RNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Protein", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+
+CREATE TABLE `ommaterialsampleextended` (
+  `matSampleExtendedID` INT NOT NULL AUTO_INCREMENT,
+  `matSampleID` INT UNSIGNED NOT NULL,
+  `fieldName` VARCHAR(45) NOT NULL,
+  `fieldValue` VARCHAR(250) NOT NULL,
+  `fieldUnits` VARCHAR(45) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`matSampleExtendedID`),
+  INDEX `FK_matsampleextend_matSampleID_idx` (`matSampleID` ASC),
+  INDEX `IX_matsampleextend_fieldName` (`fieldName` ASC),
+  INDEX `IX_matsampleextend_fieldValue` (`fieldValue` ASC),
+  CONSTRAINT `FK_matsampleextend_matSampleID`  FOREIGN KEY (`matSampleID`)   REFERENCES `ommaterialsample` (`matSampleID`)   ON DELETE CASCADE   ON UPDATE CASCADE);
+
+
+INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
+  VALUES("Material Sample Type","ommaterialsampleextended","fieldName",0);
+
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "concentration", "http://data.ggbn.org/schemas/ggbn/terms/concentration", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "concentrationMethod", "http://data.ggbn.org/schemas/ggbn/terms/methodDeterminationConcentrationAndRatios", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "ratioOfAbsorbance260_230", "http://data.ggbn.org/schemas/ggbn/terms/ratioOfAbsorbance260_230", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "ratioOfAbsorbance260_280", "http://data.ggbn.org/schemas/ggbn/terms/ratioOfAbsorbance260_280", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "volume," "http://data.ggbn.org/schemas/ggbn/terms/volume", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "weight", "http://data.ggbn.org/schemas/ggbn/terms/weight", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "weightMethod", "http://data.ggbn.org/schemas/ggbn/terms/methodDeterminationWeight", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "purificationMethod", "http://data.ggbn.org/schemas/ggbn/terms/purificationMethod", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "quality", "http://data.ggbn.org/schemas/ggbn/terms/quality", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "qualityRemarks", "http://data.ggbn.org/schemas/ggbn/terms/qualityRemarks", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "qualityCheckDate", "http://data.ggbn.org/schemas/ggbn/terms/qualityCheckDate", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "sieving", "http://gensc.org/ns/mixs/sieving", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "dnaHybridization", "http://data.ggbn.org/schemas/ggbn/terms/DNADNAHybridization", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "dnaMeltingPoint", "http://data.ggbn.org/schemas/ggbn/terms/DNAMeltingPoint", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "estimatedSize", "http://gensc.org/ns/mixs/estimated_size", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "poolDnaExtracts", "http://gensc.org/ns/mixs/pool_dna_extracts", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "sampleDesignation", "http://data.ggbn.org/schemas/ggbn/terms/sampleDesignation", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+
+ALTER TABLE `uploadspectemp` 
+  DROP COLUMN `materialSampleID`,
+  ADD COLUMN `materialSampleJSON` TEXT NULL AFTER `paleoJSON`;
 

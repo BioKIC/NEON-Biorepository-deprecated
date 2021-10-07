@@ -96,6 +96,10 @@ class TaxonomyHarvester extends Manager{
 			$this->logOrEcho('Checking <b>TROPICOS</b>...',1);
 			$newTid= $this->addTropicosTaxon($taxonArr);
 		}
+		elseif($resourceKey== 'fdex'){
+			$this->logOrEcho('Checking <b>fdex</b>...',1);
+			$newTid= $this->addFdexTaxon($taxonArr);
+		}
 		elseif($resourceKey== 'eol'){
 			$this->logOrEcho('Checking <b>EOL</b>...',1);
 			$newTid= $this->addEolTaxon($taxonArr);
@@ -246,7 +250,10 @@ class TaxonomyHarvester extends Manager{
 				$tidAccepted = $this->addColTaxonById($baseArr['accepted_name']);
 			}
 			//Get parent
-			if($taxonArr['rankid'] == 10){
+			if(isset($baseArr['parent']['tid'])){
+				$taxonArr['parent']['tid'] = $baseArr['parent']['tid'];
+			}
+			elseif($taxonArr['rankid'] == 10){
 				$taxonArr['parent']['tid'] = 'self';
 			}
 			else{
@@ -392,6 +399,77 @@ class TaxonomyHarvester extends Manager{
 		return $retStr;
 	}
 
+	//CoL node batch add functions
+	public function fetchColNode($nodeSciname){
+		$retArr = array();
+		//Get children from CoL
+		$url = 'https://api.catalogueoflife.org/nameusage/search?content=SCIENTIFIC_NAME&q='.str_replace(' ','%20',$nodeSciname).'&offset=0&limit=100&type=EXACT';
+		//echo $url.'<br/>';
+		$retArr = $this->getContentString($url);
+		$content = $retArr['str'];
+		$resultArr = json_decode($content,true);
+		$numResults = $resultArr['number_of_results_returned'];
+		if($numResults){
+			foreach($resultArr['result'] as $k => $tArr){
+				$colID = $tArr['id'];
+				$name = '';
+				if(isset($tArr['usage']['name']['scientificName'])) $name = $tArr['usage']['name']['scientificName'];
+				if(!$name){
+					$this->logOrEcho('Skipped, unable to return name...',1);
+					$this->logOrEcho(print_r($tArr),1);
+					continue;
+				}
+				if($nodeSciname != $name){
+					$this->logOrEcho($name.' skipped, not an exact match...',1);
+					continue;
+				}
+				$taxonKingdom = $this->getColParent($tArr, 'Kingdom');
+				if($this->kingdomName && $this->kingdomName != $taxonKingdom){
+					$msg = '<a href="https://www.catalogueoflife.org/data/taxon/'.$colID.'" target="_blank">'.$name.'</a> skipped, wrong kingdom: '.$this->kingdomName.' (!= '.$taxonKingdom.')';
+					$this->logOrEcho($msg,1);
+					continue;
+				}
+				$retArr[$colID]['label'] = $tArr['usage']['labelHtml'];
+				$retArr[$colID]['datasetKey'] = $tArr['usage']['datasetKey'];
+				$retArr[$colID]['status'] = $tArr['usage']['status'];
+				if($tArr['usage']['accordingTo']) $retArr[$colID]['accordingTo'] = $tArr['usage']['accordingTo'];
+				if($tArr['usage']['link']) $retArr[$colID]['link'] = $tArr['usage']['link'];
+				if($tArr['usage']['scrutinizer']) $retArr[$colID]['scrutinizer'] = $tArr['usage']['scrutinizer'];
+			}
+		}
+		else{
+			$this->logOrEcho('ABORT: no results returned from CoL API',1);
+			return false;
+		}
+		return $retArr;
+	}
+
+	public function addColNode($nodeSciname, $id, $datasetID, $rankLimit){
+		if($nodeSciname){
+			$rootTid = $this->getTid(array('sciname' => $nodeSciname));
+			//Check if sciname already exists within thesaurus, if not add it
+			if(!$rootTid){
+				$this->logOrEcho('Taxon root ('.$nodeSciname.') not found within thesaurus, adding now...',1);
+				$rootTid = $this->addColChildern($id, $datasetID, $rootTid, $rankLimit);
+			}
+			if($rootTid){
+
+
+			}
+			else{
+				$this->logOrEcho('ABORT: unable to set root node for '.$nodeSciname,1);
+				return false;
+			}
+		}
+	}
+
+	private function addColChildern($id, $datasetID, $parentTid, $rankLimit){
+		$status = true;
+
+
+		return $status;
+	}
+
 	//WoRMS functions
 	private function addWormsTaxon($sciName){
 		$tid = 0;
@@ -507,46 +585,41 @@ class TaxonomyHarvester extends Manager{
 		return $parentID;
 	}
 
+	//WoRMS node batch add functions
 	public function addWormsNode($postArr){
-		//Adds a complete taxon node from worms
-		//Check if sciname already exists within thesaurus, if not add it
 		$status = true;
 		$nodeSciname = $postArr['sciname'];
-		$harvestRankLimit = $postArr['ranklimit'];
+		$rankLimit = $postArr['ranklimit'];
 		if($nodeSciname){
-			$tid = $this->getTid(array('sciname' => $nodeSciname));
-			if($targetApi = (isset($postArr['targetapi'])?$postArr['targetapi']:'')){
-				if($targetApi == 'worms'){
-					if(!$tid){
-						$this->logOrEcho($nodeSciname.' Not found within thesaurus, adding now...',1);
-						$tid = $this->addWormsTaxon($nodeSciname);
-					}
-					//Get children from WoRMS
-					$url1 = 'https://marinespecies.org/rest/AphiaIDByName/'.rawurlencode($nodeSciname).'?marine_only=false';
-					$resultStr1 = $this->getContentString($url1);
-					$id = $resultStr1['str'];
-					if(is_numeric($id)){
-						$url2 = 'https://marinespecies.org/rest/AphiaRecordByAphiaID/'.$id;
-						$this->logOrEcho($nodeSciname.' (#'.$id.') found within thesaurus',1);
-						if($resultStr2 = $this->getWormsReturnStr($this->getContentString($url2),$url2)){
-							$resultJson = json_decode($resultStr2);
-							if($resultJson->status == 'accepted'){
-								$this->logOrEcho('Starting to harvest children...',1);
-								$status = $this->addWormsChildern($id, $tid, $harvestRankLimit);
-							}
-							else{
-								$this->logOrEcho('ERROR: node taxon must be an accepted taxon (status: '.$resultJson->status.')',1);
-								return false;
-							}
+			$rootTid = $this->getTid(array('sciname' => $nodeSciname));
+			//Check if sciname already exists within thesaurus, if not add it
+			if(!$rootTid){
+				$this->logOrEcho('Taxon root ('.$nodeSciname.') not found within thesaurus, adding now...',1);
+				$rootTid = $this->addWormsTaxon($nodeSciname);
+			}
+			if($rootTid){
+				//Get children from WoRMS
+				$url1 = 'https://marinespecies.org/rest/AphiaIDByName/'.rawurlencode($nodeSciname).'?marine_only=false';
+				$resultStr1 = $this->getContentString($url1);
+				$id = $resultStr1['str'];
+				if(is_numeric($id)){
+					$url2 = 'https://marinespecies.org/rest/AphiaRecordByAphiaID/'.$id;
+					$this->logOrEcho($nodeSciname.' (#'.$id.') found within thesaurus',1);
+					if($resultStr2 = $this->getWormsReturnStr($this->getContentString($url2),$url2)){
+						$resultJson = json_decode($resultStr2);
+						if($resultJson->status == 'accepted'){
+							$this->logOrEcho('Starting to harvest children...',1);
+							$status = $this->addWormsChildern($id, $rootTid, $rankLimit);
+						}
+						else{
+							$this->logOrEcho('ERROR: node taxon must be an accepted taxon (status: '.$resultJson->status.')',1);
+							return false;
 						}
 					}
 				}
-				elseif($targetApi == 'col'){
-
-				}
 			}
 			else{
-				$this->logOrEcho('ERROR: taxonomic authority has not been selected',1);
+				$this->logOrEcho('ABORT: unable to set root node for '.rawurlencode($nodeSciname),1);
 				return false;
 			}
 		}
@@ -735,23 +808,46 @@ class TaxonomyHarvester extends Manager{
 		return $taxonArr;
 	}
 
-	//Index Fungorum functions
+	//Index Fungorum functions via MyCoPortal FdEx tools
 	//http://www.indexfungorum.org/ixfwebservice/fungus.asmx/NameSearch?SearchText=Acarospora%20socialis&AnywhereInText=false&MaxNumber=10
-	private function addIndexFungorumTaxon($taxonArr){
+	private function addFdexTaxon($taxonArr){
 		$sciName = $taxonArr['sciname'];
 		if($sciName){
 			$adjustedName = $sciName;
 			if(isset($taxonArr['rankid']) && $taxonArr['rankid'] > 220) $adjustedName = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].' '.$taxonArr['unitname3']);
-			$url = 'https://webservice.catalogueoflife.org/col/webservice?response=full&format=json&name='.str_replace(' ','%20',$adjustedName);
+			$url = 'https://mycoportal.org/fdex/services/api/query.php?qText='.str_replace(' ','%20',$adjustedName).'&qField=taxon';
 			//echo $url.'<br/>';
 			$retArr = $this->getContentString($url);
 			$content = $retArr['str'];
-			$resultArr = json_decode($content,true);
-			$numResults = $resultArr['number_of_results_returned'];
-			if($numResults){
-
+			if($content == '0 results'){
+				$this->logOrEcho('Taxon not found',2);
+				return false;
+			}
+			else{
+				$resultArr = json_decode($content,true);
+				$numResults = count($resultArr);
+				$taxonArr = array();
+				if($numResults){
+					/*
+					 * return example "taxon" : "Verrucaria microstictica" , "authors" : "Leight." , "mbNumber" : "307221" , "otherID" : "86A6E1F9-AACE-43AF-A466-9427B38788D4" ,
+					 * "rank" : "sp." , "rankCode" : "20" , "taxonomicStatus" : "Assumed legitimate" , "currentTaxon" : "Polycoccum microsticticum" , "currentMbNumber" : "307214" ,
+					 * "currentOtherID" : "CACE62EC-E136-44D9-B01C-BB36D95E6262" , "currentStatus" : "Stable" , "parentTaxon" : "Verrucaria" , "parentMbNumber" : "5725" ,
+					 * "parentOtherID" : "1CB1CC6A-36B9-11D5-9548-00D0592D548C" , "taxonomicAgreement" : "Asynchronous", "recordSource" : "Index Fungorum"
+					*/
+					foreach($resultArr as $unitArr){
+						$taxonArr['sciname'] = $unitArr['taxon'];
+						$rankArr = $this->getFdexRank($unitArr['rank'],$unitArr['rankCode']);
+					}
+				}
+				$this->loadNewTaxon($taxonArr);
 			}
 		}
+	}
+
+	private function getFdexRank($rankStr, $rankCode){
+		$retArr = array();
+
+		return $retArr;
 	}
 
 	//EOL functions

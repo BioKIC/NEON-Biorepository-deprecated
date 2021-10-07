@@ -31,7 +31,7 @@ class SpecUpload{
 	private $logFH;
 	protected $errorStr;
 
-	protected $DIRECTUPLOAD = 1, $DIGIRUPLOAD = 2, $FILEUPLOAD = 3, $STOREDPROCEDURE = 4, $SCRIPTUPLOAD = 5, $DWCAUPLOAD = 6, $SKELETAL = 7, $IPTUPLOAD = 8, $NFNUPLOAD = 9, $RESTOREBACKUP = 10;
+	protected $DIRECTUPLOAD = 1, $FILEUPLOAD = 3, $STOREDPROCEDURE = 4, $SCRIPTUPLOAD = 5, $DWCAUPLOAD = 6, $SKELETAL = 7, $IPTUPLOAD = 8, $NFNUPLOAD = 9, $RESTOREBACKUP = 10;
 
 	function __construct() {
 		$this->conn = MySQLiConnectionFactory::getCon("write");
@@ -71,9 +71,6 @@ class SpecUpload{
 				$uploadStr = "";
 				if($uploadType == $this->DIRECTUPLOAD){
 					$uploadStr = "Direct Upload";
-				}
-				elseif($uploadType == $this->DIGIRUPLOAD){
-					$uploadStr = "DiGIR Provider Upload";
 				}
 				elseif($uploadType == $this->FILEUPLOAD){
 					$uploadStr = "File Upload";
@@ -482,7 +479,7 @@ class SpecUpload{
 				//Create log File
 				$logPath = $GLOBALS['SERVER_ROOT'];
 				if(substr($logPath,-1) != '/') $logPath .= '/';
-				$logPath .= 'content/logs/';
+				$logPath .= 'content/logs/occurImport/';
 				if($logTitle){
 					$logPath .= $logTitle;
 				}

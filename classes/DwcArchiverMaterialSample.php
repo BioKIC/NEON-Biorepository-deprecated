@@ -47,8 +47,8 @@ class DwcArchiverMaterialSample extends DwcArchiverBaseManager{
 		$columnArr['storageLocation'] = 'm.storageLocation';
 		$termArr['remarks'] = 'https://symbiota.org/terms/materialSampleRemarks';
 		$columnArr['remarks'] = 'm.remarks';
-		$termArr['recordID'] = 'http://symbiota.org/terms/recordId';
-		$columnArr['recordID'] = 'm.recordId';
+		$termArr['recordID'] = 'http://symbiota.org/terms/recordID';
+		$columnArr['recordID'] = 'm.recordID';
 
 		$this->fieldArr['terms'] = $this->trimBySchemaType($termArr);
 		$this->fieldArr['fields'] = $this->trimBySchemaType($columnArr);

@@ -28,8 +28,11 @@ $LANG['GO_TO_PARENT'] = 'Aller au Taxon Parent';
 $LANG['EDIT_TAXON_DATA'] = 'Modifier Données de Taxon';
 $LANG['PHOTOGRAPHER'] = 'Photographe';
 $LANG['MAP_NOT_AVAILABLE'] = 'Carte non<be />disponible';
-$LANG['WEB_LINKS'] = 'Liens Web';
+$LANG['RESOURCES'] = 'Ressources';
+$LANG['INTERNAL_RESOURCES'] = 'Ressources internes';
+$LANG['OCCURRENCES'] = 'occurrences';
+$LANG['EXTERNAL_LINKS'] = 'Ressources externes';
 $LANG['NOT_FOUND'] = 'pas trouvé';
 $LANG['DID_YOU_MEAN'] = 'Vouliez-vous dire?';
-
+$LANG['CALENDAR_TRAIT_PLOT'] = 'Graphiques de Traits';
 ?>

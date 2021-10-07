@@ -244,12 +244,20 @@ class ChecklistVoucherAdmin {
 	public function getSqlFrag(){
 		$sqlFrag = '';
 		if(isset($this->queryVariablesArr['country']) && $this->queryVariablesArr['country']){
-			$countryStr = str_replace(';',',',$this->cleanInStr($this->queryVariablesArr['country']));
-			$sqlFrag = 'AND (o.country IN("'.$countryStr.'")) ';
+			$countrySql = '';
+			$countryArr = explode(';',str_replace(',',';',$this->queryVariablesArr['country']));
+			foreach($countryArr as $cTerm){
+				$countrySql .= ',"'.$this->cleanInStr(trim($cTerm)).'"';
+			}
+			$sqlFrag .= 'AND (o.country IN('.trim($countrySql,',').')) ';
 		}
 		if(isset($this->queryVariablesArr['state']) && $this->queryVariablesArr['state']){
-			$stateStr = str_replace(';',',',$this->cleanInStr($this->queryVariablesArr['state']));
-			$sqlFrag .= 'AND (o.stateprovince = "'.$stateStr.'") ';
+			$stateSql = '';
+			$stateArr = explode(';',str_replace(',',';',$this->queryVariablesArr['state']));
+			foreach($stateArr as $sTerm){
+				$stateSql .= ',"'.$this->cleanInStr(trim($sTerm)).'"';
+			}
+			$sqlFrag .= 'AND (o.stateprovince IN('.trim($stateSql,',').')) ';
 		}
 		if(isset($this->queryVariablesArr['county']) && $this->queryVariablesArr['county']){
 			$countyStr = str_replace(';',',',$this->queryVariablesArr['county']);

@@ -63,15 +63,15 @@ $editorArr = $utManager->getTaxonomyEditors();
 
 		function verifyUserAddForm(f){
 			if(f.uid.value == ""){
-				alert(<?php echo (isset($LANG['SELECT_USER'])?$LANG['SELECT_USER']:'Select a User'); ?>);
+				alert("<?php echo (isset($LANG['SELECT_USER'])?$LANG['SELECT_USER']:'Select a User'); ?>");
 				return false;
 			}
 			if(f.editorstatus.value == ""){
-				alert(<?php echo (isset($LANG['SELECT_SCOPE'])?$LANG['SELECT_SCOPE']:'Select the Scope of Relationship'); ?>);
+				alert("<?php echo (isset($LANG['SELECT_SCOPE'])?$LANG['SELECT_SCOPE']:'Select the Scope of Relationship'); ?>");
 				return false;
 			}
 			if(f.taxoninput.value == ""){
-				alert(<?php echo (isset($LANG['SELECT_TAXON'])?$LANG['SELECT_TAXON']:'Select the Taxonomic Name'); ?>);
+				alert("<?php echo (isset($LANG['SELECT_TAXON'])?$LANG['SELECT_TAXON']:'Select the Taxonomic Name'); ?>");
 				return false;
 			}
 			return true;

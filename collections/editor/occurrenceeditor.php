@@ -5,7 +5,7 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceedito
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occId = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
-$collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
+$collId = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:false;
 $tabTarget = array_key_exists('tabtarget',$_REQUEST)?$_REQUEST['tabtarget']:0;
 $goToMode = array_key_exists('gotomode',$_REQUEST)?$_REQUEST['gotomode']:0;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:false;
@@ -15,7 +15,7 @@ if(!$action && array_key_exists('carryover',$_REQUEST)) $goToMode = 2;
 
 //Sanitation
 if(!is_numeric($occId)) $occId = '';
-if(!is_numeric($collId)) $collId = 0;
+if(!is_numeric($collId)) $collId = false;
 if(!is_numeric($tabTarget)) $tabTarget = 0;
 if(!is_numeric($goToMode)) $goToMode = 0;
 if(!is_numeric($occIndex)) $occIndex = false;
@@ -60,7 +60,7 @@ if($SYMB_UID){
 	$occManager->setOccId($occId);
 	$occManager->setCollId($collId);
 	$collMap = $occManager->getCollMap();
-	if(isset($collMap['collid']) && $collId != $collMap['collid']){
+	if($collId && isset($collMap['collid']) && $collId != $collMap['collid']){
 		$collId = $collMap['collid'];
 		$occManager->setCollId($collId);
 	}
@@ -137,7 +137,7 @@ if($SYMB_UID){
 			//Is a crowdsourcing editor (CS status is open (=0) or CS status is pending (=5) and active user was original editor
 			$isEditor = 4;
 		}
-		elseif($collMap['publicedits']){
+		elseif($collMap && $collMap['publicedits']){
 			//Collection is set as allowing public edits
 			$isEditor = 4;
 		}
@@ -365,7 +365,6 @@ if($SYMB_UID){
 			$occIndex = $occManager->getOccIndex();
 			if(!$collMap){
 				$collMap = $occManager->getCollMap();
-				//if(isset($collMap['collid'])) $collId = $collMap['collid'];
 				if(!$isEditor){
 					if(isset($USER_RIGHTS["CollAdmin"]) && in_array($collMap['collid'],$USER_RIGHTS["CollAdmin"])){
 						$isEditor = 1;
@@ -377,9 +376,8 @@ if($SYMB_UID){
 			}
 		}
 	}
-	elseif($goToMode == 2){
-		$occArr = $occManager->carryOverValues($_REQUEST);
-	}
+	elseif($goToMode == 2) $occArr = $occManager->carryOverValues($_REQUEST);
+	if(!$isEditor && $crowdSourceMode && $occManager->isCrowdsourceEditor()) $isEditor = 4;
 
 	if($qryCnt !== false){
 		$navStr = '<b>';
@@ -401,7 +399,7 @@ if($SYMB_UID){
 		if($occIndex<$qryCnt-1) $navStr .= '</a> ';
 		if(!$crowdSourceMode){
 			$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
-			$navStr .= '<a href="occurrenceeditor.php?gotomode=1&collid='.$occManager->getCollId().'" onclick="return verifyLeaveForm()" title="'.(isset($LANG['NEW_REC'])?$LANG['NEW_REC']:'New Record').'">&gt;*</a>';
+			$navStr .= '<a href="occurrenceeditor.php?gotomode=1&collid='.$collId.'" onclick="return verifyLeaveForm()" title="'.(isset($LANG['NEW_REC'])?$LANG['NEW_REC']:'New Record').'">&gt;*</a>';
 		}
 		$navStr .= '</b>';
 	}
@@ -439,12 +437,12 @@ else{
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title><?php echo $DEFAULT_TITLE. (isset($LANG['OCCEDITOR'])?$LANG['OCCEDITOR']:'Occurrence Editor'); ?></title>
+	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['OCCEDITOR'])?$LANG['OCCEDITOR']:'Occurrence Editor'); ?></title>
 	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
     <?php
     if($crowdSourceMode == 1){
 		?>
-		<link href="includes/config/occureditorcrowdsource.css?ver=1811" type="text/css" rel="stylesheet" id="editorCssLink" />
+		<link href="includes/config/occureditorcrowdsource.css?ver=2" type="text/css" rel="stylesheet" id="editorCssLink" />
 		<?php
     }
     else{
@@ -467,7 +465,7 @@ else{
 	<script src="../../js/jquery.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js?ver=140310" type="text/javascript"></script>
 	<script type="text/javascript">
-		var collId = "<?php echo (isset($collMap['collid'])?$collMap['collid']:$occManager->getCollId()); ?>";
+		var collId = "<?php echo (isset($collMap['collid'])?$collMap['collid']:(is_numeric($collId)?$collId:0)); ?>";
 		var csMode = "<?php echo $crowdSourceMode; ?>";
 		var tabTarget = <?php echo (is_numeric($tabTarget)?$tabTarget:'0'); ?>;
 		var imgArr = [];
@@ -514,23 +512,19 @@ else{
 </head>
 <body>
 	<div id="innertext">
-		<?php
-		if($collMap){
-			?>
-			<div id="titleDiv">
-				<?php
-				echo $collMap['collectionname'].' ('.$collMap['institutioncode'].($collMap['collectioncode']?':'.$collMap['collectioncode']:'').')';
-				if($isEditor && $isEditor != 3){
-					?>
-					<div id="querySymbolDiv" style="margin:5px 5px 5px 5px;">
-						<a href="#" title="<?php echo $LANG['SEARCH_FILTER']; ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:18px;" /></a>
-					</div>
-					<?php
-				}
-				?>
-			</div>
+		<div id="titleDiv">
 			<?php
-		}
+			if($collMap) echo $collMap['collectionname'].' ('.$collMap['institutioncode'].($collMap['collectioncode']?':'.$collMap['collectioncode']:'').')';
+			if($isEditor && $isEditor != 3){
+				?>
+				<div id="querySymbolDiv" style="margin:5px 5px 5px 5px;">
+					<a href="#" title="<?php echo $LANG['SEARCH_FILTER']; ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:18px;" /></a>
+				</div>
+				<?php
+			}
+			?>
+		</div>
+		<?php
 		if($isEditor && ($occId || ($collId && $isEditor < 3))){
 			if(!$occArr && !$goToMode) $displayQuery = 1;
 			include 'includes/queryform.php';
@@ -576,7 +570,7 @@ else{
 							else{
 								if($isEditor == 1 || $isEditor == 2){
 									?>
-									<a href="../misc/collprofiles.php?collid=<?php echo $occManager->getCollId(); ?>&emode=1" onclick="return verifyLeaveForm()"><?php echo (isset($LANG['COL_MANAGEMENT'])?$LANG['COL_MANAGEMENT']:'Collection Management'); ?></a> &gt;&gt;
+									<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1" onclick="return verifyLeaveForm()"><?php echo (isset($LANG['COL_MANAGEMENT'])?$LANG['COL_MANAGEMENT']:'Collection Management'); ?></a> &gt;&gt;
 									<?php
 								}
 							}
@@ -654,7 +648,7 @@ else{
 										$person = $pHandler->getPerson();
 										$userEmail = ($person?$person->getEmail():'');
 
-										$anchorVars = 'occid='.$occManager->getOccId().'&occindex='.$occIndex.'&csmode='.$crowdSourceMode.'&collid='.$occManager->getCollId();
+										$anchorVars = 'occid='.$occManager->getOccId().'&occindex='.$occIndex.'&csmode='.$crowdSourceMode.'&collid='.$collId;
 										$detVars = 'identby='.urlencode($occArr['identifiedby']).'&dateident='.urlencode($occArr['dateidentified']).
 											'&sciname='.urlencode($occArr['sciname']).'&em='.$isEditor.
 											'&annotatorname='.urlencode($USER_DISPLAY_NAME).'&annotatoremail='.urlencode($userEmail).
@@ -677,7 +671,7 @@ else{
 											if(in_array('matSample',$moduleActivation)){
 												?>
 												<li id="matSampleTab">
-													<a href="includes/materialsampleinclude.php?<?php echo $anchorVars; ?>">Material Sample</a>
+													<a href="includes/materialsampleinclude.php?<?php echo $anchorVars; ?>"><?php echo $LANG['MATERIAL_SAMPLE']; ?></a>
 												</li>
 												<?php
 											}
@@ -1000,21 +994,12 @@ else{
 													echo (defined('LOCALITYSECURITYLABEL')?LOCALITYSECURITYLABEL:'Security');
 													$securityCode = array_key_exists('localitysecurity',$occArr)&&$occArr['localitysecurity']?$occArr['localitysecurity']:0;
 													$lsrValue = array_key_exists('localitysecurityreason',$occArr)?$occArr['localitysecurityreason']:'';
-													$securityArr = array(1 => (isset($LANG['LOCALITY_SECURITY'])?$LANG['LOCALITY_SECURITY']:'Locality Security'));
-													if(isset($OCCUR_SECURITY_OPTION)){
-														if($OCCUR_SECURITY_OPTION == 2 || $OCCUR_SECURITY_OPTION == 4 || $OCCUR_SECURITY_OPTION == 6) unset($securityArr[1]);
-														if($OCCUR_SECURITY_OPTION == 2 || $OCCUR_SECURITY_OPTION == 3 || $OCCUR_SECURITY_OPTION == 7) $securityArr[2] = (isset($LANG['TAXONOMIC_SECURITY'])?$LANG['TAXONOMIC_SECURITY']:'Taxonomic Security');
-														if($OCCUR_SECURITY_OPTION == 3 || $OCCUR_SECURITY_OPTION == 7) $securityArr[3] = (isset($LANG['LOC_AND_TAX_SECURITY'])?$LANG['LOC_AND_TAX_SECURITY']:'Locality &amp; Taxonomic Security');
-														if($OCCUR_SECURITY_OPTION > 3) $securityArr[3] = (isset($LANG['FULL_SECURITY'])?$LANG['FULL_SECURITY']:'Full Security');
-													}
 													?>:
 													<select name="localitysecurity" onchange="securityChanged(this.form);" title="<?php echo (isset($LANG['SECURITY_SETTINGS'])?$LANG['SECURITY_SETTINGS']:'Security Settings'); ?>">
 														<option value="0"><?php echo (isset($LANG['SEC_NOT_APPLIED'])?$LANG['SEC_NOT_APPLIED']:'Security not applied'); ?></option>
 														<option value="0">--------------------------</option>
 														<?php
-														foreach($securityArr as $sCode => $sValue){
-															echo '<option value="'.$sCode.'" '.($securityCode==$sCode?'SELECTED':'').'>'.$sValue.'</option>';
-														}
+														echo '<option value="1" '.($securityCode?'SELECTED':'').'>'.(isset($LANG['LOCALITY_SECURITY'])?$LANG['LOCALITY_SECURITY']:'Locality Security').'</option>';
 														?>
 													</select>
 													<a href="#" onclick="return dwcDoc('localitySecurity')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a><br/>
@@ -1461,7 +1446,7 @@ else{
 										?>
 										<div id="bottomSubmitDiv">
 											<input type="hidden" name="occid" value="<?php echo $occManager->getOccId(); ?>" />
-											<input type="hidden" name="collid" value="<?php echo $occManager->getCollId(); ?>" />
+											<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
 											<input type="hidden" name="observeruid" value="<?php echo $SYMB_UID; ?>" />
 											<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
 											<input type="hidden" name="linkdupe" value="" />
@@ -1492,7 +1477,7 @@ else{
 												<?php
 												if($isEditor == 1 || $isEditor == 2){
 													?>
-													<div style="float:right;">
+													<div id="cloneDiv" style="float:right;">
 														<fieldset class="optionBox">
 															<legend><?php echo $LANG['RECORD_CLONING']; ?></legend>
 															<div class="fieldGroupDiv">
@@ -1587,17 +1572,13 @@ else{
 			}
 		}
 		else{
-			if(!$collId && !$occId){
-				echo '<b>'.$LANG['ERROR_ID_NULL'];
-			}
+			if(!$collId && !$occId) echo $LANG['ERROR_ID_NULL'];
 			elseif(!$isEditor){
 				echo '<div style="margin:30px;">';
 				if($crowdSourceMode){
-					echo '<b>'.$LANG['ERROR_NO_CROWDSOURCING'];
+					echo $LANG['ERROR_NO_CROWDSOURCING'].'<div style="margin:15px"><a href="../specprocessor/crowdsource/index.php">'.$LANG['RETURN_TO_CROWDSOURCING'].'</a></div>';
 				}
-				else{
-					echo '<b>'.$LANG['ERROR_NOT_AUTHORIZED'];
-				}
+				else echo $LANG['ERROR_NOT_AUTHORIZED'];
 				echo '</div>';
 			}
 			elseif($isEditor == 4 && !$occId){

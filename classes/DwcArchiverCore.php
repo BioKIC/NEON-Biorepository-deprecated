@@ -971,7 +971,7 @@ class DwcArchiverCore extends Manager{
 			//List identification fields
 			$detCnt = 1;
 			$termArr = $this->determinationFieldArr['terms'];
-			unset($termArr['detid']);
+			unset($termArr['detID']);
 			foreach($termArr as $v){
 				$fieldElem = $newDoc->createElement('field');
 				$fieldElem->setAttribute('index',$detCnt);
@@ -1003,7 +1003,7 @@ class DwcArchiverCore extends Manager{
 			//List image fields
 			$imgCnt = 1;
 			$termArr = $this->imageFieldArr['terms'];
-			unset($termArr['imgid']);
+			unset($termArr['imgID']);
 			foreach($termArr as $v){
 				$fieldElem = $newDoc->createElement('field');
 				$fieldElem->setAttribute('index',$imgCnt);
@@ -1790,9 +1790,9 @@ class DwcArchiverCore extends Manager{
 		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$previousDetID = 0;
 			while($r = $rs->fetch_assoc()){
-				if($previousDetID == $r['detid']) continue;
-				$previousDetID = $r['detid'];
-				unset($r['detid']);
+				if($previousDetID == $r['detID']) continue;
+				$previousDetID = $r['detID'];
+				unset($r['detID']);
 				$r['recordID'] = 'urn:uuid:'.$r['recordID'];
 				$this->encodeArr($r);
 				$this->addcslashesArr($r);
@@ -1840,9 +1840,9 @@ class DwcArchiverCore extends Manager{
 			}
 			$previousImgID = 0;
 			while($r = $rs->fetch_assoc()){
-				if($previousImgID == $r['imgid']) continue;
-				$previousImgID = $r['imgid'];
-				unset($r['imgid']);
+				if($previousImgID == $r['imgID']) continue;
+				$previousImgID = $r['imgID'];
+				unset($r['imgID']);
 				if(substr($r['identifier'],0,1) == '/') $r['identifier'] = $localDomain.$r['identifier'];
 				if(substr($r['accessURI'],0,1) == '/') $r['accessURI'] = $localDomain.$r['accessURI'];
 				if(substr($r['thumbnailAccessURI'],0,1) == '/') $r['thumbnailAccessURI'] = $localDomain.$r['thumbnailAccessURI'];

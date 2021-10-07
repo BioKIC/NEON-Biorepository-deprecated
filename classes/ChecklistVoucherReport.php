@@ -200,14 +200,14 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			$clidStr .= ','.implode(',',$this->childClidArr);
 		}
 		$sql = 'SELECT DISTINCT t.tid, v.clid, t.sciname AS listid, o.recordedby, o.recordnumber, o.sciname, o.identifiedby, o.dateidentified, o.occid '.
-				'FROM taxstatus ts1 INNER JOIN omoccurrences o ON ts1.tid = o.tidinterpreted '.
-				'INNER JOIN fmvouchers v ON o.occid = v.occid '.
-				'INNER JOIN taxstatus ts2 ON v.tid = ts2.tid '.
-				'INNER JOIN taxa t ON v.tid = t.tid '.
-				'INNER JOIN taxstatus ts3 ON ts1.tidaccepted = ts3.tid '.
-				'WHERE (v.clid IN('.$clidStr.')) AND ts1.taxauthid = 1 AND ts2.taxauthid = 1 AND ts1.tidaccepted <> ts2.tidaccepted '.
-				'AND ts1.parenttid <> ts2.tidaccepted AND v.tid <> o.tidinterpreted AND ts3.parenttid <> v.tid '.
-				'ORDER BY t.sciname ';
+			'FROM taxstatus ts1 INNER JOIN omoccurrences o ON ts1.tid = o.tidinterpreted '.
+			'INNER JOIN fmvouchers v ON o.occid = v.occid '.
+			'INNER JOIN taxstatus ts2 ON v.tid = ts2.tid '.
+			'INNER JOIN taxa t ON v.tid = t.tid '.
+			'INNER JOIN taxstatus ts3 ON ts1.tidaccepted = ts3.tid '.
+			'WHERE (v.clid IN('.$clidStr.')) AND ts1.taxauthid = 1 AND ts2.taxauthid = 1 AND ts1.tidaccepted <> ts2.tidaccepted '.
+			'AND ts1.parenttid <> ts2.tidaccepted AND v.tid <> o.tidinterpreted AND ts3.parenttid <> v.tid '.
+			'ORDER BY t.sciname ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		$cnt = 0;

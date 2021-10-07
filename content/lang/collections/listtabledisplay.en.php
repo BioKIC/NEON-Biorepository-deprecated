@@ -26,7 +26,7 @@ $LANG['DEC_LAT'] = 'Decimal Lat.';
 $LANG['DEC_LONG'] = 'Decimal Long.';
 $LANG['EDIT_REC'] = 'Edit Record';
 $LANG['HAS_IMAGE'] = 'Has Image';
-$LANG['SYMB_ID'] = 'Click on the Symbiota identifier in the first column to see Full Record Details';
+$LANG['CLICK_SYMB'] = 'Click on the Symbiota identifier in the first column to see Full Record Details';
 $LANG['NONE_FOUND'] = 'No records found matching the query';
 
 

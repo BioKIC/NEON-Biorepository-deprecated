@@ -218,10 +218,10 @@ $searchVar = $collManager->getQueryTermStr();
 								<td><?php echo $collection; ?></td>
 								<td><?php echo $occArr['catnum']; ?></td>
 								<td><?php echo $occArr['family']; ?></td>
-								<td><?php echo $occArr['sciname'].($occArr['author']?" ".$occArr['author']:""); ?></td>
+								<td><?php echo $occArr['sciname'].($occArr['author']?' '.$occArr['author']:''); ?></td>
 								<td><?php echo $occArr['collector']; ?></td>
-								<td><?php echo (array_key_exists("collnum",$occArr)?$occArr['collnum']:""); ?></td>
-								<td><?php echo (array_key_exists("date",$occArr)?$occArr['date']:""); ?></td>
+								<td><?php echo (array_key_exists('collnum',$occArr)?$occArr['collnum']:''); ?></td>
+								<td><?php echo (array_key_exists('date',$occArr)?$occArr['date']:''); ?></td>
 								<td><?php echo $occArr['country']; ?></td>
 								<td><?php echo $occArr['state']; ?></td>
 								<td><?php echo $occArr['county']; ?></td>
@@ -231,11 +231,11 @@ $searchVar = $collManager->getQueryTermStr();
 								if(strlen($locStr)>80) $locStr = substr($locStr,0,80).'...';
 								echo $locStr;
 								?></td>
-								<td><?php if($occArr['declat']) echo $occArr['declat']; ?></td>
-								<td><?php if($occArr['declong']) echo $occArr['declong']; ?></td>
+								<td><?php if(isset($occArr['declat'])) echo $occArr['declat']; ?></td>
+								<td><?php if(isset($occArr['declong'])) echo $occArr['declong']; ?></td>
 								<td><?php if(isset($occArr['habitat'])) echo ((strlen($occArr['habitat'])>80)?substr($occArr['habitat'],0,80).'...':$occArr['habitat']); ?></td>
 								<td><?php if(isset($occArr['substrate'])) echo ((strlen($occArr['substrate'])>80)?substr($occArr['substrate'],0,80).'...':$occArr['substrate']); ?></td>
-								<td><?php echo (array_key_exists("elev",$occArr)?$occArr['elev']:""); ?></td>
+								<td><?php echo (array_key_exists('elev',$occArr)?$occArr['elev']:''); ?></td>
 							</tr>
 							<?php
 							$recCnt++;
@@ -244,7 +244,7 @@ $searchVar = $collManager->getQueryTermStr();
 					</table>
 					<div style="clear:both;height:5px;"></div>
 					<div style="width:790px;"><?php echo $navStr; ?></div>
-					*<?php echo (isset($LANG['CLICK_SYMB'])?$LANG['SYMB_ID']:'Click on the Symbiota identifier in the first column to see Full Record Details'); ?>.';
+					*<?php echo (isset($LANG['CLICK_SYMB'])?$LANG['CLICK_SYMB']:'Click on the Symbiota identifier in the first column to see Full Record Details'); ?>.';
 					<?php
 				}
 				else{

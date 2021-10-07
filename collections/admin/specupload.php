@@ -1,7 +1,6 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/SpecUploadDirect.php');
-include_once($SERVER_ROOT.'/classes/SpecUploadDigir.php');
 include_once($SERVER_ROOT.'/classes/SpecUploadFile.php');
 include_once($SERVER_ROOT.'/classes/SpecUploadDwca.php');
 include_once($SERVER_ROOT.'/content/lang/collections/admin/specupload.'.$LANG_TAG.'.php');
@@ -45,7 +44,7 @@ if($dbpk) $dbpk = htmlspecialchars($dbpk);
 if(!is_numeric($recStart)) $recStart = 0;
 if(!is_numeric($recLimit)) $recLimit = 1000;
 
-$DIRECTUPLOAD = 1; $DIGIRUPLOAD = 2; $FILEUPLOAD = 3; $STOREDPROCEDURE = 4; $SCRIPTUPLOAD = 5; $DWCAUPLOAD = 6; $SKELETAL = 7; $IPTUPLOAD = 8; $NFNUPLOAD = 9;
+$DIRECTUPLOAD = 1; $FILEUPLOAD = 3; $STOREDPROCEDURE = 4; $SCRIPTUPLOAD = 5; $DWCAUPLOAD = 6; $SKELETAL = 7; $IPTUPLOAD = 8; $NFNUPLOAD = 9;
 
 if(strpos($uspid,'-')){
 	$tok = explode('-',$uspid);
@@ -56,11 +55,6 @@ if(strpos($uspid,'-')){
 $duManager = new SpecUploadBase();
 if($uploadType == $DIRECTUPLOAD){
 	$duManager = new SpecUploadDirect();
-}
-elseif($uploadType == $DIGIRUPLOAD){
-	$duManager = new SpecUploadDigir();
-	$duManager->setSearchStart($recStart);
-	$duManager->setSearchLimit($recLimit);
 }
 elseif($uploadType == $FILEUPLOAD || $uploadType == $NFNUPLOAD){
 	$duManager = new SpecUploadFile();
@@ -157,7 +151,7 @@ if($isEditor && $collid){
 				$duManager->setImageFieldMap($fieldImMap);
 			}
 		}
-		if($action == "Save Mapping"){
+		if($action == 'saveMapping'){
 			$statusStr = $duManager->saveFieldMap($_POST);
 			if(!$uspid) $uspid = $duManager->getUspid();
 		}
@@ -361,6 +355,9 @@ if($isEditor && $collid){
 			}
 		}
 	</script>
+	<style type="text/css">
+		.unmapped{ background: yellow; }
+	</style>
 </head>
 <body>
 <?php
@@ -515,126 +512,289 @@ if($isEditor && $collid){
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 						<div style="margin:5px;">
-							<button type="submit" name="action" value="Transfer Records to Central Specimen Table"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
+							<button type="submit" name="action" value="activateOccurrences"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 						</div>
 					</form>
 				</fieldset>
 				<?php
 			}
 		}
-		elseif($action == 'Transfer Records to Central Specimen Table' || $finalTransfer){
+		elseif($action == 'activateOccurrences' || $finalTransfer){
 			echo '<ul>';
 			$duManager->finalTransfer();
 			echo '</ul>';
 		}
 		else{
-			if($uploadType == $DIGIRUPLOAD){
-				?>
-				<form name="initform" action="specupload.php" method="post" onsubmit="">
-					<fieldset style="width:95%;">
-						<legend><b><?php echo $duManager->getTitle;?></b></legend>
-						<div>
-							<?php echo (isset($LANG['REC_START'])?$LANG['REC_START']:'Record Start'); ?>:
-							<input type="text" name="recstart" size="5" value="<?php echo $duManager->getSearchStart(); ?>" />
-						</div>
-						<div>
-							<?php echo (isset($LANG['REC_LIM'])?$LANG['REC_LIM']:'Record Limit'); ?>:
-							<input type="text" name="reclimit" size="5" value="<?php echo $duManager->getSearchLimit(); ?>" />
-						</div>
-						<?php
-						if($isLiveData){
-							?>
-							<div style="margin:10px 0px;">
-								<input name="matchcatnum" type="checkbox" value="1" checked />
-								<?php echo (isset($LANG['MATCH_CAT'])?$LANG['MATCH_CAT']:'Match on Catalog Number'); ?>
-							</div>
-							<div style="margin:10px 0px;">
-								<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
-								<?php echo (isset($LANG['MATCH_O_CAT'])?$LANG['MATCH_O_CAT']:'Match on Other Catalog Numbers'); ?>
-							</div>
-							<ul style="margin:10px 0px;">
-								<li><?php echo $recReplaceMsg; ?></li>
-								<li><?php echo (isset($LANG['BOTH_CATS'])?$LANG['BOTH_CATS']:'If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers'); ?></li>
-							</ul>
-							<?php
-						}
-						?>
-						<div style="margin:10px;">
-							<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
-							<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
-							<input type="hidden" name="collid" value="<?php echo $collid;?>" />
-							<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
-						</div>
-					</fieldset>
-				</form>
-				<?php
+			$uploadTitle = $duManager->getTitle();
+			if(!$uploadTitle){
+				if($uploadType == $DWCAUPLOAD) $uploadTitle = 'Manual DwC-Archive Import';
+				elseif($uploadType == $IPTUPLOAD) $uploadTitle = 'IPT/DwC-A Provider Import';
+				elseif($uploadType == $SKELETAL) $uploadTitle = 'Skeletal File Import';
+				elseif($uploadType == $FILEUPLOAD) $uploadTitle = 'Delimited Text File Import';
+				elseif($uploadType == $NFNUPLOAD) $uploadTitle = 'Notes from Natural Import';
 			}
-			else{
-				$uploadTitle = $duManager->getTitle();
-				if(!$uploadTitle){
-					if($uploadType == $DWCAUPLOAD) $uploadTitle = 'Manual DwC-Archive Import';
-					elseif($uploadType == $IPTUPLOAD) $uploadTitle = 'IPT/DwC-A Provider Import';
-					elseif($uploadType == $SKELETAL) $uploadTitle = 'Skeletal File Import';
-					elseif($uploadType == $FILEUPLOAD) $uploadTitle = 'Delimited Text File Import';
-					elseif($uploadType == $NFNUPLOAD) $uploadTitle = 'Notes from Natural Import';
-				}
-				//Upload type is direct, file, or DWCA
-				if(!$ulPath && ($uploadType == $FILEUPLOAD || $uploadType == $SKELETAL || $uploadType == $NFNUPLOAD || $uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD)){
-					//Need to upload data for file and DWCA uploads
-					$ulPath = $duManager->uploadFile();
-					if(!$ulPath){
-						//Still null, thus we have to upload file
-						?>
-						<form name="fileuploadform" action="specupload.php" method="post" enctype="multipart/form-data" onsubmit="return verifyFileUploadForm(this)">
-							<fieldset style="width:95%;">
-								<legend style="font-weight:bold;font-size:120%;<?php if($uploadType == $SKELETAL) echo 'background-color:lightgreen'; ?>"><?php echo $uploadTitle.': '.(isset($LANG['ID_SOURCE'])?$LANG['ID_SOURCE']:'Identify Data Source'); ?></legend>
-								<div>
-									<div style="margin:10px">
+			//Upload type is direct, file, or DWCA
+			if(!$ulPath && ($uploadType == $FILEUPLOAD || $uploadType == $SKELETAL || $uploadType == $NFNUPLOAD || $uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD)){
+				//Need to upload data for file and DWCA uploads
+				$ulPath = $duManager->uploadFile();
+				if(!$ulPath){
+					//Still null, thus we have to upload file
+					?>
+					<form name="fileuploadform" action="specupload.php" method="post" enctype="multipart/form-data" onsubmit="return verifyFileUploadForm(this)">
+						<fieldset style="width:95%;">
+							<legend style="font-weight:bold;font-size:120%;<?php if($uploadType == $SKELETAL) echo 'background-color:lightgreen'; ?>"><?php echo $uploadTitle.': '.(isset($LANG['ID_SOURCE'])?$LANG['ID_SOURCE']:'Identify Data Source'); ?></legend>
+							<div>
+								<div style="margin:10px">
+									<?php
+									$pathLabel = (isset($LANG['IPT_URL'])?$LANG['IPT_URL']:'IPT Resource URL');
+									if($uploadType != $IPTUPLOAD){
+										$pathLabel = (isset($LANG['RES_URL'])?$LANG['RES_URL']:'Resource Path or URL');
+										?>
+										<div>
+											<input name="uploadfile" type="file" size="50" onchange="verifyImageSize(this)" />
+										</div>
 										<?php
-										$pathLabel = (isset($LANG['IPT_URL'])?$LANG['IPT_URL']:'IPT Resource URL');
+									}
+									?>
+									<div class="ulfnoptions" style="display:<?php echo ($uploadType!=$IPTUPLOAD?'none':''); ?>;margin:15px 0px">
+										<b><?php echo $pathLabel; ?>:</b>
+										<input name="ulfnoverride" type="text" size="70" /><br/>
+										<?php
 										if($uploadType != $IPTUPLOAD){
-											$pathLabel = (isset($LANG['RES_URL'])?$LANG['RES_URL']:'Resource Path or URL');
-											?>
-											<div>
-												<input name="uploadfile" type="file" size="50" onchange="verifyImageSize(this)" />
-											</div>
-											<?php
+											echo '* '.(isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:'This option is for pointing to a data file that was manually
+											uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed
+											by server upload limitations (e.g. PHP configuration limits');
 										}
 										?>
-										<div class="ulfnoptions" style="display:<?php echo ($uploadType!=$IPTUPLOAD?'none':''); ?>;margin:15px 0px">
-											<b><?php echo $pathLabel; ?>:</b>
-											<input name="ulfnoverride" type="text" size="70" /><br/>
+									</div>
+									<?php
+									if($uploadType != $IPTUPLOAD){
+										?>
+										<div class="ulfnoptions">
+											<a href="#" onclick="toggle('ulfnoptions');return false;"><?php echo (isset($LANG['DISPLAY_OPS'])?$LANG['DISPLAY_OPS']:'Display Additional Options'); ?></a>
+										</div>
+										<?php
+									}
+									?>
+								</div>
+								<div style="margin:10px;">
+									<?php
+									if(!$uspid && $uploadType != $NFNUPLOAD)
+										echo '<input name="automap" type="checkbox" value="1" CHECKED /> <b>'.(isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap fields').'</b><br/>';
+									?>
+								</div>
+								<div style="margin:10px;">
+									<button name="action" type="submit" value="Analyze File"><?php echo (isset($LANG['ANALYZE_FILE'])?$LANG['ANALYZE_FILE']:'Analyze File'); ?></button>
+									<input name="uspid" type="hidden" value="<?php echo $uspid; ?>" />
+									<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+									<input name="uploadtype" type="hidden" value="<?php echo $uploadType; ?>" />
+									<input name="matchothercatnum" type="hidden" value="<?php echo $matchOtherCatNum; ?>" />
+									<input name="MAX_FILE_SIZE" type="hidden" value="100000000" />
+								</div>
+							</div>
+						</fieldset>
+					</form>
+					<?php
+				}
+			}
+			$processingList = array('unprocessed' => 'Unprocessed', 'stage 1' => 'Stage 1', 'stage 2' => 'Stage 2', 'stage 3' => 'STAGE_3', 'pending review' => 'Pending Review',
+				'expert required' => 'Expert Required', 'pending review-nfn' => 'Pending Review-NfN', 'reviewed' => 'Reviewed', 'closed' => 'Closed');
+			if($ulPath && ($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD)){
+				//Data has been uploaded and it's a DWCA upload type
+				if($duManager->analyzeUpload()){
+					$metaArr = $duManager->getMetaArr();
+					if(isset($metaArr['occur'])){
+						?>
+						<form name="dwcauploadform" action="specupload.php" method="post" onsubmit="return verifyMappingForm(this)">
+							<fieldset style="width:95%;">
+								<legend style="font-weight:bold;font-size:120%;"><?php echo $uploadTitle.': Field Mapping';?></legend>
+								<div style="margin:10px;">
+									<b><?php echo (isset($LANG['SOURCE_ID'])?$LANG['SOURCE_ID']:'Source Unique Identifier / Primary Key'); ?> (<span style="color:red"><?php echo (isset($LANG['REQ'])?$LANG['REQ']:'required'); ?></span>): </b>
+									<?php
+									$dbpk = $duManager->getDbpk();
+									$dbpkTitle = 'Core ID';
+									if($dbpk == 'catalognumber') $dbpkTitle = 'Catalog Number';
+									elseif($dbpk == 'occurrenceid') $dbpkTitle = 'Occurrence ID';
+									echo $dbpkTitle;
+									?>
+									<div style="margin:10px;">
+										<div>
+											<input name="importspec" value="1" type="checkbox" checked />
+											<?php echo (isset($LANG['IMPORT_OCCS'])?$LANG['IMPORT_OCCS']:'Import Occurrence Records'); ?> (<a href="#" onclick="toggle('dwcaOccurDiv');return false;"><?php echo (isset($LANG['VIEW_DETS'])?$LANG['VIEW_DETS']:'view details'); ?></a>)
+										</div>
+										<div id="dwcaOccurDiv" style="display:none;margin:20px;">
+											<div style="margin-bottom:5px">
+												<?php $duManager->echoFieldMapTable(true,'occur'); ?>
+												<div>
+													<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
+												</div>
+											</div>
+											<fieldset>
+												<legend><b><?php echo (isset($LANG['CUSTOM_FILT'])?$LANG['CUSTOM_FILT']:'Custom Occurrence Record Import Filters'); ?></b></legend>
+												<?php
+												$qArr = json_decode($duManager->getQueryStr(),true);
+												$queryArr = array();
+												if($qArr){
+													foreach($qArr as $column => $aArr){
+														foreach($aArr as $cond => $bArr){
+															foreach($bArr as $v){
+																$queryArr[] = array('col'=>$column,'cond'=>$cond,'val'=>$v);
+															}
+														}
+													}
+												}
+												$sourceFields = $duManager->getSourceArr();
+												sort($sourceFields);
+												for($x=0;$x<3;$x++){
+													$savedField = '';
+													$savedCondition = '';
+													$savedValue = '';
+													if($action != 'Reset Field Mapping'){
+														if(array_key_exists('filter'.$x, $_POST) && $_POST['filter'.$x]){
+															$savedField = strtolower($_POST['filter'.$x]);
+															$savedCondition = $_POST['condition'.$x];
+															$savedValue = $_POST['value'.$x];
+														}
+														elseif(isset($queryArr[$x])){
+															$savedField = $queryArr[$x]['col'];
+															$savedCondition = $queryArr[$x]['cond'];
+															$savedValue = $queryArr[$x]['val'];
+														}
+													}
+
+													?>
+													<div>
+														<?php echo (isset($LANG['FIELD'])?$LANG['FIELD']:'Field'); ?>:
+														<select name="filter<?php echo $x; ?>" style="margin-right:10px">
+															<option value=""><?php echo (isset($LANG['SEL_FIELD'])?$LANG['SEL_FIELD']:'Select Field Name'); ?></option>
+															<?php
+															foreach($sourceFields as $f){
+																echo '<option '.($savedField == strtolower($f)?'SELECTED':'').'>'.$f.'</option>';
+															}
+															?>
+														</select>
+														<?php echo (isset($LANG['COND'])?$LANG['COND']:'Condition'); ?>:
+														<select name="condition<?php echo $x; ?>" style="margin-right:10px">
+															<option value="EQUALS" <?php if($savedCondition == 'EQUALS') echo 'SELECTED'; ?>><?php echo (isset($LANG['EQUALS'])?$LANG['EQUALS']:'EQUALS'); ?></option>
+															<option value="STARTS" <?php if($savedCondition == 'STARTS') echo 'SELECTED'; ?>><?php echo (isset($LANG['STARTS_WITH'])?$LANG['STARTS_WITH']:'STARTS WITH'); ?></option>
+															<option value="LIKE" <?php if($savedCondition == 'LIKE') echo 'SELECTED'; ?>><?php echo (isset($LANG['CONTAINS'])?$LANG['CONTAINS']:'CONTAINS'); ?></option>
+															<option value="LESSTHAN" <?php if($savedCondition == 'LESSTHAN') echo 'SELECTED'; ?>><?php echo (isset($LANG['LESS_THAN'])?$LANG['LESS_THAN']:'LESS THAN'); ?></option>
+															<option value="GREATERTHAN" <?php if($savedCondition == 'GREATERTHAN') echo 'SELECTED'; ?>><?php echo (isset($LANG['GREATER_THAN'])?$LANG['GREATER_THAN']:'GREATER THAN'); ?></option>
+															<option value="ISNULL" <?php if($savedCondition == 'ISNULL') echo 'SELECTED'; ?>><?php echo (isset($LANG['IS_NULL'])?$LANG['IS_NULL']:'IS NULL'); ?></option>
+															<option value="NOTNULL" <?php if($savedCondition == 'NOTNULL') echo 'SELECTED'; ?>><?php echo (isset($LANG['NOT_NULL'])?$LANG['NOT_NULL']:'IS NOT NULL'); ?></option>
+														</select>
+														<?php echo (isset($LANG['VALUE'])?$LANG['VALUE']:'Value'); ?>:
+														<input name="value<?php echo $x; ?>" type="text" value="<?php echo $savedValue; ?>" />
+													</div>
+													<?php
+												}
+												?>
+												<div style="margin:5px"><?php echo '* '.(isset($LANG['MULT_TERMS'])?$LANG['MULT_TERMS']:'Adding multiple terms separated by semi-colon will filter as an OR condition'); ?></div>
+											</fieldset>
+										</div>
+										<div>
+											<input name="importident" value="1" type="checkbox" <?php echo (isset($metaArr['ident'])?'checked':'disabled') ?> />
 											<?php
-											if($uploadType != $IPTUPLOAD){
-												echo '* '.(isset($LANG['WORKAROUND'])?$LANG['WORKAROUND']:'This option is for pointing to a data file that was manually
-												uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed
-												by server upload limitations (e.g. PHP configuration limits');
+											echo (isset($LANG['IMPORT_ID'])?$LANG['IMPORT_ID']:'Import Identification History');
+											if(isset($metaArr['ident'])){
+												echo '(<a href="#" onclick="toggle(\'dwcaIdentDiv\');return false;">'.(isset($LANG['VIEW_DETS'])?$LANG['VIEW_DETS']:'view details').'</a>)';
+												?>
+												<div id="dwcaIdentDiv" style="display:none;margin:20px;">
+													<?php $duManager->echoFieldMapTable(true,'ident'); ?>
+													<div>
+														<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
+													</div>
+												</div>
+												<?php
+											}
+											else{
+												echo '('.(isset($LANG['NOT_IN_DWC'])?$LANG['NOT_IN_DWC']:'not present in DwC-Archive').')';
+											}
+											?>
+
+										</div>
+										<div>
+											<input name="importimage" value="1" type="checkbox" <?php echo (isset($metaArr['image'])?'checked':'disabled') ?> />
+											<?php echo (isset($LANG['IMP_IMG'])?$LANG['IMP_IMG']:'Import Images'); ?>
+											<?php
+											if(isset($metaArr['image'])){
+												echo '(<a href="#" onclick="toggle(\'dwcaImgDiv\');return false;">view details</a>)';
+												?>
+												<div id="dwcaImgDiv" style="display:none;margin:20px;">
+													<?php $duManager->echoFieldMapTable(true,'image'); ?>
+													<div>
+														<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
+													</div>
+												</div>
+												<?php
+											}
+											else{
+												echo '('.(isset($LANG['NOT_IN_DWC'])?$LANG['NOT_IN_DWC']:'not present in DwC-Archive').')';
 											}
 											?>
 										</div>
-										<?php
-										if($uploadType != $IPTUPLOAD){
-											?>
-											<div class="ulfnoptions">
-												<a href="#" onclick="toggle('ulfnoptions');return false;"><?php echo (isset($LANG['DISPLAY_OPS'])?$LANG['DISPLAY_OPS']:'Display Additional Options'); ?></a>
-											</div>
+										<div style="margin:10px 0px;">
 											<?php
-										}
-										?>
-									</div>
-									<div style="margin:10px;">
-										<?php
-										if(!$uspid && $uploadType != $NFNUPLOAD)
-											echo '<input name="automap" type="checkbox" value="1" CHECKED /> <b>'.(isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap fields').'</b><br/>';
-										?>
-									</div>
-									<div style="margin:10px;">
-										<button name="action" type="submit" value="Analyze File"><?php echo (isset($LANG['ANALYZE_FILE'])?$LANG['ANALYZE_FILE']:'Analyze File'); ?></button>
-										<input name="uspid" type="hidden" value="<?php echo $uspid; ?>" />
-										<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-										<input name="uploadtype" type="hidden" value="<?php echo $uploadType; ?>" />
-										<input name="matchothercatnum" type="hidden" value="<?php echo $matchOtherCatNum; ?>" />
-										<input name="MAX_FILE_SIZE" type="hidden" value="100000000" />
+											if($uspid) echo '<button type="submit" name="action" value="Reset Field Mapping">'.(isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping').'</button>';
+											echo '<button name="action" type="submit" value="saveMapping" onclick="return verifySaveMapping(this.form)" style="margin-left:5px">'.(isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping').'</button>';
+											if(!$uspid) echo ' <span id="newProfileNameDiv" style="margin-left:15px;color:orange;display:none">'.(isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title').': <input type="text" name="profiletitle" style="width:300px" /></span>';
+											?>
+
+										</div>
+										<div style="margin-top:30px;">
+											<?php
+											if($isLiveData){
+												if($duManager->getCollInfo('colltype') == 'General Observations'){
+													echo (isset($LANG['TARGET_USER'])?$LANG['TARGET_USER']:'Target User').': ';
+													echo '<select name="observeruid">';
+													echo '<option value="">'.(isset($LANG['SEL_TAR_USER'])?$LANG['SEL_TAR_USER']:'Select Target User').'</option>';
+													echo '<option value="">----------------------------</option>';
+													$obsUidArr = $duManager->getObserverUidArr();
+													foreach($obsUidArr as $uid => $userName){
+														echo '<option value="'.$uid.'">'.$userName.'</option>';
+													}
+													echo '</select>';
+												}
+												?>
+												<div>
+													<input name="matchcatnum" type="checkbox" value="1" checked />
+													<?php echo (isset($LANG['MATCH_CAT'])?$LANG['MATCH_CAT']:'Match on Catalog Number'); ?>
+												</div>
+												<div>
+													<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
+													<?php echo (isset($LANG['MATCH_O_CAT'])?$LANG['MATCH_O_CAT']:'Match on Other Catalog Numbers'); ?>
+												</div>
+												<ul style="margin-top:2px">
+													<li><?php echo $recReplaceMsg; ?></li>
+													<li><?php echo (isset($LANG['BOTH_CATS'])?$LANG['BOTH_CATS']:'If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers'); ?></li>
+												</ul>
+												<?php
+											}
+											?>
+											<div style="margin:10px 0px;">
+												<input name="verifyimages" type="checkbox" value="1" />
+												<?php echo (isset($LANG['VER_LINKS'])?$LANG['VER_LINKS']:'Verify image links'); ?>
+											</div>
+											<div style="margin:10px 0px;">
+												<?php echo (isset($LANG['PROC_STATUS'])?$LANG['PROC_STATUS']:'Processing Status'); ?>:
+												<select name="processingstatus">
+													<option value=""><?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'Leave as is / No Explicit Setting'); ?></option>
+													<option value="">--------------------------</option>
+													<?php
+													foreach($processingList as $ps){
+														echo '<option value="'.$ps.'">'.ucwords($ps).'</option>';
+													}
+													?>
+												</select>
+											</div>
+											<div style="margin:10px;">
+												<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
+												<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
+												<input type="hidden" name="collid" value="<?php echo $collid;?>" />
+												<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
+												<input type="hidden" name="ulpath" value="<?php echo $ulPath;?>" />
+											</div>
+										</div>
 									</div>
 								</div>
 							</fieldset>
@@ -642,229 +802,154 @@ if($isEditor && $collid){
 						<?php
 					}
 				}
-				$processingList = array('unprocessed' => 'Unprocessed', 'stage 1' => 'Stage 1', 'stage 2' => 'Stage 2', 'stage 3' => 'STAGE_3', 'pending review' => 'Pending Review',
-					'expert required' => 'Expert Required', 'pending review-nfn' => 'Pending Review-NfN', 'reviewed' => 'Reviewed', 'closed' => 'Closed');
-				if($ulPath && ($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD)){
-					//Data has been uploaded and it's a DWCA upload type
-					if($duManager->analyzeUpload()){
-						$metaArr = $duManager->getMetaArr();
-						if(isset($metaArr['occur'])){
-							?>
-							<form name="dwcauploadform" action="specupload.php" method="post" onsubmit="return verifyMappingForm(this)">
-								<fieldset style="width:95%;">
-									<legend style="font-weight:bold;font-size:120%;"><?php echo $uploadTitle.': Field Mapping';?></legend>
-									<div style="margin:10px;">
-										<b><?php echo (isset($LANG['SOURCE_ID'])?$LANG['SOURCE_ID']:'Source Unique Identifier / Primary Key'); ?> (<span style="color:red"><?php echo (isset($LANG['REQ'])?$LANG['REQ']:'required'); ?></span>): </b>
-										<?php
-										$dbpk = $duManager->getDbpk();
-										$dbpkTitle = 'Core ID';
-										if($dbpk == 'catalognumber') $dbpkTitle = 'Catalog Number';
-										elseif($dbpk == 'occurrenceid') $dbpkTitle = 'Occurrence ID';
-										echo $dbpkTitle;
-										?>
-										<div style="margin:10px;">
-											<div>
-												<input name="importspec" value="1" type="checkbox" checked />
-												<?php echo (isset($LANG['IMPORT_OCCS'])?$LANG['IMPORT_OCCS']:'Import Occurrence Records'); ?> (<a href="#" onclick="toggle('dwcaOccurDiv');return false;"><?php echo (isset($LANG['VIEW_DETS'])?$LANG['VIEW_DETS']:'view details'); ?></a>)
-											</div>
-											<div id="dwcaOccurDiv" style="display:none;margin:20px;">
-												<div style="margin-bottom:5px">
-													<?php $duManager->echoFieldMapTable(true,'occur'); ?>
-													<div>
-														<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
-													</div>
-												</div>
-												<fieldset>
-													<legend><b><?php echo (isset($LANG['CUSTOM_FILT'])?$LANG['CUSTOM_FILT']:'Custom Occurrence Record Import Filters'); ?></b></legend>
-													<?php
-													$qArr = json_decode($duManager->getQueryStr(),true);
-													$queryArr = array();
-													if($qArr){
-														foreach($qArr as $column => $aArr){
-															foreach($aArr as $cond => $bArr){
-																foreach($bArr as $v){
-																	$queryArr[] = array('col'=>$column,'cond'=>$cond,'val'=>$v);
-																}
-															}
-														}
-													}
-													$sourceFields = $duManager->getSourceArr();
-													sort($sourceFields);
-													for($x=0;$x<3;$x++){
-														$savedField = '';
-														$savedCondition = '';
-														$savedValue = '';
-														if($action != 'Reset Field Mapping'){
-															if(array_key_exists('filter'.$x, $_POST) && $_POST['filter'.$x]){
-																$savedField = strtolower($_POST['filter'.$x]);
-																$savedCondition = $_POST['condition'.$x];
-																$savedValue = $_POST['value'.$x];
-															}
-															elseif(isset($queryArr[$x])){
-																$savedField = $queryArr[$x]['col'];
-																$savedCondition = $queryArr[$x]['cond'];
-																$savedValue = $queryArr[$x]['val'];
-															}
-														}
-
-														?>
-														<div>
-															<?php echo (isset($LANG['FIELD'])?$LANG['FIELD']:'Field'); ?>:
-															<select name="filter<?php echo $x; ?>" style="margin-right:10px">
-																<option value=""><?php echo (isset($LANG['SEL_FIELD'])?$LANG['SEL_FIELD']:'Select Field Name'); ?></option>
-																<?php
-																foreach($sourceFields as $f){
-																	echo '<option '.($savedField == strtolower($f)?'SELECTED':'').'>'.$f.'</option>';
-																}
-																?>
-															</select>
-															<?php echo (isset($LANG['COND'])?$LANG['COND']:'Condition'); ?>:
-															<select name="condition<?php echo $x; ?>" style="margin-right:10px">
-																<option value="EQUALS" <?php if($savedCondition == 'EQUALS') echo 'SELECTED'; ?>><?php echo (isset($LANG['EQUALS'])?$LANG['EQUALS']:'EQUALS'); ?></option>
-																<option value="STARTS" <?php if($savedCondition == 'STARTS') echo 'SELECTED'; ?>><?php echo (isset($LANG['STARTS_WITH'])?$LANG['STARTS_WITH']:'STARTS WITH'); ?></option>
-																<option value="LIKE" <?php if($savedCondition == 'LIKE') echo 'SELECTED'; ?>><?php echo (isset($LANG['CONTAINS'])?$LANG['CONTAINS']:'CONTAINS'); ?></option>
-																<option value="LESSTHAN" <?php if($savedCondition == 'LESSTHAN') echo 'SELECTED'; ?>><?php echo (isset($LANG['LESS_THAN'])?$LANG['LESS_THAN']:'LESS THAN'); ?></option>
-																<option value="GREATERTHAN" <?php if($savedCondition == 'GREATERTHAN') echo 'SELECTED'; ?>><?php echo (isset($LANG['GREATER_THAN'])?$LANG['GREATER_THAN']:'GREATER THAN'); ?></option>
-																<option value="ISNULL" <?php if($savedCondition == 'ISNULL') echo 'SELECTED'; ?>><?php echo (isset($LANG['IS_NULL'])?$LANG['IS_NULL']:'IS NULL'); ?></option>
-																<option value="NOTNULL" <?php if($savedCondition == 'NOTNULL') echo 'SELECTED'; ?>><?php echo (isset($LANG['NOT_NULL'])?$LANG['NOT_NULL']:'IS NOT NULL'); ?></option>
-															</select>
-															<?php echo (isset($LANG['VALUE'])?$LANG['VALUE']:'Value'); ?>:
-															<input name="value<?php echo $x; ?>" type="text" value="<?php echo $savedValue; ?>" />
-														</div>
-														<?php
-													}
-													?>
-													<div style="margin:5px"><?php echo '* '.(isset($LANG['MULT_TERMS'])?$LANG['MULT_TERMS']:'Adding multiple terms separated by semi-colon will filter as an OR condition'); ?></div>
-												</fieldset>
-											</div>
-											<div>
-												<input name="importident" value="1" type="checkbox" <?php echo (isset($metaArr['ident'])?'checked':'disabled') ?> />
-												<?php
-												echo (isset($LANG['IMPORT_ID'])?$LANG['IMPORT_ID']:'Import Identification History');
-												if(isset($metaArr['ident'])){
-													echo '(<a href="#" onclick="toggle(\'dwcaIdentDiv\');return false;">'.(isset($LANG['VIEW_DETS'])?$LANG['VIEW_DETS']:'view details').'</a>)';
-													?>
-													<div id="dwcaIdentDiv" style="display:none;margin:20px;">
-														<?php $duManager->echoFieldMapTable(true,'ident'); ?>
-														<div>
-															<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
-														</div>
-													</div>
-													<?php
-												}
-												else{
-													echo '('.(isset($LANG['NOT_IN_DWC'])?$LANG['NOT_IN_DWC']:'not present in DwC-Archive').')';
-												}
-												?>
-
-											</div>
-											<div>
-												<input name="importimage" value="1" type="checkbox" <?php echo (isset($metaArr['image'])?'checked':'disabled') ?> />
-												<?php echo (isset($LANG['IMP_IMG'])?$LANG['IMP_IMG']:'Import Images'); ?>
-												<?php
-												if(isset($metaArr['image'])){
-													echo '(<a href="#" onclick="toggle(\'dwcaImgDiv\');return false;">view details</a>)';
-													?>
-													<div id="dwcaImgDiv" style="display:none;margin:20px;">
-														<?php $duManager->echoFieldMapTable(true,'image'); ?>
-														<div>
-															<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?>
-														</div>
-													</div>
-													<?php
-												}
-												else{
-													echo '('.(isset($LANG['NOT_IN_DWC'])?$LANG['NOT_IN_DWC']:'not present in DwC-Archive').')';
-												}
-												?>
-											</div>
-											<div style="margin:10px 0px;">
-												<?php
-												if($uspid) echo '<button type="submit" name="action" value="Reset Field Mapping">'.(isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping').'</button>';
-												echo '<button type="submit" name="action" onclick="return verifySaveMapping(this.form)" style="margin-left:5px" >'.(isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping').'</button>';
-												if(!$uspid) echo ' <span id="newProfileNameDiv" style="margin-left:15px;color:orange;display:none">'.(isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title').': <input type="text" name="profiletitle" style="width:300px" /></span>';
-												?>
-
-											</div>
-											<div style="margin-top:30px;">
-												<?php
-												if($isLiveData){
-													if($duManager->getCollInfo('colltype') == 'General Observations'){
-														echo (isset($LANG['TARGET_USER'])?$LANG['TARGET_USER']:'Target User').': ';
-														echo '<select name="observeruid">';
-														echo '<option value="">'.(isset($LANG['SEL_TAR_USER'])?$LANG['SEL_TAR_USER']:'Select Target User').'</option>';
-														echo '<option value="">----------------------------</option>';
-														$obsUidArr = $duManager->getObserverUidArr();
-														foreach($obsUidArr as $uid => $userName){
-															echo '<option value="'.$uid.'">'.$userName.'</option>';
-														}
-														echo '</select>';
-													}
-													?>
-													<div>
-														<input name="matchcatnum" type="checkbox" value="1" checked />
-														<?php echo (isset($LANG['MATCH_CAT'])?$LANG['MATCH_CAT']:'Match on Catalog Number'); ?>
-													</div>
-													<div>
-														<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
-														<?php echo (isset($LANG['MATCH_O_CAT'])?$LANG['MATCH_O_CAT']:'Match on Other Catalog Numbers'); ?>
-													</div>
-													<ul style="margin-top:2px">
-														<li><?php echo $recReplaceMsg; ?></li>
-														<li><?php echo (isset($LANG['BOTH_CATS'])?$LANG['BOTH_CATS']:'If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers'); ?></li>
-													</ul>
-													<?php
-												}
-												?>
-												<div style="margin:10px 0px;">
-													<input name="verifyimages" type="checkbox" value="1" />
-													<?php echo (isset($LANG['VER_LINKS'])?$LANG['VER_LINKS']:'Verify image links'); ?>
-												</div>
-												<div style="margin:10px 0px;">
-													<?php echo (isset($LANG['PROC_STATUS'])?$LANG['PROC_STATUS']:'Processing Status'); ?>:
-													<select name="processingstatus">
-														<option value=""><?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'Leave as is / No Explicit Setting'); ?></option>
-														<option value="">--------------------------</option>
-														<?php
-														foreach($processingList as $ps){
-															echo '<option value="'.$ps.'">'.ucwords($ps).'</option>';
-														}
-														?>
-													</select>
-												</div>
-												<div style="margin:10px;">
-													<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
-													<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
-													<input type="hidden" name="collid" value="<?php echo $collid;?>" />
-													<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
-													<input type="hidden" name="ulpath" value="<?php echo $ulPath;?>" />
-												</div>
-											</div>
-										</div>
-									</div>
-								</fieldset>
-							</form>
-							<?php
-						}
+				else{
+					if($duManager->getErrorStr()){
+						echo '<div style="font-weight:bold;">'.$duManager->getErrorStr().'</div>';
 					}
 					else{
-						if($duManager->getErrorStr()){
-							echo '<div style="font-weight:bold;">'.$duManager->getErrorStr().'</div>';
-						}
-						else{
-							echo '<div style="font-weight:bold;">'.(isset($LANG['UNK_ERR'])?$LANG['UNK_ERR']:'Unknown error analyzing upload').'</div>';
-						}
+						echo '<div style="font-weight:bold;">'.(isset($LANG['UNK_ERR'])?$LANG['UNK_ERR']:'Unknown error analyzing upload').'</div>';
 					}
 				}
-				elseif($uploadType == $NFNUPLOAD && $ulPath){
-					$duManager->analyzeUpload();
-					?>
-					<form name="filemappingform" action="specupload.php" method="post" onsubmit="return verifyMappingForm(this)">
-						<fieldset style="width:95%;padding:15px">
-							<legend style="font-weight:bold;font-size:120%;"><?php echo (isset($LANG['NFN_IMPORT'])?$LANG['NFN_IMPORT']:'Notes from Nature File Import'); ?></legend>
+			}
+			elseif($uploadType == $NFNUPLOAD && $ulPath){
+				$duManager->analyzeUpload();
+				?>
+				<form name="filemappingform" action="specupload.php" method="post" onsubmit="return verifyMappingForm(this)">
+					<fieldset style="width:95%;padding:15px">
+						<legend style="font-weight:bold;font-size:120%;"><?php echo (isset($LANG['NFN_IMPORT'])?$LANG['NFN_IMPORT']:'Notes from Nature File Import'); ?></legend>
+						<?php
+						if($duManager->echoFieldMapTable(true, 'spec')){
+							?>
+							<div style="margin:10px 0px;">
+								<?php echo (isset($LANG['PROC_STATUS'])?$LANG['PROC_STATUS']:'Processing Status'); ?>:
+								<select name="processingstatus">
+									<option value=""><?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'Leave as is / No Explicit Setting'); ?></option>
+									<option value="">--------------------------</option>
+									<?php
+									foreach($processingList as $ps){
+										echo '<option value="'.$ps.'">'.ucwords($ps).'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<div style="margin:20px;">
+								<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
+							</div>
 							<?php
-							if($duManager->echoFieldMapTable(true, 'spec')){
+						}
+						?>
+					</fieldset>
+					<input name="matchcatnum" type="hidden" value="0" />
+					<input name="matchothercatnum" type="hidden" value="0" />
+					<input name="uspid" type="hidden" value="<?php echo $uspid;?>" />
+					<input name="collid" type="hidden" value="<?php echo $collid;?>" />
+					<input name="uploadtype" type="hidden" value="<?php echo $uploadType;?>" />
+					<input name="ulpath" type="hidden" value="<?php echo $ulPath;?>" />
+				</form>
+				<?php
+			}
+			elseif($uploadType == $DIRECTUPLOAD || (($uploadType == $FILEUPLOAD || $uploadType == $SKELETAL) && $ulPath)){
+				$duManager->analyzeUpload();
+				?>
+				<form name="filemappingform" action="specupload.php" method="post" onsubmit="return verifyMappingForm(this)">
+					<fieldset style="width:95%;">
+						<legend style="font-weight:bold;font-size:120%;<?php if($uploadType == $SKELETAL) echo 'background-color:lightgreen'; ?>"><?php echo $uploadTitle; ?></legend>
+						<?php
+						if(!$isLiveData && $uploadType != $SKELETAL){
+							//Primary key field is required and must be mapped
+							?>
+							<div style="margin:20px;">
+								<b><?php echo (isset($LANG['SOURCE_ID'])?$LANG['SOURCE_ID']:'Source Unique Identifier / Primary Key'); ?> (<span style="color:red"><?php echo (isset($LANG['REQ'])?$LANG['REQ']:'required'); ?></span>): </b>
+								<?php
+								$dbpk = $duManager->getDbpk();
+								$dbpkOptions = $duManager->getDbpkOptions();
 								?>
+								<select name="dbpk" onchange="pkChanged(this);">
+									<option value=""><?php echo (isset($LANG['SEL_KEY'])?$LANG['SEL_KEY']:'Select Source Primary Key'); ?></option>
+									<option value="">----------------------------------</option>
+									<?php
+									foreach($dbpkOptions as $f){
+										echo '<option value="'.strtolower($f).'" '.($dbpk==strtolower($f)?'SELECTED':'').'>'.$f.'</option>';
+									}
+									?>
+								</select>
+							</div>
+							<?php
+						}
+						$displayStr = 'block';
+						if(!$isLiveData) $displayStr = 'none';
+						if($uploadType == $SKELETAL) $displayStr = 'block';
+						if($dbpk) $displayStr = 'block';
+						?>
+						<div id="mdiv" style="display:<?php echo $displayStr; ?>">
+							<?php $duManager->echoFieldMapTable($autoMap,'spec'); ?>
+							<div>
+								<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?><br/>
+								<?php echo '* '.(isset($LANG['SKIPPED'])?$LANG['SKIPPED']:'Record will be skipped when all of the following fields are empty: catalogNumber, otherCatalogNumbers, occurrenceID, recordedBy (collector), eventDate, scientificName, dbpk'); ?><br/>
+								<?php echo '* '.(isset($LANG['LEARN_MORE'])?$LANG['LEARN_MORE']:'To learn more about mapping to Symbiota fields (and Darwin Core)'); ?>:
+								<div style="margin-left:15px;">
+									<a href="http://symbiota.org/docs/wp-content/uploads/SymbiotaOccurrenceFields.pdf" target="_blank">SymbiotaOccurrenceFields.pdf</a><br/>
+									<a href="http://symbiota.org/docs/symbiota-introduction/loading-specimen-data/" target="_blank"><?php echo (isset($LANG['LOADING_DATA'])?$LANG['LOADING_DATA']:'Loading Data into Symbiota'); ?></a>
+								</div>
+							</div>
+							<div style="margin:10px;">
+								<?php
+								if($uspid){
+									?>
+									<button type="submit" name="action" value="Reset Field Mapping" ><?php echo (isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping'); ?></button>
+									<?php
+								}
+								?>
+								<button type="submit" name="action" value="Automap Fields" ><?php echo (isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap Fields'); ?></button>
+								<button type="submit" name="action" value="Verify Mapping" ><?php echo (isset($LANG['VER_MAPPING'])?$LANG['VER_MAPPING']:'Verify Mapping'); ?></button>
+								<button type="submit" name="action" value="saveMapping" onclick="return verifySaveMapping(this.form)" ><?php echo (isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping'); ?></button>
+								<span id="newProfileNameDiv" style="margin-left:15px;color:red;display:none">
+									<?php echo (isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title'); ?>:
+									<input type="text" name="profiletitle" style="width:300px" />
+								</span>
+							</div>
+							<hr />
+							<div id="uldiv" style="margin-top:30px;">
+								<?php
+								if($isLiveData || $uploadType == $SKELETAL){
+									if($duManager->getCollInfo('colltype') == 'General Observations'){
+										echo (isset($LANG['TARGET_USER'])?$LANG['TARGET_USER']:'Target User').': ';
+										echo '<select name="observeruid">';
+										echo '<option value="">'.(isset($LANG['SEL_TAR_USER'])?$LANG['SEL_TAR_USER']:'Select Target User').'</option>';
+										echo '<option value="">----------------------------</option>';
+										$obsUidArr = $duManager->getObserverUidArr();
+										foreach($obsUidArr as $uid => $userName){
+											echo '<option value="'.$uid.'">'.$userName.'</option>';
+										}
+										echo '</select>';
+									}
+									?>
+									<div>
+										<input name="matchcatnum" type="checkbox" value="1" checked />
+										<?php echo (isset($LANG['MATCH_CAT'])?$LANG['MATCH_CAT']:'Match on Catalog Number'); ?>
+									</div>
+									<div>
+										<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
+										<?php echo (isset($LANG['MATCH_O_CAT'])?$LANG['MATCH_O_CAT']:'Match on Other Catalog Numbers'); ?>
+									</div>
+									<ul style="margin-top:2px">
+										<?php
+										if($uploadType == $SKELETAL){
+											echo '<li>Incoming skeletal data will be appended only if targeted field is empty</li>';
+										}
+										else{
+											echo '<li>'.$recReplaceMsg.'</li>';
+										}
+										?>
+										<li><?php echo (isset($LANG['BOTH_CATS'])?$LANG['BOTH_CATS']:'If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers'); ?></li>
+									</ul>
+									<?php
+								}
+								?>
+								<div style="margin:10px 0px;">
+									<input name="verifyimages" type="checkbox" value="1" />
+									<?php echo (isset($LANG['VER_LINKS_MEDIA'])?$LANG['VER_LINKS_MEDIA']:'Verify image links from associatedMedia field'); ?>
+								</div>
 								<div style="margin:10px 0px;">
 									<?php echo (isset($LANG['PROC_STATUS'])?$LANG['PROC_STATUS']:'Processing Status'); ?>:
 									<select name="processingstatus">
@@ -880,160 +965,29 @@ if($isEditor && $collid){
 								<div style="margin:20px;">
 									<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
 								</div>
-								<?php
-							}
-							?>
-						</fieldset>
-						<input name="matchcatnum" type="hidden" value="0" />
-						<input name="matchothercatnum" type="hidden" value="0" />
-						<input name="uspid" type="hidden" value="<?php echo $uspid;?>" />
-						<input name="collid" type="hidden" value="<?php echo $collid;?>" />
-						<input name="uploadtype" type="hidden" value="<?php echo $uploadType;?>" />
-						<input name="ulpath" type="hidden" value="<?php echo $ulPath;?>" />
-					</form>
-					<?php
-				}
-				elseif($uploadType == $DIRECTUPLOAD || (($uploadType == $FILEUPLOAD || $uploadType == $SKELETAL) && $ulPath)){
-					$duManager->analyzeUpload();
-					?>
-					<form name="filemappingform" action="specupload.php" method="post" onsubmit="return verifyMappingForm(this)">
-						<fieldset style="width:95%;">
-							<legend style="font-weight:bold;font-size:120%;<?php if($uploadType == $SKELETAL) echo 'background-color:lightgreen'; ?>"><?php echo $uploadTitle; ?></legend>
-							<?php
-							if(!$isLiveData && $uploadType != $SKELETAL){
-								//Primary key field is required and must be mapped
-								?>
-								<div style="margin:20px;">
-									<b><?php echo (isset($LANG['SOURCE_ID'])?$LANG['SOURCE_ID']:'Source Unique Identifier / Primary Key'); ?> (<span style="color:red"><?php echo (isset($LANG['REQ'])?$LANG['REQ']:'required'); ?></span>): </b>
-									<?php
-									$dbpk = $duManager->getDbpk();
-									$dbpkOptions = $duManager->getDbpkOptions();
-									?>
-									<select name="dbpk" onchange="pkChanged(this);">
-										<option value=""><?php echo (isset($LANG['SEL_KEY'])?$LANG['SEL_KEY']:'Select Source Primary Key'); ?></option>
-										<option value="">----------------------------------</option>
-										<?php
-										foreach($dbpkOptions as $f){
-											echo '<option '.($dbpk==$f?'SELECTED':'').'>'.$f.'</option>';
-										}
-										?>
-									</select>
-								</div>
-								<?php
-							}
-							$displayStr = 'block';
-							if(!$isLiveData) $displayStr = 'none';
-							if($uploadType == $SKELETAL) $displayStr = 'block';
-							if($dbpk) $displayStr = 'block';
-							?>
-							<div id="mdiv" style="display:<?php echo $displayStr; ?>">
-								<?php $duManager->echoFieldMapTable($autoMap,'spec'); ?>
-								<div>
-									<?php echo '* '.(isset($LANG['UNVER'])?$LANG['UNVER']:'Unverified mappings are displayed in yellow'); ?><br/>
-									<?php echo '* '.(isset($LANG['SKIPPED'])?$LANG['SKIPPED']:'Record will be skipped when all of the following fields are empty: catalogNumber, otherCatalogNumbers, occurrenceID, recordedBy (collector), eventDate, scientificName, dbpk'); ?><br/>
-									<?php echo '* '.(isset($LANG['LEARN_MORE'])?$LANG['LEARN_MORE']:'To learn more about mapping to Symbiota fields (and Darwin Core)'); ?>:
-									<div style="margin-left:15px;">
-										<a href="http://symbiota.org/docs/wp-content/uploads/SymbiotaOccurrenceFields.pdf" target="_blank">SymbiotaOccurrenceFields.pdf</a><br/>
-										<a href="http://symbiota.org/docs/symbiota-introduction/loading-specimen-data/" target="_blank"><?php echo (isset($LANG['LOADING_DATA'])?$LANG['LOADING_DATA']:'Loading Data into Symbiota'); ?></a>
-									</div>
-								</div>
-								<div style="margin:10px;">
-									<?php
-									if($uspid){
-										?>
-										<button type="submit" name="action" value="Reset Field Mapping" ><?php echo (isset($LANG['RESET_MAP'])?$LANG['RESET_MAP']:'Reset Field Mapping'); ?></button>
-										<?php
-									}
-									?>
-									<button type="submit" name="action" value="Automap Fields" ><?php echo (isset($LANG['AUTOMAP'])?$LANG['AUTOMAP']:'Automap Fields'); ?></button>
-									<button type="submit" name="action" value="Verify Mapping" ><?php echo (isset($LANG['VER_MAPPING'])?$LANG['VER_MAPPING']:'Verify Mapping'); ?></button>
-									<button type="submit" name="action" value="Save Mapping" onclick="return verifySaveMapping(this.form)" ><?php echo (isset($LANG['SAVE_MAP'])?$LANG['SAVE_MAP']:'Save Mapping'); ?></button>
-									<span id="newProfileNameDiv" style="margin-left:15px;color:red;display:none">
-										<?php echo (isset($LANG['NEW_PROF_TITLE'])?$LANG['NEW_PROF_TITLE']:'New profile title'); ?>:
-										<input type="text" name="profiletitle" style="width:300px" />
-									</span>
-								</div>
-								<hr />
-								<div id="uldiv" style="margin-top:30px;">
-									<?php
-									if($isLiveData || $uploadType == $SKELETAL){
-										if($duManager->getCollInfo('colltype') == 'General Observations'){
-											echo (isset($LANG['TARGET_USER'])?$LANG['TARGET_USER']:'Target User').': ';
-											echo '<select name="observeruid">';
-											echo '<option value="">'.(isset($LANG['SEL_TAR_USER'])?$LANG['SEL_TAR_USER']:'Select Target User').'</option>';
-											echo '<option value="">----------------------------</option>';
-											$obsUidArr = $duManager->getObserverUidArr();
-											foreach($obsUidArr as $uid => $userName){
-												echo '<option value="'.$uid.'">'.$userName.'</option>';
-											}
-											echo '</select>';
-										}
-										?>
-										<div>
-											<input name="matchcatnum" type="checkbox" value="1" checked />
-											<?php echo (isset($LANG['MATCH_CAT'])?$LANG['MATCH_CAT']:'Match on Catalog Number'); ?>
-										</div>
-										<div>
-											<input name="matchothercatnum" type="checkbox" value="1" <?php echo ($matchOtherCatNum?'checked':''); ?> />
-											<?php echo (isset($LANG['MATCH_O_CAT'])?$LANG['MATCH_O_CAT']:'Match on Other Catalog Numbers'); ?>
-										</div>
-										<ul style="margin-top:2px">
-											<?php
-											if($uploadType == $SKELETAL){
-												echo '<li>Incoming skeletal data will be appended only if targeted field is empty</li>';
-											}
-											else{
-												echo '<li>'.$recReplaceMsg.'</li>';
-											}
-											?>
-											<li><?php echo (isset($LANG['BOTH_CATS'])?$LANG['BOTH_CATS']:'If both checkboxes are selected, matches will first be made on catalog numbers and secondarily on other catalog numbers'); ?></li>
-										</ul>
-										<?php
-									}
-									?>
-									<div style="margin:10px 0px;">
-										<input name="verifyimages" type="checkbox" value="1" />
-										<?php echo (isset($LANG['VER_LINKS_MEDIA'])?$LANG['VER_LINKS_MEDIA']:'Verify image links from associatedMedia field'); ?>
-									</div>
-									<div style="margin:10px 0px;">
-										<?php echo (isset($LANG['PROC_STATUS'])?$LANG['PROC_STATUS']:'Processing Status'); ?>:
-										<select name="processingstatus">
-											<option value=""><?php echo (isset($LANG['NO_SETTING'])?$LANG['NO_SETTING']:'Leave as is / No Explicit Setting'); ?></option>
-											<option value="">--------------------------</option>
-											<?php
-											foreach($processingList as $ps){
-												echo '<option value="'.$ps.'">'.ucwords($ps).'</option>';
-											}
-											?>
-										</select>
-									</div>
-									<div style="margin:20px;">
-										<button type="submit" name="action" value="Start Upload"><?php echo (isset($LANG['START_UPLOAD'])?$LANG['START_UPLOAD']:'Start Upload'); ?></button>
-									</div>
-								</div>
-								<?php
-								if($uploadType == $SKELETAL){
-									echo '<div style="margin:15px;background-color:lightgreen;">';
-									echo (isset($LANG['SKEL_EXPLAIN'])?$LANG['SKEL_EXPLAIN']:'');
-									echo '<ul>';
-									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P1'])?$LANG['SKEL_EXPLAIN_P1']:'').'</li>';
-									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
-									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
-									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
-									echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
-									echo '</ul>';
-									echo '</div>';
-								}
-								?>
 							</div>
-						</fieldset>
-						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
-						<input type="hidden" name="collid" value="<?php echo $collid;?>" />
-						<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
-						<input type="hidden" name="ulpath" value="<?php echo $ulPath;?>" />
-					</form>
-					<?php
-				}
+							<?php
+							if($uploadType == $SKELETAL){
+								echo '<div style="margin:15px;background-color:lightgreen;">';
+								echo (isset($LANG['SKEL_EXPLAIN'])?$LANG['SKEL_EXPLAIN']:'');
+								echo '<ul>';
+								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P1'])?$LANG['SKEL_EXPLAIN_P1']:'').'</li>';
+								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+								echo '</ul>';
+								echo '</div>';
+							}
+							?>
+						</div>
+					</fieldset>
+					<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
+					<input type="hidden" name="collid" value="<?php echo $collid;?>" />
+					<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
+					<input type="hidden" name="ulpath" value="<?php echo $ulPath;?>" />
+				</form>
+				<?php
 			}
 		}
 	}

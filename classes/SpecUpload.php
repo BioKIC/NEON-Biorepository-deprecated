@@ -25,12 +25,13 @@ class SpecUpload{
 	protected $uploadType;
 	private $securityKey;
 	protected $paleoSupport = false;
+	protected $materialSampleSupport = false;
 
 	protected $verboseMode = 1;	// 0 = silent, 1 = echo, 2 = log
 	private $logFH;
 	protected $errorStr;
 
-	protected $DIRECTUPLOAD = 1, $DIGIRUPLOAD = 2, $FILEUPLOAD = 3, $STOREDPROCEDURE = 4, $SCRIPTUPLOAD = 5, $DWCAUPLOAD = 6, $SKELETAL = 7, $IPTUPLOAD = 8, $NFNUPLOAD = 9, $RESTOREBACKUP = 10;
+	protected $DIRECTUPLOAD = 1, $FILEUPLOAD = 3, $STOREDPROCEDURE = 4, $SCRIPTUPLOAD = 5, $DWCAUPLOAD = 6, $SKELETAL = 7, $IPTUPLOAD = 8, $NFNUPLOAD = 9, $RESTOREBACKUP = 10;
 
 	function __construct() {
 		$this->conn = MySQLiConnectionFactory::getCon("write");
@@ -70,9 +71,6 @@ class SpecUpload{
 				$uploadStr = "";
 				if($uploadType == $this->DIRECTUPLOAD){
 					$uploadStr = "Direct Upload";
-				}
-				elseif($uploadType == $this->DIGIRUPLOAD){
-					$uploadStr = "DiGIR Provider Upload";
 				}
 				elseif($uploadType == $this->FILEUPLOAD){
 					$uploadStr = "File Upload";
@@ -122,8 +120,15 @@ class SpecUpload{
 				$this->collMetadataArr["guidtarget"] = $r->guidtarget;
 				if($r->dynamicproperties){
 					$propArr = json_decode($r->dynamicproperties,true);
-					if(isset($propArr['editorProps']['modules-panel']['paleo']['status'])){
-						if($propArr['editorProps']['modules-panel']['paleo']['status'] == 1) $this->paleoSupport = true;
+					if(isset($propArr['editorProps']['modules-panel'])){
+						foreach($propArr['editorProps']['modules-panel'] as $modArr){
+							if(isset($modArr['paleo'])){
+								if($modArr['paleo']['status'] == 1) $this->paleoSupport = true;
+							}
+							elseif(isset($modArr['matSample'])){
+								if($modArr['matSample']['status'] == 1) $this->materialSampleSupport = true;
+							}
+						}
 					}
 				}
 			}
@@ -474,7 +479,7 @@ class SpecUpload{
 				//Create log File
 				$logPath = $GLOBALS['SERVER_ROOT'];
 				if(substr($logPath,-1) != '/') $logPath .= '/';
-				$logPath .= 'content/logs/';
+				$logPath .= 'content/logs/occurImport/';
 				if($logTitle){
 					$logPath .= $logTitle;
 				}

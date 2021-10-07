@@ -180,8 +180,8 @@ if($isEditor){
 							<div class="editfield" style="display:none;">
 								<select name="unitind1">
 									<option value=""></option>
-									<option value="&#215;" <?php echo (ord($unitInd1)==195 || strtolower($unitInd1) == 'x'?'selected':''); ?>>&#215;</option>
-									<option value="&#8224;" <?php echo (ord($unitInd1)==226?'selected':''); ?>>&#8224;</option>
+									<option value="&#215;" <?php echo ($unitInd1 && (mb_ord($unitInd1)==215 || strtolower($unitInd1) == 'x')?'selected':''); ?>>&#215;</option>
+									<option value="&#8224;" <?php echo ($unitInd1 && mb_ord($unitInd1)==8224?'selected':''); ?>>&#8224;</option>
 								</select>
 								<input type="text" id="unitname1" name="unitname1" style="width:300px;border-style:inset;" value="<?php echo $taxonEditorObj->getUnitName1(); ?>" />
 							</div>

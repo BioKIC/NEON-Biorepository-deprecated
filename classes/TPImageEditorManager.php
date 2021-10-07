@@ -27,19 +27,18 @@ class TPImageEditorManager extends TPEditorManager{
 		}
 
 		$this->imageArr = Array();
-		$sql = 'SELECT i.imgid, i.url, i.thumbnailurl, i.originalurl, i.caption, i.photographer, i.photographeruid, '.
-			'IFNULL(i.photographer,CONCAT_WS(" ",u.firstname,u.lastname)) AS photographerdisplay, i.owner, '.
-			'i.locality, i.occid, i.notes, i.sortsequence, i.sourceurl, i.copyright, t.tid, t.sciname ';
+		$sql = 'SELECT i.imgid, i.url, i.thumbnailurl, i.originalurl, i.caption, i.photographer, i.photographeruid, CONCAT_WS(" ",u.firstname,u.lastname) AS photographerdisplay,
+			i.owner, i.locality, i.occid, i.notes, i.sortsequence, i.sourceurl, i.copyright, t.tid, t.sciname ';
 		if($this->acceptance){
-			$sql .= 'FROM images i INNER JOIN taxstatus ts ON i.tid = ts.tid '.
-				'INNER JOIN taxa t ON i.tid = t.tid '.
-				'LEFT JOIN users u ON i.photographeruid = u.uid '.
-				'WHERE ts.taxauthid = '.$this->taxAuthId.' AND (ts.tidaccepted IN('.implode(",",$tidArr).')) AND i.SortSequence < 500 ';
+			$sql .= 'FROM images i INNER JOIN taxstatus ts ON i.tid = ts.tid
+				INNER JOIN taxa t ON i.tid = t.tid
+				LEFT JOIN users u ON i.photographeruid = u.uid
+				WHERE ts.taxauthid = '.$this->taxAuthId.' AND (ts.tidaccepted IN('.implode(",",$tidArr).')) AND i.SortSequence < 500 ';
 		}
 		else{
-			$sql .= 'FROM images i INNER JOIN taxa t ON i.tid = t.tid '.
-				'LEFT JOIN users u ON i.photographeruid = u.uid '.
-				'WHERE (t.tid IN('.implode(",",$tidArr).')) AND i.SortSequence < 500 ';
+			$sql .= 'FROM images i INNER JOIN taxa t ON i.tid = t.tid
+				LEFT JOIN users u ON i.photographeruid = u.uid
+				WHERE (t.tid IN('.implode(",",$tidArr).')) AND i.SortSequence < 500 ';
 		}
 		$sql .= 'ORDER BY i.sortsequence';
 		//echo $sql; exit;
@@ -52,7 +51,8 @@ class TPImageEditorManager extends TPEditorManager{
 			$imageArr[$imgCnt]['originalurl'] = $r->originalurl;
 			$imageArr[$imgCnt]['photographer'] = $r->photographer;
 			$imageArr[$imgCnt]['photographeruid'] = $r->photographeruid;
-			$imageArr[$imgCnt]['photographerdisplay'] = $r->photographerdisplay;
+			if($r->photographerdisplay) $imageArr[$imgCnt]['photographerdisplay'] = $r->photographerdisplay;
+			else $imageArr[$imgCnt]['photographerdisplay'] = $r->photographer;
 			$imageArr[$imgCnt]['caption'] = $r->caption;
 			$imageArr[$imgCnt]['owner'] = $r->owner;
 			$imageArr[$imgCnt]['locality'] = $r->locality;

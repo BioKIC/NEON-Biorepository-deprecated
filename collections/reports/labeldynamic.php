@@ -214,7 +214,7 @@ if($SYMB_UID){
 								<?php
 							}
 						}
-						if($lFooter) echo '<div class="label-footer" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
+						if($lFooter) echo '<div class="label-footer'.(isset($targetLabelFormatArr['labelFooter']['className'])?' '.$targetLabelFormatArr['labelFooter']['className']:'').'" '.(isset($targetLabelFormatArr['labelFooter']['style'])?'style="'.$targetLabelFormatArr['labelFooter']['style'].'"':'').'>'.$lFooter.'</div>';
 						if($useSymbBarcode){
 							?>
 							<hr style="border:dashed;" />

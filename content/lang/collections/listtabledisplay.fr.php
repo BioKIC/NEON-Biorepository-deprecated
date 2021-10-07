@@ -27,7 +27,7 @@ $LANG['DEC_LAT'] = 'Lat. Décimale';
 $LANG['DEC_LONG'] = 'Long. Décimale';
 $LANG['EDIT_REC'] = 'Modifier';
 $LANG['HAS_IMAGE'] = 'A Image';
-$LANG['SYMB_ID'] = "Cliquez sur l'Identifiant Symbiota dans la première colonne pour voir les détails complets de l'enregistrement";
+$LANG['CLICK_SYMB'] = "Cliquez sur l'Identifiant Symbiota dans la première colonne pour voir les détails complets de l'enregistrement";
 $LANG['NONE_FOUND'] = 'Aucun enregistrement trouvé correspondant à la requête';
 
 ?>

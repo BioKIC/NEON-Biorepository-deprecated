@@ -17,12 +17,12 @@ class WordCloud{
 	private $supportUtf8 = true;
 
 	public function __construct(){
-		$this->conn = MySQLiConnectionFactory::getCon("readonly");
+		$this->conn = MySQLiConnectionFactory::getCon('readonly');
 
-		$this->displayedWordCount = 100;
+		$this->displayedWordCount = 150;
 		if($GLOBALS['charset'] == 'ISO-8859-1') $this->supportUtf8 = false;
-		$this->tagUrl = "http://www.google.com/search?hl=en&q=";
-
+		//$this->tagUrl = "https://www.google.com/search?hl=en&q=";
+		$this->tagUrl = $GLOBALS['CLIENT_ROOT'].'/collections/editor/occurrencetabledisplay.php?occindex=0&reset=1&q_processingstatus=unprocessed';
 		$this->backgroundColor = "#000";
 		$this->wordColors[0] = "#5122CC";
 		$this->wordColors[1] = "#229926";
@@ -35,104 +35,116 @@ class WordCloud{
 		$this->wordColors[8] = "#229938";
 		$this->wordColors[9] = "#419922";
 
-		$commonWordStr = "a,able,about,across,after,all,almost,also,am,among,an,and,any,are,arent," .
-			"as,at,be,because,been,but,by,can,cant,cannot,could,couldve,couldnt,dear,did,didnt,do,does,doesnt," .
-			"dont,either,else,ever,every,for,from,get,got,had,has,hasnt,have,he,her,him,his,how,however," .
-			"i,if,in,into,is,isnt,it,its,just,least,let,like,likely,may,me,might,most,must,my,neither,no,nor,not,of,off," .
-			"often,on,only,or,other,our,own,rather,said,say,says,she,should,since,so,some,than,that," .
-			"the,their,them,then,there,theres,these,they,this,to,too,us,wants,was,wasnt,we,were,werent,what," .
-			"when,when,where,which,while,who,whom,why,will,with,wont,would,wouldve,wouldnt,yet,you,your";
-		//$commonWordStr = strtolower($commonWordStr);
-		$this->commonWordArr = explode(",", $commonWordStr);
+		$commonWordStr = 'a,able,about,across,after,all,almost,also,am,among,an,and,any,are,arent,as,at,be,because,been,but,by,can,cant,cannot,could,couldve,couldnt,dear,did,didnt,do,'.
+			'does,doesnt,dont,either,else,ever,every,for,from,get,got,had,has,hasnt,have,he,her,him,his,how,however,i,if,in,into,is,isnt,it,its,just,least,let,like,likely,may,me,might,'.
+			'most,must,my,neither,no,nor,not,of,off,often,on,only,or,other,our,own,rather,said,say,says,she,should,since,so,some,than,that,the,their,them,then,there,theres,these,they,this.'.
+			'to,too,us,wants,was,wasnt,we,were,werent,what,when,when,where,which,while,who,whom,why,will,with,wont,would,wouldve,wouldnt,yet,you,your';
+		$this->commonWordArr = explode(',', $commonWordStr);
 	}
 
 	public function __destruct(){
 		if(!($this->conn === null)) $this->conn->close();
 	}
 
-	public function buildWordFile($collectionId = 0,$csMode = 0){
-		$collArr = array();
-		$sqlFrag = 'FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
-			'INNER JOIN specprocessorrawlabels r ON i.imgid = r.imgid ';
-		if($csMode){
-			$sqlFrag .= 'INNER JOIN omcrowdsourcequeue q ON o.occid = q.occid ';
+	public function batchBuildWordClouds($csMode = 0){
+		$processingArr = array();
+		$sql = 'SELECT DISTINCT c.collid FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid INNER JOIN specprocessorrawlabels r ON i.imgid = r.imgid ';
+		if($csMode) $sql .= 'INNER JOIN omcrowdsourcequeue q ON o.occid = q.occid ';
+		$sql .= 'WHERE o.processingstatus = "unprocessed" AND o.locality IS NULL ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$processingArr[] = $r->collid;
 		}
-		$sqlColl = 'SELECT DISTINCT c.collid, c.collectionname '.$sqlFrag.
-			'INNER JOIN omcollections c ON c.collid = o.collid ';
-		if($collectionId){
-			$sqlColl .= 'WHERE c.collid = '.$collectionId;
-		}
-		//echo 'sql: '.$sqlColl;
-		$rsColl = $this->conn->query($sqlColl);
-		while($rColl = $rsColl->fetch_object()){
-			$collArr[$rColl->collid] = $rColl->collectionname;
-		}
-		$rsColl->free();
-
-		$sql = 'SELECT DISTINCT r.rawstr '.$sqlFrag.
-			'WHERE o.processingstatus = "unprocessed" AND o.locality IS NULL ';
-		foreach($collArr as $collid => $collName){
-			//Reset frequency array
-			unset($this->frequencyArr);
-			$this->frequencyArr = array();
-			//Process all raw OCR strings for collection
-			$sql .= 'AND o.collid = '.$collid;
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$this->addTagsFromText($r->rawstr);
-			}
-			$rs->free();
-			//Get Word cloud
-			$cloudStr = $this->getWordCloud();
-			echo $cloudStr.'<br/><br/>';
-			//Write word out to text file
-			$wcPath = $GLOBALS['serverRoot'];
-			if(substr($wcPath,-1) != '/' && substr($wcPath,-1) != "\\") $wcPath .= '/';
-			$wcPath .= 'content/collections/wordclouds/ocrcloud'.$collid.'.html';
-			if(file_exists($wcPath)){
-				$wcFH = fopen($wcPath, 'a');
-			    if(!$wcFH = fopen($wcPath, 'a')) {
-			         echo "Cannot open file ($wcPath)";
-			         exit;
-			    }
-			    if(fwrite($wcFH, $cloudStr) === FALSE) {
-			        echo "Cannot write to file ($wcPath)";
-			        exit;
-			    }
-			    fclose($handle);
-			}
-			else{
-				echo 'ERROR trying to write word cloud to temp folder: '.$wcPath;
-				echo '<br/>Is the symbiota temp folder writable to Apache?';
-			}
+		$rs->free();
+		foreach($processingArr as $collid){
+			$this->buildWordCloud($collid, $csMode);
 		}
 	}
 
-	public function addTagsFromText($seedText){
+	public function buildWordCloud($collid, $csMode = 0){
+		$retPath = '';
+		//Reset frequency array
+		unset($this->frequencyArr);
+		$this->frequencyArr = array();
+		$this->tagUrl .= '&collid='.$collid.'&q_customfield1=ocrFragment&q_customtype1=LIKE&q_customvalue1=';
+		$sql = 'SELECT DISTINCT r.rawstr FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid INNER JOIN specprocessorrawlabels r ON i.imgid = r.imgid ';
+		if($csMode) $sql .= 'INNER JOIN omcrowdsourcequeue q ON o.occid = q.occid ';
+		$sql .= 'WHERE o.processingstatus = "unprocessed" AND o.locality IS NULL ';
+		if($collid) $sql .= 'AND o.collid = '.$collid;
+		//echo $sql; exit;
+		//Process all raw OCR strings for collection
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->addTagsFromText($r->rawstr);
+		}
+		$rs->free();
+		//Get Word cloud
+		$cloudStr = $this->getWordCloud();
+		if(!$cloudStr){
+			echo '<div>No phrases created</div><div>sql: '.$sql.'</div>';
+			exit;
+		}
+		//echo $cloudStr.'<br/><br/>';
+		//$cloudHtml = $this->getCloudHtmlWrapper($cloudStr);
+		$serverRoot = $GLOBALS['SERVER_ROOT'];
+		if(substr($serverRoot,-1) != '/') $serverRoot .= '/';
+		$wcPath = 'content/collections/wordclouds/ocrcloud_'.$collid.($csMode?'_cs':'').'.php';
+		if($wcFH = fopen($serverRoot.$wcPath, 'w')){
+			if(fwrite($wcFH, $cloudStr) === FALSE) {
+				echo 'Cannot write to file ('.$wcPath.')';
+				exit;
+			}
+			fclose($wcFH);
+			$clientRoot = $GLOBALS['CLIENT_ROOT'];
+			if(substr($clientRoot,-1) != '/') $clientRoot .= '/';
+			$retPath = $clientRoot.$wcPath;
+		}
+		else{
+			echo 'Cannot open file for writing ('.$wcPath.')';
+			exit;
+		}
+		return $retPath;
+	}
+
+	private function addTagsFromText($seedText){
 		//$text = strtolower($seedText);
 		//$text = strip_tags($text);
 
-		/* remove punctuation and newlines */
-		if ($this->supportUtf8){
-			$seedText = preg_replace('/[^\p{L}0-9\s]|\n|\r/u',' ',$seedText);
-		}
-		else{
-			$seedText = preg_replace('/[^a-zA-Z0-9\s]|\n|\r/',' ',$seedText);
-		}
+		$seedText = preg_replace('/[;,\r\t]/',"\n",$seedText);
+		//$seedText = preg_replace('/[^\p{L}0-9\s.-]|\n|\r/u',' ',$seedText);
 
 		/* remove extra spaces created */
-		$seedText = preg_replace('/\s+/',' ',$seedText);
-		$seedText = trim($seedText);
+		$seedText = preg_replace('/\s+/',' ',trim($seedText));
 
-		//Remove common words
-		$wordArr = array_diff(explode(" ", $seedText),$this->commonWordArr);
+		//$wordArr = array_diff(explode(" ", $seedText),$this->commonWordArr);
+		$phraseArr = explode("\n", $seedText);
 
-		foreach ($wordArr as $key => $value){
-			$this->addTag($value);
+		foreach($phraseArr as $phrase){
+			$tag = '';
+			$wordCnt = 0;
+			foreach(explode(' ',$phrase) as $word){
+				if($this->keepWord($word) && $wordCnt < 3){
+					$tag .= $word.' ';
+					$wordCnt++;
+				}
+				elseif($tag){
+					if($wordCnt > 1) $this->addTag(trim($tag,' .'));
+					$tag = '';
+					$wordCnt = 0;
+				}
+			}
+			//if(strlen($value) > 3 && !is_numeric($value)) $this->addTag($value);
 		}
 	}
 
-	public function addTag($tag, $useCount = 1){
+	private function keepWord($word){
+		if(strlen($word) < 3) return false;
+		if(!preg_match('/^[A-Z]{1}[A-Za-z.]+/',$word)) return false;
+		if(in_array(strtolower($word),$this->commonWordArr)) return false;
+		return true;
+	}
+
+	private function addTag($tag, $useCount = 1){
 		//$tag = strtolower($tag);
 		if (array_key_exists($tag, $this->frequencyArr)){
 			$this->frequencyArr[$tag] += $useCount;
@@ -142,30 +154,53 @@ class WordCloud{
 		}
 	}
 
-	public function getWordCloud(){
-		$retStr = '<div id="id_tag_cloud" style="' . (isset($this->cloudWidth) ? ("width:". $this->cloudWidth. ";") : "") .
-			'line-height:normal"><div style="border-style:solid;border-width:1px;' .
-			(isset($this->backgroundImage) ? ("background:url('". $this->backgroundImage ."');") : "") .
-			'border-color:#888;margin-top:20px;margin-bottom:10px;padding:5px 5px 20px 5px;background-color:'.$this->backgroundColor.';">';
+	private function getWordCloud(){
+		$retStr = '';
 		if($this->frequencyArr){
+			$retStr = '<div id="id_tag_cloud" style="' . (isset($this->cloudWidth) ? ("width:". $this->cloudWidth. ";") : "") .
+				'line-height:normal"><div style="border-style:solid;border-width:1px;' .
+				(isset($this->backgroundImage) ? ("background:url('". $this->backgroundImage ."');") : "") .
+				'border-color:#888;margin-top:20px;margin-bottom:10px;padding:5px 5px 20px 5px;background-color:'.$this->backgroundColor.';">';
 			arsort($this->frequencyArr);
 			$topTags = array_slice($this->frequencyArr, 0, $this->displayedWordCount);
 
 			/* randomize the order of elements */
-			uasort($topTags, 'randomSort');
+			uasort($topTags, function ($a, $b){ return rand(-1, 1); });
 
 			$maxCount = max($this->frequencyArr);
 			foreach ($topTags as $tag => $useCount){
 				$grade = $this->gradeFrequency(($useCount * 100) / $maxCount);
-				$retStr .= ('<a href="'. $this->tagUrl.urlencode($tag).'" title="More info on '.
-					$tag.'" style="color:'.$this->wordColors[$grade].';">'.
+				$retStr .= ('<a href="'. $this->tagUrl.urlencode($tag).'" style="color:'.$this->wordColors[$grade].';" target="_blank">'.
 					'<span style="color:'.$this->wordColors[$grade].'; letter-spacing:3px; '.
 					'padding:4px; font-family:Tahoma; font-weight:900; font-size:'.
 					(0.6 + 0.1 * $grade).'em">'.$tag.'</span></a> ');
 			}
-			$retStr .= '</div></div><br />';
+			$retStr .= '</div>';
+			$retStr .= '<div style="width:100%;text-align:center;background-color:white">Created on '.date('Y-m-d H:i:s').'</div>';
+			$retStr .= '</div>';
 		}
 		return $retStr;
+	}
+
+	private function getCloudHtmlWrapper($cloudStr){
+		$htmlStr = '<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>'.$GLOBALS['DEFAULT_TITLE'].' - Word Cloud </title>';
+		$htmlStr .= '<?php
+		$activateJQuery = false;
+		include_once($SERVER_ROOT."/includes/head.php");
+		?>';
+		$htmlStr .= '
+	</head>
+	<body>
+			<!-- This is inner text! -->
+			<div id="innertext">';
+		$htmlStr .= $cloudStr;
+		$htmlStr .= '		</div>
+	</body>
+</html>';
+		return $htmlStr;
 	}
 
 	private function gradeFrequency($frequency){
@@ -222,11 +257,5 @@ class WordCloud{
 			$this->wordColors = $colors;
 		}
 	}
-}
-
-/* array sort helper function */
-function randomSort($a, $b)
-{
-	return rand(-1, 1);
 }
 ?>

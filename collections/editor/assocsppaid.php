@@ -1,13 +1,15 @@
 <?php
  //error_reporting(E_ALL);
 include_once('../../config/symbini.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/assocsppaid.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/assocsppaid.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/assocsppaid.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
  
 ?>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title>Associated Species Entry Aid</title>
+	<title><?php echo $LANG['ASSOC_SPP_AID']; ?></title>
   <?php
     $activateJQuery = true;
     if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -48,11 +50,11 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<!-- This is inner text! -->
 	<div id="innertext" style="background-color:white;">
 		<fieldset style="width:450px;">
-			<legend><b>Associated Species Entry Aid</b></legend>
+			<legend><b><?php echo $LANG['ASSOC_SPP_AID']; ?></b></legend>
 			<div style="">
-				Taxon: 
+				<?php echo $LANG['TAXON']; ?>: 
 				<input id="taxonname" type="text" style="width:350px;" /><br/>
-				<input id="transbutton" type="button" value="Add Name" onclick="addName();" />
+				<button id="transbutton" type="button" value="Add Name" onclick="addName();"><?php echo $LANG['ADD_NAME']; ?></button>
 			</div>
 		</fieldset>
 	</div>

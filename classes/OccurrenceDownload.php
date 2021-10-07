@@ -490,12 +490,12 @@ class OccurrenceDownload{
 				$sql .= 'o.georeferencedBy, o.georeferenceProtocol, o.georeferenceSources, o.georeferenceVerificationStatus, '.
 					'o.georeferenceRemarks, o.minimumElevationInMeters, o.maximumElevationInMeters, o.verbatimElevation, '.
 					'o.localitySecurity, o.localitySecurityReason, IFNULL(o.modified,o.datelastmodified) AS modified, '.
-					'o.processingStatus, o.collId, o.dbpk AS sourcePrimaryKey, o.occid, CONCAT("urn:uuid:",g.guid) AS recordId ';
+					'o.processingStatus, o.collId, o.dbpk AS sourcePrimaryKey, o.occid, CONCAT("urn:uuid:",g.guid) AS recordID ';
 			}
 			else{
 				$sql .= 'o.georeferenceProtocol, o.georeferenceSources, o.georeferenceVerificationStatus, '.
 					'o.georeferenceRemarks, o.minimumElevationInMeters, o.maximumElevationInMeters, o.verbatimElevation, '.
-					'IFNULL(o.modified,o.datelastmodified) AS modified, o.occid, CONCAT("urn:uuid:",g.guid) AS recordId ';
+					'IFNULL(o.modified,o.datelastmodified) AS modified, o.occid, CONCAT("urn:uuid:",g.guid) AS recordID ';
 			}
 
 			$sql .= 'FROM omcollections c INNER JOIN omoccurrences o ON c.collid = o.collid '.
@@ -635,6 +635,19 @@ class OccurrenceDownload{
 		}
 		$rs->free();
 		return $retArr;
+	}
+
+	public function hasMaterialSamples($collid = 0){
+		$bool = false;
+		$sql = 'SELECT occid FROM ommaterialsample LIMIT 1';
+		if($collid && is_numeric($collid)){
+			$sql .= 'SELECT o.occid FROM ommaterialsample m INNER JOIN omoccurrences o ON m.occid = o.occid WHERE (o.collid = '.$collid.') LIMIT 1';
+		}
+		if($rs = $this->conn->query($sql)){
+			if($rs->num_rows) $bool = true;
+			$rs->free();
+		}
+		return $bool;
 	}
 
 	//General setter, getters, and other configurations

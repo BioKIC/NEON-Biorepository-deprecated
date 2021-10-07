@@ -4,6 +4,7 @@
  */
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/Manager.php');
+include_once($SERVER_ROOT.'/classes/Encoding.php');
 
 class SpecProcessorOcr extends Manager{
 
@@ -768,7 +769,7 @@ class SpecProcessorOcr extends Manager{
 			$tempPath = ini_get('upload_tmp_dir');
 		}
 		if(!$tempPath){
-			$tempPath = $GLOBALS['serverRoot'];
+			$tempPath = $GLOBALS['SERVER_ROOT'];
 			if(substr($tempPath,-1) != '/') $tempPath .= '/';
 			$tempPath .= 'temp/';
 		}
@@ -786,38 +787,19 @@ class SpecProcessorOcr extends Manager{
 
 	//Misc functions
 	private function cleanRawStr($inStr){
-		$retStr = $this->encodeString($inStr);
+		$retStr = trim($inStr);
+		//$retStr = $this->encodeString($retStr);
+		$retStr = Encoding::toUTF8($retStr);
+
+		$retStr = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+[\s\t]*[\r\n]+/", "\n\n", $retStr);
 
 		//replace commonly misinterpreted characters
 		$replacements = array("/\." => "A.", "/-\\" => "A", "\X/" => "W", "\Y/" => "W", "`\‘i/" => "W", chr(96) => "'", chr(145) => "'", chr(146) => "'",
 			"�" => "'", "�" => '"', "�" => '"', "�" => '"', chr(147) => '"', chr(148) => '"', chr(152) => '"', chr(239) => "�");
 		$retStr = str_replace(array_keys($replacements), $replacements, $retStr);
 
-		//replace Is, ls and |s in latitudes and longitudes with ones
-		//replace Os in latitudes and longitudes with zeroes, Ss with 5s and Zs with 2s
-		//latitudes and longitudes can be of the types: ddd.ddddddd�, ddd� ddd.ddd' or ddd� ddd' ddd.ddd"
-		$false_num_class = "[OSZl|I!\d]";//the regex class that represents numbers and characters that numbers are commonly replaced with
-		$preg_replace_callback_pattern =
-			array(
-				"/".$false_num_class."{1,3}(\.".$false_num_class."{1,7})\s?".chr(176)."\s?[NSEW(\\\V)(\\\W)]/",
-				"/".$false_num_class."{1,3}".chr(176)."\s?".$false_num_class."{1,3}(\.".$false_num_class."{1,3})?\s?'\s?[NSEW(\\\V)(\\\W)]/",
-				"/".$false_num_class."{1,3}".chr(176)."\s?".$false_num_class."{1,3}\s?'\s?(".$false_num_class."{1,3}(\.".$false_num_class."{1,3})?\"\s?)?[NSEW(\\\V)(\\\W)]/"
-			);
-		$retStr = preg_replace_callback($preg_replace_callback_pattern, create_function('$matches','return str_replace(array("l","|","!","I","O","S","Z"), array("1","1","1","1","0","5","2"), $matches[0]);'), $retStr);
 		//replace \V and \W in longitudes and latitudes with W
 		$retStr = preg_replace("/(\d\s?[".chr(176)."'\"])\s?\\\[VW]/", "\${1}W", $retStr, -1);
-		//replace Zs and zs with 2s, Is, !s, |s and ls with 1s and Os and os with 0s in dates of type Mon(th) DD, YYYY
-		$retStr = preg_replace_callback(
-			"/(((?i)January|Jan\.?|February|Feb\.?|March|Mar\.?|April|Apr\.?|May|June|Jun\.?|July|Jul\.?|August|Aug\.?|September|Sept?\.?|October|Oct\.?|November|Nov\.?|December|Dec\.?)\s)(([\dOIl|!ozZS]{1,2}),?\s)([\dOI|!lozZS]{4})/",
-			create_function('$matches','return $matches[1].str_replace(array("l","|","!","I","O","o","Z","z","S"), array("1","1","1","1","0","0","2","2","5"), $matches[3]).str_replace(array("l","|","!","I","O","o","Z","z","S"), array("1","1","1","1","0","0","2","2","5"), $matches[5]);'),
-			$retStr
-		);
-		//replace Zs with 2s, Is with 1s and Os with 0s in dates of type DD-Mon(th)-YYYY or DDMon(th)YYYY or DD Mon(th) YYYY
-		$retStr = preg_replace_callback(
-			"/([\dOIl!|ozZS]{1,2}[-\s]?)(((?i)January|Jan\.?|February|Feb\.?|March|Mar\.?|April|Apr\.?|May|June|Jun\.?|July|Jul\.?|August|Aug\.?|September|Sept?\.?|October|Oct\.?|November|Nov\.?|December|Dec\.?)[-\s]?)([\dOIl|!ozZS]{4})/i",
-			create_function('$matches','return str_replace(array("l","|","!","I","O","o","Z","z","S"), array("1","1","1","1","0","0","2","2","5"), $matches[1]).$matches[2].str_replace(array("l","|","!","I","O","o","Z","z","S"), array("1","1","1","1","0","0","2","2","5"), $matches[4]);'),
-			$retStr
-		);
 		return $retStr;
 	}
 }

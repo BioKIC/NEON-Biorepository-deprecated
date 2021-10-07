@@ -181,7 +181,7 @@ if($collMetadata['colltype'] == 'General Observations') $isGenObs = 1;
 				}
 				else{
 					echo '<div style="font-weight:bold;">';
-					echo 'There are no general Editor permissions';
+					echo $LANG['NO_GENERAL_PERMS'];
 					echo '</div>';
 				}
 				?>

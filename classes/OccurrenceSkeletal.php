@@ -54,18 +54,21 @@ class OccurrenceSkeletal {
 					$sql2 .= ',NULL';
 				}
 			}
-			$sql = 'INSERT INTO omoccurrences('.trim($sql1,' ,').',recordenteredby,dateentered) '.
-				'VALUES('.trim($sql2,' ,').',"'.$GLOBALS['USERNAME'].'","'.date('Y-m-d H:i:s').'")';
+			$sql = 'INSERT INTO omoccurrences('.trim($sql1,' ,').',recordenteredby,dateentered) VALUES('.trim($sql2,' ,').',"'.$GLOBALS['USERNAME'].'","'.date('Y-m-d H:i:s').'")';
 			//echo $sql;
 			if($this->conn->query($sql)){
 				$status = true;
-				$this->occidArr[] = $this->conn->insert_id;
+				$occid = $this->conn->insert_id;
+				$this->occidArr[] = $occid;
 				//Update collection stats
 				$this->conn->query('UPDATE omcollectionstats SET recordcnt = recordcnt + 1 WHERE collid = '.$this->collid);
 				//Create and insert Symbiota GUID (UUID)
 				$guid = UuidFactory::getUuidV4();
-				if(!$this->conn->query('INSERT INTO guidoccurrences(guid,occid) VALUES("'.$guid.'",'.$this->occidArr[0].')')){
+				if(!$this->conn->query('INSERT INTO guidoccurrences(guid,occid) VALUES("'.$guid.'",'.$occid.')')){
 					$this->errorStr = '(WARNING: Symbiota GUID mapping failed) ';
+				}
+				if(isset($postArr['ometid']) && $postArr['ometid'] && isset($postArr['exsnumber']) && $postArr['exsnumber']){
+					$this->addExsiccate($occid, $postArr['ometid'], $postArr['exsnumber']);
 				}
 			}
 			else{
@@ -96,9 +99,13 @@ class OccurrenceSkeletal {
 			}
 			if($sqlA){
 				$sql = 'UPDATE omoccurrences SET '.trim($sqlA,' ,').' WHERE occid IN('.implode(',',$this->occidArr).')';
-				//echo $sql; exit;
 				if($this->conn->query($sql)){
 					$status = true;
+					if(isset($postArr['ometid']) && $postArr['ometid'] && isset($postArr['exsnumber']) && $postArr['exsnumber']){
+						foreach($this->occidArr as $occid){
+							$this->addExsiccate($occid, $postArr['ometid'], $postArr['exsnumber']);
+						}
+					}
 				}
 				else{
 					$this->errorStr = 'ERROR updating occurrence record: '.$this->conn->error;
@@ -119,11 +126,37 @@ class OccurrenceSkeletal {
 		return $postArr;
 	}
 
+	private function addExsiccate($occid, $ometid, $exsNumber){
+		$omenid = 0;
+		$sql = 'SELECT omenid FROM omexsiccatinumbers WHERE ometid = '.$ometid.' AND exsnumber = "'.$this->cleanInStr($exsNumber).'" ';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$omenid = $r->omenid;
+		}
+		$rs->free();
+
+		if(!$omenid){
+			$sql = 'INSERT INTO omexsiccatinumbers(ometid, exsnumber) VALUES('.$ometid.',"'.$this->cleanInStr($exsNumber).'")';
+			if($this->conn->query($sql)){
+				$omenid = $this->conn->insert_id;
+			}
+		}
+		if($omenid){
+			$sql = 'INSERT INTO omexsiccatiocclink(occid, omenid) VALUES('.$occid.','.$omenid.')';
+			if($this->conn->query($sql)) return true;
+			else{
+				$this->errorStr = 'ERROR inserting exsiccate record: '.$this->conn->error;
+				return false;
+			}
+		}
+		$this->errorStr = 'ERROR inserting exsiccate record: unable to define omexsiccatinumbers record for occid: '.$occid.', ometid: '.$ometid.', exsNumber: '.$exsNumber;
+		return false;
+	}
+
 	public function catalogNumberExists($catNum){
 		$status = false;
 		if($this->collid){
-			$sql = 'SELECT occid FROM omoccurrences '.
-				'WHERE (catalognumber = "'.$this->cleanInStr($catNum).'") AND (collid = '.$this->collid.')';
+			$sql = 'SELECT occid FROM omoccurrences WHERE (catalognumber = "'.$this->cleanInStr($catNum).'") AND (collid = '.$this->collid.')';
 			//echo $sql;
 			$rs = $this->conn->query($sql);
 			while ($r = $rs->fetch_object()) {

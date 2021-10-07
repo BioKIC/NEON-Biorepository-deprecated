@@ -67,40 +67,40 @@ $DISPLAY_COMMON_NAMES = 1;			//Display common names in species profile page and 
 $ACTIVATE_DUPLICATES = 1;			//Activates Specimen Duplicate listings and support features. Mainly relavent for herabrium collections
 $ACTIVATE_EXSICCATI = 0;			//Activates exsiccati fields within data entry pages; adding link to exsiccati search tools to portal menu is recommended
 $ACTIVATE_GEOLOCATE_TOOLKIT = 0;	//Activates GeoLocate Toolkit located within the Processing Toolkit menu items
-$OCCUR_SECURITY_OPTION = 1;			//Occurrence security options supported: value 1-7; 1 = Locality security, 2 = Taxon security, 4 = Full security, 3 = L & T, 5 = L & F, 6 = T & F, 7 = all
 $SEARCH_BY_TRAITS = '0';			//Activates search fields for searching by traits (if trait data have been encoded): 0 = trait search off; any number of non-zeros separated by commas (e.g., '1,6') = trait search on for the traits with these id numbers in table tmtraits.
+$CALENDAR_TRAIT_PLOTS = '0';			//Activates polar plots, in taxon profile, of the trait states listed: 0 = no plot; any number of non-zeros separated by commas (e.g., '1,6') = plots appear for the trait states with these id numbers (in table tmstates).
 
 $IGSN_ACTIVATION = 0;
 
 //$SMTP_ARR = array('host'=>'','port'=>587,'username'=>'','password'=>'','timeout'=>60);  //Host is requiered, others are optional and can be removed
 
 $RIGHTS_TERMS = array(
-	'CC0 1.0 (Public-domain)' => 'http://creativecommons.org/publicdomain/zero/1.0/',
-	'CC BY (Attribution)' => 'http://creativecommons.org/licenses/by/4.0/',
-	'CC BY-NC (Attribution-Non-Commercial)' => 'http://creativecommons.org/licenses/by-nc/4.0/'
+		'CC0 1.0 (Public-domain)' => 'http://creativecommons.org/publicdomain/zero/1.0/',
+		'CC BY (Attribution)' => 'http://creativecommons.org/licenses/by/4.0/',
+		'CC BY-NC (Attribution-Non-Commercial)' => 'http://creativecommons.org/licenses/by-nc/4.0/'
 );
 
 /*
-//Default editor properties; properties defined in collection will override these values
-$EDITOR_PROPERTIES = array(
-	'modules-panel' => array(
-		'paleo' => array('status'=>0,'titleOverride'=>'Paleonotology Terms')
-	),
-	'features' => array('catalogDupeCheck'=>1,'otherCatNumDupeCheck'=>0,'dupeSearch'=>1),
-	'labelOverrides' => array(),
-	'cssTerms' => array(
-		'#recordNumberDiv'=>array('float'=>'left','margin-right'=>'2px'),
-		'#recordNumberDiv input'=>array('width'=>'60px'),
-		'#eventDateDiv'=>array('float'=>'left'),
-		'#eventDateDiv input'=>array('width'=>'110px')
-	),
-	'customCSS' => array(),
-	'customLookups' => array(
-		'processingStatus' => array('Unprocessed','Stage 1','Stage 2','Pending Review','Expert Required','Reviewed','Closed')
-	)
-);
-// json: {"editorProps":{"modules-panel":{"paleo":{"status":1}}}}
-*/
+ //Default editor properties; properties defined in collection will override these values
+ $EDITOR_PROPERTIES = array(
+ 'modules-panel' => array(
+ 'paleo' => array('status'=>0,'titleOverride'=>'Paleonotology Terms')
+ ),
+ 'features' => array('catalogDupeCheck'=>1,'otherCatNumDupeCheck'=>0,'dupeSearch'=>1),
+ 'labelOverrides' => array(),
+ 'cssTerms' => array(
+ '#recordNumberDiv'=>array('float'=>'left','margin-right'=>'2px'),
+ '#recordNumberDiv input'=>array('width'=>'60px'),
+ '#eventDateDiv'=>array('float'=>'left'),
+ '#eventDateDiv input'=>array('width'=>'110px')
+ ),
+ 'customCSS' => array(),
+ 'customLookups' => array(
+ 'processingStatus' => array('Unprocessed','Stage 1','Stage 2','Pending Review','Expert Required','Reviewed','Closed')
+ )
+ );
+ // json: {"editorProps":{"modules-panel":{"paleo":{"status":1}}}}
+ */
 
 $COOKIE_SECURE = false;
 if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443){

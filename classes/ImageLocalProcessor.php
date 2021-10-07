@@ -373,64 +373,64 @@ class ImageLocalProcessor {
 			$aNodes= $dom->getElementsByTagName('a');
 			$skipAnchors = array('Name','Last modified','Size','Description','Parent Directory');
 			foreach( $aNodes as $aNode ) {
-				//$fileName = $aNode->getAttribute('href');
-				$fileName = trim($aNode->nodeValue);
-				if(!in_array($fileName,$skipAnchors)){
-					$fileExt = '';
-					if(strrpos($fileName,'.')) $fileExt = strtolower(substr($fileName,strrpos($fileName,'.')+1));
-					if($fileExt){
-						if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
-							$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
-							if($fileExt == 'jpg' || $fileExt == 'jpeg'){
-								$catalogNumber = $this->getPrimaryKey($fileName);
-								if(!$catalogNumber){
-									$this->logOrEcho('File skipped ('.$fileName.'), unable to extract specimen identifier',1);
-									continue;
-								}
-								$targetPathFrag = $this->getTargetPathFrag($catalogNumber);
-								$sourcePath = $this->sourcePathBase.$pathFrag;
-								$occid = $this->getOccid($catalogNumber);
-								if($occid === false) continue;
-								$targetFileName = $this->prepTarget($this->targetPathBase.$targetPathFrag, $fileName, $occid);
-								if(!$targetFileName) continue;
-								if($imgArr = $this->processImageFile($fileName, $targetFileName, $this->targetPathBase.$targetPathFrag, $sourcePath)){
-									$imgArr['occid'] = $occid;
-									if(isset($imgArr['url']) && substr($imgArr['url'],0,4) != 'http') $imgArr['url'] = $this->imgUrlBase.$targetPathFrag.$imgArr['url'];
-									if(isset($imgArr['originalUrl']) && substr($imgArr['originalUrl'],0,4) != 'http') $imgArr['originalUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['originalUrl'];
-									if(isset($imgArr['thumbnailUrl']) && substr($imgArr['thumbnailUrl'],0,4) != 'http') $imgArr['thumbnailUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['thumbnailUrl'];
-									$this->recordImageMetadata($imgArr);
-									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
-								}
+				$fileName = '';
+				if($aNode->hasAttribute('href')) $fileName = $aNode->getAttribute('href');
+				else $fileName = rawurlencode(trim($aNode->nodeValue));
+				if(in_array($aNode->nodeValue,$skipAnchors) || substr($fileName,0,1)=='?') continue;
+				$fileExt = '';
+				if(strrpos($fileName,'.')) $fileExt = strtolower(substr($fileName,strrpos($fileName,'.')+1));
+				if($fileExt){
+					if(!stripos($fileName,$this->tnSourceSuffix.'.jpg') && !stripos($fileName,$this->lgSourceSuffix.'.jpg')){
+						$this->logOrEcho("Processing File (".date('Y-m-d h:i:s A')."): ".$fileName);
+						if($fileExt == 'jpg' || $fileExt == 'jpeg'){
+							$catalogNumber = $this->getPrimaryKey($fileName);
+							if(!$catalogNumber){
+								$this->logOrEcho('File skipped ('.$fileName.'), unable to extract specimen identifier',1);
+								continue;
 							}
-							elseif($fileExt == 'tif' || $fileExt == 'tiff'){
-								$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
-								//Do something, like convert to jpg???
-								//but for now do nothing
-							}
-							elseif(($fileExt == "csv" || $fileExt == "txt" || $fileExt == "tab" || $fileExt == "dat")){
-								if($this->skeletalFileProcessing){
-									//Is skeletal file. Process and append data to database records
-									$this->processSkeletalFile($this->sourcePathBase.$pathFrag.$fileName);
-									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
-								}
-								else $this->logOrEcho("Skeletal file processing is set to be bypassed ",2);
-							}
-							elseif($fileExt=="xml") {
-								if($this->skeletalFileProcessing){
-									$this->processXMLFile($fileName,$pathFrag);
-									if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
-								}
-							}
-							else{
-								$this->logOrEcho("ERROR: File skipped, not a supported image file: ".$fileName,1);
+							$targetPathFrag = $this->getTargetPathFrag($catalogNumber);
+							$sourcePath = $this->sourcePathBase.$pathFrag;
+							$occid = $this->getOccid($catalogNumber);
+							if($occid === false) continue;
+							$targetFileName = $this->prepTarget($this->targetPathBase.$targetPathFrag, $fileName, $occid);
+							if(!$targetFileName) continue;
+							if($imgArr = $this->processImageFile($fileName, $targetFileName, $this->targetPathBase.$targetPathFrag, $sourcePath)){
+								$imgArr['occid'] = $occid;
+								if(isset($imgArr['url']) && substr($imgArr['url'],0,4) != 'http') $imgArr['url'] = $this->imgUrlBase.$targetPathFrag.$imgArr['url'];
+								if(isset($imgArr['originalUrl']) && substr($imgArr['originalUrl'],0,4) != 'http') $imgArr['originalUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['originalUrl'];
+								if(isset($imgArr['thumbnailUrl']) && substr($imgArr['thumbnailUrl'],0,4) != 'http') $imgArr['thumbnailUrl'] = $this->imgUrlBase.$targetPathFrag.$imgArr['thumbnailUrl'];
+								$this->recordImageMetadata($imgArr);
+								if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
 							}
 						}
+						elseif($fileExt == 'tif' || $fileExt == 'tiff'){
+							$this->logOrEcho("ERROR: File skipped, TIFFs image files are not a supported: ".$fileName,1);
+							//Do something, like convert to jpg???
+							//but for now do nothing
+						}
+						elseif(($fileExt == "csv" || $fileExt == "txt" || $fileExt == "tab" || $fileExt == "dat")){
+							if($this->skeletalFileProcessing){
+								//Is skeletal file. Process and append data to database records
+								$this->processSkeletalFile($this->sourcePathBase.$pathFrag.$fileName);
+								if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
+							}
+							else $this->logOrEcho("Skeletal file processing is set to be bypassed ",2);
+						}
+						elseif($fileExt=="xml") {
+							if($this->skeletalFileProcessing){
+								$this->processXMLFile($fileName,$pathFrag);
+								if(!in_array($this->activeCollid,$this->collProcessedArr)) $this->collProcessedArr[] = $this->activeCollid;
+							}
+						}
+						else{
+							$this->logOrEcho("ERROR: File skipped, not a supported image file: ".$fileName,1);
+						}
 					}
-					elseif(stripos($fileName,'Parent Dir') === false){
-						$this->logOrEcho('New dir path: '.$this->sourcePathBase.$pathFrag.$fileName.'<br/>');
-						if(substr($fileName,-1) != '/') $fileName .= '/';
-						$this->processHtml($pathFrag.$fileName);
-					}
+				}
+				elseif(stripos($fileName,'Parent Dir') === false){
+					$this->logOrEcho('New dir path: '.$this->sourcePathBase.$pathFrag.$fileName.'<br/>');
+					if(substr($fileName,-1) != '/') $fileName .= '/';
+					$this->processHtml($pathFrag.$fileName);
 				}
 			}
 		}
@@ -453,6 +453,8 @@ class ImageLocalProcessor {
 			if(!file_exists($this->sourcePathBase.'/'.$fileName)){
 				if(file_exists($this->sourcePathBase.'/'.$fileName.'.jpg')) $fileName .= '.jpg';
 				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.JPG')) $fileName .= '.JPG';
+				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.jpeg')) $fileName .= '.jpeg';
+				elseif(file_exists($this->sourcePathBase.'/'.$fileName.'.JPEG')) $fileName .= '.JPEG';
 				else{
 					$this->logOrEcho('ERROR: unable to locate file within base folder: '.$this->sourcePathBase.$fileName,1);
 					continue;
@@ -516,7 +518,7 @@ class ImageLocalProcessor {
 	}
 
 	private function prepTarget($targetPath, $fileName, $occid){
-		$targetFileName = $fileName;
+		$targetFileName = str_replace('%20', '_', $fileName);
 		if($this->webImg == 1 || $this->webImg == 2){
 			//Check to see if image already exists at target, if so, delete or rename target
 			if(file_exists($targetPath.$targetFileName)){
@@ -580,7 +582,7 @@ class ImageLocalProcessor {
 		//$this->logOrEcho("Processing image (".date('Y-m-d h:i:s A')."): ".$fileName);
 		//ob_flush();
 		flush();
-		$fileName = rawurlencode($fileName);
+		//$fileName = rawurlencode($fileName);
 		$fileNameExt = '.jpg';
 		$fileNameBase = $fileName;
 		if($p = strrpos($fileName,'.')){
@@ -646,11 +648,28 @@ class ImageLocalProcessor {
 					// 1 = import source
 					if($width > ($this->webPixWidth*1.3)){
 						//Source image is big enough to serve as large version
-						if($width > $this->lgPixWidth || ($fileSize && $fileSize > $this->lgFileSizeLimit)){
-							//Image is too width or file size is too big, thus let's resize and import
+						if($width > $this->lgPixWidth){
+							//Image is too wide, thus let's resize and import
 							if($this->createNewImage($sourcePath.$fileName,$targetPath.$lgTargetFileName,$this->lgPixWidth,round($this->lgPixWidth*$height/$width),$width,$height)){
 								$lgUrl = $lgTargetFileName;
 								$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
+							}
+						}
+						elseif($fileSize && $fileSize > $this->lgFileSizeLimit) {
+							// Image file size is too big, thus let's resize and import
+
+							// Figure out what factor to reduce filesize by
+							$ratio = $fileSize / $this->lgFileSizeLimit;
+
+							// Scale by a factor of the square root of the filesize ratio
+							// Note, this is a good approximation to reduce the filesize, but will not be exact
+							// True reduction will also depend on the JPEG quality of the source & the large file
+							$newWidth = round($width * sqrt($ratio));
+
+							// Resize the image
+							if($this->createNewImage($sourcePath.$fileName,$targetPath.$lgTargetFileName,$newWidth,round($newWidth*$height/$width),$width,$height)){
+								$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
+							$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
 							}
 						}
 						else{
@@ -764,7 +783,7 @@ class ImageLocalProcessor {
 		$status = false;
 		if($this->processUsingImageMagick) {
 			// Use ImageMagick to resize images
-			$status = $this->createNewImageImagick($sourcePathBase,$targetPath,$newWidth,$newHeight,$sourceWidth,$sourceHeight);
+			$status = $this->createNewImageImagick($sourcePathBase,$targetPath,$newWidth,$newHeight);
 		}
 		elseif(extension_loaded('gd') && function_exists('gd_info')) {
 			// GD is installed and working
@@ -778,15 +797,21 @@ class ImageLocalProcessor {
 		return $status;
 	}
 
-	private function createNewImageImagick($sourceImg,$targetPath,$newWidth){
+	private function createNewImageImagick($sourceImg,$targetPath,$newWidth,$newHeight){
 		$status = false;
 		$ct;
 		$retval;
+
+		if(!$newWidth || !$newHeight){
+			$this->logOrEcho("ERROR: Unable to create image because new width or height is not set (w:".$newWidth.' h:'.$newHeight.')');
+			return $status;
+		}
+
 		if($newWidth < 300){
-			$ct = system('convert '.$sourceImg.' -thumbnail '.$newWidth.'x'.($newWidth*1.5).' '.$targetPath, $retval);
+			$ct = system('convert '.$sourceImg.' -thumbnail '.$newWidth.'x'.$newHeight.' '.$targetPath, $retval);
 		}
 		else{
-			$ct = system('convert '.$sourceImg.' -resize '.$newWidth.'x'.($newWidth*1.5).($this->jpgQuality?' -quality '.$this->jpgQuality:'').' '.$targetPath, $retval);
+			$ct = system('convert '.$sourceImg.' -resize '.$newWidth.'x'.$newHeight.($this->jpgQuality?' -quality '.$this->jpgQuality:'').' '.$targetPath, $retval);
 		}
 		if(file_exists($targetPath)){
 			$status = true;

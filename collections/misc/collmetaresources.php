@@ -251,9 +251,9 @@ if($collid && $isEditor){
 	</div>
 	<script type="text/javascript">
 		//var resourceJSON = [{"title":{"en":"link1","es":"enlace1"},"url":"https:\/\/swbiodiversity.org\/seinet\/"},{"title":{"en":"link2","es":"enlace2"},"url":"https:\/\/swbiodiversity.org\/seinet2\/"}];
-		var resourceJSON = <?php echo (isset($collMetaArr['resourcejson'])&&$collMetaArr['resourcejson']?$collMetaArr['resourcejson']:'[]'); ?>;
+		var resourceJSON = <?php echo (isset($collMetaArr['resourcejson'])?$collMetaArr['resourcejson']:'[]'); ?>;
 		var langArr = [<?php echo '"'.implode('","', $langArr).'"';?>];
-		var contactJSON = <?php echo (isset($collMetaArr['contactjson'])&&$collMetaArr['contactjson']?$collMetaArr['contactjson']:'[]'); ?>;
+		var contactJSON = <?php echo (isset($collMetaArr['contactjson'])?$collMetaArr['contactjson']:'[]'); ?>;
 
 		function addLink(f){
 			var jsonObj = getFormObj(f);

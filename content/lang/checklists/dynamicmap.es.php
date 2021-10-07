@@ -1,27 +1,27 @@
 <?php
 /*
 ------------------
-Language: English
+Language: Español (Spanish)
 ------------------
 */
 
-$LANG['CHECKLIST_GENERATOR'] = 'Dynamic Checklist Generator';
-$LANG['CLICK_MAP'] = 'You must first click on map to capture coordinate points';
-$LANG['HOME'] = 'Home';
-$LANG['DYNAMIC_MAP'] = 'Dynamic Map';
+$LANG['CHECKLIST_GENERATOR'] = 'Generador de Listados de Especies Dinámicos';
+$LANG['CLICK_MAP'] = 'Primero debe hacer click en el mapa para capturar las coordenadas';
+$LANG['HOME'] = 'Inicio';
+$LANG['DYNAMIC_MAP'] = 'Mapa Dinámico';
 $LANG['CAPTURE_COORDS'] = 'Pan, zoom and click on map to capture coordinates, then submit coordinates to build a species list.';
-$LANG['MORE_DETAILS'] = 'More Details';
-$LANG['RADIUS_DESCRIPTION'] = 'If a radius is defined, species lists are generated using specimen data collected within the defined area.
-					If a radius is not supplied, the area is sampled in concentric rings until the sample size is determined to 
-					best represent the local species diversity. In other words, poorly collected areas will have a larger radius sampled. 
-					Setting the taxon filter will limit the return to species found within that taxonomic group.';
-$LANG['LESS_DETAILS'] = 'Less Details';
-$LANG['BUILD_CHECKLIST'] = 'Build Checklist';
-$LANG['POINT'] = 'Point (Lat, Long)';
-$LANG['CLICK_MAP'] = 'Click on map';
-$LANG['TAXON_FILTER'] = 'Taxon Filter';
-$LANG['RADIUS'] = 'Radius';
-$LANG['KM'] = 'Kilometers';
-$LANG['MILES'] = 'Miles';
+$LANG['MORE_DETAILS'] = 'Más Detalles';
+$LANG['RADIUS_DESCRIPTION'] = 'Si un radio es definido, los listados de especies son generados usando los datos de los especímenes recolectados dentro del área definida.
+					Si no se proporciona un radio, el área es muestreada en anillos concéntricos hasta determinar que el tamaño de la muestra 
+					representa la diversidad de especies local de la mejor manera. En otras palabras, áreas pobremente muestreadas tendrán un mayor radio representado. 
+					Al configurar el filtro de taxón se limitará la obtención de especies encontradas dentro de ese grupo taxonómico.';
+$LANG['LESS_DETAILS'] = 'Menos Detalles';
+$LANG['BUILD_CHECKLIST'] = 'Construir Listado de Especies';
+$LANG['POINT'] = 'Punto (Lat, Long)';
+$LANG['CLICK_MAP'] = 'Hacer click en el mapa';
+$LANG['TAXON_FILTER'] = 'Filtro de Taxón';
+$LANG['RADIUS'] = 'Radio';
+$LANG['KM'] = 'Kilómetros';
+$LANG['MILES'] = 'Millas';
 
 ?>

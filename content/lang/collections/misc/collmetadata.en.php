@@ -9,9 +9,6 @@ include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TA
 
 $LANG['ADD_SUCCESS'] = 'New collection added successfully';
 $LANG['ADD_STUFF'] = 'Add contacts, resource links, or institution address below';
-$LANG['CLICK'] = 'Click';
-$LANG['HERE'] = 'here';
-$LANG['TO_UPLOAD'] = 'to upload specimen records for this new collection';
 $LANG['COL_PROFS'] = 'Collection Profiles';
 $LANG['LOADING'] = '<p>Loading...</p>';
 $LANG['META_EDIT'] = 'Metadata Editor';
@@ -53,14 +50,14 @@ $LANG['HOLDER_DEF'] = 'The organization or person managing or owning the rights 
 					For more details, see';
 $LANG['ACCESS_RIGHTS'] = 'Access Rights';
 $LANG['MORE_INFO_ACCESS_RIGHTS'] = 'More information about Access Rights';
-$LANG['ACCESS_DEF'] = 'Information or a URL link to page with details explaining 
+$LANG['ACCESS_DEF'] = 'Information or a URL link to page with details explaining
 					how one can use the data. See';
 $LANG['DATASET_TYPE'] = 'Dataset Type';
 $LANG['PRES_SPECS'] = 'Preserved Specimens';
 $LANG['OBSERVATIONS'] = 'Observations';
 $LANG['PERS_OBS_MAN'] = 'Personal Observation Management';
 $LANG['MORE_COL_TYPE'] = 'More information about Collection Type';
-$LANG['COL_TYPE_DEF'] = 'Preserved Specimens signify a collection type that contains physical samples that are 
+$LANG['COL_TYPE_DEF'] = 'Preserved Specimens signify a collection type that contains physical samples that are
 						available for inspection by researchers and taxonomic experts. Use Observations when the record is not based on a physical specimen.
 						Personal Observation Management is a dataset where registered users
 						can independently manage their own subset of records. Records entered into this dataset are explicitly linked to the user&apos;s profile
@@ -82,7 +79,7 @@ $LANG['NOT_DEFINED'] = 'Not defined';
 $LANG['MORE_INFO_GUID'] = 'More information about Global Unique Identifier';
 $LANG['OCCURRENCE_ID'] = 'Occurrence Id';
 $LANG['SYMB_GUID'] = 'Symbiota Generated GUID (UUID)';
-$LANG['OCCID_DEF_1'] = 'Occurrence Id is generally used for 
+$LANG['OCCID_DEF_1'] = 'Occurrence Id is generally used for
 						Snapshot datasets when a Global Unique Identifier (GUID) field
 						is supplied by the source database (e.g. Specify database) and the GUID is mapped to the';
 $LANG['OCCURRENCEID'] = 'occurrenceId';
@@ -96,13 +93,13 @@ $LANG['ACTIVATE_GBIF'] = 'Activates GBIF publishing tools available within Darwi
 $LANG['SOURCE_REC_URL'] = 'Source Record URL';
 $LANG['DYNAMIC_LINK_REC'] = 'Dynamic link to source database individual record page';
 $LANG['MORE_INFO_SOURCE'] = 'More information about Source Records URL';
-$LANG['ADVANCE_SETTING'] = 'Advance setting: Adding a 
+$LANG['ADVANCE_SETTING'] = 'Advance setting: Adding a
 						URL template here will insert a link to the source record within the specimen details page.
 						An optional URL title can be include with a colon delimiting the title and URL.
 						For example, &quot;SEINet source record';
-$LANG['ADVANCE_SETTING_2'] = 'will display the ID with the url pointing to the original 
+$LANG['ADVANCE_SETTING_2'] = 'will display the ID with the url pointing to the original
 						record managed within SEINet. Or';
-$LANG['ADVANCE_SETTING_3'] = 'can be used for an	iNaturalist import if you mapped their ID field as the source 
+$LANG['ADVANCE_SETTING_3'] = 'can be used for an	iNaturalist import if you mapped their ID field as the source
 						Identifier (e.g. dbpk) during import. Template patterns --CATALOGNUMBER--, --OTHERCATALOGNUMBERS--, and --OCCURRENCEID-- are additional options.';
 $LANG['ICON_URL'] = 'Icon URL';
 $LANG['WHAT_ICON'] = 'What is an Icon?';

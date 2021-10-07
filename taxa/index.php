@@ -21,6 +21,7 @@ if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
 if(!is_numeric($clid)) $clid = 0;
 if(!is_numeric($pid)) $pid = '';
+$lang = filter_var($lang,FILTER_SANITIZE_STRING);
 if(!is_numeric($taxaLimit)) $taxaLimit = 50;
 if(!is_numeric($page)) $page = 0;
 
@@ -32,18 +33,13 @@ elseif($taxonValue){
 	$tid = key($tidArr);
 	//Need to add code that allows user to select target taxon when more than one homonym is returned
 }
-if($lang) $lang = $taxonManager->setLanguage($lang);
+
+$taxonManager->setLanguage($lang);
 if($pid === '' && isset($DEFAULT_PROJ_ID) && $DEFAULT_PROJ_ID) $pid = $DEFAULT_PROJ_ID;
 
-$links = $taxonManager->getTaxaLinks();
-if($links){
-	foreach($links as $linkKey => $linkUrl){
-		if($linkUrl['title'] == 'REDIRECT'){
-			$locUrl = str_replace('--SCINAME--',rawurlencode($taxonManager->getTaxonName()),$linkUrl['url']);
-			header('Location: '.$locUrl);
-			exit;
-		}
-	}
+if($redirect = $taxonManager->getRedirectLink()){
+	header('Location: '.$redirect);
+	exit;
 }
 
 $isEditor = false;
@@ -59,25 +55,22 @@ if($SYMB_UID){
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
-	$cssPath = $CLIENT_ROOT.$CSS_BASE_PATH.'/taxa/speciesprofile.css';
+	include_once($SERVER_ROOT.'/includes/head.php');
+	$cssPath = $CLIENT_ROOT.$CSS_BASE_PATH.'/taxa/speciesprofile.css?ver=1';
 	if(!file_exists($cssPath)){
-		$cssPath = $CLIENT_ROOT.'/css/symb/taxa/speciesprofile.css';
+		$cssPath = $CLIENT_ROOT.'/css/symb/taxa/speciesprofile.css?ver=2';
 	}
 	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	echo '<link rel="stylesheet" type="text/css" href="'.$CSS_BASE_PATH.'/taxa/traitplot.css" />';
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../js/symb/taxa.index.js?ver=202101" type="text/javascript"></script>
 	<script src="../js/symb/taxa.editor.js?ver=202101" type="text/javascript"></script>
+	<style type="text/css">
+		.resource-title{ font-weight: bold; }
+	</style>
 </head>
 <body>
 <?php
@@ -117,11 +110,14 @@ include($SERVER_ROOT.'/includes/header.php');
 						 	?>
 						</div>
 						<?php
-						if($links && $links[0]['sortseq'] == 1){
-							$uStr = str_replace('--SCINAME--',rawurlencode($taxonManager->getTaxonName()),$links[0]['url']);
+						if($linkArr = $taxonManager->getLinkArr()){
 							?>
 							<div id="linkDiv">
-								<?php echo (isset($LANG['GO_TO'])?$LANG['GO_TO']:'Go to'); ?> <a href="<?php echo $uStr; ?>" target="_blank"><?php echo $links[0]['title']; ?></a>...
+								<?php
+								foreach($linkArr as $linkObj){
+									if($linkObj['icon']) echo '<span title="'.$linkObj['title'].'"><a href="'.$linkObj['url'].'" target="_blank"><img src="'.$linkObj['icon'].'" /></a></span>';
+								}
+								?>
 							</div>
 							<?php
 						}
@@ -134,16 +130,18 @@ include($SERVER_ROOT.'/includes/header.php');
 						<?php
 						if($vernArr = $taxonManager->getVernaculars()){
 							$primerArr = array();
-							if(array_key_exists($DEFAULT_LANG, $vernArr)){
-								$primerArr = $vernArr[$DEFAULT_LANG];
-								unset($vernArr[$DEFAULT_LANG]);
+							$targetLang = $lang;
+							if(!array_key_exists($targetLang, $vernArr)) $targetLang = 'en';
+							if(array_key_exists($targetLang, $vernArr)){
+								$primerArr = $vernArr[$targetLang];
+								unset($vernArr[$targetLang]);
 							}
 							else $primerArr = array_shift($vernArr);
 							$vernStr = array_shift($primerArr);
 							if($primerArr || $vernArr){
 								$vernStr.= ', <span class="verns"><a href="#" onclick="toggle(\'verns\')" title="Click here to show more common names">more...</a></span>';
 								$vernStr.= '<span class="verns" onclick="toggle(\'verns\');" style="display:none;">';
-								$vernStr.= implode(', ',$primerArr);
+								$vernStr.= implode(', ',$primerArr).' ';
 								foreach($vernArr as $langName => $vArr){
 									$vernStr.= '('.$langName.': '.implode(', ',$vArr).'), ';
 								}

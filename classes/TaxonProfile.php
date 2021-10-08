@@ -472,7 +472,7 @@ class TaxonProfile extends Manager {
 		if($this->linkArr === false && $this->tid){
 			$sql = 'SELECT DISTINCT l.tlid, l.url, l.icon, l.title, l.notes
 				FROM taxalinks l INNER JOIN taxaenumtree e ON l.tid = e.parenttid
-				WHERE (e.tid IN('.$this->tid.')) ORDER BY l.sortsequence, l.title';
+				WHERE (e.tid IN('.$this->tid.') OR l.tid IN('.$this->tid.')) ORDER BY l.sortsequence, l.title';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->linkArr[$r->tlid]['title'] = $r->title;

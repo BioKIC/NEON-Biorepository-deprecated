@@ -1,5 +1,9 @@
 <?php
- include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
+
+$isNeonEditor = false;
+if($IS_ADMIN) $isNeonEditor = true;
+elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEditor',$USER_RIGHTS)) $isNeonEditor = true;
 ?>
 <div id="main-header">
 		<!-- Symbiota Main Header -->
@@ -61,7 +65,7 @@
 							<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=7">Checklist: Research Sites - Vertebrates</a>
 						</li>
 						<?php
-						if($IS_ADMIN){
+						if($isNeonEditor){
 							?>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3">Checklist: In Progress - Invertebrates (private)</a>
@@ -115,7 +119,7 @@
           <a href="<?php echo $CLIENT_ROOT; ?>/misc/gettingstarted.php" alt="Getting Started">Getting Started</a>
         </li>
 				<?php
-				if($IS_ADMIN){
+				if($isNeonEditor){
 					?>
 					<li>
 						<a href="#" alt="Management Tools">Management Tools</a>

@@ -52,8 +52,12 @@ if($isEditor){
 				<li><a href="shipment/manifestloader.php">Load and Process New Manifests</a></li>
 				<li><a href="shipment/samplecheckin.php">Sample Check-in Form</a></li>
 				<li><a href="shipment/manifestsearch.php">Manifest Listing and Advanced Search</a></li>
-				<li><a href="igsnmanager.php">NEON IGSN Control Panel</a></li>
-				<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>
+				<?php
+				if($IS_ADMIN){
+					echo '<li><a href="igsnmanager.php">NEON IGSN Control Panel</a></li>';
+					echo '<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>';
+				}
+				?>
 				<li><a href="#" onclick="$('.nps-report').show();return false">NPS Year End Reports</a></li>
 				<li class="nps-report"><a href="npsReportHandler.php?dsid=110&year=2020" onclick="$('#BLDE20-working').show();">BLDE - 2020</a><span id="BLDE20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>
 				<li class="nps-report"><a href="npsReportHandler.php?dsid=40&year=2020" onclick="$('#GRSM20-working').show();">GRSM - 2020</a><span id="GRSM20-working" class="workingSpan"><img src="../images/workingcircle.gif" /></span></li>

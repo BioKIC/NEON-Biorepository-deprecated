@@ -21,10 +21,10 @@ class OccurrenceLabel{
 	public function queryOccurrences($postArr){
 		global $USER_RIGHTS;
 		$canReadRareSpp = false;
-		if($GLOBALS['IS_ADMIN'] || array_key_exists("CollAdmin", $USER_RIGHTS) || array_key_exists("RareSppAdmin", $USER_RIGHTS) || array_key_exists("RareSppReadAll", $USER_RIGHTS)){
+		if($GLOBALS['IS_ADMIN'] || array_key_exists('CollAdmin', $USER_RIGHTS) || array_key_exists('RareSppAdmin', $USER_RIGHTS) || array_key_exists('RareSppReadAll', $USER_RIGHTS)){
 			$canReadRareSpp = true;
 		}
-		elseif((array_key_exists("CollEditor", $USER_RIGHTS) && in_array($this->collid,$USER_RIGHTS["CollEditor"])) || (array_key_exists("RareSppReader", $USER_RIGHTS) && in_array($this->collid,$USER_RIGHTS["RareSppReader"]))){
+		elseif((array_key_exists('CollEditor', $USER_RIGHTS) && in_array($this->collid,$USER_RIGHTS['CollEditor'])) || (array_key_exists('RareSppReader', $USER_RIGHTS) && in_array($this->collid,$USER_RIGHTS['RareSppReader']))){
 			$canReadRareSpp = true;
 		}
 		$retArr = array();
@@ -103,27 +103,23 @@ class OccurrenceLabel{
 						$term1 = trim(substr($v,0,$p));
 						$term2 = trim(substr($v,$p+3));
 						if(is_numeric($term1) && is_numeric($term2)){
-							$iBetweenFrag[] = '(o.catalogNumber BETWEEN '.$term1.' AND '.$term2.')';
+							$iBetweenFrag[] = '((o.catalogNumber BETWEEN '.$term1.' AND '.$term2.') OR (o.otherCatalogNumbers BETWEEN '.$term1.' AND '.$term2.') OR (i.identifiervalue BETWEEN '.$term1.' AND '.$term2.'))';
 						}
 						else{
-							$catTerm = 'o.catalogNumber BETWEEN "'.$term1.'" AND "'.$term2.'"';
-							if(strlen($term1) == strlen($term2)) $catTerm .= ' AND length(o.catalogNumber) = '.strlen($term2);
+							$catTerm = '(o.catalogNumber BETWEEN "'.$term1.'" AND "'.$term2.'" OR o.othercatalogNumbers BETWEEN "'.$term1.'" AND "'.$term2.'" OR i.identifiervalue BETWEEN "'.$term1.'" AND "'.$term2.'")';
+							//if(strlen($term1) == strlen($term2)) $catTerm .= ' AND length(IFNULL(i.identifiervalue, o.catalogNumber)) = '.strlen($term2);
 							$iBetweenFrag[] = '('.$catTerm.')';
 						}
 					}
-					else{
-						$iInFrag[] = $v;
-					}
+					else $iInFrag[] = $v;
 				}
 				$iWhere = '';
-				if($iBetweenFrag){
-					$iWhere .= 'OR '.implode(' OR ',$iBetweenFrag);
-				}
+				if($iBetweenFrag) $iWhere .= 'OR '.implode(' OR ',$iBetweenFrag);
 				if($iInFrag){
-					$iWhere .= 'OR (o.catalogNumber IN("'.implode('","',$iInFrag).'")) ';
+					$iWhere .= 'OR (o.catalogNumber IN("'.implode('","',$iInFrag).'") OR o.otherCatalogNumbers IN("'.implode('","',$iInFrag).'") OR i.identifiervalue IN("'.implode('","',$iInFrag).'")) ';
 				}
 				$sqlWhere .= 'AND ('.substr($iWhere,3).') ';
-				$sqlOrderBy .= ',o.catalogNumber';
+				$sqlOrderBy .= ',i.identifiervalue,o.catalogNumber,o.otherCatalogNumbers';
 			}
 			if($this->collArr['colltype'] == 'General Observations'){
 				$sqlWhere .= 'AND (o.collid = '.$this->collid.') ';
@@ -132,9 +128,9 @@ class OccurrenceLabel{
 			elseif(!array_key_exists('extendedsearch', $postArr)){
 				$sqlWhere .= 'AND (o.collid = '.$this->collid.') ';
 			}
-			$sql = 'SELECT o.occid, o.collid, IFNULL(o.duplicatequantity,1) AS q, CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, o.observeruid, '.
+			$sql = 'SELECT DISTINCT o.occid, o.collid, IFNULL(o.duplicatequantity,1) AS q, CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, o.observeruid, '.
 				'o.family, o.sciname, CONCAT_WS("; ",o.country, o.stateProvince, o.county, o.locality) AS locality, IFNULL(o.localitySecurity,0) AS localitySecurity '.
-				'FROM omoccurrences o ';
+				'FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid ';
 			if(strpos($sqlWhere,'MATCH(f.recordedby)') || strpos($sqlWhere,'MATCH(f.locality)')){
 				$sql.= 'INNER JOIN omoccurrencesfulltext f ON o.occid = f.occid ';
 			}

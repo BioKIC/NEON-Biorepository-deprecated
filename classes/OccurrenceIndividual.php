@@ -146,7 +146,7 @@ class OccurrenceIndividual extends Manager{
 						$this->occArr['occurrenceid'] = $this->occArr['catalognumber'];
 					}
 					elseif($this->metadataArr['guidtarget'] == 'symbiotaUUID'){
-						$this->occArr['occurrenceid'] = $this->occArr['guid'];
+						if(isset($this->occArr['guid'])) $this->occArr['occurrenceid'] = $this->occArr['guid'];
 					}
 				}
 				$protectTaxon = false;

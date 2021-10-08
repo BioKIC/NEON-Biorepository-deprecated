@@ -212,7 +212,7 @@ if($userId != $SYMB_UID) $isSelf = false;
 				?>
 				<div style="margin:10px">
 					<input type="hidden" name="userid" value="<?php echo $userId;?>" />
-					<button type="submit" name="action" value="Change Username"><?php echo (isset($LANG['CHANGE_USERNAME'])?$LANG['CHANGE_USERNAME']:'Change Username'); ?></button>
+					<button type="submit" name="action" value="changeLogin"><?php echo (isset($LANG['CHANGE_USERNAME'])?$LANG['CHANGE_USERNAME']:'Change Username'); ?></button>
 				</div>
 			</form>
 		</fieldset>

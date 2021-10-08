@@ -45,7 +45,8 @@ $headerMapBase = array('institutioncode'=>'Institution Code (override)','collect
 	'samplingprotocol' => 'Sampling Protocol', 'preparations' => 'Preparations', 'reproductivecondition' => 'Reproductive Condition',
 	'typestatus' => 'Type Status','cultivationstatus' => 'Cultivation Status','establishmentmeans' => 'Establishment Means','datageneralizations' => 'Data Generalizations',
 	'disposition' => 'Disposition','duplicatequantity' => 'Duplicate Qty','datelastmodified' => 'Date Last Modified', 'labelproject' => 'Project',
-	'processingstatus' => 'Processing Status','recordenteredby' => 'Entered By','dbpk' => 'dbpk','basisofrecord' => 'Basis Of Record','language' => 'Language','datageneralizations' => 'Data Generalizations');
+	'processingstatus' => 'Processing Status','recordenteredby' => 'Entered By','dbpk' => 'dbpk','basisofrecord' => 'Basis Of Record',
+	'language' => 'Language');
 $headMap = array();
 
 $qryCnt = 0;
@@ -130,7 +131,7 @@ else{
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.table.js?ver=2" type="text/javascript" ></script>
-	<script src="../../js/symb/collections.editor.query.js?ver=3" type="text/javascript" ></script>
+	<script src="../../js/symb/collections.editor.query.js?ver=4" type="text/javascript" ></script>
 	<style type="text/css">
 		table.styledtable td { white-space: nowrap; }
 		fieldset{ padding:15px }

@@ -280,9 +280,9 @@ class DwcArchiverOccurrence{
 		$this->occurDefArr['terms']['sourcePrimaryKey-dbpk'] = 'https://symbiota.org/terms/sourcePrimaryKey-dbpk';
 		$this->occurDefArr['fields']['sourcePrimaryKey-dbpk'] = 'o.dbpk';
 		$this->occurDefArr['terms']['collID'] = 'https://symbiota.org/terms/collID';
-		$this->occurDefArr['fields']['collID'] = 'c.collid';
-		$this->occurDefArr['terms']['recordID'] = 'http://symbiota.org/terms/recordId';
-		$this->occurDefArr['fields']['recordID'] = 'g.guid AS recordId';
+		$this->occurDefArr['fields']['collID'] = 'c.collID';
+		$this->occurDefArr['terms']['recordID'] = 'http://symbiota.org/terms/recordID';
+		$this->occurDefArr['fields']['recordID'] = 'g.guid AS recordID';
 		$this->occurDefArr['terms']['references'] = 'http://purl.org/dc/terms/references';
 		$this->occurDefArr['fields']['references'] = '';
 		if($this->schemaType == 'pensoft'){
@@ -313,7 +313,7 @@ class DwcArchiverOccurrence{
 					'recordedBy','recordNumber','eventDate','year','month','day','fieldNumber','country','stateProvince','county','municipality',
 					'locality','localitySecurity','geodeticDatum','decimalLatitude','decimalLongitude','verbatimCoordinates',
 					'minimumElevationInMeters','maximumElevationInMeters','verbatimElevation','maximumDepthInMeters','minimumDepthInMeters','establishmentMeans','cultivationStatus',
-					'sex','occurrenceRemarks','preparationType','individualCount','dateEntered','dateLastModified','recordId','references','collId');
+					'sex','occurrenceRemarks','preparationType','individualCount','dateEntered','dateLastModified','recordID','references','collID');
 				$this->occurDefArr[$k] = array_intersect_key($vArr,array_flip($targetArr));
 			}
 		}

@@ -5,7 +5,7 @@ Language: Français (French)
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.fr.php');
 
 $LANG['ADD_SUCCESS'] = 'Nouvelle collection ajoutée avec succès';
 $LANG['ADD_STUFF'] = 'Ajoutez des contacts, des liens vers des ressources ou l\'adresse de l\'institution ci-dessous';

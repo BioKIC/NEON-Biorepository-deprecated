@@ -90,7 +90,7 @@ if($isEditor){
 		$person = $pHandler->getPerson();
 		$tabIndex = 2;
 	}
-	elseif($action == "Change Login"){
+	elseif($action == 'changeLogin'){
 		$pwd = '';
 		if($isSelf && isset($_POST["newloginpwd"])) $pwd = $_POST["newloginpwd"];
 		if(!$pHandler->changeLogin($_POST["newlogin"], $pwd)){

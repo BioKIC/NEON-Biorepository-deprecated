@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/glossary/addterm.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/glossary/addterm.en.php');
 
 $LANG['PLEASE_REFINE'] = 'Please select a language and taxonomic group to see term list.';
 $LANG['PLEASE_TO_DWNLD'] = 'Please select a primary language and taxonomic group to download.';

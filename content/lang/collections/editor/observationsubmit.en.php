@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/editor/skeletalsubmit.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/editor/skeletalsubmit.en.php');
 
 $LANG['OBS_SUBMIT'] = 'Observation Submission';
 $LANG['SUCCESS_IMAGE'] = 'SUCCESS: Image loaded successfully!';

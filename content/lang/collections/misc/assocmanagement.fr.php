@@ -5,7 +5,7 @@ Language: Français (French)
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.fr.php');
 
 $LANG['OCC_BATCH'] = "Création de lots d'Associations d'Occurrences";
 $LANG['OCC_AS_MAN'] = "Gestionnaire d'Associations d'occurrences";

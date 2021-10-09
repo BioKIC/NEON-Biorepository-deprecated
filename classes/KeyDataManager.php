@@ -76,7 +76,7 @@ class KeyDataManager extends Manager {
 					"HAVING (((cs.CID) In (".implode(",",$charList).")) AND ((cs.CS)<>'-') AND ((characters.Type)='UM' Or (characters.Type)='OM') AND characters.DifficultyRank < 3) ".
 					"ORDER BY charnames.Heading, characters.SortSequence, cs.SortSequence";*/
 				$sqlChar = 'SELECT DISTINCT cs.CID, cs.CS, cs.CharStateName, cs.Description AS csdescr, chars.CharName,
-					chars.description AS chardescr, chars.hid, chead.headingname, chars.helpurl, Count(cs.CS) AS Ct, chars.DifficultyRank
+					chars.description AS chardescr, chars.hid, chead.headingname, chars.glossid, chars.helpurl, Count(cs.CS) AS Ct, chars.DifficultyRank
 					FROM ('.$this->sql.') AS tList INNER JOIN kmdescr d ON tList.TID = d.TID
 					INNER JOIN kmcs cs ON (d.CS = cs.CS) AND (d.CID = cs.CID)
 					INNER JOIN kmcharacters chars ON chars.cid = cs.CID
@@ -96,76 +96,72 @@ class KeyDataManager extends Manager {
 					$charCID = $row->CID;
 					if($ct < $this->taxaCount || array_key_exists($charCID,$this->charArr)){		//add to return if stateUseCount is less than taxaCount (ie: state is useless if all taxa code true) or is an attribute selected by user
 						$language = 'English';
-						$headingName = $row->headingname;
 						$headingID = $row->hid;
 						$charName = $row->CharName;
-						$charDescr = $row->chardescr;
-						if($charDescr) $charName = "<span class='charHeading' title='".$charDescr."'>".$charName."</span>";
-						$url = $row->helpurl;
-						if($url) $charName .= " <a href='$url' border='0' target='_blank'><img src='../images/info.png' width='12' border='0'></a>";
-						$cs = $row->CS;
-						$charStateName = $row->CharStateName;
-						$csDescr = $row->csdescr;
-						if($csDescr) $charStateName = "<span class='characterStateName' title='".$csDescr."'>".$charStateName."</span>";
+						if($row->chardescr) $charName = '<span class="charHeading" title="'.$row->chardescr.'">'.$charName.'</span>';
+						if($row->helpurl) $charName .= ' <a class="infoAnchor" href="'.$row->helpurl.'" target="_blank" title="external resource"><img src="../images/info.png"></a>';
+						if($row->glossid) $charName .= ' <a class="infoAnchor" href="" onclick="openGlossaryPopup('.$row->glossid.');return false;" title="glossary term"><img src="../images/info.png"></a>';
 						$diffRank = false;
 						if($row->DifficultyRank && $row->DifficultyRank > 1 && !array_key_exists($charCID,$this->charArr)) $diffRank = true;
 
 						//Set HeadingName within the $charArray, if not yet set
-						$headingArray[$headingID]["HeadingNames"][$language] = $headingName;
+						$headingArray[$headingID]['HeadingNames'][$language] = $row->headingname;
 
 						//Set CharName within the $stateArray, if not yet set
-						if(!array_key_exists($headingID, $headingArray) || !array_key_exists($charCID, $headingArray[$headingID]) || !array_key_exists("CharNames", $headingArray[$headingID][$charCID]) || !array_key_exists($language, $headingArray[$headingID][$charCID]["CharNames"])){
+						if(!array_key_exists($headingID, $headingArray) || !array_key_exists($charCID, $headingArray[$headingID]) || !array_key_exists('CharNames', $headingArray[$headingID][$charCID]) || !array_key_exists($language, $headingArray[$headingID][$charCID]['CharNames'])){
 							$headingArray[$headingID][$charCID]["CharNames"][$language] = "<div class='dynam'".($diffRank?" style='display:none;' ":" style='display:;'")."><span class='dynamlang' lang='".$language."'".
 								($language==$this->lang?" style='display:;'":" style='display:none;'").">&nbsp;&nbsp;".$charName."</span></div>";
 						}
 
-						$checked = "";
-						if($this->charArr && array_key_exists($charCID,$this->charArr) && in_array($cs,$this->charArr[$charCID])) $checked = "checked";
+						$checked = '';
+						$cs = $row->CS;
+						if($this->charArr && array_key_exists($charCID,$this->charArr) && in_array($cs,$this->charArr[$charCID])) $checked = 'checked';
 						if(!array_key_exists($headingID,$headingArray) || !array_key_exists($charCID,$headingArray[$headingID]) || !array_key_exists($cs,$headingArray[$headingID][$charCID]) || !$headingArray[$headingID][$charCID][$cs]["ROOT"]){
 							$headingArray[$headingID][$charCID][$cs]["ROOT"] = "<div class='dynamopt'".//($diffRank?" style='display:none;' class='dynam'":" style='display:;'").
 								">&nbsp;&nbsp;<input type='checkbox' name='attr[]' id='cb".$charCID."-".$cs."' value='".$charCID."-".$cs."' $checked onclick='document.keyform.submit();' />";
 						}
-
+						$charStateName = $row->CharStateName;
+						if($row->csdescr) $charStateName = '<span class="characterStateName" title="'.$row->csdescr.'">'.$row->CharStateName.'</span>';
 						$headingArray[$headingID][$charCID][$cs][$language] = $charStateName;
 					}
 				}
 				$result->free();
 				//Ensures correct sorting and puts html output into returnStrings Array
-				$returnArray["Languages"] = $langList;			//Put a list of languages in returnArray
+				$returnArray['Languages'] = $langList;			//Put a list of languages in returnArray
 				foreach($headingArray as $HID => $cArray){
 					$displayHeading = true;
-					$headNameArray = $cArray["HeadingNames"];
-					unset($cArray["HeadingNames"]);
+					$headNameArray = $cArray['HeadingNames'];
+					unset($cArray['HeadingNames']);
 					$endStr ="";
 					foreach($cArray as $cid => $csArray){
 						if(count($csArray) > 2 || array_key_exists($cid,$this->charArr)){
 							if($displayHeading){
-								$returnArray[] = "<div class='headingname' id='headingname".$HID."' style='font-weight:bold;margin-top:1em;font-size:125%;'>\n";
+								$returnArray[] = '<div class="headingname" id="headingname'.$HID.'">';
 								foreach($headNameArray as $langValue => $headValue){
 									$returnArray[] .= "<span lang='".$langValue."' style='".($langValue==$this->lang?"display:;":"display:none;")."'>$headValue</span>\n";
 								}
-								$returnArray[] = "</div>\n";
-								$returnArray[] = "<div class='heading' id='heading".$HID."' style=''>";
-								$endStr = "</div>\n";
+								$returnArray[] = '</div>';
+								$returnArray[] = '<div class="heading" id="heading'.$HID.'">';
+								$endStr = '</div>';
 							}
 							$displayHeading = false;
 			//				ksort($csArray);
-							$chars = $csArray["CharNames"];
-							unset($csArray["CharNames"]);
-							$returnArray[] = "<div id='char".$charCID."'>";
+							$chars = $csArray['CharNames'];
+							unset($csArray['CharNames']);
+							$returnArray[] = '<div id="char'.$charCID.'">';
 							foreach($chars as $names){
 								$returnArray[] = $names;
 							}
 							foreach($csArray as $csKey => $stateNames){
-								if(array_key_exists("ROOT",$stateNames)) $returnArray[] = $stateNames["ROOT"];
-								unset($stateNames["ROOT"]);
+								if(array_key_exists('ROOT',$stateNames)) $returnArray[] = $stateNames['ROOT'];
+								unset($stateNames['ROOT']);
 								foreach($stateNames as $csLang => $csValue){
 									$returnArray[] = "<span lang='".$csLang."' ".
 										($csLang==$this->lang?" style='display:;'":" style='display:none;'").">$csValue</span>";
 								}
-								$returnArray[] = "</div>";
+								$returnArray[] = '</div>';
 							}
-							$returnArray[] = "</div>";
+							$returnArray[] = '</div>';
 						}
 					}
 					if($endStr) $returnArray[] = $endStr;
@@ -196,8 +192,8 @@ class KeyDataManager extends Manager {
 			$charList = array_merge($charList,array_keys($this->charArr));
 
 			if($charList){
-				$sqlChar = 'SELECT DISTINCT cs.CID, cs.CS, cs.CharStateName, cs.Description AS csdescr, chars.CharName,
-					chars.description AS chardescr, chars.hid, chead.headingname, chars.helpurl, Count(cs.CS) AS Ct, chars.DifficultyRank
+				$sqlChar = 'SELECT DISTINCT cs.CID, cs.CS, cs.CharStateName, cs.Description AS csdescr, cs.glossid AS csglossid, chars.CharName,
+					chars.description AS chardescr, chars.hid, chead.headingname, chars.glossid AS charglossid, chars.helpurl, Count(cs.CS) AS Ct, chars.DifficultyRank
 					FROM ('.$this->sql.') AS tList INNER JOIN kmdescr d ON tList.TID = d.TID
 					INNER JOIN kmcs cs ON (d.CS = cs.CS) AND (d.CID = cs.CID)
 					INNER JOIN kmcharacters chars ON chars.cid = cs.CID
@@ -218,21 +214,16 @@ class KeyDataManager extends Manager {
 					$charCID = $r->CID;
 					if($ct < $this->taxaCount || array_key_exists($charCID,$this->charArr)){
 						//add to return if stateUseCount is less than taxaCount (ie: state is useless if all taxa code true) or is an attribute selected by user
-						$language = 'English';
 						$headingID = $r->hid;
 						$charName = $r->CharName;
-						$charDescr = $r->chardescr;
-						if($charDescr) $charName = '<span class="charHeading" title="'.$charDescr.'">'.$charName.'</span>';
-						$url = $r->helpurl;
-						if($url) $charName .= ' <a href="'.$url.'" target="_blank"><img src="../images/info.png" width="12" border="0" /></a>';
-						$cs = $r->CS;
-						$charStateName = $r->CharStateName;
-						$csDescr = $r->csdescr;
-						if($csDescr) $charStateName = '<span class="characterStateName" title="'.$csDescr.'">'.$charStateName.'</span>';
+						if($r->chardescr) $charName = '<span class="charHeading" title="'.$r->chardescr.'">'.$charName.'</span>';
+						if($r->helpurl) $charName .= ' <a class="infoAnchor" href="'.$r->helpurl.'" target="_blank" title="external resource"><img src="../images/info.png" /></a>';
+						if($r->charglossid) $charName .= ' <a class="infoAnchor" href="" onclick="openGlossaryPopup('.$r->charglossid.');return false;" title="glossary term"><img src="../images/info.png"></a>';
 						$diffRank = false;
 						if($r->DifficultyRank && $r->DifficultyRank > 1 && !array_key_exists($charCID,$this->charArr)) $diffRank = true;
 
 						//Set HeadingName within the $charArray, if not yet set
+						$language = 'English';
 						$headingArray[$headingID]['HeadingNames'][$language] = $r->headingname;
 
 						//Set CharName within the $stateArray, if not yet set
@@ -243,12 +234,16 @@ class KeyDataManager extends Manager {
 							$headingArray[$headingID][$charCID]['CharNames'][$language] = $charStr;
 						}
 
+						$cs = $r->CS;
 						$checked = '';
 						if($this->charArr && array_key_exists($charCID,$this->charArr) && in_array($cs,$this->charArr[$charCID])) $checked = "checked";
 						if(!array_key_exists($headingID,$headingArray) || !array_key_exists($charCID,$headingArray[$headingID]) || !array_key_exists($cs,$headingArray[$headingID][$charCID]) || !$headingArray[$headingID][$charCID][$cs]["ROOT"]){
 							$charState = '<input type="checkbox" name="attr[]" id="cb'.$charCID.'-'.$cs.'" value="'.$charCID.'-'.$cs.'" '.$checked.' onclick="this.form.submit();" />';
 							$headingArray[$headingID][$charCID][$cs]['ROOT'] = $charState;
 						}
+						$charStateName = $r->CharStateName;
+						if($r->csdescr) $charStateName = '<span class="characterStateName" title="'.$r->csdescr.'">'.$r->CharStateName.'</span>';
+						if($r->csglossid) $charStateName .= ' <a class="infoAnchor" href="" onclick="openGlossaryPopup('.$r->csglossid.');return false;" title="glossary term"><img src="../images/info.png"></a>';
 						$headingArray[$headingID][$charCID][$cs][$language] = $charStateName;
 					}
 				}
@@ -273,12 +268,12 @@ class KeyDataManager extends Manager {
 							}
 							$displayHeading = false;
 							// ksort($csArray);
-							$chars = $csArray['CharNames'];
-							unset($csArray['CharNames']);
 							$retArr[] = '<div id="char'.$charCID.'">';
+							$chars = $csArray['CharNames'];
 							foreach($chars as $names){
 								$retArr[] = $names;
 							}
+							unset($csArray['CharNames']);
 							foreach($csArray as $csKey => $stateNames){
 								$retArr[] = '<div class="cs-div">';
 								if(array_key_exists('ROOT',$stateNames)) $retArr[] = $stateNames['ROOT'];
@@ -286,7 +281,7 @@ class KeyDataManager extends Manager {
 								foreach($stateNames as $csLang => $csValue){
 									$retArr[] = '<span lang="'.$csLang.'" style="display:'.($csLang==$this->lang?'':'none').'">'.$csValue.'</span>';
 								}
-								$retArr[] = '</div>'."\n";
+								$retArr[] = '</div>';
 							}
 							$retArr[] = '</div>';
 						}

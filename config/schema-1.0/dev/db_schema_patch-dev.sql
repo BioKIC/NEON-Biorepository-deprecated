@@ -45,6 +45,9 @@ ALTER TABLE `ctcontrolvocab`
 ALTER TABLE `ctcontrolvocab` 
   ADD CONSTRAINT `FK_ctControlVocab_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
+ALTER TABLE `fmprojects` 
+  CHANGE COLUMN `projname` `projname` VARCHAR(75) NOT NULL ;
+
 CREATE TABLE `omcollproperties` (
   `collPropID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `collid` INT UNSIGNED NOT NULL,

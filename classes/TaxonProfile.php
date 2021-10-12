@@ -486,8 +486,10 @@ class TaxonProfile extends Manager {
 
 	public function getRedirectLink(){
 		$this->setLinkArr();
-		foreach($this->linkArr as $linkObj){
-			if($linkObj['title'] == 'REDIRECT') return $linkObj['url'];
+		if($this->linkArr){
+			foreach($this->linkArr as $linkObj){
+				if($linkObj['title'] == 'REDIRECT') return $linkObj['url'];
+			}
 		}
 		return false;
 	}

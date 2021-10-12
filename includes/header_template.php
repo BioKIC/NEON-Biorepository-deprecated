@@ -1,8 +1,5 @@
 <script>
-<!--
-if (top.frames.length!=0)
-  top.location=self.document.location;
-// -->
+	//if(top.frames.length!=0) top.location=self.document.location;
 </script>
 <table id="maintable" cellspacing="0">
 	<tr>

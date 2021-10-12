@@ -8,7 +8,7 @@ Language: Français (French)
 $LANG['H_HOME'] = 'Accueil';
 
 $LANG['H_SEARCH'] = 'Rechercher';
-$LANG['H_COLLECTIONS'] = 'Colections';
+$LANG['H_COLLECTIONS'] = 'Collection';
 $LANG['H_MAP'] = 'Carte';
 $LANG['H_TAXONOMIC_EXPLORER'] = 'Explorateur Taxonomique';
 

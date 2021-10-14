@@ -1179,7 +1179,7 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 								</div>
 								<div style="margin:5 0 5 0;"><hr /></div>
 								<div>
-									<span style=""><input data-role="none" type='checkbox' name='usethes' value='1' <?php if(array_key_exists("usethes",$_REQUEST) && $_REQUEST["usethes"]) echo "CHECKED"; ?> ><?php echo (isset($LANG['INCLUDE_SYNONYMS'])?$LANG['INCLUDE_SYNONYMS']:'Include Synonyms'); ?></span>
+									<span style=""><input data-role="none" type="checkbox" name="usethes" value="1" <?php if(!isset($_REQUEST['reset']) || (isset($_REQUEST['usethes']) && $_REQUEST['usethes'])) echo "CHECKED"; ?> ><?php echo (isset($LANG['INCLUDE_SYNONYMS'])?$LANG['INCLUDE_SYNONYMS']:'Include Synonyms'); ?></span>
 								</div>
 								<div>
 									<div style="margin-top:5px;">

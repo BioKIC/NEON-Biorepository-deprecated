@@ -316,7 +316,7 @@ class MediaResolutionTools extends Manager {
 						$rs->free();
 						$this->databaseImageArr($imgArr);
 						$cnt = count($imgArr);
-						$this->logOrEcho($processingCnt.' image records remapped');
+						$this->logOrEcho($processingCnt.' image records remapped ('.date('Y-m-d H:i:s').')');
 						unset($imgArr);
 					}while($cnt && $limit);
 					echo '</ul>';

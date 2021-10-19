@@ -117,9 +117,9 @@ class BarPlot {
 
   public function display() {
     if($this->ShowScale) {
-       return $this->axisSVG() . ' ' . $this->tickSVG() . ' ' . $this->axisLabelSVG() . ' ' . $this->barsSVG();
-     } else {
        return $this->axisSVG() . ' ' . $this->tickSVG() . ' ' . $this->scaleSVG() . ' ' . $this->axisLabelSVG() . ' ' . $this->barsSVG();
+     } else {
+       return $this->axisSVG() . ' ' . $this->tickSVG() . ' ' . $this->axisLabelSVG() . ' ' . $this->barsSVG();
     }
   }
 
@@ -206,8 +206,11 @@ class BarPlot {
     if(isset($this->TickNumber) && $this->TickNumber) {
       $tickInterval = round($this->AxisLength['y'] / $this->TickNumber, 1);
       for($i = 0; $i < $this->TickNumber; $i++) {
-        $yval = $tickInterval * -1 * $i;
-        $svgStr .= '<text x="'.$this->PlotOrigin['x'].'" y="'.$yval.'">'.$this->TickScale * $i.'</text>'.PHP_EOL;
+        $yval = $tickInterval * $i;
+        $svgStr .= '<text x="' .($this->PlotOrigin['x'] - $this->PlotPadding). '" ';
+        $svgStr .= 'y="'.($this->PlotOrigin['y'] - $yval).'" ';//
+        $svgStr .= 'class="BarPlotScaleText">';
+        $svgStr .= $this->TickScale * $i. '</text>' .PHP_EOL;
       }
     }
     return $svgStr;
@@ -227,15 +230,15 @@ class BarPlot {
 
   private function barsSVG() {   // data graphics
     $svgStr = '';
-    $traitSum = array_sum($this->DataValues);
+    $traitMax = max($this->DataValues);
     $xinterval = $this->AxisLength['x'] / count($this->DataValues);
     $xstart = $this->PlotOrigin['x'];
     $barWidthScaleFactor = 0.9;
     foreach($this->DataValues as $k => $d) {
-      $traitPercent = round(($d/$traitSum) * 100, 1);
+      $scaledTraitValue = round($d * $this->AxisLength['y'] / $traitMax, 1);
       $svgStr .= '<rect x="' .($xstart + (((1-$barWidthScaleFactor)/2) * $xinterval)). '" ';
-      $svgStr .= 'y="' .($this->PlotOrigin['y'] - $traitPercent). '" ';
-      $svgStr .= 'height="' . $traitPercent . '" ';
+      $svgStr .= 'y="' .($this->PlotOrigin['y'] - $scaledTraitValue). '" ';
+      $svgStr .= 'height="' . $scaledTraitValue . '" ';
       $svgStr .= 'width="' . ($barWidthScaleFactor * $xinterval) . '" ';
       $svgStr .= 'class="' . $this->PlotClass . 'Focal" />' .PHP_EOL;
       $xstart += $xinterval;

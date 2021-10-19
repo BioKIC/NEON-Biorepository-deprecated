@@ -157,13 +157,38 @@ class BarPlot {
     $svgStr = '';
     if(isset($this->ShowScale) && $this->ShowScale) {
       if( (isset($this->TickNumber) && $this->TickNumber) OR (isset($this->AxisNumber) && $this->AxisNumber) ) {
-        $barPlotId = uniqid("BarPlotGrid-", true);
+        //$barPlotId = uniqid("BarPlotGrid-", true);
         $tickXInterval = round($this->AxisLength['x'] / $this->AxisNumber, 1);
         $tickYInterval = round($this->AxisLength['y'] / $this->TickNumber, 1);
-        $svgStr .= '<defs>'.PHP_EOL.'<pattern id="'.$barPlotId.'" width="'.$tickXInterval.'" height="'.$tickYInterval.'" patternUnits="userSpaceOnUse">'.PHP_EOL;
-        $svgStr .= '<rect class="' . $this->PlotClass . 'GridBackground" width="'.$tickXInterval.'" height="'.$tickYInterval.'" x="'.$this->PlotOrigin['x'].'"/>'.PHP_EOL;
-        $svgStr .= '<path class="' . $this->PlotClass . 'GridLine" d="M '.$tickXInterval.' 0 L 0 0 0 '.$tickYInterval.'" fill="none" />'.PHP_EOL.'</pattern>'.PHP_EOL.'</defs>'.PHP_EOL;
-        $svgStr .= '<rect x="' . $this->PlotOrigin['x'] . '" y="0" width="'.$this->AxisLength['x'].'" height="'.$this->AxisLength['y'].'" fill="url(#'.$barPlotId.')" />'.PHP_EOL;
+
+        $svgStr .= '<rect ';
+        $svgStr .= 'x="' .$this->PlotOrigin['x']. '" ';
+        $svgStr .= 'y="0" ';
+        $svgStr .= 'width="' .$this->AxisLength['x']. '" ';
+        $svgStr .= 'height="' .$this->AxisLength['y']. '" ';
+        $svgStr .= 'class="' .$this->PlotClass. 'GridBackground" />' .PHP_EOL;
+
+        $y1 = $this->PlotOrigin['y'];
+        $y2 = 0;
+        for ($xpos = $this->PlotOrigin['x']; $xpos <= $this->AxisLength['x']; $xpos = $xpos + $tickXInterval) {
+          $svgStr .= '<line ';
+          $svgStr .= 'x1="' .$xpos. '" ';
+          $svgStr .= 'y1="' .$y1. '" ';
+          $svgStr .= 'x2="' .$xpos. '" ';
+          $svgStr .= 'y2="' .$y2. '" ';
+          $svgStr .= 'class="' . $this->PlotClass . 'VerticalGridLine" />' .PHP_EOL;
+        }
+
+        $x1 = $this->PlotOrigin['x'];
+        $x2 = $this->PlotWidth;
+        for ($ypos = $this->PlotOrigin['y']; $ypos >= 0; $ypos = $ypos - $tickYInterval) {
+          $svgStr .= '<line ';
+          $svgStr .= 'x1="' .$x1. '" ';
+          $svgStr .= 'y1="' .$ypos. '" ';
+          $svgStr .= 'x2="' .$x2. '" ';
+          $svgStr .= 'y2="' .$ypos. '" ';
+          $svgStr .= 'class="' . $this->PlotClass . 'HorizontalGridLine" />' .PHP_EOL;
+        }
       }
     }
     return $svgStr;
@@ -205,9 +230,14 @@ class BarPlot {
     $traitSum = array_sum($this->DataValues);
     $xinterval = $this->AxisLength['x'] / count($this->DataValues);
     $xstart = $this->PlotOrigin['x'];
+    $barWidthScaleFactor = 0.9;
     foreach($this->DataValues as $k => $d) {
       $traitPercent = round(($d/$traitSum) * 100, 1);
-      $svgStr .= '<rect x=' . $xstart . ' y=' . ($this->PlotOrigin['y'] - $traitPercent) . ' height=' . $traitPercent . ' width=' . 0.9 * $xinterval . '/>'.PHP_EOL;
+      $svgStr .= '<rect x="' .($xstart + (((1-$barWidthScaleFactor)/2) * $xinterval)). '" ';
+      $svgStr .= 'y="' .($this->PlotOrigin['y'] - $traitPercent). '" ';
+      $svgStr .= 'height="' . $traitPercent . '" ';
+      $svgStr .= 'width="' . ($barWidthScaleFactor * $xinterval) . '" ';
+      $svgStr .= 'class="' . $this->PlotClass . 'Focal" />' .PHP_EOL;
       $xstart += $xinterval;
     }
     return $svgStr;

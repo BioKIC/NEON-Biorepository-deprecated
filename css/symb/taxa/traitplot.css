@@ -4,7 +4,7 @@
 .BarPlotGridBackground {
   fill: lightgray;
 }
-.BarPlotGridLine {
+.BarPlotVerticalGridLine, .BarPlotHorizontalGridLine {
   fill: none;
   stroke: white;
   stroke-width: 1 px;
@@ -25,13 +25,11 @@
   font-size: x-small;
   text-anchor: end;
 }
-.BarPlotFocalBar {
-  width: 9;
+.BarPlotFocal {
   stroke: none;
   fill: orange;
 }
-.BarPlotBlurredBar {
-  width: 9;
+.BarPlotBlurred {
   stroke: none;
   fill: gray;
 }

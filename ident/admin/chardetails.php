@@ -10,6 +10,9 @@ $cid = array_key_exists('cid',$_REQUEST)?$_REQUEST['cid']:0;
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
 $langId = array_key_exists('langid',$_REQUEST)?$_REQUEST['langid']:'';
 
+$isEditor = false;
+if($IS_ADMIN || array_key_exists('KeyAdmin',$USER_RIGHTS)) $isEditor = true;
+
 $keyManager = new KeyCharAdmin();
 $keyManager->setLangId($langId);
 //$keyManager->setCollId($collId);
@@ -17,7 +20,7 @@ $keyManager->setLangId($langId);
 $keyManager->setCid($cid);
 
 $statusStr = '';
-if($formSubmit){
+if($formSubmit && $isEditor){
 	if($formSubmit == 'Create'){
 		$statusStr = $keyManager->createCharacter($_POST,$PARAMS_ARR['un']);
 		$cid = $keyManager->getCid();
@@ -26,7 +29,7 @@ if($formSubmit){
 		$statusStr = $keyManager->editCharacter($_POST);
 	}
 	elseif($formSubmit == 'Add State'){
-		$keyManager->createCharState($_POST['charstatename'],$_POST['illustrationurl'],$_POST['description'],$_POST['notes'],$_POST['sortsequence'],$PARAMS_ARR['un']);
+		$keyManager->createCharState($_POST,$PARAMS_ARR['un']);
 		$tabIndex = 1;
 	}
 	elseif($formSubmit == 'Save State'){
@@ -68,16 +71,9 @@ if(!$cid) header('Location: index.php');
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 	<title>Character Admin</title>
-  <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
@@ -232,6 +228,13 @@ if(!$cid) header('Location: index.php');
 			newWindow = window.open("headingadmin.php","headingWin","scrollbars=1,toolbar=0,resizable=1,width=800,height=600,left=50,top=50");
 			if (newWindow.opener == null) newWindow.opener = self;
 		}
+
+		function openGlossaryPopup(glossid){
+			var urlStr = "../../glossary/individual.php?glossid="+glossid;
+			glossWindow = window.open(urlStr,'popup','toolbar=0,status=1,scrollbars=1,width=900,height=450,left=20,top=20');
+			if(glossWindow.opener == null) glossWindow.opener = self;
+			return false;
+		}
 	</script>
 	<style type="text/css">
 		fieldset{ margin:15px;padding:15px; }
@@ -248,7 +251,7 @@ if(!$cid) header('Location: index.php');
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
-		if($SYMB_UID){
+		if($isEditor){
 			if($statusStr){
 				?>
 				<hr/>
@@ -322,6 +325,27 @@ if(!$cid) header('Location: index.php');
 								if($charArr['helpurl'] && substr($charArr['helpurl'],0,4) == 'http') echo '<a href="'.$charArr['helpurl'].'" target="_blank"><img src="../../images/link2.png" style="width:15px" /></a>';
 								?>
 							</div>
+							<?php
+							$glossArr = $keyManager->getGlossaryList();
+							if($glossArr){
+								?>
+								<div style="padding-top:8px;clear:both;">
+									<b>Glossary link</b><br />
+									<select name="glossid">
+										<option value="">------------------------</option>
+										<?php
+										foreach($glossArr as $glossID => $gArr){
+											echo '<option value="'.$glossID.'" '.($charArr['glossid']==$glossID?'selected':'').'>'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+										}
+										?>
+									</select>
+									<?php
+									if($charArr['glossid']) echo '<a href="#" onclick="openGlossaryPopup('.$charArr['glossid'].');return false;"><img src="../../images/link2.png" style="width:15px" /></a>';
+									?>
+								</div>
+								<?php
+							}
+							?>
 							<div style="padding-top:8px;">
 								<b>Description</b><br />
 								<input type="text" name="description" maxlength="255" style="width:80%;" value="<?php echo $charArr['description']; ?>" />
@@ -365,6 +389,23 @@ if(!$cid) header('Location: index.php');
 									<b>Description</b><br />
 									<input type="text" name="description" maxlength="255" style="width:80%;" />
 								</div>
+								<?php
+								if($glossArr){
+									?>
+									<div style="padding-top:8px;clear:both;">
+										<b>Glossary link</b><br />
+										<select name="glossid">
+											<option value="">------------------------</option>
+											<?php
+											foreach($glossArr as $glossID => $gArr){
+												echo '<option value="'.$glossID.'">'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+											}
+											?>
+										</select>
+									</div>
+									<?php
+								}
+								?>
 								<div style="padding-top:4px;">
 									<b>Notes</b><br />
 									<input type="text" name="notes" style="width:80%;" />
@@ -410,6 +451,26 @@ if(!$cid) header('Location: index.php');
 												<b>Description</b><br />
 												<input type="text" name="description" maxlength="255" style="width:80%;" value="<?php echo $stateArr['description']; ?>"/>
 											</div>
+											<?php
+											if($glossArr){
+												?>
+												<div style="padding-top:8px;clear:both;">
+													<b>Glossary link</b><br />
+													<select name="glossid">
+														<option value="">------------------------</option>
+														<?php
+														foreach($glossArr as $glossID => $gArr){
+															echo '<option value="'.$glossID.'" '.($stateArr['glossid']==$glossID?'selected':'').'>'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+														}
+														?>
+													</select>
+													<?php
+													if($stateArr['glossid']) echo '<a href="#" onclick="openGlossaryPopup('.$stateArr['glossid'].');return false;"><img src="../../images/link2.png" style="width:15px" /></a>';
+													?>
+												</div>
+												<?php
+											}
+											?>
 											<div style="padding-top:2px;">
 												<b>Notes</b><br />
 												<input type="text" name="notes" style="width:80%;" value="<?php echo $stateArr['notes']; ?>" />

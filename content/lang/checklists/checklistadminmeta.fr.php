@@ -5,7 +5,7 @@ Language: Français (French)
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/checklists/checklistadmin.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/checklists/checklistadmin.fr.php');
 
 $LANG['NEED_NAME'] = 'Le champ de nom de liste doit avoir une valeur';
 $LANG['NEED_LONG'] = 'Si la latitude a une valeur, la longitude doit également avoir une valeur';

@@ -41,6 +41,7 @@ class TaxonomyDisplayManager extends Manager{
 		$this->primeTaxaEnumTree();
 		$subGenera = array();
 		$taxaParentIndex = Array();
+		$zeroRank = array();
 		$sql = 'SELECT DISTINCT t.tid, ts.tidaccepted, t.sciname, t.author, t.rankid, ts.parenttid '.
 			'FROM taxa t LEFT JOIN taxstatus ts ON t.tid = ts.tid '.
 			'WHERE (ts.taxauthid = '.$this->taxAuthId.') ';
@@ -76,6 +77,7 @@ class TaxonomyDisplayManager extends Manager{
 				$this->taxaArr[$tid]['sciname'] = $r->sciname;
 				$this->taxaArr[$tid]['author'] = $r->author;
 				$this->taxaArr[$tid]['rankid'] = $r->rankid;
+				if(!$r->rankid) $zeroRank[] = $tid;
 				$this->taxaArr[$tid]['parenttid'] = $r->parenttid;
 				if($r->rankid == 190) $subGenera[] = $tid;
 				$this->targetRankId = $r->rankid;
@@ -95,6 +97,7 @@ class TaxonomyDisplayManager extends Manager{
 				$this->taxaArr[$tid]['sciname'] = $r1->sciname;
 				$this->taxaArr[$tid]['author'] = $r1->author;
 				$this->taxaArr[$tid]['rankid'] = $r1->rankid;
+				if(!$r1->rankid) $zeroRank[] = $tid;
 				$this->taxaArr[$tid]['parenttid'] = $r1->parenttid;
 				if($r1->rankid == 190) $subGenera[] = $tid;
 				$this->targetRankId = $r1->rankid;
@@ -113,7 +116,7 @@ class TaxonomyDisplayManager extends Manager{
 				'INNER JOIN taxaenumtree te ON t.tid = te.tid '.
 				'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.tid = ts.tidaccepted) AND (te.taxauthid = '.$this->taxAuthId.') '.
 				'AND ((te.parenttid IN('.$tidStr.')) OR (t.tid IN('.$tidStr.'))) ';
-			if(!$this->targetStr) $sql2 .= 'AND t.rankid <= 10 ';
+			if(!$this->targetStr) $sql2 .= 'AND t.rankid <= 10 AND t.rankid != 0 ';
 			elseif($this->targetRankId < 140 && !$this->displayFullTree) $sql2 .= 'AND t.rankid <= 140 ';
 			//echo $sql2.'<br>';
 			$rs2 = $this->conn->query($sql2);
@@ -123,6 +126,7 @@ class TaxonomyDisplayManager extends Manager{
 				$this->taxaArr[$tid]["sciname"] = $row2->sciname;
 				$this->taxaArr[$tid]["author"] = $row2->author;
 				$this->taxaArr[$tid]["rankid"] = $row2->rankid;
+				if(!$row2->rankid) $zeroRank[] = $tid;
 				$parentTid = $row2->parenttid;
 				$this->taxaArr[$tid]["parenttid"] = $parentTid;
 				if($parentTid) $taxaParentIndex[$tid] = $parentTid;
@@ -158,6 +162,7 @@ class TaxonomyDisplayManager extends Manager{
 				$this->taxaArr[$tid]["sciname"] = $row3->sciname;
 				$this->taxaArr[$tid]["author"] = $row3->author;
 				$this->taxaArr[$tid]["rankid"] = $row3->rankid;
+				if(!$row3->rankid) $zeroRank[] = $tid;
 				$this->taxaArr[$tid]["parenttid"] = $parentTid;
 				if($row3->rankid == 190) $subGenera[] = $tid;
 				if($parentTid) $taxaParentIndex[$tid] = $parentTid;
@@ -196,6 +201,7 @@ class TaxonomyDisplayManager extends Manager{
 					$this->taxaArr[$tid]["author"] = $row4->author;
 					$this->taxaArr[$tid]["parenttid"] = $row4->parenttid;
 					$this->taxaArr[$tid]["rankid"] = $row4->rankid;
+					if(!$row4->rankid) $zeroRank[] = $tid;
 					if($row4->rankid == 190) $subGenera[] = $tid;
 				}
 				$rsOrphan->free();
@@ -237,6 +243,10 @@ class TaxonomyDisplayManager extends Manager{
 						if($pos) $this->taxaArr[$tid]['sciname'] = $this->taxaArr[$tArr['parenttid']]['sciname'].' '.trim(substr($sn, $pos));
 					}
 				}
+			}
+			foreach($zeroRank as $tidToFix){
+				if(isset($this->taxaArr[$tid]['parenttid']) && $this->taxaArr[$this->taxaArr[$tid]['parenttid']]['rankid']) $this->taxaArr[$tidToFix]['rankid'] = $this->taxaArr[$this->taxaArr[$tid]['parenttid']]['rankid'];
+				else $this->taxaArr[$tidToFix]['rankid'] = 60;
 			}
 		}
 		return $hierarchyArr;
@@ -339,55 +349,48 @@ class TaxonomyDisplayManager extends Manager{
 			}
 			$rs1->free();
 		}
-
 		//Set all parents
-		$i = 1;
-		$prevTid = '';
-		$retArr[0] = 'root';
 		$sql2 = '';
 		if($tid){
-			$sql2 = 'SELECT t.RankId, e.parenttid, ts.tidaccepted, ts.parenttid AS par2 '.
+			$sql2 = 'SELECT t.rankid, ts.tidaccepted, ts.parenttid '.
 				'FROM taxaenumtree e INNER JOIN taxa t ON e.parenttid = t.tid '.
 				'INNER JOIN taxstatus ts ON e.parenttid = ts.tid '.
-				'WHERE e.tid = '.($acceptedTid?$acceptedTid:$tid).' AND e.taxauthid = '.$this->taxAuthId.' AND ts.taxauthid = '.$this->taxAuthId.' '.
-				'ORDER BY t.RankId ';
+				'WHERE e.tid = '.($acceptedTid?$acceptedTid:$tid).' AND e.taxauthid = '.$this->taxAuthId.' AND ts.taxauthid = '.$this->taxAuthId;
 		}
 		else{
-			$sql2 = 'SELECT t2.RankId, e.parenttid, ts.tidaccepted, ts.parenttid AS par2 '.
+			$sql2 = 'SELECT t2.rankid, ts.tidaccepted, ts.parenttid '.
 				'FROM taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
 				'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
 				'INNER JOIN taxstatus ts ON e.parenttid = ts.tid '.
-				'WHERE t.rankid = 10 AND e.taxauthid = '.$this->taxAuthId.' AND ts.taxauthid = '.$this->taxAuthId.' '.
-				'ORDER BY t.RankId ';
+				'WHERE t.rankid = 10 AND e.taxauthid = '.$this->taxAuthId.' AND ts.taxauthid = '.$this->taxAuthId;
 		}
-		//echo "<div>".$sql2."</div>";
+		//echo '<div>'.$sql2.'</div>';
+		$baseTid = 0;
+		$lowestRank = 400;
+		$parArr = array();
 		$rs2 = $this->conn->query($sql2);
 		while($row2 = $rs2->fetch_object()){
-			if(!$prevTid || ($row2->par2 == $prevTid)){
-				$retArr[$i] = $row2->tidaccepted;
-				$prevTid = $row2->tidaccepted;
+			if($row2->rankid && $row2->rankid < $lowestRank){
+				$baseTid = $row2->tidaccepted;
+				$lowestRank = $row2->rankid;
 			}
-			else{
-				$sql3 = 'SELECT tid '.
-					'FROM taxstatus '.
-					'WHERE parenttid = '.$prevTid.' AND taxauthid = '.$this->taxAuthId.' '.
-					'AND tid IN(SELECT parenttid FROM taxaenumtree WHERE tid = '.$tid.' AND taxauthid = '.$this->taxAuthId.') ';
-				//echo "<div>".$sql3."</div>";
-				$rs3 = $this->conn->query($sql3);
-				while($row3 = $rs3->fetch_object()){
-					$retArr[$i] = $row3->tid;
-					$prevTid = $row3->tid;
-				}
-				$rs3->free();
-			}
-			$i++;
+			if($row2->parenttid != $row2->tidaccepted) $parArr[$row2->parenttid] = $row2->tidaccepted;
 		}
 		$rs2->free();
+
+		$retArr[0] = 'root';
+		$retArr[1] = $baseTid;
+		$i = 2;
+		while(isset($parArr[$baseTid])){
+			$baseTid = $parArr[$baseTid];
+			$retArr[$i] = $baseTid;
+			$i++;
+		}
 		if($acceptedTid){
 			$retArr[$i] = $acceptedTid;
 			$i++;
 		}
-		$retArr[$i] = $tid;
+		if($tid) $retArr[$i] = $tid;
 		return $retArr;
 	}
 

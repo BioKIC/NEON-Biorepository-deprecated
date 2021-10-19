@@ -5,7 +5,7 @@ Language: Español (Spanish)
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/checklists/checklistadmin.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/checklists/checklistadmin.es.php');
 
 $LANG['NEED_NAME'] = 'El campo de Nombre del Listado debe tener contenido';
 $LANG['NEED_LONG'] = 'Si la latitud tiene un valor, la longitud también debe tenerlo';

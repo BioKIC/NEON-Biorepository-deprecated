@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.es.php');
 
 $LANG['LINK_RESOURCE'] = 'Enlazar Listado de Recursos';
 $LANG['ENGLISH'] = 'Inglés';

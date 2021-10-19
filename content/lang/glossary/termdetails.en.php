@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/glossary/addterm.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/glossary/addterm.en.php');
 
 $LANG['G_MGMNT'] = 'Glossary Management';
 $LANG['LOAD'] = 'Loading';

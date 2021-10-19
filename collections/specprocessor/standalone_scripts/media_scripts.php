@@ -10,7 +10,7 @@ include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/MediaResolutionTools.php');
 
 $collid = (array_key_exists('collid', $_POST)?$_POST['collid']:'');
-$imgidStart = (array_key_exists('imgidstart', $_POST)?$_POST['imgidstart']:0);
+$imgIdStart = (array_key_exists('imgidstart', $_POST)?$_POST['imgidstart']:0);
 $limit = (array_key_exists('limit', $_POST)?$_POST['limit']:10000);
 $archiveImages = (array_key_exists('archiveimg', $_POST)?$_POST['archiveimg']:0);
 $delThumb = (array_key_exists('delthumb', $_POST)?$_POST['delthumb']:0);
@@ -30,7 +30,7 @@ $submit = (array_key_exists('submitbutton', $_POST)?$_POST['submitbutton']:'');
 
 //Sanitation
 if(!is_numeric($collid)) $collid = '';
-if(!is_numeric($imgidStart)) $imgidStart = 0;
+if(!is_numeric($imgIdStart)) $imgIdStart = 0;
 if(!is_numeric($limit)) $limit = 0;
 if(!is_numeric($archiveImages)) $archiveImages = 0;
 if(!is_numeric($delThumb)) $delThumb = 0;
@@ -64,9 +64,20 @@ if($IS_ADMIN) $isEditor = true;
 	<script src="../../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
+		function verifyMigrationCode(f){
+			if(f.matchTermThumbnail.value == "" && f.matchTermWeb.value == "" && f.matchTermLarge.value == ""){
+				alert("You need at least one matching term defined");
+				return false;
+			}
+			if(f.collid.value == ""){
+				alert("Select a collection project");
+				return false;
+			}
+			return true;
+		}
 	</script>
 	<style type="text/css">
-		fieldset{ padding: 10px }
+		fieldset{ padding: 10px; margin-bottom: 15px }
 		legend{ font-weight: bold }
 		.fieldRowDiv{ clear:both; margin: 2px 0px; }
 		.fieldDiv{ float:left; margin: 2px 10px 2px 0px; }
@@ -89,6 +100,7 @@ if($IS_ADMIN) $isEditor = true;
 							<legend>Action Panel</legend>
 							<ol>
 							<?php
+							$toolManager->setVerboseMode(2);
 							$toolManager->setTransferThumbnail($transferThumbnail);
 							$toolManager->setTransferWeb($transferWeb);
 							$toolManager->setTransferLarge($transferLarge);
@@ -98,7 +110,8 @@ if($IS_ADMIN) $isEditor = true;
 							$toolManager->setImgRootUrl($imgRootUrl);
 							$toolManager->setImgRootPath($imgRootPath);
 							$toolManager->setImgSubPath($imgSubPath);
-							$toolManager->migrateDerivatives($limit);
+							if($collid) $imgIdStart = $toolManager->migrateCollectionDerivatives($imgIdStart, $limit);
+							else $imgIdStart = $toolManager->migrateFieldDerivatives($imgIdStart, $limit);
 							?>
 							</ol>
 						</fieldset>
@@ -110,7 +123,7 @@ if($IS_ADMIN) $isEditor = true;
 						$toolManager->setDeleteWebImage($delWeb);
 						$toolManager->setDeleteOriginal($delLarge);
 						$toolManager->setImgidArr($imgidStr);
-						$imgidEnd = $toolManager->archiveImageFiles($imgidStart, $limit);
+						$imgidEnd = $toolManager->archiveImageFiles($imgIdStart, $limit);
 					}
 					else{
 						$delThumb = 1;
@@ -185,7 +198,7 @@ if($IS_ADMIN) $isEditor = true;
 			<fieldset>
 				<legend>Image Migration Tools</legend>
 				<div>This tool can be used to migrate images located on a remote server to the local server that is currently hosting the portal</div>
-				<form action="media_scripts.php" method="post">
+				<form action="media_scripts.php" method="post" onsubmit="return verifyMigrationCode(this)">
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">
 							<span class="fieldLabel">Collection ID (collid):</span>
@@ -213,7 +226,7 @@ if($IS_ADMIN) $isEditor = true;
 							</div>
 							<div class="fieldRowDiv">
 								<div class="fieldDiv">
-									<input name="transferWed" type="checkbox" value="1" <?php echo ($transferWeb?'CHECKED':''); ?> />
+									<input name="transferWeb" type="checkbox" value="1" <?php echo ($transferWeb?'CHECKED':''); ?> />
 									<span class="fieldLabel">Transfer Web View (medium)</span>
 								</div>
 							</div>
@@ -231,19 +244,19 @@ if($IS_ADMIN) $isEditor = true;
 							<div class="fieldRowDiv">
 								<div class="fieldDiv">
 									<span class="fieldLabel">Thumbnail Matching Term (thumbnailUrl):</span>
-									<input name="matchTermThumbnail" type="text" value="<?php echo $matchTermThumbnail; ?>" />
+									<input name="matchTermThumbnail" type="text" value="<?php echo $matchTermThumbnail; ?>" style="width:300px" />
 								</div>
 							</div>
 							<div class="fieldRowDiv">
 								<div class="fieldDiv">
 									<span class="fieldLabel">Web Image (medium) Matching Term (url):</span>
-									<input name="matchTermWeb" type="text" value="<?php echo $matchTermWeb; ?>" />
+									<input name="matchTermWeb" type="text" value="<?php echo $matchTermWeb; ?>" style="width:300px" />
 								</div>
 							</div>
 							<div class="fieldRowDiv">
 								<div class="fieldDiv">
 									<span class="fieldLabel">Large Image Matching Term (originalurl):</span>
-									<input name="matchTermLarge" type="text" value="<?php echo $matchTermLarge; ?>" />
+									<input name="matchTermLarge" type="text" value="<?php echo $matchTermLarge; ?>" style="width:300px" />
 								</div>
 							</div>
 						</fieldset>
@@ -270,6 +283,12 @@ if($IS_ADMIN) $isEditor = true;
 								</div>
 							</div>
 						</fieldset>
+					</div>
+					<div class="fieldRowDiv">
+						<div class="fieldDiv">
+							<span class="fieldLabel">imgId start:</span>
+							<input type="text" name="imgidstart" value="<?php echo $imgIdStart; ?>" />
+						</div>
 					</div>
 					<div class="fieldRowDiv">
 						<div class="fieldDiv">

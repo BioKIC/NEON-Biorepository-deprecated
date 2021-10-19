@@ -220,14 +220,17 @@ class OccurrenceMapManager extends OccurrenceManager {
 				$sqlWhere .= "AND (ST_Within(p.point,GeomFromText('".$this->searchTermArr["polycoords"]." '))) ";
 			}
 			//Check and exclude records with sensitive species protections
-			if(array_key_exists("SuperAdmin",$USER_RIGHTS) || array_key_exists("CollAdmin",$USER_RIGHTS) || array_key_exists("RareSppAdmin",$USER_RIGHTS) || array_key_exists("RareSppReadAll",$USER_RIGHTS)){
+			if(array_key_exists('SuperAdmin',$USER_RIGHTS) || array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('RareSppAdmin',$USER_RIGHTS) || array_key_exists('RareSppReadAll',$USER_RIGHTS)){
 				//Is global rare species reader, thus do nothing to sql and grab all records
 			}
-			elseif(array_key_exists("RareSppReader",$USER_RIGHTS)){
-				$sqlWhere .= " AND (o.CollId IN (".implode(",",$USER_RIGHTS["RareSppReader"]).") OR (o.LocalitySecurity = 0 OR o.LocalitySecurity IS NULL)) ";
+			elseif(isset($USER_RIGHTS['RareSppReader']) || isset($USER_RIGHTS['CollEditor'])){
+				$securityCollArr = array();
+				if(isset($USER_RIGHTS['CollEditor'])) $securityCollArr = $USER_RIGHTS['CollEditor'];
+				if(isset($USER_RIGHTS['RareSppReader'])) $securityCollArr = array_unique(array_merge($securityCollArr, $USER_RIGHTS['RareSppReader']));
+				$sqlWhere .= ' AND (o.CollId IN ('.implode(',',$securityCollArr).') OR (o.LocalitySecurity = 0 OR o.LocalitySecurity IS NULL)) ';
 			}
 			else{
-				$sqlWhere .= " AND (o.LocalitySecurity = 0 OR o.LocalitySecurity IS NULL) ";
+				$sqlWhere .= ' AND (o.LocalitySecurity = 0 OR o.LocalitySecurity IS NULL) ';
 			}
 			$this->sqlWhere = $sqlWhere;
 			//echo '<div style="margin-left:10px">sql: '.$this->sqlWhere.'</div>'; exit;

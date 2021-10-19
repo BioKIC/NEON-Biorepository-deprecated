@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.en.php');
 
 $LANG['MAILING_ADDS'] = 'Mailing Addresses';
 $LANG['EDIT_ADD'] = 'Edit Institution Address';

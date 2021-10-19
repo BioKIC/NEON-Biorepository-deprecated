@@ -5,8 +5,7 @@ Language: English
 ------------------
 */
 
-if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/occurrencetabledisplay.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrencetabledisplay.'.$LANG_TAG.'.php');
-else include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrencetabledisplay.en.php');
+include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrencetabledisplay.en.php');
 
 $LANG['GEOREF_TOOLS'] = 'Georeferencing Tools';
 $LANG['COL_MAN_MENU'] = 'Collection Management Menu';

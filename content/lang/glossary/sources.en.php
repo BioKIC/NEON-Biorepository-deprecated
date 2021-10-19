@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/glossary/index.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/glossary/index.en.php');
 
 $LANG['G_SOURCES'] = 'Glossary Sources Management';
 $LANG['MAIN_G'] = 'Main Glossary';

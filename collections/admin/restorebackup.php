@@ -301,10 +301,10 @@ include($SERVER_ROOT.'/includes/header.php');
 								echo '</div>';
 								//Extensions
 								if(isset($reportArr['ident'])){
-									echo '<div>'.(isset($LANG['ID_TRANSFER'])?$LANG['ID_TRANSFER']:'Identification histories pending transfer').': '.$reportArr['ident'].'</div>';
+									echo '<div>'.(isset($LANG['IDENT_TRANSFER'])?$LANG['IDENT_TRANSFER']:'Identification history count').': '.$reportArr['ident'].'</div>';
 								}
 								if(isset($reportArr['image'])){
-									echo '<div>'.(isset($LANG['W_IMAGES'])?$LANG['W_IMAGES']:'Records with images').': '.$reportArr['image'].'</div>';
+									echo '<div>'.(isset($LANG['IMAGE_TRANSFER'])?$LANG['IMAGE_TRANSFER']:'Images count').': '.$reportArr['image'].'</div>';
 								}
 
 								?>

@@ -5,7 +5,7 @@ Language: Français (French)
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.fr.php');
 
 $LANG['MAILING_ADDS'] = 'Adresses Postales';
 $LANG['EDIT_ADD'] = "Modifier Adresse de Établissement";

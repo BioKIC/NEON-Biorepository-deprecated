@@ -126,7 +126,7 @@ class BarPlot {
 
   ### Private Methods ###
   private function resetPlotDimensionValues() {
-    $this->PlotOrigin = array('x' => $this->PlotMargin + $this->PlotPadding, 'y' => $this->PlotHeight * -1);
+    $this->PlotOrigin = array('x' => $this->PlotMargin + $this->PlotPadding, 'y' => $this->PlotHeight  - $this->PlotPadding - $this->PlotMargin);
     $this->AxisLength = array('x' => $this->PlotWidth - $this->PlotPadding - $this->PlotMargin, 'y' => $this->PlotHeight - $this->PlotPadding - $this->PlotMargin);
   }
 
@@ -161,9 +161,9 @@ class BarPlot {
         $tickXInterval = round($this->AxisLength['x'] / $this->AxisNumber, 1);
         $tickYInterval = round($this->AxisLength['y'] / $this->TickNumber, 1);
         $svgStr .= '<defs>'.PHP_EOL.'<pattern id="'.$barPlotId.'" width="'.$tickXInterval.'" height="'.$tickYInterval.'" patternUnits="userSpaceOnUse">'.PHP_EOL;
-        $svgStr .= '<rect class="' . $this->PlotClass . 'GridBackground" width="'.$tickXInterval.'" height="'.$tickYInterval.'" />'.PHP_EOL;
+        $svgStr .= '<rect class="' . $this->PlotClass . 'GridBackground" width="'.$tickXInterval.'" height="'.$tickYInterval.'" x="'.$this->PlotOrigin['x'].'"/>'.PHP_EOL;
         $svgStr .= '<path class="' . $this->PlotClass . 'GridLine" d="M '.$tickXInterval.' 0 L 0 0 0 '.$tickYInterval.'" fill="none" />'.PHP_EOL.'</pattern>'.PHP_EOL.'</defs>'.PHP_EOL;
-        $svgStr .= '<rect x="0" y="0" width="'.$this->AxisLength['x'].'" height="'.$this->AxisLength['y'].'" fill="url(#'.$barPlotId.')" />'.PHP_EOL;
+        $svgStr .= '<rect x="' . $this->PlotOrigin['x'] . '" y="0" width="'.$this->AxisLength['x'].'" height="'.$this->AxisLength['y'].'" fill="url(#'.$barPlotId.')" />'.PHP_EOL;
       }
     }
     return $svgStr;
@@ -207,7 +207,7 @@ class BarPlot {
     $xstart = $this->PlotOrigin['x'];
     foreach($this->DataValues as $k => $d) {
       $traitPercent = round(($d/$traitSum) * 100, 1);
-      $svgStr .= '<rect x=' . $xstart . ' y=' . $this->PlotOrigin['y'] . ' height=' . $traitPercent * -1 . ' />'.PHP_EOL;
+      $svgStr .= '<rect x=' . $xstart . ' y=' . ($this->PlotOrigin['y'] - $traitPercent) . ' height=' . $traitPercent . ' width=' . 0.9 * $xinterval . '/>'.PHP_EOL;
       $xstart += $xinterval;
     }
     return $svgStr;

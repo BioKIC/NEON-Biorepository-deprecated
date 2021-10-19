@@ -101,8 +101,8 @@ class TraitPlotManager extends TaxonProfile {
 	public function monthlyPolarPlot() {
 		if($this->rankId > 180) {  // limit to below genus
 			$this->plotInstance->setAxisNumber(12);
-			$this->plotInstance->setAxisRotation(15);
-			$this->plotInstance->setTickNumber(3);
+			$this->plotInstance->setAxisRotation(0);
+			$this->plotInstance->setTickNumber(10); //3
 			$this->plotInstance->setAxisLabels(array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'));
 			$this->plotInstance->setDataValues($this->summarizeTraitByMonth());
 			$this->setPlotCaption();

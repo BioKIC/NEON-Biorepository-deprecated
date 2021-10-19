@@ -68,14 +68,7 @@ if($isEditor){
 	<title><?php echo $LANG['DWCA_PUBLISHER']; ?></title>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<style type="text/css">
 		.nowrap { white-space: nowrap; }
@@ -241,18 +234,17 @@ include($SERVER_ROOT.'/includes/header.php');
 			?>
 		</div>
 		<div style="margin:10px;">
-			<h3><?php echo $LANG['DATA_USE_POLICY']; ?>:</h3>
-			<?php echo $LANG['DATA_POLICY_1'].
-			' <a href="../../includes/usagepolicy.php">'.$LANG['DATA_USE_POLICY'].'</a>. '.
-			$LANG['DATA_POLICY_2'];
+			<?php
+			echo '<h3>'.$LANG['DATA_USE_POLICY'].':</h3>';
+			echo $LANG['DATA_POLICY_1'].' <a href="../../includes/usagepolicy.php">'.$LANG['DATA_USE_POLICY'].'</a>. '.$LANG['DATA_POLICY_2'];
 			?>
 		</div>
 		<?php
 	}
 	?>
 	<div style="margin:20px;">
-		<b><?php echo $LANG['RSS_FEED']; ?>:</b>
 		<?php
+		echo '<b>'.$LANG['RSS_FEED'].':</b>';
 		$urlPrefix = $dwcaManager->getServerDomain().$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/');
 		if(file_exists('../../webservices/dwc/rss.xml')){
 			$feedLink = $urlPrefix.'webservices/dwc/rss.xml';
@@ -291,7 +283,7 @@ include($SERVER_ROOT.'/includes/header.php');
 					<form action="datapublisher.php" method="post" style="display:inline;" onsubmit="return window.confirm('<?php echo $LANG['SURE_DELETE']; ?>');">
 						<input type="hidden" name="colliddel" value="<?php echo $dArr['collid']; ?>">
 						<input type="hidden" name="collid" value="<?php echo $dArr['collid']; ?>">
-						<button type="image" src="../../images/del.png" name="action" value="DeleteCollid" title="Delete Archive" style="width:15px;" ><?php echo $LANG['DELETE_ARCHIVE']; ?></button>
+						<input type="image" src="../../images/del.png" name="action" value="DeleteCollid" title="<?php echo $LANG['DELETE_ARCHIVE']; ?>" style="width:15px;" />
 					</form>
 				</div>
 				<div><b><?php echo $LANG['DESCRIPTION']; ?>:</b> <?php echo $dArr['description']; ?></div>
@@ -304,9 +296,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			</div>
 			<?php
 		}
-		else{
-			echo '<div style="margin:20px;font-weight:bold;color:orange;">'.$LANG['DWCA_NOT_PUBLISHED'].'</div>';
-		}
+		else echo '<div style="margin:20px;font-weight:bold;color:orange;">'.$LANG['DWCA_NOT_PUBLISHED'].'</div>';
 		?>
 		<fieldset style="margin:15px;padding:15px;">
 			<legend><b><?php echo $LANG['PUB_INFO']; ?></b></legend>
@@ -393,11 +383,11 @@ include($SERVER_ROOT.'/includes/header.php');
 										'GBIF publisher: https://www.gbif.org/publisher/'.$collManager->getOrganizationKey().'<br/>'.
 										'Symbiota collection: '.$collPath.'<br/><br/>'.
 										'Sincerely, <br/><br/><br/><br/><br/><br/>';
+									echo $LANG['BEFORE_SUBMITTING'];
+									echo '(<a href="mailto:helpdesk@gbif.org?subject=Publishing%20data%20from%20Symbiota%20portal%20to%20GBIF...&body='.rawurlencode(str_replace('<br/>', "\n", $bodyStr)).'">helpdesk@gbif.org</a>)';
+									echo $LANG['WITH_REQUEST_1'].' &quot;<b>'.$GBIF_USERNAME.'</b>&quot; '.$LANG['WITH_REQUEST_2'];
+									echo '<a href="#" onclick="toggle(\'emailMsg\');return false;" style="color:blue">'.$LANG['HERE'].'</a> '.$LANG['WITH_REQUEST_3'];
 									?>
-									<?php echo $LANG['BEFORE_SUBMITTING']; ?>
-									 (<a href="mailto:helpdesk@gbif.org?subject=Publishing%20data%20from%20Symbiota%20portal%20to%20GBIF...&body=<?php echo rawurlencode(str_replace('<br/>', "\n", $bodyStr)); ?>">helpdesk@gbif.org</a>)
-									<?php echo $LANG['WITH_REQUEST_1'].' &quot;<b>'.$GBIF_USERNAME.'</b>&quot; '.$LANG['WITH_REQUEST_2']; ?>
-									 <a href="#" onclick="toggle('emailMsg');return false;" style="color:blue"><?php echo $LANG['HERE'].'</a> '.$LANG['WITH_REQUEST_3']; ?>
 									<fieldset id="emailMsg" style="display:none;padding:15px;margin:15px"><legend><?php echo $LANG['EMAIL_DRAFT']; ?></legend><?php echo trim($bodyStr,' <br/>'); ?></fieldset>
 									<br/><br/>
 									<button type="button" onclick="processGbifOrgKey(this.form);"><?php echo $LANG['SUBMIT_DATA']; ?></button>
@@ -431,11 +421,9 @@ include($SERVER_ROOT.'/includes/header.php');
 				</div>
 				<div style="clear:both;margin:10px;">
 					<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-					<button type="submit" name="formsubmit" value="Create/Refresh Darwin Core Archive" <?php if($blockSubmitMsg) echo 'disabled'; ?>><?php echo $LANG['CREATE_REFRESH']; ?>
 					<?php
-					if($blockSubmitMsg){
-						echo '<span style="color:red;margin-left:10px;">'.$blockSubmitMsg.'</span>';
-					}
+					echo '<button type="submit" name="formsubmit" value="Create/Refresh Darwin Core Archive" '.($blockSubmitMsg?'disabled':'').'>'.$LANG['CREATE_REFRESH'].'</button>';
+					if($blockSubmitMsg) echo '<span style="color:red;margin-left:10px;">'.$blockSubmitMsg.'</span>';
 					?>
 				</div>
 				<?php
@@ -527,7 +515,7 @@ include($SERVER_ROOT.'/includes/header.php');
 								?>
 								<form action="datapublisher.php" method="post" style="display:inline;" onsubmit="return window.confirm('<?php echo $LANG['SURE_DELETE']; ?>');">
 									<input type="hidden" name="colliddel" value="<?php echo $v['collid']; ?>">
-									<button type="image" src="../../images/del.png" name="action" value="DeleteCollid" style="width:15px;"><?php echo $LANG['DELETE_ARCHIVE']; ?></button>
+									<input type="image" src="../../images/del.png" name="action" value="DeleteCollid" title="<?php echo $LANG['DELETE_ARCHIVE']; ?>" style="width:15px;" />
 								</form>
 								<?php
 							}

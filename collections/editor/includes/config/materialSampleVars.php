@@ -2,7 +2,7 @@
 $MS_LABEL_ARR = array(
 	'sampleType' => 'Sample Type',
 	'catalogNumber' => 'Catalog Number / Barcode',
-	'guid' => 'GUID',
+	'guid' => 'Material Sample ID',
 	'sampleCondition' => 'Condition',
 	'disposition' => 'Disposition',
 	'preservationType' => 'Preservation type',

@@ -2,6 +2,7 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
 include_once($SERVER_ROOT.'/classes/TraitPolarPlot.php');
+include_once($SERVER_ROOT.'/classes/TraitBarPlot.php');
 
 
 class TraitPlotManager extends TaxonProfile {
@@ -27,9 +28,9 @@ class TraitPlotManager extends TaxonProfile {
 			case "polar":
 				$this->plotInstance = new PolarPlot();
 				break;
-			// case "bar":
-			//	$this->plotInstance = new BarPlot();
-			//	break;
+			case "bar":
+				$this->plotInstance = new BarPlot();
+				break;
 			// case "box":
 			// 	$this->plotInstance = new BoxPlot();
 			// 	break;
@@ -165,7 +166,7 @@ class TraitPlotManager extends TaxonProfile {
 		if(!$timeStr) { $timeStr = date(DATE_RFC2822); }
 	 	$numStr = 'specimens';
 	 	if($num == 1) { $numStr = 'specimen'; }
-	 	$this->plotCaption = "Frequency of " . $this->traitName . ' - ' . $this->getStateName() . ", by " . $this->summarizedByType . ", for " . $num . " herbarium " . $numStr . " of <i>" . $this->acceptedArr[$this->tid]['sciname'] . "</i> " . $this->acceptedArr[$this->tid]['author'] . " from the ".$DEFAULT_TITLE." Symbiota portal sampled on " . $timeStr . ".";
+	 	$this->plotCaption = "Frequency of " . $this->traitName . ' - ' . $this->getStateName() . ", by " . $this->summarizedByType . ", for " . $num . " herbarium " . $numStr . " of <i>" . $this->acceptedArr[$this->tid]['sciname'] . "</i> " . $this->acceptedArr[$this->tid]['author'] . " from the ".$DEFAULT_TITLE." (http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]) sampled on " . $timeStr . ".";
 		// . " (including the lower taxa or synonyms: " . implode($this->taxonArr['synonymNames']) . ") ;
 	}
 

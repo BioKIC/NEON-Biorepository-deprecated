@@ -7,7 +7,7 @@
  *  Christopher D. Tyrrell, 2020
  *
  * This class is purely the plot view and should be used in conjunction with the
- * TraitPlotter.php controller class.
+ * TraitPlotManager.php controller class.
  *
  * Default plot size is 400 x 400 px, but svg is scalable to any size by setting
  * viewport (width, height attributes) to desired sizes and viewbox to 0 0 400

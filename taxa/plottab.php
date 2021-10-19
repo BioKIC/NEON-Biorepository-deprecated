@@ -22,7 +22,7 @@
   echo '<div id="tab-calendarplot" class="sptab">';
   foreach($traitstateids as $tsid) {
     if(!is_numeric($tsid)) continue;
-    $traitPlotter = new TraitPlotManager("polar");
+    $traitPlotter = new TraitPlotManager("bar");
     if($tid) $traitPlotter->setTid($tid);
     $traitPlotter->setTraitStateId($tsid);
     echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';

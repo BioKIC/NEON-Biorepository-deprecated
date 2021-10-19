@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/glossary/index.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/glossary/index.en.php');
 
 $LANG['GLOSS_TERM_INFO'] = 'Glossary Term Information';
 $LANG['LOADING'] = 'Loading';

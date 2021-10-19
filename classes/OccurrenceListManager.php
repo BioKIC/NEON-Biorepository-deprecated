@@ -43,13 +43,13 @@ class OccurrenceListManager extends OccurrenceManager{
 		//echo "<div>Spec sql: ".$sql."</div>";
 		$result = $this->conn->query($sql);
 		if($result){
+			$securityCollArr = array();
+			if(isset($GLOBALS['USER_RIGHTS']['CollEditor'])) $securityCollArr = $GLOBALS['USER_RIGHTS']['CollEditor'];
+			if(isset($GLOBALS['USER_RIGHTS']['RareSppReader'])) $securityCollArr = array_unique(array_merge($securityCollArr, $GLOBALS['USER_RIGHTS']['RareSppReader']));
 			while($row = $result->fetch_object()){
 				$securityClearance = false;
 				if($isSecuredReader) $securityClearance = true;
-				elseif(isset($SYMB_UID)){
-					if(isset($GLOBALS['USER_RIGHTS']['CollEditor']) && in_array($row->collid,$GLOBALS['USER_RIGHTS']['CollEditor'])) $securityClearance = true;
-					elseif(isset($GLOBALS['USER_RIGHTS']['RareSppReader']) && in_array($row->collid,$GLOBALS['USER_RIGHTS']['RareSppReader'])) $securityClearance = true;
-				}
+				elseif(in_array($row->collid,$securityCollArr)) $securityClearance = true;
 				$retArr[$row->occid]['collid'] = $row->collid;
 				$retArr[$row->occid]['instcode'] = $this->cleanOutStr($row->institutioncode);
 				if($row->instcodeoverride){

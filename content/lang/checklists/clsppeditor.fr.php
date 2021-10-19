@@ -27,9 +27,9 @@ $LANG['DELETE'] = 'Effacer';
 $LANG['DELETE_TAXON'] = 'Supprimer Taxon de Liste';
 $LANG['VOUCHER_INFO'] = 'Informations d\Échantillons';
 $LANG['NO_VOUCHERS'] = "Aucun échantillon pour cette espèce n'a été affecté à la liste";
-$LANG['SURE_DELETE'] = 'Êtes-vous sûr de vouloir supprimer cet enregistrement d\'échantillon?';
+$LANG['SURE_DELETE'] = 'Êtes-vous sûr de vouloir supprimer cet enregistrement d\\&apos;échantillon?';
 $LANG['EDIT_VOUCHER'] = 'Modifier Échantillon';
-$LANG['SUBMIT_V_EDITS'] = 'Soumettre Modifications d\'Échantillon';
+$LANG['SUBMIT_V_EDITS'] = 'Soumettre Modifications d&apos;Échantillon';
 $LANG['NO_DATA'] = "Échec de la restitution des données ou vous n'avez peut-être pas les droits d'édition appropriés";
 
 ?>

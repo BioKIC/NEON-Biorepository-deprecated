@@ -346,15 +346,17 @@ class SpecUploadDwca extends SpecUploadBase{
 										//Read extension file header and compare
 										$fh = fopen($this->uploadTargetPath.$this->metaArr[$tagName]['name'],'r') or die("Can't open $tagName extension file");
 										$headerArr = $this->getRecordArr($fh);
-										foreach($headerArr as $k => $v){
-											$metaField = strtolower($this->metaArr[$tagName]['fields'][$k]);
-											if(strtolower($v) != $metaField && $metaField != 'coreid'){
-												$msg = '<div style="margin-left:25px;">';
-												$msg .= 'WARNING: meta.xml field order out of sync w/ '.$this->metaArr[$tagName]['name'].'; remapping: field #'.($k+1).' => '.$v;
-												$msg .= '</div>';
-												$this->outputMsg($msg);
-												$this->errorStr = $msg;
-												$this->metaArr[$tagName]['fields'][$k] = $v;
+										if($headerArr){
+											foreach($headerArr as $k => $v){
+												$metaField = strtolower($this->metaArr[$tagName]['fields'][$k]);
+												if(strtolower($v) != $metaField && $metaField != 'coreid'){
+													$msg = '<div style="margin-left:25px;">';
+													$msg .= 'WARNING: meta.xml field order out of sync w/ '.$this->metaArr[$tagName]['name'].'; remapping: field #'.($k+1).' => '.$v;
+													$msg .= '</div>';
+													$this->outputMsg($msg);
+													$this->errorStr = $msg;
+													$this->metaArr[$tagName]['fields'][$k] = $v;
+												}
 											}
 										}
 										fclose($fh);

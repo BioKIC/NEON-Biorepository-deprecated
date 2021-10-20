@@ -166,7 +166,7 @@ class BarPlot {
         $svgStr .= 'y="0" ';
         $svgStr .= 'width="' .$this->AxisLength['x']. '" ';
         $svgStr .= 'height="' .$this->AxisLength['y']. '" ';
-        $svgStr .= 'class="' .$this->PlotClass. 'GridBackground" />' .PHP_EOL;
+        $svgStr .= 'class="' .$this->PlotClass. 'Background" />' .PHP_EOL;
 
         $y1 = $this->PlotOrigin['y'];
         $y2 = 0;
@@ -176,7 +176,7 @@ class BarPlot {
           $svgStr .= 'y1="' .$y1. '" ';
           $svgStr .= 'x2="' .$xpos. '" ';
           $svgStr .= 'y2="' .$y2. '" ';
-          $svgStr .= 'class="' . $this->PlotClass . 'VerticalGridLine" />' .PHP_EOL;
+          $svgStr .= 'class="' . $this->PlotClass . 'XTickLine" />' .PHP_EOL;
         }
 
         $x1 = $this->PlotOrigin['x'];
@@ -187,7 +187,7 @@ class BarPlot {
           $svgStr .= 'y1="' .$ypos. '" ';
           $svgStr .= 'x2="' .$x2. '" ';
           $svgStr .= 'y2="' .$ypos. '" ';
-          $svgStr .= 'class="' . $this->PlotClass . 'HorizontalGridLine" />' .PHP_EOL;
+          $svgStr .= 'class="' . $this->PlotClass . 'YTickLine" />' .PHP_EOL;
         }
       }
     }
@@ -206,7 +206,7 @@ class BarPlot {
       //$y2 = round($this->PlotCenter['y'] - ($this->AxisLength + $this->PlotPadding) * sin($radPos), 0);
       $svgStr .= '<text transform="translate(' . $xpos . ',' . $ypos . ')';
       $svgStr .= 'rotate(' . $degRotation . ')" ';
-      $svgStr .= 'class="' . $this->PlotClass . 'LabelText">';
+      $svgStr .= 'class="' . $this->PlotClass . 'XLabelText">';
       $svgStr .= $label . '</text>' . PHP_EOL;
       $xpos += $xinterval;
     }
@@ -224,7 +224,7 @@ class BarPlot {
         $yval = $tickInterval * $i;
         $svgStr .= '<text x="' .($this->PlotOrigin['x'] - $this->PlotPadding). '" ';
         $svgStr .= 'y="'.($this->PlotOrigin['y'] - $yval).'" ';//
-        $svgStr .= 'class="BarPlotScaleText">';
+        $svgStr .= 'class="' . $this->PlotClass . 'YLabelText">';
         $svgStr .= $this->TickScale * $i. '</text>' .PHP_EOL;
       }
     }

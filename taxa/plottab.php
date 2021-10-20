@@ -26,7 +26,7 @@
     if($tid) $traitPlotter->setTid($tid);
     $traitPlotter->setTraitStateId($tsid);
     echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
-    echo '<svg width="400" height="400" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . ' role="img"><g>' . PHP_EOL;
+    echo '<svg height="300px" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '" ><g>' . PHP_EOL;
     echo $traitPlotter->monthlyPolarPlot();
     echo '</g></svg>';
     echo '<p class="PlotCaption">'.$traitPlotter->getPlotCaption().'</p>';

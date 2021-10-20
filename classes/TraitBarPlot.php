@@ -8,7 +8,7 @@
  * This class is for the plot view and should be used in conjunction with the
  * TraitPlotManager.php controller class.
  *
- * Default plot size is 400 x 400 px, but svg is scalable to any size by setting
+ * Default plot size is 200 x 400 px, but svg is scalable to any size by setting
  * viewport (width, height attributes) to desired sizes, and setting the viewbox
  * to match the specified plot size (e.g., 0 0 400 400). Line widths are
  * controlled using css classes (e.g., BarPlotAxisLine).
@@ -19,7 +19,7 @@ class BarPlot {
   private $PlotClass;
   private $PlotId;
   private $PlotWidth = 400;
-  private $PlotHeight = 400;
+  private $PlotHeight = 200;
   private $PlotOrigin;
   private $PlotPadding = 4;       // the distance between the axis and its label, in pixels
   private $PlotMargin = 16;       // space for label text, in pixels (browser font default = 16px)
@@ -195,7 +195,22 @@ class BarPlot {
   }
 
   private function axisLabelSVG() {   // x-axis text/label
-    //<text x="5" y="105" >Jan</text>
+    $svgStr = '';
+    $degRotation = 0;
+    $ypos = $this->PlotOrigin['y'] + $this->PlotMargin;
+    $xinterval = round($this->AxisLength['x'] / $this->AxisNumber, 1);
+    $xpos = $this->PlotOrigin['x'] + ($xinterval / 2);
+    for($i = 0; $i < $this->AxisNumber; $i++) {
+      if(isset($this->AxisLabels[$i])) { $label = $this->AxisLabels[$i]; } else { $label = $i + 1; }
+      //$x2 = round($this->PlotCenter['x'] + ($this->AxisLength + $this->PlotPadding) * cos($radPos), 0);
+      //$y2 = round($this->PlotCenter['y'] - ($this->AxisLength + $this->PlotPadding) * sin($radPos), 0);
+      $svgStr .= '<text transform="translate(' . $xpos . ',' . $ypos . ')';
+      $svgStr .= 'rotate(' . $degRotation . ')" ';
+      $svgStr .= 'class="' . $this->PlotClass . 'LabelText">';
+      $svgStr .= $label . '</text>' . PHP_EOL;
+      $xpos += $xinterval;
+    }
+    return $svgStr;
   }
 
   private function scaleSVG() {   // y-axis text/label

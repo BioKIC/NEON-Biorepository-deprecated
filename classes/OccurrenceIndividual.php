@@ -98,10 +98,8 @@ class OccurrenceIndividual extends Manager{
 		if($this->occid){
 			if(!$this->occArr) $this->setOccurData();
 			if($fieldKey){
-				if(array_key_exists($fieldKey,$this->occArr)){
-					return $this->occArr($fieldKey);
-				}
-				return;
+				if(array_key_exists($fieldKey,$this->occArr)) return $this->occArr($fieldKey);
+				return false;
 			}
 		}
 		return $this->occArr;
@@ -121,7 +119,10 @@ class OccurrenceIndividual extends Manager{
 			'FROM omoccurrences o ';
 		if($this->occid) $sql .= 'WHERE (o.occid = '.$this->occid.')';
 		elseif($this->collid && $this->dbpk) $sql .= 'WHERE (o.collid = '.$this->collid.') AND (o.dbpk = "'.$this->dbpk.'")';
-		else trigger_error('Specimen identifier is null or invalid; '.$this->conn->error,E_USER_ERROR);
+		else{
+			$this->errorMessage = 'NULL identifier';
+			return false;
+		}
 
 		if($rs = $this->conn->query($sql)){
 			if($occArr = $rs->fetch_assoc()){
@@ -159,44 +160,48 @@ class OccurrenceIndividual extends Manager{
 			if(in_array($this->displayFormat,array('json','xml','rdf','turtle'))) $accessType = 'api'.strtoupper($this->displayFormat);
 			$statsManager = new OccurrenceAccessStats();
 			$statsManager->recordAccessEvent($this->occid, $accessType);
+			return true;
 		}
 		else{
-			trigger_error('Unable to set occurrence array; '.$this->conn->error,E_USER_ERROR);
+			$this->errorMessage = 'SQL error: '.$this->conn->error;
+			return false;
 		}
 	}
 
 	public function applyProtections($isSecuredReader){
-		$protectTaxon = false;
-		/*
-		 if(isset($this->occArr['scinameprotected']) && $this->occArr['scinameprotected'] && !$isSecuredReader){
-		 $protectTaxon = true;
-		 $this->occArr['taxonsecure'] = 1;
-		 $this->occArr['sciname'] = $this->occArr['scinameprotected'];
-		 $this->occArr['family'] = $this->occArr['familyprotected'];
-		 $this->occArr['tidinterpreted'] = $this->occArr['tidprotected'];
-		 //$this->occArr['informationWithheld'] .= 'identification and images redacted';
-		 }
-		 */
-		$protectLocality = false;
-		if($this->occArr['localitysecurity'] == 1 && !$isSecuredReader){
-			$protectLocality = true;
-			$this->occArr['localsecure'] = 1;
-			$redactArr = array('recordnumber','eventdate','verbatimeventdate','locality','locationid','decimallatitude','decimallongitude','verbatimcoordinates',
-					'locationremarks', 'georeferenceremarks', 'geodeticdatum', 'coordinateuncertaintyinmeters', 'minimumelevationinmeters', 'maximumelevationinmeters',
-					'verbatimelevation', 'habitat', 'associatedtaxa');
-			$infoWithheld = '';
-			foreach($redactArr as $term){
-				if($this->occArr[$term]){
-					$this->occArr[$term] = '';
-					$infoWithheld .= ', '.$term;
+		if($this->occArr){
+			$protectTaxon = false;
+			/*
+			 if(isset($this->occArr['scinameprotected']) && $this->occArr['scinameprotected'] && !$isSecuredReader){
+			 $protectTaxon = true;
+			 $this->occArr['taxonsecure'] = 1;
+			 $this->occArr['sciname'] = $this->occArr['scinameprotected'];
+			 $this->occArr['family'] = $this->occArr['familyprotected'];
+			 $this->occArr['tidinterpreted'] = $this->occArr['tidprotected'];
+			 //$this->occArr['informationWithheld'] .= 'identification and images redacted';
+			 }
+			 */
+			$protectLocality = false;
+			if($this->occArr['localitysecurity'] == 1 && !$isSecuredReader){
+				$protectLocality = true;
+				$this->occArr['localsecure'] = 1;
+				$redactArr = array('recordnumber','eventdate','verbatimeventdate','locality','locationid','decimallatitude','decimallongitude','verbatimcoordinates',
+						'locationremarks', 'georeferenceremarks', 'geodeticdatum', 'coordinateuncertaintyinmeters', 'minimumelevationinmeters', 'maximumelevationinmeters',
+						'verbatimelevation', 'habitat', 'associatedtaxa');
+				$infoWithheld = '';
+				foreach($redactArr as $term){
+					if($this->occArr[$term]){
+						$this->occArr[$term] = '';
+						$infoWithheld .= ', '.$term;
+					}
 				}
+				if($this->occArr['informationwithheld']) $infoWithheld = $this->occArr['informationwithheld'].'; '.$infoWithheld;
+				$this->occArr['informationwithheld'] = trim($infoWithheld,', ');
 			}
-			if($this->occArr['informationwithheld']) $infoWithheld = $this->occArr['informationwithheld'].'; '.$infoWithheld;
-			$this->occArr['informationwithheld'] = trim($infoWithheld,', ');
+			if(!$protectTaxon) $this->setDeterminations();
+			if(!$protectLocality && !$protectTaxon) $this->setImages();
+			if(!$protectLocality) $this->setExsiccati();
 		}
-		if(!$protectTaxon) $this->setDeterminations();
-		if(!$protectLocality && !$protectTaxon) $this->setImages();
-		if(!$protectLocality) $this->setExsiccati();
 	}
 
 	private function setRecordID(){

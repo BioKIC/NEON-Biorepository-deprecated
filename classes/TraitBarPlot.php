@@ -132,7 +132,7 @@ class BarPlot {
 
   private function setTickScale() {
     if(empty($this->DataValues)) {
-      $this->TickScale = 1;
+      $this->TickScale = 0;
       return;
     } else {
       if(isset($this->TickNumber) && $this->TickNumber) {
@@ -144,7 +144,7 @@ class BarPlot {
           $s3 = ceil($s1 / $s2) * $s2;
         }
         if(is_nan($s3)) {
-          $this->TickScale = 1;
+          $this->TickScale = 0;
         } else {
           $this->TickScale = $s3;
         }
@@ -249,14 +249,16 @@ class BarPlot {
     $xinterval = $this->AxisLength['x'] / count($this->DataValues);
     $xstart = $this->PlotOrigin['x'];
     $barWidthScaleFactor = 0.9;
-    foreach($this->DataValues as $k => $d) {
-      $scaledTraitValue = round($d * $this->AxisLength['y'] / $traitMax, 1);
-      $svgStr .= '<rect x="' .($xstart + (((1-$barWidthScaleFactor)/2) * $xinterval)). '" ';
-      $svgStr .= 'y="' .($this->PlotOrigin['y'] - $scaledTraitValue). '" ';
-      $svgStr .= 'height="' . $scaledTraitValue . '" ';
-      $svgStr .= 'width="' . ($barWidthScaleFactor * $xinterval) . '" ';
-      $svgStr .= 'class="' . $this->PlotClass . 'Focal" />' .PHP_EOL;
-      $xstart += $xinterval;
+    if($traitMax > 0) {
+      foreach($this->DataValues as $k => $d) {
+        $scaledTraitValue = round($d * $this->AxisLength['y'] / $traitMax, 1);
+        $svgStr .= '<rect x="' .($xstart + (((1-$barWidthScaleFactor)/2) * $xinterval)). '" ';
+        $svgStr .= 'y="' .($this->PlotOrigin['y'] - $scaledTraitValue). '" ';
+        $svgStr .= 'height="' . $scaledTraitValue . '" ';
+        $svgStr .= 'width="' . ($barWidthScaleFactor * $xinterval) . '" ';
+        $svgStr .= 'class="' . $this->PlotClass . 'Focal" />' .PHP_EOL;
+        $xstart += $xinterval;
+      }
     }
     return $svgStr;
   }

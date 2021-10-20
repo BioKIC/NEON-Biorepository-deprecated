@@ -3,6 +3,7 @@ include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonProfile.php');
 include_once($SERVER_ROOT.'/classes/TraitPolarPlot.php');
 include_once($SERVER_ROOT.'/classes/TraitBarPlot.php');
+include_once($SERVER_ROOT.'/classes/TraitLinePlot.php');
 
 
 class TraitPlotManager extends TaxonProfile {

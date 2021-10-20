@@ -256,7 +256,7 @@ class LinePlot {
         $svgStr .= ($this->PlotOrigin['y'] - $scaledTraitValue). ' L';
         $xstart += $xinterval;
       }
-      $svgStr .= ' class="' . $this->PlotClass . 'Focal" />' .PHP_EOL;
+      $svgStr .= '" class="' . $this->PlotClass . 'Focal" />' .PHP_EOL;
 
     }
     return $svgStr;

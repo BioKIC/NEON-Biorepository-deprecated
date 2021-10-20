@@ -1,10 +1,11 @@
 <?php
-include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
+if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/header.en.php');
+else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 ?>
 <script type="text/javascript" src="<?php echo $CLIENT_ROOT; ?>/js/symb/base.js?ver=171023"></script>
 <script type="text/javascript">
 	//Uncomment following line to support toggling of database content containing DIVs with lang classes in form of: <div class="lang en">Content in English</div><div class="lang es">Content in Spanish</div>
-	//setLanguageDiv();
+	setLanguageDiv();
 </script>
 <table id="maintable" cellspacing="0">
 	<tr>
@@ -41,7 +42,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 					else{
 						?>
 						<span style="">
-							<a href="<?php echo $CLIENT_ROOT."/profile/index.php?refurl=".$_SERVER['SCRIPT_NAME']."?".$_SERVER['QUERY_STRING']; ?>"><?php echo (isset($LANG['H_LOGIN'])?$LANG['H_LOGIN']:'Login')?></a>
+							<a href="<?php echo $CLIENT_ROOT.'/profile/index.php?refurl='.$_SERVER['SCRIPT_NAME'].'?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>"><?php echo (isset($LANG['H_LOGIN'])?$LANG['H_LOGIN']:'Login')?></a>
 						</span>
 						<span style="margin-left:5px;">
 							<a href="<?php echo $CLIENT_ROOT; ?>/profile/newprofile.php"><?php echo (isset($LANG['H_NEW_ACCOUNT'])?$LANG['H_NEW_ACCOUNT']:'New Account')?></a>
@@ -53,7 +54,7 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 						<select onchange="setLanguage(this)">
 							<option value="en">English</option>
 							<option value="es" <?php echo ($LANG_TAG=='es'?'SELECTED':''); ?>>Espa&ntilde;ol</option>
-							<option value="pt" <?php echo ($LANG_TAG=='pt'?'SELECTED':''); ?>>Português do Brasil</option>
+							<option value="fr" <?php echo ($LANG_TAG=='fr'?'SELECTED':''); ?>>Français</option>
 						</select>
 						<?php
 						if($IS_ADMIN){
@@ -74,9 +75,6 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank"><?php echo (isset($LANG['H_MAP'])?$LANG['H_MAP']:'Map'); ?></a>
-							</li>
-							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist" ><?php echo (isset($LANG['H_DYN_LISTS'])?$LANG['H_DYN_LISTS']:'Dynamic Species List'); ?></a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/taxa/taxonomy/taxonomydynamicdisplay.php" ><?php echo (isset($LANG['H_TAXONOMIC_EXPLORER'])?$LANG['H_TAXONOMIC_EXPLORER']:'Taxonomic Explorer'); ?></a>
@@ -100,8 +98,58 @@ include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1"><?php echo (isset($LANG['H_PROJECT_1'])?$LANG['H_PROJECT_1']:'Project 1'); ?></a>
 								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2"><?php echo (isset($LANG['H_PROJECT_2'])?$LANG['H_PROJECT_2']:'Project 2'); ?></a>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3"><?php echo (isset($LANG['H_PROJECT_3'])?$LANG['H_PROJECT_3']:'Project 3'); ?></a>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=4"><?php echo (isset($LANG['H_PROJECT_4'])?$LANG['H_PROJECT_4']:'Project 4'); ?></a>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<a href="#" ><?php echo (isset($LANG['H_DYN_LISTS'])?$LANG['H_DYN_LISTS']:'Dynamic Species List'); ?></a>
+						<ul>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist&taxa=Amphibia" ><?php echo (isset($LANG['H_AMPHIBIA'])?$LANG['H_AMPHIBIA']:'Amphibians'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist&taxa=Arthropoda" ><?php echo (isset($LANG['H_ARTHROPODA'])?$LANG['H_ARTHROPODA']:'Arthropods'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist&taxa=Mammalia" ><?php echo (isset($LANG['H_MAMMALIA'])?$LANG['H_MAMMALIA']:'Mammals'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist&taxa=Aves" ><?php echo (isset($LANG['H_AVES'])?$LANG['H_AVES']:'Birds'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist&taxa=Plantae" ><?php echo (isset($LANG['H_PLANTA'])?$LANG['H_PLANTA']:'Plants'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist&taxa=Actinopterygii" ><?php echo (isset($LANG['H_FISH'])?$LANG['H_FISH']:'Fish'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist&taxa=Reptilia" ><?php echo (isset($LANG['H_REPTILIA'])?$LANG['H_REPTILIA']:'Reptiles'); ?></a>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<a href="#" ><?php echo (isset($LANG['H_DYN_KEYS'])?$LANG['H_DYN_KEYS']:'Identification Keys'); ?></a>
+						<ul>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key&taxa=Amphibia" ><?php echo (isset($LANG['H_AMPHIBIA'])?$LANG['H_AMPHIBIA']:'Amphibians'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key&taxa=Arthropoda" ><?php echo (isset($LANG['H_ARTHROPODA'])?$LANG['H_ARTHROPODA']:'Arthropods'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key&taxa=Mammalia" ><?php echo (isset($LANG['H_MAMMALIA'])?$LANG['H_MAMMALIA']:'Mammals'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key&taxa=Aves" ><?php echo (isset($LANG['H_AVES'])?$LANG['H_AVES']:'Birds'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key&taxa=Plantae" ><?php echo (isset($LANG['H_PLANTA'])?$LANG['H_PLANTA']:'Plants'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key&taxa=Actinopterygii" ><?php echo (isset($LANG['H_FISH'])?$LANG['H_FISH']:'Fish'); ?></a>
+							</li>
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key&taxa=Reptilia" ><?php echo (isset($LANG['H_REPTILIA'])?$LANG['H_REPTILIA']:'Reptiles'); ?></a>
 							</li>
 						</ul>
 					</li>

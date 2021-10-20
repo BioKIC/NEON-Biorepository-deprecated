@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.en.php');
 
 $LANG['ADD_SUCCESS'] = 'New collection added successfully';
 $LANG['ADD_STUFF'] = 'Add contacts, resource links, or institution address below';

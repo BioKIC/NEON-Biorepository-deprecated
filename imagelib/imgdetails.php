@@ -56,7 +56,6 @@ if($imgArr){
 		$metaUrl = $serverPath.$metaUrl;
 	}
 }
-
 ?>
 <html>
 <head>
@@ -77,14 +76,7 @@ if($imgArr){
 	<title><?php echo $DEFAULT_TITLE." Image Details: #".$imgId; ?></title>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
@@ -238,35 +230,47 @@ if($imgArr){
 							<div style="margin-top:2px;">
 								<b>Web Image:</b><br/>
 								<input name="url" type="text" value="<?php echo $imgArr["url"];?>" style="width:90%;" />
-								<?php if(stripos($imgArr["url"],$imageRootUrl) === 0){ ?>
-								<div style="margin-left:70px;">
-									<input type="checkbox" name="renameweburl" value="1" />
-									Rename web image file on server to match above edit (web server file editing privileges required)
-								</div>
-								<input name="oldurl" type="hidden" value="<?php echo $imgArr["url"];?>" />
-								<?php } ?>
+								<?php
+								if(stripos($imgArr["url"],$IMAGE_ROOT_URL) === 0){
+									?>
+									<div style="margin-left:70px;">
+										<input type="checkbox" name="renameweburl" value="1" />
+										Rename web image file on server to match above edit (web server file editing privileges required)
+									</div>
+									<input name="oldurl" type="hidden" value="<?php echo $imgArr["url"];?>" />
+									<?php
+								}
+								?>
 							</div>
 							<div style="margin-top:2px;">
 								<b>Thumbnail:</b><br/>
 								<input name="thumbnailurl" type="text" value="<?php echo $imgArr["thumbnailurl"];?>" style="width:90%;" />
-								<?php if(stripos($imgArr["thumbnailurl"],$imageRootUrl) === 0){ ?>
-								<div style="margin-left:70px;">
-									<input type="checkbox" name="renametnurl" value="1" />
-									Rename thumbnail image file on server to match above edit (web server file editing privileges required)
-								</div>
-								<input name="oldthumbnailurl" type="hidden" value="<?php echo $imgArr["thumbnailurl"];?>" />
-								<?php } ?>
+								<?php
+								if(stripos($imgArr["thumbnailurl"],$IMAGE_ROOT_URL) === 0){
+									?>
+									<div style="margin-left:70px;">
+										<input type="checkbox" name="renametnurl" value="1" />
+										Rename thumbnail image file on server to match above edit (web server file editing privileges required)
+									</div>
+									<input name="oldthumbnailurl" type="hidden" value="<?php echo $imgArr["thumbnailurl"];?>" />
+									<?php
+								}
+								?>
 							</div>
 							<div style="margin-top:2px;">
 								<b>Large Image:</b><br/>
 								<input name="originalurl" type="text" value="<?php echo $imgArr["originalurl"];?>" style="width:90%;" />
-								<?php if(stripos($imgArr["originalurl"],$imageRootUrl) === 0){ ?>
-								<div style="margin-left:80px;">
-									<input type="checkbox" name="renameorigurl" value="1" />
-									Rename large image file on server to match above edit (web server file editing privileges required)
-								</div>
-								<input name="oldoriginalurl" type="hidden" value="<?php echo $imgArr["originalurl"];?>" />
-								<?php } ?>
+								<?php
+								if(stripos($imgArr["originalurl"],$IMAGE_ROOT_URL) === 0){
+									?>
+									<div style="margin-left:80px;">
+										<input type="checkbox" name="renameorigurl" value="1" />
+										Rename large image file on server to match above edit (web server file editing privileges required)
+									</div>
+									<input name="oldoriginalurl" type="hidden" value="<?php echo $imgArr["originalurl"];?>" />
+									<?php
+								}
+								?>
 							</div>
 							<input name="imgid" type="hidden" value="<?php echo $imgId; ?>" />
 							<div style="margin-top:2px;">
@@ -308,13 +312,14 @@ if($imgArr){
 			<div>
 				<div style="width:350px;padding:10px;float:left;">
 					<?php
-					if((!$imgUrl || $imgUrl == 'empty') && $origUrl) $imgUrl = $origUrl;
+					$imgDisplay = $imgUrl;
+					if((!$imgDisplay || $imgDisplay == 'empty') && $origUrl) $imgDisplay = $origUrl;
 					?>
-					<a href="<?php echo $imgUrl;?>">
-						<img src="<?php echo $imgUrl;?>" style="width:300px;" />
+					<a href="<?php echo $imgDisplay;?>">
+						<img src="<?php echo $imgDisplay;?>" style="width:300px;" />
 					</a>
 					<?php
-					if($origUrl && $imgUrl != $origUrl) echo '<div><a href="'.$origUrl.'">Click on Image to Enlarge</a></div>';
+					if($origUrl) echo '<div><a href="'.$origUrl.'">Click on Image to Enlarge</a></div>';
 					?>
 				</div>
 				<div style="padding:10px;float:left;">
@@ -368,9 +373,7 @@ if($imgArr){
 					if($imgArr['sourceurl']) echo '<div><b>Image Source:</b> <a href="'.$imgArr['sourceurl'].'" target="_blank">'.$imgArr['sourceurl'].'</a></div>';
 					if($imgArr['locality']) echo '<div><b>Locality:</b> '.$imgArr['locality'].'</div>';
 					if($imgArr['notes']) echo '<div><b>Notes:</b> '.$imgArr['notes'].'</div>';
-					if($imgArr['rights']){
-						echo '<div><b>Rights:</b> '.$imgArr['rights'].'</div>';
-					}
+					if($imgArr['rights']) echo '<div><b>Rights:</b> '.$imgArr['rights'].'</div>';
 					if($imgArr['copyright']){
 						echo '<div>';
 						echo '<b>Copyright:</b> ';
@@ -390,12 +393,9 @@ if($imgArr){
 						<?php
 						$emailSubject = $DEFAULT_TITLE.' Image #'.$imgId;
 						$emailBody = 'Image being referenced: '.$serverPath.$CLIENT_ROOT.'/imagelib/imgdetails.php?imgid='.$imgId;
-						$emailRef = 'subject='.$emailSubject.'&cc='.$adminEmail.'&body='.$emailBody;
+						$emailRef = 'subject='.$emailSubject.'&cc='.$ADMIN_EMAIL.'&body='.$emailBody;
+						echo '<a href="mailto:'.$ADMIN_EMAIL.'?'.$emailRef.'">'.$ADMIN_EMAIL.'</a>';
 						?>
-						<a href="mailto:<?php echo $adminEmail.'?'.$emailRef; ?>">
-							<?php echo $adminEmail; ?>
-						</a>
-
 					</div>
 				</div>
 			</div>

@@ -92,10 +92,6 @@ if($isEditor && $action){
 	</script>
 </head>
 <body>
-<?php
-$displayLeftMenu = false;
-if(!$charValue)	include($SERVER_ROOT.'/includes/header.php');
-?>
 <div id="innertext">
 	<?php
 	if($isEditor && $tid){
@@ -111,8 +107,8 @@ if(!$charValue)	include($SERVER_ROOT.'/includes/header.php');
 			if($childrenStr){
 				echo "<br><a href='editor.php?children=".$childrenStr."'>back to child</a>";
 			}
-			echo "</div>";
-			echo "<h2>$sn</h2>";
+			echo '</div>';
+			echo '<h2>'.$sn.'</h2>';
 			$cList = $editorManager->getCharList();
 			$depArr = $editorManager->getCharDepArray();
 			$charStatesList = $editorManager->getCharStates();
@@ -130,7 +126,7 @@ if(!$charValue)	include($SERVER_ROOT.'/includes/header.php');
 					}
 					echo '<div class="headingDiv" id="'.$headingID.'" style="text-indent:1em;">';
 					foreach($charArray as $cidKey => $charNameStr){
-						if(!$charValue || $charValue == $cidKey){
+						if(isset($charStatesList[$cidKey]) && (!$charValue || $charValue == $cidKey)){
 							echo "<div id='chardiv".$cidKey."' style='display:".(array_key_exists($cidKey,$depArr)?"hidden":"block").";'>";
 							echo "<div style='margin-top:1em;'><span style='font-weight:bold;'>$charNameStr</span>\n";
 							if($editorManager->getRankId() > 140){
@@ -150,7 +146,7 @@ if(!$charValue)	include($SERVER_ROOT.'/includes/header.php');
 								echo "&nbsp;&nbsp;&nbsp;<input type='checkbox' name='remove[]' ".(!$charPresent || $inh?"disabled='true' ":" ")."value='".$testStr."'  onChange='dataChanged=true;'/>";
 								echo "&nbsp;&nbsp;&nbsp;$displayStr</div>\n";
 							}
-							echo "</div>";
+							echo '</div>';
 							$count++;
 							if($count%3 == 0) echo "<div style='margin-top:1em;'><input type='submit' name='action' value='Submit Changes'/></div>\n";
 						}
@@ -180,8 +176,5 @@ if(!$charValue)	include($SERVER_ROOT.'/includes/header.php');
 	}
 	?>
 </div>
-<?php
-if(!$charValue) include($SERVER_ROOT.'/includes/footer.php');
-?>
 </body>
 </html>

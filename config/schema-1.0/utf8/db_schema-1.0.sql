@@ -3565,7 +3565,7 @@ DROP TABLE IF EXISTS `uploadspecparameters`;
 CREATE TABLE `uploadspecparameters` (
   `uspid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `CollID` int(10) unsigned NOT NULL,
-  `UploadType` int(10) unsigned NOT NULL DEFAULT '1' COMMENT '1 = Direct; 2 = DiGIR; 3 = File',
+  `UploadType` int(10) unsigned NOT NULL DEFAULT '1' COMMENT '1 = Direct; 3 = File',
   `title` varchar(45) NOT NULL,
   `Platform` varchar(45) DEFAULT '1' COMMENT '1 = MySQL; 2 = MSSQL; 3 = ORACLE; 11 = MS Access; 12 = FileMaker',
   `server` varchar(150) DEFAULT NULL,

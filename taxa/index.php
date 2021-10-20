@@ -61,6 +61,7 @@ if($SYMB_UID){
 		$cssPath = $CLIENT_ROOT.'/css/symb/taxa/speciesprofile.css?ver=2';
 	}
 	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	echo '<link rel="stylesheet" type="text/css" href="'.$CSS_BASE_PATH.'/taxa/traitplot.css" />';
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
@@ -90,9 +91,11 @@ include($SERVER_ROOT.'/includes/header.php');
 						if($isEditor){
 							?>
 							<div id="editorDiv">
-								<a href="profile/tpeditor.php?tid=<?php echo $taxonManager->getTid(); ?>" <?php echo 'title="'.(isset($LANG['EDIT_TAXON_DATA'])?$LANG['EDIT_TAXON_DATA']:'Edit Taxon Data').'"'; ?>>
-									<img class="navIcon" src='../images/edit.png'/>
-								</a>
+								<?php
+								echo '<a href="profile/tpeditor.php?tid='.$taxonManager->getTid().'" title="'.(isset($LANG['EDIT_TAXON_DATA'])?$LANG['EDIT_TAXON_DATA']:'Edit Taxon Data').'">';
+								echo '<img class="navIcon" src="../images/edit.png" />';
+								echo '</a>';
+								?>
 							</div>
 							<?php
 						}
@@ -423,9 +426,11 @@ include($SERVER_ROOT.'/includes/header.php');
 				if($isEditor){
 					?>
 					<div id="editorDiv">
-						<a href="profile/tpeditor.php?tid=<?php echo $taxonManager->getTid(); ?>" <?php echo 'title="'.(isset($LANG['EDIT_TAXON_DATA'])?$LANG['EDIT_TAXON_DATA']:'Edit Taxon Data').'"'; ?>>
-							<img class="navIcon" src='../images/edit.png'/>
-						</a>
+						<?php
+						echo '<a href="profile/tpeditor.php?tid='.$taxonManager->getTid().'" title="'.(isset($LANG['EDIT_TAXON_DATA'])?$LANG['EDIT_TAXON_DATA']:'Edit Taxon Data').'">';
+						echo '<img class="navIcon" src="../images/edit.png" />';
+						echo '</a>';
+						?>
 					</div>
 					<?php
 				}

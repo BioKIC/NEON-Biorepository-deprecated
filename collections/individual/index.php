@@ -31,6 +31,12 @@ elseif($collid && $pk){
 	$indManager->setDbpk($pk);
 }
 
+$indManager->setDisplayFormat($format);
+$indManager->setOccurData();
+if(!$occid) $occid = $indManager->getOccid();
+if(!$collid) $collid = $indManager->getCollid();
+
+$isSecuredReader = false;
 $isEditor = false;
 if($SYMB_UID){
 	//Check editing status
@@ -46,25 +52,23 @@ if($SYMB_UID){
 	elseif($indManager->isTaxonomicEditor()){
 		$isEditor = true;
 	}
-
 	//Check locality security
-	if($isEditor || array_key_exists("RareSppAdmin",$USER_RIGHTS) || array_key_exists("RareSppReadAll",$USER_RIGHTS)){
-		$indManager->setSecuredReader(true);
+	if($isEditor || array_key_exists('RareSppAdmin',$USER_RIGHTS) || array_key_exists('RareSppReadAll',$USER_RIGHTS)){
+		$isSecuredReader = true;
 	}
-	elseif(array_key_exists("RareSppReader",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS["RareSppReader"])){
-		$indManager->setSecuredReader(true);
+	elseif(isset($USER_RIGHTS['RareSppReader']) && in_array($collid,$USER_RIGHTS['RareSppReader'])){
+		$isSecuredReader = true;
 	}
-	elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEditor',$USER_RIGHTS)){
-		$indManager->setSecuredReader(true);
+	elseif(isset($USER_RIGHTS['CollAdmin'])){
+		$isSecuredReader = true;
+	}
+	elseif(isset($USER_RIGHTS['CollEditor']) && in_array($collid,$USER_RIGHTS['CollEditor'])){
+		$isSecuredReader = true;
 	}
 }
-
-$indManager->setDisplayFormat($format);
+$indManager->applyProtections($isSecuredReader);
 $occArr = $indManager->getOccData();
-if(!$occid) $occid = $indManager->getOccid();
 $collMetadata = $indManager->getMetadata();
-if(!$collid && $occArr) $collid = $occArr['collid'];
-
 $genticArr = $indManager->getGeneticArr();
 
 $statusStr = '';
@@ -154,7 +158,7 @@ $traitArr = $indManager->getTraitArr();
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
 	<meta name="description" content="<?php echo 'Occurrence author: '.($occArr?$occArr['recordedby'].','.$occArr['recordnumber']:''); ?>" />
-	<meta name="keywords" content="<?php echo ($occArr?$occArr['guid']:''); ?>">
+	<meta name="keywords" content="<?php echo (isset($occArr['guid'])?$occArr['guid']:''); ?>" />
 	<?php
 	$cssPath = '/css/symb/custom/collindividualindex.css';
 	if(!file_exists($SERVER_ROOT.$cssPath)) $cssPath = '/css/symb/collindividualindex.css';
@@ -628,7 +632,7 @@ $traitArr = $indManager->getTraitArr();
 								echo '<div style="margin-left:10px"><span style="color:orange;">'.(isset($LANG['LOCDETAILSPROTECTED'])?$LANG['LOCDETAILSPROTECTED']:'Locality details protected').':<span> ';
 								if($occArr['localitysecurityreason'] && substr($occArr['localitysecurityreason'],0,1) != '<') echo $occArr['localitysecurityreason'];
 								else echo (isset($LANG['LOCPROTECTEXPLANATION'])?$LANG['LOCPROTECTEXPLANATION']:'protection typically due to rare or threatened status');
-								if(!isset($occArr['localsecure'])) echo '; '.(isset($LANG['ACCESS_GRANTED'])?$LANG['ACCESS_GRANTED']:'current user granted access');
+								if(!isset($occArr['localsecure'])) echo '<br/>'.(isset($LANG['ACCESS_GRANTED'])?$LANG['ACCESS_GRANTED']:'Current user has been granted access');
 								echo '</div>';
 							}
 							?>

@@ -20,6 +20,17 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
  		parent::__destruct();
 	}
 
+	public function getImageMap(){
+		$imageMap = parent::getImageMap();
+		if($imageMap){
+			$imageTagArr = $this->getImageTags(implode(',',array_keys($imageMap)));
+			foreach($imageTagArr as $imgId => $vArr){
+				$imageMap[$imgId]['tags'] = $vArr;
+			}
+		}
+		return $imageMap;
+	}
+
 	/**
 	 * Takes parameters from a form submission and modifies an existing image record
 	 * in the database.
@@ -153,24 +164,21 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 
 		if($imgUpdateStatus){
 			// update image tags
-			$kArr = $this->getImageTagValues();
+			$kArr = $this->getImageTagArr();
 			foreach($kArr as $key => $description) {
 				// Note: By using check boxes, we can't tell the difference between
 				// an unchecked checkbox and the checkboxes not being present on the
 				// form, we'll get around this by including the original state of the
 				// tags for each image in a hidden field.
 				$sql = null;
-				if (array_key_exists("ch_$key",$_REQUEST)) {
-					// checkbox is selected for this image
-					$sql = "INSERT IGNORE into imagetag (imgid,keyvalue) values (?,?) ";
+				if(array_key_exists("ch_$key",$_REQUEST)) {
+					if(!$_REQUEST["hidden_$key"]) $sql = 'INSERT IGNORE into imagetag (imgid,keyvalue) values (?,?)';
 				}
-				else {
-					if (array_key_exists("hidden_$key",$_REQUEST) && $_REQUEST["hidden_$key"]==1) {
-						// checkbox is not selected and this tag was used for this image
-						$sql = "DELETE from imagetag where imgid = ? and keyvalue = ? ";
-					}
+				else{
+					// checkbox is not selected and this tag was used for this image
+					if($_REQUEST["hidden_$key"]==1) $sql = 'DELETE from imagetag where imgid = ? and keyvalue = ?';
 				}
-				if ($sql!=null) {
+				if($sql!=null) {
 					$stmt = $this->conn->stmt_init();
 					$stmt->prepare($sql);
 					if ($stmt) {
@@ -333,83 +341,15 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		return $this->photographerArr;
 	}
 
-	/**
-	 * Obtain an array of the keys used for tagging images by content type.
-	 *
-	 * param: lang language for the description, only en currently supported.
-	 * return: an array of keys for image type tagging along with their descriptions.
-	 */
-	public function getImageTagValues($lang='en') {
-	   $returnArr = Array();
-	   switch ($lang) {
-		  case 'en':
-		  default:
-		   $sql = "select tagkey, description_en from imagetagkey order by sortorder";
-	   }
-	   $stmt = $this->conn->stmt_init();
-	   $stmt->prepare($sql);
-	   if ($stmt) {
-		  $stmt->bind_result($key,$desc);
-		  $stmt->execute();
-		  while ($stmt->fetch()) {
-			 $returnArr[$key]=$desc;
-		  }
-		  $stmt->close();
-	   }
-	   return $returnArr;
+	public function getImageTagArr(){
+		$retArr = Array();
+		$sql = 'SELECT tagkey, description_en FROM imagetagkey ORDER BY sortorder';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->tagkey] = $r->description_en;
+		}
+		$rs->free();
+		return $retArr;
 	}
-
-	/**
-	 * Obtain an array of the keys used for tagging images by content type.
-	 *
-	 * param: imgid the images.imgid for which to return presence/absence values for each key
-	 * param: lang language for the description, only en currently supported.
-	 * return: an ImagTagUse object containing the keys for image type tagging along with their
-	 * presence/absence for the provided image and descriptions.
-	 */
-	public function getImageTagUsage($imgid,$lang='en') {
-	   $resultArr = Array();
-	   switch ($lang) {
-		  case 'en':
-		  default:
-			$sql = "select * from ( " .
-				   "  select tagkey, description_en, shortlabel, sortorder, not isnull(imgid) from imagetagkey k " .
-				   "	 left join imagetag i on k.tagkey = i.keyvalue " .
-				   "	 where (i.imgid is null or i.imgid = ? ) " .
-				   "  union " .
-				   "  select tagkey, description_en, shortlabel, sortorder, 0 from imagetagkey k " .
-				   "	 left join imagetag i on k.tagkey = i.keyvalue " .
-				   "	 where (i.imgid is not null and i.imgid <> ? ) " .
-				   " ) a order by sortorder ";
-	   }
-	   $stmt = $this->conn->stmt_init();
-	   $stmt->prepare($sql);
-	   if ($stmt) {
-		  $stmt->bind_param('ii',$imgid,$imgid);
-		  $stmt->bind_result($key,$desc,$lab,$sort,$value);
-		  $stmt->execute();
-		  $i = 0;
-		  while ($stmt->fetch()) {
-			 $result = new ImageTagUse();
-			 $result->tagkey = $key;
-			 $result->shortlabel = $lab;
-			 $result->description = $desc;
-			 $result->sortorder = $sort;
-			 $result->value = $value;
-			 $resultArr[$i] = $result;
-			 $i++;
-		  }
-		  $stmt->close();
-	   }
-	   return $resultArr;
-	}
-}
-
-class ImageTagUse {
-   public $tagkey;  // magic value
-   public $shortlabel;  // short human readable value
-   public $description; // human readable description
-   public $sortorder;
-   public $value;  // 0 or 1
 }
 ?>

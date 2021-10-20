@@ -5,7 +5,7 @@ Language: English
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/misc/sharedterms.es.php');
 
 $LANG['OCC_BATCH'] = 'Asociación de Ocurrencias por Lote';
 $LANG['OCC_AS_MAN'] = 'Administrador de Asociación de Ocurrencias';

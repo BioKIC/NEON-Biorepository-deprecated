@@ -49,7 +49,6 @@ class RpcTaxonomy extends RpcBase{
 	}
 
 	public function getAcceptedTaxa($queryTerm){
-		global $CHARSET;
 		$retArr = Array();
 		$sql = 'SELECT t.tid, t.sciname, t.author '.
 			'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
@@ -125,7 +124,7 @@ class RpcTaxonomy extends RpcBase{
 			else $retArr['url'] = '../index.php';
 			$retArr['children'] = Array();
 			$lowestRank = '';
-			$sql = 'SELECT MIN(t.RankId) AS RankId FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (ts.taxauthid = '.$this->taxAuthID.') LIMIT 1 ';
+			$sql = 'SELECT MIN(t.RankId) AS RankId FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (t.rankid != 0) AND (ts.taxauthid = '.$this->taxAuthID.') LIMIT 1 ';
 			//echo $sql.'<br>';
 			$rs = $this->conn->query($sql);
 			while($row = $rs->fetch_object()){

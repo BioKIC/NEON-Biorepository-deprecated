@@ -129,10 +129,13 @@ class OccurrenceEditorManager {
 			if(array_key_exists('q_ocrfrag',$_REQUEST) && $_REQUEST['q_ocrfrag']) $this->qryArr['ocr'] = trim($_REQUEST['q_ocrfrag']);
 			if(array_key_exists('q_imgonly',$_REQUEST) && $_REQUEST['q_imgonly']) $this->qryArr['io'] = 1;
 			if(array_key_exists('q_withoutimg',$_REQUEST) && $_REQUEST['q_withoutimg']) $this->qryArr['woi'] = 1;
-			for($x=1;$x<4;$x++){
+			for($x=1;$x<9;$x++){
+				if(array_key_exists('q_customandor'.$x,$_REQUEST) && $_REQUEST['q_customandor'.$x]) $this->qryArr['cao'.$x] = $_REQUEST['q_customandor'.$x];
+                if(array_key_exists('q_customopenparen'.$x,$_REQUEST) && $_REQUEST['q_customopenparen'.$x]) $this->qryArr['cop'.$x] = $_REQUEST['q_customopenparen'.$x];
 				if(array_key_exists('q_customfield'.$x,$_REQUEST) && $_REQUEST['q_customfield'.$x]) $this->qryArr['cf'.$x] = $_REQUEST['q_customfield'.$x];
 				if(array_key_exists('q_customtype'.$x,$_REQUEST) && $_REQUEST['q_customtype'.$x]) $this->qryArr['ct'.$x] = $_REQUEST['q_customtype'.$x];
 				if(array_key_exists('q_customvalue'.$x,$_REQUEST) && $_REQUEST['q_customvalue'.$x]) $this->qryArr['cv'.$x] = trim($_REQUEST['q_customvalue'.$x]);
+				if(array_key_exists('q_customcloseparen'.$x,$_REQUEST) && $_REQUEST['q_customcloseparen'.$x]) $this->qryArr['ccp'.$x] = $_REQUEST['q_customcloseparen'.$x];
 			}
 			if(array_key_exists('orderby',$_REQUEST)) $this->qryArr['orderby'] = trim($_REQUEST['orderby']);
 			if(array_key_exists('orderbydir',$_REQUEST)) $this->qryArr['orderbydir'] = trim($_REQUEST['orderbydir']);
@@ -468,10 +471,14 @@ class OccurrenceEditorManager {
 			$sqlWhere .= 'AND (exn.ometid = '.$this->qryArr['exsid'].') ';
 		}
 		//Custom search fields
-		for($x=1;$x<4;$x++){
+		for($x=1;$x<9;$x++){
+			$cao = (array_key_exists('cao'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cao'.$x]):'');
+            $cop = (array_key_exists('cop'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cop'.$x]):'');
 			$cf = (array_key_exists('cf'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cf'.$x]):'');
 			$ct = (array_key_exists('ct'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ct'.$x]):'');
 			$cv = (array_key_exists('cv'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cv'.$x]):'');
+			$ccp = (array_key_exists('ccp'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ccp'.$x]):'');
+            if(!$cao) $cao = 'AND';
 			if($cf){
 				if($cf == 'ocrFragment'){
 					//Used when OCR frag comes from custom field search within basic query form
@@ -485,51 +492,54 @@ class OccurrenceEditorManager {
 					$cf = 'o.'.$cf;
 				}
 				if($ct=='NULL'){
-					$sqlWhere .= 'AND ('.$cf.' IS NULL) ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NULL) '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='NOTNULL'){
-					$sqlWhere .= 'AND ('.$cf.' IS NOT NULL) ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NOT NULL) '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='NOT EQUALS' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= 'AND ('.$cf.' <> '.$cv.') ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' <> '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='GREATER' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= 'AND ('.$cf.' > '.$cv.') ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' > '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='LESS' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= 'AND ('.$cf.' < '.$cv.') ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' < '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='LIKE' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= 'AND ('.$cf.' LIKE "'.$cv.'") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= 'AND ('.$cf.' LIKE "%'.$cv.'%") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($ct=='NOT LIKE' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "'.$cv.'") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= 'AND ('.$cf.' NOT LIKE "%'.$cv.'%") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($ct=='STARTS' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= 'AND ('.$cf.' LIKE "'.$cv.'") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= 'AND ('.$cf.' LIKE "'.$cv.'%") ';
+						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($cv){
-					$sqlWhere .= 'AND ('.$cf.' = "'.$cv.'") ';
+					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' = "'.$cv.'") '.($ccp?$ccp.' ':'');
 				}
 			}
+			else if($x > 1 && !$cf && $ccp){
+        		$sqlWhere .= ' '.$ccp.' ';
+    		}
 		}
 		if($this->crowdSourceMode){
 			$sqlWhere .= 'AND (q.reviewstatus = 0) ';
@@ -1636,18 +1646,11 @@ class OccurrenceEditorManager {
 					$nvSqlFrag = 'REPLACE('.$fn.',"'.$ov.'","'.$nv.'")';
 				}
 
-				//Temporary code needed for to test for new schema update
-				$hasEditType = false;
-				$rsTest = $this->conn->query('SHOW COLUMNS FROM omoccuredits WHERE field = "editType"');
-				if($rsTest->num_rows) $hasEditType = true;
-				$rsTest->free();
-
 				$sqlWhere = 'WHERE occid IN('.implode(',',$occidArr).')';
 				//Add edits to the omoccuredit table
-				$sql = 'INSERT INTO omoccuredits(occid,fieldName,fieldValueOld,fieldValueNew,appliedStatus,uid'.($hasEditType?',editType ':'').') '.
+				$sql = 'INSERT INTO omoccuredits(occid,fieldName,fieldValueOld,fieldValueNew,appliedStatus,uid,editType) '.
 					'SELECT occid, "'.$fn.'" AS fieldName, IFNULL('.$fn.',"") AS oldValue, IFNULL('.$nvSqlFrag.',"") AS newValue, '.
-					'1 AS appliedStatus, '.$GLOBALS['SYMB_UID'].' AS uid'.($hasEditType?',1':'').' FROM omoccurrences '.$sqlWhere;
-				//echo $sql.'<br/>';
+					'1 AS appliedStatus, '.$GLOBALS['SYMB_UID'].' AS uid, 1 FROM omoccurrences '.$sqlWhere;
 				if(!$this->conn->query($sql)){
 					$statusStr = $LANG['ERROR_ADDING_UPDATE'].': '.$this->conn->error;
 				}
@@ -1976,37 +1979,45 @@ class OccurrenceEditorManager {
 		global $LANG;
 		$imageMap = Array();
 		if($this->occid){
-			$sql = 'SELECT imgid, url, thumbnailurl, originalurl, caption, photographer, photographeruid, '.
-				'sourceurl, copyright, notes, occid, username, sortoccurrence, initialtimestamp '.
-				'FROM images '.
-				'WHERE (occid = '.$this->occid.') ORDER BY sortoccurrence';
+			$sql = 'SELECT imgid, url, thumbnailurl, originalurl, caption, photographer, photographeruid, sourceurl, copyright, notes, occid, username, sortoccurrence, initialtimestamp '.
+				'FROM images WHERE (occid = '.$this->occid.') ORDER BY sortoccurrence';
 			//echo $sql;
 			$result = $this->conn->query($sql);
 			while($row = $result->fetch_object()){
-				$imgId = $row->imgid;
-				$imageMap[$imgId]["url"] = $row->url;
-				$imageMap[$imgId]["tnurl"] = $row->thumbnailurl;
-				$imageMap[$imgId]["origurl"] = $row->originalurl;
-				$imageMap[$imgId]["caption"] = $this->cleanOutStr($row->caption);
-				$imageMap[$imgId]["photographer"] = $this->cleanOutStr($row->photographer);
-				$imageMap[$imgId]["photographeruid"] = $row->photographeruid;
-				$imageMap[$imgId]["sourceurl"] = $row->sourceurl;
-				$imageMap[$imgId]["copyright"] = $this->cleanOutStr($row->copyright);
-				$imageMap[$imgId]["notes"] = $this->cleanOutStr($row->notes);
-				$imageMap[$imgId]["occid"] = $row->occid;
-				$imageMap[$imgId]["username"] = $this->cleanOutStr($row->username);
-				$imageMap[$imgId]['sort'] = $row->sortoccurrence;
+				$imageMap[$row->imgid]['url'] = $row->url;
+				$imageMap[$row->imgid]['tnurl'] = $row->thumbnailurl;
+				$imageMap[$row->imgid]['origurl'] = $row->originalurl;
+				$imageMap[$row->imgid]['caption'] = $this->cleanOutStr($row->caption);
+				$imageMap[$row->imgid]['photographer'] = $this->cleanOutStr($row->photographer);
+				$imageMap[$row->imgid]['photographeruid'] = $row->photographeruid;
+				$imageMap[$row->imgid]['sourceurl'] = $row->sourceurl;
+				$imageMap[$row->imgid]['copyright'] = $this->cleanOutStr($row->copyright);
+				$imageMap[$row->imgid]['notes'] = $this->cleanOutStr($row->notes);
+				$imageMap[$row->imgid]['occid'] = $row->occid;
+				$imageMap[$row->imgid]['username'] = $this->cleanOutStr($row->username);
+				$imageMap[$row->imgid]['sort'] = $row->sortoccurrence;
 				if(strpos($row->originalurl,'api.idigbio.org')){
 					if(strtotime($row->initialtimestamp) > strtotime('-2 days')){
 						//Is a recent iDigBio media server import, check to see if image derivatives have been made
 						$headerArr = get_headers($row->originalurl,1);
-						if($headerArr['Content-Type'] == 'image/svg+xml') $imageMap[$imgId]['error'] = $LANG['NOTICE_IMAGE_NOT_AVAILABLE'];
+						if($headerArr['Content-Type'] == 'image/svg+xml') $imageMap[$row->imgid]['error'] = $LANG['NOTICE_IMAGE_NOT_AVAILABLE'];
 					}
 				}
 			}
 			$result->free();
 		}
 		return $imageMap;
+	}
+
+	protected function getImageTags($imgIdStr){
+		$retArr = array();
+		$sql = 'SELECT t.imgid, k.tagkey, k.shortlabel, k.description_en FROM imagetag t INNER JOIN imagetagkey k ON t.keyvalue = k.tagkey WHERE t.imgid IN('.$imgIdStr.')';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->imgid][$r->tagkey] = $r->shortlabel;
+		}
+		$rs->free();
+		return $retArr;
 	}
 
 	public function getEditArr(){

@@ -10,7 +10,6 @@ $LANG['H_HOME'] = 'Inicio';
 $LANG['H_SEARCH'] = 'B&uacute;squeda';
 $LANG['H_COLLECTIONS'] = 'Colecciones';
 $LANG['H_MAP'] = 'Mapa';
-$LANG['H_DYN_LISTS'] = 'Listados Din&aacute;micos';
 $LANG['H_TAXONOMIC_EXPLORER'] = 'Explorador Taxon&oacute;mico';
 
 $LANG['H_IMAGES'] = 'Im&aacute;genes';
@@ -20,8 +19,16 @@ $LANG['H_IMAGE_SEARCH'] = 'B&uacute;squeda de Im&aacute;genes';
 $LANG['H_INVENTORIES'] = 'Lista de Especies';
 $LANG['H_PROJECT_1'] = 'Proyecto 1';
 $LANG['H_PROJECT_2'] = 'Proyecto 2';
-$LANG['H_PROJECT_3'] = 'Proyecto 3';
-$LANG['H_PROJECT_4'] = 'Proyecto 4';
+
+$LANG['H_DYN_LISTS'] = 'Listados Din&aacute;micos';
+$LANG['H_DYN_KEYS'] = 'Claves de identificación';
+$LANG['H_AMPHIBIA'] = 'Anfibios';
+$LANG['H_AVES'] = 'Aves';
+$LANG['H_FISH'] = 'Peces';
+$LANG['H_INVERTEBRATES'] = 'Invertebrados';
+$LANG['H_MAMMALIA'] = 'Mamíferos';
+$LANG['H_PLANTA'] = 'Plantas';
+$LANG['H_REPTILIA'] = 'Reptiles';
 
 $LANG['H_MORE_INFO'] = 'M&aacute;s Informaci&oacute;n';
 $LANG['H_ABOUT_PROJECT'] = 'Información sobre el Proyecto';

@@ -31,12 +31,12 @@ class DwcArchiverDetermination{
 		$fieldArr['identificationReferences'] = 'd.identificationReferences';
 		$termArr['identificationRemarks'] = 'http://rs.tdwg.org/dwc/terms/identificationRemarks';
 		$fieldArr['identificationRemarks'] = 'd.identificationRemarks';
-		$termArr['recordID'] = 'http://portal.idigbio.org/terms/recordId';
-		$fieldArr['recordID'] = 'g.guid AS recordId';
+		$termArr['recordID'] = 'http://portal.idigbio.org/terms/recordID';
+		$fieldArr['recordID'] = 'g.guid AS recordID';
 		$termArr['modified'] = 'http://purl.org/dc/terms/modified';
 		$fieldArr['modified'] = 'd.initialTimeStamp AS modified';
-		$termArr['detID'] = 'https://symbiota.org/terms/detid';
-		$fieldArr['detID'] = 'd.detid';
+		$termArr['detID'] = 'https://symbiota.org/terms/detID';
+		$fieldArr['detID'] = 'd.detID';
 
 		$retArr['terms'] = self::trimBySchemaType($termArr,$schemaType,$extended);
 		$retArr['fields'] = self::trimBySchemaType($fieldArr,$schemaType,$extended);

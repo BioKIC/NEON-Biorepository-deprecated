@@ -37,7 +37,7 @@ class KeyCharAdmin{
 	public function getCharDetails(){
 		$retArr = array();
 		if($this->cid){
-			$sql = 'SELECT cid, charname, chartype, difficultyrank, hid, units, description, notes, helpurl, enteredby, sortsequence FROM kmcharacters WHERE cid = '.$this->cid;
+			$sql = 'SELECT cid, charname, chartype, difficultyrank, hid, units, description, glossid, helpurl, notes, enteredby, sortsequence FROM kmcharacters WHERE cid = '.$this->cid;
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$retArr['charname'] = $this->cleanOutStr($r->charname);
@@ -46,8 +46,9 @@ class KeyCharAdmin{
 					$retArr['hid'] = $r->hid;
 					$retArr['units'] = $this->cleanOutStr($r->units);
 					$retArr['description'] = $this->cleanOutStr($r->description);
-					$retArr['notes'] = $this->cleanOutStr($r->notes);
+					$retArr['glossid'] = $r->glossid;
 					$retArr['helpurl'] = $r->helpurl;
+					$retArr['notes'] = $this->cleanOutStr($r->notes);
 					$retArr['enteredby'] = $r->enteredby;
 					$retArr['sortsequence'] = $r->sortsequence;
 				}
@@ -92,7 +93,7 @@ class KeyCharAdmin{
 
 	public function editCharacter($pArr){
 		$statusStr = '';
-		$targetArr = array('charname','chartype','units','difficultyrank','hid','description','notes','helpurl','sortsequence');
+		$targetArr = array('charname','chartype','units','difficultyrank','hid','description','helpurl','glossid','notes','sortsequence');
 		$sql = '';
 		foreach($pArr as $k => $v){
 			if(in_array($k,$targetArr)){
@@ -146,10 +147,7 @@ class KeyCharAdmin{
 	public function getCharStateArr(){
 		$retArr = array();
 		if($this->cid){
-			$sql = 'SELECT cid, cs, charstatename, implicit, notes, description, illustrationurl, sortsequence, enteredby '.
-				'FROM kmcs '.
-				'WHERE cid = '.$this->cid.' '.
-				'ORDER BY sortsequence';
+			$sql = 'SELECT cid, cs, charstatename, implicit, notes, description, illustrationurl, glossid, sortsequence, enteredby FROM kmcs WHERE cid = '.$this->cid.' ORDER BY sortsequence';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					if(is_numeric($r->cs)){
@@ -158,6 +156,7 @@ class KeyCharAdmin{
 						$retArr[$r->cs]['notes'] = $this->cleanOutStr($r->notes);
 						$retArr[$r->cs]['description'] = $this->cleanOutStr($r->description);
 						$retArr[$r->cs]['illustrationurl'] = $r->illustrationurl;
+						$retArr[$r->cs]['glossid'] = $r->glossid;
 						$retArr[$r->cs]['sortsequence'] = $this->cleanOutStr($r->sortsequence);
 						$retArr[$r->cs]['enteredby'] = $r->enteredby;
 					}
@@ -182,7 +181,7 @@ class KeyCharAdmin{
 		return $retArr;
 	}
 
-	public function createCharState($csName,$illUrl,$desc,$n,$sort,$un){
+	public function createCharState($postArr, $un){
 		$csValue = 1;
 		if($this->cid){
 			//Get highest character set ID value (CS) and increase by 1
@@ -195,17 +194,17 @@ class KeyCharAdmin{
 				}
 				$rs->free();
 			}
-			//Load new character set
-			$illustrationUrl = $this->cleanInStr($illUrl);
-			$description = $this->cleanInStr($desc);
-			$notes = $this->cleanInStr($n);
-			$sortSequence = $this->cleanInStr($sort);
-			$sql = 'INSERT INTO kmcs(cid,cs,charstatename,implicit,illustrationurl,description,notes,sortsequence,enteredby) '.
+			$csName = $postArr['charstatename'];
+			$glossID = $postArr['glossid'];
+			$description = $postArr['description'];
+			$notes = $postArr['notes'];
+			$sortSequence = $postArr['sortsequence'];
+			$sql = 'INSERT INTO kmcs(cid,cs,charstatename,implicit,glossid,description,notes,sortsequence,enteredby) '.
 				'VALUES('.$this->cid.',"'.$csValue.'","'.$this->cleanInStr($csName).'",1,'.
-				($illustrationUrl?'"'.$illustrationUrl.'"':'NULL').','.
-				($description?'"'.$description.'"':'NULL').','.
-				($notes?'"'.$notes.'"':'NULL').','.
-				($sortSequence?$sortSequence:100).',"'.$un.'") ';
+				(is_numeric($glossID)?$glossID:'NULL').','.
+				($description?'"'.$this->cleanInStr($description).'"':'NULL').','.
+				($notes?'"'.$this->cleanInStr($notes).'"':'NULL').','.
+				(is_numeric($sortSequence)?$this->cleanInStr($sortSequence):100).',"'.$un.'") ';
 			//echo $sql;
 			if(!$this->conn->query($sql)){
 				trigger_error('ERROR: Creation of new character failed: '.$this->conn->error);
@@ -217,7 +216,7 @@ class KeyCharAdmin{
 	public function editCharState($pArr){
 		$statusStr = '';
 		$cs = $pArr['cs'];
-		$targetArr = array('charstatename','illustrationurl','description','notes','sortsequence');
+		$targetArr = array('charstatename','glossid','description','notes','sortsequence');
 		$sql = '';
 		foreach($pArr as $k => $v){
 			if(in_array($k,$targetArr)){
@@ -463,9 +462,7 @@ class KeyCharAdmin{
 
 	public function addHeading($name,$notes,$sortSeq){
 		$statusStr = '';
-		$sql = 'INSERT INTO kmcharheading(headingname,notes,langid,sortsequence) '.
-			'VALUES ("'.$name.'",'.($notes?'"'.$notes.'"':'NULL').','.$this->langId.','.
-			(is_numeric($sortSeq)?$sortSeq:'NULL').')';
+		$sql = 'INSERT INTO kmcharheading(headingname,notes,langid,sortsequence) VALUES ("'.$name.'",'.($notes?'"'.$notes.'"':'NULL').','.$this->langId.','.(is_numeric($sortSeq)?$sortSeq:'NULL').')';
 		if(!$this->conn->query($sql)){
 			$statusStr = 'Error adding heading: '.$this->conn->error;
 		}
@@ -494,7 +491,31 @@ class KeyCharAdmin{
 		return $statusStr;
 	}
 
-	//Get and set functions
+	//Data retrival functions
+	public function getGlossaryList(){
+		$retArr = array();
+		$sql = 'SELECT glossid, term, language FROM glossary';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->glossid]['term'] = $r->term;
+			$retArr[$r->glossid]['lang'] = $r->language;
+		}
+		$rs->free();
+		return $retArr;
+	}
+
+	public function getLanguageArr(){
+		$retArr = array();
+		$sql = 'SELECT langid, langname FROM adminlanguages ORDER BY langname';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->langid] = $r->langname;
+		}
+		$rs->free();
+		return $retArr;
+	}
+
+	//Setters and getters
 	public function getCid(){
 		return $this->cid;
 	}
@@ -521,17 +542,6 @@ class KeyCharAdmin{
 			}
 			$rs->free();
 		}
-	}
-
-	public function getLanguageArr(){
-		$retArr = array();
-		$sql = 'SELECT langid, langname FROM adminlanguages ORDER BY langname';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->langid] = $r->langname;
-		}
-		$rs->free();
-		return $retArr;
 	}
 
 	//General functions

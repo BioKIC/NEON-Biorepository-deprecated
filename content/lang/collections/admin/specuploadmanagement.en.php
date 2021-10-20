@@ -31,7 +31,6 @@ $LANG['IPT_DWC'] = 'IPT Resource / Darwin Core Archive Provider';
 $LANG['FILE'] = 'File Upload';
 $LANG['SKELETAL_FILE'] = 'Skeletal File Upload';
 $LANG['NFN_UPLOAD'] = 'NfN File Upload';
-$LANG['DIGIR'] = 'DiGIR Provider';
 $LANG['DIRECT_DB'] = 'Direct Database Mapping';
 $LANG['STORED_PROC'] = 'Stored Procedure';
 $LANG['SCRIPT_UP'] = 'Script Upload';

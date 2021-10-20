@@ -44,8 +44,8 @@ $LANG['EXPECTED'] = 'Note: If you are doing a partial upload, this is expected';
 $LANG['FULL_REFRESH'] = 'If you are doing a full data refresh, these may be records that were deleted within your local database but not within the portal.';
 $LANG['NULL_RM'] = 'Records that will be removed due to NULL Primary Identifier';
 $LANG['DUP_RM'] = 'Records that will be removed due to DUPLICATE Primary Identifier';
-$LANG['ID_TRANSFER'] = 'Identification histories pending transfer';
-$LANG['W_IMAGES'] = 'Records with images';
+$LANG['IDENT_TRANSFER'] = 'Identification history count';
+$LANG['IMAGE_TRANSFER'] = 'Image count';
 $LANG['FINAL_TRANSFER'] = 'Are you sure you want to transfer records from temporary table to central specimen table?';
 $LANG['TRANS_RECS'] = 'Transfer Records to Central Specimen Table';
 $LANG['REC_START'] = 'Record Start';
@@ -56,8 +56,8 @@ $LANG['BOTH_CATS'] = 'If both checkboxes are selected, matches will first be mad
 $LANG['ID_SOURCE'] = 'Identify Data Source';
 $LANG['IPT_URL'] = 'IPT Resource URL';
 $LANG['RES_URL'] = 'Resource Path or URL';
-$LANG['WORKAROUND'] = 'This option is for pointing to a data file that was manually 
-						uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed 
+$LANG['WORKAROUND'] = 'This option is for pointing to a data file that was manually
+						uploaded to a server. This option offers a workaround for importing files that are larger than what is allowed
 						by server upload limitations (e.g. PHP configuration limits)';
 $LANG['DISPLAY_OPS'] = 'Display Additional Options';
 $LANG['AUTOMAP'] = 'Automap Fields';

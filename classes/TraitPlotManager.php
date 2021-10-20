@@ -34,9 +34,9 @@ class TraitPlotManager extends TaxonProfile {
 			// case "box":
 			// 	$this->plotInstance = new BoxPlot();
 			// 	break;
-			// case "line":
-			// 	$this->plotInstance = new LinePlot();
-			// 	break;
+			case "line":
+				$this->plotInstance = new LinePlot();
+				break;
 			// case "point":
 			// 	$this->plotInstance = new PointPlot();
 			// 	break;

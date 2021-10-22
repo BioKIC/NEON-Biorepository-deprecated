@@ -247,12 +247,8 @@ class SpecUploadDwca extends SpecUploadBase{
 							if($this->metaArr['occur']['ignoreHeaderLines'] == 1){
 								//Set delimiter
 								if($this->metaArr['occur']['fieldsTerminatedBy']){
-									if($this->metaArr['occur']['fieldsTerminatedBy'] == '\t'){
-										$this->delimiter = "\t";
-									}
-									else{
-										$this->delimiter = $this->metaArr['occur']['fieldsTerminatedBy'];
-									}
+									if($this->metaArr['occur']['fieldsTerminatedBy'] == '\t') $this->delimiter = "\t";
+									else $this->delimiter = $this->metaArr['occur']['fieldsTerminatedBy'];
 									//Read occurrence header and compare
 									$fh = fopen($this->uploadTargetPath.$this->metaArr['occur']['name'],'r') or die("Can't open occurrence file");
 									$headerArr = $this->getRecordArr($fh);
@@ -270,13 +266,15 @@ class SpecUploadDwca extends SpecUploadBase{
 								}
 							}
 							if($this->verboseMode == 2){
+								/*
 								$outputStr = 'DWCA details: encoding = '.$this->metaArr['occur']['encoding'].'; ';
 								$outputStr .= 'fieldsTerminatedBy: '.$this->metaArr['occur']['fieldsTerminatedBy'].'; ';
 								$outputStr .= 'linesTerminatedBy: '.$this->metaArr['occur']['linesTerminatedBy'].'; ';
 								$outputStr .= 'fieldsEnclosedBy: '.$this->metaArr['occur']['fieldsEnclosedBy'].'; ';
 								$outputStr .= 'ignoreHeaderLines: '.$this->metaArr['occur']['ignoreHeaderLines'].'; ';
 								$outputStr .= 'rowType: '.$this->metaArr['occur']['rowType'];
-								//$this->outputMsg($outputStr);
+								$this->outputMsg($outputStr);
+								*/
 							}
 						}
 					}
@@ -815,6 +813,8 @@ class SpecUploadDwca extends SpecUploadBase{
 		$recordArr = Array();
 		if($this->delimiter){
 			$recordArr = fgetcsv($fHandler,0,$this->delimiter,$this->enclosure);
+			//Test for a UTF-8 BOM (Byte Order Mark), and remove if it exists
+			if(substr($recordArr[0],0,3)==chr(hexdec('EF')).chr(hexdec('BB')).chr(hexdec('BF'))) $recordArr[0] = trim(substr($recordArr[0],3),' "');
 		}
 		else{
 			//Check to see if we can figure out the delimiter

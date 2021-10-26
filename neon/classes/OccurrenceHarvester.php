@@ -32,7 +32,7 @@ class OccurrenceHarvester{
 		$retArr = array();
 		$sql = 'SELECT s.errorMessage AS errMsg, COUNT(s.samplePK) as sampleCnt, COUNT(o.occid) as occurrenceCnt '.
 			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) ';
+			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 AND s.occidOriginal IS NULL AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) ';
 		if($shipmentPK) $sql .= 'AND s.shipmentPK = '.$shipmentPK;
 		$sql .= ' GROUP BY errMsg';
 		$rs= $this->conn->query($sql);
@@ -94,7 +94,7 @@ class OccurrenceHarvester{
 				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
 					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.igsnPushedToNEON, s.occid, o.occurrenceID '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-					'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) '.$sqlWhere;
+					'WHERE s.checkinuid IS NOT NULL AND s.acceptedForAnalysis = 1 AND s.sampleReceived = 1 AND s.occidOriginal IS NULL AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) '.$sqlWhere;
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					$this->errorStr = '';
@@ -778,7 +778,7 @@ class OccurrenceHarvester{
 					if(!$occid){
 						$occid = $this->conn->insert_id;
 						if($occid){
-							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
+							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.', occidOriginal = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
 						}
 					}
 					if(isset($dwcArr['identifiers'])) $this->setOccurrenceIdentifiers($dwcArr['identifiers'], $occid);
@@ -905,6 +905,22 @@ class OccurrenceHarvester{
 
 	private function setNeonTaxonomy($occidArr){
 		if($occidArr){
+			//Adjustment for Mammal OTHE taxonomic code
+			$sql = 'UPDATE omoccurrences
+				SET sciname = "Mammalia", scientificNameAuthorship = NULL, tidinterpreted = 21269, family = NULL
+				WHERE collid IN(17,19,24,25,26,27,28,71) AND (sciname IN("OTHE")) ';
+			if(!$this->conn->query($sql)){
+				echo 'ERROR updating Mammalia taxonomy for OTHE taxon codes: '.$sql;
+			}
+
+			//Adjustment for non-Mammal vertebrates with OTHE taxonomic code
+			$sql = 'UPDATE omoccurrences
+				SET sciname = "Chordata", scientificNameAuthorship = NULL, tidinterpreted = 57, family = NULL
+				WHERE collid IN(66,20,12,15,70) AND (sciname IN("OTHE"))';
+			if(!$this->conn->query($sql)){
+				echo 'ERROR updating Chordata taxonomy for OTHE taxon codes: '.$sql;
+			}
+
 			$sql = 'UPDATE taxaresourcelinks l INNER JOIN omoccurrences o ON l.sourceIdentifier = o.sciname '.
 				'INNER JOIN omcollcatlink catlink ON o.collid = catlink.collid '.
 				'INNER JOIN omcollcategories cat ON catlink.ccpk = cat.ccpk '.
@@ -916,14 +932,6 @@ class OccurrenceHarvester{
 				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL ';
 			if(!$this->conn->query($sql)){
 				echo 'ERROR updating taxonomy codes: '.$sql;
-			}
-
-			//Adjustment for Mammal OTHE costs
-			$sql = 'UPDATE omoccurrences '.
-				'SET sciname = "Mammalia", scientificNameAuthorship = NULL, tidinterpreted = 21269, family = NULL '.
-				'WHERE collid IN(17,19,24,25,26,27,28) AND (sciname = "Chordata") ';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating mammalia taxonomy for OTHE taxon codes: '.$sql;
 			}
 
 			//Update Mosquito taxa details

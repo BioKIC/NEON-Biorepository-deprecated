@@ -283,19 +283,6 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		return $retArr;
 	}
 
-	public function getCategoryName($catID){
-		$retArr = array();
-		if($catID && preg_match('/^[,\d]+$/', $catID)){
-			$sql = 'SELECT ccpk, category FROM omcollcategories WHERE (ccpk IN('.$catID.'))';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[] = $r->category;
-			}
-			$rs->free();
-		}
-		return $retArr;
-	}
-
 	//Mics functions
 	private function aasort(&$array, $key){
 		$sorter = array();

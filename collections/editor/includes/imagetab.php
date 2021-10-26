@@ -247,7 +247,7 @@ $photographerArr = $occManager->getPhotographerArr();
 								</div>
 								<div>
 									<b><?php echo $LANG['SORT']; ?>:</b>
-									<?php echo $imgArr["sort"]; ?>
+									<?php echo $imgArr['sort']; ?>
 								</div>
 							</div>
 						</td>

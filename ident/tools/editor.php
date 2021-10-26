@@ -107,8 +107,8 @@ if($isEditor && $action){
 			if($childrenStr){
 				echo "<br><a href='editor.php?children=".$childrenStr."'>back to child</a>";
 			}
-			echo "</div>";
-			echo "<h2>$sn</h2>";
+			echo '</div>';
+			echo '<h2>'.$sn.'</h2>';
 			$cList = $editorManager->getCharList();
 			$depArr = $editorManager->getCharDepArray();
 			$charStatesList = $editorManager->getCharStates();

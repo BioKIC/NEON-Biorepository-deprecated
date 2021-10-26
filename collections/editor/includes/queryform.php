@@ -5,7 +5,7 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/queryf
 
 $qryArr = $occManager->getQueryVariables();
 // Construct a link containing the queryform search parameters
-$queryLink = '?displayquery=1&collid='.$_REQUEST['collid'].'&'.http_build_query($qryArr, '', '&amp;');
+$queryLink = '?displayquery=1&collid='.$collId.'&'.http_build_query($qryArr, '', '&amp;');
 
 $qCatalogNumber = (array_key_exists('cn',$qryArr)?$qryArr['cn']:'');
 $qOtherCatalogNumbers = (array_key_exists('ocn',$qryArr)?$qryArr['ocn']:'');
@@ -647,7 +647,7 @@ else{
 
 	// Function to copy the query link to the clipboard
 	function copyQueryLink(evt){
-		
+
 		// Prevent the button from triggering and reloading the page
 		evt.preventDefault();
 

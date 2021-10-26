@@ -720,7 +720,7 @@ class TaxonProfile extends Manager {
   	$numOccs = $this->getOccTaxonInDbCnt($limitRank, $collidStr);
   	$occMsg = '';
     if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
-      $occSrcUrl = '../collections/list.php?includeothercatnum=1&usethes=1&taxa='.$this->taxonName;
+      $occSrcUrl = '../collections/list.php?usethes=1&taxa='.$this->tid;
       if($collidStr != 'all') $occSrcUrl .= '&db='.$collidStr;
       $occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.number_format($numOccs).' occurrences</a>';
     } elseif ($numOccs > $limitOccs) {

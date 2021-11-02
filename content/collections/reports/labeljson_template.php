@@ -112,6 +112,156 @@ $LABEL_FORMAT_JSON = '{"labelFormats": [
 				]}}
 			]}}
 		]
-	}
+	},
+  {
+    "title": "Generic Lichen Packet",
+    "labelHeader": {
+      "prefix": "Lichens of ",
+      "midText": "2",
+      "suffix": ", United States",
+      "className": "text-2xl font-family-arial mt-2",
+      "style": ""
+    },
+    "labelFooter": {
+      "textValue": "Custom Collection Name",
+      "className": "",
+      "style": ""
+    },
+    "customStyles": "",
+    "defaultCss": "../../css/symb/labelhelpers.css",
+    "customCss": "../../css/symb/lichenpacket.css",
+    "customJS": "../../js/symb/lichenpacket.js",
+    "labelType": "packet",
+    "pageSize": "letter",
+    "displaySpeciesAuthor": 1,
+    "displayBarcode": 1,
+    "labelBlocks": [
+      {
+        "divBlock": {
+          "className": "label-blocks",
+          "style": "",
+          "blocks": [
+            {
+              "fieldBlock": [
+                {
+                  "field": "scientificname",
+                  "className": "font-bold italic text-xl font-family-arial"
+                },
+                {
+                  "field": "scientificnameauthorship",
+                  "className": "font-family-arial text-sm"
+                }
+              ],
+              "delimiter": " ",
+              "className": "mt-3"
+            },
+            {
+              "fieldBlock": [
+                {
+                  "field": "identifiedby",
+                  "className": "font-family-arial text-sm ml-2",
+                  "prefix": "det. "
+                },
+                {
+                  "field": "dateidentified",
+                  "className": "font-family-arial text-sm ml-2"
+                }
+              ],
+              "delimiter": " "
+            },
+            {
+              "fieldBlock": [
+                {
+                  "field": "country",
+                  "className": "font-bold font-family-arial text-sm"
+                },
+                {
+                  "field": "stateprovince",
+                  "className": "font-bold font-family-arial text-sm"
+                },
+                {
+                  "field": "county",
+                  "className": "font-family-arial text-sm"
+                },
+                {
+                  "field": "municipality",
+                  "className": "text-sm font-family-arial"
+                },
+                {
+                  "field": "locality",
+                  "className": "font-family-arial text-sm"
+                }
+              ],
+              "delimiter": ", ",
+              "className": "mt-2 ml-2"
+            },
+            {
+              "fieldBlock": [
+                {
+                  "field": "decimallatitude",
+                  "className": "font-family-arial text-sm"
+                },
+                {
+                  "field": "decimallongitude",
+                  "className": "font-family-arial text-sm",
+                  "prefix": ", ",
+                  "suffix": ""
+                },
+                {
+                  "field": "elevationinmeters",
+                  "className": "font-family-arial text-sm",
+                  "prefix": "; ",
+                  "suffix": "m."
+                }
+              ],
+              "delimiter": "",
+              "className": "mt-2 ml-2"
+            },
+            {
+              "fieldBlock": [
+                {
+                  "field": "habitat",
+                  "className": "font-family-arial text-sm"
+                },
+                {
+                  "field": "associatedtaxa",
+                  "className": "font-family-arial text-sm"
+                },
+                {
+                  "field": "substrate",
+                  "className": "font-family-arial text-sm"
+                },
+                {
+                  "field": "occurrenceremarks",
+                  "className": "font-family-arial text-sm",
+                  "prefix": ""
+                }
+              ],
+              "delimiter": "; ",
+              "className": "mt-2 ml-2"
+            },
+            {
+              "fieldBlock": [
+                {
+                  "field": "recordedby",
+                  "className": "font-bold font-family-arial text-sm"
+                },
+                {
+                  "field": "recordnumber",
+                  "className": "font-family-arial text-sm font-bold"
+                },
+                {
+                  "field": "eventdate",
+                  "className": "font-family-arial text-sm"
+                }
+              ],
+              "delimiter": " ",
+              "className": "mt-3"
+            }
+          ]
+        }
+      }
+    ]
+  }
 ]}';
 ?>

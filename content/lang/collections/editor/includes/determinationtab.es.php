@@ -27,7 +27,7 @@ $LANG['NO_HIST_ANNOTATIONS'] = 'No existen anotaciones históricas para este esp
 $LANG['NO_RIGHTS'] = 'Aunque se encuentre en el Editor de Taxonomía para este taxón, no posee permisos específicos de edición para esta colección.
 						Puede enviar nuevas determinaciones, pero necesitarán ser aprobadas por el administrador de la colección
 						antes de ser aplicadas.';
-$LANG['ID_QUALIFIER'] = 'Calificación de Identificación;
+$LANG['ID_QUALIFIER'] = 'Calificación de Identificación';
 $LANG['SCI_NAME'] = 'Nombre Científico';
 $LANG['AUTHOR'] = 'Autor';
 $LANG['CONFIDENCE_IN_DET'] = 'Confianza de Determinación';

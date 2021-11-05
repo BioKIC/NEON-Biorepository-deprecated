@@ -95,6 +95,7 @@ $LANG['RECORDID'] = 'ID del Registro';
 $LANG['CLICK'] = 'Haga clic';
 $LANG['HERE'] = 'aqu&iacute;';
 $LANG['TO_CONTACT'] = 'para contactar con';
+$LANG['ABOUT_SPECIMEN'] = 'sobre este esp&eacute;cimen';
 $LANG['ADDITIONALINFO'] = 'Para informaci&oacute;n adicional acerca de este esp&eacute;cimen, por favor contactar';
 $LANG['SPECREFERENCED'] = 'Esp&eacute;cimen en referenciaci&oacute;n';
 $LANG['SEEERROR'] = '&iquest;Ve un error? Si es as&iacute;, los errores pueden corregirse usando el';

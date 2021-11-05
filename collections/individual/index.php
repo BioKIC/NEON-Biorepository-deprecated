@@ -1015,7 +1015,6 @@ $traitArr = $indManager->getTraitArr();
 						<div style="margin-top:10px;clear:both;">
 							<?php
 							if($collMetadata['contact']){
-								echo (isset($LANG['ADDITIONALINFO'])?$LANG['ADDITIONALINFO']:'For additional information about this specimen, please contact').': '.$collMetadata['contact'];
 								if($collMetadata['email']){
 									$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
 									$refPath = 'http://';
@@ -1026,6 +1025,7 @@ $traitArr = $indManager->getTraitArr();
 									echo $LANG['CLICK'].' <u><a style="color:blue" href="mailto:'.$collMetadata['email'].'?'.$emailRef.'">'.$LANG['HERE'].'</a></u> '.$LANG['TO_CONTACT'].' '.$collMetadata['contact'].'.';
 								} else {
 								echo (isset($LANG['ADDITIONALINFO'])?$LANG['ADDITIONALINFO']:'For additional information about this specimen, please contact').': '.$collMetadata['contact'];	
+								}
 							}
 							?>
 						</div>

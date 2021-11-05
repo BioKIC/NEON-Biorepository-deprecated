@@ -322,7 +322,7 @@ class SpecUploadBase extends SpecUpload{
 			$symbFieldsRaw = $this->imageSymbFields;
 			$sourceArr = $this->imageSourceArr;
 			$translationMap = array('accessuri'=>'originalurl','thumbnailaccessuri'=>'thumbnailurl','goodqualityaccessuri'=>'url',
-				'providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights',
+				'providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights','creator'=>'photographer',
 				'comments'=>'notes','associatedspecimenreference'=>'referenceurl');
 		}
 

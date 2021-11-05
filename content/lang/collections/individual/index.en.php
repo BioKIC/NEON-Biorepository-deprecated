@@ -95,6 +95,7 @@ $LANG['RECORDID'] = 'Record ID';
 $LANG['CLICK'] = 'Click';
 $LANG['HERE'] = 'here';
 $LANG['TO_CONTACT'] = 'to contact';
+$LANG['ABOUT_SPECIMEN'] = 'about this specimen';
 $LANG['ADDITIONALINFO'] = 'For additional information about this specimen, please contact';
 $LANG['SPECREFERENCED'] = 'Specimen being referenced';
 $LANG['SEEERROR'] = 'Do you see an error? If so, errors can be fixed using the';

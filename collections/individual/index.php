@@ -1022,7 +1022,7 @@ $traitArr = $indManager->getTraitArr();
 									$refPath .= $_SERVER['SERVER_NAME'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
 									$emailBody = (isset($LANG['SPECREFERENCED'])?$LANG['SPECREFERENCED']:'Specimen being referenced').': '.$refPath;
 									$emailRef = 'subject='.$emailSubject.'&cc='.$ADMIN_EMAIL.'&body='.$emailBody;
-									echo $LANG['CLICK'].' <u><a style="color:blue" href="mailto:'.$collMetadata['email'].'?'.$emailRef.'">'.$LANG['HERE'].'</a></u> '.$LANG['TO_CONTACT'].' '.$collMetadata['contact'].'.';
+									echo $LANG['CLICK'].' <u><a style="color:blue" href="mailto:'.$collMetadata['email'].'?'.$emailRef.'">'.$LANG['HERE'].'</a></u> '.$LANG['TO_CONTACT'].' '.$collMetadata['contact'].'. '.$LANG['ABOUT_SPECIMEN'].'.';
 								} else {
 								echo (isset($LANG['ADDITIONALINFO'])?$LANG['ADDITIONALINFO']:'For additional information about this specimen, please contact').': '.$collMetadata['contact'];	
 								}

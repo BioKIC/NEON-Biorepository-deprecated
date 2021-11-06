@@ -3,6 +3,7 @@ include_once($SERVER_ROOT.'/classes/SpecUpload.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceUtilities.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
+include_once($SERVER_ROOT.'/classes/Encoding.php');
 
 class SpecUploadBase extends SpecUpload{
 
@@ -280,13 +281,13 @@ class SpecUploadBase extends SpecUpload{
 			'cf' => 'identificationqualifier','qualifier'=>'identificationqualifier','position'=>'specify:qualifier_position','detby'=>'identifiedby','determinor'=>'identifiedby',
 			'determinationdate'=>'dateidentified','determineddate'=>'dateidentified','determinedremarks'=>'identificationremarks','placecountryname'=>'country',
 			'placestatename'=>'stateprovince','state'=>'stateprovince','placecountyname'=>'county','municipiocounty'=>'county','location'=>'locality','field:localitydescription'=>'locality',
-			'placeguess'=>'locality','localitynotes'=>'locationremarks','latitude'=>'verbatimlatitude','longitude'=>'verbatimlongitude','placeadmin1name'=>'stateprovince','placeadmin2name'=>'county',
-			'errorradius'=>'coordinateuncertaintyradius','positionalaccuracy'=>'coordinateuncertaintyinmeters','errorradiusunits'=>'coordinateuncertaintyunits','errorradiusunit'=>'coordinateuncertaintyunits',
+			'placeguess'=>'locality','localitynotes'=>'locationremarks','latitude'=>'verbatimlatitude','longitude'=>'verbatimlongitude',
+			'errorradius'=>'coordinateuncertaintyradius','publicpositionalaccuracy'=>'coordinateuncertaintyinmeters','errorradiusunits'=>'coordinateuncertaintyunits','errorradiusunit'=>'coordinateuncertaintyunits',
 			'datum'=>'geodeticdatum','utmzone'=>'utmzoning','township'=>'trstownship','range'=>'trsrange','section'=>'trssection','georeferencingsource'=>'georeferencesources','georefremarks'=>'georeferenceremarks',
 			'elevationmeters'=>'minimumelevationinmeters','minelevationm'=>'minimumelevationinmeters','maxelevationm'=>'maximumelevationinmeters','verbatimelev'=>'verbatimelevation',
 			'field:associatedspecies'=>'associatedtaxa','associatedspecies'=>'associatedtaxa','assoctaxa'=>'associatedtaxa','specimennotes'=>'occurrenceremarks','notes'=>'occurrenceremarks',
 			'generalnotes'=>'occurrenceremarks','plantdescription'=>'verbatimattributes','description'=>'verbatimattributes','specimendescription'=>'verbatimattributes',
-			'phenology'=>'reproductivecondition','field:habitat'=>'habitat','habitatdescription'=>'habitat','sitedeschabitat'=>'habitat',
+			'phenology'=>'reproductivecondition','field:habitat'=>'habitat','habitatdescription'=>'habitat','sitedeschabitat'=>'habitat','captivecultivated'=>'cultivationstatus',
 			'ometid'=>'exsiccatiidentifier','exsiccataeidentifier'=>'exsiccatiidentifier','exsnumber'=>'exsiccatinumber','exsiccataenumber'=>'exsiccatinumber',
 			'group'=>'paleo-lithogroup','preparationdetails'=>'materialsample-preparationprocess','materialsampletype'=>'materialsample-sampletype',
 			'lithostratigraphicterms'=>'paleo-lithology','imageurl'=>'associatedmedia','subject_references'=>'tempfield01','subject_recordid'=>'tempfield02'
@@ -321,7 +322,7 @@ class SpecUploadBase extends SpecUpload{
 			$symbFieldsRaw = $this->imageSymbFields;
 			$sourceArr = $this->imageSourceArr;
 			$translationMap = array('accessuri'=>'originalurl','thumbnailaccessuri'=>'thumbnailurl','goodqualityaccessuri'=>'url',
-				'providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights',
+				'providermanagedid'=>'sourceidentifier','usageterms'=>'copyright','webstatement'=>'accessrights','creator'=>'photographer',
 				'comments'=>'notes','associatedspecimenreference'=>'referenceurl');
 		}
 
@@ -1447,9 +1448,9 @@ class SpecUploadBase extends SpecUpload{
 				$recMap['dbpk'] = trim(preg_replace('/\s\s+/',' ',$recMap['dbpk']));
 			}
 			else{
-				if($this->collMetadataArr["managementtype"] == 'Live Data'){
+				if($this->collMetadataArr["managementtype"] == 'Live Data' || $this->uploadType == $this->SKELETAL){
 					//If dbpk does not exist, set a temp value
-					$recMap['dbpk'] = 'SYMBDBPK-'.$this->dbpkCnt;
+					if(!isset($recMap['dbpk']) || !$recMap['dbpk']) $recMap['dbpk'] = 'SYMBDBPK-'.$this->dbpkCnt;
 					$this->dbpkCnt++;
 				}
 			}
@@ -1484,9 +1485,12 @@ class SpecUploadBase extends SpecUpload{
 					//$this->outputMsg("</li>");
 				}
 				else{
-					$this->outputMsg("<li>FAILED adding record #".$this->transferCount."</li>");
-					$this->outputMsg("<li style='margin-left:10px;'>Error: ".$this->conn->error."</li>");
-					$this->outputMsg("<li style='margin:0px 0px 10px 10px;'>SQL: $sql</li>");
+					$sql = Encoding::fixUTF8($sql);
+					if(!$this->conn->query($sql)){
+						$this->outputMsg('<li>FAILED adding record #'.$this->transferCount.'</li>');
+						$this->outputMsg('<li style="margin-left:10px;">Error: '.$this->conn->error.'</li>');
+						$this->outputMsg('<li style="margin:0px 0px 10px 10px;">SQL: '.$sql.'</li>');
+					}
 				}
 			}
 		}

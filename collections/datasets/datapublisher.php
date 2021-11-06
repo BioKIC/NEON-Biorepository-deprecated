@@ -209,17 +209,16 @@ include($SERVER_ROOT.'/includes/header.php');
 		</div>
 		<?php
 	}
-	?>
-	<h1><?php echo $LANG['DWCA_PUBLISHING']; ?></h1>
-	<?php
+	echo '<h1>'.$LANG['DWCA_PUBLISHING'].'</h1>';
 	if($collid){
 		echo '<div style="font-weight:bold;font-size:120%;">'.$collArr['collectionname'].'</div>';
 		?>
 		<div style="margin:10px;">
-			<?php echo $LANG['DWCA_EXPLAIN_1'].' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a>'.$LANG['DWCA_EXPLAIN_2'].
-			' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a>'.$LANG['DWCA_EXPLAIN_3'].
-			' <a href="http://symbiota.org/docs/darwin-core-archive-data-publishing/" target="_blank">'.$LANG['PUBLISH_IDIGBIO'].'</a> &amp;'.
-			' <a href="http://symbiota.org/docs/publishing-to-gbif-from-a-symbiota-portal/" target="_blank">'.$LANG['PUBLISH_GBIF'].'</a>.';
+			<?php
+			echo $LANG['DWCA_EXPLAIN_1'].' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a> '.$LANG['DWCA_EXPLAIN_2'].
+			' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a> '.$LANG['DWCA_EXPLAIN_3'].
+			' <a href="http://symbiota.org/docs/darwin-core-archive-data-publishing/" target="_blank"> '.$LANG['PUBLISH_IDIGBIO'].'</a> &amp;'.
+			' <a href="http://symbiota.org/docs/publishing-to-gbif-from-a-symbiota-portal/" target="_blank"> '.$LANG['PUBLISH_GBIF'].'</a>.';
 			?>
 		</div>
 		<?php
@@ -227,10 +226,9 @@ include($SERVER_ROOT.'/includes/header.php');
 	else{
 		?>
 		<div style="margin:10px;">
-			<?php echo $LANG['DWCA_DOWNLOAD_EXPLAIN_1'].
-			' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a>'.
-			$LANG['DWCA_DOWNLOAD_EXPLAIN_2'].' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a>'.
-			$LANG['DWCA_DOWNLOAD_EXPLAIN_3'];
+			<?php
+			echo $LANG['DWCA_DOWNLOAD_EXPLAIN_1'].' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a> ';
+			echo $LANG['DWCA_DOWNLOAD_EXPLAIN_2'].' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a> '.$LANG['DWCA_DOWNLOAD_EXPLAIN_3'];
 			?>
 		</div>
 		<div style="margin:10px;">
@@ -244,7 +242,7 @@ include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div style="margin:20px;">
 		<?php
-		echo '<b>'.$LANG['RSS_FEED'].':</b>';
+		echo '<b>'.$LANG['RSS_FEED'].':</b> ';
 		$urlPrefix = $dwcaManager->getServerDomain().$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/');
 		if(file_exists('../../webservices/dwc/rss.xml')){
 			$feedLink = $urlPrefix.'webservices/dwc/rss.xml';
@@ -283,7 +281,7 @@ include($SERVER_ROOT.'/includes/header.php');
 					<form action="datapublisher.php" method="post" style="display:inline;" onsubmit="return window.confirm('<?php echo $LANG['SURE_DELETE']; ?>');">
 						<input type="hidden" name="colliddel" value="<?php echo $dArr['collid']; ?>">
 						<input type="hidden" name="collid" value="<?php echo $dArr['collid']; ?>">
-						<input type="image" src="../../images/del.png" name="action" value="DeleteCollid" title="<?php echo $LANG['DELETE_ARCHIVE']; ?>" style="width:15px;" />
+						<input type="image" src="../../images/del.png" name="action" value="DeleteCollid" title="<?php echo $LANG['DELETE_ARCHIVE']; ?>" style="width:15px;">
 					</form>
 				</div>
 				<div><b><?php echo $LANG['DESCRIPTION']; ?>:</b> <?php echo $dArr['description']; ?></div>
@@ -441,7 +439,6 @@ include($SERVER_ROOT.'/includes/header.php');
 	}
 	else{
 		$catID = (isset($DEFAULTCATID)?$DEFAULTCATID:0);
-		$catTitle = implode(', ',$dwcaManager->getCategoryName($catID));
 		if($IS_ADMIN){
 			if($action == 'Create/Refresh Darwin Core Archive(s)'){
 				echo '<ul>';
@@ -457,7 +454,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			<div id="dwcaadmindiv" style="margin:10px;display:<?php echo ($emode?'block':'none'); ?>;" >
 				<form name="dwcaadminform" action="datapublisher.php" method="post" onsubmit="return verifyDwcaAdminForm(this)">
 					<fieldset style="padding:15px;">
-						<legend><b><?php echo $LANG['PUBLISH_REF'].' '.$catTitle.' '.$LANG['DWCA_FILES']; ?></b></legend>
+						<legend><b><?php echo $LANG['PUBLISH_REFRESH']; ?></b></legend>
 						<div style="margin:10px;">
 							<input name="collcheckall" type="checkbox" value="" onclick="checkAllColl(this)" /> <?php echo $LANG['SEL_DESEL_ALL']; ?><br/><br/>
 							<?php
@@ -498,7 +495,6 @@ include($SERVER_ROOT.'/includes/header.php');
 			<?php
 		}
 		if($dwcaArr = $dwcaManager->getDwcaItems()){
-			if($catTitle) echo '<div style="font-weight:bold;font-size:140%;margin:50px 0px 15px 0px;">'.$catTitle.' DwC-Archive Files</div>';
 			?>
 			<table class="styledtable" style="font-family:Arial;font-size:12px;margin:10px;">
 				<tr><th><?php echo $LANG['CODE']; ?></th><th><?php echo $LANG['COL_NAME']; ?></th><th><?php echo $LANG['DWCA']; ?></th><th><?php echo $LANG['METADATA']; ?></th><th><?php echo $LANG['PUB_DATE']; ?></th></tr>

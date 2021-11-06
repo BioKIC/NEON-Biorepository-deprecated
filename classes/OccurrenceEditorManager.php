@@ -471,6 +471,7 @@ class OccurrenceEditorManager {
 			$sqlWhere .= 'AND (exn.ometid = '.$this->qryArr['exsid'].') ';
 		}
 		//Custom search fields
+		$customWhere = '';
 		for($x=1;$x<9;$x++){
 			$cao = (array_key_exists('cao'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cao'.$x]):'');
             $cop = (array_key_exists('cop'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cop'.$x]):'');
@@ -492,55 +493,56 @@ class OccurrenceEditorManager {
 					$cf = 'o.'.$cf;
 				}
 				if($ct=='NULL'){
-					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NULL) '.($ccp?$ccp.' ':'');
+					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NULL) '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='NOTNULL'){
-					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NOT NULL) '.($ccp?$ccp.' ':'');
+					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NOT NULL) '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='NOT EQUALS' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' <> '.$cv.') '.($ccp?$ccp.' ':'');
+					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' <> '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='GREATER' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' > '.$cv.') '.($ccp?$ccp.' ':'');
+					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' > '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='LESS' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' < '.$cv.') '.($ccp?$ccp.' ':'');
+					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' < '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='LIKE' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
+						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
+						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($ct=='NOT LIKE' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
+						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
+						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($ct=='STARTS' && $cv){
 					if(strpos($cv,'%') !== false){
-						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
+						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
 					}
 					else{
-						$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'%") '.($ccp?$ccp.' ':'');
+						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'%") '.($ccp?$ccp.' ':'');
 					}
 				}
 				elseif($cv){
-					$sqlWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' = "'.$cv.'") '.($ccp?$ccp.' ':'');
+					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' = "'.$cv.'") '.($ccp?$ccp.' ':'');
 				}
 			}
 			else if($x > 1 && !$cf && $ccp){
-        		$sqlWhere .= ' '.$ccp.' ';
+				$customWhere .= ' '.$ccp.' ';
     		}
 		}
+		if($customWhere) $sqlWhere .= 'AND ('.substr($customWhere,3).') ';
 		if($this->crowdSourceMode){
 			$sqlWhere .= 'AND (q.reviewstatus = 0) ';
 		}
@@ -551,7 +553,7 @@ class OccurrenceEditorManager {
 		if($this->collId) $sqlWhere .= 'AND (o.collid ='.$this->collId.') ';
 		if($sqlWhere) $sqlWhere = 'WHERE '.substr($sqlWhere,4);
 
-		//echo $sqlWhere;
+		//echo $sqlWhere.'<br/>';
 		$this->sqlWhere = $sqlWhere;
 	}
 
@@ -1056,9 +1058,9 @@ class OccurrenceEditorManager {
 				'ownerInstitutionCode' => 's', 'institutionCode' => 's', 'collectionCode' => 's',
 				'family' => 's', 'sciname' => 's', 'tidinterpreted' => 'n', 'scientificNameAuthorship' => 's', 'identifiedBy' => 's', 'dateIdentified' => 's',
 				'identificationReferences' => 's', 'identificationremarks' => 's', 'taxonRemarks' => 's', 'identificationQualifier' => 's', 'typeStatus' => 's',
-				'recordedBy' => 's', 'recordNumber' => 's', 'associatedCollectors' => 's', 'eventDate' => 'd', 'year' => 'n', 'month' => 'n', 'day' => 'n', 'startDayOfYear' => 'n', 'endDayOfYear' => 'n',
-				'verbatimEventDate' => 's', 'habitat' => 's', 'substrate' => 's', 'fieldnumber' => 's', 'occurrenceRemarks' => 's', 'associatedTaxa' => 's', 'verbatimattributes' => 's',
-				'dynamicProperties' => 's', 'reproductiveCondition' => 's', 'cultivationStatus' => 's', 'establishmentMeans' => 's',
+				'recordedBy' => 's', 'recordNumber' => 's', 'associatedCollectors' => 's', 'eventDate' => 'd', 'year' => 'n', 'month' => 'n', 'day' => 'n', 'startDayOfYear' => 'n',
+				'endDayOfYear' => 'n', 'verbatimEventDate' => 's', 'habitat' => 's', 'substrate' => 's', 'fieldnumber' => 's', 'occurrenceRemarks' => 's', 'dataGeneralizations' => 's',
+				'associatedTaxa' => 's', 'verbatimattributes' => 's', 'dynamicProperties' => 's', 'reproductiveCondition' => 's', 'cultivationStatus' => 's', 'establishmentMeans' => 's',
 				'lifestage' => 's', 'sex' => 's', 'individualcount' => 's', 'samplingprotocol' => 's', 'preparations' => 's',
 				'country' => 's', 'stateProvince' => 's', 'county' => 's', 'municipality' => 's', 'locationid' => 's', 'locality' => 's', 'localitySecurity' => 'n', 'localitysecurityreason' => 's',
 				'locationRemarks' => 'n', 'decimalLatitude' => 'n', 'decimalLongitude' => 'n', 'geodeticDatum' => 's', 'coordinateUncertaintyInMeters' => 'n', 'verbatimCoordinates' => 's',

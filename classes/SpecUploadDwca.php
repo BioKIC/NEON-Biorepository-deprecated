@@ -247,15 +247,11 @@ class SpecUploadDwca extends SpecUploadBase{
 							if($this->metaArr['occur']['ignoreHeaderLines'] == 1){
 								//Set delimiter
 								if($this->metaArr['occur']['fieldsTerminatedBy']){
-									if($this->metaArr['occur']['fieldsTerminatedBy'] == '\t'){
-										$this->delimiter = "\t";
-									}
-									else{
-										$this->delimiter = $this->metaArr['occur']['fieldsTerminatedBy'];
-									}
+									if($this->metaArr['occur']['fieldsTerminatedBy'] == '\t') $this->delimiter = "\t";
+									else $this->delimiter = $this->metaArr['occur']['fieldsTerminatedBy'];
 									//Read occurrence header and compare
 									$fh = fopen($this->uploadTargetPath.$this->metaArr['occur']['name'],'r') or die("Can't open occurrence file");
-									$headerArr = $this->getRecordArr($fh);
+									$headerArr = $this->getRecordArr($fh,true);
 									foreach($headerArr as $k => $v){
 										if(strtolower($v) != strtolower($this->metaArr['occur']['fields'][$k])){
 											$msg = '<div style="margin-left:25px;">';
@@ -270,13 +266,15 @@ class SpecUploadDwca extends SpecUploadBase{
 								}
 							}
 							if($this->verboseMode == 2){
+								/*
 								$outputStr = 'DWCA details: encoding = '.$this->metaArr['occur']['encoding'].'; ';
 								$outputStr .= 'fieldsTerminatedBy: '.$this->metaArr['occur']['fieldsTerminatedBy'].'; ';
 								$outputStr .= 'linesTerminatedBy: '.$this->metaArr['occur']['linesTerminatedBy'].'; ';
 								$outputStr .= 'fieldsEnclosedBy: '.$this->metaArr['occur']['fieldsEnclosedBy'].'; ';
 								$outputStr .= 'ignoreHeaderLines: '.$this->metaArr['occur']['ignoreHeaderLines'].'; ';
 								$outputStr .= 'rowType: '.$this->metaArr['occur']['rowType'];
-								//$this->outputMsg($outputStr);
+								$this->outputMsg($outputStr);
+								*/
 							}
 						}
 					}
@@ -345,7 +343,7 @@ class SpecUploadDwca extends SpecUploadBase{
 										}
 										//Read extension file header and compare
 										$fh = fopen($this->uploadTargetPath.$this->metaArr[$tagName]['name'],'r') or die("Can't open $tagName extension file");
-										$headerArr = $this->getRecordArr($fh);
+										$headerArr = $this->getRecordArr($fh,true);
 										if($headerArr){
 											foreach($headerArr as $k => $v){
 												$metaField = strtolower($this->metaArr[$tagName]['fields'][$k]);
@@ -438,7 +436,7 @@ class SpecUploadDwca extends SpecUploadBase{
 
 			 		if($this->metaArr['occur']['ignoreHeaderLines'] == '1'){
 			 			//Advance one record to go past header
-						$this->getRecordArr($fh);
+						$this->getRecordArr($fh,true);
 			 		}
 
 					$cset = strtolower(str_replace('-','',$CHARSET));
@@ -752,13 +750,12 @@ class SpecUploadDwca extends SpecUploadBase{
 				if(isset($this->metaArr[$targetStr]['encoding']) && $this->metaArr[$targetStr]['encoding']){
 					$this->encoding = strtolower(str_replace('-','',$this->metaArr[$targetStr]['encoding']));
 				}
-				$coreId = $this->metaArr[$targetStr]['coreid'];
 
 		 		$fh = fopen($fullPathExt,'r') or die("Can't open extension file");
 
 		 		if($this->metaArr[$targetStr]['ignoreHeaderLines'] == '1'){
 		 			//Advance one record to go past header
-		 			$this->getRecordArr($fh);
+		 			$this->getRecordArr($fh,true);
 		 		}
 				$cset = strtolower(str_replace('-','',$CHARSET));
 
@@ -811,10 +808,14 @@ class SpecUploadDwca extends SpecUploadBase{
 		}
 	}
 
-	private function getRecordArr($fHandler){
+	private function getRecordArr($fHandler,$isFirstRow=false){
 		$recordArr = Array();
 		if($this->delimiter){
 			$recordArr = fgetcsv($fHandler,0,$this->delimiter,$this->enclosure);
+			//Test for a UTF-8 BOM (Byte Order Mark), and remove if it exists
+			if($isFirstRow){
+				if(substr($recordArr[0],0,3)==chr(hexdec('EF')).chr(hexdec('BB')).chr(hexdec('BF'))) $recordArr[0] = trim(substr($recordArr[0],3),' "');
+			}
 		}
 		else{
 			//Check to see if we can figure out the delimiter

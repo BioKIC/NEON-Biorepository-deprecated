@@ -30,7 +30,7 @@ if($SYMB_UID){
 	if($occNum > -1){
 		$occMsg = number_format($occNum).' '.(isset($LANG['OCCURRENCES'])?'occurrences':'');
 		if($occNum){
-			$occHref = '../collections/list.php?includeothercatnum=1&taxa='.$taxonManager->getTaxonName();
+			$occHref = '../collections/list.php?usethes=1&taxa='.$tid;
 			$occMsg = '<a class="btn" href="'.$occHref.'" target="_blank">'.$occMsg.'</a>';
 		}
 		echo '<li>'.$occMsg.'</li>';

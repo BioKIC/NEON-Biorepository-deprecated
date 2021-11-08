@@ -119,20 +119,14 @@ else{
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['TABLE_VIEW'])?$LANG['TABLE_VIEW']:'Occurrence Table View'); ?></title>
 	<?php
 	$activateJQuery = false;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.table.js?ver=2" type="text/javascript" ></script>
 	<script src="../../js/symb/collections.editor.query.js?ver=4" type="text/javascript" ></script>
 	<style type="text/css">
+		#titleDiv { font-weight: bold; font-size: 14px; width:790px; margin-bottom: 5px; }
 		table.styledtable td { white-space: nowrap; }
 		fieldset{ padding:15px }
 		fieldset > legend{ font-weight:bold }
@@ -144,21 +138,21 @@ else{
 <body style="margin-left: 0px; margin-right: 0px;background-color:white;">
 	<div id="innertext">
 		<?php
-		if($collMap){
-			echo '<div>';
-			echo '<h2>'.$collMap['collectionname'].' ('.$collMap['institutioncode'].($collMap['collectioncode']?':'.$collMap['collectioncode']:'').')</h2>';
-			echo '</div>';
-		}
 		if(($isEditor || $crowdSourceMode)){
 			?>
-			<div style="text-align:right;width:790px;margin:-30px 15px 5px 0px;">
-				<a href="#" title="<?php echo $LANG['SEARCH_FILTER']; ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:16px;" /></a>
-				<?php
-				if($isEditor == 1 || $isGenObs){
-					?>
-					<a href="#" title="Batch Update Tool" onclick="toggleBatchUpdate();return false;"><img src="../../images/editplus.png" style="width:14px;" /></a>
+			<div id="titleDiv">
+				<div style="float:right;margin:">
+					<a href="#" title="<?php echo $LANG['SEARCH_FILTER']; ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:16px;" /></a>
 					<?php
-				}
+					if($isEditor == 1 || $isGenObs){
+						?>
+						<a href="#" title="Batch Update Tool" onclick="toggleBatchUpdate();return false;"><img src="../../images/editplus.png" style="width:14px;" /></a>
+						<?php
+					}
+					?>
+				</div>
+				<?php
+				if($collMap) echo $collMap['collectionname'].' ('.$collMap['institutioncode'].($collMap['collectioncode']?':'.$collMap['collectioncode']:'').')';
 				?>
 			</div>
 			<?php

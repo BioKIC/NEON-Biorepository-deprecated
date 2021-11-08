@@ -17,23 +17,22 @@ $LANG['DISPLAY_CONTROL_PANEL'] = 'Display Publishing Control Panel';
 $LANG['DWCA_PUBLISHING'] = 'Darwin Core Archive Publishing';
 $LANG['DWCA_EXPLAIN_1'] = 'Use the controls below to publish occurrence data from this collection as a';
 $LANG['DWCA'] = 'Darwin Core Archive (DwC-A)';
-$LANG['DWCA_EXPLAIN_2'] = 'file. DwC-A files are a single compressed ZIP file that contains one to several data files along with a meta.xml
-			document that describes the content. The occurrence data file is required, but identifications (determinations) and image metadata are optional.
-			Fields within the occurrences.csv file are defined by the';
+$LANG['DWCA_EXPLAIN_2'] = 'file. DwC-A files are a single compressed ZIP file that contains one to several data files along with a meta.xml document that describes the content.
+	The occurrence data file is required, but identifications (determinations) and image metadata are optional. Fields within the occurrences.csv file are defined by the';
 $LANG['DWC'] = 'Darwin Core';
-$LANG['DWCA_EXPLAIN_3'] = 'exchange standard. We recommend that you also review instructions for';
+$LANG['DWCA_EXPLAIN_3'] = ' exchange standard. We recommend that you also review instructions for';
 $LANG['PUBLISH_IDIGBIO'] = 'Publishing Occurrence Data to iDigBio';
 $LANG['PUBLISH_GBIF'] = 'Publishing Occurrence Data to GBIF';
 $LANG['DWCA_DOWNLOAD_EXPLAIN_1'] = 'The following downloads are occurrence data packages from collections
-			that have chosen to publish their complete dataset as a';
+	that have chosen to publish their complete dataset as a';
 $LANG['DWCA_DOWNLOAD_EXPLAIN_2'] = 'file. DwC-A files are a single compressed ZIP file that contains one to several data files along with a meta.xml
-			document that describes the content. Archives published through this portal contain three comma separated (CSV) files containing occurrences, identifications (determinations), and image metadata.
-			Fields within the occurrences.csv file are defined by the';
+	document that describes the content. Archives published through this portal contain three comma separated (CSV) files containing occurrences,
+	identifications (determinations), and image metadata. Fields within the occurrences.csv file are defined by the';
 $LANG['DWCA_DOWNLOAD_EXPLAIN_3'] = 'exchange standard. The identification and image files follow the DwC extensions for those data types.';
 $LANG['DATA_USE_POLICY'] = 'Data Usage Policy';
 $LANG['DATA_POLICY_1'] = 'Use of these datasets requires agreement with the terms and conditions in our';
 $LANG['DATA_POLICY_2'] = 'Locality details for rare, threatened, or sensitive records have been redacted from these data files.
-			One must contact the collections directly to obtain access to sensitive locality data.';
+	One must contact the collections directly to obtain access to sensitive locality data.';
 $LANG['RSS_FEED'] = 'RSS Feed';
 $LANG['FEED_NOT_PUBLISHED'] = 'feed not published for any of the collections within the portal';
 $LANG['TITLE'] = 'Title';
@@ -78,14 +77,12 @@ $LANG['WITH_REQUEST_3'] = 'to display a recommended draft email message.';
 $LANG['EMAIL_DRAFT'] = 'Email Draft';
 $LANG['SUBMIT_DATA'] = 'Submit Data';
 $LANG['IDIGBIO_DATASET'] = 'iDigBio Dataset page';
-$LANG['PUBLISH_REFRESH'] = 'Publish/Refresh DwC-A File';
+$LANG['PUBLISH_REFRESH'] = 'Publish/Refresh DwC-A Data';
 $LANG['INCLUDE_DETS'] = 'Include Determination History';
 $LANG['INCLUDE_IMGS'] = 'Include Image URLs';
 $LANG['REDACT_LOC'] = 'Redact Sensitive Localities';
 $LANG['CREATE_REFRESH'] = 'Create/Refresh Darwin Core Archive';
 $LANG['NOTE_LACKING_EXCLUDED'] = 'NOTE: all records lacking occurrenceID GUIDs will be excluded';
-$LANG['PUBLISH_REF'] = 'Publish / Refresh';
-$LANG['DWCA_FILES'] = 'DwC-A Files';
 $LANG['SEL_DESEL_ALL'] = 'Select/Deselect All';
 $LANG['ALREADY_PUB_DOMAIN'] = 'Already published on different domain';
 $LANG['OPTIONS'] = 'Options';

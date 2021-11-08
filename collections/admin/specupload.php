@@ -162,7 +162,7 @@ if($isEditor && $collid){
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
-	<title><?php echo $DEFAULT_TITLE.(isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></title>
+	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></title>
 	<?php
 	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
@@ -496,10 +496,10 @@ if($isEditor && $collid){
 						echo '</div>';
 						//Extensions
 						if(isset($reportArr['ident'])){
-							echo '<div>'.(isset($LANG['ID_TRANSFER'])?$LANG['ID_TRANSFER']:'Identification histories pending transfer').': '.$reportArr['ident'].'</div>';
+							echo '<div>'.(isset($LANG['IDENT_TRANSFER'])?$LANG['IDENT_TRANSFER']:'Identification history count').': '.$reportArr['ident'].'</div>';
 						}
 						if(isset($reportArr['image'])){
-							echo '<div>'.(isset($LANG['W_IMAGES'])?$LANG['W_IMAGES']:'Records with images').': '.$reportArr['image'].'</div>';
+							echo '<div>'.(isset($LANG['IMAGE_TRANSFER'])?$LANG['IMAGE_TRANSFER']:'Image count').': '.$reportArr['image'].'</div>';
 						}
 
 						?>

@@ -119,12 +119,12 @@ if($SYMB_UID){
 	}
 	if($isEditor){
 		//Available to full editors and taxon editors
-		if($action == "Submit Determination"){
+		if($action == "submitDetermination"){
 			//Adding a new determination
 			$statusStr = $occManager->addDetermination($_POST,$isEditor);
 			$tabTarget = 1;
 		}
-		elseif($action == "Submit Determination Edits"){
+		elseif($action == "submitDeterminationEdit"){
 			$statusStr = $occManager->editDetermination($_POST);
 			$tabTarget = 1;
 		}

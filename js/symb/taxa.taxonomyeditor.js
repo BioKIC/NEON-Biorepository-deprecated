@@ -111,29 +111,10 @@ function verifyChangeToNotAcceptedForm(f){
 		return false;
 	}
 	else if(f.tidaccepted.value == "" || f.tidaccepted.value == "undefined"){
-		alert("Taxon entered appears not to be in thesaurus or is not listed as an accepted taxon. Name must be selected from list.");
+		alert("Please select a name from the list. If name is not in the list, target taxon is not listed as accepted, or has not yet been entered in thesarurus.");
 		return false;		
 	}
-	$.ajax({
-		type: "POST",
-		url: "rpc/getchildaccepted.php",
-		dataType: "json",
-		data: { tid: f.tid.value, tidaccepted: f.taxauthid.value }
-	}).done(function( retJSON ) {
-		if(retJSON.length > 0){
-			alert("ERROR: Name can't be changed to non-accepted until accepted child taxa are reassigned");
-			var outStr = '';
-			$.each( retJSON, function(key,value){
-				outStr = outStr + '<a href="taxoneditor.php?tid=' + key + '" target="_blank">' + value + ' <img src="../../images/edit.png" style="width:12px" /></a><br/>';
-			});
-			$("#ctnaErrorDiv").html(outStr);
-			$("#ctnaErrorFS").show();
-		}
-		else{
-			f.submit();
-		}
-	});	
-	return false;
+	return true;
 }
 
 function verifyLinkToAcceptedForm(f){

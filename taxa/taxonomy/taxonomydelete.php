@@ -262,7 +262,7 @@ $verifyArr = $taxonEditorObj->verifyDeleteTaxon();
 			<form name="remaptaxonform" method="post" action="taxoneditor.php">
 				<div style="margin-bottom:5px;">
 					Target taxon:
-					<input id="remapvalue" name="remapvalue" type="text" value="" style="width:300px;" /><br/>
+					<input id="remapvalue" name="remapvalue" type="text" value="" style="width:550px;" /><br/>
 					<input name="remaptid" type="hidden" value="" />
 				</div>
 				<div>

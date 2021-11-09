@@ -1286,14 +1286,6 @@ function verifyDetForm(f){
 		alert("Sort Sequence field must be a numeric value only");
 		return false;
 	}
-	//If sciname was changed and submit was clicked immediately afterward, wait 5 seconds so that name can be verified 
-	if(pauseSubmit){
-		var date = new Date();
-		var curDate = null;
-		do{ 
-			curDate = new Date(); 
-		}while(curDate - date < 5000 && pauseSubmit);
-	}
 	return true;
 }
 

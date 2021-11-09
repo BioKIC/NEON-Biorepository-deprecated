@@ -20,13 +20,16 @@ $childrenArr = $taxonEditorObj->getChildren();
 			<?php
 			if($childrenArr){
 				foreach($childrenArr as $childTid => $childArr){
-					echo '<div style="margin:3px 10px;"><a href="taxoneditor.php?tid='.$childTid.'"><i>'.$childArr['name'].'</i></a></div>';
+					echo '<div style="margin:3px 10px;">';
+					echo '<a href="taxoneditor.php?tid='.$childTid.'"><i>'.$childArr['sciname'].'</i> '.$childArr['author'].'</a>';
+					if($childArr['accTid'] && $childArr['accTid'] != $childTid){
+						echo '<span style="margin-left:10px">&#10140; <a href="taxoneditor.php?tid='.$childArr['accTid'].'"><i>'.$childArr['accSciname'].'</i> '.$childArr['accAuthor'].'</a></span>';
+					}
+					echo '</div>';
 				}
 				echo '<div style="margin-top:20px;">* Showing direct children only</div>';
 			}
-			else{
-				echo '<div style="margin:15px">No children taxa exist for this taxon</div>';
-			}
+			else echo '<div style="margin:15px">No children taxa exist for this taxon</div>';
 			?>
 		</div>
 	</div>

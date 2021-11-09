@@ -1,9 +1,12 @@
+button{
+  border: none;
+}
 .PlotCaption {
   font-size: x-small;
   width: 50%;
 }
 .BarPlotBackground {
-  fill: lightgray;
+  fill: white;
 }
 .BarPlotXTickLine, .BarPlotYTickLine {
   fill: none;

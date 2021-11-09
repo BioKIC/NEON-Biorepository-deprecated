@@ -1,67 +1,116 @@
 .PlotCaption {
   font-size: x-small;
+  width: 50%;
 }
-.BarPlotGridBackground {
+.BarPlotBackground {
   fill: lightgray;
 }
-.BarPlotGridLine {
+.BarPlotXTickLine, .BarPlotYTickLine {
   fill: none;
   stroke: white;
   stroke-width: 1 px;
+  /* stroke-dasharray: 2 2; */
 }
 .BarPlotAxisLine {
   stroke: grey;
   stroke-width: 1 px;
 }
-.BarPlotLabelText {
+.BarPlotXLabelText, .BarPlotYLabelText  {
   fill: black;
   font-family: sans-serif;
   font-size: x-small;
   text-anchor: middle;
 }
-.BarPlotScaleText {
-  fill: black;
-  font-family: sans-serif;
-  font-size: x-small;
+.BarPlotYLabelText {
   text-anchor: end;
 }
-.BarPlotFocalBar {
-  width: 9;
+.BarPlotFocal {
   stroke: none;
   fill: orange;
 }
-.BarPlotBlurredBar {
-  width: 9;
+.BarPlotBlurred {
   stroke: none;
   fill: gray;
 }
-.PolarPlotAxisLine {
+.PolarPlotXTickLine {
   stroke: grey;
   stroke-width: 1 px;
 }
-.PolarPlotTickLine {
+.PolarPlotYTickLine {
   stroke: grey;
   stroke-width: 1 px;
   stroke-dasharray: 2 2;
   fill: none;
 }
-.PolarPlotLabelText {
+.PolarPlotXLabelText {
   font-family: sans-serif;
   font-size: x-small;
   text-anchor: middle;
 }
-.PolarPlotScaleText {
+.PolarPlotYLabelText {
   font-family: sans-serif;
   font-size: xx-small;
   text-anchor: middle;
 }
-.PolarPlotFocalCurve {
+.PolarPlotFocal {
   fill: none;
   stroke-width: 3px;
   stroke: orange;
 }
-.PolarPlotBlurredCurve {
+.PolarPlotBlurred {
   fill: none;
   stroke-width: 3px;
   stroke: gray;
+}
+.LinePlotBackground {
+  fill: lightgray;
+}
+.LinePlotXTickLine, .LinePlotYTickLine {
+  fill: none;
+  stroke: white;
+  stroke-width: 1 px;
+  /* stroke-dasharray: 2 2; */
+}
+.LinePlotAxisLine {
+  stroke: grey;
+  stroke-width: 1 px;
+}
+.LinePlotXLabelText, .LinePlotYLabelText {
+  fill: black;
+  font-family: sans-serif;
+  font-size: x-small;
+  text-anchor: middle;
+}
+.LinePlotYLabelText {
+  text-anchor: end;
+}
+.LinePlotFocal {
+  fill: none;
+  stroke-width: 3px;
+  stroke: orange;
+}
+.LinePlotBlurred {
+  fill: none;
+  stroke-width: 3px;
+  stroke: gray;
+}
+
+.PlotSwitch{
+  cursor: pointer;
+  display: block;
+  background: #ffffff;
+}
+.PlotSwitch + input{
+  display: none;   /* so user doesn't see checkbox */
+}
+.PlotSwitch + input:checked + div{
+  display:block;
+}
+.PlotSwitch + input + div{
+  display:none;
+}
+.PlotIcon {
+  border: 0px;
+  margin: 0px;
+  height: 30px;
 }

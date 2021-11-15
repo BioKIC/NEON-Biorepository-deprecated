@@ -62,12 +62,10 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 		if($detArr['makecurrent'] == 1 && $isEditor < 3){
 			$isCurrent = 1;
 		}
-		if($isEditor == 3){
-			$status = $LANG['DET_ADDED_PENDING'];
-		}
+		if($isEditor == 3) $status = $LANG['DET_ADDED_PENDING'];
 		$sortSeq = 1;
 		if(preg_match('/([1,2]{1}\d{3})/',$detArr['dateidentified'],$matches)){
-			$sortSeq = 2100-$matches[1];
+			$sortSeq = date('Y')+1-$matches[1];
 		}
 		if($isCurrent){
 			//Set all dets for this specimen to not current
@@ -92,7 +90,6 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			($detArr['identificationreferences']?'"'.$this->cleanInStr($detArr['identificationreferences']).'"':'NULL').','.
 			($notes?'"'.$notes.'"':'NULL').','.
 			$sortSeq.')';
-		//echo "<div>".$sql."</div>";
 		if($this->conn->query($sql)){
 			//Create and insert Symbiota GUID for determination(UUID)
 			$guid = UuidFactory::getUuidV4();
@@ -108,7 +105,6 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 					'SELECT occid, IFNULL(identifiedby,"unknown") AS idby, IFNULL(dateidentified,"s.d.") AS di, '.
 					'sciname, scientificnameauthorship, identificationqualifier, identificationreferences, identificationremarks, 10 AS sortseq '.
 					'FROM omoccurrences WHERE (occid = '.$this->occid.') AND (identifiedBy IS NOT NULL OR dateIdentified IS NOT NULL OR sciname IS NOT NULL)';
-				//echo "<div>".$sqlInsert."</div>";
 				if($this->conn->query($sqlInsert)){
 					//Create and insert Symbiota GUID for determination(UUID)
 					$guid = UuidFactory::getUuidV4();
@@ -138,7 +134,6 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 							'INNER JOIN omoccurrences o ON c.locality = o.stateprovince '.
 							'WHERE c.type = "rarespp" AND ts1.taxauthid = 1 AND ts2.taxauthid = 1 '.
 							'AND (ts2.tid = '.$tidToAdd.') AND (o.occid = '.$this->occid.')';
-						//echo $sql; exit;
 						$rsSs2 = $this->conn->query($sql2);
 						if($rsSs2->num_rows){
 							$sStatus = 1;
@@ -160,7 +155,6 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 						'identificationRemarks = '.($detArr['identificationremarks']?'"'.$this->cleanInStr($detArr['identificationremarks']).'"':'NULL');
 				}
 				$sqlNewDet .= ' WHERE (occid = '.$this->occid.')';
-				//echo "<div>".$sqlNewDet."</div>";
 				$this->conn->query($sqlNewDet);
 				//Add identification confidence
 				if(isset($detArr['confidenceranking'])){
@@ -169,7 +163,6 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 				}
 				//Remap images
 				$sql = 'UPDATE images SET tid = '.($tidToAdd?$tidToAdd:'NULL').' WHERE (occid = '.$this->occid.')';
-				//echo $sql;
 				if(!$this->conn->query($sql)){
 					$status = $LANG['ERROR_ADDED_FAILED_IMAGES'];
 					$status .= ': '.$this->conn->error;

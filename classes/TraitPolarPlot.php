@@ -7,7 +7,7 @@
  *  Christopher D. Tyrrell, 2020
  *
  * This class is purely the plot view and should be used in conjunction with the
- * TraitPlotter.php controller class.
+ * TraitPlotManager.php controller class.
  *
  * Default plot size is 400 x 400 px, but svg is scalable to any size by setting
  * viewport (width, height attributes) to desired sizes and viewbox to 0 0 400
@@ -204,7 +204,7 @@ class PolarPlot {
     for($i = 0; $i < $this->AxisNumber; $i++) {
       $x2 = round($this->PlotCenter['x'] + $this->AxisLength * cos($radPos), 0);
       $y2 = round($this->PlotCenter['y'] - $this->AxisLength * sin($radPos), 0);
-      $svgStr .= '<line x1="' . $this->PlotCenter['x'] . '" y1="' . $this->PlotCenter['y'] . '" x2="' . $x2 . '" y2="' . $y2 . '" class="' . $this->PlotClass . 'AxisLine" />' . PHP_EOL;
+      $svgStr .= '<line x1="' . $this->PlotCenter['x'] . '" y1="' . $this->PlotCenter['y'] . '" x2="' . $x2 . '" y2="' . $y2 . '" class="' . $this->PlotClass . 'XTickLine" />' . PHP_EOL;
       $radPos -= $this->RadInterval;
     }
     return $svgStr;
@@ -218,7 +218,7 @@ class PolarPlot {
       if(isset($this->AxisLabels[$i])) { $label = $this->AxisLabels[$i]; } else { $label = $i; }
       $x2 = round($this->PlotCenter['x'] + ($this->AxisLength + $this->PlotPadding) * cos($radPos), 0);
       $y2 = round($this->PlotCenter['y'] - ($this->AxisLength + $this->PlotPadding) * sin($radPos), 0);
-      $svgStr .= '<text transform="translate(' . $x2 . ',' . $y2 . ') rotate(' . $degRotation . ')" class="' . $this->PlotClass . 'LabelText">' . $label . '</text>' . PHP_EOL;
+      $svgStr .= '<text transform="translate(' . $x2 . ',' . $y2 . ') rotate(' . $degRotation . ')" class="' . $this->PlotClass . 'XLabelText">' . $label . '</text>' . PHP_EOL;
       $radPos -= $this->RadInterval;
       $degRotation += rad2deg($this->RadInterval);
     }
@@ -232,7 +232,7 @@ class PolarPlot {
       $tickInterval = $this->AxisLength/$this->TickNumber;
       for($j = 1; $j <= $this->TickNumber; $j++){
         $tickRadius = round($tickInterval * $j, 1);
-        $svgStr .= '<polyline class="' . $this->PlotClass . 'TickLine" points="';
+        $svgStr .= '<polyline class="' . $this->PlotClass . 'YTickLine" points="';
         for($i = 0; $i <= $this->AxisNumber; $i++) {
           $x2 = round($this->PlotCenter['x'] + $tickRadius * cos($radPos), 0);
           $y2 = round($this->PlotCenter['y'] - $tickRadius * sin($radPos), 0);
@@ -254,7 +254,7 @@ class PolarPlot {
       $tickInterval = $this->AxisLength / $this->TickNumber;
       for($j = 1; $j <= $this->TickNumber; $j++){
         $tickRadius = $this->PlotCenter['y'] - round($tickInterval * $j, 1);
-        $svgStr .= '<text transform="translate(' . $this->PlotCenter['x'] . ',' . $tickRadius . ')" class="' . $this->PlotClass . 'ScaleText">' . $this->TickScale * $j . '</text>' . PHP_EOL;
+        $svgStr .= '<text transform="translate(' . $this->PlotCenter['x'] . ',' . $tickRadius . ')" class="' . $this->PlotClass . 'YLabelText">' . $this->TickScale * $j . '</text>' . PHP_EOL;
       }
     }
     return $svgStr;
@@ -267,7 +267,7 @@ class PolarPlot {
       $tInc = 1 / $this->SplineSmoothness;
       $t = $tInc;
       $firstPt = $this->BarryGoldmanSplinePoint($s, 0);
-      $svgd .= '<path class="' . $this->PlotClass . 'FocalCurve" d="M' . $firstPt["x"] . ',' . $firstPt["y"] . ' L';
+      $svgd .= '<path class="' . $this->PlotClass . 'Focal" d="M' . $firstPt["x"] . ',' . $firstPt["y"] . ' L';
       for ($i = 0; $i < $this->SplineSmoothness; $i++) {
         $pt = $this->BarryGoldmanSplinePoint($s, $t);
         $svgd .= $pt["x"] . ',' . $pt["y"] . ' ';

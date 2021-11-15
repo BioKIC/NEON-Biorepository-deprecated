@@ -201,19 +201,13 @@ $specImgArr = $occManager->getImageMap();  // find out if there are images in or
 						<div style='margin:15px;'>
 							<input type="hidden" name="occid" value="<?php echo $occId; ?>" />
 							<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
-
 							<input type="hidden" name="annotatorname" value="<?php echo $annotatorname; ?>" />
 							<input type="hidden" name="annotatoremail" value="<?php echo $annotatoremail; ?>" />
 							<input type="hidden" name="catalognumber" value="<?php echo $catalognumber; ?>" />
 							<input type="hidden" name="institutioncode" value="<?php echo $institutioncode; ?>" />
 							<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
-							<?php
-							if (isset($_GET['collectioncode']))
-								echo '<input type="hidden" name="collectioncode" value="'.$_GET['collectioncode'].'" />';
-							?>
-
 							<div style="float:left;">
-								<button type="submit" name="submitaction" value="Submit Determination" ><?php echo $LANG['SUBMIT_DET']; ?></button>
+								<button type="submit" name="submitaction" value="submitDetermination" ><?php echo $LANG['SUBMIT_DET']; ?></button>
 							</div>
 						</div>
 					</fieldset>
@@ -327,7 +321,7 @@ $specImgArr = $occManager->getImageMap();  // find out if there are images in or
 									<input type="hidden" name="detid" value="<?php echo $detId; ?>" />
 									<input type="hidden" name="occindex" value="<?php echo $occIndex; ?>" />
 									<input type="hidden" name="csmode" value="<?php echo $crowdSourceMode; ?>" />
-									<button type="submit" name="submitaction" value="Submit Determination Edits"><?php echo $LANG['SUBMIT_DET_EDITS']; ?></button>
+									<button type="submit" name="submitaction" value="submitDeterminationEdit"><?php echo $LANG['SUBMIT_DET_EDITS']; ?></button>
 								</div>
 							</form>
 							<?php

@@ -215,10 +215,10 @@ include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div style="margin:10px;">
 			<?php
-			echo $LANG['DWCA_EXPLAIN_1'].' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a>'.$LANG['DWCA_EXPLAIN_2'].
-			' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a>'.$LANG['DWCA_EXPLAIN_3'].
-			' <a href="http://symbiota.org/docs/darwin-core-archive-data-publishing/" target="_blank">'.$LANG['PUBLISH_IDIGBIO'].'</a> &amp;'.
-			' <a href="http://symbiota.org/docs/publishing-to-gbif-from-a-symbiota-portal/" target="_blank">'.$LANG['PUBLISH_GBIF'].'</a>.';
+			echo $LANG['DWCA_EXPLAIN_1'].' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a> '.$LANG['DWCA_EXPLAIN_2'].
+			' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a> '.$LANG['DWCA_EXPLAIN_3'].
+			' <a href="https://symbiota.org/darwin-core-archive-data-publishing/" target="_blank"> '.$LANG['PUBLISH_IDIGBIO'].'</a> &amp;'.
+			' <a href="https://symbiota.org/publishing-to-gbif-from-a-symbiota-portal/" target="_blank"> '.$LANG['PUBLISH_GBIF'].'</a>.';
 			?>
 		</div>
 		<?php
@@ -281,7 +281,7 @@ include($SERVER_ROOT.'/includes/header.php');
 					<form action="datapublisher.php" method="post" style="display:inline;" onsubmit="return window.confirm('<?php echo $LANG['SURE_DELETE']; ?>');">
 						<input type="hidden" name="colliddel" value="<?php echo $dArr['collid']; ?>">
 						<input type="hidden" name="collid" value="<?php echo $dArr['collid']; ?>">
-						<input type="image" src="../../images/del.png" name="action" value="DeleteCollid" title="<?php echo $LANG['DELETE_ARCHIVE']; ?>" style="width:15px;" />
+						<input type="image" src="../../images/del.png" name="action" value="DeleteCollid" title="<?php echo $LANG['DELETE_ARCHIVE']; ?>" style="width:15px;">
 					</form>
 				</div>
 				<div><b><?php echo $LANG['DESCRIPTION']; ?>:</b> <?php echo $dArr['description']; ?></div>

@@ -79,21 +79,6 @@ class RpcTaxonomy extends RpcBase{
 		return $retStr;
 	}
 
-	public function getChildAccepted($tid){
-		if(!is_numeric($tid)) return false;
-		$retArr = array();
-		$sql = 'SELECT t.tid, t.sciname '.
-			'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-			'WHERE (ts.taxauthid = '.$this->taxAuthID.') AND (ts.parenttid = '.$tid.') AND (ts.tid = ts.tidaccepted) '.
-			'ORDER BY t.sciname LIMIT 20';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->tid] = $r->sciname;
-		}
-		$rs->free();
-		return $retArr;
-	}
-
 	public function getDynamicChildren($objId, $targetId, $displayAuthor, $isEditor){
 		$retArr = Array();
 		$childArr = Array();

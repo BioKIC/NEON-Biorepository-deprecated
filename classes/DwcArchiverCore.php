@@ -852,8 +852,8 @@ class DwcArchiverCore extends Manager{
 			}
 			if($this->includeImgs){
 				$this->writeImageFile();
-				$zipArchive->addFile($this->targetPath.$this->ts.'-images'.$this->fileExt);
-				$zipArchive->renameName($this->targetPath.$this->ts.'-images'.$this->fileExt,'images'.$this->fileExt);
+				$zipArchive->addFile($this->targetPath.$this->ts.'-multimedia'.$this->fileExt);
+				$zipArchive->renameName($this->targetPath.$this->ts.'-multimedia'.$this->fileExt,'multimedia'.$this->fileExt);
 			}
 			if($this->includeAttributes){
 				$this->writeAttributeFile();
@@ -876,7 +876,7 @@ class DwcArchiverCore extends Manager{
 			$zipArchive->close();
 			unlink($this->targetPath.$this->ts.'-occur'.$this->fileExt);
 			if($this->includeDets) unlink($this->targetPath.$this->ts.'-det'.$this->fileExt);
-			if($this->includeImgs) unlink($this->targetPath.$this->ts.'-images'.$this->fileExt);
+			if($this->includeImgs) unlink($this->targetPath.$this->ts.'-multimedia'.$this->fileExt);
 			if($this->includeAttributes) unlink($this->targetPath.$this->ts.'-attr'.$this->fileExt);
 			if($this->includeMaterialSample) unlink($this->targetPath.$this->ts.'-matSample'.$this->fileExt);
 			unlink($this->targetPath.$this->ts.'-meta.xml');
@@ -990,10 +990,10 @@ class DwcArchiverCore extends Manager{
 			$extElem2->setAttribute('linesTerminatedBy','\n');
 			$extElem2->setAttribute('fieldsEnclosedBy','"');
 			$extElem2->setAttribute('ignoreHeaderLines','1');
-			$extElem2->setAttribute('rowType','http://rs.gbif.org/terms/1.0/Image');
+			$extElem2->setAttribute('rowType','http://rs.tdwg.org/ac/terms/Multimedia');
 
 			$filesElem2 = $newDoc->createElement('files');
-			$filesElem2->appendChild($newDoc->createElement('location','images'.$this->fileExt));
+			$filesElem2->appendChild($newDoc->createElement('location','multimedia'.$this->fileExt));
 			$extElem2->appendChild($filesElem2);
 
 			$coreIdElem2 = $newDoc->createElement('coreid');
@@ -1811,7 +1811,7 @@ class DwcArchiverCore extends Manager{
 
 	private function writeImageFile(){
 		$this->logOrEcho("Creating image file (".date('h:i:s A').")... ");
-		$filePath = $this->targetPath.$this->ts.'-images'.$this->fileExt;
+		$filePath = $this->targetPath.$this->ts.'-multimedia'.$this->fileExt;
 		$fh = fopen($filePath, 'w');
 		if(!$fh){
 			$this->logOrEcho('ERROR establishing output file ('.$filePath.'), perhaps target folder is not readable by web server.');

@@ -182,12 +182,14 @@ class NpsReport{
 			$url = 'https://www.itis.gov/ITISWebService/services/ITISService/searchByScientificName?srchKey='.str_replace(' ','%20',$sciname);
 			if($this->debugMode) echo '<li style="margin-left:15px">'.$url.'</li>';
 			$retArr = $this->getContentString($url);
-			$xmlContent = $retArr['str'];
-			$doc = new DOMDocument();
-			if(@$doc->loadXML($xmlContent)){
-				$nodes = $doc->getElementsByTagName('tsn');
-				if($nodes->length) $tsn = $nodes->item(0)->nodeValue;
-				if($tsn) $this->loadTsnIntoDatabase($tid, $tsn);
+			if(isset($retArr['str'])){
+				$xmlContent = $retArr['str'];
+				$doc = new DOMDocument();
+				if(@$doc->loadXML($xmlContent)){
+					$nodes = $doc->getElementsByTagName('tsn');
+					if($nodes->length) $tsn = $nodes->item(0)->nodeValue;
+					if($tsn) $this->loadTsnIntoDatabase($tid, $tsn);
+				}
 			}
 		}
 		$this->itisTsnArr[$sciname] = $tsn;
@@ -221,7 +223,7 @@ class NpsReport{
 	private function getContentString($url){
 		$retArr = array();
 		if($url){
-			if($fh = fopen($url, 'r')){
+			if($fh = @fopen($url, 'r')){
 				stream_set_timeout($fh, 5);
 				$contentStr = '';
 				while($line = fread($fh, 1024)){
@@ -229,7 +231,9 @@ class NpsReport{
 				}
 				fclose($fh);
 				$retArr['str'] = $contentStr;
-				//Get code
+			}
+			if(isset($http_response_header[0])){
+				//Get error code
 				$statusStr = $http_response_header[0];
 				if(preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#",$statusStr, $out)){
 					$retArr['code'] = intval($out[1]);

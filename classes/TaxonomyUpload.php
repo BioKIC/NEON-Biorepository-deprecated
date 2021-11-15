@@ -1015,7 +1015,7 @@ class TaxonomyUpload{
 	}
 
 	public function getTaxonomicResourceList(){
-		$taArr = array('worms'=>'World Register of Marine Species','col'=>'Catalog of Life - in development');
+		$taArr = array('worms'=>'World Register of Marine Species','col'=>'Catalog of Life');
 		//$taArr = array('col'=>'Catalog of Life','worms'=>'World Register of Marine Species','tropicos'=>'TROPICOS','eol'=>'Encyclopedia of Life','IndexFungorum'=>'Index Fungorum');
 		if(!isset($GLOBALS['TAXONOMIC_AUTHORITIES'])) return $taArr;
 		return array_intersect_key($taArr,array_change_key_case($GLOBALS['TAXONOMIC_AUTHORITIES']));

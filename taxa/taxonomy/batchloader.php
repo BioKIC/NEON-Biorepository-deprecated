@@ -164,7 +164,7 @@ if($isEditor){
 				alert("Please select the target kingdom");
 				return false;
 			}
-			if($('input[type=radio]:checked').size() == 0){
+			if($('input[name=targetapi]:checked').length == 0){
 				alert("Please select a taxonomic authority that will be used to harvest");
 				return false;
 			}
@@ -172,33 +172,24 @@ if($isEditor){
 		}
 	</script>
 	<style type="text/css">
-		fieldset { width:90%; }
-		legend { font-weight:bold; font-size:120%; }
+		fieldset { width:90%; padding:10px 15px }
+		legend { font-weight:bold; }
 	</style>
 </head>
 <body>
 <?php
 $displayLeftMenu = (isset($taxa_admin_taxaloaderMenu)?$taxa_admin_taxaloaderMenu:false);
 include($SERVER_ROOT.'/includes/header.php');
-if(isset($taxa_admin_taxaloaderCrumbs)){
-	if($taxa_admin_taxaloaderCrumbs){
-		echo '<div class="navpath">';
-		echo $taxa_admin_taxaloaderCrumbs;
-		echo ' <b>Taxa Batch Loader</b>';
-		echo '</div>';
-	}
-}
-else{
-	?>
-	<div class="navpath">
-		<a href="../../index.php">Home</a> &gt;&gt;
-		<a href="taxonomydisplay.php"><b>Taxonomic Tree Viewer</b></a> &gt;&gt;
-		<a href="batchloader.php"><b>Taxa Batch Loader</b></a>
-	</div>
-	<?php
-}
-
+?>
+<div class="navpath">
+	<a href="../../index.php">Home</a> &gt;&gt;
+	<a href="taxonomydisplay.php"><b>Basic Tree Viewer</b></a> &gt;&gt;
+	<a href="taxonomydynamicdisplay.php"><b>Dynamic Tree Viewer</b></a> &gt;&gt;
+	<a href="batchloader.php"><b>Taxa Batch Loader</b></a>
+</div>
+<?php
 if($isEditor){
+	$rankArr = $loaderManager->getTaxonRankArr();
 	?>
 	<div id="innertext">
 		<h1>Taxonomic Name Batch Loader</h1>
@@ -406,30 +397,34 @@ if($isEditor){
 						if($targetArr){
 							$numResults = $targetArr['number_results'];
 							unset($targetArr['number_results']);
+							echo '<div><b>Target taxon:</b> '.$sciname.'</div>';
+							echo '<div><b>Kingdom:</b> '.substr($kingdomName,strpos($kingdomName,':')+1).'</div>';
+							echo '<div><b>Lowest rank limit:</b> '.$rankArr[$rankLimit].'</div>';
 							echo '<div><b>Source link:</b> <a href="https://www.catalogueoflife.org" target="_blank">https://www.catalogueoflife.org</a></div>';
 							echo '<div><b>Total results:</b> '.$numResults.'</div>';
+							echo '<div><hr/></div>';
 							foreach($targetArr as $colID => $colArr){
 								echo '<div style="margin-top:10px">';
 								echo '<div><b>ID:</b> '.$colID.'</div>';
 								if(isset($colArr['error'])){
-									echo '<div><b>ERROR:</b> '.$colArr['error'].'</div>';
+									echo '<div>ERROR: '.$colArr['error'].'</div>';
 								}
 								else{
-									echo '<div><b>Name:</b> '.$colArr['label'].'</div>';
-									echo '<div><b>Dataset key:</b> <a href="https://api.catalogueoflife.org/dataset/'.$colArr['datasetKey'].'" target="_blank">'.$colArr['datasetKey'].'</a></div>';
-									echo '<div><b>Status:</b> '.$colArr['status'].'</div>';
-									if(isset($colArr['accordingTo'])) echo '<div><b>According to:</b> '.$colArr['accordingTo'].'</div>';
-									if(isset($colArr['link'])) echo '<div><b>Source link:</b> <a href="'.$colArr['link'].'" target="_blank">'.$colArr['link'].'</a></div>';
-									if(isset($colArr['scrutinizer'])) echo '<div><b>Scrutinizer:</b> '.$colArr['scrutinizer'].'</div>';
+									echo '<div>Name: '.$colArr['label'].'</div>';
+									echo '<div>Dataset key: <a href="https://api.catalogueoflife.org/dataset/'.$colArr['datasetKey'].'" target="_blank">'.$colArr['datasetKey'].'</a></div>';
+									echo '<div>Status: '.$colArr['status'].'</div>';
+									if(isset($colArr['accordingTo'])) echo '<div>According to: '.$colArr['accordingTo'].'</div>';
+									if(isset($colArr['link'])) echo '<div>Source link: <a href="'.$colArr['link'].'" target="_blank">'.$colArr['link'].'</a></div>';
+									if(isset($colArr['scrutinizer'])) echo '<div>Scrutinizer: '.$colArr['scrutinizer'].'</div>';
 									$targetStatus = '<span style="color:orange">not preferred</span>';
 									if($colArr['isPreferred']) $targetStatus = '<span style="color:green">preferred target</span>';
-									echo '<div><b>Target status:</b> '.$targetStatus.'</div>';
-									if(isset($colArr['webServiceUrl'])) echo '<div><b>Web Service URL:</b> <a href="'.$colArr['webServiceUrl'].'" target="_blank">'.$colArr['webServiceUrl'].'</a></div>';
-									if(isset($colArr['apiUrl'])) echo '<div><b>API URL:</b> <a href="'.$colArr['apiUrl'].'" target="_blank">'.$colArr['apiUrl'].'</a></div>';
-									echo '<div><b>CoL url:</b> <a href="'.$colArr['colUrl'].'" target="_blank">'.$colArr['colUrl'].'</a></div>';
+									echo '<div>Target status: '.$targetStatus.'</div>';
+									if(isset($colArr['webServiceUrl'])) echo '<div>Web Service URL: <a href="'.$colArr['webServiceUrl'].'" target="_blank">'.$colArr['webServiceUrl'].'</a></div>';
+									if(isset($colArr['apiUrl'])) echo '<div>API URL: <a href="'.$colArr['apiUrl'].'" target="_blank">'.$colArr['apiUrl'].'</a></div>';
+									echo '<div>CoL url: <a href="'.$colArr['colUrl'].'" target="_blank">'.$colArr['colUrl'].'</a></div>';
 									$harvestLink = 'batchloader.php?id='.$colID.'&dskey='.$colArr['datasetKey'].'&targetapi=col&taxauthid='.$_POST['taxauthid'].
 										'&kingdomname='.$_POST['kingdomname'].'&ranklimit='.$_POST['ranklimit'].'&sciname='.$sciname.'&action=loadApiNode';
-									if($colArr['datasetKey']) echo '<div><a href="'.$harvestLink.'">Target this node to harvest children</a></div>';
+									if($colArr['datasetKey']) echo '<div><b><a href="'.$harvestLink.'">Target this node to harvest children</a></b></div>';
 								}
 								echo '</div>';
 							}
@@ -647,7 +642,6 @@ if($isEditor){
 								<option value="0">All Taxon Ranks</option>
 								<option>---------------------</option>
 								<?php
-								$rankArr = $loaderManager->getTaxonRankArr();
 								foreach($rankArr as $rankid => $rankName){
 									echo '<option value="'.$rankid.'" '.($rankid==$rankLimit?'SELECTED':'').'>'.$rankName.'</option>';
 								}
@@ -655,7 +649,7 @@ if($isEditor){
 							</select>
 						</div>
 						<div style="margin:10px;">
-							<button type="submit" name="action" value="loadApiNode">Load node</button>
+							<button id="submitButton" type="submit" name="action" value="loadApiNode">Load node</button>
 						</div>
 					</form>
 				</fieldset>

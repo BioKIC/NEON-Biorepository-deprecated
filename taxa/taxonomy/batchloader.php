@@ -11,12 +11,14 @@ $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 $taxAuthId = (array_key_exists('taxauthid',$_REQUEST)?$_REQUEST['taxauthid']:1);
 $kingdomName = (array_key_exists('kingdomname',$_REQUEST)?$_REQUEST['kingdomname']:'');
 $sciname = (array_key_exists('sciname',$_REQUEST)?$_REQUEST['sciname']:'');
-$targetApiArr = (array_key_exists('targetapi',$_REQUEST)?$_REQUEST['targetapi']:'');
+$targetApi = (array_key_exists('targetapi',$_REQUEST)?$_REQUEST['targetapi']:'');
+$rankLimit = (array_key_exists('ranklimit',$_REQUEST)?$_REQUEST['ranklimit']:'');
 
 //Sanitation
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
 $kingdomName = filter_var ( $kingdomName, FILTER_SANITIZE_STRING);
 $sciname = filter_var ( $sciname, FILTER_SANITIZE_STRING);
+if(!is_numeric($rankLimit)) $rankLimit = 0;
 
 $isEditor = false;
 if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
@@ -383,22 +385,25 @@ if($isEditor){
 				echo '</ul>';
 			}
 			elseif($action == 'loadApiNode'){
-				if($_REQUEST['targetapi'] == 'col'){
+				if($targetApi == 'col'){
 					$harvester = new TaxonomyHarvester();
 					$harvester->setVerboseMode(2);
 					$harvester->setTaxAuthId($taxAuthId);
+					$harvester->setKingdomName($kingdomName);
 					if(isset($_REQUEST['dskey'])){
+						echo '<fieldset>';
+						echo '<legend>Action Panel</legend>';
 						$id = $_REQUEST['id'];
 						if(!preg_match('/^[A-Za-z\d]+$/',$id)) $id = 0;
 						$datasetKey = (is_numeric($_REQUEST['dskey'])?$_REQUEST['dskey']:0);
-						$rankLimit = (is_numeric($_REQUEST['ranklimit'])?$_REQUEST['ranklimit']:'');
 						$harvester->addColNode($id, $datasetKey, $sciname, $rankLimit);
+						echo '</fieldset>';
 					}
 					else{
 						$targetArr = $harvester->fetchColNode($sciname);
+						echo '<fieldset>';
+						echo '<legend>Result Targets</legend>';
 						if($targetArr){
-							echo '<fieldset>';
-							echo '<legend>Result Targets</legend>';
 							$numResults = $targetArr['number_results'];
 							unset($targetArr['number_results']);
 							echo '<div><b>Source link:</b> <a href="https://www.catalogueoflife.org" target="_blank">https://www.catalogueoflife.org</a></div>';
@@ -406,38 +411,41 @@ if($isEditor){
 							foreach($targetArr as $colID => $colArr){
 								echo '<div style="margin-top:10px">';
 								echo '<div><b>ID:</b> '.$colID.'</div>';
-								echo '<div><b>Name:</b> '.$colArr['label'].'</div>';
-								echo '<div><b>Dataset key:</b> <a href="https://api.catalogueoflife.org/dataset/'.$colArr['datasetKey'].'" target="_blank">'.$colArr['datasetKey'].'</a></div>';
-								echo '<div><b>Status:</b> '.$colArr['status'].'</div>';
-								if(isset($colArr['accordingTo'])) echo '<div><b>According to:</b> '.$colArr['accordingTo'].'</div>';
-								if(isset($colArr['link'])) echo '<div><b>Source link:</b> <a href="'.$colArr['link'].'" target="_blank">'.$colArr['link'].'</a></div>';
-								if(isset($colArr['scrutinizer'])) echo '<div><b>Scrutinizer:</b> '.$colArr['scrutinizer'].'</div>';
-								$targetStatus = '<span style="color:orange">not preferred</span>';
-								if($colArr['isPreferred']) $targetStatus = '<span style="color:green">preferred target</span>';
-								echo '<div><b>Target status:</b> '.$targetStatus.'</div>';
-								if(isset($colArr['webServiceUrl'])) echo '<div><b>Web Service URL:</b> <a href="'.$colArr['webServiceUrl'].'" target="_blank">'.$colArr['webServiceUrl'].'</a></div>';
-								if(isset($colArr['apiUrl'])) echo '<div><b>API URL:</b> <a href="'.$colArr['apiUrl'].'" target="_blank">'.$colArr['apiUrl'].'</a></div>';
-								echo '<div><b>CoL url:</b> <a href="'.$colArr['colUrl'].'" target="_blank">'.$colArr['colUrl'].'</a></div>';
-								$harvestLink = 'batchloader.php?id='.$colID.'&dskey='.$colArr['datasetKey'].'&targetapi=col&taxauthid='.$_POST['taxauthid'].
-									'&kingdomname='.$_POST['kingdomname'].'&ranklimit='.$_POST['ranklimit'].'&sciname='.$sciname.'&action=loadApiNode';
-								if($colArr['datasetKey']) echo '<div><a href="'.$harvestLink.'">Target this node to harvest children</a></div>';
+								if(isset($colArr['error'])){
+									echo '<div><b>ERROR:</b> '.$colArr['error'].'</div>';
+								}
+								else{
+									echo '<div><b>Name:</b> '.$colArr['label'].'</div>';
+									echo '<div><b>Dataset key:</b> <a href="https://api.catalogueoflife.org/dataset/'.$colArr['datasetKey'].'" target="_blank">'.$colArr['datasetKey'].'</a></div>';
+									echo '<div><b>Status:</b> '.$colArr['status'].'</div>';
+									if(isset($colArr['accordingTo'])) echo '<div><b>According to:</b> '.$colArr['accordingTo'].'</div>';
+									if(isset($colArr['link'])) echo '<div><b>Source link:</b> <a href="'.$colArr['link'].'" target="_blank">'.$colArr['link'].'</a></div>';
+									if(isset($colArr['scrutinizer'])) echo '<div><b>Scrutinizer:</b> '.$colArr['scrutinizer'].'</div>';
+									$targetStatus = '<span style="color:orange">not preferred</span>';
+									if($colArr['isPreferred']) $targetStatus = '<span style="color:green">preferred target</span>';
+									echo '<div><b>Target status:</b> '.$targetStatus.'</div>';
+									if(isset($colArr['webServiceUrl'])) echo '<div><b>Web Service URL:</b> <a href="'.$colArr['webServiceUrl'].'" target="_blank">'.$colArr['webServiceUrl'].'</a></div>';
+									if(isset($colArr['apiUrl'])) echo '<div><b>API URL:</b> <a href="'.$colArr['apiUrl'].'" target="_blank">'.$colArr['apiUrl'].'</a></div>';
+									echo '<div><b>CoL url:</b> <a href="'.$colArr['colUrl'].'" target="_blank">'.$colArr['colUrl'].'</a></div>';
+									$harvestLink = 'batchloader.php?id='.$colID.'&dskey='.$colArr['datasetKey'].'&targetapi=col&taxauthid='.$_POST['taxauthid'].
+										'&kingdomname='.$_POST['kingdomname'].'&ranklimit='.$_POST['ranklimit'].'&sciname='.$sciname.'&action=loadApiNode';
+									if($colArr['datasetKey']) echo '<div><a href="'.$harvestLink.'">Target this node to harvest children</a></div>';
+								}
 								echo '</div>';
 							}
-							echo '</fieldset>';
 						}
 						else{
 							echo 'ABORT: no valid CoL targets returned';
 							return false;
 						}
+						echo '</fieldset>';
 					}
 				}
-				elseif($_POST['targetapi'] == 'worms'){
+				elseif($targetApi == 'worms'){
 					$harvester = new TaxonomyHarvester();
 					$harvester->setVerboseMode(2);
 					$harvester->setTaxAuthId($taxAuthId);
-					$kingArr = explode(':',$kingdomName);
-					if(isset($kingArr[1])) $harvester->setKingdomName($kingArr[1]);
-					if(isset($kingArr[0])) $harvester->setKingdomTid($kingArr[0]);
+					$harvester->setKingdomName($kingdomName);
 					echo '<ul>';
 					if($harvester->addWormsNode($_POST)){
 						echo '<li>'.$harvester->getTransactionCount().' taxa within the target node have been loaded successfully</li>';
@@ -446,117 +454,33 @@ if($isEditor){
 					echo '</ul>';
 				}
 			}
-			else{
-				?>
-				<div>
-					<form name="uploadform" action="batchloader.php" method="post" enctype="multipart/form-data" onsubmit="return verifyUploadForm(this)">
-						<fieldset>
-							<legend>Taxa Upload</legend>
-							<div style="margin:10px;">
-								Flat structured, CSV (comma delimited) text files can be uploaded here.
-								Scientific name is the only required field below genus rank.
-								However, family, author, and rankid (as defined in taxonunits table) are always advised.
-								For upper level taxa, parents and rankids need to be included in order to build the taxonomic hierarchy.
-								Large data files can be compressed as a ZIP file before import.
-								If the file upload step fails without displaying an error message, it is possible that the
-								file size exceeds the file upload limits set within your PHP installation (see your php configuration file).
-							</div>
-							<input type='hidden' name='MAX_FILE_SIZE' value='100000000' />
-							<div>
-								<div class="overrideopt">
-									<div style="margin:10px;">
-										<input id="genuploadfile" name="uploadfile" type="file" size="40" />
-									</div>
-								</div>
-								<div class="overrideopt" style="display:none;">
-									<label>Full File Path:</label>
-									<div style="margin:10px;">
-										<input name="uloverride" type="text" size="50" /><br/>
-										* This option is for manual upload of a data file. Enter full path to data file located on working server.
-									</div>
-								</div>
+			?>
+			<div>
+				<form name="uploadform" action="batchloader.php" method="post" enctype="multipart/form-data" onsubmit="return verifyUploadForm(this)">
+					<fieldset>
+						<legend>Taxa Upload</legend>
+						<div style="margin:10px;">
+							Flat structured, CSV (comma delimited) text files can be uploaded here.
+							Scientific name is the only required field below genus rank.
+							However, family, author, and rankid (as defined in taxonunits table) are always advised.
+							For upper level taxa, parents and rankids need to be included in order to build the taxonomic hierarchy.
+							Large data files can be compressed as a ZIP file before import.
+							If the file upload step fails without displaying an error message, it is possible that the
+							file size exceeds the file upload limits set within your PHP installation (see your php configuration file).
+						</div>
+						<input type='hidden' name='MAX_FILE_SIZE' value='100000000' />
+						<div>
+							<div class="overrideopt">
 								<div style="margin:10px;">
-									<label>Target Thesaurus:</label>
-									<select name="taxauthid">
-										<?php
-										$taxonAuthArr = $loaderManager->getTaxAuthorityArr();
-										foreach($taxonAuthArr as $k => $v){
-											echo '<option value="'.$k.'" '.($k==$taxAuthId?'SELECTED':'').'>'.$v.'</option>'."\n";
-										}
-										?>
-									</select>
-								</div>
-								<div style="margin:10px;">
-									<label>Target Kingdom:</label>
-									<?php
-									$kingdomArr = $loaderManager->getKingdomArr();
-									echo '<select name="kingdomname">';
-									echo '<option value="">Select Kingdom</option>';
-									echo '<option value="">----------------------</option>';
-									foreach($kingdomArr as $k => $kingdomName){
-										echo '<option>'.$kingdomName.'</option>';
-									}
-									echo '</select>';
-									?>
-								</div>
-								<div style="margin:10px;">
-									<input type="submit" name="action" value="Map Input File" />
-								</div>
-								<div style="float:right;" >
-									<a href="#" onclick="toggle('overrideopt');return false;">Toggle Manual Upload Option</a>
+									<input id="genuploadfile" name="uploadfile" type="file" size="40" />
 								</div>
 							</div>
-						</fieldset>
-					</form>
-				</div>
-				<!--
-				<div>
-					<form name="itisuploadform" action="batchloader.php" method="post" enctype="multipart/form-data" onsubmit="return verifyItisUploadForm(this)">
-						<fieldset>
-							<legend>ITIS Upload File</legend>
-							<div style="margin:10px;">
-								ITIS data extract from the <a href="http://www.itis.gov/access.html" target="_blank">ITIS Download Page</a> can be uploaded
-								using this function. Note that the file needs to be in their single file pipe-delimited format
-								(example: <a href="CyprinidaeItisExample.bin">CyprinidaeItisExample.bin</a>).
-								File might have .csv extension, even though it is NOT comma delimited.
-								This upload option is not guaranteed to work if the ITIS download format change often.
-								Large data files can be compressed as a ZIP file before import.
-								If the file upload step fails without displaying an error message, it is possible that the
-								file size exceeds the file upload limits set within your PHP installation (see your php configuration file).
-								If synonyms and vernaculars are included, these data will also be incorporated into the upload process.
-							</div>
-							<input type='hidden' name='MAX_FILE_SIZE' value='100000000' />
-							<div class="itisoverrideopt">
-								<b>Upload File:</b>
-								<div style="margin:10px;">
-									<input id="itisuploadfile" name="uploadfile" type="file" size="40" />
-								</div>
-							</div>
-							<div class="itisoverrideopt" style="display:none;">
-								<b>Full File Path:</b>
+							<div class="overrideopt" style="display:none;">
+								<label>Full File Path:</label>
 								<div style="margin:10px;">
 									<input name="uloverride" type="text" size="50" /><br/>
-									* This option is for manual upload of a data file.
-									Enter full path to data file located on working server.
+									* This option is for manual upload of a data file. Enter full path to data file located on working server.
 								</div>
-							</div>
-							<div style="margin:10px;">
-								<input type="submit" name="action" value="Upload ITIS File" />
-							</div>
-							<div style="float:right;">
-								<a href="#" onclick="toggle('itisoverrideopt');return false;">Toggle Manual Upload Option</a>
-							</div>
-						</fieldset>
-					</form>
-				</div>
-				-->
-				<div>
-					<form name="analyzeform" action="batchloader.php" method="post">
-						<fieldset>
-							<legend>Clean and Analyze</legend>
-							<div style="margin:10px;">
-								If taxa information was loaded into the UploadTaxa table using other means,
-								one can use this form to clean and analyze taxa names in preparation to loading into the taxonomic tables (taxa, taxstatus).
 							</div>
 							<div style="margin:10px;">
 								<label>Target Thesaurus:</label>
@@ -570,92 +494,172 @@ if($isEditor){
 								</select>
 							</div>
 							<div style="margin:10px;">
-								<label>Kingdom Target:</label>
+								<label>Target Kingdom:</label>
 								<?php
+								$kingdomArr = $loaderManager->getKingdomArr();
 								echo '<select name="kingdomname">';
-								foreach($kingdomArr as $k => $kingdomName){
-									echo '<option>'.$kingdomName.'</option>';
+								echo '<option value="">Select Kingdom</option>';
+								echo '<option value="">----------------------</option>';
+								foreach($kingdomArr as $k => $kingName){
+									echo '<option>'.$kingName.'</option>';
 								}
 								echo '</select>';
 								?>
 							</div>
 							<div style="margin:10px;">
-								<input type="submit" name="action" value="Analyze Taxa" />
+								<input type="submit" name="action" value="Map Input File" />
 							</div>
-						</fieldset>
-					</form>
-				</div>
-				<div>
-					<fieldset>
-						<legend>API Node Loader</legend>
-						<form name="apinodeloaderform" action="batchloader.php" method="post" onsubmit="return validateNodeLoaderForm(this)">
-							<div style="margin:10px;">
-								This form will batch load a taxonomic node from a selected Taxonomic Authority via their API resources.<br/>
-								This function currently only works for Catalog of Life and WoRMS
+							<div style="float:right;" >
+								<a href="#" onclick="toggle('overrideopt');return false;">Toggle Manual Upload Option</a>
 							</div>
-							<div style="margin:10px;">
-								<fieldset style="padding:15px;margin:10px 0px">
-									<legend><b>Taxonomic Resource</b></legend>
-									<?php
-									$taxApiList = $loaderManager->getTaxonomicResourceList();
-									foreach($taxApiList as $taKey => $taValue){
-										echo '<input name="targetapi" type="radio" value="'.$taKey.'" '.($targetApiArr && in_array($taKey,$targetApiArr)?'checked':'').' /> '.$taValue.'<br/>';
-									}
-									?>
-								</fieldset>
-							</div>
-							<div style="margin:10px;">
-								<label>Target node:</label>
-								<input id="taxa" name="sciname" type="text" value="" />
-							</div>
-							<div style="margin:10px;">
-								<label>Taxonomic Thesaurus:</label>
-								<select name="taxauthid">
-									<?php
-									$taxonAuthArr = $loaderManager->getTaxAuthorityArr();
-									foreach($taxonAuthArr as $k => $v){
-										echo '<option value="'.$k.'" '.($k==$taxAuthId?'SELECTED':'').'>'.$v.'</option>'."\n";
-									}
-									?>
-								</select>
-							</div>
-							<div style="margin:10px;">
-								<label>Kingdom:</label>
-								<select name="kingdomname">
-									<?php
-									if($kingdomArr > 1){
-										echo '<option value="">Select target Kingdom</option>';
-										echo '<option value="">-----------------------</option>';
-									}
-									foreach($kingdomArr as $k => $kName){
-										$kKey = $k.':'.$kName;
-										echo '<option value="'.$kKey.'" '.($kingdomName==$kKey?'selected':'').'>'.$kName.'</option>';
-									}
-									?>
-								</select>
-							</div>
-							<div style="margin:10px;">
-								<label>Lowest Rank Limit</label>
-								<select name="ranklimit">
-									<option value="0">All Taxon Ranks</option>
-									<option>---------------------</option>
-									<?php
-									$rankArr = $loaderManager->getTaxonRankArr();
-									foreach($rankArr as $rankid => $rankName){
-										echo '<option value="'.$rankid.'">'.$rankName.'</option>';
-									}
-									?>
-								</select>
-							</div>
-							<div style="margin:10px;">
-								<button type="submit" name="action" value="loadApiNode">Load node</button>
-							</div>
-						</form>
+						</div>
 					</fieldset>
-				</div>
-				<?php
-			}
-			?>
+				</form>
+			</div>
+			<!--
+			<div>
+				<form name="itisuploadform" action="batchloader.php" method="post" enctype="multipart/form-data" onsubmit="return verifyItisUploadForm(this)">
+					<fieldset>
+						<legend>ITIS Upload File</legend>
+						<div style="margin:10px;">
+							ITIS data extract from the <a href="http://www.itis.gov/access.html" target="_blank">ITIS Download Page</a> can be uploaded
+							using this function. Note that the file needs to be in their single file pipe-delimited format
+							(example: <a href="CyprinidaeItisExample.bin">CyprinidaeItisExample.bin</a>).
+							File might have .csv extension, even though it is NOT comma delimited.
+							This upload option is not guaranteed to work if the ITIS download format change often.
+							Large data files can be compressed as a ZIP file before import.
+							If the file upload step fails without displaying an error message, it is possible that the
+							file size exceeds the file upload limits set within your PHP installation (see your php configuration file).
+							If synonyms and vernaculars are included, these data will also be incorporated into the upload process.
+						</div>
+						<input type='hidden' name='MAX_FILE_SIZE' value='100000000' />
+						<div class="itisoverrideopt">
+							<b>Upload File:</b>
+							<div style="margin:10px;">
+								<input id="itisuploadfile" name="uploadfile" type="file" size="40" />
+							</div>
+						</div>
+						<div class="itisoverrideopt" style="display:none;">
+							<b>Full File Path:</b>
+							<div style="margin:10px;">
+								<input name="uloverride" type="text" size="50" /><br/>
+								* This option is for manual upload of a data file.
+								Enter full path to data file located on working server.
+							</div>
+						</div>
+						<div style="margin:10px;">
+							<input type="submit" name="action" value="Upload ITIS File" />
+						</div>
+						<div style="float:right;">
+							<a href="#" onclick="toggle('itisoverrideopt');return false;">Toggle Manual Upload Option</a>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+			-->
+			<div>
+				<form name="analyzeform" action="batchloader.php" method="post">
+					<fieldset>
+						<legend>Clean and Analyze</legend>
+						<div style="margin:10px;">
+							If taxa information was loaded into the UploadTaxa table using other means,
+							one can use this form to clean and analyze taxa names in preparation to loading into the taxonomic tables (taxa, taxstatus).
+						</div>
+						<div style="margin:10px;">
+							<label>Target Thesaurus:</label>
+							<select name="taxauthid">
+								<?php
+								$taxonAuthArr = $loaderManager->getTaxAuthorityArr();
+								foreach($taxonAuthArr as $k => $v){
+									echo '<option value="'.$k.'" '.($k==$taxAuthId?'SELECTED':'').'>'.$v.'</option>'."\n";
+								}
+								?>
+							</select>
+						</div>
+						<div style="margin:10px;">
+							<label>Kingdom Target:</label>
+							<?php
+							echo '<select name="kingdomname">';
+							foreach($kingdomArr as $k => $kingName){
+								echo '<option>'.$kingName.'</option>';
+							}
+							echo '</select>';
+							?>
+						</div>
+						<div style="margin:10px;">
+							<input type="submit" name="action" value="Analyze Taxa" />
+						</div>
+					</fieldset>
+				</form>
+			</div>
+			<div>
+				<fieldset>
+					<legend>API Node Loader</legend>
+					<form name="apinodeloaderform" action="batchloader.php" method="post" onsubmit="return validateNodeLoaderForm(this)">
+						<div style="margin:10px;">
+							This form will batch load a taxonomic node from a selected Taxonomic Authority via their API resources.<br/>
+							This function currently only works for Catalog of Life and WoRMS
+						</div>
+						<div style="margin:10px;">
+							<fieldset style="padding:15px;margin:10px 0px">
+								<legend><b>Taxonomic Resource</b></legend>
+								<?php
+								$taxApiList = $loaderManager->getTaxonomicResourceList();
+								foreach($taxApiList as $taKey => $taValue){
+									echo '<input name="targetapi" type="radio" value="'.$taKey.'" '.($targetApi == $taKey?'checked':'').' /> '.$taValue.'<br/>';
+								}
+								?>
+							</fieldset>
+						</div>
+						<div style="margin:10px;">
+							<label>Target node:</label>
+							<input id="taxa" name="sciname" type="text" value="<?php echo $sciname; ?>" />
+						</div>
+						<div style="margin:10px;">
+							<label>Taxonomic Thesaurus:</label>
+							<select name="taxauthid">
+								<?php
+								$taxonAuthArr = $loaderManager->getTaxAuthorityArr();
+								foreach($taxonAuthArr as $k => $v){
+									echo '<option value="'.$k.'" '.($k==$taxAuthId?'SELECTED':'').'>'.$v.'</option>'."\n";
+								}
+								?>
+							</select>
+						</div>
+						<div style="margin:10px;">
+							<label>Kingdom:</label>
+							<select name="kingdomname">
+								<?php
+								if($kingdomArr > 1){
+									echo '<option value="">Select target Kingdom</option>';
+									echo '<option value="">-----------------------</option>';
+								}
+								foreach($kingdomArr as $k => $kName){
+									$kKey = $k.':'.$kName;
+									echo '<option value="'.$kKey.'" '.($kingdomName==$kKey?'selected':'').'>'.$kName.'</option>';
+								}
+								?>
+							</select>
+						</div>
+						<div style="margin:10px;">
+							<label>Lowest Rank Limit</label>
+							<select name="ranklimit">
+								<option value="0">All Taxon Ranks</option>
+								<option>---------------------</option>
+								<?php
+								$rankArr = $loaderManager->getTaxonRankArr();
+								foreach($rankArr as $rankid => $rankName){
+									echo '<option value="'.$rankid.'" '.($rankid==$rankLimit?'SELECTED':'').'>'.$rankName.'</option>';
+								}
+								?>
+							</select>
+						</div>
+						<div style="margin:10px;">
+							<button type="submit" name="action" value="loadApiNode">Load node</button>
+						</div>
+					</form>
+				</fieldset>
+			</div>
 		</div>
 	</div>
 	<?php

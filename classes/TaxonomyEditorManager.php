@@ -1056,17 +1056,30 @@ class TaxonomyEditorManager extends Manager{
 
 	public function getChildren(){
 		$retArr = array();
-		$sql = 'SELECT t.tid, t.sciname, t.author '.
+		$sql = 'SELECT t.tid, t.sciname, t.author, a.tid AS accTid, a.sciname AS accSciname, a.author AS accAuthor '.
 			'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+			'INNER JOIN taxa a ON ts.tidaccepted = a.tid '.
 			'WHERE (ts.taxauthid = '.$this->taxAuthId.') AND (ts.parenttid = '.$this->tid.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[$r->tid]['name'] = $r->sciname;
+			$retArr[$r->tid]['sciname'] = $r->sciname;
 			$retArr[$r->tid]['author'] = $r->author;
+			$retArr[$r->tid]['accTid'] = $r->accTid;
+			$retArr[$r->tid]['accSciname'] = $r->accSciname;
+			$retArr[$r->tid]['accAuthor'] = $r->accAuthor;
 		}
 		$rs->free();
 		asort($retArr);
 		return $retArr;
+	}
+
+	public function hasAcceptedChildren(){
+		$bool = false;
+		$sql = 'SELECT tid FROM taxstatus WHERE (taxauthid = '.$this->taxAuthId.') AND (parenttid = '.$this->tid.') AND (tid = tidaccepted) LIMIT 1';
+		$rs = $this->conn->query($sql);
+		if($rs->num_rows) $bool = true;
+		$rs->free();
+		return $bool;
 	}
 }
 ?>

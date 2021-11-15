@@ -363,8 +363,8 @@ ALTER TABLE `taxstatus`
 ALTER TABLE `taxstatus` 
   DROP FOREIGN KEY `FK_taxstatus_tidacc`;
   
-ALTER TABLE `taxstatus` 
-  CHANGE COLUMN `tidaccepted` `tidaccepted` INT(10) UNSIGNED NULL DEFAULT NULL ;
+#ALTER TABLE `taxstatus` 
+#  CHANGE COLUMN `tidaccepted` `tidaccepted` INT(10) UNSIGNED NULL DEFAULT NULL ;
   
 ALTER TABLE `taxstatus` 
   ADD CONSTRAINT `FK_taxstatus_tidacc` FOREIGN KEY (`tidaccepted`)  REFERENCES `taxa` (`TID`);

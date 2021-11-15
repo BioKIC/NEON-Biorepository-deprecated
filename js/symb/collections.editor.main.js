@@ -1286,14 +1286,6 @@ function verifyDetForm(f){
 		alert("Sort Sequence field must be a numeric value only");
 		return false;
 	}
-	//If sciname was changed and submit was clicked immediately afterward, wait 5 seconds so that name can be verified 
-	if(pauseSubmit){
-		var date = new Date();
-		var curDate = null;
-		do{ 
-			curDate = new Date(); 
-		}while(curDate - date < 5000 && pauseSubmit);
-	}
 	return true;
 }
 
@@ -1339,7 +1331,7 @@ function verifyImgRemapForm(f){
 
 //Misc
 function dwcDoc(dcTag){
-	dwcWindow=open("http://symbiota.org/docs/symbiota-occurrence-data-fields-2/#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
+	dwcWindow=open("https://symbiota.org/symbiota-occurrence-data-fields-2/#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
 	//dwcWindow=open("http://rs.tdwg.org/dwc/terms/index.htm#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
 	if(dwcWindow.opener == null) dwcWindow.opener = self;
 	dwcWindow.focus();

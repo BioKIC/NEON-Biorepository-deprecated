@@ -167,12 +167,12 @@ if($SYMB_UID){
 	}
 	if($isEditor){
 		//Available to full editors and taxon editors
-		if($action == 'Submit Determination'){
+		if($action == 'submitDetermination'){
 			//Adding a new determination
 			$statusStr = $occManager->addDetermination($_POST,$isEditor);
 			$tabTarget = 1;
 		}
-		elseif($action == 'Submit Determination Edits'){
+		elseif($action == 'submitDeterminationEdit'){
 			$statusStr = $occManager->editDetermination($_POST);
 			$tabTarget = 1;
 		}
@@ -498,7 +498,7 @@ else{
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.main.js?ver=8" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.main.js?ver=9" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>

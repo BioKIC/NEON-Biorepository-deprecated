@@ -569,7 +569,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 						<?php
 						echo '<b>';
 						echo $LANG['TOTAL_TAXA'];
-						echo '<span class="printoff"> (<a href="https://symbiota.org/docs/symbiota-species-checklist-data-fields/" target="_blank" >';
+						echo '<span class="printoff"> (<a href="https://symbiota.org/symbiota-species-checklist-data-fields/" target="_blank" >';
 						echo '<span style="font-style:italic;color:green" title="'.(isset($LANG['DETAILS_EXPLANATION'])?$LANG['DETAILS_EXPLANATION']:'').'" >'.(isset($LANG['DETAILS'])?$LANG['DETAILS']:'details').'</span>';
 						echo '</a>)</span>';
 						echo '</b>: ';

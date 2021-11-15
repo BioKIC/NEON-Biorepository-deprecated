@@ -32,7 +32,7 @@ if($isEditor){
 	elseif(array_key_exists("synonymedits",$_REQUEST)){
 		$statusStr = $taxonEditorObj->submitSynonymEdits($_POST['tidsyn'], $tid, $_POST['unacceptabilityreason'], $_POST['notes'], $_POST['sortsequence']);
 	}
-	elseif($submitAction == 'linktoaccepted'){
+	elseif($submitAction == 'linkToAccepted'){
 		$deleteOther = array_key_exists("deleteother",$_REQUEST)?true:false;
 		$statusStr = $taxonEditorObj->submitAddAcceptedLink($_REQUEST["tidaccepted"],$deleteOther);
 	}
@@ -44,7 +44,7 @@ if($isEditor){
 		$switchAcceptance = array_key_exists("switchacceptance",$_REQUEST)?true:false;
 		$statusStr = $taxonEditorObj->submitChangeToAccepted($tid,$tidAccepted,$switchAcceptance);
 	}
-	elseif($submitAction == 'changetonotaccepted'){
+	elseif($submitAction == 'changeToNotAccepted'){
 		$tidAccepted = $_REQUEST["tidaccepted"];
 		$statusStr = $taxonEditorObj->submitChangeToNotAccepted($tid,$tidAccepted,$_POST['unacceptabilityreason'],$_POST['notes']);
 	}
@@ -78,14 +78,7 @@ if($isEditor){
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>"/>
 	<?php
 	$activateJQuery = true;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
@@ -93,7 +86,7 @@ if($isEditor){
 		var tid = <?php echo $taxonEditorObj->getTid(); ?>;
 		var tabIndex = <?php echo $tabIndex; ?>;
 	</script>
-	<script src="../../js/symb/taxa.taxonomyeditor.js?ver=201802"></script>
+	<script src="../../js/symb/taxa.taxonomyeditor.js?ver=2"></script>
 	<style type="text/css">
 		.editDiv{ clear:both; }
 		.editLabel{ float:left; font-weight:bold; }
@@ -439,8 +432,7 @@ if($isEditor){
 												<input type="hidden" name="tid" value="<?php echo $taxonEditorObj->getTid();?>" />
 												<input type="hidden" name="taxauthid" value="<?php echo $taxAuthId;?>" />
 												<input type="hidden" name="tabindex" value="1" />
-												<input type="hidden" name="submitaction" value="linktoaccepted" />
-												<input type="submit" name="pseudosubmit" value="Add Link" />
+												<button name="submitaction" type="submit" value="linkToAccepted">Add Link</button>
 											</div>
 										</fieldset>
 									</form>
@@ -503,7 +495,7 @@ if($isEditor){
 												echo "</div>";
 											}
 										}
-										echo "</li>";
+										echo '</li>';
 										?>
 										<fieldset id="syn-<?php echo $tidSyn;?>" style="display:none;">
 											<legend><b>Synonym Link Editor</b></legend>
@@ -541,19 +533,18 @@ if($isEditor){
 									}
 									?>
 								</ul>
-							<?php
+								<?php
 								}
-								else{
-									echo "<div style='margin:20px;'>No Synonyms Linked to this Taxon</div>";
-								}
+								else echo "<div style='margin:20px;'>No Synonyms Linked to this Taxon</div>";
+								$hasAcceptedChildren = $taxonEditorObj->hasAcceptedChildren();
 								?>
 								<div id="tonotaccepted" style="display:none;">
-									<form id="changetonotacceptedform" name="changetonotacceptedform" action="taxoneditor.php" method="post" onsubmit="return verifyChangeToNotAcceptedForm(this);">
+									<form name="changeToNotAcceptedForm" action="taxoneditor.php" method="post" onsubmit="return verifyChangeToNotAcceptedForm(this);">
 										<fieldset style="width:90%px;">
 											<legend><b>Change to Not Accepted</b></legend>
 											<div style="margin:5px;">
 												<b>Accepted Name:</b>
-												<input id="ctnafacceptedstr" name="acceptedstr" type="text" style="width:450px;" />
+												<input id="ctnafacceptedstr" name="acceptedstr" type="text" style="width:550px;" />
 												<input name="tidaccepted" type="hidden" value="" />
 											</div>
 											<div style="margin:5px;">
@@ -568,16 +559,14 @@ if($isEditor){
 												<input name="tid" type="hidden" value="<?php echo $taxonEditorObj->getTid();?>" />
 												<input name="taxauthid" type="hidden" value="<?php echo $taxAuthId;?>">
 												<input name="tabindex" type="hidden" value="1" />
-												<input name="submitaction" type="hidden" value="changetonotaccepted" />
-												<input name="pseudosubmit" type="submit" value="Change Status to Not Accepted" />
+												<button name="submitaction" type="submit" value="changeToNotAccepted" <?php echo ($hasAcceptedChildren?'disabled':'')?>>Change Status to Not Accepted</button>
 											</div>
+											<?php
+											if($hasAcceptedChildren) echo '<div style="margin:5px;color:orange;font-weight:bold;">Taxon cannot be changed to Not Accepted until accepted child taxa are resolved</div>';
+											?>
 											<div style="margin:5px;">
 												* Synonyms will be transferred to Accepted Taxon
 											</div>
-											<fieldset id="ctnaErrorFS" style="margin:10px;padding:15px;width:350px;display:none">
-												<legend style="color:orange"><b>Accepted child taxa need to be resolved</b></legend>
-												<div id="ctnaErrorDiv"></div>
-											</fieldset>
 										</fieldset>
 									</form>
 								</div>

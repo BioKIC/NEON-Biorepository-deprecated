@@ -508,11 +508,11 @@ class TaxonomyHarvester extends Manager{
 			$content = $contentArr['str'];
 			$resultArr = json_decode($content,true);
 			if(!$resultArr['empty']){
-				$this->logOrEcho('Adding '.$resultArr['total'].' children for '.$nodeSciname,1);
+				$this->logOrEcho('Will evaluate '.$resultArr['total'].' children of '.$nodeSciname.': '.$this->getChildrenStr($resultArr['result']),2);
 				foreach($resultArr['result'] as $nodeArr){
 					$this->transactionCount++;
 					if($nodeArr['status']=='accepted'){
-						if($nodeArr['extinct']){
+						if(isset($nodeArr['extinct']) && $nodeArr['extinct']){
 							$this->logOrEcho($nodeArr['labelHtml'].' ('.$nodeArr['status'].') skipped due to extinct status',2);
 							continue;
 						}
@@ -520,7 +520,7 @@ class TaxonomyHarvester extends Manager{
 						$tid = $this->getTid($taxonArr);
 						if($tid){
 							$display = '<a href="'.$GLOBALS['CLIENT_ROOT'].'/taxa/taxonomy/taxoneditor.php?tid='.$tid.'" target="_blank">'.$nodeArr['labelHtml'].'</a>';
-							$this->logOrEcho($display.' already in thesaurus, checking children...',2);
+							$this->logOrEcho($display.' already in thesaurus',2);
 						}
 						else{
 							$taxonArr['parent']['tid'] = $parentTid;
@@ -544,6 +544,14 @@ class TaxonomyHarvester extends Manager{
 			return false;
 		}
 		return true;
+	}
+
+	private function getChildrenStr($resultArr){
+		$childArr = array();
+		foreach($resultArr as $itemArr){
+			$childArr[] = $itemArr['name']['scientificName'];
+		}
+		return implode(', ',$childArr);
 	}
 
 	//WoRMS functions
@@ -717,7 +725,7 @@ class TaxonomyHarvester extends Manager{
 					$tid = $this->getTid($taxonArr);
 					if($tid){
 						$display = '<a href="'.$GLOBALS['CLIENT_ROOT'].'/taxa/taxonomy/taxoneditor.php?tid='.$tid.'" target="_blank">'.$nodeArr['scientificname'].'</a>';
-						$this->logOrEcho($display.' already in thesaurus, checking children...',2);
+						$this->logOrEcho($display.' already in thesaurus',2);
 					}
 					else{
 						$this->setWormsSource($taxonArr);

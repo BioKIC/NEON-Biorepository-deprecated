@@ -139,7 +139,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
     <blockquote>
       <cite>NEON Biorepository Data Portal. 2020. http//:biorepo.neonscience.org/portal/index.php. Accessed on April 27.</cite>
       <p style="text-align: center; font-weight: 600">OR</p>
-      <cite>Biodiversity occurrence data published by: < List of Collections > (Accessed through NEON Biorepository Data Portal Data Portal, http//:biorepo.neonscience.org/portal/index.php, YYYY-MM-DD)</cite>
+      <cite>Biodiversity occurrence data published by: < List of Collections > (Accessed through NEON Biorepository Data Portal, http//:biorepo.neonscience.org/portal/index.php, YYYY-MM-DD)</cite>
     </blockquote>
     <p>Replace dates in these citation formats with the date on which the data was retrieved.</p><button><a href="#getting-started-toc">Go back to TOC</a></button></article>
 

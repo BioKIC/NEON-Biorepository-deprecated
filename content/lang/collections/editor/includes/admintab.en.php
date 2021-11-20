@@ -34,11 +34,11 @@ $LANG['REC_MUST_EVALUATE'] = 'Record first needs to be evaluated before it can b
 				will have to be individually addressed before can be deleted.';
 $LANG['EVALUATE_FOR_DEL'] = 'Evaluate record for deletion';
 $LANG['IMG_LINKS'] = 'Image Links';
-$LANG['CHECKING_LINKS'] = 'checking image links';
-$LANG['CHECKING_LINKS'] = 'Warning';
+$LANG['CHECKING_IMG_LINKS'] = 'checking image links';
+$LANG['WARNING'] = 'Warning';
 $LANG['IMAGES_ARE_LINKED'] = 'One or more images are linked to this occurrence.
-						Continuing will remove all images linked to this specimen record. 
-						If you prefer to leave the image in the system only linked to the taxon name, 
+						Continuing will remove all images linked to this specimen record.
+						If you prefer to leave the image in the system only linked to the taxon name,
 						visit the Image Tab to disassociate image from specimen.';
 $LANG['APPROVED_FOR_DEL'] = 'Approved for deletion';
 $LANG['NO_IMGS'] = 'No images are directly associated with this occurrence record';

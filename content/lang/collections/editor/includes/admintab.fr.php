@@ -28,16 +28,16 @@ $LANG['TRANSFER_RECORD'] = 'Transférer Enregistrement';
 $LANG['DEL_RECORD'] = 'Supprimer Enregistrement';
 $LANG['SURE_DEL'] = 'Êtes-vous sûr de vouloir supprimer cet enregistrement?';
 $LANG['REC_MUST_EVALUATE'] = "L'enregistrement doit d'abord être évalué avant de pouvoir être supprimé du système.
-				L'évaluation garantit que la suppression de cet enregistrement n'interférera pas avec l'intégrité d'autres données liées. 
-				Notez que toutes les déterminations et commentaires pour cette occurrence seront automatiquement supprimés. 
+				L'évaluation garantit que la suppression de cet enregistrement n'interférera pas avec l'intégrité d'autres données liées.
+				Notez que toutes les déterminations et commentaires pour cette occurrence seront automatiquement supprimés.
 				Les liens vers les images et les bons de liste de contrôle devront être adressés individuellement avant de pouvoir être supprimés.";
 $LANG['EVALUATE_FOR_DEL'] = "Évaluer l'enregistrement pour suppression";
 $LANG['IMG_LINKS'] = "Liens d'images";
-$LANG['CHECKING_LINKS'] = "vérifier les liens d'images";
-$LANG['CHECKING_LINKS'] = 'Avertissement';
-$LANG['IMAGES_ARE_LINKED'] = "Une ou plusieurs images sont liées à cet événement. 
-						Continuer supprimera toutes les images liées à cet enregistrement de spécimen. 
-						Si vous préférez laisser l'image dans le système uniquement liée au nom du taxon, 
+$LANG['CHECKING_IMG_LINKS'] = "vérifier les liens d'images";
+$LANG['WARNING'] = 'Avertissement';
+$LANG['IMAGES_ARE_LINKED'] = "Une ou plusieurs images sont liées à cet événement.
+						Continuer supprimera toutes les images liées à cet enregistrement de spécimen.
+						Si vous préférez laisser l'image dans le système uniquement liée au nom du taxon,
 						visitez l'onglet Image pour dissocier l'image du spécimen.";
 $LANG['APPROVED_FOR_DEL'] = 'Approuvé pour suppression';
 $LANG['NO_IMGS'] = "Aucune image n'est directement associée à cet enregistrement d'occurrence";

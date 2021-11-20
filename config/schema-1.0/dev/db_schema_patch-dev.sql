@@ -48,6 +48,16 @@ ALTER TABLE `ctcontrolvocab`
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `projname` `projname` VARCHAR(75) NOT NULL ;
 
+ALTER TABLE `guidoccurrences` 
+  ADD COLUMN `occurrenceID` VARCHAR(45) NULL AFTER `archiveobj`;
+
+ALTER TABLE `igsnverification` 
+  CHANGE COLUMN `status` `syncStatus` VARCHAR(45) NULL DEFAULT NULL ;
+
+ALTER TABLE `images` 
+  ADD COLUMN `hashFunction` VARCHAR(45) NULL AFTER `sourceIdentifier`,
+  ADD COLUMN `hashValue` VARCHAR(45) NULL AFTER `hashFunction`;
+
 CREATE TABLE `omcollproperties` (
   `collPropID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `collid` INT UNSIGNED NOT NULL,

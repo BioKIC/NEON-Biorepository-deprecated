@@ -215,7 +215,7 @@ class TaxonProfile extends Manager {
 				'INNER JOIN taxa t ON i.tid = t.tid '.
 				'WHERE (ts.taxauthid = 1 AND ts.tidaccepted IN ('.$tidStr.')) AND i.SortSequence < 500 AND i.thumbnailurl IS NOT NULL ';
 			if(!$this->displayLocality) $sql .= 'AND i.occid IS NULL ';
-			$sql .= 'ORDER BY i.sortsequence LIMIT 100';
+			$sql .= 'ORDER BY i.sortsequence, i.sortOccurrence LIMIT 100';
 			/*
 			$sql = 'SELECT t.sciname, i.imgid, i.url, i.thumbnailurl, i.originalurl, i.caption, i.occid, IFNULL(i.photographer,CONCAT_WS(" ",u.firstname,u.lastname)) AS photographer '.
 				'FROM images i LEFT JOIN users u ON i.photographeruid = u.uid '.
@@ -227,7 +227,6 @@ class TaxonProfile extends Manager {
 			if(!$this->displayLocality) $sql .= 'AND i.occid IS NULL ';
 			$sql .= 'ORDER BY i.sortsequence LIMIT 100';
 			*/
-
 			//echo $sql;
 			$result = $this->conn->query($sql);
 			while($row = $result->fetch_object()){

@@ -1,4 +1,9 @@
-# Welcome to the Symbiota-light code repository
+This fork of the Symbiota code is actively being developed by the Biodiversity Knowledge Integration Center (BioKIC, https://github.com/BioKIC) development team at Arizona State University. 
+Even though BioKIC code developments are regularly pushed back to this repository, we recommend that you download/fork code directly from the 
+BioKIC/Symbiota repository (https://github.com/BioKIC/Symbiota) to ensure that you obtain the most recently code changes.   
+
+
+# Welcome to the Symbiota code repository
 
 ### ABOUT THIS SOFTWARE
 

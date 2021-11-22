@@ -1489,6 +1489,10 @@ else{
 																	<input name="carryover" type="radio" value="0" /><?php echo $LANG['ALL_FIELDS']; ?>
 																</span>
 															</div>
+															<div class="fieldGroupDiv">
+																<span><input name="carryoverimages" type="checkbox" value="1" /></span>
+																<label><?php echo $LANG['CARRY_OVER_IMAGES']; ?></label>
+															</div>
 															<div class="fieldGroupDiv" title="Relationship to this occurrence">
 																<label><?php echo $LANG['RELATIONSHIP']; ?>:</label>
 																<select name="assocrelation">

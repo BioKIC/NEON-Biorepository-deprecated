@@ -1,3 +1,8 @@
+.PlotButton{
+  border: none;
+  background-color: white;
+  margin: 0px;
+}
 .PlotCaption {
   font-size: x-small;
   width: 50%;

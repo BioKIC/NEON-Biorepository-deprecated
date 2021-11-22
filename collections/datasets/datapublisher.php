@@ -217,8 +217,8 @@ include($SERVER_ROOT.'/includes/header.php');
 			<?php
 			echo $LANG['DWCA_EXPLAIN_1'].' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">'.$LANG['DWCA'].'</a> '.$LANG['DWCA_EXPLAIN_2'].
 			' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">'.$LANG['DWC'].'</a> '.$LANG['DWCA_EXPLAIN_3'].
-			' <a href="http://symbiota.org/docs/darwin-core-archive-data-publishing/" target="_blank"> '.$LANG['PUBLISH_IDIGBIO'].'</a> &amp;'.
-			' <a href="http://symbiota.org/docs/publishing-to-gbif-from-a-symbiota-portal/" target="_blank"> '.$LANG['PUBLISH_GBIF'].'</a>.';
+			' <a href="https://symbiota.org/darwin-core-archive-data-publishing/" target="_blank"> '.$LANG['PUBLISH_IDIGBIO'].'</a> &amp;'.
+			' <a href="https://symbiota.org/publishing-to-gbif-from-a-symbiota-portal/" target="_blank"> '.$LANG['PUBLISH_GBIF'].'</a>.';
 			?>
 		</div>
 		<?php

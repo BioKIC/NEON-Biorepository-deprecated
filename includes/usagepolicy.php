@@ -41,13 +41,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 					Usage of occurrence data from specific institutions:
 				</div>
 				<div style="margin:10px;">
-					Biodiversity occurrence data published by: &lt;List of Collections&gt;
-					(Accessed through <?php echo $DEFAULT_TITLE; ?> Data Portal,
-					<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php'; ?>, YYYY-MM-DD)<br/><br/>
+					Biodiversity occurrence data published by: <List of Collections> (Accessed through <?php echo $DEFAULT_TITLE; ?>, <?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php'; ?>, YYYY-MM-DD)<br/><br/>
 					<b>For example:</b><br/>
-					Biodiversity occurrence data published by:
-					NEON (National Ecological Observatory Network) and NEON Biorepository, Arizona State University Biodiversity Knowledge Integration Center (Accessed through <?php echo $DEFAULT_TITLE; ?> Data Portal,
-					<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php, '.date('Y-m-d').')'; ?>
+					Biodiversity occurrence data published by: NEON (National Ecological Observatory Network) and NEON Biorepository, Arizona State University Biodiversity Knowledge Integration Center (Accessed through <?php echo $DEFAULT_TITLE; ?>,	<?php echo 'http//:'.$_SERVER['HTTP_HOST'].$CLIENT_ROOT.(substr($CLIENT_ROOT,-1)=='/'?'':'/').'index.php, '.date('Y-m-d').')'; ?>
 				</div>
 			</div>
 			<div>

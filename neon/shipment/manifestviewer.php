@@ -291,7 +291,7 @@ elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEdito
 		.fieldDiv { float:left; margin-left: 10px}
 		.displayFieldDiv { margin-bottom: 3px }
 		fieldset legend { font-weight: bold; }
-		.sample-row td { white-space: nowrap }
+		.sample-row td { white-space: break-spaces; }
 	</style>
 </head>
 <body>

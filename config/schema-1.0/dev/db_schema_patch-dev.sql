@@ -58,6 +58,17 @@ ALTER TABLE `images`
   ADD COLUMN `hashFunction` VARCHAR(45) NULL AFTER `sourceIdentifier`,
   ADD COLUMN `hashValue` VARCHAR(45) NULL AFTER `hashFunction`;
 
+ALTER TABLE `imageprojects` 
+  ADD COLUMN `projectType` VARCHAR(45) NULL AFTER `description`,
+  ADD COLUMN `collid` INT UNSIGNED NULL AFTER `projectType`,
+  CHANGE COLUMN `uidcreated` `uidcreated` INT(11) UNSIGNED NULL DEFAULT NULL ,
+  ADD INDEX `FK_imageproject_collid_idx` (`collid` ASC),
+  ADD INDEX `FK_imageproject_uid_idx` (`uidcreated` ASC);
+
+ALTER TABLE `imageprojects` 
+  ADD CONSTRAINT `FK_imageproject_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_imageproject_uid`  FOREIGN KEY (`uidcreated`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
 CREATE TABLE `omcollproperties` (
   `collPropID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `collid` INT UNSIGNED NOT NULL,

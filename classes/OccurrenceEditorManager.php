@@ -2,6 +2,8 @@
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.en.php');
 
 class OccurrenceEditorManager {
 
@@ -2206,6 +2208,27 @@ class OccurrenceEditorManager {
 			}
 		}
 		return $isEditor;
+	}
+
+	//Form field functions
+	public function getFieldArr(){
+		global $LANG;
+		$fieldArr = array();
+		$panelName = (isset($LANG['COLLECTOR_INFO'])?$LANG['COLLECTOR_INFO']:'Collector Info');
+		$fieldArr[$panelName][0]['catalogNumber']['onChange'][] = "fieldChanged('catalognumber')";
+		if(!defined('CATNUMDUPECHECK') || CATNUMDUPECHECK) $fieldArr[$panelName][0]['catalogNumber']['onChange'][] = 'searchDupesCatalogNumber(this.form,true)';
+		if($isEditor > 2) $fieldArr[$panelName]['catalogNumber']['attr'][] = 'disabled';
+		$fieldArr[$panelName][0]['catalogNumber']['attr'][] = 'autocomplete="off"';
+		$fieldArr[$panelName][0]['catalogNumber']['title'] = (defined('CATALOGNUMBERLABEL')?CATALOGNUMBERLABEL:'Catalog Number');
+		$fieldArr[$panelName][0]['catalogNumber']['type'] = 'text';
+
+		$fieldArr[$panelName][1]['otherCatalogNumbers']['onChange'][] = "fieldChanged('othercatalognumbers')";
+		if(!defined('OTHERCATNUMDUPECHECK') || OTHERCATNUMDUPECHECK) $fieldArr[$panelName][0]['otherCatalogNumbers']['onChange'][] = 'searchDupesOtherCatalogNumbers(this.form)';
+		$fieldArr[$panelName][0]['otherCatalogNumbers']['attr'][] = 'autocomplete="off"';
+		$fieldArr[$panelName][0]['otherCatalogNumbers']['title'] = (defined('OTHERCATALOGNUMBERSLABEL')?OTHERCATALOGNUMBERSLABEL:'Catalog Number');
+		$fieldArr[$panelName][0]['otherCatalogNumbers']['type'] = 'text';
+
+		return $fieldArr;
 	}
 
 	//Misc data support functions

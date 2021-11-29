@@ -81,7 +81,7 @@ else{
 }
 //if(!isset($_REQUEST['q_catalognumber'])) $displayQuery = true;
 ?>
-<div id="querydiv" style="clear:both;width:850px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
+<div id="querydiv" style="clear:both;width:920px;display:<?php echo ($displayQuery?'block':'none'); ?>;">
 	<form name="queryform" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="post" onsubmit="return verifyQueryForm(this)">
 		<fieldset style="padding:5px;">
 			<legend><?php echo $LANG['RECORD_SEARCH_FORM']; ?></legend>

@@ -27,11 +27,11 @@ $collManager->setCollid($collid);
 
 $statusStr = '';
 if($isEditor){
-	if($action == 'Save Edits'){
+	if($action == 'saveEdits'){
 		$statusStr = $collManager->submitCollEdits($_POST);
 		if($statusStr === true) header('Location: collprofiles.php?collid='.$collid);
 	}
-	elseif($action == 'Create New Collection'){
+	elseif($action == 'newCollection'){
 		if($IS_ADMIN){
 			$newCollid = $collManager->submitCollAdd($_POST);
 			if(is_numeric($newCollid)){
@@ -246,7 +246,6 @@ $collManager->cleanOutArr($collData);
 	else echo '<b>'.(isset($LANG['CREATE_COLL'])?$LANG['CREATE_COLL']:'Create New Collection Profile').'</b>';
 	echo '</div>';
 	?>
-	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
 		if($statusStr){
@@ -651,12 +650,12 @@ $collManager->cleanOutArr($collData);
 									if($collid){
 										?>
 										<input type="hidden" name="collid" value="<?php echo $collid;?>" />
-										<input type="submit" name="action" value="<?php echo (isset($LANG['SAVE_EDITS'])?$LANG['SAVE_EDITS']:'Save Edits'); ?>" />
+										<button type="submit" name="action" value="saveEdits"><?php echo (isset($LANG['SAVE_EDITS'])?$LANG['SAVE_EDITS']:'Save Edits'); ?></button>
 										<?php
 									}
 									else{
 										?>
-										<input type="submit" name="action" value="<?php echo (isset($LANG['CREATE_COLL_2'])?$LANG['CREATE_COLL_2']:'Create New Collection'); ?>" />
+										<button type="submit" name="action" value="newCollection"><?php echo (isset($LANG['CREATE_COLL_2'])?$LANG['CREATE_COLL_2']:'Create New Collection'); ?></button>
 										<?php
 									}
 									?>

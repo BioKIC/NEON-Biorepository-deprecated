@@ -2,19 +2,22 @@
 $targetPath = '';
 $recursive = true;
 $degree = 90;
+$testMode = 1;
 $rotateMode = 1;
 $msgMode = 1;
 
 if(isset($_REQUEST['path']) && $_REQUEST['path']) $targetPath = $_REQUEST['path'];
 if(isset($_REQUEST['recursive']) && !$_REQUEST['recursive']) $recursive = false;
-if(isset($_REQUEST['degree']) && is_numeric($_REQUEST['degree'])) $degree = $_REQUEST['degree'];
-if(isset($_REQUEST['rotmode']) && is_numeric($_REQUEST['rotmode'])) $rotateMode = $_REQUEST['rotmode'];
-if(isset($_REQUEST['msgmode']) && is_numeric($_REQUEST['msgmode'])) $msgMode = $_REQUEST['msgmode'];
+if(isset($_REQUEST['degree'])) $degree = $_REQUEST['degree'];
+if(isset($_REQUEST['testmode'])) $testMode = $_REQUEST['testmode'];
+if(isset($_REQUEST['rotmode'])) $rotateMode = $_REQUEST['rotmode'];
+if(isset($_REQUEST['msgmode'])) $msgMode = $_REQUEST['msgmode'];
 
 $rotateManager = new ImageRotator();
 
 $rotateManager->setRecursive($recursive);
 $rotateManager->setDegree($degree);
+$rotateManager->setTestMode($testMode);
 $rotateManager->setRotateMode($rotateMode);
 $rotateManager->setMsgOutMode($msgMode);
 
@@ -25,6 +28,7 @@ class ImageRotator{
 	private $targetPath = '';
 	private $recursive = true;
 	private $degree = 90;
+	private $testMode = 0;			//0 = rotate without testing, 1 = rotate images that are wider than tall (e.g. turned herbarium specimens), 2 = rotate images that are taller than wide
 	private $rotateMode = 1;		//1 = php, 2 = jpegtran, 3 = ImageMagick
 	private $msgOutMode = 1;		//1 = text, 2 = html
 
@@ -45,13 +49,16 @@ class ImageRotator{
 							$this->msgOut('Evaluating: '.$targetPath.'/'.$entry);
 							if(strtolower(pathinfo($targetPath.'/'.$entry,PATHINFO_EXTENSION ) == 'jpg')){
 								$imgInfoArr = getimagesize($targetPath.'/'.$entry);
-								$ratio = $imgInfoArr[0]/$imgInfoArr[1];		//Test: wider than tall
-								$ratio = $imgInfoArr[1]/$imgInfoArr[0];		//Test: taller than wide
-								if($ratio > 1){
+								$ratio = 0;
+								if($this->testMode == 1) $ratio = $imgInfoArr[0]/$imgInfoArr[1];		//Test: wider than tall
+								elseif($this->testMode == 2) $ratio = $imgInfoArr[1]/$imgInfoArr[0];		//Test: taller than wide
+								if($ratio < 1){
+									$this->msgOut('Skipping ('.$ratio.')',1);
+								}
+								else{
 									$this->msgOut('Rotating...',1);
 									$this->rotateImage($targetPath.'/'.$entry);
 								}
-								else $this->msgOut('Skipping ('.$ratio.')',1);
 							}
 							else $this->msgOut('ERROR: not a jpg',1);
 						}
@@ -116,15 +123,19 @@ class ImageRotator{
 	}
 
 	public function setDegree($degree){
-		$this->degree = $degree;
+		if(is_numeric($degree)) $this->degree = $degree;
+	}
+
+	public function setTestMode($mode){
+		if(is_numeric($mode)) $this->testMode = $mode;
 	}
 
 	public function setRotateMode($mode){
-		$this->rotateMode = $mode;
+		if(is_numeric($mode)) $this->rotateMode = $mode;
 	}
 
 	public function setMsgOutMode($mode){
-		$this->msgOutMode = $mode;
+		if(is_numeric($mode)) $this->msgOutMode = $mode;
 	}
 
 	private function msgOut($msgStr,$indent=0){

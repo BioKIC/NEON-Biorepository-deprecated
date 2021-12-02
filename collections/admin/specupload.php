@@ -968,14 +968,13 @@ if($isEditor && $collid){
 							</div>
 							<?php
 							if($uploadType == $SKELETAL){
-								echo '<div style="margin:15px;background-color:lightgreen;">';
+								echo '<div style="margin-top:15px;">';
 								echo (isset($LANG['SKEL_EXPLAIN'])?$LANG['SKEL_EXPLAIN']:'');
 								echo '<ul>';
 								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P1'])?$LANG['SKEL_EXPLAIN_P1']:'').'</li>';
 								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
-								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
-								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
-								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P2'])?$LANG['SKEL_EXPLAIN_P2']:'').'</li>';
+								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P3'])?$LANG['SKEL_EXPLAIN_P3']:'').'</li>';
+								echo '<li>'.(isset($LANG['SKEL_EXPLAIN_P4'])?$LANG['SKEL_EXPLAIN_P4']:'').'</li>';
 								echo '</ul>';
 								echo '</div>';
 							}

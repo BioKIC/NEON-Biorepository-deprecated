@@ -96,7 +96,7 @@ body{
 }
 
 #catalogNumberDiv input{
-	width:	120px;
+	width:	140px;
 }
 
 #otherCatalogNumbersDiv {
@@ -104,7 +104,7 @@ body{
 }
 
 #otherCatalogNumbersDiv input{
-	width:	110px;
+	width:	100px;
 }
 
 #recordedByDiv {

@@ -15,6 +15,7 @@ if($isEditor){
 	$descList = $descEditor->getDescriptions();
 	$langArr = $descEditor->getLangArr();
 	?>
+	<script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
 	<script type="text/javascript">
 		tinymce.init({
 			selector: "textarea",
@@ -22,7 +23,7 @@ if($isEditor){
 			height: 300,
 			menubar: false,
 			plugins: "link,charmap,code,paste",
-			toolbar : "bold italic underline cut copy paste outdent indent undo redo subscript superscript removeformat link charmap code",
+			toolbar : ["bold italic underline | cut copy paste | outdent indent | subscript superscript | undo redo removeformat | link | charmap | code"],
 			default_link_target: "_blank",
 			paste_as_text: true
 		});

@@ -90,7 +90,7 @@ if($clArray['defaultsettings']){
 			height: 300,
 			menubar: false,
 			plugins: "link,charmap,code,paste",
-			toolbar : "bold italic underline cut copy paste outdent indent undo redo subscript superscript removeformat link charmap code",
+			toolbar : ["bold italic underline | cut copy paste | outdent indent | subscript superscript | undo redo removeformat | link | charmap | code"],
 			default_link_target: "_blank",
 			paste_as_text: true
 		});

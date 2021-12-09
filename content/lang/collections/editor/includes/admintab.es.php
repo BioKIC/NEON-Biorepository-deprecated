@@ -25,7 +25,7 @@ $LANG['TARGET_COL'] = 'Colección Destino';
 $LANG['SEL_COL'] = 'Seleccionar Colección';
 $LANG['REMAIN_CURRENT'] = 'Permanecer en Colección Actual';
 $LANG['TRANSFER_RECORD'] = 'Transferir Registro';
-$LANG['DEL_RECORD'] = 'Borrar Registro de Ocurrencia;';
+$LANG['DEL_RECORD'] = 'Borrar Registro de Ocurrencia';
 $LANG['SURE_DEL'] = '¿Está seguro de querer eliminar este registro?';
 $LANG['REC_MUST_EVALUATE'] = 'El registro necesita ser evaluado antes de ser eliminado del sistema.
 				La evaluación asegura que la elimininación de este registro no interfiera con

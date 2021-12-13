@@ -890,28 +890,29 @@ class ShipmentManager{
 				$this->searchArr['sampleCondition'] = $_REQUEST['sampleCondition'];
 			}
 			if(isset($_REQUEST['manifestStatus'])){
-				if($_REQUEST['manifestStatus'] == 'shipCheck'){
+        $statusArr = $_REQUEST['manifestStatus'];
+				if(in_array('shipCheck', $statusArr, true)){
 					$sqlWhere .= 'AND (s.checkinTimestamp IS NOT NULL) ';
 				}
-				elseif($_REQUEST['manifestStatus'] == 'shipNotCheck'){
+				if(in_array('shipNotCheck', $statusArr, true)){
 					$sqlWhere .= 'AND (s.checkinTimestamp IS NULL) ';
 				}
-				elseif($_REQUEST['manifestStatus'] == 'receiptNotSubmitted'){
+				if(in_array('receiptNotSubmitted', $statusArr, true)){
 					$sqlWhere .= 'AND (s.receiptstatus IS NULL OR s.receiptstatus NOT LIKE "submitted%") ';
 				}
-				elseif($_REQUEST['manifestStatus'] == 'sampleCheck'){
+				if(in_array('sampleCheck', $statusArr, true)){
 					$sqlWhere .= 'AND (m.checkinTimestamp IS NOT NULL) ';
 				}
-				elseif($_REQUEST['manifestStatus'] == 'sampleNotCheck'){
+				if(in_array('sampleNotCheck', $statusArr, true)){
 					$sqlWhere .= 'AND (m.checkinTimestamp IS NULL) ';
 				}
-				elseif($_REQUEST['manifestStatus'] == 'notReceivedSamples'){
+				if(in_array('notReceivedSamples', $statusArr, true)){
 					$sqlWhere .= 'AND (m.sampleReceived = 0) ';
 				}
-				elseif($_REQUEST['manifestStatus'] == 'notAcceptedSamples'){
+				if(in_array('notAcceptedSamples', $statusArr, true)){
 					$sqlWhere .= 'AND (m.acceptedForAnalysis = 0) ';
 				}
-				elseif($_REQUEST['manifestStatus'] == 'occurNotHarvested'){
+				if(in_array('occurNotHarvested', $statusArr, true)){
 					$sqlWhere .= 'AND (m.occid IS NULL) ';
 				}
 				$this->searchArr['manifestStatus'] = $_REQUEST['manifestStatus'];
@@ -921,7 +922,8 @@ class ShipmentManager{
 		elseif($this->shipmentPK){
 			$sqlWhere = 'WHERE (s.shipmentPK = '.$this->shipmentPK.') ';
 		}
-		//echo 'where: '.$sqlWhere; exit;
+		// echo 'where: '.$sqlWhere; exit;
+    echo 'where: '.$sqlWhere;
 		return $sqlWhere;
 	}
 
@@ -1249,6 +1251,9 @@ class ShipmentManager{
 		$retStr = '';
 		if($this->searchArr){
 			foreach($this->searchArr as $k => $v){
+        if(is_array($v)){
+          $v = implode(',',$v);
+        }
 				$retStr .= '&'.$k.'='.$v;
 			}
 		}

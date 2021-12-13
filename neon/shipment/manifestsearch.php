@@ -96,12 +96,14 @@ include($SERVER_ROOT.'/includes/header.php');
 		$shipmentDetails = $shipManager->getShipmentList();
 		$searchArgumentArr = $shipManager->getSearchArr();
 		?>
+    <h2><?php var_dump($searchArgumentArr); ?></h2>
 		<fieldset style="position: relative">
 			<legend><b>Shipment Filter</b></legend>
 			<?php
 			$searchArgument = $shipManager->getSearchArgumentStr();
 			if($searchArgument){
-				?>
+        ?>
+        <h2><?php print_r($searchArgument); ?></h2>
 				<div style="position:absolute;top:20px;right:10px;">
 					<div id="copiedDiv" style="float:left;display:none;margin-right:15px;font-size:80%">URL copied to clipboard</div>
 					<a href="#" onclick="copyUrl('<?php echo $searchArgument; ?>')" title="Copy URL to Clipboard">
@@ -201,35 +203,36 @@ include($SERVER_ROOT.'/includes/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<?php
-					$manifestStatus = isset($searchArgumentArr['manifestStatus'])?$searchArgumentArr['manifestStatus']:'';
+					$manifestStatus = isset($searchArgumentArr['manifestStatus'])?implode(',', $searchArgumentArr['manifestStatus']):'';
+          echo $manifestStatus;
 					?>
 					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="shipCheck" <?php echo ($manifestStatus=='shipCheck'?'checked':''); ?> /> <b>Shipments Checked In</b>
+						<input name="manifestStatus[]" type="checkbox" value="shipCheck" <?php echo ($manifestStatus=='shipCheck'?'checked':''); ?> /> <b>Shipments Checked In</b>
 					</div>
 					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="shipNotCheck" <?php echo ($manifestStatus=='shipNotCheck'?'checked':''); ?> /> <b>Shipments Not Checked In</b>
+						<input name="manifestStatus[]" type="checkbox" value="shipNotCheck" <?php echo ($manifestStatus=='shipNotCheck'?'checked':''); ?> /> <b>Shipments Not Checked In</b>
 					</div>
 					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="receiptNotSubmitted" <?php echo ($manifestStatus=='receiptNotSubmitted'?'checked':''); ?> /> <b>Receipt Not Submitted</b>
-					</div>
-				</div>
-				<div class="fieldGroupDiv">
-					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="sampleCheck" <?php echo ($manifestStatus=='sampleCheck'?'checked':''); ?>  /> <b>Samples Checked In</b>
-					</div>
-					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="sampleNotCheck" <?php echo ($manifestStatus=='sampleNotCheck'?'checked':''); ?>  /> <b>Samples Not Checked In</b>
-					</div>
-					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="notReceivedSamples" <?php echo ($manifestStatus=='notReceivedSamples'?'checked':''); ?> /> <b>Samples Not Received</b>
-					</div>
-					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="notAcceptedSamples" <?php echo ($manifestStatus=='notAcceptedSamples'?'checked':''); ?> /> <b>Samples Not Accepted for Analysis</b>
+						<input name="manifestStatus[]" type="checkbox" value="receiptNotSubmitted" <?php echo ($manifestStatus=='receiptNotSubmitted'?'checked':''); ?> /> <b>Receipt Not Submitted</b>
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<input name="manifestStatus" type="radio" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> /> <b>Occurrences Not Harvested</b>
+						<input name="manifestStatus[]" type="checkbox" value="sampleCheck" <?php echo ($manifestStatus=='sampleCheck'?'checked':''); ?>  /> <b>Samples Checked In</b>
+					</div>
+					<div class="fieldDiv">
+						<input name="manifestStatus[]" type="checkbox" value="sampleNotCheck" <?php echo ($manifestStatus=='sampleNotCheck'?'checked':''); ?>  /> <b>Samples Not Checked In</b>
+					</div>
+					<div class="fieldDiv">
+						<input name="manifestStatus[]" type="checkbox" value="notReceivedSamples" <?php echo ($manifestStatus=='notReceivedSamples'?'checked':''); ?> /> <b>Samples Not Received</b>
+					</div>
+					<div class="fieldDiv">
+						<input name="manifestStatus[]" type="checkbox" value="notAcceptedSamples" <?php echo ($manifestStatus=='notAcceptedSamples'?'checked':''); ?> /> <b>Samples Not Accepted for Analysis</b>
+					</div>
+				</div>
+				<div class="fieldGroupDiv">
+					<div class="fieldDiv">
+						<input name="manifestStatus[]" type="checkbox" value="occurNotHarvested" <?php echo ($manifestStatus=='occurNotHarvested'?'checked':''); ?> /> <b>Occurrences Not Harvested</b>
 					</div>
 				</div>
 				<div style="clear:both;margin:10px">

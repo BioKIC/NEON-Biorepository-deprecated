@@ -39,6 +39,7 @@ $LANG['USERPERM'] = 'User Permissions';
 $LANG['TAXINTER'] = 'Taxonomic Interest User Permissions';
 $LANG['TAXONOMIC_CLEANER'] = 'Global Taxonomic Name Cleaner';
 $LANG['CREATENEWCOLL'] = 'Create a New Collection or Observation Profile';
+$LANG['GEOTHESAURUS'] = 'Geographic Thesaurus';
 $LANG['COORDVALIDATOR'] = 'Verify coordinates against political boundaries';
 $LANG['GUIDMAP'] = 'Collection GUID Mapper';
 $LANG['THUMBNAIL_BUILDER'] = 'Thumbnail Builder Tool';

@@ -237,30 +237,77 @@ class GeographicThesaurus extends Manager{
 
 
 	//Misc junction
-	public function transferDataFromLkupTables(){
-		/*
-		INSERT INTO geographicthesaurus(geoterm,iso2,iso3,numcode,category,geoLevel,termstatus)
-		SELECT countryName, iso, iso3, numcode, "Country", 1 as geoLevel, 1 as termStatus
-		FROM lkupcountry
-		WHERE iso IS NOT NULL;
+	public function transferDeprecatedThesaurus(){
+		$status = false;
+		$sqlArr = array();
+		$sqlArr[] = 'INSERT INTO geographicthesaurus(geoterm,iso2,iso3,numcode,category,geoLevel,termstatus)
+			SELECT countryName, iso, iso3, numcode, "Country", 50 as geoLevel, 1 as termStatus FROM lkupcountry WHERE iso IS NOT NULL';
 
-		SELECT * FROM geographicthesaurus ORDER BY geoLevel, geoTerm LIMIT 100000;
+		$sqlArr[] = 'UPDATE geographicthesaurus SET acceptedID = (SELECT geoThesID FROM geographicthesaurus WHERE geoTerm = "United States") WHERE geoterm IN("USA","U.S.A.","United States of America")';
 
-		INSERT INTO geographicthesaurus(geoterm,abbreviation,parentID,category,geoLevel,termStatus)
-		SELECT DISTINCT s.stateName, s.abbrev, t.geoThesID, 'State', 2 as geoLevel, 1 as termStatus
-		FROM lkupcountry c INNER JOIN lkupstateprovince s ON c.countryid = s.countryid
-		INNER JOIN geographicthesaurus t ON c.iso = t.iso2
-        WHERE t.category = "country" AND t.termstatus = 1
-		LIMIT 1000000;
+		$sqlArr[] = 'INSERT INTO geographicthesaurus(geoterm,abbreviation,parentID,category,geoLevel,termStatus)
+			SELECT DISTINCT s.stateName, s.abbrev, t.geoThesID, "State", 60 as geoLevel, 1 as termStatus
+			FROM lkupcountry c INNER JOIN lkupstateprovince s ON c.countryid = s.countryid
+			INNER JOIN geographicthesaurus t ON c.iso = t.iso2
+	        WHERE t.category = "country" AND t.termstatus = 1 AND t.acceptedID IS NULL';
 
-		INSERT INTO geographicthesaurus(geoterm,parentID,category,geoLevel,termStatus)
-		SELECT DISTINCT c.countyName, t.geoThesID, 'County', 3 as geoLevel, 1 as termStatus
-		FROM lkupstateprovince s INNER JOIN lkupcounty c ON s.stateid = c.stateid
-		INNER JOIN geographicthesaurus t ON s.stateName = t.geoterm
-		WHERE t.category = "State" AND t.termstatus = 1 AND (c.countyName NOT LIKE "% County" AND c.countyName NOT LIKE "% Parish");
-		 */
+		$sqlArr[] = 'INSERT INTO geographicthesaurus(geoterm,parentID,category,geoLevel,termStatus)
+			SELECT DISTINCT REPLACE(REPLACE(REPLACE(c.countyName," Co.","")," County","")," Parish",""), t.geoThesID, "County", 70 as geoLevel, 1 as termStatus
+			FROM lkupstateprovince s INNER JOIN lkupcounty c ON s.stateid = c.stateid
+			INNER JOIN geographicthesaurus t ON s.stateName = t.geoterm
+			WHERE t.category = "State" AND t.termstatus = 1';
+
+		foreach($sqlArr as $sql){
+			if($this->conn->query($sql)){
+				$this->warningArr[] = $this->conn->error;
+			}
+		}
+
+		return $status;
 	}
 
+	public function getThesaurusStatus(){
+		$retArr = false;
+		$fullCnt = 0;
+		$sql = 'SELECT geoLevel, COUNT(*) as cnt FROM geographicthesaurus GROUP BY geoLevel';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr['active'][$r->geoLevel] = $r->cnt;
+			$fullCnt += $r->cnt;
+		}
+		$rs->free();
+
+		if($fullCnt < 100){
+			$sql = 'SELECT COUNT(*) as cnt FROM lkupcountry ';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retArr['lkup']['country'] = $r->cnt;
+			}
+			$rs->free();
+
+			$sql = 'SELECT COUNT(*) as cnt FROM lkupstateprovince ';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retArr['lkup']['state'] = $r->cnt;
+			}
+			$rs->free();
+
+			$sql = 'SELECT COUNT(*) as cnt FROM lkupcounty ';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retArr['lkup']['county'] = $r->cnt;
+			}
+			$rs->free();
+
+			$sql = 'SELECT COUNT(*) as cnt FROM lkupmunicipality ';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retArr['lkup']['municipality'] = $r->cnt;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
 
 }
 ?>

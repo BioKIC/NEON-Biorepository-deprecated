@@ -57,7 +57,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 		}
 	</script>
 	<style type="text/css">
-		fieldset{ margin: 10px; padding: 15px; width: 700px }
+		fieldset{ margin: 10px; padding: 15px; width: 800px }
 		legend{ font-weight: bold; }
 		label{ text-decoration: underline; }
 		#edit-legend{ display: none }
@@ -141,7 +141,7 @@ $geoArr = $geoManager->getGeograpicList($parentID);
 						<div class="field-div">
 							<label>Notes</label>:
 							<span class="editTerm"><?php echo $geoUnit['notes']; ?></span>
-							<span class="editFormElem"><input type="text" name="notes" value="<?php echo $geoUnit['notes'] ?>" maxlength="250" style="width:200px;" /></span>
+							<span class="editFormElem"><input type="text" name="notes" value="<?php echo $geoUnit['notes'] ?>" maxlength="250" style="width:650px;" /></span>
 						</div>
 						<?php
 						if($geoUnit['geoLevel']){

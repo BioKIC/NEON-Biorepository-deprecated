@@ -11,7 +11,7 @@ class OccurrenceHarvester{
 	private $sampleClassArr = array();
 	private $domainSiteArr = array();
 	private $replaceFieldValues = false;
-	private $targetFieldArr = array();
+	private $targetFieldArr = array();		//Used to limit harvest updatings to only a few targetted fields, rather than reloading/refreshing the complete record
 	private $neonApiBaseUrl;
 	private $neonApiKey;
 	private $errorStr;
@@ -374,6 +374,11 @@ class OccurrenceHarvester{
 					elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $tableArr['collect_end_date'] = $this->formatDate($fArr['smsValue']);
 					elseif($fArr['smsKey'] == 'specimen_count' && $fArr['smsValue']) $tableArr['specimen_count'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'temperature' && $fArr['smsValue']) $tableArr['temperature'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'decimal_latitude' && $fArr['smsValue']) $tableArr['decimal_latitude'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'decimal_longitude' && $fArr['smsValue']) $tableArr['decimal_longitude'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'coordinate_uncertainty' && $fArr['smsValue']) $tableArr['coordinate_uncertainty'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'elevation' && $fArr['smsValue']) $tableArr['elevation'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'elevation_uncertainty' && $fArr['smsValue']) $tableArr['elevation_uncertainty'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'verbatim_depth' && $fArr['smsValue']) $tableArr['verbatim_depth'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'minimum_depth_in_meters' && $fArr['smsValue']) $tableArr['minimum_depth_in_meters'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'maximum_depth_in_meters' && $fArr['smsValue']) $tableArr['maximum_depth_in_meters'] = $fArr['smsValue'];
@@ -443,12 +448,28 @@ class OccurrenceHarvester{
 				if(isset($sampleArr['life_stage'])) $dwcArr['lifeStage'] = $sampleArr['life_stage'];
 				if(isset($sampleArr['remarks'])) $dwcArr['occurrenceRemarks'] = $sampleArr['remarks'];
 				if(isset($sampleArr['assocMedia'])) $dwcArr['assocMedia'] = $sampleArr['assocMedia'];
+				if(isset($sampleArr['coordinate_uncertainty'])) $dwcArr['coordinateUncertaintyInMeters'] = $sampleArr['coordinate_uncertainty'];
+				if(isset($sampleArr['decimal_latitude'])) $dwcArr['decimalLatitude'] = $sampleArr['decimal_latitude'];
+				if(isset($sampleArr['decimal_longitude'])) $dwcArr['decimalLongitude'] = $sampleArr['decimal_longitude'];
+				if(isset($sampleArr['elevation'])){
+					if(isset($sampleArr['elevation_uncertainty'])){
+						$dwcArr['minimumElevationInMeters'] = round($sampleArr['elevation']-$sampleArr['elevation_uncertainty']);
+						$dwcArr['maximumElevationInMeters'] = round($sampleArr['elevation']+$sampleArr['elevation_uncertainty']);
+						$dwcArr['verbatimElevation'] = $sampleArr['elevation'].'m (+-'.$sampleArr['elevation_uncertainty'].'m)';
+					}
+					else{
+						$dwcArr['minimumElevationInMeters'] = $sampleArr['elevation'];
+						$dwcArr['maximumElevationInMeters'] = $sampleArr['elevation'];
+					}
+				}
 				$prepArr = array();
 				if(isset($sampleArr['preservative_type'])) $prepArr[] = 'preservative type: '.$sampleArr['preservative_type'];
 				if(isset($sampleArr['preservative_volume'])) $prepArr[] = 'preservative volume: '.$sampleArr['preservative_volume'];
 				if(isset($sampleArr['preservative_concentration'])) $prepArr[] = 'preservative concentration: '.$sampleArr['preservative_concentration'];
-				if(isset($sampleArr['sample_mass']) && strpos($sampleArr['symbiotaTarget'],'sample mass') === false) $prepArr[] = 'sample mass: '.$sampleArr['sample_mass'];
-				if(isset($sampleArr['sample_volume']) && strpos($sampleArr['symbiotaTarget'],'sample volume') === false) $prepArr[] = 'sample volume: '.$sampleArr['sample_volume'];
+				if(!in_array($dwcArr['collid'], array(19,28,42))){
+					if(isset($sampleArr['sample_mass']) && strpos($sampleArr['symbiotaTarget'],'sample mass') === false) $prepArr[] = 'sample mass: '.$sampleArr['sample_mass'];
+					if(isset($sampleArr['sample_volume']) && strpos($sampleArr['symbiotaTarget'],'sample volume') === false) $prepArr[] = 'sample volume: '.$sampleArr['sample_volume'];
+				}
 				if($prepArr) $dwcArr['preparations'] = implode(', ',$prepArr);
 				$dynProp = array();
 				if(isset($sampleArr['filterVolume'])) $dynProp[] = 'filterVolume: '.$sampleArr['filterVolume'];
@@ -778,7 +799,7 @@ class OccurrenceHarvester{
 					if(!$occid){
 						$occid = $this->conn->insert_id;
 						if($occid){
-							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.', occidOriginal = '.$occid.' WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
+							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.', occidOriginal = IFNULL(occidOriginal,'.$occid.') WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
 						}
 					}
 					if(isset($dwcArr['identifiers'])) $this->setOccurrenceIdentifiers($dwcArr['identifiers'], $occid);

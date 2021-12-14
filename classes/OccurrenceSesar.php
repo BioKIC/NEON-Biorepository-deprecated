@@ -18,24 +18,6 @@ class OccurrenceSesar extends Manager {
 
 	public function __construct($type = 'write'){
 		parent::__construct(null, $type);
-		$this->fieldMap['basisOfRecord']['sesar'] = 'collection_method_descr';
-		$this->fieldMap['catalogNumber']['sesar'] = 'name';
-		$this->fieldMap['catalogNumber']['sql'] = 'CONCAT_WS(" ",IFNULL(o.catalogNumber, o.otherCatalogNumbers),"[",o.occid,"]") AS catalogNumber';
-		$this->fieldMap['sciname']['sesar'] = 'field_name';
-		$this->fieldMap['sciname']['sql'] = 'CONCAT_WS(" ",o.sciname, o.scientificNameAuthorship) AS sciname';
-		$this->fieldMap['recordedBy']['sesar'] = 'collector';
-		$this->fieldMap['eventDate']['sesar'] = 'collection_start_date';
-		$this->fieldMap['verbatimAttributes']['sesar'] = 'description';
-		$this->fieldMap['country']['sesar'] = 'country';
-		$this->fieldMap['stateProvince']['sesar'] = 'province';
-		$this->fieldMap['county']['sesar'] = 'county';
-		$this->fieldMap['decimalLatitude']['sesar'] = 'latitude';
-		$this->fieldMap['decimalLatitude']['sql'] = 'ROUND(o.decimalLatitude,6) AS decimalLatitude';
-		$this->fieldMap['decimalLongitude']['sesar'] = 'longitude';
-		$this->fieldMap['decimalLongitude']['sql'] = 'ROUND(o.decimalLongitude,6) AS decimalLongitude';
-		$this->fieldMap['minimumElevationInMeters']['sesar'] = 'elevation';
-		//$this->fieldMap['parentOccurrenceID']['sesar'] = 'parent_igsn';
-		//$this->fieldMap['parentOccurrenceID']['sql'] = ' AS parentOccurrenceID';
 		if(isset($GLOBALS['IGSN_ACTIVATION']) && $GLOBALS['IGSN_ACTIVATION']) $this->productionMode = true;
 	}
 
@@ -104,7 +86,7 @@ class OccurrenceSesar extends Manager {
 		$status = false;
 		if($this->registrationMethod == 'api') $this->setVerboseMode(3);
 		else  $this->setVerboseMode(1);
-		$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/')."content/logs/igsn/IGSN_".date('Y-m-d').".log";
+		$logPath = $GLOBALS['SERVER_ROOT'].(substr($GLOBALS['SERVER_ROOT'],-1)=='/'?'':'/').'content/logs/igsn/IGSN_'.date('Y-m-d').'.log';
 		$this->setLogFH($logPath);
 		$this->logOrEcho('Starting batch IGSN processing ('.date('Y-m-d H:i:s').')');
 		$this->logOrEcho('sesarUser: '.$this->sesarUser);
@@ -135,6 +117,7 @@ class OccurrenceSesar extends Manager {
 
 		//Batch assign GUIDs
 		$this->logOrEcho('Generating IGSN identifiers');
+		$this->setFieldMap();
 		$increment = 1;
 		$sql = 'SELECT o.occid';
 		foreach($this->fieldMap as $symbField => $mapArr){
@@ -197,6 +180,27 @@ class OccurrenceSesar extends Manager {
 
 		$this->logOrEcho('Finished ('.date('Y-m-d H:i:s').')');
 		return $status;
+	}
+
+	private function setFieldMap(){
+		$this->fieldMap['basisOfRecord']['sesar'] = 'collection_method_descr';
+		$this->fieldMap['catalogNumber']['sesar'] = 'name';
+		$this->fieldMap['catalogNumber']['sql'] = 'CONCAT_WS(" ",IFNULL(o.catalogNumber, o.otherCatalogNumbers),"[",o.occid,"]") AS catalogNumber';
+		$this->fieldMap['sciname']['sesar'] = 'field_name';
+		$this->fieldMap['sciname']['sql'] = 'CONCAT_WS(" ",o.sciname, o.scientificNameAuthorship) AS sciname';
+		$this->fieldMap['recordedBy']['sesar'] = 'collector';
+		$this->fieldMap['eventDate']['sesar'] = 'collection_start_date';
+		$this->fieldMap['verbatimAttributes']['sesar'] = 'description';
+		$this->fieldMap['country']['sesar'] = 'country';
+		$this->fieldMap['stateProvince']['sesar'] = 'province';
+		$this->fieldMap['county']['sesar'] = 'county';
+		$this->fieldMap['decimalLatitude']['sesar'] = 'latitude';
+		$this->fieldMap['decimalLatitude']['sql'] = 'ROUND(o.decimalLatitude,6) AS decimalLatitude';
+		$this->fieldMap['decimalLongitude']['sesar'] = 'longitude';
+		$this->fieldMap['decimalLongitude']['sql'] = 'ROUND(o.decimalLongitude,6) AS decimalLongitude';
+		$this->fieldMap['minimumElevationInMeters']['sesar'] = 'elevation';
+		//$this->fieldMap['parentOccurrenceID']['sesar'] = 'parent_igsn';
+		//$this->fieldMap['parentOccurrenceID']['sql'] = ' AS parentOccurrenceID';
 	}
 
 	// SESAR web service calls (http://www.geosamples.org/interop)
@@ -528,13 +532,13 @@ class OccurrenceSesar extends Manager {
 
 		if($sesarResultArr['totalCnt']){
 			$this->logOrEcho('Calculating stats...',1);
-			$sql = 'UPDATE igsnverification i INNER JOIN omoccurrences o ON i.igsn = o.occurrenceid SET i.occid = o.occid WHERE i.occid IS NULL';
+			$sql = 'UPDATE igsnverification i INNER JOIN omoccurrences o ON i.igsn = o.occurrenceid SET i.occidInPortal = o.occid WHERE i.occid IS NULL';
 			if(!$this->conn->query($sql)){
 				$this->logOrEcho('ERROR updaing IGSN field: '.$this->conn->error,2);
 			}
 			//Grab collection details
 			$collArr = array();
-			$sql = 'SELECT o.collid, COUNT(o.occid) as cnt FROM omoccurrences o INNER JOIN igsnverification i ON o.occid = i.occid GROUP BY o.collid ';
+			$sql = 'SELECT o.collid, COUNT(o.occid) as cnt FROM omoccurrences o INNER JOIN igsnverification i ON o.occid = i.occidInPortal GROUP BY o.collid ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$collArr[$r->collid]['cnt'] = $r->cnt;
@@ -549,7 +553,7 @@ class OccurrenceSesar extends Manager {
 			$sesarResultArr['collid'] = $collArr;
 
 			//Add missing IGSNs
-			$sql = 'SELECT igsn FROM igsnverification WHERE occid IS NULL';
+			$sql = 'SELECT igsn FROM igsnverification WHERE occidInPortal IS NULL';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$sesarResultArr['missing'][$r->igsn] = array();
@@ -557,6 +561,7 @@ class OccurrenceSesar extends Manager {
 			$rs->free();
 		}
 		if(isset($sesarResultArr['missing'])) $this->setMissingSesarMeta($sesarResultArr);
+		//$this->setSynchronizationStatus();
 		return $sesarResultArr;
 	}
 
@@ -624,10 +629,8 @@ class OccurrenceSesar extends Manager {
 					$catNum = $m[1];
 					$occid = $m[2];
 					$sesarResultArr['missing'][$lostIGSN] = array('catNum'=>$catNum,'occid'=>$occid);
-					$sql1 = 'UPDATE igsnverification SET occid = '.$occid.' WHERE igsn = "'.$lostIGSN.'"';
-					$this->conn->query($sql1);
-					$sql2 = 'UPDATE igsnverification SET catalogNumber = "'.$catNum.'" WHERE igsn = "'.$lostIGSN.'"';
-					$this->conn->query($sql2);
+					$sql = 'UPDATE igsnverification SET occidInSesar = '.$occid.',catalogNumber = "'.$catNum.'" WHERE igsn = "'.$lostIGSN.'"';
+					$this->conn->query($sql);
 				}
 			}
 			$cnt++;
@@ -636,16 +639,51 @@ class OccurrenceSesar extends Manager {
 		$this->logOrEcho('Complete!',2);
 	}
 
+	private function setSynchronizationStatus(){
+		$status = false;
+		$sqlArr = array();
+		$sqlArr[] = 'UPDATE igsnverification SET syncStatus = "OK" WHERE occid IS NOT NULL AND catalogNumber IS NULL';
+		$sqlArr[] = 'UPDATE igsnverification i INNER JOIN omoccurrences o ON i.occid = o.occid '.
+			'SET i.syncStatus = "secondaryIGSN assigned" '.
+			'WHERE i.catalognumber IS NOT NULL AND i.igsn != o.occurrenceID AND i.syncStatus IS NULL';
+		$sqlArr[] = 'UPDATE igsnverification i INNER JOIN omoccuridentifiers i2 ON i.catalogNumber = i2.identifiervalue '.
+			'INNER JOIN omoccurrences o ON i2.occid = o.occid '.
+			'SET i.syncStatus = "secondaryIGSN assigned", i.occid = o.occid '.
+			'WHERE i.catalognumber IS NOT NULL AND i.occid IS NULL AND i.igsn != o.occurrenceID AND i.syncStatus IS NULL';
+		$sqlArr[] = 'UPDATE igsnverification i INNER JOIN NeonSample s ON i.catalogNumber = s.sampleID '.
+			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+			'SET i.syncStatus = "secondaryIGSN assigned", i.occid = o.occid '.
+			'WHERE i.catalognumber IS NOT NULL AND i.occid IS NULL AND i.igsn != o.occurrenceID AND i.syncStatus IS NULL';
+		$sqlArr[] = 'UPDATE igsnverification i INNER JOIN NeonSample s ON i.catalogNumber = s.sampleID '.
+			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+			'SET i.syncStatus = "secondaryIGSN assigned", i.occid = o.occid '.
+			'WHERE i.catalognumber IS NOT NULL AND i.occid IS NULL AND i.igsn != o.occurrenceID AND i.syncStatus IS NULL';
+		$sqlArr[] = 'UPDATE igsnverification i INNER JOIN NeonSample s ON i.catalogNumber = s.alternativeSampleID '.
+			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+			'SET i.syncStatus = "secondaryIGSN assigned", i.occid = o.occid '.
+			'WHERE i.catalognumber IS NOT NULL AND i.occid IS NULL AND i.igsn != o.occurrenceID AND i.syncStatus IS NULL';
+		$sqlArr[] = 'UPDATE igsnverification SET syncStatus = "" WHERE syncStatus IS NULL AND occid IS NULL AND catalogNumber IS NOT NULL';
+		foreach($sqlArr as $sql){
+			if(!$this->conn->query($sql)){
+				$errorStr = 'ERROR setting syncStatus: '.$this->conn->error;
+				echo $errorStr.'<br/>';
+				//$this->warningArr[] = $errorStr;
+			}
+		}
+		return $status;
+	}
+
 	public function verifyLocalGuids(){
 		$retArr = array();
-		$sql = 'SELECT o.occid, o.occurrenceid FROM omoccurrences o LEFT JOIN igsnverification i ON o.occid = i.occid '.
-			'WHERE o.occurrenceID LIKE "'.$this->namespace.'%" AND o.collid = '.$this->collid.' AND i.occid IS NULL';
-		$rs = $this->conn->query($sql);
-		$retArr['cnt'] = $rs->num_rows;
-		while($r = $rs->fetch_object()){
-			$retArr['missing'][$r->occid] = $r->occurrenceid;
+		if($this->collid){
+			$sql = 'SELECT o.occid, o.occurrenceid FROM omoccurrences o LEFT JOIN igsnverification i ON o.occid = i.occidInSesar '.
+				'WHERE o.occurrenceID LIKE "'.$this->namespace.'%" AND o.collid = '.$this->collid.' AND i.occidInSesar IS NULL';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->occid] = $r->occurrenceid;
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retArr;
 	}
 
@@ -731,11 +769,8 @@ class OccurrenceSesar extends Manager {
 	private function getSqlBase(){
 		$sqlBase = 'FROM omoccurrences o WHERE (o.occurrenceid IS NULL) ';
 		if($this->namespace && $this->namespace == 'NEON'){
-			$rs = $this->conn->query('SELECT 1 FROM NeonSample LIMIT 1');
-			if($rs){
-				if($rs->num_rows) $sqlBase = 'FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid WHERE (o.occurrenceid IS NULL) AND (s.errorMessage IS NULL) ';
-				$rs->free();
-			}
+			$sqlBase = 'FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
+				WHERE (o.occurrenceid IS NULL) AND (s.errorMessage IS NULL) AND (sampleReceived = 1) AND (acceptedForAnalysis = 1) AND (checkinUid IS NOT NULL) AND (occid = occidOriginal) ';
 		}
 		if($this->collid) $sqlBase .= 'AND (o.collid = '.$this->collid.') ';
 		return $sqlBase;

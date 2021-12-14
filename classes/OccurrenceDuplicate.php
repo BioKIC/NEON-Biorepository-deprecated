@@ -371,7 +371,7 @@ class OccurrenceDuplicate {
 			$targetFields = array('family', 'sciname', 'scientificNameAuthorship',
 				'identifiedBy', 'dateIdentified', 'identificationReferences', 'identificationRemarks', 'taxonRemarks', 'identificationQualifier',
 				'recordedBy', 'recordNumber', 'associatedCollectors', 'eventDate', 'verbatimEventDate',
-				'country', 'stateProvince', 'county', 'locality', 'locationID', 'decimalLatitude', 'decimalLongitude', 'geodeticDatum',
+				'country', 'stateProvince', 'county', 'municipality', 'locality', 'locationID', 'decimalLatitude', 'decimalLongitude', 'geodeticDatum',
 				'coordinateUncertaintyInMeters', 'verbatimCoordinates', 'georeferencedBy', 'georeferenceProtocol',
 				'georeferenceSources', 'georeferenceVerificationStatus', 'georeferenceRemarks',
 				'minimumElevationInMeters', 'maximumElevationInMeters', 'verbatimElevation',

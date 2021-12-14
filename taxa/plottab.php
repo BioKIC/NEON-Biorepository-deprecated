@@ -39,9 +39,9 @@
   }
 </script>
 
-<button onclick="toggleDisplay('barplots')"><img class="PlotIcon" src="../images/barplot.png" alt="bar plot icon" /></button>
-<button onclick="toggleDisplay('lineplots')"><img class="PlotIcon" src="../images/lineplot.png" alt="line plot icon" /></button>
-<button onclick="toggleDisplay('polarplots')"><img class="PlotIcon" src="../images/polarplot.png" alt="line plot icon" /></button>
+<button class="PlotButton" onclick="toggleDisplay('barplots')"><img class="PlotIcon" src="../images/barplot.png" alt="bar plot icon" /></button>
+<button class="PlotButton" onclick="toggleDisplay('lineplots')"><img class="PlotIcon" src="../images/lineplot.png" alt="line plot icon" /></button>
+<button class="PlotButton" onclick="toggleDisplay('polarplots')"><img class="PlotIcon" src="../images/polarplot.png" alt="line plot icon" /></button>
 
 <!--label class="PlotSwitch" for="_0"><img class="PlotIcon" src="../images/barplot.png" alt="bar plot icon" /></label>
 <input id="_0" type="radio" name="c1"-->
@@ -52,11 +52,18 @@
     $traitPlotter = new TraitPlotManager("bar");
     if($tid) $traitPlotter->setTid($tid);
     $traitPlotter->setTraitStateId($tsid);
-    echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
-    echo '<svg height="'.$traitPlotter->getViewboxHeight().'px" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '" ><g>' . PHP_EOL;
-    echo $traitPlotter->monthlyPolarPlot();
-    echo '</g></svg>';
-    echo '<p class="PlotCaption">'.$traitPlotter->getPlotCaption().'</p>';
+    $traitPlotter->calendarPlot();
+    if($traitPlotter->getNumberOfSpecimens() > 0){
+      echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
+      echo '<svg height="'.$traitPlotter->getViewboxHeight().'px" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '" ><g>' . PHP_EOL;
+      echo $traitPlotter->display();
+      echo '</g></svg>';
+      echo '<p class="PlotCaption">'.$traitPlotter->getPlotCaption().'</p>';
+    } else {
+      echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
+      echo '<p class="PlotCaption">No specimens encoded for '.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</p>';
+    }
+
   }
   echo '</div>';
 
@@ -66,11 +73,18 @@
     $traitPlotter = new TraitPlotManager("line");
     if($tid) $traitPlotter->setTid($tid);
     $traitPlotter->setTraitStateId($tsid);
-    echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
-    echo '<svg height="'.$traitPlotter->getViewboxHeight().'px" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '" ><g>' . PHP_EOL;
-    echo $traitPlotter->monthlyPolarPlot();
-    echo '</g></svg>';
-    echo '<p class="PlotCaption">'.$traitPlotter->getPlotCaption().'</p>';
+    $traitPlotter->calendarPlot();
+    if($traitPlotter->getNumberOfSpecimens() > 0){
+      echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
+      echo '<svg height="'.$traitPlotter->getViewboxHeight().'px" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '" ><g>' . PHP_EOL;
+      echo $traitPlotter->display();
+      echo '</g></svg>';
+      echo '<p class="PlotCaption">'.$traitPlotter->getPlotCaption().'</p>';
+    } else {
+      echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
+      echo '<p class="PlotCaption">No specimens encoded for '.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</p>';
+    }
+
   }
   echo '</div>';
 
@@ -80,11 +94,17 @@
     $traitPlotter = new TraitPlotManager("polar");
     if($tid) $traitPlotter->setTid($tid);
     $traitPlotter->setTraitStateId($tsid);
-    echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
-    echo '<svg height="'.$traitPlotter->getViewboxHeight().'px" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '" ><g>' . PHP_EOL;
-    echo $traitPlotter->monthlyPolarPlot();
-    echo '</g></svg>';
-    echo '<p class="PlotCaption">'.$traitPlotter->getPlotCaption().'</p>';
+    $traitPlotter->calendarPlot();
+    if($traitPlotter->getNumberOfSpecimens() > 0){
+      echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
+      echo '<svg height="'.$traitPlotter->getViewboxHeight().'px" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '" ><g>' . PHP_EOL;
+      echo $traitPlotter->display();
+      echo '</g></svg>';
+      echo '<p class="PlotCaption">'.$traitPlotter->getPlotCaption().'</p>';
+    } else {
+      echo '<div class="resource-title">'.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</div>';
+      echo '<p class="PlotCaption">No specimens encoded for '.$traitPlotter->getTraitName(). ': '.$traitPlotter->getStateName().'</p>';
+    }
   }
   echo '</div>';
 ?>

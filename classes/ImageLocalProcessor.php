@@ -37,6 +37,7 @@ class ImageLocalProcessor {
 	private $tnSourceSuffix = '_tn';
 	private $lgSourceSuffix = '_lg';
 	private $keepOrig = 0;
+	private $customStoredProcedure;
 
 	private $skeletalFileProcessing = true;
 	private $createNewRec = true;
@@ -201,6 +202,10 @@ class ImageLocalProcessor {
 			if(!$this->dbMetadata){
 				if($this->mdOutputFH) fclose($this->mdOutputFH);
 				if(array_key_exists('email', $cArr) && $cArr['email']) $this->sendMetadata($cArr['email'],$mdFileName);
+			}
+			if($this->customStoredProcedure){
+				if($this->conn->query('call '.$this->customStoredProcedure)) $this->logOrEcho('Executed stored procedure: '.$this->customStoredProcedure);
+				else $this->logOrEcho('<span style="color:red;">ERROR:</span> Stored Procedure failed ('.$this->customStoredProcedure.'): '.$this->conn->error);
 			}
 			$this->logOrEcho('Done uploading '.$sourcePathFrag.' ('.date('Y-m-d h:i:s A').')');
 		}
@@ -1801,6 +1806,14 @@ class ImageLocalProcessor {
 
 	public function getKeepOrig(){
 		return $this->keepOrig;
+	}
+
+	public function setCustomStoredProcedure($c){
+		$this->customStoredProcedure = $c;
+	}
+
+	public function getCustomStoredProcedure(){
+		return $this->customStoredProcedure;
 	}
 
 	public function setSkeletalFileProcessing($c){

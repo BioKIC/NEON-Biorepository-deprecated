@@ -2,8 +2,8 @@
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
-if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorManager'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorManager.'.$LANG_TAG.'.php');
-else include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditorManager.en.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.en.php');
 
 class OccurrenceEditorManager {
 
@@ -1366,6 +1366,17 @@ class OccurrenceEditorManager {
 							$this->errorArr[] = $LANG['ERROR_ADDING_REL'].': '.$this->conn->error;
 						}
 					}
+					if(isset($postArr['carryoverimages']) && $postArr['carryoverimages']){
+						$sql = 'INSERT INTO images(occid, tid, url, thumbnailurl, originalurl, archiveurl, photographer, photographeruid, imagetype, format, caption, owner,
+							sourceurl, referenceUrl, copyright, rights, accessrights, locality, notes, anatomy, username, sourceIdentifier, mediaMD5, dynamicProperties,
+							defaultDisplay, sortsequence, sortOccurrence)
+							SELECT '.$this->occid.', tid, url, thumbnailurl, originalurl, archiveurl, photographer, photographeruid, imagetype, format, caption, owner, sourceurl, referenceUrl,
+							copyright, rights, accessrights, locality, notes, anatomy, username, sourceIdentifier, mediaMD5, dynamicProperties, defaultDisplay, sortsequence, sortOccurrence
+							FROM images WHERE occid = '.$sourceOccid;
+						if(!$this->conn->query($sql)){
+							$this->errorArr[] = $LANG['ERROR_ADDING_IMAGES'].': '.$this->conn->error;
+						}
+					}
 				}
 			}
 			$this->occid = $sourceOccid;
@@ -1998,13 +2009,6 @@ class OccurrenceEditorManager {
 				$imageMap[$row->imgid]['occid'] = $row->occid;
 				$imageMap[$row->imgid]['username'] = $this->cleanOutStr($row->username);
 				$imageMap[$row->imgid]['sort'] = $row->sortoccurrence;
-				if(strpos($row->originalurl,'api.idigbio.org')){
-					if(strtotime($row->initialtimestamp) > strtotime('-2 days')){
-						//Is a recent iDigBio media server import, check to see if image derivatives have been made
-						$headerArr = get_headers($row->originalurl,1);
-						if($headerArr['Content-Type'] == 'image/svg+xml') $imageMap[$row->imgid]['error'] = $LANG['NOTICE_IMAGE_NOT_AVAILABLE'];
-					}
-				}
 			}
 			$result->free();
 		}
@@ -2204,6 +2208,27 @@ class OccurrenceEditorManager {
 			}
 		}
 		return $isEditor;
+	}
+
+	//Form field functions
+	public function getFieldArr(){
+		global $LANG;
+		$fieldArr = array();
+		$panelName = (isset($LANG['COLLECTOR_INFO'])?$LANG['COLLECTOR_INFO']:'Collector Info');
+		$fieldArr[$panelName][0]['catalogNumber']['onChange'][] = "fieldChanged('catalognumber')";
+		if(!defined('CATNUMDUPECHECK') || CATNUMDUPECHECK) $fieldArr[$panelName][0]['catalogNumber']['onChange'][] = 'searchDupesCatalogNumber(this.form,true)';
+		if($isEditor > 2) $fieldArr[$panelName]['catalogNumber']['attr'][] = 'disabled';
+		$fieldArr[$panelName][0]['catalogNumber']['attr'][] = 'autocomplete="off"';
+		$fieldArr[$panelName][0]['catalogNumber']['title'] = (defined('CATALOGNUMBERLABEL')?CATALOGNUMBERLABEL:'Catalog Number');
+		$fieldArr[$panelName][0]['catalogNumber']['type'] = 'text';
+
+		$fieldArr[$panelName][1]['otherCatalogNumbers']['onChange'][] = "fieldChanged('othercatalognumbers')";
+		if(!defined('OTHERCATNUMDUPECHECK') || OTHERCATNUMDUPECHECK) $fieldArr[$panelName][0]['otherCatalogNumbers']['onChange'][] = 'searchDupesOtherCatalogNumbers(this.form)';
+		$fieldArr[$panelName][0]['otherCatalogNumbers']['attr'][] = 'autocomplete="off"';
+		$fieldArr[$panelName][0]['otherCatalogNumbers']['title'] = (defined('OTHERCATALOGNUMBERSLABEL')?OTHERCATALOGNUMBERSLABEL:'Catalog Number');
+		$fieldArr[$panelName][0]['otherCatalogNumbers']['type'] = 'text';
+
+		return $fieldArr;
 	}
 
 	//Misc data support functions

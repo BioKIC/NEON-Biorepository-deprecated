@@ -83,7 +83,7 @@ $status = "";
 					}
 				}
 			}
-			
+
 		</script>
 	</head>
 	<body>
@@ -96,35 +96,35 @@ $status = "";
 				<?php echo $taxa_admin_taxonomycleanerCrumbs; ?>
 				<b>Taxonomic Name Cleaner</b>
 			</div>
-			<?php 
+			<?php
 		}
 		?>
 		<!-- inner text block -->
 		<div id="innertext">
-			<?php 
+			<?php
 			if($SYMB_UID){
-				if($status){ 
+				if($status){
 					?>
 					<div style='float:left;margin:20px 0px 20px 0px;'>
 						<hr/>
 						<?php echo $status; ?>
 						<hr/>
 					</div>
-					<?php 
+					<?php
 				}
 				if($isEditor){
 					if($collId){
 						?>
 						<h1><?php echo $collName; ?></h1>
 						<div>
-							This module is designed to aid in cleaning scientific names that are not mapping  
-							to the taxonomic thesaurus. Unmapped names are likely due to misspelllings, illegidimate names, 
-							or simply because they just have not yet been added to the thesaurus.   
+							This module is designed to aid in cleaning scientific names that are not mapping
+							to the taxonomic thesaurus. Unmapped names are likely due to misspelllings, illegidimate names,
+							or simply because they just have not yet been added to the thesaurus.
 						</div>
 						<div>
 							Number of mismapped names: <?php echo $cleanManager->getTaxaCount(); ?>
 						</div>
-						<?php 
+						<?php
 						$action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 						if(!$action){
 							?>
@@ -132,25 +132,25 @@ $status = "";
 								<fieldset>
 									<legend><b>Main Menu</b></legend>
 									<div>
-										<input type="radio" name="submitaction" value="displaynames" /> 
-										Display unverified names 
-										<div style="margin-left:15px;">Start index: 
+										<input type="radio" name="submitaction" value="displaynames" />
+										Display unverified names
+										<div style="margin-left:15px;">Start index:
 											<input name="displayindex" type="text" value="0" style="width:25px;" />
 											(500 names at a time)
-										</div> 
+										</div>
 									</div>
 									<div>
-										<input type="radio" name="submitaction" value="analyzenames" /> 
-										analyze names 
-										<div style="margin-left:15px;">Start index: 
+										<input type="radio" name="submitaction" value="analyzenames" />
+										analyze names
+										<div style="margin-left:15px;">Start index:
 											<input name="analyzeindex" type="text" value="0" style="width:25px;" />
 											(10 names at a time)
-										</div> 
+										</div>
 									</div>
 									<div>
 										<input type="hidden" name="collid" value="<?php echo $collId; ?>" />
 										<input type="submit" name="submitbut" value="Perform Action" />
-									</div>								
+									</div>
 								</fieldset>
 							</form>
 							<?php
@@ -173,7 +173,7 @@ $status = "";
 							foreach($nameArr as $sn => $snArr){
 								echo '<li>'.$sn.'</li>';
 								if(array_key_exists('col',$snArr)){
-									
+
 								}
 								else{
 									echo '<div style="margin-left:15px;font-weight:bold;">';
@@ -200,7 +200,7 @@ $status = "";
 						?>
 						<h1>Taxonomic Thesaurus Validator</h1>
 						<div style="margin:15px;">
-							This module is designed to aid in validating scientific names within the taxonomic thesauri. 
+							This module is designed to aid in validating scientific names within the taxonomic thesauri.
 						</div>
 						<?php
 						$taxonomyAction = array_key_exists('taxonomysubmit',$_POST)?$_POST['taxonomysubmit']:'';
@@ -218,13 +218,13 @@ $status = "";
 						<div style="margin:15px;">
 							<fieldset>
 								<legend><b>Verification Status</b></legend>
-								<?php 
+								<?php
 								$vetArr = $cleanManager->getVerificationCounts();
 								?>
-								Full Verification: <?php $vetArr[1]; ?><br/>
-								Suspect Status: <?php $vetArr[2]; ?><br/>
-								Name Validated Only: <?php $vetArr[3]; ?><br/>
-								Untested: <?php $vetArr[0]; ?>
+								Full Verification: <?php echo $vetArr[1]; ?><br/>
+								Suspect Status: <?php echo $vetArr[2]; ?><br/>
+								Name Validated Only: <?php echo $vetArr[3]; ?><br/>
+								Untested: <?php echo $vetArr[0]; ?>
 							</fieldset>
 						</div>
 						<div style="margin:15px;">
@@ -232,19 +232,19 @@ $status = "";
 								<fieldset>
 									<legend><b>Main Menu</b></legend>
 									<div>
-										<b>Testing Resource:</b><br/> 
-										<input type="radio" name="versource" value="col" CHECKED /> 
+										<b>Testing Resource:</b><br/>
+										<input type="radio" name="versource" value="col" CHECKED />
 										Catalogue of Life<br/>
 									</div>
 									<div>
 										<input type="hidden" name="taxauthid" value="<?php echo $taxAuthId; ?>" />
 										<input type="submit" name="taxonomysubmit" value="Validate Names" />
-									</div>								
+									</div>
 								</fieldset>
 							</form>
-						
+
 						</div>
-						<?php 
+						<?php
 					}
 				}
 				else{
@@ -252,7 +252,7 @@ $status = "";
 					<div style="margin:20px;font-weight:bold;font-size:120%;">
 						ERROR: You don't have the necessary permissions to access this data cleaning module.
 					</div>
-					<?php 
+					<?php
 				}
 			}
 			else{
@@ -260,7 +260,7 @@ $status = "";
 				<div style="font-weight:bold;">
 					Please <a href='../../profile/index.php?refurl=<?php echo $CLIENT_ROOT; ?>/taxa/taxonomy/taxonomycleaner.php?collid=<?php echo $collId; ?>'>login</a>!
 				</div>
-				<?php 
+				<?php
 			}
 			?>
 		</div>

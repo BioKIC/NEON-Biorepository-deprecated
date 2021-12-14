@@ -44,19 +44,19 @@ elseif($action == 'addAllToDataset'){
 		<script type="text/javascript" src="../../js/jquery.js"></script>
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
 		<script type="text/javascript" src="../../js/symb/shared.js"></script>
-    <script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
-    <script>
-     // Adds WYSIWYG editor to description field
-      tinymce.init({
-        selector: '#description',
-        plugins: 'link lists image',
-        menubar: '',
-        toolbar: [
-          'undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image',
-        ],
-        branding: false
-      });
-    </script>
+		<script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
+		<script type="text/javascript">
+			// Adds WYSIWYG editor to description field
+			tinymce.init({
+				selector: '#description',
+				plugins: 'link lists image',
+				menubar: '',
+				toolbar: ['undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image'],
+				branding: false,
+        		default_link_target: "_blank",
+				paste_as_text: true
+			});
+		</script>
 		<script type="text/javascript">
 			function validateAddForm(f){
 				if(f.adduser.value == ""){
@@ -135,7 +135,7 @@ elseif($action == 'addAllToDataset'){
               <input type="checkbox" name="ispublic" id="ispublic" value="1" />
             <b>Publicly Visible</b>
             </p>
-          </div>          
+          </div>
 					<div>
 						<p><b>Notes (Internal usage, not displayed publicly)</b></p>
 						<input name="notes" type="text" style="width:90%;" />

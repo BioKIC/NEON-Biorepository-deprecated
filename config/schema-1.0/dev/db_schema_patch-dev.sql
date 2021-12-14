@@ -48,6 +48,43 @@ ALTER TABLE `ctcontrolvocab`
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `projname` `projname` VARCHAR(75) NOT NULL ;
 
+ALTER TABLE `guidoccurrences` 
+  ADD COLUMN `occurrenceID` VARCHAR(45) NULL AFTER `archiveobj`;
+
+ALTER TABLE `igsnverification` 
+  CHANGE COLUMN `status` `syncStatus` VARCHAR(45) NULL DEFAULT NULL ;
+
+ALTER TABLE `igsnverification` 
+  DROP FOREIGN KEY `FK_igsn_occid`;
+
+ALTER TABLE `igsnverification` 
+  CHANGE COLUMN `occid` `occidInPortal` INT(10) UNSIGNED NULL DEFAULT NULL ;
+
+ALTER TABLE `igsnverification` 
+  ADD COLUMN `occidInSesar` INT UNSIGNED NULL AFTER `occidInPortal`;
+
+ALTER TABLE `igsnverification` 
+  ADD CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occidInPortal`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+  
+ALTER TABLE `images` 
+  ADD COLUMN `hashFunction` VARCHAR(45) NULL AFTER `sourceIdentifier`,
+  ADD COLUMN `hashValue` VARCHAR(45) NULL AFTER `hashFunction`;
+
+ALTER TABLE `imagetagkey` 
+  ADD COLUMN `resourceLink` VARCHAR(250) NULL AFTER `description_en`,
+  ADD COLUMN `audubonCoreTarget` VARCHAR(45) NULL AFTER `resourceLink`;
+
+ALTER TABLE `imageprojects` 
+  ADD COLUMN `projectType` VARCHAR(45) NULL AFTER `description`,
+  ADD COLUMN `collid` INT UNSIGNED NULL AFTER `projectType`,
+  CHANGE COLUMN `uidcreated` `uidcreated` INT(11) UNSIGNED NULL DEFAULT NULL ,
+  ADD INDEX `FK_imageproject_collid_idx` (`collid` ASC),
+  ADD INDEX `FK_imageproject_uid_idx` (`uidcreated` ASC);
+
+ALTER TABLE `imageprojects` 
+  ADD CONSTRAINT `FK_imageproject_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_imageproject_uid`  FOREIGN KEY (`uidcreated`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
 CREATE TABLE `omcollproperties` (
   `collPropID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `collid` INT UNSIGNED NOT NULL,
@@ -75,6 +112,13 @@ ADD CONSTRAINT `FK_geothes_parentID`  FOREIGN KEY (`parentID`)  REFERENCES `geog
 
 ALTER TABLE `geographicthesaurus` 
   ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `parentID` ASC);
+
+//Get rid of old geographic thesaurus tables that were never used
+DROP TABLE geothescontinent;
+DROP TABLE geothescountry;
+DROP TABLE geothesstateprovince;
+DROP TABLE geothescounty;
+DROP TABLE geothesmunicipality;
 
 
 CREATE TABLE `omcrowdsourceproject` (
@@ -121,23 +165,6 @@ ALTER TABLE `omoccurrences`
 
 DROP TABLE omcollectors;
 
-CREATE TABLE `portalindex` (
-  `portalIndexID` INT NOT NULL AUTO_INCREMENT,
-  `portalName` VARCHAR(45) NOT NULL,
-  `acronym` VARCHAR(45) NULL,
-  `portalDescription` VARCHAR(250) NULL,
-  `urlRoot` VARCHAR(150) NOT NULL,
-  `securityKey` VARCHAR(45) NULL,
-  `symbVersion` VARCHAR(45) NULL,
-  `guid` VARCHAR(45) NULL,
-  `manager` VARCHAR(45) NULL,
-  `managerEmail` VARCHAR(45) NULL,
-  `primaryLead` VARCHAR(45) NULL,
-  `primaryLeadEmail` VARCHAR(45) NULL,
-  `notes` VARCHAR(250) NULL,
-  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`portalIndexID`));
-
 ALTER TABLE `omcollpublications` 
   DROP FOREIGN KEY `FK_adminpub_collid`;
 
@@ -170,6 +197,31 @@ ALTER TABLE `omcollpublications`
 ALTER TABLE `omcollpuboccurlink` 
   RENAME TO  `ompublicationoccurlink` ;
 
+CREATE TABLE `portalindex` (
+  `portalIndexID` INT NOT NULL AUTO_INCREMENT,
+  `portalName` VARCHAR(45) NOT NULL,
+  `acronym` VARCHAR(45) NULL,
+  `portalDescription` VARCHAR(250) NULL,
+  `urlRoot` VARCHAR(150) NOT NULL,
+  `securityKey` VARCHAR(45) NULL,
+  `symbVersion` VARCHAR(45) NULL,
+  `guid` VARCHAR(45) NULL,
+  `manager` VARCHAR(45) NULL,
+  `managerEmail` VARCHAR(45) NULL,
+  `primaryLead` VARCHAR(45) NULL,
+  `primaryLeadEmail` VARCHAR(45) NULL,
+  `notes` VARCHAR(250) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`portalIndexID`));
+
+ALTER TABLE `specprocessorprojects` 
+  ADD COLUMN `customStoredProcedure` VARCHAR(45) NULL AFTER `source`,
+  ADD COLUMN `createdByUid` INT UNSIGNED NULL AFTER `lastrundate`,
+  ADD INDEX `FK_specprocprojects_uid_idx` (`createdByUid` ASC);
+
+ALTER TABLE `specprocessorprojects`
+  ADD CONSTRAINT `FK_specprocprojects_uid`  FOREIGN KEY (`createdByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
 ALTER TABLE `taxa` 
   CHANGE COLUMN `Author` `Author` VARCHAR(100) NOT NULL ;
 
@@ -178,6 +230,9 @@ UPDATE IGNORE taxa SET author = "" WHERE author IS NULL;
 ALTER TABLE `taxa` 
   DROP INDEX `sciname_unique` ,
   ADD UNIQUE INDEX `sciname_unique` (`SciName` ASC, `RankId` ASC);
+  
+ALTER TABLE `taxstatus` 
+  CHANGE COLUMN `taxonomicSource` `taxonomicSource` VARCHAR(500) NULL DEFAULT NULL;
 
 ALTER TABLE `uploadspectemp` 
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`,

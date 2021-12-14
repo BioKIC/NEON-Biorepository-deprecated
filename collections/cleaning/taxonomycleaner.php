@@ -297,6 +297,7 @@ elseif($activeCollArr){
 									</div>
 								</div>
 							</form>
+							<!--
 							<hr/>
 							<form name="deepindexform" action="taxonomycleaner.php" method="post">
 								<div style="margin:20px 10px">
@@ -309,6 +310,7 @@ elseif($activeCollArr){
 									</div>
 								</div>
 							</form>
+							 -->
 						</fieldset>
 					</div>
 					<?php

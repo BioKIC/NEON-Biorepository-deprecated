@@ -30,6 +30,7 @@ class SpecProcessorManager {
 	protected $webImg = 1;
 	protected $createTnImg = 1;
 	protected $createLgImg = 2;
+	protected $customStoredProcedure;
 	protected $lastRunDate = '';
 
 	protected $dbMetadata = 1;			//Only used when run as a standalone script
@@ -210,6 +211,13 @@ class SpecProcessorManager {
 			}
 			$rs->free();
 
+			//Temporary code until customStoredProcedure field is offically integrated into specprocessorprojects table
+			$sql = 'SELECT customStoredProcedure FROM specprocessorprojects '.$sqlWhere;
+			if($rs = $this->conn->query($sql)){
+				if($r = $rs->fetch_object()) $this->customStoredProcedure = $r->customStoredProcedure;
+				$rs->free();
+			}
+
 			//if(!$this->targetPath) $this->targetPath = $GLOBALS['imageRootPath'];
 			//if(!$this->imgUrlBase) $this->imgUrlBase = $GLOBALS['imageRootUrl'];
 			if($this->sourcePath && substr($this->sourcePath,-1) != '/' && substr($this->sourcePath,-1) != '\\') $this->sourcePath .= '/';
@@ -236,16 +244,10 @@ class SpecProcessorManager {
 		//Count of specimens with images but no OCR
 		$cnt = 0;
 		if($this->collid){
-			$sql = 'SELECT COUNT(DISTINCT o.occid) AS cnt '.
-				'FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid '.
-				'WHERE (o.collid = '.$this->collid.') ';
+			$sql = 'SELECT COUNT(DISTINCT o.occid) AS cnt FROM omoccurrences o INNER JOIN images i ON o.occid = i.occid WHERE (o.collid = '.$this->collid.') ';
 			if($procStatus){
-				if($procStatus == 'null'){
-					$sql .= 'AND processingstatus IS NULL';
-				}
-				else{
-					$sql .= 'AND processingstatus = "'.$this->cleanInStr($procStatus).'"';
-				}
+				if($procStatus == 'null') $sql .= 'AND processingstatus IS NULL';
+				else $sql .= 'AND processingstatus = "'.$this->cleanInStr($procStatus).'"';
 			}
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -797,6 +799,14 @@ class SpecProcessorManager {
 
 	public function getCreateLgImg(){
 		return $this->createLgImg;
+	}
+
+	public function setCustomStoredProcedure($c){
+		$this->customStoredProcedure = $c;
+	}
+
+	public function getCustomStoredProcedure(){
+		return $this->customStoredProcedure;
 	}
 
 	public function setLastRunDate($date){

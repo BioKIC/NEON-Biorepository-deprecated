@@ -40,14 +40,7 @@ $statusStr = "";
 		<title>Specimen Processor Control Panel</title>
 		<?php
 		$activateJQuery = true;
-		if(file_exists($SERVER_ROOT.'/includes/head.php')){
-			include_once($SERVER_ROOT.'/includes/head.php');
-		}
-		else{
-			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-		}
+		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
 	</head>
 	<body>
@@ -109,6 +102,7 @@ $statusStr = "";
 						$imageProcessor->setCreateNewRec($_POST['createnewrec']);
 						$imageProcessor->setImgExists($_POST['imgexists']);
 						$imageProcessor->setKeepOrig(0);
+						$imageProcessor->setCustomStoredProcedure($specManager->getCustomStoredProcedure());
 						$imageProcessor->setSkeletalFileProcessing($_POST['skeletalFileProcessing']);
 
 						//Run process

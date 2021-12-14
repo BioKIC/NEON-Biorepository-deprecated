@@ -1,5 +1,5 @@
 <?php
-include_once('../../../config/symbini.php'); 
+include_once('../../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceEditorManager.php');
 if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/includes/admintab.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/admintab.'.$LANG_TAG.'.php');
 else include_once($SERVER_ROOT.'/content/lang/collections/editor/includes/admintab.en.php');
@@ -10,7 +10,7 @@ $occIndex = $_GET['occindex'];
 $collId = $_GET['collid'];
 
 $occManager = new OccurrenceEditorManager();
-$occManager->setOccId($occid); 
+$occManager->setOccId($occid);
 ?>
 <div id="admindiv">
 	<?php
@@ -21,7 +21,7 @@ $occManager->setOccId($occid);
 			?>
 			<fieldset style="padding:15px;margin:10px 0px;">
 				<legend><b><?php echo $LANG['EDIT_HISTORY_INT']; ?></b></legend>
-				<?php 
+				<?php
 				if(array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collId,$USER_RIGHTS['CollAdmin'])){
 					?>
 					<div style="float:right;" title="<?php echo $LANG['MANAGE_HISTORY']; ?>">
@@ -59,13 +59,13 @@ $occManager->setOccId($occid);
 				}
 				?>
 			</fieldset>
-			<?php 
+			<?php
 		}
 		if($externalEdits){
 			?>
 			<fieldset style="margin-top:20px;padding:20px;">
 				<legend><b><?php echo $LANG['EDIT_HISTORY_EXT']; ?></b></legend>
-				<?php 
+				<?php
 				foreach($externalEdits as $orid => $eArr){
 					foreach($eArr as $appliedStatus => $eArr2){
 						$reviewStr = 'OPEN';
@@ -111,9 +111,9 @@ $occManager->setOccId($occid);
 				<div>
 					<b><?php echo $LANG['TARGET_COL']; ?></b><br />
 					<select name="transfercollid">
-						<option value="0"><?php echo $LANG['SEL_COL']; ?></option> 
-						<option value="0">----------------------</option> 
-						<?php 
+						<option value="0"><?php echo $LANG['SEL_COL']; ?></option>
+						<option value="0">----------------------</option>
+						<?php
 						foreach($collAdminList as $kCollid => $vCollName){
 							echo '<option value="'.$kCollid.'">'.$vCollName.'</option>';
 						}
@@ -141,7 +141,7 @@ $occManager->setOccId($occid);
 				</div>
 				<div id="delverimgdiv" style="margin:15px;">
 					<b><?php echo $LANG['IMG_LINKS']; ?>: </b>
-					<span id="delverimgspan" style="color:orange;display:none;"><?php echo $LANG['CHECKING_LINKS']; ?>...</span>
+					<span id="delverimgspan" style="color:orange;display:none;"><?php echo $LANG['CHECKING_IMG_LINKS']; ?>...</span>
 					<div id="delimgfailspan" style="display:none;style:0px 10px 10px 10px;">
 						<span style="color:red;"><?php echo $LANG['WARNING']; ?>:</span>
 						<?php echo $LANG['IMAGES_ARE_LINKED']; ?>

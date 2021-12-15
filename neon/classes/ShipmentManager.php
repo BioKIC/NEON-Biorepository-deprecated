@@ -923,7 +923,6 @@ class ShipmentManager{
 			$sqlWhere = 'WHERE (s.shipmentPK = '.$this->shipmentPK.') ';
 		}
 		// echo 'where: '.$sqlWhere; exit;
-    echo 'where: '.$sqlWhere;
 		return $sqlWhere;
 	}
 

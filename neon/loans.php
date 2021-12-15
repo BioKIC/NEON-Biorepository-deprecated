@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 include_once('../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/OccurrenceLoans.php');
+include_once($SERVER_ROOT.'/neon/classes/OccurrenceLoans.php');
 include_once($SERVER_ROOT.'/neon/classes/Utilities.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 

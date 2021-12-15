@@ -54,8 +54,11 @@ if($isEditor){
 				<li><a href="shipment/manifestsearch.php">Manifest Listing and Advanced Search</a></li>
 				<?php
 				if($IS_ADMIN){
-					echo '<li><a href="igsnmanager.php">NEON IGSN Control Panel</a></li>';
-					echo '<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>';
+					?>
+					<li><a href="igsnmanager.php">NEON IGSN Control Panel</a></li>
+					<li><a href="../collections/admin/igsnverification.php?namespace=neon&formsubmit=verifysesar">NEON IGSN Verification</a></li>
+					<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>
+					<?php
 				}
 				?>
 				<li><a href="#" onclick="$('.nps-report').show();return false">NPS Year End Reports</a></li>

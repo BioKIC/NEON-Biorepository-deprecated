@@ -8,7 +8,7 @@ if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/a
 
 $collid = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $namespace = array_key_exists('namespace',$_REQUEST)?$_REQUEST['namespace']:'';
-$action = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
+$action = array_key_exists('formsubmit',$_REQUEST)?$_REQUEST['formsubmit']:'';
 
 //Variable sanitation
 if(!is_numeric($collid)) $collid = 0;
@@ -16,7 +16,7 @@ if(preg_match('/[^A-Z]+/', $namespace)) $namespace = '';
 
 $statusStr = '';
 $isEditor = 0;
-if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin']))){
+if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS))){
 	$isEditor = 1;
 }
 $guidManager = new OccurrenceSesar();
@@ -24,9 +24,6 @@ $guidManager->setCollid($collid);
 $guidManager->setCollArr();
 $guidManager->setNamespace($namespace);
 
-if($action){
-
-}
 ?>
 <html>
 <head>
@@ -82,7 +79,7 @@ include($SERVER_ROOT.'/includes/header.php');
 <!-- This is inner text! -->
 <div id="innertext">
 	<?php
-	if($isEditor && $collid){
+	if($isEditor){
 		echo '<h3>IGSN Management: '.$guidManager->getCollectionName().'</h3>';
 		if($statusStr){
 			?>

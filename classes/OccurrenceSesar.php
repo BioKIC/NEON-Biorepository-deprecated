@@ -770,7 +770,8 @@ class OccurrenceSesar extends Manager {
 		$sqlBase = 'FROM omoccurrences o WHERE (o.occurrenceid IS NULL) ';
 		if($this->namespace && $this->namespace == 'NEON'){
 			$sqlBase = 'FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
-				WHERE (o.occurrenceid IS NULL) AND (s.errorMessage IS NULL) AND (sampleReceived = 1) AND (acceptedForAnalysis = 1) AND (checkinUid IS NOT NULL) AND (occid = occidOriginal) ';
+				WHERE (o.occurrenceid IS NULL) AND (s.errorMessage IS NULL) AND (s.sampleReceived = 1) AND (s.acceptedForAnalysis = 1)
+				AND (s.checkinUid IS NOT NULL) AND (s.occid = s.occidOriginal) ';
 		}
 		if($this->collid) $sqlBase .= 'AND (o.collid = '.$this->collid.') ';
 		return $sqlBase;

@@ -96,14 +96,12 @@ include($SERVER_ROOT.'/includes/header.php');
 		$shipmentDetails = $shipManager->getShipmentList();
 		$searchArgumentArr = $shipManager->getSearchArr();
 		?>
-    <h2><?php var_dump($searchArgumentArr); ?></h2>
 		<fieldset style="position: relative">
 			<legend><b>Shipment Filter</b></legend>
 			<?php
 			$searchArgument = $shipManager->getSearchArgumentStr();
 			if($searchArgument){
         ?>
-        <h2><?php print_r($searchArgument); ?></h2>
 				<div style="position:absolute;top:20px;right:10px;">
 					<div id="copiedDiv" style="float:left;display:none;margin-right:15px;font-size:80%">URL copied to clipboard</div>
 					<a href="#" onclick="copyUrl('<?php echo $searchArgument; ?>')" title="Copy URL to Clipboard">
@@ -204,7 +202,6 @@ include($SERVER_ROOT.'/includes/header.php');
 				<div class="fieldGroupDiv">
 					<?php
 					$manifestStatus = isset($searchArgumentArr['manifestStatus'])?implode(',', $searchArgumentArr['manifestStatus']):'';
-          echo $manifestStatus;
 					?>
 					<div class="fieldDiv">
 						<input name="manifestStatus[]" type="checkbox" value="shipCheck" <?php echo ($manifestStatus=='shipCheck'?'checked':''); ?> /> <b>Shipments Checked In</b>

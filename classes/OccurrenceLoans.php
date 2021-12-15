@@ -16,7 +16,8 @@ class OccurrenceLoans extends Manager{
   // Gets all loans for all collections, with links for loan and collection
   public function getLoanOutAll(){
     $retArr = array();
-    $sql = 'SELECT l.loanid, l.collidown, c.collectioncode, c.collectionname, i.institutioncode AS borrower, l.forwhom, l.datesent, l.datedue, l.dateclosed, l.numspecimens, l.createdbyown AS enteredby  FROM omoccurloans AS l LEFT JOIN institutions AS i ON l.iidborrower = i.iid LEFT JOIN omcollections c  ON l.collidown = c.collid;';
+    $sql = 'SELECT
+l.loanid, l.collidown, c.collectioncode, c.collectionname, i.institutioncode AS borrower, l.forwhom, l.datesent, l.datedue, l.dateclosed, COUNT(o.occid) AS numspecimens, l.createdbyown AS enteredby FROM omoccurloans AS l LEFT JOIN institutions AS i ON l.iidborrower = i.iid LEFT JOIN omcollections AS c  ON l.collidown = c.collid JOIN omoccurloanslink AS o ON l.loanid = o.loanid GROUP BY loanid;';
     if($result = $this->conn->query($sql)){
       while($row = $result->fetch_assoc()){
         $dataArr[] = array(
@@ -43,10 +44,10 @@ class OccurrenceLoans extends Manager{
   // Gets count of all samples in open loans in all collections
   public function getOutSamplesCnt(){
     $retArr = array();
-    $sql = 'SELECT SUM(numspecimens) AS cnt FROM omoccurloans WHERE dateclosed IS NULL;';
+    $sql = 'SELECT COUNT(occid) AS totalOut FROM omoccurloanslink WHERE returndate IS NULL;';
     if($result = $this->conn->query($sql)){
       while($row = $result->fetch_assoc()){
-        $totalLoaned = $row['cnt'];
+        $totalLoaned = $row['totalOut'];
       }
       $result->free();
     }

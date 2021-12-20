@@ -74,6 +74,30 @@ ALTER TABLE `imagetagkey`
   ADD COLUMN `resourceLink` VARCHAR(250) NULL AFTER `description_en`,
   ADD COLUMN `audubonCoreTarget` VARCHAR(45) NULL AFTER `resourceLink`;
 
+ALTER TABLE `imagetagkey` 
+  CHANGE COLUMN `description_en` `description` VARCHAR(255) NOT NULL ;
+
+CREATE TABLE `imagetaggroup` (
+  `imgTagGroupID` INT NOT NULL AUTO_INCREMENT,
+  `groupName` VARCHAR(45) NOT NULL,
+  `category` VARCHAR(45) NULL,
+  `resourceUrl` VARCHAR(150) NULL,
+  `audubonCoreTarget` VARCHAR(45) NULL,
+  `controlType` VARCHAR(45) NULL,
+  `notes` VARCHAR(250) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`imgTagGroupID`),
+  INDEX `IX_imagetaggroup` (`groupName` ASC)
+);
+
+ALTER TABLE `imagetagkey` 
+  ADD COLUMN `imgTagGroupID` INT NULL AFTER `tagkey`,
+  ADD INDEX `FK_imageTagKey_imgTagGroupID_idx` (`imgTagGroupID` ASC);
+
+ALTER TABLE `imagetagkey` 
+  ADD CONSTRAINT `FK_imageTagKey_imgTagGroupID`  FOREIGN KEY (`imgTagGroupID`)  REFERENCES `imagetaggroup` (`imgTagGroupID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+
+
 ALTER TABLE `imageprojects` 
   ADD COLUMN `projectType` VARCHAR(45) NULL AFTER `description`,
   ADD COLUMN `collid` INT UNSIGNED NULL AFTER `projectType`,

@@ -20,8 +20,8 @@ $LANG['EXCLUSION_LIST'] = 'Liste des Esp&egrave;ces d\'&Eacute;xclusion pour';
 $LANG['INCLUDE_TAXA'] = 'Comprend taxons de liste d\'enfant suivant';
 $LANG['TAXA_EXCLUDED'] = 'Taxa Explicitement Exclu';
 $LANG['AUTHORS'] = 'Auteurs';
-$LANG['MOREDETS'] = 'Plus de D&eacute;tails';
-$LANG['LESSDETS'] = 'Moins de D&eacute;tails';
+$LANG['MOREDETAILS'] = 'plus de d&eacute;tails';
+$LANG['LESSDETAILS'] = 'moins de d&eacute;tails';
 $LANG['CITATION'] = 'Citation';
 $LANG['OPTIONS'] = 'Options';
 $LANG['SEARCH'] = 'Rechercher';
@@ -59,8 +59,8 @@ $LANG['FAMILIES'] = 'Familles';
 $LANG['GENERA'] = 'Genres';
 $LANG['SPECIES'] = 'Esp&egrave;ces';
 $LANG['TOTAL_TAXA'] = 'Taxons au Total';
-$LANG['DETAILS_EXPLANATION'] = 'Un nom d\'esp&egrave;ce et un seul taxon infrasp&eacute;cifique sont suppos&eacute;s faire r&eacute;f&eactue;rence &agrave; une relation parent-enfant d\'un taxon unique. 
-                Les taxons infrabaissables n\'augmentent que les chiffres de taxa lorsque plus d\'un esp&egrave; ont &eacute;t&eacute; ajout&eacute;es aux listes de contr&ocirc;le pour une esp&egrave;ce donn&eacute;e. 
+$LANG['DETAILS_EXPLANATION'] = 'Un nom d\'esp&egrave;ce et un seul taxon infrasp&eacute;cifique sont suppos&eacute;s faire r&eacute;f&eactue;rence &agrave; une relation parent-enfant d\'un taxon unique.
+                Les taxons infrabaissables n\'augmentent que les chiffres de taxa lorsque plus d\'un esp&egrave; ont &eacute;t&eacute; ajout&eacute;es aux listes de contr&ocirc;le pour une esp&egrave;ce donn&eacute;e.
                 Pour plus d\'informations, cliquez ici.';
 $LANG['DETAILS'] = 'd&eacute;tails';
 $LANG['IMAGE'] = 'Image';

@@ -27,9 +27,51 @@ div.button:hover {
 #game-dropdown div a	{position: relative;display:block;margin:0;padding:5px 10px;width:auto;white-space:nowrap;text-align:left;text-decoration:none;background:#EAEBD8;color:#2875DE;font-weight:bold;}
 #game-dropdown div a:hover{background:#49A3FF;color:#FFF}
 
+/* checklist info */
+#title-div{
+	float: left;
+	color: #000000;
+	font-size: 20px;
+	font-weight: bold;
+} 
+
+#title-div a:link {
+	color: #000000;
+	text-decoration: none;
+}
+
+#title-div a:visited {
+  text-decoration: none;
+}
+
+#title-div a:hover{
+	text-decoration: underline;
+	color: #000000;
+}
+
+.md-label{}
+
+#author-div{
+	clear: both;
+}
+
+#author-div .span{
+	font-weight: bold;
+}
+
 /* Species list component */
 #taxalist-div {
     line-height: 1em;
+}
+
+#taxalist-div a {
+	color: #215078;
+	text-decoration: none;
+}
+
+#taxalist-div a:hover{
+	text-decoration: underline;
+	color: #337ab7;
 }
 
 .family-div {
@@ -47,7 +89,11 @@ div.button:hover {
 }
 
 .taxon-span {
-    font-style: italic
+    font-style: italic;
+    color: black;
+}
+
+.taxon-span a {
 }
 
 .vern-span {

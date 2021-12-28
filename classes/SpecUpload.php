@@ -192,6 +192,8 @@ class SpecUpload{
 						if($v && $v !== '0') $fieldMap[$k] = '';
 					}
 				}
+				//Add BOM to fix UTF-8 in Excel
+				fputs($outstream, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
 				//Export only fields with data
 				$rs->data_seek(0);
 				while($r = $rs->fetch_assoc()){

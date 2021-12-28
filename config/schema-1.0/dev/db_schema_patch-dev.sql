@@ -109,21 +109,8 @@ ALTER TABLE `imageprojects`
   ADD CONSTRAINT `FK_imageproject_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_imageproject_uid`  FOREIGN KEY (`uidcreated`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
-CREATE TABLE `omcollproperties` (
-  `collPropID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `collid` INT UNSIGNED NOT NULL,
-  `propCategory` VARCHAR(45) NOT NULL,
-  `propTitle` VARCHAR(45) NOT NULL,
-  `propJson` LONGTEXT NULL,
-  `notes` VARCHAR(255) NULL,
-  `modifiedUid` INT UNSIGNED NULL,
-  `modifiedTimestamp` DATETIME NULL,
-  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`collPropID`),
-  INDEX `FK_omcollproperties_collid_idx` (`collid` ASC),
-  INDEX `FK_omcollproperties_uid_idx` (`modifiedUid` ASC),
-  CONSTRAINT `FK_omcollproperties_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)   ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE);
+ALTER TABLE `institutions` 
+  ADD COLUMN `institutionID` VARCHAR(45) NULL AFTER `iid`;
 
 ALTER TABLE `geographicthesaurus` 
   ADD COLUMN `geoLevel` INT NOT NULL AFTER `category`;
@@ -144,6 +131,58 @@ DROP TABLE geothesstateprovince;
 DROP TABLE geothescounty;
 DROP TABLE geothesmunicipality;
 
+ALTER TABLE `omcollections` 
+  ADD COLUMN `dwcTermJson` TEXT NULL AFTER `aggKeysStr`;
+
+DROP TABLE omcollectors;
+
+CREATE TABLE `omcollproperties` (
+  `collPropID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `collid` INT UNSIGNED NOT NULL,
+  `propCategory` VARCHAR(45) NOT NULL,
+  `propTitle` VARCHAR(45) NOT NULL,
+  `propJson` LONGTEXT NULL,
+  `notes` VARCHAR(255) NULL,
+  `modifiedUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` DATETIME NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`collPropID`),
+  INDEX `FK_omcollproperties_collid_idx` (`collid` ASC),
+  INDEX `FK_omcollproperties_uid_idx` (`modifiedUid` ASC),
+  CONSTRAINT `FK_omcollproperties_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)   ON DELETE CASCADE   ON UPDATE CASCADE,
+  CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE);
+
+ALTER TABLE `omcollpublications` 
+  DROP FOREIGN KEY `FK_adminpub_collid`;
+
+ALTER TABLE `omcollpublications` 
+  DROP COLUMN `securityguid`,
+  DROP COLUMN `targeturl`,
+  ADD COLUMN `portalIndexID` INT NULL AFTER `collid`,
+  CHANGE COLUMN `collid` `collid` INT(10) UNSIGNED NULL ,
+  CHANGE COLUMN `criteriajson` `criteriaJson` TEXT NULL DEFAULT NULL ,
+  CHANGE COLUMN `includedeterminations` `includeDeterminations` INT(11) NULL DEFAULT 1,
+  CHANGE COLUMN `includeimages` `includeImages` INT(11) NULL DEFAULT 1,
+  CHANGE COLUMN `autoupdate` `autoUpdate` INT(11) NULL DEFAULT 0,
+  CHANGE COLUMN `lastdateupdate` `lastDateUpdate` DATETIME NULL DEFAULT NULL,
+  CHANGE COLUMN `updateinterval` `updateInterval` INT(11) NULL DEFAULT NULL,
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  ADD INDEX `FK_collPub_portalID_idx` (`portalIndexID` ASC);
+
+ALTER TABLE `omcollpublications` 
+  ADD CONSTRAINT `FK_collPub_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_collPub_portalID`  FOREIGN KEY (`portalIndexID`)  REFERENCES `portalindex` (`portalIndexID`)  ON DELETE RESTRICT  ON UPDATE NO ACTION;
+
+ALTER TABLE `omcollpublications` 
+  ADD COLUMN `pubTitle` VARCHAR(45) NULL AFTER `pubid`,
+  ADD COLUMN `description` VARCHAR(250) NULL AFTER `pubTitle`,
+  ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `updateInterval`;
+
+ALTER TABLE `omcollpublications` 
+  RENAME TO `ompublication` ;
+
+ALTER TABLE `omcollpuboccurlink` 
+  RENAME TO  `ompublicationoccurlink` ;
 
 CREATE TABLE `omcrowdsourceproject` (
   `csProjID` INT NOT NULL AUTO_INCREMENT,
@@ -186,40 +225,6 @@ ALTER TABLE `omoccurrences`
 ALTER TABLE `omoccurrences` 
   DROP COLUMN `recordedbyid`,
   DROP INDEX `FK_recordedbyid` ;
-
-DROP TABLE omcollectors;
-
-ALTER TABLE `omcollpublications` 
-  DROP FOREIGN KEY `FK_adminpub_collid`;
-
-ALTER TABLE `omcollpublications` 
-  DROP COLUMN `securityguid`,
-  DROP COLUMN `targeturl`,
-  ADD COLUMN `portalIndexID` INT NULL AFTER `collid`,
-  CHANGE COLUMN `collid` `collid` INT(10) UNSIGNED NULL ,
-  CHANGE COLUMN `criteriajson` `criteriaJson` TEXT NULL DEFAULT NULL ,
-  CHANGE COLUMN `includedeterminations` `includeDeterminations` INT(11) NULL DEFAULT 1,
-  CHANGE COLUMN `includeimages` `includeImages` INT(11) NULL DEFAULT 1,
-  CHANGE COLUMN `autoupdate` `autoUpdate` INT(11) NULL DEFAULT 0,
-  CHANGE COLUMN `lastdateupdate` `lastDateUpdate` DATETIME NULL DEFAULT NULL,
-  CHANGE COLUMN `updateinterval` `updateInterval` INT(11) NULL DEFAULT NULL,
-  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
-  ADD INDEX `FK_collPub_portalID_idx` (`portalIndexID` ASC);
-
-ALTER TABLE `omcollpublications` 
-  ADD CONSTRAINT `FK_collPub_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_collPub_portalID`  FOREIGN KEY (`portalIndexID`)  REFERENCES `portalindex` (`portalIndexID`)  ON DELETE RESTRICT  ON UPDATE NO ACTION;
-
-ALTER TABLE `omcollpublications` 
-  ADD COLUMN `pubTitle` VARCHAR(45) NULL AFTER `pubid`,
-  ADD COLUMN `description` VARCHAR(250) NULL AFTER `pubTitle`,
-  ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `updateInterval`;
-
-ALTER TABLE `omcollpublications` 
-  RENAME TO `ompublication` ;
-
-ALTER TABLE `omcollpuboccurlink` 
-  RENAME TO  `ompublicationoccurlink` ;
 
 CREATE TABLE `portalindex` (
   `portalIndexID` INT NOT NULL AUTO_INCREMENT,
@@ -270,6 +275,7 @@ ALTER TABLE `uploadspectemp`
 
 
 ALTER TABLE `omoccurrences` 
+  ADD COLUMN `type` VARCHAR(45) NULL AFTER `verbatimEventDate`;
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`;
 
 #Material Sample schema developments

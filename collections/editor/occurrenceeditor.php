@@ -470,9 +470,8 @@ else{
 		var tabTarget = <?php echo (is_numeric($tabTarget)?$tabTarget:'0'); ?>;
 		var imgArr = [];
 		var imgLgArr = [];
-		var localityAutoLookup = 1;
-		var searchCatalogNumbers = <?php echo (!defined('CATNUMDUPECHECK') || CATNUMDUPECHECK)?'true':'false'; ?>;
-		var searchAdditionalCatalogNumbers = <?php echo (!defined('OTHERCATNUMDUPECHECK') || OTHERCATNUMDUPECHECK)?'true':'false'; ?>;
+		var localityAutoLookup = <?php echo (defined('LOCALITYAUTOLOOKUP') && !LOCALITYAUTOLOOKUP?'0':'1'); ?>;
+
 		<?php
 		if($imgArr){
 			foreach($imgArr as $iCnt => $iArr){
@@ -480,10 +479,14 @@ else{
 				if(isset($iArr['lg'])) echo 'imgLgArr['.$iCnt.'] = "'.$iArr['lg'].'";'."\n";
 			}
 		}
-		if(defined('LOCALITYAUTOLOOKUP') && !LOCALITYAUTOLOOKUP){
-			echo 'localityAutoLookup = 0';
-		}
 		?>
+
+		$(document).ready(function() {
+			<?php
+			if(!defined('CATNUMDUPECHECK') || CATNUMDUPECHECK) echo '$("#catalognumber").on("change", function(e) { searchCatalogNumber(this.form,true); });'."\n";
+			if(!defined('OTHERCATNUMDUPECHECK') || OTHERCATNUMDUPECHECK) echo '$("input[name=\'idvalue[]\']").on("change", function(e) { searchOtherCatalogNumbers(this); });'."\n";
+			?>
+		});
 
 		function requestImage(){
             $.ajax({
@@ -500,8 +503,8 @@ else{
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.main.js?ver=10h" type="text/javascript"></script>
-	<script src="../../js/symb/collections.editor.tools.js?ver=3a" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.main.js?ver=10" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.tools.js?ver=3" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.query.js?ver=4" type="text/javascript"></script>
@@ -727,13 +730,14 @@ else{
 													<?php
 												}
 											}
+
 											?>
 											<div style="clear:both;">
 												<div id="catalogNumberDiv">
 													<?php echo (defined('CATALOGNUMBERLABEL')?CATALOGNUMBERLABEL:'Catalog Number'); ?>
 													<a href="#" onclick="return dwcDoc('catalogNumber')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
 													<br/>
-													<input type="text" id="catalognumber" name="catalognumber" value="<?php echo array_key_exists('catalognumber',$occArr)?$occArr['catalognumber']:''; ?>" onchange="fieldChanged('catalognumber');searchCatalogNumber(this.form,true)';" <?php if($isEditor > 2) echo 'disabled'; ?> autocomplete="off" />
+													<input type="text" id="catalognumber" name="catalognumber" value="<?php echo array_key_exists('catalognumber',$occArr)?$occArr['catalognumber']:''; ?>" onchange="fieldChanged('catalognumber');" <?php if($isEditor > 2) echo 'disabled'; ?> autocomplete="off" />
 												</div>
 												<div id="otherCatalogNumbersDiv">
 													<div id="identifierDiv" class="divTable">
@@ -756,7 +760,7 @@ else{
 																			<input name="idname[]" type="text" value="<?php echo $idArr['name']; ?>" onchange="fieldChanged('idname');" autocomplete="off" />
 																		</div>
 																		<div class="divTableCell">
-																			<input name="idvalue[]" type="text" value="<?php echo $idArr['value']; ?>" onchange="fieldChanged('idvalue');searchOtherCatalogNumbers(this.form);" autocomplete="off" /><a href="#" onclick="deleteIdentifier(<?php echo "'".$idKey."',".$occId; ?>);return false" tabindex="-1"><img src="../../images/del.png" /></a>
+																			<input name="idvalue[]" type="text" value="<?php echo $idArr['value']; ?>" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="deleteIdentifier(<?php echo "'".$idKey."',".$occId; ?>);return false" tabindex="-1"><img src="../../images/del.png" /></a>
 																		</div>
 																	</div>
 																	<?php
@@ -769,7 +773,7 @@ else{
 																	<input name="idname[]" type="text" value="" onchange="fieldChanged('idname');" autocomplete="off" />
 																</div>
 																<div class="divTableCell">
-																	<input name="idvalue[]" type="text" value="" onchange="fieldChanged('idvalue');searchOtherCatalogNumbers(this.form);" autocomplete="off" /><a href="#" onclick="addIdentifierField(this);return false" tabindex="-1"><img src="../../images/plus.png" /></a>
+																	<input name="idvalue[]" type="text" value="" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="addIdentifierField(this);return false" tabindex="-1"><img src="../../images/plus.png" /></a>
 																</div>
 															</div>
 														</div>

@@ -260,34 +260,6 @@ class OccurrenceDuplicate {
 		return $retArr;
 	}
 
-	public function getDupesCatalogNumber($catNum, $collid, $skipOccid){
-		$retArr = array();
-		$catNumber = $this->cleanInStr($catNum);
-		if(is_numeric($collid) && is_numeric($skipOccid) && $catNumber){
-			$sql = 'SELECT occid FROM omoccurrences WHERE (catalognumber = "'.$catNumber.'") AND (collid = '.$collid.') AND (occid != '.$skipOccid.') ';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$r->occid] = $r->occid;
-			}
-			$rs->free();
-		}
-		return $retArr;
-	}
-
-	public function getDupesOtherCatalogNumbers($otherCatNum, $collid, $skipOccid){
-		$retArr = array();
-		$otherCatNum = $this->cleanInStr($otherCatNum);
-		if(is_numeric($collid) && is_numeric($skipOccid) && $otherCatNum){
-			$sql = 'SELECT occid FROM omoccurrences WHERE (othercatalognumbers = "'.$otherCatNum.'") AND (collid = '.$collid.') AND (occid != '.$skipOccid.') ';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$r->occid] = $r->occid;
-			}
-			$rs->free();
-		}
-		return $retArr;
-	}
-
 	private function getDupesCollectorEvent($collName, $collNum, $collDate, $skipOccid){
 		$retArr = array();
 		$lastName = $this->parseLastName($collName);

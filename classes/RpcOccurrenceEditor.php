@@ -74,6 +74,35 @@ class RpcOccurrenceEditor extends RpcBase{
 		return $bool;
 	}
 
+	public function getDupesCatalogNumber($catNum, $collid, $skipOccid){
+		$retArr = array();
+		$catNumber = $this->cleanInStr($catNum);
+		if(is_numeric($collid) && is_numeric($skipOccid) && $catNumber){
+			$sql = 'SELECT occid FROM omoccurrences WHERE (catalognumber = "'.$catNumber.'") AND (collid = '.$collid.') AND (occid != '.$skipOccid.') ';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->occid] = $r->occid;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
+	public function getDupesOtherCatalogNumbers($otherCatNum, $collid, $skipOccid){
+		$retArr = array();
+		$otherCatNum = $this->cleanInStr($otherCatNum);
+		if(is_numeric($collid) && is_numeric($skipOccid) && $otherCatNum){
+			$sql = 'SELECT o.occid FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid
+				WHERE (o.othercatalognumbers = "'.$otherCatNum.'" OR i.identifierValue = "'.$otherCatNum.'") AND (o.collid = '.$collid.') AND (o.occid != '.$skipOccid.') ';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->occid] = $r->occid;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
 	//Setters and getters
 	public function isValidApiCall(){
 		//Verification also happening within haddler checking is user is logged in and a valid admin/editor

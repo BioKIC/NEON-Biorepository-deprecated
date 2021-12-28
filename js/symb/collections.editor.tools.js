@@ -149,7 +149,7 @@ function geoLocateUpdateCoord(latValue,lngValue,coordErrValue, footprintWKT){
 //Duplicate record searches
 function searchCatalogNumber(f,verbose){
 	var cnValue = f.catalognumber.value;
-	if(searchCatalogNumbers && cnValue){
+	if(cnValue){
 		var occid = f.occid.value;
 		if(verbose){
 			document.getElementById("dupeMsgDiv").style.display = "block";
@@ -194,9 +194,10 @@ function searchCatalogNumber(f,verbose){
 	}
 }
 
-function searchOtherCatalogNumbers(f){
-	var ocnValue = f.othercatalognumbers.value;
-	if(searchAdditionalCatalogNumbers && ocnValue){
+function searchOtherCatalogNumbers(inputElem){
+	var ocnValue = inputElem.value;
+	var f = inputElem.form;
+	if(ocnValue){
 		document.getElementById("dupeMsgDiv").style.display = "block";
 		document.getElementById("dupesearch").style.display = "block";
 		document.getElementById("dupenone").style.display = "none";

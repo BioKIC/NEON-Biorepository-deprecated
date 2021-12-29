@@ -437,7 +437,6 @@ class OccurrenceHarvester{
 		if($sampleArr['samplePK']){
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
 				//Get data that was provided within manifest
-				//$dwcArr['otherCatalogNumbers'] = $sampleArr['sampleID'];
 				if(isset($sampleArr['sampleCode']) && $sampleArr['sampleCode']) $dwcArr['identifiers']['NEON sampleCode (barcode)'] = $sampleArr['sampleCode'];
 				if(isset($sampleArr['sampleID']) && $sampleArr['sampleID']) $dwcArr['identifiers']['NEON sampleID'] = $sampleArr['sampleID'];
 				if(isset($sampleArr['event_id'])) $dwcArr['eventID'] = $sampleArr['event_id'];
@@ -611,8 +610,6 @@ class OccurrenceHarvester{
 			if(!$this->conn->query($sql)){
 				$status = false;
 			}
-			$sql = 'UPDATE omoccurrences SET otherCatalogNumbers = REPLACE(otherCatalogNumbers,"'.$oldSampleID.'","'.$newSampleID.'") WHERE occid = '.$occid;
-			$this->conn->query($sql);
 		}
 		return $status;
 	}

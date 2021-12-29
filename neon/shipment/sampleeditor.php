@@ -164,7 +164,7 @@ if($isEditor){
 			<form id="editForm" method="post" action="sampleeditor.php" onsubmit="return validateSampleForm(this)">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:400px" />
+						<b>Sample ID:</b> <input name="sampleID" type="text" value="<?php echo isset($sampleArr['sampleID'])?$sampleArr['sampleID']:''; ?>" style="width:500px" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">
@@ -174,7 +174,7 @@ if($isEditor){
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<b>Alt. Sample ID(s):</b> <input name="alternativeSampleID" type="text" value="<?php echo isset($sampleArr['alternativeSampleID'])?$sampleArr['alternativeSampleID']:''; ?>" style="width:400px" />
+						<b>Alt. Sample ID(s):</b> <input name="alternativeSampleID" type="text" value="<?php echo isset($sampleArr['alternativeSampleID'])?$sampleArr['alternativeSampleID']:''; ?>" style="width:500px" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">

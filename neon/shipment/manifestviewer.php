@@ -809,7 +809,6 @@ include($SERVER_ROOT.'/includes/header.php');
 														echo '<div><a href="../../collections/admin/specupload.php?uploadtype=7&matchothercatnum=1&collid='.$collid.'" target="_blank">'.$collName.'</a></div>';
 													}
 													?>
-													* Link records by matching sampleID to otherCatalogNumbers
 												</fieldset>
 											</div>
 											<?php

@@ -41,7 +41,7 @@ class NpsReport{
 	private function setOccurArr(){
 		$status = false;
 		$sql = 'SELECT o.occid, o.family, o.tidInterpreted, o.sciname, o.scientificNameAuthorship, t.unitname1, CONCAT_WS(" ",t.unitname2,t.unitind3,t.unitname3) as species, t.rankid, '.
-			'o.individualCount, o.verbatimAttributes, o.habitat, o.recordedBy, o.recordNumber, o.eventDate, CONCAT_WS("; ", o.occurrenceID, o.otherCatalogNumbers) as otherCatalogNumbers, '.
+			'o.individualCount, o.verbatimAttributes, o.habitat, o.recordedBy, o.recordNumber, o.eventDate, occurrenceID, '.
 			'o.identifiedBy, o.dateIdentified, o.locality, o.stateProvince, o.county, o.geodeticDatum, o.decimalLatitude, o.decimalLongitude, o.verbatimCoordinates, '.
 			'o.minimumElevationInMeters, o.associatedTaxa, o.lifeStage, o.sex, o.dateEntered '.
 			'FROM omoccurdatasetlink d INNER JOIN omoccurrences o ON d.occid = o.occid '.
@@ -81,7 +81,7 @@ class NpsReport{
 			$this->occurArr[$r->occid]['cond'] = '';
 			$this->occurArr[$r->occid]['condDesc'] = '';
 			$this->occurArr[$r->occid]['studyNum'] = '';
-			$this->occurArr[$r->occid]['otherNum'] = $r->otherCatalogNumbers;
+			$this->occurArr[$r->occid]['otherNum'] = $r->occurrenceID;
 			$this->occurArr[$r->occid]['EminentFig'] = '';
 			$this->occurArr[$r->occid]['EminentOrg'] = '';
 			$this->occurArr[$r->occid]['Cataloger'] = '';
@@ -159,6 +159,7 @@ class NpsReport{
 		$rs->free();
 		$this->setTaxonomy($tidArr);
 		$this->setVernacular($tidArr);
+		$this->setAdditionalIdentifiers();
 		return $status;
 	}
 
@@ -280,6 +281,15 @@ class NpsReport{
 				}
 			}
 		}
+	}
+
+	private function setAdditionalIdentifiers(){
+		$sql = 'SELECT identifierName, identifierValue FROM omoccuridentifiers WHERE occid IN('.implode(',',array_keys($this->occurArr)).')';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$this->occurArr[$r->occid]['otherNum'] .= '; '.($r->identifierName?$r->identifierName.': ':'').$r->identifierValue;
+		}
+		$rs->free();
 	}
 
 	private function exportData(){

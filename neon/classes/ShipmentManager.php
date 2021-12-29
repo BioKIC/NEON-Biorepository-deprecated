@@ -578,28 +578,115 @@ class ShipmentManager{
 		$status = false;
 		$postArr = array_change_key_case($postArr);
 		if(is_numeric($postArr['samplepk'])){
-			$sql = 'UPDATE NeonSample '.
-				'SET sampleID = '.(isset($postArr['sampleid']) && $postArr['sampleid']?'"'.$this->cleanInStr($postArr['sampleid']).'"':'NULL').', '.
-				'alternativeSampleID = '.(isset($postArr['alternativesampleid']) && $postArr['alternativesampleid']?'"'.$this->cleanInStr($postArr['alternativesampleid']).'"':'NULL').', '.
-				'sampleCode = '.(isset($postArr['samplecode']) && $postArr['samplecode']?'"'.$this->cleanInStr($postArr['samplecode']).'"':'NULL').', '.
-				'sampleClass = '.(isset($postArr['sampleclass']) && $postArr['sampleclass']?'"'.$this->cleanInStr($postArr['sampleclass']).'"':'NULL').', '.
-				'quarantineStatus = '.(isset($postArr['quarantinestatus']) && $postArr['quarantinestatus']?'"'.$this->cleanInStr($postArr['quarantinestatus']).'"':'NULL').', '.
-				'namedLocation = '.(isset($postArr['namedlocation']) && $postArr['namedlocation']?'"'.$this->cleanInStr($postArr['namedlocation']).'"':'NULL').', '.
-				'collectDate = '.(isset($postArr['collectdate']) && $postArr['collectdate']?'"'.$this->cleanInStr($postArr['collectdate']).'"':'NULL').', '.
-				'dynamicproperties = '.(isset($postArr['dynamicproperties']) && $postArr['dynamicproperties']?'"'.$this->cleanInStr($postArr['dynamicproperties']).'"':'NULL').', '.
-				'symbiotatarget = '.(isset($postArr['symbiotatarget']) && $postArr['symbiotatarget']?'"'.$this->cleanInStr($postArr['symbiotatarget']).'"':'NULL').', '.
-				'taxonID = '.(isset($postArr['taxonid']) && $postArr['taxonid']?'"'.$this->cleanInStr($postArr['taxonid']).'"':'NULL').', '.
-				'individualCount = '.(isset($postArr['individualcount']) && is_numeric($postArr['individualcount'])?'"'.$this->cleanInStr($postArr['individualcount']).'"':'NULL').', '.
-				'filterVolume = '.(isset($postArr['filtervolume']) && is_numeric($postArr['filtervolume'])?'"'.$this->cleanInStr($postArr['filtervolume']).'"':'NULL').', '.
-				'domainRemarks = '.(isset($postArr['domainremarks']) && $postArr['domainremarks']?'"'.$this->cleanInStr($postArr['domainremarks']).'"':'NULL').', '.
-				'notes = '.(isset($postArr['samplenotes']) && $postArr['samplenotes']?'"'.$this->cleanInStr($postArr['samplenotes']).'"':'NULL').' '.
-				'WHERE (samplepk = '.$postArr['samplepk'].')';
-			if($this->conn->query($sql)){
-				$status = true;
+			$sampleID = $postArr['sampleid']?$postArr['sampleid']:NULL;
+			$sampleCode = $postArr['samplecode']?$postArr['samplecode']:NULL;
+			//Get old values
+			$occid = '';
+			$identifierArr = array();
+			$sql = 'SELECT s.occid, i.idomoccuridentifiers, i.identifierName, i.identifierValue FROM NeonSample s LEFT JOIN omoccuridentifiers i ON s.occid = i.occid WHERE s.samplePK = '.$postArr['samplepk'];
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$occid = $r->occid;
+				if(strpos($r->identifierName,'sampleID')){
+					$identifierArr[$r->occid]['NEON sampleID']['idKey'] = $r->idomoccuridentifiers;
+					$identifierArr[$r->occid]['NEON sampleID']['idValue'] = $r->identifierValue;
+				}
+				elseif(strpos($r->identifierName,'sampleCode')){
+					$identifierArr[$r->occid]['NEON sampleCode (barcode)']['idKey'] = $r->idomoccuridentifiers;
+					$identifierArr[$r->occid]['NEON sampleCode (barcode)']['idValue'] = $r->identifierValue;
+				}
+			}
+			$rs->free();
+			if($occid){
+				$identifierArr[$occid]['NEON sampleID']['neonID'] = $sampleID;
+				$identifierArr[$occid]['NEON sampleCode (barcode)']['neonID'] = $sampleCode;
+			}
+
+			//Update target record
+			$sql = 'UPDATE NeonSample
+				SET sampleID = ?, alternativeSampleID = ?, sampleCode = ?, sampleClass = ?, quarantineStatus = ?, namedLocation = ?, collectDate = ?, taxonID = ?,
+				individualCount = ?, filterVolume = ?, domainRemarks = ?, notes = ? WHERE (samplepk = ?)';
+			$stmt = $this->conn->stmt_init();
+			$stmt->prepare($sql);
+			if($stmt->error==null) {
+				$altID = $postArr['alternativesampleid']?$postArr['alternativesampleid']:NULL;
+				$sampleClass = $postArr['sampleclass']?$postArr['sampleclass']:NULL;
+				$quarStatus = $postArr['quarantinestatus']?$postArr['quarantinestatus']:NULL;
+				$namedLoc = $postArr['namedlocation']?$postArr['namedlocation']:NULL;
+				$collDate = $postArr['collectdate']?$postArr['collectdate']:NULL;
+				$taxonID = $postArr['taxonid']?$postArr['taxonid']:NULL;
+				$indCnt = $postArr['individualcount']?$postArr['individualcount']:NULL;
+				$filterVol = $postArr['filtervolume']?$postArr['filtervolume']:NULL;
+				$domainRemarks = $postArr['domainremarks']?$postArr['domainremarks']:NULL;
+				$sampleNotes = $postArr['samplenotes']?$postArr['samplenotes']:NULL;
+				$stmt->bind_param('ssssssssiissi', $sampleID, $altID, $sampleCode, $sampleClass, $quarStatus, $namedLoc, $collDate, $taxonID,
+					$indCnt, $filterVol, $domainRemarks, $sampleNotes, $postArr['samplepk']);
+				$stmt->execute();
+				if($stmt->error==null) $status = true;
+				else{
+					$this->errormessage = $stmt->error;
+					echo $this->errorStr;
+				}
 			}
 			else{
-				$this->errorStr = 'ERROR editing sample data: '.$this->conn->error;
-				return false;
+				$this->errorStr = $stmt->error;
+				echo $this->errorStr;
+			}
+			$stmt->close();
+
+			if($status && $occid){
+				//An occurrence record exists, thus update sampleID and sampleCode identifiers if they have been changed
+				foreach($identifierArr as $occid => $idArr){
+					foreach($idArr as $idName => $unitArr){
+						$sql = '';
+						if($unitArr['neonID'] && (!isset($unitArr['idValue']) || !$unitArr['idValue'])){
+							$sql = 'INSERT INTO omoccuridentifiers(occid, identifierName, identifierValue, modifiedUid) VALUES(?,?,?,?)';
+							$stmt = $this->conn->stmt_init();
+							$stmt->prepare($sql);
+							if($stmt->error==null) {
+								$stmt->bind_param('issi', $occid, $idName, $unitArr['neonID'], $GLOBALS['SYMB_UID']);
+								$stmt->execute();
+								if($stmt->error==null) $status = true;
+								else{
+									$this->errormessage = 'ERROR inserting '.$idName.' identifier: '.$stmt->error;
+									echo $this->errorStr;
+								}
+							}
+							$stmt->close();
+						}
+						elseif(!$unitArr['neonID'] && isset($unitArr['idValue']) && $unitArr['idValue']){
+							$sql = 'DELETE FROM omoccuridentifiers WHERE occid = ? AND idomoccuridentifiers = ?';
+							$stmt = $this->conn->stmt_init();
+							$stmt->prepare($sql);
+							if($stmt->error==null) {
+								$stmt->bind_param('ii', $occid, $unitArr['idKey']);
+								$stmt->execute();
+								if($stmt->error==null) $status = true;
+								else{
+									$this->errormessage = 'ERROR deleting '.$idName.' identifier: '.$stmt->error;
+									echo $this->errorStr;
+								}
+							}
+							$stmt->close();
+						}
+						elseif($unitArr['neonID'] && $unitArr['neonID'] != $unitArr['idValue']){
+							//Update $unitArr['idKey']
+							$sql = 'UPDATE omoccuridentifiers SET identifierValue = ? WHERE occid = ? AND idomoccuridentifiers = ?';
+							$stmt = $this->conn->stmt_init();
+							$stmt->prepare($sql);
+							if($stmt->error==null) {
+								$stmt->bind_param('sii', $unitArr['neonID'], $occid, $unitArr['idKey']);
+								$stmt->execute();
+								if($stmt->error==null) $status = true;
+								else{
+									$this->errormessage = 'ERROR updating '.$idName.' identifier: '.$stmt->error;
+									echo $this->errorStr;
+								}
+							}
+							$stmt->close();
+						}
+					}
+				}
 			}
 		}
 		return $status;
@@ -977,7 +1064,7 @@ class ShipmentManager{
 		$sql = 'SELECT m.samplePK, m.sampleID, m.alternativeSampleID, m.sampleCode, m.sampleClass, m.taxonID, m.individualCount, m.filterVolume, m.namedlocation, '.
 			'm.domainremarks, m.collectdate, m.quarantineStatus, m.sampleReceived, m.acceptedForAnalysis, m.sampleCondition, m.dynamicProperties, m.symbiotaTarget, '.
 			'm.notes, m.occid, CONCAT_WS(", ",u.lastname, u.firstname) AS checkinUser, m.checkinTimestamp, m.initialtimestamp, '.
-			'o.catalogNumber, o.otherCatalogNumbers, o.sciname, o.scientificNameAuthorship, o.identifiedBy, o.dateIdentified, o.recordedBy, o.recordNumber, o.eventDate, '.
+			'o.catalogNumber, o.sciname, o.scientificNameAuthorship, o.identifiedBy, o.dateIdentified, o.recordedBy, o.recordNumber, o.eventDate, '.
 			'o.country, o.stateProvince, o.county, o.locality, o.decimalLatitude, o.decimalLongitude, o.coordinateUncertaintyInMeters, o.minimumElevationInMeters, '.
 			'o.habitat, o.dateEntered, o.dateLastModified '.
 			'FROM NeonShipment s INNER JOIN NeonSample m ON s.shipmentpk = m.shipmentpk '.

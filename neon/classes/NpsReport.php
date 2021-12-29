@@ -284,7 +284,7 @@ class NpsReport{
 	}
 
 	private function setAdditionalIdentifiers(){
-		$sql = 'SELECT identifierName, identifierValue FROM omoccuridentifiers WHERE occid IN('.implode(',',array_keys($this->occurArr)).')';
+		$sql = 'SELECT occid, identifierName, identifierValue FROM omoccuridentifiers WHERE occid IN('.implode(',',array_keys($this->occurArr)).')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$this->occurArr[$r->occid]['otherNum'] .= '; '.($r->identifierName?$r->identifierName.': ':'').$r->identifierValue;

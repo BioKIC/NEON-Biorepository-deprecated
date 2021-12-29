@@ -447,7 +447,7 @@ else{
     }
     else{
 		?>
-		<link href="../../css/symb/occurrenceeditor.css?ver=4" type="text/css" rel="stylesheet" id="editorCssLink" />
+		<link href="../../css/symb/occurrenceeditor.css?ver=5" type="text/css" rel="stylesheet" id="editorCssLink" />
 		<?php
 		if(isset($CSSARR)){
 			foreach($CSSARR as $cssVal){
@@ -757,10 +757,10 @@ else{
 																	<div id="idRow-<?php echo $idKey; ?>" class="divTableRow">
 																		<div class="divTableCell">
 																			<input name="idkey[]" type="hidden" value="<?php echo $idKey; ?>" />
-																			<input name="idname[]" type="text" value="<?php echo $idArr['name']; ?>" onchange="fieldChanged('idname');" autocomplete="off" />
+																			<input class="idNameInput" name="idname[]" type="text" value="<?php echo $idArr['name']; ?>" onchange="fieldChanged('idname');" autocomplete="off" />
 																		</div>
 																		<div class="divTableCell">
-																			<input name="idvalue[]" type="text" value="<?php echo $idArr['value']; ?>" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="deleteIdentifier(<?php echo "'".$idKey."',".$occId; ?>);return false" tabindex="-1"><img src="../../images/del.png" /></a>
+																			<input class="idValueInput" name="idvalue[]" type="text" value="<?php echo $idArr['value']; ?>" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="deleteIdentifier(<?php echo "'".$idKey."',".$occId; ?>);return false" tabindex="-1"><img src="../../images/del.png" /></a>
 																		</div>
 																	</div>
 																	<?php
@@ -770,17 +770,14 @@ else{
 															<div class="divTableRow">
 																<div class="divTableCell">
 																	<input name="idkey[]" type="hidden" value="newidentifier" />
-																	<input name="idname[]" type="text" value="" onchange="fieldChanged('idname');" autocomplete="off" />
+																	<input class="idNameInput" name="idname[]" type="text" value="" onchange="fieldChanged('idname');" autocomplete="off" />
 																</div>
 																<div class="divTableCell">
-																	<input name="idvalue[]" type="text" value="" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="addIdentifierField(this);return false" tabindex="-1"><img src="../../images/plus.png" /></a>
+																	<input class="idValueInput" name="idvalue[]" type="text" value="" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="addIdentifierField(this);return false" tabindex="-1"><img src="../../images/plus.png" /></a>
 																</div>
 															</div>
 														</div>
 													</div>
-													<?php
-													//if($otherCatNumStr) echo '<div style="clear:both">Verbatim value: '.$otherCatNumStr.'</div>';
-													?>
 												</div>
 											</div>
 											<div style="clear:both;">

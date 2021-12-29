@@ -105,8 +105,12 @@ body{
 	margin-left: 10px;
 }
 
-#otherCatalogNumbersDiv input{
-	width:	150px;
+.idNameInput{
+	width:	185px;
+}
+
+.idValueInput{
+	width:	250px;	
 }
 
 #recordedByDiv {

@@ -184,6 +184,23 @@ ALTER TABLE `omcollpublications`
 ALTER TABLE `omcollpuboccurlink` 
   RENAME TO  `ompublicationoccurlink` ;
 
+ALTER TABLE `ompublicationoccurlink` 
+  DROP FOREIGN KEY `FK_ompubpubid`;
+
+ALTER TABLE `ompublicationoccurlink` 
+  ADD COLUMN `portalIndexID` INT NOT NULL AFTER `occid`,
+  ADD COLUMN `targetOccid` INT NULL AFTER `pubid`,
+  CHANGE COLUMN `occid` `occid` INT(10) UNSIGNED NOT NULL FIRST,
+  CHANGE COLUMN `pubid` `pubid` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`occid`, `portalIndexID`),
+  ADD INDEX `FK_ompub_portalIndexID_idx` (`portalIndexID` ASC);
+
+ALTER TABLE `ompublicationoccurlink` 
+  ADD CONSTRAINT `FK_ompubpubid`  FOREIGN KEY (`pubid`)  REFERENCES `ompublication` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_ompub_portalIndexID`  FOREIGN KEY (`portalIndexID`)  REFERENCES `portalindex` (`portalIndexID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+
+
 CREATE TABLE `omcrowdsourceproject` (
   `csProjID` INT NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(45) NOT NULL,
@@ -242,6 +259,9 @@ CREATE TABLE `portalindex` (
   `notes` VARCHAR(250) NULL,
   `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`portalIndexID`));
+
+ALTER TABLE `portalindex` 
+  ADD UNIQUE INDEX `UQ_portalIndex_guid` (`guid` ASC);
 
 ALTER TABLE `specprocessorprojects` 
   ADD COLUMN `customStoredProcedure` VARCHAR(45) NULL AFTER `source`,

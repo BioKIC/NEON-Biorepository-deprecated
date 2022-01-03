@@ -24,6 +24,7 @@ $verifyImages = array_key_exists("verifyimages",$_REQUEST)&&$_REQUEST['verifyima
 $processingStatus = array_key_exists("processingstatus",$_REQUEST)?$_REQUEST['processingstatus']:'';
 $finalTransfer = array_key_exists("finaltransfer",$_REQUEST)?$_REQUEST["finaltransfer"]:0;
 $dbpk = array_key_exists("dbpk",$_REQUEST)?$_REQUEST["dbpk"]:'';
+$sourceIndex = isset($_REQUEST['sourceindex'])?$_REQUEST['sourceindex']:0;
 $recStart = array_key_exists("recstart",$_REQUEST)?$_REQUEST["recstart"]:0;
 $recLimit = array_key_exists("reclimit",$_REQUEST)?$_REQUEST["reclimit"]:1000;
 
@@ -41,6 +42,7 @@ if(!preg_match('/^[a-zA-Z0-9\s_-]+$/',$processingStatus)) $processingStatus = ''
 if($autoMap !== true) $autoMap = false;
 if(!is_numeric($finalTransfer)) $finalTransfer = 0;
 if($dbpk) $dbpk = htmlspecialchars($dbpk);
+if(!is_numeric($sourceIndex)) $sourceIndex = 0;
 if(!is_numeric($recStart)) $recStart = 0;
 if(!is_numeric($recLimit)) $recLimit = 1000;
 
@@ -85,6 +87,7 @@ $duManager->setMatchCatalogNumber($matchCatNum);
 $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
+$duManager->setSourcePortalIndex($sourceIndex);
 
 if($action == 'Automap Fields'){
 	$autoMap = true;
@@ -404,7 +407,8 @@ if($isEditor && $collid){
 			echo "<div style='font-weight:bold;font-size:120%'>".(isset($LANG['UP_STATUS'])?$LANG['UP_STATUS']:'Upload Status').":</div>";
 			echo "<ul style='margin:10px;font-weight:bold;'>";
 			$duManager->uploadData($finalTransfer);
-			echo "</ul>";
+			if($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD) $sourceIndex = $duManager->getSourcePortalIndex();
+			echo '</ul>';
 			if(!$finalTransfer){
 				?>
 				<fieldset style="margin:15px;">
@@ -511,6 +515,7 @@ if($isEditor && $collid){
 						<input type="hidden" name="verifyimages" value="<?php echo ($verifyImages?'1':'0'); ?>" />
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
+						<input type="hidden" name="sourceindex" value="<?php echo $sourceIndex;?>" />
 						<div style="margin:5px;">
 							<button type="submit" name="action" value="activateOccurrences"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 						</div>

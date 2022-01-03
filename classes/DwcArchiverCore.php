@@ -1328,6 +1328,7 @@ class DwcArchiverCore extends Manager{
 		}
 
 		$symbElem = $newDoc->createElement('symbiota');
+		if(isset($GLOBALS['PORTAL_GUID'])) $symbElem->setAttribute('id',$GLOBALS['PORTAL_GUID']);
 		$dateElem = $newDoc->createElement('dateStamp');
 		$dateElem->appendChild($newDoc->createTextNode(date("c")));
 		$symbElem->appendChild($dateElem);

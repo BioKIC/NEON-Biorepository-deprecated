@@ -379,6 +379,50 @@ class SpecUploadDwca extends SpecUploadBase{
 		return true;
 	}
 
+	private function readEmlFile(){
+		$emlDoc = new DOMDocument();
+		if(file_exists($this->uploadTargetPath.'eml.xml')){
+			$emlDoc->load($this->uploadTargetPath.'eml.xml');
+			$xpath = new DOMXpath($emlDoc);
+			if($symbiotaNodeList = $xpath->query('//symbiota')){
+				if($node = $symbiotaNodeList->item(0)){
+					if($node->hasAttribute('id')){
+						if($symbiotaGuid = $node->getAttribute('id')){
+							$this->setPortalIndexID($symbiotaGuid);
+							if(!$this->sourcePortalIndex){
+								$urlNodeList = $xpath->query('/eml:eml/dataset/alternateIdentifier');
+								if($urlNodeList && isset($urlNodeList->item(0)->nodeValue)){
+									$url = $urlNodeList->item(0)->nodeValue;
+									$url = substr($url,0,strpos($url,'/collections/misc/collprofiles.php'));
+									$portalName = 'GUID: '.$symbiotaGuid;
+									if($GLOBALS['DEFAULT_TITLE']) $portalName = $GLOBALS['DEFAULT_TITLE'];
+									$sql = 'INSERT INTO portalindex(portalName, urlRoot, guid)
+										VALUES("'.$this->cleanInStr($portalName).'","'.$this->cleanInStr($url).'","'.$this->cleanInStr($symbiotaGuid).'")';
+									if($this->conn->query($sql)) $this->sourcePortalIndex = $this->conn->insert_id;
+									else{
+										$this->errorStr = 'ERROR adding portal index: '.$this->conn->error();
+										$this->outputMsg($this->errorStr);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else $this->errorStr = 'Unable to locate Symbiota element';
+		}
+	}
+
+	private function setPortalIndexID($symbiotaGuid){
+		if($symbiotaGuid){
+			$sql = 'SELECT portalIndexID FROM portalindex WHERE guid = "'.$this->cleanInStr($symbiotaGuid).'"';
+			if($rs = $this->conn->query($sql)){
+				if($r = $rs->fetch_object()) $this->sourcePortalIndex = $r->portalIndexID;
+				$rs->free();
+			}
+		}
+	}
+
 	private function locateBaseFolder($pathFrag = ''){
 		if($handle = opendir($this->uploadTargetPath.$pathFrag)) {
 			while(false !== ($item = readdir($handle))){
@@ -634,13 +678,8 @@ class SpecUploadDwca extends SpecUploadBase{
 								$this->outputMsg('<li style="margin-left:10px;">Complete: '.$this->imageTransferCount.' records loaded</li>');
 							}
 						}
-
-						//Do some cleanup
 						$this->cleanUpload();
-
-						if($finalTransfer){
-							$this->finalTransfer();
-						}
+						if($finalTransfer) $this->finalTransfer();
 					}
 					else{
 						if($this->filterArr){
@@ -658,8 +697,7 @@ class SpecUploadDwca extends SpecUploadBase{
 							$this->outputMsg('<li>ABORTED: no occurrences imported</li>');
 						}
 					}
-
-					//Remove all upload files and directories
+					$this->readEmlFile();
 					$this->removeFiles();
 				}
 				else{

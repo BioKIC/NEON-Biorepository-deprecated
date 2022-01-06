@@ -42,7 +42,7 @@ $controlTermArr = $materialSampleManager->getMSTypeControlValues();
 	});
 </script>
 <link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet" />
-<link href="includes/config/materialsample.css?ver=2" type="text/css" rel="stylesheet" />
+<link href="<?php echo $CLIENT_ROOT; ?>/css/symb/occureditormaterialsample.css?ver=2" type="text/css" rel="stylesheet" />
 <style type="text/css">
 	botton { margin: 10px; }
 	.fieldBlock { height: 35px; }

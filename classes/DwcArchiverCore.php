@@ -48,6 +48,8 @@ class DwcArchiverCore extends Manager{
 	private $charSetSource = '';
 	protected $charSetOut = '';
 
+	private $projectMetadataArr = array();
+
 	private $geolocateVariables = array();
 
 	public function __construct($conType='readonly'){
@@ -192,6 +194,9 @@ class DwcArchiverCore extends Manager{
 							}
 							if(isset($propArr['publicationProps']['titleOverride']) && $propArr['publicationProps']['titleOverride']){
 								$this->collArr[$r->collid]['collname'] = $propArr['publicationProps']['titleOverride'];
+							}
+							if(isset($propArr['publicationProps']['project']) && $propArr['publicationProps']['project']){
+								$this->projectMetadataArr = $propArr['publicationProps']['project'];
 							}
 						}
 					}
@@ -1327,7 +1332,18 @@ class DwcArchiverCore extends Manager{
 			$datasetElem->appendChild($rightsElem);
 		}
 
+		if($this->projectMetadataArr){
+			$projectElem = $this->getNode($newDoc, 'project', $this->projectMetadataArr);
+			$datasetElem->appendChild($projectElem);
+			/*
+			 * Example EML: http://ipt.gbifbenin.org/eml.do?r=mbi_groupe3_menacees
+			 * $projectMetadataArr = array('nodeAttribute' => array( 'id' => 'BID-AF2020-122-NAC'), 'title' => 'The Gabon Biodiversity Portal', 'abstract' => array('para' => 'https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal'))
+			 * json: {"publicationProps":{"project":{"nodeAttribute":{"id":"BID-AF2020-122-NAC"},"title":"The Gabon Biodiversity Portal","abstract":{"para":"https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal"}}}}
+			*/
+		}
+
 		$symbElem = $newDoc->createElement('symbiota');
+		if(isset($GLOBALS['PORTAL_GUID'])) $symbElem->setAttribute('id',$GLOBALS['PORTAL_GUID']);
 		$dateElem = $newDoc->createElement('dateStamp');
 		$dateElem->appendChild($newDoc->createTextNode(date("c")));
 		$symbElem->appendChild($dateElem);
@@ -1418,7 +1434,12 @@ class DwcArchiverCore extends Manager{
 	private function getNode($newDoc, $elmentTag, $nodeArr){
 		$newNode = $newDoc->createElement($elmentTag);
 		foreach($nodeArr as $nodeKey => $nodeValue){
-			if(is_array($nodeValue)){
+			if($nodeKey == 'nodeAttribute'){
+				foreach($nodeValue as $attrKey => $attrValue){
+					$newNode->setAttribute($attrKey,$attrValue);
+				}
+			}
+			elseif(is_array($nodeValue)){
 				$childNode = $this->getNode($newDoc, $nodeKey, $nodeValue);
 				$newNode->appendChild($childNode);
 			}

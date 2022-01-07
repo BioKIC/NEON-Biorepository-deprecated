@@ -97,6 +97,9 @@ ALTER TABLE `imagetagkey`
 ALTER TABLE `imagetagkey` 
   ADD CONSTRAINT `FK_imageTagKey_imgTagGroupID`  FOREIGN KEY (`imgTagGroupID`)  REFERENCES `imagetaggroup` (`imgTagGroupID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
+ALTER TABLE `imagetag` 
+  ADD COLUMN `imageBoundingBox` VARCHAR(45) NULL AFTER `keyvalue`,
+  ADD COLUMN `notes` VARCHAR(250) NULL AFTER `imageBoundingBox`;
 
 ALTER TABLE `imageprojects` 
   ADD COLUMN `projectType` VARCHAR(45) NULL AFTER `description`,
@@ -184,6 +187,23 @@ ALTER TABLE `omcollpublications`
 ALTER TABLE `omcollpuboccurlink` 
   RENAME TO  `ompublicationoccurlink` ;
 
+ALTER TABLE `ompublicationoccurlink` 
+  DROP FOREIGN KEY `FK_ompubpubid`;
+
+ALTER TABLE `ompublicationoccurlink` 
+  ADD COLUMN `portalIndexID` INT NOT NULL AFTER `occid`,
+  ADD COLUMN `targetOccid` INT NULL AFTER `pubid`,
+  CHANGE COLUMN `occid` `occid` INT(10) UNSIGNED NOT NULL FIRST,
+  CHANGE COLUMN `pubid` `pubid` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`occid`, `portalIndexID`),
+  ADD INDEX `FK_ompub_portalIndexID_idx` (`portalIndexID` ASC);
+
+ALTER TABLE `ompublicationoccurlink` 
+  ADD CONSTRAINT `FK_ompubpubid`  FOREIGN KEY (`pubid`)  REFERENCES `ompublication` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_ompub_portalIndexID`  FOREIGN KEY (`portalIndexID`)  REFERENCES `portalindex` (`portalIndexID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+
+
 CREATE TABLE `omcrowdsourceproject` (
   `csProjID` INT NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(45) NOT NULL,
@@ -243,6 +263,9 @@ CREATE TABLE `portalindex` (
   `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
   PRIMARY KEY (`portalIndexID`));
 
+ALTER TABLE `portalindex` 
+  ADD UNIQUE INDEX `UQ_portalIndex_guid` (`guid` ASC);
+
 ALTER TABLE `specprocessorprojects` 
   ADD COLUMN `customStoredProcedure` VARCHAR(45) NULL AFTER `source`,
   ADD COLUMN `createdByUid` INT UNSIGNED NULL AFTER `lastrundate`,
@@ -272,6 +295,13 @@ ALTER TABLE `uploadspectemp`
   CHANGE COLUMN `disposition` `disposition` varchar(250) NULL DEFAULT NULL,
   ADD COLUMN `observeruid` INT NULL AFTER `language`,
   ADD COLUMN `dateEntered` DATETIME NULL AFTER `recordEnteredBy`;
+
+ALTER TABLE `uploadspectemp` 
+  ADD COLUMN `eventID` VARCHAR(45) NULL AFTER `fieldnumber`;
+
+ALTER TABLE `uploadspectemp` 
+  DROP COLUMN `materialSampleID`,
+  ADD COLUMN `materialSampleJSON` TEXT NULL AFTER `paleoJSON`;
 
 
 ALTER TABLE `omoccurrences` 
@@ -338,7 +368,7 @@ INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvI
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "concentrationMethod", "http://data.ggbn.org/schemas/ggbn/terms/methodDeterminationConcentrationAndRatios", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "ratioOfAbsorbance260_230", "http://data.ggbn.org/schemas/ggbn/terms/ratioOfAbsorbance260_230", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "ratioOfAbsorbance260_280", "http://data.ggbn.org/schemas/ggbn/terms/ratioOfAbsorbance260_280", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
-INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "volume," "http://data.ggbn.org/schemas/ggbn/terms/volume", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
+INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "volume", "http://data.ggbn.org/schemas/ggbn/terms/volume", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "weight", "http://data.ggbn.org/schemas/ggbn/terms/weight", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "weightMethod", "http://data.ggbn.org/schemas/ggbn/terms/methodDeterminationWeight", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "purificationMethod", "http://data.ggbn.org/schemas/ggbn/terms/purificationMethod", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
@@ -351,8 +381,4 @@ INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvI
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "estimatedSize", "http://gensc.org/ns/mixs/estimated_size", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "poolDnaExtracts", "http://gensc.org/ns/mixs/pool_dna_extracts", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "sampleDesignation", "http://data.ggbn.org/schemas/ggbn/terms/sampleDesignation", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
-
-ALTER TABLE `uploadspectemp` 
-  DROP COLUMN `materialSampleID`,
-  ADD COLUMN `materialSampleJSON` TEXT NULL AFTER `paleoJSON`;
 

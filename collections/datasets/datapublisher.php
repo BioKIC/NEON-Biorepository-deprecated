@@ -65,6 +65,8 @@ if($isEditor){
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
+	<meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
+	<meta http-equiv="Pragma" content="no-cache">
 	<title><?php echo $LANG['DWCA_PUBLISHER']; ?></title>
 	<?php
 	$activateJQuery = true;

@@ -76,7 +76,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 			<h1>Welcome to the Red de Herbarios Mexicanos</h1>
 			<div style="padding: 0px 10px;font-size:130%">
 				<p>
-					This data portal is meant to serve as a collaborative resource that integrates
+					This data changed portal is meant to serve as a collaborative resource that integrates
 					biodiversity content from various sources. The portal can be used to manage live data directly within the portal or map to datasets
 					managed within external management systems. Type of data available within this resource includes specimen data, field observations,
 					species inventories, field images, taxonomic information, species distribution data, and more.

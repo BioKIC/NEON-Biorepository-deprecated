@@ -93,18 +93,24 @@ body{
 /* Field entry divs and input objects */
 #catalogNumberDiv {
 	float:	left;
+	margin-top: 5px;
 }
 
 #catalogNumberDiv input{
-	width:	150px;
+	width:	200px;
 }
 
 #otherCatalogNumbersDiv {
 	float:	left;
+	margin-left: 10px;
 }
 
-#otherCatalogNumbersDiv input{
-	width:	100px;
+.idNameInput{
+	width:	185px;
+}
+
+.idValueInput{
+	width:	250px;	
 }
 
 #recordedByDiv {
@@ -870,10 +876,11 @@ table {
 	font-size: 		12px;
 }
 
-.divTable{ display: table; }
+.divTable{ display: table; border: 1px solid #000000; border-collapse: collapse; margin-bottom: 2px }
 .divTableRow { display: table-row; }
-.divTableHeading { display: table-header-group;}
-.divTableCell, .divTableHead { display: table-cell;}
-.divTableHeading { display: table-header-group;}
-.divTableFoot { display: table-footer-group;}
+.divTableHeading { display: table-header-group; background: #f2f2f2; border-bottom: 2px solid #444444; }
+.divTableHeading, .divTableHead { color: #000000; border: 1px solid #f2f2f2; }
+.divTableCell, .divTableHead { display: table-cell; border: 1px solid #AAAAAA; padding: 2px 8px; }
+.divTableHead { padding: 1px 8px; }
 .divTableBody { display: table-row-group;}
+

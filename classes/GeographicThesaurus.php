@@ -227,39 +227,165 @@ class GeographicThesaurus extends Manager{
 			$rankArr = $GLOBALS['GEO_THESAURUS_RANKING'];
 		}
 		else{
-			$rankArr = array(10 => 'Oceans', 20 => 'Island Group', 30 => 'Island', 40 => 'Continent', 50 => 'Country', 60 => 'State / Province', 70 => 'County', 80 => 'Municipality',
-				100 => 'City / Town', 110 => 'Place Name', 150 => 'Lake / Pond', 160 => 'River / Creek');
+			$rankArr = array(10 => 'Oceans', 20 => 'Island Group', 30 => 'Island', 40 => 'Continent/Region', 50 => 'Country', 60 => 'ADM1', 70 => 'ADM2', 80 => 'ADM3',
+				100 => 'City/Town', 110 => 'Place Name', 150 => 'Lake/Pond', 160 => 'River/Creek');
 		}
 		return $rankArr;
 	}
 
+	//Reporting and data transfer functions
+	public function getThesaurusStatus(){
+		$retArr = false;
+		$fullCnt = 0;
+		$sql = 'SELECT geoLevel, COUNT(*) as cnt FROM geographicthesaurus GROUP BY geoLevel';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr['active'][$r->geoLevel] = $r->cnt;
+			$fullCnt += $r->cnt;
+		}
+		$rs->free();
+
+		if($fullCnt < 100){
+			$sql = 'SELECT COUNT(*) as cnt FROM lkupcountry ';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retArr['lkup']['country'] = $r->cnt;
+			}
+			$rs->free();
+
+			$sql = 'SELECT COUNT(*) as cnt FROM lkupstateprovince ';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retArr['lkup']['state'] = $r->cnt;
+			}
+			$rs->free();
+
+			$sql = 'SELECT COUNT(*) as cnt FROM lkupcounty ';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retArr['lkup']['county'] = $r->cnt;
+			}
+			$rs->free();
+
+			$sql = 'SELECT COUNT(*) as cnt FROM lkupmunicipality ';
+			$rs = $this->conn->query($sql);
+			if($r = $rs->fetch_object()){
+				$retArr['lkup']['municipality'] = $r->cnt;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
+	public function transferDeprecatedThesaurus(){
+		$status = true;
+		$sqlArr = array();
+		$sqlArr[] = 'INSERT INTO geographicthesaurus(geoterm,iso2,iso3,numcode,category,geoLevel,termstatus)
+			SELECT countryName, iso, iso3, numcode, "Country", 50 as geoLevel, 1 as termStatus FROM lkupcountry WHERE iso IS NOT NULL';
+
+		$sqlArr[] = 'UPDATE geographicthesaurus SET acceptedID = (SELECT geoThesID FROM geographicthesaurus WHERE geoTerm = "United States") WHERE geoterm IN("USA","U.S.A.","United States of America")';
+
+		$sqlArr[] = 'INSERT INTO geographicthesaurus(geoterm,abbreviation,parentID,category,geoLevel,termStatus)
+			SELECT DISTINCT s.stateName, s.abbrev, t.geoThesID, "State", 60 as geoLevel, 1 as termStatus
+			FROM lkupcountry c INNER JOIN lkupstateprovince s ON c.countryid = s.countryid
+			INNER JOIN geographicthesaurus t ON c.iso = t.iso2
+	        WHERE t.category = "country" AND t.termstatus = 1 AND t.acceptedID IS NULL';
+
+		$sqlArr[] = 'INSERT INTO geographicthesaurus(geoterm,parentID,category,geoLevel,termStatus)
+			SELECT DISTINCT REPLACE(REPLACE(REPLACE(c.countyName," Co.","")," County","")," Parish",""), t.geoThesID, "County", 70 as geoLevel, 1 as termStatus
+			FROM lkupstateprovince s INNER JOIN lkupcounty c ON s.stateid = c.stateid
+			INNER JOIN geographicthesaurus t ON s.stateName = t.geoterm
+			WHERE t.category = "State" AND t.termstatus = 1';
+
+		foreach($sqlArr as $sql){
+			if(!$this->conn->query($sql)){
+				$status = false;
+				$this->warningArr[] = $this->conn->error;
+			}
+		}
+		return $status;
+	}
+
+	//geoBoundary harvesting functions
+	public function getGBCountryList(){
+		$retArr = array();
+		$contArr = array('Asia','Caribbean','Oceania','Africa','Europe','Central America','Northern America','South America',);
+		$url = 'https://www.geoboundaries.org/api/current/gbOpen/ALL/ADM0/';
+		$json = $this->getGeoboundariesJSON($url);
+		$obj = json_decode($json);
+		if($obj){
+			foreach($obj as $countryObj){
+				$key = $countryObj->boundaryISO;
+				$retArr[$key]['id'] = $countryObj->boundaryID;
+				$retArr[$key]['name'] = $countryObj->boundaryName;
+				$retArr[$key]['canonical'] = $countryObj->boundaryCanonical;
+				$retArr[$key]['license'] = $countryObj->boundaryLicense;
+				$region = '';
+				if(in_array($countryObj->Continent,$contArr)) $region = $countryObj->Continent;
+				elseif(in_array($countryObj->{'UNSDG-subregion'},$contArr)) $region = $countryObj->{'UNSDG-subregion'};
+				else $region = $countryObj->Continent.'/'.$countryObj->{'UNSDG-subregion'};
+				if($region == 'Northern America') $region == 'North America';
+				if($key == 'ATA') $region = 'Antartica';
+				$retArr[$key]['region'] = $region;
+				//$retArr[$key]['geoJSON'] = $countryObj->gjDownloadURL;
+				//$retArr[$key]['simplifiedGeoJSON'] = $countryObj->simplifiedGeometryGeoJSON;
+				$retArr[$key]['link'] = $countryObj->apiURL;
+				$retArr[$key]['img'] = $countryObj->imagePreview;
+			}
+			ksort($retArr);
+			//Check to see if country is already in thesaurus
+			$sql = 'SELECT g.geoThesID, g.iso3, p.geoThesID AS polygonID
+				FROM geographicthesaurus g LEFT JOIN geographicpolygon p ON g.geoThesID = p.geoThesID
+				WHERE g.geoLevel = 50 AND g.acceptedID IS NULL AND g.iso3 IN("'.implode('","',array_keys($retArr)).'")';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->iso3]['geoThesID'] = $r->geoThesID;
+				if($r->polygonID) $retArr[$r->iso3]['polygon'] = 1;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
+	public function addPolygon($gbID){
+		$retArr = array();
+		$url = 'https://www.geoboundaries.org/api/gbID/'.$gbID.'/';
+		$json = $this->getGeoboundariesJSON($url);
+		$obj = json_decode($json);
+		if(isset($obj->simplifiedGeometryGeoJSON)){
+			$geoJson = $this->getGeoboundariesJSON($obj->simplifiedGeometryGeoJSON);
+			$sql = 'REPLACE INTO geographicpolygon(geoThesID, footprintPolygon) SELECT geoThesID, ST_GeomFromGeoJSON(\''.$geoJson.'\',2) FROM geographicthesaurus WHERE acceptedID IS NULL AND iso3 = "'.$obj->boundaryISO.'"';
+echo $sql;
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = $this->conn->error;
+				echo 'ERROR adding geoJSON to database: '.$this->conn->error;
+			}
+		}
+		return $retArr;
+	}
+
+	private function getGeoboundariesJSON($url){
+		$resJson = false;
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		//curl_setopt($ch, CURLOPT_HTTPGET, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		$resJson = curl_exec($ch);
+		if(!$resJson){
+			$this->errorMessage = 'FATAL CURL ERROR: '.curl_error($ch).' (#'.curl_errno($ch).')';
+			echo 'ERROR: '.$this->errorMessage;
+			//$header = curl_getinfo($ch);
+		}
+		curl_close($ch);
+		return $resJson;
+	}
+
+
 	// Setters and getters
 
 
-	//Misc junction
-	public function transferDataFromLkupTables(){
-		/*
-		INSERT INTO geographicthesaurus(geoterm,iso2,iso3,numcode,category,geoLevel,termstatus)
-		SELECT countryName, iso, iso3, numcode, "Country", 1 as geoLevel, 1 as termStatus
-		FROM lkupcountry
-		WHERE iso IS NOT NULL;
-
-		SELECT * FROM geographicthesaurus ORDER BY geoLevel, geoTerm LIMIT 100000;
-
-		INSERT INTO geographicthesaurus(geoterm,abbreviation,parentID,category,geoLevel,termStatus)
-		SELECT DISTINCT s.stateName, s.abbrev, t.geoThesID, 'State', 2 as geoLevel, 1 as termStatus
-		FROM lkupcountry c INNER JOIN lkupstateprovince s ON c.countryid = s.countryid
-		INNER JOIN geographicthesaurus t ON c.iso = t.iso2
-        WHERE t.category = "country" AND t.termstatus = 1
-		LIMIT 1000000;
-
-		INSERT INTO geographicthesaurus(geoterm,parentID,category,geoLevel,termStatus)
-		SELECT DISTINCT c.countyName, t.geoThesID, 'County', 3 as geoLevel, 1 as termStatus
-		FROM lkupstateprovince s INNER JOIN lkupcounty c ON s.stateid = c.stateid
-		INNER JOIN geographicthesaurus t ON s.stateName = t.geoterm
-		WHERE t.category = "State" AND t.termstatus = 1 AND (c.countyName NOT LIKE "% County" AND c.countyName NOT LIKE "% Parish");
-		 */
-	}
 
 
 }

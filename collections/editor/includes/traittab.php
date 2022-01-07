@@ -73,7 +73,7 @@ if($isEditor){
 		}).done(function( retStatus ) {
 			if(retStatus == 1){
 				$("#msgDiv-"+traitIdStr).css('color', 'green');
-				$("#msgDiv-"+traitIdStr).text("<?php echo $LANG['DATA_SAVED']; ?>"');
+				$("#msgDiv-"+traitIdStr).text("<?php echo $LANG['DATA_SAVED']; ?>");
 			}
 			else if(retStatus == 2){
 				$("form[name='"+f.name+"'] input[name^='traitid']").each(function(index,data) {

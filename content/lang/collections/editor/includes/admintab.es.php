@@ -25,20 +25,20 @@ $LANG['TARGET_COL'] = 'Colección Destino';
 $LANG['SEL_COL'] = 'Seleccionar Colección';
 $LANG['REMAIN_CURRENT'] = 'Permanecer en Colección Actual';
 $LANG['TRANSFER_RECORD'] = 'Transferir Registro';
-$LANG['DEL_RECORD'] = 'Borrar Registro de Ocurrencia;';
+$LANG['DEL_RECORD'] = 'Borrar Registro de Ocurrencia';
 $LANG['SURE_DEL'] = '¿Está seguro de querer eliminar este registro?';
 $LANG['REC_MUST_EVALUATE'] = 'El registro necesita ser evaluado antes de ser eliminado del sistema.
-				La evaluación asegura que la elimininación de este registro no interfiera con 
+				La evaluación asegura que la elimininación de este registro no interfiera con
 				la integridad de otros datos vinculados. Notar que todas las determinaciones y
 				comentarios para esta ocurrencia serán eliminiados automáticamente. Enlaces a imágenes, y vouchers de listados de especies
 				tendrán que ser evaluados individualmente antes de ser eliminados.';
 $LANG['EVALUATE_FOR_DEL'] = 'Evaluar registro para eliminarlo';
 $LANG['IMG_LINKS'] = 'Enlaces a Imágenes';
-$LANG['CHECKING_LINKS'] = 'analizando enlaces a imágenes';
-$LANG['CHECKING_LINKS'] = 'Advertencia';
+$LANG['CHECKING_IMG_LINKS'] = 'analizando enlaces a imágenes';
+$LANG['WARNING'] = 'Advertencia';
 $LANG['IMAGES_ARE_LINKED'] = 'Una o más imágenes están vinculadas a esta ocurrencia.
-						Continuar con el proceso removerá todas las imágenes vinculadas a este registro de espécimen. 
-						Si prefiere dejar esta imagen en el sistema solamente vinculado al nombre del taxón, 
+						Continuar con el proceso removerá todas las imágenes vinculadas a este registro de espécimen.
+						Si prefiere dejar esta imagen en el sistema solamente vinculado al nombre del taxón,
 						visite la ventana de Imagen para disasociar la imagen del espécimen.';
 $LANG['APPROVED_FOR_DEL'] = 'Aprobado para eliminación';
 $LANG['NO_IMGS'] = 'No hay imágenes directamente asociadas con este registro de ocurrencia';

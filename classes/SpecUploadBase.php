@@ -35,6 +35,7 @@ class SpecUploadBase extends SpecUpload{
 	private $targetCharset = 'UTF-8';
 	private $imgFormatDefault = '';
 	private $sourceDatabaseType = '';
+	protected $sourcePortalIndex = 0;
 	private $dbpkCnt = 0;
 
 	function __construct() {
@@ -768,9 +769,8 @@ class SpecUploadBase extends SpecUpload{
 		$this->transferOccurrences();
 		$this->transferIdentificationHistory();
 		$this->transferImages();
-		if($QUICK_HOST_ENTRY_IS_ACTIVE){
-			$this->transferHostAssociations();
-		}
+		if($QUICK_HOST_ENTRY_IS_ACTIVE) $this->transferHostAssociations();
+		$this->crossMapSymbiotaOccurrences();
 		$this->finalCleanup();
 		$this->outputMsg('<li style="">Upload Procedure Complete ('.date('Y-m-d h:i:s A').')!</li>');
 		$this->outputMsg(' ');
@@ -1358,6 +1358,16 @@ class SpecUploadBase extends SpecUpload{
 		$rs->free();
 	}
 
+	private function crossMapSymbiotaOccurrences(){
+		if($this->sourcePortalIndex && $this->collMetadataArr['managementtype'] == 'Snapshot'){
+			$sql = 'INSERT INTO ompublicationoccurlink(occid, targetOccid, portalIndexID, refreshTimestamp)
+				SELECT u.occid, u.dbpk, '.$this->sourcePortalIndex.', NOW() FROM uploadspectemp u LEFT JOIN ompublicationoccurlink l ON u.occid = l.occid
+				WHERE u.occid IS NOT NULL AND u.dbpk IS NOT NULL AND u.collid = '.$this->collId.' AND l.occid IS NULL';
+			if($this->conn->query($sql)) $this->outputMsg('<li>Occurrences cross-mapped to Symbiota source portal</li> ');
+			//else $this->outputMsg('<li>ERROR linking occurrences to source portal: '.$this->conn->error.'</li> ');
+		}
+	}
+
 	protected function finalCleanup(){
 		$this->outputMsg('<li>Record transfer complete!</li>');
 		$this->outputMsg('<li>Cleaning house...</li>');
@@ -1385,7 +1395,7 @@ class SpecUploadBase extends SpecUpload{
 		$this->conn->query('OPTIMIZE TABLE uploadimagetemp');
 
 		//Remove temporary dbpk values
-		if($this->collMetadataArr["managementtype"] == 'Live Data'){
+		if($this->collMetadataArr['managementtype'] == 'Live Data' || $this->uploadType == $this->SKELETAL){
 			$sql = 'UPDATE omoccurrences SET dbpk = NULL WHERE (collid IN('.$this->collId.')) AND (dbpk LIKE "SYMBDBPK-%")';
 			$this->conn->query($sql);
 		}
@@ -1448,9 +1458,9 @@ class SpecUploadBase extends SpecUpload{
 				$recMap['dbpk'] = trim(preg_replace('/\s\s+/',' ',$recMap['dbpk']));
 			}
 			else{
-				if($this->collMetadataArr["managementtype"] == 'Live Data' || $this->uploadType == $this->SKELETAL){
+				if($this->collMetadataArr['managementtype'] == 'Live Data' || $this->uploadType == $this->SKELETAL){
 					//If dbpk does not exist, set a temp value
-					if(!isset($recMap['dbpk']) || !$recMap['dbpk']) $recMap['dbpk'] = 'SYMBDBPK-'.$this->dbpkCnt;
+					if(!isset($recMap['dbpk']) || !$recMap['dbpk']) $recMap['dbpk'] = 'SYMBDBPK-'.$this->dbpkCnt.'-'.time();
 					$this->dbpkCnt++;
 				}
 			}
@@ -1939,6 +1949,14 @@ class SpecUploadBase extends SpecUpload{
 		}
 		asort($retArr);
 		return $retArr;
+	}
+
+	public function setSourcePortalIndex($index){
+		if($index) $this->sourcePortalIndex = $index;
+	}
+
+	public function getSourcePortalIndex(){
+		return $this->sourcePortalIndex;
 	}
 
 	//Misc functions

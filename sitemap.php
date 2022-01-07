@@ -12,14 +12,7 @@ $smManager = new SiteMapManager();
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['SITEMAP'];?></title>
 	<?php
 	$activateJQuery = false;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script type="text/javascript">
@@ -36,14 +29,10 @@ $smManager = new SiteMapManager();
 	<?php
 	$displayLeftMenu = (isset($sitemapMenu)?$sitemapMenu:"true");
 	include($SERVER_ROOT.'/includes/header.php');
-	if(isset($sitemapCrumbs)){
-		echo "<div class='navpath'>";
-		echo '<a href="index.php">'.$LANG['HOME'].'</a> &gt; ';
-		echo $sitemapCrumbs;
-		echo " <b>".$LANG['SITEMAP']."</b>";
-		echo "</div>";
-	}
-
+	echo '<div class="navpath">';
+	echo '<a href="index.php">'.$LANG['HOME'].'</a> &gt; ';
+	echo ' <b>'.$LANG['SITEMAP'].'</b>';
+	echo '</div>';
 	?>
 	<!-- This is inner text! -->
 	<div id="innertext">
@@ -113,11 +102,10 @@ $smManager = new SiteMapManager();
 				<li><a href="checklists/index.php"><?php echo (isset($LANG['ALL_CHECKLISTS'])?$LANG['ALL_CHECKLISTS']:'All Public Checklists'); ?></a></li>
 			</ul>
 
-      <h2><?php echo (isset($LANG['DATASETS'])?$LANG['DATASETS']:'Datasets') ;?></h2>
-      <ul>
-      <li><a href="collections/datasets/publiclist.php">All Publicly Viewable Datasets</a></li>
-      </ul>
-
+			<h2><?php echo (isset($LANG['DATASETS'])?$LANG['DATASETS']:'Datasets') ;?></h2>
+			<ul>
+				<li><a href="collections/datasets/publiclist.php">All Publicly Viewable Datasets</a></li>
+			</ul>
 			<div style="margin-top:10px;"><h2><?php echo $LANG['DYNAMIC'];?></h2></div>
 			<ul>
 				<li>
@@ -151,11 +139,18 @@ $smManager = new SiteMapManager();
 									<?php echo $LANG['CREATENEWCOLL'];?>
 								</a>
 							</li>
+							<!--
+							<li>
+								<a href="<?php echo $CLIENT_ROOT; ?>/geothesaurus/index.php">
+									<?php echo isset($LANG['GEOTHESAURUS'])?$LANG['GEOTHESAURUS']:'Geographic Thesaurus'; ?>
+								</a>
+							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/collections/cleaning/coordinatevalidator.php">
 									<?php echo isset($LANG['COORDVALIDATOR'])?$LANG['COORDVALIDATOR']:'Verify coordinates against political boundaries';?>
 								</a>
 							</li>
+							-->
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/admin/thumbnailbuilder.php">
 									<?php echo $LANG['THUMBNAIL_BUILDER'];?>
@@ -276,11 +271,10 @@ $smManager = new SiteMapManager();
 						?>
 					</ul>
 
-          <h3><?php echo (isset($LANG['DATASETS'])?$LANG['DATASETS']:'Datasets') ;?></h3>
-          <ul>
-            <li><a href="collections/datasets/index.php">Dataset Management Page</a> - datasets you are authorized to edit</li>
-          </ul>
-
+					<h3><?php echo (isset($LANG['DATASETS'])?$LANG['DATASETS']:'Datasets') ;?></h3>
+					<ul>
+						<li><a href="collections/datasets/index.php">Dataset Management Page</a> - datasets you are authorized to edit</li>
+					</ul>
 					<h3><?php echo $LANG['TAXONPROF'];?></h3>
 					<?php
 					if($IS_ADMIN || array_key_exists("TaxonProfile",$USER_RIGHTS)){

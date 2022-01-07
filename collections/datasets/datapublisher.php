@@ -382,9 +382,9 @@ include($SERVER_ROOT.'/includes/header.php');
 										'Symbiota collection: '.$collPath.'<br/><br/>'.
 										'Sincerely, <br/><br/><br/><br/><br/><br/>';
 									echo $LANG['BEFORE_SUBMITTING'];
-									echo '(<a href="mailto:helpdesk@gbif.org?subject=Publishing%20data%20from%20Symbiota%20portal%20to%20GBIF...&body='.rawurlencode(str_replace('<br/>', "\n", $bodyStr)).'">helpdesk@gbif.org</a>)';
+									echo ' (<a href="mailto:helpdesk@gbif.org?subject=Publishing%20data%20from%20Symbiota%20portal%20to%20GBIF...&body='.rawurlencode(str_replace('<br/>', "\n", $bodyStr)).'">helpdesk@gbif.org</a>) ';
 									echo $LANG['WITH_REQUEST_1'].' &quot;<b>'.$GBIF_USERNAME.'</b>&quot; '.$LANG['WITH_REQUEST_2'];
-									echo '<a href="#" onclick="toggle(\'emailMsg\');return false;" style="color:blue">'.$LANG['HERE'].'</a> '.$LANG['WITH_REQUEST_3'];
+									echo ' <a href="#" onclick="toggle(\'emailMsg\');return false;" style="color:blue">'.$LANG['HERE'].'</a> '.$LANG['WITH_REQUEST_3'];
 									?>
 									<fieldset id="emailMsg" style="display:none;padding:15px;margin:15px"><legend><?php echo $LANG['EMAIL_DRAFT']; ?></legend><?php echo trim($bodyStr,' <br/>'); ?></fieldset>
 									<br/><br/>

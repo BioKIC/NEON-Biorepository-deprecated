@@ -27,11 +27,11 @@ $collManager->setCollid($collid);
 
 $statusStr = '';
 if($isEditor){
-	if($action == 'Save Edits'){
+	if($action == 'saveEdits'){
 		$statusStr = $collManager->submitCollEdits($_POST);
 		if($statusStr === true) header('Location: collprofiles.php?collid='.$collid);
 	}
-	elseif($action == 'Create New Collection'){
+	elseif($action == 'newCollection'){
 		if($IS_ADMIN){
 			$newCollid = $collManager->submitCollAdd($_POST);
 			if(is_numeric($newCollid)){
@@ -84,20 +84,19 @@ $collManager->cleanOutArr($collData);
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/common.js" type="text/javascript"></script>
-  <script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
-  <script>
-  // Adds WYSIWYG editor to description field
-  tinymce.init({
-      selector: 'textarea[name="fulldescription"]',
-      plugins: 'link lists image',
-      menubar: '',
-      toolbar: [
-      'undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image',
-      ],
-      branding: false
-    });
-  </script>
+	<script type="text/javascript" src="../../js/tinymce/tinymce.min.js"></script>
 	<script>
+		// Adds WYSIWYG editor to description field
+		tinymce.init({
+			selector: 'textarea[name="fulldescription"]',
+			plugins: 'link lists image',
+			menubar: '',
+			toolbar: ['undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image | charmap'],
+			branding: false,
+			default_link_target: "_blank",
+			paste_as_text: true
+		});
+
 		$(function() {
 			var dialogArr = new Array("instcode","collcode","pedits","pubagg","rights","rightsholder","accessrights","guid","colltype","management","icon","collectionid","sourceurl","sort");
 			var dialogStr = "";
@@ -246,7 +245,6 @@ $collManager->cleanOutArr($collData);
 	else echo '<b>'.(isset($LANG['CREATE_COLL'])?$LANG['CREATE_COLL']:'Create New Collection Profile').'</b>';
 	echo '</div>';
 	?>
-	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
 		if($statusStr){
@@ -651,12 +649,12 @@ $collManager->cleanOutArr($collData);
 									if($collid){
 										?>
 										<input type="hidden" name="collid" value="<?php echo $collid;?>" />
-										<input type="submit" name="action" value="<?php echo (isset($LANG['SAVE_EDITS'])?$LANG['SAVE_EDITS']:'Save Edits'); ?>" />
+										<button type="submit" name="action" value="saveEdits"><?php echo (isset($LANG['SAVE_EDITS'])?$LANG['SAVE_EDITS']:'Save Edits'); ?></button>
 										<?php
 									}
 									else{
 										?>
-										<input type="submit" name="action" value="<?php echo (isset($LANG['CREATE_COLL_2'])?$LANG['CREATE_COLL_2']:'Create New Collection'); ?>" />
+										<button type="submit" name="action" value="newCollection"><?php echo (isset($LANG['CREATE_COLL_2'])?$LANG['CREATE_COLL_2']:'Create New Collection'); ?></button>
 										<?php
 									}
 									?>

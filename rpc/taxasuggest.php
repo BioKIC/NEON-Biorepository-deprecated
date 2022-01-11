@@ -1,5 +1,5 @@
 <?php
-include_once('../../config/symbini.php');
+include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonSearchSupport.php');
 
 $term = (array_key_exists('term',$_REQUEST)?$_REQUEST['term']:'');

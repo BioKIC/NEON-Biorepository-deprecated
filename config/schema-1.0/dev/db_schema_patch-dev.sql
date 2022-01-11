@@ -155,6 +155,26 @@ CREATE TABLE `omcollproperties` (
   CONSTRAINT `FK_omcollproperties_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)   ON DELETE CASCADE   ON UPDATE CASCADE,
   CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE);
 
+CREATE TABLE `portalindex` (
+  `portalIndexID` INT NOT NULL AUTO_INCREMENT,
+  `portalName` VARCHAR(45) NOT NULL,
+  `acronym` VARCHAR(45) NULL,
+  `portalDescription` VARCHAR(250) NULL,
+  `urlRoot` VARCHAR(150) NOT NULL,
+  `securityKey` VARCHAR(45) NULL,
+  `symbVersion` VARCHAR(45) NULL,
+  `guid` VARCHAR(45) NULL,
+  `manager` VARCHAR(45) NULL,
+  `managerEmail` VARCHAR(45) NULL,
+  `primaryLead` VARCHAR(45) NULL,
+  `primaryLeadEmail` VARCHAR(45) NULL,
+  `notes` VARCHAR(250) NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`portalIndexID`));
+
+ALTER TABLE `portalindex` 
+  ADD UNIQUE INDEX `UQ_portalIndex_guid` (`guid` ASC);
+
 ALTER TABLE `omcollpublications` 
   DROP FOREIGN KEY `FK_adminpub_collid`;
 
@@ -245,26 +265,6 @@ ALTER TABLE `omoccurrences`
 ALTER TABLE `omoccurrences` 
   DROP COLUMN `recordedbyid`,
   DROP INDEX `FK_recordedbyid` ;
-
-CREATE TABLE `portalindex` (
-  `portalIndexID` INT NOT NULL AUTO_INCREMENT,
-  `portalName` VARCHAR(45) NOT NULL,
-  `acronym` VARCHAR(45) NULL,
-  `portalDescription` VARCHAR(250) NULL,
-  `urlRoot` VARCHAR(150) NOT NULL,
-  `securityKey` VARCHAR(45) NULL,
-  `symbVersion` VARCHAR(45) NULL,
-  `guid` VARCHAR(45) NULL,
-  `manager` VARCHAR(45) NULL,
-  `managerEmail` VARCHAR(45) NULL,
-  `primaryLead` VARCHAR(45) NULL,
-  `primaryLeadEmail` VARCHAR(45) NULL,
-  `notes` VARCHAR(250) NULL,
-  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`portalIndexID`));
-
-ALTER TABLE `portalindex` 
-  ADD UNIQUE INDEX `UQ_portalIndex_guid` (`guid` ASC);
 
 ALTER TABLE `specprocessorprojects` 
   ADD COLUMN `customStoredProcedure` VARCHAR(45) NULL AFTER `source`,

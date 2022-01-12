@@ -7,15 +7,19 @@ header('Content-Type: text/html; charset='.$CHARSET);
 if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/occurrenceharvester.php?'.$_SERVER['QUERY_STRING']);
 
 $shipmentPK = array_key_exists('shipmentid',$_REQUEST)?$_REQUEST['shipmentpk']:'';
+$targetCollid = array_key_exists('collid',$_POST)?$_POST['collid']:'';
 $errorStr = array_key_exists('errorStr',$_POST)?$_POST['errorStr']:'';
 $harvestDate = array_key_exists('harvestDate',$_POST)?$_POST['harvestDate']:'';
 $limit = array_key_exists('limit',$_POST)?$_POST['limit']:1000;
 $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
+$replaceFieldValues = array_key_exists('replaceFieldValues',$_POST)||!$action?1:0;
 
 //Sanitation
-if(!is_numeric($limit)) $limit = 1000;
+if(!is_numeric($targetCollid)) $targetCollid = 0;
 if(!preg_match('/^[\d-]+$/',$harvestDate)) $harvestDate = '';
 $errorStr = filter_var($errorStr,FILTER_SANITIZE_STRING);
+if(!is_numeric($replaceFieldValues)) $replaceFieldValues = 1000;
+if(!is_numeric($limit)) $limit = 1000;
 
 $occurManager = new OccurrenceHarvester();
 
@@ -60,12 +64,34 @@ if($isEditor){
 		}
 
 		function nullOccurrenceOnlyChanged(cb){
-			if(cb.checked == true) $("#extendedVariables").hide();
+			if(cb.checked == true){
+				var f = cb.form;
+				f.collid.value = "";
+				f.harvestDate.value = "";
+				f.errorStr.value = "";
+				f.replaceFieldValues.checked = true;
+				$("#extendedVariables").hide();
+			}
 			else $("#extendedVariables").show();
+		}
+
+		function verifyHarvestForm(f){
+			if(f.nullOccurrencesOnly.checked == false){
+				var subStatus = false;
+				if(f.collid.value != "") subStatus = true;
+				else if(f.harvestDate.value != "") subStatus = true;
+				else if(f.errorStr.value != "" && f.errorStr.value != "nullError") subStatus = true;
+				if(!subStatus){
+					alert("Set at least one reharvest parameter");
+					return false;
+				}
+			}
+			return true;
 		}
 	</script>
 	<style type="text/css">
-		fieldset{ padding:15px }
+		fieldset{ padding:15px; margin: 10px 5px; }
+		legend{ font-weight: bold; }
 		.fieldGroupDiv{ clear:both; padding:5px 0px; }
 		.fieldDiv{ float:left; }
 	</style>
@@ -103,7 +129,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				<?php
 				$reportArr = $occurManager->getHarvestReport($shipmentPK);
 				$occurCnt = (array_key_exists('null',$reportArr)?$reportArr['null']['s-cnt']-$reportArr['null']['o-cnt']:'0');
-				echo '<div><b>Occurrences not yet harvested:</b> '.$occurCnt.'</div>';
+				echo '<div><b>Occurrences not yet harvested:</b> '.number_format($occurCnt).'</div>';
 				unset($reportArr['null']);
 				echo '<hr style="margin:10px 0px"/>';
 				foreach($reportArr as $msg => $repCntArr){
@@ -121,17 +147,38 @@ include($SERVER_ROOT.'/includes/header.php');
 			</div>
 		</fieldset>
 		<fieldset>
+			<?php
+			$targetNewSample = true;
+			if($errorStr && $errorStr != 'nullError') $targetNewSample = false;
+			elseif($harvestDate) $targetNewSample = false;
+			$collectionArr = $occurManager->getTargetCollectionArr();
+			?>
 			<legend><b>Action Panel</b></legend>
-			<form action="occurrenceharvester.php" method="post">
+			<form action="occurrenceharvester.php" method="post" onsubmit="return verifyHarvestForm(this)">
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						<input name="nullOccurrencesOnly" type="checkbox" value="1" onchange="nullOccurrenceOnlyChanged(this)" checked /> Target New Samples only (NULL occid, no error message)
+						<input name="nullOccurrencesOnly" type="checkbox" value="1" onchange="nullOccurrenceOnlyChanged(this)" <?php echo ($targetNewSample?'checked':''); ?> /> Target New Samples only (NULL occid, no error message)
 					</div>
 				</div>
-				<div id="extendedVariables" style="display:none">
+				<fieldset id="extendedVariables" style="display:<?php echo ($targetNewSample?'none':'block'); ?>">
+					<legend>Reharvesting Parameters</legend>
 					<div class="fieldGroupDiv">
 						<div class="fieldDiv">
 							Harvest date prior to: <input name="harvestDate" type="date" value="<?php echo $harvestDate; ?>" />
+						</div>
+					</div>
+					<div class="fieldGroupDiv">
+						<div class="fieldDiv">
+							Target Collection:
+							<select name="collid" >
+								<option value="">All collections</option>
+								<option value="">---------------------</option>
+								<?php
+								foreach($collectionArr as $collid => $collName){
+									echo '<option value="'.$collid.'" '.($targetCollid==$collid?'selected':'').'>'.$collName.'</option>';
+								}
+								?>
+							</select>
 						</div>
 					</div>
 					<div class="fieldGroupDiv">
@@ -150,10 +197,10 @@ include($SERVER_ROOT.'/includes/header.php');
 					</div>
 					<div class="fieldGroupDiv">
 						<div class="fieldDiv" title="Upon reharvesting, replaces existing field values, but only if they haven't been explicitly edited to another value">
-							<input name="replaceFieldValues" type="checkbox" value="1"  onchange="occurSearchTermChanged(this)" /> Replace existing field values (excluding fields that have been explicitly modified within portal)
+							<input name="replaceFieldValues" type="checkbox" value="1" onchange="occurSearchTermChanged(this)" <?php echo ($replaceFieldValues?'checked':''); ?> /> Replace existing field values (excluding fields that have been explicitly modified within portal)
 						</div>
 					</div>
-				</div>
+				</fieldset>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
 						Limit: <input name="limit" type="text" value="<?php echo $limit; ?>" />

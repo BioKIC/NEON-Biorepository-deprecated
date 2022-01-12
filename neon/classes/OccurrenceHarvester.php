@@ -47,14 +47,19 @@ class OccurrenceHarvester{
 
 	public function batchHarvestOccid($postArr){
 		//Set variables
+		$status = false;
 		if(isset($postArr['replaceFieldValues']) && $postArr['replaceFieldValues']) $this->setReplaceFieldValues(true);
 		$sqlWhere = '';
+		$sqlPrefix = '';
 		if(isset($postArr['scbox'])){
 			$sqlWhere = 'AND s.samplePK IN('.implode(',',$postArr['scbox']).')';
 		}
 		elseif($postArr['action'] == 'harvestOccurrences'){
 			if(isset($postArr['nullOccurrencesOnly'])){
 				$sqlWhere .= 'AND (s.occid IS NULL) ';
+			}
+			if($postArr['collid']){
+				$sqlWhere .= 'AND (o.collid = '.$postArr['collid'].') ';
 			}
 			if($postArr['errorStr'] == 'nullError'){
 				$sqlWhere .= 'AND (s.errorMessage IS NULL) ';
@@ -65,11 +70,14 @@ class OccurrenceHarvester{
 			if($postArr['harvestDate']){
 				$sqlWhere .= 'AND (s.harvestTimestamp IS NULL OR s.harvestTimestamp < "'.$postArr['harvestDate'].'") ';
 			}
-			$sqlWhere .= 'ORDER BY s.shipmentPK ';
-			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
-			else $sqlWhere .= 'LIMIT 1000 ';
+			$sqlPrefix = 'ORDER BY s.shipmentPK ';
+			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlPrefix .= 'LIMIT '.$postArr['limit'];
+			else $sqlPrefix .= 'LIMIT 1000 ';
 		}
-		$status = $this->batchHarvestOccurrences($sqlWhere);
+		if($sqlWhere){
+			$sqlWhere = 'WHERE s.checkinuid IS NOT NULL AND s.acceptedForAnalysis = 1 AND s.sampleReceived = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) '.$sqlWhere;
+			$status = $this->batchHarvestOccurrences($sqlWhere.$sqlPrefix);
+		}
 		return $status;
 	}
 
@@ -79,6 +87,7 @@ class OccurrenceHarvester{
 			$this->setStateArr();
 			$this->setDomainSiteArr();
 			if($this->setSampleClassArr()){
+				echo '<li>Target record count: '.number_format($this->getTargetCount($sqlWhere)).'</li>';
 				$collArr = array();
 				$occidArr = array();
 				$cnt = 1;
@@ -86,7 +95,7 @@ class OccurrenceHarvester{
 				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
 					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.igsnPushedToNEON, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-					'WHERE s.checkinuid IS NOT NULL AND s.acceptedForAnalysis = 1 AND s.sampleReceived = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) '.$sqlWhere;
+					$sqlWhere;
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					$this->errorStr = '';
@@ -171,6 +180,17 @@ class OccurrenceHarvester{
 			}
 		}
 		return false;
+	}
+
+	private function getTargetCount($sqlWhere){
+		$retCnt = 0;
+		$sql = 'SELECT COUNT(s.samplePK) AS cnt FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.$sqlWhere;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retCnt = $r->cnt;
+		}
+		$rs->free();
+		return $retCnt;
 	}
 
 	private function getOccurrenceRecord($occid){
@@ -1086,7 +1106,19 @@ class OccurrenceHarvester{
 		$this->conn->query($sql);
 	}
 
-	//Occurrence listing functions
+	//General data return functions
+	public function getTargetCollectionArr(){
+		$retArr = array();
+		$sql = 'SELECT DISTINCT c.collid, CONCAT(c.collectionName, " (",CONCAT_WS(":",c.institutionCode,c.collectionCode),")") as name
+			FROM omcollections c INNER JOIN omoccurrences o ON c.collid = o.collid INNER JOIN NeonSample s ON o.occid = s.occid
+			WHERE c.institutioncode = "NEON"';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[$r->collid] = $r->name;
+		}
+		$rs->free();
+		return $retArr;
+	}
 
 
 	//Setters and getters

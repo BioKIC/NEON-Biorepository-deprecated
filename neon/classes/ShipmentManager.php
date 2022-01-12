@@ -899,7 +899,7 @@ class ShipmentManager{
 		$sqlWhere = '';
 		if(isset($_REQUEST['shipmentID'])){
 			if(isset($_REQUEST['shipmentID']) && $_REQUEST['shipmentID']){
-				$sqlWhere .= 'AND (s.shipmentID = "'.$this->cleanInStr($_REQUEST['shipmentID']).'") ';
+				$sqlWhere .= 'AND (s.shipmentID LIKE "'.$this->cleanInStr($_REQUEST['shipmentID']).'%") ';
 				$this->searchArr['shipmentID'] = $_REQUEST['shipmentID'];
 			}
 			if(isset($_REQUEST['sampleID']) && $_REQUEST['sampleID']){
@@ -977,7 +977,7 @@ class ShipmentManager{
 				$this->searchArr['sampleCondition'] = $_REQUEST['sampleCondition'];
 			}
 			if(isset($_REQUEST['manifestStatus'])){
-        $statusArr = $_REQUEST['manifestStatus'];
+				$statusArr = $_REQUEST['manifestStatus'];
 				if(in_array('shipCheck', $statusArr, true)){
 					$sqlWhere .= 'AND (s.checkinTimestamp IS NOT NULL) ';
 				}
@@ -1285,7 +1285,7 @@ class ShipmentManager{
 		$cleanTerm = $this->cleanInStr($term);
 		$sql = 'SELECT s.shipmentPK '.
 			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentPK = m.shipmentPK '.
-			'WHERE (s.shipmentid = "'.$cleanTerm.'" OR m.sampleid = "'.$cleanTerm.'" OR m.alternativeSampleID = "'.$cleanTerm.'" OR m.sampleCode = "'.$cleanTerm.'")';
+			'WHERE (s.shipmentid LIKE "'.$cleanTerm.'%" OR m.sampleid = "'.$cleanTerm.'" OR m.alternativeSampleID = "'.$cleanTerm.'" OR m.sampleCode = "'.$cleanTerm.'")';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$this->shipmentPK = $r->shipmentPK;

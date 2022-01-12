@@ -7,7 +7,15 @@ header('Content-Type: text/html; charset='.$CHARSET);
 if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/occurrenceharvester.php?'.$_SERVER['QUERY_STRING']);
 
 $shipmentPK = array_key_exists('shipmentid',$_REQUEST)?$_REQUEST['shipmentpk']:'';
+$errorStr = array_key_exists('errorStr',$_POST)?$_POST['errorStr']:'';
+$harvestDate = array_key_exists('harvestDate',$_POST)?$_POST['harvestDate']:'';
+$limit = array_key_exists('limit',$_POST)?$_POST['limit']:1000;
 $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
+
+//Sanitation
+if(!is_numeric($limit)) $limit = 1000;
+if(!preg_match('/^[\d-]+$/',$harvestDate)) $harvestDate = '';
+$errorStr = filter_var($errorStr,FILTER_SANITIZE_STRING);
 
 $occurManager = new OccurrenceHarvester();
 
@@ -123,45 +131,21 @@ include($SERVER_ROOT.'/includes/header.php');
 				<div id="extendedVariables" style="display:none">
 					<div class="fieldGroupDiv">
 						<div class="fieldDiv">
-							Error Group:
+							Harvest date prior to: <input name="harvestDate" type="date" value="<?php echo $harvestDate; ?>" />
+						</div>
+					</div>
+					<div class="fieldGroupDiv">
+						<div class="fieldDiv">
+							Target Error Group:
 							<select name="errorStr" >
 								<option value="nullError">NULL Error Message</option>
 								<option value="">---------------------</option>
 								<?php
 								foreach($reportArr as $msg => $repCntArr){
-									echo '<option>'.$msg.'</option>';
+									echo '<option '.($errorStr==$msg?'selected':'').'>'.$msg.'</option>';
 								}
 								?>
 							</select>
-						</div>
-					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							WHERE
-							<select name="nullfilter" onchange="occurSearchTermChanged(this)">
-								<option value="">---------------------</option>
-								<option value="sciname">Scientific Name</option>
-								<option value="recordedBy">Collector</option>
-								<option value="eventDate">Event Date</option>
-								<option value="country">Country</option>
-								<option value="stateProvince">State/Province</option>
-								<option value="county">County</option>
-								<option value="decimalLatitude">Lat/Long</option>
-							</select>
-							IS NULL
-						</div>
-					</div>
-					<div class="fieldGroupDiv">
-						<div class="fieldDiv">
-							Only update selected fields:
-							<select name="targetFields[]" onchange="occurSearchTermChanged(this)" multiple>
-								<option value="sciname">Scientific Name</option>
-								<option value="recordedBy">Collector data</option>
-								<option value="country">Upper geography (e.g. country, state, county)</option>
-								<option value="locality">Locality</option>
-								<option value="decimalLatitude">Coordinates</option>
-								<option value="habitat">Habitat, description, notes, etc</option>
-							</select> (multiple selections are allowed)
 						</div>
 					</div>
 					<div class="fieldGroupDiv">
@@ -172,7 +156,7 @@ include($SERVER_ROOT.'/includes/header.php');
 				</div>
 				<div class="fieldGroupDiv">
 					<div class="fieldDiv">
-						Limit: <input name="limit" type="text" value="1000" />
+						Limit: <input name="limit" type="text" value="<?php echo $limit; ?>" />
 					</div>
 				</div>
 				<div class="fieldGroupDiv">

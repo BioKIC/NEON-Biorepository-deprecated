@@ -84,6 +84,10 @@ ALTER TABLE `NeonSample`
 ALTER TABLE `NeonSample` 
   ADD COLUMN `archiveMedium` VARCHAR(45) NULL AFTER `igsnPushedToNEON`;
 
+ALTER TABLE `NeonSample` 
+  ADD COLUMN `harvestTimestamp` DATETIME NULL AFTER `occidOriginal`;
+
+
 ALTER TABLE `omoccurrences` 
   ADD COLUMN `scinameProtected` VARCHAR(150) NULL AFTER `tidinterpreted`,
   ADD COLUMN `tidProtected` INT UNSIGNED NULL AFTER `scinameProtected`,

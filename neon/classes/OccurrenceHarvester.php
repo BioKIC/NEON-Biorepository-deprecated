@@ -11,7 +11,6 @@ class OccurrenceHarvester{
 	private $sampleClassArr = array();
 	private $domainSiteArr = array();
 	private $replaceFieldValues = false;
-	private $targetFieldArr = array();		//Used to limit harvest updatings to only a few targetted fields, rather than reloading/refreshing the complete record
 	private $neonApiBaseUrl;
 	private $neonApiKey;
 	private $errorStr;
@@ -57,25 +56,18 @@ class OccurrenceHarvester{
 			if(isset($postArr['nullOccurrencesOnly'])){
 				$sqlWhere .= 'AND (s.occid IS NULL) ';
 			}
-			if($postArr['nullfilter']){
-				$sqlWhere .= 'AND (o.'.$postArr['nullfilter'].' IS NULL) ';
-				if($postArr['nullfilter'] == 'sciname') $sqlWhere .= 'AND (o.collid NOT IN(5,23,30,31,41,42)) AND (s.sampleid REGEXP BINARY "\.[0-9]{8}\.[A-Z]{3,8}[0-9]{0,2}\.") ';
-			}
 			if($postArr['errorStr'] == 'nullError'){
 				$sqlWhere .= 'AND (s.errorMessage IS NULL) ';
 			}
 			elseif($postArr['errorStr']){
 				$sqlWhere .= 'AND (s.errorMessage = "'.$this->cleanInStr($postArr['errorStr']).'") ';
 			}
+			if($postArr['harvestDate']){
+				$sqlWhere .= 'AND (s.harvestTimestamp IS NULL OR s.harvestTimestamp < "'.$postArr['harvestDate'].'") ';
+			}
 			$sqlWhere .= 'ORDER BY s.shipmentPK ';
 			if(isset($postArr['limit']) && is_numeric($postArr['limit'])) $sqlWhere .= 'LIMIT '.$postArr['limit'];
 			else $sqlWhere .= 'LIMIT 1000 ';
-		}
-		if(isset($postArr['targetFields']) && $postArr['targetFields']){
-			$targetArr = $postArr['targetFields'];
-			foreach($targetArr as $field){
-				$this->setTargetFieldArr($field);
-			}
 		}
 		$status = $this->batchHarvestOccurrences($sqlWhere);
 		return $status;
@@ -92,7 +84,7 @@ class OccurrenceHarvester{
 				$cnt = 1;
 				$shipmentPK = '';
 				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
-					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.igsnPushedToNEON, s.occid, o.occurrenceID '.
+					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.igsnPushedToNEON, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
 					'WHERE s.checkinuid IS NOT NULL AND s.acceptedForAnalysis = 1 AND s.sampleReceived = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) '.$sqlWhere;
 				$rs = $this->conn->query($sql);
@@ -118,10 +110,11 @@ class OccurrenceHarvester{
 					$sampleArr['symbiotaTarget'] = $r->symbiotaTarget;
 					$sampleArr['igsnPushedToNEON'] = $r->igsnPushedToNEON;
 					$sampleArr['occid'] = $r->occid;
-					$sampleArr['occurrenceID'] = $r->occurrenceID;
+					$occurArr = $this->getOccurrenceRecord($r->occid);
+					if(isset($occurArr['occurrenceID'])) $sampleArr['occurrenceID'] = $occurArr['occurrenceID'];
 					if($this->harvestNeonApi($sampleArr)){
 						if($dwcArr = $this->getDarwinCoreArr($sampleArr)){
-							if($occid = $this->loadOccurrenceRecord($dwcArr, $r->samplePK, $r->occid)){
+							if($occid = $this->loadOccurrenceRecord($dwcArr, $occurArr, $r->samplePK, $r->occid)){
 								if(!in_array($dwcArr['collid'],$collArr)) $collArr[] = $dwcArr['collid'];
 								$occidArr[] = $occid;
 								echo '<a href="'.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
@@ -180,11 +173,25 @@ class OccurrenceHarvester{
 		return false;
 	}
 
+	private function getOccurrenceRecord($occid){
+		$retArr = array();
+		if($occid){
+			$sql = 'SELECT catalogNumber, occurrenceID, eventID, sciname, taxonRemarks, recordedBy, eventDate, individualCount, reproductiveCondition, sex, lifeStage, occurrenceRemarks,
+				preparations, dynamicProperties, verbatimAttributes, habitat, country, stateProvince, county, locality, locationID, decimalLatitude, decimalLongitude,
+				verbatimCoordinates, georeferenceSources, minimumElevationInMeters, maximumElevationInMeters
+				FROM omoccurrences WHERE occid = '.$occid;
+			$rs = $this->conn->query($sql);
+			$retArr = $rs->fetch_assoc();
+			$rs->free();
+		}
+		return $retArr;
+	}
+
 	private function harvestNeonApi(&$sampleArr){
 		$this->setSampleErrorMessage($sampleArr['samplePK'], '');
 		$url = '';
 		$sampleViewArr = array();
-		if($sampleArr['occurrenceID']){
+		if(isset($sampleArr['occurrenceID']) && $sampleArr['occurrenceID']){
 			$url = $this->neonApiBaseUrl.'/samples/view?archiveGuid='.$sampleArr['occurrenceID'].'&apiToken='.$this->neonApiKey;
 			$sampleViewArr = $this->getNeonApiArr($url);
 		}
@@ -226,8 +233,10 @@ class OccurrenceHarvester{
 			if(!$sampleArr['sampleUuid'] || $sampleArr['sampleUuid'] != $viewArr['sampleUuid']){
 				$sampleArr['sampleUuid'] = $viewArr['sampleUuid'];
 				$neonSampleUpdate['sampleUuid'] = $viewArr['sampleUuid'];
-				if($sampleArr['sampleUuid'] != $viewArr['sampleUuid'])
-					$this->errorLogArr[] = 'NOTICE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'].' sampleID for '.($sampleArr['sampleCode']?$sampleArr['sampleCode']:$sampleArr['sampleID']);
+				if($sampleArr['sampleUuid'] != $viewArr['sampleUuid']){
+					$this->errorLogArr[] = 'NOTICE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
+					$neonSampleUpdate['errorMessage'] = 'DATA ISSUE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
+				}
 			}
 		}
 		if(isset($viewArr['archiveGuid']) && $viewArr['archiveGuid']){
@@ -236,7 +245,7 @@ class OccurrenceHarvester{
 				if($sampleArr['occid']){
 					//Reharvest event
 					if(!$sampleArr['igsnPushedToNEON']) $neonSampleUpdate['igsnPushedToNEON'] = 1;
-					if($sampleArr['occurrenceID']){
+					if(isset($sampleArr['occurrenceID']) && $sampleArr['occurrenceID']){
 						if($sampleArr['occurrenceID'] != $igsnMatch[1]) $neonSampleUpdate['errorMessage'] = 'DATA ISSUE: IGSN failing to match with API value';
 					}
 					else{
@@ -271,7 +280,6 @@ class OccurrenceHarvester{
 		if($sampleArr['sampleID'] && isset($viewArr['sampleTag']) && $sampleArr['sampleID'] != $viewArr['sampleTag']){
 			//sampleIDs (sampleTags) are not equal; update our system
 			$neonSampleUpdate['errorMessage'] = 'DATA ISSUE: sampleID different than NEON API value';
-			/*
 			if($this->updateSampleID($viewArr['sampleTag'], $sampleArr['sampleID'], $sampleArr['samplePK'], $sampleArr['occid'])){
 				$this->errorLogArr[] = 'NOTICE: sampleID updated from '.$sampleArr['sampleID'].' to '.$viewArr['sampleTag'].' (samplePK: '.$sampleArr['samplePK'].', occid: '.$sampleArr['occid'].')';
 			}
@@ -280,7 +288,6 @@ class OccurrenceHarvester{
 				$errMsg .= 'DATA ISSUE: failed to reset sampleID using changed API value';
 				$neonSampleUpdate['errorMessage'] = $errMsg;
 			}
-			*/
 		}
 		$this->updateSampleRecord($neonSampleUpdate,$sampleArr['samplePK']);
 		//Get fateLocation and process parent samples
@@ -518,7 +525,7 @@ class OccurrenceHarvester{
 							$dwcArr['locality'] .= $dwcArr['plotDim'];
 							unset($dwcArr['plotDim']);
 						}
-						$dwcArr['locationID'] = $sampleArr['namedLocation'];
+						$dwcArr['locationID'] = $locationStr;
 					}
 					else{
 						$dwcArr['locality'] = $sampleArr['namedLocation'];
@@ -668,7 +675,6 @@ class OccurrenceHarvester{
 		if(isset($resultArr['elevation_uncertainty']) && $resultArr['elevation_uncertainty']){
 			$elevUncertainty = $resultArr['elevation_uncertainty'];
 		}
-
 		$locPropArr = $resultArr['locationProperties'];
 		if($locPropArr){
 			$habitatArr = array();
@@ -732,7 +738,7 @@ class OccurrenceHarvester{
 		return true;
 	}
 
-	private function loadOccurrenceRecord($dwcArr, $samplePK, $occid){
+	private function loadOccurrenceRecord($dwcArr, $occurArr, $samplePK, $occid){
 		if($dwcArr){
 			$domainID = (isset($dwcArr['domainID'])?$dwcArr['domainID']:0);
 			$siteID = (isset($dwcArr['siteID'])?$dwcArr['siteID']:0);
@@ -744,22 +750,19 @@ class OccurrenceHarvester{
 			if($occid){
 				if($this->replaceFieldValues){
 					//Only replace values that have not yet been explicitly modified
-					$sqlEdit = 'SELECT DISTINCT fieldname FROM omoccuredits WHERE occid = '.$occid;
-					$rsEdit = $this->conn->query($sqlEdit);
-					while($rEdit = $rsEdit->fetch_object()){
-						$skipFieldArr[] = $rEdit->fieldname;
-					}
-					$rsEdit->free();
+					$skipFieldArr = array_merge($skipFieldArr, $this->getOccurrenceEdits($occid));
 				}
 				foreach($dwcArr as $fieldName => $fieldValue){
 					if(in_array(strtolower($fieldName),$skipFieldArr)) continue;
-					if($this->targetFieldArr && !in_array(strtolower($fieldName),$this->targetFieldArr)) continue;
 					if($this->replaceFieldValues){
 						if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
 							$sql .= ', '.$fieldName.' = '.$this->cleanInStr($fieldValue).' ';
 						}
 						else{
 							$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
+						}
+						if(isset($occurArr[$fieldName]) && $occurArr[$fieldName] && $occurArr[$fieldName] != $fieldValue){
+							$this->versionEdit($occid, $fieldName, $occurArr[$fieldName], $fieldValue);
 						}
 					}
 					else{
@@ -795,10 +798,9 @@ class OccurrenceHarvester{
 				if($this->conn->query($sql)){
 					if(!$occid){
 						$occid = $this->conn->insert_id;
-						if($occid){
-							$this->conn->query('UPDATE NeonSample SET occid = '.$occid.', occidOriginal = IFNULL(occidOriginal,'.$occid.') WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
-						}
+						if($occid) $this->conn->query('UPDATE NeonSample SET occid = '.$occid.', occidOriginal = IFNULL(occidOriginal,'.$occid.') WHERE (occid IS NULL) AND (samplePK = '.$samplePK.')');
 					}
+					$this->conn->query('UPDATE NeonSample SET harvestTimestamp = now() WHERE (samplePK = '.$samplePK.')');
 					if(isset($dwcArr['identifiers'])) $this->setOccurrenceIdentifiers($dwcArr['identifiers'], $occid);
 					if(isset($dwcArr['assocMedia'])) $this->setAssociatedMedia($dwcArr['assocMedia'], $occid);
 					if(isset($dwcArr['identifications'])) $this->setIdentifications($dwcArr['identifications'], $occid);
@@ -812,6 +814,27 @@ class OccurrenceHarvester{
 			}
 		}
 		return $occid;
+	}
+
+	private function getOccurrenceEdits($occid){
+		$retArr = array();
+		$sql = 'SELECT DISTINCT fieldname FROM omoccuredits WHERE uid != 50 AND occid = '.$occid;
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
+			$retArr[] = $r->fieldname;
+		}
+		$rs->free();
+		return $retArr;
+	}
+
+	private function versionEdit($occid, $fieldName, $oldValue, $newValue){
+		$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueOld, fieldValueNew, uid)
+			VALUES('.$occid.',"'.$fieldName.'","'.$this->cleanInStr($oldValue).'","'.$this->cleanInStr($newValue).'",50)';
+		if(!$this->conn->query($sql)){
+			$this->errorStr = 'ERROR versioning edit: '.$this->conn->error;
+			echo 'sql: '.$sql;
+			echo $this->errorStr;
+		}
 	}
 
 	private function setOccurrenceIdentifiers($idArr, $occid){
@@ -1069,46 +1092,6 @@ class OccurrenceHarvester{
 	//Setters and getters
 	public function setReplaceFieldValues($bool){
 		if($bool) $this->replaceFieldValues = true;
-	}
-
-	private function setTargetFieldArr($fieldName){
-		if($fieldName){
-			if($fieldName == 'sciname'){
-				$this->targetFieldArr[] = 'sciname';
-				$this->targetFieldArr[] = 'scientificnameauthorship';
-				$this->targetFieldArr[] = 'family';
-				$this->targetFieldArr[] = 'taxonremarks';
-			}
-			elseif($fieldName == 'recordedBy'){
-				$this->targetFieldArr[] = 'recordedby';
-				$this->targetFieldArr[] = 'recordnumber';
-				$this->targetFieldArr[] = 'eventdate';
-			}
-			elseif($fieldName == 'country'){
-				$this->targetFieldArr[] = 'country';
-				$this->targetFieldArr[] = 'stateprovince';
-				$this->targetFieldArr[] = 'county';
-			}
-			elseif($fieldName == 'decimalLatitude'){
-				$this->targetFieldArr[] = 'decimallatitude';
-				$this->targetFieldArr[] = 'decimallongitude';
-				$this->targetFieldArr[] = 'coordinateuncertaintyinmeters';
-				$this->targetFieldArr[] = 'verbatimcoordinates';
-				$this->targetFieldArr[] = 'geodeticdatum';
-				$this->targetFieldArr[] = 'georeferencesources';
-				$this->targetFieldArr[] = 'minimumelevationinmeters';
-				$this->targetFieldArr[] = 'maximumelevationinmeters';
-			}
-			elseif($fieldName == 'habitat'){
-				$this->targetFieldArr[] = 'habitat';
-				$this->targetFieldArr[] = 'verbatimattributes';
-				$this->targetFieldArr[] = 'occurrenceremarks';
-				$this->targetFieldArr[] = 'individualcount';
-			}
-			else{
-				$this->targetFieldArr[] = $fieldName;
-			}
-		}
 	}
 
 	public function getErrorStr(){

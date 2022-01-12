@@ -38,9 +38,6 @@ header("Content-Type: text/html; charset=".$CHARSET);
             <p>Sample uses can be non-invasive, invasive, consumptive, or destructive. Uses that reduce the future research potential of a sample will likely require stronger justification and a plan to disseminate all sample-associated data.</p>
           </li>
           <li>
-            <p>Sample uses can be non-invasive, invasive, consumptive, or destructive. Uses that reduce the future research potential of a sample will likely require stronger justification and a plan to disseminate all sample-associated data.</p>
-          </li>
-          <li>
             <p>The <a href="https://www.neonscience.org/about/advisory-groups/twgs/biorepository-twg" target="_blank" rel="noopener noreferrer">NEON Biorepository Technical Working Group</a>, may be consulted prior to approval of any sample use request. As a general rule, external input is required for requests that involve destructive or consumptive use of greater than one third of the available samples of a given taxon, site, and year combination.</p>
           </li>
           <li>

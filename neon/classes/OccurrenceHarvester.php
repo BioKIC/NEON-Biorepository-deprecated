@@ -464,8 +464,9 @@ class OccurrenceHarvester{
 		if($sampleArr['samplePK']){
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
 				//Get data that was provided within manifest
-				if(isset($sampleArr['sampleCode']) && $sampleArr['sampleCode']) $dwcArr['identifiers']['NEON sampleCode (barcode)'] = $sampleArr['sampleCode'];
-				if(isset($sampleArr['sampleID']) && $sampleArr['sampleID']) $dwcArr['identifiers']['NEON sampleID'] = $sampleArr['sampleID'];
+				$dwcArr['identifiers']['NEON sampleCode (barcode)'] = (isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:'');
+				$dwcArr['identifiers']['NEON sampleID'] = (isset($sampleArr['sampleID'])?$sampleArr['sampleID']:'');
+				$dwcArr['identifiers']['NEON Archive GUID (sampleUUID)'] = (isset($sampleArr['sampleUuid'])?$sampleArr['sampleUuid']:'');
 				if(isset($sampleArr['event_id'])) $dwcArr['eventID'] = $sampleArr['event_id'];
 				if(isset($sampleArr['specimen_count'])) $dwcArr['individualCount'] = $sampleArr['specimen_count'];
 				elseif(isset($sampleArr['individualCount'])) $dwcArr['individualCount'] = $sampleArr['individualCount'];
@@ -859,12 +860,14 @@ class OccurrenceHarvester{
 
 	private function setOccurrenceIdentifiers($idArr, $occid){
 		if($idArr && $occid){
-			$delSql = 'DELETE FROM omoccuridentifiers WHERE identifiername IN("NEON sampleID","NEON sampleCode (barcode)") AND (occid = '.$occid.')';
+			$delSql = 'DELETE FROM omoccuridentifiers WHERE identifiername IN("'.implode('","',array_keys($idArr)).'") AND (occid = '.$occid.')';
 			$this->conn->query($delSql);
 			foreach($idArr as $idName => $idValue){
-				$sql = 'INSERT INTO omoccuridentifiers(occid, identifiername, identifierValue) VALUES('.$occid.',"'.$this->cleanInStr($idName).'","'.$this->cleanInStr($idValue).'")';
-				if(!$this->conn->query($sql)){
-					//$this->errorStr = 'ERROR loading occurrence identifiers: '.$this->conn->error;
+				if($idValue){
+					$sql = 'INSERT INTO omoccuridentifiers(occid, identifiername, identifierValue) VALUES('.$occid.',"'.$this->cleanInStr($idName).'","'.$this->cleanInStr($idValue).'")';
+					if(!$this->conn->query($sql)){
+						//$this->errorStr = 'ERROR loading occurrence identifiers: '.$this->conn->error;
+					}
 				}
 			}
 		}

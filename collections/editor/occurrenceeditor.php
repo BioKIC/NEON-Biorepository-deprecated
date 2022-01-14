@@ -500,7 +500,7 @@ else{
         }
 
 	</script>
-	<script src="../../js/symb/collections.coordinateValidation.js?ver=170310" type="text/javascript"></script>
+	<script src="../../js/symb/collections.coordinateValidation.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/wktpolygontools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.main.js?ver=10" type="text/javascript"></script>

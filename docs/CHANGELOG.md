@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2022-01-14
+### Added
+* Integrate additional identifiers table into occurrence management and publishing tools (table: omoccuridentifiers) 
+* Integrate Material Sample module into occurrence editor, public display, import, and export tools 
+
+### Changed
+* Add coordinate verification tool to editor using GBIF reverse geocode REST service
+
 ## [1.2.0] - 2022-01-13
 
 ### Added
@@ -22,4 +30,5 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 
-[![version](https://img.shields.io/badge/version-1.2.0-yellow.svg)](https://semver.org)
+
+[![version](https://img.shields.io/badge/Symbiota-v1.2.0.1.202201-blue.svg)](https://semver.org)

@@ -92,7 +92,7 @@ class OccurrenceHarvester{
 				$occidArr = array();
 				$cnt = 1;
 				$shipmentPK = '';
-				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
+				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.hashedSampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
 					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.igsnPushedToNEON, s.occid '.
 					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
 					$sqlWhere;
@@ -107,6 +107,7 @@ class OccurrenceHarvester{
 					$sampleArr = array();
 					$sampleArr['samplePK'] = $r->samplePK;
 					$sampleArr['sampleID'] = strtoupper($r->sampleID);
+					$sampleArr['hashedSampleID'] = $r->hashedSampleID;
 					$sampleArr['alternativeSampleID'] = strtoupper($r->alternativeSampleID);
 					$sampleArr['sampleUuid'] = $r->sampleUuid;
 					$sampleArr['sampleCode'] = $r->sampleCode;
@@ -255,7 +256,8 @@ class OccurrenceHarvester{
 				$neonSampleUpdate['sampleUuid'] = $viewArr['sampleUuid'];
 				if($sampleArr['sampleUuid'] != $viewArr['sampleUuid']){
 					$this->errorLogArr[] = 'NOTICE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
-					$neonSampleUpdate['errorMessage'] = 'DATA ISSUE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
+					$errMsg = 'DATA ISSUE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
 				}
 			}
 		}
@@ -272,7 +274,8 @@ class OccurrenceHarvester{
 						if($duplicateOccid = $this->igsnExists($igsnMatch[1])){
 							//Another records exists within the portal with the same IGSN (not ideal)
 							$sampleArr['occurrenceID'] = $igsnMatch[1].'-dupe (data issue!)';
-							$neonSampleUpdate['errorMessage'] = 'DATA ISSUE: another record (occid = '.$duplicateOccid.') exists with duplicate IGSN registered within NEON API';
+							$errMsg = 'DATA ISSUE: another record (occid = '.$duplicateOccid.') exists with duplicate IGSN registered within NEON API';
+							$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
 						}
 						else{
 							if(!$this->updateOccurrenceIgsn($igsnMatch[1], $sampleArr['occid'])){
@@ -285,7 +288,8 @@ class OccurrenceHarvester{
 					//New record should use ISGN, if it is not already assigned to another record
 					if($duplicateOccid = $this->igsnExists($igsnMatch[1])){
 						$sampleArr['occurrenceID'] = $igsnMatch[1].'-dupe (data issue!)';
-						$neonSampleUpdate['errorMessage'] = 'DATA ISSUE: another record (occid = '.$duplicateOccid.') exists with duplicate IGSN registered within NEON API';
+						$errMsg = 'DATA ISSUE: another record (occid = '.$duplicateOccid.') exists with duplicate IGSN registered within NEON API';
+						$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
 					}
 					else $sampleArr['occurrenceID'] = $igsnMatch[1];
 				}
@@ -295,18 +299,26 @@ class OccurrenceHarvester{
 			//sampleClass are not equal; don't update, just record within error file that this is an issue
 			$errMsg = (isset($neonSampleUpdate['errorMessage'])?$neonSampleUpdate['errorMessage'].'; ':'');
 			$errMsg .= 'DATA ISSUE: sampleClass failing to match with API value';
-			$neonSampleUpdate['errorMessage'] = $errMsg;
+			$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
 		}
-		if($sampleArr['sampleID'] && isset($viewArr['sampleTag']) && $sampleArr['sampleID'] != $viewArr['sampleTag']){
+		if($sampleArr['sampleID'] && isset($viewArr['sampleTag']) && $sampleArr['sampleID'] != $viewArr['sampleTag'] && $sampleArr['hashedSampleID'] != $viewArr['sampleTag']){
 			//sampleIDs (sampleTags) are not equal; update our system
-			$neonSampleUpdate['errorMessage'] = 'DATA ISSUE: sampleID different than NEON API value';
-			if($this->updateSampleID($viewArr['sampleTag'], $sampleArr['sampleID'], $sampleArr['samplePK'], $sampleArr['occid'])){
-				$this->errorLogArr[] = 'NOTICE: sampleID updated from '.$sampleArr['sampleID'].' to '.$viewArr['sampleTag'].' (samplePK: '.$sampleArr['samplePK'].', occid: '.$sampleArr['occid'].')';
+			if(substr($viewArr['sampleTag'],-1) == '='){
+				$neonSampleUpdate['hashedSampleID'] = $viewArr['sampleTag'];
+				$sampleArr['hashedSampleID'] = $viewArr['sampleTag'];
 			}
 			else{
-				$errMsg = (isset($neonSampleUpdate['errorMessage'])?$neonSampleUpdate['errorMessage'].'; ':'');
-				$errMsg .= 'DATA ISSUE: failed to reset sampleID using changed API value';
-				$neonSampleUpdate['errorMessage'] = $errMsg;
+				$this->setSampleErrorMessage($sampleArr['samplePK'], 'DATA ISSUE: sampleID different than NEON API value');
+				/*
+				if($this->updateSampleID($viewArr['sampleTag'], $sampleArr['sampleID'], $sampleArr['samplePK'], $sampleArr['occid'])){
+					$this->errorLogArr[] = 'NOTICE: sampleID updated from '.$sampleArr['sampleID'].' to '.$viewArr['sampleTag'].' (samplePK: '.$sampleArr['samplePK'].', occid: '.$sampleArr['occid'].')';
+				}
+				else{
+					$errMsg = (isset($neonSampleUpdate['errorMessage'])?$neonSampleUpdate['errorMessage'].'; ':'');
+					$errMsg .= 'DATA ISSUE: failed to reset sampleID using changed API value';
+					$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
+				}
+				*/
 			}
 		}
 		$this->updateSampleRecord($neonSampleUpdate,$sampleArr['samplePK']);
@@ -466,7 +478,8 @@ class OccurrenceHarvester{
 				//Get data that was provided within manifest
 				$dwcArr['identifiers']['NEON sampleCode (barcode)'] = (isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:'');
 				$dwcArr['identifiers']['NEON sampleID'] = (isset($sampleArr['sampleID'])?$sampleArr['sampleID']:'');
-				$dwcArr['identifiers']['NEON Archive GUID (sampleUUID)'] = (isset($sampleArr['sampleUuid'])?$sampleArr['sampleUuid']:'');
+				$dwcArr['identifiers']['NEON sampleUUID'] = (isset($sampleArr['sampleUuid'])?$sampleArr['sampleUuid']:'');
+				$dwcArr['identifiers']['NEON sampleID2'] = (isset($sampleArr['hashedSampleID'])?$sampleArr['hashedSampleID']:'');
 				if(isset($sampleArr['event_id'])) $dwcArr['eventID'] = $sampleArr['event_id'];
 				if(isset($sampleArr['specimen_count'])) $dwcArr['individualCount'] = $sampleArr['specimen_count'];
 				elseif(isset($sampleArr['individualCount'])) $dwcArr['individualCount'] = $sampleArr['individualCount'];

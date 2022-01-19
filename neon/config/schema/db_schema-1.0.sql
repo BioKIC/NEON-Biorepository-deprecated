@@ -86,6 +86,9 @@ ALTER TABLE `NeonSample`
 
 ALTER TABLE `NeonSample` 
   ADD COLUMN `harvestTimestamp` DATETIME NULL AFTER `occidOriginal`;
+  
+ALTER TABLE `NeonSample` 
+  ADD COLUMN `hashedSampleID` VARCHAR(60) NULL AFTER `sampleID`;
 
 
 ALTER TABLE `omoccurrences` 

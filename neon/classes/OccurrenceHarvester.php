@@ -303,7 +303,7 @@ class OccurrenceHarvester{
 		}
 		if($sampleArr['sampleID'] && isset($viewArr['sampleTag']) && $sampleArr['sampleID'] != $viewArr['sampleTag'] && $sampleArr['hashedSampleID'] != $viewArr['sampleTag']){
 			//sampleIDs (sampleTags) are not equal; update our system
-			if(substr($viewArr['sampleTag'],-1) == '='){
+			if(substr($viewArr['sampleTag'],-1) == '=' || !preg_match('/[_\.]+/',$viewArr['sampleTag'])){
 				$neonSampleUpdate['hashedSampleID'] = $viewArr['sampleTag'];
 				$sampleArr['hashedSampleID'] = $viewArr['sampleTag'];
 			}

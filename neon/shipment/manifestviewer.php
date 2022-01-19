@@ -589,7 +589,7 @@ include($SERVER_ROOT.'/includes/header.php');
 												echo '</td>';
 												echo '<td style="text-align:center">';
 												if(array_key_exists('occid',$sampleArr) && $sampleArr['occid']){
-													echo '<span title="harvested '.$sampleArr['harvestTimestamp'].'">';
+													echo '<span title="harvested '.(isset($sampleArr['harvestTimestamp'])?$sampleArr['harvestTimestamp']:'').'">';
 													echo '<a href="../../collections/individual/index.php?occid='.$sampleArr['occid'].'" target="_blank"><img src="../../images/list.png" style="width:13px" /></a>&nbsp;&nbsp;&nbsp;';
 													echo '<a href="../../collections/editor/occurrenceeditor.php?occid='.$sampleArr['occid'].'" target="_blank"><img src="../../images/edit.png" style="width:13px" /></a>';
 													echo '</span>';

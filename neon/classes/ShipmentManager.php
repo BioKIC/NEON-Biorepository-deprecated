@@ -87,12 +87,12 @@ class ShipmentManager{
 
 	public function getSampleArr($samplePK = null, $filter = null){
 		$retArr = array();
-		$headerArr = array('sampleID','alternativeSampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus',
-			'sampleReceived','acceptedForAnalysis','sampleCondition','dynamicProperties','symbiotaTarget','sampleNotes','occurErr','occid','checkinUser','checkinRemarks','checkinTimestamp');
+		$headerArr = array('sampleID','hashedSampleID','alternativeSampleID','sampleCode','sampleClass','taxonID','individualCount','filterVolume','namedLocation','domainRemarks','collectDate','quarantineStatus',
+			'sampleReceived','acceptedForAnalysis','sampleCondition','dynamicProperties','symbiotaTarget','sampleNotes','occurErr','occid','harvestTimestamp','checkinUser','checkinRemarks','checkinTimestamp');
 		$targetArr = array();
-		$sql = 'SELECT s.samplePK, s.sampleID, s.alternativeSampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, s.collectDate, '.
+		$sql = 'SELECT s.samplePK, s.sampleID, s.hashedSampleID, s.alternativeSampleID, s.sampleCode, s.sampleClass, s.taxonID, s.individualCount, s.filterVolume, s.namedLocation, s.domainRemarks, s.collectDate, '.
 			's.quarantineStatus, s.sampleReceived, s.acceptedForAnalysis, s.sampleCondition, s.dynamicProperties, s.symbiotaTarget, s.notes as sampleNotes, s.errorMessage as occurErr, '.
-			'CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinRemarks, s.checkinTimestamp, s.occid '.
+			'CONCAT_WS(", ", u.lastname, u.firstname) as checkinUser, s.checkinRemarks, s.checkinTimestamp, s.occid, s.harvestTimestamp '.
 			'FROM NeonSample s LEFT JOIN users u ON s.checkinuid = u.uid ';
 		if($samplePK){
 			$sql .= 'WHERE (s.samplePK = '.$samplePK.') ';

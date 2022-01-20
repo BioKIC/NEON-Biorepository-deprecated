@@ -319,7 +319,7 @@ CREATE TABLE `ommaterialsample` (
   `disposition` VARCHAR(45) NULL,
   `preservationType` VARCHAR(45) NULL,
   `preparationDetails` VARCHAR(250) NULL,
-  `preparationDate` DATETIME NULL,
+  `preparationDate` DATE NULL,
   `preparedByUid` INT UNSIGNED NULL,
   `individualCount` VARCHAR(45) NULL,
   `sampleSize` VARCHAR(45) NULL,
@@ -338,14 +338,54 @@ ALTER TABLE `ommaterialsample`
   ADD UNIQUE INDEX `UQ_ommatsample_recordID` (`recordID`);
 
 INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
-  VALUES("Material Sample Type","ommaterialsample","materialSampleType",1);
+  VALUES("Material Sample Type","ommaterialsample","sampleType",1);
 
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "tissue", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "culture strain", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "specimen", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "DNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "RNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
-INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Protein", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "materialSampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "tissue", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "culture strain", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "specimen", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "DNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "RNA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Protein", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Skin", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Skull", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "liver", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "sampleType";
+
+INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
+  VALUES("Material Sample Type","ommaterialsample","disposition",1);
+
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "being processed", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "disposition";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "in collection", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "disposition";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "deaccessioned", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "disposition";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "consumed", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "disposition";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "discarded", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "disposition";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "missing", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "disposition";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "on exhibit", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "disposition";
+
+INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
+  VALUES("Material Sample Type","ommaterialsample","preservationType",1);
+
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "alsever's solution", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "arsenic", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Bouin's solution", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "buffer", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "cleared", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "carbonization", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "DMSO/EDTA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "DESS", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "DMSO", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "desiccated", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "dry", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "ethanol 95%", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "ethanol 80%", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "ethanol 75%", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "ethanol 70%", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "EDTA", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "sampleDesignation", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Frozen -20°C", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Frozen -80°C", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Frozen -196°C", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+INSERT INTO ctcontrolvocabterm(cvID, term, activeStatus) SELECT cvID, "Liquid Nitrogen", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsample" AND fieldName = "preservationType";
+
 
 CREATE TABLE `ommaterialsampleextended` (
   `matSampleExtendedID` INT NOT NULL AUTO_INCREMENT,

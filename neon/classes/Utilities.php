@@ -31,12 +31,12 @@
     foreach ($data as $row) {
         $cells = array();
         foreach ($row as $cell) {
-          //  original
             $cells[] = "<td>{$cell}</td>";
+          }
+          $rows[] = "<tr>" . implode('', $cells) . "</tr>";
         }
-        $rows[] = "<tr>" . implode('', $cells) . "</tr>";
-    }
-    return '<table class="table-sortable"><thead>'. implode('', array_merge($headers)).'</thead>' . implode('', array_merge($rows)) . "</table>";
+    $tableElement = '<table class="table-sortable"><thead>'. implode('', array_merge($headers)).'</thead>' . implode('', array_merge($rows)) . "</table>";
+    return $tableElement;
   }
 }
 ?>

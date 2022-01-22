@@ -44,6 +44,8 @@ FROM (SELECT TRIM(REGEXP_SUBSTR(dynamicProperties,"(?<=preparedBy:)(.*?)(?=,)"))
           $row['total'],
         );
       }
+      $totalsRow = array("prepBy" => "Total", "skinPrepCnt" => array_sum(array_column($dataArr, 1)), "fluidPrepCnt" => array_sum(array_column($dataArr, 2)), "total" => array_sum(array_column($dataArr, 3)));
+      $dataArr[] = $totalsRow; 
       $result->free();
     }
     else {
@@ -51,23 +53,6 @@ FROM (SELECT TRIM(REGEXP_SUBSTR(dynamicProperties,"(?<=preparedBy:)(.*?)(?=,)"))
       $dataArr = false;
     }
     return $dataArr;
-  }
-
-  // Formats array in tabular form (pass array name and headers array as arguments)
-  public function htmlTable($data, $headerArr){
-    foreach ($headerArr as $header){
-      $headers[] = "<th>{$header}</th>";
-    }
-    $rows = array();
-    foreach ($data as $row) {
-        $cells = array();
-        foreach ($row as $cell) {
-          //  original
-            $cells[] = "<td>{$cell}</td>";
-        }
-        $rows[] = "<tr>" . implode('', $cells) . "</tr>";
-    }
-    return '<table class="table-sortable"><thead>'. implode('', array_merge($headers)).'</thead>' . implode('', array_merge($rows)) . "</table>";
   }
 }
 ?>

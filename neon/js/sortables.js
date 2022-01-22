@@ -9,6 +9,12 @@ function sortTableByColumn(table, column, asc = true) {
   const sorting = asc ? 1 : -1;
   const tBody = table.tBodies[0];
   const rows = Array.from(tBody.querySelectorAll('tr'));
+  // don't sort last row if it has "total" in first cell
+  const lastRow = rows[rows.length - 1];
+  const lastRowText = lastRow.querySelector('td').textContent;
+  if (lastRowText.includes('total')) {
+    rows.pop();
+  }
 
   // Sorts rows
   const sortedRows = rows.sort((a, b) => {
@@ -44,6 +50,7 @@ function sortTableByColumn(table, column, asc = true) {
 
   // Re-add sorted rows
   tBody.append(...sortedRows);
+  tBody.append(lastRow);
 
   // Remember how column is sorted
   table
@@ -65,7 +72,16 @@ document.querySelectorAll('.table-sortable th').forEach((headerCell) => {
       headerCell
     );
     const currentIsAsc = headerCell.classList.contains('th-sort-asc');
-
     sortTableByColumn(tableElement, headerIndex, !currentIsAsc);
   });
 });
+
+// Finds "total" rows and adds class to them
+document
+  .querySelectorAll('.table-sortable tr td:first-child')
+  .forEach((row) => {
+    console.log(row.innerText.toLowerCase().includes('total'));
+    if (row.textContent.toLowerCase().includes('total')) {
+      row.parentElement.classList.add('totals-row');
+    }
+  });

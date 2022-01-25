@@ -30,12 +30,12 @@
                 }
             }
         },
-        "/api/v2/installations/{identifier}": {
+        "/api/v2/installation/{identifier}": {
             "get": {
                 "tags": [
                     ""
                 ],
-                "operationId": "/api/v2/installations/identifier",
+                "operationId": "/api/v2/installation/identifier",
                 "parameters": [
                     {
                         "name": "identifier",
@@ -62,12 +62,12 @@
                 }
             }
         },
-        "/api/v2/occurrences": {
+        "/api/v2/occurrence": {
             "get": {
                 "tags": [
                     ""
                 ],
-                "operationId": "/api/v2/occurrences",
+                "operationId": "/api/v2/occurrence",
                 "parameters": [
                     {
                         "name": "catalogNumber",
@@ -130,12 +130,12 @@
                 }
             }
         },
-        "/api/v2/occurrences/{identifier}": {
+        "/api/v2/occurrence/{identifier}": {
             "get": {
                 "tags": [
                     ""
                 ],
-                "operationId": "/api/v2/occurrences/identifier",
+                "operationId": "/api/v2/occurrence/identifier",
                 "parameters": [
                     {
                         "name": "identifier",

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\PortalIndex;
@@ -14,7 +13,6 @@ class InstallationController extends Controller
 	 */
 	public function __construct()
 	{
-
 	}
 
 	/**
@@ -58,8 +56,8 @@ class InstallationController extends Controller
 
 	/**
 	 * @OA\Get(
-	 *     path="/api/v2/installations/{identifier}",
-	 *     operationId="/api/v2/installations/identifier",
+	 *     path="/api/v2/installation/{identifier}",
+	 *     operationId="/api/v2/installation/identifier",
 	 *     tags={""},
 	 *     @OA\Parameter(
 	 *         name="identifier",
@@ -79,10 +77,20 @@ class InstallationController extends Controller
 	 *     ),
 	 * )
 	 */
-	 public function showOnePortal($id, Request $request)
+	public function showOnePortal($id, Request $request)
 	{
-		$portalObj = $portalObj = PortalIndex::find($id);;
-	    if(is_numeric($id)) PortalIndex::where('guid',$id)->get();
+		$portalObj = null;
+		if(is_numeric($id)) $portalObj = PortalIndex::find($id);
+		elseif($id == 'self'){
+			if(isset($_ENV['DEFAULT_TITLE']) && isset($_ENV['PORTAL_GUID'])){
+				$portalObj['portalName'] = $_ENV['DEFAULT_TITLE'];
+				$portalObj['guid'] = $_ENV['PORTAL_GUID'];
+				$portalObj['managerEmail'] = $_ENV['ADMIN_EMAIL'];
+				$portalObj['urlRoot'] = $_ENV['CLIENT_ROOT'];
+				//$portalObj['symbVersion'] = '';
+			}
+		}
+		else $portalObj = PortalIndex::where('guid',$id)->get();
         return response()->json($portalObj);
 	}
 
@@ -90,10 +98,13 @@ class InstallationController extends Controller
 	{
 		$portalObj = $portalObj = PortalIndex::find($id);;
 		if(is_numeric($id)) PortalIndex::where('guid',$id)->get();
-		if(!$portalObj){
+		if(!$portalObj && $request->has('endpoint')){
 			if($baseUrl = $request->input('endpoint')){
 				$url = $baseUrl.'/api/v2/installation/'.$id;
 				$response = $this->getAPIResponce($url);
+				//Insert portal
+				//Get all portals from source and insert all that are not currently in
+
 			}
 		}
 	}

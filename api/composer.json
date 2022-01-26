@@ -27,6 +27,7 @@
         ]
     },
     "config": {
+		"platform-check": false,
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true

@@ -4,6 +4,13 @@ namespace App\Http\Controllers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
 
+include_once('../config/symbini.php');
+$_ENV['DEFAULT_TITLE'] = $DEFAULT_TITLE;
+$_ENV['PORTAL_GUID'] = $PORTAL_GUID;
+$_ENV['DEFAULT_TITLE'] = $DEFAULT_TITLE;
+$_ENV['ADMIN_EMAIL'] = $ADMIN_EMAIL;
+$_ENV['CLIENT_ROOT'] = $CLIENT_ROOT;
+
 class Controller extends BaseController
 {
 	/**

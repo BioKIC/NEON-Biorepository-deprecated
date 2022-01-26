@@ -35,7 +35,7 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 
 	$router->get('installation',  ['uses' => 'InstallationController@showAllPortals']);
 	$router->get('installation/{id}', ['uses' => 'InstallationController@showOnePortal']);
-	$router->get('installation/{id}/touch/{endpoint}',  ['uses' => 'InstallationController@portalHandshake']);
+	$router->get('installation/{id}/touch',  ['uses' => 'InstallationController@portalHandshake']);
 
 	//$router->get('taxonomy',  ['uses' => 'TaxonomyController@showAllTaxa']);
 	//$router->get('taxonomy/{id}', ['uses' => 'TaxonomyController@showOneTaxon']);

@@ -100,7 +100,7 @@ class InstallationController extends Controller
 				//Insert portal
 				$url = $baseUrl.'/api/v2/installation/self';
 				if($remote = $this->getAPIResponce($url)){
-					$portalObj = PortalIndex::create($remote);
+					$portalObj = PortalIndex::create(json_decode($remote));
 					//Get all installations from remote, add and handshake each that are not yet in system
 					$url = $baseUrl.'/api/v2/installation';
 					$remoteInstallations = json_encode($this->getAPIResponce($url));

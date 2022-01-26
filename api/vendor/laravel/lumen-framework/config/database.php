@@ -140,12 +140,14 @@ if(!isset($params['connections']['mysql']['database']) || !$params['connections'
     $symbBasePath = '../';
     if(file_exists($symbBasePath.'/config/dbconnection.php')){
         require_once($symbBasePath.'/config/dbconnection.php');
-        if($symbArr = array_shift(MySQLiConnectionFactory::$SERVERS)){
-            $params['connections']['mysql']['host'] = $symbArr['host'];
-            $params['connections']['mysql']['port'] = $symbArr['port'];
-            $params['connections']['mysql']['database'] = $symbArr['database'];
-            $params['connections']['mysql']['username'] = $symbArr['username'];
-            $params['connections']['mysql']['password'] = $symbArr['password'];
+        foreach(MySQLiConnectionFactory::$SERVERS as $dbArr){
+        	if($dbArr['type'] = 'write'){
+        		$params['connections']['mysql']['host'] = $dbArr['host'];
+        		$params['connections']['mysql']['port'] = $dbArr['port'];
+        		$params['connections']['mysql']['database'] = $dbArr['database'];
+        		$params['connections']['mysql']['username'] = $dbArr['username'];
+        		$params['connections']['mysql']['password'] = $dbArr['password'];
+        	}
         }
     }
 }

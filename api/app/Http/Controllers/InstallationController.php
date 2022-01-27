@@ -78,45 +78,97 @@ class InstallationController extends Controller
 	public function showOnePortal($id, Request $request){
 		$portalObj = null;
 		if(is_numeric($id)) $portalObj = PortalIndex::find($id);
-		elseif($id == 'self'){
-			if(isset($_ENV['DEFAULT_TITLE']) && isset($_ENV['PORTAL_GUID'])){
-				$portalObj['portalName'] = $_ENV['DEFAULT_TITLE'];
-				$portalObj['guid'] = $_ENV['PORTAL_GUID'];
-				$portalObj['managerEmail'] = $_ENV['ADMIN_EMAIL'];
-				$portalObj['urlRoot'] = $this->getServerDomain().$_ENV['CLIENT_ROOT'];
-				//$portalObj['symbVersion'] = '';
-			}
+		else $portalObj = PortalIndex::where('guid',$id)->first();
+		if(!$portalObj->count()) $portalObj = ["status"=>false,"error"=>"Unable to locate installation based on identifier"];
+		return response()->json($portalObj);
+	}
+
+	public function pingPortal(Request $request){
+		$portalObj = null;
+		if(isset($_ENV['DEFAULT_TITLE']) && isset($_ENV['PORTAL_GUID'])){
+			$portalObj['status'] = true;
+			$portalObj['portalName'] = $_ENV['DEFAULT_TITLE'];
+			$portalObj['guid'] = $_ENV['PORTAL_GUID'];
+			$portalObj['managerEmail'] = $_ENV['ADMIN_EMAIL'];
+			$portalObj['urlRoot'] = $this->getServerDomain().$_ENV['CLIENT_ROOT'];
+			//$portalObj['symbVersion'] = '';
 		}
-		else $portalObj = PortalIndex::where('guid',$id)->get();
+		else{
+			$portalObj['status'] = false;
+			if(!isset($_ENV['DEFAULT_TITLE'])) $portalObj['error'][] = 'Portal title is NULL';
+			if(!isset($_ENV['PORTAL_GUID'])) $portalObj['error'][] = 'Portal GUID is NULL';
+			$portalObj['status'] = false;
+		}
 		return response()->json($portalObj);
 	}
 
 	public function portalHandshake($id, Request $request){
+		$responseArr = array();
 		$portalObj = PortalIndex::where('guid',$id)->get();
-		if($portalObj->count()) return response()->json($portalObj);
-		if($request->has('endpoint')){
+		if($portalObj->count()){
+			$responseArr['status'] = true;
+			$responseArr['message'] = 'Portal previously registered';
+		}
+		elseif($request->has('endpoint')){
 			//Remote installation not yet in system, thus add and then process list from remote
 			if($baseUrl = $request->input('endpoint')){
 				//Insert portal
-				$url = $baseUrl.'/api/v2/installation/self';
-				if($remote = $this->getAPIResponce($url)){
-					$portalObj = PortalIndex::create($remote);
-					//Get all installations from remote, add and handshake each that are not yet in system
-					$url = $baseUrl.'/api/v2/installation';
-					$remoteInstallations = json_encode($this->getAPIResponce($url));
-					if($remoteInstallations->count){
-						foreach($remoteInstallations->results as $portal){
-							if(!PortalIndex::where('guid',$portal->guid)->get()){
-								PortalIndex::create($portal);
-								$url = $portal->urlRoot.'/api/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
-								$this->getAPIResponce($url);
+				$urlPing = $baseUrl.'/api/v2/installation/ping';
+				if($remote = $this->getAPIResponce($urlPing)){
+					try {
+						$portalObj = PortalIndex::create($remote);
+						$responseArr['status'] = true;
+						$responseArr['message'] = 'Portal registered successfully';
+					} catch(\Illuminate\Database\QueryException $ex){
+						$responseArr['status'] = false;
+						$responseArr['error'] = 'Registration failed: Unable insert database record: '.$ex->getMessage();
+					}
+				}
+				else{
+					$responseArr['status'] = false;
+					$responseArr['error'] = 'Registration failed: Unable to obtain data from endpoint: '.$urlSelf;
+				}
+			}
+		}
+		else{
+			$responseArr['status'] = false;
+			$responseArr['error'] = 'Registration failed: Unable to obtain portal endpoint';
+		}
+		$responseArr['results'] = $portalObj;
+		return response()->json($responseArr);
+	}
+
+	public function propagateRegistration($id, Request $request){
+		//Register all portals listed within remote, if not alreay registered
+		if($baseUrl = $request->input('endpoint')){
+			$urlInstallation = $baseUrl.'/api/v2/installation';
+			if($remoteInstallationArr = $this->getAPIResponce($urlInstallation)){
+				$previousRegistered = 0;
+				$newRegistration = 0;
+				$failedRegistration = 0;
+				foreach($remoteInstallationArr['results'] as $portal){
+					if(PortalIndex::where('guid',$portal->guid)->count()) $previousRegistered++;
+					else{
+						//Touch returns successful data return
+						$urlTouch = $portal->urlRoot.'/api/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
+						if($this->getAPIResponce($urlTouch)){
+							try{
+								$portalObj[] = PortalIndex::create($portal);
+								$newRegistration++;
+							} catch(\Illuminate\Database\QueryException $ex){
+								$responseArr['failed'][] = array('guid'=>$portal->guid,'error'=>'Database error: '.$ex->getMessage());
+								$failedRegistration++;
 							}
+						}
+						else{
+							$responseArr['failed'][] = array('guid'=>$portal->guid,'error'=>'Unable to touch: '.$ex->getMessage());
+							$failedRegistration++;
 						}
 					}
 				}
 			}
+			else $responseArr['error'] = 'Unable to obtain remote installation listing: '.$urlInstallation;
 		}
-
 	}
 
 	public function create(Request $request){
@@ -159,7 +211,7 @@ class InstallationController extends Controller
 			//$header = curl_getinfo($ch);
 		}
 		curl_close($ch);
-		return json_encode($resJson);
+		return json_decode($resJson,true);
 	}
 
 	private function getServerDomain(){

@@ -10,6 +10,7 @@ class PortalIndex extends Model
     protected $fillable = ['portalName', 'acronym', 'portalDescription', 'urlRoot', 'symbVersion', 'guid', 'manager', 'managerEmail', 'primaryLead', 'primaryLeadEmail', 'notes'];
     protected $guarded = [];
     protected $hidden = ['securityKey'];
+    public $timestamps = false;
 
     public function ompublications()
     {

@@ -119,6 +119,24 @@ class InstallationController extends Controller
 						$portalObj = PortalIndex::create($remote);
 						$responseArr['status'] = true;
 						$responseArr['message'] = 'Portal registered successfully';
+						//Register all portals listed within remote, if not alreay registered
+						$urlInstallation = $baseUrl.'/api/v2/installation';
+						if($remoteInstallationArr = $this->getAPIResponce($urlInstallation)){
+							$alreadyRegistered = 0;
+							$newRegistration = 0;
+							foreach($remoteInstallationArr['results'] as $portal){
+								if(PortalIndex::where('guid',$portal->guid)->count()) $alreadyRegistered++;
+								else{
+									//Touch remote installation but don't wait for a response because propagation across a large network can take awhile
+									$urlTouch = $portal->urlRoot.'/api/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
+									$this->getAPIResponce($urlTouch, true);
+									$newRegistration++;
+								}
+							}
+							$responseArr['already registrations'] = $alreadyRegistered;
+							$responseArr['new registrations'] = $newRegistration;
+						}
+						else $responseArr['error'] = 'Unable to obtain remote installation listing: '.$urlInstallation;
 					} catch(\Illuminate\Database\QueryException $ex){
 						$responseArr['status'] = false;
 						$responseArr['error'] = 'Registration failed: Unable insert database record: '.$ex->getMessage();
@@ -126,7 +144,7 @@ class InstallationController extends Controller
 				}
 				else{
 					$responseArr['status'] = false;
-					$responseArr['error'] = 'Registration failed: Unable to obtain data from endpoint: '.$urlSelf;
+					$responseArr['error'] = 'Registration failed: Unable to obtain data from endpoint: '.$urlPing;
 				}
 			}
 		}
@@ -136,39 +154,6 @@ class InstallationController extends Controller
 		}
 		$responseArr['results'] = $portalObj;
 		return response()->json($responseArr);
-	}
-
-	public function propagateRegistration($id, Request $request){
-		//Register all portals listed within remote, if not alreay registered
-		if($baseUrl = $request->input('endpoint')){
-			$urlInstallation = $baseUrl.'/api/v2/installation';
-			if($remoteInstallationArr = $this->getAPIResponce($urlInstallation)){
-				$previousRegistered = 0;
-				$newRegistration = 0;
-				$failedRegistration = 0;
-				foreach($remoteInstallationArr['results'] as $portal){
-					if(PortalIndex::where('guid',$portal->guid)->count()) $previousRegistered++;
-					else{
-						//Touch returns successful data return
-						$urlTouch = $portal->urlRoot.'/api/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
-						if($this->getAPIResponce($urlTouch)){
-							try{
-								$portalObj[] = PortalIndex::create($portal);
-								$newRegistration++;
-							} catch(\Illuminate\Database\QueryException $ex){
-								$responseArr['failed'][] = array('guid'=>$portal->guid,'error'=>'Database error: '.$ex->getMessage());
-								$failedRegistration++;
-							}
-						}
-						else{
-							$responseArr['failed'][] = array('guid'=>$portal->guid,'error'=>'Unable to touch: '.$ex->getMessage());
-							$failedRegistration++;
-						}
-					}
-				}
-			}
-			else $responseArr['error'] = 'Unable to obtain remote installation listing: '.$urlInstallation;
-		}
 	}
 
 	public function create(Request $request){
@@ -196,7 +181,7 @@ class InstallationController extends Controller
 	}
 
 	//Helper functions
-	private function getAPIResponce($url){
+	private function getAPIResponce($url, $asyc = false){
 		$resJson = false;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -204,6 +189,7 @@ class InstallationController extends Controller
 		//curl_setopt($ch, CURLOPT_HTTPGET, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		if($asyc) curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);
 		$resJson = curl_exec($ch);
 		if(!$resJson){
 			$this->errorMessage = 'FATAL CURL ERROR: '.curl_error($ch).' (#'.curl_errno($ch).')';

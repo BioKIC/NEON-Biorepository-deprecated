@@ -122,10 +122,10 @@ class InstallationController extends Controller
 						//Register all portals listed within remote, if not alreay registered
 						$urlInstallation = $baseUrl.'/api/v2/installation';
 						if($remoteInstallationArr = $this->getAPIResponce($urlInstallation)){
-							$alreadyRegistered = 0;
+							$currentRegistered = 0;
 							$newRegistration = 0;
 							foreach($remoteInstallationArr['results'] as $portal){
-								if(PortalIndex::where('guid',$portal->guid)->count()) $alreadyRegistered++;
+								if(PortalIndex::where('guid',$portal->guid)->count()) $currentRegistered++;
 								else{
 									//Touch remote installation but don't wait for a response because propagation across a large network can take awhile
 									$urlTouch = $portal->urlRoot.'/api/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
@@ -133,7 +133,7 @@ class InstallationController extends Controller
 									$newRegistration++;
 								}
 							}
-							$responseArr['already registrations'] = $alreadyRegistered;
+							$responseArr['current registrations'] = $currentRegistered;
 							$responseArr['new registrations'] = $newRegistration;
 						}
 						else $responseArr['error'] = 'Unable to obtain remote installation listing: '.$urlInstallation;

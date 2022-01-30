@@ -109,6 +109,11 @@ class InstallationController extends Controller
 			$responseArr['status'] = true;
 			$responseArr['message'] = 'Portal previously registered';
 		}
+		elseif($id == $_ENV['PORTAL_GUID']){
+			//Make sure touch isn't referring to self
+			$responseArr['status'] = false;
+			$responseArr['error'] = 'Registration failed: touch is in reference to self';
+		}
 		elseif($request->has('endpoint')){
 			//Remote installation not yet in system, thus add and then process list from remote
 			if($baseUrl = $request->input('endpoint')){
@@ -116,10 +121,14 @@ class InstallationController extends Controller
 				$urlPing = $baseUrl.'/api/v2/installation/ping';
 				if($remote = $this->getAPIResponce($urlPing)){
 					if($id == $remote['guid']){
+						//Shake back just to makes sure remote knows about self
+						$remoteTouch = $baseUrl.'/api/v2/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
+						$this->getAPIResponce($remoteTouch, true);
 						try {
+							//Register remote
 							$portalObj = PortalIndex::create($remote);
 							$responseArr['status'] = true;
-							$responseArr['message'] = 'Portal registered successfully';
+							$responseArr['message'] = 'Remote portal registered successfully';
 							//Register all portals listed within remote, if not alreay registered
 							$urlInstallation = $baseUrl.'/api/v2/installation';
 							if($remoteInstallationArr = $this->getAPIResponce($urlInstallation)){
@@ -128,14 +137,16 @@ class InstallationController extends Controller
 								foreach($remoteInstallationArr['results'] as $portal){
 									if(PortalIndex::where('guid',$portal['guid'])->count()) $currentRegistered++;
 									else{
+										//Add remote
+										PortalIndex::create($portal);
 										//Touch remote installation but don't wait for a response because propagation across a large network can take awhile
-										$urlTouch = $portal['urlRoot'].'/api/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
+										$urlTouch = $portal['urlRoot'].'/api/v2/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
 										$this->getAPIResponce($urlTouch, true);
 										$newRegistration++;
 									}
 								}
-								$responseArr['current registrations'] = $currentRegistered;
-								$responseArr['new registrations'] = $newRegistration;
+								$responseArr['Current registered remotes obtained from remote library'] = $currentRegistered;
+								$responseArr['Additional new registrations obtained from remote library'] = $newRegistration;
 							}
 							else $responseArr['error'] = 'Unable to obtain remote installation listing: '.$urlInstallation;
 						} catch(\Illuminate\Database\QueryException $ex){

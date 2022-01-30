@@ -115,31 +115,37 @@ class InstallationController extends Controller
 				//Insert portal
 				$urlPing = $baseUrl.'/api/v2/installation/ping';
 				if($remote = $this->getAPIResponce($urlPing)){
-					try {
-						$portalObj = PortalIndex::create($remote);
-						$responseArr['status'] = true;
-						$responseArr['message'] = 'Portal registered successfully';
-						//Register all portals listed within remote, if not alreay registered
-						$urlInstallation = $baseUrl.'/api/v2/installation';
-						if($remoteInstallationArr = $this->getAPIResponce($urlInstallation)){
-							$currentRegistered = 0;
-							$newRegistration = 0;
-							foreach($remoteInstallationArr['results'] as $portal){
-								if(PortalIndex::where('guid',$portal->guid)->count()) $currentRegistered++;
-								else{
-									//Touch remote installation but don't wait for a response because propagation across a large network can take awhile
-									$urlTouch = $portal->urlRoot.'/api/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
-									$this->getAPIResponce($urlTouch, true);
-									$newRegistration++;
+					if($id == $remote['guid']){
+						try {
+							$portalObj = PortalIndex::create($remote);
+							$responseArr['status'] = true;
+							$responseArr['message'] = 'Portal registered successfully';
+							//Register all portals listed within remote, if not alreay registered
+							$urlInstallation = $baseUrl.'/api/v2/installation';
+							if($remoteInstallationArr = $this->getAPIResponce($urlInstallation)){
+								$currentRegistered = 0;
+								$newRegistration = 0;
+								foreach($remoteInstallationArr['results'] as $portal){
+									if(PortalIndex::where('guid',$portal['guid'])->count()) $currentRegistered++;
+									else{
+										//Touch remote installation but don't wait for a response because propagation across a large network can take awhile
+										$urlTouch = $portal['urlRoot'].'/api/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
+										$this->getAPIResponce($urlTouch, true);
+										$newRegistration++;
+									}
 								}
+								$responseArr['current registrations'] = $currentRegistered;
+								$responseArr['new registrations'] = $newRegistration;
 							}
-							$responseArr['current registrations'] = $currentRegistered;
-							$responseArr['new registrations'] = $newRegistration;
+							else $responseArr['error'] = 'Unable to obtain remote installation listing: '.$urlInstallation;
+						} catch(\Illuminate\Database\QueryException $ex){
+							$responseArr['status'] = false;
+							$responseArr['error'] = 'Registration failed: Unable insert database record: '.$ex->getMessage();
 						}
-						else $responseArr['error'] = 'Unable to obtain remote installation listing: '.$urlInstallation;
-					} catch(\Illuminate\Database\QueryException $ex){
+					}
+					else{
 						$responseArr['status'] = false;
-						$responseArr['error'] = 'Registration failed: Unable insert database record: '.$ex->getMessage();
+						$responseArr['error'] = 'Registration failed: Supplied and returned remote GUIDs not matching ('.$id.' != '.$remote['guid'].')  ';
 					}
 				}
 				else{

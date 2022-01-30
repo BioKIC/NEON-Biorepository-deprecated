@@ -483,12 +483,8 @@ class SpecUpload{
 				$logPath = $GLOBALS['SERVER_ROOT'];
 				if(substr($logPath,-1) != '/') $logPath .= '/';
 				$logPath .= 'content/logs/occurImport/';
-				if($logTitle){
-					$logPath .= $logTitle;
-				}
-				else{
-					$logPath .= 'dataupload';
-				}
+				if($logTitle) $logPath .= $logTitle;
+				else $logPath .= 'dataupload';
 				$logPath .= '_'.date('Y-m-d').".log";
 				$this->logFH = fopen($logPath, 'a');
 				$this->outputMsg('Start time: '.date('Y-m-d h:i:s A'));

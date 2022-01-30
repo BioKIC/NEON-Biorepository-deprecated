@@ -112,7 +112,7 @@ class InstallationController extends Controller
 		elseif($id == $_ENV['PORTAL_GUID']){
 			//Make sure touch isn't referring to self
 			$responseArr['status'] = false;
-			$responseArr['error'] = 'Registration failed: touch is in reference to self';
+			$responseArr['error'] = 'Registration failed: handshake is referencing self';
 		}
 		elseif($request->has('endpoint')){
 			//Remote installation not yet in system, thus add and then process list from remote
@@ -136,7 +136,7 @@ class InstallationController extends Controller
 								$newRegistration = 0;
 								foreach($remoteInstallationArr['results'] as $portal){
 									if(PortalIndex::where('guid',$portal['guid'])->count()) $currentRegistered++;
-									else{
+									elseif($portal['guid'] != $_ENV['PORTAL_GUID']){
 										//Add remote
 										PortalIndex::create($portal);
 										//Touch remote installation but don't wait for a response because propagation across a large network can take awhile

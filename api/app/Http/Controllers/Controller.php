@@ -24,5 +24,7 @@ class Controller extends BaseController
 	 * )
 	 */
 
-
+	/**
+	 * @OA\Server(url="portal")
+	 */
 }

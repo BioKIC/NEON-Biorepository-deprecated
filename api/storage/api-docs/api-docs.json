@@ -8,6 +8,11 @@
         },
         "version": "2.0"
     },
+    "servers": [
+        {
+            "url": "portal"
+        }
+    ],
     "paths": {
         "/api/v2/installation": {
             "get": {
@@ -17,7 +22,7 @@
                 "operationId": "/api/v2/installation",
                 "responses": {
                     "200": {
-                        "description": "Returns list of installation",
+                        "description": "Returns list of installations registered within system",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -49,7 +54,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns occurrence data",
+                        "description": "Returns metabase on installation registered within system with matching ID",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -57,7 +62,69 @@
                         }
                     },
                     "400": {
-                        "description": "Error: Bad request. Occurrence identifier is required."
+                        "description": "Error: Bad request. Installation identifier is required."
+                    }
+                }
+            }
+        },
+        "/api/v2/installation/ping": {
+            "get": {
+                "tags": [
+                    ""
+                ],
+                "operationId": "/api/v2/installation/ping",
+                "responses": {
+                    "200": {
+                        "description": "Returns installation metadata",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error: Bad request. "
+                    }
+                }
+            }
+        },
+        "/api/v2/installation/{identifier}/touch": {
+            "get": {
+                "tags": [
+                    ""
+                ],
+                "operationId": "/api/v2/installation/identifier/touch",
+                "parameters": [
+                    {
+                        "name": "identifier",
+                        "in": "path",
+                        "description": "Identifier of the remote installation",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "urlPath",
+                        "in": "query",
+                        "description": "Url to Symbiota root of remote installation",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns metabase remote installation, if successfully registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error: Bad request. Identifier of remote installation is required."
                     }
                 }
             }

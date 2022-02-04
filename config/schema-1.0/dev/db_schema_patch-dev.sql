@@ -155,8 +155,9 @@ CREATE TABLE `omcollproperties` (
   CONSTRAINT `FK_omcollproperties_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)   ON DELETE CASCADE   ON UPDATE CASCADE,
   CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE);
 
+
 CREATE TABLE `portalindex` (
-  `portalIndexID` INT NOT NULL AUTO_INCREMENT,
+  `portalID` INT NOT NULL AUTO_INCREMENT,
   `portalName` VARCHAR(45) NOT NULL,
   `acronym` VARCHAR(45) NULL,
   `portalDescription` VARCHAR(250) NULL,
@@ -170,18 +171,21 @@ CREATE TABLE `portalindex` (
   `primaryLeadEmail` VARCHAR(45) NULL,
   `notes` VARCHAR(250) NULL,
   `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`portalIndexID`));
+  PRIMARY KEY (`portalID`));
 
 ALTER TABLE `portalindex` 
   ADD UNIQUE INDEX `UQ_portalIndex_guid` (`guid` ASC);
 
 ALTER TABLE `omcollpublications` 
+  RENAME TO `portalpublications` ;
+
+ALTER TABLE `portalpublications` 
   DROP FOREIGN KEY `FK_adminpub_collid`;
 
-ALTER TABLE `omcollpublications` 
+ALTER TABLE `portalpublications` 
   DROP COLUMN `securityguid`,
   DROP COLUMN `targeturl`,
-  ADD COLUMN `portalIndexID` INT NULL AFTER `collid`,
+  ADD COLUMN `portalID` INT NULL AFTER `collid`,
   CHANGE COLUMN `collid` `collid` INT(10) UNSIGNED NULL ,
   CHANGE COLUMN `criteriajson` `criteriaJson` TEXT NULL DEFAULT NULL ,
   CHANGE COLUMN `includedeterminations` `includeDeterminations` INT(11) NULL DEFAULT 1,
@@ -190,38 +194,35 @@ ALTER TABLE `omcollpublications`
   CHANGE COLUMN `lastdateupdate` `lastDateUpdate` DATETIME NULL DEFAULT NULL,
   CHANGE COLUMN `updateinterval` `updateInterval` INT(11) NULL DEFAULT NULL,
   CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
-  ADD INDEX `FK_collPub_portalID_idx` (`portalIndexID` ASC);
+  ADD INDEX `FK_portalpub_portalID_idx` (`portalID` ASC);
 
-ALTER TABLE `omcollpublications` 
-  ADD CONSTRAINT `FK_collPub_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_collPub_portalID`  FOREIGN KEY (`portalIndexID`)  REFERENCES `portalindex` (`portalIndexID`)  ON DELETE RESTRICT  ON UPDATE NO ACTION;
+ALTER TABLE `portalpublications` 
+  ADD CONSTRAINT `FK_portalpub_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_portalpub_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE RESTRICT  ON UPDATE NO ACTION;
 
-ALTER TABLE `omcollpublications` 
+ALTER TABLE `portalpublications` 
   ADD COLUMN `pubTitle` VARCHAR(45) NULL AFTER `pubid`,
   ADD COLUMN `description` VARCHAR(250) NULL AFTER `pubTitle`,
   ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `updateInterval`;
 
-ALTER TABLE `omcollpublications` 
-  RENAME TO `ompublication` ;
-
 ALTER TABLE `omcollpuboccurlink` 
-  RENAME TO  `ompublicationoccurlink` ;
+  RENAME TO  `portaloccurrences` ;
 
-ALTER TABLE `ompublicationoccurlink` 
+ALTER TABLE `portaloccurrences` 
   DROP FOREIGN KEY `FK_ompubpubid`;
 
-ALTER TABLE `ompublicationoccurlink` 
-  ADD COLUMN `portalIndexID` INT NOT NULL AFTER `occid`,
+ALTER TABLE `portaloccurrences` 
+  ADD COLUMN `portalID` INT NOT NULL AFTER `occid`,
   ADD COLUMN `targetOccid` INT NULL AFTER `pubid`,
   CHANGE COLUMN `occid` `occid` INT(10) UNSIGNED NOT NULL FIRST,
   CHANGE COLUMN `pubid` `pubid` INT(10) UNSIGNED NULL DEFAULT NULL ,
   DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`occid`, `portalIndexID`),
-  ADD INDEX `FK_ompub_portalIndexID_idx` (`portalIndexID` ASC);
+  ADD PRIMARY KEY (`occid`, `portalID`),
+  ADD INDEX `FK_portalID_idx` (`portalID` ASC);
 
-ALTER TABLE `ompublicationoccurlink` 
-  ADD CONSTRAINT `FK_ompubpubid`  FOREIGN KEY (`pubid`)  REFERENCES `ompublication` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_ompub_portalIndexID`  FOREIGN KEY (`portalIndexID`)  REFERENCES `portalindex` (`portalIndexID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+ALTER TABLE `portaloccurrence` 
+  ADD CONSTRAINT `FK_portalpub_pubid`  FOREIGN KEY (`pubid`)  REFERENCES `portalpublications` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_portalpub_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
 
 CREATE TABLE `omcrowdsourceproject` (

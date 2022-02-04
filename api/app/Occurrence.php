@@ -36,7 +36,7 @@ class Occurrence extends Model
 		return $this->hasMany(Media::class, 'occid', 'occid');
 	}
 
-	public function guidoccurrence()
+	public function guidOccurrence()
 	{
 	    return $this->hasMany(GuidOccurrence::class, 'occid', 'occid');
 	}

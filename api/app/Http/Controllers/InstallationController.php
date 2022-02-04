@@ -219,6 +219,29 @@ class InstallationController extends Controller
 		return response()->json($responseArr);
 	}
 
+	public function showOccurrences($id, Request $request){
+		$this->validate($request, [
+			'limit' => ['integer', 'max:1000'],
+			'offset' => 'integer'
+		]);
+
+		$limit = $request->input('limit',100);
+		$offset = $request->input('offset',0);
+
+		$fullCnt = PortalIndex::find($id)->registeredOccurrences->count();
+		$result = PortalIndex::find($id)->registeredOccurrences->skip($offset)->take($limit)->get();
+
+		$eor = false;
+		$retObj = [
+				"offset" => $offset,
+				"limit" => $limit,
+				"endOfRecords" => $eor,
+				"count" => $fullCnt,
+				"results" => $result
+		];
+		return response()->json($retObj);
+	}
+
 	public function create(Request $request){
 		/*
 		$portalIndex = PortalIndex::create($request->all());

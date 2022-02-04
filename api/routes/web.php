@@ -27,17 +27,17 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	//$router->get('occurrences/annotations',  ['uses' => 'OccurrenceAnnotationsController@showAllAnnotations']);
 	//$router->get('occurrences/annotations/{id}', ['uses' => 'OccurrenceAnnotationsController@showAnnotations']);
 
+	$router->get('installation',  ['uses' => 'InstallationController@showAllPortals']);
+	$router->get('installation/ping', ['uses' => 'InstallationController@pingPortal']);
+	$router->get('installation/{id}', ['uses' => 'InstallationController@showOnePortal']);
+	$router->get('installation/{id}/touch',  ['uses' => 'InstallationController@portalHandshake']);
+	$router->get('installation/{id}/occurrence',  ['uses' => 'InstallationController@showOccurrences']);
+
 	$router->get('media',  ['uses' => 'MediaController@showAllMedia']);
 	$router->get('media/{id}', ['uses' => 'MediaController@showOneMedia']);
 	$router->post('media', ['uses' => 'MediaController@create']);
 	$router->delete('media/{id}', ['uses' => 'MediaController@delete']);
 	$router->put('media/{id}', ['uses' => 'MediaController@update']);
-
-	$router->get('installation',  ['uses' => 'InstallationController@showAllPortals']);
-	$router->get('installation/ping', ['uses' => 'InstallationController@pingPortal']);
-	$router->get('installation/{id}', ['uses' => 'InstallationController@showOnePortal']);
-	$router->get('installation/{id}/touch',  ['uses' => 'InstallationController@portalHandshake']);
-	$router->get('installation/{id}/propagate',  ['uses' => 'InstallationController@propagateRegistration']);
 
 	//$router->get('taxonomy',  ['uses' => 'TaxonomyController@showAllTaxa']);
 	//$router->get('taxonomy/{id}', ['uses' => 'TaxonomyController@showOneTaxon']);

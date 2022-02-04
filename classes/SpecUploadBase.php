@@ -842,7 +842,6 @@ class SpecUploadBase extends SpecUpload{
 		$rs->free();
 
 		$fieldArr = $this->getTransferFieldArr();
-
 		//Update matching records
 		$sqlFragArr = array();
 		foreach($fieldArr as $v){
@@ -1369,8 +1368,8 @@ class SpecUploadBase extends SpecUpload{
 
 	private function crossMapSymbiotaOccurrences(){
 		if($this->sourcePortalIndex && $this->collMetadataArr['managementtype'] == 'Snapshot'){
-			$sql = 'INSERT INTO ompublicationoccurlink(occid, targetOccid, portalIndexID, refreshTimestamp)
-				SELECT u.occid, u.dbpk, '.$this->sourcePortalIndex.', NOW() FROM uploadspectemp u LEFT JOIN ompublicationoccurlink l ON u.occid = l.occid
+			$sql = 'INSERT INTO portaloccurrences(occid, targetOccid, portalID, refreshTimestamp)
+				SELECT u.occid, u.dbpk, '.$this->sourcePortalIndex.', NOW() FROM uploadspectemp u LEFT JOIN portaloccurrences l ON u.occid = l.occid
 				WHERE u.occid IS NOT NULL AND u.dbpk IS NOT NULL AND u.collid = '.$this->collId.' AND l.occid IS NULL';
 			if($this->conn->query($sql)) $this->outputMsg('<li>Occurrences cross-mapped to Symbiota source portal</li> ');
 			//else $this->outputMsg('<li>ERROR linking occurrences to source portal: '.$this->conn->error.'</li> ');

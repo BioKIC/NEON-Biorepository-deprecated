@@ -388,7 +388,7 @@ class SpecUploadDwca extends SpecUploadBase{
 				if($node = $symbiotaNodeList->item(0)){
 					if($node->hasAttribute('id')){
 						if($symbiotaGuid = $node->getAttribute('id')){
-							$this->setPortalIndexID($symbiotaGuid);
+							$this->setPortalID($symbiotaGuid);
 							if(!$this->sourcePortalIndex){
 								$urlNodeList = $xpath->query('/eml:eml/dataset/alternateIdentifier');
 								if($urlNodeList && isset($urlNodeList->item(0)->nodeValue)){
@@ -433,11 +433,11 @@ class SpecUploadDwca extends SpecUploadBase{
 		}
 	}
 
-	private function setPortalIndexID($symbiotaGuid){
+	private function setPortalID($symbiotaGuid){
 		if($symbiotaGuid){
-			$sql = 'SELECT portalIndexID FROM portalindex WHERE guid = "'.$this->cleanInStr($symbiotaGuid).'"';
+			$sql = 'SELECT portalID FROM portalindex WHERE guid = "'.$this->cleanInStr($symbiotaGuid).'"';
 			if($rs = $this->conn->query($sql)){
-				if($r = $rs->fetch_object()) $this->sourcePortalIndex = $r->portalIndexID;
+				if($r = $rs->fetch_object()) $this->sourcePortalIndex = $r->portalID;
 				$rs->free();
 			}
 		}

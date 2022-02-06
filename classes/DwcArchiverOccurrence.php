@@ -238,8 +238,6 @@ class DwcArchiverOccurrence{
 			$this->occurDefArr['fields']['lithology'] = 'paleo.lithology';
 			$this->occurDefArr['terms']['stratRemarks'] = 'https://symbiota.org/terms/paleo-stratRemarks';
 			$this->occurDefArr['fields']['stratRemarks'] = 'paleo.stratRemarks';
-			$this->occurDefArr['terms']['lithDescription'] = 'https://symbiota.org/terms/paleo-lithDescription';
-			$this->occurDefArr['fields']['lithDescription'] = 'paleo.lithDescription';
 			$this->occurDefArr['terms']['element'] = 'https://symbiota.org/terms/paleo-element';
 			$this->occurDefArr['fields']['element'] = 'paleo.element';
 			$this->occurDefArr['terms']['slideProperties'] = 'https://symbiota.org/terms/paleo-slideProperties';

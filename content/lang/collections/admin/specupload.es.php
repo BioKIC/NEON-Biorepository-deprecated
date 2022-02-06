@@ -34,12 +34,18 @@ $LANG['PENDING_REPORT'] = 'Reporte de Datos Pendientes de Transferir';
 $LANG['OCCS_TRANSFERING'] = 'Ocurrencias pendientes de transferir';
 $LANG['PREVIEW'] = 'Ver primeros 1000 Registros';
 $LANG['DOWNLOAD_RECS'] = 'Descargar Registros';
-$LANG['CAUTION_REPLACE'] = 'Precaución:</b></span> registros por cargar reemplazarán a los registros existentes';
+$LANG['RECORDS_UPDATED'] = 'Registros a actualizar';
+$LANG['CAUTION_REPLACE'] = 'registros por cargar reemplazarán a los registros existentes';
+$LANG['MISMATCHED'] = 'Registros no coincidentes';
+$LANG['NEW_RECORDS'] = 'Nuevos registros';
 $LANG['FAILED_LINK'] = 'Los registros no fueron vinculados a registros existentes en esta colección y no serán importados';
-$LANG['WARNING_DUPES'] = 'ADVERTENCIA:</span> Esto resultará en registros con números de catálogo duplicados';
+$LANG['MATCHING_CATALOG'] = 'Registros que coinciden con el número de catálogo que se adjuntará';
+$LANG['WARNING'] = 'ADVERTENCIA';
+$LANG['WARNING_DUPES'] = 'Esto resultará en registros con números de catálogo duplicados';
 $LANG['RECS_SYNC'] = 'Los registros que serán sincronizados con la base de datos central';
 $LANG['EXPL_SYNC'] = 'Estos son típicamente registros que han sido procesados originalmente dentro del portal, exportados e integrados en una base de datos local, y luego reimportados y sincronizados con los registros en el portal por medio del número de catálogo';
-$LANG['WARNING_REPLACE'] = 'ADVERTENCIA:</span> Registros por cargar reemplazarán los registros en el portal con el mismo número de catálogo. ¡Asegúrese que los registros por cargar sean los más recientes!';
+$LANG['WARNING_REPLACE'] = 'Registros por cargar reemplazarán los registros en el portal con el mismo número de catálogo. ¡Asegúrese que los registros por cargar sean los más recientes!';
+$LANG['NOT_MATCHING'] = 'Registros cargados anteriormente que no coinciden con los registros entrantes';
 $LANG['EXPECTED'] = 'Nota: Si está realizando una carga parcial de datos, esto es esperado';
 $LANG['FULL_REFRESH'] = 'Si está haciendo una actualización de datos completa, estos pueden ser registros que fueron eliminados en su base de datos local pero no dentro del portal.';
 $LANG['NULL_RM'] = 'Registros que serán eliminados debido a un Identificador Primario NULO';
@@ -51,12 +57,13 @@ $LANG['TRANS_RECS'] = 'Transferir Registros a la Tabla Central de Especímenes';
 $LANG['REC_START'] = 'Inicio de Registros';
 $LANG['REC_LIM'] = 'Límite de Registros';
 $LANG['MATCH_CAT'] = 'Hacer Coincidir con el Número de Catálogo';
-$LANG['MATCH_O_CAT'] = 'Hacer Coincidir con Otros Números de Catálogo';
+$LANG['MATCH_ON_CAT'] = 'Hacer Coincidir con Otros Números de Catálogo';
+$LANG['APPENDED'] = 'Los datos esqueléticos entrantes se agregarán solo si el campo de destino está vacío';
 $LANG['BOTH_CATS'] = 'Si ambas casillas son seleccionadas, las coincidencias serán realizadas primero con el número de catálogo y luego con otros números de catálogo';
 $LANG['ID_SOURCE'] = 'Identificar Fuente de Datos';
 $LANG['IPT_URL'] = 'URL de Recurso IPT';
 $LANG['RES_URL'] = 'Dirección o URL del Recurso';
-$LANG['WORKAROUND'] = 'Esta opción es para dirigirse a un archivo de datos que fue subido 
+$LANG['WORKAROUND'] = 'Esta opción es para dirigirse a un archivo de datos que fue subido
 						manualmente a un servidor. Esta opción ofrece un atajo para importar archivos que son más grandes que lo permitido
 						por los límites de carga del servidor (e.g. límites de configuración PHP)';
 $LANG['DISPLAY_OPS'] = 'Desplegar Opciones Adicionales';
@@ -118,7 +125,7 @@ $LANG['SKEL_EXPLAIN_P3'] = 'En casos donde el registro ya exista, una carga gene
 							Por otro lado, una carga esquelética actualizará el registro existente únicamente con los nuevos datos en los campos. Los campos únicament son añadidos si aún no hay datos en el campo objetivo.';
 $LANG['SKEL_EXPLAIN_P4'] = 'Si un registro NO existe aún, un nuevo registro será creado en ambos casos, pero sólo el registro esquelético será marcado como no procesado';
 $LANG['NOT_AUTH'] = 'ERROR: no está autorizado para cargar archivos en esta colección';
-$LANG['PAGE_ERROR'] = 'ERROR: O intentó llegar a esta página sin pasar por el menú de administración de colecciones 
+$LANG['PAGE_ERROR'] = 'ERROR: O intentó llegar a esta página sin pasar por el menú de administración de colecciones
 				o trató de subir un archivo que es muy grande.
 				Tal vez quiera dividir el archivo en archivos más pequeños, o comprimirlo en un archivo zip  (extensión .zip).
 				Puede contactar al administrador del portal para solicitar asistencia para cargar el archivo (pista para el admin: incrementar el límite de carga PHP puede ayudar,

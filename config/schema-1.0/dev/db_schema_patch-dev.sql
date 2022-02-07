@@ -163,7 +163,7 @@ CREATE TABLE `portalindex` (
   `portalDescription` VARCHAR(250) NULL,
   `urlRoot` VARCHAR(150) NOT NULL,
   `securityKey` VARCHAR(45) NULL,
-  `symbVersion` VARCHAR(45) NULL,
+  `symbiotaVersion` VARCHAR(45) NULL,
   `guid` VARCHAR(45) NULL,
   `manager` VARCHAR(45) NULL,
   `managerEmail` VARCHAR(45) NULL,
@@ -218,11 +218,11 @@ ALTER TABLE `portaloccurrences`
   CHANGE COLUMN `pubid` `pubid` INT(10) UNSIGNED NULL DEFAULT NULL ,
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`occid`, `portalID`),
-  ADD INDEX `FK_portalID_idx` (`portalID` ASC);
+  ADD INDEX `FK_portalOccur_portalID_idx` (`portalID` ASC);
 
 ALTER TABLE `portaloccurrence` 
-  ADD CONSTRAINT `FK_portalpub_pubid`  FOREIGN KEY (`pubid`)  REFERENCES `portalpublications` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_portalpub_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+  ADD CONSTRAINT `FK_portalOccur_pubid`  FOREIGN KEY (`pubid`)  REFERENCES `portalpublications` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_portalOccur_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
 
 CREATE TABLE `omcrowdsourceproject` (

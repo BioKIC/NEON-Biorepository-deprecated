@@ -43,11 +43,11 @@ class InstallationController extends Controller
 
 		$eor = false;
 		$retObj = [
-				"offset" => $offset,
-				"limit" => $limit,
-				"endOfRecords" => $eor,
-				"count" => $fullCnt,
-				"results" => $result
+			"offset" => $offset,
+			"limit" => $limit,
+			"endOfRecords" => $eor,
+			"count" => $fullCnt,
+			"results" => $result
 		];
 		return response()->json($retObj);
 	}
@@ -224,21 +224,28 @@ class InstallationController extends Controller
 			'limit' => ['integer', 'max:1000'],
 			'offset' => 'integer'
 		]);
-
 		$limit = $request->input('limit',100);
 		$offset = $request->input('offset',0);
 
-		$fullCnt = PortalIndex::find($id)->registeredOccurrences->count();
-		$result = PortalIndex::find($id)->registeredOccurrences->skip($offset)->take($limit)->get();
+		$portalObj = null;
+		if(is_numeric($id)) $portalObj = PortalIndex::find($id);
+		else $portalObj = PortalIndex::where('guid',$id)->first();
 
-		$eor = false;
-		$retObj = [
+		$retObj = [];
+		if($portalObj){
+			$fullCnt = $portalObj->portalOccurrences->count();
+			echo 'count: '.$fullCnt; exit;
+			$result = $portalObj->portalOccurrences->skip($offset)->take($limit)->get();
+			$eor = false;
+			$retObj = [
 				"offset" => $offset,
 				"limit" => $limit,
 				"endOfRecords" => $eor,
 				"count" => $fullCnt,
 				"results" => $result
-		];
+			];
+		}
+		else $retObj = ["status"=>false,"error"=>"Unable to locate installation based on identifier"];
 		return response()->json($retObj);
 	}
 

@@ -5,8 +5,7 @@ Language: Español (Spanish)
 ------------------
 */
 
-include_once($SERVER_ROOT.'/content/lang/collections/individual/index.en.php');
-include_once($SERVER_ROOT.'/content/lang/collections/sharedterms.en.php');
+include_once($SERVER_ROOT.'/content/lang/collections/list.es.php');
 
 $LANG['COL_RESULTS'] = 'Tabla de Resultados de Búsqueda en Colecciones';
 $LANG['SORT'] = 'Organizar Resultados';

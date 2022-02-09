@@ -520,9 +520,11 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if(array_key_exists('polycoords',$this->searchTermArr) || strpos($sqlWhere,'p.point')){
 			$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
 		}
+		/*
 		if(array_key_exists('includeothercatnum',$this->searchTermArr)){
-			//$sqlJoin .= 'LEFT JOIN omoccuridentifiers oi ON o.occid = oi.occid ';
+			$sqlJoin .= 'LEFT JOIN omoccuridentifiers oi ON o.occid = oi.occid ';
 		}
+		*/
 		return $sqlJoin;
 	}
 

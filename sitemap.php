@@ -462,7 +462,7 @@ $smManager = new SiteMapManager();
 			?>
 			</fieldset>
 			<div style="margin: 15px">
-				<div style="margin: 5px"><img src="https://img.shields.io/badge/Symbiota-v1.2.1.202201-blue.svg" /></div>
+				<div style="margin: 5px"><img src="https://img.shields.io/badge/Symbiota-v<?php echo $CODE_VERSION; ?>-blue.svg" /></div>
 				<div style="margin: 5px"><img src="https://img.shields.io/badge/Schema-<?php echo 'v'.$smManager->getSchemaVersion(); ?>-blue.svg" /></div>
 			</div>
 		</div>

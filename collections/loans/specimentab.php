@@ -11,6 +11,9 @@ $loanManager = new OccurrenceLoans();
 if($collid) $loanManager->setCollId($collid);
 $specList = $loanManager->getSpecimenList($loanId);
 ?>
+<style type="text/css">
+	table th{ text-align:center; }
+</style>
 <div id="outloanspecdiv">
 	<div class="addSpecimenDiv">
 		<fieldset>
@@ -73,10 +76,11 @@ $specList = $loanManager->getSpecimenList($loanId);
 		<form name="speceditform" action="outgoing.php" method="post" onsubmit="return verifySpecEditForm(this)" >
 			<table class="styledtable" style="font-family:Arial;font-size:12px;">
 				<tr>
-					<th style="text-align:center;"><input type="checkbox" onclick="selectAll(this);" title="Select/Deselect All" /></th>
-					<th style="text-align:center;">Catalog Number</th>
-					<th style="text-align:center;">Details</th>
-					<th style="text-align:center;">Date Returned</th>
+					<th><input type="checkbox" onclick="selectAll(this);" title="Select/Deselect All" /></th>
+					<th>&nbsp;</th>
+					<th>Catalog Number</th>
+					<th>Details</th>
+					<th>Date Returned</th>
 				</tr>
 				<?php
 				foreach($specList as $occid => $specArr){
@@ -91,17 +95,17 @@ $specList = $loanManager->getSpecimenList($loanId);
 							</span>
 						</td>
 						<td>
-							<div style="float:right;">
+							<div>
 								<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;"><img src="../../images/list.png" style="width:13px" title="Open Specimen Details page" /></a><br/>
 								<a href="#" onclick="openEditorPopup(<?php echo $occid; ?>); return false;"><img src="../../images/edit.png" style="width:13px" title="Open Occurrence Editor" /></a>
 							</div>
-							<div style="float:left;">
-								<?php
-								if($specArr['catalognumber']) echo '<div>'.$specArr['catalognumber'].'</div>';
-								if(isset($specArr['othercatalognumbers'])) echo '<div>'.implode('<br/>',$specArr['othercatalognumbers']).'</div>';
-								if($specArr['collid'] != $collid) echo '<div style="color:orange">external</div>';
-								?>
-							</div>
+						</td>
+						<td>
+							<?php
+							if($specArr['catalognumber']) echo '<div>'.$specArr['catalognumber'].'</div>';
+							if(isset($specArr['othercatalognumbers'])) echo '<div>'.implode('<br/>',$specArr['othercatalognumbers']).'</div>';
+							if($specArr['collid'] != $collid) echo '<div style="color:orange">external</div>';
+							?>
 						</td>
 						<td>
 							<?php

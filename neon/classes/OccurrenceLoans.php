@@ -20,7 +20,7 @@ l.loanid, l.collidown, c.collectioncode, c.collectionname, i.institutioncode AS 
       while($row = $result->fetch_assoc()){
         $dataArr[] = array(
           'loanid' => '<a href="../collections/loans/outgoing.php?collid='.$row['collidown'].'&loanid='.$row['loanid'].'">'.$row['loanid'].'</a>',
-          'collection' => '<a href="../collections/editor/collprofiles.php?collid='.$row['collidown'].'">['.$row['collectioncode'].'] '.$row['collectionname'].'</a>',
+          'collection' => '<a href="../collections/misc/collprofiles.php?collid='.$row['collidown'].'">['.$row['collectioncode'].'] '.$row['collectionname'].'</a>',
           'borrower' => is_null($row['borrower'])?'<span style="color:lightgray;">NULL</span>':$row['borrower'],
           'forwhom' => is_null($row['forwhom'])?'<span style="color:lightgray;">NULL</span>':$row['forwhom'],
           'datesent' => is_null($row['datesent'])?'<span style="color:lightgray;">NULL</span>':$row['datesent'],

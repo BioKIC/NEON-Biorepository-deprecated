@@ -479,7 +479,7 @@ class OccurrenceHarvester{
 				$dwcArr['identifiers']['NEON sampleCode (barcode)'] = (isset($sampleArr['sampleCode'])?$sampleArr['sampleCode']:'');
 				$dwcArr['identifiers']['NEON sampleID'] = (isset($sampleArr['sampleID'])?$sampleArr['sampleID']:'');
 				$dwcArr['identifiers']['NEON sampleUUID'] = (isset($sampleArr['sampleUuid'])?$sampleArr['sampleUuid']:'');
-				$dwcArr['identifiers']['NEON sampleID2'] = (isset($sampleArr['hashedSampleID'])?$sampleArr['hashedSampleID']:'');
+				$dwcArr['identifiers']['NEON sampleID Hash'] = (isset($sampleArr['hashedSampleID'])?$sampleArr['hashedSampleID']:'');
 				if(isset($sampleArr['event_id'])) $dwcArr['eventID'] = $sampleArr['event_id'];
 				if(isset($sampleArr['specimen_count'])) $dwcArr['individualCount'] = $sampleArr['specimen_count'];
 				elseif(isset($sampleArr['individualCount'])) $dwcArr['individualCount'] = $sampleArr['individualCount'];
@@ -877,7 +877,13 @@ class OccurrenceHarvester{
 			$this->conn->query($delSql);
 			foreach($idArr as $idName => $idValue){
 				if($idValue){
-					$sql = 'INSERT INTO omoccuridentifiers(occid, identifiername, identifierValue) VALUES('.$occid.',"'.$this->cleanInStr($idName).'","'.$this->cleanInStr($idValue).'")';
+					$sortBy = 'NULL';
+					if($idName=='NEON sampleID') $sortBy = 5;
+					elseif($idName=='NEON sampleID Hash') $sortBy = 10;
+					elseif($idName=='NEON sampleCode (barcode)') $sortBy = 15;
+					elseif($idName=='NEON sampleUUID') $sortBy = 20;
+					$sql = 'INSERT INTO omoccuridentifiers(occid, identifiername, identifierValue, sortBy)
+						VALUES('.$occid.',"'.$this->cleanInStr($idName).'","'.$this->cleanInStr($idValue).'",'.$sortBy.')';
 					if(!$this->conn->query($sql)){
 						//$this->errorStr = 'ERROR loading occurrence identifiers: '.$this->conn->error;
 					}

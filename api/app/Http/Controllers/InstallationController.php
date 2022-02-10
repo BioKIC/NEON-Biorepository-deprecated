@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 use App\PortalIndex;
 use Illuminate\Http\Request;
 
-class InstallationController extends Controller
-{
+class InstallationController extends Controller{
 	/**
 	 * Installation controller instance.
 	 *
@@ -19,6 +18,20 @@ class InstallationController extends Controller
 	 *	 path="/api/v2/installation",
 	 *	 operationId="/api/v2/installation",
 	 *	 tags={""},
+	 *	 @OA\Parameter(
+	 *		 name="limit",
+	 *		 in="query",
+	 *		 description="Pagination parameter: maximum number of records per page",
+	 *		 required=false,
+	 *		 @OA\Schema(type="integer", default=100)
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="offset",
+	 *		 in="query",
+	 *		 description="Pagination parameter: page number",
+	 *		 required=false,
+	 *		 @OA\Schema(type="integer", default=0)
+	 *	 ),
 	 *	 @OA\Response(
 	 *		 response="200",
 	 *		 description="Returns list of installations registered within system",
@@ -43,8 +56,8 @@ class InstallationController extends Controller
 
 		$eor = false;
 		$retObj = [
-			"offset" => $offset,
-			"limit" => $limit,
+			"offset" => (int)$offset,
+			"limit" => (int)$limit,
 			"endOfRecords" => $eor,
 			"count" => $fullCnt,
 			"results" => $result
@@ -219,8 +232,46 @@ class InstallationController extends Controller
 		return response()->json($responseArr);
 	}
 
+	/**
+	 * @OA\Get(
+	 *	 path="/api/v2/installation/{identifier}/occurrence",
+	 *	 operationId="/api/v2/installation/identifier/occurrence",
+	 *	 tags={""},
+	 *	 @OA\Parameter(
+	 *		 name="identifier",
+	 *		 in="path",
+	 *		 description="Identifier of the remote installation",
+	 *		 required=true,
+	 *		 @OA\Schema(type="string")
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="limit",
+	 *		 in="query",
+	 *		 description="Pagination parameter: maximum number of records per page",
+	 *		 required=false,
+	 *		 @OA\Schema(type="integer", default=100)
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="offset",
+	 *		 in="query",
+	 *		 description="Pagination parameter: page number",
+	 *		 required=false,
+	 *		 @OA\Schema(type="integer", default=0)
+	 *	 ),
+	 *	 @OA\Response(
+	 *		 response="200",
+	 *		 description="Returns list of occurrences associated with an installations",
+	 *		 @OA\JsonContent()
+	 *	 ),
+	 *	 @OA\Response(
+	 *		 response="400",
+	 *		 description="Error: Bad request. Identifier of remote installation is required.",
+	 *	 ),
+	 * )
+	 */
 	public function showOccurrences($id, Request $request){
 		$this->validate($request, [
+			'verification' => ['integer'],
 			'limit' => ['integer', 'max:1000'],
 			'offset' => 'integer'
 		]);
@@ -233,13 +284,17 @@ class InstallationController extends Controller
 
 		$retObj = [];
 		if($portalObj){
-			$fullCnt = $portalObj->portalOccurrences->count();
-			echo 'count: '.$fullCnt; exit;
-			$result = $portalObj->portalOccurrences->skip($offset)->take($limit)->get();
+			$conditions = [];
+			if($request->has('verification')){
+				if($request->verification) $conditions[] = ['verification',1];
+				else $conditions[] = ['verification',0];
+			}
+			$fullCnt = $portalObj->portalOccurrences()->where($conditions)->count();
+			$result = $portalObj->portalOccurrences()->where($conditions)->skip($offset)->take($limit)->get();
 			$eor = false;
 			$retObj = [
-				"offset" => $offset,
-				"limit" => $limit,
+				"offset" => (int)$offset,
+				"limit" => (int)$limit,
 				"endOfRecords" => $eor,
 				"count" => $fullCnt,
 				"results" => $result

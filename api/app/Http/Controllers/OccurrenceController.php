@@ -6,16 +6,13 @@ use App\Occurrence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class OccurrenceController extends Controller
-{
+class OccurrenceController extends Controller{
 	/**
 	 * Occurrence controller instance.
 	 *
 	 * @return void
 	 */
-	public function __construct()
-	{
-
+	public function __construct(){
 	}
 
 	/**
@@ -58,6 +55,20 @@ class OccurrenceController extends Controller
 	 *		 required=false,
 	 *		 @OA\Schema(type="string")
 	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="limit",
+	 *		 in="query",
+	 *		 description="Pagination parameter: maximum number of records per page",
+	 *		 required=false,
+	 *		 @OA\Schema(type="integer", default=100)
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="offset",
+	 *		 in="query",
+	 *		 description="Pagination parameter: page number",
+	 *		 required=false,
+	 *		 @OA\Schema(type="integer", default=0)
+	 *	 ),
 	 *	 @OA\Response(
 	 *		 response="200",
 	 *		 description="Returns list of occurrences",
@@ -69,13 +80,11 @@ class OccurrenceController extends Controller
 	 *	 ),
 	 * )
 	 */
-	public function showAllOccurrences(Request $request)
-	{
+	public function showAllOccurrences(Request $request){
 		$this->validate($request, [
 			'limit' => ['integer', 'max:300'],
 			'offset' => 'integer'
 		]);
-
 		$limit = $request->input('limit',100);
 		$offset = $request->input('offset',0);
 
@@ -91,8 +100,8 @@ class OccurrenceController extends Controller
 
 		$eor = false;
 		$retObj = [
-			"offset" => $offset,
-			"limit" => $limit,
+			"offset" => (int)$offset,
+			"limit" => (int)$limit,
 			"endOfRecords" => $eor,
 			"count" => $fullCnt,
 			"results" => $result
@@ -130,8 +139,7 @@ class OccurrenceController extends Controller
 	 *	 ),
 	 * )
 	 */
-	public function showOneOccurrence($id, Request $request)
-	{
+	public function showOneOccurrence($id, Request $request){
 		$this->validate($request, [
 			'includeMedia' => 'integer',
 			'includeIdentHistory' => 'integer'
@@ -148,21 +156,18 @@ class OccurrenceController extends Controller
 		return response()->json($occurrence);
 	}
 
-	public function create(Request $request)
-	{
+	public function create(Request $request){
 		//$occurrence = Occurrence::create($request->all());
 		//return response()->json($occurrence, 201);
 	}
 
-	public function update($id, Request $request)
-	{
+	public function update($id, Request $request){
 		//$occurrence = Occurrence::findOrFail($id);
 		//$occurrence->update($request->all());
 		//return response()->json($occurrence, 200);
 	}
 
-	public function delete($id)
-	{
+	public function delete($id){
 		//Occurrence::findOrFail($id)->delete();
 		//return response('Occurrence Deleted Successfully', 200);
 	}

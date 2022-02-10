@@ -137,21 +137,19 @@ $params = [
 ];
 
 if(!isset($params['connections']['mysql']['database']) || !$params['connections']['mysql']['database']){
-    $symbBasePath = '../';
-    if(file_exists($symbBasePath.'/config/dbconnection.php')){
-        require_once($symbBasePath.'/config/dbconnection.php');
-        foreach(MySQLiConnectionFactory::$SERVERS as $dbArr){
-        	if($dbArr['type'] = 'write'){
-        		$params['connections']['mysql']['host'] = $dbArr['host'];
-        		$params['connections']['mysql']['port'] = $dbArr['port'];
-        		$params['connections']['mysql']['database'] = $dbArr['database'];
-        		$params['connections']['mysql']['username'] = $dbArr['username'];
-        		$params['connections']['mysql']['password'] = $dbArr['password'];
-        	}
-        }
-    }
+	$symbBasePath = '../';
+	if(file_exists($symbBasePath.'/config/dbconnection.php')){
+		require_once($symbBasePath.'/config/dbconnection.php');
+		foreach(MySQLiConnectionFactory::$SERVERS as $dbArr){
+			if($dbArr['type'] = 'write'){
+				$params['connections']['mysql']['host'] = $dbArr['host'];
+				$params['connections']['mysql']['port'] = $dbArr['port'];
+				$params['connections']['mysql']['database'] = $dbArr['database'];
+				$params['connections']['mysql']['username'] = $dbArr['username'];
+				$params['connections']['mysql']['password'] = $dbArr['password'];
+			}
+		}
+	}
 }
-
-
 
 return $params;

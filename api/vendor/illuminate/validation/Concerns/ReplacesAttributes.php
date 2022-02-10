@@ -25,6 +25,24 @@ trait ReplacesAttributes
     }
 
     /**
+     * Replace all place-holders for the declined_if rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array  $parameters
+     * @return string
+     */
+    protected function replaceDeclinedIf($message, $attribute, $rule, $parameters)
+    {
+        $parameters[1] = $this->getDisplayableValue($parameters[0], Arr::get($this->data, $parameters[0]));
+
+        $parameters[0] = $this->getDisplayableAttribute($parameters[0]);
+
+        return str_replace([':other', ':value'], $parameters, $message);
+    }
+
+    /**
      * Replace all place-holders for the between rule.
      *
      * @param  string  $message
@@ -180,6 +198,24 @@ trait ReplacesAttributes
     protected function replaceInArray($message, $attribute, $rule, $parameters)
     {
         return str_replace(':other', $this->getDisplayableAttribute($parameters[0]), $message);
+    }
+
+    /**
+     * Replace all place-holders for the required_array_keys rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array  $parameters
+     * @return string
+     */
+    protected function replaceRequiredArrayKeys($message, $attribute, $rule, $parameters)
+    {
+        foreach ($parameters as &$parameter) {
+            $parameter = $this->getDisplayableValue($attribute, $parameter);
+        }
+
+        return str_replace(':values', implode(', ', $parameters), $message);
     }
 
     /**

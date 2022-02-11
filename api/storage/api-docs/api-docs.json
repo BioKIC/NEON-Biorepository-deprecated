@@ -14,12 +14,96 @@
         }
     ],
     "paths": {
+        "/api/v2/collection": {
+            "get": {
+                "tags": [
+                    ""
+                ],
+                "operationId": "/api/v2/collection",
+                "parameters": [
+                    {
+                        "name": "managementType",
+                        "in": "query",
+                        "description": "live, snapshot, aggregate",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "collectionType",
+                        "in": "query",
+                        "description": "preservedSpecimens, observations, researchObservation",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns list of collections",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error: Bad request. "
+                    }
+                }
+            }
+        },
+        "/api/v2/collection/{identifier}": {
+            "get": {
+                "tags": [
+                    ""
+                ],
+                "operationId": "/api/v2/collection/identifier",
+                "responses": {
+                    "200": {
+                        "description": "Returns collection data",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error: Bad request. Collection identifier is required."
+                    }
+                }
+            }
+        },
         "/api/v2/installation": {
             "get": {
                 "tags": [
                     ""
                 ],
                 "operationId": "/api/v2/installation",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "record limit per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Returns list of installations registered within system",
@@ -179,6 +263,24 @@
                         "required": false,
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "record limit per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
                         }
                     }
                 ],

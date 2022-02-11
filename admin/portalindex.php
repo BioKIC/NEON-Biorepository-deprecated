@@ -7,10 +7,12 @@ header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../admin/portalindex.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $portalID = array_key_exists('portalid',$_REQUEST)?$_REQUEST['portalid']:0;
+$collID = array_key_exists('collid',$_REQUEST)?$_REQUEST['collid']:0;
 $formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
 //Sanitation
 if(!is_numeric($portalID)) $portalID = 0;
+if(!is_numeric($collID)) $collID = 0;
 
 $portalManager = new PortalIndex();
 
@@ -68,18 +70,40 @@ if($IS_ADMIN) $isEditor = 1;
 								echo '</div>';
 							}
 						}
-						if($formSubmit == 'listCollections'){
-							echo '<hr/>';
+						echo '<hr/>';
+						if($collID){
+							$url = $portalArr['urlRoot'].'/api/v2/collection/'.$collID;
+							$collectArr = $portalManager->getAPIResponce($url);
+							$collTitle = $collectArr['collectionName'].' ('.$collectArr['institutionCode'].($collectArr['collectionCode']?':'.$collectArr['collectionCode']:'').')';
+							echo '<div style="font-weight:bold">#'.$collID.': '.$collTitle.'</div>';
+							unset($collectArr['collID']);
+							unset($collectArr['collectionName']);
+							unset($collectArr['institutionCode']);
+							unset($collectArr['collectionCode']);
+							echo '<div style="margin:15px 30px;">';
+							foreach($collectArr as $fName => $fValue){
+								if($fValue) echo '<div><label>'.$fName.'</label>: '.$fValue.'</div>';
+							}
+							echo '</div>';
+							?>
+							<form name="collPubForm" method="post" action="portalindex.php">
+								<input name="portalid" type="hidden" value="<?php echo $portalID; ?>" />
+								<input name="collid" type="hidden" value="<?php echo $collID; ?>" />
+								<button ></button>
+							</form>
+							<?php
+						}
+						elseif($formSubmit == 'listCollections'){
 							$url = $portalArr['urlRoot'].'/api/v2/collection/';
 							$collList = $portalManager->getAPIResponce($url);
 							if(isset($collList['count'])){
 								echo '<div><label>Collection Count</label>: '.$collList['count'].'</div>';
 								if($collList['count']){
 									echo '<table class="styledtable">';
-									echo '<tr>ID<th></th><th>Institution Code</th><th>Collection Code</th><th>Collection Name</th><th>Dataset Type</th><th>Management</th></tr>';
+									echo '<tr><th>ID</th><th>Institution Code</th><th>Collection Code</th><th>Collection Name</th><th>Dataset Type</th><th>Management</th></tr>';
 									foreach($collList['results'] as $collArr){
 										echo '<tr>';
-										echo '<td>'.$collArr['collID'].'</td>';
+										echo '<td><a href="portalindex.php?portalid='.$portalID.'&collid='.$collArr['collID'].'">'.$collArr['collID'].'</a></td>';
 										echo '<td>'.$collArr['institutionCode'].'</td>';
 										echo '<td>'.$collArr['collectionCode'].'</td>';
 										echo '<td>'.$collArr['collectionName'].'</td>';

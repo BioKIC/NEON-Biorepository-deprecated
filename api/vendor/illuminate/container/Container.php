@@ -187,7 +187,9 @@ class Container implements ArrayAccess, ContainerContract
     }
 
     /**
-     *  {@inheritdoc}
+     * {@inheritdoc}
+     *
+     * @return bool
      */
     public function has($id)
     {
@@ -693,7 +695,9 @@ class Container implements ArrayAccess, ContainerContract
     }
 
     /**
-     *  {@inheritdoc}
+     * {@inheritdoc}
+     *
+     * @return mixed
      */
     public function get($id)
     {
@@ -881,10 +885,6 @@ class Container implements ArrayAccess, ContainerContract
         if (! $reflector->isInstantiable()) {
             return $this->notInstantiable($concrete);
         }
-
-        // if (in_array($concrete, $this->buildStack)) {
-        //     throw new CircularDependencyException("Circular dependency detected while resolving [{$concrete}].");
-        // }
 
         $this->buildStack[] = $concrete;
 

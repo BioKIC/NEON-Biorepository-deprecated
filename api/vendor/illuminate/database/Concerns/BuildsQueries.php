@@ -210,7 +210,7 @@ trait BuildsQueries
     /**
      * Query lazily, by chunking the results of a query by comparing IDs.
      *
-     * @param  int  $count
+     * @param  int  $chunkSize
      * @param  string|null  $column
      * @param  string|null  $alias
      * @return \Illuminate\Support\LazyCollection
@@ -218,6 +218,37 @@ trait BuildsQueries
      * @throws \InvalidArgumentException
      */
     public function lazyById($chunkSize = 1000, $column = null, $alias = null)
+    {
+        return $this->orderedLazyById($chunkSize, $column, $alias);
+    }
+
+    /**
+     * Query lazily, by chunking the results of a query by comparing IDs in descending order.
+     *
+     * @param  int  $chunkSize
+     * @param  string|null  $column
+     * @param  string|null  $alias
+     * @return \Illuminate\Support\LazyCollection
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function lazyByIdDesc($chunkSize = 1000, $column = null, $alias = null)
+    {
+        return $this->orderedLazyById($chunkSize, $column, $alias, true);
+    }
+
+    /**
+     * Query lazily, by chunking the results of a query by comparing IDs in a given order.
+     *
+     * @param  int  $chunkSize
+     * @param  string|null  $column
+     * @param  string|null  $alias
+     * @param  bool  $descending
+     * @return \Illuminate\Support\LazyCollection
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function orderedLazyById($chunkSize = 1000, $column = null, $alias = null, $descending = false)
     {
         if ($chunkSize < 1) {
             throw new InvalidArgumentException('The chunk size should be at least 1');
@@ -227,13 +258,17 @@ trait BuildsQueries
 
         $alias = $alias ?? $column;
 
-        return LazyCollection::make(function () use ($chunkSize, $column, $alias) {
+        return LazyCollection::make(function () use ($chunkSize, $column, $alias, $descending) {
             $lastId = null;
 
             while (true) {
                 $clone = clone $this;
 
-                $results = $clone->forPageAfterId($chunkSize, $lastId, $column)->get();
+                if ($descending) {
+                    $results = $clone->forPageBeforeId($chunkSize, $lastId, $column)->get();
+                } else {
+                    $results = $clone->forPageAfterId($chunkSize, $lastId, $column)->get();
+                }
 
                 foreach ($results as $result) {
                     yield $result;

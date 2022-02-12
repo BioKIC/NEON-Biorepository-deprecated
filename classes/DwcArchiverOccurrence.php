@@ -354,10 +354,11 @@ class DwcArchiverOccurrence{
 	public function getAdditionalCatalogNumberStr($occid){
 		$retStr = '';
 		if(is_numeric($occid)){
-			$sql = 'SELECT GROUP_CONCAT(CONCAT_WS(": ",identifierName, identifierValue) SEPARATOR "; ") as idStr FROM omoccuridentifiers WHERE occid = '.$occid.' ORDER BY sortBy';
+			$sql = 'SELECT identifierName, identifierValue FROM omoccuridentifiers WHERE occid = '.$occid.' ORDER BY sortBy';
 			$rs = $this->conn->query($sql);
-			if($r = $rs->fetch_object()){
-				$retStr = $r->idStr;
+			while($r = $rs->fetch_object()){
+				if($r->identifierName) $retStr .= $r->identifierName.': ';
+				$retStr .= $r->identifierValue;
 			}
 			$rs->free();
 		}

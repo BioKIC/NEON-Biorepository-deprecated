@@ -862,12 +862,13 @@ class OccurrenceHarvester{
 	}
 
 	private function versionEdit($occid, $fieldName, $oldValue, $newValue){
-		$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueOld, fieldValueNew, uid)
-			VALUES('.$occid.',"'.$fieldName.'","'.$this->cleanInStr($oldValue).'","'.$this->cleanInStr($newValue).'",50)';
-		if(!$this->conn->query($sql)){
-			$this->errorStr = 'ERROR versioning edit: '.$this->conn->error;
-			echo 'sql: '.$sql;
-			echo $this->errorStr;
+		if(strtolower(trim($oldValue)) != strtolower(trim($newValue))){
+			$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueOld, fieldValueNew, appliedStatus, uid)
+				VALUES('.$occid.',"'.$fieldName.'","'.$this->cleanInStr($oldValue).'","'.$this->cleanInStr($newValue).'", 1, 50)';
+			if(!$this->conn->query($sql)){
+				$this->errorStr = 'ERROR versioning edit: '.$this->conn->error;
+				echo $this->errorStr;
+			}
 		}
 	}
 

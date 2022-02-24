@@ -14,7 +14,7 @@ class OmCollections extends Manager{
 		parent::__destruct();
 	}
 
-	public function submitCollEdits($postArr){
+	public function collectionUpdate($postArr){
 		$status = false;
 		if($this->collid){
 			$reqArr = $this->getRequestArr($postArr);
@@ -69,19 +69,19 @@ class OmCollections extends Manager{
 		return $status;
 	}
 
-	public function submitCollAdd($postArr){
-		$cid = 0;
+	public function collectionInsert($postArr){
+		$cid = false;
 		$reqArr = $this->getRequestArr($postArr);
 		$reqArr['collectionGuid'] = UuidFactory::getUuidV4();
 		$reqArr['securityKey'] = UuidFactory::getUuidV4();
-		$sql = 'INSERT INTO omcollections(institutionCode, collectionCode, collectionName, collectionID, fullDescription, latitudeDecimal, longitudeDecimal, publishToGbif, '.
-			'publishToIdigbio, publicEdits, guidTarget, rights, rightsHolder, accessRights, icon, managementType, collType, collectionGuid, securityKey, individualUrl, sortSeq) '.
-			'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ';
+		$sql = 'INSERT INTO omcollections(institutionCode, collectionCode, collectionName, collectionID, fullDescription, resourceJson, contactJson, latitudeDecimal, longitudeDecimal, '.
+			'publishToGbif, publishToIdigbio, publicEdits, guidTarget, rights, rightsHolder, accessRights, icon, managementType, collType, collectionGuid, securityKey, individualUrl, sortSeq) '.
+			'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ';
 		if($stmt = $this->conn->prepare($sql)){
-			$stmt->bind_param('sssssddiiissssssssssi', $reqArr['institutionCode'], $reqArr['collectionCode'], $reqArr['collectionName'], $reqArr['collectionID'], $reqArr['fullDescription'],
-				$reqArr['latitudeDecimal'], $reqArr['longitudeDecimal'], $reqArr['publishToGbif'], $reqArr['publishToIdigbio'], $reqArr['publicEdits'], $reqArr['guidTarget'],
-				$reqArr['rights'], $reqArr['rightsHolder'], $reqArr['accessRights'], $reqArr['icon'], $reqArr['managementType'], $reqArr['collType'], $reqArr['collectionGuid'],
-				$reqArr['securityKey'], $reqArr['individualUrl'], $reqArr['sortSeq']);
+			$stmt->bind_param('sssssssddiiissssssssssi', $reqArr['institutionCode'], $reqArr['collectionCode'], $reqArr['collectionName'], $reqArr['collectionID'], $reqArr['fullDescription'],
+				$reqArr['resourceJson'],$reqArr['contactJson'],$reqArr['latitudeDecimal'], $reqArr['longitudeDecimal'], $reqArr['publishToGbif'], $reqArr['publishToIdigbio'],
+				$reqArr['publicEdits'], $reqArr['guidTarget'], $reqArr['rights'], $reqArr['rightsHolder'], $reqArr['accessRights'], $reqArr['icon'], $reqArr['managementType'],
+				$reqArr['collType'], $reqArr['collectionGuid'], $reqArr['securityKey'], $reqArr['individualUrl'], $reqArr['sortSeq']);
 			if($stmt->execute()){
 				if($stmt->affected_rows || !$stmt->error){
 					if($cid = $stmt->insert_id){
@@ -109,27 +109,30 @@ class OmCollections extends Manager{
 	private function getRequestArr($postArr){
 		$retArr = array();
 		$retArr['institutionCode'] = ($postArr['institutionCode']?$this->cleanInStr($postArr['institutionCode']):NULL);
-		$retArr['collectionCode'] = ($postArr['collectionCode']?$this->cleanInStr($postArr['collectionCode']):NULL);
+		$retArr['collectionCode'] = ($postArr['collectionCode']?$this->cleanInStr($postArr['collectionCode']):'');
 		$retArr['collectionName'] = ($postArr['collectionName']?$this->cleanInStr($postArr['collectionName']):NULL);
 		$retArr['collectionID'] = ($postArr['collectionID']?$this->cleanInStr($postArr['collectionID']):NULL);
 		$retArr['fullDescription'] = ($postArr['fullDescription']?$this->cleanInStr($postArr['fullDescription']):NULL);
+		$retArr['resourceJson'] = (isset($postArr['resourceJson'])&&$postArr['resourceJson']?$postArr['resourceJson']:NULL);
+		$retArr['contactJson'] = (isset($postArr['contactJson'])&&$postArr['contactJson']?$postArr['contactJson']:NULL);
 		$retArr['latitudeDecimal'] = (is_numeric($postArr['latitudeDecimal'])?$postArr['latitudeDecimal']:NULL);
 		$retArr['longitudeDecimal'] = (is_numeric($postArr['longitudeDecimal'])?$postArr['longitudeDecimal']:NULL);
 		$retArr['publishToGbif'] = (isset($postArr['publishToGbif']) && is_numeric($postArr['publishToGbif'])?$postArr['publishToGbif']:NULL);
 		$retArr['publishToIdigbio'] = (isset($postArr['publishToIdigbio']) && is_numeric($postArr['publishToIdigbio'])?$postArr['publishToIdigbio']:NULL);
 		$retArr['publicEdits'] = (isset($postArr['publicEdits']) && is_numeric($postArr['publicEdits'])?$postArr['publicEdits']:0);
-		$retArr['guidTarget'] = ($postArr['guidTarget']?$this->cleanInStr($postArr['guidTarget']):NULL);
+		$retArr['guidTarget'] = (isset($postArr['guidTarget']) && $postArr['guidTarget']?$this->cleanInStr($postArr['guidTarget']):NULL);
 		$retArr['rights'] = ($postArr['rights']?$this->cleanInStr($postArr['rights']):NULL);
 		$retArr['rightsHolder'] = ($postArr['rightsHolder']?$this->cleanInStr($postArr['rightsHolder']):NULL);
 		$retArr['accessRights'] = ($postArr['accessRights']?$this->cleanInStr($postArr['accessRights']):NULL);
 		$retArr['individualUrl'] = ($postArr['individualUrl']?$this->cleanInStr($postArr['individualUrl']):NULL);
 		if(isset($_FILES['iconFile']['name']) && $_FILES['iconFile']['name']) $retArr['icon'] = $this->addIconImageFile($postArr);
-		elseif($postArr['iconUrl']) $retArr['icon'] = $this->cleanInStr($postArr['iconUrl']);
+		elseif(isset($postArr['iconUrl']) && $postArr['iconUrl']) $retArr['icon'] = $this->cleanInStr($postArr['iconUrl']);
+		elseif(isset($postArr['icon']) && $postArr['icon']) $retArr['icon'] = $this->cleanInStr($postArr['icon']);
 		else $retArr['icon'] = NULL;
 		if(isset($postArr['managementType']) && $GLOBALS['IS_ADMIN']){
 			$retArr['managementType'] = $this->cleanInStr($postArr['managementType']);
 			$retArr['collType'] = $this->cleanInStr($postArr['collType']);
-			if(is_numeric($postArr['sortSeq'])) $retArr['sortSeq'] = $postArr['sortSeq'];
+			if(isset($postArr['sortSeq']) && is_numeric($postArr['sortSeq'])) $retArr['sortSeq'] = $postArr['sortSeq'];
 		}
 		if(isset($postArr['ccpk']) && is_numeric($postArr['ccpk'])) $retArr['ccpk'] = $postArr['ccpk'];
 		$retArr['securityKey'] = (isset($postArr['securityKey'])?$postArr['securityKey']:NULL);

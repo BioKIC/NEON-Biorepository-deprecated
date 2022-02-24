@@ -28,12 +28,12 @@ $collManager->setCollid($collid);
 $statusStr = '';
 if($isEditor){
 	if($action == 'saveEdits'){
-		$statusStr = $collManager->submitCollEdits($_POST);
+		$statusStr = $collManager->collectionUpdate($_POST);
 		if($statusStr === true) header('Location: collprofiles.php?collid='.$collid);
 	}
 	elseif($action == 'newCollection'){
 		if($IS_ADMIN){
-			$newCollid = $collManager->submitCollAdd($_POST);
+			$newCollid = $collManager->collectionInsert($_POST);
 			if($newCollid){
 				$statusStr = '<span style="color:green">'.(isset($LANG['ADD_SUCCESS'])?$LANG['ADD_SUCCESS']:'New collection added successfully').'!</span><br/>'.
 				(isset($LANG['ADD_STUFF'])?$LANG['ADD_STUFF']:'Add contacts, resource links, or institution address below').'.';

@@ -88,8 +88,7 @@ if($IS_ADMIN) $isEditor = 1;
 								}
 							}
 							echo '</div>';
-							if($collectArr['internalCollid']){
-							//if(!$collectArr['internalCollid']){
+							if(!$collectArr['internalCollid']){
 								?>
 								<div style="margin: 0px 30px">
 									<form name="collPubForm" method="post" action="portalindex.php">

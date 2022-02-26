@@ -7,6 +7,7 @@ class OccurrenceHarvester{
 
 	private $conn;
 	private $fateLocationArr;
+	private $taxonomyArr = array();
 	private $stateArr = array();
 	private $sampleClassArr = array();
 	private $domainSiteArr = array();
@@ -145,7 +146,7 @@ class OccurrenceHarvester{
 				}
 				$rs->free();
 				if($shipmentPK){
-					$this->setNeonTaxonomy($occidArr);
+					$this->adjustTaxonomy($occidArr);
 					//Set recordID GUIDs
 					echo '<li>Setting recordID UUIDs for all occurrence records...</li>';
 					$uuidManager = new UuidFactory();
@@ -601,11 +602,14 @@ class OccurrenceHarvester{
 							}
 						}
 					}
+					if(isset($dwcArr['sciname']) && preg_match('/^[A-Z]+$/', $dwcArr['sciname'])){
+						$this->setTaxonomy($dwcArr);
+					}
 					if(isset($sampleArr['identifications'])){
 						//Group of identifications will be inserted into omoccurdeterminations, and most recent will go into omoccurrences
-						$dwcArr['identifications'] = $sampleArr['identifications'];
 						$activeArr = array();
-						foreach($sampleArr['identifications'] as $idArr){
+						foreach($sampleArr['identifications'] as $idKey => $idArr){
+							if(isset($idArr['sciname']) && preg_match('/^[A-Z]+$/', $idArr['sciname'])) $this->setTaxonomy($idArr);
 							if(!$activeArr) $activeArr = $idArr;
 							elseif(!isset($activeArr['identifiedBy'])){
 								if(isset($idArr['identifiedBy'])) $activeArr = $idArr;
@@ -614,7 +618,9 @@ class OccurrenceHarvester{
 								if(isset($idArr['dateIdentified'])) $activeArr = $idArr;
 							}
 							elseif(isset($idArr['dateIdentified']) && $idArr['dateIdentified'] > $activeArr['dateIdentified']) $activeArr = $idArr;
+							$sampleArr['identifications'][$idKey] = $idArr;
 						}
+						$dwcArr['identifications'] = $sampleArr['identifications'];
 						if($activeArr){
 							foreach($activeArr as $k => $v){
 								$dwcArr[$k] = $v;
@@ -987,107 +993,171 @@ class OccurrenceHarvester{
 		return $retArr;
 	}
 
-	private function setNeonTaxonomy($occidArr){
-		if($occidArr){
-			//Adjustment for Mammal OTHE taxonomic code
-			$sql = 'UPDATE omoccurrences
-				SET sciname = "Mammalia", scientificNameAuthorship = NULL, tidinterpreted = 21269, family = NULL
-				WHERE collid IN(17,19,24,25,26,27,28,71) AND (sciname IN("OTHE")) ';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating Mammalia taxonomy for OTHE taxon codes: '.$sql;
+	private function setTaxonomy(&$dwcArr){
+		$taxonCode = $dwcArr['sciname'];
+		if($taxonCode){
+			if($taxonCode == 'OTHE'){
+				if(in_array($dwcArr['collid'], array(17,19,24,25,26,27,28,71))){
+					$dwcArr['sciname'] = 'Mammalia';
+					$dwcArr['tidinterpreted'] = '21269';
+					/*
+					* 	//Adjustment for Mammal OTHE taxonomic code
+					* 	$sql = 'UPDATE omoccurrences
+					* 	SET sciname = "Mammalia", scientificNameAuthorship = NULL, tidinterpreted = 21269, family = NULL
+					* 	WHERE collid IN(17,19,24,25,26,27,28,71) AND (sciname IN("OTHE")) ';
+					* 	if(!$this->conn->query($sql)){
+					* 	echo 'ERROR updating Mammalia taxonomy for OTHE taxon codes: '.$sql;
+					* 	}
+					*/
+				}
+				elseif(in_array($dwcArr['collid'], array(66,20,12,15,70))){
+					$dwcArr['sciname'] = 'Chordata';
+					$dwcArr['tidinterpreted'] = '57';
+					/*
+					* 	//Adjustment for non-Mammal vertebrates with OTHE taxonomic code
+					* 	$sql = 'UPDATE omoccurrences
+					* 	SET sciname = "Chordata", scientificNameAuthorship = NULL, tidinterpreted = 57, family = NULL
+					* 	WHERE collid IN(66,20,12,15,70) AND (sciname IN("OTHE"))';
+					* 	if(!$this->conn->query($sql)){
+					* 	echo 'ERROR updating Chordata taxonomy for OTHE taxon codes: '.$sql;
+					* 	}
+					*/
+				}
 			}
+			else{
+				if(!isset($this->taxonomyArr[$taxonCode])){
+					$sql = 'SELECT t.tid, t.sciname, t.author, ts.family
+						FROM taxaresourcelinks l INNER JOIN taxa t ON l.tid = t.tid
+						INNER JOIN taxstatus ts ON t.tid = ts.tid
+						WHERE ts.taxauthid = 1 AND l.sourceIdentifier = "'.$taxonCode.'"';
+					if($rs = $this->conn->query($sql)){
+						while($r = $rs->fetch_object()){
+							$this->taxonomyArr[$taxonCode][$r->tid]['sciname'] = $r->sciname;
+							$this->taxonomyArr[$taxonCode][$r->tid]['author'] = $r->author;
+							$this->taxonomyArr[$taxonCode][$r->tid]['family'] = $r->family;
+						}
+						$rs->free();
+						if(isset($this->taxonomyArr[$taxonCode]) && count($this->taxonomyArr[$taxonCode]) > 1){
+							$sql = 'SELECT DISTINCT t.tid, cl.collid
+								FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid
+								INNER JOIN taxaenumtree e ON t.tid = e.tid
+								INNER JOIN taxa p ON e.parenttid = p.tid
+								INNER JOIN omcollcategories cat ON p.sciname = cat.notes
+								INNER JOIN omcollcatlink cl ON cat.ccpk = cl.ccpk
+								WHERE e.taxauthid = 1 AND ts.taxauthid = 1 AND p.rankid IN(10,30) AND  t.tid IN('.implode(',',array_keys($this->taxonomyArr[$taxonCode])).')';
+							if($rs = $this->conn->query($sql)){
+								while($r = $rs->fetch_object()){
+									$this->taxonomyArr[$taxonCode][$r->tid]['collid'][] = $r->collid;
+								}
+							}
+							$rs->free();
+						}
+					}
+					else echo 'ERROR updating taxonomy codes: '.$sql;
+				}
+				if(isset($this->taxonomyArr[$taxonCode])){
+					foreach($this->taxonomyArr[$taxonCode] as $taxonArr){
+						if(!isset($taxonArr['collid']) || in_array($dwcArr['collid'], $taxonArr['collid'])){
+							$dwcArr['sciname'] = $taxonArr['sciname'];
+							$dwcArr['scientificNameAuthorship'] = $taxonArr['author'];
+							$dwcArr['family'] = $taxonArr['family'];
+						}
+					}
+				}
+				/*
+				$sql = 'UPDATE taxaresourcelinks l INNER JOIN omoccurrences o ON l.sourceIdentifier = o.sciname '.
+					'INNER JOIN omcollcatlink catlink ON o.collid = catlink.collid '.
+					'INNER JOIN omcollcategories cat ON catlink.ccpk = cat.ccpk '.
+					'INNER JOIN taxa t ON l.tid = t.tid '.
+					'INNER JOIN taxaenumtree e2 ON t.tid = e2.tid '.
+					'INNER JOIN taxa t2 ON e2.parenttid = t2.tid '.
+					'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+					'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
+					'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL ';
+				if(!$this->conn->query($sql)){
+					echo 'ERROR updating taxonomy codes: '.$sql;
+				}
+				*/
+			}
+		}
+	}
 
-			//Adjustment for non-Mammal vertebrates with OTHE taxonomic code
-			$sql = 'UPDATE omoccurrences
-				SET sciname = "Chordata", scientificNameAuthorship = NULL, tidinterpreted = 57, family = NULL
-				WHERE collid IN(66,20,12,15,70) AND (sciname IN("OTHE"))';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating Chordata taxonomy for OTHE taxon codes: '.$sql;
-			}
+	private function adjustTaxonomy($occidArr){
+		//Update tidInterpreted index value
+		$sql = 'UPDATE omoccurrences o INNER JOIN taxa t ON o.sciname = t.sciname SET o.tidinterpreted = t.tid WHERE (o.tidinterpreted IS NULL)';
+		if(!$this->conn->query($sql)){
+			echo 'ERROR updating tidInterpreted: '.$sql;
+		}
 
-			$sql = 'UPDATE taxaresourcelinks l INNER JOIN omoccurrences o ON l.sourceIdentifier = o.sciname '.
-				'INNER JOIN omcollcatlink catlink ON o.collid = catlink.collid '.
-				'INNER JOIN omcollcategories cat ON catlink.ccpk = cat.ccpk '.
-				'INNER JOIN taxa t ON l.tid = t.tid '.
-				'INNER JOIN taxaenumtree e2 ON t.tid = e2.tid '.
-				'INNER JOIN taxa t2 ON e2.parenttid = t2.tid '.
-				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-				'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
-				'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL ';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating taxonomy codes: '.$sql;
-			}
+		//Update Mosquito taxa details
+		$sql = 'UPDATE omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid '.
+			'INNER JOIN taxa t ON o.sciname = t.sciname '.
+			'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
+			'SET o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
+			'WHERE (o.collid = 29) AND (o.scientificNameAuthorship IS NULL) AND (o.family IS NULL) AND (ts.taxauthid = 1)';
+		if(!$this->conn->query($sql)){
+			echo 'ERROR updating taxonomy codes: '.$sql;
+		}
 
-			//Update Mosquito taxa details
-			$sql = 'UPDATE omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid '.
-				'INNER JOIN taxa t ON o.sciname = t.sciname '.
-				'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-				'SET o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
-				'WHERE (s.sampleClass = "mos_identification_in.individualIDList") AND (ts.taxauthid = 1) AND (o.scientificNameAuthorship IS NULL) AND (o.family IS NULL)';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating taxonomy codes(2): '.$sql;
-			}
+		//Temporary code needed until identification details are included within the NEON API
+		//Populate missing sciname
+		$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+			'LEFT JOIN taxstatus ts ON nt.tid = ts.tid '.
+			'SET o.sciname = IFNULL(nt.sciname, nt.taxonid), o.tidinterpreted = nt.tid, o.family = ts.family, o.taxonRemarks = IFNULL(o.taxonRemarks,"Identification source: 2019 taxonomy extract from NEON central db") '.
+			'WHERE (nt.sciname IS NOT NULL OR nt.taxonID IS NOT NULL) AND o.sciname IS NULL AND o.tidinterpreted IS NULL AND o.family IS NULL';
+		if(!$this->conn->query($sql)){
+			echo 'ERROR updating taxonomy using temporary NEON taxon tables: '.$sql;
+		}
 
-			//Temporary code needed until identification details are included within the NEON API
-			//Populate missing sciname
-			$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-				'LEFT JOIN taxstatus ts ON nt.tid = ts.tid '.
-				'SET o.sciname = IFNULL(nt.sciname, nt.taxonid), o.tidinterpreted = nt.tid, o.family = ts.family, o.taxonRemarks = IFNULL(o.taxonRemarks,"Identification source: 2019 taxonomy extract from NEON central db") '.
-				'WHERE (nt.sciname IS NOT NULL OR nt.taxonID IS NOT NULL) AND o.sciname IS NULL AND o.tidinterpreted IS NULL AND o.family IS NULL';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating taxonomy using temporary NEON taxon tables: '.$sql;
-			}
+		/*
+		 //Populate missing dateIdentified
+		 $sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+		 'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+		 'SET o.dateIdentified = SUBSTRING(nt.identifiedDate,1,10) '.
+		 'WHERE o.dateIdentified IS NULL AND nt.identifiedDate IS NOT NULL AND o.sciname IS NOT NULL ';
+		 if(!$this->conn->query($sql)){
+		 echo 'ERROR updating dateIdentified using temporary NEON taxon tables: '.$sql;
+		 }
 
-			/*
-			//Populate missing dateIdentified
-			$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-				'SET o.dateIdentified = SUBSTRING(nt.identifiedDate,1,10) '.
-				'WHERE o.dateIdentified IS NULL AND nt.identifiedDate IS NOT NULL AND o.sciname IS NOT NULL ';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating dateIdentified using temporary NEON taxon tables: '.$sql;
-			}
+		 //Populate missing identifiedBy
+		 $sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+		 'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+		 'SET o.identifiedBy = nt.identifiedBy '.
+		 'WHERE o.identifiedBy IS NULL AND nt.identifiedBy IS NOT NULL AND o.sciname IS NOT NULL';
+		 if(!$this->conn->query($sql)){
+		 echo 'ERROR updating identifiedBy using temporary NEON taxon tables: '.$sql;
+		 }
+		 */
 
-			//Populate missing identifiedBy
-			$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-				'SET o.identifiedBy = nt.identifiedBy '.
-				'WHERE o.identifiedBy IS NULL AND nt.identifiedBy IS NOT NULL AND o.sciname IS NOT NULL';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating identifiedBy using temporary NEON taxon tables: '.$sql;
-			}
-			*/
+		//Populate missing eventDate; needed until collectionDate is added to NEON API
+		$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+			'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
+			'WHERE o.eventDate IS NULL AND nt.collectDate IS NOT NULL';
+		if(!$this->conn->query($sql)){
+			echo 'ERROR updating eventDate using temporary NEON taxon tables: '.$sql;
+		}
 
-			//Populate missing eventDate; needed until collectionDate is added to NEON API
-			$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-				'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
-				'WHERE o.eventDate IS NULL AND nt.collectDate IS NOT NULL';
-			if(!$this->conn->query($sql)){
-				echo 'ERROR updating eventDate using temporary NEON taxon tables: '.$sql;
-			}
+		#Update mismatched eventDates (e.g. possibiliy incorrect within manifest)
+		$sql = 'UPDATE IGNORE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
+			'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
+			'WHERE o.eventDate IS NOT NULL AND o.eventDate != DATE(nt.collectDate)';
+		/*
+		if(!$this->conn->query($sql)){
+			echo 'ERROR mixing problematic eventDate using temporary NEON taxon tables: '.$sql;
+		}
+		*/
 
-			#Update mismatched eventDates (e.g. possibiliy incorrect within manifest)
-			$sql = 'UPDATE IGNORE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-				'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-				'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
-				'WHERE o.eventDate IS NOT NULL AND o.eventDate != DATE(nt.collectDate)';
-			/*
-			if(!$this->conn->query($sql)){
-				echo 'ERROR mixing problematic eventDate using temporary NEON taxon tables: '.$sql;
-			}
-			*/
+		//Run custon stored procedure that preforms some special assignment tasks
+		if(!$this->conn->query('call occurrence_harvesting_sql()')){
+			echo 'ERROR running stored procedure: occurrence_harvesting_sql';
+		}
 
-			//Run custon stored procedure that preforms some special assignment tasks
-			if(!$this->conn->query('call occurrence_harvesting_sql()')){
-				echo 'ERROR running stored procedure: occurrence_harvesting_sql';
-			}
-
-			//Run stored procedure that protects rare and sensitive species
-			if(!$this->conn->query('call sensitive_species_protection()')){
-				echo 'ERROR running stored procedure: sensitive_species_protection';
-			}
+		//Run stored procedure that protects rare and sensitive species
+		if(!$this->conn->query('call sensitive_species_protection()')){
+			echo 'ERROR running stored procedure: sensitive_species_protection';
 		}
 	}
 

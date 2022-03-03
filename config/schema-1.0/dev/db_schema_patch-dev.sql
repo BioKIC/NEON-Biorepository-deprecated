@@ -149,12 +149,15 @@ ALTER TABLE `omcollections`
   CHANGE COLUMN `CollType` `collType` VARCHAR(45) NOT NULL DEFAULT 'Preserved Specimens' COMMENT 'Preserved Specimens, General Observations, Observations' ,
   CHANGE COLUMN `ManagementType` `managementType` VARCHAR(45) NULL DEFAULT 'Snapshot' COMMENT 'Snapshot, Live Data' ,
   CHANGE COLUMN `PublicEdits` `publicEdits` INT(1) UNSIGNED NOT NULL DEFAULT 1 ,
-  CHANGE COLUMN `collectionguid` `recordID` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `collectionguid` `collectionGuid` VARCHAR(45) NULL DEFAULT NULL ,
   CHANGE COLUMN `securitykey` `securityKey` VARCHAR(45) NULL DEFAULT NULL ,
   CHANGE COLUMN `guidtarget` `guidTarget` VARCHAR(45) NULL DEFAULT NULL ,
   CHANGE COLUMN `accessrights` `accessRights` VARCHAR(1000) NULL DEFAULT NULL ,
   CHANGE COLUMN `SortSeq` `sortSeq` INT(10) UNSIGNED NULL DEFAULT NULL ,
   CHANGE COLUMN `InitialTimeStamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+ALTER TABLE `omcollections` 
+  CHANGE COLUMN `collectionGuid` `recordID` VARCHAR(45) NULL DEFAULT NULL ;
 
 ALTER TABLE `omcollections` 
   ADD COLUMN `dwcTermJson` TEXT NULL AFTER `aggKeysStr`;
@@ -245,7 +248,7 @@ ALTER TABLE `portaloccurrences`
   ADD PRIMARY KEY (`occid`, `portalID`),
   ADD INDEX `FK_portalOccur_portalID_idx` (`portalID` ASC);
 
-ALTER TABLE `portaloccurrence` 
+ALTER TABLE `portaloccurrences` 
   ADD CONSTRAINT `FK_portalOccur_pubid`  FOREIGN KEY (`pubid`)  REFERENCES `portalpublications` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_portalOccur_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
@@ -315,6 +318,27 @@ ALTER TABLE `taxstatus`
 ALTER TABLE `uploadspectemp` 
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`,
   CHANGE COLUMN `LatestDateCollected` `eventDate2` DATE NULL DEFAULT NULL AFTER `eventDate`;
+
+ALTER TABLE `uploadspecparameters` 
+  DROP FOREIGN KEY `FK_uploadspecparameters_coll`;
+
+ALTER TABLE `uploadspecparameters` 
+  ADD COLUMN `internalQuery` VARCHAR(250) NULL AFTER `schemaName`,
+  CHANGE COLUMN `CollID` `collid` INT(10) UNSIGNED NOT NULL ,
+  CHANGE COLUMN `UploadType` `uploadType` INT(10) UNSIGNED NOT NULL DEFAULT 1 COMMENT '1 = Direct; 2 = DiGIR; 3 = File' ,
+  CHANGE COLUMN `Platform` `platform` VARCHAR(45) NULL DEFAULT '1' COMMENT '1 = MySQL; 2 = MSSQL; 3 = ORACLE; 11 = MS Access; 12 = FileMaker' ,
+  CHANGE COLUMN `Code` `code` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Path` `path` VARCHAR(500) NULL DEFAULT NULL ,
+  CHANGE COLUMN `PkField` `pkField` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Username` `username` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Password` `password` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `SchemaName` `schemaName` VARCHAR(150) NULL DEFAULT NULL ,
+  CHANGE COLUMN `QueryStr` `queryStr` TEXT NULL DEFAULT NULL ,
+  CHANGE COLUMN `cleanupsp` `cleanupSP` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `InitialTimeStamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+ALTER TABLE `uploadspecparameters` 
+  ADD CONSTRAINT `FK_uploadspecparameters_coll`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`collID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
 ALTER TABLE `uploadspectemp` 
   CHANGE COLUMN `establishmentMeans` `establishmentMeans` VARCHAR(150) NULL DEFAULT NULL,

@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: Español (Spanish)
+Language: EspaÃ±ol (Spanish)
 ------------------
 */
 include_once($SERVER_ROOT.'/content/lang/collections/harvestparams.es.php');

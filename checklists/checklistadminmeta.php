@@ -20,12 +20,22 @@ if(isset($clArray['defaultsettings']) && $clArray['defaultsettings']){
 	$defaultArr = json_decode($clArray['defaultsettings'], true);
 }
 ?>
+<script type="text/javascript" src="../js/tinymce/tinymce.min.js"></script>
 <script type="text/javascript">
-
 	var f = document.getElementById("checklisteditform");
-	if(f.type.value == "excludespp"){
-		setExclusionChecklistMode(f);
-	}
+
+	if(f.type.value == "excludespp") setExclusionChecklistMode(f);
+
+	tinymce.init({
+		selector: "textarea",
+		width: "100%",
+		height: 300,
+		menubar: false,
+		plugins: "link,charmap,code,paste",
+		toolbar : "bold italic underline cut copy paste outdent indent undo redo subscript superscript removeformat link charmap code",
+		default_link_target: "_blank",
+		paste_as_text: true
+	});
 
 	function validateChecklistForm(f){
 		if(f.name.value == ""){
@@ -102,14 +112,14 @@ if(isset($clArray['defaultsettings']) && $clArray['defaultsettings']){
 	}
 
 	function openMappingAid() {
-		mapWindow=open("<?php echo $CLIENT_ROOT; ?>/checklists/tools/mappointaid.php?clid=<?php echo $clid; ?>&formname=editclmatadata&latname=latcentroid&longname=longcentroid","mapaid","resizable=0,width=800,height=700,left=20,top=20");
+		mapWindow=open("<?php echo $CLIENT_ROOT; ?>/checklists/tools/mappointaid.php?clid=<?php echo $clid; ?>&formname=editclmatadata&latname=latcentroid&longname=longcentroid","mapaid","resizable=0,width=1000,height=800,left=20,top=20");
 	    if(mapWindow.opener == null) mapWindow.opener = self;
 	}
 
 	function openMappingPolyAid() {
 		var latDec = document.getElementById("latdec").value;
 		var lngDec = document.getElementById("lngdec").value;
-		mapWindow=open("<?php echo $CLIENT_ROOT; ?>/checklists/tools/mappolyaid.php?clid=<?php echo $clid; ?>&formname=editclmatadata&latname=latcentroid&longname=longcentroid&latdef="+latDec+"&lngdef="+lngDec,"mapaid","resizable=0,width=850,height=700,left=20,top=20");
+		mapWindow=open("<?php echo $CLIENT_ROOT; ?>/checklists/tools/mappolyaid.php?clid=<?php echo $clid; ?>&formname=editclmatadata&latname=latcentroid&longname=longcentroid&latdef="+latDec+"&lngdef="+lngDec,"mapaid","resizable=0,width=1000,height=800,left=20,top=20");
 	    if(mapWindow.opener == null) mapWindow.opener = self;
 	}
 </script>
@@ -178,7 +188,7 @@ if(!$clid){
 			</div>
 			<div>
 				<b><?php echo (isset($LANG['ABSTRACT'])?$LANG['ABSTRACT']:'Abstract');?></b><br/>
-				<textarea name="abstract" style="width:95%" rows="3"><?php echo ($clArray?$clArray["abstract"]:''); ?></textarea>
+				<textarea name="abstract" style="width:95%" rows="6"><?php echo ($clArray?$clArray["abstract"]:''); ?></textarea>
 			</div>
 			<div>
 				<b><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes');?></b><br/>
@@ -197,7 +207,7 @@ if(!$clid){
 					?>
 				</select>
 			</div>
-			<div id="geoDiv" style="width:100%;">
+			<div id="geoDiv" style="width:100%;margin-top:5px">
 				<div style="float:left;">
 					<b><?php echo (isset($LANG['LATCENT'])?$LANG['LATCENT']:'Latitude');?></b><br/>
 					<input id="latdec" type="text" name="latcentroid" style="width:110px;" value="<?php echo ($clArray?$clArray["latcentroid"]:''); ?>" />
@@ -213,21 +223,19 @@ if(!$clid){
 					<b><?php echo (isset($LANG['REFERENCE_CHECK'])?$LANG['POINTRAD']:'Point Radius (meters)');?></b><br/>
 					<input type="text" name="pointradiusmeters" style="width:110px;" value="<?php echo ($clArray?$clArray["pointradiusmeters"]:''); ?>" />
 				</div>
-				<div style="float:left;margin:8px 0px 0px 25px;">
-					<fieldset style="width:275px;padding:10px">
-						<legend><b><?php echo (isset($LANG['POLYFOOT'])?$LANG['POLYFOOT']:'Polygon Footprint');?></b></legend>
-						<div style="float:right;margin:10px;">
-							<a href="#" onclick="openMappingPolyAid();return false;" title="Create/Edit Polygon"><img src="../images/world.png" style="width:14px;" /></a>
-						</div>
-						<div id="polyDefDiv" style="display:<?php echo ($clArray && $clArray["hasfootprintwkt"]?'block':'none'); ?>;">
-							<?php echo (isset($LANG['POLYGON_DEFINED'])?$LANG['POLYGON_DEFINED']:'Polygon footprint defined<br/>Click globe to view/edit'); ?>
-						</div>
-						<div id="polyNotDefDiv" style="display:<?php echo ($clArray && $clArray["hasfootprintwkt"]?'none':'block'); ?>;">
-							<?php echo (isset($LANG['POLYGON_NOT_DEFINED'])?$LANG['POLYGON_NOT_DEFINED']:'Polygon footprint not defined<br/>Click globe to create polygon');?>
-						</div>
-						<input type="hidden" id="footprintwkt" name="footprintwkt" value="" />
-					</fieldset>
-				</div>
+			</div>
+			<div style="clear:both;margin-top:5px;">
+				<fieldset style="width:350px;padding:10px">
+					<legend><b><?php echo (isset($LANG['POLYFOOT'])?$LANG['POLYFOOT']:'Polygon Footprint');?></b></legend>
+					<span id="polyDefDiv" style="display:<?php echo ($clArray && $clArray["hasfootprintwkt"]?'inline':'none'); ?>;">
+						<?php echo (isset($LANG['POLYGON_DEFINED'])?$LANG['POLYGON_DEFINED']:'Polygon footprint defined<br/>Click globe to view/edit'); ?>
+					</span>
+					<span id="polyNotDefDiv" style="display:<?php echo ($clArray && $clArray["hasfootprintwkt"]?'none':'inline'); ?>;">
+						<?php echo (isset($LANG['POLYGON_NOT_DEFINED'])?$LANG['POLYGON_NOT_DEFINED']:'Polygon footprint not defined<br/>Click globe to create polygon');?>
+					</span>
+					<span style="margin:10px;"><a href="#" onclick="openMappingPolyAid();return false;" title="Create/Edit Polygon"><img src="../images/world.png" style="width:14px;" /></a></span>
+					<input type="hidden" id="footprintwkt" name="footprintwkt" value="" />
+				</fieldset>
 			</div>
 			<div style="clear:both;margin-top:5px;">
 				<fieldset style="width:300px;">
@@ -272,9 +280,7 @@ if(!$clid){
 						<?php
 						// Activate Identification key: 0 = false, 1 = true
 						$activateKey = $KEY_MOD_IS_ACTIVE;
-						if(array_key_exists('activatekey', $defaultArr)){
-							$activateKey = $defaultArr["activatekey"];
-						}
+						if(array_key_exists('activatekey', $defaultArr)) $activateKey = $defaultArr["activatekey"];
 						?>
 						<input name='activatekey' type='checkbox' value='1' <?php echo ($activateKey?"checked":""); ?> />
 						<?php echo (isset($LANG['ACTIVATEKEY'])?$LANG['ACTIVATEKEY']:'Activate Identification Key');?>

@@ -25,7 +25,7 @@ $LANG['TARGET_COL'] = 'Target Collection';
 $LANG['SEL_COL'] = 'Select Collection';
 $LANG['REMAIN_CURRENT'] = 'Remain on Current Collection';
 $LANG['TRANSFER_RECORD'] = 'Transfer Record';
-$LANG['DEL_RECORD'] = 'Delete Occurrence Record;';
+$LANG['DEL_RECORD'] = 'Delete Occurrence Record';
 $LANG['SURE_DEL'] = 'Are you sure you want to delete this record?';
 $LANG['REC_MUST_EVALUATE'] = 'Record first needs to be evaluated before it can be deleted from the system.
 				The evaluation ensures that the deletion of this record will not interfere with

@@ -39,6 +39,7 @@ $LANG['USERPERM'] = 'Autorisations Utilisateur';
 $LANG['TAXINTER'] = "Autorisations des Utilisateurs d'Intérêt Taxonomique";
 $LANG['TAXONOMIC_CLEANER'] = 'Nettoyeur de Noms Taxonomiques à Collection Multiple';
 $LANG['CREATENEWCOLL'] = "Créer Nouvelle Collection ou Nouveau Profil d'Observation";
+$LANG['GEOTHESAURUS'] = 'Geographic Thesaurus';
 $LANG['COORDVALIDATOR'] = 'Vérifier coordonnées par rapport aux frontières politiques';
 $LANG['GUIDMAP'] = 'Mappeur de GUID de Collection';
 $LANG['THUMBNAIL_BUILDER'] = 'Outil de Création de Vignettes';
@@ -66,8 +67,8 @@ $LANG['CLICKEDIT'] = '(cliquez pour modifier)';
 $LANG['NOPROJ'] = "Il n'y a aucun projet dans le système";
 $LANG['NOTEDITPROJ'] = "Vous n'êtes pas autorisé à modifier les Projets";
 $LANG['TAXONPROF'] = 'Page de Profil du Taxon';
-$LANG['THEFOLLOWINGSPEC'] = "Les fonctions d'édition de la Page de Profil d'Espèce suivantes 
-						sont également disponibles pour les éditeurs via un lien d'édition situé 
+$LANG['THEFOLLOWINGSPEC'] = "Les fonctions d'édition de la Page de Profil d'Espèce suivantes
+						sont également disponibles pour les éditeurs via un lien d'édition situé
 						dans le coin supérieur droit de chaque Page de Profil du Taxon.";
 $LANG['NOTAUTHOTAXONPAGE'] = "Vous n'êtes pas encore autorisé à modifier le profil du taxon";
 $LANG['TAXONOMY'] = 'Taxonomie';
@@ -81,7 +82,7 @@ $LANG['EOLLINK'] = 'Gérer Liens avec Encyclopédia of Life';
 $LANG['NOTEDITTAXA'] = "Vous n'êtes pas autorisé à modifier la taxonomie";
 $LANG['CHECKLISTS'] = 'Listes';
 $LANG['TOOLSFORMANAGE'] = "Des outils de gestion des listes sont disponibles à partir de chaque page d'affichage des listes.
-						Symboles d'édition situés dans le coin supérieur droit de la page afficheront les options d'édition 
+						Symboles d'édition situés dans le coin supérieur droit de la page afficheront les options d'édition
 						pour cette liste.
 						Vous trouverez ci-dessous une liste des listes que vous êtes autorisé à modifier.";
 $LANG['EXSICCATII'] = 'Exsiccati';
@@ -114,7 +115,8 @@ $LANG['LOGIN'] = 'vous connecter';
 $LANG['TOACCESS'] = ' pour accéder aux outils d\'édition.';
 $LANG['CONTACTPORTAL'] = 'Contactez un administrateur de portail pour obtenir des autorisations de modification';
 $LANG['ABOUT'] = 'À Propos de Symbiota';
-$LANG['SCHEMA'] = 'Version du Schéma ';
+$LANG['CODE'] = 'Version du Dodes';
+$LANG['SCHEMA'] = 'Version du Schéma';
 $LANG['AUTHO'] = 'Vous êtes autorisé à accéder au';
 $LANG['SYN_COM'] = 'Synonymes / Noms Communs';
 $LANG['TEXTDESC'] = 'Descriptions Textuelles';

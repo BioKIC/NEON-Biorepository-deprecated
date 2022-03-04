@@ -48,12 +48,8 @@ class SpecUploadDwca extends SpecUploadBase{
 					if(!is_writable($this->uploadTargetPath)) $this->errorStr .= ', Permission issue: target directory is not writable';
 					$this->outputMsg('<li>'.$this->errorStr.' </li>');
 				}
-				if($this->unpackArchive()){
-					$retPath = $this->uploadTargetPath;
-				}
-				else{
-					$this->uploadTargetPath = '';
-				}
+				if($this->unpackArchive()) $retPath = $this->uploadTargetPath;
+				else $this->uploadTargetPath = '';
 			}
 		}
 		elseif(array_key_exists("uploadfile",$_FILES)){
@@ -379,6 +375,70 @@ class SpecUploadDwca extends SpecUploadBase{
 		return true;
 	}
 
+	private function readEmlFile(){
+		$emlDoc = new DOMDocument();
+		if(file_exists($this->uploadTargetPath.'eml.xml')){
+			$emlDoc->load($this->uploadTargetPath.'eml.xml');
+			$xpath = new DOMXpath($emlDoc);
+			if($symbiotaNodeList = $xpath->query('//symbiota')){
+				if($node = $symbiotaNodeList->item(0)){
+					if($node->hasAttribute('id')){
+						if($symbiotaGuid = $node->getAttribute('id')){
+							$this->setPortalID($symbiotaGuid);
+							if(!$this->sourcePortalIndex){
+								$urlNodeList = $xpath->query('/eml:eml/dataset/alternateIdentifier');
+								if($urlNodeList && isset($urlNodeList->item(0)->nodeValue)){
+									$urlRoot = $urlNodeList->item(0)->nodeValue;
+									$urlRoot = substr($urlRoot,0,strpos($urlRoot,'/collections/misc/collprofiles.php'));
+									$portalName = 'GUID: '.$symbiotaGuid;
+									if($GLOBALS['DEFAULT_TITLE']) $portalName = $GLOBALS['DEFAULT_TITLE'];
+									$sql = 'INSERT INTO portalindex(portalName, urlRoot, guid)
+										VALUES("'.$this->cleanInStr($portalName).'","'.$this->cleanInStr($urlRoot).'","'.$this->cleanInStr($symbiotaGuid).'")';
+									if($this->conn->query($sql)){
+										$this->sourcePortalIndex = $this->conn->insert_id;
+										$this->touchRemoteInstallation($urlRoot);
+									}
+									else{
+										//$this->errorStr = 'ERROR adding portal index: '.$this->conn->error();
+										//$this->outputMsg($this->errorStr);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else $this->errorStr = 'Unable to locate Symbiota element';
+		}
+	}
+
+	private function touchRemoteInstallation($urlRoot){
+		if($urlRoot && isset($GLOBALS['PORTAL_GUID']) && $GLOBALS['PORTAL_GUID']){
+			$urlLocal = 'http://';
+			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $urlLocal = 'https://';
+			$urlLocal .= $_SERVER['SERVER_NAME'];
+			if($_SERVER['SERVER_PORT'] && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) $urlLocal .= ':'.$_SERVER['SERVER_PORT'];
+			$url = $urlRoot.'/api/v2/installation/'.$GLOBALS['PORTAL_GUID'].'/touch/'.htmlentities($urlLocal.$GLOBALS['CLIENT_ROOT']);
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+			curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);
+			curl_exec($ch);
+			curl_close($ch);
+		}
+	}
+
+	private function setPortalID($symbiotaGuid){
+		if($symbiotaGuid){
+			$sql = 'SELECT portalID FROM portalindex WHERE guid = "'.$this->cleanInStr($symbiotaGuid).'"';
+			if($rs = $this->conn->query($sql)){
+				if($r = $rs->fetch_object()) $this->sourcePortalIndex = $r->portalID;
+				$rs->free();
+			}
+		}
+	}
+
 	private function locateBaseFolder($pathFrag = ''){
 		if($handle = opendir($this->uploadTargetPath.$pathFrag)) {
 			while(false !== ($item = readdir($handle))){
@@ -634,13 +694,8 @@ class SpecUploadDwca extends SpecUploadBase{
 								$this->outputMsg('<li style="margin-left:10px;">Complete: '.$this->imageTransferCount.' records loaded</li>');
 							}
 						}
-
-						//Do some cleanup
 						$this->cleanUpload();
-
-						if($finalTransfer){
-							$this->finalTransfer();
-						}
+						if($finalTransfer) $this->finalTransfer();
 					}
 					else{
 						if($this->filterArr){
@@ -658,8 +713,7 @@ class SpecUploadDwca extends SpecUploadBase{
 							$this->outputMsg('<li>ABORTED: no occurrences imported</li>');
 						}
 					}
-
-					//Remove all upload files and directories
+					$this->readEmlFile();
 					$this->removeFiles();
 				}
 				else{

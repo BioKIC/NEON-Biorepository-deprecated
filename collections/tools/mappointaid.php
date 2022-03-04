@@ -185,6 +185,7 @@ $errMode = array_key_exists("errmode",$_REQUEST)?$_REQUEST["errmode"]:1;
 					}
 					opener.document.getElementById("decimallatitude").onchange();
 					opener.document.getElementById("decimallongitude").onchange();
+					opener.document.getElementById("saveEditsButton").disabled = false;
 				}
 				catch(myErr){
 					//alert("Unable to trigger onchange");

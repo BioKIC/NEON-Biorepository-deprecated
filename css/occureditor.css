@@ -96,7 +96,7 @@ body{
 }
 
 #catalogNumberDiv input{
-	width:	120px;
+	width:	150px;
 }
 
 #otherCatalogNumbersDiv {
@@ -104,7 +104,7 @@ body{
 }
 
 #otherCatalogNumbersDiv input{
-	width:	110px;
+	width:	200px;
 }
 
 #recordedByDiv {
@@ -869,3 +869,11 @@ table {
 	font-family: 	Arial, Helvetica, sans-serif; 
 	font-size: 		12px;
 }
+
+.divTable{ display: table; }
+.divTableRow { display: table-row; }
+.divTableHeading { display: table-header-group;}
+.divTableCell, .divTableHead { display: table-cell;}
+.divTableHeading { display: table-header-group;}
+.divTableFoot { display: table-footer-group;}
+.divTableBody { display: table-row-group;}

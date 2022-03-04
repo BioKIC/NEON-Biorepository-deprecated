@@ -501,7 +501,7 @@ else{
 
 	</script>
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=1" type="text/javascript"></script>
-	<script src="../../js/symb/wktpolygontools.js?ver=1" type="text/javascript"></script>
+	<script src="../../js/symb/wktpolygontools.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.main.js?ver=11" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=3" type="text/javascript"></script>

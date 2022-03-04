@@ -34,7 +34,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 			setHarvestParamsForm();
 		});
 	</script>
-	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=3" type="text/javascript"></script>
+	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=4" type="text/javascript"></script>
 	<style type="text/css">
 		hr{ clear:both; margin: 10px 0px }
 		.catHeaderDiv { font-weight:bold; font-size: 18px }

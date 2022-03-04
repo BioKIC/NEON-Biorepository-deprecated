@@ -66,7 +66,7 @@ if($isEditor){
 	?>
 	<script src="../../js/jquery-3.2.1.min.js?ver=3" type="text/javascript"></script>
 	<script src="../../js/jquery-ui-1.12.1/jquery-ui.min.js?ver=3" type="text/javascript"></script>
-	<script src="../../js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
+	<script src="../../js/symb/api.taxonomy.taxasuggest.js?ver=4" type="text/javascript"></script>
 	<script type="text/javascript">
 		function toggle(target){
 			var tDiv = document.getElementById(target);

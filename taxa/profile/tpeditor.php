@@ -164,7 +164,7 @@ if($isEditor && $action){
 			if (occWindow.opener == null) occWindow.opener = self;
 		}
 	</script>
-	<script src="../../js/symb/api.taxonomy.taxasuggest.js" type="text/javascript"></script>
+	<script src="../../js/symb/api.taxonomy.taxasuggest.js?ver=4" type="text/javascript"></script>
 	<style type="text/css">
 		.sectionDiv{ clear:both; }
 		.sectionDiv div{ float:left }

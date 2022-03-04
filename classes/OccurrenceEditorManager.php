@@ -502,7 +502,7 @@ class OccurrenceEditorManager {
 				}
 				elseif($ct=='NOT EQUALS' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' <> '.$cv.') '.($ccp?$ccp.' ':'');
+					$customWhere .= $cao.($cop?' '.$cop:'').' (('.$cf.' != '.$cv.') OR ('.$cf.' IS NULL)) '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='GREATER' && $cv){
 					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
@@ -513,34 +513,19 @@ class OccurrenceEditorManager {
 					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' < '.$cv.') '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='LIKE' && $cv){
-					if(strpos($cv,'%') !== false){
-						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
-					}
-					else{
-						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
-					}
+					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "%'.trim($cv,'%').'%") '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='NOT LIKE' && $cv){
-					if(strpos($cv,'%') !== false){
-						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
-					}
-					else{
-						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' NOT LIKE "%'.$cv.'%") '.($ccp?$ccp.' ':'');
-					}
+					$customWhere .= $cao.($cop?' '.$cop:'').' (('.$cf.' NOT LIKE "%'.trim($cv,'%').'%") OR ('.$cf.' IS NULL)) '.($ccp?$ccp.' ':'');
 				}
 				elseif($ct=='STARTS' && $cv){
-					if(strpos($cv,'%') !== false){
-						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'") '.($ccp?$ccp.' ':'');
-					}
-					else{
-						$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.$cv.'%") '.($ccp?$ccp.' ':'');
-					}
+					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.trim($cv,'%').'%") '.($ccp?$ccp.' ':'');
 				}
 				elseif($cv){
 					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' = "'.$cv.'") '.($ccp?$ccp.' ':'');
 				}
 			}
-			else if($x > 1 && !$cf && $ccp){
+			elseif($x > 1 && !$cf && $ccp){
 				$customWhere .= ' '.$ccp.' ';
     		}
 		}

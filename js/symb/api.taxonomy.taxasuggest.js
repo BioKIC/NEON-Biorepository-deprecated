@@ -7,14 +7,17 @@ $(document).ready(function() {
 		var dirArr = window.location.pathname.split('/');
 		dirArr.shift(); dirArr.pop();
 		var loopCnt = 0;
-		while(!urlExists(acUrl) && dirArr.length > loopCnt){
-			var newUrl = '';
-			for(i = 0; i <= loopCnt; i++){
-				newUrl = newUrl + "/" + dirArr[i];
+		if(urlExists("/portal"+acUrlBase)) acUrl = "/portal"+acUrlBase;
+		else{
+			while(!urlExists(acUrl) && dirArr.length > loopCnt){
+				var newUrl = '';
+				for(i = 0; i <= loopCnt; i++){
+					newUrl = newUrl + "/" + dirArr[i];
+				}
+				acUrl = newUrl + acUrlBase;
+				loopCnt = loopCnt + 1;
 			}
-			acUrl = newUrl + acUrlBase;
-			loopCnt = loopCnt + 1;
-		}
+			}
 	}
 	
 	function extractLast( term ) {
@@ -88,7 +91,7 @@ function initiateTaxonSuggest(inputID, rLow, rHigh){
 
 function urlExists(url){
     var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
+    http.open('HEAD', url);
     http.send();
     return http.status!=404;
 }

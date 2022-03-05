@@ -33,7 +33,8 @@ if($IS_ADMIN) $isEditor = 1;
 		<style type="text/css">
 			fieldset{ margin:20px; padding:15px; }
 			legend{ font-weight: bold; }
-			label{ font-weight: bold; }
+			label{  }
+			button{ margin: 20px; }
 			hr{ margin-top: 15px; margin-bottom: 15px; }
 		</style>
 	</head>
@@ -44,15 +45,14 @@ if($IS_ADMIN) $isEditor = 1;
 		?>
 		<div class="navpath">
 			<a href="../../index.php">Home</a> &gt;&gt;
-			<b>Portal Index Control Panel</b>
+			<b><a href="portalindex.php">Portal Index Control Panel</a></b>
 		</div>
 		<div id="innertext">
 			<?php
 			if($isEditor){
 				if($formSubmit == 'importProfile'){
-					if($collid = $portalManager->importProfile($portalID, $remoteID))
-						echo '<div><a href="../collections/misc/collprofiles.php?collid='.$collid.'" target="_blank">New snapshot collection created</a></div>';
-						else echo '<div>failed to insert new collections: '.$portalManager->getErrorMessage().'</div>';
+					if($collid = $portalManager->importProfile($portalID, $remoteID)) echo '<div><a href="../collections/misc/collprofiles.php?collid='.$collid.'" target="_blank">New snapshot collection created</a></div>';
+					else echo '<div>failed to insert new collections: '.$portalManager->getErrorMessage().'</div>';
 				}
 				$indexArr = $portalManager->getPortalIndexArr($portalID);
 				?>
@@ -72,34 +72,59 @@ if($IS_ADMIN) $isEditor = 1;
 								echo '</div>';
 							}
 						}
-						echo '<hr/>';
 						if($remoteID){
 							$collectArr = $portalManager->getCollectionList($portalArr['urlRoot'], $remoteID);
-							$collTitle = $collectArr['collectionName'].' ('.$collectArr['institutionCode'].($collectArr['collectionCode']?':'.$collectArr['collectionCode']:'').')';
-							echo '<div style="font-weight:bold">#'.$remoteID.': '.$collTitle.'</div>';
-							$collectArr['remoteID'] = $collectArr['collID'];
+							echo '<fieldset>';
+							echo '<legend>Remote Collection #'.$remoteID.'</legend>';
+							$remoteCollid = $collectArr['collID'];
 							unset($collectArr['collID']);
-							echo '<div style="margin:15px 30px;">';
+							unset($collectArr['iid']);
+							$internalArr = $collectArr['internal'];
+							unset($collectArr['internal']);
 							foreach($collectArr as $fName => $fValue){
 								if($fValue){
 									if($fName == 'fullDescription') $fValue = htmlentities($fValue);
-									elseif($fName == 'internalCollid') $fValue = '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$fValue.'" target="_blank">Mapped Internally</a>';
 									echo '<div><label>'.$fName.'</label>: '.$fValue.'</div>';
 								}
 							}
-							echo '</div>';
-							if(!$collectArr['internalCollid']){
+							$remoteUrl = $portalArr['urlRoot'].'/collections/misc/collprofiles.php?collid='.$remoteCollid;
+							echo '<div><label>Remote collection</label>: <a href="'.$remoteUrl.'" target="_blank">'.$remoteUrl.'</a></div>';
+							if($internalArr){
+								echo '<fieldset>';
+								echo '<legend>Internally Mapped Snapshot Collection</legend>';
+								foreach($internalArr as $collid => $intArr){
+									echo '<div><label>Management Type</label>: '.$intArr['managementType'].'</div>';
+									echo '<div><label>Specimen count</label>: '.number_format($intArr['recordCnt']).'</div>';
+									echo '<div><label>Refresh date</label>: '.$intArr['uploadDate'].'</div>';
+									$internalUrl = $CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$collid;
+									echo '<div><label>Internal collection</label>: <a href="'.$internalUrl.'" target="_blank">'.$internalUrl.'</a></div>';
+									if($importProfile = $portalManager->getDataImportProfile($collid)){
+										foreach($importProfile as $uspid => $profileArr){
+											echo '<hr/>';
+											echo '<div style="margin:10px 5px">';
+											echo '<div><label>Title</label>: '.$profileArr['title'].'</div>';
+											echo '<div><label>Path</label>: '.$profileArr['path'].'</div>';
+											echo '<div><label>Query string</label>: '.$profileArr['queryStr'].'</div>';
+											echo '<div><label>Stored procedure (cleaning)</label>: '.$profileArr['cleanUpSp'].'</div>';
+											echo '<div>Go to <a href="../collections/admin/specuploadmap.php?uploadtype=9&uspid='.$uspid.'&collid='.$collid.'" target="_blank">Import Profile</a></div>';
+											echo '</div>';
+										}
+									}
+								}
+								echo '</fieldset>';
+							}
+							else{
 								?>
 								<div style="margin: 0px 30px">
 									<form name="collPubForm" method="post" action="portalindex.php">
 										<input name="portalid" type="hidden" value="<?php echo $portalID; ?>" />
 										<input name="remoteid" type="hidden" value="<?php echo $remoteID; ?>" />
-										<input name="collid" type="hidden" value="<?php echo $collectArr['internalCollid']; ?>" />
-										<button name="formsubmit" type="submit" value="importProfile">Import Profile</button>
+										<button name="formsubmit" type="submit" value="importProfile">Create Internal Snapshot Profile</button>
 									</form>
 								</div>
 								<?php
 							}
+							echo '</fieldset>';
 						}
 						elseif($formSubmit == 'listCollections'){
 							if($collList = $portalManager->getCollectionList($portalArr['urlRoot'])){
@@ -114,7 +139,8 @@ if($IS_ADMIN) $isEditor = 1;
 									echo '<td>'.$collArr['collectionName'].'</td>';
 									echo '<td>'.$collArr['collType'].'</td>';
 									echo '<td>'.$collArr['managementType'].'</td>';
-									if($collArr['internalCollid']) $internal = '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.$collArr['internalCollid'].'" target="_blank">Yes</a>';
+									if(isset($collArr['internal']) && $collArr['internal'])
+										$internal = '<a href="'.$CLIENT_ROOT.'/collections/misc/collprofiles.php?collid='.key($collArr['internal']).'" target="_blank">Yes</a>';
 									else $internal = 'No';
 									echo '<td>'.$internal.'</td>';
 									echo '</tr>';
@@ -124,7 +150,7 @@ if($IS_ADMIN) $isEditor = 1;
 						}
 						else{
 							?>
-							<div>
+							<div style="margin:15px;">
 								<form name="portalActionForm" method="post" action="portalindex.php">
 									<input name="portalid" type="hidden" value="<?php echo $portalID; ?>" />
 									<button name="formsubmit" type="submit" value="listCollections">List Collections</button>

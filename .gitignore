@@ -4,3 +4,6 @@
 .settings/org.eclipse.core.resources.prefs
 content/lang/header.fr.php
 .settings/org.eclipse.php.ui.prefs
+.buildpath
+.settings/org.eclipse.php.core.prefs
+.settings/org.eclipse.wst.common.project.facet.core.xml

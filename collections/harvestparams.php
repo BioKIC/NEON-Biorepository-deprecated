@@ -23,6 +23,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 	<script src="../js/symb/collections.traitsearch.js?ver=8" type="text/javascript"></script> <!-- Contains serach-by-trait modifications -->
 	<script src="../js/symb/wktpolygontools.js?ver=1c" type="text/javascript"></script>
 	<script type="text/javascript">
+		var clientRoot = "<?php echo $CLIENT_ROOT; ?>";
 		$(document).ready(function() {
 			<?php
 			if($searchVar){

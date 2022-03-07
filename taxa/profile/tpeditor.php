@@ -433,7 +433,7 @@ if($isEditor && $action){
 			}
 			else{
 				echo '<div style="margin:15px">';
-				if($taxon) echo "<i>".ucfirst($taxon)."</i> not found in system. Check spelleing, or contact administrator to request name to be added into system.";
+				if($taxon) echo "<i>".ucfirst($taxon)."</i> not found in system. Check spelling, or contact administrator to request name to be added into system.";
 				echo '</div>';
 			}
 		}

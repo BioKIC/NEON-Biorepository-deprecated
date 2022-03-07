@@ -51,6 +51,8 @@ if(isset($_REQUEST['db'])) $imgLibManager->setCollectionVariables($_REQUEST);
 	<script src="../js/symb/collections.index.js?ver=2" type="text/javascript"></script>
 	<meta name='keywords' content='' />
 	<script type="text/javascript">
+		var clientRoot = "<?php echo $CLIENT_ROOT; ?>";
+
 		jQuery(document).ready(function($) {
 			$('#tabs').tabs({
 				<?php if($action) echo 'active: 1,'; ?>

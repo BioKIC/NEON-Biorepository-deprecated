@@ -51,6 +51,8 @@ if(isset($_REQUEST['db'])) $imgLibManager->setCollectionVariables($_REQUEST);
 	<script src="../js/symb/collections.index.js?ver=2" type="text/javascript"></script>
 	<meta name='keywords' content='' />
 	<script type="text/javascript">
+		var clientRoot = "<?php echo $CLIENT_ROOT; ?>";
+
 		jQuery(document).ready(function($) {
 			$('#tabs').tabs({
 				<?php if($action) echo 'active: 1,'; ?>
@@ -60,7 +62,7 @@ if(isset($_REQUEST['db'])) $imgLibManager->setCollectionVariables($_REQUEST);
 			});
 		});
 	</script>
-	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=180116" type="text/javascript"></script>
+	<script src="../js/symb/api.taxonomy.taxasuggest.js?ver=4" type="text/javascript"></script>
 	<script src="../js/symb/imagelib.search.js?ver=201910" type="text/javascript"></script>
 	<link href="<?php echo $CSS_BASE_PATH; ?>/collection.css" type="text/css" rel="stylesheet" />
 	<style type="text/css">

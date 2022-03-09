@@ -187,11 +187,13 @@ elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEdito
 						$("#checkinText").text('success!!!');
 						$("#scSpan-"+retJson.samplePK).html("checked in");
 						f.identifier.value = "";
-						f.sampleReceived.value = 1;
-						f.acceptedForAnalysis.value = 1;
-						f.sampleCondition.value = "ok";
 						f.alternativeSampleID.value = "";
-						f.checkinRemarks.value = "";
+						if(f.formReset.checked == true){
+							f.sampleReceived.value = 1;
+							f.acceptedForAnalysis.value = 1;
+							f.sampleCondition.value = "ok";
+							f.checkinRemarks.value = "";
+						}
 					}
 					else if(retJson.status == 2){
 						$("#checkinText").css('color', 'orange');
@@ -440,6 +442,11 @@ include($SERVER_ROOT.'/includes/header.php');
 										</div>
 										<div class="displayFieldDiv">
 											<b>Remarks:</b> <input name="checkinRemarks" type="text" style="width:300px" />
+										</div>
+										<div class="displayFieldDiv">
+											<input name="formReset" type="checkbox" checked /> reset form after each submission
+										</div>
+										<div class="displayFieldDiv">
 											<button type="submit">Submit</button>
 										</div>
 									</form>

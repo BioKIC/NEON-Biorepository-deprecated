@@ -244,7 +244,7 @@ function verifyLatValue(f){
 	if(inputObj.value > 90 || inputObj.value < -90){
 		alert('Decimal latitude value should be between -90 and 90 degrees');
 	}
-	verifyCoordinates(f);
+	//verifyCoordinates(f);
 }
 
 function verifyLngValue(f){
@@ -253,7 +253,7 @@ function verifyLngValue(f){
 	if(inputObj.value > 180 || inputObj.value < -180){
 		alert('Decimal longitude value should be between -180 and 180 degrees');
 	}
-	verifyCoordinates(f);
+	//verifyCoordinates(f);
 }
 
 function verifyElevValue(inputObj){

@@ -87,87 +87,85 @@ class OccurrenceHarvester{
 		if($sqlWhere){
 			$this->setStateArr();
 			$this->setDomainSiteArr();
-			if($this->setSampleClassArr()){
-				echo '<li>Target record count: '.number_format($this->getTargetCount($sqlWhere)).'</li>';
-				$collArr = array();
-				$occidArr = array();
-				$cnt = 1;
-				$shipmentPK = '';
-				$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.hashedSampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
-					's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.igsnPushedToNEON, s.occid '.
-					'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-					$sqlWhere;
-				$rs = $this->conn->query($sql);
-				while($r = $rs->fetch_object()){
-					$this->errorStr = '';
-					if($shipmentPK != $r->shipmentPK){
-						$shipmentPK = $r->shipmentPK;
-						echo '<li><b>Processing shipment #'.$shipmentPK.'</b></li>';
-					}
-					echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?($this->replaceFieldValues?'Rebuilding':'Appending'):'Harvesting').' '.($r->sampleID?$r->sampleID:$r->sampleCode).'... ';
-					$sampleArr = array();
-					$sampleArr['samplePK'] = $r->samplePK;
-					$sampleArr['sampleID'] = strtoupper($r->sampleID);
-					$sampleArr['hashedSampleID'] = $r->hashedSampleID;
-					$sampleArr['alternativeSampleID'] = strtoupper($r->alternativeSampleID);
-					$sampleArr['sampleUuid'] = $r->sampleUuid;
-					$sampleArr['sampleCode'] = $r->sampleCode;
-					$sampleArr['sampleClass'] = $r->sampleClass;
-					$sampleArr['taxonID'] = $r->taxonID;
-					$sampleArr['individualCount'] = $r->individualCount;
-					$sampleArr['filterVolume'] = $r->filterVolume;
-					$sampleArr['namedLocation'] = $r->namedLocation;
-					$sampleArr['collectDate'] = $r->collectDate;
-					$sampleArr['symbiotaTarget'] = $r->symbiotaTarget;
-					$sampleArr['igsnPushedToNEON'] = $r->igsnPushedToNEON;
-					$sampleArr['occid'] = $r->occid;
-					$occurArr = $this->getOccurrenceRecord($r->occid);
-					if(isset($occurArr['occurrenceID'])) $sampleArr['occurrenceID'] = $occurArr['occurrenceID'];
-					if($this->harvestNeonApi($sampleArr)){
-						if($dwcArr = $this->getDarwinCoreArr($sampleArr)){
-							if($occid = $this->loadOccurrenceRecord($dwcArr, $occurArr, $r->samplePK, $r->occid)){
-								if(!in_array($dwcArr['collid'],$collArr)) $collArr[] = $dwcArr['collid'];
-								$occidArr[] = $occid;
-								echo '<a href="'.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
-							}
-							if($this->errorStr) echo '</li><li style="margin-left:30px">WARNING: '.$this->errorStr.'</li>';
-							else echo '</li>';
+			//if(!$this->setSampleClassArr()) echo '<li>'.$this->errorStr.'</li>';
+			echo '<li>Target record count: '.number_format($this->getTargetCount($sqlWhere)).'</li>';
+			$collArr = array();
+			$occidArr = array();
+			$cnt = 1;
+			$shipmentPK = '';
+			$sql = 'SELECT s.samplePK, s.shipmentPK, s.sampleID, s.hashedSampleID, s.alternativeSampleID, s.sampleUuid, s.sampleCode, s.sampleClass, s.taxonID, '.
+				's.individualCount, s.filterVolume, s.namedLocation, s.collectDate, s.symbiotaTarget, s.igsnPushedToNEON, s.occid '.
+				'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
+				$sqlWhere;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$this->errorStr = '';
+				if($shipmentPK != $r->shipmentPK){
+					$shipmentPK = $r->shipmentPK;
+					echo '<li><b>Processing shipment #'.$shipmentPK.'</b></li>';
+				}
+				echo '<li style="margin-left:15px">'.$cnt.': '.($r->occid?($this->replaceFieldValues?'Rebuilding':'Appending'):'Harvesting').' '.($r->sampleID?$r->sampleID:$r->sampleCode).'... ';
+				$sampleArr = array();
+				$sampleArr['samplePK'] = $r->samplePK;
+				$sampleArr['sampleID'] = strtoupper($r->sampleID);
+				$sampleArr['hashedSampleID'] = $r->hashedSampleID;
+				$sampleArr['alternativeSampleID'] = strtoupper($r->alternativeSampleID);
+				$sampleArr['sampleUuid'] = $r->sampleUuid;
+				$sampleArr['sampleCode'] = $r->sampleCode;
+				$sampleArr['sampleClass'] = $r->sampleClass;
+				$sampleArr['taxonID'] = $r->taxonID;
+				$sampleArr['individualCount'] = $r->individualCount;
+				$sampleArr['filterVolume'] = $r->filterVolume;
+				$sampleArr['namedLocation'] = $r->namedLocation;
+				$sampleArr['collectDate'] = $r->collectDate;
+				$sampleArr['symbiotaTarget'] = $r->symbiotaTarget;
+				$sampleArr['igsnPushedToNEON'] = $r->igsnPushedToNEON;
+				$sampleArr['occid'] = $r->occid;
+				$occurArr = $this->getOccurrenceRecord($r->occid);
+				if(isset($occurArr['occurrenceID'])) $sampleArr['occurrenceID'] = $occurArr['occurrenceID'];
+				if($this->harvestNeonApi($sampleArr)){
+					if($dwcArr = $this->getDarwinCoreArr($sampleArr)){
+						if($occid = $this->loadOccurrenceRecord($dwcArr, $occurArr, $r->samplePK, $r->occid)){
+							if(!in_array($dwcArr['collid'],$collArr)) $collArr[] = $dwcArr['collid'];
+							$occidArr[] = $occid;
+							echo '<a href="'.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
 						}
-						else{
-							echo '</li><li style="margin-left:30px">'.$this->errorStr.'</li>';
-						}
+						if($this->errorStr) echo '</li><li style="margin-left:30px">WARNING: '.$this->errorStr.'</li>';
+						else echo '</li>';
 					}
 					else{
-						echo '</li><li style="margin-left:30px">ERROR: '.$this->errorStr.'</li>';
-					}
-					$cnt++;
-					flush();
-					ob_flush();
-				}
-				$rs->free();
-				if($shipmentPK){
-					$this->adjustTaxonomy($occidArr);
-					//Set recordID GUIDs
-					echo '<li>Setting recordID UUIDs for all occurrence records...</li>';
-					$uuidManager = new UuidFactory();
-					$uuidManager->setSilent(1);
-					$uuidManager->populateGuids();
-					//Update stats for each collection affected
-					if($collArr){
-						echo '<li>Update stats for each collection...</li>';
-						$collManager = new OccurrenceCollectionProfile();
-						foreach($collArr as $collID){
-							echo '<li style="margin-left:15px">Stat update for collection <a href="'.$GLOBALS['CLIENT_ROOT'].'/collections/misc/collprofiles.php?collid='.$collID.'" target="_blank">#'.$collID.'</a>...</li>';
-							$collManager->setCollid($collID);
-							$collManager->updateStatistics(false);
-							flush();
-							ob_flush();
-						}
+						echo '</li><li style="margin-left:30px">'.$this->errorStr.'</li>';
 					}
 				}
-				else echo '<li><b>No records processed. Note that records have to be checked in before occurrences can be harvested.</b></li>';
+				else{
+					echo '</li><li style="margin-left:30px">ERROR: '.$this->errorStr.'</li>';
+				}
+				$cnt++;
+				flush();
+				ob_flush();
 			}
-			else echo '<li>'.$this->errorStr.'</li>';
+			$rs->free();
+			if($shipmentPK){
+				$this->adjustTaxonomy($occidArr);
+				//Set recordID GUIDs
+				echo '<li>Setting recordID UUIDs for all occurrence records...</li>';
+				$uuidManager = new UuidFactory();
+				$uuidManager->setSilent(1);
+				$uuidManager->populateGuids();
+				//Update stats for each collection affected
+				if($collArr){
+					echo '<li>Update stats for each collection...</li>';
+					$collManager = new OccurrenceCollectionProfile();
+					foreach($collArr as $collID){
+						echo '<li style="margin-left:15px">Stat update for collection <a href="'.$GLOBALS['CLIENT_ROOT'].'/collections/misc/collprofiles.php?collid='.$collID.'" target="_blank">#'.$collID.'</a>...</li>';
+						$collManager->setCollid($collID);
+						$collManager->updateStatistics(false);
+						flush();
+						ob_flush();
+					}
+				}
+			}
+			else echo '<li><b>No records processed. Note that records have to be checked in before occurrences can be harvested.</b></li>';
 			//Log any notices, warnings, and errors
 			if($this->errorLogArr){
 				$logPath = $GLOBALS['SERVER_ROOT'].'/neon/content/logs/occurHarvest_error_'.date('Y-m-d').'.log';
@@ -527,11 +525,6 @@ class OccurrenceHarvester{
 				//if(isset($sampleArr['sample_condition'])) $dynProp[] = 'sample condition: '.$sampleArr['sample_condition'];
 				if($dynProp) $dwcArr['dynamicProperties'] = implode(', ',$dynProp);
 
-				//Set occurrence description using sampleClass
-				if($sampleArr['sampleClass']){
-					if(array_key_exists($sampleArr['sampleClass'], $this->sampleClassArr)) $dwcArr['verbatimAttributes'] = $this->sampleClassArr[$sampleArr['sampleClass']];
-					else $dwcArr['verbatimAttributes'] = $sampleArr['sampleClass'];
-				}
 				if(isset($sampleArr['collected_by']) && $sampleArr['collected_by']) $dwcArr['recordedBy'] = $sampleArr['collected_by'];
 				if(isset($sampleArr['collect_start_date']) && $sampleArr['collect_start_date']) $dwcArr['eventDate'] = $sampleArr['collect_start_date'];
 				elseif(isset($sampleArr['collectDate']) && $sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
@@ -663,14 +656,19 @@ class OccurrenceHarvester{
 
 	private function setCollectionIdentifier(&$dwcArr,$sampleClass){
 		$status = false;
-		$sql = 'SELECT collid FROM omcollections WHERE (datasetID = "'.$sampleClass.'") OR (datasetID LIKE "%,'.$sampleClass.',%") OR (datasetID LIKE "'.$sampleClass.',%") OR (datasetID LIKE "%,'.$sampleClass.'")';
-		$rs = $this->conn->query($sql);
-		if($rs->num_rows == 1){
-			$r = $rs->fetch_object();
-			$dwcArr['collid'] = $r->collid;
-			$status = true;
+		if($sampleClass){
+			$sql = 'SELECT collid, datasetName FROM omcollections
+				WHERE (datasetID = "'.$sampleClass.'") OR (datasetID LIKE "%,'.$sampleClass.',%") OR (datasetID LIKE "'.$sampleClass.',%") OR (datasetID LIKE "%,'.$sampleClass.'")';
+			$rs = $this->conn->query($sql);
+			if($rs->num_rows == 1){
+				$r = $rs->fetch_object();
+				$dwcArr['collid'] = $r->collid;
+				if($r->datasetName) $dwcArr['verbatimAttributes'] = $r->datasetName;
+				else $dwcArr['verbatimAttributes'] = $sampleClass;
+				$status = true;
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $status;
 	}
 

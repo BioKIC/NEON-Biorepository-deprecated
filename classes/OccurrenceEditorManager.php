@@ -592,7 +592,6 @@ class OccurrenceEditorManager {
 		return $recCnt;
 	}
 
-	//Get data
 	public function getOccurMap($start = 0, $limit = 0){
 		if(!is_numeric($start)) $start = 0;
 		if(!is_numeric($limit)) $limit = 0;
@@ -703,7 +702,9 @@ class OccurrenceEditorManager {
 					if(!$retArr[$this->occid]['ownerinstitutioncode']) $retArr[$this->occid]['ownerinstitutioncode'] = $this->collMap['institutioncode'];
 				}
 			}
-			$this->occurrenceMap = $this->cleanOutArr($retArr);
+			$this->setAdditionalIdentifiers($retArr);
+			$this->cleanOutArr($retArr);
+			$this->occurrenceMap = $retArr;
 			if($this->occid) $this->setPaleoData();
 		}
 	}
@@ -743,6 +744,58 @@ class OccurrenceEditorManager {
 		}
 		if($this->crowdSourceMode){
 			$sql .= 'INNER JOIN omcrowdsourcequeue q ON q.occid = o.occid ';
+		}
+	}
+
+	private function setAdditionalIdentifiers(&$occurrenceArr){
+		if($occurrenceArr){
+			//Set identifiers for all occurrences
+			$identifierArr = $this->getIdentifiers(implode(',',array_keys($occurrenceArr)));
+			foreach($identifierArr as $occid => $iArr){
+				$occurrenceArr[$occid]['identifiers'] = $iArr;
+			}
+			//Iterate through occurrences and merge addtional identifiers and otherCatalogNumbers field values
+			foreach($occurrenceArr as $occid => $occurArr){
+				$otherCatNumArr = array();
+				if($ocnStr = trim($occurArr['othercatalognumbers'],',;| ')){
+					$ocnStr = str_replace(array(',',';'),'|',$ocnStr);
+					$ocnArr = explode('|',$ocnStr);
+					foreach($ocnArr as $identUnit){
+						$unitArr = explode(':',trim($identUnit,': '));
+						$tag = '';
+						if(count($unitArr) > 1) $tag = trim(array_shift($unitArr));
+						$value = trim(implode(', ',$unitArr));
+						$otherCatNumArr[$value] = $tag;
+					}
+				}
+				if(isset($occurArr['identifiers'])){
+					//Remove otherCatalogNumber values that are already within the omoccuridentifiers
+					foreach($occurArr['identifiers'] as $idKey => $idArr){
+						$idName = $idArr['name'];
+						$idValue = $idArr['value'];
+						if(array_key_exists($idValue, $otherCatNumArr)){
+							if(!$idName && $otherCatNumArr[$idValue]) $occurrenceArr[$occid]['identifiers'][$idKey]['name'] = $otherCatNumArr[$idValue];
+							unset($otherCatNumArr[$idValue]);
+						}
+					}
+				}
+				$newCnt = 0;
+				foreach($otherCatNumArr as $newValue => $newTag){
+					$occurrenceArr[$occid]['identifiers']['ocnid-'.$newCnt]['value'] = $newValue;
+					$occurrenceArr[$occid]['identifiers']['ocnid-'.$newCnt]['name'] = $newTag;
+					$newCnt++;
+				}
+			}
+			foreach($occurrenceArr as $occid => $occurArr){
+				if(isset($occurArr['identifiers'])){
+					$idStr = '';
+					foreach($occurArr['identifiers'] as $idValueArr){
+						if($idValueArr['name']) $idStr .= $idValueArr['name'].': ';
+						$idStr .= $idValueArr['value'].', ';
+					}
+					$occurrenceArr[$occid]['othercatalognumbers'] = trim($idStr,', ');
+				}
+			}
 		}
 	}
 
@@ -809,12 +862,13 @@ class OccurrenceEditorManager {
 				//Get current identifiers values to be saved within versioning tables
 				$editFieldArr['identifier'] = array_intersect($editArr, $this->fieldArr['identifier']);
 				if($editFieldArr['identifier']){
-					$sql = 'SELECT idomoccuridentifiers, CONCAT_WS(": ",identifiername,identifiervalue) as identifier FROM omoccuridentifiers WHERE (occid = '.$this->occid.') ORDER BY sortBy';
-					$rs = $this->conn->query($sql);
-					while($r = $rs->fetch_object()){
-						$oldValueArr['identifier'][$r->idomoccuridentifiers] = $r->identifier;
+					$identArr = $this->getIdentifiers($this->occid);
+					foreach($identArr[$this->occid] as $idKey => $idArr){
+						$idStr = '';
+						if($idArr['name']) $idStr = $idArr['name'].': ';
+						$idStr .= $idArr['value'];
+						$oldValueArr['identifier'][$idKey] = $idStr;
 					}
-					$rs->free();
 				}
 				//Get current exsiccati values to be saved within versioning tables
 				$editFieldArr['exsiccati'] = array_intersect($editArr, $this->fieldArr['exsiccati']);
@@ -1063,6 +1117,20 @@ class OccurrenceEditorManager {
 			}
 		}
 		return $status;
+	}
+
+	private function getIdentifiers($occidStr){
+		$retArr = array();
+		if($occidStr){
+			$sql = 'SELECT occid, idomoccuridentifiers, identifierName, identifierValue FROM omoccuridentifiers WHERE occid IN('.$occidStr.')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->occid][$r->idomoccuridentifiers]['name'] = $r->identifierName;
+				$retArr[$r->occid][$r->idomoccuridentifiers]['value'] = $r->identifierValue;
+			}
+			$rs->free();
+		}
+		return $retArr;
 	}
 
 	public function addOccurrence($postArr){
@@ -1578,45 +1646,6 @@ class OccurrenceEditorManager {
 		return $status;
 	}
 
-	public function getIdentifiers($otherCatNumStr){
-		$retArr = array();
-		if($this->occid){
-			$ocnStr = trim($otherCatNumStr,',;| ');
-			$otherCatNumArr = array();
-			if($ocnStr){
-				$ocnStr = str_replace(array(',',';'),'|',$ocnStr);
-				$ocnArr = explode('|',$ocnStr);
-				foreach($ocnArr as $identUnit){
-					$unitArr = explode(':',trim($identUnit,': '));
-					$tag = '';
-					if(count($unitArr) > 1) $tag = trim(array_shift($unitArr));
-					$value = trim(implode(', ',$unitArr));
-					$otherCatNumArr[$value] = $tag;
-				}
-			}
-			$sql = 'SELECT idomoccuridentifiers, identifiername, identifiervalue FROM omoccuridentifiers WHERE (occid = '.$this->occid.') ORDER BY sortBy ';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$idName = $r->identifiername;
-				$idValue = $r->identifiervalue;
-				if(array_key_exists($idValue, $otherCatNumArr)){
-					if(!$idName && $otherCatNumArr[$idValue]) $idName = $otherCatNumArr[$idValue];
-					unset($otherCatNumArr[$idValue]);
-				}
-				$retArr[$r->idomoccuridentifiers]['name'] = $idName;
-				$retArr[$r->idomoccuridentifiers]['value'] = $idValue;
-			}
-			$rs->free();
-			$newCnt = 0;
-			foreach($otherCatNumArr as $newValue => $newTag){
-				$retArr['ocnid-'.$newCnt]['value'] = $newValue;
-				$retArr['ocnid-'.$newCnt]['name'] = $newTag;
-				$newCnt++;
-			}
-		}
-		return $retArr;
-	}
-
 	public function getLoanData(){
 		$retArr = array();
 		if($this->occid){
@@ -1791,7 +1820,8 @@ class OccurrenceEditorManager {
 			'habitat','substrate','lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations',
 			'associatedtaxa','basisofrecord','language','labelproject','eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
 			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element');
-		$retArr = $this->cleanOutArr(array_intersect_key($fArr,array_flip($locArr)));
+		$retArr = array_intersect_key($fArr,array_flip($locArr));
+		$this->cleanOutArr($retArr);
 		return $retArr;
 	}
 
@@ -2516,12 +2546,11 @@ class OccurrenceEditorManager {
 		return $retStr;
 	}
 
-	protected function cleanOutArr($inArr){
-		$outArr = array();
-		foreach($inArr as $k => $v){
-			$outArr[$k] = $this->cleanOutStr($v);
+	protected function cleanOutArr(&$arr){
+		foreach($arr as $k => $v){
+			if(is_array($v)) $this->cleanOutArr($v);
+			else $arr[$k] = $this->cleanOutStr($v);
 		}
-		return $outArr;
 	}
 
 	protected function cleanOutStr($str){

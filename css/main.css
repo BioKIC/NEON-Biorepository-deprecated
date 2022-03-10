@@ -163,7 +163,7 @@ div.navpath {
     max-width: 1150px;
     width: 90%;
   }
-  #popup-innertext{
+  #popup-innertext {
     margin-left: auto;
     margin-right: auto;
     min-width: 1000px;
@@ -196,7 +196,7 @@ div.navpath {
     max-width: 96%;
     margin: 0 auto;
   }
-  #popup-innertext{
+  #popup-innertext {
     max-width: 96%;
     margin: 0 auto;
   }
@@ -226,7 +226,7 @@ div.navpath {
   #innertext {
     max-width: 95%;
   }
-  #popup-innertext{
+  #popup-innertext {
     max-width: 95%;
   }
   .hide-on-small {
@@ -289,6 +289,10 @@ li.header-title {
 }
 
 .header-title a:hover {
+  text-decoration: none;
+}
+
+.header-title a {
   text-decoration: none;
 }
 

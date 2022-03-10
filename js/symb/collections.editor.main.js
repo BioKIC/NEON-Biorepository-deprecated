@@ -399,7 +399,7 @@ function decimalLatitudeChanged(f){
 
 function decimalLongitudeChanged(f){
 	verifyDecimalLongitude(f);
-	verifyCoordinates(f);
+	//verifyCoordinates(f);
 	fieldChanged('decimallongitude');
 }
 

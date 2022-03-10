@@ -44,6 +44,7 @@ function verifyCoordinates(f){
 							f.stateprovince.style.backgroundColor = "lightblue";
 						}
 					}
+					/*
 					if(level2 != ""){
 						let countyStr = level2.replace(" County","");
 						countyStr = countyStr.replace(" Parish","");
@@ -59,6 +60,7 @@ function verifyCoordinates(f){
 							f.county.style.backgroundColor = "lightblue";
 						}
 					}
+					*/
 					if(!coordValid){
 						let msg = "Are coordinates accurate? They currently map to: "+level0+", "+level1;
 						if(level2) msg = msg + ", " + level2;

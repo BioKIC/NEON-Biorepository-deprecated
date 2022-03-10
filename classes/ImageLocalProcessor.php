@@ -615,13 +615,13 @@ class ImageLocalProcessor {
 				if($this->webImg == 1){
 					// 1 = evaluate source and import
 					if($fileSize < $this->webFileSizeLimit && $width < ($this->webPixWidth*2)){
-						if(copy($sourcePath.$fileName,$targetPath.$targetFileName)){
+						if(copy($sourcePath.$fileName, $targetPath.$targetFileName)){
 							$webUrl = $targetFileName;
 							$this->logOrEcho("Source image imported as web image (".date('Y-m-d h:i:s A').") ",1);
 						}
 					}
 					else{
-						if($this->createNewImage($sourcePath.$fileName,$targetPath.$targetFileName,$this->webPixWidth,round($this->webPixWidth*$height/$width),$width,$height)){
+						if($this->createNewImage($sourcePath.$fileName, $targetPath.$targetFileName,$this->webPixWidth,round($this->webPixWidth*$height/$width),$width,$height)){
 							$webUrl = $targetFileName;
 							$this->logOrEcho("Web image created from source image (".date('Y-m-d h:i:s A').") ",1);
 						}
@@ -630,7 +630,7 @@ class ImageLocalProcessor {
 				elseif($this->webImg == 2){
 					// 2 = import source and use as is
 					$webFileName = $fileNameBase.$this->webSourceSuffix.$fileNameExt;
-					if(copy($sourcePath.$webFileName,$targetPath.$targetFileName)){
+					if(copy($sourcePath.$webFileName, $targetPath.$targetFileName)){
 						$webUrl = $targetFileName;
 						$this->logOrEcho("Source image imported as web image (".date('Y-m-d h:i:s A').") ",1);
 					}
@@ -655,7 +655,7 @@ class ImageLocalProcessor {
 						//Source image is big enough to serve as large version
 						if($width > $this->lgPixWidth){
 							//Image is too wide, thus let's resize and import
-							if($this->createNewImage($sourcePath.$fileName,$targetPath.$lgTargetFileName,$this->lgPixWidth,round($this->lgPixWidth*$height/$width),$width,$height)){
+							if($this->createNewImage($sourcePath.$fileName, $targetPath.$lgTargetFileName,$this->lgPixWidth,round($this->lgPixWidth*$height/$width),$width,$height)){
 								$lgUrl = $lgTargetFileName;
 								$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
 							}
@@ -672,9 +672,9 @@ class ImageLocalProcessor {
 							$newWidth = round($width * sqrt($ratio));
 
 							// Resize the image
-							if($this->createNewImage($sourcePath.$fileName,$targetPath.$lgTargetFileName,$newWidth,round($newWidth*$height/$width),$width,$height)){
-								$lgUrlFrag = $this->imgUrlBase.$targetFrag.$lgTargetFileName;
-							$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
+							if($this->createNewImage($sourcePath.$fileName, $targetPath.$lgTargetFileName, $newWidth, round($newWidth*$height/$width), $width, $height)){
+								$lgUrl = $lgTargetFileName;
+								$this->logOrEcho("Resized source as large derivative (".date('Y-m-d h:i:s A').") ",1);
 							}
 						}
 						else{
@@ -684,7 +684,7 @@ class ImageLocalProcessor {
 								$this->logOrEcho("Imported source as large derivative (".date('Y-m-d h:i:s A').") ",1);
 							}
 							else{
-								$this->logOrEcho("WARNING: unable to import large derivative (".$sourcePath.$lgSourceFileName.") ",1);
+								$this->logOrEcho("WARNING: unable to import large derivative (".$sourcePath.$fileName.") ",1);
 							}
 						}
 					}
@@ -804,8 +804,8 @@ class ImageLocalProcessor {
 
 	private function createNewImageImagick($sourceImg,$targetPath,$newWidth,$newHeight){
 		$status = false;
-		$ct;
-		$retval;
+		$ct = null;
+		$retval = null;
 
 		if(!$newWidth || !$newHeight){
 			$this->logOrEcho("ERROR: Unable to create image because new width or height is not set (w:".$newWidth.' h:'.$newHeight.')');

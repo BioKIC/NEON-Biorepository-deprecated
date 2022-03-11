@@ -477,55 +477,33 @@ class OccurrenceEditorManager {
 		for($x=1;$x<9;$x++){
 			$cao = (array_key_exists('cao'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cao'.$x]):'');
             $cop = (array_key_exists('cop'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cop'.$x]):'');
-			$cf = (array_key_exists('cf'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cf'.$x]):'');
-			$ct = (array_key_exists('ct'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ct'.$x]):'');
-			$cv = (array_key_exists('cv'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cv'.$x]):'');
+			$customField = (array_key_exists('cf'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cf'.$x]):'');
+			$customTerm = (array_key_exists('ct'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ct'.$x]):'');
+			$customValue = (array_key_exists('cv'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cv'.$x]):'');
 			$ccp = (array_key_exists('ccp'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ccp'.$x]):'');
             if(!$cao) $cao = 'AND';
-			if($cf){
-				if($cf == 'ocrFragment'){
+            if($customField){
+            	if($customField == 'ocrFragment'){
 					//Used when OCR frag comes from custom field search within basic query form
-					$cf = 'ocr.rawstr';
+					$customField = 'ocr.rawstr';
 				}
-				elseif($cf == 'username'){
+				elseif($customField == 'username'){
 					//Used when Modified By comes from custom field search within basic query form
-					$cf = 'ul.username';
+					$customField = 'ul.username';
 				}
 				else{
-					$cf = 'o.'.$cf;
+					$customField = 'o.'.$customField;
 				}
-				if($ct=='NULL'){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NULL) '.($ccp?$ccp.' ':'');
+				if($customField == 'o.otherCatalogNumbers'){
+					$ocnFrag1 = $this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp);
+					$caoOverride = 'OR';
+					if(in_array($customTerm, array('NOT EQUALS','NULL'))) $caoOverride = 'AND';
+					$ocnFrag2 = $this->setCustomSqlFragment('id.identifierValue', $customTerm, $customValue, $caoOverride, $cop, $ccp);
+					$customWhere .= $cao.' ('.substr($ocnFrag1,3).' '.$ocnFrag2.') ';
 				}
-				elseif($ct=='NOTNULL'){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NOT NULL) '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='NOT EQUALS' && $cv){
-					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$customWhere .= $cao.($cop?' '.$cop:'').' (('.$cf.' != '.$cv.') OR ('.$cf.' IS NULL)) '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='GREATER' && $cv){
-					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' > '.$cv.') '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='LESS' && $cv){
-					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' < '.$cv.') '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='LIKE' && $cv){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "%'.trim($cv,'%').'%") '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='NOT LIKE' && $cv){
-					$customWhere .= $cao.($cop?' '.$cop:'').' (('.$cf.' NOT LIKE "%'.trim($cv,'%').'%") OR ('.$cf.' IS NULL)) '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='STARTS' && $cv){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.trim($cv,'%').'%") '.($ccp?$ccp.' ':'');
-				}
-				elseif($cv){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' = "'.$cv.'") '.($ccp?$ccp.' ':'');
-				}
+				else $customWhere .= $this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp);
 			}
-			elseif($x > 1 && !$cf && $ccp){
+			elseif($x > 1 && !$customField && $ccp){
 				$customWhere .= ' '.$ccp.' ';
     		}
 		}
@@ -539,9 +517,43 @@ class OccurrenceEditorManager {
 		}
 		if($this->collId) $sqlWhere .= 'AND (o.collid ='.$this->collId.') ';
 		if($sqlWhere) $sqlWhere = 'WHERE '.substr($sqlWhere,4);
-
 		//echo $sqlWhere.'<br/>';
 		$this->sqlWhere = $sqlWhere;
+	}
+
+	private function setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp){
+		$sqlFrag = '';
+		if($customTerm == 'NULL'){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' IS NULL) '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'NOTNULL'){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' IS NOT NULL) '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'NOT EQUALS' && $customValue){
+			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' (('.$customField.' != '.$customValue.') OR ('.$customField.' IS NULL)) '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'GREATER' && $customValue){
+			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' > '.$customValue.') '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'LESS' && $customValue){
+			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' < '.$customValue.') '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'LIKE' && $customValue){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' LIKE "%'.trim($customValue,'%').'%") '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'NOT LIKE' && $customValue){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' (('.$customField.' NOT LIKE "%'.trim($customValue,'%').'%") OR ('.$customField.' IS NULL)) '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'STARTS' && $customValue){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' LIKE "'.trim($customValue,'%').'%") '.($ccp?$ccp.' ':'');
+		}
+		elseif($customValue){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' = "'.$customValue.'") '.($ccp?$ccp.' ':'');
+		}
+		return $sqlFrag;
 	}
 
 	private function setSqlOrderBy(&$sql){

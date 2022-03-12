@@ -853,6 +853,7 @@ class OccurrenceEditorManager {
 				}
 			}
 			if($editArr || $quickHostEntered){
+				$identArr = $this->getIdentifiers($this->occid);
 				$oldValueArr = array();
 				//Get current values to be saved within versioning tables
 				$editFieldArr['occurrence'] = array_intersect($editArr,array_keys($this->fieldArr['occurrence']));
@@ -873,8 +874,7 @@ class OccurrenceEditorManager {
 				}
 				//Get current identifiers values to be saved within versioning tables
 				$editFieldArr['identifier'] = array_intersect($editArr, $this->fieldArr['identifier']);
-				if($editFieldArr['identifier']){
-					$identArr = $this->getIdentifiers($this->occid);
+				if($editFieldArr['identifier'] && $identArr){
 					foreach($identArr[$this->occid] as $idKey => $idArr){
 						$idStr = '';
 						if($idArr['name']) $idStr = $idArr['name'].': ';
@@ -908,9 +908,7 @@ class OccurrenceEditorManager {
 						$rs2->free();
 					}
 					//If additional identifiers exist, NULL otherCatalogNumbers
-					if($postArr['idvalue'][0]){
-						$postArr['othercatalognumbers'] = '';
-					}
+					if($postArr['idvalue'][0]) $postArr['othercatalognumbers'] = '';
 
 					//If processing status was "unprocessed" and recordEnteredBy is null, populate with user login
 					$oldProcessingStatus = isset($oldValueArr['occurrence']['processingstatus'])?$oldValueArr['occurrence']['processingstatus']:'';
@@ -1016,7 +1014,7 @@ class OccurrenceEditorManager {
 							}
 						}
 						//Deal with additional identifiers
-						if(isset($postArr['idvalue'])) $this->updateIdentifiers($postArr);
+						if(isset($postArr['idvalue'])) $this->updateIdentifiers($postArr, $identArr);
 						//Deal with paleo fields
 						if($this->paleoActivated && array_key_exists('eon',$postArr)){
 							//Check to see if paleo record already exists
@@ -1259,15 +1257,24 @@ class OccurrenceEditorManager {
 		return $status;
 	}
 
-	private function updateIdentifiers($postArr){
-		foreach($postArr['idvalue'] as $key => $idValue){
+	private function updateIdentifiers($identArr, $existingIdentArr = null){
+		foreach($identArr['idvalue'] as $key => $idValue){
 			$idValue = trim($idValue);
 			if($idValue){
-				$idKey = $postArr['idkey'][$key];
-				$idName = trim($postArr['idname'][$key]);
-				$sql = 'UPDATE omoccuridentifiers SET identifierName = '.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').', identifierValue = "'.$this->cleanInStr($idValue).'", modifiedUid = '.$GLOBALS['SYMB_UID'].' WHERE occid = '.$this->occid.' AND idomoccuridentifiers = '.$idKey;
+				$idKey = $identArr['idkey'][$key];
+				$idName = trim($identArr['idname'][$key]);
+				$sql = 'UPDATE omoccuridentifiers
+					SET identifierName = '.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').', identifierValue = "'.$this->cleanInStr($idValue).'", modifiedUid = '.$GLOBALS['SYMB_UID'].
+					' WHERE occid = '.$this->occid.' AND idomoccuridentifiers = '.$idKey;
 				if(!is_numeric($idKey)){
-					$sql = 'INSERT INTO omoccuridentifiers(occid, identifierName, identifierValue, modifiedUid) VALUE('.$this->occid.','.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').',"'.$this->cleanInStr($idValue).'", '.$GLOBALS['SYMB_UID'].') ';
+					if($existingIdentArr){
+						foreach($existingIdentArr[$this->occid] as $valueArr){
+							//If identifier name and value already exists, thus skip to evaluate next identifier
+							if($valueArr['name'] == $idName && $valueArr['value'] == $idValue) continue 2;
+						}
+					}
+					$sql = 'INSERT INTO omoccuridentifiers(occid, identifierName, identifierValue, modifiedUid)
+						VALUE('.$this->occid.','.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').',"'.$this->cleanInStr($idValue).'", '.$GLOBALS['SYMB_UID'].') ';
 				}
 				if(!$this->conn->query($sql)){
 					$this->errorArr[] = 'ERROR updating/adding identifier: '.$this->conn->error;

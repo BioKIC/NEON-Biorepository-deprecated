@@ -248,7 +248,7 @@ class OccurrenceEditorManager {
 		$this->otherCatNumIsNum = false;
 		if(array_key_exists('ocn',$this->qryArr)){
 			if(strtolower($this->qryArr['ocn']) == 'is null'){
-				$sqlWhere .= 'AND (o.othercatalognumbers IS NULL) AND (id.occid IS NULL) ';
+				$sqlWhere .= 'AND (o.othercatalognumbers IS NULL) AND (id.identifierValue IS NULL) ';
 			}
 			else{
 				$ocnArr = explode(',',$this->qryArr['ocn']);
@@ -495,11 +495,12 @@ class OccurrenceEditorManager {
 					$customField = 'o.'.$customField;
 				}
 				if($customField == 'o.otherCatalogNumbers'){
-					$ocnFrag1 = $this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp);
+					$customWhere .= $cao.' ('.substr($this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp),3).' ';
 					$caoOverride = 'OR';
-					if(in_array($customTerm, array('NOT EQUALS','NULL'))) $caoOverride = 'AND';
-					$ocnFrag2 = $this->setCustomSqlFragment('id.identifierValue', $customTerm, $customValue, $caoOverride, $cop, $ccp);
-					$customWhere .= $cao.' ('.substr($ocnFrag1,3).' '.$ocnFrag2.') ';
+					if(in_array($customTerm, array('NOT EQUALS','NOT LIKE','NULL'))) $caoOverride = 'AND';
+					$customWhere .= '('.$this->setCustomSqlFragment('id.identifierValue', $customTerm, $customValue, $caoOverride, $cop, $ccp);
+					if($customTerm == 'NOT EQUALS' || $customTerm == 'NOT LIKE') $customWhere .= ' OR id.identifierValue IS NULL';
+					$customWhere .= ')) ';
 				}
 				else $customWhere .= $this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp);
 			}
@@ -739,10 +740,7 @@ class OccurrenceEditorManager {
 		elseif(array_key_exists('woi',$this->qryArr)){
 			$sql .= 'LEFT JOIN images i ON o.occid = i.occid ';
 		}
-		if(strpos($this->sqlWhere,'id.occid')){
-			$sql .= 'INNER JOIN omoccuridentifiers id ON o.occid = id.occid ';
-		}
-		elseif(strpos($this->sqlWhere,'id.identifierValue')){
+		if(strpos($this->sqlWhere,'id.identifierValue')){
 			$sql .= 'LEFT JOIN omoccuridentifiers id ON o.occid = id.occid ';
 		}
 		if(strpos($this->sqlWhere,'ul.username')){

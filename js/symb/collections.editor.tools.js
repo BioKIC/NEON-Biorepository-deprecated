@@ -137,7 +137,7 @@ function geoLocateUpdateCoord(latValue,lngValue,coordErrValue, footprintWKT){
 	fieldChanged('decimallatitude');
 	verifyDecimalLongitude(f);
 	fieldChanged('decimallongitude');
-	verifyCoordinates(f);
+	//verifyCoordinates(f);
 	f.coordinateuncertaintyinmeters.onchange();
 	f.georeferencesources.onchange();
 	f.geodeticdatum.onchange();

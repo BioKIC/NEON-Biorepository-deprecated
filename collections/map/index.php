@@ -75,8 +75,8 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 	<script src="../../js/symb/oms.min.js" type="text/javascript"></script>
 	<script src="../../js/symb/keydragzoom.js" type="text/javascript"></script>
 	<script src="../../js/symb/infobox.js" type="text/javascript"></script>
-	<script src="../../js/symb/api.taxonomy.taxasuggest.js?ver=4" type="text/javascript"></script>
 	<script type="text/javascript">
+		var clientRoot = "<?php echo $CLIENT_ROOT; ?>";
 
 		$(document).ready(function() {
 			<?php
@@ -1089,6 +1089,7 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 
 		<?php echo ($activateGeolocation?"google.maps.event.addDomListener(window, 'load', getCoords);":""); ?>
 	</script>
+	<script src="../../js/symb/api.taxonomy.taxasuggest.js?ver=4" type="text/javascript"></script>
 </head>
 <body style='width:100%;max-width:100%;min-width:500px;' <?php echo (!$activateGeolocation?'onload="initialize();"':''); ?>>
 <div data-role="page" id="page1">

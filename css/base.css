@@ -1,6 +1,6 @@
 /*
  * Do not modify styles within this file
- * Instead, modify styles within the main.css file to override the default styles declared within this file 
+ * Instead, modify styles within the symb/main.css file to override the default styles declared within this file 
 */
 
 body {
@@ -22,8 +22,6 @@ body {
     vertical-align: top;
 }
 
-#header {}
-
 #middleleft {
     width: 160px;
 }
@@ -39,10 +37,6 @@ body {
 #middleright {
     width: 15px;
 }
-
-#footer p{ text-align: justify; margin: 20px 200px 0px 200px;  }
-#footer p img{ display:inline-block; width: 100px; margin-top: auto; margin-bottom: auto; vertical-align: middle; }
-#footer p:after{ content:""; display: inline-block; width: 100%; height: 0; }
 
 /*Central div and general components */
 

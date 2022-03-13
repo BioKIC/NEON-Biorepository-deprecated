@@ -23,23 +23,6 @@ body{
 	font-size: 14px;
 }
 
-#header{
-	color:#FFFFFF;
-	background-color:#000000;
-	text-align:left;
-	padding: 0px;
-	padding-bottom: 0px;
-	border-bottom:1px solid #333333;
-}
-
-#header a{
-
-}
-
-#header a:hover{
-
-}
-
 #middleleft{
 }
 
@@ -51,9 +34,6 @@ body{
 }
 
 #middleright{
-}
-
-#footer{
 }
 
 /*Central div in the middle center table div */
@@ -103,6 +83,38 @@ h2{
 
 h3{
 }
+
+table.styledtable{
+}
+
+table.styledtable th {
+}
+
+table.styledtable td {
+}
+table.styledtable tr.alt td {
+}
+
+/* Quick Search Plugin */
+#quicksearchtext{
+}
+
+#quicksearchbutton{
+}
+
+/*  
+ *  Header elements, including header menu
+ */
+
+#header{
+	color:#FFFFFF;
+	background-color:#000000;
+	text-align:left;
+	padding: 0px;
+	padding-bottom: 0px;
+	border-bottom:1px solid #333333;
+}
+
 #top_navbar{
 	clear:both;
 	height:32px;
@@ -218,25 +230,10 @@ h3{
 	background:#999999; 
 }
 
-
-table.styledtable{
-}
-
-table.styledtable th {
-}
-
-table.styledtable td {
-}
-table.styledtable tr.alt td {
-}
-
-/* Quick Search Plugin */
-#quicksearchtext{
-}
-
-#quicksearchbutton{
-}
-
-.footer{
-	padding:0px;
-}
+/*  
+ *  Footer elements
+ */
+.footer{ padding:0px; }
+#footer p{ text-align: justify; margin: 20px 200px 0px 200px;  }
+#footer p img{ display:inline-block; width: 100px; margin-top: auto; margin-bottom: auto; vertical-align: middle; }
+#footer p:after{ content:""; display: inline-block; width: 100%; height: 0; }

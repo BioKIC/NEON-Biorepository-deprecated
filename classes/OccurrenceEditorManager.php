@@ -248,7 +248,7 @@ class OccurrenceEditorManager {
 		$this->otherCatNumIsNum = false;
 		if(array_key_exists('ocn',$this->qryArr)){
 			if(strtolower($this->qryArr['ocn']) == 'is null'){
-				$sqlWhere .= 'AND (o.othercatalognumbers IS NULL) AND (id.occid IS NULL) ';
+				$sqlWhere .= 'AND (o.othercatalognumbers IS NULL) AND (id.identifierValue IS NULL) ';
 			}
 			else{
 				$ocnArr = explode(',',$this->qryArr['ocn']);
@@ -477,55 +477,34 @@ class OccurrenceEditorManager {
 		for($x=1;$x<9;$x++){
 			$cao = (array_key_exists('cao'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cao'.$x]):'');
             $cop = (array_key_exists('cop'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cop'.$x]):'');
-			$cf = (array_key_exists('cf'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cf'.$x]):'');
-			$ct = (array_key_exists('ct'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ct'.$x]):'');
-			$cv = (array_key_exists('cv'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cv'.$x]):'');
+			$customField = (array_key_exists('cf'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cf'.$x]):'');
+			$customTerm = (array_key_exists('ct'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ct'.$x]):'');
+			$customValue = (array_key_exists('cv'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cv'.$x]):'');
 			$ccp = (array_key_exists('ccp'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['ccp'.$x]):'');
             if(!$cao) $cao = 'AND';
-			if($cf){
-				if($cf == 'ocrFragment'){
+            if($customField){
+            	if($customField == 'ocrFragment'){
 					//Used when OCR frag comes from custom field search within basic query form
-					$cf = 'ocr.rawstr';
+					$customField = 'ocr.rawstr';
 				}
-				elseif($cf == 'username'){
+				elseif($customField == 'username'){
 					//Used when Modified By comes from custom field search within basic query form
-					$cf = 'ul.username';
+					$customField = 'ul.username';
 				}
 				else{
-					$cf = 'o.'.$cf;
+					$customField = 'o.'.$customField;
 				}
-				if($ct=='NULL'){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NULL) '.($ccp?$ccp.' ':'');
+				if($customField == 'o.otherCatalogNumbers'){
+					$customWhere .= $cao.' ('.substr($this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp),3).' ';
+					$caoOverride = 'OR';
+					if(in_array($customTerm, array('NOT EQUALS','NOT LIKE','NULL'))) $caoOverride = 'AND';
+					$customWhere .= '('.$this->setCustomSqlFragment('id.identifierValue', $customTerm, $customValue, $caoOverride, $cop, $ccp);
+					if($customTerm == 'NOT EQUALS' || $customTerm == 'NOT LIKE') $customWhere .= ' OR id.identifierValue IS NULL';
+					$customWhere .= ')) ';
 				}
-				elseif($ct=='NOTNULL'){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' IS NOT NULL) '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='NOT EQUALS' && $cv){
-					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$customWhere .= $cao.($cop?' '.$cop:'').' (('.$cf.' != '.$cv.') OR ('.$cf.' IS NULL)) '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='GREATER' && $cv){
-					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' > '.$cv.') '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='LESS' && $cv){
-					if(!is_numeric($cv)) $cv = '"'.$cv.'"';
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' < '.$cv.') '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='LIKE' && $cv){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "%'.trim($cv,'%').'%") '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='NOT LIKE' && $cv){
-					$customWhere .= $cao.($cop?' '.$cop:'').' (('.$cf.' NOT LIKE "%'.trim($cv,'%').'%") OR ('.$cf.' IS NULL)) '.($ccp?$ccp.' ':'');
-				}
-				elseif($ct=='STARTS' && $cv){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' LIKE "'.trim($cv,'%').'%") '.($ccp?$ccp.' ':'');
-				}
-				elseif($cv){
-					$customWhere .= $cao.($cop?' '.$cop:'').' ('.$cf.' = "'.$cv.'") '.($ccp?$ccp.' ':'');
-				}
+				else $customWhere .= $this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp);
 			}
-			elseif($x > 1 && !$cf && $ccp){
+			elseif($x > 1 && !$customField && $ccp){
 				$customWhere .= ' '.$ccp.' ';
     		}
 		}
@@ -539,9 +518,43 @@ class OccurrenceEditorManager {
 		}
 		if($this->collId) $sqlWhere .= 'AND (o.collid ='.$this->collId.') ';
 		if($sqlWhere) $sqlWhere = 'WHERE '.substr($sqlWhere,4);
-
 		//echo $sqlWhere.'<br/>';
 		$this->sqlWhere = $sqlWhere;
+	}
+
+	private function setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp){
+		$sqlFrag = '';
+		if($customTerm == 'NULL'){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' IS NULL) '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'NOTNULL'){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' IS NOT NULL) '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'NOT EQUALS' && $customValue){
+			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' (('.$customField.' != '.$customValue.') OR ('.$customField.' IS NULL)) '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'GREATER' && $customValue){
+			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' > '.$customValue.') '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'LESS' && $customValue){
+			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' < '.$customValue.') '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'LIKE' && $customValue){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' LIKE "%'.trim($customValue,'%').'%") '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'NOT LIKE' && $customValue){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' (('.$customField.' NOT LIKE "%'.trim($customValue,'%').'%") OR ('.$customField.' IS NULL)) '.($ccp?$ccp.' ':'');
+		}
+		elseif($customTerm == 'STARTS' && $customValue){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' LIKE "'.trim($customValue,'%').'%") '.($ccp?$ccp.' ':'');
+		}
+		elseif($customValue){
+			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' = "'.$customValue.'") '.($ccp?$ccp.' ':'');
+		}
+		return $sqlFrag;
 	}
 
 	private function setSqlOrderBy(&$sql){
@@ -592,7 +605,6 @@ class OccurrenceEditorManager {
 		return $recCnt;
 	}
 
-	//Get data
 	public function getOccurMap($start = 0, $limit = 0){
 		if(!is_numeric($start)) $start = 0;
 		if(!is_numeric($limit)) $limit = 0;
@@ -703,7 +715,9 @@ class OccurrenceEditorManager {
 					if(!$retArr[$this->occid]['ownerinstitutioncode']) $retArr[$this->occid]['ownerinstitutioncode'] = $this->collMap['institutioncode'];
 				}
 			}
-			$this->occurrenceMap = $this->cleanOutArr($retArr);
+			$this->setAdditionalIdentifiers($retArr);
+			$this->cleanOutArr($retArr);
+			$this->occurrenceMap = $retArr;
 			if($this->occid) $this->setPaleoData();
 		}
 	}
@@ -726,10 +740,7 @@ class OccurrenceEditorManager {
 		elseif(array_key_exists('woi',$this->qryArr)){
 			$sql .= 'LEFT JOIN images i ON o.occid = i.occid ';
 		}
-		if(strpos($this->sqlWhere,'id.occid')){
-			$sql .= 'INNER JOIN omoccuridentifiers id ON o.occid = id.occid ';
-		}
-		elseif(strpos($this->sqlWhere,'id.identifierValue')){
+		if(strpos($this->sqlWhere,'id.identifierValue')){
 			$sql .= 'LEFT JOIN omoccuridentifiers id ON o.occid = id.occid ';
 		}
 		if(strpos($this->sqlWhere,'ul.username')){
@@ -743,6 +754,58 @@ class OccurrenceEditorManager {
 		}
 		if($this->crowdSourceMode){
 			$sql .= 'INNER JOIN omcrowdsourcequeue q ON q.occid = o.occid ';
+		}
+	}
+
+	private function setAdditionalIdentifiers(&$occurrenceArr){
+		if($occurrenceArr){
+			//Set identifiers for all occurrences
+			$identifierArr = $this->getIdentifiers(implode(',',array_keys($occurrenceArr)));
+			foreach($identifierArr as $occid => $iArr){
+				$occurrenceArr[$occid]['identifiers'] = $iArr;
+			}
+			//Iterate through occurrences and merge addtional identifiers and otherCatalogNumbers field values
+			foreach($occurrenceArr as $occid => $occurArr){
+				$otherCatNumArr = array();
+				if($ocnStr = trim($occurArr['othercatalognumbers'],',;| ')){
+					$ocnStr = str_replace(array(',',';'),'|',$ocnStr);
+					$ocnArr = explode('|',$ocnStr);
+					foreach($ocnArr as $identUnit){
+						$unitArr = explode(':',trim($identUnit,': '));
+						$tag = '';
+						if(count($unitArr) > 1) $tag = trim(array_shift($unitArr));
+						$value = trim(implode(', ',$unitArr));
+						$otherCatNumArr[$value] = $tag;
+					}
+				}
+				if(isset($occurArr['identifiers'])){
+					//Remove otherCatalogNumber values that are already within the omoccuridentifiers
+					foreach($occurArr['identifiers'] as $idKey => $idArr){
+						$idName = $idArr['name'];
+						$idValue = $idArr['value'];
+						if(array_key_exists($idValue, $otherCatNumArr)){
+							if(!$idName && $otherCatNumArr[$idValue]) $occurrenceArr[$occid]['identifiers'][$idKey]['name'] = $otherCatNumArr[$idValue];
+							unset($otherCatNumArr[$idValue]);
+						}
+					}
+				}
+				$newCnt = 0;
+				foreach($otherCatNumArr as $newValue => $newTag){
+					$occurrenceArr[$occid]['identifiers']['ocnid-'.$newCnt]['value'] = $newValue;
+					$occurrenceArr[$occid]['identifiers']['ocnid-'.$newCnt]['name'] = $newTag;
+					$newCnt++;
+				}
+			}
+			foreach($occurrenceArr as $occid => $occurArr){
+				if(isset($occurArr['identifiers'])){
+					$idStr = '';
+					foreach($occurArr['identifiers'] as $idValueArr){
+						if($idValueArr['name']) $idStr .= $idValueArr['name'].': ';
+						$idStr .= $idValueArr['value'].', ';
+					}
+					$occurrenceArr[$occid]['othercatalognumbers'] = trim($idStr,', ');
+				}
+			}
 		}
 	}
 
@@ -788,6 +851,7 @@ class OccurrenceEditorManager {
 				}
 			}
 			if($editArr || $quickHostEntered){
+				$identArr = $this->getIdentifiers($this->occid);
 				$oldValueArr = array();
 				//Get current values to be saved within versioning tables
 				$editFieldArr['occurrence'] = array_intersect($editArr,array_keys($this->fieldArr['occurrence']));
@@ -808,13 +872,13 @@ class OccurrenceEditorManager {
 				}
 				//Get current identifiers values to be saved within versioning tables
 				$editFieldArr['identifier'] = array_intersect($editArr, $this->fieldArr['identifier']);
-				if($editFieldArr['identifier']){
-					$sql = 'SELECT idomoccuridentifiers, CONCAT_WS(": ",identifiername,identifiervalue) as identifier FROM omoccuridentifiers WHERE (occid = '.$this->occid.') ORDER BY sortBy';
-					$rs = $this->conn->query($sql);
-					while($r = $rs->fetch_object()){
-						$oldValueArr['identifier'][$r->idomoccuridentifiers] = $r->identifier;
+				if($editFieldArr['identifier'] && $identArr){
+					foreach($identArr[$this->occid] as $idKey => $idArr){
+						$idStr = '';
+						if($idArr['name']) $idStr = $idArr['name'].': ';
+						$idStr .= $idArr['value'];
+						$oldValueArr['identifier'][$idKey] = $idStr;
 					}
-					$rs->free();
 				}
 				//Get current exsiccati values to be saved within versioning tables
 				$editFieldArr['exsiccati'] = array_intersect($editArr, $this->fieldArr['exsiccati']);
@@ -842,9 +906,7 @@ class OccurrenceEditorManager {
 						$rs2->free();
 					}
 					//If additional identifiers exist, NULL otherCatalogNumbers
-					if($postArr['idvalue'][0]){
-						$postArr['othercatalognumbers'] = '';
-					}
+					if($postArr['idvalue'][0]) $postArr['othercatalognumbers'] = '';
 
 					//If processing status was "unprocessed" and recordEnteredBy is null, populate with user login
 					$oldProcessingStatus = isset($oldValueArr['occurrence']['processingstatus'])?$oldValueArr['occurrence']['processingstatus']:'';
@@ -950,7 +1012,7 @@ class OccurrenceEditorManager {
 							}
 						}
 						//Deal with additional identifiers
-						if(isset($postArr['idvalue'])) $this->updateIdentifiers($postArr);
+						if(isset($postArr['idvalue'])) $this->updateIdentifiers($postArr, $identArr);
 						//Deal with paleo fields
 						if($this->paleoActivated && array_key_exists('eon',$postArr)){
 							//Check to see if paleo record already exists
@@ -1063,6 +1125,20 @@ class OccurrenceEditorManager {
 			}
 		}
 		return $status;
+	}
+
+	private function getIdentifiers($occidStr){
+		$retArr = array();
+		if($occidStr){
+			$sql = 'SELECT occid, idomoccuridentifiers, identifierName, identifierValue FROM omoccuridentifiers WHERE occid IN('.$occidStr.')';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->occid][$r->idomoccuridentifiers]['name'] = $r->identifierName;
+				$retArr[$r->occid][$r->idomoccuridentifiers]['value'] = $r->identifierValue;
+			}
+			$rs->free();
+		}
+		return $retArr;
 	}
 
 	public function addOccurrence($postArr){
@@ -1179,15 +1255,24 @@ class OccurrenceEditorManager {
 		return $status;
 	}
 
-	private function updateIdentifiers($postArr){
-		foreach($postArr['idvalue'] as $key => $idValue){
+	private function updateIdentifiers($identArr, $existingIdentArr = null){
+		foreach($identArr['idvalue'] as $key => $idValue){
 			$idValue = trim($idValue);
 			if($idValue){
-				$idKey = $postArr['idkey'][$key];
-				$idName = trim($postArr['idname'][$key]);
-				$sql = 'UPDATE omoccuridentifiers SET identifierName = '.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').', identifierValue = "'.$this->cleanInStr($idValue).'", modifiedUid = '.$GLOBALS['SYMB_UID'].' WHERE occid = '.$this->occid.' AND idomoccuridentifiers = '.$idKey;
+				$idKey = $identArr['idkey'][$key];
+				$idName = trim($identArr['idname'][$key]);
+				$sql = 'UPDATE omoccuridentifiers
+					SET identifierName = '.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').', identifierValue = "'.$this->cleanInStr($idValue).'", modifiedUid = '.$GLOBALS['SYMB_UID'].
+					' WHERE occid = '.$this->occid.' AND idomoccuridentifiers = '.$idKey;
 				if(!is_numeric($idKey)){
-					$sql = 'INSERT INTO omoccuridentifiers(occid, identifierName, identifierValue, modifiedUid) VALUE('.$this->occid.','.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').',"'.$this->cleanInStr($idValue).'", '.$GLOBALS['SYMB_UID'].') ';
+					if($existingIdentArr){
+						foreach($existingIdentArr[$this->occid] as $valueArr){
+							//If identifier name and value already exists, thus skip to evaluate next identifier
+							if($valueArr['name'] == $idName && $valueArr['value'] == $idValue) continue 2;
+						}
+					}
+					$sql = 'INSERT INTO omoccuridentifiers(occid, identifierName, identifierValue, modifiedUid)
+						VALUE('.$this->occid.','.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').',"'.$this->cleanInStr($idValue).'", '.$GLOBALS['SYMB_UID'].') ';
 				}
 				if(!$this->conn->query($sql)){
 					$this->errorArr[] = 'ERROR updating/adding identifier: '.$this->conn->error;
@@ -1578,45 +1663,6 @@ class OccurrenceEditorManager {
 		return $status;
 	}
 
-	public function getIdentifiers($otherCatNumStr){
-		$retArr = array();
-		if($this->occid){
-			$ocnStr = trim($otherCatNumStr,',;| ');
-			$otherCatNumArr = array();
-			if($ocnStr){
-				$ocnStr = str_replace(array(',',';'),'|',$ocnStr);
-				$ocnArr = explode('|',$ocnStr);
-				foreach($ocnArr as $identUnit){
-					$unitArr = explode(':',trim($identUnit,': '));
-					$tag = '';
-					if(count($unitArr) > 1) $tag = trim(array_shift($unitArr));
-					$value = trim(implode(', ',$unitArr));
-					$otherCatNumArr[$value] = $tag;
-				}
-			}
-			$sql = 'SELECT idomoccuridentifiers, identifiername, identifiervalue FROM omoccuridentifiers WHERE (occid = '.$this->occid.') ORDER BY sortBy ';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$idName = $r->identifiername;
-				$idValue = $r->identifiervalue;
-				if(array_key_exists($idValue, $otherCatNumArr)){
-					if(!$idName && $otherCatNumArr[$idValue]) $idName = $otherCatNumArr[$idValue];
-					unset($otherCatNumArr[$idValue]);
-				}
-				$retArr[$r->idomoccuridentifiers]['name'] = $idName;
-				$retArr[$r->idomoccuridentifiers]['value'] = $idValue;
-			}
-			$rs->free();
-			$newCnt = 0;
-			foreach($otherCatNumArr as $newValue => $newTag){
-				$retArr['ocnid-'.$newCnt]['value'] = $newValue;
-				$retArr['ocnid-'.$newCnt]['name'] = $newTag;
-				$newCnt++;
-			}
-		}
-		return $retArr;
-	}
-
 	public function getLoanData(){
 		$retArr = array();
 		if($this->occid){
@@ -1791,7 +1837,8 @@ class OccurrenceEditorManager {
 			'habitat','substrate','lifestage', 'sex', 'individualcount', 'samplingprotocol', 'preparations',
 			'associatedtaxa','basisofrecord','language','labelproject','eon','era','period','epoch','earlyinterval','lateinterval','absoluteage','storageage','stage','localstage','biota',
 			'biostratigraphy','lithogroup','formation','taxonenvironment','member','bed','lithology','stratremarks','element');
-		$retArr = $this->cleanOutArr(array_intersect_key($fArr,array_flip($locArr)));
+		$retArr = array_intersect_key($fArr,array_flip($locArr));
+		$this->cleanOutArr($retArr);
 		return $retArr;
 	}
 
@@ -2516,12 +2563,11 @@ class OccurrenceEditorManager {
 		return $retStr;
 	}
 
-	protected function cleanOutArr($inArr){
-		$outArr = array();
-		foreach($inArr as $k => $v){
-			$outArr[$k] = $this->cleanOutStr($v);
+	protected function cleanOutArr(&$arr){
+		foreach($arr as $k => $v){
+			if(is_array($v)) $this->cleanOutArr($v);
+			else $arr[$k] = $this->cleanOutStr($v);
 		}
-		return $outArr;
 	}
 
 	protected function cleanOutStr($str){

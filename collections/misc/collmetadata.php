@@ -86,7 +86,7 @@ $collManager->cleanOutArr($collData);
 	<script>
 		// Adds WYSIWYG editor to description field
 		tinymce.init({
-			selector: 'textarea[name="fulldescription"]',
+			selector: 'textarea[name="full-description"]',
 			plugins: 'link lists image',
 			menubar: '',
 			toolbar: ['undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image | charmap'],
@@ -312,7 +312,7 @@ $collManager->cleanOutArr($collData);
 							<div class="field-block">
 								<span class="field-label"><?php echo (isset($LANG['DESC'])?$LANG['DESC']:'Description (2000 character max)'); ?>:</span>
 								<div class="field-elem">
-									<textarea name="fullDescription" style="width:95%;height:90px;"><?php echo ($collid?$collData["fulldescription"]:'');?></textarea>
+									<textarea name="full-description" style="width:95%;height:90px;"><?php echo ($collid?$collData["fulldescription"]:'');?></textarea>
 								</div>
 							</div>
 							<div class="field-block">

@@ -392,10 +392,10 @@ class OccurrenceIndividual extends Manager{
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$this->relationshipArr[$r->term] = $r->inverseRelationship;
+					if($r->inverseRelationship && !isset($this->relationshipArr[$r->inverseRelationship])) $this->relationshipArr[$r->inverseRelationship] = $r->term;
 				}
 				$rs->free();
 			}
-			$this->relationshipArr = array_merge($this->relationshipArr,array_flip($this->relationshipArr));
 		}
 	}
 

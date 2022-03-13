@@ -3,12 +3,11 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceDuplicate.php');
 if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/dupesearch.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/dupesearch.'.$LANG_TAG.'.php');
 else include_once($SERVER_ROOT.'/content/lang/collections/editor/dupesearch.en.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+header('Content-Type: text/html; charset='.$CHARSET);
 
 $occidQuery = array_key_exists('occidquery',$_REQUEST)?$_REQUEST['occidquery']:'';
-$curOccid = (array_key_exists('curoccid',$_GET)?$_REQUEST["curoccid"]:0);
+$curOccid = (array_key_exists('curoccid',$_GET)?$_REQUEST['curoccid']:0);
 $collId = (array_key_exists('collid',$_GET)?$_GET['collid']:0);
-$cNum = (array_key_exists('cnum',$_GET)?$_GET['cnum']:'');
 
 $occIdMerge = (array_key_exists('occidmerge',$_GET)?$_GET['occidmerge']:0);
 $submitAction = (array_key_exists('submitaction',$_GET)?$_GET['submitaction']:'');
@@ -54,20 +53,10 @@ if(!$IS_ADMIN){
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE; ?> - Duplicate Record Search</title>
-    <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
-    <style type="text/css">
-    table.styledtable td { white-space: nowrap; }
-    </style>
+		<?php
+		$activateJQuery = false;
+		include_once($SERVER_ROOT.'/includes/head.php');
+		?>
 		<script type="text/javascript">
 			var occArr = new Array();
 			<?php
@@ -143,9 +132,11 @@ if(!$IS_ADMIN){
 			}
 
 		</script>
+		<style type="text/css">
+			table.styledtable td { white-space: nowrap; }
+		</style>
 	</head>
 	<body onload="<?php echo $onLoadStr; ?>" style="background-color:white;">
-		<!-- inner text -->
 		<div id="innertext">
 			<?php
 			if($statusStr){

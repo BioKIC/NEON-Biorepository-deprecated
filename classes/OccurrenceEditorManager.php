@@ -2565,7 +2565,7 @@ class OccurrenceEditorManager {
 
 	protected function cleanOutArr(&$arr){
 		foreach($arr as $k => $v){
-			if(is_array($v)) $this->cleanOutArr($v);
+			if(is_array($v)) $this->cleanOutArr($arr[$k]);
 			else $arr[$k] = $this->cleanOutStr($v);
 		}
 	}
@@ -2573,7 +2573,6 @@ class OccurrenceEditorManager {
 	protected function cleanOutStr($str){
 		$newStr = str_replace('"',"&quot;",$str);
 		$newStr = str_replace("'","&apos;",$newStr);
-		//$newStr = $this->conn->real_escape_string($newStr);
 		return $newStr;
 	}
 

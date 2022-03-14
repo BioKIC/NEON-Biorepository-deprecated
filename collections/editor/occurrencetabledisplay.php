@@ -163,8 +163,10 @@ else{
 				$headerArr = array();
 				foreach($recArr as $id => $occArr){
 					foreach($occArr as $k => $v){
-						if(trim($v) && !array_key_exists($k,$headerArr)){
-							$headerArr[$k] = $k;
+						if(!is_array($v)){
+							if(trim($v) && !array_key_exists($k,$headerArr)){
+								$headerArr[$k] = $k;
+							}
 						}
 					}
 				}

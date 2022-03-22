@@ -873,7 +873,7 @@ class OccurrenceEditorManager {
 				if($this->paleoActivated && $editFieldArr['paleo']){
 					$sql = 'SELECT '.implode(',',$editFieldArr['paleo']).' FROM omoccurpaleo WHERE occid = '.$this->occid;
 					$rs = $this->conn->query($sql);
-					$oldValueArr['paleo'] = $rs->fetch_assoc();
+					if($rs->num_rows) $oldValueArr['paleo'] = $rs->fetch_assoc();
 					$rs->free();
 				}
 				//Get current identifiers values to be saved within versioning tables
@@ -950,7 +950,7 @@ class OccurrenceEditorManager {
 								}
 								$newValue = $postArr[$fieldName];
 								$oldValue = '';
-								if($oldValueArr[$tableName][$fieldName]) $oldValue = $oldValueArr[$tableName][$fieldName];
+								if($oldValueArr && $oldValueArr[$tableName][$fieldName]) $oldValue = $oldValueArr[$tableName][$fieldName];
 								//Version edits only if value has changed
 								if($oldValue != $newValue){
 									if($fieldName != 'tidinterpreted'){

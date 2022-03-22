@@ -514,6 +514,7 @@ else{
 		.fieldGroupDiv{ clear:both; margin-bottom:2px; }
 		.fieldDiv{ float:left; margin-right: 20px; }
 		#identifierDiv img{ width:10px; margin-left: 5px; }
+		.editimg{ width: 15px; }
 	</style>
 </head>
 <body>

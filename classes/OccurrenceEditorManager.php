@@ -496,11 +496,18 @@ class OccurrenceEditorManager {
 				}
 				if($customField == 'o.otherCatalogNumbers'){
 					$customWhere .= $cao.' ('.substr($this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp),3).' ';
-					$caoOverride = 'OR';
-					if(in_array($customTerm, array('NOT EQUALS','NOT LIKE','NULL'))) $caoOverride = 'AND';
-					$customWhere .= '('.$this->setCustomSqlFragment('id.identifierValue', $customTerm, $customValue, $caoOverride, $cop, $ccp);
-					if($customTerm == 'NOT EQUALS' || $customTerm == 'NOT LIKE') $customWhere .= ' OR id.identifierValue IS NULL';
-					$customWhere .= ')) ';
+					if($customTerm != 'NOT EQUALS' && $customTerm != 'NOT LIKE'){
+						$caoOverride = 'OR';
+						if($customTerm == 'NULL') $caoOverride = 'AND';
+						$customWhere .= $this->setCustomSqlFragment('id.identifierValue', $customTerm, $customValue, $caoOverride, $cop, $ccp);
+					}
+					else{
+						$customWhere .= 'AND o.occid NOT IN(SELECT occid FROM omoccuridentifiers WHERE identifierValue ';
+						if($customTerm == 'NOT LIKE') $customWhere .= 'NOT LIKE';
+						else $customWhere .= '!=';
+						$customWhere .= ' "'.$this->cleanInStr($customValue).'")';
+					}
+					$customWhere .= ') ';
 				}
 				else $customWhere .= $this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp);
 			}
@@ -518,7 +525,6 @@ class OccurrenceEditorManager {
 		}
 		if($this->collId) $sqlWhere .= 'AND (o.collid ='.$this->collId.') ';
 		if($sqlWhere) $sqlWhere = 'WHERE '.substr($sqlWhere,4);
-		//echo $sqlWhere.'<br/>';
 		$this->sqlWhere = $sqlWhere;
 	}
 
@@ -867,7 +873,7 @@ class OccurrenceEditorManager {
 				if($this->paleoActivated && $editFieldArr['paleo']){
 					$sql = 'SELECT '.implode(',',$editFieldArr['paleo']).' FROM omoccurpaleo WHERE occid = '.$this->occid;
 					$rs = $this->conn->query($sql);
-					$oldValueArr['paleo'] = $rs->fetch_assoc();
+					if($rs->num_rows) $oldValueArr['paleo'] = $rs->fetch_assoc();
 					$rs->free();
 				}
 				//Get current identifiers values to be saved within versioning tables
@@ -919,15 +925,17 @@ class OccurrenceEditorManager {
 					$sqlEditsBase = 'INSERT INTO omoccuredits(occid,reviewstatus,appliedstatus,uid,fieldname,fieldvaluenew,fieldvalueold) '.
 						'VALUES ('.$this->occid.',1,'.($autoCommit?'1':'0').','.$GLOBALS['SYMB_UID'].',';
 					foreach($editFieldArr as $tableName => $fieldArr){
-						if($tableName == 'identifier' && $fieldArr){
-							foreach($postArr['idkey'] as $idIndex => $idKey){
-								$newValue = $postArr['idname'][$idIndex].($postArr['idname'][$idIndex]?': ':'').$postArr['idvalue'][$idIndex];
-								$oldValue = '';
-								if(is_numeric($idKey)) $oldValue = $oldValueArr['identifier'][$idKey];
-								if($oldValue != $newValue){
-									$sqlEdit = $sqlEditsBase.'"omoccuridentifier","'.$newValue.'","'.$oldValue.'")';
-									if(!$this->conn->query($sqlEdit)){
-										$this->errorArr[] = ''.$this->conn->error;
+						if($tableName == 'identifier'){
+							if($fieldArr){
+								foreach($postArr['idkey'] as $idIndex => $idKey){
+									$newValue = $postArr['idname'][$idIndex].($postArr['idname'][$idIndex]?': ':'').$postArr['idvalue'][$idIndex];
+									$oldValue = '';
+									if(is_numeric($idKey)) $oldValue = $oldValueArr['identifier'][$idKey];
+									if($oldValue != $newValue){
+										$sqlEdit = $sqlEditsBase.'"omoccuridentifier","'.$newValue.'","'.$oldValue.'")';
+										if(!$this->conn->query($sqlEdit)){
+											$this->errorArr[] = ''.$this->conn->error;
+										}
 									}
 								}
 							}
@@ -942,7 +950,7 @@ class OccurrenceEditorManager {
 								}
 								$newValue = $postArr[$fieldName];
 								$oldValue = '';
-								if($oldValueArr[$tableName][$fieldName]) $oldValue = $oldValueArr[$tableName][$fieldName];
+								if($oldValueArr && $oldValueArr[$tableName][$fieldName]) $oldValue = $oldValueArr[$tableName][$fieldName];
 								//Version edits only if value has changed
 								if($oldValue != $newValue){
 									if($fieldName != 'tidinterpreted'){
@@ -1262,7 +1270,7 @@ class OccurrenceEditorManager {
 				$idKey = $identArr['idkey'][$key];
 				$idName = trim($identArr['idname'][$key]);
 				$sql = 'UPDATE omoccuridentifiers
-					SET identifierName = '.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').', identifierValue = "'.$this->cleanInStr($idValue).'", modifiedUid = '.$GLOBALS['SYMB_UID'].
+					SET identifierName = "'.$this->cleanInStr($idName).'", identifierValue = "'.$this->cleanInStr($idValue).'", modifiedUid = '.$GLOBALS['SYMB_UID'].
 					' WHERE occid = '.$this->occid.' AND idomoccuridentifiers = '.$idKey;
 				if(!is_numeric($idKey)){
 					if($existingIdentArr){
@@ -1272,7 +1280,7 @@ class OccurrenceEditorManager {
 						}
 					}
 					$sql = 'INSERT INTO omoccuridentifiers(occid, identifierName, identifierValue, modifiedUid)
-						VALUE('.$this->occid.','.($idName?'"'.$this->cleanInStr($idName).'"':'NULL').',"'.$this->cleanInStr($idValue).'", '.$GLOBALS['SYMB_UID'].') ';
+						VALUE('.$this->occid.',"'.$this->cleanInStr($idName).'","'.$this->cleanInStr($idValue).'", '.$GLOBALS['SYMB_UID'].') ';
 				}
 				if(!$this->conn->query($sql)){
 					$this->errorArr[] = 'ERROR updating/adding identifier: '.$this->conn->error;
@@ -2521,7 +2529,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function getErrorStr(){
-		if($this->errorArr) return implode('; ',$this->errorArr);
+		if($this->errorArr) return implode(';<br/>',$this->errorArr);
 		else return '';
 	}
 

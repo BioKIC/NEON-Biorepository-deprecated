@@ -72,7 +72,7 @@ class OccurrenceEditReview extends Manager{
 	//Occurrence edits (omoccuredits)
 	private function getOccurEditCnt(){
 		$sql = 'SELECT COUNT(e.ocedid) AS fullcnt '.$this->getEditSqlBase();
-		//echo $sql; exit;
+		//echo 'cnt: '.$sql.'<br/>';
 		$rsCnt = $this->conn->query($sql);
 		if($rCnt = $rsCnt->fetch_object()){
 			$recCnt = $rCnt->fullcnt;
@@ -137,7 +137,7 @@ class OccurrenceEditReview extends Manager{
 	//Occurrence revisions
 	private function getRevisionCnt(){
 		$sql = 'SELECT COUNT(r.orid) AS fullcnt '.$this->getRevisionSqlBase();
-		//echo $sql; exit;
+		//echo 'revision cnt: '.$sql.'<br/>';
 		$rsCnt = $this->conn->query($sql);
 		if($rCnt = $rsCnt->fetch_object()){
 			$recCnt = $rCnt->fullcnt;
@@ -378,29 +378,23 @@ class OccurrenceEditReview extends Manager{
 			}
 			$sql .= 'ORDER BY r.initialtimestamp DESC';
 		}
-		//echo '<div>'.$sql.'</div>'; exit;
+		//echo '<div>export: '.$sql.'</div>'; exit;
 		if($sql){
-			$rs = $this->conn->query($sql);
+			$rs = $this->conn->query($sql,MYSQLI_USE_RESULT);
 			if($rs->num_rows){
 				//Initiate file
-				$fileName = $this->collAcronym.'SpecimenEdits_'.time().".csv";
+				$fileName = $this->collAcronym.'SpecimenEdits_'.time().'.csv';
 				header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 				header ('Content-Type: text/csv');
-				header ("Content-Disposition: attachment; filename=\"$fileName\"");
+				header ('Content-Disposition: attachment; filename="'.$fileName.'"');
 				$outFH = fopen('php://output', 'w');
-				$headerArr = array("EditId","occid","CatalogNumber","dbpk","ReviewStatus","AppliedStatus","Editor","Timestamp","FieldName","OldValue","NewValue");
+				$headerArr = array('EditId','occid','CatalogNumber','dbpk','ReviewStatus','AppliedStatus','Editor','Timestamp','FieldName','OldValue','NewValue');
 				fputcsv($outFH, $headerArr);
 				while($r = $rs->fetch_object()){
 					$outArr = array(0 => $r->id, 1 => $r->occid, 2 => $r->catalognumber, 3 => $r->dbpk);
-					if($r->reviewstatus == 1){
-						$outArr[4] = 'OPEN';
-					}
-					elseif($r->reviewstatus == 2){
-						$outArr[4] = 'PENDING';
-					}
-					elseif($r->reviewstatus == 3){
-						$outArr[4] = 'CLOSED';
-					}
+					if($r->reviewstatus == 1) $outArr[4] = 'OPEN';
+					elseif($r->reviewstatus == 2) $outArr[4] = 'PENDING';
+					elseif($r->reviewstatus == 3) $outArr[4] = 'CLOSED';
 					$outArr[5] = ($r->appliedstatus?"APPLIED":"NOT APPLIED");
 					if($this->display == 1) $outArr[6] = $r->username;
 					else  $outArr[6] = $r->externaleditor.($r->username?' ('.$r->username.')':'');

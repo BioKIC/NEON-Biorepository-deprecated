@@ -381,50 +381,43 @@ class OccurrenceEditReview extends Manager{
 		//echo '<div>export: '.$sql.'</div>'; exit;
 		if($sql){
 			$rs = $this->conn->query($sql,MYSQLI_USE_RESULT);
-			if($rs->num_rows){
-				//Initiate file
-				$fileName = $this->collAcronym.'SpecimenEdits_'.time().'.csv';
-				header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-				header ('Content-Type: text/csv');
-				header ('Content-Disposition: attachment; filename="'.$fileName.'"');
-				$outFH = fopen('php://output', 'w');
-				$headerArr = array('EditId','occid','CatalogNumber','dbpk','ReviewStatus','AppliedStatus','Editor','Timestamp','FieldName','OldValue','NewValue');
-				fputcsv($outFH, $headerArr);
-				while($r = $rs->fetch_object()){
-					$outArr = array(0 => $r->id, 1 => $r->occid, 2 => $r->catalognumber, 3 => $r->dbpk);
-					if($r->reviewstatus == 1) $outArr[4] = 'OPEN';
-					elseif($r->reviewstatus == 2) $outArr[4] = 'PENDING';
-					elseif($r->reviewstatus == 3) $outArr[4] = 'CLOSED';
-					$outArr[5] = ($r->appliedstatus?"APPLIED":"NOT APPLIED");
-					if($this->display == 1) $outArr[6] = $r->username;
-					else  $outArr[6] = $r->externaleditor.($r->username?' ('.$r->username.')':'');
-					if($this->display == 1){
-						$outArr[7] = $r->initialtimestamp;
-						if($r->fieldname == 'footprintwkt') continue;
-						$outArr[8] = $r->fieldname;
-						$outArr[9] = $r->fieldvalueold;
-						$outArr[10] = $r->fieldvaluenew;
+			$fileName = $this->collAcronym.'SpecimenEdits_'.time().'.csv';
+			header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+			header ('Content-Type: text/csv');
+			header ('Content-Disposition: attachment; filename="'.$fileName.'"');
+			$outFH = fopen('php://output', 'w');
+			$headerArr = array('EditId','occid','CatalogNumber','dbpk','ReviewStatus','AppliedStatus','Editor','Timestamp','FieldName','OldValue','NewValue');
+			fputcsv($outFH, $headerArr);
+			while($r = $rs->fetch_object()){
+				$outArr = array(0 => $r->id, 1 => $r->occid, 2 => $r->catalognumber, 3 => $r->dbpk);
+				if($r->reviewstatus == 1) $outArr[4] = 'OPEN';
+				elseif($r->reviewstatus == 2) $outArr[4] = 'PENDING';
+				elseif($r->reviewstatus == 3) $outArr[4] = 'CLOSED';
+				$outArr[5] = ($r->appliedstatus?"APPLIED":"NOT APPLIED");
+				if($this->display == 1) $outArr[6] = $r->username;
+				else  $outArr[6] = $r->externaleditor.($r->username?' ('.$r->username.')':'');
+				if($this->display == 1){
+					$outArr[7] = $r->initialtimestamp;
+					if($r->fieldname == 'footprintwkt') continue;
+					$outArr[8] = $r->fieldname;
+					$outArr[9] = $r->fieldvalueold;
+					$outArr[10] = $r->fieldvaluenew;
+					fputcsv($outFH, $outArr);
+				}
+				else{
+					$outArr[7] = $r->initialtimestamp.($r->externaltimestamp?' ('.$r->externaltimestamp.')':'');
+					$oldValueArr = json_decode($r->oldvalues,true);
+					$newValueArr = json_decode($r->newvalues,true);
+					foreach($oldValueArr as $fieldName => $oldValue){
+						$outArr[8] = $fieldName;
+						$outArr[9] = $oldValue;
+						$outArr[10] = $newValueArr[$fieldName];
 						fputcsv($outFH, $outArr);
 					}
-					else{
-						$outArr[7] = $r->initialtimestamp.($r->externaltimestamp?' ('.$r->externaltimestamp.')':'');
-						$oldValueArr = json_decode($r->oldvalues,true);
-						$newValueArr = json_decode($r->newvalues,true);
-						foreach($oldValueArr as $fieldName => $oldValue){
-							$outArr[8] = $fieldName;
-							$outArr[9] = $oldValue;
-							$outArr[10] = $newValueArr[$fieldName];
-							fputcsv($outFH, $outArr);
-						}
-					}
 				}
-				$rs->free();
-				fclose($outFH);
 			}
-			else{
-				$status = false;
-				$this->errorMessage = "Recordset is empty";
-			}
+			$rs->free();
+			fclose($outFH);
 		}
 		return $status;
 	}

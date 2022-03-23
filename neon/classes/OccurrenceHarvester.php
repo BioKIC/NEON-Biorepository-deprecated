@@ -799,7 +799,7 @@ class OccurrenceHarvester{
 						else{
 							$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
 						}
-						if(isset($occurArr[$fieldName]) && $occurArr[$fieldName] && $occurArr[$fieldName] != $fieldValue){
+						if(array_key_exists($fieldName, $occurArr) && $occurArr[$fieldName] != $fieldValue){
 							$this->versionEdit($occid, $fieldName, $occurArr[$fieldName], $fieldValue);
 						}
 					}

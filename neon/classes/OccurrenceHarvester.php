@@ -379,7 +379,7 @@ class OccurrenceHarvester{
 				if(strpos($tableName,'shipment')) continue;
 				if(strpos($tableName,'identification')) continue;
 				if(strpos($tableName,'sorting')) continue;
-				if(strpos($tableName,'archivepooling')) continue;
+				if(strpos($tableName,'archive')) continue;
 				if(strpos($tableName,'barcoding')) continue;
 				if(strpos($tableName,'dnaStandardTaxon')) continue;
 				if(strpos($tableName,'dnaExtraction')) continue;
@@ -544,10 +544,11 @@ class OccurrenceHarvester{
 				elseif($sampleArr['namedLocation']) $locationStr = $sampleArr['namedLocation'];
 				if($locationStr){
 					if($this->setNeonLocationData($dwcArr, $locationStr)){
-						if(isset($dwcArr['locality']) && isset($dwcArr['domainID'])){
+						if(isset($dwcArr['domainID'])){
 							$locStr = $this->domainSiteArr[$dwcArr['domainID']].' ('.$dwcArr['domainID'].'), ';
 							if(isset($dwcArr['siteID'])) $locStr .= $this->domainSiteArr[$dwcArr['siteID']].' ('.$dwcArr['siteID'].'), ';
-							$dwcArr['locality'] = trim($locStr.$dwcArr['locality']);
+							if(isset($dwcArr['locality'])) $locStr .= $dwcArr['locality'];
+							$dwcArr['locality'] = trim($locStr,', ');
 						}
 						if(isset($dwcArr['plotDim'])){
 							$dwcArr['locality'] .= $dwcArr['plotDim'];
@@ -679,7 +680,6 @@ class OccurrenceHarvester{
 	}
 
 	private function setNeonLocationData(&$dwcArr, $locationName){
-		//https://data.neonscience.org/api/v0/locations/TOOL_073.mammalGrid.mam
 		//echo 'loc name1: '.$locationName.'<br/>';
 		$url = $this->neonApiBaseUrl.'/locations/'.urlencode($locationName).'?apiToken='.$this->neonApiKey;
 		$resultArr = $this->getNeonApiArr($url);

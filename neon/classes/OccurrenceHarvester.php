@@ -121,11 +121,11 @@ class OccurrenceHarvester{
 				$sampleArr['symbiotaTarget'] = $r->symbiotaTarget;
 				$sampleArr['igsnPushedToNEON'] = $r->igsnPushedToNEON;
 				$sampleArr['occid'] = $r->occid;
-				$occurArr = $this->getOccurrenceRecord($r->occid);
-				if(isset($occurArr['occurrenceID'])) $sampleArr['occurrenceID'] = $occurArr['occurrenceID'];
+				$currentOccurArr = $this->getOccurrenceRecord($r->occid);
+				if(isset($currentOccurArr['occurrenceID'])) $sampleArr['occurrenceID'] = $currentOccurArr['occurrenceID'];
 				if($this->harvestNeonApi($sampleArr)){
-					if($dwcArr = $this->getDarwinCoreArr($sampleArr)){
-						if($occid = $this->loadOccurrenceRecord($dwcArr, $occurArr, $r->samplePK, $r->occid)){
+					if($dwcArr = $this->getDarwinCoreArr($sampleArr, $currentOccurArr)){
+						if($occid = $this->loadOccurrenceRecord($dwcArr, $currentOccurArr, $r->samplePK, $r->occid)){
 							if(!in_array($dwcArr['collid'],$collArr)) $collArr[] = $dwcArr['collid'];
 							$occidArr[] = $occid;
 							echo '<a href="'.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?occid='.$occid.'" target="_blank">success!</a>';
@@ -470,7 +470,7 @@ class OccurrenceHarvester{
 		}
 	}
 
-	private function getDarwinCoreArr($sampleArr){
+	private function getDarwinCoreArr($sampleArr, $currentOccurArr){
 		$dwcArr = array();
 		if($sampleArr['samplePK']){
 			if($this->setCollectionIdentifier($dwcArr,$sampleArr['sampleClass'])){
@@ -595,14 +595,20 @@ class OccurrenceHarvester{
 							}
 						}
 					}
-					if(isset($dwcArr['sciname']) && preg_match('/^[A-Z]+$/', $dwcArr['sciname'])){
-						$this->setTaxonomy($dwcArr);
+					if(isset($dwcArr['sciname'])){
+						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname'])) $this->setTaxonomy($dwcArr);
+						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname'])){
+							if(!preg_match('/^[A-Z0-9]+$/', $currentOccurArr['sciname'])){
+								echo '<li style="margin-left:25px">Notice: translation of NEON taxon code ('.$dwcArr['sciname'].') failed, thus keeping current name ('.$currentOccurArr['sciname'].')</li>';
+								unset($dwcArr['sciname']);
+							}
+						}
 					}
 					if(isset($sampleArr['identifications'])){
 						//Group of identifications will be inserted into omoccurdeterminations, and most recent will go into omoccurrences
 						$activeArr = array();
 						foreach($sampleArr['identifications'] as $idKey => $idArr){
-							if(isset($idArr['sciname']) && preg_match('/^[A-Z]+$/', $idArr['sciname'])) $this->setTaxonomy($idArr);
+							if(isset($idArr['sciname']) && preg_match('/^[A-Z0-9]+$/', $idArr['sciname'])) $this->setTaxonomy($idArr);
 							if(!$activeArr) $activeArr = $idArr;
 							elseif(!isset($activeArr['identifiedBy'])){
 								if(isset($idArr['identifiedBy'])) $activeArr = $idArr;
@@ -776,7 +782,7 @@ class OccurrenceHarvester{
 		return true;
 	}
 
-	private function loadOccurrenceRecord($dwcArr, $occurArr, $samplePK, $occid){
+	private function loadOccurrenceRecord($dwcArr, $currentOccurArr, $samplePK, $occid){
 		if($dwcArr){
 			$domainID = (isset($dwcArr['domainID'])?$dwcArr['domainID']:0);
 			$siteID = (isset($dwcArr['siteID'])?$dwcArr['siteID']:0);
@@ -799,8 +805,8 @@ class OccurrenceHarvester{
 						else{
 							$sql .= ', '.$fieldName.' = "'.$this->cleanInStr($fieldValue).'" ';
 						}
-						if(array_key_exists($fieldName, $occurArr) && $occurArr[$fieldName] != $fieldValue){
-							$this->versionEdit($occid, $fieldName, $occurArr[$fieldName], $fieldValue);
+						if(array_key_exists($fieldName, $currentOccurArr) && $currentOccurArr[$fieldName] != $fieldValue){
+							$this->versionEdit($occid, $fieldName, $currentOccurArr[$fieldName], $fieldValue);
 						}
 					}
 					else{

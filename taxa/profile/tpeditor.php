@@ -117,6 +117,7 @@ if($isEditor && $action){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE.' Taxon Editor: '.$tEditor->getSciName(); ?></title>
+	<div class="innertext">
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>" />
 	<?php
 	$activateJQuery = true;
@@ -412,7 +413,7 @@ if($isEditor && $action){
 			?>
 			<div style="margin:20px;">
 				<form name="gettidform" action="tpeditor.php" method="post" onsubmit="return checkGetTidForm(this);">
-					<b>Taxon search: </b><input id="taxa" name="taxon" value="<?php echo $taxon; ?>" size="40" />
+					<b>Scientific name: </b><input id="taxa" name="taxon" value="<?php echo $taxon; ?>" size="40" />
 					<input type="hidden" name="tabindex" value="<?php echo $tabIndex; ?>" />
 					<input type="submit" name="action" value="Edit Taxon" />
 				</form>

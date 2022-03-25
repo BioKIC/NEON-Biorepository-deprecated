@@ -214,7 +214,7 @@ class OccurrenceIndividual extends Manager{
 			$rs->free();
 		}
 		else{
-			trigger_error('Unable to setDeterminations; '.$this->conn->error,E_USER_NOTICE);
+			trigger_error('Unable to setGUID; '.$this->conn->error,E_USER_NOTICE);
 		}
 	}
 

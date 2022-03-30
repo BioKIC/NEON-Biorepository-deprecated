@@ -1,13 +1,13 @@
 <?php
 /*
- ------------------
- Language: Español
- ------------------
- */
+------------------
+Language: Français
+------------------
+*/
 
 $LANG['CATALOGNUMBER'] = 'Catalog Number';
-$LANG['IDNAME'] = 'Nombre de Identificador (opcional)';
-$LANG['IDVALUE'] = 'Valor del Identificador Adicional';
+$LANG['IDNAME'] = 'Tag Name (optional)';
+$LANG['IDVALUE'] = 'Additional Identifier Value';
 $LANG['RECORDEDBY'] = 'Recorded by';
 $LANG['RECORDNUMBER'] = 'Record number';
 $LANG['EVENTDATE'] = 'Event date';

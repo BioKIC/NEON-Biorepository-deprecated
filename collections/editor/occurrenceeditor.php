@@ -514,6 +514,7 @@ else{
 		.fieldGroupDiv{ clear:both; margin-bottom:2px; }
 		.fieldDiv{ float:left; margin-right: 20px; }
 		#identifierDiv img{ width:10px; margin-left: 5px; }
+		.editimg{ width: 15px; }
 	</style>
 </head>
 <body>
@@ -564,7 +565,7 @@ else{
 						<?php
 						if($crowdSourceMode){
 							?>
-							<a href="../specprocessor/crowdsource/index.php"><?php echo (isset($LANG['CENTRAL_CROWD'])?$LANG['CENTRAL_CROWD']:'Crowd Sourcing Central'); ?></a> &gt;&gt;
+							<a href="../specprocessor/crowdsource/index.php"><?php echo (isset($LANG['CENTRAL_CROWD'])?$LANG['CENTRAL_CROWD']:'Crowd Source Central'); ?></a> &gt;&gt;
 							<?php
 						}
 						else{

@@ -6,8 +6,8 @@ Language: Español
 */
 
 $LANG['CATALOGNUMBER'] = 'Catalog Number';
-$LANG['IDNAME'] = 'Tag Name (optional)';
-$LANG['IDVALUE'] = 'Additional Identifier Value';
+$LANG['IDNAME'] = 'Nombre de Identificador (opcional)';
+$LANG['IDVALUE'] = 'Valor del Identificador Adicional';
 $LANG['RECORDEDBY'] = 'Recorded by';
 $LANG['RECORDNUMBER'] = 'Record number';
 $LANG['EVENTDATE'] = 'Event date';

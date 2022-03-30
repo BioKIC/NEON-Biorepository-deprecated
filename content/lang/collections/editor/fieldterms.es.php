@@ -1,9 +1,9 @@
 <?php
 /*
-------------------
-Language: Español
-------------------
-*/
+ ------------------
+ Language: Español
+ ------------------
+ */
 
 $LANG['CATALOGNUMBER'] = 'Catalog Number';
 $LANG['IDNAME'] = 'Nombre de Identificador (opcional)';

@@ -397,7 +397,7 @@ class OccurrenceHarvester{
 				$tableArr = array();
 				foreach($fieldArr as $fArr){
 					if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'collection_location' && $fArr['smsValue']) $collLoc = $this->formatDate($fArr['smsValue']);
+					elseif($fArr['smsKey'] == 'collection_location' && $fArr['smsValue']) $collLoc = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
 					elseif($fArr['smsKey'] == 'event_id' && $fArr['smsValue']) $tableArr['event_id'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'taxon' && $fArr['smsValue']) $tableArr['taxon'] = $fArr['smsValue'];
@@ -438,19 +438,15 @@ class OccurrenceHarvester{
 				}
 				if($identArr) $tableArr['identifications'][] = $identArr;
 				if($assocMedia && isset($assocMedia['url'])) $tableArr['assocMedia'][] = $assocMedia;
+
 				if($collLoc){
-					$score = $fateDate;
-					if(strpos($tableName,'fielddata')) $score = 2;
-					$this->fateLocationArr[$score]['loc'] = $fateLocation;
+					$score = 1;
+					$this->fateLocationArr[$score]['loc'] = $collLoc;
 					$this->fateLocationArr[$score]['date'] = $fateDate;
 				}
-				elseif($fateDate && ($fateLocation || $collLoc)){
+				elseif($fateDate && $fateLocation){
 					$score = $fateDate;
-					if($collLoc){
-						$score = 1;
-						$fateLocation = $collLoc;
-					}
-					elseif(strpos($tableName,'fielddata')) $score = 2;
+					if(strpos($tableName,'fielddata')) $score = 2;
 					$this->fateLocationArr[$score]['loc'] = $fateLocation;
 					$this->fateLocationArr[$score]['date'] = $fateDate;
 				}

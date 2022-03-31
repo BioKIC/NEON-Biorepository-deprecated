@@ -1070,8 +1070,9 @@ class OccurrenceHarvester{
 					else echo 'ERROR updating taxonomy codes: '.$sql;
 				}
 				if(isset($this->taxonomyArr[$taxonCode])){
-					foreach($this->taxonomyArr[$taxonCode] as $taxonArr){
+					foreach($this->taxonomyArr[$taxonCode] as $tid => $taxonArr){
 						if(!isset($taxonArr['collid']) || in_array($dwcArr['collid'], $taxonArr['collid'])){
+							$dwcArr['tidinterpreted'] = $tid;
 							$dwcArr['sciname'] = $taxonArr['sciname'];
 							if($taxonArr['author']) $dwcArr['scientificNameAuthorship'] = $taxonArr['author'];
 							if($taxonArr['family']) $dwcArr['family'] = $taxonArr['family'];

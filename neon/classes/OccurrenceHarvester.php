@@ -596,8 +596,9 @@ class OccurrenceHarvester{
 							}
 						}
 					}
+					if(in_array($dwcArr['collid'], array(30)) && !isset($dwcArr['sciname'])) $dwcArr['sciname'] = 'Soil';
 					if(isset($dwcArr['sciname'])){
-						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname'])) $this->setTaxonomy($dwcArr);
+						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname']) || in_array($dwcArr['collid'], array(30))) $this->setTaxonomy($dwcArr);
 						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname'])){
 							if(!preg_match('/^[A-Z0-9]+$/', $currentOccurArr['sciname'])){
 								echo '<li style="margin-left:25px">Notice: translation of NEON taxon code ('.$dwcArr['sciname'].') failed, thus keeping current name ('.$currentOccurArr['sciname'].')</li>';
@@ -760,6 +761,7 @@ class OccurrenceHarvester{
 					$habitatArr['gradient'] = 'slope gradient: '.$propArr['locationPropertyValue'];
 				}
 				elseif(!isset($habitatArr['soil']) && $propArr['locationPropertyName'] == 'Value for Soil type order'){
+					if($dwcArr['collid'] == 30 && (!isset($dwcArr['sciname']) || !$dwcArr['sciname'])) $dwcArr['sciname'] = $propArr['locationPropertyValue'];
 					$habitatArr['soil'] = 'soil type order: '.$propArr['locationPropertyValue'];
 				}
 				elseif(!isset($dwcArr['stateProvince']) && $propArr['locationPropertyName'] == 'Value for State province'){
@@ -1034,6 +1036,14 @@ class OccurrenceHarvester{
 						FROM taxaresourcelinks l INNER JOIN taxa t ON l.tid = t.tid
 						INNER JOIN taxstatus ts ON t.tid = ts.tid
 						WHERE ts.taxauthid = 1 AND l.sourceIdentifier = "'.$taxonCode.'"';
+					if(in_array($dwcArr['collid'], array(30))){
+						//Is a soil collection
+						$taxonCode2 = '';
+						if(substr($taxonCode,-1) == 's') $taxonCode2 = substr($taxonCode,0,-1);
+						$sql = 'SELECT t.tid, t.sciname, t.author, ts.family
+							FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid
+							WHERE ts.taxauthid = 1 AND t.sciname IN("'.$taxonCode.'"'.($taxonCode2?',"'.$taxonCode2.'"':'').')';
+					}
 					if($rs = $this->conn->query($sql)){
 						while($r = $rs->fetch_object()){
 							$this->taxonomyArr[$taxonCode][$r->tid]['sciname'] = $r->sciname;
@@ -1063,8 +1073,8 @@ class OccurrenceHarvester{
 					foreach($this->taxonomyArr[$taxonCode] as $taxonArr){
 						if(!isset($taxonArr['collid']) || in_array($dwcArr['collid'], $taxonArr['collid'])){
 							$dwcArr['sciname'] = $taxonArr['sciname'];
-							$dwcArr['scientificNameAuthorship'] = $taxonArr['author'];
-							$dwcArr['family'] = $taxonArr['family'];
+							if($taxonArr['author']) $dwcArr['scientificNameAuthorship'] = $taxonArr['author'];
+							if($taxonArr['family']) $dwcArr['family'] = $taxonArr['family'];
 						}
 					}
 				}

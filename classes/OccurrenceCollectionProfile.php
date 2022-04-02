@@ -239,7 +239,7 @@ class OccurrenceCollectionProfile extends OmCollections{
 							if(isset($epArr['key'])){
 								$this->logOrEcho('Deleting Endpoint (#'.$epArr['key'].': '.$epArr['url'].')...', 2);
 								if(!$this->gbifCurlCall($epUrl.'/'.$epArr['key'], 'DELETE')){
-									$this->logOrEcho('ERROR deleting Endpoint: '.$this->errorMessage, 3);
+									if($this->errorMessage) $this->logOrEcho('ERROR deleting Endpoint: '.$this->errorMessage, 3);
 								}
 							}
 						}
@@ -257,8 +257,8 @@ class OccurrenceCollectionProfile extends OmCollections{
 					if(isset($datasetArr['publishingOrganizationKey'])){
 						if($datasetArr['publishingOrganizationKey'] != $this->organizationKey){
 							//Update publishingOrganizationKey
-							$this->logOrEcho('Updating publishingOrganizationKey due to change...', 1);
-							$dataStr = json_encode( array( 'publishingOrganizationKey' =>  $this->organizationKey) );
+							$this->logOrEcho('Updating publishingOrganizationKey from '.$datasetArr['publishingOrganizationKey'].' to '.$this->organizationKey, 1);
+							$dataStr = json_encode( array( 'publishingOrganizationKey' => $this->organizationKey) );
 							if(!$this->gbifCurlCall($dsUrl, 'PUT', $dataStr)){
 								$this->logOrEcho('ERROR updating publishingOrganizationKey: '.$this->errorMessage, 2);
 							}
@@ -291,7 +291,7 @@ class OccurrenceCollectionProfile extends OmCollections{
 		//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		$curlRet = curl_exec($ch);
-		if(!$curlRet && curl_error($ch)) $this->errorMessage = curl_error($ch);
+		if($curlRet === false && curl_error($ch)) $this->errorMessage = curl_error($ch);
 		curl_close($ch);
 		return $curlRet;
 	}

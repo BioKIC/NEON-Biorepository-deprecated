@@ -52,6 +52,7 @@ else{
 			var polygons = [];
 			var polyBounds = null;
 			var selectedPolygon = null;
+			var drawingManager = null;
 			<?php
 			if($formSubmit && $formSubmit == 'exit') echo 'window.close();';
 			?>
@@ -72,7 +73,7 @@ else{
 
 				polyBounds = new google.maps.LatLngBounds();
 
-				const drawingManager = new google.maps.drawing.DrawingManager({
+				drawingManager = new google.maps.drawing.DrawingManager({
 					drawingMode: google.maps.drawing.OverlayType.POLYGON,
 					drawingControl: true,
 					drawingControlOptions: {
@@ -173,6 +174,7 @@ else{
 					polygons[h].setMap(null);
 				}
 				drawPolygons();
+				drawingManager.setDrawingMode(null);
 				f.formatButton.disabled = true;
 			}
 
@@ -274,7 +276,7 @@ else{
 			</div>
 			<form name="polygonSubmitForm" method="post" action="mappolyaid.php" onsubmit="return submitPolygonForm(this)">
 				<div style="float:left;width:800px">
-					<textarea id="footprintwkt" name="footprintwkt" style="width:98%;height:90px;" onchange="polygonModified(this.form)"><?php echo $clManager->getFootprintWkt(); ?></textarea>
+					<textarea id="footprintwkt" name="footprintwkt" style="width:98%;height:90px;" oninput="polygonModified(this.form)"><?php echo $clManager->getFootprintWkt(); ?></textarea>
 					<input name="clid" type="hidden" value="<?php echo $clid; ?>" />
 					<input name="latdef" type="hidden" value="<?php echo $latDef; ?>" />
 					<input name="lngdef" type="hidden" value="<?php echo $lngDef; ?>" />

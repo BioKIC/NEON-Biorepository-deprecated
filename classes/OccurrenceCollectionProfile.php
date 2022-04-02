@@ -258,9 +258,10 @@ class OccurrenceCollectionProfile extends OmCollections{
 						if($datasetArr['publishingOrganizationKey'] != $this->organizationKey){
 							//Update publishingOrganizationKey
 							$this->logOrEcho('Updating publishingOrganizationKey from '.$datasetArr['publishingOrganizationKey'].' to '.$this->organizationKey, 1);
-							$dataStr = json_encode( array( 'publishingOrganizationKey' => $this->organizationKey) );
+							$datasetArr['publishingOrganizationKey'] = $this->organizationKey;
+							$dataStr = json_encode( $datasetArr );
 							if(!$this->gbifCurlCall($dsUrl, 'PUT', $dataStr)){
-								$this->logOrEcho('ERROR updating publishingOrganizationKey: '.$this->errorMessage, 2);
+								if($this->errorMessage) $this->logOrEcho('ERROR updating publishingOrganizationKey: '.$this->errorMessage, 2);
 							}
 						}
 					}
@@ -270,7 +271,9 @@ class OccurrenceCollectionProfile extends OmCollections{
 			//Trigger Crawl
 			$this->logOrEcho('Triggering crawl...', 1);
 			$crawlUrl = 'https://api.gbif.org/v1/dataset/'.$this->datasetKey.'/crawl';
-			if(!$this->gbifCurlCall($crawlUrl, 'POST')) $this->logOrEcho('ERROR triggering crawl: '.$this->errorMessage, 2);
+			if(!$this->gbifCurlCall($crawlUrl, 'POST')){
+				if($this->errorMessage) $this->logOrEcho('ERROR triggering crawl: '.$this->errorMessage, 2);
+			}
 			$this->logOrEcho('Done!', 1);
 		}
 		else $this->logOrEcho('ABORT: datasetKey IS NULL', 1);

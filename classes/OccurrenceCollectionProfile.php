@@ -229,26 +229,22 @@ class OccurrenceCollectionProfile extends OmCollections{
 				if($curlRet = $this->gbifCurlCall($dsUrl)){
 					$datasetArr = json_decode($curlRet,true);
 					//Check endpoint
-					$endpointArr = null;
-					$endpointChanged = true;
+					$this->logOrEcho('Verifying Endpoints...', 1);
 					$endpointArr = $datasetArr['endpoints'];
-					foreach($endpointArr as $epArr){
-						if($epArr['url'] == $dwcUri) $endpointChanged = false;
-						break;
-					}
 					$epUrl = $dsUrl.'/endpoint';
-					if($endpointChanged || !$endpointArr){
-						//Endpoint has changed, delete old endpoints
-						foreach($endpointArr as $epArr){
-							$this->logOrEcho('Resetting Endpoints due to change...', 1);
+					$addEndpoint = true;
+					foreach($endpointArr as $epArr){
+						if($epArr['url'] == $dwcUri) $addEndpoint = false;
+						else{
 							if(isset($epArr['key'])){
-								$this->logOrEcho('Deleting Endpoint (key: '.$epArr['key'].')...', 2);
+								$this->logOrEcho('Deleting Endpoint (#'.$epArr['key'].': '.$epArr['url'].')...', 2);
 								if(!$this->gbifCurlCall($epUrl.'/'.$epArr['key'], 'DELETE')){
 									$this->logOrEcho('ERROR deleting Endpoint: '.$this->errorMessage, 3);
 								}
 							}
 						}
-
+					}
+					if($addEndpoint){
 						//Add new endpoint
 						$this->logOrEcho('Adding new Endpoint (url: '.$dwcUri.')...', 2);
 						$dataStr = json_encode( array( 'type' => 'DWC_ARCHIVE','url' => $dwcUri ) );

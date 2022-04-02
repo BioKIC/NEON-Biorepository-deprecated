@@ -116,7 +116,7 @@ function formatPolyFragment(polyStr){
 		for(var i=0; i < strArr.length; i++){
 			let xy = strArr[i].trim().split(" ");
 			if(i<1 || strArr[i-1].trim() != strArr[i].trim()){
-				if(!isNaN(xy[0]) && !isNaN(xy[1]) && parseInt(Math.abs(xy[0])) <= 90 && parseInt(Math.abs(xy[1])) <= 180){
+				if(!isNaN(xy[0]) && !isNaN(xy[1])){
 					let latDec = parseFloat(xy[0]).toFixed(6);
 					let lngDec = parseFloat(xy[1]).toFixed(6);
 					if(switchPoints == 0 && Math.abs(latDec) > 90) switchPoints = 1;

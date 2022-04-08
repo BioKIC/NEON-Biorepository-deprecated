@@ -562,7 +562,7 @@ class OccurrenceHarvester{
 				}
 
 				//Taxonomic fields
-				$skipTaxonomy = array(5,6,10,13,16,18,21,23,31,41,42,45,58,60,61,62,67,68,69,76);
+				$skipTaxonomy = array(5,6,10,13,16,21,23,31,41,42,45,58,60,61,62,67,68,69,76);
 				if(!in_array($dwcArr['collid'],$skipTaxonomy)){
 					if(isset($sampleArr['taxon']) && $sampleArr['taxon']){
 						$dwcArr['sciname'] = $sampleArr['taxon'];
@@ -1076,15 +1076,15 @@ class OccurrenceHarvester{
 					}
 				}
 				/*
-				$sql = 'UPDATE taxaresourcelinks l INNER JOIN omoccurrences o ON l.sourceIdentifier = o.sciname '.
-					'INNER JOIN omcollcatlink catlink ON o.collid = catlink.collid '.
-					'INNER JOIN omcollcategories cat ON catlink.ccpk = cat.ccpk '.
-					'INNER JOIN taxa t ON l.tid = t.tid '.
-					'INNER JOIN taxaenumtree e2 ON t.tid = e2.tid '.
-					'INNER JOIN taxa t2 ON e2.parenttid = t2.tid '.
-					'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
-					'SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family '.
-					'WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL ';
+				$sql = 'UPDATE taxaresourcelinks l INNER JOIN omoccurrences o ON l.sourceIdentifier = o.sciname
+					INNER JOIN omcollcatlink catlink ON o.collid = catlink.collid
+					INNER JOIN omcollcategories cat ON catlink.ccpk = cat.ccpk
+					INNER JOIN taxa t ON l.tid = t.tid
+					INNER JOIN taxaenumtree e2 ON t.tid = e2.tid
+					INNER JOIN taxa t2 ON e2.parenttid = t2.tid
+					INNER JOIN taxstatus ts ON t.tid = ts.tid
+					SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family
+					WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL ';
 				if(!$this->conn->query($sql)){
 					echo 'ERROR updating taxonomy codes: '.$sql;
 				}

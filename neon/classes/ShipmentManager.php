@@ -609,16 +609,16 @@ class ShipmentManager{
 			$stmt = $this->conn->stmt_init();
 			$stmt->prepare($sql);
 			if($stmt->error==null) {
-				$altID = $postArr['alternativesampleid']?$postArr['alternativesampleid']:NULL;
+				$altID = isset($postArr['alternativesampleid'])&&$postArr['alternativesampleid']?$postArr['alternativesampleid']:NULL;
 				$sampleClass = $postArr['sampleclass']?$postArr['sampleclass']:NULL;
-				$quarStatus = $postArr['quarantinestatus']?$postArr['quarantinestatus']:NULL;
-				$namedLoc = $postArr['namedlocation']?$postArr['namedlocation']:NULL;
-				$collDate = $postArr['collectdate']?$postArr['collectdate']:NULL;
-				$taxonID = $postArr['taxonid']?$postArr['taxonid']:NULL;
-				$indCnt = $postArr['individualcount']?$postArr['individualcount']:NULL;
-				$filterVol = $postArr['filtervolume']?$postArr['filtervolume']:NULL;
-				$domainRemarks = $postArr['domainremarks']?$postArr['domainremarks']:NULL;
-				$sampleNotes = $postArr['samplenotes']?$postArr['samplenotes']:NULL;
+				$quarStatus = isset($postArr['quarantinestatus'])&&$postArr['quarantinestatus']?$postArr['quarantinestatus']:NULL;
+				$namedLoc = isset($postArr['namedlocation'])&&$postArr['namedlocation']?$postArr['namedlocation']:NULL;
+				$collDate = isset($postArr['collectdate'])&&$postArr['collectdate']?$postArr['collectdate']:NULL;
+				$taxonID = isset($postArr['taxonid'])&&$postArr['taxonid']?$postArr['taxonid']:NULL;
+				$indCnt = isset($postArr['individualcount'])&&$postArr['individualcount']?$postArr['individualcount']:NULL;
+				$filterVol = isset($postArr['filtervolume'])&&$postArr['filtervolume']?$postArr['filtervolume']:NULL;
+				$domainRemarks = isset($postArr['domainremarks'])&&$postArr['domainremarks']?$postArr['domainremarks']:NULL;
+				$sampleNotes = isset($postArr['samplenotes'])&&$postArr['samplenotes']?$postArr['samplenotes']:NULL;
 				$stmt->bind_param('ssssssssiissi', $sampleID, $altID, $sampleCode, $sampleClass, $quarStatus, $namedLoc, $collDate, $taxonID,
 					$indCnt, $filterVol, $domainRemarks, $sampleNotes, $postArr['samplepk']);
 				$stmt->execute();

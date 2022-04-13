@@ -6,6 +6,7 @@ $retMsg = 0;
 $collid = $_REQUEST['collid'];
 $loanid = $_REQUEST['loanid'];
 $catalogNumber = $_REQUEST['catalognumber'];
+$target = $_REQUEST['target'];
 
 
 if($loanid && $collid && $catalogNumber){
@@ -14,7 +15,7 @@ if($loanid && $collid && $catalogNumber){
 	|| (array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollEditor'])))){
 		$loanManager = new OccurrenceLoans();
 		$loanManager->setCollId($collid);
-		$retMsg = $loanManager->linkSpecimen($loanid,$catalogNumber);
+		$retMsg = $loanManager->linkSpecimen($loanid,$catalogNumber,$target);
 	}
 }
 echo $retMsg;

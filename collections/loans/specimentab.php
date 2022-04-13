@@ -15,14 +15,14 @@ $specList = $loanManager->getSpecimenList($loanId);
 	table th{ text-align:center; }
 </style>
 <div id="outloanspecdiv">
-	<div class="addSpecimenDiv">
+	<div class="addSpecimenDiv" style="display:none">
 		<fieldset>
 			<legend>Link Specimens as a Batch Process <a href="#" onclick="toggle('infoBatchDiv')"><img src="../../images/info2.png" style="width:15px" /></a></legend>
 			<div id="infoBatchDiv" style="margin-bottom:10px;display:none">Link multiple specimens at once by entering a list of catalog numbers on separate lines or delimited by commas.</div>
 			<form name="batchaddform" action="outgoing.php" method="post">
 				<div>
-					<div style="float:left;margin:0px 5px">Target: <input name="targetidentifier" type="radio" value="allid" checked /> All Identifiers</div>
-					<div style="float:left;margin:0px 5px"><input name="targetidentifier" type="radio" value="catnum" /> Catalog Number</div>
+					<div style="float:left;margin:0px 5px">Target: <input name="targetidentifier" type="radio" value="allid" /> All Identifiers</div>
+					<div style="float:left;margin:0px 5px"><input name="targetidentifier" type="radio" value="catnum" checked /> Catalog Number</div>
 					<div style="float:left;"><input name="targetidentifier" type="radio" value="other" /> Other Catalog Numbers</div>
 				</div>
 				<div style="clear:both"><textarea name="catalogNumbers" cols="6" style="width:700px"></textarea></div>
@@ -35,13 +35,13 @@ $specList = $loanManager->getSpecimenList($loanId);
 			</form>
 		</fieldset>
 	</div>
-	<div class="addSpecimenDiv" style="display:none">
+	<div class="addSpecimenDiv">
 		<fieldset>
 			<legend>Link Specimens via Barcode <a href="#" onclick="toggle('infoBarcodeDiv')"><img src="../../images/info2.png" style="width: 14px" /></a></legend>
 			<form name="barcodeaddform" method="post" onsubmit="addSpecimen(this,<?php echo (!$specList?'0':'1'); ?>);return false;">
 				<div id="infoBarcodeDiv" style="display:none;margin-bottom:10px;">Scan a set of barcodes to link a stack of specimens. If the barcode reader includes a "return" after the barcode (typically the default), you will not need to click the Add Specimen button </div>
 				<div style="float:left;padding-bottom:2px;">
-					<b>Barcode/Catalog #: </b><input type="text" autocomplete="off" name="catalognumber" maxlength="255" style="width:300px;border:2px solid black;text-align:center;font-weight:bold;color:black;" value="" />
+					<b>Barcode/Catalog #: </b><input type="text" autocomplete="off" name="catalognumber" maxlength="255" style="width:300px;border:2px solid black;text-align:center;" value="" />
 				</div>
 				<div id="addspecsuccess" style="float:left;margin-left:30px;padding-bottom:2px;color:green;display:none;">
 					SUCCESS: Specimen record added to loan.
@@ -54,6 +54,11 @@ $specList = $loanManager->getSpecimenList($loanId);
 				</div>
 				<div id="addspecerr3" style="float:left;margin-left:30px;padding-bottom:2px;color:orange;display:none;">
 					Warning: Specimen already linked to loan.
+				</div>
+				<div style="padding-top:10px;clear:both;">
+					<div style="float:left;margin:0px 5px">Target: <input name="targetidentifier" type="radio" value="allid" /> All Identifiers</div>
+					<div style="float:left;margin:0px 5px"><input name="targetidentifier" type="radio" value="catnum" checked /> Catalog Number</div>
+					<div style="float:left;"><input name="targetidentifier" type="radio" value="other" /> Other Catalog Numbers</div>
 				</div>
 				<div style="padding-top:10px;clear:left;float:left;">
 					<input name="collid" type="hidden" value="<?php echo $collid; ?>" />

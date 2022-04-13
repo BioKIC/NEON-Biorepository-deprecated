@@ -555,11 +555,10 @@ class OccurrenceLoans extends Manager{
 		else echo "Specimen recordset is empty.\n";
 	}
 
-	public function linkSpecimen($loanid, $catNum){
+	public function linkSpecimen($loanid, $catNum, $target){
 		//This method is used by the ajax script insertLoanSpecimen.php
 		if(is_numeric($loanid)){
-			$occArr = $this->getOccid($catNum);
-			if(!$occArr) $occArr = $this->getOccid($catNum,true);
+			$occArr = $this->getOccid($catNum, $target);
 			if(!$occArr) return 0;
 			elseif(count($occArr) > 1) return 2;
 			else{
@@ -599,6 +598,7 @@ class OccurrenceLoans extends Manager{
 
 	private function getOccid($catNum, $method){
 		$occArr = array();
+		if(!$method || !in_array($method,array('allid','catnum','other'))) $method = 'allid';
 		$sql = 'SELECT o.occid FROM omoccurrences o ';
 		$sqlWhere = '';
 		if($method == 'allid' || $method == 'other'){

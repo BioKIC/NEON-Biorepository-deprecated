@@ -128,7 +128,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 				//alert("rpc/insertLoanSpecimens.php?loanid="+f.loanid.value+"&catalognumber="+f.catalognumber.value+"&collid="+f.collid.value);
 				$.ajax({
 					method: "POST",
-					data: { loanid: f.loanid.value, catalognumber: f.catalognumber.value, collid: f.collid.value },
+					data: { loanid: f.loanid.value, catalognumber: f.catalognumber.value, target: f.targetidentifier.value,  collid: f.collid.value },
 					dataType: "text",
 					url: "rpc/insertLoanSpecimens.php"
 				})
@@ -194,7 +194,7 @@ $specimenTotal = $loanManager->getSpecimenTotal($loanId);
 					}
 				})
 				.fail(function() {
-					alert("Generation of new ID failed");
+					alert("Technical error: adding specimen to loan failed ");
 				});
 			}
 			return false;

@@ -687,6 +687,7 @@ class OccurrenceHarvester{
 		}
 		if(isset($resultArr['locationDescription']) && $resultArr['locationDescription']){
 			$parStr = str_replace(array('"',', RELOCATABLE',', CORE','Parent'),'',$resultArr['locationDescription']);
+			$parStr = str_replace('re - Reach','Reach',$parStr);
 			$parStr = preg_replace('/ at site [A-Z]+/', '', $parStr);
 			$parStr = trim($parStr,' ,;');
 			if($parStr){

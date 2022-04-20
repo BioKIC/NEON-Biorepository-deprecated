@@ -741,6 +741,7 @@ else{
 													<input type="text" id="catalognumber" name="catalognumber" value="<?php echo array_key_exists('catalognumber',$occArr)?$occArr['catalognumber']:''; ?>" onchange="fieldChanged('catalognumber');" <?php if($isEditor > 2) echo 'disabled'; ?> autocomplete="off" />
 												</div>
 												<div id="otherCatalogNumbersDiv">
+													<?php echo (defined('OTHERCATNUMBERLABEL')?OTHERCATNUMBERLABEL:'Other Catalog Numbers'); ?>
 													<div id="identifierDiv" class="divTable">
 														<div class="divTableHeading">
 															<div class="divTableRow">

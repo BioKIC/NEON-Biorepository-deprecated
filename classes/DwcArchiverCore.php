@@ -898,6 +898,10 @@ class DwcArchiverCore extends Manager{
 			$this->writeEmlFile();
 			$zipArchive->addFile($this->targetPath.$this->ts.'-eml.xml');
     		$zipArchive->renameName($this->targetPath.$this->ts.'-eml.xml','eml.xml');
+      //Citation file
+      $this->writeCitationFile();
+      $zipArchive->addFile($this->targetPath.$this->ts.'-citation.txt');
+        $zipArchive->renameName($this->targetPath.$this->ts.'-citation.txt','CITEME.txt');
 
 			$zipArchive->close();
 			unlink($this->targetPath.$this->ts.'-occur'.$this->fileExt);
@@ -1978,6 +1982,21 @@ class DwcArchiverCore extends Manager{
 		fclose($fh);
     	$this->logOrEcho('Done! ('.date('h:i:s A').")\n");
 	}
+
+  private function writeCitationFile(){
+    $this->logOrEcho("Creating citation file (".date('h:i:s A').")... ");
+    $filePath = $this->targetPath.$this->ts.'-citation.txt';
+    $fh = fopen($filePath, 'w');
+    if(!$fh){
+      $this->logOrEcho('ERROR establishing output file ('.$filePath.'), perhaps target folder is not readable by web server.');
+      return false;
+    }
+    // Output text
+    echo fwrite($fh, "Please use the following format to cite this dataset:\n");
+
+    fclose($fh);
+    $this->logOrEcho('Done! ('.date('h:i:s A').")\n");
+  }
 
 	private function writeOutRecord($fh,$outputArr){
 		if($this->delimiter == ","){

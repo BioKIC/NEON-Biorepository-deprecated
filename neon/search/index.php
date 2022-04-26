@@ -25,6 +25,9 @@ $siteData = new DatasetsMetadata();
       }
     ?>
     <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
+    <script>
+      const clientRoot = '<?php echo $CLIENT_ROOT; ?>';
+    </script>
     <?php include_once($SERVER_ROOT.'/includes/googleanalytics.php'); ?>
     <!-- Search-specific styles -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">

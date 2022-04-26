@@ -565,27 +565,28 @@ class OccurrenceSesar extends Manager {
 		return $sesarResultArr;
 	}
 
-	private function batchVerifySesar(&$sesarResultArr, $pageNumber = 1){
+	private function batchVerifySesar(&$sesarResultArr, $pageNumber = 0){
+		$retStatus = false;
 		$batchLimit = 1000;
 		$cnt = 0;
-		if(isset($sesarResultArr['checkedCnt'])) $cnt = $sesarResultArr['checkedCnt'];
 		$ns = substr($this->namespace,0,3);
-		$url = 'https://app.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
-		if(!$this->productionMode) $url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
+		$url = 'https://api.geosamples.org/v1/igsns/usercode/'.$ns.'?limit='.$batchLimit.'&pagenum='.$pageNumber;
+		if(!$this->productionMode) $url = 'http://grg-doc-dev.ldeo.columbia.edu:8082/v1/igsns/usercode/'.$ns.'?limit='.$batchLimit.'&pagenum='.$pageNumber;
+		//$url = 'https://app.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
+		//if(!$this->productionMode) $url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
 		$responseArr = $this->getSesarApiGetData($url);
 		if($responseArr['retCode'] == 200){
 			if($retJson = $responseArr['retJson']){
 				$jsonObj = json_decode($retJson);
-				if(!$sesarResultArr['totalCnt']) $sesarResultArr['totalCnt'] = $jsonObj->total_counts;
 				$sqlBase = 'INSERT INTO igsnverification(igsn) VALUE';
 				$sqlFrag = '';
-				foreach($jsonObj->igsn_list as $igsn){
+				foreach($jsonObj as $igsn){
 					//Load records into IGSN Verification table
 					$sqlFrag .= '("'.$igsn.'"),';
 					$cnt++;
 					if($cnt%1000==0){
 						if($this->conn->query($sqlBase.trim($sqlFrag,', '))){
-							$this->logOrEcho($cnt.' records loaded',2);
+							$this->logOrEcho((($pageNumber*$batchLimit)+$cnt).' records loaded',2);
 							$sqlFrag = '';
 						}
 						else{
@@ -596,38 +597,46 @@ class OccurrenceSesar extends Manager {
 				}
 				if($sqlFrag){
 					if($this->conn->query($sqlBase.trim($sqlFrag,', '))){
-						$this->logOrEcho($cnt.' records loaded',2);
+						$this->logOrEcho(($pageNumber*$batchLimit)+$cnt.' records loaded',2);
 					}
 				}
 			}
 		}
 		else{
-			$this->logOrEcho('ERROR obtaining IGSNs (code: '.$responseArr['retCode'].')',1);
+			if($sesarResultArr['totalCnt']){
+				$this->logOrEcho('Done harvesting IGSNs (return count: '.number_format($sesarResultArr['totalCnt']).')',1);
+				return true;
+			}
+			else{
+				$this->logOrEcho('ERROR obtaining IGSNs (code: '.$responseArr['retCode'].')',1);
+				return false;
+			}
 		}
-		$sesarResultArr['checkedCnt'] = $cnt;
-		if($sesarResultArr['totalCnt'] > ($batchLimit*$pageNumber)){
-			$pageNumber++;
-			$this->batchVerifySesar($sesarResultArr,$pageNumber);
-		}
+		$sesarResultArr['totalCnt'] += $cnt;
+		$pageNumber++;
+		$retStatus = $this->batchVerifySesar($sesarResultArr,$pageNumber);
+		return $retStatus;
 	}
 
 	private function setMissingSesarMeta(&$sesarResultArr){
 		//Grab SESAR meta for unmatched IGSNs
 		$this->logOrEcho(count($sesarResultArr['missing']).' records unlink IGSNs found. Getting metadata from SESAR Systems...',1);
-		$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
-		if(!$this->productionMode) $url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
+		$url = 'https://api.geosamples.org/v1/sample/igsn/';
+		if(!$this->productionMode) $url = 'http://grg-doc-dev.ldeo.columbia.edu:8082/v1/sample/igsn/';
+		//$url = 'https://app.geosamples.org/webservices/display.php?igsn=';
+		//if(!$this->productionMode) $url = 'https://sesardev.geosamples.org/webservices/display.php?igsn=';
 		$cnt = 0;
 		foreach(array_keys($sesarResultArr['missing']) as $lostIGSN){
 			$resArr = $this->getSesarApiGetData($url.$lostIGSN);
 			if($resArr['retCode'] == 200){
 				$retJson = $resArr['retJson'];
 				if(strpos($retJson, 'The application has encountered an unknown error.') === 0){
-					if(preg_match('/[A-Z.\s]+(\{.+)/i', $retJson, $m)) $retJson = $m[1];
+					if(preg_match('/[A-Z.\s]+(\{.+)/i', $retJson, $m1)) $retJson = $m1[1];
 				}
 				$igsnObj = json_decode($retJson);
-				if(preg_match('/^(.+)\s*\[\s*(\d+)\s*\]$/', $igsnObj->sample->name,$m)){
-					$catNum = $m[1];
-					$occid = $m[2];
+				if(preg_match('/^(.+)\s*\[\s*(\d+)\s*\]$/', $igsnObj->name,$m2)){
+					$catNum = $m2[1];
+					$occid = $m2[2];
 					$sesarResultArr['missing'][$lostIGSN] = array('catNum'=>$catNum,'occid'=>$occid);
 					$sql = 'UPDATE igsnverification SET occidInSesar = '.$occid.',catalogNumber = "'.$catNum.'" WHERE igsn = "'.$lostIGSN.'"';
 					$this->conn->query($sql);

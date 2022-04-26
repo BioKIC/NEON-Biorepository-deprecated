@@ -315,6 +315,12 @@ li.header-title {
   text-transform: uppercase;
 }
 
+/* Checklists displayed with images */
+.tndiv {
+  font-size: 12px;
+  line-height: 14px;
+}
+
 /* SYMBIOTA NAVIGATION */
 
 /* Admin bar */

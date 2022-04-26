@@ -4,7 +4,7 @@ ini_set('display_errors', '1');
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/neon/classes/IgsnManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
-if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/igsnmanager.php?'.$_SERVER['QUERY_STRING']);
+if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/igsncontrol.php?'.$_SERVER['QUERY_STRING']);
 
 $recTarget = array_key_exists('recTarget',$_POST)?$_POST['recTarget']:'';
 $startIndex = array_key_exists('startIndex',$_POST)?$_POST['startIndex']:'';
@@ -59,7 +59,7 @@ include($SERVER_ROOT.'/includes/header.php');
 <div class="navpath">
 	<a href="../index.php">Home</a> &gt;&gt;
 	<a href="index.php">NEON Biorepository Tools</a> &gt;&gt;
-	<a href="igsnmanager.php"><b>IGSN Manager</b></a>
+	<a href="igsncontrol.php"><b>NEON IGSN Control Panel</b></a>
 </div>
 <div id="innertext">
 	<?php
@@ -96,14 +96,24 @@ include($SERVER_ROOT.'/includes/header.php');
 			echo '<legend>Action Panel: IGSN synchronization</legend>';
 			echo '<ul>';
 			$startIndex = $igsnManager->synchronizeIgsn($recTarget, $startIndex ,$limit);
-			echo '<li><a href="igsnmanager.php">Return to IGSN report listing</a></li>';
+			echo '<li><a href="igsncontrol.php">Return to IGSN report listing</a></li>';
 			echo '</ul>';
 			echo '</fieldset>';
 		}
-
 		?>
 		<fieldset>
-			<legend>IGSN Synchronization</legend>
+			<legend>SESAR Synchronization</legend>
+			<div style="margin-bottom:10px;">
+				This tool will harvest all NEON IGSNs from the SASAR system, insert them into a local tables, and then run comparisons with the IGSNs stored within the Biorepo to
+				locate inconsistancies. In particular, it is looking for multiple ISGNs assigned to a single specimen, IGSNs within SESAR and not the Biorepo, and in Biorepo and not in SESAR.
+			</div>
+			<form name="" method="post" action="../collections/admin/igsnverification.php">
+				<input name="namespace" type="hidden" value="NEO" />
+				<button name="formsubmit" type="submit" value="verifysesar">NEON IGSN Verification</button>
+			</form>
+		</fieldset>
+		<fieldset>
+			<legend>IGSN Synchronization with NEON</legend>
 			<div style="margin-bottom:10px;">
 				Displays record counts synchronized with the central NEON System.
 				After uploading IGSNs into NEON system, run the synchronization tools to adjust the report.
@@ -121,7 +131,7 @@ include($SERVER_ROOT.'/includes/header.php');
 					?>
 				</ul>
 				<div style="">
-					<form name="igsnsyncform" method="post" action="igsnmanager.php">
+					<form name="igsnsyncform" method="post" action="igsncontrol.php">
 						<div style="clear:both;">
 							<div style="float:left; margin-left:35px; margin-right:5px"><label>Target:</label> </div>
 							<div style="float:left;">

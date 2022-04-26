@@ -55,8 +55,7 @@ if($isEditor){
 				<?php
 				if($IS_ADMIN){
 					?>
-					<li><a href="igsnmanager.php">NEON IGSN Control Panel</a></li>
-					<li><a href="../collections/admin/igsnverification.php?namespace=neon&formsubmit=verifysesar">NEON IGSN Verification</a></li>
+					<li><a href="igsncontrol.php">NEON IGSN Control Panel</a></li>
 					<li><a href="occurrenceharvester.php">Batch Occurrence Harvester</a></li>
 					<?php
 				}

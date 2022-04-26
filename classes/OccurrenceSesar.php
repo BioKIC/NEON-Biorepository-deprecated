@@ -214,10 +214,10 @@ class OccurrenceSesar extends Manager {
 			return false;
 		}
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd);
-		$responseXML = $this->getSesarApiData($baseUrl, 'post', $requestData);
-		if($responseXML){
+		$resArr = $this->getSesarApiData($baseUrl, 'post', $requestData);
+		if(isset($resArr['retStr']) && $resArr['retStr']){
 			$dom = new DOMDocument('1.0','UTF-8');
-			if($dom->loadXML($responseXML)){
+			if($dom->loadXML($resArr['retStr'])){
 				$validElemList = $dom->getElementsByTagName('valid');
 				if($validElemList[0]->nodeValue == 'yes'){
 					$userCodeList = $dom->getElementsByTagName('user_code');
@@ -232,7 +232,7 @@ class OccurrenceSesar extends Manager {
 				}
 			}
 			else{
-				$this->logOrEcho('FATAL ERROR parsing response XML (validateUser): '.htmlentities($responseXML));
+				$this->logOrEcho('FATAL ERROR parsing response XML (validateUser): '.htmlentities($resArr['retStr']));
 				$userCodeArr = false;
 			}
 		}
@@ -250,9 +250,9 @@ class OccurrenceSesar extends Manager {
 		if(!$this->productionMode) $baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
 		$contentStr = $this->igsnDom->saveXML();
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd, 'content' => $contentStr);
-		$responseXML = $this->getSesarApiData($baseUrl, 'post', $requestData);
-		if($responseXML){
-			$status = $this->processRegistrationResponse($responseXML);
+		$resArr = $this->getSesarApiData($baseUrl, 'post', $requestData);
+		if(isset($resArr['retStr']) && $resArr['retStr']){
+			$status = $this->processRegistrationResponse($resArr['retStr']);
 		}
 		return $status;
 	}
@@ -559,8 +559,8 @@ class OccurrenceSesar extends Manager {
 		//if(!$this->productionMode) $url = 'https://sesardev.geosamples.org/samples/user_code/'.$ns.'?limit='.$batchLimit.'&page_no='.$pageNumber;
 		$responseArr = $this->getSesarApiData($url);
 		if($responseArr['retCode'] == 200){
-			if($retJson = $responseArr['retJson']){
-				$jsonObj = json_decode($retJson);
+			if($retStr = $responseArr['retStr']){
+				$jsonObj = json_decode($retStr);
 				$sqlBase = 'INSERT INTO igsnverification(igsn) VALUE';
 				$sqlFrag = '';
 				foreach($jsonObj as $igsn){
@@ -612,11 +612,11 @@ class OccurrenceSesar extends Manager {
 		foreach(array_keys($sesarResultArr['missing']) as $lostIGSN){
 			$resArr = $this->getSesarApiData($url.$lostIGSN);
 			if($resArr['retCode'] == 200){
-				$retJson = $resArr['retJson'];
-				if(strpos($retJson, 'The application has encountered an unknown error.') === 0){
-					if(preg_match('/[A-Z.\s]+(\{.+)/i', $retJson, $m1)) $retJson = $m1[1];
+				$retStr = $resArr['retStr'];
+				if(strpos($retStr, 'The application has encountered an unknown error.') === 0){
+					if(preg_match('/[A-Z.\s]+(\{.+)/i', $retStr, $m1)) $retStr = $m1[1];
 				}
-				$igsnObj = json_decode($retJson);
+				$igsnObj = json_decode($retStr);
 				if(preg_match('/^(.+)\s*\[\s*(\d+)\s*\]$/', $igsnObj->name,$m2)){
 					$catNum = $m2[1];
 					$occid = $m2[2];
@@ -736,10 +736,10 @@ class OccurrenceSesar extends Manager {
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array ( 'Accept: application/json' ));
 		if($method == 'post') curl_setopt($ch, CURLOPT_POST, true);
 		if($requestData) curl_setopt($ch, CURLOPT_POSTFIELDS, $requestData);
-		$retArr['retJson'] = curl_exec($ch);
+		$retArr['retStr'] = curl_exec($ch);
 		$retArr['retCode'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if($retArr['retCode'] != 200){
-			$this->errorMessage = 'FATAL CURL ERROR registering IGSN: '.curl_error($ch).' (#'.curl_errno($ch).')';
+			$this->errorMessage = 'FATAL CURL ERROR : '.curl_error($ch).' (#'.curl_errno($ch).')';
 			//$header = curl_getinfo($ch);
 		}
 		curl_close($ch);

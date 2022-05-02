@@ -102,6 +102,8 @@ elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEdito
 					</ul>
         </li>
 				<li>
+					<a href="<?php echo $CLIENT_ROOT; ?>/misc/cite.php" target="_blank" rel="noopener noreferrer" alt="How to Cite">How to Cite</a>        </li>
+				<li>
 					<a href="#" alt="Additional Information">Additional Information</a>
 					<ul>
             <li>

@@ -265,14 +265,20 @@ class OccurrenceHarvester{
 			if(preg_match('/(NEON[A-Z,0-9]{5})/', $viewArr['archiveGuid'], $igsnMatch)){
 				if($sampleArr['occid']){
 					//Reharvest event
-					if(!$sampleArr['igsnPushedToNEON']) $neonSampleUpdate['igsnPushedToNEON'] = 1;
 					if(isset($sampleArr['occurrenceID']) && $sampleArr['occurrenceID']){
-						if($sampleArr['occurrenceID'] != $igsnMatch[1]) $neonSampleUpdate['errorMessage'] = 'DATA ISSUE: IGSN failing to match with API value';
+						if($sampleArr['occurrenceID'] == $igsnMatch[1]){
+							$neonSampleUpdate['igsnPushedToNEON'] = 1;
+						}
+						else{
+							$neonSampleUpdate['errorMessage'] = 'DATA ISSUE: IGSN failing to match with API value';
+							$neonSampleUpdate['igsnPushedToNEON'] = 2;
+						}
 					}
 					else{
 						if(!$this->igsnExists($igsnMatch[1],$sampleArr)){
 							if(!$this->updateOccurrenceIgsn($igsnMatch[1], $sampleArr['occid'])){
 								$this->errorLogArr[] = 'NOTICE: unable to update igsn: '.$this->conn->error;
+								$neonSampleUpdate['igsnPushedToNEON'] = 3;
 							}
 						}
 					}
@@ -518,7 +524,7 @@ class OccurrenceHarvester{
 				if($dynProp) $dwcArr['dynamicProperties'] = implode(', ',$dynProp);
 
 				if(isset($sampleArr['collected_by']) && $sampleArr['collected_by']) $dwcArr['recordedBy'] = $sampleArr['collected_by'];
-				if(isset($sampleArr['collect_start_date']) && $sampleArr['collect_start_date']) $dwcArr['eventDate'] = $sampleArr['collect_start_date'];
+				if(isset($sampleArr['collect_end_date']) && $sampleArr['collect_end_date']) $dwcArr['eventDate'] = $sampleArr['collect_end_date'];
 				elseif(isset($sampleArr['collectDate']) && $sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
 				elseif($sampleArr['sampleID']){
 					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
@@ -526,10 +532,12 @@ class OccurrenceHarvester{
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
 				}
+				/*
 				if(isset($sampleArr['collect_end_date'])){
 					if(!isset($dwcArr['eventDate']) || !$dwcArr['eventDate']) $dwcArr['eventDate'] = $sampleArr['collect_end_date'];
 					elseif($dwcArr['eventDate'] != $sampleArr['collect_end_date']) $dwcArr['eventDate2'] = $sampleArr['collect_end_date'];
 				}
+				*/
 				//Build proper location code
 				$locationStr = '';
 				if(isset($sampleArr['fate_location']) && $sampleArr['fate_location']) $locationStr = $sampleArr['fate_location'];

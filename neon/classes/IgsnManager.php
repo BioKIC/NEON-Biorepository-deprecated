@@ -61,7 +61,9 @@ class IgsnManager{
 		ob_flush();
 		$apiUrlBase = 'https://data.neonscience.org/api/v0/samples/view?';
 		//$neonApiKey = (isset($GLOBALS['NEON_API_KEY'])?$GLOBALS['NEON_API_KEY']:'');
-		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid WHERE (o.occurrenceID IS NOT NULL) ';
+		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass
+			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
+			WHERE (o.occurrenceID IS NOT NULL) ';
 		if(!$uncheckedOnly) $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
 		elseif($uncheckedOnly==1) $sql .= 'AND (s.igsnPushedToNEON = 0) ';
 		elseif($uncheckedOnly==2) $sql .= 'AND (s.igsnPushedToNEON IS NULL OR s.igsnPushedToNEON = 0) ';
@@ -88,7 +90,11 @@ class IgsnManager{
 				$resultArr = json_decode($json,true);
 				if(!isset($resultArr['error']) && isset($resultArr['data']['sampleViews'])){
 					foreach($resultArr['data']['sampleViews'] as $sampleViewArr){
-						if(isset($sampleViewArr['archiveGuid']) && $sampleViewArr['archiveGuid'] == $r->occurrenceID) $igsnPushedToNEON = 1;
+						if(isset($sampleViewArr['archiveGuid']) && $sampleViewArr['archiveGuid']){
+							if($sampleViewArr['archiveGuid'] == $r->occurrenceID) $igsnPushedToNEON = 1;
+							elseif(!$r->occurrenceID) $igsnPushedToNEON = 3;
+							else $igsnPushedToNEON = 2;
+						}
 					}
 					$syncCnt++;
 				}

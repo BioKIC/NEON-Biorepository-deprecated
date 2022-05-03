@@ -270,13 +270,7 @@ class OccurrenceHarvester{
 						if($sampleArr['occurrenceID'] != $igsnMatch[1]) $neonSampleUpdate['errorMessage'] = 'DATA ISSUE: IGSN failing to match with API value';
 					}
 					else{
-						if($duplicateOccid = $this->igsnExists($igsnMatch[1])){
-							//Another records exists within the portal with the same IGSN (not ideal)
-							$sampleArr['occurrenceID'] = $igsnMatch[1].'-dupe (data issue!)';
-							$errMsg = 'DATA ISSUE: another record (occid = '.$duplicateOccid.') exists with duplicate IGSN registered within NEON API';
-							$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
-						}
-						else{
+						if(!$this->igsnExists($igsnMatch[1],$sampleArr)){
 							if(!$this->updateOccurrenceIgsn($igsnMatch[1], $sampleArr['occid'])){
 								$this->errorLogArr[] = 'NOTICE: unable to update igsn: '.$this->conn->error;
 							}
@@ -285,12 +279,7 @@ class OccurrenceHarvester{
 				}
 				else{
 					//New record should use ISGN, if it is not already assigned to another record
-					if($duplicateOccid = $this->igsnExists($igsnMatch[1])){
-						$sampleArr['occurrenceID'] = $igsnMatch[1].'-dupe (data issue!)';
-						$errMsg = 'DATA ISSUE: another record (occid = '.$duplicateOccid.') exists with duplicate IGSN registered within NEON API';
-						$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
-					}
-					else $sampleArr['occurrenceID'] = $igsnMatch[1];
+					if(!$this->igsnExists($igsnMatch[1],$sampleArr)) $sampleArr['occurrenceID'] = $igsnMatch[1];
 				}
 			}
 		}
@@ -347,15 +336,22 @@ class OccurrenceHarvester{
 		}
 	}
 
-	private function igsnExists($igsn){
-		$occid = false;
+	private function igsnExists($igsn, &$sampleArr){
+		$occid = 0;
 		$sql = 'SELECT occid FROM omoccurrences WHERE occurrenceid = "'.$igsn.'" ';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$occid = $r->occid;
 		}
 		$rs->free();
-		return $occid;
+		if($occid){
+			//Another records exists within the portal with the same IGSN (not ideal)
+			$sampleArr['occurrenceID'] = $igsn.'-dupe (data issue!)';
+			$errMsg = 'DATA ISSUE: another record exists with duplicate IGSN registered within NEON API';
+			$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
+			return true;
+		}
+		return false;
 	}
 
 	private function updateOccurrenceIgsn($igsn, $occid){

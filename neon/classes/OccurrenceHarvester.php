@@ -324,7 +324,7 @@ class OccurrenceHarvester{
 			ksort($this->fateLocationArr);
 			$locArr = current($this->fateLocationArr);
 			$sampleArr['fate_location'] = $locArr['loc'];
-			if(!isset($sampleArr['collect_start_date'])) $sampleArr['collect_start_date'] = $locArr['date'];
+			if(!isset($sampleArr['collect_end_date'])) $sampleArr['collect_end_date'] = $locArr['date'];
 		}
 		return true;
 	}

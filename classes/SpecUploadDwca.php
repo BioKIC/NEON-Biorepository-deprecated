@@ -24,7 +24,6 @@ class SpecUploadDwca extends SpecUploadBase{
 		if(array_key_exists('ulfnoverride',$_POST) && $_POST['ulfnoverride'] && !$this->path){
 			$this->path = $_POST['ulfnoverride'];
 		}
-
 		if($this->path){
 			if($this->uploadType == $this->IPTUPLOAD){
 				$this->path = preg_replace('/&v=[\d\.]+/', '', $this->path);
@@ -73,12 +72,8 @@ class SpecUploadDwca extends SpecUploadBase{
 				if(!is_writable($this->uploadTargetPath)) $this->errorStr .= 'permission issue, target directory is not writable (path: '.$targetPath.')';
 				$this->outputMsg('<li>'.$this->errorStr.' </li>');
 			}
-			if($this->unpackArchive()){
-				$retPath = $this->uploadTargetPath;
-			}
-			else{
-				$this->uploadTargetPath = '';
-			}
+			if($this->unpackArchive()) $retPath = $this->uploadTargetPath;
+			else $this->uploadTargetPath = '';
 		}
 		return $retPath;
 	}
@@ -89,7 +84,6 @@ class SpecUploadDwca extends SpecUploadBase{
 	}
 
 	private function unpackArchive(){
-		//Extract archive
 		$status = true;
 		if(file_exists($this->uploadTargetPath.'dwca.zip')){
 			$zip = new ZipArchive;
@@ -249,7 +243,9 @@ class SpecUploadDwca extends SpecUploadBase{
 									$fh = fopen($this->uploadTargetPath.$this->metaArr['occur']['name'],'r') or die("Can't open occurrence file");
 									$headerArr = $this->getRecordArr($fh,true);
 									foreach($headerArr as $k => $v){
-										if(strtolower($v) != strtolower($this->metaArr['occur']['fields'][$k])){
+										$metaField = strtolower($this->metaArr['occur']['fields'][$k]);
+										if(substr($metaField,0,6) == 'paleo-') $metaField = substr($metaField,6);
+										if(strtolower($v) != $metaField){
 											$msg = '<div style="margin-left:25px;">';
 											$msg .= 'WARNING: meta.xml field order out of sync w/ '.$this->metaArr['occur']['name'].'; remapping: field #'.($k+1).' => '.$v;
 											$msg .= '</div>';
@@ -345,7 +341,7 @@ class SpecUploadDwca extends SpecUploadBase{
 												$metaField = strtolower($this->metaArr[$tagName]['fields'][$k]);
 												if(strtolower($v) != $metaField && $metaField != 'coreid'){
 													$msg = '<div style="margin-left:25px;">';
-													$msg .= 'WARNING: meta.xml field order out of sync w/ '.$this->metaArr[$tagName]['name'].'; remapping: field #'.($k+1).' => '.$v;
+													$msg .= 'WARNING: meta.xml field order out of sync with '.$this->metaArr[$tagName]['name'].'; remapping: field #'.($k+1).' => '.$v;
 													$msg .= '</div>';
 													$this->outputMsg($msg);
 													$this->errorStr = $msg;

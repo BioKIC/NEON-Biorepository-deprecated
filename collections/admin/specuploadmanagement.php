@@ -259,7 +259,7 @@ $duManager->readUploadParameters();
 									<option value="">----------------------------------</option>
 									<?php
 									$uploadType = $duManager->getUploadType();
-									echo '<option value="'.$DWCAUPLOAD.'" '.($uploadType==$DWCAUPLOAD?'SELECTED':'').'>'.(isset($LANG['DWC_MANUAL'])?$LANG['DWC_MANUAL']:'Darwin Core Archive Manual Upload').'</option>';
+									echo '<option value="'.$DWCAUPLOAD.'" '.($uploadType==$DWCAUPLOAD?'SELECTED':'').'>'.(isset($LANG['MANUAL_DWCA'])?$LANG['MANUAL_DWCA']:'Darwin Core Archive Manual Upload').'</option>';
 									echo '<option value="'.$IPTUPLOAD.'" '.($uploadType==$IPTUPLOAD?'SELECTED':'').'>'.(isset($LANG['IPT_DWCA'])?$LANG['IPT_DWCA']:'IPT Resource / Darwin Core Archive Provider').'</option>';
 									echo '<option value="'.$SYMBIOTA.'" '.($uploadType==$SYMBIOTA?'SELECTED':'').'>'.(isset($LANG['SYMBIOTA_DWCA'])?$LANG['SYMBIOTA_DWCA']:'Symbiota Import').'</option>';
 									echo '<option value="'.$FILEUPLOAD.'" '.($uploadType==$FILEUPLOAD?'SELECTED':'').'>'.(isset($LANG['FILE'])?$LANG['FILE']:'File Upload').'</option>';
@@ -341,8 +341,7 @@ $duManager->readUploadParameters();
 								?>
 							</div>
 							<div id="dwca_notes" style="display: none">
-								<?php echo '* '.(isset($LANG['PATH_EXPLAIN'])?$LANG['PATH_EXPLAIN']:'Path can be URL or local path leading to a DwC-Archive zip file or a directory path to a pre-extracted DwC-Archive data package.
-								If using local path on Windows OS, use foward slashes in place of backslashes.'); ?>
+								<?php echo '* '.(isset($LANG['PATH_EXPLAIN'])?$LANG['PATH_EXPLAIN']:'Path can be URL or local path leading to a DwC-Archive zip file or a directory path to a pre-extracted DwC-Archive data package.'); ?>
 							</div>
 						</form>
 					</fieldset>

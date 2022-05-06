@@ -970,7 +970,6 @@ $traitArr = $indManager->getTraitArr();
 												$displayStr = $idArr[0];
 												if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
 												$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
-												if($idKey == 'NEON sampleID') break;
 												if($idKey == 'NEON sampleCode (barcode)') break;
 											}
 										}

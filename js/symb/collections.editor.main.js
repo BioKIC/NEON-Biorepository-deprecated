@@ -1057,77 +1057,6 @@ function distributeEventDate(y,m,d){
 	}
 }
 
-function endDateChanged(){
-	var dateStr = document.getElementById("endDate").value;
-	if(dateStr != ""){
-		var dateArr = parseDate(dateStr);
-		if(dateArr['y'] == 0){
-			alert("Unable to interpret Date. Please use the following formats: yyyy-mm-dd, mm/dd/yyyy, or dd mmm yyyy");
-			return false;
-		}
-		else{
-			//Check to see if date is in the future
-			try{
-				var testDate = new Date(dateArr['y'],dateArr['m']-1,dateArr['d']);
-				var today = new Date();
-				if(testDate > today){
-					alert("Was this plant really collected in the future? The date you entered has not happened yet. Please revise.");
-					return false;
-				}
-			}
-			catch(e){
-			}
-
-			//Invalid format is month > 12
-			if(dateArr['m'] > 12){
-				alert("Month cannot be greater than 12. Note that the format should be YYYY-MM-DD");
-				return false;
-			}
-
-			//Check to see if day is valid
-			if(dateArr['d'] > 28){
-				if(dateArr['d'] > 31
-					|| (dateArr['d'] == 30 && dateArr['m'] == 2)
-					|| (dateArr['d'] == 31 && (dateArr['m'] == 4 || dateArr['m'] == 6 || dateArr['m'] == 9 || dateArr['m'] == 11))){
-					alert("The Day (" + dateArr['d'] + ") is invalid for that month");
-					return false;
-				}
-			}
-
-			//Enter date into date fields
-			var mStr = dateArr['m'];
-			if(mStr.length == 1){
-				mStr = "0" + mStr;
-			}
-			var dStr = dateArr['d'];
-			if(dStr.length == 1){
-				dStr = "0" + dStr;
-			}
-			document.getElementById("endDate").value = dateArr['y'] + "-" + mStr + "-" + dStr;
-			if(dateArr['y'] > 0){
-				var f = document.fullform;
-				f.enddayofyear.value = "";
-				try{
-					if(dateArr['m'] == 0 || dateArr['d'] == 0){
-						f.enddayofyear.value = "";
-					}
-					else{
-						eDate = new Date(dateArr['y'],dateArr['m']-1,dateArr['d']);
-						if(eDate instanceof Date && eDate != "Invalid Date"){
-							var onejan = new Date(dateArr['y'],0,1);
-							f.enddayofyear.value = Math.ceil((eDate - onejan) / 86400000) + 1;
-							fieldChanged("enddayofyear");
-						}
-					}
-				}
-				catch(e){
-				}
-			}
-		}
-	}
-	return true;
-}
-
 function verbatimEventDateChanged(vedObj){
 	fieldChanged('verbatimeventdate');
 
@@ -1309,49 +1238,9 @@ function verifyDetForm(f){
 	return true;
 }
 
-//Image tab form methods 
-function verifyImgAddForm(f){
-	var filePath = f.elements["imgfile"].value;
-	if(filePath == ""){
-		if(f.elements["imgurl"].value == ""){
-			alert("Select an image file or enter a URL to an existing image");
-			return false;
-		}
-		else{
-			filePath = f.elements["imgfile"].value
-		}
-	}
-	filePath = filePath.toLowerCase();
-	if((filePath.indexOf(".tif") > -1) || (filePath.indexOf(".png") > -1) && (filePath.indexOf(".dng") > -1)){
-		alert("Input file must be a web-optimized image (e.g. jpg). File appears to be an archival image (e.g. tif, png, dng, etc).");
-		return false;
-	}
-	return true;
-}
-
-function verifyImgEditForm(f){
-
-	return true;
-}
-
-function verifyImgDelForm(f){
-	if(confirm('Are you sure you want to delete this image? Note that the physical image will be deleted from the server if checkbox is selected.')){
-		return true;
-	}
-	return false;
-}
-
-function verifyImgRemapForm(f){
-	if(f.targetoccid.value == ''){
-		alert("Enter the occurrence record identifier (occid) of the occurrence record you want to transfer to");
-		return false;
-	}
-	return true;
-}
-
 //Misc
 function dwcDoc(dcTag){
-	dwcWindow=open("https://symbiota.org/symbiota-occurrence-data-fields-2/#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
+	dwcWindow=open("https://biokic.github.io/symbiota-docs/editor/edit/fields/#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
 	//dwcWindow=open("http://rs.tdwg.org/dwc/terms/index.htm#"+dcTag,"dwcaid","width=1250,height=300,left=20,top=20,scrollbars=1");
 	if(dwcWindow.opener == null) dwcWindow.opener = self;
 	dwcWindow.focus();

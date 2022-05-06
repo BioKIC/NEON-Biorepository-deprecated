@@ -919,7 +919,7 @@ class OccurrenceEditorManager {
 					$oldRecordEnteredBy = isset($oldValueArr['occurrence']['recordenteredby'])?$oldValueArr['occurrence']['recordenteredby']:'';
 					if($oldRecordEnteredBy == 'preprocessed' || (!$oldRecordEnteredBy && ($oldProcessingStatus == 'unprocessed' || $oldProcessingStatus == 'stage 1'))){
 						$postArr['recordenteredby'] = $GLOBALS['USERNAME'];
-						$editFieldArr['occurrence'] = 'recordenteredby';
+						$editFieldArr['occurrence'][] = 'recordenteredby';
 					}
 					//Version edits; add edits to omoccuredits
 					$sqlEditsBase = 'INSERT INTO omoccuredits(occid,reviewstatus,appliedstatus,uid,fieldname,fieldvaluenew,fieldvalueold) '.
@@ -950,7 +950,7 @@ class OccurrenceEditorManager {
 								}
 								$newValue = $postArr[$fieldName];
 								$oldValue = '';
-								if($oldValueArr && $oldValueArr[$tableName][$fieldName]) $oldValue = $oldValueArr[$tableName][$fieldName];
+								if(isset($oldValueArr[$tableName][$fieldName])) $oldValue = $oldValueArr[$tableName][$fieldName];
 								//Version edits only if value has changed
 								if($oldValue != $newValue){
 									if($fieldName != 'tidinterpreted'){

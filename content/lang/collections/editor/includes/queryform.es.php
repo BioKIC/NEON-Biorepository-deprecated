@@ -1,16 +1,16 @@
 <?php
 /*
 ------------------
-Language: English
+Language: Español
 ------------------
 */
 
 $LANG['RECORD_SEARCH_FORM'] = 'Formulario de Búsqueda de Registros';
 $LANG['WILD_EXPLAIN'] = 'Nombre completo del colector como fue entrado en la base de datos. Para buscar únicamente el apellido, añada el caracter (%) antes del apellido (%Gentry).';
 $LANG['COLLECTOR'] = 'Colector';
-$LANG['SEPARATE_RANGES'] = 'Separar términos múltiples con comas, y rangos con ' - ' (espacio antes y después del apóstrofe requerido), e.g.: 3542,3602,3700 - 3750';
+$LANG['SEPARATE_RANGES'] = "Separar términos múltiples con comas, y rangos con ' - ' (espacio antes y después del apóstrofe requerido), e.g.: 3542,3602,3700 - 3750";
 $LANG['NUMBER'] = 'Número';
-$LANG['ENTER_RANGES'] = 'Entrar rangos separdos por ' - ' (espacio antes y después del apóstrofe requerido), e.g.: 2002-01-01 - 2003-01-01';
+$LANG['ENTER_RANGES'] = "Entrar rangos separdos por ' - ' (espacio antes y después del apóstrofe requerido), e.g.: 2002-01-01 - 2003-01-01";
 $LANG['DATE'] = 'Fecha';
 $LANG['CAT_NUM'] = 'Número de Catálogo';
 $LANG['OCR_FRAGMENT'] = 'Fragmento de OCR';
@@ -107,9 +107,11 @@ $LANG['IS_NOT_NULL'] = 'NO ES NULO';
 $LANG['CUSTOM_FIELD_2'] = 'Campo Personalizado 2';
 $LANG['CUSTOM_FIELD_3'] = 'Campo Personalizado 3';
 $LANG['SHOW_RECS_ALL'] = 'Mostar registros para todos los usuarios (control administrativo)';
+$LANG['COPY_SEARCH'] = 'Copiar búsqueda como enlace';
 $LANG['GO_LABEL_PRINT'] = 'Ir a Módulo de Impresión de Etiquetas';
 $LANG['DISPLAY_EDITOR'] = 'Desplegar Editor';
 $LANG['DISPLAY_TABLE'] = 'Desplegar Tabla';
+$LANG['DYNAMIC_TABLE'] = 'Desplegar tabla dynamica';
 $LANG['SORT_BY'] = 'Ordenar Por';
 $LANG['DATE_LAST_MODIFIED'] = 'Fecha de Última Modificación';
 $LANG['LOCATION_ID'] = 'ID de Localidad';
@@ -120,5 +122,5 @@ $LANG['ELEV_MIN'] = 'Elevación Mínima';
 $LANG['ELEV_MAX'] = 'Elevación Máxima';
 $LANG['ASCENDING'] = 'ascendente';
 $LANG['DESCENDING'] = 'descendente';
-
+$LANG['OUTPUT'] = 'Record output';
 ?>

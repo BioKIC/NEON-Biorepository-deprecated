@@ -52,14 +52,13 @@ $smManager = new SiteMapManager();
 				<li style="margin-left:15px"><a href="collections/datasets/rsshandler.php" target="_blank"><?php echo $LANG['COLLECTIONS_RSS'];?></a></li>
 				<li style="margin-left:15px"><a href="collections/datasets/datapublisher.php"><?php echo $LANG['DARWINCORE'];?></a> - <?php echo $LANG['PUBDATA'];?></li>
 				<?php
-				if(file_exists('webservices/dwc/rss.xml')){
-					echo '<li style="margin-left:15px;"><a href="webservices/dwc/rss.xml" target="_blank">'.$LANG['RSS'].'</a></li>';
-				}
+				$rssPath = $GLOBALS['CLIENT_ROOT'].'/content/dwca/rss.xml';
+				$deprecatedRssPath = $GLOBALS['CLIENT_ROOT'].'/webservices/dwc/rss.xml';
+				if(!file_exists($rssPath) && file_exists($deprecatedRssPath)) $rssPath = $deprecatedRssPath;
+				if(file_exists($rssPath)) echo '<li style="margin-left:15px;"><a href="'.$rssPath.'" target="_blank">'.$LANG['RSS'].'</a></li>';
 				?>
 				<li><a href="collections/misc/protectedspecies.php"><?php echo $LANG['PROTECTED_SPECIES'];?></a> - <?php echo $LANG['LISTOFTAXA'];?></li>
-
 			</ul>
-
 			<div style="margin-top:10px;"><h2><?php echo $LANG['IMGLIB'];?></h2></div>
 			<ul>
 				<li><a href="imagelib/index.php"><?php echo $LANG['IMGLIB'];?></a></li>
@@ -104,7 +103,7 @@ $smManager = new SiteMapManager();
 
 			<h2><?php echo (isset($LANG['DATASETS'])?$LANG['DATASETS']:'Datasets') ;?></h2>
 			<ul>
-				<li><a href="collections/datasets/publiclist.php">All Publicly Viewable Datasets</a></li>
+				<li><a href="collections/datasets/publiclist.php"><?php echo (isset($LANG['ALLPUBDAT'])?$LANG['ALLPUBDAT']:'All Publicly Viewable Datasets') ;?></a></li>
 			</ul>
 			<div style="margin-top:10px;"><h2><?php echo $LANG['DYNAMIC'];?></h2></div>
 			<ul>
@@ -273,7 +272,7 @@ $smManager = new SiteMapManager();
 
 					<h3><?php echo (isset($LANG['DATASETS'])?$LANG['DATASETS']:'Datasets') ;?></h3>
 					<ul>
-						<li><a href="collections/datasets/index.php">Dataset Management Page</a> - datasets you are authorized to edit</li>
+						<li><a href="collections/datasets/index.php"><?php echo (isset($LANG['DATMANPAG'])?$LANG['DATMANPAG']:'Dataset Management Page</a> - datasets you are authorized to edit') ;?></li>
 					</ul>
 					<h3><?php echo $LANG['TAXONPROF'];?></h3>
 					<?php

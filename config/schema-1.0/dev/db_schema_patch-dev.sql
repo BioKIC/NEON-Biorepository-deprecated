@@ -75,7 +75,11 @@ ALTER TABLE `imagetagkey`
   ADD COLUMN `audubonCoreTarget` VARCHAR(45) NULL AFTER `resourceLink`;
 
 ALTER TABLE `imagetagkey` 
-  CHANGE COLUMN `description_en` `description` VARCHAR(255) NOT NULL ;
+  ADD COLUMN `tagDescription` VARCHAR(255) NOT NULL AFTER `description_en`;
+
+UPDATE imagetagkey
+  SET tagDescription = description_en
+  WHERE tagDescription = "";
 
 CREATE TABLE `imagetaggroup` (
   `imgTagGroupID` INT NOT NULL AUTO_INCREMENT,
@@ -201,7 +205,11 @@ ALTER TABLE `omoccuridentifiers`
 ALTER TABLE `omoccuridentifiers` 
   ADD UNIQUE INDEX `UQ_omoccuridentifiers` (`occid` ASC, `identifiervalue` ASC, `identifiername` ASC);
 
-ALTER TABLE `omoccuridentifiers` RENAME INDEX `Index_value` TO `IX_omoccuridentifiers_value`;
+ALTER TABLE `omoccuridentifiers` 
+  DROP INDEX `Index_value` ;
+
+ALTER TABLE `omoccuridentifiers` 
+  ADD INDEX `IX_omoccuridentifiers_value` (`identifiervalue` ASC);
 
 
 CREATE TABLE `portalindex` (
@@ -379,6 +387,11 @@ ALTER TABLE `uploadspectemp`
   DROP COLUMN `materialSampleID`,
   ADD COLUMN `materialSampleJSON` TEXT NULL AFTER `paleoJSON`;
 
+ALTER TABLE `omoccuredits` 
+  DROP FOREIGN KEY `fk_omoccuredits_uid`;
+
+ALTER TABLE `omoccuredits` 
+  ADD CONSTRAINT `fk_omoccuredits_uid`  FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
 
 ALTER TABLE `omoccurrences` 
   ADD COLUMN `type` VARCHAR(45) NULL AFTER `verbatimEventDate`;

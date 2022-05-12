@@ -388,15 +388,23 @@ class SpecUploadDwca extends SpecUploadBase{
 									$urlRoot = substr($urlRoot,0,strpos($urlRoot,'/collections/misc/collprofiles.php'));
 									$portalName = 'GUID: '.$symbiotaGuid;
 									if($GLOBALS['DEFAULT_TITLE']) $portalName = $GLOBALS['DEFAULT_TITLE'];
-									$sql = 'INSERT INTO portalindex(portalName, urlRoot, guid)
-										VALUES("'.$this->cleanInStr($portalName).'","'.$this->cleanInStr($urlRoot).'","'.$this->cleanInStr($symbiotaGuid).'")';
-									if($this->conn->query($sql)){
-										$this->sourcePortalIndex = $this->conn->insert_id;
-										$this->touchRemoteInstallation($urlRoot);
+									//Temp code need until portal index schema is finalized
+									$tableExists = false;
+									if($rs = $this->conn->query('SHOW TABLES LIKE "portalindex"')){
+										if($rs->num_rows) $tableExists = true;
+										$rs->free();
 									}
-									else{
-										//$this->errorStr = 'ERROR adding portal index: '.$this->conn->error();
-										//$this->outputMsg($this->errorStr);
+									if($tableExists){
+										$sql = 'INSERT INTO portalindex(portalName, urlRoot, guid)
+											VALUES("'.$this->cleanInStr($portalName).'","'.$this->cleanInStr($urlRoot).'","'.$this->cleanInStr($symbiotaGuid).'")';
+										if($this->conn->query($sql)){
+											$this->sourcePortalIndex = $this->conn->insert_id;
+											$this->touchRemoteInstallation($urlRoot);
+										}
+										else{
+											//$this->errorStr = 'ERROR adding portal index: '.$this->conn->error();
+											//$this->outputMsg($this->errorStr);
+										}
 									}
 								}
 							}
@@ -427,10 +435,18 @@ class SpecUploadDwca extends SpecUploadBase{
 
 	private function setPortalID($symbiotaGuid){
 		if($symbiotaGuid){
-			$sql = 'SELECT portalID FROM portalindex WHERE guid = "'.$this->cleanInStr($symbiotaGuid).'"';
-			if($rs = $this->conn->query($sql)){
-				if($r = $rs->fetch_object()) $this->sourcePortalIndex = $r->portalID;
+			//Temp code need until portal index schema is finalized
+			$tableExists = false;
+			if($rs = $this->conn->query('SHOW TABLES LIKE "portalindex"')){
+				if($rs->num_rows) $tableExists = true;
 				$rs->free();
+			}
+			if($tableExists){
+				$sql = 'SELECT portalID FROM portalindex WHERE guid = "'.$this->cleanInStr($symbiotaGuid).'"';
+				if($rs = $this->fconn->query($sql)){
+					if($r = $rs->fetch_object()) $this->sourcePortalIndex = $r->portalID;
+					$rs->free();
+				}
 			}
 		}
 	}
@@ -463,7 +479,6 @@ class SpecUploadDwca extends SpecUploadBase{
 
 		$fullPath = $this->uploadTargetPath;
 		if(file_exists($fullPath)){
-
 			if($this->readMetaFile() && isset($this->metaArr['occur']['fields'])){
 				//Set parsing variables
 				if(isset($this->metaArr['occur']['fieldsTerminatedBy']) && $this->metaArr['occur']['fieldsTerminatedBy']){

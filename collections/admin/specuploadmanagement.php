@@ -28,7 +28,7 @@ if($IS_ADMIN || (array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,
 	$isEditor = 1;
 }
 if($isEditor){
-	if($action == 'Save Edits'){
+	if($action == 'saveEdits'){
 		if($duManager->editUploadProfile($_POST)){
 			$statusStr = (isset($LANG['SUCCESS_IMP'])?$LANG['SUCCESS_IMP']:'SUCCESS: Edits to import profile have been applied');
 		}
@@ -37,7 +37,7 @@ if($isEditor){
 		}
 		$action = '';
 	}
-	elseif($action == 'Create Profile'){
+	elseif($action == 'createProfile'){
 		if($duManager->createUploadProfile($_POST)){
 			$statusStr = (isset($LANG['SUCCESS_UP'])?$LANG['SUCCESS_UP']:'SUCCESS: New upload profile added');
 		}
@@ -330,12 +330,12 @@ $duManager->readUploadParameters();
 								<?php
 								if($uspid){
 									?>
-									<input type="submit" name="action" value="Save Edits" />
+									<button type="submit" name="action" value="saveEdits"><?php echo $LANG['SAVE_PROFILE']; ?></button>
 									<?php
 								}
 								else{
 									?>
-									<input type="submit" name="action" value="Create Profile" />
+									<button type="submit" name="action" value="createProfile"><?php echo $LANG['CREATE_PROFILE']; ?></button>
 									<?php
 								}
 								?>

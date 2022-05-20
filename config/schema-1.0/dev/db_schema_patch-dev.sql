@@ -49,6 +49,24 @@ INSERT IGNORE INTO agentoccurrencelink(agentID, occid, role)
   FROM agents a INNER JOIN omcollectors c ON a.guid = c.guid
   INNER JOIN omoccurrences o ON c.recordedbyid = o.recordedbyid;
 
+CREATE TABLE `agentdeterminationlink` (
+  `agentID` BIGINT(20) NOT NULL,
+  `detID` INT UNSIGNED NOT NULL,
+  `role` VARCHAR(45) NOT NULL DEFAULT '',
+  `createdUid` INT UNSIGNED NULL DEFAULT NULL,
+  `modifiedUid` INT UNSIGNED NULL DEFAULT NULL,
+  `dateLastModified` DATETIME NULL DEFAULT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`agentID`, `detID`, `role`),
+  INDEX `FK_agentdetlink_detid_idx` (`detID` ASC),
+  INDEX `FK_agentdetlink_modified_idx` (`modifiedUid` ASC),
+  INDEX `FK_agentdetlink_created_idx` (`createdUid` ASC),
+  INDEX `IX_agentdetlink_role` (`role` ASC),
+  CONSTRAINT `FK_agentdetlink_agentID`  FOREIGN KEY (`agentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_agentdetlink_detid`  FOREIGN KEY (`detID`)  REFERENCES `omoccurdeterminations` (`detid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_agentdetlink_modified`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
+  CONSTRAINT `FK_agentdetlink_created`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
+
 ALTER TABLE `agentlinks` 
   CHANGE COLUMN `isprimarytopicof` `isPrimaryTopicOf` TINYINT(1) NOT NULL DEFAULT 1 ;
 
@@ -56,13 +74,14 @@ ALTER TABLE `agentnames`
   ENGINE = InnoDB ,
   CHANGE COLUMN `agentNamesID` `agentNamesID` BIGINT(20) NOT NULL ,
   CHANGE COLUMN `agentID` `agentID` BIGINT(20) NOT NULL ,
-  CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL ;
+  CHANGE COLUMN `type` `nameType` VARCHAR(32) NOT NULL DEFAULT 'Full Name' ,
+  CHANGE COLUMN `name` `agentName` VARCHAR(255) NOT NULL ;
 
 ALTER TABLE `agentnames` 
   ADD CONSTRAINT `FK_agentnames_agentID`  FOREIGN KEY (`agentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
 
 ALTER TABLE `agentnames` 
-  ADD INDEX `IX_agentnames_name` (`name` ASC),
+  ADD INDEX `IX_agentnames_name` (`agentName` ASC),
   DROP INDEX `ft_collectorname` ;
 
 ALTER TABLE `agentnames` 

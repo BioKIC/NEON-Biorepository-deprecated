@@ -1,25 +1,21 @@
 INSERT IGNORE INTO schemaversion (versionnumber) values ("1.3");
 
-ALTER TABLE `agents`
-  ADD INDEX `FK_agents_familyname` (`familyName` ASC),
-  ADD UNIQUE INDEX `UQ_agents_guid` (`guid` ASC);
-
-ALTER TABLE `agents` 
-  RENAME INDEX `firstname` TO `FK_agents_firstname`;
-
 ALTER TABLE `agents` 
   CHANGE COLUMN `taxonomicgroups` `taxonomicGroups` VARCHAR(900) NULL DEFAULT NULL ,
   CHANGE COLUMN `collectionsat` `collectionsAt` VARCHAR(900) NULL DEFAULT NULL ,
   CHANGE COLUMN `mbox_sha1sum` `mboxSha1Sum` CHAR(40) NULL DEFAULT NULL ;
 
-ALTER TABLE `agents` 
-  RENAME INDEX `FK_agents_firstname` TO `IX_agents_firstname`;
+ALTER TABLE `agents`
+  ADD INDEX `IX_agents_familyname` (`familyName` ASC),
+  ADD UNIQUE INDEX `UQ_agents_guid` (`guid` ASC);
 
 ALTER TABLE `agents` 
-  RENAME INDEX `FK_agents_preferred_recby` TO `FK_agents_preferred_recby_idx`;
+  DROP INDEX `firstname`,
+  ADD INDEX `IX_agents_firstname` (`firstName` ASC);
 
 ALTER TABLE `agents` 
-  RENAME INDEX `FK_agents_familyname` TO `IX_agents_familyname`;
+  DROP INDEX `FK_agents_preferred_recby`,
+  ADD INDEX `FK_agents_preferred_recby_idx` (`firstName` ASC);
 
 CREATE TABLE `agentoccurrencelink` (
   `agentID` BIGINT(20) NOT NULL,
@@ -85,32 +81,34 @@ ALTER TABLE `agentnames`
   DROP INDEX `ft_collectorname` ;
 
 ALTER TABLE `agentnames` 
-  RENAME INDEX `agentid` TO `UQ_agentnames_unique`;
+  DROP INDEX `type` ,
+  DROP INDEX `agentid` ;
 
 ALTER TABLE `agentnames` 
-   RENAME INDEX `type` TO `IX_agentnames_type`;
+  ADD UNIQUE INDEX `UQ_agentnames_unique` (`agentID` ASC, `nameType` ASC, `agentName` ASC),
+  ADD INDEX `IX_agentnames_type` (`nameType` ASC);
 
 ALTER TABLE `agentnumberpattern` 
-  RENAME INDEX `agentid` TO `IX_agentnumberpattern_agentid`;
+  ADD INDEX `IX_agentnumberpattern_agentid` (`agentID` ASC),
+  DROP INDEX `agentid`;
 
 ALTER TABLE `agentrelations` 
-  RENAME INDEX `fromagentid` TO `FK_agentrelations_fromagentid_idx`;
-
-ALTER TABLE `agentrelations` 
-  RENAME INDEX `toagentid` TO `FK_agentrelations_toagentid_idx`;
-
-ALTER TABLE `agentrelations` 
-  RENAME INDEX `relationship` TO `FK_agentrelations_relationship_idx`;
+  ADD INDEX `FK_agentrelations_fromagentid_idx` (`fromAgentID` ASC),
+  ADD INDEX `FK_agentrelations_toagentid_idx` (`toAgentID` ASC),
+  ADD INDEX `FK_agentrelations_relationship_idx` (`relationship` ASC),
+  DROP INDEX `relationship`,
+  DROP INDEX `toagentid`,
+  DROP INDEX `fromagentid`;
 
 ALTER TABLE `agentteams` 
   DROP FOREIGN KEY `agentteams_ibfk_1`,
   DROP FOREIGN KEY `agentteams_ibfk_2`;
 
 ALTER TABLE `agentteams` 
-  RENAME INDEX `teamagentid` TO `FK_agentteams_teamagentid_idx`;
-
-ALTER TABLE `agentteams` 
-  RENAME INDEX `memberagentid` TO `FK_agentteams_memberagentid_idx`;
+  ADD INDEX `FK_agentteams_teamagentid_idx` (`teamAgentID` ASC),
+  ADD INDEX `FK_agentteams_memberagentid_idx` (`memberAgentID` ASC),
+  DROP INDEX `memberagentid`,
+  DROP INDEX `teamagentid`;
 
 ALTER TABLE `agentteams` 
   ADD CONSTRAINT `FK_agentteams_teamAgentID`  FOREIGN KEY (`teamAgentID`)  REFERENCES `agents` (`agentID`)  ON DELETE NO ACTION  ON UPDATE CASCADE,
@@ -457,10 +455,10 @@ ALTER TABLE `specprocessorprojects`
 ALTER TABLE `specprocessorprojects`
   ADD CONSTRAINT `FK_specprocprojects_uid`  FOREIGN KEY (`createdByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
-ALTER TABLE `taxa` 
-  CHANGE COLUMN `Author` `Author` VARCHAR(100) NOT NULL DEFAULT "";
-
 UPDATE IGNORE taxa SET author = "" WHERE author IS NULL;
+
+ALTER TABLE `taxa` 
+  CHANGE COLUMN `Author` `author` VARCHAR(150) NOT NULL DEFAULT "";
 
 ALTER TABLE `taxa` 
   DROP INDEX `sciname_unique` ,

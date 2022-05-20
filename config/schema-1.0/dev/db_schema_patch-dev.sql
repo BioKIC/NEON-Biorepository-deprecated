@@ -14,8 +14,8 @@ ALTER TABLE `agents`
   ADD INDEX `IX_agents_firstname` (`firstName` ASC);
 
 ALTER TABLE `agents` 
-  DROP INDEX `FK_agents_preferred_recby`,
-  ADD INDEX `FK_agents_preferred_recby_idx` (`firstName` ASC);
+  ADD INDEX `FK_agents_preferred_recby_idx` (`preferredRecByID` ASC),
+  DROP INDEX `FK_agents_preferred_recby`;
 
 CREATE TABLE `agentoccurrencelink` (
   `agentID` BIGINT(20) NOT NULL,
@@ -81,12 +81,12 @@ ALTER TABLE `agentnames`
   DROP INDEX `ft_collectorname` ;
 
 ALTER TABLE `agentnames` 
-  DROP INDEX `type` ,
-  DROP INDEX `agentid` ;
-
-ALTER TABLE `agentnames` 
   ADD UNIQUE INDEX `UQ_agentnames_unique` (`agentID` ASC, `nameType` ASC, `agentName` ASC),
   ADD INDEX `IX_agentnames_type` (`nameType` ASC);
+
+ALTER TABLE `agentnames` 
+  DROP INDEX `type`,
+  DROP INDEX `agentid`;
 
 ALTER TABLE `agentnumberpattern` 
   ADD INDEX `IX_agentnumberpattern_agentid` (`agentID` ASC),

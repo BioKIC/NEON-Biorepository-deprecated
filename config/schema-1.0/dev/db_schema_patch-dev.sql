@@ -33,7 +33,8 @@ CREATE TABLE `agentoccurrencelink` (
   CONSTRAINT `FK_agentoccurlink_agentID`  FOREIGN KEY (`agentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_agentoccurlink_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_agentoccurlink_created`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
-  CONSTRAINT `FK_agentoccurlink_modified` FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
+  CONSTRAINT `FK_agentoccurlink_modified` FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE
+);
 
 INSERT IGNORE INTO agents(familyName,firstName,middleName,startYearActive,endYearActive,notes,rating,guid)
   SELECT DISTINCT c.familyname, c.firstname, c.middlename, c.startyearactive, c.endyearactive, c.notes, c.rating, c.guid 
@@ -61,7 +62,8 @@ CREATE TABLE `agentdeterminationlink` (
   CONSTRAINT `FK_agentdetlink_agentID`  FOREIGN KEY (`agentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_agentdetlink_detid`  FOREIGN KEY (`detID`)  REFERENCES `omoccurdeterminations` (`detid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_agentdetlink_modified`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
-  CONSTRAINT `FK_agentdetlink_created`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
+  CONSTRAINT `FK_agentdetlink_created`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE
+);
 
 ALTER TABLE `agentlinks` 
   CHANGE COLUMN `isprimarytopicof` `isPrimaryTopicOf` TINYINT(1) NOT NULL DEFAULT 1 ;
@@ -267,7 +269,8 @@ CREATE TABLE `omcollproperties` (
   INDEX `FK_omcollproperties_collid_idx` (`collid` ASC),
   INDEX `FK_omcollproperties_uid_idx` (`modifiedUid` ASC),
   CONSTRAINT `FK_omcollproperties_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)   ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE);
+  CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE
+);
 
 ALTER TABLE `omoccurdatasets` 
   CHANGE COLUMN `datasetid` `datasetID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
@@ -296,38 +299,48 @@ ALTER TABLE `omoccuridentifiers`
 ALTER TABLE `omoccuridentifiers` 
   ADD INDEX `IX_omoccuridentifiers_value` (`identifiervalue` ASC);
 
-TRUNCATE omoccuraccessstats;
 
-ALTER TABLE `omoccuraccessstats` 
-  DROP FOREIGN KEY `FK_occuraccess_occid`;
+CREATE TABLE `omoccuraccess` (
+  `occurAccessID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ipaddress` VARCHAR(45) NOT NULL,
+  `accessType` VARCHAR(45) NOT NULL,
+  `queryStr` TEXT NULL,
+  `userAgent` TEXT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`occurAccessID`)
+) ENGINE = MyISAM;
 
-ALTER TABLE `omoccuraccessstats` 
-  DROP COLUMN `oasid`,
-  DROP INDEX `UNIQUE_occuraccess` ,
-  DROP PRIMARY KEY;
-
-ALTER TABLE `omoccuraccessstats` 
-  DROP COLUMN `accessdate`,
-  DROP COLUMN `cnt`,
-  DROP COLUMN `notes`,
-  DROP COLUMN `dynamicProperties`;
-
-ALTER TABLE `omoccuraccessstats` 
-  CHANGE COLUMN `initialtimestamp` `initialtimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
-
-ALTER TABLE `omoccuraccessstats` 
-  ENGINE = MyISAM ;
+CREATE TABLE `omoccuraccesslink` (
+  `occurAccessID` BIGINT(20) UNSIGNED NOT NULL,
+  `occid` INT UNSIGNED NOT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`occurAccessID`, `occid`)
+) ENGINE = MyISAM;
 
 CREATE TABLE `omoccuraccesssummary` (
-  `oasid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `occid` INT UNSIGNED NOT NULL,
-  `accessdate` DATE NOT NULL,
+  `oasid` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ipaddress` VARCHAR(45) NOT NULL,
+  `accessDate` DATE NOT NULL,
   `cnt` INT UNSIGNED NOT NULL,
-  `accesstype` VARCHAR(45) NOT NULL,
-  `initialtimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  `accessType` VARCHAR(45) NOT NULL,
+  `queryStr` TEXT NULL,
+  `userAgent` TEXT NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
   PRIMARY KEY (`oasid`),
-  UNIQUE INDEX `UNIQUE_occuraccess` (`occid` ASC, `accessdate` ASC, `accesstype` ASC),
-  CONSTRAINT `FK_occuraccess_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
+  UNIQUE INDEX `UNIQUE_occuraccess` (`ipaddress` ASC, `accessdate` ASC, `accesstype` ASC)
+);
+
+CREATE TABLE `omoccuraccesssummarylink` (
+  `oasid` BIGINT(20) UNSIGNED NOT NULL,
+  `occid` INT UNSIGNED NOT NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`oasid`, `occid`),
+  INDEX `omoccuraccesssummarylink_occid_idx` (`occid` ASC),
+  CONSTRAINT `FK_omoccuraccesssummarylink_oasid`  FOREIGN KEY (`oasid`)  REFERENCES `omoccuraccesssummary` (`oasid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_omoccuraccesssummarylink_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE
+);
+
+DROP TABLE omoccuraccessstats;
 
 
 CREATE TABLE `portalindex` (
@@ -345,7 +358,8 @@ CREATE TABLE `portalindex` (
   `primaryLeadEmail` VARCHAR(45) NULL,
   `notes` VARCHAR(250) NULL,
   `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`portalID`));
+  PRIMARY KEY (`portalID`)
+);
 
 ALTER TABLE `portalindex` 
   ADD UNIQUE INDEX `UQ_portalIndex_guid` (`guid` ASC);

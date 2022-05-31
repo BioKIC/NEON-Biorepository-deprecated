@@ -99,7 +99,6 @@ class DwcArchiverCore extends Manager{
 		//if($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 		if($sql){
 			$sql = 'SELECT COUNT(o.occid) as cnt '.$sql;
-			//echo $sql; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retStr = $r->cnt;
@@ -292,6 +291,7 @@ class DwcArchiverCore extends Manager{
 					$taxaManager = new OccurrenceTaxaManager();
 					$taxaArr = array();
 					$taxaArr['taxa'] = implode(';',$condArr['EQUALS']);
+					if($field == 'family') $taxaArr['taxontype'] = 3;
 					$taxaManager->setTaxonRequestVariable($taxaArr);
 					$sqlFrag .= $taxaManager->getTaxonWhereFrag();
 				}

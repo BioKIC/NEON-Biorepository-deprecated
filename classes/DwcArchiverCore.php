@@ -1641,20 +1641,23 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
-		//$dwcOccurManager->setUpperTaxonomy();
-		$dwcOccurManager->setTaxonRank();
+		if($this->schemaType != 'coge'){
+			//$dwcOccurManager->setUpperTaxonomy();
+			$dwcOccurManager->setTaxonRank();
 
-		$materialSampleHandler = null;
-		if($this->includeMaterialSample){
-			$collid = key($this->collArr);
-			if(isset($this->collArr[$collid]['matSample'])){
-				$this->logOrEcho('Creating material sample extension file ('.date('h:i:s A').')... ');
-				$materialSampleHandler = new DwcArchiverMaterialSample($this->conn);
-				$materialSampleHandler->initiateProcess($this->targetPath.$this->ts.'-matSample'.$this->fileExt);
-				$materialSampleHandler->setSchemaType($this->schemaType);
-				$this->fieldArrMap['materialSample'] = $materialSampleHandler->getFieldArrTerms();
+			$materialSampleHandler = null;
+			if($this->includeMaterialSample){
+				$collid = key($this->collArr);
+				if(isset($this->collArr[$collid]['matSample'])){
+					$this->logOrEcho('Creating material sample extension file ('.date('h:i:s A').')... ');
+					$materialSampleHandler = new DwcArchiverMaterialSample($this->conn);
+					$materialSampleHandler->initiateProcess($this->targetPath.$this->ts.'-matSample'.$this->fileExt);
+					$materialSampleHandler->setSchemaType($this->schemaType);
+					$this->fieldArrMap['materialSample'] = $materialSampleHandler->getFieldArrTerms();
+				}
 			}
 		}
+
 		//echo $sql; exit;
 		if($rs = $this->dataConn->query($sql,MYSQLI_USE_RESULT)){
 			$this->setServerDomain();
@@ -1738,22 +1741,23 @@ class DwcArchiverCore extends Manager{
 				elseif($this->schemaType == 'backup') unset($r['collID']);
 
 				if($ocnStr = $dwcOccurManager->getAdditionalCatalogNumberStr($r['occid'])) $r['otherCatalogNumbers'] = $ocnStr;
-				if($exsArr = $dwcOccurManager->getExsiccateArr($r['occid'])){
-					$exsStr = $exsArr['exsStr'];
-					if(isset($r['occurrenceRemarks']) && $r['occurrenceRemarks']) $exsStr = $r['occurrenceRemarks'].'; '.$exsStr;
-					$r['occurrenceRemarks'] = $exsStr;
-					$dynProp = 'exsiccatae: '.$exsArr['exsJson'];
-					if(isset($r['dynamicProperties']) && $r['dynamicProperties']) $dynProp = $r['dynamicProperties'].'; '.$dynProp;
-					$r['dynamicProperties'] = $dynProp;
+				if($this->schemaType != 'coge'){
+					if($exsArr = $dwcOccurManager->getExsiccateArr($r['occid'])){
+						$exsStr = $exsArr['exsStr'];
+						if(isset($r['occurrenceRemarks']) && $r['occurrenceRemarks']) $exsStr = $r['occurrenceRemarks'].'; '.$exsStr;
+						$r['occurrenceRemarks'] = $exsStr;
+						$dynProp = 'exsiccatae: '.$exsArr['exsJson'];
+						if(isset($r['dynamicProperties']) && $r['dynamicProperties']) $dynProp = $r['dynamicProperties'].'; '.$dynProp;
+						$r['dynamicProperties'] = $dynProp;
+					}
+					if($assocOccurStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocOccurStr;
+					if($assocSeqStr = $dwcOccurManager->getAssociatedSequencesStr($r['occid'])) $r['t_associatedSequences'] = $assocSeqStr;
+					if($assocTaxa = $dwcOccurManager->getAssocTaxa($r['occid'])) $r['associatedTaxa'] = $assocTaxa;
 				}
-				if($assocOccurStr = $dwcOccurManager->getAssociationStr($r['occid'])) $r['t_associatedOccurrences'] = $assocOccurStr;
-				if($assocSeqStr = $dwcOccurManager->getAssociatedSequencesStr($r['occid'])) $r['t_associatedSequences'] = $assocSeqStr;
-				if($assocTaxa = $dwcOccurManager->getAssocTaxa($r['occid'])) $r['associatedTaxa'] = $assocTaxa;
 				//$dwcOccurManager->appendUpperTaxonomy($r);
 				$dwcOccurManager->appendUpperTaxonomy2($r);
 				if($rankStr = $dwcOccurManager->getTaxonRank($r['rankid'])) $r['t_taxonRank'] = $rankStr;
 				unset($r['rankid']);
-
 				$this->encodeArr($r);
 				$this->addcslashesArr($r);
 				$this->writeOutRecord($fh,$r);

@@ -31,7 +31,7 @@ if($IS_ADMIN || (array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid
 		?>
 		<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 		<script src="../../js/symb/shared.js" type="text/javascript"></script>
-		<script src="../../js/symb/geolocate.js?ver=2a" type="text/javascript"></script>
+		<script src="../../js/symb/geolocate.js?ver=2d" type="text/javascript"></script>
 	</head>
 	<body>
 		<!-- This is inner text! -->
@@ -148,7 +148,7 @@ if($IS_ADMIN || (array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid
 											<div>
 												<b><?php echo $LANG['COGE_AUTH']; ?>:</b>
 												<span id="coge-status" style="width:150px;color:red;"><?php echo $LANG['DISCONNECTED']; ?></span>
-												<span style="margin-left:40px"><button name="cogeCheckStatusButton" value="Check Status" onclick="cogeCheckAuthentication()"><?php echo $LANG['CHECK_STATUS']; ?></button></span>
+												<span style="margin-left:40px"><button name="cogeCheckStatusButton" type="button" value="Check Status" onclick="cogeCheckAuthentication()"><?php echo $LANG['CHECK_STATUS']; ?></button></span>
 												<span style="margin-left:40px"><a href="http://coge.geo-locate.org" target="_blank" onclick="startAuthMonitoring()"><?php echo $LANG['LOGIN_COGE']; ?></a></span>
 											</div>
 										</fieldset>
@@ -178,7 +178,7 @@ if($IS_ADMIN || (array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid
 											<input name="format" type="hidden" value="csv" />
 											<input name="schema" type="hidden" value="coge" />
 											<div style="margin:5px">
-												<button id="builddwcabutton" name="builddwcabutton" value="Push Data to GeoLocate CoGe" onclick="cogePublishDwca(this.form)" disabled ><?php echo $LANG['PUSH_DATA']; ?></button>
+												<button id="builddwcabutton" name="builddwcabutton" type="button" value="Push Data to GeoLocate CoGe" onclick="cogePublishDwca(this.form)" disabled><?php echo $LANG['PUSH_DATA']; ?></button>
 												<span id="coge-download" style="display:none;color:orange"><?php echo $LANG['CREATING_PACKAGE']; ?>... <img src="../../images/workingcircle.gif" style="width:13px;" /></span>
 												<span id="coge-push2coge" style="display:none;color:orange"><?php echo $LANG['PUSHING_TO_COGE']; ?>... <img src="../../images/workingcircle.gif" style="width:13px;" /></span>
 												<span id="coge-importcomplete" style="display:none;color:green">

@@ -5,7 +5,7 @@ header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Content-Type: text/html; charset='.$CHARSET);
 
-$collid = $_REQUEST['collid'];
+$collid = $_POST['collid'];
 $archiveFile = '';
 $retArr = array();
 if($collid && is_numeric($collid)){
@@ -15,7 +15,7 @@ if($collid && is_numeric($collid)){
 	}
 
 	if($isEditor){
-		$processingStatus = array_key_exists('ps',$_REQUEST)?$_REQUEST['ps']:'';
+		$processingStatus = array_key_exists('ps',$_POST)?$_POST['ps']:'';
 
 		$dwcaHandler = new DwcArchiverCore();
 		$dwcaHandler->setCollArr($collid);
@@ -29,8 +29,6 @@ if($collid && is_numeric($collid)){
 		$dwcaHandler->setIncludeImgs(0);
 		$dwcaHandler->setIncludeAttributes(0);
 		$dwcaHandler->setOverrideConditionLimit(true);
-		$dwcaHandler->addCondition('decimallatitude','NULL');
-		$dwcaHandler->addCondition('decimallongitude','NULL');
 		$dwcaHandler->addCondition('catalognumber','NOTNULL');
 		$dwcaHandler->addCondition('locality','NOTNULL');
 		if($processingStatus) $dwcaHandler->addCondition('processingstatus','EQUALS',$processingStatus);
@@ -53,7 +51,7 @@ if($collid && is_numeric($collid)){
 		$dwcaHandler->setTargetPath($tPath);
 		$cnt = $dwcaHandler->getOccurrenceCnt();
 		$fileName = 'CoGe'.'_'.time();
-		$path = $dwcaHandler->createDwcArchive($fileName);
+		$dwcaHandler->createDwcArchive($fileName);
 
 		//Set URL path to file
 		$urlPath = $dwcaHandler->getServerDomain().$CLIENT_ROOT;
@@ -62,14 +60,19 @@ if($collid && is_numeric($collid)){
 
 		if($cnt){
 			if((@fclose(@fopen($urlPath,'r')))){
+				$retArr['result']['status'] = 'SUCCESS';
 				$retArr['result']['cnt'] = $cnt;
 				$retArr['result']['path'] = $urlPath;
 			}
 			else{
-				$retArr['result'] = 'ERROR: File does not exist';
+				$retArr['result']['status'] = 'ERROR';
+				$retArr['result']['message'] = 'ERROR: File does not exist';
 			}
 		}
-		else $retArr['result'] = 'ERROR: Zero records returned';
+		else{
+			$retArr['result']['status'] = 'ERROR';
+			$retArr['result']['message'] = 'ERROR: Zero records returned';
+		}
 	}
 }
 echo json_encode($retArr)

@@ -76,6 +76,9 @@ function cogePublishDwca(f){
 			cf2: f.customfield2.value, 
 			ct2: f.customtype2.value,
 			cv2: f.customvalue2.value,
+			cf3: f.customfield3.value, 
+			ct3: f.customtype3.value,
+			cv3: f.customvalue3.value,
 			cogecomm: f.cogecomm.value,
 			cogename: f.cogename.value,
 			cogedescr: f.cogedescr.value
@@ -110,11 +113,18 @@ function cogeUpdateCount(formObj){
 	}
 	if(objName == "customtype2" || objName == "customvalue2"){
 		if(f.customfield2.value == '') return false;
-		if(f.customtype2.value == "EQUALS" || f.customtype2.value == "STARTS" || f.customtype2.value == "LIKE" || f.customtype1.value == "NOTLIKE" || f.customtype1.value == "CONTAINS"){
+		if(f.customtype2.value == "EQUALS" || f.customtype2.value == "STARTS" || f.customtype2.value == "LIKE" || f.customtype2.value == "NOTLIKE" || f.customtype2.value == "CONTAINS"){
 			if(objName == "customtype2" && f.customvalue2.value == '') return false;
 		}
 	}
+	if(objName == "customtype3" || objName == "customvalue3"){
+		if(f.customfield3.value == '') return false;
+		if(f.customtype3.value == "EQUALS" || f.customtype3.value == "STARTS" || f.customtype3.value == "LIKE" || f.customtype3.value == "NOTLIKE" || f.customtype3.value == "CONTAINS"){
+			if(objName == "customtype3" && f.customvalue3.value == '') return false;
+		}
+	}
 	$("#recalspan").show();
+	//alert("rpc/coge_getCount.php?collid="+f.collid.value+"&ps="+f.processingstatus.value+"&cf1="+f.customfield1.value+"&ct1="+f.customtype1.value+"&cv1="+f.customvalue1.value+"&cf2="+f.customfield2.value+"&ct2="+f.customtype2.value+"&cv2="+f.customvalue2.value+"&cf3="+f.customfield3.value+"&ct3="+f.customtype3.value+"&cv3="+f.customvalue3.value);
 	$.ajax({
 		type: "POST",
 		url: "rpc/coge_getCount.php",
@@ -127,7 +137,10 @@ function cogeUpdateCount(formObj){
 			cv1: f.customvalue1.value,
 			cf2: f.customfield2.value, 
 			ct2: f.customtype2.value,
-			cv2: f.customvalue2.value
+			cv2: f.customvalue2.value,
+			cf3: f.customfield3.value, 
+			ct3: f.customtype3.value,
+			cv3: f.customvalue3.value
 		}
 	}).done(function( response ) {
 		if(response == 0) f.builddwcabutton.disalbed = true;

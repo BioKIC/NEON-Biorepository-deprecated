@@ -61,6 +61,12 @@ function cogePublishDwca(f){
 		alert("You must enter a data source identifier");
 		return false;
 	}
+	/*
+	var rpcCall = "rpc/coge_build_dwca.php?collid="+f.collid.value+"&ps="+f.processingstatus.value+"&cf1="+f.customfield1.value+"&ct1="+f.customtype1.value+"&cv1="+f.customvalue1.value;
+	rpcCall = rpcCall + "&cf2="+f.customfield2.value+"&ct2="+f.customtype2.value+"&cv2="+f.customvalue2.value+"&cf3="+f.customfield3.value+"&ct3="+f.customtype3.value+"&cv3="+f.customvalue3.value;
+	rpcCall = rpcCall + "&cogecomm="+f.cogecomm.value+"&cogename="+f.cogename.value+"&cogedescr="+f.cogedescr.value;
+	alert(rpcCall);
+	*/
 	$("#builddwcabutton").prop("disabled",true);
 	$("#coge-download").show();
 	$.ajax({
@@ -86,8 +92,8 @@ function cogePublishDwca(f){
 	}).done(function( response ) {
 		var result = response.result;
 		$("#coge-download").hide();
-		if(result == "ERROR"){
-			alert(result);
+		if(result.status == "ERROR"){
+			alert(result.message);
 		}
 		else{
 			var dwcaPath =  result.path;
@@ -165,7 +171,7 @@ function cogeSubmitData(dwcaPath){
 		if(dataSourceGuid){
 			$("#coge-push2coge").hide();
 			$("#coge-guid").html("<u>Dataset identifier</u>: " + dataSourceGuid);
-			window.setTimeout(cogeCheckStatus(dataSourceGuid),2000);
+			window.setTimeout(cogeCheckStatus(dataSourceGuid),3000);
 		}
 	});
 }		
@@ -206,7 +212,7 @@ function cogeCheckStatus(id){
 			}
 			else if(iStatus == "retrieval" || iStatus == "extraction" || iStatus == "discovery" || iStatus == "datasource_creation"){
 				//Import is still processing
-				window.setTimeout(cogeCheckStatus(id),2000);
+				window.setTimeout(cogeCheckStatus(id),3000);
 			}
 			else{
 				alert(iStatus);

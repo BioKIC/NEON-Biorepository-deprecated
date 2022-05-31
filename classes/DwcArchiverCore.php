@@ -1641,11 +1641,11 @@ class DwcArchiverCore extends Manager{
 			if($collidStr) $this->setCollArr(trim($collidStr,','));
 		}
 
+		$materialSampleHandler = null;
 		if($this->schemaType != 'coge'){
 			//$dwcOccurManager->setUpperTaxonomy();
 			$dwcOccurManager->setTaxonRank();
 
-			$materialSampleHandler = null;
 			if($this->includeMaterialSample){
 				$collid = key($this->collArr);
 				if(isset($this->collArr[$collid]['matSample'])){

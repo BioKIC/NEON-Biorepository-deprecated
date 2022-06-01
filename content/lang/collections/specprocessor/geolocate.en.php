@@ -29,13 +29,13 @@ $LANG['DESCRIPTION'] = 'Description';
 $LANG['PUSH_DATA'] = 'Push Data to GeoLocate CoGe';
 $LANG['CREATING_PACKAGE'] = 'Creating data package';
 $LANG['PUSHING_TO_COGE'] = 'Pushing data to CoGe';
-$LANG['SUCCESS_GEOLOCATE'] = 'Success! GeoLocate action required (see message below)';
+$LANG['SUCCESS_GEOLOCATE'] = 'Success! GeoLocate action required';
 $LANG['DATA_IMPORT_COMPLETE'] = 'Data import complete! Go to GeoLocate website and open dataset within selected community, then click Update Cache
 	button to index and integrate data into community. After processing step completes, remember to finalize the import process by clicking the save button.';
 $LANG['DOWNLOAD_LOCALLY'] = 'Download Records Locally';
 $LANG['RESET_PAGE'] = 'Reset Page';
 $LANG['REVIEW_APPROVE_EDITS'] = 'Review and Approve Edits';
-$LANG['DEFAULT_QUERY'] = 'Default query criteria: catalogNumber and locality are NOT NULL, decimalLatitude is NULL, decimalLongitude is NULL';
+$LANG['DEFAULT_QUERY'] = 'Default query criteria: catalogNumber and locality are NOT NULL';
 $LANG['ACCESS_DENIED'] = 'Access denied';
 
 ?>

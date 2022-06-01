@@ -525,6 +525,9 @@ ALTER TABLE `omoccuredits`
 ALTER TABLE `omoccuredits` 
   ADD CONSTRAINT `fk_omoccuredits_uid`  FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
 
+ALTER TABLE `omoccuredits` 
+  ADD INDEX `IX_omoccuredits_timestamp` (`initialtimestamp` ASC);
+
 #Material Sample schema developments
 CREATE TABLE `ommaterialsample` (
   `matSampleID` INT UNSIGNED NOT NULL AUTO_INCREMENT,

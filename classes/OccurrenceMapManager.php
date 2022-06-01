@@ -65,29 +65,30 @@ class OccurrenceMapManager extends OccurrenceManager {
 			//echo "<div>SQL: ".$sql."</div>"; exit;
 			$result = $this->conn->query($sql);
 			$color = 'e69e67';
+			$occidArr = array();
 			while($row = $result->fetch_object()){
 				if(($row->DecimalLongitude <= 180 && $row->DecimalLongitude >= -180) && ($row->DecimalLatitude <= 90 && $row->DecimalLatitude >= -90)){
-					$occId = $row->occid;
+					$occidArr[] = $row->occid;
 					$collName = $row->CollectionName;
 					$tidInterpreted = $this->htmlEntities($row->tidinterpreted);
 					$latLngStr = $row->DecimalLatitude.",".$row->DecimalLongitude;
-					$coordArr[$collName][$occId]["llStr"] = $latLngStr;
-					$coordArr[$collName][$occId]["collid"] = $this->htmlEntities($row->collid);
+					$coordArr[$collName][$row->occid]["llStr"] = $latLngStr;
+					$coordArr[$collName][$row->occid]["collid"] = $this->htmlEntities($row->collid);
 					//$tidcode = strtolower(str_replace(" ", "",$tidInterpreted.$row->sciname));
 					//$tidcode = preg_replace( "/[^A-Za-z0-9 ]/","",$tidcode);
 					//$coordArr[$collName][$occId]["ns"] = $this->htmlEntities($tidcode);
-					$coordArr[$collName][$occId]["tid"] = $tidInterpreted;
-					$coordArr[$collName][$occId]["fam"] = ($row->family?strtoupper($row->family):'undefined');
-					$coordArr[$collName][$occId]["sn"] = $row->sciname;
-					$coordArr[$collName][$occId]["id"] = $this->htmlEntities($row->identifier);
+					$coordArr[$collName][$row->occid]["tid"] = $tidInterpreted;
+					$coordArr[$collName][$row->occid]["fam"] = ($row->family?strtoupper($row->family):'undefined');
+					$coordArr[$collName][$row->occid]["sn"] = $row->sciname;
+					$coordArr[$collName][$row->occid]["id"] = $this->htmlEntities($row->identifier);
 					//$coordArr[$collName][$occId]["icode"] = $this->htmlEntities($row->institutioncode);
 					//$coordArr[$collName][$occId]["ccode"] = $this->htmlEntities($row->collectioncode);
 					//$coordArr[$collName][$occId]["cn"] = $this->htmlEntities($row->catalognumber);
 					//$coordArr[$collName][$occId]["ocn"] = $this->htmlEntities($row->othercatalognumbers);
 					$coordArr[$collName]["c"] = $color;
-					$statsManager->recordAccessEvent($occId, 'map');
 				}
 			}
+			$statsManager->recordAccessEventByArr($occidArr, 'map');
 			if(array_key_exists("undefined",$coordArr)){
 				$coordArr["undefined"]["c"] = $color;
 			}
@@ -117,6 +118,7 @@ class OccurrenceMapManager extends OccurrenceManager {
 			if(is_numeric($start) && $recLimit && is_numeric($recLimit)) $sql .= "LIMIT ".$start.",".$recLimit;
 			//echo "<div>SQL: ".$sql."</div>";
 			$rs = $this->conn->query($sql);
+			$occidArr = array();
 			while($r = $rs->fetch_assoc()){
 				if(($r['decimallongitude'] <= 180 && $r['decimallongitude'] >= -180) && ($r['decimallatitude'] <= 90 && $r['decimallatitude'] >= -90)){
 					$sciname = $r['sciname'];
@@ -138,9 +140,11 @@ class OccurrenceMapManager extends OccurrenceManager {
 							if(isset($r[$fieldName])) $coordArr[$sciname][$r['occid']][$fieldName] = $r[$fieldName];
 						}
 					}
+					$occidArr[] = $r['occid'];
 				}
 			}
 			$rs->free();
+			$statsManager->recordAccessEventByArr($occidArr, 'map');
 		}
 		return $coordArr;
 	}
@@ -353,7 +357,6 @@ class OccurrenceMapManager extends OccurrenceManager {
 				'paddle/red-circle','paddle/purple-circle','paddle/blu-square','paddle/grn-square','paddle/ltblu-square','paddle/pink-square',
 				'paddle/ylw-square','paddle/wht-square','paddle/red-square','paddle/purple-square','paddle/blu-stars','paddle/grn-stars',
 				'paddle/ltblu-stars','paddle/pink-stars','paddle/ylw-stars','paddle/wht-stars','paddle/red-stars','paddle/purple-stars');
-			$statsManager = new OccurrenceAccessStats();
 			$color = 'e69e67';
 			foreach($coordArr as $sciname => $snArr){
 				unset($snArr['tid']);

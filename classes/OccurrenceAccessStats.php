@@ -25,11 +25,13 @@ class OccurrenceAccessStats extends Manager{
 
 	public function recordAccessEventByArr($occidArr, $accessType){
 		$status = true;
-		if($occurAccessID = $this->insertAccessEvent($accessType, 'occid IN('.implode(',', $occidArr).')')){
-			foreach($occidArr as $occid){
-				if(is_numeric($occid)){
-					if(!$this->insertAccessOccurrence($occurAccessID, $occid)){
-						$status = false;
+		if(isset($GLOBALS['RECORD_STATS'])){
+			if($occurAccessID = $this->insertAccessEvent($accessType, 'occid IN('.implode(',', $occidArr).')')){
+				foreach($occidArr as $occid){
+					if(is_numeric($occid)){
+						if(!$this->insertAccessOccurrence($occurAccessID, $occid)){
+							$status = false;
+						}
 					}
 				}
 			}

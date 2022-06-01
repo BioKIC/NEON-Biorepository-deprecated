@@ -31,7 +31,7 @@ if($IS_ADMIN || (array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid
 		?>
 		<script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 		<script src="../../js/symb/shared.js" type="text/javascript"></script>
-		<script src="../../js/symb/geolocate.js?ver=2d" type="text/javascript"></script>
+		<script src="../../js/symb/geolocate.js?ver=2e" type="text/javascript"></script>
 	</head>
 	<body>
 		<!-- This is inner text! -->

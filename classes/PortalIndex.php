@@ -4,6 +4,7 @@ include_once ($SERVER_ROOT . '/classes/OmCollections.php');
 class PortalIndex extends OmCollections{
 
 	private $portalID;
+	private $returnHeader = array();
 
 	function __construct(){
 		parent::__construct('write');
@@ -11,6 +12,16 @@ class PortalIndex extends OmCollections{
 
 	function __destruct(){
 		parent::__destruct();
+	}
+
+	public function getSelfDetails(){
+		$retArr = null;
+		$retArr['portalName'] = $GLOBALS['DEFAULT_TITLE'];
+		$retArr['guid'] = $GLOBALS['PORTAL_GUID'];
+		$retArr['urlRoot'] = $this->getDomainPath().$GLOBALS['CLIENT_ROOT'];
+		$retArr['managerEmail'] = $GLOBALS['ADMIN_EMAIL'];
+		$retArr['symbiotaVersion'] = $GLOBALS['CODE_VERSION'];
+		return $retArr;
 	}
 
 	public function getPortalIndexArr($portalID){
@@ -69,6 +80,20 @@ class PortalIndex extends OmCollections{
 		return $retArr;
 	}
 
+	public function getRemoteCollectionByID($urlRoot, $id){
+		$retArr = array();
+		//Get collection identifier
+		$url = $urlRoot.'/api/v2/occurrence/'.$id;
+		$occurArr = $this->getAPIResponce($url);
+		//Get collection metadata
+		if(isset($occurArr['collID'])){
+			$url = $urlRoot.'/api/v2/collection/'.$occurArr['collID'];
+			$retArr = $this->getAPIResponce($url);
+			if(!$retArr) return false;
+		}
+		return $retArr;
+	}
+
 	public function getDataImportProfile($collid){
 		$retArr = array();
 		if(is_numeric($collid)){
@@ -86,6 +111,30 @@ class PortalIndex extends OmCollections{
 		return $retArr;
 	}
 
+	public function initiateHandshake($remotePath){
+		$respArr = false;
+		if($remotePath){
+			if(substr($remotePath,-9) == 'index.php') $remotePath = substr($remotePath, 0, strlen($remotePath)-9);
+			if(substr($remotePath,-1) != '/') $remotePath .= '/';
+			//https://midwestherbaria.org/portal/api/v2/installation/518a57c3-98ce-4977-bb1c-e9eb39d45732/touch?endpoint=https://panamabiota.org/stri
+			//Handshake from remote to local
+			//$self = $this->getSelfDetails();
+			//$handShakeUrl = $remotePath.'api/v2/installation/'.$self['guid'].'/touch?endpoint='.$self['urlRoot'];
+			//Handshake from local to remote
+			$pingUrl = $remotePath.'api/v2/installation/ping';
+			$remoteArr = $this->getAPIResponce($pingUrl);
+			if($remoteArr){
+				$handShakeUrl = $this->getDomainPath().$GLOBALS['CLIENT_ROOT'].'/api/v2/installation/'.$remoteArr['guid'].'/touch?endpoint='.$remoteArr['urlRoot'];
+				//echo '<div>Handshake URL: '.$handShakeUrl.'</div>';
+				$respArr = $this->getAPIResponce($handShakeUrl);
+			}
+			else{
+				$this->errorMessage = 'Unable to connect to remote portal (url: '.$pingUrl.')';
+			}
+		}
+		return $respArr;
+	}
+
 	public function importProfile($portalID, $remoteID){
 		$portal = $this->getPortalIndexArr($portalID);
 		$url = $portal[$portalID]['urlRoot'].'/api/v2/collection/'.$remoteID;
@@ -100,8 +149,10 @@ class PortalIndex extends OmCollections{
 		$collArr = array_intersect_key($collArr, array_flip($targetFieldArr));
 		$collArr['managementType'] = 'Snapshot';
 		$collArr['guidTarget'] = 'occurrenceId';
-		$parse = parse_url($portal[$portalID]['urlRoot']);
-		$collArr['icon'] = $parse['host'].$collArr['icon'];
+		if(substr($collArr['icon'],0,1) == '/'){
+			$parse = parse_url($portal[$portalID]['urlRoot']);
+			$collArr['icon'] = $parse['host'].$collArr['icon'];
+		}
 		$uploadType = 13;
 		$queryStr = null;
 		$endpointPublic = 1;
@@ -120,7 +171,7 @@ class PortalIndex extends OmCollections{
 	}
 
 	private function getAPIResponce($url, $asyc = false){
-		$resJson = false;
+		$status = false;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -129,13 +180,23 @@ class PortalIndex extends OmCollections{
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		if($asyc) curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);
 		$resJson = curl_exec($ch);
-		if(!$resJson){
-			$this->errorMessage = 'FATAL CURL ERROR: '.curl_error($ch).' (#'.curl_errno($ch).')';
-			return false;
-			//$header = curl_getinfo($ch);
-		}
+		$this->returnHeader = curl_getinfo($ch);
+		if($this->returnHeader['http_code'] == '200') $status = true;
+		elseif($this->returnHeader['http_code'] == '404') $this->errorMessage = '404 ULR Not Found';
+		else $this->errorMessage = 'http code '.$this->returnHeader['http_code'];
 		curl_close($ch);
-		return json_decode($resJson,true);
+		if($status) return json_decode($resJson, true);
+		return false;
+	}
+
+	//Temporary code needed to test
+	private function moduleIsActive(){
+		$isActive = false;
+		if($rs = $this->conn->query('SHOW TABLES LIKE "portalindex"')){
+			if($rs->num_rows) $isActive = true;
+			$rs->free();
+		}
+		return $isActive;
 	}
 
 	// Setters and getters

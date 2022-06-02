@@ -197,6 +197,7 @@ if($IS_ADMIN) $isEditor = 1;
 						}
 						echo '<hr/>';
 					}
+					if(!$indexArr) echo '<div>Portal Index empty. No portals have yet been registered.</div>';
 					?>
 				</fieldset>
 				<?php

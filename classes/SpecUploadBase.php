@@ -35,7 +35,6 @@ class SpecUploadBase extends SpecUpload{
 	private $targetCharset = 'UTF-8';
 	private $imgFormatDefault = '';
 	private $sourceDatabaseType = '';
-	protected $sourcePortalIndex = 0;
 	private $dbpkCnt = 0;
 
 	function __construct() {
@@ -543,12 +542,8 @@ class SpecUploadBase extends SpecUpload{
 				$this->cleanUpload();
 			}
 		}
-		if($finalTransfer){
-			$this->finalTransfer();
-		}
-		else{
-			$this->outputMsg('<li>Record upload complete, ready for final transfer and activation</li>');
-		}
+		if($finalTransfer) $this->finalTransfer();
+		else $this->outputMsg('<li>Record upload complete, ready for final transfer and activation</li>');
 	}
 
 	protected function cleanUpload(){
@@ -817,19 +812,17 @@ class SpecUploadBase extends SpecUpload{
 	}
 
 	public function finalTransfer(){
-		global $QUICK_HOST_ENTRY_IS_ACTIVE;
 		$this->recordCleaningStage2();
 		$this->transferOccurrences();
 		$this->transferIdentificationHistory();
 		$this->transferImages();
-		if($QUICK_HOST_ENTRY_IS_ACTIVE) $this->transferHostAssociations();
-		$this->crossMapSymbiotaOccurrences();
+		if($GLOBALS['QUICK_HOST_ENTRY_IS_ACTIVE']) $this->transferHostAssociations();
 		$this->finalCleanup();
 		$this->outputMsg('<li style="">Upload Procedure Complete ('.date('Y-m-d h:i:s A').')!</li>');
 		$this->outputMsg(' ');
 	}
 
-	private function recordCleaningStage2(){
+	protected function recordCleaningStage2(){
 		$this->outputMsg('<li>Starting Stage 2 cleaning</li>');
 		if($this->uploadType == $this->NFNUPLOAD){
 			//Remove specimens without links back to source
@@ -1408,16 +1401,6 @@ class SpecUploadBase extends SpecUpload{
 			}
 		}
 		$rs->free();
-	}
-
-	private function crossMapSymbiotaOccurrences(){
-		if($this->sourcePortalIndex && $this->collMetadataArr['managementtype'] == 'Snapshot'){
-			$sql = 'INSERT INTO portaloccurrences(occid, targetOccid, portalID, refreshTimestamp)
-				SELECT u.occid, u.dbpk, '.$this->sourcePortalIndex.', NOW() FROM uploadspectemp u LEFT JOIN portaloccurrences l ON u.occid = l.occid
-				WHERE u.occid IS NOT NULL AND u.dbpk IS NOT NULL AND u.collid = '.$this->collId.' AND l.occid IS NULL';
-			if($this->conn->query($sql)) $this->outputMsg('<li>Occurrences cross-mapped to Symbiota source portal</li> ');
-			//else $this->outputMsg('<li>ERROR linking occurrences to source portal: '.$this->conn->error.'</li> ');
-		}
 	}
 
 	protected function finalCleanup(){
@@ -2001,14 +1984,6 @@ class SpecUploadBase extends SpecUpload{
 		}
 		asort($retArr);
 		return $retArr;
-	}
-
-	public function setSourcePortalIndex($index){
-		if($index) $this->sourcePortalIndex = $index;
-	}
-
-	public function getSourcePortalIndex(){
-		return $this->sourcePortalIndex;
 	}
 
 	//Misc functions

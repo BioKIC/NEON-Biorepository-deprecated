@@ -69,6 +69,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType ==
 			$duManager->addFilterCondition($_POST['filter'.$i], $_POST['condition'.$i], $_POST['value'.$i]);
 		}
 	}
+	$duManager->setSourcePortalIndex($sourceIndex);
 }
 
 $duManager->setCollId($collid);
@@ -79,7 +80,6 @@ $duManager->setMatchCatalogNumber($matchCatNum);
 $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
-$duManager->setSourcePortalIndex($sourceIndex);
 
 $isEditor = 0;
 if($IS_ADMIN) $isEditor = 1;

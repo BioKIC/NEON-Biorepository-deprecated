@@ -59,8 +59,11 @@ if($IS_ADMIN) $isEditor = 1;
 		</div>
 		<div id="innertext">
 			<?php
-			if($isEditor){
-				if($formSubmit){
+			if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])){
+				echo 'This feature has not yet been activated within this portal';
+			}
+			elseif($isEditor){
+				if($formSubmit && $formSubmit != 'listCollections'){
 					echo '<fieldset>';
 					echo '<legend>Action Panel</legend>';
 					if($formSubmit == 'importProfile'){
@@ -78,20 +81,27 @@ if($IS_ADMIN) $isEditor = 1;
 					echo '</fieldset>';
 				}
 				$selfArr = $portalManager->getSelfDetails();
+				if($formSubmit != 'listCollections'){
+					?>
+					<fieldset>
+						<legend>Current Portal Details</legend>
+						<div class="field-row"><label>Portal title:</label> <?php echo $selfArr['portalName']; ?></div>
+						<div class="field-row"><label>Root URL:</label> <?php echo $selfArr['urlRoot']; ?></div>
+						<div class="field-row"><label>Global Unique Identifier:</label> <?php echo $selfArr['guid']; ?></div>
+						<div class="field-row"><label>Manager email:</label> <?php echo $selfArr['managerEmail']; ?></div>
+						<div class="field-row"><label>Software version:</label> <?php echo $selfArr['symbiotaVersion']; ?></div>
+						<hr />
+						<div class="handshake-div"><a href="#" onclick="$('.handshake-div').toggle(); return false;">Initiate Handshake with External Portal</a></div>
+						<div class="handshake-div" style="display:none">
+							<form action="portalindex.php" method="post" onsubmit="return validateHandshakeForm(this)">
+								<div class="field-row"><label>Path to Remote Portal:</label> <input name="remotePath" type="text" value="<?php echo $remotePath; ?>" style="width: 500px" /></div>
+								<div class="field-row"><button name="formsubmit" type="submit" value="initiateHandshake">Initiate Handshake</button></div>
+							</form>
+						</div>
+					</fieldset>
+					<?php
+				}
 				?>
-				<fieldset>
-					<legend>Current Portal Details</legend>
-					<div class="field-row"><label>Portal title:</label> <?php echo $selfArr['portalName']; ?></div>
-					<div class="field-row"><label>Root URL:</label> <?php echo $selfArr['urlRoot']; ?></div>
-					<div class="field-row"><label>Global Unique Identifier:</label> <?php echo $selfArr['guid']; ?></div>
-					<div class="field-row"><label>Manager email:</label> <?php echo $selfArr['managerEmail']; ?></div>
-					<div class="field-row"><label>Software version:</label> <?php echo $selfArr['symbiotaVersion']; ?></div>
-					<hr />
-					<form action="portalindex.php" method="post" onsubmit="return validateHandshakeForm(this)">
-						<div class="field-row"><label>Path to Remote Portal:</label> <input name="remotePath" type="text" value="<?php echo $remotePath; ?>" style="width: 500px" /></div>
-						<div class="field-row"><button name="formsubmit" type="submit" value="initiateHandshake">Initiate Handshake</button></div>
-					</form>
-				</fieldset>
 				<fieldset>
 					<legend>Portal Index</legend>
 					<?php

@@ -196,12 +196,15 @@ class InstallationController extends Controller{
 								foreach($remoteInstallationArr['results'] as $portal){
 									if(PortalIndex::where('guid',$portal['guid'])->count()) $currentRegistered++;
 									elseif($portal['guid'] != $_ENV['PORTAL_GUID']){
-										//Add remote
-										PortalIndex::create($portal);
-										//Touch remote installation but don't wait for a response because propagation across a large network can take awhile
-										$urlTouch = $portal['urlRoot'].'/api/v2/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
-										$this->getAPIResponce($urlTouch, true);
-										$newRegistration++;
+										//If remote exists, add by retriving info directly from source
+										$remotePing = $portal['urlRoot'].'/api/v2/installation/ping';
+										if($newRemote = $this->getAPIResponce($remotePing)){
+											PortalIndex::create($newRemote);
+											//Touch remote installation but don't wait for a response because propagation across a large network can take awhile
+											$urlTouch = $portal['urlRoot'].'/api/v2/installation/'.$_ENV['PORTAL_GUID'].'/touch?endpoint='.htmlentities($this->getServerDomain().$_ENV['CLIENT_ROOT']);
+											$this->getAPIResponce($urlTouch, true);
+											$newRegistration++;
+										}
 									}
 								}
 								$responseArr['Current registered remotes obtained from remote library'] = $currentRegistered;
@@ -306,6 +309,10 @@ class InstallationController extends Controller{
 
 	public function create(Request $request){
 		/*
+		$validated = $request->validate([
+			'portalName' => 'required|max:45',
+			'urlRoot' => 'required|max:150',
+		]);
 		$portalIndex = PortalIndex::create($request->all());
 
 		return response()->json($portalIndex, 201);

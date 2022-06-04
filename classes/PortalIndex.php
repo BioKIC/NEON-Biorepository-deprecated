@@ -3,6 +3,7 @@ include_once ($SERVER_ROOT . '/classes/OmCollections.php');
 
 class PortalIndex extends OmCollections{
 
+	private $publicationID;
 	private $portalID;
 	private $returnHeader = array();
 
@@ -15,6 +16,7 @@ class PortalIndex extends OmCollections{
 	}
 
 	public function getSelfDetails(){
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
 		$retArr = null;
 		$retArr['portalName'] = $GLOBALS['DEFAULT_TITLE'];
 		$retArr['guid'] = $GLOBALS['PORTAL_GUID'];
@@ -24,10 +26,14 @@ class PortalIndex extends OmCollections{
 		return $retArr;
 	}
 
-	public function getPortalIndexArr($portalID){
+	public function getPortalIndexArr($portalIdentifier){
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
 		$retArr = array();
 		$sql = 'SELECT portalID, portalName, acronym, portalDescription, urlRoot, securityKey, symbiotaVersion, guid, manager, managerEmail, primaryLead, primaryLeadEmail, notes, initialTimestamp FROM portalindex ';
-		if($portalID && is_numeric($portalID)) $sql .= 'WHERE portalID = '.$portalID;
+		if($portalIdentifier){
+			if(is_numeric($portalIdentifier)) $sql .= 'WHERE portalID = '.$portalIdentifier;
+			else $sql .= 'WHERE guid = "'.$portalIdentifier.'" ';
+		}
 		else $sql .= 'ORDER BY portalName';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_assoc()){
@@ -35,16 +41,19 @@ class PortalIndex extends OmCollections{
 		}
 		$rs->free();
 
-		$sql = 'SELECT portalID, count(*) as cnt FROM portaloccurrences WHERE portalID IN('.implode(',',array_keys($retArr)).') GROUP BY portalID';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->portalID]['occurCnt'] = $r->cnt;
+		if($retArr){
+			$sql = 'SELECT p.portalID, count(o.occid) as cnt FROM portaloccurrences o INNER JOIN portalpublications p ON o.pubid = p.pubid WHERE p.portalID IN('.implode(',',array_keys($retArr)).') GROUP BY p.portalID';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->portalID]['occurCnt'] = $r->cnt;
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retArr;
 	}
 
 	public function getCollectionList($urlRoot, $collID=''){
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
 		$retArr = array();
 		$url = $urlRoot.'/api/v2/collection/'.$collID;
 		$retArr = $this->getAPIResponce($url);
@@ -81,6 +90,7 @@ class PortalIndex extends OmCollections{
 	}
 
 	public function getRemoteCollectionByID($urlRoot, $id){
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
 		$retArr = array();
 		//Get collection identifier
 		$url = $urlRoot.'/api/v2/occurrence/'.$id;
@@ -95,6 +105,7 @@ class PortalIndex extends OmCollections{
 	}
 
 	public function getDataImportProfile($collid){
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
 		$retArr = array();
 		if(is_numeric($collid)){
 			$sql = 'SELECT title, uspid, path, internalQuery, queryStr, cleanUpSP FROM uploadspecparameters WHERE uploadType = 13 AND collid = '.$collid;
@@ -112,6 +123,7 @@ class PortalIndex extends OmCollections{
 	}
 
 	public function initiateHandshake($remotePath){
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
 		$respArr = false;
 		if($remotePath){
 			if(substr($remotePath,-9) == 'index.php') $remotePath = substr($remotePath, 0, strlen($remotePath)-9);
@@ -136,6 +148,7 @@ class PortalIndex extends OmCollections{
 	}
 
 	public function importProfile($portalID, $remoteID){
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
 		$portal = $this->getPortalIndexArr($portalID);
 		$url = $portal[$portalID]['urlRoot'].'/api/v2/collection/'.$remoteID;
 		$collArr = $this->getAPIResponce($url);
@@ -189,19 +202,87 @@ class PortalIndex extends OmCollections{
 		return false;
 	}
 
-	//Temporary code needed to test
-	private function moduleIsActive(){
-		$isActive = false;
-		if($rs = $this->conn->query('SHOW TABLES LIKE "portalindex"')){
-			if($rs->num_rows) $isActive = true;
-			$rs->free();
+	//Data write actions
+	public function createPortalPublication($inputArr){
+		$newPubIndex = 0;
+		if(!array_key_exists('pubTitle', $inputArr) || !$inputArr['pubTitle']){
+			$this->errorMessage = 'pubTitle is a required field';
+			return false;
 		}
-		return $isActive;
+		if(!array_key_exists('collid', $inputArr) || !$inputArr['collid']){
+			$this->errorMessage = 'collid is a required field';
+			return false;
+		}
+		if(!array_key_exists('portalID', $inputArr) || !$inputArr['portalID']){
+			$this->errorMessage = 'portalID is a required field';
+			return false;
+		}
+		if(!array_key_exists('direction', $inputArr) || !$inputArr['direction']){
+			$this->errorMessage = 'direction is a required field';
+			return false;
+		}
+		$portalID = $inputArr['portalID'];
+		if(!is_numeric($portalID)){
+			$portalArr = $this->getPortalIndexArr($portalID);
+			if($portalArr) $portalID = key($portalArr);
+			if(!is_numeric($portalID)){
+				$this->errorMessage = 'unable to tranlate portalID ('.$portalID.')';
+				return false;
+			}
+		}
+		$pubTitle = $inputArr['pubTitle'];
+		$collid = $inputArr['collid'];
+		$direction = $inputArr['direction'];
+		$description = isset($inputArr['description']) && $inputArr['description']?$inputArr['description']:NULL;
+		$criteriaJson = isset($inputArr['criteriaJson']) && $inputArr['criteriaJson']?$inputArr['criteriaJson']:NULL;
+		$includeDeterminations = isset($inputArr['includeDeterminations']) && is_numeric($inputArr['includeDeterminations'])?$inputArr['includeDeterminations']:1;
+		$includeImages = isset($inputArr['includeImages']) && is_numeric($inputArr['includeImages'])?$inputArr['includeImages']:1;
+		$autoUpdate = isset($inputArr['autoUpdate']) && is_numeric($inputArr['autoUpdate'])?$inputArr['autoUpdate']:0;
+		$lastDateUpdate = isset($inputArr['lastDateUpdate']) && $inputArr['lastDateUpdate']?$inputArr['lastDateUpdate']:null;
+		$updateInterval = isset($inputArr['updateInterval']) && $inputArr['updateInterval']?$inputArr['updateInterval']:null;
+		$createdUid = $GLOBALS['SYMB_UID'];
+		$sql = 'INSERT INTO portalpublications(pubTitle, description, collid, portalID, direction, criteriaJson, includeDeterminations, includeImages, autoUpdate, lastDateUpdate, updateInterval, createdUid)
+			VALUES(?,?,?,?,?,?,?,?,?,?,?,?)';
+		if($stmt = $this->conn->prepare($sql)) {
+			$stmt->bind_param('ssiissiiisii', $pubTitle, $description, $collid, $portalID, $direction, $criteriaJson, $includeDeterminations, $includeImages, $autoUpdate, $lastDateUpdate, $updateInterval, $createdUid);
+			$stmt->execute();
+			if($stmt->affected_rows){
+				$newPubIndex = $this->conn->insert_id;
+			}
+			else{
+				if($stmt->error) $this->warningArr[] = 'ERROR creating portalpublication profile: '.$this->conn->error;
+			}
+			$stmt->close();
+		}
+		return $newPubIndex;
+	}
+
+	public function crossMapUploadedOccurrences($pubid, $collid){
+		$status = false;
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
+		if(is_numeric($pubid) && is_numeric($collid)){
+			$sql = 'INSERT INTO portaloccurrences(occid, targetOccid, pubID, refreshTimestamp)
+				SELECT u.occid, u.dbpk, '.$pubid.', NOW()
+				FROM uploadspectemp u LEFT JOIN portaloccurrences l ON u.occid = l.occid
+				WHERE u.occid IS NOT NULL AND u.dbpk IS NOT NULL AND u.collid = '.$collid.' AND l.occid IS NULL';
+			if($this->conn->query($sql)){
+				$status = true;
+			}
+			else{
+				$status = false;
+				$this->errorMessage = 'ERROR creating mapping occurrence to a publishing instance';
+			}
+		}
+		return $status;
 	}
 
 	// Setters and getters
 	public function setPortalID($id){
 		$this->portalID = $id;
+	}
+
+	public function setPublicationID($id){
+		$this->publicationID = $id;
 	}
 }
 ?>

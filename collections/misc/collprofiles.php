@@ -416,6 +416,7 @@ if ($SYMB_UID) {
 					<?php
 					}
 				}
+				echo '<span class="label">Cite this collection:</span>';
 				include($SERVER_ROOT . '/includes/citationcoll.php');
 				if ($addrArr = $collManager->getAddress()) {
 					?>

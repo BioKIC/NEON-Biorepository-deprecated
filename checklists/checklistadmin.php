@@ -15,9 +15,17 @@ if(!$clid && isset($_POST['delclid'])) $clid = $_POST['delclid'];
 $clManager->setClid($clid);
 
 if($action == 'SubmitAdd'){
-	//Anyone with a login can create a checklist
-	$newClid = $clManager->createChecklist($_POST);
-	header('Location: checklist.php?clid='.$newClid);
+	
+	//Conform User Checklist permission 
+	if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USER_RIGHTS['ClAdmin'])) || (array_key_exists('ClPrivate',$USER_RIGHTS) && $_POST['access'] == 'private') || (array_key_exists('ClPublic',$USER_RIGHTS) && $_POST['access'] == 'public')){		
+		$newClid = $clManager->createChecklist($_POST);
+		header('Location: checklist.php?clid='.$newClid);
+	} 
+	
+	//If we made it here the user does not have any checklist roles. cancel further execution.
+	//TODO - error message in log or to user?
+	header("Location: $_SERVER[HTTP_REFERER]");
+
 }
 
 $statusStr = '';
@@ -27,6 +35,12 @@ if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USE
 
 	//Submit checklist MetaData edits
 	if($action == 'SubmitEdit'){
+
+		//confirm public Checklist permission, override access setting if role not granted 
+		if (!$IS_ADMIN && (!array_key_exists('ClPublic',$USER_RIGHTS) && $_POST['access'] == 'public')){
+			$_POST['access'] = 'private';
+		}
+		
 		$clManager->editMetaData($_POST);
 		header('Location: checklist.php?clid='.$clid.'&pid='.$pid);
 	}

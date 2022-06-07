@@ -416,6 +416,7 @@ if ($SYMB_UID) {
 					<?php
 					}
 				}
+				include($SERVER_ROOT . '/includes/citationcoll.php');
 				if ($addrArr = $collManager->getAddress()) {
 					?>
 					<div style="margin-top:5px;">

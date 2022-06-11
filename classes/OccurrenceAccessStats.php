@@ -65,28 +65,30 @@ class OccurrenceAccessStats extends Manager{
 		return $status;
 	}
 
-	private function insertAccessEvent($accessType, $queryStr){
+	public function insertAccessEvent($accessType, $queryStr){
 		$occurAccessID = false;
-		$remoteAddr = $_SERVER['REMOTE_ADDR'];
-		$userData = @get_browser();
-		if($userData) $userData = json_encode($userData);
-		else $userData = $_SERVER['HTTP_USER_AGENT'];
-		$sql = 'INSERT INTO omoccuraccess(ipAddress, accessType, queryStr, userAgent) VALUES(?, ?, ?, ?)';
-		$stmt = $this->conn->stmt_init();
-		$stmt->prepare($sql);
-		$stmt->bind_param('ssss', $remoteAddr, $accessType, $queryStr, $userData);
-		if($stmt->execute()){
-			$occurAccessID = $this->conn->insert_id;
+		if(isset($GLOBALS['RECORD_STATS'])){
+			$remoteAddr = $_SERVER['REMOTE_ADDR'];
+			$userData = @get_browser();
+			if($userData) $userData = json_encode($userData);
+			else $userData = $_SERVER['HTTP_USER_AGENT'];
+			$sql = 'INSERT INTO omoccuraccess(ipAddress, accessType, queryStr, userAgent) VALUES(?, ?, ?, ?)';
+			$stmt = $this->conn->stmt_init();
+			$stmt->prepare($sql);
+			$stmt->bind_param('ssss', $remoteAddr, $accessType, $queryStr, $userData);
+			if($stmt->execute()){
+				$occurAccessID = $this->conn->insert_id;
+			}
+			else{
+				$this->errorMessage = date('Y-m-d H:i:s').' - ERROR creating access event: '.$this->conn->error;
+				$this->logOrEcho($this->errorMessage);
+			}
+			$stmt->close();
 		}
-		else{
-			$this->errorMessage = date('Y-m-d H:i:s').' - ERROR creating access event: '.$this->conn->error;
-			$this->logOrEcho($this->errorMessage);
-		}
-		$stmt->close();
 		return $occurAccessID;
 	}
 
-	private function insertAccessOccurrence($occurAccessID, $occid){
+	public function insertAccessOccurrence($occurAccessID, $occid){
 		$status = false;
 		$sql = 'INSERT INTO omoccuraccesslink(occurAccessID, occid) VALUES(?, ?)';
 		$stmt = $this->conn->stmt_init();
@@ -104,7 +106,7 @@ class OccurrenceAccessStats extends Manager{
 	private function insertAccessOccurrenceBatch($occurAccessID, $sqlFrag){
 		$status = false;
 		if(is_numeric($occurAccessID)){
-			$sql = 'INSERT INTO omoccuraccessstats(occurAccessID, occid) SELECT '.$occurAccessID.', o.occid '.$sqlFrag;
+			$sql = 'INSERT INTO omoccuraccesslink(occurAccessID, occid) SELECT '.$occurAccessID.', o.occid '.$sqlFrag;
 			if($this->conn->query($sql)){
 				$status = true;
 			}

@@ -5,14 +5,15 @@ else include_once($SERVER_ROOT.'/content/lang/collections/list.en.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceListManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$taxonFilter = array_key_exists("taxonfilter",$_REQUEST)?$_REQUEST["taxonfilter"]:0;
-$targetTid = array_key_exists("targettid",$_REQUEST)?$_REQUEST["targettid"]:'';
-$tabIndex = array_key_exists("tabindex",$_REQUEST)?$_REQUEST["tabindex"]:1;
-$cntPerPage = array_key_exists("cntperpage",$_REQUEST)?$_REQUEST["cntperpage"]:100;
-$pageNumber = array_key_exists("page",$_REQUEST)?$_REQUEST["page"]:1;
+$taxonFilter = array_key_exists('taxonfilter',$_REQUEST)?$_REQUEST['taxonfilter']:0;
+$targetTid = array_key_exists('targettid',$_REQUEST)?$_REQUEST['targettid']:'';
+$tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:1;
+$cntPerPage = array_key_exists('cntperpage',$_REQUEST)?$_REQUEST['cntperpage']:100;
+$pageNumber = array_key_exists('page',$_REQUEST)?$_REQUEST['page']:1;
 
 //Sanitation
 if(!is_numeric($taxonFilter)) $taxonFilter = 1;
+if(!is_numeric($targetTid)) $targetTid = '';
 if(!is_numeric($tabIndex)) $tabIndex= 1;
 if(!is_numeric($cntPerPage)) $cntPerPage = 100;
 if(!is_numeric($pageNumber)) $pageNumber = 1;

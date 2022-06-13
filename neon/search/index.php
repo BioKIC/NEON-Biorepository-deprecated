@@ -431,13 +431,13 @@ $siteData = new DatasetsMetadata();
 								<label for="eventdate1" class="input-text--outlined">
 									<input type="text" name="eventdate1" data-chip="Event Date Start">
 									<span data-label="Collection Start Date"></span></label>
-								<span class="assistive-text">Single date or start date of range (YYYY-MM-DD or similar format).</span>
+								<span class="assistive-text">Single date or start date of range (ex: YYYY-MM-DD or similar format).</span>
 							</div>
 							<div class="input-text-container">
 								<label for="eventdate2" class="input-text--outlined">
 									<input type="text" name="eventdate2" data-chip="Event Date End">
 									<span data-label="Collection End Date"></span></label>
-								<span class="assistive-text">Single date or end date of range (YYYY-MM-DD or similar format).</span>
+								<span class="assistive-text">Single date or end date of range (ex: YYYY-MM-DD or similar format).</span>
 							</div>
 						</div>
 					</div>

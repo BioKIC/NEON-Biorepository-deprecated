@@ -290,7 +290,7 @@ $siteData = new DatasetsMetadata();
 										<label for="local" class="input-text--outlined">
 											<input type="text" name="local" id="local" data-chip="Locality">
 											<span data-label="Locality"></span></label>
-										<span class="assistive-text">Separate multiple with commas.</span>
+										<span class="assistive-text" style="line-height:1.7em">Separate multiple with commas. Accepts NEON Domain and/or Site names and codes.</span>
 									</div>
 								</div>
 								<div class="grid grid--half">

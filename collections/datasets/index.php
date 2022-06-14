@@ -20,7 +20,7 @@ if($action == 'createNewDataset'){
 		}
 	}
 	else {
-		$statusStr = 'You don\'t have permission to create datasets';
+		$statusStr = 'You don\'t have permission to create a dataset';
 	}
 }
 elseif($action == 'addSelectedToDataset'){

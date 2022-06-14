@@ -240,29 +240,15 @@ if($IS_ADMIN){
 								</li>
 								<?php
 							}
-							if(array_key_exists("ClPrivate",$userPermissions)){
+							if(array_key_exists("ClCreate",$userPermissions)){
 								?>
 								<li>
 									<b><?php
-									echo '<span title="'.$userPermissions['ClPrivate']['aby'].'">';
-									echo str_replace('ClPrivate',(isset($LANG['CL_PRIVATE'])?$LANG['CL_PRIVATE']:'Create private Checklists'),$userPermissions['ClPrivate']['role']);
+									echo '<span title="'.$userPermissions['ClCreate']['aby'].'">';
+									echo str_replace('ClCreate',(isset($LANG['CL_CREATE'])?$LANG['CL_CREATE']:'Create a Checklist'),$userPermissions['ClCreate']['role']);
 									echo '</span>';
 									?></b>
-									<a href="usermanagement.php?delrole=clPrivate&userid=<?php echo $userId; ?>">
-										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
-									</a>
-								</li>
-								<?php
-							}
-							if(array_key_exists("ClPublic",$userPermissions)){
-								?>
-								<li>
-									<b><?php
-									echo '<span title="'.$userPermissions['clPublic']['aby'].'">';
-									echo str_replace('ClPublic',(isset($LANG['CL_PUBLIC'])?$LANG['CL_PUBLIC']:'Create public Checklists'),$userPermissions['ClPublic']['role']);
-									echo '</span>';
-									?></b>
-									<a href="usermanagement.php?delrole=clPublic&userid=<?php echo $userId; ?>">
+									<a href="usermanagement.php?delrole=clCreate&userid=<?php echo $userId; ?>">
 										<img src="../images/del.png" style="border:0px;width:15px;" title=<?php echo (isset($LANG['DEL_PERM'])?$LANG['DEL_PERM']:'Delete permission'); ?> />
 									</a>
 								</li>
@@ -476,11 +462,8 @@ if($IS_ADMIN){
 							if(!array_key_exists("KeyEditor",$userPermissions)){
 								echo "<div><input type='checkbox' name='p[]' value='KeyEditor' /> ".(isset($LANG['ID_KEY_EDITOR'])?$LANG['ID_KEY_EDITOR']:'Identification Keys Editor')."</div>";
 							}
-							if(!array_key_exists("ClPrivate",$userPermissions)){
-								echo "<div><input type='checkbox' name='p[]' value='ClPrivate' /> ".(isset($LANG['CL_PRIVATE'])?$LANG['CL_PRIVATE']:'Create private checklists')."</div>";
-							}
-							if(!array_key_exists("ClPublic",$userPermissions)){
-								echo "<div><input type='checkbox' name='p[]' value='ClPublic' /> ".(isset($LANG['CL_PUBLIC'])?$LANG['CL_PUBLIC']:'Create public checklists')."</div>";
+							if(!array_key_exists("ClCreate",$userPermissions)){
+								echo "<div><input type='checkbox' name='p[]' value='ClCreate' /> ".(isset($LANG['CL_CREATE'])?$LANG['CL_CREATE']:'Create a Checklist')."</div>";
 							}
 							?>
 						</div>

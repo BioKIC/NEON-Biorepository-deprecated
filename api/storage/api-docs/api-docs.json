@@ -322,6 +322,15 @@
                         }
                     },
                     {
+                        "name": "collid",
+                        "in": "query",
+                        "description": "collid - collection identifier within portal",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "country",
                         "in": "query",
                         "description": "country",
@@ -343,6 +352,42 @@
                         "name": "county",
                         "in": "query",
                         "description": "County, parish, or third level political unit",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "family",
+                        "in": "query",
+                        "description": "family - higher level classification",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sciname",
+                        "in": "query",
+                        "description": "Scientific Name - as binomen without authorship",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recordedBy",
+                        "in": "query",
+                        "description": "Name of collector or observer",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "identifiedBy",
+                        "in": "query",
+                        "description": "Name of identifier or determiner",
                         "required": false,
                         "schema": {
                             "type": "string"

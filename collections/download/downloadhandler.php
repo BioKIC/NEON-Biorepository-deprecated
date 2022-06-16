@@ -78,8 +78,8 @@ else{
 	}
 	if($schema == 'georef'){
 		$dlManager = new OccurrenceDownload();
-		if(array_key_exists("publicsearch",$_POST)) $dlManager->setIsPublicDownload();
-		if(array_key_exists("publicsearch",$_POST) && $_POST["publicsearch"]){
+		if(array_key_exists('publicsearch',$_POST)) $dlManager->setIsPublicDownload();
+		if(array_key_exists('publicsearch',$_POST) && $_POST["publicsearch"]){
 			$dlManager->setSqlWhere($occurManager->getSqlWhere());
 		}
 		$dlManager->setSchemaType($schema);
@@ -115,8 +115,8 @@ else{
 	else{
 		$dwcaHandler = new DwcArchiverCore();
 		$dwcaHandler->setVerboseMode(0);
-		if($schema == "coge"){
-			$dwcaHandler->setCollArr($_POST["collid"]);
+		if($schema == 'coge'){
+			$dwcaHandler->setCollArr($_POST['collid']);
 			$dwcaHandler->setCharSetOut('UTF-8');
 			$dwcaHandler->setSchemaType('coge');
 			$dwcaHandler->setExtended(false);
@@ -126,23 +126,20 @@ else{
 			$dwcaHandler->setIncludeImgs(0);
 			$dwcaHandler->setIncludeAttributes(0);
 			$dwcaHandler->setOverrideConditionLimit(true);
-			$dwcaHandler->addCondition('decimallatitude','NULL');
-			$dwcaHandler->addCondition('decimallongitude','NULL');
 			$dwcaHandler->addCondition('catalognumber','NOTNULL');
 			$dwcaHandler->addCondition('locality','NOTNULL');
 			if(array_key_exists('processingstatus',$_POST) && $_POST['processingstatus']){
 				$dwcaHandler->addCondition('processingstatus','EQUALS',$_POST['processingstatus']);
 			}
-			if(array_key_exists('customfield1',$_POST) && $_POST['customfield1']){
-				$dwcaHandler->addCondition($_POST['customfield1'],$_POST['customtype1'],$_POST['customvalue1']);
-			}
-			if(array_key_exists('customfield2',$_POST) && $_POST['customfield2']){
-				$dwcaHandler->addCondition($_POST['customfield2'],$_POST['customtype2'],$_POST['customvalue2']);
+			for($i = 1; $i < 4; $i++){
+				if(array_key_exists('customfield'.$i,$_POST) && $_POST['customfield'.$i]){
+					$dwcaHandler->addCondition($_POST['customfield'.$i],$_POST['customtype'.$i],$_POST['customvalue'.$i]);
+				}
 			}
 		}
 		else{
 			//Is an occurrence download
-			if(array_key_exists("publicsearch",$_POST)) $dwcaHandler->setIsPublicDownload();
+			if(array_key_exists('publicsearch',$_POST)) $dwcaHandler->setIsPublicDownload();
 			$dwcaHandler->setCharSetOut($cSet);
 			$dwcaHandler->setSchemaType($schema);
 			$dwcaHandler->setExtended($extended);
@@ -151,7 +148,7 @@ else{
 			$dwcaHandler->setRedactLocalities($redactLocalities);
 			if($rareReaderArr) $dwcaHandler->setRareReaderArr($rareReaderArr);
 
-			if(array_key_exists("publicsearch",$_POST) && $_POST["publicsearch"]){
+			if(array_key_exists('publicsearch',$_POST) && $_POST['publicsearch']){
 				$dwcaHandler->setCustomWhereSql($occurManager->getSqlWhere());
 			}
 			else{

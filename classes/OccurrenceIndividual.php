@@ -245,7 +245,7 @@ class OccurrenceIndividual extends Manager{
 
 	private function setImages(){
 		global $imageDomain;
-		$sql = 'SELECT i.imgid, i.url, i.thumbnailurl, i.originalurl, i.sourceurl, i.notes, i.caption, CONCAT_WS(" ",u.firstname,u.lastname) as photographer '.
+		$sql = 'SELECT i.imgid, i.url, i.thumbnailurl, i.originalurl, i.sourceurl, i.notes, i.caption, CONCAT_WS(" ",u.firstname,u.lastname) as innerPhotographer, i.photographer  '.
 			'FROM images i LEFT JOIN users u ON i.photographeruid = u.uid '.
 			'WHERE (i.occid = '.$this->occid.') ORDER BY i.sortoccurrence,i.sortsequence';
 		$rs = $this->conn->query($sql);
@@ -268,6 +268,7 @@ class OccurrenceIndividual extends Manager{
 				$this->occArr['imgs'][$imgId]['sourceurl'] = $row->sourceurl;
 				$this->occArr['imgs'][$imgId]['caption'] = $row->caption;
 				$this->occArr['imgs'][$imgId]['photographer'] = $row->photographer;
+				if($row->innerPhotographer) $this->occArr['imgs'][$imgId]['photographer'] = $row->innerPhotographer;
 			}
 			$rs->free();
 		}
@@ -700,13 +701,17 @@ class OccurrenceIndividual extends Manager{
 
 	public function getAccessStats(){
 		$retArr = Array();
-		$sql = 'SELECT year(accessdate) as accessdate, accesstype, count(*) AS cnt FROM omoccuraccessstats WHERE (occid = '.$this->occid.') GROUP BY accessdate, accesstype';
-		//echo '<div>'.$sql.'</div>';
-		$rs = $this->conn->query($sql);
-		while($r = $rs->fetch_object()){
-			$retArr[$r->accessdate][$r->accesstype] = $r->cnt;
+		if(isset($GLOBALS['RECORD_STATS'])){
+			$sql = 'SELECT year(s.accessdate) as accessdate, s.accesstype, s.cnt
+				FROM omoccuraccesssummary s INNER JOIN omoccuraccesssummarylink l ON s.oasid = l.oasid
+				WHERE (l.occid = '.$this->occid.') GROUP BY s.accessdate, s.accesstype';
+			//echo '<div>'.$sql.'</div>';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->accessdate][$r->accesstype] = $r->cnt;
+			}
+			$rs->free();
 		}
-		$rs->free();
 		return $retArr;
 	}
 

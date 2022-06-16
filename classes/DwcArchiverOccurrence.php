@@ -566,7 +566,7 @@ class DwcArchiverOccurrence{
 					$higherStr .= '|'.$row->sciname;
 				}
 				$rs->free();
-				if($higherStr) $r['t_higherClassification'] = trim($higherStr,'| ');
+				if($higherStr && $this->schemaType != 'coge') $r['t_higherClassification'] = trim($higherStr,'| ');
 				if(count($this->upperTaxonomy)<1000 || !is_numeric($target)){
 					if(isset($r['t_kingdom'])) $this->upperTaxonomy[$target]['k'] = $r['t_kingdom'];
 					if(isset($r['t_phylum'])) $this->upperTaxonomy[$target]['p'] = $r['t_phylum'];

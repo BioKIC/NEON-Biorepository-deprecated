@@ -2,80 +2,120 @@
 include_once($SERVER_ROOT.'/config/dbconnection.php');
 include_once('Manager.php');
 
-class OccurrenceAccessStats {
+class OccurrenceAccessStats extends Manager{
 
-	private $conn;
 	private $collid;
 	private $duration;
 	private $startDate;
 	private $endDate;
-	private $ip;
 	private $accessType;
 	private $occidStr;
 	private $pageNum = 0;
 	private $limit = 1000;
-	private $logFH = null;
-	private $errorMessage;
+	private $logPath = '';
 
 	public function __construct(){
-		$this->conn = MySQLiConnectionFactory::getCon("write");
+		parent::__construct(null,'write');
+		$this->logPath = $GLOBALS['SERVER_ROOT'].'/content/logs/stats/statsError_'.date('Y-m-d').'.log';
 	}
 
 	public function __destruct(){
-		if(!($this->conn === null)) $this->conn->close();
+		parent::__destruct();
 	}
 
 	public function recordAccessEventByArr($occidArr, $accessType){
 		$status = true;
-		foreach($occidArr as $occid){
-			if(!$this->recordAccessEvent($occid, $accessType)){
-				$status = false;
+		if(isset($GLOBALS['RECORD_STATS'])){
+			if($occurAccessID = $this->insertAccessEvent($accessType, 'occid IN('.implode(',', $occidArr).')')){
+				foreach($occidArr as $occid){
+					if(is_numeric($occid)){
+						if(!$this->insertAccessOccurrence($occurAccessID, $occid)){
+							$status = false;
+						}
+					}
+				}
 			}
 		}
 		return $status;
 	}
 
-	public function recordAccessEvent($occid,$accessType){
+	public function recordAccessEvent($occid, $accessType){
 		$status = false;
-		if(is_numeric($occid)){
-			/*
-			 $sql = 'INSERT INTO omoccuraccessstats '.
-				'SET occid='.$occid.', accessdate="'.date('Y-m-d').'", ipaddress="'.$this->cleanInStr($_SERVER['REMOTE_ADDR']).'", '.
-				'cnt=1, accesstype="'.$this->cleanInStr($accessType).'" ON DUPLICATE KEY UPDATE cnt=cnt+1';
-			//echo $sql.'<br/>';
+		if(isset($GLOBALS['RECORD_STATS'])){
+			if(is_numeric($occid)){
+				$this->verboseMode = 1;
+				$this->setLogFH($this->logPath);
+				if($occurAccessID = $this->insertAccessEvent($accessType, 'occid = '.$occid)){
+					$status = $this->insertAccessOccurrence($occurAccessID,$occid);
+				}
+			}
+		}
+		return $status;
+	}
+
+	public function batchRecordEventsBySql($sqlFrag, $accessType){
+		$status = true;
+		if(isset($GLOBALS['RECORD_STATS'])){
+			$this->verboseMode = 1;
+			$this->setLogFH($this->logPath);
+			if($occurAccessID = $this->insertAccessEvent($accessType, $sqlFrag)){
+				$status = $this->insertAccessOccurrenceBatch($occurAccessID, $sqlFrag);
+			}
+		}
+		return $status;
+	}
+
+	public function insertAccessEvent($accessType, $queryStr){
+		$occurAccessID = false;
+		if(isset($GLOBALS['RECORD_STATS'])){
+			$remoteAddr = $_SERVER['REMOTE_ADDR'];
+			$userData = @get_browser();
+			if($userData) $userData = json_encode($userData);
+			else $userData = $_SERVER['HTTP_USER_AGENT'];
+			$sql = 'INSERT INTO omoccuraccess(ipAddress, accessType, queryStr, userAgent) VALUES(?, ?, ?, ?)';
+			$stmt = $this->conn->stmt_init();
+			$stmt->prepare($sql);
+			$stmt->bind_param('ssss', $remoteAddr, $accessType, $queryStr, $userData);
+			if($stmt->execute()){
+				$occurAccessID = $this->conn->insert_id;
+			}
+			else{
+				$this->errorMessage = date('Y-m-d H:i:s').' - ERROR creating access event: '.$this->conn->error;
+				$this->logOrEcho($this->errorMessage);
+			}
+			$stmt->close();
+		}
+		return $occurAccessID;
+	}
+
+	public function insertAccessOccurrence($occurAccessID, $occid){
+		$status = false;
+		$sql = 'INSERT INTO omoccuraccesslink(occurAccessID, occid) VALUES(?, ?)';
+		$stmt = $this->conn->stmt_init();
+		$stmt->prepare($sql);
+		$stmt->bind_param('ii', $occurAccessID, $occid);
+		if($stmt->execute()) $status = true;
+		else{
+			$this->errorMessage = date('Y-m-d H:i:s').' - ERROR creating access occurrence instance: '.$this->conn->error;
+			$this->logOrEcho($this->errorMessage);
+		}
+		$stmt->close();
+		return $status;
+	}
+
+	private function insertAccessOccurrenceBatch($occurAccessID, $sqlFrag){
+		$status = false;
+		if(is_numeric($occurAccessID)){
+			$sql = 'INSERT INTO omoccuraccesslink(occurAccessID, occid) SELECT '.$occurAccessID.', o.occid '.$sqlFrag;
 			if($this->conn->query($sql)){
 				$status = true;
 			}
 			else{
-				$this->errorMessage = date('Y-m-d H:i:s').' - ERROR recording access event: '.$this->conn->error;
-				$this->logError($sql);
+				$this->errorMessage = date('Y-m-d H:i:s').' - ERROR batch recording access instance by SQL: '.$this->conn->error;
+				$this->logOrEcho($this->errorMessage);
 			}
-			*/
 		}
-		return true;
 		return $status;
-	}
-
-	public function batchRecordEventsBySql($sqlFrag,$accessType){
-		$status = true;
-		/*
-		$sql = 'INSERT INTO omoccuraccessstats(occid,accessdate,ipaddress,cnt,accesstype) '.
-			'SELECT o.occid, "'.date('Y-m-d').'", "'.$this->cleanInStr($_SERVER['REMOTE_ADDR']).'", 1, "'.$this->cleanInStr($accessType).'" ';
-		$sql .= $sqlFrag;
-		$sql .= 'ON DUPLICATE KEY UPDATE cnt=cnt+1';
-		if(!$this->conn->query($sql)){
-			$this->errorMessage = date('Y-m-d H:i:s').' - ERROR batch recording access event by SQL: '.$this->conn->error;
-			$this->logError($sql);
-		}
-		*/
-		return $status;
-	}
-
-	private function logError($sqlStr){
-		$logFH = fopen($GLOBALS['SERVER_ROOT'].'/content/logs/stats/statsError_'.date('Y-m-d').'.log', 'a');
-		fwrite($logFH,$this->errorMessage."\n");
-		fwrite($logFH,$sqlStr."\n");
-		fclose($logFH);
 	}
 
 	//Reports
@@ -158,10 +198,9 @@ class OccurrenceAccessStats {
 		elseif($this->endDate){
 			$sqlWhere .= 'AND (a.accessdate <= "'.$this->endDate.'") ';
 		}
-		if($this->ip) $sqlWhere .= 'AND (a.ipaddress = "'.$this->ip.'") ';
 		if($this->accessType) $sqlWhere .= 'AND (a.accesstype = "'.$this->accessType.'") ';
 		if($this->occidStr) $sqlWhere .= 'AND (a.occid IN("'.$this->occidStr.'")) ';
-		$sql = 'FROM omoccuraccessstats a ';
+		$sql = 'FROM omoccuraccesssummary a ';
 		if($this->collid) $sql .= 'INNER JOIN omoccurrences o ON a.occid = o.occid WHERE (o.collid = '.$this->collid.') '.$sqlWhere;
 		elseif($sqlWhere) $sql .= 'WHERE '.substr($sqlWhere,3);
 		return $sql;
@@ -212,7 +251,7 @@ class OccurrenceAccessStats {
 		}
 		else{
 			$status = false;
-			$this->errorMessage = "Recordset is empty";
+			$this->errorMessage = 'Recordset is empty';
 		}
 		return $status;
 	}
@@ -220,7 +259,7 @@ class OccurrenceAccessStats {
 	//Setters and getters
 	public function setCollid($id){
 		$collName = '';
-		if($id && is_numeric($id)){
+		if(is_numeric($id)){
 			$this->collid = $id;
 			$sql = 'SELECT collectionname FROM omcollections WHERE (collid = '.$id.')';
 			$rs = $this->conn->query($sql);
@@ -244,10 +283,6 @@ class OccurrenceAccessStats {
 		if(preg_match('/^[\d-]+$/', $endDate)) $this->endDate = $endDate;
 	}
 
-	public function setIpAddress($ip){
-		if(filter_var($ip, FILTER_VALIDATE_IP)) $this->ip = $ip;
-	}
-
 	public function setAccessType($accessType){
 		if(preg_match('/^[a-z,A-Z]+$/', $accessType)) $this->accessType = $accessType;
 	}
@@ -262,20 +297,6 @@ class OccurrenceAccessStats {
 
 	public function setLimit($l){
 		if(is_numeric($l)) $this->limit = $l;
-	}
-
-	public function getErrorStr(){
-		return $this->errorMessage;
-	}
-
-	//Misc fucntions
-	private function cleanInStr($str){
-		$newStr = trim($str);
-		if($newStr){
-			$newStr = preg_replace('/\s\s+/', ' ',$newStr);
-			$newStr = $this->conn->real_escape_string($newStr);
-		}
-		return $newStr;
 	}
 }
 ?>

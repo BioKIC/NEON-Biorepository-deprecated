@@ -681,8 +681,8 @@ class OccurrenceHarvester{
 	}
 
 	private function setNeonLocationData(&$dwcArr, $locationName){
-		//echo 'loc name1: '.$locationName.'<br/>';
 		$url = $this->neonApiBaseUrl.'/locations/'.urlencode($locationName).'?apiToken='.$this->neonApiKey;
+		//echo 'loc url: '.$url.'<br/>';
 		$resultArr = $this->getNeonApiArr($url);
 		if(!$resultArr) return false;
 		if(isset($resultArr['locationType']) && $resultArr['locationType']){
@@ -933,6 +933,7 @@ class OccurrenceHarvester{
 		if($occid){
 			foreach($identArr as $idArr){
 				if(isset($idArr['identifiedBy']) && isset($idArr['sciname'])){
+					if(!isset($idArr['dateIdentified']) || !$idArr['dateIdentified']) $idArr['dateIdentified'] = 's.d.';
 					$sqlInsert = '';
 					$sqlValue = '';
 					foreach($idArr as $k => $v){

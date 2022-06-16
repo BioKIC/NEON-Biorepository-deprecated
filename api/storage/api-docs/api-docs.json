@@ -376,18 +376,18 @@
                         }
                     },
                     {
-                        "name": "recordedBy",
+                        "name": "eventDate",
                         "in": "query",
-                        "description": "Name of collector or observer",
+                        "description": "Date as YYYY, YYYY-MM or YYYY-MM-DD",
                         "required": false,
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "identifiedBy",
+                        "name": "datasetID",
                         "in": "query",
-                        "description": "Name of identifier or determiner",
+                        "description": "Dataset ID within portal",
                         "required": false,
                         "schema": {
                             "type": "string"

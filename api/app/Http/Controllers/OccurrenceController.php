@@ -64,6 +64,13 @@ class OccurrenceController extends Controller{
 	 *		 @OA\Schema(type="string")
 	 *	 ),
 	 *	 @OA\Parameter(
+	 *		 name="datasetID",
+	 *		 in="query",
+	 *		 description="dataset ID within portal",
+	 *		 required=false,
+	 *		 @OA\Schema(type="string")
+	 *	 ),
+	 *	 @OA\Parameter(
 	 *		 name="family",
 	 *		 in="query",
 	 *		 description="family",
@@ -78,17 +85,12 @@ class OccurrenceController extends Controller{
 	 *		 @OA\Schema(type="string")
 	 *	 ),
 	 *	 @OA\Parameter(
-	 *		 name="recordedBy",
+	 *		 name="eventDate",
 	 *		 in="query",
-	 *		 description="Name of collector or observer",
+	 *		 description="Date as YYYY, YYYY-MM or YYYY-MM-DD",
 	 *		 required=false,
 	 *		 @OA\Schema(type="string")
-	 *	 @OA\Parameter(
-	 *		 name="identifiedBy",
-	 *		 in="query",
-	 *		 description="Name of identifier or determiner",
-	 *		 required=false,
-	 *		 @OA\Schema(type="string")
+	 *	 ),
 	 *	 @OA\Parameter(
 	 *		 name="limit",
 	 *		 in="query",
@@ -131,8 +133,10 @@ class OccurrenceController extends Controller{
 		if($request->has('collid')) $conditions[] = ['collid',$request->collid];
 		if($request->has('family')) $conditions[] = ['family',$request->family];
 		if($request->has('sciname')) $conditions[] = ['sciname','LIKE',$request->sciname.'%'];
-		if($request->has('recordedBy')) $conditions[] = ['recordedBy','LIKE',$request->'%'.recordedBy.'%'];
-		if($request->has('identifiedBy')) $conditions[] = ['identifiedBy','LIKE',$request->'%.'identifiedBy.'%'];
+		if($request->has('datasetID')) $conditions[] = ['datasetID',$request->datasetID];
+		if($request->has('eventDate')) $conditions[] = ['eventDate','LIKE',$request->eventDate.'%'];
+
+
 		$fullCnt = Occurrence::where($conditions)->count();
 		$result = Occurrence::where($conditions)->skip($offset)->take($limit)->get();
 

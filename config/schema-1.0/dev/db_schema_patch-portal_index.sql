@@ -30,122 +30,69 @@ ALTER TABLE `omcollections`
   ADD COLUMN `dwcTermJson` TEXT NULL AFTER `aggKeysStr`;
 
 
+DROP TABLE IF EXISTS `portalindex`;
 
 CREATE TABLE `portalindex` (
-  `portalID` INT NOT NULL AUTO_INCREMENT,
-  `portalName` VARCHAR(45) NOT NULL,
-  `acronym` VARCHAR(45) NULL,
-  `portalDescription` VARCHAR(250) NULL,
-  `urlRoot` VARCHAR(150) NOT NULL,
-  `securityKey` VARCHAR(45) NULL,
-  `symbiotaVersion` VARCHAR(45) NULL,
-  `guid` VARCHAR(45) NULL,
-  `manager` VARCHAR(45) NULL,
-  `managerEmail` VARCHAR(45) NULL,
-  `primaryLead` VARCHAR(45) NULL,
-  `primaryLeadEmail` VARCHAR(45) NULL,
-  `notes` VARCHAR(250) NULL,
-  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`portalID`)
+  `portalID` int(11) NOT NULL AUTO_INCREMENT,
+  `portalName` varchar(150) NOT NULL,
+  `acronym` varchar(45) DEFAULT NULL,
+  `portalDescription` varchar(250) DEFAULT NULL,
+  `urlRoot` varchar(150) NOT NULL,
+  `securityKey` varchar(45) DEFAULT NULL,
+  `symbiotaVersion` varchar(45) DEFAULT NULL,
+  `guid` varchar(45) DEFAULT NULL,
+  `manager` varchar(45) DEFAULT NULL,
+  `managerEmail` varchar(45) DEFAULT NULL,
+  `primaryLead` varchar(45) DEFAULT NULL,
+  `primaryLeadEmail` varchar(45) DEFAULT NULL,
+  `notes` varchar(250) DEFAULT NULL,
+  `initialTimestamp` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`portalID`),
+  UNIQUE KEY `UQ_portalIndex_guid` (`guid`)
 );
 
-ALTER TABLE `portalindex` 
-  ADD UNIQUE INDEX `UQ_portalIndex_guid` (`guid` ASC);
+DROP TABLE IF EXISTS `portalpublications`;
 
-ALTER TABLE `omcollpublications` 
-  RENAME TO `portalpublications` ;
+CREATE TABLE `portalpublications` (
+  `pubid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `pubTitle` varchar(45) NOT NULL,
+  `description` varchar(250) DEFAULT NULL,
+  `collid` int(10) unsigned NOT NULL,
+  `portalID` int(11) NOT NULL,
+  `direction` varchar(45) NOT NULL,
+  `criteriaJson` text DEFAULT NULL,
+  `includeDeterminations` int(11) DEFAULT 1,
+  `includeImages` int(11) DEFAULT 1,
+  `autoUpdate` int(11) DEFAULT 0,
+  `lastDateUpdate` datetime DEFAULT NULL,
+  `updateInterval` int(11) DEFAULT NULL,
+  `createdUid` int(10) unsigned DEFAULT NULL,
+  `initialTimestamp` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`pubid`),
+  KEY `FK_portalpub_collid_idx` (`collid`),
+  KEY `FK_portalpub_portalID_idx` (`portalID`),
+  KEY `FK_portalpub_uid_idx` (`createdUid`),
+  CONSTRAINT `FK_portalpub_collid` FOREIGN KEY (`collid`) REFERENCES `omcollections` (`collID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_portalpub_createdUid` FOREIGN KEY (`createdUid`) REFERENCES `users` (`uid`) ON UPDATE CASCADE,
+  CONSTRAINT `FK_portalpub_portalID` FOREIGN KEY (`portalID`) REFERENCES `portalindex` (`portalID`) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
-ALTER TABLE `omcollpuboccurlink` 
-  RENAME TO  `portaloccurrences` ;
+DROP TABLE IF EXISTS `portaloccurrences`;
 
-ALTER TABLE `portalpublications` 
-  DROP FOREIGN KEY `FK_adminpub_collid`;
-
-ALTER TABLE `portalpublications` 
-  DROP COLUMN `securityguid`,
-  DROP COLUMN `targeturl`,
-  ADD COLUMN `portalID` INT NULL AFTER `collid`,
-  CHANGE COLUMN `collid` `collid` INT(10) UNSIGNED NULL ,
-  CHANGE COLUMN `criteriajson` `criteriaJson` TEXT NULL DEFAULT NULL ,
-  CHANGE COLUMN `includedeterminations` `includeDeterminations` INT(11) NULL DEFAULT 1,
-  CHANGE COLUMN `includeimages` `includeImages` INT(11) NULL DEFAULT 1,
-  CHANGE COLUMN `autoupdate` `autoUpdate` INT(11) NULL DEFAULT 0,
-  CHANGE COLUMN `lastdateupdate` `lastDateUpdate` DATETIME NULL DEFAULT NULL,
-  CHANGE COLUMN `updateinterval` `updateInterval` INT(11) NULL DEFAULT NULL,
-  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
-  ADD INDEX `FK_portalpub_portalID_idx` (`portalID` ASC);
-
-ALTER TABLE `portalpublications` 
-  ADD CONSTRAINT `FK_portalpub_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_portalpub_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE RESTRICT  ON UPDATE NO ACTION;
-
-ALTER TABLE `portalpublications` 
-  ADD COLUMN `pubTitle` VARCHAR(45) NULL AFTER `pubid`,
-  ADD COLUMN `description` VARCHAR(250) NULL AFTER `pubTitle`,
-  ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `updateInterval`;
+CREATE TABLE `portaloccurrences` (
+  `occid` int(10) unsigned NOT NULL,
+  `pubid` int(10) unsigned NOT NULL,
+  `targetOccid` int(11) NOT NULL,
+  `verification` int(11) NOT NULL DEFAULT 0,
+  `refreshtimestamp` datetime NOT NULL,
+  `initialtimestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`occid`,`pubid`),
+  KEY `FK_portalOccur_occid_idx` (`occid`),
+  KEY `FK_portalOccur_pubID_idx` (`pubid`),
+  CONSTRAINT `FK_portalOccur_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_portalOccur_pubid` FOREIGN KEY (`pubid`) REFERENCES `portalpublications` (`pubid`) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 
-ALTER TABLE `portalpublications` 
-  DROP FOREIGN KEY `FK_portalpub_collid`,
-  DROP FOREIGN KEY `FK_portalpub_portalID`;
 
-ALTER TABLE `portalpublications` 
-  CHANGE COLUMN `pubTitle` `pubTitle` VARCHAR(45) NOT NULL ,
-  CHANGE COLUMN `collid` `collid` INT(10) UNSIGNED NOT NULL ,
-  CHANGE COLUMN `portalID` `portalID` INT(11) NOT NULL ,
-  ADD INDEX `FK_portalpub_uid_idx` (`createdUid` ASC);
-
-ALTER TABLE `portalpublications` 
-  ADD CONSTRAINT `FK_portalpub_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`collID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_portalpub_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_portalpub_createdUid`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
-
-ALTER TABLE `portalpublications` 
-  ADD COLUMN `direction` VARCHAR(45) NOT NULL AFTER `portalID`;
-
-INSERT INTO portalpublications(collid, portalID, pubTitle, direction)
-  SELECT DISTINCT o.collid, i.portalID, "remote harvest" as title, "import" as direction 
-  FROM portaloccurrences i INNER JOIN omoccurrences o ON i.occid = o.occid
-  WHERE i.pubid IS NULL;
-
-UPDATE portaloccurrences i INNER JOIN omoccurrences o ON i.occid = o.occid
-  INNER JOIN portalpublications p ON o.collid = p.collid
-  SET i.pubID = p.pubID
-  WHERE i.pubID IS NULL;
-
-ALTER TABLE `portaloccurrences` 
-  DROP FOREIGN KEY `FK_portalOccur_pubID`,
-  DROP FOREIGN KEY `FK_portalOccur_portalID`;
-
-ALTER TABLE `portaloccurrences` 
-  DROP COLUMN `portalID`,
-  DROP COLUMN `portalOccurrencesID`,
-  CHANGE COLUMN `pubid` `pubid` INT(10) UNSIGNED NOT NULL ,
-  CHANGE COLUMN `targetOccid` `targetOccid` INT(11) NOT NULL ,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`occid`, `pubid`),
-  DROP INDEX `UQ_portalOccur_UNIQUE` ,
-  DROP INDEX `FK_portalOccur_portalID_idx` ;
-
-ALTER TABLE `portaloccurrences` 
-  ADD CONSTRAINT `FK_portalOccur_pubid`  FOREIGN KEY (`pubid`)  REFERENCES `portalpublications` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE;
-
-ALTER TABLE `portaloccurrences` 
-  DROP FOREIGN KEY `FK_ompubpubid`;
-
-ALTER TABLE `portaloccurrences` 
-  ADD COLUMN `portalID` INT NOT NULL AFTER `occid`,
-  ADD COLUMN `targetOccid` INT NULL AFTER `pubid`,
-  CHANGE COLUMN `occid` `occid` INT(10) UNSIGNED NOT NULL FIRST,
-  CHANGE COLUMN `pubid` `pubid` INT(10) UNSIGNED NULL DEFAULT NULL ,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`occid`, `portalID`),
-  ADD INDEX `FK_portalOccur_portalID_idx` (`portalID` ASC);
-
-ALTER TABLE `portaloccurrences` 
-  ADD CONSTRAINT `FK_portalOccur_pubid`  FOREIGN KEY (`pubid`)  REFERENCES `portalpublications` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_portalOccur_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
-
-ALTER TABLE `portalindex` 
-  CHANGE COLUMN `portalName` `portalName` VARCHAR(150) NOT NULL ;
 

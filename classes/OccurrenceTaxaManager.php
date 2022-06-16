@@ -363,7 +363,9 @@ class OccurrenceTaxaManager {
 		$str = preg_replace('/^[\s%]+/', '',$str);
 		$str = trim($str,' ,;');
 		if($str == '%') $str = '';
-		return strip_tags(trim($str));
+		$str = strip_tags($str);
+		$str = filter_var($str, FILTER_SANITIZE_STRING);
+		return $str;
 	}
 
 	protected function cleanInStr($str){

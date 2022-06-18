@@ -33,7 +33,8 @@ CREATE TABLE `agentoccurrencelink` (
   CONSTRAINT `FK_agentoccurlink_agentID`  FOREIGN KEY (`agentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_agentoccurlink_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_agentoccurlink_created`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
-  CONSTRAINT `FK_agentoccurlink_modified` FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
+  CONSTRAINT `FK_agentoccurlink_modified` FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE
+);
 
 INSERT IGNORE INTO agents(familyName,firstName,middleName,startYearActive,endYearActive,notes,rating,guid)
   SELECT DISTINCT c.familyname, c.firstname, c.middlename, c.startyearactive, c.endyearactive, c.notes, c.rating, c.guid 
@@ -61,7 +62,8 @@ CREATE TABLE `agentdeterminationlink` (
   CONSTRAINT `FK_agentdetlink_agentID`  FOREIGN KEY (`agentID`)  REFERENCES `agents` (`agentID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_agentdetlink_detid`  FOREIGN KEY (`detID`)  REFERENCES `omoccurdeterminations` (`detid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
   CONSTRAINT `FK_agentdetlink_modified`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE,
-  CONSTRAINT `FK_agentdetlink_created`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
+  CONSTRAINT `FK_agentdetlink_created`  FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE
+);
 
 ALTER TABLE `agentlinks` 
   CHANGE COLUMN `isprimarytopicof` `isPrimaryTopicOf` TINYINT(1) NOT NULL DEFAULT 1 ;
@@ -215,7 +217,7 @@ DROP TABLE geothesstateprovince;
 DROP TABLE geothescountry;
 DROP TABLE geothescontinent;
 
-#need to remap collectionGuid to recordID within code
+
 ALTER TABLE `omcollections` 
   CHANGE COLUMN `CollID` `collID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
   CHANGE COLUMN `InstitutionCode` `institutionCode` VARCHAR(45) NOT NULL ,
@@ -238,10 +240,13 @@ ALTER TABLE `omcollections`
   CHANGE COLUMN `InitialTimeStamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
 
 ALTER TABLE `omcollections` 
-  CHANGE COLUMN `collectionGuid` `recordID` VARCHAR(45) NULL DEFAULT NULL ;
+  ADD COLUMN `dwcTermJson` TEXT NULL AFTER `aggKeysStr`;
+
+#ALTER TABLE `omcollections` 
+#  ADD COLUMN `collectionGuid` TEXT NULL AFTER `aggKeysStr`;
 
 ALTER TABLE `omcollections` 
-  ADD COLUMN `dwcTermJson` TEXT NULL AFTER `aggKeysStr`;
+  ADD COLUMN `recordID` TEXT NULL AFTER `aggKeysStr`;
 
 
 ALTER TABLE `omoccurdeterminations` 
@@ -267,7 +272,8 @@ CREATE TABLE `omcollproperties` (
   INDEX `FK_omcollproperties_collid_idx` (`collid` ASC),
   INDEX `FK_omcollproperties_uid_idx` (`modifiedUid` ASC),
   CONSTRAINT `FK_omcollproperties_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)   ON DELETE CASCADE   ON UPDATE CASCADE,
-  CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE);
+  CONSTRAINT `FK_omcollproperties_uid`   FOREIGN KEY (`modifiedUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE   ON UPDATE CASCADE
+);
 
 ALTER TABLE `omoccurdatasets` 
   CHANGE COLUMN `datasetid` `datasetID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
@@ -296,107 +302,48 @@ ALTER TABLE `omoccuridentifiers`
 ALTER TABLE `omoccuridentifiers` 
   ADD INDEX `IX_omoccuridentifiers_value` (`identifiervalue` ASC);
 
-TRUNCATE omoccuraccessstats;
 
-ALTER TABLE `omoccuraccessstats` 
-  DROP FOREIGN KEY `FK_occuraccess_occid`;
+CREATE TABLE `omoccuraccess` (
+  `occurAccessID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ipaddress` VARCHAR(45) NOT NULL,
+  `accessType` VARCHAR(45) NOT NULL,
+  `queryStr` TEXT NULL,
+  `userAgent` TEXT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`occurAccessID`)
+) ENGINE = MyISAM;
 
-ALTER TABLE `omoccuraccessstats` 
-  DROP COLUMN `oasid`,
-  DROP INDEX `UNIQUE_occuraccess` ,
-  DROP PRIMARY KEY;
-
-ALTER TABLE `omoccuraccessstats` 
-  DROP COLUMN `accessdate`,
-  DROP COLUMN `cnt`,
-  DROP COLUMN `notes`,
-  DROP COLUMN `dynamicProperties`;
-
-ALTER TABLE `omoccuraccessstats` 
-  CHANGE COLUMN `initialtimestamp` `initialtimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
-
-ALTER TABLE `omoccuraccessstats` 
-  ENGINE = MyISAM ;
+CREATE TABLE `omoccuraccesslink` (
+  `occurAccessID` BIGINT(20) UNSIGNED NOT NULL,
+  `occid` INT UNSIGNED NOT NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`occurAccessID`, `occid`)
+) ENGINE = MyISAM;
 
 CREATE TABLE `omoccuraccesssummary` (
-  `oasid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `occid` INT UNSIGNED NOT NULL,
-  `accessdate` DATE NOT NULL,
+  `oasid` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ipaddress` VARCHAR(45) NOT NULL,
+  `accessDate` DATE NOT NULL,
   `cnt` INT UNSIGNED NOT NULL,
-  `accesstype` VARCHAR(45) NOT NULL,
-  `initialtimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  `accessType` VARCHAR(45) NOT NULL,
+  `queryStr` TEXT NULL,
+  `userAgent` TEXT NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
   PRIMARY KEY (`oasid`),
-  UNIQUE INDEX `UNIQUE_occuraccess` (`occid` ASC, `accessdate` ASC, `accesstype` ASC),
-  CONSTRAINT `FK_occuraccess_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE);
+  UNIQUE INDEX `UNIQUE_occuraccess` (`ipaddress` ASC, `accessdate` ASC, `accesstype` ASC)
+);
 
+CREATE TABLE `omoccuraccesssummarylink` (
+  `oasid` BIGINT(20) UNSIGNED NOT NULL,
+  `occid` INT UNSIGNED NOT NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`oasid`, `occid`),
+  INDEX `omoccuraccesssummarylink_occid_idx` (`occid` ASC),
+  CONSTRAINT `FK_omoccuraccesssummarylink_oasid`  FOREIGN KEY (`oasid`)  REFERENCES `omoccuraccesssummary` (`oasid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_omoccuraccesssummarylink_occid`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE
+);
 
-CREATE TABLE `portalindex` (
-  `portalID` INT NOT NULL AUTO_INCREMENT,
-  `portalName` VARCHAR(45) NOT NULL,
-  `acronym` VARCHAR(45) NULL,
-  `portalDescription` VARCHAR(250) NULL,
-  `urlRoot` VARCHAR(150) NOT NULL,
-  `securityKey` VARCHAR(45) NULL,
-  `symbiotaVersion` VARCHAR(45) NULL,
-  `guid` VARCHAR(45) NULL,
-  `manager` VARCHAR(45) NULL,
-  `managerEmail` VARCHAR(45) NULL,
-  `primaryLead` VARCHAR(45) NULL,
-  `primaryLeadEmail` VARCHAR(45) NULL,
-  `notes` VARCHAR(250) NULL,
-  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`portalID`));
-
-ALTER TABLE `portalindex` 
-  ADD UNIQUE INDEX `UQ_portalIndex_guid` (`guid` ASC);
-
-ALTER TABLE `omcollpublications` 
-  RENAME TO `portalpublications` ;
-
-ALTER TABLE `portalpublications` 
-  DROP FOREIGN KEY `FK_adminpub_collid`;
-
-ALTER TABLE `portalpublications` 
-  DROP COLUMN `securityguid`,
-  DROP COLUMN `targeturl`,
-  ADD COLUMN `portalID` INT NULL AFTER `collid`,
-  CHANGE COLUMN `collid` `collid` INT(10) UNSIGNED NULL ,
-  CHANGE COLUMN `criteriajson` `criteriaJson` TEXT NULL DEFAULT NULL ,
-  CHANGE COLUMN `includedeterminations` `includeDeterminations` INT(11) NULL DEFAULT 1,
-  CHANGE COLUMN `includeimages` `includeImages` INT(11) NULL DEFAULT 1,
-  CHANGE COLUMN `autoupdate` `autoUpdate` INT(11) NULL DEFAULT 0,
-  CHANGE COLUMN `lastdateupdate` `lastDateUpdate` DATETIME NULL DEFAULT NULL,
-  CHANGE COLUMN `updateinterval` `updateInterval` INT(11) NULL DEFAULT NULL,
-  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
-  ADD INDEX `FK_portalpub_portalID_idx` (`portalID` ASC);
-
-ALTER TABLE `portalpublications` 
-  ADD CONSTRAINT `FK_portalpub_collid`  FOREIGN KEY (`collid`)  REFERENCES `omcollections` (`CollID`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_portalpub_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE RESTRICT  ON UPDATE NO ACTION;
-
-ALTER TABLE `portalpublications` 
-  ADD COLUMN `pubTitle` VARCHAR(45) NULL AFTER `pubid`,
-  ADD COLUMN `description` VARCHAR(250) NULL AFTER `pubTitle`,
-  ADD COLUMN `createdUid` INT UNSIGNED NULL AFTER `updateInterval`;
-
-ALTER TABLE `omcollpuboccurlink` 
-  RENAME TO  `portaloccurrences` ;
-
-ALTER TABLE `portaloccurrences` 
-  DROP FOREIGN KEY `FK_ompubpubid`;
-
-ALTER TABLE `portaloccurrences` 
-  ADD COLUMN `portalID` INT NOT NULL AFTER `occid`,
-  ADD COLUMN `targetOccid` INT NULL AFTER `pubid`,
-  CHANGE COLUMN `occid` `occid` INT(10) UNSIGNED NOT NULL FIRST,
-  CHANGE COLUMN `pubid` `pubid` INT(10) UNSIGNED NULL DEFAULT NULL ,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`occid`, `portalID`),
-  ADD INDEX `FK_portalOccur_portalID_idx` (`portalID` ASC);
-
-ALTER TABLE `portaloccurrences` 
-  ADD CONSTRAINT `FK_portalOccur_pubid`  FOREIGN KEY (`pubid`)  REFERENCES `portalpublications` (`pubid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_portalOccur_portalID`  FOREIGN KEY (`portalID`)  REFERENCES `portalindex` (`portalID`)  ON DELETE CASCADE  ON UPDATE CASCADE;
+DROP TABLE omoccuraccessstats;
 
 
 CREATE TABLE `omcrowdsourceproject` (
@@ -445,6 +392,70 @@ ALTER TABLE `omoccurrences`
   DROP INDEX `Index_latlng`,
   ADD INDEX `IX_occurrences_lat` (`decimalLatitude` ASC),
   ADD INDEX `IX_occurrences_lng` (`decimalLongitude` ASC);
+
+
+DROP TABLE IF EXISTS `portalindex`;
+
+CREATE TABLE `portalindex` (
+  `portalID` int(11) NOT NULL AUTO_INCREMENT,
+  `portalName` varchar(150) NOT NULL,
+  `acronym` varchar(45) DEFAULT NULL,
+  `portalDescription` varchar(250) DEFAULT NULL,
+  `urlRoot` varchar(150) NOT NULL,
+  `securityKey` varchar(45) DEFAULT NULL,
+  `symbiotaVersion` varchar(45) DEFAULT NULL,
+  `guid` varchar(45) DEFAULT NULL,
+  `manager` varchar(45) DEFAULT NULL,
+  `managerEmail` varchar(45) DEFAULT NULL,
+  `primaryLead` varchar(45) DEFAULT NULL,
+  `primaryLeadEmail` varchar(45) DEFAULT NULL,
+  `notes` varchar(250) DEFAULT NULL,
+  `initialTimestamp` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`portalID`),
+  UNIQUE KEY `UQ_portalIndex_guid` (`guid`)
+);
+
+DROP TABLE IF EXISTS `portalpublications`;
+
+CREATE TABLE `portalpublications` (
+  `pubid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `pubTitle` varchar(45) NOT NULL,
+  `description` varchar(250) DEFAULT NULL,
+  `collid` int(10) unsigned NOT NULL,
+  `portalID` int(11) NOT NULL,
+  `direction` varchar(45) NOT NULL,
+  `criteriaJson` text DEFAULT NULL,
+  `includeDeterminations` int(11) DEFAULT 1,
+  `includeImages` int(11) DEFAULT 1,
+  `autoUpdate` int(11) DEFAULT 0,
+  `lastDateUpdate` datetime DEFAULT NULL,
+  `updateInterval` int(11) DEFAULT NULL,
+  `createdUid` int(10) unsigned DEFAULT NULL,
+  `initialTimestamp` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`pubid`),
+  KEY `FK_portalpub_collid_idx` (`collid`),
+  KEY `FK_portalpub_portalID_idx` (`portalID`),
+  KEY `FK_portalpub_uid_idx` (`createdUid`),
+  CONSTRAINT `FK_portalpub_collid` FOREIGN KEY (`collid`) REFERENCES `omcollections` (`collID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_portalpub_createdUid` FOREIGN KEY (`createdUid`) REFERENCES `users` (`uid`) ON UPDATE CASCADE,
+  CONSTRAINT `FK_portalpub_portalID` FOREIGN KEY (`portalID`) REFERENCES `portalindex` (`portalID`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `portaloccurrences`;
+
+CREATE TABLE `portaloccurrences` (
+  `occid` int(10) unsigned NOT NULL,
+  `pubid` int(10) unsigned NOT NULL,
+  `targetOccid` int(11) NOT NULL,
+  `verification` int(11) NOT NULL DEFAULT 0,
+  `refreshtimestamp` datetime NOT NULL,
+  `initialtimestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`occid`,`pubid`),
+  KEY `FK_portalOccur_occid_idx` (`occid`),
+  KEY `FK_portalOccur_pubID_idx` (`pubid`),
+  CONSTRAINT `FK_portalOccur_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_portalOccur_pubid` FOREIGN KEY (`pubid`) REFERENCES `portalpublications` (`pubid`) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 
 ALTER TABLE `specprocessorprojects` 
@@ -510,6 +521,9 @@ ALTER TABLE `omoccuredits`
 
 ALTER TABLE `omoccuredits` 
   ADD CONSTRAINT `fk_omoccuredits_uid`  FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
+
+ALTER TABLE `omoccuredits` 
+  ADD INDEX `IX_omoccuredits_timestamp` (`initialtimestamp` ASC);
 
 #Material Sample schema developments
 CREATE TABLE `ommaterialsample` (

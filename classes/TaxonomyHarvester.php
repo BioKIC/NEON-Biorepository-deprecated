@@ -166,7 +166,7 @@ class TaxonomyHarvester extends Manager{
 						$this->logOrEcho($msg,2);
 						continue;
 					}
-					if(isset($taxonArr['unitind3']) && isset($tArr['infraspeciesMarker']) && $taxonArr['unitind3'] != $tArr['infraspeciesMarker']){
+					if($taxonArr['unitind3'] && isset($tArr['infraspeciesMarker']) && $taxonArr['unitind3'] != $tArr['infraspeciesMarker']){
 						//Skip because it's not the correct infraspecific rank
 						unset($rankArr[$k]);
 						continue;
@@ -201,17 +201,11 @@ class TaxonomyHarvester extends Manager{
 				if(array_key_exists($targetKey, $submitArr) && $submitArr[$targetKey]){
 					$tid = $this->addColTaxonByResult($submitArr[$targetKey]);
 				}
-				else{
-					$this->logOrEcho('Targeted taxon return does not exist',2);
-				}
+				else $this->logOrEcho('Targeted taxon return does not exist',2);
 			}
-			else{
-				$this->logOrEcho($sciName.' not found in CoL',2);
-			}
+			else $this->logOrEcho($sciName.' not found in CoL',2);
 		}
-		else{
-			$this->logOrEcho('ERROR harvesting COL name: null input name',1);
-		}
+		else $this->logOrEcho('ERROR harvesting COL name: null input name',1);
 		return $tid;
 	}
 
@@ -1202,6 +1196,13 @@ class TaxonomyHarvester extends Manager{
 		if(!isset($taxonArr['rankid']) || !$taxonArr['rankid']){
 			if(isset($taxonArr['taxonRank']) && $taxonArr['taxonRank']){
 				$taxonArr['rankid'] = $this->getRankId($taxonArr);
+			}
+		}
+		if(isset($taxonArr['unitind3']) && $taxonArr['unitind3']){
+			if($taxonArr['unitind3'] == 'ssp.') $taxonArr['unitind3'] = 'subsp.';
+			if($this->kingdomName == 'Animalia' && $taxonArr['unitind3'] == 'subsp.'){
+				$taxonArr['unitind3'] = '';
+				$taxonArr['sciname'] = str_replace('subsp. ', '', $taxonArr['sciname']);
 			}
 		}
 		if(!$this->kingdomTid) $this->setDefaultKingdom();

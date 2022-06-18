@@ -480,7 +480,15 @@ class OccurrenceHarvester{
 				if(isset($sampleArr['sex'])) $dwcArr['sex'] = $sampleArr['sex'];
 				if(isset($sampleArr['life_stage'])) $dwcArr['lifeStage'] = $sampleArr['life_stage'];
 				if(isset($sampleArr['associated_taxa'])) $dwcArr['associatedTaxa'] = $this->translateAssociatedTaxa($sampleArr['associated_taxa'], $dwcArr['collid']);
-				if(isset($sampleArr['remarks'])) $dwcArr['occurrenceRemarks'] = $sampleArr['remarks'];
+				$occurRemarks = array();
+				if(isset($sampleArr['remarks'])) $occurRemarks[] = $sampleArr['remarks'];
+				if(isset($sampleArr['sample_type'])){
+					$sampleType = $sampleArr['sample_type'];
+					if($sampleType == 'M') $sampleType = 'mineral';
+					elseif($sampleType == 'O') $sampleType = 'organic';
+					$occurRemarks[] = 'sample type: '.$sampleType;
+				}
+				if($occurRemarks) $dwcArr['occurrenceRemarks'] = implode('; ',$occurRemarks);
 				if(isset($sampleArr['assocMedia'])) $dwcArr['assocMedia'] = $sampleArr['assocMedia'];
 				if(isset($sampleArr['coordinate_uncertainty'])) $dwcArr['coordinateUncertaintyInMeters'] = $sampleArr['coordinate_uncertainty'];
 				if(isset($sampleArr['decimal_latitude'])) $dwcArr['decimalLatitude'] = $sampleArr['decimal_latitude'];
@@ -511,12 +519,6 @@ class OccurrenceHarvester{
 				if(isset($sampleArr['minimum_depth_in_meters'])) $dynProp[] = 'minimum depth: '.$sampleArr['minimum_depth_in_meters'].'m ';
 				if(isset($sampleArr['maximum_depth_in_meters'])) $dynProp[] = 'maximum depth: '.$sampleArr['maximum_depth_in_meters'].'m ';
 				if(isset($sampleArr['verbatim_depth'])) $dynProp[] = 'verbatim depth: '.$sampleArr['verbatim_depth'];
-				if(isset($sampleArr['sample_type'])){
-					$sampleType = $sampleArr['sample_type'];
-					if($sampleType == 'M') $sampleType = 'mineral';
-					elseif($sampleType == 'O') $sampleType = 'organic';
-					$dynProp[] = 'sample type: '.$sampleType;
-				}
 				//if(isset($sampleArr['sample_condition'])) $dynProp[] = 'sample condition: '.$sampleArr['sample_condition'];
 				if($dynProp) $dwcArr['dynamicProperties'] = implode(', ',$dynProp);
 
@@ -559,8 +561,10 @@ class OccurrenceHarvester{
 						$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 						//return false;
 					}
+					if(isset($sampleArr['collection_location']) && $sampleArr['collection_location']){
+						if(!isset($dwcArr['locationID']) || $dwcArr['locationID'] != $sampleArr['collection_location']) $dwcArr['locality'] .= ', '.trim($sampleArr['collection_location'],' ,;.');
+					}
 					if(isset($dwcArr['locality']) && $dwcArr['locality']) $dwcArr['locality'] = trim($dwcArr['locality'],' ,;.');
-					if(isset($sampleArr['collection_location']) && $sampleArr['collection_location']) $dwcArr['locality'] .= $sampleArr['collection_location'];
 				}
 
 				//Taxonomic fields

@@ -425,6 +425,7 @@ class OccurrenceHarvester{
 					elseif($fArr['smsKey'] == 'reproductive_condition' && $fArr['smsValue']) $tableArr['reproductive_condition'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'sex' && $fArr['smsValue']) $tableArr['sex'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'life_stage' && $fArr['smsValue']) $tableArr['life_stage'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'associated_taxa' && $fArr['smsValue']) $tableArr['associated_taxa'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'remarks' && $fArr['smsValue']) $tableArr['remarks'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'preservative_concentration' && $fArr['smsValue']) $tableArr['preservative_concentration'] = $fArr['smsValue'].', ';
 					elseif($fArr['smsKey'] == 'preservative_volume' && $fArr['smsValue']) $tableArr['preservative_volume'] = $fArr['smsValue'].', ';
@@ -478,6 +479,7 @@ class OccurrenceHarvester{
 				if(isset($sampleArr['reproductive_condition'])) $dwcArr['reproductiveCondition'] = $sampleArr['reproductive_condition'];
 				if(isset($sampleArr['sex'])) $dwcArr['sex'] = $sampleArr['sex'];
 				if(isset($sampleArr['life_stage'])) $dwcArr['lifeStage'] = $sampleArr['life_stage'];
+				if(isset($sampleArr['associated_taxa'])) $dwcArr['associatedTaxa'] = $this->translateAssociatedTaxa($sampleArr['associated_taxa'], $dwcArr['collid']);
 				if(isset($sampleArr['remarks'])) $dwcArr['occurrenceRemarks'] = $sampleArr['remarks'];
 				if(isset($sampleArr['assocMedia'])) $dwcArr['assocMedia'] = $sampleArr['assocMedia'];
 				if(isset($sampleArr['coordinate_uncertainty'])) $dwcArr['coordinateUncertaintyInMeters'] = $sampleArr['coordinate_uncertainty'];
@@ -594,7 +596,10 @@ class OccurrenceHarvester{
 					}
 					if(in_array($dwcArr['collid'], array(30)) && !isset($dwcArr['sciname'])) $dwcArr['sciname'] = 'Soil';
 					if(isset($dwcArr['sciname'])){
-						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname']) || in_array($dwcArr['collid'], array(30))) $this->setTaxonomy($dwcArr);
+						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname']) || in_array($dwcArr['collid'], array(30))){
+							$taxaArr = $this->getTaxonomy($dwcArr['sciname'], $dwcArr['collid']);
+							$dwcArr = array_merge($dwcArr,$taxaArr);
+						}
 						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname'])){
 							if(!preg_match('/^[A-Z0-9]+$/', $currentOccurArr['sciname'])){
 								echo '<li style="margin-left:25px">Notice: translation of NEON taxon code ('.$dwcArr['sciname'].') failed, thus keeping current name ('.$currentOccurArr['sciname'].')</li>';
@@ -606,7 +611,10 @@ class OccurrenceHarvester{
 						//Group of identifications will be inserted into omoccurdeterminations, and most recent will go into omoccurrences
 						$activeArr = array();
 						foreach($sampleArr['identifications'] as $idKey => $idArr){
-							if(isset($idArr['sciname']) && preg_match('/^[A-Z0-9]+$/', $idArr['sciname'])) $this->setTaxonomy($idArr);
+							if(isset($idArr['sciname']) && preg_match('/^[A-Z0-9]+$/', $idArr['sciname'])){
+								$taxaArr = $this->getTaxonomy($idArr['sciname'], $dwcArr['collid']);
+								$idArr = array_merge($idArr,$taxaArr);
+							}
 							if(!$activeArr) $activeArr = $idArr;
 							elseif(!isset($activeArr['identifiedBy'])){
 								if(isset($idArr['identifiedBy'])) $activeArr = $idArr;
@@ -787,6 +795,9 @@ class OccurrenceHarvester{
 			$siteID = (isset($dwcArr['siteID'])?$dwcArr['siteID']:0);
 			unset($dwcArr['domainID']);
 			unset($dwcArr['siteID']);
+			if(isset($dwcArr['sciname']) && $dwcArr['sciname']){
+				if(substr($dwcArr['sciname'],-4) == ' sp.') $dwcArr['sciname'] = trim(substr($dwcArr['sciname'], 0, strlen($dwcArr['sciname']) - 4));
+			}
 			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters','maximumElevationInMeters');
 			$sql = '';
 			$skipFieldArr = array('occid','collid','identifiers','assocmedia','identifications');
@@ -997,13 +1008,25 @@ class OccurrenceHarvester{
 		return $retArr;
 	}
 
-	private function setTaxonomy(&$dwcArr){
-		$taxonCode = $dwcArr['sciname'];
+	private function translateAssociatedTaxa($inStr, $collid){
+		$retStr = '';
+		$taxaCodeArr = explode('|', $inStr);
+		foreach($taxaCodeArr as $strFrag){
+			$taxaArr = $this->getTaxonomy($strFrag, $collid);
+			if(isset($taxaArr['sciname']) && $taxaArr['sciname']) $retStr .= ', ' . trim($taxaArr['sciname']);
+			else $retStr .= ', ' . $strFrag;
+		}
+		return trim($retStr, ', ');
+	}
+
+	private function getTaxonomy($taxonCode, $collid){
+		$retArr = array();
+		$taxonCode = trim($taxonCode);
 		if($taxonCode){
 			if($taxonCode == 'OTHE'){
-				if(in_array($dwcArr['collid'], array(17,19,24,25,26,27,28,71))){
-					$dwcArr['sciname'] = 'Mammalia';
-					$dwcArr['tidinterpreted'] = '21269';
+				if(in_array($collid, array(17,19,24,25,26,27,28,71))){
+					$retArr['sciname'] = 'Mammalia';
+					$retArr['tidInterpreted'] = '21269';
 					/*
 					* 	//Adjustment for Mammal OTHE taxonomic code
 					* 	$sql = 'UPDATE omoccurrences
@@ -1014,9 +1037,9 @@ class OccurrenceHarvester{
 					* 	}
 					*/
 				}
-				elseif(in_array($dwcArr['collid'], array(66,20,12,15,70))){
-					$dwcArr['sciname'] = 'Chordata';
-					$dwcArr['tidinterpreted'] = '57';
+				elseif(in_array($collid, array(66,20,12,15,70))){
+					$retArr['sciname'] = 'Chordata';
+					$retArr['tidInterpreted'] = '57';
 					/*
 					* 	//Adjustment for non-Mammal vertebrates with OTHE taxonomic code
 					* 	$sql = 'UPDATE omoccurrences
@@ -1034,7 +1057,7 @@ class OccurrenceHarvester{
 						FROM taxaresourcelinks l INNER JOIN taxa t ON l.tid = t.tid
 						INNER JOIN taxstatus ts ON t.tid = ts.tid
 						WHERE ts.taxauthid = 1 AND l.sourceIdentifier = "'.$taxonCode.'"';
-					if(in_array($dwcArr['collid'], array(30))){
+					if(in_array($collid, array(30))){
 						//Is a soil collection
 						$taxonCode2 = '';
 						if(substr($taxonCode,-1) == 's') $taxonCode2 = substr($taxonCode,0,-1);
@@ -1069,11 +1092,11 @@ class OccurrenceHarvester{
 				}
 				if(isset($this->taxonomyArr[$taxonCode])){
 					foreach($this->taxonomyArr[$taxonCode] as $tid => $taxonArr){
-						if(!isset($taxonArr['collid']) || in_array($dwcArr['collid'], $taxonArr['collid'])){
-							$dwcArr['tidinterpreted'] = $tid;
-							$dwcArr['sciname'] = $taxonArr['sciname'];
-							if($taxonArr['author']) $dwcArr['scientificNameAuthorship'] = $taxonArr['author'];
-							if($taxonArr['family']) $dwcArr['family'] = $taxonArr['family'];
+						if(!isset($taxonArr['collid']) || in_array($collid, $taxonArr['collid'])){
+							$retArr['tidInterpreted'] = $tid;
+							$retArr['sciname'] = $taxonArr['sciname'];
+							if($taxonArr['author']) $retArr['scientificNameAuthorship'] = $taxonArr['author'];
+							if($taxonArr['family']) $retArr['family'] = $taxonArr['family'];
 						}
 					}
 				}
@@ -1093,6 +1116,7 @@ class OccurrenceHarvester{
 				*/
 			}
 		}
+		return $retArr;
 	}
 
 	private function adjustTaxonomy($occidArr){

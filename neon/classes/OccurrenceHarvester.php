@@ -1142,7 +1142,7 @@ class OccurrenceHarvester{
 
 		//Temporary code needed until identification details are included within the NEON API
 		//Populate missing sciname
-		$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+		$sql = 'UPDATE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
 			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
 			'LEFT JOIN taxstatus ts ON nt.tid = ts.tid '.
 			'SET o.sciname = IFNULL(nt.sciname, nt.taxonid), o.tidinterpreted = nt.tid, o.family = ts.family, o.taxonRemarks = IFNULL(o.taxonRemarks,"Identification source: 2019 taxonomy extract from NEON central db") '.
@@ -1153,7 +1153,7 @@ class OccurrenceHarvester{
 
 		/*
 		 //Populate missing dateIdentified
-		 $sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+		 $sql = 'UPDATE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
 		 'INNER JOIN omoccurrences o ON s.occid = o.occid '.
 		 'SET o.dateIdentified = SUBSTRING(nt.identifiedDate,1,10) '.
 		 'WHERE o.dateIdentified IS NULL AND nt.identifiedDate IS NOT NULL AND o.sciname IS NOT NULL ';
@@ -1162,7 +1162,7 @@ class OccurrenceHarvester{
 		 }
 
 		 //Populate missing identifiedBy
-		 $sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+		 $sql = 'UPDATE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
 		 'INNER JOIN omoccurrences o ON s.occid = o.occid '.
 		 'SET o.identifiedBy = nt.identifiedBy '.
 		 'WHERE o.identifiedBy IS NULL AND nt.identifiedBy IS NOT NULL AND o.sciname IS NOT NULL';
@@ -1172,7 +1172,7 @@ class OccurrenceHarvester{
 		 */
 
 		//Populate missing eventDate; needed until collectionDate is added to NEON API
-		$sql = 'UPDATE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+		$sql = 'UPDATE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
 			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
 			'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
 			'WHERE o.eventDate IS NULL AND nt.collectDate IS NOT NULL';
@@ -1181,7 +1181,7 @@ class OccurrenceHarvester{
 		}
 
 		#Update mismatched eventDates (e.g. possibiliy incorrect within manifest)
-		$sql = 'UPDATE IGNORE neon_taxonomy nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
+		$sql = 'UPDATE IGNORE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
 			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
 			'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
 			'WHERE o.eventDate IS NOT NULL AND o.eventDate != DATE(nt.collectDate)';

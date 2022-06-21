@@ -5,11 +5,10 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 
 // Datasets
 $datasetid = array_key_exists('datasetid', $_REQUEST) ? $_REQUEST['datasetid'] : 0;
-
 if (!is_numeric($datasetid)) $datasetid = 0;
-
 $datasetManager = new OccurrenceDataset();
 $dArr = $datasetManager->getPublicDatasetMetadata($datasetid);
+
 $searchUrl = '../../collections/list.php?datasetid=' . $datasetid;
 $tableUrl = '../../collections/listtabledisplay.php?datasetid=' . $datasetid;
 $taxaUrl = '../../collections/list.php?datasetid=' . $datasetid . '&tabindex=0';
@@ -56,7 +55,11 @@ $ocArr = $datasetManager->getOccurrences($datasetid);
 			<!-- <p><a href="#">Download this Dataset</a></p> -->
 			<!-- Citation -->
 			<p>Cite this dataset:</p>
-			<?php include($SERVER_ROOT . '/includes/citationdataset.php'); ?>
+			<?php
+			echo "<blockquote>";
+			include($SERVER_ROOT . '/includes/citationdataset.php');
+			echo "</blockquote>";
+			?>
 		</ul>
 	</div>
 	<?php

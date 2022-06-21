@@ -97,6 +97,7 @@ if ($SYMB_UID) {
 		}
 		if ($collid) {
 			$collData = $collData[$collid];
+			$_SESSION['colldata'] = $collData;
 			$codeStr = ' (' . $collData['institutioncode'];
 			if ($collData['collectioncode']) $codeStr .= '-' . $collData['collectioncode'];
 			$codeStr .= ')';
@@ -416,8 +417,9 @@ if ($SYMB_UID) {
 					<?php
 					}
 				}
-				echo '<span class="label">Cite this collection:</span>';
-				include($SERVER_ROOT . '/includes/citationcoll.php');
+				echo '<span class="label">Cite this collection:</span><blockquote>';
+				include($SERVER_ROOT . '/includes/citationcollection.php');
+				echo '</blockquote>';
 				if ($addrArr = $collManager->getAddress()) {
 					?>
 					<div style="margin-top:5px;">

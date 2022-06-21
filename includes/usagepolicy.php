@@ -29,7 +29,11 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 		<div style="margin:10px">
 			<p>Use one of the following formats to cite data retrieved from the <?php echo $DEFAULT_TITLE; ?> network:</p>
 			<h3>General Citation:</h3>
-			<?php include('../includes/citationportal.php'); ?>
+			<?php
+			echo "<blockquote>";
+			include('../includes/citationportal.php');
+			echo "</blockquote>";
+			?>
 			<h3>Usage of occurrence data from specific collections, institutions or datasets:</h3>
 			<p>For all occurrence data usage citations, please visit the <a href="http://" target="_blank" rel="noopener noreferrer">How To Cite: Ways to Acknowledge and Cite the Use of the NEON Biorepository</a> page.</p>
 		</div>

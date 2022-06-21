@@ -46,6 +46,7 @@ $includeDets = array_key_exists("dets", $_REQUEST) ? $_REQUEST["dets"] : 1;
 $includeImgs = array_key_exists("imgs", $_REQUEST) ? $_REQUEST["imgs"] : 1;
 $includeAttributes = array_key_exists("attr", $_REQUEST) ? $_REQUEST["attr"] : 0;
 $includeMaterialSample = array_key_exists("matsample", $_REQUEST) ? $_REQUEST["matsample"] : 0;
+$_SESSION['searchVar'] = "collid=" . $collid . "&cond=" . $cond . "&colltype=" . $collType . "&schema=" . $schemaType . "&extended=" . $extended . "&dets=" . $includeDets . "&imgs=" . $includeImgs . "&attr=" . $includeAttributes . "&matsample=" . $includeMaterialSample;
 
 $dwcaHandler = new DwcArchiverCore();
 

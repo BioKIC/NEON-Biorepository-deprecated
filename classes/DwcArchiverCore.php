@@ -1,5 +1,6 @@
 <?php
 include_once($SERVER_ROOT . '/config/dbconnection.php');
+include_once($SERVER_ROOT . '/config/symbini.php');
 include_once($SERVER_ROOT . '/classes/Manager.php');
 include_once($SERVER_ROOT . '/classes/DwcArchiverOccurrence.php');
 include_once($SERVER_ROOT . '/classes/DwcArchiverDetermination.php');
@@ -1978,8 +1979,44 @@ class DwcArchiverCore extends Manager
 			$this->logOrEcho('ERROR establishing output file (' . $filePath . '), perhaps target folder is not readable by web server.');
 			return false;
 		}
-		// Output text
-		echo fwrite($fh, "Please use the following format to cite this dataset:\n");
+
+		// searchVar is passed to the class in each page that calls it
+		$searchVar = parse_url(urldecode($_SESSION['searchVar']));
+		parse_str($searchVar['path'], $searchParamsArr);
+
+		// Decides which citation format to use according to $searchVar
+		// Checks first argument in query
+		switch (array_key_first($searchParamsArr)) {
+			case "collid":
+				$citationFormat = "collection";
+				$citationPrefix = "Collection Page";
+				$collData = $_SESSION['colldata'];
+				break;
+			case "db":
+				$citationFormat = "portal";
+				$citationPrefix = "Portal Search";
+				break;
+			case "datasetid":
+				$citationFormat = "dataset";
+				$citationPrefix = "Dataset Page";
+				$dArr['name'] = $_SESSION['datasetName'];
+				$datasetid = $_SESSION['datasetid'];
+				break;
+			default:
+				$citationFormat = "portal";
+				$citationPrefix = "Portal";
+		}
+
+		$output = "This data package was downloaded from a " . $DEFAULT_TITLE . $citationPrefix . " on " . date('Y-m-d H:i:s') . ".\n\nPlease use the following format to cite this dataset:\n";
+
+		ob_start();
+		include($GLOBALS['SERVER_ROOT'] . '/includes/citation' . $citationFormat . '.php');
+		$output .= ob_get_clean();
+
+		$output .= "\n\nFor more information on citation formats, please see the following page: https://biorepo.neonscience.org/portal/misc/cite.php";
+
+		echo fwrite($fh, $output);
+
 
 		fclose($fh);
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");

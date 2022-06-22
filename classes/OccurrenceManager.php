@@ -805,7 +805,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			if($eventDate = $this->cleanInputStr($_REQUEST['eventdate1'])){
 				$this->searchTermArr['eventdate1'] = $eventDate;
 				if(array_key_exists('eventdate2',$_REQUEST)){
-					if($eventDate2 = filter_var($_REQUEST['eventdate2'], FILTER_SANITIZE_STRING)){
+					if($eventDate2 = $this->cleanInputStr($_REQUEST['eventdate2'])){
 						if($eventDate2 != $eventDate){
 							$this->searchTermArr['eventdate2'] = $eventDate2;
 						}

@@ -26,5 +26,6 @@ $LANG['BORDER_WIDTH'] = 'Border Width';
 $LANG['ROWS_PER_PAGE'] = 'Rows per page';
 $LANG['SPACE_BW_LABELS'] = 'Spacing between labels';
 $LANG['PRINT_IN_BROWSER'] = 'Print in Browser';
+$LANG['EXPORT_TO_DOC'] = 'Export to DOCX';
 
 ?>

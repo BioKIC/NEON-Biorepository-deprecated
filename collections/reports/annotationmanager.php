@@ -236,7 +236,7 @@ if($isEditor){
 				else{
 					?>
 					<div style="font-weight:bold;margin:20px;font-weight:150%;">
-						There are no annotations queued to be printed.
+						<?php echo $LANG['NO_ANNO']; ?>
 					</div>
 					<?php
 				}
@@ -247,8 +247,7 @@ if($isEditor){
 		else{
 			?>
 			<div style="font-weight:bold;margin:20px;font-weight:150%;">
-				You do not have permissions to print annotation labels for this collection.
-				Please contact the site administrator to obtain the necessary permissions.
+				<?php echo $LANG['NO_ANNO_PERMISSIONS']; ?>
 			</div>
 			<?php
 		}

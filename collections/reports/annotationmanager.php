@@ -1,5 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/reports/annotationmanager.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/reports/annotationmanager.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/reports/annotationmanager.en.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceLabel.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -26,7 +28,7 @@ if($isEditor){
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
-		<title><?php echo $DEFAULT_TITLE; ?> Annotation Label Manager</title>
+		<title><?php echo $DEFAULT_TITLE.' '.$LANG['ANN_LAB_MAN']; ?></title>
     <?php
       $activateJQuery = false;
       if(file_exists($SERVER_ROOT.'/includes/head.php')){
@@ -57,7 +59,7 @@ if($isEditor){
 					var dbElement = dbElements[i];
 					if(dbElement.checked) return true;
 				}
-			   	alert("Please select at least one annotation record!");
+			   	alert("<?php echo $LANG[SEL_ANN]; ?>");
 			  	return false;
 			}
 

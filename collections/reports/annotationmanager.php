@@ -224,7 +224,7 @@ if($isEditor){
 								<?php
 								if($reportsWritable){
 									?>
-									<div style="margin-top:5px"><input type="submit" name="submitaction" onclick="changeAnnoFormTarget(this.form, 'word');" value="Export to DOCX" /></div>
+									<div style="margin-top:5px"><button type="submit" name="submitaction" onclick="changeAnnoFormTarget(this.form, 'word');" value="Export to DOCX"><?php echo $LANG['EXPORT_TO_DOC']; ?></button></div>
 									<?php
 								}
 								?>

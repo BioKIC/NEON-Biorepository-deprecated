@@ -220,7 +220,7 @@ if($isEditor){
 							</div>
 							<div style="float:left;margin-left:50px">
 								<input type="hidden" name="collid" value="<?php echo $collid; ?>" />
-								<button type="submit" name="submitaction" onclick="changeAnnoFormTarget(this.form, 'browser');" value="Print in Browser;" ><? php echo $LANG['PRINT_IN_BROWSER']; ?></button>
+								<button type="submit" name="submitaction" onclick="changeAnnoFormTarget(this.form, 'browser')"><? php echo $LANG['PRINT_IN_BROWSER']; ?></button>
 								<?php
 								if($reportsWritable){
 									?>

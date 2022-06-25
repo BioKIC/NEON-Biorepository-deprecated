@@ -28,6 +28,7 @@ class TaxonomyHarvester extends Manager{
 	}
 
 	public function processSciname($term){
+		$newTid = 0;
 		$term = trim($term);
 		if($term){
 			$this->fullyResolved = true;
@@ -39,9 +40,9 @@ class TaxonomyHarvester extends Manager{
 			}
 			foreach($this->taxonomicResources as $authCode => $apiKey){
 				$newTid = $this->addSciname($taxonArr, $authCode);
-				if($newTid) return $newTid;
 			}
 		}
+		return $newTid;
 	}
 
 	private function parseCleanCheck($term){
@@ -214,6 +215,7 @@ class TaxonomyHarvester extends Manager{
 		if($baseArr){
 			$taxonArr = $this->translateColNode($baseArr);
 			$this->setColClassification($baseArr,$taxonArr);
+			if(isset($baseArr['formattedClassification'][140]['sciname'])) $taxonArr['family'] = $baseArr['formattedClassification'][140]['sciname'];
 			$tidAccepted = 0;
 			if($baseArr['name_status'] == 'synonym' && isset($baseArr['accepted_name'])){
 				$tidAccepted = $this->addColTaxonById($baseArr['accepted_name']);
@@ -1090,9 +1092,10 @@ class TaxonomyHarvester extends Manager{
 
 				//Establish acceptance
 				if(!$tidAccepted) $tidAccepted = $newTid;
-				$sqlInsert2 = 'INSERT INTO taxstatus(tid,tidAccepted,taxAuthId,parentTid,UnacceptabilityReason,modifiedUid)
+				$sqlInsert2 = 'INSERT INTO taxstatus(tid, tidAccepted, taxAuthId, parentTid, family, UnacceptabilityReason, modifiedUid)
 					VALUES('.$newTid.','.$tidAccepted.','.$this->taxAuthId.','.$parentTid.','.
-					(isset($taxonArr['acceptanceReason']) && $taxonArr['acceptanceReason']?'"'.$taxonArr['acceptanceReason'].'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
+					(isset($taxonArr['family']) && $taxonArr['family']?'"'.$this->cleanInStr($taxonArr['family']).'"':'NULL').','.
+					(isset($taxonArr['acceptanceReason']) && $taxonArr['acceptanceReason']?'"'.$this->cleanInStr($taxonArr['acceptanceReason']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
 				if($this->conn->query($sqlInsert2)){
 					//Add hierarchy index
 					$sqlHier = 'INSERT INTO taxaenumtree(tid,parenttid,taxauthid) VALUES('.$newTid.','.$parentTid.','.$this->taxAuthId.')';

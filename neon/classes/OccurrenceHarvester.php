@@ -1,13 +1,17 @@
 <?php
 include_once($SERVER_ROOT.'/classes/OccurrenceCollectionProfile.php');
+include_once($SERVER_ROOT.'/classes/TaxonomyUtilities.php');
+include_once($SERVER_ROOT.'/classes/TaxonomyHarvester.php');
 include_once($SERVER_ROOT.'/classes/UuidFactory.php');
 include_once($SERVER_ROOT.'/config/symbini.php');
 
 class OccurrenceHarvester{
 
 	private $conn;
+	private $activeCollid = 0;
 	private $fateLocationArr;
-	private $taxonomyArr = array();
+	private $taxonCodeArr = array();
+	private $taxonArr = array();
 	private $stateArr = array();
 	private $sampleClassArr = array();
 	private $domainSiteArr = array();
@@ -479,7 +483,7 @@ class OccurrenceHarvester{
 				if(isset($sampleArr['reproductive_condition'])) $dwcArr['reproductiveCondition'] = $sampleArr['reproductive_condition'];
 				if(isset($sampleArr['sex'])) $dwcArr['sex'] = $sampleArr['sex'];
 				if(isset($sampleArr['life_stage'])) $dwcArr['lifeStage'] = $sampleArr['life_stage'];
-				if(isset($sampleArr['associated_taxa'])) $dwcArr['associatedTaxa'] = $this->translateAssociatedTaxa($sampleArr['associated_taxa'], $dwcArr['collid']);
+				if(isset($sampleArr['associated_taxa'])) $dwcArr['associatedTaxa'] = $this->translateAssociatedTaxa($sampleArr['associated_taxa']);
 				$occurRemarks = array();
 				if(isset($sampleArr['remarks'])) $occurRemarks[] = $sampleArr['remarks'];
 				if(isset($sampleArr['sample_type'])){
@@ -571,7 +575,11 @@ class OccurrenceHarvester{
 				$skipTaxonomy = array(5,6,10,13,16,21,23,31,41,42,45,58,60,61,62,67,68,69,76);
 				if(!in_array($dwcArr['collid'],$skipTaxonomy)){
 					if(isset($sampleArr['taxon']) && $sampleArr['taxon']){
-						$dwcArr['sciname'] = $sampleArr['taxon'];
+						$sciname = $sampleArr['taxon'];
+						if($taxaArr = $this->getTaxonArr($sciname)){
+							if(isset($dwcArr['scientificNameAuthorship']) && $dwcArr['scientificNameAuthorship']) unset($taxaArr['scientificNameAuthorship']);
+							$dwcArr = array_merge($dwcArr, $taxaArr);
+						}
 						$dwcArr['taxonRemarks'] = 'Identification source: harvested from NEON API';
 						if(isset($sampleArr['taxon_published']) && $sampleArr['taxon_published']){
 							if($sampleArr['taxon_published'] != $sampleArr['taxon']){
@@ -580,44 +588,59 @@ class OccurrenceHarvester{
 							}
 						}
 					}
-					elseif($sampleArr['taxonID']){
-						$dwcArr['sciname'] = $sampleArr['taxonID'];
-						$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
-					}
 					else{
-						if($dwcArr['collid'] == 56){
-							if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
-								$dwcArr['sciname'] = $m[1];
-								$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+						//Taxon supplied as taxonCode
+						$taxonCode = '';
+						if($sampleArr['taxonID']){
+							$taxonCode = $sampleArr['taxonID'];
+							$dwcArr['taxonRemarks'] = 'Identification source: inferred from shipment manifest';
+						}
+						else{
+							if($dwcArr['collid'] == 56){
+								if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+									$taxonCode = $m[1];
+									$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+								}
+							}
+							elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
+								if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+									$taxonCode = $m[1];
+									$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+								}
 							}
 						}
-						elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
-							if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
-								$dwcArr['sciname'] = $m[1];
-								$dwcArr['taxonRemarks'] = 'Identification source: parsed from NEON sampleID';
+						if($taxonCode){
+							if(preg_match('/^[A-Z0-9]+$/', $taxonCode) || $dwcArr['collid'] == 30){
+								if($taxaArr = $this->translateTaxonCode($taxonCode)){
+									$dwcArr = array_merge($dwcArr, $taxaArr);
+									$taxonCode = $taxaArr['sciname'];
+								}
+							}
+							if(preg_match('/^[A-Z0-9]+$/', $taxonCode)){
+								if(!preg_match('/^[A-Z0-9]+$/', $currentOccurArr['sciname'])){
+									echo '<li style="margin-left:25px">Notice: translation of NEON taxon code ('.$taxonCode.') failed, thus keeping current name ('.$currentOccurArr['sciname'].')</li>';
+									unset($dwcArr['sciname']);
+								}
 							}
 						}
-					}
-					if(in_array($dwcArr['collid'], array(30)) && !isset($dwcArr['sciname'])) $dwcArr['sciname'] = 'Soil';
-					if(isset($dwcArr['sciname'])){
-						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname']) || in_array($dwcArr['collid'], array(30))){
-							$taxaArr = $this->getTaxonomy($dwcArr['sciname'], $dwcArr['collid']);
-							$dwcArr = array_merge($dwcArr,$taxaArr);
-						}
-						if(preg_match('/^[A-Z0-9]+$/', $dwcArr['sciname'])){
-							if(!preg_match('/^[A-Z0-9]+$/', $currentOccurArr['sciname'])){
-								echo '<li style="margin-left:25px">Notice: translation of NEON taxon code ('.$dwcArr['sciname'].') failed, thus keeping current name ('.$currentOccurArr['sciname'].')</li>';
-								unset($dwcArr['sciname']);
-							}
-						}
+						elseif($dwcArr['collid'] == 30) $dwcArr['sciname'] = 'Soil';
 					}
 					if(isset($sampleArr['identifications'])){
 						//Group of identifications will be inserted into omoccurdeterminations, and most recent will go into omoccurrences
 						$activeArr = array();
 						foreach($sampleArr['identifications'] as $idKey => $idArr){
-							if(isset($idArr['sciname']) && preg_match('/^[A-Z0-9]+$/', $idArr['sciname'])){
-								$taxaArr = $this->getTaxonomy($idArr['sciname'], $dwcArr['collid']);
-								$idArr = array_merge($idArr,$taxaArr);
+							if(isset($idArr['sciname'])){
+								if(preg_match('/^[A-Z0-9]+$/', $idArr['sciname'])){
+									if($taxaArr = $this->translateTaxonCode($idArr['sciname'])){
+										$idArr = array_merge($idArr,$taxaArr);
+									}
+								}
+								else{
+									if($taxaArr = $this->getTaxonArr($idArr['sciname'])){
+										if(isset($idArr['scientificNameAuthorship']) && $idArr['scientificNameAuthorship']) unset($taxaArr['scientificNameAuthorship']);
+										$idArr = array_merge($idArr, $taxaArr);
+									}
+								}
 							}
 							if(!$activeArr) $activeArr = $idArr;
 							elseif(!isset($activeArr['identifiedBy'])){
@@ -678,6 +701,7 @@ class OccurrenceHarvester{
 			$rs = $this->conn->query($sql);
 			if($rs->num_rows == 1){
 				$r = $rs->fetch_object();
+				$this->activeCollid = $r->collid;
 				$dwcArr['collid'] = $r->collid;
 				if($r->datasetName) $dwcArr['verbatimAttributes'] = $r->datasetName;
 				else $dwcArr['verbatimAttributes'] = $sampleClass;
@@ -799,8 +823,26 @@ class OccurrenceHarvester{
 			$siteID = (isset($dwcArr['siteID'])?$dwcArr['siteID']:0);
 			unset($dwcArr['domainID']);
 			unset($dwcArr['siteID']);
-			if(isset($dwcArr['sciname']) && $dwcArr['sciname']){
+			if(!isset($dwcArr['sciname']) || !$dwcArr['sciname']){
+				if($dwcArr['collid'] == 5 || $dwcArr['collid'] == 67){
+					$dwcArr['sciname'] = 'Benthic Microbe';
+				}
+				elseif($dwcArr['collid'] == 6 || $dwcArr['collid'] == 68){
+					$dwcArr['sciname'] = 'Surface Water Microbe';
+				}
+				elseif($dwcArr['collid'] == 31 || $dwcArr['collid'] == 69){
+					$dwcArr['sciname'] = 'Soil Microbe';
+				}
+				elseif($dwcArr['collid'] == 41){
+					$dwcArr['sciname'] = 'Dry Deposition';
+				}
+				elseif($dwcArr['collid'] == 42){
+					$dwcArr['sciname'] = 'Wet Deposition';
+				}
+			}
+			else{
 				if(substr($dwcArr['sciname'],-4) == ' sp.') $dwcArr['sciname'] = trim(substr($dwcArr['sciname'], 0, strlen($dwcArr['sciname']) - 4));
+				elseif(substr($dwcArr['sciname'],-4) == ' spp.') $dwcArr['sciname'] = trim(substr($dwcArr['sciname'], 0, strlen($dwcArr['sciname']) - 5));
 			}
 			$numericFieldArr = array('collid','decimalLatitude','decimalLongitude','minimumElevationInMeters','maximumElevationInMeters');
 			$sql = '';
@@ -1012,113 +1054,145 @@ class OccurrenceHarvester{
 		return $retArr;
 	}
 
-	private function translateAssociatedTaxa($inStr, $collid){
+	private function translateAssociatedTaxa($inStr){
 		$retStr = '';
 		$taxaCodeArr = explode('|', $inStr);
 		foreach($taxaCodeArr as $strFrag){
-			$taxaArr = $this->getTaxonomy($strFrag, $collid);
+			$taxaArr = $this->translateTaxonCode($strFrag);
 			if(isset($taxaArr['sciname']) && $taxaArr['sciname']) $retStr .= ', ' . trim($taxaArr['sciname']);
 			else $retStr .= ', ' . $strFrag;
 		}
 		return trim($retStr, ', ');
 	}
 
-	private function getTaxonomy($taxonCode, $collid){
+	private function translateTaxonCode($taxonCode){
 		$retArr = array();
+		$taxonGroup = $this->getTaxonGroup($this->activeCollid);
 		$taxonCode = trim($taxonCode);
-		if($taxonCode){
-			if($taxonCode == 'OTHE'){
-				if(in_array($collid, array(17,19,24,25,26,27,28,71))){
-					$retArr['sciname'] = 'Mammalia';
-					$retArr['tidInterpreted'] = '21269';
-					/*
-					* 	//Adjustment for Mammal OTHE taxonomic code
-					* 	$sql = 'UPDATE omoccurrences
-					* 	SET sciname = "Mammalia", scientificNameAuthorship = NULL, tidinterpreted = 21269, family = NULL
-					* 	WHERE collid IN(17,19,24,25,26,27,28,71) AND (sciname IN("OTHE")) ';
-					* 	if(!$this->conn->query($sql)){
-					* 	echo 'ERROR updating Mammalia taxonomy for OTHE taxon codes: '.$sql;
-					* 	}
-					*/
+		if($taxonCode && $taxonGroup){
+			if(!isset($this->taxonCodeArr[$taxonGroup][$taxonCode])){
+				$tid = 0;
+				$sciname = '';
+				$sql = 'SELECT t.tid, n.sciname, n.scientificNameAuthorship, n.family
+					FROM neon_taxonomy n LEFT JOIN taxa t ON n.sciname = t.sciname
+					WHERE n.taxonGroup = "'.$this->cleanInStr($taxonGroup).'" AND n.taxonCode = "'.$this->cleanInStr($taxonCode).'"';
+				if($rs = $this->conn->query($sql)){
+					while($r = $rs->fetch_object()){
+						$tid = $r->tid;
+						$sciname = $r->sciname;
+						$this->taxonCodeArr[$taxonGroup][$taxonCode]['tid'] = $tid;
+						$this->taxonCodeArr[$taxonGroup][$taxonCode]['sciname'] = $sciname;
+						$this->taxonCodeArr[$taxonGroup][$taxonCode]['author'] = $r->scientificNameAuthorship;
+						$this->taxonCodeArr[$taxonGroup][$taxonCode]['family'] = $r->family;
+					}
+					$rs->free();
 				}
-				elseif(in_array($collid, array(66,20,12,15,70))){
-					$retArr['sciname'] = 'Chordata';
-					$retArr['tidInterpreted'] = '57';
-					/*
-					* 	//Adjustment for non-Mammal vertebrates with OTHE taxonomic code
-					* 	$sql = 'UPDATE omoccurrences
-					* 	SET sciname = "Chordata", scientificNameAuthorship = NULL, tidinterpreted = 57, family = NULL
-					* 	WHERE collid IN(66,20,12,15,70) AND (sciname IN("OTHE"))';
-					* 	if(!$this->conn->query($sql)){
-					* 	echo 'ERROR updating Chordata taxonomy for OTHE taxon codes: '.$sql;
-					* 	}
-					*/
+				else echo 'ERROR populating taxonomy codes: '.$sql;
+				if(!$tid && $sciname){
+					//Verify name via Catalog of Life and if valid, add to thesaurus
+					$harvester = new TaxonomyHarvester();
+					$harvester->setKingdomName($this->getKingdomName());
+					$harvester->setTaxonomicResources(array('col'));
+					if($newTid = $harvester->processSciname($sciname)){
+						$this->taxonCodeArr[$taxonGroup][$taxonCode]['tid'] = $newTid;
+					}
 				}
 			}
-			else{
-				if(!isset($this->taxonomyArr[$taxonCode])){
-					$sql = 'SELECT t.tid, t.sciname, t.author, ts.family
-						FROM taxaresourcelinks l INNER JOIN taxa t ON l.tid = t.tid
-						INNER JOIN taxstatus ts ON t.tid = ts.tid
-						WHERE ts.taxauthid = 1 AND l.sourceIdentifier = "'.$taxonCode.'"';
-					if(in_array($collid, array(30))){
-						//Is a soil collection
-						$taxonCode2 = '';
-						if(substr($taxonCode,-1) == 's') $taxonCode2 = substr($taxonCode,0,-1);
-						$sql = 'SELECT t.tid, t.sciname, t.author, ts.family
-							FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid
-							WHERE ts.taxauthid = 1 AND t.sciname IN("'.$taxonCode.'"'.($taxonCode2?',"'.$taxonCode2.'"':'').')';
-					}
-					if($rs = $this->conn->query($sql)){
-						while($r = $rs->fetch_object()){
-							$this->taxonomyArr[$taxonCode][$r->tid]['sciname'] = $r->sciname;
-							$this->taxonomyArr[$taxonCode][$r->tid]['author'] = $r->author;
-							$this->taxonomyArr[$taxonCode][$r->tid]['family'] = $r->family;
-						}
-						$rs->free();
-						if(isset($this->taxonomyArr[$taxonCode]) && count($this->taxonomyArr[$taxonCode]) > 1){
-							$sql = 'SELECT DISTINCT t.tid, cl.collid
-								FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid
-								INNER JOIN taxaenumtree e ON t.tid = e.tid
-								INNER JOIN taxa p ON e.parenttid = p.tid
-								INNER JOIN omcollcategories cat ON p.sciname = cat.notes
-								INNER JOIN omcollcatlink cl ON cat.ccpk = cl.ccpk
-								WHERE e.taxauthid = 1 AND ts.taxauthid = 1 AND p.rankid IN(10,30) AND  t.tid IN('.implode(',',array_keys($this->taxonomyArr[$taxonCode])).')';
-							if($rs = $this->conn->query($sql)){
-								while($r = $rs->fetch_object()){
-									$this->taxonomyArr[$taxonCode][$r->tid]['collid'][] = $r->collid;
-								}
-							}
-							$rs->free();
-						}
-					}
-					else echo 'ERROR updating taxonomy codes: '.$sql;
-				}
-				if(isset($this->taxonomyArr[$taxonCode])){
-					foreach($this->taxonomyArr[$taxonCode] as $tid => $taxonArr){
-						if(!isset($taxonArr['collid']) || in_array($collid, $taxonArr['collid'])){
-							$retArr['tidInterpreted'] = $tid;
-							$retArr['sciname'] = $taxonArr['sciname'];
-							if($taxonArr['author']) $retArr['scientificNameAuthorship'] = $taxonArr['author'];
-							if($taxonArr['family']) $retArr['family'] = $taxonArr['family'];
-						}
-					}
-				}
-				/*
-				$sql = 'UPDATE taxaresourcelinks l INNER JOIN omoccurrences o ON l.sourceIdentifier = o.sciname
-					INNER JOIN omcollcatlink catlink ON o.collid = catlink.collid
-					INNER JOIN omcollcategories cat ON catlink.ccpk = cat.ccpk
-					INNER JOIN taxa t ON l.tid = t.tid
-					INNER JOIN taxaenumtree e2 ON t.tid = e2.tid
-					INNER JOIN taxa t2 ON e2.parenttid = t2.tid
-					INNER JOIN taxstatus ts ON t.tid = ts.tid
-					SET o.sciname = t.sciname, o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family
-					WHERE e2.taxauthid = 1 AND ts.taxauthid = 1 AND t2.rankid IN(10,30) AND cat.notes = t2.sciname AND o.tidinterpreted IS NULL ';
-				if(!$this->conn->query($sql)){
-					echo 'ERROR updating taxonomy codes: '.$sql;
-				}
-				*/
+			if(isset($this->taxonCodeArr[$taxonGroup][$taxonCode])){
+				$retArr['tidInterpreted'] = $this->taxonCodeArr[$taxonGroup][$taxonCode]['tid'];
+				$retArr['sciname'] = $this->taxonCodeArr[$taxonGroup][$taxonCode]['sciname'];
+				$retArr['scientificNameAuthorship'] = $this->taxonCodeArr[$taxonGroup][$taxonCode]['author'];
+				$retArr['family'] = $this->taxonCodeArr[$taxonGroup][$taxonCode]['family'];
 			}
+		}
+		return $retArr;
+	}
+
+	private function getTaxonGroup($collid){
+		$taxonGroup = array( 45 => 'ALGAE', 46 => 'ALGAE', 47 => 'ALGAE', 49 => 'ALGAE', 50 => 'ALGAE', 55 => 'ALGAE', 60 => 'ALGAE', 62 => 'ALGAE', 73 => 'ALGAE',
+			11 => 'BEETLE', 13 => 'BEETLE', 14 => 'BEETLE', 16 => 'BEETLE', 39 => 'BEETLE', 63 => 'BEETLE',
+			20 => 'FISH', 66 => 'FISH',
+			12 => 'HERPETOLOGY', 15 => 'HERPETOLOGY', 70 => 'HERPETOLOGY',
+			21 => 'MACROINVERTEBRATE', 22 => 'MACROINVERTEBRATE', 48 => 'MACROINVERTEBRATE', 52 => 'MACROINVERTEBRATE', 53 => 'MACROINVERTEBRATE', 57 => 'MACROINVERTEBRATE', 61 => 'MACROINVERTEBRATE',
+			29 => 'MOSQUITO', 56 => 'MOSQUITO', 58 => 'MOSQUITO', 59 => 'MOSQUITO', 65 => 'MOSQUITO',
+			7 => 'PLANT', 8 => 'PLANT', 9 => 'PLANT', 10 => 'PLANT', 18 => 'PLANT', 23 => 'PLANT', 40 => 'PLANT', 54 => 'PLANT', 76 => 'PLANT',
+			17 => 'SMALL_MAMMAL', 19 => 'SMALL_MAMMAL', 24 => 'SMALL_MAMMAL', 25 => 'SMALL_MAMMAL', 26 => 'SMALL_MAMMAL', 27 => 'SMALL_MAMMAL', 28 => 'SMALL_MAMMAL', 64 => 'SMALL_MAMMAL', 71 => 'SMALL_MAMMAL',
+			30 => 'SOIL', 79 => 'SOIL',
+			75 => 'TICK'
+		);
+		if(array_key_exists($collid, $taxonGroup)) return $taxonGroup[$collid];
+		return false;
+	}
+
+	private function getKingdomName(){
+		if(in_array($this->activeCollid, array( 11,12,13,14,15,16,17,19,20,21,22,24,25,26,27,28,29,39,48,52,53,56,57,58,59,61,63,64,65,66,70,71,75 ))) return 'Animalia';
+		elseif(in_array($this->activeCollid, array( 7,8,9,10,18,23,40,54,76 ))) return 'Plantae';
+		//Let's use Plantae for algae group, which works for now
+		elseif(in_array($this->activeCollid, array( 45,46,47,49,50,55,60,62,73 ))) return 'Plantae';
+		//soils: 30,79
+		//Microbes: 5,6,31,67,68,69
+		//environmental: 41,42
+		return '';
+	}
+
+	private function getTaxonArr($sciname){
+		if(substr($sciname, -4) == ' sp.') $sciname = trim(substr($sciname, 0, strlen($$sciname) - 4));
+		elseif(substr($sciname, -4) == ' spp.') $sciname = trim(substr($sciname, 0, strlen($sciname) - 5));
+		$retArr = $this->getTaxon($sciname);
+		if(!$retArr){
+			//Parse name in case author is inbedded within taxon
+			$scinameArr = TaxonomyUtilities::parseScientificName($sciname, $this->conn);
+			if(isset($scinameArr['sciname']) && $scinameArr['sciname']){
+				$sciname = $scinameArr['sciname'];
+				$retArr = $this->getTaxon($sciname);
+				if(isset($scinameArr['author']) && $scinameArr['author']) $retArr['scientificNameAuthorship'] = $scinameArr['author'];
+			}
+			if(!$retArr){
+				//Verify name via Catalog of Life and if valid, add to thesaurus
+				$harvester = new TaxonomyHarvester();
+				$harvester->setKingdomName($this->getKingdomName());
+				$harvester->setTaxonomicResources(array('col'));
+				if($harvester->processSciname($sciname)){
+					$retArr = $this->getTaxon($sciname);
+				}
+			}
+		}
+		return $retArr;
+	}
+
+	private function getTaxon($sciname){
+		$retArr = array();
+		$targetTaxon = '';
+		$sciname2 = '';
+		if(array_key_exists($sciname, $this->taxonArr)){
+			$targetTaxon = $sciname;
+		}
+		elseif(substr($sciname,-1) == 's'){
+			//Soil taxon needs to have s removed from end of word
+			$sciname2 = substr($sciname,0,-1);
+			if(array_key_exists($sciname2, $this->taxonArr)){
+				$targetTaxon = $sciname2;
+			}
+		}
+		if(!$targetTaxon){
+			$sql = 'SELECT t.tid, t.sciname, t.author, ts.family
+				FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid
+				WHERE ts.taxauthid = 1 AND t.sciname IN("'.$this->cleanInStr($sciname).'"'.($this->cleanInStr($sciname2)?',"'.$this->cleanInStr($sciname2).'"':'').')';
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$this->taxonArr[$r->sciname]['tid'] = $r->tid;
+					$this->taxonArr[$r->sciname]['author'] = $r->author;
+					$this->taxonArr[$r->sciname]['family'] = $r->family;
+					$targetTaxon = $r->sciname;
+				}
+			}
+			$rs->free();
+		}
+		if($targetTaxon){
+			$retArr['sciname'] = $targetTaxon;
+			$retArr['tidInterpreted'] = $this->taxonArr[$targetTaxon]['tid'];
+			$retArr['scientificNameAuthorship'] = $this->taxonArr[$targetTaxon]['author'];
+			$retArr['family'] = $this->taxonArr[$targetTaxon]['family'];
 		}
 		return $retArr;
 	}
@@ -1139,57 +1213,6 @@ class OccurrenceHarvester{
 		if(!$this->conn->query($sql)){
 			echo 'ERROR updating taxonomy codes: '.$sql;
 		}
-
-		//Temporary code needed until identification details are included within the NEON API
-		//Populate missing sciname
-		$sql = 'UPDATE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-			'LEFT JOIN taxstatus ts ON nt.tid = ts.tid '.
-			'SET o.sciname = IFNULL(nt.sciname, nt.taxonid), o.tidinterpreted = nt.tid, o.family = ts.family, o.taxonRemarks = IFNULL(o.taxonRemarks,"Identification source: 2019 taxonomy extract from NEON central db") '.
-			'WHERE (nt.sciname IS NOT NULL OR nt.taxonID IS NOT NULL) AND o.sciname IS NULL AND o.tidinterpreted IS NULL AND o.family IS NULL';
-		if(!$this->conn->query($sql)){
-			echo 'ERROR updating taxonomy using temporary NEON taxon tables: '.$sql;
-		}
-
-		/*
-		 //Populate missing dateIdentified
-		 $sql = 'UPDATE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-		 'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-		 'SET o.dateIdentified = SUBSTRING(nt.identifiedDate,1,10) '.
-		 'WHERE o.dateIdentified IS NULL AND nt.identifiedDate IS NOT NULL AND o.sciname IS NOT NULL ';
-		 if(!$this->conn->query($sql)){
-		 echo 'ERROR updating dateIdentified using temporary NEON taxon tables: '.$sql;
-		 }
-
-		 //Populate missing identifiedBy
-		 $sql = 'UPDATE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-		 'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-		 'SET o.identifiedBy = nt.identifiedBy '.
-		 'WHERE o.identifiedBy IS NULL AND nt.identifiedBy IS NOT NULL AND o.sciname IS NOT NULL';
-		 if(!$this->conn->query($sql)){
-		 echo 'ERROR updating identifiedBy using temporary NEON taxon tables: '.$sql;
-		 }
-		 */
-
-		//Populate missing eventDate; needed until collectionDate is added to NEON API
-		$sql = 'UPDATE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-			'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
-			'WHERE o.eventDate IS NULL AND nt.collectDate IS NOT NULL';
-		if(!$this->conn->query($sql)){
-			echo 'ERROR updating eventDate using temporary NEON taxon tables: '.$sql;
-		}
-
-		#Update mismatched eventDates (e.g. possibiliy incorrect within manifest)
-		$sql = 'UPDATE IGNORE neon_identification nt INNER JOIN NeonSample s ON nt.sampleID = s.sampleID '.
-			'INNER JOIN omoccurrences o ON s.occid = o.occid '.
-			'SET o.eventDate = SUBSTRING(nt.collectDate,1,10) '.
-			'WHERE o.eventDate IS NOT NULL AND o.eventDate != DATE(nt.collectDate)';
-		/*
-		if(!$this->conn->query($sql)){
-			echo 'ERROR mixing problematic eventDate using temporary NEON taxon tables: '.$sql;
-		}
-		*/
 
 		//Run custon stored procedure that preforms some special assignment tasks
 		if(!$this->conn->query('call occurrence_harvesting_sql()')){

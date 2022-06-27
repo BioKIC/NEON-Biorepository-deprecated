@@ -446,7 +446,7 @@ class OccurrenceHarvester{
 				if($identArr) $tableArr['identifications'][] = $identArr;
 				if($assocMedia && isset($assocMedia['url'])) $tableArr['assocMedia'][] = $assocMedia;
 
-				if($tableArr['collection_location'] && !strpos($tableArr['collection_location'], ' ')){
+				if(isset($tableArr['collection_location']) && $tableArr['collection_location'] && !strpos($tableArr['collection_location'], ' ')){
 					$score = 1;
 					$this->fateLocationArr[$score]['loc'] = $tableArr['collection_location'];
 					$this->fateLocationArr[$score]['date'] = $fateDate;

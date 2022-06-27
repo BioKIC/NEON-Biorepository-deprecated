@@ -884,6 +884,7 @@ class TaxonomyHarvester extends Manager{
 	//Index Fungorum functions via MyCoPortal FdEx tools
 	//http://www.indexfungorum.org/ixfwebservice/fungus.asmx/NameSearch?SearchText=Acarospora%20socialis&AnywhereInText=false&MaxNumber=10
 	private function addFdexTaxon($taxonArr){
+		$tid = 0;
 		$sciName = $taxonArr['sciname'];
 		if($sciName){
 			$adjustedName = $sciName;
@@ -899,28 +900,36 @@ class TaxonomyHarvester extends Manager{
 			else{
 				$resultArr = json_decode($content,true);
 				$numResults = count($resultArr);
-				$taxonArr = array();
 				if($numResults){
-					/*
-					 * return example "taxon" : "Verrucaria microstictica" , "authors" : "Leight." , "mbNumber" : "307221" , "otherID" : "86A6E1F9-AACE-43AF-A466-9427B38788D4" ,
-					 * "rank" : "sp." , "rankCode" : "20" , "taxonomicStatus" : "Assumed legitimate" , "currentTaxon" : "Polycoccum microsticticum" , "currentMbNumber" : "307214" ,
-					 * "currentOtherID" : "CACE62EC-E136-44D9-B01C-BB36D95E6262" , "currentStatus" : "Stable" , "parentTaxon" : "Verrucaria" , "parentMbNumber" : "5725" ,
-					 * "parentOtherID" : "1CB1CC6A-36B9-11D5-9548-00D0592D548C" , "taxonomicAgreement" : "Asynchronous", "recordSource" : "Index Fungorum"
-					*/
+					$tidAccepted = 0;
 					foreach($resultArr as $unitArr){
-						$taxonArr['sciname'] = $unitArr['taxon'];
-						$rankArr = $this->getFdexRank($unitArr['rank'],$unitArr['rankCode']);
+						if($unitArr['recordSource'] == 'Index Fungorum'){
+							$taxonArr['sciname'] = $unitArr['taxon'];
+							$taxonArr['author'] = $unitArr['authors'];
+							if(isset($this->rankIdArr[$unitArr['rank']])) $taxonArr['rankid'] = $this->rankIdArr[$unitArr['rank']];
+							$taxonArr['source'] = $unitArr['recordSource'].' via fDex';
+							$taxonArr['notes'] = 'taxonomicStatus: '.$unitArr['taxonomicStatus'].'; currentStatus: '.$unitArr['currentStatus'];
+							if(isset($unitArr['parentTaxon'])){
+								$parentTaxon = $unitArr['parentTaxon'];
+								$parentTid = 0;
+								$parentArr = $this->parseCleanCheck($parentTaxon);
+								if(isset($parentArr['tid']) && $parentArr['tid']) $parentTid = $parentArr['tid'];
+								else $parentTid = $this->addFdexTaxon($parentArr);
+								if($parentTid) $taxonArr['parent']['tid'] = $parentTid;
+							}
+							if($unitArr['taxon'] != $unitArr['currentTaxon']){
+								$acceptedArr = $this->parseCleanCheck($unitArr['currentTaxon']);
+								if(isset($acceptedArr['tid']) && $acceptedArr['tid']) $tidAccepted = $acceptedArr['tid'];
+								else $tidAccepted = $this->addFdexTaxon($acceptedArr);
+							}
+						}
+						break;
 					}
+					if($taxonArr) $tid = $this->loadNewTaxon($taxonArr, $tidAccepted);
 				}
-				$this->loadNewTaxon($taxonArr);
 			}
 		}
-	}
-
-	private function getFdexRank($rankStr, $rankCode){
-		$retArr = array();
-
-		return $retArr;
+		return $tid;
 	}
 
 	//EOL functions

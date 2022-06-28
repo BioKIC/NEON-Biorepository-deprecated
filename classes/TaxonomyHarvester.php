@@ -9,8 +9,8 @@ class TaxonomyHarvester extends Manager{
 	private $taxonomicResources = array();
 	private $taxAuthId = 1;
 	private $defaultAuthor;
-	private $defaultFamily;
-	private $defaultFamilyTid;
+	private $defaultFamily = '';
+	private $defaultFamilyTid = 0;
 	private $kingdomName;
 	private $kingdomTid;
 	private $rankIdArr = array();
@@ -28,6 +28,7 @@ class TaxonomyHarvester extends Manager{
 	}
 
 	public function processSciname($term){
+		$newTid = 0;
 		$term = trim($term);
 		if($term){
 			$this->fullyResolved = true;
@@ -39,9 +40,9 @@ class TaxonomyHarvester extends Manager{
 			}
 			foreach($this->taxonomicResources as $authCode => $apiKey){
 				$newTid = $this->addSciname($taxonArr, $authCode);
-				if($newTid) return $newTid;
 			}
 		}
+		return $newTid;
 	}
 
 	private function parseCleanCheck($term){
@@ -93,6 +94,10 @@ class TaxonomyHarvester extends Manager{
 		elseif($resourceKey== 'tropicos'){
 			$this->logOrEcho('Checking <b>TROPICOS</b>...',1);
 			$newTid= $this->addTropicosTaxon($taxonArr);
+		}
+		elseif($resourceKey== 'bryonames'){
+			$this->logOrEcho('Checking <b>Bryophyte Nomenclator (https://bryonames.org)</b>...',1);
+			$newTid= $this->addBryoNamesTaxon($taxonArr);
 		}
 		elseif($resourceKey== 'fdex'){
 			$this->logOrEcho('Checking <b>fdex</b>...',1);
@@ -214,6 +219,7 @@ class TaxonomyHarvester extends Manager{
 		if($baseArr){
 			$taxonArr = $this->translateColNode($baseArr);
 			$this->setColClassification($baseArr,$taxonArr);
+			if(isset($baseArr['formattedClassification'][140]['sciname'])) $taxonArr['family'] = $baseArr['formattedClassification'][140]['sciname'];
 			$tidAccepted = 0;
 			if($baseArr['name_status'] == 'synonym' && isset($baseArr['accepted_name'])){
 				$tidAccepted = $this->addColTaxonById($baseArr['accepted_name']);
@@ -304,7 +310,7 @@ class TaxonomyHarvester extends Manager{
 		if(isset($nodeArr['author'])) $taxonArr['author'] = $nodeArr['author'];
 		if(isset($nodeArr['source_database'])) $taxonArr['source'] = $nodeArr['source_database'];
 		if(isset($nodeArr['source_database_url'])) $taxonArr['sourceURL'] = $nodeArr['source_database_url'];
-		$rankID = $this->getRankId($taxonArr);
+		$rankID = $this->getRankIdByTaxonArr($taxonArr);
 		if($rankID){
 			$taxonArr['rankid'] = $rankID;
 			if(!isset($taxonArr['unitname1'])) $taxonArr = array_merge(TaxonomyUtilities::parseScientificName($taxonArr['sciname'],$this->conn,$taxonArr['rankid'],$this->kingdomName),$taxonArr);
@@ -325,7 +331,7 @@ class TaxonomyHarvester extends Manager{
 		if(isset($nodeArr['name']['authorship'])) $taxonArr['author'] = $nodeArr['name']['authorship'];
 		if(isset($nodeArr['datasetKey'])) $taxonArr['source'] = '<a href="https://www.catalogueoflife.org/data/dataset/'.$nodeArr['datasetKey'].'" target="_blank">https://www.catalogueoflife.org/data/dataset/'.$nodeArr['datasetKey'].'</a>';
 		if(isset($nodeArr['link'])) $taxonArr['sourceURL'] = $nodeArr['link'];
-		$rankID = $this->getRankId($taxonArr);
+		$rankID = $this->getRankIdByTaxonArr($taxonArr);
 		if($rankID) $taxonArr['rankid'] = $rankID;
 		if(isset($taxonArr['unitname3']) && $taxonArr['unitname3'] && ($this->kingdomName == 'Plantae' || $this->kingdomName == 'Fungi')){
 			if($taxonArr['rankid'] == 230) $taxonArr['unitind3'] = 'subsp.';
@@ -641,7 +647,7 @@ class TaxonomyHarvester extends Manager{
 		if(isset($nodeArr['valid_AphiaID'])) $taxonArr['validID'] = $nodeArr['valid_AphiaID'];
 		if(isset($nodeArr['lsid'])) $taxonArr['guid'] = $nodeArr['lsid'];
 		if(isset($nodeArr['rank'])) $taxonArr['taxonRank'] = $nodeArr['rank'];
-		$taxonArr['rankid'] = $this->getRankId($taxonArr);
+		$taxonArr['rankid'] = $this->getRankIdByTaxonArr($taxonArr);
 		$this->buildTaxonArr($taxonArr);
 		return $taxonArr;
 	}
@@ -867,7 +873,7 @@ class TaxonomyHarvester extends Manager{
 		if(isset($nodeArr['SpeciesEpithet'])) $taxonArr['unitname2'] = $nodeArr['SpeciesEpithet'];
 		if(isset($nodeArr['source'])) $taxonArr['source'] = $nodeArr['source'];
 		if(!isset($taxonArr['unitname1']) && !strpos($taxonArr['sciname'],' ')) $taxonArr['unitname1'] = $taxonArr['sciname'];
-		$taxonArr['rankid'] = $this->getRankId($taxonArr);
+		$taxonArr['rankid'] = $this->getRankIdByTaxonArr($taxonArr);
 		if(isset($taxonArr['unitname2']) && isset($nodeArr['OtherEpithet'])){
 			$taxonArr['unitname3'] = $nodeArr['OtherEpithet'];
 			if($this->kingdomName != 'Animalia'){
@@ -882,6 +888,7 @@ class TaxonomyHarvester extends Manager{
 	//Index Fungorum functions via MyCoPortal FdEx tools
 	//http://www.indexfungorum.org/ixfwebservice/fungus.asmx/NameSearch?SearchText=Acarospora%20socialis&AnywhereInText=false&MaxNumber=10
 	private function addFdexTaxon($taxonArr){
+		$tid = 0;
 		$sciName = $taxonArr['sciname'];
 		if($sciName){
 			$adjustedName = $sciName;
@@ -897,28 +904,109 @@ class TaxonomyHarvester extends Manager{
 			else{
 				$resultArr = json_decode($content,true);
 				$numResults = count($resultArr);
-				$taxonArr = array();
 				if($numResults){
-					/*
-					 * return example "taxon" : "Verrucaria microstictica" , "authors" : "Leight." , "mbNumber" : "307221" , "otherID" : "86A6E1F9-AACE-43AF-A466-9427B38788D4" ,
-					 * "rank" : "sp." , "rankCode" : "20" , "taxonomicStatus" : "Assumed legitimate" , "currentTaxon" : "Polycoccum microsticticum" , "currentMbNumber" : "307214" ,
-					 * "currentOtherID" : "CACE62EC-E136-44D9-B01C-BB36D95E6262" , "currentStatus" : "Stable" , "parentTaxon" : "Verrucaria" , "parentMbNumber" : "5725" ,
-					 * "parentOtherID" : "1CB1CC6A-36B9-11D5-9548-00D0592D548C" , "taxonomicAgreement" : "Asynchronous", "recordSource" : "Index Fungorum"
-					*/
+					$tidAccepted = 0;
 					foreach($resultArr as $unitArr){
-						$taxonArr['sciname'] = $unitArr['taxon'];
-						$rankArr = $this->getFdexRank($unitArr['rank'],$unitArr['rankCode']);
+						if($unitArr['recordSource'] == 'Index Fungorum'){
+							$taxonArr['sciname'] = $unitArr['taxon'];
+							$taxonArr['author'] = $unitArr['authors'];
+							$rankID = $this->getRankId($unitArr['rank']);
+							if($rankID) $taxonArr['rankid'] = $rankID;
+							$taxonArr['source'] = 'Via fDex: '.$unitArr['recordSource'];
+							$taxonArr['notes'] = 'taxonomicStatus: '.$unitArr['taxonomicStatus'].'; currentStatus: '.$unitArr['currentStatus'];
+							if(isset($unitArr['parentTaxon'])){
+								$parentTaxon = $unitArr['parentTaxon'];
+								$parentTid = 0;
+								$parentArr = $this->parseCleanCheck($parentTaxon);
+								if(isset($parentArr['tid']) && $parentArr['tid']) $parentTid = $parentArr['tid'];
+								else $parentTid = $this->addFdexTaxon($parentArr);
+								if($parentTid) $taxonArr['parent']['tid'] = $parentTid;
+							}
+							if($unitArr['taxon'] != $unitArr['currentTaxon']){
+								$acceptedArr = $this->parseCleanCheck($unitArr['currentTaxon']);
+								if(isset($acceptedArr['tid']) && $acceptedArr['tid']) $tidAccepted = $acceptedArr['tid'];
+								else $tidAccepted = $this->addFdexTaxon($acceptedArr);
+							}
+						}
+						break;
 					}
+					if($taxonArr) $tid = $this->loadNewTaxon($taxonArr, $tidAccepted);
 				}
-				$this->loadNewTaxon($taxonArr);
 			}
 		}
+		return $tid;
 	}
 
-	private function getFdexRank($rankStr, $rankCode){
-		$retArr = array();
-
-		return $retArr;
+	//The Bryophyte Nomenclator (ByroNames)
+	//https://www.bryonames.org/api/search.json?api_key=just_for_Ed&name=Ceratolejeunea+baracoensis
+	//https://www.bryonames.org/api/search.json?api_key=just_for_Ed&name=Bryum%20pendulum
+	private function addBryoNamesTaxon($taxonArr){
+		$tid = 0;
+		$sciName = $taxonArr['sciname'];
+		if($sciName){
+			$adjustedName = $sciName;
+			if(isset($taxonArr['rankid']) && $taxonArr['rankid'] > 220) $adjustedName = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].' '.$taxonArr['unitname3']);
+			$url = 'https://www.bryonames.org/api/search.json?api_key=just_for_Ed&name='.str_replace(' ','+',$adjustedName);
+			//echo $url.'<br/>';
+			$retArr = $this->getContentString($url);
+			$content = $retArr['str'];
+			$resultArr = json_decode($content, true);
+			if($resultArr['matchCount']){
+				$tidAccepted = 0;
+				$unitArr = array();
+				foreach($resultArr['matches'] as $matchArr){
+					if(!isset($matchArr['nomenclaturalStatus']) || $matchArr['nomenclaturalStatus'] != 'nom. illeg.'){
+						if($matchArr['scientificName'] == $adjustedName || $matchArr['scientificName'] == $sciName){
+							if(!$unitArr){
+								$unitArr = $matchArr;
+							}
+							elseif($unitArr['taxonomicStatus'] == 'synonym' && $matchArr['taxonomicStatus'] == 'accepted'){
+								$unitArr = $matchArr;
+							}
+						}
+					}
+				}
+				if($unitArr){
+					$taxonArr['sciname'] = $unitArr['scientificName'];
+					$taxonArr['author'] = $unitArr['scientificNameAuthorship'];
+					$rankID = $this->getRankId($unitArr['taxonRank']);
+					if($rankID) $taxonArr['rankid'] = $rankID;
+					$taxonArr['source'] = 'Via BryoNames: '.$unitArr['namePublishedIn'];
+					$taxonArr['notes'] = $unitArr['nameAccordingTo'];
+					if(isset($unitArr['parentNameUsage'])){
+						$parentTaxon = $unitArr['parentNameUsage'];
+						if($rankID > 220) $parentTaxon = $unitArr['genus'].' '.$unitArr['specificEpithet'];
+						elseif($rankID == 220) $parentTaxon = $unitArr['genus'];
+						elseif(strpos($parentTaxon, ' ')){
+							$unitName1 = trim(substr($parentTaxon, 0, strpos($parentTaxon, ' ')));
+							if($unitName1 && $unitName1 != $taxonArr['sciname']) $parentTaxon = $unitName1;
+						}
+						$parentTid = 0;
+						$parentArr = $this->parseCleanCheck($parentTaxon);
+						if(isset($parentArr['tid']) && $parentArr['tid']) $parentTid = $parentArr['tid'];
+						else $parentTid = $this->addBryoNamesTaxon($parentArr);
+						if(!$parentTid){
+							if(isset($taxonArr['family']) && $taxonArr['family']){
+								$this->setDefaultFamily($taxonArr['family']);
+								if($this->defaultFamilyTid) $parentTid = $this->defaultFamilyTid;
+							}
+						}
+						if($parentTid) $taxonArr['parent']['tid'] = $parentTid;
+					}
+					if(isset($unitArr['taxonomicStatus']) && $unitArr['taxonomicStatus'] != 'accepted' && isset($unitArr['acceptedNameUsage'])){
+						$acceptedArr = TaxonomyUtilities::parseScientificName($unitArr['acceptedNameUsage'], 0, $this->kingdomName);
+						$tidAccepted = $this->getTid($taxonArr);
+						if(!$tidAccepted) $tidAccepted = $this->addBryoNamesTaxon($acceptedArr);
+					}
+				}
+				if($taxonArr) $tid = $this->loadNewTaxon($taxonArr, $tidAccepted);
+			}
+			else{
+				$this->logOrEcho('Taxon not found',2);
+				return false;
+			}
+		}
+		return $tid;
 	}
 
 	//EOL functions
@@ -1056,8 +1144,8 @@ class TaxonomyHarvester extends Manager{
 					(isset($taxonArr['unitind2']) && $taxonArr['unitind2']?'"'.$this->cleanInStr($taxonArr['unitind2']).'"':'NULL').','.
 					(isset($taxonArr['unitname2']) && $taxonArr['unitname2']?'"'.$this->cleanInStr($taxonArr['unitname2']).'"':'NULL').','.
 					(isset($taxonArr['unitind3']) && $taxonArr['unitind3']?'"'.$this->cleanInStr($taxonArr['unitind3']).'"':'NULL').','.
-					(isset($taxonArr['unitname3']) && $taxonArr['unitname3']?'"'.$this->cleanInStr($taxonArr['unitname3']).'"':'NULL').','.
-					(isset($taxonArr['author']) && $taxonArr['author']?'"'.$this->cleanInStr($taxonArr['author']).'"':'NULL').','.
+					(isset($taxonArr['unitname3']) && $taxonArr['unitname3']?'"'.$this->cleanInStr($taxonArr['unitname3']).'"':'NULL').',"'.
+					(isset($taxonArr['author']) && $taxonArr['author']?$this->cleanInStr($taxonArr['author']):'').'",'.
 					(isset($taxonArr['rankid']) && is_numeric($taxonArr['rankid'])?$taxonArr['rankid']:'NULL').','.
 					(isset($taxonArr['source']) && $taxonArr['source']?'"'.$this->cleanInStr($taxonArr['source']).'"':'NULL').','.
 					$GLOBALS['SYMB_UID'].')';
@@ -1090,9 +1178,10 @@ class TaxonomyHarvester extends Manager{
 
 				//Establish acceptance
 				if(!$tidAccepted) $tidAccepted = $newTid;
-				$sqlInsert2 = 'INSERT INTO taxstatus(tid,tidAccepted,taxAuthId,parentTid,UnacceptabilityReason,modifiedUid)
+				$sqlInsert2 = 'INSERT INTO taxstatus(tid, tidAccepted, taxAuthId, parentTid, family, UnacceptabilityReason, modifiedUid)
 					VALUES('.$newTid.','.$tidAccepted.','.$this->taxAuthId.','.$parentTid.','.
-					(isset($taxonArr['acceptanceReason']) && $taxonArr['acceptanceReason']?'"'.$taxonArr['acceptanceReason'].'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
+					(isset($taxonArr['family']) && $taxonArr['family']?'"'.$this->cleanInStr($taxonArr['family']).'"':'NULL').','.
+					(isset($taxonArr['acceptanceReason']) && $taxonArr['acceptanceReason']?'"'.$this->cleanInStr($taxonArr['acceptanceReason']).'"':'NULL').','.$GLOBALS['SYMB_UID'].')';
 				if($this->conn->query($sqlInsert2)){
 					//Add hierarchy index
 					$sqlHier = 'INSERT INTO taxaenumtree(tid,parenttid,taxauthid) VALUES('.$newTid.','.$parentTid.','.$this->taxAuthId.')';
@@ -1195,7 +1284,7 @@ class TaxonomyHarvester extends Manager{
 		if(!is_array($taxonArr)) return;
 		if(!isset($taxonArr['rankid']) || !$taxonArr['rankid']){
 			if(isset($taxonArr['taxonRank']) && $taxonArr['taxonRank']){
-				$taxonArr['rankid'] = $this->getRankId($taxonArr);
+				$taxonArr['rankid'] = $this->getRankIdByTaxonArr($taxonArr);
 			}
 		}
 		if(isset($taxonArr['unitind3']) && $taxonArr['unitind3']){
@@ -1229,19 +1318,6 @@ class TaxonomyHarvester extends Manager{
 		return true;
 	}
 
-	private function getRankId($taxonArr){
-		$rankID = 0;
-		if(isset($taxonArr['taxonRank']) && $taxonArr['taxonRank']){
-			$taxonRank = strtolower($taxonArr['taxonRank']);
-			if(array_key_exists($taxonRank, $this->rankIdArr)) $rankID = $this->rankIdArr[$taxonRank];
-		}
-		if(!$rankID && isset($taxonArr['unitind3']) && $taxonArr['unitind3']){
-			$unitInd3 = strtolower($taxonArr['unitind3']);
-			if(array_key_exists($unitInd3, $this->rankIdArr)) $rankID = $this->rankIdArr[$unitInd3];
-		}
-		return $rankID;
-	}
-
 	private function getParentArr($taxonArr){
 		if(!is_array($taxonArr)) return;
 		$parArr = array();
@@ -1253,15 +1329,9 @@ class TaxonomyHarvester extends Manager{
 					$parArr = array( 'tid' => $this->kingdomTid, 'sciname' => $this->kingdomName, 'taxonRank' => 'kingdom', 'rankid' => '10' );
 				}
 				if($taxonArr['rankid'] > 140){
-					$familyStr = $this->defaultFamily;
-					if(isset($taxonArr['family']) && $taxonArr['family']) $familyStr = $taxonArr['family'];
-					if($familyStr){
-						$sqlFam = 'SELECT tid FROM taxa WHERE (sciname = "'.$this->cleanInStr($familyStr).'") AND (rankid = 140)';
-						$rs = $this->conn->query($sqlFam);
-						if($r = $rs->fetch_object()){
-							$parArr = array( 'tid' => $r->tid, 'sciname' => $familyStr, 'taxonRank' => 'family', 'rankid' => '140' );
-						}
-						$rs->free();
+					if(isset($taxonArr['family']) && $taxonArr['family'] && $taxonArr['family'] != $this->defaultFamily) $this->setDefaultFamily($taxonArr['family']);
+					if($this->defaultFamily){
+						$parArr = array( 'tid' => $this->defaultFamilyTid, 'sciname' => $this->defaultFamily, 'taxonRank' => 'family', 'rankid' => '140' );
 					}
 				}
 				if($taxonArr['rankid'] > 180){
@@ -1281,7 +1351,7 @@ class TaxonomyHarvester extends Manager{
 			$rankid = array_key_exists('rankid', $taxonArr)?$taxonArr['rankid']:0;
 			$sciname = array_key_exists('sciname', $taxonArr)?$taxonArr['sciname']:'';
 			if(!$sciname && array_key_exists('scientificName', $taxonArr)) $sciname = $taxonArr['scientificName'];
-			if($sciname) $taxonArr = array_merge(TaxonomyUtilities::parseScientificName($sciname,$this->conn,$rankid,$this->kingdomName),$taxonArr);
+			if($sciname) $taxonArr = array_merge(TaxonomyUtilities::parseScientificName($sciname,$this->conn,$rankid,$this->kingdomName), $taxonArr);
 		}
 	}
 
@@ -1522,6 +1592,26 @@ class TaxonomyHarvester extends Manager{
 			}
 		}
 		$this->setRankIdArr();
+	}
+
+	private function getRankId($taxonRank){
+		$rankID = 0;
+		$taxonRank = strtolower($taxonRank);
+		if(isset($this->rankIdArr[$taxonRank])) $rankID = $this->rankIdArr[$taxonRank];
+		return $rankID;
+	}
+
+	private function getRankIdByTaxonArr($taxonArr){
+		$rankID = 0;
+		if(isset($taxonArr['taxonRank']) && $taxonArr['taxonRank']){
+			$taxonRank = strtolower($taxonArr['taxonRank']);
+			if(array_key_exists($taxonRank, $this->rankIdArr)) $rankID = $this->rankIdArr[$taxonRank];
+		}
+		if(!$rankID && isset($taxonArr['unitind3']) && $taxonArr['unitind3']){
+			$unitInd3 = strtolower($taxonArr['unitind3']);
+			if(array_key_exists($unitInd3, $this->rankIdArr)) $rankID = $this->rankIdArr[$unitInd3];
+		}
+		return $rankID;
 	}
 
 	private function setRankIdArr(){

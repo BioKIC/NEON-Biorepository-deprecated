@@ -212,7 +212,6 @@ class TaxonomyEditorManager extends Manager{
 	//Edit Functions
 	public function submitTaxonEdits($postArr){
 		$statusStr = '';
-		//Update taxa record
 		$sql = 'UPDATE taxa SET '.
 			'unitind1 = '.($postArr['unitind1']?'"'.$this->cleanInStr($postArr['unitind1']).'"':'NULL').', '.
 			'unitname1 = "'.$this->cleanInStr($postArr['unitname1']).'",'.
@@ -220,7 +219,7 @@ class TaxonomyEditorManager extends Manager{
 			'unitname2 = '.($postArr['unitname2']?'"'.$this->cleanInStr($postArr['unitname2']).'"':'NULL').', '.
 			'unitind3 = '.($postArr['unitind3']?'"'.$this->cleanInStr($postArr['unitind3']).'"':'NULL').', '.
 			'unitname3 = '.($postArr['unitname3']?'"'.$this->cleanInStr($postArr['unitname3']).'"':'NULL').', '.
-			'author = '.($postArr['author']?'"'.$this->cleanInStr($postArr['author']).'"':'NULL').', '.
+			'author = "'.($postArr['author']?$this->cleanInStr($postArr['author']):'').'", '.
 			'rankid = '.(is_numeric($postArr['rankid'])?$postArr['rankid']:'NULL').', '.
 			'source = '.($postArr['source']?'"'.$this->cleanInStr($postArr['source']).'"':'NULL').', '.
 			'notes = '.($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').', '.
@@ -534,8 +533,8 @@ class TaxonomyEditorManager extends Manager{
 		$tid = 0;
 		$sqlTaxa = 'INSERT INTO taxa(sciname, author, rankid, unitind1, unitname1, unitind2, unitname2, unitind3, unitname3, '.
 			'source, notes, securitystatus, modifiedUid, modifiedTimeStamp) '.
-			'VALUES ("'.$this->cleanInStr($dataArr['sciname']).'",'.
-			($dataArr['author']?'"'.$this->cleanInStr($dataArr['author']).'"':'NULL').','.
+			'VALUES ("'.$this->cleanInStr($dataArr['sciname']).'","'.
+			($dataArr['author']?$this->cleanInStr($dataArr['author']):'').'",'.
 			($dataArr['rankid']?$dataArr['rankid']:'NULL').','.
 			($dataArr['unitind1']?'"'.$this->cleanInStr($dataArr['unitind1']).'"':'NULL').',"'.
 			$this->cleanInStr($dataArr['unitname1']).'",'.

@@ -705,7 +705,7 @@ class TaxonomyCleaner extends Manager{
 
 	public function getTaxonomicResourceList(){
 		//$taArr = array('col'=>'Catalog of Life', 'worms'=>'World Register of Marine Species', 'tropicos'=>'TROPICOS', 'eol'=>'Encyclopedia of Life');
-		$taArr = array('col'=>'Catalog of Life', 'worms'=>'World Register of Marine Species', 'fdex'=>'Index Fungorum via F-Dex', 'tropicos'=>'TROPICOS', 'eol'=>'Encyclopedia of Life');
+		$taArr = array('col'=>'Catalog of Life', 'worms'=>'World Register of Marine Species', 'bryonames' => 'The Bryophyte Nomenclator', 'fdex'=>'Index Fungorum via F-Dex', 'tropicos'=>'TROPICOS', 'eol'=>'Encyclopedia of Life');
 		if(!isset($GLOBALS['TAXONOMIC_AUTHORITIES'])) return array('col'=>'Catalog of Life','worms'=>'World Register of Marine Species');
 		return array_intersect_key($taArr,array_change_key_case($GLOBALS['TAXONOMIC_AUTHORITIES']));
 	}

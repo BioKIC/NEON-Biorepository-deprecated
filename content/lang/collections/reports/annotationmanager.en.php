@@ -28,6 +28,6 @@ $LANG['SPACE_BW_LABELS'] = 'Spacing between labels';
 $LANG['PRINT_IN_BROWSER'] = 'Print in Browser';
 $LANG['EXPORT_TO_DOC'] = 'Export to DOCX';
 $LANG['NO_ANNO'] = 'There are no annotations queued to be printed.';
-$LANG['NO_ANNO_PERMISSIONS'] 'You do not have permissions to print annotation labels for this collection. Please contact the site administrator to obtain the necessary permissions.';
+$LANG['NO_ANNO_PERMISSIONS'] = 'You do not have permissions to print annotation labels for this collection. Please contact the site administrator to obtain the necessary permissions.';
 
 ?>

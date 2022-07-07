@@ -31,7 +31,7 @@ class OccurrenceLoans extends Manager{
 		*/
 
 		//Get loan details
-		$sql = 'SELECT l.loanid, l.datesent, l.loanidentifierown, l.loanidentifierborr, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom, l.dateclosed '.
+		$sql = 'SELECT l.loanid, l.datesent, l.loanidentifierown, l.loanidentifierborr, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom, l.dateclosed, l.datedue '.
 			'FROM omoccurloans l LEFT JOIN institutions i ON l.iidborrower = i.iid '.
 			'LEFT JOIN omcollections c ON l.collidborr = c.collid '.
 			'WHERE (l.collidown = '.$this->collid.' ';
@@ -46,6 +46,7 @@ class OccurrenceLoans extends Manager{
 					$retArr[$r->loanid]['institutioncode'] = $r->instcode1;
 					$retArr[$r->loanid]['forwhom'] = $r->forwhom;
 					$retArr[$r->loanid]['dateclosed'] = $r->dateclosed;
+					$retArr[$r->loanid]['datedue'] = $r->datedue;
 					//if(array_key_exists($r->loanid, $extLoanArr)) $retArr[$r->loanid]['isexternal'] = $extLoanArr[$r->loanid];
 				}
 			}
@@ -140,7 +141,7 @@ class OccurrenceLoans extends Manager{
 	//Loan in functions
 	public function getLoanInList($searchTerm,$displayAll){
 		$retArr = array();
-		$sql = 'SELECT l.loanid, l.loanidentifierborr, l.dateclosed, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom '.
+		$sql = 'SELECT l.loanid, l.loanidentifierborr, l.dateclosed, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom, l.datedue '.
 			'FROM omoccurloans l INNER JOIN institutions i ON l.iidowner = i.iid '.
 			'LEFT JOIN omcollections c ON l.collidown = c.collid '.
 			'WHERE l.collidborr = '.$this->collid.' ';
@@ -153,6 +154,7 @@ class OccurrenceLoans extends Manager{
 					$retArr[$r->loanid]['institutioncode'] = $r->instcode1;
 					$retArr[$r->loanid]['forwhom'] = $r->forwhom;
 					$retArr[$r->loanid]['dateclosed'] = $r->dateclosed;
+					$retArr[$r->loanid]['datedue'] = $r->datedue;
 				}
 			}
 			$rs->free();

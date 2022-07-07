@@ -320,7 +320,7 @@ if($isEditor){
 								echo '<li>';
 								echo '<a href="outgoing.php?collid='.$targetCollid.'&loanid='.$k.'">'.$loanArr['loanidentifierown'].' <img src="../../images/edit.png" style="width:12px" /></a> ';
 								if(isset($loanArr['isexternal'])) echo '<span style="color:orange">external collection</span>';
-								echo ': '.$loanArr['institutioncode'].' ('.$loanArr['forwhom'].') - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN');
+								echo ': '.($loanArr['institutioncode'] ? $loanArr['institutioncode'] : ($loanArr['institutionname'] ? $loanArr['institutionname'] : '[no name]')).' ('.$loanArr['forwhom'].') - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN');
 								echo $loanArr['dateclosed'] ? '' : $loanArr['datedue'] ? $due : '</b>';
 								echo '</li>';
 							}
@@ -433,7 +433,7 @@ if($isEditor){
 								}
 								echo '<li>';
 								echo '<a href="incoming.php?collid='.$collid.'&loanid='.$k.'">'.$loanArr['loanidentifierborr'].' <img src="../../images/edit.png" style="width:12px" /></a>: ';
-								echo $loanArr['institutioncode'].' ('.$loanArr['forwhom'].') - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN');
+								echo ($loanArr['institutioncode'] ? $loanArr['institutioncode'] : ($loanArr['institutionname'] ? $loanArr['institutionname'] : '[no name]')) .' ('.$loanArr['forwhom'].') - '.($loanArr['dateclosed']?'Closed: '.$loanArr['dateclosed']:'<b>OPEN');
 								echo $loanArr['dateclosed'] ? '' : $loanArr['datedue'] ? $due : '</b>';
 								echo '</li>';
 							}

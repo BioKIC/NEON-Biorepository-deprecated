@@ -31,7 +31,7 @@ class OccurrenceLoans extends Manager{
 		*/
 
 		//Get loan details
-		$sql = 'SELECT l.loanid, l.datesent, l.loanidentifierown, l.loanidentifierborr, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom, l.dateclosed, l.datedue '.
+		$sql = 'SELECT l.loanid, l.datesent, l.loanidentifierown, l.loanidentifierborr, i.institutioncode AS instcode1, c.institutioncode AS instcode2, i.institutionname, l.forwhom, l.dateclosed, l.datedue '.
 			'FROM omoccurloans l LEFT JOIN institutions i ON l.iidborrower = i.iid '.
 			'LEFT JOIN omcollections c ON l.collidborr = c.collid '.
 			'WHERE (l.collidown = '.$this->collid.' ';
@@ -44,6 +44,7 @@ class OccurrenceLoans extends Manager{
 				if(!$searchTerm || stripos($r->instcode1,$searchTerm) !== false || stripos($r->instcode2,$searchTerm) !== false || stripos($r->forwhom,$searchTerm) !== false){
 					$retArr[$r->loanid]['loanidentifierown'] = $r->loanidentifierown;
 					$retArr[$r->loanid]['institutioncode'] = $r->instcode1;
+					$retArr[$r->loanid]['institutionname'] = $r->institutionname;
 					$retArr[$r->loanid]['forwhom'] = $r->forwhom;
 					$retArr[$r->loanid]['dateclosed'] = $r->dateclosed;
 					$retArr[$r->loanid]['datedue'] = $r->datedue;
@@ -141,7 +142,7 @@ class OccurrenceLoans extends Manager{
 	//Loan in functions
 	public function getLoanInList($searchTerm,$displayAll){
 		$retArr = array();
-		$sql = 'SELECT l.loanid, l.loanidentifierborr, l.dateclosed, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom, l.datedue '.
+		$sql = 'SELECT l.loanid, l.loanidentifierborr, l.dateclosed, i.institutioncode AS instcode1, c.institutioncode AS instcode2, i.institutionname, l.forwhom, l.datedue '.
 			'FROM omoccurloans l INNER JOIN institutions i ON l.iidowner = i.iid '.
 			'LEFT JOIN omcollections c ON l.collidown = c.collid '.
 			'WHERE l.collidborr = '.$this->collid.' ';
@@ -152,6 +153,7 @@ class OccurrenceLoans extends Manager{
 				if(!$searchTerm || stripos($r->instcode1,$searchTerm) !== false || stripos($r->instcode2,$searchTerm) !== false || stripos($r->forwhom,$searchTerm) !== false){
 					$retArr[$r->loanid]['loanidentifierborr'] = $r->loanidentifierborr;
 					$retArr[$r->loanid]['institutioncode'] = $r->instcode1;
+					$retArr[$r->loanid]['institutionname'] = $r->institutionname;
 					$retArr[$r->loanid]['forwhom'] = $r->forwhom;
 					$retArr[$r->loanid]['dateclosed'] = $r->dateclosed;
 					$retArr[$r->loanid]['datedue'] = $r->datedue;
@@ -399,13 +401,14 @@ class OccurrenceLoans extends Manager{
 	public function getTransInstList($collid){
 		$iidArr = array();
 		if(is_numeric($collid)){
-			$sql = 'SELECT DISTINCT e.iid, i.institutioncode '.
+			$sql = 'SELECT DISTINCT e.iid, i.institutioncode, i.institutionname '.
 				'FROM omoccurexchange AS e INNER JOIN institutions AS i ON e.iid = i.iid '.
 				'WHERE e.collid = '.$this->collid.' AND e.iid IS NOT NULL '.
 				'ORDER BY i.institutioncode';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$iidArr[$r->iid]['institutioncode'] = $r->institutioncode;
+					$iidArr[$r->iid]['institutionname'] = $r->institutionname;
 				}
 			}
 			$sql = 'SELECT rt.iid, e.invoicebalance FROM omoccurexchange AS e '.

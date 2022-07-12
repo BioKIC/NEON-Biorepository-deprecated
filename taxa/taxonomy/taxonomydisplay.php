@@ -11,11 +11,13 @@ $displaySubGenera = array_key_exists('displaysubgenera',$_REQUEST)?$_REQUEST['di
 $taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
 $statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
 
+//Sanitation
 if(!is_numeric($displayAuthor)) $displayAuthor = 0;
 if(!is_numeric($matchOnWords)) $matchOnWords = 0;
 if(!is_numeric($displayFullTree)) $displayFullTree = 0;
 if(!is_numeric($displaySubGenera)) $displaySubGenera = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
+$target = cleanInStr($target);
 $statusStr = strip_tags($statusStr);
 if($statusStr) str_replace(';', '<br/>', $statusStr);
 

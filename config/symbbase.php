@@ -123,6 +123,8 @@ else{
 	if(strlen($DEFAULT_LANG) == 2) $LANG_TAG = $DEFAULT_LANG;
 }
 //if(!$LANG_TAG || strlen($LANG_TAG) != 2) $LANG_TAG = 'en';
+
+//Sanitization
 if(!array_search($LANG_TAG, $AVAILABLE_LANGS)) $LANG_TAG = 'en';
 
 $RIGHTS_TERMS_DEFS = array(

@@ -122,8 +122,8 @@ else if(isset($_COOKIE['lang']) && $_COOKIE['lang']){
 else{
 	if(strlen($DEFAULT_LANG) == 2) $LANG_TAG = $DEFAULT_LANG;
 }
-if(!$LANG_TAG || strlen($LANG_TAG) != 2) $LANG_TAG = 'en';
-if(!arraysearch($LANG_TAG, $AVAILABLE_LANGS)) $LANG_TAG = 'en';
+//if(!$LANG_TAG || strlen($LANG_TAG) != 2) $LANG_TAG = 'en';
+if(!array_search($LANG_TAG, $AVAILABLE_LANGS)) $LANG_TAG = 'en';
 
 $RIGHTS_TERMS_DEFS = array(
     'http://creativecommons.org/publicdomain/zero/1.0/' => array(

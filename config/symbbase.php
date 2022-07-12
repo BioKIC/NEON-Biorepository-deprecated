@@ -108,6 +108,8 @@ if(!isset($rightsTerms) && isset($RIGHTS_TERMS)) $rightsTerms = $RIGHTS_TERMS;
 if(!isset($reproductiveConditionTerms) && isset($REPRODUCTIVE_CONDITION_TERMS)) $reproductiveConditionTerms = $REPRODUCTIVE_CONDITION_TERMS;
 if(!isset($glossaryExportBanner) && isset($GLOSSARY_EXPORT_BANNER)) $glossaryExportBanner = $GLOSSARY_EXPORT_BANNER;
 
+$AVAILABLE_LANGS = array('en','es','fr','pt');
+
 //Multi-langauge support
 $LANG_TAG = 'en';
 if(isset($_REQUEST['lang']) && $_REQUEST['lang']){
@@ -121,6 +123,7 @@ else{
 	if(strlen($DEFAULT_LANG) == 2) $LANG_TAG = $DEFAULT_LANG;
 }
 if(!$LANG_TAG || strlen($LANG_TAG) != 2) $LANG_TAG = 'en';
+if(!arraysearch($LANG_TAG, $AVAILABLE_LANGS)) $LANG_TAG = 'en';
 
 $RIGHTS_TERMS_DEFS = array(
     'http://creativecommons.org/publicdomain/zero/1.0/' => array(

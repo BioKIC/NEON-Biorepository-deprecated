@@ -4,6 +4,7 @@ include_once($SERVER_ROOT.'/classes/Manager.php');
 class OccurrenceLoans extends Manager{
 
 	private $collid = 0;
+	private $serverRoot= '';
 
 	function __construct() {
 		parent::__construct(null,'write');
@@ -131,6 +132,17 @@ class OccurrenceLoans extends Manager{
 	public function deleteLoan($loanid){
 		$status = false;
 		if(is_numeric($loanid)){
+
+			// First, delete any file attachments
+			$sql = 'SELECT attachmentid FROM omoccurloansattachment WHERE (loanid = ' . $loanid . ')';
+			if($rs = $this->conn->query($sql)) {
+				while($r = $rs->fetch_object()){
+					$this->deleteAttachment($r->attachmentid);
+				}
+				$rs->free();
+			}
+
+			// Delete loan in database
 			$sql = 'DELETE FROM omoccurloans WHERE (loanid = '.$loanid.')';
 			if($this->conn->query($sql)){
 				$status = true;
@@ -390,6 +402,17 @@ class OccurrenceLoans extends Manager{
 	public function deleteExchange($exchangeId){
 		$status = false;
 		if(is_numeric($exchangeId)){
+
+			// First, delete any file attachments
+			$sql = 'SELECT attachmentid FROM omoccurloansattachment WHERE (exchangeid = ' . $exchangeId . ')';
+			if($rs = $this->conn->query($sql)) {
+				while($r = $rs->fetch_object()){
+					$this->deleteAttachment($r->attachmentid);
+				}
+				$rs->free();
+			}
+
+			// Delete exchange in database
 			$sql = 'DELETE FROM omoccurexchange WHERE (exchangeid = '.$exchangeId.')';
 			if($this->conn->query($sql)){
 				$status = true;
@@ -916,6 +939,130 @@ class OccurrenceLoans extends Manager{
 		return $retStr;
 	}
 
+	// Function to upload correspondance attachments for loans/exchanges
+	public function uploadAttachment($collid, $type, $transid, $identifier, $title, $file) {
+
+		// Check to make sure the filesize is permissable
+		if ($file['size'] > 10000000) {
+			$this->errorMessage = 'Error: File size is too large: max size is 10 MB';
+			return false;
+		}
+
+		// Create the path for the attachment, storing under a subfolder for the particular collection
+		$relPath = 'content/collections/loans/coll' . $collid . '/';
+		$fullPath = $this->serverRoot . $relPath;
+
+		// Check to make sure the save path exists, creating it if permissions are sufficient
+		if (!is_dir($fullPath)) {
+			if (!mkdir($fullPath, 0775, true)) {
+				$this->errorMessage = 'Error: Insufficient permissions to save files in content/collections/loans';
+				return false;
+			}
+		}
+
+		// Recreate the filename, appending the loan identifier and current date stamp to make the filename more unique
+		$filename = pathinfo($file['name'], PATHINFO_FILENAME) . '_' . $type . $identifier .
+			'_' . date('Y-m-d', time()) . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
+
+		// Replace any invalid filename characters and sanitize filename
+		$filename = $this->cleanInStr(str_replace(array('\\','/',':','*','?','"','<','>','|', '..'),'_',$filename));
+
+		// Check to make sure same filename doesn't already exist for this loan/date combo
+		if (file_exists($fullPath . $filename)) {
+				$this->errorMessage = 'Error: A file with the same name has already been uploaded today for this loan.';
+				return false;
+		}
+
+		// Check to make sure this is an uploaded file and that it can be moved successfully
+		if (move_uploaded_file($file['tmp_name'], $fullPath . $filename)) {
+
+			// Moved successfully, save in database
+			if ($this->saveAttachment($type, $transid, $title, $relPath, $filename)) {
+				$this->errorMessage = "SUCCESS: Correspondance attachment saved successfully.";
+				return true;
+			}
+
+			// Attachment failed to be saved in database
+			return false;
+		}
+		else {
+			$this->errorMessage = 'Error: The uploaded file could not be saved successfully.';
+			return false;
+		}
+	}
+
+	// Function to save correspondance attachments for loans/exchanges to the database
+	public function saveAttachment($type, $transid, $title, $path, $filename){
+		$sql = 'INSERT INTO omoccurloansattachment (' . ($type == "loan" ? 'loanid' : 'exchangeid') . ', title, path, filename) '.
+		'VALUES('.$transid . ',"' . $this->cleanInStr($title) . '","' . $path . '","' . $filename .'") ';
+
+		if($this->conn->query($sql)){
+			$attachmentid = $this->conn->insert_id;
+			return $attachmentid;
+		}
+		else{
+			$this->errorMessage = 'ERROR: attachment could not be saved in database: '.$this->conn->error.'<br/>';
+			return false;
+		}
+	}
+
+	// Delete a correspondance attachment associated with a loan/exchange
+	public function deleteAttachment($attachid){
+
+		if(is_numeric($attachid)){
+
+			// First get the file path to delete
+			$sql = 'SELECT path, filename FROM omoccurloansattachment WHERE (attachmentid = ' . $attachid . ')';
+			if($rs = $this->conn->query($sql)) {
+				while($r = $rs->fetch_object()){
+					$path = $this->serverRoot . $r->path . $r->filename;
+				}
+				$rs->free();
+			}
+
+			// Make sure we got a file path
+			if(!isset($path)) {
+				$this->errorMessage = 'Error: Attachment to delete not found in database';
+				return false;
+			}
+
+			// Next delete from the database
+			$sql = 'DELETE FROM omoccurloansattachment WHERE (attachmentid = '.$attachid.')';
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'Error: Attachment could not be deleted from database';
+				return false;
+			}
+
+			// Finally, delete the physical file
+			if(!unlink($path)){
+				$this->errorMessage = 'Error: Attachment file could not be deleted from server';
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	// Get a list of correspondance attachments for a given loan/exchange
+	public function getAttachments($type, $transid) {
+		$retArr = array();
+		$sql = 'SELECT attachmentid, title, path, filename, initialTimestamp ' .
+			'FROM omoccurloansattachment ' .
+			'WHERE '. ($type == "loan" ? 'loanid' : 'exchangeid') . ' = ' . $transid . ' ' .
+			'ORDER BY initialTimestamp ASC;';
+
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_object()){
+				$retArr[$r->attachmentid]['title'] = $r->title;
+				$retArr[$r->attachmentid]['path'] = $r->path;
+				$retArr[$r->attachmentid]['filename'] = $r->filename;
+				$retArr[$r->attachmentid]['timestamp'] = $r->initialTimestamp;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
 	//General look up functions
 	public function getInstitutionArr(){
 		$retArr = array();
@@ -934,6 +1081,10 @@ class OccurrenceLoans extends Manager{
 	//Setters and getter
 	public function setCollId($id){
 		if(is_numeric($id)) $this->collid = $id;
+	}
+
+	public function setServerRoot($path){
+		$this->serverRoot = $path;
 	}
 }
 ?>

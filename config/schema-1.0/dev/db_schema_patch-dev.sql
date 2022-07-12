@@ -639,3 +639,20 @@ INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvI
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "poolDnaExtracts", "http://gensc.org/ns/mixs/pool_dna_extracts", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "sampleDesignation", "http://data.ggbn.org/schemas/ggbn/terms/sampleDesignation", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 
+# Table for correspondance attachments for loans/exchanges/gifts etc.
+CREATE TABLE `omoccurloansattachment` (
+  `attachmentid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `loanid` int(10) UNSIGNED DEFAULT NULL,
+  `exchangeid` int(10) UNSIGNED DEFAULT NULL,
+  `title` varchar(80) NOT NULL,
+  `path` varchar(255) NOT NULL,
+  `filename` varchar(255) NOT NULL,
+  `initialTimestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`attachmentid`),
+  KEY `FK_occurloansattachment_loanid_idx` (`loanid`),
+  KEY `FK_occurloansattachment_exchangeid_idx` (`exchangeid`)
+) ;
+
+ALTER TABLE `omoccurloansattachment`
+  ADD CONSTRAINT `FK_occurloansattachment_exchangeid` FOREIGN KEY (`exchangeid`) REFERENCES `omoccurexchange` (`exchangeid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_occurloansattachment_loanid` FOREIGN KEY (`loanid`) REFERENCES `omoccurloans` (`loanid`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -6,7 +6,8 @@ if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../co
 
 $collid = $_REQUEST['collid'];
 $loanId = array_key_exists('loanid',$_REQUEST)?$_REQUEST['loanid']:0;
-$formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
+$loanIdborr = array_key_exists('loanidentifierborr',$_REQUEST)?$_REQUEST['loanidentifierborr']:0;
+$formSubmit = array_key_exists('formsubmit',$_REQUEST)?$_REQUEST['formsubmit']:'';
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
 
 $isEditor = 0;
@@ -19,6 +20,7 @@ if($SYMB_UID && $collid){
 
 $loanManager = new OccurrenceLoans();
 if($collid) $loanManager->setCollId($collid);
+$loanManager->setServerRoot($SERVER_ROOT . (substr($SERVER_ROOT, -1) == '/' ? '' : '/')); // Include trailing slash
 
 $statusStr = '';
 if($isEditor){
@@ -29,6 +31,16 @@ if($isEditor){
 		}
 		elseif($formSubmit == 'Save Incoming'){
 			$statusStr = $loanManager->editLoanIn($_POST);
+		}
+		elseif ($formSubmit == "delAttachment") {
+			// Delete correspondance attachment
+			if (array_key_exists('attachid',$_REQUEST) && is_numeric($_REQUEST['attachid'])) $loanManager->deleteAttachment($_REQUEST['attachid']);
+			 $statusStr = $loanManager->getErrorMessage();
+		}
+		elseif ($formSubmit == "saveAttachment") {
+			// Save correspondance attachment
+			if (array_key_exists('uploadfile',$_FILES)) $loanManager->uploadAttachment($collid, 'loan', $loanId, $loanIdborr, $_POST['uploadtitle'], $_FILES['uploadfile']);
+			$statusStr = $loanManager->getErrorMessage();
 		}
 	}
 }
@@ -68,9 +80,8 @@ if($isEditor){
 			}
 			return submitStatus;
 		}
-
 	</script>
-	<script type="text/javascript" src="../../js/symb/collections.loans.js?ver=1"></script>
+	<script type="text/javascript" src="../../js/symb/collections.loans.js?ver=2"></script>
 	<style>
 		fieldset{ padding:15px; margin:15px }
 		fieldset legend{ font-weight:bold }
@@ -286,6 +297,43 @@ if($isEditor){
 					$identifier = $loanId;
 					include('reportsinclude.php');
 					?>
+
+					<div>
+						<form id="attachmentform" name="attachmentform" action="incoming.php" method="post" enctype="multipart/form-data" onsubmit="return verifyFileUploadForm(this)">
+							<fieldset>
+								<legend>Correspondance Attachments</legend>
+								<?php
+
+								// Add any correspondance attachments
+								$attachments = $loanManager->getAttachments('loan', $loanId);
+								if ($attachments) {
+									echo '<ul>';
+									foreach($attachments as $attachId => $attachArr){
+										echo '<li><div style="float: left;">' . $attachArr['timestamp'] . ' -</div>';
+										echo '<div style="float: left; margin-left: 5px;"><a href="../../' .
+											$attachArr['path'] . $attachArr['filename']  .'" target="_blank">' .
+											($attachArr['title'] != "" ? $attachArr['title'] : $attachArr['filename']) . '</a></div>';
+										echo '<a href="incoming.php?collid='.$collid . '&loanid=' . $loanId . '&attachid='. $attachId . '&formsubmit=delAttachment"><img src="../../images/del.png" style="width: 15px; margin-left: 5px;"></a></li>';
+									}
+									echo '</ul>';
+								}
+								?>
+
+								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
+								<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
+								<input name="loanidentifierborr" type="hidden" value="<?php echo ($loanArr['loanidentifierborr'] ? $loanArr['loanidentifierborr'] : $loanArr['loanidentifierown']); ?>" />
+								<label style="font-weight: bold;">Add Correspondance Attachment:<sup>*</sup> </label><br/>
+								<label>Attachment Title: </label>
+								<input name="uploadtitle" type="text" placeholder=" optional, replaces filename" maxlength="80" size="30" />
+								<input id="uploadfile" name="uploadfile" type="file" size="30" onchange="verifyFileSize(this)">
+								<button name="formsubmit" type="submit" value="saveAttachment">Save Attachment</button>
+								<div style="margin-left: 10px"><br/>
+								<sup>*</sup>Supported file types include PDF, Word, Excel, images (.jpg/.jpeg or png), and text files (.txt). </br>
+								PDFs, images, and text files are preferred, since they will display in the browser.
+								</div>
+							</fieldset>
+						</form>
+					</div>
 					<div style="margin:20px"><b>&lt;&lt; <a href="index.php?collid=<?php echo $collid; ?>">Return to Loan Index Page</a></b></div>
 				</div>
 				<?php

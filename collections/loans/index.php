@@ -26,6 +26,7 @@ if($SYMB_UID && $collid){
 
 $loanManager = new OccurrenceLoans();
 if($collid) $loanManager->setCollId($collid);
+$loanManager->setServerRoot($SERVER_ROOT . (substr($SERVER_ROOT, -1) == '/' ? '' : '/')); // Include trailing slash
 
 $statusStr = '';
 if($isEditor){
@@ -177,7 +178,7 @@ if($isEditor){
 			});
 		}
 	</script>
-	<script type="text/javascript" src="../../js/symb/collections.loans.js?ver=1"></script>
+	<script type="text/javascript" src="../../js/symb/collections.loans.js?ver=2"></script>
 	<style>
 		fieldset{ padding:10px; }
 		fieldset legend{ font-weight:bold }

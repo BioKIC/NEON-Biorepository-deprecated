@@ -4,12 +4,6 @@ include_once($SERVER_ROOT.'/classes/TaxonomyDisplayManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $taxonDisplayObj = new TaxonomyDisplayManager();
-$taxonDisplayObj->setTargetStr($target);
-$taxonDisplayObj->setTaxAuthId($taxAuthId);
-$taxonDisplayObj->setDisplayAuthor($displayAuthor);
-$taxonDisplayObj->setMatchOnWholeWords($matchOnWords);
-$taxonDisplayObj->setDisplayFullTree($displayFullTree);
-$taxonDisplayObj->setDisplaySubGenera($displaySubGenera);
 
 $target = array_key_exists("target",$_REQUEST)?$taxonDisplayObj->cleanInStr($_REQUEST["target"]):"";
 $displayAuthor = array_key_exists('displayauthor',$_REQUEST)?$_REQUEST['displayauthor']:0;
@@ -18,6 +12,13 @@ $displayFullTree = array_key_exists('displayfulltree',$_REQUEST)?$_REQUEST['disp
 $displaySubGenera = array_key_exists('displaysubgenera',$_REQUEST)?$_REQUEST['displaysubgenera']:0;
 $taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
 $statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
+
+$taxonDisplayObj->setTargetStr($target);
+$taxonDisplayObj->setTaxAuthId($taxAuthId);
+$taxonDisplayObj->setDisplayAuthor($displayAuthor);
+$taxonDisplayObj->setMatchOnWholeWords($matchOnWords);
+$taxonDisplayObj->setDisplayFullTree($displayFullTree);
+$taxonDisplayObj->setDisplaySubGenera($displaySubGenera);
 
 //Sanitation
 if(!is_numeric($displayAuthor)) $displayAuthor = 0;

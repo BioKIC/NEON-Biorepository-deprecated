@@ -27,7 +27,7 @@ if(!is_numeric($displaySubGenera)) $displaySubGenera = 0;
 if(!is_numeric($taxAuthId)) $taxAuthId = 1;
 $statusStr = strip_tags($statusStr);
 if($statusStr) str_replace(';', '<br/>', $statusStr);
-if(malicousHTMLCheck($target)) $target = '';
+if(!malicousHTMLCheck($target)) $target = '';
 
 if(!array_key_exists("target",$_REQUEST)){
 	$matchOnWords = 1;

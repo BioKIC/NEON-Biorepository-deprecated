@@ -405,7 +405,7 @@ class TaxonomyDisplayManager extends Manager{
 			}
 			$rs->free();
 		}
-		else $this->targetStr = cleanInStr($this_targetStr);
+		else $this->targetStr = $this->cleanInStr($this->targetStr);
 	}
 
 	public function setTaxAuthId($id){

@@ -3,7 +3,15 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyDisplayManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$target = array_key_exists("target",$_REQUEST)?cleanInStr($_REQUEST["target"]):"";
+$taxonDisplayObj = new TaxonomyDisplayManager();
+$taxonDisplayObj->setTargetStr($target);
+$taxonDisplayObj->setTaxAuthId($taxAuthId);
+$taxonDisplayObj->setDisplayAuthor($displayAuthor);
+$taxonDisplayObj->setMatchOnWholeWords($matchOnWords);
+$taxonDisplayObj->setDisplayFullTree($displayFullTree);
+$taxonDisplayObj->setDisplaySubGenera($displaySubGenera);
+
+$target = array_key_exists("target",$_REQUEST)?$taxonDisplayObj->cleanInStr($_REQUEST["target"]):"";
 $displayAuthor = array_key_exists('displayauthor',$_REQUEST)?$_REQUEST['displayauthor']:0;
 $matchOnWords = array_key_exists('matchonwords',$_POST)?$_POST['matchonwords']:0;
 $displayFullTree = array_key_exists('displayfulltree',$_REQUEST)?$_REQUEST['displayfulltree']:0;
@@ -23,14 +31,6 @@ if($statusStr) str_replace(';', '<br/>', $statusStr);
 if(!array_key_exists("target",$_REQUEST)){
 	$matchOnWords = 1;
 }
-
-$taxonDisplayObj = new TaxonomyDisplayManager();
-$taxonDisplayObj->setTargetStr($target);
-$taxonDisplayObj->setTaxAuthId($taxAuthId);
-$taxonDisplayObj->setDisplayAuthor($displayAuthor);
-$taxonDisplayObj->setMatchOnWholeWords($matchOnWords);
-$taxonDisplayObj->setDisplayFullTree($displayFullTree);
-$taxonDisplayObj->setDisplaySubGenera($displaySubGenera);
 
 $isEditor = false;
 if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){

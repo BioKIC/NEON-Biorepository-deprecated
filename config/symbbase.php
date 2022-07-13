@@ -154,4 +154,38 @@ $RIGHTS_TERMS_DEFS = array(
         'def' => 'Users can copy, redistribute the material in any medium or format, remix, transform, and build upon the material. The licensor cannot revoke these freedoms as long as you follow the license terms.'
     )
 );
+
+
+$badHTML = array(
+	'%3C%2Fscript%3E',
+	'%3Cscript%3E',
+	'function()',
+	'frame',
+	'javascript',
+	'style'
+);
+
+function malicousHTMLCheck($str){
+
+	global $badHTML;
+
+	foreach ($badHTML as $needle){
+		if(strpos($str, $needle) > 0){
+			return true;
+		}
+	}
+	//no blacklisted strings found
+	return false;
+
+}
+
+function sanitizeURLInput($str){
+	return strip_tags(urldecode($str));
+}
+
+
+
+
+
+
 ?>

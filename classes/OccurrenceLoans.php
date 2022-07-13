@@ -893,7 +893,7 @@ class OccurrenceLoans extends Manager{
 	}
 
 	public function generateNextID($idType){
-		$retStr = '';
+		$retStr = 1;
 		if($this->collid){
 			$sql = '';
 			if($idType == 'out'){
@@ -910,30 +910,32 @@ class OccurrenceLoans extends Manager{
 			}
 
 			if($rs = $this->conn->query($sql)){
-				$parsedArr = array();
+				$maxnum = 1;
 				while($r = $rs->fetch_object()){
+					$num = '';
+
+					// Replace all non-digits with -
 					$id = preg_replace('/[^\d]+/', '-', $r->id);
 					$id = preg_replace('/-{2,}/','-',$id);
+
+					// Split into an array containing the number(s) in the string
 					$numArr = explode('-',$id);
-					$cnt = 0;
-					foreach($numArr as $n){
-						$parsedArr[$cnt][] = $n;
-						$cnt++;
+
+					// Get the last array element that is a number
+					// Note: NOT the highest number, this could be something like a year, e.g., 2022-5. 
+					// The last number in the string is most likely the right one to increment
+					while (!is_numeric($num)) $num = array_pop($numArr);
+
+					// Check if the number found is the highest so far, if so, use that one to increment. 
+					if ($num > $maxnum) {
+						$maxnum = $num;
+
+						// Rather than using the number itself, replace the old number in the string with the incremented one & return that
+						// This allows for alphanumeric identifiers like loan-102 or OSC-V-1524
+						$retStr = str_replace($num, $num + 1, $r->id);
 					}
 				}
 				$rs->free();
-				foreach($parsedArr as $vArr){
-					$previousValue = '';
-					foreach($vArr as $v){
-						if($v == $previousValue){
-							$retStr = '';
-							break;
-						}
-						if($v++ > $retStr) $retStr = $v++;
-						$previousValue = $v;
-					}
-				}
-				if(!$parsedArr) $retStr = 1;
 			}
 		}
 		return $retStr;

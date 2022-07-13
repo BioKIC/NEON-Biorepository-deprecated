@@ -11,6 +11,9 @@ $displaySubGenera = array_key_exists('displaysubgenera',$_REQUEST)?$_REQUEST['di
 $taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
 $statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
 
+//Sanitation #1
+if(malicousHTMLCheck($target)) $target = '';
+
 $taxonDisplayObj = new TaxonomyDisplayManager();
 $taxonDisplayObj->setTargetStr($target);
 $taxonDisplayObj->setTaxAuthId($taxAuthId);
@@ -19,7 +22,7 @@ $taxonDisplayObj->setMatchOnWholeWords($matchOnWords);
 $taxonDisplayObj->setDisplayFullTree($displayFullTree);
 $taxonDisplayObj->setDisplaySubGenera($displaySubGenera);
 
-//Sanitation
+//Sanitation #2
 if(!is_numeric($displayAuthor)) $displayAuthor = 0;
 if(!is_numeric($matchOnWords)) $matchOnWords = 0;
 if(!is_numeric($displayFullTree)) $displayFullTree = 0;

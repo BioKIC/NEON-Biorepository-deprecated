@@ -3,9 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyDisplayManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$taxonDisplayObj = new TaxonomyDisplayManager();
-
-$target = array_key_exists("target",$_REQUEST)?$taxonDisplayObj->cleanInStr($_REQUEST["target"]):"";
+$target = array_key_exists("target",$_REQUEST)?$_REQUEST["target"]:"";
 $displayAuthor = array_key_exists('displayauthor',$_REQUEST)?$_REQUEST['displayauthor']:0;
 $matchOnWords = array_key_exists('matchonwords',$_POST)?$_POST['matchonwords']:0;
 $displayFullTree = array_key_exists('displayfulltree',$_REQUEST)?$_REQUEST['displayfulltree']:0;
@@ -13,6 +11,7 @@ $displaySubGenera = array_key_exists('displaysubgenera',$_REQUEST)?$_REQUEST['di
 $taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
 $statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
 
+$taxonDisplayObj = new TaxonomyDisplayManager();
 $taxonDisplayObj->setTargetStr($target);
 $taxonDisplayObj->setTaxAuthId($taxAuthId);
 $taxonDisplayObj->setDisplayAuthor($displayAuthor);

@@ -43,6 +43,22 @@ if(!array_key_exists("poly_array",$_REQUEST)) $_REQUEST["poly_array"] = '';
 if(!array_key_exists("upperlat",$_REQUEST)) $_REQUEST["upperlat"] = '';
 if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 
+//Sanitation
+
+if(array_map('maliciousHMTLCheck', $_REQUEST)) $_REQUEST = '';
+
+/* if(malicousHTMLCheck($_REQUEST['gridSizeSetting'])) $_REQUEST['gridSizeSetting'] = '60';
+if(malicousHTMLCheck($_REQUEST['minClusterSetting'])) $_REQUEST['minClusterSetting'] = '10';
+if(malicousHTMLCheck($_REQUEST['clusterSwitch'])) $_REQUEST['clusterSwitch'] = 'n';
+if(malicousHTMLCheck($_REQUEST['pointlat'])) $_REQUEST['pointlat'] = '';
+if(malicousHTMLCheck($_REQUEST['pointlong'])) $_REQUEST['pointlong'] = '';
+if(malicousHTMLCheck($_REQUEST['radius'])) $_REQUEST['radius'] = '';
+if(malicousHTMLCheck($_REQUEST['upperlat'])) $_REQUEST['upperlat'] = '';
+if(malicousHTMLCheck($_REQUEST['rightlat'])) $_REQUEST['rightlat'] = '';
+if(malicousHTMLCheck($_REQUEST['bottomlat'])) $_REQUEST['leftlong'] = '';
+if(malicousHTMLCheck($_REQUEST['leftlong'])) $_REQUEST['bottomlat'] = '';
+if(malicousHTMLCheck($_REQUEST['poly_array'])) $_REQUEST['poly_array'] = ''; */
+
 $activateGeolocation = 0;
 if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocation = 1;
 ?>

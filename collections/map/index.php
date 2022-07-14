@@ -44,13 +44,13 @@ if(!array_key_exists("upperlat",$_REQUEST)) $_REQUEST["upperlat"] = '';
 if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 
 //Sanitation
-if(maliciousHTMLCheck($_REQUEST['catnum']) $_REQUEST['catnum'] = '';
-if(maliciousHTMLCheck($_REQUEST['eventdate2']) $_REQUEST['eventdate2'] = '';
-if(maliciousHTMLCheck($_REQUEST['eventdate1']) $_REQUEST['eventdate1'] = '';
-if(maliciousHTMLCheck($_REQUEST['state']) $_REQUEST['state'] = '';
-if(maliciousHTMLCheck($_REQUEST['country']) $_REQUEST['country'] = '';
-if(maliciousHTMLCheck($_REQUEST['taxa']) $_REQUEST['taxa'] = '';
-//if(maliciousHTMLCheck($_REQUEST['poly_array']) $_REQUEST['poly_array'] = '';
+if(maliciousHTMLCheck($_REQUEST['catnum'])) $_REQUEST['catnum'] = '';
+if(maliciousHTMLCheck($_REQUEST['eventdate2'])) $_REQUEST['eventdate2'] = '';
+if(maliciousHTMLCheck($_REQUEST['eventdate1'])) $_REQUEST['eventdate1'] = '';
+if(maliciousHTMLCheck($_REQUEST['state'])) $_REQUEST['state'] = '';
+if(maliciousHTMLCheck($_REQUEST['country'])) $_REQUEST['country'] = '';
+if(maliciousHTMLCheck($_REQUEST['taxa'])) $_REQUEST['taxa'] = '';
+if(maliciousHTMLCheck($_REQUEST['poly_array'])) $_REQUEST['poly_array'] = '';
 if(!is_numeric($_REQUEST['gridSizeSetting'])) $_REQUEST['gridSizeSetting'] = '60';
 if(!is_numeric($_REQUEST['minClusterSetting'])) $_REQUEST['minClusterSetting'] = '10';
 if(!is_string($_REQUEST['clusterSwitch']) || strlen($_REQUEST['clusterSwitch']) > 1) $_REQUEST['clusterSwitch'] = 'n';

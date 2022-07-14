@@ -44,20 +44,26 @@ if(!array_key_exists("upperlat",$_REQUEST)) $_REQUEST["upperlat"] = '';
 if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 
 //Sanitation
-
-if(array_map('maliciousHMTLCheck', $_REQUEST)) $_REQUEST = '';
-
-/* if(malicousHTMLCheck($_REQUEST['gridSizeSetting'])) $_REQUEST['gridSizeSetting'] = '60';
-if(malicousHTMLCheck($_REQUEST['minClusterSetting'])) $_REQUEST['minClusterSetting'] = '10';
-if(malicousHTMLCheck($_REQUEST['clusterSwitch'])) $_REQUEST['clusterSwitch'] = 'n';
-if(malicousHTMLCheck($_REQUEST['pointlat'])) $_REQUEST['pointlat'] = '';
-if(malicousHTMLCheck($_REQUEST['pointlong'])) $_REQUEST['pointlong'] = '';
-if(malicousHTMLCheck($_REQUEST['radius'])) $_REQUEST['radius'] = '';
-if(malicousHTMLCheck($_REQUEST['upperlat'])) $_REQUEST['upperlat'] = '';
-if(malicousHTMLCheck($_REQUEST['rightlat'])) $_REQUEST['rightlat'] = '';
-if(malicousHTMLCheck($_REQUEST['bottomlat'])) $_REQUEST['leftlong'] = '';
-if(malicousHTMLCheck($_REQUEST['leftlong'])) $_REQUEST['bottomlat'] = '';
-if(malicousHTMLCheck($_REQUEST['poly_array'])) $_REQUEST['poly_array'] = ''; */
+if(maliciousHTMLCheck($_REQUEST['catnum']) $_REQUEST['catnum'] = '';
+if(maliciousHTMLCheck($_REQUEST['eventdate2']) $_REQUEST['eventdate2'] = '';
+if(maliciousHTMLCheck($_REQUEST['eventdate1']) $_REQUEST['eventdate1'] = '';
+if(maliciousHTMLCheck($_REQUEST['state']) $_REQUEST['state'] = '';
+if(maliciousHTMLCheck($_REQUEST['country']) $_REQUEST['country'] = '';
+if(maliciousHTMLCheck($_REQUEST['taxa']) $_REQUEST['taxa'] = '';
+if(maliciousHTMLCheck($_REQUEST['poly_array']) $_REQUEST['poly_array'] = '';
+if(!is.numeric($_REQUEST['gridSizeSetting'])) $_REQUEST['gridSizeSetting'] = '60';
+if(!is.numeric($_REQUEST['minClusterSetting'])) $_REQUEST['minClusterSetting'] = '10';
+if(!is_string($_REQUEST['clusterSwitch']) || strlen($_REQUEST['clusterSwitch']) > 1) $_REQUEST['clusterSwitch'] = 'n';
+if(!is.numeric($_REQUEST['pointlat'])) $_REQUEST['pointlat'] = '';
+if(!is.numeric($_REQUEST['pointlong'])) $_REQUEST['pointlong'] = '';
+if(!is.numeric($_REQUEST['radius'])) $_REQUEST['radius'] = '';
+if(!is.numeric($_REQUEST['upperlat'])) $_REQUEST['upperlat'] = '';
+if(!is.numeric($_REQUEST['rightlat'])) $_REQUEST['rightlat'] = '';
+if(!is.numeric($_REQUEST['bottomlat'])) $_REQUEST['leftlong'] = '';
+if(!is.numeric($_REQUEST['leftlong'])) $_REQUEST['bottomlat'] = '';
+if(!is.numeric($_REQUEST['rightlong'])) $_REQUEST['rightlong'] = '';
+if(!is.numeric($_REQUEST['distFromMe'])) $_REQUEST['distFromMe'] = '';
+if(!is.numeric($_REQUEST['clid'])) $_REQUEST['clid'] = '';
 
 $activateGeolocation = 0;
 if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocation = 1;

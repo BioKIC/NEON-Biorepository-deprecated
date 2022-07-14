@@ -166,7 +166,7 @@ $badHTML = array(
 	'style'
 );
 
-function malicousHTMLCheck($str){
+function maliciousHTMLCheck($str){
 
 	if (!is_string($str)){
 		

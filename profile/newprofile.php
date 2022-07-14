@@ -28,6 +28,8 @@ if($emailAddr){
 	}
 }
 if($action && !preg_match('/^[a-zA-Z0-9\s_]+$/',$action)) $action = '';
+if($maliciousHTMLCheck($_POST['city'])) $_POST['city'] = '';
+
 
 $useRecaptcha = false;
 if(isset($RECAPTCHA_PUBLIC_KEY) && $RECAPTCHA_PUBLIC_KEY && isset($RECAPTCHA_PRIVATE_KEY) && $RECAPTCHA_PRIVATE_KEY){

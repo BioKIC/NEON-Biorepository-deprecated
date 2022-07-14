@@ -9,8 +9,8 @@ $dynClid = array_key_exists('dynclid',$_REQUEST)?$_REQUEST['dynclid']:"";
 
 //Sanitation
 if(maliciousHTMLCheck($_REQUEST['listname'])) $clName = '';
-if(!is_numeric($_REQUEST['clid'])) $clid = '';
-if(!is_numeric($_REQUEST['dynclid'])) $dynClid  = '';
+if(!is_numeric($_REQUEST['clid'])) $clid = 0;
+if(!is_numeric($_REQUEST['dynclid'])) $dynClid  = 0;
 
 if(!$clName){
 	$gameManager = new GamesManager();

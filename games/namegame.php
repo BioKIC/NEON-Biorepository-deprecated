@@ -7,6 +7,11 @@ $clName = (array_key_exists('listname',$_REQUEST)?$_REQUEST['listname']:"");
 $clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:"";
 $dynClid = array_key_exists('dynclid',$_REQUEST)?$_REQUEST['dynclid']:"";
 
+//Sanitation
+if(maliciousHTMLCheck($_REQUEST['listname'])) $clName = '';
+if(!is_numeric($_REQUEST['clid'])) $clid = '';
+if(!is_numeric($_REQUEST['dynclid'])) $dynClid  = '';
+
 if(!$clName){
 	$gameManager = new GamesManager();
 	if($clid){

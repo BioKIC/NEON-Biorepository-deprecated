@@ -418,7 +418,16 @@ if ($SYMB_UID) {
 					}
 				}
 				echo '<span class="label">Cite this collection:</span><blockquote>';
-				include($SERVER_ROOT . '/includes/citationcollection.php');
+				// If GBIF dataset key is available, fetch GBIF format from API
+				if ($collData['publishtogbif'] && $datasetKey) {
+					$gbifUrl = 'http://api.gbif.org/v1/dataset/' . $datasetKey;
+					$responseData = json_decode(file_get_contents($gbifUrl));
+					$collData['gbiftitle'] = $responseData->title;
+					$collData['doi'] = $responseData->doi;
+					include($SERVER_ROOT . '/includes/citationgbif.php');
+				} else {
+					include($SERVER_ROOT . '/includes/citationcollection.php');
+				}
 				echo '</blockquote>';
 				if ($addrArr = $collManager->getAddress()) {
 					?>

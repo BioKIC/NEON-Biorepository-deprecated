@@ -1,0 +1,2 @@
+National Ecological Observatory Network (<?php echo date('Y'); ?>).
+<?php echo $collData['gbiftitle']; ?>. Occurrence dataset <?php echo $collData['doi']; ?> accessed via the NEON Biorepository Data Portal, https://biorepo.neonscience.org/ on <?php echo date('Y-m-d'); ?>.

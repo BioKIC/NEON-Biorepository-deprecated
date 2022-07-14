@@ -97,10 +97,10 @@ if ($SYMB_UID) {
 		}
 		if ($collid) {
 			$collData = $collData[$collid];
-			$_SESSION['colldata'] = $collData;
 			$codeStr = ' (' . $collData['institutioncode'];
 			if ($collData['collectioncode']) $codeStr .= '-' . $collData['collectioncode'];
 			$codeStr .= ')';
+			$_SESSION['colldata'] = $collData;
 			echo '<h1>' . $collData['collectionname'] . $codeStr . '</h1>';
 			if ($editCode) {
 			?>
@@ -424,6 +424,7 @@ if ($SYMB_UID) {
 					$responseData = json_decode(file_get_contents($gbifUrl));
 					$collData['gbiftitle'] = $responseData->title;
 					$collData['doi'] = $responseData->doi;
+					$_SESSION['colldata'] = $collData;
 					include($SERVER_ROOT . '/includes/citationgbif.php');
 				} else {
 					include($SERVER_ROOT . '/includes/citationcollection.php');

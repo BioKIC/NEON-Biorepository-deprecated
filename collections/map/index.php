@@ -63,7 +63,7 @@ if(!is_numeric($_REQUEST['bottomlat'])) $_REQUEST['leftlong'] = '';
 if(!is_numeric($_REQUEST['leftlong'])) $_REQUEST['bottomlat'] = '';
 if(!is_numeric($_REQUEST['rightlong'])) $_REQUEST['rightlong'] = '';
 if(!is_numeric($_REQUEST['distFromMe'])) $_REQUEST['distFromMe'] = '';
-if(!is_numeric$_REQUEST['clid'])) $_REQUEST['clid'] = '';
+if(!is_numeric($_REQUEST['clid'])) $_REQUEST['clid'] = '';
 
 $activateGeolocation = 0;
 if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocation = 1;

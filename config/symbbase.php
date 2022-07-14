@@ -159,6 +159,7 @@ $RIGHTS_TERMS_DEFS = array(
 $badHTML = array(
 	'%3C%2Fscript%3E',
 	'%3Cscript%3E',
+	'script',
 	'function()',
 	'frame',
 	'javascript',
@@ -167,14 +168,18 @@ $badHTML = array(
 
 function malicousHTMLCheck($str){
 
-	global $badHTML;
+	if (!is_string($str)){
+		
+		global $badHTML;
 
-	foreach ($badHTML as $needle){
-		if(strpos($str, $needle) > 0){
-			return true;
+		foreach ($badHTML as $needle){
+			if(strpos($str, $needle) > 0){
+				return true;
+			}
 		}
-	}
-	//no blacklisted strings found
+		//no blacklisted strings found
+		}
+
 	return false;
 
 }

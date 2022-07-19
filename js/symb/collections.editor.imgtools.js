@@ -215,39 +215,47 @@ function nlpSalix(nlpButton,prlid){
 }
 
 function pushDwcArrToForm(msg,bgColor){
-	var dwcArr = $.parseJSON(msg);
-	var f = document.fullform;
-	//var fieldsTransfer = "";
-	//var fieldsSkip = "";
-	var scinameTransferred = false;
-	var verbatimElevTransferred = false;
-	for(var k in dwcArr){
-		try{
-			if(k != 'family' && k != 'scientificnameauthorship'){
-				var elem = f.elements[k];
-				var inVal = dwcArr[k];
-				if(inVal && elem && elem.value == "" && elem.disabled == false && elem.type != "hidden"){
-					if(k == "sciname") scinameTransferred = true;
-					if(k == "verbatimelevation") verbatimElevTransferred = true;
-					elem.value = inVal;
-					elem.style.backgroundColor = bgColor;
-					//fieldsTransfer = fieldsTransfer + ", " + k;
-					fieldChanged(k);
-				}
-				else{
-					//fieldsSkip = fieldsSkip + ", " + k;
+	try{
+		var dwcArr = $.parseJSON(msg);
+		var f = document.fullform;
+		//var fieldsTransfer = "";
+		//var fieldsSkip = "";
+		var scinameTransferred = false;
+		var verbatimElevTransferred = false;
+		for(var k in dwcArr){
+			try{
+				if(k != 'family' && k != 'scientificnameauthorship'){
+					var elem = f.elements[k];
+					var inVal = dwcArr[k];
+					if(inVal && elem && elem.value == "" && elem.disabled == false && elem.type != "hidden"){
+						if(k == "sciname") scinameTransferred = true;
+						if(k == "verbatimelevation") verbatimElevTransferred = true;
+						elem.value = inVal;
+						elem.style.backgroundColor = bgColor;
+						//fieldsTransfer = fieldsTransfer + ", " + k;
+						fieldChanged(k);
+					}
+					else{
+						//fieldsSkip = fieldsSkip + ", " + k;
+					}
 				}
 			}
+			catch(err){
+				//alert(err);
+			}
 		}
-		catch(err){
-			//alert(err);
-		}
+		if(scinameTransferred) verifyFullFormSciName();
+		if(verbatimElevTransferred) parseVerbatimElevation(f);
+		//if(fieldsTransfer == "") fieldsTransfer = "none";
+		//if(fieldsSkip == "") fieldsSkip = "none";
+		//alert("Field parsed: " + fieldsTransfer + "\nFields skipped: " + fieldsSkip);
 	}
-	if(scinameTransferred) verifyFullFormSciName();
-	if(verbatimElevTransferred) parseVerbatimElevation(f);
-	//if(fieldsTransfer == "") fieldsTransfer = "none";
-	//if(fieldsSkip == "") fieldsSkip = "none";
-	//alert("Field parsed: " + fieldsTransfer + "\nFields skipped: " + fieldsSkip);
+	catch(err){
+		//JSON parsing error
+		//alert(msg);
+		alert(err);
+	}
+	
 }
 
 function nextLabelProcessingImage(imgCnt){

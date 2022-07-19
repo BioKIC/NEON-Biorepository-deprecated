@@ -580,7 +580,7 @@ class TaxonomyHarvester extends Manager{
 			if($this->kingdomName && $this->kingdomName != $taxonKingdom){
 				//Skip if kingdom doesn't match target kingdom
 				$msg = 'Target taxon (<a href="'.$url.'" target="_blank">#';
-				$msg .= $sciName.'</a>) skipped due to not matching targeted kingdom: '.$this->kingdomName.' (!= '.$taxonKingdom.')';
+				$msg .= $taxonArr['sciname'].'</a>) skipped due to not matching targeted kingdom: '.$this->kingdomName.' (!= '.$taxonKingdom.')';
 					$this->logOrEcho($msg,2);
 				return false;
 			}

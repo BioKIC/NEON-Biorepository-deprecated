@@ -183,17 +183,16 @@ function nlpLbcc(nlpButton,prlid){
 	if(!rawOcr) rawOcr = f.rawtext.textContent;
 	var cnumber = f.cnumber.value;
 	var collid = f.collid.value;
-
+	//alert("rpc/nlplbcc.php?collid="+collid+"&catnum="+cnumber+"&rawocr="+rawOcr);
 	$.ajax({
 		type: "POST",
 		url: "rpc/nlplbcc.php",
 		data: { rawocr: rawOcr, collid: collid, catnum: cnumber }
 	}).done(function( msg ) {
-		pushDwcArrToForm(msg,"lightgreen");
+		pushDwcArrToForm(msg, "#ebbb7f");
+		nlpButton.disabled = false;
+		document.getElementById("workingcircle_lbcc-"+prlid).style.display = "none";
 	});
-
-	nlpButton.disabled = false;
-	document.getElementById("workingcircle_lbcc-"+prlid).style.display = "none";
 }
 
 function nlpSalix(nlpButton,prlid){
@@ -202,16 +201,16 @@ function nlpSalix(nlpButton,prlid){
 	var f = nlpButton.form;
 	var rawOcr = f.rawtext.innerText;
 	if(!rawOcr) rawOcr = f.rawtext.textContent;
+	//alert("rpc/nlpsalix.php?rawocr="+rawOcr);
 	$.ajax({
 		type: "POST",
 		url: "rpc/nlpsalix.php",
 		data: { rawocr: rawOcr }
 	}).done(function( msg ) {
-		pushDwcArrToForm(msg,"lightgreen");
+		pushDwcArrToForm(msg,"#77dd77");
+		nlpButton.disabled = false;
+		document.getElementById("workingcircle_salix-"+prlid).style.display = "none";
 	});
-
-	nlpButton.disabled = false;
-	document.getElementById("workingcircle_salix-"+prlid).style.display = "none";
 }
 
 function pushDwcArrToForm(msg,bgColor){

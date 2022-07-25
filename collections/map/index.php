@@ -7,21 +7,17 @@ header('Content-Type: text/html; charset='.$CHARSET);
 ob_start('ob_gzhandler');
 ini_set('max_execution_time', 180); //180 seconds = 3 minutes
 
-$tabIndex = array_key_exists("tabindex",$_REQUEST)?$_REQUEST["tabindex"]:1;
-
-$mapManager = new OccurrenceMapManager();
-$searchVar = $mapManager->getQueryTermStr();
-
-$showTaxaBut = 1;
-
-$obsIDs = $mapManager->getObservationIds();
-
+$tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:1;
 $gridSize = (array_key_exists('gridSizeSetting',$_REQUEST)&&$_REQUEST['gridSizeSetting']?$_REQUEST['gridSizeSetting']:60);
 $minClusterSize = (array_key_exists('minClusterSetting',$_REQUEST)&&$_REQUEST['minClusterSetting']?$_REQUEST['minClusterSetting']:10);
 $clusterOff = (array_key_exists('clusterSwitch',$_REQUEST)&&$_REQUEST['clusterSwitch']?$_REQUEST['clusterSwitch']:'n');
 $recLimit = (array_key_exists('recordlimit',$_REQUEST)&&is_numeric($_REQUEST['recordlimit'])?$_REQUEST['recordlimit']:15000);
+
+$mapManager = new OccurrenceMapManager();
+$searchVar = $mapManager->getQueryTermStr();
 if($searchVar && $recLimit) $searchVar .= '&reclimit='.$recLimit;
 
+$obsIDs = $mapManager->getObservationIds();
 
 $dbArr = Array();
 if(array_key_exists('db',$_REQUEST)){
@@ -44,16 +40,18 @@ if(!array_key_exists("upperlat",$_REQUEST)) $_REQUEST["upperlat"] = '';
 if(!array_key_exists("pointlat",$_REQUEST)) $_REQUEST["pointlat"] = '';
 
 //Sanitation
-if(maliciousHTMLCheck($_REQUEST['catnum'])) $_REQUEST['catnum'] = '';
-if(maliciousHTMLCheck($_REQUEST['eventdate2'])) $_REQUEST['eventdate2'] = '';
-if(maliciousHTMLCheck($_REQUEST['eventdate1'])) $_REQUEST['eventdate1'] = '';
-if(maliciousHTMLCheck($_REQUEST['state'])) $_REQUEST['state'] = '';
-if(maliciousHTMLCheck($_REQUEST['country'])) $_REQUEST['country'] = '';
-if(maliciousHTMLCheck($_REQUEST['taxa'])) $_REQUEST['taxa'] = '';
-if(maliciousHTMLCheck($_REQUEST['poly_array'])) $_REQUEST['poly_array'] = '';
-if(!is_numeric($_REQUEST['gridSizeSetting'])) $_REQUEST['gridSizeSetting'] = '60';
-if(!is_numeric($_REQUEST['minClusterSetting'])) $_REQUEST['minClusterSetting'] = '10';
-if(!is_string($_REQUEST['clusterSwitch']) || strlen($_REQUEST['clusterSwitch']) > 1) $_REQUEST['clusterSwitch'] = 'n';
+if(!is_numeric($tabIndex)) $tabIndex = 60;
+if(!is_numeric($gridSize)) $gridSize = 60;
+if(!is_numeric($minClusterSize)) $minClusterSize = 60;
+if(!is_string($clusterOff) || strlen($clusterOff) > 1) $clusterOff = 'n';
+if(!is_numeric($recLimit)) $recLimit = 60;
+$_REQUEST['catnum'] = filter_var($_REQUEST['catnum'], FILTER_SANITIZE_STRING);
+$_REQUEST['eventdate2'] = filter_var($_REQUEST['eventdate2'], FILTER_SANITIZE_STRING);
+$_REQUEST['eventdate1'] = filter_var($_REQUEST['eventdate1'], FILTER_SANITIZE_STRING);
+$_REQUEST['state'] = filter_var($_REQUEST['state'], FILTER_SANITIZE_STRING);
+$_REQUEST['country'] = filter_var($_REQUEST['country'], FILTER_SANITIZE_STRING);
+$_REQUEST['taxa'] = filter_var($_REQUEST['taxa'], FILTER_SANITIZE_STRING);
+$_REQUEST['poly_array'] = filter_var($_REQUEST['poly_array'], FILTER_SANITIZE_STRING);
 if(!is_numeric($_REQUEST['pointlat'])) $_REQUEST['pointlat'] = '';
 if(!is_numeric($_REQUEST['pointlong'])) $_REQUEST['pointlong'] = '';
 if(!is_numeric($_REQUEST['radius'])) $_REQUEST['radius'] = '';
@@ -1184,9 +1182,9 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 										<input type="hidden" id="deselectedpoints" value="" />
 										<input type="hidden" id="selecteddspoints" value="" />
 										<input type="hidden" id="deselecteddspoints" value="" />
-										<input type="hidden" id="gridSizeSetting" name="gridSizeSetting" value="<?php echo (array_key_exists("gridSizeSetting",$_REQUEST)?$_REQUEST["gridSizeSetting"]:"60"); ?>" />
-										<input type="hidden" id="minClusterSetting" name="minClusterSetting" value="<?php echo (array_key_exists("minClusterSetting",$_REQUEST)?$_REQUEST["minClusterSetting"]:"10"); ?>" />
-										<input type="hidden" id="clusterSwitch" name="clusterSwitch" value="<?php echo (array_key_exists("clusterSwitch",$_REQUEST)?$_REQUEST["clusterSwitch"]:"n"); ?>" />
+										<input type="hidden" id="gridSizeSetting" name="gridSizeSetting" value="<?php echo $gridSize; ?>" />
+										<input type="hidden" id="minClusterSetting" name="minClusterSetting" value="<?php echo $minClusterSize; ?>" />
+										<input type="hidden" id="clusterSwitch" name="clusterSwitch" value="<?php echo $clusterOff; ?>" />
 										<input type="hidden" id="pointlat" name="pointlat" value='<?php echo (array_key_exists("pointlat",$_REQUEST)?$_REQUEST["pointlat"]:""); ?>' />
 										<input type="hidden" id="pointlong" name="pointlong" value='<?php echo (array_key_exists("pointlong",$_REQUEST)?$_REQUEST["pointlong"]:""); ?>' />
 										<input type="hidden" id="radius" name="radius" value='<?php echo (array_key_exists("radius",$_REQUEST)?$_REQUEST["radius"]:""); ?>' />

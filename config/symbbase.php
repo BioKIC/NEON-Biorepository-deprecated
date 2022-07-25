@@ -108,7 +108,8 @@ if(!isset($rightsTerms) && isset($RIGHTS_TERMS)) $rightsTerms = $RIGHTS_TERMS;
 if(!isset($reproductiveConditionTerms) && isset($REPRODUCTIVE_CONDITION_TERMS)) $reproductiveConditionTerms = $REPRODUCTIVE_CONDITION_TERMS;
 if(!isset($glossaryExportBanner) && isset($GLOSSARY_EXPORT_BANNER)) $glossaryExportBanner = $GLOSSARY_EXPORT_BANNER;
 
-$AVAILABLE_LANGS = array('en','es','fr','pt','ab','aa','af','sq','am','ar','hy','as','ay','az','ba','eu','bn','dz','bh','bi','br','bg','my','be','km','ca','zh','co','hr','cs','da','nl','eo','et','fo','fj','fi','fy','gd','gl','ka','de','el','kl','gn','gu','ha','iw','hi','hu','is','in','ia','ie','ik','ga','it','ja','jw','kn','ks','kk','rw','ky','rn','ko','ku','lo','la','lv','ln','lt','mk','mg','ms','ml','mt','mi','mr','mo','mn','na','ne','no','oc','or','om','ps','fa','pl','pa','qu','rm','ro','ru','sm','sg','sa','sr','sh','st','tn','sn','sd','si','ss','sk','sl','so','su','sw','sv','tl','tg','ta','tt','te','th','bo','ti','to','ts','tr','tk','tw','uk','ur','uz','vi','vo','cy','wo','xh','ji','yo','zu');
+//$AVAILABLE_LANGS = array('en','es','fr','pt','ab','aa','af','sq','am','ar','hy','as','ay','az','ba','eu','bn','dz','bh','bi','br','bg','my','be','km','ca','zh','co','hr','cs','da','nl','eo','et','fo','fj','fi','fy','gd','gl','ka','de','el','kl','gn','gu','ha','iw','hi','hu','is','in','ia','ie','ik','ga','it','ja','jw','kn','ks','kk','rw','ky','rn','ko','ku','lo','la','lv','ln','lt','mk','mg','ms','ml','mt','mi','mr','mo','mn','na','ne','no','oc','or','om','ps','fa','pl','pa','qu','rm','ro','ru','sm','sg','sa','sr','sh','st','tn','sn','sd','si','ss','sk','sl','so','su','sw','sv','tl','tg','ta','tt','te','th','bo','ti','to','ts','tr','tk','tw','uk','ur','uz','vi','vo','cy','wo','xh','ji','yo','zu');
+$AVAILABLE_LANGS = array('en','es','fr','pt');
 
 //Multi-langauge support
 $LANG_TAG = 'en';
@@ -125,7 +126,7 @@ else{
 //if(!$LANG_TAG || strlen($LANG_TAG) != 2) $LANG_TAG = 'en';
 
 //Sanitization
-if(!array_search($LANG_TAG, $AVAILABLE_LANGS)) $LANG_TAG = 'en';
+if($LANG_TAG != 'en' && !in_array($LANG_TAG, $AVAILABLE_LANGS)) $LANG_TAG = 'en';
 
 $RIGHTS_TERMS_DEFS = array(
     'http://creativecommons.org/publicdomain/zero/1.0/' => array(
@@ -154,43 +155,4 @@ $RIGHTS_TERMS_DEFS = array(
         'def' => 'Users can copy, redistribute the material in any medium or format, remix, transform, and build upon the material. The licensor cannot revoke these freedoms as long as you follow the license terms.'
     )
 );
-
-
-$badHTML = array(
-	'%3C%2Fscript%3E',
-	'%3Cscript%3E',
-	'script',
-	'function()',
-	'frame',
-	'javascript',
-	'style'
-);
-
-function maliciousHTMLCheck($str){
-
-	if (!is_string($str)){
-		
-		global $badHTML;
-
-		foreach ($badHTML as $needle){
-			if(strpos($str, $needle) > 0){
-				return true;
-			}
-		}
-		//no blacklisted strings found
-		}
-
-	return false;
-
-}
-
-function sanitizeURLInput($str){
-	return strip_tags(urldecode($str));
-}
-
-
-
-
-
-
 ?>

@@ -4,7 +4,7 @@ include_once($SERVER_ROOT.'/classes/OccurrenceMaintenance.php');
 
 class OccurrenceCollectionProfile extends OmCollections{
 
-	private $collMeta;
+	private $collMeta = array();
 	private $organizationKey;
 	private $installationKey;
 	private $datasetKey;
@@ -928,6 +928,7 @@ class OccurrenceCollectionProfile extends OmCollections{
 
 	//Misc functions
 	public function cleanOutArr(&$arr){
+		if(!is_array($arr)) return;
 		foreach($arr as $k => $v){
 			$arr[$k] = $this->cleanOutStr($v);
 		}

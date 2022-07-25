@@ -55,6 +55,42 @@ class OccurrenceController extends Controller{
 	 *		 required=false,
 	 *		 @OA\Schema(type="string")
 	 *	 ),
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="collid",
+	 *		 in="query",
+	 *		 description="collid - collection identifier in portal",
+	 *		 required=false,
+	 *		 @OA\Schema(type="string")
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="datasetID",
+	 *		 in="query",
+	 *		 description="dataset ID within portal",
+	 *		 required=false,
+	 *		 @OA\Schema(type="string")
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="family",
+	 *		 in="query",
+	 *		 description="family",
+	 *		 required=false,
+	 *		 @OA\Schema(type="string")
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="sciname",
+	 *		 in="query",
+	 *		 description="Scientific Name - binomen only without authorship",
+	 *		 required=false,
+	 *		 @OA\Schema(type="string")
+	 *	 ),
+	 *	 @OA\Parameter(
+	 *		 name="eventDate",
+	 *		 in="query",
+	 *		 description="Date as YYYY, YYYY-MM or YYYY-MM-DD",
+	 *		 required=false,
+	 *		 @OA\Schema(type="string")
+	 *	 ),
 	 *	 @OA\Parameter(
 	 *		 name="limit",
 	 *		 in="query",
@@ -94,6 +130,12 @@ class OccurrenceController extends Controller{
 		if($request->has('country')) $conditions[] = ['country',$request->country];
 		if($request->has('stateProvince')) $conditions[] = ['stateProvince',$request->stateProvince];
 		if($request->has('county')) $conditions[] = ['county','LIKE',$request->county.'%'];
+		if($request->has('collid')) $conditions[] = ['collid',$request->collid];
+		if($request->has('family')) $conditions[] = ['family',$request->family];
+		if($request->has('sciname')) $conditions[] = ['sciname','LIKE',$request->sciname.'%'];
+		if($request->has('datasetID')) $conditions[] = ['datasetID',$request->datasetID];
+		if($request->has('eventDate')) $conditions[] = ['eventDate','LIKE',$request->eventDate.'%'];
+
 
 		$fullCnt = Occurrence::where($conditions)->count();
 		$result = Occurrence::where($conditions)->skip($offset)->take($limit)->get();

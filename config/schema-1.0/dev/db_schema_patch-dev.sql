@@ -639,3 +639,11 @@ INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvI
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "poolDnaExtracts", "http://gensc.org/ns/mixs/pool_dna_extracts", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "sampleDesignation", "http://data.ggbn.org/schemas/ggbn/terms/sampleDesignation", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 
+# Modify the institutions table so that some fields can hold more data
+# This is to allow extra content from GrSciColl/Index Herbariorum (e.g., multiple contacts)
+ALTER TABLE `institutions` 
+  CHANGE COLUMN `InstitutionName2` `InstitutionName2` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `Phone` `Phone` VARCHAR(100) NULL DEFAULT NULL,
+  CHANGE COLUMN `Contact` `Contact` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `Email` `Email` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `Notes` `Notes` VARCHAR(19500) NULL DEFAULT NULL;

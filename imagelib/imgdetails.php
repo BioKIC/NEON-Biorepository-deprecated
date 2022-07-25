@@ -7,6 +7,10 @@ $imgId = $_REQUEST["imgid"];
 $action = array_key_exists("submitaction",$_REQUEST)?$_REQUEST["submitaction"]:"";
 $eMode = array_key_exists("emode",$_REQUEST)?$_REQUEST["emode"]:0;
 
+//Sanitation
+if(!is_numeric($imgId)) $imgId = 0;
+if(!is_numeric($eMode)) $eMode = 0;
+
 $imgManager = new ImageDetailManager($imgId,($action?'write':'readonly'));
 
 $imgArr = $imgManager->getImageMetadata();

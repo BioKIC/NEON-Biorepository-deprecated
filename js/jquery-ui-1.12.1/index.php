@@ -1,7 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
-header("Content-Type: text/html; charset=".$CHARSET);
-header("Location: ".$CLIENT_ROOT."/index.php");
+header('Content-Type: text/html; charset='.$CHARSET);
+header('Location: '.$CLIENT_ROOT.'/index.php');
 ?>
 <html>
 	<head>
@@ -13,7 +13,7 @@ header("Location: ".$CLIENT_ROOT."/index.php");
 	</head>
 	<body>
 		<?php
-		$displayLeftMenu = true;
+		$displayLeftMenu = false;
 		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<!-- This is inner text! -->

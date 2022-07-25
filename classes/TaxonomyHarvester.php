@@ -575,6 +575,17 @@ class TaxonomyHarvester extends Manager{
 		$url = 'https://marinespecies.org/rest/AphiaRecordByAphiaID/'.$id;
 		if($resultStr = $this->getWormsReturnStr($this->getContentString($url),$url)){
 			$taxonArr= $this->getWormsNode(json_decode($resultStr,true));
+			
+			$taxonKingdom = $taxonArr['kingdom'];
+			if($this->kingdomName && $this->kingdomName != $taxonKingdom){
+				//Skip if kingdom doesn't match target kingdom
+				$msg = 'Target taxon (<a href="https://marinespecies.org/aphia.php?p=taxdetails&id='.$id.'&marine_only=false" target="_blank">';
+				$msg .= $taxonArr['sciname'].'</a>) skipped due to not matching targeted kingdom: '.$this->kingdomName.' (!= '.$taxonKingdom.')';
+					$this->logOrEcho($msg,2);
+				return false;
+			}
+
+
 			if($taxonArr['acceptance'] == 'unaccepted' && isset($taxonArr['validID'])){
 				//Get and set accepted taxon
 				$acceptedTid = $this->addWormsTaxonByID($taxonArr['validID']);
@@ -640,6 +651,7 @@ class TaxonomyHarvester extends Manager{
 		if(isset($nodeArr['AphiaID'])) $taxonArr['id'] = $nodeArr['AphiaID'];
 		if(isset($nodeArr['scientificname'])) $taxonArr['sciname'] = $nodeArr['scientificname'];
 		if(isset($nodeArr['authority'])) $taxonArr['author'] = $nodeArr['authority'];
+		if(isset($nodeArr['kingdom'])) $taxonArr['kingdom'] = $nodeArr['kingdom'];
 		if(isset($nodeArr['family'])) $taxonArr['family'] = $nodeArr['family'];
 		if(isset($nodeArr['genus'])) $taxonArr['unitname1'] = $nodeArr['genus'];
 		if(isset($nodeArr['status'])) $taxonArr['acceptance'] = $nodeArr['status'];

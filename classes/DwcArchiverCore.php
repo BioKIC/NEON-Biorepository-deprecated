@@ -2208,4 +2208,3 @@ class DwcArchiverCore extends Manager{
 		}
 	}
 }
-?>

@@ -88,7 +88,6 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 			</ul>
 		</div>
 
-		<a name="images"></a>
 		<h2>Images</h2>
 		<p>Images within this website have been generously contributed by their owners to promote education and research. These contributors retain the full copyright for their images. Unless stated otherwise, images are made available under the Creative Commons Attribution-ShareAlike (<a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC BY-SA</a>). Users are allowed to copy, transmit, reuse, and/or adapt content, as long as attribution regarding the source of the content is made. If the content is altered, transformed, or enhanced, it may be re-distributed only under the same or similar license by which it was acquired.
 		</p>

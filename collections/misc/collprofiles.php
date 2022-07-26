@@ -416,6 +416,11 @@ if ($SYMB_UID) {
 					<?php
 					}
 				}
+				if (file_exists($SERVER_ROOT . '/includes/citationcollection.php')) {
+					echo '<div class="field-div"><span class="label">Cite this collection:</span><blockquote>';
+					include($SERVER_ROOT . '/includes/citationcollection.php');
+					echo '</blockquote></div>';
+				}
 				if ($addrArr = $collManager->getAddress()) {
 					?>
 					<div style="margin-top:5px;">

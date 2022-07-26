@@ -214,7 +214,7 @@ if ($schema == 'backup') {
 			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 			header('Pragma: public');
 			header('Content-Length: ' . filesize($outputFile));
-			ob_clean();
+			// ob_clean();
 			flush();
 			//od_end_clean();
 			readfile($outputFile);

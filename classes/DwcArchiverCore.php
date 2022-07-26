@@ -900,6 +900,10 @@ class DwcArchiverCore extends Manager
 			$this->writeEmlFile();
 			$zipArchive->addFile($this->targetPath . $this->ts . '-eml.xml');
 			$zipArchive->renameName($this->targetPath . $this->ts . '-eml.xml', 'eml.xml');
+			//Citation file
+			$this->writeCitationFile();
+			$zipArchive->addFile($this->targetPath . $this->ts . '-citation.txt');
+			$zipArchive->renameName($this->targetPath . $this->ts . '-citation.txt', 'CITEME.txt');
 
 			$zipArchive->close();
 			unlink($this->targetPath . $this->ts . '-occur' . $this->fileExt);
@@ -1968,6 +1972,69 @@ class DwcArchiverCore extends Manager
 			$this->logOrEcho("ERROR creating attribute (MeasurementOrFact) extension file: " . $this->dataConn->error . "\n");
 			$this->logOrEcho("\tSQL: " . $sql . "\n");
 		}
+
+		fclose($fh);
+		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
+	}
+
+	private function writeCitationFile()
+	{
+		$this->logOrEcho("Creating citation file (" . date('h:i:s A') . ")... ");
+		$filePath = $this->targetPath . $this->ts . '-citation.txt';
+		$fh = fopen($filePath, 'w');
+		if (!$fh) {
+			$this->logOrEcho('ERROR establishing output file (' . $filePath . '), perhaps target folder is not readable by web server.');
+			return false;
+		}
+
+		$currSession = isset($_SESSION) ? $_SESSION : array();
+		// searchVar is passed to the class in each page that calls it
+		$searchVar = parse_url(urldecode($currSession['searchvar']));
+		parse_str($searchVar['path'], $searchParamsArr);
+		$DEFAULT_TITLE = $GLOBALS['DEFAULT_TITLE'];
+		$SERVER_HOST = $GLOBALS['SERVER_HOST'];
+		$CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
+
+		// Decides which citation format to use according to $searchVar
+		// Checks first argument in query
+		switch (array_key_first($searchParamsArr)) {
+			case "collid":
+				$collData = $currSession['colldata'];
+				// if collData includes a gbiftitle, pass it to the citation
+				if (array_key_exists('gbiftitle', $collData)) {
+					$citationFormat = "gbif";
+				} else {
+					$citationFormat = "collection";
+				}
+				$citationPrefix = "Collection Page";
+				break;
+			case "db":
+				$citationFormat = "portal";
+				$citationPrefix = "Portal Search";
+				break;
+			case "datasetid":
+				$citationFormat = "dataset";
+				$citationPrefix = "Dataset Page";
+				$dArr['name'] = $currSession['datasetName'];
+				$datasetid = $currSession['datasetid'];
+				break;
+			default:
+				$citationFormat = "portal";
+				$citationPrefix = "Portal";
+		}
+
+		$output = "This data package was downloaded from a " . $GLOBALS['DEFAULT_TITLE'] . " " . $citationPrefix . " on " . date('Y-m-d H:i:s') . ".\n\nPlease use the following format to cite this dataset:\n";
+
+		ob_start();
+		if (file_exists($GLOBALS['SERVER_ROOT'] . '/includes/citation' . $citationFormat . '.php')) {
+			include $GLOBALS['SERVER_ROOT'] . '/includes/citation' . $citationFormat . '.php';
+		} else {
+			include $GLOBALS['SERVER_ROOT'] . '/includes/citation' . $citationFormat . '_template.php';
+		}
+		$output .= ob_get_clean();
+		$output .= "\n\nFor more information on citation formats, please see the following page: " . $GLOBALS['SERVER_HOST'] . $GLOBALS['CLIENT_ROOT'] . "/includes/usagepolicy.php";
+
+		fwrite($fh, $output);
 
 		fclose($fh);
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");

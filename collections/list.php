@@ -10,6 +10,8 @@ $targetTid = array_key_exists('targettid', $_REQUEST) ? $_REQUEST['targettid'] :
 $tabIndex = array_key_exists('tabindex', $_REQUEST) ? $_REQUEST['tabindex'] : 1;
 $cntPerPage = array_key_exists('cntperpage', $_REQUEST) ? $_REQUEST['cntperpage'] : 100;
 $pageNumber = array_key_exists('page', $_REQUEST) ? $_REQUEST['page'] : 1;
+$datasetid = array_key_exists("datasetid", $_REQUEST) ? $_REQUEST["datasetid"] : '';
+$_SESSION['datasetid'] = $datasetid;
 
 
 //Sanitation
@@ -23,6 +25,7 @@ $collManager = new OccurrenceListManager();
 $searchVar = $collManager->getQueryTermStr();
 if ($targetTid && array_key_exists('mode', $_REQUEST)) $searchVar .= '&mode=voucher&targettid=' . $targetTid;
 $occurArr = $collManager->getSpecimenMap($pageNumber, $cntPerPage);
+$_SESSION['searchvar'] = $searchVar;
 ?>
 <html>
 
@@ -217,6 +220,7 @@ $occurArr = $collManager->getSpecimenMap($pageNumber, $cntPerPage);
 						}
 						if ($localSearchStr = $collManager->getLocalSearchStr()) {
 							echo '<div><b>' . $LANG['SEARCH_CRITERIA'] . ':</b> ' . $localSearchStr . '</div>';
+							$_SESSION['datasetName'] = $localSearchStr;
 						}
 						?>
 					</div>

@@ -100,6 +100,7 @@ if ($SYMB_UID) {
 			$codeStr = ' (' . $collData['institutioncode'];
 			if ($collData['collectioncode']) $codeStr .= '-' . $collData['collectioncode'];
 			$codeStr .= ')';
+			$_SESSION['colldata'] = $collData;
 			echo '<h1>' . $collData['collectionname'] . $codeStr . '</h1>';
 			if ($editCode) {
 			?>

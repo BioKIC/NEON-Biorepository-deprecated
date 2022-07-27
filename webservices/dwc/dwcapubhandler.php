@@ -47,6 +47,8 @@ $includeImgs = array_key_exists("imgs", $_REQUEST) ? $_REQUEST["imgs"] : 1;
 $includeAttributes = array_key_exists("attr", $_REQUEST) ? $_REQUEST["attr"] : 0;
 $includeMaterialSample = array_key_exists("matsample", $_REQUEST) ? $_REQUEST["matsample"] : 0;
 
+$_SESSION['searchvar'] = "collid=" . $collid;
+
 $dwcaHandler = new DwcArchiverCore();
 
 $dwcaHandler->setVerboseMode(0);
@@ -99,7 +101,7 @@ $dwcaHandler->setIncludeMaterialSample($includeMaterialSample);
 
 $archiveFile = $dwcaHandler->createDwcArchive();
 if ($archiveFile) {
-	// ob_start();
+	ob_start();
 	header('Content-Description: DwC-A File Transfer');
 	header('Content-Type: application/zip');
 	header('Content-Disposition: attachment; filename=' . basename($archiveFile));

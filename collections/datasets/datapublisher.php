@@ -27,6 +27,9 @@ if ($collid) {
 	if ($collArr['publishtogbif']) $publishGBIF = true;
 }
 
+$_SESSION['searchvar'] = 'collid=' . $collid;
+$_SESSION['colldata'] = $collArr;
+
 $includeDets = 1;
 $includeImgs = 1;
 $includeMatSample = 1;

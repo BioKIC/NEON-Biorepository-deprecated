@@ -1987,19 +1987,24 @@ class DwcArchiverCore extends Manager
 			return false;
 		}
 
-		$currSession = isset($_SESSION) ? $_SESSION : array();
-		// searchVar is passed to the class in each page that calls it
-		$searchVar = parse_url(urldecode($currSession['searchvar']));
-		parse_str($searchVar['path'], $searchParamsArr);
+		$searchVar = array();
+		$searchParamsArr = array();
+
+		if (array_key_exists('searchvar', $_SESSION)) {
+			$searchVar = parse_url(urldecode($_SESSION['searchvar']));
+			parse_str($searchVar['path'], $searchParamsArr);
+			unset($_SESSION['searchvar']);
+		}
+
 		$DEFAULT_TITLE = $GLOBALS['DEFAULT_TITLE'];
 		$SERVER_HOST = $GLOBALS['SERVER_HOST'];
 		$CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
 
 		// Decides which citation format to use according to $searchVar
-		// Checks first argument in query
+		// Checks first argument in query params
 		switch (array_key_first($searchParamsArr)) {
 			case "collid":
-				$collData = $currSession['colldata'];
+				$collData = $_SESSION['colldata'];
 				// if collData includes a gbiftitle, pass it to the citation
 				if (array_key_exists('gbiftitle', $collData)) {
 					$citationFormat = "gbif";
@@ -2015,8 +2020,8 @@ class DwcArchiverCore extends Manager
 			case "datasetid":
 				$citationFormat = "dataset";
 				$citationPrefix = "Dataset Page";
-				$dArr['name'] = $currSession['datasetName'];
-				$datasetid = $currSession['datasetid'];
+				$dArr['name'] = $_SESSION['datasetName'];
+				$datasetid = $_SESSION['datasetid'];
 				break;
 			default:
 				$citationFormat = "portal";
@@ -2037,6 +2042,7 @@ class DwcArchiverCore extends Manager
 		fwrite($fh, $output);
 
 		fclose($fh);
+		unset($_SESSION['searchvar']);
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 

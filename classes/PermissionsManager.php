@@ -199,6 +199,24 @@ class PermissionsManager{
 		return $statusStr;
 	}
 
+	public function addClCreateRole($uid){
+		$statusStr = '';
+		if(is_numeric($uid)){
+			
+			$sql = 'SELECT uid,role,tablepk,secondaryVariable,uidassignedby FROM userroles WHERE (uid = '.$uid.') AND (role = "ClCreate");';
+			$rs = $this->conn->query($sql);
+			if(!$rs->num_rows){
+				$sql1 = 'INSERT INTO userroles(uid,role,uidassignedby) '.
+					'VALUES('.$uid.',"ClCreate",'.$GLOBALS["SYMB_UID"].')';
+				if(!$this->conn->query($sql1)){
+					$statusStr = 'ERROR adding user permission: '.$this->conn->error;
+				}
+			}
+			$rs->free();
+		}
+		return $statusStr;
+	}
+
 	public function getTaxonEditorArr($collid, $limitByColl = 0){
 		//grab the current permissions
 		$pArr = array();

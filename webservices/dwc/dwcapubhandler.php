@@ -47,7 +47,7 @@ $includeImgs = array_key_exists("imgs", $_REQUEST) ? $_REQUEST["imgs"] : 1;
 $includeAttributes = array_key_exists("attr", $_REQUEST) ? $_REQUEST["attr"] : 0;
 $includeMaterialSample = array_key_exists("matsample", $_REQUEST) ? $_REQUEST["matsample"] : 0;
 
-$_SESSION['searchvar'] = "collid=" . $collid;
+$_SESSION['citationvar'] = "collid=" . $collid;
 
 $dwcaHandler = new DwcArchiverCore();
 
@@ -112,7 +112,7 @@ if ($archiveFile) {
 	header('Content-Length: ' . filesize($archiveFile));
 	ob_clean();
 	flush();
-	//od_end_clean();
+	ob_end_clean();
 	readfile($archiveFile);
 	unlink($archiveFile);
 	exit;

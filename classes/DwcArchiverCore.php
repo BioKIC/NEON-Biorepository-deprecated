@@ -1987,22 +1987,27 @@ class DwcArchiverCore extends Manager
 			return false;
 		}
 
-		$searchVar = array();
-		$searchParamsArr = array();
+		$citationVarArr = array();
+		$citationParamsArr = array();
 
-		if (array_key_exists('searchvar', $_SESSION)) {
-			$searchVar = parse_url(urldecode($_SESSION['searchvar']));
-			parse_str($searchVar['path'], $searchParamsArr);
-			unset($_SESSION['searchvar']);
+		// Data has to be stored in the session to be available for the citation formats 
+		if (array_key_exists('citationvar', $_SESSION)) {
+			$citationVarArr = parse_url(urldecode($_SESSION['citationvar']));
+			parse_str($citationVarArr['path'], $citationParamsArr);
+			unset($_SESSION['citationvar']);
 		}
 
 		$DEFAULT_TITLE = $GLOBALS['DEFAULT_TITLE'];
 		$SERVER_HOST = $GLOBALS['SERVER_HOST'];
 		$CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
 
-		// Decides which citation format to use according to $searchVar
+		// Decides which citation format to use according to $citationVarArr
 		// Checks first argument in query params
-		switch (array_key_first($searchParamsArr)) {
+		switch (array_key_first($citationParamsArr)) {
+			case "archivedcollid":
+				$citationFormat = "collection";
+				$citationPrefix = "Collection Page, Archived DwC-A package";
+				break;
 			case "collid":
 				$collData = $_SESSION['colldata'];
 				// if collData includes a gbiftitle, pass it to the citation
@@ -2042,7 +2047,7 @@ class DwcArchiverCore extends Manager
 		fwrite($fh, $output);
 
 		fclose($fh);
-		unset($_SESSION['searchvar']);
+		unset($_SESSION['citationvar']);
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 

@@ -2053,10 +2053,7 @@ class DwcArchiverCore extends Manager
 		fwrite($fh, $output);
 
 		fclose($fh);
-		unset($_SESSION['citationvar']);
-		unset($_SESSION['datasetName']);
-		unset($_SESSION['datasetid']);
-		unset($_SESSION['colldata']);
+
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 

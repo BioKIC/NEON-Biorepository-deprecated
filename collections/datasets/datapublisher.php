@@ -27,7 +27,7 @@ if ($collid) {
 	if ($collArr['publishtogbif']) $publishGBIF = true;
 }
 
-$_SESSION['citationvar'] = 'collid=' . $collid;
+$_SESSION['citationvar'] = 'archivedcollid=' . $collid;
 $_SESSION['colldata'] = $collArr;
 
 $includeDets = 1;
@@ -492,6 +492,7 @@ if ($isEditor) {
 			<?php
 			}
 			if ($dwcaArr = $dwcaManager->getDwcaItems()) {
+
 			?>
 				<table class="styledtable" style="font-family:Arial;font-size:12px;margin:10px;">
 					<tr>

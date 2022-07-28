@@ -2005,8 +2005,15 @@ class DwcArchiverCore extends Manager
 		// Checks first argument in query params
 		switch (array_key_first($citationParamsArr)) {
 			case "archivedcollid":
+				$collData = $_SESSION['colldata'];
+				// if collData includes a gbiftitle, pass it to the citation
+				if (array_key_exists('gbiftitle', $collData)) {
+					$citationFormat = "gbif";
+				} else {
+					$citationFormat = "collection";
+				}
 				$citationFormat = "collection";
-				$citationPrefix = "Collection Page, Archived DwC-A package";
+				$citationPrefix = "Collection Page, Archived DwC-A package created";
 				break;
 			case "collid":
 				$collData = $_SESSION['colldata'];
@@ -2016,7 +2023,7 @@ class DwcArchiverCore extends Manager
 				} else {
 					$citationFormat = "collection";
 				}
-				$citationPrefix = "Collection Page";
+				$citationPrefix = "Collection Page, Live data downloaded";
 				break;
 			case "db":
 				$citationFormat = "portal";

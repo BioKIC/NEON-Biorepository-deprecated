@@ -2012,7 +2012,6 @@ class DwcArchiverCore extends Manager
 				} else {
 					$citationFormat = "collection";
 				}
-				$citationFormat = "collection";
 				$citationPrefix = "Collection Page, Archived DwC-A package created";
 				break;
 			case "collid":
@@ -2055,6 +2054,9 @@ class DwcArchiverCore extends Manager
 
 		fclose($fh);
 		unset($_SESSION['citationvar']);
+		unset($_SESSION['datasetName']);
+		unset($_SESSION['datasetid']);
+		unset($_SESSION['colldata']);
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 

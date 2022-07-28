@@ -614,6 +614,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return implode("; ", $this->displaySearchArr);
 	}
 
+	protected function setSearchTerm($termKey, $termValue){
+		$this->searchTermArr[$termKey] = $this->cleanInputStr($termValue);
+	}
+
 	public function getSearchTerm($k){
 		if($k && isset($this->searchTermArr[$k])){
 			return trim($this->searchTermArr[$k],' ;');

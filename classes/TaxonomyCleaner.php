@@ -69,7 +69,7 @@ class TaxonomyCleaner extends Manager{
 		$endIndex = 0;
 		$this->logOrEcho("Starting taxa check ");
 		$sql = 'SELECT sciname, family, scientificnameauthorship, count(*) as cnt '.$this->getSqlFragment();
-		if($startIndex) $sql .= 'AND (sciname > "'.$this->cleanInStr($startIndex).'") ';
+		if($startIndex) $sql .= 'AND (sciname >= "'.$this->cleanInStr($startIndex).'") ';
 		$sql .= 'GROUP BY sciname, family, scientificnameauthorship LIMIT '.$limit;
 		//echo $sql; exit;
 		if($rs = $this->conn->query($sql)){

@@ -30,7 +30,7 @@ class ShipmentManager{
 	private function setShipmentArr(){
 		if($this->shipmentPK){
 			$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, s.shipmentMethod, '.
-				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, s.fileName, s.receiptStatus, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
+				's.trackingNumber, s.receivedDate, s.receivedBy, s.notes AS shipmentNotes, s.fileName, s.receiptStatus, s.receiptTimestamp, CONCAT_WS(", ", u.lastname, u.firstname) AS importUser,
 				CONCAT_WS(", ", u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS(", ", u3.lastname, u3.firstname) AS modifiedUser, s.modifiedTimestamp, s.initialtimestamp AS ts '.
 				'FROM NeonShipment s INNER JOIN users u ON s.importUid = u.uid '.
 				'LEFT JOIN users u2 ON s.checkinUid = u2.uid '.
@@ -413,7 +413,9 @@ class ShipmentManager{
 		if($status == 1) $statusStr = 'Downloaded';
 		if($status == 2) $statusStr = 'Submitted';
 		if($statusStr) $statusStr .= ':'.$GLOBALS['USERNAME'];
-		$sql = 'UPDATE NeonShipment SET receiptstatus = '.($statusStr?'"'.$statusStr.'"':'NULL').' WHERE (shipmentpk = '.$this->shipmentPK.') ';
+		$sql = 'UPDATE NeonShipment
+			SET receiptstatus = '.($statusStr?'"'.$statusStr.'"':'NULL').', receiptTimestamp = NOW()
+			WHERE (shipmentpk = '.$this->shipmentPK.') AND (receiptstatus IS NULL OR receiptstatus LIKE "Downloaded%")';
 		if($onlyIfNull) $sql .= 'AND (receiptstatus IS NULL)';
 		if(!$this->conn->query($sql)){
 			$this->errorStr = 'ERROR tagging receipt as submitted: '.$this->conn->error;
@@ -1031,7 +1033,7 @@ class ShipmentManager{
 	public function exportShipmentList(){
 		$fileName = 'shipmentExport_'.date('Y-m-d').'.csv';
 		$sql = 'SELECT DISTINCT s.shipmentPK, s.shipmentID, s.domainID, s.dateShipped, s.shippedFrom, s.senderID, s.destinationFacility, s.sentToID, s.shipmentService, '.
-			's.shipmentMethod, s.trackingNumber, s.receivedDate, s.receivedBy, s.receiptstatus, s.notes, CONCAT_WS("; ",u1.lastname, u1.firstname) AS importUser, '.
+			's.shipmentMethod, s.trackingNumber, s.receivedDate, s.receivedBy, s.receiptstatus, s.receiptTimestamp, s.notes, CONCAT_WS("; ",u1.lastname, u1.firstname) AS importUser, '.
 			'CONCAT_WS("; ",u2.lastname, u2.firstname) AS checkinUser, s.checkinTimestamp, CONCAT_WS("; ",u3.lastname, u3.firstname) AS modifiedByUser, s.modifiedTimestamp, s.initialtimestamp '.
 			'FROM NeonShipment s LEFT JOIN NeonSample m ON s.shipmentpk = m.shipmentpk '.
 			'LEFT JOIN users u1 ON s.importUid = u1.uid '.

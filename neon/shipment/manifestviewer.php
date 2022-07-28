@@ -767,10 +767,15 @@ include($SERVER_ROOT.'/includes/header.php');
 													?>
 													<form name="receiptSubmittedForm" action="manifestviewer.php#receiptStatus" method="post">
 														<?php
-														$receiptStatus = '';
-														if(isset($shipArr['receiptStatus']) && $shipArr['receiptStatus']) $receiptStatus = $shipArr['receiptStatus'];
-														$statusArr = explode(':', $receiptStatus);
-														if($statusArr) $receiptStatus = $statusArr[0];
+														$receiptStatus = (!empty($shipArr['receiptStatus'])?$shipArr['receiptStatus']:'');
+														$submittedBy = '';
+														$submittedTimestamp = (!empty($shipArr['receiptTimestamp'])?$shipArr['receiptTimestamp']:'');
+														if($statusArr = explode(':', $receiptStatus)){
+															$receiptStatus = $statusArr[0];
+															if(isset($statusArr[1])) $submittedBy = $statusArr[1];
+															$submittedTimestamp = '';
+															if(!empty($shipArr['receiptTimestamp'])) $submittedTimestamp = $shipArr['receiptTimestamp'];
+														}
 														?>
 														<input name="submitted" type="radio" value="" <?php echo (!$receiptStatus?'checked':''); ?> onchange="this.form.submit()" />
 														<b>Status Not Set</b><br/>
@@ -778,6 +783,14 @@ include($SERVER_ROOT.'/includes/header.php');
 														<b>Receipt Downloaded</b><br/>
 														<input name="submitted" type="radio" value="2" <?php echo ($receiptStatus=='Submitted'?'checked':''); ?> onchange="this.form.submit()" />
 														<b>Receipt Submitted to NEON</b>
+														<?php
+														if($receiptStatus){
+															echo '<div style="margin-left:15px">';
+															echo '<div>Preformed by: '.$submittedBy.'</div>';
+															echo '<div>Timestamp: '.$submittedTimestamp.'</div>';
+															echo '</div>';
+														}
+														?>
 														<input name="shipmentPK" type="hidden" value="<?php echo $shipmentPK; ?>" />
 														<input name="action" type="hidden" value="receiptsubmitted" />
 													</form>

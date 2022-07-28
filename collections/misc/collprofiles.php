@@ -19,6 +19,7 @@ $collManager = new OccurrenceCollectionProfile();
 $collManager->setCollid($collid);
 
 $collData = $collManager->getCollectionMetadata();
+$datasetKey = $collManager->getDatasetKey();
 
 $editCode = 0;		//0 = no permissions; 1 = CollEditor; 2 = CollAdmin; 3 = SuperAdmin
 if ($SYMB_UID) {
@@ -102,6 +103,13 @@ if ($SYMB_UID) {
 			$codeStr .= ')';
 			$_SESSION['colldata'] = $collData;
 			echo '<h1>' . $collData['collectionname'] . $codeStr . '</h1>';
+			// GBIF citations widget
+			if ($datasetKey) {
+				echo '<div style="margin-left: 10px;
+    margin-bottom: 20px;">';
+				echo '<iframe src="https://www.gbif.org/api/widgets/literature/button?gbifDatasetKey=' . $datasetKey . '" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="false" style="width: 140px; height: 24px;"></iframe>';
+				echo '</div>';
+			}
 			if ($editCode) {
 			?>
 				<div id="controlpanel" style="clear:both;display:<?php echo ($eMode ? 'block' : 'none'); ?>;">
@@ -393,17 +401,13 @@ if ($SYMB_UID) {
 			<div style='margin:10px;'>
 				<?php
 				echo $collManager->getMetadataHtml($LANG, $LANG_TAG);
-				$datasetKey = $collManager->getDatasetKey();
 				if ($collData['publishtogbif'] && $datasetKey) {
-					$datasetKey = $collManager->getDatasetKey();
-					if ($datasetKey) {
-						$dataUrl = 'http://www.gbif.org/dataset/' . $datasetKey;
+					$dataUrl = 'http://www.gbif.org/dataset/' . $datasetKey;
 				?>
-						<div style="margin-top:5px;">
-							<div><b><?php echo (isset($LANG['GBIF_DATASET']) ? $LANG['GBIF_DATASET'] : 'GBIF Dataset page'); ?>:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
-						</div>
+					<div style="margin-top:5px;">
+						<div><b><?php echo (isset($LANG['GBIF_DATASET']) ? $LANG['GBIF_DATASET'] : 'GBIF Dataset page'); ?>:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
+					</div>
 					<?php
-					}
 				}
 				if ($collData['publishtoidigbio']) {
 					$idigbioKey = $collManager->getIdigbioKey();

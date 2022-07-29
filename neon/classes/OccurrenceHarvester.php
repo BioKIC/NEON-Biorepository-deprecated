@@ -371,7 +371,7 @@ class OccurrenceHarvester{
 		return $status;
 	}
 
-	private function processViewArr(&$sampleArr, $viewArr){
+	private function processViewArr(&$sampleArr, $viewArr, $sampleRank = 0){
 		if(!isset($viewArr['sampleViews'])){
 			$this->errorStr = 'sampleViews object failed to be returned from NEON API';
 			return false;
@@ -452,7 +452,7 @@ class OccurrenceHarvester{
 					$this->fateLocationArr[$score]['date'] = $fateDate;
 				}
 				elseif($fateDate && $fateLocation && !strpos($fateLocation, ' ')){
-					$score = $fateDate;
+					$score = $sampleRank.':'.$fateDate;
 					if(strpos($tableName,'fielddata')) $score = 2;
 					$this->fateLocationArr[$score]['loc'] = $fateLocation;
 					$this->fateLocationArr[$score]['date'] = $fateDate;
@@ -465,11 +465,12 @@ class OccurrenceHarvester{
 				$sampleArr = array_merge($tableArr,$sampleArr);
 			}
 		}
+		$sampleRank++;
 		if(isset($viewArr['parentSampleIdentifiers'][0]['sampleUuid'])){
 			//Get parent data
 			$url = $this->neonApiBaseUrl.'/samples/view?sampleUuid='.$viewArr['parentSampleIdentifiers'][0]['sampleUuid'].'&apiToken='.$this->neonApiKey;
 			$parentViewArr = $this->getNeonApiArr($url);
-			$this->processViewArr($sampleArr, $parentViewArr);
+			$this->processViewArr($sampleArr, $parentViewArr, $sampleRank);
 		}
 	}
 

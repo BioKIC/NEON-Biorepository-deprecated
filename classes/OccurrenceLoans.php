@@ -4,6 +4,8 @@ include_once($SERVER_ROOT.'/classes/Manager.php');
 class OccurrenceLoans extends Manager{
 
 	private $collid = 0;
+	private $idTagArr = array();
+	private $specimenSortArr = array();
 
 	function __construct() {
 		parent::__construct(null,'write');
@@ -449,32 +451,55 @@ class OccurrenceLoans extends Manager{
 	}
 
 	//Specimen listing and edit functions
-	public function getSpecimenList($loanid){
+	public function getSpecimenList($loanid, $sortTag = ''){
 		$retArr = array();
 		if(is_numeric($loanid)){
 			$sql = 'SELECT o.collid, l.loanid, l.occid, l.returndate, l.notes, o.catalognumber, o.othercatalognumbers, o.sciname, '.
 				'CONCAT_WS(" ",o.recordedby,IFNULL(o.recordnumber,o.eventdate)) AS collector, CONCAT_WS(", ",stateprovince,county,locality) AS locality '.
 				'FROM omoccurloanslink l INNER JOIN omoccurrences o ON l.occid = o.occid '.
 				'WHERE l.loanid = '.$loanid.' '.
-				'ORDER BY o.catalognumber+1,o.othercatalognumbers+1';
+				'ORDER BY o.catalognumber+1, o.othercatalognumbers+1';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$retArr[$r->occid]['collid'] = $r->collid;
 					$retArr[$r->occid]['catalognumber'] = $r->catalognumber;
 					if($r->othercatalognumbers) $retArr[$r->occid]['othercatalognumbers'][] = $r->othercatalognumbers;
+					if($r->catalognumber){
+						$retArr[$r->occid]['catalognumber'] = $r->catalognumber;
+						$this->idTagArr['1-catalognumber'] = 'Catalog Numbers';
+					}
+					if($r->othercatalognumbers){
+						$retArr[$r->occid]['othercatalognumbers'][] = $r->othercatalognumbers;
+						$this->idTagArr['2-othercatalognumbers'] = 'Other Catalog Numbers';
+					}
 					$retArr[$r->occid]['sciname'] = $r->sciname;
 					$retArr[$r->occid]['collector'] = $r->collector;
 					$retArr[$r->occid]['locality'] = $r->locality;
 					$retArr[$r->occid]['returndate'] = $r->returndate;
 					$retArr[$r->occid]['notes'] = $r->notes;
+					if($sortTag){
+						if($sortTag == 'catalognumber') $this->specimenSortArr[$r->occid] = $r->catalognumber;
+						elseif($sortTag == 'othercatalognumbers') $this->specimenSortArr[$r->occid] = $r->othercatalognumbers;
+						else $this->specimenSortArr[$r->occid] = '';
+					}
+					else $this->specimenSortArr[$r->occid] = '';
 				}
 				$rs->free();
 			}
 			//Get additional identifiers
-			$sql = 'SELECT i.occid, i.identifierValue FROM omoccurloanslink l INNER JOIN omoccuridentifiers i ON l.occid = i.occid WHERE l.loanid = '.$loanid.' ORDER BY i.sortBy, i.identifierValue';
+			$sql = 'SELECT i.occid, i.identifierName, i.identifierValue
+				FROM omoccurloanslink l INNER JOIN omoccuridentifiers i ON l.occid = i.occid
+				WHERE l.loanid = '.$loanid.'
+				ORDER BY i.sortBy, i.identifierValue';
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$retArr[$r->occid]['othercatalognumbers'][] = $r->identifierValue;
+					$idTag = $r->identifierName;
+					if(!$idTag) $idTag = 'otherCatalogNumbers';
+					$this->idTagArr['3-'.strtolower($idTag)] = $idTag;
+					if($sortTag && $sortTag != 'catalognumber'){
+						if($sortTag == strtolower($idTag)) $this->specimenSortArr[$r->occid] = $r->identifierValue;
+					}
 				}
 				$rs->free();
 			}
@@ -929,6 +954,15 @@ class OccurrenceLoans extends Manager{
 	//Setters and getter
 	public function setCollId($id){
 		if(is_numeric($id)) $this->collid = $id;
+	}
+
+	public function getIdentifierTagArr(){
+		return $this->idTagArr;
+	}
+
+	public function getSpecimenSortArr(){
+		asort($this->specimenSortArr);
+		return $this->specimenSortArr;
 	}
 }
 ?>

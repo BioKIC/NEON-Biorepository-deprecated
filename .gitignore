@@ -14,6 +14,10 @@ includes/head.php
 includes/leftmenu.php
 includes/spprofilehead.php
 includes/usagepolicy.php
+includes/citationgbif.php
+includes/citationcollection.php
+includes/citationdataset.php
+includes/citationportal.php
 .project
 .settings/org.eclipse.core.resources.prefs
 content/lang/header.fr.php

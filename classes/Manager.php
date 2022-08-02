@@ -50,7 +50,9 @@ class Manager  {
 			}
 			if($this->verboseMode == 3 || $this->verboseMode == 2){
 				echo '<'.$tag.' style="'.($indexLevel?'margin-left:'.($indexLevel*15).'px':'').'">'.$str.'</'.$tag.'>';
-				ob_flush();
+				if (ob_get_level() > 0) {
+					ob_flush();
+				}
 				flush();
 			}
 		}
@@ -138,4 +140,3 @@ class Manager  {
 		return $retStr;
 	}
 }
-?>

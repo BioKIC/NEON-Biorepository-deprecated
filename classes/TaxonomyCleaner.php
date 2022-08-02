@@ -69,7 +69,7 @@ class TaxonomyCleaner extends Manager{
 		$endIndex = 0;
 		$this->logOrEcho("Starting taxa check ");
 		$sql = 'SELECT sciname, family, scientificnameauthorship, count(*) as cnt '.$this->getSqlFragment();
-		if($startIndex) $sql .= 'AND (sciname > "'.$this->cleanInStr($startIndex).'") ';
+		if($startIndex) $sql .= 'AND (sciname >= "'.$this->cleanInStr($startIndex).'") ';
 		$sql .= 'GROUP BY sciname, family, scientificnameauthorship LIMIT '.$limit;
 		//echo $sql; exit;
 		if($rs = $this->conn->query($sql)){
@@ -94,7 +94,7 @@ class TaxonomyCleaner extends Manager{
 				$tid = 0;
 				$manualCheck = true;
 				$taxonArr = TaxonomyUtilities::parseScientificName($r->sciname,$this->conn,0,$this->targetKingdomName);
-				if($taxonArr && $taxonArr['sciname']){
+				if(isset($taxonArr['sciname']) && $taxonArr['sciname']){
 					$sciname = $taxonArr['sciname'];
 					if($sciname != $r->sciname){
 						$this->logOrEcho('Interpreted base name: <b>'.$sciname.'</b>',1);
@@ -704,8 +704,8 @@ class TaxonomyCleaner extends Manager{
 	}
 
 	public function getTaxonomicResourceList(){
-		$taArr = array('col'=>'Catalog of Life','worms'=>'World Register of Marine Species','tropicos'=>'TROPICOS','eol'=>'Encyclopedia of Life');
-		//$taArr = array('col'=>'Catalog of Life','worms'=>'World Register of Marine Species','tropicos'=>'TROPICOS','eol'=>'Encyclopedia of Life','IndexFungorum'=>'Index Fungorum');
+		//$taArr = array('col'=>'Catalog of Life', 'worms'=>'World Register of Marine Species', 'tropicos'=>'TROPICOS', 'eol'=>'Encyclopedia of Life');
+		$taArr = array('col'=>'Catalog of Life', 'worms'=>'World Register of Marine Species', 'bryonames' => 'The Bryophyte Nomenclator', 'fdex'=>'Index Fungorum via F-Dex', 'tropicos'=>'TROPICOS', 'eol'=>'Encyclopedia of Life');
 		if(!isset($GLOBALS['TAXONOMIC_AUTHORITIES'])) return array('col'=>'Catalog of Life','worms'=>'World Register of Marine Species');
 		return array_intersect_key($taArr,array_change_key_case($GLOBALS['TAXONOMIC_AUTHORITIES']));
 	}

@@ -3,14 +3,16 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyDisplayManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$target = array_key_exists("target",$_REQUEST)?$_REQUEST["target"]:"";
+$target = array_key_exists('target',$_REQUEST)?$_REQUEST['target']:'';
 $displayAuthor = array_key_exists('displayauthor',$_REQUEST)?$_REQUEST['displayauthor']:0;
 $matchOnWords = array_key_exists('matchonwords',$_POST)?$_POST['matchonwords']:0;
 $displayFullTree = array_key_exists('displayfulltree',$_REQUEST)?$_REQUEST['displayfulltree']:0;
 $displaySubGenera = array_key_exists('displaysubgenera',$_REQUEST)?$_REQUEST['displaysubgenera']:0;
-$taxAuthId = array_key_exists("taxauthid",$_REQUEST)?$_REQUEST["taxauthid"]:1;
+$taxAuthId = array_key_exists('taxauthid',$_REQUEST)?$_REQUEST['taxauthid']:1;
 $statusStr = array_key_exists('statusstr',$_REQUEST)?$_REQUEST['statusstr']:'';
 
+//Sanitation
+$target = filter_var($target, FILTER_SANITIZE_STRING);
 if(!is_numeric($displayAuthor)) $displayAuthor = 0;
 if(!is_numeric($matchOnWords)) $matchOnWords = 0;
 if(!is_numeric($displayFullTree)) $displayFullTree = 0;
@@ -19,10 +21,7 @@ if(!is_numeric($taxAuthId)) $taxAuthId = 1;
 $statusStr = strip_tags($statusStr);
 if($statusStr) str_replace(';', '<br/>', $statusStr);
 
-if(!array_key_exists("target",$_REQUEST)){
-	$matchOnWords = 1;
-}
-
+if(!$target) $matchOnWords = 1;
 $taxonDisplayObj = new TaxonomyDisplayManager();
 $taxonDisplayObj->setTargetStr($target);
 $taxonDisplayObj->setTaxAuthId($taxAuthId);

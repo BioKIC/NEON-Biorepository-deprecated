@@ -4,7 +4,6 @@
 Language: English
 ------------------
 */
-
 $LANG['TAXA_LOADER'] = 'Taxa Loader';
 $LANG['ENTER_PATH'] = 'Please enter a path value of the file you wish to upload';
 $LANG['UPLOAD_ZIP'] = 'Upload file must be a CSV or ZIP file';
@@ -31,6 +30,8 @@ $LANG['LEAVE_UNMAPPED'] = 'Leave Field Unmapped';
 $LANG['YELLOW_FIELDS'] = 'Fields in yellow have not yet been verified';
 $LANG['TARGET_KINGDOM'] = 'Target Kingdom';
 $LANG['TARGET_THESAURUS'] = 'Target Thesaurus';
+$LANG['VERIFY_MAPPING'] = 'Verify Mapping';
+$LANG['UPLOAD_TAXA'] = 'Upload Taxa';
 $LANG['TRANSFER_TO_CENTRAL'] = 'Transfer Taxa To Central Table';
 $LANG['REVIEW_BEFORE_ACTIVATE'] = 'Review upload statistics below before activating. Use the download option to review and/or adjust for reload if necessary.';
 $LANG['TAXA_UPLOADED'] = 'Taxa uploaded';
@@ -43,6 +44,7 @@ $LANG['NON_ACCEPTED_TAXA'] = 'Non-accepted taxa';
 $LANG['PROBLEM_TAXA'] = 'Problematic taxa';
 $LANG['TAXA_FAILED'] = 'These taxa are marked as FAILED and will not load until problems have been resolved. You may want to download the data (link below), fix the bad relationships, and then reload.';
 $LANG['STATS_NOT_AVAIL'] = 'Upload statistics are unavailable';
+$LANG['ACTIVATE_TAXA'] = 'Activate Taxa';
 $LANG['DOWNLOAD_CSV'] = 'Download CSV Taxa File';
 $LANG['TAX_UPLOAD_SUCCESS'] = 'Taxa upload appears to have been successful';
 $LANG['GO_TO'] = 'Go to';

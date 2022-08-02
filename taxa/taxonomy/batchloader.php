@@ -202,7 +202,7 @@ if($isEditor){
 				<?php echo (isset($LANG['TAX_UPLOAD_EXPLAIN1'])?$LANG['TAX_UPLOAD_EXPLAIN1']:'This page allows a Taxonomic Administrator to batch upload taxonomic data files. See').' '; ?><a href="https://biokic.github.io/symbiota-docs/portal_manager/taxonomy/batch_load/"><?php echo (isset($LANG['SYMB_DOC'])?$LANG['SYMB_DOC']:'Symbiota Documentation'); ?></a><?php echo ' '.(isset($LANG['TAX_UPLOAD_EXPLAIN2'])?$LANG['TAX_UPLOAD_EXPLAIN2']:'pages for more details on the Taxonomic Thesaurus layout.'); ?>
 			</div>
 			<?php
-			if($action == 'Map Input File' || $action == 'Verify Mapping'){
+			if($action == 'mapInputFile' || $action == 'verifyMapping'){
 				?>
 				<form name="mapform" action="batchloader.php" method="post" onsubmit="return verifyMapForm(this)">
 					<fieldset>
@@ -277,8 +277,8 @@ if($isEditor){
 							<?php echo '<b>'.(isset($LANG['TARGET_THESAURUS'])?$LANG['TARGET_THESAURUS']:'Target Thesaurus').':</b> '.$loaderManager->getTaxAuthorityName(); ?>
 						</div>
 						<div style="margin:10px;">
-							<input type="submit" name="action" value="Verify Mapping" />
-							<input type="submit" name="action" value="Upload Taxa" />
+							<button type="submit" name="action" value="verifyMapping"><?php echo (isset($LANG['VERIFY_MAPPING'])?$LANG['VERIFY_MAPPING']:'Verify Mapping'); ?></button>
+							<button type="submit" name="action" value="uploadTaxa"><?php echo (isset($LANG['UPLOAD_TAXA'])?$LANG['UPLOAD_TAXA']:'Upload Taxa'); ?></button>
 							<input type="hidden" name="taxauthid" value="<?php echo $taxAuthId;?>" />
 							<input type="hidden" name="ulfilename" value="<?php echo $loaderManager->getFileName();?>" />
 							<input type="hidden" name="kingdomname" value="<?php echo $kingdomName; ?>" />
@@ -289,7 +289,7 @@ if($isEditor){
 			}
 			elseif(substr($action,0,6) == 'Upload' || $action == 'Analyze Taxa'){
 				echo '<ul>';
-				if($action == 'Upload Taxa'){
+				if($action == 'uploadTaxa'){
 					$loaderManager->loadFile($fieldMap);
 					$loaderManager->cleanUpload();
 				}
@@ -360,7 +360,7 @@ if($isEditor){
 						<div style="margin:10px;">
 							<input type="hidden" name="taxauthid" value="<?php echo $taxAuthId;?>" />
 							<input name="kingdomname" type="hidden" value="<?php echo $kingdomName; ?>" />
-							<input type="submit" name="action" value="Activate Taxa" />
+							<button type="submit" name="action" value="activateTaxa"><?php echo (isset($LANG['ACTIVATE_TAXA'])?$LANG['ACTIVATE_TAXA']:'Activate Taxa'); ?></button>
 						</div>
 						<div style="float:right;margin:10px;">
 							<a href="batchloader.php?action=downloadcsv" target="_blank"><?php echo (isset($LANG['DOWNLOAD_CSV'])?$LANG['DOWNLOAD_CSV']:'Download CSV Taxa File'); ?></a>
@@ -369,7 +369,7 @@ if($isEditor){
 				</form>
 				<?php
 			}
-			elseif($action == 'Activate Taxa'){
+			elseif($action == 'activateTaxa'){
 				echo '<ul>';
 				$loaderManager->transferUpload($taxAuthId);
 				echo "<li>".(isset($LANG['TAX_UPLOAD_SUCCESS'])?$LANG['TAX_UPLOAD_SUCCESS']:'Taxa upload appears to have been successful').".</li>";
@@ -505,7 +505,7 @@ if($isEditor){
 								?>
 							</div>
 							<div style="margin:10px;">
-								<button type="submit" name="action" value="Map Input File"><?php echo (isset($LANG['MAP_INPUT_FILE'])?$LANG['MAP_INPUT_FILE']:'Map Input File'); ?></button>
+								<button type="submit" name="action" value="mapInputFile"><?php echo (isset($LANG['MAP_INPUT_FILE'])?$LANG['MAP_INPUT_FILE']:'Map Input File'); ?></button>
 							</div>
 							<div style="float:right;" >
 								<a href="#" onclick="toggle('overrideopt');return false;"><?php echo (isset($LANG['TOGGLE_MANUAL'])?$LANG['TOGGLE_MANUAL']:'Toggle Manual Upload Option'); ?></a>

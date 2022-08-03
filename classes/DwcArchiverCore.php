@@ -1990,7 +1990,7 @@ class DwcArchiverCore extends Manager
 		$citationVarArr = array();
 		$citationParamsArr = array();
 
-		// Data has to be stored in the session to be available for the citation formats 
+		// Data has to be stored in the session to be available for the citation formats
 		if (array_key_exists('citationvar', $_SESSION)) {
 			$citationVarArr = parse_url(urldecode($_SESSION['citationvar']));
 			parse_str($citationVarArr['path'], $citationParamsArr);
@@ -1998,7 +1998,7 @@ class DwcArchiverCore extends Manager
 		}
 
 		$DEFAULT_TITLE = $GLOBALS['DEFAULT_TITLE'];
-		$SERVER_HOST = $GLOBALS['SERVER_HOST'];
+		$SERVER_HOST = $this->getDomainPath();
 		$CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
 
 		// Decides which citation format to use according to $citationVarArr
@@ -2048,7 +2048,7 @@ class DwcArchiverCore extends Manager
 			include $GLOBALS['SERVER_ROOT'] . '/includes/citation' . $citationFormat . '_template.php';
 		}
 		$output .= ob_get_clean();
-		$output .= "\n\nFor more information on citation formats, please see the following page: " . $GLOBALS['SERVER_HOST'] . $GLOBALS['CLIENT_ROOT'] . "/includes/usagepolicy.php";
+		$output .= "\n\nFor more information on citation formats, please see the following page: " . $this->getDomainPath() . $GLOBALS['CLIENT_ROOT'] . "/includes/usagepolicy.php";
 
 		fwrite($fh, $output);
 

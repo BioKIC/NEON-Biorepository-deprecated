@@ -1998,7 +1998,7 @@ class DwcArchiverCore extends Manager
 		}
 
 		$DEFAULT_TITLE = $GLOBALS['DEFAULT_TITLE'];
-		$SERVER_HOST = $this->getDomainPath();
+		$SERVER_HOST = $this->getDomain();
 		$CLIENT_ROOT = $GLOBALS['CLIENT_ROOT'];
 
 		// Decides which citation format to use according to $citationVarArr
@@ -2048,7 +2048,7 @@ class DwcArchiverCore extends Manager
 			include $GLOBALS['SERVER_ROOT'] . '/includes/citation' . $citationFormat . '_template.php';
 		}
 		$output .= ob_get_clean();
-		$output .= "\n\nFor more information on citation formats, please see the following page: " . $this->getDomainPath() . $GLOBALS['CLIENT_ROOT'] . "/includes/usagepolicy.php";
+		$output .= "\n\nFor more information on citation formats, please see the following page: " . $this->getDomain() . $GLOBALS['CLIENT_ROOT'] . "/includes/usagepolicy.php";
 
 		fwrite($fh, $output);
 
@@ -2226,10 +2226,7 @@ class DwcArchiverCore extends Manager
 		if ($domain) {
 			$this->serverDomain = $domain;
 		} elseif (!$this->serverDomain) {
-			$this->serverDomain = 'http://';
-			if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $this->serverDomain = 'https://';
-			$this->serverDomain .= $_SERVER['SERVER_NAME'];
-			if ($_SERVER['SERVER_PORT'] && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) $this->serverDomain .= ':' . $_SERVER['SERVER_PORT'];
+			$this->serverDomain = $this->getDomain();
 		}
 	}
 

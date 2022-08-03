@@ -1,6 +1,8 @@
 <?php
 include_once('../config/symbini.php');
+include_once ($SERVER_ROOT.'/classes/UtilityFunctions.php');
 header("Content-Type: text/html; charset=" . $CHARSET);
+$serverHost = UtilityFunctions::getDomain();
 ?>
 <html>
 
@@ -44,7 +46,7 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 				} else {
 					echo 'Name of people or institutional reponsible for maintaining the portal';
 				};
-				echo ' Portal, ' . $SERVER_HOST . $CLIENT_ROOT . ', ' . date('Y-m-d') . ').';
+				echo ' Portal, ' . $serverHost . $CLIENT_ROOT . ', ' . date('Y-m-d') . ').';
 			};
 			?>
 		</blockquote>
@@ -55,7 +57,7 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 		<blockquote>
 			<?php
 			$collData['collectionname'] = 'Name of Institution or Collection';
-			$collData['dwcaurl'] = $SERVER_HOST . $CLIENT_ROOT . '/portal/content/dwca/NIC_DwC-A.zip';
+			$collData['dwcaurl'] = $serverHost . $CLIENT_ROOT . '/portal/content/dwca/NIC_DwC-A.zip';
 			if (file_exists($SERVER_ROOT . '/includes/citationcollection.php')) {
 				include($SERVER_ROOT . '/includes/citationcollection.php');
 			} else {

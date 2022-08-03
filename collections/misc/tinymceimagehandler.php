@@ -11,7 +11,7 @@ include_once($SERVER_ROOT.'/classes/UtilityFunctions.php');
 /***************************************************
  * Only these origins are allowed to upload images *
  ***************************************************/
-$accepted_origins = array('http://localhost', UtilityFunctions::getDomainPath());
+$accepted_origins = array('http://localhost', UtilityFunctions::getDomain());
 
 /*********************************************
  * Change thse lines to set the upload folder *

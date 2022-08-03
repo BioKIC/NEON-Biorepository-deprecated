@@ -325,9 +325,9 @@ if ($isEditor) {
 						echo '</div>';
 					}
 					if ($collArr['dwcaurl']) {
-						$serverName = $_SERVER["SERVER_NAME"];
-						if (substr($serverName, 0, 4) == 'www.') $serverName = substr($serverName, 4);
-						if (!strpos($collArr['dwcaurl'], $serverName)) {
+						$serverName = $collManager->getDomain();
+						if(substr($serverName, 0, 4) == 'www.') $serverName = str_replace('www.', '', $serverName);
+						if(!strpos($collArr['dwcaurl'], $serverName)) {
 							$baseUrl = substr($collArr['dwcaurl'], 0, strpos($collArr['dwcaurl'], '/content')) . '/collections/datasets/datapublisher.php';
 							$blockSubmitMsg = $LANG['ALREADY_PUBLISHED'] . ' (<a href="' . $baseUrl . '" target="_blank">' . substr($baseUrl, 0, strpos($baseUrl, '/', 10)) . '</a>) ';
 						}
@@ -371,11 +371,7 @@ if ($isEditor) {
 								?>
 									<div style="margin:10px 0px;clear:both;">
 										<?php
-										$collPath = "http://";
-										if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $collPath = "https://";
-										$collPath .= $_SERVER["SERVER_NAME"];
-										if ($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $collPath .= ':' . $_SERVER["SERVER_PORT"];
-										$collPath .= $CLIENT_ROOT . '/collections/misc/collprofiles.php?collid=' . $collid;
+										$collPath = $collManager->getDomain() . $CLIENT_ROOT . '/collections/misc/collprofiles.php?collid=' . $collid;
 										$bodyStr = 'Please provide the following GBIF user permission to create and update datasets for the following GBIF publisher.<br/>' .
 											'Once these permissions are assigned, we will be pushing a DwC-Archive from the following Symbiota collection to GBIF.<br/><br/>' .
 											'GBIF user: ' . $GBIF_USERNAME . '<br/>' .

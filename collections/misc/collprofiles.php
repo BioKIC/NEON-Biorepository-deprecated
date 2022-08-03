@@ -518,25 +518,21 @@ if ($SYMB_UID) {
 					<a href="collprofiles.php?collid=<?php echo $collid; ?>&stat=taxonomy#taxonomystats"><?php echo (isset($LANG['SHOW_FAMILY_DIST']) ? $LANG['SHOW_FAMILY_DIST'] : 'Show Family Distribution'); ?></a>
 				</div>
 			</fieldset>
-		<?php
+			<?php
 			include('collprofilestats.php');
 		} else {
-		?>
+			?>
 			<h2><?php echo $DEFAULT_TITLE . ' ' . (isset($LANG['COLLECTION_PROJECTS']) ? $LANG['COLLECTION_PROJECTS'] : 'Natural History Collections and Observation Projects'); ?></h2>
 			<div style='margin:10px;clear:both;'>
 				<?php
-				$serverDomain = "http://";
-				if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $serverDomain = "https://";
-				$serverDomain .= $_SERVER["SERVER_NAME"];
-				if ($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $serverDomain .= ':' . $_SERVER["SERVER_PORT"];
-				echo (isset($LANG['RSS_FEED']) ? $LANG['RSS_FEED'] : 'RSS feed') . ': <a href="../datasets/rsshandler.php" target="_blank">' . $serverDomain . $CLIENT_ROOT . 'collections/datasets/rsshandler.php</a>';
+				echo (isset($LANG['RSS_FEED']) ? $LANG['RSS_FEED'] : 'RSS feed') . ': <a href="../datasets/rsshandler.php" target="_blank">' . $collManager->getDomain() . $CLIENT_ROOT . 'collections/datasets/rsshandler.php</a>';
 				?>
 				<hr />
 			</div>
 			<table style='margin:10px;'>
 				<?php
 				foreach ($collData as $cid => $collArr) {
-				?>
+					?>
 					<tr>
 						<td style='text-align:center;vertical-align:top;'>
 							<?php

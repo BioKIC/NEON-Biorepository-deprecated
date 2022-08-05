@@ -13,6 +13,7 @@ class OccurrenceHarvester{
 	private $taxonCodeArr = array();
 	private $taxonArr = array();
 	private $stateArr = array();
+	private $timezone = 'America/Denver';
 	private $sampleClassArr = array();
 	private $domainSiteArr = array();
 	private $replaceFieldValues = false;
@@ -404,7 +405,7 @@ class OccurrenceHarvester{
 				foreach($fieldArr as $fArr){
 					if($fArr['smsKey'] == 'fate_location') $fateLocation = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'collection_location' && $fArr['smsValue']) $tableArr['collection_location'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $this->formatDate($fArr['smsValue']);
+					elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'event_id' && $fArr['smsValue']) $tableArr['event_id'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'taxon' && $fArr['smsValue']) $tableArr['taxon'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'taxon_published' && $fArr['smsValue']) $tableArr['taxon_published'] = $fArr['smsValue'];
@@ -414,8 +415,8 @@ class OccurrenceHarvester{
 					elseif($fArr['smsKey'] == 'identification_references' && $fArr['smsValue']) $identArr['identificationReferences'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'identification_qualifier' && $fArr['smsValue']) $identArr['identificationQualifier'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'collected_by' && $fArr['smsValue']) $tableArr['collected_by'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'collect_start_date' && $fArr['smsValue']) $tableArr['collect_start_date'] = $this->formatDate($fArr['smsValue']);
-					elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $tableArr['collect_end_date'] = $this->formatDate($fArr['smsValue']);
+					elseif($fArr['smsKey'] == 'collect_start_date' && $fArr['smsValue']) $tableArr['collect_start_date'] = $fArr['smsValue'];
+					elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $tableArr['collect_end_date'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'specimen_count' && $fArr['smsValue']) $tableArr['specimen_count'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'temperature' && $fArr['smsValue']) $tableArr['temperature'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'decimal_latitude' && $fArr['smsValue']) $tableArr['decimal_latitude'] = $fArr['smsValue'];
@@ -681,6 +682,7 @@ class OccurrenceHarvester{
 				return false;
 			}
 		}
+		if(isset($dwcArr['eventDate'])) $dwcArr['eventDate'] = $this->formatDate($dwcArr['eventDate']);
 		return $dwcArr;
 	}
 
@@ -806,6 +808,7 @@ class OccurrenceHarvester{
 				elseif(!isset($dwcArr['stateProvince']) && $propArr['locationPropertyName'] == 'Value for State province'){
 					$stateStr = $propArr['locationPropertyValue'];
 					if(array_key_exists($stateStr, $this->stateArr)) $stateStr = $this->stateArr[$stateStr];
+					$this->setTimezone($stateStr);
 					$dwcArr['stateProvince'] = $stateStr;
 				}
 			}
@@ -1264,6 +1267,63 @@ class OccurrenceHarvester{
 		$rs->free();
 	}
 
+	private function setTimezone($state){
+		$tzArr = array();
+		$tzArr['Alabama'] = 'America/Chicago';
+		$tzArr['Alaska'] = 'America/Anchorage';
+		$tzArr['Arizona'] = 'America/Phoenix';
+		$tzArr['Arkansas'] = 'America/Chicago';
+		$tzArr['California'] = 'America/Los_Angeles';
+		$tzArr['Colorado'] = 'America/Denver';
+		$tzArr['Connecticut'] = 'America/New_York';
+		$tzArr['Delaware'] = 'America/New_York';
+		$tzArr['District of Columbia'] = 'America/New_York';
+		$tzArr['Florida'] = 'America/New_York';
+		$tzArr['Georgia'] = 'America/New_York';
+		$tzArr['Hawaii'] = 'Pacific/Honolulu';
+		$tzArr['Idaho'] = 'America/Denver';
+		$tzArr['Illinois'] = 'America/Chicago';
+		$tzArr['Indiana'] = 'America/New_York';
+		$tzArr['Iowa'] = 'America/Chicago';
+		$tzArr['Kansas'] = 'America/Chicago';
+		$tzArr['Kentucky'] = 'America/Chicago';
+		$tzArr['Louisiana'] = 'America/Chicago';
+		$tzArr['Maine'] = 'America/New_York';
+		$tzArr['Maryland'] = 'America/New_York';
+		$tzArr['Massachusetts'] = 'America/New_York';
+		$tzArr['Michigan'] = 'America/New_York';
+		$tzArr['Minnesota'] = 'America/Chicago';
+		$tzArr['Mississippi'] = 'America/Chicago';
+		$tzArr['Missouri'] = 'America/Chicago';
+		$tzArr['Montana'] = 'America/Denver';
+		$tzArr['Nebraska'] = 'America/Chicago';
+		$tzArr['Nevada'] = 'America/Los_Angeles';
+		$tzArr['New Hampshire'] = 'America/New_York';
+		$tzArr['New Jersey'] = 'America/New_York';
+		$tzArr['New Mexico'] = 'America/Denver';
+		$tzArr['New York'] = 'America/New_York';
+		$tzArr['North Carolina'] = 'America/New_York';
+		$tzArr['North Dakota'] = 'America/Chicago';
+		$tzArr['Ohio'] = 'America/New_York';
+		$tzArr['Oklahoma'] = 'America/Chicago';
+		$tzArr['Oregon'] = 'America/Los_Angeles';
+		$tzArr['Pennsylvania'] = 'America/New_York';
+		$tzArr['Puerto Rico '] = 'America/Puerto_Rico';
+		$tzArr['Rhode Island'] = 'America/New_York';
+		$tzArr['South Carolina'] = 'America/New_York';
+		$tzArr['South Dakota'] = 'America/Chicago';
+		$tzArr['Tennessee'] = 'America/Chicago';
+		$tzArr['Texas'] = 'America/Chicago';
+		$tzArr['Utah'] = 'America/Denver';
+		$tzArr['Vermont'] = 'America/New_York';
+		$tzArr['Virginia'] = 'America/New_York';
+		$tzArr['Washington'] = 'America/Los_Angeles';
+		$tzArr['West Virginia'] = 'America/New_York';
+		$tzArr['Wisconsin'] = 'America/Chicago';
+		$tzArr['Wyoming'] = 'America/Denver';
+		if($state && !empty($tzArr[$state])) $this->timezone = $tzArr[$state];
+	}
+
 	private function setSampleErrorMessage($samplePK, $msg){
 		$sql = 'UPDATE NeonSample SET errorMessage = '.($msg?'"'.$msg.'"':'NULL').' WHERE (samplePK = '.$samplePK.')';
 		$this->conn->query($sql);
@@ -1295,8 +1355,16 @@ class OccurrenceHarvester{
 
 	//Misc functions
 	private function formatDate($dateStr){
-		if(preg_match('/^(20\d{2})(\d{2})(\d{2})\D+/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
+		if(preg_match('/^(20\d{2})-(\d{2})-(\d{2})T\d{2}/', $dateStr)){
+			//UTC datetime
+			echo 'date: '.$dateStr.' ('.$this->timezone.') => ';
+			$dt = new DateTime($dateStr, new DateTimeZone('UTC'));
+			$dt->setTimezone(new DateTimeZone($this->timezone));
+			$dateStr = $dt->format('Y-m-d');
+			echo $dateStr.'<br/>';
+		}
 		elseif(preg_match('/^(20\d{2})-(\d{2})-(\d{2})\D*/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
+		elseif(preg_match('/^(20\d{2})(\d{2})(\d{2})\D+/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
 		elseif(preg_match('/^(\d{1,2})\/(\d{1,2})\/(20\d{2})/', $dateStr, $m)){
 			$month = $m[1];
 			if(strlen($month) == 1) $month = '0'.$month;

@@ -10,7 +10,6 @@ $collid = array_key_exists('collid', $_REQUEST) ? $_REQUEST['collid'] : 0;
 $emode = array_key_exists('emode', $_REQUEST) ? $_REQUEST['emode'] : 0;
 $action = array_key_exists('formsubmit', $_REQUEST) ? $_REQUEST['formsubmit'] : '';
 
-
 if (!is_numeric($collid)) $collid = 0;
 if (!is_numeric($emode)) $emode = 0;
 
@@ -186,13 +185,13 @@ if ($isEditor) {
 		<a href="../../index.php"><?php echo $LANG['HOME']; ?></a> &gt;&gt;
 		<?php
 		if ($collid) {
-		?>
+			?>
 			<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1"><?php echo $LANG['COL_MANAGEMENT']; ?></a> &gt;&gt;
-		<?php
+			<?php
 		} else {
-		?>
+			?>
 			<a href="../../sitemap.php"><?php echo $LANG['SITEMAP']; ?></a> &gt;&gt;
-		<?php
+			<?php
 		}
 		?>
 		<b><?php echo $LANG['DWCA_PUBLISHER']; ?></b>
@@ -201,18 +200,18 @@ if ($isEditor) {
 	<div id="innertext">
 		<?php
 		if (!$collid && $IS_ADMIN) {
-		?>
+			?>
 			<div style="float:right;">
 				<a href="#" title="<?php echo $LANG['DISPLAY_CONTROL_PANEL']; ?>" onclick="toggle('dwcaadmindiv')">
 					<img style="border:0;width:12px;" src="../../images/edit.png" />
 				</a>
 			</div>
-		<?php
+			<?php
 		}
 		echo '<h1>' . $LANG['DWCA_PUBLISHING'] . '</h1>';
 		if ($collid) {
 			echo '<div style="font-weight:bold;font-size:120%;">' . $collArr['collectionname'] . '</div>';
-		?>
+			?>
 			<div style="margin:10px;">
 				<?php
 				echo $LANG['DWCA_EXPLAIN_1'] . ' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">' . $LANG['DWCA'] . '</a> ' . $LANG['DWCA_EXPLAIN_2'] .
@@ -221,9 +220,9 @@ if ($isEditor) {
 					' <a href=https://biokic.github.io/symbiota-docs/coll_manager/data_publishing/gbif/" target="_blank"> ' . $LANG['PUBLISH_GBIF'] . '</a>.';
 				?>
 			</div>
-		<?php
+			<?php
 		} else {
-		?>
+			?>
 			<div style="margin:10px;">
 				<?php
 				echo $LANG['DWCA_DOWNLOAD_EXPLAIN_1'] . ' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">' . $LANG['DWCA'] . '</a> ';
@@ -236,7 +235,7 @@ if ($isEditor) {
 				echo $LANG['DATA_POLICY_1'] . ' <a href="../../includes/usagepolicy.php">' . $LANG['DATA_USE_POLICY'] . '</a>. ' . $LANG['DATA_POLICY_2'];
 				?>
 			</div>
-		<?php
+			<?php
 		}
 		?>
 		<div style="margin:20px;">
@@ -281,7 +280,7 @@ if ($isEditor) {
 				$dArr = current($dwcaArr);
 				$dwcUri = ($dArr['collid'] == $collid ? $dArr['link'] : '');
 				if (!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collArr['recordid']);
-		?>
+				?>
 				<div style="margin:10px;">
 					<div>
 						<b><?php echo $LANG['TITLE']; ?>:</b> <?php echo $dArr['title']; ?>
@@ -299,7 +298,7 @@ if ($isEditor) {
 					<div><b><?php echo $LANG['DWCA_FILE']; ?>:</b> <a href="<?php echo $dArr['link']; ?>"><?php echo $dArr['link']; ?></a></div>
 					<div><b><?php echo $LANG['PUB_DATE']; ?>:</b> <?php echo $dArr['pubDate']; ?></div>
 				</div>
-			<?php
+				<?php
 			} else echo '<div style="margin:20px;font-weight:bold;color:orange;">' . $LANG['DWCA_NOT_PUBLISHED'] . '</div>';
 			?>
 			<fieldset style="margin:15px;padding:15px;">
@@ -327,7 +326,7 @@ if ($isEditor) {
 					if ($collArr['dwcaurl']) {
 						$serverName = $collManager->getDomain();
 						if(substr($serverName, 0, 4) == 'www.') $serverName = str_replace('www.', '', $serverName);
-						if(!strpos($collArr['dwcaurl'], $serverName)) {
+						if(!strpos($serverName, 'localhost') && strpos($collArr['dwcaurl'], $serverName) === false) {
 							$baseUrl = substr($collArr['dwcaurl'], 0, strpos($collArr['dwcaurl'], '/content')) . '/collections/datasets/datapublisher.php';
 							$blockSubmitMsg = $LANG['ALREADY_PUBLISHED'] . ' (<a href="' . $baseUrl . '" target="_blank">' . substr($baseUrl, 0, strpos($baseUrl, '/', 10)) . '</a>) ';
 						}
@@ -342,17 +341,18 @@ if ($isEditor) {
 				if ($publishGBIF && $dwcUri && isset($GBIF_USERNAME) && isset($GBIF_PASSWORD) && isset($GBIF_ORG_KEY) && $GBIF_ORG_KEY) {
 					if ($collManager->getDatasetKey()) {
 						$dataUrl = 'http://www.gbif.org/dataset/' . $collManager->getDatasetKey();
-				?>
+						?>
 						<div style="margin:10px;">
 							<div><b><?php echo $LANG['GBIF_DATASET']; ?>:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
 						</div>
-					<?php
+						<?php
 					} else {
-					?>
+						?>
 						<div style="margin:10px;">
-							<?php echo $LANG['YOU_SELECTED_GBIF_1'] .
-								' <a href="https://www.gbif.org/become-a-publisher" target="_blank">' . $LANG['GBIF_ENDORSE'] .
-								'</a> ' . $LANG['TO'] . ' ' . $LANG['YOU_SELECTED_GBIF_2'];
+							<?php
+							echo $LANG['YOU_SELECTED_GBIF_1'] .
+							' <a href="https://www.gbif.org/become-a-publisher" target="_blank">' . $LANG['GBIF_ENDORSE'] .
+							'</a> ' . $LANG['TO'] . ' ' . $LANG['YOU_SELECTED_GBIF_2'];
 							?>
 							<form style="margin-top:10px;" name="gbifpubform" action="datapublisher.php" method="post" onsubmit="return validateGbifForm(this)">
 								<b><?php echo $LANG['GBIF_KEY']; ?>:</b> <input type="text" id="organizationKey" name=organizationKey value="<?php echo $collManager->getOrganizationKey(); ?>" oninput="$('#validatebtn').removeAttr('disabled')" onchange="keyChanged(this)" style="width:275px;" />
@@ -368,7 +368,7 @@ if ($isEditor) {
 								<button type="submit" id="validatebtn" name="validate" disabled><?php echo $LANG['VALIDATE_KEY']; ?></button>
 								<?php
 								if ($collManager->getOrganizationKey()) {
-								?>
+									?>
 									<div style="margin:10px 0px;clear:both;">
 										<?php
 										$collPath = $collManager->getDomain() . $CLIENT_ROOT . '/collections/misc/collprofiles.php?collid=' . $collid;
@@ -391,12 +391,12 @@ if ($isEditor) {
 										<button type="button" onclick="processGbifOrgKey(this.form);"><?php echo $LANG['SUBMIT_DATA']; ?></button>
 										<img id="workingcircle" src="../../images/ajax-loader_sm.gif" style="margin-bottom:-4px;width:20px;display:none;" />
 									</div>
-								<?php
+									<?php
 								}
 								?>
 							</form>
 						</div>
-					<?php
+						<?php
 					}
 				}
 				if ($idigbioKey && $dwcUri) {
@@ -405,7 +405,7 @@ if ($isEditor) {
 					<div style="margin:10px;">
 						<div><b><?php echo $LANG['IDIGBIO_DATASET']; ?>:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
 					</div>
-				<?php
+					<?php
 				}
 				?>
 			</fieldset>
@@ -429,11 +429,11 @@ if ($isEditor) {
 					</div>
 					<?php
 					if ($collArr['managementtype'] != 'Live Data' || $collArr['guidtarget'] != 'symbiotaUUID') {
-					?>
+						?>
 						<div style="margin:10px;font-weight:bold">
 							<?php echo $LANG['NOTE_LACKING_EXCLUDED']; ?>
 						</div>
-					<?php
+						<?php
 					}
 					?>
 				</form>
@@ -452,7 +452,7 @@ if ($isEditor) {
 					$collManager->batchTriggerGBIFCrawl($_POST['coll']);
 					echo '</ul>';
 				}
-			?>
+				?>
 				<div id="dwcaadmindiv" style="margin:10px;display:<?php echo ($emode ? 'block' : 'none'); ?>;">
 					<form name="dwcaadminform" action="datapublisher.php" method="post" onsubmit="return verifyDwcaAdminForm(this)">
 						<fieldset style="padding:15px;">
@@ -494,11 +494,10 @@ if ($isEditor) {
 						</fieldset>
 					</form>
 				</div>
-			<?php
+				<?php
 			}
 			if ($dwcaArr = $dwcaManager->getDwcaItems()) {
-
-			?>
+				?>
 				<table class="styledtable" style="font-family:Arial;font-size:12px;margin:10px;">
 					<tr>
 						<th><?php echo $LANG['CODE']; ?></th>
@@ -509,7 +508,7 @@ if ($isEditor) {
 					</tr>
 					<?php
 					foreach ($dwcaArr as $k => $v) {
-					?>
+						?>
 						<tr>
 							<td><?php echo '<a href="../misc/collprofiles.php?collid=' . $v['collid'] . '">' . str_replace(' DwC-Archive', '', $v['title']) . '</a>'; ?></td>
 							<td><?php echo substr($v['description'], 24); ?></td>
@@ -517,12 +516,12 @@ if ($isEditor) {
 								<?php
 								echo '<a href="' . $v['link'] . '">DwC-A (' . $dwcaManager->humanFileSize($v['link']) . ')</a>';
 								if ($IS_ADMIN) {
-								?>
+									?>
 									<form action="datapublisher.php" method="post" style="display:inline;" onsubmit="return window.confirm('<?php echo $LANG['SURE_DELETE']; ?>');">
 										<input type="hidden" name="colliddel" value="<?php echo $v['collid']; ?>">
 										<input type="image" src="../../images/del.png" name="action" value="DeleteCollid" title="<?php echo $LANG['DELETE_ARCHIVE']; ?>" style="width:15px;" />
 									</form>
-								<?php
+									<?php
 								}
 								?>
 							</td>
@@ -533,11 +532,11 @@ if ($isEditor) {
 							</td>
 							<td class="nowrap"><?php echo date('Y-m-d', strtotime($v['pubDate'])); ?></td>
 						</tr>
-					<?php
+						<?php
 					}
 					?>
 				</table>
-		<?php
+				<?php
 			} else {
 				echo '<div style="margin:10px;font-weight:bold;">' . $LANG['NO_PUBLISHABLE'] . '</div>';
 			}
@@ -558,5 +557,4 @@ if ($isEditor) {
 	include($SERVER_ROOT . '/includes/footer.php');
 	?>
 </body>
-
 </html>

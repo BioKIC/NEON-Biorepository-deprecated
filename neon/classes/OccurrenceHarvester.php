@@ -927,10 +927,10 @@ class OccurrenceHarvester{
 
 	private function getOccurrenceEdits($occid){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT fieldname FROM omoccuredits WHERE uid != 50 AND occid = '.$occid;
+		$sql = 'SELECT DISTINCT fieldname FROM omoccuredits WHERE (uid != 50 OR appliedstatus = 0) AND occid = '.$occid;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[] = $r->fieldname;
+			$retArr[] = strtolower($r->fieldname);
 		}
 		$rs->free();
 		return $retArr;

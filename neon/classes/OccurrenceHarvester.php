@@ -949,6 +949,15 @@ class OccurrenceHarvester{
 
 	private function setOccurrenceIdentifiers($idArr, $occid){
 		if($idArr && $occid){
+			//Do not reset identifiers that were explicitly edited by someone
+			$sql = 'SELECT fieldValueOld, fieldValueNew FROM omoccuredits WHERE fieldname = "omoccuridentifier" AND uid != 50 AND occid = '.$occid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				if($p = strpos($r->fieldValueOld, ': ')) unset($idArr[substr($r->fieldValueOld, 0, $p)]);
+				if($p = strpos($r->fieldValueNew, ': ')) unset($idArr[substr($r->fieldValueNew, 0, $p)]);
+			}
+			$rs->free();
+			//Reset identifiers
 			$delSql = 'DELETE FROM omoccuridentifiers WHERE identifiername IN("'.implode('","',array_keys($idArr)).'") AND (occid = '.$occid.')';
 			$this->conn->query($delSql);
 			foreach($idArr as $idName => $idValue){

@@ -117,6 +117,46 @@ ALTER TABLE `agentteams`
   ADD CONSTRAINT `FK_agentteams_memberAgentID`  FOREIGN KEY (`memberAgentID`)  REFERENCES `agents` (`agentID`)  ON DELETE NO ACTION  ON UPDATE CASCADE; 
 
 
+ALTER TABLE `fmchecklists` 
+  CHANGE COLUMN `CLID` `clid` INT(10) UNSIGNED NOT NULL ,
+  CHANGE COLUMN `Name` `name` VARCHAR(100) NOT NULL ,
+  CHANGE COLUMN `Title` `title` VARCHAR(150) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Locality` `locality` VARCHAR(500) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Publication` `publication` VARCHAR(500) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Abstract` `abstract` TEXT NULL DEFAULT NULL ,
+  CHANGE COLUMN `Authors` `authors` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Type` `type` VARCHAR(50) NULL DEFAULT 'static' ,
+  CHANGE COLUMN `dynamicsql` `dynamicSql` VARCHAR(500) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Parent` `parent` VARCHAR(50) NULL DEFAULT NULL ,
+  CHANGE COLUMN `parentclid` `parentClid` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `Notes` `notes` VARCHAR(500) NULL DEFAULT NULL ,
+  CHANGE COLUMN `LatCentroid` `latCentroid` DOUBLE(9,6) NULL DEFAULT NULL ,
+  CHANGE COLUMN `LongCentroid` `longCentroid` DOUBLE(9,6) NULL DEFAULT NULL ,
+  CHANGE COLUMN `pointradiusmeters` `pointRadiusMeters` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `footprintWKT` `footprintWkt` TEXT NULL DEFAULT NULL ,
+  CHANGE COLUMN `percenteffort` `percentEffort` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Access` `access` VARCHAR(45) NULL DEFAULT 'private' ,
+  CHANGE COLUMN `SortSequence` `sortSequence` INT(10) UNSIGNED NOT NULL DEFAULT 50 ,
+  CHANGE COLUMN `DateLastModified` `dateLastModified` DATETIME NULL DEFAULT NULL ,
+  CHANGE COLUMN `InitialTimeStamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+ALTER TABLE `fmchecklists`
+  ADD COLUMN `dynamicProperties` TEXT NULL AFTER `headerUrl`,
+  ADD COLUMN `guid` VARCHAR(45) NULL AFTER `expiration`,
+  ADD COLUMN `recordID` VARCHAR(45) NULL AFTER `guid`,
+  ADD COLUMN `modifiedUid` INT UNSIGNED NULL AFTER `recordID`;
+
+ALTER TABLE `fmchklstcoordinates`
+  ADD COLUMN `sourceName` VARCHAR(75) NULL AFTER `decimalLongitude`,
+  ADD COLUMN `sourceIdentifier` VARCHAR(45) NULL AFTER `sourceName`,
+  ADD COLUMN `referenceUrl` VARCHAR(250) NULL AFTER `sourceIdentifier`,
+  ADD COLUMN `dynamicProperties` TEXT NULL AFTER `notes`,
+  CHANGE COLUMN `chklstcoordid` `clCoordID` INT(11) NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `decimallatitude` `decimalLatitude` DOUBLE NOT NULL ,
+  CHANGE COLUMN `decimallongitude` `decimalLongitude` DOUBLE NOT NULL ,
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+
 ALTER TABLE `ctcontrolvocab` 
   ADD COLUMN `collid` INT UNSIGNED NULL DEFAULT NULL AFTER `cvID`,
   ADD INDEX `FK_ctControlVocab_collid_idx` (`collid` ASC);
@@ -467,6 +507,20 @@ ALTER TABLE `specprocessorprojects`
   ADD CONSTRAINT `FK_specprocprojects_uid`  FOREIGN KEY (`createdByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
 UPDATE IGNORE taxa SET author = "" WHERE author IS NULL;
+
+ALTER TABLE `taxa` 
+  CHANGE COLUMN `TID` `tid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `RankId` `rankId` SMALLINT(5) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `SciName` `sciName` VARCHAR(250) NOT NULL ,
+  CHANGE COLUMN `UnitInd1` `unitInd1` VARCHAR(1) NULL DEFAULT NULL ,
+  CHANGE COLUMN `UnitName1` `unitName1` VARCHAR(50) NOT NULL ,
+  CHANGE COLUMN `UnitInd2` `unitInd2` VARCHAR(1) NULL DEFAULT NULL ,
+  CHANGE COLUMN `UnitName2` `unitName2` VARCHAR(50) NULL DEFAULT 't' ,
+  CHANGE COLUMN `UnitName3` `unitName3` VARCHAR(35) NULL DEFAULT NULL ,
+  CHANGE COLUMN `PhyloSortSequence` `phyloSortSequence` TINYINT(3) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `Source` `source` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Notes` `notes` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `Hybrid` `hybrid` VARCHAR(50) NULL DEFAULT NULL ;
 
 ALTER TABLE `taxa` 
   CHANGE COLUMN `Author` `author` VARCHAR(150) NOT NULL DEFAULT "";

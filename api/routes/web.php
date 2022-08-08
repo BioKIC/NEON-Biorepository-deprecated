@@ -28,6 +28,7 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 
 	$router->get('occurrence/{id}', ['uses' => 'OccurrenceController@showOneOccurrence']);
 	$router->get('occurrence',  ['uses' => 'OccurrenceController@showAllOccurrences']);
+	$router->get('occurrence/{id}/media', ['uses' => 'OccurrenceController@showOneOccurrenceMedia']);
 	//$router->post('occurrence', ['uses' => 'OccurrenceController@create']);
 	//$router->delete('occurrence/{id}', ['uses' => 'OccurrenceController@delete']);
 	//$router->put('occurrence/{id}', ['uses' => 'OccurrenceController@update']);
@@ -40,6 +41,10 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	$router->get('installation/{id}', ['uses' => 'InstallationController@showOnePortal']);
 	$router->get('installation/{id}/touch',  ['uses' => 'InstallationController@portalHandshake']);
 	$router->get('installation/{id}/occurrence',  ['uses' => 'InstallationController@showOccurrences']);
+
+	$router->get('inventory/{id}', ['uses' => 'InventoryController@showOneInventory']);
+	$router->get('inventory',  ['uses' => 'InventoryController@showAllInventories']);
+	$router->get('inventory/{id}/taxa', ['uses' => 'InventoryController@showOneInventoryTaxa']);
 
 	$router->get('media',  ['uses' => 'MediaController@showAllMedia']);
 	$router->get('media/{id}', ['uses' => 'MediaController@showOneMedia']);

@@ -94,14 +94,14 @@ class OccurrenceController extends Controller{
 	 *	 @OA\Parameter(
 	 *		 name="limit",
 	 *		 in="query",
-	 *		 description="Pagination parameter: maximum number of records per page",
+	 *		 description="Controls the number of results per page",
 	 *		 required=false,
 	 *		 @OA\Schema(type="integer", default=100)
 	 *	 ),
 	 *	 @OA\Parameter(
 	 *		 name="offset",
 	 *		 in="query",
-	 *		 description="Pagination parameter: page number",
+	 *		 description="Determines the offset for the search results. A limit of 200 and offset of 100, will get the third page of 100 results.",
 	 *		 required=false,
 	 *		 @OA\Schema(type="integer", default=0)
 	 *	 ),
@@ -196,6 +196,17 @@ class OccurrenceController extends Controller{
 		if($request->input('includeMedia')) $occurrence->media = Occurrence::find($id)->media;
 		if($request->input('includeIdentHistory ')) $occurrence->identification = Occurrence::find($id)->identification;
 		return response()->json($occurrence);
+	}
+
+
+	public function showOneOccurrenceMedia($id, Request $request){
+		if(!is_numeric($id)){
+			$occid = Occurrence::where('occurrenceID',$id)->value('occid');
+			if(!$occid) $occid = DB::table('guidoccurrences')->where('guid',$id)->value('occid');
+			if(is_numeric($occid)) $id = $occid;
+		}
+		$media = Occurrence::find($id)->media;
+		return response()->json($media);
 	}
 
 	public function create(Request $request){

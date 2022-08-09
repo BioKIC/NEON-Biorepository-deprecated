@@ -15,7 +15,7 @@ $imgManager = new ImageDetailManager($imgId,($action?'write':'readonly'));
 
 $imgArr = $imgManager->getImageMetadata();
 $isEditor = false;
-if($IS_ADMIN || $imgArr["username"] === $USERNAME || ($imgArr["photographeruid"] && $imgArr["photographeruid"] == $SYMB_UID)){
+if($IS_ADMIN || ($imgArr && ($imgArr['username'] === $USERNAME || ($imgArr['photographeruid'] && $imgArr['photographeruid'] == $SYMB_UID)))){
     $isEditor = true;
 }
 

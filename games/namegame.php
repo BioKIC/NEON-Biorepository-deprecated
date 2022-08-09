@@ -15,7 +15,7 @@ if(!is_numeric($dynClid)) $dynClid  = 0;
 if(!$clName){
 	$gameManager = new GamesManager();
 	if($clid){
-		$gameManager->setClid($id);
+		$gameManager->setClid($clid);
 	}
 	elseif($dynClid){
 		$gameManager->setDynClid($dynClid);

@@ -4,14 +4,16 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GuidOccurrence extends Model
+class OccurrenceIdentifications extends Model
 {
 
-	protected $table = 'guidoccurrences';
-	protected $primaryKey = 'guid';
+	protected $table = 'omoccurdeterminations';
+	protected $primaryKey = 'occid';
 	public $timestamps = false;
 
-	protected $fillable = [];
+	protected $fillable = [
+		''
+	];
 
 	protected $hidden = [];
 

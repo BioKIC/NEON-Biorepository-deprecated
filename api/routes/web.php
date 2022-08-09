@@ -29,12 +29,7 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	$router->get('occurrence/{id}', ['uses' => 'OccurrenceController@showOneOccurrence']);
 	$router->get('occurrence',  ['uses' => 'OccurrenceController@showAllOccurrences']);
 	$router->get('occurrence/{id}/media', ['uses' => 'OccurrenceController@showOneOccurrenceMedia']);
-	//$router->post('occurrence', ['uses' => 'OccurrenceController@create']);
-	//$router->delete('occurrence/{id}', ['uses' => 'OccurrenceController@delete']);
-	//$router->put('occurrence/{id}', ['uses' => 'OccurrenceController@update']);
-
-	//$router->get('occurrences/annotations',  ['uses' => 'OccurrenceAnnotationsController@showAllAnnotations']);
-	//$router->get('occurrences/annotations/{id}', ['uses' => 'OccurrenceAnnotationsController@showAnnotations']);
+	$router->get('occurrence/{id}/identification', ['uses' => 'OccurrenceController@showOneOccurrenceIdentifications']);
 
 	$router->get('installation',  ['uses' => 'InstallationController@showAllPortals']);
 	$router->get('installation/ping', ['uses' => 'InstallationController@pingPortal']);

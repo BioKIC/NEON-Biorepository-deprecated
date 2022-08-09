@@ -20,7 +20,7 @@ class PortalIndex extends OmCollections{
 		$retArr = null;
 		$retArr['portalName'] = $GLOBALS['DEFAULT_TITLE'];
 		$retArr['guid'] = $GLOBALS['PORTAL_GUID'];
-		$retArr['urlRoot'] = $this->getDomainPath().$GLOBALS['CLIENT_ROOT'];
+		$retArr['urlRoot'] = $this->getDomain().$GLOBALS['CLIENT_ROOT'];
 		$retArr['managerEmail'] = $GLOBALS['ADMIN_EMAIL'];
 		$retArr['symbiotaVersion'] = $GLOBALS['CODE_VERSION'];
 		return $retArr;
@@ -136,7 +136,7 @@ class PortalIndex extends OmCollections{
 			$pingUrl = $remotePath.'api/v2/installation/ping';
 			$remoteArr = $this->getAPIResponce($pingUrl);
 			if($remoteArr){
-				$handShakeUrl = $this->getDomainPath().$GLOBALS['CLIENT_ROOT'].'/api/v2/installation/'.$remoteArr['guid'].'/touch?endpoint='.$remoteArr['urlRoot'];
+				$handShakeUrl = $this->getDomain().$GLOBALS['CLIENT_ROOT'].'/api/v2/installation/'.$remoteArr['guid'].'/touch?endpoint='.$remoteArr['urlRoot'];
 				//echo '<div>Handshake URL: '.$handShakeUrl.'</div>';
 				$respArr = $this->getAPIResponce($handShakeUrl);
 			}

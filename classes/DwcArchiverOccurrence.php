@@ -1,7 +1,6 @@
 <?php
-class DwcArchiverOccurrence{
+class DwcArchiverOccurrence extends Manager{
 
-	private $conn;
 	private $occurDefArr = array();
 	private $schemaType;
 	private $extended = false;
@@ -506,10 +505,10 @@ class DwcArchiverOccurrence{
 			if($rs = $this->conn->query($sql)){
 				while($r = $rs->fetch_object()){
 					$this->relationshipArr[$r->term] = $r->inverseRelationship;
+					$this->relationshipArr[$r->inverseRelationship] = $r->term;
 				}
 				$rs->free();
 			}
-			$this->relationshipArr = array_merge($this->relationshipArr,array_flip($this->relationshipArr));
 		}
 	}
 
@@ -639,12 +638,7 @@ class DwcArchiverOccurrence{
 	}
 
 	public function setServerDomain(){
-		if(!$this->serverDomain){
-			$this->serverDomain = "http://";
-			if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $this->serverDomain = "https://";
-			$this->serverDomain .= $_SERVER["SERVER_NAME"];
-			if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $this->serverDomain .= ':'.$_SERVER["SERVER_PORT"];
-		}
+		if(!$this->serverDomain) $this->serverDomain = $this->getDomain();
 	}
 
 	//Setter and getter
@@ -658,16 +652,6 @@ class DwcArchiverOccurrence{
 
 	public function setIncludePaleo($bool){
 		if($bool) $this->includePaleo = true;
-	}
-
-	//Misc functions
-	private function cleanInStr($str){
-		$newStr = trim($str);
-		if($newStr){
-			$newStr = preg_replace('/\s\s+/', ' ',$newStr);
-			$newStr = $this->conn->real_escape_string($newStr);
-		}
-		return $newStr;
 	}
 }
 ?>

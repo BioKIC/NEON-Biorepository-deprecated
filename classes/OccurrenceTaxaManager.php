@@ -353,6 +353,11 @@ class OccurrenceTaxaManager {
 		return implode(", ", $returnArr);
 	}
 
+	public function getTaxaSearchTerm(){
+		if(isset($this->taxaArr['search'])) return $this->taxaArr['search'];
+		return '';
+	}
+
 	protected function cleanOutStr($str){
 		return htmlspecialchars($str);
 	}

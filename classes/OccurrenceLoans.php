@@ -17,9 +17,9 @@ class OccurrenceLoans extends Manager{
 
 	public function getLoanOutList($searchTerm,$displayAll){
 		$retArr = array();
+		$extLoanArr = array();
 		//Get loans that are assigned to other collections but have linked occurrences from this collection (NEON Biorepo portal issue)
 		/*
-		$extLoanArr = array();
 		$sql = 'SELECT DISTINCT l.loanid, o.collid '.
 			'FROM omoccurloans l INNER JOIN omoccurloanslink ll ON l.loanid = ll.loanid '.
 			'INNER JOIN omoccurrences o ON ll.occid = o.occid '.
@@ -37,7 +37,7 @@ class OccurrenceLoans extends Manager{
 			'FROM omoccurloans l LEFT JOIN institutions i ON l.iidborrower = i.iid '.
 			'LEFT JOIN omcollections c ON l.collidborr = c.collid '.
 			'WHERE (l.collidown = '.$this->collid.' ';
-		//if($extLoanArr) $sql .= 'OR l.loanid IN('.implode(',',$extLoanArr).')';
+		if($extLoanArr) $sql .= 'OR l.loanid IN('.implode(',',$extLoanArr).')';
 		$sql .= ') ';
 		if(!$displayAll) $sql .= 'AND l.dateclosed IS NULL ';
 		$sql .= 'ORDER BY l.loanidentifierown + 1 DESC';
@@ -48,7 +48,7 @@ class OccurrenceLoans extends Manager{
 					$retArr[$r->loanid]['institutioncode'] = $r->instcode1;
 					$retArr[$r->loanid]['forwhom'] = $r->forwhom;
 					$retArr[$r->loanid]['dateclosed'] = $r->dateclosed;
-					//if(array_key_exists($r->loanid, $extLoanArr)) $retArr[$r->loanid]['isexternal'] = $extLoanArr[$r->loanid];
+					if(array_key_exists($r->loanid, $extLoanArr)) $retArr[$r->loanid]['isexternal'] = $extLoanArr[$r->loanid];
 				}
 			}
 			$rs->free();

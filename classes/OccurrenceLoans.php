@@ -19,7 +19,6 @@ class OccurrenceLoans extends Manager{
 		$retArr = array();
 		$extLoanArr = array();
 		//Get loans that are assigned to other collections but have linked occurrences from this collection (NEON Biorepo portal issue)
-		/*
 		$sql = 'SELECT DISTINCT l.loanid, o.collid '.
 			'FROM omoccurloans l INNER JOIN omoccurloanslink ll ON l.loanid = ll.loanid '.
 			'INNER JOIN omoccurrences o ON ll.occid = o.occid '.
@@ -30,7 +29,6 @@ class OccurrenceLoans extends Manager{
 			}
 			$rs->free();
 		}
-		*/
 
 		//Get loan details
 		$sql = 'SELECT l.loanid, l.datesent, l.loanidentifierown, l.loanidentifierborr, i.institutioncode AS instcode1, c.institutioncode AS instcode2, l.forwhom, l.dateclosed '.

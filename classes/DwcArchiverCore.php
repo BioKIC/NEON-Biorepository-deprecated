@@ -49,8 +49,6 @@ class DwcArchiverCore extends Manager
 	private $charSetSource = '';
 	protected $charSetOut = '';
 
-	private $projectMetadataArr = array();
-
 	private $geolocateVariables = array();
 
 	public function __construct($conType = 'readonly')
@@ -205,7 +203,7 @@ class DwcArchiverCore extends Manager
 								$this->collArr[$r->collid]['collname'] = $propArr['publicationProps']['titleOverride'];
 							}
 							if (isset($propArr['publicationProps']['project']) && $propArr['publicationProps']['project']) {
-								$this->projectMetadataArr = $propArr['publicationProps']['project'];
+								$this->collArr[$r->collid]['project'] = $propArr['publicationProps']['project'];
 							}
 						}
 					}
@@ -1134,6 +1132,7 @@ class DwcArchiverCore extends Manager
 			if ($this->collArr[$collId]['postalcode']) $emlArr['contact']['addr']['postalCode'] = $this->collArr[$collId]['postalcode'];
 			if ($this->collArr[$collId]['country']) $emlArr['contact']['addr']['country'] = $this->collArr[$collId]['country'];
 			if ($this->collArr[$collId]['rights']) $emlArr['intellectualRights'] = $this->collArr[$collId]['rights'];
+			if (isset($this->collArr[$collId]['project'])) $emlArr['project'] = $this->collArr[$collId]['project'];
 		} else {
 			//Dataset contains multiple collection data
 			$emlArr['title'] = $GLOBALS['DEFAULT_TITLE'] . ' general data extract';
@@ -1355,12 +1354,12 @@ class DwcArchiverCore extends Manager
 			$datasetElem->appendChild($rightsElem);
 		}
 
-		if ($this->projectMetadataArr) {
-			$projectElem = $this->getNode($newDoc, 'project', $this->projectMetadataArr);
+		if (array_key_exists('project', $emlArr)) {
+			$projectElem = $this->getNode($newDoc, 'project', $emlArr['project']);
 			$datasetElem->appendChild($projectElem);
 			/*
 			 * Example EML: http://ipt.gbifbenin.org/eml.do?r=mbi_groupe3_menacees
-			 * $projectMetadataArr = array('nodeAttribute' => array( 'id' => 'BID-AF2020-122-NAC'), 'title' => 'The Gabon Biodiversity Portal', 'abstract' => array('para' => 'https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal'))
+			 * $projectArr = array('nodeAttribute' => array( 'id' => 'BID-AF2020-122-NAC'), 'title' => 'The Gabon Biodiversity Portal', 'abstract' => array('para' => 'https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal'))
 			 * json: {"publicationProps":{"project":{"nodeAttribute":{"id":"BID-AF2020-122-NAC"},"title":"The Gabon Biodiversity Portal","abstract":{"para":"https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal"}}}}
 			*/
 		}

@@ -302,7 +302,8 @@ elseif($exportType == 'singlelanguage'){
 	}
 }
 
-$fileName = str_replace(" ","_",$fileName);
+$fileName = str_replace(array(' ', '/'), '_', $fileName);
+$fileName = preg_replace('/[^0-9A-Za-z\-_]/', '', $fileName);
 $targetFile = $SERVER_ROOT.'/temp/report/'.$fileName.'.docx';
 $phpWord->save($targetFile, 'Word2007');
 

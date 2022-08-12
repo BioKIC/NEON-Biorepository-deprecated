@@ -655,7 +655,7 @@ class OccurrenceLoans extends Manager{
 	private function getOccid($catNum, $method){
 		$occArr = array();
 		if(!$method || !in_array($method,array('allid','catnum','other'))) $method = 'allid';
-		$sql = 'SELECT o.occid FROM omoccurrences o ';
+		$sql = 'SELECT DISTINCT o.occid FROM omoccurrences o ';
 		$sqlWhere = '';
 		if($method == 'allid' || $method == 'other'){
 			$sql .= 'LEFT JOIN omoccuridentifiers i ON o.occid = i.occid ';

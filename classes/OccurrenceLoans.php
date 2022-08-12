@@ -663,7 +663,7 @@ class OccurrenceLoans extends Manager{
 		if($method == 'allid' || $method == 'catnum') $sqlWhere .= 'OR (o.catalognumber = "'.$this->cleanInStr($catNum).'") ';
 		if($sqlWhere){
 			$sql .= 'WHERE ('.substr($sqlWhere,2).') ';
-			if($this->collid) $sql .= 'AND (o.collid = '.$this->collid.')';
+			//if($this->collid) $sql .= 'AND (o.collid = '.$this->collid.')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()) {
 				$occArr[] = $r->occid;

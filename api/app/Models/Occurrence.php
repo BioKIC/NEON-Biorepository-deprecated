@@ -1,5 +1,5 @@
 <?php
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,6 +11,10 @@ class Occurrence extends Model{
 
 	protected $fillable = [	];
 	protected $hidden = ['dynamicFields'];
+
+	public function collection(){
+		return $this->belongsTo(Collection::class, 'collid', 'collid');
+	}
 
 	public function identification(){
 		return $this->hasMany(OccurrenceIdentifications::class, 'occid', 'occid');
@@ -25,6 +29,6 @@ class Occurrence extends Model{
 	}
 
 	public function portalPublications(){
-		return $this->belongsToMany(portalpublications::class, 'portaloccurrences', 'occid', 'occid');
+		return $this->belongsToMany(PortalPublications::class, 'portaloccurrences', 'occid', 'pubid')->withPivot('targetOccid');;
 	}
 }

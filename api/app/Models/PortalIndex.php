@@ -1,9 +1,9 @@
 <?php
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PortalIndex extends Model{
+class PortalIndex extends Model {
 	protected $table = 'portalindex';
 	protected $primaryKey = 'portalID';
 	protected $fillable = ['portalName', 'acronym', 'portalDescription', 'urlRoot', 'symbiotaVersion', 'guid', 'manager', 'managerEmail', 'primaryLead', 'primaryLeadEmail', 'notes'];
@@ -16,6 +16,6 @@ class PortalIndex extends Model{
 	}
 
 	public function portalPublications(){
-		return $this->hasMany('App\portalpublications', 'portalID', 'portalID');
+		return $this->hasMany(PortalPublications::class, 'portalID', 'portalID');
 	}
 }

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Occurrence;
+use App\Models\Occurrence;
+use App\Models\PortalIndex;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -204,8 +205,8 @@ class OccurrenceController extends Controller{
 
 	/**
 	 * @OA\Get(
-	 *	 path="/api/v2/occurrence/{identifier}/identifications",
-	 *	 operationId="/api/v2/occurrence/identifier/identifications",
+	 *	 path="/api/v2/occurrence/{identifier}/identification",
+	 *	 operationId="/api/v2/occurrence/identifier/identification",
 	 *	 tags={""},
 	 *	 @OA\Parameter(
 	 *		 name="identifier",
@@ -227,8 +228,8 @@ class OccurrenceController extends Controller{
 	 */
 	public function showOneOccurrenceIdentifications($id, Request $request){
 		$id = $this->getOccid($id);
-		$media = Occurrence::find($id)->identification;
-		return response()->json($media);
+		$identification = Occurrence::find($id)->identification;
+		return response()->json($identification);
 	}
 
 	/**
@@ -284,11 +285,33 @@ class OccurrenceController extends Controller{
 	 * )
 	 */
 	public function oneOccurrenceReharvest($id, Request $request){
-		$status = false;
+		$responseArr = array();
 		$id = $this->getOccid($id);
-		$occurrence = Occurrence::find($id)->media;
+		$occurrence = Occurrence::find($id);
+		$publications = $occurrence->portalPublications;
+		if($occurrence->collection->managementType == 'Snapshot'){
+			foreach($publications as $pub){
+				if($pub->direction == 'import'){
+					$sourcePortalID = $pub->portalID;
+					$targetOccid = $pub->pivot->targetOccid;
+					if($sourcePortalID && $targetOccid){
+						//Get occurrence data
 
-		return response()->json($status);
+
+						//refresh snapshot record
+
+
+						$responseArr['status'] = true;
+
+					}
+				}
+			}
+			exit;
+		} else {
+			$responseArr['status'] = false;
+			$responseArr['message'] = 'Unable to refresh a Live Managed occurrence record ';
+		}
+		return response()->json($responseArr);
 	}
 
 	private function getOccid($id){

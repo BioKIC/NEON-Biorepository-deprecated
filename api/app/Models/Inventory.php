@@ -1,5 +1,5 @@
 <?php
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,6 +14,6 @@ class Inventory extends Model{
 	protected $hidden = [ 'title', 'type', 'dynamicSql', 'parentparentClid', 'access', 'cidKeyLimits', 'defaultSettings', 'dynamicProperties', 'uid', 'expiration', 'dateLastModified' ];
 
 	public function taxa(){
-		return $this->belongsToMany(Taxon::class, 'fmchklsttaxalink', 'CLID', 'TID');
+		return $this->belongsToMany(Taxonomy::class, 'fmchklsttaxalink', 'CLID', 'TID');
 	}
 }

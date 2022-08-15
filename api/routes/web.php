@@ -30,7 +30,7 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	$router->get('occurrence/{id}', ['uses' => 'OccurrenceController@showOneOccurrence']);
 	$router->get('occurrence/{id}/media', ['uses' => 'OccurrenceController@showOneOccurrenceMedia']);
 	$router->get('occurrence/{id}/identification', ['uses' => 'OccurrenceController@showOneOccurrenceIdentifications']);
-	//$router->get('occurrence/{id}/reharvest', ['uses' => 'OccurrenceController@oneOccurrenceReharvest']);
+	$router->get('occurrence/{id}/reharvest', ['uses' => 'OccurrenceController@oneOccurrenceReharvest']);
 
 	$router->get('installation',  ['uses' => 'InstallationController@showAllPortals']);
 	$router->get('installation/ping', ['uses' => 'InstallationController@pingPortal']);

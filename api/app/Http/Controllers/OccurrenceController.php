@@ -295,18 +295,20 @@ class OccurrenceController extends Controller{
 					$sourcePortalID = $pub->portalID;
 					$targetOccid = $pub->pivot->targetOccid;
 					if($sourcePortalID && $targetOccid){
-						//Get occurrence data
-
-
-						//refresh snapshot record
-
-
-						$responseArr['status'] = true;
-
+						//Get remote occurrence data
+						$url = PortalIndex::where('portalID', $sourcePortalID)->value('urlRoot');
+						$url .= '/api/v2/occurrence/'.$targetOccid;
+						$remoteOccurrence = $this->getAPIResponce($url);
+						$response = $this->update($id, new Request($remoteOccurrence));
+						//print_r($response);
+						echo '<br>status: '.$response->status().'<br>';
+						print_r($response->getData());
+						//echo ($response->isDirty()?'changed':'not changed').'<br>';
+						//echo 'changes: '.$response->getChanges().'<br>';
+						$responseArr['status'] = $response->status();
 					}
 				}
 			}
-			exit;
 		} else {
 			$responseArr['status'] = false;
 			$responseArr['message'] = 'Unable to refresh a Live Managed occurrence record ';
@@ -329,13 +331,34 @@ class OccurrenceController extends Controller{
 	}
 
 	public function update($id, Request $request){
-		//$occurrence = Occurrence::findOrFail($id);
-		//$occurrence->update($request->all());
-		//return response()->json($occurrence, 200);
+		$occurrence = Occurrence::findOrFail($id);
+		$occurrence->update($request->all());
+		//if($occurrence->wasChanged()) ;
+		return response()->json($occurrence, 200);
 	}
 
 	public function delete($id){
 		//Occurrence::findOrFail($id)->delete();
 		//return response('Occurrence Deleted Successfully', 200);
+	}
+
+	//Helper functions
+	private function getAPIResponce($url, $asyc = false){
+		$resJson = false;
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		//curl_setopt($ch, CURLOPT_HTTPGET, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		if($asyc) curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);
+		$resJson = curl_exec($ch);
+		if(!$resJson){
+			$this->errorMessage = 'FATAL CURL ERROR: '.curl_error($ch).' (#'.curl_errno($ch).')';
+			return false;
+			//$header = curl_getinfo($ch);
+		}
+		curl_close($ch);
+		return json_decode($resJson,true);
 	}
 }

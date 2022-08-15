@@ -278,45 +278,67 @@ class TaxonomyCleaner extends Manager{
 	}
 
 	private function indexOccurrenceTaxa(){
-		$this->logOrEcho('Populating null kingdom name tags...');
+		$this->logOrEcho('Data cleaning...');
 		$sql = 'UPDATE taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
 			'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
 			'SET t.kingdomname = t2.sciname '.
 			'WHERE (e.taxauthid = '.$this->taxAuthId.') AND (t2.rankid = 10) AND (t.kingdomName IS NULL)';
 		if($this->conn->query($sql)){
-			$this->logOrEcho($this->conn->affected_rows.' taxon records updated',1);
+			$this->logOrEcho('Populating null kingdom name tags... '.$this->conn->affected_rows.' taxon records updated', 1);
 		}
 		else{
-			$this->logOrEcho('ERROR updating kingdoms: '.$this->conn->error);
+			$this->logOrEcho('ERROR updating kingdoms: '.$this->conn->error, 1);
 		}
 		flush();
 		ob_flush();
 
-		$this->logOrEcho('Populating null family tags...');
 		$sql = 'UPDATE taxa t INNER JOIN taxaenumtree e ON t.tid = e.tid '.
 			'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
 			'INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 			'SET ts.family = t2.sciname '.
 			'WHERE (e.taxauthid = '.$this->taxAuthId.') AND (ts.taxauthid = '.$this->taxAuthId.') AND (t2.rankid = 140) AND (ts.family IS NULL)';
 		if($this->conn->query($sql)){
-			$this->logOrEcho($this->conn->affected_rows.' taxon records updated',1);
+			$this->logOrEcho('Populating null family lookuk tags within thesaurus... '.$this->conn->affected_rows.' taxon records updated', 1);
 		}
 		else{
-			$this->logOrEcho('ERROR family tags: '.$this->conn->error);
+			$this->logOrEcho('ERROR updating family lookup field: '.$this->conn->error, 1);
 		}
 		flush();
 		ob_flush();
 
-		$this->logOrEcho('Indexing names based on exact matches...');
 		$sql = 'UPDATE omoccurrences o INNER JOIN taxa t ON o.sciname = t.sciname '.
 			'SET o.tidinterpreted = t.tid '.
 			'WHERE (o.collid IN('.$this->collid.')) AND (o.tidinterpreted IS NULL) ';
 		//echo $sql;
 		if($this->conn->query($sql)){
-			$this->logOrEcho($this->conn->affected_rows.' occurrence records mapped',1);
+			$this->logOrEcho('Indexing names based on exact matches... ' . $this->conn->affected_rows.' occurrence records mapped', 1);
 		}
 		else{
-			$this->logOrEcho('ERROR linking new data to occurrences: '.$this->conn->error);
+			$this->logOrEcho('ERROR linking new data to occurrences: '.$this->conn->error, 1);
+		}
+		flush();
+		ob_flush();
+
+		$sql = 'UPDATE omoccurrences o INNER JOIN taxa t ON o.tidinterpreted = t.tid
+			SET o.scientificNameAuthorship = t.author
+			WHERE (o.collid IN('.$this->collid.')) AND (o.scientificNameAuthorship IS NULL) AND (t.author IS NOT NULL) ';
+		if($this->conn->query($sql)){
+			$this->logOrEcho('Populating null scientific authors within occurrence tables... ' . $this->conn->affected_rows.' occurrence records populated', 1);
+		}
+		else{
+			$this->logOrEcho('ERROR updating authors: '.$this->conn->error, 1);
+		}
+		flush();
+		ob_flush();
+
+		$sql = 'UPDATE omoccurrences o INNER JOIN taxstatus ts ON o.tidinterpreted = ts.tid
+			SET o.family = ts.family
+			WHERE (o.collid IN('.$this->collid.')) AND (o.family IS NULL) AND (ts.family IS NOT NULL) ';
+		if($this->conn->query($sql)){
+			$this->logOrEcho('Populating null family names within occurrence tables... ' . $this->conn->affected_rows . ' occurrence records populated', 1);
+		}
+		else{
+			$this->logOrEcho('ERROR updating family occurrences: '.$this->conn->error, 1);
 		}
 		flush();
 		ob_flush();

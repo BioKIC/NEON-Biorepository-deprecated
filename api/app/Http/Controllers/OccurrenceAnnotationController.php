@@ -112,8 +112,9 @@ class OccurrenceAnnotationController extends OccurrenceController{
 		$fullCnt = 0;
 		$result = null;
 		if($type == 'internal'){
-			$annotation = DB::table('omoccuredits as e')->select('e.*')
-				->leftJoin('omoccurrences as o', 'o.occid', '=', 'e.occid')
+			$annotation = DB::table('omoccuredits as e')->select('e.*', 'o.occurrenceID', 'g.guid as recordID')
+				->join('omoccurrences as o', 'e.occid', '=', 'o.occid')
+				->join('guidoccurrences as g', 'o.occid', '=', 'g.occid')
 				->where('o.collid', $collid);
 			if($fieldName){
 				$annotation = $annotation->where('e.fieldname', $fieldName);
@@ -129,8 +130,9 @@ class OccurrenceAnnotationController extends OccurrenceController{
 			$result = $this->formatInternalResults($result);
 		}
 		elseif($type == 'external'){
-			$annotation = DB::table('omoccurrevisions as r')->select('r.*')
-				->leftJoin('omoccurrences as o', 'o.occid', '=', 'r.occid')
+			$annotation = DB::table('omoccurrevisions as r')->select('r.*', 'o.occurrenceID', 'g.guid as recordID')
+				->join('omoccurrences as o', 'o.occid', '=', 'r.occid')
+				->join('guidoccurrences as g', 'o.occid', '=', 'g.occid')
 				->where('o.collid', $collid);
 			if($source){
 				$annotation = $annotation->where('r.externalSource', $source);
@@ -189,6 +191,8 @@ class OccurrenceAnnotationController extends OccurrenceController{
 				$newArr2 = array();
 				$newArr1['annotationID'] = $unitArr['orid'];
 				$newArr1['occid'] = $unitArr['occid'];
+				if($unitArr['occurrenceid']) $newArr1['occurrenceID'] = $unitArr['occurrenceid'];
+				else $newArr1['occurrenceID'] = $unitArr['recordid'];
 				$newArr2['externalSource'] = $unitArr['externalsource'];
 				$newArr2['externalEditor'] = $unitArr['externaleditor'];
 				$newArr2['reviewStatus'] = $unitArr['reviewstatus'];
@@ -218,6 +222,8 @@ class OccurrenceAnnotationController extends OccurrenceController{
 			$unitArr = array_change_key_case($unitArr);
 			$retArr[$unitKey]['annotationID'] = $unitArr['ocedid'];
 			$retArr[$unitKey]['occid'] = $unitArr['occid'];
+			if($unitArr['occurrenceid']) $retArr[$unitKey]['occurrenceID'] = $unitArr['occurrenceid'];
+			else $retArr[$unitKey]['occurrenceID'] = $unitArr['recordid'];
 			$retArr[$unitKey]['fieldName'] = $unitArr['fieldname'];
 			$retArr[$unitKey]['newValue'] = $unitArr['fieldvaluenew'];
 			$retArr[$unitKey]['oldValue'] = $unitArr['fieldvalueold'];

@@ -6,14 +6,15 @@ include_once($SERVER_ROOT.'/content/lang/taxa/taxonomy/taxoneditor.'.$LANG_TAG.'
 
 if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../taxa/taxonomy/taxoneditor.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
-$submitAction = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
-$tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
 $tid = $_REQUEST["tid"];
-$taxAuthId = array_key_exists('taxauthid', $_REQUEST)?$_REQUEST["taxauthid"]:1;
+$taxAuthId = array_key_exists('taxauthid', $_REQUEST)?$_REQUEST['taxauthid']:1;
+$tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
+$submitAction = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 
-if(!is_numeric($tabIndex)) $tabIndex = 0;
+//Sanitation
 if(!is_numeric($tid)) $tid = 0;
-if(!is_numeric($taxAuthId)) $taxAuthId = 0;
+if(!is_numeric($taxAuthId)) $taxAuthId = 1;
+if(!is_numeric($tabIndex)) $tabIndex = 0;
 
 $taxonEditorObj = new TaxonomyEditorManager();
 $taxonEditorObj->setTid($tid);
@@ -24,7 +25,7 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)) $isEditor = true;
 
 $statusStr = '';
 if($isEditor){
-	if(array_key_exists("taxonedits",$_POST)){
+	if(array_key_exists('taxonedits',$_POST)){
 		$statusStr = $taxonEditorObj->submitTaxonEdits($_POST);
 	}
 	elseif($submitAction == 'updatetaxstatus'){
@@ -52,7 +53,7 @@ if($isEditor){
 	elseif($submitAction == 'updatehierarchy'){
 		$statusStr = $taxonEditorObj->rebuildHierarchy($tid);
 	}
-	elseif($submitAction == 'Remap Taxon'){
+	elseif($submitAction == 'remapTaxon'){
 		$remapStatus = $taxonEditorObj->transferResources($_REQUEST['remaptid']);
 		if($taxonEditorObj->getWarningArr()) $statusStr = (isset($LANG['FOLLOWING_WARNINGS'])?$LANG['FOLLOWING_WARNINGS']:'The following warnings occurred').': '.implode(';',$taxonEditorObj->getWarningArr());
 		if($remapStatus){
@@ -61,7 +62,7 @@ if($isEditor){
 		}
 		else $statusStr = $taxonEditorObj->getErrorMessage();
 	}
-	elseif($submitAction == 'Delete Taxon'){
+	elseif($submitAction == 'deleteTaxon'){
 		$delStatus = $taxonEditorObj->deleteTaxon();
 		if($taxonEditorObj->getWarningArr()) $statusStr = (isset($LANG['FOLLOWING_WARNINGS'])?$LANG['FOLLOWING_WARNINGS']:'The following warnings occurred').': '.implode(';',$taxonEditorObj->getWarningArr());
 		if($delStatus){
@@ -298,7 +299,7 @@ if($isEditor){
 						<div class="editfield" style="display:none;clear:both;margin:15px 0px">
 							<input type="hidden" name="tid" value="<?php echo $taxonEditorObj->getTid(); ?>" />
 							<input type="hidden" name="taxauthid" value="<?php echo $taxAuthId;?>">
-							<button type="submit" id="taxoneditsubmit" name="taxonedits" value="Submit Edits" ><?php echo (isset($LANG['SUBMIT_EDITS'])?$LANG['SUBMIT_EDITS']:'Submit Edits'); ?></button>
+							<button type="submit" id="taxoneditsubmit" name="taxonedits" value="submitEdits" ><?php echo (isset($LANG['SUBMIT_EDITS'])?$LANG['SUBMIT_EDITS']:'Submit Edits'); ?></button>
 						</div>
 					</form>
 				</div>
@@ -503,31 +504,23 @@ if($isEditor){
 											<legend><b><?php echo (isset($LANG['SYN_LINK_EDITOR'])?$LANG['SYN_LINK_EDITOR']:'Synonym Link Editor'); ?></b></legend>
 											<form id="synform-<?php echo $tidSyn;?>" name="synform-<?php echo $tidSyn;?>" action="taxoneditor.php" method="post">
 												<div style="clear:both;">
-													<div style="float:left;width:200px;font-weight:bold;"><?php echo (isset($LANG['UNACCEPT_REASON'])?$LANG['UNACCEPT_REASON']:'Unacceptability Reason'); ?>:</div>
-													<div>
-														<input id='unacceptabilityreason' name='unacceptabilityreason' type='text' style="width:240px;" value='<?php echo htmlspecialchars($synArr["unacceptabilityreason"]); ?>' />
-													</div>
+													<?php echo (isset($LANG['UNACCEPT_REASON'])?$LANG['UNACCEPT_REASON']:'Unacceptability Reason'); ?>:
+													<input id='unacceptabilityreason' name='unacceptabilityreason' type='text' style="width:400px;" value='<?php echo htmlspecialchars($synArr["unacceptabilityreason"]); ?>' />
 												</div>
-												<div style="clear:both;">
-													<div style="float:left;width:200px;font-weight:bold;"><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:</div>
-													<div>
-														<input id='notes' name='notes' type='text' style="width:240px;" value='<?php echo htmlspecialchars($synArr["notes"]); ?>' />
-													</div>
+												<div>
+													<?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:
+													<input id='notes' name='notes' type='text' style="width:400px;" value='<?php echo htmlspecialchars($synArr["notes"]); ?>' />
 												</div>
-												<div style="clear:both;">
-													<div style="float:left;width:200px;font-weight:bold;"><?php echo (isset($LANG['SORT_SEQ'])?$LANG['SORT_SEQ']:'Sort Sequence'); ?>: </div>
-													<div>
-														<input id='sortsequence' name='sortsequence' type='text' style="width:30px;" value='<?php echo $synArr["sortsequence"]; ?>' />
-													</div>
+												<div>
+													<?php echo (isset($LANG['SORT_SEQ'])?$LANG['SORT_SEQ']:'Sort Sequence'); ?>:
+													<input id='sortsequence' name='sortsequence' type='text' style="width:60px;" value='<?php echo $synArr["sortsequence"]; ?>' />
 												</div>
-												<div style="clear:both;">
-													<div>
-														<input type="hidden" name="tid" value="<?php echo $taxonEditorObj->getTid(); ?>" />
-														<input type="hidden" name="tidsyn" value="<?php echo $tidSyn; ?>" />
-														<input type="hidden" name="taxauthid" value="<?php echo $taxAuthId;?>">
-														<input type="hidden" name="tabindex" value="1" />
-														<button type='submit' id='syneditsubmit' name='synonymedits' value='Submit Changes'><?php echo (isset($LANG['SUBMIT_EDITS'])?$LANG['SUBMIT_EDITS']:'Submit Edits'); ?></button>
-													</div>
+												<div>
+													<input type="hidden" name="tid" value="<?php echo $taxonEditorObj->getTid(); ?>" />
+													<input type="hidden" name="tidsyn" value="<?php echo $tidSyn; ?>" />
+													<input type="hidden" name="taxauthid" value="<?php echo $taxAuthId;?>">
+													<input type="hidden" name="tabindex" value="1" />
+													<button type="submit" id="syneditsubmit" name="synonymedits" value="submitChanges"><?php echo (isset($LANG['SUBMIT_EDITS'])?$LANG['SUBMIT_EDITS']:'Submit Edits'); ?></button>
 												</div>
 											</form>
 										</fieldset>
@@ -545,16 +538,16 @@ if($isEditor){
 										<fieldset style="width:90%px;">
 											<legend><b><?php echo (isset($LANG['CHANGE_NOT_ACCEPTED'])?$LANG['CHANGE_NOT_ACCEPTED']:'Change to Not Accepted'); ?></b></legend>
 											<div style="margin:5px;">
-												<b><?php echo (isset($LANG['ACCEPTED_NAME'])?$LANG['ACCEPTED_NAME']:'Accepted Name'); ?>:</b>
+												<?php echo (isset($LANG['ACCEPTED_NAME'])?$LANG['ACCEPTED_NAME']:'Accepted Name'); ?>:
 												<input id="ctnafacceptedstr" name="acceptedstr" type="text" style="width:550px;" />
 												<input name="tidaccepted" type="hidden" value="" />
 											</div>
 											<div style="margin:5px;">
-												<b><?php echo (isset($LANG['REASON'])?$LANG['REASON']:'Reason'); ?>:</b>
+												<?php echo (isset($LANG['REASON'])?$LANG['REASON']:'Reason'); ?>:
 												<input name="unacceptabilityreason" type="text" style="width:90%;" />
 											</div>
 											<div style="margin:5px;">
-												<b><?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:</b>
+												<?php echo (isset($LANG['NOTES'])?$LANG['NOTES']:'Notes'); ?>:
 												<input name="notes" type="text" style="width:90%;" />
 											</div>
 											<div style="margin:5px;">

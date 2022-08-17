@@ -3,17 +3,14 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyHarvester.php');
 include_once($SERVER_ROOT.'/content/lang/taxa/taxonomy/taxonomymaintenance.'.$LANG_TAG.'.php');
 
-
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../taxa/taxonomy/taxonomymaintenance.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
-$action = array_key_exists("action",$_REQUEST)?$_REQUEST["action"]:"";
+$action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 
 $harvesterManager = new TaxonomyHarvester();
 
 $isEditor = false;
-if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
-	$isEditor = true;
-}
+if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)) $isEditor = true;
 
 if($isEditor){
 	if($action == 'buildenumtree'){
@@ -39,50 +36,41 @@ if($isEditor){
 <head>
 	<title><?php echo $DEFAULT_TITLE." ".(isset($LANG['TAXON_MAINT'])?$LANG['TAXON_MAINT']:'Taxonomy Maintenance'); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
-  <?php
-    $activateJQuery = true;
-    if(file_exists($SERVER_ROOT.'/includes/head.php')){
-      include_once($SERVER_ROOT.'/includes/head.php');
-    }
-    else{
-      echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-      echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-    }
-  ?>
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
-	<script type="text/javascript">
-	</script>
 </head>
 <body>
-<?php
-$displayLeftMenu = (isset($taxa_admin_taxonomydisplayMenu)?$taxa_admin_taxonomydisplayMenu:"true");
-include($SERVER_ROOT.'/includes/header.php');
-if(isset($taxa_admin_taxonomydisplayCrumbs)){
-	echo "<div class='navpath'>";
-	echo "<a href='../index.php'>Home</a> &gt; ";
-	echo $taxa_admin_taxonomydisplayCrumbs;
-	echo " <b>Taxonomic Tree Viewer</b>";
-	echo "</div>";
-}
-if(isset($taxa_admin_taxonomydisplayCrumbs)){
-	if($taxa_admin_taxonomydisplayCrumbs){
-		echo '<div class="navpath">';
-		echo $taxa_admin_taxonomydisplayCrumbs;
-		echo ' <b>Taxonomic Tree Viewer</b>';
-		echo '</div>';
-	}
-}
-else{
-	?>
-	<div class="navpath">
-		<a href="../../index.php"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
-		<a href="taxonomydisplay.php"><b><?php echo (isset($LANG['TAX_TREE_VIEW'])?$LANG['TAX_TREE_VIEW']:'Taxonomy Tree Viewer'); ?></b></a>
-	</div>
 	<?php
-}
-?>
+	$displayLeftMenu = (isset($taxa_admin_taxonomydisplayMenu)?$taxa_admin_taxonomydisplayMenu:"true");
+	include($SERVER_ROOT.'/includes/header.php');
+	if(isset($taxa_admin_taxonomydisplayCrumbs)){
+		echo "<div class='navpath'>";
+		echo "<a href='../index.php'>Home</a> &gt; ";
+		echo $taxa_admin_taxonomydisplayCrumbs;
+		echo " <b>Taxonomic Tree Viewer</b>";
+		echo "</div>";
+	}
+	if(isset($taxa_admin_taxonomydisplayCrumbs)){
+		if($taxa_admin_taxonomydisplayCrumbs){
+			echo '<div class="navpath">';
+			echo $taxa_admin_taxonomydisplayCrumbs;
+			echo ' <b>Taxonomic Tree Viewer</b>';
+			echo '</div>';
+		}
+	}
+	else{
+		?>
+		<div class="navpath">
+			<a href="../../index.php"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
+			<a href="taxonomydisplay.php"><b><?php echo (isset($LANG['TAX_TREE_VIEW'])?$LANG['TAX_TREE_VIEW']:'Taxonomy Tree Viewer'); ?></b></a>
+		</div>
+		<?php
+	}
+	?>
 	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php

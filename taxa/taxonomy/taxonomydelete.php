@@ -1,10 +1,15 @@
 <?php
+$LANG = array();
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyEditorManager.php');
 include_once($SERVER_ROOT.'/content/lang/taxa/taxonomy/taxonomydelete.'.$LANG_TAG.'.php');
 
 $tid = $_REQUEST["tid"];
 $genusStr = array_key_exists('genusstr',$_REQUEST)?$_REQUEST["genusstr"]:'';
+
+//Sanitation
+if(!is_numeric($tid)) $tid = 0;
+$genusStr = filter_var($genusStr, FILTER_SANITIZE_STRING);
 
 $taxonEditorObj = new TaxonomyEditorManager();
 $taxonEditorObj->setTid($tid);
@@ -44,7 +49,7 @@ $verifyArr = $taxonEditorObj->verifyDeleteTaxon();
 <div style="min-height:400px; height:auto !important; height:400px; ">
 	<div style="margin:15px 0px">
 		<?php echo (isset($LANG['TAXON_MUST_BE_EVALUATED'])?$LANG['TAXON_MUST_BE_EVALUATED']:'Taxon record first needs to be evaluated before it can be deleted from the system. The evaluation ensures that the deletion of this record will not interfer with data integrity.'); ?>
-		
+
 	</div>
 	<div style="margin:15px;">
 		<b><?php echo (isset($LANG['CHILDREN_TAXA'])?$LANG['CHILDREN_TAXA']:'Children Taxa'); ?></b>
@@ -209,8 +214,8 @@ $verifyArr = $taxonEditorObj->verifyDeleteTaxon();
 				<?php
 			}
 			else{
-				?>
-				<span style="color:green;"><?php echo (isset($LANG['APPROVED'])?$LANG['APPROVED']:'Approved'); ?>:</span> <?php echo (isset($LANG['NO_CHECKLISTS'])?$LANG['NO_CHECKLISTS']:'no checklists linked to this taxon')
+				echo '<span style="color:green;">'.(isset($LANG['APPROVED'])?$LANG['APPROVED']:'Approved').':</span> ';
+				echo (isset($LANG['NO_CHECKLISTS'])?$LANG['NO_CHECKLISTS']:'no checklists linked to this taxon');
 			}
 			?>
 		</div>
@@ -220,14 +225,13 @@ $verifyArr = $taxonEditorObj->verifyDeleteTaxon();
 		<div style="margin:10px">
 			<?php
 			if(array_key_exists('kmdecr',$verifyArr)){
-				?>
-				<span style="color:red;"><?php echo (isset($LANG['WARNING'])?$LANG['WARNING']:'Warning').': '.$verifyArr['kmdecr'].(isset($LANG['LINKED_MORPHO'])?$LANG['LINKED_MORPHO']:'linked morphological characters'); ?></span>
-				<?php
+				echo '<span style="color:red;">';
+				echo (isset($LANG['WARNING'])?$LANG['WARNING']:'Warning').': '.$verifyArr['kmdecr'].(isset($LANG['LINKED_MORPHO'])?$LANG['LINKED_MORPHO']:'linked morphological characters');
+				echo '</span>';
 			}
 			else{
-				?>
-				<span style="color:green;"><?php echo (isset($LANG['APPROVED'])?$LANG['APPROVED']:'Approved'); ?>:</span> <?php echo (isset($LANG['NO_MORPHO'])?$LANG['NO_MORPHO']:'no morphological characters linked to this taxon'); ?>
-				<?php
+				echo '<span style="color:green;">'.(isset($LANG['APPROVED'])?$LANG['APPROVED']:'Approved').':</span> ';
+				echo (isset($LANG['NO_MORPHO'])?$LANG['NO_MORPHO']:'no morphological characters linked to this taxon');
 			}
 			?>
 		</div>
@@ -265,8 +269,8 @@ $verifyArr = $taxonEditorObj->verifyDeleteTaxon();
 					<input name="remaptid" type="hidden" value="" />
 				</div>
 				<div>
-					<input name="submitbutton" type="button" value="Remap Taxon" onclick="submitRemapTaxonForm(this.form)" />
-					<input name="submitaction" type="hidden" value="Remap Taxon" />
+					<button name="submitbutton" type="button" onclick="submitRemapTaxonForm(this.form)"><?php echo (isset($LANG['REMAP_TAXON'])?$LANG['REMAP_TAXON']:'Remap Taxon'); ?></button>
+					<input name="submitaction" type="hidden" value="remapTaxon" />
 					<input name="tid" type="hidden" value="<?php echo $tid; ?>" />
 					<input name="genusstr" type="hidden" value="<?php echo $genusStr; ?>" />
 				</div>
@@ -285,8 +289,8 @@ $verifyArr = $taxonEditorObj->verifyDeleteTaxon();
 				if(array_key_exists('syn',$verifyArr)) $deactivateStr = 'disabled';
 				if($verifyArr['img'] > 0) $deactivateStr = 'disabled';
 				if(array_key_exists('tdesc',$verifyArr)) $deactivateStr = 'disabled';
+				echo '<button name="submitaction" type="submit" value="deleteTaxon" '.$deactivateStr.'>'.(isset($LANG['DELETE_TAXON'])?$LANG['DELETE_TAXON']:'Delete Taxon').'</button>';
 				?>
-				<input name="submitaction" type="submit" value="Delete Taxon" <?php echo $deactivateStr; ?> />
 				<input name="tid" type="hidden" value="<?php echo $tid; ?>" />
 				<input name="genusstr" type="hidden" value="<?php echo $genusStr; ?>" />
 				<div style="margin:15px 5px">

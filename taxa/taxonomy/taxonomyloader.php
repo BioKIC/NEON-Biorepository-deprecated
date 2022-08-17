@@ -1,13 +1,16 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyEditorManager.php');
-include_once($SERVER_ROOT.'/content/lang/taxa/taxonomy/taxonloader.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/taxa/taxonomy/taxonomyloader.'.$LANG_TAG.'.php');
 header('Content-Type: text/html; charset='.$CHARSET);
 
 if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../taxa/taxonomy/taxonomyloader.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $tid = array_key_exists('tid',$_REQUEST)?$_REQUEST['tid']:'';
-$status = "";
+$status = '';
+
+//Sanitation
+if(!is_numeric($tid)) $tid = 0;
 
 $loaderObj = new TaxonomyEditorManager();
 
@@ -146,7 +149,7 @@ if($isEditor){
 						</fieldset>
 					</div>
 					<div style="clear:both;">
-						<button type="submit" name="submitaction" value="Submit New Name" ><?php echo (isset($LANG['SUBMIT_NEW_NAME'])?$LANG['SUBMIT_NEW_NAME']:'Submit New Name'); ?></button>
+						<button type="submit" name="submitaction" value="submitNewName" ><?php echo (isset($LANG['SUBMIT_NEW_NAME'])?$LANG['SUBMIT_NEW_NAME']:'Submit New Name'); ?></button>
 					</div>
 				</fieldset>
 			</form>

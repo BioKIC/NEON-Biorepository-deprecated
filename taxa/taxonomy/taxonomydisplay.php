@@ -127,7 +127,7 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 						<input id="taxontarget" name="target" type="text" style="width:400px;" value="<?php echo $taxonDisplayObj->getTargetStr(); ?>" />
 					</div>
 					<div style="float:left;margin-left:15px;">
-						<button name="tdsubmit" type="submit" value="Display Taxon Tree"><?php echo (isset($LANG['DISP_TAX_TREE'])?$LANG['DISP_TAX_TREE']:'Display Taxon Tree'); ?></button>
+						<button name="tdsubmit" type="submit" value="displayTaxonTree"><?php echo (isset($LANG['DISP_TAX_TREE'])?$LANG['DISP_TAX_TREE']:'Display Taxon Tree'); ?></button>
 						<input name="taxauthid" type="hidden" value="<?php echo $taxAuthId; ?>" />
 					</div>
 					<div style="clear:both;padding-top:15px; margin-left:60px;">

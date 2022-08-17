@@ -5,12 +5,19 @@ include_once($SERVER_ROOT.'/classes/TaxonomyCleaner.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 include_once($SERVER_ROOT.'/content/lang/taxa/taxonomy/taxonomycleaner.'.$LANG_TAG.'.php');
 
-$collId = $_REQUEST["collid"];
+$collId = $_REQUEST['collid'];
 $displayIndex = array_key_exists('displayindex',$_REQUEST)?$_REQUEST['displayindex']:0;
 $analyzeIndex = array_key_exists('analyzeindex',$_REQUEST)?$_REQUEST['analyzeindex']:0;
-$taxAuthId = array_key_exists('taxauthid',$_REQUEST)?$_REQUEST['taxauthid']:0;
+$taxAuthId = array_key_exists('taxauthid',$_REQUEST)?$_REQUEST['taxauthid']:1;
+$action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 
-$cleanManager;
+//Sanitation
+if(!is_numeric($collId)) $collId = 0;
+if(!is_numeric($displayIndex)) $displayIndex = 0;
+if(!is_numeric($analyzeIndex)) $analyzeIndex = 0;
+if(!is_numeric($taxAuthId)) $taxAuthId = 1;
+
+$cleanManager = null;
 $collName = '';
 
 if($collId){
@@ -46,17 +53,10 @@ $status = "";
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['TAX_NAME_CLEANER'])?$LANG['TAX_NAME_CLEANER']:'Taxonomic Name Cleaner'); ?></title>
-    <?php
-      $activateJQuery = false;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+		<?php
+		$activateJQuery = false;
+		include_once($SERVER_ROOT.'/includes/head.php');
+		?>
 		<script language="javascript">
 			function toggle(divName){
 				divObj = document.getElementById(divName);
@@ -124,7 +124,6 @@ $status = "";
 							<?php echo (isset($LANG['NUMBER_MISMAPPED'])?$LANG['NUMBER_MISMAPPED']:'Number of mismapped names').": ".$cleanManager->getTaxaCount(); ?>
 						</div>
 						<?php
-						$action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
 						if(!$action){
 							?>
 							<form name="occurmainmenu" action="taxonomycleaner.php" method="post">
@@ -241,7 +240,6 @@ $status = "";
 									</div>
 								</fieldset>
 							</form>
-
 						</div>
 						<?php
 					}

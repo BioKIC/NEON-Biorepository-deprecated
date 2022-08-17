@@ -43,6 +43,7 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	$router->get('inventory',  ['uses' => 'InventoryController@showAllInventories']);
 	$router->get('inventory/{id}', ['uses' => 'InventoryController@showOneInventory']);
 	$router->get('inventory/{id}/taxa', ['uses' => 'InventoryController@showOneInventoryTaxa']);
+	$router->get('inventory/{id}/package', ['uses' => 'InventoryPackageController@oneInventoryDataPackage']);
 
 	$router->get('media',  ['uses' => 'MediaController@showAllMedia']);
 	$router->get('media/{id}', ['uses' => 'MediaController@showOneMedia']);

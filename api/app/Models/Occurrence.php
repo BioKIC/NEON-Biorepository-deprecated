@@ -26,7 +26,7 @@ class Occurrence extends Model{
 	}
 
 	public function identification(){
-		return $this->hasMany(OccurrenceIdentifications::class, 'occid', 'occid');
+		return $this->hasMany(OccurrenceIdentification::class, 'occid', 'occid');
 	}
 
 	public function media(){
@@ -46,11 +46,11 @@ class Occurrence extends Model{
 	}
 
 	public function guid(){
-	    return $this->hasOne(OccurrenceGuids::class, 'occid', 'occid');
+	    return $this->hasOne(OccurrenceGuid::class, 'occid', 'occid');
 	}
 
 	public function portalPublications(){
-		return $this->belongsToMany(PortalPublications::class, 'portaloccurrences', 'occid', 'pubid')->withPivot('targetOccid');;
+		return $this->belongsToMany(PortalPublication::class, 'portaloccurrences', 'occid', 'pubid')->withPivot('targetOccid');;
 	}
 
 

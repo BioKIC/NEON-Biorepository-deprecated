@@ -3,7 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PortalOccurrences extends Model{
+class PortalOccurrence extends Model{
 
 	protected $table = 'portaloccurrences';
 	protected $primaryKey = 'portalOccurrencesID';

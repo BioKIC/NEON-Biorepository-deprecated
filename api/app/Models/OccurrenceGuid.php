@@ -3,7 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OccurrenceGuids extends Model{
+class OccurrenceGuid extends Model{
 
 	protected $table = 'guidoccurrences';
 	protected $primaryKey = 'guid';

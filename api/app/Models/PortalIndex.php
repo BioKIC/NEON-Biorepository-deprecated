@@ -12,10 +12,10 @@ class PortalIndex extends Model {
 	public $timestamps = false;
 
 	public function portalOccurrences(){
-		return $this->hasMany(PortalOccurrences::class, 'portalID', 'portalID');
+		return $this->hasMany(PortalOccurrence::class, 'portalID', 'portalID');
 	}
 
 	public function portalPublications(){
-		return $this->hasMany(PortalPublications::class, 'portalID', 'portalID');
+		return $this->hasMany(PortalPublication::class, 'portalID', 'portalID');
 	}
 }

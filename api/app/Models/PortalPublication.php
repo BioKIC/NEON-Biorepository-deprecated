@@ -3,7 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PortalPublications extends Model{
+class PortalPublication extends Model{
 
 	protected $table = 'portalpublications';
 	protected $primaryKey = 'pubid';

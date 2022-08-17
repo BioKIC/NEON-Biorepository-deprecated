@@ -18,8 +18,8 @@ class OccurrenceController extends Controller{
 
 	/**
 	 * @OA\Get(
-	 *	 path="/api/v2/occurrence",
-	 *	 operationId="/api/v2/occurrence",
+	 *	 path="/api/v2/occurrence/search",
+	 *	 operationId="/api/v2/occurrence/search",
 	 *	 tags={""},
 	 *	 @OA\Parameter(
 	 *		 name="catalogNumber",
@@ -316,15 +316,7 @@ class OccurrenceController extends Controller{
 		return response()->json($responseArr);
 	}
 
-	private function getOccid($id){
-		if(!is_numeric($id)){
-			$occid = Occurrence::where('occurrenceID', $id)->value('occid');
-			if(!$occid) $occid = DB::table('guidoccurrences')->where('guid', $id)->value('occid');
-			if(is_numeric($occid)) $id = $occid;
-		}
-		return $id;
-	}
-
+	//Write funcitons
 	public function create(Request $request){
 		//$occurrence = Occurrence::create($request->all());
 		//return response()->json($occurrence, 201);
@@ -343,7 +335,16 @@ class OccurrenceController extends Controller{
 	}
 
 	//Helper functions
-	private function getAPIResponce($url, $asyc = false){
+	protected function getOccid($id){
+		if(!is_numeric($id)){
+			$occid = Occurrence::where('occurrenceID', $id)->value('occid');
+			if(!$occid) $occid = DB::table('guidoccurrences')->where('guid', $id)->value('occid');
+			if(is_numeric($occid)) $id = $occid;
+		}
+		return $id;
+	}
+
+	protected function getAPIResponce($url, $asyc = false){
 		$resJson = false;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

@@ -1,7 +1,6 @@
 <?php
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class Occurrence extends Model{
@@ -32,6 +31,18 @@ class Occurrence extends Model{
 
 	public function media(){
 		return $this->hasMany(Media::class, 'occid', 'occid');
+	}
+
+	public function annotationExternal(){
+		return $this->hasMany(OccurrenceAnnotationExternal::class, 'occid', 'occid');
+	}
+
+	public function annotationInternal(){
+		return $this->hasMany(OccurrenceAnnotationInternal::class, 'occid', 'occid');
+	}
+
+	public function annotationInternalColl(){
+		return $this->hasMany(OccurrenceAnnotationInternal::class, 'occid', 'occid')->where('collid', 1);
 	}
 
 	public function guid(){

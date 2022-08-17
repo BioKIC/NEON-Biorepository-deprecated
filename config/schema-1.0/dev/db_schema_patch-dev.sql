@@ -324,8 +324,25 @@ ALTER TABLE `omoccurdatasets`
   CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
 
 ALTER TABLE `omoccuredits` 
+  CHANGE COLUMN `FieldName` `fieldName` VARCHAR(45) NOT NULL ,
+  CHANGE COLUMN `FieldValueNew` `fieldValueNew` TEXT NOT NULL ,
+  CHANGE COLUMN `FieldValueOld` `fieldValueOld` TEXT NOT NULL ,
+  CHANGE COLUMN `ReviewStatus` `reviewStatus` INT(1) NOT NULL DEFAULT 1 COMMENT '1=Open;2=Pending;3=Closed' ,
+  CHANGE COLUMN `AppliedStatus` `appliedStatus` INT(1) NOT NULL DEFAULT 0 COMMENT '0=Not Applied;1=Applied' ,
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+ALTER TABLE `omoccuredits` 
   ADD COLUMN `isActive` INT(1) NULL DEFAULT NULL COMMENT '0 = not the value applied within the active field, 1 = valued applied within active field' AFTER `editType`,
   ADD COLUMN `reapply` INT(1) NULL COMMENT '0 = do not reapply edit; 1 = reapply edit when snapshot is refreshed, if edit isActive and snapshot value still matches old value ' AFTER `isActive`;
+
+ALTER TABLE `omoccuredits` 
+  DROP FOREIGN KEY `fk_omoccuredits_uid`;
+
+ALTER TABLE `omoccuredits` 
+  ADD CONSTRAINT `fk_omoccuredits_uid`  FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
+
+ALTER TABLE `omoccuredits` 
+  ADD INDEX `IX_omoccuredits_timestamp` (`initialtimestamp` ASC);
 
 
 UPDATE omoccuridentifiers SET identifiername = "" WHERE identifiername IS NULL;
@@ -585,15 +602,6 @@ ALTER TABLE `uploadspectemp`
 ALTER TABLE `uploadspectemp` 
   DROP COLUMN `materialSampleID`,
   ADD COLUMN `materialSampleJSON` TEXT NULL AFTER `paleoJSON`;
-
-ALTER TABLE `omoccuredits` 
-  DROP FOREIGN KEY `fk_omoccuredits_uid`;
-
-ALTER TABLE `omoccuredits` 
-  ADD CONSTRAINT `fk_omoccuredits_uid`  FOREIGN KEY (`uid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
-
-ALTER TABLE `omoccuredits` 
-  ADD INDEX `IX_omoccuredits_timestamp` (`initialtimestamp` ASC);
 
 #Material Sample schema developments
 CREATE TABLE `ommaterialsample` (

@@ -553,7 +553,8 @@ ALTER TABLE `taxa`
   CHANGE COLUMN `PhyloSortSequence` `phyloSortSequence` TINYINT(3) UNSIGNED NULL DEFAULT NULL ,
   CHANGE COLUMN `Source` `source` VARCHAR(250) NULL DEFAULT NULL ,
   CHANGE COLUMN `Notes` `notes` VARCHAR(250) NULL DEFAULT NULL ,
-  CHANGE COLUMN `Hybrid` `hybrid` VARCHAR(50) NULL DEFAULT NULL ;
+  CHANGE COLUMN `Hybrid` `hybrid` VARCHAR(50) NULL DEFAULT NULL ,
+  CHANGE COLUMN `SecurityStatus` `securityStatus` INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '0 = no security; 1 = hidden locality' ;
 
 ALTER TABLE `taxa` 
   CHANGE COLUMN `Author` `author` VARCHAR(150) NOT NULL DEFAULT "";

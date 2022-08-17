@@ -57,11 +57,11 @@ class InventoryController extends Controller{
 
 		$eor = false;
 		$retObj = [
-			"offset" => (int)$offset,
-			"limit" => (int)$limit,
-			"endOfRecords" => $eor,
-			"count" => $fullCnt,
-			"results" => $result
+			'offset' => (int)$offset,
+			'limit' => (int)$limit,
+			'endOfRecords' => $eor,
+			'count' => $fullCnt,
+			'results' => $result
 		];
 		return response()->json($retObj);
 	}
@@ -90,12 +90,8 @@ class InventoryController extends Controller{
 	 * )
 	 */
 	public function showOneInventory($id, Request $request){
-		$inventoryObj = null;
-		if(is_numeric($id)) $inventoryObj = Inventory::find($id);
-		else{
-			$inventoryObj = Inventory::where('recordID', $id)->first();
-			if(!$inventoryObj->count()) $inventoryObj = Inventory::where('guid', $id)->first();
-		}
+		$id = $this->getClid($id);
+		$inventoryObj = Inventory::find($id);
 		if(!$inventoryObj->count()) $inventoryObj = ['status' =>false, 'error' => 'Unable to locate inventory based on identifier'];
 		return response()->json($inventoryObj);
 	}
@@ -138,12 +134,8 @@ class InventoryController extends Controller{
 		$limit = $request->input('limit',100);
 		$offset = $request->input('offset',0);
 
-		$inventoryObj = null;
-		if(is_numeric($id)) $inventoryObj = Inventory::find($id);
-		else{
-			$inventoryObj = Inventory::where('recordID', $id)->first();
-			if(!$inventoryObj->count()) $inventoryObj = Inventory::where('guid', $id)->first();
-		}
+		$id = $this->getClid($id);
+		$inventoryObj = Inventory::find($id);
 		$fullCnt = $inventoryObj->taxa()->count();
 		$result = null;
 		if($fullCnt){
@@ -154,12 +146,22 @@ class InventoryController extends Controller{
 		$eor = false;
 		if(($offset + $limit) >= $fullCnt) $eor = true;
 		$retObj = [
-				"offset" => (int)$offset,
-				"limit" => (int)$limit,
-				"endOfRecords" => $eor,
-				"count" => $fullCnt,
-				"results" => $result
+			'offset' => (int)$offset,
+			'limit' => (int)$limit,
+			'endOfRecords' => $eor,
+			'count' => $fullCnt,
+			'results' => $result
 		];
 		return response()->json($retObj);
+	}
+
+	//Helper function
+	protected function getClid($id){
+		if(is_numeric($id)) $clid = $id;
+		else{
+			$clid = Inventory::where('recordID', $id)->first()->value('clid');
+			if(!$clid) $clid = Inventory::where('guid', $id)->first()->value('clid');
+		}
+		return $clid;
 	}
 }

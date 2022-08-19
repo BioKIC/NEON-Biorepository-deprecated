@@ -87,6 +87,7 @@ $LANG['AUTHOR'] = 'Autor';
 $LANG['OPENMED'] = 'Abrir Imagen Mediana';
 $LANG['OPENLARGE'] = 'Abrir Imagen Grande';
 $LANG['OPENSRC'] = 'Abrir Imagen Original';
+$LANG['SOURCE_RECORD'] = 'Fuente del Registro';
 $LANG['USAGERIGHTS'] = 'Derechos de Uso';
 $LANG['RIGHTSHOLDER'] = 'Titular de los Derechos';
 $LANG['ACCESSRIGHTS'] = 'Derechos de Acceso';

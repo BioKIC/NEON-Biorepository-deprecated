@@ -467,6 +467,8 @@ ALTER TABLE `omoccurrences`
   ADD CONSTRAINT `FK_omoccurrences_uid`  FOREIGN KEY (`observerUid`)  REFERENCES `users` (`uid`);
 
 
+DROP TABLE IF EXISTS `portaloccurrences`;
+DROP TABLE IF EXISTS `portalpublications`;
 DROP TABLE IF EXISTS `portalindex`;
 
 CREATE TABLE `portalindex` (
@@ -487,8 +489,6 @@ CREATE TABLE `portalindex` (
   PRIMARY KEY (`portalID`),
   UNIQUE KEY `UQ_portalIndex_guid` (`guid`)
 );
-
-DROP TABLE IF EXISTS `portalpublications`;
 
 CREATE TABLE `portalpublications` (
   `pubid` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -513,8 +513,6 @@ CREATE TABLE `portalpublications` (
   CONSTRAINT `FK_portalpub_createdUid` FOREIGN KEY (`createdUid`) REFERENCES `users` (`uid`) ON UPDATE CASCADE,
   CONSTRAINT `FK_portalpub_portalID` FOREIGN KEY (`portalID`) REFERENCES `portalindex` (`portalID`) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
-DROP TABLE IF EXISTS `portaloccurrences`;
 
 CREATE TABLE `portaloccurrences` (
   `occid` int(10) unsigned NOT NULL,
@@ -574,7 +572,9 @@ ALTER TABLE `uploadspecparameters`
   DROP FOREIGN KEY `FK_uploadspecparameters_coll`;
 
 ALTER TABLE `uploadspecparameters` 
-  ADD COLUMN `internalQuery` VARCHAR(250) NULL AFTER `schemaName`,
+  ADD COLUMN `internalQuery` VARCHAR(250) NULL AFTER `schemaName`;
+
+ALTER TABLE `uploadspecparameters` 
   CHANGE COLUMN `CollID` `collid` INT(10) UNSIGNED NOT NULL ,
   CHANGE COLUMN `UploadType` `uploadType` INT(10) UNSIGNED NOT NULL DEFAULT 1 COMMENT '1 = Direct; 2 = DiGIR; 3 = File' ,
   CHANGE COLUMN `Platform` `platform` VARCHAR(45) NULL DEFAULT '1' COMMENT '1 = MySQL; 2 = MSSQL; 3 = ORACLE; 11 = MS Access; 12 = FileMaker' ,

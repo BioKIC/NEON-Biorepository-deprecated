@@ -352,7 +352,7 @@ class TaxonomyHarvester extends Manager{
 			if(!$name && isset($tArr['usage']['name']['scientificName'])) $name = $tArr['usage']['name']['scientificName'];
 			if($name){
 				$url = 'https://api.catalogueoflife.org/nameusage/search?content=SCIENTIFIC_NAME&q='.str_replace(' ','%20',$name).'&offset=0&limit=100&type=EXACT';
-				//echo $url.'<br/>';
+				//echo 'COL ULR: '.$url.'<br/>';
 				$retArr = $this->getContentString($url);
 				$content = $retArr['str'];
 				$resultArr = json_decode($content,true);

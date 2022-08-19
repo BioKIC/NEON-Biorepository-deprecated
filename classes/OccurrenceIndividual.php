@@ -23,7 +23,7 @@ class OccurrenceIndividual extends Manager{
 	private function loadMetadata(){
 		if($this->collid){
 			//$sql = 'SELECT institutioncode, collectioncode, collectionname, colltype, homepage, individualurl, contact, email, icon, publicedits, rights, rightsholder, accessrights, guidtarget FROM omcollections WHERE collid = '.$this->collid;
-			$sql = 'SELECT * FROM omcollections WHERE collid = '.$this->collid;
+			$sql = 'SELECT c.*, s.uploadDate FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid WHERE c.collid = '.$this->collid;
 			if($rs = $this->conn->query($sql)){
 				$this->metadataArr = array_change_key_case($rs->fetch_assoc());
 				if(isset($this->metadataArr['contactjson'])){
@@ -146,7 +146,7 @@ class OccurrenceIndividual extends Manager{
 						$this->occArr['occurrenceid'] = $this->occArr['catalognumber'];
 					}
 					elseif($this->metadataArr['guidtarget'] == 'symbiotaUUID'){
-						if(isset($this->occArr['guid'])) $this->occArr['occurrenceid'] = $this->occArr['guid'];
+						if(isset($this->occArr['recordid'])) $this->occArr['occurrenceid'] = $this->occArr['recordid'];
 					}
 				}
 				$this->setAdditionalIdentifiers();
@@ -154,6 +154,7 @@ class OccurrenceIndividual extends Manager{
 				$this->setLoan();
 				$this->setOccurrenceRelationships();
 				$this->setReferences();
+				$this->setSource();
 			}
 			//Set access statistics
 			$accessType = 'view';
@@ -205,17 +206,19 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setRecordID(){
+		$guid = '';
 		$sql = 'SELECT guid FROM guidoccurrences WHERE (occid = '.$this->occid.')';
 		$rs = $this->conn->query($sql);
 		if($rs){
 			while($row = $rs->fetch_object()){
-				$this->occArr['guid'] = $row->guid;
+				$guid = $row->guid;
 			}
 			$rs->free();
 		}
 		else{
 			trigger_error('Unable to setGUID; '.$this->conn->error,E_USER_NOTICE);
 		}
+		$this->occArr['recordid'] = $guid;
 	}
 
 	private function setDeterminations(){
@@ -418,6 +421,75 @@ class OccurrenceIndividual extends Manager{
 		}
 	}
 
+	private function setSource(){
+		$sql = 'SELECT o.targetOccid, o.refreshTimestamp, o.verification, i.urlRoot, i.portalName
+			FROM portaloccurrences o INNER JOIN portalpublications p ON o.pubid = p.pubid
+			INNER JOIN portalindex i ON p.portalID = i.portalID
+			WHERE (o.occid = '.$this->occid.') AND (p.direction = "import")';
+		if($rs = $this->conn->query($sql)){
+			while($r = $rs->fetch_object()){
+				$this->occArr['source']['type'] = 'symbiota';
+				$this->occArr['source']['url'] = $r->urlRoot.'/collections/individual/index.php?occid='.$r->targetOccid;
+				$this->occArr['source']['sourceName'] = $r->portalName;
+				$this->occArr['source']['refreshTimestamp'] = $r->refreshTimestamp;
+				$this->occArr['source']['sourceID'] = $r->targetOccid;
+			}
+			$rs->free();
+		}
+
+		//Format link out to source
+		if(!isset($this->occArr['source']) && $this->metadataArr['individualurl']){
+			$sourceTitle = '';
+			$iUrl = trim($this->metadataArr['individualurl']);
+			if(substr($iUrl, 0, 4) != 'http'){
+				if($pos = strpos($iUrl, ':')){
+					$this->occArr['source']['title'] = substr($iUrl, 0, $pos);
+					$iUrl = trim(substr($iUrl, $pos+1));
+				}
+			}
+			$displayStr = '';
+			$indUrl = '';
+			if(strpos($iUrl,'--DBPK--') !== false && $this->occArr['dbpk']){
+				$indUrl = str_replace('--DBPK--',$this->occArr['dbpk'],$iUrl);
+				$displayStr = $indUrl;
+			}
+			elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $this->occArr['catalognumber']){
+				$indUrl = str_replace('--CATALOGNUMBER--',$this->occArr['catalognumber'],$iUrl);
+				$displayStr = $this->occArr['catalognumber'];
+			}
+			elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $this->occArr['othercatalognumbers']){
+				if(substr($this->occArr['othercatalognumbers'],0,1) == '{'){
+					if($ocnArr = json_decode($this->occArr['othercatalognumbers'],true)){
+						foreach($ocnArr as $idKey => $idArr){
+							if(!$displayStr || $idKey == 'NEON sampleID' || $idKey == 'NEON sampleCode (barcode)'){
+								$displayStr = $idArr[0];
+								if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
+								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
+								if($idKey == 'NEON sampleCode (barcode)') break;
+							}
+						}
+					}
+				}
+				else{
+					$ocn = str_replace($this->occArr['othercatalognumbers'], ',', ';');
+					$ocnArr = explode(';',$ocn);
+					$ocnValue = trim(array_pop($ocnArr));
+					if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
+					$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
+					$displayStr = $ocnValue;
+				}
+			}
+			elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $this->occArr['occurrenceid']){
+				$indUrl = str_replace('--OCCURRENCEID--',$this->occArr['occurrenceid'],$iUrl);
+				$displayStr = $this->occArr['occurrenceid'];
+			}
+			$this->occArr['source']['type'] = 'external';
+			$this->occArr['source']['url'] = $indUrl;
+			$this->occArr['source']['displayStr'] = $displayStr;
+			$this->occArr['source']['refreshTimestamp'] = $this->metadataArr['uploaddate'];
+		}
+	}
+
 	public function getDuplicateArr(){
 		$retArr = array();
 		$sqlBase = 'SELECT o.occid, c.institutioncode AS instcode, c.collectioncode AS collcode, c.collectionname AS collname, o.catalognumber, o.occurrenceid, o.sciname, '.
@@ -507,15 +579,17 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function echoTraitUnit($outArr, $label = '', $indent=0){
-		echo '<div style="margin-left:'.$indent.'px">';
-		if($outArr['url']) echo '<a href="'.$outArr['url'].'" target="_blank">';
-		echo '<span class="traitName">';
-		if($label) echo $label.' ';
-		echo $outArr['name'];
-		echo '</span>';
-		if($outArr['url']) echo '</a>';
-		if($outArr['desc']) echo ': '.$outArr['desc'];
-		echo '</div>';
+		if($outArr){
+			echo '<div style="margin-left:'.$indent.'px">';
+			if(!empty($outArr['url'])) echo '<a href="'.$outArr['url'].'" target="_blank">';
+			echo '<span class="traitName">';
+			if(!empty($label)) echo $label.' ';
+			echo $outArr['name'];
+			echo '</span>';
+			if(!empty($outArr['url'])) echo '</a>';
+			if(!empty($outArr['desc'])) echo ': '.$outArr['desc'];
+			echo '</div>';
+		}
 	}
 
 	//Occurrence comment functions
@@ -715,7 +789,7 @@ class OccurrenceIndividual extends Manager{
 
 	//Voucher management
 	public function getVoucherChecklists(){
-		global $IS_ADMIN, $USER_RIGHTS;
+		global $USER_RIGHTS;
 		$returnArr = Array();
 		$sql = 'SELECT c.name, c.clid, c.access, v.notes FROM fmchecklists c INNER JOIN fmvouchers v ON c.clid = v.clid WHERE v.occid = '.$this->occid.' ';
 		if(array_key_exists("ClAdmin",$USER_RIGHTS)){
@@ -1134,7 +1208,7 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function setCollid($id){
-		if(is_numeric($o)){
+		if(is_numeric($id)){
 			$this->collid = $id;
 		}
 	}

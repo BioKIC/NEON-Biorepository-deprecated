@@ -355,34 +355,34 @@ class TaxonomyCleaner extends Manager{
 
 			//Get new name and author
 			$newSciname = '';
-			$newAuthor= '';
-			$sql = 'SELECT sciname, author FROM taxa WHERE (tid = '.$tid.')';
+			$newAuthor = '';
+			$newFamily = '';
+			$sql = 'SELECT t.sciname, t.author, ts.family FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (t.tid = '.$tid.') AND (ts.taxauthid = 1)';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$newSciname = $r->sciname;
 				$newAuthor = $r->author;
+				$newFamily = $r->family;
 			}
 			$rs->free();
 
 			//Add edits to edit versioning table
-			$oldSciname = $this->cleanInStr($oldSciname);
-			if($idQualifier) $idQualifier = $this->cleanInStr($idQualifier);
-			$sqlWhere = 'WHERE (collid IN('.$collid.')) AND (sciname = "'.$oldSciname.'") AND (tidinterpreted IS NULL) ';
+			$sqlWhere = 'WHERE (collid IN('.$collid.')) AND (sciname = "'.$this->cleanInStr($oldSciname).'") AND (tidinterpreted IS NULL) ';
 			//Version edit in edits table
 			$sql1 = 'INSERT INTO omoccuredits(occid, FieldName, FieldValueNew, FieldValueOld, uid, ReviewStatus, AppliedStatus'.($hasEditType?',editType ':'').') '.
-				'SELECT occid, "sciname", "'.$newSciname.'", sciname, '.$GLOBALS['SYMB_UID'].', 1, 1'.($hasEditType?',1':'').' FROM omoccurrences '.$sqlWhere;
+				'SELECT occid, "sciname", "'.$this->cleanInStr($newSciname).'", sciname, '.$GLOBALS['SYMB_UID'].', 1, 1'.($hasEditType?',1':'').' FROM omoccurrences '.$sqlWhere;
 			if($this->conn->query($sql1)){
 				if($newAuthor){
 					$sql2 = 'INSERT INTO omoccuredits(occid, FieldName, FieldValueNew, FieldValueOld, uid, ReviewStatus, AppliedStatus'.($hasEditType?',editType ':'').') '.
-						'SELECT occid, "scientificNameAuthorship" AS fieldname, "'.$newAuthor.'", IFNULL(scientificNameAuthorship,""), '.$GLOBALS['SYMB_UID'].', 1, 1 '.($hasEditType?',1 ':'').
-						'FROM omoccurrences '.$sqlWhere.'AND (scientificNameAuthorship != "'.$newAuthor.'")';
+						'SELECT occid, "scientificNameAuthorship" AS fieldname, "'.$this->cleanInStr($newAuthor).'", IFNULL(scientificNameAuthorship,""), '.$GLOBALS['SYMB_UID'].', 1, 1 '.($hasEditType?',1 ':'').
+						'FROM omoccurrences '.$sqlWhere.'AND (scientificNameAuthorship IS NULL || scientificNameAuthorship != "'.$this->cleanInStr($newAuthor).'")';
 					if(!$this->conn->query($sql2)){
 						$this->logOrEcho('ERROR thrown versioning of remapping of occurrence taxon (author): '.$this->conn->error,1);
 					}
 				}
 				if($idQualifier){
 					$sql3 = 'INSERT INTO omoccuredits(occid, FieldName, FieldValueNew, FieldValueOld, uid, ReviewStatus, AppliedStatus'.($hasEditType?',editType ':'').') '.
-						'SELECT occid, "identificationQualifier" AS fieldname, CONCAT_WS("; ",identificationQualifier,"'.$idQualifier.'") AS idqual, '.
+						'SELECT occid, "identificationQualifier" AS fieldname, CONCAT_WS("; ",identificationQualifier,"'.$this->cleanInStr($idQualifier).'") AS idqual, '.
 						'IFNULL(identificationQualifier,""), '.$GLOBALS['SYMB_UID'].', 1, 1 '.($hasEditType?',1 ':'').
 						'FROM omoccurrences '.$sqlWhere;
 					if(!$this->conn->query($sql3)){
@@ -390,14 +390,10 @@ class TaxonomyCleaner extends Manager{
 					}
 				}
 				//Update occurrence table
-				$sqlFinal = 'UPDATE omoccurrences '.
-					'SET tidinterpreted = '.$tid.', sciname = "'.$newSciname.'" ';
-				if($newAuthor){
-					$sqlFinal .= ', scientificNameAuthorship = "'.$newAuthor.'" ';
-				}
-				if($idQualifier){
-					$sqlFinal .= ', identificationQualifier = CONCAT_WS("; ",identificationQualifier,"'.$idQualifier.'") ';
-				}
+				$sqlFinal = 'UPDATE omoccurrences SET tidinterpreted = '.$tid.', sciname = "'.$this->cleanInStr($newSciname).'" ';
+				if($newAuthor) $sqlFinal .= ', scientificNameAuthorship = "'.$this->cleanInStr($newAuthor).'" ';
+				if($newFamily) $sqlFinal .= ', family = IFNULL(family, "'.$this->cleanInStr($newFamily).'") ';
+				if($idQualifier) $sqlFinal .= ', identificationQualifier = CONCAT_WS("; ",identificationQualifier,"'.$this->cleanInStr($idQualifier).'") ';
 				$sqlFinal .= $sqlWhere;
 				if($this->conn->query($sqlFinal)){
 					$affectedRows = $this->conn->affected_rows;

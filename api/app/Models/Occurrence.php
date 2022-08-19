@@ -19,7 +19,7 @@ class Occurrence extends Model{
 		'footprintWKT', 'coordinatePrecision', 'locationRemarks', 'verbatimCoordinates', 'georeferencedBy', 'georeferencedDate', 'georeferenceProtocol', 'georeferenceSources',
 		'georeferenceVerificationStatus', 'georeferenceRemarks', 'minimumElevationInMeters', 'maximumElevationInMeters', 'verbatimElevation', 'minimumDepthInMeters', 'maximumDepthInMeters',
 		'verbatimDepth', 'availability', 'disposition', 'storageLocation', 'modified', 'language', 'processingstatus', 'recordEnteredBy', 'duplicateQuantity', 'labelProject'];
-	protected $hidden = [ 'scientificName', 'recordedbyid', 'associatedOccurrences', 'previousIdentifications', 'dynamicFields', 'institutionID', 'collectionID', 'genericcolumn1', 'genericcolumn2' ];
+	protected $hidden = [ 'scientificName', 'recordedbyid', 'observerUid', 'labelProject', 'processingStatus', 'recordEnteredBy', 'associatedOccurrences', 'previousIdentifications', 'dynamicFields', 'institutionID', 'collectionID', 'genericcolumn1', 'genericcolumn2' ];
 
 	public function collection(){
 		return $this->belongsTo(Collection::class, 'collid', 'collid');

@@ -284,34 +284,48 @@ class OccurrenceController extends Controller{
 	 *	 ),
 	 * )
 	 */
-	public function oneOccurrenceReharvest($id, Request $request){
+	public function oneOccurrenceReharvest($id){
 		$responseArr = array();
 		$id = $this->getOccid($id);
 		$occurrence = Occurrence::find($id);
-		$publications = $occurrence->portalPublications;
-		if($occurrence->collection->managementType == 'Snapshot'){
-			foreach($publications as $pub){
-				if($pub->direction == 'import'){
-					$sourcePortalID = $pub->portalID;
-					$targetOccid = $pub->pivot->targetOccid;
-					if($sourcePortalID && $targetOccid){
-						//Get remote occurrence data
-						$url = PortalIndex::where('portalID', $sourcePortalID)->value('urlRoot');
-						$url .= '/api/v2/occurrence/'.$targetOccid;
-						$remoteOccurrence = $this->getAPIResponce($url);
-						$response = $this->update($id, new Request($remoteOccurrence));
-						//print_r($response);
-						echo '<br>status: '.$response->status().'<br>';
-						print_r($response->getData());
-						//echo ($response->isDirty()?'changed':'not changed').'<br>';
-						//echo 'changes: '.$response->getChanges().'<br>';
-						$responseArr['status'] = $response->status();
+		if($occurrence){
+			$publications = $occurrence->portalPublications;
+			if($occurrence->collection->managementType != 'Live Data'){
+				foreach($publications as $pub){
+					if($pub->direction == 'import'){
+						$sourcePortalID = $pub->portalID;
+						$targetOccid = $pub->pivot->targetOccid;
+						if($sourcePortalID && $targetOccid){
+							//Get remote occurrence data
+							$urlRoot = PortalIndex::where('portalID', $sourcePortalID)->value('urlRoot');
+							$url = $urlRoot.'/api/v2/occurrence/'.$targetOccid;
+							if($remoteOccurrence = $this->getAPIResponce($url)){
+								$updateObj = $this->update($id, new Request($remoteOccurrence));
+								$changeArr = $updateObj->getOriginalContent()->getChanges();
+								$responseArr['status'] = $updateObj->status();
+								$responseArr['dataStatus'] = ($changeArr?count($changeArr).' fields modified':'nothing modified');
+								$responseArr['fieldsModified'] = $changeArr;
+								$responseArr['sourceDateLastModified'] = $remoteOccurrence['dateLastModified'];
+								$responseArr['sourceCollectionUrl'] = $urlRoot.'/collections/misc/collprofiles.php?collid='.$remoteOccurrence['collid'];
+								$responseArr['sourceRecordUrl'] = $urlRoot.'/collections/individual/index.php?occid='.$targetOccid;
+							}
+							else {
+								$responseArr['status'] = 400;
+								$responseArr['error'] = 'Unable to locate remote/source occurrence (sourceID = '.$id.')';
+								$responseArr['sourceUrl'] = $url;
+							}
+						}
 					}
 				}
 			}
-		} else {
-			$responseArr['status'] = false;
-			$responseArr['message'] = 'Unable to refresh a Live Managed occurrence record ';
+			else {
+				$responseArr['status'] = 400;
+				$responseArr['error'] = 'Updating a Live Managed record is not allowed ';
+			}
+		}
+		else {
+			$responseArr['status'] = 500;
+			$responseArr['error'] = 'Unable to locate occurrence record (occid = '.$id.')';
 		}
 		return response()->json($responseArr);
 	}

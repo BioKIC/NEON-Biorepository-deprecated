@@ -7,9 +7,8 @@ class PortalOccurrence extends Model{
 
 	protected $table = 'portaloccurrences';
 	protected $primaryKey = 'portalOccurrencesID';
+	protected $fillable = ['occid', 'pubid', 'targetOccid', 'verification', 'refreshTimestamp' ];
 	public $timestamps = false;
-
-	protected $fillable = [ 'occid', 'portalID', 'pubid', 'targetOccid', 'verification', 'refreshtimestamp' ];
 
 	public function portalIndex() {
 		return $this->belongsTo(PortalIndex::class, 'portalID', 'portalID');

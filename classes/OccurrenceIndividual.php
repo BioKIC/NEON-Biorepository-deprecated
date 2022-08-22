@@ -422,71 +422,80 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setSource(){
-		$sql = 'SELECT o.targetOccid, o.refreshTimestamp, o.verification, i.urlRoot, i.portalName
-			FROM portaloccurrences o INNER JOIN portalpublications p ON o.pubid = p.pubid
-			INNER JOIN portalindex i ON p.portalID = i.portalID
-			WHERE (o.occid = '.$this->occid.') AND (p.direction = "import")';
-		if($rs = $this->conn->query($sql)){
-			while($r = $rs->fetch_object()){
-				$this->occArr['source']['type'] = 'symbiota';
-				$this->occArr['source']['url'] = $r->urlRoot.'/collections/individual/index.php?occid='.$r->targetOccid;
-				$this->occArr['source']['sourceName'] = $r->portalName;
-				$this->occArr['source']['refreshTimestamp'] = $r->refreshTimestamp;
-				$this->occArr['source']['sourceID'] = $r->targetOccid;
-			}
-			$rs->free();
-		}
-
-		//Format link out to source
-		if(!isset($this->occArr['source']) && $this->metadataArr['individualurl']){
-			$sourceTitle = '';
-			$iUrl = trim($this->metadataArr['individualurl']);
-			if(substr($iUrl, 0, 4) != 'http'){
-				if($pos = strpos($iUrl, ':')){
-					$this->occArr['source']['title'] = substr($iUrl, 0, $pos);
-					$iUrl = trim(substr($iUrl, $pos+1));
+		if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX']) && $GLOBALS['ACTIVATE_PORTAL_INDEX']){
+			$sql = 'SELECT o.targetOccid, o.refreshTimestamp, o.verification, i.urlRoot, i.portalName
+				FROM portaloccurrences o INNER JOIN portalpublications p ON o.pubid = p.pubid
+				INNER JOIN portalindex i ON p.portalID = i.portalID
+				WHERE (o.occid = '.$this->occid.') AND (p.direction = "import")';
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$this->occArr['source']['type'] = 'symbiota';
+					$this->occArr['source']['url'] = $r->urlRoot.'/collections/individual/index.php?occid='.$r->targetOccid;
+					$this->occArr['source']['sourceName'] = $r->portalName;
+					$this->occArr['source']['refreshTimestamp'] = $r->refreshTimestamp;
+					$this->occArr['source']['sourceID'] = $r->targetOccid;
 				}
+				$rs->free();
 			}
-			$displayStr = '';
-			$indUrl = '';
-			if(strpos($iUrl,'--DBPK--') !== false && $this->occArr['dbpk']){
-				$indUrl = str_replace('--DBPK--',$this->occArr['dbpk'],$iUrl);
-				$displayStr = $indUrl;
+			$sql2 = 'SELECT uploadDate FROM omcollectionstats WHERE collid = '.$this->collid;
+			if($rs2 = $this->conn->query($sql2)){
+				if($r2 = $rs2->fetch_object()){
+					if($r2->uploadDate > $this->occArr['source']['refreshTimestamp']) $this->occArr['source']['refreshTimestamp'] = $r->uploadDate.' (batch update)';
+				}
+				$rs2->free();
 			}
-			elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $this->occArr['catalognumber']){
-				$indUrl = str_replace('--CATALOGNUMBER--',$this->occArr['catalognumber'],$iUrl);
-				$displayStr = $this->occArr['catalognumber'];
-			}
-			elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $this->occArr['othercatalognumbers']){
-				if(substr($this->occArr['othercatalognumbers'],0,1) == '{'){
-					if($ocnArr = json_decode($this->occArr['othercatalognumbers'],true)){
-						foreach($ocnArr as $idKey => $idArr){
-							if(!$displayStr || $idKey == 'NEON sampleID' || $idKey == 'NEON sampleCode (barcode)'){
-								$displayStr = $idArr[0];
-								if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
-								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
-								if($idKey == 'NEON sampleCode (barcode)') break;
+
+			//Format link out to source
+			if(!isset($this->occArr['source']) && $this->metadataArr['individualurl']){
+				$sourceTitle = '';
+				$iUrl = trim($this->metadataArr['individualurl']);
+				if(substr($iUrl, 0, 4) != 'http'){
+					if($pos = strpos($iUrl, ':')){
+						$this->occArr['source']['title'] = substr($iUrl, 0, $pos);
+						$iUrl = trim(substr($iUrl, $pos+1));
+					}
+				}
+				$displayStr = '';
+				$indUrl = '';
+				if(strpos($iUrl,'--DBPK--') !== false && $this->occArr['dbpk']){
+					$indUrl = str_replace('--DBPK--',$this->occArr['dbpk'],$iUrl);
+					$displayStr = $indUrl;
+				}
+				elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $this->occArr['catalognumber']){
+					$indUrl = str_replace('--CATALOGNUMBER--',$this->occArr['catalognumber'],$iUrl);
+					$displayStr = $this->occArr['catalognumber'];
+				}
+				elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $this->occArr['othercatalognumbers']){
+					if(substr($this->occArr['othercatalognumbers'],0,1) == '{'){
+						if($ocnArr = json_decode($this->occArr['othercatalognumbers'],true)){
+							foreach($ocnArr as $idKey => $idArr){
+								if(!$displayStr || $idKey == 'NEON sampleID' || $idKey == 'NEON sampleCode (barcode)'){
+									$displayStr = $idArr[0];
+									if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
+									$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
+									if($idKey == 'NEON sampleCode (barcode)') break;
+								}
 							}
 						}
 					}
+					else{
+						$ocn = str_replace($this->occArr['othercatalognumbers'], ',', ';');
+						$ocnArr = explode(';',$ocn);
+						$ocnValue = trim(array_pop($ocnArr));
+						if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
+						$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
+						$displayStr = $ocnValue;
+					}
 				}
-				else{
-					$ocn = str_replace($this->occArr['othercatalognumbers'], ',', ';');
-					$ocnArr = explode(';',$ocn);
-					$ocnValue = trim(array_pop($ocnArr));
-					if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
-					$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
-					$displayStr = $ocnValue;
+				elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $this->occArr['occurrenceid']){
+					$indUrl = str_replace('--OCCURRENCEID--',$this->occArr['occurrenceid'],$iUrl);
+					$displayStr = $this->occArr['occurrenceid'];
 				}
+				$this->occArr['source']['type'] = 'external';
+				$this->occArr['source']['url'] = $indUrl;
+				$this->occArr['source']['displayStr'] = $displayStr;
+				$this->occArr['source']['refreshTimestamp'] = $this->metadataArr['uploaddate'];
 			}
-			elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $this->occArr['occurrenceid']){
-				$indUrl = str_replace('--OCCURRENCEID--',$this->occArr['occurrenceid'],$iUrl);
-				$displayStr = $this->occArr['occurrenceid'];
-			}
-			$this->occArr['source']['type'] = 'external';
-			$this->occArr['source']['url'] = $indUrl;
-			$this->occArr['source']['displayStr'] = $displayStr;
-			$this->occArr['source']['refreshTimestamp'] = $this->metadataArr['uploaddate'];
 		}
 	}
 

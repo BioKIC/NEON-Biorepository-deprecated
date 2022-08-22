@@ -201,12 +201,11 @@ $traitArr = $indManager->getTraitArr();
 				url: "<?php echo $CLIENT_ROOT; ?>/api/v2/occurrence/"+occid+"/reharvest"
 			})
 			.done(function( response ) {
-					alert(response.status);
 				if(response.status == 200){
-					alert(response.dataStatus);
-					//fieldsModified
-					//sourceCollectionUrl
-					//sourceRecordUrl
+					$("#refresh-ts").text(response.dateLastModified);
+					$("#source-refresh-ts").text(response.sourceDateLastModified);
+					alert("Record reharvested. Page will reload to refresh contents...");
+					location.reload();
 				}
 				else{
 					alert("ERROR updating record: "+response.error);
@@ -252,22 +251,28 @@ $traitArr = $indManager->getTraitArr();
 			if (occWindow.opener == null) occWindow.opener = self;
 		}
 
-		function initializeMap(){
-			var mLatLng = new google.maps.LatLng(<?php echo $occArr['decimallatitude'].",".$occArr['decimallongitude']; ?>);
-			var dmOptions = {
-				zoom: 8,
-				center: mLatLng,
-				marker: mLatLng,
-				mapTypeId: google.maps.MapTypeId.TERRAIN,
-				scaleControl: true
-			};
-			map = new google.maps.Map(document.getElementById("map_canvas"), dmOptions);
-			//Add marker
-			var marker = new google.maps.Marker({
-				position: mLatLng,
-				map: map
-			});
+		<?php
+		if($displayMap){
+			?>
+			function initializeMap(){
+				var mLatLng = new google.maps.LatLng(<?php echo $occArr['decimallatitude'].",".$occArr['decimallongitude']; ?>);
+				var dmOptions = {
+					zoom: 8,
+					center: mLatLng,
+					marker: mLatLng,
+					mapTypeId: google.maps.MapTypeId.TERRAIN,
+					scaleControl: true
+				};
+				map = new google.maps.Map(document.getElementById("map_canvas"), dmOptions);
+				//Add marker
+				var marker = new google.maps.Marker({
+					position: mLatLng,
+					map: map
+				});
+			}
+			<?php
 		}
+		?>
 	</script>
 	<style>
 		fieldset{ margin:10px; padding:15px; width:90% }
@@ -998,7 +1003,14 @@ $traitArr = $indManager->getTraitArr();
 									if($recordType == 'symbiota') echo '<span style="margin-left:5px;">(Symbiota managed record)</span>';
 									echo '</div>';
 								}
-								if(isset($occArr['source']['refreshTimestamp'])) echo '<div>'.(isset($LANG['REFRESH_DATE'])?$LANG['REFRESH_DATE']:'Last refresh date').': '.$occArr['source']['refreshTimestamp'].'</div>';
+								echo '<div>';
+								echo (isset($LANG['REFRESH_DATE'])?$LANG['REFRESH_DATE']:'Last refresh date');
+								echo ': <span id="refresh-ts">'.(isset($occArr['source']['refreshTimestamp'])?$occArr['source']['refreshTimestamp']:'').'</span>';
+								echo '</div>';
+								echo '<div id="source-refersh-ts-div" style="display:none">';
+								echo (isset($LANG['SOURCE_REFRESH_DATE'])?$LANG['SOURCE_REFRESH_DATE']:'Source refresh date');
+								echo ': <span id="source-refresh-ts"></span>';
+								echo '</div>';
 								echo '</div>';
 								if($SYMB_UID && $recordType == 'symbiota'){
 									?>

@@ -491,7 +491,7 @@ CREATE TABLE `portalindex` (
 );
 
 CREATE TABLE `portalpublications` (
-  `pubid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `pubid` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `pubTitle` varchar(45) NOT NULL,
   `description` varchar(250) DEFAULT NULL,
   `collid` int(10) unsigned NOT NULL,
@@ -515,15 +515,17 @@ CREATE TABLE `portalpublications` (
 );
 
 CREATE TABLE `portaloccurrences` (
+  `portalOccurrencesID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `occid` int(10) unsigned NOT NULL,
   `pubid` int(10) unsigned NOT NULL,
   `targetOccid` int(11) NOT NULL,
   `verification` int(11) NOT NULL DEFAULT 0,
-  `refreshtimestamp` datetime NOT NULL,
-  `initialtimestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`occid`,`pubid`),
+  `refreshTimestamp` datetime NOT NULL,
+  `initialTimestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`portalOccurrencesID`),
   KEY `FK_portalOccur_occid_idx` (`occid`),
   KEY `FK_portalOccur_pubID_idx` (`pubid`),
+  UNIQUE INDEX `UQ_portalOccur_occid_pubid` (`occid` ASC, `pubid` ASC),
   CONSTRAINT `FK_portalOccur_occid` FOREIGN KEY (`occid`) REFERENCES `omoccurrences` (`occid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_portalOccur_pubid` FOREIGN KEY (`pubid`) REFERENCES `portalpublications` (`pubid`) ON DELETE CASCADE ON UPDATE CASCADE
 );

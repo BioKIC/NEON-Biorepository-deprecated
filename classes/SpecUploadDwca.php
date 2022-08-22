@@ -140,7 +140,7 @@ class SpecUploadDwca extends SpecUploadBase{
 			$this->errorStr = 'OccurrencesMissing';
 			return false;
 		}
-		if(!file_exists($this->uploadTargetPath.'images.csv')){
+		if(!file_exists($this->uploadTargetPath.'multimedia.csv') && !file_exists($this->uploadTargetPath.'images.csv')){
 			$this->errorStr = 'ImagesMissing';
 			return false;
 		}

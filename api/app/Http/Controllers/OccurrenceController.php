@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Occurrence;
+use App\Models\Occurrence;
+use App\Models\PortalIndex;
+use App\Models\PortalOccurrence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,8 +19,8 @@ class OccurrenceController extends Controller{
 
 	/**
 	 * @OA\Get(
-	 *	 path="/api/v2/occurrence",
-	 *	 operationId="/api/v2/occurrence",
+	 *	 path="/api/v2/occurrence/search",
+	 *	 operationId="/api/v2/occurrence/search",
 	 *	 tags={""},
 	 *	 @OA\Parameter(
 	 *		 name="catalogNumber",
@@ -204,8 +206,8 @@ class OccurrenceController extends Controller{
 
 	/**
 	 * @OA\Get(
-	 *	 path="/api/v2/occurrence/{identifier}/identifications",
-	 *	 operationId="/api/v2/occurrence/identifier/identifications",
+	 *	 path="/api/v2/occurrence/{identifier}/identification",
+	 *	 operationId="/api/v2/occurrence/identifier/identification",
 	 *	 tags={""},
 	 *	 @OA\Parameter(
 	 *		 name="identifier",
@@ -227,8 +229,8 @@ class OccurrenceController extends Controller{
 	 */
 	public function showOneOccurrenceIdentifications($id, Request $request){
 		$id = $this->getOccid($id);
-		$media = Occurrence::find($id)->identification;
-		return response()->json($media);
+		$identification = Occurrence::find($id)->identification;
+		return response()->json($identification);
 	}
 
 	/**
@@ -261,7 +263,7 @@ class OccurrenceController extends Controller{
 	}
 
 	/**
-	 * @OA\Get(
+	 * @off_OA\Get(
 	 *	 path="/api/v2/occurrence/{identifier}/reharvest",
 	 *	 operationId="/api/v2/occurrence/identifier/reharvest",
 	 *	 tags={""},
@@ -279,19 +281,92 @@ class OccurrenceController extends Controller{
 	 *	 ),
 	 *	 @OA\Response(
 	 *		 response="400",
-	 *		 description="Error: Bad request. Occurrence identifier is required.",
+	 *		 description="Error: Bad request: Occurrence identifier is required, API can only be triggered locally (at this time).",
+	 *	 ),
+	 *	 @OA\Response(
+	 *		 response="500",
+	 *		 description="Error: unable to locate record",
 	 *	 ),
 	 * )
 	 */
 	public function oneOccurrenceReharvest($id, Request $request){
-		$status = false;
+		$responseArr = array();
+		$host = '';
+		if(!empty($GLOBALS['SERVER_HOST'])) $host = $GLOBALS['SERVER_HOST'];
+		else $host = $_SERVER['SERVER_NAME'];
+		if($host && $request->getHttpHost() != $host){
+			$responseArr['status'] = 400;
+			$responseArr['error'] = 'At this time, API call can only be triggered locally';
+			return response()->json($responseArr);
+		}
 		$id = $this->getOccid($id);
-		$occurrence = Occurrence::find($id)->media;
-
-		return response()->json($status);
+		$occurrence = Occurrence::find($id);
+		if(!$occurrence){
+			$responseArr['status'] = 500;
+			$responseArr['error'] = 'Unable to locate occurrence record (occid = '.$id.')';
+			return response()->json($responseArr);
+		}
+		if($occurrence->collection->managementType == 'Live Data'){
+			$responseArr['status'] = 400;
+			$responseArr['error'] = 'Updating a Live Managed record is not allowed ';
+			return response()->json($responseArr);
+		}
+		$publications = $occurrence->portalPublications;
+		foreach($publications as $pub){
+			if($pub->direction == 'import'){
+				$sourcePortalID = $pub->portalID;
+				$targetOccid = $pub->pivot->targetOccid;
+				if($sourcePortalID && $targetOccid){
+					//Get remote occurrence data
+					$urlRoot = PortalIndex::where('portalID', $sourcePortalID)->value('urlRoot');
+					$url = $urlRoot.'/api/v2/occurrence/'.$targetOccid;
+					if($remoteOccurrence = $this->getAPIResponce($url)){
+						$updateObj = $this->update($id, new Request($remoteOccurrence));
+						$ts = date('Y-m-d H:i:s');
+						$changeArr = $updateObj->getOriginalContent()->getChanges();
+						$responseArr['status'] = $updateObj->status();
+						$responseArr['dataStatus'] = ($changeArr?count($changeArr).' fields modified':'nothing modified');
+						$responseArr['fieldsModified'] = $changeArr;
+						$responseArr['sourceDateLastModified'] = $remoteOccurrence['dateLastModified'];
+						$responseArr['dateLastModified'] = $ts;
+						$responseArr['sourceCollectionUrl'] = $urlRoot.'/collections/misc/collprofiles.php?collid='.$remoteOccurrence['collid'];
+						$responseArr['sourceRecordUrl'] = $urlRoot.'/collections/individual/index.php?occid='.$targetOccid;
+						//Reset Portal Occurrence refreshDate
+						$portalOccur = PortalOccurrence::where('occid', $id)->where('pubid', $pub->pubid)->first();
+						$portalOccur->refreshTimestamp = $ts;
+						$portalOccur->save();
+					}
+					else {
+						$responseArr['status'] = 400;
+						$responseArr['error'] = 'Unable to locate remote/source occurrence (sourceID = '.$id.')';
+						$responseArr['sourceUrl'] = $url;
+					}
+				}
+			}
+		}
+		return response()->json($responseArr);
 	}
 
-	private function getOccid($id){
+	//Write funcitons
+	public function create(Request $request){
+		//$occurrence = Occurrence::create($request->all());
+		//return response()->json($occurrence, 201);
+	}
+
+	public function update($id, Request $request){
+		$occurrence = Occurrence::findOrFail($id);
+		$occurrence->update($request->all());
+		//if($occurrence->wasChanged()) ;
+		return response()->json($occurrence, 200);
+	}
+
+	public function delete($id){
+		//Occurrence::findOrFail($id)->delete();
+		//return response('Occurrence Deleted Successfully', 200);
+	}
+
+	//Helper functions
+	protected function getOccid($id){
 		if(!is_numeric($id)){
 			$occid = Occurrence::where('occurrenceID', $id)->value('occid');
 			if(!$occid) $occid = DB::table('guidoccurrences')->where('guid', $id)->value('occid');
@@ -300,19 +375,22 @@ class OccurrenceController extends Controller{
 		return $id;
 	}
 
-	public function create(Request $request){
-		//$occurrence = Occurrence::create($request->all());
-		//return response()->json($occurrence, 201);
-	}
-
-	public function update($id, Request $request){
-		//$occurrence = Occurrence::findOrFail($id);
-		//$occurrence->update($request->all());
-		//return response()->json($occurrence, 200);
-	}
-
-	public function delete($id){
-		//Occurrence::findOrFail($id)->delete();
-		//return response('Occurrence Deleted Successfully', 200);
+	protected function getAPIResponce($url, $asyc = false){
+		$resJson = false;
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		//curl_setopt($ch, CURLOPT_HTTPGET, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		if($asyc) curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);
+		$resJson = curl_exec($ch);
+		if(!$resJson){
+			$this->errorMessage = 'FATAL CURL ERROR: '.curl_error($ch).' (#'.curl_errno($ch).')';
+			return false;
+			//$header = curl_getinfo($ch);
+		}
+		curl_close($ch);
+		return json_decode($resJson,true);
 	}
 }

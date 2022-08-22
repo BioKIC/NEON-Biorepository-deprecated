@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\PortalIndex;
+use App\Models\PortalIndex;
 use Illuminate\Http\Request;
 
 class InstallationController extends Controller{

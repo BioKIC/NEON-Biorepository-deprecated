@@ -10,10 +10,10 @@ $occid = array_key_exists('occid',$_REQUEST)?trim($_REQUEST['occid']):0;
 $collid = array_key_exists('collid',$_REQUEST)?trim($_REQUEST['collid']):0;
 $pk = array_key_exists('pk',$_REQUEST)?trim($_REQUEST['pk']):'';
 $guid = array_key_exists('guid',$_REQUEST)?trim($_REQUEST['guid']):'';
-$submit = array_key_exists('formsubmit',$_REQUEST)?trim($_REQUEST['formsubmit']):'';
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
 $clid = array_key_exists('clid',$_REQUEST)?trim($_REQUEST['clid']):0;
 $format = isset($_GET['format'])?$_GET['format']:'';
+$submit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
 
 //Sanitize input variables
 if(!is_numeric($occid)) $occid = 0;
@@ -130,7 +130,7 @@ if($SYMB_UID){
 			$statusStr = $indManager->getErrorMessage();
 		}
 	}
-	elseif($submit == "Add Voucher"){
+	elseif($submit == 'Add Voucher'){
 		if(!$indManager->linkVoucher($_POST)){
 			$statusStr = $indManager->getErrorMessage();
 		}
@@ -158,7 +158,7 @@ $traitArr = $indManager->getTraitArr();
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
 	<meta name="description" content="<?php echo 'Occurrence author: '.($occArr?$occArr['recordedby'].','.$occArr['recordnumber']:''); ?>" />
-	<meta name="keywords" content="<?php echo (isset($occArr['guid'])?$occArr['guid']:''); ?>" />
+	<meta name="keywords" content="<?php echo (!empty($occArr['occurrenceid'])?$occArr['occurrenceid']:'').', '.(!empty($occArr['recordid'])?$occArr['recordid']:''); ?>" />
 	<?php
 	$cssPath = '/css/symb/custom/collindividualindex.css';
 	if(!file_exists($SERVER_ROOT.$cssPath)) $cssPath = '/css/symb/collindividualindex.css';
@@ -194,6 +194,24 @@ $traitArr = $indManager->getTraitArr();
 				'overflow': 'auto'
 			});
 		});
+
+		function refreshRecord(occid){
+			$.ajax({
+				method: "GET",
+				url: "<?php echo $CLIENT_ROOT; ?>/api/v2/occurrence/"+occid+"/reharvest"
+			})
+			.done(function( response ) {
+				if(response.status == 200){
+					$("#refresh-ts").text(response.dateLastModified);
+					$("#source-refresh-ts").text(response.sourceDateLastModified);
+					alert("Record reharvested. Page will reload to refresh contents...");
+					location.reload();
+				}
+				else{
+					alert("ERROR updating record: "+response.error);
+				}
+			});
+		}
 
 		function toggle(target){
 			var objDiv = document.getElementById(target);
@@ -943,53 +961,6 @@ $traitArr = $indManager->getTraitArr();
 							</fieldset>
 							<?php
 						}
-						if($collMetadata['individualurl']){
-							$sourceTitle = 'Source Record';
-							$iUrl = trim($collMetadata['individualurl']);
-							if(substr($iUrl, 0, 4) != 'http'){
-								if($pos = strpos($iUrl, ':')){
-									$sourceTitle = substr($iUrl, 0, $pos);
-									$iUrl = trim(substr($iUrl, $pos+1));
-								}
-							}
-							$displayStr = '';
-							$indUrl = '';
-							if(strpos($iUrl,'--DBPK--') !== false && $occArr['dbpk']){
-								$indUrl = str_replace('--DBPK--',$occArr['dbpk'],$iUrl);
-								$displayStr = $indUrl;
-							}
-							elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $occArr['catalognumber']){
-								$displayStr = $occArr['catalognumber'];
-								$indUrl = str_replace('--CATALOGNUMBER--',$occArr['catalognumber'],$iUrl);
-							}
-							elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $occArr['othercatalognumbers']){
-								if(substr($occArr['othercatalognumbers'],0,1) == '{'){
-									if($ocnArr = json_decode($occArr['othercatalognumbers'],true)){
-										foreach($ocnArr as $idKey => $idArr){
-											if(!$displayStr || $idKey == 'NEON sampleID' || $idKey == 'NEON sampleCode (barcode)'){
-												$displayStr = $idArr[0];
-												if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
-												$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
-												if($idKey == 'NEON sampleCode (barcode)') break;
-											}
-										}
-									}
-								}
-								else{
-									$ocn = str_replace($occArr['othercatalognumbers'], ',', ';');
-									$ocnArr = explode(';',$ocn);
-									$ocnValue = trim(array_pop($ocnArr));
-									if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
-									$displayStr = $ocnValue;
-									$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
-								}
-							}
-							elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $occArr['occurrenceid']){
-								$displayStr = $occArr['occurrenceid'];
-								$indUrl = str_replace('--OCCURRENCEID--',$occArr['occurrenceid'],$iUrl);
-							}
-							if($displayStr) echo '<div style="margin-top:10px;clear:both;"><b>'.$sourceTitle.':</b> <a href="'.$indUrl.'" target="_blank">'.$displayStr.'</a></div>';
-						}
 						//Rights
 						$rightsStr = $collMetadata['rights'];
 						if($collMetadata['rights']){
@@ -1013,7 +984,45 @@ $traitArr = $indManager->getTraitArr();
 							else echo '<a href="../../includes/usagepolicy.php">'.(isset($LANG['USAGEPOLICY'])?$LANG['USAGEPOLICY']:'General Data Usage Policy').'</a>';
 							?>
 						</div>
-						<div style="margin:3px 0px;"><?php echo '<b>'.(isset($LANG['RECORDID'])?$LANG['RECORDID']:'Record ID').': </b>'.$occArr['guid']; ?></div>
+						<div style="margin:3px 0px;"><?php echo '<b>'.(isset($LANG['RECORDID'])?$LANG['RECORDID']:'Record ID').': </b>'.$occArr['recordid']; ?></div>
+						<?php
+						if($collMetadata['managementtype'] != 'Live Data'){
+							if(isset($occArr['source'])){
+								$recordType = (isset($occArr['source']['type'])?$occArr['source']['type']:'');
+								$displayTitle = $LANG['SOURCE_RECORD'];
+								if(isset($occArr['source']['title'])) $displayTitle = $occArr['source']['title'];
+								$displayStr = $occArr['source']['url'];
+								if(isset($occArr['source']['displayStr'])) $displayStr = $occArr['source']['displayStr'];
+								elseif(isset($occArr['source']['sourceID'])) $displayStr = '#'.$occArr['source']['sourceID'];
+								echo '<fieldset><legend>Externally Managed Snapshot Record</legend>';
+								echo '<div><label><b>'.$displayTitle.':</b></label> <a href="'.$occArr['source']['url'].'" target="_blank">'.$displayStr.'</a></div>';
+								echo '<div style="float:left;margin-left:10px;">';
+								if(isset($occArr['source']['sourceName'])){
+									echo '<div>';
+									echo (isset($LANG['DATA_SOURCE'])?$LANG['DATA_SOURCE']:'Data source').': '.$occArr['source']['sourceName'];
+									if($recordType == 'symbiota') echo '<span style="margin-left:5px;">(Symbiota managed record)</span>';
+									echo '</div>';
+								}
+								echo '<div>';
+								echo (isset($LANG['REFRESH_DATE'])?$LANG['REFRESH_DATE']:'Last refresh date');
+								echo ': <span id="refresh-ts">'.(isset($occArr['source']['refreshTimestamp'])?$occArr['source']['refreshTimestamp']:'').'</span>';
+								echo '</div>';
+								echo '<div id="source-refersh-ts-div" style="display:none">';
+								echo (isset($LANG['SOURCE_REFRESH_DATE'])?$LANG['SOURCE_REFRESH_DATE']:'Source refresh date');
+								echo ': <span id="source-refresh-ts"></span>';
+								echo '</div>';
+								echo '</div>';
+								if($SYMB_UID && $recordType == 'symbiota'){
+									?>
+									<div style="float:left;margin-left:30px;">
+										<button name="formsubmit" type="submit" onclick="refreshRecord(<?php echo $occid; ?>)">Refresh Record</button>
+									</div>
+									<?php
+								}
+								echo '</fieldset>';
+							}
+						}
+						?>
 						<div style="margin-top:10px;clear:both;">
 							<?php
 							if($collMetadata['contact']){

@@ -888,6 +888,7 @@ class SpecUploadDwca extends SpecUploadBase{
 					$this->outputMsg('<li>ERROR cross-mapping occurrences to Symbiota source portal: '.$portalManager->getErrorMessage().'</li> ');
 				}
 			}
+			else $this->outputMsg('<li>ERROR cross-mapping occurrences: '.$portalManager->getErrorMessage().'</li> ');
 		}
 		$this->finalCleanup();
 		$this->outputMsg('<li style="">Upload Procedure Complete ('.date('Y-m-d h:i:s A').')!</li>');

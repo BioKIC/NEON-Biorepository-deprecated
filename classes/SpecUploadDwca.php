@@ -383,7 +383,7 @@ class SpecUploadDwca extends SpecUploadBase{
 				if($node = $symbiotaNodeList->item(0)){
 					if($node->hasAttribute('id')){
 						if($symbiotaGuid = $node->getAttribute('id')){
-							if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])){
+							if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX']) && $this->uploadType != $this->RESTOREBACKUP){
 								$portalManager = new PortalIndex();
 								if($portalArr = $portalManager->getPortalIndexArr($symbiotaGuid)){
 									$this->sourcePortalIndex = key($portalArr);

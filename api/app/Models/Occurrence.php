@@ -16,10 +16,11 @@ class Occurrence extends Model{
 		'associatedTaxa', 'dynamicProperties', 'verbatimAttributes', 'behavior', 'reproductiveCondition', 'cultivationStatus', 'establishmentMeans', 'lifeStage', 'sex', 'individualCount',
 		'samplingProtocol', 'samplingEffort', 'preparations', 'locationID', 'continent', 'parentLocationID', 'country', 'stateProvince', 'county', 'municipality', 'waterBody', 'islandGroup',
 		'island', 'countryCode', 'locality', 'localitySecurity', 'localitySecurityReason', 'decimalLatitude', 'decimalLongitude', 'geodeticDatum', 'coordinateUncertaintyInMeters',
-		'footprintWKT', 'coordinatePrecision', 'locationRemarks', 'verbatimCoordinates', 'georeferencedBy', 'georeferencedDate', 'georeferenceProtocol', 'georeferenceSources',
+		'footprintWKT', 'locationRemarks', 'verbatimCoordinates', 'georeferencedBy', 'georeferencedDate', 'georeferenceProtocol', 'georeferenceSources',
 		'georeferenceVerificationStatus', 'georeferenceRemarks', 'minimumElevationInMeters', 'maximumElevationInMeters', 'verbatimElevation', 'minimumDepthInMeters', 'maximumDepthInMeters',
 		'verbatimDepth', 'availability', 'disposition', 'storageLocation', 'modified', 'language', 'processingstatus', 'recordEnteredBy', 'duplicateQuantity', 'labelProject'];
-	protected $hidden = [ 'scientificName', 'recordedbyid', 'observerUid', 'labelProject', 'processingStatus', 'recordEnteredBy', 'associatedOccurrences', 'previousIdentifications', 'dynamicFields', 'institutionID', 'collectionID', 'genericcolumn1', 'genericcolumn2' ];
+	protected $hidden = [ 'scientificName', 'recordedbyid', 'observerUid', 'labelProject', 'processingStatus', 'recordEnteredBy', 'associatedOccurrences', 'previousIdentifications',
+		'verbatimCoordinateSystem', 'coordinatePrecision', 'dynamicFields', 'institutionID', 'collectionID', 'genericcolumn1', 'genericcolumn2' ];
 
 	public function collection(){
 		return $this->belongsTo(Collection::class, 'collid', 'collid');

@@ -203,7 +203,7 @@ $traitArr = $indManager->getTraitArr();
 			.done(function( response ) {
 				if(response.status == 200){
 					$("#dataStatus").val(response.dataStatus);
-					$("#fieldsModified").val(response.fieldsModified);
+					$("#fieldsModified").val(JSON.stringify(response.fieldsModified));
 					$("#sourceDateLastModified").val(response.sourceDateLastModified);
 					alert("Record reharvested. Page will reload to refresh contents...");
 					$("#refreshForm").submit();

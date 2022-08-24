@@ -202,10 +202,11 @@ $traitArr = $indManager->getTraitArr();
 			})
 			.done(function( response ) {
 				if(response.status == 200){
-					$("#refresh-ts").text(response.dateLastModified);
-					$("#source-refresh-ts").text(response.sourceDateLastModified);
+					$("#dataStatus").val(response.dataStatus);
+					$("#fieldsModified").val(response.fieldsModified);
+					$("#sourceDateLastModified").val(response.sourceDateLastModified);
 					alert("Record reharvested. Page will reload to refresh contents...");
-					location.reload();
+					$("#refreshForm").submit();
 				}
 				else{
 					alert("ERROR updating record: "+response.error);
@@ -996,21 +997,21 @@ $traitArr = $indManager->getTraitArr();
 								elseif(isset($occArr['source']['sourceID'])) $displayStr = '#'.$occArr['source']['sourceID'];
 								echo '<fieldset><legend>Externally Managed Snapshot Record</legend>';
 								echo '<div><label><b>'.$displayTitle.':</b></label> <a href="'.$occArr['source']['url'].'" target="_blank">'.$displayStr.'</a></div>';
-								echo '<div style="float:left;margin-left:10px;">';
+								echo '<div style="float:left;">';
 								if(isset($occArr['source']['sourceName'])){
-									echo '<div>';
-									echo (isset($LANG['DATA_SOURCE'])?$LANG['DATA_SOURCE']:'Data source').': '.$occArr['source']['sourceName'];
-									if($recordType == 'symbiota') echo '<span style="margin-left:5px;">(Symbiota managed record)</span>';
-									echo '</div>';
+									echo '<div>'.(isset($LANG['DATA_SOURCE'])?$LANG['DATA_SOURCE']:'Data source').': '.$occArr['source']['sourceName'].'</div>';
+									if($recordType == 'symbiota') echo '<div><label>Source management: </label>Live managed record within a Symbiota portal</div>';
 								}
-								echo '<div>';
-								echo (isset($LANG['REFRESH_DATE'])?$LANG['REFRESH_DATE']:'Last refresh date');
-								echo ': <span id="refresh-ts">'.(isset($occArr['source']['refreshTimestamp'])?$occArr['source']['refreshTimestamp']:'').'</span>';
-								echo '</div>';
-								echo '<div id="source-refersh-ts-div" style="display:none">';
-								echo (isset($LANG['SOURCE_REFRESH_DATE'])?$LANG['SOURCE_REFRESH_DATE']:'Source refresh date');
-								echo ': <span id="source-refresh-ts"></span>';
-								echo '</div>';
+								echo '<div>'.(isset($LANG['REFRESH_DATE'])?$LANG['REFRESH_DATE']:'Last refresh date').': '.(isset($occArr['source']['refreshTimestamp'])?$occArr['source']['refreshTimestamp']:'').'</div>';
+								if(array_key_exists('fieldsModified',$_POST)){
+									//Input from refersh event
+									$dataStatus = filter_var($_POST['dataStatus'], FILTER_SANITIZE_STRING);
+									$fieldsModified = filter_var($_POST['fieldsModified'], FILTER_SANITIZE_STRING);
+									$sourceDateLastModified = filter_var($_POST['sourceDateLastModified'], FILTER_SANITIZE_STRING);
+									echo '<div>'.(isset($LANG['UPDATE_STATUS'])?$LANG['UPDATE_STATUS']:'Update status').': '.$dataStatus.'</div>';
+									echo '<div>'.(isset($LANG['FIELDS_MODIFIED'])?$LANG['FIELDS_MODIFIED']:'Fields modified').': '.$fieldsModified.'</div>';
+									echo '<div>'.(isset($LANG['SOURCE_DATE_LAST_MODIFIED'])?$LANG['SOURCE_DATE_LAST_MODIFIED']:'Source date last modified').': '.$sourceDateLastModified.'</div>';
+								}
 								echo '</div>';
 								if($SYMB_UID && $recordType == 'symbiota'){
 									?>
@@ -1020,6 +1021,16 @@ $traitArr = $indManager->getTraitArr();
 									<?php
 								}
 								echo '</fieldset>';
+								?>
+								<form id="refreshForm" target="index.php" method="post">
+									<input id="dataStatus" name="dataStatus" type="hidden" value="" >
+									<input id="fieldsModified" name="fieldsModified" type="hidden" value="" >
+									<input id="sourceDateLastModified" name="sourceDateLastModified" type="hidden" value="" >
+									<input name="occid" type="hidden" value="<?php echo $occid; ?>" >
+									<input name="clid" type="hidden" value="<?php echo $clid; ?>" >
+									<input name="collid" type="hidden" value="<?php echo $collid; ?>" >
+								</form>
+								<?php
 							}
 						}
 						?>

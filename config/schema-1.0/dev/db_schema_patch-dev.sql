@@ -467,9 +467,9 @@ ALTER TABLE `omoccurrences`
   ADD CONSTRAINT `FK_omoccurrences_uid`  FOREIGN KEY (`observerUid`)  REFERENCES `users` (`uid`);
 
 
-DROP TABLE IF EXISTS `portaloccurrences`;
-DROP TABLE IF EXISTS `portalpublications`;
-DROP TABLE IF EXISTS `portalindex`;
+#DROP TABLE IF EXISTS `portaloccurrences`;
+#DROP TABLE IF EXISTS `portalpublications`;
+#DROP TABLE IF EXISTS `portalindex`;
 
 CREATE TABLE `portalindex` (
   `portalID` int(11) NOT NULL AUTO_INCREMENT,

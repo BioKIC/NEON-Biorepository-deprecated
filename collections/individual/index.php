@@ -1022,7 +1022,7 @@ $traitArr = $indManager->getTraitArr();
 								}
 								echo '</fieldset>';
 								?>
-								<form id="refreshForm" target="index.php" method="post">
+								<form id="refreshForm" action="index.php" method="post">
 									<input id="dataStatus" name="dataStatus" type="hidden" value="" >
 									<input id="fieldsModified" name="fieldsModified" type="hidden" value="" >
 									<input id="sourceDateLastModified" name="sourceDateLastModified" type="hidden" value="" >

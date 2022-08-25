@@ -42,7 +42,9 @@ class PortalIndex extends OmCollections{
 		$rs->free();
 
 		if($retArr){
-			$sql = 'SELECT p.portalID, count(o.occid) as cnt FROM portaloccurrences o INNER JOIN portalpublications p ON o.pubid = p.pubid WHERE p.portalID IN('.implode(',',array_keys($retArr)).') GROUP BY p.portalID';
+			$sql = 'SELECT p.portalID, count(o.occid) as cnt
+				FROM portaloccurrences o INNER JOIN portalpublications p ON o.pubid = p.pubid
+				WHERE p.portalID IN('.implode(',',array_keys($retArr)).') GROUP BY p.portalID';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->portalID]['occurCnt'] = $r->cnt;
@@ -74,10 +76,12 @@ class PortalIndex extends OmCollections{
 	private function getInternalCollection($guid,$guid2){
 		$retArr = array();
 		if($guid || $guid2){
-			$guidArr = array();
-			if($guid) $guidArr[] = $guid;
-			if($guid2) $guidArr[] = $guid2;
-			$sql = 'SELECT c.collid, c.managementType, s.recordCnt, s.uploadDate FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid WHERE c.collectionid IN("'.implode('","',$guidArr).'")';
+			$guidStr = '';
+			if($guid) $guidStr = ',"'.$guid.'"';
+			if($guid2) $guidStr .= ',"'.$guid2.'"';
+			$sql = 'SELECT c.collid, c.managementType, s.recordCnt, s.uploadDate
+				FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid
+				WHERE c.collectionid IN('.trim($guidStr,' ,').')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->collid]['managementType'] = $r->managementType;
@@ -110,14 +114,21 @@ class PortalIndex extends OmCollections{
 		if(is_numeric($collid)){
 			$sql = 'SELECT title, uspid, path, internalQuery, queryStr, cleanUpSP FROM uploadspecparameters WHERE uploadType = 13 AND collid = '.$collid;
 			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$r->uspid]['title'] = $r->title;
-				$retArr[$r->uspid]['path'] = $r->path;
-				$retArr[$r->uspid]['internalQuery'] = $r->internalQuery;
-				$retArr[$r->uspid]['queryStr'] = $r->queryStr;
-				$retArr[$r->uspid]['cleanUpSp'] = $r->cleanUpSP;
+			if(!rs){
+				//Temp code only needed until db_schema_patch-1.2 is pushed to production
+				$sql = 'SELECT title, uspid, path, queryStr, cleanUpSP FROM uploadspecparameters WHERE uploadType = 13 AND collid = '.$collid;
+				$rs = $this->conn->query($sql);
 			}
-			$rs->free();
+			if($rs){
+				while($r = $rs->fetch_object()){
+					$retArr[$r->uspid]['title'] = $r->title;
+					$retArr[$r->uspid]['path'] = $r->path;
+					if(isset($r->internalQuery)) $retArr[$r->uspid]['internalQuery'] = $r->internalQuery;
+					$retArr[$r->uspid]['queryStr'] = $r->queryStr;
+					$retArr[$r->uspid]['cleanUpSp'] = $r->cleanUpSP;
+				}
+				$rs->free();
+			}
 		}
 		return $retArr;
 	}
@@ -246,14 +257,11 @@ class PortalIndex extends OmCollections{
 		if($stmt = $this->conn->prepare($sql)) {
 			$stmt->bind_param('ssiissiiisii', $pubTitle, $description, $collid, $portalID, $direction, $criteriaJson, $includeDeterminations, $includeImages, $autoUpdate, $lastDateUpdate, $updateInterval, $createdUid);
 			$stmt->execute();
-			if($stmt->affected_rows){
-				$newPubIndex = $this->conn->insert_id;
-			}
-			else{
-				if($stmt->error) $this->warningArr[] = 'ERROR creating portalpublication profile: '.$this->conn->error;
-			}
+			if($stmt->affected_rows) $newPubIndex = $this->conn->insert_id;
+			elseif($stmt->error) $this->errorMessage = 'ERROR creating portalpublication profile: '.$this->conn->error;
 			$stmt->close();
 		}
+		else $this->errorMessage = 'ERROR creating portalpublication profile: '.$this->conn->error;
 		return $newPubIndex;
 	}
 

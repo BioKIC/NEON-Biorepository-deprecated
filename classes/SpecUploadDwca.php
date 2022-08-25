@@ -140,7 +140,7 @@ class SpecUploadDwca extends SpecUploadBase{
 			$this->errorStr = 'OccurrencesMissing';
 			return false;
 		}
-		if(!file_exists($this->uploadTargetPath.'images.csv')){
+		if(!file_exists($this->uploadTargetPath.'multimedia.csv') && !file_exists($this->uploadTargetPath.'images.csv')){
 			$this->errorStr = 'ImagesMissing';
 			return false;
 		}
@@ -383,7 +383,7 @@ class SpecUploadDwca extends SpecUploadBase{
 				if($node = $symbiotaNodeList->item(0)){
 					if($node->hasAttribute('id')){
 						if($symbiotaGuid = $node->getAttribute('id')){
-							if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])){
+							if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX']) && $this->uploadType != $this->RESTOREBACKUP){
 								$portalManager = new PortalIndex();
 								if($portalArr = $portalManager->getPortalIndexArr($symbiotaGuid)){
 									$this->sourcePortalIndex = key($portalArr);
@@ -888,6 +888,7 @@ class SpecUploadDwca extends SpecUploadBase{
 					$this->outputMsg('<li>ERROR cross-mapping occurrences to Symbiota source portal: '.$portalManager->getErrorMessage().'</li> ');
 				}
 			}
+			else $this->outputMsg('<li>ERROR cross-mapping occurrences: '.$portalManager->getErrorMessage().'</li> ');
 		}
 		$this->finalCleanup();
 		$this->outputMsg('<li style="">Upload Procedure Complete ('.date('Y-m-d h:i:s A').')!</li>');

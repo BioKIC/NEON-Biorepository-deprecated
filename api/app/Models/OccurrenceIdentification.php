@@ -1,19 +1,15 @@
 <?php
-
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Identification extends Model
-{
+class OccurrenceIdentification extends Model{
 
 	protected $table = 'omoccurdeterminations';
 	protected $primaryKey = 'occid';
 	public $timestamps = false;
 
-	protected $fillable = [
-		''
-	];
+	protected $fillable = [];
 
 	protected $hidden = [];
 

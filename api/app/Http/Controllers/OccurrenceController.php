@@ -197,9 +197,12 @@ class OccurrenceController extends Controller{
 		]);
 		$id = $this->getOccid($id);
 		$occurrence = Occurrence::find($id);
-		if($occurrence) $occurrence->recordID = DB::table('guidoccurrences')->where('occid',$id)->value('guid');
-		if($request->input('includeMedia')) $occurrence->media;
-		if($request->input('includeIdentifications')) $occurrence->identification;
+		if($occurrence){
+			$occurrence->recordID = DB::table('guidoccurrences')->where('occid', $id)->value('guid');
+			if(!$occurrence->occurrenceID) $occurrence->occurrenceID = $occurrence->recordID;
+			if($request->input('includeMedia')) $occurrence->media;
+			if($request->input('includeIdentifications')) $occurrence->identification;
+		}
 		return response()->json($occurrence);
 	}
 
@@ -321,6 +324,9 @@ class OccurrenceController extends Controller{
 					$urlRoot = PortalIndex::where('portalID', $sourcePortalID)->value('urlRoot');
 					$url = $urlRoot.'/api/v2/occurrence/'.$targetOccid;
 					if($remoteOccurrence = $this->getAPIResponce($url)){
+						unset($remoteOccurrence['modified']);
+						if(!$remoteOccurrence['occurrenceRemarks']) unset($remoteOccurrence['occurrenceRemarks']);
+						unset($remoteOccurrence['dynamicProperties']);
 						$updateObj = $this->update($id, new Request($remoteOccurrence));
 						$ts = date('Y-m-d H:i:s');
 						$changeArr = $updateObj->getOriginalContent()->getChanges();

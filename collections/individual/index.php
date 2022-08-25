@@ -203,7 +203,7 @@ $traitArr = $indManager->getTraitArr();
 			.done(function( response ) {
 				if(response.status == 200){
 					$("#dataStatus").val(response.dataStatus);
-					$("#fieldsModified").val(response.fieldsModified);
+					$("#fieldsModified").val(JSON.stringify(response.fieldsModified));
 					$("#sourceDateLastModified").val(response.sourceDateLastModified);
 					alert("Record reharvested. Page will reload to refresh contents...");
 					$("#refreshForm").submit();
@@ -1022,7 +1022,7 @@ $traitArr = $indManager->getTraitArr();
 								}
 								echo '</fieldset>';
 								?>
-								<form id="refreshForm" target="index.php" method="post">
+								<form id="refreshForm" action="index.php" method="post">
 									<input id="dataStatus" name="dataStatus" type="hidden" value="" >
 									<input id="fieldsModified" name="fieldsModified" type="hidden" value="" >
 									<input id="sourceDateLastModified" name="sourceDateLastModified" type="hidden" value="" >

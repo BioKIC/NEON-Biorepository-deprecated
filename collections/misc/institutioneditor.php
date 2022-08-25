@@ -36,6 +36,7 @@ if($editorCode){
 		$iid = $instManager->submitInstitutionAdd($_POST);
 		if($iid){
 			if($targetCollid) header('Location: ../misc/collprofiles.php?collid='.$targetCollid);
+			$statusStr = 'SUCCESS! Institution added.';
 		}
 		else{
 			$statusStr = $instManager->getErrorStr();

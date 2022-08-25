@@ -10,8 +10,8 @@
 
 $CUSTOM_CSS_PATH = '/css/symb/custom';
 ?>
-<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
-<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet">
 <!-- UNIVERSAL CSS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/normalize.css">
 <link rel="stylesheet" href="<?php echo $CLIENT_ROOT; ?>/css/skeleton.css">

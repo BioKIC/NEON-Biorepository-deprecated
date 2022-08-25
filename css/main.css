@@ -135,13 +135,16 @@ body {
 
 /*Central div in the middle center table div */
 
-div.navpath {
+.navpath {
+  margin-left: 2rem;
+}
+/* div.navpath {
   margin-left: auto;
   margin-right: auto;
   min-width: 1000px;
   max-width: 1150px;
   width: 90%;
-}
+} */
 
 .disclaimer span {
   font-weight: bold;
@@ -575,7 +578,7 @@ hr:first-of-type {
 /******* 9. FOOTER ********/
 
 #footer {
-  padding: 3rem !important;
+  /* padding: 3rem !important; */
   border-top: 2px solid #e7e7e7 !important;
 }
 
@@ -585,6 +588,10 @@ footer {
 }
 
 @media (min-width: 1024px) {
+  #footer {
+    padding: 3rem;
+    margin: 3rem;
+  }
   #footer .footer-bottom .footer-bottom-left {
     width: 50%;
     padding-top: 1.2em;

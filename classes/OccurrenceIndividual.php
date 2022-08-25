@@ -437,12 +437,14 @@ class OccurrenceIndividual extends Manager{
 				}
 				$rs->free();
 			}
-			$sql2 = 'SELECT uploadDate FROM omcollectionstats WHERE collid = '.$this->collid;
-			if($rs2 = $this->conn->query($sql2)){
-				if($r2 = $rs2->fetch_object()){
-					if($r2->uploadDate > $this->occArr['source']['refreshTimestamp']) $this->occArr['source']['refreshTimestamp'] = $r->uploadDate.' (batch update)';
+			if(isset($this->occArr['source'])){
+				$sql2 = 'SELECT uploadDate FROM omcollectionstats WHERE collid = '.$this->collid;
+				if($rs2 = $this->conn->query($sql2)){
+					if($r2 = $rs2->fetch_object()){
+						if($r2->uploadDate > $this->occArr['source']['refreshTimestamp']) $this->occArr['source']['refreshTimestamp'] = $r->uploadDate.' (batch update)';
+					}
+					$rs2->free();
 				}
-				$rs2->free();
 			}
 
 			//Format link out to source

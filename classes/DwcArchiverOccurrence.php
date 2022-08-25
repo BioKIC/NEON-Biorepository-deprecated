@@ -135,7 +135,7 @@ class DwcArchiverOccurrence extends Manager{
 		$this->occurDefArr['terms']['establishmentMeans'] = 'http://rs.tdwg.org/dwc/terms/establishmentMeans';
 		$this->occurDefArr['fields']['establishmentMeans'] = 'o.establishmentMeans';
 		$this->occurDefArr['terms']['cultivationStatus'] = 'https://symbiota.org/terms/cultivationStatus';
-		$this->occurDefArr['fields']['cultivationStatus'] = 'cultivationStatus';
+		$this->occurDefArr['fields']['cultivationStatus'] = 'o.cultivationStatus';
 		$this->occurDefArr['terms']['lifeStage'] = 'http://rs.tdwg.org/dwc/terms/lifeStage';
 		$this->occurDefArr['fields']['lifeStage'] = 'o.lifeStage';
 		$this->occurDefArr['terms']['sex'] = 'http://rs.tdwg.org/dwc/terms/sex';
@@ -148,6 +148,16 @@ class DwcArchiverOccurrence extends Manager{
 		//$this->occurDefArr['fields']['samplingEffort'] = 'o.samplingEffort';
 		$this->occurDefArr['terms']['preparations'] = 'http://rs.tdwg.org/dwc/terms/preparations';
 		$this->occurDefArr['fields']['preparations'] = 'o.preparations';
+		$this->occurDefArr['terms']['locationID'] = 'http://rs.tdwg.org/dwc/terms/locationID';
+		$this->occurDefArr['fields']['locationID'] = 'o.locationID';
+		$this->occurDefArr['terms']['continent'] = 'http://rs.tdwg.org/dwc/terms/continent';
+		$this->occurDefArr['fields']['continent'] = 'o.continent';
+		$this->occurDefArr['terms']['waterBody'] = 'http://rs.tdwg.org/dwc/terms/waterBody';
+		$this->occurDefArr['fields']['waterBody'] = 'o.waterBody';
+		$this->occurDefArr['terms']['islandGroup'] = 'http://rs.tdwg.org/dwc/terms/islandGroup';
+		$this->occurDefArr['fields']['islandGroup'] = 'o.islandGroup';
+		$this->occurDefArr['terms']['island'] = 'http://rs.tdwg.org/dwc/terms/island';
+		$this->occurDefArr['fields']['island'] = 'o.island';
 		$this->occurDefArr['terms']['country'] = 'http://rs.tdwg.org/dwc/terms/country';
 		$this->occurDefArr['fields']['country'] = 'o.country';
 		$this->occurDefArr['terms']['stateProvince'] = 'http://rs.tdwg.org/dwc/terms/stateProvince';
@@ -308,11 +318,11 @@ class DwcArchiverOccurrence extends Manager{
 			}
 			elseif($this->schemaType == 'coge'){
 				$targetArr = array('id','basisOfRecord','institutionCode','collectionCode','catalogNumber','occurrenceID','family','scientificName','scientificNameAuthorship',
-					'kingdom','phylum','class','order','genus','specificEpithet','infraSpecificEpithet',
-					'recordedBy','recordNumber','eventDate','year','month','day','fieldNumber','country','stateProvince','county','municipality',
+					'kingdom','phylum','class','order','genus','specificEpithet','infraSpecificEpithet','recordedBy','recordNumber','eventDate','year','month','day','fieldNumber',
+					'locationID','continent','waterBody','islandGroup','island','country','stateProvince','county','municipality',
 					'locality','localitySecurity','geodeticDatum','decimalLatitude','decimalLongitude','verbatimCoordinates',
-					'minimumElevationInMeters','maximumElevationInMeters','verbatimElevation','maximumDepthInMeters','minimumDepthInMeters','establishmentMeans','cultivationStatus',
-					'sex','occurrenceRemarks','preparationType','individualCount','dateEntered','dateLastModified','recordID','references','collID');
+					'minimumElevationInMeters','maximumElevationInMeters','verbatimElevation','maximumDepthInMeters','minimumDepthInMeters','establishmentMeans',
+					'occurrenceRemarks','dateEntered','dateLastModified','recordID','references','collID');
 				$this->occurDefArr[$k] = array_intersect_key($vArr,array_flip($targetArr));
 			}
 		}

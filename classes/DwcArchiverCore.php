@@ -10,8 +10,7 @@ include_once($SERVER_ROOT . '/classes/UuidFactory.php');
 include_once($SERVER_ROOT . '/classes/OccurrenceTaxaManager.php');
 include_once($SERVER_ROOT . '/classes/OccurrenceAccessStats.php');
 
-class DwcArchiverCore extends Manager
-{
+class DwcArchiverCore extends Manager{
 
 	private $dataConn;
 	private $ts;
@@ -51,8 +50,7 @@ class DwcArchiverCore extends Manager
 
 	private $geolocateVariables = array();
 
-	public function __construct($conType = 'readonly')
-	{
+	public function __construct($conType = 'readonly'){
 		parent::__construct(null, $conType);
 		//Ensure that PHP DOMDocument class is installed
 		if (!class_exists('DOMDocument')) {
@@ -86,13 +84,11 @@ class DwcArchiverCore extends Manager
 		set_time_limit(600);
 	}
 
-	public function __destruct()
-	{
+	public function __destruct(){
 		parent::__destruct();
 	}
 
-	public function getOccurrenceCnt()
-	{
+	public function getOccurrenceCnt(){
 		$retStr = 0;
 		$this->applyConditions();
 		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
@@ -114,8 +110,7 @@ class DwcArchiverCore extends Manager
 		return $retStr;
 	}
 
-	public function setTargetPath($tp = '')
-	{
+	public function setTargetPath($tp = ''){
 		if ($tp) {
 			$this->targetPath = $tp;
 		} else {
@@ -141,8 +136,7 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	public function setCollArr($collTarget, $collType = '')
-	{
+	public function setCollArr($collTarget, $collType = ''){
 		$collTarget = $this->cleanInStr($collTarget);
 		$collType = $this->cleanInStr($collType);
 		$sqlWhere = '';
@@ -214,8 +208,7 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	private function setJsonResources()
-	{
+	private function setJsonResources(){
 		//Temporary function needed until pending patch is pushed to production
 		$sql = 'SELECT collid, resourceJson, contactJson FROM omcollections WHERE collid IN(' . implode(',', array_keys($this->collArr)) . ')';
 		if ($rs = $this->conn->query($sql)) {
@@ -241,19 +234,16 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	public function getCollArr($id = 0)
-	{
+	public function getCollArr($id = 0){
 		if ($id && isset($this->collArr[$id])) return $this->collArr[$id];
 		return $this->collArr;
 	}
 
-	public function setCustomWhereSql($sql)
-	{
+	public function setCustomWhereSql($sql){
 		$this->customWhereSql = $sql;
 	}
 
-	public function addCondition($field, $cond, $value = '')
-	{
+	public function addCondition($field, $cond, $value = ''){
 		$cond = strtoupper(trim($cond));
 		if (!preg_match('/^[A-Za-z]+$/', $field)) return false;
 		if (!preg_match('/^[A-Z]+$/', $cond)) return false;
@@ -268,8 +258,7 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	private function applyConditions()
-	{
+	private function applyConditions(){
 		$this->conditionSql = '';
 		if ($this->customWhereSql) {
 			$this->conditionSql = $this->customWhereSql . ' ';
@@ -336,8 +325,7 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	private function getSqlFragment($field, $cond, $valueArr)
-	{
+	private function getSqlFragment($field, $cond, $valueArr){
 		$sql = '';
 		if ($cond == 'NULL') {
 			$sql .= 'AND (' . $field . ' IS NULL) ';
@@ -367,8 +355,7 @@ class DwcArchiverCore extends Manager
 		return $sql;
 	}
 
-	private function getTableJoins()
-	{
+	private function getTableJoins(){
 		$sql = '';
 		if ($this->conditionSql) {
 			if (stripos($this->conditionSql, 'ts.')) {
@@ -405,8 +392,7 @@ class DwcArchiverCore extends Manager
 		return $sql;
 	}
 
-	public function getAsJson()
-	{
+	public function getAsJson(){
 		$this->schemaType = 'dwc';
 		$arr = $this->getDwcArray();
 		return json_encode($arr[0]);
@@ -418,8 +404,7 @@ class DwcArchiverCore extends Manager
 	 *
 	 * @return string containing turtle serialization of selected dwc records.
 	 */
-	public function getAsTurtle()
-	{
+	public function getAsTurtle(){
 		$debug = false;
 		$returnvalue  = "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n";
 		$returnvalue .= "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n";
@@ -538,8 +523,7 @@ class DwcArchiverCore extends Manager
 	 *
 	 * @return string containing rdf/xml serialization of selected dwc records.
 	 */
-	public function getAsRdfXml()
-	{
+	public function getAsRdfXml(){
 		$debug = false;
 		$newDoc = new DOMDocument('1.0', $this->charSetOut);
 		$newDoc->formatOutput = true;
@@ -678,8 +662,7 @@ class DwcArchiverCore extends Manager
 		return $returnvalue;
 	}
 
-	public function getDwcArray()
-	{
+	public function getDwcArray(){
 		$retArr = array();
 		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
 		$dwcOccurManager->setSchemaType($this->schemaType);
@@ -818,8 +801,7 @@ class DwcArchiverCore extends Manager
 		return $retArr;
 	}
 
-	private function getAssociatedMedia()
-	{
+	private function getAssociatedMedia(){
 		$retStr = '';
 		$sql = 'SELECT originalurl FROM images ' . str_replace('o.', '', $this->conditionSql);
 		$rs = $this->conn->query($sql);
@@ -830,8 +812,7 @@ class DwcArchiverCore extends Manager
 		return trim($retStr, ';');
 	}
 
-	public function createDwcArchive($fileNameSeed = '')
-	{
+	public function createDwcArchive($fileNameSeed = ''){
 		$status = false;
 		if (!$fileNameSeed) {
 			if ($this->collArr && count($this->collArr) == 1) {
@@ -925,8 +906,7 @@ class DwcArchiverCore extends Manager
 	}
 
 	//Generate DwC support files
-	private function writeMetaFile()
-	{
+	private function writeMetaFile(){
 		$this->logOrEcho("Creating meta.xml (" . date('h:i:s A') . ")... ");
 
 		//Create new DOM document
@@ -1103,8 +1083,7 @@ class DwcArchiverCore extends Manager
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 
-	private function getEmlArr()
-	{
+	private function getEmlArr(){
 
 		$this->setServerDomain();
 		$urlPathPrefix = $this->serverDomain . $GLOBALS['CLIENT_ROOT'] . (substr($GLOBALS['CLIENT_ROOT'], -1) == '/' ? '' : '/');
@@ -1218,8 +1197,7 @@ class DwcArchiverCore extends Manager
 		return $emlArr;
 	}
 
-	private function writeEmlFile()
-	{
+	private function writeEmlFile(){
 		$this->logOrEcho("Creating eml.xml (" . date('h:i:s A') . ")... ");
 
 		$emlDoc = $this->getEmlDom();
@@ -1234,8 +1212,7 @@ class DwcArchiverCore extends Manager
 	 * OUTPUT: XML String representing the EML
 	 * USED BY: this class, and emlhandler.php
 	 */
-	public function getEmlDom($emlArr = null)
-	{
+	public function getEmlDom($emlArr = null){
 		global $RIGHTS_TERMS_DEFS;
 
 		if (!$emlArr) $emlArr = $this->getEmlArr();
@@ -1452,8 +1429,7 @@ class DwcArchiverCore extends Manager
 		return $newDoc;
 	}
 
-	private function getNode($newDoc, $elmentTag, $nodeArr)
-	{
+	private function getNode($newDoc, $elmentTag, $nodeArr){
 		$newNode = $newDoc->createElement($elmentTag);
 		foreach ($nodeArr as $nodeKey => $nodeValue) {
 			if ($nodeKey == 'nodeAttribute') {
@@ -1473,8 +1449,7 @@ class DwcArchiverCore extends Manager
 		return $newNode;
 	}
 
-	public function getFullRss()
-	{
+	public function getFullRss(){
 		//Create new document and write out to target
 		$newDoc = new DOMDocument('1.0', $this->charSetOut);
 
@@ -1582,8 +1557,7 @@ class DwcArchiverCore extends Manager
 	}
 
 	//Generate Data files
-	private function writeOccurrenceFile()
-	{
+	private function writeOccurrenceFile(){
 		$this->logOrEcho('Creating occurrence file (' . date('h:i:s A') . ')... ');
 		$filePath = $this->targetPath . $this->ts . '-occur' . $this->fileExt;
 		$fh = fopen($filePath, 'w');
@@ -1619,8 +1593,8 @@ class DwcArchiverCore extends Manager
 			$glFields = array(
 				'specificEpithet' => 'Species', 'scientificNameAuthorship' => 'ScientificNameAuthor', 'recordedBy' => 'Collector', 'recordNumber' => 'CollectorNumber',
 				'year' => 'YearCollected', 'month' => 'MonthCollected', 'day' => 'DayCollected', 'decimalLatitude' => 'Latitude', 'decimalLongitude' => 'Longitude',
-				'minimumElevationInMeters' => 'MinimumElevation', 'maximumElevationInMeters' => 'MaximumElevation', 'maximumDepthInMeters' => 'MaximumDepth', 'minimumDepthInMeters' => 'MinimumDepth',
-				'occurrenceRemarks' => 'Notes', 'dateEntered', 'dateLastModified', 'collID' => 'collId', 'recordID' => 'recordId', 'references'
+				'minimumElevationInMeters' => 'MinimumElevation', 'maximumElevationInMeters' => 'MaximumElevation', 'maximumDepthInMeters' => 'MaximumDepth',
+				'minimumDepthInMeters' => 'MinimumDepth','occurrenceRemarks' => 'Notes', 'collID' => 'collId', 'recordID' => 'recordId'
 			);
 			foreach ($fieldArr as $k => $v) {
 				if (array_key_exists($k, $glFields)) $fieldOutArr[] = $glFields[$k];
@@ -1796,8 +1770,7 @@ class DwcArchiverCore extends Manager
 		return $filePath;
 	}
 
-	public function getOccurrenceFile()
-	{
+	public function getOccurrenceFile(){
 		if (!$this->targetPath) $this->setTargetPath();
 		$this->dataConn = MySQLiConnectionFactory::getCon('readonly');
 		$filePath = $this->writeOccurrenceFile();
@@ -1805,8 +1778,7 @@ class DwcArchiverCore extends Manager
 		return $filePath;
 	}
 
-	private function writeDeterminationFile()
-	{
+	private function writeDeterminationFile(){
 		$this->logOrEcho("Creating identification extension file (" . date('h:i:s A') . ")... ");
 		$filePath = $this->targetPath . $this->ts . '-det' . $this->fileExt;
 		$fh = fopen($filePath, 'w');
@@ -1846,8 +1818,7 @@ class DwcArchiverCore extends Manager
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 
-	private function writeImageFile()
-	{
+	private function writeImageFile(){
 		$this->logOrEcho("Creating image extension file (" . date('h:i:s A') . ")... ");
 		$filePath = $this->targetPath . $this->ts . '-multimedia' . $this->fileExt;
 		$fh = fopen($filePath, 'w');
@@ -1942,8 +1913,7 @@ class DwcArchiverCore extends Manager
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 
-	private function writeAttributeFile()
-	{
+	private function writeAttributeFile(){
 		$this->logOrEcho("Creating occurrence Attributes file as MeasurementsOrFact extension (" . date('h:i:s A') . ")... ");
 		$filePath = $this->targetPath . $this->ts . '-attr' . $this->fileExt;
 		$fh = fopen($filePath, 'w');
@@ -1976,8 +1946,7 @@ class DwcArchiverCore extends Manager
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 
-	private function writeCitationFile()
-	{
+	private function writeCitationFile(){
 		$this->logOrEcho("Creating citation file (" . date('h:i:s A') . ")... ");
 		$filePath = $this->targetPath . $this->ts . '-citation.txt';
 		$fh = fopen($filePath, 'w');
@@ -2056,8 +2025,7 @@ class DwcArchiverCore extends Manager
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 	}
 
-	private function writeOutRecord($fh, $outputArr)
-	{
+	private function writeOutRecord($fh, $outputArr){
 		if ($this->delimiter == ",") {
 			fputcsv($fh, $outputArr);
 		} else {
@@ -2068,8 +2036,7 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	public function deleteArchive($collid)
-	{
+	public function deleteArchive($collid){
 		//Remove archive instance from RSS feed
 		$rssFile = $GLOBALS['SERVER_ROOT'] . '/content/dwca/rss.xml';
 		if (!file_exists($rssFile)) return false;
@@ -2106,14 +2073,12 @@ class DwcArchiverCore extends Manager
 
 	// misc support functions
 	//getters, setters, and misc functions
-	public function setOverrideConditionLimit($bool)
-	{
+	public function setOverrideConditionLimit($bool){
 		if ($bool) $this->overrideConditionLimit = true;
 		else $this->overrideConditionLimit = false;
 	}
 
-	public function setSchemaType($type)
-	{
+	public function setSchemaType($type){
 		//dwc, symbiota, backup, coge
 		if (in_array($type, array('dwc', 'backup', 'coge', 'pensoft'))) {
 			$this->schemaType = $type;
@@ -2122,18 +2087,15 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	public function setLimitToGuids($testValue)
-	{
+	public function setLimitToGuids($testValue){
 		if ($testValue) $this->limitToGuids = true;
 	}
 
-	public function setExtended($e)
-	{
+	public function setExtended($e){
 		$this->extended = $e;
 	}
 
-	public function setDelimiter($d)
-	{
+	public function setDelimiter($d){
 		if ($d == 'tab' || $d == "\t") {
 			$this->delimiter = "\t";
 			$this->fileExt = '.tab';
@@ -2146,28 +2108,23 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	public function setIncludeDets($includeDets)
-	{
+	public function setIncludeDets($includeDets){
 		$this->includeDets = $includeDets;
 	}
 
-	public function setIncludeImgs($includeImgs)
-	{
+	public function setIncludeImgs($includeImgs){
 		$this->includeImgs = $includeImgs;
 	}
 
-	public function setIncludeAttributes($include)
-	{
+	public function setIncludeAttributes($include){
 		$this->includeAttributes = $include;
 	}
 
-	public function setIncludeMaterialSample($include)
-	{
+	public function setIncludeMaterialSample($include){
 		$this->includeMaterialSample = $include;
 	}
 
-	public function hasAttributes()
-	{
+	public function hasAttributes(){
 		$bool = false;
 		$sql = 'SELECT occid FROM tmattributes LIMIT 1';
 		$rs = $this->conn->query($sql);
@@ -2176,8 +2133,7 @@ class DwcArchiverCore extends Manager
 		return $bool;
 	}
 
-	public function hasMaterialSamples()
-	{
+	public function hasMaterialSamples(){
 		$bool = false;
 		$sql = 'SELECT occid FROM ommaterialsample LIMIT 1';
 		if ($rs = $this->conn->query($sql)) {
@@ -2187,13 +2143,11 @@ class DwcArchiverCore extends Manager
 		return $bool;
 	}
 
-	public function setRedactLocalities($redact)
-	{
+	public function setRedactLocalities($redact){
 		$this->redactLocalities = $redact;
 	}
 
-	public function setRareReaderArr($approvedCollid)
-	{
+	public function setRareReaderArr($approvedCollid){
 		if (is_array($approvedCollid)) {
 			$this->rareReaderArr = $approvedCollid;
 		} elseif (is_string($approvedCollid)) {
@@ -2201,27 +2155,23 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	public function setIsPublicDownload()
-	{
+	public function setIsPublicDownload(){
 		$this->isPublicDownload = true;
 	}
 
-	public function setCharSetOut($cs)
-	{
+	public function setCharSetOut($cs){
 		$cs = strtoupper($cs);
 		if ($cs == 'ISO-8859-1' || $cs == 'UTF-8') {
 			$this->charSetOut = $cs;
 		}
 	}
 
-	public function setGeolocateVariables($geolocateArr)
-	{
+	public function setGeolocateVariables($geolocateArr){
 		$this->geolocateVariables = $geolocateArr;
 	}
 
 	//Misc functions
-	public function setServerDomain($domain = '')
-	{
+	public function setServerDomain($domain = ''){
 		if ($domain) {
 			$this->serverDomain = $domain;
 		} elseif (!$this->serverDomain) {
@@ -2229,14 +2179,12 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	public function getServerDomain()
-	{
+	public function getServerDomain(){
 		$this->setServerDomain();
 		return $this->serverDomain;
 	}
 
-	protected function utf8EncodeArr($inArr)
-	{
+	protected function utf8EncodeArr($inArr){
 		$retArr = $inArr;
 		if ($this->charSetSource == 'ISO-8859-1') {
 			foreach ($retArr as $k => $v) {
@@ -2254,8 +2202,7 @@ class DwcArchiverCore extends Manager
 		return $retArr;
 	}
 
-	private function encodeArr(&$inArr)
-	{
+	private function encodeArr(&$inArr){
 		if ($this->charSetSource && $this->charSetOut != $this->charSetSource) {
 			foreach ($inArr as $k => $v) {
 				$inArr[$k] = $this->encodeStr($v);
@@ -2263,8 +2210,7 @@ class DwcArchiverCore extends Manager
 		}
 	}
 
-	private function encodeStr($inStr)
-	{
+	private function encodeStr($inStr){
 		$retStr = $inStr;
 		if ($inStr && $this->charSetSource) {
 			if ($this->charSetOut == 'UTF-8' && $this->charSetSource == 'ISO-8859-1') {
@@ -2282,8 +2228,7 @@ class DwcArchiverCore extends Manager
 		return $retStr;
 	}
 
-	private function addcslashesArr(&$arr)
-	{
+	private function addcslashesArr(&$arr){
 		foreach ($arr as $k => $v) {
 			if ($v) $arr[$k] = addcslashes($v, "\n\r\\");
 		}

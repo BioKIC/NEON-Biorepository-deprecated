@@ -33,7 +33,7 @@ class OccurrenceAnnotationController extends OccurrenceController{
 	 *		 in="query",
 	 *		 description="Annoration type (internal, external) ",
 	 *		 required=true,
-	 *		 @OA\Schema(type="string", default="internal", "enum": ["internal","external"])
+	 *		 @OA\Schema(type="string", default="internal", enum = {"internal", "external"})
 	 *	 ),
 	 *	 @OA\Parameter(
 	 *		 name="source",

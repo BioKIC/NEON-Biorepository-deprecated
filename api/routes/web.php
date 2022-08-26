@@ -53,8 +53,8 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	//$router->delete('media/{id}', ['uses' => 'MediaController@delete']);
 	//$router->put('media/{id}', ['uses' => 'MediaController@update']);
 
-	//$router->get('taxonomy',  ['uses' => 'TaxonomyController@showAllTaxa']);
-	//$router->get('taxonomy/{id}', ['uses' => 'TaxonomyController@showOneTaxon']);
+	$router->get('taxonomy',  ['uses' => 'TaxonomyController@showAllTaxa']);
+	$router->get('taxonomy/{id}', ['uses' => 'TaxonomyController@showOneTaxon']);
 	//$router->get('taxonomy/{id}/description',  ['uses' => 'TaxonomyController@showAllDescriptions']);
 	//$router->get('taxonomy/{id}/description/{id}',  ['uses' => 'TaxonomyDescriptionController@showOneDescription']);
 });

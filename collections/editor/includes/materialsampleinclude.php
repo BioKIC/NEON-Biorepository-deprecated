@@ -19,7 +19,7 @@ $materialSampleManager->setOccid($occid);
 
 $isEditor = false;
 if($IS_ADMIN) $isEditor = true;
-elseif($collId && array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])) $isEditor = true;
+elseif($collid && array_key_exists('CollAdmin',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])) $isEditor = true;
 elseif(array_key_exists('CollEditor',$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollEditor'])) $isEditor = true;
 
 $materialSampleArr = $materialSampleManager->getMaterialSampleArr();

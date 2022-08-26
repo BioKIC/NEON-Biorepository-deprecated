@@ -57,7 +57,6 @@ class OccurrenceController extends Controller{
 	 *		 required=false,
 	 *		 @OA\Schema(type="string")
 	 *	 ),
-	 *	 ),
 	 *	 @OA\Parameter(
 	 *		 name="collid",
 	 *		 in="query",

@@ -118,7 +118,6 @@ ALTER TABLE `agentteams`
 
 
 ALTER TABLE `fmchecklists` 
-  CHANGE COLUMN `CLID` `clid` INT(10) UNSIGNED NOT NULL ,
   CHANGE COLUMN `Name` `name` VARCHAR(100) NOT NULL ,
   CHANGE COLUMN `Title` `title` VARCHAR(150) NULL DEFAULT NULL ,
   CHANGE COLUMN `Locality` `locality` VARCHAR(500) NULL DEFAULT NULL ,
@@ -139,6 +138,9 @@ ALTER TABLE `fmchecklists`
   CHANGE COLUMN `SortSequence` `sortSequence` INT(10) UNSIGNED NOT NULL DEFAULT 50 ,
   CHANGE COLUMN `DateLastModified` `dateLastModified` DATETIME NULL DEFAULT NULL ,
   CHANGE COLUMN `InitialTimeStamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+ALTER TABLE `fmchecklists` 
+  CHANGE COLUMN `CLID` `clid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ;
 
 ALTER TABLE `fmchecklists`
   ADD COLUMN `dynamicProperties` TEXT NULL AFTER `headerUrl`,
@@ -539,8 +541,6 @@ ALTER TABLE `specprocessorprojects`
 ALTER TABLE `specprocessorprojects`
   ADD CONSTRAINT `FK_specprocprojects_uid`  FOREIGN KEY (`createdByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
-UPDATE IGNORE taxa SET author = "" WHERE author IS NULL;
-
 ALTER TABLE `taxa` 
   CHANGE COLUMN `TID` `tid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
   CHANGE COLUMN `RankId` `rankId` SMALLINT(5) UNSIGNED NULL DEFAULT NULL ,
@@ -555,6 +555,8 @@ ALTER TABLE `taxa`
   CHANGE COLUMN `Notes` `notes` VARCHAR(250) NULL DEFAULT NULL ,
   CHANGE COLUMN `Hybrid` `hybrid` VARCHAR(50) NULL DEFAULT NULL ,
   CHANGE COLUMN `SecurityStatus` `securityStatus` INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '0 = no security; 1 = hidden locality' ;
+
+UPDATE IGNORE taxa SET author = "" WHERE author IS NULL;
 
 ALTER TABLE `taxa` 
   CHANGE COLUMN `Author` `author` VARCHAR(150) NOT NULL DEFAULT "";

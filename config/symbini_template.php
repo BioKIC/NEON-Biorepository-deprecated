@@ -57,6 +57,7 @@ $GOOGLE_MAP_KEY = '';				//Needed for Google Map; get from Google
 $MAPBOX_API_KEY = '';
 $MAP_THUMBNAILS = false;				//Display Static Map thumbnails within taxon profile, checklist, etc
 
+$STORE_STATISTICS = 0;
 $MAPPING_BOUNDARIES = '';			//Project bounding box; default map centering; (e.g. 42.3;-100.5;18.0;-127)
 $ACTIVATE_GEOLOCATION = false;		//Activates HTML5 geolocation services in Map Search
 $GOOGLE_ANALYTICS_KEY = '';			//Needed for setting up Google Analytics

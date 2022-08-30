@@ -18,7 +18,7 @@ $router->get('/', function () use ($router) {
 });
 
 $router->get('/v2', function () use ($router) {
-	return $router->app->version();
+	return redirect('/v2/documentation');;
 });
 
 $router->group(['prefix' => 'v2'], function () use ($router) {

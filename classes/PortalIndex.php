@@ -114,7 +114,7 @@ class PortalIndex extends OmCollections{
 		if(is_numeric($collid)){
 			$sql = 'SELECT title, uspid, path, internalQuery, queryStr, cleanUpSP FROM uploadspecparameters WHERE uploadType = 13 AND collid = '.$collid;
 			$rs = $this->conn->query($sql);
-			if(!rs){
+			if(!$rs){
 				//Temp code only needed until db_schema_patch-1.2 is pushed to production
 				$sql = 'SELECT title, uspid, path, queryStr, cleanUpSP FROM uploadspecparameters WHERE uploadType = 13 AND collid = '.$collid;
 				$rs = $this->conn->query($sql);

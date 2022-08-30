@@ -169,6 +169,72 @@ ALTER TABLE `ctcontrolvocab`
 ALTER TABLE `fmprojects` 
   CHANGE COLUMN `projname` `projname` VARCHAR(75) NOT NULL ;
 
+ALTER TABLE `geographicthesaurus` 
+  ADD COLUMN `geoLevel` INT NOT NULL AFTER `category`;
+
+ALTER TABLE `geographicthesaurus` 
+  DROP FOREIGN KEY `FK_geothes_parentID`;
+
+ALTER TABLE `geographicthesaurus` 
+ADD CONSTRAINT `FK_geothes_parentID`  FOREIGN KEY (`parentID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
+
+ALTER TABLE `geographicthesaurus` 
+  ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `parentID` ASC);
+
+#Get rid of old geographic thesaurus tables that were never used
+DROP TABLE geothesmunicipality;
+DROP TABLE geothescounty;
+DROP TABLE geothesstateprovince;
+DROP TABLE geothescountry;
+DROP TABLE geothescontinent;
+
+
+ALTER TABLE `glossary` 
+  ADD COLUMN `plural` VARCHAR(150) NULL AFTER `term`,
+  ADD COLUMN `termType` VARCHAR(45) NULL AFTER `plural`,
+  ADD COLUMN `origin` VARCHAR(45) NULL AFTER `langid`,
+  ADD COLUMN `notesInternal` VARCHAR(250) NULL AFTER `notes`,
+  ADD INDEX `IX_gloassary_plural` (`plural` ASC);
+
+ALTER TABLE `glossary` 
+  CHANGE COLUMN `resourceurl` `resourceUrl` VARCHAR(600) NULL DEFAULT NULL ,
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+CREATE TABLE `glossarycategory` (
+  `glossCatID` INT NOT NULL AUTO_INCREMENT,
+  `category` VARCHAR(45) NULL,
+  `rankID` INT NULL DEFAULT 10,
+  `langID` INT NULL,
+  `parentCatID` INT NULL,
+  `translationCatID` INT NULL,
+  `notes` VARCHAR(150) NULL,
+  `modifiedUid` INT UNSIGNED NULL,
+  `modifiedTimestamp` TIMESTAMP NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`glossCatID`),
+  INDEX `FK_glossarycategory_lang_idx` (`langID` ASC),
+  INDEX `IX_glossarycategory_cat` (`category` ASC),
+  INDEX `FK_glossarycategory_transCatID_idx` (`translationCatID` ASC),
+  INDEX `FK_glossarycategory_parentCatID_idx` (`parentCatID` ASC),
+  UNIQUE INDEX `UQ_glossary_category_term` (`category` ASC, `langID` ASC, `rankid` ASC),
+  CONSTRAINT `FK_glossarycategory_lang`   FOREIGN KEY (`langID`)  REFERENCES `adminlanguages` (`langid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  CONSTRAINT `FK_glossarycategory_transCatID`  FOREIGN KEY (`translationCatID`)  REFERENCES `glossarycategory` (`glossCatID`)  ON DELETE SET NULL  ON UPDATE CASCADE,
+  CONSTRAINT `FK_glossarycategory_parentCatID`  FOREIGN KEY (`parentCatID`)  REFERENCES `glossarycategory` (`glossCatID`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+);
+
+CREATE TABLE `glossarycategorylink` (
+  `glossCatLinkID` INT NOT NULL AUTO_INCREMENT,
+  `glossID` INT UNSIGNED NOT NULL,
+  `glossCatID` INT NOT NULL,
+  `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`glossCatLinkID`),
+  INDEX `FK_glossCatLink_glossID_idx` (`glossID` ASC),
+  INDEX `FK_glossCatLink_glossCatID_idx` (`glossCatID` ASC),
+  CONSTRAINT `FK_glossCatLink_glossID`  FOREIGN KEY (`glossID`)  REFERENCES `glossary` (`glossid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
+  CONSTRAINT `FK_glossCatLink_glossCatID`  FOREIGN KEY (`glossCatID`)  REFERENCES `glossarycategory` (`glossCatID`)  ON DELETE CASCADE  ON UPDATE CASCADE
+);
+
+
 ALTER TABLE `guidoccurrences` 
   ADD COLUMN `occurrenceID` VARCHAR(45) NULL AFTER `archiveobj`;
 
@@ -239,25 +305,6 @@ ALTER TABLE `imageprojects`
 
 ALTER TABLE `institutions` 
   ADD COLUMN `institutionID` VARCHAR(45) NULL AFTER `iid`;
-
-ALTER TABLE `geographicthesaurus` 
-  ADD COLUMN `geoLevel` INT NOT NULL AFTER `category`;
-
-ALTER TABLE `geographicthesaurus` 
-  DROP FOREIGN KEY `FK_geothes_parentID`;
-
-ALTER TABLE `geographicthesaurus` 
-ADD CONSTRAINT `FK_geothes_parentID`  FOREIGN KEY (`parentID`)  REFERENCES `geographicthesaurus` (`geoThesID`)  ON DELETE RESTRICT  ON UPDATE CASCADE;
-
-ALTER TABLE `geographicthesaurus` 
-  ADD UNIQUE INDEX `UQ_geothes` (`geoterm` ASC, `parentID` ASC);
-
-#Get rid of old geographic thesaurus tables that were never used
-DROP TABLE geothesmunicipality;
-DROP TABLE geothescounty;
-DROP TABLE geothesstateprovince;
-DROP TABLE geothescountry;
-DROP TABLE geothescontinent;
 
 
 ALTER TABLE `omcollections` 
@@ -543,7 +590,7 @@ ALTER TABLE `specprocessorprojects`
 
 ALTER TABLE `taxa` 
   CHANGE COLUMN `TID` `tid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  CHANGE COLUMN `RankId` `rankId` SMALLINT(5) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `RankId` `rankID` SMALLINT(5) UNSIGNED NULL DEFAULT NULL ,
   CHANGE COLUMN `SciName` `sciName` VARCHAR(250) NOT NULL ,
   CHANGE COLUMN `UnitInd1` `unitInd1` VARCHAR(1) NULL DEFAULT NULL ,
   CHANGE COLUMN `UnitName1` `unitName1` VARCHAR(50) NOT NULL ,

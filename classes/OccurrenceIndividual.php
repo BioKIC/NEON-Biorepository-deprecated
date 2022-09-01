@@ -617,7 +617,7 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function echoTraitUnit($outArr, $label = '', $indent=0){
-		if($outArr){
+		if(isset($outArr['name'])){
 			echo '<div style="margin-left:'.$indent.'px">';
 			if(!empty($outArr['url'])) echo '<a href="'.$outArr['url'].'" target="_blank">';
 			echo '<span class="traitName">';

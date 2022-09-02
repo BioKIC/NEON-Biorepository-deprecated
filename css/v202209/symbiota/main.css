@@ -1,6 +1,6 @@
 /**
 * * Symbiota Redesign - main.css
-* * Version: August 2022
+* * Version: September 2022
 * * Author: Laura Rocha Prado
 * * Author URI: http://laura.rochaprado.com
 * * License: GNU General Public License v2 or later
@@ -19,14 +19,192 @@
 /* Fonts imports
   ========================================================================== */
 
-/* Global variables
+/* Global variables and components
    ========================================================================== */
+@import 'variables.css';
+@import 'header.css';
 
 /* Global styles
    ========================================================================== */
+html {
+  font-size: 10px; /* 1rem = 10px */
+}
+
+body {
+  background-color: var(--body-bg-color);
+  color: var(--body-text-color);
+  margin: 0;
+  -webkit-text-size-adjust: 100%;
+  font-size: 1.2rem;
+  font-weight: 400;
+  font-family: var(--body-font-family);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--darkest-color);
+}
+
+a {
+  transition: all 0.2s ease-in-out;
+  color: var(--darkest-color);
+}
+
+a:hover {
+  color: var(--bright-color);
+  cursor: pointer;
+}
+
+button {
+  background-color: var(--darkest-color);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  font-family: var(--heading-font-family)
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: var(--bright-color);
+  color: var(--darkest-color);
+}
+
+button > a {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover > a {
+  text-decoration: none;
+  color: var(--darkest-color);
+}
+
+#innertext {
+  margin: 0 auto;
+  padding: 10px;
+  background-color: var(--body-bg-color);
+}
+
+/* medium-large screens only */
+@media screen and (min-width: 64em) {
+  #innertext {
+    /* padding: 2rem 4rem; */
+    max-width: 67em;
+  }
+}
+
+#innertext p {
+  color: var(--body-text-color);
+  line-height: 1.5;
+}
+
+.navpath {
+  margin: 10px;
+}
+
+/**
+/* overriding jQuery UI CSS */
+.ui-widget,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button,
+.ui-widget-content a {
+  font-family: var(--body-font-family);
+}
+
+#maps.ui-widget-content button a {
+  color: #fff;
+  text-decoration: none;
+}
+
+#maps.ui-widget-content button:hover a {
+  color: #000;
+}
+
+#innertext #tabs {
+  max-width: 100%;
+}
+
+#tabs {
+  font-family: var(--body-font-family);
+}
+
+#tabs div:first-child {
+  padding: ;
+}
+
+#tabs a {
+  color: var(--darkest-color);
+  transition: all 0.2s ease-in-out;
+}
+
+#tabs a:hover {
+  color: var(--bright-color);
+}
+
+#tabs table {
+  width: 90%;
+}
+
+.ui-tabs .ui-tabs-panel {
+  padding: 10px 4px;
+}
+
+/***********************************************************************/
 
 /* Utility classes
 ========================================================================== */
+.text-huge {
+  font-size: 4rem;
+  font-family: var(--title-font-family);
+  margin: 0;
+}
 
-/* Components 
-   ========================================================================== */
+.text-big {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.text-md {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.grid-3 {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* huge screens only */
+@media screen and (min-width: 2560px) {
+  .text-huge {
+    font-size: 5rem;
+    font-family: var(--title-font-family);
+    margin: 0;
+  }
+
+  .text-big {
+    font-size: 2.5rem;
+  }
+}

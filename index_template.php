@@ -17,10 +17,8 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 	<?php
 	include($SERVER_ROOT . '/includes/header.php');
 	?>
-	<!-- This is inner text! -->
-	<div id="innertext">
-		<h1></h1>
-	</div>
+	<main id="innertext">
+	</main>
 	<?php
 	include($SERVER_ROOT . '/includes/footer.php');
 	?>

@@ -20,8 +20,8 @@
 			<div id="top_navbar">
 				<div id="right_navbarlinks">
 					<?php
-					if($USER_DISPLAY_NAME){
-						?>
+					if ($USER_DISPLAY_NAME) {
+					?>
 						<span style="">
 							Welcome <?php echo $USER_DISPLAY_NAME; ?>!
 						</span>
@@ -31,12 +31,11 @@
 						<span style="margin-left:5px;">
 							<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php?submit=logout">Logout</a>
 						</span>
-						<?php
-					}
-					else{
-						?>
+					<?php
+					} else {
+					?>
 						<span style="">
-							<a href="<?php echo $CLIENT_ROOT.'/profile/index.php?refurl='.$_SERVER['SCRIPT_NAME'].'?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
+							<a href="<?php echo $CLIENT_ROOT . '/profile/index.php?refurl=' . $_SERVER['SCRIPT_NAME'] . '?' . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
 								Log In
 							</a>
 						</span>
@@ -45,7 +44,7 @@
 								New Account
 							</a>
 						</span>
-						<?php
+					<?php
 					}
 					?>
 					<span style="margin-left:5px;margin-right:5px;">
@@ -55,13 +54,13 @@
 				</div>
 				<ul id="hor_dropdown">
 					<li>
-						<a href="<?php echo $CLIENT_ROOT; ?>/index.php" >Home</a>
+						<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a>
 					</li>
 					<li>
-						<a href="#" >Search</a>
+						<a href="#">Search</a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php" >Search Collections</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php">Search Collections</a>
 							</li>
 							<li>
 								<a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">Map Search</a>
@@ -69,38 +68,38 @@
 						</ul>
 					</li>
 					<li>
-						<a href="#" >Images</a>
+						<a href="#">Images</a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/index.php" >Image Browser</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/index.php">Image Browser</a>
 							</li>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/search.php" >Search Images</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/imagelib/search.php">Search Images</a>
 							</li>
 						</ul>
 					</li>
 					<li>
-						<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php" >Inventories</a>
+						<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php">Inventories</a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1" >Project 1</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=1">Project 1</a>
 							</li>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2" >Project 2</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=2">Project 2</a>
 							</li>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3" >Project 3</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=3">Project 3</a>
 							</li>
 						</ul>
 					</li>
 					<li>
-						<a href="#" >Interactive Tools</a>
+						<a href="#">Interactive Tools</a>
 						<ul>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist" >Dynamic Checklist</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist">Dynamic Checklist</a>
 							</li>
 							<li>
-								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key" >Dynamic Key</a>
+								<a href="<?php echo $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=key">Dynamic Key</a>
 							</li>
 						</ul>
 					</li>
@@ -109,4 +108,4 @@
 		</td>
 	</tr>
 	<tr>
-		<td id='middlecenter'  colspan="3">
+		<td id='middlecenter' colspan="3">

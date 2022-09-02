@@ -1654,6 +1654,9 @@ class DwcArchiverCore extends Manager{
 				$pubID = $portalManager->createPortalPublication($pubArr);
 			}
 			$statsManager = new OccurrenceAccessStats();
+			$sqlFrag = substr($sql, strpos($sql, 'WHERE '));
+			if($p = strpos($sqlFrag, 'LIMIT ')) $sqlFrag = substr($sqlFrag, 0, $p);
+			$occurAccessID = $statsManager->insertAccessEvent('download', $sqlFrag);
 			$batchOccidArr = array();
 			while ($r = $rs->fetch_assoc()) {
 				if ($r['occurrenceID'] && !strpos($r['occurrenceID'], ':')) {
@@ -1761,7 +1764,7 @@ class DwcArchiverCore extends Manager{
 				if ($this->isPublicDownload) {
 					if ($this->schemaType == 'dwc' || $this->schemaType == 'symbiota') {
 						//Don't count if dl is backup, GeoLocate transfer, or pensoft
-						$statsManager->recordAccessEvent($r['occid'], 'download');
+						$statsManager->insertAccessOccurrence($occurAccessID, $r['occid']);
 					}
 				}
 			}

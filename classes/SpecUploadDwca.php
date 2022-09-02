@@ -41,7 +41,6 @@ class SpecUploadDwca extends SpecUploadBase{
 					$this->path .= '&publicationguid='.$this->publicationGuid.'&portalguid='.$GLOBALS['PORTAL_GUID'];
 				}
 			}
-			echo 'path: '.$this->path; exit;
 			if((substr($this->path,0,1) == '/' || preg_match('/^[A-Za-z]{1}:/', $this->path)) && is_dir($this->path)){
 				//Path is a local directory, possible manually extracted local DWCA directory
 				if(substr($this->path,-1) != '/') $this->path .= '/';

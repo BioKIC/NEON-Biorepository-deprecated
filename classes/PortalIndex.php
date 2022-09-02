@@ -68,6 +68,9 @@ class PortalIndex extends OmCollections{
 				}
 				$retArr[$id]['internal'] = $this->getInternalCollection($collArr['collectionID'],$collArr['collectionGuid']);
 			}
+			usort($retArr, function($a, $b) {
+				return ($a['institutionCode'] < $b['institutionCode']) ? -1 : 1;
+			});
 		}
 		else $retArr['internal'] = $this->getInternalCollection($retArr['collectionID'],$retArr['collectionGuid']);
 		return $retArr;

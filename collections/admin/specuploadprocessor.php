@@ -25,6 +25,7 @@ $processingStatus = array_key_exists('processingstatus',$_REQUEST)?$_REQUEST['pr
 $finalTransfer = array_key_exists('finaltransfer',$_REQUEST)?$_REQUEST['finaltransfer']:0;
 $dbpk = array_key_exists('dbpk',$_REQUEST)?$_REQUEST['dbpk']:'';
 $sourceIndex = isset($_REQUEST['sourceindex'])?$_REQUEST['sourceindex']:0;
+$publicationGuid = array_key_exists('publicationGuid',$_POST)?$_POST['publicationGuid']:'';
 
 if(strpos($uspid,'-')){
 	$tok = explode('-',$uspid);
@@ -83,6 +84,7 @@ $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVersionDataEdits($versionData);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
+$duManager->setPublicationGuid($publicationGuid);
 
 $isEditor = 0;
 if($IS_ADMIN) $isEditor = 1;
@@ -233,6 +235,7 @@ include($SERVER_ROOT.'/includes/header.php');
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 						<input type="hidden" name="sourceindex" value="<?php echo $sourceIndex;?>" />
+						<input type="hidden" name="publicationGuid" value="<?php echo $duManager->getPublicationGuid();?>" />
 						<div style="margin:5px;">
 							<button type="submit" name="action" value="activateOccurrences"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 						</div>

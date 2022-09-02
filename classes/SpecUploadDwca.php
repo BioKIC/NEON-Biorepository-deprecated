@@ -974,5 +974,13 @@ class SpecUploadDwca extends SpecUploadBase{
 	public function getSourcePortalIndex(){
 		return $this->sourcePortalIndex;
 	}
+
+	public function setPublicationGuid($guid){
+		if(UuidFactory::is_valid($guid)) $this->publicationGuid = $guid;
+	}
+
+	public function getPublicationGuid(){
+		return $this->publicationGuid;
+	}
 }
 ?>

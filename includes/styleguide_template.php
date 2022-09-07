@@ -27,7 +27,7 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 		<p>Paragraph</p>
 		<p><a href="#">Link</a></p>
 		<p><button>Button</button></p>
-		<p><span class="button button-primary"><a href="#">Primary Button (Link)</a></span> <span class="button button-secondary"><a href="#">Secondary Button (Link)</a></span></p>
+		<p class="grid-3"><span class="button button-primary"><a href="#">Primary Button (Link)</a></span><span class="button button-secondary"><a href="#">Secondary Button (Link)</a></span><span class="button button-tertiary"><a href="#">Tertiary Button (Link)</a></span></p>
 	</main>
 	<?php
 	include($SERVER_ROOT . '/includes/footer.php');

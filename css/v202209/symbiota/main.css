@@ -82,34 +82,31 @@ a:hover {
 
 button {
   background-color: var(--darkest-color);
-  color: #fff;
   border: none;
   border-radius: 5px;
   padding: 0.5rem 1rem;
-  font-family: var(--heading-font-family)
-  font-weight: 500;
+  color: #fff;
+  font-family: var(--heading-font-family);
+  font-weight: 600;
+  letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
 button:hover {
-  background-color: var(--bright-color);
-  color: var(--darkest-color);
+  background-color: var(--medium-color);
+  color: var(--light-color);
 }
 
-button > a {
-  transition: all 0.2s ease-in-out;
-}
-
-button:hover > a {
-  text-decoration: none;
-  color: var(--darkest-color);
+hr {
+  border: 1px solid var(--bright-color);
 }
 
 #innertext {
   margin: 0 auto;
-  padding: 10px;
+  padding: 3rem 0;
   background-color: var(--body-bg-color);
+  width: 90%;
 }
 
 #innertext p {
@@ -208,6 +205,48 @@ button:hover > a {
   grid-template-columns: repeat(4, 1fr);
 }
 
+.button {
+  border: none;
+  border-radius: 5px;
+  padding: 0.6rem 1rem;
+  font-family: var(--heading-font-family);
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.button > a {
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.button-primary {
+  background-color: var(--darkest-color);
+}
+
+.button-primary:hover,
+.button-secondary:hover {
+  background-color: var(--medium-color);
+}
+
+.button-primary:hover > a,
+.button-secondary:hover > a {
+  color: var(--light-color);
+}
+
+.button-primary > a {
+  color: var(--light-color);
+}
+
+.button-secondary {
+  background-color: var(--bright-color);
+}
+
+.button-secondary > a {
+  color: var(--darkest-color);
+}
+
 /* Media queries
 ========================================================================== */
 /* Medium screens and up */
@@ -220,8 +259,8 @@ button:hover > a {
 
 /* Medium-large screens only */
 @media screen and (min-width: 1024px) {
-
   #innertext {
+    width: 90%;
     max-width: var(--max-innertext-width);
   }
 }

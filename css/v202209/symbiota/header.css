@@ -126,6 +126,8 @@ nav > ul.menu {
   display: block;
   color: var(--header-font-color);
   font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 
 .menu li {

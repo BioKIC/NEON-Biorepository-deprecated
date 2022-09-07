@@ -73,6 +73,7 @@ p {
 a {
   transition: all 0.2s ease-in-out;
   color: var(--link-color);
+  font-weight: 600;
 }
 
 a:hover {
@@ -198,6 +199,7 @@ hr {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  fit-content: auto;
 }
 
 .grid-4 {
@@ -214,6 +216,7 @@ hr {
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  width: fit-content;
 }
 
 .button > a {

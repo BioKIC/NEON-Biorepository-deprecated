@@ -1,9 +1,35 @@
 <div class="header-wrapper">
 	<header>
 		<nav class="top-login">
-			<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php">
-				Log in
-			</a>
+			<?php
+			if ($USER_DISPLAY_NAME) {
+			?>
+				<span>
+					Welcome <?php echo $USER_DISPLAY_NAME; ?>!
+				</span>
+				<span class="button button-tertiary">
+					<a href="<?php echo $CLIENT_ROOT; ?>/profile/viewprofile.php">My profile</a>
+				</span>
+				<span class="button button-secondary">
+					<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php?submit=logout">Log out</a>
+				</span>
+			<?php
+			} else {
+			?>
+				<span>
+					<a href="#">
+						Contact Us
+					</a>
+				</span>
+				<span class="button button-secondary">
+					<a href="<?php echo $CLIENT_ROOT . "/profile/index.php?refurl=" . $_SERVER['SCRIPT_NAME'] . "?" . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
+						Log in
+					</a>
+				</span>
+			<?php
+			}
+			?>
+
 		</nav>
 		<div class="top-brand">
 			<a href="https://symbiota.org">

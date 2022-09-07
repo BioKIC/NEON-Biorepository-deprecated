@@ -38,22 +38,40 @@ body {
   font-size: 1.2rem;
   font-weight: 400;
   font-family: var(--body-font-family);
-  display: grid;
-  grid-template-rows: auto 1fr auto;
 }
 
 h1,
 h2,
 h3,
-h4,
-h5,
-h6 {
+h4 {
   color: var(--darkest-color);
+  font-weight: 700;
+  font-family: var(--heading-font-family);
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 2.5rem;
+}
+
+h3 {
+  font-size: 2rem;
+}
+
+h4 {
+  font-size: 1.6rem;
+}
+
+p {
+  font-size: 1.4rem;
 }
 
 a {
   transition: all 0.2s ease-in-out;
-  color: var(--darkest-color);
+  color: var(--link-color);
 }
 
 a:hover {
@@ -91,14 +109,6 @@ button:hover > a {
   margin: 0 auto;
   padding: 10px;
   background-color: var(--body-bg-color);
-}
-
-/* medium-large screens only */
-@media screen and (min-width: 64em) {
-  #innertext {
-    /* padding: 2rem 4rem; */
-    max-width: 67em;
-  }
 }
 
 #innertext p {
@@ -196,7 +206,26 @@ button:hover > a {
   grid-template-columns: repeat(4, 1fr);
 }
 
-/* huge screens only */
+/* Media queries
+========================================================================== */
+/* Medium screens and up */
+@media (min-width: 768px) {
+  body {
+    display: grid;
+    grid-template-rows: auto 1fr auto; /* header, main, footer */
+  }
+}
+
+/* Medium-large screens only */
+@media screen and (min-width: 64em) {
+
+  #innertext {
+    /* padding: 2rem 4rem; */
+    max-width: 67em;
+  }
+}
+
+/* Huge screens only */
 @media screen and (min-width: 2560px) {
   .text-huge {
     font-size: 5rem;

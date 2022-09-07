@@ -47,9 +47,14 @@
 			<!-- Menu -->
 			<nav class="top-menu">
 				<ul class="menu">
-					<li><a href="#">Gallery</a></li>
-					<li><a href="#">Blog</a> </li>
-					<li><a href="#">About</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/collections/index.php">Search Collections</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/collections/map/index.php" target="_blank">Map Search</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/checklists/index.php">Checklists</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/imagelib/search.php">Image Search</a></li>
+					<li><a href="<?php echo $CLIENT_ROOT; ?>/includes/usagepolicy.php">Data Use</a></li>
+					<li><a href="https://symbiota.org/" target="_blank">About Symbiota</a></li>
+					<li><a href="https://biokic.github.io/symbiota-docs/" target="_blank">Help</a></li>
 				</ul>
 			</nav>
 		</div>

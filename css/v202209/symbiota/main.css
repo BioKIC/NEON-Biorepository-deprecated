@@ -211,6 +211,7 @@ hr {
   padding: 0.6rem 1rem;
   font-family: var(--heading-font-family);
   letter-spacing: 1px;
+  text-align: center;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
@@ -245,6 +246,12 @@ hr {
 
 .button-secondary > a {
   color: var(--darkest-color);
+}
+
+.button-tertiary {
+  background-color: none;
+  border: 1px solid var(--bright-color);
+  padding: 0.5rem 0.9rem;
 }
 
 /* Media queries

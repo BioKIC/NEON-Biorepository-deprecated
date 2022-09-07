@@ -210,6 +210,6 @@ nav > ul.menu {
 @media screen and (min-width: 1440px) {
   header {
     margin: 0 auto;
-    max-width: 1440px;
+    max-width: var(--max-innertext-width);
   }
 }

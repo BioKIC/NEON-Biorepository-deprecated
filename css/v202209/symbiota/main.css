@@ -23,6 +23,7 @@
    ========================================================================== */
 @import 'variables.css';
 @import 'header.css';
+@import 'footer.css';
 
 /* Global styles
    ========================================================================== */
@@ -193,6 +194,7 @@ button:hover > a {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1rem;
+  align-items: center;
 }
 
 .grid-3 {
@@ -217,11 +219,10 @@ button:hover > a {
 }
 
 /* Medium-large screens only */
-@media screen and (min-width: 64em) {
+@media screen and (min-width: 1024px) {
 
   #innertext {
-    /* padding: 2rem 4rem; */
-    max-width: 67em;
+    max-width: var(--max-innertext-width);
   }
 }
 

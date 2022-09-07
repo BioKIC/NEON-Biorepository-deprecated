@@ -19,10 +19,12 @@
   --body-text-color: #000000;
   --body-font-size: 1.2rem;
   --body-font-family: 'Roboto', sans-serif;
+  --footer-bg-color: #f2f0e9;
   --heading-font-family: 'Roboto', sans-serif;
   --link-color: #126c00;
   --darkest-color: #000;
   --medium-color: #5a5a53;
   --light-color: #f2f0e9;
   --bright-color: #00d084;
+  --max-innertext-width: 1440px;
 }

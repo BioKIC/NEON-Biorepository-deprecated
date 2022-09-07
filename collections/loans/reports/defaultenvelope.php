@@ -50,7 +50,7 @@ if($outputMode == 'doc'){
 		$textrun->addText(htmlspecialchars($invoiceArr['address2']),'toAddressFont');
 		$textrun->addTextBreak(1);
 	}
-	$textrun->addText(htmlspecialchars($invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode']),'toAddressFont');
+	$textrun->addText(htmlspecialchars($invoiceArr['city'].($invoiceArr['stateprovince']?', ':'').$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode']),'toAddressFont');
 	$textrun->addTextBreak(1);
 	$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
 
@@ -72,14 +72,7 @@ else{
 			<title>Addressed Envelope</title>
 			<?php
 			$activateJQuery = false;
-			if(file_exists($SERVER_ROOT.'/includes/head.php')){
-				include_once($SERVER_ROOT.'/includes/head.php');
-			}
-			else{
-				echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-				echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-				echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-			}
+			include_once($SERVER_ROOT.'/includes/head.php');
 			?>
 			<style type="text/css">
 				body {font-family:arial,sans-serif;}
@@ -113,7 +106,7 @@ else{
 								if($invoiceArr['institutionname2']) echo $invoiceArr['institutionname2'].'<br />';
 								if($invoiceArr['address1']) echo $invoiceArr['address1'].'<br />';
 								if($invoiceArr['address2']) echo $invoiceArr['address2'].'<br />';
-								echo $invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode'].'<br/>';
+								echo $invoiceArr['city'].($invoiceArr['stateprovince']?', ':'').$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode'].'<br/>';
 								echo $invoiceArr['country'];
 								?>
 							</div>

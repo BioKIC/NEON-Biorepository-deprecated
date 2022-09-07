@@ -22,6 +22,7 @@ $versionData = array_key_exists('versiondata',$_REQUEST) && $_REQUEST['versionda
 $verifyImages = array_key_exists('verifyimages',$_REQUEST) && $_REQUEST['verifyimages']?true:false;
 $processingStatus = array_key_exists('processingstatus',$_REQUEST)?$_REQUEST['processingstatus']:'';
 $dbpk = array_key_exists('dbpk',$_REQUEST)?$_REQUEST['dbpk']:'';
+$publicationGuid = array_key_exists('publicationGuid',$_REQUEST)?$_REQUEST['publicationGuid']:'';
 
 if(strpos($uspid,'-')){
 	$tok = explode('-',$uspid);
@@ -76,6 +77,7 @@ $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVersionDataEdits($versionData);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
+$duManager->setPublicationGuid($publicationGuid);
 
 if($action == 'Automap Fields') $autoMap = true;
 
@@ -477,6 +479,7 @@ include($SERVER_ROOT.'/includes/header.php');
 											</button>
 											<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 											<input type="hidden" name="collid" value="<?php echo $collid;?>" />
+											<input type="hidden" name="publicationGuid" value="<?php echo $duManager->getPublicationGuid();?>" />
 											<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
 											<input type="hidden" name="ulpath" value="<?php echo $ulPath;?>" />
 										</div>

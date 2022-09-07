@@ -11,6 +11,7 @@ class OccurrenceIndividual extends Manager{
 	private $metadataArr = array();
 	private $displayFormat = 'html';
 	private $relationshipArr;
+	private $activeModules = array();
 
 	public function __construct($type='readonly') {
 		parent::__construct(null,$type);
@@ -38,6 +39,16 @@ class OccurrenceIndividual extends Manager{
 								$this->metadataArr['contact'] = $contactStr;
 								if(isset($cArr['email']) && $cArr['email']) $this->metadataArr['email'] = $cArr['email'];
 								if(isset($cArr['centralContact'])) break;
+							}
+						}
+					}
+				}
+				if($this->metadataArr['dynamicproperties']){
+					if($propArr = json_decode($this->metadataArr['dynamicproperties'], true)) {
+						if(isset($propArr['editorProps']['modules-panel'])) {
+							foreach($propArr['editorProps']['modules-panel'] as $k => $modArr) {
+								if(isset($modArr['paleo']['status'])) $this->activeModules['paleo'] = true;
+								elseif (isset($modArr['matSample']['status'])) $this->activeModules['matSample'] = true;
 							}
 						}
 					}
@@ -154,6 +165,7 @@ class OccurrenceIndividual extends Manager{
 				$this->setLoan();
 				$this->setOccurrenceRelationships();
 				$this->setReferences();
+				$this->setMaterialSamples();
 				$this->setSource();
 			}
 			//Set access statistics
@@ -296,15 +308,17 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setPaleo(){
-		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biota, '.
-			'biostratigraphy, lithogroup, formation, taxonenvironment, member, bed, lithology, stratremarks, element, slideproperties, geologicalcontextid '.
-			'FROM omoccurpaleo WHERE occid = '.$this->occid;
-		$rs = $this->conn->query($sql);
-		if($rs){
-			while($r = $rs->fetch_assoc()){
-				$this->occArr = array_merge($this->occArr,$r);
+		if(isset($this->activeModules['paleo']) && $this->activeModules['paleo']){
+			$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biota, '.
+				'biostratigraphy, lithogroup, formation, taxonenvironment, member, bed, lithology, stratremarks, element, slideproperties, geologicalcontextid '.
+				'FROM omoccurpaleo WHERE occid = '.$this->occid;
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_assoc()){
+					$this->occArr = array_merge($this->occArr,$r);
+				}
+				$rs->free();
 			}
-			$rs->free();
 		}
 	}
 
@@ -418,6 +432,19 @@ class OccurrenceIndividual extends Manager{
 		}
 		else{
 			$this->warningArr[] = 'Unable to set occurrence references: '.$this->conn->error;
+		}
+	}
+
+	private function setMaterialSamples(){
+		if(isset($this->activeModules['matSample']) && $this->activeModules['matSample']){
+			$sql = 'SELECT m.matSampleID, m.sampleType, m.catalogNumber, m.guid, m.sampleCondition, m.disposition, m.preservationType, m.preparationDetails, m.preparationDate,
+				m.preparedByUid, CONCAT_WS(", ",u.lastname,u.firstname) as preparedBy, m.individualCount, m.sampleSize, m.storageLocation, m.remarks, m.dynamicFields, m.recordID, m.initialTimestamp
+				FROM ommaterialsample m LEFT JOIN users u ON m.preparedByUid = u.uid WHERE m.occid = '.$this->occid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_assoc()){
+				$this->occArr['matSample'][$r['matSampleID']] = $r;
+			}
+			$rs->free();
 		}
 	}
 
@@ -590,7 +617,7 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function echoTraitUnit($outArr, $label = '', $indent=0){
-		if($outArr){
+		if(isset($outArr['name'])){
 			echo '<div style="margin-left:'.$indent.'px">';
 			if(!empty($outArr['url'])) echo '<a href="'.$outArr['url'].'" target="_blank">';
 			echo '<span class="traitName">';
@@ -784,7 +811,7 @@ class OccurrenceIndividual extends Manager{
 
 	public function getAccessStats(){
 		$retArr = Array();
-		if(isset($GLOBALS['RECORD_STATS'])){
+		if(isset($GLOBALS['STORE_STATISTICS'])){
 			$sql = 'SELECT year(s.accessdate) as accessdate, s.accesstype, s.cnt
 				FROM omoccuraccesssummary s INNER JOIN omoccuraccesssummarylink l ON s.oasid = l.oasid
 				WHERE (l.occid = '.$this->occid.') GROUP BY s.accessdate, s.accesstype';

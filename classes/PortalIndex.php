@@ -68,6 +68,9 @@ class PortalIndex extends OmCollections{
 				}
 				$retArr[$id]['internal'] = $this->getInternalCollection($collArr['collectionID'],$collArr['collectionGuid']);
 			}
+			usort($retArr, function($a, $b) {
+				return ($a['institutionCode'] < $b['institutionCode']) ? -1 : 1;
+			});
 		}
 		else $retArr['internal'] = $this->getInternalCollection($retArr['collectionID'],$retArr['collectionGuid']);
 		return $retArr;
@@ -114,7 +117,7 @@ class PortalIndex extends OmCollections{
 		if(is_numeric($collid)){
 			$sql = 'SELECT title, uspid, path, internalQuery, queryStr, cleanUpSP FROM uploadspecparameters WHERE uploadType = 13 AND collid = '.$collid;
 			$rs = $this->conn->query($sql);
-			if(!rs){
+			if(!$rs){
 				//Temp code only needed until db_schema_patch-1.2 is pushed to production
 				$sql = 'SELECT title, uspid, path, queryStr, cleanUpSP FROM uploadspecparameters WHERE uploadType = 13 AND collid = '.$collid;
 				$rs = $this->conn->query($sql);
@@ -147,9 +150,14 @@ class PortalIndex extends OmCollections{
 			$pingUrl = $remotePath.'api/v2/installation/ping';
 			$remoteArr = $this->getAPIResponce($pingUrl);
 			if($remoteArr){
-				$handShakeUrl = $this->getDomain().$GLOBALS['CLIENT_ROOT'].'/api/v2/installation/'.$remoteArr['guid'].'/touch?endpoint='.$remoteArr['urlRoot'];
-				//echo '<div>Handshake URL: '.$handShakeUrl.'</div>';
-				$respArr = $this->getAPIResponce($handShakeUrl);
+				if($remoteArr['guid']){
+					$handShakeUrl = $this->getDomain().$GLOBALS['CLIENT_ROOT'].'/api/v2/installation/'.$remoteArr['guid'].'/touch?endpoint='.$remoteArr['urlRoot'];
+					//echo '<div>Handshake URL: '.$handShakeUrl.'</div>';
+					$respArr = $this->getAPIResponce($handShakeUrl);
+				}
+				else{
+					$this->errorMessage = 'Portal GUID not set within target portal: '.$remoteArr['urlRoot'];
+				}
 			}
 			else{
 				$this->errorMessage = 'Unable to connect to remote portal (url: '.$pingUrl.')';
@@ -220,10 +228,6 @@ class PortalIndex extends OmCollections{
 			$this->errorMessage = 'pubTitle is a required field';
 			return false;
 		}
-		if(!array_key_exists('collid', $inputArr) || !$inputArr['collid']){
-			$this->errorMessage = 'collid is a required field';
-			return false;
-		}
 		if(!array_key_exists('portalID', $inputArr) || !$inputArr['portalID']){
 			$this->errorMessage = 'portalID is a required field';
 			return false;
@@ -242,8 +246,9 @@ class PortalIndex extends OmCollections{
 			}
 		}
 		$pubTitle = $inputArr['pubTitle'];
-		$collid = $inputArr['collid'];
 		$direction = $inputArr['direction'];
+		$guid = isset($inputArr['guid']) && $inputArr['guid']?$inputArr['guid']:NULL;
+		$collid = isset($inputArr['collid']) && $inputArr['collid']?$inputArr['collid']:NULL;
 		$description = isset($inputArr['description']) && $inputArr['description']?$inputArr['description']:NULL;
 		$criteriaJson = isset($inputArr['criteriaJson']) && $inputArr['criteriaJson']?$inputArr['criteriaJson']:NULL;
 		$includeDeterminations = isset($inputArr['includeDeterminations']) && is_numeric($inputArr['includeDeterminations'])?$inputArr['includeDeterminations']:1;
@@ -252,10 +257,10 @@ class PortalIndex extends OmCollections{
 		$lastDateUpdate = isset($inputArr['lastDateUpdate']) && $inputArr['lastDateUpdate']?$inputArr['lastDateUpdate']:null;
 		$updateInterval = isset($inputArr['updateInterval']) && $inputArr['updateInterval']?$inputArr['updateInterval']:null;
 		$createdUid = $GLOBALS['SYMB_UID'];
-		$sql = 'INSERT INTO portalpublications(pubTitle, description, collid, portalID, direction, criteriaJson, includeDeterminations, includeImages, autoUpdate, lastDateUpdate, updateInterval, createdUid)
-			VALUES(?,?,?,?,?,?,?,?,?,?,?,?)';
+		$sql = 'INSERT INTO portalpublications(pubTitle, description, guid, collid, portalID, direction, criteriaJson, includeDeterminations, includeImages, autoUpdate, lastDateUpdate, updateInterval, createdUid)
+			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 		if($stmt = $this->conn->prepare($sql)) {
-			$stmt->bind_param('ssiissiiisii', $pubTitle, $description, $collid, $portalID, $direction, $criteriaJson, $includeDeterminations, $includeImages, $autoUpdate, $lastDateUpdate, $updateInterval, $createdUid);
+			$stmt->bind_param('sssiissiiisii', $pubTitle, $description, $guid, $collid, $portalID, $direction, $criteriaJson, $includeDeterminations, $includeImages, $autoUpdate, $lastDateUpdate, $updateInterval, $createdUid);
 			$stmt->execute();
 			if($stmt->affected_rows) $newPubIndex = $this->conn->insert_id;
 			elseif($stmt->error) $this->errorMessage = 'ERROR creating portalpublication profile: '.$this->conn->error;
@@ -269,7 +274,7 @@ class PortalIndex extends OmCollections{
 		$status = false;
 		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
 		if(is_numeric($pubid) && is_numeric($collid)){
-			$sql = 'INSERT INTO portaloccurrences(occid, targetOccid, pubID, refreshTimestamp)
+			$sql = 'INSERT INTO portaloccurrences(occid, remoteOccid, pubID, refreshTimestamp)
 				SELECT u.occid, u.dbpk, '.$pubid.', NOW()
 				FROM uploadspectemp u LEFT JOIN portaloccurrences l ON u.occid = l.occid
 				WHERE u.occid IS NOT NULL AND u.dbpk IS NOT NULL AND u.collid = '.$collid.' AND l.occid IS NULL';
@@ -279,6 +284,26 @@ class PortalIndex extends OmCollections{
 			else{
 				$status = false;
 				$this->errorMessage = 'ERROR creating mapping occurrence to a publishing instance';
+			}
+		}
+		return $status;
+	}
+
+	public function insertPortalOccurrences($pubid, $occidArr){
+		$status = false;
+		if(!isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])) return false;
+		if(is_numeric($pubid)){
+			foreach($occidArr as $occid){
+				if(is_numeric($occid)){
+					$sql = 'INSERT INTO portaloccurrences(occid, pubID, refreshTimestamp) VALUES(?, ?, NOW())';
+					if($stmt = $this->conn->prepare($sql)) {
+						$stmt->bind_param('ii', $occid, $pubid);
+						if($stmt->execute()) $status = true;
+						else $this->errorMessage = 'ERROR inserting portaloccurrence: '.$this->conn->error;
+						$stmt->close();
+					}
+					else $this->errorMessage = 'ERROR preparing portaloccurrence insert: '.$this->conn->error;
+				}
 			}
 		}
 		return $status;

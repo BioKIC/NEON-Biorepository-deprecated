@@ -256,14 +256,14 @@ class PortalIndex extends OmCollections{
 		$autoUpdate = isset($inputArr['autoUpdate']) && is_numeric($inputArr['autoUpdate'])?$inputArr['autoUpdate']:0;
 		$lastDateUpdate = isset($inputArr['lastDateUpdate']) && $inputArr['lastDateUpdate']?$inputArr['lastDateUpdate']:null;
 		$updateInterval = isset($inputArr['updateInterval']) && $inputArr['updateInterval']?$inputArr['updateInterval']:null;
-		$createdUid = $GLOBALS['SYMB_UID'];
+		$createdUid = isset($GLOBALS['SYMB_UID']) && $GLOBALS['SYMB_UID'] ? $GLOBALS['SYMB_UID'] : null;
 		$sql = 'INSERT INTO portalpublications(pubTitle, description, guid, collid, portalID, direction, criteriaJson, includeDeterminations, includeImages, autoUpdate, lastDateUpdate, updateInterval, createdUid)
 			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 		if($stmt = $this->conn->prepare($sql)) {
 			$stmt->bind_param('sssiissiiisii', $pubTitle, $description, $guid, $collid, $portalID, $direction, $criteriaJson, $includeDeterminations, $includeImages, $autoUpdate, $lastDateUpdate, $updateInterval, $createdUid);
 			$stmt->execute();
 			if($stmt->affected_rows) $newPubIndex = $this->conn->insert_id;
-			elseif($stmt->error) $this->errorMessage = 'ERROR creating portalpublication profile: '.$this->conn->error;
+			elseif($stmt->error) $this->errorMessage = 'ERROR creating portalpublication profile: '.$stmt->error;
 			$stmt->close();
 		}
 		else $this->errorMessage = 'ERROR creating portalpublication profile: '.$this->conn->error;
@@ -299,7 +299,7 @@ class PortalIndex extends OmCollections{
 					if($stmt = $this->conn->prepare($sql)) {
 						$stmt->bind_param('ii', $occid, $pubid);
 						if($stmt->execute()) $status = true;
-						else $this->errorMessage = 'ERROR inserting portaloccurrence: '.$this->conn->error;
+						else $this->errorMessage = 'ERROR inserting portaloccurrence: '.$stmt->error;
 						$stmt->close();
 					}
 					else $this->errorMessage = 'ERROR preparing portaloccurrence insert: '.$this->conn->error;

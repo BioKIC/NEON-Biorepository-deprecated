@@ -2009,7 +2009,7 @@ class DwcArchiverCore extends Manager{
 			case "collid":
 				$collData = $_SESSION['colldata'];
 				// if collData includes a gbiftitle, pass it to the citation
-				if (array_key_exists('gbiftitle', $collData)) {
+				if ($collData && array_key_exists('gbiftitle', $collData)) {
 					$citationFormat = "gbif";
 				} else {
 					$citationFormat = "collection";

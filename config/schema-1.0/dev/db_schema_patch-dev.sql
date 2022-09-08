@@ -570,7 +570,7 @@ CREATE TABLE `portaloccurrences` (
   `portalOccurrencesID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `occid` int(10) unsigned NOT NULL,
   `pubid` int(10) unsigned NOT NULL,
-  `remoteOccid` int(11) NOT NULL,
+  `remoteOccid` int(11) NULL DEFAULT NULL,
   `verification` int(11) NOT NULL DEFAULT 0,
   `refreshTimestamp` datetime NOT NULL,
   `initialTimestamp` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -617,6 +617,13 @@ ALTER TABLE `taxa`
   
 ALTER TABLE `taxstatus` 
   CHANGE COLUMN `taxonomicSource` `taxonomicSource` VARCHAR(500) NULL DEFAULT NULL;
+
+ALTER TABLE `taxalinks` 
+  ADD INDEX `FK_taxaLinks_tid` (`tid` ASC),
+  ADD UNIQUE INDEX `UQ_taxaLinks_tid_url` (`tid` ASC, `url` ASC);
+
+ALTER TABLE `taxalinks` 
+  DROP INDEX `Index_unique` ;
 
 ALTER TABLE `uploadspectemp` 
   ADD COLUMN `eventTime` VARCHAR(45) NULL AFTER `verbatimEventDate`,

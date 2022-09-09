@@ -89,7 +89,7 @@ class SpecUploadDwca extends SpecUploadBase{
 	}
 
 	private function createTargetSubDir(){
-		$localFolder = $this->collMetadataArr["institutioncode"].($this->collMetadataArr["collectioncode"]?$this->collMetadataArr["collectioncode"].'_':'').time().'/';
+		$localFolder = str_replace(' ','',$this->collMetadataArr['institutioncode'].($this->collMetadataArr['collectioncode']?$this->collMetadataArr['collectioncode'].'_':'')).time().'/';
 		if(mkdir($this->uploadTargetPath.$localFolder)) $this->uploadTargetPath .= $localFolder;
 	}
 
@@ -425,7 +425,7 @@ class SpecUploadDwca extends SpecUploadBase{
 							break;
 						}
 					}
-					elseif(is_dir($this->uploadTargetPath.$pathFrag) && $item != '.' && $item != '..'){
+					elseif(is_dir($this->uploadTargetPath.$pathFrag.$item) && $item != '.' && $item != '..'){
 						$pathFrag .= $item.'/';
 						$this->locateBaseFolder($pathFrag);
 					}
@@ -728,7 +728,7 @@ class SpecUploadDwca extends SpecUploadBase{
 		$dirPath = $this->uploadTargetPath.$pathFrag;
 		if(!$pathFrag){
 			//If files were not uploaded to temp directory, don't delete
-			$this->setUploadTargetPath();
+			//$this->setUploadTargetPath();
 			if(stripos($dirPath,$this->uploadTargetPath) === false){
 				return false;
 			}
@@ -741,7 +741,7 @@ class SpecUploadDwca extends SpecUploadBase{
 							unlink($dirPath.$item);
 						}
 					}
-					elseif(is_dir($dirPath) && $item != '.' && $item != '..'){
+					elseif(is_dir($dirPath.$item) && $item != '.' && $item != '..'){
 						$pathFrag .= $item.'/';
 						$this->removeFiles($pathFrag);
 					}

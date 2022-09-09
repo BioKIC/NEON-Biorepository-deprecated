@@ -38,6 +38,14 @@ $dArr = $datasetManager->getPublicDatasets();
 		<h1>Public Datasets List</h1>
 		<ul>
 			<?php
+			$canPublish = false;
+			if ($IS_ADMIN) {
+				$canPublish = true;
+			}
+
+			// if ($canPublish) echo '<p><a href="datasetmanager.php">Dataset Management</a></p>';
+			if ($canPublish) echo '<p><a id="pubtools" href="">Dataset publishing</a></p>';
+
 			if ($dArr) {
 				$catArr = array();
 				// Creates categories array
@@ -68,5 +76,10 @@ $dArr = $datasetManager->getPublicDatasets();
 	include($SERVER_ROOT . '/includes/footer.php');
 	?>
 </body>
+<script>
+	let pubTools = document.getElementById('pubtools');
+	// toggle visibility of save button
+	pubTools.addEventListener('click', function() {});
+</script>
 
 </html>

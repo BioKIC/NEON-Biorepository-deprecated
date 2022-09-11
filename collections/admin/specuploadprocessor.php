@@ -73,6 +73,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType ==
 		}
 	}
 	$duManager->setSourcePortalIndex($sourceIndex);
+	$duManager->setPublicationGuid($publicationGuid);
 }
 
 $duManager->setCollId($collid);
@@ -84,7 +85,6 @@ $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVersionDataEdits($versionData);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
-$duManager->setPublicationGuid($publicationGuid);
 
 $isEditor = 0;
 if($IS_ADMIN) $isEditor = 1;
@@ -223,7 +223,10 @@ include($SERVER_ROOT.'/includes/header.php');
 						//Extensions
 						if(isset($reportArr['ident'])) echo '<div>'.$LANG['IDENT_TRANSFER'].': '.$reportArr['ident'].'</div>';
 						if(isset($reportArr['image'])) echo '<div>'.$LANG['IMAGE_TRANSFER'].': '.$reportArr['image'].'</div>';
-						if($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType == $SYMBIOTA) $sourceIndex = $duManager->getSourcePortalIndex();
+						if($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType == $SYMBIOTA){
+							$sourceIndex = $duManager->getSourcePortalIndex();
+							$publicationGuid = $duManager->getPublicationGuid();
+						}
 						?>
 					</div>
 					<form name="finaltransferform" action="specuploadprocessor.php" method="post" style="margin-top:10px;" onsubmit="return confirm('<?php echo $LANG['FINAL_TRANSFER']; ?>');">
@@ -235,7 +238,7 @@ include($SERVER_ROOT.'/includes/header.php');
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 						<input type="hidden" name="sourceindex" value="<?php echo $sourceIndex;?>" />
-						<input type="hidden" name="publicationGuid" value="<?php echo $duManager->getPublicationGuid();?>" />
+						<input type="hidden" name="publicationGuid" value="<?php echo $publicationGuid;?>" />
 						<div style="margin:5px;">
 							<button type="submit" name="action" value="activateOccurrences"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 						</div>

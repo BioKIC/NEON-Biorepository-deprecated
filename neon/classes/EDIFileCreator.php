@@ -1255,6 +1255,7 @@ class EDIFileCreator extends Manager
 	 * OUTPUT: XML String representing the EML
 	 * USED BY: this class, and emlhandler.php
 	 * MODIFICATIONS: uses EDI-validated EML schema
+	 * Orders elments in xml output
 	 */
 	public function getEmlDom($emlArr = null)
 	{
@@ -1331,6 +1332,14 @@ class EDIFileCreator extends Manager
 			}
 		}
 
+		if (array_key_exists('associatedParty', $emlArr)) {
+			$associatedPartyArr = $emlArr['associatedParty'];
+			foreach ($associatedPartyArr as $assocArr) {
+				$assocElem = $this->getNode($newDoc, 'associatedParty', $assocArr);
+				$datasetElem->appendChild($assocElem);
+			}
+		}
+
 		if (array_key_exists('pubDate', $emlArr) && $emlArr['pubDate']) {
 			$pubElem = $newDoc->createElement('pubDate');
 			$pubElem->appendChild($newDoc->createTextNode($emlArr['pubDate']));
@@ -1350,17 +1359,20 @@ class EDIFileCreator extends Manager
 			$datasetElem->appendChild($abstractElem);
 		}
 
+		// Add keywords from url request
+		// if (array_key_exists('keyword', $emlArr)) {
+		// 	$keywordArr = $emlArr['keyword'];
+		// 	foreach ($keywordArr as $k => $v) {
+		// 		$keywordElem = $newDoc->createElement('keywordSet');
+		// 		$keywordElem->appendChild($newDoc->createElement('keyword', $v));
+		// 		$datasetElem->appendChild($keywordElem);
+		// 	}
+		// }
+
 		if (array_key_exists('contact', $emlArr)) {
 			$contactArr = $emlArr['contact'];
 			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
 			$datasetElem->appendChild($contactNode);
-		}
-		if (array_key_exists('associatedParty', $emlArr)) {
-			$associatedPartyArr = $emlArr['associatedParty'];
-			foreach ($associatedPartyArr as $assocArr) {
-				$assocElem = $this->getNode($newDoc, 'associatedParty', $assocArr);
-				$datasetElem->appendChild($assocElem);
-			}
 		}
 
 		if (array_key_exists('intellectualRights', $emlArr)) {
@@ -1377,6 +1389,14 @@ class EDIFileCreator extends Manager
 			$rightsElem->appendChild($paraElem);
 			$datasetElem->appendChild($rightsElem);
 		}
+
+		// Add coverage
+
+		// Add contact
+
+		// Add dataTable
+
+		// Close dataset
 
 		if (array_key_exists('project', $emlArr)) {
 			$projectElem = $this->getNode($newDoc, 'project', $emlArr['project']);

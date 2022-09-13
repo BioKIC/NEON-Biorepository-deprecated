@@ -76,7 +76,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 					$sql = 'SELECT DISTINCT v.occid '.
 						'FROM fmvouchers v INNER JOIN taxstatus ts ON v.tid = ts.tidaccepted '.
 						'INNER JOIN taxstatus ts2 ON ts.tidaccepted = ts2.tidaccepted '.
-						'WHERE (v.clid = '.$this->searchTermArr["targetclid"].') AND (v.tid = '.$this->taxaArr['search'].')';
+						'WHERE (v.clid = '.$this->searchTermArr['targetclid'].') AND (v.tid IN('.$this->taxaArr['search'].'))';
 					$rs = $this->conn->query($sql);
 					while($r = $rs->fetch_object()){
 						$clOccidArr[] = $r->occid;

@@ -1,4 +1,5 @@
 <?php
+include_once('../config/symbini.php');
 include_once($SERVER_ROOT . '/classes/Manager.php');
 include_once($SERVER_ROOT . '/classes/DwcArchiverOccurrence.php');
 include_once($SERVER_ROOT . '/classes/DwcArchiverDetermination.php');
@@ -1196,6 +1197,12 @@ class EDIFileCreator extends Manager
 
 		$emlArr['pubDate'] = date("Y-m-d");
 
+		// adds keywords from request
+		if (isset($_POST['keywords'])) {
+			// add each term in $_POST['keywords'] as item in array
+			$emlArr['keywordSet'] = explode(',', $_POST['keywords']);
+		}
+
 		//Append collection metadata
 		foreach ($this->collArr as $id => $collArr) {
 			//Collection metadata section (additionalMetadata)
@@ -1360,19 +1367,18 @@ class EDIFileCreator extends Manager
 		}
 
 		// Add keywords from url request
-		// if (array_key_exists('keyword', $emlArr)) {
-		// 	$keywordArr = $emlArr['keyword'];
-		// 	foreach ($keywordArr as $k => $v) {
-		// 		$keywordElem = $newDoc->createElement('keywordSet');
-		// 		$keywordElem->appendChild($newDoc->createElement('keyword', $v));
-		// 		$datasetElem->appendChild($keywordElem);
-		// 	}
-		// }
-
-		if (array_key_exists('contact', $emlArr)) {
-			$contactArr = $emlArr['contact'];
-			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
-			$datasetElem->appendChild($contactNode);
+		if (array_key_exists('keywordSet', $emlArr)) {
+			$keywordArr = $emlArr['keywordSet'];
+			// create keywordSet element
+			$keywordSetElem = $newDoc->createElement('keywordSet');
+			// create keyword element for each item in keyword array
+			foreach ($keywordArr as $keyword) {
+				$keywordElem = $newDoc->createElement('keyword');
+				$keywordElem->appendChild($newDoc->createTextNode($keyword));
+				$keywordSetElem->appendChild($keywordElem);
+			}
+			// append to dataset element
+			$datasetElem->appendChild($keywordSetElem);
 		}
 
 		if (array_key_exists('intellectualRights', $emlArr)) {
@@ -1406,6 +1412,12 @@ class EDIFileCreator extends Manager
 			 * $projectArr = array('nodeAttribute' => array( 'id' => 'BID-AF2020-122-NAC'), 'title' => 'The Gabon Biodiversity Portal', 'abstract' => array('para' => 'https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal'))
 			 * json: {"publicationProps":{"project":{"nodeAttribute":{"id":"BID-AF2020-122-NAC"},"title":"The Gabon Biodiversity Portal","abstract":{"para":"https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal"}}}}
 			*/
+		}
+
+		if (array_key_exists('contact', $emlArr)) {
+			$contactArr = $emlArr['contact'];
+			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
+			$datasetElem->appendChild($contactNode);
 		}
 
 		$symbElem = $newDoc->createElement('symbiota');

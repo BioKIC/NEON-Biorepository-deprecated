@@ -730,11 +730,11 @@ class DwcArchiverCore extends Manager{
 					if ($guidTarget == 'catalogNumber') {
 						$r['occurrenceID'] = $r['catalogNumber'];
 					} elseif ($guidTarget == 'symbiotaUUID') {
-						$r['occurrenceID'] = 'urn:uuid:' . $r['recordID'];
+						$r['occurrenceID'] = $r['recordID'];
 					}
 				}
 
-				$r['recordID'] = 'urn:uuid:' . $r['recordID'];
+				$r['recordID'] = $r['recordID'];
 				//Add collection GUID based on management type
 				$managementType = $this->collArr[$r['collid']]['managementtype'];
 				if ($managementType && $managementType == 'Live Data') {
@@ -1659,14 +1659,11 @@ class DwcArchiverCore extends Manager{
 			$occurAccessID = $statsManager->insertAccessEvent('download', $sqlFrag);
 			$batchOccidArr = array();
 			while ($r = $rs->fetch_assoc()) {
-				if ($r['occurrenceID'] && !strpos($r['occurrenceID'], ':')) {
-					if(UuidFactory::is_valid($r['occurrenceID'])) $r['occurrenceID'] = 'urn:uuid:' . $r['occurrenceID'];
-				}
-				else{
+				if (!$r['occurrenceID']) {
 					//Set occurrence GUID based on GUID target, but only if occurrenceID field isn't already populated
 					$guidTarget = $this->collArr[$r['collID']]['guidtarget'];
 					if ($guidTarget == 'catalogNumber') $r['occurrenceID'] = $r['catalogNumber'];
-					elseif ($guidTarget == 'symbiotaUUID') $r['occurrenceID'] = 'urn:uuid:' . $r['recordID'];
+					elseif ($guidTarget == 'symbiotaUUID') $r['occurrenceID'] = $r['recordID'];
 				}
 				if ($this->limitToGuids && (!$r['occurrenceID'] || !$r['basisOfRecord'])) {
 					// Skip record because there is no occurrenceID guid
@@ -1686,7 +1683,6 @@ class DwcArchiverCore extends Manager{
 				}
 
 				if ($urlPathPrefix) $r['t_references'] = $urlPathPrefix . 'collections/individual/index.php?occid=' . $r['occid'];
-				$r['recordID'] = 'urn:uuid:' . $r['recordID'];
 				//Add collection GUID based on management type
 				$managementType = $this->collArr[$r['collID']]['managementtype'];
 				if ($managementType && $managementType == 'Live Data') {

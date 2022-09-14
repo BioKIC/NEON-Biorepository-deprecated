@@ -245,6 +245,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 
 	public function getCollectionList($catID){
 		$retArr = array();
+		$serverName = $this->getDomain();
 		$sql = 'SELECT c.collid, c.collectionname, CONCAT_WS("-",c.institutioncode,c.collectioncode) as instcode, c.guidtarget, c.dwcaurl, c.managementtype, c.dynamicProperties '.
 			'FROM omcollections c INNER JOIN omcollectionstats s ON c.collid = s.collid '.
 			'LEFT JOIN omcollcatlink l ON c.collid = l.collid '.
@@ -255,8 +256,9 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		while($r = $rs->fetch_object()){
 			$retArr[$r->collid]['name'] = $r->collectionname.' ('.$r->instcode.')';
 			$retArr[$r->collid]['guid'] = $r->guidtarget;
-			$retArr[$r->collid]['url'] = substr($r->dwcaurl,0,strpos($r->dwcaurl,'/content')).'/collections/datasets/datapublisher.php';
-			$serverName = $this->getDomain();
+			$url = $r->dwcaurl;
+			if($url) $url = substr($url,0,strpos($url,'/content')).'/collections/datasets/datapublisher.php';
+			$retArr[$r->collid]['url'] = $url;
 			if(!$r->guidtarget) $retArr[$r->collid]['err'] = 'MISSING_GUID';
 			elseif($r->dwcaurl && !strpos($serverName, 'localhost') && strpos($r->dwcaurl, str_replace('www.', '', $serverName)) === false) $retArr[$r->collid]['err'] = 'ALREADY_PUB_DOMAIN';
 			if($r->dynamicProperties && strpos($r->dynamicProperties,'matSample":{"status":1')) $this->materialSampleIsActive = true;

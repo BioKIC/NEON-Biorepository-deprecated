@@ -14,18 +14,15 @@ $clManager = new ChecklistAdmin();
 if(!$clid && isset($_POST['delclid'])) $clid = $_POST['delclid'];
 $clManager->setClid($clid);
 
-
 $statusStr = '';
-if($action == 'SubmitAdd'){
-	
-	//Conform User Checklist permission 
-	if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USER_RIGHTS['ClAdmin'])) || array_key_exists('ClCreate',$USER_RIGHTS)){		
+if($action == 'submitAdd'){
+	//Conform User Checklist permission
+	if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USER_RIGHTS['ClAdmin'])) || array_key_exists('ClCreate',$USER_RIGHTS)){
 		$newClid = $clManager->createChecklist($_POST);
-		header('Location: checklist.php?clid='.$newClid);
-	} 
-	
+		if($newClid) header('Location: checklist.php?clid='.$newClid);
+	}
 	//If we made it here the user does not have any checklist roles. cancel further execution.
-	$statusStr = 'You do not have permission to create a Checklist.';
+	$statusStr = 'You do not have permission to create a Checklist. Please contact an administrator.';
 }
 
 $isEditor = 0;
@@ -33,7 +30,7 @@ if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USE
 	$isEditor = 1;
 
 	//Submit checklist MetaData edits
-	if($action == 'SubmitEdit'){
+	if($action == 'submitEdit'){
 		$clManager->editMetaData($_POST);
 		header('Location: checklist.php?clid='.$clid.'&pid='.$pid);
 	}

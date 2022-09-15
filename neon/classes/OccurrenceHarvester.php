@@ -277,14 +277,12 @@ class OccurrenceHarvester{
 			elseif($sampleArr['sampleUuid'] != $viewArr['sampleUuid']){
 				$this->errorLogArr[] = 'NOTICE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
 				$this->errorStr .= '; <span style="color:red">DATA ISSUE</span>: sampleUuid failing to match (old: '.$sampleArr['sampleUuid'].', new: '.$viewArr['sampleUuid'].')';
-				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 				$status = false;
 			}
 		}
 		if($sampleArr['sampleClass'] && isset($viewArr['sampleClass']) && $sampleArr['sampleClass'] != $viewArr['sampleClass']){
 			//sampleClass are not equal; don't update, just record within NeonSample error field and then skip harvest of this record
 			$this->errorStr .= '; <span style="color:red">DATA ISSUE</span>: sampleClass failing to match (old: '.$sampleArr['sampleClass'].', new: '.$viewArr['sampleClass'].')';
-			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
 			$status = false;
 		}
 		if(isset($viewArr['archiveGuid']) && $viewArr['archiveGuid']){
@@ -323,8 +321,7 @@ class OccurrenceHarvester{
 				$sampleArr['hashedSampleID'] = $viewArr['sampleTag'];
 			}
 			else{
-				$this->errorStr .= '; <span style="color:red">DATA ISSUE</span>: sampleID different than NEON API value';
-				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+				$this->errorStr .= '; <span style="color:red">DATA ISSUE</span>: sampleID failing to match';
 				$status = false;
 				/*
 				 if($this->updateSampleID($viewArr['sampleTag'], $sampleArr['sampleID'], $sampleArr['samplePK'], $sampleArr['occid'])){
@@ -338,6 +335,7 @@ class OccurrenceHarvester{
 				 */
 			}
 		}
+		if(!$status) $this->setSampleErrorMessage($sampleArr['samplePK'], trim($this->errorStr, '; '));
 		$this->updateSampleRecord($neonSampleUpdate,$sampleArr['samplePK']);
 		return $status;
 	}
@@ -1343,7 +1341,7 @@ class OccurrenceHarvester{
 
 	private function setSampleErrorMessage($samplePK, $msg){
 		if(is_numeric($samplePK)){
-			$sql = 'UPDATE NeonSample SET errorMessage = '.($msg?'"'.$this->cleanInStr($msg).'"':'NULL').' WHERE (samplePK = '.$samplePK.')';
+			$sql = 'UPDATE NeonSample SET errorMessage = CONCAT_WS("; ",'.($msg?'"'.$this->cleanInStr($msg).'"':'NULL').') WHERE (samplePK = '.$samplePK.')';
 			$this->conn->query($sql);
 		}
 	}

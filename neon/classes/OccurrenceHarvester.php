@@ -23,7 +23,7 @@ class OccurrenceHarvester{
 	private $errorLogArr = array();
 
 	public function __construct(){
-		$this->conn = MySQLiConnectionFactory::getCon("write");
+		$this->conn = MySQLiConnectionFactory::getCon('write');
 		$this->neonApiBaseUrl = 'https://data.neonscience.org/api/v0';
 		if(isset($GLOBALS['NEON_API_KEY'])) $this->neonApiKey = $GLOBALS['NEON_API_KEY'];
 	}
@@ -143,7 +143,7 @@ class OccurrenceHarvester{
 					}
 				}
 				else{
-					echo '</li><li style="margin-left:30px">ERROR: '.$this->errorStr.'</li>';
+					echo '</li><li style="margin-left:30px">ERROR: '.trim($this->errorStr, ';, ').'</li>';
 				}
 				$cnt++;
 				flush();
@@ -251,76 +251,7 @@ class OccurrenceHarvester{
 			return false;
 		}
 		$viewArr = current($sampleViewArr['sampleViews']);
-		$neonSampleUpdate = array();
-		//Check and populate identifiers
-		if(isset($viewArr['sampleUuid']) && $viewArr['sampleUuid']){
-			//Populate or verify/coordinate sampleUuid
-			if(!$sampleArr['sampleUuid'] || $sampleArr['sampleUuid'] != $viewArr['sampleUuid']){
-				$sampleArr['sampleUuid'] = $viewArr['sampleUuid'];
-				$neonSampleUpdate['sampleUuid'] = $viewArr['sampleUuid'];
-				if($sampleArr['sampleUuid'] != $viewArr['sampleUuid']){
-					$this->errorLogArr[] = 'NOTICE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
-					$errMsg = 'DATA ISSUE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
-					$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
-				}
-			}
-		}
-		if(isset($viewArr['archiveGuid']) && $viewArr['archiveGuid']){
-			$igsnMatch = array();
-			if(preg_match('/(NEON[A-Z,0-9]{5})/', $viewArr['archiveGuid'], $igsnMatch)){
-				if($sampleArr['occid']){
-					//Reharvest event
-					if(isset($sampleArr['occurrenceID']) && $sampleArr['occurrenceID']){
-						if($sampleArr['occurrenceID'] == $igsnMatch[1]){
-							$neonSampleUpdate['igsnPushedToNEON'] = 1;
-						}
-						else{
-							$neonSampleUpdate['errorMessage'] = 'DATA ISSUE: IGSN failing to match with API value';
-							$neonSampleUpdate['igsnPushedToNEON'] = 2;
-						}
-					}
-					else{
-						if(!$this->igsnExists($igsnMatch[1],$sampleArr)){
-							if(!$this->updateOccurrenceIgsn($igsnMatch[1], $sampleArr['occid'])){
-								$this->errorLogArr[] = 'NOTICE: unable to update igsn: '.$this->conn->error;
-								$neonSampleUpdate['igsnPushedToNEON'] = 3;
-							}
-						}
-					}
-				}
-				else{
-					//New record should use ISGN, if it is not already assigned to another record
-					if(!$this->igsnExists($igsnMatch[1],$sampleArr)) $sampleArr['occurrenceID'] = $igsnMatch[1];
-				}
-			}
-		}
-		if($sampleArr['sampleClass'] && isset($viewArr['sampleClass']) && $sampleArr['sampleClass'] != $viewArr['sampleClass']){
-			//sampleClass are not equal; don't update, just record within error file that this is an issue
-			$errMsg = (isset($neonSampleUpdate['errorMessage'])?$neonSampleUpdate['errorMessage'].'; ':'');
-			$errMsg .= 'DATA ISSUE: sampleClass failing to match with API value';
-			$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
-		}
-		if($sampleArr['sampleID'] && isset($viewArr['sampleTag']) && $sampleArr['sampleID'] != $viewArr['sampleTag'] && $sampleArr['hashedSampleID'] != $viewArr['sampleTag']){
-			//sampleIDs (sampleTags) are not equal; update our system
-			if(substr($viewArr['sampleTag'],-1) == '=' || !preg_match('/[_\.]+/',$viewArr['sampleTag'])){
-				$neonSampleUpdate['hashedSampleID'] = $viewArr['sampleTag'];
-				$sampleArr['hashedSampleID'] = $viewArr['sampleTag'];
-			}
-			else{
-				$this->setSampleErrorMessage($sampleArr['samplePK'], 'DATA ISSUE: sampleID different than NEON API value');
-				/*
-				if($this->updateSampleID($viewArr['sampleTag'], $sampleArr['sampleID'], $sampleArr['samplePK'], $sampleArr['occid'])){
-					$this->errorLogArr[] = 'NOTICE: sampleID updated from '.$sampleArr['sampleID'].' to '.$viewArr['sampleTag'].' (samplePK: '.$sampleArr['samplePK'].', occid: '.$sampleArr['occid'].')';
-				}
-				else{
-					$errMsg = (isset($neonSampleUpdate['errorMessage'])?$neonSampleUpdate['errorMessage'].'; ':'');
-					$errMsg .= 'DATA ISSUE: failed to reset sampleID using changed API value';
-					$this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
-				}
-				*/
-			}
-		}
-		$this->updateSampleRecord($neonSampleUpdate,$sampleArr['samplePK']);
+		if(!$this->checkIdentifiers($viewArr, $sampleArr)) return false;
 		//Get fateLocation and process parent samples
 		unset($this->fateLocationArr);
 		$this->fateLocationArr = array();
@@ -332,6 +263,83 @@ class OccurrenceHarvester{
 			if(!isset($sampleArr['collect_end_date'])) $sampleArr['collect_end_date'] = $locArr['date'];
 		}
 		return true;
+	}
+
+	private function checkIdentifiers($viewArr, &$sampleArr){
+		$status = true;
+		$neonSampleUpdate = array();
+		if(isset($viewArr['sampleUuid']) && $viewArr['sampleUuid']){
+			//Populate or verify/coordinate sampleUuid
+			if(!$sampleArr['sampleUuid']){
+				$sampleArr['sampleUuid'] = $viewArr['sampleUuid'];
+				$neonSampleUpdate['sampleUuid'] = $viewArr['sampleUuid'];
+			}
+			elseif($sampleArr['sampleUuid'] != $viewArr['sampleUuid']){
+				$this->errorLogArr[] = 'NOTICE: sampleUuid updated from '.$sampleArr['sampleUuid'].' to '.$viewArr['sampleUuid'];
+				$this->errorStr .= '; <span style="color:red">DATA ISSUE</span>: sampleUuid failing to match (old: '.$sampleArr['sampleUuid'].', new: '.$viewArr['sampleUuid'].')';
+				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+				$status = false;
+			}
+		}
+		if($sampleArr['sampleClass'] && isset($viewArr['sampleClass']) && $sampleArr['sampleClass'] != $viewArr['sampleClass']){
+			//sampleClass are not equal; don't update, just record within NeonSample error field and then skip harvest of this record
+			$this->errorStr .= '; <span style="color:red">DATA ISSUE</span>: sampleClass failing to match (old: '.$sampleArr['sampleClass'].', new: '.$viewArr['sampleClass'].')';
+			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+			$status = false;
+		}
+		if(isset($viewArr['archiveGuid']) && $viewArr['archiveGuid']){
+			$igsnMatch = array();
+			if(preg_match('/(NEON[A-Z,0-9]{5})/', $viewArr['archiveGuid'], $igsnMatch)){
+				if($sampleArr['occid']){
+					//This is a reharvest event, check to make sure IGSNs match
+					if(isset($sampleArr['occurrenceID']) && $sampleArr['occurrenceID']){
+						if($sampleArr['occurrenceID'] == $igsnMatch[1]){
+							$neonSampleUpdate['igsnPushedToNEON'] = 1;
+						}
+						else{
+							$this->setSampleErrorMessage($sampleArr['samplePK'], '<span style="color:red">DATA ISSUE</span>: IGSN failing to match with API value');
+							$neonSampleUpdate['igsnPushedToNEON'] = 2;
+						}
+					}
+					else{
+						if(!$this->igsnExists($igsnMatch[1],$sampleArr)){
+							if(!$this->updateOccurrenceIgsn($igsnMatch[1], $sampleArr['occid'])){
+								$this->setSampleErrorMessage($sampleArr['samplePK'], 'NOTICE: unable to update igsn: '.$this->conn->error);
+								$neonSampleUpdate['igsnPushedToNEON'] = 3;
+							}
+						}
+					}
+				}
+				else{
+					//New record should use ISGN, if it is not already assigned to another record
+					if(!$this->igsnExists($igsnMatch[1],$sampleArr)) $sampleArr['occurrenceID'] = $igsnMatch[1];
+				}
+			}
+		}
+		if($sampleArr['sampleID'] && isset($viewArr['sampleTag']) && $sampleArr['sampleID'] != $viewArr['sampleTag'] && $sampleArr['hashedSampleID'] != $viewArr['sampleTag']){
+			//sampleIDs (sampleTags) are not equal; report error and abort harvest
+			if(substr($viewArr['sampleTag'],-1) == '=' || !preg_match('/[_\.]+/',$viewArr['sampleTag'])){
+				$neonSampleUpdate['hashedSampleID'] = $viewArr['sampleTag'];
+				$sampleArr['hashedSampleID'] = $viewArr['sampleTag'];
+			}
+			else{
+				$this->errorStr .= '; <span style="color:red">DATA ISSUE</span>: sampleID different than NEON API value';
+				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+				$status = false;
+				/*
+				 if($this->updateSampleID($viewArr['sampleTag'], $sampleArr['sampleID'], $sampleArr['samplePK'], $sampleArr['occid'])){
+				 $this->errorLogArr[] = 'NOTICE: sampleID updated from '.$sampleArr['sampleID'].' to '.$viewArr['sampleTag'].' (samplePK: '.$sampleArr['samplePK'].', occid: '.$sampleArr['occid'].')';
+				 }
+				 else{
+				 $errMsg = (isset($neonSampleUpdate['errorMessage'])?$neonSampleUpdate['errorMessage'].'; ':'');
+				 $errMsg .= 'DATA ISSUE: failed to reset sampleID using changed API value';
+				 $this->setSampleErrorMessage($sampleArr['samplePK'], $errMsg);
+				 }
+				 */
+			}
+		}
+		$this->updateSampleRecord($neonSampleUpdate,$sampleArr['samplePK']);
+		return $status;
 	}
 
 	private function updateSampleRecord($neonSampleUpdate,$samplePK){
@@ -1334,8 +1342,10 @@ class OccurrenceHarvester{
 	}
 
 	private function setSampleErrorMessage($samplePK, $msg){
-		$sql = 'UPDATE NeonSample SET errorMessage = '.($msg?'"'.$msg.'"':'NULL').' WHERE (samplePK = '.$samplePK.')';
-		$this->conn->query($sql);
+		if(is_numeric($samplePK)){
+			$sql = 'UPDATE NeonSample SET errorMessage = '.($msg?'"'.$this->cleanInStr($msg).'"':'NULL').' WHERE (samplePK = '.$samplePK.')';
+			$this->conn->query($sql);
+		}
 	}
 
 	//General data return functions
@@ -1366,11 +1376,9 @@ class OccurrenceHarvester{
 	private function formatDate($dateStr){
 		if(preg_match('/^(20\d{2})-(\d{2})-(\d{2})T\d{2}/', $dateStr)){
 			//UTC datetime
-			echo 'date: '.$dateStr.' ('.$this->timezone.') => ';
 			$dt = new DateTime($dateStr, new DateTimeZone('UTC'));
 			$dt->setTimezone(new DateTimeZone($this->timezone));
 			$dateStr = $dt->format('Y-m-d');
-			echo $dateStr.'<br/>';
 		}
 		elseif(preg_match('/^(20\d{2})-(\d{2})-(\d{2})\D*/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];
 		elseif(preg_match('/^(20\d{2})(\d{2})(\d{2})\D+/', $dateStr, $m)) $dateStr = $m[1].'-'.$m[2].'-'.$m[3];

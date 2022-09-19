@@ -12,7 +12,7 @@ $limit = array_key_exists('limit',$_POST)?$_POST['limit']:'';
 $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 
 //Sanitation
-if(!is_numeric($recTarget)) $recTarget = 0;
+$recTarget = filter_var($recTarget, FILTER_SANITIZE_STRING);
 $startIndex = filter_var($startIndex, FILTER_SANITIZE_STRING);
 if(!is_numeric($limit)) $limit = 1000;
 
@@ -115,9 +115,8 @@ include($SERVER_ROOT.'/includes/header.php');
 		<fieldset>
 			<legend>IGSN Synchronization with NEON</legend>
 			<div style="margin-bottom:10px;">
-				Displays record counts synchronized with the central NEON System.
-				After uploading IGSNs into NEON system, run the synchronization tools to adjust the report.
-				Will soon add the ability to download a CSV report of unsynchronized ISGNs along with sampleCode, sampleID, and sampleClass that can be used to upload into central NEON system.
+				Displays occurrence counts that have been synchronized with the central NEON System.
+				After IGSNs have been integrated into NEON system, re-run the synchronization tool on the unsynchronized records to adjust the report.
 			</div>
 			<div style="">
 				<ul>
@@ -125,8 +124,10 @@ include($SERVER_ROOT.'/includes/header.php');
 					$reportArr = $igsnManager->getIgsnSynchronizationReport();
 					if($reportArr){
 						echo '<div><label>Unchecked: </label>'.(isset($reportArr['x'])?$reportArr['x']:'0').'</div>';
-						echo '<div><label>Unsynchronized: </label>'.(isset($reportArr[0])?$reportArr[0]:'0').'</div>';
 						echo '<div><label>Synchronized: </label>'.(isset($reportArr[1])?$reportArr[1]:'0').'</div>';
+						echo '<div><label>Unsynchronized: </label>'.(isset($reportArr[0])?$reportArr[0]:'0').'</div>';
+						echo '<div><label>Mismatched: </label>'.(isset($reportArr[2])?$reportArr[2]:'0').'</div>';
+						echo '<div><label>Data return errors: </label>'.(isset($reportArr[10])?$reportArr[10]:'0').'</div>';
 					}
 					?>
 				</ul>
@@ -135,9 +136,9 @@ include($SERVER_ROOT.'/includes/header.php');
 						<div style="clear:both;">
 							<div style="float:left; margin-left:35px; margin-right:5px"><label>Target:</label> </div>
 							<div style="float:left;">
-								<input name="recTarget" type="radio" value="0" <?php echo (!$recTarget?'checked':''); ?> /> Unchecked only<br/>
-								<input name="recTarget" type="radio" value="1" <?php echo ($recTarget==1?'checked':''); ?> /> Unsynchronized only<br/>
-								<input name="recTarget" type="radio" value="2" <?php echo ($recTarget==2?'checked':''); ?> /> All unlinked records
+								<input name="recTarget" type="radio" value="unchecked" <?php echo ($recTarget == 'unchecked'?'checked':''); ?> /> Unchecked only<br/>
+								<input name="recTarget" type="radio" value="unsynchronized" <?php echo ($recTarget == 'unsynchronized'?'checked':''); ?> /> Unsynchronized only<br/>
+								<input name="recTarget" type="radio" value="all" <?php echo ($recTarget == 'all'?'checked':''); ?> /> All unlinked records
 							</div>
 						</div>
 						<div style="clear:both;padding-top:10px;margin-left:35px;">

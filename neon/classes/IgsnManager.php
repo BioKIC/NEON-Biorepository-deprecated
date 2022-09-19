@@ -48,32 +48,43 @@ class IgsnManager{
 			WHERE o.occurrenceID LIKE "NEON%" GROUP BY s.igsnPushedToNEON';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[$r->igsnPushedToNEON] = $r->cnt;
+			$code = $r->igsnPushedToNEON;
+			if($code > 9) $code = 10;
+			$retArr[$code] = $r->cnt;
 		}
 		$rs->free();
 		return $retArr;
 	}
 
-	public function synchronizeIgsn($uncheckedOnly, $startIndex, $limit){
+	public function synchronizeIgsn($recTarget, $startIndex, $limit){
+		/* Synchronization codes
+		 *   null = unchecked (also due to data return error)
+		 *   0 = Unsynchronized
+		 *   1 = IGSN succesfully synchronized
+		 *   2 = IGSNs mismatch
+		 *   >10 = data return error, amount above the value of 10 indicates the number of times harvest fails
+		 */
 		set_time_limit(3600);
 		echo '<li>Starting to synchronize IGSNs</li>';
 		flush();
 		ob_flush();
 		$apiUrlBase = 'https://data.neonscience.org/api/v0/samples/view?';
 		//$neonApiKey = (isset($GLOBALS['NEON_API_KEY'])?$GLOBALS['NEON_API_KEY']:'');
-		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass
+		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass, s.igsnPushedToNEON
 			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
 			WHERE (o.occurrenceID IS NOT NULL) ';
-		if(!$uncheckedOnly) $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
-		elseif($uncheckedOnly==1) $sql .= 'AND (s.igsnPushedToNEON = 0) ';
-		elseif($uncheckedOnly==2) $sql .= 'AND (s.igsnPushedToNEON IS NULL OR s.igsnPushedToNEON = 0) ';
+		if(!$recTarget == 'unchecked') $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
+		elseif($recTarget == 'unsynchronized') $sql .= 'AND (s.igsnPushedToNEON = 0) ';
+		else $sql .= 'AND (s.igsnPushedToNEON IS NULL OR s.igsnPushedToNEON = 0) ';
 		if($startIndex) $sql .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
 		$sql .= 'ORDER BY o.occurrenceID ';
 		if($limit && is_numeric($limit)) $sql .= 'LIMIT '.$limit;
 		$rs = $this->conn->query($sql);
 		$totalCnt = 0;
 		$syncCnt = 0;
+		$mismatchCnt = 0;
 		$unsyncCnt = 0;
+		$errorCnt = 0;
 		$finalIgsn = '';
 		while($r = $rs->fetch_object()){
 			//$url = $apiUrlBase.$r->occurrenceID.'&apiToken='.$neonApiKey;
@@ -85,23 +96,35 @@ class IgsnManager{
 				echo '<li>ERROR unable to build NEON API url ('.$r->occid.')</li>';
 				continue;
 			}
-			$igsnPushedToNEON = 0;
+			$igsnPushedToNEON = '';
 			if($json = @file_get_contents($url)){
 				$resultArr = json_decode($json,true);
 				if(!isset($resultArr['error']) && isset($resultArr['data']['sampleViews'])){
 					foreach($resultArr['data']['sampleViews'] as $sampleViewArr){
 						if(isset($sampleViewArr['archiveGuid']) && $sampleViewArr['archiveGuid']){
-							if($sampleViewArr['archiveGuid'] == $r->occurrenceID) $igsnPushedToNEON = 1;
-							elseif(!$r->occurrenceID) $igsnPushedToNEON = 3;
-							else $igsnPushedToNEON = 2;
+							if($sampleViewArr['archiveGuid'] == $r->occurrenceID){
+								$igsnPushedToNEON = 1;
+								$syncCnt++;
+							}
+							else{
+								$igsnPushedToNEON = 2;
+								$mismatchCnt++;
+							}
+						}
+						else{
+							$unsyncCnt++;
+							$igsnPushedToNEON = 0;
 						}
 					}
-					$syncCnt++;
 				}
-				else $unsyncCnt++;
+				else $igsnPushedToNEON = 10;
 			}
-			else $unsyncCnt++;
-			$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$r->occid;
+			else $igsnPushedToNEON = 10;
+			if($igsnPushedToNEON = 10){
+				$errorCnt++;
+				if($r->igsnPushedToNEON > 9) $igsnPushedToNEON = ++$r->igsnPushedToNEON;
+			}
+			if(is_numeric($igsnPushedToNEON)) $sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$r->occid;
 			if(!$this->conn->multi_query($sql)){
 				echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
 			}
@@ -114,7 +137,7 @@ class IgsnManager{
 			$finalIgsn = $r->occurrenceID;
 		}
 		$rs->free();
-		echo '<li>Complete: '.$totalCnt.' checked, '.$syncCnt.' synchronized, '.$unsyncCnt.' not synchronized</li>';
+		echo '<li>Total checked: '.$totalCnt.', Synchronized: '.$syncCnt.' , Not in NEON: '.$unsyncCnt.', Mismatched: , API errors: '.$errorCnt.'</li>';
 		return $finalIgsn;
 	}
 

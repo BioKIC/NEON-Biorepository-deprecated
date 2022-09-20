@@ -864,7 +864,7 @@ class EDIFileCreator extends Manager
 					$fileNameSeed .= '_backup_' . date('Y-m-d_His', $this->ts);
 				}
 			} else {
-				$fileNameSeed = 'SymbOutput_' . date('Y-m-d_His', $this->ts);
+				$fileNameSeed = 'NEON_Biorepository_EML' . date('Y-m-d_His', $this->ts);
 			}
 		}
 		$fileName = str_replace(array(' ', '"', "'"), '', $fileNameSeed) . '_DwC-A.zip';
@@ -1203,6 +1203,10 @@ class EDIFileCreator extends Manager
 			$emlArr['keywordSet'] = explode(',', $_POST['keywords']);
 		}
 
+		// Geographic coverage
+		$geoCoverage = $this->getGeographicCoverage();
+		$emlArr['geographicCoverage'] = $geoCoverage;
+
 		//Append collection metadata
 		foreach ($this->collArr as $id => $collArr) {
 			//Collection metadata section (additionalMetadata)
@@ -1397,6 +1401,34 @@ class EDIFileCreator extends Manager
 		}
 
 		// Add coverage
+		$coverageElem = $newDoc->createElement('coverage');
+		// if there is geographicCoverage in emlArr, add it to the coverage element
+		if (array_key_exists('geographicCoverage', $emlArr)) {
+
+			// for each item in $emlArr['geographicCoverage'], create a new geographicDescription element inside the geographicCoverage element
+			foreach ($emlArr['geographicCoverage'] as $geoDesc) {
+				$geoCoverageElem = $newDoc->createElement('geographicCoverage');
+				$geoDescElem = $newDoc->createElement('geographicDescription');
+				$geoDescElem->appendChild($newDoc->createTextNode($geoDesc['locality']));
+				$boundingElem = $newDoc->createElement('boundingCoordinates');
+				$westCoordElem = $newDoc->createElement('westBoundingCoordinate');
+				$westCoordElem->appendChild($newDoc->createTextNode($geoDesc['decimalLongitude']));
+				$eastCoordElem = $newDoc->createElement('eastBoundingCoordinate');
+				$eastCoordElem->appendChild($newDoc->createTextNode($geoDesc['decimalLongitude']));
+				$northCoordElem = $newDoc->createElement('northBoundingCoordinate');
+				$northCoordElem->appendChild($newDoc->createTextNode($geoDesc['decimalLatitude']));
+				$southCoordElem = $newDoc->createElement('southBoundingCoordinate');
+				$southCoordElem->appendChild($newDoc->createTextNode($geoDesc['decimalLatitude']));
+				$geoCoverageElem->appendChild($geoDescElem);
+				$boundingElem->appendChild($westCoordElem);
+				$boundingElem->appendChild($eastCoordElem);
+				$boundingElem->appendChild($northCoordElem);
+				$boundingElem->appendChild($southCoordElem);
+				$geoCoverageElem->appendChild($boundingElem);
+				$coverageElem->appendChild($geoCoverageElem);
+			}
+		}
+		$datasetElem->appendChild($coverageElem);
 
 		// Add contact
 
@@ -1868,6 +1900,31 @@ class EDIFileCreator extends Manager
 		}
 		$this->logOrEcho('Done! (' . date('h:i:s A') . ")\n");
 		return $filePath;
+	}
+
+	// Gets occurrence records localities
+	public function getGeographicCoverage()
+	{
+		$retArr = array();
+		$this->applyConditions();
+		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
+		$dwcOccurManager->setSchemaType($this->schemaType);
+		$dwcOccurManager->setExtended($this->extended);
+		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
+		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'], false);
+		$sql .= $this->getTableJoins() . $this->conditionSql;
+		$sql .= ' GROUP BY o.locationID';
+		if ($sql) {
+			$sql = 'SELECT 
+    locationID, continent, waterBody, parentLocationID, islandGroup, island, countryCode, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, geodeticDatum, footprintWKT ' . $sql;
+			$rs = $this->conn->query($sql);
+			// pass results to retArr
+			while ($r = $rs->fetch_assoc()) {
+				$retArr[] = $r;
+			}
+			$rs->free();
+		}
+		return $retArr;
 	}
 
 	public function getOccurrenceFile()

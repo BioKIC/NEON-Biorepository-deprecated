@@ -891,6 +891,7 @@ class EDIFileCreator extends Manager
 
 			$zipArchive->addFile($this->targetPath . $this->ts . '-occur' . $this->fileExt);
 			$zipArchive->renameName($this->targetPath . $this->ts . '-occur' . $this->fileExt, 'occurrences' . $this->fileExt);
+
 			if ($this->includeDets) {
 				$this->writeDeterminationFile();
 				$zipArchive->addFile($this->targetPath . $this->ts . '-det' . $this->fileExt);
@@ -1207,6 +1208,13 @@ class EDIFileCreator extends Manager
 		$geoCoverage = $this->getGeographicCoverage();
 		$emlArr['geographicCoverage'] = $geoCoverage;
 
+		// Temporal coverage
+		$tempCoverage = $this->getTemporalCoverage();
+		$emlArr['temporalCoverage'] = $tempCoverage;
+
+		// Add dataTable (tables descriptions)
+		$emlArr['dataTable'] = $this->getDataTables();
+
 		//Append collection metadata
 		foreach ($this->collArr as $id => $collArr) {
 			//Collection metadata section (additionalMetadata)
@@ -1402,10 +1410,8 @@ class EDIFileCreator extends Manager
 
 		// Add coverage
 		$coverageElem = $newDoc->createElement('coverage');
-		// if there is geographicCoverage in emlArr, add it to the coverage element
+		// Geographic coverage
 		if (array_key_exists('geographicCoverage', $emlArr)) {
-
-			// for each item in $emlArr['geographicCoverage'], create a new geographicDescription element inside the geographicCoverage element
 			foreach ($emlArr['geographicCoverage'] as $geoDesc) {
 				$geoCoverageElem = $newDoc->createElement('geographicCoverage');
 				$geoDescElem = $newDoc->createElement('geographicDescription');
@@ -1428,13 +1434,22 @@ class EDIFileCreator extends Manager
 				$coverageElem->appendChild($geoCoverageElem);
 			}
 		}
+		// Temporal coverage
+		if (array_key_exists('temporalCoverage', $emlArr)) {
+			foreach ($emlArr['temporalCoverage'] as $tempItem) {
+				$tempCoverageElem = $newDoc->createElement('temporalCoverage');
+				// if $tempItem['eventDate2'] is null or empty, then it is a single date
+				if (!$tempItem['eventDate2']) {
+					$singleDateElem = $newDoc->createElement('singleDateTime');
+					$calendarDateElem = $newDoc->createElement('calendarDate');
+					$calendarDateElem->appendChild($newDoc->createTextNode($tempItem['eventDate']));
+					$singleDateElem->appendChild($calendarDateElem);
+					$tempCoverageElem->appendChild($singleDateElem);
+				}
+				$coverageElem->appendChild($tempCoverageElem);
+			}
+		}
 		$datasetElem->appendChild($coverageElem);
-
-		// Add contact
-
-		// Add dataTable
-
-		// Close dataset
 
 		if (array_key_exists('project', $emlArr)) {
 			$projectElem = $this->getNode($newDoc, 'project', $emlArr['project']);
@@ -1451,6 +1466,20 @@ class EDIFileCreator extends Manager
 			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
 			$datasetElem->appendChild($contactNode);
 		}
+
+		// Occurrence file description (dataTable)
+		if (array_key_exists('dataTable', $emlArr)) {
+			// for each key value pair in the dataTable array, create a dataTable node and append value to it
+			// foreach ($emlArr['dataTable'] as $key => $value) {
+			// 	$dataTableNode = $this->getNode($newDoc, 'dataTable', $value);
+			// 	$datasetElem->appendChild($dataTableNode);
+			// }
+			// create dataTable node and append "test value" to it
+			$dataTableNode = $this->getNode($newDoc, 'dataTable', $emlArr['dataTable']);
+			$datasetElem->appendChild($dataTableNode);
+		}
+
+
 
 		$symbElem = $newDoc->createElement('symbiota');
 		if (isset($GLOBALS['PORTAL_GUID'])) $symbElem->setAttribute('id', $GLOBALS['PORTAL_GUID']);
@@ -1695,7 +1724,7 @@ class EDIFileCreator extends Manager
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
 		$sql .= $this->getTableJoins() . $this->conditionSql;
 		if (!$this->conditionSql) return false;
-		if ($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
+		// if ($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 
 		//Output header
 		$fieldArr = $this->occurrenceFieldArr['fields'];
@@ -1913,7 +1942,7 @@ class EDIFileCreator extends Manager
 		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'], false);
 		$sql .= $this->getTableJoins() . $this->conditionSql;
-		$sql .= ' GROUP BY o.locationID';
+		$sql .= ' GROUP BY o.locationID ORDER BY decimalLongitude, decimalLatitude';
 		if ($sql) {
 			$sql = 'SELECT 
     locationID, continent, waterBody, parentLocationID, islandGroup, island, countryCode, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, geodeticDatum, footprintWKT ' . $sql;
@@ -1925,6 +1954,57 @@ class EDIFileCreator extends Manager
 			$rs->free();
 		}
 		return $retArr;
+	}
+
+	// Gets occurrence records dates
+	public function getTemporalCoverage()
+	{
+		$retArr = array();
+		$this->applyConditions();
+		$dwcOccurManager = new DwcArchiverOccurrence($this->conn);
+		$dwcOccurManager->setSchemaType($this->schemaType);
+		$dwcOccurManager->setExtended($this->extended);
+		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
+		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'], false);
+		$sql .= $this->getTableJoins() . $this->conditionSql;
+		$sql .= ' GROUP BY o.eventDate ORDER BY o.eventDate';
+		if ($sql) {
+			$sql = 'SELECT eventDate, eventDate2, eventID ' . $sql;
+			$rs = $this->conn->query($sql);
+			// pass results to retArr
+			while ($r = $rs->fetch_assoc()) {
+				$retArr[] = $r;
+			}
+			$rs->free();
+		}
+		return $retArr;
+	}
+
+	// Get dataTables
+	public function getDataTables()
+	{
+		$occTable = [
+			'entityName' => 'occurrences',
+			'physical' => [
+				'objectName' => 'occurrences' . $this->fileExt,
+				'size' => filesize($this->targetPath . $this->ts . '-occur' . $this->fileExt),
+				'dataFormat' => [
+					'textFormat' => [
+						'numHeaderLines' => 1,
+						'recordDelimiter' => '\n',
+						'attributeOrientation' => 'column',
+						'simpleDelimited' => [
+							'fieldDelimiter' => ',',
+							'quoteCharacter' => '"',
+						],
+					],
+				],
+			],
+			'attributeList' => [
+				// get list of fields from metadata
+			]
+		];
+		return $occTable;
 	}
 
 	public function getOccurrenceFile()

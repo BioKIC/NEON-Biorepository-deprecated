@@ -285,7 +285,7 @@ $traitArr = $indManager->getTraitArr();
 		fieldset{ margin:10px; padding:15px; width:90% }
 		legend{ font-weight:bold; }
 		.title{ font-weight:bold; font-size:120%; }
-		.label{ font-weight:bold; }
+		label{ font-weight:bold; }
 		.imgDiv{ max-width:200; float:left; text-align:center; padding:5px }
 		.occur-ref{ margin: 10px 0px }
 		.traitDiv{ margin:20px; }
@@ -584,7 +584,7 @@ $traitArr = $indManager->getTraitArr();
 						if($occArr['eventid']){
 							?>
 							<div>
-								<span class="label"><?php echo (isset($LANG['EVENTID'])?$LANG['EVENTID']:'Event ID'); ?>: </span>
+								<label><?php echo (isset($LANG['EVENTID'])?$LANG['EVENTID']:'Event ID'); ?>: </label>
 								<?php
 								echo $occArr['eventid'];
 								?>
@@ -596,7 +596,7 @@ $traitArr = $indManager->getTraitArr();
 							if($collMetadata['colltype'] == 'Preserved Specimens') $recByLabel = (isset($LANG['COLLECTOR'])?$LANG['COLLECTOR']:'Collector');
 							?>
 							<div>
-								<span class="label"><?php echo $recByLabel; ?>: </span>
+								<label><?php echo $recByLabel; ?>: </label>
 								<?php
 								$recByStr = $indManager->activateOrcidID($occArr['recordedby']);
 								echo $recByStr;
@@ -606,7 +606,7 @@ $traitArr = $indManager->getTraitArr();
 							if($occArr['recordnumber']){
 								?>
 								<div style="margin-left:10px;">
-									<span class="label"><?php echo (isset($LANG['NUMBER'])?$LANG['NUMBER']:'Number'); ?>: </span>
+									<label><?php echo (isset($LANG['NUMBER'])?$LANG['NUMBER']:'Number'); ?>: </label>
 									<?php echo $occArr['recordnumber']; ?>
 								</div>
 								<?php
@@ -614,14 +614,14 @@ $traitArr = $indManager->getTraitArr();
 						}
 						if($occArr['eventdate']){
 							echo '<div>';
-							echo '<span class="label">'.(isset($LANG['EVENTDATE'])?$LANG['EVENTDATE']:'Date').':</span> '.$occArr['eventdate'];
+							echo '<label>'.(isset($LANG['EVENTDATE'])?$LANG['EVENTDATE']:'Date').':</label> '.$occArr['eventdate'];
 							if($occArr['eventdateend'] && $occArr['eventdateend'] != $occArr['eventdate']){
 								echo ' - '.$occArr['eventdateend'];
 							}
 							echo '</div>';
 						}
 						if($occArr['verbatimeventdate']){
-							echo '<div><span class="label">'.(isset($LANG['VERBATIMDATE'])?$LANG['VERBATIMDATE']:'Verbatim Date').':</span> '.$occArr['verbatimeventdate'].'</div>';
+							echo '<div><label>'.(isset($LANG['VERBATIMDATE'])?$LANG['VERBATIMDATE']:'Verbatim Date').':</label> '.$occArr['verbatimeventdate'].'</div>';
 						}
 						?>
 						<div>
@@ -1152,13 +1152,13 @@ $traitArr = $indManager->getTraitArr();
 							echo '<div class="title">'.$collMetadata['collectionname'].' ('.$collMetadata['institutioncode'].($collMetadata['collectioncode']?':'.$collMetadata['collectioncode']:'').')</div>';
 							echo '<div style="margin:5px 15px">';
 							if($occArr['recordedby']) echo '<div>'.$occArr['recordedby'].' '.$occArr['recordnumber'].'<span style="margin-left:40px;">'.$occArr['eventdate'].'</span></div>';
-							if($occArr['catalognumber']) echo '<div><span class="label">'.(isset($LANG['CATALOGNUMBER'])?$LANG['CATALOGNUMBER']:'Catalog Number').':</span> '.$occArr['catalognumber'].'</div>';
-							if($occArr['occurrenceid']) echo '<div><span class="label">'.(isset($LANG['GUID'])?$LANG['GUID']:'GUID').':</span> '.$occArr['occurrenceid'].'</div>';
-							echo '<div><span class="label">'.(isset($LANG['LATESTID'])?$LANG['LATESTID']:'Latest Identification').':</span> ';
+							if($occArr['catalognumber']) echo '<div><label>'.(isset($LANG['CATALOGNUMBER'])?$LANG['CATALOGNUMBER']:'Catalog Number').':</label> '.$occArr['catalognumber'].'</div>';
+							if($occArr['occurrenceid']) echo '<div><label>'.(isset($LANG['GUID'])?$LANG['GUID']:'GUID').':</label> '.$occArr['occurrenceid'].'</div>';
+							echo '<div><label>'.(isset($LANG['LATESTID'])?$LANG['LATESTID']:'Latest Identification').':</label> ';
 							if(!isset($occArr['taxonsecure'])) echo '<i>'.$occArr['sciname'].'</i> '.$occArr['scientificnameauthorship'];
 							else echo (isset($LANG['SPECIDPROTECTED'])?$LANG['SPECIDPROTECTED']:'Species identification protected');
 							echo '</div>';
-							if($occArr['identifiedby']) echo '<div><span class="label">'.(isset($LANG['IDENTIFIEDBY'])?$LANG['IDENTIFIEDBY']:'Identified by').':</span> '.$occArr['identifiedby'].'<span stlye="margin-left:30px;">'.$occArr['dateidentified'].'</span></div>';
+							if($occArr['identifiedby']) echo '<div><label>'.(isset($LANG['IDENTIFIEDBY'])?$LANG['IDENTIFIEDBY']:'Identified by').':</label> '.$occArr['identifiedby'].'<span stlye="margin-left:30px;">'.$occArr['dateidentified'].'</span></div>';
 							echo '</div>';
 							//Grab other records
 							foreach($dupClusterArr as $dupeType => $dupeArr){
@@ -1173,13 +1173,13 @@ $traitArr = $indManager->getTraitArr();
 										echo '<div style="float:left;margin:5px 15px">';
 										echo '<div class="title">'.$dupArr['collname'].' ('.$dupArr['instcode'].($dupArr['collcode']?':'.$dupArr['collcode']:'').')</div>';
 										if($dupArr['recordedby']) echo '<div>'.$dupArr['recordedby'].' '.$dupArr['recordnumber'].'<span style="margin-left:40px;">'.$dupArr['eventdate'].'</span></div>';
-										if($dupArr['catalognumber']) echo '<div><span class="label">'.(isset($LANG['CATALOGNUMBER'])?$LANG['CATALOGNUMBER']:'Catalog Number').':</span> '.$dupArr['catalognumber'].'</div>';
-										if($dupArr['occurrenceid']) echo '<div><span class="label">'.(isset($LANG['GUID'])?$LANG['GUID']:'GUID').':</span> '.$dupArr['occurrenceid'].'</div>';
-										echo '<div><span class="label">'.(isset($LANG['LATESTID'])?$LANG['LATESTID']:'Latest Identification').':</span> ';
+										if($dupArr['catalognumber']) echo '<div><label>'.(isset($LANG['CATALOGNUMBER'])?$LANG['CATALOGNUMBER']:'Catalog Number').':</label> '.$dupArr['catalognumber'].'</div>';
+										if($dupArr['occurrenceid']) echo '<div><label>'.(isset($LANG['GUID'])?$LANG['GUID']:'GUID').':</label> '.$dupArr['occurrenceid'].'</div>';
+										echo '<div><label>'.(isset($LANG['LATESTID'])?$LANG['LATESTID']:'Latest Identification').':</label> ';
 										if(!isset($occArr['taxonsecure'])) echo '<i>'.$dupArr['sciname'].'</i> '.$dupArr['author'];
 										else echo (isset($LANG['SPECIDPROTECTED'])?$LANG['SPECIDPROTECTED']:'Species identification protected');
 										echo '</div>';
-										if($dupArr['identifiedby']) echo '<div><span class="label">'.(isset($LANG['IDENTIFIEDBY'])?$LANG['IDENTIFIEDBY']:'Identified by').':</span> '.$dupArr['identifiedby'].'<span stlye="margin-left:30px;">'.$dupArr['dateidentified'].'</span></div>';
+										if($dupArr['identifiedby']) echo '<div><label>'.(isset($LANG['IDENTIFIEDBY'])?$LANG['IDENTIFIEDBY']:'Identified by').':</label> '.$dupArr['identifiedby'].'<span stlye="margin-left:30px;">'.$dupArr['dateidentified'].'</span></div>';
 										echo '<div><a href="#" onclick="openIndividual('.$dupOccid.');return false;">'.(isset($LANG['SHOWFULLDETAILS'])?$LANG['SHOWFULLDETAILS']:'Show Full Details').'</a></div>';
 										echo '</div>';
 										if(!isset($occArr['taxonsecure']) && !isset($occArr['localsecure'])){
@@ -1313,7 +1313,7 @@ $traitArr = $indManager->getTraitArr();
 							}
 							*/
 							echo '<div style="margin:20px 0px 30px 0px;">';
-							echo '<label>'.(isset($LANG['ENTEREDBY'])?$LANG['ENTEREDBY']:'Entered By').'</label> '.($occArr['recordenteredby']?$occArr['recordenteredby']:'not recorded').'<br/>';
+							echo '<label>'.(isset($LANG['ENTEREDBY'])?$LANG['ENTEREDBY']:'Entered by').':</label> '.($occArr['recordenteredby']?$occArr['recordenteredby']:'not recorded').'<br/>';
 							echo '<label>'.(isset($LANG['DATEENTERED'])?$LANG['DATEENTERED']:'Date entered').':</label> '.($occArr['dateentered']?$occArr['dateentered']:'not recorded').'<br/>';
 							echo '<label>'.(isset($LANG['DATEMODIFIED'])?$LANG['DATEMODIFIED']:'Date modified').':</label> '.($occArr['datelastmodified']?$occArr['datelastmodified']:'not recorded').'<br/>';
 							if($occArr['modified'] && $occArr['modified'] != $occArr['datelastmodified']) echo '<label>'.(isset($LANG['SRCDATEMODIFIED'])?$LANG['SRCDATEMODIFIED']:'Source date modified').':</label> '.$occArr['modified'];

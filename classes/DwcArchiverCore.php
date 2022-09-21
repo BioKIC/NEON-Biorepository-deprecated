@@ -277,6 +277,9 @@ class DwcArchiverCore extends Manager{
 			}
 			unset($this->conditionArr['collid']);
 		}
+		if (array_key_exists('exclude', $_REQUEST) && preg_match('/^[\d,]+$/', $_REQUEST['exclude'])) {
+			$this->conditionSql .= 'AND (o.collid NOT IN(' . $_REQUEST['exclude'] . ')) ';
+		}
 		if (array_key_exists('datasetid', $_REQUEST) && is_numeric($_REQUEST['datasetid'])) {
 			$this->conditionSql .= 'AND (d.datasetid IN(' . $_REQUEST['datasetid'] . ')) ';
 		}

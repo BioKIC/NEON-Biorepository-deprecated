@@ -986,7 +986,7 @@ class OccurrenceLoans extends Manager{
 		$filename = $this->cleanInStr(str_replace(array('\\','/',':','*','?','"','<','>','|', '..'),'_',$filename));
 
 		// Keep filename size within 255 bytes
-		} else if (mb_strlen($filename, "UTF-8") > 255) {
+		if (mb_strlen($filename, "UTF-8") > 255) {
 			$this->errorMessage = 'Error: The filename of the attachment: ' . $file['name'] . 'is too long';
 			return false;
 		}

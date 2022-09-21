@@ -69,7 +69,7 @@ class DwcArchiverCore extends Manager{
 		$this->charSetOut = $this->charSetSource;
 
 		$this->condAllowArr = array(
-			'collid', 'catalognumber', 'othercatalognumbers', 'occurrenceid', 'family', 'sciname', 'country', 'stateprovince', 'county', 'municipality',
+			'catalognumber', 'othercatalognumbers', 'occurrenceid', 'family', 'sciname', 'country', 'stateprovince', 'county', 'municipality',
 			'recordedby', 'recordnumber', 'eventdate', 'decimallatitude', 'decimallongitude', 'minimumelevationinmeters', 'maximumelevationinmeters', 'cultivationstatus',
 			'datelastmodified', 'dateentered', 'processingstatus', 'dbpk'
 		);
@@ -149,7 +149,7 @@ class DwcArchiverCore extends Manager{
 			$sqlWhere = '(c.colltype IN("Observations", "General Observations")) ';
 		}
 		if ($collTarget && $collTarget != 'all') {
-			if($collType != 'internalCall') $this->addCondition('collid', 'EQUALS', $collTarget);
+			if($collType != 'internalCall') $this->conditionArr['collid'] = $collTarget;
 			$sqlWhere .= ($sqlWhere ? 'AND ' : '') . '(c.collid IN(' . $collTarget . ')) ';
 		}
 		if ($sqlWhere) {
@@ -272,10 +272,13 @@ class DwcArchiverCore extends Manager{
 			$this->conditionSql = $this->customWhereSql . ' ';
 		}
 		if (array_key_exists('collid', $this->conditionArr) && $this->conditionArr['collid']) {
-			if (preg_match('/^[\d,]+$/', $this->conditionArr['collid']['EQUALS'][0])) {
-				$this->conditionSql .= 'AND (o.collid IN(' . $this->conditionArr['collid']['EQUALS'][0] . ')) ';
+			if (preg_match('/^[\d,]+$/', $this->conditionArr['collid'])) {
+				$this->conditionSql .= 'AND (o.collid IN(' . $this->conditionArr['collid'] . ')) ';
 			}
 			unset($this->conditionArr['collid']);
+		}
+		if (array_key_exists('datasetid', $_REQUEST) && is_numeric($_REQUEST['datasetid'])) {
+			$this->conditionSql .= 'AND (d.datasetid IN(' . $_REQUEST['datasetid'] . ')) ';
 		}
 		$sqlFrag = '';
 		if ($this->conditionArr) {

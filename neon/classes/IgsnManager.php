@@ -49,7 +49,7 @@ class IgsnManager{
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$code = $r->igsnPushedToNEON;
-			if($code > 9) $code = 10;
+			if(is_numeric($code) && $code > 9) $code = 10;
 			$retArr[$code] = $r->cnt;
 		}
 		$rs->free();
@@ -72,7 +72,7 @@ class IgsnManager{
 		//$neonApiKey = (isset($GLOBALS['NEON_API_KEY'])?$GLOBALS['NEON_API_KEY']:'');
 		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass, s.igsnPushedToNEON
 			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
-			WHERE (o.occurrenceID IS NOT NULL) ';
+			WHERE (o.occurrenceID LIKE "NEON%") ';
 		if(!$recTarget == 'unchecked') $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
 		elseif($recTarget == 'unsynchronized') $sql .= 'AND (s.igsnPushedToNEON = 0) ';
 		else $sql .= 'AND (s.igsnPushedToNEON IS NULL OR s.igsnPushedToNEON = 0) ';
@@ -98,7 +98,7 @@ class IgsnManager{
 			}
 			$igsnPushedToNEON = '';
 			if($json = @file_get_contents($url)){
-				$resultArr = json_decode($json,true);
+				$resultArr = json_decode($json, true);
 				if(!isset($resultArr['error']) && isset($resultArr['data']['sampleViews'])){
 					foreach($resultArr['data']['sampleViews'] as $sampleViewArr){
 						if(isset($sampleViewArr['archiveGuid']) && $sampleViewArr['archiveGuid']){
@@ -120,9 +120,10 @@ class IgsnManager{
 				else $igsnPushedToNEON = 10;
 			}
 			else $igsnPushedToNEON = 10;
-			if($igsnPushedToNEON = 10){
+			if($igsnPushedToNEON == 10){
 				$errorCnt++;
 				if($r->igsnPushedToNEON > 9) $igsnPushedToNEON = ++$r->igsnPushedToNEON;
+				echo 'Data return error: '.$url.'<br>';
 			}
 			if(is_numeric($igsnPushedToNEON)) $sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$r->occid;
 			if(!$this->conn->multi_query($sql)){
@@ -137,7 +138,7 @@ class IgsnManager{
 			$finalIgsn = $r->occurrenceID;
 		}
 		$rs->free();
-		echo '<li>Total checked: '.$totalCnt.', Synchronized: '.$syncCnt.' , Not in NEON: '.$unsyncCnt.', Mismatched: , API errors: '.$errorCnt.'</li>';
+		echo '<li>Total checked: '.$totalCnt.', Synchronized: '.$syncCnt.', Not in NEON: '.$unsyncCnt.', Mismatched: '.$mismatchCnt.', API errors: '.$errorCnt.'</li>';
 		return $finalIgsn;
 	}
 

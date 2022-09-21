@@ -860,25 +860,26 @@ class OccurrenceEditorManager {
 				$identArr = $this->getIdentifiers($this->occid);
 				$oldValueArr = array();
 				//Get current values to be saved within versioning tables
-				$editFieldArr['occurrence'] = array_intersect($editArr,array_keys($this->fieldArr['occurrence']));
-				if($editFieldArr['occurrence']){
-					$sql = 'SELECT o.collid, '.implode(',',$editFieldArr['occurrence']).(in_array('processingstatus',$editFieldArr['occurrence'])?'':',processingstatus').
-						(in_array('recordenteredby',$editFieldArr['occurrence'])?'':',recordenteredby').' FROM omoccurrences o WHERE o.occid = '.$this->occid;
+				$editFieldArr = array();
+				$editFieldArr['omoccurrences'] = array_intersect($editArr,array_keys($this->fieldArr['occurrence']));
+				if($editFieldArr['omoccurrences']){
+					$sql = 'SELECT o.collid, '.implode(',',$editFieldArr['omoccurrences']).(in_array('processingstatus',$editFieldArr['omoccurrences'])?'':',processingstatus').
+						(in_array('recordenteredby',$editFieldArr['omoccurrences'])?'':',recordenteredby').' FROM omoccurrences o WHERE o.occid = '.$this->occid;
 					$rs = $this->conn->query($sql);
 					$oldValueArr['occurrence'] = $rs->fetch_assoc();
 					$rs->free();
 				}
 				//Get current paleo values to be saved within versioning tables
-				$editFieldArr['paleo'] = array_intersect($editArr, $this->fieldArr['paleo']);
-				if($this->paleoActivated && $editFieldArr['paleo']){
-					$sql = 'SELECT '.implode(',',$editFieldArr['paleo']).' FROM omoccurpaleo WHERE occid = '.$this->occid;
+				$editFieldArr['omoccurpaleo'] = array_intersect($editArr, $this->fieldArr['paleo']);
+				if($this->paleoActivated && $editFieldArr['omoccurpaleo']){
+					$sql = 'SELECT '.implode(',',$editFieldArr['omoccurpaleo']).' FROM omoccurpaleo WHERE occid = '.$this->occid;
 					$rs = $this->conn->query($sql);
 					if($rs->num_rows) $oldValueArr['paleo'] = $rs->fetch_assoc();
 					$rs->free();
 				}
 				//Get current identifiers values to be saved within versioning tables
-				$editFieldArr['identifier'] = array_intersect($editArr, $this->fieldArr['identifier']);
-				if($editFieldArr['identifier'] && $identArr){
+				$editFieldArr['omoccuridentifiers'] = array_intersect($editArr, $this->fieldArr['identifier']);
+				if($editFieldArr['omoccuridentifiers'] && $identArr){
 					foreach($identArr[$this->occid] as $idKey => $idArr){
 						$idStr = '';
 						if($idArr['name']) $idStr = $idArr['name'].': ';
@@ -887,8 +888,8 @@ class OccurrenceEditorManager {
 					}
 				}
 				//Get current exsiccati values to be saved within versioning tables
-				$editFieldArr['exsiccati'] = array_intersect($editArr, $this->fieldArr['exsiccati']);
-				if($editFieldArr['exsiccati']){
+				$editFieldArr['omexsiccatiocclink'] = array_intersect($editArr, $this->fieldArr['exsiccati']);
+				if($editFieldArr['omexsiccatiocclink']){
 					$sql = 'SELECT et.ometid, et.title, exsnumber '.
 						'FROM omexsiccatiocclink el INNER JOIN omexsiccatinumbers en ON el.omenid = en.omenid '.
 						'INNER JOIN omexsiccatititles et ON en.ometid = et.ometid '.
@@ -919,20 +920,20 @@ class OccurrenceEditorManager {
 					$oldRecordEnteredBy = isset($oldValueArr['occurrence']['recordenteredby'])?$oldValueArr['occurrence']['recordenteredby']:'';
 					if($oldRecordEnteredBy == 'preprocessed' || (!$oldRecordEnteredBy && ($oldProcessingStatus == 'unprocessed' || $oldProcessingStatus == 'stage 1'))){
 						$postArr['recordenteredby'] = $GLOBALS['USERNAME'];
-						$editFieldArr['occurrence'][] = 'recordenteredby';
+						$editFieldArr['omoccurrences'][] = 'recordenteredby';
 					}
 					//Version edits; add edits to omoccuredits
 					$sqlEditsBase = 'INSERT INTO omoccuredits(occid,reviewstatus,appliedstatus,uid,fieldname,fieldvaluenew,fieldvalueold) '.
 						'VALUES ('.$this->occid.',1,'.($autoCommit?'1':'0').','.$GLOBALS['SYMB_UID'].',';
 					foreach($editFieldArr as $tableName => $fieldArr){
-						if($tableName == 'identifier'){
+						if($tableName == 'omoccuridentifiers'){
 							if($fieldArr){
 								foreach($postArr['idkey'] as $idIndex => $idKey){
 									$newValue = $postArr['idname'][$idIndex].($postArr['idname'][$idIndex]?': ':'').$postArr['idvalue'][$idIndex];
 									$oldValue = '';
 									if(is_numeric($idKey)) $oldValue = $oldValueArr['identifier'][$idKey];
 									if($oldValue != $newValue){
-										$sqlEdit = $sqlEditsBase.'"omoccuridentifier","'.$newValue.'","'.$oldValue.'")';
+										$sqlEdit = $sqlEditsBase.'"omoccuridentifiers","'.$newValue.'","'.$oldValue.'")';
 										if(!$this->conn->query($sqlEdit)){
 											$this->errorArr[] = ''.$this->conn->error;
 										}
@@ -943,7 +944,7 @@ class OccurrenceEditorManager {
 						else{
 							foreach($fieldArr as $fieldName){
 								$prefix = $tableName.':';
-								if($prefix == 'occurrence:') $prefix = '';
+								if($prefix == 'omoccurrences:') $prefix = '';
 								if(!array_key_exists($fieldName,$postArr)){
 									//Field is a checkbox that is unchecked: cultivationstatus, localitysecurity
 									$postArr[$fieldName] = 0;

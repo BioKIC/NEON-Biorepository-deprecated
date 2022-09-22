@@ -33,12 +33,12 @@ if($isEditor){
 			$statusStr = $loanManager->editLoanIn($_POST);
 		}
 		elseif ($formSubmit == "delAttachment") {
-			// Delete correspondance attachment
+			// Delete correspondence attachment
 			if (array_key_exists('attachid',$_REQUEST) && is_numeric($_REQUEST['attachid'])) $loanManager->deleteAttachment($_REQUEST['attachid']);
 			 $statusStr = $loanManager->getErrorMessage();
 		}
 		elseif ($formSubmit == "saveAttachment") {
-			// Save correspondance attachment
+			// Save correspondence attachment
 			if (array_key_exists('uploadfile',$_FILES)) $loanManager->uploadAttachment($collid, 'loan', $loanId, $loanIdborr, $_POST['uploadtitle'], $_FILES['uploadfile']);
 			$statusStr = $loanManager->getErrorMessage();
 		}
@@ -301,10 +301,10 @@ if($isEditor){
 					<div>
 						<form id="attachmentform" name="attachmentform" action="incoming.php" method="post" enctype="multipart/form-data" onsubmit="return verifyFileUploadForm(this)">
 							<fieldset>
-								<legend>Correspondance Attachments</legend>
+								<legend>Correspondence Attachments</legend>
 								<?php
 
-								// Add any correspondance attachments
+								// Add any correspondence attachments
 								$attachments = $loanManager->getAttachments('loan', $loanId);
 								if ($attachments) {
 									echo '<ul>';
@@ -322,7 +322,7 @@ if($isEditor){
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 								<input name="loanid" type="hidden" value="<?php echo $loanId; ?>" />
 								<input name="loanidentifierborr" type="hidden" value="<?php echo ($loanArr['loanidentifierborr'] ? $loanArr['loanidentifierborr'] : $loanArr['loanidentifierown']); ?>" />
-								<label style="font-weight: bold;">Add Correspondance Attachment:<sup>*</sup> </label><br/>
+								<label style="font-weight: bold;">Add Correspondence Attachment:<sup>*</sup> </label><br/>
 								<label>Attachment Title: </label>
 								<input name="uploadtitle" type="text" placeholder=" optional, replaces filename" maxlength="80" size="30" />
 								<input id="uploadfile" name="uploadfile" type="file" size="30" onchange="verifyFileSize(this)">

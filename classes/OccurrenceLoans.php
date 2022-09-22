@@ -941,7 +941,7 @@ class OccurrenceLoans extends Manager{
 		return $retStr;
 	}
 
-	// Function to upload correspondance attachments for loans/exchanges
+	// Function to upload correspondence attachments for loans/exchanges
 	public function uploadAttachment($collid, $type, $transid, $identifier, $title, $file) {
 
 		// Permissable mimetypes, see http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
@@ -1002,7 +1002,7 @@ class OccurrenceLoans extends Manager{
 
 			// Moved successfully, save in database
 			if ($this->saveAttachment($type, $transid, $title, $relPath, $filename)) {
-				$this->errorMessage = "SUCCESS: Correspondance attachment saved successfully.";
+				$this->errorMessage = "SUCCESS: Correspondence attachment saved successfully.";
 				return true;
 			}
 
@@ -1015,7 +1015,7 @@ class OccurrenceLoans extends Manager{
 		}
 	}
 
-	// Function to save correspondance attachments for loans/exchanges to the database
+	// Function to save correspondence attachments for loans/exchanges to the database
 	public function saveAttachment($type, $transid, $title, $path, $filename){
 		$sql = 'INSERT INTO omoccurloansattachment (' . ($type == "loan" ? 'loanid' : 'exchangeid') . ', title, path, filename) '.
 		'VALUES('.$transid . ',"' . $this->cleanInStr($title) . '","' . $path . '","' . $filename .'") ';
@@ -1030,7 +1030,7 @@ class OccurrenceLoans extends Manager{
 		}
 	}
 
-	// Delete a correspondance attachment associated with a loan/exchange
+	// Delete a correspondence attachment associated with a loan/exchange
 	public function deleteAttachment($attachid){
 
 		if(is_numeric($attachid)){
@@ -1067,7 +1067,7 @@ class OccurrenceLoans extends Manager{
 		return false;
 	}
 
-	// Get a list of correspondance attachments for a given loan/exchange
+	// Get a list of correspondence attachments for a given loan/exchange
 	public function getAttachments($type, $transid) {
 		$retArr = array();
 		$sql = 'SELECT attachmentid, title, path, filename, initialTimestamp ' .

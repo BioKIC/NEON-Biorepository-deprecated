@@ -33,12 +33,12 @@ if($isEditor){
 			$statusStr = $loanManager->editExchange($_POST);
 		}
 		elseif ($formSubmit == "delAttachment") {
-			// Delete correspondance attachment
+			// Delete correspondence attachment
 			if (array_key_exists('attachid',$_REQUEST) && is_numeric($_REQUEST['attachid'])) $loanManager->deleteAttachment($_REQUEST['attachid']);
 			$statusStr = $loanManager->getErrorMessage();
 		}
 		elseif ($formSubmit == "saveAttachment") {
-			// Save correspondance attachment
+			// Save correspondence attachment
 			if (array_key_exists('uploadfile',$_FILES)) $loanManager->uploadAttachment($collid, 'exch', $exchangeId, $identifier, $_POST['uploadtitle'], $_FILES['uploadfile']);
 			$statusStr = $loanManager->getErrorMessage();
 		}
@@ -340,10 +340,10 @@ if($isEditor){
 					<div>
 						<form id="attachmentform" name="attachmentform" action="exchange.php" method="post" enctype="multipart/form-data" onsubmit="return verifyFileUploadForm(this)">
 							<fieldset>
-								<legend>Correspondance Attachments</legend>
+								<legend>Correspondence Attachments</legend>
 								<?php
 
-								// Add any correspondance attachments
+								// Add any correspondence attachments
 								$attachments = $loanManager->getAttachments('exch', $exchangeId);
 								if ($attachments) {
 									echo '<ul>';
@@ -360,7 +360,7 @@ if($isEditor){
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
 								<input name="exchangeid" type="hidden" value="<?php echo $exchangeId; ?>" />
 								<input name="identifier" type="hidden" value="<?php echo $exchangeArr['identifier']; ?>" />
-								<label style="font-weight: bold;">Add Correspondance Attachment:<sup>*</sup> </label><br/>
+								<label style="font-weight: bold;">Add Correspondence Attachment:<sup>*</sup> </label><br/>
 								<label>Attachment Title: </label>
 								<input name="uploadtitle" type="text" placeholder=" optional, replaces filename" maxlength="80" size="30" />
 								<input id="uploadfile" name="uploadfile" type="file" size="30" onchange="verifyFileSize(this)">

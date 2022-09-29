@@ -186,7 +186,7 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 			//Get other existing DWCAs by reading and parsing current rss.xml
 			$oldDoc = new DOMDocument();
 			$oldDoc->load($sourcePath);
-			$items = $oldDoc->getElementsByTagName("item");
+			$items = $oldDoc->getElementsByTagName('item');
 			foreach($items as $i){
 				//Filter out item for active collection
 				$t = $i->getElementsByTagName("title")->item(0)->nodeValue;
@@ -201,9 +201,9 @@ class DwcArchiverPublisher extends DwcArchiverCore{
 		}
 		$newDoc->save($targetPath);
 
-		if($sourcePath != $targetPath){
+		if($sourcePath == $deprecatedPath || !file_exists($deprecatedPath)){
 			$redirectDoc = new DOMDocument();
-			$redirectDoc->loadXML('<redirect><newLocation>'.$targetPath.'</newLocation></redirect>');
+			$redirectDoc->loadXML('<redirect><newLocation>'.$this->getDomain().$GLOBALS['CLIENT_ROOT'].'/content/dwca/rss.xml</newLocation></redirect>');
 			$redirectDoc->save($deprecatedPath);
 		}
 

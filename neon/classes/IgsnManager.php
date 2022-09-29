@@ -49,36 +49,38 @@ class IgsnManager{
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$code = $r->igsnPushedToNEON;
-			if(is_numeric($code) && $code > 9) $code = 10;
+			if(is_numeric($code) && $code > 9 && $code < 99) $code = 10;
 			$retArr[$code] = $r->cnt;
 		}
 		$rs->free();
 		return $retArr;
 	}
 
-	public function synchronizeIgsn($recTarget, $startIndex, $limit){
+	public function synchronizeIgsn($recTarget, $startIndex, $limit, $resetSession){
 		/* Synchronization codes
 		 *   null = unchecked (also due to data return error)
 		 *   0 = Unsynchronized
+		 *   100 = Unsynchronized within current session
 		 *   1 = IGSN succesfully synchronized
 		 *   2 = IGSNs mismatch
-		 *   >10 = data return error, amount above the value of 10 indicates the number of times harvest fails
+		 *   10 to 99 = data return error, amount above the value of 10 indicates the number of times harvest fails
 		 */
 		set_time_limit(3600);
 		echo '<li>Starting to synchronize IGSNs</li>';
 		flush();
 		ob_flush();
+		if($resetSession) $this->resetSession();
 		$apiUrlBase = 'https://data.neonscience.org/api/v0/samples/view?';
 		//$neonApiKey = (isset($GLOBALS['NEON_API_KEY'])?$GLOBALS['NEON_API_KEY']:'');
 		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass, s.igsnPushedToNEON
 			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
 			WHERE (o.occurrenceID LIKE "NEON%") ';
-		if(!$recTarget == 'unchecked') $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
-		elseif($recTarget == 'unsynchronized') $sql .= 'AND (s.igsnPushedToNEON = 0) ';
-		else $sql .= 'AND (s.igsnPushedToNEON IS NULL OR s.igsnPushedToNEON = 0) ';
+		if($recTarget == 'unsynchronized') $sql .= 'AND (s.igsnPushedToNEON = 0) ';
+		else $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
 		if($startIndex) $sql .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
 		$sql .= 'ORDER BY o.occurrenceID ';
-		if($limit && is_numeric($limit)) $sql .= 'LIMIT '.$limit;
+		if(!is_numeric($limit)) $limit = 1000;
+		$sql .= 'LIMIT '.$limit;
 		$rs = $this->conn->query($sql);
 		$totalCnt = 0;
 		$syncCnt = 0;
@@ -113,7 +115,8 @@ class IgsnManager{
 						}
 						else{
 							$unsyncCnt++;
-							$igsnPushedToNEON = 0;
+							if($r->igsnPushedToNEON == 0) $igsnPushedToNEON = 100;
+							else $igsnPushedToNEON = 0;
 						}
 					}
 				}
@@ -122,13 +125,10 @@ class IgsnManager{
 			else $igsnPushedToNEON = 10;
 			if($igsnPushedToNEON == 10){
 				$errorCnt++;
-				if($r->igsnPushedToNEON > 9) $igsnPushedToNEON = ++$r->igsnPushedToNEON;
+				if($r->igsnPushedToNEON > 9 && $r->igsnPushedToNEON < 99) $igsnPushedToNEON = ++$r->igsnPushedToNEON;
 				echo 'Data return error: '.$url.'<br>';
 			}
-			if(is_numeric($igsnPushedToNEON)) $sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$r->occid;
-			if(!$this->conn->multi_query($sql)){
-				echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
-			}
+			$this->updateIgsnStatus($r->occid, $igsnPushedToNEON);
 			$totalCnt++;
 			if($totalCnt%100 == 0){
 				echo '<li style="margin-left: 15px">'.$totalCnt.' checked</li>';
@@ -140,6 +140,20 @@ class IgsnManager{
 		$rs->free();
 		echo '<li>Total checked: '.$totalCnt.', Synchronized: '.$syncCnt.', Not in NEON: '.$unsyncCnt.', Mismatched: '.$mismatchCnt.', API errors: '.$errorCnt.'</li>';
 		return $finalIgsn;
+	}
+
+	private function updateIgsnStatus($occid, $igsnPushedToNEON){
+		if(is_numeric($igsnPushedToNEON)){
+			$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$occid;
+			if(!$this->conn->multi_query($sql)){
+				echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
+			}
+		}
+	}
+
+	private function resetSession(){
+		$sql = 'UPDATE NeonSample SET igsnPushedToNEON = 0 WHERE igsnPushedToNEON = 100';
+		$this->conn->query($sql);
 	}
 
 	public function exportUnsynchronizedReport(){

@@ -7,8 +7,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/igsncontrol.php?'.$_SERVER['QUERY_STRING']);
 
 $recTarget = array_key_exists('recTarget',$_POST)?$_POST['recTarget']:'';
+$resetSession = array_key_exists('resetSession',$_POST) && $_POST['resetSession'] == 1?1:0;
 $startIndex = array_key_exists('startIndex',$_POST)?$_POST['startIndex']:'';
-$limit = array_key_exists('limit',$_POST)?$_POST['limit']:'';
+$limit = array_key_exists('limit',$_POST)?$_POST['limit']:1000;
 $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 
 //Sanitation
@@ -95,7 +96,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			echo '<fieldset>';
 			echo '<legend>Action Panel: IGSN synchronization</legend>';
 			echo '<ul>';
-			$startIndex = $igsnManager->synchronizeIgsn($recTarget, $startIndex ,$limit);
+			$startIndex = $igsnManager->synchronizeIgsn($recTarget, $startIndex ,$limit, $resetSession);
 			echo '<li><a href="igsncontrol.php">Return to IGSN report listing</a></li>';
 			echo '</ul>';
 			echo '</fieldset>';
@@ -117,6 +118,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			<div style="margin-bottom:10px;">
 				Displays occurrence counts that have been synchronized with the central NEON System.
 				After IGSNs have been integrated into NEON system, re-run the synchronization tool on the unsynchronized records to adjust the report.
+				Previous unsynchronized records are rechecked within an session. The session will have to be reset to preform additional rechecks.
 			</div>
 			<div style="">
 				<ul>
@@ -126,6 +128,7 @@ include($SERVER_ROOT.'/includes/header.php');
 						echo '<div><label>Unchecked: </label>'.(isset($reportArr['x'])?$reportArr['x']:'0').'</div>';
 						echo '<div><label>Synchronized: </label>'.(isset($reportArr[1])?$reportArr[1]:'0').'</div>';
 						echo '<div><label>Unsynchronized: </label>'.(isset($reportArr[0])?$reportArr[0]:'0').'</div>';
+						if(isset($reportArr[100])) echo '<div><label>Unsynchronized: </label>'.$reportArr[100].' (rechecked in current session)</div>';
 						echo '<div><label>Mismatched: </label>'.(isset($reportArr[2])?$reportArr[2]:'0').'</div>';
 						echo '<div><label>Data return errors: </label>'.(isset($reportArr[10])?$reportArr[10]:'0').'</div>';
 					}
@@ -136,10 +139,13 @@ include($SERVER_ROOT.'/includes/header.php');
 						<div style="clear:both;">
 							<div style="float:left; margin-left:35px; margin-right:5px"><label>Target:</label> </div>
 							<div style="float:left;">
-								<input name="recTarget" type="radio" value="unchecked" <?php echo ($recTarget == 'unchecked'?'checked':''); ?> /> Unchecked only<br/>
-								<input name="recTarget" type="radio" value="unsynchronized" <?php echo (!$recTarget || $recTarget == 'unsynchronized'?'checked':''); ?> /> Unsynchronized only<br/>
-								<input name="recTarget" type="radio" value="all" <?php echo ($recTarget == 'all'?'checked':''); ?> /> All unlinked records
+								<input name="recTarget" type="radio" value="unchecked" <?php echo ($recTarget == 'unchecked'?'checked':''); ?> /> Unchecked records<br/>
+								<input name="recTarget" type="radio" value="unsynchronized" <?php echo (!$recTarget || $recTarget == 'unsynchronized'?'checked':''); ?> /> Recheck unsynchronized records<br/>
 							</div>
+						</div>
+						<div style="clear:both;padding-top:10px;margin-left:35px;">
+							<input name="resetSession" type="checkbox" value="1" >
+							<label>reset session</label>
 						</div>
 						<div style="clear:both;padding-top:10px;margin-left:35px;">
 							<label>Start at IGSN:</label> <input name="startIndex" type="text" value="<?php echo $startIndex; ?>" />

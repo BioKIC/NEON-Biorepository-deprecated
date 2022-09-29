@@ -6,8 +6,8 @@ class DwcArchiverDetermination{
 		$fieldArr['coreid'] = 'o.occid';
 		$termArr['identifiedBy'] = 'http://rs.tdwg.org/dwc/terms/identifiedBy';
 		$fieldArr['identifiedBy'] = 'd.identifiedBy';
-		$termArr['identifiedByID'] = 'https://symbiota.org/terms/identifiedByID';
-		$fieldArr['identifiedByID'] = 'd.idbyid';
+		//$termArr['identifiedByID'] = 'https://symbiota.org/terms/identifiedByID';
+		//$fieldArr['identifiedByID'] = 'd.idbyid';
 		$termArr['dateIdentified'] = 'http://rs.tdwg.org/dwc/terms/dateIdentified';
 		$fieldArr['dateIdentified'] = 'd.dateIdentified';
 		$termArr['identificationQualifier'] = 'http://rs.tdwg.org/dwc/terms/identificationQualifier';
@@ -75,7 +75,7 @@ class DwcArchiverDetermination{
 				if($fieldSql) $sql .= $delimiter.$fieldSql;
 				$delimiter = ', ';
 			}
-			$sql .= 'FROM omoccurdeterminations d INNER JOIN omoccurrences o ON d.occid = o.occid
+			$sql .= ' FROM omoccurdeterminations d INNER JOIN omoccurrences o ON d.occid = o.occid
 				INNER JOIN guidoccurdeterminations g ON d.detid = g.detid
 				LEFT JOIN taxa t ON d.tidinterpreted = t.tid ';
 			$sql .= $tableJoins;

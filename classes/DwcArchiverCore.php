@@ -1804,7 +1804,8 @@ class DwcArchiverCore extends Manager{
 				$this->writeOutRecord($fh, $r);
 			}
 			$rs->free();
-		} else {
+		}
+		else {
 			$this->logOrEcho("ERROR creating identification extension file: " . $this->dataConn->error . "\n");
 			$this->logOrEcho("\tSQL: " . $sql . "\n");
 		}

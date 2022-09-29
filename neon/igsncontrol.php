@@ -24,8 +24,8 @@ if($IS_ADMIN) $isEditor = true;
 
 $statusStr = '';
 if($isEditor){
-	if($action == 'exportUnsync'){
-		if($igsnManager->exportUnsynchronizedReport()) exit;
+	if($action == 'export'){
+		if($igsnManager->exportReport($recTarget, $limit)) exit;
 		else $statusStr = 'Unable to create export. Are you sure there are unsynchronized records?';
 	}
 }
@@ -117,8 +117,10 @@ include($SERVER_ROOT.'/includes/header.php');
 			<legend>IGSN Synchronization with NEON</legend>
 			<div style="margin-bottom:10px;">
 				Displays occurrence counts that have been synchronized with the central NEON System.
-				After IGSNs have been integrated into NEON system, re-run the synchronization tool on the unsynchronized records to adjust the report.
-				Previous unsynchronized records are rechecked within an session. The session will have to be reset to preform additional rechecks.
+				After IGSNs have been integrated into NEON system, run the synchronization tool to adjust the report.
+				Previous unsynchronized records are rechecked within an session. The session will have to be reset to preform additional rechecks.<br>
+				Export function will produce a report containing unchecked or unsynchronized records limited by the transaction limit.
+				Ideally, reports submitted to NEON should not contain more than 5000 records.
 			</div>
 			<div style="">
 				<ul>
@@ -151,11 +153,11 @@ include($SERVER_ROOT.'/includes/header.php');
 							<label>Start at IGSN:</label> <input name="startIndex" type="text" value="<?php echo $startIndex; ?>" />
 						</div>
 						<div style="clear:both;padding-top:10px;margin-left:35px;">
-							<label>Transaction limit:</label> <input name="limit" type="text" value="<?php echo $limit; ?>" />
+							<label>Transaction limit:</label> <input name="limit" type="text" value="<?php echo $limit; ?>" required />
 						</div>
 						<div style="clear:both;padding:20px 35px;">
 							<span><button name="action" type="submit" value="syncIGSNs">Synchronize Records</button></span>
-							<span style="margin-left:20px"><button name="action" type="submit" value="exportUnsync">Export Unsynchronized</button></span>
+							<span style="margin-left:20px"><button name="action" type="submit" value="export">Export Report</button></span>
 						</div>
 					</form>
 					<div style="margin-left:40px">

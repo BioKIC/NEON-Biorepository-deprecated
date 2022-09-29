@@ -156,7 +156,7 @@ class IgsnManager{
 		$this->conn->query($sql);
 	}
 
-	public function exportUnsynchronizedReport(){
+	public function exportReport($recTarget, $limit){
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		$fieldMap = array('archiveStartDate' => '"" as archiveStartDate', 'sampleID' => 's.sampleID', 'sampleCode' => 's.sampleCode', 'sampleFate' => '"archived" as sampleFate',
 			'sampleClass' => 's.sampleClass', 'archiveMedium' => 's.archiveMedium', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
@@ -164,7 +164,12 @@ class IgsnManager{
 			'collectionCode' => 'CONCAT_WS(":", c.institutionCode, c.collectionCode) as collectionCode');
 		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
 			INNER JOIN omcollections c ON c.collid = o.collid
-			WHERE o.occurrenceID IS NOT NULL AND (s.igsnPushedToNEON = 0) ';
+			WHERE (o.occurrenceID LIKE "NEON%") ';
+		if($recTarget == 'unsynchronized') $sql .= 'AND (s.igsnPushedToNEON = 0) ';
+		else $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
+		$sql .= 'ORDER BY o.occurrenceID ';
+		if(!is_numeric($limit)) $limit = 1000;
+		$sql .= 'LIMIT '.$limit;
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$fileName = 'biorepoIGSNReport_'.date('Y-d-m').'.csv';

@@ -156,7 +156,7 @@ class IgsnManager{
 		$this->conn->query($sql);
 	}
 
-	public function exportReport($recTarget, $limit){
+	public function exportReport($recTarget, $startIndex, $limit){
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		$fieldMap = array('archiveStartDate' => '"" as archiveStartDate', 'sampleID' => 's.sampleID', 'sampleCode' => 's.sampleCode', 'sampleFate' => '"archived" as sampleFate',
 			'sampleClass' => 's.sampleClass', 'archiveMedium' => 's.archiveMedium', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
@@ -167,6 +167,7 @@ class IgsnManager{
 			WHERE (o.occurrenceID LIKE "NEON%") ';
 		if($recTarget == 'unsynchronized') $sql .= 'AND (s.igsnPushedToNEON = 0) ';
 		else $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
+		if($startIndex) $sql .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
 		$sql .= 'ORDER BY o.occurrenceID ';
 		if(!is_numeric($limit)) $limit = 1000;
 		$sql .= 'LIMIT '.$limit;

@@ -9,7 +9,22 @@ $pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:"";
 $clManager = new ChecklistAdmin();
 $clManager->setClid($clid);
 
+$clArr = $clManager->getUserChecklistArr();
+$childArr = $clManager->getChildrenChecklist()
 ?>
+<script>
+	function validateParseChecklistForm(){
+
+	}
+
+	function validateAddChildForm(f){
+
+	}
+</script>
+<style>
+	.section-div{ margin-bottom: 3px; }
+	#tid{ width:600px }
+</style>
 <!-- inner text -->
 <div id="innertext" style="background-color:white;">
 	<div style="float:right;">
@@ -33,9 +48,8 @@ $clManager->setClid($clid);
 						<option value=""><?php echo (isset($LANG['SELECT_CHILD'])?$LANG['SELECT_CHILD']:'Select Child Checklist'); ?></option>
 						<option value="">-------------------------------</option>
 						<?php
-						$clArr = $clManager->getUserChecklistArr();
 						foreach($clArr as $k => $name){
-							echo '<option value="'.$k.'">'.$name.'</option>';
+							if(!isset($childArr[$k])) echo '<option value="'.$k.'">'.$name.'</option>';
 						}
 						?>
 					</select>
@@ -52,7 +66,7 @@ $clManager->setClid($clid);
 	<div style="margin:15px;">
 		<ul>
 			<?php
-			if($childArr = $clManager->getChildrenChecklist()){
+			if($childArr){
 				foreach($childArr as $k => $cArr){
 					?>
 					<li>
@@ -95,5 +109,62 @@ $clManager->setClid($clid);
 			}
 			?>
 		</ul>
+	</div>
+	<div style="margin:15px;">
+		<fieldset>
+			<legend>Batch Parse Species List</legend>
+			<form name="parsechecklistform" target="checklistadmin.php" method="post" onsubmit="validateParseChecklistForm(this)">
+				<div class="section-div">
+					<label>Taxonomic Node:</label>
+					<input id="parsetid" name="tid" type="text" required >
+				</div>
+				<div class="section-div">
+					<label>Target checklist:</label>
+					<select name="targetclid">
+						<option value="0">New Checklist</option>
+						<?php
+						foreach($clArr as $k => $name){
+							if(!isset($childArr[$k])) echo '<option value="'.$k.'">'.$name.'</option>';
+						}
+						?>
+					</select>
+				</div>
+				<div class="section-div">
+					<label>Link to Parent Checklist:</label>
+					<select name="parentClid">
+						<option value="0">New Checklist</option>
+						<?php
+						foreach($clArr as $k => $name){
+							if(!isset($childArr[$k])) echo '<option value="'.$k.'">'.$name.'</option>';
+						}
+						?>
+					</select>
+				</div>
+				<div class="section-div">
+					<label>Add to Project:</label>
+					<select name="targetpid">
+						<option value="">--no action--</option>
+						<option value="0">New Project</option>
+						<?php
+						$projArr = $clManager->getUserProjectArr();
+						foreach($projArr as $k => $name){
+							echo '<option value="'.$k.'">'.$name.'</option>';
+						}
+						?>
+					</select>
+				</div>
+				<div class="section-div">
+					<input name="copyadmin" type="checkbox">
+					<label>copy over checklist administrators</label>
+				</div>
+				<div class="section-div">
+					<input name="makepublic" type="checkbox">
+					<label>make public</label>
+				</div>
+				<div class="section-div">
+					<button name="formsubmit" type="submit" value="parseChecklist">Parse Checklist</button>
+				</div>
+			</form>
+		</fieldset>
 	</div>
 </div>

@@ -305,10 +305,25 @@ class ChecklistAdmin{
 				$sql = 'SELECT clid, name FROM fmchecklists WHERE (clid IN('.$clidStr.')) AND (type != "excludespp") ';
 				if($this->clid) $sql .= 'AND (clid <> '.$this->clid.') ';
 				$sql .= 'ORDER BY name';
-				//echo $sql;
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					$retArr[$r->clid] = $r->name;
+				}
+				$rs->free();
+			}
+		}
+		return $retArr;
+	}
+
+	public function getUserProjectArr(){
+		$retArr = array();
+		if(isset($GLOBALS['USER_RIGHTS']['ProjAdmin'])){
+			$pidStr = implode(',',$GLOBALS['USER_RIGHTS']['ProjAdmin']);
+			if($pidStr){
+				$sql = 'SELECT pid, projname FROM fmprojects WHERE (pid IN('.$pidStr.')) ORDER BY projname';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$retArr[$r->pid] = $r->projname;
 				}
 				$rs->free();
 			}

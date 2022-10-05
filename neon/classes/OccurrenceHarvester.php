@@ -868,7 +868,7 @@ class OccurrenceHarvester{
 					$skipFieldArr = array_merge($skipFieldArr, $this->getOccurrenceEdits($occid));
 				}
 				foreach($dwcArr as $fieldName => $fieldValue){
-					if(in_array(strtolower($fieldName),$skipFieldArr)) continue;
+					if(in_array(strtolower($fieldName), $skipFieldArr)) continue;
 					if($this->replaceFieldValues){
 						if(in_array($fieldName, $numericFieldArr) && is_numeric($fieldValue)){
 							$sql .= ', '.$fieldName.' = '.$this->cleanInStr($fieldValue).' ';
@@ -944,8 +944,11 @@ class OccurrenceHarvester{
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$retArr[] = 'sciname';
+			$retArr[] = 'scientificnameauthorship';
 			$retArr[] = 'identifiedby';
 			$retArr[] = 'dateidentified';
+			$retArr[] = 'taxonremarks';
+			$retArr[] = 'identificationremarks';
 		}
 		$rs->free();
 		return $retArr;
@@ -965,7 +968,7 @@ class OccurrenceHarvester{
 	private function setOccurrenceIdentifiers($idArr, $occid){
 		if($idArr && $occid){
 			//Do not reset identifiers that were explicitly edited by someone
-			$sql = 'SELECT fieldValueOld, fieldValueNew FROM omoccuredits WHERE fieldname = "omoccuridentifier" AND uid != 50 AND occid = '.$occid;
+			$sql = 'SELECT fieldValueOld, fieldValueNew FROM omoccuredits WHERE fieldname IN("omoccuridentifier","omoccuridentifiers") AND uid != 50 AND occid = '.$occid;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				if($p = strpos($r->fieldValueOld, ': ')) unset($idArr[substr($r->fieldValueOld, 0, $p)]);

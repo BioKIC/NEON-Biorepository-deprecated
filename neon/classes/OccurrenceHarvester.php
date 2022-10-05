@@ -939,6 +939,15 @@ class OccurrenceHarvester{
 			$retArr[] = strtolower($r->fieldname);
 		}
 		$rs->free();
+		//Include identification edits
+		$sql = 'SELECT sciname, identifiedBy, dateIdentified FROM omoccurdeterminations WHERE (enteredByUid IS NULL OR enteredByUid != 50) AND occid = '.$occid;
+		$rs = $this->conn->query($sql);
+		if($r = $rs->fetch_object()){
+			$retArr[] = 'sciname';
+			$retArr[] = 'identifiedby';
+			$retArr[] = 'dateidentified';
+		}
+		$rs->free();
 		return $retArr;
 	}
 
@@ -1017,7 +1026,7 @@ class OccurrenceHarvester{
 						$sqlInsert .= ', '.$k;
 						$sqlValue .= ', "'.$this->cleanInStr($v).'"';
 					}
-					$sql = 'REPLACE INTO omoccurdeterminations(occid'.$sqlInsert.') VALUES('.$occid.$sqlValue.')';
+					$sql = 'REPLACE INTO omoccurdeterminations(occid'.$sqlInsert.', enteredByUid) VALUES('.$occid.$sqlValue.', 50)';
 					if(!$this->conn->query($sql)){
 						$this->errorStr = 'ERROR adding identification to omoccurdetermination table: '.$this->conn->errno.' - '.$this->conn->error;
 					}

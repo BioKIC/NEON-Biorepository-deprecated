@@ -19,11 +19,13 @@ $importImage = array_key_exists('importimage',$_REQUEST)?true:false;
 $observerUid = array_key_exists('observeruid',$_POST)?$_POST['observeruid']:'';
 $matchCatNum = array_key_exists('matchcatnum',$_REQUEST)?true:false;
 $matchOtherCatNum = array_key_exists('matchothercatnum',$_REQUEST)&&$_REQUEST['matchothercatnum']?true:false;
+$versionData = array_key_exists('versiondata',$_REQUEST) && $_REQUEST['versiondata']?true:false;
 $verifyImages = array_key_exists('verifyimages',$_REQUEST)&&$_REQUEST['verifyimages']?true:false;
 $processingStatus = array_key_exists('processingstatus',$_REQUEST)?$_REQUEST['processingstatus']:'';
 $finalTransfer = array_key_exists('finaltransfer',$_REQUEST)?$_REQUEST['finaltransfer']:0;
 $dbpk = array_key_exists('dbpk',$_REQUEST)?$_REQUEST['dbpk']:'';
 $sourceIndex = isset($_REQUEST['sourceindex'])?$_REQUEST['sourceindex']:0;
+$publicationGuid = array_key_exists('publicationGuid',$_POST)?$_POST['publicationGuid']:'';
 
 if(strpos($uspid,'-')){
 	$tok = explode('-',$uspid);
@@ -38,6 +40,7 @@ if($importIdent !== true) $importIdent = false;
 if(!is_numeric($observerUid)) $observerUid = 0;
 if($matchCatNum !== true) $matchCatNum = false;
 if($matchOtherCatNum !== true) $matchOtherCatNum = false;
+if($versionData !== true) $versionData = false;
 if($verifyImages !== true) $verifyImages = false;
 if(!preg_match('/^[a-zA-Z0-9\s_-]+$/',$processingStatus)) $processingStatus = '';
 if(!is_numeric($finalTransfer)) $finalTransfer = 0;
@@ -70,6 +73,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType ==
 		}
 	}
 	$duManager->setSourcePortalIndex($sourceIndex);
+	$duManager->setPublicationGuid($publicationGuid);
 }
 
 $duManager->setCollId($collid);
@@ -78,6 +82,7 @@ $duManager->setUploadType($uploadType);
 $duManager->setObserverUid($observerUid);
 $duManager->setMatchCatalogNumber($matchCatNum);
 $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
+$duManager->setVersionDataEdits($versionData);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
 
@@ -218,17 +223,22 @@ include($SERVER_ROOT.'/includes/header.php');
 						//Extensions
 						if(isset($reportArr['ident'])) echo '<div>'.$LANG['IDENT_TRANSFER'].': '.$reportArr['ident'].'</div>';
 						if(isset($reportArr['image'])) echo '<div>'.$LANG['IMAGE_TRANSFER'].': '.$reportArr['image'].'</div>';
-						if($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType == $SYMBIOTA) $sourceIndex = $duManager->getSourcePortalIndex();
+						if($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType == $SYMBIOTA){
+							$sourceIndex = $duManager->getSourcePortalIndex();
+							$publicationGuid = $duManager->getPublicationGuid();
+						}
 						?>
 					</div>
 					<form name="finaltransferform" action="specuploadprocessor.php" method="post" style="margin-top:10px;" onsubmit="return confirm('<?php echo $LANG['FINAL_TRANSFER']; ?>');">
 						<input type="hidden" name="collid" value="<?php echo $collid;?>" />
 						<input type="hidden" name="uploadtype" value="<?php echo $uploadType; ?>" />
 						<input type="hidden" name="observeruid" value="<?php echo $observerUid; ?>" />
+						<input type="hidden" name="versiondata" value="<?php echo ($versionData?'1':'0'); ?>" />
 						<input type="hidden" name="verifyimages" value="<?php echo ($verifyImages?'1':'0'); ?>" />
 						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
 						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 						<input type="hidden" name="sourceindex" value="<?php echo $sourceIndex;?>" />
+						<input type="hidden" name="publicationGuid" value="<?php echo $publicationGuid;?>" />
 						<div style="margin:5px;">
 							<button type="submit" name="action" value="activateOccurrences"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 						</div>

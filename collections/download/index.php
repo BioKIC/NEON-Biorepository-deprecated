@@ -67,7 +67,8 @@ $dwcManager = new DwcArchiverCore();
 			if(obj.checked == false){
 				obj.form.images.checked = false;
 				obj.form.identifications.checked = false;
-				obj.form.attributes.checked = false;
+				if(obj.form.attributes) obj.form.attributes.checked = false;
+				if(obj.form.materialsample) obj.form.materialsample.checked = false;
 			}
 		}
 

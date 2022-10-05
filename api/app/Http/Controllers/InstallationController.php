@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\PortalIndex;
+use App\Models\PortalIndex;
 use Illuminate\Http\Request;
 
 class InstallationController extends Controller{
@@ -162,15 +162,16 @@ class InstallationController extends Controller{
 	 * )
 	 */
 	public function portalHandshake($id, Request $request){
-		$responseArr = array();
+		$responseArr = array( 'status' => 500, 'error' => 'Unknown error' );
 		$portalObj = PortalIndex::where('guid',$id)->get();
 		if($portalObj->count()){
-			$responseArr['status'] = true;
+			$responseArr['status'] = 200;
 			$responseArr['message'] = 'Portal previously registered';
+			unset($responseArr['error']);
 		}
 		elseif($id == $_ENV['PORTAL_GUID']){
 			//Make sure touch isn't referring to self
-			$responseArr['status'] = false;
+			$responseArr['status'] = 400;
 			$responseArr['error'] = 'Registration failed: handshake is referencing self';
 		}
 		elseif($request->has('endpoint')){
@@ -186,8 +187,9 @@ class InstallationController extends Controller{
 						try {
 							//Register remote
 							$portalObj = PortalIndex::create($remote);
-							$responseArr['status'] = true;
+							$responseArr['status'] = 200;
 							$responseArr['message'] = 'Remote portal registered successfully';
+							unset($responseArr['error']);
 							//Register all portals listed within remote, if not alreay registered
 							$urlInstallation = $baseUrl.'/api/v2/installation';
 							if($remoteInstallationArr = $this->getAPIResponce($urlInstallation)){
@@ -207,28 +209,29 @@ class InstallationController extends Controller{
 										}
 									}
 								}
-								$responseArr['Current registered remotes obtained from remote library'] = $currentRegistered;
-								$responseArr['Additional new registrations obtained from remote library'] = $newRegistration;
+								$responseArr['Currently registered remotes'] = $currentRegistered;
+								$responseArr['Newly registrations remotes'] = $newRegistration;
 							}
 							else $responseArr['error'] = 'Unable to obtain remote installation listing: '.$urlInstallation;
-						} catch(\Illuminate\Database\QueryException $ex){
-							$responseArr['status'] = false;
+						}
+						catch(\Illuminate\Database\QueryException $ex){
+							$responseArr['status'] = 503;
 							$responseArr['error'] = 'Registration failed: Unable insert database record: '.$ex->getMessage();
 						}
 					}
 					else{
-						$responseArr['status'] = false;
+						$responseArr['status'] = 422;
 						$responseArr['error'] = 'Registration failed: Supplied and returned remote GUIDs not matching ('.$id.' != '.$remote['guid'].')  ';
 					}
 				}
 				else{
-					$responseArr['status'] = false;
-					$responseArr['error'] = 'Registration failed: Unable to obtain data from endpoint: '.$urlPing;
+					$responseArr['status'] = 422;
+					$responseArr['error'] = 'Registration failed: Endpoint illegal or non-functional: '.$urlPing;
 				}
 			}
 		}
 		else{
-			$responseArr['status'] = false;
+			$responseArr['status'] = 422;
 			$responseArr['error'] = 'Registration failed: Unable to obtain portal endpoint';
 		}
 		$responseArr['results'] = $portalObj;
@@ -356,10 +359,17 @@ class InstallationController extends Controller{
 	}
 
 	private function getServerDomain(){
-		$domain = "http://";
-		if((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $domain = "https://";
-		$domain .= $_SERVER["SERVER_NAME"];
-		if($_SERVER["SERVER_PORT"] && $_SERVER["SERVER_PORT"] != 80 && $_SERVER['SERVER_PORT'] != 443) $domain .= ':'.$_SERVER["SERVER_PORT"];
+		$domain = 'http://';
+		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $domain = 'https://';
+		if(!empty($GLOBALS['SERVER_HOST'])){
+			if(substr($GLOBALS['SERVER_HOST'], 0, 4) == 'http') $domain = $GLOBALS['SERVER_HOST'];
+			else $domain .= $GLOBALS['SERVER_HOST'];
+		}
+		else $domain .= $_SERVER['SERVER_NAME'];
+		if($_SERVER['SERVER_PORT'] && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443 && !strpos($domain, ':'.$_SERVER['SERVER_PORT'])){
+			$domain .= ':'.$_SERVER['SERVER_PORT'];
+		}
+		$domain = filter_var($domain, FILTER_SANITIZE_URL);
 		return $domain;
 	}
 }

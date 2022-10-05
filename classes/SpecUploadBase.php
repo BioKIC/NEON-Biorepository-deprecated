@@ -15,6 +15,7 @@ class SpecUploadBase extends SpecUpload{
 	private $observerUid;
 	private $matchCatalogNumber = 1;
 	private $matchOtherCatalogNumbers = 0;
+	private $versionDataEdits = false;
 	private $verifyImageUrls = false;
 	private $processingStatus = '';
 	protected $nfnIdentifier;
@@ -863,7 +864,10 @@ class SpecUploadBase extends SpecUpload{
 		if($this->uploadType == $this->NFNUPLOAD){
 			//Transfer edits to revision history table
 			$this->outputMsg('<li>Transferring edits to versioning tables...</li>');
-			$this->versionOccurrenceEdits();
+			$this->versionExternalEdits();
+		}
+		elseif($this->collMetadataArr['managementtype'] == 'Live Data' && $this->uploadType != $this->RESTOREBACKUP){
+			$this->versionInternalEdits();
 		}
 		$transactionInterval = 1000;
 		$this->outputMsg('<li>Updating existing records in batches of '.$transactionInterval.'... </li>');
@@ -896,7 +900,7 @@ class SpecUploadBase extends SpecUpload{
 		if($this->uploadType == $this->RESTOREBACKUP) $obsUidTarget = 'u.observeruid';
 		elseif($this->observerUid) $obsUidTarget = $this->observerUid;
 		$sqlBase = 'UPDATE IGNORE uploadspectemp u INNER JOIN omoccurrences o ON u.occid = o.occid SET o.observeruid = '.$obsUidTarget.','.implode(',',$sqlFragArr);
-		if($this->collMetadataArr["managementtype"] == 'Snapshot') $sqlBase .= ', o.dateLastModified = CURRENT_TIMESTAMP() ';
+		if($this->collMetadataArr['managementtype'] == 'Snapshot') $sqlBase .= ', o.dateLastModified = CURRENT_TIMESTAMP() ';
 		$sqlBase .= ' WHERE (u.collid IN('.$this->collId.')) ';
 		$cnt = 1;
 		$previousInterval = 0;
@@ -977,9 +981,56 @@ class SpecUploadBase extends SpecUpload{
 		}
 	}
 
-	private function versionOccurrenceEdits(){
+	private function versionInternalEdits(){
+		if($this->versionDataEdits){
+			$fieldArr = array();
+			$sql = 'SHOW COLUMNS FROM omoccurrences';
+			$rs = $this->conn->query($sql);
+			while($row = $rs->fetch_object()){
+				$field = strtolower($row->Field);
+				if(in_array($field, $this->symbFields)) $fieldArr[] = $field;
+			}
+			$rs->free();
+
+			$sqlFrag = '';
+			foreach($fieldArr as $field){
+				$sqlFrag .= ',u.'.$field.',o.'.$field.' as old_'.$field;
+			}
+			$sql = 'SELECT o.occid'.$sqlFrag.' FROM omoccurrences o INNER JOIN uploadspectemp u ON o.occid = u.occid WHERE o.collid IN('.$this->collId.') AND u.collid IN('.$this->collId.')';
+			$rs = $this->conn->query($sql);
+			$excludedFieldArr = array('dateentered','observeruid');
+			while($r = $rs->fetch_assoc()){
+				foreach($fieldArr as $field){
+					if(in_array($field, $excludedFieldArr)) continue;
+					if($r[$field] != $r['old_'.$field]){
+						if($this->uploadType == $this->SKELETAL && $r['old_'.$field]) continue;
+						$this->insertOccurEdit($r['occid'], $field, $r[$field], $r['old_'.$field]);
+					}
+				}
+			}
+			$rs->free();
+		}
+	}
+
+	private function insertOccurEdit($occid, $fieldName, $fieldValueNew, $fieldValueOld){
+		if($fieldValueNew == NULL) $fieldValueNew = '';
+		if($fieldValueOld == NULL) $fieldValueOld = '';
+		$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueNew, fieldValueOld, uid) VALUES(?,?,?,?,?)';
+		if($stmt = $this->conn->prepare($sql)) {
+			$stmt->bind_param('isssi', $occid, $fieldName, $fieldValueNew, $fieldValueOld, $GLOBALS['SYMB_UID']);
+			if(!$stmt->execute()){
+				$this->errorStr = 'ERROR inserting Occurrence Edit: '.$stmt->error;
+				echo $this->errorStr.'<br/>';
+				return false;
+			}
+			$stmt->close();
+		}
+		else $this->errorStr = mysqli_error($this->conn);
+	}
+
+	private function versionExternalEdits(){
 		$nfnFieldArr = array();
-		$sql = "SHOW COLUMNS FROM omoccurrences";
+		$sql = 'SHOW COLUMNS FROM omoccurrences';
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			$field = strtolower($row->Field);
@@ -1010,7 +1061,7 @@ class SpecUploadBase extends SpecUpload{
 			//Load into revisions table
 			foreach($editArr as $appliedStatus => $eArr){
 				$sql = 'INSERT INTO omoccurrevisions(occid, oldValues, newValues, externalSource, reviewStatus, appliedStatus) '.
-						'VALUES('.$r['occid'].',"'.$this->cleanInStr(json_encode($eArr['old'])).'","'.$this->cleanInStr(json_encode($eArr['new'])).'","Notes from Nature Expedition",1,'.$appliedStatus.')';
+					'VALUES('.$r['occid'].',"'.$this->cleanInStr(json_encode($eArr['old'])).'","'.$this->cleanInStr(json_encode($eArr['new'])).'","Notes from Nature Expedition",1,'.$appliedStatus.')';
 				if(!$this->conn->query($sql)){
 					$this->outputMsg('<li style="margin-left:10px;">ERROR adding edit revision ('.$this->conn->error.')</li>');
 				}
@@ -1504,9 +1555,6 @@ class SpecUploadBase extends SpecUpload{
 			if($this->processingStatus){
 				$recMap['processingstatus'] = $this->processingStatus;
 			}
-			elseif($this->uploadType == $this->SKELETAL){
-				$recMap['processingstatus'] = 'unprocessed';
-			}
 
 			//Temporarily code until Specify output UUID as occurrenceID
 			if($this->sourceDatabaseType == 'specify' && (!isset($recMap['occurrenceid']) || !$recMap['occurrenceid'])){
@@ -1730,6 +1778,7 @@ class SpecUploadBase extends SpecUpload{
 				$sqlFields .= ','.$symbField;
 				$valueStr = $this->encodeString($valueStr);
 				$valueStr = $this->cleanInStr($valueStr);
+				$valueStr = $this->removeEmoji($valueStr);
 				if($valueStr) $hasValue = true;
 				//Load data
 				$type = '';
@@ -1916,6 +1965,10 @@ class SpecUploadBase extends SpecUpload{
 		$this->matchOtherCatalogNumbers = $match;
 	}
 
+	public function setVersionDataEdits($v){
+		$this->versionDataEdits = $v;
+	}
+
 	public function setVerifyImageUrls($v){
 		$this->verifyImageUrls = $v;
 	}
@@ -2099,6 +2152,38 @@ class SpecUploadBase extends SpecUpload{
 			$inStr = str_replace($badwordchars, $fixedwordchars, $inStr);
 		}
 		return $retStr;
+	}
+
+	function removeEmoji($string){
+		// Match Enclosed Alphanumeric Supplement
+		$regexAlphanumeric = '/[\x{1F100}-\x{1F1FF}]/u';
+		$clearString = preg_replace($regexAlphanumeric, '', $string);
+
+		// Match Miscellaneous Symbols and Pictographs
+		$regexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+		$clearString = preg_replace($regexSymbols, '', $clearString);
+
+		// Match Emoticons
+		$regexEmoticons = '/[\x{1F600}-\x{1F64F}]/u';
+		$clearString = preg_replace($regexEmoticons, '', $clearString);
+
+		// Match Transport And Map Symbols
+		$regexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+		$clearString = preg_replace($regexTransport, '', $clearString);
+
+		// Match Supplemental Symbols and Pictographs
+		$regexSupplemental = '/[\x{1F900}-\x{1F9FF}]/u';
+		$clearString = preg_replace($regexSupplemental, '', $clearString);
+
+		// Match Miscellaneous Symbols
+		$regexMisc = '/[\x{2600}-\x{26FF}]/u';
+		$clearString = preg_replace($regexMisc, '', $clearString);
+
+		// Match Dingbats
+		$regexDingbats = '/[\x{2700}-\x{27BF}]/u';
+		$clearString = preg_replace($regexDingbats, '', $clearString);
+
+		return $clearString;
 	}
 }
 ?>

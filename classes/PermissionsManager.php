@@ -11,7 +11,7 @@ CollAdmin-#			Upload records; modify metadata
 CollEditor-#		Edit collection records
 CollTaxon-#:#		Edit collection records within taxonomic speciality
 
-ClCreate			Create a Checklist
+ClCreate			Create Checklists
 ClAdmin-#			Checklist write access
 ProjAdmin-#			Project admin access
 KeyAdmin			Edit identification key characters and character states
@@ -202,7 +202,7 @@ class PermissionsManager{
 	public function addClCreateRole($uid){
 		$statusStr = '';
 		if(is_numeric($uid)){
-			
+
 			$sql = 'SELECT uid,role,tablepk,secondaryVariable,uidassignedby FROM userroles WHERE (uid = '.$uid.') AND (role = "ClCreate");';
 			$rs = $this->conn->query($sql);
 			if(!$rs->num_rows){

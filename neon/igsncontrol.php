@@ -25,7 +25,7 @@ if($IS_ADMIN) $isEditor = true;
 $statusStr = '';
 if($isEditor){
 	if($action == 'export'){
-		if($igsnManager->exportReport($recTarget, $limit)) exit;
+		if($igsnManager->exportReport($recTarget, $startIndex, $limit)) exit;
 		else $statusStr = 'Unable to create export. Are you sure there are unsynchronized records?';
 	}
 }

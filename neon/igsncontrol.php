@@ -141,7 +141,7 @@ include($SERVER_ROOT.'/includes/header.php');
 						echo '<div><label>Not submitted: </label>'.(isset($reportArr['x'])?$reportArr['x']:'0').'</div>';
 						echo '<div><label>Submitted but unchecked: </label>'.(isset($reportArr['3'])?$reportArr['3']:'0').'</div>';
 						echo '<div><label>Unsynchronized: </label>'.(isset($reportArr[0])?$reportArr[0]:'0').'</div>';
-						if(isset($reportArr[100])) echo '<div><label>Unsynchronized: </label>'.$reportArr[100].' (rechecked in current session)</div>';
+						if(isset($reportArr[100])) echo '<div><label>Unsynchronized (current session): </label>'.$reportArr[100].'</div>';
 						echo '<div><label>Synchronized: </label>'.(isset($reportArr[1])?$reportArr[1]:'0').'</div>';
 						echo '<div><label>Mismatched: </label>'.(isset($reportArr[2])?$reportArr[2]:'0').'</div>';
 						echo '<div><label>Data return errors: </label>'.(isset($reportArr[10])?$reportArr[10]:'0').'</div>';

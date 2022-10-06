@@ -170,10 +170,15 @@ class IgsnManager{
 
 	public function exportReport($recTarget, $startIndex, $limit, $markAsAubmitted){
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		$fieldMap = array('archiveStartDate' => '"" as archiveStartDate', 'sampleID' => 's.sampleID', 'sampleCode' => 's.sampleCode', 'sampleFate' => '"archived" as sampleFate',
-			'sampleClass' => 's.sampleClass', 'archiveMedium' => 's.archiveMedium', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
-			'externalURLs' => 'CONCAT("https://biorepo.neonscience.org/portal/collections/individual/index.php?occid=", o.occid) as referenceUrl',
-			'collectionCode' => 'CONCAT_WS(":", c.institutionCode, c.collectionCode) as collectionCode');
+		$fieldMap = array('sampleID' => 's.sampleID', 'sampleCode' => 's.sampleCode', 'sampleFate' => '"archived" AS sampleFate',
+			'sampleClass' => 's.sampleClass', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
+			'externalURLs' => 'CONCAT("https://biorepo.neonscience.org/portal/collections/individual/index.php?occid=", o.occid) AS referenceUrl',
+			'collectionCode' => 'CONCAT_WS(":", c.institutionCode, c.collectionCode) as collectionCode',
+			'archiveStartDate' => '"" AS archiveStartDate', 'archiveMedium' => 's.archiveMedium', 'storageTemperature' => '"" AS storageTemperature',
+			'scientificName' => '"" AS scientificName', 'scientificNameAuthorship' => '"" AS scientificNameAuthorship', 'identificationQualifier' => '"" AS identificationQualifier',
+			'sex' => '"" AS sex', 'reproductiveCondition' => '"" AS reproductiveCondition', 'lifeStage' => '"" AS lifeStage', 'identifiedBy' => '"" AS identifiedBy',
+			'accessionNumber' => '"" AS accessionNumber', 'remarks' => '"" AS remarks', 'archiveLaboratoryName' => '"" AS archiveLaboratoryName'
+		);
 		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid INNER JOIN omcollections c ON c.collid = o.collid ';
 		$sqlWhere = 'WHERE (o.occurrenceID LIKE "NEON%") ';
 		if($startIndex) $sqlWhere .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';

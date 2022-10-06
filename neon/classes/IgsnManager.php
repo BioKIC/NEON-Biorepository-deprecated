@@ -63,6 +63,7 @@ class IgsnManager{
 		 *   100 = Unsynchronized within current session
 		 *   1 = IGSN succesfully synchronized
 		 *   2 = IGSNs mismatch
+		 *   3 = unchecked but submitted to NEON
 		 *   10 to 99 = data return error, amount above the value of 10 indicates the number of times harvest fails
 		 */
 		set_time_limit(3600);
@@ -75,8 +76,13 @@ class IgsnManager{
 		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass, s.igsnPushedToNEON
 			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
 			WHERE (o.occurrenceID LIKE "NEON%") ';
-		if($recTarget == 'unsynchronized') $sql .= 'AND (s.igsnPushedToNEON = 0) ';
-		else $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
+		if($recTarget == 'unsynchronized'){
+			$sql .= 'AND (s.igsnPushedToNEON = 0) ';
+		}
+		else{
+			//$recTarget == unchecked
+			$sql .= 'AND (s.igsnPushedToNEON = 3) ';
+		}
 		if($startIndex) $sql .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
 		$sql .= 'ORDER BY o.occurrenceID ';
 		if(!is_numeric($limit)) $limit = 1000;
@@ -128,7 +134,7 @@ class IgsnManager{
 				if($r->igsnPushedToNEON > 9 && $r->igsnPushedToNEON < 99) $igsnPushedToNEON = ++$r->igsnPushedToNEON;
 				echo 'Data return error: '.$url.'<br>';
 			}
-			$this->updateIgsnStatus($r->occid, $igsnPushedToNEON);
+			$this->updateIgsnStatus($igsnPushedToNEON, $r->occid);
 			$totalCnt++;
 			if($totalCnt%100 == 0){
 				echo '<li style="margin-left: 15px">'.$totalCnt.' checked</li>';
@@ -142,9 +148,15 @@ class IgsnManager{
 		return $finalIgsn;
 	}
 
-	private function updateIgsnStatus($occid, $igsnPushedToNEON){
+	private function updateIgsnStatus($igsnPushedToNEON, $condition){
 		if(is_numeric($igsnPushedToNEON)){
-			$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$occid;
+			$sql = '';
+			if(is_numeric($condition)){
+				$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$condition;
+			}
+			else{
+				$sql = 'UPDATE omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid SET s.igsnPushedToNEON = '.$igsnPushedToNEON.' '.$condition;
+			}
 			if(!$this->conn->multi_query($sql)){
 				echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
 			}
@@ -156,21 +168,30 @@ class IgsnManager{
 		$this->conn->query($sql);
 	}
 
-	public function exportReport($recTarget, $startIndex, $limit){
+	public function exportReport($recTarget, $startIndex, $limit, $markAsAubmitted){
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		$fieldMap = array('archiveStartDate' => '"" as archiveStartDate', 'sampleID' => 's.sampleID', 'sampleCode' => 's.sampleCode', 'sampleFate' => '"archived" as sampleFate',
 			'sampleClass' => 's.sampleClass', 'archiveMedium' => 's.archiveMedium', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
 			'externalURLs' => 'CONCAT("https://biorepo.neonscience.org/portal/collections/individual/index.php?occid=", o.occid) as referenceUrl',
 			'collectionCode' => 'CONCAT_WS(":", c.institutionCode, c.collectionCode) as collectionCode');
-		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
-			INNER JOIN omcollections c ON c.collid = o.collid
-			WHERE (o.occurrenceID LIKE "NEON%") ';
-		if($recTarget == 'unsynchronized') $sql .= 'AND (s.igsnPushedToNEON = 0) ';
-		else $sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
-		if($startIndex) $sql .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
-		$sql .= 'ORDER BY o.occurrenceID ';
+		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid INNER JOIN omcollections c ON c.collid = o.collid ';
+		$sqlWhere = 'WHERE (o.occurrenceID LIKE "NEON%") ';
+		if($startIndex) $sqlWhere .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
+		if($recTarget == 'unsynchronized'){
+			$sqlWhere .= 'AND (s.igsnPushedToNEON = 0) ';
+		}
+		elseif($recTarget == 'unchecked'){
+			$sqlWhere .= 'AND (s.igsnPushedToNEON = 3) ';
+		}
+		else{
+			//$recTarget == notsubmitted
+			$sqlWhere .= 'AND (s.igsnPushedToNEON IS NULL) ';
+		}
+		$sqlWhere .= 'ORDER BY o.occurrenceID ';
 		if(!is_numeric($limit)) $limit = 1000;
-		$sql .= 'LIMIT '.$limit;
+		$sqlWhere .= 'LIMIT '.$limit;
+		if($recTarget == 'notsubmitted' && $markAsAubmitted) $this->updateIgsnStatus(3, $sqlWhere);
+		$sql .= $sqlWhere;
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$fileName = 'biorepoIGSNReport_'.date('Y-d-m').'.csv';

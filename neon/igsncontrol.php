@@ -25,8 +25,13 @@ if($IS_ADMIN) $isEditor = true;
 $statusStr = '';
 if($isEditor){
 	if($action == 'export'){
-		if($igsnManager->exportReport($recTarget, $startIndex, $limit)) exit;
-		else $statusStr = 'Unable to create export. Are you sure there are unsynchronized records?';
+		$markAsSubmitted = array_key_exists('markAsSubmitted',$_POST) && $_POST['markAsSubmitted'] == 1?true:false;
+		if($igsnManager->exportReport($recTarget, $startIndex, $limit, $markAsSubmitted)){
+			exit;
+		}
+		else{
+			$statusStr = 'Unable to create export. Are you sure there are unsynchronized records?';
+		}
 	}
 }
 ?>
@@ -41,7 +46,13 @@ if($isEditor){
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-
+		function verifySync(f){
+			if(f.recTarget.value == 'notsubmitted'){
+				alert("Unsubmitted records cannot be synchronized");
+				return false;
+			}
+			return true;
+		}
 	</script>
 	<style type="text/css">
 		fieldset{ padding:15px }
@@ -127,10 +138,11 @@ include($SERVER_ROOT.'/includes/header.php');
 					<?php
 					$reportArr = $igsnManager->getIgsnSynchronizationReport();
 					if($reportArr){
-						echo '<div><label>Unchecked: </label>'.(isset($reportArr['x'])?$reportArr['x']:'0').'</div>';
-						echo '<div><label>Synchronized: </label>'.(isset($reportArr[1])?$reportArr[1]:'0').'</div>';
+						echo '<div><label>Not submitted: </label>'.(isset($reportArr['x'])?$reportArr['x']:'0').'</div>';
+						echo '<div><label>Submitted but unchecked: </label>'.(isset($reportArr['3'])?$reportArr['3']:'0').'</div>';
 						echo '<div><label>Unsynchronized: </label>'.(isset($reportArr[0])?$reportArr[0]:'0').'</div>';
 						if(isset($reportArr[100])) echo '<div><label>Unsynchronized: </label>'.$reportArr[100].' (rechecked in current session)</div>';
+						echo '<div><label>Synchronized: </label>'.(isset($reportArr[1])?$reportArr[1]:'0').'</div>';
 						echo '<div><label>Mismatched: </label>'.(isset($reportArr[2])?$reportArr[2]:'0').'</div>';
 						echo '<div><label>Data return errors: </label>'.(isset($reportArr[10])?$reportArr[10]:'0').'</div>';
 					}
@@ -141,8 +153,9 @@ include($SERVER_ROOT.'/includes/header.php');
 						<div style="clear:both;">
 							<div style="float:left; margin-left:35px; margin-right:5px"><label>Target:</label> </div>
 							<div style="float:left;">
-								<input name="recTarget" type="radio" value="unchecked" <?php echo ($recTarget == 'unchecked'?'checked':''); ?> /> Unchecked records<br/>
-								<input name="recTarget" type="radio" value="unsynchronized" <?php echo (!$recTarget || $recTarget == 'unsynchronized'?'checked':''); ?> /> Recheck unsynchronized records<br/>
+								<input name="recTarget" type="radio" value="notsubmitted" <?php echo ($recTarget == 'notsubmitted'?'checked':''); ?> /> Not submitted<br/>
+								<input name="recTarget" type="radio" value="unchecked" <?php echo ($recTarget == 'unchecked'?'checked':''); ?> /> Unchecked<br/>
+								<input name="recTarget" type="radio" value="unsynchronized" <?php echo (!$recTarget || $recTarget == 'unsynchronized'?'checked':''); ?> /> Unsynchronized records<br/>
 							</div>
 						</div>
 						<div style="clear:both;padding-top:10px;margin-left:35px;">
@@ -156,11 +169,17 @@ include($SERVER_ROOT.'/includes/header.php');
 							<label>Transaction limit:</label> <input name="limit" type="text" value="<?php echo $limit; ?>" required />
 						</div>
 						<div style="clear:both;padding:20px 35px;">
-							<span><button name="action" type="submit" value="syncIGSNs">Synchronize Records</button></span>
-							<span style="margin-left:20px"><button name="action" type="submit" value="export">Export Report</button></span>
+							<div style="float:left;"><button name="action" type="submit" value="syncIGSNs" onclick="return verifySync(this.form)">Synchronize Records</button></div>
+							<div style="float:left;margin-left:20px">
+								<button name="action" type="submit" value="export" style="margin-bottom:0px">Export Report</button><br>
+								<span style="margin-left:15px"><input name="markAsSubmitted" type="checkbox" value="1" checked> mark as submitted</span>
+							</div>
+							<div style="float:left;margin-left:20px">
+								<button name="action" type="submit" value="refresh" style="margin-bottom:0px">Rerfresh Statistics</button>
+							</div>
 						</div>
 					</form>
-					<div style="margin-left:40px">
+					<div style="clear:both;margin-left:40px">
 						<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank">NEON report submission page</a>
 					</div>
 				</div>

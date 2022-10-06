@@ -615,7 +615,10 @@ $traitArr = $indManager->getTraitArr();
 						if($occArr['eventdate']){
 							echo '<div>';
 							echo '<label>'.(isset($LANG['EVENTDATE'])?$LANG['EVENTDATE']:'Date').':</label> '.$occArr['eventdate'];
-							if($occArr['eventdateend'] && $occArr['eventdateend'] != $occArr['eventdate']){
+							if($occArr['eventdate2'] && $occArr['eventdate2'] != $occArr['eventdate']){
+								echo ' - '.$occArr['eventdate2'];
+							}
+							elseif($occArr['eventdateend'] && $occArr['eventdateend'] != $occArr['eventdate']){
 								echo ' - '.$occArr['eventdateend'];
 							}
 							echo '</div>';

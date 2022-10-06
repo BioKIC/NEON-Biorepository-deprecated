@@ -689,6 +689,7 @@ class OccurrenceHarvester{
 			}
 		}
 		if(isset($dwcArr['eventDate'])) $dwcArr['eventDate'] = $this->formatDate($dwcArr['eventDate']);
+		if(isset($dwcArr['eventDate2'])) $dwcArr['eventDate2'] = $this->formatDate($dwcArr['eventDate2']);
 		return $dwcArr;
 	}
 

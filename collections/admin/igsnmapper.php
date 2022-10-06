@@ -65,6 +65,7 @@ if($action == 'populateGUIDs'){
 	<?php
 	$activateJQuery = false;
 	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript">
 		function validateCredentials(f){

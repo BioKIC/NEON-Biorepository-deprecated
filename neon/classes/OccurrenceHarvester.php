@@ -540,7 +540,13 @@ class OccurrenceHarvester{
 				if($dynProp) $dwcArr['dynamicProperties'] = implode(', ',$dynProp);
 
 				if(isset($sampleArr['collected_by']) && $sampleArr['collected_by']) $dwcArr['recordedBy'] = $sampleArr['collected_by'];
-				if(isset($sampleArr['collect_end_date']) && $sampleArr['collect_end_date']) $dwcArr['eventDate'] = $sampleArr['collect_end_date'];
+				if(isset($sampleArr['collect_end_date']) && $sampleArr['collect_end_date']){
+					if(isset($sampleArr['collect_start_date']) && $sampleArr['collect_start_date'] != $sampleArr['collect_end_date']){
+						$dwcArr['eventDate'] = $sampleArr['collect_start_date'];
+						$dwcArr['eventDate2'] = $sampleArr['collect_end_date'];
+					}
+					else $dwcArr['eventDate'] = $sampleArr['collect_end_date'];
+				}
 				elseif(isset($sampleArr['collectDate']) && $sampleArr['collectDate'] && $sampleArr['collectDate'] != '0000-00-00') $dwcArr['eventDate'] = $sampleArr['collectDate'];
 				elseif($sampleArr['sampleID']){
 					if(preg_match('/\.(20\d{2})(\d{2})(\d{2})\./',$sampleArr['sampleID'],$m)){
@@ -548,12 +554,6 @@ class OccurrenceHarvester{
 						$dwcArr['eventDate'] = $m[1].'-'.$m[2].'-'.$m[3];
 					}
 				}
-				/*
-				if(isset($sampleArr['collect_end_date'])){
-					if(!isset($dwcArr['eventDate']) || !$dwcArr['eventDate']) $dwcArr['eventDate'] = $sampleArr['collect_end_date'];
-					elseif($dwcArr['eventDate'] != $sampleArr['collect_end_date']) $dwcArr['eventDate2'] = $sampleArr['collect_end_date'];
-				}
-				*/
 				//Build proper location code
 				$locationStr = '';
 				if(isset($sampleArr['fate_location']) && $sampleArr['fate_location']) $locationStr = $sampleArr['fate_location'];
@@ -1353,7 +1353,8 @@ class OccurrenceHarvester{
 
 	private function setSampleErrorMessage($samplePK, $msg){
 		if(is_numeric($samplePK)){
-			$sql = 'UPDATE NeonSample SET errorMessage = CONCAT_WS("; ",'.($msg?'"'.$this->cleanInStr($msg).'"':'NULL').') WHERE (samplePK = '.$samplePK.')';
+			$sql = 'UPDATE NeonSample SET errorMessage = CONCAT_WS("; ",'.$this->cleanInStr($msg).') WHERE (samplePK = '.$samplePK.')';
+			if(!$msg) $sql = 'UPDATE NeonSample SET errorMessage = NULL WHERE (samplePK = '.$samplePK.')';
 			$this->conn->query($sql);
 		}
 	}

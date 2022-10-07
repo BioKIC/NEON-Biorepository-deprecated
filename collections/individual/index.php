@@ -615,7 +615,10 @@ $traitArr = $indManager->getTraitArr();
 						if($occArr['eventdate']){
 							echo '<div>';
 							echo '<label>'.(isset($LANG['EVENTDATE'])?$LANG['EVENTDATE']:'Date').':</label> '.$occArr['eventdate'];
-							if($occArr['eventdateend'] && $occArr['eventdateend'] != $occArr['eventdate']){
+							if($occArr['eventdate2'] && $occArr['eventdate2'] != $occArr['eventdate']){
+								echo ' - '.$occArr['eventdate2'];
+							}
+							elseif($occArr['eventdateend'] && $occArr['eventdateend'] != $occArr['eventdate']){
 								echo ' - '.$occArr['eventdateend'];
 							}
 							echo '</div>';
@@ -1324,32 +1327,32 @@ $traitArr = $indManager->getTraitArr();
 							if($editArr || $externalEdits){
 								if($editArr){
 									?>
-									<fieldset>
-										<legend><?php echo (isset($LANG['INTERNALEDITS'])?$LANG['INTERNALEDITS']:'Internal Edits'); ?></legend>
+									<fieldset style="padding:15px;margin:10px 0px;">
+										<legend><?php echo (isset($LANG['INTERNAL_EDITS'])?$LANG['INTERNAL_EDITS']:'Internal Edits'); ?></legend>
 										<?php
-										foreach($editArr as $k => $eArr){
-											$reviewStr = 'OPEN';
-											if($eArr['reviewstatus'] == 2) $reviewStr = 'PENDING';
-											elseif($eArr['reviewstatus'] == 3) $reviewStr = 'CLOSED';
+										foreach($editArr as $ts => $tsArr){
 											?>
 											<div>
-												<label><?php echo (isset($LANG['EDITOR'])?$LANG['EDITOR']:'Editor'); ?>:</label> <?php echo $eArr['editor']; ?>
-												<span style="margin-left:30px;"><label>Date:</label> <?php echo $eArr['ts']; ?></span>
-											</div>
-											<div>
-												<span><label><?php echo (isset($LANG['APPLIEDSTATUS'])?$LANG['APPLIEDSTATUS']:'Applied Status'); ?>:</label> <?php echo ($eArr['appliedstatus']?(isset($LANG['APPLIED'])?$LANG['APPLIED']:'applied'):(isset($LANG['NOTAPPLIED'])?$LANG['NOTAPPLIED']:'not applied')); ?></span>
-												<span style="margin-left:30px;"><label><?php echo (isset($LANG['REVIEWSTATUS'])?$LANG['REVIEWSTATUS']:'Review Status'); ?>:</label> <?php echo $reviewStr; ?></span>
+												<b><?php echo $LANG['EDITOR']; ?>:</b> <?php echo $tsArr['editor']; ?>
+												<span style="margin-left:30px;"><b><?php echo $LANG['DATE']; ?>:</b> <?php echo $ts; ?></span>
 											</div>
 											<?php
-											$edArr = $eArr['edits'];
-											foreach($edArr as $vArr){
-												echo '<div style="margin:15px;">';
-												echo '<label>'.(isset($LANG['FIELD'])?$LANG['FIELD']:'Field').':</label> '.$vArr['fieldname'].'<br/>';
-												echo '<label>'.(isset($LANG['OLDVALUE'])?$LANG['OLDVALUE']:'Old Value').':</label> '.$vArr['old'].'<br/>';
-												echo '<label>'.(isset($LANG['NEWVALUE'])?$LANG['NEWVALUE']:'New Value').':</label> '.$vArr['new'].'<br/>';
-												echo '</div>';
+											foreach($tsArr['edits'] as $appliedStatus => $appliedArr){
+												?>
+												<div>
+													<span><b><?php echo $LANG['APPLIED_STATUS']; ?>:</b> <?php echo ($appliedStatus?$LANG['APPLIED']:$LANG['NOT_APPLIED']); ?></span>
+												</div>
+												<?php
+												foreach($appliedArr as $vArr){
+													echo '<div style="margin:10px 15px;">';
+													echo '<b>'.$LANG['FIELD'].':</b> '.$vArr['fieldname'].'<br/>';
+													echo '<b>'.$LANG['OLD_VALUE'].($vArr['current'] == 2?' ('.$LANG['CURRENT'].')':'').':</b> '.$vArr['old'].'<br/>';
+													echo '<b>'.$LANG['NEW_VALUE'].($vArr['current'] == 1?' ('.$LANG['CURRENT'].')':'').':</b> '.$vArr['new'].'<br/>';
+													echo '</div>';
+												}
 											}
-											echo '<div style="margin:15px 0px;"><hr/></div>';
+											echo '<div style="margin:5px 0px;">&nbsp;</div>';
+											echo '<div style=""><hr></div>';
 										}
 										?>
 									</fieldset>

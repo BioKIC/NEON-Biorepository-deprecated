@@ -758,25 +758,25 @@ class OccurrenceIndividual extends Manager{
 			'CONCAT_WS(", ",u.lastname,u.firstname) as editor, e.initialtimestamp '.
 			'FROM omoccuredits e INNER JOIN users u ON e.uid = u.uid '.
 			'WHERE e.occid = '.$this->occid.' ORDER BY e.initialtimestamp DESC ';
-		//echo $sql;
 		$rs = $this->conn->query($sql);
 		if($rs){
 			while($r = $rs->fetch_object()){
 				$k = substr($r->initialtimestamp,0,16);
-				if(!isset($retArr[$k]['editor'])){
+				if(!isset($retArr[$k])){
 					$retArr[$k]['editor'] = $r->editor;
 					$retArr[$k]['ts'] = $r->initialtimestamp;
 					$retArr[$k]['reviewstatus'] = $r->reviewstatus;
-					$retArr[$k]['appliedstatus'] = $r->appliedstatus;
 				}
-				$retArr[$k]['edits'][$r->ocedid]['fieldname'] = $r->fieldname;
-				$retArr[$k]['edits'][$r->ocedid]['old'] = $r->fieldvalueold;
-				$retArr[$k]['edits'][$r->ocedid]['new'] = $r->fieldvaluenew;
+				$retArr[$k]['edits'][$r->appliedstatus][$r->ocedid]['fieldname'] = $r->fieldname;
+				$retArr[$k]['edits'][$r->appliedstatus][$r->ocedid]['old'] = $r->fieldvalueold;
+				$retArr[$k]['edits'][$r->appliedstatus][$r->ocedid]['new'] = $r->fieldvaluenew;
+				$currentCode = 0;
+				$fName = $this->occArr[strtolower($r->fieldname)];
+				if($fName == $r->fieldvaluenew) $currentCode = 1;
+				elseif($fName == $r->fieldvalueold) $currentCode = 2;
+				$retArr[$k]['edits'][$r->appliedstatus][$r->ocedid]['current'] = $currentCode;
 			}
 			$rs->free();
-		}
-		else{
-			trigger_error('Unable to get edits; '.$this->conn->error,E_USER_WARNING);
 		}
 		return $retArr;
 	}

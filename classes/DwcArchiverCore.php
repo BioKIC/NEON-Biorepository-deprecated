@@ -75,7 +75,7 @@ class DwcArchiverCore extends Manager{
 		);
 
 		$this->securityArr = array(
-			'eventDate', 'month', 'day', 'startDayOfYear', 'endDayOfYear', 'verbatimEventDate',
+			'eventDate', 'eventDate2', 'month', 'day', 'startDayOfYear', 'endDayOfYear', 'verbatimEventDate',
 			'recordNumber', 'locality', 'locationRemarks', 'minimumElevationInMeters', 'maximumElevationInMeters', 'verbatimElevation',
 			'decimalLatitude', 'decimalLongitude', 'geodeticDatum', 'coordinateUncertaintyInMeters', 'footprintWKT',
 			'verbatimCoordinates', 'georeferenceRemarks', 'georeferencedBy', 'georeferenceProtocol', 'georeferenceSources',
@@ -1601,6 +1601,7 @@ class DwcArchiverCore extends Manager{
 				else $fieldOutArr[] = strtoupper(substr($k, 0, 1)) . substr($k, 1);
 			}
 		} else $fieldOutArr = array_keys($fieldArr);
+		if ($this->schemaType == 'dwc') unset($fieldOutArr[array_search('eventDate2', $fieldOutArr)]);
 		$this->writeOutRecord($fh, $fieldOutArr);
 
 		$materialSampleHandler = null;
@@ -1669,6 +1670,18 @@ class DwcArchiverCore extends Manager{
 				if ($this->schemaType == 'dwc') {
 					unset($r['localitySecurity']);
 					unset($r['collID']);
+					//Format dates
+					if($r['eventDate'] == '0000-00-00') $r['eventDate'] = '';
+					$r['eventDate'] = str_replace('-00', '', $r['eventDate']);
+					if($r['eventDate2']){
+						if($r['eventDate2'] == '0000-00-00') $r['eventDate2'] = '';
+						$r['eventDate2'] = str_replace('-00', '', $r['eventDate2']);
+						if(!$r['endDayOfYear'] && preg_match('/\d{4}-\d{2}-\d{2}/', $r['eventDate2'])){
+							if($t = strtotime($r['eventDate2'])) $r['endDayOfYear'] = date('z', $t) + 1;
+						}
+						$r['eventDate'] .= '/'.$r['eventDate2'];
+					}
+					unset($r['eventDate2']);
 				}
 				elseif ($this->schemaType == 'pensoft') {
 					unset($r['localitySecurity']);

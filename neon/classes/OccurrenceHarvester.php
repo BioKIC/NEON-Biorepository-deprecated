@@ -201,8 +201,8 @@ class OccurrenceHarvester{
 	private function getOccurrenceRecord($occid){
 		$retArr = array();
 		if($occid){
-			$sql = 'SELECT catalogNumber, occurrenceID, eventID, sciname, taxonRemarks, recordedBy, eventDate, individualCount, reproductiveCondition, sex, lifeStage, occurrenceRemarks,
-				preparations, dynamicProperties, verbatimAttributes, habitat, country, stateProvince, county, locality, locationID, decimalLatitude, decimalLongitude,
+			$sql = 'SELECT catalogNumber, occurrenceID, eventID, sciname, taxonRemarks, recordedBy, eventDate, eventDate2, individualCount, reproductiveCondition, sex, lifeStage,
+				occurrenceRemarks, preparations, dynamicProperties, verbatimAttributes, habitat, country, stateProvince, county, locality, locationID, decimalLatitude, decimalLongitude,
 				verbatimCoordinates, georeferenceSources, minimumElevationInMeters, maximumElevationInMeters
 				FROM omoccurrences WHERE occid = '.$occid;
 			$rs = $this->conn->query($sql);

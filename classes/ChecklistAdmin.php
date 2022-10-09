@@ -20,13 +20,14 @@ class ChecklistAdmin extends Manager{
 		$inventoryManager = new ImInventories();
 		$inventoryManager->setClid($this->clid);
 		$retArr = $inventoryManager->getChecklistMetadata($pid);
+		$this->clName = $retArr['name'];
 		return $retArr;
 	}
 
 	public function createChecklist($postArr){
 		$newClid = 0;
 		if($GLOBALS['SYMB_UID'] && isset($postArr['name'])){
-			$postArr['defaultsettings'] = $this->getDefaultJson();
+			$postArr['defaultsettings'] = $this->getDefaultJson($postArr);
 
 			$inventoryManager = new ImInventories();
 			$newClid = $inventoryManager->insertChecklist($postArr);
@@ -51,7 +52,7 @@ class ChecklistAdmin extends Manager{
 	public function editChecklist($postArr){
 		$status = false;
 		if($GLOBALS['SYMB_UID'] && isset($postArr['name'])){
-			$postArr['defaultsettings'] = $this->getDefaultJson();
+			$postArr['defaultsettings'] = $this->getDefaultJson($postArr);
 
 			$inventoryManager = new ImInventories();
 			$inventoryManager->setClid($this->clid);
@@ -68,7 +69,7 @@ class ChecklistAdmin extends Manager{
 		return $status;
 	}
 
-	private function getDefaultJson(){
+	private function getDefaultJson($postArr){
 		$defaultArr = Array();
 		$defaultArr['ddetails'] = array_key_exists('ddetails',$postArr)?1:0;
 		$defaultArr['dsynonyms'] = array_key_exists('dsynonyms',$postArr)?1:0;

@@ -23,7 +23,7 @@ class ImInventories extends Manager{
 				FROM fmchecklists WHERE (clid = '.$this->clid.')';
 			$result = $this->conn->query($sql);
 			if($row = $result->fetch_object()){
-				$this->clName = $this->cleanOutStr($row->name);
+				$retArr['name'] = $this->cleanOutStr($row->name);
 				$retArr['locality'] = $this->cleanOutStr($row->locality);
 				$retArr['notes'] = $this->cleanOutStr($row->notes);
 				$retArr['type'] = $row->type;
@@ -105,23 +105,25 @@ class ImInventories extends Manager{
 
 	public function updateChecklist($inputArr){
 		$status = false;
-		$sql = 'UPDATE fmchecklists SET ';
-		$fieldArr = array('name' => 's', 'authors' => 's', 'type' => 's', 'locality' => 's', 'publication' => 's', 'abstract' => 's', 'notes' => 's', 'latcentroid' => 'i', 'longcentroid' => 'i',
+		$sqlFrag = '';
+		$fieldArr = array('name' => 's', 'authors' => 's', 'type' => 's', 'locality' => 's', 'publication' => 's', 'abstract' => 's', 'notes' => 's', 'latcentroid' => 'd', 'longcentroid' => 'd',
 			'pointradiusmeters' => 'i', 'access' => 's', 'defaultsettings' => 's', 'dynamicsql' => 's', 'footprintWkt' => 's', 'uid' => 'i', 'sortsequence' => 'i');
 		$typeStr = '';
 		$paramArr = array();
 		foreach($inputArr as $fieldName => $fieldValue){
 			$fieldName = strtolower($fieldName);
 			if(array_key_exists($fieldName, $fieldArr) && $fieldValue !== ''){
-				$sql .= $fieldValue.' = ?, ';
+				$sqlFrag .= $fieldName.' = ?, ';
 				$paramArr[] = $fieldValue;
 				$typeStr .= $fieldArr[$fieldName];
 			}
 		}
-		$sql .= ' WHERE (clid = '.$this->clid.')';
+		$sql = 'UPDATE fmchecklists SET '.trim($sqlFrag,', ').' WHERE (clid = ?)';
 		if($paramArr){
+			$paramArr[] = $this->clid;
+			$typeStr .= 'i';
 			if($stmt = $this->conn->prepare($sql)){
-				$stmt->bind_param($typeStr, $paramArr);
+				$stmt->bind_param($typeStr, ...$paramArr);
 				if($stmt->execute()){
 					if($stmt->affected_rows || !$stmt->error){
 						$status = true;

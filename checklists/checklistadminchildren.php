@@ -3,8 +3,20 @@ include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistAdmin.php');
 @include_once($SERVER_ROOT.'/content/lang/checklists/checklistadminchildren.'.$LANG_TAG.'.php');
 
-$clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
-$pid = array_key_exists("pid",$_REQUEST)?$_REQUEST["pid"]:"";
+$clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
+$pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:'';
+$targetClid = array_key_exists('targetclid',$_POST)?$_POST['targetclid']:'';
+$parentClid = array_key_exists('parentclid',$_POST)?$_POST['parentclid']:'';
+$targetPid = array_key_exists('targetpid',$_POST)?$_POST['targetpid']:'';
+$copyAttributes = array_key_exists('copyattributes',$_POST)?$_POST['copyattributes']:'';
+
+//Sanitation
+if(!is_numeric($clid)) $clid = 0;
+if(!is_numeric($pid)) $pid = 0;
+if(!is_numeric($targetClid)) $targetClid = 0;
+if(!is_numeric($parentClid)) $parentClid = '';
+if(!is_numeric($targetPid)) $targetPid = 0;
+if(!is_numeric($copyAttributes)) $copyAttributes = 0;
 
 $clManager = new ChecklistAdmin();
 $clManager->setClid($clid);
@@ -12,7 +24,23 @@ $clManager->setClid($clid);
 $clArr = $clManager->getUserChecklistArr();
 $childArr = $clManager->getChildrenChecklist()
 ?>
+<script src="../js/jquery-3.2.1.min.js?ver=3" type="text/javascript"></script>
+<script src="../js/jquery-ui/jquery-ui.min.js?ver=3" type="text/javascript"></script>
+<link href="../js/jquery-ui/jquery-ui.min.css" type="text/css" rel="Stylesheet" />
 <script>
+	$("#taxon").autocomplete({
+		source: function( request, response ) {
+			$.getJSON( "<?php echo $CLIENT_ROOT; ?>/rpc/taxasuggest.php", { term: request.term }, response );
+		},
+		minLength: 3,
+		autoFocus: true,
+		select: function( event, ui ) {
+			if(ui.item){
+				$("#parsetid").val(ui.item.id);
+			}
+		}
+	});
+
 	function validateParseChecklistForm(){
 
 	}
@@ -23,7 +51,8 @@ $childArr = $clManager->getChildrenChecklist()
 </script>
 <style>
 	.section-div{ margin-bottom: 3px; }
-	#tid{ width:600px }
+	#taxa{ width:400px }
+	#parsetid{ width:100px }
 </style>
 <!-- inner text -->
 <div id="innertext" style="background-color:white;">
@@ -116,26 +145,28 @@ $childArr = $clManager->getChildrenChecklist()
 			<form name="parsechecklistform" target="checklistadmin.php" method="post" onsubmit="validateParseChecklistForm(this)">
 				<div class="section-div">
 					<label>Taxonomic Node:</label>
+					<input id="taxon" type="text" name="taxon" required />
 					<input id="parsetid" name="tid" type="text" required >
 				</div>
 				<div class="section-div">
 					<label>Target checklist:</label>
 					<select name="targetclid">
-						<option value="0">New Checklist</option>
+						<option value="0">Create New Checklist</option>
 						<?php
 						foreach($clArr as $k => $name){
-							if(!isset($childArr[$k])) echo '<option value="'.$k.'">'.$name.'</option>';
+							if(!isset($childArr[$k])) echo '<option value="'.$k.'"'.($targetClid == $k?'SELECTED':'').'>'.$name.'</option>';
 						}
 						?>
 					</select>
 				</div>
 				<div class="section-div">
 					<label>Link to Parent Checklist:</label>
-					<select name="parentClid">
-						<option value="0">New Checklist</option>
+					<select name="parentclid">
+						<option value="">No Parent Checklist</option>
+						<option value="0" <?php if($parentClid === 0) echo 'SELECTED'; ?>>Create New Checklist</option>
 						<?php
 						foreach($clArr as $k => $name){
-							if(!isset($childArr[$k])) echo '<option value="'.$k.'">'.$name.'</option>';
+							if(!isset($childArr[$k])) echo '<option value="'.$k.'"'.($parentClid == $k?'SELECTED':'').'>'.$name.'</option>';
 						}
 						?>
 					</select>
@@ -148,23 +179,20 @@ $childArr = $clManager->getChildrenChecklist()
 						<?php
 						$projArr = $clManager->getUserProjectArr();
 						foreach($projArr as $k => $name){
-							echo '<option value="'.$k.'">'.$name.'</option>';
+							echo '<option value="'.$k.'" '.($targetPid == $k?'SELECTED':'').'>'.$name.'</option>';
 						}
 						?>
 					</select>
 				</div>
 				<div class="section-div">
-					<input name="copyadmin" type="checkbox">
-					<label>copy over checklist administrators</label>
+					<input name="copyattributes" type="checkbox" <?php if($copyAttributes) echo 'checked'; ?>>
+					<label>copy over permission and general attributes</label>
 				</div>
 				<div class="section-div">
-					<input name="makepublic" type="checkbox">
-					<label>make public</label>
-				</div>
-				<div class="section-div">
-					<button name="formsubmit" type="submit" value="parseChecklist">Parse Checklist</button>
+					<button name="submitaction" type="submit" value="parseChecklist">Parse Checklist</button>
 				</div>
 			</form>
+			<div><a href="<?php echo $CLIENT_ROOT; ?>/taxa/taxonomy/taxonomydisplay.php" target="_blank">Open Taxonomic Thesaurus Explorer</a></div>
 		</fieldset>
 	</div>
 </div>

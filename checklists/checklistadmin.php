@@ -6,9 +6,22 @@ header('Content-Type: text/html; charset='.$CHARSET);
 if(!$SYMB_UID) header('Location: ../profile/index.php?refurl=../checklists/checklistadmin.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
 $clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
-$pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:'';
+$pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:0;
+$targetClid = array_key_exists('targetclid',$_REQUEST)?$_REQUEST['targetclid']:0;
+$parentClid = array_key_exists('parentclid',$_REQUEST)?$_REQUEST['parentclid']:0;
+$targetPid = array_key_exists('targetpid',$_REQUEST)?$_REQUEST['targetpid']:'';
+$copyAttributes = array_key_exists('copyattributes',$_REQUEST)?$_REQUEST['copyattributes']:0;
 $tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
 $action = array_key_exists('submitaction',$_REQUEST)?$_REQUEST['submitaction']:'';
+
+//Sanitation
+if(!is_numeric($clid)) $clid = 0;
+if(!is_numeric($pid)) $pid = 0;
+if(!is_numeric($targetClid)) $targetClid = 0;
+if(!is_numeric($parentClid)) $parentClid = '';
+if(!is_numeric($targetPid)) $targetPid = 0;
+if(!is_numeric($copyAttributes)) $copyAttributes = 0;
+if(!is_numeric($tabIndex)) $tabIndex = 0;
 
 $clManager = new ChecklistAdmin();
 if(!$clid && isset($_POST['delclid'])) $clid = $_POST['delclid'];
@@ -28,11 +41,14 @@ if($action == 'submitAdd'){
 $isEditor = 0;
 if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USER_RIGHTS['ClAdmin']))){
 	$isEditor = 1;
-
 	//Submit checklist MetaData edits
 	if($action == 'submitEdit'){
-		$clManager->editMetaData($_POST);
-		header('Location: checklist.php?clid='.$clid.'&pid='.$pid);
+		if($clManager->editChecklist($_POST)){
+			header('Location: checklist.php?clid='.$clid.'&pid='.$pid);
+		}
+		else{
+			$statusStr = $clManager->getErrorMessage();
+		}
 	}
 	elseif($action == 'DeleteCheck'){
 		$statusStr = $clManager->deleteChecklist($_POST['delclid']);
@@ -54,17 +70,20 @@ if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USE
 		$statusStr = $clManager->addPoint($_POST['pointtid'],$_POST['pointlat'],$_POST['pointlng'],$_POST['notes']);
 	}
 	elseif($action && array_key_exists('clidadd',$_POST)){
-		$statusStr = $clManager->addChildChecklist($_POST['clidadd']);
+		if(!$clManager->addChildChecklist($_POST['clidadd'])) $statusStr = 'ERROR adding child checklist link';
 	}
 	elseif($action && array_key_exists('cliddel',$_GET)){
 		$statusStr = $clManager->deleteChildChecklist($_GET['cliddel']);
 	}
+	elseif($action == 'parseChecklist'){
+		$tid = 0;
+		if(array_key_exists('tid',$_POST) && is_numeric($_POST['tid'])) $tid = $_POST['tid'];
+		$taxon = '';
+		if(array_key_exists('taxon',$_POST)) $taxon = filter_var($_POST['taxon'], FILTER_SANITIZE_STRING);
+		$clManager->parseChecklist($tid, $taxon, $targetClid, $parentClid, $targetPid, $copyAttributes);
+	}
 }
 $clArray = $clManager->getMetaData();
-$defaultArr = array();
-if(array_key_exists('defaultsettings',$clArray)){
-	$defaultArr = json_decode($clArray['defaultsettings'], true);
-}
 ?>
 <html>
 <head>
@@ -147,13 +166,16 @@ include($SERVER_ROOT.'/includes/header.php');
 	}
 
 	if($clid && $isEditor){
+		$varBase = 'clid='.$clid.'&pid='.$pid;
+		$varChildren = $varBase.'&targetclid='.$targetClid.'&parentclid='.$parentClid.'&targetpid='.$targetPid.'&copyattributes='.$copyAttributes;
 		?>
 		<div id="tabs" style="margin:10px;">
 			<ul>
 				<li><a href="#admintab"><span><?php echo $LANG['ADMIN'];?></span></a></li>
-				<li><a href="checklistadminmeta.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><span><?php echo $LANG['DESCRIPTION'];?></span></a></li>
-				<!--					<li><a href="#pointtab"><span>Non-vouchered Points</span></a></li> -->
-				<li><a href="checklistadminchildren.php?clid=<?php echo $clid.'&pid='.$pid; ?>"><span><?php echo $LANG['RELATEDCHECK'];?></span></a></li>
+				<li><a href="checklistadminmeta.php?<?php echo $varBase; ?>"><span><?php echo $LANG['DESCRIPTION'];?></span></a></li>
+				<!-- <li><a href="#pointtab"><span>Non-vouchered Points</span></a></li> -->
+				<li><a href="checklistadminchildren.php?<?php echo $varChildren; ?>"><span><?php echo $LANG['RELATEDCHECK'];?></span></a></li>
+
 				<?php
 				if($clManager->hasVoucherProjects()) echo '<li><a href="imgvouchertab.php?clid='.$clid.'">'.(isset($LANG['ADDIMGVOUCHER'])?$LANG['ADDIMGVOUCHER']:'Add Image Voucher').'</a></li>';
 				?>

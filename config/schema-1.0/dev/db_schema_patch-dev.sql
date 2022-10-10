@@ -776,6 +776,9 @@ ALTER TABLE `uploadspectemp`
   DROP COLUMN `materialSampleID`,
   ADD COLUMN `materialSampleJSON` TEXT NULL AFTER `paleoJSON`;
 
+UPDATE userroles SET tablename = "fmprojects" WHERE tablename = "fmproject";
+
+
 #Material Sample schema developments
 CREATE TABLE `ommaterialsample` (
   `matSampleID` INT UNSIGNED NOT NULL AUTO_INCREMENT,

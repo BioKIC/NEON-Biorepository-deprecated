@@ -5,15 +5,17 @@ include_once($SERVER_ROOT.'/classes/ChecklistAdmin.php');
 
 $clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
 $pid = array_key_exists('pid',$_REQUEST)?$_REQUEST['pid']:'';
-$targetClid = array_key_exists('targetclid',$_POST)?$_POST['targetclid']:'';
-$parentClid = array_key_exists('parentclid',$_POST)?$_POST['parentclid']:'';
-$targetPid = array_key_exists('targetpid',$_POST)?$_POST['targetpid']:'';
-$copyAttributes = array_key_exists('copyattributes',$_POST)?$_POST['copyattributes']:'';
+$targetClid = array_key_exists('targetclid',$_REQUEST)?$_REQUEST['targetclid']:'';
+$transferMethod = array_key_exists('transmethod',$_REQUEST)?$_REQUEST['transmethod']:0;
+$parentClid = array_key_exists('parentclid',$_REQUEST)?$_REQUEST['parentclid']:'';
+$targetPid = array_key_exists('targetpid',$_REQUEST)?$_REQUEST['targetpid']:'';
+$copyAttributes = array_key_exists('copyattributes',$_REQUEST)?$_REQUEST['copyattributes']:'';
 
 //Sanitation
 if(!is_numeric($clid)) $clid = 0;
 if(!is_numeric($pid)) $pid = 0;
 if(!is_numeric($targetClid)) $targetClid = 0;
+if(!is_numeric($transferMethod)) $transferMethod = 0;
 if(!is_numeric($parentClid)) $parentClid = '';
 if(!is_numeric($targetPid)) $targetPid = 0;
 if(!is_numeric($copyAttributes)) $copyAttributes = 0;
@@ -53,6 +55,7 @@ $childArr = $clManager->getChildrenChecklist()
 	.section-div{ margin-bottom: 3px; }
 	#taxa{ width:400px }
 	#parsetid{ width:100px }
+	button{ margin:20px; }
 </style>
 <!-- inner text -->
 <div id="innertext" style="background-color:white;">
@@ -99,7 +102,7 @@ $childArr = $clManager->getChildrenChecklist()
 				foreach($childArr as $k => $cArr){
 					?>
 					<li>
-						<a href="checklist.php?clid=<?php echo $k; ?>"><?php echo $cArr['name']; ?></a>
+						<a href="checklist.php?clid=<?php echo $k; ?>" target="_blank"><?php echo $cArr['name']; ?></a>
 						<?php
 						if($cArr['pclid'] == $clid){
 							$confirmStr = (isset($LANG['SURE'])?$LANG['SURE']:'Are you sure you want to remove').$cArr['name'].(isset($LANG['AS_CHILD'])?$LANG['AS_CHILD']:'as a child checklist');
@@ -128,7 +131,7 @@ $childArr = $clManager->getChildrenChecklist()
 				foreach($parentArr as $k => $name){
 					?>
 					<li>
-						<a href="checklist.php?clid=<?php echo $k; ?>"><?php echo $name; ?></a>
+						<a href="checklist.php?clid=<?php echo $k; ?>" target="_blank"><?php echo $name; ?></a>
 					</li>
 					<?php
 				}
@@ -142,40 +145,50 @@ $childArr = $clManager->getChildrenChecklist()
 	<div style="margin:15px;">
 		<fieldset>
 			<legend>Batch Parse Species List</legend>
+			<div style="margin:10px 0px;">Use the following tool to parse a list into multiple children checklists based on taxonomic nodes (Liliopsida, Eudicots, Pinopsida, etc)</div>
 			<form name="parsechecklistform" target="checklistadmin.php" method="post" onsubmit="validateParseChecklistForm(this)">
 				<div class="section-div">
-					<label>Taxonomic Node:</label>
-					<input id="taxon" type="text" name="taxon" required />
-					<input id="parsetid" name="tid" type="text" required >
+					<label>Taxonomic node:</label>
+					<input id="taxon" name="taxon" type="text" required />
+					<input id="parsetid" name="parsetid" type="text" required >
 				</div>
 				<div class="section-div">
 					<label>Target checklist:</label>
-					<select name="targetclid">
+					<select name="targetclid" required>
+						<option value="">Select Target Checklist</option>
 						<option value="0">Create New Checklist</option>
+						<option value="">--------------------------</option>
 						<?php
 						foreach($clArr as $k => $name){
-							if(!isset($childArr[$k])) echo '<option value="'.$k.'"'.($targetClid == $k?'SELECTED':'').'>'.$name.'</option>';
+							if(!isset($childArr[$k])) echo '<option value="'.$k.'" '.($targetClid == $k?'SELECTED':'').'>'.$name.'</option>';
 						}
 						?>
 					</select>
 				</div>
 				<div class="section-div">
-					<label>Link to Parent Checklist:</label>
+					<label>Transfer method:</label>
+					<input name="transmethod" type="radio" value="0" <?php if(!$transferMethod) echo 'checked'; ?>> transfer taxa
+					<input name="transmethod" type="radio" value="1" <?php if($transferMethod == 1) echo 'checked'; ?>> copy taxa
+				</div>
+				<div class="section-div">
+					<label>Link to parent checklist:</label>
 					<select name="parentclid">
 						<option value="">No Parent Checklist</option>
 						<option value="0" <?php if($parentClid === 0) echo 'SELECTED'; ?>>Create New Checklist</option>
+						<option value="">--------------------------</option>
 						<?php
 						foreach($clArr as $k => $name){
-							if(!isset($childArr[$k])) echo '<option value="'.$k.'"'.($parentClid == $k?'SELECTED':'').'>'.$name.'</option>';
+							if(!isset($childArr[$k])) echo '<option value="'.$k.'" '.($parentClid == $k?'SELECTED':'').'>'.$name.'</option>';
 						}
 						?>
 					</select>
 				</div>
 				<div class="section-div">
-					<label>Add to Project:</label>
+					<label>Add to project:</label>
 					<select name="targetpid">
 						<option value="">--no action--</option>
 						<option value="0">New Project</option>
+						<option value="">--------------------------</option>
 						<?php
 						$projArr = $clManager->getUserProjectArr();
 						foreach($projArr as $k => $name){
@@ -185,10 +198,11 @@ $childArr = $clManager->getChildrenChecklist()
 					</select>
 				</div>
 				<div class="section-div">
-					<input name="copyattributes" type="checkbox" <?php if($copyAttributes) echo 'checked'; ?>>
+					<input name="copyattributes" type="checkbox" value="1" <?php if($copyAttributes) echo 'checked'; ?>>
 					<label>copy over permission and general attributes</label>
 				</div>
 				<div class="section-div">
+					<input name="tabindex" type="hidden" value="2" >
 					<button name="submitaction" type="submit" value="parseChecklist">Parse Checklist</button>
 				</div>
 			</form>

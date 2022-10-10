@@ -80,7 +80,7 @@ class ImInventories extends Manager{
 			$latCentroid = (isset($fieldArr['latcentroid'])?$fieldArr['latcentroid']:NULL);
 			$longCentroid = (isset($fieldArr['longcentroid'])?$fieldArr['longcentroid']:NULL);
 			$pointRadiusMeters = (isset($fieldArr['pointradiusmeters'])?$fieldArr['pointradiusmeters']:NULL);
-			$access = (isset($fieldArr['private'])?$fieldArr['access']:'private');
+			$access = (isset($fieldArr['access'])?$fieldArr['access']:'private');
 			$defaultSettings = (isset($fieldArr['defaultsettings'])?$fieldArr['defaultsettings']:NULL);
 			$dynamicSql = (isset($fieldArr['dynamicsql'])?$fieldArr['dynamicsql']:NULL);
 			$uid = (isset($fieldArr['uid'])?$fieldArr['uid']:NULL);
@@ -158,7 +158,7 @@ class ImInventories extends Manager{
 
 	public function deleteChecklist(){
 		$status = true;
-		$roleArr = $this->getManagers('ClAdmin', $this->clid);
+		$roleArr = $this->getManagers('ClAdmin', 'fmchecklists', $this->clid);
 		unset($roleArr[$GLOBALS['SYMB_UID']]);
 		if($roleArr){
 			$sql = 'DELETE FROM fmchecklists WHERE (clid = '.$this->clid.')';
@@ -199,7 +199,7 @@ class ImInventories extends Manager{
 		$status = false;
 		$sql = 'INSERT INTO fmchklstchildren(clid, clidchild, modifiedUid) VALUES(?,?,?) ';
 		if($stmt = $this->conn->prepare($sql)){
-			$stmt->bind_param('isssi', $this->clid, $clidChild, $modifiedUid);
+			$stmt->bind_param('iii', $this->clid, $clidChild, $modifiedUid);
 			if($stmt->execute()){
 				if($stmt->affected_rows || !$stmt->error){
 					$status = true;
@@ -248,10 +248,10 @@ class ImInventories extends Manager{
 	public function insertProject($inputArr){
 		$newPid = 0;
 		$projName = $inputArr['projname'];
-		$managers = $inputArr['managers'];
-		$fullDescription = $inputArr['fulldescription'];
-		$notes = $inputArr['notes'];
-		$isPublic = $inputArr['ispublic'];
+		$managers = (isset($inputArr['managers'])?$inputArr['managers']:NULL);
+		$fullDescription = (isset($inputArr['fulldescription'])?$inputArr['fulldescription']:NULL);
+		$notes = (isset($inputArr['notes'])?$inputArr['notes']:NULL);
+		$isPublic = (isset($inputArr['ispublic'])?$inputArr['ispublic']:0);
 		$sql = 'INSERT INTO fmprojects(projname, managers, fulldescription, notes, ispublic) VALUES(?, ?, ?, ?, ?)';
 		if($stmt = $this->conn->prepare($sql)){
 			$stmt->bind_param('ssssi', $projName, $managers, $fullDescription, $notes, $isPublic);
@@ -317,7 +317,7 @@ class ImInventories extends Manager{
 	}
 
 	//Checklist Project Link functions
-	public function addChecklistProjectLink($clid){
+	public function insertChecklistProjectLink($clid){
 		$status = true;
 		if(is_numeric($clid)){
 			$sql = 'INSERT INTO fmchklstprojlink(pid,clid) VALUES('.$this->pid.', '.$clid.') ';
@@ -340,13 +340,13 @@ class ImInventories extends Manager{
 	}
 
 	//User role funcitons
-	public function getManagers($role, $tablePK){
+	public function getManagers($role, $tableName, $tablePK){
 		$retArr = array();
 		if(is_numeric($tablePK)){
 			$sql = 'SELECT u.uid, CONCAT_WS(", ", u.lastname, u.firstname) as fullname, l.username '.
 				'FROM userroles r INNER JOIN users u ON r.uid = u.uid '.
 				'INNER JOIN userlogin l ON u.uid = l.uid '.
-				'WHERE r.role = "'.$this->cleanInStr($role).'" AND r.tablepk = '.$tablePK;
+				'WHERE r.role = "'.$this->cleanInStr($role).'" AND r.tableName = "'.$this->cleanInStr($tableName).'" AND r.tablepk = '.$tablePK;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$retArr[$r->uid] = $r->fullname.' ('.$r->username.')';

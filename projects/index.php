@@ -53,7 +53,7 @@ if($isEditor && $projSubmit){
 		}
 	}
 	elseif($projSubmit == 'Add Checklist'){
-		if(!$projManager->addChecklistProjectLink($_POST['clid'])){
+		if(!$projManager->insertChecklistProjectLink($_POST['clid'])){
 			$statusStr = $projManager->getErrorMessage();
 		}
 	}
@@ -70,7 +70,7 @@ foreach($researchList as $clid => $clArr){
 	if($clArr['access'] == 'private' && !in_array($clid, $USER_RIGHTS['ClAdmin'])) unset($clArr[$clid]);
 }
 
-$managerArr = $projManager->getManagers('ProjAdmin', $pid);
+$managerArr = $projManager->getManagers('ProjAdmin', 'fmprojects', 'fmprojects', $pid);
 if(!$researchList && !$editMode){
 	$editMode = 1;
 	$tabIndex = 2;

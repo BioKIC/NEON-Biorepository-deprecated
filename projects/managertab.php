@@ -15,7 +15,7 @@ $projManager->setPid($pid);
 	<div style="font-weight:bold;margin:10px 0px">Inventory Project Managers</div>
 	<ul style="margin:30px 10px">
 	<?php
-	$managerArr = $projManager->getManagers('ProjAdmin', $pid);
+	$managerArr = $projManager->getManagers('ProjAdmin', 'fmprojects', $pid);
 	if($managerArr){
 		foreach($managerArr as $uid => $userName){
 			echo '<li title="'.$uid.'">';

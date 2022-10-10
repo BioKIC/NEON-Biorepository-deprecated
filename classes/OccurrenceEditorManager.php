@@ -35,10 +35,10 @@ class OccurrenceEditorManager {
 		}
 		else $this->conn = MySQLiConnectionFactory::getCon("write");
 		$this->fieldArr['occurrence'] = array('basisofrecord' => 's', 'catalognumber' => 's', 'othercatalognumbers' => 's', 'occurrenceid' => 's', 'ownerinstitutioncode' => 's',
-			'institutioncode' => 's', 'collectioncode' => 's',
+			'institutioncode' => 's', 'collectioncode' => 's', 'eventid' => 's',
 			'family' => 's', 'sciname' => 's', 'tidinterpreted' => 'n', 'scientificnameauthorship' => 's', 'identifiedby' => 's', 'dateidentified' => 's',
 			'identificationreferences' => 's', 'identificationremarks' => 's', 'taxonremarks' => 's', 'identificationqualifier' => 's', 'typestatus' => 's',
-			'recordedby' => 's', 'recordnumber' => 's', 'associatedcollectors' => 's', 'eventdate' => 'd', 'year' => 'n', 'month' => 'n', 'day' => 'n', 'startdayofyear' => 'n',
+			'recordedby' => 's', 'recordnumber' => 's', 'associatedcollectors' => 's', 'eventdate' => 'd', 'eventdate2' => 'd', 'year' => 'n', 'month' => 'n', 'day' => 'n', 'startdayofyear' => 'n',
 			'enddayofyear' => 'n', 'verbatimeventdate' => 's', 'habitat' => 's', 'substrate' => 's', 'fieldnumber' => 's', 'occurrenceremarks' => 's', 'datageneralizations' => 's',
 			'associatedtaxa' => 's', 'verbatimattributes' => 's', 'dynamicproperties' => 's', 'reproductivecondition' => 's', 'cultivationstatus' => 's', 'establishmentmeans' => 's',
 			'lifestage' => 's', 'sex' => 's', 'individualcount' => 's', 'samplingprotocol' => 's', 'preparations' => 's',
@@ -1838,7 +1838,7 @@ class OccurrenceEditorManager {
 	}
 
 	public function carryOverValues($fArr){
-		$locArr = Array('recordedby','associatedcollectors','eventdate','verbatimeventdate','month','day','year',
+		$locArr = Array('recordedby','associatedcollectors','eventdate','eventdate2','verbatimeventdate','month','day','year',
 			'startdayofyear','enddayofyear','country','stateprovince','county','municipality','locationid','locality','decimallatitude','decimallongitude',
 			'verbatimcoordinates','coordinateuncertaintyinmeters','footprintwkt','geodeticdatum','georeferencedby','georeferenceprotocol',
 			'georeferencesources','georeferenceverificationstatus','georeferenceremarks',
@@ -2151,31 +2151,31 @@ class OccurrenceEditorManager {
 	}
 
 	public function getEditArr(){
-		global $LANG;
 		$retArr = array();
+		$this->setOccurArr();
 		$sql = 'SELECT e.ocedid, e.fieldname, e.fieldvalueold, e.fieldvaluenew, e.reviewstatus, e.appliedstatus, '.
 			'CONCAT_WS(", ",u.lastname,u.firstname) as editor, e.initialtimestamp '.
 			'FROM omoccuredits e INNER JOIN users u ON e.uid = u.uid '.
 			'WHERE e.occid = '.$this->occid.' ORDER BY e.initialtimestamp DESC ';
-		//echo $sql;
 		$result = $this->conn->query($sql);
 		if($result){
 			while($r = $result->fetch_object()){
 				$k = substr($r->initialtimestamp,0,16);
-				if(!isset($retArr[$k]['editor'])){
+				if(!isset($retArr[$k])){
 					$retArr[$k]['editor'] = $r->editor;
 					$retArr[$k]['ts'] = $r->initialtimestamp;
 					$retArr[$k]['reviewstatus'] = $r->reviewstatus;
-					$retArr[$k]['appliedstatus'] = $r->appliedstatus;
 				}
-				$retArr[$k]['edits'][$r->ocedid]['fieldname'] = $r->fieldname;
-				$retArr[$k]['edits'][$r->ocedid]['old'] = $r->fieldvalueold;
-				$retArr[$k]['edits'][$r->ocedid]['new'] = $r->fieldvaluenew;
+				$retArr[$k]['edits'][$r->appliedstatus][$r->ocedid]['fieldname'] = $r->fieldname;
+				$retArr[$k]['edits'][$r->appliedstatus][$r->ocedid]['old'] = $r->fieldvalueold;
+				$retArr[$k]['edits'][$r->appliedstatus][$r->ocedid]['new'] = $r->fieldvaluenew;
+				$currentCode = 0;
+				$fName = $this->occurrenceMap[$this->occid][strtolower($r->fieldname)];
+				if($fName == $r->fieldvaluenew) $currentCode = 1;
+				elseif($fName == $r->fieldvalueold) $currentCode = 2;
+				$retArr[$k]['edits'][$r->appliedstatus][$r->ocedid]['current'] = $currentCode;
 			}
 			$result->free();
-		}
-		else{
-			trigger_error($LANG['UNABLE_GET_EDITS'].'; '.$this->conn->error,E_USER_WARNING);
 		}
 		return $retArr;
 	}

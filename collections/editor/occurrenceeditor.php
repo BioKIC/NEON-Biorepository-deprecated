@@ -752,7 +752,6 @@ else{
 													<input type="text" id="catalognumber" name="catalognumber" value="<?php echo array_key_exists('catalognumber',$occArr)?$occArr['catalognumber']:''; ?>" onchange="fieldChanged('catalognumber');" <?php if($isEditor > 2) echo 'disabled'; ?> autocomplete="off" />
 												</div>
 												<div id="otherCatalogNumbersDiv">
-													<?php echo (defined('OTHERCATNUMBERLABEL')?OTHERCATNUMBERLABEL:'Other Catalog Numbers'); ?>
 													<div id="identifierDiv" class="divTable">
 														<div class="divTableHeading">
 															<div class="divTableRow">
@@ -1155,11 +1154,9 @@ else{
 														<input type="text" name="verbatimdepth" maxlength="255" value="<?php echo array_key_exists('verbatimdepth',$occArr)?$occArr['verbatimdepth']:''; ?>" onchange="fieldChanged('verbatimdepth');" />
 													</div>
 												</div>
-												<!--
 												<div id="georefExtraToggleDiv" onclick="toggle('georefExtraDiv');">
 													<img class="editimg" src="../../images/editplus.png" tabindex="-1" />
 												</div>
-												-->
 											</div>
 											<?php
 											include_once('includes/geotools.php');
@@ -1183,8 +1180,8 @@ else{
 												$georefExtraDiv .= "block";
 											}
 											?>
-											<div id="georefExtraDiv" style="display:block;">
-												<div>
+											<div id="georefExtraDiv" style="<?php echo $georefExtraDiv; ?>;">
+												<div style="clear:both;">
 													<div id="georeferencedByDiv">
 														<?php echo (defined('GEOREFERENCEDBYLABEL')?GEOREFERENCEDBYLABEL:'Georeferenced By'); ?>
 														<br/>

@@ -160,7 +160,7 @@ class ImInventories extends Manager{
 		$status = true;
 		$roleArr = $this->getManagers('ClAdmin', 'fmchecklists', $this->clid);
 		unset($roleArr[$GLOBALS['SYMB_UID']]);
-		if($roleArr){
+		if(!$roleArr){
 			$sql = 'DELETE FROM fmchecklists WHERE (clid = '.$this->clid.')';
 			if($this->conn->query($sql)){
 				//Delete userpermissions reference once patch is submitted
@@ -208,6 +208,17 @@ class ImInventories extends Manager{
 			}
 			else $this->errorMessage = 'ERROR inserting child checklist record (1): '.$stmt->error;
 			$stmt->close();
+		}
+		return $status;
+	}
+
+	public function deleteChildChecklist($clidDel){
+		$status = false;
+		if(is_numeric($clidDel)){
+			$sql = 'DELETE FROM fmchklstchildren WHERE clid = '.$this->clid.' AND clidchild = '.$clidDel;
+			if(!$this->conn->query($sql)){
+				$this->errorMessage = 'ERROR deleting child checklist link';
+			}
 		}
 		return $status;
 	}

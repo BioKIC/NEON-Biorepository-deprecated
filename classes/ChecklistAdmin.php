@@ -17,10 +17,13 @@ class ChecklistAdmin extends Manager{
 	}
 
 	public function getMetaData($pid = null){
-		$inventoryManager = new ImInventories();
-		$inventoryManager->setClid($this->clid);
-		$retArr = $inventoryManager->getChecklistMetadata($pid);
-		$this->clName = $retArr['name'];
+		$retArr = array();
+		if($this->clid){
+			$inventoryManager = new ImInventories();
+			$inventoryManager->setClid($this->clid);
+			$retArr = $inventoryManager->getChecklistMetadata($pid);
+			$this->clName = $retArr['name'];
+		}
 		return $retArr;
 	}
 
@@ -66,6 +69,7 @@ class ChecklistAdmin extends Manager{
 		$inventoryManager = new ImInventories();
 		$inventoryManager->setClid($delClid);
 		$status = $inventoryManager->deleteChecklist();
+		if(!$status) $this->errorMessage = $inventoryManager->getErrorMessage();
 		return $status;
 	}
 
@@ -187,29 +191,30 @@ class ChecklistAdmin extends Manager{
 
 	public function addChildChecklist($clidAdd){
 		$inventoryManager = new ImInventories();
-		$status = $inventoryManager->insertChildChecklist($this->clid, $clidAdd, $GLOBALS['SYMB_UID']);
+		$inventoryManager->setClid($this->clid);
+		$status = $inventoryManager->insertChildChecklist($clidAdd, $GLOBALS['SYMB_UID']);
+		if(!$status) $this->errorMessage = $inventoryManager->getErrorMessage();
 		return $status;
 	}
 
 	public function deleteChildChecklist($clidDel){
-		$statusStr = '';
-		$sql = 'DELETE FROM fmchklstchildren WHERE clid = '.$this->clid.' AND clidchild = '.$clidDel;
-		if(!$this->conn->query($sql)){
-			$statusStr = 'ERROR deleting child checklist link';
-		}
-		return $statusStr;
+		$inventoryManager = new ImInventories();
+		$inventoryManager->setClid($this->clid);
+		$status = $inventoryManager->deleteChildChecklist($clidDel);
+		if(!$status) $this->errorMessage = $inventoryManager->getErrorMessage();
+		return $status;
 	}
 
 	//Point functions
 	public function addPoint($tid,$lat,$lng,$notes){
-		$statusStr = '';
+		$status = '';
 		if(is_numeric($tid) && is_numeric($lat) && is_numeric($lng)){
 			$sql = 'INSERT INTO fmchklstcoordinates(clid,tid,decimallatitude,decimallongitude,notes) VALUES('.$this->clid.','.$tid.','.$lat.','.$lng.',"'.$this->cleanInStr($notes).'")';
 			if(!$this->conn->query($sql)){
-				$statusStr = 'ERROR: unable to add point. '.$this->conn->error;
+				$this->errorMessage = 'ERROR: unable to add point. '.$this->conn->error;
 			}
 		}
-		return $statusStr;
+		return $status;
 	}
 
 	public function removePoint($pointPK){

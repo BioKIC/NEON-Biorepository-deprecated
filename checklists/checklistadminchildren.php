@@ -87,7 +87,7 @@ $childArr = $clManager->getChildrenChecklist()
 					</select>
 				</div>
 				<div style="margin:10px;">
-					<button name="submitaction" type="submit" value="Add Child Checklist"><?php echo (isset($LANG['ADD_CHILD'])?$LANG['ADD_CHILD']:'Add Child Checklist'); ?></button>
+					<button name="submitaction" type="submit" value="addChildChecklist"><?php echo (isset($LANG['ADD_CHILD'])?$LANG['ADD_CHILD']:'Add Child Checklist'); ?></button>
 					<input name="clid" type="hidden" value="<?php echo $clid; ?>" />
 					<input name="pid" type="hidden" value="<?php echo $pid; ?>" />
 					<input name="tabindex" type="hidden" value="2" />
@@ -124,7 +124,6 @@ $childArr = $clManager->getChildrenChecklist()
 	<div style="margin:30px 15px;font-weight:bold;font-size:120%;">
 		<u><?php echo (isset($LANG['PARENTS'])?$LANG['PARENTS']:'Parent Checklists'); ?></u>
 	</div>
-	<div style="margin:15px;">
 		<ul>
 			<?php
 			if($parentArr = $clManager->getParentChecklists()){
@@ -142,7 +141,8 @@ $childArr = $clManager->getChildrenChecklist()
 			?>
 		</ul>
 	</div>
-	<div style="margin:15px;">
+	<hr>
+	<div style="margin:20px 0px;">
 		<fieldset>
 			<legend>Batch Parse Species List</legend>
 			<div style="margin:10px 0px;">Use the following tool to parse a list into multiple children checklists based on taxonomic nodes (Liliopsida, Eudicots, Pinopsida, etc)</div>

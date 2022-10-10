@@ -53,8 +53,9 @@ if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USE
 		}
 	}
 	elseif($action == 'deleteChecklist'){
-		$statusStr = $clManager->deleteChecklist($_POST['delclid']);
-		if($statusStr === true) header('Location: ../index.php');
+		$status = $clManager->deleteChecklist($_POST['delclid']);
+		if($status === true) header('Location: ../index.php');
+		echo $statusStr = $clManager->getErrorMessage();
 	}
 	elseif($action == 'addEditor'){
 		$statusStr = $clManager->addEditor($_POST['editoruid']);
@@ -72,10 +73,14 @@ if($IS_ADMIN || (array_key_exists('ClAdmin',$USER_RIGHTS) && in_array($clid,$USE
 		$statusStr = $clManager->addPoint($_POST['pointtid'],$_POST['pointlat'],$_POST['pointlng'],$_POST['notes']);
 	}
 	elseif($action && array_key_exists('clidadd',$_POST)){
-		if(!$clManager->addChildChecklist($_POST['clidadd'])) $statusStr = 'ERROR adding child checklist link';
+		if(!$clManager->addChildChecklist($_POST['clidadd'])){
+			$statusStr = 'ERROR adding child checklist link';
+		}
 	}
 	elseif($action && array_key_exists('cliddel',$_GET)){
-		$statusStr = $clManager->deleteChildChecklist($_GET['cliddel']);
+		if(!$clManager->deleteChildChecklist($_GET['cliddel'])){
+			$statusStr = $clManager->getErrorMessage();
+		}
 	}
 	elseif($action == 'parseChecklist'){
 		$parseTid = 0;

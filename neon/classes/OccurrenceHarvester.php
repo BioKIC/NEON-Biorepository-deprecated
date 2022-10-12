@@ -202,6 +202,10 @@ class OccurrenceHarvester{
 
 	private function setOccurrenceRecord($occid){
 		$retArr = array();
+		unset($this->currentOccurArr);
+		$this->currentOccurArr = array();
+		unset($this->currentDetArr);
+		$this->currentDetArr = array();
 		if($occid){
 			$sql = 'SELECT catalogNumber, occurrenceID, eventID, recordedBy, eventDate, eventDate2, individualCount,
 				reproductiveCondition, sex, lifeStage, associatedTaxa, occurrenceRemarks, preparations, dynamicProperties, verbatimAttributes, habitat, country,

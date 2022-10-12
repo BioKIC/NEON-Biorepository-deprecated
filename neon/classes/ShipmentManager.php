@@ -1325,7 +1325,7 @@ class ShipmentManager{
 	}
 
 	public function getSymbTargetArr(){
-		$retArr = array('family','sciname','identifiedby','dateIdentified','recordedBy','recordNumber','eventDate','habitat','occurrenceRemarks',
+		$retArr = array('catalogNumber','occurrenceID','family','sciname','identifiedby','dateIdentified','identificationRemarks','recordedBy','recordNumber','eventDate','habitat','occurrenceRemarks',
 			'verbatimAttributes','behavior','establishmentMeans','lifeStage','sex','individualCount','preparations','country','stateProvince',
 			'county','locality','decimalLatitude','decimalLongitude','coordinateUncertaintyInMeters','verbatimCoordinates','minimumElevationInMeters');
 		return $retArr;

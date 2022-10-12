@@ -580,8 +580,8 @@ class ShipmentManager{
 		$status = false;
 		$postArr = array_change_key_case($postArr);
 		if(is_numeric($postArr['samplepk'])){
-			$sampleID = $postArr['sampleid']?$postArr['sampleid']:NULL;
-			$sampleCode = $postArr['samplecode']?$postArr['samplecode']:NULL;
+			$sampleID = (isset($postArr['sampleid']) && $postArr['sampleid']?$postArr['sampleid']:NULL);
+			$sampleCode = (isset($postArr['samplecode']) && $postArr['samplecode']?$postArr['samplecode']:NULL);
 			//Get old values
 			$occid = '';
 			$identifierArr = array();

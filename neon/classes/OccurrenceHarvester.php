@@ -525,7 +525,7 @@ class OccurrenceHarvester{
 				}
 				if($occurRemarks) $dwcArr['occurrenceRemarks'] = implode('; ',$occurRemarks);
 				if(isset($sampleArr['assocMedia'])) $dwcArr['assocMedia'] = $sampleArr['assocMedia'];
-				if(isset($sampleArr['coordinate_uncertainty'])) $dwcArr['coordinateUncertaintyInMeters'] = $sampleArr['coordinate_uncertainty'];
+				if(isset($sampleArr['coordinate_uncertainty']) && $sampleArr['coordinate_uncertainty']) $dwcArr['coordinateUncertaintyInMeters'] = $sampleArr['coordinate_uncertainty'];
 				if(isset($sampleArr['decimal_latitude'])) $dwcArr['decimalLatitude'] = $sampleArr['decimal_latitude'];
 				if(isset($sampleArr['decimal_longitude'])) $dwcArr['decimalLongitude'] = $sampleArr['decimal_longitude'];
 				if(isset($sampleArr['elevation'])){
@@ -981,7 +981,7 @@ class OccurrenceHarvester{
 	}
 
 	private function versionEdit($occid, $fieldName, $oldValue, $newValue){
-		if(strtolower(trim($oldValue)) != strtolower(trim($newValue))){
+		if(strtolower(trim($oldValue)) != strtolower(trim($newValue)) && $fieldName != 'coordinateUncertaintyInMeters'){
 			$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueOld, fieldValueNew, appliedStatus, uid)
 				VALUES('.$occid.',"'.$fieldName.'","'.$this->cleanInStr($oldValue).'","'.$this->cleanInStr($newValue).'", 1, 50)';
 			if(!$this->conn->query($sql)){

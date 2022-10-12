@@ -475,7 +475,7 @@ FROM omoccurrences;
 INSERT IGNORE INTO omoccurdeterminations(occid, identifiedBy, dateIdentified, family, sciname, verbatimIdentification, scientificNameAuthorship, tidInterpreted, 
 identificationQualifier, genus, specificEpithet, verbatimTaxonRank, infraSpecificEpithet, isCurrent, identificationReferences, identificationRemarks, 
 taxonRemarks)
-SELECT o.occid, IFNULL(identifiedBy, "unknown"), IFNULL(dateIdentified, "s.d."), o.family, IFNULL(o.sciname, "undefined"), o.scientificName, o.scientificNameAuthorship, o.tidInterpreted, 
+SELECT o.occid, IFNULL(o.identifiedBy, "unknown"), IFNULL(o.dateIdentified, "s.d."), o.family, IFNULL(o.sciname, "undefined"), o.scientificName, o.scientificNameAuthorship, o.tidInterpreted, 
 o.identificationQualifier, o.genus, o.specificEpithet, o.taxonRank, o.infraSpecificEpithet, 1 as isCurrent, o.identificationReferences, o.identificationRemarks, 
 o.taxonRemarks
 FROM omoccurrences o LEFT JOIN omoccurdeterminations d ON o.occid = d.occid

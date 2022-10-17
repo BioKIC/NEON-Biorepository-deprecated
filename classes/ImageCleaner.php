@@ -54,7 +54,6 @@ class ImageCleaner extends Manager{
 	public function buildThumbnailImages(){
 		$this->imgManager = new ImageShared();
 		$this->imgManager->setTestOrientation($this->testOrientation);
-
 		//Get image recordset to be processed
 		$sql = 'SELECT DISTINCT i.imgid, i.url, i.originalurl, i.thumbnailurl, i.format ';
 		if($this->collid) $sql .= ', o.catalognumber FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid ';
@@ -94,6 +93,7 @@ class ImageCleaner extends Manager{
 
 			$setFormat = ($row->format?false:true);
 			if(!$this->buildImageDerivatives($imgId, $row->catalognumber, $row->url, $row->thumbnailurl, $row->originalurl, $setFormat)){
+				$this->logOrEcho($this->errorMessage, 1);
 				//$tagSql = 'UPDATE images SET thumbnailurl = "" WHERE (imgid = '.$imgId.') AND thumbnailurl LIKE "processing %"';
 				//$this->conn->query($tagSql);
 			}
@@ -190,7 +190,12 @@ class ImageCleaner extends Manager{
 
 			if($status && $imgTnUrl && $this->imgManager->uriExists($imgTnUrl)){
 				//If web image is too large, transfer to large image and create new web image
-				list($sourceWidth, $sourceHeight) = getimagesize(str_replace(' ', '%20', $this->imgManager->getSourcePath()));
+				$sourceWidth = $this->imgManager->getSourceWidth();
+				if(!$sourceWidth){
+					if($dimArr = $this->imgManager->getImgDim(str_replace(' ', '%20', $this->imgManager->getSourcePath()))){
+						$sourceWidth = $dimArr[0];
+					}
+				}
 				if(!$webIsEmpty && !$recUrlOrig){
 					$fileSize = $this->imgManager->getSourceFileSize();
 					if($fileSize > $this->imgManager->getWebFileSizeLimit() || $sourceWidth > ($this->imgManager->getWebPixWidth()*1.2)){

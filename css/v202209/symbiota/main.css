@@ -264,7 +264,7 @@ hr {
 @media (min-width: 768px) {
   body {
     display: grid;
-    grid-template-rows: auto 1fr auto; /* header, main, footer */
+    grid-template-rows: auto auto 1fr auto; /* header, breadcrumbs, main, footer */
   }
 }
 

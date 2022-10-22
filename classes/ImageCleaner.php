@@ -80,7 +80,7 @@ class ImageCleaner extends Manager{
 				}
 				else{
 					//Records already processed by a parallel running process, thus go to next record
-					$this->logOrEcho('Already being handled by a parallel running processs',1);
+					$this->logOrEcho('Already being handled by a parallel running process',1);
 					$textRS->free();
 					$this->conn->commit();
 					$this->conn->autocommit(true);
@@ -234,10 +234,9 @@ class ImageCleaner extends Manager{
 					$status = false;
 				}
 			}
-			$this->imgManager->reset();
 		}
 		else{
-			$this->errorMessage= 'ERROR: unable to parse source image ('.$imgUrl.')';
+			$this->errorMessage = 'ERROR: unable to parse source image ('.$imgUrl.')';
 			//$this->logOrEcho($this->errorMessage,1);
 			$status = false;
 		}
@@ -245,6 +244,8 @@ class ImageCleaner extends Manager{
 			$imgUrl = str_replace($GLOBALS['IMAGE_ROOT_URL'],$GLOBALS['IMAGE_ROOT_PATH'],$imgUrl);
 			unlink($imgUrl);
 		}
+		$this->imgManager->reset();
+		$this->errorMessage = '';
 	}
 
 	public function resetProcessing(){

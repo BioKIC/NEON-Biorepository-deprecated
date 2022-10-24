@@ -95,7 +95,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		if($url !== null){
 			if($GLOBALS['IMAGE_DOMAIN'] && substr($url,0,1) == '/') $url = $GLOBALS['IMAGE_DOMAIN'].$url;
 			$sql .= 'url=?, ';
-			$fieldArr[] = $url;
+			$fieldArr[] = ($url?$url:NULL);
 			$types .= 's';
 		}
 
@@ -112,7 +112,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		}
 		if($tnUrl !== null){
 			if($GLOBALS['IMAGE_DOMAIN'] && substr($tnUrl,0,1) == '/') $tnUrl = $GLOBALS['IMAGE_DOMAIN'].$tnUrl;
-			$fieldArr[] = $tnUrl;
+			$fieldArr[] = ($tnUrl?$tnUrl:NULL);
 			$sql .= 'thumbnailurl=?, ';
 			$types .= 's';
 		}

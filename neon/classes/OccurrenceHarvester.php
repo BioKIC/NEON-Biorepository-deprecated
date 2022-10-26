@@ -217,7 +217,7 @@ class OccurrenceHarvester{
 			$rs->free();
 
 			$sql2 = 'SELECT detid, sciname, scientificNameAuthorship, taxonRemarks, identifiedBy, dateIdentified,
-				identificationRemarks, identificationReferences, identificationQualifier, enteredByUid
+				identificationRemarks, identificationReferences, identificationQualifier, isCurrent, enteredByUid
 				FROM omoccurdeterminations WHERE occid = '.$occid;
 			$rs2 = $this->conn->query($sql2);
 			while($r2 = $rs2->fetch_assoc()){
@@ -407,8 +407,8 @@ class OccurrenceHarvester{
 			foreach($eventArr as $eArr){
 				$tableName = $eArr['ingestTableName'];
 				if(strpos($tableName,'shipment')) continue;
-				if(strpos($tableName,'identification')) continue;
-				if(strpos($tableName,'sorting')) continue;
+				//if(strpos($tableName,'identification')) continue;
+				//if(strpos($tableName,'sorting')) continue;
 				if(strpos($tableName,'archive')) continue;
 				if(strpos($tableName,'barcoding')) continue;
 				if(strpos($tableName,'dnaStandardTaxon')) continue;
@@ -609,23 +609,23 @@ class OccurrenceHarvester{
 					if(isset($sampleArr['identifications'])){
 						$identArr = $sampleArr['identifications'];
 					}
-					else{
-						//Identifications not supplied via API, thus try alternatives
-						if($sampleArr['taxonID']){
-							$identArr[] = array('sciname' => $sampleArr['taxonID'], 'taxonRemarks' => 'Identification source: inferred from shipment manifest');
-						}
+					if($sampleArr['taxonID']){
+						$identArr[] = array('sciname' => $sampleArr['taxonID'], 'identifiedBy' => 'manifest', 'dateIdentified' => 's.d.', 'taxonRemarks' => 'Identification source: inferred from shipment manifest');
+					}
+					if(!$identArr){
+						//Identifications not supplied via API nor manifest, thus try to grab from sampleID
 						if($dwcArr['collid'] == 56){
 							if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
 								$taxonCode = $m[1];
 								$taxonRemarks = 'Identification source: parsed from NEON sampleID';
-								$identArr = array('sciname' => $taxonCode, 'taxonRemarks' => $taxonRemarks);
+								$identArr[] = array('sciname' => $taxonCode, 'identifiedBy' => 'sampleID', 'dateIdentified' => 's.d.', 'taxonRemarks' => $taxonRemarks);
 							}
 						}
 						elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
 							if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
 								$taxonCode = $m[1];
 								$taxonRemarks = 'Identification source: parsed from NEON sampleID';
-								$identArr = array('sciname' => $taxonCode, 'taxonRemarks' => $taxonRemarks);
+								$identArr[] = array('sciname' => $taxonCode, 'identifiedBy' => 'sampleID', 'dateIdentified' => 's.d.', 'taxonRemarks' => $taxonRemarks);
 							}
 						}
 						elseif($dwcArr['collid'] == 30) $identArr = array('sciname' => 'Soil');
@@ -641,8 +641,15 @@ class OccurrenceHarvester{
 								}
 							}
 						}
+						$isCurrentKey = true;
+						foreach($this->currentDetArr as $detObj){
+							if($detObj['isCurrent'] && $detObj['enteredByUid'] && $detObj['enteredByUid'] != 50){
+								//There is a current determination that needs to be maintained as the central current determination
+								$isCurrentKey = false;
+								break;
+							}
+						}
 						$bestDate = 0;
-						$isCurrentKey = '';
 						foreach($identArr as $idKey => &$idArr){
 							if(!isset($idArr['sciname'])) unset($identArr[$idKey]);
 							//Translate NEON taxon codes or check/clean scientific name submitted
@@ -658,14 +665,16 @@ class OccurrenceHarvester{
 									$idArr = array_merge($idArr, $taxaArr);
 								}
 							}
-							//Evaluate if determination should be tagged as isCurrent
-							if($isCurrentKey === '') $isCurrentKey = $idKey;
-							if(isset($idArr['dateIdentified']) && $idArr['dateIdentified'] > $bestDate){
-								$bestDate = $idArr['dateIdentified'];
-								$isCurrentKey = $idKey;
+							if($isCurrentKey !== false){
+								//Evaluate if any incoming determinations should be tagged as isCurrent
+								if($isCurrentKey === true) $isCurrentKey = $idKey;
+								if(isset($idArr['dateIdentified']) && preg_match('/^\d{4}/', $idArr['dateIdentified']) && $idArr['dateIdentified'] > $bestDate){
+									$bestDate = $idArr['dateIdentified'];
+									$isCurrentKey = $idKey;
+								}
 							}
 						}
-						if($isCurrentKey !== '') $identArr[$isCurrentKey]['isCurrent'] = 1;
+						if(is_numeric($isCurrentKey)) $identArr[$isCurrentKey]['isCurrent'] = 1;
 						//Check to see if any determination need to be projected
 						$appendIdentArr = array();
 						foreach($identArr as $idKey => &$idArr){
@@ -1051,7 +1060,11 @@ class OccurrenceHarvester{
 				foreach($this->currentDetArr as $cdKey => $cdArr){
 					$deleteDet = true;
 					foreach($identArr as $idArr){
-						if($cdArr['sciname'] == $idArr['sciname'] && $cdArr['identifiedBy'] == $idArr['identifiedBy'] && $cdArr['dateIdentified'] == $idArr['dateIdentified']){
+						if($cdArr['enteredByUid'] && $cdArr['enteredByUid'] != 50){
+							$deleteDet = false;
+							break;
+						}
+						elseif($cdArr['sciname'] == $idArr['sciname'] && $cdArr['identifiedBy'] == $idArr['identifiedBy'] && $cdArr['dateIdentified'] == $idArr['dateIdentified']){
 							$deleteDet = false;
 							break;
 						}
@@ -1065,44 +1078,58 @@ class OccurrenceHarvester{
 			}
 			foreach($identArr as $idArr){
 				if(isset($idArr['identifiedBy']) && isset($idArr['sciname'])){
-					if(!isset($idArr['dateIdentified']) || !$idArr['dateIdentified']) $idArr['dateIdentified'] = 's.d.';
-					$sqlInsert = '';
-					$sqlValue = '';
-					foreach($idArr as $k => $v){
-						$sqlInsert .= ', '.$k;
-						$sqlValue .= ', "'.$this->cleanInStr($v).'"';
+					$scientificName = $idArr['sciname'];
+					$identifiedBy = $idArr['identifiedBy'];
+					$dateIdentified = 's.d.';
+					if(isset($idArr['dateIdentified']) && $idArr['dateIdentified']) $dateIdentified = $idArr['dateIdentified'];
+					$scientificNameAuthorship = null;
+					if(isset($idArr['scientificNameAuthorship']) && $idArr['scientificNameAuthorship']) $scientificNameAuthorship = $idArr['scientificNameAuthorship'];
+					$family = null;
+					if(isset($idArr['family']) && $idArr['family']) $family = $idArr['family'];
+					$taxonRemarks = null;
+					if(isset($idArr['taxonRemarks']) && $idArr['taxonRemarks']) $taxonRemarks = $idArr['taxonRemarks'];
+					$identificationRemarks = null;
+					if(isset($idArr['identificationRemarks']) && $idArr['identificationRemarks']) $identificationRemarks = $idArr['identificationRemarks'];
+					$identificationReferences = null;
+					if(isset($idArr['identificationReferences']) && $idArr['identificationReferences']) $identificationReferences = $idArr['identificationReferences'];
+					$identificationQualifier = null;
+					if(isset($idArr['identificationQualifier']) && $idArr['identificationQualifier']) $identificationQualifier = $idArr['identificationQualifier'];
+					$securityStatus = 0;
+					if(isset($idArr['securityStatus']) && is_numeric($idArr['securityStatus'])) $securityStatus = $idArr['securityStatus'];
+					$securityStatusReason = null;
+					if(isset($idArr['securityStatusReason']) && $idArr['securityStatusReason']) $securityStatusReason = $idArr['securityStatusReason'];
+					$isCurrent = 0;
+					if(isset($idArr['isCurrent']) && is_numeric($idArr['isCurrent'])) $isCurrent = $idArr['isCurrent'];
+					$enteredByUid = 50;
+					$sql = 'REPLACE INTO omoccurdeterminations(occid, sciname, identifiedBy, dateIdentified, scientificNameAuthorship, family, taxonRemarks,
+						identificationRemarks, identificationReferences, identificationQualifier, securityStatus, securityStatusReason, isCurrent, enteredByUid)
+						VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+					if($stmt = $this->conn->prepare($sql)) {
+						$stmt->bind_param('isssssssssisii', $occid, $scientificName, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
+								$identificationRemarks, $identificationReferences, $identificationQualifier, $securityStatus, $securityStatusReason, $isCurrent, $enteredByUid);
+						$stmt->execute();
+						if($stmt->error){
+							echo '<li style="margin-left:30px">ERROR adding identification to omoccurdetermination table: '.$stmt->error.'</li>';
+						}
+						$stmt->close();
 					}
-					$sql = 'REPLACE INTO omoccurdeterminations(occid'.$sqlInsert.', enteredByUid) VALUES('.$occid.$sqlValue.', 50)';
-					if(!$this->conn->query($sql)){
-						$this->errorStr = 'ERROR adding identification to omoccurdetermination table: '.$this->conn->errno.' - '.$this->conn->error;
-					}
+					else echo '<li style="margin-left:30px">ERROR preparing statement for adding identification to omoccurrences: '.$this->conn->error.'</li>';
 					//Following code needed until omoccurdeterminations is activated as central determination source
 					if(isset($idArr['isCurrent']) && $idArr['isCurrent'] && (!isset($idArr['securityStatus']) || !$idArr['securityStatus'])){
-						$sql = 'UPDATE omoccurrences SET sciname = "'.$this->cleanInStr($idArr['sciname']).'", identifiedBy = "'.$this->cleanInStr($idArr['identifiedBy']).
-							'", dateIdentified = "'.$this->cleanInStr($idArr['dateIdentified']).'"';
-						$scientificNameAuthorship = 'NULL';
-						if(isset($idArr['scientificNameAuthorship']) && $idArr['scientificNameAuthorship']) $scientificNameAuthorship = '"'.$this->cleanInStr($idArr['scientificNameAuthorship']).'"';
-						$sql .= ', scientificNameAuthorship = '.$scientificNameAuthorship;
-						$family = 'NULL';
-						if(isset($idArr['family']) && $idArr['family']) $family = '"'.$this->cleanInStr($idArr['family']).'"';
-						$sql .= ', family = '.$family;
-						$taxonRemarks = 'NULL';
-						if(isset($idArr['taxonRemarks']) && $idArr['taxonRemarks']) $taxonRemarks = '"'.$this->cleanInStr($idArr['taxonRemarks']).'"';
-						$sql .= ', taxonRemarks = '.$taxonRemarks;
-						$identificationRemarks = 'NULL';
-						if(isset($idArr['identificationRemarks']) && $idArr['identificationRemarks']) $identificationRemarks = '"'.$this->cleanInStr($idArr['identificationRemarks']).'"';
-						$sql .= ', identificationRemarks = '.$identificationRemarks;
-						$identificationReferences = 'NULL';
-						if(isset($idArr['identificationReferences']) && $idArr['identificationReferences']) $identificationReferences = '"'.$this->cleanInStr($idArr['identificationReferences']).'"';
-						$sql .= ', identificationReferences = '.$identificationReferences;
-						$identificationQualifier = 'NULL';
-						if(isset($idArr['identificationQualifier']) && $idArr['identificationQualifier']) $identificationQualifier = '"'.$this->cleanInStr($idArr['identificationQualifier']).'"';
-						$sql .= ', identificationQualifier = '.$identificationQualifier;
-						$sql .= ' WHERE occid = '.$occid;
-						if(!$this->conn->query($sql)){
-							echo 'ERROR updating current identification within omoccurrences table: '.$this->conn->error;
-							echo $sql;
+						$sql2 = 'UPDATE omoccurrences
+							SET sciname = ?, identifiedBy = ?, dateIdentified = ?, scientificNameAuthorship = ?, family = ?, taxonRemarks = ?,
+							identificationRemarks = ?, identificationReferences = ?, identificationQualifier = ?
+							WHERE occid = ?';
+						if($stmt2 = $this->conn->prepare($sql2)) {
+							$stmt2->bind_param('sssssssssi', $scientificName, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
+								$identificationRemarks, $identificationReferences, $identificationQualifier, $occid);
+							$stmt2->execute();
+							if($stmt2->error){
+								echo '<li style="margin-left:30px">ERROR updating current identification within omoccurrences table: '.$stmt2->error.'</li>';
+							}
+							$stmt2->close();
 						}
+						else echo '<li style="margin-left:30px">ERROR preparing statement for updating identification within omoccurrences: '.$this->conn->error.'</li>';
 					}
 				}
 			}

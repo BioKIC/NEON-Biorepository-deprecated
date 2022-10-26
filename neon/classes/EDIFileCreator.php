@@ -864,7 +864,12 @@ class EDIFileCreator extends Manager
 					$fileNameSeed .= '_backup_' . date('Y-m-d_His', $this->ts);
 				}
 			} else {
-				$fileNameSeed = 'NEON_Biorepository_EML' . date('Y-m-d_His', $this->ts);
+				if (isset($_POST['datasetid'])) {
+					$datasetID = $_POST['datasetid'];
+					$fileNameSeed = 'NEON_Biorepository_EML_Dataset_' . $datasetID . '_' . date('Y-m-d_His', $this->ts);
+				} else {
+					$fileNameSeed = 'NEON_Biorepository_EML_' . date('Y-m-d_His', $this->ts);
+				}
 			}
 		}
 		$fileName = str_replace(array(' ', '"', "'"), '', $fileNameSeed) . '_DwC-A.zip';
@@ -1138,9 +1143,6 @@ class EDIFileCreator extends Manager
 
 		$emlArr = array();
 
-		// If download has "datasetid"
-		// `http://gh.local/NEON-Biorepository/neon/emlhandler.php?schema=dwc&identifications=1&images=1&attributes=1&materialsample=1&format=csv&cset=%22utf-8%22&zip=1&publicsearch=1&taxonFilterCode=0&sourcepage=specimen&datasetid=156&keywords=dataset`
-
 		if (count($this->collArr) == 1) {
 			$collId = key($this->collArr);
 			$emlArr['alternateIdentifier'][] = $urlPathPrefix . 'collections/misc/collprofiles.php?collid=' . $collId;
@@ -1191,8 +1193,6 @@ class EDIFileCreator extends Manager
 				}
 			}
 		}
-
-		// If REQUEST has `datasetid`, add it to title
 		if (isset($_POST['datasetid'])) {
 			$datasetID = $_POST['datasetid'];
 			$sql = 'SELECT name, description FROM omoccurdatasets WHERE datasetid=' . $datasetID;
@@ -1203,7 +1203,10 @@ class EDIFileCreator extends Manager
 				$row = $rs->fetch_object();
 				$datasetName = $row->name;
 				$datasetDescription = $row->description;
-				$emlArr['title'] = $datasetName . ' Public Dataset of ID=' . $datasetID . ' (repackaging of occurrences published by the NEON Biorepository Data Portal)';
+				// only public datasets
+				$emlArr['alternateIdentifier'][] = $urlPathPrefix . 'collections/datasets/public.php?datasetid=' . $datasetID;
+				$emlArr['title'] = $datasetName . ' (repackaging of occurrences published by the NEON Biorepository Data Portal)';
+				$emlArr['description'] = $datasetDescription;
 				$rs->free();
 			}
 		}

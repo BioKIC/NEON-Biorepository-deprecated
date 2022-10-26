@@ -891,30 +891,33 @@ class EDIFileCreator extends Manager
 
 			$zipArchive->addFile($this->targetPath . $this->ts . '-occur' . $this->fileExt);
 			$zipArchive->renameName($this->targetPath . $this->ts . '-occur' . $this->fileExt, 'occurrences' . $this->fileExt);
-
-			if ($this->includeDets) {
+			// only creates det file if there are values to be added
+			if ($this->includeDets && count($this->determinationFieldArr) > 0) {
 				$this->writeDeterminationFile();
 				$zipArchive->addFile($this->targetPath . $this->ts . '-det' . $this->fileExt);
 				$zipArchive->renameName($this->targetPath . $this->ts . '-det' . $this->fileExt, 'identifications' . $this->fileExt);
 			}
-			if ($this->includeImgs) {
+			// only creates img file if there are values to be added
+			if ($this->includeImgs && count($this->imageFieldArr) > 0) {
 				$this->writeImageFile();
 				$zipArchive->addFile($this->targetPath . $this->ts . '-multimedia' . $this->fileExt);
 				$zipArchive->renameName($this->targetPath . $this->ts . '-multimedia' . $this->fileExt, 'multimedia' . $this->fileExt);
 			}
-			if ($this->includeAttributes) {
+			// only creates measurementOrFact file if there are values to be added
+			if ($this->includeAttributes && count($this->attributeFieldArr) > 0) {
 				$this->writeAttributeFile();
 				$zipArchive->addFile($this->targetPath . $this->ts . '-attr' . $this->fileExt);
 				$zipArchive->renameName($this->targetPath . $this->ts . '-attr' . $this->fileExt, 'measurementOrFact' . $this->fileExt);
 			}
+			// only creates materialSample file if there are values to be added?
 			if ($this->includeMaterialSample && file_exists($this->targetPath . $this->ts . '-matSample' . $this->fileExt)) {
 				$zipArchive->addFile($this->targetPath . $this->ts . '-matSample' . $this->fileExt);
 				$zipArchive->renameName($this->targetPath . $this->ts . '-matSample' . $this->fileExt, 'materialSample' . $this->fileExt);
 			}
 			//Meta file
-			$this->writeMetaFile();
-			$zipArchive->addFile($this->targetPath . $this->ts . '-meta.xml');
-			$zipArchive->renameName($this->targetPath . $this->ts . '-meta.xml', 'meta.xml');
+			// $this->writeMetaFile();
+			// $zipArchive->addFile($this->targetPath . $this->ts . '-meta.xml');
+			// $zipArchive->renameName($this->targetPath . $this->ts . '-meta.xml', 'meta.xml');
 			//EDI-compliant EML file
 			$this->writeEmlFile();
 			$zipArchive->addFile($this->targetPath . $this->ts . '-eml.xml');
@@ -926,11 +929,11 @@ class EDIFileCreator extends Manager
 
 			$zipArchive->close();
 			unlink($this->targetPath . $this->ts . '-occur' . $this->fileExt);
-			if ($this->includeDets) unlink($this->targetPath . $this->ts . '-det' . $this->fileExt);
-			if ($this->includeImgs) unlink($this->targetPath . $this->ts . '-multimedia' . $this->fileExt);
-			if ($this->includeAttributes) unlink($this->targetPath . $this->ts . '-attr' . $this->fileExt);
+			if ($this->includeDets && count($this->determinationFieldArr) > 0) unlink($this->targetPath . $this->ts . '-det' . $this->fileExt);
+			if ($this->includeImgs && count($this->imageFieldArr) > 0) unlink($this->targetPath . $this->ts . '-multimedia' . $this->fileExt);
+			if ($this->includeAttributes && count($this->attributeFieldArr) > 0) unlink($this->targetPath . $this->ts . '-attr' . $this->fileExt);
 			if ($this->includeMaterialSample && file_exists($this->targetPath . $this->ts . '-matSample' . $this->fileExt)) unlink($this->targetPath . $this->ts . '-matSample' . $this->fileExt);
-			unlink($this->targetPath . $this->ts . '-meta.xml');
+			// unlink($this->targetPath . $this->ts . '-meta.xml');
 			if ($this->schemaType == 'dwc') rename($this->targetPath . $this->ts . '-eml.xml', $this->targetPath . str_replace('.zip', '.eml', $fileName));
 			else unlink($this->targetPath . $this->ts . '-eml.xml');
 		} else {
@@ -1064,7 +1067,7 @@ class EDIFileCreator extends Manager
 		}
 
 		//MeasurementOrFact extension
-		if ($this->includeAttributes) {
+		if ($this->includeAttributes && count($this->attributeFieldArr) > 0) {
 			$extElem3 = $newDoc->createElement('extension');
 			$extElem3->setAttribute('encoding', $this->charSetOut);
 			$extElem3->setAttribute('fieldsTerminatedBy', $this->delimiter);
@@ -1213,7 +1216,8 @@ class EDIFileCreator extends Manager
 		$emlArr['temporalCoverage'] = $tempCoverage;
 
 		// Add dataTable (tables descriptions)
-		$emlArr['dataTable'] = $this->getDataTables();
+		$dataTable = $this->getDataTables();
+		$emlArr['dataTable'] = $dataTable;
 
 		//Append collection metadata
 		foreach ($this->collArr as $id => $collArr) {
@@ -1454,11 +1458,6 @@ class EDIFileCreator extends Manager
 		if (array_key_exists('project', $emlArr)) {
 			$projectElem = $this->getNode($newDoc, 'project', $emlArr['project']);
 			$datasetElem->appendChild($projectElem);
-			/*
-			 * Example EML: http://ipt.gbifbenin.org/eml.do?r=mbi_groupe3_menacees
-			 * $projectArr = array('nodeAttribute' => array( 'id' => 'BID-AF2020-122-NAC'), 'title' => 'The Gabon Biodiversity Portal', 'abstract' => array('para' => 'https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal'))
-			 * json: {"publicationProps":{"project":{"nodeAttribute":{"id":"BID-AF2020-122-NAC"},"title":"The Gabon Biodiversity Portal","abstract":{"para":"https://www.gbif.org/project/BID-AF2020-122-NAC/the-gabon-biodiversity-portal"}}}}
-			*/
 		}
 
 		if (array_key_exists('contact', $emlArr)) {
@@ -1469,17 +1468,25 @@ class EDIFileCreator extends Manager
 
 		// Occurrence file description (dataTable)
 		if (array_key_exists('dataTable', $emlArr)) {
-			// for each key value pair in the dataTable array, create a dataTable node and append value to it
-			// foreach ($emlArr['dataTable'] as $key => $value) {
-			// 	$dataTableNode = $this->getNode($newDoc, 'dataTable', $value);
-			// 	$datasetElem->appendChild($dataTableNode);
-			// }
-			// create dataTable node and append "test value" to it
-			$dataTableNode = $this->getNode($newDoc, 'dataTable', $emlArr['dataTable']);
+			$dataTableArr = $emlArr['dataTable'];
+			$dataTableNode = $this->getNode($newDoc, 'dataTable', $dataTableArr);
+
+			// create 'attributeList' node
+			$attributeListNode = $newDoc->createElement('attributeList');
+
+			// add table fields and terms
+			$termsArr = $this->occurrenceFieldArr['terms'];
+			foreach ($termsArr as $key => $value) {
+				$attributeNode = $newDoc->createElement('attribute');
+				$attributeNode->appendChild($newDoc->createElement('attributeName', $key));
+				$attributeNode->appendChild($newDoc->createElement('attributeLabel', $key));
+				$attributeNode->appendChild($newDoc->createElement('attributeDefinition', $value));
+				$attributeListNode->appendChild($attributeNode);
+			}
+			// append to datasetElem
+			$dataTableNode->appendChild($attributeListNode);
 			$datasetElem->appendChild($dataTableNode);
 		}
-
-
 
 		$symbElem = $newDoc->createElement('symbiota');
 		if (isset($GLOBALS['PORTAL_GUID'])) $symbElem->setAttribute('id', $GLOBALS['PORTAL_GUID']);
@@ -2000,10 +2007,26 @@ class EDIFileCreator extends Manager
 					],
 				],
 			],
-			'attributeList' => [
-				// get list of fields from metadata
-			]
+			// 'attributeList' => []
 		];
+		$fieldsArr = array_keys($this->occurrenceFieldArr['terms']);
+		$termsArr = $this->occurrenceFieldArr['terms'];
+		// foreach ($termsArr as $key => $value) {
+
+		// }
+		// foreach ($termsArr as $v) {
+		// for each $v in $termArr, create new 'key' => $v pair inside $occTable['attributeList']
+		// $newAttribute = array('attribute' => ['attributeName' => $v, 'attributeLabel' => $v, 'attributeDefinition' => $v]);
+		// array_push($occTable['attributeList'], $newAttribute);
+
+		// $occTable['attributeList'][$v] = [
+		// 	'attributeName' => $v,
+		// 	'attributeLabel' => $v,
+		// 	'attributeDefinition' => $v,
+		// ];
+		// array_push($occTable['attributeList'], $v);
+
+		// }
 		return $occTable;
 	}
 
@@ -2029,6 +2052,7 @@ class EDIFileCreator extends Manager
 		if (!$this->determinationFieldArr) {
 			$this->determinationFieldArr = DwcArchiverDetermination::getDeterminationArr($this->schemaType, $this->extended);
 		}
+
 		//Output header
 		$headerArr = array_keys($this->determinationFieldArr['fields']);
 		array_pop($headerArr);

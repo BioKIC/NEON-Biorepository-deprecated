@@ -348,7 +348,7 @@ class TaxonomyUtilities {
 			'INNER JOIN taxaenumtree e ON t.tid = e.tid '.
 			'INNER JOIN taxa t2 ON e.parenttid = t2.tid '.
 			'SET o.TidInterpreted = t.tid '.
-			'WHERE (o.TidInterpreted IS NULL) AND (t2.rankid = 140) AND (ts.sciname = o.family)';
+			'WHERE (o.TidInterpreted IS NULL) AND (t2.rankid = 140) AND (t.sciname = o.family)';
 		if(!$conn->query($sql2)){
 			echo '<div>ERROR indexing occurrences by matching sciname and family</div>';
 		}

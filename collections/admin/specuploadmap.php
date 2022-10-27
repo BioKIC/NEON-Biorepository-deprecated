@@ -22,7 +22,6 @@ $versionData = array_key_exists('versiondata',$_REQUEST) && $_REQUEST['versionda
 $verifyImages = array_key_exists('verifyimages',$_REQUEST) && $_REQUEST['verifyimages']?true:false;
 $processingStatus = array_key_exists('processingstatus',$_REQUEST)?$_REQUEST['processingstatus']:'';
 $dbpk = array_key_exists('dbpk',$_REQUEST)?$_REQUEST['dbpk']:'';
-$publicationGuid = array_key_exists('publicationGuid',$_REQUEST)?$_REQUEST['publicationGuid']:'';
 
 if(strpos($uspid,'-')){
 	$tok = explode('-',$uspid);
@@ -66,6 +65,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType ==
 			$duManager->addFilterCondition($_POST['filter'.$i], $_POST['condition'.$i], $_POST['value'.$i]);
 		}
 	}
+	if(array_key_exists('publicationGuid',$_REQUEST)) $duManager->setPublicationGuid($_REQUEST['publicationGuid']);
 }
 
 $duManager->setCollId($collid);
@@ -77,7 +77,6 @@ $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVersionDataEdits($versionData);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
-$duManager->setPublicationGuid($publicationGuid);
 
 if($action == 'Automap Fields') $autoMap = true;
 

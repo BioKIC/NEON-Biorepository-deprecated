@@ -140,7 +140,6 @@ class DwcArchiverCore extends Manager{
 	}
 
 	public function setCollArr($collTarget, $collType = ''){
-		$collTarget = $this->cleanInStr($collTarget);
 		$sqlWhere = '';
 		if ($collType == 'specimens') {
 			$sqlWhere = '(c.colltype = "Preserved Specimens") ';

@@ -14,7 +14,7 @@ class ChecklistManager extends Manager{
 	private $projName = '';
 	private $taxaList = array();
 	private $langId;
-	private $thesFilter = 0;
+	private $thesFilter = 1;
 	private $taxonFilter;
 	private $showAuthors = false;
 	private $showCommon = false;
@@ -744,7 +744,7 @@ class ChecklistManager extends Manager{
 
 	//Setters and getters
 	public function setThesFilter($filt){
-		$this->thesFilter = $filt;
+		if(is_numeric($filt)) $this->thesFilter = $filt;
 	}
 
 	public function getThesFilter(){

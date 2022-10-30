@@ -155,7 +155,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 			$stmt->bind_param($types, ...$fieldArr);
 			if($stmt->execute()){
 				$imgUpdateStatus = true;
-				if(array_key_exists('occid', $fieldArr) || array_key_exists('tidinterpreted', $fieldArr)){
+				if(array_key_exists('occid', $imgArr) || array_key_exists('tidinterpreted', $imgArr)){
 					$imgSql = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid SET i.tid = o.tidinterpreted WHERE (i.imgid = '.$imgId.')';
 					$this->conn->query($imgSql);
 				}

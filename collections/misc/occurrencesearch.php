@@ -85,7 +85,7 @@ $occManager = new OccurrenceSupport();
 	    }
 	</script>
 	<style type="text/css">
-		body{ min-width: 400px; }
+		body{ width: 700px; min-width: 400px; }
 		innertext{ padding: 15px; }
 		fieldset{ margin:15px; padding:15px }
 		select{ width: 100%; }

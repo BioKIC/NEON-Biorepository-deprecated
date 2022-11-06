@@ -4,7 +4,7 @@ include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
 include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 include_once($SERVER_ROOT.'/classes/RdfUtility.php');
 include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
-include_once($SERVER_ROOT.'/content/lang/fieldterms/materialSampleVars.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/content/lang/collections/fieldterms/materialSampleVars.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occid = array_key_exists('occid',$_REQUEST)?trim($_REQUEST['occid']):0;
@@ -327,11 +327,11 @@ $traitArr = $indManager->getTraitArr();
 					?>
 				</ul>
 				<div id="occurtab">
-					<div style="float:right;">
-						<div class="actionicon-div">
+					<div id="media-div">
+						<div>
 							<a class="twitter-share-button" href="https://twitter.com/share" data-url="<?php echo $_SERVER['HTTP_HOST'].$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occid.'&clid='.$clid; ?>"><?php echo (isset($LANG['TWEET'])?$LANG['TWEET']:'Tweet'); ?></a>
 						</div>
-						<div class="actionicon-div">
+						<div>
 							<div class="fb-share-button" data-href="" data-layout="button_count"></div>
 						</div>
 					</div>

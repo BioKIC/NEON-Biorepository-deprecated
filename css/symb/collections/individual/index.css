@@ -16,7 +16,11 @@
 	clear: both;
 }
 
-.actionicon-div{
+.media-div{
+	float: right;
+}
+
+.media-div div{
 	float: right;
 	margin-right: 10px;	
 }

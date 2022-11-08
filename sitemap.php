@@ -14,7 +14,11 @@ $smManager = new SiteMapManager();
 	$activateJQuery = false;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
-	echo '<link href="' . $CSS_BASE_PATH . '/sitemap.css" rel="stylesheet" rel="stylesheet">';
+
+	//detect custom css file
+	if(file_exists($_SERVER['DOCUMENT_ROOT'].$CSS_BASE_PATH.'/sitemap.css')){
+		echo '<link href="' . $CSS_BASE_PATH . '/sitemap.css" rel="stylesheet" rel="stylesheet">'."\r\n";
+	}
 	?>
 	<script type="text/javascript">
 		function submitTaxaNoImgForm(f){

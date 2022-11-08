@@ -14,7 +14,7 @@ class ChecklistManager extends Manager{
 	private $projName = '';
 	private $taxaList = array();
 	private $langId;
-	private $thesFilter = 1;
+	private $thesFilter = 0;
 	private $taxonFilter;
 	private $showAuthors = false;
 	private $showCommon = false;

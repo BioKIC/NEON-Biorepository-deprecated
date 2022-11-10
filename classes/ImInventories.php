@@ -84,7 +84,7 @@ class ImInventories extends Manager{
 			$defaultSettings = (isset($fieldArr['defaultsettings'])?$fieldArr['defaultsettings']:NULL);
 			$dynamicSql = (isset($fieldArr['dynamicsql'])?$fieldArr['dynamicsql']:NULL);
 			$uid = (isset($fieldArr['uid'])?$fieldArr['uid']:NULL);
-			$footprintWkt = (isset($fieldArr['type'])?$fieldArr['type']:NULL);
+			$footprintWkt = (isset($fieldArr['footprintwkt'])?$fieldArr['footprintwkt']:NULL);
 			$sortSequence = (isset($fieldArr['sortsequence'])?$fieldArr['sortsequence']:50);
 			$sql = 'INSERT INTO fmchecklists(name, authors, type, locality, publication, abstract, notes, latcentroid, longcentroid, pointradiusmeters, access, defaultsettings, dynamicsql, uid, footprintWkt, sortsequence) '.
 				'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ';

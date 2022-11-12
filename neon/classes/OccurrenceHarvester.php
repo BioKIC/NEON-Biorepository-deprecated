@@ -492,12 +492,16 @@ class OccurrenceHarvester{
 					$this->fateLocationArr[$score]['date'] = $fateDate;
 				}
 				$sampleArr = array_merge($tableArr, $sampleArr);
-				if($identArr){
+				if($identArr && !empty($identArr['sciname'])){
 					$identArr['taxonRemarks'] = 'Identification source: harvested from NEON API';
 					if(!isset($identArr['dateIdentified']) || $identArr['dateIdentified']){
 						if($fateDate) $identArr['dateIdentified'] = $fateDate;
 					}
-					$sampleArr['identifications'][] = $identArr;
+					$hashStr = $identArr['sciname'];
+					if(!empty($identArr['identifiedBy'])) $hashStr .= $identArr['identifiedBy'];
+					if(!empty($identArr['dateIdentified'])) $hashStr .= $identArr['dateIdentified'];
+					$hash = hash('md5', str_replace(' ','',$hashStr));
+					$sampleArr['identifications'][$hash] = $identArr;
 				}
 			}
 		}
@@ -621,7 +625,8 @@ class OccurrenceHarvester{
 						$identArr = $sampleArr['identifications'];
 					}
 					if($sampleArr['taxonID']){
-						$identArr[] = array('sciname' => $sampleArr['taxonID'], 'identifiedBy' => 'manifest', 'dateIdentified' => 's.d.', 'taxonRemarks' => 'Identification source: inferred from shipment manifest');
+						$hash = hash('md5', str_replace(' ','',$sampleArr['taxonID'].'manifests.d.'));
+						$identArr[$hash] = array('sciname' => $sampleArr['taxonID'], 'identifiedBy' => 'manifest', 'dateIdentified' => 's.d.', 'taxonRemarks' => 'Identification source: inferred from shipment manifest');
 					}
 					if(!$identArr){
 						//Identifications not supplied via API nor manifest, thus try to grab from sampleID
@@ -641,20 +646,11 @@ class OccurrenceHarvester{
 						}
 						elseif($dwcArr['collid'] == 30) $taxonCode = 'Soil';
 						if($taxonCode){
-							$identArr[] = array('sciname' => $taxonCode, 'identifiedBy' => 'sampleID', 'dateIdentified' => 's.d.', 'taxonRemarks' => $taxonRemarks);
+							$hash = hash('md5', str_replace(' ','',$taxonCode.'sampleIDs.d.'));
+							$identArr[$hash] = array('sciname' => $taxonCode, 'identifiedBy' => 'sampleID', 'dateIdentified' => 's.d.', 'taxonRemarks' => $taxonRemarks);
 						}
 					}
 					if($identArr){
-						//Remove duplicate determinations
-						foreach($identArr as $idKey => $idArr){
-							foreach($identArr as $idKeyCheck => $idArrCheck){
-								if($idKey == $idKeyCheck) continue;
-								if($idArr['sciname'] == $idArrCheck['sciname'] && $idArr['identifiedBy'] == $idArrCheck['identifiedBy'] && $idArr['dateIdentified'] == $idArrCheck['dateIdentified']){
-									unset($identArr[$idKey]);
-									break;
-								}
-							}
-						}
 						$isCurrentKey = true;
 						foreach($this->currentDetArr as $detObj){
 							if($detObj['isCurrent'] && $detObj['enteredByUid'] && $detObj['enteredByUid'] != 50){
@@ -688,7 +684,7 @@ class OccurrenceHarvester{
 								}
 							}
 						}
-						if(is_numeric($isCurrentKey)) $identArr[$isCurrentKey]['isCurrent'] = 1;
+						if(!is_bool($isCurrentKey)) $identArr[$isCurrentKey]['isCurrent'] = 1;
 						//Check to see if any determination need to be projected
 						$appendIdentArr = array();
 						foreach($identArr as $idKey => &$idArr){
@@ -1374,7 +1370,7 @@ class OccurrenceHarvester{
 			21 => 'MACROINVERTEBRATE', 22 => 'MACROINVERTEBRATE', 48 => 'MACROINVERTEBRATE', 52 => 'MACROINVERTEBRATE', 53 => 'MACROINVERTEBRATE', 57 => 'MACROINVERTEBRATE', 61 => 'MACROINVERTEBRATE',
 			29 => 'MOSQUITO', 56 => 'MOSQUITO', 58 => 'MOSQUITO', 59 => 'MOSQUITO', 65 => 'MOSQUITO',
 			7 => 'PLANT', 8 => 'PLANT', 9 => 'PLANT', 10 => 'PLANT', 18 => 'PLANT', 23 => 'PLANT', 40 => 'PLANT', 54 => 'PLANT', 76 => 'PLANT',
-			17 => 'SMALL_MAMMAL', 19 => 'SMALL_MAMMAL', 24 => 'SMALL_MAMMAL', 25 => 'SMALL_MAMMAL', 26 => 'SMALL_MAMMAL', 27 => 'SMALL_MAMMAL', 28 => 'SMALL_MAMMAL', 64 => 'SMALL_MAMMAL', 71 => 'SMALL_MAMMAL',
+			17 => 'SMALL_MAMMAL', 19 => 'SMALL_MAMMAL', 24 => 'SMALL_MAMMAL', 25 => 'SMALL_MAMMAL', 26 => 'SMALL_MAMMAL', 27 => 'SMALL_MAMMAL', 28 => 'SMALL_MAMMAL', 64 => 'SMALL_MAMMAL', 71 => 'SMALL_MAMMAL', 85 => 'SMALL_MAMMAL', 90 => 'SMALL_MAMMAL', 91 => 'SMALL_MAMMAL',
 			30 => 'SOIL', 79 => 'SOIL',
 			75 => 'TICK'
 		);

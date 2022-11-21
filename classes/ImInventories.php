@@ -153,9 +153,13 @@ class ImInventories extends Manager{
 					}
 				}
 				elseif($inputArr['type'] == 'excludespp' && is_numeric($inputArr['excludeparent'])){
-					$sql = 'UPDATE fmchklstchildren SET clid = '.$inputArr['excludeparent'].' WHERE clidchild = '.$this->clid;
-					if(!$this->conn->query($sql)){
-						$this->errorMessage = 'Error updating parent checklist for exclusion species list: '.$this->conn->error;
+					$sql = 'INSERT IGNORE INTO fmchklstchildren(clid, clidchild) VALUES(?, ?)';
+					if($stmt = $this->conn->prepare($sql)){
+						$stmt->bind_param('ii', $inputArr['excludeparent'], $this->clid);
+						if(!$stmt->execute()){
+							$this->errorMessage = 'Error updating parent checklist for exclusion species list: '.$this->conn->error;
+						}
+						$stmt->close();
 					}
 				}
 			}

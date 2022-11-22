@@ -221,9 +221,12 @@ class ShipmentManager{
 			//Continue iterating through file to obtain all shipmentIDs, and then insure shipment doesn't already exist
 			$shipmentIdIndex = false;
 			foreach($this->sourceArr as $k => $colName){
-				if(strtolower(str_replace(array(' ','_'),'',$colName)) == 'shipmentid') $shipmentIdIndex = $k;
+				if(strtolower(str_replace(array(' ','_'),'',$colName)) == 'shipmentid'){
+					$shipmentIdIndex = $k;
+					break;
+				}
 			}
-			if($shipmentIdIndex){
+			if(is_numeric($shipmentIdIndex)){
 				$shipmentIDArr = array();
 				while($recordArr = fgetcsv($fh)){
 					$shipmentIDArr[$recordArr[$shipmentIdIndex]] = '';
@@ -252,7 +255,7 @@ class ShipmentManager{
 				}
 			}
 			else{
-				$this->errrorStr = 'ERROR: Unable to locate shipmentID column (required). Please make sure the column exists and is named appropriately';
+				$this->errorStr = 'ERROR: Unable to locate shipmentID column (required). Please make sure the column exists and is named appropriately';
 				$status = false;
 			}
 			fclose($fh);

@@ -231,8 +231,8 @@ class EDIFileCreator extends Manager
 				if ($r->contactJson) {
 					if ($contactArr = json_decode($r->contactJson, true)) {
 						foreach ($contactArr as $key => $cArr) {
-							$this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
 							$this->collArr[$r->collid]['contact'][$key]['individualName']['givenName'] = $cArr['firstName'];
+							$this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
 							if (isset($cArr['role']) && $cArr['role']) $this->collArr[$r->collid]['contact'][$key]['positionName'] = $cArr['role'];
 							if (isset($cArr['email']) && $cArr['email']) $this->collArr[$r->collid]['contact'][$key]['electronicMailAddress'] = $cArr['email'];
 							if (isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/' . $cArr['orcid'];
@@ -1164,7 +1164,7 @@ class EDIFileCreator extends Manager
 			if ($this->collArr[$collId]['postalcode']) $emlArr['contact']['addr']['postalCode'] = $this->collArr[$collId]['postalcode'];
 			if ($this->collArr[$collId]['country']) $emlArr['contact']['addr']['country'] = $this->collArr[$collId]['country'];
 			if ($this->collArr[$collId]['rights']) $emlArr['intellectualRights'] = $this->collArr[$collId]['rights'];
-			if (isset($this->collArr[$collId]['project'])) $emlArr['project'] = $this->collArr[$collId]['project'];
+			// if (isset($this->collArr[$collId]['project'])) $emlArr['project'] = $this->collArr[$collId]['project'];
 		} else {
 			//Dataset contains multiple collection data
 			$emlArr['title'] = $GLOBALS['DEFAULT_TITLE'] . ' general data extract';
@@ -1216,13 +1216,15 @@ class EDIFileCreator extends Manager
 		}
 		$emlArr['creator'][0]['organizationName'] = $GLOBALS['DEFAULT_TITLE'];
 		$emlArr['creator'][0]['electronicMailAddress'] = $GLOBALS['ADMIN_EMAIL'];
-		$emlArr['creator'][0]['onlineUrl'] = $urlPathPrefix . 'index.php';
+		$emlArr['creator'][0]['onlineUrl'] = $urlPathPrefix;
 
-		$emlArr['metadataProvider'][0]['organizationName'] = $GLOBALS['DEFAULT_TITLE'];
+		// Fixed for all datasets in the Biorepository Data Portal
+		$emlArr['metadataProvider'][0]['organizationName'] = 'NEON Biorepository';
 		$emlArr['metadataProvider'][0]['electronicMailAddress'] = $GLOBALS['ADMIN_EMAIL'];
-		$emlArr['metadataProvider'][0]['onlineUrl'] = $urlPathPrefix . 'index.php';
+		$emlArr['metadataProvider'][0]['onlineUrl'] = $urlPathPrefix;
+		$emlArr['metadataProvider'][0]['role'] = 'Data owner';
 
-		$emlArr['pubDate'] = date("Y-m-d");
+		// $emlArr['pubDate'] = date("Y-m-d");
 
 		// adds keywords from request
 		if (isset($_POST['keywords'])) {
@@ -1237,6 +1239,40 @@ class EDIFileCreator extends Manager
 		// Temporal coverage
 		$tempCoverage = $this->getTemporalCoverage();
 		$emlArr['temporalCoverage'] = $tempCoverage;
+
+		// Taxonomic coverage
+		// $taxCoverage = $this->getTaxonomicCoverage();
+		// $emlArr['taxonomicCoverage'] = $taxCoverage;
+
+		// Maintenance/update description
+		$maintenanceDescription = 'This is where we describe how the data is updated at the Biorepository Data Portal';
+		$emlArr['maintenanceDescription'] = $maintenanceDescription;
+
+		// Project description
+		$projectDescription = [
+			'title' => 'National Ecological Observatory Network Biorepository',
+			'personnel' => [
+				'individualName' => [
+					'salutation' => 'Dr.',
+					'givenName' => 'Laura',
+					'surName' => 'Rocha Prado',
+				],
+				'organizationName' => 'Arizona State University',
+				'address' => [
+					'city' => 'Tempe',
+					'administrativeArea' => 'AZ',
+					'postalCode' => '85287',
+					'country' => 'USA',
+				],
+				'electronicMailAddress' => 'lauraprado@asu.edu',
+				'userId' => 'https://orcid.org/0000-0003-1237-2824',
+				'role' => 'Biodiversity Informatician',
+			],
+			'abstract' => [
+				'para' => "The NEON Biorepository is managed by the Biodiversity Knowledge Integration Center (BioKIC) and Arizona State University's Natural History Collections in Tempe, Arizona.",
+			],
+		];
+		$emlArr['project'] = $projectDescription;
 
 		// Add dataTable (tables descriptions)
 		$dataTable = $this->getDataTables();
@@ -1319,8 +1355,13 @@ class EDIFileCreator extends Manager
 		$rootElem->setAttribute('xmlns:eml', 'https://eml.ecoinformatics.org/eml-2.2.0');
 		$rootElem->setAttribute('xmlns:dc', 'http://purl.org/dc/terms/');
 		$rootElem->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-		$rootElem->setAttribute('xsi:schemaLocation', 'eml://ecoinformatics.org/eml-2.1.1 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd');
-		$rootElem->setAttribute('packageId', UuidFactory::getUuidV4());
+		$rootElem->setAttribute('xsi:schemaLocation', 'https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd');
+		// adds packageId from request
+		if (isset($_POST['packageid'])) {
+			$packageId = $_POST['packageid'];
+			$rootElem->setAttribute('packageId', $packageId);
+		}
+		// $rootElem->setAttribute('packageId', UuidFactory::getUuidV4());
 		$rootElem->setAttribute('system', 'https://symbiota.org');
 		$rootElem->setAttribute('scope', 'system');
 		$rootElem->setAttribute('xml:lang', 'eng');
@@ -1330,13 +1371,13 @@ class EDIFileCreator extends Manager
 		$datasetElem = $newDoc->createElement('dataset');
 		$rootElem->appendChild($datasetElem);
 
-		if (array_key_exists('alternateIdentifier', $emlArr)) {
-			foreach ($emlArr['alternateIdentifier'] as $v) {
-				$altIdElem = $newDoc->createElement('alternateIdentifier');
-				$altIdElem->appendChild($newDoc->createTextNode($v));
-				$datasetElem->appendChild($altIdElem);
-			}
-		}
+		// if (array_key_exists('alternateIdentifier', $emlArr)) {
+		// 	foreach ($emlArr['alternateIdentifier'] as $v) {
+		// 		$altIdElem = $newDoc->createElement('alternateIdentifier');
+		// 		$altIdElem->appendChild($newDoc->createTextNode($v));
+		// 		$datasetElem->appendChild($altIdElem);
+		// 	}
+		// }
 
 		if (array_key_exists('title', $emlArr)) {
 			$titleElem = $newDoc->createElement('title');
@@ -1365,10 +1406,23 @@ class EDIFileCreator extends Manager
 			}
 		}
 
+		// if (array_key_exists('metadataProvider', $emlArr)) {
+		// 	$mdArr = $emlArr['metadataProvider'];
+		// 	foreach ($mdArr as $childArr) {
+		// 		$mdElem = $newDoc->createElement('metadataProvider');
+		// 		foreach ($childArr as $k => $v) {
+		// 			$newChildElem = $newDoc->createElement($k);
+		// 			$newChildElem->appendChild($newDoc->createTextNode($v));
+		// 			$mdElem->appendChild($newChildElem);
+		// 		}
+		// 		$datasetElem->appendChild($mdElem);
+		// 	}
+		// }
+
 		if (array_key_exists('metadataProvider', $emlArr)) {
 			$mdArr = $emlArr['metadataProvider'];
 			foreach ($mdArr as $childArr) {
-				$mdElem = $newDoc->createElement('metadataProvider');
+				$mdElem = $newDoc->createElement('associatedParty');
 				foreach ($childArr as $k => $v) {
 					$newChildElem = $newDoc->createElement($k);
 					$newChildElem->appendChild($newDoc->createTextNode($v));
@@ -1403,6 +1457,10 @@ class EDIFileCreator extends Manager
 			$paraElem->appendChild($newDoc->createTextNode(strip_tags($emlArr['description'])));
 			$abstractElem->appendChild($paraElem);
 			$datasetElem->appendChild($abstractElem);
+		}
+
+		// Adds package id from url request
+		if (array_key_exists('packageId', $emlArr)) {
 		}
 
 		// Add keywords from url request
@@ -1478,15 +1536,36 @@ class EDIFileCreator extends Manager
 		}
 		$datasetElem->appendChild($coverageElem);
 
-		if (array_key_exists('project', $emlArr)) {
-			$projectElem = $this->getNode($newDoc, 'project', $emlArr['project']);
-			$datasetElem->appendChild($projectElem);
-		}
-
 		if (array_key_exists('contact', $emlArr)) {
 			$contactArr = $emlArr['contact'];
 			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
 			$datasetElem->appendChild($contactNode);
+		}
+
+		// Taxonomic coverage
+
+		// Maintenance/update description
+		if (array_key_exists('maintenanceDescription', $emlArr) && $emlArr['maintenanceDescription']) {
+			$maintElem = $newDoc->createElement('maintenance');
+			$descrElem = $newDoc->createElement('description');
+			$paraElem = $newDoc->createElement('para');
+			$paraElem->appendChild($newDoc->createTextNode(strip_tags($emlArr['maintenanceDescription'])));
+			$maintUpdElem = $newDoc->createElement('maintenanceUpdateFrequency');
+			$maintUpdElem->appendChild($newDoc->createTextNode("asNeeded"));
+			$descrElem->appendChild($paraElem);
+			$maintElem->appendChild($descrElem);
+			$maintElem->appendChild($maintUpdElem);
+			$datasetElem->appendChild($maintElem);
+		}
+
+		// Contacts (Biorepo Team)
+
+		// Project
+		// if (isset($this->collArr[$collId]['project'])) $emlArr['project'] = $this->collArr[$collId]['project'];		
+		if (array_key_exists('project', $emlArr)) {
+			$projectArr = $emlArr['project'];
+			$projectNode = $this->getNode($newDoc, 'project', $projectArr);
+			$datasetElem->appendChild($projectNode);
 		}
 
 		// Occurrence file description (dataTable)
@@ -1504,6 +1583,7 @@ class EDIFileCreator extends Manager
 				$attributeNode->appendChild($newDoc->createElement('attributeName', $key));
 				$attributeNode->appendChild($newDoc->createElement('attributeLabel', $key));
 				$attributeNode->appendChild($newDoc->createElement('attributeDefinition', $value));
+				$attributeNode->appendChild($newDoc->createElement('storageType', 'string'));
 				$attributeListNode->appendChild($attributeNode);
 			}
 			// append to datasetElem
@@ -1603,18 +1683,23 @@ class EDIFileCreator extends Manager
 	{
 		$newNode = $newDoc->createElement($elmentTag);
 		foreach ($nodeArr as $nodeKey => $nodeValue) {
-			if ($nodeKey == 'nodeAttribute') {
-				foreach ($nodeValue as $attrKey => $attrValue) {
-					$newNode->setAttribute($attrKey, $attrValue);
+			// skip if nodeValue is empty
+			if (!$nodeValue) {
+				continue;
+			} else {
+				if ($nodeKey == 'nodeAttribute') {
+					foreach ($nodeValue as $attrKey => $attrValue) {
+						$newNode->setAttribute($attrKey, $attrValue);
+					}
+				} elseif (is_array($nodeValue)) {
+					$childNode = $this->getNode($newDoc, $nodeKey, $nodeValue);
+					$newNode->appendChild($childNode);
+				} elseif ($nodeKey == 'nodeValue') $newNode->appendChild($newDoc->createTextNode($nodeValue));
+				else {
+					$childElem = $newDoc->createElement($nodeKey);
+					$childElem->appendChild($newDoc->createTextNode($nodeValue));
+					$newNode->appendChild($childElem);
 				}
-			} elseif (is_array($nodeValue)) {
-				$childNode = $this->getNode($newDoc, $nodeKey, $nodeValue);
-				$newNode->appendChild($childNode);
-			} elseif ($nodeKey == 'nodeValue') $newNode->appendChild($newDoc->createTextNode($nodeValue));
-			else {
-				$childElem = $newDoc->createElement($nodeKey);
-				$childElem->appendChild($newDoc->createTextNode($nodeValue));
-				$newNode->appendChild($childElem);
 			}
 		}
 		return $newNode;
@@ -2009,6 +2094,10 @@ class EDIFileCreator extends Manager
 		}
 		return $retArr;
 	}
+
+	// Gets occurrence records taxonomic coverage
+	// public function getTaxonomicCoverage() {
+	// }
 
 	// Get dataTables
 	public function getDataTables()

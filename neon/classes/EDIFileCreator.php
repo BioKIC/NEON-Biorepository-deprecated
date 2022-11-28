@@ -1194,13 +1194,10 @@ class EDIFileCreator extends Manager
 					} else {
 						$emlArr['associatedParty'][0]['individualName']['surName'] = $r->lastname;
 					}
-					// $emlArr['associatedParty'][0]['individualName']['surName'] = $r->lastname;
-					if ($r->email) $emlArr['associatedParty'][0]['electronicMailAddress'] = $r->email;
-					$emlArr['associatedParty'][0]['role'] = 'datasetOriginator';
+					// $emlArr['associatedParty'][0]['individualName']['surName'] = $r->lastname;										
 					if ($r->ispublic) {
 						if ($r->institution) $emlArr['associatedParty'][0]['organizationName'] = $r->institution;
 						if ($r->title) $emlArr['associatedParty'][0]['positionName'] = $r->title;
-						if ($r->phone) $emlArr['associatedParty'][0]['phone'] = $r->phone;
 						if ($r->state) {
 							if ($r->department) $emlArr['associatedParty'][0]['address']['deliveryPoint'][] = $r->department;
 							if ($r->address) $emlArr['associatedParty'][0]['address']['deliveryPoint'][] = $r->address;
@@ -1209,7 +1206,10 @@ class EDIFileCreator extends Manager
 							if ($r->zip) $emlArr['associatedParty'][0]['address']['postalCode'] = $r->zip;
 							if ($r->country) $emlArr['associatedParty'][0]['address']['country'] = $r->country;
 						}
+						if ($r->phone) $emlArr['associatedParty'][0]['phone'] = $r->phone;
 					}
+					if ($r->email) $emlArr['associatedParty'][0]['electronicMailAddress'] = $r->email;
+					$emlArr['associatedParty'][0]['role'] = 'originator';
 					$rs->free();
 				}
 			}
@@ -1243,7 +1243,7 @@ class EDIFileCreator extends Manager
 		$emlArr['metadataProvider'][0]['organizationName'] = 'NEON Biorepository';
 		$emlArr['metadataProvider'][0]['electronicMailAddress'] = $GLOBALS['ADMIN_EMAIL'];
 		$emlArr['metadataProvider'][0]['onlineUrl'] = $urlPathPrefix;
-		$emlArr['metadataProvider'][0]['role'] = 'Data owner';
+		$emlArr['metadataProvider'][0]['role'] = 'distributor';
 
 		// $emlArr['pubDate'] = date("Y-m-d");
 
@@ -1269,26 +1269,33 @@ class EDIFileCreator extends Manager
 		$maintenanceDescription = 'This is where we describe how the data is updated at the Biorepository Data Portal';
 		$emlArr['maintenanceDescription'] = $maintenanceDescription;
 
+		// Contact (Biorepo)
+		$contactArr = [
+			'organizationName' => 'National Ecological Observatory Network Biorepository',
+			'electronicMailAddress' => 'biorepo@asu.edu'
+		];
+		$emlArr['contact'] = $contactArr;
+
 		// Project description
 		$projectDescription = [
 			'title' => 'National Ecological Observatory Network Biorepository',
-			'personnel' => [
-				'individualName' => [
-					'salutation' => 'Dr.',
-					'givenName' => 'Laura',
-					'surName' => 'Rocha Prado',
-				],
-				'organizationName' => 'Arizona State University',
-				'address' => [
-					'city' => 'Tempe',
-					'administrativeArea' => 'AZ',
-					'postalCode' => '85287',
-					'country' => 'USA',
-				],
-				'electronicMailAddress' => 'lauraprado@asu.edu',
-				'userId' => 'https://orcid.org/0000-0003-1237-2824',
-				'role' => 'Biodiversity Informatician',
-			],
+			// 'personnel' => [
+			// 	'individualName' => [
+			// 		'salutation' => 'Dr.',
+			// 		'givenName' => 'Laura',
+			// 		'surName' => 'Rocha Prado',
+			// 	],
+			// 	'organizationName' => 'Arizona State University',
+			// 	'address' => [
+			// 		'city' => 'Tempe',
+			// 		'administrativeArea' => 'AZ',
+			// 		'postalCode' => '85287',
+			// 		'country' => 'USA',
+			// 	],
+			// 	'electronicMailAddress' => 'lauraprado@asu.edu',
+			// 	'userId' => 'https://orcid.org/0000-0003-1237-2824',
+			// 	'role' => 'Biodiversity Informatician',
+			// ],
 			'abstract' => [
 				'para' => "The NEON Biorepository is managed by the Biodiversity Knowledge Integration Center (BioKIC) and Arizona State University's Natural History Collections in Tempe, Arizona.",
 			],
@@ -1579,7 +1586,12 @@ class EDIFileCreator extends Manager
 			$datasetElem->appendChild($maintElem);
 		}
 
-		// Contacts (Biorepo Team)
+		// Contact (Biorepo)
+		if (array_key_exists('contact', $emlArr)) {
+			$contactArr = $emlArr['contact'];
+			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
+			$datasetElem->appendChild($contactNode);
+		}
 
 		// Project
 		// if (isset($this->collArr[$collId]['project'])) $emlArr['project'] = $this->collArr[$collId]['project'];		

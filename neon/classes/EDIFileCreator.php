@@ -175,7 +175,12 @@ class EDIFileCreator extends Manager
 					$this->collArr[$r->collid]['description'] = $r->fulldescription;
 					$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
 					$this->collArr[$r->collid]['url'] = $r->url;
-					$this->collArr[$r->collid]['contact'][0]['individualName']['surName'] = $r->contact;
+					// if $r->contact is 'NEON Biorepository', then change from individualName to organizationName
+					if ($r->email === 'biorepo@asu.edu') {
+						$this->collArr[$r->collid]['contact'][0]['organizationName'] = 'NEON Biorepository';
+					} else {
+						$this->collArr[$r->collid]['contact'][0]['individualName']['surName'] = $r->contact;
+					}
 					$this->collArr[$r->collid]['contact'][0]['electronicMailAddress'] = $r->email;
 					$this->collArr[$r->collid]['guidtarget'] = $r->guidtarget;
 					$this->collArr[$r->collid]['dwcaurl'] = $r->dwcaurl;
@@ -231,8 +236,15 @@ class EDIFileCreator extends Manager
 				if ($r->contactJson) {
 					if ($contactArr = json_decode($r->contactJson, true)) {
 						foreach ($contactArr as $key => $cArr) {
-							$this->collArr[$r->collid]['contact'][$key]['individualName']['givenName'] = $cArr['firstName'];
-							$this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
+							// if $cArr['lastName] is "NEON Biorepository", then the key is 'organizationName' instead of 'individualName'
+							if (isset($cArr['lastName']) && $cArr['lastName'] == 'NEON Biorepository') {
+								$this->collArr[$r->collid]['contact'][$key]['organizationName'] = $cArr['lastName'];
+							} else {
+								$this->collArr[$r->collid]['contact'][$key]['individualName']['givenName'] = $cArr['firstName'];
+								$this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
+							}
+							// $this->collArr[$r->collid]['contact'][$key]['individualName']['givenName'] = $cArr['firstName'];
+							// $this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
 							if (isset($cArr['role']) && $cArr['role']) $this->collArr[$r->collid]['contact'][$key]['positionName'] = $cArr['role'];
 							if (isset($cArr['email']) && $cArr['email']) $this->collArr[$r->collid]['contact'][$key]['electronicMailAddress'] = $cArr['email'];
 							if (isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/' . $cArr['orcid'];
@@ -1151,7 +1163,10 @@ class EDIFileCreator extends Manager
 
 			if (isset($this->collArr[$collId]['contact'][0]['givenName'])) $emlArr['contact']['givenName'] = $this->collArr[$collId]['contact'][0]['givenName'];
 			if (isset($this->collArr[$collId]['contact'][0]['surName'])) $emlArr['contact']['surName'] = $this->collArr[$collId]['contact'][0]['surName'];
-			if (isset($this->collArr[$collId]['collname'])) $emlArr['contact']['organizationName'] = $this->collArr[$collId]['collname'];
+
+			// if (isset($this->collArr[$collId]['collname'])) $emlArr['contact']['organizationName'] = $this->collArr[$collId]['collname'];
+			if (isset($this->collArr[$collId]['contact'][0]['organizationName'])) $emlArr['contact'][0]['organizationName'] = $this->collArr[$collId]['contact'][0]['organizationName'];
+
 			if (isset($this->collArr[$collId]['phone'])) $emlArr['contact']['phone'] = $this->collArr[$collId]['phone'];
 			if (isset($this->collArr[$collId]['contact'][0]['electronicMailAddress'])) $emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
 			if (isset($this->collArr[$collId]['contact'][0]['userId'])) $emlArr['contact']['userId'] = $this->collArr[$collId]['contact'][0]['userId'];
@@ -1172,8 +1187,14 @@ class EDIFileCreator extends Manager
 				$sql = 'SELECT uid, lastname, firstname, title, institution, department, address, city, state, zip, country, phone, email, ispublic FROM users WHERE (uid = ' . $GLOBALS['SYMB_UID'] . ')';
 				$rs = $this->conn->query($sql);
 				if ($r = $rs->fetch_object()) {
-					$emlArr['associatedParty'][0]['individualName']['surName'] = $r->lastname;
 					if ($r->firstname) $emlArr['associatedParty'][0]['individualName']['givenName'] = $r->firstname;
+					// if $r->lastname is equal to "NEON Biorepository", change key from 'individualName' to 'organizationName'
+					if ($r->lastname == 'NEON Biorepository') {
+						$emlArr['associatedParty'][0]['organizationName'] = $r->lastname;
+					} else {
+						$emlArr['associatedParty'][0]['individualName']['surName'] = $r->lastname;
+					}
+					// $emlArr['associatedParty'][0]['individualName']['surName'] = $r->lastname;
 					if ($r->email) $emlArr['associatedParty'][0]['electronicMailAddress'] = $r->email;
 					$emlArr['associatedParty'][0]['role'] = 'datasetOriginator';
 					if ($r->ispublic) {
@@ -1312,7 +1333,7 @@ class EDIFileCreator extends Manager
 						$emlArr['associatedParty'][] = $cArr;
 					}
 					//Also set info within collMetadata element
-					$keepContactArr = array('userId', 'individualName', 'electronicMailAddress', 'positionName', 'onlineUrl');
+					$keepContactArr = array('userId', 'individualName', 'electronicMailAddress', 'positionName', 'onlineUrl', 'organizationName');
 					$emlArr['collMetadata'][$id]['contact'][$cnt] = array_intersect_key($cArr, array_flip($keepContactArr));
 				}
 			}
@@ -1355,7 +1376,7 @@ class EDIFileCreator extends Manager
 		$rootElem->setAttribute('xmlns:eml', 'https://eml.ecoinformatics.org/eml-2.2.0');
 		$rootElem->setAttribute('xmlns:dc', 'http://purl.org/dc/terms/');
 		$rootElem->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-		$rootElem->setAttribute('xsi:schemaLocation', 'https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd');
+		$rootElem->setAttribute('xsi:schemaLocation', 'https://eml.ecoinformatics.org/eml-2.2.0 https://eml.ecoinformatics.org/eml-2.2.0/eml.xsd');
 		// adds packageId from request
 		if (isset($_POST['packageid'])) {
 			$packageId = $_POST['packageid'];

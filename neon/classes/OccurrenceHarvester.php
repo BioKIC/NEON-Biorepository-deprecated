@@ -146,7 +146,7 @@ class OccurrenceHarvester{
 					}
 				}
 				else{
-					echo '</li><li style="margin-left:30px">ERROR: '.trim($this->errorStr, ';, ').'</li>';
+					echo '</li><li style="margin-left:30px">ABORT: '.trim($this->errorStr, ';, ').'</li>';
 				}
 				$cnt++;
 				flush();
@@ -1579,7 +1579,7 @@ class OccurrenceHarvester{
 	}
 
 	private function setSampleErrorMessage($id, $msg){
-		$sql = 'UPDATE NeonSample SET errorMessage = CONCAT_WS("; ",'.$this->cleanInStr($msg).') ';
+		$sql = 'UPDATE NeonSample SET errorMessage = CONCAT_WS("; ","'.$this->cleanInStr($msg).'") ';
 		if(!$msg) $sql = 'UPDATE NeonSample SET errorMessage = NULL ';
 		if(substr($id, 6) == 'occid:') $sql .= 'WHERE (occid = '.substr($id, 6).')';
 		else $sql .= 'WHERE (samplePK = '.$id.')';

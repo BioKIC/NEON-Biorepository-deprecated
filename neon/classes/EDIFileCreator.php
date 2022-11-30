@@ -1564,11 +1564,11 @@ class EDIFileCreator extends Manager
 		}
 		$datasetElem->appendChild($coverageElem);
 
-		if (array_key_exists('contact', $emlArr)) {
-			$contactArr = $emlArr['contact'];
-			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
-			$datasetElem->appendChild($contactNode);
-		}
+		// if (array_key_exists('contact', $emlArr)) {
+		// 	$contactArr = $emlArr['contact'];
+		// 	$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
+		// 	$datasetElem->appendChild($contactNode);
+		// }
 
 		// Taxonomic coverage
 

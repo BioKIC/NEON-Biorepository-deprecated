@@ -1279,23 +1279,25 @@ class EDIFileCreator extends Manager
 		// Project description
 		$projectDescription = [
 			'title' => 'National Ecological Observatory Network Biorepository',
-			// 'personnel' => [
-			// 	'individualName' => [
-			// 		'salutation' => 'Dr.',
-			// 		'givenName' => 'Laura',
-			// 		'surName' => 'Rocha Prado',
-			// 	],
-			// 	'organizationName' => 'Arizona State University',
-			// 	'address' => [
-			// 		'city' => 'Tempe',
-			// 		'administrativeArea' => 'AZ',
-			// 		'postalCode' => '85287',
-			// 		'country' => 'USA',
-			// 	],
-			// 	'electronicMailAddress' => 'lauraprado@asu.edu',
-			// 	'userId' => 'https://orcid.org/0000-0003-1237-2824',
-			// 	'role' => 'Biodiversity Informatician',
-			// ],
+			'personnel' => [
+				// 'individualName' => [
+				// 	'salutation' => 'Dr.',
+				// 	'givenName' => 'Laura',
+				// 	'surName' => 'Rocha Prado',
+				// ],
+				'organizationName' => 'Arizona State University',
+				'address' => [
+					'city' => 'Tempe',
+					'administrativeArea' => 'AZ',
+					'postalCode' => '85287',
+					'country' => 'USA',
+				],
+				'electronicMailAddress' => 'biorepo@asu.edu',
+				'onlineUrl' => 'https://biorepo.neonscience.org',
+				'role' => 'contentProvider',
+				// 'userId' => 'https://orcid.org/0000-0003-1237-2824',
+				// 'positionName' => 'Biodiversity Informatician',
+			],
 			'abstract' => [
 				'para' => "The NEON Biorepository is managed by the Biodiversity Knowledge Integration Center (BioKIC) and Arizona State University's Natural History Collections in Tempe, Arizona.",
 			],
@@ -1611,12 +1613,24 @@ class EDIFileCreator extends Manager
 
 			// add table fields and terms
 			$termsArr = $this->occurrenceFieldArr['terms'];
+
 			foreach ($termsArr as $key => $value) {
 				$attributeNode = $newDoc->createElement('attribute');
 				$attributeNode->appendChild($newDoc->createElement('attributeName', $key));
 				$attributeNode->appendChild($newDoc->createElement('attributeLabel', $key));
 				$attributeNode->appendChild($newDoc->createElement('attributeDefinition', $value));
 				$attributeNode->appendChild($newDoc->createElement('storageType', 'string'));
+				$measurementArr = [
+					'nominal' => [
+						'nonNumericDomain' => [
+							'textDomain' => [
+								'definition' => $value
+							]
+						]
+					]
+				];
+				$measurementScaleNode = $this->getNode($newDoc, 'measurementScale', $measurementArr);
+				$attributeNode->appendChild($measurementScaleNode);
 				$attributeListNode->appendChild($attributeNode);
 			}
 			// append to datasetElem

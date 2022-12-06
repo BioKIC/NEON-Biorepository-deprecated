@@ -1315,7 +1315,7 @@ class EDIFileCreator extends Manager
 		foreach ($this->collArr as $id => $collArr) {
 			//Collection metadata section (additionalMetadata)
 			$emlArr['collMetadata'][$id]['attr']['identifier'] = $collArr['collectionguid'];
-			$emlArr['collMetadata'][$id]['attr']['id'] = $id;
+			// $emlArr['collMetadata'][$id]['attr']['id'] = $id;
 			$emlArr['collMetadata'][$id]['alternateIdentifier'] = $urlPathPrefix . 'collections/misc/collprofiles.php?collid=' . $id;
 			$emlArr['collMetadata'][$id]['parentCollectionIdentifier'] = $collArr['instcode'];
 			$emlArr['collMetadata'][$id]['collectionIdentifier'] = $collArr['collcode'];
@@ -1648,7 +1648,7 @@ class EDIFileCreator extends Manager
 		}
 
 		$symbElem = $newDoc->createElement('symbiota');
-		if (isset($GLOBALS['PORTAL_GUID'])) $symbElem->setAttribute('id', $GLOBALS['PORTAL_GUID']);
+		if (isset($GLOBALS['PORTAL_GUID'])) $symbElem->setAttribute('identifier', $GLOBALS['PORTAL_GUID']);
 		$dateElem = $newDoc->createElement('dateStamp');
 		$dateElem->appendChild($newDoc->createTextNode(date("c")));
 		$symbElem->appendChild($dateElem);

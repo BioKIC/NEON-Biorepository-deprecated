@@ -726,8 +726,9 @@ class EDIFileCreator extends Manager
 		$fieldArr = $this->occurrenceFieldArr['fields'];
 		if ($this->schemaType == 'dwc' || $this->schemaType == 'pensoft') {
 			unset($fieldArr['localitySecurity']);
+			unset($fieldArr['collID']);
 		}
-		if ($this->schemaType == 'dwc' || $this->schemaType == 'pensoft' || $this->schemaType == 'backup') {
+		if ($this->schemaType == 'backup') {
 			unset($fieldArr['collID']);
 		}
 		if (!$this->collArr) {
@@ -793,8 +794,9 @@ class EDIFileCreator extends Manager
 				}
 				if ($this->schemaType == 'dwc') {
 					unset($r['localitySecurity']);
+					unset($r['collid']);
 				}
-				if ($this->schemaType == 'dwc' || $this->schemaType == 'backup') {
+				if ($this->schemaType == 'backup') {
 					unset($r['collid']);
 				}
 				if ($this->schemaType == 'pensoft') {
@@ -1005,8 +1007,9 @@ class EDIFileCreator extends Manager
 		$termArr = $this->occurrenceFieldArr['terms'];
 		if ($this->schemaType == 'dwc' || $this->schemaType == 'pensoft') {
 			unset($termArr['localitySecurity']);
+			unset($termArr['collID']);
 		}
-		if ($this->schemaType == 'dwc' || $this->schemaType == 'pensoft' || $this->schemaType == 'backup') {
+		if ($this->schemaType == 'backup') {
 			unset($termArr['collID']);
 		}
 		foreach ($termArr as $v) {
@@ -1613,6 +1616,12 @@ class EDIFileCreator extends Manager
 
 			// add table fields and terms
 			$termsArr = $this->occurrenceFieldArr['terms'];
+
+			// if schemaType in request is dwc, remove from termsArr localitySecurity and collid
+			if ($this->schemaType == 'dwc') {
+				unset($termsArr['localitySecurity']);
+				unset($termsArr['collID']);
+			}
 
 			foreach ($termsArr as $key => $value) {
 				$attributeNode = $newDoc->createElement('attribute');

@@ -39,11 +39,11 @@ if ($SYMB_UID) {
 	<meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
 	<meta http-equiv="Pragma" content="no-cache">
 	<?php
-	$activateJQuery = true;
 	include_once($SERVER_ROOT . '/includes/head.php');
 	?>
 	<script src="../../js/jquery.js?ver=20130917" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js?ver=20130917" type="text/javascript"></script>
+	<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script>
 		function toggleById(target) {
 			if (target != null) {

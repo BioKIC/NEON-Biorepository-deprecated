@@ -53,11 +53,11 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE; ?> Specimen Label Manager</title>
 		<?php
-		$activateJQuery = true;
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
 		<script src="../../js/jquery.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui.js" type="text/javascript"></script>
+		<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet">
 		<script type="text/javascript">
 			var activeProfileCode = "";
 

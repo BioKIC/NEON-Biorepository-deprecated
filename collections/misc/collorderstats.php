@@ -24,18 +24,11 @@ $_SESSION['statsOrderArr'] = $orderArr;
 		<meta name="keywords" content="Natural history collections yearly statistics" />
 		<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['ORDER_DIST'])?$LANG['ORDER_DIST']:'Order Distribution'); ?></title>
 		<?php
-		$activateJQuery = true;
-		if(file_exists($SERVER_ROOT.'/includes/head.php')){
-			include_once($SERVER_ROOT.'/includes/head.php');
-	    }
-		else{
-			echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-			echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-			echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-		}
+		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
 		<script type="text/javascript" src="../../js/jquery.js"></script>
 		<script type="text/javascript" src="../../js/jquery-ui.js"></script>
+		<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet">
 		<script type="text/javascript" src="../../js/symb/collections.index.js"></script>
 	</head>
 	<body>

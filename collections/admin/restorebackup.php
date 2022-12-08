@@ -83,7 +83,6 @@ if(array_key_exists("sf",$_POST)){
 }
 $duManager->loadFieldMap(true);
 ?>
-
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
@@ -94,6 +93,7 @@ $duManager->loadFieldMap(true);
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
+	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
 	<script>
 

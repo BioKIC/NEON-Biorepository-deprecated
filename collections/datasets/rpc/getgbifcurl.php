@@ -6,6 +6,12 @@ $type = array_key_exists('type',$_REQUEST)?$_REQUEST['type']:'';
 $url = array_key_exists('url',$_REQUEST)?$_REQUEST['url']:'';
 $data = array_key_exists('data',$_REQUEST)?$_REQUEST['data']:'';
 
+//quick fix for preventing LFI attack.  A proper/more rigourous fix should be found.
+$url = filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED);
+if(!(strncasecmp($url, 'http', 4) === 0)){
+        exit();
+}
+
 $result = '';
 $loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
 

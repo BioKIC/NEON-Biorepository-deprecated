@@ -81,7 +81,7 @@ if($isEditor){
 ?>
 <html>
 	<head>
-		<title>Comments Listing</title>
+		<title><?php echo $DEFAULT_TITLE.' '.$LANG['COMMENTS_LISTING']; ?></title>
 		<?php
 		$activateJQuery = false;
 		if(file_exists($SERVER_ROOT.'/includes/head.php')){

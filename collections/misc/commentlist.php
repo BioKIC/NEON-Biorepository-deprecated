@@ -102,16 +102,16 @@ if($isEditor){
 		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class="navpath">
-			<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
+			<a href="<?php echo $CLIENT_ROOT; ?>/index.php"><?php echo $LANG['HOME']; ?></a> &gt;&gt;
 			<?php
 			if($collMeta['colltype'] == 'General Observations'){
-				echo '<a href="../../profile/viewprofile.php?tabindex=1">Collection Management</a> &gt;&gt;';
+				echo '<a href="../../profile/viewprofile.php?tabindex=1">'.$LANG['COL_MANAGE'].'</a> &gt;&gt;';
 			}
 			else{
 				echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management</a> &gt;&gt;';
 			}
 			?>
-			<b>Occurrence Comment Listing</b>
+			<b><?php echo $LANG['OCC_COMMENTS_LISTING']; ?></b>
 		</div>
 		<?php
 		if($statusStr){
@@ -140,7 +140,7 @@ if($isEditor){
 					$hrefPrefix = 'commentlist.php?'.$urlVars."&start=";
 					$pageBar .= "<span style='margin:5px;'>\n";
 					if($endPage > 1){
-					    $pageBar .= "<span style='margin-right:5px;'><a href='".$hrefPrefix."0'>First Page</a> &lt;&lt;</span>";
+					    $pageBar .= "<span style='margin-right:5px;'><a href='".$hrefPrefix."0'>".$LANG['FIRST_PAGE']."</a> &lt;&lt;</span>";
 						for($x = $startPage; $x <= $endPage; $x++){
 						    if($currentPage != $x){
 						        $pageBar .= "<span style='margin-right:3px;margin-right:3px;'><a href='".$hrefPrefix.(($x-1)*$limit)."'>".$x."</a></span>";
@@ -156,7 +156,7 @@ if($isEditor){
 					$pageBar .= "</span>";
 					$endNum = $start + $limit;
 					if($endNum > $recCnt) $endNum = $recCnt;
-					$cntBar = ($start+1)."-".$endNum." of ".$recCnt.' comments';
+					$cntBar = ($start+1)."-".$endNum.' '.$LANG['OF'].' '.$recCnt.' '.$LANG['COMMENTS'];
 					echo "<div><hr/></div>\n";
 					echo '<div style="float:right;"><b>'.$pageBar.'</b></div>';
 					echo '<div><b>'.$cntBar.'</b></div>';
@@ -165,11 +165,11 @@ if($isEditor){
 				?>
 				<!-- Option box -->
 				<fieldset style="float:right;width:350px;margin:10px;">
-					<legend><b>Filter Options</b></legend>
+					<legend><b><?php echo $LANG['FILTER_OPT']; ?></b></legend>
 					<form name="optionform" action="commentlist.php" method="post">
 						<div>
 							<select name="uid" onchange="this.form.submit()">
-								<option value="0">All Commenters</option>
+								<option value="0"><?php echo $LANG['ALL_COMMENTERS']; ?></option>
 								<option value="0">------------------------</option>
 								<?php
 								$userArr = $commentManager->getCommentUsers($showAllGeneralObservations);
@@ -181,11 +181,11 @@ if($isEditor){
 						</div>
 						<?php
 						if($IS_ADMIN && $collMeta['colltype'] == 'General Observations'){
-							echo '<div><input name="showallgenobs" type="checkbox" value="1" onchange="this.form.submit()" '.($showAllGeneralObservations?'checked':'').' /> Display all general observations (SuperAdmin option only)</div>';
+							echo '<div><input name="showallgenobs" type="checkbox" value="1" onchange="this.form.submit()" '.($showAllGeneralObservations?'checked':'').' /> '.$LANG['DISP_ALL_GEN_OBS'].'</div>';
 						}
 						?>
 						<div>
-							Date:
+							<?php echo $LANG['DATE']; ?>:
 							<input name="tsstart" type="date" value="<?php echo $tsStart; ?>" onchange="this.form.submit()" title="Start date" />
 							- <input name="tsend" type="date" value="<?php echo $tsEnd; ?>" onchange="this.form.submit()" title="End date" />
 						</div>

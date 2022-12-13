@@ -3,20 +3,30 @@ include_once('../../../config/symbini.php');
 include_once('../../../config/dbconnection.php');
 
 $type = array_key_exists('type',$_REQUEST)?$_REQUEST['type']:'';
-$url = array_key_exists('url',$_REQUEST)?$_REQUEST['url']:'';
 $data = array_key_exists('data',$_REQUEST)?$_REQUEST['data']:'';
 
-//quick fix for preventing LFI attack.  A proper/more rigourous fix should be found.
-$url = filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED);
-if(!(strncasecmp($url, 'http', 4) === 0)){
-        exit();
+$endpoint = '';
+if(array_key_exists('endpoint',$data)){
+    $endpoint = $data['endpoint'];
+    unset($data['endpoint']);
+}
+
+$GBIFdatasetKey = '';
+if(array_key_exists('datasetkey',$data)){
+    $GBIFdatasetKey = $data['datasetkey'];
+    unset($data['datasetkey']);
+}
+
+$GBIF_url = 'https://api.gbif.org/v1/' . $endpoint;
+if(!empty($GBIFdatasetKey)){
+    $GBIF_url .= '/'.$GBIFdatasetKey . +'/endpoint';
 }
 
 $result = '';
 $loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
 
-if($type && $url) {
-    $ch = curl_init($url);
+if($type && filter_var($GBIF_url, FILTER_VALIDATE_URL)) {
+    $ch = curl_init($GBIF_url);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $type);
     if($data){
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);

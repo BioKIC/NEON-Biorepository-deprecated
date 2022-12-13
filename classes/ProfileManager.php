@@ -199,7 +199,10 @@ class ProfileManager extends Manager{
 			if($uid){
 				$subject = 'RE: Password reset';
 				$serverPath = $this->getDomain().$GLOBALS['CLIENT_ROOT'];
-				$from = 'Reset Request <'.$GLOBALS["SYSTEM_EMAIL"].'>';
+				$from = '';
+				if (array_key_exists("SYSTEM_EMAIL", $GLOBALS) && !empty($GLOBALS["SYSTEM_EMAIL"])){
+					$from = 'Reset Request <'.$GLOBALS["SYSTEM_EMAIL"].'>';
+				}
 				$body = 'Your '.$GLOBALS['DEFAULT_TITLE'].' password has been reset to: '.$newPassword.'<br/><br/> '.
 					'After logging in, you can change your password by clicking on the My Profile link within the site menu and then selecting the Edit Profile tab. '.
 					'If you have problems, contact the System Administrator: '.$GLOBALS['ADMIN_EMAIL'].'<br/><br/>'.

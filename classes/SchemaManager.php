@@ -1,7 +1,7 @@
 <?php
 include_once($SERVER_ROOT.'/classes/Manager.php');
 
-class InstallationManager extends Manager{
+class SchemaManager extends Manager{
 
 	private $adminConn;
 	private $currentVersion;

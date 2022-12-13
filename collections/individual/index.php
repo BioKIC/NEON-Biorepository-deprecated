@@ -165,7 +165,7 @@ $traitArr = $indManager->getTraitArr();
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<link href="../../css/symb/popup.css" type="text/css" rel="stylesheet" />
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet" />
+	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet" />
 	<link href="<?php echo $CSS_BASE_PATH; ?>/collections/individual/index.css?ver=<?php echo $CSS_VERSION_LOCAL; ?>" type="text/css" rel="stylesheet" />
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>

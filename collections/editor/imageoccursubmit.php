@@ -55,7 +55,7 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
     ?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/symb/collections.imageoccursubmit.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/shared.js?ver=141119" type="text/javascript"></script>

@@ -52,7 +52,7 @@ $clMetaArr = $clManager->getClMetadata();
 	?>
 	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui.js"></script>
-	<link href="../css/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script type="text/javascript">
 		var clid = <?php echo $clid; ?>;
 		var tabIndex = <?php echo $tabIndex; ?>;

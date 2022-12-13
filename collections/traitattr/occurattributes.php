@@ -91,7 +91,7 @@ if($traitID){
 		?>
 		<script src="../../js/jquery.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-		<link href="<?php echo $CLIENT_ROOT; ?>/css/jquery-ui.css" type="text/css" rel="stylesheet">
+		<link href="<?php echo $CLIENT_ROOT; ?>/css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 		<script src="../../js/jquery.imagetool-1.7.js?ver=160102" type="text/javascript"></script>
 		<script type="text/javascript">
 			var activeImgIndex = 1;

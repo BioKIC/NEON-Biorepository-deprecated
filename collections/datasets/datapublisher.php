@@ -80,7 +80,7 @@ if ($isEditor) {
 	</style>
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script type="text/javascript" src="../../js/symb/collections.gbifpublisher.js?ver=4"></script>
 	<script type="text/javascript">
 		function toggle(target) {

@@ -52,7 +52,7 @@ if($isEditor){
 		?>
 		<script src="../../js/jquery.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-		<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
+		<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 		<script type="text/javascript">
 			function initScinameAutocomplete(f){
 				$( f.sciname ).autocomplete({

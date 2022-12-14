@@ -10,7 +10,7 @@ $matchOnWords = array_key_exists('matchonwords', $_POST) ? filter_var($_POST['ma
 $displayFullTree = array_key_exists('displayfulltree', $_REQUEST) ? filter_var($_REQUEST['displayfulltree'], FILTER_SANITIZE_NUMBER_INT) : 0;
 $displaySubGenera = array_key_exists('displaysubgenera', $_REQUEST) ? filter_var($_REQUEST['displaysubgenera'], FILTER_SANITIZE_NUMBER_INT) : 0;
 $taxAuthId = array_key_exists('taxauthid', $_REQUEST) ? filter_var($_REQUEST['taxauthid'], FILTER_SANITIZE_NUMBER_INT) : 1;
-$statusStr = array_key_exists('statusstr', $_REQUEST) ? filter_var($_REQUEST['statusstr'], FILTER_SANITIZE_STRING : '';
+$statusStr = array_key_exists('statusstr', $_REQUEST) ? filter_var($_REQUEST['statusstr'], FILTER_SANITIZE_STRING) : '';
 
 if(!$target) $matchOnWords = 1;
 $taxonDisplayObj = new TaxonomyDisplayManager();

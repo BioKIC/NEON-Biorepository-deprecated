@@ -104,7 +104,7 @@ $clArray = $clManager->getMetaData();
 	?>
 	<script src="../js/jquery.js type="text/javascript""></script>
 	<script src="../js/jquery-ui.js type="text/javascript""></script>
-	<link href="../css/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../js/tinymce/tinymce.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		var clid = <?php echo $clid; ?>;

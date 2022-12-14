@@ -45,7 +45,7 @@ elseif($uploadType == $DIRECTUPLOAD || $uploadType == $STOREDPROCEDURE || $uploa
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
 	<script>
 		function verifyFileUploadForm(f){

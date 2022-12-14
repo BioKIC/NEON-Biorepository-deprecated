@@ -101,7 +101,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
-	<link href="../css/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<link href="<?php echo $CSS_BASE_PATH; ?>/checklist.css?ver=1" type="text/css" rel="stylesheet" />
 	<script type="text/javascript">
 		<?php

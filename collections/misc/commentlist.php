@@ -1,8 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceSupport.php');
-include_once($SERVER_ROOT.'/content/lang/collections/misc/commentlist.'.$LANG_TAG.'.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/misc/commentlist.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/misc/commentlist.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/collections/misc/commentlist.en.php');header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: '.$CLIENT_ROOT.'/profile/index.php?refurl=../collections/misc/commentlist.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
@@ -191,13 +191,13 @@ if($isEditor){
 							- <input name="tsend" type="date" value="<?php echo $tsEnd; ?>" onchange="this.form.submit()" title="End date" />
 						</div>
 						<div style="float:right;margin-top:60px;">
-							<input type="submit" name="submitbutton" value="Refresh List" />
+							<button type="submit" name="submitbutton" value="Refresh List"><?php echo $LANG['REFRESH_LIST']; ?></button>
 						</div>
 						<div>
-							<input name="rs" type="radio" value="1" <?php echo ($rs==1?'checked':''); ?> onchange="this.form.submit()" /> Public <br/>
-							<input name="rs" type="radio" value="2" <?php echo ($rs==2?'checked':''); ?> onchange="this.form.submit()" /> Non-public <br/>
-							<input name="rs" type="radio" value="3" <?php echo ($rs==3?'checked':''); ?> onchange="this.form.submit()" /> Reviewed <br/>
-							<input name="rs" type="radio" value="0" <?php echo (!$rs?'checked':''); ?> onchange="this.form.submit()" /> All
+							<input name="rs" type="radio" value="1" <?php echo ($rs==1?'checked':''); ?> onchange="this.form.submit()" /> <?php echo $LANG['PUBLIC']; ?> <br/>
+							<input name="rs" type="radio" value="2" <?php echo ($rs==2?'checked':''); ?> onchange="this.form.submit()" /> <?php echo $LANG['NON-PUBLIC']; ?> <br/>
+							<input name="rs" type="radio" value="3" <?php echo ($rs==3?'checked':''); ?> onchange="this.form.submit()" /> <?php echo $LANG['REVIEWED']; ?> <br/>
+							<input name="rs" type="radio" value="0" <?php echo (!$rs?'checked':''); ?> onchange="this.form.submit()" /> <?php echo $LANG['ALL']; ?>
 						</div>
 						<div>
 							<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
@@ -210,12 +210,12 @@ if($isEditor){
 						echo '<div style="margin:15px;">';
 						echo '<div style="margin-bottom:10px;"><a href="../individual/index.php?occid='.$cArr['occid'].'" target="_blank">'.$cArr['occurstr'].'</a></div>';
 						echo '<div>';
-						echo '<b>'.$userArr[$cArr['uid']].'</b> <span style="color:gray;">posted on '.$cArr['ts'].'</span>';
+						echo '<b>'.$userArr[$cArr['uid']].'</b> <span style="color:gray;">'.$LANG['POSTED_ON'].' '.$cArr['ts'].'</span>';
 						if($cArr['rs'] == 2 || $cArr['rs'] === '0'){
-							echo '<span style="margin-left:20px;"><b>Status:</b> </span><span style="color:red;" title="viewable by administrators only)">Not Public</span>';
+							echo '<span style="margin-left:20px;"><b>'.$LANG['STATUS'].':</b> </span><span style="color:red;" title="'.$LANG['VIEW_BY_ADMIN'].')">'.$LANG['NOT_PUBLIC'].'</span>';
 						}
 						elseif($cArr['rs'] == 3){
-							echo '<span style="margin-left:20px;"><b>Status:</b> </span><span style="color:orange;">Reviewed</span>';
+							echo '<span style="margin-left:20px;"><b>Status:</b> </span><span style="color:orange;">'.$LANG['REVIEWED'].'</span>';
 						}
 						echo '</div>';
 						echo '<div style="margin:10px;">'.$cArr['str'].'</div>';
@@ -231,28 +231,28 @@ if($isEditor){
 								<input name="rs" type="hidden" value="<?php echo $rs; ?>" />
 								<?php
 								if($cArr['rs'] == 2){
-									echo '<input name="formsubmit" type="submit" value="Make Comment Public" />';
+									echo '<button name="formsubmit" type="submit" value="Make Comment Public" >'.$LANG['MAKE_PUBLIC'].'</button>';
 								}
 								else{
-									echo '<input name="formsubmit" type="submit" value="Hide Comment from Public" />';
+									echo '<button name="formsubmit" type="submit" value="Hide Comment from Public" >'.$LANG['HIDE_PUBLIC'].'</button>';
 								}
 								if($cArr['rs'] == 3){
 									?>
 									<span style="margin-left:20px;">
-										<input name="formsubmit" type="submit" value="Mark as Unreviewed" />
+										<button name="formsubmit" type="submit" value="Mark as Unreviewed" ><?php echo $LANG['MARK_UNREVIEWED']; ?></button>
 									</span>
 									<?php
 								}
 								else{
 									?>
 									<span style="margin-left:20px;">
-										<input name="formsubmit" type="submit" value="Mark as Reviewed" />
+										<button name="formsubmit" type="submit" value="Mark as Reviewed" ><?php echo $LANG['MARK_REVIEWED']; ?></button>
 									</span>
 									<?php
 								}
 								?>
 								<span style="margin-left:20px;">
-									<input name="formsubmit" type="submit" value="Delete Comment"  onclick="return confirm('Are you sure you want to delete this comment?')" />
+									<button name="formsubmit" type="submit" value="Delete Comment"  onclick="return confirm('<?php echo $LANG['SURE_DELETE_COMMENT']; ?>')" ><?php echo $LANG['DEL_COMMENT']; ?></button>
 								</span>
 								<input name="comid" type="hidden" value="<?php echo $comid; ?>" />
 							</form>
@@ -266,13 +266,13 @@ if($isEditor){
 				}
 				else{
 					echo '<div style="font-weight:bold;font-size:120%;margin:20px;">';
-					echo 'No comments are available matching the defined Filter Options. <br/>';
-					if($rs == 1) echo 'Note that only public, non-reviewed comments are currently being displayed. <br/>Modify form to the right to show all comments.';
+					echo $LANG['NO_COMMENTS_MATCHING'].'. <br/>';
+					if($rs == 1) echo $LANG['ONLY_PUBLIC_NONREVIEWED'];
 					echo '</div>';
 				}
 			}
 			else{
-				echo '<div>ERROR: collid is null</div>';
+				echo '<div>'.$LANG['COLLID_NULL'].'</div>';
 			}
 			?>
 		</div>

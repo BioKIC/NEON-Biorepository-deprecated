@@ -49,6 +49,7 @@ if(isset($ACTIVATE_GEOLOCATION) && $ACTIVATE_GEOLOCATION == 1) $activateGeolocat
 	<style type="text/css">
 		.panel-content a{ outline-color: transparent; font-size: 12px; font-weight: normal; }
 		.ui-front { z-index: 9999999 !important; }
+		#map { position: fixed !important; height: 100% !important; width: 100% !important; }
 	</style>
 	<script src="../../js/jquery-1.10.2.min.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>

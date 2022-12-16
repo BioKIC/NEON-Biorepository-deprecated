@@ -3,7 +3,7 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TPEditorManager.php');
 include_once($SERVER_ROOT.'/classes/TPDescEditorManager.php');
 include_once($SERVER_ROOT.'/classes/TPImageEditorManager.php');
-if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/taxa/profile/tpeditor.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/taxa/profile/tpeditor.'.$LANG_TAG.'.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/taxa/profile/tpeditor.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/taxa/profile/tpeditor.'.$LANG_TAG.'.php');
 else include_once($SERVER_ROOT.'/content/lang/taxa/profile/tpeditor.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 

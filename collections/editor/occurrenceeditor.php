@@ -721,6 +721,17 @@ else{
 										<fieldset>
 											<legend><?php echo (isset($LANG['COLLECTOR_INFO'])?$LANG['COLLECTOR_INFO']:'Collector Info'); ?></legend>
 											<?php
+
+											// If it's a new record in a general observation collection, get the person info to autofill name, country & state
+											if($isGenObs && !$occId) {
+												$pHandler = new ProfileManager();
+												$pHandler->setUid($SYMB_UID);
+												$user = $pHandler->getPerson();
+												$occArr['recordedby'] = $user->getFirstName() . ' ' . $user->getLastName();
+												$occArr['country'] = $user->getCountry();
+												$occArr['stateprovince'] = $user->getState();
+											}
+
 											if($occId){
 												if($fragArr || $specImgArr){
 													?>

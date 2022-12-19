@@ -3,7 +3,7 @@
 		<nav class="top-login">
 			<?php
 			if ($USER_DISPLAY_NAME) {
-			?>
+				?>
 				<span>
 					Welcome <?php echo $USER_DISPLAY_NAME; ?>!
 				</span>
@@ -13,9 +13,9 @@
 				<span class="button button-secondary">
 					<a href="<?php echo $CLIENT_ROOT; ?>/profile/index.php?submit=logout">Log out</a>
 				</span>
-			<?php
+				<?php
 			} else {
-			?>
+				?>
 				<span>
 					<a href="#">
 						Contact Us
@@ -26,10 +26,9 @@
 						Log in
 					</a>
 				</span>
-			<?php
+				<?php
 			}
 			?>
-
 		</nav>
 		<div class="top-brand">
 			<a href="https://symbiota.org">

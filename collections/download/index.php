@@ -22,13 +22,13 @@ $dwcManager = new DwcArchiverCore();
 <head>
 	<title>Collections Search Download</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script>
 		$(document).ready(function() {
 			var dialogArr = new Array("schemanative","schemadwc");

@@ -459,7 +459,7 @@ else{
     }
     else{
 		?>
-		<link href="../../css/symb/occurrenceeditor.css?ver=6" type="text/css" rel="stylesheet" id="editorCssLink" />
+		<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collections/editor/occurrenceeditor.css?ver=6.css" type="text/css" rel="stylesheet" id="editorCssLink" >
 		<?php
 		if(isset($CSSARR)){
 			foreach($CSSARR as $cssVal){

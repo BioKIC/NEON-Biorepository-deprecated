@@ -305,7 +305,7 @@ $isGeneralObservation = (($labelManager->getMetaDataTerm('colltype') == 'General
 							<div class="field-block">
 								<div class="label">Default CSS:</div>
 								<div class="field-block">
-									<input name="defaultCss" type="text" value="<?php echo (isset($formatArr['defaultCss'])?$formatArr['defaultCss']:'../../css/symb/labelhelpers.css'); ?>" />
+									<input name="defaultCss" type="text" value="<?php echo (isset($formatArr['defaultCss']) ? $formatArr['defaultCss'] : $CSS_BASE_PATH . '/symbiota/collections/reports/labelhelpers.css'); ?>" />
 								</div>
 							</div>
 							<div class="field-block">

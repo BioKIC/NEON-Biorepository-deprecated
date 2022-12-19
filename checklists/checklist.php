@@ -99,9 +99,9 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/checklists/checklist.css" type="text/css" rel="stylesheet" />
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
-	<link href="<?php echo $CSS_BASE_PATH; ?>/checklist.css?ver=1" type="text/css" rel="stylesheet" />
 	<script type="text/javascript">
 		<?php
 		if($clid) echo 'var clid = '.$clid.';'."\n";

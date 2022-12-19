@@ -41,7 +41,7 @@ if(isset($_COOKIE['SymbiotaCrumb']) && !$PARAMS_ARR){
 	}
 }
 
-if(!isset($CSS_BASE_PATH)) $CSS_BASE_PATH = $CLIENT_ROOT . '/css/';
+if(!isset($CSS_BASE_PATH) || $CSS_BASE_PATH == $CLIENT_ROOT . '/css/symb') $CSS_BASE_PATH = $CLIENT_ROOT . '/css/';
 if(!isset($CSS_VERSION_RELEASE)) $CSS_BASE_PATH .= 'v202209';
 
 $CSS_VERSION = '13';

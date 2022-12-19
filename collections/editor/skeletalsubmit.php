@@ -33,12 +33,12 @@ if($collid){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.$LANG['OCC_SKEL_SUBMIT']; ?></title>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/symb/collections.editor.skeletal.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/shared.js?ver=1" type="text/javascript"></script>
 	<style type="text/css">

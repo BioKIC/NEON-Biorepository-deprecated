@@ -16,11 +16,11 @@
 	clear: both;
 }
 
-.media-div{
+#media-div{
 	float: right;
 }
 
-.media-div div{
+#media-div div{
 	float: right;
 	margin-right: 10px;	
 }

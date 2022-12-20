@@ -156,7 +156,7 @@ $traitArr = $indManager->getTraitArr();
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collections/individual/index.css" type="text/css" rel="stylesheet" >
+	<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collections/individual/index.css?ver=1" type="text/css" rel="stylesheet" >
 	<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collections/individual/popup.css" type="text/css" rel="stylesheet" >
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>

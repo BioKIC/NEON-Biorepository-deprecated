@@ -1,6 +1,5 @@
 <?php
 include_once('../../../config/symbini.php');
-include_once('../../../config/dbconnection.php');
 
 $type = array_key_exists('type',$_REQUEST)?$_REQUEST['type']:'';
 $data = array_key_exists('data',$_REQUEST)?$_REQUEST['data']:'';

@@ -10,6 +10,7 @@ class SpecUploadDwca extends SpecUploadBase{
 	private $encoding = 'utf-8';
 	private $loopCnt = 0;
 	private $sourcePortalIndex = 0;
+	private $publicationGuid = null;
 	private $coreIdArr = array();
 
 	function __construct() {
@@ -33,6 +34,12 @@ class SpecUploadDwca extends SpecUploadBase{
 				//If IPT resource URL was provided, adjust ULR to point to the Archive file
 				if(strpos($this->path,'/resource.do')) $this->path = str_replace('/resource.do','/archive.do',$this->path);
 				elseif(strpos($this->path,'/resource?')) $this->path = str_replace('/resource','/archive.do',$this->path);
+			}
+			elseif($this->uploadType == $this->SYMBIOTA){
+				if(strpos($this->path, 'webservices/dwc/dwcapubhandler.php')){
+					$this->publicationGuid = UuidFactory::getUuidV4();
+					$this->path .= '&publicationguid='.$this->publicationGuid.'&portalguid='.$GLOBALS['PORTAL_GUID'];
+				}
 			}
 			if((substr($this->path,0,1) == '/' || preg_match('/^[A-Za-z]{1}:/', $this->path)) && is_dir($this->path)){
 				//Path is a local directory, possible manually extracted local DWCA directory
@@ -82,7 +89,7 @@ class SpecUploadDwca extends SpecUploadBase{
 	}
 
 	private function createTargetSubDir(){
-		$localFolder = $this->collMetadataArr["institutioncode"].($this->collMetadataArr["collectioncode"]?$this->collMetadataArr["collectioncode"].'_':'').time().'/';
+		$localFolder = str_replace(' ','',$this->collMetadataArr['institutioncode'].($this->collMetadataArr['collectioncode']?$this->collMetadataArr['collectioncode'].'_':'')).time().'/';
 		if(mkdir($this->uploadTargetPath.$localFolder)) $this->uploadTargetPath .= $localFolder;
 	}
 
@@ -122,7 +129,7 @@ class SpecUploadDwca extends SpecUploadBase{
 		$status = false;
 		if($this->readMetaFile()){
 			if(isset($this->metaArr['occur']['fields'])){
-				$this->sourceArr = $this->metaArr['occur']['fields'];
+				$this->occurSourceArr = $this->metaArr['occur']['fields'];
 				//Set identification and image source fields
 				if(isset($this->metaArr['ident']['fields'])){
 					$this->identSourceArr = $this->metaArr['ident']['fields'];
@@ -140,7 +147,7 @@ class SpecUploadDwca extends SpecUploadBase{
 			$this->errorStr = 'OccurrencesMissing';
 			return false;
 		}
-		if(!file_exists($this->uploadTargetPath.'images.csv')){
+		if(!file_exists($this->uploadTargetPath.'multimedia.csv') && !file_exists($this->uploadTargetPath.'images.csv')){
 			$this->errorStr = 'ImagesMissing';
 			return false;
 		}
@@ -383,7 +390,7 @@ class SpecUploadDwca extends SpecUploadBase{
 				if($node = $symbiotaNodeList->item(0)){
 					if($node->hasAttribute('id')){
 						if($symbiotaGuid = $node->getAttribute('id')){
-							if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX'])){
+							if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX']) && $this->uploadType != $this->RESTOREBACKUP){
 								$portalManager = new PortalIndex();
 								if($portalArr = $portalManager->getPortalIndexArr($symbiotaGuid)){
 									$this->sourcePortalIndex = key($portalArr);
@@ -418,7 +425,7 @@ class SpecUploadDwca extends SpecUploadBase{
 							break;
 						}
 					}
-					elseif(is_dir($this->uploadTargetPath.$pathFrag) && $item != '.' && $item != '..'){
+					elseif(is_dir($this->uploadTargetPath.$pathFrag.$item) && $item != '.' && $item != '..'){
 						$pathFrag .= $item.'/';
 						$this->locateBaseFolder($pathFrag);
 					}
@@ -469,9 +476,9 @@ class SpecUploadDwca extends SpecUploadBase{
 
 					$cset = strtolower(str_replace('-','',$CHARSET));
 					//Set source array
-					$this->sourceArr = array();
+					$this->occurSourceArr = array();
 					foreach($this->metaArr['occur']['fields'] as $k => $v){
-						$this->sourceArr[$k] = strtolower($v);
+						$this->occurSourceArr[$k] = strtolower($v);
 					}
 					//Set custom filters if they haven't yet been set
 					if($this->queryStr && !$this->filterArr){
@@ -490,12 +497,12 @@ class SpecUploadDwca extends SpecUploadBase{
 					//Grab data
 					$this->transferCount = 0;
 					if($this->uploadType == $this->RESTOREBACKUP){
-						$this->fieldMap['dbpk']['field'] = 'sourceprimarykey-dbpk';
-						$this->fieldMap['occid']['field'] = 'id';
-						$this->fieldMap['sciname']['field'] = 'scientificname';
+						$this->occurFieldMap['dbpk']['field'] = 'sourceprimarykey-dbpk';
+						$this->occurFieldMap['occid']['field'] = 'id';
+						$this->occurFieldMap['sciname']['field'] = 'scientificname';
 					}
-			 		if(!isset($this->fieldMap['dbpk']['field']) || !in_array($this->fieldMap['dbpk']['field'],$this->sourceArr)){
-						$this->fieldMap['dbpk']['field'] = strtolower($this->metaArr['occur']['fields'][$id]);
+			 		if(!isset($this->occurFieldMap['dbpk']['field']) || !in_array($this->occurFieldMap['dbpk']['field'],$this->occurSourceArr)){
+						$this->occurFieldMap['dbpk']['field'] = strtolower($this->metaArr['occur']['fields'][$id]);
 					}
 					$collName = $this->collMetadataArr["name"].' ('.$this->collMetadataArr["institutioncode"];
 					if($this->collMetadataArr["collectioncode"]) $collName .= '-'.$this->collMetadataArr["collectioncode"];
@@ -507,7 +514,7 @@ class SpecUploadDwca extends SpecUploadBase{
 					while($recordArr = $this->getRecordArr($fh)){
 						$addRecord = true;
 						foreach($this->filterArr as $fieldName => $condArr){
-							$filterIndexArr = array_keys($this->sourceArr,$fieldName);
+							$filterIndexArr = array_keys($this->occurSourceArr,$fieldName);
 							$filterIndex = array_shift($filterIndexArr);
 							$targetValue = '';
 							if(array_key_exists($filterIndex, $recordArr)) $targetValue = trim(strtolower($recordArr[$filterIndex]));
@@ -587,10 +594,10 @@ class SpecUploadDwca extends SpecUploadBase{
 								$this->coreIdArr[$recordArr[0]] = '';
 							}
 							$recMap = Array();
-							foreach($this->fieldMap as $symbField => $sMap){
+							foreach($this->occurFieldMap as $symbField => $sMap){
 								if(substr($symbField,0,8) != 'unmapped'){
 									//Apply source filter if they exist
-									$indexArr = array_keys($this->sourceArr,$sMap['field']);
+									$indexArr = array_keys($this->occurSourceArr, $sMap['field']);
 									$index = array_shift($indexArr);
 									if(array_key_exists($index,$recordArr)){
 										$valueStr = trim($recordArr[$index]);
@@ -721,7 +728,7 @@ class SpecUploadDwca extends SpecUploadBase{
 		$dirPath = $this->uploadTargetPath.$pathFrag;
 		if(!$pathFrag){
 			//If files were not uploaded to temp directory, don't delete
-			$this->setUploadTargetPath();
+			//$this->setUploadTargetPath();
 			if(stripos($dirPath,$this->uploadTargetPath) === false){
 				return false;
 			}
@@ -734,7 +741,7 @@ class SpecUploadDwca extends SpecUploadBase{
 							unlink($dirPath.$item);
 						}
 					}
-					elseif(is_dir($dirPath) && $item != '.' && $item != '..'){
+					elseif(is_dir($dirPath.$item) && $item != '.' && $item != '..'){
 						$pathFrag .= $item.'/';
 						$this->removeFiles($pathFrag);
 					}
@@ -879,7 +886,8 @@ class SpecUploadDwca extends SpecUploadBase{
 		if($GLOBALS['QUICK_HOST_ENTRY_IS_ACTIVE']) $this->transferHostAssociations();
 		if($this->sourcePortalIndex && $this->collMetadataArr['managementtype'] == 'Snapshot'){
 			$portalManager = new PortalIndex();
-			$pubID = $portalManager->createPortalPublication(array('pubTitle' => 'Symbiota Portal Index import - '.date('Y-m-d'), 'portalID' => $this->sourcePortalIndex, 'collid' => $this->collId, 'direction' => 'import', 'lastDateUpdate' => date('Y-m-d h:i:s')));
+			$pubArr = array('pubTitle' => 'Symbiota Portal Index import - '.date('Y-m-d'), 'portalID' => $this->sourcePortalIndex, 'collid' => $this->collId, 'direction' => 'import', 'lastDateUpdate' => date('Y-m-d h:i:s'), 'guid' => $this->publicationGuid);
+			$pubID = $portalManager->createPortalPublication($pubArr);
 			if($pubID){
 				if($portalManager->crossMapUploadedOccurrences($pubID, $this->collId)){
 					$this->outputMsg('<li>Occurrences cross-mapped to Symbiota source portal</li> ');
@@ -888,6 +896,7 @@ class SpecUploadDwca extends SpecUploadBase{
 					$this->outputMsg('<li>ERROR cross-mapping occurrences to Symbiota source portal: '.$portalManager->getErrorMessage().'</li> ');
 				}
 			}
+			else $this->outputMsg('<li>ERROR cross-mapping occurrences: '.$portalManager->getErrorMessage().'</li> ');
 		}
 		$this->finalCleanup();
 		$this->outputMsg('<li style="">Upload Procedure Complete ('.date('Y-m-d h:i:s A').')!</li>');
@@ -964,6 +973,14 @@ class SpecUploadDwca extends SpecUploadBase{
 
 	public function getSourcePortalIndex(){
 		return $this->sourcePortalIndex;
+	}
+
+	public function setPublicationGuid($guid){
+		if(UuidFactory::is_valid($guid)) $this->publicationGuid = $guid;
+	}
+
+	public function getPublicationGuid(){
+		return $this->publicationGuid;
 	}
 }
 ?>

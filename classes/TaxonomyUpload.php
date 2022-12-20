@@ -79,6 +79,7 @@ class TaxonomyUpload{
 			foreach($taxonUnitArr as $tuKey => $tuVal){
 				if($tuKey > 219) unset($taxonUnitArr[$tuKey]);
 			}
+			$scinameInputKey = false;
 			$uploadTaxaIndexArr = array();		//Array of index values associated with uploadtaxa table; array(index => targetName)
 			$taxonUnitIndexArr = array();		//Array of index values associated with taxonunits table;
 			foreach($headerArr as $k => $sourceName){
@@ -89,6 +90,7 @@ class TaxonomyUpload{
 						//Is a taxa table target field
 						$uploadTaxaIndexArr[$k] = $targetName;
 					}
+					if($targetName == 'scinameinput') $scinameInputKey = $k;
 					if($targetName == 'unitname1') $targetName = 'genus';
 					if(in_array($targetName,$taxonUnitArr)){
 						$taxonUnitIndexArr[$k] = array_search($targetName,$taxonUnitArr);  //array(recIndex => rankid)
@@ -130,13 +132,14 @@ class TaxonomyUpload{
 									}
 								}
 							}
+							if($recordArr[$scinameInputKey] == $taxonStr) break;
 							$parentStr = $taxonStr;
 						}
 					}
 					if($parentIndex){
 						$recordArr[$parentIndex] = 'PENDING:'.$parentStr;
 					}
-					if(in_array("scinameinput",$fieldMap)){
+					if(in_array('scinameinput',$fieldMap)){
 						//Load relavent fields into uploadtaxa table
 						$inputArr = array();
 						foreach($uploadTaxaIndexArr as $recIndex => $targetField){
@@ -198,6 +201,9 @@ class TaxonomyUpload{
 							foreach($sciArr as $sciKey => $sciValue){
 								if(!array_key_exists($sciKey, $inputArr) && $sciValue) $inputArr[$sciKey] = $sciValue;
 							}
+							if(isset($inputArr['unitind3']) && $inputArr['unitind3'] && isset($inputArr['unitname3']) && $inputArr['unitname3']){
+								if(stripos($inputArr['unitname3'], $inputArr['unitind3'].' ') === 0) $inputArr['unitname3'] = trim(substr($inputArr['unitname3'], strlen($inputArr['unitind3']) + 1));
+							}
 							unset($inputArr['identificationqualifier']);
 							if(isset($childParentArr[$inputArr['sciname']]['r']) && isset($inputArr['rankid']) && $childParentArr[$inputArr['sciname']]['r'] == $inputArr['rankid']) $childParentArr[$inputArr['sciname']]['s'] = 'skip';
 							$sql1 = ''; $sql2 = '';
@@ -208,7 +214,7 @@ class TaxonomyUpload{
 								else $sql2 .= ','.($inValue?'"'.$inValue.'"':'NULL');
 							}
 							$sql = 'INSERT INTO uploadtaxa('.substr($sql1,1).') VALUES('.substr($sql2,1).')';
-							//echo "<div>".$sql."</div>";
+							//echo '<div>'.$sql.'</div>';
 							if($this->conn->query($sql)){
 								if($recordCnt%1000 == 0){
 									$this->outputMsg('Upload count: '.$recordCnt,1);
@@ -931,12 +937,11 @@ class TaxonomyUpload{
 		$rs = $this->conn->query('SHOW COLUMNS FROM uploadtaxa');
 		while($row = $rs->fetch_object()){
 			$field = strtolower($row->Field);
-			if(strtolower($field) != 'tid' && strtolower($field) != 'tidaccepted' && strtolower($field) != 'parenttid'){
+			if($field != 'tid' && $field != 'tidaccepted' && $field != 'parenttid'){
 				$targetArr[$field] = $field;
 			}
 		}
 		$rs->free();
-
 		return $targetArr;
 	}
 

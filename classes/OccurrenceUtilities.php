@@ -380,23 +380,25 @@ class OccurrenceUtilities {
 		}
 		//Date cleaning
 		if(isset($recMap['eventdate']) && $recMap['eventdate']){
-			if(is_numeric($recMap['eventdate'])){
-				$recMap['eventdate'] = self::dateCheck($recMap['eventdate']);
-			}
-			else{
-				//Make sure event date is a valid format or drop into verbatimEventDate
-				$dateStr = self::formatDate($recMap['eventdate']);
-				if($dateStr){
-					if($recMap['eventdate'] != $dateStr && (!array_key_exists('verbatimeventdate',$recMap) || !$recMap['verbatimeventdate'])){
-						$recMap['verbatimeventdate'] = $recMap['eventdate'];
-					}
-					$recMap['eventdate'] = $dateStr;
+			if(!preg_match('/\d{4}-\d{2}-\d{2}/', $recMap['eventdate'])){
+				if(is_numeric($recMap['eventdate'])){
+					$recMap['eventdate'] = self::dateCheck($recMap['eventdate']);
 				}
 				else{
-					if(!array_key_exists('verbatimeventdate',$recMap) || !$recMap['verbatimeventdate']){
-						$recMap['verbatimeventdate'] = $recMap['eventdate'];
+					//Make sure event date is a valid format or drop into verbatimEventDate
+					$dateStr = self::formatDate($recMap['eventdate']);
+					if($dateStr){
+						if($recMap['eventdate'] != $dateStr && (!array_key_exists('verbatimeventdate',$recMap) || !$recMap['verbatimeventdate'])){
+							$recMap['verbatimeventdate'] = $recMap['eventdate'];
+						}
+						$recMap['eventdate'] = $dateStr;
 					}
-					unset($recMap['eventdate']);
+					else{
+						if(!array_key_exists('verbatimeventdate',$recMap) || !$recMap['verbatimeventdate']){
+							$recMap['verbatimeventdate'] = $recMap['eventdate'];
+						}
+						unset($recMap['eventdate']);
+					}
 				}
 			}
 		}

@@ -25,21 +25,21 @@ $editCode = 0;		//0 = no permissions; 1 = CollEditor; 2 = CollAdmin; 3 = SuperAd
 if ($SYMB_UID) {
 	if ($IS_ADMIN) {
 		$editCode = 3;
-	} else if ($collid) {
+	}
+	else if ($collid) {
 		if (array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid, $USER_RIGHTS['CollAdmin'])) $editCode = 2;
 		elseif (array_key_exists('CollEditor', $USER_RIGHTS) && in_array($collid, $USER_RIGHTS['CollEditor'])) $editCode = 1;
 	}
 }
 ?>
 <html>
-
 <head>
-	<title><?php echo $DEFAULT_TITLE . ' ' . ($collid ? $collData[$collid]['collectionname'] : ''); ?></title>
+	<title><?php echo $DEFAULT_TITLE . ' ' . ($collid && isset($collData[$collid])? $collData[$collid]['collectionname'] : ''); ?></title>
 	<meta name="keywords" content="Natural history collections,<?php echo ($collid ? $collData[$collid]['collectionname'] : ''); ?>" />
 	<meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
 	<meta http-equiv="Pragma" content="no-cache">
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
-	$activateJQuery = true;
 	include_once($SERVER_ROOT . '/includes/head.php');
 	?>
 	<script src="../../js/jquery.js?ver=20130917" type="text/javascript"></script>
@@ -68,7 +68,6 @@ if ($SYMB_UID) {
 		}
 	</style>
 </head>
-
 <body>
 	<?php
 	$displayLeftMenu = (isset($collections_misc_collprofilesMenu) ? $collections_misc_collprofilesMenu : true);
@@ -79,7 +78,6 @@ if ($SYMB_UID) {
 		<a href="../index.php"><?php echo (isset($LANG['COLLECTION_SEARCH']) ? $LANG['COLLECTION_SEARCH'] : 'Collection Search Page'); ?></a> &gt;&gt;
 		<b><?php echo (isset($LANG['COLL_PROFILE']) ? $LANG['COLL_PROFILE'] : 'Collection Profile'); ?></b>
 	</div>
-	<!-- This is inner text! -->
 	<div id="innertext">
 		<?php
 		if ($editCode > 1) {
@@ -90,13 +88,13 @@ if ($SYMB_UID) {
 			}
 		}
 		if ($editCode && $collid) {
-		?>
+			?>
 			<div style="float:right;margin:3px;cursor:pointer;" onclick="toggleById('controlpanel');" title="<?php echo (isset($LANG['TOGGLE_MAN']) ? $LANG['TOGGLE_MAN'] : 'Toggle Manager\'s Control Panel'); ?>">
 				<img style='border:0px;' src='../../images/edit.png' />
 			</div>
 			<?php
 		}
-		if ($collid) {
+		if ($collid && isset($collData[$collid])) {
 			$collData = $collData[$collid];
 			$codeStr = ' (' . $collData['institutioncode'];
 			if ($collData['collectioncode']) $codeStr .= '-' . $collData['collectioncode'];
@@ -105,13 +103,12 @@ if ($SYMB_UID) {
 			echo '<h1>' . $collData['collectionname'] . $codeStr . '</h1>';
 			// GBIF citations widget
 			if ($datasetKey) {
-				echo '<div style="margin-left: 10px;
-    margin-bottom: 20px;">';
+				echo '<div style="margin-left: 10px; margin-bottom: 20px;">';
 				echo '<iframe src="https://www.gbif.org/api/widgets/literature/button?gbifDatasetKey=' . $datasetKey . '" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="false" style="width: 140px; height: 24px;"></iframe>';
 				echo '</div>';
 			}
 			if ($editCode) {
-			?>
+				?>
 				<div id="controlpanel" style="clear:both;display:<?php echo ($eMode ? 'block' : 'none'); ?>;">
 					<fieldset style="padding:10px;padding-left:25px;">
 						<legend><b><?php echo (isset($LANG['DAT_EDIT']) ? $LANG['DAT_EDIT'] : 'Data Editor Control Panel'); ?></b></legend>
@@ -127,13 +124,13 @@ if ($SYMB_UID) {
 						<ul>
 							<?php
 							if (stripos($collData['colltype'], 'observation') !== false) {
-							?>
+								?>
 								<li>
 									<a href="../editor/observationsubmit.php?collid=<?php echo $collid; ?>">
 										<?php echo (isset($LANG['SUBMIT_IMAGE_V']) ? $LANG['SUBMIT_IMAGE_V'] : 'Submit an Image Voucher (observation supported by a photo)'); ?>
 									</a>
 								</li>
-							<?php
+								<?php
 							}
 							?>
 							<li>
@@ -143,7 +140,7 @@ if ($SYMB_UID) {
 							</li>
 							<?php
 							if ($collData['colltype'] == 'Preserved Specimens') {
-							?>
+								?>
 								<li style="margin-left:10px">
 									<a href="../editor/imageoccursubmit.php?collid=<?php echo $collid; ?>">
 										<?php echo (isset($LANG['CREATE_NEW_REC']) ? $LANG['CREATE_NEW_REC'] : 'Create New Records Using Image'); ?>
@@ -154,7 +151,7 @@ if ($SYMB_UID) {
 										<?php echo (isset($LANG['SKELETAL']) ? $LANG['SKELETAL'] : 'Add Skeletal Records'); ?>
 									</a>
 								</li>
-							<?php
+								<?php
 							}
 							?>
 							<li>
@@ -179,7 +176,7 @@ if ($SYMB_UID) {
 							</li>
 							<?php
 							if ($collManager->traitCodingActivated()) {
-							?>
+								?>
 								<li>
 									<a href="#" onclick="$('li.traitItem').show(); return false;">
 										<?php echo (isset($LANG['TRAIT_CODING_TOOLS']) ? $LANG['TRAIT_CODING_TOOLS'] : 'Occurrence Trait Coding Tools'); ?>
@@ -195,7 +192,7 @@ if ($SYMB_UID) {
 										<?php echo (isset($LANG['TRAIT_MINING']) ? $LANG['TRAIT_MINING'] : 'Trait Mining from Verbatim Text'); ?>
 									</a>
 								</li>
-							<?php
+								<?php
 							}
 							?>
 							<li>
@@ -205,24 +202,23 @@ if ($SYMB_UID) {
 							</li>
 							<?php
 							if ($collData['colltype'] == 'Preserved Specimens') {
-							?>
+								?>
 								<li>
 									<a href="../loans/index.php?collid=<?php echo $collid; ?>">
 										<?php echo (isset($LANG['LOAN_MANAGEMENT']) ? $LANG['LOAN_MANAGEMENT'] : 'Loan Management'); ?>
 									</a>
 								</li>
-							<?php
+								<?php
 							}
 							?>
 						</ul>
 					</fieldset>
 					<?php
 					if ($editCode > 1) {
-					?>
+						?>
 						<fieldset style="padding:10px;padding-left:25px;">
 							<legend><b><?php echo (isset($LANG['ADMIN_CONTROL']) ? $LANG['ADMIN_CONTROL'] : 'Administration Control Panel'); ?></b></legend>
 							<ul>
-
 								<li>
 									<a href="commentlist.php?collid=<?php echo $collid; ?>">
 										<?php echo (isset($LANG['VIEW_COMMENTS']) ? $LANG['VIEW_COMMENTS'] : 'View Posted Comments'); ?>
@@ -304,7 +300,7 @@ if ($SYMB_UID) {
 								<?php
 								if ($collData['colltype'] != 'General Observations') {
 									if ($collData['managementtype'] != 'Aggregate') {
-								?>
+										?>
 										<li>
 											<a href="../specprocessor/index.php?collid=<?php echo $collid; ?>">
 												<?php echo (isset($LANG['PROCESSING_TOOLBOX']) ? $LANG['PROCESSING_TOOLBOX'] : 'Processing Toolbox'); ?>
@@ -315,7 +311,7 @@ if ($SYMB_UID) {
 												<?php echo (isset($LANG['DARWIN_CORE_PUB']) ? $LANG['DARWIN_CORE_PUB'] : 'Darwin Core Archive Publishing'); ?>
 											</a>
 										</li>
-									<?php
+										<?php
 									}
 									?>
 									<li>
@@ -330,16 +326,16 @@ if ($SYMB_UID) {
 										</a>
 									</li>
 									 -->
-								<?php
+									<?php
 								}
-								if (!isset($ACTIVATE_DUPLICATES) || $ACTIVATE_DUPLICATES) {
-								?>
+								if (!empty($ACTIVATE_DUPLICATES)) {
+									?>
 									<li>
 										<a href="../datasets/duplicatemanager.php?collid=<?php echo $collid; ?>">
 											<?php echo (isset($LANG['DUP_CLUSTER']) ? $LANG['DUP_CLUSTER'] : 'Duplicate Clustering'); ?>
 										</a>
 									</li>
-								<?php
+									<?php
 								}
 								?>
 								<li>
@@ -347,13 +343,13 @@ if ($SYMB_UID) {
 								</li>
 								<?php
 								if ($collData['colltype'] != 'General Observations') {
-								?>
+									?>
 									<li style="margin-left:10px;">
 										<a href="../cleaning/index.php?obsuid=0&collid=<?php echo $collid; ?>">
 											<?php echo (isset($LANG['DATA_CLEANING']) ? $LANG['DATA_CLEANING'] : 'Data Cleaning Tools'); ?>
 										</a>
 									</li>
-								<?php
+									<?php
 								}
 								?>
 								<li style="margin-left:10px;">
@@ -363,13 +359,13 @@ if ($SYMB_UID) {
 								</li>
 								<?php
 								if ($collData['managementtype'] == 'Live Data') {
-								?>
+									?>
 									<li style="margin-left:10px;">
 										<a href="../admin/restorebackup.php?collid=<?php echo $collid; ?>">
 											<?php echo (isset($LANG['RESTORE_BACKUP']) ? $LANG['RESTORE_BACKUP'] : 'Restore Backup File'); ?>
 										</a>
 									</li>
-								<?php
+									<?php
 								}
 								?>
 								<!--
@@ -391,11 +387,11 @@ if ($SYMB_UID) {
 								</li>
 							</ul>
 						</fieldset>
-					<?php
+						<?php
 					}
 					?>
 				</div>
-			<?php
+				<?php
 			}
 			?>
 			<div style='margin:10px;'>
@@ -403,7 +399,7 @@ if ($SYMB_UID) {
 				echo $collManager->getMetadataHtml($LANG, $LANG_TAG);
 				if ($collData['publishtogbif'] && $datasetKey) {
 					$dataUrl = 'http://www.gbif.org/dataset/' . $datasetKey;
-				?>
+					?>
 					<div style="margin-top:5px;">
 						<div><b><?php echo (isset($LANG['GBIF_DATASET']) ? $LANG['GBIF_DATASET'] : 'GBIF Dataset page'); ?>:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
 					</div>
@@ -414,11 +410,11 @@ if ($SYMB_UID) {
 					if (!$idigbioKey) $idigbioKey = $collManager->findIdigbioKey($collData['recordid']);
 					if ($idigbioKey) {
 						$dataUrl = 'https://www.idigbio.org/portal/recordsets/' . $idigbioKey;
-					?>
+						?>
 						<div style="margin-top:5px;">
 							<div><b><?php echo (isset($LANG['IDIGBIO_DATASET']) ? $LANG['IDIGBIO_DATASET'] : 'iDigBio Dataset page'); ?>:</b> <a href="<?php echo $dataUrl; ?>" target="_blank"><?php echo $dataUrl; ?></a></div>
 						</div>
-					<?php
+						<?php
 					}
 				}
 				if (file_exists($SERVER_ROOT . '/includes/citationcollection.php')) {
@@ -456,7 +452,7 @@ if ($SYMB_UID) {
 							?>
 						</div>
 					</div>
-				<?php
+					<?php
 				}
 				//Collection Statistics
 				$statsArr = $collManager->getBasicStats();
@@ -520,7 +516,7 @@ if ($SYMB_UID) {
 			</fieldset>
 			<?php
 			include('collprofilestats.php');
-		} else {
+		} elseif($collData) {
 			?>
 			<h2><?php echo $DEFAULT_TITLE . ' ' . (isset($LANG['COLLECTION_PROJECTS']) ? $LANG['COLLECTION_PROJECTS'] : 'Natural History Collections and Observation Projects'); ?></h2>
 			<div style='margin:10px;clear:both;'>
@@ -539,9 +535,9 @@ if ($SYMB_UID) {
 							$iconStr = $collArr['icon'];
 							if ($iconStr) {
 								if (substr($iconStr, 0, 6) == 'images') $iconStr = '../../' . $iconStr;
-							?>
+								?>
 								<img src='<?php echo $iconStr; ?>' style='border-size:1px;height:30;width:30;' /><br />
-							<?php
+								<?php
 								echo $collArr['institutioncode'];
 								if ($collArr['collectioncode']) echo '-' . $collArr['collectioncode'];
 							}
@@ -569,11 +565,11 @@ if ($SYMB_UID) {
 							<hr />
 						</td>
 					</tr>
-				<?php
+					<?php
 				}
 				?>
 			</table>
-		<?php
+			<?php
 		}
 		?>
 	</div>
@@ -581,5 +577,4 @@ if ($SYMB_UID) {
 	include($SERVER_ROOT . '/includes/footer.php');
 	?>
 </body>
-
 </html>

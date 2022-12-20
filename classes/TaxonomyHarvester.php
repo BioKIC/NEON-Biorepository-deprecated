@@ -162,11 +162,16 @@ class TaxonomyHarvester extends Manager{
 					$this->setColClassification($tArr,$taxonArr);
 					if(isset($tArr['formattedClassification'])) $resultArr['result'][$k]['formattedClassification'] = $tArr['formattedClassification'];
 					$taxonKingdom = $this->getColParent($tArr, 'Kingdom');
-					if($this->kingdomName && $this->kingdomName != $taxonKingdom){
+					if($this->kingdomName && $taxonKingdom && $this->kingdomName != $taxonKingdom){
 						//Skip if kingdom doesn't match target kingdom
 						unset($rankArr[$k]);
-						$msg = 'Target taxon (<a href="https://www.catalogueoflife.org/data/taxon/'.$resultArr['result'][$k]['id'].'" target="_blank">#'.$resultArr['result'][$k]['id'].' - ';
-						$msg .= $sciName.'</a>) skipped due to not matching targeted kingdom: '.$this->kingdomName.' (!= '.$taxonKingdom.')';
+						$msg = $sciName;
+						$id = '';
+						if(isset($resultArr['result'][$k]['id'])){
+							$id = $resultArr['result'][$k]['id'];
+							$msg = '<a href="https://www.catalogueoflife.org/data/taxon/'.$id.'" target="_blank">#'.$id.' - '.$sciName.'</a>';
+						}
+						$msg = 'Target taxon ('.$msg.') skipped due to not matching targeted kingdom: '.$this->kingdomName.' (!= '.$taxonKingdom.')';
 						$this->logOrEcho($msg,2);
 						continue;
 					}
@@ -225,7 +230,7 @@ class TaxonomyHarvester extends Manager{
 			}
 			//Get parent
 			if(isset($baseArr['parent']['tid'])) $taxonArr['parent']['tid'] = $baseArr['parent']['tid'];
-			elseif($taxonArr['rankid'] == 10) $taxonArr['parent']['tid'] = 'self';
+			elseif(isset($taxonArr['rankid']) && $taxonArr['rankid'] == 10) $taxonArr['parent']['tid'] = 'self';
 			else{
 				$directParentTid = 0;
 				if(isset($baseArr['formattedClassification'])){
@@ -352,7 +357,7 @@ class TaxonomyHarvester extends Manager{
 			if(!$name && isset($tArr['usage']['name']['scientificName'])) $name = $tArr['usage']['name']['scientificName'];
 			if($name){
 				$url = 'https://api.catalogueoflife.org/nameusage/search?content=SCIENTIFIC_NAME&q='.str_replace(' ','%20',$name).'&offset=0&limit=100&type=EXACT';
-				//echo $url.'<br/>';
+				//echo 'COL ULR: '.$url.'<br/>';
 				$retArr = $this->getContentString($url);
 				$content = $retArr['str'];
 				$resultArr = json_decode($content,true);
@@ -1005,7 +1010,7 @@ class TaxonomyHarvester extends Manager{
 						if($parentTid) $taxonArr['parent']['tid'] = $parentTid;
 					}
 					if(isset($unitArr['taxonomicStatus']) && $unitArr['taxonomicStatus'] != 'accepted' && isset($unitArr['acceptedNameUsage'])){
-						$acceptedArr = TaxonomyUtilities::parseScientificName($unitArr['acceptedNameUsage'], 0, $this->kingdomName);
+						$acceptedArr = TaxonomyUtilities::parseScientificName($unitArr['acceptedNameUsage'], $this->conn, $this->kingdomName);
 						$tidAccepted = $this->getTid($taxonArr);
 						if(!$tidAccepted) $tidAccepted = $this->addBryoNamesTaxon($acceptedArr);
 					}

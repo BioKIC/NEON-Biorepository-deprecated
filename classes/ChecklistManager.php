@@ -1,10 +1,9 @@
 <?php
-include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/Manager.php');
 include_once($SERVER_ROOT.'/classes/ChecklistVoucherAdmin.php');
 
-class ChecklistManager {
+class ChecklistManager extends Manager{
 
-	private $conn;
 	private $clid;
 	private $dynClid;
 	private $clName;
@@ -36,11 +35,11 @@ class ChecklistManager {
 	private $basicSql;
 
 	function __construct() {
-		$this->conn = MySQLiConnectionFactory::getCon("readonly");
+		parent::__construct();
 	}
 
 	function __destruct(){
- 		if(!($this->conn === false)) $this->conn->close();
+		parent::__destruct();
 	}
 
 	public function setClid($clid){
@@ -727,25 +726,9 @@ class ChecklistManager {
 		return $retArr;
 	}
 
-	public function getUpperTaxa($term){
-		$retArr = array();
-		$param = "{$term}%";
-		$sql = 'SELECT tid, sciname FROM taxa WHERE (rankid < 180) AND (sciname LIKE ?) ORDER BY sciname';
-		$stmt = $this->conn->prepare($sql);
-		$stmt->bind_param('s', $param);
-		$stmt->execute();
-		$stmt->bind_result($tid,$sciname);
-		while ($stmt->fetch()) {
-			$retArr[$tid]['id'] = $tid;
-			$retArr[$tid]['value'] = $sciname;
-		}
-		$stmt->close();
-		return $retArr;
-	}
-
 	//Setters and getters
 	public function setThesFilter($filt){
-		$this->thesFilter = $filt;
+		if(is_numeric($filt)) $this->thesFilter = $filt;
 	}
 
 	public function getThesFilter(){
@@ -883,17 +866,12 @@ class ChecklistManager {
 	}
 
 	//Misc functions
-	private function cleanOutStr($str){
-		$str = str_replace('"',"&quot;",$str);
-		$str = str_replace("'","&apos;",$str);
+	public function cleanOutText($str){
+		//Need to clean for MS Word ouput: strip html tags, convert all html entities and then reset as html tags
+		$str = strip_tags($str);
+		$str = html_entity_decode($str);
+		$str = htmlspecialchars($str);
 		return $str;
-	}
-
-	private function cleanInStr($str){
-		$newStr = trim($str);
-		$newStr = preg_replace('/\s\s+/', ' ',$newStr);
-		$newStr = $this->conn->real_escape_string($newStr);
-		return $newStr;
 	}
 }
 ?>

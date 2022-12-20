@@ -1,5 +1,6 @@
 <?php
 include_once($SERVER_ROOT.'/classes/Manager.php');
+include_once($SERVER_ROOT.'/classes/ImageShared.php');
 
 class PluginsManager extends Manager {
 

@@ -6,8 +6,8 @@ if ($LANG_TAG != 'en' && file_exists($SERVER_ROOT . '/content/lang/collections/d
 else include_once($SERVER_ROOT . '/content/lang/collections/datasets/datapublisher.en.php');
 header('Content-Type: text/html; charset=' . $CHARSET);
 
-$collid = array_key_exists('collid', $_REQUEST) ? $_REQUEST['collid'] : 0;
-$emode = array_key_exists('emode', $_REQUEST) ? $_REQUEST['emode'] : 0;
+$collid = array_key_exists('collid', $_REQUEST) ? filter_var($_REQUEST['collid'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$emode = array_key_exists('emode', $_REQUEST) ? filter_var($_REQUEST['emode'], FILTER_SANITIZE_NUMBER_INT) : 0;
 $action = array_key_exists('formsubmit', $_REQUEST) ? $_REQUEST['formsubmit'] : '';
 
 if (!is_numeric($collid)) $collid = 0;
@@ -36,7 +36,8 @@ $redactLocalities = 1;
 if ($action == 'savekey' || (isset($_REQUEST['datasetKey']) && $_REQUEST['datasetKey'])) {
 	$collManager->setAggKeys($_POST);
 	$collManager->updateAggKeys();
-} elseif ($action) {
+}
+elseif ($action) {
 	if (!array_key_exists('dets', $_POST)) $includeDets = 0;
 	$dwcaManager->setIncludeDets($includeDets);
 	if (!array_key_exists('imgs', $_POST)) $includeImgs = 0;
@@ -68,8 +69,8 @@ if ($isEditor) {
 	<meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
 	<meta http-equiv="Pragma" content="no-cache">
 	<title><?php echo $LANG['DWCA_PUBLISHER']; ?></title>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
-	$activateJQuery = true;
 	include_once($SERVER_ROOT . '/includes/head.php');
 	?>
 	<style type="text/css">
@@ -217,7 +218,7 @@ if ($isEditor) {
 				echo $LANG['DWCA_EXPLAIN_1'] . ' <a href="https://en.wikipedia.org/wiki/Darwin_Core_Archive" target="_blank">' . $LANG['DWCA'] . '</a> ' . $LANG['DWCA_EXPLAIN_2'] .
 					' <a href="http://rs.tdwg.org/dwc/terms/" target="_blank">' . $LANG['DWC'] . '</a> ' . $LANG['DWCA_EXPLAIN_3'] .
 					' <a href="https://biokic.github.io/symbiota-docs/coll_manager/data_publishing/idigbio/" target="_blank"> ' . $LANG['PUBLISH_IDIGBIO'] . '</a> &amp;' .
-					' <a href=https://biokic.github.io/symbiota-docs/coll_manager/data_publishing/gbif/" target="_blank"> ' . $LANG['PUBLISH_GBIF'] . '</a>.';
+					' <a href="https://biokic.github.io/symbiota-docs/coll_manager/data_publishing/gbif/" target="_blank"> ' . $LANG['PUBLISH_GBIF'] . '</a>.';
 				?>
 			</div>
 			<?php
@@ -471,7 +472,7 @@ if ($isEditor) {
 									if ($errMsg) $inputAttr = 'DISABLED';
 									elseif ($v['url']) $inputAttr = 'CHECKED';
 									echo '<input name="coll[]" type="checkbox" value="' . $k . '" ' . $inputAttr . ' />';
-									echo '<a href="../misc/collprofiles.php?collid=' . $k . '" target="_blank">' . $v['name'] . '</a>';
+									echo '<a href="../misc/collprofiles.php?collid=' . $k . '" target="_blank">' . $v['name'] . '</a> ';
 									if ($errMsg) echo '<span style="color:red;margin-left:15px;">' . $errMsg . '</span>';
 									elseif ($v['url']) echo '<span> - published</span>';
 									echo '<br/>';

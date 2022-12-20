@@ -18,8 +18,6 @@ $spanish = ($languageDef == 1 || $languageDef == 2);
 
 $invoiceArr = $loanManager->getInvoiceInfo($identifier,$loanType);
 $addressArr = $loanManager->getFromAddress($collId);
-$isInternational = true;
-if($invoiceArr['country'] == $addressArr['country']) $isInternational = false;
 
 if($loanType == 'exchange'){
 	$transType = 0;
@@ -97,7 +95,7 @@ if($outputMode == 'doc'){
 		$textrun->addText(htmlspecialchars($addressArr['address2']),'headerFont');
 		$textrun->addTextBreak(1);
 	}
-	$textrun->addText(htmlspecialchars($addressArr['city'].', '.$addressArr['stateprovince'].' '.$addressArr['postalcode'].($isInternational?' '.$addressArr['country']:'')),'headerFont');
+	$textrun->addText(htmlspecialchars($addressArr['city'].($addressArr['stateprovince']?', ':'').$addressArr['stateprovince'].' '.$addressArr['postalcode'].' '.$addressArr['country']),'headerFont');
 	$textrun->addTextBreak(1);
 	$textrun->addText(htmlspecialchars($addressArr['phone']),'headerFont');
 	$textrun->addTextBreak(2);
@@ -123,11 +121,9 @@ if($outputMode == 'doc'){
 		$textrun->addText(htmlspecialchars($invoiceArr['address2']),'toAddressFont');
 		$textrun->addTextBreak(1);
 	}
-	$textrun->addText(htmlspecialchars($invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode']),'toAddressFont');
-	if($isInternational){
-		$textrun->addTextBreak(1);
-		$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
-	}
+	$textrun->addText(htmlspecialchars($invoiceArr['city'].($invoiceArr['stateprovince']?', ':'').$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode']),'toAddressFont');
+	$textrun->addTextBreak(1);
+	$textrun->addText(htmlspecialchars($invoiceArr['country']),'toAddressFont');
 	$cell = $table->addCell(5000,$cellStyle);
 	$textrun = $cell->addTextRun('identifier');
 	$textrun->addText(htmlspecialchars(date('l').', '.date('F').' '.date('j').', '.date('Y')),'identifierFont');
@@ -372,15 +368,8 @@ else{
 		<head>
 			<title><?php echo $identifier; ?> Invoice</title>
 			<?php
-			$activateJQuery = false;
-			if(file_exists($SERVER_ROOT.'/includes/head.php')){
-				include_once($SERVER_ROOT.'/includes/head.php');
-			}
-			else{
-				echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-				echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-				echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-			}
+	
+			include_once($SERVER_ROOT.'/includes/head.php');
 			?>
 			<style type="text/css">
 				body {font-family:arial,sans-serif;}
@@ -399,10 +388,33 @@ else{
 				.message {width:100%;text-align:left;font:10pt arial,sans-serif;}
 				.saludos {width:100%;text-align:left;font:10pt arial,sans-serif;}
 				.return {width:100%;text-align:left;font:10pt arial,sans-serif;position:relative;bottom:0;margin-top:20%;}
+				/* Hide the edit button div when printing */
+				@media print {.controls {display: none;}}
 			</style>
+
+			<script language="javascript">
+
+				// Function to toggle editing of the invoice on or off
+				function toggleEdits() {
+					var invoice = document.getElementById('invoice');
+					let isEditable = invoice.contentEditable === 'true';
+					if (isEditable) {
+						invoice.contentEditable = 'false';
+						document.querySelector('#edit').innerText = 'Edit Invoice';
+						invoice.style.border = 'none';
+					} else {
+						invoice.contentEditable = 'true';
+						document.querySelector('#edit').innerText = 'Save';
+						invoice.style.border = '2px solid #03fc88';
+					}
+				}
+			</script>			
 		</head>
 		<body style="background-color:#ffffff;">
-			<table style="height:10in;">
+			<div class="controls">
+				<button id="edit" style="font-weight: bold;" onclick="toggleEdits();">Edit Invoice</button>
+			</div>
+			<table id="invoice" style="height:10in;">
 				<tr>
 					<td>
 						<div>
@@ -426,7 +438,7 @@ else{
 									</tr>
 								<?php } ?>
 								<tr>
-									<td><?php echo $addressArr['city'].', '.$addressArr['stateprovince'].' '.$addressArr['postalcode']; ?> <?php if($isInternational){echo $addressArr['country'];} ?></td>
+									<td><?php echo $addressArr['city'].($addressArr['stateprovince']?', ':'').$addressArr['stateprovince'].' '.$addressArr['postalcode'].' '.$addressArr['country']; ?></td>
 								</tr>
 								<tr>
 									<td><?php echo $addressArr['phone']; ?></td>
@@ -452,8 +464,8 @@ else{
 											if($invoiceArr['institutionname2']) echo $invoiceArr['institutionname2'].'<br />';
 											if($invoiceArr['address1']) echo $invoiceArr['address1'].'<br />';
 											if($invoiceArr['address2']) echo $invoiceArr['address2'].'<br />';
-											echo $invoiceArr['city'].', '.$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode'];
-											if($isInternational) echo '<br />'.$invoiceArr['country'];
+											echo $invoiceArr['city'].($invoiceArr['stateprovince']?', ':'').$invoiceArr['stateprovince'].' '.$invoiceArr['postalcode'];
+											echo '<br />'.$invoiceArr['country'];
 											?>
 										</div>
 									</td>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Occurrence;
 use App\Models\PortalIndex;
+use App\Models\PortalOccurrence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -55,7 +56,6 @@ class OccurrenceController extends Controller{
 	 *		 description="County, parish, or third level political unit",
 	 *		 required=false,
 	 *		 @OA\Schema(type="string")
-	 *	 ),
 	 *	 ),
 	 *	 @OA\Parameter(
 	 *		 name="collid",
@@ -196,9 +196,12 @@ class OccurrenceController extends Controller{
 		]);
 		$id = $this->getOccid($id);
 		$occurrence = Occurrence::find($id);
-		if($occurrence) $occurrence->recordID = DB::table('guidoccurrences')->where('occid',$id)->value('guid');
-		if($request->input('includeMedia')) $occurrence->media;
-		if($request->input('includeIdentifications')) $occurrence->identification;
+		if($occurrence){
+			$occurrence->recordID = DB::table('guidoccurrences')->where('occid', $id)->value('guid');
+			if(!$occurrence->occurrenceID) $occurrence->occurrenceID = $occurrence->recordID;
+			if($request->input('includeMedia')) $occurrence->media;
+			if($request->input('includeIdentifications')) $occurrence->identification;
+		}
 		return response()->json($occurrence);
 	}
 
@@ -262,7 +265,7 @@ class OccurrenceController extends Controller{
 	}
 
 	/**
-	 * @OA\Get(
+	 * @off_OA\Get(
 	 *	 path="/api/v2/occurrence/{identifier}/reharvest",
 	 *	 operationId="/api/v2/occurrence/identifier/reharvest",
 	 *	 tags={""},
@@ -280,38 +283,71 @@ class OccurrenceController extends Controller{
 	 *	 ),
 	 *	 @OA\Response(
 	 *		 response="400",
-	 *		 description="Error: Bad request. Occurrence identifier is required.",
+	 *		 description="Error: Bad request: Occurrence identifier is required, API can only be triggered locally (at this time).",
+	 *	 ),
+	 *	 @OA\Response(
+	 *		 response="500",
+	 *		 description="Error: unable to locate record",
 	 *	 ),
 	 * )
 	 */
 	public function oneOccurrenceReharvest($id, Request $request){
 		$responseArr = array();
+		$host = '';
+		if(!empty($GLOBALS['SERVER_HOST'])) $host = $GLOBALS['SERVER_HOST'];
+		else $host = $_SERVER['SERVER_NAME'];
+		if($host && $request->getHttpHost() != $host){
+			$responseArr['status'] = 400;
+			$responseArr['error'] = 'At this time, API call can only be triggered locally';
+			return response()->json($responseArr);
+		}
 		$id = $this->getOccid($id);
 		$occurrence = Occurrence::find($id);
+		if(!$occurrence){
+			$responseArr['status'] = 500;
+			$responseArr['error'] = 'Unable to locate occurrence record (occid = '.$id.')';
+			return response()->json($responseArr);
+		}
+		if($occurrence->collection->managementType == 'Live Data'){
+			$responseArr['status'] = 400;
+			$responseArr['error'] = 'Updating a Live Managed record is not allowed ';
+			return response()->json($responseArr);
+		}
 		$publications = $occurrence->portalPublications;
-		if($occurrence->collection->managementType == 'Snapshot'){
-			foreach($publications as $pub){
-				if($pub->direction == 'import'){
-					$sourcePortalID = $pub->portalID;
-					$targetOccid = $pub->pivot->targetOccid;
-					if($sourcePortalID && $targetOccid){
-						//Get remote occurrence data
-						$url = PortalIndex::where('portalID', $sourcePortalID)->value('urlRoot');
-						$url .= '/api/v2/occurrence/'.$targetOccid;
-						$remoteOccurrence = $this->getAPIResponce($url);
-						$response = $this->update($id, new Request($remoteOccurrence));
-						//print_r($response);
-						echo '<br>status: '.$response->status().'<br>';
-						print_r($response->getData());
-						//echo ($response->isDirty()?'changed':'not changed').'<br>';
-						//echo 'changes: '.$response->getChanges().'<br>';
-						$responseArr['status'] = $response->status();
+		foreach($publications as $pub){
+			if($pub->direction == 'import'){
+				$sourcePortalID = $pub->portalID;
+				$remoteOccid = $pub->pivot->remoteOccid;
+				if($sourcePortalID && $remoteOccid){
+					//Get remote occurrence data
+					$urlRoot = PortalIndex::where('portalID', $sourcePortalID)->value('urlRoot');
+					$url = $urlRoot.'/api/v2/occurrence/'.$remoteOccid;
+					if($remoteOccurrence = $this->getAPIResponce($url)){
+						unset($remoteOccurrence['modified']);
+						if(!$remoteOccurrence['occurrenceRemarks']) unset($remoteOccurrence['occurrenceRemarks']);
+						unset($remoteOccurrence['dynamicProperties']);
+						$updateObj = $this->update($id, new Request($remoteOccurrence));
+						$ts = date('Y-m-d H:i:s');
+						$changeArr = $updateObj->getOriginalContent()->getChanges();
+						$responseArr['status'] = $updateObj->status();
+						$responseArr['dataStatus'] = ($changeArr?count($changeArr).' fields modified':'nothing modified');
+						$responseArr['fieldsModified'] = $changeArr;
+						$responseArr['sourceDateLastModified'] = $remoteOccurrence['dateLastModified'];
+						$responseArr['dateLastModified'] = $ts;
+						$responseArr['sourceCollectionUrl'] = $urlRoot.'/collections/misc/collprofiles.php?collid='.$remoteOccurrence['collid'];
+						$responseArr['sourceRecordUrl'] = $urlRoot.'/collections/individual/index.php?occid='.$remoteOccid;
+						//Reset Portal Occurrence refreshDate
+						$portalOccur = PortalOccurrence::where('occid', $id)->where('pubid', $pub->pubid)->first();
+						$portalOccur->refreshTimestamp = $ts;
+						$portalOccur->save();
+					}
+					else {
+						$responseArr['status'] = 400;
+						$responseArr['error'] = 'Unable to locate remote/source occurrence (sourceID = '.$id.')';
+						$responseArr['sourceUrl'] = $url;
 					}
 				}
 			}
-		} else {
-			$responseArr['status'] = false;
-			$responseArr['message'] = 'Unable to refresh a Live Managed occurrence record ';
 		}
 		return response()->json($responseArr);
 	}

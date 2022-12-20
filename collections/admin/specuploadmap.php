@@ -65,6 +65,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType ==
 			$duManager->addFilterCondition($_POST['filter'.$i], $_POST['condition'.$i], $_POST['value'.$i]);
 		}
 	}
+	if(array_key_exists('publicationGuid',$_REQUEST)) $duManager->setPublicationGuid($_REQUEST['publicationGuid']);
 }
 
 $duManager->setCollId($collid);
@@ -104,8 +105,8 @@ if($isEditor && $collid){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></title>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
-	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
@@ -477,6 +478,7 @@ include($SERVER_ROOT.'/includes/header.php');
 											</button>
 											<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
 											<input type="hidden" name="collid" value="<?php echo $collid;?>" />
+											<input type="hidden" name="publicationGuid" value="<?php echo $duManager->getPublicationGuid();?>" />
 											<input type="hidden" name="uploadtype" value="<?php echo $uploadType;?>" />
 											<input type="hidden" name="ulpath" value="<?php echo $ulPath;?>" />
 										</div>

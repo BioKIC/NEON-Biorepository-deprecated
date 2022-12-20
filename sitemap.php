@@ -11,7 +11,7 @@ $smManager = new SiteMapManager();
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['SITEMAP'];?></title>
 	<?php
-	$activateJQuery = false;
+
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 
@@ -59,10 +59,10 @@ $smManager = new SiteMapManager();
 					<li><a href="collections/datasets/datapublisher.php"><?php echo $LANG['DARWINCORE'];?></a> - <?php echo $LANG['PUBDATA'];?></li>
 				</ul>
 				<?php
-				$rssPath = $GLOBALS['CLIENT_ROOT'].'/content/dwca/rss.xml';
-				$deprecatedRssPath = $GLOBALS['CLIENT_ROOT'].'/webservices/dwc/rss.xml';
-				if(!file_exists($rssPath) && file_exists($deprecatedRssPath)) $rssPath = $deprecatedRssPath;
-				if(file_exists($rssPath)) echo '<li><a href="'.$rssPath.'" target="_blank">'.$LANG['RSS'].'</a></li>';
+				$rssPath = 'content/dwca/rss.xml';
+				$deprecatedRssPath = 'webservices/dwc/rss.xml';
+				if(!file_exists($GLOBALS['SERVER_ROOT'].$rssPath) && file_exists($GLOBALS['SERVER_ROOT'].$deprecatedRssPath)) $rssPath = $deprecatedRssPath;
+				if(file_exists($GLOBALS['SERVER_ROOT'].$rssPath)) echo '<li style="margin-left:15px;"><a href="'.$GLOBALS['CLIENT_ROOT'].$rssPath.'" target="_blank">'.$LANG['RSS'].'</a></li>';
 				?>
 				<li><a href="collections/misc/protectedspecies.php"><?php echo $LANG['PROTECTED_SPECIES'];?></a> - <?php echo $LANG['LISTOFTAXA'];?></li>
 			</ul>

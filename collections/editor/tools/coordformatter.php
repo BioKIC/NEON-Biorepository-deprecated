@@ -7,7 +7,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Coordinate Converter</title>
 	<?php
-	$activateJQuery = false;
+
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="../../../js/symb/collections.georef.js?ver=1" type="text/javascript"></script>

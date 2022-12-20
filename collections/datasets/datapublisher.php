@@ -69,8 +69,8 @@ if ($isEditor) {
 	<meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
 	<meta http-equiv="Pragma" content="no-cache">
 	<title><?php echo $LANG['DWCA_PUBLISHER']; ?></title>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
-	$activateJQuery = true;
 	include_once($SERVER_ROOT . '/includes/head.php');
 	?>
 	<style type="text/css">
@@ -80,7 +80,6 @@ if ($isEditor) {
 	</style>
 	<script type="text/javascript" src="../../js/jquery.js"></script>
 	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script type="text/javascript" src="../../js/symb/collections.gbifpublisher.js?ver=4"></script>
 	<script type="text/javascript">
 		function toggle(target) {

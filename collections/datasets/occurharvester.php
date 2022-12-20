@@ -44,12 +44,12 @@ if($isEditor){
 	<head>
 	    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE; ?> - Occurrence Harvester</title>
+		<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 		<?php
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
 		<script src="../../js/jquery.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-		<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
 		<script type="text/javascript">
 			function validateDownloadForm(f){
 				return true;

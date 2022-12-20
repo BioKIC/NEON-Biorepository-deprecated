@@ -10,7 +10,7 @@ $matchOnWords = array_key_exists('matchonwords', $_POST) ? filter_var($_POST['ma
 $displayFullTree = array_key_exists('displayfulltree', $_REQUEST) ? filter_var($_REQUEST['displayfulltree'], FILTER_SANITIZE_NUMBER_INT) : 0;
 $displaySubGenera = array_key_exists('displaysubgenera', $_REQUEST) ? filter_var($_REQUEST['displaysubgenera'], FILTER_SANITIZE_NUMBER_INT) : 0;
 $taxAuthId = array_key_exists('taxauthid', $_REQUEST) ? filter_var($_REQUEST['taxauthid'], FILTER_SANITIZE_NUMBER_INT) : 1;
-$statusStr = array_key_exists('statusstr', $_REQUEST) ? filter_var($_REQUEST['statusstr'], FILTER_SANITIZE_STRING : '';
+$statusStr = array_key_exists('statusstr', $_REQUEST) ? filter_var($_REQUEST['statusstr'], FILTER_SANITIZE_STRING) : '';
 
 if(!$target) $matchOnWords = 1;
 $taxonDisplayObj = new TaxonomyDisplayManager();
@@ -30,13 +30,13 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 <head>
 	<title><?php echo $DEFAULT_TITLE." ".(isset($LANG['TAX_DISPLAY'])?$LANG['TAX_DISPLAY']:'Taxonomy Display').": ".$taxonDisplayObj->getTargetStr(); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<link href="../../css/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#taxontarget").autocomplete({

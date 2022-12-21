@@ -728,8 +728,12 @@ else{
 												$pHandler->setUid($SYMB_UID);
 												$user = $pHandler->getPerson();
 												$occArr['recordedby'] = $user->getFirstName() . ' ' . $user->getLastName();
-												$occArr['country'] = $user->getCountry();
-												$occArr['stateprovince'] = $user->getState();
+
+												// Don't add locality if carrying over locality information
+												if($goToMode != 2) {
+													$occArr['country'] = $user->getCountry();
+													$occArr['stateprovince'] = $user->getState();
+												}
 											}
 
 											if($occId){

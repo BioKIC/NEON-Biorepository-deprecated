@@ -177,7 +177,7 @@ class EDIFileCreator extends Manager
 					$this->collArr[$r->collid]['url'] = $r->url;
 					// if $r->contact is 'NEON Biorepository', then change from individualName to organizationName
 					if ($r->email === 'biorepo@asu.edu') {
-						$this->collArr[$r->collid]['contact'][0]['organizationName'] = 'NEON Biorepository';
+						$this->collArr[$r->collid]['contact'][0]['organizationName'] = 'NEON Biorepository at Arizona State University';
 					} else {
 						$this->collArr[$r->collid]['contact'][0]['individualName']['surName'] = $r->contact;
 					}
@@ -1243,10 +1243,10 @@ class EDIFileCreator extends Manager
 		$emlArr['creator'][0]['onlineUrl'] = $urlPathPrefix;
 
 		// Fixed for all datasets in the Biorepository Data Portal
-		$emlArr['metadataProvider'][0]['organizationName'] = 'NEON Biorepository';
+		$emlArr['metadataProvider'][0]['organizationName'] = 'NEON Biorepository at Arizona State University';
 		$emlArr['metadataProvider'][0]['electronicMailAddress'] = $GLOBALS['ADMIN_EMAIL'];
 		$emlArr['metadataProvider'][0]['onlineUrl'] = $urlPathPrefix;
-		$emlArr['metadataProvider'][0]['role'] = 'distributor';
+		$emlArr['metadataProvider'][0]['role'] = 'publisher';
 
 		// $emlArr['pubDate'] = date("Y-m-d");
 
@@ -1255,6 +1255,16 @@ class EDIFileCreator extends Manager
 			// add each term in $_POST['keywords'] as item in array
 			$emlArr['keywordSet'] = explode(',', $_POST['keywords']);
 		}
+
+		// Methods
+		$methods = [
+			'methodStep' => [
+				'description' => [
+					'para' => 'The NEON Biorepository at Arizona State University archives a number of physical collections of samples and specimens collected as part of the National Ecological Observatory Network. The data associated with these samples and specimens is initially harvested directly from NEON (via NEON API). As part of the curation process, some data may be annotated or updated. All of the data is managed using the Symbiota platform, and is publicly accessible through the NEON Biorepository Data Portal, available at https://biorepo.neonscience.org. This dataset was exported by Symbiota, and fields have been standardized using Darwin Core data standards whenever possible. Additional sample and specimen data may be available within the NEON Biorepository Data Portal. When referencing datasets of occurrences associated with published research, users should also consult and cite the primary publications.'
+				]
+			]
+		];
+		$emlArr['methods'] = $methods;
 
 		// Geographic coverage
 		$geoCoverage = $this->getGeographicCoverage();
@@ -1269,19 +1279,19 @@ class EDIFileCreator extends Manager
 		// $emlArr['taxonomicCoverage'] = $taxCoverage;
 
 		// Maintenance/update description
-		$maintenanceDescription = 'This is where we describe how the data is updated at the Biorepository Data Portal';
+		$maintenanceDescription = 'The data is updated within the NEON Biorepository Data Portal when necessary due to specimen processing, data annotation, or error correction.';
 		$emlArr['maintenanceDescription'] = $maintenanceDescription;
 
 		// Contact (Biorepo)
 		$contactArr = [
-			'organizationName' => 'National Ecological Observatory Network Biorepository',
+			'organizationName' => 'NEON Biorepository at Arizona State University',
 			'electronicMailAddress' => 'biorepo@asu.edu'
 		];
 		$emlArr['contact'] = $contactArr;
 
 		// Project description
 		$projectDescription = [
-			'title' => 'National Ecological Observatory Network Biorepository',
+			'title' => 'NEON Biorepository at Arizona State University',
 			'personnel' => [
 				// 'individualName' => [
 				// 	'salutation' => 'Dr.',
@@ -1297,7 +1307,7 @@ class EDIFileCreator extends Manager
 				],
 				'electronicMailAddress' => 'biorepo@asu.edu',
 				'onlineUrl' => 'https://biorepo.neonscience.org',
-				'role' => 'contentProvider',
+				'role' => 'Biodiversity Informatician',
 				// 'userId' => 'https://orcid.org/0000-0003-1237-2824',
 				// 'positionName' => 'Biodiversity Informatician',
 			],
@@ -1509,6 +1519,13 @@ class EDIFileCreator extends Manager
 			}
 			// append to dataset element
 			$datasetElem->appendChild($keywordSetElem);
+		}
+
+		// Add methods
+		if (array_key_exists('methods', $emlArr)) {
+			$methodsArr = $emlArr['methods'];
+			$methodsElem = $this->getNode($newDoc, 'methods', $methodsArr);
+			$datasetElem->appendChild($methodsElem);
 		}
 
 		if (array_key_exists('intellectualRights', $emlArr)) {

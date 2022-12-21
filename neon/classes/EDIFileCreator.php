@@ -1212,7 +1212,7 @@ class EDIFileCreator extends Manager
 						if ($r->phone) $emlArr['associatedParty'][0]['phone'] = $r->phone;
 					}
 					if ($r->email) $emlArr['associatedParty'][0]['electronicMailAddress'] = $r->email;
-					$emlArr['associatedParty'][0]['role'] = 'originator';
+					$emlArr['associatedParty'][0]['role'] = 'contentProvider';
 					$rs->free();
 				}
 			}
@@ -1277,7 +1277,6 @@ class EDIFileCreator extends Manager
 		// Taxonomic coverage
 		// $taxCoverage = $this->getTaxonomicCoverage();
 		// $emlArr['taxonomicCoverage'] = $taxCoverage;
-
 		// Maintenance/update description
 		$maintenanceDescription = 'The data is updated within the NEON Biorepository Data Portal when necessary due to specimen processing, data annotation, or error correction.';
 		$emlArr['maintenanceDescription'] = $maintenanceDescription;
@@ -1293,23 +1292,52 @@ class EDIFileCreator extends Manager
 		$projectDescription = [
 			'title' => 'NEON Biorepository at Arizona State University',
 			'personnel' => [
-				// 'individualName' => [
-				// 	'salutation' => 'Dr.',
-				// 	'givenName' => 'Laura',
-				// 	'surName' => 'Rocha Prado',
-				// ],
-				'organizationName' => 'Arizona State University',
-				'address' => [
-					'city' => 'Tempe',
-					'administrativeArea' => 'AZ',
-					'postalCode' => '85287',
-					'country' => 'USA',
+				[
+					'organizationName' => 'Arizona State University',
+					'address' => [
+						'city' => 'Tempe',
+						'administrativeArea' => 'AZ',
+						'postalCode' => '85287',
+						'country' => 'USA',
+					],
+					'electronicMailAddress' => 'biorepo@asu.edu',
+					'onlineUrl' => 'https://biorepo.neonscience.org',
+					'role' => 'publisher',
+					// 'userId' => 'https://orcid.org/0000-0003-1237-2824',
+					// 'positionName' => 'Biodiversity Informatician',
 				],
-				'electronicMailAddress' => 'biorepo@asu.edu',
-				'onlineUrl' => 'https://biorepo.neonscience.org',
-				'role' => 'Biodiversity Informatician',
-				// 'userId' => 'https://orcid.org/0000-0003-1237-2824',
-				// 'positionName' => 'Biodiversity Informatician',
+				[
+					'individualName' => [
+						'salutation' => 'Dr.',
+						'givenName' => 'Laura',
+						'surName' => 'Rocha Prado',
+					],
+					'role' => 'biodiversityInformatician',
+				],
+				[
+					'individualName' => [
+						'givenName' => 'Edward',
+						'surName' => 'Gilbert',
+					],
+					'role' => 'biodiversityInformatician',
+				],
+				[
+					'individualName' => [
+						'salutation' => 'Dr.',
+						'givenName' => 'Nico',
+						'surName' => 'Franz',
+					],
+					'role' => 'principalInvestigator',
+				],
+				[
+					'individualName' => [
+						'salutation' => 'Dr.',
+						'givenName' => 'Kelsey',
+						'surName' => 'Yule',
+					],
+					'role' => 'projectManager',
+
+				],
 			],
 			'abstract' => [
 				'para' => "The NEON Biorepository is managed by the Biodiversity Knowledge Integration Center (BioKIC) and Arizona State University's Natural History Collections in Tempe, Arizona.",
@@ -1619,7 +1647,18 @@ class EDIFileCreator extends Manager
 		// if (isset($this->collArr[$collId]['project'])) $emlArr['project'] = $this->collArr[$collId]['project'];		
 		if (array_key_exists('project', $emlArr)) {
 			$projectArr = $emlArr['project'];
-			$projectNode = $this->getNode($newDoc, 'project', $projectArr);
+			$projectNode = $newDoc->createElement('project');
+			$projectTitleNode = $newDoc->createElement('title', $projectArr['title']);
+			$projectNode->appendChild($projectTitleNode);
+			$personnelList = $emlArr['project']['personnel'];
+			// for each item in personnelList, create a personnel node
+			foreach ($personnelList as $personnelItem) {
+				$personnelNode = $this->getNode($newDoc, 'personnel', $personnelItem);
+				// pass personnel to project node
+				$projectNode->appendChild($personnelNode);
+			}
+			$projectAbstractNode = $this->getNode($newDoc, 'abstract', $projectArr['abstract']);
+			$projectNode->appendChild($projectAbstractNode);
 			$datasetElem->appendChild($projectNode);
 		}
 

@@ -9,7 +9,7 @@ $smManager = new SiteMapManager();
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?><?php echo $LANG['SITEMAP'];?></title>
+	<title><?php echo $DEFAULT_TITLE.' '.$LANG['SITEMAP'];?></title>
 	<?php
 
 	include_once($SERVER_ROOT.'/includes/head.php');

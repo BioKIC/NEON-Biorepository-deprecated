@@ -5,9 +5,9 @@ Language: English
 ------------------
 */
 
-$LANG['OWNER'] = 'owner';
-$LANG['ADMIN'] = 'administrator';
-$LANG['EDITOR'] = 'editor';
+$LANG['OWNER'] = 'Owner';
+$LANG['ADMIN'] = 'Administrator';
+$LANG['EDITOR'] = 'Editor';
 $LANG['ROLE_LABEL_EDITOR'] = 'Can add and remove occurrences only';
 $LANG['READ_ACCESS'] = 'read access only';
 $LANG['SUPERADMIN'] = 'SuperAdmin';
@@ -50,14 +50,17 @@ $LANG['NO_OCCS_DS'] = 'There are no occurrences linked to this dataset';
 $LANG['LINK_OCCS_VIA'] = 'You can link occurrences via the';
 $LANG['OCC_SEARCH'] = 'occurrence search page';
 $LANG['OR_VIA_OCC_PROF'] = 'or via any of the occurrence profile pages';
+$LANG['NAME'] = 'Name';
 $LANG['PUB_VISIBLE'] = 'Publicly Visible';
 $LANG['NOTES_INTERNAL'] = 'Notes (Internal usage, not displayed publicly)';
 $LANG['DESCRIPTION'] = 'Description';
 $LANG['SAVE_EDITS'] = 'Save Edits';
+$LANG['DEL_DS'] = 'Delete Dataset';
 $LANG['SURE_DEL_DS_PERM'] = 'Are you sure you want to permanently delete this dataset?';
 $LANG['DEL_DS'] = 'Delete Dataset';
 $LANG['SURE_REM_USER'] = 'Are you sure you want to remove';
 $LANG['NONE_ASSIGNED'] = 'None Assigned';
+$LANG['ADD_USER'] = 'Add User';
 $LANG['TYPE_LOGIN'] = 'Type login or last name and then select from list';
 $LANG['LOGIN_NAME'] = 'Login/Last Name';
 $LANG['FULL_ACCESS'] = 'Full Access';

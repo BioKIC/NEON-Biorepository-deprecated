@@ -1256,16 +1256,6 @@ class EDIFileCreator extends Manager
 			$emlArr['keywordSet'] = explode(',', $_POST['keywords']);
 		}
 
-		// Methods
-		$methods = [
-			'methodStep' => [
-				'description' => [
-					'para' => 'The NEON Biorepository at Arizona State University archives a number of physical collections of samples and specimens collected as part of the National Ecological Observatory Network. The data associated with these samples and specimens is initially harvested directly from NEON (via NEON API). As part of the curation process, some data may be annotated or updated. All of the data is managed using the Symbiota platform, and is publicly accessible through the NEON Biorepository Data Portal, available at https://biorepo.neonscience.org. This dataset was exported by Symbiota, and fields have been standardized using Darwin Core data standards whenever possible. Additional sample and specimen data may be available within the NEON Biorepository Data Portal. When referencing datasets of occurrences associated with published research, users should also consult and cite the primary publications.'
-				]
-			]
-		];
-		$emlArr['methods'] = $methods;
-
 		// Geographic coverage
 		$geoCoverage = $this->getGeographicCoverage();
 		$emlArr['geographicCoverage'] = $geoCoverage;
@@ -1287,6 +1277,17 @@ class EDIFileCreator extends Manager
 			'electronicMailAddress' => 'biorepo@asu.edu'
 		];
 		$emlArr['contact'] = $contactArr;
+
+
+		// Methods
+		$methods = [
+			'methodStep' => [
+				'description' => [
+					'para' => 'The NEON Biorepository at Arizona State University archives a number of physical collections of samples and specimens collected as part of the National Ecological Observatory Network. The data associated with these samples and specimens is initially harvested directly from NEON (via NEON API). As part of the curation process, some data may be annotated or updated. All of the data is managed using the Symbiota platform, and is publicly accessible through the NEON Biorepository Data Portal, available at https://biorepo.neonscience.org. This dataset was exported by Symbiota, and fields have been standardized using Darwin Core data standards whenever possible. Additional sample and specimen data may be available within the NEON Biorepository Data Portal. When referencing datasets of occurrences associated with published research, users should also consult and cite the primary publications.'
+				]
+			]
+		];
+		$emlArr['methods'] = $methods;
 
 		// Project description
 		$projectDescription = [
@@ -1549,13 +1550,6 @@ class EDIFileCreator extends Manager
 			$datasetElem->appendChild($keywordSetElem);
 		}
 
-		// Add methods
-		if (array_key_exists('methods', $emlArr)) {
-			$methodsArr = $emlArr['methods'];
-			$methodsElem = $this->getNode($newDoc, 'methods', $methodsArr);
-			$datasetElem->appendChild($methodsElem);
-		}
-
 		if (array_key_exists('intellectualRights', $emlArr)) {
 			$rightsElem = $newDoc->createElement('intellectualRights');
 			$paraElem = $newDoc->createElement('para');
@@ -1641,6 +1635,13 @@ class EDIFileCreator extends Manager
 			$contactArr = $emlArr['contact'];
 			$contactNode = $this->getNode($newDoc, 'contact', $contactArr);
 			$datasetElem->appendChild($contactNode);
+		}
+
+		// Add methods
+		if (array_key_exists('methods', $emlArr)) {
+			$methodsArr = $emlArr['methods'];
+			$methodsElem = $this->getNode($newDoc, 'methods', $methodsArr);
+			$datasetElem->appendChild($methodsElem);
 		}
 
 		// Project

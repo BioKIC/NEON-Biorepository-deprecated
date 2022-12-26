@@ -93,6 +93,7 @@ button {
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  white-space: nowrap;
 }
 
 button:hover {

@@ -205,9 +205,8 @@ ul.menu {
   }
 
   .top-login {
-    grid-area: login;
-    justify-self: end;
-    padding-right: 3rem;
+    display: grid;
+    grid-template-columns: auto auto auto;
   }
 
   .top-brand {

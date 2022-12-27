@@ -247,12 +247,12 @@ class EDIFileCreator extends Manager
 							// $this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
 							if (isset($cArr['role']) && $cArr['role']) $this->collArr[$r->collid]['contact'][$key]['positionName'] = $cArr['role'];
 							if (isset($cArr['email']) && $cArr['email']) $this->collArr[$r->collid]['contact'][$key]['electronicMailAddress'] = $cArr['email'];
-							if (isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/' . $cArr['orcid'];
+							// if (isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/' . $cArr['orcid'];
 							// pass 'https://orcid.org/' as an attribute of the userId element
-							// if (isset($cArr['orcid']) && $cArr['orcid']) {
-							// 	$this->collArr[$r->collid]['contact'][$key]['userId'] = $cArr['orcid'];
-							// 	$this->collArr[$r->collid]['contact'][$key]['userId']['@attributes']['scheme'] = 'https://orcid.org/';
-							// }
+							if (isset($cArr['orcid']) && $cArr['orcid']) {
+								$this->collArr[$r->collid]['contact'][$key]['userId'] = $cArr['orcid'];
+								// $this->collArr[$r->collid]['contact'][$key]['userId']['@attributes']['scheme'] = 'https://orcid.org/';
+							}
 						}
 					}
 				}
@@ -1163,10 +1163,11 @@ class EDIFileCreator extends Manager
 
 		$emlArr = array();
 
+		// Single collections
 		if (count($this->collArr) == 1) {
 			$collId = key($this->collArr);
 			$emlArr['alternateIdentifier'][] = $urlPathPrefix . 'collections/misc/collprofiles.php?collid=' . $collId;
-			$emlArr['title'] = $this->collArr[$collId]['collname'];
+			$emlArr['title'] = $this->collArr[$collId]['collname'] . ' (repackaging of occurrences published by the NEON Biorepository Data Portal)';
 			$emlArr['description'] = $this->collArr[$collId]['description'];
 
 			if (isset($this->collArr[$collId]['contact'][0]['givenName'])) $emlArr['contact']['givenName'] = $this->collArr[$collId]['contact'][0]['givenName'];
@@ -1751,6 +1752,11 @@ class EDIFileCreator extends Manager
 					if ($collKey == 'contact') {
 						foreach ($collValue as $apArr) {
 							$assocElem = $this->getNode($newDoc, 'associatedParty', $apArr);
+							// if 'userId' is set, add a 'directory' attribute of value 'orcid.org' to it
+							if (isset($apArr['userId'])) {
+								$userIdElem = $assocElem->getElementsByTagName('userId')->item(0);
+								$userIdElem->setAttribute('directory', 'https://orcid.org/');
+							}
 							$collElem->appendChild($assocElem);
 						}
 					} else {

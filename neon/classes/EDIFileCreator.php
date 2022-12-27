@@ -105,7 +105,7 @@ class EDIFileCreator extends Manager
 		if (!$this->occurrenceFieldArr) $this->occurrenceFieldArr = $dwcOccurManager->getOccurrenceArr();
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields'], false);
 		$sql .= $this->getTableJoins() . $this->conditionSql;
-		//if($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
+		if ($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 		if ($sql) {
 			$sql = 'SELECT COUNT(o.occid) as cnt ' . $sql;
 			$rs = $this->conn->query($sql);
@@ -248,6 +248,11 @@ class EDIFileCreator extends Manager
 							if (isset($cArr['role']) && $cArr['role']) $this->collArr[$r->collid]['contact'][$key]['positionName'] = $cArr['role'];
 							if (isset($cArr['email']) && $cArr['email']) $this->collArr[$r->collid]['contact'][$key]['electronicMailAddress'] = $cArr['email'];
 							if (isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/' . $cArr['orcid'];
+							// pass 'https://orcid.org/' as an attribute of the userId element
+							// if (isset($cArr['orcid']) && $cArr['orcid']) {
+							// 	$this->collArr[$r->collid]['contact'][$key]['userId'] = $cArr['orcid'];
+							// 	$this->collArr[$r->collid]['contact'][$key]['userId']['@attributes']['scheme'] = 'https://orcid.org/';
+							// }
 						}
 					}
 				}
@@ -1952,7 +1957,7 @@ class EDIFileCreator extends Manager
 		$sql = $dwcOccurManager->getSqlOccurrences($this->occurrenceFieldArr['fields']);
 		$sql .= $this->getTableJoins() . $this->conditionSql;
 		if (!$this->conditionSql) return false;
-		// if ($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
+		if ($this->schemaType != 'backup') $sql .= ' LIMIT 1000000';
 
 		//Output header
 		$fieldArr = $this->occurrenceFieldArr['fields'];

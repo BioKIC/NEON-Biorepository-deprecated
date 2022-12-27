@@ -8,8 +8,10 @@ $sourcePage = array_key_exists("sourcepage", $_REQUEST) ? $_REQUEST["sourcepage"
 $schema = array_key_exists("schema", $_REQUEST) ? $_REQUEST["schema"] : "symbiota";
 $cSet = array_key_exists("cset", $_POST) ? $_POST["cset"] : '';
 $keywords = array_key_exists("keywords", $_REQUEST) ? $_REQUEST["keywords"] : "NEON";
-$searchTermArr["datasetid"] = $_REQUEST["datasetid"];
-$_REQUEST["searchvar"] = "datasetid=" . $_REQUEST["datasetid"];
+if (array_key_exists("datasetid", $_REQUEST)) {
+	$searchTermArr["datasetid"] = $_REQUEST["datasetid"];
+	$_REQUEST["searchvar"] = "datasetid=" . $_REQUEST["datasetid"];
+}
 $_POST = $_REQUEST;
 
 if ($schema == 'backup') {

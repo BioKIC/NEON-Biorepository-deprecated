@@ -1515,6 +1515,11 @@ class EDIFileCreator extends Manager
 			foreach ($associatedPartyArr as $assocArr) {
 				$assocElem = $this->getNode($newDoc, 'associatedParty', $assocArr);
 				$datasetElem->appendChild($assocElem);
+				// if 'userId' is set, add a 'directory' attribute of value 'orcid.org' to it
+				if (array_key_exists('userId', $assocArr)) {
+					$userIdElem = $assocElem->getElementsByTagName('userId')->item(0);
+					$userIdElem->setAttribute('directory', 'orcid.org');
+				}
 			}
 		}
 

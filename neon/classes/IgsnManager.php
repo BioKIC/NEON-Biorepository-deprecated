@@ -72,7 +72,7 @@ class IgsnManager{
 		ob_flush();
 		if($resetSession) $this->resetSession();
 		$apiUrlBase = 'https://data.neonscience.org/api/v0/samples/view?';
-		//$neonApiKey = (isset($GLOBALS['NEON_API_KEY'])?$GLOBALS['NEON_API_KEY']:'');
+		$neonApiKey = (isset($GLOBALS['NEON_API_KEY'])?$GLOBALS['NEON_API_KEY']:'');
 		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass, s.igsnPushedToNEON
 			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
 			WHERE (o.occurrenceID LIKE "NEON%") ';
@@ -95,7 +95,6 @@ class IgsnManager{
 		$errorCnt = 0;
 		$finalIgsn = '';
 		while($r = $rs->fetch_object()){
-			//$url = $apiUrlBase.$r->occurrenceID.'&apiToken='.$neonApiKey;
 			$url = $apiUrlBase;
 			if($r->sampleCode) $url .= 'barcode='.$r->sampleCode;
 			elseif($r->sampleUuid) $url .= 'sampleUuid='.$r->sampleUuid;
@@ -104,6 +103,7 @@ class IgsnManager{
 				echo '<li>ERROR unable to build NEON API url ('.$r->occid.')</li>';
 				continue;
 			}
+			if($neonApiKey) $url .= '&apiToken='.$neonApiKey;
 			$igsnPushedToNEON = '';
 			if($json = @file_get_contents($url)){
 				$resultArr = json_decode($json, true);

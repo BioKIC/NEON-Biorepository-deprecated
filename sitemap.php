@@ -402,7 +402,7 @@ $smManager = new SiteMapManager();
 							$obsList = $smManager->getObsArr();
 							$genObsList = $smManager->getGenObsArr();
 							$obsManagementStr = '';
-							
+
 							if($obsList){
 								foreach($genObsList as $k => $oArr){
 									?>

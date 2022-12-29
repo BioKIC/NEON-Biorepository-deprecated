@@ -230,7 +230,7 @@ if($action != "Update Statistics"){
 			<?php
 			include_once($SERVER_ROOT.'/includes/head.php');
 			?>
-			<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collection/listdisplay.css" type="text/css" rel="stylesheet" />
+			<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collections/listdisplay.css" type="text/css" rel="stylesheet" />
             <script src="../../js/jquery.js" type="text/javascript"></script>
 			<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 			<script src="../../js/symb/collections.index.js" type="text/javascript"></script>

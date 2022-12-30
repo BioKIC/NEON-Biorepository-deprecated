@@ -17,8 +17,11 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 	<?php
 	include($SERVER_ROOT . '/includes/header.php');
 	?>
-	<main id="innertext">
-	</main>
+	<div class="navpath">
+        </div>
+	<div id="innertext">
+		<h1>Welcome</h1>
+	</div>
 	<?php
 	include($SERVER_ROOT . '/includes/footer.php');
 	?>

@@ -14,7 +14,6 @@ $LANG['SUPERADMIN'] = 'SuperAdmin';
 $LANG['DS_EDITS_SAVED'] = 'Success! Dataset edits saved. ';
 $LANG['DS_MERGED'] = 'Datasets merged successfully';
 $LANG['DS_CLONED'] = 'Datasets cloned successfully';
-$LANG['LOCATION'] = 'Location';
 $LANG['USER_ADDED'] = 'User added successfully';
 $LANG['USER_REMOVED'] = 'User removed successfully';
 $LANG['DS_OCC_MANAGER'] = 'Dataset Occurrence Manager';

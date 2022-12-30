@@ -87,7 +87,7 @@ if($isEditor){
 		}
 		elseif($action == 'Delete Dataset'){
 			if($datasetManager->deleteDataset($_POST['datasetid'])){
-				header($LANG['LOCATION'].": index.php");
+				header('Location: index.php');
 			}
 			else{
 				$statusStr = implode(',',$datasetManager->getErrorArr());
@@ -158,7 +158,7 @@ if($isEditor){
 				$('#tabs').tabs({
 					active: <?php echo $tabIndex; ?>,
 					beforeLoad: function( event, ui ) {
-						$(ui.panel).html("<?php echo '<p>'.$LANG['LOADING'].'...</p>'; ?>");
+						$(ui.panel).html("<p><?php echo $LANG['LOADING']; ?>...</p>");
 					}
 				});
 

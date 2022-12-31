@@ -68,7 +68,7 @@ $clArr = $obsManager->getChecklists();
 	<script src="../../js/symb/collections.editor.observations.js?ver=1" type="text/javascript"></script>
 	<style>
 		#dmsdiv{ display: none; clear: both; padding: 15px; width: 300px; background-color: #f2f2f2; border: 2px outset #E8EEFA; }
-		#dmsButton { margin: 0px 3px; font-weight: bold; background-color: #f2f2f2; }
+		#dmsButton { margin: 0px 3px; }
 	</style>
 </head>
 <body>

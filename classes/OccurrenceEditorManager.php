@@ -2450,7 +2450,7 @@ class OccurrenceEditorManager {
 	//Setters and getters
 	public function setOccId($id){
 		if(is_numeric($id)){
-			$this->occid = $this->cleanInStr($id);
+			$this->occid = $id;
 		}
 	}
 

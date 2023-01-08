@@ -1,5 +1,7 @@
 <?php
 include_once($SERVER_ROOT.'/classes/Manager.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/classes/OccurrenceEditReview.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditReview.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/classes/OccurrenceEditReview.en.php');
 
 class OccurrenceEditReview extends Manager{
 
@@ -290,7 +292,7 @@ class OccurrenceEditReview extends Manager{
 		$status = true;
 		$sql = 'UPDATE omoccurrences SET '.$fieldName.' = '.($value !== ''?'"'.$this->cleanInStr($value).'"':'NULL').' WHERE (occid = '.$occid.')';
 		if(!$this->conn->query($sql)){
-			$this->warningArr[] = 'ERROR '.($applyTask == 'apply'?'applying':'reverting').' occurrence edits: '.$this->conn->error;
+			$this->warningArr[] = $LANG['ERROR'].' '.($applyTask == 'apply'?$LANG['APPLYING']:$LANG['REVERTING']).' '.$LANG['OCC_EDITS'].': '.$this->conn->error;
 			$status = false;
 		}
 		return $status;
@@ -334,7 +336,7 @@ class OccurrenceEditReview extends Manager{
 		}
 		if($sql){
 			if(!$this->conn->query($sql)){
-				$this->warningArr[] = 'ERROR '.($applyTask == 'apply'?'applying':'reverting').' omoccuridentifiers edits: '.$this->conn->error;
+				$this->warningArr[] = $LANG['ERROR '].' '.($applyTask == 'apply'?$LANG['APPLYING']:$LANG['REVERTING']).' '.$LANG['ID_EDITS'].': '.$this->conn->error;
 				$status = false;
 			}
 		}
@@ -347,7 +349,7 @@ class OccurrenceEditReview extends Manager{
 		if($value) $sql = 'UPDATE omoccurpaleo SET '.$fieldName.' = '.($value !== ''?'"'.$this->cleanInStr($value).'"':'NULL').' WHERE (occid = '.$occid.')';
 		echo '<div>'.$sql.'</div>';
 		if(!$this->conn->query($sql)){
-			$this->warningArr[] = 'ERROR '.($applyTask == 'apply'?'applying':'reverting').' omoccurpaleo edits: '.$this->conn->error;
+			$this->warningArr[] = $LANG['ERROR '].' '.($applyTask == 'apply'?$LANG['APPLYING']:$LANG['REVERTING']).' '.$LANG['PALEO_EDITS'].': '.$this->conn->error;
 			$status = false;
 		}
 		return $status;
@@ -389,7 +391,7 @@ class OccurrenceEditReview extends Manager{
 				$uSql = 'UPDATE omoccurrences SET '.trim($sqlFrag,', ').' WHERE (occid = '.$r->occid.')';
 				//echo '<div>'.$uSql.'</div>'; exit;
 				if(!$this->conn->query($uSql)){
-					$this->warningArr[] = 'ERROR '.($applyTask == 'apply'?'appplying':'reverting').' revisions: '.$this->conn->error;
+					$this->warningArr[] = 'ERROR '.($applyTask == 'apply'?$LANG['APPLYING']:$LANG['REVERTING']).' '.$LANG['REVISIONS'].': '.$this->conn->error;
 					$status = false;
 				}
 			}
@@ -423,7 +425,7 @@ class OccurrenceEditReview extends Manager{
 		$sql = 'DELETE FROM omoccuredits WHERE (ocedid IN('.$idStr.'))';
 		//echo '<div>'.$sql.'</div>'; exit;
 		if(!$this->conn->query($sql)){
-			$this->errorMessage = 'ERROR deleting edits: '.$this->conn->error;
+			$this->errorMessage = $LANG['ERROR_DEL_EDITS'].': '.$this->conn->error;
 			$status = false;
 		}
 		return $status;
@@ -435,7 +437,7 @@ class OccurrenceEditReview extends Manager{
 		$sql = 'DELETE FROM omoccurrevisions WHERE (orid IN('.$idStr.'))';
 		//echo '<div>'.$sql.'</div>';
 		if($this->conn->query($sql)){
-			$this->errorMessage = 'ERROR deleting revisions: '.$this->conn->error;
+			$this->errorMessage = $LANG['ERROR_DEL_REVS'].': '.$this->conn->error;
 			$status = false;
 		}
 		return $status;

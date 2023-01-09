@@ -491,7 +491,7 @@ class DwcArchiverOccurrence extends Manager{
 			//Create output strings
 			$retStr = '';
 			foreach($assocArr as $assocateArr){
-				$retStr .= '|'.$assocateArr['relationship'];
+				$retStr .= ' | '.$assocateArr['relationship'];
 				if(!empty($assocateArr['subtype'])) $retStr .= ' ('.$assocateArr['subtype'].')';
 				$retStr .= ': '.$assocateArr['resourceurl'];
 			}

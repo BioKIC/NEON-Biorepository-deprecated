@@ -1,6 +1,8 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ImageCleaner.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/imagelib/admin/thumbnailbuilder.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/imagelib/admin/thumbnailbuilder.'.$LANG_TAG.'.php');
+else include_once($SERVER_ROOT.'/content/lang/imagelib/admin/thumbnailbuilder.en.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../imagelib/admin/thumbnailbuilder.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
@@ -37,7 +39,7 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 ?>
 <html>
 <head>
-	<title><?php echo $DEFAULT_TITLE; ?> Thumbnail Builder</title>
+	<title><?php echo $DEFAULT_TITLE.' '.$LANG['THUMB_BUILDER']; ?></title>
 	<?php
 
 	include_once($SERVER_ROOT.'/includes/head.php');
@@ -64,10 +66,10 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class="navpath">
-		<a href="../../index.php">Home</a> &gt;&gt;
+		<a href="../../index.php"><?php echo $LANG['HOME']; ?></a> &gt;&gt;
 		<?php
-		if($collid) echo '<a href="../../collections/misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Menu</a> &gt;&gt;';
-		else echo '<a href="../../sitemap.php">Sitemap</a> &gt;&gt;';
+		if($collid) echo '<a href="../../collections/misc/collprofiles.php?collid='.$collid.'&emode=1">'.$LANG['COL_MAN_MENU'].'</a> &gt;&gt;';
+		else echo '<a href="../../sitemap.php">'.$LANG['SITEMAP'].'</a> &gt;&gt;';
 		?>
 		<b>Thumbnail Builder</b>
 	</div>
@@ -75,9 +77,9 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 	<div id="innertext">
 		<?php
 		if($isEditor){
-			echo '<h2>Thumbnail Maintenance Tool';
+			echo '<h2>'.$LANG['THUMB_MAINT_TOOL'];
 			if($collid) echo ' - '.$imgManager->getCollectionName();
-			elseif($collid==='0') echo ' - field images';
+			elseif($collid==='0') echo ' - '.$LANG['FIELD_IMAGES'];
 			echo '</h2>';
 			if($action && $action != 'none'){
 				if($action == 'resetprocessing'){
@@ -86,29 +88,29 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 				else{
 					?>
 					<fieldset style="margin:10px;padding:15px">
-						<legend><b>Processing Panel</b></legend>
-						<div style="font-weight:bold;">Start processing...</div>
+						<legend><b><?php echo $LANG['PROCESSING_PANEL']; ?></b></legend>
+						<div style="font-weight:bold;"><?php echo $LANG['START_PROCESSING']; ?>...</div>
 						<?php
 						if($action == 'buildThumbnails') $imgManager->buildThumbnailImages();
 						elseif($action == 'Refresh Thumbnails'){
-							echo '<div style="margin-bottom:10px;">Number of images to be refreshed: '.$imgManager->getProcessingCnt($_POST).'</div>';
+							echo '<div style="margin-bottom:10px;">'.$LANG['NUM_IMGS_REFRESHED'].': '.$imgManager->getProcessingCnt($_POST).'</div>';
 							$imgManager->refreshThumbnails($_POST);
 						}
 						?>
-						<div style="margin-top:10px;font-weight:bold;">Finished!</div>
+						<div style="margin-top:10px;font-weight:bold;"><?php echo $LANG['FINISHED']; ?></div>
 					</fieldset>
 					<?php
 				}
 			}
 			?>
 			<fieldset style="margin:30px 10px;padding:15px;">
-				<legend><b>Thumbnail Builder</b></legend>
+				<legend><b><?php echo $LANG['THUMB_BUILDER']; ?></b></legend>
 				<div>
 					<?php
 					$reportArr = $imgManager->getReportArr();
 					if($reportArr){
-						echo '<b>Images counts without thumbnails and/or basic web image display</b> - This function will build thumbnail images for all occurrence images mapped from an external server.';
-						if($tid) echo '<div style="margin:5px 25px">Taxa Filter: '.$imgManager->getSciname().' (tid: '.$tid.')</div>';
+						echo '<b>'.$LANG['IMG_COUNT_EXPLAIN'].'</b> - '.$LANG['THUMB_IMG_EXPLAIN'];
+						if($tid) echo '<div style="margin:5px 25px">'.$LANG['TAX_FILTER'].': '.$imgManager->getSciname().' (tid: '.$tid.')</div>';
 						echo '<ul>';
 						foreach($reportArr as $id => $retArr){
 							echo '<li>';
@@ -121,7 +123,7 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 						echo '</ul>';
 					}
 					else{
-						echo '<div>All images have properly mapped thumbnails. Nothing needs to be done.</div>';
+						echo '<div>'.$LANG['ALL_THUMBS_DONE'].'</div>';
 					}
 					?>
 				</div>
@@ -131,13 +133,12 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 						if($collid && $action == 'buildThumbnails' && $reportArr[$collid]['cnt']){
 							//Thumbnails have been processed but there are still some that missed processing
 							?>
-							<div>There appears to be some images that are not processing, perhaps because they have been tagged as being handled by another process.<br/>
-							Click the reset processing button to do a full reset of all images for reprocessing. This process can take a few minutes, so be patient. </div>
+							<div><?php echo $LANG['NOT_PROCESSING_ERROR']; ?> </div>
 							<div style="margin:10px">
 								<form name="resetform" action="thumbnailbuilder.php" method="post">
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>">
 									<input name="tid" type="hidden" value="<?php echo $tid; ?>">
-									<button name="action" type="submit" value="resetprocessing">Reset Proccessing</button>
+									<button name="action" type="submit" value="resetprocessing"><?php echo $LANG['RESET_PROCESSING']; ?></button>
 								</form>
 							</div>
 							<?php
@@ -148,19 +149,19 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 								<div class="fieldRowDiv">
 									<div class="fieldDiv">
 										<input name="buildmed" type="checkbox" value="1" <?php echo ($buildMediumDerivatives?'checked':''); ?> />
-										<span class="fieldLabel"> include medium-sized image derivatives in addition to thumbnails</span>
+										<span class="fieldLabel"> <?php echo $LANG['INCLUDE_MED']; ?></span>
 									</div>
 								</div>
 								<div class="fieldRowDiv">
 									<div class="fieldDiv">
 										<input name="evalorientation" type="checkbox" value="1" <?php echo ($evaluateOrientation?'checked':''); ?> />
-										<span class="fieldLabel"> rotate image derivatives based on orientation tag</span>
+										<span class="fieldLabel"> <?php echo $LANG['ROTATE_IMGS']; ?></span>
 									</div>
 								</div>
 								<div class="fieldRowDiv">
 									<input name="collid" type="hidden" value="<?php echo $collid; ?>">
 									<input name="tid" type="hidden" value="<?php echo $tid; ?>">
-									<button name="action" type="submit" value="buildThumbnails">Build Thumbnails</button>
+									<button name="action" type="submit" value="buildThumbnails"><?php echo $LANG['BUILD_THUMBS']; ?></button>
 								</div>
 							</form>
 							<?php
@@ -174,38 +175,36 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 				if($remoteImgCnt = $imgManager->getRemoteImageCnt()){
 					?>
 					<fieldset style="margin:30px 10px;padding:15px">
-						<legend><b>Thumbnail Re-Mapper</b></legend>
+						<legend><b><?php echo $LANG['THUMB_REMAPPER']; ?></b></legend>
 						<form name="tnrebuildform" action="thumbnailbuilder.php" method="post">
 							<div style="margin-bottom:20px;">
-								This tool will iterate through the remotely mapped images and refresh locally stored image derivatives.
-								Default action is to only rebuild derivatives when the creation date of the source image is more recent than the original build date.
-								The alternative option is to force the rebuild of all images.
+								<?php echo $LANG['THUMB_REMAP_EXPLAIN']; ?>
 							</div>
 							<div style="margin-bottom:10px;">
-								Number images available for refresh: <?php echo $remoteImgCnt; ?>
+								<?php echo $LANG['IMAGES_AVAIL_REFRESH'].': '.$remoteImgCnt; ?>
 							</div>
 							<div style="margin-bottom:10px;">
-								Catalog Number Range: <input name="catNumLow" type="text" value="<?php echo (isset($_POST['catNumLow'])?$_POST['catNumLow']:''); ?>" /> -
+								<?php echo $LANG['CATNUM_RANGE']; ?>: <input name="catNumLow" type="text" value="<?php echo (isset($_POST['catNumLow'])?$_POST['catNumLow']:''); ?>" /> -
 								<input name="catNumHigh" type="text" value="<?php echo (isset($_POST['catNumHigh'])?$_POST['catNumHigh']:''); ?>" />
 							</div>
 							<div style="margin-bottom:10px;vertical-align:top;height:90px">
-								<div style="float:left">Catalog Number List: </div>
+								<div style="float:left"><?php echo $LANG['CATNUM_LIST']; ?>: </div>
 								<div style="margin-left:5px;float:left"><textarea name="catNumList" rows="5" cols="50"><?php echo (isset($_POST['catNumList'])?$_POST['catNumList']:''); ?></textarea></div>
 							</div>
 							<div style="margin-bottom:10px;">
-								<input name="evaluate_ts" type="radio" value="1" checked /> Only process images where the source file is more recent than thumbnails<br/>
-								<input name="evaluate_ts" type="radio" value="0" /> Force rebuild all images
+								<input name="evaluate_ts" type="radio" value="1" checked /> <?php echo $LANG['ONLY_PROCESS_RECENT']; ?><br/>
+								<input name="evaluate_ts" type="radio" value="0" /> <?php echo $LANG['FORCE_REBUILD']; ?>
 							</div>
 							<div class="fieldRowDiv">
 								<input name="buildmed" type="checkbox" value="1" <?php echo ($buildMediumDerivatives?'checked':''); ?> />
-								<span class="fieldLabel"> include medium-sized image derivatives in addition to thumbnails</span>
+								<span class="fieldLabel"> <?php echo $LANG['INCLUDE_MED']; ?></span>
 							</div>
 							<div style="margin-bottom:10px;">
-								<input name="evalorientation" type="checkbox" value="1" <?php echo ($evaluateOrientation?'checked':''); ?> /> rotate images based on orientation tag
+								<input name="evalorientation" type="checkbox" value="1" <?php echo ($evaluateOrientation?'checked':''); ?> /> <?php echo $LANG['ROTATE_IMGS']; ?>
 							</div>
 							<div style="margin:20px;clear:both">
 								<input name="collid" type="hidden" value="<?php echo $collid; ?>" />
-								<input name="action" type="submit" value="Refresh Thumbnails" />
+								<button name="action" type="submit" value="Refresh Thumbnails"><?php echo $LANG['REFRESH_THUMBS']; ?></button>
 								<input type="button" value="Reset" onclick="resetRebuildForm(this.form)" />
 							</div>
 						</form>
@@ -215,7 +214,7 @@ if(!$buildMediumDerivatives && $imgManager->getManagementType() == 'Live Data') 
 			}
 		}
 		else{
-			echo '<div><b>ERROR: improper permissions</b></div>';
+			echo '<div><b>'.$LANG['ERROR_PERMISSIONS'].'</b></div>';
 		}
 		?>
 	</div>

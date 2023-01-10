@@ -1174,10 +1174,23 @@ class EDIFileCreator extends Manager
 			if (isset($this->collArr[$collId]['contact'][0]['surName'])) $emlArr['contact']['surName'] = $this->collArr[$collId]['contact'][0]['surName'];
 
 			// if (isset($this->collArr[$collId]['collname'])) $emlArr['contact']['organizationName'] = $this->collArr[$collId]['collname'];
-			if (isset($this->collArr[$collId]['contact'][0]['organizationName'])) $emlArr['contact'][0]['organizationName'] = $this->collArr[$collId]['contact'][0]['organizationName'];
+
+			// If organizationName is 'NEON Biorepository', drop it from array, because it is redundant. Revisit this when we publish collections from other institutions, because this is generating an orphan individualName element in the EML.
+			if (isset($this->collArr[$collId]['contact'][0]['organizationName']) && ($this->collArr[$collId]['contact'][0]['organizationName'] != 'NEON Biorepository')) {
+				unset($this->collArr[$collId]['contact'][0]);
+			}
+			// Following block is replaced by above
+			// if (isset($this->collArr[$collId]['contact'][0]['organizationName'])) $emlArr['contact'][0]['organizationName'] = $this->collArr[$collId]['contact'][0]['organizationName'];
 
 			if (isset($this->collArr[$collId]['phone'])) $emlArr['contact']['phone'] = $this->collArr[$collId]['phone'];
+
+			// Remove from contact array if the email is 'biorepo@asu.edu' (it's already in the project information)
+			if (isset($this->collArr[$collId]['contact'][0]['electronicMailAddress']) && ($this->collArr[$collId]['contact'][0]['electronicMailAddress'] == 'biorepo@asu.edu')) {
+				unset($this->collArr[$collId]['contact'][0]);
+			}
+
 			if (isset($this->collArr[$collId]['contact'][0]['electronicMailAddress'])) $emlArr['contact']['electronicMailAddress'] = $this->collArr[$collId]['contact'][0]['electronicMailAddress'];
+
 			if (isset($this->collArr[$collId]['contact'][0]['userId'])) $emlArr['contact']['userId'] = $this->collArr[$collId]['contact'][0]['userId'];
 			if ($this->collArr[$collId]['url']) $emlArr['contact']['onlineUrl'] = $this->collArr[$collId]['url'];
 			$addrStr = $this->collArr[$collId]['address1'];

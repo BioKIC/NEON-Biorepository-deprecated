@@ -8,10 +8,16 @@ $sourcePage = array_key_exists("sourcepage", $_REQUEST) ? $_REQUEST["sourcepage"
 $schema = array_key_exists("schema", $_REQUEST) ? $_REQUEST["schema"] : "symbiota";
 $cSet = array_key_exists("cset", $_POST) ? $_POST["cset"] : '';
 $keywords = array_key_exists("keywords", $_REQUEST) ? $_REQUEST["keywords"] : "NEON";
+// Search terms passed to $_POST to use in filename and citation files
 if (array_key_exists("datasetid", $_REQUEST)) {
 	$searchTermArr["datasetid"] = $_REQUEST["datasetid"];
 	$_REQUEST["searchvar"] = "datasetid=" . $_REQUEST["datasetid"];
 }
+if (array_key_exists("db", $_REQUEST)) {
+	$searchTermArr["collid"] = $_REQUEST["db"];
+	$_REQUEST["searchvar"] = "collid=" . $_REQUEST["db"];
+}
+
 $_POST = $_REQUEST;
 
 if ($schema == 'backup') {

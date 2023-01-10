@@ -886,6 +886,9 @@ class EDIFileCreator extends Manager
 				if (isset($_POST['datasetid'])) {
 					$datasetID = $_POST['datasetid'];
 					$fileNameSeed = 'NEON_Biorepository_EML_Dataset_' . $datasetID . '_' . date('Y-m-d_His', $this->ts);
+				} elseif (isset($_POST['db'])) {
+					$db = $_POST['db'];
+					$fileNameSeed = 'NEON_Biorepository_EML_Collection_' . $db . '_' . date('Y-m-d_His', $this->ts);
 				} else {
 					$fileNameSeed = 'NEON_Biorepository_EML_' . date('Y-m-d_His', $this->ts);
 				}
@@ -1618,16 +1621,19 @@ class EDIFileCreator extends Manager
 		// Temporal coverage
 		if (array_key_exists('temporalCoverage', $emlArr)) {
 			foreach ($emlArr['temporalCoverage'] as $tempItem) {
-				$tempCoverageElem = $newDoc->createElement('temporalCoverage');
-				// if $tempItem['eventDate2'] is null or empty, then it is a single date
-				if (!$tempItem['eventDate2']) {
-					$singleDateElem = $newDoc->createElement('singleDateTime');
-					$calendarDateElem = $newDoc->createElement('calendarDate');
-					$calendarDateElem->appendChild($newDoc->createTextNode($tempItem['eventDate']));
-					$singleDateElem->appendChild($calendarDateElem);
-					$tempCoverageElem->appendChild($singleDateElem);
+				// check if eventDate is '' or null (it was generating empty temporalCoverage elements) without this check, the empty temporalCoverage elements were causing the EML to fail validation
+				if (!$tempItem['eventDate'] == '' || $tempItem['eventDate'] !== null) {
+					$tempCoverageElem = $newDoc->createElement('temporalCoverage');
+					// if $tempItem['eventDate2'] is null or empty, then it is a single date, revisit this when adding a range of dates
+					if (!$tempItem['eventDate2']) {
+						$singleDateElem = $newDoc->createElement('singleDateTime');
+						$calendarDateElem = $newDoc->createElement('calendarDate');
+						$calendarDateElem->appendChild($newDoc->createTextNode($tempItem['eventDate']));
+						$singleDateElem->appendChild($calendarDateElem);
+						$tempCoverageElem->appendChild($singleDateElem);
+					}
+					$coverageElem->appendChild($tempCoverageElem);
 				}
-				$coverageElem->appendChild($tempCoverageElem);
 			}
 		}
 		$datasetElem->appendChild($coverageElem);
@@ -2207,6 +2213,12 @@ class EDIFileCreator extends Manager
 			// pass results to retArr
 			while ($r = $rs->fetch_assoc()) {
 				$retArr[] = $r;
+				// remove any null values
+				foreach ($retArr as $key => $value) {
+					if ($value == null) {
+						unset($retArr[$key]);
+					}
+				}
 			}
 			$rs->free();
 		}
@@ -2226,11 +2238,17 @@ class EDIFileCreator extends Manager
 		$sql .= $this->getTableJoins() . $this->conditionSql;
 		$sql .= ' GROUP BY o.eventDate ORDER BY o.eventDate';
 		if ($sql) {
-			$sql = 'SELECT eventDate, eventDate2, eventID ' . $sql;
+			$sql = 'SELECT eventDate, eventDate2, eventID ' . $sql . ' AND o.eventDate IS NOT NULL AND o.eventDate != "0000-00-00"';
 			$rs = $this->conn->query($sql);
-			// pass results to retArr
+			// pass results to retArr 
 			while ($r = $rs->fetch_assoc()) {
 				$retArr[] = $r;
+				// remove any null values
+				foreach ($retArr as $key => $value) {
+					if ($value == null) {
+						unset($retArr[$key]);
+					}
+				}
 			}
 			$rs->free();
 		}

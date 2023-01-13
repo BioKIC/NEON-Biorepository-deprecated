@@ -170,7 +170,7 @@ class OccurrenceEditorDeterminations extends OccurrenceEditorManager{
 			}
 		}
 		else{
-			$status = LANG['ERROR_FAILED_ADD'].': '.$this->conn->error;
+			$status = $LANG['ERROR_FAILED_ADD'].': '.$this->conn->error;
 		}
 		return $status;
 	}

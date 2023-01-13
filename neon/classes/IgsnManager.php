@@ -21,7 +21,7 @@ class IgsnManager{
 		$sql = 'SELECT c.collid, CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname, count(o.occid) as cnt '.
 			'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid '.
 			'INNER JOIN NeonSample s ON o.occid = s.occid '.
-			'WHERE c.institutionCode = "NEON" AND c.collectionCode != "OPAL-AM" AND o.occurrenceId IS NULL AND s.errorMessage IS NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 '.
+			'WHERE c.institutionCode = "NEON" AND c.collid NOT IN(81,84) AND o.occurrenceId IS NULL AND s.errorMessage IS NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 '.
 			'GROUP BY c.collid';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -45,7 +45,7 @@ class IgsnManager{
 		$retArr = array();
 		$sql = 'SELECT IFNULL(s.igsnPushedToNEON,"x") as igsnPushedToNEON, COUNT(s.samplePK) as cnt
 			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
-			WHERE o.occurrenceID LIKE "NEON%" GROUP BY s.igsnPushedToNEON';
+			WHERE o.occurrenceID LIKE "NEON%" AND o.collid NOT IN(81,84) GROUP BY s.igsnPushedToNEON';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$code = $r->igsnPushedToNEON;
@@ -75,7 +75,7 @@ class IgsnManager{
 		$neonApiKey = (isset($GLOBALS['NEON_API_KEY'])?$GLOBALS['NEON_API_KEY']:'');
 		$sql = 'SELECT o.occid, o.occurrenceID, s.sampleCode, s.sampleUuid, s.sampleID, s.sampleClass, s.igsnPushedToNEON
 			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid
-			WHERE (o.occurrenceID LIKE "NEON%") ';
+			WHERE (o.occurrenceID LIKE "NEON%") AND o.collid NOT IN(81,84) ';
 		if($recTarget == 'unsynchronized'){
 			$sql .= 'AND (s.igsnPushedToNEON = 0) ';
 		}
@@ -180,7 +180,7 @@ class IgsnManager{
 			'accessionNumber' => '"" AS accessionNumber', 'remarks' => '"" AS remarks', 'archiveLaboratoryName' => '"" AS archiveLaboratoryName'
 		);
 		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid INNER JOIN omcollections c ON c.collid = o.collid ';
-		$sqlWhere = 'WHERE (o.occurrenceID LIKE "NEON%") ';
+		$sqlWhere = 'WHERE (o.occurrenceID LIKE "NEON%") AND o.collid NOT IN(81,84) ';
 		if($startIndex) $sqlWhere .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
 		if($recTarget == 'unsynchronized'){
 			$sqlWhere .= 'AND (s.igsnPushedToNEON = 0) ';
@@ -199,7 +199,7 @@ class IgsnManager{
 		$sql .= $sqlWhere;
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
-			$fileName = 'biorepoIGSNReport_'.date('Y-d-m').'.csv';
+			$fileName = 'biorepoIGSNReport_'.date('Y-m-d').'.csv';
 			header ('Content-Type: text/csv');
 			header ('Content-Disposition: attachment; filename="'.$fileName.'"');
 			$out = fopen('php://output', 'w');

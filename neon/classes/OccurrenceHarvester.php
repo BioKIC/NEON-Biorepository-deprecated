@@ -40,7 +40,7 @@ class OccurrenceHarvester{
 		$retArr = array();
 		$sql = 'SELECT s.errorMessage AS errMsg, COUNT(s.samplePK) as sampleCnt, COUNT(o.occid) as occurrenceCnt '.
 			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) ';
+			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 AND (o.collid NOT IN(81,84) OR o.collid IS NULL) ';
 		if($shipmentPK) $sql .= 'AND s.shipmentPK = '.$shipmentPK;
 		$sql .= ' GROUP BY errMsg';
 		$rs= $this->conn->query($sql);
@@ -84,7 +84,7 @@ class OccurrenceHarvester{
 			else $sqlPrefix .= 'LIMIT 1000 ';
 		}
 		if($sqlWhere){
-			$sqlWhere = 'WHERE s.checkinuid IS NOT NULL AND s.acceptedForAnalysis = 1 AND s.sampleReceived = 1 AND (s.sampleCondition != "OPAL Sample" OR s.sampleCondition IS NULL) '.$sqlWhere;
+			$sqlWhere = 'WHERE s.checkinuid IS NOT NULL AND s.acceptedForAnalysis = 1 AND s.sampleReceived = 1 AND (o.collid NOT IN(81,84) OR o.collid IS NULL) '.$sqlWhere;
 			$status = $this->batchHarvestOccurrences($sqlWhere.$sqlPrefix);
 		}
 		return $status;
@@ -1610,7 +1610,7 @@ class OccurrenceHarvester{
 		$retArr = array();
 		$sql = 'SELECT DISTINCT c.collid, CONCAT(c.collectionName, " (",CONCAT_WS(":",c.institutionCode,c.collectionCode),")") as name
 			FROM omcollections c INNER JOIN omoccurrences o ON c.collid = o.collid INNER JOIN NeonSample s ON o.occid = s.occid
-			WHERE c.institutioncode = "NEON"';
+			WHERE c.institutioncode = "NEON" AND c.collid NOT IN(81,84)';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->collid] = $r->name;

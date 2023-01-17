@@ -73,6 +73,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType ==
 		}
 	}
 	$duManager->setSourcePortalIndex($sourceIndex);
+	$duManager->setPublicationGuid($publicationGuid);
 }
 
 $duManager->setCollId($collid);
@@ -84,7 +85,6 @@ $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVersionDataEdits($versionData);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
-$duManager->setPublicationGuid($publicationGuid);
 
 $isEditor = 0;
 if($IS_ADMIN) $isEditor = 1;
@@ -100,11 +100,11 @@ if($isEditor && $collid){
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></title>
 	<?php
-	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
+	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
 </head>
 <body>
@@ -223,19 +223,23 @@ include($SERVER_ROOT.'/includes/header.php');
 						//Extensions
 						if(isset($reportArr['ident'])) echo '<div>'.$LANG['IDENT_TRANSFER'].': '.$reportArr['ident'].'</div>';
 						if(isset($reportArr['image'])) echo '<div>'.$LANG['IMAGE_TRANSFER'].': '.$reportArr['image'].'</div>';
-						if($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType == $SYMBIOTA) $sourceIndex = $duManager->getSourcePortalIndex();
+						if($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType == $SYMBIOTA){
+							$sourceIndex = $duManager->getSourcePortalIndex();
+							$publicationGuid = $duManager->getPublicationGuid();
+						}
 						?>
 					</div>
 					<form name="finaltransferform" action="specuploadprocessor.php" method="post" style="margin-top:10px;" onsubmit="return confirm('<?php echo $LANG['FINAL_TRANSFER']; ?>');">
-						<input type="hidden" name="collid" value="<?php echo $collid;?>" />
-						<input type="hidden" name="uploadtype" value="<?php echo $uploadType; ?>" />
-						<input type="hidden" name="observeruid" value="<?php echo $observerUid; ?>" />
-						<input type="hidden" name="versiondata" value="<?php echo ($versionData?'1':'0'); ?>" />
-						<input type="hidden" name="verifyimages" value="<?php echo ($verifyImages?'1':'0'); ?>" />
-						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" />
-						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" />
-						<input type="hidden" name="sourceindex" value="<?php echo $sourceIndex;?>" />
-						<input type="hidden" name="publicationGuid" value="<?php echo $duManager->getPublicationGuid();?>" />
+						<input type="hidden" name="collid" value="<?php echo $collid;?>" >
+						<input type="hidden" name="uploadtype" value="<?php echo $uploadType; ?>" >
+						<input type="hidden" name="observeruid" value="<?php echo $observerUid; ?>" >
+						<input type="hidden" name="versiondata" value="<?php echo ($versionData?'1':'0'); ?>" >
+						<input type="hidden" name="verifyimages" value="<?php echo ($verifyImages?'1':'0'); ?>" >
+						<input type="hidden" name="processingstatus" value="<?php echo $processingStatus;?>" >
+						<input type="hidden" name="uspid" value="<?php echo $uspid;?>" >
+						<input type="hidden" name="sourceindex" value="<?php echo $sourceIndex;?>" >
+						<input type="hidden" name="publicationGuid" value="<?php echo $publicationGuid;?>" >
+						<input type="hidden" name="fieldlist" value="<?php echo $duManager->getTargetFieldStr(); ?>" >
 						<div style="margin:5px;">
 							<button type="submit" name="action" value="activateOccurrences"><?php echo (isset($LANG['TRANS_RECS'])?$LANG['TRANS_RECS']:'Transfer Records to Central Specimen Table'); ?></button>
 						</div>
@@ -246,6 +250,7 @@ include($SERVER_ROOT.'/includes/header.php');
 		}
 		elseif($action == 'activateOccurrences' || $finalTransfer){
 			echo '<ul>';
+			$duManager->setTargetFieldArr(filter_var($_POST['fieldlist'], FILTER_SANITIZE_STRING));
 			$duManager->finalTransfer();
 			echo '</ul>';
 		}

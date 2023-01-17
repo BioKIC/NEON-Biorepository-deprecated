@@ -221,9 +221,12 @@ class ShipmentManager{
 			//Continue iterating through file to obtain all shipmentIDs, and then insure shipment doesn't already exist
 			$shipmentIdIndex = false;
 			foreach($this->sourceArr as $k => $colName){
-				if(strtolower(str_replace(array(' ','_'),'',$colName)) == 'shipmentid') $shipmentIdIndex = $k;
+				if(strtolower(str_replace(array(' ','_'),'',$colName)) == 'shipmentid'){
+					$shipmentIdIndex = $k;
+					break;
+				}
 			}
-			if($shipmentIdIndex){
+			if(is_numeric($shipmentIdIndex)){
 				$shipmentIDArr = array();
 				while($recordArr = fgetcsv($fh)){
 					$shipmentIDArr[$recordArr[$shipmentIdIndex]] = '';
@@ -252,7 +255,7 @@ class ShipmentManager{
 				}
 			}
 			else{
-				$this->errrorStr = 'ERROR: Unable to locate shipmentID column (required). Please make sure the column exists and is named appropriately';
+				$this->errorStr = 'ERROR: Unable to locate shipmentID column (required). Please make sure the column exists and is named appropriately';
 				$status = false;
 			}
 			fclose($fh);
@@ -580,8 +583,8 @@ class ShipmentManager{
 		$status = false;
 		$postArr = array_change_key_case($postArr);
 		if(is_numeric($postArr['samplepk'])){
-			$sampleID = $postArr['sampleid']?$postArr['sampleid']:NULL;
-			$sampleCode = $postArr['samplecode']?$postArr['samplecode']:NULL;
+			$sampleID = (isset($postArr['sampleid']) && $postArr['sampleid']?$postArr['sampleid']:NULL);
+			$sampleCode = (isset($postArr['samplecode']) && $postArr['samplecode']?$postArr['samplecode']:NULL);
 			//Get old values
 			$occid = '';
 			$identifierArr = array();
@@ -1325,7 +1328,7 @@ class ShipmentManager{
 	}
 
 	public function getSymbTargetArr(){
-		$retArr = array('family','sciname','identifiedby','dateIdentified','recordedBy','recordNumber','eventDate','habitat','occurrenceRemarks',
+		$retArr = array('catalogNumber','occurrenceID','family','sciname','identifiedby','dateIdentified','identificationRemarks','recordedBy','recordNumber','eventDate','habitat','occurrenceRemarks',
 			'verbatimAttributes','behavior','establishmentMeans','lifeStage','sex','individualCount','preparations','country','stateProvince',
 			'county','locality','decimalLatitude','decimalLongitude','coordinateUncertaintyInMeters','verbatimCoordinates','minimumElevationInMeters');
 		return $retArr;

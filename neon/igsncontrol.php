@@ -7,12 +7,13 @@ header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../profile/index.php?refurl='.$CLIENT_ROOT.'/neon/igsncontrol.php?'.$_SERVER['QUERY_STRING']);
 
 $recTarget = array_key_exists('recTarget',$_POST)?$_POST['recTarget']:'';
+$resetSession = array_key_exists('resetSession',$_POST) && $_POST['resetSession'] == 1?1:0;
 $startIndex = array_key_exists('startIndex',$_POST)?$_POST['startIndex']:'';
-$limit = array_key_exists('limit',$_POST)?$_POST['limit']:'';
+$limit = array_key_exists('limit',$_POST)?$_POST['limit']:1000;
 $action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
 
 //Sanitation
-if(!is_numeric($recTarget)) $recTarget = 0;
+$recTarget = filter_var($recTarget, FILTER_SANITIZE_STRING);
 $startIndex = filter_var($startIndex, FILTER_SANITIZE_STRING);
 if(!is_numeric($limit)) $limit = 1000;
 
@@ -23,9 +24,14 @@ if($IS_ADMIN) $isEditor = true;
 
 $statusStr = '';
 if($isEditor){
-	if($action == 'exportUnsync'){
-		if($igsnManager->exportUnsynchronizedReport()) exit;
-		else $statusStr = 'Unable to create export. Are you sure there are unsynchronized records?';
+	if($action == 'export'){
+		$markAsSubmitted = array_key_exists('markAsSubmitted',$_POST) && $_POST['markAsSubmitted'] == 1?true:false;
+		if($igsnManager->exportReport($recTarget, $startIndex, $limit, $markAsSubmitted)){
+			exit;
+		}
+		else{
+			$statusStr = 'Unable to create export. Are you sure there are unsynchronized records?';
+		}
 	}
 }
 ?>
@@ -40,7 +46,13 @@ if($isEditor){
 	<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-
+		function verifySync(f){
+			if(f.recTarget.value == 'notsubmitted'){
+				alert("Unsubmitted records cannot be synchronized");
+				return false;
+			}
+			return true;
+		}
 	</script>
 	<style type="text/css">
 		fieldset{ padding:15px }
@@ -95,7 +107,7 @@ include($SERVER_ROOT.'/includes/header.php');
 			echo '<fieldset>';
 			echo '<legend>Action Panel: IGSN synchronization</legend>';
 			echo '<ul>';
-			$startIndex = $igsnManager->synchronizeIgsn($recTarget, $startIndex ,$limit);
+			$startIndex = $igsnManager->synchronizeIgsn($recTarget, $startIndex ,$limit, $resetSession);
 			echo '<li><a href="igsncontrol.php">Return to IGSN report listing</a></li>';
 			echo '</ul>';
 			echo '</fieldset>';
@@ -115,18 +127,24 @@ include($SERVER_ROOT.'/includes/header.php');
 		<fieldset>
 			<legend>IGSN Synchronization with NEON</legend>
 			<div style="margin-bottom:10px;">
-				Displays record counts synchronized with the central NEON System.
-				After uploading IGSNs into NEON system, run the synchronization tools to adjust the report.
-				Will soon add the ability to download a CSV report of unsynchronized ISGNs along with sampleCode, sampleID, and sampleClass that can be used to upload into central NEON system.
+				Displays occurrence counts that have been synchronized with the central NEON System.
+				After IGSNs have been integrated into NEON system, run the synchronization tool to adjust the report.
+				Previous unsynchronized records are rechecked within an session. The session will have to be reset to preform additional rechecks.<br>
+				Export function will produce a report containing unchecked or unsynchronized records limited by the transaction limit.
+				Ideally, reports submitted to NEON should not contain more than 5000 records.
 			</div>
 			<div style="">
 				<ul>
 					<?php
 					$reportArr = $igsnManager->getIgsnSynchronizationReport();
 					if($reportArr){
-						echo '<div><label>Unchecked: </label>'.(isset($reportArr['x'])?$reportArr['x']:'0').'</div>';
+						echo '<div><label>Not submitted: </label>'.(isset($reportArr['x'])?$reportArr['x']:'0').'</div>';
+						echo '<div><label>Submitted but unchecked: </label>'.(isset($reportArr['3'])?$reportArr['3']:'0').'</div>';
 						echo '<div><label>Unsynchronized: </label>'.(isset($reportArr[0])?$reportArr[0]:'0').'</div>';
+						if(isset($reportArr[100])) echo '<div><label>Unsynchronized (current session): </label>'.$reportArr[100].'</div>';
 						echo '<div><label>Synchronized: </label>'.(isset($reportArr[1])?$reportArr[1]:'0').'</div>';
+						echo '<div><label>Mismatched: </label>'.(isset($reportArr[2])?$reportArr[2]:'0').'</div>';
+						echo '<div><label>Data return errors: </label>'.(isset($reportArr[10])?$reportArr[10]:'0').'</div>';
 					}
 					?>
 				</ul>
@@ -135,23 +153,33 @@ include($SERVER_ROOT.'/includes/header.php');
 						<div style="clear:both;">
 							<div style="float:left; margin-left:35px; margin-right:5px"><label>Target:</label> </div>
 							<div style="float:left;">
-								<input name="recTarget" type="radio" value="0" <?php echo (!$recTarget?'checked':''); ?> /> Unchecked only<br/>
-								<input name="recTarget" type="radio" value="1" <?php echo ($recTarget==1?'checked':''); ?> /> Unsynchronized only<br/>
-								<input name="recTarget" type="radio" value="2" <?php echo ($recTarget==2?'checked':''); ?> /> All unlinked records
+								<input name="recTarget" type="radio" value="notsubmitted" <?php echo ($recTarget == 'notsubmitted'?'checked':''); ?> /> Not submitted<br/>
+								<input name="recTarget" type="radio" value="unchecked" <?php echo ($recTarget == 'unchecked'?'checked':''); ?> /> Unchecked<br/>
+								<input name="recTarget" type="radio" value="unsynchronized" <?php echo (!$recTarget || $recTarget == 'unsynchronized'?'checked':''); ?> /> Unsynchronized records<br/>
 							</div>
+						</div>
+						<div style="clear:both;padding-top:10px;margin-left:35px;">
+							<input name="resetSession" type="checkbox" value="1" >
+							<label>reset session</label>
 						</div>
 						<div style="clear:both;padding-top:10px;margin-left:35px;">
 							<label>Start at IGSN:</label> <input name="startIndex" type="text" value="<?php echo $startIndex; ?>" />
 						</div>
 						<div style="clear:both;padding-top:10px;margin-left:35px;">
-							<label>Transaction limit:</label> <input name="limit" type="text" value="<?php echo $limit; ?>" />
+							<label>Transaction limit:</label> <input name="limit" type="text" value="<?php echo $limit; ?>" required />
 						</div>
 						<div style="clear:both;padding:20px 35px;">
-							<span><button name="action" type="submit" value="syncIGSNs">Synchronize Records</button></span>
-							<span style="margin-left:20px"><button name="action" type="submit" value="exportUnsync">Export Unsynchronized</button></span>
+							<div style="float:left;"><button name="action" type="submit" value="syncIGSNs" onclick="return verifySync(this.form)">Synchronize Records</button></div>
+							<div style="float:left;margin-left:20px">
+								<button name="action" type="submit" value="export" style="margin-bottom:0px">Export Report</button><br>
+								<span style="margin-left:15px"><input name="markAsSubmitted" type="checkbox" value="1" checked> mark as submitted</span>
+							</div>
+							<div style="float:left;margin-left:20px">
+								<button name="action" type="submit" value="refresh" style="margin-bottom:0px">Rerfresh Statistics</button>
+							</div>
 						</div>
 					</form>
-					<div style="margin-left:40px">
+					<div style="clear:both;margin-left:40px">
 						<a href="http://data.neonscience.org/web/external-lab-ingest" target="_blank">NEON report submission page</a>
 					</div>
 				</div>

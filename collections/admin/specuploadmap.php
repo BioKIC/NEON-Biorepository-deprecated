@@ -22,7 +22,6 @@ $versionData = array_key_exists('versiondata',$_REQUEST) && $_REQUEST['versionda
 $verifyImages = array_key_exists('verifyimages',$_REQUEST) && $_REQUEST['verifyimages']?true:false;
 $processingStatus = array_key_exists('processingstatus',$_REQUEST)?$_REQUEST['processingstatus']:'';
 $dbpk = array_key_exists('dbpk',$_REQUEST)?$_REQUEST['dbpk']:'';
-$publicationGuid = array_key_exists('publicationGuid',$_REQUEST)?$_REQUEST['publicationGuid']:'';
 
 if(strpos($uspid,'-')){
 	$tok = explode('-',$uspid);
@@ -66,6 +65,7 @@ elseif($uploadType == $DWCAUPLOAD || $uploadType == $IPTUPLOAD || $uploadType ==
 			$duManager->addFilterCondition($_POST['filter'.$i], $_POST['condition'.$i], $_POST['value'.$i]);
 		}
 	}
+	if(array_key_exists('publicationGuid',$_REQUEST)) $duManager->setPublicationGuid($_REQUEST['publicationGuid']);
 }
 
 $duManager->setCollId($collid);
@@ -77,7 +77,6 @@ $duManager->setMatchOtherCatalogNumbers($matchOtherCatNum);
 $duManager->setVersionDataEdits($versionData);
 $duManager->setVerifyImageUrls($verifyImages);
 $duManager->setProcessingStatus($processingStatus);
-$duManager->setPublicationGuid($publicationGuid);
 
 if($action == 'Automap Fields') $autoMap = true;
 
@@ -107,11 +106,11 @@ if($isEditor && $collid){
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['SPEC_UPLOAD'])?$LANG['SPEC_UPLOAD']:'Specimen Uploader'); ?></title>
 	<?php
-	$activateJQuery = true;
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
+	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/symb/shared.js" type="text/javascript"></script>
 	<script>
 		function verifyMappingForm(f){

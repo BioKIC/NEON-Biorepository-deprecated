@@ -61,7 +61,8 @@ $dArr = $datasetManager->getPublicDatasets();
 				} else {
 					echo '<li><a href="public.php?datasetid=' . $row['datasetid'] . '">' . $row['name'] . '</a></li>';
 				}
-			}; ?>
+			}
+			?>
 		</ul>
 	</div>
 	<?php

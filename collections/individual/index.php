@@ -5,24 +5,16 @@ include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 include_once($SERVER_ROOT.'/classes/RdfUtility.php');
 include_once($SERVER_ROOT.'/content/lang/collections/individual/index.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/content/lang/collections/fieldterms/materialSampleVars.'.$LANG_TAG.'.php');
-header("Content-Type: text/html; charset=".$CHARSET);
+header('Content-Type: text/html; charset=' . $CHARSET);
 
-$occid = array_key_exists('occid',$_REQUEST)?trim($_REQUEST['occid']):0;
-$collid = array_key_exists('collid',$_REQUEST)?trim($_REQUEST['collid']):0;
-$pk = array_key_exists('pk',$_REQUEST)?trim($_REQUEST['pk']):'';
-$guid = array_key_exists('guid',$_REQUEST)?trim($_REQUEST['guid']):'';
-$tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
-$clid = array_key_exists('clid',$_REQUEST)?trim($_REQUEST['clid']):0;
-$format = isset($_GET['format'])?$_GET['format']:'';
+$occid = array_key_exists('occid', $_REQUEST) ? filter_var($_REQUEST['occid'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$collid = array_key_exists('collid', $_REQUEST) ? filter_var($_REQUEST['collid'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$pk = array_key_exists('pk', $_REQUEST) ? filter_var($_REQUEST['pk'], FILTER_SANITIZE_STRING):'';
+$guid = array_key_exists('guid', $_REQUEST) ? filter_var($_REQUEST['guid'], FILTER_SANITIZE_STRING) : '';
+$tabIndex = array_key_exists('tabindex', $_REQUEST) ? filter_var($_REQUEST['tabindex'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$clid = array_key_exists('clid', $_REQUEST) ? filter_var($_REQUEST['clid'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$format = isset($_GET['format']) ? filter_var($_GET['format'], FILTER_SANITIZE_STRING) : '';
 $submit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
-
-//Sanitize input variables
-if(!is_numeric($occid)) $occid = 0;
-if(!is_numeric($collid)) $collid = 0;
-if($guid) $guid = filter_var($guid,FILTER_SANITIZE_STRING);
-if(!is_numeric($tabIndex)) $tabIndex = 0;
-if(!is_numeric($clid)) $clid = 0;
-if($pk && !preg_match('/^[a-zA-Z0-9\s_]+$/',$pk)) $pk = '';
 
 $indManager = new OccurrenceIndividual($submit?'write':'readonly');
 if($occid) $indManager->setOccid($occid);
@@ -156,17 +148,16 @@ $traitArr = $indManager->getTraitArr();
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE.(isset($LANG['DETAILEDCOLREC'])?$LANG['DETAILEDCOLREC']:'Detailed Collection Record Information'); ?></title>
-	<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>"/>
 	<meta name="description" content="<?php echo 'Occurrence author: '.($occArr?$occArr['recordedby'].','.$occArr['recordnumber']:''); ?>" />
 	<meta name="keywords" content="<?php echo (!empty($occArr['occurrenceid'])?$occArr['occurrenceid']:'').', '.(!empty($occArr['recordid'])?$occArr['recordid']:''); ?>" />
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<link href="../../css/symb/popup.css" type="text/css" rel="stylesheet" />
-	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet" />
-	<link href="<?php echo $CSS_BASE_PATH; ?>/collections/individual/index.css?ver=<?php echo $CSS_VERSION_LOCAL; ?>" type="text/css" rel="stylesheet" />
+	<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collections/individual/index.css?ver=1" type="text/css" rel="stylesheet" >
+	<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collections/individual/popup.css" type="text/css" rel="stylesheet" >
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="//maps.googleapis.com/maps/api/js?<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'key='.$GOOGLE_MAP_KEY:''); ?>"></script>
@@ -1006,18 +997,18 @@ $traitArr = $indManager->getTraitArr();
 							echo '<div><label>'.$displayTitle.':</label> <a href="'.$occArr['source']['url'].'" target="_blank">'.$displayStr.'</a></div>';
 							echo '<div style="float:left;">';
 							if(isset($occArr['source']['sourceName'])){
-								echo '<div>'.$LANG['DATA_SOURCE'].': '.$occArr['source']['sourceName'].'</div>';
-								if($recordType == 'symbiota') echo '<div><label>Source management: </label>Live managed record within a Symbiota portal</div>';
+								echo '<div><label>'.$LANG['DATA_SOURCE'].':</label> '.$occArr['source']['sourceName'].'</div>';
+								if($recordType == 'symbiota') echo '<div><label>Source management:</label> Live managed record within a Symbiota portal</div>';
 							}
 							if(array_key_exists('fieldsModified',$_POST)){
-								echo '<div>'.$LANG['REFRESH_DATE'].': '.(isset($occArr['source']['refreshTimestamp'])?$occArr['source']['refreshTimestamp']:'').'</div>';
+								echo '<div><label>'.$LANG['REFRESH_DATE'].':</label> '.(isset($occArr['source']['refreshTimestamp'])?$occArr['source']['refreshTimestamp']:'').'</div>';
 								//Input from refersh event
 								$dataStatus = filter_var($_POST['dataStatus'], FILTER_SANITIZE_STRING);
 								$fieldsModified = filter_var($_POST['fieldsModified'], FILTER_SANITIZE_STRING);
 								$sourceDateLastModified = filter_var($_POST['sourceDateLastModified'], FILTER_SANITIZE_STRING);
-								echo '<div>'.$LANG['UPDATE_STATUS'].': '.$dataStatus.'</div>';
-								echo '<div>'.$LANG['FIELDS_MODIFIED'].': '.$fieldsModified.'</div>';
-								echo '<div>'.$LANG['SOURCE_DATE_LAST_MODIFIED'].': '.$sourceDateLastModified.'</div>';
+								echo '<div><label>'.$LANG['UPDATE_STATUS'].':</label> '.$dataStatus.'</div>';
+								echo '<div><label>'.$LANG['FIELDS_MODIFIED'].':</label> '.$fieldsModified.'</div>';
+								echo '<div><label>'.$LANG['SOURCE_DATE_LAST_MODIFIED'].':</label> '.$sourceDateLastModified.'</div>';
 							}
 							echo '</div>';
 							if($SYMB_UID && $recordType == 'symbiota'){
@@ -1368,7 +1359,7 @@ $traitArr = $indManager->getTraitArr();
 								}
 							}
 							else{
-								echo '<div style="margin:25px 0px;font-weight:bold">'.$LANG['NOTE_DITED'].'</div>';
+								echo '<div style="margin:25px 0px;font-weight:bold">'.$LANG['NOT_EDITED'].'</div>';
 							}
 							echo '<div style="margin:15px">'.$LANG['EDIT_NOTE'].'</div>';
 							//Display Access Stats

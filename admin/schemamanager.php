@@ -11,7 +11,6 @@ $currentVers = $schemaManager->getCurrentVersion();
 	<head>
 		<title>Database Schema Manager</title>
 		<?php
-		$activateJQuery = false;
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
 		<style type="text/css">

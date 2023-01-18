@@ -47,6 +47,7 @@ $clArr = $obsManager->getChecklists();
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.$LANG['OBS_SUBMIT']; ?></title>
+	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
@@ -63,12 +64,11 @@ $clArr = $obsManager->getChecklists();
 	</script>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
-	<link href="../../css/v202209/jquery-ui.css" type="text/css" rel="stylesheet">
 	<script src="../../js/symb/collections.coordinateValidation.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.observations.js?ver=1" type="text/javascript"></script>
 	<style>
 		#dmsdiv{ display: none; clear: both; padding: 15px; width: 300px; background-color: #f2f2f2; border: 2px outset #E8EEFA; }
-		#dmsButton { margin: 0px 3px; font-weight: bold; background-color: #f2f2f2; }
+		#dmsButton { margin: 0px 3px; }
 	</style>
 </head>
 <body>

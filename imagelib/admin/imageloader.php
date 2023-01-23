@@ -5,13 +5,11 @@ include_once($SERVER_ROOT.'/content/lang/imagelib/admin/imageloader.en.php');
 if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/imagelib/admin/imageloader.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/imagelib/admin/imageloader.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$action = array_key_exists("action",$_POST)?$_POST["action"]:"";
-$ulFileName = array_key_exists("ulfilename",$_POST)?$_POST["ulfilename"]:"";
+$action = array_key_exists('action', $_POST) ? $_POST['action'] : '';
+$ulFileName = array_key_exists('ulfilename', $_POST) ? filter_var($_POST['ulfilename'], FILTER_SANITIZE_STRING) : '';
 
 $isEditor = false;
-if($IS_ADMIN){
-	$isEditor = true;
-}
+if($IS_ADMIN) $isEditor = true;
 
 $importManager = new ImageImport();
 
@@ -20,12 +18,16 @@ if($isEditor){
 	if($action){
 		$importManager->setUploadFile($ulFileName);
 	}
-	if(array_key_exists("sf",$_POST)){
+	if(array_key_exists('sf', $_POST)){
 		//Grab field mapping, if mapping form was submitted
- 		$targetFields = $_POST["tf"];
- 		$sourceFields = $_POST["sf"];
-		for($x = 0;$x<count($targetFields);$x++){
-			if($targetFields[$x] !== "" && $sourceFields[$x]) $fieldMap[$sourceFields[$x]] = $targetFields[$x];
+		$sourceFields = $_POST['sf'];
+		$targetFields = $_POST['tf'];
+		for($x = 0; $x < count($targetFields); $x++){
+			if($sourceFields[$x] && $targetFields[$x] !== ''){
+				$sourceField = filter_var($sourceFields[$x], FILTER_SANITIZE_STRING);
+				$targetField = filter_var($targetFields[$x], FILTER_SANITIZE_STRING);
+				$fieldMap[$sourceField] = $targetField;
+			}
 		}
 	}
 }
@@ -79,7 +81,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							</div>
 						</div>
 						<div style="margin:10px;">
-							<button type="submit" name="action" value="Analyze Input File" ><?php echo $LANG['ANALYZE_INPUT_FILE']; ?></button>
+							<button type="submit" name="action" value="analyzeInputFile" ><?php echo $LANG['ANALYZE_INPUT_FILE']; ?></button>
 						</div>
 					</div>
 					<?php
@@ -151,12 +153,12 @@ include($SERVER_ROOT.'/includes/header.php');
 							<input type="submit" name="action" value="Verify Mapping" /><br/>
 							<fieldset>
 								<legend><?php echo $LANG['LRG_IMG']; ?></legend>
-								<input name="lgimg" type="radio" value="0" SELECTED /> <?php echo $LANG['LEAVE_BLANK']; ?><br/>
+								<input name="lgimg" type="radio" value="0" checked /> <?php echo $LANG['LEAVE_BLANK']; ?><br/>
 								<input name="lgimg" type="radio" value="1" /> <?php echo $LANG['MAP_REMOTE_IMGS']; ?><br/>
 								<input name="lgimg" type="radio" value="2" /> <?php echo $LANG['IMPORT_LOCAL']; ?>
 							</fieldset>
 							<?php echo $LANG['BASE_PATH']; ?>: <input name="basepath" type="text" value="" /><br/>
-							<button name="action" type="submit" value="Upload Images" ><?php echo $LANG['UPLOAD_IMGS']; ?>
+							<button name="action" type="submit" value="Upload Images" ><?php echo $LANG['UPLOAD_IMGS']; ?></button>
 						</div>
 					</div>
 					<?php

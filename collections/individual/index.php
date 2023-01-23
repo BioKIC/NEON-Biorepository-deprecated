@@ -949,6 +949,7 @@ $traitArr = $indManager->getTraitArr();
 											<img border="1" src="<?php echo $thumbUrl; ?>" title="<?php echo $imgArr['caption']; ?>" style="max-width:170;" />
 										</a>
 										<?php
+										if($imgArr['caption']) echo '<div><i>'.$imgArr['caption'].'</i></div>';
 										if($imgArr['photographer']) echo '<div>'.(isset($LANG['AUTHOR'])?$LANG['AUTHOR']:'Author').': '.$imgArr['photographer'].'</div>';
 										if($imgArr['url'] && substr($thumbUrl,0,7)!='process' && $imgArr['url'] != $imgArr['lgurl']) echo '<div><a href="'.$imgArr['url'].'" target="_blank">'.$LANG['OPEN_MEDIUM'].'</a></div>';
 										if($imgArr['lgurl']) echo '<div><a href="'.$imgArr['lgurl'].'" target="_blank">'.$LANG['OPEN_LARGE'].'</a></div>';

@@ -378,13 +378,13 @@ class ProfileManager extends Manager{
 		else{
 			$header = "Organization: ".$GLOBALS["DEFAULT_TITLE"]." \r\n".
 				"MIME-Version: 1.0 \r\n".
-				"Content-type: text/html; charset=iso-8859-1 \r\n".
+				"Content-type: text/html; charset=iso-8859-1 \r\n";
 			if(array_key_exists("ADMIN_EMAIL",$GLOBALS) && $GLOBALS["ADMIN_EMAIL"]){
 				$header .= "From: ".$from." \r\n".
 					"Reply-To: ".$GLOBALS["ADMIN_EMAIL"]." \r\n".
 					"Return-Path: ".$GLOBALS["ADMIN_EMAIL"]." \r\n";
 			}
-			
+
 			if(!mail($to,$subject,$body,$header)){
 				$status = false;
 				$this->errorStr = 'mailserver might not be properly setup';

@@ -496,7 +496,7 @@ class OccurrenceHarvester{
 				if($identArr && !empty($identArr['sciname'])){
 					$identArr['taxonRemarks'] = 'Identification source: harvested from NEON API';
 					if(!isset($identArr['dateIdentified']) || $identArr['dateIdentified']){
-						if($fateDate) $identArr['dateIdentified'] = $fateDate;
+						if($fateDate && !isset($identArr['dateIdentified'])) $identArr['dateIdentified'] = $fateDate;
 					}
 					$hashStr = $identArr['sciname'];
 					if(!empty($identArr['identifiedBy'])) $hashStr .= $identArr['identifiedBy'];
@@ -1071,6 +1071,12 @@ class OccurrenceHarvester{
 
 	private function setIdentifications($occid, $identArr){
 		if($occid){
+			//Remove invalid identifications
+			foreach($identArr as $k => $v){
+				if(!isset($v['sciname'])) unset($identArr[$k]);
+				elseif(!isset($v['identifiedBy'])) unset($identArr[$k]);
+				elseif(!isset($v['dateIdentified'])) unset($identArr[$k]);
+			}
 			$oldID = '';
 			$newID = '';
 			if($this->currentDetArr){

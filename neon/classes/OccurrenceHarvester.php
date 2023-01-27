@@ -412,6 +412,8 @@ class OccurrenceHarvester{
 		//if(isset($viewArr['sampleClass']) && $viewArr['sampleClass'] == 'mam_pertrapnight_in.tagID') $this->createRelationship($viewArr['childSampleIdentifiers']);
 		//parse Sample Event details
 		$eventArr = $viewArr['sampleEvents'];
+		$harvestIdentifications = true;
+		if($sampleRank && isset($sampleArr['identifications'])) $harvestIdentifications = false;
 		if($eventArr){
 			foreach($eventArr as $eArr){
 				$tableName = $eArr['ingestTableName'];
@@ -439,16 +441,6 @@ class OccurrenceHarvester{
 					elseif($fArr['smsKey'] == 'collection_location' && $fArr['smsValue']) $tableArr['collection_location'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'fate_date' && $fArr['smsValue']) $fateDate = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'event_id' && $fArr['smsValue']) $tableArr['event_id'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'taxon' && $fArr['smsValue']){
-						$identArr['sciname'] = $fArr['smsValue'];
-						$identArr['taxon'] = $fArr['smsValue'];
-					}
-					elseif($fArr['smsKey'] == 'taxon_published' && $fArr['smsValue']) $identArr['taxonPublished'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'identified_by' && $fArr['smsValue']) $identArr['identifiedBy'] = $this->translatePersonnelArr($fArr['smsValue']);
-					elseif($fArr['smsKey'] == 'identified_date' && $fArr['smsValue']) $identArr['dateIdentified'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'identification_remarks' && $fArr['smsValue']) $identArr['identificationRemarks'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'identification_references' && $fArr['smsValue']) $identArr['identificationReferences'] = $fArr['smsValue'];
-					elseif($fArr['smsKey'] == 'identification_qualifier' && $fArr['smsValue']) $identArr['identificationQualifier'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'collected_by' && $fArr['smsValue']) $tableArr['collected_by'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'collect_start_date' && $fArr['smsValue']) $tableArr['collect_start_date'] = $fArr['smsValue'];
 					elseif($fArr['smsKey'] == 'collect_end_date' && $fArr['smsValue']) $tableArr['collect_end_date'] = $fArr['smsValue'];
@@ -478,6 +470,18 @@ class OccurrenceHarvester{
 						if(!strpos($fArr['smsValue'],'biorepo.neonscience.org/portal')) $assocMedia['url'] = $fArr['smsValue'];
 					}
 					elseif($fArr['smsKey'] == 'photographed_by') $assocMedia['photographer'] = $fArr['smsValue'];
+					if($harvestIdentifications){
+						if($fArr['smsKey'] == 'taxon' && $fArr['smsValue']){
+							$identArr['sciname'] = $fArr['smsValue'];
+							$identArr['taxon'] = $fArr['smsValue'];
+						}
+						elseif($fArr['smsKey'] == 'taxon_published' && $fArr['smsValue']) $identArr['taxonPublished'] = $fArr['smsValue'];
+						elseif($fArr['smsKey'] == 'identified_by' && $fArr['smsValue']) $identArr['identifiedBy'] = $this->translatePersonnelArr($fArr['smsValue']);
+						elseif($fArr['smsKey'] == 'identified_date' && $fArr['smsValue']) $identArr['dateIdentified'] = $fArr['smsValue'];
+						elseif($fArr['smsKey'] == 'identification_remarks' && $fArr['smsValue']) $identArr['identificationRemarks'] = $fArr['smsValue'];
+						elseif($fArr['smsKey'] == 'identification_references' && $fArr['smsValue']) $identArr['identificationReferences'] = $fArr['smsValue'];
+						elseif($fArr['smsKey'] == 'identification_qualifier' && $fArr['smsValue']) $identArr['identificationQualifier'] = $fArr['smsValue'];
+					}
 				}
 				if($assocMedia && isset($assocMedia['url'])) $tableArr['assocMedia'][] = $assocMedia;
 
@@ -493,15 +497,14 @@ class OccurrenceHarvester{
 					$this->fateLocationArr[$score]['date'] = $fateDate;
 				}
 				$sampleArr = array_merge($tableArr, $sampleArr);
-				if($identArr && !empty($identArr['sciname'])){
+				if($identArr && isset($identArr['sciname']) && $identArr['sciname']){
 					$identArr['taxonRemarks'] = 'Identification source: harvested from NEON API';
-					if(!isset($identArr['dateIdentified']) || $identArr['dateIdentified']){
-						if($fateDate && !isset($identArr['dateIdentified'])) $identArr['dateIdentified'] = $fateDate;
+					if(!isset($identArr['dateIdentified']) || !$identArr['dateIdentified']){
+						if($fateDate) $identArr['dateIdentified'] = $fateDate;
 					}
-					$hashStr = $identArr['sciname'];
-					if(!empty($identArr['identifiedBy'])) $hashStr .= $identArr['identifiedBy'];
-					if(!empty($identArr['dateIdentified'])) $hashStr .= $identArr['dateIdentified'];
-					$hash = hash('md5', str_replace(' ','',$hashStr));
+					if(!isset($identArr['identifiedBy']) || !$identArr['identifiedBy']) $identArr['identifiedBy'] = 'undefined';
+					if(!isset($identArr['dateIdentified']) || !$identArr['dateIdentified']) $identArr['dateIdentified'] = 's.d.';
+					$hash = hash('md5', str_replace(' ', '', $identArr['sciname'].$identArr['identifiedBy'].$identArr['dateIdentified']));
 					$sampleArr['identifications'][$hash] = $identArr;
 				}
 			}
@@ -1074,13 +1077,14 @@ class OccurrenceHarvester{
 			//Remove invalid identifications
 			foreach($identArr as $k => $v){
 				if(!isset($v['sciname'])) unset($identArr[$k]);
-				elseif(!isset($v['identifiedBy'])) unset($identArr[$k]);
-				elseif(!isset($v['dateIdentified'])) unset($identArr[$k]);
+				elseif($v['identifiedBy'] == 'undefined' && $v['dateIdentified'] == 's.d.' && count($identArr) > 1){
+					unset($identArr[$k]);
+				}
 			}
+			//Remove old annotations entered by the occurrence harvester that are not present within new harvest
 			$oldID = '';
 			$newID = '';
 			if($this->currentDetArr){
-				//Remove old annotations entered by the occurrence harvester that are not present within new harvest
 				foreach($this->currentDetArr as $detID => $cdArr){
 					$deleteDet = true;
 					if($cdArr['enteredByUid'] && $cdArr['enteredByUid'] != 50){
@@ -1098,7 +1102,7 @@ class OccurrenceHarvester{
 					if($deleteDet){
 						//$this->deleteDetermination($cdKey);
 						//Following code below will be used to temporarily test evaluation of removing old determinations
-						$this->conn->query('UPDATE omoccurdeterminations SET identificationRemarks = CONCAT_WS("; ", "DELETE", identificationRemarks) WHERE detid = '.$detID);
+						$this->conn->query('UPDATE omoccurdeterminations SET identifiedBy = CONCAT_WS(" - ", identifiedBy, "DELETE") WHERE detid = '.$detID);
 					}
 					if($cdArr['isCurrent'] && (!$oldID || !empty($cdArr['securityStatus']))) $oldID = $cdArr['sciname'];
 				}
@@ -1112,7 +1116,7 @@ class OccurrenceHarvester{
 			}
 			if($oldID && $newID && $oldID != $newID) $this->setSampleErrorMessage('occid:'.$occid, 'Curatorial Check: possible ID conflict');
 			foreach($identArr as $idArr){
-				if(($idArr['identifiedBy'] != 'manifest' && $idArr['identifiedBy'] != 'sampleID') || !empty($idArr['isCurrent'])){
+				if(($idArr['identifiedBy'] != 'manifest' && $idArr['identifiedBy'] != 'sampleID') || (isset($idArr['isCurrent']) && $idArr['isCurrent'])){
 					if(empty($idArr['updateDetID'])) $this->insertDetermination($occid, $idArr);
 					else $this->updateDetermination($idArr);
 					//Following code needed until omoccurdeterminations is activated as central determination source

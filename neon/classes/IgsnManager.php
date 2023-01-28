@@ -18,11 +18,11 @@ class IgsnManager{
 	public function getIgsnTaskReport(){
 		$this->setNullNeonIdentifiers();
 		$retArr = array();
-		$sql = 'SELECT c.collid, CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname, count(o.occid) as cnt '.
-			'FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid '.
-			'INNER JOIN NeonSample s ON o.occid = s.occid '.
-			'WHERE c.institutionCode = "NEON" AND c.collid NOT IN(81,84) AND o.occurrenceId IS NULL AND s.errorMessage IS NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 '.
-			'GROUP BY c.collid';
+		$sql = 'SELECT c.collid, CONCAT_WS("-",c.institutioncode,c.collectioncode) as collcode, c.collectionname, count(o.occid) as cnt
+			FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid
+			INNER JOIN NeonSample s ON o.occid = s.occid
+			WHERE c.institutionCode = "NEON" AND c.collid NOT IN(81,84) AND o.occurrenceId IS NULL AND s.errorMessage IS NULL AND s.sampleReceived = 1
+			GROUP BY c.collid';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[$r->collid]['collcode'] = $r->collcode;

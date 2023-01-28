@@ -40,7 +40,7 @@ class OccurrenceHarvester{
 		$retArr = array();
 		$sql = 'SELECT s.errorMessage AS errMsg, COUNT(s.samplePK) as sampleCnt, COUNT(o.occid) as occurrenceCnt '.
 			'FROM NeonSample s LEFT JOIN omoccurrences o ON s.occid = o.occid '.
-			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND s.acceptedForAnalysis = 1 AND (o.collid NOT IN(81,84) OR o.collid IS NULL) ';
+			'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND (o.collid NOT IN(81,84) OR o.collid IS NULL) ';
 		if($shipmentPK) $sql .= 'AND s.shipmentPK = '.$shipmentPK;
 		$sql .= ' GROUP BY errMsg';
 		$rs= $this->conn->query($sql);
@@ -241,28 +241,25 @@ class OccurrenceHarvester{
 		$this->setSampleErrorMessage($sampleArr['samplePK'], '');
 		$url = '';
 		$sampleViewArr = array();
-		if(isset($sampleArr['occurrenceID']) && $sampleArr['occurrenceID']){
-			$url = $this->neonApiBaseUrl.'/samples/view?archiveGuid='.$sampleArr['occurrenceID'].'&apiToken='.$this->neonApiKey;
-			$sampleViewArr = $this->getNeonApiArr($url);
-		}
 
-		if(!isset($sampleViewArr['sampleViews'])){
-			if($sampleArr['sampleCode']){
-				$url = $this->neonApiBaseUrl.'/samples/view?barcode='.$sampleArr['sampleCode'].'&apiToken='.$this->neonApiKey;
-			}
-			elseif($sampleArr['sampleUuid']){
-				$url = $this->neonApiBaseUrl.'/samples/view?sampleUuid='.$sampleArr['sampleUuid'].'&apiToken='.$this->neonApiKey;
-			}
-			elseif($sampleArr['sampleID'] && $sampleArr['sampleClass']){
-				$url = $this->neonApiBaseUrl.'/samples/view?sampleTag='.urlencode($sampleArr['sampleID']).'&sampleClass='.urlencode($sampleArr['sampleClass']).'&apiToken='.$this->neonApiKey;
-			}
-			else{
-				$this->errorStr = 'Sample identifiers incomplete';
-				$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
-				return false;
-			}
-			$sampleViewArr = $this->getNeonApiArr($url);
+		if($sampleArr['sampleCode']){
+			$url = $this->neonApiBaseUrl.'/samples/view?barcode='.$sampleArr['sampleCode'].'&apiToken='.$this->neonApiKey;
 		}
+		elseif($sampleArr['sampleUuid']){
+			$url = $this->neonApiBaseUrl.'/samples/view?sampleUuid='.$sampleArr['sampleUuid'].'&apiToken='.$this->neonApiKey;
+		}
+		elseif(isset($sampleArr['occurrenceID']) && $sampleArr['occurrenceID']){
+			$url = $this->neonApiBaseUrl.'/samples/view?archiveGuid='.$sampleArr['occurrenceID'].'&apiToken='.$this->neonApiKey;
+		}
+		elseif($sampleArr['sampleID'] && $sampleArr['sampleClass']){
+			$url = $this->neonApiBaseUrl.'/samples/view?sampleTag='.urlencode($sampleArr['sampleID']).'&sampleClass='.urlencode($sampleArr['sampleClass']).'&apiToken='.$this->neonApiKey;
+		}
+		else{
+			$this->errorStr = 'Sample identifiers incomplete';
+			$this->setSampleErrorMessage($sampleArr['samplePK'], $this->errorStr);
+			return false;
+		}
+		$sampleViewArr = $this->getNeonApiArr($url);
 		//echo 'url: '.$url.'<br/>';
 
 		if(!isset($sampleViewArr['sampleViews'])){

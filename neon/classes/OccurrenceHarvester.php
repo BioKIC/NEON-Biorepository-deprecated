@@ -84,7 +84,7 @@ class OccurrenceHarvester{
 			else $sqlPrefix .= 'LIMIT 1000 ';
 		}
 		if($sqlWhere){
-			$sqlWhere = 'WHERE s.checkinuid IS NOT NULL AND s.acceptedForAnalysis = 1 AND s.sampleReceived = 1 AND (o.collid NOT IN(81,84) OR o.collid IS NULL) '.$sqlWhere;
+			$sqlWhere = 'WHERE s.checkinuid IS NOT NULL AND s.sampleReceived = 1 AND (s.acceptedForAnalysis = 1 || o.occid IS NOT NULL) AND (o.collid NOT IN(81,84) OR o.collid IS NULL) '.$sqlWhere;
 			$status = $this->batchHarvestOccurrences($sqlWhere.$sqlPrefix);
 		}
 		return $status;

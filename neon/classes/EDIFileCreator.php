@@ -176,9 +176,11 @@ class EDIFileCreator extends Manager
 					$this->collArr[$r->collid]['collectionguid'] = $r->collectionguid;
 					$this->collArr[$r->collid]['url'] = $r->url;
 					// if $r->contact is 'NEON Biorepository', then change from individualName to organizationName
+					// also changes 'NEON' contacts to organizationName 
 					if ($r->email === 'biorepo@asu.edu') {
 						$this->collArr[$r->collid]['contact'][0]['organizationName'] = 'NEON Biorepository at Arizona State University';
 					} else {
+						$this->collArr[$r->collid]['contact'][0]['individualName']['givenName'] = $r->contact;
 						$this->collArr[$r->collid]['contact'][0]['individualName']['surName'] = $r->contact;
 					}
 					$this->collArr[$r->collid]['contact'][0]['electronicMailAddress'] = $r->email;
@@ -237,14 +239,18 @@ class EDIFileCreator extends Manager
 					if ($contactArr = json_decode($r->contactJson, true)) {
 						foreach ($contactArr as $key => $cArr) {
 							// if $cArr['lastName] is "NEON Biorepository", then the key is 'organizationName' instead of 'individualName'
+							// same if $cArr['firstName] is "NEON", then the key is 'organizationName' instead of 'individualName'
 							if (isset($cArr['lastName']) && $cArr['lastName'] == 'NEON Biorepository') {
 								$this->collArr[$r->collid]['contact'][$key]['organizationName'] = $cArr['lastName'];
 							} else {
 								$this->collArr[$r->collid]['contact'][$key]['individualName']['givenName'] = $cArr['firstName'];
 								$this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
 							}
-							// $this->collArr[$r->collid]['contact'][$key]['individualName']['givenName'] = $cArr['firstName'];
-							// $this->collArr[$r->collid]['contact'][$key]['individualName']['surName'] = $cArr['lastName'];
+							if (isset($cArr['firstName']) && $cArr['firstName'] == 'NEON') {
+								$this->collArr[$r->collid]['contact'][$key]['organizationName'] = $cArr['firstName'] . ' ' . $cArr['lastName'];
+								// remove the 'individualName' for this contact
+								unset($this->collArr[$r->collid]['contact'][$key]['individualName']);
+							}
 							if (isset($cArr['role']) && $cArr['role']) $this->collArr[$r->collid]['contact'][$key]['positionName'] = $cArr['role'];
 							if (isset($cArr['email']) && $cArr['email']) $this->collArr[$r->collid]['contact'][$key]['electronicMailAddress'] = $cArr['email'];
 							// if (isset($cArr['orcid']) && $cArr['orcid']) $this->collArr[$r->collid]['contact'][$key]['userId'] = 'https://orcid.org/' . $cArr['orcid'];

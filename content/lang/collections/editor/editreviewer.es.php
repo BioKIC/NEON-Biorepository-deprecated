@@ -70,6 +70,6 @@ $LANG['ERROR_APPLYING_PALEO'] = 'ERROR al aplicar ediciones de omoccurpaleo';
 $LANG['ERROR_REVERTING_PALEO'] = 'ERROR al revertir ediciones de omoccurpaleo';
 $LANG['ERROR_APPLYING_REVISIONS'] = 'ERROR al aplicar revisiones';
 $LANG['ERROR_REVERTING_REVISIONS'] = 'ERROR al revertir revisiones';
-$$LANG['ERROR_DEL_EDITS'] = 'ERROR al eliminar ediciones';
+$LANG['ERROR_DEL_EDITS'] = 'ERROR al eliminar ediciones';
 
 ?>

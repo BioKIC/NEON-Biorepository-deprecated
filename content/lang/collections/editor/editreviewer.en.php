@@ -6,7 +6,11 @@ Language: English
 */
 
 $LANG['EDIT_REVIEWER'] = 'Specimen Edit Reviewer';
+$LANG['PREVIOUS'] = 'Previous';
+$LANG['RECORDS1'] = 'records';
 $LANG['FIELDS_EDITED'] = 'fields edited';
+$LANG['NEXT'] = 'Next';
+$LANG['RECORDS2'] = 'records'; //this is necessary because in some languages (e.g., Spanish), the word order is different than in English
 $LANG['DATE_PROBLEM'] = 'Start date cannot be after end date';
 $LANG['PLEASE_CHECK_EDIT'] = 'Please check at least one edit from list below!';
 $LANG['SURE_DELETE_HISTORY'] = 'Are you sure you want to permanently remove selected edits from history?';

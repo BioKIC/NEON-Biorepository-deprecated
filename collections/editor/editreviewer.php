@@ -84,12 +84,12 @@ if($subCnt > $recCnt) $subCnt = $recCnt;
 $navPageBase = 'editreviewer.php?collid='.$collid.'&display='.$displayMode.'&fastatus='.$faStatus.'&frstatus='.$frStatus.'&editor='.$editor.'&reccnt='.$recCnt;
 
 $navStr = '<div class="navbarDiv" style="float:right;">';
-if($pageNum) $navStr .= '<a href="'.$navPageBase.'&pagenum='.($pageNum-1).'&limitcnt='.$limitCnt.'" title="Previous '.$limitCnt.' records">&lt;&lt;</a>';
+if($pageNum) $navStr .= '<a href="'.$navPageBase.'&pagenum='.($pageNum-1).'&limitcnt='.$limitCnt.'" title="'.$LANG['PREVIOUS'].' '.$limitCnt.' '.$LANG['RECORDS1'].'">&lt;&lt;</a>';
 else $navStr .= '&lt;&lt;';
 $navStr .= ' | ';
 $navStr .= ($pageNum*$limitCnt).'-'.$subCnt.' of '.$recCnt.' '.$LANG['FIELDS_EDITED'];
 $navStr .= ' | ';
-if($subCnt < $recCnt) $navStr .= '<a href="'.$navPageBase.'&pagenum='.($pageNum+1).'&limitcnt='.$limitCnt.'" title="Next '.$limitCnt.' records">&gt;&gt;</a>';
+if($subCnt < $recCnt) $navStr .= '<a href="'.$navPageBase.'&pagenum='.($pageNum+1).'&limitcnt='.$limitCnt.'" title="'.$LANG['NEXT'].' '.$limitCnt.' '.$LANG['RECORDS2'].'">&gt;&gt;</a>';
 else $navStr .= '&gt;&gt;';
 $navStr .= '</div>';
 ?>

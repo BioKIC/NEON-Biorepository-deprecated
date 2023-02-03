@@ -62,4 +62,14 @@ $LANG['UNKNOWN'] = 'DESCONOCIDO';
 $LANG['NONE_FOUND'] = 'No existen Ediciones que coincidan con el criterio de búsqueda.';
 $LANG['ERROR'] = '¡Error!';
 
+$LANG['ERROR_APPLYING_EDITS'] = 'ERROR al aplicar ediciones de occurrence';
+$LANG['ERROR_REVERTING_EDITS'] = 'ERROR al revertir ediciones de occurrence';
+$LANG['ERROR_APPLYING_ID'] = 'ERROR al aplicar  ediciones de omoccuridentifiers';
+$LANG['ERROR_REVERTING_ID'] = 'ERROR al revertir ediciones de omoccuridentifiers';
+$LANG['ERROR_APPLYING_PALEO'] = 'ERROR al aplicar ediciones de omoccurpaleo';
+$LANG['ERROR_REVERTING_PALEO'] = 'ERROR al revertir ediciones de omoccurpaleo';
+$LANG['ERROR_APPLYING_REVISIONS'] = 'ERROR al aplicar revisiones';
+$LANG['ERROR_REVERTING_REVISIONS'] = 'ERROR al revertir revisiones';
+$$LANG['ERROR_DEL_EDITS'] = 'ERROR al eliminar ediciones';
+
 ?>

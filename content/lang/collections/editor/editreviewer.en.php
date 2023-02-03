@@ -62,4 +62,14 @@ $LANG['UNKNOWN'] = 'UNKNOWN';
 $LANG['NONE_FOUND'] = 'There are no Edits matching search criteria.';
 $LANG['ERROR'] = 'Error!';
 
+$LANG['ERROR_APPLYING_EDITS'] = 'ERROR applying occurrence edits';
+$LANG['ERROR_REVERTING_EDITS'] = 'ERROR reverting occurrence edits';
+$LANG['ERROR_APPLYING_ID'] = 'ERROR applying omoccuridentifiers edits';
+$LANG['ERROR_REVERTING_ID'] = 'ERROR reverting omoccuridentifiers edits';
+$LANG['ERROR_APPLYING_PALEO'] = 'ERROR applying omoccurpaleo edits';
+$LANG['ERROR_REVERTING_PALEO'] = 'ERROR reverting omoccurpaleo edits';
+$LANG['ERROR_APPLYING_REVISIONS'] = 'ERROR applying revisions';
+$LANG['ERROR_REVERTING_REVISIONS'] = 'ERROR reverting revisions';
+$LANG['ERROR_DEL_EDITS'] = 'ERROR deleting edits';
+
 ?>

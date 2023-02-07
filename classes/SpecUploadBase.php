@@ -1116,7 +1116,7 @@ class SpecUploadBase extends SpecUpload{
 
 	private function transferGeneticLinks(){
 		$this->outputMsg('<li>Linking genetic records (aka associatedSequences)...</li>');
-		$sql = 'SELECT occid, associatedSequences FROM uploadspectemp WHERE occid IS NOT NULL AND associatedSequences IS NOT NULL ';
+		$sql = 'SELECT occid, associatedSequences FROM uploadspectemp WHERE collid IN('.$this->collId.') AND occid IS NOT NULL AND associatedSequences IS NOT NULL ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$seqArr = explode(';', str_replace(array(',','|',''),';',$r->associatedSequences));

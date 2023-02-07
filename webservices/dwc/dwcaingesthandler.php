@@ -23,8 +23,8 @@ require_once($SERVER_ROOT.'/classes/SpecUploadDwca.php');
 $uploadType = isset($_REQUEST['uploadtype'])?preg_replace('/[^0-9]/','',$_REQUEST['uploadtype']):'';
 $securityKey = isset($_REQUEST['key'])?preg_replace('/[^A-Za-z0-9\-]/','',$_REQUEST['key']):'';
 $filePath = array_key_exists('filepath',$_REQUEST)?$_REQUEST['filepath']:false;
-$importIdent = array_key_exists('importident',$_REQUEST)?$_REQUEST['importident']:false;
-$importImage = array_key_exists('importimage',$_REQUEST)?$_REQUEST['importimage']:false;
+$importIdent = array_key_exists('importident',$_REQUEST)?$_REQUEST['importident']:true;
+$importImage = array_key_exists('importimage',$_REQUEST)?$_REQUEST['importimage']:true;
 $sourceType = array_key_exists('sourcetype',$_REQUEST)?$_REQUEST['sourcetype']:'';
 
 if(!$uploadType) exit("ERROR: uploadtype is required and is null ");

@@ -1468,16 +1468,31 @@ class EDIFileCreator extends Manager
 
 		$newDoc->appendChild($rootElem);
 
+		// Access element is necessary to make dataset public in EDI
+		// Uid in principal is the user's EDI uid authorized to publish data
+		$accessElem = $newDoc->createElement('access');
+		$accessElem->setAttribute('authSystem', 'https://pasta.edirepository.org/authentication');
+		$accessElem->setAttribute('order', 'allowFirst');
+		$accessElem->setAttribute('scope', 'document');
+		$accessElem->setAttribute('system', 'https://pasta.edirepository.org');
+		$allowArr = [
+			[
+				'principal' => 'uid=lprado,o=EDI,dc=edirepository,dc=org',
+				'permission' => 'all'
+			],
+			[
+				'principal' => 'public',
+				'permission' => 'read'
+			]
+		];
+		foreach ($allowArr as $aArr) {
+			$allowElem = $this->getNode($newDoc, 'allow', $aArr);
+			$accessElem->appendChild($allowElem);
+		}
+		$rootElem->appendChild($accessElem);
+
 		$datasetElem = $newDoc->createElement('dataset');
 		$rootElem->appendChild($datasetElem);
-
-		// if (array_key_exists('alternateIdentifier', $emlArr)) {
-		// 	foreach ($emlArr['alternateIdentifier'] as $v) {
-		// 		$altIdElem = $newDoc->createElement('alternateIdentifier');
-		// 		$altIdElem->appendChild($newDoc->createTextNode($v));
-		// 		$datasetElem->appendChild($altIdElem);
-		// 	}
-		// }
 
 		if (array_key_exists('title', $emlArr)) {
 			$titleElem = $newDoc->createElement('title');
@@ -1505,19 +1520,6 @@ class EDIFileCreator extends Manager
 				$datasetElem->appendChild($creatorElem);
 			}
 		}
-
-		// if (array_key_exists('metadataProvider', $emlArr)) {
-		// 	$mdArr = $emlArr['metadataProvider'];
-		// 	foreach ($mdArr as $childArr) {
-		// 		$mdElem = $newDoc->createElement('metadataProvider');
-		// 		foreach ($childArr as $k => $v) {
-		// 			$newChildElem = $newDoc->createElement($k);
-		// 			$newChildElem->appendChild($newDoc->createTextNode($v));
-		// 			$mdElem->appendChild($newChildElem);
-		// 		}
-		// 		$datasetElem->appendChild($mdElem);
-		// 	}
-		// }
 
 		if (array_key_exists('metadataProvider', $emlArr)) {
 			$mdArr = $emlArr['metadataProvider'];
@@ -1833,6 +1835,7 @@ class EDIFileCreator extends Manager
 		return $newDoc;
 	}
 
+	// Function to create XML node elements
 	private function getNode($newDoc, $elmentTag, $nodeArr)
 	{
 		$newNode = $newDoc->createElement($elmentTag);

@@ -530,13 +530,12 @@ ALTER TABLE `omoccurdeterminations`
   ADD COLUMN `identificationVerificationStatus` VARCHAR(45) NULL AFTER `taxonRemarks`,
   ADD COLUMN `taxonConceptID` VARCHAR(45) NULL AFTER `identificationVerificationStatus`,
   ADD COLUMN `recordID` VARCHAR(45) NULL AFTER `sortSequence`,
-  CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(60) NOT NULL DEFAULT 'unknown' ,
-  CHANGE COLUMN `dateIdentified` `dateIdentified` VARCHAR(45) NOT NULL DEFAULT 's.d.' ,
+  CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(255) NOT NULL DEFAULT '' ,
+  CHANGE COLUMN `dateIdentified` `dateIdentified` VARCHAR(45) NOT NULL DEFAULT '' ,
   CHANGE COLUMN `sourceIdentifier` `identificationID` VARCHAR(45) NULL DEFAULT NULL ,
   ADD INDEX `FK_omoccurdets_agentID_idx` (`identifiedByAgentID` ASC);
 
 ALTER TABLE `omoccurdeterminations` 
-  CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(255) NOT NULL ,
   CHANGE COLUMN `family` `family` VARCHAR(255) NULL DEFAULT NULL ,
   CHANGE COLUMN `sciname` `sciname` VARCHAR(255) NOT NULL ,
   CHANGE COLUMN `scientificNameAuthorship` `scientificNameAuthorship` VARCHAR(255) NULL DEFAULT NULL ,
@@ -856,6 +855,23 @@ ALTER TABLE `taxalinks`
 
 ALTER TABLE `taxalinks` 
   DROP INDEX `Index_unique` ;
+
+ALTER TABLE `uploaddetermtemp` 
+  ADD COLUMN `higherClassification` VARCHAR(150) NULL AFTER `dateIdentifiedInterpreted`,
+  ADD COLUMN `verbatimIdentification` VARCHAR(250) NULL AFTER `sciname`,
+  ADD COLUMN `family` VARCHAR(255) NULL AFTER `identificationQualifier`,
+  ADD COLUMN `genus` VARCHAR(45) NULL AFTER `family`,
+  ADD COLUMN `specificEpithet` VARCHAR(45) NULL AFTER `genus`,
+  ADD COLUMN `verbatimTaxonRank` VARCHAR(45) NULL AFTER `specificEpithet`,
+  ADD COLUMN `taxonRank` VARCHAR(45) NULL AFTER `verbatimTaxonRank`,
+  ADD COLUMN `infraSpecificEpithet` VARCHAR(45) NULL AFTER `taxonRank`,
+  ADD COLUMN `taxonRemarks` VARCHAR(2000) NULL AFTER `identificationRemarks`,
+  ADD COLUMN `identificationVerificationStatus` VARCHAR(45) NULL AFTER `taxonRemarks`,
+  ADD COLUMN `taxonConceptID` VARCHAR(45) NULL AFTER `identificationVerificationStatus`,
+  CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(255) NOT NULL DEFAULT '',
+  CHANGE COLUMN `dateIdentified` `dateIdentified` VARCHAR(45) NOT NULL DEFAULT '',
+  CHANGE COLUMN `sciname` `sciname` VARCHAR(255) NOT NULL ;
+
 
 ALTER TABLE `uploadspecparameters` 
   DROP FOREIGN KEY `FK_uploadspecparameters_coll`;

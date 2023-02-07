@@ -724,6 +724,20 @@ class SpecUploadBase extends SpecUpload{
 			'SET localitySecurityReason = "Locked: set via import file" '.
 			'WHERE localitySecurity > 0 AND localitySecurityReason IS NULL AND collid IN('.$this->collId.')';
 		$this->conn->query($sql);
+
+		if($this->sourceDatabaseType == 'specify'){
+			$sql = 'UPDATE uploaddetermtemp SET isCurrent = 1 WHERE collid IN('.$this->collId.')';
+			$this->conn->query($sql);
+		}
+
+		$this->outputMsg('<li style="margin-left:10px;">Ensuring current identifications are set properly set within central occurrence table...</li>');
+		$sql = 'UPDATE uploadspectemp s INNER JOIN uploaddetermtemp d ON s.dbpk = d.dbpk
+			SET s.sciname = d.sciname, s.identifiedBy = d.identifiedBy, s.dateIdentified = d.dateIdentified, s.family = d.family,
+			s.scientificNameAuthorship = d.scientificNameAuthorship, s.identificationQualifier = d.identificationQualifier,
+			s.identificationReferences = d.identificationReferences, s.identificationRemarks = d.identificationRemarks
+			WHERE s.collid IN('.$this->collId.') AND d.collid IN('.$this->collId.') AND d.isCurrent = 1 AND s.sciname IS NULL AND s.identifiedBy IS NULL AND s.dateIdentified IS NULL ';
+		$this->conn->query($sql);
+
 	}
 
 	public function getTransferReport(){

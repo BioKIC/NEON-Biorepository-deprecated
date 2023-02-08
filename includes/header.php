@@ -58,6 +58,9 @@ elseif (array_key_exists('CollAdmin', $USER_RIGHTS) || array_key_exists('CollEdi
 						<a href="<?php echo $CLIENT_ROOT; ?>/collections/datasets/publiclist.php">Research Datasets and Special Collections</a>
 					</li>
 					<li>
+						<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=8">Carabidae Checklists with Keys</a>
+					</li>
+					<li>
 						<a href="<?php echo $CLIENT_ROOT; ?>/projects/index.php?pid=6">Checklist: Research Sites - Invertebrates</a>
 					</li>
 					<li>

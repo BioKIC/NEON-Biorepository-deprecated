@@ -1661,24 +1661,23 @@ class SpecUploadBase extends SpecUpload{
 						$recMap['sciname'] = trim($parsedArr['unitname1'].' '.$parsedArr['unitname2'].' '.$parsedArr['unitind3'].' '.$parsedArr['unitname3']);
 					}
 				}
+				if(!isset($recMap['sciname']) || !$recMap['sciname']) return false;
 
-				if((isset($recMap['identifiedby']) && $recMap['identifiedby']) || (isset($recMap['dateidentified']) && $recMap['dateidentified']) || (isset($recMap['sciname']) && $recMap['sciname'])){
-					if(!isset($recMap['identifiedby']) || !$recMap['identifiedby']) $recMap['identifiedby'] = 'not specified';
-					if(!isset($recMap['dateidentified']) || !$recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
-					$sqlFragments = $this->getSqlFragments($recMap,$this->identFieldMap);
-					if($sqlFragments){
-						$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-						//echo "<div>SQL: ".$sql."</div>";
-						if($this->conn->query($sql)){
-							$this->identTransferCount++;
-							if($this->identTransferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->identTransferCount.'</li>');
-						}
-						else{
-							$outStr = '<li>FAILED adding identification history record #'.$this->identTransferCount.'</li>';
-							$outStr .= '<li style="margin-left:10px;">Error: '.$this->conn->error.'</li>';
-							$outStr .= '<li style="margin:0px 0px 10px 10px;">SQL: '.$sql.'</li>';
-							$this->outputMsg($outStr);
-						}
+				if(!isset($recMap['identifiedby'])) $recMap['identifiedby'] = '';
+				if(!isset($recMap['dateidentified'])) $recMap['dateidentified'] = '';
+				$sqlFragments = $this->getSqlFragments($recMap, $this->identFieldMap);
+				if($sqlFragments){
+					$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
+					//echo '<div>SQL: '.$sql.'</div>'; exit;
+					if($this->conn->query($sql)){
+						$this->identTransferCount++;
+						if($this->identTransferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->identTransferCount.'</li>');
+					}
+					else{
+						$outStr = '<li>FAILED adding identification history record #'.$this->identTransferCount.'</li>';
+						$outStr .= '<li style="margin-left:10px;">Error: '.$this->conn->error.'</li>';
+						$outStr .= '<li style="margin:0px 0px 10px 10px;">SQL: '.$sql.'</li>';
+						$this->outputMsg($outStr);
 					}
 				}
 			}
@@ -1864,6 +1863,9 @@ class SpecUploadBase extends SpecUpload{
 						}
 						if($valueStr){
 							$sqlValues .= ',"'.$valueStr.'"';
+						}
+						elseif($symbField == 'identifiedby' || $symbField == 'dateidentified'){
+							$sqlValues .= ',""';
 						}
 						else{
 							$sqlValues .= ",NULL";

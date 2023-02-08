@@ -39,6 +39,7 @@ elseif($uploadType == $DWCAUPLOAD){
 	$duManager = new SpecUploadDwca();
 	$duManager->setIncludeIdentificationHistory($importIdent);
 	$duManager->setIncludeImages($importImage);
+	$duManager->setUploadType($uploadType);
 	if($filePath) $duManager->setPath($filePath);
 	//For now, assume DWCA import is a specfy database
 	if(!$sourceType) $sourceType = 'specify';
@@ -58,12 +59,12 @@ if(!$duManager->validateSecurityKey($securityKey)){
 }
 if($sourceType) $duManager->setSourceDatabaseType($sourceType);
 
-$duManager->loadFieldMap(true);
 $ulPath = $duManager->uploadFile();
 if(!$ulPath){
 	$errStr = 'ERROR uploading file: '.$duManager->getErrorStr();
 	exit($errStr);
 }
+$duManager->loadFieldMap(true);
 
 if(!$duManager->analyzeUpload()) exit('ERROR analyzing upload file: '.$duManager->getErrorStr());
 if(!$duManager->uploadData(false)) exit('ERROR uploading file: '.$duManager->getErrorStr());

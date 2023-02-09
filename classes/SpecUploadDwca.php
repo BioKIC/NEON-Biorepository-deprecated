@@ -624,13 +624,13 @@ class SpecUploadDwca extends SpecUploadBase{
 							$this->outputMsg('<li>Loading identification history extension... </li>');
 							if($this->uploadType == $this->RESTOREBACKUP){
 								$this->identFieldMap['occid']['field'] = 'coreid';
-								$this->identFieldMap['sciname']['field'] = 'scientificname';
 								$this->identFieldMap['initialtimestamp']['field'] = 'modified';
 							}
+							$this->identFieldMap['sciname']['field'] = 'sciname,scientificname';
 							foreach($this->metaArr['ident']['fields'] as $k => $v){
 								$this->identSourceArr[$k] = strtolower($v);
 							}
-							$this->uploadExtension('ident',$this->identFieldMap,$this->identSourceArr);
+							$this->uploadExtension('ident', $this->identFieldMap, $this->identSourceArr);
 							$this->outputMsg('<li style="margin-left:10px;">Complete: '.$this->identTransferCount.' records loaded</li>');
 						}
 
@@ -756,7 +756,7 @@ class SpecUploadDwca extends SpecUploadBase{
 		}
 	}
 
-	private function uploadExtension($targetStr,$fieldMap,$sourceArr){
+	private function uploadExtension($targetStr, $fieldMap, $sourceArr){
 		global $CHARSET;
 		$fullPathExt = '';
 		if($this->metaArr[$targetStr]['name']){
@@ -799,12 +799,17 @@ class SpecUploadDwca extends SpecUploadBase{
 						$recMap = Array();
 						foreach($fieldMap as $symbField => $iMap){
 							if(substr($symbField, 0, 8) != 'unmapped'){
-								$indexArr = array_keys($sourceArr, $iMap['field']);
-								$index = array_shift($indexArr);
-								if(array_key_exists($index, $recordArr)){
-									$valueStr = trim($recordArr[$index]);
-									if($cset != $this->encoding) $valueStr = $this->encodeString($valueStr);
-									$recMap[$symbField] = $valueStr;
+								$valueStr = '';
+								$fieldTargetArr = explode(',', $iMap['field']);
+								foreach($fieldTargetArr as $fieldTarget){
+									$indexArr = array_keys($sourceArr, $fieldTarget);
+									$index = array_shift($indexArr);
+									if(array_key_exists($index, $recordArr)){
+										$valueStr = trim($recordArr[$index]);
+										if($cset != $this->encoding) $valueStr = $this->encodeString($valueStr);
+										$recMap[$symbField] = $valueStr;
+									}
+									if($valueStr) break;
 								}
 							}
 						}

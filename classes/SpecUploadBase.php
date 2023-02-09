@@ -1637,12 +1637,20 @@ class SpecUploadBase extends SpecUpload{
 				//Do some cleaning
 				//Populate sciname if null
 				if(!array_key_exists('sciname',$recMap) || !$recMap['sciname']){
-					if(array_key_exists("genus",$recMap)){
+					if(array_key_exists('genus',$recMap)){
 						//Build sciname from individual units supplied by source
-						$sciName = $recMap["genus"];
-						if(array_key_exists("specificepithet",$recMap) && $recMap["specificepithet"]) $sciName .= " ".$recMap["specificepithet"];
-						if(array_key_exists("taxonrank",$recMap) && $recMap["taxonrank"]) $sciName .= " ".$recMap["taxonrank"];
-						if(array_key_exists("infraspecificepithet",$recMap) && $recMap["infraspecificepithet"]) $sciName .= " ".$recMap["infraspecificepithet"];
+						$sciName = $recMap['genus'];
+						if(array_key_exists('specificepithet',$recMap) && $recMap['specificepithet']) $sciName .= ' '.$recMap['specificepithet'];
+						if(array_key_exists('infraspecificepithet',$recMap) && $recMap['infraspecificepithet']){
+							if(array_key_exists('taxonrank',$recMap) && $recMap['taxonrank']){
+								$infraStr = $recMap['taxonrank'];
+								if($infraStr == 'subspecies') $infraStr = 'subsp.';
+								elseif($infraStr == 'ssp.') $infraStr = 'subsp.';
+								elseif($infraStr == 'variety') $infraStr = 'var.';
+								$sciName .= ' '.$infraStr;
+							}
+							$sciName .= ' '.$recMap['infraspecificepithet'];
+						}
 						$recMap['sciname'] = trim($sciName);
 					}
 				}

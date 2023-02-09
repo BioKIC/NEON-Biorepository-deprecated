@@ -732,7 +732,7 @@ class SpecUploadBase extends SpecUpload{
 
 		$this->outputMsg('<li style="margin-left:10px;">Ensuring current identifications are set properly set within central occurrence table...</li>');
 		$sql = 'UPDATE uploadspectemp s INNER JOIN uploaddetermtemp d ON s.dbpk = d.dbpk
-			SET s.sciname = d.sciname, s.identifiedBy = d.identifiedBy, s.dateIdentified = d.dateIdentified, s.family = d.family,
+			SET s.sciname = d.sciname, s.identifiedBy = d.identifiedBy, s.dateIdentified = d.dateIdentified,
 			s.scientificNameAuthorship = d.scientificNameAuthorship, s.identificationQualifier = d.identificationQualifier,
 			s.identificationReferences = d.identificationReferences, s.identificationRemarks = d.identificationRemarks
 			WHERE s.collid IN('.$this->collId.') AND d.collid IN('.$this->collId.') AND d.isCurrent = 1 AND s.sciname IS NULL AND s.identifiedBy IS NULL AND s.dateIdentified IS NULL ';

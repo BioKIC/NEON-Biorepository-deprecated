@@ -724,6 +724,20 @@ class SpecUploadBase extends SpecUpload{
 			'SET localitySecurityReason = "Locked: set via import file" '.
 			'WHERE localitySecurity > 0 AND localitySecurityReason IS NULL AND collid IN('.$this->collId.')';
 		$this->conn->query($sql);
+
+		if($this->sourceDatabaseType == 'specify'){
+			$sql = 'UPDATE uploaddetermtemp SET isCurrent = 1 WHERE collid IN('.$this->collId.')';
+			$this->conn->query($sql);
+		}
+
+		$this->outputMsg('<li style="margin-left:10px;">Ensuring current identifications are set properly set within central occurrence table...</li>');
+		$sql = 'UPDATE uploadspectemp s INNER JOIN uploaddetermtemp d ON s.dbpk = d.dbpk
+			SET s.sciname = d.sciname, s.identifiedBy = if(d.identifiedBy="", NULL, d.identifiedBy), s.dateIdentified = if(d.dateIdentified="", NULL, d.dateIdentified),
+			s.scientificNameAuthorship = d.scientificNameAuthorship, s.identificationQualifier = d.identificationQualifier,
+			s.identificationReferences = d.identificationReferences, s.identificationRemarks = d.identificationRemarks
+			WHERE s.collid IN('.$this->collId.') AND d.collid IN('.$this->collId.') AND d.isCurrent = 1 AND s.sciname IS NULL AND s.identifiedBy IS NULL AND s.dateIdentified IS NULL ';
+		$this->conn->query($sql);
+
 	}
 
 	public function getTransferReport(){
@@ -1116,7 +1130,7 @@ class SpecUploadBase extends SpecUpload{
 
 	private function transferGeneticLinks(){
 		$this->outputMsg('<li>Linking genetic records (aka associatedSequences)...</li>');
-		$sql = 'SELECT occid, associatedSequences FROM uploadspectemp WHERE occid IS NOT NULL AND associatedSequences IS NOT NULL ';
+		$sql = 'SELECT occid, associatedSequences FROM uploadspectemp WHERE collid IN('.$this->collId.') AND occid IS NOT NULL AND associatedSequences IS NOT NULL ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$seqArr = explode(';', str_replace(array(',','|',''),';',$r->associatedSequences));
@@ -1623,12 +1637,20 @@ class SpecUploadBase extends SpecUpload{
 				//Do some cleaning
 				//Populate sciname if null
 				if(!array_key_exists('sciname',$recMap) || !$recMap['sciname']){
-					if(array_key_exists("genus",$recMap)){
+					if(array_key_exists('genus',$recMap)){
 						//Build sciname from individual units supplied by source
-						$sciName = $recMap["genus"];
-						if(array_key_exists("specificepithet",$recMap) && $recMap["specificepithet"]) $sciName .= " ".$recMap["specificepithet"];
-						if(array_key_exists("taxonrank",$recMap) && $recMap["taxonrank"]) $sciName .= " ".$recMap["taxonrank"];
-						if(array_key_exists("infraspecificepithet",$recMap) && $recMap["infraspecificepithet"]) $sciName .= " ".$recMap["infraspecificepithet"];
+						$sciName = $recMap['genus'];
+						if(array_key_exists('specificepithet',$recMap) && $recMap['specificepithet']) $sciName .= ' '.$recMap['specificepithet'];
+						if(array_key_exists('infraspecificepithet',$recMap) && $recMap['infraspecificepithet']){
+							if(array_key_exists('taxonrank',$recMap) && $recMap['taxonrank']){
+								$infraStr = $recMap['taxonrank'];
+								if($infraStr == 'subspecies') $infraStr = 'subsp.';
+								elseif($infraStr == 'ssp.') $infraStr = 'subsp.';
+								elseif($infraStr == 'variety') $infraStr = 'var.';
+								$sciName .= ' '.$infraStr;
+							}
+							$sciName .= ' '.$recMap['infraspecificepithet'];
+						}
 						$recMap['sciname'] = trim($sciName);
 					}
 				}
@@ -1647,24 +1669,23 @@ class SpecUploadBase extends SpecUpload{
 						$recMap['sciname'] = trim($parsedArr['unitname1'].' '.$parsedArr['unitname2'].' '.$parsedArr['unitind3'].' '.$parsedArr['unitname3']);
 					}
 				}
+				if(!isset($recMap['sciname']) || !$recMap['sciname']) return false;
 
-				if((isset($recMap['identifiedby']) && $recMap['identifiedby']) || (isset($recMap['dateidentified']) && $recMap['dateidentified']) || (isset($recMap['sciname']) && $recMap['sciname'])){
-					if(!isset($recMap['identifiedby']) || !$recMap['identifiedby']) $recMap['identifiedby'] = 'not specified';
-					if(!isset($recMap['dateidentified']) || !$recMap['dateidentified']) $recMap['dateidentified'] = 'not specified';
-					$sqlFragments = $this->getSqlFragments($recMap,$this->identFieldMap);
-					if($sqlFragments){
-						$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
-						//echo "<div>SQL: ".$sql."</div>";
-						if($this->conn->query($sql)){
-							$this->identTransferCount++;
-							if($this->identTransferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->identTransferCount.'</li>');
-						}
-						else{
-							$outStr = '<li>FAILED adding identification history record #'.$this->identTransferCount.'</li>';
-							$outStr .= '<li style="margin-left:10px;">Error: '.$this->conn->error.'</li>';
-							$outStr .= '<li style="margin:0px 0px 10px 10px;">SQL: '.$sql.'</li>';
-							$this->outputMsg($outStr);
-						}
+				if(!isset($recMap['identifiedby'])) $recMap['identifiedby'] = '';
+				if(!isset($recMap['dateidentified'])) $recMap['dateidentified'] = '';
+				$sqlFragments = $this->getSqlFragments($recMap, $this->identFieldMap);
+				if($sqlFragments){
+					$sql = 'INSERT INTO uploaddetermtemp(collid'.$sqlFragments['fieldstr'].') VALUES('.$this->collId.$sqlFragments['valuestr'].')';
+					//echo '<div>SQL: '.$sql.'</div>'; exit;
+					if($this->conn->query($sql)){
+						$this->identTransferCount++;
+						if($this->identTransferCount%1000 == 0) $this->outputMsg('<li style="margin-left:10px;">Count: '.$this->identTransferCount.'</li>');
+					}
+					else{
+						$outStr = '<li>FAILED adding identification history record #'.$this->identTransferCount.'</li>';
+						$outStr .= '<li style="margin-left:10px;">Error: '.$this->conn->error.'</li>';
+						$outStr .= '<li style="margin:0px 0px 10px 10px;">SQL: '.$sql.'</li>';
+						$this->outputMsg($outStr);
 					}
 				}
 			}
@@ -1851,6 +1872,9 @@ class SpecUploadBase extends SpecUpload{
 						if($valueStr){
 							$sqlValues .= ',"'.$valueStr.'"';
 						}
+						elseif($symbField == 'identifiedby' || $symbField == 'dateidentified'){
+							$sqlValues .= ',""';
+						}
 						else{
 							$sqlValues .= ",NULL";
 						}
@@ -1925,7 +1949,7 @@ class SpecUploadBase extends SpecUpload{
 			$tPath .= '/';
 		}
 		if(file_exists($tPath.'downloads')){
-			$tPath .= 'downloads/';
+			$tPath .= 'data/';
 		}
 		$this->uploadTargetPath = $tPath;
 	}

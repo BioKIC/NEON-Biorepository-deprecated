@@ -291,9 +291,6 @@ CREATE TABLE `glossarycategorylink` (
 );
 
 
-ALTER TABLE `guidoccurrences` 
-  ADD COLUMN `occurrenceID` VARCHAR(45) NULL AFTER `archiveobj`;
-
 ALTER TABLE `igsnverification` 
   CHANGE COLUMN `status` `syncStatus` VARCHAR(45) NULL DEFAULT NULL ;
 
@@ -308,10 +305,34 @@ ALTER TABLE `igsnverification`
 
 ALTER TABLE `igsnverification` 
   ADD CONSTRAINT `FK_igsn_occid`  FOREIGN KEY (`occidInPortal`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE;
-  
+
+
+ALTER TABLE `images` 
+  DROP FOREIGN KEY `FK_photographeruid`;
+
+ALTER TABLE `images` 
+  CHANGE COLUMN `thumbnailurl` `thumbnailUrl` VARCHAR(255) NULL DEFAULT NULL ,
+  CHANGE COLUMN `originalurl` `originalUrl` VARCHAR(255) NULL DEFAULT NULL ,
+  CHANGE COLUMN `archiveurl` `archiveUrl` VARCHAR(255) NULL DEFAULT NULL ,
+  CHANGE COLUMN `photographeruid` `photographerUid` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `imagetype` `imageType` VARCHAR(50) NULL DEFAULT NULL ,
+  CHANGE COLUMN `sourceurl` `sourceUrl` VARCHAR(255) NULL DEFAULT NULL ,
+  CHANGE COLUMN `accessrights` `accessRights` VARCHAR(255) NULL DEFAULT NULL ,
+  CHANGE COLUMN `sortsequence` `sortSequence` INT(10) UNSIGNED NOT NULL DEFAULT 50 ;
+
+ALTER TABLE `images` 
+  ADD CONSTRAINT `FK_photographeruid`  FOREIGN KEY (`photographerUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
+
 ALTER TABLE `images` 
   ADD COLUMN `hashFunction` VARCHAR(45) NULL AFTER `sourceIdentifier`,
-  ADD COLUMN `hashValue` VARCHAR(45) NULL AFTER `hashFunction`;
+  ADD COLUMN `hashValue` VARCHAR(45) NULL AFTER `hashFunction`,
+  ADD COLUMN `recordID` VARCHAR(45) NULL AFTER `defaultDisplay`;
+
+ALTER TABLE `images` 
+  ADD INDEX `IX_images_recordID` (`recordID` ASC)
+  
+UPDATE images i INNER JOIN guidimages g ON i.imgid = g.imgid SET i.recordID = g.guid WHERE i.recordID IS NULL;
+
 
 ALTER TABLE `imagetagkey` 
   ADD COLUMN `resourceLink` VARCHAR(250) NULL AFTER `description_en`,
@@ -391,14 +412,7 @@ ALTER TABLE `omcollections`
 #  ADD COLUMN `collectionGuid` TEXT NULL AFTER `aggKeysStr`;
 
 ALTER TABLE `omcollections` 
-  ADD COLUMN `recordID` TEXT NULL AFTER `aggKeysStr`;
-
-ALTER TABLE `omoccurrences` 
-  DROP FOREIGN KEY `FK_omoccurrences_recbyid`;
-
-ALTER TABLE `omoccurrences` 
-  DROP COLUMN `recordedbyid`,
-  DROP INDEX `FK_recordedbyid` ;
+  ADD COLUMN `recordID` VARCHAR(45) NULL AFTER `aggKeysStr`;
 
 ALTER TABLE `omoccurdeterminations` 
   DROP FOREIGN KEY `FK_omoccurdets_idby`;
@@ -474,6 +488,31 @@ CREATE TABLE `omoccuraccesssummarylink` (
 DROP TABLE omoccuraccessstats;
 
 
+CREATE TABLE `omoccurarchive` (
+  `archiveID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `archiveObj` TEXT NOT NULL,
+  `occid` INT UNSIGNED NULL,
+  `catalogNumber` VARCHAR(45) NULL,
+  `occurrenceID` VARCHAR(255) NULL,
+  `recordID` VARCHAR(45) NULL,
+  `archiveReason` VARCHAR(45) NULL,
+  `remarks` VARCHAR(150) NULL,
+  `createdUid` INT UNSIGNED NULL,
+  `initialTimestamp` TIMESTAMP NULL DEFAULT current_timestamp,
+  PRIMARY KEY (`archiveID`),
+  INDEX `IX_occurarchive_catnum` (`catalogNumber` ASC),
+  INDEX `IX_occurarchive_occurrenceID` (`occurrenceID` ASC),
+  INDEX `IX_occurarchive_recordID` (`recordID` ASC),
+  INDEX `FK_occurarchive_uid_idx` (`createdUid` ASC),
+  UNIQUE INDEX `UQ_occurarchive_occid` (`occid` ASC),
+  CONSTRAINT `FK_occurarchive_uid` FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
+
+INSERT INTO omoccurarchive(archiveObj, occid, recordID)
+SELECT archiveObj, occid, guid FROM guidoccurrences WHERE archiveObj IS NOT NULL;
+
+UPDATE omarchive SET occid = SUBSTRING_INDEX(SUBSTRING(archiveObj, 11), '"', 1) WHERE occid IS NULL;
+
+
 ALTER TABLE `omoccurdatasets` 
   CHANGE COLUMN `datasetid` `datasetID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
   ADD COLUMN `datasetIdentifier` VARCHAR(150) NULL AFTER `description`,
@@ -498,13 +537,12 @@ ALTER TABLE `omoccurdeterminations`
   ADD COLUMN `identificationVerificationStatus` VARCHAR(45) NULL AFTER `taxonRemarks`,
   ADD COLUMN `taxonConceptID` VARCHAR(45) NULL AFTER `identificationVerificationStatus`,
   ADD COLUMN `recordID` VARCHAR(45) NULL AFTER `sortSequence`,
-  CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(60) NOT NULL DEFAULT 'unknown' ,
-  CHANGE COLUMN `dateIdentified` `dateIdentified` VARCHAR(45) NOT NULL DEFAULT 's.d.' ,
+  CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(255) NOT NULL DEFAULT '' ,
+  CHANGE COLUMN `dateIdentified` `dateIdentified` VARCHAR(45) NOT NULL DEFAULT '' ,
   CHANGE COLUMN `sourceIdentifier` `identificationID` VARCHAR(45) NULL DEFAULT NULL ,
   ADD INDEX `FK_omoccurdets_agentID_idx` (`identifiedByAgentID` ASC);
 
 ALTER TABLE `omoccurdeterminations` 
-  CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(255) NOT NULL ,
   CHANGE COLUMN `family` `family` VARCHAR(255) NULL DEFAULT NULL ,
   CHANGE COLUMN `sciname` `sciname` VARCHAR(255) NOT NULL ,
   CHANGE COLUMN `scientificNameAuthorship` `scientificNameAuthorship` VARCHAR(255) NULL DEFAULT NULL ,
@@ -525,8 +563,12 @@ ALTER TABLE `omoccurdeterminations`
   ADD CONSTRAINT `FK_omoccurdets_uid`  FOREIGN KEY (`enteredByUid`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
 ALTER TABLE `omoccurdeterminations` 
+  ADD INDEX `IX_omoccurdets_recordID` (`recordID` ASC),
   ADD INDEX `FK_omoccurdets_dateModified` (`dateLastModified` ASC),
   ADD INDEX `FK_omoccurdets_initialTimestamp` (`initialTimestamp` ASC);
+  
+UPDATE omoccurdeterminations d INNER JOIN guidoccurdeterminations g ON d.detid = g.detid SET d.recordID = g.guid WHERE d.recordID IS NULL;
+
 
 INSERT IGNORE INTO omoccurdeterminations(occid, identifiedBy, dateIdentified, family, sciname, verbatimIdentification, scientificNameAuthorship, tidInterpreted, 
 identificationQualifier, genus, specificEpithet, verbatimTaxonRank, infraSpecificEpithet, isCurrent, identificationReferences, identificationRemarks, 
@@ -624,7 +666,24 @@ ALTER TABLE `omcrowdsourcequeue`
 
 
 ALTER TABLE `omoccurassociations` 
-  CHANGE COLUMN `condition` `conditionOfAssociate` VARCHAR(250) NULL DEFAULT NULL ;
+  ADD COLUMN `relationshipID` VARCHAR(45) NULL COMMENT 'dwc:relationshipOfResourceID (e.g. ontology link)' AFTER `relationship`,
+  ADD COLUMN `accordingTo` VARCHAR(45) NULL COMMENT 'dwc:relationshipAccordingTo (verbatim text)' AFTER `notes`,
+  ADD COLUMN `sourceIdentifier` VARCHAR(45) NULL COMMENT 'dwc:resourceRelationshipID, if association was defined externally ' AFTER `accordingTo`,
+  ADD COLUMN `recordID` VARCHAR(45) NULL COMMENT 'dwc:resourceRelationshipID, if association was defined internally ' AFTER `sourceIdentifier`,
+  CHANGE COLUMN `condition` `conditionOfAssociate` VARCHAR(250) NULL DEFAULT NULL,
+  CHANGE COLUMN `relationship` `relationship` VARCHAR(150) NOT NULL COMMENT 'dwc:relationshipOfResource',
+  CHANGE COLUMN `identifier` `identifier` VARCHAR(250) NULL DEFAULT NULL COMMENT 'dwc:relatedResourceID (object identifier)',
+  CHANGE COLUMN `resourceUrl` `resourceUrl` VARCHAR(250) NULL DEFAULT NULL COMMENT 'link to resource',
+  CHANGE COLUMN `dateEmerged` `establishedDate` DATETIME NULL DEFAULT NULL COMMENT 'dwc:relationshipEstablishedDate',
+  CHANGE COLUMN `notes` `notes` VARCHAR(250) NULL DEFAULT NULL COMMENT 'dwc:relationshipRemarks';
+  
+
+ALTER TABLE `omoccurrences` 
+  DROP FOREIGN KEY `FK_omoccurrences_recbyid`;
+
+ALTER TABLE `omoccurrences` 
+  DROP COLUMN `recordedbyid`,
+  DROP INDEX `FK_recordedbyid` ;
 
 ALTER TABLE `omoccurrences` 
   DROP INDEX `Index_latlng`,
@@ -636,6 +695,7 @@ ALTER TABLE `omoccurrences`
   DROP FOREIGN KEY `FK_omoccurrences_uid`;
 
 ALTER TABLE `omoccurrences` 
+  ADD COLUMN `recordID` VARCHAR(45) NULL AFTER `dynamicFields`,
   CHANGE COLUMN `tidinterpreted` `tidInterpreted` INT(10) UNSIGNED NULL DEFAULT NULL ,
   CHANGE COLUMN `fieldnumber` `fieldNumber` VARCHAR(45) NULL DEFAULT NULL ,
   CHANGE COLUMN `genericcolumn1` `genericColumn1` VARCHAR(100) NULL DEFAULT NULL ,
@@ -643,9 +703,15 @@ ALTER TABLE `omoccurrences`
   CHANGE COLUMN `observeruid` `observerUid` INT(10) UNSIGNED NULL DEFAULT NULL ,
   CHANGE COLUMN `processingstatus` `processingStatus` VARCHAR(45) NULL DEFAULT NULL ;
 
+UPDATE omoccurrences o INNER JOIN guidoccurrences g ON o.occid = g.occid SET o.recordID = g.guid WHERE o.recordID IS NULL;
+
+ALTER TABLE `omoccurrences` 
+  ADD INDEX `IX_omoccurrences_recordID` (`recordID` ASC);
+
 ALTER TABLE `omoccurrences` 
   ADD CONSTRAINT `FK_omoccurrences_tid`  FOREIGN KEY (`tidInterpreted`)  REFERENCES `taxa` (`tid`)  ON DELETE SET NULL  ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_omoccurrences_uid`  FOREIGN KEY (`observerUid`)  REFERENCES `users` (`uid`);
+
 
 
 #DROP TABLE IF EXISTS `portaloccurrences`;
@@ -682,7 +748,7 @@ CREATE TABLE `portalpublications` (
   `criteriaJson` text DEFAULT NULL,
   `includeDeterminations` int(11) DEFAULT 1,
   `includeImages` int(11) DEFAULT 1,
-  `autoUpdate` int(11) DEFAULT 0,
+  `autoUpdate` int(11) DEFAULT 1,
   `lastDateUpdate` datetime DEFAULT NULL,
   `updateInterval` int(11) DEFAULT NULL,
   `createdUid` int(10) unsigned DEFAULT NULL,
@@ -804,6 +870,23 @@ ALTER TABLE `taxalinks`
 ALTER TABLE `taxalinks` 
   DROP INDEX `Index_unique` ;
 
+ALTER TABLE `uploaddetermtemp` 
+  ADD COLUMN `higherClassification` VARCHAR(150) NULL AFTER `dateIdentifiedInterpreted`,
+  ADD COLUMN `verbatimIdentification` VARCHAR(250) NULL AFTER `sciname`,
+  ADD COLUMN `family` VARCHAR(255) NULL AFTER `identificationQualifier`,
+  ADD COLUMN `genus` VARCHAR(45) NULL AFTER `family`,
+  ADD COLUMN `specificEpithet` VARCHAR(45) NULL AFTER `genus`,
+  ADD COLUMN `verbatimTaxonRank` VARCHAR(45) NULL AFTER `specificEpithet`,
+  ADD COLUMN `taxonRank` VARCHAR(45) NULL AFTER `verbatimTaxonRank`,
+  ADD COLUMN `infraSpecificEpithet` VARCHAR(45) NULL AFTER `taxonRank`,
+  ADD COLUMN `taxonRemarks` VARCHAR(2000) NULL AFTER `identificationRemarks`,
+  ADD COLUMN `identificationVerificationStatus` VARCHAR(45) NULL AFTER `taxonRemarks`,
+  ADD COLUMN `taxonConceptID` VARCHAR(45) NULL AFTER `identificationVerificationStatus`,
+  CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(255) NOT NULL DEFAULT '',
+  CHANGE COLUMN `dateIdentified` `dateIdentified` VARCHAR(45) NOT NULL DEFAULT '',
+  CHANGE COLUMN `sciname` `sciname` VARCHAR(255) NOT NULL ;
+
+
 ALTER TABLE `uploadspecparameters` 
   DROP FOREIGN KEY `FK_uploadspecparameters_coll`;
 
@@ -843,6 +926,46 @@ ALTER TABLE `uploadspectemp`
   DROP COLUMN `materialSampleID`,
   ADD COLUMN `materialSampleJSON` TEXT NULL AFTER `paleoJSON`;
 
+
+ALTER TABLE `useraccesstokens` 
+  CHANGE COLUMN `tokid` `tokenID` INT(11) NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  ADD COLUMN `experationDate` DATETIME NULL AFTER `device`;
+
+ALTER TABLE `users` 
+  DROP COLUMN `usergroups`,
+  DROP COLUMN `defaultrights`,
+  DROP COLUMN `ispublic`,
+  DROP COLUMN `Biography`,
+  ADD COLUMN `username` VARCHAR(45) NULL AFTER `guid`,
+  ADD COLUMN `password` VARCHAR(45) NULL AFTER `username`,
+  ADD COLUMN `lastLoginDate` DATETIME NULL AFTER `password`,
+  ADD COLUMN `loginModified` DATETIME NULL AFTER `lastLoginDate`,
+  CHANGE COLUMN `firstname` `firstName` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `lastname` `lastName` VARCHAR(45) NOT NULL ,
+  CHANGE COLUMN `RegionOfInterest` `regionOfInterest` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `rightsholder` `rightsHolder` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `accessrights` `accessrRights` VARCHAR(250) NULL DEFAULT NULL ,
+  CHANGE COLUMN `validated` `validated` INT NOT NULL DEFAULT 0 ,
+  CHANGE COLUMN `InitialTimeStamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+
+UPDATE users u INNER JOIN userlogin l ON u.uid = l.uid
+SET u.username = l.username, u.password = l.password, u.lastLoginDate = l.lastlogindate
+WHERE u.username IS NULL;
+
+ALTER TABLE `userroles` 
+  DROP FOREIGN KEY `FK_userrole_uid_assigned`;
+
+ALTER TABLE `userroles` 
+  CHANGE COLUMN `userroleid` `userRoleID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+  CHANGE COLUMN `tablename` `tableName` VARCHAR(45) NULL DEFAULT NULL ,
+  CHANGE COLUMN `tablepk` `tablePK` INT(11) NULL DEFAULT NULL ,
+  CHANGE COLUMN `uidassignedby` `uidAssignedBy` INT(10) UNSIGNED NULL DEFAULT NULL ,
+  CHANGE COLUMN `initialtimestamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
+
+ALTER TABLE `userroles` 
+  ADD CONSTRAINT `FK_userrole_uid_assigned`  FOREIGN KEY (`uidAssignedBy`)  REFERENCES `users` (`uid`)  ON DELETE SET NULL  ON UPDATE CASCADE;
 
 UPDATE userroles SET tablename = "fmprojects" WHERE tablename = "fmproject";
 

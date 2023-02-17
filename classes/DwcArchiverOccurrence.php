@@ -22,7 +22,6 @@ class DwcArchiverOccurrence extends Manager{
 	public function getOccurrenceArr(){
 		if($this->schemaType == 'pensoft') $this->occurDefArr['fields']['Taxon_Local_ID'] = 'v.tid AS Taxon_Local_ID';
 		else $this->occurDefArr['fields']['id'] = 'o.occid';
-		$this->occurDefArr['terms']['id'] = 'Internal identifier for occurrence record used by the Symbiota instance';
 		$this->occurDefArr['terms']['institutionCode'] = 'http://rs.tdwg.org/dwc/terms/institutionCode';
 		$this->occurDefArr['fields']['institutionCode'] = 'IFNULL(o.institutionCode,c.institutionCode) AS institutionCode';
 		$this->occurDefArr['terms']['collectionCode'] = 'http://rs.tdwg.org/dwc/terms/collectionCode';

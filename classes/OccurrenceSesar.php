@@ -288,12 +288,24 @@ class OccurrenceSesar extends Manager {
 							else $sampleArr[$childNode->nodeName] = $childNode->nodeValue;
 						}
 						if(isset($sampleArr['valid'])){
-							$msgStr = 'valid = '.$sampleArr['valid'];
-							if(isset($sampleArr['catnum']) && $sampleArr['catnum']) $msgStr .= '; ID = '.$sampleArr['catnum'];
-							if(isset($sampleArr['status']) && $sampleArr['status']) $msgStr .= '; status = '.$sampleArr['status'];
-							if(isset($sampleArr['error']) && $sampleArr['error']) $msgStr .= '; error = '.$sampleArr['error'];
 							$status = false;
-							$this->logOrEcho('FAILED: '.$msgStr,1);
+							$occid = 0;
+							$igsn = '';
+							$msgStr = 'valid = '.$sampleArr['valid'];
+							if(isset($sampleArr['catnum']) && $sampleArr['catnum']){
+								$msgStr .= '; ID = '.$sampleArr['catnum'];
+								$occid = trim($sampleArr['catnum'], '[] ');
+							}
+							if(isset($sampleArr['error']) && $sampleArr['error']){
+								$msgStr .= '; error = '.$sampleArr['error'];
+								if(preg_match('/(NEON[A-Z0-9]{5})/', $sampleArr['error'],$m)){
+									$igsn = $m[1];
+								}
+							}
+							if($occid && $igsn){
+								$status = $this->updateOccurrenceID($igsn, $occid);
+							}
+							if(!$status) $this->logOrEcho('FAILED: '.$msgStr,1);
 						}
 						elseif(isset($sampleArr['igsn']) && $sampleArr['igsn']){
 							$occid = 0;

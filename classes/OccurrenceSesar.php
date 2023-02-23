@@ -247,7 +247,7 @@ class OccurrenceSesar extends Manager {
 		$status = false;
 		//$this->logOrEcho('Submitting XML to SESAR Systems');
 		$baseUrl = 'https://app.geosamples.org/webservices/upload.php';
-		if(!$this->productionMode) $baseUrl = 'https://sesardev.geosamples.org/webservices/upload.php';		// TEST URI
+		if(!$this->productionMode) $baseUrl = 'https://app-sandbox.geosamples.org/webservices/upload.php';		// TEST URI
 		$contentStr = $this->igsnDom->saveXML();
 		$requestData = array ('username' => $this->sesarUser, 'password' => $this->sesarPwd, 'content' => $contentStr);
 		$resArr = $this->getSesarApiData($baseUrl, 'post', $requestData);
@@ -298,9 +298,12 @@ class OccurrenceSesar extends Manager {
 						elseif(isset($sampleArr['igsn']) && $sampleArr['igsn']){
 							$occid = 0;
 							$dbStatus = false;
-							if(preg_match('/\[\s*(\d+)\s*\]\s*$/', $sampleArr['name'],$m)){
-								$occid = $m[1];
-								$dbStatus = $this->updateOccurrenceID($sampleArr['igsn'], $occid);
+							if(preg_match('/\[\s*(\d+)\s*\]\s*$/', $sampleArr['name'],$m1)){
+								$occid = $m1[1];
+								if(preg_match('/(NEON[A-Z0-9]{5})/', $sampleArr['igsn'],$m2)){
+									$igsn = $m2[1];
+									$dbStatus = $this->updateOccurrenceID($igsn, $occid);
+								}
 							}
 							else{
 								$this->errorMessage = 'WARNING: unable to extract occid to add igsn ('.$sampleArr['name'].')';
@@ -409,9 +412,9 @@ class OccurrenceSesar extends Manager {
 			}
 		}
 		else{
-			$this->errorMessage = 'ERROR adding IGSN to occurrence table: IGSN ('.$igsn.') not 9 digits';
+			$this->errorMessage = 'FATAL ERROR adding IGSN to occurrence table: IGSN ('.$igsn.') not 9 digits';
 			//$this->logOrEcho('ERROR adding IGSN to occurrence table: IGSN ('.$igsn.') not 9 digits',2);
-			$status = false;
+			exit;
 		}
 		return $status;
 	}
